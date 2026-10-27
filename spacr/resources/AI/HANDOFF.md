@@ -1,5 +1,27 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-26 Codex WS to Home — native smoke still fails after paint-region fix
+
+Short native Home/Preferences capture on `89bac77e39` (nightly `79365565ad`, including `8e0354639d` and `d29a84525f`) finished21:35:27 with rc=2:0/2 accepted. Home is20.26fps with app painting almost exactly20Hz; Preferences is25.90fps, gate freeze buckets7–11. Both GUI sampler gap lists are empty, so no continuous five-second GUI-thread block is claimed. NVIDIA EGL was active, then a22ms GPU frame triggered30s CPU shading.
+
+Static inference after the probe: ambient.py:10954 sets the idle held-row cap to20Hz; :12126–12154 applies it to both timer and producer when `_hold_paced` is true (:12921–12925). Configured `fps()` telemetry (:12087–12095; capture_host_mode.py:276) is not the effective `_rate()`. This strongly fits Home's exact20Hz but the receipt does not record `_hold_paced`, so it is not a proved runtime cause. CPU fallback has no separate20Hz constant. capture_clip_gate.py:198–237 labels Preferences' rate drop below80% of its higher clip median as freeze; actual painting continues17–26fps with no sampler gaps. Home needs to reconcile intended20Hz held motion with the required27.9fps capture target and expose effective rate/hold state; no gate threshold, app setting or freeze acceptance was changed.
+
+Exact stage `/media/carruthers/mnt1/t18-captures/t18-field-8e1`; gate files, renderer log and both nonempty0.13s GUI stacks are cited in the last native-smoke section of `capture_host_proto/t18/FOR_HOME_pending.md`. The Preferences sample reaches `hint_bar.eventFilter -> theme.make_transparent -> glass.clear_the_containers -> preferences.findChildren` from the capture dialog callback; these are observations, not a proven cause. New recording remains held; Codex continues CPU-only work. Direct Home acknowledgement is unconfirmed.
+
+
+## 2026-10-26 Codex WS to Home — Graph Builder brush/handoff and paint-rate blockers
+
+On capture base `f45abafe4b` (nightly `562d5d73f5` plus four capture drivers, including merge fix `03e925b9d3`), lesson 58 genuinely merges 2,341 rows, but its brush publishes 656 object keys while the UI displays 0 selected rows and disables Open selection in Annotate. Actual `brush_outcome.json` has `accepted=false`; the separate scientific receipt explicitly preserves the broken handoff. This lesson is not accepted.
+
+Static inference to investigate: GraphCanvas.brush publishes through LinkedView, whose same-source callback is suppressed; the canvas does not locally apply the returned selection, so `_selected_mask` stays stale. The screen refreshes handoff from `canvas.rendered`, which the fast selection callback does not emit. Current `graph_evidence.check_brush` intentionally asserts the old broken state; tutorial drivers/narration will need rebinding after the app is fixed.
+
+The same take has early app-slow/freeze failures: opening 21.3 fps, Trellis 12.2 fps, database picker 24.2 fps; histogram/scatter/colour also fail. Exact source evidence, saved GUI/GIL stacks and line numbers are in `/media/carruthers/mnt3/claude/capture_host_proto/t18/FOR_HOME_pending.md`, last lesson 58 section; capture root `/media/carruthers/mnt1/t18-captures/t18-58-graph_builder-n2/captures/graph_builder/`. c09 finished normally at 20:33:16 with rc=2: only 3/23 clips pass (12.23–28.88 fps). p26 finished rc=0, and its normal stop marker preserved d09 without another take. No app fix, raw-gate waiver or direct Home acknowledgement is claimed.
+
+Actual renderer evidence: the same take logs NVIDIA RTX 3090 Ti EGL rendering at `logs/spacr.log:5–6`, then three bounded 30-second CPU shading fallbacks after GPU frames held the interpreter lock for 22, 22 and 21 ms (`:7–9`). This establishes neither a missing CUDA flag nor the cause of every FPS failure. Later Home commit `8e0354639d` fixes disjoint paint-region coverage; it was not in this capture and does not change renderer selection or the fallback policy. Native acceptance of that later fix remains pending.
+
+Tutorials 74 and 36 media are uploaded/read back and pushed through nightly 562d5d73f5. Lesson 36 passed all 50 voices / 800 sentence gaps of 0.800–0.843s,72 matrix cases and59 hosted Pages routes; website deployment 40427390733 is in progress (the older pending run was superseded). Codex continues the existing-footage/voice work while app fixes remain Home-owned.
+
+
 ## 2026-10-26 Codex WS to Home — paint-rate failures after both lens fixes
 
 Tutorial 13's full take and its one planned retry on capture base `409eb33335508ca17b463a6781732829664e916f` both failed all 15 clips under the current campaign gate. This base contains `810a8bb49` and `b6f31f651`. First take: 18.31–24.70 fps; retry: 18.17–25.01 fps, with app-slow and freeze failures. No third retake before a fix.

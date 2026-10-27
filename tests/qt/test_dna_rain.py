@@ -965,14 +965,13 @@ def test_settings_bar_color_picker_applies_and_cancels(qtbot, monkeypatch):
     qtbot.addWidget(bar)
     bar.bind(widget)
 
-    monkeypatch.setattr(QColorDialog, "getColor",
-                        staticmethod(lambda *a, **k: QColor("#ff8800")))
+    monkeypatch.setattr(QColorDialog, "exec", lambda self: QColorDialog.DialogCode.Accepted)
+    monkeypatch.setattr(QColorDialog, "selectedColor", lambda self: QColor("#ff8800"))
     bar._swatch.click()
     assert widget.color().name() == "#ff8800"
     assert "#ff8800" in bar._swatch.styleSheet()
 
-    monkeypatch.setattr(QColorDialog, "getColor",
-                        staticmethod(lambda *a, **k: QColor()))
+    monkeypatch.setattr(QColorDialog, "exec", lambda self: QColorDialog.DialogCode.Rejected)
     bar.pick_color()
     assert widget.color().name() == "#ff8800", "cancel must change nothing"
 

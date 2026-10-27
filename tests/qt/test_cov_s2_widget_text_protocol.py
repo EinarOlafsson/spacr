@@ -88,15 +88,28 @@ class TestTheColourHelperOpensOnACopy:
 
         seen = {}
 
-        class Recorder:
-            ColorDialogOption = QColorDialog.ColorDialogOption
-
-            @staticmethod
-            def getColor(initial, parent, title, options):
-                seen["initial"] = initial
+        class Recorder(QColorDialog):
+            def __init__(self, parent=None):
+                super().__init__(parent)
                 seen["parent"] = parent
+
+            def setCurrentColor(self, initial):
+                seen["initial"] = initial
+                super().setCurrentColor(initial)
+
+            def setWindowTitle(self, title):
                 seen["title"] = title
-                seen["options"] = options
+                super().setWindowTitle(title)
+
+            def setOption(self, option, enabled=True):
+                seen["options"] = option
+                super().setOption(option, enabled)
+
+            def exec(self):
+                return (self.DialogCode.Accepted if QColor(answer).isValid()
+                        else self.DialogCode.Rejected)
+
+            def selectedColor(self):
                 return QColor(answer)
 
         monkeypatch.setattr(colour_picker, "QColorDialog", Recorder)

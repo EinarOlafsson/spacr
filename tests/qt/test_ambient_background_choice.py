@@ -29,6 +29,14 @@ def background_store(monkeypatch, tmp_path):
     return settings
 
 
+def _colour_dialog_answer(monkeypatch, answer):
+    colour = QColor(answer)
+    monkeypatch.setattr(QColorDialog, "exec", lambda self: (
+        QColorDialog.DialogCode.Accepted if colour.isValid()
+        else QColorDialog.DialogCode.Rejected))
+    monkeypatch.setattr(QColorDialog, "selectedColor", lambda self: QColor(colour))
+
+
 def _save(dialog):
     boxes = dialog.findChildren(QDialogButtonBox)
     next(box.button(QDialogButtonBox.Save) for box in boxes
@@ -76,8 +84,7 @@ def test_background_picker_is_independent_of_palette_and_cancelable(
     preferences.set_theme_choice("data_art_point_atlas")
     original_pair = preferences._ambient_custom_colors()
     original_palette = preferences.get_ambient_palette()
-    monkeypatch.setattr(QColorDialog, "getColor",
-                        lambda *_args: QColor("#3a3a3a"))
+    _colour_dialog_answer(monkeypatch, "#3a3a3a")
     dialog = preferences.PreferencesDialog()
     qtbot.addWidget(dialog)
     choose = dialog.findChild(QPushButton, "AmbientBackgroundColor")
@@ -85,11 +92,10 @@ def test_background_picker_is_independent_of_palette_and_cancelable(
     assert choose.isEnabled()
     assert "#191919" in choose.text()
     assert reset.isEnabled()
-    monkeypatch.setattr(QColorDialog, "getColor", lambda *_args: QColor())
+    _colour_dialog_answer(monkeypatch, None)
     choose.click()
     assert "#191919" in choose.text()
-    monkeypatch.setattr(QColorDialog, "getColor",
-                        lambda *_args: QColor("#3a3a3a"))
+    _colour_dialog_answer(monkeypatch, "#3a3a3a")
     choose.click()
     assert "#3a3a3a" in choose.text()
     assert reset.isEnabled()
@@ -156,8 +162,7 @@ def test_apply_revert_restores_background_and_unchanged_apply_does_not_reshade(
     widget = ambient.AmbientWidget(theme="blobs", palette="spacr", seed=5)
     qtbot.addWidget(widget)
     dialog, _owner, _accepted = _dialog(qtbot)
-    monkeypatch.setattr(QColorDialog, "getColor",
-                        lambda *_args: QColor("#454545"))
+    _colour_dialog_answer(monkeypatch, "#454545")
     dialog.findChild(QPushButton, "AmbientBackgroundColor").click()
     initial = widget.background_color()
     question = _apply(dialog, qtbot)

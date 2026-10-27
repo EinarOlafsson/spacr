@@ -361,19 +361,32 @@ def test_the_run_is_given_exactly_what_a_window_that_built_everything_gives(
 def _styling(screen) -> dict:
     """How Qt styles each built control: the style class, polish, size."""
     from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QLayout
 
     found = {}
     for key, control in screen._settings_model._widgets.built_items():
         sheeted = control
         while sheeted is not None and not sheeted.styleSheet():
             sheeted = sheeted.parentWidget()
-        # Hidden editors can retain a parent's pre-polish layout hint.
+        # Hidden editors can retain nested pre-polish layout hints.
         # Compare fresh native style metrics in both construction orders.
         for child in reversed(control.findChildren(QWidget)):
             layout = child.layout()
             if layout is not None:
                 layout.invalidate()
             child.updateGeometry()
+        for layout in reversed(control.findChildren(QLayout)):
+            layout.invalidate()
+        layout = control.layout()
+        if layout is not None:
+            layout.invalidate()
+            layout.activate()
+        for child in control.findChildren(QWidget):
+            layout = child.layout()
+            if layout is not None:
+                layout.activate()
+        for layout in reversed(control.findChildren(QLayout)):
+            layout.invalidate()
         layout = control.layout()
         if layout is not None:
             layout.invalidate()
@@ -409,8 +422,14 @@ def test_a_category_opened_late_is_styled_as_one_built_at_once(
     _eager_window, eager = _window(qtbot, app_key, eager=True)
     assert not _waiting(eager)
     lazy._open_every_waiting_heading()
-    _pump(10)
-    late, at_once = _styling(lazy), _styling(eager)
+    # Measure each form after the same native category-opening sequence.
+    styles = []
+    for screen in (lazy, eager):
+        for section in screen._settings_sections:
+            section.set_expanded(True)
+        _pump(10)
+        styles.append(_styling(screen))
+    late, at_once = styles
     assert set(late) == set(at_once)
     assert {key for key in late if late[key] != at_once[key]} == set(), [
         (key, late[key], at_once[key]) for key in sorted(late)

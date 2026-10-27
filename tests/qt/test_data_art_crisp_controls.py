@@ -280,11 +280,12 @@ def test_color_dialog_cancel_preserves_store_and_save_applies_complete_pair(
     accent = dialog.findChild(QPushButton, "AmbientAccentColor")
     palette = dialog.findChild(QComboBox, "AmbientPalette")
     assert primary.isEnabled() and accent.isEnabled()
-    monkeypatch.setattr(QColorDialog, "getColor", lambda *_args: QColor())
+    monkeypatch.setattr(QColorDialog, "exec", lambda self: QColorDialog.DialogCode.Rejected)
     primary.click()
     assert preferences._ambient_custom_colors() == original
     assert palette.currentData() != "custom"
-    monkeypatch.setattr(QColorDialog, "getColor", lambda *_args: QColor("#1199aa"))
+    monkeypatch.setattr(QColorDialog, "exec", lambda self: QColorDialog.DialogCode.Accepted)
+    monkeypatch.setattr(QColorDialog, "selectedColor", lambda self: QColor("#1199aa"))
     primary.click()
     assert "#1199aa" in primary.text()
     assert primary.toolTip() == ""

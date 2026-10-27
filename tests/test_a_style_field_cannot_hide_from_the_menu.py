@@ -247,8 +247,8 @@ def test_a_colour_field_opens_a_colour_dialog(qtbot, monkeypatch):
     from PySide6.QtWidgets import QColorDialog
 
     style = _Style()
-    monkeypatch.setattr(QColorDialog, "getColor",
-                        staticmethod(lambda *a, **k: QColor("#ff0000")))
+    monkeypatch.setattr(QColorDialog, "exec", lambda self: QColorDialog.DialogCode.Accepted)
+    monkeypatch.setattr(QColorDialog, "selectedColor", lambda self: QColor("#ff0000"))
 
     _action(_menu(style), "line_color").trigger()
 

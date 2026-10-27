@@ -302,8 +302,12 @@ def test_the_picker_is_the_spacr_colour_picker_with_rgb_and_hex(monkeypatch, qtb
     from PySide6.QtWidgets import QColorDialog
 
     seen = []
-    monkeypatch.setattr(QColorDialog, "getColor", staticmethod(
-        lambda initial, parent, title, options: seen.append((initial.name(), title, options)) or QColor("#00ff7f")))
+    def accept(dialog):
+        seen.append((dialog.currentColor().name(), dialog.windowTitle(), dialog.options()))
+        return QColorDialog.DialogCode.Accepted
+
+    monkeypatch.setattr(QColorDialog, "exec", accept)
+    monkeypatch.setattr(QColorDialog, "selectedColor", lambda self: QColor("#00ff7f"))
     wizard = _wizard(qtbot, plates[0])
     qtbot.waitUntil(lambda: wizard.channel_table.rowCount() == 2, timeout=15000)
     start = wizard.channel_table.item(0, 3).text()
