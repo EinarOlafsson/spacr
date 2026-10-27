@@ -1496,8 +1496,16 @@ class LoadingScreen(QWidget):
     def frame_stats(self) -> dict:
         """What drawing the blow-away cost, for measuring it.
 
-        :returns: ``frames``, the mean and the slowest frame's paint time in
-            milliseconds, and the most tiles drawn in one frame.
+        :returns: ``frames``, ``mean_ms``, ``max_ms`` and ``most_tiles``;
+            ``paint_p95_ms``; the display's ``refresh_hz`` and ``refresh_ms``;
+            the final ``paced_ms``, ``stride``, ``divisor`` and ``vsync``;
+            ``interval_mean_ms``, ``interval_p50_ms``, ``interval_p95_ms``,
+            ``interval_p99_ms``, ``longest_gap_ms``, ``late_frames``,
+            ``dropped_frames`` and ``dropped_share``. Times are milliseconds.
+            Intervals measure paint callbacks, not verified display
+            presentation; dropped frames are estimates against the refresh
+            interval. With no paint callbacks, paint and interval summaries
+            and counters are zero; display and pacing metadata remain reported.
         """
         spent = self._frame_ms
         stats = {
@@ -1580,6 +1588,13 @@ class LoadingScreen(QWidget):
         """Stop the frames, take the cover down and say so, once."""
         if self._state == "done":
             return
+        self.window()._startup_animation_stats = {
+            "sample_source": "paint_callbacks",
+            "presentation_verified": False,
+            "mode": "cross_fade" if self._plain else "tiles",
+            "completed": self._state == "playing" and self.elapsed() >= self._duration,
+            "frame_stats": self.frame_stats(),
+        }
         self._state = "done"
         _PLAYING.discard(self)
         self._release_the_imports()

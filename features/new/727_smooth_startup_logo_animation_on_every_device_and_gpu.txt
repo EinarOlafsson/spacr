@@ -1,12 +1,10 @@
-================================================================================
 A STARTUP LOGO ANIMATION THAT IS AS SMOOTH AS POSSIBLE ON EVERY DEVICE AND GPU
-================================================================================
 
-Status:    IN PROGRESS — benchmark integration and pacing/budget software validation remain.
+Status:    IN PROGRESS — software qualified; API/locales and Nightly publication remain.
 Requested: maintainer, 2026-10-25: "also add as a ne item to make sure the
            start up logo animation is as smooth as possible on all devises
            and on all hardware"
-Owner:     Home (build and CI budget); WS (native Windows and Mac smoke runs)
+Owner:     G2 software implementation/qualification; G5 independent peer; root Nightly-only publication
 Related:   694 (photomosaic blow-away startup screen), 695 (startup logo on a
            full-screen borderless window and a help replay), 55 (performance
            sweep: nothing that loads belongs on the GUI thread), 684
@@ -233,3 +231,5 @@ Still owed, in this order:
 2026-10-27 — OPEN software work remains: the recorded deferred list still owes startup-benchmark frame_stats integration/documentation/locales and the drafted pacing/budget regressions. Published motion/pacing and silhouette/README fixes remain accepted; native timing tables and human visual review are no longer delivery gates.
 
 2026-10-27 — Required startup-metrics locale closure must update only the named English API owner and its source history, preserving unrelated records through an opt-in normal writer mode; default full builds retain their current pruning behavior. Integration owner implements this tool path with a focused regression and independent peer before N727 generation.
+2026-10-27 — G2 resumes the remaining software scope on published Nightly 2ca: export completed startup frame_stats into the normal benchmark, accurately document paint-callback cadence versus presentation, and qualify pacing/adaptation/budget controls with G5 peer. Retain delivered mosaic/README assets and prior results; no new native campaign or manual review gate, and no changes to the frozen Main candidate.
+2026-10-27 — Completed-cover frame_stats now survives widget deletion in normal startup-benchmark JSON; absent covers are null, and skipped/completed state is explicit. All 14 focused controls pass (9.90 s), including a real 900×700 offscreen software replay within the unchanged 8 ms paint, 100 ms gap, p99 <2.5 refresh intervals and <5% estimated-drop budgets. Paint-callback evidence is not compositor/hardware validation; G5 peer accepted, normal API/locales and root Nightly publication remain.

@@ -567,6 +567,8 @@ class BenchmarkController(QObject):
             "results": list(self.results),
             "violations": self._violations(final_keys),
         }
+        artifact["startup_animation"] = getattr(
+            self.window, "_startup_animation_stats", None)
         return artifact
 
     def _persist(self, exit_reason: str) -> str:
