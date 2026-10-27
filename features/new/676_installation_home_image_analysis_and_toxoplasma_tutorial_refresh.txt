@@ -468,3 +468,6 @@ Codex driver/root own the narrow recapture-focus repair: exact frame-bound focus
 Require affected real behavior checks once, then fresh source stage/clock/master acceptance and reviewed clean cuts with all15 source fences before final publication. Preserve the failed initial private stage; no gate weakening or invented UI focus.
 Actual26 selected focus/recapture/geometry cases pass; fresh13 source stage with exact15-frame focus map nowstages successfully, original failedgates unchanged. Source clock/master and four reviewed cuts/all15 fences remain pending.
 Edited13 master, full decode/PTS, poster/web and four final-view inspections pass; generated15-scene idle policy adopted without changing other entries. All50 source voices retained; strict browser gaps and normal publication remain required.
+
+2026-10-27 — Lesson13 strict matrix retains54PASS but rejects Japanese jf_nezumi final EOF gap0.684s; original outputs remain preserved, no retry or threshold waiver.
+Edited-final generator now sizes the reviewed last-result hold from all50 actual audible endpoints plus1s;6 affected checks pass on exact integrated bytes. Fresh normal render and browser/publication validation remain required.
