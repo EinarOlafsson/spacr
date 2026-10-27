@@ -228,6 +228,71 @@ def test_add_offerings_is_explicit_single_lesson_scope(ids):
         patch.offering_patch_plan(Path('unused'), Path('unused'), ids)
 
 
+def update_synthetic_baseline_record(baseline, path):
+    manifest = patch.read(baseline / 'release-manifest.json')
+    relative = path.relative_to(baseline).as_posix()
+    manifest['files'] = [row for row in manifest['files'] if row['path'] != relative]
+    manifest['files'].append(dict(path=relative, sha256=patch.digest(path), bytes=path.stat().st_size))
+    write(baseline / 'release-manifest.json', manifest)
+    # This is synthetic fixture binding, never a production verification claim.
+    checks = patch.read(baseline / 'checks/candidate-browser-checks.json')
+    checks['manifest_sha256'] = patch.digest(baseline / 'release-manifest.json')
+    write(baseline / 'checks/candidate-browser-checks.json', checks)
+
+
+def test_add_offerings_retains_explicit_older_picture_clock_without_changing_original_audio(added_offerings, monkeypatch):
+    from append_staged_lessons import JS_PREFIX, JS_SUFFIX
+    baseline, stage, _, identity = added_offerings
+    heart = baseline / f'media_host/{identity}/audio/en/af_heart.json'
+    original_audio = {row['path']: row for row in patch.read(baseline / 'release-manifest.json')['files']
+                      if row['path'].startswith(f'media_host/{identity}/audio/')}
+    clock = patch.read(heart)
+    clock['scenes'][0].update(text='Earlier picture annotation.', scene_end=1.7, duration=1.7)
+    clock['total_duration'] = 1.7
+    reference = f'{identity}/video/original-visual-timings.json'
+    path = baseline / 'media_host' / reference
+    write(path, clock); update_synthetic_baseline_record(baseline, path)
+    runtime_path = baseline / 'web/lesson_catalog.js'
+    runtime = patch.parse_javascript(runtime_path.read_text())
+    runtime['lessons'][1]['visual_timings'] = reference
+    runtime_path.write_text(JS_PREFIX + json.dumps(runtime) + JS_SUFFIX)
+    update_synthetic_baseline_record(baseline, runtime_path)
+    # Only the offering-addition route can retain an independent old picture
+    # clock. Existing script-refresh/default callers remain exact-text strict.
+    english = patch.read(baseline / 'web/catalog/lessons_en.json')['lessons'][1]
+    with pytest.raises(ValueError, match='indexed legacy'):
+        patch.legacy_visual_source(baseline, identity, english)
+    monkeypatch.setattr(patch, 'validate', lambda *args, **kwargs: None)
+    monkeypatch.setattr(patch, 'require_published_script_baseline', lambda *args: None)
+    monkeypatch.setattr(patch, 'verify_current_tracks', lambda *args: None)
+    candidate = patch.build(baseline, stage, [identity], add_english_offerings=True)
+    assert (candidate / 'media_host' / reference).read_bytes() == path.read_bytes()
+    for relative, record in original_audio.items():
+        assert patch.digest(candidate / relative) == record['sha256']
+    assert patch.parse_javascript((candidate / 'web/lesson_catalog.js').read_text())['lessons'][1]['visual_timings'] == reference
+
+
+def test_add_offerings_rejects_implicit_clock_prose_mismatch(added_offerings):
+    baseline, stage, _, identity = added_offerings
+    path = baseline / f'media_host/{identity}/audio/en/af_heart.json'
+    timing = patch.read(path); timing['scenes'][0]['text'] = 'Different old narration.'
+    write(path, timing); update_synthetic_baseline_record(baseline, path)
+    write(stage / f'production/{identity}/audio/en/af_heart.json', timing)
+    with pytest.raises(ValueError, match='indexed legacy'):
+        patch.offering_patch_plan(baseline, stage, [identity])
+
+
+def test_add_offerings_rejects_original_audio_prose_drift_even_with_exact_retained_bytes(added_offerings):
+    baseline, stage, _, identity = added_offerings
+    path = baseline / f'media_host/{identity}/audio/fr/ff_siwis.json'
+    timing = patch.read(path)
+    timing['render_inputs']['scenes'][0]['narration'] = 'Wrong old French prose.'
+    write(path, timing); update_synthetic_baseline_record(baseline, path)
+    write(stage / f'production/{identity}/audio/fr/ff_siwis.json', timing)
+    with pytest.raises(ValueError, match='Retained timing identity, narration or media hash differs'):
+        patch.offering_patch_plan(baseline, stage, [identity])
+
+
 @pytest.fixture
 def staged(tmp_path, monkeypatch):
     baseline, stage, repo = [tmp_path / name for name in ('baseline', 'stage', 'repo')]

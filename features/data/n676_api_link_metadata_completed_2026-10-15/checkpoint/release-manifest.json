@@ -4,10 +4,10 @@
   "coming_soon": [],
   "routes": 84,
   "catalog_languages": 14,
-  "narration_tracks": 3349,
-  "web_bytes": 130702193,
+  "narration_tracks": 3372,
+  "web_bytes": 130709553,
   "ceiling_bytes": 734003200,
-  "media_host_bytes": 14476508061,
+  "media_host_bytes": 14498723619,
   "files": [
     {
       "path": "media_host/01_pypi_github/audio/en/af_aoede.json",
@@ -20180,6 +20180,26 @@
       "bytes": 5276594
     },
     {
+      "path": "media_host/48_hit_list/audio/en/af_aoede.json",
+      "sha256": "f2d2303691c3f578f0ff8ff5a8df02f8afb0fffbaf08ccc9fe637ae24d91c6e7",
+      "bytes": 42620
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/af_aoede.m4a",
+      "sha256": "81a398cd7b9511d3ab36b1168922f986eeb0c897c61b9f79df34b3dcbce99c90",
+      "bytes": 869113
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/af_bella.json",
+      "sha256": "439f6d6b4fbc76a9ad6472c969574a40b3887cadb7380c10974318828838e77c",
+      "bytes": 42987
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/af_bella.m4a",
+      "sha256": "c09c7bdb197fb71321aec995b12aa52c696173886e673a8639779cc6b93f4b55",
+      "bytes": 876885
+    },
+    {
       "path": "media_host/48_hit_list/audio/en/af_heart.json",
       "sha256": "9bad1610a9bc146516c4d67f377ae5fbdcda802d64907af30b6919de24cb4219",
       "bytes": 35688
@@ -20188,6 +20208,216 @@
       "path": "media_host/48_hit_list/audio/en/af_heart.m4a",
       "sha256": "d59edf05f3feb69f4117ed3f2f4544e1dc1808e71b1757e045c4d3713f4b3764",
       "bytes": 874036
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/af_jessica.json",
+      "sha256": "79facd0afbcead3ca2a02fb7a7939ea05ce4fa849297a9a36b32067ec67331e9",
+      "bytes": 43207
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/af_jessica.m4a",
+      "sha256": "372b01c91371228c4ae7dcc63eb7a14d01f09f5538bd759bd4ff7f7116db42ae",
+      "bytes": 868864
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/af_river.json",
+      "sha256": "d2eea830e4af01d8d3429e1c0e252617758b6044d52b778be20944a06f1e2d96",
+      "bytes": 43005
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/af_river.m4a",
+      "sha256": "fa2091f50015e1313b1d344ba774a17f65fb934e5e7a6bf7483d6993776754ea",
+      "bytes": 891548
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/af_sarah.json",
+      "sha256": "a446b4bd8b64c118a247ce65682887aca0edf875e80c42a28507f1ccac33f9bd",
+      "bytes": 43087
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/af_sarah.m4a",
+      "sha256": "f9cc04b59d7a8424353b8d27e09ffe3af8916c2f922b7d537ac8c649a9767ba0",
+      "bytes": 872270
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/af_sky.json",
+      "sha256": "c8f923c6596539e584a28c573d38a43421ca5d1d0a690957ca1d3d41da44a196",
+      "bytes": 42973
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/af_sky.m4a",
+      "sha256": "d21261fcc95de582d71aa7d290cdc444b34ede695d619cdf5aa6ec46ac589ed1",
+      "bytes": 903576
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/am_adam.json",
+      "sha256": "0404c3eb78dd32414284e523c90927c4ff0be2b85ee7df167c26223e60b08753",
+      "bytes": 43261
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/am_adam.m4a",
+      "sha256": "6bcb58a0ad00a2c8947efe36f945bee4f3c342e3f32382abe5e6c75ad127c73a",
+      "bytes": 889227
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/am_echo.json",
+      "sha256": "4f60747ed40186ab7ed0a1395a5a1499c4add979810bfead492b75584837836a",
+      "bytes": 42854
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/am_echo.m4a",
+      "sha256": "02fe7b76b55f794702b65506fb96300c151892d4139d5d18185ca4cda43f618d",
+      "bytes": 963307
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/am_eric.json",
+      "sha256": "422345ca2a02cab9b02a13eb3c0beaaa6f399faa60f17d8dd4089af8e4a7a05c",
+      "bytes": 43106
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/am_eric.m4a",
+      "sha256": "cf0b10a340f651ac6d520e99a6ffaa29f5e6f43dbb6c7ecaf4f4c9c3d393277f",
+      "bytes": 883850
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/am_fenrir.json",
+      "sha256": "15efeccb0c698df3e1bcdfec4503718499ac91ecb8361eb20f4b4a18a2a4b95d",
+      "bytes": 43009
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/am_fenrir.m4a",
+      "sha256": "038e1e2088bdd7bf786193a11f5bce0c6dd74c7ddae4805b7358c250956fdf8b",
+      "bytes": 877439
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/am_liam.json",
+      "sha256": "1aaa2285d9d7f359a1eaca48e6ae47b51b1bbfa72b94fb7d71da9237b6e9fff2",
+      "bytes": 43313
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/am_liam.m4a",
+      "sha256": "4269bd0e4c45ec83558659aedc0f232639f46cce622ce2a60d654a4f2e64903d",
+      "bytes": 917128
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/am_michael.json",
+      "sha256": "7aa5fcb92af1f2f30f075f4ce574d7a3f146321c2162b0a2663baea48f316285",
+      "bytes": 42756
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/am_michael.m4a",
+      "sha256": "f1a96e4c4b067efbb55d6298ba897e900ea8e25af0a58a0d1f1e3b95f1eb5fc7",
+      "bytes": 935517
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/am_onyx.json",
+      "sha256": "e63b1c45b01dea1798f3394340d516c06999e7f690de65a75d350ea4e0b3c9a4",
+      "bytes": 42961
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/am_onyx.m4a",
+      "sha256": "fb98c37a8a8349a68b1297c69db0fc7d9cab6636e6a579e6084e6393205bec5d",
+      "bytes": 966447
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/am_puck.json",
+      "sha256": "fb87abd1711153231d6671d114a82a9e55a86808690ffa7b0921b9257c9e814f",
+      "bytes": 43177
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/am_puck.m4a",
+      "sha256": "41b8def8adc19c8791189747ede41ba55303147265b6c1afebc4339c6e47dc71",
+      "bytes": 894481
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/am_santa.json",
+      "sha256": "fd6ff5dde2cc375f141d531712c30c5322b67146aa9c127a6b9ce3a08ad5ead2",
+      "bytes": 42726
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/am_santa.m4a",
+      "sha256": "4b5799e9b2a3250338d6892e84027ae9c4945cc7e8ef1c9bd1206aa81405d863",
+      "bytes": 990628
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/bf_alice.json",
+      "sha256": "5a1426c9440afdb3883888658345e52ad0996b2c2408af5cd79d580f36ca718f",
+      "bytes": 43385
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/bf_alice.m4a",
+      "sha256": "23acc3911b4a173a9ebcd63153552768b6bbd4de066a9029c30543cfb98cbd10",
+      "bytes": 932666
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/bf_emma.json",
+      "sha256": "f561684df549a392d4dbbf9510c148c19144a2d87e6c72fe11011f63fd96c286",
+      "bytes": 43149
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/bf_emma.m4a",
+      "sha256": "58a4c97b91a790635851ce05c2ae001bc68eb44afaf33aa547b2e90ea59e1bd6",
+      "bytes": 902340
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/bf_isabella.json",
+      "sha256": "7ca4b3004708840506c715ca77c8d948f2ba7fa43046d609458da95996086f97",
+      "bytes": 42879
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/bf_isabella.m4a",
+      "sha256": "e8eed7565e62eb4390c1df1e42e1e46dcc5addda498ba938c36bf0667f1b0404",
+      "bytes": 922834
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/bf_lily.json",
+      "sha256": "b3e57ce236dc2594dfed236b7a2489749d4e2ec8d41356ee9b3ee3d350d21a83",
+      "bytes": 43005
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/bf_lily.m4a",
+      "sha256": "e013a89ee22b43ee0b888c9b55f12a34f1fdab1f5a7d8f7307470bfd1e9e38a8",
+      "bytes": 950414
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/bm_daniel.json",
+      "sha256": "bfc91216605a04c7f377d646f8e29fca9aba18d2470da87e6739e43cc9024333",
+      "bytes": 43437
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/bm_daniel.m4a",
+      "sha256": "5e22d4e762f91ba5653a7dbd916efdd03c4d96b23aec3902bfcd7a8ed3c294c0",
+      "bytes": 945013
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/bm_fable.json",
+      "sha256": "4078020cb55565cb218b212dc3bb229433a264f85d80d46f9ed68af041795d3d",
+      "bytes": 43316
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/bm_fable.m4a",
+      "sha256": "f20cfb76e651789eb0f78e6ee289193f13aa00ebba71778b7721c956518c1afd",
+      "bytes": 980857
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/bm_george.json",
+      "sha256": "b1d2bc0c7c02d87e3e75beb62a57ad48d2faa00478f870ea7401c5df02530f72",
+      "bytes": 43147
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/bm_george.m4a",
+      "sha256": "4cb3f81611f0bbf91fc4bf1e6e4de067eb56a5d75171d58a4a72c02a236ebe46",
+      "bytes": 1031877
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/bm_lewis.json",
+      "sha256": "9a6940b301e7546431b2162ccd2f2325a3a3940fb34442f6c1f3e6b549927525",
+      "bytes": 42763
+    },
+    {
+      "path": "media_host/48_hit_list/audio/en/bm_lewis.m4a",
+      "sha256": "bf6136bd3549881fb2ea49ed1a00da3adf98fbc3e8284e8bfc118b45f894b657",
+      "bytes": 959154
     },
     {
       "path": "media_host/48_hit_list/audio/es/ef_dora.json",
@@ -34606,73 +34836,73 @@
     },
     {
       "path": "web/catalog/captions_da.json",
-      "sha256": "019b5796ba53f8568380a5683369df288c7605e81fcaf37efccc0a6ae196389a",
-      "bytes": 718456
+      "sha256": "9db098e927f8a92aba9c662e16932e99a4a48482ee8f26545f90bf12e5841ca0",
+      "bytes": 718962
     },
     {
       "path": "web/catalog/captions_de.json",
-      "sha256": "ad9f2b0afe2f753603b5561a6f6a0310b56395222107d2b18dc4e9635cd7136f",
-      "bytes": 765610
+      "sha256": "7d0c0957df4ceabb765c660845945023fb67a956589ff3f85b221a1c95354b0a",
+      "bytes": 766116
     },
     {
       "path": "web/catalog/captions_is.json",
-      "sha256": "72a4cfe0fce93db09e225fabeadd8064b77a604cdd8db2cbb2b395592d53938b",
-      "bytes": 723258
+      "sha256": "6a8ac56c36ff24645a8b82a86b3968d8604d57fcdf1c4a10f0338651c8efe561",
+      "bytes": 723764
     },
     {
       "path": "web/catalog/captions_ko.json",
-      "sha256": "788c9b18aa4a120f0328e2df9cd23d5cad42e34670a201308561e46f2336d9ce",
-      "bytes": 760248
+      "sha256": "501125bb984a0a401860289e49bb34a95b613e741452b57c830acb9388116c65",
+      "bytes": 760754
     },
     {
       "path": "web/catalog/captions_nb.json",
-      "sha256": "0abdd6ce0b9bcbb176d2c44e4ba259a9684ddba9a7af301e93a86eae8812ae8c",
-      "bytes": 714244
+      "sha256": "37664de2b948089be334143603142ed76a308ed405570471d04e2c7b2ff98389",
+      "bytes": 714750
     },
     {
       "path": "web/catalog/captions_sv.json",
-      "sha256": "9a37ba866605cb31a81d9c04ae80cfcf3166d7005a51e91bb5b0d503e0b1b62b",
-      "bytes": 723168
+      "sha256": "d35d10f9b217c3aa24029a753f353694de694a67df77f7341739ec0d39371e17",
+      "bytes": 723674
     },
     {
       "path": "web/catalog/lessons_en.json",
-      "sha256": "d1c6c286b7b08bb33bf5b259e74cbbc9a60498b3d9e8a27d50178ca809ca20cc",
-      "bytes": 695344
+      "sha256": "f543b96deddb2372cbd43989912dc9ed545aa6cb62f089c1246f19782cb6e3d3",
+      "bytes": 695850
     },
     {
       "path": "web/catalog/lessons_es.json",
-      "sha256": "db16ffe5188f8bfbcfd0878f8ec54707c6d4d31d7aa92601ba5d6964a52da924",
-      "bytes": 1128174
+      "sha256": "e7b4279e5d7af996250a0607a6d59f0668ca2cad05c2964f61b178b80013747b",
+      "bytes": 1128680
     },
     {
       "path": "web/catalog/lessons_fr.json",
-      "sha256": "03f69450f15b97ad1794964a89d992b527762a423d00ca729640bf6d193aa95b",
-      "bytes": 1172073
+      "sha256": "0ccb508a6a11179fb2acb031906157dcdacfabf5cba44062bea189eab3aaba9d",
+      "bytes": 1172579
     },
     {
       "path": "web/catalog/lessons_hi.json",
-      "sha256": "65cd1110f9b0bfac704a93fa98a1e4fe0ddbce09b4a347b08312f7008ba7e50b",
-      "bytes": 1860279
+      "sha256": "a138fdce19675dc7fa89bbcae12bafae78e7b8ec630db2a5c6e404946e2c6410",
+      "bytes": 1860785
     },
     {
       "path": "web/catalog/lessons_it.json",
-      "sha256": "7ba6aa19b7e3192b701979f5dbfd37bb752fb6f04847d1ff9debb2c5e4efe8bb",
-      "bytes": 1116475
+      "sha256": "cde1a269f3c65efaa4231ba1d50c59f28f3df65cb9138ec4319892585a1f1619",
+      "bytes": 1116981
     },
     {
       "path": "web/catalog/lessons_ja.json",
-      "sha256": "6e28f69785f9663a25f1551b0f530f5c758889c20ddef0c9dafa24031df2311d",
-      "bytes": 1246612
+      "sha256": "757aed36e29ea1a0f7c30f9e897095ecfb42ba91698e6b55891610be95fd1346",
+      "bytes": 1247118
     },
     {
       "path": "web/catalog/lessons_pt-BR.json",
-      "sha256": "5c93ab68e1368920c60ff477819486c739e4f94457743f08b790e4bceee6febc",
-      "bytes": 1110640
+      "sha256": "0cddb71500b9be9cef0326f686276084674385a5181202db773deb1e40ec7757",
+      "bytes": 1111146
     },
     {
       "path": "web/catalog/lessons_zh-CN.json",
-      "sha256": "6f744f3a3a42ab5bba5e35d99b3198fcdb93ec97139f2e19fae28cf14df42a0c",
-      "bytes": 971308
+      "sha256": "93b3762c7671da7c957711c105ef8d0e8f91a685a60d04145c6475dcff65c8d6",
+      "bytes": 971814
     },
     {
       "path": "web/examples/Agreement_artificial_labels_real_crops.zip",
@@ -34856,8 +35086,8 @@
     },
     {
       "path": "web/lesson_catalog.js",
-      "sha256": "8d07d37f195b998a449b2367cb492bbf60dbbd02e4f16d858d5b250fcd70af93",
-      "bytes": 617741
+      "sha256": "1f16548cfd1b2b371fcef27bd94ef2a527548aa1657f0976666acf24c5e39097",
+      "bytes": 618017
     },
     {
       "path": "web/logo_spacr.png",
@@ -35312,11 +35542,11 @@
       "browser_report_sha256": "1f72cd270fab4d9c5bdb6cde5fc23e965cd5b6716e0de21e67265c7a85a0dfa7"
     }
   ],
-  "baseline_manifest_sha256": "a9ba799a1c4fc8af7155664154f2c7b9200fd1c88ad1de236dff771f112056f2",
+  "baseline_manifest_sha256": "a4f0d83643d13636b96aa3785e99d3657fa71c3325dbca713c415f6eb45df079",
   "preserved_lessons": 83,
   "appended_lessons": [],
   "refreshed_lessons": [
-    "06_api"
+    "48_hit_list"
   ],
   "withdrawn_lessons": [],
   "retained_narration": {},
@@ -41660,216 +41890,216 @@
   "published": false,
   "audio_patch_tracks": [
     {
-      "lesson": "06_api",
+      "lesson": "48_hit_list",
       "language": "en",
       "voice": "af_aoede",
-      "audio": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/af_aoede.m4a",
-      "timing": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/af_aoede.json",
-      "audio_sha256": "734d1cc155b3e07abe2a4dc30eb87e43a8e17ee58132f484ae53fb39e6758f08",
-      "timing_sha256": "4242a2674fdb5c1c0083e3c6427e0d27364c0db56fc70f8b6b132f99acb928bc"
+      "audio": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/af_aoede.m4a",
+      "timing": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/af_aoede.json",
+      "audio_sha256": "81a398cd7b9511d3ab36b1168922f986eeb0c897c61b9f79df34b3dcbce99c90",
+      "timing_sha256": "f2d2303691c3f578f0ff8ff5a8df02f8afb0fffbaf08ccc9fe637ae24d91c6e7"
     },
     {
-      "lesson": "06_api",
+      "lesson": "48_hit_list",
       "language": "en",
       "voice": "af_bella",
-      "audio": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/af_bella.m4a",
-      "timing": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/af_bella.json",
-      "audio_sha256": "3c44752865c65139407cecb61f89f8c457682544e09fccb2e95316e664f41022",
-      "timing_sha256": "de30938a75f4213c5f26a1bfac7eba0e1d988a6556e1e11e7c0919d957990c6a"
+      "audio": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/af_bella.m4a",
+      "timing": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/af_bella.json",
+      "audio_sha256": "c09c7bdb197fb71321aec995b12aa52c696173886e673a8639779cc6b93f4b55",
+      "timing_sha256": "439f6d6b4fbc76a9ad6472c969574a40b3887cadb7380c10974318828838e77c"
     },
     {
-      "lesson": "06_api",
+      "lesson": "48_hit_list",
       "language": "en",
       "voice": "af_jessica",
-      "audio": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/af_jessica.m4a",
-      "timing": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/af_jessica.json",
-      "audio_sha256": "7e69e4af6967c924f3274d5d22ca896c24ac704aa1912d1c0d1d5a651c9b039f",
-      "timing_sha256": "66e74477ec2461f4407fa6e75ed50abd51dba0166773a088a1734032bde26f48"
+      "audio": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/af_jessica.m4a",
+      "timing": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/af_jessica.json",
+      "audio_sha256": "372b01c91371228c4ae7dcc63eb7a14d01f09f5538bd759bd4ff7f7116db42ae",
+      "timing_sha256": "79facd0afbcead3ca2a02fb7a7939ea05ce4fa849297a9a36b32067ec67331e9"
     },
     {
-      "lesson": "06_api",
+      "lesson": "48_hit_list",
       "language": "en",
       "voice": "af_river",
-      "audio": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/af_river.m4a",
-      "timing": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/af_river.json",
-      "audio_sha256": "a2fa5c246556d45b91a03e5db7f3e3177a940ccacefe20953674502cfede9c93",
-      "timing_sha256": "f11529f7ae03ac8d3db2c3be1c426a305373acd6a41c5967987feacc65afeded"
+      "audio": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/af_river.m4a",
+      "timing": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/af_river.json",
+      "audio_sha256": "fa2091f50015e1313b1d344ba774a17f65fb934e5e7a6bf7483d6993776754ea",
+      "timing_sha256": "d2eea830e4af01d8d3429e1c0e252617758b6044d52b778be20944a06f1e2d96"
     },
     {
-      "lesson": "06_api",
+      "lesson": "48_hit_list",
       "language": "en",
       "voice": "af_sarah",
-      "audio": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/af_sarah.m4a",
-      "timing": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/af_sarah.json",
-      "audio_sha256": "2045085022b3c2875ffeecec9dc83bb929b7035abb5667b7ef88e2cf3b803763",
-      "timing_sha256": "7297112306b571e86b56698bede213210a6223a9a2382aaf8fb22704f9a196b3"
+      "audio": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/af_sarah.m4a",
+      "timing": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/af_sarah.json",
+      "audio_sha256": "f9cc04b59d7a8424353b8d27e09ffe3af8916c2f922b7d537ac8c649a9767ba0",
+      "timing_sha256": "a446b4bd8b64c118a247ce65682887aca0edf875e80c42a28507f1ccac33f9bd"
     },
     {
-      "lesson": "06_api",
+      "lesson": "48_hit_list",
       "language": "en",
       "voice": "af_sky",
-      "audio": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/af_sky.m4a",
-      "timing": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/af_sky.json",
-      "audio_sha256": "51ac05da3f6c89c57225cce7c919f7b703eaa7d721db31acdfb0302226ee5313",
-      "timing_sha256": "a30c284a7080103d95846a21ff121a84721224d5a98339385e4e6fafd60d12db"
+      "audio": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/af_sky.m4a",
+      "timing": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/af_sky.json",
+      "audio_sha256": "d21261fcc95de582d71aa7d290cdc444b34ede695d619cdf5aa6ec46ac589ed1",
+      "timing_sha256": "c8f923c6596539e584a28c573d38a43421ca5d1d0a690957ca1d3d41da44a196"
     },
     {
-      "lesson": "06_api",
+      "lesson": "48_hit_list",
       "language": "en",
       "voice": "am_adam",
-      "audio": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/am_adam.m4a",
-      "timing": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/am_adam.json",
-      "audio_sha256": "40625c4f474aecf905f5022e2910fd6321fa69e74113322747a9a905679c834a",
-      "timing_sha256": "ea98d486ae05a341f68d6f2c8775bd1139cc35338c29ead134f633e3cbf7837d"
+      "audio": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/am_adam.m4a",
+      "timing": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/am_adam.json",
+      "audio_sha256": "6bcb58a0ad00a2c8947efe36f945bee4f3c342e3f32382abe5e6c75ad127c73a",
+      "timing_sha256": "0404c3eb78dd32414284e523c90927c4ff0be2b85ee7df167c26223e60b08753"
     },
     {
-      "lesson": "06_api",
+      "lesson": "48_hit_list",
       "language": "en",
       "voice": "am_echo",
-      "audio": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/am_echo.m4a",
-      "timing": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/am_echo.json",
-      "audio_sha256": "728ae91c151b9afc02a41397bc90e8c5822aa5a800793ce6dd93228983ab836f",
-      "timing_sha256": "ee7e85bb66d176b2a1a013ac7b57209b961ee3a189d85c09e5a5bf97b9a7f8bb"
+      "audio": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/am_echo.m4a",
+      "timing": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/am_echo.json",
+      "audio_sha256": "02fe7b76b55f794702b65506fb96300c151892d4139d5d18185ca4cda43f618d",
+      "timing_sha256": "4f60747ed40186ab7ed0a1395a5a1499c4add979810bfead492b75584837836a"
     },
     {
-      "lesson": "06_api",
+      "lesson": "48_hit_list",
       "language": "en",
       "voice": "am_eric",
-      "audio": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/am_eric.m4a",
-      "timing": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/am_eric.json",
-      "audio_sha256": "4eda881d4f90aa90156459edd7bf41b2c7a7cd351cb6428d5e8bd728caaeb0b9",
-      "timing_sha256": "82fab61786ed29e4f96f7d3764d14ffa0209d82570de753e42ca67fbe072ce00"
+      "audio": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/am_eric.m4a",
+      "timing": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/am_eric.json",
+      "audio_sha256": "cf0b10a340f651ac6d520e99a6ffaa29f5e6f43dbb6c7ecaf4f4c9c3d393277f",
+      "timing_sha256": "422345ca2a02cab9b02a13eb3c0beaaa6f399faa60f17d8dd4089af8e4a7a05c"
     },
     {
-      "lesson": "06_api",
+      "lesson": "48_hit_list",
       "language": "en",
       "voice": "am_fenrir",
-      "audio": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/am_fenrir.m4a",
-      "timing": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/am_fenrir.json",
-      "audio_sha256": "5038a9fff4ebfb137a50138d40e43b8196f305e14281caa9764d8af5c6b9c1c7",
-      "timing_sha256": "e8ca0d2c4025339c970ac4589f7ccd5b40a1c21154231ae6e2ad7ed3004dc3ac"
+      "audio": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/am_fenrir.m4a",
+      "timing": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/am_fenrir.json",
+      "audio_sha256": "038e1e2088bdd7bf786193a11f5bce0c6dd74c7ddae4805b7358c250956fdf8b",
+      "timing_sha256": "15efeccb0c698df3e1bcdfec4503718499ac91ecb8361eb20f4b4a18a2a4b95d"
     },
     {
-      "lesson": "06_api",
+      "lesson": "48_hit_list",
       "language": "en",
       "voice": "am_liam",
-      "audio": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/am_liam.m4a",
-      "timing": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/am_liam.json",
-      "audio_sha256": "286b300f9ee4272d28e322509c8d82132facaf9ebfcebe0893cdd81c0b368af3",
-      "timing_sha256": "557b8f6833280ebc3f78c3174c3f7fa54cf255fa7cd71c9c329895b1bb180461"
+      "audio": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/am_liam.m4a",
+      "timing": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/am_liam.json",
+      "audio_sha256": "4269bd0e4c45ec83558659aedc0f232639f46cce622ce2a60d654a4f2e64903d",
+      "timing_sha256": "1aaa2285d9d7f359a1eaca48e6ae47b51b1bbfa72b94fb7d71da9237b6e9fff2"
     },
     {
-      "lesson": "06_api",
+      "lesson": "48_hit_list",
       "language": "en",
       "voice": "am_michael",
-      "audio": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/am_michael.m4a",
-      "timing": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/am_michael.json",
-      "audio_sha256": "3522402e0623ff4e176fb3e7c1b7fa1403f127435dea71d973d3a2a99da86e6c",
-      "timing_sha256": "89efcb37593fe6e1f29cff5d96222a7d2f707e19f93de8c2e2a7b1df02a33cd4"
+      "audio": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/am_michael.m4a",
+      "timing": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/am_michael.json",
+      "audio_sha256": "f1a96e4c4b067efbb55d6298ba897e900ea8e25af0a58a0d1f1e3b95f1eb5fc7",
+      "timing_sha256": "7aa5fcb92af1f2f30f075f4ce574d7a3f146321c2162b0a2663baea48f316285"
     },
     {
-      "lesson": "06_api",
+      "lesson": "48_hit_list",
       "language": "en",
       "voice": "am_onyx",
-      "audio": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/am_onyx.m4a",
-      "timing": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/am_onyx.json",
-      "audio_sha256": "6a6850137124329b06d6dbf9984fcb1dbe28dbf6133b3922a04aae1700d45dd4",
-      "timing_sha256": "037966064e62a9c05fd97f18e1c6a391d97f26f4639689a6ae7fe2b41168f891"
+      "audio": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/am_onyx.m4a",
+      "timing": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/am_onyx.json",
+      "audio_sha256": "fb98c37a8a8349a68b1297c69db0fc7d9cab6636e6a579e6084e6393205bec5d",
+      "timing_sha256": "e63b1c45b01dea1798f3394340d516c06999e7f690de65a75d350ea4e0b3c9a4"
     },
     {
-      "lesson": "06_api",
+      "lesson": "48_hit_list",
       "language": "en",
       "voice": "am_puck",
-      "audio": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/am_puck.m4a",
-      "timing": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/am_puck.json",
-      "audio_sha256": "93157adb45530e190bfe3f7c39746b04338bf02bbc324ad097bceb4f7b8c8524",
-      "timing_sha256": "bf758a84c624a18b96a28e7824138184ea90c206183b3d09b1ba63683db9388a"
+      "audio": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/am_puck.m4a",
+      "timing": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/am_puck.json",
+      "audio_sha256": "41b8def8adc19c8791189747ede41ba55303147265b6c1afebc4339c6e47dc71",
+      "timing_sha256": "fb87abd1711153231d6671d114a82a9e55a86808690ffa7b0921b9257c9e814f"
     },
     {
-      "lesson": "06_api",
+      "lesson": "48_hit_list",
       "language": "en",
       "voice": "am_santa",
-      "audio": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/am_santa.m4a",
-      "timing": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/am_santa.json",
-      "audio_sha256": "dac2583c0bb74ef5b106c1573a00ec938d1f60f21cbd5969f37d636579c38a7f",
-      "timing_sha256": "79ef49eca2af44ac75a770abcc7e0d24ab07b507dd908ab3bce981c4a1722d18"
+      "audio": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/am_santa.m4a",
+      "timing": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/am_santa.json",
+      "audio_sha256": "4b5799e9b2a3250338d6892e84027ae9c4945cc7e8ef1c9bd1206aa81405d863",
+      "timing_sha256": "fd6ff5dde2cc375f141d531712c30c5322b67146aa9c127a6b9ce3a08ad5ead2"
     },
     {
-      "lesson": "06_api",
+      "lesson": "48_hit_list",
       "language": "en",
       "voice": "bf_alice",
-      "audio": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/bf_alice.m4a",
-      "timing": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/bf_alice.json",
-      "audio_sha256": "6dc94d7868528ccbd156b6b833192a9f069d50ab840c6f6a4992f07dccfb4979",
-      "timing_sha256": "8d288614f052ca993f4203c75c52ac1a6a82ae488c521857b1c3020eb39fa6b3"
+      "audio": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/bf_alice.m4a",
+      "timing": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/bf_alice.json",
+      "audio_sha256": "23acc3911b4a173a9ebcd63153552768b6bbd4de066a9029c30543cfb98cbd10",
+      "timing_sha256": "5a1426c9440afdb3883888658345e52ad0996b2c2408af5cd79d580f36ca718f"
     },
     {
-      "lesson": "06_api",
+      "lesson": "48_hit_list",
       "language": "en",
       "voice": "bf_emma",
-      "audio": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/bf_emma.m4a",
-      "timing": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/bf_emma.json",
-      "audio_sha256": "f3206f10f27601bcfed47c8e499dc898dfbd9ed249bbee8a8ceefa1115c48ff1",
-      "timing_sha256": "91984e43b9104ee80610cca3da39ce864cfea6a94ecb6d9924c56f09e997aafa"
+      "audio": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/bf_emma.m4a",
+      "timing": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/bf_emma.json",
+      "audio_sha256": "58a4c97b91a790635851ce05c2ae001bc68eb44afaf33aa547b2e90ea59e1bd6",
+      "timing_sha256": "f561684df549a392d4dbbf9510c148c19144a2d87e6c72fe11011f63fd96c286"
     },
     {
-      "lesson": "06_api",
+      "lesson": "48_hit_list",
       "language": "en",
       "voice": "bf_isabella",
-      "audio": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/bf_isabella.m4a",
-      "timing": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/bf_isabella.json",
-      "audio_sha256": "d7cdc7bdd5343ed499d72b30af7a516ff6d045aab86552190a58215420a584c7",
-      "timing_sha256": "cf7ca3444588ac836c674f42319f3e3bb857136151e04100f85ddfddec016167"
+      "audio": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/bf_isabella.m4a",
+      "timing": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/bf_isabella.json",
+      "audio_sha256": "e8eed7565e62eb4390c1df1e42e1e46dcc5addda498ba938c36bf0667f1b0404",
+      "timing_sha256": "7ca4b3004708840506c715ca77c8d948f2ba7fa43046d609458da95996086f97"
     },
     {
-      "lesson": "06_api",
+      "lesson": "48_hit_list",
       "language": "en",
       "voice": "bf_lily",
-      "audio": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/bf_lily.m4a",
-      "timing": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/bf_lily.json",
-      "audio_sha256": "f5ca7d27486e2e6cba2e9211ac6781b66fa7d79425b6cffec0b563c89e2e4bed",
-      "timing_sha256": "c09fa8a92f0e2e1c229a227b21abd16b5ce7595840f60465c53993919435cbd1"
+      "audio": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/bf_lily.m4a",
+      "timing": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/bf_lily.json",
+      "audio_sha256": "e013a89ee22b43ee0b888c9b55f12a34f1fdab1f5a7d8f7307470bfd1e9e38a8",
+      "timing_sha256": "b3e57ce236dc2594dfed236b7a2489749d4e2ec8d41356ee9b3ee3d350d21a83"
     },
     {
-      "lesson": "06_api",
+      "lesson": "48_hit_list",
       "language": "en",
       "voice": "bm_daniel",
-      "audio": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/bm_daniel.m4a",
-      "timing": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/bm_daniel.json",
-      "audio_sha256": "fce3670d1fa86011721ebb431f18934968fd19863894a900be2399f2225284f8",
-      "timing_sha256": "8652c41de24b9807cad77b752c9a894abedcafcf6ebfac95c86920fd5f6830fe"
+      "audio": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/bm_daniel.m4a",
+      "timing": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/bm_daniel.json",
+      "audio_sha256": "5e22d4e762f91ba5653a7dbd916efdd03c4d96b23aec3902bfcd7a8ed3c294c0",
+      "timing_sha256": "bfc91216605a04c7f377d646f8e29fca9aba18d2470da87e6739e43cc9024333"
     },
     {
-      "lesson": "06_api",
+      "lesson": "48_hit_list",
       "language": "en",
       "voice": "bm_fable",
-      "audio": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/bm_fable.m4a",
-      "timing": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/bm_fable.json",
-      "audio_sha256": "b0f5facb9e06ed68930f8979215bf1403a542b117db1af6c8b8838cb2d2c55d4",
-      "timing_sha256": "0f005367032809b3fedcd5b998d665d55c8b2eb5864e1292eb85c64d5d16dffd"
+      "audio": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/bm_fable.m4a",
+      "timing": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/bm_fable.json",
+      "audio_sha256": "f20cfb76e651789eb0f78e6ee289193f13aa00ebba71778b7721c956518c1afd",
+      "timing_sha256": "4078020cb55565cb218b212dc3bb229433a264f85d80d46f9ed68af041795d3d"
     },
     {
-      "lesson": "06_api",
+      "lesson": "48_hit_list",
       "language": "en",
       "voice": "bm_george",
-      "audio": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/bm_george.m4a",
-      "timing": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/bm_george.json",
-      "audio_sha256": "454ded7a1322666bdecf502edea5e2e42d31916432669594e6f641e702baf527",
-      "timing_sha256": "cef17e4b68e22e9b8b421eb6499794a5efc1314f39b829c6b3e3091910692d4e"
+      "audio": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/bm_george.m4a",
+      "timing": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/bm_george.json",
+      "audio_sha256": "4cb3f81611f0bbf91fc4bf1e6e4de067eb56a5d75171d58a4a72c02a236ebe46",
+      "timing_sha256": "b1d2bc0c7c02d87e3e75beb62a57ad48d2faa00478f870ea7401c5df02530f72"
     },
     {
-      "lesson": "06_api",
+      "lesson": "48_hit_list",
       "language": "en",
       "voice": "bm_lewis",
-      "audio": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/bm_lewis.m4a",
-      "timing": "/media/carruthers/mnt1/t18-stages/stage-06-addvoices-t18/production/06_api/audio/en/bm_lewis.json",
-      "audio_sha256": "3e290dd035a1d3e2eb3b1eeb4cb66d681dfa2f168e14418fe5e68092dae161e0",
-      "timing_sha256": "700cb2a4238c511e6ef9c2c918e06eac225b47609e09fbe8b75d130883c05057"
+      "audio": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/bm_lewis.m4a",
+      "timing": "/media/carruthers/mnt1/t18-stages/stage-48-addvoices-t18/production/48_hit_list/audio/en/bm_lewis.json",
+      "audio_sha256": "bf6136bd3549881fb2ea49ed1a00da3adf98fbc3e8284e8bfc118b45f894b657",
+      "timing_sha256": "9a6940b301e7546431b2162ccd2f2325a3a3940fb34442f6c1f3e6b549927525"
     }
   ],
   "original_visual_timings": [],
   "audio_patch_player": null,
   "added_english_offerings": [
-    "06_api"
+    "48_hit_list"
   ]
 }

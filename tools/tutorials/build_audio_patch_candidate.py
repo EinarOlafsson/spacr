@@ -120,7 +120,7 @@ def offering_patch_plan(baseline, stage, identities):
         raise ValueError('Expected normal50 inventory with23 missing English offerings')
     if lesson.get('narration_voices') != previous:
         raise ValueError('Expected exactly the original27 voice offerings')
-    legacy_visual_source(baseline, identity, lesson)
+    legacy_visual_source(baseline, identity, lesson, retain_explicit_picture_clock=True)
     for name, catalog in catalogs.items():
         localized = selected(catalog)
         if localized.get('narration_voices') != previous:
@@ -153,6 +153,11 @@ def offering_patch_plan(baseline, stage, identities):
         if (source.is_symlink() or (digest(source), source.stat().st_size) != (row['sha256'], row['bytes'])
                 or (digest(target), target.stat().st_size) != (row['sha256'], row['bytes'])):
             raise ValueError('Original published narration changed or was dropped')
+        if relative.endswith('.json'):
+            language, filename = relative.split('/')
+            voice = filename.removesuffix('.json')
+            require_timing(read(target), selected(catalogs[f'lessons_{language}.json']),
+                           language, voice, records[prefix + relative.removesuffix('.json') + '.m4a']['sha256'])
     planned = []
     for voice in inventory['en']:
         if voice == 'af_heart':
@@ -185,17 +190,24 @@ def _scripts_only(original, current):
         raise ValueError('Script refresh cannot change metadata, voices, order or visual structure')
 
 
-def legacy_visual_source(baseline, identity, lesson):
+def legacy_visual_source(baseline, identity, lesson, *, retain_explicit_picture_clock=False):
     """Bind the already-published legacy clock, never fabricate native timing."""
     runtime = parse_javascript((baseline / 'web/lesson_catalog.js').read_text())
     matches = [row for row in runtime['lessons'] if row['id'] == identity]
     if len(matches) != 1:
         raise ValueError('Expected exactly one published runtime lesson')
     relative = matches[0].get('visual_timings', f'{identity}/audio/en/af_heart.json')
+    # Offering addition never changes Heart or the picture timeline. A prior
+    # reviewed script refresh may deliberately pin its older picture clock.
+    # Ordinary script-refresh callers still require exact narration below.
+    independent_picture = (retain_explicit_picture_clock
+        and matches[0].get('visual_timings') == f'{identity}/video/original-visual-timings.json')
     path = Path(relative)
     if path.is_absolute() or '..' in path.parts or path.parts[0] != identity:
         raise ValueError('Legacy visual clock must belong to the selected lesson')
     source = baseline / 'media_host' / path
+    if independent_picture and (source.is_symlink() or not source.resolve().is_relative_to(Path(baseline).resolve())):
+        raise ValueError('Explicit published picture clock must remain inside its baseline')
     timing = read(source)
     if (timing.get('schema') != 1 or timing.get('kind') or timing.get('native_live_video')
             or len(timing.get('scenes', [])) != len(lesson['scenes'])):
@@ -204,7 +216,7 @@ def legacy_visual_source(baseline, identity, lesson):
     for index, scene in enumerate(timing['scenes'], 1):
         values = [scene.get(key) for key in ('speech_start', 'speech_end', 'scene_end', 'duration')]
         if (scene.get('scene') != index or scene.get('native_live_video')
-                or scene.get('text') != lesson['scenes'][index - 1]['narration']
+                or (not independent_picture and scene.get('text') != lesson['scenes'][index - 1]['narration'])
                 or any(type(value) not in (int, float) or not math.isfinite(value) for value in values)):
             raise ValueError('Invalid indexed legacy visual clock')
         start, speech_end, stop, duration = values
