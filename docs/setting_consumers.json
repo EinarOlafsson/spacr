@@ -8143,7 +8143,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "checkpoint_path",
-    "line": 3083,
+    "line": 3160,
     "module": "spacr.convert",
     "nested": false,
     "qualname": "convert_folder"
@@ -8152,7 +8152,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "checkpoint_path",
-    "line": 3087,
+    "line": 3164,
     "module": "spacr.convert",
     "nested": false,
     "qualname": "convert_folder"
@@ -8706,7 +8706,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "classes",
-    "line": 9321,
+    "line": 9412,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "_threshold_histogram"
@@ -8715,7 +8715,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 9323,
+    "line": 9414,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "_threshold_histogram"
@@ -8724,7 +8724,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 19274,
+    "line": 19365,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._cpu_detect"
@@ -8733,7 +8733,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 19274,
+    "line": 19365,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._cpu_detect"
@@ -8742,7 +8742,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 19391,
+    "line": 19482,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._start_volume_detection"
@@ -8751,7 +8751,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 19391,
+    "line": 19482,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._start_volume_detection"
@@ -8760,7 +8760,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 19677,
+    "line": 19768,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._otsu_description"
@@ -12953,7 +12953,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "db_path",
-    "line": 3091,
+    "line": 3168,
     "module": "spacr.convert",
     "nested": false,
     "qualname": "convert_folder"
@@ -13487,7 +13487,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "diameter",
-    "line": 22531,
+    "line": 22622,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._on_detect_cellpose"
@@ -13879,7 +13879,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "dst",
-    "line": 3055,
+    "line": 3132,
     "module": "spacr.convert",
     "nested": false,
     "qualname": "convert_folder"
@@ -16847,7 +16847,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "fps",
-    "line": 14291,
+    "line": 14338,
     "module": "spacr.qt.widgets.ambient",
     "nested": false,
     "qualname": "install_ambient"
@@ -17160,7 +17160,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "gpu",
-    "line": 4747,
+    "line": 4838,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "load_cellpose_model"
@@ -22675,7 +22675,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "layout",
-    "line": 3058,
+    "line": 3135,
     "module": "spacr.convert",
     "nested": false,
     "qualname": "convert_folder"
@@ -25988,7 +25988,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "mode",
-    "line": 8107,
+    "line": 8198,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "_LiveMagnifier._primary_request_values"
@@ -31485,6 +31485,15 @@
     "module": "spacr.ops_settings",
     "nested": false,
     "qualname": "ops_defaults"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "ops_library",
+    "line": 4224,
+    "module": "spacr.qt.widgets.home",
+    "nested": false,
+    "qualname": "_easy_specialized_inputs"
    }
   ],
   "ops_raster_overlap": [
@@ -38862,7 +38871,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "overwrite",
-    "line": 3084,
+    "line": 3161,
     "module": "spacr.convert",
     "nested": false,
     "qualname": "convert_folder"
@@ -41794,6 +41803,15 @@
     "module": "spacr.ops_settings",
     "nested": false,
     "qualname": "ops_defaults"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "phenotype_source",
+    "line": 4215,
+    "module": "spacr.qt.widgets.home",
+    "nested": false,
+    "qualname": "_easy_specialized_inputs"
    }
   ],
   "pin_memory": [
@@ -42624,7 +42642,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plate_naming",
-    "line": 3061,
+    "line": 3138,
     "module": "spacr.convert",
     "nested": false,
     "qualname": "convert_folder"
@@ -44507,7 +44525,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "preview_only",
-    "line": 3078,
+    "line": 3155,
     "module": "spacr.convert",
     "nested": false,
     "qualname": "convert_folder"
@@ -47562,7 +47580,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "resume",
-    "line": 3086,
+    "line": 3163,
     "module": "spacr.convert",
     "nested": false,
     "qualname": "convert_folder"
@@ -50596,6 +50614,24 @@
     "module": "spacr.ops_settings",
     "nested": false,
     "qualname": "spatial_map_defaults"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "spatial_bin_um",
+    "line": 4289,
+    "module": "spacr.qt.widgets.home",
+    "nested": false,
+    "qualname": "_easy_specialized_inputs"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "spatial_bin_um",
+    "line": 4297,
+    "module": "spacr.qt.widgets.home",
+    "nested": false,
+    "qualname": "_easy_specialized_inputs"
    }
   ],
   "spatial_cell_expansion_um": [
@@ -51458,7 +51494,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 3050,
+    "line": 3127,
     "module": "spacr.convert",
     "nested": false,
     "qualname": "convert_folder"
@@ -52970,7 +53006,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 7155,
+    "line": 7604,
     "module": "spacr.qt.app",
     "nested": false,
     "qualname": "MainWindow._open_easy_suggestion"
@@ -52979,7 +53015,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 3114,
+    "line": 3118,
     "module": "spacr.qt.dnd_handlers",
     "nested": false,
     "qualname": "PlateQueueDropHandler.apply"
@@ -54704,7 +54740,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "stitch_threshold",
-    "line": 6570,
+    "line": 6661,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "cellpose_detect_volume"
@@ -54713,7 +54749,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "stitch_threshold",
-    "line": 6623,
+    "line": 6714,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "_detect_volume_snapshot"
@@ -65157,7 +65193,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "z_handling",
-    "line": 3060,
+    "line": 3137,
     "module": "spacr.convert",
     "nested": false,
     "qualname": "convert_folder"

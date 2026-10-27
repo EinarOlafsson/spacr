@@ -942,6 +942,97 @@ def _copy_mask_as_tiff(source: str, target: str) -> None:
         write_tiff(target, np.asarray(image))
 
 
+def _check_paired_copy_cancelled(cancelled):
+    """Stop an explicitly cancelled paired copy before its next bounded step."""
+    if cancelled is not None and cancelled():
+        from ..i18n import tr
+
+        raise InterruptedError(tr("Copy cancelled."))
+
+
+def _copy_paired_layout(pairs, destination, cancelled=None):
+    """Copy explicit unambiguous pairs into a new sibling image/mask layout."""
+    import shutil
+    import tempfile
+
+    from ... import channel_sorting as cs
+    from ... import drop_classification as dc
+    from ...tiff_io import write_tiff
+    from imageio.v2 import imread
+    from ..i18n import tr
+
+    check_cancelled = partial(_check_paired_copy_cancelled, cancelled)
+
+    rows = list(pairs.items()) if isinstance(pairs, dict) else list(pairs)
+    if not rows or any(len(row) != 2 for row in rows):
+        raise ValueError(tr("Each image must have exactly one matching mask."))
+    rows = [(os.path.abspath(os.fspath(image)), os.path.abspath(os.fspath(mask)))
+            for image, mask in rows]
+    images, masks = zip(*rows)
+    names = [os.path.basename(image) for image in images]
+    stems = [engine.field_stem(name).casefold() for name in names]
+    pairing_stems = [dc._image_stem(image) for image in images]
+    if (len(set(pairing_stems)) != len(rows) or len(set(images)) != len(rows) or len(set(masks)) != len(rows)
+            or set(images) & set(masks) or len(set(stems)) != len(rows)
+            or len({name.casefold() for name in names}) != len(rows)):
+        raise ValueError(tr("Image and mask names are ambiguous or collide in the new folder."))
+    for image, mask in rows:
+        check_cancelled()
+        for path in (image, mask):
+            if not os.path.isfile(path) or not dc._is_image(path):
+                raise ValueError(tr("Image or mask is missing or unsupported: {path}", path=path))
+        candidates = [candidate for candidate in masks
+                      if (dc._image_stem(candidate) == dc._image_stem(image)
+                          or dc._mask_stem(candidate) == dc._image_stem(image))]
+        if candidates != [mask]:
+            raise ValueError(tr("Each image must have exactly one matching mask."))
+    destination = os.path.abspath(os.fspath(destination))
+    if os.path.lexists(destination):
+        raise FileExistsError(tr("The destination already exists: {path}", path=destination))
+    stage = tempfile.mkdtemp(prefix=".spacr-paired-", dir=os.path.dirname(destination))
+    created = False
+    try:
+        image_dir, mask_dir = os.path.join(stage, "images"), os.path.join(stage, "masks")
+        os.mkdir(image_dir)
+        os.mkdir(mask_dir)
+        for image, mask in rows:
+            check_cancelled()
+            shape = cs.image_shape(image)
+            if shape is None or not (len(shape) == 2 or
+                                     (len(shape) == 3 and shape[-1] in (1, 3, 4))):
+                raise ValueError(tr("Image and mask dimensions are incompatible: {image}", image=image))
+            labels = engine._as_field_mask(
+                imread(mask), shape[:2], mask, os.path.basename(image))
+            check_cancelled()
+            source_stamp = os.stat(image)
+            with open(image, "rb") as source, open(os.path.join(image_dir, os.path.basename(image)), "xb") as target:
+                while True:
+                    check_cancelled()
+                    block = source.read(1024 * 1024)
+                    if not block:
+                        break
+                    target.write(block)
+            after = os.stat(image)
+            if (source_stamp.st_size, source_stamp.st_mtime_ns) != (after.st_size, after.st_mtime_ns):
+                raise ValueError(tr("The source changed while it was being copied: {path}", path=image))
+            shutil.copystat(image, os.path.join(image_dir, os.path.basename(image)))
+            mask_name = engine.field_stem(os.path.basename(image)) + ".tif"
+            write_tiff(os.path.join(mask_dir, mask_name), labels)
+        check_cancelled()
+        os.mkdir(destination)
+        created = True
+        os.rename(image_dir, os.path.join(destination, "images"))
+        os.rename(mask_dir, os.path.join(destination, "masks"))
+        return {"destination": destination, "images": os.path.join(destination, "images"),
+                "masks": os.path.join(destination, "masks"), "files": names}
+    except Exception:
+        if created:
+            shutil.rmtree(destination)
+        raise
+    finally:
+        shutil.rmtree(stage)
+
+
 class _FolderJobWorker(QThread):
     """Run one folder job -- consolidating or sorting -- off the GUI thread.
 
@@ -24117,6 +24208,64 @@ class MakeMasksScreen(QWidget):
         wanted = set(found.images) | set(found.folders)
         return self._open_queue([p for p in paths if p in wanted])
 
+    def _open_paired_layout(self, pairs) -> bool:
+        """Ask before copying explicitly paired inputs into a new editing layout."""
+        from ...channel_sorting import unused_folder
+        from ..i18n import tr
+
+        if not pairs:
+            return False
+        if self._folder_job_running():
+            self._warn(tr("Busy"), tr("A folder job is still running."))
+            return False
+        if not self._confirm(
+                tr("Create a Make Masks copy?"),
+                tr("Copy {n} matched image/mask pair(s) into images/ and masks/ "
+                   "inside a new Make Masks folder? Choose its parent folder next. "
+                   "The originals stay unchanged. Cancel changes nothing.", n=len(pairs))):
+            return False
+        parent = QFileDialog.getExistingDirectory(
+            self, tr("Choose a parent folder for the Make Masks copy"),
+            os.path.dirname(os.path.abspath(next(iter(pairs)))))
+        if not parent:
+            return False
+        destination = unused_folder(parent, "make_masks")
+        snapshot = dict(pairs)
+        self._paired_layout_closing = False
+        worker = _FolderJobWorker(None, self)
+        worker.job = lambda: _copy_paired_layout(
+            snapshot, destination, cancelled=worker.isInterruptionRequested)
+        worker.open_token = self._load_token
+        worker.finished.connect(self._on_paired_layout_finished)
+        self._folder_job = self._paired_layout_job = worker
+        worker.start()
+        return True
+
+    def _on_paired_layout_finished(self) -> None:
+        """Open a completed copy only while its original request is current."""
+        worker = getattr(self, "_paired_layout_job", None)
+        if worker is None:
+            return
+        self._paired_layout_job = None
+        self._finish_folder_job(worker, self._report_paired_layout_result)
+
+    def _report_paired_layout_result(self, done):
+        """Show the current copy result after the owned folder job has finished."""
+        from ..i18n import tr
+
+        if getattr(self, "_paired_layout_closing", False):
+            return
+        if done.error is not None or done.result is None:
+            self._warn(tr("Could not prepare image/mask pairs"), str(done.error))
+            return
+        result = done.result
+        self._masks_console.post(tr(
+            "Copied {n} image/mask pair(s) to {destination}.",
+            n=len(result["files"]), destination=result["destination"]))
+        if done.open_token == self._load_token:
+            self._open_folder(result["images"], files=result["files"],
+                              masks_dir=result["masks"])
+
     def _open_with_masks(self, found) -> bool:
         """Open dropped images with the masks dropped with them.
 
@@ -24429,6 +24578,12 @@ class MakeMasksScreen(QWidget):
         if not self._volume_leave_ok() or not self._save_boxes_if_needed():
             event.ignore()
             return
+        self._paired_layout_closing = True
+        paired_job = getattr(self, "_paired_layout_job", None)
+        if paired_job is not None:
+            paired_job.requestInterruption()
+            if not drain_thread(paired_job, timeout_ms=5000):
+                paired_job.setParent(None)
         _wait_for_mask_writes()
         for request in list(getattr(self, "_mask_write_requests", ())):
             if request["done"].wait(5):

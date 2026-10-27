@@ -359,6 +359,23 @@ def stage_hover(stage: str) -> str:
     return STAGE_HOVER.get(stage, STAGE_HOVER["stable"])
 
 
+_STAGE_BUTTON_HOVER_ALPHA = 0.22
+_STAGE_BUTTON_PRESS_ALPHA = 0.40
+
+
+def _stage_button_rules(selector):
+    """Share the existing Home maturity colors and native hover/press opacity."""
+    return "\n".join(
+        f"""{selector}[stage="{stage}"]:hover {{
+    background-color: {css_color(hue, _STAGE_BUTTON_HOVER_ALPHA)};
+    border: 1px solid {hue};
+}}
+{selector}[stage="{stage}"]:pressed {{
+    background-color: {css_color(hue, _STAGE_BUTTON_PRESS_ALPHA)};
+    border: 1px solid {hue};
+}}""" for stage, hue in STAGE_HOVER.items())
+
+
 TILE_W = 172
 TILE_MAX_W = 260
 TILE_H = 124
@@ -5090,16 +5107,7 @@ def stylesheet(theme: str = "dark", font_scale: float = 1.0,
     DOCK_FILL = DOCK_BG if over_image else "transparent"
     RIM = rim_colour(theme)
     SELECTION_INK = selection_ink(theme)
-    STAGE_RULES = "\n".join(
-        f"""QPushButton#AppTile[stage="{stage}"]:hover {{
-    background-color: {css_color(hue, 0.22)};
-    border: 1px solid {hue};
-}}
-QPushButton#AppTile[stage="{stage}"]:pressed {{
-    background-color: {css_color(hue, 0.40)};
-    border: 1px solid {hue};
-}}"""
-        for stage, hue in STAGE_HOVER.items())
+    STAGE_RULES = _stage_button_rules("QPushButton#AppTile")
     FOLD_STAGE_RULES = "\n".join(
         f"""QPushButton#FoldButton[stage="{stage}"]:hover {{
     background-color: {css_color(hue, 0.22)};

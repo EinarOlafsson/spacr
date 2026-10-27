@@ -234,6 +234,8 @@ def inputs(stage,identity,baseline,edit,*,staged_source=None,source_idle_policy=
         'coverage':{'accepted':True,'gaps':[],'track_count':50,
             'native_scene_count':sum(r['native_live_video'] for r in rows),
             'action_speed':1,'edited_actions_fit_shortest_speech':True}}
+    if staged_source is not None and any(not row['native_live_video'] for row in rows):
+        timing['preserve_visual_intervals']=True
     return root,baseline,bindings,source,spec,timing
 
 

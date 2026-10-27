@@ -3,7 +3,28 @@ REMOTE AND CLUSTER SUBMISSION: ANY SIGN-IN METHOD, A USER-EDITED JOB SCRIPT,
 PER-PROFILE RESOURCES, A LOGIN-NODE SAFEGUARD, AND THE CONSOLE AND SYSTEM PANELS
 ================================================================================
 
-Status:    DONE — 2026-10-27; published remote-submission software accepted under the 1.5.1.6 delivery rule.
+Status:    REOPENED — 2026-10-27; saved full-job and user/connection profiles with import controls requested.
+CURRENT MAINTAINER FOLLOW-UP — 2026-10-27
+
+Workstation session 2 owns this additive follow-up. In Submit Remote, allow
+saving a complete job profile and a reusable user/connection profile. Provide
+import controls that fill the corresponding fields, using the existing
+execution-profile/job models rather than duplicate persistence. A full-job
+profile retains the selected module, settings reference, backend/connection,
+resources, environment setup, job script and submission/allocation options.
+A user/connection profile fills connection/authentication configuration and
+reusable user defaults while preserving job-specific choices.
+
+Preview/validate imports and apply them only after an explicit user action;
+loading a profile never authenticates, submits or runs anything. Preserve
+SSH aliases, custom authentication routes and platform-specific options.
+Do not export passwords, MFA replies, private-key contents or live keychain
+credentials; keep supported non-secret references/configuration. Preserve
+existing stored profiles, refuse malformed/incompatible imports clearly and
+keep existing form values intact on cancellation or validation failure.
+Focused save/import roundtrip, field-fill, scope, cancellation and no-submit
+checks plus normal affected outputs and nightly publication qualify delivery.
+
 Requested: maintainer, 2026-10-26, after testing the module on the University
            of Michigan Great Lakes cluster (Slurm), verbatim:
            "the remote worked and we were able to log into greatlakes and ssh

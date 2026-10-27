@@ -1,4 +1,4 @@
-"""Easy mode shares one saved choice across startup and Preferences."""
+"""Startup owns Easy mode; Preferences retains its independent dock choice."""
 from PySide6.QtWidgets import QDialogButtonBox, QFormLayout, QMainWindow, QMessageBox
 
 from tests.qt.test_startup_ai_reporting_choice import private_ai_profile
@@ -114,24 +114,23 @@ def test_preferences_save_refreshes_owner_and_cancel_preserves_both_saved_choice
     qtbot.addWidget(owner)
     owner.show()
     preferences.set_dock_mode("hidden")
+    preferences.set_easy_mode(True)
     dialog = preferences.PreferencesDialog(parent=owner)
     qtbot.addWidget(dialog)
     easy = dialog.findChild(Toggle, "EasyMode")
     dock = dialog.findChild(Toggle, "EasyModeDock")
-    assert easy is not None and dock is not None
-    assert not easy.isChecked() and not dock.isChecked()
-    easy.setChecked(True)
+    assert easy is None and dock is not None
+    assert not dock.isChecked()
     dock.setChecked(True)
-    assert not preferences.get_easy_mode() and not preferences.get_easy_mode_dock()
+    assert preferences.get_easy_mode() and not preferences.get_easy_mode_dock()
     dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Save).click()
     assert preferences.get_easy_mode() and preferences.get_easy_mode_dock()
     assert owner.refreshed == [(True, True)]
     assert preferences.get_dock_mode() == "hidden"
     reopened = preferences.PreferencesDialog(parent=owner)
     qtbot.addWidget(reopened)
-    assert reopened.findChild(Toggle, "EasyMode").isChecked()
+    assert reopened.findChild(Toggle, "EasyMode") is None
     assert reopened.findChild(Toggle, "EasyModeDock").isChecked()
-    reopened.findChild(Toggle, "EasyMode").setChecked(False)
     reopened.findChild(Toggle, "EasyModeDock").setChecked(False)
     reopened.reject()
     assert preferences.get_easy_mode() and preferences.get_easy_mode_dock()
@@ -157,14 +156,11 @@ def test_preferences_save_refreshes_owner_and_cancel_preserves_both_saved_choice
     assert owner.dock_refreshes == 1
     assert owner.refreshed == [(True, True)]
     assert preferences.get_easy_mode() and not preferences.get_easy_mode_dock()
-    applied.findChild(Toggle, "EasyMode").setChecked(False)
-    buttons.button(QDialogButtonBox.Apply).click()
-    question = applied._apply_confirmation
-    assert question is not None
-    next(button for button in question.buttons()
-         if question.buttonRole(button) == QMessageBox.AcceptRole).click()
-    assert applied._apply_confirmation is None
-    qtbot.waitUntil(lambda: owner.refreshed == [(True, True), (False, False)])
+    assert applied.findChild(Toggle, "EasyMode") is None
+    preferences.set_easy_mode(False)
+    buttons.button(QDialogButtonBox.Save).click()
     assert not preferences.get_easy_mode() and not preferences.get_easy_mode_dock()
     assert preferences.get_dock_mode() == "hidden"
-    applied.reject()
+    startup = SetupSlides()
+    qtbot.addWidget(startup)
+    assert not startup._editors["easy_mode"].isChecked()

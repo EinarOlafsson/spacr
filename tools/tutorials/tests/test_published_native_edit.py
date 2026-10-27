@@ -523,3 +523,24 @@ def test_edited_final_result_hold_rejects_unbound_audible_endpoint(source_plan,f
     else:scene['sentences'][-1]['audible_end']=scene['speech_end']+.01
     with pytest.raises(ValueError,match='validated last audible timing'):
         edit.plan_intervals(*args)
+
+
+@pytest.mark.parametrize('hybrid',[False,True])
+def test_staged_edits_preserve_checked_reference_intervals_only_for_hybrid_source(accepted_staged_source,hybrid):
+    from stage_lesson import read,write
+    source,target,identity,plan,policy,capture=accepted_staged_source
+    clock=source/'production'/identity/'video/native-live-timings.json'
+    if hybrid:
+        original=read(clock);original['scenes'][1]['native_live_video']=False;write(clock,original)
+        acceptance=source/'production'/identity/'current-video-acceptance.json'
+        value=read(acceptance);value['timing_sha256']=edit.digest(clock);write(acceptance,value)
+        plan['visual_timing_sha256']=edit.digest(clock)
+        value=read(policy);value['lessons'][0]['visual_timing_sha256']=edit.digest(clock);write(policy,value)
+    root,baseline,bindings,provenance,spec,timing=edit.inputs(target,identity,None,plan,
+        staged_source=source,source_idle_policy=policy)
+    assert (timing.get('preserve_visual_intervals') is True)==hybrid
+    reference=timing['scenes'][1]
+    assert reference['duration']==10 and reference['source_keep_frames']==[[0,300]]
+    assert not reference['edited'] and reference['native_live_video'] is (not hybrid)
+    assert timing['coverage']['track_count']==50
+    assert len(timing['source_tracks'])==50
