@@ -331,7 +331,12 @@ def test_merge_rules_table(qtbot, accessible, tmp_path):
     for _ in range(4):
         dialog._fill_rules()
         assert dialog.rules.rowCount() == first
-        assert dialog.rules.item(0, 0).text() == "pathogen"
+        assert dialog.rules.item(0, 0).text() == "cell"
+        assert dialog.rules.item(0, 1).text() == "area"
+        assert [dialog.rules.item(row, 0).text() for row in range(first)] == (
+            ["cell"] + ["pathogen"] * (first - 1))
+        assert {dialog.rules.item(row, 1).text() for row in range(1, first)} >= {
+            "area", "mean_intensity"}
         seen.take()
         assert seen.valid()
 
