@@ -508,3 +508,5 @@ Codex next owns Activation Maps16 on the freshly rebased nightly capture clone: 
 
 2026-10-27 — Activation Maps passes both actual CUDA runs: channel/reference errors [0,1,0,0], image errors all zero; original database, crops, model and card remain unchanged. Normal composition binds every selected take to the same scientific inputs.
 Native scrollbar inspection shows all four labeled cells. Reviewed grid excerpts pass the unchanged gate at29.38/29.06fps with100% pointer detection; full-clip failures remain preserved. All50 narration tracks are retained; final pause edit, playback checks and publication remain in progress.
+
+2026-10-27 — Activation Maps final master280.77s and all12 generated pause fences pass full decode, frame/PTS, poster and web checks. Retain50 tracks; strict all-voice playback and publication remain.
