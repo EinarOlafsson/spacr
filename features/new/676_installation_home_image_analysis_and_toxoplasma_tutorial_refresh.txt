@@ -382,3 +382,8 @@ Next:48 missing23English voices and six reviewed native pause edits;63 needs a v
 
 2026-10-26 — Short native smoke on89bac77e39 (nightly79365565ad, paint-region fix8e0354639d) fails0/2:Home20.26fps andPreferences25.90fps; exact gates/logs/stacks in AI/HANDOFF and t18/FOR_HOME_pending.md.
 NVIDIA EGL then22ms-GIL/30s CPU shading observed; no continuous GUI-block or universal cause claimed. New recording stays held for Home performance work;48 voice synthesis continues.
+
+2026-10-26 — Lesson48 now offers all50 voices:23 missing English tracks added; original27 tracks, all visuals and published translations preserved.
+All23 new onset checks,107 candidate playback cases and82 published cases pass; HF2c57c0ec95fe46dcd8a092509db71f6824c9baff verified6963/6963 files and14498723619bytes.
+Voice additions retain the explicitly published independent picture clock while validating every original language timing against its published narration;17 affected tests pass.
+Website deployment remains queued; next are six reviewed pause edits. Lesson63 needs visible Trellis capture, native performance/app holds and01 PyPI hold remain; item676 stays open.
