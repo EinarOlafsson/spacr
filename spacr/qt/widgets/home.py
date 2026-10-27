@@ -5092,7 +5092,7 @@ class _EasyPathEdit(QLineEdit):
         self.setObjectName('EasyModePath')
         self.setProperty(OPT_OUT_PROPERTY, True)
         self.setFrame(False)
-        self.setPlaceholderText(tr('Drop a file/folder, type a path or query'))
+        self.setPlaceholderText(tr('Drop a file/folder, type a path or task'))
         self.setAccessibleName(tr('File or folder path'))
         self.setFixedHeight(64)
         self.setMouseTracking(True)
@@ -6596,13 +6596,14 @@ class _EasyHomePage(QWidget):
 
     def _submit(self):
         """Use Enter for explicit command navigation or suggestion discovery."""
-        from ..app import _easy_command_text, _easy_module_search, _easy_module_matches
+        from ..app import _easy_command_text, _easy_module_search, _easy_module_matches, _easy_task_keys
         from ..organisms import ORGANISMS
 
         value = self.path_edit.text().strip()
         self._show_suggestions()
         organism = any(key in ORGANISMS for key in _easy_module_matches(value))
-        if organism or not _easy_command_text(value) or value.endswith(':') or len(_easy_module_search(value)) > 1:
+        if (organism or _easy_task_keys(value) or not _easy_command_text(value)
+                or value.endswith(':') or len(_easy_module_search(value)) > 1):
             self._inspect()
             return
         self._debounce.stop()

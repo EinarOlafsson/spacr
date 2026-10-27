@@ -170,7 +170,7 @@ def test_real_typed_inspection_keeps_cards_readable_disjoint_and_actionable(
                        {card._key for card in page.field.cards}, timeout=5000)
         qtbot.waitUntil(lambda: all(not card._growing for card in page.field.cards), timeout=7000)
         assert page.path_edit.text() == str(image)
-        assert page.path_edit.placeholderText() == 'Drop a file/folder, type a path or query'
+        assert page.path_edit.placeholderText() == 'Drop a file/folder, type a path or task'
         assert page.path_edit.rect().contains(page.path_edit.browse.geometry())
         assert page.path_edit.isVisible()
         assert not page.status.isVisible()
