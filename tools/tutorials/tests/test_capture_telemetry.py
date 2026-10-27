@@ -226,3 +226,33 @@ def test_a_field_paint_freeze_cannot_pass_on_the_whole_clip_average(monkeypatch)
     assert result['app_freeze_seconds'] == [9]
     assert not result['passed']
     assert result['reasons'][0].startswith('app freeze:')
+
+
+def test_held_pacing_diagnostics_preserve_freeze_refusal_when_clip_average_passes(monkeypatch):
+    fake_measurements(monkeypatch, seconds=12, low_second=11, low_frames=20)
+    times = [index / 10 for index in range(121)]
+    counts = [round(30 * min(stamp, 11) + 20 * max(0, stamp - 11)) for stamp in times]
+    samples = [(stamp, [{'id': 1, 'visible': True, 'counter_reset': False,
+                         'observed_frames_painted': count, 'configured_fps': 60,
+                         'effective_rate': 20 if stamp >= 11 else 30,
+                         '_hold_paced': stamp >= 11}]) for stamp, count in zip(times, counts)]
+    receipt = {'app_paint_counter_semantics': 'observed_per_widget_deltas',
+               'app_paint_samples': list(zip(times, counts)),
+               'app_gui_sampler_interval_s': .1, 'app_gui_sampler_gaps_s': [],
+               'app_field_widget_samples': samples}
+    unadjusted = gate.evaluate(Path('unused-native.mp4'), receipt=dict(receipt,
+        app_field_widget_samples=[(stamp, [{key: value for key, value in rows[0].items()
+                                            if key != '_hold_paced'}]) for stamp, rows in samples]))
+    assert unadjusted['distinct_fps'] > unadjusted['limits']['min_fps'] == 27.9
+    assert unadjusted['app_freeze_seconds'] == [11]
+    assert not unadjusted['passed']
+    adjusted = gate.evaluate(Path('unused-native.mp4'), receipt=receipt)
+    assert adjusted['distinct_fps'] == unadjusted['distinct_fps']
+    assert adjusted['limits'] == unadjusted['limits']
+    assert adjusted['app_gui_sampler_gaps_s'] == []
+    assert adjusted['app_diagnostic_sampled_hold_pacing_per_second'] == [None] * 11 + [20]
+    assert adjusted['app_freeze_seconds'] == []
+    assert adjusted['app_slow_seconds'] == [11]
+    assert adjusted['app_admission_freeze_seconds'] == unadjusted['app_admission_freeze_seconds'] == [11]
+    assert adjusted['reasons'] == unadjusted['reasons']
+    assert not adjusted['passed']

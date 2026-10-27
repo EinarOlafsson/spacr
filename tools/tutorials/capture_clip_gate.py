@@ -373,6 +373,9 @@ def evaluate(video: Path, *, receipt: dict | None = None, fps: float | None = No
         facts.get('app_field_widget_samples'), whole, limits['min_fps'],
         cadence=facts.get('app_gui_sampler_interval_s'), gaps=sampler_gaps)
         if counter_semantics == 'observed_per_widget_deltas' else [None] * whole)
+    admission_freeze, _, _, _ = label_seconds(
+        per_second, diagnostic_painted, limits['min_fps'], sampler_gaps=sampler_gaps,
+        sample_offset=stall_offset, include_unknown=True)
     freeze, loss, slow, unknown = label_seconds(
         per_second, diagnostic_painted, limits['min_fps'], sampler_gaps=sampler_gaps,
         sample_offset=stall_offset, include_unknown=True, held_pacing=held_pacing)
@@ -395,8 +398,8 @@ def evaluate(video: Path, *, receipt: dict | None = None, fps: float | None = No
                          f'{len(stalls)} paint stalls')
         reasons.append(f'choppy ({label}): {distinct_fps:.1f} distinct fps < {limits["min_fps"]}'
                        + (f' [{"; ".join(where)}]' if where else ''))
-    elif freeze:
-        reasons.append(f'app freeze: second(s) {freeze} (paint scope: {diagnostic_scope})')
+    elif admission_freeze:
+        reasons.append(f'app freeze: second(s) {admission_freeze} (paint scope: {diagnostic_scope})')
     if jumps:
         reasons.append(f'pointer jump: {len(jumps)} frame step(s) over {bound:.0f} px '
                        f'(max {max(j["step_px"] for j in jumps):.0f} px)')
@@ -430,6 +433,7 @@ def evaluate(video: Path, *, receipt: dict | None = None, fps: float | None = No
         'app_diagnostic_sampled_hold_pacing_per_second': held_pacing,
         'app_gui_sampler_gaps_s': [[round(a, 3), round(b, 3)] for a, b in sampler_gaps],
         'app_gui_sampler_gap_evidence': sampler_evidence,
+        'app_admission_freeze_seconds': admission_freeze,
         'app_freeze_seconds': freeze, 'app_slow_seconds': slow, 'capture_loss_seconds': loss,
         'app_unknown_seconds': unknown,
         'app_stall_windows_s': [[round(a, 3), round(b, 3)] for a, b in stalls],
