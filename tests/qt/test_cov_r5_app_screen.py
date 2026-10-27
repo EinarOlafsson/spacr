@@ -636,14 +636,13 @@ class TestWhetherABulkApplyChangesTheFormShape:
         assert screen._bulk_apply_changes_form_shape(
             {"organelle_channel": 2}, {}) is False
 
-        # Item 356 (2026-10-17): on a form that HAS the count the slot's
-        # channel is still shown in place; only a new count reshapes it.
+        # Progressive organelle counts and channels now grow the existing form.
         assert screen._bulk_apply_changes_form_shape(
             {"organelle_channel": 2},
             {NUMBER_OF_ORGANELLES: 1, "organelle_channel": None}) is False
         assert screen._bulk_apply_changes_form_shape(
             {NUMBER_OF_ORGANELLES: 2},
-            {NUMBER_OF_ORGANELLES: 1, "organelle_channel": None}) is True
+            {NUMBER_OF_ORGANELLES: 1, "organelle_channel": None}) is False
 
     def test_a_slot_beyond_the_requested_count_changes_nothing(self, screen):
         from spacr.organelle_types import NUMBER_OF_ORGANELLES

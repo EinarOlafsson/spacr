@@ -126,20 +126,40 @@ def test_the_count_is_one_of_the_settings_the_module_meets_you_with(app_key):
 
 @pytest.mark.parametrize("app_key", MODULES)
 def test_the_count_adds_and_hides_slots_through_the_strip(qtbot, app_key):
-    """Each rebuilt shape shows exactly the slots its count names.
-
-    The optimized panel no longer constructs twenty-six slots and toggles
-    them in place. A committed count rebuilds the form with that count, so
-    exercise the same scoped value hand-off for zero, two and seven.
-    """
+    """Integer commits progressively reveal slots through the Essential strip."""
     from spacr.organelle_types import organelle_roles
+    from spacr.qt.settings_search import ESSENTIALS
 
-    for count in (0, 2, 7):
-        screen, model, _bar = _screen_with_the_strip(
-            qtbot, app_key, {"number_of_organelles": count})
-        combo = model._widgets["number_of_organelles"]
-        assert combo.currentData() == count
-        assert _slots_on_screen(screen, app_key) == list(
-            organelle_roles(count))
-        # The count is never one of the rows a slot takes with it.
+    screen, model, bar = _screen_with_the_strip(qtbot, app_key)
+    count_field = model._widgets["number_of_organelles"]
+    assert count_field.text() == "0"
+    assert _slots_on_screen(screen, app_key) == []
+    count_field.setText("7")
+    count_field.editingFinished.emit()
+    qtbot.wait(1)
+    assert screen._settings_model is model
+    assert _slots_on_screen(screen, app_key) == list(organelle_roles(1))
+    fields = {}
+    values = {}
+    for index, role in enumerate(organelle_roles(7)):
+        key = f"{role}_{SWITCH[app_key]}"
+        assert key in model._widgets
+        field = model._widgets[key]
+        fields[key] = field
+        values[key] = index
+        field.setText(str(index))
+        field.editingFinished.emit()
+        qtbot.wait(1)
+        assert _slots_on_screen(screen, app_key) == list(organelle_roles(min(index + 2, 7)))
+    for count in (2, 0, 7):
+        count_field.setText(str(count))
+        count_field.editingFinished.emit()
+        qtbot.wait(1)
+        assert screen._settings_model is model
+        assert model._widgets["number_of_organelles"] is count_field
+        assert model.collect()["number_of_organelles"] == count
+        assert bar.level() == ESSENTIALS
+        assert _slots_on_screen(screen, app_key) == list(organelle_roles(count))
         assert screen.setting_row_is_visible("number_of_organelles") is True
+        assert {key: model.collect()[key] for key in values} == values
+        assert all(model._widgets[key] is field for key, field in fields.items())

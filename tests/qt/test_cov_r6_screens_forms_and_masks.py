@@ -370,8 +370,7 @@ def test_a_key_that_reaches_the_slot_number_is_always_a_slot(make_screen):
             checked += 1
     assert checked > 3
 
-    # Item 356 (2026-10-17): a slot's channel, inside the count or beyond
-    # it, is shown in place; only the count itself reshapes the form.
+    # Counts and channels reveal controls without replacing the screen.
     current = {NUMBER_OF_ORGANELLES: 1, "organelleb_channel": None,
                "organelle_channel": None}
     assert screen._bulk_apply_changes_form_shape(
@@ -379,7 +378,7 @@ def test_a_key_that_reaches_the_slot_number_is_always_a_slot(make_screen):
     assert screen._bulk_apply_changes_form_shape(
         {"organelle_channel": 2}, current) is False
     assert screen._bulk_apply_changes_form_shape(
-        {NUMBER_OF_ORGANELLES: 2}, current) is True
+        {NUMBER_OF_ORGANELLES: 2}, current) is False
 
 
 # ---------------------------------------------------------------------------

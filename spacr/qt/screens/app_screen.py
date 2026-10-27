@@ -13666,9 +13666,7 @@ class AppScreen(QWidget):
             w = self._settings_model._widgets.get(key)
             if w is None:
                 if self._settings_model.set_hidden_value(key, val):
-                    from .settings_model import _APP_HIDDEN_KEYS
-                    if key in _APP_HIDDEN_KEYS.get(self.app_key, set()):
-                        applied += 1
+                    applied += 1
                 continue
             try:
                 self._apply_value(w, val)

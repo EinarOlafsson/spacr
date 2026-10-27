@@ -31,7 +31,8 @@ different run, not a different caption:
 
 The organelle summary row is built only when ``number_of_organelles`` says
 the run has an organelle. Its named cases therefore build the panel for one
-slot; that keeps testing the override without requiring an irrelevant row on
+slot with its actual channel or mask plane configured; that keeps testing
+the override without requiring an irrelevant row on
 a run whose count is zero.
 
 Opening a module and pressing Run without touching anything must run the
@@ -138,8 +139,13 @@ def test_the_canned_table_really_does_override_something(qtbot):
 ])
 def test_the_known_overrides_are_each_named(qtbot, app_key, key):
     """Named individually, so a regression says WHICH module came back."""
-    current = ({"number_of_organelles": 1}
-               if key == "summarize_organelles_by" else None)
+    current = None
+    if key == "summarize_organelles_by":
+        from spacr.qt.screens.settings_model import resolve_default_settings
+
+        defaults = resolve_default_settings(app_key)
+        switch = "channel" if "organelle_channel" in defaults else "mask_dim"
+        current = {"number_of_organelles": 1, f"organelle_{switch}": 0}
     model, spec = _built(qtbot, app_key, current=current)
     assert key in model._widgets, f"{app_key} no longer offers {key}"
 

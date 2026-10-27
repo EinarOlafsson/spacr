@@ -202,7 +202,7 @@ def test_reading_a_headings_rows_back_captions_them_all(qtbot):
 # ---------------------------------------------------------------------------
 
 def test_a_shape_built_for_seven_captions_the_seven_slots(qtbot):
-    """A committed count rebuilds the optimized panel at its new shape.
+    """Configured slots receive their real captions and table columns.
 
     Since 592 the per-object table is Mask's only layout of the per-object
     questions: the seven slots are seven of its columns, and their flat rows
@@ -210,8 +210,10 @@ def test_a_shape_built_for_seven_captions_the_seven_slots(qtbot):
     """
     from spacr.organelle_types import ALL_ORGANELLE_ROLES
 
-    screen, _model = _screen(
-        qtbot, current={"number_of_organelles": 7})
+    current = {"number_of_organelles": 7}
+    current.update({f"{role}_channel": index
+                    for index, role in enumerate(ALL_ORGANELLE_ROLES[:7])})
+    screen, _model = _screen(qtbot, current=current)
     # 2026-09-29 (item 592, "hide unset objects"): a slot's column is drawn
     # only once its channel is set, so the seven slots are seven CLAIMED
     # columns, and each slot's channel is a form row the count reveals.
@@ -222,15 +224,24 @@ def test_a_shape_built_for_seven_captions_the_seven_slots(qtbot):
     for index, role in enumerate(ALL_ORGANELLE_ROLES):
         assert screen.setting_row_is_visible(f"{role}_channel") is (
             index < 7), role
-        assert role not in screen._object_grid.objects(), role
+        assert (role in screen._object_grid.objects()) is (index < 7), role
 
 
 def test_a_revealed_row_keeps_the_place_it_was_declared_in(qtbot):
     """``Section.add_row`` appends; a revealed setting belongs where the
     module wrote it, not underneath the sub-headings."""
     screen, model = _screen(qtbot)
-    combo = model._widgets["number_of_organelles"]
-    combo.setCurrentIndex(combo.findData(7))
+    from spacr.organelle_types import organelle_role
+
+    count = model._widgets["number_of_organelles"]
+    count.setText("7")
+    count.editingFinished.emit()
+    for index in range(7):
+        key = f"{organelle_role(index + 1)}_channel"
+        assert key in model._widgets
+        channel = model._widgets[key]
+        channel.setText(str(index))
+        channel.editingFinished.emit()
     qtbot.wait(1)
 
     rows = _form_rows(screen)
