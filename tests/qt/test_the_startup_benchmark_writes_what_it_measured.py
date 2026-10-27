@@ -110,6 +110,12 @@ def test_the_artifact_is_replaced_atomically_not_written_in_place(controller,
     assert leftovers == [], f"a temporary was left behind: {leftovers}"
 
 
+def test_an_unobserved_loading_cover_is_not_a_zero_cost_animation(controller, tmp_path):
+    assert controller._persist("registry sweep complete") == ""
+    artifact = json.loads((tmp_path / "benchmark.json").read_text(encoding="utf-8"))
+    assert artifact["startup_animation"] is None
+
+
 def test_a_failed_write_reports_why_and_leaves_no_temporary(controller,
                                                             tmp_path,
                                                             monkeypatch):

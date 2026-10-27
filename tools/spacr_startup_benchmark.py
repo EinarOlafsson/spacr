@@ -21,6 +21,13 @@ hosted runner has neither the documented lower-end hardware profile nor a real
 display server/compositor/refresh path, and its shared-host scheduling noise is
 not hardware-normalised.  ``--offscreen`` therefore remains diagnostic; final
 acceptance is a real-display run whose complete artifact passes this driver.
+
+Each worker also exports ``startup_animation`` when a loading cover finishes:
+its mode, completion state and ``frame_stats`` survive the cover's deletion.
+These are paint-callback measurements, not verified compositor presentation;
+drop counts are refresh-based estimates. A null value means no finished cover
+was observed, including an ordinary offscreen run, rather than zero-cost
+animation or a passed animation budget.
 """
 from __future__ import annotations
 
