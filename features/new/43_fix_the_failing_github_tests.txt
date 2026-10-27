@@ -1,5 +1,12 @@
 GET THE GITHUB ACTIONS RUNS GREEN
 
+CURRENT STARTUP FRAME-STATS BOUNDARY FIXTURE — 2026-10-27
+widgets_g1 owns Main Coverage 2 job 122460216350: align only the stale
+LoadingScreen.frame_stats expected record with its approved no-paint and
+reduced-motion counter documentation. Preserve all 21 exact boundary
+records and assertions; G5 peers before the sole affected selector, with
+no source change, history rollback, API assembly or native run.
+
 CURRENT PACKAGE AND NESTED DOCSTRING GUARDS — 2026-10-27
 widgets_g1 owns Main Coverage 1 job 122460216498: repair only the exact
 missing-callable list from the unchanged package docstring guard and the
@@ -5317,3 +5324,5 @@ Also check the per-host instance lock and unclean-exit counter: concurrent windo
 2026-10-27 — Documented all five reported duplicate-observation helpers/initializer from their actual parameter, return/yield and refusal semantics. Executable bodies, signatures and numerical behavior are unchanged; G5 independently verified the docs-only diff. The sole completed-module documentation selector passes; parent owns normal eligibility and root holds publication with the qualified CI repair batch.
 
 2026-10-27 — Added docstrings to the exact remaining 23 callables from the package guard, including the existing gate-editor work closure; the five previously qualified merge-helper docs remain intact. G5 verified semantics and executable-AST/signature/decorator equality across seven modules. The package zero-docstring guard and unchanged nested-budget guard pass together; parent owns normal visibility/consumer closure and root alone publishes.
+
+2026-10-27 — Aligned only the stale LoadingScreen.frame_stats fixture with the approved N727 callback/presentation and zero-paint documentation. The other 20 records and strict 21-record dictionary/boundary assertions remain exact. G5 confirmed canonical-source equality; the sole owning selector passes (40.17 s), with no source, API-history, pin or generated changes. Root owns publication.
