@@ -3312,6 +3312,115 @@
           "idle_tail_start": 4.0
         }
       ]
+    },
+    {
+      "lesson": "36_import",
+      "master_sha256": "f70bf3f11dc859c8418aa68ca1cfb05356a964141bb19d17200b5cd82ee9cbaa",
+      "visual_timing_sha256": "227f6d4795f7e575f44a088d5bee5b3733dcf84482add22099b8383ef7d52bb7",
+      "scenes": [
+        {
+          "visual": "01_module",
+          "source_start": 0.0,
+          "source_end": 17.966666666666665,
+          "idle_tail_start": 5.7
+        },
+        {
+          "visual": "02_fold_import_images",
+          "source_start": 17.966666666666665,
+          "source_end": 42.0,
+          "idle_tail_start": 5.9
+        },
+        {
+          "visual": "org_organize_popup",
+          "source_start": 42.0,
+          "source_end": 76.56666666666666,
+          "idle_tail_start": 15.5
+        },
+        {
+          "visual": "03_choose_images",
+          "source_start": 76.56666666666666,
+          "source_end": 93.36666666666666,
+          "idle_tail_start": 3.8
+        },
+        {
+          "visual": "04_choose_masks",
+          "source_start": 93.36666666666666,
+          "source_end": 109.66666666666667,
+          "idle_tail_start": 7.8
+        },
+        {
+          "visual": "05_choose_table",
+          "source_start": 109.66666666666667,
+          "source_end": 126.06666666666666,
+          "idle_tail_start": 4.6
+        },
+        {
+          "visual": "06_inputs_unknown_calibration",
+          "source_start": 126.06666666666666,
+          "source_end": 147.9,
+          "idle_tail_start": 5.8
+        },
+        {
+          "visual": "06b_safe_inferred_names",
+          "source_start": 147.9,
+          "source_end": 168.66666666666666,
+          "idle_tail_start": 5.8
+        },
+        {
+          "visual": "07_conflict_refused",
+          "source_start": 168.66666666666666,
+          "source_end": 193.4,
+          "idle_tail_start": 10.4
+        },
+        {
+          "visual": "08b_join_report",
+          "source_start": 193.4,
+          "source_end": 211.16666666666666,
+          "idle_tail_start": 5.4
+        },
+        {
+          "visual": "09_mapping_edited",
+          "source_start": 211.16666666666666,
+          "source_end": 225.93333333333334,
+          "idle_tail_start": 6.9
+        },
+        {
+          "visual": "10_save_mapping",
+          "source_start": 225.93333333333334,
+          "source_end": 240.63333333333333,
+          "idle_tail_start": 5.8
+        },
+        {
+          "visual": "12_mapping_reloaded",
+          "source_start": 240.63333333333333,
+          "source_end": 258.23333333333335,
+          "idle_tail_start": 4.2
+        },
+        {
+          "visual": "13_imported",
+          "source_start": 258.23333333333335,
+          "source_end": 274.93333333333334,
+          "idle_tail_start": 7.8
+        },
+        {
+          "visual": "14_import_scope",
+          "source_start": 274.93333333333334,
+          "source_end": 300.6333333333333,
+          "idle_tail_start": 5.6
+        },
+        {
+          "visual": "14_import_scope",
+          "source_start": 300.6333333333333,
+          "source_end": 326.3333333333333,
+          "idle_tail_start": 5.6
+        },
+        {
+          "visual": "14_import_scope",
+          "source_start": 326.3333333333333,
+          "source_end": 352.03333333333336,
+          "idle_tail_start": 5.6
+        }
+      ]
     }
   ]
 }

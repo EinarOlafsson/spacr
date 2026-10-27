@@ -1,6 +1,4 @@
-================================================================================
 INSTALL SPACR, COMPLETE HOME NAVIGATION AND CURRENT ORGANISM TUTORIALS
-================================================================================
 
 Status:    in progress
 Requested: 2026-10-08
@@ -362,8 +360,38 @@ Preserve autonomous recording chain, one app base per lesson, quiet recording wi
 2026-10-26 — All50voices acceptance also requires23missingEnglishvoices for06 and48; preserve their27existingtracks and acceptedvisuals.
 Visiblecatalog59:44alreadyoffer50voices,15offer27. The handed-over15recording/publicationlessons remain, plus these2voice-onlycompletions.
 Retake31/50onlyonnightlyd29a84525f orlater;58asyncmerge03e925b9d3,64Rename610abdfdbe,16GPU saliency maxdifference<=1,22literalerrorifstillfailing.
+Hold74/36publication: native scene waits can exceed1second despite shortenedAAC; bind reviewed idle-tail cuts and verify actual sound gaps, retaining recordings/audio.
+Loaded-policy and every-boundary gap verification passes38focusedtests; sevenpublishednewrecordings also requirepausecuts. Codex ownsdelivery;Home ownsappfixes;01waitsforPyPI1.5.1.6.
 74reviewed existing-footage cuts pass71playbackcases/all50voices:500actualsentencegaps0.800–0.837s;publicationpending,36next. Originalaudioandcapturesevidence retained.
+74edited media uploaded/verified and pushedc89e5ae26d;59hostedroutes and64publicationtests pass, website deploymentpending.36reviewed6cuts/17idlefences rendered with original50tracks;finalmedia/browser/publicationpending.
 Sevenpriorpublishednewrecordings also requirepausecuts;13/70/19waitforHomeperformancefixes. Codex ownsdelivery;Home ownsappfixes;01waitsforPyPI1.5.1.6.
 CURRENT MODEL ZOO NATIVE RECORDING — 2026-10-26
 widgets_g5 owns a complete fresh lesson22 native GNOME recording using the existing CPSAM checkpoints and real source fields, CPU-only under the shared memory cap while protected GPU work continues. Preserve normal real-pointer, scientific, clip-smoothness and finishing gates and all other lessons, especially74. Local recording and finishing are authorized; Hugging Face publication, catalog replacement, repository pushes and lesson16 GPU work remain outside this slice. Root coordinates publication after the finished outputs are preserved on NAS; report any actual product or scientific failure without claiming acceptance.
 2026-10-26 — Root approves the ordinaryxcb client inside the isolated software nested-Wayland host: use only its descendant Xwayland display/private authentication, preserve physical GPU exclusion and all original driver/pointer/privacy/scientific gates. Real native monitor2560×1440/max60 proof is retained; zero lesson22 clips are accepted. widgets_g5 prepares the bounded helper/source checks only; recording waits for Easy/Overview publication and734 native completion. Whole lesson22 scientific/finish acceptance and publication remain pending.
+
+CURRENT GRAPH BUILDER TUTORIAL ACCEPTANCE — 2026-10-26
+widgets_g5 owns the isolated follow-up to lesson58's real brush publishing 656 object keys while the visible selection count stays zero and the Annotate handoff remains disabled. Bind selection-bus keys, active table identities and receiver lifecycle before a minimal demonstrated product correction and focused CPU controls. Preserve the original driver assertions, source database and release candidate. Complete root-authorized real-app lesson58 acceptance, then64 only after58 passes; GPU acceptance, recording, rendering and publication remain outside this follow-up. Root reviews any source integration and publishes.
+2026-10-26 — Graph brushes now refresh their own highlight after publication and notify the host after linked highlight/clear updates; no-own-echo semantics are retained. Six focused CPU checks pass (6.63s), independent peer accepted, and existing real-app lesson58 and64 acceptance drivers finish successfully on an isolated software-rendered GNOME/Xvfb desktop with source measurements preserved. Root owns post-release integration/publication; GPU lesson16, new recordings and the remaining tutorial campaign stay open.
+
+2026-10-26 — Tutorials 74 and 36 media are uploaded/readback-verified and pushed through nightly 562d5d73f5; website deployment pending.
+36 retains all 50 tracks and passes 72 matrix/reconciliation cases, 800 actual sentence gaps of 0.800–0.843s, 59 Pages routes and 64 pin checks (1 Node skip).
+58 merges 2341 rows but its brush publishes 656 keys with 0 visible selection and disabled Annotate; final gate accepts 3/23 clips at 12.23–28.88fps. Home owns app fixes; exact evidence/stacks in AI/HANDOFF and t18/FOR_HOME_pending.md.
+p26/c09 finished normally (lesson rc=2, part rc=0); its queued retry is preserved. 13/70/19 remain held for Home performance fixes; no repeated failing-base retake.
+Continue the 23 missing English voices each for 06/48 and seven prior new-record pause edits, preserving accepted footage/audio. 01 waits for PyPI 1.5.1.6; item676 remains open.
+
+2026-10-26 — Visual review reopens lesson63: the recorded foreground Trellis is collapsed although its plot-data checks pass; narrated four/twelve-panel results are not visible.
+Codex owns the driver correction after divider movement and a fail-closed visible-canvas check; no safe pause-only repair or usable same-base alternate has been found. Retake only after current-nightly native validation; preserve the published source and all50 tracks.
+
+2026-10-26 — Lesson06 now offers all50voices:23newEnglish tracks added; original27 tracks, every visual and all13 published translations preserved.
+All23 new sentence-onset checks pass;107 candidate cases and82 published cases pass (84/59 standard routes plus23 new voices).
+HF n676-ws-06-api-voices-20261026-verified pins8a0102cfc9ef40bffdd465706170ec829d20f6a6; all6917 files/14476508061bytes read back with matching hashes.
+Restored13 exact historical link-only translation-review bindings from5430c0ceab; narration and translated prose are unchanged. Website deployment remains pending.
+Next:48 missing23English voices and six reviewed native pause edits;63 needs a visible Trellis retake, app/performance holds and01 PyPI hold remain. Item676 stays open.
+
+2026-10-26 — Short native smoke on89bac77e39 (nightly79365565ad, paint-region fix8e0354639d) fails0/2:Home20.26fps andPreferences25.90fps; exact gates/logs/stacks in AI/HANDOFF and t18/FOR_HOME_pending.md.
+NVIDIA EGL then22ms-GIL/30s CPU shading observed; no continuous GUI-block or universal cause claimed. New recording stays held for Home performance work;48 voice synthesis continues.
+
+2026-10-26 — Lesson48 now offers all50 voices:23 missing English tracks added; original27 tracks, all visuals and published translations preserved.
+All23 new onset checks,107 candidate playback cases and82 published cases pass; HF2c57c0ec95fe46dcd8a092509db71f6824c9baff verified6963/6963 files and14498723619bytes.
+Voice additions retain the explicitly published independent picture clock while validating every original language timing against its published narration;17 affected tests pass.
+Website deployment remains queued; next are six reviewed pause edits. Lesson63 needs visible Trellis capture, native performance/app holds and01 PyPI hold remain; item676 stays open.

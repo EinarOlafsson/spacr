@@ -684,13 +684,14 @@ def _canvas_box(id, kind, x, y, w, h, **properties):
         ``pixel_size_um`` and ``fit`` (drawn whole inside the box, centred,
         without stretching) for images; image files also keep ``import``
         (per-channel import settings) and ``channels`` (their channel count).
+        ``overview_display`` keeps an optional JSON-ready display snapshot.
     """
     box = {"id": int(id), "kind": "image" if kind == "image" else "text",
            "x": float(x), "y": float(y), "w": float(w), "h": float(h),
            "text": "", "font_size": 10.0, "bold": False, "italic": False, "align": "left",
            "source": None, "label": "", "lock_aspect": True, "aspect": None, "native": None,
            "scale_bar": False, "pixel_size_um": None, "fit": False}
-    box.update({key: value for key, value in properties.items() if key in box or key in ("role", "import", "channels")})
+    box.update({key: value for key, value in properties.items() if key in box or key in ("role", "import", "channels", "overview_display")})
     if box["align"] not in _CANVAS_ALIGNMENTS:
         box["align"] = "left"
     return box
@@ -1136,6 +1137,25 @@ class _CanvasBoxItem(QGraphicsRectItem):
         super().mouseReleaseEvent(event)
         self._composer._moved(self.box_id)
 
+    def contextMenuEvent(self, event):
+        """Offer current Overview display settings for this image only.
+
+        :param event: the graphics-scene context-menu request.
+        """
+        from PySide6.QtWidgets import QMenu
+
+        box = self.box()
+        if box is None or box["kind"] != "image" or not self._composer._display_capture_supported():
+            return super().contextMenuEvent(event)
+        self._composer.select([self.box_id])
+        menu = QMenu(self._composer)
+        action = menu.addAction(tr("Propagate settings"))
+        action.triggered.connect(functools.partial(self._composer.propagate_settings, [self.box_id]))
+        menu.aboutToHide.connect(menu.deleteLater)
+        self._composer._display_menu = menu
+        menu.popup(event.screenPos())
+        event.accept()
+
     def paint(self, painter, option, widget=None):
         """Draw the text or image, the frame and, when selected, the resize corner."""
         from PySide6.QtGui import QBrush, QColor, QFont, QPen
@@ -1390,6 +1410,7 @@ class _CanvasComposer(QDialog):
         self.setWindowTitle(tr("Custom export"))
         self.canvas = layout if layout is not None else _CanvasLayout()
         self._field_pixels = field_pixels
+        self._capture_missing_display()
         self._folder = str(folder or "")
         self._page = 0
         self._tool = "select"
@@ -1401,6 +1422,9 @@ class _CanvasComposer(QDialog):
         self._rebuild_timer.setInterval(0)
         self._rebuild_timer.timeout.connect(self._rebuild)
         self._requested = set()
+        self._display_timer = QTimer(self)
+        self._display_timer.setSingleShot(True)
+        self._display_timer.timeout.connect(self._apply_live_display)
         self._editing_text = None
         self._syncing = False
         self._items = {}
@@ -1434,6 +1458,13 @@ class _CanvasComposer(QDialog):
         self.view = _CanvasView(self.scene, self)
         root.addWidget(self.view, 1)
         self._build_settings()
+        self.live_display = Toggle(tr("Apply current settings to all canvas images"))
+        self.live_display.setObjectName("CanvasLiveDisplaySettings")
+        self.live_display.setToolTip(tr("Update every canvas image when the Overview visualization changes. "
+                                        "Turn off to keep each image's captured settings."))
+        self.live_display.setVisible(self._display_capture_supported())
+        self.live_display.toggled.connect(self.refresh_display_settings)
+        root.addWidget(self.live_display)
         self.status = QLabel("")
         self.status.setObjectName("CanvasComposerStatus")
         self.status.setWordWrap(True)
@@ -1534,7 +1565,7 @@ class _CanvasComposer(QDialog):
         self.export_button = QPushButton(tr("Export PDF…"))
         self.export_button.setObjectName("CanvasComposerExport")
         self.export_button.setToolTip(tr("Write every page to one PDF: vector text, images at full resolution "
-                                         "with the current display settings."))
+                                         "with each image's captured display settings."))
         self.export_button.clicked.connect(self._ask_export)
         self.dpi = _canvas_dpi_combo()
         add_image.setToolTip(tr("Place an image file from disk on the page; its import settings then "
@@ -2038,6 +2069,7 @@ class _CanvasComposer(QDialog):
         x, y = (at.x(), at.y()) if at is not None else (self.canvas.grid * 2, self.canvas.grid * 2)
         side = max(self.canvas.grid * 4, self.canvas.snapped(width / 3.0))
         boxes = []
+        reader = self._reader()
         for image in images:
             aspect = image.get("aspect") or (image["native"][0] / float(image["native"][1])
                                              if image.get("native") else 1.0)
@@ -2046,6 +2078,9 @@ class _CanvasComposer(QDialog):
             box = self.canvas.add_box(self._page, "image", x, y, side, side / aspect,
                                       aspect=aspect if image.get("aspect") or image.get("native") else None,
                                       **properties)
+            capture = getattr(reader, "capture", None)
+            if capture is not None:
+                capture(box)
             boxes.append(box)
             x = box["x"] + box["w"] + self.canvas.grid
             if x + side > width:
@@ -2058,6 +2093,62 @@ class _CanvasComposer(QDialog):
             self.status.setText(tr("Use the import settings in Settings… to normalize and enhance the added "
                                    "files, channel by channel."))
         return boxes
+
+    def _capture_missing_display(self):
+        """Freeze legacy layout images once, preserving existing saved snapshots."""
+        capture = getattr(self._reader(), "capture", None)
+        if capture is not None:
+            for page in self.canvas.pages:
+                for box in page:
+                    if box["kind"] == "image" and not box.get("overview_display"):
+                        capture(box)
+
+    def _display_capture_supported(self):
+        """Whether this canvas can capture the current Overview display."""
+        return callable(getattr(self._field_pixels, "fresh", None))
+
+    def propagate_settings(self, ids=None, *_):
+        """Apply current visualization settings only to the requested image boxes.
+
+        :param ids: image identities to update; the current selection by default.
+        :param _: unused action signal arguments.
+        """
+        reader = self._reader()
+        capture = getattr(reader, "capture", None)
+        if capture is None:
+            return
+        ids = self.selected_ids() if ids is None else ids
+        boxes = [self.canvas.find(box_id)[1] for box_id in ids]
+        updates = []
+        for box in boxes:
+            if box is None or box["kind"] != "image":
+                continue
+            captured = dict(box)
+            capture(captured)
+            if captured.get("overview_display") != box.get("overview_display"):
+                updates.append((box, captured["overview_display"]))
+        if not updates:
+            return
+        self.canvas.checkpoint()
+        for box, display in updates:
+            box["overview_display"] = display
+        current = {self._source_key(box) for page in self.canvas.pages for box in page if box["kind"] == "image"}
+        self._previews = {key: value for key, value in self._previews.items() if key in current}
+        self._commit()
+
+    def refresh_display_settings(self, *_):
+        """Coalesce live display changes without modifying frozen canvas images.
+
+        :param _: unused visualization or toggle signal arguments.
+        """
+        if self.live_display.isChecked():
+            self._display_timer.start(0)
+
+    def _apply_live_display(self):
+        """Update all pages with one current snapshot when live application is enabled."""
+        if self.live_display.isChecked():
+            self.propagate_settings([box["id"] for page in self.canvas.pages
+                                     for box in page if box["kind"] == "image"])
 
     def _choose_images(self):
         """Ask for image files and place them on the page."""
@@ -2081,6 +2172,10 @@ class _CanvasComposer(QDialog):
 
     def _preview_ready(self, key, pixels):
         """Keep a finished preview, give images their aspect ratio and redraw."""
+        self._requested.discard(key)
+        if not any(key == self._source_key(box) for page in self.canvas.pages for box in page
+                   if box["kind"] == "image"):
+            return
         self._previews[key] = _canvas_qimage(pixels)
         rows, columns = pixels.shape[:2]
         for page in self.canvas.pages:
@@ -2098,9 +2193,7 @@ class _CanvasComposer(QDialog):
         """The cache key of a box's image source and its import settings."""
         import json
 
-        if box.get("import"):
-            return json.dumps([box.get("source"), box.get("import")], sort_keys=True)
-        return json.dumps(box.get("source"), sort_keys=True)
+        return json.dumps([box.get("source"), box.get("import"), box.get("overview_display")], sort_keys=True)
 
     def _text_edited(self):
         """Write the typed text into the selected text box; one undo step per editing run."""
@@ -2233,6 +2326,7 @@ class _CanvasComposer(QDialog):
     def set_layout(self, layout):
         """Edit ``layout`` from its first page."""
         self.canvas = layout
+        self._capture_missing_display()
         self._page = 0
         self._rebuild()
 
@@ -2305,8 +2399,8 @@ class _CanvasComposer(QDialog):
     def _reader(self):
         """The image reader for work off the GUI thread.
 
-        A reader with a ``fresh`` method is asked for a snapshot here, on the
-        GUI thread, so the work reads the display settings as they are now.
+        A reader with a ``fresh`` method captures current defaults on the GUI
+        thread; each image's own saved display snapshot takes precedence.
         """
         fresh = getattr(self._field_pixels, "fresh", None)
         return fresh() if fresh is not None else self._field_pixels
@@ -2333,6 +2427,7 @@ class _CanvasComposer(QDialog):
     def closeEvent(self, event):
         """Stop previews and exports with the window."""
         self._cancelled.set()
+        self._display_timer.stop()
         for runner in (self._preview_jobs, self._export_jobs):
             runner.cancel()
         self.settings_dialog.close()

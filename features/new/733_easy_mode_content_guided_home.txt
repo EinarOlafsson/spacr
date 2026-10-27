@@ -2,9 +2,9 @@
 EASY MODE: A CONTENT-GUIDED HOME WITH AN ANIMATED PATH AND DROP FIELD
 ================================================================================
 
-Status:    requested; not implemented
+Status:    READY for Night publication; implementation, native validation and normal outputs accepted
 Requested: maintainer, 2026-10-26
-Owner:     unassigned
+Owner:     Codex G1; retained G2 persistence/UI peer; root publication
 Related:   startup options, Preferences, Home, dock, spaCR AI
 
 REQUIRED BEHAVIOUR
@@ -31,6 +31,42 @@ REQUIRED BEHAVIOUR
    the screen, while remaining readable, clickable and within the window.
    Keep the input field usable and avoid overlapping active controls.
 
+LATEST MAINTAINER DESIGN (2026-10-26; supersedes the initial preview)
+
+The center contains only one rounded, somewhat transparent path/search field.
+Its gray placeholder is exactly "Type a path or Drop some images here ...".
+Browse sits inside the far-right end as white text without button chrome.
+Use Open Sans Light throughout. Remove the title, explanatory panel, Find next
+steps button and local dock checkbox; keep saved dock choices in Preferences.
+Keep the Easy Home backdrop dark even under the global Light theme; restore the normal module backdrop on exit without changing global theme or palette preferences.
+Retain the existing dark blue dotted field colors, with only a subtle bounded
+CPU gravity effect. Respect Reduce motion/off and stop hidden animation.
+Suggestions may animate after input, remain readable and never overlap it.
+
+CONTENT AND ESSENTIAL-SETTINGS EXTENSION (2026-10-26)
+
+Accept image drops anywhere in the spaCR window. Inspect bounded, read-only
+filename samples against the existing microscope/regex conventions, sibling
+images, parent/master folders, image subdirectories and local metadata.
+Present useful module choices with honest confidence and ambiguity guidance;
+never decode full image arrays, access the network or process source images.
+Suggestions emerge slowly at genuinely randomized safe coordinates from the existing field,
+using stable normalized anchors per inspection and legal disjoint positions on resize,
+with a tasteful icon, module name, short description and explicit Open action.
+Every module opened while Easy mode is enabled starts with Essential settings
+only, while preserving a clear way to expand the other settings. Ordinary-mode
+defaults and saved choices remain unchanged.
+
+SUGGESTION EMERGENCE (2026-10-26)
+
+Each suggestion grows slowly from a point to its final rectangle, visibly
+emerging from underneath the existing spaCR field. The field must gradually
+part as the card expands; once it finishes, ripple from the new card's edges.
+The final card sits above the field. Couple the visible geometry and local
+field displacement through bounded existing effects, preserve its colors,
+and skip motion when Reduce motion or animation is off. Opacity alone does
+not meet this interaction contract.
+
 ACCEPTANCE
 
 With Easy mode off, retain the ordinary Home experience. With it on,
@@ -41,5 +77,20 @@ at supported window sizes. Easy mode must remain usable when spaCR AI
 is disabled or unavailable; document which suggestions use local file
 inspection and which, if any, require an enabled AI provider.
 
-This item records a new request; it does not add an implementation or
-an additional prerequisite for releasing 1.5.1.6.
+The maintainer authorized implementation and immediate Night publication on
+2026-10-26, including accepted native visuals and reviewed nine-language outputs.
+
+2026-10-26 — G1 owns item 733 end to end on isolated published Night 7cd974072e; G2 owns the disjoint startup/Preferences persistence slice. Implement a local content-inspection Home in existing modules, whole-window drops and module handoff, with Easy mode/dock defaults off and no AI dependency. Required meaningful/native two-theme checks and nine-locale normal reviewed outputs precede one coherent commit; root alone authorizes integration/publication after release.
+
+2026-10-26 — Isolated English preview implements local header-guided Home, whole-window drops, explicit module input handoff and independent Easy dock choices. Fourteen targeted cases pass after two native fixture-premise corrections; both-theme native visual acceptance and nine-locale normal reviewed artefacts remain before root integration/publication.
+
+2026-10-26 — The maintainer replaces the first preview styling with a single translucent rounded field, exact gray placeholder, inset text-only Browse and Open Sans Light; remove surrounding controls, preserve the existing dark blue palette and add restrained CPU gravity. G1 retains end-to-end ownership; existing functional/doc gates remain, visual acceptance and affected locale outputs will follow the new design.
+
+2026-10-26 — Extend local discovery to bounded microscope filename/regex, sibling/master-folder and structural metadata inference with explicit uncertainty; add slowly appearing icon/name/short-description/Open cards. G1 owns Home/inference and central routing; retained G4 owns disjoint Essential-only defaults for every Easy-opened module, with user expansion and ordinary defaults preserved.
+2026-10-26 — Suggestions must grow point-to-card under the existing field with synchronized local displacement, final edge ripple and final foreground ownership; preserve palette and reduced-motion/off behavior with bounded existing rendering effects.
+
+2026-10-26 — Immediate Night delivery is now authorized: Easy mode defaults off, shares startup/Preferences choices, accepts whole-window drops and routes bounded local content suggestions without AI.
+Native wide/small/return frames and both-theme lifecycle controls are accepted; persistent random placement, independent dock/Essential settings and existing-worker card displacement retain their owning passing results.
+The 414 Easy drafts and 36 Overview drafts were independently reviewed; the final retargeted stage has 441 source-bound targets and all 18 normal API/runtime guards pass, with retired history preserved.
+Normal nine-language API/runtime, Help, consumer and settings-flow outputs are generated and independently accepted; four legitimate API arrivals have exact source-bound test admission, with historical ratchets unchanged.
+All 21 final owning source/API/runtime/Help/flow checks pass, preserving published catalog bytes; root owns the coherent Night push and shared editable-checkout update. No release or hosted-CI waiting condition remains.

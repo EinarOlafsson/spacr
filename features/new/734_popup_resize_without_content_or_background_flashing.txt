@@ -1,0 +1,11 @@
+POPUP RESIZING WITHOUT CONTENT OR BACKGROUND FLASHING
+
+Status: implementation pending; assigned to the retained window-rendering lane.
+
+When a popup is resized, its contents must remain stable and the spaCR field or other content underneath must not flash through the popup surface. Cover continuous enlargement and shrinking in both themes, including translucent popups and their child controls.
+
+Reproduce on an owned native Linux display, identify the actual repaint, backing-store or transparency cause, and fix the shared popup path where appropriate without disabling the requested appearance or animation globally. Preserve focus, interaction, sizing and close behavior. Keep the popup correctly drawn throughout resize, not only in its final frame.
+
+Acceptance: a focused regression for the demonstrated cause and native resize observation in both themes; retain explicit platform limitations where native macOS or Windows checks are unavailable. Regenerate affected outputs with their normal tools, then commit and push to nightly.
+
+2026-10-26 — Maintainer reports flashing popup contents and visible underlying background during resize. Root owns publication; the retained window-rendering coordinator owns reproduction and correction. Keep this independent of the current Easy mode and Overview publication.

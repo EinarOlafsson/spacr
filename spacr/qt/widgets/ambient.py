@@ -7335,7 +7335,25 @@ class _DataArtEngine(_GraphicsBackend, _BufferedEngine):
         self._graphics_failed = False
         self._graphics_idle_until = 0.0
         self._graphics_idle = False
+        self._growing_regions = ()
         super().__init__(*args, **kwargs)
+
+    def _part_growing_regions(self, px, py, width, height):
+        """Move existing dots outside up to four expanding card footprints."""
+        np = _numpy()
+        for left, top, right, bottom in self._growing_regions:
+            half_x = max(0.5, (right - left) * width / 2)
+            half_y = max(0.5, (bottom - top) * height / 2)
+            dx = (px - (left + right) / 2) * width
+            dy = (py - (top + bottom) / 2) * height
+            centre = (np.abs(dx) + np.abs(dy)) < 1e-5
+            dx = np.where(centre, 0.5, dx)
+            radius = np.maximum(np.abs(dx) / half_x, np.abs(dy) / half_y)
+            boundary = 1.0 + 3.0 / min(half_x, half_y)
+            scale = np.maximum(1.0, boundary / np.maximum(radius, 1e-6))
+            px = px + dx * (scale - 1.0) / width
+            py = py + dy * (scale - 1.0) / height
+        return px, py
 
     def _graphics_unmeasured(self, width, height, work=0) -> bool:
         """Automatic before measurements: dense 4K points, or 4K spinning paper.
@@ -8553,6 +8571,7 @@ class _DataArtEngine(_GraphicsBackend, _BufferedEngine):
             reach = np.maximum(0.0, 1.0 - (gx * gx + gy * gy) / 0.34 ** 2) ** 3
             px += self._field_grab_offset[0] / aspect_x * reach
             py += self._field_grab_offset[1] / aspect_y * reach
+        px, py = self._part_growing_regions(px, py, width, height)
         brilliance = np.clip(0.57 + energy, RIPPLE_FLOOR, 1.0)
         gain = max(1.0, self.effective_density())
         image = self._point_material(
@@ -9811,6 +9830,7 @@ class _QueuedArtInput:
         self._boundary_serial = 0
         self._boundary_waves = ()
         self._applied_boundary_serial = 0
+        self._growing_regions = ()
 
     def _offer_boundary_waves(self, points) -> None:
         """Publish bounded immutable boundary events without a shading lock."""
@@ -9839,6 +9859,7 @@ class _QueuedArtInput:
         """
         serial, elapsed, pointer, clicks = self._snapshot
         if isinstance(engine, _DataArtEngine) and engine.family == "impulse_lens":
+            engine._growing_regions = () if discard_clicks else self._growing_regions
             if discard_clicks:
                 self._applied_boundary_serial = self._boundary_serial
             else:
@@ -13314,7 +13335,10 @@ class AmbientWidget(QWidget):
             producer = self._producer_box[0]
             tints = self._card_tints
             held = self._held_rows
-            whole = (event.rect().contains(rect)
+            visible = self.visibleRegion()
+            whole = (QRegion(rect).subtracted(event.region()).isEmpty()
+                     or (not visible.isEmpty()
+                         and visible.subtracted(event.region()).isEmpty())
                      or held.takes_a_frame(event.region()))
             if whole or (tints is not None and tints.active):
                 self._partial_frame = None
@@ -14040,6 +14064,31 @@ def field_ripple_for_widget(widget, edge=None, rect=None, strength=1.0) -> None:
     :returns: None.
     """
     _publish_widget_ripple(widget, edge, rect, strength, vertical=False)
+
+
+def _field_growing_regions_for_widget(widget, rectangles=()) -> None:
+    """Publish bounded card geometry to the window's existing field producer."""
+    for backdrop in widget.window().findChildren(AmbientWidget):
+        if backdrop._art_input is None or backdrop.theme() not in _FIELD_THEMES:
+            continue
+        regions = []
+        if backdrop._should_run():
+            for rectangle in tuple(rectangles)[:4]:
+                local = QRect(rectangle)
+                origin = backdrop.mapFromGlobal(widget.mapToGlobal(local.topLeft()))
+                mapped = QRect(origin, local.size()).intersected(backdrop.rect())
+                if not mapped.isEmpty():
+                    width, height = max(1, backdrop.width()), max(1, backdrop.height())
+                    regions.append((mapped.x() / width, mapped.y() / height,
+                                    (mapped.x() + mapped.width()) / width,
+                                    (mapped.y() + mapped.height()) / height))
+        backdrop._art_input._growing_regions = tuple(regions)
+        if backdrop._engine_lock.acquire(blocking=False):
+            try:
+                backdrop._art_input._consume(backdrop._engine)
+            finally:
+                backdrop._engine_lock.release()
+        backdrop.update()
 
 
 def _field_column_ripple_for_widget(widget, edge="bottom", strength=1.0) -> None:

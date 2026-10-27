@@ -1154,7 +1154,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_heart",
+          "af_aoede",
+          "af_bella",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -1174,17 +1197,17 @@
           "if_sara",
           "im_nicola"
         ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
         "ja": [
           "jf_alpha",
           "jf_gongitsune",
           "jf_nezumi",
           "jf_tebukuro",
           "jm_kumo"
-        ],
-        "pt-BR": [
-          "pf_dora",
-          "pm_alex",
-          "pm_santa"
         ],
         "zh-CN": [
           "zf_xiaobei",
@@ -6286,12 +6309,12 @@
           "narration": "आपके पास जो है उसके अनुसार आयात टूल चुनें: केवल इमेज के लिए Import Images या Format Converter, मास्क वाली इमेज के लिए External Masks। यह स्क्रीन इमेज, मास्क और माप तालिका तीनों को एक साथ लेती है।",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
-          "speech_text": "आपके पास जो है उसके अनुसार आयात टूल चुनें: केवल इमेज के लिए Import Images या Format Converter, मास्क वाली इमेज के लिए External Masks। यह स्क्रीन इमेज, मास्क और माप तालिका तीनों को एक साथ लेती है।",
           "related_lessons": [
             "74_import_images",
             "35_converter",
             "31_external_masks"
-          ]
+          ],
+          "speech_text": "आपके पास जो है उसके अनुसार आयात टूल चुनें: केवल इमेज के लिए Import Images या Format Converter, मास्क वाली इमेज के लिए External Masks। यह स्क्रीन इमेज, मास्क और माप तालिका तीनों को एक साथ लेती है।"
         },
         {
           "visual": "org_organize_popup",
@@ -6303,10 +6326,10 @@
           "visual": "03_choose_images",
           "narration": "इमेज फ़ोल्डर चुनें। उदाहरण में माइक्रोस्कोपी के दो फ़ील्ड हैं, जिनमें एक तीव्रता चैनल और मेल खाते कोशिका लेबल हैं। हर फ़ाइल की मूल प्लेट, वेल और फ़ील्ड का रिकॉर्ड रखें।",
           "hold_after": 0.7,
-          "speech_text": "इमेज फ़ोल्डर चुनें। उदाहरण में माइक्रोस्कोपी के दो फ़ील्ड हैं, जिनमें एक तीव्रता चैनल और मेल खाते कोशिका लेबल हैं। हर फ़ाइल की मूल प्लेट, वेल और फ़ील्ड का रिकॉर्ड रखें।",
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "इमेज फ़ोल्डर चुनें। उदाहरण में माइक्रोस्कोपी के दो फ़ील्ड हैं, जिनमें एक तीव्रता चैनल और मेल खाते कोशिका लेबल हैं। हर फ़ाइल की मूल प्लेट, वेल और फ़ील्ड का रिकॉर्ड रखें।"
         },
         {
           "visual": "04_choose_masks",
@@ -6402,33 +6425,56 @@
             3450,
             195
           ],
-          "speech_text": "प्रोजेक्ट खोलें और आयात किए गए माप देखें। foreign कॉलम वाली तालिका उनका स्रोत दर्ज करती है। जब आप चाहें कि स्पेकर इमेज से नई विशेषताएँ निकाले, तो Measure इस्तेमाल करें।",
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "प्रोजेक्ट खोलें और आयात किए गए माप देखें। foreign कॉलम वाली तालिका उनका स्रोत दर्ज करती है। जब आप चाहें कि स्पेकर इमेज से नई विशेषताएँ निकाले, तो Measure इस्तेमाल करें।"
         },
         {
           "visual": "14_import_scope",
           "narration": "रूपांतरण मैप को प्रोजेक्ट के साथ रखें और उसकी प्लेट, वेल और फ़ील्ड असाइनमेंट जाँचें। सामान्य फ़ाइल नामों को नए निर्देशांक मिल सकते हैं, इसलिए प्लेट स्तर के विश्लेषण से पहले उनकी मूल पहचान सुलझाएँ।",
           "hold_after": 0.7,
-          "speech_text": "रूपांतरण मैप को प्रोजेक्ट के साथ रखें और उसकी प्लेट, वेल और फ़ील्ड असाइनमेंट जाँचें। सामान्य फ़ाइल नामों को नए निर्देशांक मिल सकते हैं, इसलिए प्लेट स्तर के विश्लेषण से पहले उनकी मूल पहचान सुलझाएँ।",
           "related_lessons": [
             "74_import_images"
-          ]
+          ],
+          "speech_text": "रूपांतरण मैप को प्रोजेक्ट के साथ रखें और उसकी प्लेट, वेल और फ़ील्ड असाइनमेंट जाँचें। सामान्य फ़ाइल नामों को नए निर्देशांक मिल सकते हैं, इसलिए प्लेट स्तर के विश्लेषण से पहले उनकी मूल पहचान सुलझाएँ।"
         },
         {
           "visual": "14_import_scope",
           "narration": "तालिकाएँ देखने के लिए Database Browser में, या वस्तुओं के क्रॉप देखने के लिए Annotate में आगे बढ़ें। समीक्षा की गई मैपिंग को पूरे हुए प्रोजेक्ट के साथ रखें।",
           "hold_after": 0.7,
-          "speech_text": "तालिकाएँ देखने के लिए Database Browser में, या वस्तुओं के क्रॉप देखने के लिए Annotate में आगे बढ़ें। समीक्षा की गई मैपिंग को पूरे हुए प्रोजेक्ट के साथ रखें।",
           "related_lessons": [
             "09_annotate"
-          ]
+          ],
+          "speech_text": "तालिकाएँ देखने के लिए Database Browser में, या वस्तुओं के क्रॉप देखने के लिए Annotate में आगे बढ़ें। समीक्षा की गई मैपिंग को पूरे हुए प्रोजेक्ट के साथ रखें।"
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8623,7 +8669,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_heart",
+          "af_aoede",
+          "af_bella",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8643,17 +8712,17 @@
           "if_sara",
           "im_nicola"
         ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
         "ja": [
           "jf_alpha",
           "jf_gongitsune",
           "jf_nezumi",
           "jf_tebukuro",
           "jm_kumo"
-        ],
-        "pt-BR": [
-          "pf_dora",
-          "pm_alex",
-          "pm_santa"
         ],
         "zh-CN": [
           "zf_xiaobei",

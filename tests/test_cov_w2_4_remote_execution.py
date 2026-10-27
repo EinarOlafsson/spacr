@@ -192,7 +192,7 @@ def test_an_unknown_backend_lists_the_ones_there_are():
         ExecutionProfile("x", "carrier-pigeon", host="h",
                          workdir="/w").validate()
     assert "carrier-pigeon" in str(caught.value)
-    assert "ssh, slurm, command" in str(caught.value)
+    assert "ssh, slurm, pbs, lsf, command" in str(caught.value)
 
 
 @pytest.mark.parametrize("seconds", [1, 0, 3601, -5])

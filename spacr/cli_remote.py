@@ -12,12 +12,21 @@ import time
 from typing import Iterable, Optional, Sequence
 
 from .remote_execution import (
+    _AUTH_MODES,
     ACTIVE_STATES,
+    BACKENDS,
     ExecutionProfile,
     ProfileStore,
     RemoteExecutionError,
     RemoteJob,
     RemoteJobManager,
+    _log_chunk,
+    _preview_job_script,
+    _probe_cluster,
+    _resource_problems,
+    _save_cluster_cache,
+    _start_allocation,
+    _submit_job,
 )
 
 EXIT_OK = 0
@@ -42,7 +51,44 @@ def _profile_from_args(args: argparse.Namespace) -> ExecutionProfile:
         log_command=args.log_command or "",
         job_id_pattern=args.job_id_pattern or "",
         poll_seconds=args.poll_seconds,
+        auth_mode=args.auth_mode or "",
+        ssh_command=args.ssh_command or "",
+        resources=_resources_from_args(args.resource or []),
+        env_setup=args.env_setup or "",
+        job_script=_read_text(args.job_script_file) if args.job_script_file else "",
+        login_hosts=args.login_hosts or "",
+        direct_run=bool(args.direct_run),
     ).validate()
+
+
+def _resources_from_args(pairs: Sequence[str]) -> dict:
+    """Parse repeated ``--resource KEY=VALUE`` arguments into a mapping.
+
+    :param pairs: the raw arguments.
+    :returns: key to value.
+    :raises RemoteExecutionError: for an argument without ``=``.
+    """
+    resources = {}
+    for pair in pairs:
+        key, separator, value = str(pair).partition("=")
+        if not separator or not key.strip():
+            raise RemoteExecutionError(f"Resource {pair!r} must be KEY=VALUE, for example gpus=1.")
+        resources[key.strip()] = value.strip()
+    return resources
+
+
+def _read_text(path: str) -> str:
+    """Read a job-script template file.
+
+    :param path: the file.
+    :returns: its text.
+    :raises RemoteExecutionError: if it cannot be read.
+    """
+    try:
+        with open(path, encoding="utf-8") as handle:
+            return handle.read()
+    except OSError as exc:
+        raise RemoteExecutionError(f"Could not read {path}: {exc}") from exc
 
 
 def _job_row(job: RemoteJob) -> str:
@@ -115,7 +161,7 @@ def _cmd_submit(args: argparse.Namespace) -> int:
         settings = resolve_settings(module, args.settings, args.set or [])
     except SettingsError as exc:
         raise RemoteExecutionError(str(exc)) from exc
-    job = RemoteJobManager().submit(module.key, settings, args.profile)
+    job = _submit_job(RemoteJobManager(), module.key, settings, args.profile, args.allocation or "")
     print(
         f"Submitted {module.key} as {job.job_id} "
         f"({job.profile_name}/{job.external_id})."
@@ -161,16 +207,64 @@ def _cmd_logs(args: argparse.Namespace) -> int:
 
 
 def _cmd_watch(args: argparse.Namespace) -> int:
-    """Poll one job until it reaches a terminal state."""
+    """Poll one job until it reaches a terminal state, optionally following its log."""
     manager = RemoteJobManager()
+    offset = 0
     while True:
         job = manager.refresh(args.job, include_logs=False)
-        print(f"{job.updated_utc}  {job.status}", flush=True)
+        previous_offset = offset
+        text = ""
+        if args.follow:
+            text, offset = _log_chunk(manager, job.job_id, offset)
+            if text:
+                print(text, end="", flush=True)
+        print(f"{job.updated_utc}  {job.status}", file=sys.stderr if args.follow else sys.stdout, flush=True)
         if job.status not in ACTIVE_STATES and job.status != "unknown":
+            if args.follow and (text or offset != previous_offset):
+                continue
+            if job.error:
+                print(job.error, file=sys.stderr)
             if args.logs:
                 print(manager.logs(job.job_id, args.lines))
             return EXIT_OK if job.status == "success" else EXIT_RUNTIME
         time.sleep(max(2, args.interval))
+
+
+def _cmd_script(args: argparse.Namespace) -> int:
+    """Print the job script a submission through a profile would send."""
+    profile = ProfileStore().get(args.profile)
+    print(_preview_job_script(profile, args.module), end="")
+    return EXIT_OK
+
+
+def _cmd_resources(args: argparse.Namespace) -> int:
+    """Read what the profile can reach on the cluster, read-only, and check its resources."""
+    profile = ProfileStore().get(args.profile)
+    cluster = _probe_cluster(profile)
+    _save_cluster_cache(profile.name, cluster)
+    problems = _resource_problems(profile.resources, cluster)
+    if args.json:
+        print(json.dumps({"cluster": cluster, "problems": problems}, indent=2, sort_keys=True))
+        return EXIT_OK
+    print(f"{cluster['host']} as {cluster['user']}; scheduler: {cluster['scheduler'] or 'none'}")
+    print("PARTITION            NODES  CPUS  MEM_GB  GPUS  TIME_LIMIT")
+    for row in cluster["partitions"]:
+        print(f"{row['partition'] + ('*' if row['default'] else ''):20} {row['nodes']:5}  {row['cpus']:4}  "
+              f"{round(row['mem_mb'] / 1024):6}  {row['gpus']:4}  {row['time_limit']}")
+    for row in cluster["accounts"]:
+        print(f"account {row['account']} partition {row['partition'] or '-'} qos {','.join(row['qos']) or '-'}")
+    for problem in problems:
+        print(f"warning: {problem}", file=sys.stderr)
+    return EXIT_OK
+
+
+def _cmd_allocate(args: argparse.Namespace) -> int:
+    """Request a Slurm allocation that later jobs can run inside."""
+    job = _start_allocation(RemoteJobManager(), args.profile)
+    print(f"Requested allocation {job.job_id} (Slurm {job.external_id}). "
+          f"When it is running: spacr-remote submit MODULE -s SETTINGS -p {job.profile_name} "
+          f"--allocation {job.job_id[:12]}")
+    return EXIT_OK
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -197,7 +291,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     profile_add.add_argument("name")
     profile_add.add_argument(
-        "--backend", choices=("ssh", "slurm", "command"), required=True
+        "--backend", choices=BACKENDS, required=True
     )
     profile_add.add_argument("--host", default="")
     profile_add.add_argument("--workdir", default="")
@@ -211,6 +305,13 @@ def build_parser() -> argparse.ArgumentParser:
     profile_add.add_argument("--log-command", default="")
     profile_add.add_argument("--job-id-pattern", default="")
     profile_add.add_argument("--poll-seconds", type=int, default=10)
+    profile_add.add_argument("--auth-mode", choices=_AUTH_MODES, default="")
+    profile_add.add_argument("--ssh-command", default="")
+    profile_add.add_argument("--resource", action="append", default=[], metavar="KEY=VALUE")
+    profile_add.add_argument("--env-setup", default="")
+    profile_add.add_argument("--job-script-file", default="")
+    profile_add.add_argument("--login-hosts", default="")
+    profile_add.add_argument("--direct-run", action="store_true")
     profile_add.set_defaults(handler=_cmd_profile)
 
     profile_delete = profile_sub.add_parser("delete", help="Delete a profile.")
@@ -224,7 +325,22 @@ def build_parser() -> argparse.ArgumentParser:
     submit.add_argument(
         "--set", action="append", default=[], metavar="KEY=VALUE"
     )
+    submit.add_argument("--allocation", default="")
     submit.set_defaults(handler=_cmd_submit)
+
+    script = sub.add_parser("script", help="Print the job script a submission would send.")
+    script.add_argument("module")
+    script.add_argument("--profile", "-p", required=True)
+    script.set_defaults(handler=_cmd_script)
+
+    resources = sub.add_parser("resources", help="Read what a profile can use on its cluster.")
+    resources.add_argument("--profile", "-p", required=True)
+    resources.add_argument("--json", action="store_true")
+    resources.set_defaults(handler=_cmd_resources)
+
+    allocate = sub.add_parser("allocate", help="Request a Slurm allocation to run jobs inside.")
+    allocate.add_argument("--profile", "-p", required=True)
+    allocate.set_defaults(handler=_cmd_allocate)
 
     listing = sub.add_parser("list", help="List persistent jobs.")
     listing.add_argument("--refresh", action="store_true")
@@ -251,6 +367,7 @@ def build_parser() -> argparse.ArgumentParser:
     watch.add_argument("--interval", type=int, default=10)
     watch.add_argument("--logs", action="store_true")
     watch.add_argument("--lines", type=int, default=200)
+    watch.add_argument("--follow", action="store_true")
     watch.set_defaults(handler=_cmd_watch)
     return parser
 

@@ -1163,7 +1163,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_heart",
+          "af_aoede",
+          "af_bella",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -1183,17 +1206,17 @@
           "if_sara",
           "im_nicola"
         ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
         "ja": [
           "jf_alpha",
           "jf_gongitsune",
           "jf_nezumi",
           "jf_tebukuro",
           "jm_kumo"
-        ],
-        "pt-BR": [
-          "pf_dora",
-          "pm_alex",
-          "pm_santa"
         ],
         "zh-CN": [
           "zf_xiaobei",
@@ -7436,12 +7459,12 @@
           "narration": "Scegli lo strumento di importazione in base a ciò da cui parti: Import Images o Format Converter per le sole immagini, External Masks per immagini con maschere. Questa schermata accetta insieme immagini, maschere e una tabella di misure.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
-          "speech_text": "Scegli lo strumento di importazione in base a ciò da cui parti: Import Images o Format Converter per le sole immagini, External Masks per immagini con maschere. Questa schermata accetta insieme immagini, maschere e una tabella di misure.",
           "related_lessons": [
             "74_import_images",
             "35_converter",
             "31_external_masks"
-          ]
+          ],
+          "speech_text": "Scegli lo strumento di importazione in base a ciò da cui parti: Import Images o Format Converter per le sole immagini, External Masks per immagini con maschere. Questa schermata accetta insieme immagini, maschere e una tabella di misure."
         },
         {
           "visual": "org_organize_popup",
@@ -7453,10 +7476,10 @@
           "visual": "03_choose_images",
           "narration": "Scegli la cartella delle immagini. L’esempio usa due campi di microscopia con un canale di intensità e le etichette cellulari corrispondenti. Annota piastra, pozzetto e campo originali di ogni file.",
           "hold_after": 0.7,
-          "speech_text": "Scegli la cartella delle immagini. L’esempio usa due campi di microscopia con un canale di intensità e le etichette cellulari corrispondenti. Annota piastra, pozzetto e campo originali di ogni file.",
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "Scegli la cartella delle immagini. L’esempio usa due campi di microscopia con un canale di intensità e le etichette cellulari corrispondenti. Annota piastra, pozzetto e campo originali di ogni file."
         },
         {
           "visual": "04_choose_masks",
@@ -7552,34 +7575,57 @@
             3450,
             195
           ],
-          "speech_text": "Apri il progetto ed esamina le misure importate. La tabella delle colonne foreign ne registra l’origine. Usa Measure quando vuoi che spàker calcoli nuove caratteristiche dalle immagini.",
           "related_lessons": [
             "08_measure"
-          ]
+          ],
+          "speech_text": "Apri il progetto ed esamina le misure importate. La tabella delle colonne foreign ne registra l’origine. Usa Measure quando vuoi che spàker calcoli nuove caratteristiche dalle immagini."
         },
         {
           "visual": "14_import_scope",
           "narration": "Conserva la mappa di conversione con il progetto e controlla le assegnazioni di piastra, pozzetto e campo. Nomi di file generici possono ricevere nuove coordinate, quindi ricostruisci le identità originali prima di un’analisi a livello di piastra.",
           "hold_after": 0.7,
-          "speech_text": "Conserva la mappa di conversione con il progetto e controlla le assegnazioni di piastra, pozzetto e campo. Nomi di file generici possono ricevere nuove coordinate, quindi ricostruisci le identità originali prima di un’analisi a livello di piastra.",
           "related_lessons": [
             "74_import_images"
-          ]
+          ],
+          "speech_text": "Conserva la mappa di conversione con il progetto e controlla le assegnazioni di piastra, pozzetto e campo. Nomi di file generici possono ricevere nuove coordinate, quindi ricostruisci le identità originali prima di un’analisi a livello di piastra."
         },
         {
           "visual": "14_import_scope",
           "narration": "Prosegui in Database Browser per esaminare le tabelle o in Annotate per rivedere i ritagli degli oggetti. Conserva la mappatura controllata insieme al progetto completato.",
           "hold_after": 0.7,
-          "speech_text": "Prosegui in Database Browser per esaminare le tabelle o in Annotate per rivedere i ritagli degli oggetti. Conserva la mappatura controllata insieme al progetto completato.",
           "related_lessons": [
             "34_database",
             "09_annotate"
-          ]
+          ],
+          "speech_text": "Prosegui in Database Browser per esaminare le tabelle o in Annotate per rivedere i ritagli degli oggetti. Conserva la mappatura controllata insieme al progetto completato."
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -10095,7 +10141,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_heart",
+          "af_aoede",
+          "af_bella",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -10115,17 +10184,17 @@
           "if_sara",
           "im_nicola"
         ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
         "ja": [
           "jf_alpha",
           "jf_gongitsune",
           "jf_nezumi",
           "jf_tebukuro",
           "jm_kumo"
-        ],
-        "pt-BR": [
-          "pf_dora",
-          "pm_alex",
-          "pm_santa"
         ],
         "zh-CN": [
           "zf_xiaobei",

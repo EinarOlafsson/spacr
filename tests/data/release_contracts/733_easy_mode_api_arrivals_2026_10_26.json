@@ -1,0 +1,6 @@
+{
+  "spacr.qt.preferences.get_easy_mode": "Whether the content-guided Easy mode Home is enabled (default: ``False``).",
+  "spacr.qt.preferences.get_easy_mode_dock": "Whether the app dock stays visible in Easy mode (default: ``False``).",
+  "spacr.qt.preferences.set_easy_mode": "Persist Easy mode independently of AI and ordinary dock preferences.\n\n:param on: true to enable Easy mode, false to keep the ordinary Home.",
+  "spacr.qt.preferences.set_easy_mode_dock": "Persist the dock choice for Easy mode without changing its normal setting.\n\n:param on: true to show the dock while Easy mode is enabled, false to hide it."
+}

@@ -2470,7 +2470,7 @@ def _validated_prior_708_callables(callables):
 
 
 def _validated_prior_699_callables(callables):
-    """Validate both SSH options before reproducing the historical signature."""
+    """Bind current remote constructors before replaying the older SSH boundary."""
     profile = next(item for item in callables
                    if item.symbol == "spacr.remote_execution.ExecutionProfile")
     tree = ast.parse((pathlib.Path(__file__).resolve().parents[1]
@@ -2495,22 +2495,97 @@ def _validated_prior_699_callables(callables):
         "ssh_interactive": ("bool", "False"),
         "ssh_keychain": ("bool", "False"),
     }
-    assert fields == expected_fields
+    remote_additions = {
+        **{name: ("str", "''") for name in (
+            "auth_mode", "ssh_command", "env_setup", "job_script", "login_hosts")},
+        "resources": ("Dict[str, str]", "field(default_factory=dict)"),
+        "direct_run": ("bool", "False"),
+    }
+    assert len(expected_fields) == 17 and len(remote_additions) == 7
+    assert not expected_fields.keys() & remote_additions.keys()
+    assert fields == expected_fields | remote_additions
+    assert [ast.unparse(node) for node in declaration.decorator_list] == ["dataclass(frozen=True)"]
     assert profile.category == "dataclass_constructor"
     assert profile.exposure == "autoapi"
-    assert profile.parameters == expected_fields.keys()
+    assert profile.parameters == expected_fields.keys() | remote_additions.keys()
     assert profile.required_parameters == {"name", "backend"}
     assert profile.accepted_documented_parameters == profile.parameters
     assert _documented_parameter_names(profile.docstring) == profile.parameters
     assert profile.variant_count == 1
     assert profile.docless_variant_count == profile.constructor_prose_variant_count == 0
     assert not profile.accepts_arbitrary_keywords
-    additions = {"ssh_options", "ssh_interactive", "ssh_keychain"}
+    additions = {"ssh_options", "ssh_interactive", "ssh_keychain"} | remote_additions.keys()
     assert not additions & profile.required_parameters
     prior = replace(profile, parameters=profile.parameters - additions,
                     accepted_documented_parameters=(
                         profile.accepted_documented_parameters - additions))
-    return [prior if item.symbol == profile.symbol else item for item in callables]
+    assert prior.parameters == expected_fields.keys() - {
+        "ssh_options", "ssh_interactive", "ssh_keychain"}
+    job = next(item for item in callables if item.symbol == "spacr.remote_execution.RemoteJob")
+    job_declaration = next(node for node in tree.body
+                           if isinstance(node, ast.ClassDef) and node.name == "RemoteJob")
+    job_fields = {
+        node.target.id: (ast.unparse(node.annotation),
+                         ast.unparse(node.value) if node.value is not None else None)
+        for node in job_declaration.body
+        if isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name)
+    }
+    expected_job_fields = {
+        **{name: ("str", None) for name in ("job_id", "module", "profile_name", "backend")},
+        **{name: ("str", "''") for name in (
+            "external_id", "settings_path", "settings_sha256", "remote_settings_path",
+            "remote_job_dir", "log_reference", "log_tail", "error")},
+        "status": ("str", "'submitting'"),
+        "created_utc": ("str", "field(default_factory=_utc_now)"),
+        "updated_utc": ("str", "field(default_factory=_utc_now)"),
+        "exit_code": ("Optional[int]", "None"),
+        "profile": ("Dict[str, Any]", "field(default_factory=dict)"),
+    }
+    job_additions = {name: ("str", "''") for name in ("job_script", "allocation_id")}
+    assert len(expected_job_fields) == 17 and len(job_additions) == 2
+    assert job_fields == expected_job_fields | job_additions
+    assert [ast.unparse(node) for node in job_declaration.decorator_list] == ["dataclass"]
+    assert job.category == "dataclass_constructor" and job.exposure == "autoapi"
+    assert job.parameters == job.accepted_documented_parameters == job_fields.keys()
+    assert job.required_parameters == {"job_id", "module", "profile_name", "backend"}
+    assert _documented_parameter_names(job.docstring) == job.parameters
+    assert job.variant_count == 1
+    assert job.docless_variant_count == job.constructor_prose_variant_count == 0
+    assert not job.accepts_arbitrary_keywords
+    assert not job_additions.keys() & job.required_parameters
+    prior_job = replace(job, parameters=job.parameters - job_additions.keys(),
+                        accepted_documented_parameters=(
+                            job.accepted_documented_parameters - job_additions.keys()))
+    assert prior_job.parameters == expected_job_fields.keys()
+    screen = next(item for item in callables
+                  if item.symbol == "spacr.qt.screens.distributed_jobs.DistributedJobsScreen")
+    screen_tree = ast.parse((pathlib.Path(__file__).resolve().parents[1]
+                            / "spacr/qt/screens/distributed_jobs.py").read_text(encoding="utf-8"))
+    screen_declaration = next(node for node in screen_tree.body
+                              if isinstance(node, ast.ClassDef) and node.name == "DistributedJobsScreen")
+    constructor = next(node for node in screen_declaration.body
+                       if isinstance(node, ast.FunctionDef) and node.name == "__init__")
+    assert [argument.arg for argument in constructor.args.args] == ["self", "parent"]
+    assert all(argument.annotation is None for argument in constructor.args.args)
+    assert [ast.unparse(value) for value in constructor.args.defaults] == ["None"]
+    assert not constructor.args.posonlyargs and not constructor.args.vararg and not constructor.args.kwarg
+    assert [(argument.arg, ast.unparse(argument.annotation)) for argument in constructor.args.kwonlyargs] == [
+        ("manager", "Optional[RemoteJobManager]"), ("threaded", "bool"),
+        ("auto_poll", "bool"), ("preview", "Optional[bool]")]
+    assert [ast.unparse(value) for value in constructor.args.kw_defaults] == ["None", "True", "True", "None"]
+    assert constructor.returns is None and not constructor.decorator_list
+    assert screen.category == "constructor" and screen.exposure == "autoapi"
+    assert screen.parameters == screen.accepted_documented_parameters == {
+        "parent", "manager", "threaded", "auto_poll", "preview"}
+    assert not screen.required_parameters and not screen.accepts_arbitrary_keywords
+    assert _documented_parameter_names(screen.docstring) == screen.parameters
+    assert screen.variant_count == screen.constructor_prose_variant_count == 1
+    assert screen.docless_variant_count == 0
+    prior_screen = replace(screen, parameters=screen.parameters - {"preview"},
+                           accepted_documented_parameters=(
+                               screen.accepted_documented_parameters - {"preview"}))
+    replacements = {profile.symbol: prior, job.symbol: prior_job, screen.symbol: prior_screen}
+    return [replacements.get(item.symbol, item) for item in callables]
 
 
 def _validated_prior_example_background_callables(callables):
@@ -2668,6 +2743,52 @@ def _validated_signed_cell_measurement_arrival(callables):
     return callables
 
 
+def _validated_733_easy_mode_callables(callables):
+    """Check the exact four executable Easy mode boundaries before historical replay."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "733_easy_mode_api_arrivals_2026_10_26.json").read_text(encoding="utf-8"))
+    body_hashes = {'get_easy_mode': '5a9bcc1d2dbf9a15e8877f837d9d7d2499252c0706c3c22412050b9a73c7ad96', 'set_easy_mode': 'f699c14863cd293e762ec67fe01873f96ba88090595a08890f732a90298f1b8f', 'get_easy_mode_dock': 'a19cac388a84d7b67033a5482fc605f248e50d42e952657a528faa46ff71c1db', 'set_easy_mode_dock': '65b4034959e5c3d6bacb35e519eb43aa8bc66066216912f27e457c1bcc90af1b'}
+    expected_docs = {'spacr.qt.preferences.get_easy_mode': 'de468de74c3e4525f1fea9423f000dc379ba0784d7626b030fff6ea3783d064a', 'spacr.qt.preferences.get_easy_mode_dock': '472567d34a3903317a34a5d98152a923cb4d29a4ab1e0133ad4f306149d0b578', 'spacr.qt.preferences.set_easy_mode': '3a86b22794bca1c940fe057dcebabefb375648d0da643c45330d6171fc776c51', 'spacr.qt.preferences.set_easy_mode_dock': '7b9ddcc231fc2de7c167d98bb8a180e2b1f413ada6d5e3a7a7d7f2b9289cc686'}
+    assert entries.keys() == expected_docs.keys()
+    assert {key: hashlib.sha256(body.encode()).hexdigest()
+            for key, body in entries.items()} == expected_docs
+    tree = ast.parse((root / "spacr/qt/preferences.py").read_text(encoding="utf-8"))
+    declarations = {node.name: node for node in tree.body
+                    if isinstance(node, ast.FunctionDef) and node.name in body_hashes}
+    assert declarations.keys() == body_hashes.keys()
+    by_symbol = {item.symbol: item for item in callables}
+    for name, body_hash in body_hashes.items():
+        symbol = "spacr.qt.preferences." + name
+        item = by_symbol[symbol]
+        parameters = {"on"} if name.startswith("set_") else set()
+        assert item.parameters == item.accepted_documented_parameters == parameters
+        assert item.required_parameters == parameters
+        assert item.category == "function" and item.exposure == "autoapi"
+        assert item.variant_count == 1
+        assert item.docless_variant_count == item.constructor_prose_variant_count == 0
+        assert not item.accepts_arbitrary_keywords
+        assert item.docstring == entries[symbol]
+        assert _documented_parameter_names(item.docstring) == parameters
+        declaration = declarations[name]
+        assert _clean_doc(declaration) == entries[symbol]
+        assert hashlib.sha256(ast.dump(declaration, include_attributes=False).encode()).hexdigest() == body_hash
+        assert not declaration.decorator_list
+        assert not declaration.args.posonlyargs and not declaration.args.defaults
+        assert not declaration.args.kwonlyargs and not declaration.args.kw_defaults
+        assert not declaration.args.vararg and not declaration.args.kwarg
+        assert [argument.arg for argument in declaration.args.args] == sorted(parameters)
+        if parameters:
+            assert isinstance(declaration.args.args[0].annotation, ast.Name)
+            assert declaration.args.args[0].annotation.id == "bool"
+            assert isinstance(declaration.returns, ast.Constant) and declaration.returns.value is None
+        else:
+            assert isinstance(declaration.returns, ast.Name) and declaration.returns.id == "bool"
+    return callables
+
+
 def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     """Freeze the whole boundary and every source-owned parameter name.
 
@@ -2689,6 +2810,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_prior_weighted_preview_callables(callables)
     callables = _validated_calibrated_batch_inventory(callables)
     callables = _validated_signed_cell_measurement_arrival(callables)
+    callables = _validated_733_easy_mode_callables(callables)
     imported_package_modules = {
         name for name in set(sys.modules) - before_modules
         if name == "spacr" or name.startswith("spacr.")
@@ -3121,7 +3243,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "718_metal_loader_iterator_api_arrival_2026-10-24.json",
                      "538_signed_cell_measurement_api_arrival_2026-10-24.json",
                      "707_api_help_label_size_hint_api_arrival_2026-10-24.json",
-                     "707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json"):
+                     "707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json",
+                     "733_easy_mode_api_arrivals_2026_10_26.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -4587,13 +4710,15 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     """Require the extractor's keys and content to equal rendered source."""
     before_modules = set(sys.modules)
     docs = _documentation_public_docstrings()
+    from tests.test_documentation_i18n import _retired_732_remote_api
+    historical_docs = docs | _retired_732_remote_api(docs)
     imported_package_modules = {
         name for name in set(sys.modules) - before_modules
         if name == "spacr" or name.startswith("spacr.")
     }
     assert not imported_package_modules
 
-    actual_callables = list(_public_callables())
+    actual_callables = _validated_733_easy_mode_callables(list(_public_callables()))
     radius_symbols = {
         "spacr.qt.widgets.ambient.AmbientWidget.gravity_radius",
         "spacr.qt.widgets.ambient.AmbientWidget.set_gravity_radius",
@@ -5086,6 +5211,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("538_signed_cell_measurement_api_arrival_2026-10-24.json", 1),
         ("707_api_help_label_size_hint_api_arrival_2026-10-24.json", 1),
         ("707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json", 5),
+        ("733_easy_mode_api_arrivals_2026_10_26.json", 4),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -5145,7 +5271,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         / "data/release_contracts"
         / "699_ssh_connection_worker_api_arrival_2026-10-14.json").read_text(encoding="utf-8"))
     assert len(ssh_additions) == 1
-    assert {key: docs[key] for key in ssh_additions} == ssh_additions
+    assert {key: historical_docs[key] for key in ssh_additions} == ssh_additions
     assert not ssh_additions.keys() & (zoo_additions.keys() | late_additions.keys())
     zoo_additions = {**zoo_additions, **late_additions, **ssh_additions}
     help_changes = json.loads((pathlib.Path(__file__).resolve().parent
@@ -5198,7 +5324,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     zoo_additions = {**zoo_additions, **approval_preferences}
     from tests.test_documentation_i18n import _retired_707_home_api
     retired_home = _retired_707_home_api(docs)
-    assert len((docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
+    assert len((historical_docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
                - channel_additions.keys() - scn_additions.keys()
                - popup_additions.keys() - background_additions.keys()
                - animation_arrivals.keys()
@@ -5613,7 +5739,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "718_metal_loader_iterator_api_arrival_2026-10-24.json",
                      "538_signed_cell_measurement_api_arrival_2026-10-24.json",
                      "707_api_help_label_size_hint_api_arrival_2026-10-24.json",
-                     "707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json"):
+                     "707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json",
+                     "733_easy_mode_api_arrivals_2026_10_26.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -5701,7 +5828,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "718_metal_loader_iterator_api_arrival_2026-10-24.json",
                      "538_signed_cell_measurement_api_arrival_2026-10-24.json",
                      "707_api_help_label_size_hint_api_arrival_2026-10-24.json",
-                     "707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json"):
+                     "707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json",
+                     "733_easy_mode_api_arrivals_2026_10_26.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

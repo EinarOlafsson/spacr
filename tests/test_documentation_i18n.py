@@ -107,6 +107,64 @@ def _retired_707_home_api(docs):
     return retired
 
 
+def _retired_732_remote_api(docs):
+    """Replay the seven exact callback bodies after their source-owned retirement."""
+    import ast
+    import nested_helper_docs
+
+    retirement = json.loads((ROOT / "tests/data/release_contracts"
+        / "732_remote_callbacks_api_retirement_2026-10-26.json").read_text(encoding="utf-8"))
+    assert retirement["source_commit"] == "89c52e14cd190a77d6cb71576c0905e3799cba87"
+    assert retirement["source_blob"] == "94408eb48fc14cf5904f2b344cb9038013c1d0c2"
+    assert retirement["source_path"] == "spacr/qt/screens/distributed_jobs.py"
+    module = "spacr.qt.screens.distributed_jobs"
+    retired = retirement["retired"]
+    assert set(retired) == {module + "." + name for name in (
+        "DistributedJobsScreen._start_task._work",
+        "DistributedJobsScreen.cancel_selected._done",
+        "DistributedJobsScreen.refresh._done",
+        "DistributedJobsScreen.refresh_log._done",
+        "DistributedJobsScreen.submit._done",
+        "DistributedJobsScreen.submit._submit",
+        "ExecutionProfileDialog._test_connection.operation",
+    )}
+    assert sum(len(body.split("\n\n")) for body in retired.values()) == 8
+    assert hashlib.sha256(json.dumps(
+        retired, sort_keys=True, ensure_ascii=False,
+    ).encode()).hexdigest() == "2b0eeca36648143a40bfb6256de7d4c90162ef7b931275475d92d5555c6be047"
+    assert module in docs and docs[module]
+    assert not retired.keys() & docs.keys()
+    assert module not in nested_helper_docs.ENABLED_MODULES
+    tree = ast.parse((ROOT / retirement["source_path"]).read_text(encoding="utf-8"))
+    assert {"DistributedJobsScreen", "ExecutionProfileDialog"} <= {
+        node.name for node in tree.body if isinstance(node, ast.ClassDef)}
+    parents = {child: node for node in ast.walk(tree) for child in ast.iter_child_nodes(node)}
+    nested = []
+    for node in ast.walk(tree):
+        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            continue
+        parent = parents.get(node)
+        while parent is not None:
+            if isinstance(parent, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                nested.append(node.name)
+                break
+            parent = parents.get(parent)
+    assert not nested
+    return retired
+
+
+def _easy_mode_733_api_arrivals(docs):
+    """Bind the four Easy mode accessors to their complete canonical source text."""
+    entries = json.loads((ROOT / "tests/data/release_contracts"
+        / "733_easy_mode_api_arrivals_2026_10_26.json").read_text(encoding="utf-8"))
+    expected = {'spacr.qt.preferences.get_easy_mode': 'de468de74c3e4525f1fea9423f000dc379ba0784d7626b030fff6ea3783d064a', 'spacr.qt.preferences.get_easy_mode_dock': '472567d34a3903317a34a5d98152a923cb4d29a4ab1e0133ad4f306149d0b578', 'spacr.qt.preferences.set_easy_mode': '3a86b22794bca1c940fe057dcebabefb375648d0da643c45330d6171fc776c51', 'spacr.qt.preferences.set_easy_mode_dock': '7b9ddcc231fc2de7c167d98bb8a180e2b1f413ada6d5e3a7a7d7f2b9289cc686'}
+    assert entries.keys() == expected.keys()
+    assert {key: docs[key] for key in entries} == entries
+    assert {key: hashlib.sha256(body.encode()).hexdigest()
+            for key, body in entries.items()} == expected
+    return entries
+
+
 def _current_718_metal_class_api(entries, docs):
     """Bind the three constructor summaries while retaining the original eight-entry fixture."""
     assert len(entries) == 8
@@ -3228,6 +3286,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
     import build_documentation_i18n as builder
 
     docs, source_contracts = current_documentation_api_contracts
+    historical_docs = docs | _retired_732_remote_api(docs)
     assert len(SOURCE_REVIEWED_SYMBOLS_2026_10_07) == 33
     assert SOURCE_REVIEWED_SYMBOLS_2026_10_07 <= set(docs)
     worker_arrivals = json.loads((ROOT / "tests/data/release_contracts"
@@ -3466,7 +3525,8 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         if filename == "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json":
             arrivals = _current_718_metal_class_api(arrivals, docs)
         assert len(arrivals) == count
-        assert {key: docs[key] for key in arrivals} == arrivals
+        source_docs = historical_docs if filename == "699_ssh_connection_worker_api_arrival_2026-10-14.json" else docs
+        assert {key: source_docs[key] for key in arrivals} == arrivals
         assert not arrivals.keys() & (
             zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
             | home_ui_arrivals.keys() | volume_arrivals.keys()
@@ -3512,6 +3572,12 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         | home_ui_arrivals.keys() | volume_arrivals.keys()
     )
     zoo_arrivals = {**zoo_arrivals, **approval_preferences_arrivals}
+    easy_mode_arrivals = _easy_mode_733_api_arrivals(docs)
+    assert not easy_mode_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **easy_mode_arrivals}
     retirement = json.loads((ROOT / "tests/data/release_contracts"
         / "700_retired_setup_api_inverse_2026-10-15.json").read_text(encoding="utf-8"))
     assert retirement["source_commit"] == "0881044e8b310515e2434b1046fe94a02d769b47"
@@ -3526,7 +3592,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
     uncataloged = sorted(docs.keys() - json.loads(
         (api_catalogs / "en.json").read_text(encoding="utf-8")
     )["symbols"].keys())
-    assert len((docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()
+    assert len((historical_docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()
                 - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_setup.keys()
                 | _retired_707_home_api(docs).keys()) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
         "The public documentation inventory changed. Symbols in the source "

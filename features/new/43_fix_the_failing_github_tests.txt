@@ -1,4 +1,46 @@
+CURRENT CUDA CAPABILITY GUARD — 2026-10-26
+widgets_g2 owns the Coverage 11 attribution-context false positive. Keep all
+training and inference memory-room guards; distinguish the exact CUDA RNG
+snapshot capability check from device selection without changing production.
+Require the snapshot's device list to feed only torch.random.fork_rng, retain
+busy-card behavior and the Chrome scheduler exclusion, and validate the
+smallest CPU-only owning controls before root publication.
+
 GET THE GITHUB ACTIONS RUNS GREEN
+CURRENT COMPLETE VISIBLE AMBIENT EXPOSURE — 2026-10-26
+The retained attribution worker owns the reproduced release 8e composite
+regression: opaque child regions leave holes in a complete visible repaint.
+Advance the frame for actual complete visible coverage, retaining empty-region
+and disjoint partial-exposure safety, composite/classic equality and all
+existing assertions. Composite and original disjoint controls pass (4.63s);
+CPU-only qualification retained, root reviews/publishes.
+
+CURRENT CENTERED COLOUR DIALOG TEST PROTOCOL — 2026-10-26
+The retained attribution worker owns five release 8e stale static-getColor
+fixtures. Bind the approved real instance-dialog protocol while preserving
+copy/fallback/cancel, palette independence and unchanged-apply checks. Run
+only these five CPU/offscreen controls and necessary picker guards; no runtime
+or generated change. Eight focused controls pass (6.28s); root reviews and
+publishes the isolated candidate. Nine additional source-bound static-dialog
+fixtures pass (4.61s), retaining negative width-dialog and native-option guards.
+
+CURRENT MASK LATE-CATEGORY GEOMETRY — 2026-10-26
+widgets_g2 owns the release 8e0354639d Coverage 5 Mask-only late/eager
+styling regression. Bind the four timelapse controls to their real model,
+polish, fonts, widths and layout caches before any correction; preserve exact
+style and size assertions and every ratchet. Isolate the smallest valid source
+or fixture fix, run only the affected Mask case and any invalidated guard
+under the 8G CPU cap, and return a descriptive commit for root publication.
+Do not change the separately repaired theme/modal contracts or Easy mode.
+
+CURRENT DETERMINISTIC SALIENCY DISPATCH CONTRACT — 2026-10-26
+The retained attribution worker owns the release 7cd stale indentation check.
+Bind the unchanged attribution/Grad-CAM/saliency dispatch tails structurally
+inside the approved deterministic context, preserving real saliency behavior,
+RGB/channel assertions and production kernels. Run only the owning CPU controls;
+The six owning CPU saliency controls pass (7.48s); root reviews and publishes.
+No release candidate, production or generated-file mutations.
+
 CURRENT SHIPPED GLYPHS AND EXPORT INK — 2026-10-26
 widgets_g5 owns the release CI font/export corrections: remove unused unsupported navigation recognizer symbols only after binding actual UI use; retain the proportions toggle with clear translated wording; resolve canvas text through the print-target ink policy without changing physical PDF dimensions or image geometry. Preserve font coverage, text-policy and ink ratchets and G3's disjoint replay fix; run only the affected controls plus print-ink/proportions regressions under the CPU cap. Root owns final translation integration and publication.
 2026-10-26 — Removed two unused unsupported recognizer glyphs, retained the image proportions toggle with clear wording, and resolved white-page text through print ink. All fifteen affected font, caption, ink and actual export controls pass under the CPU cap; independent source peer accepted. Root owns the nine-locale caption update and publication.
@@ -5145,3 +5187,7 @@ Also check the per-host instance lock and unclean-exit counter: concurrent windo
 2026-10-26 — Pin only the Overview image-metadata selector's fixed black/white overlay while retaining every opaque-theme surface/alpha assertion (1 PASS, 3.36s). Real hidden lazy/eager controls had identical widths, fonts and child hints but stale eager aggregate geometry; refresh existing child layouts before the unchanged exact style/height oracle (affected case 1 PASS, 5.61s). Root and independent peer accepted; production/generated outputs unchanged, root publication pending.
 
 2026-10-26 — Closed the release paint_field_fade review gap without changing its prose, preserved reviewed prefixes, and incorporated only exact existing source-bound API overlays through normal assembly. All 18 strict locale admissions and the runtime/arrival, API/Help, source-boundary and reference/flow controls pass; all ten assembled API catalogs remain byte-exact after stock assembly. Final publication and hosted release CI remain with root; remote round 2 stays outside this candidate.
+
+2026-10-26 — Mask late/eager style comparison now opens both native category trees, activates existing hidden child layouts, and invalidates nested caches after child geometry settles. All original style, height and row assertions remain exact; Mask and Classify each pass on Qt 6.11.2 under the 8G CPU cap. Test-only; root owns publication and broader CI.
+
+2026-10-26 — Keep CUDA capability detection for the exact attribution RNG snapshot while requiring its device list to feed only fork_rng; every other training/inference availability call remains guarded. Production unchanged; all 14 busy-GPU owning CPU controls pass (8.49s). Root owns integration/publication.

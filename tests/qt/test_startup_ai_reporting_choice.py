@@ -47,8 +47,10 @@ def test_startup_ai_defaults_on_immediately_below_hash_in_both_layouts(qtbot, pr
     keys = [question[0] for question in questions()]
     assert keys.index("spacr_ai") == keys.index("hash_inputs") + 1
     assert next(question for question in questions() if question[0] == "spacr_ai")[1] == "spaCR AI"
-    assert next(keys for title, keys in GROUPS if "hash_inputs" in keys)[-2:] == ("hash_inputs", "spacr_ai")
-    assert next(keys for title, blurb, keys in SLIDES if "hash_inputs" in keys)[-2:] == ("hash_inputs", "spacr_ai")
+    for group in (next(keys for title, keys in GROUPS if "hash_inputs" in keys),
+                  next(keys for title, blurb, keys in SLIDES if "hash_inputs" in keys)):
+        assert group[group.index("hash_inputs"):group.index("spacr_ai") + 1] == (
+            "hash_inputs", "spacr_ai")
     slides = SetupSlides()
     qtbot.addWidget(slides)
     editor = slides._editors["spacr_ai"]

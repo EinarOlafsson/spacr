@@ -234,6 +234,8 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'control_identities',
     'control_quantile',
     'control_sgrnas',
+    'controlmaster',
+    'controlpersist',
     'controls',
     'controls_loc',
     'coordinate_columns',

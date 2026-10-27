@@ -795,7 +795,12 @@ class LoadingScreen(QWidget):
         if image.isNull():
             self._mosaic = None
             return None
-        pixmap = QPixmap.fromImage(_black_to_alpha(image))
+        image = _black_to_alpha(image)
+        pixels = np.frombuffer(image.bits(), dtype=np.uint32).reshape(
+            side, image.bytesPerLine() // 4)[:, :side]
+        pixels.reshape(self._mosaic.grid, tile, self._mosaic.grid, tile)[:] *= (
+            self._mosaic.occupied[:, None, :, None])
+        pixmap = QPixmap.fromImage(image)
         pixmap.setDevicePixelRatio(ratio)
         self._mosaic_pixmap = pixmap
         self._mosaic_key = key
