@@ -5254,8 +5254,24 @@ class _EasyHomePage(QWidget):
         if path:
             self.accept_paths([path])
 
+    def _clear_empty_input(self):
+        """Return an empty editor to the live field without keeping stale work."""
+        self._debounce.stop()
+        self._cancel_regex_validation()
+        self._input_generation += 1
+        self._runner.cancel()
+        self._requested = self.path_edit.text()
+        self._last_result = None
+        self._settings_overrides = {}
+        self.field.set_cards([])
+        self._feedback('')
+        self._show_suggestions()
+
     def _schedule_inspection(self, text):
         """Debounce typed paths without interpreting the signal text as a timer interval."""
+        if not text.strip():
+            self._clear_empty_input()
+            return
         self._cancel_regex_validation()
         self._last_result = None
         self._settings_overrides = {}
@@ -5269,6 +5285,9 @@ class _EasyHomePage(QWidget):
 
         from ..i18n import tr
 
+        if not self.path_edit.text().strip():
+            self._clear_empty_input()
+            return
         self._debounce.stop()
         self._cancel_regex_validation()
         if self._runner.is_busy():
@@ -5389,13 +5408,15 @@ class _EasyHomePage(QWidget):
 
     def _inspection_finished(self, ok):
         """Inspect a changed input after the previous owned worker has retired."""
-        if self.path_edit.text() != self._requested:
+        if self.path_edit.text().strip() and self.path_edit.text() != self._requested:
             self._debounce.start()
 
     def _inspection_failed(self, message):
         """Present a real worker failure without leaving stale actions available."""
         from ..i18n import tr
 
+        if not self.path_edit.text().strip():
+            return
         self.field.set_cards([])
         self._feedback(tr('This input could not be inspected. Check permissions and choose another path.'), visible=True)
 
