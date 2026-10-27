@@ -3743,6 +3743,182 @@
           "idle_tail_start": 5.0
         }
       ]
+    },
+    {
+      "lesson": "26_invasion",
+      "master_sha256": "60a27aefba556e1cf4d10640f09917a5bd71f92ba11761670f6064f7ea653a4d",
+      "visual_timing_sha256": "50294a175eb4669b74138785826d67cb8bc16502f1089f858e8c8f7d5283e755",
+      "scenes": [
+        {
+          "visual": "01_module",
+          "source_start": 0.0,
+          "source_end": 29.133333333333333,
+          "idle_tail_start": 11.5
+        },
+        {
+          "visual": "02_setting_src",
+          "source_start": 29.133333333333333,
+          "source_end": 57.4,
+          "idle_tail_start": 6.0
+        },
+        {
+          "visual": "03_setting_outside_channel",
+          "source_start": 57.4,
+          "source_end": 90.63333333333334,
+          "idle_tail_start": 8.0
+        },
+        {
+          "visual": "05_setting_intensity_statistic",
+          "source_start": 90.63333333333334,
+          "source_end": 117.53333333333333,
+          "idle_tail_start": 7.5
+        },
+        {
+          "visual": "06_setting_stain_baseline_wells",
+          "source_start": 117.53333333333333,
+          "source_end": 144.7,
+          "idle_tail_start": 8.5
+        },
+        {
+          "visual": "07_setting_control_quantile",
+          "source_start": 144.7,
+          "source_end": 174.33333333333334,
+          "idle_tail_start": 8.0
+        },
+        {
+          "visual": "08_setting_threshold_sensitivity",
+          "source_start": 174.33333333333334,
+          "source_end": 202.53333333333333,
+          "idle_tail_start": 8.5
+        },
+        {
+          "visual": "10_setting_extracellular_class",
+          "source_start": 202.53333333333333,
+          "source_end": 233.83333333333334,
+          "idle_tail_start": 7.5
+        },
+        {
+          "visual": "15_figure_02",
+          "source_start": 233.83333333333334,
+          "source_end": 261.7,
+          "idle_tail_start": 9.0
+        },
+        {
+          "visual": "16_legend_00",
+          "source_start": 261.7,
+          "source_end": 279.43333333333334,
+          "idle_tail_start": 10.5
+        },
+        {
+          "visual": "17_readable_figure_00",
+          "source_start": 279.43333333333334,
+          "source_end": 305.56666666666666,
+          "idle_tail_start": 4.0
+        },
+        {
+          "visual": "17_readable_figure_01",
+          "source_start": 305.56666666666666,
+          "source_end": 330.23333333333335,
+          "idle_tail_start": 4.0
+        },
+        {
+          "visual": "14_actual_completion",
+          "source_start": 330.23333333333335,
+          "source_end": 366.1,
+          "idle_tail_start": 10.0
+        }
+      ]
+    },
+    {
+      "lesson": "37_batch",
+      "master_sha256": "2d589b9d480a245cd1c6350816e6ba0c7fe2a1bbe26005ea54cdee3318f50bd7",
+      "visual_timing_sha256": "c2e9c6f0e108fec18e1d3f923cecdae3596c782d47c9f7101d14a359540a55b1",
+      "scenes": [
+        {
+          "visual": "01_help_batch",
+          "source_start": 0.0,
+          "source_end": 16.6,
+          "idle_tail_start": 6.5
+        },
+        {
+          "visual": "03_choose_settings_1",
+          "source_start": 16.6,
+          "source_end": 27.4,
+          "idle_tail_start": 5.1
+        },
+        {
+          "visual": "04_configure_job_1",
+          "source_start": 27.4,
+          "source_end": 40.8,
+          "idle_tail_start": 6.7
+        },
+        {
+          "visual": "04_configure_job_2",
+          "source_start": 40.8,
+          "source_end": 63.46666666666667,
+          "idle_tail_start": 10.9
+        },
+        {
+          "visual": "05_added_job_3",
+          "source_start": 63.46666666666667,
+          "source_end": 79.63333333333334,
+          "idle_tail_start": 6.0
+        },
+        {
+          "visual": "06b_dependency_error_scrolled",
+          "source_start": 79.63333333333334,
+          "source_end": 98.43333333333334,
+          "idle_tail_start": 5.0
+        },
+        {
+          "visual": "07_valid_reordered_queue",
+          "source_start": 98.43333333333334,
+          "source_end": 107.96666666666667,
+          "idle_tail_start": 3.8
+        },
+        {
+          "visual": "09_continue_policy",
+          "source_start": 107.96666666666667,
+          "source_end": 125.3,
+          "idle_tail_start": 4.0
+        },
+        {
+          "visual": "10_save_queue_picker",
+          "source_start": 125.3,
+          "source_end": 141.63333333333333,
+          "idle_tail_start": 6.0
+        },
+        {
+          "visual": "13b_jobs_dock",
+          "source_start": 141.63333333333333,
+          "source_end": 170.43333333333334,
+          "idle_tail_start": 11.5
+        },
+        {
+          "visual": "14_stopped_between_jobs",
+          "source_start": 170.43333333333334,
+          "source_end": 189.93333333333334,
+          "idle_tail_start": 4.8
+        },
+        {
+          "visual": "15_completed_real_queue",
+          "source_start": 189.93333333333334,
+          "source_end": 201.1,
+          "idle_tail_start": 4.7
+        },
+        {
+          "visual": "16_log_convert-2",
+          "source_start": 201.1,
+          "source_end": 218.43333333333334,
+          "idle_tail_start": 5.5
+        },
+        {
+          "visual": "16_log_convert-1",
+          "source_start": 218.43333333333334,
+          "source_end": 235.4,
+          "idle_tail_start": 7.2
+        }
+      ]
     }
   ]
 }

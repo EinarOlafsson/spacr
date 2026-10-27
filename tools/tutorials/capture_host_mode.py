@@ -32,7 +32,6 @@ false, ``status`` ``gate_failed``), which ``stage_lesson.py`` refuses.
 from __future__ import annotations
 
 import argparse
-import contextlib
 import hashlib
 import json
 import math
@@ -63,6 +62,7 @@ PAINT_COUNTER_SEMANTICS = 'observed_per_widget_deltas'
 
 #: The capture profile (maintainer decisions, 2026-10-11).
 CAPTURE_PROFILE = {
+    'field_held_fps': 60,
     'theme': 'dark',
     'field': 'data_art_impulse_lens',
     # Maintainer 2026-10-24: record the app's CURRENT defaults -- the field at its shipped density
@@ -198,9 +198,12 @@ def prepare_profile(font_scale: float) -> dict:
         'show_alpha_features': prefs._get_show_alpha_features(),
         'show_alpha_species': prefs._get_show_alpha_species(),
         'font_scale': font_scale,
+        'requested_field_held_fps': CAPTURE_PROFILE['field_held_fps'],
         'store': prefs._settings().fileName(),
     }
-    skip = {'theme'}
+    # Held pacing is a later process-local API request, not a Qt-store readback.
+    # Per-widget runtime rate/paint observations establish what actually ran.
+    skip = {'theme', 'field_held_fps'}
     actual['spaceout'] = False
     actual.update(report_notice)
     wrong = {k: (v, actual.get(k)) for k, v in CAPTURE_PROFILE.items()
@@ -704,19 +707,6 @@ def recording_fps(window, requested: str = 'auto') -> int:
     return AUTO_FPS
 
 
-@contextlib.contextmanager
-def _capture_pacing(fps):
-    """Keep held rows while matching their private capture cadence, then restore it."""
-    from spacr.qt.widgets import ambient
-
-    normal = ambient._HOLD_FPS
-    ambient._HOLD_FPS = max(normal, int(fps))
-    try:
-        yield {'normal_hold_fps': normal, 'capture_hold_fps': ambient._HOLD_FPS}
-    finally:
-        ambient._HOLD_FPS = normal
-
-
 # -- 2./3. launch the real app and run the recorder inside it -----------------
 def run_child(stage: Path, capture_args: list[str]) -> int:
     """Inside the capture host and the neutral stage: profile, real launch, scenes."""
@@ -752,6 +742,9 @@ def run_child(stage: Path, capture_args: list[str]) -> int:
     assert Path(spacr.__file__).resolve().parent == REPO / 'spacr', spacr.__file__
     import spacr.qt
 
+    from spacr.qt.widgets.ambient import _set_capture_held_fps
+    _set_capture_held_fps(CAPTURE_PROFILE['field_held_fps'])
+
     human = HumanProcess(log=(logs / 'human_input.log').open('w'))
     human.press('Escape')                          # no overview, whatever the shell did
     human.warp(width * 0.62, height * 0.58)
@@ -781,7 +774,9 @@ def run_child(stage: Path, capture_args: list[str]) -> int:
                 raise RuntimeError(f'spaCR does not fill the monitor (top bar not hidden?): {placed}')
             fps = recording_fps(window, os.environ.get('SPACR_CAPTURE_FPS', 'auto'))
             placed['recording_fps'] = fps
-            placed['capture_pacing'] = pacing
+            placed['capture_pacing'] = {
+                'requested_held_fps': CAPTURE_PROFILE['field_held_fps'],
+                'scope': 'process-local API request; effective rates sampled per widget'}
             (stage / 'host-window.json').write_text(json.dumps(placed, indent=2) + '\n')
             adapter = QTestAdapter(human, pump=pump, log=(logs / 'adapter.jsonl').open('w')).install()
             _RUNTIME = HostRuntime(window, adapter, stage=stage, fps=fps)
@@ -817,8 +812,7 @@ def run_child(stage: Path, capture_args: list[str]) -> int:
             os._exit(4)
 
     threading.Thread(target=watcher, name='capture-host-watcher', daemon=True).start()
-    with _capture_pacing(recording_fps(None, os.environ.get('SPACR_CAPTURE_FPS', 'auto'))) as pacing:
-        app_rc = spacr.qt.run(['--fresh', '--no-setup'])
+    app_rc = spacr.qt.run(['--fresh', '--no-setup'])
     human.close()
     summary = _RUNTIME.gates if _RUNTIME is not None else {}
     failed = _RUNTIME.failed if _RUNTIME is not None else []

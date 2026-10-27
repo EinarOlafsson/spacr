@@ -431,4 +431,34 @@ Private driver repair follows that real action; its preservation test passes, an
 
 2026-10-27 — Private pacing passes four focused tests and the real held-rate telemetry reaches 30 FPS, but the normal-runner clip fails unchanged admission at 7.68 distinct FPS plus two pointer jumps; saved frames contain genuine UI and owned cleanup is complete. Lesson22 remains unaccepted: qualify app/capture cadence before any whole-lesson retry using produced/repeated/presented-frame identities, unchanged monotonic clock epochs and actual kernel/compiler readiness; no gate waiver, inference, rendering or publication.
 
-2026-10-27 — G5 reconciles the private lesson22 helpers onto published dabd97, preserving incoming per-widget pacing and held-gate diagnostics alongside private30 pacing, raw producer/clock telemetry, hidden-folder UI actions and invalid-buffer refusal; four affected helper tests pass; incoming gate diagnostics are retained. Root now requires original unadjusted freeze refusal to remain binding even when held-rate labels change, without changing thresholds/defaults; the new published process-local held-rate API/request60 supersedes the private30 monkeypatch; all native capture/publication stay held.
+2026-10-27 — G5 reconciles the private lesson22 helpers onto published dabd97, preserving incoming per-widget pacing and held-gate diagnostics alongside private30 pacing, raw producer/clock telemetry, hidden-folder UI actions and invalid-buffer refusal; four affected helper tests pass; incoming gate diagnostics are retained. Original unadjusted freeze refusal remains binding when held-rate labels change, with unchanged thresholds/defaults and five affected helper/API/gate checks passing; the new published process-local held-rate API/request60 supersedes the private30 monkeypatch; all native capture/publication stay held.
+
+Lesson12 pause edit delivered ine6ca99b02a:50 retained voices,600 gaps0.816–1.056s,72 matrix/59 published cases,64 pin passes (1 existing Node skip); HF7caa26146b652bd5ec2a3bc88cb20f9104bdcb90 verified6963files/14500316465bytes.
+
+2026-10-27 — Codex next owns26 Invasion reviewed wait cuts and idle fences on the completed12 candidate baseline, retaining all50 original narration tracks and real actions/results.
+Require complete master decode/PTS, poster/web copy, strict all50-voice browser gaps, normal HF readback/Pages verification and nightly publication before starting37. Native capture cadence,63 visible Trellis and01 PyPI remain open; live site deployment still needs confirmation.
+Lesson26 edited master, full decode/PTS, poster and web copy pass; generated13-scene idle policy adopted, preserving all other policies. Strict all50-voice gaps and normal publication remain required.
+Lesson26 pause edit delivered in8e4bee673b:50 retained voices,650 gaps0.800–1.064s,72 matrix/59 published cases,64 pin passes (1 existing Node skip); HFc2aa2e4e5a7fbea3f4a0f9c3c5ae8caae3ea1dad verified6963files/14533643872bytes.
+
+2026-10-27 — Codex next owns37 Batch Jobs reviewed wait cuts and idle fences on the completed26 candidate baseline, retaining all50 narration tracks and genuine picker/path/dependency/reorder/save/run/completion actions.
+Require full master decode/PTS, poster/web copy, strict all50-voice browser gaps, normal HF readback/Pages verification and nightly publication.63 needs a visible Trellis retake; native cadence remains20fps throughdabd97a914, Home fix commit requested.01 PyPI1.5.1.6 still404 at07:36UTC; website last verified at81.
+Lesson37 edited master, full decode/PTS, poster and web copy pass; generated14-scene idle policy adopted while preserving all other policies. Strict all50-voice gaps and publication remain required.
+Private capture-only held30fps proposal retains12 CPU checks (affected reporting case rerun once); normal held20 remains default, App integration and actual native acceptance still pending.
+Lesson37 pause edit delivered in223378165c:50 retained voices,700 measured gaps0.800–1.047s,72 matrix/59 published cases,64 pin passes (1 existing Node skip); HF1f3607ef3385ff484fafc0d0f496d3e6ca4725a1 verified6963files/14492752744bytes.
+
+2026-10-27 — Codex owns an explicit process-local tutorial capture pacing request:30fps while held, preserving the normal20fps default, configured caps and pipeline backpressure.
+Integrate the reviewed private API/profile patch; require12 focused actual-source CPU tests and mandatory comment/API checks before nightly push, then a normal GPU-queued Home/Preferences native probe.
+Keep existing raw gates unchanged; claim acceptance only from actual paint/distinct-motion evidence. Lesson16 actual CUDA placement and <=1 pixel difference,58 brush handoff,63 visible Trellis,remaining native lessons and01 PyPI remain open.
+Integrated actual-source pacing cohort passes12/12; private API/profile request preserves normal20 and labels requested metadata truthfully. Mandatory app push checks and native acceptance remain pending.
+Native6a14a1772b probe finishes0/2:Home62 samples prove held30 but distinct26.7fps;Prefs3.317s sampler gap coincides with native-gdb attachment at0.1s, so uninstrumented app-freeze attribution is unproved. No acceptance inferred.
+
+2026-10-27 — Codex next requests held60fps only in the explicit capture profile to provide margin for the30fps recorder; normal20 default and configured/run caps remain unchanged.
+Require the affected profile-binding test, retained11 API tests and mandatory app push checks, then one fresh normal GPU-queued Home/Preferences probe with native debugger threshold2.5s (GUI/GIL sampling0.12s).
+Preserve both failed prior clips and exact diagnostic stacks; do not waive raw gates or launch13 until the new native result establishes acceptance.
+
+Native60 probe on40722add65 passesboth raw gates:Home29.69/Preferences29.44distinctfps, no GUI gaps orappfreeze buckets; p27 then records13fulltake+plannedretry.
+
+2026-10-27 — Lesson13 on40722add65 finishes p27 normally06:01:51; accepted union12/15. Missing21_batch_running,25_result_results,26_detail_coefficients; both t18-13-regression_run-capture30-1 stages retained.
+Observed run cap60→30 and136ms GPU/GIL hold→30sCPU fallback; laterresults stayeffective60 but captured13.8–25.86distinctfps despite observedpaints. No long GUI deadlock inferred; short stacks reported in AI/HANDOFF.
+Codex retains13 ownership: no further identical take; review clean source intervals preserving genuine actions and fullyrenderedresults, omit ALLfailedrawbuckets through normalguardedediting; any normal-app rendering fix remains Home-owned.
+Next04 scope is2 current-nightly GUI clips plusvalidation/retention of12 installer references; do not call2clips a fullyfresh14cliprecording. Startonlyafter13publication or genuinelyunrecoverablesource.

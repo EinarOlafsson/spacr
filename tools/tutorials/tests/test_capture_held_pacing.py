@@ -63,18 +63,20 @@ def test_capture_pacing_preserves_held_rows_and_reports_actual_caps(qtbot, monke
         assert normal['pacing'] == [{'id': state['id'], 'configured_fps': 60.0,
                                      'effective_rate': 20.0, '_hold_paced': True}]
         assert normal['widgets'][0]['paused'] is False
-        with host._capture_pacing(host.recording_fps(window)) as policy:
-            assert policy == {'normal_hold_fps': 20, 'capture_hold_fps': 30}
-            backdrop._apply_rate()
-            assert backdrop._rate() == 30 and backdrop._timer.interval() == 33
+        requested = host.CAPTURE_PROFILE['field_held_fps']
+        assert requested == 60
+        try:
+            ambient._set_capture_held_fps(requested)
+            assert ambient._HOLD_FPS == 20 and ambient._CAPTURE_HELD_FPS == requested
+            assert backdrop._rate() == requested and backdrop._timer.interval() == 16
             assert backdrop._held_rows.frame is held and backdrop._held_rows.region == region
             sample = runtime.field_sample()
             assert sample['fps_cap'] == [60]
             assert sample['widgets'][0]['configured_fps'] == 60
-            assert sample['widgets'][0]['effective_rate'] == 30
+            assert sample['widgets'][0]['effective_rate'] == requested
             assert sample['widgets'][0]['hold_paced'] is True
             assert sample['widgets'][0]['_hold_paced'] is True
-            assert sample['pacing'][0]['effective_rate'] == 30.0
+            assert sample['pacing'][0]['effective_rate'] == requested
             assert sample['widgets'][0]['run_paced'] is False
             assert sample['widgets'][0]['paused'] is False
             assert sample['frames_painted'] == normal['frames_painted']
@@ -85,11 +87,11 @@ def test_capture_pacing_preserves_held_rows_and_reports_actual_caps(qtbot, monke
             assert stopped['paused'] is True
             assert stopped['producer_present'] is False and stopped['producer_identity'] is None
             assert stopped['frames_shaded'] == 0
-        assert ambient._HOLD_FPS == 20 and backdrop._rate() == 20
-        with host._capture_pacing(60):
-            with host._capture_pacing(30):
-                assert ambient._HOLD_FPS == 60
-        assert ambient._HOLD_FPS == 20
+        finally:
+            ambient._set_capture_held_fps(None)
+        assert ambient._HOLD_FPS == 20 and ambient._CAPTURE_HELD_FPS is None
+        assert backdrop._rate() == 20
+
     finally:
         backdrop.stop()
         window.close()
