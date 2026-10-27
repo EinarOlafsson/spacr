@@ -3,7 +3,7 @@ and the Help replay.
 
 spaCR opens as ONE window, borderless and maximised to its screen's work
 area (not full-screen mode). The first thing painted in it is the black
-container with the logo photomosaic at half the screen height; the logo
+container with the logo photomosaic at a quarter of the screen height; the logo
 holds for 2 s (longer while loading), blows away from 2 to 6 s, and the
 container fades from 3 to 5 s. Help > Show startup animation plays it again.
 The borderless window carries its own minimise, maximise/restore and close
@@ -117,7 +117,7 @@ def test_the_startup_timeline_on_one_borderless_window(
     assert start == clock.now, "the logo is the first thing painted"
 
     x, y, side, tile, ratio = cover._mosaic_layout()
-    assert side == pytest.approx(screen.geometry().height() / 2.0)
+    assert side == pytest.approx(screen.geometry().height() / 4.0)
     assert x + side / 2.0 == pytest.approx(window.width() / 2.0)
     assert y + side / 2.0 == pytest.approx(window.height() / 2.0)
     mosaic = cover._mosaic
@@ -266,7 +266,7 @@ def test_a_cover_without_a_screen_sizes_the_logo_by_itself(host_cover):
     cover, _clock = host_cover
     cover.screen = lambda: None
     x, y, side, tile, ratio = cover._mosaic_layout()
-    assert side == pytest.approx(cover.height() / 2.0)
+    assert side == pytest.approx(cover.height() / 4.0)
 
 
 # --- Help > Show startup animation ----------------------------------------

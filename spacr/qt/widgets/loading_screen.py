@@ -242,12 +242,11 @@ _LATE_SHARE = 0.25
 #: a test can reproduce a frame.
 _MOSAIC_SEED = 694
 
-#: Share of the screen's height the logo takes (item 695: half).
-_MOSAIC_SCREEN_SHARE = 0.5
+#: Share of the screen's height the logo takes (a quarter).
+_MOSAIC_SCREEN_SHARE = 0.25
 
-#: Most of the cover's width the logo may take, on a window narrower than
-#: half its screen's height.
-_MOSAIC_WIDTH_SHARE = 0.9
+#: Share of the cover's width the logo may take on a narrow window.
+_MOSAIC_WIDTH_SHARE = 0.45
 
 
 def _env_says_no_splash() -> bool:
@@ -748,7 +747,7 @@ class LoadingScreen(QWidget):
     def _mosaic_layout(self):
         """Where the mosaic and the strap line go at the current size.
 
-        The logo is half its screen's height, centred on the cover, with the
+        The logo is a quarter of its screen's height, centred on the cover, with the
         strap line under it; a cover too small for that shrinks it to fit.
         It is decoded at the whole number of device pixels per tile at or
         just above that size, so its tiles can be cut out again exactly, and
@@ -766,7 +765,7 @@ class LoadingScreen(QWidget):
             else self.height()
         side = max(1.0, min(tall * _MOSAIC_SCREEN_SHARE,
                             self.width() * _MOSAIC_WIDTH_SHARE,
-                            self.height() - 2.0 * strap_room))
+                            (self.height() - 2.0 * strap_room) / 2.0))
         tile = math.ceil(side * ratio / mosaic.grid - 1e-9)
         tile = max(1, min(mosaic.tile_px, tile))
         return ((self.width() - side) / 2.0, (self.height() - side) / 2.0,
