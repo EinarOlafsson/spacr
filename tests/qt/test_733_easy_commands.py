@@ -101,7 +101,9 @@ def test_real_nested_help_action_and_url_aliases(commands):
     assert commands.opened == []
 
 
-@pytest.mark.parametrize("query", ["mask:", "MASK:", "Mask:"])
+@pytest.mark.parametrize("query", ["mask:", "MASK:", "Mask:",
+                                    "segmentation", "SEGMENTATION", "sEgMeNtAtIoN",
+                                    "object detection", "OBJECT DETECTION", "ObJeCt DeTeCtIoN"])
 def test_partial_name_lists_actual_modules_without_navigation(qtbot, commands, monkeypatch, query):
     from spacr.qt.widgets.home import _EasyHomePage
 
@@ -117,6 +119,25 @@ def test_partial_name_lists_actual_modules_without_navigation(qtbot, commands, m
     assert not page._runner.is_busy()
     assert {row[0] for row in app._easy_module_search(query)} >= {"mask", "make_masks"}
     assert app._easy_module_search("/actual/MASK:/image.tif") == []
+    assert app._easy_module_search("/actual/segmentation/image.tif") == []
+    assert app._easy_module_search("/actual/object detection/image.tif") == []
+    if query.casefold() in ('segmentation', 'object detection'):
+        assert app._easy_module_matches(query) == ('mask', 'make_masks')
+
+
+@pytest.mark.parametrize('query', ['segmentation', 'OBJECT DETECTION'])
+def test_segmentation_aliases_preserve_existing_visibility_gates(qtbot, commands, monkeypatch, query):
+    from spacr.qt.widgets.home import _EasyHomePage
+
+    monkeypatch.setattr(app, 'app_is_visible', lambda key: key == 'make_masks')
+    page = _EasyHomePage()
+    qtbot.addWidget(page)
+    page.command_requested.connect(commands._open_easy_command)
+    page.path_edit.setText(query)
+    qtbot.keyClick(page.path_edit, Qt.Key_Return)
+    assert [card._key for card in page.field.cards] == ['make_masks']
+    assert commands.opened == []
+    assert not page._runner.is_busy()
 
 
 def test_named_fold_uses_actual_list_opener_and_returns_child(commands, monkeypatch):

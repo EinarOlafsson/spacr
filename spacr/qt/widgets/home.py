@@ -5164,9 +5164,9 @@ class _EasySuggestionCard(QPushButton):
         self.content = QWidget(self)
         self.content.setAttribute(Qt.WA_TransparentForMouseEvents, True)
         outer.addWidget(self.content)
-        self._content_opacity = QGraphicsOpacityEffect(self.content)
+        self._content_opacity = QGraphicsOpacityEffect(self)
         self._content_opacity.setOpacity(1.0)
-        self.content.setGraphicsEffect(self._content_opacity)
+        self.setGraphicsEffect(self._content_opacity)
         layout = QVBoxLayout(self.content)
         layout.setSizeConstraint(QLayout.SetNoConstraint)
         heading = QVBoxLayout()
@@ -5174,7 +5174,7 @@ class _EasySuggestionCard(QPushButton):
         icon = QLabel(self)
         self.icon = icon
         icon.setAlignment(Qt.AlignCenter)
-        icon.setStyleSheet('background: rgb(25, 25, 25);')
+        icon.setStyleSheet('background: transparent;')
         module_icon = app_icon(self._key, theme="dark")
         if module_icon is None or module_icon.isNull():
             module_icon = self.style().standardIcon(QStyle.SP_FileDialogContentsView)
@@ -5196,7 +5196,7 @@ class _EasySuggestionCard(QPushButton):
         label.setWordWrap(True)
         label.setVisible(self._key in ("regex", "warning"))
         layout.addWidget(label, 1)
-        self.setToolTip(description)
+        self._explanation = description
         self.setAccessibleDescription(description)
         from ..theme import STAGE_HOVER
         from ..theme import ALPHA_MARK
@@ -5209,6 +5209,20 @@ class _EasySuggestionCard(QPushButton):
         self.alpha.setAlignment(Qt.AlignCenter)
         self.alpha.resize(20, 20)
         self.alpha.setVisible(self._stage == 'alpha')
+
+    def enterEvent(self, event):
+        """Keep card explanations in the stationary lower description panel."""
+        parent = self.parentWidget()
+        if hasattr(parent, 'explain_card'):
+            parent.explain_card(self)
+        super().enterEvent(event)
+
+    def focusInEvent(self, event):
+        """Expose the same explanation to keyboard navigation."""
+        parent = self.parentWidget()
+        if hasattr(parent, 'explain_card'):
+            parent.explain_card(self)
+        super().focusInEvent(event)
 
     @staticmethod
     def _stage_for(key):
@@ -5253,7 +5267,7 @@ class _EasySuggestionCard(QPushButton):
         """Use the actual expanding widget rectangle as the field footprint."""
         fraction = min(self.width() / max(1, self._final_rect.width()),
                        self.height() / max(1, self._final_rect.height()))
-        self._content_opacity.setOpacity(max(0.0, min(1.0, (fraction - 0.75) * 4)))
+        self._content_opacity.setOpacity(max(0.0, min(1.0, fraction)))
         self.parentWidget()._publish_growth()
 
     def _growth_finished(self):
@@ -5398,7 +5412,23 @@ class _EasyHomeField(QWidget):
         make_transparent(self)
         self.panel = _EasyPathEdit(self)
         self.rim = _EasyPathRim(self)
-        self.setMinimumSize(340, 300)
+        self.setMinimumSize(340, 340)
+        from PySide6.QtWidgets import QScrollBar, QTextBrowser, QGraphicsOpacityEffect
+        from ..i18n import tr
+        from .field_fade import OPT_OUT_PROPERTY
+        self.details = QTextBrowser(self)
+        self.details.setObjectName('EasyWorkflowDetails')
+        self.details.setAccessibleName(tr('Module description'))
+        self.details.setOpenExternalLinks(True)
+        self.details.setProperty(OPT_OUT_PROPERTY, True)
+        self._scrollbar = QScrollBar(Qt.Horizontal, self)
+        self._scrollbar.setObjectName('EasySuggestionsScroll')
+        self._scrollbar.setAccessibleName(tr('Tools'))
+        self._scrollbar._content_opacity = QGraphicsOpacityEffect(self._scrollbar)
+        self._scrollbar.setGraphicsEffect(self._scrollbar._content_opacity)
+        self._scrollbar.setProperty(OPT_OUT_PROPERTY, True)
+        self._scrollbar.valueChanged.connect(self._scroll_cards)
+        self._row_rect = QRect()
 
     def _motion_enabled(self):
         """Respect live backdrop and Reduce motion preferences for card growth."""
@@ -5407,12 +5437,10 @@ class _EasyHomeField(QWidget):
         return get_ambient_enabled() and not get_reduce_motion()
 
     def _publish_growth(self, *, invalidate=False):
-        """Send at most four native card rectangles to the existing field worker."""
+        """Clear transient card forces while keeping the original reveal animation."""
         from .ambient import _field_growing_regions_for_widget
 
-        rectangles = [card.geometry() for card in self.cards
-                      if card._growing and card.isVisible()]
-        _field_growing_regions_for_widget(self, rectangles, invalidate=invalidate)
+        _field_growing_regions_for_widget(self, (), invalidate=invalidate)
 
     def _finish_growth(self):
         """Retire geometry animations and release their field ownership."""
@@ -5461,13 +5489,16 @@ class _EasyHomeField(QWidget):
             card.description.setText('<b>' + escape(group) + '</b><br>' + escape(reason))
             card.description.setAlignment(Qt.AlignCenter)
             card.description.setStyleSheet(f'font-size: {font_px(12)}px; font-weight: 300;')
-            card.description.show()
+            card.description.hide()
+            card._explanation = '<b>' + escape(group) + '</b><br>' + escape(reason)
             card.setAccessibleDescription(group + ': ' + reason)
-            card.setToolTip(group + ': ' + reason + '\n' + card._path)
         if leading is not None:
             self.cards.insert(min(leading_index, len(self.cards)), leading)
         self._arrange()
         for index, card in enumerate(self.cards):
+            if not card._final_rect.intersects(self._row_rect):
+                card.hide()
+                continue
             card.show()
             card.setMinimumSize(0, 0)
             card.raise_()
@@ -5499,37 +5530,87 @@ class _EasyHomeField(QWidget):
             self._finish_growth()
             self._arrange()
 
-    def _arrange(self):
-        """Keep a centered search followed by a disjoint left-to-right module grid."""
-        from ..gui_scale import _set_actual_minimum_height
+    def _place_fixed(self, widget, rect):
+        """Preserve a control's global anchor while the workflow owns its native surface."""
+        if widget.parentWidget() is not self:
+            rect.moveTopLeft(widget.parentWidget().mapFromGlobal(self.mapToGlobal(rect.topLeft())))
+        widget.setGeometry(rect)
 
-        width = self.width()
-        panel_width = min(720, width - 48)
-        panel_height = self.panel.height()
-        columns = max(1, min(4, (width - 28) // 240))
-        gap = 20
-        card_width = min(224, (width - 48 - gap * (columns - 1)) // columns)
-        card_height = max([card_width] + [max(card.sizeHint().height(),
-                                           card.layout().totalHeightForWidth(card_width))
-                                         for card in self.cards if isinstance(card, (_EasyRegexCard, _EasyGuidanceCard))])
-        rows = (len(self.cards) + columns - 1) // columns
-        grid_height = rows * card_height + max(0, rows - 1) * gap
-        content_height = panel_height + (32 + grid_height if rows else 0)
-        _set_actual_minimum_height(self, content_height + 128)
-        panel_y = max(32, (self.height() - content_height) // 2)
-        self.panel.setGeometry((width - panel_width) // 2, panel_y, panel_width, panel_height)
-        self.rim.setGeometry(self.panel.geometry())
+    def explain_card(self, card):
+        """Display the focused module's explanation below the fixed suggestion row."""
+        self.details.setHtml(card._explanation)
+
+    def _scroll_cards(self, value):
+        """Move only the horizontal choice row, preserving input and description anchors."""
+        self._finish_growth()
+        self._arrange()
+
+    def wheelEvent(self, event):
+        """Scroll overflow choices horizontally with the native mouse or trackpad."""
+        if self._row_rect.contains(event.position().toPoint()) and self._scrollbar.maximum():
+            delta = event.pixelDelta().x() or event.pixelDelta().y()
+            if not delta:
+                delta = (event.angleDelta().x() or event.angleDelta().y()) // 2
+            self._scrollbar.setValue(self._scrollbar.value() - delta)
+            event.accept()
+        else:
+            super().wheelEvent(event)
+
+    def _arrange(self):
+        """Keep input and description fixed around one horizontally scrollable row."""
+        from PySide6.QtGui import QBrush, QLinearGradient, QRegion
+
+        width, height = self.width(), self.height()
+        panel_width = min(720, max(180, width - 48))
+        panel_y = max(16, min(96, height // 6))
+        self._place_fixed(self.panel, QRect((width - panel_width) // 2, panel_y, panel_width, 64))
+        self._place_fixed(self.rim, QRect((width - panel_width) // 2, panel_y, panel_width, 64))
         self.rim.raise_()
+        details_width = min(780, max(180, width - 32))
+        details_height = min(88 + 2 * self.details.fontMetrics().lineSpacing(), max(64, height // 4))
+        self._place_fixed(self.details, QRect((width - details_width) // 2, height - details_height - 16,
+                                              details_width, details_height))
+        top = panel_y + 64 + 24
+        available = max(64, height - details_height - 16 - top - 28)
+        side = min(224, available, max(96, width - 64))
+        card_height = max([side] + [min(available, max(card.sizeHint().height(), side))
+                                  for card in self.cards if isinstance(card, _EasyRegexCard)])
+        self._row_rect = QRect(16, top, max(1, width - 32), card_height)
+        gap = 20
+        total = len(self.cards) * side + max(0, len(self.cards) - 1) * gap
+        maximum = max(0, total - self._row_rect.width())
+        self._scrollbar.blockSignals(True)
+        self._scrollbar.setRange(0, maximum)
+        self._scrollbar.setPageStep(self._row_rect.width())
+        self._scrollbar.setSingleStep(side + gap)
+        self._scrollbar.blockSignals(False)
+        self._scrollbar.setGeometry(24, self._row_rect.bottom() + 5, max(1, width - 48), 12)
+        self._scrollbar.setVisible(bool(maximum))
+        start = self._row_rect.left() + max(0, (self._row_rect.width() - total) // 2)
+        start -= self._scrollbar.value()
         for index, card in enumerate(self.cards):
-            row, column = divmod(index, columns)
-            row_count = min(columns, len(self.cards) - row * columns)
-            row_width = row_count * card_width + (row_count - 1) * gap
-            height = card_height if isinstance(card, (_EasyRegexCard, _EasyGuidanceCard)) else card_width
-            card._final_rect = QRect((width - row_width) // 2 + column * (card_width + gap),
-                                     panel_y + panel_height + 32 + row * (card_height + gap),
-                                     card_width, height)
+            card._final_rect = QRect(start + index * (side + gap), top, side,
+                                     card_height if isinstance(card, _EasyRegexCard) else side)
             if card.parentWidget() is self and not card._growing:
                 card.setGeometry(card._final_rect)
+            if card.parentWidget() is not self:
+                continue
+            local = self._row_rect.translated(-card.x(), -card.y()).intersected(card.rect())
+            if local.isEmpty():
+                card.hide()
+            else:
+                card.show()
+                card.setMask(QRegion(local))
+            gradient = QLinearGradient(self._row_rect.left() - card.x(), 0,
+                                       self._row_rect.right() - card.x(), 0)
+            fade = min(0.15, 44 / max(1, self._row_rect.width()))
+            gradient.setColorAt(0, QColor(0, 0, 0, 0 if self._scrollbar.value() else 255))
+            gradient.setColorAt(fade, QColor(0, 0, 0, 255))
+            gradient.setColorAt(1 - fade, QColor(0, 0, 0, 255))
+            gradient.setColorAt(1, QColor(0, 0, 0, 0 if self._scrollbar.value() < maximum else 255))
+            card._content_opacity.setOpacityMask(QBrush(gradient))
+        self.details.raise_()
+
 
 
 class _EasyWorkflowNode(_WorkflowNode):
@@ -5558,7 +5639,7 @@ class _EasyWorkflowNode(_WorkflowNode):
         palette = palette_for('dark')
         painter.setRenderHint(QPainter.Antialiasing)
         hue = QColor(stage_hover(self._stage))
-        fill = QColor(palette['surface'])
+        fill = QColor(25, 25, 25)
         if self._hovered or self._pressed:
             fill = QColor(hue)
             fill.setAlphaF(_STAGE_BUTTON_PRESS_ALPHA if self._pressed else _STAGE_BUTTON_HOVER_ALPHA)
@@ -5571,7 +5652,6 @@ class _EasyWorkflowNode(_WorkflowNode):
         icon_side = 80 if side >= 192 else 64
         icon_top = 28 if side >= 192 else 16
         icon_rect = QRect((side - icon_side) // 2, icon_top, icon_side, icon_side)
-        painter.fillRect(icon_rect, QColor(25, 25, 25))
         if self._glyph is not None:
             self._glyph.paint(painter, icon_rect)
         font = QFont('Open Sans')
@@ -5935,6 +6015,13 @@ class _EasyWorkflowPage(QWidget):
         make_transparent(self)
         self.setProperty("spacrAmbientTransparentOverlay", True)
         self.data = data
+        field = self._source_parent
+        self._fixed_controls = (field.panel, field.rim, field.details)
+        for control in self._fixed_controls:
+            rect = QRect(self.mapFromGlobal(control.mapToGlobal(control.rect().topLeft())), control.size())
+            control.setParent(self)
+            control.setGeometry(rect)
+            control.show()
         self._source_card.setParent(self)
         self._source_card.activated.connect(self.open_requested)
         self.routes = {action[0]: action for action in actions}
@@ -5976,8 +6063,7 @@ class _EasyWorkflowPage(QWidget):
         self.more.setPlaceholderText(tr('More next steps'))
         self.more.setAccessibleName(tr('More next steps'))
         self.more.activated.connect(self._choose_next)
-        self.details = QTextBrowser(self)
-        self.details.setObjectName('EasyWorkflowDetails')
+        self.details = parent.field.details
         self.details.setOpenExternalLinks(True)
         self.details.setOpenLinks(True)
         self.details.setAccessibleName(tr('Module description'))
@@ -5986,8 +6072,11 @@ class _EasyWorkflowPage(QWidget):
         self.empty.setAlignment(Qt.AlignCenter)
         make_transparent(self.empty)
         self.select(selected)
+        self._departing = [card for card in self._source_parent.cards if card is not source_card]
+        if self._source_parent._scrollbar.maximum():
+            self._departing.append(self._source_parent._scrollbar)
         self._effects = []
-        for widget in (self.view, self.details, self.tools, self.more, self.back, self.empty):
+        for widget in (self.view, self.tools, self.more, self.back, self.empty):
             effect = QGraphicsOpacityEffect(widget)
             effect.setOpacity(0.0)
             widget.setGraphicsEffect(effect)
@@ -6053,6 +6142,10 @@ class _EasyWorkflowPage(QWidget):
         """Place the branch on the free side without recentering the selected card."""
         if self.central is None:
             return
+        self.central.clearMask()
+        from PySide6.QtGui import QBrush
+        self.central._content_opacity.setOpacityMask(QBrush())
+        self.central._content_opacity.setOpacity(1.0)
         self.central.setGeometry(self._anchor)
         from PySide6.QtCore import QPoint
 
@@ -6067,30 +6160,14 @@ class _EasyWorkflowPage(QWidget):
                             self.tools.minimumSizeHint().height(), self.more.minimumSizeHint().height())
         stacked = self.width() < 572 and self.more.isVisible()
         header_bottom = 16 + header_height * (2 if stacked else 1) + (8 if stacked else 0)
-        details_width = min(780, max(260, self.width() - 32))
-        details_height = min(88 + 2 * self.details.fontMetrics().lineSpacing(),
-                             max(40, self.height() - header_bottom - 32))
-        left_space = self._anchor.left() - 16
-        right_space = self.width() - self._anchor.right() - 17
-        if max(left_space, right_space) < 224:
-            above = self._anchor.top() - header_bottom - 16
-            reserve = 0 if above >= 190 else 191
-            details_height = min(details_height,
-                max(40, self.height() - self._anchor.bottom() - 32 - reserve))
-        bottom = QRect((self.width() - details_width) // 2, self.height() - details_height - 16,
-                       details_width, details_height)
-        if bottom.intersects(self._anchor) and max(left_space, right_space) >= 260:
-            available = max(left_space, right_space)
-            bottom.setWidth(min(details_width, available - 16))
-            bottom.moveLeft(self._anchor.right() + 17 if right_space >= left_space else 16)
-        if bottom.intersects(self._anchor):
-            bottom.moveTop(header_bottom + 16)
-            top = bottom.bottom() + 17
-            limit = self.height() - 16
-        else:
-            top = header_bottom + 16
-            limit = bottom.top() - 16
-        self.details.setGeometry(bottom)
+        field = self._source_parent
+        field._arrange()
+        origin = self.mapFromGlobal(field.details.mapToGlobal(field.details.rect().topLeft()))
+        bottom = QRect(origin, field.details.size())
+        search_origin = self.mapFromGlobal(field.panel.mapToGlobal(field.panel.rect().topLeft()))
+        search = QRect(search_origin, field.panel.size()).adjusted(-4, -4, 4, 4)
+        top = max(header_bottom + 16, search.bottom() + 25)
+        limit = bottom.top() - 16
         self.view._direction = 1 if self._anchor.center().x() < self.width() / 2 else -1
         if self.view._direction > 0:
             x, width = self._anchor.right() + 1, self.width() - self._anchor.right() - 17
@@ -6123,7 +6200,8 @@ class _EasyWorkflowPage(QWidget):
         self.more.setGeometry(16 if stacked else max(104, self.width() - 468),
                               24 + header_height if stacked else 16, 220, header_height)
         self.central.raise_()
-        self.details.raise_()
+        for control in self._fixed_controls:
+            control.raise_()
         self.back.raise_()
         self.tools.raise_()
         self.more.raise_()
@@ -6136,6 +6214,11 @@ class _EasyWorkflowPage(QWidget):
             self.central.update()
         for effect in self._effects:
             effect.setOpacity(self._progress)
+        for card in self._departing:
+            card._content_opacity.setOpacity(1.0 - self._progress)
+            card.setEnabled(False)
+            if self._progress >= 1.0:
+                card.hide()
         self.update()
 
     def _sync_run_state(self):
@@ -6197,7 +6280,14 @@ class _EasyWorkflowPage(QWidget):
         self._source_card.activated.disconnect(self.open_requested)
         self._source_card._workflow_ports = ()
         self._source_card.setParent(self._source_parent)
+        for control in self._fixed_controls:
+            control.setParent(self._source_parent)
+            control.show()
         self._source_card.setGeometry(self._source_card._final_rect)
+        for card in self._departing:
+            card._content_opacity.setOpacity(1.0)
+            card.setEnabled(True)
+        self._source_parent._arrange()
         self._source_card.show()
         return self._source_card
 
@@ -6261,6 +6351,7 @@ class _EasyHomePage(QWidget):
         self.path_edit.textEdited.connect(self._schedule_inspection)
         self.path_edit.returnPressed.connect(self._submit)
         self._requested = ''
+        self._queued_inspection = False
         self._input_generation = 0
         self._last_result = None
         self._settings_overrides = {}
@@ -6351,8 +6442,7 @@ class _EasyHomePage(QWidget):
         from ..theme import css_color, panel_alpha
 
         palette = palette_for('dark')
-        surface = QColor(palette['surface'])
-        background = f'rgba({surface.red()}, {surface.green()}, {surface.blue()}, 220)'
+        background = 'rgb(25, 25, 25)'
         foreground = palette['fg']
         muted = palette['fg_muted']
         border = palette['border']
@@ -6384,6 +6474,7 @@ class _EasyHomePage(QWidget):
         self.path_edit.setToolTip(message)
         if visible:
             self.field.set_cards([], _EasyGuidanceCard(message, self.field))
+        self.field.details.setPlainText(message)
         self.field._arrange()
 
     def accept_paths(self, paths):
@@ -6437,23 +6528,22 @@ class _EasyHomePage(QWidget):
         self._show_suggestions()
 
     def _schedule_inspection(self, text):
-        """Debounce typed paths without interpreting the signal text as a timer interval."""
+        """Invalidate unfinished work while leaving submitted choices unchanged until Enter."""
+        self._debounce.stop()
+        self._queued_inspection = False
+        self._cancel_regex_validation()
+        self._input_generation += 1
+        self._runner.cancel()
         if not text.strip():
             self._clear_empty_input()
-            return
-        self._cancel_regex_validation()
-        self._last_result = None
-        self._settings_overrides = {}
-        self.field.set_cards([])
-        self.status.hide()
-        self._debounce.start()
 
     def _submit(self):
-        """Use Enter for navigation while drops and debounce inspect local inputs."""
-        from ..app import _easy_command_text
+        """Use Enter for explicit command navigation or suggestion discovery."""
+        from ..app import _easy_command_text, _easy_module_search
 
         value = self.path_edit.text().strip()
-        if not _easy_command_text(value) or value.endswith(':'):
+        self._show_suggestions()
+        if not _easy_command_text(value) or value.endswith(':') or len(_easy_module_search(value)) > 1:
             self._inspect()
             return
         self._debounce.stop()
@@ -6491,6 +6581,7 @@ class _EasyHomePage(QWidget):
                                                          context=dict(action_groups=groups)))
             return
         if self._runner.is_busy():
+            self._queued_inspection = value != self._requested
             if value != self._requested:
                 self._last_result = None
                 self._settings_overrides = {}
@@ -6537,6 +6628,8 @@ class _EasyHomePage(QWidget):
                                  and actions[0][3] == result['path']))
         self.field.set_cards(actions, leading, leading_index,
                              groups=result.get('context', {}).get('action_groups'))
+        if self.field.cards:
+            self.field.explain_card(self.field.cards[0])
         for card in self.field.cards:
             if not isinstance(card, _EasyRegexCard):
                 card.activated.connect(self._select_suggestion)
@@ -6583,17 +6676,13 @@ class _EasyHomePage(QWidget):
         self.field._finish_growth()
         anchor = QRect(source_card.mapTo(self, source_card.rect().topLeft()), source_card.size())
         source_card.activated.disconnect(self._select_suggestion)
-        for card in self.field.cards:
-            if card is not source_card:
-                card.hide()
-        self.path_edit.hide()
-        self.field.rim.hide()
         self._workflow = _EasyWorkflowPage(data, actions, key, source_card, anchor, self)
         self._workflow.setGeometry(self.rect())
         self._workflow.back_requested.connect(self._show_suggestions)
         self._workflow.open_requested.connect(self.module_requested)
         self._workflow.show()
         self._workflow.raise_()
+        self.field.details.raise_()
 
     def _show_suggestions(self):
         """Return to the unchanged path and suggestions without starting another inspection."""
@@ -6603,8 +6692,7 @@ class _EasyHomePage(QWidget):
             self._workflow.hide()
             self._workflow.deleteLater()
             self._workflow = None
-            for card in self.field.cards:
-                card.show()
+            self.field._arrange()
         self._suggestions_scroll.show()
         self.path_edit.show()
         self.field.rim.show()
@@ -6639,7 +6727,8 @@ class _EasyHomePage(QWidget):
 
     def _inspection_finished(self, ok):
         """Inspect a changed input after the previous owned worker has retired."""
-        if self.path_edit.text().strip() and self.path_edit.text() != self._requested:
+        if self._queued_inspection and self.path_edit.text().strip():
+            self._queued_inspection = False
             self._debounce.start()
 
     def _inspection_failed(self, message):

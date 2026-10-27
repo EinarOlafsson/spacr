@@ -95,6 +95,8 @@ def _easy_module_matches(value):
     wanted = _easy_command_text(value)
     if not wanted:
         return ()
+    if wanted in ('segmentation', 'object detection'):
+        return ('mask', 'make_masks')
     names = {}
     for key, name, _description, _section in APPS:
         for label in (key, name, tr(name)):
@@ -141,7 +143,8 @@ def _easy_module_search(value):
     found = []
     for key, (name, description) in rows.items():
         title = tr('Mask Generation') if key == 'mask' else tr(name)
-        aliases = {'mask': ('Generate Masks',),
+        aliases = {'mask': ('Generate Masks', 'segmentation', 'object detection'),
+                   'make_masks': ('segmentation', 'object detection'),
                    'experiment_design': ('Experimental Design', 'plan', 'planning'),
                    'power': ('Power Design', 'plan', 'planning')}
         labels = (key, name, title, *aliases.get(key, ()))
@@ -2427,7 +2430,7 @@ def make_home_page(parent=None):
     from .widgets.home import HomePage, _EasyHomePage
 
     if get_easy_mode():
-        return _EasyHomePage(parent)
+        return _navigator_home_page(parent)
     apps = tiled_apps(visible_apps())
     return HomePage(
         apps, _icon_for_app, parent,
@@ -2435,6 +2438,117 @@ def make_home_page(parent=None):
         categories=home_categories(apps),
         bands=[(s, [r[0] for r in rows]) for s, rows in home_bands(apps)],
         stages=home_stages())
+
+
+from .widgets.home import HomePage as _HomePageBase, _EasyHomePage as _NavigatorPageBase
+
+
+class _NavigatorAside(_HomePageBase):
+    def __init__(self, parent):
+        from .job_runner import JobRunner
+        from .theme import active_palette
+        from .widgets.foldable import make_foldable
+
+        QWidget.__init__(self, parent)
+        self._P = active_palette()
+        self._names = {key: name for key, name, *_ in visible_apps()}
+        self._grids = []
+        self._ambient = None
+        self._uses_window_backdrop = True
+        self._closing = False
+        self._journal_jobs = JobRunner(self, app_key='home journal', user_visible=False)
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self._build_aside())
+        self._queued._clear.clicked.connect(self.refresh)
+        self._navigator_folders = {}
+        for name, panel in (('Queued', self._queued), ('Recent runs', self._recent),
+                            ('News', self._news), ('Totals', self._totals),
+                            ('System', self._system)):
+            self._navigator_folders[name] = make_foldable(
+                panel.header, panel._box, persist_key='navigator/' + name,
+                shut_by_default=True,
+                on_change=lambda shut: self.refresh() if not shut else None)
+            panel.show()
+        self.refresh()
+
+    def refresh(self):
+        if self._closing:
+            return
+        self._queued.refresh()
+        self._queued.show()
+        self._system.refresh()
+        self._apply_aside_text()
+        if any(not self._navigator_folders[name].shut
+               for name in ('Recent runs', 'Totals')):
+            self._read_the_journal()
+
+    def closeEvent(self, event):
+        self._closing = True
+        self._journal_jobs.shutdown()
+        QWidget.closeEvent(self, event)
+
+
+class _NavigatorHomePage(_NavigatorPageBase):
+    def __init__(self, parent):
+        from .widgets.collapsible_splitter import CollapsibleSplitter, EDGE
+        from .preferences import scaled_px
+        from .gil_priority import _watch_object_events
+
+        super().__init__(parent)
+        self._navigator_aside = _NavigatorAside(self)
+        aside = self._navigator_aside
+        for name in ('tile_clicked', 'sample_project_requested',
+                     'update_check_requested', 'news_refresh_requested'):
+            getattr(aside, name).connect(getattr(self, name))
+        split = CollapsibleSplitter(Qt.Horizontal, persist_key='navigator::body')
+        self.layout().removeWidget(self._suggestions_scroll)
+        split.add_pane(self._suggestions_scroll, 'Navigator', stretch=1)
+        split.add_pane(aside, 'Widgets', mode=EDGE, fold_key='navigator/Widgets',
+                       stretch=0, extent=scaled_px(_HomePageBase.ASIDE_W))
+        self.layout().addWidget(split, 1)
+        self._navigator_aside_split = split
+        split.splitterMoved.connect(lambda *_: self._fit_navigator_workflow())
+        _watch_object_events(self._suggestions_scroll, self, (QEvent.Resize, QEvent.Move))
+
+    def refresh(self):
+        super().refresh()
+        aside = getattr(self, '_navigator_aside', None)
+        if aside is not None:
+            aside.refresh()
+
+    def apply_release_news(self, releases):
+        self._navigator_aside.apply_release_news(releases)
+
+    def refresh_pane_surfaces(self):
+        return self._navigator_aside.refresh_pane_surfaces()
+
+    def _select_suggestion(self, key, path):
+        super()._select_suggestion(key, path)
+        self._fit_navigator_workflow()
+
+    def _fit_navigator_workflow(self):
+        if self._workflow is not None:
+            rect = self._suggestions_scroll.rect()
+            rect.moveTopLeft(self._suggestions_scroll.mapTo(self, rect.topLeft()))
+            self._workflow.setGeometry(rect)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._fit_navigator_workflow()
+
+    def eventFilter(self, watched, event):
+        if watched is self._suggestions_scroll and event.type() in (QEvent.Resize, QEvent.Move):
+            self._fit_navigator_workflow()
+        return super().eventFilter(watched, event)
+
+    def closeEvent(self, event):
+        self._navigator_aside.close()
+        super().closeEvent(event)
+
+
+def _navigator_home_page(parent=None):
+    return _NavigatorHomePage(parent)
 
 
 def _apply_home_tab_scroll_policy(root, home):
@@ -9809,6 +9923,21 @@ def _tear_down_before_finalization() -> None:
         LOG.debug("could not stop the backdrop shading threads", exc_info=True)
 
 
+def _navigator_launch_target(initial_app, executable=None):
+    """Honor the explicit Navigator launcher after the first-run preferences."""
+    name = str(sys.argv[0] if executable is None else executable).replace('\\', '/').rsplit('/', 1)[-1].casefold()
+    for suffix in ('.exe', '-script.py'):
+        if name.endswith(suffix):
+            name = name[:-len(suffix)]
+            break
+    if name not in ('spacr-navigator', 'spacr-nav'):
+        return initial_app
+    from .preferences import set_easy_mode
+
+    set_easy_mode(True)
+    return initial_app or '__home__'
+
+
 def launch(argv: Optional[list[str]] = None) -> int:
     """Bootstrap QApplication and show the main window."""
     _timing.begin()
@@ -9981,6 +10110,7 @@ def launch(argv: Optional[list[str]] = None) -> int:
         except Exception:
             LOG.debug("could not open the setup screen", exc_info=True)
 
+    initial_app = _navigator_launch_target(initial_app)
     _timing.mark("MainWindow")
     win = MainWindow(initial_app=initial_app)
     benchmark_controller = None
