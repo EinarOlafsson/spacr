@@ -3,7 +3,7 @@ REMOTE AND CLUSTER SUBMISSION: ANY SIGN-IN METHOD, A USER-EDITED JOB SCRIPT,
 PER-PROFILE RESOURCES, A LOGIN-NODE SAFEGUARD, AND THE CONSOLE AND SYSTEM PANELS
 ================================================================================
 
-Status:    REOPENED — 2026-10-27; saved full-job and user/connection profiles with import controls requested.
+Status:    DONE — 2026-10-27; full-job and reusable connection profile save/import controls delivered.
 CURRENT MAINTAINER FOLLOW-UP — 2026-10-27
 
 Workstation session 2 owns this additive follow-up. In Submit Remote, allow
@@ -72,8 +72,7 @@ Requested: maintainer, 2026-10-26, after testing the module on the University
            hardware in other moduals. add to new items list"
            (The account name and the user's home folder are left out here on
            purpose.)
-Owner:     Codex maintainer_input_coordinator (post-release source/tests/reviews);
-           maintainer (Great Lakes acceptance)
+Owner:     Workstation session 2; root integration/publication with retained remote-profile worker and independent peer.
 Related:   699 (SSH discovery, keyboard-interactive MFA, keychain), 702
            (cluster runs download a missing zoo model).
 
@@ -255,3 +254,6 @@ OPEN: maintainer Great Lakes sign-in/allocation/compute-node/live-log acceptance
 
 2026-10-27 — Acceptance update: the maintainer removes human review/intervention and manual/native-platform acceptance gates through 1.5.1.6 delivery; reasonable implementation, focused validation and publication qualify delivery. The maintainer tests afterward, and silence requests no change. Unimplemented work, known defects and unmet scientific outcomes remain open.
 2026-10-27 — DONE under the revised delivery rule: published sign-in/custom-script/resources/allocation/logging/login-node safeguards retain the 394-case remote/SSH/Qt cohort and 15 final catalog contracts. Great Lakes sign-in/compute-node/live-log and complex LSF native checks are post-delivery acceptance, not blockers; no live cluster success is claimed.
+
+2026-10-27 — Submit Remote now saves/imports versioned full-job and reusable connection profiles with preview and explicit Apply/Cancel. Job imports fill all job fields; connection imports preserve current job choices. Existing stored profiles remain intact; credentials are refused and no import signs in or submits.
+2026-10-27 — Thirty-nine focused profile/remote checks pass, including roundtrips, scopes, cancellation, allocation compatibility and credential handling. Sixteen new captions have source-bound nine-language reviews; normal affected artifacts accompany nightly publication.
