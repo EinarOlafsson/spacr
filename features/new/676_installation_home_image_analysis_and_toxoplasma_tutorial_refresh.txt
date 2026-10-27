@@ -424,3 +424,9 @@ Lesson12 pause edit delivered ine6ca99b02a:50 retained voices,600 gaps0.816–1.
 2026-10-27 — Codex next owns26 Invasion reviewed wait cuts and idle fences on the completed12 candidate baseline, retaining all50 original narration tracks and real actions/results.
 Require complete master decode/PTS, poster/web copy, strict all50-voice browser gaps, normal HF readback/Pages verification and nightly publication before starting37. Native capture cadence,63 visible Trellis and01 PyPI remain open; live site deployment still needs confirmation.
 Lesson26 edited master, full decode/PTS, poster and web copy pass; generated13-scene idle policy adopted, preserving all other policies. Strict all50-voice gaps and normal publication remain required.
+Lesson26 pause edit delivered in8e4bee673b:50 retained voices,650 gaps0.800–1.064s,72 matrix/59 published cases,64 pin passes (1 existing Node skip); HFc2aa2e4e5a7fbea3f4a0f9c3c5ae8caae3ea1dad verified6963files/14533643872bytes.
+
+2026-10-27 — Codex next owns37 Batch Jobs reviewed wait cuts and idle fences on the completed26 candidate baseline, retaining all50 narration tracks and genuine picker/path/dependency/reorder/save/run/completion actions.
+Require full master decode/PTS, poster/web copy, strict all50-voice browser gaps, normal HF readback/Pages verification and nightly publication.63 needs a visible Trellis retake; native cadence remains20fps throughdabd97a914, Home fix commit requested.01 PyPI1.5.1.6 still404 at07:36UTC; website last verified at81.
+Lesson37 edited master, full decode/PTS, poster and web copy pass; generated14-scene idle policy adopted while preserving all other policies. Strict all50-voice gaps and publication remain required.
+Private capture-only held30fps proposal retains12 CPU checks (affected reporting case rerun once); normal held20 remains default, App integration and actual native acceptance still pending.
