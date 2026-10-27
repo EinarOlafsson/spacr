@@ -63,6 +63,51 @@ def test_private_host_selects_a_video_only_session_manager(tmp_path, monkeypatch
         assert f'{monitor}.enabled = false' in bluetooth
 
 
+@pytest.mark.parametrize('state', ['free', 'occupied', 'foreign_after_spawn'])
+def test_software_native_host_owns_its_display_and_uses_cpu_rendering(tmp_path, monkeypatch, state):
+    from types import SimpleNamespace
+    import gnome_capture_host as host
+
+    seen = []
+    is_file, exists, read_text = Path.is_file, Path.exists, Path.read_text
+    monkeypatch.setattr(Path, 'is_file', lambda path: True
+                        if str(path) == '/usr/bin/pipewire-media-session' else is_file(path))
+    monkeypatch.setattr(Path, 'exists', lambda path: state == 'occupied'
+                        if str(path) in ('/tmp/.X11-unix/X96', '/tmp/.X96-lock') else exists(path))
+    monkeypatch.setattr(Path, 'read_text', lambda path, *args, **kwargs:
+                        ('77777' if state == 'foreign_after_spawn' else '12345')
+                        if str(path) == '/tmp/.X96-lock' else read_text(path, *args, **kwargs))
+    monkeypatch.setenv('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/tmp/private-test-bus')
+    monkeypatch.setattr(host, 'wait_for', lambda *args: None)
+    monkeypatch.setattr(host.subprocess, 'run', lambda *args, **kwargs: None)
+
+    def start(argv, **kwargs):
+        if '/usr/bin/gnome-shell' in argv:
+            assert '--x11' in argv and '--headless' not in argv and '--wayland' not in argv
+            assert kwargs['env']['LIBGL_ALWAYS_SOFTWARE'] == '1'
+            assert kwargs['env']['GALLIUM_DRIVER'] == 'llvmpipe'
+            raise RuntimeError('stop before starting a compositor')
+        seen.append((argv, kwargs['env']))
+        return SimpleNamespace(pid=12345, poll=lambda: None, terminate=lambda: None,
+                               wait=lambda timeout=None: 0)
+
+    monkeypatch.setattr(host.subprocess, 'Popen', start)
+    args = SimpleNamespace(stage=tmp_path, cursor_theme='Yaru', cursor_size=32,
+                           show_top_bar=False, compositor_gpu='nvidia', size='2560x1440',
+                           refresh=60, shell_env=[], software_x11=True, x11_display=96)
+    message = {'free': 'stop before starting a compositor', 'occupied': 'already in use',
+               'foreign_after_spawn': 'not owned by this host'}[state]
+    with pytest.raises(RuntimeError, match=message):
+        host.inner(args)
+    servers = [(argv, env) for argv, env in seen if argv[0] == '/usr/bin/Xvfb']
+    assert len(servers) == (0 if state == 'occupied' else 1)
+    if servers:
+        argv, env = servers[0]
+        assert argv == ['/usr/bin/Xvfb', ':96', '-screen', '0', '2560x1440x24', '-ac', '-nolisten', 'tcp']
+        assert env['DISPLAY'] == ':96' and env['XDG_SESSION_TYPE'] == 'x11'
+        assert env['LP_NUM_THREADS'] == '2'
+
+
 def test_min_jerk_starts_and_stops_at_rest():
     assert min_jerk(0.0) == 0.0 and min_jerk(1.0) == 1.0
     eps = 1e-4

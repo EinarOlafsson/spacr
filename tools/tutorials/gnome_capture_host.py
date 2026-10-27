@@ -304,8 +304,28 @@ def inner(args) -> int:
             if 'Linked with libwireplumber 0.4.' not in version:
                 raise RuntimeError('The video-only capture profile requires WirePlumber 0.4')
         start('media-session', [session_manager])
+        software_x11 = getattr(args, 'software_x11', False)
+        shell_extra = dict(kv.split('=', 1) for kv in args.shell_env)
         shell_argv = ['/usr/bin/gnome-shell']
-        if args.compositor_gpu != 'all':
+        if software_x11:
+            if args.x11_display < 2:
+                raise RuntimeError('The software host requires a dedicated non-personal X11 display')
+            display = f':{args.x11_display}'
+            if (Path(f'/tmp/.X11-unix/X{args.x11_display}').exists()
+                    or Path(f'/tmp/.X{args.x11_display}-lock').exists()):
+                raise RuntimeError(f'The dedicated X11 display {display} is already in use')
+            env.update(DISPLAY=display, XDG_SESSION_TYPE='x11',
+                       LIBGL_ALWAYS_SOFTWARE='1', GALLIUM_DRIVER='llvmpipe', LP_NUM_THREADS='2')
+            server = start('xvfb', ['/usr/bin/Xvfb', display, '-screen', '0',
+                                    f'{args.size}x24', '-ac', '-nolisten', 'tcp'])
+            wait_for(lambda: Path(f'/tmp/.X11-unix/X{args.x11_display}').exists(),
+                     10, 'private Xvfb socket', server)
+            if (server.poll() is not None
+                    or Path(f'/tmp/.X{args.x11_display}-lock').read_text().strip() != str(server.pid)):
+                raise RuntimeError(f'The dedicated X11 display {display} is not owned by this host')
+            shell_argv += ['--x11', '--replace', '--sm-disable']
+            shell_extra.update(LIBGL_ALWAYS_SOFTWARE='1', GALLIUM_DRIVER='llvmpipe', LP_NUM_THREADS='2')
+        elif args.compositor_gpu != 'all':
             # Hide the other GPU's DRM nodes from gnome-shell (and so from
             # its Xwayland) in a private mount namespace; nothing else changes.
             keep = drm_nodes({'amd': '0x1002', 'nvidia': '0x10de'}[args.compositor_gpu])
@@ -316,13 +336,14 @@ def inner(args) -> int:
                 binds += ['--dev-bind', f'/dev/dri/{node}', f'/dev/dri/{node}']
             shell_argv = ['/usr/bin/bwrap', '--dev-bind', '/', '/', '--tmpfs', '/dev/dri', *binds,
                           '--', '/usr/bin/gnome-shell']
-        shell = start('gnome-shell', [
-            *shell_argv, '--headless', '--wayland', '--wayland-display', 'wayland-capture',
-            '--virtual-monitor', f'{args.size}@{args.refresh}', '--sm-disable'],
-            dict(kv.split('=', 1) for kv in args.shell_env))
+        if not software_x11:
+            shell_argv += ['--headless', '--wayland', '--wayland-display', 'wayland-capture',
+                           '--virtual-monitor', f'{args.size}@{args.refresh}', '--sm-disable']
+        shell = start('gnome-shell', shell_argv, shell_extra)
         wait_for(lambda: bus_has('org.gnome.Mutter.ScreenCast', env), 60, 'mutter ScreenCast on the private bus', shell)
         wait_for(lambda: bus_has('org.gnome.Mutter.RemoteDesktop', env), 30, 'mutter RemoteDesktop', shell)
-        display = wait_for(lambda: xwayland_display(shell.pid), 60, 'Xwayland display', shell)
+        if not software_x11:
+            display = wait_for(lambda: xwayland_display(shell.pid), 60, 'Xwayland display', shell)
         wait_for(lambda: Path(f'/tmp/.X11-unix/X{display[1:]}').exists(), 30, 'Xwayland socket', shell)
         # What gsd-xsettings does in a full session: X clients (Qt on xcb
         # reads Xcursor.* from RESOURCE_MANAGER, not XCURSOR_THEME) get the
@@ -331,13 +352,19 @@ def inner(args) -> int:
                        input=f'Xcursor.theme: {args.cursor_theme}\nXcursor.size: {args.cursor_size}\n'
                              'Xft.dpi: 96\n', text=True, check=True)
         time.sleep(args.settle)
-        host = {'DISPLAY': display, 'WAYLAND_DISPLAY': 'wayland-capture',
+        host = {'DISPLAY': display,
                 'DBUS_SESSION_BUS_ADDRESS': env['DBUS_SESSION_BUS_ADDRESS'],
-                'XDG_RUNTIME_DIR': str(dirs['run']), 'XDG_SESSION_TYPE': 'wayland',
+                'XDG_RUNTIME_DIR': str(dirs['run']), 'XDG_SESSION_TYPE': 'x11' if software_x11 else 'wayland',
                 'SPACR_CAPTURE_HOST_SIZE': args.size, 'SPACR_CAPTURE_HOST_REFRESH': str(args.refresh),
                 'XCURSOR_THEME': args.cursor_theme, 'XCURSOR_SIZE': str(args.cursor_size),
                 'SPACR_CAPTURE_HOST_TOP_BAR': 'shown' if args.show_top_bar else 'hidden',
                 MARKER: str(stage)}
+        if software_x11:
+            host.update(LIBGL_ALWAYS_SOFTWARE='1', GALLIUM_DRIVER='llvmpipe', LP_NUM_THREADS='2',
+                        SPACR_CAPTURE_HOST_BACKEND='software-x11')
+        else:
+            host['SPACR_CAPTURE_HOST_BACKEND'] = 'wayland'
+            host['WAYLAND_DISPLAY'] = 'wayland-capture'
         (stage / 'host.json').write_text(json.dumps({**host, 'gnome_shell_pid': shell.pid}, indent=2) + '\n')
         command_env = dict(os.environ)
         for key in ('DBUS_SESSION_BUS_ADDRESS', 'DISPLAY', 'WAYLAND_DISPLAY', 'XDG_RUNTIME_DIR',
@@ -376,6 +403,10 @@ def main() -> int:
                         help='DRM devices gnome-shell and its Xwayland may see (default: the NVIDIA '
                              'card only; with the AMD card alone mutter cannot create its '
                              'high-priority context (EACCES) and stalls).')
+    parser.add_argument('--software-x11', action='store_true',
+                        help='Use a dedicated Xvfb and software-rendered GNOME, retaining native ScreenCast and pointer APIs')
+    parser.add_argument('--x11-display', type=int, default=96,
+                        help='Unused dedicated X11 display number for --software-x11; personal displays 0 and 1 are refused')
     parser.add_argument('--xwayland-glamor', action='store_true',
                         help='Let Xwayland render with GLAMOR on the GPU. Off by default: Xwayland '
                              '22.1.1 + NVIDIA dies with "wl_drm: invalid format" as soon as an ARGB '
@@ -419,6 +450,7 @@ def main() -> int:
             '--cursor-theme', args.cursor_theme, '--cursor-size', str(args.cursor_size),
             '--settle', str(args.settle), '--outer-env', json.dumps(outer),
             '--compositor-gpu', args.compositor_gpu,
+            *(['--software-x11', '--x11-display', str(args.x11_display)] if args.software_x11 else []),
             *(['--show-top-bar'] if args.show_top_bar else []),
             *([] if args.xwayland_glamor else ['--shell-env=XWAYLAND_NO_GLAMOR=1']),
             *[f'--shell-env={kv}' for kv in args.shell_env], '--', *args.command,
