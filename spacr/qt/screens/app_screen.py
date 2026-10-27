@@ -3560,6 +3560,8 @@ class AppScreen(QWidget):
         """
         if getattr(self, "_rebuilding_the_form", False):
             return True
+        if getattr(self, "_growing_organelle_slots", False):
+            return True
         model = getattr(self, "_settings_model", None)
         if model is None or getattr(model, "_applying_settings", False):
             return True
@@ -3574,25 +3576,29 @@ class AppScreen(QWidget):
             count = int(model._setting_value(NUMBER_OF_ORGANELLES) or 0)
         except (TypeError, ValueError):
             return False
-        wanted = model.organelle_keys_to_spawn(count)
-        if wanted:
-            layout = self._categories_holding(wanted)
-            if layout is None:
-                return False
-            spawned = model.spawn_organelle_slots(count)
-            if spawned:
-                self._lay_out_spawned_rows(spawned, layout)
-                self._follow_the_spawned_switches(spawned)
-        self._show_the_objects_the_run_has()
-        grid = getattr(self, "_object_grid_binding", None)
-        if grid is not None:
-            try:
-                grid.seed()
-                model.hide_the_rows_the_grid_speaks_for(grid.owned_keys())
-            except Exception:                                # noqa: BLE001
-                LOG.debug("could not reseed the per-object grid",
-                          exc_info=True)
-        return True
+        self._growing_organelle_slots = True
+        try:
+            wanted = model.organelle_keys_to_spawn(count)
+            if wanted:
+                layout = self._categories_holding(wanted)
+                if layout is None:
+                    return False
+                spawned = model.spawn_organelle_slots(count)
+                if spawned:
+                    self._lay_out_spawned_rows(spawned, layout)
+                    self._follow_the_spawned_switches(spawned)
+            self._show_the_objects_the_run_has()
+            grid = getattr(self, "_object_grid_binding", None)
+            if grid is not None:
+                try:
+                    grid.seed()
+                    model.hide_the_rows_the_grid_speaks_for(grid.owned_keys())
+                except Exception:                                # noqa: BLE001
+                    LOG.debug("could not reseed the per-object grid",
+                              exc_info=True)
+            return True
+        finally:
+            self._growing_organelle_slots = False
 
     def _categories_holding(self, wanted):
         """Each category holding one of ``wanted``, with its heading.
@@ -4657,7 +4663,13 @@ class AppScreen(QWidget):
             organelle slot the run does not have, as the model last decided.
         """
         model = getattr(self, "_settings_model", None)
-        return set(getattr(model, "_headings_of_absent_slots", None) or ())
+        hidden = set(getattr(model, "_headings_of_absent_slots", None) or ())
+        for section in getattr(self, "_settings_sections", ()):
+            if (getattr(section, "_spacr_declared_rows", None) == ()
+                    and getattr(section, "_spacr_waiting_spec", None) is None
+                    and self._every_heading_below_is_hidden(section, hidden)):
+                hidden.add(id(section))
+        return hidden
 
     def _lay_out_the_rows_that_are_back(self, hidden) -> None:
         """Caption every waiting row the object rule no longer hides.
@@ -13660,9 +13672,7 @@ class AppScreen(QWidget):
             w = self._settings_model._widgets.get(key)
             if w is None:
                 if self._settings_model.set_hidden_value(key, val):
-                    from .settings_model import _APP_HIDDEN_KEYS
-                    if key in _APP_HIDDEN_KEYS.get(self.app_key, set()):
-                        applied += 1
+                    applied += 1
                 continue
             try:
                 self._apply_value(w, val)

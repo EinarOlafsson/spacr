@@ -37,14 +37,14 @@ from tests.qt.per_object_table import table_value, the_table_answers  # noqa: E4
 def _screen(qtbot, app_key: str):
     """Build a visibility-rule harness containing the rows it will toggle.
 
-    Production screens now omit optional-object families and organelle slots
-    until a committed form-shaping value asks the window to rebuild them.
-    These tests exercise the row-visibility rule itself, so seed that rebuild
-    shape explicitly, then put the switches back to their unset state before
-    making assertions. The separate count/rebuild tests cover the optimized
-    production path.
+    Production screens build organelle families only after their real channel
+    or mask plane is configured. Seed those populated families, then clear
+    the switches before testing visibility without losing the kept controls.
+    Separate progressive-count controls exercise the initial lazy form.
     """
     from spacr.qt.screens.app_screen import AppScreen
+
+    from spacr.organelle_types import organelle_roles
 
     current = {"number_of_organelles": 1}
     if app_key == "mask":
@@ -53,6 +53,10 @@ def _screen(qtbot, app_key: str):
             "nucleus_channel": 1,
             "pathogen_channel": 2,
         })
+        current.update({f"{role}_channel": index
+                        for index, role in enumerate(organelle_roles(4))})
+    else:
+        current["organelle_mask_dim"] = 0
     before = AppScreen.values_the_next_screen_is_built_for
     AppScreen.values_the_next_screen_is_built_for = current
     try:
@@ -61,10 +65,13 @@ def _screen(qtbot, app_key: str):
         AppScreen.values_the_next_screen_is_built_for = before
     qtbot.addWidget(screen)
     model = screen._settings_model
+    screen._open_every_waiting_heading()
     if app_key == "mask":
-        model.set_value_for_key("nucleus_channel", None)
-        model.set_value_for_key("pathogen_channel", None)
-        model.refresh_object_visibility()
+        for role in ("nucleus", "pathogen", *organelle_roles(4)):
+            assert model.set_value_for_key(f"{role}_channel", None)
+    else:
+        assert model.set_value_for_key("organelle_mask_dim", None)
+    model.refresh_object_visibility()
     # THE FIRST PASS IS SCHEDULED, not immediate: the rows do not exist until
     # the screen has laid them out, which happens after the settings model
     # has handed them over. See `SettingsWidgets.build_sections`.
@@ -124,8 +131,8 @@ def _set(model, key, value) -> None:
     if suffix in {"type", "morphology"}:
         # The combo's own choice signal is the production user path.
         return
-    if suffix == "diameter":
-        # A typed size is committed on Enter/focus-out, not per keystroke.
+    if suffix == "diameter" or key == "number_of_organelles":
+        # Typed sizes and counts commit on Enter/focus-out, not per keystroke.
         committed = getattr(model._widgets[key], "editingFinished", None)
         if committed is not None:
             committed.emit()
@@ -195,9 +202,13 @@ def test_the_switch_itself_is_never_hidden(qtbot):
     """
     screen, model = _screen(qtbot, "mask")
 
-    for role in ("cell", "nucleus", "pathogen", "organelle", "organelleb"):
+    for role in ("cell", "nucleus", "pathogen", "organelle"):
         assert _row_shown(screen, f"{role}_channel") is True, role
         assert the_table_answers(screen, f"{role}_channel") is False, role
+    assert _row_shown(screen, "organelleb_channel") is False
+    _set(model, "organelle_channel", 0)
+    assert _row_shown(screen, "organelleb_channel") is True
+    assert _row_shown(screen, "organelleb_type") is False
 
 
 def test_the_screen_agrees_that_cell_remains_on_the_form(qtbot):
@@ -273,7 +284,7 @@ def test_importing_a_settings_file_brings_its_objects_back(qtbot):
 
 
 def test_bulk_import_rebuilds_once_and_applies_every_slot_value(qapp, qtbot):
-    """A shape signal must not continue the import on the retired screen."""
+    """Progressive imports retain the live screen and every accepted value."""
     from spacr.qt.app import MainWindow
 
     window = MainWindow()
@@ -291,13 +302,14 @@ def test_bulk_import_rebuilds_once_and_applies_every_slot_value(qapp, qtbot):
         "organelle_min_area": 77,
     }
 
-    assert original.apply_settings_dict(loaded) == len(loaded)
+    assert original.apply_settings_dict({**loaded, "not_a_declared_setting": 123}) == len(loaded)
     qapp.processEvents()
 
     rebuilt = window._screens["mask"]
-    assert rebuilt is not original
+    assert rebuilt is original
     values = rebuilt._settings_model.collect()
     assert {key: values[key] for key in loaded} == loaded
+    assert "not_a_declared_setting" not in values
 
 
 def test_a_legacy_slot_mapping_infers_the_count_before_it_builds(qapp, qtbot):
@@ -324,7 +336,7 @@ def test_a_legacy_slot_mapping_infers_the_count_before_it_builds(qapp, qtbot):
 
     rebuilt = window._screens["mask"]
     values = rebuilt._settings_model.collect()
-    assert rebuilt is not original
+    assert rebuilt is original
     assert values["number_of_organelles"] == 2
     assert values["organelleb_channel"] == 4
     assert values["organelleb_type"] == "tubular"
@@ -334,7 +346,7 @@ def test_a_legacy_slot_mapping_infers_the_count_before_it_builds(qapp, qtbot):
 
 def test_a_bulk_type_import_deferred_by_a_run_keeps_preset_provenance(
         qapp, qtbot):
-    """The post-run form still knows which preset values were omitted."""
+    """In-place imports retain preset provenance and later edits across a run."""
     from spacr.qt.app import MainWindow
 
     class RunningThread:
@@ -366,7 +378,8 @@ def test_a_bulk_type_import_deferred_by_a_run_keeps_preset_provenance(
 
     thread.running = False
     original._clear_thread_refs()
-    qtbot.waitUntil(lambda: window._screens["mask"] is not original)
+    qapp.processEvents()
+    assert window._screens["mask"] is original
     values = window._screens["mask"]._settings_model.collect()
     assert values["organelle_type"] == "filamentous"
     assert values["organelle_morphology"] == "network"
@@ -553,13 +566,14 @@ def test_lowering_the_count_hides_whole_slots_and_keeps_their_values(qtbot):
     assert the_table_answers(screen, "organellec_diameter") is True
 
     _set(model, "number_of_organelles", 2)
+    assert model.collect()["number_of_organelles"] == 2
 
     # A slot the run does not have is not a slot with its channel showing.
     # 2026-09-29 (item 592, "hide unset objects"): a slot needs
     # the count AND its channel for a column; its channel is a form row.
     assert the_table_answers(screen, "organellec_diameter") is False
     assert _row_shown(screen, "organellec_channel") is False
-    assert _row_shown(screen, "organelleb_channel") is True
+    assert _row_shown(screen, "organelleb_channel") is False
     assert "organelleb" not in screen._object_grid.objects()
     # Its answers ride along and come back with it.
     assert model.collect()["organellec_diameter"] == 41
@@ -677,7 +691,8 @@ def _headings(screen) -> dict:
     """``title -> whether the heading still has anything under it``."""
     from spacr.qt.screens.settings_model import section_shows_anything
 
-    return {section.title(): section_shows_anything(section)
+    return {section.title(): (not section.isHidden()
+                              and section_shows_anything(section))
             for section in screen._settings_sections}
 
 
@@ -688,18 +703,18 @@ def test_a_heading_with_every_row_hidden_reports_itself_empty(qtbot):
 
     assert model.collect()["organelleb_channel"] is None
     assert "organelleb" not in grid.objects()
-    assert "ORGANELLE 2" not in _headings(screen)
+    assert _headings(screen).get("ORGANELLE 2", False) is False
     assert _row_shown(screen, "organelleb_type") is False
     _set(model, "organelleb_channel", 4)
     assert model.collect()["organelleb_channel"] == 4
     assert "organelleb" in grid.objects()
     assert the_table_answers(screen, "organelleb_diameter")
     assert _row_shown(screen, "organelleb_type") is True
-    assert "ORGANELLE 2" not in _headings(screen)
+    assert _headings(screen)["ORGANELLE 2"] is True
     _set(model, "organelleb_channel", None)
     assert "organelleb" not in grid.objects()
     assert _row_shown(screen, "organelleb_type") is False
-    assert "ORGANELLE 2" not in _headings(screen)
+    assert _headings(screen).get("ORGANELLE 2", False) is False
 
 
 def test_a_heading_that_holds_a_switch_is_never_empty(qtbot):
