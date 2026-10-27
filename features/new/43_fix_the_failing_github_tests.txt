@@ -1,5 +1,12 @@
 GET THE GITHUB ACTIONS RUNS GREEN
 
+CURRENT COMPLETED MERGE MODULE DOCSTRINGS — 2026-10-27
+widgets_g1 owns Main Coverage 6 job 122460216719: document the five
+reported duplicate-observation helpers and initializer from their actual
+semantics, preserving every body, signature and numerical guard. G5 peers
+the docs-only diff before the sole failed selector; parent owns normal
+eligibility and root alone publishes, with no generator or broad test rerun.
+
 CURRENT PINNED DOCUMENTATION MEDIA RATE LIMIT — 2026-10-27
 widgets_g1 owns Main min-Python job 122460216354: bounded retries for
 HTTP 429 and transient 500/502/503/504 from the unchanged pinned public
@@ -5298,4 +5305,4 @@ Also check the per-host instance lock and unclean-exit counter: concurrent windo
 
 2026-10-27 — Pinned documentation media now retries only HTTP 429/500/502/503/504, at most four calls within a 120-second retry-admission/wait budget. Numeric/date Retry-After minima are honored or refused when over budget; existing pin/digest checks remain strict, and final errors omit signed URLs and raw exception chains. Nine mocked/retained controls pass (1.56 s), with no network download or assembly. G5 peer accepted; root holds Main/Nightly publication while current CI is harvested.
 
-2026-10-27 — G4 owns the Main Coverage 6 dock-edge visibility failure. Compare the existing width/visibility oracle with the approved always-present dock and collapse lifecycle; preserve real dock width, edge access and saved preferences. G5 peers the minimal repair before the sole affected selector; root owns batch publication.
+2026-10-27 — The dock-width fixture now follows the approved always-present dock: retired hidden mode leaves the edge accessible, and real edge clicks collapse and restore the slot without losing width. Visible/collapsed state, persisted width and refresh-width assertions remain strict. G5 peer accepted; the sole Qt 6.11.3 selector passes (1 case, 4.74 s). No product source changed; root owns batch publication.

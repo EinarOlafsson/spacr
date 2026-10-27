@@ -112,18 +112,29 @@ class TestTheDockWidth:
         _pump()
         assert again._sidebar.width() == before + 40
 
-    def test_hiding_and_showing_keeps_the_width(self, window):
+    def test_collapsing_and_restoring_keeps_the_width(
+            self, qtbot, window, prefs_file):
         dock, edge = window._sidebar, window._dock_edge
         _drag(edge, 60)
         wide = dock.width()
         window.apply_dock_mode("hidden")
         _pump()
-        assert not edge.isVisible()
+        assert edge.isVisible() and window._dock_slot.isVisible()
+        assert dock.width() == wide
+        qtbot.mouseClick(edge, Qt.LeftButton)
+        _pump()
+        assert edge.is_collapsed() and edge.isVisible()
         assert not window._dock_slot.isVisible()
         window.apply_dock_mode("locked")
         _pump()
-        assert edge.isVisible()
+        assert edge.isVisible() and edge.is_collapsed()
+        assert not window._dock_slot.isVisible()
+        qtbot.mouseClick(edge, Qt.LeftButton)
+        _pump()
+        assert not edge.is_collapsed()
+        assert edge.isVisible() and window._dock_slot.isVisible()
         assert dock.width() == wide
+        assert prefs_file.get_dock_width() == wide
         dock.refresh_visibility()
         assert dock.width() == wide
 
