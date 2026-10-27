@@ -2,11 +2,41 @@
 GATE EDITOR: ADD TABLES TO A WORKING SET, AND MERGE THEM BY WHAT THEY MEASURE
 ================================================================================
 
-Status:    DONE 2026-08-07 (evidence 5c15056c) — (5c15056c + item 7). Header corrected
+Status:    DONE 2026-10-27 — non-timelapse merge guidance and explicit duplicate Merge/Abort choice delivered in this nightly publication.
+History:   DONE 2026-08-07 (evidence 5c15056c) — (5c15056c + item 7). Header corrected
            2026-08-26: it still said "not started" while this file's
            own closing section records every item as landed. One
            defect found and fixed on 2026-08-26 -- see the last entry.
 Requested: 2026-08-07
+
+CURRENT MAINTAINER FOLLOW-UP — 2026-10-27
+
+Gate Editor's Merge tables reports that image and time must be added to the
+composite label for a non-timelapse experiment with no time column. Reproduce
+using realistic cell/nucleus rows from distinct fields and fix actual identity
+or relationship defects without inventing time data. Distinguish incomplete
+chosen keys from repeated full observation identities, explain the actual
+available columns, and continue refusing genuinely repeated base observations
+rather than silently averaging or dropping them. Preserve legitimate child
+aggregation, custom mappings, source tables and saved merge definitions. Keep
+this investigation distinct from Measure's repeated-run preservation in item
+736: the generic merge warning alone does not establish duplicate Measure rows.
+LATEST EXPLICIT DUPLICATE CHOICE — 2026-10-27: when true complete observation
+identities repeat, show a GUI choice of Merge duplicates or Abort, defaulting
+to Abort. An explicit merge applies the existing per-column aggregation rules
+and chosen overrides in the working result only; source database tables remain
+unchanged. Include repeated full identities in every selected source table,
+including children. Preserve identity and parent-link columns without averaging
+IDs; conflicting parent links must not be silently assigned. Incomplete chosen
+keys remain a separate diagnostic, and headless merges refuse duplicates unless
+their definition explicitly opts in. This supersedes unconditional refusal once
+the user has deliberately approved the duplicate aggregation.
+
+Focused non-timelapse default/custom merges and real Gate Editor controls must
+pass before ordinary publication. Earlier delivery history follows unchanged.
+
+2026-10-27 — Distinct-field cell labels merge correctly without time. Reproduced incomplete-key and true-repeat cases; diagnostics now name only available discriminators. Source tables remain unchanged.
+2026-10-27 — Shared Graph/Gate preview and ordinary Gate working-set loading warn with Merge duplicates/Abort (Abort default). Explicit merging uses displayed base/child rules and overrides; IDs, parent links, missing values and distinct images remain protected. Focused backend, metadata, real-popup and native-screen handoff checks pass; public API prose is unchanged.
 
 Verbatim:
 
@@ -312,3 +342,5 @@ Ruff and git diff checks pass. Generated API/catalog/tutorial publication remain
 coordinated in N615; native platform appearance was not claimed.
 
 VERIFIED 2026-10-04: 4 referenced test files pass on nightly (test_a_gate_on_a_removed_table_says_so.py, test_gates.py, test_requested_gate_table_merges.py, ...).
+
+2026-10-27 — Latest maintainer requirement: detected repeats of complete plate/row/column/field/object identity must show a popup offering Merge duplicates or Abort (default). Explicit merging uses each column's configured aggregation method in memory and preserves source tables; include time only when actually present, and keep legitimate cross-field labels separate. Apply to base and child tables before parent roll-up so repeated source objects cannot inflate counts.

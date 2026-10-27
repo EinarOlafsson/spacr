@@ -26,7 +26,8 @@ from .merge_tables import (
     OBJECT_COLUMN,
     MergeError,
     MergePolicy,
-    _align_keys, _keys_in,
+    _align_keys, _keys_in, _duplicate_observation_message,
+    _duplicate_merge_enabled, _merge_duplicate_sources,
     _read,
     aggregation_for,
     merge_tables,
@@ -184,9 +185,7 @@ def _require_keys(frame, keys, table, *, unique=False):
     if unique and frame[keys].isna().any(axis=None):
         raise MergeError(f"{table}: base observation keys contain missing values.")
     if unique and frame.duplicated(keys).any():
-        n = int(frame.duplicated(keys, keep=False).sum())
-        raise MergeError(f"{table}: {n} rows have duplicate observation keys {keys}; "
-                         "include the image/time columns in the composite key.")
+        raise MergeError(_duplicate_observation_message(frame, keys, table))
 
 
 def _align_explicit_keys(left, right, keys):
@@ -267,6 +266,31 @@ def execute(path, definition):
     so a chart that selects time_id stays reproducible.
     """
     validate_source(path, definition)
+    if definition.get('mode') == 'metadata':
+        return _execute_prepared(path, definition)
+    base_columns = pd.DataFrame(columns=[column[0] for column in definition['schema'][definition['base']]])
+    _require_keys(base_columns, definition['base_keys'], definition['base'])
+    for join in definition['joins']:
+        _require_keys(base_columns, join['left_keys'], definition['base'])
+        child_columns = pd.DataFrame(columns=[column[0] for column in definition['schema'][join['table']]])
+        _require_keys(child_columns, join['right_keys'], join['table'])
+    overrides = dict(definition.get("policy", {}).get("overrides", {}))
+    overrides.update({definition["base"] + "." + column: method
+                      for column, method in definition.get("base_overrides", {}).items()})
+    for join in definition["joins"]:
+        overrides.update({join["table"] + "." + column: method
+                          for column, method in join.get("overrides", {}).items()})
+    token = _duplicate_merge_enabled.set(definition.get("merge_duplicates") is True)
+    try:
+        with _merge_duplicate_sources(path, [definition["base"],
+                *[join["table"] for join in definition["joins"]]], overrides,
+                observation_keys={definition['base']: definition['base_keys']}):
+            return _execute_prepared(path, definition)
+    finally:
+        _duplicate_merge_enabled.reset(token)
+
+
+def _execute_prepared(path, definition):
     definition = copy.deepcopy(definition)
     mode = definition.get("mode")
     if mode not in ("default", "custom", "metadata"):

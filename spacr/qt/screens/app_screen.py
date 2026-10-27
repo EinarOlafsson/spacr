@@ -9441,6 +9441,12 @@ class AppScreen(QWidget):
                              {"result": "cancelled_at_ram_guard"})
             return
 
+        if (self.app_key == "measure"
+                and not self._confirm_measure_rerun(settings)):
+            log_button_press(f"{self.app_key}.Run",
+                             {"result": "cancelled_at_measure_rerun"})
+            return
+
         if "export_vvvv" in settings:
             from ..preferences import _vvvv_export_enabled
             settings["export_vvvv"] = _vvvv_export_enabled()
@@ -10923,6 +10929,33 @@ class AppScreen(QWidget):
                 "stores; streaming from the arrays uses the object masks, so "
                 "it can cut to the object itself.")
         return notes
+
+    def _confirm_measure_rerun(self, settings) -> bool:
+        """Confirm the read-only archive preview before a fresh Measure launch."""
+        from ...measure import _measurement_run_archive_plan
+
+        try:
+            plan = _measurement_run_archive_plan(settings)
+        except Exception as exc:
+            QMessageBox.warning(self, tr("Bad settings"), str(exc))
+            return False
+        if not plan:
+            return True
+        box = QMessageBox(self)
+        box.setWindowTitle(tr("Preserve previous measurements"))
+        box.setIcon(QMessageBox.Warning)
+        box.setText(tr(
+            "This fresh Measure run will rename the existing measurement "
+            "tables before writing new results. Previous rows will be kept "
+            "in numbered archive tables, so runs and object labels stay "
+            "separate. Continue?"))
+        box.setDetailedText("\n\n".join(
+            item["db_path"] + "\n" + "\n".join(
+                f"{old} → {new}" for old, new in item["tables"].items())
+            for item in plan))
+        box.setStandardButtons(QMessageBox.Yes | QMessageBox.Cancel)
+        box.setDefaultButton(QMessageBox.Cancel)
+        return box.exec() == QMessageBox.Yes
 
     def _confirm_measure_plane_layout(self, settings) -> bool:
         """Resolve a stale form explicitly before starting Measure.

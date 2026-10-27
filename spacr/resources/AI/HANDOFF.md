@@ -1,5 +1,14 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-27 Workstation session 2 to tutorial owner — Navigator approved; new tutorial and Docs/API requested
+
+The maintainer tested Navigator on nightly and explicitly signed off: "works much better now so send message to tutorial session". The earlier sign-off hold in item 733 is lifted. Tutorial owner (item 676 / spacr-d7): please add a new Navigator tutorial using the approved implementation in `e125b048e8` or its current nightly descendant, and include Navigator in the user documentation and API reference. Follow the existing tutorial recording, localization and publication workflow; this request does not interrupt your current recording or change capture rules.
+
+Cover launching with `spacr-nav` / `spacr-navigator`, Help > Navigator, file/folder drops and typed paths or case-insensitive queries submitted with Enter, evidence-based tool suggestions and settings preview, organism cards, incremental workflow networks, Back/Escape, and native-module input handoff. Use the current centered search, fixed lower description box, name-only cards, persistent collapsible dock and right panels. Home starts fresh. Explain that annotation/history-only measurements.db does not imply analyzed measurements; matching analyzed projects offer their appropriate analysis tools. Retain existing alpha visibility rules rather than enabling alpha content for an ordinary lesson.
+
+Please acknowledge this handoff and record tutorial/Docs/API ownership and publication progress in the existing items. Direct delivery to the separate interactive tutorial session is unavailable from this session; this is a shared repository handoff, with receipt unconfirmed. Item 733 remains open for the requested tutorial/Docs/API work; approval of the implementation alone does not claim those outputs are published.
+
+
 ## 2026-10-27 Codex WS to Home — capture route passes; Regression source still needs editing
 
 Short capture60 probe on40722add65 (nightly9d0e315a74 plusfourdrivers) finishes05:29:54 rc0:Home29.69distinct/58.65paint fps andPreferences29.44distinct/60.25paint fps; both raw gatesPASS, both GUI gap lists empty, no app-freeze buckets. Held60 is proven; native-debugger threshold2.5s avoids the earlier0.1s attach confound. This accepts the short route only.

@@ -87,6 +87,149 @@ def _easy_command_text(value):
     return ' '.join(re.sub(r'[\W_]+', ' ', unicodedata.normalize('NFKC', value).casefold()).split())
 
 
+_EASY_TASK_GROUPS = ((('mask', 'measure', 'qc_dashboard'),
+  ('image analysis',
+   'high content image analysis',
+   'analyze microscopy images',
+   'help me analyze cell images',
+   'I have imaging data', 'image data', 'high content analysis',
+   'image analasys', 'high content image analasys')),
+ (('mask', 'make_masks'),
+  ('object detection',
+   'segmentation',
+   'detect objects in images',
+   'find cells in my images',
+   'segment my cells')),
+ (('make_masks',),
+  ('mask curation',
+   'edit segmentation masks',
+   'correct cell boundaries',
+   'fix my masks',
+   'manually outline cells')),
+ (('measure',),
+  ('measure cell features',
+   'extract image measurements',
+   'morphological profiling',
+   'quantify cell shape',
+   'measure fluorescence intensity')),
+ (('db_browser',),
+  ('read a database',
+   'open my database',
+   'inspect database tables',
+   'browse measurement records',
+   'view a sqlite database')),
+ (('graph_builder',),
+  ('make a figure',
+   'make a graph',
+   'plot my measurements',
+   'create a scatter plot',
+   'draw a bar chart', 'make figure', 'make graph')),
+ (('gate_editor',),
+  ('gate my cells',
+   'filter cells by measurements',
+   'select a cell population',
+   'set measurement gates',
+   'exclude outlier cells')),
+ (('classify_merged',),
+  ('classify cell images',
+   'predict image classes',
+   'train an image classifier',
+   'sort cells into classes',
+   'classify my cropped cells')),
+ (('annotate',),
+  ('annotate cell images',
+   'label cells for training',
+   'assign image labels',
+   'review image annotations',
+   'manually label my cells')),
+ (('umap',),
+  ('explore image embeddings',
+   'make an image umap',
+   'visualize cell clusters',
+   'compare cell embeddings',
+   'reduce image feature dimensions')),
+ (('regression',),
+  ('run a regression',
+   'associate genes with phenotypes',
+   'model phenotype associations',
+   'analyze perturbation effects',
+   'find phenotype associations')),
+ (('dose_response',),
+  ('fit a dose response',
+   'compare drug concentrations',
+   'calculate concentration effects',
+   'plot a dose response curve',
+   'analyze drug response')),
+ (('run_compare',),
+  ('compare analysis runs',
+   'compare two experiments',
+   'compare measurement runs',
+   'review differences between runs',
+   'compare my results')),
+ (('qc_dashboard',),
+  ('check image quality',
+   'review experiment quality',
+   'inspect segmentation quality',
+   'quality control my results',
+   'find problematic fields')),
+ (('foreign', 'convert'),
+  ('import image data',
+   'convert microscopy images',
+   'load external imaging data',
+   'bring images into spacr',
+   'convert image file formats')),
+ (('timelapse',),
+  ('analyze a time series',
+   'track cells over time',
+   'work with timelapse images',
+   'follow objects between frames',
+   'analyze time lapse microscopy')),
+ (('3d',),
+  ('analyze a z stack',
+   'work with 3d images',
+   'segment a volume',
+   'measure three dimensional cells',
+   'analyze volumetric microscopy')),
+ (('experiment_design', 'power'),
+  ('plan an experiment',
+   'design my plate layout',
+   'calculate statistical power',
+   'choose experiment sample size',
+   'help with experimental planning')),
+ (('map_barcodes',),
+  ('map sequencing barcodes',
+   'analyze fastq barcodes',
+   'count genetic barcodes',
+   'map my sequencing reads',
+   'process barcode sequencing')),
+ (('spatial_masks', 'spatial_map'),
+  ('analyze spatial imaging',
+   'segment spatial tissue images',
+   'map spatial measurements',
+   'work with xenium images',
+   'analyze visium imaging')))
+
+
+def _easy_task_keys(value):
+    """Match local navigation tasks without treating file paths as task prose."""
+    import re
+
+    wanted = _easy_command_text(value)
+    if (not wanted or re.search(r"\.[a-z0-9]{1,8}$", str(value).strip(), re.I)
+            or os.path.exists(os.path.expanduser(str(value).strip()))):
+        return ()
+    padded = " " + wanted + " "
+    matches = [(len(phrase.split()), keys) for keys, phrases in _EASY_TASK_GROUPS
+               for phrase in phrases if " " + _easy_command_text(phrase) + " " in padded]
+    if not matches and len(wanted.split()) >= 2:
+        matches = [(len(wanted.split()), keys) for keys, phrases in _EASY_TASK_GROUPS
+                   for phrase in phrases if _easy_command_text(phrase).startswith(wanted + ' ')]
+    if not matches:
+        return ()
+    longest = max(size for size, _keys in matches)
+    return tuple(dict.fromkeys(key for size, keys in matches if size == longest for key in keys))
+
+
 def _easy_module_matches(value):
     """Resolve actual registry names and organism questions without running tools."""
     import re
@@ -141,6 +284,18 @@ def _easy_module_search(value):
         for key in children:
             rows.setdefault(key, fold_label(key)[:2])
     rows.setdefault('3d', ('3D', rows.get('mask', ('', ''))[1]))
+    tasks = _easy_task_keys(value)
+    if tasks:
+        from .preferences import maturity_is_visible
+        from .screens.map_barcodes import fold_description, page_fold_host
+
+        for key in tasks:
+            if key not in rows and page_fold_host(key):
+                name, description, stage = fold_description(key)
+                if maturity_is_visible(stage):
+                    rows[key] = (name, description)
+        return [(key, tr('Mask Generation') if key == 'mask' else tr(rows[key][0]),
+                 tr(rows[key][1]), '') for key in tasks if key in rows]
     found = []
     for key, (name, description) in rows.items():
         title = tr('Mask Generation') if key == 'mask' else tr(name)
@@ -9946,7 +10101,7 @@ def _navigator_launch_target(initial_app, executable=None):
         if name.endswith(suffix):
             name = name[:-len(suffix)]
             break
-    if name not in ('spacr-navigator', 'spacr-nav'):
+    if name not in ('spacr-navigator', 'spacr-nav', 'spaceout-navigator', 'spaceout-nav'):
         return initial_app
     from .preferences import set_easy_mode
 
