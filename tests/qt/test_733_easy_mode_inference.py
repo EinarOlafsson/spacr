@@ -61,17 +61,20 @@ def test_master_folder_offers_actual_child_inputs_and_explicit_ambiguity(tmp_pat
     assert _digest([first, second]) == before
 
 
-def test_child_folder_can_find_master_metadata_and_sibling_image_groups(tmp_path):
+def test_child_keeps_its_scope_and_explicit_master_exposes_sibling_context(tmp_path):
     master = tmp_path / 'screen'
     first = _image(master / 'plateA' / 'field.tif')
     second = _image(master / 'plateB' / 'field.tif')
     sidecar = master / 'MeasurementProtocol.xml'
     sidecar.write_text('<protocol />')
     result = home._easy_inspect_path(str(first))
-    assert str(second.parent) in result['context']['image_folders']
+    assert result['context']['image_folders'] == [str(first.parent)]
+    assert not result['context']['metadata_files']
+    assert next(action for action in result['actions'] if action[0] == 'mask')[3] == str(first.parent)
+    result = home._easy_inspect_path(str(master))
+    assert {str(first.parent), str(second.parent)} <= set(result['context']['image_folders'])
     assert any(hint['folder'] == str(master) and hint['name'] == sidecar.name
                for hint in result['context']['metadata_files'])
-    assert next(action for action in result['actions'] if action[0] == 'mask')[3] == str(first.parent)
 
 
 def test_global_scan_and_metadata_budgets_do_not_read_large_sidecars(tmp_path, monkeypatch):
@@ -132,7 +135,10 @@ def test_explicit_table_keeps_its_own_import_action_among_many_image_children(tm
     assert {'foreign', 'graph_builder', 'gate_editor'} <= {action[0] for action in result['actions']}
     assert result['actions'][0][0] == 'foreign'
     assert result['actions'][0][3] == str(table)
-    assert 'nearby folders' in result['message']
+    assert {action[0] for action in result['actions']} == {'foreign', 'graph_builder', 'gate_editor'}
+    assert result['context']['image_folders'] == []
+    assert 'regex' not in result
+    assert 'nearby folders' not in result['message']
     assert _digest([table, *images]) == before
 
 
@@ -167,7 +173,7 @@ def _late_ifd_image(path, big, endian='<'):
 
 @pytest.mark.parametrize('big', [False, True], ids=['classic-tiff', 'bigtiff'])
 @pytest.mark.parametrize('endian', ['<', '>'], ids=['little-endian', 'big-endian'])
-def test_cq1_late_ifd_image_keeps_exact_source_and_finds_parent_outputs(tmp_path, monkeypatch, big, endian):
+def test_cq1_late_ifd_image_keeps_source_and_master_outputs_need_explicit_selection(tmp_path, monkeypatch, big, endian):
     import sqlite3
     import tifffile
 
@@ -211,9 +217,8 @@ def test_cq1_late_ifd_image_keeps_exact_source_and_finds_parent_outputs(tmp_path
     monkeypatch.setattr(TiffImagePlugin.TiffImageFile, 'load', no_pixels)
     monkeypatch.setattr(tifffile.TiffPage, 'asarray', no_pixels)
     result = home._easy_inspect_path(str(first))
-    assert [action[0] for action in result['actions']] == ['make_masks', 'mask', 'convert', 'db_browser', 'measure']
-    assert [action[3] for action in result['actions']] == [str(first), str(folder), str(folder), str(database), str(plate)]
-    assert _resolve_measure_src(result['actions'][-1][3])[0] == str(merged)
+    assert [action[0] for action in result['actions']] == ['make_masks', 'mask']
+    assert [action[3] for action in result['actions']] == [str(first), str(folder)]
     assert any(hint['convention'] == 'cq1' and hint['matched'] == 2
                for hint in result['context']['filename_matches'])
     assert result['confidence'] == 'filename_hint'
@@ -227,13 +232,17 @@ def test_cq1_late_ifd_image_keeps_exact_source_and_finds_parent_outputs(tmp_path
     assert all(total <= home._EASY_HEADER_LIMIT for path, total in reads.items()
                if path.suffix != '.json')
     assert _digest(files) == before
+    result = home._easy_inspect_path(str(plate))
+    measure = next(action for action in result['actions'] if action[0] == 'measure')
+    assert measure[3] == str(plate)
+    assert _resolve_measure_src(measure[3])[0] == str(merged)
     marker = plate / 'plate_batch.json'
     marker.write_text('{')
-    result = home._easy_inspect_path(str(first))
+    result = home._easy_inspect_path(str(plate))
     assert not any(action[0] == 'measure' for action in result['actions'])
     marker.unlink()
     (merged / 'plate1_A01_1.npy').unlink()
-    result = home._easy_inspect_path(str(first))
+    result = home._easy_inspect_path(str(plate))
     assert not any(action[0] == 'measure' for action in result['actions'])
     remaining = [path for path in files if path.exists()]
     assert _digest(remaining) == {str(path): before[str(path)] for path in remaining}
@@ -324,7 +333,7 @@ def test_explicit_regex_validation_preserves_actions_and_seeds_only_real_mask_fi
     assert original['regex']['required']
 
 
-def test_image_parent_prefers_the_real_measurement_database_over_artifact_log(tmp_path):
+def test_image_does_not_borrow_database_actions_and_explicit_database_stays_browsable(tmp_path):
     import sqlite3
 
     plate = tmp_path / 'Projection'
@@ -338,7 +347,9 @@ def test_image_parent_prefers_the_real_measurement_database_over_artifact_log(tm
             connection.execute('CREATE TABLE objects (label INTEGER, area REAL)')
     before = _digest([image, artifacts, measurements, selected])
     result = home._easy_inspect_path(str(image))
-    assert next(action for action in result['actions'] if action[0] == 'db_browser')[3] == str(measurements)
+    assert not any(action[0] == 'db_browser' for action in result['actions'])
+    assert result['context']['database_schemas'] == []
+    assert not any(action[3] in (str(measurements), str(artifacts)) for action in result['actions'])
     assert not any(action[0] == 'measure' for action in result['actions'])
     explicit = home._easy_inspect_path(str(selected))
     assert explicit['actions'][0][0] == 'db_browser' and explicit['actions'][0][3] == str(selected)

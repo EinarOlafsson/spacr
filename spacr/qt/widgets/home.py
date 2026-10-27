@@ -3986,6 +3986,7 @@ def _easy_analysis_inputs(root, details=None):
 def _easy_database_evidence(path):
     """Read only bounded SQLite schema metadata, never measurement rows."""
     import sqlite3
+    from ...schema import IMAGE_MEASUREMENT_TABLES, OBJECT_TABLES, ORGANELLE_SUMMARY_TABLES
 
     connection = sqlite3.connect(path.as_uri() + '?mode=ro', uri=True, timeout=.25)
     try:
@@ -3996,12 +3997,17 @@ def _easy_database_evidence(path):
         numeric = False
         objects = False
         for name in tables[:16]:
+            if name not in OBJECT_TABLES + ORGANELLE_SUMMARY_TABLES + IMAGE_MEASUREMENT_TABLES:
+                continue
             columns = connection.execute('PRAGMA table_info("' + name.replace('"', '""') + '")').fetchmany(256)
             names = {row[1] for row in columns}
             numeric = numeric or any(any(kind in str(row[2]).upper() for kind in ('INT', 'REAL', 'FLOAT', 'DOUBLE', 'NUM'))
-                                     for row in columns)
-            objects = objects or {'plateID', 'rowID', 'columnID'} <= names
-        return dict(tables=tables, numeric=numeric, objects=objects, crops='png_list' in tables)
+                                     for row in columns if row[1] not in
+                                     {'plateID', 'rowID', 'columnID', 'fieldID', 'timeID', 'object_label', 'label', 'prc', 'prcf', 'prcfo'})
+            objects = objects or (name in OBJECT_TABLES and {'plateID', 'rowID', 'columnID'} <= names)
+        annotation_only = bool(tables) and all(name.startswith(('image_annotations', 'sqlite_')) for name in tables)
+        return dict(tables=tables, numeric=numeric, objects=objects, crops='png_list' in tables,
+                    annotation_only=annotation_only)
     finally:
         connection.close()
 
@@ -4068,7 +4074,7 @@ def _easy_paired_layout(images, root):
     if not pairs:
         return None
     merged = None
-    for folder in (root, root.parent):
+    for folder in (root,):
         candidate = folder / 'merged'
         if not candidate.is_dir() or candidate.is_symlink():
             continue
@@ -4090,14 +4096,14 @@ def _easy_paired_layout(images, root):
                 project=str(merged or root), filename_evidence=True)
 
 
-def _easy_run_evidence(root, files):
+def _easy_run_evidence(root, files, include_runs=True):
     """Read bounded run manifests and coefficient-table headers without model execution."""
     import json
     from itertools import islice
 
-    candidates = [root / 'manifest.json']
+    candidates = [root / 'manifest.json'] if include_runs else []
     runs = root / 'runs'
-    if runs.is_dir() and not runs.is_symlink():
+    if include_runs and runs.is_dir() and not runs.is_symlink():
         with os.scandir(runs) as entries:
             candidates.extend(type(root)(entry.path) / 'manifest.json' for entry in islice(entries, 16)
                               if entry.is_dir(follow_symlinks=False))
@@ -4210,7 +4216,7 @@ def _easy_specialized_inputs(root, files, images, schemas):
     if genotype:
         settings = dict(genotype_source=str(genotype))
         phenotype = next((folder for folder in uncycled if folder != genotype
-                          and folder.parent in (root, root.parent, genotype.parent)), None)
+                          and folder.parent == root), None)
         if phenotype:
             settings['phenotype_source'] = str(phenotype)
         for path in files[:32]:
@@ -4225,7 +4231,7 @@ def _easy_specialized_inputs(root, files, images, schemas):
                 break
         hints['ops'] = dict(settings=settings, source=str(genotype),
                             evidence=tr('OPS tile filenames were found; review acquisition sources before continuing.'))
-    folders = list(dict.fromkeys([root, root.parent] + [path.parent for path in files
+    folders = list(dict.fromkeys([root] + [path.parent for path in files
                                                      if path.parent.parent == root]))[:16]
     for folder in folders:
         if folder.is_symlink():
@@ -4339,7 +4345,7 @@ def _easy_specialized_inputs(root, files, images, schemas):
 
 
 def _easy_local_sample(path, sample_limit=100):
-    """Sample the source, one child level and its immediate master folder within global budgets."""
+    """Sample only the source and one child level within global budgets."""
     from itertools import islice
     from pathlib import Path
     import random
@@ -4348,9 +4354,8 @@ def _easy_local_sample(path, sample_limit=100):
     queue = [(root, True)]
     files = [] if path.is_dir() else [path]
     seen_files, seen_dirs = set(files), set()
-    parent_files = []
     rng = random.Random(733)
-    counts = [len(files), 0]
+    count = len(files)
     entries_left, unreadable, limited = _EASY_ENTRY_LIMIT, 0, False
     while queue and len(seen_dirs) < _EASY_DIRECTORY_LIMIT:
         folder, descend = queue.pop(0)
@@ -4370,33 +4375,23 @@ def _easy_local_sample(path, sample_limit=100):
                     continue
                 candidate = Path(entry.path)
                 if entry.is_file(follow_symlinks=False) and candidate not in seen_files:
-                    parent_context = folder != root and folder.parent != root
-                    target = parent_files if parent_context else files
-                    cap = 32 if parent_context else sample_limit
-                    index = int(parent_context)
-                    counts[index] += 1
-                    if len(target) < cap:
-                        target.append(candidate)
+                    count += 1
+                    if len(files) < sample_limit:
+                        files.append(candidate)
                     else:
                         limited = True
-                        position = rng.randrange(counts[index])
-                        if parent_context and candidate.suffix.lower() in ('.db', '.sqlite', '.sqlite3'):
-                            position = next((i for i, item in enumerate(target[8:], 8)
-                                             if item.suffix.lower() not in ('.db', '.sqlite', '.sqlite3')), cap)
-                        if (8 <= position < cap and (path.is_dir() or target[position] != path)
-                                and (not parent_context or target[position].suffix.lower() not in ('.db', '.sqlite', '.sqlite3'))):
-                            target[position] = candidate
+                        position = rng.randrange(count)
+                        if 8 <= position < sample_limit and (path.is_dir() or files[position] != path):
+                            files[position] = candidate
                     seen_files.add(candidate)
                 elif descend and entry.is_dir(follow_symlinks=False):
                     queue.append((candidate, False))
         except OSError:
             unreadable += 1
-        if folder == root and root.parent != root and root.parent.parent != root.parent:
-            queue.append((root.parent, True))
         if not entries_left:
             limited = True
             break
-    return files + parent_files, tuple(sorted(seen_dirs)), unreadable, limited or bool(queue)
+    return files, tuple(sorted(seen_dirs)), unreadable, limited or bool(queue)
 
 
 def _easy_filename_hints(images):
@@ -4683,8 +4678,17 @@ def _easy_inspect_path_impl(value):
             kinds.setdefault(kind, []).append(candidate)
     if path.is_file():
         selected = next((kind for kind, candidates in kinds.items() if path in candidates), 'unsupported')
-        if selected not in ('image', 'table', 'database', 'container', 'array', 'native_container', 'import_image'):
+        if selected == 'image':
+            kinds = {'image': [item for item in kinds['image'] if item.parent == path.parent]}
+            files = list(kinds['image'])
+        else:
             kinds = {selected: [path]}
+            files = [path]
+        folders = [path.parent]
+        names = [item for item in files if item in kinds.get('image', [])]
+        hints = _easy_filename_hints(names)
+        image_dimensions = [item for item in image_dimensions
+                            if Path(item['path']) in kinds.get('image', []) or item['path'] == str(path)]
     images = kinds.get('image', [])
     external_documents = [dict(kind=kind.removeprefix('external_'), path=str(candidate))
                           for kind, candidates in kinds.items() if kind.startswith('external_')
@@ -4741,8 +4745,6 @@ def _easy_inspect_path_impl(value):
             ('make_masks', tr('View and edit images'), tr('Inspect images and edit masks.'), str(exact)),
             ('mask', tr('Create segmentation masks'), tr('Create segmentation masks for images in {folder}.', folder=chosen.name), str(chosen)),
         ])
-        actions.append(('convert', tr('Import microscopy images'),
-                        tr('Review the reader, embedded metadata and conversion plan before importing.'), str(chosen)))
         if not local_images:
             for folder in candidate_folders[1:3]:
                 actions.append(('mask', tr('Create masks: {folder}', folder=folder.name),
@@ -4784,17 +4786,17 @@ def _easy_inspect_path_impl(value):
         if saved_settings and kind == 'table':
             continue
         own = next((candidate for candidate in kinds.get(kind, [])
-                    if candidate.parent == root or candidate.parent.parent == root
-                    or (kind == 'database' and local_images
-                        and candidate.parent in (root.parent, root.parent / 'measurements'))), None)
-        if kind == 'database' and local_images and path not in kinds.get('database', []):
-            own = next((candidate for candidate in kinds.get(kind, [])
-                        if candidate.parent == root.parent / 'measurements'
-                        and candidate.name == 'measurements.db'), own)
+                    if candidate.parent == root or candidate.parent.parent == root), None)
+        if kind == 'database' and own is not None and path.is_dir():
+            try:
+                if _easy_database_evidence(own)['annotation_only']:
+                    own = None
+            except (OSError, sqlite3.Error):
+                own = None
         if own is not None:
             actions.append((key, title, description, str(own)))
     analysis_discovery = {}
-    analysis_databases = _easy_analysis_inputs(root, analysis_discovery)
+    analysis_databases = _easy_analysis_inputs(root, analysis_discovery) if path.is_dir() else []
     limited = limited or analysis_discovery.get('truncated', False)
     if path.is_file() and path in kinds.get('table', []):
         analysis_databases = []
@@ -4852,10 +4854,6 @@ def _easy_inspect_path_impl(value):
     calibrated = os.path.lexists(root / 'plate_batch.json') or os.path.lexists(root / 'psf' / 'segmentation_application.json')
     if path.is_dir() and any(item.parent == root / 'merged' for item in kinds.get('array', [])) and not calibrated:
         actions.append(('measure', tr('Measure segmented objects'), tr('Review merged arrays and mask channels.'), str(path)))
-    parent = root.parent
-    parent_calibrated = os.path.lexists(parent / 'plate_batch.json') or os.path.lexists(parent / 'psf' / 'segmentation_application.json')
-    if local_images and any(item.parent == parent / 'merged' for item in kinds.get('array', [])) and not parent_calibrated:
-        actions.append(('measure', tr('Measure segmented objects'), tr('Review merged arrays and mask channels.'), str(parent)))
     paired_layout = _easy_paired_layout(images, root)
     if paired_layout:
         if paired_layout['kind'] == 'unstructured':
@@ -4867,7 +4865,8 @@ def _easy_inspect_path_impl(value):
                 actions.append((key, title, tr('Review merged arrays and mask channels.'), paired_layout['project']))
                 input_map.setdefault(key, dict(source=paired_layout['project'], project=paired_layout['project']))
     run_evidence = _easy_run_evidence(root, [item for item in files
-                                            if item.parent == root or item.parent.parent == root])
+                                            if item.parent == root or item.parent.parent == root],
+                                      include_runs=path.is_dir())
     if run_evidence['manifests']:
         for key, title in (('run_history', tr('Run History')), ('qc_dashboard', tr('QC'))):
             actions.append((key, title, tr('A failed or incomplete run was found; review its outputs before continuing.'), str(root)))
@@ -4884,7 +4883,7 @@ def _easy_inspect_path_impl(value):
             input_map['regression_diagnostics'] = dict(source=result_file['diagnostics_folder'],
                                                      diagnostics_folder=result_file['diagnostics_folder'],
                                                      coefficients=result_file['path'])
-    submodule_settings = _easy_specialized_inputs(root, files, images, schemas)
+    submodule_settings = _easy_specialized_inputs(root, files, images, schemas) if path.is_dir() else {}
     for key, title in (('ops', tr('OPS')), ('spatial_masks', tr('Spatial Mask Generation')),
                        ('spatial_map', tr('Spatial Map'))):
         if key in submodule_settings:
@@ -5204,10 +5203,10 @@ class _EasySuggestionCard(QPushButton):
         self.alpha.setObjectName('EasyAlphaMark')
         self.alpha.setAttribute(Qt.WA_TransparentForMouseEvents, True)
         self.alpha.setStyleSheet('font-family: "Open Sans"; font-weight: 300; '
-                                f'font-size: {font_px(14)}px; color: {STAGE_HOVER["alpha"]}; '
+                                f'font-size: {font_px(28)}px; color: {STAGE_HOVER["alpha"]}; '
                                 'background: transparent;')
         self.alpha.setAlignment(Qt.AlignCenter)
-        self.alpha.resize(20, 20)
+        self.alpha.resize(40, 40)
         self.alpha.setVisible(self._stage == 'alpha')
 
     def enterEvent(self, event):
@@ -5494,15 +5493,15 @@ class _EasyHomeField(QWidget):
             card.setAccessibleDescription(group + ': ' + reason)
         if leading is not None:
             self.cards.insert(min(leading_index, len(self.cards)), leading)
+        animate = self._motion_enabled() and self.isVisible()
+        for card in self.cards:
+            card._content_opacity.setOpacity(0.0 if animate else 1.0)
         self._arrange()
         for index, card in enumerate(self.cards):
-            if not card._final_rect.intersects(self._row_rect):
-                card.hide()
-                continue
-            card.show()
+            card.setVisible(card._final_rect.intersects(self._row_rect))
             card.setMinimumSize(0, 0)
             card.raise_()
-            if index < 4 and self._motion_enabled() and self.isVisible():
+            if animate:
                 target = QRect(card._final_rect)
                 start = QRect(target.center().x(), target.center().y(), 1, 1)
                 card._content_opacity.setOpacity(0.0)
@@ -5510,11 +5509,11 @@ class _EasyHomeField(QWidget):
                 card._growing = True
                 card.setEnabled(False)
                 group = QSequentialAnimationGroup(self)
-                group.addPause(300 + index * 650)
+                group.addPause(index * 200)
                 animation = QPropertyAnimation(card, b'geometry', group)
                 animation.setStartValue(start)
                 animation.setEndValue(target)
-                animation.setDuration(2100)
+                animation.setDuration(500)
                 animation.setEasingCurve(QEasingCurve.InOutCubic)
                 animation.valueChanged.connect(card._growth_changed)
                 group.addAnimation(animation)
@@ -5660,10 +5659,10 @@ class _EasyWorkflowNode(_WorkflowNode):
         painter.setFont(font)
         painter.setPen(QColor(palette['fg']))
         if self._stage == 'alpha':
-            font.setPixelSize(font_px(14, scale=1))
+            font.setPixelSize(font_px(28, scale=1))
             painter.setFont(font)
             painter.setPen(hue)
-            painter.drawText(QRectF(side - 30, 8, 20, 20), Qt.AlignCenter, ALPHA_MARK)
+            painter.drawText(QRectF(side - 50, 8, 40, 40), Qt.AlignCenter, ALPHA_MARK)
             font.setPixelSize(font_px(18, scale=1))
             painter.setFont(font)
             painter.setPen(QColor(palette['fg']))
@@ -5672,7 +5671,7 @@ class _EasyWorkflowNode(_WorkflowNode):
                          Qt.AlignCenter | Qt.TextWordWrap, tr(module['name']))
         painter.setPen(Qt.NoPen)
         painter.setBrush(QColor(palette['accent']))
-        for port in getattr(self, '_input_ports', ()):
+        for port in (*getattr(self, '_input_ports', ()), *getattr(self, '_output_ports', ())):
             painter.drawEllipse(port, _EASY_WORKFLOW_PORT_RADIUS, _EASY_WORKFLOW_PORT_RADIUS)
 
     def hoverEnterEvent(self, event):
@@ -5737,7 +5736,8 @@ class _EasyWorkflowEdge(_WorkflowEdge):
         gutter = node.pos().y() - 46
         approach = node.pos().x() - 24
         points = [start]
-        if self.view._direction < 0 or self.view._root_x is not None:
+        if (self.edge['from'] == getattr(self.view, '_root_key', None)
+                and (self.view._direction < 0 or self.view._root_x is not None)):
             root = self.view.parentWidget().central
             root_top = self.view.mapToScene(self.view.viewport().mapFromGlobal(root.mapToGlobal(root.rect().topLeft())))
             outside = start.x() + 24
@@ -5795,6 +5795,7 @@ class _EasyWorkflowEdge(_WorkflowEdge):
         from ..i18n import tr
 
         painter.save()
+        painter.setOpacity(painter.opacity() * self.view.nodes[self.edge['to']].opacity())
         viewport = self.view.mapToScene(self.view.viewport().rect()).boundingRect()
         clip = QPainterPath()
         clip.addRect(viewport)
@@ -5860,6 +5861,7 @@ class _EasyWorkflowView(_WorkflowView):
     def __init__(self, data, parent=None):
         """Retain existing nodes and descriptions, excluding the global edge network."""
         from shiboken6 import delete
+        from PySide6.QtCore import QVariantAnimation, QEasingCurve
 
         self._selected_key = None
         self._columns = 1
@@ -5870,7 +5872,17 @@ class _EasyWorkflowView(_WorkflowView):
         self._first_y = 64
         self.branch_records = []
         self.remaining_records = []
+        self._expanded_keys = []
+        self._visible_records = []
+        self._node_order = []
         super().__init__(data, keys=(), parent=parent)
+        self._growth_nodes = []
+        self._growth = QVariantAnimation(self)
+        self._growth.setStartValue(0.0)
+        self._growth.setEndValue(1.0)
+        self._growth.setDuration(350)
+        self._growth.setEasingCurve(QEasingCurve.InOutCubic)
+        self._growth.valueChanged.connect(self._grow_branches)
         self.keys = list(data['modules'])
         self._fitted = True
         self._auto_fit = False
@@ -5931,58 +5943,97 @@ class _EasyWorkflowView(_WorkflowView):
         return [candidates[key] for key in keys]
 
     def center_selection(self, key):
-        """Keep the chosen root outside scrolling and disclose its next four tools."""
+        """Append the selected tool's actual branches while retaining the explored path."""
+        self._growth.stop()
+        self._grow_branches(1.0)
+        previous = set(self._node_order)
         self._selected_key = key
+        if not self._expanded_keys:
+            self._root_key = key
         records = self._downstream_records(key)
         self.branch_records = records[:4]
         self.remaining_records = records[4:]
+        if key != self._root_key and key not in self._node_order:
+            self._node_order.append(key)
+        if key not in self._expanded_keys:
+            self._expanded_keys.append(key)
+            known = {(record['from'], record['to']) for record in self._visible_records}
+            for record in self.branch_records:
+                if record['to'] == self._root_key:
+                    continue
+                pair = (record['from'], record['to'])
+                if pair not in known:
+                    self._visible_records.append(record)
+                    known.add(pair)
+                if record['to'] not in self._node_order:
+                    self._node_order.append(record['to'])
         self._arrange_branches()
-        self.verticalScrollBar().setValue(0)
         self.explain_node(key)
+        self._growth_nodes = [self.nodes[child] for child in self._node_order if child not in previous]
+        from ..preferences import get_ambient_enabled, get_reduce_motion
+        if previous and self._growth_nodes and get_ambient_enabled() and not get_reduce_motion():
+            self._grow_branches(0.0)
+            self._growth.start()
+
+    def _grow_branches(self, value):
+        for node in self._growth_nodes:
+            node.setOpacity(float(value))
+        self.viewport().update()
+        self.parentWidget().update()
 
     def _arrange_branches(self):
-        """Wrap only direct children within the free side of the anchored card."""
+        """Keep earlier cards in order and append newly disclosed children below them."""
         from PySide6.QtCore import QPointF
         from shiboken6 import delete
 
         width = max(224, self.viewport().width())
         self._columns = 2 if width >= 488 else 1
-        for node in self.nodes.values():
-            node.hide()
-        old_edges, self.edges = self.edges, []
-        for edge in old_edges:
-            self.scene().removeItem(edge)
-            delete(edge)
-        for index, record in enumerate(self.branch_records):
+        for key, node in self.nodes.items():
+            node.setVisible(key in self._node_order)
+            node.highlighted = key == self._selected_key
+        for index, key in enumerate(self._node_order):
             row, column = divmod(index, self._columns)
             x = 32 + column * (self._node_side + 40)
             if self._direction < 0:
                 x = width - x - self._node_side
-            node = self.nodes[record['to']]
+            node = self.nodes[key]
             node.setPos(x, self._first_y + row * (self._node_side + 64))
             node._input_ports = (QPointF(5, self._node_side * 0.75),)
-            node.show()
+            outgoing = [record for record in self._visible_records if record['from'] == key]
+            node._output_ports = tuple(QPointF(self._node_side - 5,
+                16 + index * 14) for index in range(len(outgoing)))
+            node.update()
+        old_edges, self.edges = self.edges, []
+        for edge in old_edges:
+            self.scene().removeItem(edge)
+            delete(edge)
+        for record in self._visible_records:
+            node = self.nodes[record['to']]
             edge = _EasyWorkflowEdge(self, record, QPointF(0, self._root_y),
                                      node.pos() + node._input_ports[0])
             self.scene().addItem(edge)
             self.edges.append(edge)
-        rows = (len(self.branch_records) + self._columns - 1) // self._columns
+        rows = (len(self._node_order) + self._columns - 1) // self._columns
         height = (self._first_y + max(0, rows - 1) * (self._node_side + 64)
                   + (self._node_side if rows else 0) + 16)
         self.setSceneRect(QRectF(0, 0, width, max(height, self.viewport().height())))
         self._position_connections()
 
     def _position_connections(self):
-        """Connect each visible child to its own unchanged native output port."""
+        """Attach every retained edge to its actual root or explored parent card."""
         parent = self.parentWidget()
         if parent.central is None:
             return
+        root_edges = [edge for edge in self.edges if edge.edge['from'] == self._root_key]
         ports = getattr(parent.central, '_workflow_ports', ())
-        if len(ports) != len(self.edges):
-            return
-        for port, edge in zip(ports, self.edges):
+        for port, edge in zip(ports, root_edges):
             point = self.viewport().mapFromGlobal(parent.central.mapToGlobal(port))
             edge._set_origin(self.mapToScene(point))
+        for key in self._node_order:
+            source = self.nodes[key]
+            edges = [edge for edge in self.edges if edge.edge['from'] == key]
+            for port, edge in zip(getattr(source, '_output_ports', ()), edges):
+                edge._set_origin(source.pos() + port)
         parent.update()
 
     def resizeEvent(self, event):
@@ -6006,6 +6057,7 @@ class _EasyWorkflowPage(QWidget):
         from ..i18n import tr
 
         self.central = None
+        self._chosen_key = None
         self._source_card = source_card
         self._source_parent = source_card.parentWidget()
         self._anchor = QRect(anchor)
@@ -6072,9 +6124,15 @@ class _EasyWorkflowPage(QWidget):
         self.empty.setAlignment(Qt.AlignCenter)
         make_transparent(self.empty)
         self.select(selected)
-        self._departing = [card for card in self._source_parent.cards if card is not source_card]
+        self._departing = [card for card in self._source_parent.cards
+                           if card is not source_card and card.isVisible()
+                           and card._content_opacity.opacity() > 0.0]
+        self._departing.extend((field.panel, field.rim))
         if self._source_parent._scrollbar.maximum():
             self._departing.append(self._source_parent._scrollbar)
+        for card in self._departing:
+            effect = getattr(card, '_content_opacity', None)
+            card._navigator_departure_opacity = effect.opacity() if effect is not None else 1.0
         self._effects = []
         for widget in (self.view, self.tools, self.more, self.back, self.empty):
             effect = QGraphicsOpacityEffect(widget)
@@ -6084,7 +6142,7 @@ class _EasyWorkflowPage(QWidget):
         self._transition = QVariantAnimation(self)
         self._transition.setStartValue(0.0)
         self._transition.setEndValue(1.0)
-        self._transition.setDuration(2200)
+        self._transition.setDuration(500)
         self._transition.setEasingCurve(QEasingCurve.InOutCubic)
         self._transition.valueChanged.connect(self._emerge)
         self._entered = False
@@ -6102,27 +6160,19 @@ class _EasyWorkflowPage(QWidget):
             self.select(key)
 
     def select(self, key):
-        """Replace only the action at the original anchor when a child is chosen."""
-        from ..iconset import app_icon
+        """Explore a child's branches first and open only on a repeated explicit choice."""
         from ..i18n import tr
 
         if key not in self.data['modules']:
             return
-        if self.central is not None:
-            self.central.hide()
-            if self.central is not self._source_card:
-                self.central.deleteLater()
-        module = self.data['modules'][key]
-        if key == self._source_card._key:
+        if key == self._chosen_key:
+            action = self.routes.get(key)
+            self.open_requested.emit(key, action[3] if action else '')
+            return
+        self._chosen_key = key
+        if self.central is None:
             self.central = self._source_card
-        else:
-            action = self.routes.get(key, (key, tr(module['name']), tr(module.get('guidance', '')), ''))
-            self.central = _EasySuggestionCard(action, self)
-            if module.get('route'):
-                self.central._module_icon = app_icon(module['host_key'], theme='dark')
-                self.central._refresh_icon()
-            self.central.activated.connect(self.open_requested)
-        self.central.show()
+            self.central.show()
         self.view.center_selection(key)
         self.tools.setCurrentIndex(-1)
         self.more.clear()
@@ -6131,12 +6181,10 @@ class _EasyWorkflowPage(QWidget):
             self.more.addItem(tr(self.data['modules'][child]['name']), child)
         self.more.setCurrentIndex(-1)
         self.more.setVisible(bool(self.view.remaining_records))
-        self.empty.setVisible(not self.view.branch_records)
+        self.empty.setVisible(not self.view._visible_records)
         self._arrange()
-        self.central.setFocus()
-        if getattr(self, '_entered', False):
-            from .ambient import _field_visit_node
-            _field_visit_node(self.central)
+        if key != self._source_card._key:
+            self.view.nodes[key].setFocus()
 
     def _arrange(self):
         """Place the branch on the free side without recentering the selected card."""
@@ -6149,7 +6197,7 @@ class _EasyWorkflowPage(QWidget):
         self.central.setGeometry(self._anchor)
         from PySide6.QtCore import QPoint
 
-        count = len(self.view.branch_records)
+        count = sum(record['from'] == self.view._root_key for record in self.view._visible_records)
         first, last = 16, max(16, self.central.height() // 3)
         self.central._workflow_ports = tuple(QPoint(self.central.width() - 5,
             round((first + last) / 2 if count == 1 else first + index * (last - first) / (count - 1)))
@@ -6167,7 +6215,7 @@ class _EasyWorkflowPage(QWidget):
         search_origin = self.mapFromGlobal(field.panel.mapToGlobal(field.panel.rect().topLeft()))
         search = QRect(search_origin, field.panel.size()).adjusted(-4, -4, 4, 4)
         top = header_bottom + 16
-        limit = search.top() - 16
+        limit = bottom.top() - 16
         self.view._direction = 1 if self._anchor.center().x() < self.width() / 2 else -1
         if self.view._direction > 0:
             x, width = self._anchor.right() + 1, self.width() - self._anchor.right() - 17
@@ -6215,7 +6263,13 @@ class _EasyWorkflowPage(QWidget):
         for effect in self._effects:
             effect.setOpacity(self._progress)
         for card in self._departing:
-            card._content_opacity.setOpacity(1.0 - self._progress)
+            effect = getattr(card, '_content_opacity', None)
+            if effect is None:
+                from PySide6.QtWidgets import QGraphicsOpacityEffect
+                effect = QGraphicsOpacityEffect(card)
+                card.setGraphicsEffect(effect)
+                card._content_opacity = effect
+            effect.setOpacity(card._navigator_departure_opacity * (1.0 - self._progress))
             card.setEnabled(False)
             if self._progress >= 1.0:
                 card.hide()
@@ -6228,13 +6282,9 @@ class _EasyWorkflowPage(QWidget):
         if not get_ambient_enabled() or get_reduce_motion():
             self._transition.stop()
             self._emerge(1.0)
-            from .ambient import _field_visit_node
-            _field_visit_node(self.central, False)
 
     def hideEvent(self, event):
         """Retire the selected-node visit before another module owns the field."""
-        from .ambient import _field_visit_node
-        _field_visit_node(self.central, False)
         super().hideEvent(event)
 
     def showEvent(self, event):
@@ -6242,8 +6292,6 @@ class _EasyWorkflowPage(QWidget):
         from ..preferences import get_ambient_enabled, get_reduce_motion
 
         super().showEvent(event)
-        from .ambient import _field_visit_node
-        _field_visit_node(self.central)
         if not self._entered:
             self._entered = True
             if get_ambient_enabled() and not get_reduce_motion():
@@ -6275,8 +6323,7 @@ class _EasyWorkflowPage(QWidget):
     def release_source_card(self):
         """Restore the original card to its unchanged suggestion list before retiring."""
         self._transition.stop()
-        from .ambient import _field_visit_node
-        _field_visit_node(self.central, False)
+        self.view._growth.stop()
         self._source_card.activated.disconnect(self.open_requested)
         self._source_card._workflow_ports = ()
         self._source_card.setParent(self._source_parent)
@@ -6284,9 +6331,12 @@ class _EasyWorkflowPage(QWidget):
             control.setParent(self._source_parent)
             control.show()
         self._source_card.setGeometry(self._source_card._final_rect)
-        for card in self._departing:
-            card._content_opacity.setOpacity(1.0)
+        for card in (*self._source_parent.cards, *self._departing):
+            effect = getattr(card, '_content_opacity', None)
+            if effect is not None:
+                effect.setOpacity(1.0)
             card.setEnabled(True)
+            card.show()
         self._source_parent._arrange()
         self._source_card.show()
         return self._source_card
@@ -6514,6 +6564,13 @@ class _EasyHomePage(QWidget):
         if path:
             self.accept_paths([path])
 
+    def _reset_for_home(self):
+        """Return explicit Home navigation to a fresh input with no retained graph or job."""
+        self._show_suggestions()
+        self.path_edit.clear()
+        self._queued_inspection = False
+        self._clear_empty_input()
+
     def _clear_empty_input(self):
         """Return an empty editor to the live field without keeping stale work."""
         self._debounce.stop()
@@ -6539,11 +6596,13 @@ class _EasyHomePage(QWidget):
 
     def _submit(self):
         """Use Enter for explicit command navigation or suggestion discovery."""
-        from ..app import _easy_command_text, _easy_module_search
+        from ..app import _easy_command_text, _easy_module_search, _easy_module_matches
+        from ..organisms import ORGANISMS
 
         value = self.path_edit.text().strip()
         self._show_suggestions()
-        if not _easy_command_text(value) or value.endswith(':') or len(_easy_module_search(value)) > 1:
+        organism = any(key in ORGANISMS for key in _easy_module_matches(value))
+        if organism or not _easy_command_text(value) or value.endswith(':') or len(_easy_module_search(value)) > 1:
             self._inspect()
             return
         self._debounce.stop()
@@ -6580,12 +6639,14 @@ class _EasyHomePage(QWidget):
             self._show_result(self._input_generation, dict(path=value, actions=actions, message='',
                                                          context=dict(action_groups=groups)))
             return
-        if self._runner.is_busy():
-            self._queued_inspection = value != self._requested
+        if self._runner.is_busy() or self._runner.active_jobs():
+            self._queued_inspection = value != self._requested or not self._runner.is_busy()
             if value != self._requested:
                 self._last_result = None
                 self._settings_overrides = {}
                 self.field.set_cards([])
+            if self._queued_inspection:
+                self._debounce.start()
             return
         self._requested = value
         self._input_generation += 1
@@ -6673,7 +6734,12 @@ class _EasyHomePage(QWidget):
                             if card._key == key and card._path == path), None)
         if source_card is None:
             return
+        departure = {card: (card.isVisible(), card._content_opacity.opacity())
+                     for card in self.field.cards if card is not source_card}
         self.field._finish_growth()
+        for card, (visible, opacity) in departure.items():
+            card._content_opacity.setOpacity(opacity)
+            card.setVisible(visible and opacity > 0.0)
         anchor = QRect(source_card.mapTo(self, source_card.rect().topLeft()), source_card.size())
         source_card.activated.disconnect(self._select_suggestion)
         self._workflow = _EasyWorkflowPage(data, actions, key, source_card, anchor, self)

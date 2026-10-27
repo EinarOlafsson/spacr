@@ -187,7 +187,7 @@ def test_help_toggle_persists_to_startup_without_preferences_checkbox(commands, 
     dialog = preferences.PreferencesDialog()
     qtbot.addWidget(dialog)
     assert dialog.findChild(Toggle, "EasyMode") is None
-    assert dialog.findChild(Toggle, "EasyModeDock") is not None
+    assert dialog.findChild(Toggle, "EasyModeDock") is None
     commands._act_easy_mode.trigger()
     assert not preferences.get_easy_mode()
     reopened = SetupSlides()
@@ -368,6 +368,33 @@ def test_partial_help_search_is_case_insensitive_and_uses_help_destinations(comm
     assert any(row[0] == '__easy_command__:Keyboard shortcuts'
                for row in search(commands, 'KeYbOaRd'))
     assert not search(commands, 'QUIT')
+
+
+@pytest.mark.parametrize('query', [
+    'measurement', 'MEASUREMENT', 'MeAsUrEmEnT',
+    'feature', 'FEATURE', 'FeAtUrE',
+    'morphological profiling', 'MORPHOLOGICAL PROFILING', 'MoRpHoLoGiCaL PrOfIlInG',
+])
+def test_measure_aliases_offer_the_native_module_and_preserve_explicit_paths(commands, query):
+    rows = app._easy_module_search(query)
+    assert sum(row[0] == 'measure' for row in rows) == 1
+    assert app._easy_module_matches(query) == ('measure',)
+    commands._open_easy_command(query)
+    assert commands.opened == ['measure']
+    assert app._easy_module_search('/actual/' + query + '/image.tif') == []
+
+
+@pytest.mark.parametrize('label', ['Database Browser', '&Database Browser…', 'DATABASE BROWSER\tCtrl+B'])
+def test_database_help_action_reuses_native_result_instead_of_a_generic_copy(commands, label):
+    native = app._easy_module_search('database')
+    commands._easy_help_menu.addAction(label)
+    commands._easy_help_menu.addAction('Database reference')
+    rows = app.MainWindow._easy_navigation_suggestions(commands, 'DaTaBaSe')
+    assert [row for row in rows if not row[0].startswith('__easy_command__:')] == native
+    assert sum(row[0] == 'db_browser' for row in rows) == 1
+    assert not any(row[0].startswith('__easy_command__:')
+                   and app._easy_command_text(row[1]) == 'database browser' for row in rows)
+    assert any(row[0] == '__easy_command__:Database reference' for row in rows)
 
 
 @pytest.mark.parametrize('query', ['plan', 'PLAN', 'Plan:'])

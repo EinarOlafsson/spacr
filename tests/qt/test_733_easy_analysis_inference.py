@@ -113,7 +113,7 @@ def test_loose_pairs_do_not_claim_scientific_layout(tmp_path):
     result = home._easy_inspect_path(str(folder))
     assert result['context']['paired_layout']['kind'] == 'unstructured'
     assert result['context']['paired_layout']['pairs'] == {str(folder / 'field.tif'): str(folder / 'field_mask.tif')}
-    assert {'make_masks', 'convert'} <= {row[0] for row in result['actions']}
+    assert [row[0] for row in result['actions']] == ['make_masks']
     assert not {'mask', 'measure', 'qc_dashboard', 'annotate'} & {row[0] for row in result['actions']}
     (folder / 'merged').mkdir()
     np.save(folder / 'merged' / 'field.npy', np.zeros((8, 9, 3), dtype=np.uint16))
@@ -167,6 +167,10 @@ def test_regression_coefficients_and_failed_run_have_real_review_routes(tmp_path
     assert actions['regression_diagnostics'] == str(diagnostics)
     assert result['context']['analysis_inputs']['regression_diagnostics']['diagnostics_folder'] == str(diagnostics)
     assert result['context']['run_evidence']['manifests'][0]['status'] == 'failed'
+    explicit = home._easy_inspect_path(str(folder / 'results.csv'))
+    assert {'hit_list', 'profiler', 'regression_diagnostics'} <= {row[0] for row in explicit['actions']}
+    assert not any(row[0] in ('run_history', 'qc_dashboard') for row in explicit['actions'])
+    assert explicit['context']['run_evidence']['manifests'] == []
 
 
 def test_run_settings_manifest_reuses_registered_module_without_importing_app(tmp_path, monkeypatch):

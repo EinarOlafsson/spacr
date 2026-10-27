@@ -111,7 +111,7 @@ def test_fixed_panels_do_not_overlap_choice_row(navigator, qtbot, width, height)
     assert field.rect().contains(field.panel.geometry())
 
 
-def test_network_keeps_fixed_search_pixels_visible(navigator, qtbot):
+def test_network_fades_search_and_restores_same_pixels_and_position(navigator, qtbot):
     from PySide6.QtCore import QPoint
     choices(navigator, 3)
     field = navigator.field
@@ -120,9 +120,13 @@ def test_network_keeps_fixed_search_pixels_visible(navigator, qtbot):
     before = navigator.grab().toImage().pixelColor(point).getRgb()
     assert before[:3] == (25, 25, 25)
     qtbot.mouseClick(field.cards[0], Qt.LeftButton)
-    navigator._workflow._transition.setCurrentTime(2200)
+    navigator._workflow._transition.setCurrentTime(500)
     qtbot.wait(30)
+    assert not field.panel.isVisible()
     assert field.panel.mapTo(navigator, QPoint()) == search
+    navigator._show_suggestions()
+    qtbot.wait(30)
+    assert field.panel.isVisible() and field.panel.mapTo(navigator, QPoint()) == search
     assert navigator.grab().toImage().pixelColor(point).getRgb() == before
 
 

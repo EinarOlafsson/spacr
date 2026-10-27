@@ -52,8 +52,8 @@ def test_master_context_stops_at_the_intentional_parent_but_keeps_its_siblings(
 
     monkeypatch.setattr(TiffImagePlugin.TiffImageFile, 'load', no_pixels)
     first = _easy_inspect_path(str(source))
-    assert [action[0] for action in first['actions']] == ['make_masks', 'mask', 'convert']
-    assert first['actions'][2][3] == str(source)
+    assert [action[0] for action in first['actions']] == ['make_masks', 'mask']
+    assert all(action[3] == str(source) for action in first['actions'])
     assert first['context']['reader_candidates'] == []
     assert str(outside) not in first['context']['image_folders']
     neighbor = master / 'acquisition'
@@ -62,10 +62,13 @@ def test_master_context_stops_at_the_intentional_parent_but_keeps_its_siblings(
     inside_container.write_bytes(outside_container.read_bytes())
     originals.update(_bytes([inside_container]))
     second = _easy_inspect_path(str(source))
-    assert [action[0] for action in second['actions']] == ['make_masks', 'mask', 'convert']
-    assert second['actions'][2][3] == str(source)
-    assert [row['path'] for row in second['context']['reader_candidates']] == [str(inside_container)]
-    assert second['context']['reader_candidates'][0]['metadata_inspected'] is False
+    assert [action[0] for action in second['actions']] == ['make_masks', 'mask']
+    assert all(action[3] == str(source) for action in second['actions'])
+    assert second['context']['reader_candidates'] == []
+    explicit_master = _easy_inspect_path(str(master))
+    assert [row['path'] for row in explicit_master['context']['reader_candidates']] == [str(inside_container)]
+    assert explicit_master['context']['reader_candidates'][0]['metadata_inspected'] is False
+    assert next(action[3] for action in explicit_master['actions'] if action[0] == 'convert') == str(neighbor)
     assert _bytes([image, outside_container, inside_container]) == originals
 
 
@@ -95,11 +98,11 @@ def test_local_headers_identify_real_mixed_contents_without_decoding_or_writing(
     monkeypatch.setattr(TiffImagePlugin.TiffImageFile, 'load', no_pixel_decode)
     result = _easy_inspect_path(str(tmp_path))
     actions = {action[0]: action for action in result['actions']}
-    assert set(actions) == {'make_masks', 'mask', 'convert', 'db_browser', 'foreign', 'graph_builder', 'gate_editor'}
+    assert set(actions) == {'make_masks', 'mask', 'db_browser', 'foreign', 'graph_builder', 'gate_editor'}
     assert actions['make_masks'][3] == str(tmp_path)
     assert actions['foreign'][3] == str(table)
     assert actions['db_browser'][3] == str(database)
-    assert actions['convert'][3] == str(tmp_path)
+    assert 'convert' not in actions
     assert all(actions[key][3] == str(table) for key in ('graph_builder', 'gate_editor'))
     assert 'several content types' in result['message']
     assert 'nothing has been processed or sent to AI' in result['message']
@@ -160,8 +163,10 @@ def test_real_typed_inspection_keeps_cards_readable_disjoint_and_actionable(
     try:
         page.path_edit.setFocus()
         qtbot.keyClicks(page.path_edit, str(image))
+        qtbot.wait(650)
+        assert not page._runner.is_busy() and not page.field.cards
         qtbot.keyClick(page.path_edit, Qt.Key_Return)
-        qtbot.waitUntil(lambda: {'make_masks', 'mask', 'convert'} <=
+        qtbot.waitUntil(lambda: {'make_masks', 'mask'} <=
                        {card._key for card in page.field.cards}, timeout=5000)
         qtbot.waitUntil(lambda: all(not card._growing for card in page.field.cards), timeout=7000)
         assert page.path_edit.text() == str(image)
@@ -173,7 +178,8 @@ def test_real_typed_inspection_keeps_cards_readable_disjoint_and_actionable(
         assert page.field.rim.isVisible()
         panel = page.field.panel.geometry()
         rectangles = [card.geometry() for card in page.field.cards]
-        assert all(page.field.rect().contains(rect) for rect in rectangles)
+        assert abs(panel.center().y() - page.field.rect().center().y()) <= 1
+        assert all(rect.bottom() <= panel.top() - 24 for rect in rectangles)
         assert all(not rect.intersects(panel) for rect in rectangles)
         assert not rectangles[0].intersects(rectangles[1])
         for card in page.field.cards:
@@ -184,7 +190,7 @@ def test_real_typed_inspection_keeps_cards_readable_disjoint_and_actionable(
         page.layout().itemAt(0).widget().ensureWidgetVisible(card)
         qtbot.mouseClick(card, Qt.LeftButton)
         assert selected == []
-        assert page._workflow is not None and not page.path_edit.isVisible()
+        assert page._workflow is not None and page.path_edit.isVisible()
         assert page._workflow.central._key == 'make_masks'
         qtbot.mouseClick(page._workflow.central, Qt.LeftButton)
         assert selected == [('make_masks', str(image))]
@@ -200,18 +206,26 @@ def test_real_typed_inspection_keeps_cards_readable_disjoint_and_actionable(
             with sqlite3.connect(tmp_path / 'measurements.db') as connection:
                 connection.execute('create table cells(label integer)')
             actions = _easy_inspect_path(str(tmp_path))['actions']
-            assert {action[0] for action in actions} == {'make_masks', 'mask', 'convert', 'db_browser', 'foreign', 'graph_builder', 'gate_editor'}
-            preferences.set_reduce_motion(True)
+            assert {action[0] for action in actions} == {'make_masks', 'mask', 'db_browser', 'foreign', 'graph_builder', 'gate_editor'}
+            preferences.set_reduce_motion(False)
             page.field.set_cards(actions)
+            assert len(page.field._animations) == len(actions)
+            for index, animation in enumerate(page.field._animations):
+                assert animation.animationAt(0).duration() == index * 200
+                assert animation.animationAt(1).duration() == 500
+            page.field._finish_growth()
+            preferences.set_reduce_motion(True)
             original = [card.geometry() for card in page.field.cards]
             for resized in (size, (640, 650), (1100, 780), size):
                 page.resize(*resized)
                 qapp.processEvents()
                 assert [card._key for card in page.field.cards] == [action[0] for action in actions]
                 rectangles = [card.geometry() for card in page.field.cards]
-                assert all(page.field.rect().contains(rect) for rect in rectangles)
-                assert all(rect.top() >= page.path_edit.geometry().bottom() + 24
+                assert len({rect.top() for rect in rectangles}) == 1
+                assert all(rect.bottom() <= page.path_edit.geometry().top() - 24
                            for rect in rectangles)
+                assert page.field._scrollbar.maximum() > 0
+                assert abs(page.path_edit.geometry().center().y() - page.field.rect().center().y()) <= 1
                 assert rectangles == sorted(rectangles, key=lambda rect: (rect.y(), rect.x()))
                 assert all(not first.intersects(second)
                            for index, first in enumerate(rectangles)
@@ -254,6 +268,9 @@ def test_latest_typed_path_wins_after_real_worker_and_gui_stays_responsive(
         qtbot.waitUntil(entered.is_set, timeout=3000)
         page.path_edit.setText(str(second))
         page._schedule_inspection(str(second))
+        assert page._requested == str(first) and not page._queued_inspection
+        qtbot.keyClick(page.path_edit, Qt.Key_Return)
+        assert page._queued_inspection or page._requested == str(second)
         assert page.path_edit.isEnabled()
         if reject_pending:
             page.accept_paths([str(first), str(second)])
@@ -266,15 +283,15 @@ def test_latest_typed_path_wins_after_real_worker_and_gui_stays_responsive(
             assert not page.status.isVisible()
             assert 'one local file or folder' in page.status.text()
             qtbot.keyClick(page.path_edit, Qt.Key_Return)
-        qtbot.waitUntil(lambda: not page._runner.is_busy() and page._requested == str(second), timeout=5000)
-        assert [card._key for card in page.field.cards] == ['foreign', 'regex', 'graph_builder', 'gate_editor', 'make_masks', 'mask', 'convert']
+        qtbot.waitUntil(lambda: not page._runner.is_busy() and page._requested == str(second)
+                       and bool(page._last_result) and page._last_result['path'] == str(second), timeout=5000)
+        assert [card._key for card in page.field.cards] == ['foreign', 'graph_builder', 'gate_editor']
         assert page.field.cards[0]._key == 'foreign'
         assert page.field.cards[0]._path == str(second)
-        assert page.field.cards[1]._proposal['example_path'] == str(first)
+        assert all(card._key not in ('regex', 'make_masks', 'mask') for card in page.field.cards)
+        assert all(card._key != 'convert' for card in page.field.cards)
         assert all(card._path == str(second) for card in page.field.cards
                    if card._key in ('graph_builder', 'gate_editor'))
-        assert all(card._path == str(tmp_path) for card in page.field.cards
-                   if card._key in ('make_masks', 'mask', 'convert'))
         assert page._last_result['path'] == str(second)
         assert all(card._path != str(first) for card in page.field.cards if card._key != 'regex')
         assert 'first.tif' not in page.status.text()
@@ -365,7 +382,10 @@ def test_actual_window_drop_handoff_and_easy_dock_preserve_ordinary_preferences(
         assert preferences.get_dock_mode() == 'hidden'
         preferences.set_easy_mode_dock(False)
         window.refresh_after_preferences({"easy_mode_dock"})
-        assert window._dock_mode == 'hidden'
+        assert window._dock_mode == 'locked'
+        assert window._dock_edge.isVisible() and window._dock_edge.is_collapsed()
+        assert preferences.get_easy_mode_dock() is False
+        assert preferences.get_dock_mode() == 'hidden'
         from PySide6.QtWidgets import QDialog
         from spacr.qt.widgets import ambient
 
@@ -407,7 +427,7 @@ def test_actual_window_drop_handoff_and_easy_dock_preserve_ordinary_preferences(
         assert drop.isAccepted()
         assert window._stack.currentWidget() is page
         assert 'home' not in window._screens
-        qtbot.waitUntil(lambda: {'make_masks', 'mask', 'convert'} <=
+        qtbot.waitUntil(lambda: {'make_masks', 'mask'} <=
                        {card._key for card in page.field.cards}, timeout=5000)
         assert page.path_edit.text() == str(image)
         assert window._stack.currentWidget() is page
@@ -442,7 +462,8 @@ def test_actual_window_drop_handoff_and_easy_dock_preserve_ordinary_preferences(
         window.apply_dock_mode()
         window._rebuild_startup_page()
         assert isinstance(window._startup, HomePage)
-        assert preferences.get_dock_mode() == window._dock_mode == 'hidden'
+        assert preferences.get_dock_mode() == 'hidden'
+        assert window._dock_mode == 'locked' and window._dock_edge.isVisible()
     finally:
         from shiboken6 import isValid
 
@@ -558,7 +579,7 @@ def test_editable_regex_card_colors_captures_and_requires_explicit_validation(
         assert card.pattern_edit.toPlainText()
         for capture in card._proposal.get('groups', ()):
             assert 'color:' + card._highlight.colors[capture['name']] in card.description.text()
-        assert {'convert', 'mask', 'make_masks'} <= {item._key for item in page.field.cards}
+        assert {'mask', 'make_masks'} <= {item._key for item in page.field.cards}
         assert not page._settings_overrides
         pattern = (r'scan_(?P<fieldID>[0-9]+)_C(?P<chanID>[12])\.tif$'
                    if valid else r'(?P<fieldID>missing)')
@@ -589,7 +610,7 @@ def test_editable_regex_card_colors_captures_and_requires_explicit_validation(
         else:
             assert isinstance(page.field.cards[0], _EasyRegexCard)
             assert page.field.cards[0].error.text()
-            assert {'convert', 'mask', 'make_masks'} <= {item._key for item in page.field.cards}
+            assert {'mask', 'make_masks'} <= {item._key for item in page.field.cards}
             assert not page._settings_overrides
         assert _bytes(images) == original
     finally:
@@ -707,14 +728,22 @@ def test_confirmed_regex_card_handoff_seeds_native_mask_without_reconfiguration(
 
         monkeypatch.setattr(qc_field_browser, '_open_overview_module', overview)
         window._on_nav_selected('__home__')
+        assert page._workflow is None and page.path_edit.text() == '' and not page.field.cards
+        before_loads = len(loads)
+        page.accept_paths([str(container)])
+        qtbot.waitUntil(lambda: not page._runner.is_busy() and any(
+            item._key == 'mask' for item in page.field.cards), timeout=5000)
+        assert len(loads) == before_loads
+        next(item for item in page.field.cards if item._key == 'mask').click()
         workflow = page._workflow
         neighbor = workflow.view.nodes['overview']
         workflow.view.ensureVisible(neighbor)
         qtbot.mouseClick(workflow.view.viewport(), Qt.LeftButton,
                          pos=workflow.view.mapFromScene(neighbor.sceneBoundingRect().center()))
-        assert workflow.central._key == 'overview' and opened == []
+        assert workflow.central._key == 'mask' and workflow._chosen_key == 'overview' and opened == []
         assert window._stack.currentWidget() is page
-        workflow.central.click()
+        qtbot.mouseClick(workflow.view.viewport(), Qt.LeftButton,
+                         pos=workflow.view.mapFromScene(neighbor.sceneBoundingRect().center()))
         qtbot.waitUntil(lambda: bool(opened) and getattr(target, '_overview_tab', None) is not None, timeout=10000)
         assert opened[0][0] is target and opened[0][1]['src'] == str(tmp_path)
         assert 'overview' not in window._screens and 'home' not in window._screens
@@ -846,16 +875,23 @@ def test_workflow_selection_hover_and_escape_preserve_the_verified_input(
         qtbot.waitUntil(lambda: 'Measure' in workflow.details.toPlainText())
         assert workflow.details.geometry() == geometry
         assert workflow.central._key == 'mask' and chosen == []
+        original_nodes = {key: node.pos() for key, node in workflow.view.nodes.items() if node.isVisible()}
+        original_edges = {(edge.edge['from'], edge.edge['to']) for edge in workflow.view.edges}
         qtbot.mouseClick(workflow.view.viewport(), Qt.LeftButton,
                          pos=workflow.view.mapFromScene(neighbor.sceneBoundingRect().center()))
-        assert workflow.central._key == 'measure' and chosen == []
+        assert workflow.central is selected_card and workflow._chosen_key == 'measure' and chosen == []
+        assert all(workflow.view.nodes[key].pos() == position for key, position in original_nodes.items())
+        assert original_edges <= {(edge.edge['from'], edge.edge['to']) for edge in workflow.view.edges}
+        assert neighbor.highlighted
         assert QRect(workflow.central.mapToGlobal(QPoint()), workflow.central.size()) == original_rect
         assert workflow.central.icon.pixmap().devicePixelRatioF() == device_ratio(workflow.central.icon)
         expected = workflow.central._module_icon.pixmap(round(96 * device_ratio(workflow.central.icon)),
                                                        round(96 * device_ratio(workflow.central.icon)))
         expected.setDevicePixelRatio(device_ratio(workflow.central.icon))
         assert workflow.central.icon.pixmap().toImage() == expected.toImage()
-        assert workflow.central._path == ''
+        from spacr.qt.iconset import app_icon
+        assert neighbor._glyph.pixmap(96).toImage() == app_icon('measure', theme='dark').pixmap(96).toImage()
+        assert workflow.central._path == str(tmp_path)
         assert len(workflow.view.branch_records) == 4
         assert {record['to'] for record in workflow.view.branch_records} == {
             'annotate', 'classify_merged', 'umap', 'graph_builder'}
@@ -927,7 +963,7 @@ def test_workflow_selection_hover_and_escape_preserve_the_verified_input(
         next_popup.scrollTo(next_index)
         qtbot.waitUntil(lambda: next_popup.visualRect(next_index).intersects(next_popup.viewport().rect()))
         qtbot.mouseClick(next_popup.viewport(), Qt.LeftButton, pos=next_popup.visualRect(next_index).center())
-        assert workflow.central._key == additional and chosen == []
+        assert workflow.central is selected_card and workflow._chosen_key == additional and chosen == []
         workflow.tools.showPopup()
         index = workflow.tools.model().index(workflow.tools.findData('make_masks'), 0)
         popup = workflow.tools.view()
@@ -936,9 +972,12 @@ def test_workflow_selection_hover_and_escape_preserve_the_verified_input(
         popup.scrollTo(index)
         qtbot.waitUntil(lambda: popup.visualRect(index).intersects(popup.viewport().rect()))
         qtbot.mouseClick(popup.viewport(), Qt.LeftButton, pos=popup.visualRect(index).center())
-        assert workflow.central._key == 'make_masks' and chosen == []
-        assert workflow.central._path == str(images[0])
-        workflow.central.click()
+        assert workflow.central is selected_card and workflow._chosen_key == 'make_masks' and chosen == []
+        assert workflow.routes['make_masks'][3] == str(images[0])
+        child = workflow.view.nodes['make_masks']
+        workflow.view.ensureVisible(child)
+        qtbot.mouseClick(workflow.view.viewport(), Qt.LeftButton,
+                         pos=workflow.view.mapFromScene(child.sceneBoundingRect().center()))
         assert chosen == [('make_masks', str(images[0]))]
         qtbot.keyClick(workflow.central, Qt.Key_Escape)
         assert page._workflow is None and page.path_edit.isVisible()
@@ -981,7 +1020,7 @@ def test_network_emerges_around_the_same_card_and_live_reduce_motion_finishes_it
         source.click()
         workflow = page._workflow
         assert workflow.central is source and page.field is field and field.isVisible()
-        assert page._suggestions_scroll.isVisible() and workflow._transition.duration() == 2200
+        assert page._suggestions_scroll.isVisible() and workflow._transition.duration() == 500
         assert workflow.property('spacrAmbientTransparentOverlay') is True
         assert not workflow.autoFillBackground() and not workflow.testAttribute(Qt.WA_OpaquePaintEvent)
         assert workflow._progress == 0.0
