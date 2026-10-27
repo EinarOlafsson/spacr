@@ -2,7 +2,7 @@
 EASY MODE: A CONTENT-GUIDED HOME WITH AN ANIMATED PATH AND DROP FIELD
 ================================================================================
 
-Status:    IN PROGRESS — current Easy grid/workflow extension; native acceptance and normal outputs pending
+Status:    COMPLETE — Easy grid/workflow extension implemented and validated; published with this change
 Requested: maintainer, 2026-10-26
 Owner:     Codex integration; G1 Home UI; G2 registry/workflow mapping; G4 inference; root publication
 Related:   startup options, Preferences, Home, dock, spaCR AI
@@ -166,4 +166,4 @@ All 21 final owning source/API/runtime/Help/flow checks pass, preserving publish
 
 2026-10-27 — Maintainer adds a two-stage centered workflow tree with actual module/submodule cards, mode-labelled truthful IO edges, strength thickness, fixed scrollable hover descriptions and Escape/Back restoration. Requirements recorded before implementation; G1 retains UI, G2 maps actual registry/workflows, and the integration owner retains one final source/translation/output closure and root publication. Existing v2 fixes and passing controls remain valid.
 
-2026-10-27 — Reopen Easy mode for general input discovery, editable validated regex, ordered whole-card suggestions and a two-click registered workflow tree. Affected inference/process, native-route and workflow interaction controls pass; Selected workflow cards must remain prominent, with centered larger icons and readable titles; genuine upstream/downstream branches surround selection and compatible lines appear only for the inspected neighborhood. Both-theme native visual acceptance, changed locale outputs and root publication remain in progress.
+2026-10-27 — General input discovery, editable validated regex, ordered cards and two-click workflow navigation are implemented. Prominent centered cards, genuine branches, fixed descriptions and input handoff passed focused functional and both-theme native acceptance. All 144 new runtime targets passed nine normal locale admissions and independent output review; normal consumer/flow outputs and all eight final coherence checks pass. API records and the published API memory pin are unchanged. Delivered through the root Night publication; release CI remains separately tracked in item 43.

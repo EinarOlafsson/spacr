@@ -16847,7 +16847,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "fps",
-    "line": 14252,
+    "line": 14258,
     "module": "spacr.qt.widgets.ambient",
     "nested": false,
     "qualname": "install_ambient"
@@ -52965,6 +52965,15 @@
     "module": "spacr.psf_pipeline",
     "nested": false,
     "qualname": "_prepare_measure_unmixing"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "src",
+    "line": 7155,
+    "module": "spacr.qt.app",
+    "nested": false,
+    "qualname": "MainWindow._open_easy_suggestion"
    },
    {
     "form": "subscript",

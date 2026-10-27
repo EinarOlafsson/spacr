@@ -9,3 +9,5 @@ Reproduce on an owned native Linux display, identify the actual repaint, backing
 Acceptance: a focused regression for the demonstrated cause and native resize observation in both themes; retain explicit platform limitations where native macOS or Windows checks are unavailable. Regenerate affected outputs with their normal tools, then commit and push to nightly.
 
 2026-10-26 — Maintainer reports flashing popup contents and visible underlying background during resize. Root owns publication; the retained window-rendering coordinator owns reproduction and correction. Keep this independent of the current Easy mode and Overview publication.
+
+2026-10-27 — Four owned software Wayland popup/theme cases now have valid captures; the light/translucent retry recorded 120 resize events and 160 frames without buffer errors. Inspected frames did not reproduce flashing. Product source is unchanged; no fix or whole-item completion is claimed, and platform-specific reproduction remains open.
