@@ -2,9 +2,9 @@
 EASY MODE: A CONTENT-GUIDED HOME WITH AN ANIMATED PATH AND DROP FIELD
 ================================================================================
 
-Status:    READY for Night publication; implementation, native validation and normal outputs accepted
+Status:    IN PROGRESS — current Easy workflow-tree extension; published behaviour retained
 Requested: maintainer, 2026-10-26
-Owner:     Codex G1; retained G2 persistence/UI peer; root publication
+Owner:     Codex Overview integration; G1 Home UI; G2 registry/workflow mapping; root publication
 Related:   startup options, Preferences, Home, dock, spaCR AI
 
 REQUIRED BEHAVIOUR
@@ -67,6 +67,32 @@ field displacement through bounded existing effects, preserve its colors,
 and skip motion when Reduce motion or animation is off. Opacity alone does
 not meet this interaction contract.
 
+WORKFLOW-TREE EXTENSION (2026-10-27)
+
+The first click on a suggestion selects and centers its card, hides the search
+field, and reveals an elegant skill-tree of all actual spaCR modules and
+submodules. A second click on the central card opens that module with the
+current input. Escape or a subtle Back control restores the suggestions.
+Keep a fixed-size, scrollable description box below the selected central card;
+hovering a node describes it without growing or obscuring the workflow.
+
+Cards represent actual modules or submodules only. Modes such as 3D are labels
+on connectors, for example Mask -> 3D -> supported downstream modules, rather
+than invented executable cards. Include Concatenate, Overview, OPS, timelapse
+and the other actual registered tools. Derive connections from their genuine
+input/output and workflow compatibility, with edge thickness showing the
+strength of that relationship; do not imply unsupported routes or silently
+process or convert inputs. Preserve bounded local inference, confirmed regex,
+Essential settings, ordinary-mode defaults and all accepted v2 behaviour.
+
+Acceptance must exercise first selection, centered graph/search transition,
+second-click module handoff, Escape/Back restoration, hover description scrolling
+and bounded layout. Check registry coverage and truthful mode/IO edges against
+actual module contracts; keep rendering and interaction usable at small and
+wide native sizes and with reduced motion. G1 retains the Home UI, G2 maps
+registry/IO/workflows independently, and the integration owner carries final
+source, changed translations and normal output closure through root publication.
+
 ACCEPTANCE
 
 With Easy mode off, retain the ordinary Home experience. With it on,
@@ -94,3 +120,5 @@ Native wide/small/return frames and both-theme lifecycle controls are accepted; 
 The 414 Easy drafts and 36 Overview drafts were independently reviewed; the final retargeted stage has 441 source-bound targets and all 18 normal API/runtime guards pass, with retired history preserved.
 Normal nine-language API/runtime, Help, consumer and settings-flow outputs are generated and independently accepted; four legitimate API arrivals have exact source-bound test admission, with historical ratchets unchanged.
 All 21 final owning source/API/runtime/Help/flow checks pass, preserving published catalog bytes; root owns the coherent Night push and shared editable-checkout update. No release or hosted-CI waiting condition remains.
+
+2026-10-27 — Maintainer adds a two-stage centered workflow tree with actual module/submodule cards, mode-labelled truthful IO edges, strength thickness, fixed scrollable hover descriptions and Escape/Back restoration. Requirements recorded before implementation; G1 retains UI, G2 maps actual registry/workflows, and the integration owner retains one final source/translation/output closure and root publication. Existing v2 fixes and passing controls remain valid.
