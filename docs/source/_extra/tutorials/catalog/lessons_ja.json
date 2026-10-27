@@ -2604,10 +2604,10 @@
           "visual": "26_detail_coefficients",
           "narration": "次の手順として、ツールバーからVolcano Explorer、Hit List、Investigate Hitのいずれかを開きます。それぞれのチュートリアルで、選んだ結果の調べ方を説明しています。解析を共有するときは、入力の表、保存した設定、結果のファイル、診断レポートを一緒にしておきます。",
           "hold_after": 0.7,
+          "speech_text": "次の手順として、ツールバーからVolcano Explorer、Hit List、Investigate Hitのいずれかを開きます。それぞれのチュートリアルで、選んだ結果の調べ方を説明しています。解析を共有するときは、入力の表、保存した設定、結果のファイル、診断レポートを一緒にしておきます。",
           "related_lessons": [
             "48_hit_list"
-          ],
-          "speech_text": "次の手順として、ツールバーからVolcano Explorer、Hit List、Investigate Hitのいずれかを開きます。それぞれのチュートリアルで、選んだ結果の調べ方を説明しています。解析を共有するときは、入力の表、保存した設定、結果のファイル、診断レポートを一緒にしておきます。"
+          ]
         }
       ],
       "narration_voices": {
