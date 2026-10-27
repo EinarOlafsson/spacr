@@ -462,3 +462,8 @@ Native60 probe on40722add65 passesboth raw gates:Home29.69/Preferences29.44disti
 Observed run cap60→30 and136ms GPU/GIL hold→30sCPU fallback; laterresults stayeffective60 but captured13.8–25.86distinctfps despite observedpaints. No long GUI deadlock inferred; short stacks reported in AI/HANDOFF.
 Codex retains13 ownership: no further identical take; review clean source intervals preserving genuine actions and fullyrenderedresults, omit ALLfailedrawbuckets through normalguardedediting; any normal-app rendering fix remains Home-owned.
 Next04 scope is2 current-nightly GUI clips plusvalidation/retention of12 installer references; do not call2clips a fullyfresh14cliprecording. Startonlyafter13publication or genuinelyunrecoverablesource.
+
+2026-10-27 — Native13 source staging exposes obsolete authored FoldButton spotlight: current Home frame has Regression AppTile/sidebar but no FoldButton. Preserve canonical narration and all50 audio tracks.
+Codex driver/root own the narrow recapture-focus repair: exact frame-bound focus replacement must supersede obsolete authored lookup; wrong lesson/module/frame/scene maps still fail. Forward existing focus-map input through the normal private builder.
+Require affected real behavior checks once, then fresh source stage/clock/master acceptance and reviewed clean cuts with all15 source fences before final publication. Preserve the failed initial private stage; no gate weakening or invented UI focus.
+Actual26 selected focus/recapture/geometry cases pass; fresh13 source stage with exact15-frame focus map nowstages successfully, original failedgates unchanged. Source clock/master and four reviewed cuts/all15 fences remain pending.

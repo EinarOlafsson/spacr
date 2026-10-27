@@ -207,27 +207,30 @@ def stage_lesson(lesson_path, capture_module, stage, *, check_only=False, focus_
                               'receipt': os.path.relpath(receipt_path, destination),
                               'receipt_sha256': clip['receipt_sha256'],
                               'duration': receipt['duration']}
-        if 'focus' in scene:
-            visual['focus'] = scene['focus']
-        if 'focus_modules' in scene:
-            selected = []
-            for key in scene['focus_modules']:
-                matches = [b for b in frame['buttons'] if
-                           b.get('module_key') == key or b.get('nav_key') == key]
-                # A Home tile and the left navigation can share a key. Use the
-                # tile, which is the larger recorded control, not both regions.
-                if not matches:
-                    raise ValueError(f'No visible control for module {key}')
-                selected.append(max(matches, key=lambda b: b['rect'][2] * b['rect'][3])['rect'])
-            visual['focus'] = union(selected)
-        if 'focus_buttons' in scene:
-            visual['focus'] = union([b['rect'] for b in frame['buttons']
-                                     if b['name'] == scene['focus_buttons']])
+        if recapture is not None and recapture.get('frames', {}).get(scene['visual']) != frame['sha256']:
+            raise ValueError(f'Recapture focus is bound to different frame bytes: {scene["visual"]}')
+        replaces_authored = (recapture is not None
+                             and overrides['scenes'][scene['visual']] is not None)
+        if not replaces_authored:
+            if 'focus' in scene:
+                visual['focus'] = scene['focus']
+            if 'focus_modules' in scene:
+                selected = []
+                for key in scene['focus_modules']:
+                    matches = [b for b in frame['buttons'] if
+                               b.get('module_key') == key or b.get('nav_key') == key]
+                    # A Home tile and the left navigation can share a key. Use the
+                    # tile, which is the larger recorded control, not both regions.
+                    if not matches:
+                        raise ValueError(f'No visible control for module {key}')
+                    selected.append(max(matches, key=lambda b: b['rect'][2] * b['rect'][3])['rect'])
+                visual['focus'] = union(selected)
+            if 'focus_buttons' in scene:
+                visual['focus'] = union([b['rect'] for b in frame['buttons']
+                                         if b['name'] == scene['focus_buttons']])
         if overrides is not None:
             if recapture is None and 'focus' in visual:
                 raise ValueError('A visual-only focus map cannot override an authored focus')
-            if recapture is not None and recapture.get('frames', {}).get(scene['visual']) != frame['sha256']:
-                raise ValueError(f'Recapture focus is bound to different frame bytes: {scene["visual"]}')
             region = overrides['scenes'][scene['visual']]
             if region is not None:
                 visual['focus'] = region
