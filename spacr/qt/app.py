@@ -7131,15 +7131,48 @@ class MainWindow(QMainWindow):
         from .widgets.home import _EasyHomePage
 
         if isinstance(self._startup, _EasyHomePage):
-            self._on_nav_selected("home")
+            self._on_nav_selected("__home__")
             self._startup.accept_paths(paths)
 
     def _open_easy_suggestion(self, key, path):
         """Open an inspected input through the destination's existing native input route."""
+        workflow = getattr(self._startup, '_workflow', None)
+        node = workflow.data['modules'].get(key, {}) if workflow is not None else {}
+        if node.get('route') == 'overview':
+            from pathlib import Path
+            from .widgets.qc_field_browser import _open_overview_module
+
+            owner_key = node['host_key']
+            if not app_is_visible(owner_key):
+                self.statusBar().showMessage(tr("This module is hidden by the current application preferences."), 5000)
+                return
+            target = self.open_module(owner_key)
+            owner = _opened_module_screen(self, owner_key, target)
+            if owner is not None:
+                settings = owner._settings_model.collect()
+                if path:
+                    source = Path(path)
+                    settings['src'] = str(source.parent if source.is_file() else source)
+                _open_overview_module(owner, settings)
+            return
         if not app_is_visible(key):
             self.statusBar().showMessage(tr("This module is hidden by the current application preferences."), 5000)
             return
-        if key in ("make_masks", "db_browser", "foreign"):
+        if not path:
+            self.open_module(key)
+            return
+        if workflow is not None and key in workflow.native_routes:
+            from pathlib import Path
+            from .dnd_handlers import get_handler
+
+            target = self.open_module(key)
+            widget = _opened_module_screen(self, key, target)
+            handler = get_handler(key)
+            source = Path(path)
+            if widget is not None and handler.can_accept(source):
+                handler.apply(source, widget)
+            return
+        if key in ("make_masks", "db_browser", "foreign", "convert"):
             target = self.open_module(key)
             widget = _opened_module_screen(self, key, target)
             if widget is not None:
@@ -7147,10 +7180,34 @@ class MainWindow(QMainWindow):
                     widget.open_paths([path])
                 elif key == "db_browser":
                     widget.set_database(path)
+                elif key == "convert":
+                    widget.set_source(path)
                 else:
                     widget.set_measurements(path)
         else:
-            self._on_train_requested(key, {"src": path})
+            native_container = getattr(self._startup, '_last_result', None) or {}
+            if key == 'mask' and native_container.get('context', {}).get('native_mask_container') == path:
+                from pathlib import Path
+                from .dnd_handlers import MaskDropHandler
+
+                target = self.open_module(key)
+                widget = _opened_module_screen(self, key, target)
+                if widget is not None:
+                    MaskDropHandler().apply(Path(path), widget)
+                return
+            seed = {"src": path}
+            overrides = getattr(self._startup, '_settings_overrides', {}).get(key, {})
+            if overrides:
+                seed.update(overrides)
+                target = self.open_module(key)
+                widget = _opened_module_screen(self, key, target)
+                apply = getattr(widget, 'apply_settings_dict', None)
+                if callable(apply):
+                    apply(seed)
+                else:
+                    self._on_train_requested(key, seed)
+            else:
+                self._on_train_requested(key, seed)
 
     def _show_the_screensaver(self) -> bool:
         """Open the backdrop full screen, with nothing else on it.
