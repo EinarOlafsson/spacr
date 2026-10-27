@@ -2375,6 +2375,9 @@ def _cellpose_segmenter(path: str, *, return_metrics: bool = False,
     except Exception:
         kwargs = {"gpu": False}
     kwargs.pop("device", None)
+    from .model_zoo import _model_precision_kwargs
+
+    kwargs = _model_precision_kwargs(path, kwargs)
     try:
         model = models.CellposeModel(pretrained_model=path, device=None,
                                      **kwargs)

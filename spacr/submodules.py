@@ -1829,6 +1829,9 @@ def _plaque_cellpose_model(model_path):
     except Exception:
         kwargs = {'gpu': False}
     kwargs.pop('device', None)
+    from .model_zoo import _model_precision_kwargs
+
+    kwargs = _model_precision_kwargs(model_path, kwargs)
     try:
         return cp_models.CellposeModel(pretrained_model=model_path,
                                        device=None, **kwargs)
