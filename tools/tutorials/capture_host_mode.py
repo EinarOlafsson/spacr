@@ -62,7 +62,7 @@ PAINT_COUNTER_SEMANTICS = 'observed_per_widget_deltas'
 
 #: The capture profile (maintainer decisions, 2026-10-11).
 CAPTURE_PROFILE = {
-    'field_held_fps': 30,
+    'field_held_fps': 60,
     'theme': 'dark',
     'field': 'data_art_impulse_lens',
     # Maintainer 2026-10-24: record the app's CURRENT defaults -- the field at its shipped density

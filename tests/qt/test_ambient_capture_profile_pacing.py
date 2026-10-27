@@ -57,7 +57,7 @@ def test_capture_profile_request_precedes_application_start():
     tree = ast.parse(path.read_text())
     profile = next(n.value for n in tree.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='CAPTURE_PROFILE' for t in n.targets))
     entries = {k.value:v for k,v in zip(profile.keys,profile.values)}
-    assert ast.literal_eval(entries['field_held_fps']) == 30
+    assert ast.literal_eval(entries['field_held_fps']) == 60
     child = next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='run_child')
     request = [n for n in ast.walk(child) if isinstance(n,ast.Call) and isinstance(n.func,ast.Name) and n.func.id=='_set_capture_held_fps']
     launch = [n for n in ast.walk(child) if isinstance(n,ast.Call) and isinstance(n.func,ast.Attribute) and ast.unparse(n.func)=='spacr.qt.run']
