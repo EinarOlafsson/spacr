@@ -9,6 +9,7 @@ import functools
 import json
 import logging
 import os
+import re
 import threading
 from dataclasses import replace
 from pathlib import Path
@@ -97,6 +98,78 @@ APP_INTRO = (
 _COLUMNS = (
     "Job", "Status", "Module", "Profile", "Remote ID", "Submitted", "Updated",
 )
+
+_CONNECTION_PROFILE_FIELDS = (
+    'host', 'workdir', 'local_root', 'remote_root', 'ssh_options',
+    'ssh_interactive', 'ssh_keychain', 'auth_mode', 'ssh_command',
+    'login_hosts', 'poll_seconds',
+)
+
+
+def _check_profile_transfer_secrets(value):
+    """Refuse credential values while retaining paths and environment references."""
+    refused = tr("Profile files may not contain passwords, verification codes, tokens or private-key contents. Use non-secret references.")
+    names = r'(?:[A-Za-z0-9]+_)*(?:password|passwd|passphrase|otp|mfa|mfa_reply|verification_code|one_time_password|api_key|access_token|secret_key|token|secret|private_key)'
+    names = names.replace('_', '[_-]')
+    secret = re.compile(names, re.I)
+    reference = re.compile(r'(?:\$\{[A-Za-z_][A-Za-z0-9_]*\}|\$[A-Za-z_][A-Za-z0-9_]*|%[A-Za-z_][A-Za-z0-9_]*%)')
+    if isinstance(value, dict):
+        for key, item in value.items():
+            if secret.fullmatch(str(key).replace('-', '_')) and item is not None and item != '' and item is not False:
+                if not isinstance(item, str) or not reference.fullmatch(item.strip()):
+                    raise RemoteExecutionError(refused)
+            _check_profile_transfer_secrets(item)
+    elif isinstance(value, list):
+        for item in value:
+            _check_profile_transfer_secrets(item)
+    elif isinstance(value, str):
+        if re.search(r'-----BEGIN [A-Z ]*PRIVATE KEY-----|\bsshpass\b', value, re.I):
+            raise RemoteExecutionError(refused)
+        assignments = r'(?<![A-Za-z0-9_])(?:' + names + r'\s*[:=]\s*|--' + names + r'(?:=|\s+))'
+        for match in re.finditer(assignments + r'("[^"]*"|\'[^\']*\'|[^\s;]+)', value, re.I):
+            if not reference.fullmatch(match.group(1).strip('\"\'')):
+                raise RemoteExecutionError(refused)
+
+
+def _validate_profile_transfer(value, scope):
+    """Validate a bounded transfer document before any form or store changes."""
+    from ...cli import MODULES
+
+    _check_profile_transfer_secrets(value)
+    invalid = tr("Remote profile contains unsupported or incompatible fields.")
+    if (scope not in ('job', 'connection') or not isinstance(value, dict) or value.get('format') != 'spacr-remote-profile'
+            or type(value.get('version')) is not int or value.get('version') != 1 or value.get('scope') != scope
+            or set(value) - {'format', 'version', 'scope', 'profile', 'job'}):
+        raise RemoteExecutionError(invalid)
+    profile = value.get('profile')
+    allowed = set(ExecutionProfile.__dataclass_fields__) if scope == 'job' else {'name', *_CONNECTION_PROFILE_FIELDS}
+    if not isinstance(profile, dict) or set(profile) - allowed:
+        raise RemoteExecutionError(invalid)
+    defaults = ExecutionProfile('imported', 'ssh').to_dict()
+    for key, item in profile.items():
+        if key not in defaults or type(item) is not type(defaults[key]):
+            raise RemoteExecutionError(invalid)
+    if 'resources' in profile and any(not isinstance(item, str) for item in profile['resources'].values()):
+        raise RemoteExecutionError(invalid)
+    if scope == 'job':
+        ExecutionProfile.from_dict(profile)
+        job = value.get('job')
+        if (not isinstance(job, dict)
+                or set(job) != {'module', 'settings_path', 'settings_snapshot', 'allocation_id', 'allocated_gpus'}
+                or not isinstance(job.get('module'), str) or job.get('module') not in MODULES
+                or not isinstance(job.get('settings_path'), str)
+                or '\0' in job.get('settings_path', '')
+                or not isinstance(job.get('allocation_id'), str)
+                or type(job.get('allocated_gpus')) is not bool
+                or (job.get('settings_snapshot') is not None and not isinstance(job['settings_snapshot'], dict))
+                or (job.get('settings_snapshot') is None and not job.get('settings_path', '').strip())):
+            raise RemoteExecutionError(invalid)
+    elif 'job' in value or set(profile) != {'name', *_CONNECTION_PROFILE_FIELDS}:
+        raise RemoteExecutionError(invalid)
+    encoded = json.dumps(value, allow_nan=False)
+    if len(encoded.encode('utf-8')) > 2 * 1024 * 1024:
+        raise RemoteExecutionError(tr("Remote profile is too large."))
+    return json.loads(encoded)
 _EXAMPLES = {
     "scheduler": "--constraint=v100",
     "login_hosts": "gl-login*, *login*",
@@ -1083,6 +1156,21 @@ class DistributedJobsScreen(QWidget):
         profile_row.addWidget(QLabel("Execution target", self))
         profile_row.addWidget(self._profile, 1)
         submit_card.body_layout.addLayout(profile_row)
+        self._profile_transfer_buttons = []
+        for label, name, scope, saving in (
+                (tr('Save job profile…'), 'SaveJobProfile', 'job', True),
+                (tr('Import job profile…'), 'ImportJobProfile', 'job', False),
+                (tr('Save connection profile…'), 'SaveConnectionProfile', 'connection', True),
+                (tr('Import connection profile…'), 'ImportConnectionProfile', 'connection', False)):
+            if saving:
+                transfer = QHBoxLayout()
+                submit_card.body_layout.addLayout(transfer)
+            button = QPushButton(label, self)
+            button.setObjectName(name)
+            button.clicked.connect(functools.partial(
+                self._save_profile_transfer if saving else self._import_profile_transfer, scope))
+            transfer.addWidget(button)
+            self._profile_transfer_buttons.append(button)
         profile_buttons = QHBoxLayout()
         profile_buttons.addWidget(self._new_profile)
         profile_buttons.addWidget(self._edit_profile)
@@ -1485,6 +1573,146 @@ class DistributedJobsScreen(QWidget):
         except RemoteExecutionError:
             return None
 
+    def _profile_transfer_document(self, scope):
+        """Capture edited profile and job choices without saving or submitting."""
+        profile = self._current_profile() if scope == 'connection' else self._profile_from_editors()
+        if profile is None:
+            raise RemoteExecutionError(tr('Create an execution profile first.'))
+        record = profile.to_dict()
+        if scope == 'connection':
+            record = {key: record[key] for key in ('name', *_CONNECTION_PROFILE_FIELDS)}
+        document = dict(format='spacr-remote-profile', version=1, scope=scope, profile=record)
+        if scope == 'job':
+            document['job'] = dict(module=str(self._module.currentData() or ''),
+                                   settings_path=self._settings_path.text(),
+                                   settings_snapshot=self._settings_snapshot,
+                                   allocation_id=str(self._run_inside.currentData() or ''),
+                                   allocated_gpus=self._allocated_gpus.isChecked())
+        return _validate_profile_transfer(document, scope)
+
+    def _save_profile_transfer(self, scope, *_args):
+        """Save an explicit portable profile using the existing atomic JSON writer."""
+        from ...remote_execution import _write_json_atomic
+
+        if self._busy:
+            return
+        try:
+            document = self._profile_transfer_document(scope)
+            path, _ = QFileDialog.getSaveFileName(self, tr('Save profile'), '', 'JSON (*.json)')
+            if not path:
+                return
+            _write_json_atomic(Path(path), document)
+            self._set_status(tr('Remote profile saved: {path}').format(path=path))
+        except Exception as exc:
+            self._set_status(tr('Remote profile operation failed: {error}').format(error=str(exc)), error=True)
+
+    def _prepare_profile_transfer(self, document, scope):
+        """Resolve compatible target and allocation choices before the preview."""
+        document = _validate_profile_transfer(document, scope)
+        if scope == 'connection':
+            current = self._profile_from_editors()
+            if current is None:
+                raise RemoteExecutionError(tr('Create an execution profile first.'))
+            candidate = replace(current, **{key: document['profile'][key] for key in _CONNECTION_PROFILE_FIELDS}).validate()
+            allocation = str(self._run_inside.currentData() or '')
+        else:
+            candidate = ExecutionProfile.from_dict(document['profile'])
+            allocation = document['job']['allocation_id']
+        for spin, key in ((self._res_gpus, 'gpus'), (self._res_cpus, 'cpus'), (self._res_nodes, 'nodes')):
+            amount = candidate.resources.get(key, '')
+            if amount and (not str(amount).isdigit() or not spin.minimum() <= int(amount) <= spin.maximum()):
+                raise RemoteExecutionError(tr('Remote profile contains unsupported or incompatible fields.'))
+        profiles = self.manager.profiles.list()
+        if allocation:
+            try:
+                holder = self.manager.jobs.get(allocation)
+                stored = self.manager.profiles.get(holder.profile_name)
+                original = ExecutionProfile.from_dict(holder.profile) if holder.profile else stored
+                left, right, captured = candidate.to_dict(), stored.to_dict(), original.to_dict()
+                left.pop('name')
+                right.pop('name')
+                captured.pop('name')
+                if holder.module != 'allocation' or holder.status != 'running' or left != right or left != captured:
+                    raise ValueError('allocation mismatch')
+            except Exception:
+                raise RemoteExecutionError(tr('Selected allocation is unavailable or incompatible with this profile.')) from None
+            candidate = stored
+        elif not any(profile.to_dict() == candidate.to_dict() for profile in profiles):
+            names = {profile.name.casefold() for profile in profiles}
+            base, counter = candidate.name[:48], 1
+            name = candidate.name
+            while name.casefold() in names:
+                name = f'{base} imported {counter}'
+                counter += 1
+            candidate = replace(candidate, name=name)
+        return document, candidate, allocation
+
+    def _confirm_profile_transfer(self, document, candidate):
+        """Preview the exact validated values and require Apply before mutation."""
+        dialog = QDialog(self)
+        dialog.setWindowTitle(tr('Remote profile preview'))
+        layout = QVBoxLayout(dialog)
+        note = (tr('Import all saved job settings.')
+                if document['scope'] == 'job' else
+                tr('Import connection settings and keep the current job settings.'))
+        label = QLabel(note, dialog)
+        label.setWordWrap(True)
+        layout.addWidget(label)
+        preview = QPlainTextEdit(dialog)
+        preview.setObjectName('RemoteProfileImportPreview')
+        preview.setReadOnly(True)
+        shown = dict(document, profile=candidate.to_dict())
+        preview.setPlainText(json.dumps(shown, indent=2, ensure_ascii=False))
+        layout.addWidget(preview)
+        buttons = QDialogButtonBox(QDialogButtonBox.Apply | QDialogButtonBox.Cancel, parent=dialog)
+        buttons.button(QDialogButtonBox.Apply).clicked.connect(dialog.accept)
+        buttons.rejected.connect(dialog.reject)
+        buttons.button(QDialogButtonBox.Apply).setAutoDefault(False)
+        buttons.button(QDialogButtonBox.Cancel).setDefault(True)
+        layout.addWidget(buttons)
+        dialog.resize(720, 540)
+        return dialog.exec() == QDialog.Accepted
+
+    def _import_profile_transfer(self, scope, *_args):
+        """Validate and preview a local file, then fill the form after explicit Apply."""
+        if self._busy:
+            return
+        try:
+            path, _ = QFileDialog.getOpenFileName(self, tr('Import profile'), '', 'JSON (*.json)')
+            if not path:
+                return
+            with open(path, 'rb') as handle:
+                raw = handle.read(2 * 1024 * 1024 + 1)
+            if len(raw) > 2 * 1024 * 1024:
+                raise RemoteExecutionError(tr('Remote profile is too large.'))
+            document, candidate, allocation = self._prepare_profile_transfer(json.loads(raw), scope)
+            if not self._confirm_profile_transfer(document, candidate):
+                return
+            jobs = None
+            if allocation:
+                document, candidate, allocation = self._prepare_profile_transfer(document, scope)
+                jobs = self.manager.jobs.list()
+                if not any(job.job_id == allocation and job.status == 'running'
+                           and job.profile_name.casefold() == candidate.name.casefold() for job in jobs):
+                    raise RemoteExecutionError(tr('Selected allocation is unavailable or incompatible with this profile.'))
+            self.manager.profiles.save(candidate)
+            if jobs is not None:
+                self._jobs = jobs
+            self._editor_profile = None
+            self._reload_profiles(candidate.name)
+            if scope == 'job':
+                job = document['job']
+                self._module.setCurrentIndex(self._module.findData(job['module']))
+                self._settings_snapshot = job['settings_snapshot']
+                self._snapshot_module = job['module'] if self._settings_snapshot is not None else ''
+                self._settings_path.setText(job['settings_path'])
+                self._save_snapshot.setEnabled(self._settings_snapshot is not None)
+                self._allocated_gpus.setChecked(job['allocated_gpus'])
+            self._run_inside.setCurrentIndex(self._run_inside.findData(allocation))
+            self._set_status(tr('Remote profile imported.'))
+        except Exception as exc:
+            self._set_status(tr('Remote profile operation failed: {error}').format(error=str(exc)), error=True)
+
     def _load_profile_editors(self, *_args) -> None:
         """Show the selected profile's resources, script and remembered cluster."""
         profile = self._current_profile()
@@ -1792,7 +2020,7 @@ class DistributedJobsScreen(QWidget):
     def _set_busy(self, busy: bool) -> None:
         """Update semantic action states while a network call is active."""
         for button in (self._submit, self._refresh, self._cancel, self._logs,
-                       self._read_cluster_button, self._alloc_button):
+                       self._read_cluster_button, self._alloc_button, *self._profile_transfer_buttons):
             button.setEnabled(not busy)
         for button in (self._submit, self._refresh):
             button.setProperty("buttonActionBusy", bool(busy))

@@ -4,11 +4,17 @@ from capture_barcode_saved_plots import launch
 from capture_ui_drv_a import Rec
 
 
+def _actual_tooltip_matches(visible, displayed, authored):
+    from spacr.qt.tooltip_policy import _wrapped_tooltip
+    return bool(visible and authored and displayed and displayed == _wrapped_tooltip(authored))
+
+
 def record_overview(app, window, captures, capture, settle, write_json):
     from PySide6.QtCore import Qt, QPoint, QEvent
     from PySide6.QtGui import QHelpEvent
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import QAbstractButton, QComboBox, QToolTip
+    from spacr.qt.tooltip_policy import _wrapped_tooltip
     from spacr.qt.widgets.fold_strip import FoldButton
     from spacr.qt.screens.classify import FOLDED_APPS
     from spacr.qt.screens.feature_explorer import FeatureExplorerScreen
@@ -61,16 +67,14 @@ def record_overview(app, window, captures, capture, settle, write_json):
         # Host: the clip starts with the pointer elsewhere, then it glides to
         # the button and rests until the real tooltip shows.
         tip = Rec(capture, '05_' + key + '_tooltip', settle, desktop=True).start()
-        QTest.mouseMove(window, QPoint(400, 800)); settle(.15)
         QTest.mouseMove(button, button.rect().center()); settle(2.6)  # tooltip_policy waits ~2 s
         # Private Xvfb has no window manager to activate native hover timers.
         # Deliver Qt's real help event to the real button; its production
         # filters, text and popup rendering remain in charge. No popup text
         # is supplied or fabricated by the recorder. (The host's real pointer
         # shows the genuine tooltip, so this fallback is Xvfb only.)
-        # A folded button keeps no toolTip() of its own now (the screen's API tooltip filter
-        # answers on hover), so the shown text is checked as non-empty, and against toolTip() only when set.
-        tip_ok = lambda: QToolTip.isVisible() and bool(QToolTip.text()) and (not button.toolTip() or QToolTip.text() == button.toolTip())
+        # Match the production wrapping of this button's own complete text.
+        tip_ok = lambda: _actual_tooltip_matches(QToolTip.isVisible(), QToolTip.text(), button.toolTip())
         simulated_help_event = not tip_ok()
         if simulated_help_event:
             point = button.rect().center()
@@ -80,7 +84,8 @@ def record_overview(app, window, captures, capture, settle, write_json):
             tip.abort()
             raise ValueError('The actual hover tooltip did not appear: ' + key)
         tip.stop()
-        rows.append(dict(key=key, tooltip=button.toolTip(),
+        rows.append(dict(key=key, tooltip=_wrapped_tooltip(button.toolTip()),
+                         authored_tooltip=button.toolTip(),
                          displayed_tooltip=QToolTip.text(),
                          simulated_native_help_event=simulated_help_event,
                          x=button.mapTo(window, QPoint(0, 0)).x()))

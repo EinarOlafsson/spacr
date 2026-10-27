@@ -3726,7 +3726,81 @@ def _easy_read_header(path, limit, offset=0):
         os.close(descriptor)
 
 
-def _easy_file_kind(path):
+def _easy_axes_metadata(raw):
+    """Retain explicit T/Z sizes from bounded TIFF descriptions without guessing axes."""
+    import json
+
+    text = raw.rstrip(b'\x00').decode('utf-8', errors='replace')
+    try:
+        value = json.loads(text)
+    except ValueError:
+        value = {}
+    if isinstance(value, dict) and isinstance(value.get('axes'), str) and isinstance(value.get('shape'), list):
+        axes, shape = value['axes'], value['shape']
+        if len(axes) == len(shape) and all(isinstance(size, int) and size > 0 for size in shape):
+            dimensions = dict(zip(axes.upper(), shape))
+            return dict(axes=axes, shape=shape, t=dimensions.get('T', 1), z=dimensions.get('Z', 1))
+    dimensions = {axis: int(value) for axis, value in re.findall(r'\bSize([TZC])=["\'](\d+)["\']', text)}
+    if dimensions:
+        return dict(t=dimensions.get('T', 1), z=dimensions.get('Z', 1), axes='OME')
+    return {}
+
+
+def _easy_external_format(path, raw=b''):
+    """Recognize requested external document families without opening their readers."""
+    name = path.name.lower()
+    families = {
+        'flowjo': ('.wsp', '.wst', '.acs', '.fcs'),
+        'prism': ('.pzf', '.pzfx', '.prism'),
+        'chemdraw': ('.cdx', '.cdxml'),
+        'structure': ('.pdb', '.cif', '.mmcif', '.pdb.gz', '.cif.gz', '.mmcif.gz'),
+    }
+    for family, suffixes in families.items():
+        if name.endswith(suffixes):
+            return family
+    if path.suffix.lower() in ('.mrc', '.rec', '.map', '.npy', '.npz'):
+        return None
+    text = raw[:4096].decode('utf-8', errors='replace').strip()
+    if raw.startswith((b'FCS2.', b'FCS3.')) or re.match(r'(?is)^(?:<\?xml[^>]*>\s*)?<(?:Workspace|FlowJo)\b', text):
+        return 'flowjo'
+    if re.match(r'(?is)^(?:<\?xml[^>]*>\s*)?<GraphPadPrismFile\b', text):
+        return 'prism'
+    if re.match(r'(?is)^(?:<\?xml[^>]*>\s*)?<CDXML\b', text):
+        return 'chemdraw'
+    if re.match(r'(?i)^(?:AlphaFold\b|PDB\s+(?:model|structure)\b)', text):
+        return 'structure'
+    return None
+
+
+def _easy_external_guidance(family):
+    """Offer original-software guidance without inventing scientific readers."""
+    from ..i18n import tr
+
+    return {
+        'flowjo': tr('Open this FlowJo file in FlowJo. To use its measurements in spaCR, export a numeric CSV for Graph Builder or Gate Editor.'),
+        'prism': tr('Open this GraphPad Prism file in GraphPad Prism. To use its measurements in spaCR, export a numeric CSV for Graph Builder or Gate Editor.'),
+        'chemdraw': tr('Open this ChemDraw structure in ChemDraw or compatible chemistry software. spaCR does not read chemical structure documents.'),
+        'structure': tr('Open this PDB/mmCIF or AlphaFold model in ChimeraX or PyMOL. spaCR does not analyze molecular structures.'),
+    }[family]
+
+
+def _easy_external_reference(value):
+    """Recognize explicit non-path document references without network access."""
+    from pathlib import Path
+
+    text = str(value).strip()[:4096]
+    if Path(text).suffix.lower() in ('.mrc', '.rec', '.map', '.npy', '.npz'):
+        return None
+    for family, pattern in (('flowjo', r'\bflowjo\b'),
+                            ('prism', r'\b(?:graphpad(?:\s+prism)?|prism\s+(?:file|project|workspace))\b'),
+                            ('chemdraw', r'\bchemdraw\b'),
+                            ('structure', r'\b(?:pdb|mmcif|alphafold)\b')):
+        if re.search(pattern, text, re.I):
+            return family
+    return None
+
+
+def _easy_file_kind(path, metadata=None):
     """Inspect bounded local headers without decoding image pixels or loading arrays."""
     import csv
     import io
@@ -3754,6 +3828,7 @@ def _easy_file_kind(path):
         if len(entries) != count * entry_size:
             return 'unsupported'
         dimensions = {}
+        description = None
         organized = False
         for index in range(count):
             entry = entries[index * entry_size:(index + 1) * entry_size]
@@ -3770,14 +3845,48 @@ def _easy_file_kind(path):
                 inline = entry[12:] if big else entry[8:]
                 if width <= len(inline):
                     dimensions[tag] = int.from_bytes(inline[:width], endian)
+            if tag == 270 and kind == 2 and 0 < values <= 4096:
+                inline = entry[12:] if big else entry[8:]
+                description = (values, inline)
         if organized and dimensions.get(256, 0) > 0 and dimensions.get(257, 0) > 0:
             try:
                 Image._decompression_bomb_check((dimensions[256], dimensions[257]))
             except Image.DecompressionBombError:
                 return 'unsupported'
+            if metadata is not None:
+                metadata.update(shape=[dimensions[257], dimensions[256]], axes='YX', axes_unresolved=True)
+                if description:
+                    size, inline = description
+                    remaining = _EASY_HEADER_LIMIT - 16 - count_size - len(entries)
+                    if size <= remaining:
+                        raw = inline[:size] if size <= len(inline) else _easy_read_header(
+                            path, size, int.from_bytes(inline, endian))
+                        explicit = _easy_axes_metadata(raw)
+                        metadata.update(explicit)
+                        if explicit:
+                            metadata['axes_unresolved'] = False
             return 'image' if Path(path).suffix.lower() in IMAGE_EXTS else 'filename_format'
         return 'unsupported'
     header += _easy_read_header(path, _EASY_HEADER_LIMIT - 16, len(header))
+    if header.startswith(b'\x1f\x8b'):
+        import zlib
+
+        try:
+            sequence_header = zlib.decompressobj(16 + zlib.MAX_WBITS).decompress(header, _EASY_HEADER_LIMIT)
+        except zlib.error:
+            sequence_header = b''
+    else:
+        sequence_header = header
+    lines = sequence_header.splitlines()
+    external = _easy_external_format(path, sequence_header)
+    if external:
+        return 'external_' + external
+    if header.startswith(b'%PDF-'):
+        return 'pdf'
+    if (len(lines) >= 4 and lines[0].startswith(b'@') and lines[2].startswith(b'+')
+            and lines[1] and len(lines[1]) == len(lines[3])
+            and set(lines[1].upper()) <= set(b'ACGTNRYKMSWBDHV.')):
+        return 'fastq'
     if header.startswith(b'SQLite format 3\x00'):
         return 'database'
     if header.startswith(b'\x93NUMPY'):
@@ -3787,13 +3896,25 @@ def _easy_file_kind(path):
         version = read_magic(stream)
         reader = read_array_header_1_0 if version == (1, 0) else read_array_header_2_0
         shape, _, dtype = reader(stream, max_header_size=_EASY_HEADER_LIMIT)
-        return 'array' if len(shape) in (2, 3) and not dtype.hasobject else 'unsupported'
+        import math
+
+        valid = (2 <= len(shape) <= 5 and all(size > 0 for size in shape)
+                 and not dtype.hasobject and dtype.kind in 'buifc'
+                 and stream.tell() + math.prod(shape) * dtype.itemsize
+                 <= os.stat(path, follow_symlinks=False).st_size)
+        if metadata is not None:
+            metadata.update(shape=list(shape), axes='', axes_unresolved=True)
+        return 'array' if valid else 'unsupported'
     try:
         with Image.open(io.BytesIO(header)) as image:
             if image.width > 0 and image.height > 0:
                 from ...channel_sorting import IMAGE_EXTS
+                from ...convert import _image_extensions
 
-                return 'image' if Path(path).suffix.lower() in IMAGE_EXTS else 'filename_format'
+                suffix = Path(path).suffix.lower()
+                if suffix in IMAGE_EXTS:
+                    return 'image'
+                return 'import_image' if suffix in _image_extensions() else 'filename_format'
     except (UnidentifiedImageError, Image.DecompressionBombError, OSError, ValueError):
         pass
     try:
@@ -3804,14 +3925,417 @@ def _easy_file_kind(path):
             return 'table' if Path(path).suffix.lower() in ('.csv', '.tsv', '.txt') else 'filename_format'
     except (UnicodeError, csv.Error):
         pass
-    from ...convert import IMAGE_EXTENSIONS
+    from ...convert import _image_extensions
     from ..dnd_handlers import _MASK_FILE_EXTS
 
-    if Path(path).suffix.lower() in set(_MASK_FILE_EXTS) - set(IMAGE_EXTENSIONS) and header.startswith(b'PK\x03\x04'):
+    extensions = _image_extensions()
+    if Path(path).suffix.lower() in set(_MASK_FILE_EXTS) - set(extensions) and header.startswith(b'PK\x03\x04'):
         return 'native_container'
-    if Path(path).suffix.lower() in IMAGE_EXTENSIONS and Path(path).suffix.lower() not in ('.tif', '.tiff', '.png', '.jpg', '.jpeg', '.bmp'):
+    if Path(path).suffix.lower() in extensions and Path(path).suffix.lower() not in ('.tif', '.tiff', '.png', '.jpg', '.jpeg', '.bmp'):
         return 'container'
     return 'unsupported'
+
+
+def _easy_table_evidence(path):
+    """Inspect a bounded delimited sample for numeric features and sequencing identities."""
+    import csv
+    import io
+    import math
+
+    raw = _easy_read_header(path, _EASY_HEADER_LIMIT).decode('utf-8-sig')
+    dialect = csv.Sniffer().sniff(raw, delimiters=',\t;')
+    rows = list(csv.reader(io.StringIO(raw), dialect))[:8]
+    if len(rows) < 2:
+        return {}
+    columns = rows[0]
+    numeric = False
+    for row in rows[1:]:
+        for value in row:
+            try:
+                numeric = numeric or bool(value.strip()) and math.isfinite(float(value))
+            except ValueError:
+                pass
+    sequencing = ({'rowID', 'columnID'} <= set(columns)
+                  and bool({'grna', 'grna_name'} & set(columns))
+                  and bool({'count', 'counts', 'reads'} & set(columns)))
+    return dict(numeric=numeric, sequencing=sequencing, columns=columns[:64])
+
+
+def _easy_analysis_inputs(root, details=None):
+    """Reserve bounded discovery for scientific databases beneath immediate plate folders."""
+    from itertools import islice
+
+    folders = [root]
+    try:
+        with os.scandir(root) as entries:
+            folders.extend(type(root)(entry.path) for entry in islice(entries, 128)
+                           if not entry.name.startswith('.') and entry.is_dir(follow_symlinks=False))
+    except OSError:
+        return []
+    found = []
+    for folder in folders[:17]:
+        for candidate in (folder / 'measurements' / 'measurements.db', folder / 'measurements.db'):
+            if candidate.is_file() and not any(part.is_symlink() for part in (candidate, candidate.parent)):
+                found.append(candidate)
+    if details is not None:
+        details.update(sampled_plate_candidates=min(len(folders), 17),
+                       truncated=len(folders) > 17 or len(found) > 8)
+    return found[:8]
+
+
+def _easy_database_evidence(path):
+    """Read only bounded SQLite schema metadata, never measurement rows."""
+    import sqlite3
+
+    connection = sqlite3.connect(path.as_uri() + '?mode=ro', uri=True, timeout=.25)
+    try:
+        connection.execute('PRAGMA query_only=ON')
+        connection.set_progress_handler(lambda: 1, 100000)
+        tables = [row[0] for row in connection.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' LIMIT 32")]
+        numeric = False
+        objects = False
+        for name in tables[:16]:
+            columns = connection.execute('PRAGMA table_info("' + name.replace('"', '""') + '")').fetchmany(256)
+            names = {row[1] for row in columns}
+            numeric = numeric or any(any(kind in str(row[2]).upper() for kind in ('INT', 'REAL', 'FLOAT', 'DOUBLE', 'NUM'))
+                                     for row in columns)
+            objects = objects or {'plateID', 'rowID', 'columnID'} <= names
+        return dict(tables=tables, numeric=numeric, objects=objects, crops='png_list' in tables)
+    finally:
+        connection.close()
+
+
+def _easy_saved_settings(path):
+    """Recognize bounded saved settings without applying values or evaluating expressions."""
+    import csv
+    import io
+    import json
+    import sys
+
+    from ..app_catalog import DECLARED_APPS
+    from ..settings_pack import PACK_FILES, _HEADER_ROWS, _coerce
+
+    names = {name.rsplit('.', 1)[0]: key for key, files in PACK_FILES.items() for name in files}
+    keys = {app.key for app in DECLARED_APPS} | set(PACK_FILES)
+    registry = sys.modules.get('spacr.qt.app')
+    keys.update(getattr(registry, 'APP_META', {}))
+    folded = getattr(registry, 'folded_children', None)
+    if callable(folded):
+        keys.update(key for children in folded().values() for key in children)
+    names.update({key + '_settings': key for key in keys})
+    module = names.get(path.stem)
+    if path.stem == 'settings':
+        manifest = path.parent / 'manifest.json'
+        if manifest.is_file() and not manifest.is_symlink():
+            raw = _easy_read_header(manifest, _EASY_METADATA_LIMIT + 1)
+            value = json.loads(raw) if len(raw) <= _EASY_METADATA_LIMIT else None
+            if (isinstance(value, dict) and isinstance(value.get('app_key'), str)
+                    and value['app_key'] in keys):
+                module = value['app_key']
+    if module is None or path.suffix.lower() not in ('.json', '.csv'):
+        return None
+    raw = _easy_read_header(path, _EASY_METADATA_LIMIT + 1)
+    if len(raw) > _EASY_METADATA_LIMIT:
+        return None
+    if path.suffix.lower() == '.json':
+        values = json.loads(raw)
+    else:
+        rows = list(csv.reader(io.StringIO(raw.decode('utf-8-sig'))))
+        if not rows or tuple(cell.lower() for cell in rows[0]) not in _HEADER_ROWS:
+            return None
+        values = {row[0]: _coerce(row[1]) for row in rows[1:] if len(row) == 2}
+    if not isinstance(values, dict) or not values or not all(isinstance(key, str) for key in values):
+        return None
+    return dict(path=str(path), module=module, settings=values)
+
+
+def _easy_paired_layout(images, root):
+    """Pair unambiguous sampled names and verify merged headers before scientific routes."""
+    from itertools import islice
+
+    from ...drop_classification import _has_mask_word, _image_stem, _mask_stem
+
+    local = [str(path) for path in images if path.parent == root or path.parent.parent == root]
+    masks = [path for path in local if _has_mask_word(path)]
+    originals = [path for path in local if path not in masks]
+    pairs = {}
+    for image in originals:
+        matches = [mask for mask in masks if _image_stem(image) in (_image_stem(mask), _mask_stem(mask))]
+        peers = [other for other in originals if _image_stem(other) == _image_stem(image)]
+        if len(matches) == len(peers) == 1:
+            pairs[image] = matches[0]
+    if not pairs:
+        return None
+    merged = None
+    for folder in (root, root.parent):
+        candidate = folder / 'merged'
+        if not candidate.is_dir() or candidate.is_symlink():
+            continue
+        try:
+            with os.scandir(candidate) as entries:
+                sampled = list(islice(entries, 32))
+            for entry in sampled:
+                if entry.is_file(follow_symlinks=False) and entry.name.lower().endswith('.npy'):
+                    path = type(root)(entry.path)
+                    metadata = {}
+                    if _easy_file_kind(path, metadata) == 'array' and len(metadata.get('shape', [])) == 3:
+                        merged = folder
+                        break
+        except (OSError, ValueError, EOFError):
+            continue
+        if merged:
+            break
+    return dict(kind='spacr' if merged else 'unstructured', pairs=pairs,
+                project=str(merged or root), filename_evidence=True)
+
+
+def _easy_run_evidence(root, files):
+    """Read bounded run manifests and coefficient-table headers without model execution."""
+    import json
+    from itertools import islice
+
+    candidates = [root / 'manifest.json']
+    runs = root / 'runs'
+    if runs.is_dir() and not runs.is_symlink():
+        with os.scandir(runs) as entries:
+            candidates.extend(type(root)(entry.path) / 'manifest.json' for entry in islice(entries, 16)
+                              if entry.is_dir(follow_symlinks=False))
+    candidates.extend(path for path in files if path.name == 'manifest.json')
+    manifests = []
+    run_folders = []
+    for path in dict.fromkeys(candidates):
+        if len(manifests) >= 8:
+            break
+        if not path.is_file() or path.is_symlink():
+            continue
+        try:
+            raw = _easy_read_header(path, _EASY_METADATA_LIMIT + 1)
+            value = json.loads(raw) if len(raw) <= _EASY_METADATA_LIMIT else None
+        except (OSError, ValueError, RecursionError):
+            continue
+        if (not isinstance(value, dict) or not isinstance(value.get('app_key'), str)
+                or not value['app_key'] or not value.get('schema_version')):
+            continue
+        run_folders.append(path.parent)
+        status = value.get('status')
+        if status in ('failed', 'partial', 'running', 'cancelled', 'incomplete'):
+            expected = {'mask': ('merged',), 'measure': ('measurements/measurements.db',)}.get(value['app_key'], ())
+            missing = [name for name in expected if not (root / name).exists()]
+            manifests.append(dict(path=str(path), status=status, app_key=str(value['app_key']),
+                                  missing_outputs=missing))
+    results = []
+    result_candidates = list(files)
+    for folder in run_folders[:8]:
+        for name in ('results.csv', 'results_gene.csv', 'results_grna.csv'):
+            path = folder / name
+            if path.is_file() and not path.is_symlink() and path not in result_candidates:
+                result_candidates.append(path)
+    for path in result_candidates:
+        if len(results) >= 4:
+            break
+        if path.name not in ('results.csv', 'results_gene.csv', 'results_grna.csv'):
+            continue
+        try:
+            evidence = _easy_table_evidence(path)
+        except (OSError, ValueError, UnicodeError):
+            continue
+        if {'feature', 'coefficient'} <= set(evidence.get('columns', [])):
+            diagnostics = path.parent / 'diagnostics'
+            diagnostics_folder = None
+            if diagnostics.is_dir() and not diagnostics.is_symlink():
+                try:
+                    with os.scandir(diagnostics) as entries:
+                        if any(entry.is_file(follow_symlinks=False) for entry in islice(entries, 16)):
+                            diagnostics_folder = str(diagnostics)
+                except OSError:
+                    pass
+            results.append(dict(path=str(path), folder=str(path.parent),
+                                diagnostics=bool(diagnostics_folder), diagnostics_folder=diagnostics_folder))
+    return dict(manifests=manifests, results=results)
+
+
+def _easy_small_json(path):
+    """Read a small regular metadata object without following links or opening arrays."""
+    import json
+
+    if any(part.is_symlink() for part in (path, *path.parents)):
+        return {}
+    try:
+        raw = _easy_read_header(path, _EASY_METADATA_LIMIT + 1)
+        value = json.loads(raw) if len(raw) <= _EASY_METADATA_LIMIT else None
+    except (OSError, ValueError, UnicodeError, RecursionError):
+        return {}
+    return value if isinstance(value, dict) else {}
+
+
+def _easy_merged_evidence(project):
+    """Verify a bounded numeric merged-image header before suggesting spatial mapping."""
+    from itertools import islice
+
+    folder = project / 'merged'
+    if not folder.is_dir() or folder.is_symlink():
+        return False
+    try:
+        with os.scandir(folder) as entries:
+            candidates = [type(project)(entry.path) for entry in islice(entries, 32)
+                          if entry.is_file(follow_symlinks=False) and entry.name.lower().endswith('.npy')]
+        for path in candidates[:3]:
+            metadata = {}
+            if (_easy_file_kind(path, metadata) == 'array' and len(metadata['shape']) == 3
+                    and metadata['shape'][-1] > 1):
+                return True
+    except (OSError, ValueError, EOFError):
+        pass
+    return False
+
+
+def _easy_specialized_inputs(root, files, images, schemas):
+    """Seed only verified acquisition paths and identity settings for real OPS/Spatial pages."""
+    import math
+    import sqlite3
+    from itertools import islice
+
+    from ...ops_engine import _match_tile, _st_platform
+    from ..i18n import tr
+
+    hints = {}
+    cycled, uncycled = [], []
+    for image in images:
+        if _match_tile(image.name, 'cycled'):
+            cycled.append(image.parent)
+        elif _match_tile(image.name, 'uncycled'):
+            uncycled.append(image.parent)
+    genotype = next((folder for folder in cycled if folder == root or folder.parent == root), None)
+    if genotype:
+        settings = dict(genotype_source=str(genotype))
+        phenotype = next((folder for folder in uncycled if folder != genotype
+                          and folder.parent in (root, root.parent, genotype.parent)), None)
+        if phenotype:
+            settings['phenotype_source'] = str(phenotype)
+        for path in files[:32]:
+            if path.suffix.lower() != '.csv' or (path.parent != root and path.parent.parent != root):
+                continue
+            try:
+                columns = _easy_table_evidence(path).get('columns', [])
+            except (OSError, ValueError, UnicodeError):
+                continue
+            if {'prefix', 'barcode', 'sequence'} & set(columns):
+                settings['ops_library'] = str(path)
+                break
+        hints['ops'] = dict(settings=settings, source=str(genotype),
+                            evidence=tr('OPS tile filenames were found; review acquisition sources before continuing.'))
+    folders = list(dict.fromkeys([root, root.parent] + [path.parent for path in files
+                                                     if path.parent.parent == root]))[:16]
+    for folder in folders:
+        if folder.is_symlink():
+            continue
+        try:
+            platform = _st_platform(str(folder))
+        except (OSError, ValueError):
+            continue
+        slide_candidates, bins = [], []
+        if platform == 'xenium':
+            slide_candidates = [folder / name for name in ('morphology_focus.ome.tif',
+                                'morphology_mip.ome.tif', 'morphology.ome.tif')]
+            focus = folder / 'morphology_focus'
+            if focus.is_dir() and not focus.is_symlink():
+                try:
+                    with os.scandir(focus) as entries:
+                        slide_candidates.extend(type(root)(entry.path) for entry in islice(entries, 16)
+                                                if entry.is_file(follow_symlinks=False)
+                                                and entry.name.lower().endswith(('.ome.tif', '.ome.tiff')))
+                except OSError:
+                    pass
+        else:
+            slide_candidates = [path for path in files if path.parent == folder
+                                and path.name.lower().endswith(('.tif', '.tiff', '.btf'))]
+            scale_paths = [folder / 'spatial' / 'scalefactors_json.json']
+            binned = folder / 'binned_outputs'
+            if binned.is_dir() and not binned.is_symlink():
+                try:
+                    with os.scandir(binned) as entries:
+                        for entry in islice(entries, 16):
+                            match = re.fullmatch(r'square_(\d{3})um', entry.name)
+                            if match and int(match[1]) > 0 and entry.is_dir(follow_symlinks=False):
+                                bins.append(int(match[1]))
+                                scale_paths.append(type(root)(entry.path) / 'spatial' / 'scalefactors_json.json')
+                except OSError:
+                    pass
+            calibrated = False
+            for scale in scale_paths[:17]:
+                values = _easy_small_json(scale)
+                value = values.get('microns_per_pixel') or values.get('spot_diameter_fullres')
+                try:
+                    calibrated = calibrated or math.isfinite(float(value)) and float(value) > 0
+                except (TypeError, ValueError):
+                    pass
+            if not calibrated:
+                continue
+        slide = None
+        for path in slide_candidates[:4]:
+            try:
+                metadata = {}
+                kind = _easy_file_kind(path, metadata)
+                if kind in ('image', 'import_image') or (kind == 'filename_format' and metadata.get('shape')):
+                    slide = path
+                    break
+            except (OSError, ValueError, EOFError):
+                continue
+        if slide is None:
+            continue
+        settings = dict(spatial_source=str(folder), spatial_platform=platform)
+        if bins:
+            settings['spatial_bin_um'] = 2 if 2 in bins else min(bins)
+        hints.setdefault('spatial_masks', dict(settings=settings, source=str(folder), image=str(slide),
+                          evidence=tr('Spatial acquisition metadata and a morphology image were found.')))
+        if platform == 'xenium':
+            counts_ready = (folder / 'transcripts.parquet').is_file() and not (folder / 'transcripts.parquet').is_symlink()
+        else:
+            if platform == 'visium_hd' and not bins:
+                continue
+            count_folder = (folder / 'binned_outputs' / f"square_{settings['spatial_bin_um']:03d}um"
+                            if platform == 'visium_hd' and bins else folder)
+            positions = any((count_folder / 'spatial' / name).is_file() for name in
+                            ('tissue_positions.parquet', 'tissue_positions.csv', 'tissue_positions_list.csv'))
+            values = _easy_small_json(count_folder / 'spatial' / 'scalefactors_json.json')
+            value = values.get('microns_per_pixel') or values.get('spot_diameter_fullres')
+            try:
+                calibrated = math.isfinite(float(value)) and float(value) > 0
+            except (TypeError, ValueError):
+                calibrated = False
+            try:
+                with os.scandir(count_folder) as entries:
+                    counts_ready = positions and calibrated and any(entry.is_file(follow_symlinks=False)
+                        and entry.name.endswith('filtered_feature_bc_matrix.h5') for entry in islice(entries, 32))
+            except OSError:
+                counts_ready = False
+        if not counts_ready:
+            continue
+        for schema in schemas:
+            if 'spatial_fields' not in schema['tables']:
+                continue
+            database = type(root)(schema['path'])
+            project = database.parent.parent if database.parent.name == 'measurements' else database.parent
+            if not _easy_merged_evidence(project):
+                continue
+            try:
+                connection = sqlite3.connect(database.as_uri() + '?mode=ro', uri=True, timeout=.25)
+                try:
+                    connection.execute('PRAGMA query_only=ON')
+                    connection.set_progress_handler(lambda: 1, 100000)
+                    sources = connection.execute('SELECT substr(source, 1, 4096) FROM spatial_fields LIMIT 8').fetchall()
+                finally:
+                    connection.close()
+            except (OSError, sqlite3.Error):
+                continue
+            if not any(isinstance(row[0], str) and os.path.abspath(os.path.expanduser(row[0])) == str(folder)
+                       for row in sources):
+                continue
+            map_settings = dict(settings, spatial_masks_dir=str(project))
+            hints.setdefault('spatial_map', dict(settings=map_settings, source=str(folder),
+                             evidence=tr('Spatial measurements match this acquisition; review masks before continuing.')))
+    return hints
 
 
 def _easy_local_sample(path, sample_limit=100):
@@ -4084,6 +4608,7 @@ def _easy_inspect_path_impl(value):
     """Infer local next steps from bounded headers, filename conventions and nearby folder structure."""
     from pathlib import Path
     from importlib.util import find_spec
+    import sqlite3
 
     from ..i18n import tr
 
@@ -4091,24 +4616,42 @@ def _easy_inspect_path_impl(value):
         path = Path(os.path.expandvars(value.strip())).expanduser().absolute()
     except RuntimeError:
         return {'path': value, 'message': tr('Choose an existing local file or folder.'), 'actions': []}
-    if not value.strip() or not path.exists():
+    try:
+        exists = path.exists()
+    except OSError:
+        external = _easy_external_reference(value)
+        if external:
+            return dict(path=str(path), message=_easy_external_guidance(external), actions=[],
+                        context=dict(unsupported_external=external, source=value), confidence='external_reference')
+        raise
+    if value.strip() and not exists:
+        external = _easy_external_format(path) or _easy_external_reference(value)
+        if external:
+            return dict(path=str(path), message=_easy_external_guidance(external), actions=[],
+                        context=dict(unsupported_external=external, source=value), confidence='external_reference')
+    if not value.strip() or not exists:
         return {'path': value, 'message': tr('Choose an existing local file or folder.'), 'actions': []}
     if any(part.is_symlink() for part in (path, *path.parents)):
         return {'path': str(path), 'message': tr('Choose the original local file or folder rather than a symbolic link.'), 'actions': []}
     path = Path(os.path.normpath(path))
     if not path.is_file() and not path.is_dir():
         return {'path': str(path), 'message': tr('Choose a regular file or folder, rather than a device or pipe.'), 'actions': []}
-    from ...convert import IMAGE_EXTENSIONS, _READERS
+    external = _easy_external_format(path) if path.is_file() else None
+    if external:
+        return dict(path=str(path), message=_easy_external_guidance(external), actions=[],
+                    context=dict(unsupported_external=external, source=str(path)), confidence='external_format')
+    from ...convert import _image_extensions, _READERS
     from ..dnd_handlers import _MASK_FILE_EXTS
 
+    image_extensions = _image_extensions()
     sample_limit = 100
     files, folders, unreadable, limited = _easy_local_sample(path, sample_limit)
-    names = [candidate for candidate in files if candidate.suffix.lower() in IMAGE_EXTENSIONS]
+    names = [candidate for candidate in files if candidate.suffix.lower() in image_extensions]
     hints = _easy_filename_hints(names)
     if limited and not any(hint['matched'] == hint['sampled'] and hint['sampled'] for hint in hints):
         sample_limit = 1000
         files, folders, unreadable, limited = _easy_local_sample(path, sample_limit)
-        names = [candidate for candidate in files if candidate.suffix.lower() in IMAGE_EXTENSIONS]
+        names = [candidate for candidate in files if candidate.suffix.lower() in image_extensions]
         hints = _easy_filename_hints(names)
     kinds = {}
     representatives = [] if path.is_dir() else [path]
@@ -4122,49 +4665,110 @@ def _easy_inspect_path_impl(value):
             representatives.append(candidate)
             seen.add(identity)
     classified = {}
+    image_dimensions = []
     for candidate in representatives:
         try:
-            kind = _easy_file_kind(candidate)
+            dimensions = {}
+            kind = _easy_file_kind(candidate, dimensions)
         except (OSError, ValueError, EOFError):
             unreadable += 1
             continue
         kinds.setdefault(kind, []).append(candidate)
         classified[(candidate.parent, candidate.suffix.lower())] = kind
+        if dimensions:
+            image_dimensions.append(dict(path=str(candidate), **dimensions))
     for candidate in names:
         kind = classified.get((candidate.parent, candidate.suffix.lower()))
-        if kind in ('image', 'container') and candidate not in kinds.get(kind, []):
+        if kind in ('image', 'container', 'import_image') and candidate not in kinds.get(kind, []):
             kinds.setdefault(kind, []).append(candidate)
     if path.is_file():
         selected = next((kind for kind, candidates in kinds.items() if path in candidates), 'unsupported')
-        if selected not in ('image', 'table', 'database', 'container', 'array', 'native_container'):
+        if selected not in ('image', 'table', 'database', 'container', 'array', 'native_container', 'import_image'):
             kinds = {selected: [path]}
     images = kinds.get('image', [])
+    external_documents = [dict(kind=kind.removeprefix('external_'), path=str(candidate))
+                          for kind, candidates in kinds.items() if kind.startswith('external_')
+                          for candidate in candidates[:4]]
     root = path if path.is_dir() else path.parent
     local_images = [image for image in images if image.parent == root]
     own_images = [image for image in images if image.parent == root or image.parent.parent == root]
     own_data = any(candidate.parent == root or candidate.parent.parent == root
-                   for kind in ('array', 'table', 'database', 'container', 'native_container') for candidate in kinds.get(kind, []))
+                   for kind in ('array', 'table', 'database', 'container', 'native_container', 'import_image') for candidate in kinds.get(kind, []))
     candidates = own_images if own_images else ([] if own_data else images)
     candidate_folders = sorted({image.parent for image in candidates})
     image_folders = sorted({image.parent for image in images})
     chosen = root if local_images else (candidate_folders[0] if candidate_folders else root)
     actions = []
-    native_container = (path.is_file() and path.suffix.lower() in set(_MASK_FILE_EXTS) - set(IMAGE_EXTENSIONS)
+    input_map = {}
+    saved_settings = None
+    if path.is_file():
+        try:
+            saved_settings = _easy_saved_settings(path)
+        except (OSError, ValueError, UnicodeError, RecursionError, SyntaxError):
+            pass
+    if saved_settings:
+        actions.append((saved_settings['module'], tr('Open saved settings'),
+                        tr('Preview these settings before applying them.'), str(path)))
+    pdf = next((item for item in kinds.get('pdf', [])
+                if item.parent == root or item.parent.parent == root), None)
+    if pdf is not None:
+        actions.append(('analyze_plaques', tr('Plaque Assay'),
+                        tr('Review this PDF in Plaque Assay before running.'), str(pdf)))
+        input_map['analyze_plaques'] = dict(source=str(pdf), pdf=str(pdf))
+    native_container = (path.is_file() and path.suffix.lower() in _MASK_FILE_EXTS
                         and path in kinds.get('array', []) + kinds.get('native_container', []))
     if native_container:
         actions.append(('mask', tr('Preview a container dataset'),
                         tr('Review the native extraction preview before generating masks.'), str(path)))
+    array_imports = []
+    from ...convert import _describe_npy
+    from ...errors import ConfigurationError
+
+    for array in kinds.get('array', [])[:4]:
+        if array.parent != root and array.parent.parent != root:
+            continue
+        try:
+            description = _describe_npy(str(array))
+        except (ConfigurationError, OSError, ValueError, EOFError) as exc:
+            array_imports.append(dict(path=str(array), supported=False, reason=str(exc)))
+            continue
+        array_imports.append(dict(path=str(array), supported=True, axes=description['axes']))
+        actions.append(('convert', tr('Import microscopy images'),
+                        tr('Review the reader, embedded metadata and conversion plan before importing.'), str(array.parent)))
     if candidates:
         exact = path if path.is_file() and path in candidates else chosen
         actions.extend([
             ('make_masks', tr('View and edit images'), tr('Inspect images and edit masks.'), str(exact)),
             ('mask', tr('Create segmentation masks'), tr('Create segmentation masks for images in {folder}.', folder=chosen.name), str(chosen)),
         ])
+        actions.append(('convert', tr('Import microscopy images'),
+                        tr('Review the reader, embedded metadata and conversion plan before importing.'), str(chosen)))
         if not local_images:
             for folder in candidate_folders[1:3]:
                 actions.append(('mask', tr('Create masks: {folder}', folder=folder.name),
                                 tr('Another candidate folder; review channels before Run.'), str(folder)))
-    containers = kinds.get('container', [])
+    dimension_routes = {}
+    for item in image_dimensions:
+        image = Path(item['path'])
+        if image.parent != root and image.parent.parent != root:
+            continue
+        if item.get('axes_unresolved', True):
+            continue
+        for key, dimension, title in (('3d', 'z', tr('3D')), ('timelapse', 't', tr('Time'))):
+            size = item.get(dimension, 1)
+            if size > 1 and key not in dimension_routes:
+                route = dict(source=str(image), host='mask', dimension=dimension, size=size)
+                dimension_routes[key] = route
+                input_map[key] = route
+                actions.append((key, title, tr('Review the native extraction preview before generating masks.'), str(image)))
+    containers = [item for item in kinds.get('container', [])
+                  if item.parent == root or item.parent.parent == root]
+    import_images = [item for item in kinds.get('import_image', [])
+                     if item.parent == root or item.parent.parent == root]
+    if import_images:
+        image = path if path in import_images else import_images[0]
+        actions.append(('convert', tr('Import microscopy images'),
+                        tr('Review the reader, embedded metadata and conversion plan before importing.'), str(image.parent)))
     if containers:
         container = path if path in containers else containers[0]
         reader, install = _READERS.get(container.suffix.lower(), ('spacr.convert', ''))
@@ -4177,6 +4781,8 @@ def _easy_inspect_path_impl(value):
     for kind, key, title, description in (
             ('database', 'db_browser', tr('Browse measurements'), tr('Browse the detected SQLite database.')),
             ('table', 'foreign', tr('Import a measurement table'), tr('Review identities, columns and units.'))):
+        if saved_settings and kind == 'table':
+            continue
         own = next((candidate for candidate in kinds.get(kind, [])
                     if candidate.parent == root or candidate.parent.parent == root
                     or (kind == 'database' and local_images
@@ -4187,6 +4793,62 @@ def _easy_inspect_path_impl(value):
                         and candidate.name == 'measurements.db'), own)
         if own is not None:
             actions.append((key, title, description, str(own)))
+    analysis_discovery = {}
+    analysis_databases = _easy_analysis_inputs(root, analysis_discovery)
+    limited = limited or analysis_discovery.get('truncated', False)
+    if path.is_file() and path in kinds.get('table', []):
+        analysis_databases = []
+    if path.is_file() and path in kinds.get('database', []):
+        analysis_databases = [path]
+    schemas = []
+    for database in analysis_databases:
+        try:
+            evidence = _easy_database_evidence(database)
+        except (OSError, sqlite3.Error):
+            continue
+        schemas.append(dict(path=str(database), **evidence))
+    scientific = next((item for item in schemas if item['objects'] and item['numeric']), None)
+    if scientific:
+        database = Path(scientific['path'])
+        plate = database.parent.parent if database.parent.name == 'measurements' else database.parent
+        actions = [action for action in actions if action[0] != 'db_browser']
+        for key, title in (('db_browser', tr('Database Browser')), ('graph_builder', tr('Graph Builder')),
+                           ('gate_editor', tr('Gate Editor')), ('umap', tr('Image UMAP')),
+                           ('regression', tr('Regression')), ('dose_response', tr('Dose Response')),
+                           ('qc_dashboard', tr('QC')), ('run_compare', tr('Run Compare')),
+                           ('annotate', tr('Annotate')), ('classify_merged', tr('Classify'))):
+            if key in ('annotate', 'umap') and not scientific['crops']:
+                continue
+            source = plate if key in ('qc_dashboard', 'run_compare', 'annotate', 'classify_merged') else database
+            actions.append((key, title, tr('Scientific measurements were found in this database.'), str(source)))
+            input_map[key] = dict(database=str(database), source=str(source), project=str(plate))
+    table_candidates = [] if saved_settings else list(kinds.get('table', []))
+    if path.is_dir():
+        for candidate in files:
+            if (classified.get((candidate.parent, candidate.suffix.lower())) == 'table'
+                    and candidate not in table_candidates):
+                table_candidates.append(candidate)
+        table_candidates.sort(key=lambda item: item.name != 'unique_combinations.csv')
+    elif path in table_candidates:
+        table_candidates = [path]
+    for table in table_candidates[:8]:
+        if table.parent != root and table.parent.parent != root:
+            continue
+        try:
+            evidence = _easy_table_evidence(table)
+        except (OSError, ValueError, UnicodeError):
+            continue
+        if evidence.get('numeric'):
+            for key, title in (('graph_builder', tr('Graph Builder')), ('gate_editor', tr('Gate Editor'))):
+                actions.append((key, title, tr('Numeric columns were found in this table.'), str(table)))
+                input_map.setdefault(key, dict(source=str(table), table=str(table)))
+        if evidence.get('sequencing'):
+            actions.append(('regression', tr('Regression'), tr('Sequencing counts were found in this table.'), str(table)))
+            input_map.setdefault('regression', dict(source=str(table), count_data=str(table)))
+    fastq = next((item for item in kinds.get('fastq', []) if item.parent == root or item.parent.parent == root), None)
+    if fastq is not None:
+        actions.append(('map_barcodes', tr('Map Barcodes'), tr('FASTQ reads were found in this folder.'), str(fastq.parent)))
+        input_map['map_barcodes'] = dict(source=str(fastq.parent), fastq=str(fastq))
     calibrated = os.path.lexists(root / 'plate_batch.json') or os.path.lexists(root / 'psf' / 'segmentation_application.json')
     if path.is_dir() and any(item.parent == root / 'merged' for item in kinds.get('array', [])) and not calibrated:
         actions.append(('measure', tr('Measure segmented objects'), tr('Review merged arrays and mask channels.'), str(path)))
@@ -4194,6 +4856,41 @@ def _easy_inspect_path_impl(value):
     parent_calibrated = os.path.lexists(parent / 'plate_batch.json') or os.path.lexists(parent / 'psf' / 'segmentation_application.json')
     if local_images and any(item.parent == parent / 'merged' for item in kinds.get('array', [])) and not parent_calibrated:
         actions.append(('measure', tr('Measure segmented objects'), tr('Review merged arrays and mask channels.'), str(parent)))
+    paired_layout = _easy_paired_layout(images, root)
+    if paired_layout:
+        if paired_layout['kind'] == 'unstructured':
+            actions = [action for action in actions if action[0] not in
+                       ('mask', '3d', 'timelapse', 'measure', 'qc_dashboard', 'annotate')]
+            dimension_routes = {}
+        else:
+            for key, title in (('measure', tr('Measure')), ('qc_dashboard', tr('QC')), ('annotate', tr('Annotate'))):
+                actions.append((key, title, tr('Review merged arrays and mask channels.'), paired_layout['project']))
+                input_map.setdefault(key, dict(source=paired_layout['project'], project=paired_layout['project']))
+    run_evidence = _easy_run_evidence(root, [item for item in files
+                                            if item.parent == root or item.parent.parent == root])
+    if run_evidence['manifests']:
+        for key, title in (('run_history', tr('Run History')), ('qc_dashboard', tr('QC'))):
+            actions.append((key, title, tr('A failed or incomplete run was found; review its outputs before continuing.'), str(root)))
+            input_map.setdefault(key, dict(source=str(root), run_manifests=run_evidence['manifests']))
+    if run_evidence['results']:
+        result_file = run_evidence['results'][0]
+        for key, title in (('hit_list', tr('Hit List')), ('profiler', tr('Prediction Profiler'))):
+            source = result_file['folder'] if key == 'hit_list' else result_file['path']
+            actions.append((key, title, tr('Fitted regression coefficients were found in this folder.'), source))
+            input_map[key] = dict(source=source, coefficients=result_file['path'], project=result_file['folder'])
+        if result_file['diagnostics']:
+            actions.append(('regression_diagnostics', tr('Regression diagnostics'),
+                            tr('Fitted regression coefficients were found in this folder.'), result_file['diagnostics_folder']))
+            input_map['regression_diagnostics'] = dict(source=result_file['diagnostics_folder'],
+                                                     diagnostics_folder=result_file['diagnostics_folder'],
+                                                     coefficients=result_file['path'])
+    submodule_settings = _easy_specialized_inputs(root, files, images, schemas)
+    for key, title in (('ops', tr('OPS')), ('spatial_masks', tr('Spatial Mask Generation')),
+                       ('spatial_map', tr('Spatial Map'))):
+        if key in submodule_settings:
+            hint = submodule_settings[key]
+            actions.append((key, title, hint['evidence'], hint['source']))
+            input_map[key] = dict(source=hint['source'], settings=hint['settings'])
     metadata = _easy_metadata_hints(folders)
     if actions:
         message = tr('Suggestions come from local file headers. Review each module before running; nothing has been processed or sent to AI.')
@@ -4205,6 +4902,8 @@ def _easy_inspect_path_impl(value):
             message += ' ' + tr('Some filenames match existing microscope conventions. These are naming hints, not verified acquisition metadata; confirm the convention before processing.')
         if metadata:
             message += ' ' + tr('Nearby files with metadata-style names were found. Review their contents before choosing channels or calibration.')
+    elif external_documents:
+        message = _easy_external_guidance(external_documents[0]['kind'])
     elif path.is_dir() and calibrated:
         message = tr('This folder has a calibrated-workflow marker. Use a completed child dataset and the supported calibrated measurement workflow; ordinary Measure is not suggested.')
     elif kinds.get('filename_format'):
@@ -4215,6 +4914,9 @@ def _easy_inspect_path_impl(value):
         message += ' ' + tr('A bounded sample of this folder was inspected; other files may differ.')
     if unreadable:
         message += ' ' + tr('Some files could not be read. Check their permissions and try again.')
+    if actions and external_documents:
+        message += ' ' + ' '.join(_easy_external_guidance(kind)
+                                 for kind in dict.fromkeys(item['kind'] for item in external_documents))
     if path.is_file():
         preferred = [action for action in actions if action[3] == str(path)
                      or (path in containers and action[0] == 'convert' and action[3] == str(path.parent))]
@@ -4223,14 +4925,56 @@ def _easy_inspect_path_impl(value):
                    image_folders=[str(folder) for folder in image_folders], filename_matches=hints,
                    metadata_files=metadata, truncated=limited, header_files=len(representatives),
                    filename_sample_limit=sample_limit, sampled_image_filenames=len(names),
+                   analysis_inputs=input_map, database_schemas=schemas,
+                   analysis_discovery=analysis_discovery,
+                   image_dimensions=image_dimensions,
+                   dimension_routes=dimension_routes,
+                   array_imports=array_imports,
+                   plate_inputs=[dict(identity=item['path'], database=item['path'],
+                                      project=str(Path(item['path']).parent.parent
+                                                  if Path(item['path']).parent.name == 'measurements'
+                                                  else Path(item['path']).parent))
+                                 for item in schemas if item['objects'] and item['numeric']],
+                   run_evidence=run_evidence,
+                   submodule_settings=submodule_settings,
+                   unsupported_documents=external_documents,
                    reader_candidates=[dict(path=str(item), format=item.suffix.lower(),
                        reader=_READERS.get(item.suffix.lower(), ('spacr.convert', ''))[0],
                        install_hint=_READERS.get(item.suffix.lower(), ('', ''))[1],
                        available=find_spec(_READERS.get(item.suffix.lower(), ('spacr.convert', ''))[0]) is not None,
-                       metadata_inspected=False) for item in containers[:4]])
+                       metadata_inspected=False) for item in kinds.get('container', [])[:4]])
     if native_container:
         context.update(native_mask_container=str(path), native_metadata_inspected=False)
-    result = {'path': str(path), 'message': message, 'actions': actions[:4], 'context': context,
+    if paired_layout:
+        context['paired_layout'] = paired_layout
+    context['plate_selection_required'] = len(context['plate_inputs']) > 1
+    context['all_compatible_databases'] = [item['database'] for item in context['plate_inputs']]
+    unique = []
+    seen_actions = set()
+    for action in actions:
+        identity = (action[0], action[3] if action[0] == 'mask' else '')
+        if identity not in seen_actions:
+            seen_actions.add(identity)
+            unique.append(action)
+    actions = unique
+    groups = {}
+    for key, title, reason, source in actions:
+        if saved_settings and source == str(path) and key == saved_settings['module']:
+            kind, group = 'settings', tr('Settings')
+        elif key == 'map_barcodes' or input_map.get(key, {}).get('count_data'):
+            kind, group = 'sequencing', tr('Sequencing')
+        elif (input_map.get(key, {}).get('database') or input_map.get(key, {}).get('coefficients')
+              or key in ('db_browser', 'measure', 'run_history', 'qc_dashboard')):
+            kind, group = 'measurements', tr('Measurements')
+        elif key in ('foreign', 'graph_builder', 'gate_editor'):
+            kind, group = 'tables', tr('Tables')
+        else:
+            kind, group = 'images', tr('Images')
+        groups[key] = dict(group=group, reason=reason, source=source, kind=kind)
+    context['action_groups'] = groups
+    if saved_settings:
+        context['saved_settings'] = saved_settings
+    result = {'path': str(path), 'message': message, 'actions': actions, 'context': context,
               'confidence': 'filename_hint' if hints else 'content_only'}
     proposal = _easy_regex_evidence(images, chosen, hints) if not native_container else None
     if proposal:
@@ -4349,7 +5093,7 @@ class _EasyPathEdit(QLineEdit):
         self.setObjectName('EasyModePath')
         self.setProperty(OPT_OUT_PROPERTY, True)
         self.setFrame(False)
-        self.setPlaceholderText(tr('Type a path or Drop some images here ...'))
+        self.setPlaceholderText(tr('Drop a file/folder, type a path or query'))
         self.setAccessibleName(tr('File or folder path'))
         self.setFixedHeight(64)
         self.setMouseTracking(True)
@@ -4409,6 +5153,8 @@ class _EasySuggestionCard(QPushButton):
         self._growing = False
         self._final_rect = QRect()
         self.setObjectName('EasySuggestionCard')
+        self._stage = self._stage_for(self._key)
+        self.setProperty('stage', self._stage)
         self.setCursor(Qt.PointingHandCursor)
         self.setAccessibleName(title)
         self.clicked.connect(self._activate)
@@ -4418,9 +5164,9 @@ class _EasySuggestionCard(QPushButton):
         self.content = QWidget(self)
         self.content.setAttribute(Qt.WA_TransparentForMouseEvents, True)
         outer.addWidget(self.content)
-        self._content_opacity = QGraphicsOpacityEffect(self.content)
+        self._content_opacity = QGraphicsOpacityEffect(self)
         self._content_opacity.setOpacity(1.0)
-        self.content.setGraphicsEffect(self._content_opacity)
+        self.setGraphicsEffect(self._content_opacity)
         layout = QVBoxLayout(self.content)
         layout.setSizeConstraint(QLayout.SetNoConstraint)
         heading = QVBoxLayout()
@@ -4428,6 +5174,7 @@ class _EasySuggestionCard(QPushButton):
         icon = QLabel(self)
         self.icon = icon
         icon.setAlignment(Qt.AlignCenter)
+        icon.setStyleSheet('background: transparent;')
         module_icon = app_icon(self._key, theme="dark")
         if module_icon is None or module_icon.isNull():
             module_icon = self.style().standardIcon(QStyle.SP_FileDialogContentsView)
@@ -4449,8 +5196,46 @@ class _EasySuggestionCard(QPushButton):
         label.setWordWrap(True)
         label.setVisible(self._key in ("regex", "warning"))
         layout.addWidget(label, 1)
-        self.setToolTip(description)
+        self._explanation = description
         self.setAccessibleDescription(description)
+        from ..theme import STAGE_HOVER
+        from ..theme import ALPHA_MARK
+        self.alpha = QLabel(ALPHA_MARK, self)
+        self.alpha.setObjectName('EasyAlphaMark')
+        self.alpha.setAttribute(Qt.WA_TransparentForMouseEvents, True)
+        self.alpha.setStyleSheet('font-family: "Open Sans"; font-weight: 300; '
+                                f'font-size: {font_px(14)}px; color: {STAGE_HOVER["alpha"]}; '
+                                'background: transparent;')
+        self.alpha.setAlignment(Qt.AlignCenter)
+        self.alpha.resize(20, 20)
+        self.alpha.setVisible(self._stage == 'alpha')
+
+    def enterEvent(self, event):
+        """Keep card explanations in the stationary lower description panel."""
+        parent = self.parentWidget()
+        if hasattr(parent, 'explain_card'):
+            parent.explain_card(self)
+        super().enterEvent(event)
+
+    def focusInEvent(self, event):
+        """Expose the same explanation to keyboard navigation."""
+        parent = self.parentWidget()
+        if hasattr(parent, 'explain_card'):
+            parent.explain_card(self)
+        super().focusInEvent(event)
+
+    @staticmethod
+    def _stage_for(key):
+        """Resolve maturity from the registered app or its actual folded metadata."""
+        from .fold_strip import fold_label
+        return fold_label(key)[2]
+
+    def resizeEvent(self, event):
+        """Keep the alpha annotation at the rounded card's upper-right corner."""
+        super().resizeEvent(event)
+        if hasattr(self, 'alpha'):
+            self.alpha.move(max(0, self.width() - self.alpha.width() - 8), 8)
+            self.alpha.raise_()
 
     def paintEvent(self, event):
         """Keep native card painting and add equal output ports only for its network."""
@@ -4482,7 +5267,7 @@ class _EasySuggestionCard(QPushButton):
         """Use the actual expanding widget rectangle as the field footprint."""
         fraction = min(self.width() / max(1, self._final_rect.width()),
                        self.height() / max(1, self._final_rect.height()))
-        self._content_opacity.setOpacity(max(0.0, min(1.0, (fraction - 0.75) * 4)))
+        self._content_opacity.setOpacity(max(0.0, min(1.0, fraction)))
         self.parentWidget()._publish_growth()
 
     def _growth_finished(self):
@@ -4627,7 +5412,23 @@ class _EasyHomeField(QWidget):
         make_transparent(self)
         self.panel = _EasyPathEdit(self)
         self.rim = _EasyPathRim(self)
-        self.setMinimumSize(340, 300)
+        self.setMinimumSize(340, 340)
+        from PySide6.QtWidgets import QScrollBar, QTextBrowser, QGraphicsOpacityEffect
+        from ..i18n import tr
+        from .field_fade import OPT_OUT_PROPERTY
+        self.details = QTextBrowser(self)
+        self.details.setObjectName('EasyWorkflowDetails')
+        self.details.setAccessibleName(tr('Module description'))
+        self.details.setOpenExternalLinks(True)
+        self.details.setProperty(OPT_OUT_PROPERTY, True)
+        self._scrollbar = QScrollBar(Qt.Horizontal, self)
+        self._scrollbar.setObjectName('EasySuggestionsScroll')
+        self._scrollbar.setAccessibleName(tr('Tools'))
+        self._scrollbar._content_opacity = QGraphicsOpacityEffect(self._scrollbar)
+        self._scrollbar.setGraphicsEffect(self._scrollbar._content_opacity)
+        self._scrollbar.setProperty(OPT_OUT_PROPERTY, True)
+        self._scrollbar.valueChanged.connect(self._scroll_cards)
+        self._row_rect = QRect()
 
     def _motion_enabled(self):
         """Respect live backdrop and Reduce motion preferences for card growth."""
@@ -4636,12 +5437,10 @@ class _EasyHomeField(QWidget):
         return get_ambient_enabled() and not get_reduce_motion()
 
     def _publish_growth(self, *, invalidate=False):
-        """Send at most four native card rectangles to the existing field worker."""
+        """Clear transient card forces while keeping the original reveal animation."""
         from .ambient import _field_growing_regions_for_widget
 
-        rectangles = [card.geometry() for card in self.cards
-                      if card._growing and card.isVisible()]
-        _field_growing_regions_for_widget(self, rectangles, invalidate=invalidate)
+        _field_growing_regions_for_widget(self, (), invalidate=invalidate)
 
     def _finish_growth(self):
         """Retire geometry animations and release their field ownership."""
@@ -4668,8 +5467,8 @@ class _EasyHomeField(QWidget):
         self._finish_growth()
         super().hideEvent(event)
 
-    def set_cards(self, actions, leading=None, leading_index=0):
-        """Grow suggestions sequentially through the ordered grid below the editor."""
+    def set_cards(self, actions, leading=None, leading_index=0, groups=None):
+        """Group all inspected choices while bounding animated field footprints."""
         from PySide6.QtCore import QEasingCurve, QPropertyAnimation, QSequentialAnimationGroup
 
         had_cards = bool(self.cards)
@@ -4677,15 +5476,33 @@ class _EasyHomeField(QWidget):
         for card in self.cards:
             card.hide()
             card.deleteLater()
-        self.cards = [_EasySuggestionCard(action, self) for action in actions[:4]]
+        groups = groups or {}
+        ordering = {group: index for index, group in enumerate(dict.fromkeys(
+            groups.get(action[0], {}).get('kind', '') for action in actions))}
+        actions = sorted(actions, key=lambda action: ordering[groups.get(action[0], {}).get('kind', '')])
+        self.cards = [_EasySuggestionCard(action, self) for action in actions]
+        for card in self.cards:
+            record = groups.get(card._key)
+            if not record:
+                continue
+            group, reason = record.get('group', ''), record.get('reason', '')
+            card.description.setText('<b>' + escape(group) + '</b><br>' + escape(reason))
+            card.description.setAlignment(Qt.AlignCenter)
+            card.description.setStyleSheet(f'font-size: {font_px(12)}px; font-weight: 300;')
+            card.description.hide()
+            card._explanation = '<b>' + escape(group) + '</b><br>' + escape(reason)
+            card.setAccessibleDescription(group + ': ' + reason)
         if leading is not None:
             self.cards.insert(min(leading_index, len(self.cards)), leading)
         self._arrange()
         for index, card in enumerate(self.cards):
+            if not card._final_rect.intersects(self._row_rect):
+                card.hide()
+                continue
             card.show()
             card.setMinimumSize(0, 0)
             card.raise_()
-            if self._motion_enabled() and self.isVisible():
+            if index < 4 and self._motion_enabled() and self.isVisible():
                 target = QRect(card._final_rect)
                 start = QRect(target.center().x(), target.center().y(), 1, 1)
                 card._content_opacity.setOpacity(0.0)
@@ -4713,41 +5530,101 @@ class _EasyHomeField(QWidget):
             self._finish_growth()
             self._arrange()
 
-    def _arrange(self):
-        """Keep a centered search followed by a disjoint left-to-right module grid."""
-        from ..gui_scale import _set_actual_minimum_height
+    def _place_fixed(self, widget, rect):
+        """Preserve a control's global anchor while the workflow owns its native surface."""
+        if widget.parentWidget() is not self:
+            rect.moveTopLeft(widget.parentWidget().mapFromGlobal(self.mapToGlobal(rect.topLeft())))
+        widget.setGeometry(rect)
 
-        width = self.width()
-        panel_width = min(720, width - 48)
-        panel_height = self.panel.height()
-        columns = max(1, min(4, (width - 28) // 240))
-        gap = 20
-        card_width = min(224, (width - 48 - gap * (columns - 1)) // columns)
-        card_height = max([card_width] + [max(card.sizeHint().height(),
-                                           card.layout().totalHeightForWidth(card_width))
-                                         for card in self.cards if isinstance(card, (_EasyRegexCard, _EasyGuidanceCard))])
-        rows = (len(self.cards) + columns - 1) // columns
-        grid_height = rows * card_height + max(0, rows - 1) * gap
-        content_height = panel_height + (32 + grid_height if rows else 0)
-        _set_actual_minimum_height(self, content_height + 128)
-        panel_y = max(32, (self.height() - content_height) // 2)
-        self.panel.setGeometry((width - panel_width) // 2, panel_y, panel_width, panel_height)
-        self.rim.setGeometry(self.panel.geometry())
+    def explain_card(self, card):
+        """Display the focused module's explanation below the fixed suggestion row."""
+        self.details.setHtml(card._explanation)
+
+    def _scroll_cards(self, value):
+        """Move only the horizontal choice row, preserving input and description anchors."""
+        self._finish_growth()
+        self._arrange()
+
+    def wheelEvent(self, event):
+        """Scroll overflow choices horizontally with the native mouse or trackpad."""
+        if self._row_rect.contains(event.position().toPoint()) and self._scrollbar.maximum():
+            delta = event.pixelDelta().x() or event.pixelDelta().y()
+            if not delta:
+                delta = (event.angleDelta().x() or event.angleDelta().y()) // 2
+            self._scrollbar.setValue(self._scrollbar.value() - delta)
+            event.accept()
+        else:
+            super().wheelEvent(event)
+
+    def _arrange(self):
+        """Keep input and description fixed around one horizontally scrollable row."""
+        from PySide6.QtGui import QBrush, QLinearGradient, QRegion
+
+        width, height = self.width(), self.height()
+        panel_width = min(720, max(180, width - 48))
+        panel_y = max(16, (height - 64) // 2)
+        self._place_fixed(self.panel, QRect((width - panel_width) // 2, panel_y, panel_width, 64))
+        self._place_fixed(self.rim, QRect((width - panel_width) // 2, panel_y, panel_width, 64))
         self.rim.raise_()
+        details_width = min(780, max(180, width - 32))
+        details_height = min(88 + 2 * self.details.fontMetrics().lineSpacing(), max(64, height // 4))
+        self._place_fixed(self.details, QRect((width - details_width) // 2, height - details_height - 16,
+                                              details_width, details_height))
+        available = max(64, panel_y - 40)
+        side = min(224, available, max(96, width - 64))
+        card_height = max([side] + [min(available, max(card.sizeHint().height(), side))
+                                  for card in self.cards if isinstance(card, _EasyRegexCard)])
+        top = max(16, panel_y - card_height - 24)
+        self._row_rect = QRect(16, top, max(1, width - 32), card_height)
+        gap = 20
+        total = len(self.cards) * side + max(0, len(self.cards) - 1) * gap
+        maximum = max(0, total - self._row_rect.width())
+        self._scrollbar.blockSignals(True)
+        self._scrollbar.setRange(0, maximum)
+        self._scrollbar.setPageStep(self._row_rect.width())
+        self._scrollbar.setSingleStep(side + gap)
+        self._scrollbar.blockSignals(False)
+        self._scrollbar.setGeometry(24, self._row_rect.bottom() + 5, max(1, width - 48), 12)
+        self._scrollbar.setVisible(bool(maximum))
+        start = self._row_rect.left() + max(0, (self._row_rect.width() - total) // 2)
+        start -= self._scrollbar.value()
         for index, card in enumerate(self.cards):
-            row, column = divmod(index, columns)
-            row_count = min(columns, len(self.cards) - row * columns)
-            row_width = row_count * card_width + (row_count - 1) * gap
-            height = card_height if isinstance(card, (_EasyRegexCard, _EasyGuidanceCard)) else card_width
-            card._final_rect = QRect((width - row_width) // 2 + column * (card_width + gap),
-                                     panel_y + panel_height + 32 + row * (card_height + gap),
-                                     card_width, height)
+            card._final_rect = QRect(start + index * (side + gap), top, side,
+                                     card_height if isinstance(card, _EasyRegexCard) else side)
             if card.parentWidget() is self and not card._growing:
                 card.setGeometry(card._final_rect)
+            if card.parentWidget() is not self:
+                continue
+            local = self._row_rect.translated(-card.x(), -card.y()).intersected(card.rect())
+            if local.isEmpty():
+                card.hide()
+            else:
+                card.show()
+                card.setMask(QRegion(local))
+            gradient = QLinearGradient(self._row_rect.left() - card.x(), 0,
+                                       self._row_rect.right() - card.x(), 0)
+            fade = min(0.15, 44 / max(1, self._row_rect.width()))
+            gradient.setColorAt(0, QColor(0, 0, 0, 0 if self._scrollbar.value() else 255))
+            gradient.setColorAt(fade, QColor(0, 0, 0, 255))
+            gradient.setColorAt(1 - fade, QColor(0, 0, 0, 255))
+            gradient.setColorAt(1, QColor(0, 0, 0, 0 if self._scrollbar.value() < maximum else 255))
+            card._content_opacity.setOpacityMask(QBrush(gradient))
+        self.details.raise_()
+
 
 
 class _EasyWorkflowNode(_WorkflowNode):
     """Select a registered tool without opening it from a neighboring node."""
+
+    def __init__(self, view, key):
+        """Resolve one native icon and maturity once, outside repeated hover paints."""
+        from ..iconset import app_icon
+        super().__init__(view, key)
+        module = view.data['modules'][key]
+        self._glyph = app_icon(module['host_key'] if module.get('route') else key, theme='dark')
+        self._stage = _EasySuggestionCard._stage_for(key)
+        self._hovered = False
+        self._pressed = False
 
     def boundingRect(self):
         """Keep every neighboring module in the same rounded square footprint."""
@@ -4756,26 +5633,40 @@ class _EasyWorkflowNode(_WorkflowNode):
     def paint(self, painter, option, widget=None):
         """Draw the original icon sharply above a centered short module label."""
         from PySide6.QtGui import QPen
-        from ..iconset import app_icon
         from ..i18n import tr
+        from ..theme import ALPHA_MARK, stage_hover, _STAGE_BUTTON_HOVER_ALPHA, _STAGE_BUTTON_PRESS_ALPHA
 
         palette = palette_for('dark')
         painter.setRenderHint(QPainter.Antialiasing)
-        painter.setBrush(QColor(palette['surface']))
-        painter.setPen(QPen(QColor(palette['accent'] if self.highlighted else palette['border']), 1.5))
+        hue = QColor(stage_hover(self._stage))
+        fill = QColor(25, 25, 25)
+        if self._hovered or self._pressed:
+            fill = QColor(hue)
+            fill.setAlphaF(_STAGE_BUTTON_PRESS_ALPHA if self._pressed else _STAGE_BUTTON_HOVER_ALPHA)
+        painter.setBrush(fill)
+        painter.setPen(QPen(hue if self._hovered or self._pressed or self.highlighted
+                            else QColor(palette['border']), 1.5))
         painter.drawRoundedRect(self.boundingRect().adjusted(1, 1, -1, -1), 18, 18)
         module = self.view.data['modules'][self.key]
-        glyph = app_icon(module['host_key'] if module.get('route') else self.key, theme='dark')
         side = self.view._node_side
         icon_side = 80 if side >= 192 else 64
         icon_top = 28 if side >= 192 else 16
-        if glyph is not None:
-            glyph.paint(painter, QRect((side - icon_side) // 2, icon_top, icon_side, icon_side))
+        icon_rect = QRect((side - icon_side) // 2, icon_top, icon_side, icon_side)
+        if self._glyph is not None:
+            self._glyph.paint(painter, icon_rect)
         font = QFont('Open Sans')
         font.setWeight(QFont.Light)
         font.setPixelSize(font_px(18, scale=1))
         painter.setFont(font)
         painter.setPen(QColor(palette['fg']))
+        if self._stage == 'alpha':
+            font.setPixelSize(font_px(14, scale=1))
+            painter.setFont(font)
+            painter.setPen(hue)
+            painter.drawText(QRectF(side - 30, 8, 20, 20), Qt.AlignCenter, ALPHA_MARK)
+            font.setPixelSize(font_px(18, scale=1))
+            painter.setFont(font)
+            painter.setPen(QColor(palette['fg']))
         title_top = icon_top + icon_side + 12
         painter.drawText(QRectF(12, title_top, side - 24, side - title_top - 12),
                          Qt.AlignCenter | Qt.TextWordWrap, tr(module['name']))
@@ -4786,11 +5677,15 @@ class _EasyWorkflowNode(_WorkflowNode):
 
     def hoverEnterEvent(self, event):
         """Describe a neighbor without moving the selected tool or changing its input."""
+        self._hovered = True
+        self.update()
         self.view.explain_node(self.key)
         event.accept()
 
     def hoverLeaveEvent(self, event):
         """Return candidate connections to the selected neighborhood after hovering."""
+        self._hovered = False
+        self.update()
         if self.view._selected_key is not None:
             self.view.explain_node(self.view._selected_key)
         event.accept()
@@ -4798,8 +5693,18 @@ class _EasyWorkflowNode(_WorkflowNode):
     def mousePressEvent(self, event):
         """Center this tool first; only the central native card can launch it."""
         if event.button() == Qt.LeftButton:
-            self.view.chosen.emit(self.key)
+            self._pressed = True
+            self.update()
             self.setFocus()
+        event.accept()
+
+    def mouseReleaseEvent(self, event):
+        """Paint native press feedback before selecting the released node."""
+        chosen = self._pressed and event.button() == Qt.LeftButton and self.boundingRect().contains(event.pos())
+        self._pressed = False
+        self.update()
+        if chosen:
+            self.view.chosen.emit(self.key)
         event.accept()
 
     def keyPressEvent(self, event):
@@ -4898,7 +5803,8 @@ class _EasyWorkflowEdge(_WorkflowEdge):
         clip = clip.united(stroke.createStroke(self._lead_path))
         painter.setClipPath(clip, Qt.IntersectClip)
         palette = palette_for('dark')
-        color = QColor(palette['accent'])
+        utility = self.edge['kind'] == 'utility'
+        color = QColor(palette['fg_muted'] if utility else palette['accent'])
         color.setAlpha(200 if self.highlighted else 125)
         gradient = QLinearGradient(self.start, self.end)
         faint = QColor(color)
@@ -4907,13 +5813,15 @@ class _EasyWorkflowEdge(_WorkflowEdge):
         gradient.setColorAt(1, color)
         painter.setRenderHint(QPainter.Antialiasing)
         painter.setBrush(Qt.NoBrush)
-        if self.edge['kind'] != 'containment':
+        if self.edge['kind'] not in ('containment', 'utility'):
             halo = QColor(color)
             halo.setAlpha(24)
             painter.setPen(QPen(halo, 5))
             painter.drawPath(self.path())
-        pen = QPen(QBrush(gradient), 1.2 if self.edge['kind'] == 'containment' else 1.6)
-        if self.edge['kind'] == 'containment':
+        pen = QPen(QBrush(gradient), 1.2 if self.edge['kind'] in ('containment', 'utility') else 1.6)
+        if utility:
+            pen.setStyle(Qt.DashLine)
+        elif self.edge['kind'] == 'containment':
             pen.setStyle(Qt.DotLine)
         painter.setPen(pen)
         painter.drawPath(self.path())
@@ -4986,22 +5894,40 @@ class _EasyWorkflowView(_WorkflowView):
 
         from ..i18n import tr
 
-        text = node_description(self.data, key)
-        note = self.data['modules'][key].get('documentation_note')
-        if note:
-            text += '<p>' + escape(tr(note)) + '</p>'
-        self.explanation.emit(text)
+        if getattr(self, '_explanation_key', None) == key:
+            return
+        cache = self.__dict__.setdefault('_explanation_cache', {})
+        if key not in cache:
+            text = node_description(self.data, key)
+            note = self.data['modules'][key].get('documentation_note')
+            if note:
+                text += '<p>' + escape(tr(note)) + '</p>'
+            cache[key] = text
+        self._explanation_key = key
+        self.explanation.emit(cache[key])
 
     def _downstream_records(self, selected):
-        """Order only verified immediate handoffs and real owned subtools."""
+        """Keep scientific handoffs first and disclose actual Help tools as navigation."""
+        from ..i18n import tr
+        helpers = self.data.get('easy_helpers', ())
+        known = {(record['from'], record['to']) for record in self.data['easy_connections']}
+        if selected not in helpers:
+            for key in helpers:
+                if key != selected and (selected, key) not in known:
+                    self.data['easy_connections'].append(dict(
+                        **{'from': selected, 'to': key}, artifacts=[], handoff='',
+                        kind='utility', strength=0, mode_labels=[tr('Tools')]))
         candidates = {}
         for record in self.data['easy_connections']:
             if (record['from'] == selected and record['to'] != selected
-                    and record['kind'] in ('documented', 'containment')):
+                    and record['kind'] in ('documented', 'containment', 'utility')):
                 candidates.setdefault(record['to'], record)
         priority = self._PRIORITIES.get(selected, ())
         keys = [key for key in priority if key in candidates]
-        keys.extend(key for key in candidates if key not in keys)
+        keys.extend(key for key, record in candidates.items()
+                    if key not in keys and record['kind'] != 'utility')
+        keys.extend(key for key, record in candidates.items()
+                    if key not in keys and record['kind'] == 'utility')
         return [candidates[key] for key in keys]
 
     def center_selection(self, key):
@@ -5089,6 +6015,13 @@ class _EasyWorkflowPage(QWidget):
         make_transparent(self)
         self.setProperty("spacrAmbientTransparentOverlay", True)
         self.data = data
+        field = self._source_parent
+        self._fixed_controls = (field.panel, field.rim, field.details)
+        for control in self._fixed_controls:
+            rect = QRect(self.mapFromGlobal(control.mapToGlobal(control.rect().topLeft())), control.size())
+            control.setParent(self)
+            control.setGeometry(rect)
+            control.show()
         self._source_card.setParent(self)
         self._source_card.activated.connect(self.open_requested)
         self.routes = {action[0]: action for action in actions}
@@ -5096,7 +6029,7 @@ class _EasyWorkflowPage(QWidget):
                      'measure': {'merged'}, 'db_browser': {'measurements'}, 'foreign': {'foreign_tables'}}
         self.native_routes = set()
         for key, module in data['modules'].items():
-            if key in self.routes:
+            if key in self.routes or key in data.get('easy_helpers', ()):
                 continue
             for action in actions:
                 if set(module.get('inputs', ())) & artifacts.get(action[0], set()):
@@ -5108,6 +6041,8 @@ class _EasyWorkflowPage(QWidget):
                 self.routes[key] = (key, module['name'], module.get('guidance', ''), host[3])
         self.view = _EasyWorkflowView(data, self)
         make_transparent(self.view)
+        for surface in (self.view, self.view.viewport()):
+            surface.setProperty("spacrAmbientTransparentOverlay", True)
         self.view.chosen.connect(self.select)
         self.back = QPushButton(tr('Back'), self)
         self.back.setObjectName('EasyWorkflowBack')
@@ -5128,8 +6063,7 @@ class _EasyWorkflowPage(QWidget):
         self.more.setPlaceholderText(tr('More next steps'))
         self.more.setAccessibleName(tr('More next steps'))
         self.more.activated.connect(self._choose_next)
-        self.details = QTextBrowser(self)
-        self.details.setObjectName('EasyWorkflowDetails')
+        self.details = parent.field.details
         self.details.setOpenExternalLinks(True)
         self.details.setOpenLinks(True)
         self.details.setAccessibleName(tr('Module description'))
@@ -5138,8 +6072,11 @@ class _EasyWorkflowPage(QWidget):
         self.empty.setAlignment(Qt.AlignCenter)
         make_transparent(self.empty)
         self.select(selected)
+        self._departing = [card for card in self._source_parent.cards if card is not source_card]
+        if self._source_parent._scrollbar.maximum():
+            self._departing.append(self._source_parent._scrollbar)
         self._effects = []
-        for widget in (self.view, self.details, self.tools, self.more, self.back, self.empty):
+        for widget in (self.view, self.tools, self.more, self.back, self.empty):
             effect = QGraphicsOpacityEffect(widget)
             effect.setOpacity(0.0)
             widget.setGraphicsEffect(effect)
@@ -5197,11 +6134,18 @@ class _EasyWorkflowPage(QWidget):
         self.empty.setVisible(not self.view.branch_records)
         self._arrange()
         self.central.setFocus()
+        if getattr(self, '_entered', False):
+            from .ambient import _field_visit_node
+            _field_visit_node(self.central)
 
     def _arrange(self):
         """Place the branch on the free side without recentering the selected card."""
         if self.central is None:
             return
+        self.central.clearMask()
+        from PySide6.QtGui import QBrush
+        self.central._content_opacity.setOpacityMask(QBrush())
+        self.central._content_opacity.setOpacity(1.0)
         self.central.setGeometry(self._anchor)
         from PySide6.QtCore import QPoint
 
@@ -5216,18 +6160,14 @@ class _EasyWorkflowPage(QWidget):
                             self.tools.minimumSizeHint().height(), self.more.minimumSizeHint().height())
         stacked = self.width() < 572 and self.more.isVisible()
         header_bottom = 16 + header_height * (2 if stacked else 1) + (8 if stacked else 0)
-        details_width = min(520, max(260, self.width() - 32))
-        details_height = 88
-        bottom = QRect((self.width() - details_width) // 2, self.height() - details_height - 16,
-                       details_width, details_height)
-        if bottom.adjusted(-16, -16, 16, 16).intersects(self._anchor):
-            bottom.moveTop(header_bottom + 16)
-            top = bottom.bottom() + 17
-            limit = self.height() - 16
-        else:
-            top = header_bottom + 16
-            limit = bottom.top() - 16
-        self.details.setGeometry(bottom)
+        field = self._source_parent
+        field._arrange()
+        origin = self.mapFromGlobal(field.details.mapToGlobal(field.details.rect().topLeft()))
+        bottom = QRect(origin, field.details.size())
+        search_origin = self.mapFromGlobal(field.panel.mapToGlobal(field.panel.rect().topLeft()))
+        search = QRect(search_origin, field.panel.size()).adjusted(-4, -4, 4, 4)
+        top = header_bottom + 16
+        limit = search.top() - 16
         self.view._direction = 1 if self._anchor.center().x() < self.width() / 2 else -1
         if self.view._direction > 0:
             x, width = self._anchor.right() + 1, self.width() - self._anchor.right() - 17
@@ -5260,7 +6200,8 @@ class _EasyWorkflowPage(QWidget):
         self.more.setGeometry(16 if stacked else max(104, self.width() - 468),
                               24 + header_height if stacked else 16, 220, header_height)
         self.central.raise_()
-        self.details.raise_()
+        for control in self._fixed_controls:
+            control.raise_()
         self.back.raise_()
         self.tools.raise_()
         self.more.raise_()
@@ -5273,6 +6214,11 @@ class _EasyWorkflowPage(QWidget):
             self.central.update()
         for effect in self._effects:
             effect.setOpacity(self._progress)
+        for card in self._departing:
+            card._content_opacity.setOpacity(1.0 - self._progress)
+            card.setEnabled(False)
+            if self._progress >= 1.0:
+                card.hide()
         self.update()
 
     def _sync_run_state(self):
@@ -5282,12 +6228,22 @@ class _EasyWorkflowPage(QWidget):
         if not get_ambient_enabled() or get_reduce_motion():
             self._transition.stop()
             self._emerge(1.0)
+            from .ambient import _field_visit_node
+            _field_visit_node(self.central, False)
+
+    def hideEvent(self, event):
+        """Retire the selected-node visit before another module owns the field."""
+        from .ambient import _field_visit_node
+        _field_visit_node(self.central, False)
+        super().hideEvent(event)
 
     def showEvent(self, event):
         """Animate the network once while its original native card remains unchanged."""
         from ..preferences import get_ambient_enabled, get_reduce_motion
 
         super().showEvent(event)
+        from .ambient import _field_visit_node
+        _field_visit_node(self.central)
         if not self._entered:
             self._entered = True
             if get_ambient_enabled() and not get_reduce_motion():
@@ -5319,10 +6275,19 @@ class _EasyWorkflowPage(QWidget):
     def release_source_card(self):
         """Restore the original card to its unchanged suggestion list before retiring."""
         self._transition.stop()
+        from .ambient import _field_visit_node
+        _field_visit_node(self.central, False)
         self._source_card.activated.disconnect(self.open_requested)
         self._source_card._workflow_ports = ()
         self._source_card.setParent(self._source_parent)
+        for control in self._fixed_controls:
+            control.setParent(self._source_parent)
+            control.show()
         self._source_card.setGeometry(self._source_card._final_rect)
+        for card in self._departing:
+            card._content_opacity.setOpacity(1.0)
+            card.setEnabled(True)
+        self._source_parent._arrange()
         self._source_card.show()
         return self._source_card
 
@@ -5344,6 +6309,7 @@ class _EasyHomePage(QWidget):
     update_check_requested = Signal()
     news_refresh_requested = Signal()
     module_requested = Signal(str, str)
+    command_requested = Signal(str)
 
     def __init__(self, parent=None):
         """Build only the path field initially; expose guidance after an input attempt."""
@@ -5383,8 +6349,9 @@ class _EasyHomePage(QWidget):
         self._debounce.setInterval(600)
         self._debounce.timeout.connect(self._inspect)
         self.path_edit.textEdited.connect(self._schedule_inspection)
-        self.path_edit.returnPressed.connect(self._inspect)
+        self.path_edit.returnPressed.connect(self._submit)
         self._requested = ''
+        self._queued_inspection = False
         self._input_generation = 0
         self._last_result = None
         self._settings_overrides = {}
@@ -5471,13 +6438,17 @@ class _EasyHomePage(QWidget):
 
     def refresh(self):
         """Keep existing dark field colors and apply Open Sans Light only to this Home."""
+        from ..preferences import get_pane_opacity, resolve_effective_theme
+        from ..theme import css_color, panel_alpha
+
         palette = palette_for('dark')
-        surface = QColor(palette['surface'])
-        background = f'rgba({surface.red()}, {surface.green()}, {surface.blue()}, 220)'
+        background = 'rgb(25, 25, 25)'
         foreground = palette['fg']
         muted = palette['fg_muted']
         border = palette['border']
-        self.setStyleSheet(
+        details_background = css_color('#191919', panel_alpha(
+            resolve_effective_theme(), 'surface_alt', get_pane_opacity()))
+        sheet = (
             f'QWidget#EasyHomePage, QWidget#EasyHomePage QWidget {{ font-family: "Open Sans"; font-weight: 300; }} '
             f'QLineEdit#EasyModePath {{ background: {background}; color: {foreground}; border: none; border-radius: 28px; font-size: {font_px(18)}px; padding: 0px; placeholder-text-color: {muted}; }} '
             f'QPushButton#EasyModeBrowse {{ color: {foreground}; background: transparent; border: none; padding: 0px; font-size: {font_px(14)}px; }} '
@@ -5487,8 +6458,13 @@ class _EasyHomePage(QWidget):
             f'QPushButton#EasyWorkflowBack {{ color: {foreground}; background: transparent; border: none; padding: 0px; }} '
             f'QComboBox#EasyWorkflowTools, QComboBox#EasyWorkflowNextTools {{ color: {foreground}; background: {background}; placeholder-text-color: {muted}; border: 1px solid {border}; border-radius: 10px; }} '
             f'QComboBox#EasyWorkflowTools QAbstractItemView, QComboBox#EasyWorkflowNextTools QAbstractItemView {{ color: {foreground}; background: {palette["surface"]}; selection-background-color: {palette["accent"]}; selection-color: {palette["bg"]}; }} '
-            f'QTextBrowser#EasyWorkflowDetails {{ color: {foreground}; background: {background}; border: 1px solid {border}; border-radius: 10px; padding: 8px; }} '
+            f'QTextBrowser#EasyWorkflowDetails {{ color: {foreground}; background: {details_background}; border: 1px solid {border}; border-radius: 10px; padding: 8px; }} '
             f'QLabel#EasyInputFeedback {{ color: {muted}; background: transparent; }}')
+        from ..theme import _stage_button_rules
+        sheet += _stage_button_rules('QPushButton#EasySuggestionCard')
+        if getattr(self, '_easy_stylesheet', None) != sheet:
+            self._easy_stylesheet = sheet
+            self.setStyleSheet(sheet)
 
     def _feedback(self, message, visible=False):
         """Keep normal guidance accessible without adding an explanatory panel."""
@@ -5498,6 +6474,7 @@ class _EasyHomePage(QWidget):
         self.path_edit.setToolTip(message)
         if visible:
             self.field.set_cards([], _EasyGuidanceCard(message, self.field))
+        self.field.details.setPlainText(message)
         self.field._arrange()
 
     def accept_paths(self, paths):
@@ -5551,16 +6528,29 @@ class _EasyHomePage(QWidget):
         self._show_suggestions()
 
     def _schedule_inspection(self, text):
-        """Debounce typed paths without interpreting the signal text as a timer interval."""
+        """Invalidate unfinished work while leaving submitted choices unchanged until Enter."""
+        self._debounce.stop()
+        self._queued_inspection = False
+        self._cancel_regex_validation()
+        self._input_generation += 1
+        self._runner.cancel()
         if not text.strip():
             self._clear_empty_input()
+
+    def _submit(self):
+        """Use Enter for explicit command navigation or suggestion discovery."""
+        from ..app import _easy_command_text, _easy_module_search
+
+        value = self.path_edit.text().strip()
+        self._show_suggestions()
+        if not _easy_command_text(value) or value.endswith(':') or len(_easy_module_search(value)) > 1:
+            self._inspect()
             return
+        self._debounce.stop()
         self._cancel_regex_validation()
-        self._last_result = None
-        self._settings_overrides = {}
-        self.field.set_cards([])
-        self.status.hide()
-        self._debounce.start()
+        self._runner.cancel()
+        self._input_generation += 1
+        self.command_requested.emit(value)
 
     def _inspect(self):
         """Run one bounded local inspection off the GUI thread, never an AI request."""
@@ -5573,9 +6563,30 @@ class _EasyHomePage(QWidget):
             return
         self._debounce.stop()
         self._cancel_regex_validation()
-        if self._runner.is_busy():
-            return
         value = self.path_edit.text()
+        from ..app import _easy_module_search
+
+        suggest = getattr(self.window(), '_easy_navigation_suggestions', _easy_module_search)
+        actions = suggest(value)
+        if actions:
+            self._runner.cancel()
+            self._requested = value
+            self._input_generation += 1
+            self._last_result = None
+            self._settings_overrides = {}
+            groups = {key: dict(group=tr('Help') if key.startswith('__easy_command__:') else tr('Tools'),
+                                reason=description, kind='navigation')
+                      for key, _title, description, _path in actions}
+            self._show_result(self._input_generation, dict(path=value, actions=actions, message='',
+                                                         context=dict(action_groups=groups)))
+            return
+        if self._runner.is_busy():
+            self._queued_inspection = value != self._requested
+            if value != self._requested:
+                self._last_result = None
+                self._settings_overrides = {}
+                self.field.set_cards([])
+            return
         self._requested = value
         self._input_generation += 1
         self._last_result = None
@@ -5600,8 +6611,6 @@ class _EasyHomePage(QWidget):
         proposal = result.get('regex')
         leading = None
         if proposal:
-            if proposal.get('required'):
-                actions = [action for action in actions if action[0] != 'mask']
             leading = _EasyRegexCard(proposal, self.field)
             leading.regex_requested.connect(self._apply_regex)
         elif result.get('metadata_preset'):
@@ -5615,16 +6624,22 @@ class _EasyHomePage(QWidget):
         self._feedback(message, visible=not actions and leading is None)
         if not actions and leading is None:
             return
-        leading_index = int(bool(actions and actions[0][0] in ('foreign', 'db_browser', 'measure', 'convert')
+        leading_index = int(bool(actions and actions[0][0] in ('foreign', 'db_browser', 'measure')
                                  and actions[0][3] == result['path']))
-        self.field.set_cards(actions, leading, leading_index)
+        self.field.set_cards(actions, leading, leading_index,
+                             groups=result.get('context', {}).get('action_groups'))
+        if self.field.cards:
+            self.field.explain_card(self.field.cards[0])
         for card in self.field.cards:
             if not isinstance(card, _EasyRegexCard):
                 card.activated.connect(self._select_suggestion)
 
     def _select_suggestion(self, key, path):
         """Center a suggested tool and reveal its real workflow before opening it."""
-        from ..app import APPS, app_is_visible, folded_children
+        if key.startswith('__easy_command__:'):
+            self.command_requested.emit(key.split(':', 1)[1])
+            return
+        from ..app import APPS, _HELP_MODULES, app_is_visible, folded_children
         from ..preferences import maturity_is_visible
         from .fold_strip import fold_label
         from .workflow_diagram import _easy_workflow_data
@@ -5639,32 +6654,35 @@ class _EasyHomePage(QWidget):
         data = _easy_workflow_data(APPS, visible, folds, folded_metadata=metadata,
                                   subtools=(dict(key='overview', name=tr('Overview'),
                                                  guidance=tr('Inspect images and field metadata.'),
-                                                 host_key='mask', route='overview'),),
+                                                 host_key='mask', route='overview'),
+                                            dict(key='3d', name=tr('3D'),
+                                                 guidance=tr('Inspect images and field metadata.'),
+                                                 host_key='mask', route='dimension')),
                                   mode_labels={('mask', 'measure'): (tr('Concatenate'), tr('3D'), tr('Time')),
                                                ('mask', 'ops'): (tr('OPS'),),
                                                ('mask', 'timelapse'): (tr('Time'),)})
+        data['easy_helpers'] = tuple(candidate for candidate in
+                                     (*[row[0] for row in _HELP_MODULES], 'feature_dict')
+                                     if candidate in data['modules'])
         if key not in data['modules']:
             return
         actions = list((self._last_result or {}).get('actions', ()))
         actions = [action for action in actions if action[0] != key]
         actions.insert(0, (key, data['modules'][key]['name'], data['modules'][key].get('guidance', ''), path))
-        source_card = next((card for card in self.field.cards if card._key == key), None)
+        source_card = next((card for card in self.field.cards
+                            if card._key == key and card._path == path), None)
         if source_card is None:
             return
         self.field._finish_growth()
         anchor = QRect(source_card.mapTo(self, source_card.rect().topLeft()), source_card.size())
         source_card.activated.disconnect(self._select_suggestion)
-        for card in self.field.cards:
-            if card is not source_card:
-                card.hide()
-        self.path_edit.hide()
-        self.field.rim.hide()
         self._workflow = _EasyWorkflowPage(data, actions, key, source_card, anchor, self)
         self._workflow.setGeometry(self.rect())
         self._workflow.back_requested.connect(self._show_suggestions)
         self._workflow.open_requested.connect(self.module_requested)
         self._workflow.show()
         self._workflow.raise_()
+        self.field.details.raise_()
 
     def _show_suggestions(self):
         """Return to the unchanged path and suggestions without starting another inspection."""
@@ -5674,8 +6692,7 @@ class _EasyHomePage(QWidget):
             self._workflow.hide()
             self._workflow.deleteLater()
             self._workflow = None
-            for card in self.field.cards:
-                card.show()
+            self.field._arrange()
         self._suggestions_scroll.show()
         self.path_edit.show()
         self.field.rim.show()
@@ -5710,7 +6727,8 @@ class _EasyHomePage(QWidget):
 
     def _inspection_finished(self, ok):
         """Inspect a changed input after the previous owned worker has retired."""
-        if self.path_edit.text().strip() and self.path_edit.text() != self._requested:
+        if self._queued_inspection and self.path_edit.text().strip():
+            self._queued_inspection = False
             self._debounce.start()
 
     def _inspection_failed(self, message):

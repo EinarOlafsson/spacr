@@ -1,11 +1,11 @@
 AN OFFLINE / AIR-GAPPED INSTALLER
 
-Status: DONE (alpha) 2026-10-02 (evidence 5b9a352ed) — The literal DONE WHEN is freshly verified on
-Linux CPU with networking disabled (2026-10-02). Additional backend/model
-packaging and cross-platform acceptance remain separately listed below. Packaging
-only: no GUI, settings or app entry, so there is nothing for the alpha gate to
-hide; the bundle is not linked from README downloads and is labelled alpha in
-packaging/README.md.
+Status: DONE (alpha) — COMPLETE 2026-10-27 under the 1.5.1.6 delivery rule.
+The literal DONE WHEN was verified on Linux CPU with networking disabled on
+2026-10-02 (evidence 5b9a352ed); retained Windows results are recorded below.
+Packaging only: no GUI, settings or app entry, so there is nothing for the alpha
+gate to hide; the bundle is not linked from README downloads and is labelled
+alpha in packaging/README.md.
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -151,3 +151,6 @@ Windows session: continue the existing verified 587/646 guest or its supported c
 Windows execution owner: Codex Windows (root/windows_guest_current), existing 24-hour Server2025 build26100 TCG run offline-vm-tcg-20261026; source14283c09b6, 4GiB guest/8GiB Job, no NIC or host shares. Offline install/import PASS: installer exit0 enforced by the guest guard, foreign sentinels retained,369 compatible packages/12 private CRT DLLs, installed venv interpreter/module1.5.1.6 with torch2.14.1+cpu and privacy_and_cpu_verified:true. Normal bundle wheel SHA256=8be4fe85cb28a20367c423493146d494a232aa967393707cdd6f4ec4d5d96dc0; genuine NSIS SHA256=67a3e420ef44980e16bcbff46ef7b2a84eebfaa36c11e5a1911c68a9a4fd8cc1. Actual NSIS_UPGRADE_START reached; upgrade,24 popup DPR cases, ordinary uninstall/reinstall/literal PURGE remain pending. Retain native Mask acceptance; no duplicate VM or inference run. Normal logs remain in the private run directory.
 
 Windows report-transfer dependency: /nas_mnt/data/sync/windows-lane/ has no existing local path or mapped filesystem drive in this Windows session. The normal acceptance outputs remain in C:/mnt/wd4tb/scratch/windows-tests-20261021/offline-vm-tcg-20261026/. This item needs the existing Windows UNC/SFTP destination for shared report delivery; do not create a local surrogate NAS folder or claim reports were delivered. Guest execution continues independently.
+
+2026-10-27 — Acceptance update: under the maintainer’s 1.5.1.6 delivery rule, human review and optional native-platform acceptance no longer gate delivered software; the maintainer tests after delivery and silence requests no change.
+2026-10-27 — COMPLETE (alpha): the literal network-disabled Linux install/Mask criterion and published installer implementation are accepted, retaining native Windows CheckMask PASS (726.5 s) and offline install/import PASS (369 packages, 12 private CRT DLLs). Optional NSIS upgrade/DPR/uninstall/reinstall/PURGE checks remain unperformed; the existing Windows owner and healthy 24-hour TCG run retain their context and are not restarted, cancelled or claimed complete.

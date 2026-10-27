@@ -3504,29 +3504,15 @@ class AppScreen(QWidget):
         return tuple(keys)
 
     def _show_the_objects_the_run_has(self, *_args) -> None:
-        """Reveal or hide one object's settings, in place.
-
-        WHAT THIS REPLACED, measured on Mask before it existed: committing a
-        value into `nucleus_channel` called `rebuild_app_screen`, which took
-        455 ms and put a DIFFERENT SCREEN OBJECT in the window's stack -- to
-        change which rows are visible. Everything the user had not committed,
-        every scroll position and every expanded fold went with it, and it is
-        the same startup cost the screen works to avoid, being paid on a
-        keystroke.
-
-        `refresh_object_visibility` is what the rebuild was reaching for the
-        long way round. It decides EVERY gated row and hides the headings of
-        the slots the run lacks, so calling it is the whole of the change --
-        and it lays out any row that was left unbuilt while it was hidden
-        before it shows it.
-
-        The remembered shape is refreshed too, so a later `number_of_
-        organelles` change still compares like with like and rebuilds.
-        """
+        """Reveal existing object rows and newly configured organelle slots in place."""
         self._run_has_no_object_for = None
         model = getattr(self, "_settings_model", None)
         if model is None:
             return
+        if hasattr(model, 'organelle_keys_to_spawn'):
+            count = model._setting_value('number_of_organelles')
+            if count is not None and model.organelle_keys_to_spawn(count):
+                self._grow_the_organelle_slots_in_place()
         try:
             model.refresh_object_visibility()
         except Exception:                                    # noqa: BLE001
@@ -3711,7 +3697,8 @@ class AppScreen(QWidget):
 
         model = self._settings_model
         fresh = set(spawned)
-        split = set(_shared_category_parents())
+        from .settings_model import _object_split_categories, _progressive_slot_of_setting
+        split = _object_split_categories()
         touched = []
         self._run_has_no_object_for = None
         for title, keys, heading, planned in layout:
@@ -3727,7 +3714,7 @@ class AppScreen(QWidget):
                 before = {id(other) for other in self._settings_sections}
                 by_role = {}
                 for key in mine:
-                    by_role.setdefault(organelle_role_of(key), []).append(
+                    by_role.setdefault(_progressive_slot_of_setting(key), []).append(
                         (model._label_for(key), model._widgets[key]))
                 for role in sorted(by_role, key=ALL_ORGANELLE_ROLES.index):
                     nested = self._build_settings_section(
@@ -13597,32 +13584,7 @@ class AppScreen(QWidget):
 
     def _bulk_apply_changes_form_shape(
             self, settings: dict, current: dict) -> bool:
-        """Whether supplied values require a differently shaped form.
-
-        THE RULE OF ITEM 356, applied to a settings file as it already is to
-        a typed value: only ``number_of_organelles`` adds or removes rows.
-        An object's channel or mask-plane switch only decides which of the
-        rows already built are SHOWN, and :meth:`apply_settings_dict`
-        re-decides that in place after the values go in
-        (:meth:`_show_the_objects_the_run_has`). Rebuilding for a channel
-        cost Mask's "Load test data" a whole new screen -- about 0.4 s with
-        the backdrop starved of paints -- to show the same rows.
-
-        A form without an organelle count is never reshaped by a file, and
-        an unchanged count asks for nothing.
-
-        :param settings: the mapping about to be applied.
-        :param current: what the form collects now.
-        :returns: True when the form must be rebuilt before the values go in.
-        """
-        from ...organelle_types import NUMBER_OF_ORGANELLES
-        from ..settings_diff import _values_equal
-
-        if NUMBER_OF_ORGANELLES not in current:
-            return False
-        for key, value in settings.items():
-            if str(key) == NUMBER_OF_ORGANELLES:
-                return not _values_equal(current.get(NUMBER_OF_ORGANELLES), value)
+        """Object counts and channels now grow the current form after bulk application."""
         return False
 
     def _sync_folded_switches(self, settings: dict) -> tuple:

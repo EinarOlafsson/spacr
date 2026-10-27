@@ -1,3 +1,10 @@
+CURRENT OVERVIEW MEASUREMENT CANCELLATION — 2026-10-27
+widgets_g1 owns Coverage 7 job 122276094102: cancelling a parallel
+Overview measurement run must stop and reap its actual workers without
+publishing partial output or hanging pool termination. Preserve cancellation,
+worker-count and output assertions; use the smallest owning regression,
+G4 source peer and root-only publication, with no timeout or ratchet increase.
+
 CURRENT CUDA CAPABILITY GUARD — 2026-10-26
 widgets_g2 owns the Coverage 11 attribution-context false positive. Keep all
 training and inference memory-room guards; distinguish the exact CUDA RNG
@@ -5225,3 +5232,11 @@ Also check the per-host instance lock and unclean-exit counter: concurrent windo
 2026-10-27 — Coverage 3 now reuses one real source snapshot and bounded exact-text API derivations while retaining every locale, strict review-file/pin check and advisory policy. Normal pinned catalogs build in fixture setup, so build failures remain strict. Two cache/stale-English controls pass; all nine locale calls finish in 62–69 s each and reach the unchanged stale review-scope assertion (advisory xfail). No timeout, report, corpus or generated artifact was changed; root owns publication.
 
 2026-10-27 — Preserved the concurrent plaque float32-record fix; all six focused precision checks pass (4.27 s). The normal three-module projection has no API or UI-caption changes. Normal consumer generation refreshes 431 source locations only, retaining every consumer identity, target and count; no coverage threshold or generated mapping was hand-edited.
+
+2026-10-27 — Hosted Coverage9 exposed stale Plaque use_bfloat16 documentation. Normal settings-flow regeneration updates only that section with the two private Plaque routes and precision reader; its exact freshness selector passes. JSON/index outputs and qualified Easy/API/UI bindings remain unchanged; root owns publication.
+
+2026-10-27 — Pinned-review bootstrap now drains both subprocess pipes after tar logical EOF, preventing a reproduced padding/backpressure deadlock while preserving archive/security and exit-error validation. G5 peer accepted; the real pinned-git archive regression passes (1 case, 1.18 s), including byte-exact restore and nonzero-producer rejection. No timeout or generated artifact changed; root owns publication and hosted Windows qualification.
+
+2026-10-27 — Coverage 7 Overview cancellation hung while the stock pool joined a terminated worker. Owned paced workers now receive a two-second graceful stop, then a kill only if still alive, at the stock termination callsite after queue/handler cleanup. Real normal and handled-SIGTERM cancellation plus pending-start cleanup pass (3 cases, 10.24 s), preserving no partial database and no live children. G4 peer accepted; root owns normal contract refresh and publication.
+
+2026-10-27 — The runtime-caption owner fixture now supplies the empty convert.py required by the normal extractor. All 78 affected ownership controls pass without changing their assertions, production extraction, catalogs or review pins; root owns publication.

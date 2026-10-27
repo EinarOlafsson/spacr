@@ -19,7 +19,7 @@ def extract_backend_sources(tmp_path, monkeypatch):
         "install_cleanup.py", "data_manager.py", "doctor.py", "updater.py",
         "settings.py", "object.py", "remote_execution.py",
         "attribution.py", "measure.py", "object_classifier.py", "core.py",
-        "psf_pipeline.py", "pipeline_v2.py",
+        "psf_pipeline.py", "pipeline_v2.py", "convert.py",
         "_lineage_trees.py",
         "utils.py", "channel_sorting.py", "run_journal.py", "ml.py",
         "regression_layout.py", "regression_failure.py", "power_model.py",

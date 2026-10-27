@@ -10,17 +10,41 @@ import sqlite3
 from prepare_classify_split import TRAIN_WELLS, TEST_WELLS, marker_profile, MARKER
 
 
-def inspect_inputs(dataset):
+def mapped_source_path(path, path_mapping=None, *, file=True):
+    """Resolve one explicitly relocated capture root, never edit saved receipts."""
+    path=Path(path)
+    if path_mapping is None:
+        return path
+    if not isinstance(path_mapping,tuple) or len(path_mapping)!=2:
+        raise ValueError('Expected one recorded-to-physical capture root mapping')
+    recorded,actual=map(Path,path_mapping)
+    if (not recorded.is_absolute() or not actual.is_absolute()
+            or '..' in recorded.parts or '..' in actual.parts or not actual.is_dir()
+            or actual.is_symlink() or actual.resolve()!=actual
+            or recorded==actual or recorded.is_relative_to(actual) or actual.is_relative_to(recorded)
+            or not path.is_absolute() or '..' in path.parts or not path.is_relative_to(recorded)):
+        raise ValueError('Source path escapes the explicit original capture root mapping')
+    mapped=actual/path.relative_to(recorded)
+    if (mapped.is_symlink() or not mapped.resolve().is_relative_to(actual)
+            or (not mapped.is_file() if file else not mapped.is_dir())):
+        raise ValueError('Mapped source must be an original physical capture input')
+    return mapped
+
+
+def inspect_inputs(dataset, *, path_mapping=None):
     dataset = Path(dataset).resolve()
     manifest = json.loads((dataset / 'tutorial_input_manifest.json').read_text(encoding="utf-8"))
     if manifest.get('accepted') is not True or len(manifest.get('records', [])) != 64:
         raise ValueError('Expected the documented 64 unchanged example crops')
-    database = Path(manifest['source_database'])
+    if path_mapping is not None and mapped_source_path(manifest['destination'],path_mapping,file=False)!=dataset:
+        raise ValueError('Prepared dataset differs from its explicit recorded root mapping')
+    database = mapped_source_path(manifest['source_database'],path_mapping)
     if hashlib.sha256(database.read_bytes()).hexdigest() != manifest['source_database_sha256']:
         raise ValueError('Source database changed')
     if 'copied_database' in manifest:
         copied_database = dataset / 'measurements' / 'measurements.db'
-        if (str(copied_database) != manifest['copied_database']
+        if ((str(copied_database) != manifest['copied_database'] if path_mapping is None else
+                copied_database != mapped_source_path(manifest['copied_database'],path_mapping))
                 or manifest['copied_database_sha256'] != manifest['source_database_sha256']
                 or hashlib.sha256(copied_database.read_bytes()).hexdigest()
                 != manifest['source_database_sha256']):
@@ -45,17 +69,18 @@ def inspect_inputs(dataset):
         if split not in groups:
             raise ValueError('Unknown split')
         target = dataset / split / row['class_name'] / (identity + '.png')
-        if str(target) != row['target']:
+        if (str(target) != row['target'] if path_mapping is None else
+                target != mapped_source_path(row['target'],path_mapping)):
             raise ValueError('Exported path differs from the canonical identity')
         for key in ('source', 'source_marker'):
-            if hashlib.sha256(Path(row[key]).read_bytes()).hexdigest() != row[key + '_sha256']:
+            if hashlib.sha256(mapped_source_path(row[key],path_mapping).read_bytes()).hexdigest() != row[key + '_sha256']:
                 raise ValueError('An original crop or format marker changed')
         if hashlib.sha256(target.read_bytes()).hexdigest() != row['source_sha256']:
             raise ValueError('A prepared crop changed')
         if row['source_sha256'] in image_hashes:
             raise ValueError('Duplicate image content')
         image_hashes.add(row['source_sha256'])
-        if marker_profile((target.parent / MARKER).read_bytes()) != marker_profile(Path(row['source_marker']).read_bytes()):
+        if marker_profile((target.parent / MARKER).read_bytes()) != marker_profile(mapped_source_path(row['source_marker'],path_mapping).read_bytes()):
             raise ValueError('Exported storage format differs')
         groups[split].add(well)
         counts[split] += 1
@@ -72,9 +97,9 @@ def inspect_inputs(dataset):
             'labels_preserved_from_example': True, 'filename_parser_fixed': False}
 
 
-def inspect_finished(dataset):
+def inspect_finished(dataset, *, path_mapping=None):
     dataset = Path(dataset).resolve()
-    proof = inspect_inputs(dataset)
+    proof = inspect_inputs(dataset,path_mapping=path_mapping)
     reports = {}
     for filename, counts in [('train_test_leakage_audit.json', (32, 32)),
                              ('train_validation_leakage_audit.json', (16, 16))]:
@@ -131,9 +156,9 @@ def check_predictions(rows, metric, truth):
             'all_metrics_validated': False, 'probabilities_calibrated': False}
 
 
-def inspect_metrics(dataset):
+def inspect_metrics(dataset, *, path_mapping=None):
     dataset = Path(dataset).resolve()
-    inspect_inputs(dataset)
+    inspect_inputs(dataset,path_mapping=path_mapping)
     manifest = json.loads((dataset / 'tutorial_input_manifest.json').read_text(encoding="utf-8"))
     truth = {r['target']: r['infected'] - 1 for r in manifest['records'] if r['split'] == 'test'}
     predictions = list((dataset / 'model').rglob('*_test_acc.csv'))

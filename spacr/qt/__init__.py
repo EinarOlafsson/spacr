@@ -229,15 +229,37 @@ def _release_after_callback(callback) -> None:
 def _explain_the_inotify_line() -> None:
     """Say what ENOSPC from inotify really means, once per process."""
     global _SAID_IT_ONCE
-    if _SAID_IT_ONCE:
+    if _SAID_IT_ONCE or not sys.platform.startswith("linux"):
         return
     _SAID_IT_ONCE = True
+    from pathlib import Path
+    from .i18n import tr
+
+    try:
+        current = int(Path("/proc/sys/fs/inotify/max_user_watches").read_text().strip())
+        if current <= 0:
+            raise ValueError
+        limit = max(524288, current * 2)
+    except (OSError, ValueError):
+        limit = None
+    prepare = ""
+    if limit is None:
+        prepare = ("spacr_watch_limit=$(sysctl -n fs.inotify.max_user_watches) &&\n"
+                   "spacr_watch_limit=$((spacr_watch_limit > 262144 ? spacr_watch_limit * 2 : 524288)) &&\n")
+        assignment = '"fs.inotify.max_user_watches=$spacr_watch_limit"'
+    else:
+        assignment = f"'fs.inotify.max_user_watches={limit}'"
+    temporary = prepare + "sudo sysctl -w " + assignment
+    persistent = (prepare + "printf '%s\\n' " + assignment
+                  + " | sudo tee /etc/sysctl.d/90-spacr-inotify.conf &&\n"
+                  + "sudo sysctl -p /etc/sysctl.d/90-spacr-inotify.conf")
     print(
-        "Note: this machine has run out of inotify FILE WATCHES (not disk "
-        "space -- Qt reports the same error code for both). Applications "
-        "that watch files, spaCR included, may stop noticing changes. "
-        "Raising fs.inotify.max_user_watches is a system setting and spaCR "
-        "does not change it for you.",
+        tr("Linux has run out of inotify FILE WATCHES, not disk space. Applications may stop noticing file changes."),
+        "\n\n" + tr("Temporary increase until reboot:"),
+        "\n" + temporary,
+        "\n\n" + tr("Persistent increase (requires sudo):"),
+        "\n" + persistent,
+        "\n\n" + tr("Closing file-watching applications releases their watches. Rebooting clears all watches, but applications can use them again. Restarting does not increase the configured limit. Restart affected applications after increasing the limit. inotify is Linux-only, including Linux environments such as WSL. spaCR does not run these commands."),
         file=sys.stderr)
 
 

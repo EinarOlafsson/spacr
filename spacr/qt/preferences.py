@@ -10642,23 +10642,13 @@ class PreferencesDialog:
         )
         form.addRow(tr("App dock"), dock_combo)
 
-        easy_mode_check = Toggle()
-        easy_mode_check.setObjectName("EasyMode")
-        easy_mode_check.setAccessibleName(tr("Easy mode"))
-        easy_mode_check.setToolTip(tr(
-            "Use a simple Home field for a file or folder and local suggestions for "
-            "the next step. Works without an AI provider."))
-        easy_mode_check.setChecked(get_easy_mode())
-        form.addRow(tr("Easy mode"), easy_mode_check)
-
         easy_mode_dock_check = Toggle()
         easy_mode_dock_check.setObjectName("EasyModeDock")
-        easy_mode_dock_check.setAccessibleName(tr("Show app dock in Easy mode"))
+        easy_mode_dock_check.setAccessibleName(tr("Show app dock in Navigator"))
         easy_mode_dock_check.setToolTip(tr(
-            "Keep the app dock visible while Easy mode is on. Off hides the dock "
-            "in Easy mode without changing its normal setting."))
+            "Keep the app dock visible in Navigator without changing its normal setting."))
         easy_mode_dock_check.setChecked(get_easy_mode_dock())
-        form.addRow(tr("Show app dock in Easy mode"), easy_mode_dock_check)
+        form.addRow(tr("Show app dock in Navigator"), easy_mode_dock_check)
 
         opacity_slider = QSlider(Qt.Horizontal)
         opacity_slider.setObjectName("PaneOpacity")
@@ -12317,7 +12307,6 @@ class PreferencesDialog:
                 _refresh_custom_colors()
                 _select(ambient_dir_combo, get_ambient_drift_direction())
                 _select(dock_combo, get_dock_mode())
-                easy_mode_check.setChecked(get_easy_mode())
                 easy_mode_dock_check.setChecked(get_easy_mode_dock())
                 _select(cb_combo, get_color_blind_mode())
                 _select(figure_save_mode_combo, get_figure_save_mode())
@@ -12483,7 +12472,6 @@ class PreferencesDialog:
             except Exception:                                # noqa: BLE001
                 LOG.debug("could not apply the GUI scale", exc_info=True)
             set_dock_mode(dock_combo.currentData())
-            set_easy_mode(easy_mode_check.isChecked())
             set_easy_mode_dock(easy_mode_dock_check.isChecked())
             set_pane_opacity(opacity_slider.value() / 100.0)
             set_field_fade_enabled(field_fade_check.isChecked())

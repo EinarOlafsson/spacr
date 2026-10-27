@@ -2850,9 +2850,11 @@ class ForeignProjectDropHandler(DropHandler):
         :param path: the dropped file or folder.
         :returns: True when this handler can use ``path`` as-is.
         """
+        from ..convert import _image_extensions
+
         return path.is_dir() or (
             path.is_file() and path.suffix.lower() in
-            (_IMAGE_SUFFIXES | {".csv", ".tsv", ".xlsx", ".xls",
+            (_IMAGE_SUFFIXES | set(_image_extensions()) | {".csv", ".tsv", ".xlsx", ".xls",
                                ".parquet", ".json"})
         )
 
@@ -3007,8 +3009,10 @@ class ConvertDropHandler(DropHandler):
         :param path: the dropped file or folder.
         :returns: True when this handler can use ``path`` as-is.
         """
+        from ..convert import _image_extensions
+
         return path.is_dir() or (
-            path.is_file() and path.suffix.lower() in (_IMAGE_SUFFIXES | {".scn"}))
+            path.is_file() and path.suffix.lower() in (_IMAGE_SUFFIXES | set(_image_extensions())))
 
     def error_message(self, path: Path) -> str:
         """Name the container formats, because a user with an ND2 will not

@@ -136,8 +136,8 @@
     },
     {
       "lesson": "04_platform_installers",
-      "master_sha256": "0f8c5a326e101f93a8cd6242d18546e6cc8b5f3bfb0cb058c09a99962a7ececc",
-      "visual_timing_sha256": "098916f919b2127ef83cb59bdf67c11b9fe28410a3b4e342be1d9d72a924aebf",
+      "master_sha256": "e5101f46da7b93e657444a11092d60944eb216712eff122ef3bc901bb853f40b",
+      "visual_timing_sha256": "b805678cd6adb5d696fc92199a5a7ca50e046ca377cd4ff69dca68706164b0ca",
       "scenes": [
         {
           "visual": "08_official_release",
@@ -184,43 +184,43 @@
         {
           "visual": "14_current_nightly_performance",
           "source_start": 143.1,
-          "source_end": 176.33333333333331,
-          "idle_tail_start": 11.3
+          "source_end": 168.23333333333332,
+          "idle_tail_start": 8.9
         },
         {
           "visual": "13_current_nightly_home",
-          "source_start": 176.33333333333331,
-          "source_end": 206.0333333333333,
-          "idle_tail_start": 1.0
+          "source_start": 168.23333333333332,
+          "source_end": 182.6,
+          "idle_tail_start": 6.4
         },
         {
           "visual": "05_doctor",
-          "source_start": 206.0333333333333,
-          "source_end": 235.33333333333331,
+          "source_start": 182.6,
+          "source_end": 211.9,
           "idle_tail_start": 0
         },
         {
           "visual": "12_logs_and_versions",
-          "source_start": 235.33333333333331,
-          "source_end": 260.2,
+          "source_start": 211.9,
+          "source_end": 236.76666666666668,
           "idle_tail_start": 0
         },
         {
           "visual": "15_uninstall_windows",
-          "source_start": 260.2,
-          "source_end": 283.3333333333333,
+          "source_start": 236.76666666666668,
+          "source_end": 259.9,
           "idle_tail_start": 0
         },
         {
           "visual": "16_uninstall_macos",
-          "source_start": 283.3333333333333,
-          "source_end": 314.43333333333334,
+          "source_start": 259.9,
+          "source_end": 291.0,
           "idle_tail_start": 0
         },
         {
           "visual": "17_uninstall_linux",
-          "source_start": 314.43333333333334,
-          "source_end": 341.23333333333335,
+          "source_start": 291.0,
+          "source_end": 318.1,
           "idle_tail_start": 0
         }
       ]
@@ -3917,6 +3917,255 @@
           "source_start": 218.43333333333334,
           "source_end": 235.4,
           "idle_tail_start": 7.2
+        }
+      ]
+    },
+    {
+      "lesson": "13_regression",
+      "master_sha256": "dea87903dc18d1c086cfdaf448181d4d7cb940fcb1150e26cd2d9d359fc00889",
+      "visual_timing_sha256": "25e0bee411c71c4b98e236a53d53ee262bc1a628dc794e98ef98b6aff137f7fb",
+      "scenes": [
+        {
+          "visual": "01_module",
+          "source_start": 0.0,
+          "source_end": 24.2,
+          "idle_tail_start": 4.0
+        },
+        {
+          "visual": "02_download",
+          "source_start": 24.2,
+          "source_end": 39.2,
+          "idle_tail_start": 5.633333333333334
+        },
+        {
+          "visual": "19_setting_paired_data",
+          "source_start": 39.2,
+          "source_end": 62.1,
+          "idle_tail_start": 8.8
+        },
+        {
+          "visual": "19_setting_inference",
+          "source_start": 62.1,
+          "source_end": 89.46666666666667,
+          "idle_tail_start": 7.3
+        },
+        {
+          "visual": "19_setting_level",
+          "source_start": 89.46666666666667,
+          "source_end": 111.8,
+          "idle_tail_start": 7.1
+        },
+        {
+          "visual": "19_setting_analysis_unit",
+          "source_start": 111.8,
+          "source_end": 133.9,
+          "idle_tail_start": 7.9
+        },
+        {
+          "visual": "19_setting_guide_min_wells",
+          "source_start": 133.9,
+          "source_end": 156.7,
+          "idle_tail_start": 7.9
+        },
+        {
+          "visual": "19_setting_guide_permutations",
+          "source_start": 156.7,
+          "source_end": 183.63333333333333,
+          "idle_tail_start": 9.2
+        },
+        {
+          "visual": "19_setting_guide_permutation_seed",
+          "source_start": 183.63333333333333,
+          "source_end": 210.26666666666668,
+          "idle_tail_start": 9.8
+        },
+        {
+          "visual": "19_setting_annotation_source",
+          "source_start": 210.26666666666668,
+          "source_end": 232.0,
+          "idle_tail_start": 8.8
+        },
+        {
+          "visual": "21_batch_running",
+          "source_start": 232.0,
+          "source_end": 252.16666666666666,
+          "idle_tail_start": 9.933333333333334
+        },
+        {
+          "visual": "25_result_runs",
+          "source_start": 252.16666666666666,
+          "source_end": 275.6,
+          "idle_tail_start": 9.3
+        },
+        {
+          "visual": "25_result_results",
+          "source_start": 275.6,
+          "source_end": 296.6666666666667,
+          "idle_tail_start": 2.933333333333333
+        },
+        {
+          "visual": "26_detail_p_values",
+          "source_start": 296.6666666666667,
+          "source_end": 321.46666666666664,
+          "idle_tail_start": 5.0
+        },
+        {
+          "visual": "26_detail_coefficients",
+          "source_start": 321.46666666666664,
+          "source_end": 346.3666666666667,
+          "idle_tail_start": 3.933333333333333
+        }
+      ]
+    },
+    {
+      "lesson": "10_classify_cv",
+      "master_sha256": "22ab7f025be1dac9d6e0a14e9a2f3f1724b632478c6296b80e153d8477e0b310",
+      "visual_timing_sha256": "312b5e569c696a17de20a22a589acf58d197c9d87b181a0190ca583b95a88b7c",
+      "scenes": [
+        {
+          "visual": "gui_19_setting_classifier_family",
+          "source_start": 0.0,
+          "source_end": 28.766666666666666,
+          "idle_tail_start": 7.5
+        },
+        {
+          "visual": "prepare_01_source_example",
+          "source_start": 28.766666666666666,
+          "source_end": 49.233333333333334,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "prepare_02_prepare_existing_split",
+          "source_start": 49.233333333333334,
+          "source_end": 74.36666666666666,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "prepare_03_exported_manifest",
+          "source_start": 74.36666666666666,
+          "source_end": 102.16666666666667,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "gui_18_source_folder_choice",
+          "source_start": 102.16666666666667,
+          "source_end": 121.76666666666667,
+          "idle_tail_start": 4.2
+        },
+        {
+          "visual": "gui_19_setting_generate_training_dataset",
+          "source_start": 121.76666666666667,
+          "source_end": 150.53333333333333,
+          "idle_tail_start": 9
+        },
+        {
+          "visual": "gui_19_setting_model_type",
+          "source_start": 150.53333333333333,
+          "source_end": 180.56666666666666,
+          "idle_tail_start": 6.3
+        },
+        {
+          "visual": "gui_19_setting_val_split",
+          "source_start": 180.56666666666666,
+          "source_end": 209.86666666666667,
+          "idle_tail_start": 6.2
+        },
+        {
+          "visual": "gui_19_setting_plot",
+          "source_start": 209.86666666666667,
+          "source_end": 235.33333333333334,
+          "idle_tail_start": 5.7
+        },
+        {
+          "visual": "gui_24_batch_figure",
+          "source_start": 235.33333333333334,
+          "source_end": 262.7,
+          "idle_tail_start": 4.5
+        },
+        {
+          "visual": "gui_23_batch_finished",
+          "source_start": 262.7,
+          "source_end": 288.5,
+          "idle_tail_start": 4.0
+        }
+      ]
+    },
+    {
+      "lesson": "41_classify",
+      "master_sha256": "a4cc9ed8f39da78d4a5968053eac0bb8c0cf165890360d7ea706af706429d82e",
+      "visual_timing_sha256": "9d7f9dd3bbbc5cffd9dabfd9d9121634dc475b0897ac1dcc65d9dbf50f79442a",
+      "scenes": [
+        {
+          "visual": "main_00_home",
+          "source_start": 0.0,
+          "source_end": 16.233333333333334,
+          "idle_tail_start": 0
+        },
+        {
+          "visual": "main_02_family_choices",
+          "source_start": 16.233333333333334,
+          "source_end": 38.06666666666667,
+          "idle_tail_start": 2.5
+        },
+        {
+          "visual": "main_03_tabular_family",
+          "source_start": 38.06666666666667,
+          "source_end": 58.8,
+          "idle_tail_start": 2.5
+        },
+        {
+          "visual": "ml_02_data_choice_load",
+          "source_start": 58.8,
+          "source_end": 76.03333333333333,
+          "idle_tail_start": 1.5
+        },
+        {
+          "visual": "ml_25_ml_figure_02",
+          "source_start": 76.03333333333333,
+          "source_end": 98.2,
+          "idle_tail_start": 2
+        },
+        {
+          "visual": "cv_24_batch_figure",
+          "source_start": 98.2,
+          "source_end": 122.46666666666667,
+          "idle_tail_start": 4.5
+        },
+        {
+          "visual": "main_05_classifier_evaluation_tooltip",
+          "source_start": 122.46666666666667,
+          "source_end": 134.5,
+          "idle_tail_start": 4.5
+        },
+        {
+          "visual": "main_05_explain_cv_tooltip",
+          "source_start": 134.5,
+          "source_end": 152.4,
+          "idle_tail_start": 4.5
+        },
+        {
+          "visual": "main_05_activation_tooltip",
+          "source_start": 152.4,
+          "source_end": 169.33333333333334,
+          "idle_tail_start": 4.0
+        },
+        {
+          "visual": "main_05_train_compare_tooltip",
+          "source_start": 169.33333333333334,
+          "source_end": 183.9,
+          "idle_tail_start": 4.5
+        },
+        {
+          "visual": "main_06_feature_explorer_nested",
+          "source_start": 183.9,
+          "source_end": 198.53333333333333,
+          "idle_tail_start": 4.5
+        },
+        {
+          "visual": "ml_25_ml_figure_02",
+          "source_start": 198.53333333333333,
+          "source_end": 218.76666666666668,
+          "idle_tail_start": 2
         }
       ]
     }

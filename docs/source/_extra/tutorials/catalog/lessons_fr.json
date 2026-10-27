@@ -2067,7 +2067,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -2612,7 +2635,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -7474,23 +7520,23 @@
           "focus_modules": [
             "classify_merged"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Ouvrez Classify depuis Home. Commencez par choisir la famille de classificateurs. Les leçons sur les images et les données tabulaires indiquées ici présentent chacune un exemple complet.",
           "related_lessons": [
             "05_home",
             "10_classify_cv",
             "11_classify_ml"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Ouvrez Classify depuis Home. Commencez par choisir la famille de classificateurs. Les leçons sur les images et les données tabulaires indiquées ici présentent chacune un exemple complet."
         },
         {
           "visual": "main_02_family_choices",
           "narration": "Choisissez Computer Vision pour apprendre à partir d’images d’objets. Choisissez Tabular Machine Learning pour apprendre à partir de colonnes de caractéristiques mesurées. Measure fournit ces entrées, et Annotate permet d’ajouter des étiquettes aux objets.",
-          "hold_after": 0.7,
-          "speech_text": "Choisissez Computer Vision pour apprendre à partir d’images d’objets. Choisissez Tabular Machine Learning pour apprendre à partir de colonnes de caractéristiques mesurées. Measure fournit ces entrées, et Annotate permet d’ajouter des étiquettes aux objets.",
           "related_lessons": [
             "07_mask",
             "08_measure"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Choisissez Computer Vision pour apprendre à partir d’images d’objets. Choisissez Tabular Machine Learning pour apprendre à partir de colonnes de caractéristiques mesurées. Measure fournit ces entrées, et Annotate permet d’ajouter des étiquettes aux objets."
         },
         {
           "visual": "main_03_tabular_family",
@@ -7501,21 +7547,21 @@
             1150,
             1600
           ],
-          "hold_after": 0.7,
-          "speech_text": "La vue Essentials regroupe les réglages dont les deux familles ont besoin pour l’entraînement. Quand vous passez à Tabular Machine Learning, les réglages de Computer Vision sont grisés : vous ne remplissez que ce que la famille choisie utilise.",
           "related_lessons": [
             "11_classify_ml"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "La vue Essentials regroupe les réglages dont les deux familles ont besoin pour l’entraînement. Quand vous passez à Tabular Machine Learning, les réglages de Computer Vision sont grisés : vous ne remplissez que ce que la famille choisie utilise."
         },
         {
           "visual": "ml_02_data_choice_load",
           "narration": "Pour l’exemple tabulaire, cliquez sur Load test data et choisissez Load. Sélectionnez vos étiquettes de classe et les paramètres de caractéristiques, puis suivez la leçon tabulaire pour entraîner le modèle et enregistrer les prédictions.",
-          "hold_after": 0.7,
-          "speech_text": "Pour l’exemple tabulaire, cliquez sur Load test data et choisissez Load. Sélectionnez vos étiquettes de classe et les paramètres de caractéristiques, puis suivez la leçon tabulaire pour entraîner le modèle et enregistrer les prédictions.",
           "related_lessons": [
             "11_classify_ml",
             "09_annotate"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Pour l’exemple tabulaire, cliquez sur Load test data et choisissez Load. Sélectionnez vos étiquettes de classe et les paramètres de caractéristiques, puis suivez la leçon tabulaire pour entraîner le modèle et enregistrer les prédictions."
         },
         {
           "visual": "ml_25_ml_figure_02",
@@ -7526,11 +7572,11 @@
             2050,
             1520
           ],
-          "hold_after": 0.7,
-          "speech_text": "Après l’exécution tabulaire, examinez la carte thermique des prédictions et les scores enregistrés par objet. Les objets auxquels il manque des mesures nécessaires peuvent rester sans score. Consultez les résultats d’évaluation pour décider s’il faut revoir les étiquettes, les caractéristiques ou les paramètres du modèle.",
           "related_lessons": [
             "11_classify_ml"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Après l’exécution tabulaire, examinez la carte thermique des prédictions et les scores enregistrés par objet. Les objets auxquels il manque des mesures nécessaires peuvent rester sans score. Consultez les résultats d’évaluation pour décider s’il faut revoir les étiquettes, les caractéristiques ou les paramètres du modèle."
         },
         {
           "visual": "cv_24_batch_figure",
@@ -7541,11 +7587,11 @@
             3460,
             1440
           ],
-          "hold_after": 0.7,
-          "speech_text": "Pour la classification d’images, suivez la leçon Computer Vision pour préparer des découpes étiquetées, choisir un modèle et définir les partitions d’entraînement, de validation et de test. Après l’entraînement, vérifiez les courbes de perte et d’exactitude, puis examinez les figures d’évaluation et les prédictions enregistrées.",
           "related_lessons": [
             "10_classify_cv"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Pour la classification d’images, suivez la leçon Computer Vision pour préparer des découpes étiquetées, choisir un modèle et définir les partitions d’entraînement, de validation et de test. Après l’entraînement, vérifiez les courbes de perte et d’exactitude, puis examinez les figures d’évaluation et les prédictions enregistrées."
         },
         {
           "visual": "main_05_classifier_evaluation_tooltip",
@@ -7556,11 +7602,11 @@
             950,
             160
           ],
-          "hold_after": 0.7,
-          "speech_text": "Ouvrez Classifier Evaluation depuis les outils en haut à droite. Sélectionnez un paquet d’évaluation enregistré pour examiner les prédictions, les métriques et la séparation des données.",
           "related_lessons": [
             "39_classifier_evaluation"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Ouvrez Classifier Evaluation depuis les outils en haut à droite. Sélectionnez un paquet d’évaluation enregistré pour examiner les prédictions, les métriques et la séparation des données."
         },
         {
           "visual": "main_05_explain_cv_tooltip",
@@ -7571,11 +7617,11 @@
             950,
             160
           ],
-          "hold_after": 0.7,
-          "speech_text": "Ouvrez Explain CV pour relier les prédictions d’un classificateur d’images à des caractéristiques mesurées. Fournissez les résultats de prédiction sur images et les mesures correspondantes, puis examinez quelles caractéristiques expliquent les scores.",
           "related_lessons": [
             "70_explain_cv"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Ouvrez Explain CV pour relier les prédictions d’un classificateur d’images à des caractéristiques mesurées. Fournissez les résultats de prédiction sur images et les mesures correspondantes, puis examinez quelles caractéristiques expliquent les scores."
         },
         {
           "visual": "main_05_activation_tooltip",
@@ -7586,11 +7632,11 @@
             950,
             160
           ],
-          "hold_after": 0.7,
-          "speech_text": "Ouvrez Activation pour voir quelles régions de l’image influencent les réponses du modèle. Sélectionnez le point de contrôle entraîné et utilisez les mêmes canaux d’image et le même prétraitement qu’à l’entraînement.",
           "related_lessons": [
             "16_activation"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Ouvrez Activation pour voir quelles régions de l’image influencent les réponses du modèle. Sélectionnez le point de contrôle entraîné et utilisez les mêmes canaux d’image et le même prétraitement qu’à l’entraînement."
         },
         {
           "visual": "main_05_train_compare_tooltip",
@@ -7601,11 +7647,11 @@
             950,
             160
           ],
-          "hold_after": 0.7,
-          "speech_text": "Ouvrez Training Runs pour comparer des historiques d’entraînement enregistrés. Sélectionnez des exécutions aux métriques et séparations de données compatibles, puis examinez leurs courbes d’apprentissage et leurs paramètres.",
           "related_lessons": [
             "28_training_runs"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Ouvrez Training Runs pour comparer des historiques d’entraînement enregistrés. Sélectionnez des exécutions aux métriques et séparations de données compatibles, puis examinez leurs courbes d’apprentissage et leurs paramètres."
         },
         {
           "visual": "main_06_feature_explorer_nested",
@@ -7622,19 +7668,42 @@
             2050,
             1520
           ],
-          "hold_after": 0.7,
-          "speech_text": "Gardez le modèle entraîné, les prédictions et les résultats d’évaluation dans le dossier d’exécution. Vous pouvez utiliser les scores par objet dans Regression avec les comptages de guides correspondants. Les leçons de modules associées présentent les étapes suivantes.",
           "related_lessons": [
             "06_api",
             "10_classify_cv",
             "11_classify_ml",
             "13_regression"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Gardez le modèle entraîné, les prédictions et les résultats d’évaluation dans le dossier d’exécution. Vous pouvez utiliser les scores par objet dans Regression avec les comptages de guides correspondants. Les leçons de modules associées présentent les étapes suivantes."
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

@@ -98,6 +98,7 @@ import sqlite3
 import sys
 import tempfile
 from dataclasses import dataclass, field as dc_field
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Mapping as TMapping, Optional, Sequence, Tuple
 
@@ -156,8 +157,23 @@ __all__ = [
 IMAGE_EXTENSIONS: Tuple[str, ...] = (
     '.tif', '.tiff', '.ome.tif', '.ome.tiff',
     '.png', '.jpg', '.jpeg', '.bmp',
-    '.nd2', '.czi', '.lif', '.scn',
+    '.nd2', '.czi', '.lif', '.scn', '.npy',
 )
+
+
+@lru_cache(maxsize=1)
+def _pillow_extensions() -> Tuple[str, ...]:
+    """Discover installed Pillow openers only when image capabilities are needed."""
+    from PIL import Image
+
+    Image.init()
+    return tuple(sorted(ext.lower() for ext, name in Image.registered_extensions().items()
+                        if name in Image.OPEN))
+
+
+def _image_extensions() -> Tuple[str, ...]:
+    """Combine scientific readers with the installed raster reader registry."""
+    return tuple(dict.fromkeys((*IMAGE_EXTENSIONS, *_pillow_extensions())))
 
 #: Name of the map file written into the destination folder.
 MAP_FILENAME = 'conversion_map.csv'
@@ -1066,12 +1082,20 @@ def _describe_tiff(path: str) -> Dict[str, Any]:
 
 
 def _describe_plain(path: str) -> Dict[str, Any]:
-    """Read a PNG/JPEG/BMP's dimensions via Pillow — no pixel decode."""
+    """Read a single raster's dimensions via Pillow without decoding pixels."""
     from PIL import Image
+    from .qt.i18n import tr
 
     with Image.open(_long_path(path)) as image:
+        if (getattr(image, 'n_frames', 1) != 1
+                or len(image.info.get('sizes', ())) > 1):
+            raise ConfigurationError(tr("Multi-frame raster images need explicit frame or axis selection; no frames were imported."))
         width, height = image.size
         mode = image.mode
+        if mode in ('P', 'PA'):
+            mode = 'RGBA' if mode == 'PA' or 'transparency' in image.info else 'RGB'
+        elif mode in ('CMYK', 'YCbCr', 'LAB', 'HSV'):
+            mode = 'RGB'
     n_c = {'L': 1, 'I': 1, 'I;16': 1, 'F': 1, 'LA': 2,
            'RGB': 3, 'RGBA': 4}.get(mode, 1)
     note = ''
@@ -1084,6 +1108,35 @@ def _describe_plain(path: str) -> Dict[str, Any]:
             'n_t': 1, 'n_z': 1, 'n_c': n_c, 'n_series': 1,
             'axes_assumed': note, 'reader': 'PIL'}
 
+
+
+def _describe_npy(path: str) -> Dict[str, Any]:
+    """Describe only a bounded numeric 2-D NPY header, without reading pixels."""
+    from .resume import read_npy_header
+    from .qt.i18n import tr
+
+    if os.path.basename(path).lower().endswith('_seg.npy'):
+        raise ConfigurationError(tr("Cellpose *_seg.npy bundles use their separate editor route."))
+    with open(_long_path(path), 'rb') as handle:
+        prefix = handle.read(12)
+    if (len(prefix) < 10 or prefix[:6] != b'\x93NUMPY'
+            or prefix[6:8] not in (b'\x01\x00', b'\x02\x00', b'\x03\x00')):
+        raise ConfigurationError(tr("NPY header is missing, invalid, or too large: {path}", path=path))
+    header_size = int.from_bytes(prefix[8:10] if prefix[6] == 1 else prefix[8:12], 'little')
+    if header_size > 65536:
+        raise ConfigurationError(tr("NPY header is missing, invalid, or too large: {path}", path=path))
+    header = read_npy_header(_long_path(path))
+    dtype = np.dtype(header['descr'])
+    if dtype.hasobject or dtype.fields is not None or dtype.kind not in 'buif':
+        raise ConfigurationError(tr("NPY import requires a real numeric array without objects or structured fields."))
+    shape = tuple(header['shape'])
+    if len(shape) != 2 or any(size <= 0 for size in shape):
+        raise ConfigurationError(tr("NPY import requires a two-dimensional YX image; arrays with other dimensions need explicit axis selection."))
+    if header['expected_bytes'] is None or header['actual_bytes'] < header['expected_bytes']:
+        raise ConfigurationError(tr("NPY data is truncated: {path}", path=path))
+    return {'shape': shape, 'axes': 'YX', 'dtype': str(dtype), 'n_t': 1,
+            'n_z': 1, 'n_c': 1, 'n_series': 1, 'axes_assumed': '',
+            'reader': 'numpy', 'fortran_order': header['fortran_order']}
 
 def _describe_nd2(path: str) -> Dict[str, Any]:
     """Read an ND2's dimensions via ``nd2reader``."""
@@ -1506,8 +1559,8 @@ def _describe(path: str, ext: str) -> Dict[str, Any]:
     """Dispatch to the right describer for ``ext``."""
     if ext in ('.tif', '.tiff', '.ome.tif', '.ome.tiff'):
         return _describe_tiff(path)
-    if ext in ('.png', '.jpg', '.jpeg', '.bmp'):
-        return _describe_plain(path)
+    if ext == '.npy':
+        return _describe_npy(path)
     if ext == '.nd2':
         return _describe_nd2(path)
     if ext == '.czi':
@@ -1516,6 +1569,8 @@ def _describe(path: str, ext: str) -> Dict[str, Any]:
         return _describe_lif(path)
     if ext == '.scn':
         return _describe_scn(path)
+    if ext in _pillow_extensions():
+        return _describe_plain(path)
     raise ConfigurationError(f'{ext} is not a supported input format')
 
 
@@ -1724,7 +1779,7 @@ def scan(src: str, layout: str = 'auto',
             f'Unknown layout {layout!r}; expected one of {", ".join(LAYOUTS)}')
     convention = _convention_key(metadata_type, custom_regex)
 
-    exts = tuple(extensions) if extensions else IMAGE_EXTENSIONS
+    exts = tuple(extensions) if extensions else _image_extensions()
     entries = _iter_files(src, exts)
     resolved = _detect_layout(entries) if layout == 'auto' else layout
     src_name = os.path.basename(os.path.normpath(src)) or 'plate'
@@ -2188,14 +2243,34 @@ def _read_tiff(source: SourceImage) -> np.ndarray:
 def _read_plain(source: SourceImage) -> np.ndarray:
     """Read a Pillow image as channel-first color or single-channel 5-D data."""
     from PIL import Image
+    from .qt.i18n import tr
 
+    described = _describe_plain(source.path)
+    expected_shape = source.meta.get('shape')
+    if ((expected_shape is not None and tuple(described['shape']) != tuple(expected_shape))
+            or described['n_c'] != source.n_channels):
+        raise ConfigurationError(tr("Raster image dimensions or channels changed after the import preview: {path}", path=source.path))
     with Image.open(_long_path(source.path)) as image:
+        if image.mode in ('P', 'PA', 'CMYK', 'YCbCr', 'LAB', 'HSV'):
+            image = image.convert(described['dtype'])
         array = np.array(image)
     if array.ndim == 3:
         array = np.moveaxis(array, -1, 0)
         return array[None, None, ...]
     return array[None, None, None, ...]
 
+
+
+def _read_npy(source: SourceImage) -> np.ndarray:
+    """Memory-map a validated numeric YX array as one T/Z/C plane."""
+    from .qt.i18n import tr
+
+    current = _describe_npy(source.path)
+    if (tuple(current['shape']) != tuple(source.meta.get('shape', ()))
+            or current['dtype'] != source.meta.get('dtype')):
+        raise ConfigurationError(tr("NPY source shape or dtype changed after the import preview: {path}", path=source.path))
+    array = np.load(_long_path(source.path), mmap_mode='r', allow_pickle=False)
+    return array[None, None, None, ...]
 
 def _read_nd2(source: SourceImage) -> np.ndarray:
     """Read every declared ND2 time, z, and channel plane as 5-D data."""
@@ -2284,8 +2359,8 @@ def _read_source(source: SourceImage) -> np.ndarray:
     ext = source.ext
     if ext in ('.tif', '.tiff', '.ome.tif', '.ome.tiff'):
         return _read_tiff(source)
-    if ext in ('.png', '.jpg', '.jpeg', '.bmp'):
-        return _read_plain(source)
+    if ext == '.npy':
+        return _read_npy(source)
     if ext == '.nd2':
         return _read_nd2(source)
     if ext == '.czi':
@@ -2294,6 +2369,8 @@ def _read_source(source: SourceImage) -> np.ndarray:
         return _read_lif(source)
     if ext == '.scn':
         return _read_scn(source)
+    if ext in _pillow_extensions():
+        return _read_plain(source)
     raise ConfigurationError(f'{ext} is not a supported input format')
 
 

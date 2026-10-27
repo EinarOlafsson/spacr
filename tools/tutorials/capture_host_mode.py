@@ -510,6 +510,7 @@ class HostRuntime:
                               'input_trace_mark_monotonic_s': scene['mark'].get('t'),
                               'input_trace_mark_index': scene['mark']['index'],
                               'native_pts_alignment': 'unmeasured'},
+            'pointer_trace_semantics': 'commanded coordinates after completed input RPC; not observed cursor positions',
             'adapter_bypasses': [{**b, 't': round(b['t'] - begin, 3)} for b in bypasses],
             'actions': scene['performed'], 'loadavg_before': scene['load_before'],
             'loadavg_after': os.getloadavg(),

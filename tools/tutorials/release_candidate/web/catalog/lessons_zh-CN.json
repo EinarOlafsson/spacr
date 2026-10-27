@@ -2079,7 +2079,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -2635,7 +2658,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8637,23 +8683,23 @@
           "focus_modules": [
             "classify_merged"
           ],
-          "hold_after": 0.7,
-          "speech_text": "从主页打开Classify。首先选择分类器系列。这里链接的图像课程和表格课程各自演示一个完整的示例。",
           "related_lessons": [
             "05_home",
             "10_classify_cv",
             "11_classify_ml"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "从主页打开Classify。首先选择分类器系列。这里链接的图像课程和表格课程各自演示一个完整的示例。"
         },
         {
           "visual": "main_02_family_choices",
           "narration": "选择Computer Vision，从对象图像中学习。选择Tabular Machine Learning，从测量特征列中学习。这些输入由Measure提供，Annotate可以为对象添加标签。",
-          "hold_after": 0.7,
-          "speech_text": "选择Computer Vision，从对象图像中学习。选择Tabular Machine Learning，从测量特征列中学习。这些输入由Measure提供，Annotate可以为对象添加标签。",
           "related_lessons": [
             "07_mask",
             "08_measure"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "选择Computer Vision，从对象图像中学习。选择Tabular Machine Learning，从测量特征列中学习。这些输入由Measure提供，Annotate可以为对象添加标签。"
         },
         {
           "visual": "main_03_tabular_family",
@@ -8664,21 +8710,21 @@
             1150,
             1600
           ],
-          "hold_after": 0.7,
-          "speech_text": "Essentials 视图汇集了两类分类器训练所需的设置。切换到 Tabular Machine Learning 后，Computer Vision 的设置会变灰，您只需填写所选类别用到的内容。",
           "related_lessons": [
             "11_classify_ml"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Essentials 视图汇集了两类分类器训练所需的设置。切换到 Tabular Machine Learning 后，Computer Vision 的设置会变灰，您只需填写所选类别用到的内容。"
         },
         {
           "visual": "ml_02_data_choice_load",
           "narration": "对于表格示例，点击Load test data并选择Load。选择类别标签和特征设置，然后按照表格课程训练模型并保存预测。",
-          "hold_after": 0.7,
-          "speech_text": "对于表格示例，点击Load test data并选择Load。选择类别标签和特征设置，然后按照表格课程训练模型并保存预测。",
           "related_lessons": [
             "11_classify_ml",
             "09_annotate"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "对于表格示例，点击Load test data并选择Load。选择类别标签和特征设置，然后按照表格课程训练模型并保存预测。"
         },
         {
           "visual": "ml_25_ml_figure_02",
@@ -8689,11 +8735,11 @@
             2050,
             1520
           ],
-          "hold_after": 0.7,
-          "speech_text": "表格运行完成后，检查预测热图和保存的对象分数。缺少必要测量值的对象可能没有分数。查看评估结果，决定是否需要修改标签、特征或模型设置。",
           "related_lessons": [
             "11_classify_ml"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "表格运行完成后，检查预测热图和保存的对象分数。缺少必要测量值的对象可能没有分数。查看评估结果，决定是否需要修改标签、特征或模型设置。"
         },
         {
           "visual": "cv_24_batch_figure",
@@ -8704,11 +8750,11 @@
             3460,
             1440
           ],
-          "hold_after": 0.7,
-          "speech_text": "对于图像分类，请按照 Computer Vision 课程准备带标签的裁剪图像、选择模型，并设置训练、验证和测试划分。训练完成后，先查看损失和准确率曲线，再检查评估图和保存的预测结果。",
           "related_lessons": [
             "10_classify_cv"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "对于图像分类，请按照 Computer Vision 课程准备带标签的裁剪图像、选择模型，并设置训练、验证和测试划分。训练完成后，先查看损失和准确率曲线，再检查评估图和保存的预测结果。"
         },
         {
           "visual": "main_05_classifier_evaluation_tooltip",
@@ -8719,11 +8765,11 @@
             950,
             160
           ],
-          "hold_after": 0.7,
-          "speech_text": "从右上角的工具打开Classifier Evaluation。选择一个保存的评估包，检查预测、指标和数据划分。",
           "related_lessons": [
             "39_classifier_evaluation"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "从右上角的工具打开Classifier Evaluation。选择一个保存的评估包，检查预测、指标和数据划分。"
         },
         {
           "visual": "main_05_explain_cv_tooltip",
@@ -8734,11 +8780,11 @@
             950,
             160
           ],
-          "hold_after": 0.7,
-          "speech_text": "打开Explain CV，把图像分类器的预测与测量特征联系起来。提供图像预测结果和对应的测量数据，然后查看哪些特征能解释这些分数。",
           "related_lessons": [
             "70_explain_cv"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "打开Explain CV，把图像分类器的预测与测量特征联系起来。提供图像预测结果和对应的测量数据，然后查看哪些特征能解释这些分数。"
         },
         {
           "visual": "main_05_activation_tooltip",
@@ -8749,11 +8795,11 @@
             950,
             160
           ],
-          "hold_after": 0.7,
-          "speech_text": "打开Activation，查看哪些图像区域影响模型的响应。选择训练好的检查点，并使用与训练时相同的图像通道和预处理。",
           "related_lessons": [
             "16_activation"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "打开Activation，查看哪些图像区域影响模型的响应。选择训练好的检查点，并使用与训练时相同的图像通道和预处理。"
         },
         {
           "visual": "main_05_train_compare_tooltip",
@@ -8764,20 +8810,20 @@
             950,
             160
           ],
-          "hold_after": 0.7,
-          "speech_text": "打开Training Runs，比较保存的训练历史。选择指标和数据划分相容的运行，然后检查它们的学习曲线和设置。",
           "related_lessons": [
             "28_training_runs"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "打开Training Runs，比较保存的训练历史。选择指标和数据划分相容的运行，然后检查它们的学习曲线和设置。"
         },
         {
           "visual": "main_06_feature_explorer_nested",
           "narration": "打开Feature Explorer，比较所选组之间的测量特征。选择组和过滤条件，然后查看特征排名和图。",
-          "hold_after": 0.7,
-          "speech_text": "打开Feature Explorer，比较所选组之间的测量特征。选择组和过滤条件，然后查看特征排名和图。",
           "related_lessons": [
             "65_feature_explorer"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "打开Feature Explorer，比较所选组之间的测量特征。选择组和过滤条件，然后查看特征排名和图。"
         },
         {
           "visual": "ml_25_ml_figure_02",
@@ -8788,19 +8834,42 @@
             2050,
             1520
           ],
-          "hold_after": 0.7,
-          "speech_text": "把训练好的模型、预测和评估结果保存在运行文件夹中。对象分数可以在Regression中与对应的向导序列计数一起使用。相关模块课程介绍了后续步骤。",
           "related_lessons": [
             "06_api",
             "10_classify_cv",
             "11_classify_ml",
             "13_regression"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "把训练好的模型、预测和评估结果保存在运行文件夹中。对象分数可以在Regression中与对应的向导序列计数一起使用。相关模块课程介绍了后续步骤。"
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

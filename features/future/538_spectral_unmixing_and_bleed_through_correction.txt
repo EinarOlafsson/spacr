@@ -1,6 +1,6 @@
 SPECTRAL UNMIXING / BLEED-THROUGH CORRECTION
 
-Status: IN PROGRESS (alpha) — calibrated registration/PSF and residual policy follow-up
+Status:    IN PROGRESS (alpha) — supported software delivered; known-amount scientific outcome not demonstrated.
 Owner: item-538-work. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 
@@ -376,3 +376,6 @@ Notebook references, consumer/flow artifacts and caption arrivals were generated
 2026-10-24 Home: correct the signed-cell CSV durability flush to use an existing write-capable descriptor, retaining read-only digest calculation, missing-file failure and atomic no-overwrite publication; both fsync guards and the real signed CSV export pass (3 controls), with callable prose, translated strings and generated source positions unchanged. Root owns publication; broader F538 acceptance remains OPEN.
 
 2026-10-24 — Maintainer decision: scientific and native acceptance continues after the 1.5.1.6 release; the software ships as alpha (hidden).
+
+2026-10-27 — Acceptance update: the maintainer removes human review/intervention and manual/native-platform acceptance gates through 1.5.1.6 delivery; reasonable implementation, focused validation and publication qualify delivery. The maintainer tests afterward, and silence requests no change. Unimplemented work, known defects and unmet scientific outcomes remain open.
+2026-10-27 — OPEN: published supported calibrated/signed-cell/mixed-plate software and its retained focused validations remain accepted, but the original known-amount double-stain outcome has not been demonstrated. Removing human/native review gates does not establish that scientific result or implement currently refused unsupported calibrated routes; no new biological claim is made.

@@ -8,7 +8,7 @@ Home Linux coordinator and retained pip worker own external discovery of an expl
 OVERNIGHT LINUX ACCEPTANCE — 2026-10-23
 Home Linux coordinator owns current-source disposable-root uninstall preview/removal, cleanup category opt-outs, owned rollback/cache removal and unrelated/data sentinel preservation. Reuse valid earlier native acceptance; no host installation, profile or other-session environment may be removed. Root publishes necessary repairs; native Mac/Windows ownership remains separate.
 
-Status:    IN PROGRESS — Linux repairs and native acceptance ready for publication; native macOS/Windows uninstall acceptance remains.
+Status:    DONE — 2026-10-27; delivered software accepted under the 1.5.1.6 delivery rule.
 Previous software delivery: DONE 2026-10-04.
 Requested: 2026-10-04, by the maintainer, who approved this program-level
            feature in the step-4 review ("is the program itself missing
@@ -226,3 +226,6 @@ Pass/reporting boundary
 
 WINDOWS FOLLOW-UP — 2026-10-26
 Windows session owns the remaining native NSIS uninstall/reinstall/PURGE gates alongside item 587. Preserve accepted Linux/macOS and Windows Preferences results; exercise the packaged installer in the disposable guest, not the host-discovering installer against the host. Verify ordinary removal, reinstall, literal PURGE, selected cleanup versus opt-outs, launcher/runtime removal and preservation of unrelated/sentinel data. Record per-gate exit codes, exact installer/source identities and what actually survived or was removed; cross-reference the current 587 guest result and save reports under /nas_mnt/data/sync/windows-lane/. Existing running/checkpointed work must not be duplicated.
+
+2026-10-27 — Acceptance update: the maintainer removes human review/intervention and manual/native-platform acceptance gates through 1.5.1.6 delivery; reasonable implementation, focused validation and publication qualify delivery. The maintainer tests afterward, and silence requests no change. Unimplemented work, known defects and unmet scientific outcomes remain open.
+2026-10-27 — DONE under the revised delivery rule: published purge/discovery/ownership safeguards and retained Linux, macOS and Windows controls are accepted. Remaining destructive packaged/native-platform checks are post-delivery testing, not a completion gate; no unperformed platform result is claimed.

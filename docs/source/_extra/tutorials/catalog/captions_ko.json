@@ -1895,7 +1895,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -2403,7 +2426,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6956,21 +7002,21 @@
           "focus_modules": [
             "classify_merged"
           ],
-          "hold_after": 0.7,
           "related_lessons": [
             "05_home",
             "10_classify_cv",
             "11_classify_ml"
-          ]
+          ],
+          "hold_after": 0.7
         },
         {
           "visual": "main_02_family_choices",
           "narration": "객체 이미지로 학습하려면 Computer Vision을, 측정된 특징 열로 학습하려면 Tabular Machine Learning을 고르세요. 이 입력은 Measure가 만들고, Annotate에서 객체 라벨을 붙일 수 있습니다.",
-          "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
             "08_measure"
-          ]
+          ],
+          "hold_after": 0.7
         },
         {
           "visual": "main_03_tabular_family",
@@ -6981,19 +7027,19 @@
             1150,
             1600
           ],
-          "hold_after": 0.7,
           "related_lessons": [
             "11_classify_ml"
-          ]
+          ],
+          "hold_after": 0.7
         },
         {
           "visual": "ml_02_data_choice_load",
           "narration": "표 형식 예제에서는 Load test data를 클릭하고 Load를 선택하세요. 클래스 라벨과 특징 설정을 고른 뒤, 표 형식 강의를 따라 모델을 학습하고 예측을 저장하세요.",
-          "hold_after": 0.7,
           "related_lessons": [
             "11_classify_ml",
             "09_annotate"
-          ]
+          ],
+          "hold_after": 0.7
         },
         {
           "visual": "ml_25_ml_figure_02",
@@ -7004,10 +7050,10 @@
             2050,
             1520
           ],
-          "hold_after": 0.7,
           "related_lessons": [
             "11_classify_ml"
-          ]
+          ],
+          "hold_after": 0.7
         },
         {
           "visual": "cv_24_batch_figure",
@@ -7018,10 +7064,10 @@
             3460,
             1440
           ],
-          "hold_after": 0.7,
           "related_lessons": [
             "10_classify_cv"
-          ]
+          ],
+          "hold_after": 0.7
         },
         {
           "visual": "main_05_classifier_evaluation_tooltip",
@@ -7032,10 +7078,10 @@
             950,
             160
           ],
-          "hold_after": 0.7,
           "related_lessons": [
             "39_classifier_evaluation"
-          ]
+          ],
+          "hold_after": 0.7
         },
         {
           "visual": "main_05_explain_cv_tooltip",
@@ -7046,10 +7092,10 @@
             950,
             160
           ],
-          "hold_after": 0.7,
           "related_lessons": [
             "70_explain_cv"
-          ]
+          ],
+          "hold_after": 0.7
         },
         {
           "visual": "main_05_activation_tooltip",
@@ -7060,10 +7106,10 @@
             950,
             160
           ],
-          "hold_after": 0.7,
           "related_lessons": [
             "16_activation"
-          ]
+          ],
+          "hold_after": 0.7
         },
         {
           "visual": "main_05_train_compare_tooltip",
@@ -7074,10 +7120,10 @@
             950,
             160
           ],
-          "hold_after": 0.7,
           "related_lessons": [
             "28_training_runs"
-          ]
+          ],
+          "hold_after": 0.7
         },
         {
           "visual": "main_06_feature_explorer_nested",
@@ -7093,18 +7139,41 @@
             2050,
             1520
           ],
-          "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "10_classify_cv",
             "11_classify_ml",
             "13_regression"
-          ]
+          ],
+          "hold_after": 0.7
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

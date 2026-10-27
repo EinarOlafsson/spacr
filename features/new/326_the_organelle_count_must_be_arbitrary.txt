@@ -1,14 +1,46 @@
 326 — THE ORGANELLE COUNT MUST BE ARBITRARY
 ============================================
 
-Status:    DONE 2026-09-04 (evidence d66c91e44) — re-verified 2026-09-13. The ceiling is gone:
-           `MAX_ORGANELLES = 702` (spacr/organelle_types.py:433) and
-           `schema.ORGANELLE_ROLES` is generated from the same carried-letter
-           rule at the same ceiling (`_MAX_ORGANELLES = 702`,
-           spacr/schema.py:240 and :285), so the two statements of the
-           lettering rule agree element for element. The section below citing
-           `MAX_ORGANELLES = 26` at organelle_types.py:449 is the 2026-08-31
-           diagnosis, not the current state.
+Status:    DONE 2026-10-27 — progressive integer count, channel/mask-plane reveals and numbered settings groups delivered within the retained 702 limit.
+Owner:     Workstation session 2; retained settings worker implements, root integrates and publishes.
+
+CURRENT MAINTAINER FOLLOW-UP — 2026-10-27
+
+SCOPE DECISION — 2026-10-27: the maintainer explicitly chooses to keep the
+existing validated 702-organelle backend limit for now. Integer-entry and
+progressive UI delivery does not require an identifier/schema migration.
+Counts outside 0..702 stay visible as typed and are rejected without clamping.
+
+Replace the Number of organelles dropdown with an integer-entry field rather
+than a fixed list of choices. Accept integer counts without eagerly creating
+that many controls; zero means no organelles, and invalid negative/noninteger
+input must not create slots or silently change saved settings.
+
+Setting a count of 10 initially reveals only Organelle 1 Channel. A numeric
+channel for organelle 1 reveals Organelle 2 Channel, and so on up to the count.
+Do not create every channel, segmentation or advanced widget on count change.
+Reveal an organelle's segmentation settings only once its own channel is a
+number. Within both Organelle segmentation and Organelle segmentation advanced,
+give each numbered organelle its own collapsible dropdown/subcategory. Apply
+the same per-organelle collapsible grouping and channel-driven visibility to
+Additional settings, rather than displaying every requested organelle there.
+Preserve channel zero, saved settings, existing values across hide/reveal and
+count decreases, current type-specific relevance, and in-place updates without
+reloading the module. Imported settings with populated channels must expose
+those configured organelles correctly without creating all unused slots.
+Measure retains its actual mask-plane switch instead of requiring an unrelated
+raw acquisition channel; the same progressive/grouped behavior applies.
+
+Acceptance: focused real settings-widget checks for count 10, sequential
+channels including zero, per-organelle groups in both categories, clear/lower/
+restore behavior and saved-settings application; normal affected generated
+outputs, commit and nightly publication. Existing historical notes follow.
+
+Current implementation boundary: the backend still registers 702 organelle
+roles. The progressive integer UI must preserve and explicitly refuse larger
+entries rather than silently clamping them. Extending the role/schema registry
+is outside this delivery by the maintainer's explicit scope decision; this
+UI pass does not claim an unbounded backend.
 
 ASKED FOR (2026-08-31)
 ----------------------
@@ -658,3 +690,6 @@ raised ceiling (step 2, today), and the vocabulary reconciliation (today).
 The hold on `spacr/schema.py` is released.
 
 VERIFIED 2026-10-04: the 3 test files this item names pass on CPU/offscreen.
+
+2026-10-27 — Integer entry preserves invalid text and explicitly validates 0..702; count changes create only the next available channel/mask-plane slot. Numeric values including zero reveal the matching segmentation, advanced and Additional settings groups without reloading the module.
+2026-10-27 — Existing and sparse imported values survive clear/lower/restore; Mask/Time follow acquisition channels and Measure follows actual mask planes. Forty focused checks pass; source-bound reviews and normal affected catalogs/API/Help/consumer/flow/index outputs accompany nightly publication.

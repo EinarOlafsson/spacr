@@ -63,9 +63,10 @@ def window(app):
 
 
 @pytest.fixture
-def adapted():
+def adapted(monkeypatch):
     human = FakeHuman()
     adapter = QTestAdapter(human, settle_after_click=0.0).install()
+    monkeypatch.setattr(adapter, '_observed_pointer', lambda point: tuple(human.pointer))
     yield human, adapter
     adapter.uninstall()
 
@@ -268,3 +269,40 @@ def test_note_never_blocks_the_gui_thread_on_the_log(app):
     assert worst < 0.020, f'note() blocked the GUI thread for {worst * 1000:.0f} ms'
     assert adapter.flush_notes(timeout=10)
     assert log.getvalue().count('"kind": "key"') == 30
+
+
+@pytest.mark.parametrize('observation', [(0, 0), None, (float('nan'), 2)])
+def test_a_commanded_target_cannot_authorize_a_click_without_observed_position(window, monkeypatch, observation):
+    _root, button, _field, _hidden = window
+    human = FakeHuman()
+    adapter = QTestAdapter(human, settle_after_click=0.0)
+    monkeypatch.setattr(adapter, '_observed_pointer', lambda point: observation)
+    with pytest.raises(RuntimeError, match='pointer observation|Observed X server pointer'):
+        adapter.mouseClick(button, Qt.LeftButton)
+    target = adapter.target_point(button)
+    assert human.pointer == list(target)
+    assert [op for op, _args in human.ops] == ['move_to']
+    assert not adapter.bypasses
+
+
+def test_an_unavailable_pointer_observer_cannot_fall_back_to_qtest(window, monkeypatch):
+    _root, button, _field, _hidden = window
+    human = FakeHuman()
+    adapter = QTestAdapter(human, strict=False, settle_after_click=0.0)
+
+    def unavailable(point):
+        raise RuntimeError('Owned pointer observer unavailable')
+
+    monkeypatch.setattr(adapter, '_observed_pointer', unavailable)
+    with pytest.raises(RuntimeError, match='observer unavailable'):
+        adapter.mouseClick(button, Qt.LeftButton)
+    assert [op for op, _args in human.ops] == ['move_to']
+    assert not adapter.bypasses
+
+
+def test_offscreen_cursor_state_is_never_accepted_as_a_server_observation(app, monkeypatch):
+    monkeypatch.setenv('SPACR_CAPTURE_HOST', '/owned-metadata-only-unit-case')
+    adapter = QTestAdapter(FakeHuman())
+    assert app.platformName() == 'offscreen'
+    with pytest.raises(RuntimeError, match='owned capture app on xcb'):
+        adapter._observed_pointer((100, 100))

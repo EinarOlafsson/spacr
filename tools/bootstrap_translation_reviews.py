@@ -248,8 +248,9 @@ def _restore(root, pin, files, missing, cache, offline):
         try:
             archive = tarfile.open(fileobj=process.stdout, mode="r|")
         except tarfile.ReadError as exc:
-            stderr = process.stderr.read().decode("utf-8", "replace").strip()
-            raise ReviewInputsError(stderr or "git archive produced no translation inputs") from exc
+            _, stderr = process.communicate()
+            message = stderr.decode("utf-8", "replace").strip()
+            raise ReviewInputsError(message or "git archive produced no translation inputs") from exc
         with archive:
             for member in archive:
                 if member.isdir():
@@ -270,9 +271,9 @@ def _restore(root, pin, files, missing, cache, offline):
                 target.parent.mkdir(parents=True, exist_ok=True)
                 _publish_no_clobber(target, raw)
                 restored.add(member.name)
-        stderr = process.stderr.read().decode("utf-8", "replace")
-        if process.wait():
-            raise ReviewInputsError(stderr.strip() or "git archive failed")
+        _, stderr = process.communicate()
+        if process.returncode:
+            raise ReviewInputsError(stderr.decode("utf-8", "replace").strip() or "git archive failed")
     finally:
         if process.poll() is None:
             process.terminate()

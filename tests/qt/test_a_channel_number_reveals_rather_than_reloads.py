@@ -115,10 +115,7 @@ def test_clearing_it_hides_them_again(mask_window, qtbot, monkeypatch):
 
 
 def _set_count(model, count):
-    combo = model._widgets["number_of_organelles"]
-    index = next(i for i in range(combo.count())
-                 if str(combo.itemData(i)) == str(count))
-    combo.setCurrentIndex(index)
+    _commit(model._widgets["number_of_organelles"], count)
 
 
 def _slot(model, role):
@@ -160,8 +157,9 @@ def test_the_organelle_count_spawns_its_settings_in_place(mask_window, qtbot,
     assert calls == [], f"the organelle count rebuilt the form: {calls}"
     assert window._screens["mask"] is screen
     spawned = [k for k in model._widgets if k.startswith("organelleb_")]
-    assert len(spawned) > 20, (
-        f"only {len(spawned)} controls were spawned for the second organelle")
+    assert spawned == []
+    assert "organelle_channel" in model._widgets
+    assert "organelle_type" not in model._widgets
     rebuilt = [name for name, widget in existing.items()
                if model._widgets.built(name) is not widget]
     assert not rebuilt, f"controls that existed were replaced: {rebuilt[:5]}"
@@ -178,6 +176,8 @@ def test_raising_two_to_three_keeps_slots_one_and_two(mask_window, qtbot,
     calls = _count_rebuilds(window, monkeypatch)
     model = screen._settings_model
     _set_count(model, 2)
+    _commit(model._widgets["organelle_channel"], 0)
+    _commit(model._widgets["organelleb_channel"], 1)
     qtbot.wait(50)
     one, two = _slot(model, "organelle"), _slot(model, "organelleb")
     assert two, "slot 2 was not spawned"
@@ -188,8 +188,7 @@ def test_raising_two_to_three_keeps_slots_one_and_two(mask_window, qtbot,
     assert calls == []
     for name, widget in {**one, **two}.items():
         assert model._widgets.built(name) is widget, f"{name} was rebuilt"
-    assert len([k for k in model._widgets
-                if k.startswith("organellec_")]) > 20
+    assert [k for k in model._widgets if k.startswith("organellec_")] == ["organellec_channel"]
     assert all(section.parentWidget() is not None
                for section in screen._settings_sections), (
         "spawned categories must remain owned by the screen")
@@ -204,6 +203,7 @@ def test_the_new_slot_has_a_captioned_channel_on_the_form(mask_window, qtbot,
     model = screen._settings_model
 
     _set_count(model, 2)
+    _commit(model._widgets["organelle_channel"], 0)
     qtbot.wait(50)
 
     channel = model._widgets.built("organelleb_channel")
@@ -227,17 +227,19 @@ def test_the_new_slots_channel_reveals_its_settings(mask_window, qtbot,
     calls = _count_rebuilds(window, monkeypatch)
     model = screen._settings_model
     _set_count(model, 2)
+    _commit(model._widgets["organelle_channel"], 0)
     qtbot.wait(50)
     before = {k for k in model.keys_hidden_by_the_run()
               if k.startswith("organelleb_")}
-    assert before, "none of the new slot's settings wait for its channel"
+    assert "organelleb_type" not in model._widgets
 
     _commit(model._widgets["organelleb_channel"], 1)
     qtbot.wait(20)
 
     after = {k for k in model.keys_hidden_by_the_run()
              if k.startswith("organelleb_")}
-    assert after < before
+    assert "organelleb_type" in model._widgets
+    assert "organelleb_type" not in after
     assert calls == []
 
 
@@ -247,6 +249,7 @@ def test_lowering_the_count_hides_the_slot_in_place(mask_window, qtbot,
     calls = _count_rebuilds(window, monkeypatch)
     model = screen._settings_model
     _set_count(model, 2)
+    _commit(model._widgets["organelle_channel"], 0)
     qtbot.wait(50)
     two = _slot(model, "organelleb")
 
@@ -277,6 +280,7 @@ def test_the_per_object_table_gains_the_new_organelle_as_a_column(
     # 2026-09-29 (item 592, "hide unset objects"): the new slot's column is
     # drawn once its channel is set, still without a reload.
     assert model.set_value_for_key("organelle_channel", 3)
+    model._widgets['organelle_channel'].editingFinished.emit()
     assert model.set_value_for_key("organelleb_channel", 4)
     qtbot.wait(50)
     assert calls == []

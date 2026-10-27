@@ -2067,7 +2067,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -2612,7 +2635,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -7474,23 +7520,23 @@
           "focus_modules": [
             "classify_merged"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Home से Classify खोलें। क्लासिफ़ायर परिवार चुनकर शुरू करें। यहाँ जुड़े इमेज और तालिका वाले पाठ, हर एक पूरा उदाहरण दिखाते हैं।",
           "related_lessons": [
             "05_home",
             "10_classify_cv",
             "11_classify_ml"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Home से Classify खोलें। क्लासिफ़ायर परिवार चुनकर शुरू करें। यहाँ जुड़े इमेज और तालिका वाले पाठ, हर एक पूरा उदाहरण दिखाते हैं।"
         },
         {
           "visual": "main_02_family_choices",
           "narration": "वस्तुओं की इमेज से सीखने के लिए Computer Vision चुनें। मापी गई विशेषताओं के कॉलम से सीखने के लिए Tabular Machine Learning चुनें। ये इनपुट Measure देता है, और Annotate से आप वस्तुओं पर लेबल लगा सकते हैं।",
-          "hold_after": 0.7,
-          "speech_text": "वस्तुओं की इमेज से सीखने के लिए Computer Vision चुनें। मापी गई विशेषताओं के कॉलम से सीखने के लिए Tabular Machine Learning चुनें। ये इनपुट Measure देता है, और Annotate से आप वस्तुओं पर लेबल लगा सकते हैं।",
           "related_lessons": [
             "07_mask",
             "08_measure"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "वस्तुओं की इमेज से सीखने के लिए Computer Vision चुनें। मापी गई विशेषताओं के कॉलम से सीखने के लिए Tabular Machine Learning चुनें। ये इनपुट Measure देता है, और Annotate से आप वस्तुओं पर लेबल लगा सकते हैं।"
         },
         {
           "visual": "main_03_tabular_family",
@@ -7501,21 +7547,21 @@
             1150,
             1600
           ],
-          "hold_after": 0.7,
-          "speech_text": "Essentials दृश्य में वे सेटिंग्स हैं जिनकी दोनों परिवारों को प्रशिक्षण के लिए ज़रूरत होती है। जब आप Tabular Machine Learning पर स्विच करते हैं, तो Computer Vision की सेटिंग्स धूसर हो जाती हैं, ताकि आप केवल वही भरें जो चुना गया परिवार उपयोग करता है।",
           "related_lessons": [
             "11_classify_ml"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Essentials दृश्य में वे सेटिंग्स हैं जिनकी दोनों परिवारों को प्रशिक्षण के लिए ज़रूरत होती है। जब आप Tabular Machine Learning पर स्विच करते हैं, तो Computer Vision की सेटिंग्स धूसर हो जाती हैं, ताकि आप केवल वही भरें जो चुना गया परिवार उपयोग करता है।"
         },
         {
           "visual": "ml_02_data_choice_load",
           "narration": "तालिका वाले उदाहरण के लिए Load test data पर क्लिक करें और Load चुनें। अपने वर्ग लेबल और विशेषता सेटिंग चुनें, फिर मॉडल प्रशिक्षित करने और पूर्वानुमान सहेजने के लिए तालिका वाले पाठ का पालन करें।",
-          "hold_after": 0.7,
-          "speech_text": "तालिका वाले उदाहरण के लिए Load test data पर क्लिक करें और Load चुनें। अपने वर्ग लेबल और विशेषता सेटिंग चुनें, फिर मॉडल प्रशिक्षित करने और पूर्वानुमान सहेजने के लिए तालिका वाले पाठ का पालन करें।",
           "related_lessons": [
             "11_classify_ml",
             "09_annotate"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "तालिका वाले उदाहरण के लिए Load test data पर क्लिक करें और Load चुनें। अपने वर्ग लेबल और विशेषता सेटिंग चुनें, फिर मॉडल प्रशिक्षित करने और पूर्वानुमान सहेजने के लिए तालिका वाले पाठ का पालन करें।"
         },
         {
           "visual": "ml_25_ml_figure_02",
@@ -7526,11 +7572,11 @@
             2050,
             1520
           ],
-          "hold_after": 0.7,
-          "speech_text": "तालिका वाले रन के बाद पूर्वानुमान हीटमैप और सहेजे गए वस्तु स्कोर देखें। जिन वस्तुओं के ज़रूरी माप नहीं हैं, वे बिना स्कोर के रह सकती हैं। लेबल, विशेषताएँ या मॉडल सेटिंग बदलनी हैं या नहीं, यह तय करने के लिए मूल्यांकन परिणाम जाँचें।",
           "related_lessons": [
             "11_classify_ml"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "तालिका वाले रन के बाद पूर्वानुमान हीटमैप और सहेजे गए वस्तु स्कोर देखें। जिन वस्तुओं के ज़रूरी माप नहीं हैं, वे बिना स्कोर के रह सकती हैं। लेबल, विशेषताएँ या मॉडल सेटिंग बदलनी हैं या नहीं, यह तय करने के लिए मूल्यांकन परिणाम जाँचें।"
         },
         {
           "visual": "cv_24_batch_figure",
@@ -7541,11 +7587,11 @@
             3460,
             1440
           ],
-          "hold_after": 0.7,
-          "speech_text": "छवि वर्गीकरण के लिए, लेबल किए गए क्रॉप तैयार करने, मॉडल चुनने और प्रशिक्षण, सत्यापन और परीक्षण विभाजन तय करने हेतु Computer Vision पाठ का पालन करें। प्रशिक्षण के बाद, हानि और सटीकता के वक्र जाँचें, फिर मूल्यांकन के चित्र और सहेजे गए पूर्वानुमान देखें।",
           "related_lessons": [
             "10_classify_cv"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "छवि वर्गीकरण के लिए, लेबल किए गए क्रॉप तैयार करने, मॉडल चुनने और प्रशिक्षण, सत्यापन और परीक्षण विभाजन तय करने हेतु Computer Vision पाठ का पालन करें। प्रशिक्षण के बाद, हानि और सटीकता के वक्र जाँचें, फिर मूल्यांकन के चित्र और सहेजे गए पूर्वानुमान देखें।"
         },
         {
           "visual": "main_05_classifier_evaluation_tooltip",
@@ -7556,11 +7602,11 @@
             950,
             160
           ],
-          "hold_after": 0.7,
-          "speech_text": "ऊपर दाईं ओर के टूल से Classifier Evaluation खोलें। पूर्वानुमान, मेट्रिक और डेटा विभाजन देखने के लिए सहेजा गया मूल्यांकन बंडल चुनें।",
           "related_lessons": [
             "39_classifier_evaluation"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "ऊपर दाईं ओर के टूल से Classifier Evaluation खोलें। पूर्वानुमान, मेट्रिक और डेटा विभाजन देखने के लिए सहेजा गया मूल्यांकन बंडल चुनें।"
         },
         {
           "visual": "main_05_explain_cv_tooltip",
@@ -7571,11 +7617,11 @@
             950,
             160
           ],
-          "hold_after": 0.7,
-          "speech_text": "इमेज क्लासिफ़ायर के पूर्वानुमानों को मापी गई विशेषताओं से जोड़ने के लिए Explain CV खोलें। इमेज पूर्वानुमान के परिणाम और संबंधित माप दें, फिर देखें कि कौन-सी विशेषताएँ स्कोर समझाती हैं।",
           "related_lessons": [
             "70_explain_cv"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "इमेज क्लासिफ़ायर के पूर्वानुमानों को मापी गई विशेषताओं से जोड़ने के लिए Explain CV खोलें। इमेज पूर्वानुमान के परिणाम और संबंधित माप दें, फिर देखें कि कौन-सी विशेषताएँ स्कोर समझाती हैं।"
         },
         {
           "visual": "main_05_activation_tooltip",
@@ -7586,11 +7632,11 @@
             950,
             160
           ],
-          "hold_after": 0.7,
-          "speech_text": "इमेज के कौन-से क्षेत्र मॉडल की प्रतिक्रिया पर असर डालते हैं, यह देखने के लिए Activation खोलें। प्रशिक्षित चेकपॉइंट चुनें और वही इमेज चैनल और प्रीप्रोसेसिंग इस्तेमाल करें जो प्रशिक्षण में थे।",
           "related_lessons": [
             "16_activation"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "इमेज के कौन-से क्षेत्र मॉडल की प्रतिक्रिया पर असर डालते हैं, यह देखने के लिए Activation खोलें। प्रशिक्षित चेकपॉइंट चुनें और वही इमेज चैनल और प्रीप्रोसेसिंग इस्तेमाल करें जो प्रशिक्षण में थे।"
         },
         {
           "visual": "main_05_train_compare_tooltip",
@@ -7601,11 +7647,11 @@
             950,
             160
           ],
-          "hold_after": 0.7,
-          "speech_text": "सहेजे गए प्रशिक्षण इतिहास की तुलना के लिए Training Runs खोलें। संगत मेट्रिक और डेटा विभाजन वाले रन चुनें, फिर उनके लर्निंग कर्व और सेटिंग देखें।",
           "related_lessons": [
             "28_training_runs"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "सहेजे गए प्रशिक्षण इतिहास की तुलना के लिए Training Runs खोलें। संगत मेट्रिक और डेटा विभाजन वाले रन चुनें, फिर उनके लर्निंग कर्व और सेटिंग देखें।"
         },
         {
           "visual": "main_06_feature_explorer_nested",
@@ -7622,19 +7668,42 @@
             2050,
             1520
           ],
-          "hold_after": 0.7,
-          "speech_text": "प्रशिक्षित मॉडल, पूर्वानुमान और मूल्यांकन परिणाम रन फ़ोल्डर में रखें। आप Regression में वस्तु स्कोर को संबंधित गाइड गिनती के साथ इस्तेमाल कर सकते हैं। जुड़े मॉड्यूल पाठ अगले कदम दिखाते हैं।",
           "related_lessons": [
             "06_api",
             "10_classify_cv",
             "11_classify_ml",
             "13_regression"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "प्रशिक्षित मॉडल, पूर्वानुमान और मूल्यांकन परिणाम रन फ़ोल्डर में रखें। आप Regression में वस्तु स्कोर को संबंधित गाइड गिनती के साथ इस्तेमाल कर सकते हैं। जुड़े मॉड्यूल पाठ अगले कदम दिखाते हैं।"
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

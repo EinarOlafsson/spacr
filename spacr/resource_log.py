@@ -1456,6 +1456,13 @@ class _StaggeredProcess:
         """Deploy this real process after the previous pool start attempt."""
         return self._gate.start(self._start_now)
 
+    def terminate(self):
+        """Stop this owned worker and escalate if its signal handler stalls."""
+        self._process.terminate()
+        self._process.join(timeout=2.0)
+        if self._process.is_alive():
+            self._process.kill()
+
     def _start_now(self):
         """Start the real process at once and bind it to the parent's job."""
         result = self._process.start()

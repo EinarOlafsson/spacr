@@ -3,9 +3,28 @@ REMOTE AND CLUSTER SUBMISSION: ANY SIGN-IN METHOD, A USER-EDITED JOB SCRIPT,
 PER-PROFILE RESOURCES, A LOGIN-NODE SAFEGUARD, AND THE CONSOLE AND SYSTEM PANELS
 ================================================================================
 
-Status:    OPEN; current Night delivery authorized. Source/tests and nine-locale
-           review closure are owned by Codex; real-cluster acceptance needs
-           the maintainer's Great Lakes account (see HOW TO KNOW IT WORKED).
+Status:    DONE — 2026-10-27; full-job and reusable connection profile save/import controls delivered.
+CURRENT MAINTAINER FOLLOW-UP — 2026-10-27
+
+Workstation session 2 owns this additive follow-up. In Submit Remote, allow
+saving a complete job profile and a reusable user/connection profile. Provide
+import controls that fill the corresponding fields, using the existing
+execution-profile/job models rather than duplicate persistence. A full-job
+profile retains the selected module, settings reference, backend/connection,
+resources, environment setup, job script and submission/allocation options.
+A user/connection profile fills connection/authentication configuration and
+reusable user defaults while preserving job-specific choices.
+
+Preview/validate imports and apply them only after an explicit user action;
+loading a profile never authenticates, submits or runs anything. Preserve
+SSH aliases, custom authentication routes and platform-specific options.
+Do not export passwords, MFA replies, private-key contents or live keychain
+credentials; keep supported non-secret references/configuration. Preserve
+existing stored profiles, refuse malformed/incompatible imports clearly and
+keep existing form values intact on cancellation or validation failure.
+Focused save/import roundtrip, field-fill, scope, cancellation and no-submit
+checks plus normal affected outputs and nightly publication qualify delivery.
+
 Requested: maintainer, 2026-10-26, after testing the module on the University
            of Michigan Great Lakes cluster (Slurm), verbatim:
            "the remote worked and we were able to log into greatlakes and ssh
@@ -53,8 +72,7 @@ Requested: maintainer, 2026-10-26, after testing the module on the University
            hardware in other moduals. add to new items list"
            (The account name and the user's home folder are left out here on
            purpose.)
-Owner:     Codex maintainer_input_coordinator (post-release source/tests/reviews);
-           maintainer (Great Lakes acceptance)
+Owner:     Workstation session 2; root integration/publication with retained remote-profile worker and independent peer.
 Related:   699 (SSH discovery, keyboard-interactive MFA, keychain), 702
            (cluster runs download a missing zoo model).
 
@@ -233,3 +251,9 @@ Remote/SSH/Qt owning cohort: 394 passed, two Windows-only skips; three scheduler
 Fixed stale cluster probes, log draining/UTF-8, duplicate error capture, allocation ownership/cancellation, profile-connection binding, terminal accounting and quoted scheduler output paths; existing safety guards remain. Removing all seven GUI closures also retires its now-empty nested-helper rollout entry, without weakening the zero-helper guard.
 Nine-locale closure is ready on review side branch 53c7d108 and API memory 27e99ce3, preserving the final release records; normal runtime, API, consumer, Help and caption-arrival outputs are generated. Three source-bound historical checks and all 15 final API/Help/runtime checks passed, preserving accepted source, catalog and pin bytes; original required parameters, counts and digests remain unchanged.
 OPEN: maintainer Great Lakes sign-in/allocation/compute-node/live-log acceptance is still required; complex LSF path escaping is not natively qualified.
+
+2026-10-27 — Acceptance update: the maintainer removes human review/intervention and manual/native-platform acceptance gates through 1.5.1.6 delivery; reasonable implementation, focused validation and publication qualify delivery. The maintainer tests afterward, and silence requests no change. Unimplemented work, known defects and unmet scientific outcomes remain open.
+2026-10-27 — DONE under the revised delivery rule: published sign-in/custom-script/resources/allocation/logging/login-node safeguards retain the 394-case remote/SSH/Qt cohort and 15 final catalog contracts. Great Lakes sign-in/compute-node/live-log and complex LSF native checks are post-delivery acceptance, not blockers; no live cluster success is claimed.
+
+2026-10-27 — Submit Remote now saves/imports versioned full-job and reusable connection profiles with preview and explicit Apply/Cancel. Job imports fill all job fields; connection imports preserve current job choices. Existing stored profiles remain intact; credentials are refused and no import signs in or submits.
+2026-10-27 — Thirty-nine focused profile/remote checks pass, including roundtrips, scopes, cancellation, allocation compatibility and credential handling. Sixteen new captions have source-bound nine-language reviews; normal affected artifacts accompany nightly publication.
