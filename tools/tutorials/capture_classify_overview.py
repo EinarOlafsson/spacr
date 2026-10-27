@@ -67,7 +67,6 @@ def record_overview(app, window, captures, capture, settle, write_json):
         # Host: the clip starts with the pointer elsewhere, then it glides to
         # the button and rests until the real tooltip shows.
         tip = Rec(capture, '05_' + key + '_tooltip', settle, desktop=True).start()
-        QTest.mouseMove(window, QPoint(400, 800)); settle(.15)
         QTest.mouseMove(button, button.rect().center()); settle(2.6)  # tooltip_policy waits ~2 s
         # Private Xvfb has no window manager to activate native hover timers.
         # Deliver Qt's real help event to the real button; its production
