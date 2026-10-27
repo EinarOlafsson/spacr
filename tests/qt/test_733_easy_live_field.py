@@ -155,10 +155,7 @@ def test_first_suggestion_keeps_rendered_field_and_restores_anchored_card(
         assert QRect(card.mapToGlobal(QPoint()), card.size()) == anchor
         assert window._stack.currentWidget() is page and page.field.isVisible()
         assert backdrop is window.window_backdrop() and backdrop.isVisible() and backdrop.is_running()
-        qtbot.waitUntil(lambda: backdrop._engine._node_visit is not None, timeout=5000)
-        center = backdrop.mapFromGlobal(card.mapToGlobal(card.rect().center()))
-        target = (center.x() / backdrop.width(), center.y() / backdrop.height())
-        assert backdrop._engine._node_visit[1] == pytest.approx(target)
+        assert backdrop._engine._node_visit is None
         viewport = workflow.view.viewport()
         free = next(QPoint(x, y) for y in range(24, viewport.height() - 24, 24)
                     for x in range(24, viewport.width() - 24, 24)
@@ -174,6 +171,8 @@ def test_first_suggestion_keeps_rendered_field_and_restores_anchored_card(
         assert QRect(workflow.details.mapToGlobal(QPoint()), workflow.details.size()) == details_anchor
         assert field_pixels() > 20
         qtbot.waitUntil(lambda: workflow._progress == 1., timeout=5000)
+        assert not page.path_edit.isVisible()
+        assert backdrop._engine._node_visit is None
         assert field_pixels() > 20
         assert workflow.central.isVisible() and workflow.tools.isVisible()
         assert any(node.isVisible() for node in workflow.view.nodes.values())
@@ -216,8 +215,8 @@ def test_grouped_choices_keep_all_tools_readable_and_preserve_first_click(qtbot,
     page._requested = str(tmp_path)
     page._show_result(page._input_generation, dict(path=str(tmp_path), message='', actions=actions,
         context={'action_groups': groups}))
-    assert len(page.field._animations) == 4
-    assert sum(card._growing for card in page.field.cards) == 4
+    assert len(page.field._animations) == len(actions)
+    assert sum(card._growing for card in page.field.cards) == len(actions)
     page.field._finish_growth()
     assert len(page.field.cards) == len(actions)
     assert [groups[card._key]['kind'] for card in page.field.cards] == ['images'] * 5 + ['measurements'] * 4
@@ -359,7 +358,7 @@ def test_whole_window_drop_preserves_every_frame_during_inspection(
             QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
             assert len(page.field.findChildren(home._EasySuggestionCard)) == len(page.field.cards)
             assert len(page.field.findChildren(QGraphicsOpacityEffect)) == len(page.field.cards) + 1
-            assert len(page.field._animations) <= 4
+            assert len(page.field._animations) <= len(page.field.cards)
             assert len(page.findChildren(QTimer)) == timers
             assert page._runner.active_jobs() <= 1
         assert not restyles
@@ -446,6 +445,7 @@ def test_network_hover_paints_immediately_without_icon_reads_or_restyles(
 
 def test_alpha_cards_and_nodes_share_registered_stage_and_old_home_feedback(
         qtbot, qapp, private_ai_profile):
+    from PySide6.QtCore import QPoint
     from PySide6.QtGui import QImage, QPainter
     from spacr.qt import theme
     from spacr.qt.widgets import home
@@ -464,11 +464,15 @@ def test_alpha_cards_and_nodes_share_registered_stage_and_old_home_feedback(
         card = page.field.cards[0]
         assert card.property('stage') == 'alpha' and card.alpha.isVisible()
         assert card.alpha.text() == theme.ALPHA_MARK
+        assert card.alpha.width() == 40 and card.alpha.height() == 40
+        assert card.alpha.font().pixelSize() == theme.font_px(28)
         assert card.alpha.geometry().right() < card.width()
         assert theme._stage_button_rules('QPushButton#EasySuggestionCard') in page._easy_stylesheet
         assert theme._stage_button_rules('QPushButton#AppTile') in theme.stylesheet('dark')
-        icon = card.icon.grab().toImage()
-        assert icon.pixelColor(0, 0).getRgb()[:3] == (25, 25, 25)
+        qtbot.mouseMove(page, QPoint(0, 0))
+        icon_origin = card.icon.mapTo(card, QPoint())
+        composite = card.grab().toImage()
+        assert composite.pixelColor(icon_origin).getRgb()[:3] == (25, 25, 25)
         card.activated.connect(page._select_suggestion)
         card.click()
         workflow = page._workflow
@@ -479,10 +483,11 @@ def test_alpha_cards_and_nodes_share_registered_stage_and_old_home_feedback(
         painter = QPainter(rendered)
         node.paint(painter, None)
         painter.end()
-        assert any(color.green() > color.red() + 20 and color.blue() > color.red() + 20
-                   and abs(color.green() - color.blue()) < 10
-                   for x in range(162, 184) for y in range(8, 28)
-                   for color in (rendered.pixelColor(x, y),))
+        teal_rows = {y for x in range(142, 184) for y in range(8, 48)
+                     for color in (rendered.pixelColor(x, y),)
+                     if color.green() > color.red() + 20 and color.blue() > color.red() + 20
+                     and abs(color.green() - color.blue()) < 10}
+        assert len(teal_rows) > 14
         assert rendered.pixelColor(56, 28).getRgb()[:3] == (25, 25, 25)
     finally:
         page.close()
@@ -542,12 +547,16 @@ def test_help_network_links_are_navigation_without_invented_inputs(qtbot, privat
     assert all(record['mode_labels'] == ['Tools'] for record in utilities)
     assert 'run_history' not in workflow.routes
     workflow.select('run_history')
-    assert workflow.central._path == ''
+    assert workflow._chosen_key == 'run_history'
+    assert workflow.central._key == 'mask' and workflow.central._path == str(tmp_path)
     assert not any(record['kind'] == 'utility' and record['from'] in available
                    for record in workflow.data['easy_connections'])
     opened = []
     page.module_requested.connect(lambda key, path: opened.append((key, path)))
-    qtbot.mouseClick(workflow.central, Qt.LeftButton)
+    child = workflow.view.nodes['run_history']
+    workflow.view.ensureVisible(child)
+    qtbot.mouseClick(workflow.view.viewport(), Qt.LeftButton,
+                     pos=workflow.view.mapFromScene(child.sceneBoundingRect().center()))
     assert opened == [('run_history', '')]
     page.close()
 
@@ -570,16 +579,15 @@ def test_navigator_default_dock_is_collapsed_present_and_saved_choices_win(
     window.show()
     edge = window._dock_edge
     try:
-        assert edge.isVisible() == (dock_choice is not False)
-        assert edge.is_collapsed() == (dock_choice is None)
-        assert window._dock_slot.isVisible() == (dock_choice is True)
+        assert edge.isVisible()
+        assert edge.is_collapsed()
+        assert not window._dock_slot.isVisible()
         assert settings.contains('prefs/easy_mode_dock') == (dock_choice is not None)
-        if dock_choice is None:
-            qtbot.mouseClick(edge, Qt.LeftButton)
-            assert window._dock_slot.isVisible()
-            assert settings.value('prefs/navigator_dock_collapsed', type=bool) is False
-            window.apply_dock_mode()
-            assert not edge.is_collapsed() and window._dock_slot.isVisible()
+        qtbot.mouseClick(edge, Qt.LeftButton)
+        assert window._dock_slot.isVisible()
+        assert settings.value('prefs/navigator_dock_collapsed', type=bool) is False
+        window.apply_dock_mode()
+        assert not edge.is_collapsed() and window._dock_slot.isVisible()
         preferences.set_easy_mode(False)
         window.apply_dock_mode('locked')
         assert not edge.is_collapsed() and window._dock_slot.isVisible()

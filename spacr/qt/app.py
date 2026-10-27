@@ -109,6 +109,7 @@ def _easy_module_matches(value):
     aliases = {'generate masks': 'mask', 'mask generation': 'mask',
                'make mask': 'make_masks', 'image umap': 'umap', 'classify': 'classify_merged',
                'experimental design': 'experiment_design', 'power design': 'power',
+               'measurement': 'measure', 'feature': 'measure', 'morphological profiling': 'measure',
                'qc': 'qc_dashboard', 'quality control': 'qc_dashboard',
                'import': 'foreign', 'time': 'timelapse', '3d': '3d'}
     if wanted in aliases:
@@ -145,6 +146,7 @@ def _easy_module_search(value):
         title = tr('Mask Generation') if key == 'mask' else tr(name)
         aliases = {'mask': ('Generate Masks', 'segmentation', 'object detection'),
                    'make_masks': ('segmentation', 'object detection'),
+                   'measure': ('measurement', 'feature', 'morphological profiling'),
                    'experiment_design': ('Experimental Design', 'plan', 'planning'),
                    'power': ('Power Design', 'plan', 'planning')}
         labels = (key, name, title, *aliases.get(key, ()))
@@ -156,6 +158,37 @@ def _easy_module_search(value):
                 name, description = rows[key]
                 found.append((key, tr(name), tr(description), ''))
     return found
+
+
+def _prune_native_help_actions(window):
+    """Keep native module routes out of Help without removing Help-only actions."""
+    from PySide6.QtWidgets import QMenu
+
+    help_menu = getattr(window, '_easy_help_menu', None)
+    native = getattr(window, '_app_actions', {})
+    if help_menu is None or not native:
+        return
+    names = set()
+    for key, action in native.items():
+        for label in (key, action.text(), action.property('moduleNameSource')):
+            if label:
+                names.add(_easy_command_text(label.split('\t', 1)[0].replace('&', '')))
+    menu_actions = {menu.menuAction(): menu for menu in window.findChildren(QMenu)}
+    pending, visited = [help_menu], set()
+    while pending:
+        menu = pending.pop()
+        if menu in visited:
+            continue
+        visited.add(menu)
+        for action in tuple(menu.actions()):
+            if action in menu_actions:
+                pending.append(menu_actions[action])
+                continue
+            if action.isSeparator():
+                continue
+            label = action.text().split('\t', 1)[0].replace('&', '')
+            if action.property('moduleAppKey') in native or _easy_command_text(label) in names:
+                menu.removeAction(action)
 
 
 def _carry_preview_state(old, fresh) -> None:
@@ -4811,6 +4844,7 @@ class MainWindow(QMainWindow):
 
         help_menu = mb.addMenu("&Help")
         self._easy_help_menu = help_menu
+        help_menu.aboutToShow.connect(functools.partial(_prune_native_help_actions, self))
         from .preferences import get_easy_mode
 
         easy_action = QAction(tr("Navigator"), self)
@@ -4843,6 +4877,8 @@ class MainWindow(QMainWindow):
         help_menu.addSeparator()
 
         for key, label, tip in _HELP_MODULES:
+            if key in self._app_actions:
+                continue
             action = QAction(label, self)
             action.setStatusTip(tip)
             action.triggered.connect(
@@ -5222,6 +5258,7 @@ class MainWindow(QMainWindow):
         problem exists.
         """
         from .menus import pin_menu_roles
+        _prune_native_help_actions(self)
         pin_menu_roles(self._menu_bar_actions(),
                        preferences=getattr(self, "_act_preferences", None),
                        quit_action=getattr(self, "_act_quit", None),
@@ -6798,37 +6835,19 @@ class MainWindow(QMainWindow):
                 "could not write the hint for %s", key, exc_info=True)
 
     def apply_dock_mode(self, mode: Optional[str] = None) -> None:
-        """Put the app list where the preference says it goes.
+        """Keep the app dock present and preserve its width and collapse controls.
 
-        Two modes, one ``Sidebar`` object:
-
-        ``locked``  the sidebar sits in the window's dock slot, where it
-                    is an ordinary column in the layout: it never
-                    animates, and because it is a LAYOUT MEMBER rather
-                    than an overlay the page beside it is narrower by the
-                    dock's width instead of running underneath it.
-        ``hidden``  the slot stays empty. The "All apps" action is
-                    disabled with a tooltip that says where to turn it
-                    back on — a control that silently does nothing is
-                    worse than one that is greyed out.
-
-        There is no reveal-on-hover mode: a dock that slides in over the
-        page covers the Home tiles, and needs a second container behind its
-        panel to stay legible. The drawer object still exists and is kept
-        closed and disabled, because it also carries the keyboard path that
-        the "All apps" action uses.
+        Legacy visibility preferences and ``mode`` no longer hide the dock.
+        Navigator starts collapsed unless an explicit collapse choice is saved.
+        Switching back restores the ordinary dock's collapse state.
 
         Idempotent, and safe to call before the menu exists.
         """
-        mode = mode or self.dock_mode()
-        from .preferences import (get_easy_mode, get_easy_mode_dock,
-                                  _settings, _KEY_EASY_MODE_DOCK)
+        mode = "locked"
+        from .preferences import get_easy_mode, _settings
 
         navigator = get_easy_mode()
         settings = _settings()
-        dock_chosen = settings.contains(_KEY_EASY_MODE_DOCK)
-        if navigator:
-            mode = "locked" if not dock_chosen or get_easy_mode_dock() else "hidden"
         drawer = getattr(self, "_app_drawer", None)
         sidebar = getattr(self, "_sidebar", None)
         slot = getattr(self, "_dock_slot", None)
@@ -6845,7 +6864,7 @@ class MainWindow(QMainWindow):
                     self._ordinary_dock_collapsed = edge.is_collapsed()
                 collapse_key = 'prefs/navigator_dock_collapsed'
                 collapse = (settings.value(collapse_key, type=bool)
-                            if settings.contains(collapse_key) else not dock_chosen)
+                            if settings.contains(collapse_key) else True)
                 self._navigator_dock_active = True
                 self._setting_navigator_dock = True
                 try:
@@ -6858,28 +6877,22 @@ class MainWindow(QMainWindow):
 
         drawer.close()
         drawer.set_enabled(False)
-        if mode == "locked":
-            if sidebar.parent() is not slot:
-                slot.layout().addWidget(sidebar)
-            sidebar.setFixedWidth(sidebar.column_width())
-            sidebar.show()
-            edge = getattr(self, "_dock_edge", None)
-            slot.setVisible(edge is None or not edge.is_collapsed())
-        else:
-            slot.hide()
+        if sidebar.parent() is not slot:
+            slot.layout().addWidget(sidebar)
+        sidebar.setFixedWidth(sidebar.column_width())
+        sidebar.show()
+        edge = getattr(self, "_dock_edge", None)
+        slot.setVisible(edge is None or not edge.is_collapsed())
         edge = getattr(self, "_dock_edge", None)
         if edge is not None:
-            edge.setVisible(mode == "locked")
+            edge.show()
         for screen in getattr(self, '_screens', {}).values():
             self._apply_navigator_layout(screen)
 
         action = getattr(self, "_act_all_apps", None)
         if action is not None:
-            action.setEnabled(mode != "hidden")
-            action.setToolTip(
-                "The app dock is hidden. Turn it back on in Preferences → "
-                "App dock." if mode == "hidden" else
-                "Show the full app list.")
+            action.setEnabled(True)
+            action.setToolTip("Show the full app list.")
 
     def _remember_navigator_dock(self, collapsed):
         """Remember a person's Navigator edge choice, never its initial default."""
@@ -7005,22 +7018,17 @@ class MainWindow(QMainWindow):
         return answered
 
     def toggle_app_drawer(self) -> None:
-        """Put keyboard focus on the app dock. The menu and Ctrl+Shift+A path.
+        """Expand the app dock and focus its first row from the menu or shortcut.
 
-        The dock does not slide, so there is nothing to open: it is a
-        permanent column when the preference is ``locked``. The action moves
-        keyboard focus to its first row, so a keyboard user does not have to
-        tab through the page to reach it.
-
-        A no-op when the dock is hidden, so the shortcut does not override
-        the preference. The action is also disabled in that mode; this check
-        is a second guard.
+        The dock stays beside the current module. Its collapse control remains
+        available, and legacy visibility preferences do not disable this action.
         """
-        if getattr(self, "_dock_mode", "locked") != "locked":
-            return
         sidebar = getattr(self, "_sidebar", None)
         if sidebar is None:
             return
+        edge = getattr(self, "_dock_edge", None)
+        if edge is not None:
+            edge.set_collapsed(False)
         try:
             rows = sidebar.rows()
         except Exception:                                    # noqa: BLE001
@@ -7422,16 +7430,19 @@ class MainWindow(QMainWindow):
             self._startup.accept_paths(paths)
 
     def _set_easy_mode_from_help(self, enabled=True):
-        """Share the startup choice and return to the requested Home immediately."""
+        """Apply the mode choice while retaining an active module when disabling it."""
         from .preferences import get_easy_mode, set_easy_mode
 
+        stack = getattr(self, "_stack", None)
+        was_home = stack is None or stack.currentWidget() is self._startup
         if get_easy_mode() != bool(enabled):
             set_easy_mode(bool(enabled))
             self.refresh_after_preferences({'easy_mode'})
         action = getattr(self, '_act_easy_mode', None)
         if action is not None:
             action.setChecked(bool(enabled))
-        self._on_nav_selected('__home__')
+        if enabled or was_home:
+            self._on_nav_selected('__home__')
 
     def _open_easy_named_module(self, key):
         """Open a registered module or its real page within a host."""
@@ -7497,10 +7508,12 @@ class MainWindow(QMainWindow):
                     pending.append(by_action[action])
                 elif action.isEnabled() and action.isVisible() and not action.isSeparator():
                     labels.append(action.text().split('\t', 1)[0].replace('&', ''))
-        seen = set()
+        seen = {_easy_command_text(title) for _key, title, _description, _path in rows}
+        native_keys = {key for key, _title, _description, _path in rows}
         for label in labels:
             normalized = _easy_command_text(label)
-            if normalized not in seen and wanted in normalized:
+            if (normalized not in seen and wanted in normalized
+                    and not native_keys.intersection(_easy_module_matches(label))):
                 seen.add(normalized)
                 rows.append(('__easy_command__:' + label, tr(label), tr(label), ''))
         return rows
@@ -8222,6 +8235,9 @@ class MainWindow(QMainWindow):
             return
         interaction_started = _timing.interval_started("navigation", key)
         if key == "__home__":
+            reset = getattr(self._startup, "_reset_for_home", None)
+            if callable(reset):
+                reset()
             try:
                 self._startup.refresh()
             except Exception:

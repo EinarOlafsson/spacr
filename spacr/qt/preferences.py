@@ -10623,33 +10623,6 @@ class PreferencesDialog:
                 lambda _v, s=slider: _settle_unless_dragging(s))
         text_size_slider.sliderReleased.connect(scale_settle.start)
 
-        dock_combo = QComboBox()
-        for label, key in (
-            ("Locked open",     "locked"),
-            ("Hidden",          "hidden"),
-        ):
-            dock_combo.addItem(tr(label), key)
-        current_dock = get_dock_mode()
-        for i in range(dock_combo.count()):
-            if dock_combo.itemData(i) == current_dock:
-                dock_combo.setCurrentIndex(i); break
-        dock_combo.setToolTip(
-            "Locked open: the app list is a permanent column to the left "
-            "of the page. It never covers what you are working on, and "
-            "costs its own width.\n"
-            "Hidden: no column. Apps stay reachable from the spaCR menu, "
-            "Ctrl+1..9 and Ctrl+K."
-        )
-        form.addRow(tr("App dock"), dock_combo)
-
-        easy_mode_dock_check = Toggle()
-        easy_mode_dock_check.setObjectName("EasyModeDock")
-        easy_mode_dock_check.setAccessibleName(tr("Show app dock in Navigator"))
-        easy_mode_dock_check.setToolTip(tr(
-            "Keep the app dock visible in Navigator without changing its normal setting."))
-        easy_mode_dock_check.setChecked(get_easy_mode_dock())
-        form.addRow(tr("Show app dock in Navigator"), easy_mode_dock_check)
-
         opacity_slider = QSlider(Qt.Horizontal)
         opacity_slider.setObjectName("PaneOpacity")
         opacity_slider.setRange(0, 100)
@@ -12306,8 +12279,6 @@ class PreferencesDialog:
                 custom_background[0] = _ambient_background_choice()
                 _refresh_custom_colors()
                 _select(ambient_dir_combo, get_ambient_drift_direction())
-                _select(dock_combo, get_dock_mode())
-                easy_mode_dock_check.setChecked(get_easy_mode_dock())
                 _select(cb_combo, get_color_blind_mode())
                 _select(figure_save_mode_combo, get_figure_save_mode())
                 _select(fig_format_combo, get_figure_format())
@@ -12471,8 +12442,6 @@ class PreferencesDialog:
                 set_gui_scale_live(get_gui_scale())
             except Exception:                                # noqa: BLE001
                 LOG.debug("could not apply the GUI scale", exc_info=True)
-            set_dock_mode(dock_combo.currentData())
-            set_easy_mode_dock(easy_mode_dock_check.isChecked())
             set_pane_opacity(opacity_slider.value() / 100.0)
             set_field_fade_enabled(field_fade_check.isChecked())
             set_hash_inputs(hash_check.isChecked())
