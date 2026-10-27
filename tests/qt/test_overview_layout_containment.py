@@ -106,7 +106,7 @@ def test_right_canvas_leaves_both_native_view_columns_adjustable(overview, qtbot
 
 
 @pytest.mark.parametrize("canvas", [False, True], ids=["ordinary-overview", "right-canvas"])
-def test_repeated_level_cycles_keep_runtime_console_and_actions_inside_window(overview, qtbot, canvas):
+def test_repeated_level_cycles_keep_runtime_console_and_actions_inside_window(overview, qtbot, canvas, qt_theme_applied):
     screen, view = overview
     if canvas:
         view._open_custom_export()

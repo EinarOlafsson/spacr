@@ -535,7 +535,7 @@ def test_the_canvas_toolbar_wraps_to_fit_the_export_section(view, qtbot):
     assert composer.minimumSizeHint().width() < 600
 
 
-def test_opening_figure_keeps_the_overview_console_and_actions_in_the_window(qtbot, source):
+def test_opening_figure_keeps_the_overview_console_and_actions_in_the_window(qtbot, source, qt_theme_applied):
     from spacr.qt.screens.app_screen import AppScreen
     from spacr.qt.gui_scale import _resize_actual
     from PySide6.QtCore import QSize
@@ -580,6 +580,25 @@ def test_opening_figure_keeps_the_overview_console_and_actions_in_the_window(qtb
                 widget.objectName(), widget.geometry(), widget.minimumSizeHint(), widget.minimumHeight(),
                 screen._runtime_splitter.geometry(), screen._runtime_splitter.sizes(),
                 screen._body_splitter.geometry(), screen._body_splitter.minimumSizeHint())
+        from PySide6.QtWidgets import QScrollArea
+
+        actions_scroll = screen._actions_section.body
+        assert isinstance(actions_scroll, QScrollArea)
+        assert actions_scroll.widget().isAncestorOf(screen._btn_overview_pdfs)
+        assert not screen._actions_section.hasHeightForWidth()
+        assert actions_scroll.verticalScrollBar().maximum() > 0
+        for button in (screen._btn_run, screen._btn_overview_pdfs, screen._btn_export):
+            actions_scroll.ensureWidgetVisible(button, 0, 0)
+            assert actions_scroll.viewport().rect().contains(
+                button.mapTo(actions_scroll.viewport(), button.rect().topLeft()))
+            assert actions_scroll.viewport().rect().contains(
+                button.mapTo(actions_scroll.viewport(), button.rect().bottomRight()))
+        screen._runtime_splitter.set_collapsed("Actions", True, by_user=True)
+        assert not actions_scroll.isVisible()
+        screen._runtime_splitter.set_collapsed("Actions", False, by_user=True)
+        assert actions_scroll.isVisible()
+        assert screen.rect().contains(screen._actions_section.mapTo(
+            screen, screen._actions_section.rect().bottomRight()))
     finally:
         page._retire_browser()
         screen.close()
