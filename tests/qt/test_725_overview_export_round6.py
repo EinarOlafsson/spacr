@@ -577,3 +577,38 @@ def test_opening_figure_keeps_the_overview_console_and_actions_in_the_window(qtb
     finally:
         page._retire_browser()
         screen.close()
+
+
+def test_canvas_text_double_click_edits_saves_and_exports(qtbot, tmp_path):
+    composer = picture_export._CanvasComposer()
+    qtbot.addWidget(composer)
+    composer.resize(1000, 750)
+    composer.show()
+    box = composer.add_text(40, 40, 240, 100, text="Before", font_size=18)
+    qtbot.waitUntil(lambda: composer.view.isVisible())
+    item = composer._items[box["id"]]
+    point = composer.view.mapFromScene(item.mapToScene(QPointF(30, 25)))
+    qtbot.mouseDClick(composer.view.viewport(), Qt.MouseButton.LeftButton, pos=point)
+    qtbot.waitUntil(lambda: item._text_proxy is not None and item._text_proxy.widget().hasFocus())
+    editor = item._text_proxy.widget()
+    assert editor.textCursor().position() >= 0
+    qtbot.keyClick(editor, Qt.Key.Key_A, modifier=Qt.KeyboardModifier.ControlModifier)
+    qtbot.keyClicks(editor, "Typed on canvas")
+    qtbot.keyClick(editor, Qt.Key.Key_Backspace)
+    qtbot.keyClicks(editor, "s")
+    assert editor.toPlainText() == "Typed on canvas"
+    assert composer.canvas.find(box["id"])[1]["text"] == "Typed on canvas"
+    assert composer.text_edit.toPlainText() == "Typed on canvas"
+    composer.settings_button.setFocus()
+    qtbot.waitUntil(lambda: not item._text_proxy.isVisible())
+    path = tmp_path / "edited.json"
+    composer.save_layout(str(path))
+    loaded = picture_export._CanvasLayout.load(str(path))
+    assert loaded.find(box["id"])[1]["text"] == "Typed on canvas"
+    pdf = tmp_path / "edited.pdf"
+    written, errors = picture_export._canvas_pdf(loaded, str(pdf), None)
+    assert written and not errors
+    assert "".join(PdfReader(pdf).pages[0].extract_text().split()) == "Typedoncanvas"
+    composer.undo()
+    assert composer.canvas.find(box["id"])[1]["text"] == "Before"
+    composer.close()

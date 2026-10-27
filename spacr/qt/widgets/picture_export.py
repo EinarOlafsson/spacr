@@ -1074,6 +1074,21 @@ def _canvas_qimage(pixels):
     return image.copy()
 
 
+class _CanvasTextEditor(QPlainTextEdit):
+    """An inline canvas editor that returns to the rendered box on focus loss."""
+
+    def focusOutEvent(self, event):
+        """Finish inline editing when keyboard focus leaves the text field.
+
+        :param event: the Qt focus transition.
+        """
+        super().focusOutEvent(event)
+        proxy = self.graphicsProxyWidget()
+        if proxy is not None:
+            proxy.hide()
+            proxy.parentItem().update()
+
+
 class _CanvasBoxItem(QGraphicsRectItem):
     """One box drawn on the composer's page: text, or an image preview."""
 
@@ -1083,6 +1098,7 @@ class _CanvasBoxItem(QGraphicsRectItem):
         self._composer = composer
         self.box_id = box["id"]
         self._resizing = False
+        self._text_proxy = None
         self.setPos(box["x"], box["y"])
         self.setFlags(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable
                       | QGraphicsItem.GraphicsItemFlag.ItemIsMovable)
@@ -1136,6 +1152,51 @@ class _CanvasBoxItem(QGraphicsRectItem):
             return
         super().mouseReleaseEvent(event)
         self._composer._moved(self.box_id)
+
+    def mouseDoubleClickEvent(self, event):
+        """Edit a text box in place, leaving image double-click handling intact.
+
+        :param event: the graphics-scene double-click.
+        """
+        from PySide6.QtGui import QFont
+        from PySide6.QtWidgets import QFrame, QGraphicsProxyWidget
+
+        box = self.box()
+        if event.button() != Qt.MouseButton.LeftButton or box is None or box["kind"] != "text":
+            return super().mouseDoubleClickEvent(event)
+        self._composer.select([self.box_id])
+        if self._text_proxy is None:
+            editor = _CanvasTextEditor()
+            editor.setFrameShape(QFrame.Shape.NoFrame)
+            editor.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+            editor.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+            self._text_proxy = QGraphicsProxyWidget(self)
+            self._text_proxy.setWidget(editor)
+            editor.textChanged.connect(self._inline_text_changed)
+        editor = self._text_proxy.widget()
+        editor.blockSignals(True)
+        editor.setPlainText(box.get("text") or "")
+        font = QFont(editor.font())
+        font.setPixelSize(max(1, int(round(float(box.get("font_size") or 10.0)))))
+        font.setBold(bool(box.get("bold")))
+        font.setItalic(bool(box.get("italic")))
+        editor.setFont(font)
+        option = editor.document().defaultTextOption()
+        option.setAlignment({"left": Qt.AlignmentFlag.AlignLeft, "center": Qt.AlignmentFlag.AlignHCenter,
+                             "right": Qt.AlignmentFlag.AlignRight}[box.get("align") or "left"])
+        editor.document().setDefaultTextOption(option)
+        editor.blockSignals(False)
+        self._text_proxy.setGeometry(self.rect().adjusted(_CANVAS_TEXT_PAD, _CANVAS_TEXT_PAD,
+                                                        -_CANVAS_TEXT_PAD, -_CANVAS_TEXT_PAD))
+        self._text_proxy.show()
+        self._text_proxy.setFocus(Qt.FocusReason.MouseFocusReason)
+        editor.setFocus(Qt.FocusReason.MouseFocusReason)
+        editor.setTextCursor(editor.cursorForPosition(editor.mapFromGlobal(event.screenPos())))
+        event.accept()
+
+    def _inline_text_changed(self):
+        """Use the existing text-model and undo path for inline edits."""
+        self._composer.text_edit.setPlainText(self._text_proxy.widget().toPlainText())
 
     def contextMenuEvent(self, event):
         """Offer current Overview display settings for this image only.

@@ -7961,7 +7961,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "channels",
-    "line": 1886,
+    "line": 1947,
     "module": "spacr.qt.widgets.picture_export",
     "nested": false,
     "qualname": "_CanvasComposer.set_import"
