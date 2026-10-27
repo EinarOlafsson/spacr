@@ -167,7 +167,7 @@ def _inspect_activation_grid(stage, capture, viewer, record, settle):
     adapter.call('click_at', x + width // 2, y + 16)
     settle(.4)
     focused = _inspection_window(stage, viewer.pid, record, window_id=before['window_id'])
-    adapter.call('press', 'F11'); settle(1.0)
+    adapter.call('press', '#keysym:0xffc8'); settle(1.0)
     adapter.call('press', '1'); settle(.6)
     measured = _inspection_window(stage, viewer.pid, record, fullscreen=True, window_id=before['window_id'])
     screens = QApplication.screens()

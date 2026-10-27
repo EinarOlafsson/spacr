@@ -97,8 +97,10 @@ def test_activation_grid_uses_one_native_documented_zoom_and_pan(monkeypatch):
     monkeypatch.setattr(driver, '_inspection_window', lambda *a, **kw: next(windows))
     proof = driver._inspect_activation_grid(Path('/private'), SimpleNamespace(host=object()), SimpleNamespace(pid=123),
                     dict(path='/private/batch_0_grid.png', dimensions=[4800, 600]), lambda _: None)
-    assert calls == [(('click_at', 1150, 66), {}), (('press', 'F11'), {}), (('press', '1'), {}),
+    assert calls == [(('click_at', 1150, 66), {}), (('press', '#keysym:0xffc8'), {}), (('press', '1'), {}),
                      (('drag', 640, 720, 1760, 720), dict(duration=6.0))]
+    from human_input import _keysym
+    assert _keysym('#keysym:0xffc8') == 0xffc8
     assert proof['native_frame_review_required'] is True
     assert proof['png_modified'] is False and proof['repeated_motion'] is False
 
