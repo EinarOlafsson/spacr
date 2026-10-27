@@ -4342,9 +4342,11 @@ class _EasyPathEdit(QLineEdit):
         from PySide6.QtCore import QElapsedTimer
 
         from ..i18n import tr
+        from .field_fade import OPT_OUT_PROPERTY
 
         super().__init__(parent)
         self.setObjectName('EasyModePath')
+        self.setProperty(OPT_OUT_PROPERTY, True)
         self.setFrame(False)
         self.setPlaceholderText(tr('Type a path or Drop some images here ...'))
         self.setAccessibleName(tr('File or folder path'))
