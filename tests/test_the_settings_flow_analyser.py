@@ -357,3 +357,22 @@ def test_recorded_classifier_inputs_keep_their_training_and_inference_readers(da
     for key, functions in expected.items():
         readers = {hit["function"] for hit in data["reads"][key]}
         assert {f"spacr.deep_spacr.{name}" for name in functions} <= readers
+
+
+def test_trailing_underscore_setting_headings_are_distinct_literal_names(flow, monkeypatch):
+    import io
+    from docutils.core import publish_doctree
+    from docutils import nodes
+
+    data = {"reads": {key: [{"function": "spacr.fixture._consume"}]
+                      for key in ("cytoplasm", "cytoplasm_")}, "edges": []}
+    monkeypatch.setattr(flow, "_tooltips", lambda: {})
+    rst = flow.rst_for(data)
+    stream = io.StringIO()
+    document = publish_doctree(rst, settings_overrides={
+        "warning_stream": stream, "report_level": 2, "halt_level": 5})
+    assert not stream.getvalue(), stream.getvalue()
+    assert [title.astext() for title in document.findall(nodes.title)] == [
+        "cytoplasm", "cytoplasm_"]
+    assert ".. _setting-flow-cytoplasm_:" in rst
+    assert flow._index_module(rst).count("'cytoplasm_',") == 1

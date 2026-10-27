@@ -10597,6 +10597,7 @@ class SettingsWidgets:
         of them before anything is built.
 
         :param count: the new ``number_of_organelles``.
+
         The first channel or mask-plane switch is offered when the count is
         positive. Each numeric switch reveals that slot's settings and the
         next switch, up to the count. Imported configured slots remain

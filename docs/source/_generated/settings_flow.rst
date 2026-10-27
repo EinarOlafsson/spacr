@@ -1565,8 +1565,8 @@ Read by ``generate_activation_map``, ``_applicable_activation_space``, ``get_def
 
 .. _setting-flow-cell_:
 
-cell_
------
+cell\_
+------
 
 | :py:func:`~spacr.qt.screens.settings_model.keys_hidden_by_their_object`
 |     ``_progressive_organelle_slots`` **-- reads it**
@@ -2537,8 +2537,8 @@ Read by ``plot_data_from_db``, ``_set_analyze_invasion_defaults``, ``_set_analyz
 
 .. _setting-flow-cellcellpose_:
 
-cellcellpose_
--------------
+cellcellpose\_
+--------------
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
@@ -2581,8 +2581,8 @@ Read by ``_fill_cellpose_channel_positions``, ``organelle_settings_view``, ``_ge
 
 .. _setting-flow-cellorganelle_:
 
-cellorganelle_
---------------
+cellorganelle\_
+---------------
 
 | :py:func:`~spacr.object_roles.organelle_settings_view` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
@@ -2838,8 +2838,8 @@ Read by ``_run_cellprofiler_step``, ``measure_crop``, ``get_measure_crop_setting
 
 .. _setting-flow-cellremove_background_:
 
-cellremove_background_
-----------------------
+cellremove_background\_
+-----------------------
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
@@ -5165,8 +5165,8 @@ Read by ``_export_vvvv_measured_field``, ``_measure_crop_core``, ``_morphologica
 
 .. _setting-flow-cytoplasm_:
 
-cytoplasm_
-----------
+cytoplasm\_
+-----------
 
 | :py:func:`~spacr.qt.screens.settings_model.keys_hidden_by_their_object`
 |     ``_progressive_organelle_slots`` **-- reads it**
@@ -5740,8 +5740,8 @@ Read by ``organelle_morphology_now``, ``get_measure_crop_settings``, ``organelle
 
 .. _setting-flow-cytoplasmcellpose_:
 
-cytoplasmcellpose_
-------------------
+cytoplasmcellpose\_
+-------------------
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
@@ -5784,8 +5784,8 @@ Read by ``_fill_cellpose_channel_positions``, ``organelle_settings_view``, ``_ge
 
 .. _setting-flow-cytoplasmorganelle_:
 
-cytoplasmorganelle_
--------------------
+cytoplasmorganelle\_
+--------------------
 
 | :py:func:`~spacr.object_roles.organelle_settings_view` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
@@ -5794,8 +5794,8 @@ Read by ``organelle_settings_view``.
 
 .. _setting-flow-cytoplasmremove_background_:
 
-cytoplasmremove_background_
----------------------------
+cytoplasmremove_background\_
+----------------------------
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
@@ -15250,8 +15250,8 @@ Read by ``generate_screen_graphs``, ``generate_training_dataset``, ``generate_ml
 
 .. _setting-flow-nucleus_:
 
-nucleus_
---------
+nucleus\_
+---------
 
 | :py:func:`~spacr.qt.screens.settings_model.keys_hidden_by_their_object`
 |     ``_progressive_organelle_slots`` **-- reads it**
@@ -15949,8 +15949,8 @@ Read by ``organelle_morphology_now``, ``get_measure_crop_settings``, ``organelle
 
 .. _setting-flow-nucleuscellpose_:
 
-nucleuscellpose_
-----------------
+nucleuscellpose\_
+-----------------
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
@@ -15993,8 +15993,8 @@ Read by ``_fill_cellpose_channel_positions``, ``organelle_settings_view``, ``_ge
 
 .. _setting-flow-nucleusorganelle_:
 
-nucleusorganelle_
------------------
+nucleusorganelle\_
+------------------
 
 | :py:func:`~spacr.object_roles.organelle_settings_view` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
@@ -16003,8 +16003,8 @@ Read by ``organelle_settings_view``.
 
 .. _setting-flow-nucleusremove_background_:
 
-nucleusremove_background_
--------------------------
+nucleusremove_background\_
+--------------------------
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
@@ -16673,8 +16673,8 @@ Read by ``align_folder``, ``_panel_statistics``, ``_v3_codec_chain``, ``_work``,
 
 .. _setting-flow-organelle_:
 
-organelle_
-----------
+organelle\_
+-----------
 
 | :py:func:`~spacr.qt.screens.settings_model.keys_hidden_by_their_object`
 |     ``_progressive_organelle_slots`` **-- reads it**
@@ -17925,8 +17925,8 @@ Read by ``_segment_spots``.
 
 .. _setting-flow-organellecellpose_:
 
-organellecellpose_
-------------------
+organellecellpose\_
+-------------------
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
@@ -17969,8 +17969,8 @@ Read by ``_fill_cellpose_channel_positions``, ``organelle_settings_view``, ``_ge
 
 .. _setting-flow-organelleorganelle_:
 
-organelleorganelle_
--------------------
+organelleorganelle\_
+--------------------
 
 | :py:func:`~spacr.object_roles.organelle_settings_view` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
@@ -17979,8 +17979,8 @@ Read by ``organelle_settings_view``.
 
 .. _setting-flow-organelleremove_background_:
 
-organelleremove_background_
----------------------------
+organelleremove_background\_
+----------------------------
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
@@ -18536,8 +18536,8 @@ Read by ``select_crops``, ``generate_dataset``, ``generate_training_dataset``.
 
 .. _setting-flow-pathogen_:
 
-pathogen_
----------
+pathogen\_
+----------
 
 | :py:func:`~spacr.qt.screens.settings_model.keys_hidden_by_their_object`
 |     ``_progressive_organelle_slots`` **-- reads it**
@@ -19368,8 +19368,8 @@ Read by ``plot_data_from_db``, ``_set_analyze_invasion_defaults``, ``_set_analyz
 
 .. _setting-flow-pathogencellpose_:
 
-pathogencellpose_
------------------
+pathogencellpose\_
+------------------
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
@@ -19412,8 +19412,8 @@ Read by ``_fill_cellpose_channel_positions``, ``organelle_settings_view``, ``_ge
 
 .. _setting-flow-pathogenorganelle_:
 
-pathogenorganelle_
-------------------
+pathogenorganelle\_
+-------------------
 
 | :py:func:`~spacr.object_roles.organelle_settings_view` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
@@ -19422,8 +19422,8 @@ Read by ``organelle_settings_view``.
 
 .. _setting-flow-pathogenremove_background_:
 
-pathogenremove_background_
---------------------------
+pathogenremove_background\_
+---------------------------
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
