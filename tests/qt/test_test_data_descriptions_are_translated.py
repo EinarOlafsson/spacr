@@ -91,3 +91,82 @@ def test_description_pane_fits_after_live_zoom(qtbot, qt_theme_applied, monkeypa
     finally:
         gui_scale.set_gui_scale_live(original_factor)
         gui_scale._SCALE = original_scale
+
+
+def _record_pane_measurement(self, _scale=None):
+    if _scale is None:
+        self._unobserved_pane_measurement()
+    else:
+        self._unobserved_pane_measurement(_scale)
+    from spacr.qt import gui_scale
+    self._pane_measurement_log.append((_scale, gui_scale.current_scale()))
+
+
+def test_live_zoom_remeasures_after_scaling_and_retires_safely(
+        qtbot, qt_theme_applied, monkeypatch):
+    from shiboken6 import isValid
+    from spacr.qt import gui_scale
+
+    measurements = []
+    monkeypatch.setattr(Chooser, '_pane_measurement_log', measurements, raising=False)
+    monkeypatch.setattr(Chooser, '_unobserved_pane_measurement',
+                        Chooser._size_the_description_pane, raising=False)
+    monkeypatch.setattr(Chooser, '_size_the_description_pane', _record_pane_measurement)
+    monkeypatch.setenv('SPACR_LANGUAGE', 'de')
+    original_scale = gui_scale._SCALE
+    original_factor = gui_scale.current_scale()
+    factor = 0.75 if original_factor != 0.75 else 1.25
+    dialog = Chooser()
+    qtbot.addWidget(dialog)
+    dialog.show()
+    qtbot.waitUntil(lambda: dialog._laid_out and dialog._description.width() > 200)
+    measurements.clear()
+    try:
+        gui_scale.set_gui_scale_live(factor)
+        assert measurements.count((factor, factor)) == 1
+        QCoreApplication.processEvents()
+        for text in dialog.every_description():
+            document = QTextDocument()
+            document.setDefaultFont(dialog._description.font())
+            document.setDocumentMargin(0)
+            document.setPlainText(text)
+            document.setTextWidth(dialog._description.contentsRect().width())
+            assert document.size().height() <= dialog._description.contentsRect().height()
+        dialog.deleteLater()
+        QCoreApplication.sendPostedEvents(dialog, QEvent.DeferredDelete)
+        assert not isValid(dialog)
+        dialog._size_the_description_pane(factor)
+    finally:
+        gui_scale.set_gui_scale_live(original_factor)
+        gui_scale._SCALE = original_scale
+
+
+def test_point_sized_description_fits_after_live_zoom(
+        qtbot, qt_theme_applied, monkeypatch):
+    from spacr.qt import gui_scale
+
+    monkeypatch.setenv('SPACR_LANGUAGE', 'de')
+    original_scale = gui_scale._SCALE
+    original_factor = gui_scale.current_scale()
+    gui_scale.set_gui_scale_live(1.0)
+    dialog = Chooser()
+    qtbot.addWidget(dialog)
+    dialog._description.setStyleSheet('font-size: 14pt;')
+    dialog.show()
+    qtbot.waitUntil(lambda: dialog._laid_out and dialog._description.width() > 200)
+    dialog._size_the_description_pane()
+    QCoreApplication.processEvents()
+    try:
+        for factor in (1.0, 0.75):
+            gui_scale.set_gui_scale_live(factor)
+            QCoreApplication.processEvents()
+            for text in dialog.every_description():
+                document = QTextDocument()
+                document.setDefaultFont(dialog._description.font())
+                document.setDocumentMargin(0)
+                document.setPlainText(text)
+                document.setTextWidth(dialog._description.contentsRect().width())
+                assert document.size().height() <= dialog._description.contentsRect().height()
+    finally:
+        gui_scale.set_gui_scale_live(original_factor)
+        gui_scale._SCALE = original_scale

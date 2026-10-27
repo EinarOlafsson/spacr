@@ -137,6 +137,8 @@ class TestDataChooser(QDialog):
         layout.addLayout(closing)
 
         self.adjustSize()
+        from ..gui_scale import add_listener
+        add_listener(self._size_the_description_pane)
 
     def eventFilter(self, watched, event):      # noqa: N802 - Qt naming
         """Fill the pane on hover, and empty it on leave.
@@ -176,7 +178,7 @@ class TestDataChooser(QDialog):
         return (tr(self.RESTING_TEXT),) + tuple(
             tr(description) for _key, _label, description in self.ROUTES)
 
-    def _size_the_description_pane(self) -> None:
+    def _size_the_description_pane(self, _scale=None) -> None:
         """Make the pane as tall as its tallest possible text, and pin it.
 
         Both bounds are set: a MINIMUM so nothing clips, and a MAXIMUM so the
@@ -190,7 +192,14 @@ class TestDataChooser(QDialog):
         before that -- at construction no layout has run, so `width()` is a
         placeholder and measuring against it would size for a pane one pixel
         wide.
+
+        :param _scale: unused completed zoom notification; measure the
+            current font and wrap width rather than scaling a cached height.
         """
+        from shiboken6 import isValid
+
+        if not isValid(self) or not isValid(self._description):
+            return
         width = self._measurement_width()
         metrics = QFontMetrics(self._description.font())
         tallest = 0
