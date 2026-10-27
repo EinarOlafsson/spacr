@@ -41,7 +41,11 @@ def test_reviewed_ui_vocabulary_is_complete_and_pinned():
                            / "reviewed_ui_vocabulary_arrivals_2026-10-15.json").read_text(encoding="utf-8"))
     arrivals, retired = contract["arrivals"], contract["retired"]
     assert len(arrivals) == 56
-    assert set(retired) == {"SSH authentication was denied. Test the connection to try again."}
+    assert set(retired) == {
+        "SSH authentication was denied. Test the connection to try again.",
+        "Authenticate in spaCR (keyboard-interactive / MFA)",
+        "Great Lakes may ask for a Kerberos password and Okta verification. spaCR shows server prompts verbatim and stores no password or OTP.",
+    }
     assert all(arrivals[source] == row for source, row in retired.items())
     assert not retired.keys() & REVIEWED_UI_TRANSLATIONS.keys()
     active_arrivals = {source: row for source, row in arrivals.items() if source not in retired}
