@@ -206,7 +206,28 @@ def _new_download_sources(language: str, reviewed: dict[str, str]) -> set[str]:
 
 
 def _later_cohort_records(path, expected, language, reviewed):
-    """Retain the frozen cohort bytes while proving two removed brush captions."""
+    """Bind frozen cohorts to their exact archived captions and active bytes."""
+    if path.name == "2026-09-22-section-headings.json":
+        document = json.loads(path.read_text(encoding="utf-8"))
+        archive = json.loads((path.parent / "archive" /
+                              "2026-10-26-remote-r2-retired" /
+                              "2026-10-26-remote-r2-retired.json").read_text(encoding="utf-8"))
+        retired = [row for row in archive["records"]
+                   if row["source"] == "Job details and log"]
+        assert len(retired) == 1
+        row = retired[0]
+        assert set(row) == {"key", "source", "source_sha256", "table", "translation"}
+        assert row["key"] == row["source"] and row["table"] == "ui"
+        assert row["source_sha256"] == hashlib.sha256(row["source"].encode()).hexdigest()
+        assert row["source"] not in reviewed
+        assert len(document["records"]) == 79
+        assert not any(value["source"] == row["source"] for value in document["records"])
+        document["records"].insert(34, row)
+        original_bytes = (json.dumps(document, ensure_ascii=False, indent=2) + "\n").encode()
+        assert hashlib.sha256(original_bytes).hexdigest() == expected["sha256"]
+        assert document["records"].pop(34) == row
+        assert path.read_bytes() == (json.dumps(document, ensure_ascii=False, indent=2) + "\n").encode()
+        return document["records"], {row["source"]}
     if path.name != "2026-09-22-lock-levels-parascape-controls.json":
         assert hashlib.sha256(path.read_bytes()).hexdigest() == expected["sha256"]
         return json.loads(path.read_text(encoding="utf-8"))["records"], set()
@@ -235,13 +256,18 @@ def _later_cohort_records(path, expected, language, reviewed):
 
 def _later_cohort_retirements(language: str, reviewed: dict[str, str]) -> set[str]:
     report = json.loads((ROOT / "tests/data/release_contracts/411_runtime_review_cohorts_2026-09-23.json").read_text(encoding="utf-8"))["languages"][language]
-    name = "2026-09-22-lock-levels-parascape-controls.json"
-    expected = [row for row in report["files"] if row["name"] == name]
-    assert len(expected) == 1
-    path = ROOT / "docs/i18n/reviewed/runtime" / language / name
-    records, retired = _later_cohort_records(path, expected[0], language, reviewed)
-    assert len(records) + len(retired) == expected[0]["records"]
-    return retired
+    sources = set()
+    for name in ("2026-09-22-lock-levels-parascape-controls.json",
+                 "2026-09-22-section-headings.json"):
+        expected = [row for row in report["files"] if row["name"] == name]
+        assert len(expected) == 1
+        path = ROOT / "docs/i18n/reviewed/runtime" / language / name
+        records, retired = _later_cohort_records(path, expected[0], language, reviewed)
+        assert len(records) + len(retired) == expected[0]["records"]
+        assert not sources & retired
+        sources.update(retired)
+    assert len(sources) == 3
+    return sources
 
 
 def _superseded_enhancement_sources(language, reviewed):
