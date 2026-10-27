@@ -1,11 +1,19 @@
 NAVIGATOR: A CONTENT-GUIDED HOME WITH AN ANIMATED PATH AND DROP FIELD
 
-Status:    DONE 2026-10-27 — Navigator content routing, native handoff, rendering, dock/panel defaults and input guidance delivered.
+Status:    READY FOR MAINTAINER TEST — 2026-10-27 corrective Navigator implementation; tutorial handoff and Docs/API follow-up await explicit sign-off.
 Requested: maintainer, 2026-10-26
 Owner:     Workstation session 2; root integration/publication with retained routing, rendering and reader peers.
 Related:   startup options, Preferences, Home, dock, spaCR AI
 
 CURRENT MAINTAINER FOLLOW-UP — 2026-10-27
+
+LATEST POSITION CORRECTION — 2026-10-27: restore the Navigator search bar to the vertical middle of the screen. It must stay centered when suggestions or the network appear; the prior move to the top was not requested. Keep the rounded description box fixed below and retain readable, non-overlapping cards.
+
+POST-SIGN-OFF FOLLOW-UP — 2026-10-27: after the maintainer tests the next Navigator implementation and explicitly signs off, send the other local tutorial session a handoff requesting a new Navigator tutorial and add Navigator coverage to the user documentation and API reference. Do not send the tutorial handoff or begin that follow-up before sign-off. The current corrective implementation is to be published for testing first; this explicit follow-up remains pending maintainer sign-off.
+
+LATEST LAUNCH FOLLOW-UP — 2026-10-27: installing spaCR provides both spacr-navigator and spacr-nav commands. Either command enables Navigator and launches spaCR directly in Navigator mode, while preserving the ordinary spacr launcher and its existing options. Validate installed entry-point registration and startup preference/argument handoff with focused checks.
+
+LATEST VISUAL CORRECTION — 2026-10-27 (supersedes earlier live-typing/card text requirements): module cards contain only their names, with matching card/icon background colors and the former card appearance/reveal animation. Descriptive text belongs in a rounded panel fixed in the bottom half of the window. Keep the search bar and description panel stationary. Suggestions appear gracefully only after Enter, never while typing. Add case-insensitive segmentation/object detection aliases for Mask Generation and Make Masks. Keep the colored highlight. Overflow choices occupy one horizontal scrollable row with gradual fading at both ends. Fade departing content as gracefully as the arriving network. Keep right-side container headers on-screen but collapsed, and retain the collapsed left dock at startup. Diagnose and remove particle accumulation at appearing-card edges, stale gray shapes after moving cards and the gray flash when moving the mouse after three seconds idle. Preserve native handoff, supported routes, explicit preferences, reduced motion and lifecycle cleanup. Focused layout/Enter/scroll/transition/render/idle checks and necessary normal outputs precede commit and nightly publication. Root owns card/layout integration, retained rendering peer owns field/ghost diagnosis, shell peer owns collapsed right containers and routing peer owns aliases.
 
 LATEST LAYOUT FOLLOW-UP — 2026-10-27: in Navigator, retain the app dock on
 the left in its collapsed state by default; an explicitly saved dock choice
@@ -343,3 +351,8 @@ Implementation and reasonable validation qualify completion under the maintainer
 2026-10-27 — Renamed Navigator; case-insensitive partial/module/organism/Help commands, plan suggestions and ten-tool nested measurement discovery use real native routes. Settings and inferred OPS/Spatial values preview before applying; explicit T/Z, PDF, sequencing, tables, mixed types and unsupported-format guidance retain bounded read-only inspection.
 2026-10-27 — Exact-NAS repeated real drops retain the live field; hover paints within milliseconds. Alpha cards, illumination/node visits, grouped explanations, wider translucent RGB25 descriptions and collapsed left dock/runtime panels preserve saved choices and cleanup.
 2026-10-27 — Safe paired-layout copying, numeric 2D NPY and installed single-frame Pillow Import routes preserve sources; missing direct Make Masks/container/axis support is queued separately in 735. Focused input, command, reader, renderer and catalog checks pass; normal outputs and source-bound nine-language reviews are included in the nightly publication.
+
+2026-10-27 — Corrective implementation restores name-only matching-background cards, fixed search/lower descriptions, Enter-only suggestions, fading one-row overflow, gradual departing content and visible collapsed native panels. Segmentation/object detection offer both mask tools; spacr-navigator and spacr-nav enable Navigator through existing startup.
+2026-10-27 — Card growth no longer projects particles onto an edge ring; clearing the reused held-frame fade layer removes the reproduced post-idle duplicate/gray flash. Focused behavior, actual-frame and startup checks plus normal affected outputs accompany the corrective nightly publication for testing. The explicitly requested tutorial-session handoff and Docs/API coverage remain pending maintainer sign-off.
+
+2026-10-27 — Restored the search to the vertical center without state-dependent movement; choices use the free space above it and descriptions remain fixed below. Six focused centering, layout, native-panel and transition controls pass; tutorial/Docs/API follow-up still awaits explicit sign-off.

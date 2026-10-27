@@ -8089,21 +8089,21 @@
           "focus_modules": [
             "classify_merged"
           ],
-          "hold_after": 0.7,
           "related_lessons": [
             "05_home",
             "10_classify_cv",
             "11_classify_ml"
-          ]
+          ],
+          "hold_after": 0.7
         },
         {
           "visual": "main_02_family_choices",
           "narration": "Välj Computer Vision för att lära från objektbilder. Välj Tabular Machine Learning för att lära från kolumner med uppmätta egenskaper. Measure ger dessa indata, och i Annotate kan du lägga till objektetiketter.",
-          "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
             "08_measure"
-          ]
+          ],
+          "hold_after": 0.7
         },
         {
           "visual": "main_03_tabular_family",
@@ -8114,19 +8114,19 @@
             1150,
             1600
           ],
-          "hold_after": 0.7,
           "related_lessons": [
             "11_classify_ml"
-          ]
+          ],
+          "hold_after": 0.7
         },
         {
           "visual": "ml_02_data_choice_load",
           "narration": "För tabellexemplet klickar du på Load test data och väljer Load. Välj klassetiketter och egenskapsinställningar och följ sedan tabellektionen för att träna modellen och spara prediktioner.",
-          "hold_after": 0.7,
           "related_lessons": [
             "11_classify_ml",
             "09_annotate"
-          ]
+          ],
+          "hold_after": 0.7
         },
         {
           "visual": "ml_25_ml_figure_02",
@@ -8137,10 +8137,10 @@
             2050,
             1520
           ],
-          "hold_after": 0.7,
           "related_lessons": [
             "11_classify_ml"
-          ]
+          ],
+          "hold_after": 0.7
         },
         {
           "visual": "cv_24_batch_figure",
@@ -8151,10 +8151,10 @@
             3460,
             1440
           ],
-          "hold_after": 0.7,
           "related_lessons": [
             "10_classify_cv"
-          ]
+          ],
+          "hold_after": 0.7
         },
         {
           "visual": "main_05_classifier_evaluation_tooltip",
@@ -8165,10 +8165,10 @@
             950,
             160
           ],
-          "hold_after": 0.7,
           "related_lessons": [
             "39_classifier_evaluation"
-          ]
+          ],
+          "hold_after": 0.7
         },
         {
           "visual": "main_05_explain_cv_tooltip",
@@ -8179,10 +8179,10 @@
             950,
             160
           ],
-          "hold_after": 0.7,
           "related_lessons": [
             "70_explain_cv"
-          ]
+          ],
+          "hold_after": 0.7
         },
         {
           "visual": "main_05_activation_tooltip",
@@ -8193,10 +8193,10 @@
             950,
             160
           ],
-          "hold_after": 0.7,
           "related_lessons": [
             "16_activation"
-          ]
+          ],
+          "hold_after": 0.7
         },
         {
           "visual": "main_05_train_compare_tooltip",
@@ -8207,18 +8207,18 @@
             950,
             160
           ],
-          "hold_after": 0.7,
           "related_lessons": [
             "28_training_runs"
-          ]
+          ],
+          "hold_after": 0.7
         },
         {
           "visual": "main_06_feature_explorer_nested",
           "narration": "Öppna Feature Explorer för att jämföra uppmätta egenskaper mellan valda grupper. Välj grupper och filter och granska sedan rangordningen av egenskaper och diagrammen.",
-          "hold_after": 0.7,
           "related_lessons": [
             "65_feature_explorer"
-          ]
+          ],
+          "hold_after": 0.7
         },
         {
           "visual": "ml_25_ml_figure_02",
@@ -8229,18 +8229,41 @@
             2050,
             1520
           ],
-          "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "10_classify_cv",
             "11_classify_ml",
             "13_regression"
-          ]
+          ],
+          "hold_after": 0.7
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

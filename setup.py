@@ -414,6 +414,8 @@ setup(
             'spacr=spacr.qt:run',
             'spacr-qt=spacr.qt:run',
             'spacr-nightly=spacr.qt:run',
+            'spacr-navigator=spacr.qt:run',
+            'spacr-nav=spacr.qt:run',
             'spaceout=spacr.qt.spaceout:main',
             'safespacr=spacr.qt.safespacr:main',
             'spacr-server=spacr.qt:run_without_setup',

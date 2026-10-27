@@ -145,6 +145,8 @@ def test_first_suggestion_keeps_rendered_field_and_restores_anchored_card(
                                    for card in page.field.cards), timeout=10000)
         card = next(card for card in page.field.cards if card._key == 'mask')
         anchor = QRect(card.mapToGlobal(QPoint()), card.size())
+        search_anchor = QRect(page.path_edit.mapToGlobal(QPoint()), page.path_edit.size())
+        details_anchor = QRect(page.field.details.mapToGlobal(QPoint()), page.field.details.size())
         backdrop = window.window_backdrop()
         qtbot.waitUntil(lambda: field_pixels() > 20, timeout=5000)
         qtbot.mouseClick(card, Qt.LeftButton)
@@ -158,11 +160,18 @@ def test_first_suggestion_keeps_rendered_field_and_restores_anchored_card(
         target = (center.x() / backdrop.width(), center.y() / backdrop.height())
         assert backdrop._engine._node_visit[1] == pytest.approx(target)
         viewport = workflow.view.viewport()
-        free = next(QPoint(x, 24) for x in range(24, viewport.width() - 24, 24)
-                    if workflow.view.itemAt(QPoint(x, 24)) is None)
+        free = next(QPoint(x, y) for y in range(24, viewport.height() - 24, 24)
+                    for x in range(24, viewport.width() - 24, 24)
+                    if workflow.view.itemAt(QPoint(x, y)) is None
+                    and workflow.childAt(workflow.mapFromGlobal(viewport.mapToGlobal(QPoint(x, y)))) is viewport
+                    and not any(part.isVisible() and QRect(part.mapToGlobal(QPoint()), part.size()).contains(
+                        viewport.mapToGlobal(QPoint(x, y))) for part in workflow._departing))
         field_point = backdrop.mapFromGlobal(viewport.mapToGlobal(free))
         assert not backdrop._held_rows._covered().contains(field_point)
-        assert not page.path_edit.isVisible()
+        assert page.path_edit.isVisible()
+        assert QRect(page.path_edit.mapToGlobal(QPoint()), page.path_edit.size()) == search_anchor
+        assert workflow.details is page.field.details
+        assert QRect(workflow.details.mapToGlobal(QPoint()), workflow.details.size()) == details_anchor
         assert field_pixels() > 20
         qtbot.waitUntil(lambda: workflow._progress == 1., timeout=5000)
         assert field_pixels() > 20
@@ -212,17 +221,23 @@ def test_grouped_choices_keep_all_tools_readable_and_preserve_first_click(qtbot,
     page.field._finish_growth()
     assert len(page.field.cards) == len(actions)
     assert [groups[card._key]['kind'] for card in page.field.cards] == ['images'] * 5 + ['measurements'] * 4
+    assert len({card._final_rect.y() for card in page.field.cards}) == 1
+    assert page.field._scrollbar.orientation() == Qt.Horizontal
+    assert page.field._scrollbar.maximum() > 0
     for card in page.field.cards:
-        assert card.description.isVisible() and groups[card._key]['reason'] in card.description.text()
-        assert groups[card._key]['group'] in card.description.text()
-        assert card._path in card.toolTip()
+        assert card.description.isHidden()
+        assert groups[card._key]['reason'] in card.accessibleDescription()
+        assert groups[card._key]['group'] in card.accessibleDescription()
+        page.field.explain_card(card)
+        assert groups[card._key]['reason'] in page.field.details.toPlainText()
+        assert groups[card._key]['group'] in page.field.details.toPlainText()
+        assert (card._key, card._path) in {(action[0], action[3]) for action in actions}
         assert card.width() == card.height()
-        content = card.description.mapTo(card, card.description.rect().bottomRight())
-        assert content.y() < card.height()
     last = page.field.cards[-1]
-    page._suggestions_scroll.ensureWidgetVisible(last)
-    qtbot.waitUntil(lambda: page._suggestions_scroll.viewport().rect().intersects(
-        last.rect().translated(last.mapTo(page._suggestions_scroll.viewport(), last.rect().topLeft()))))
+    assert not last.isVisible()
+    page.field._scrollbar.setValue(page.field._scrollbar.maximum())
+    qtbot.waitUntil(last.isVisible)
+    assert page.field._row_rect.intersects(last.geometry())
     emitted = []
     page.module_requested.connect(lambda key, path: emitted.append((key, path)))
     qtbot.mouseClick(last, Qt.LeftButton)
@@ -232,7 +247,8 @@ def test_grouped_choices_keep_all_tools_readable_and_preserve_first_click(qtbot,
     page._show_suggestions()
     assert len(page.field.cards) == len(actions) and last.parentWidget() is page.field
     second_plate = next(card for card in page.field.cards if card._path == other_images)
-    page._suggestions_scroll.ensureWidgetVisible(second_plate)
+    page.field._scrollbar.setValue(max(0, page.field._scrollbar.value() + second_plate.x() - page.field._row_rect.left()))
+    qtbot.waitUntil(second_plate.isVisible)
     qtbot.mouseClick(second_plate, Qt.LeftButton)
     assert page._workflow.central is second_plate
     qtbot.mouseClick(second_plate, Qt.LeftButton)
@@ -342,7 +358,7 @@ def test_whole_window_drop_preserves_every_frame_during_inspection(
                 assert visible_field_pixels() > 20
             QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
             assert len(page.field.findChildren(home._EasySuggestionCard)) == len(page.field.cards)
-            assert len(page.field.findChildren(QGraphicsOpacityEffect)) == len(page.field.cards)
+            assert len(page.field.findChildren(QGraphicsOpacityEffect)) == len(page.field.cards) + 1
             assert len(page.field._animations) <= 4
             assert len(page.findChildren(QTimer)) == timers
             assert page._runner.active_jobs() <= 1
@@ -421,7 +437,8 @@ def test_network_hover_paints_immediately_without_icon_reads_or_restyles(
         assert node._hovered
     assert latencies and max(latencies) < .5
     assert page.styleSheet() == before_sheet
-    assert workflow.details.width() == min(780, workflow.width() - 32)
+    assert workflow.details is page.field.details
+    assert workflow.details.width() == min(780, page.field.width() - 32)
     assert workflow.details.height() == 88 + 2 * workflow.details.fontMetrics().lineSpacing()
     print('hover-to-paint seconds:', latencies)
     page.close()
@@ -488,7 +505,8 @@ def test_explicit_stack_dimension_card_preserves_input_through_two_clicks(qtbot,
     page.accept_paths([str(path)])
     qtbot.waitUntil(lambda: any(card._key == '3d' for card in page.field.cards), timeout=5000)
     card = next(card for card in page.field.cards if card._key == '3d')
-    page._suggestions_scroll.ensureWidgetVisible(card)
+    page.field._scrollbar.setValue(max(0, page.field._scrollbar.value() + card.x() - page.field._row_rect.left()))
+    qtbot.waitUntil(card.isVisible)
     chosen = []
     page.module_requested.connect(lambda key, source: chosen.append((key, source)))
     qtbot.mouseClick(card, Qt.LeftButton)

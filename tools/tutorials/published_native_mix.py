@@ -18,6 +18,68 @@ UMAP_SOURCE = ('01_module', '19_setting_src', '19_setting_tables', '19_setting_r
 UMAP_CARD = '27_fold_image_scatter'
 
 
+
+def classify_overview_cv_interval(baseline,english,tracks,*,source_policy=None):
+    """Read/plan only the reviewed foreign CV component; no capture receipt."""
+    from build_audio_patch_candidate import require_published_script_baseline
+    from idle_tail_policy import bind_policy,load_policy
+    if (english!=read(REPO/'tools/tutorials/lessons/41_classify.json')
+            or english.get('id')!='41_classify'
+            or len(english.get('scenes',[]))!=12
+            or english['scenes'][5].get('visual')!='cv_24_batch_figure'):
+        raise ValueError('Published CV interval is explicit only for Classify overview scene six')
+    baseline=Path(baseline).resolve()
+    manifest=read(baseline/'release-manifest.json')
+    require_published_script_baseline(baseline,manifest)
+    baseline,original,bindings,source=_published_inputs(baseline,'10_classify_cv')
+    if len(original.get('scenes',[]))!=11 or len(original.get('source_tracks',[]))!=50:
+        raise ValueError('Require the complete published eleven-scene fifty-voice CV lesson')
+    selected=original['scenes'][9]
+    if (selected.get('scene')!=10 or selected.get('visual')!='gui_24_batch_figure'
+            or selected.get('native_live_video') is not True or selected.get('edited') is not True
+            or selected.get('source_keep_frames')!=[[30,165]] or selected.get('kept_frames')!=135
+            or original.get('staged_native_edit',{}).get('fresh_capture') is not False
+            or original['staged_native_edit'].get('raw_capture_revalidated') is not False):
+        raise ValueError('Require the accepted CV result excerpt, never its failed whole raw clip')
+    start=float(selected['speech_start']);stop=float(selected['scene_end']);duration=float(selected['duration'])
+    if (not all(math.isfinite(value) for value in (start,stop,duration)) or start<0
+            or abs(stop-start-duration)>1e-8 or duration<4.5
+            or any(abs(value*30-round(value*30))>1e-5 for value in (start,stop))
+            or round(duration*30)!=135+selected.get('final_frame_hold_frames',-1)):
+        raise ValueError('Published CV scene clock/result hold changed')
+    policy=load_policy(REPO) if source_policy is None else source_policy
+    entries=[entry for entry in policy['lessons'] if entry.get('lesson')=='10_classify_cv']
+    lesson=dict(id='10_classify_cv',silent=bindings['master']['path'].removeprefix('media_host/'),
+        visual_timings=bindings['timing']['path'].removeprefix('media_host/'))
+    bound=bind_policy(dict(schema=1,lessons=entries),list(bindings.values()),[lesson],lambda _:original)[0]
+    fences=[fence for fence in bound.get('native_idle_tails',{}).get('scenes',[])
+            if fence['visual']==selected['visual'] and abs(fence['source_start']-start)<1e-7
+            and abs(fence['source_end']-stop)<1e-7]
+    if len(fences)!=1 or fences[0]['idle_tail_start']!=4.5:
+        raise ValueError('Require the exact published CV four-and-a-half-second action fence')
+    if len(tracks)!=50 or any(len(track.get('scenes',[]))!=12 for track in tracks):
+        raise ValueError('Require all fifty current overview tracks')
+    speech=[track['scenes'][5] for track in tracks]
+    spans=[float(row['speech_end'])-float(row['speech_start']) for row in speech]
+    durations=[float(row['duration']) for row in speech]
+    if (any(not math.isfinite(value) or value<=0 for value in spans+durations)
+            or any(span>duration or span<4.5 for span,duration in zip(spans,durations))):
+        raise ValueError('Published CV motion must fit every full overview speech clip')
+    frames=max(135,math.ceil(max(durations)*30-1e-8))
+    component=dict(kind='published_classify_cv_interval',lesson='41_classify',visual='cv_24_batch_figure',
+        source_lesson='10_classify_cv',source_scene=10,source_visual=selected['visual'],
+        baseline_root=str(baseline),manifest_sha256=digest(baseline/'release-manifest.json'),
+        publication_receipt_sha256=digest(baseline/'publication-receipt.json'),
+        published_master=bindings['master'],published_timing=bindings['timing'],
+        published_source_scene=deepcopy(selected),source_fence=deepcopy(fences[0]),
+        source_capture_lineage=deepcopy(original['staged_native_edit']),
+        fresh_capture=False,raw_capture_revalidated=False)
+    row=dict(native_live_video=True,source_start_frame=round(start*30),source_keep_frames=[[0,135]],
+        kept_frames=135,final_frame_hold_frames=frames-135,duration=frames/30,
+        idle_tail_start=4.5,published_component=deepcopy(component))
+    return component,row
+
+
 def source_mapping(english, original, cards, reference_revision=None):
     """Only explicitly reviewed native/reference-card arrangements."""
     if reference_revision is not None:
@@ -233,7 +295,13 @@ def product_policy(root,timing,fences):
         visual_timing_sha256=digest(root/'video/native-live-timings.json'),scenes=rows)])
 
 
-def render(stage,baseline,edit,source_policy,identity_='05_home',reference_revision=None,native_companions_plan=None):
+def render(stage,baseline,edit,source_policy,identity_='05_home',reference_revision=None,native_companions_plan=None,overview_plan=None):
+    if reference_revision=='classify-overview-v1':
+        if identity_!='41_classify' or edit is not None or native_companions_plan is not None or overview_plan is None:
+            raise ValueError('Classify overview requires only its explicit current/published component plan')
+        from published_classify_overview_native import render as render_overview
+        return render_overview(stage,baseline,overview_plan,source_policy)
+    if overview_plan is not None:raise ValueError('Overview plan requires its explicit Classify revision')
     if reference_revision=='native-companions-v1':
         if identity_!='04_platform_installers' or edit is not None or native_companions_plan is None:
             raise ValueError('Native companion refresh requires only its explicit Platform plan')
@@ -268,6 +336,10 @@ def render(stage,baseline,edit,source_policy,identity_='05_home',reference_revis
 
 def checked_mixed_native_timing(stage,identity_):
     record_path=Path(stage)/'production'/identity_/RECORD
+    if record_path.is_file() and read(record_path).get('reference_revision')=='classify-overview-v1':
+        if identity_!='41_classify':raise ValueError('Classify overview revision is lesson41-only')
+        from published_classify_overview_native import checked
+        return checked(stage)
     if record_path.is_file() and read(record_path).get('reference_revision')=='native-companions-v1':
         if identity_!='04_platform_installers':raise ValueError('Native companions are Platform-only')
         from published_platform_native_refresh import checked
@@ -308,9 +380,10 @@ def main():
     source=p.add_mutually_exclusive_group()
     source.add_argument('--source-idle-policy',type=Path)
     source.add_argument('--canonical-source-policy',action='store_true',help='Explicitly bind the one existing canonical04/21/02 source entry')
-    p.add_argument('--lesson',choices=['05_home','15_image_umap','21_model_compare','04_platform_installers','02_install_spacr'],default='05_home')
-    p.add_argument('--reference-revision',choices=['maintenance-v1','native-companions-v1'],help='Explicit Platform reference or two-native-companion contract; default Doctor-only unchanged')
+    p.add_argument('--lesson',choices=['05_home','15_image_umap','21_model_compare','04_platform_installers','02_install_spacr','41_classify'],default='05_home')
+    p.add_argument('--reference-revision',choices=['maintenance-v1','native-companions-v1','classify-overview-v1'],help='Explicit reviewed mixed-source revision; default Doctor-only unchanged')
     p.add_argument('--native-companions-plan',type=Path,help='Exact reviewed two-clip source bindings and action fences')
+    p.add_argument('--overview-plan',type=Path,help='Exact lesson41 current main/ML plus published CV component plan')
     a=p.parse_args();print(render(a.stage,a.baseline,read(a.reviewed_edit) if a.reviewed_edit else None,
-        read(a.source_idle_policy) if a.source_idle_policy else canonical_source_policy(a.lesson) if a.canonical_source_policy else platform_source_policy() if a.lesson=='04_platform_installers' else dict(schema=1,lessons=[]),a.lesson,a.reference_revision,read(a.native_companions_plan) if a.native_companions_plan else None))
+        read(a.source_idle_policy) if a.source_idle_policy else canonical_source_policy(a.lesson) if a.canonical_source_policy else platform_source_policy() if a.lesson=='04_platform_installers' else dict(schema=1,lessons=[]),a.lesson,a.reference_revision,read(a.native_companions_plan) if a.native_companions_plan else None,read(a.overview_plan) if a.overview_plan else None))
 if __name__=='__main__':main()

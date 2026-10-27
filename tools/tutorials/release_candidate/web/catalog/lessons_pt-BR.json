@@ -8683,23 +8683,23 @@
           "focus_modules": [
             "classify_merged"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Abra o Classify na tela Home. Comece escolhendo a família de classificadores. As aulas de imagens e de dados tabulares indicadas aqui mostram, cada uma, um exemplo completo.",
           "related_lessons": [
             "05_home",
             "10_classify_cv",
             "11_classify_ml"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Abra o Classify na tela Home. Comece escolhendo a família de classificadores. As aulas de imagens e de dados tabulares indicadas aqui mostram, cada uma, um exemplo completo."
         },
         {
           "visual": "main_02_family_choices",
           "narration": "Escolha Computer Vision para aprender com imagens de objetos. Escolha Tabular Machine Learning para aprender com colunas de características medidas. O Measure fornece essas entradas, e o Annotate permite adicionar rótulos aos objetos.",
-          "hold_after": 0.7,
-          "speech_text": "Escolha Computer Vision para aprender com imagens de objetos. Escolha Tabular Machine Learning para aprender com colunas de características medidas. O Measure fornece essas entradas, e o Annotate permite adicionar rótulos aos objetos.",
           "related_lessons": [
             "07_mask",
             "08_measure"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Escolha Computer Vision para aprender com imagens de objetos. Escolha Tabular Machine Learning para aprender com colunas de características medidas. O Measure fornece essas entradas, e o Annotate permite adicionar rótulos aos objetos."
         },
         {
           "visual": "main_03_tabular_family",
@@ -8710,21 +8710,21 @@
             1150,
             1600
           ],
-          "hold_after": 0.7,
-          "speech_text": "A visualização Essentials reúne as configurações de que as duas famílias precisam para treinar. Ao mudar para Tabular Machine Learning, as configurações de Computer Vision ficam acinzentadas, e você preenche apenas o que a família escolhida usa.",
           "related_lessons": [
             "11_classify_ml"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "A visualização Essentials reúne as configurações de que as duas famílias precisam para treinar. Ao mudar para Tabular Machine Learning, as configurações de Computer Vision ficam acinzentadas, e você preenche apenas o que a família escolhida usa."
         },
         {
           "visual": "ml_02_data_choice_load",
           "narration": "No exemplo tabular, clique em Load test data e escolha Load. Selecione os rótulos de classe e as configurações de características e siga a aula tabular para treinar o modelo e salvar as previsões.",
-          "hold_after": 0.7,
-          "speech_text": "No exemplo tabular, clique em Load test data e escolha Load. Selecione os rótulos de classe e as configurações de características e siga a aula tabular para treinar o modelo e salvar as previsões.",
           "related_lessons": [
             "11_classify_ml",
             "09_annotate"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "No exemplo tabular, clique em Load test data e escolha Load. Selecione os rótulos de classe e as configurações de características e siga a aula tabular para treinar o modelo e salvar as previsões."
         },
         {
           "visual": "ml_25_ml_figure_02",
@@ -8735,11 +8735,11 @@
             2050,
             1520
           ],
-          "hold_after": 0.7,
-          "speech_text": "Depois da execução tabular, inspecione o mapa de calor das previsões e as pontuações salvas por objeto. Objetos sem as medições necessárias podem ficar sem pontuação. Confira os resultados da avaliação para decidir se vai revisar os rótulos, as características ou as configurações do modelo.",
           "related_lessons": [
             "11_classify_ml"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Depois da execução tabular, inspecione o mapa de calor das previsões e as pontuações salvas por objeto. Objetos sem as medições necessárias podem ficar sem pontuação. Confira os resultados da avaliação para decidir se vai revisar os rótulos, as características ou as configurações do modelo."
         },
         {
           "visual": "cv_24_batch_figure",
@@ -8750,11 +8750,11 @@
             3460,
             1440
           ],
-          "hold_after": 0.7,
-          "speech_text": "Para a classificação de imagens, siga a lição de Computer Vision para preparar recortes rotulados, escolher um modelo e definir as divisões de treino, validação e teste. Após o treinamento, confira as curvas de perda e de acurácia e, em seguida, examine as figuras de avaliação e as previsões salvas.",
           "related_lessons": [
             "10_classify_cv"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Para a classificação de imagens, siga a lição de Computer Vision para preparar recortes rotulados, escolher um modelo e definir as divisões de treino, validação e teste. Após o treinamento, confira as curvas de perda e de acurácia e, em seguida, examine as figuras de avaliação e as previsões salvas."
         },
         {
           "visual": "main_05_classifier_evaluation_tooltip",
@@ -8765,11 +8765,11 @@
             950,
             160
           ],
-          "hold_after": 0.7,
-          "speech_text": "Abra o Classifier Evaluation pelas ferramentas no canto superior direito. Selecione um pacote de avaliação salvo para inspecionar as previsões, as métricas e a divisão dos dados.",
           "related_lessons": [
             "39_classifier_evaluation"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Abra o Classifier Evaluation pelas ferramentas no canto superior direito. Selecione um pacote de avaliação salvo para inspecionar as previsões, as métricas e a divisão dos dados."
         },
         {
           "visual": "main_05_explain_cv_tooltip",
@@ -8780,11 +8780,11 @@
             950,
             160
           ],
-          "hold_after": 0.7,
-          "speech_text": "Abra o Explain CV para relacionar as previsões de um classificador de imagens a características medidas. Forneça os resultados de previsão das imagens e as medições correspondentes e depois veja quais características explicam as pontuações.",
           "related_lessons": [
             "70_explain_cv"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Abra o Explain CV para relacionar as previsões de um classificador de imagens a características medidas. Forneça os resultados de previsão das imagens e as medições correspondentes e depois veja quais características explicam as pontuações."
         },
         {
           "visual": "main_05_activation_tooltip",
@@ -8795,11 +8795,11 @@
             950,
             160
           ],
-          "hold_after": 0.7,
-          "speech_text": "Abra o Activation para ver quais regiões da imagem influenciam as respostas do modelo. Selecione o checkpoint treinado e use os mesmos canais de imagem e o mesmo pré-processamento do treinamento.",
           "related_lessons": [
             "16_activation"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Abra o Activation para ver quais regiões da imagem influenciam as respostas do modelo. Selecione o checkpoint treinado e use os mesmos canais de imagem e o mesmo pré-processamento do treinamento."
         },
         {
           "visual": "main_05_train_compare_tooltip",
@@ -8810,20 +8810,20 @@
             950,
             160
           ],
-          "hold_after": 0.7,
-          "speech_text": "Abra o Training Runs para comparar históricos de treinamento salvos. Selecione execuções com métricas e divisões de dados compatíveis e inspecione as curvas de aprendizado e as configurações.",
           "related_lessons": [
             "28_training_runs"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Abra o Training Runs para comparar históricos de treinamento salvos. Selecione execuções com métricas e divisões de dados compatíveis e inspecione as curvas de aprendizado e as configurações."
         },
         {
           "visual": "main_06_feature_explorer_nested",
           "narration": "Abra o Feature Explorer para comparar características medidas entre grupos selecionados. Escolha os grupos e os filtros e inspecione a classificação das características e os gráficos.",
-          "hold_after": 0.7,
-          "speech_text": "Abra o Feature Explorer para comparar características medidas entre grupos selecionados. Escolha os grupos e os filtros e inspecione a classificação das características e os gráficos.",
           "related_lessons": [
             "65_feature_explorer"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Abra o Feature Explorer para comparar características medidas entre grupos selecionados. Escolha os grupos e os filtros e inspecione a classificação das características e os gráficos."
         },
         {
           "visual": "ml_25_ml_figure_02",
@@ -8834,19 +8834,42 @@
             2050,
             1520
           ],
-          "hold_after": 0.7,
-          "speech_text": "Mantenha o modelo treinado, as previsões e os resultados da avaliação na pasta da execução. Você pode usar as pontuações por objeto no Regression junto com as contagens de guias correspondentes. As aulas dos módulos indicadas mostram os próximos passos.",
           "related_lessons": [
             "06_api",
             "10_classify_cv",
             "11_classify_ml",
             "13_regression"
-          ]
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Mantenha o modelo treinado, as previsões e os resultados da avaliação na pasta da execução. Você pode usar as pontuações por objeto no Regression junto com as contagens de guias correspondentes. As aulas dos módulos indicadas mostram os próximos passos."
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

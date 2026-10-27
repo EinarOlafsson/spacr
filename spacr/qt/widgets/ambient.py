@@ -11364,6 +11364,7 @@ class _HeldRows(QObject):
                            QImage.Format_ARGB32_Premultiplied)
             layer.setDevicePixelRatio(ratio)
             self._layer = layer
+        layer.fill(0)
         painter = QPainter(layer)
         try:
             painter.setClipRegion(region)
@@ -14157,10 +14158,12 @@ def _field_growing_regions_for_widget(widget, rectangles=(), *, invalidate=False
                                     (mapped.x() + mapped.width()) / width,
                                     (mapped.y() + mapped.height()) / height))
         regions = tuple(regions)
-        if invalidate or regions != backdrop._art_input._growing_regions:
-            held = getattr(backdrop, '_held_rows', None)
-            if held is not None and held.enabled:
-                held.stir()
+        if not invalidate and regions == backdrop._art_input._growing_regions:
+            continue
+        backdrop._drop_card_plan()
+        held = getattr(backdrop, '_held_rows', None)
+        if held is not None and held.enabled:
+            held.stir()
         backdrop._art_input._growing_regions = regions
         if backdrop._engine_lock.acquire(blocking=False):
             try:
