@@ -34,7 +34,8 @@ def plate(tmp_path):
     The middle one is the case. It HAS a pathogen. Its area and count are
     real numbers. Only its correlation is NaN -- which happens whenever a
     channel is flat inside the object, and says nothing at all about whether
-    the object exists.
+    the object exists. Each pathogen has a distinct label within the image;
+    its cell_id identifies its parent rather than a separate label namespace.
     """
     path = str(tmp_path / "measurements.db")
     con = sqlite3.connect(path)
@@ -44,7 +45,7 @@ def plate(tmp_path):
         pd.DataFrame([
             {**BASE, "object_label": 1, "cell_id": 1,
              "pathogen_area": 20.0, "pathogen_corr": 0.8},
-            {**BASE, "object_label": 1, "cell_id": 2,
+            {**BASE, "object_label": 2, "cell_id": 2,
              "pathogen_area": 30.0, "pathogen_corr": np.nan},
         ]).to_sql("pathogen", con, index=False)
         con.commit()
