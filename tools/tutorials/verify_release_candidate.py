@@ -102,10 +102,71 @@ def published_tree(root, pages):
     return next(iter(roots))
 
 
+def added_offering_cases(root, manifest):
+    """Require the exact opt-in addition, never a caller-selected voice subset."""
+    if 'added_english_offerings' not in manifest:
+        return []
+    from audit_staged_catalogs import CATALOGS
+    from check_completed_matrix import voice_matrix
+    identities = manifest['added_english_offerings']
+    if (not isinstance(identities, list) or len(identities) != 1
+            or identities[0] not in {'06_api', '48_hit_list'}):
+        raise ValueError('Expected one approved added-offerings lesson')
+    identity = identities[0]
+    inventory = voice_matrix(Path(__file__).parent / 'authoring/tools/render_all_voices.py')
+    voices = [voice for voice in inventory['en'] if voice != 'af_heart']
+    tracks = manifest.get('audio_patch_tracks', [])
+    if (len(voices) != 23 or len(tracks) != 23
+            or {row.get('voice') for row in tracks} != set(voices)
+            or any(row.get('lesson') != identity or row.get('language') != 'en' for row in tracks)):
+        raise ValueError('Added offerings must bind exactly all23 new English tracks')
+    records = {row['path']: row for row in manifest['files']}
+    if len(records) != len(manifest['files']):
+        raise ValueError('Duplicate candidate manifest path')
+    for track in tracks:
+        for key, suffix in [('audio', '.m4a'), ('timing', '.json')]:
+            relative = f"media_host/{identity}/audio/en/{track['voice']}{suffix}"
+            path = root / relative
+            record = records.get(relative)
+            if (not record or path.is_symlink() or not path.is_file()
+                    or path.stat().st_size != record['bytes']
+                    or digest(path) != record['sha256'] or record['sha256'] != track[key + '_sha256']):
+                raise ValueError('Added offering bytes differ from the bound candidate')
+    catalogs = [read(root / 'web/catalog' / name) for name in CATALOGS]
+    catalogs.append(parse_javascript((root / 'web/lesson_catalog.js').read_text(encoding='utf-8')))
+    for catalog in catalogs:
+        selected = [row for row in catalog['lessons'] if row['id'] == identity]
+        if len(selected) != 1 or selected[0].get('narration_voices') != inventory:
+            raise ValueError('Added offering catalog/runtime inventory differs from normal50')
+    return [(identity, voice) for voice in voices]
+
+
+def playback_cases(ready, added):
+    cases = [(lesson, 'af_heart', False) for lesson in ready]
+    for identity, voice in added:
+        selected = [lesson for lesson in ready if lesson['id'] == identity]
+        if len(selected) != 1:
+            raise ValueError('Added offering is not an active playable lesson')
+        cases.append((selected[0], voice, True))
+    return cases
+
+
+def next_playable_lesson(ready, identity, position):
+    """Keep adjacent normal navigation; extra voices must leave this lesson."""
+    other = ready[(position + 1) % len(ready)]['id']
+    if other == identity:
+        other = next((lesson['id'] for lesson in ready if lesson['id'] != identity), None)
+    if other is None:
+        raise ValueError('Playback transition requires a different ready lesson')
+    return other
+
+
 def verify(root, *, placeholders_only=False, published=None):
     root = Path(root).resolve()
     validate(root, include_hosted_media=published is None)
-    records = {r['path']: r for r in read(root / 'release-manifest.json')['files']}
+    manifest = read(root / 'release-manifest.json')
+    records = {r['path']: r for r in manifest['files']}
+    added = added_offering_cases(root, manifest)
     if published is None:
         served, entry, media_root = root, '/web/', None
     else:
@@ -122,9 +183,10 @@ def verify(root, *, placeholders_only=False, published=None):
     origin = f'http://127.0.0.1:{server.server_port}'
     output = root / 'checks'
     output.mkdir(exist_ok=True)
-    errors, foreign, screens, playback, hosted = [], [], [], [], []
+    errors, foreign, screens, playback, hosted, added_playback = [], [], [], [], [], []
     english = read(checked_web / 'catalog/lessons_en.json')
     ready = [l for l in english['lessons'] if l.get('status') != 'coming_soon']
+    cases = playback_cases(ready, added)
     placeholders = [l['id'] for l in english['lessons'] if l.get('status') == 'coming_soon']
     # Once every route is ready there is no Coming soon screen to check; the
     # player's guards are then exercised by check_placeholder_mutations' probe.
@@ -217,7 +279,7 @@ def verify(root, *, placeholders_only=False, published=None):
                 requested_urls = []
                 page.on('request', lambda req: requested_urls.append(req.url))
                 page.goto(origin + entry + '#lesson=' + (unavailable or ready[0]['id']), wait_until='networkidle')
-                for position, lesson in enumerate(ready):
+                for position, (lesson, voice, extra) in enumerate(cases):
                     identity = lesson['id']
                     page.evaluate('(id) => selectLesson(id)', identity)
                     # Wait for THIS lesson's narration and chapters: on a slow
@@ -232,13 +294,17 @@ def verify(root, *, placeholders_only=False, published=None):
                     assert page.locator('#complete-button').is_visible()
                     assert page.locator('#voice-select').is_enabled()
                     assert page.locator('.chapter-button').count() == len(lesson['scenes'])
+                    page.select_option('#voice-select', voice)
+                    page.wait_for_function('''(voice) => audioTimings?.voice === voice &&
+                        narrationAudioAvailable && elements.audio.readyState >= 2''',
+                        arg=voice, timeout=60000 if media_root is None else 180000)
                     loaded = page.evaluate('''async () => {
                         const response = await fetch(elements.audio.src);
                         const bytes = await response.arrayBuffer();
                         const hash = await crypto.subtle.digest('SHA-256', bytes);
                         return Array.from(new Uint8Array(hash), b => b.toString(16).padStart(2,'0')).join('');
                     }''')
-                    relative = f'{identity}/audio/en/af_heart.m4a'
+                    relative = f'{identity}/audio/en/{voice}.m4a'
                     if media_root:
                         expected = records['media_host/' + relative]['sha256']
                         assert f'{media_root}/{relative}' in requested_urls, (identity, 'not loaded from the pinned host')
@@ -249,8 +315,10 @@ def verify(root, *, placeholders_only=False, published=None):
                         hash: audioTimings.media_sha256,
                         chapters: chapterData.map(c => c.text),
                         spoken: audioTimings.scenes.map(s => s.text)})''')
-                    assert paired['voice'] == 'af_heart' and paired['hash'] == loaded, identity
+                    assert paired['voice'] == voice and paired['hash'] == loaded, identity
                     assert paired['chapters'] == paired['spoken'], identity
+                    if extra:
+                        assert page.evaluate('audioTimings') == read(root / 'media_host' / identity / 'audio/en' / (voice + '.json'))
                     page.wait_for_function('!videoClockCorrectionPending && !elements.video.seeking && !elements.audio.seeking')
                     requested = page.evaluate('chapterData[Math.min(2, chapterData.length - 1)].start')
                     seek_started = time.monotonic()
@@ -281,7 +349,7 @@ def verify(root, *, placeholders_only=False, published=None):
                                     network: elements.video.networkState, src: elements.video.currentSrc},
                             expectedVideo: videoTimeFromAudio(elements.audio.currentTime)})''')
                         state['seek_elapsed_seconds'] = time.monotonic() - seek_started
-                        write(output / f'clock-failure-{identity}.json', state)
+                        write(output / f'clock-failure-{identity}-{voice}.json', state)
                         print(json.dumps(state), flush=True)
                         raise
                     clocks = page.evaluate('''() => ({audio: elements.audio.currentTime,
@@ -303,7 +371,7 @@ def verify(root, *, placeholders_only=False, published=None):
                         page.evaluate('renderCaptions()')
                         page.wait_for_function('elements.captionTrack.readyState === 2 && !captionTrackLoading')
                         assert page.locator('#caption-track').count() == 1
-                    sentence_cues = check_sentence_cues(page) if identity in {
+                    sentence_cues = check_sentence_cues(page) if extra or identity in {
                         '04_platform_installers', '12_map_barcodes', '21_model_compare', '22_model_zoo', '76_ops', '77_embeddings'} else []
                     # The positive playable counterpart is followed by a real
                     # transition back to unavailable, cancelling active audio.
@@ -313,15 +381,19 @@ def verify(root, *, placeholders_only=False, published=None):
                     else:
                         # No unavailable route remains: leaving for another ready
                         # lesson must likewise stop and replace this lesson's audio.
-                        other = ready[(position + 1) % len(ready)]['id']
+                        other = next_playable_lesson(ready, identity, position)
                         page.evaluate('(identity) => selectLesson(identity)', other)
                         page.wait_for_function('(identity) => activeLesson?.id === identity', arg=other)
                         assert page.evaluate('''(identity) => elements.audio.paused &&
                             !(elements.audio.getAttribute("src") || "").includes("/" + identity + "/")''', identity)
-                    playback.append({'lesson': identity, 'audio_sha256': loaded, 'clocks': clocks,
+                    report = {'lesson': identity, 'audio_sha256': loaded, 'clocks': clocks,
                                      'chapter_text_matches_audio': True, 'native_caption_reloads': 2,
-                                     'sentence_cue_checks': sentence_cues, 'passed': True})
-                    print(identity, 'candidate playback PASS', flush=True)
+                                     'sentence_cue_checks': sentence_cues, 'passed': True}
+                    if extra:
+                        report.update(language='en', voice=voice,
+                                      timing_sha256=records[f'media_host/{identity}/audio/en/{voice}.json']['sha256'])
+                    (added_playback if extra else playback).append(report)
+                    print(identity, voice, 'candidate playback PASS', flush=True)
                     assert not errors, errors
                 ctx.close()
             browser.close()
@@ -330,6 +402,7 @@ def verify(root, *, placeholders_only=False, published=None):
         result = {'scope': 'Candidate browser checks, not native-language listening or deployment',
                   'manifest_sha256': digest(root / 'release-manifest.json'),
                   'placeholder_cases': screens, 'ready_playback_cases': playback,
+                  'added_english_playback_cases': added_playback,
                   'routes': len(english['lessons']), 'ready_lessons': len(ready),
                   'passed': True, 'published': False}
         if published:
