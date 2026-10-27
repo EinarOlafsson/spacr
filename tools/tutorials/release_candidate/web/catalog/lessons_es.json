@@ -2601,10 +2601,10 @@
           "visual": "25_result_runs",
           "narration": "Cuando termine la ejecución, abre Runs y selecciona el análisis guardado. Confirma la carpeta y los ajustes antes de compararlo con otra ejecución. Vuelve a ejecutar el análisis tras cambiar los ajustes si quieres resultados nuevos.",
           "hold_after": 0.7,
+          "speech_text": "Cuando termine la ejecución, abre Runs y selecciona el análisis guardado. Confirma la carpeta y los ajustes antes de compararlo con otra ejecución. Vuelve a ejecutar el análisis tras cambiar los ajustes si quieres resultados nuevos.",
           "related_lessons": [
             "73_parameter_sweep"
-          ],
-          "speech_text": "Cuando termine la ejecución, abre Runs y selecciona el análisis guardado. Confirma la carpeta y los ajustes antes de compararlo con otra ejecución. Vuelve a ejecutar el análisis tras cambiar los ajustes si quieres resultados nuevos."
+          ]
         },
         {
           "visual": "25_result_results",
@@ -2616,21 +2616,21 @@
           "visual": "26_detail_p_values",
           "narration": "Abre la vista de valores p y la herramienta Diagnostics. Revisa la distribución de los resultados junto con la resolución de las permutaciones, la familia de pruebas y los avisos sobre el diseño. Resuelve los problemas de diagnóstico importantes antes de interpretar las asociaciones.",
           "hold_after": 0.7,
+          "speech_text": "Abre la vista de valores p y la herramienta Diagnostics. Revisa la distribución de los resultados junto con la resolución de las permutaciones, la familia de pruebas y los avisos sobre el diseño. Resuelve los problemas de diagnóstico importantes antes de interpretar las asociaciones.",
           "related_lessons": [
             "75_regression_diagnostics"
-          ],
-          "speech_text": "Abre la vista de valores p y la herramienta Diagnostics. Revisa la distribución de los resultados junto con la resolución de las permutaciones, la familia de pruebas y los avisos sobre el diseño. Resuelve los problemas de diagnóstico importantes antes de interpretar las asociaciones."
+          ]
         },
         {
           "visual": "26_detail_coefficients",
           "narration": "Usa la barra de herramientas para abrir Volcano Explorer, Hit List o Investigate Hit como siguiente paso. Sus tutoriales muestran cómo revisar los resultados seleccionados. Mantén juntas las tablas de entrada, los ajustes guardados, los archivos de resultados y los informes de diagnóstico cuando compartas el análisis.",
           "hold_after": 0.7,
+          "speech_text": "Usa la barra de herramientas para abrir Volcano Explorer, Hit List o Investigate Hit como siguiente paso. Sus tutoriales muestran cómo revisar los resultados seleccionados. Mantén juntas las tablas de entrada, los ajustes guardados, los archivos de resultados y los informes de diagnóstico cuando compartas el análisis.",
           "related_lessons": [
             "72_volcano_explorer",
             "48_hit_list",
             "71_investigate_hit"
-          ],
-          "speech_text": "Usa la barra de herramientas para abrir Volcano Explorer, Hit List o Investigate Hit como siguiente paso. Sus tutoriales muestran cómo revisar los resultados seleccionados. Mantén juntas las tablas de entrada, los ajustes guardados, los archivos de resultados y los informes de diagnóstico cuando compartas el análisis."
+          ]
         }
       ],
       "narration_voices": {
