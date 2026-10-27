@@ -26,7 +26,8 @@ from .merge_tables import (
     OBJECT_COLUMN,
     MergeError,
     MergePolicy,
-    _align_keys, _keys_in,
+    _align_keys, _keys_in, _duplicate_observation_message, _merge_key_structure,
+    _duplicate_merge_enabled, _merge_duplicate_sources,
     _read,
     aggregation_for,
     merge_tables,
@@ -188,32 +189,13 @@ def _require_keys(frame, keys, table, *, unique=False):
         message = f"{table}: base observation keys contain missing values."
     elif unique and frame.duplicated(keys).any():
         reason = "duplicate_keys"
-        n = int(frame.duplicated(keys, keep=False).sum())
-        message = (f"{table}: {n} rows have duplicate observation keys {keys}; "
-                   "include the image/time columns in the composite key.")
+        message = _duplicate_observation_message(frame, keys, table)
     if reason:
         error = MergeError(message)
         error._spacr_merge_structure = _merge_key_structure(frame, keys, table, reason)
         raise error
 
 
-def _merge_key_structure(frame, keys, table, reason):
-    """Describe key cardinality using canonical names and anonymous counts."""
-    canonical = (*IDENTITY, "timeID", "time_id", "file_name", OBJECT_COLUMN)
-    complete = bool(keys) and len(set(keys)) == len(keys) and set(keys).issubset(frame)
-    return {
-        "reason": reason,
-        "table": table if table in ANCHOR_COLUMN else "custom",
-        "present": [key for key in canonical if key in frame],
-        "selected": [key for key in canonical if key in keys],
-        "custom_key_count": sum(key not in canonical for key in keys),
-        "missing_canonical": [key for key in canonical if key in keys and key not in frame],
-        "missing_custom_count": sum(key not in canonical and key not in frame for key in keys),
-        "rows": len(frame),
-        "unique_keys": len(frame[keys].drop_duplicates()) if complete else None,
-        "duplicate_rows": int(frame.duplicated(keys, keep=False).sum()) if complete else None,
-        "null_rows": int(frame[keys].isna().any(axis=1).sum()) if complete else None,
-    }
 
 
 def _align_explicit_keys(left, right, keys):
@@ -294,6 +276,31 @@ def execute(path, definition):
     so a chart that selects time_id stays reproducible.
     """
     validate_source(path, definition)
+    if definition.get('mode') == 'metadata':
+        return _execute_prepared(path, definition)
+    base_columns = pd.DataFrame(columns=[column[0] for column in definition['schema'][definition['base']]])
+    _require_keys(base_columns, definition['base_keys'], definition['base'])
+    for join in definition['joins']:
+        _require_keys(base_columns, join['left_keys'], definition['base'])
+        child_columns = pd.DataFrame(columns=[column[0] for column in definition['schema'][join['table']]])
+        _require_keys(child_columns, join['right_keys'], join['table'])
+    overrides = dict(definition.get("policy", {}).get("overrides", {}))
+    overrides.update({definition["base"] + "." + column: method
+                      for column, method in definition.get("base_overrides", {}).items()})
+    for join in definition["joins"]:
+        overrides.update({join["table"] + "." + column: method
+                          for column, method in join.get("overrides", {}).items()})
+    token = _duplicate_merge_enabled.set(definition.get("merge_duplicates") is True)
+    try:
+        with _merge_duplicate_sources(path, [definition["base"],
+                *[join["table"] for join in definition["joins"]]], overrides,
+                observation_keys={definition['base']: definition['base_keys']}):
+            return _execute_prepared(path, definition)
+    finally:
+        _duplicate_merge_enabled.reset(token)
+
+
+def _execute_prepared(path, definition):
     definition = copy.deepcopy(definition)
     mode = definition.get("mode")
     if mode not in ("default", "custom", "metadata"):

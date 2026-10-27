@@ -16,6 +16,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'FT',
     'Signal_to_noise',
     '_default_diameter',
+    '_measurement_crop_output_dir',
     '_plot_theme',
     '_preview_mask_dims',
     '_psf_measurement_signature',

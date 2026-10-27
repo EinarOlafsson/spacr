@@ -2218,23 +2218,33 @@ def _validated_summary(summary: Mapping[str, Any]) -> Dict[str, Any]:
 def _merge_structure_message(exception):
     """Rebuild merge diagnostics from fixed names and bounded integer counts."""
     raw = getattr(exception, "_spacr_merge_structure", None)
-    if not isinstance(raw, dict):
+    if not isinstance(raw, (dict, list)):
         return ""
+    records = raw if isinstance(raw, list) else [raw]
     canonical = ("plateID", "rowID", "columnID", "fieldID", "timeID",
                  "time_id", "file_name", "object_label")
-    result = {}
-    reason = raw.get("reason")
-    if reason not in ("invalid_keys", "missing_keys", "null_keys", "duplicate_keys"):
+    results = []
+    for raw in records[:8]:
+        if not isinstance(raw, dict):
+            continue
+        result = {}
+        reason = raw.get("reason")
+        if reason not in ("invalid_keys", "missing_keys", "null_keys", "duplicate_keys"):
+            continue
+        result["reason"] = reason
+        table = raw.get("table")
+        result["table"] = table if table in ("cell", "cytoplasm", "nucleus", "pathogen", "organelle") else "custom"
+        for key in ("present", "selected", "missing_canonical"):
+            values = raw.get(key)
+            result[key] = [name for name in canonical if isinstance(values, (list, tuple)) and name in values]
+        for key in ("custom_key_count", "missing_custom_count", "rows", "unique_keys", "duplicate_rows", "null_rows"):
+            value = raw.get(key)
+            result[key] = value if type(value) is int and 0 <= value <= 2 ** 63 - 1 else None
+        results.append(result)
+    if not results:
         return ""
-    result["reason"] = reason
-    table = raw.get("table")
-    result["table"] = table if table in ("cell", "cytoplasm", "nucleus", "pathogen", "organelle") else "custom"
-    for key in ("present", "selected", "missing_canonical"):
-        values = raw.get(key)
-        result[key] = [name for name in canonical if isinstance(values, (list, tuple)) and name in values]
-    for key in ("custom_key_count", "missing_custom_count", "rows", "unique_keys", "duplicate_rows", "null_rows"):
-        value = raw.get(key)
-        result[key] = value if type(value) is int and 0 <= value <= 2 ** 63 - 1 else None
+    result = results[0] if isinstance(getattr(exception, "_spacr_merge_structure"), dict) else {
+        "tables": results, "omitted_tables": max(0, len(records) - 8)}
     return "Merge validation: " + json.dumps(result, sort_keys=True, separators=(",", ":"))
 
 

@@ -4,7 +4,8 @@ Status: COMPLETE — implementation and focused validation passed; published on 
 Requested: maintainer, 2026-10-27, from GitHub report 172.
 Owner: maintainer-input coordinator; root publishes Nightly.
 
-Keep ambiguous composite-key merges refused; never deduplicate or guess keys.
+Keep ambiguous composite-key merges refused by default; preserve the separately
+implemented explicit duplicate-aggregation choice without guessing keys.
 Reports must distinguish canonical time/image key presence from actual duplicate
 observations using row, distinct-key, duplicate-row and null-key counts. Include
 canonical column/key names only; custom schemas contribute counts, never names,
@@ -20,5 +21,5 @@ Nightly diagnostics on GitHub before closing; do not claim its dataset repaired.
 2026-10-27: Requirements recorded before implementation; Main release remains frozen.
 2026-10-27: Canonical structure/counts replace private message/trace/log content before anonymous batching; existing consent/None/Off policies retained.
 2026-10-27: Expected MergeError uses user-error policy while preserving ValueError compatibility and editable, fail-closed validation.
-2026-10-27: Independent source/privacy peer accepted; 14 focused checks passed in 3.79 s, including repeated time/image and duplicate-refusal controls.
-2026-10-27: Root owns Nightly publication, then issue explanation/closure; earlier dataset cause remains unknown and no source rows are changed.
+2026-10-27: Independent source/privacy and overlap peers accepted; original 14 checks passed (3.79 s); 12 integration checks passed (3.48 s), preserving explicit duplicate choices and multi-source anonymity.
+2026-10-27: Root owns Nightly publication, then issue explanation/closure; earlier dataset cause remains unknown and default refusals never change source rows.

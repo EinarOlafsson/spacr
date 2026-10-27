@@ -1641,3 +1641,29 @@ def test_merge_structure_stays_private_in_real_combined_error_batch(configured, 
         for worker in workers:
             worker.join(5)
             assert not worker.is_alive()
+
+
+def test_multiple_duplicate_sources_report_anonymous_counts(configured):
+    import pandas as pd
+    from spacr.merge_tables import _DuplicateObservations
+
+    relay, outcomes, ready = configured
+    cr._update_state(affirmed_policy=dict(cr._read_state()["affirmed_policy"], provider="none"))
+    frames = {
+        "private_person_table": pd.DataFrame({"file_name": ["private_image.tif"] * 2,
+                                             "private_key": ["private_value"] * 2}),
+        "nucleus": pd.DataFrame({"plateID": ["private_plate"] * 3,
+                                 "object_label": [7] * 3}),
+    }
+    exc = _DuplicateObservations(frames, {"private_person_table": ["file_name", "private_key"],
+                                        "nucleus": ["plateID", "object_label"]})
+    assert cr.classify_failure(exc) == cr.KIND_USER_ERROR
+    joined(cr._dispatch_error(str(exc), exception=exc))
+    assert ready.wait(5)
+    [report] = relay.calls_to("/report")
+    message = report["body"]["message"]
+    assert '"table":"custom"' in message and '"table":"nucleus"' in message
+    assert '"duplicate_rows":2' in message and '"duplicate_rows":3' in message
+    assert '"custom_key_count":1' in message
+    assert "private_" not in json.dumps(relay.calls)
+    assert relay.calls_to("/diagnose") == []

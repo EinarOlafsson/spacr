@@ -94,12 +94,12 @@ def test_warning_and_dynamic_preview_templates_are_canonical_ui_sources():
     assert any(text.startswith("{table}: {input_rows:,} input rows") for text in sources)
 
 
-def test_duplicate_preview_stays_editable_and_classifies_as_validation(qtbot, db, monkeypatch):
+def test_invalid_key_preview_stays_editable_and_classifies_as_validation(qtbot, db, monkeypatch):
     from spacr import crashreport
     from spacr.errors import ConfigurationError
 
     with sqlite3.connect(db) as connection:
-        connection.execute("INSERT INTO cell SELECT * FROM cell LIMIT 1")
+        connection.execute("UPDATE cell SET object_label=NULL WHERE object_label=1")
     seen = []
     monkeypatch.setattr(crashreport, "_new_error_occurrence", lambda error: seen.append(error) or "")
     dialog = MergeTablesDialog(db, selected=["cell", "pathogen"], threaded=False)
@@ -108,10 +108,10 @@ def test_duplicate_preview_stays_editable_and_classifies_as_validation(qtbot, db
     assert not dialog.create.isEnabled()
     assert dialog.result_frame is None
     assert dialog.customize.isEnabled()
-    assert "duplicate observation keys" in dialog.preview_text.toPlainText()
+    assert "base observation keys contain missing values" in dialog.preview_text.toPlainText()
     assert len(seen) == 1 and isinstance(seen[0], ConfigurationError)
     assert crashreport.classify_failure(seen[0]) == crashreport.KIND_USER_ERROR
-    assert seen[0]._spacr_merge_structure["duplicate_rows"] == 2
+    assert seen[0]._spacr_merge_structure["null_rows"] == 1
     with sqlite3.connect(db) as connection:
-        assert connection.execute("SELECT COUNT(*) FROM cell").fetchone()[0] == 4
+        assert connection.execute("SELECT COUNT(*) FROM cell").fetchone()[0] == 3
     dialog.reject()
