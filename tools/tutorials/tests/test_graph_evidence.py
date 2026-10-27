@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from graph_evidence import check_brush, check_histogram, check_points
+from graph_evidence import check_brush, check_brush_cleared, check_histogram, check_points
 
 
 def test_points_preserve_duplicates_and_actual_values():
@@ -25,12 +25,35 @@ def test_histogram_counts_include_rightmost_endpoint():
         check_histogram([0, 3], [0, 1, 2], [1, 0])
 
 
-def test_publication_does_not_prove_handoff():
-    assert not check_brush(['a', 'b'], ['b', 'a'], 0, False)['annotation_handoff_works']
-    with pytest.raises(ValueError, match='identities'):
-        check_brush(['a', 'b'], ['a', 'c'], 0, False)
-    with pytest.raises(ValueError, match='changed'):
-        check_brush(['a', 'b'], ['a', 'b'], 2, True)
+def test_brush_requires_matching_highlight_count_and_available_handoff():
+    proof = check_brush(['a', 'b'], ['b', 'a'], 2, True)
+    assert proof['annotation_handoff_available'] is True
+    assert proof['annotation_handoff_clicked'] is False
+    assert proof['visible_selected_rows'] == proof['published_object_keys'] == 2
+
+
+@pytest.mark.parametrize('keys,count,enabled', [
+    (['a', 'c'], 2, True), (['a'], 2, True), (['a', 'b', 'b'], 2, True),
+    (['a', 'b'], 0, False), (['a', 'b'], 0, True),
+    (['a', 'b'], 1, True), (['a', 'b'], 2, False), (['a', 'b'], True, True),
+])
+def test_brush_rejects_stale_or_incoherent_local_ui(keys, count, enabled):
+    with pytest.raises(ValueError):
+        check_brush(['a', 'b'], keys, count, enabled)
+
+
+@pytest.mark.parametrize('keys', [None, []])
+def test_brush_cleared_retires_publication_and_handoff(keys):
+    assert check_brush_cleared(keys, 0, False, False)['selection_publication_cleared']
+
+
+@pytest.mark.parametrize('keys,count,enabled,active', [
+    (['a'], 0, False, False), ([], 1, False, False),
+    ([], 0, True, False), ([], 0, False, True),
+])
+def test_brush_cleared_rejects_each_stale_component(keys, count, enabled, active):
+    with pytest.raises(ValueError):
+        check_brush_cleared(keys, count, enabled, active)
 
 
 @pytest.mark.parametrize('bad', [float('nan'), float('inf')])

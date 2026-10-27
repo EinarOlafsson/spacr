@@ -408,3 +408,14 @@ HFe6851eb142c2145645211d597ff72634dd09498d readback matches6963files/14570302471
 Codex next owns lesson81 reviewed pause cuts on that exact56 candidate baseline: retain all50 tracks and actual reference/CSV picker acceptances, QC/OPS results and the full Dose divider drag; require strict all-voice gaps and normal publication.
 Native held20Hz mismatch remains through33993294fd;58 brush driver prep passes17 focused tests for95e051c83c but needs native acceptance. Lesson63 visible Trellis retake and01 PyPI hold remain.
 Lesson81 edited master, complete decode/PTS, poster and web copy pass; generated11-scene idle policy adopted while preserving other policies. Strict50-voice gap checks/publication remain pending.
+
+2026-10-27 — Lesson81 pause edits delivered inbd566b5e7a:50 tracks retained,600 measured gaps0.816–1.047s,72 matrix/59 published cases and64 pin tests pass; HF0baf4da157a17f99b7a0b3d95f036960890e7afe verified6963files/14539713176bytes.
+NormalHF504 recovery resumed the landed revision; fixed its existing completion-marker handoff, preserving correct retained-narration commits and all passed work.
+Native0158c25910 diagnostic fails0/2:61 continuous Home samples prove configured60/effective20/holdtrue; Preferences120 samples return to20 during false-freeze buckets. No GUI sampler gaps or GPU CPU-fallback event; exact stacks and evidence in AI/HANDOFF.
+Integrated exact tested pacing19/graph17/Trellis8-check driver sources;58/63 native acceptance still pending. No gate target, actual-freeze rule, environment or default changed.
+Codex continues12/26/37 reviewed pause edits; diagnostic-only held-pacing classification retains11 passing tests and both raw failures. Lesson16 actual-CUDA guard preparation continues; full native takes,01 PyPI and website deployment remain pending.
+
+2026-10-27 — Codex requires lesson16 to reject CPU fallback before reference/recording and prove actual CUDA model/input placement on one device for both genuine GUI runs, retaining pixel<=1 and database checks.
+Private guard retains27 affected passes plus15 affected validator passes after device-index refinement; actual CUDA/native acceptance remains pending.
+Lesson12 reviewed pause cuts retain all50 narration tracks and original demonstrated actions; edited master, full decode/PTS, poster and web copy pass. Strict all-voice browser gaps and normal publication remain required.
+Lesson12 generated final idle policy added (no prior entry), preserving all other policies; publication uses the completed81 candidate baseline.

@@ -27,6 +27,36 @@ def _splitter_of(widget):
     return w
 
 
+def _require_visible_trellis(panel, panels=None):
+    """Reject an offscreen/folded result even when Matplotlib's objects exist."""
+    pane = panel._splitter.pane('Trellis')
+    canvas = panel.canvas._canvas
+    if pane is None or pane.is_collapsed():
+        raise ValueError('Actual foreground Trellis section is collapsed or missing')
+    region = canvas.visibleRegion()
+    if (not canvas.isVisible() or not canvas.window().isActiveWindow()
+            or canvas.width() < 480 or canvas.height() < 320
+            or region.rectCount() != 1 or region.boundingRect() != canvas.rect()):
+        raise ValueError('Actual foreground Trellis canvas is hidden, clipped or too small')
+    if panels is not None:
+        # Matplotlib bounds use physical pixels; Qt geometry uses logical pixels.
+        scale = float(canvas.devicePixelRatioF())
+        frame = panel.canvas._figure.bbox
+        for p in panels:
+            if not p['occupied']:
+                continue
+            ax = panel.canvas._axes[(p['row'], p['col'])]
+            box = ax.get_window_extent()
+            if (not ax.get_visible() or box.width < 64*scale or box.height < 48*scale
+                    or box.x0 < frame.x0 or box.y0 < frame.y0
+                    or box.x1 > frame.x1 or box.y1 > frame.y1):
+                raise ValueError('An actual Trellis result panel is hidden, clipped or too small')
+    return dict(foreground_canvas_visible=True,
+                canvas_logical_size=[canvas.width(), canvas.height()],
+                occupied_panels_visible=(sum(bool(p['occupied']) for p in panels)
+                                         if panels is not None else None))
+
+
 def record_trellis(app, window, stage, captures, capture, settle, write_json, timeout):
     from PySide6.QtCore import Qt, QTimer, QPoint
     from PySide6.QtTest import QTest
@@ -67,6 +97,18 @@ def record_trellis(app, window, stage, captures, capture, settle, write_json, ti
         while screen.is_busy() or screen.active_jobs() or screen.filters._debounce.isActive() or screen.panel.canvas._debounce.isActive():
             tick(); settle(.1)
         settle(.3)
+
+    def ensure_plot():
+        splitter = screen.panel._splitter
+        pane = splitter.pane('Trellis')
+        if pane is None:
+            raise ValueError('Actual Small Multiples Trellis section is missing')
+        if pane.is_collapsed():
+            heading = getattr(pane.widget, 'heading', None)
+            if heading is None:
+                raise ValueError('Actual Trellis fold heading is missing')
+            click(heading); idle()
+        return _require_visible_trellis(screen.panel)
 
     def fill(widget, value):
         if live:
@@ -115,6 +157,7 @@ def record_trellis(app, window, stage, captures, capture, settle, write_json, ti
 
     def open_popup(box, frame, act=None):
         """Clip ``frame``: optional action, then the selector's real popup opened and read."""
+        ensure_plot()
         started = drv.begin(capture, settle, frame)
         if act is not None: act()
         click(box); capture_ui.wait(capture, 1.5, settle)
@@ -132,6 +175,7 @@ def record_trellis(app, window, stage, captures, capture, settle, write_json, ti
             raise ValueError('Actual selector did not change as requested')
 
     def check(name, population=None, *, x='cell_area', row='rowID', col='columnID', mode='shared', wrap=0, act=None):
+        ensure_plot()
         started = drv.begin(capture, settle, name)
         if act is not None: act()
         idle(); records = rows if population is None else population
@@ -140,6 +184,7 @@ def record_trellis(app, window, stage, captures, capture, settle, write_json, ti
         p = verify_trellis(result, records, x=x, y='cell_channel_1_mean_intensity',
                            facet_row=row, facet_col=col, scale_x=mode, scale_y=mode, wrap=wrap)
         p.update(verify_rendered_axes(screen.panel.canvas, result, records, p))
+        p.update(_require_visible_trellis(screen.panel, p['panels']))
         p.update(notice=screen.panel.canvas.notice(), source_label=screen._source.text())
         proof.setdefault('checks', {})[name] = p
         capture_ui.point_at(capture, screen.panel.canvas); drv.snap(capture, name); drv.finish(capture, started)
@@ -191,6 +236,7 @@ def record_trellis(app, window, stage, captures, capture, settle, write_json, ti
             if dialog is not None: dialog.reject()
         watchdog.timeout.connect(abort)
         watchdog.start(120000 if getattr(capture, 'host', None) is not None else 15000)
+        ensure_plot()
         started = drv.begin(capture, settle, '03_choose_real_measurements')
         capture_ui.when_modal(capture, 300, handle)
         try: click(pressed)
@@ -216,26 +262,28 @@ def record_trellis(app, window, stage, captures, capture, settle, write_json, ti
         if len(panels) != 1: raise ValueError('Actual Small Multiples fold did not open')
         screen = panels[0]; panel = screen.panel
         panel.canvas.trellis_rendered.connect(lambda r: events.append(dict(rows=len(r.frame), shape=list(r.shape))))
-        splitter = _splitter_of(panel.well.parentWidget())
-        # The Small Multiples page opens with its Trellis section folded (its heading reads "Trellis" with a closed chevron),
-        # so the plot never shows. Open it by pressing its heading, as a user does.
-        trellis_pane = splitter.pane('Trellis')
-        if trellis_pane is not None and trellis_pane.is_collapsed():
-            heading = getattr(getattr(trellis_pane, 'folder', None), 'heading', None)
-            if heading is None or not heading.isVisible():
-                raise ValueError('The Trellis section is folded and its heading is not reachable')
+        splitter = panel._splitter
+        # Open the real canvas, then leave it usable after resizing Channels.
+        # A global x=1000 drag could squeeze/re-collapse it in the floating page.
+        pane = splitter.pane('Trellis')
+        if pane is None: raise ValueError('Actual Small Multiples Trellis section is missing')
+        if pane.is_collapsed():
+            heading = getattr(pane.widget, 'heading', None)
+            if heading is None: raise ValueError('Actual Trellis fold heading is missing')
             click(heading); settle(.6)
-            if trellis_pane.is_collapsed():
-                raise ValueError('Pressing the Trellis heading did not open the section')
         handle = splitter.handle(1)
-        start = handle.rect().center(); end = start+QPoint(1000-handle.mapTo(window, start).x(), 0)
+        start = handle.rect().center()
+        shelf_width = max(300, min(600, round(splitter.width()*.30)))
+        end = start+QPoint(shelf_width-handle.mapTo(splitter, start).x(), 0)
         QTest.mousePress(handle, Qt.LeftButton, pos=start); QTest.mouseMove(handle, end, delay=150)
         QTest.mouseRelease(handle, Qt.LeftButton, pos=end); settle(.4)
+        ensure_plot()
         capture_ui.point_at(capture, panel.well); drv.snap(capture, '02_current_small_multiples'); drv.finish(capture, scene2)
         loads = [b for b in screen.findChildren(QPushButton) if b.text() == 'Load table…']
         picker(loads[0], work/'measurements.db')
         if screen._table_picker.currentText() != 'cell' or len(screen._frame) != 2341:
             raise ValueError('Actual picker did not load full cell table')
+        ensure_plot()
         scene4 = drv.begin(capture, settle, '04_actual_plot_choices')
         drag('cell_area', 'x'); drag('cell_channel_1_mean_intensity', 'y')
         click(panel._kind); capture_ui.wait(capture, 1.5, settle)
@@ -286,6 +334,7 @@ def record_trellis(app, window, stage, captures, capture, settle, write_json, ti
               drag('rowID', 'facet_row'), drag('columnID', 'facet_col')))
         tabs = screen.formulas.parentWidget().parentWidget()
         if not isinstance(tabs, QTabWidget): raise ValueError('Expected actual Filter/Columns tabs')
+        ensure_plot()
         with capture_ui.clip(capture, '17_actual_area_formula'):
             if live:
                 capture_ui.select_tab(capture, tabs, tabs.indexOf(screen.formulas))

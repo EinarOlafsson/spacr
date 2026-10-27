@@ -3664,6 +3664,85 @@
           "idle_tail_start": 2.0
         }
       ]
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "master_sha256": "4f290df15f902a00d353b85a3fe400ecce1dcd7d2c7eb38a80a50b4c074b59cd",
+      "visual_timing_sha256": "fd01bdd77d842fe4c6d577c0558b720c3b17b1cb56d06ab2b91b64132675eb23",
+      "scenes": [
+        {
+          "visual": "gui_01_module",
+          "source_start": 0.0,
+          "source_end": 26.0,
+          "idle_tail_start": 5.5
+        },
+        {
+          "visual": "gui_02_archive_bounded_choice",
+          "source_start": 26.0,
+          "source_end": 47.333333333333336,
+          "idle_tail_start": 8.5
+        },
+        {
+          "visual": "gui_04_reference_tables",
+          "source_start": 47.333333333333336,
+          "source_end": 66.03333333333333,
+          "idle_tail_start": 10.4
+        },
+        {
+          "visual": "gui_06_live_search_progress",
+          "source_start": 66.03333333333333,
+          "source_end": 87.66666666666667,
+          "idle_tail_start": 8.8
+        },
+        {
+          "visual": "gui_07_search_verdicts",
+          "source_start": 87.66666666666667,
+          "source_end": 113.96666666666667,
+          "idle_tail_start": 6.0
+        },
+        {
+          "visual": "gui_07b_guide_verdicts",
+          "source_start": 113.96666666666667,
+          "source_end": 140.56666666666666,
+          "idle_tail_start": 5.5
+        },
+        {
+          "visual": "gui_07c_row_verdicts",
+          "source_start": 140.56666666666666,
+          "source_end": 166.13333333333333,
+          "idle_tail_start": 11.8
+        },
+        {
+          "visual": "gui_08_coloured_reads",
+          "source_start": 166.13333333333333,
+          "source_end": 189.33333333333334,
+          "idle_tail_start": 5.5
+        },
+        {
+          "visual": "gui_09_proposed_settings",
+          "source_start": 189.33333333333334,
+          "source_end": 213.6,
+          "idle_tail_start": 8.0
+        },
+        {
+          "visual": "gui_11_oriented_reference_copies",
+          "source_start": 213.6,
+          "source_end": 236.4,
+          "idle_tail_start": 9.4
+        },
+        {
+          "visual": "gui_20_batch_settings",
+          "source_start": 236.4,
+          "source_end": 255.83333333333334,
+          "idle_tail_start": 8.4
+        },
+        {
+          "visual": "gui_23_batch_finished",
+          "source_start": 255.83333333333334,
+          "source_end": 287.76666666666665,
+          "idle_tail_start": 5.0
+        }
+      ]
     }
   ]
 }

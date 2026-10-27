@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from activation_evidence import encode_gradient, check_pixels, check_outputs, check_database, check_native_runs
+from activation_evidence import encode_gradient, check_pixels, check_outputs, check_database, check_native_runs, check_saved_runs, require_cuda_reference, observe_cuda_run, check_cuda_run
 
 
 def gradients():
@@ -100,9 +100,17 @@ def test_missing_database_record_refused_after_positive():
     with pytest.raises(ValueError):check_database([],crops,paths)
 
 
+def cuda_case(method='saliency_channel'):
+    return dict(method=method, model_path='/bound/model.pth',
+                observer='loaded_classifier_forward_pre_hook', errors=[],
+                loads=[dict(model_path='/bound/model.pth', forwards=[dict(
+                    parameter_devices=['cuda:0'], buffer_devices=['cuda:0'],
+                    input_devices=['cuda:0'], input_shapes=[[4,3,128,128]])])])
+
+
 def good_runs():
     return [dict(method=method,outcome=dict(finished=True,ok=True,errors=[]),
-                 gui_figure_count=1,figures_card_visible=True,settings_errors=[])
+                 gui_figure_count=1,figures_card_visible=True,settings_errors=[],cuda_execution=cuda_case(method))
             for method in ('saliency_channel','saliency_image')]
 
 
@@ -123,3 +131,97 @@ def test_false_native_completion_refused_after_positive(kind):
     if kind=='hidden_card':runs[1]['figures_card_visible']=False
     if kind=='settings_error':runs[1]['settings_errors']=['[settings] ERROR [src]: missing']
     with pytest.raises(ValueError):check_native_runs(runs)
+
+
+@pytest.mark.parametrize('name', ['cpu', 'mps'])
+def test_cuda_reference_rejects_fallback_before_model_execution(name):
+    from types import SimpleNamespace
+    with pytest.raises(ValueError, match='CUDA reference'):
+        require_cuda_reference(SimpleNamespace(type=name))
+
+
+def test_cuda_reference_accepts_cuda_device_description_without_allocating():
+    class Device:
+        type = 'cuda'
+        def __str__(self): return 'cuda:0'
+    assert require_cuda_reference(Device()) == 'cuda:0'
+
+
+@pytest.mark.parametrize('fault', ['missing', 'other_method', 'other_model', 'no_forward',
+    'cpu_parameters', 'cpu_inputs', 'cpu_buffer', 'empty_parameters', 'wrong_crops', 'observer_error',
+    'foreign_parameter_index', 'foreign_input_index', 'foreign_buffer_index'])
+def test_cuda_run_rejects_unobserved_or_foreign_execution(fault):
+    run = good_runs()[0]
+    evidence = run['cuda_execution']; loaded = evidence['loads'][0]
+    row = loaded['forwards'][0]
+    if fault == 'missing': run.pop('cuda_execution')
+    elif fault == 'other_method': evidence['method'] = 'saliency_image'
+    elif fault == 'other_model': loaded['model_path'] = '/foreign/model.pth'
+    elif fault == 'no_forward': loaded['forwards'] = []
+    elif fault == 'cpu_parameters': row['parameter_devices'] = ['cpu']
+    elif fault == 'cpu_inputs': row['input_devices'] = ['cpu']
+    elif fault == 'cpu_buffer': row['buffer_devices'] = ['cpu']
+    elif fault == 'empty_parameters': row['parameter_devices'] = []
+    elif fault == 'wrong_crops': row['input_shapes'] = [[3,3,128,128]]
+    elif fault == 'foreign_parameter_index': row['parameter_devices'] = ['cuda:1']
+    elif fault == 'foreign_input_index': row['input_devices'] = ['cuda:1']
+    elif fault == 'foreign_buffer_index': row['buffer_devices'] = ['cuda:1']
+    else: evidence['errors'] = ['observer failed']
+    with pytest.raises(ValueError, match='CUDA|classifier'):
+        check_cuda_run(run)
+
+
+@pytest.mark.parametrize('index', [0, 1])
+def test_cuda_run_accepts_matching_observed_device_index(index):
+    run = good_runs()[0]
+    row = run['cuda_execution']['loads'][0]['forwards'][0]
+    for key in ('parameter_devices', 'buffer_devices', 'input_devices'):
+        row[key] = [f'cuda:{index}']
+    assert check_cuda_run(run) is run['cuda_execution']
+
+
+def test_cuda_saved_route_cannot_accept_cpu_even_with_saved_pixel_matches():
+    run = good_runs()[0]
+    run['cuda_execution']['loads'][0]['forwards'][0]['input_devices'] = ['cpu']
+    second = good_runs()[1]
+    with pytest.raises(ValueError, match='CUDA'):
+        check_saved_runs([run, second])
+
+
+def test_cuda_observer_records_real_cpu_forward_without_changing_output(tmp_path):
+    import torch
+    from types import SimpleNamespace
+    model = torch.nn.Sequential(torch.nn.AdaptiveAvgPool2d(1), torch.nn.Flatten(), torch.nn.Linear(3,2))
+    image = torch.ones((4,3,128,128))
+    expected = model(image).detach().clone()
+    artifact = tmp_path/'model.pth'; metadata = {'unchanged':True}; calls=[]
+    def loader(path, device):
+        calls.append((path,device))
+        return model, metadata
+    owner = SimpleNamespace(_load_inference_model=loader)
+    with observe_cuda_run(owner, artifact, 'saliency_channel') as observed:
+        actual_model, actual_metadata = owner._load_inference_model(artifact, 'cpu')
+        assert actual_model is model and actual_metadata is metadata
+        actual = actual_model(image)
+        assert torch.equal(actual, expected)
+    assert owner._load_inference_model is loader and len(calls)==1
+    assert not model._forward_pre_hooks
+    row = observed['loads'][0]['forwards'][0]
+    assert row['parameter_devices']==['cpu'] and row['input_devices']==['cpu']
+    assert row['input_shapes']==[[4,3,128,128]] and not observed['errors']
+    with pytest.raises(ValueError, match='CUDA'):
+        check_cuda_run(dict(method='saliency_channel', cuda_execution=observed))
+
+
+def test_cuda_observer_restores_loader_and_hook_on_worker_failure(tmp_path):
+    import torch
+    from types import SimpleNamespace
+    model = torch.nn.Linear(1,1)
+    def loader(path, device): return model, {}
+    owner=SimpleNamespace(_load_inference_model=loader)
+    with pytest.raises(RuntimeError, match='worker failure'):
+        with observe_cuda_run(owner, tmp_path/'model.pth', 'saliency_image'):
+            owner._load_inference_model(tmp_path/'model.pth', 'cpu')
+            assert model._forward_pre_hooks
+            raise RuntimeError('worker failure')
+    assert owner._load_inference_model is loader and not model._forward_pre_hooks

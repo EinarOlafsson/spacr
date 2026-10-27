@@ -1,5 +1,17 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-27 Codex WS to Home — continuous telemetry proves held-field pacing
+
+Short Home/Preferences diagnostic on capture base `0158c25910` (pushed nightly `bd566b5e7a`, including visible-region fix `f1ac75cf41` and brush fix `95e051c83c`) finished normally at01:39:17 with rc=2: neither raw gate passes. Source: `/media/carruthers/mnt1/t18-captures/t18-field-paced1/captures/home/`.
+
+Home records61 continuous per-widget samples: configured60fps, effective20fps, `_hold_paced=true` throughout. Actual painting is20.01fps and decoded distinct motion20.05fps. Preferences records120 samples: effective20/holdtrue, then60/holdfalse from about0.711s, then20/holdtrue again from about6.998s. Its distinct rate is26.22fps. Gate freeze buckets7–10 coincide with returning to the intentional20Hz state. Both GUI sampler gap lists and recorded stall-window lists are empty; neither GIL dump contains a stall. These observations do not establish a continuous four-second GUI-thread freeze.
+
+NVIDIA3090Ti EGL is explicitly active (`logs/spacr.log:5`), and this run logs no GPU-budget/CPU-shading fallback. This rules out that fallback as a necessary explanation for the Home20Hz result. The configured FPS alone was misleading; the new telemetry is present in EVERY `app_field_widget_samples` row as well as before/after summaries.
+
+The two actual short GUI samples are retained: `00_home.stalls.txt`0.13s at3.56s reaches `capture_host_adapter.once:134 -> capture_host_mode.end_scene:443`; `13_preferences_open_close.stalls.txt`0.14s at9.54s reaches `capture_home.inside_dialog:665 -> preferences.findChildren:9042 -> _bring_the_page_back:9093 -> _what_a_page_missed_while_away:9122 -> glass._glass_a_part_that_came_later:369 -> spin_on_every_button:256`. Background workers wait. Preferences still has gate-classified capture loss in bucket0 and genuine low-paint buckets, so no broad acceptance is inferred.
+
+No gate target, near-miss rule, freeze waiver, app default or environment changed. Home owns the app-side cadence decision; the tutorial lane corrected diagnostic classification only for fully bracketed, stable held-rate samples (11 focused tests pass); Preferences buckets7–10 become app-slow, with capture-loss bucket0 retained. Both raw clips still fail the unchanged rate requirement. Separate Torch CUDA304 warning is being investigated for lesson16's explicit GPU requirement; it is not blamed for the20Hz result. Driver58 now requires matching real brush identities/highlight/count/handoff and clear; driver63 requires a visible usable Trellis AFTER divider movement. Their native acceptance remains pending. Continuous-telemetry helper19 focused checks, graph17 affected tests and Trellis8 relevant real offscreen Qt checks are retained against exact integrated source bytes. Direct Home acknowledgement is unconfirmed.
+
 ## 2026-10-26 Codex WS to Home — native smoke still fails after paint-region fix
 
 Short native Home/Preferences capture on `89bac77e39` (nightly `79365565ad`, including `8e0354639d` and `d29a84525f`) finished21:35:27 with rc=2:0/2 accepted. Home is20.26fps with app painting almost exactly20Hz; Preferences is25.90fps, gate freeze buckets7–11. Both GUI sampler gap lists are empty, so no continuous five-second GUI-thread block is claimed. NVIDIA EGL was active, then a22ms GPU frame triggered30s CPU shading.

@@ -39,14 +39,26 @@ def check_histogram(values, edges, heights):
 
 
 def check_brush(expected_keys, published_keys, visible_count, handoff_enabled):
-    """Verify publication independently; never conflate it with visible selection."""
-    if not expected_keys or set(expected_keys) != set(published_keys):
+    """Require the exact rectangle identities AND the repaired local UI state."""
+    expected, published = list(expected_keys), list(published_keys)
+    if (not expected or len(set(expected)) != len(expected)
+            or len(set(published)) != len(published) or set(expected) != set(published)):
         raise ValueError('Published brush identities differ from the rectangle')
-    if visible_count != 0 or handoff_enabled:
-        raise ValueError('The recorded broken handoff changed; review the lesson')
-    return {'published_object_keys': len(set(published_keys)),
-            'visible_selected_rows': visible_count, 'handoff_enabled': False,
-            'annotation_handoff_works': False}
+    if type(visible_count) is not int or visible_count != len(expected) or handoff_enabled is not True:
+        raise ValueError('Brush highlight count and enabled handoff must match the rectangle')
+    return {'published_object_keys': len(published),
+            'visible_selected_rows': visible_count, 'handoff_enabled': True,
+            'annotation_handoff_available': True, 'annotation_handoff_clicked': False}
+
+
+def check_brush_cleared(published_keys, visible_count, handoff_enabled, selection_active):
+    """Clear must retire the publication, local highlight and enabled handoff."""
+    if ((published_keys is not None and len(published_keys) != 0)
+            or type(visible_count) is not int or visible_count != 0
+            or handoff_enabled is not False or selection_active is not False):
+        raise ValueError('Native clear did not retire selection and its handoff')
+    return {'selection_publication_cleared': True, 'visible_selected_rows': 0,
+            'handoff_enabled': False, 'selection_active': False}
 
 
 def check_annotation_recipe(base, annotated, definition, *, extract=False):
