@@ -35,17 +35,6 @@ def window(qtbot):
     return win
 
 
-@pytest.fixture
-def walkthrough_menu(qtbot):
-    """Build the walkthrough component without native-module Help pruning."""
-    win = QMainWindow()
-    qtbot.addWidget(win)
-    win.menuBar().addMenu("Help")
-    menu = W.install_help_menu(win)
-    assert isinstance(menu, QMenu)
-    return menu
-
-
 # ---------------------------------------------------------------------------
 # 1. Per module, and re-runnable
 # ---------------------------------------------------------------------------
@@ -155,14 +144,14 @@ def test_a_module_can_register_advice_the_layout_cannot_express():
 # 3. The menu
 # ---------------------------------------------------------------------------
 
-def test_the_help_menu_lists_every_visible_module(walkthrough_menu):
-    submenu = walkthrough_menu
+def test_the_help_menu_lists_every_visible_module(window):
+    submenu = window._walkthrough_menu
     assert isinstance(submenu, QMenu)
     labels = [a.text() for a in submenu.actions() if not a.isSeparator()]
     from spacr.qt.app import APPS, app_is_visible
     for _key, name, _desc, _section in APPS:
         if app_is_visible(_key):
-            assert name in labels, f"{name} has no walkthrough entry"
+            assert W.tr(W.MENU_TITLE) + ": " + W.tr(name) in labels, f"{name} has no walkthrough entry"
     assert "Show all walkthroughs again" in labels
 
 
@@ -174,14 +163,15 @@ def test_the_submenu_is_installed_once(window):
     assert titles.count(W.MENU_TITLE) == 1
 
 
-def test_a_menu_entry_runs_its_own_module(walkthrough_menu, monkeypatch):
+def test_a_menu_entry_runs_its_own_module(window, qtbot, monkeypatch):
     shown = []
     monkeypatch.setattr(
         W, "show_walkthrough",
         lambda win, key, **kw: shown.append(key))
-    submenu = walkthrough_menu
+    submenu = window._walkthrough_menu
     for action in submenu.actions():
-        if action.text() == "Measure":
+        if action.property("moduleAppKey") == "measure":
+            assert action.text() == W.tr(W.MENU_TITLE) + ": " + W.tr("Measure")
             action.trigger()
             break
     assert shown == ["measure"]

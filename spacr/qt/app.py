@@ -339,7 +339,7 @@ def _prune_native_help_actions(window):
             if action in menu_actions:
                 pending.append(menu_actions[action])
                 continue
-            if action.isSeparator():
+            if action.isSeparator() or getattr(action, '_spacr_walkthrough_trigger', None) is not None:
                 continue
             label = action.text().split('\t', 1)[0].replace('&', '')
             if action.property('moduleAppKey') in native or _easy_command_text(label) in names:
