@@ -217,6 +217,8 @@ def test_nested_native_host_uses_real_monitor_mode_and_no_physical_devices(tmp_p
         if '/usr/bin/gnome-shell' in argv:
             assert argv[:5] == ['/usr/bin/bwrap', '--die-with-parent', '--ro-bind', '/', '/']
             assert '--dev' in argv and '--dev-bind' not in argv
+            position = argv.index('--bind')
+            assert argv[position + 1:position + 3] == [str(tmp_path.parent), str(tmp_path.parent)]
             assert '--nested' in argv and '--wayland' in argv and '--no-x11' in argv
             assert '--headless' not in argv and '--replace' not in argv
             values = kwargs['env']
@@ -231,7 +233,7 @@ def test_nested_native_host_uses_real_monitor_mode_and_no_physical_devices(tmp_p
     monkeypatch.setattr(host.subprocess, 'Popen', start)
     args = SimpleNamespace(stage=tmp_path, cursor_theme='Yaru', cursor_size=32,
                            show_top_bar=False, compositor_gpu='nvidia', size='2560x1440',
-                           refresh=60, shell_env=[], software_nested=True, x11_display=98)
+                           refresh=60, shell_env=[], software_nested=True, x11_display=98, capture_stage=tmp_path.parent)
     with pytest.raises(RuntimeError, match='stop before starting a compositor'):
         host.inner(args)
     proxy = next(argv for argv, _env in seen if argv[0] == '/usr/bin/xdg-dbus-proxy')

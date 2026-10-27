@@ -349,6 +349,11 @@ def drm_nodes(vendor: str) -> list[str]:
 def inner(args) -> int:
     stage = args.stage
     dirs = private_dirs(stage, getattr(args, 'shell_major', 42))
+    capture_stage = getattr(args, 'capture_stage', None)
+    if capture_stage is not None:
+        capture_stage = Path(capture_stage).resolve()
+        if capture_stage != stage.parent or not capture_stage.is_dir():
+            raise RuntimeError('The writable capture stage must be the existing direct parent of the private host stage')
     env = daemon_env(stage, dirs)
     env['DBUS_SESSION_BUS_ADDRESS'] = os.environ['DBUS_SESSION_BUS_ADDRESS']
     # X clients pick their pointer sprites themselves (a full GNOME session's
@@ -417,7 +422,8 @@ def inner(args) -> int:
                            QT_OPENGL='software', QT_QUICK_BACKEND='software', CUDA_VISIBLE_DEVICES='',
                            GDK_BACKEND='x11', GIO_USE_VFS='local')
                 isolation = ['/usr/bin/bwrap', '--die-with-parent', '--ro-bind', '/', '/',
-                             '--bind', str(stage), str(stage), '--dev', '/dev', '--proc', '/proc', '--']
+                             '--bind', str(capture_stage or stage), str(capture_stage or stage),
+                             '--dev', '/dev', '--proc', '/proc', '--']
                 shell_argv = [*isolation, '/usr/bin/gnome-shell', '--nested', '--wayland', '--no-x11',
                               '--wayland-display', 'wayland-capture', '--sm-disable']
             else:
@@ -511,6 +517,8 @@ def main() -> int:
                         help='DRM devices gnome-shell and its Xwayland may see (default: the NVIDIA '
                              'card only; with the AMD card alone mutter cannot create its '
                              'high-priority context (EACCES) and stalls).')
+    parser.add_argument('--capture-stage', type=Path,
+                        help='Writable direct parent of the host stage for a nested software recorder')
     parser.add_argument('--software-nested', action='store_true',
                         help='Use an owned Xvfb with nested software Wayland GNOME and no physical GPU devices')
     parser.add_argument('--software-x11', action='store_true',
@@ -541,6 +549,10 @@ def main() -> int:
     if not args.command:
         parser.error('give a command to run inside the host')
     args.stage = args.stage.resolve()
+    if args.capture_stage is not None:
+        args.capture_stage = args.capture_stage.resolve()
+        if not args.software_nested or args.capture_stage != args.stage.parent or not args.capture_stage.is_dir():
+            parser.error('--capture-stage requires the existing direct parent of a --software-nested host stage')
     if args.inner:
         args.outer_env = json.loads(args.outer_env)
         return inner(args)
@@ -568,6 +580,7 @@ def main() -> int:
             '--compositor-gpu', args.compositor_gpu,
             *(['--software-x11'] if args.software_x11 else []),
             *(['--software-nested'] if args.software_nested else []),
+            *(['--capture-stage', str(args.capture_stage)] if args.capture_stage is not None else []),
             *(['--x11-display', str(args.x11_display)] if args.software_x11 or args.software_nested else []),
             *(['--show-top-bar'] if args.show_top_bar else []),
             *([] if args.xwayland_glamor else ['--shell-env=XWAYLAND_NO_GLAMOR=1']),
