@@ -303,7 +303,7 @@ def test_full_measure_entry_and_resume_deliver_the_same_captured_configuration(t
     measure.measure_crop(dict(settings))
     with sqlite3.connect(db_path) as connection:
         assert connection.execute('SELECT COUNT(*) FROM cell').fetchone()[0] == before
-    settings['resume'] = False
+    # Keep continuation explicit: a fresh item-736 run archives old results.
     settings['psf_fwhm_um'] = [2., 2.]
     with pytest.raises(ValueError, match='different PSF intensity'):
         measure.measure_crop(dict(settings))
