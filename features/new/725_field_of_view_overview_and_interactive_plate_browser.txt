@@ -5,6 +5,18 @@ Owner:     Claude Home (UI agent A + data agent B)
 Priority:  Current maintainer request; complete the expanded overview end to end
 Related:   155 montage provenance; 307 segmentation QC field browser; 639 import organization
 
+CURRENT LAYOUT FOLLOW-UP — 2026-10-26
+widgets_g2 owns the disjoint qc_field_browser.py layout/sizing slice; parent
+owns picture_export.py text editing and root owns integration/publication.
+With Canvas docked right, collapsing or reopening the top image must preserve
+independently adjustable well/image widths and existing splitter state.
+Repeated ordinary plate/well and right-canvas open/close/collapse cycles must
+keep plate/well content within its viewport above Console, with Console and
+bottom actions visible; scroll internally instead of growing outer minima.
+Preserve existing geometry assertions and settings. Diagnose the actual native
+layout cause, add focused expanded/collapsed and containment controls under the
+8G CPU cap, then deliver the minimal source/test fix for independent peer.
+
 MAINTAINER FEEDBACK — 2026-10-26 (round 7, image view, quality and tooltips)
 Verbatim:
   "origional and the quality slider should be for the plate as well and for the image view it only
@@ -1160,3 +1172,5 @@ The four-caption nine-language closure and normal runtime/consumer/flow outputs 
 2026-10-26 — Canvas text editing follow-up: double-click a text box to enter inline editing with a visible cursor and keyboard focus; typing must update the saved layout and PDF text. Preserve image dragging, selection and context menus. Implemented with a text-only inline editor and the existing undo model; real Qt double-click, typing/backspace, JSON reload, vector PDF text and undo pass (8.71 s). Image interaction handlers are preserved; root publication follows the normal consumer-offset refresh.
 
 2026-10-26 — Canvas-container appearance follow-up: replace the black rectangle behind the export page with the shared spaCR translucent rounded gray surface, following the active theme and page opacity. The canvas view now reveals a shared surface_alt frame with the shared corner radius and page-opacity semantics; the actual page and image/text content are unchanged. Rendered Light/Dark controls pass (2 cases, 6.09 s), including matching viewport/frame gray, rounded corners and unchanged page/model; root publication follows the generated consumer-offset refresh.
+
+2026-10-27 — Vertical Image collapse no longer imposes a horizontal maximum on the shared image column; native right-canvas controls prove both columns remain adjustable and their splitter state survives collapse. Five focused native controls pass, including ordinary/right-canvas repeated containment cycles and clean owned-thread retirement. The reported below-Console overflow did not reproduce on these paths; no speculative containment change. Root owns integration/publication; broader item acceptance remains open.

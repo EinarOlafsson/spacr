@@ -145,7 +145,7 @@ def test_levels_are_translucent_rounded_and_collapse_with_the_shared_arrow(sourc
     assert image_panel.isVisible() and image_panel.isAncestorOf(dialog.view)
     image_panel.set_collapsed(True)
     assert not dialog.view.isVisible()
-    assert image_panel.property("maximumWidth") == image_panel.sizeHint().width()
+    assert image_panel.property("maximumWidth") == 16777215
     image_panel.set_collapsed(False)
     assert dialog.view.isVisible() and image_panel.property("maximumWidth") == 16777215
 
