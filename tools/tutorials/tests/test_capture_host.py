@@ -289,3 +289,76 @@ def test_nested_xwayland_connection_ignores_other_displays_and_preserves_owned_a
     assert host.xwayland_display(500) == ':123'
     (proc / '502/cmdline').write_bytes(b'/usr/bin/not-an-X-server\0')
     assert host.xwayland_connection(500) is None
+
+
+@pytest.mark.parametrize('warning', [None, 'invalid video buffer received', 'gst_buffer_peek_memory: assertion failed'])
+def test_recording_rejects_invalid_buffers_even_after_clean_eos(tmp_path, warning):
+    import subprocess
+    import time
+
+    output = tmp_path / 'preserved.mp4'
+    output.write_bytes(b'preserved failed recording')
+    log = output.with_suffix('.gst.log')
+    host = human_input.HostSession.__new__(human_input.HostSession)
+    host.output = output
+    host.node_id = 38
+    host.recording_started = time.monotonic()
+    host._log = log.open('wb')
+    script = ("import signal,sys,time; "
+              "signal.signal(signal.SIGINT, lambda *_: sys.exit(0)); "
+              f"print({warning!r}, flush=True); "
+              "print('PLAYING', flush=True); time.sleep(30)")
+    process = host.recorder = subprocess.Popen([sys.executable, '-c', script],
+                                               stdout=host._log, stderr=host._log)
+    try:
+        deadline = time.monotonic() + 5
+        while b'PLAYING' not in log.read_bytes():
+            assert process.poll() is None
+            assert time.monotonic() < deadline
+            time.sleep(.01)
+        if warning is None:
+            result = host.stop_recording()
+            assert result['video'] == str(output)
+            assert result['node_id'] == 38
+        else:
+            with pytest.raises(RuntimeError, match='produced invalid video buffers') as error:
+                host.stop_recording()
+            assert warning in str(error.value)
+        assert process.returncode == 0
+        assert host.recorder is None
+        assert host._log.closed
+        assert output.read_bytes() == b'preserved failed recording'
+        assert 'PLAYING' in log.read_text()
+    finally:
+        if process.poll() is None:
+            process.kill()
+            process.wait()
+        host._log.close()
+
+
+@pytest.mark.parametrize('diagnostics', [False, True])
+def test_recorder_diagnostics_are_fixed_and_explicit(tmp_path, monkeypatch, diagnostics):
+    seen = {}
+
+    def observe(argv, **kwargs):
+        seen.update(argv=argv, env=kwargs['env'])
+        raise RuntimeError('stop before launching recorder')
+
+    monkeypatch.setenv('GST_DEBUG', '*:9')
+    monkeypatch.setenv('GST_DEBUG_FILE', '/foreign/output.log')
+    monkeypatch.setattr(human_input.subprocess, 'Popen', observe)
+    host = human_input.HostSession.__new__(human_input.HostSession)
+    host.node_id = 38
+    try:
+        with pytest.raises(RuntimeError, match='stop before launching recorder'):
+            host.start_recording(tmp_path / 'clip.mp4', diagnostics=diagnostics)
+        assert ('-v' in seen['argv']) is diagnostics
+        assert 'GST_DEBUG_FILE' not in seen['env']
+        if diagnostics:
+            assert seen['env']['GST_DEBUG'] == ('2,pipewiresrc:6,pipewirepool:6,videofilter:6,default:6,'
+                                                'GST_BUFFER:6,GST_MEMORY:6,bufferpool:6')
+            assert seen['env']['GST_DEBUG_NO_COLOR'] == '1'
+        else:
+            assert not any(key.startswith('GST_') for key in seen['env'])
+    finally:
+        host._log.close()

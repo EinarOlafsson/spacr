@@ -38,6 +38,56 @@ PAIRS = (
 )
 
 
+def _existing_picker_index(index):
+    """Describe an existing view index without requesting new filesystem nodes."""
+    from PySide6.QtCore import QAbstractProxyModel
+    from PySide6.QtWidgets import QFileSystemModel
+
+    if not index.isValid():
+        return {'valid': False}
+    state = {'valid': True, 'row': index.row(), 'column': index.column()}
+    model = index.model()
+    state['model'] = model.metaObject().className()
+    while isinstance(model, QAbstractProxyModel):
+        index = model.mapToSource(index)
+        model = model.sourceModel()
+    state['path'] = model.filePath(index) if isinstance(model, QFileSystemModel) else None
+    return state
+
+
+def _directory_picker_state(dialog, requested):
+    """Read existing picker indexes and controls without populating path nodes."""
+    from PySide6.QtCore import QFileInfo
+    from PySide6.QtWidgets import QFileSystemModel, QLineEdit, QPushButton, QListView, QTreeView
+
+    path = str(requested)
+    info = QFileInfo(path)
+    edit = dialog.findChild(QLineEdit, 'fileNameEdit')
+    state = {'requested': path, 'current_directory': dialog.directory().absolutePath(),
+             'selected_files': dialog.selectedFiles(),
+             'typed_text': edit.text() if edit is not None else None,
+             'path': {'exists': info.exists(), 'is_directory': info.isDir(),
+                      'readable': info.isReadable(), 'executable': info.isExecutable(),
+                      'canonical_path': info.canonicalFilePath()},
+             'visible': dialog.isVisible(),
+             'buttons': [{'text': button.text(), 'visible': button.isVisible(),
+                          'enabled': button.isEnabled()}
+                         for button in dialog.findChildren(QPushButton)],
+             'models': [{'root_path': model.rootPath(), 'filter': int(model.filter().value),
+                         'read_only': model.isReadOnly()}
+                        for model in dialog.findChildren(QFileSystemModel)],
+             'views': [], 'requested_path_index_lookup': False}
+    for view in dialog.findChildren(QListView) + dialog.findChildren(QTreeView):
+        selection = view.selectionModel()
+        state['views'].append({'name': view.objectName(),
+                               'current': _existing_picker_index(view.currentIndex()),
+                               'root': _existing_picker_index(view.rootIndex()),
+                               'selected': [_existing_picker_index(index)
+                                            for index in selection.selectedIndexes()] if selection else []})
+    return state
+
+
+
 def _stat(path):
     """Stable file identity; deliberately exclude read-induced access times."""
     value = Path(path).stat()
@@ -162,6 +212,14 @@ def record_model_zoo(app, window, screen, stage, captures, capture, settle,
             accepted, errors = [], []
             timers = []
 
+            def record_picker_state(phase):
+                dialog = app.activeModalWidget()
+                if isinstance(dialog, QFileDialog):
+                    state = _directory_picker_state(dialog, path)
+                    state.update(phase=phase, monotonic=time.monotonic(), frame=frame)
+                    evidence.setdefault('directory_picker', []).append(state)
+                    write_json(acceptance_path, evidence)
+
             def handle():
                 dialog = app.activeModalWidget()
                 try:
@@ -170,6 +228,7 @@ def record_model_zoo(app, window, screen, stage, captures, capture, settle,
                     dialog.accepted.connect(lambda: accepted.append(True))
                     watchdog = QTimer(dialog)
                     watchdog.setSingleShot(True)
+                    watchdog.timeout.connect(lambda: record_picker_state('before_watchdog'))
                     watchdog.timeout.connect(dialog.reject)
                     watchdog.start(max(1, min(watchdog_ms(capture, 12000),
                                               int((deadline - time.monotonic()) * 1000))))
@@ -180,9 +239,11 @@ def record_model_zoo(app, window, screen, stage, captures, capture, settle,
                     # the person types the full path of the folder.
                     capture_ui.file_dialog_dir(capture, dialog, Path(path).parent)
                     settle(.4)
+                    record_picker_state('before_typing')
                     typed = str(path) if capture_ui.live(capture) else Path(path).name
                     edit = dialog.findChild(QLineEdit, 'fileNameEdit')
                     fill(edit, typed)
+                    record_picker_state('after_typing')
                     if edit is None or edit.text() != typed:
                         raise RuntimeError(f'The picker holds {edit.text() if edit else None!r}')
                     if not capture_ui.live(capture):
@@ -203,6 +264,7 @@ def record_model_zoo(app, window, screen, stage, captures, capture, settle,
                                 accept = ready[0]
                                 break
                             settle(.2)
+                    record_picker_state('before_accept')
                     click(accept)
                 except Exception as exc:
                     errors.append(str(exc))

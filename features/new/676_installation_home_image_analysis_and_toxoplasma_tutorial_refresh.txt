@@ -395,3 +395,6 @@ NVIDIA EGL then22ms-GIL/30s CPU shading observed; no continuous GUI-block or uni
 All23 new onset checks,107 candidate playback cases and82 published cases pass; HF2c57c0ec95fe46dcd8a092509db71f6824c9baff verified6963/6963 files and14498723619bytes.
 Voice additions retain the explicitly published independent picture clock while validating every original language timing against its published narration;17 affected tests pass.
 Website deployment remains queued; next are six reviewed pause edits. Lesson63 needs visible Trellis capture, native performance/app holds and01 PyPI hold remain; item676 stays open.
+
+2026-10-26 — Lesson22 remains unaccepted: the real model-folder picker leaves Choose disabled, and one retained native clip has invalid-buffer/memory errors and uniform green pixels.
+Next: record actual picker resolution before its watchdog and narrowly scoped negotiated-buffer diagnostics; reject proven capture errors even when GStreamer exits0. No retry, encoding or publication until the finite native lease.

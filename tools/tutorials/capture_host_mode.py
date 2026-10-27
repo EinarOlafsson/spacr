@@ -341,7 +341,8 @@ class HostRuntime:
         # Ask mutter for its own frame-clock rate (the monitor refresh): a
         # max-framerate above what the stream offers never negotiates.
         self.adapter.call('start_recording', str(native), fps=self.fps,
-                          source_fps=int(os.environ.get('SPACR_CAPTURE_HOST_REFRESH', '60')))
+                          source_fps=int(os.environ.get('SPACR_CAPTURE_HOST_REFRESH', '60')),
+                          diagnostics=os.environ.get('SPACR_TUTORIAL_GST_DIAGNOSTICS') == '1')
         scene['begin'] = time.monotonic()
         scene['field_before'] = self._sample_scene(scene)
         sampler.start()
