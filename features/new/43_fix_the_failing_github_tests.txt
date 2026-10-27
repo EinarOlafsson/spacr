@@ -5196,4 +5196,6 @@ Also check the per-host instance lock and unclean-exit counter: concurrent windo
 
 2026-10-27 — Coverage 5's five no-account setup contracts now include the approved Easy mode preference in the exact startup-key set and verify its saved value survives setup. All no-account-probe, AI opt-out and agreement assertions remain unchanged. All five credential variants pass (15.59 s); source peer accepted, production and generated outputs unchanged.
 
+2026-10-27 — English translation availability now recognizes the generated UI source catalog, fixing the already translated Easy mode startup label. Legacy rows and localized lookup remain unchanged; unknown captions still fail. The startup-label and availability controls pass (2 cases, 3.64 s); source peer accepted, no API captions or generated consumer positions change.
+
 2026-10-27 — Coverage 0's Swedish/French runtime syntax guards now reconstruct the frozen 80-heading cohort from its 79 active rows and exact archived job-details row, preserving original hashes, bytes and historical totals. Both affected guards pass (69.29 s); no catalog or production changes. Root owns integration/publication and hosted CI remains open.
