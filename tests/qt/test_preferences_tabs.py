@@ -227,15 +227,17 @@ def test_no_control_is_on_two_tabs(dialog):
 
 
 def test_the_unnamed_controls_survived_the_split(dialog):
-    """Theme, dock, colour-blind mode, figure format and DPI have no object
-    names of their own; they are found by what they offer."""
+    """Theme, colour-blind mode, figure format and DPI remain unnamed.
+
+    The obsolete dock-mode preference is intentionally no longer offered.
+    """
     values = set()
     for combo in dialog.findChildren(QComboBox):
         for index in range(combo.count()):
             values.add(combo.itemData(index))
-    for expected in ("system", "glass", "locked", "deuteranopia", "png",
-                     "pdf", 300):
+    for expected in ("system", "glass", "deuteranopia", "png", "pdf", 300):
         assert expected in values, f"the {expected!r} choice is gone"
+    assert "locked" not in values
 
 
 def test_every_tab_scrolls_on_its_own(dialog):
