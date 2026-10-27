@@ -163,6 +163,8 @@ def _validated_preview(path, definition):
         frame, report = execute(path, definition)
     except _DuplicateObservations as exc:
         return {"duplicate_observations": str(exc), "definition": definition}
+    except MergeError as exc:
+        return {"validation_error": str(exc)}
     sample = frame.head(12)
     sample.attrs = {}
     return definition, (frame, report), sample.to_string(index=False)
@@ -604,6 +606,9 @@ class MergeTablesDialog(QDialog):
         :param payload: Definition, the worker's frame/diagnostics result and
             its formatted first rows.
         """
+        if isinstance(payload, dict) and "validation_error" in payload:
+            self._failed(payload["validation_error"])
+            return
         if isinstance(payload, dict) and "duplicate_observations" in payload:
             details = payload["duplicate_observations"]
             self.preview_text.setPlainText(details)
