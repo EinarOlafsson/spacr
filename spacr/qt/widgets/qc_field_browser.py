@@ -14084,15 +14084,21 @@ def _install_overview_module(screen, layout):
     :param layout: the runtime column's layout.
     :returns: the splitter holding the image area above the console.
     """
+    from PySide6.QtWidgets import QFrame, QScrollArea
+
     splitter = screen._new_runtime_splitter()
     splitter.setChildrenCollapsible(False)
     page = _OverviewModulePage(screen)
     screen._overview_page = page
     page._sync_categories()
     screen._figure_queue.hide()
-    screen._figures_card.body_layout.addWidget(page, 1)
+    viewport = QScrollArea(screen._figures_card)
+    viewport.setFrameShape(QFrame.NoFrame)
+    viewport.setWidgetResizable(True)
+    viewport.setWidget(page)
+    screen._figures_card.body_layout.addWidget(viewport, 1)
     screen._figures_card.show()
-    screen._figures_card.setMinimumHeight(360)
+    screen._figures_card.setMinimumHeight(0)
     splitter.addWidget(screen._figures_card)
     splitter.addWidget(screen._console_wrap)
     splitter.setStretchFactor(0, 4)
