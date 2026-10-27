@@ -214,7 +214,10 @@ class SettingsSearchBar(QWidget):
         self._sections: List[QWidget] = list(
             getattr(screen, "_settings_sections", []) or [])
         self._restore_expanded: Optional[Dict[int, bool]] = None
-        self._level = disclosure_for(self._app_key)
+        from .preferences import get_easy_mode
+
+        self._easy_mode_visit = get_easy_mode()
+        self._level = ESSENTIALS if self._easy_mode_visit else disclosure_for(self._app_key)
         self._grid_section_counted: Optional[QWidget] = None
         self._sections_kept: Optional[set] = None
         self._sections_hidden: set = set()
@@ -305,12 +308,30 @@ class SettingsSearchBar(QWidget):
         return self._level
 
     def set_level(self, level: str) -> None:
-        """Switch disclosure level and remember the choice.
+        """Switch disclosure level, remembering the choice outside Easy mode.
 
         :param level: disclosure level: ``'all'`` shows every setting; any
             other value selects ``'essentials'``.
         """
         self._disclosure.setChecked(level == ALL)
+
+    def _begin_module_visit(self) -> None:
+        """Start Easy visits with essentials and restore normal remembered disclosure."""
+        from .preferences import get_easy_mode
+
+        easy = get_easy_mode()
+        if not easy and not self._easy_mode_visit:
+            return
+        self._easy_mode_visit = easy
+        level = ESSENTIALS if easy else disclosure_for(self._app_key)
+        blocked = self._disclosure.blockSignals(True)
+        try:
+            self._disclosure.setChecked(level == ALL)
+        finally:
+            self._disclosure.blockSignals(blocked)
+        self._level = level
+        self._refresh_disclosure_text()
+        self.apply()
 
     def _show_all_without_remembering(self) -> None:
         """Put every setting on the form without writing that to the store.
@@ -840,7 +861,10 @@ class SettingsSearchBar(QWidget):
         :param on: ``True`` for all settings, ``False`` for the essentials.
         """
         self._level = ALL if on else ESSENTIALS
-        remember_disclosure(self._app_key, self._level)
+        from .preferences import get_easy_mode
+
+        if not get_easy_mode():
+            remember_disclosure(self._app_key, self._level)
         self._refresh_disclosure_text()
         self.apply()
 
@@ -1150,7 +1174,10 @@ class _StackWatcher(QObject):
             return None
         if screen is None:
             return None
-        return install(screen)
+        bar = install(screen)
+        if bar is not None:
+            bar._begin_module_visit()
+        return bar
 
 
 def install_window_hooks(window: QMainWindow) -> Optional[_StackWatcher]:

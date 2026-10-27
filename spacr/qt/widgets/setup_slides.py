@@ -51,7 +51,7 @@ SLIDES: Tuple[Tuple[str, str, Tuple[str, ...]], ...] = (
      "caches and GPU memory. Laptop keeps the least — for 8 GB or on "
      "battery; Workstation the most. The same spaCR code runs at every "
      "level, and the reproducibility hash records what each run used.",
-     ("spacr_mode", "hash_inputs", "spacr_ai")),
+     ("spacr_mode", "hash_inputs", "spacr_ai", "easy_mode")),
     ("Terms of use",
      "Review the terms of use and full license. Use is noncommercial by default; commercial use requires separate written permission.",
      ()),
@@ -834,6 +834,10 @@ class SetupSlides(QDialog):
                 "Turning this off selects no AI provider and turns AI Error report off. "
                 "You can later enable GitHub error reports in Preferences while "
                 "keeping the provider set to None."))
+        if key == "easy_mode":
+            label.setToolTip(_say(
+                "Use a simple Home field for a file or folder and local suggestions for "
+                "the next step. Works without an AI provider."))
         editor = self._editor(key, choices, value)
         self._editors[key] = editor
         return label, editor
