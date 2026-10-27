@@ -8,6 +8,15 @@ or generated change. Eight focused controls pass (6.28s); root reviews and
 publishes the isolated candidate. Nine additional source-bound static-dialog
 fixtures pass (4.61s), retaining negative width-dialog and native-option guards.
 
+CURRENT MASK LATE-CATEGORY GEOMETRY — 2026-10-26
+widgets_g2 owns the release 8e0354639d Coverage 5 Mask-only late/eager
+styling regression. Bind the four timelapse controls to their real model,
+polish, fonts, widths and layout caches before any correction; preserve exact
+style and size assertions and every ratchet. Isolate the smallest valid source
+or fixture fix, run only the affected Mask case and any invalidated guard
+under the 8G CPU cap, and return a descriptive commit for root publication.
+Do not change the separately repaired theme/modal contracts or Easy mode.
+
 CURRENT DETERMINISTIC SALIENCY DISPATCH CONTRACT — 2026-10-26
 The retained attribution worker owns the release 7cd stale indentation check.
 Bind the unchanged attribution/Grad-CAM/saliency dispatch tails structurally
@@ -5162,3 +5171,5 @@ Also check the per-host instance lock and unclean-exit counter: concurrent windo
 2026-10-26 — Pin only the Overview image-metadata selector's fixed black/white overlay while retaining every opaque-theme surface/alpha assertion (1 PASS, 3.36s). Real hidden lazy/eager controls had identical widths, fonts and child hints but stale eager aggregate geometry; refresh existing child layouts before the unchanged exact style/height oracle (affected case 1 PASS, 5.61s). Root and independent peer accepted; production/generated outputs unchanged, root publication pending.
 
 2026-10-26 — Closed the release paint_field_fade review gap without changing its prose, preserved reviewed prefixes, and incorporated only exact existing source-bound API overlays through normal assembly. All 18 strict locale admissions and the runtime/arrival, API/Help, source-boundary and reference/flow controls pass; all ten assembled API catalogs remain byte-exact after stock assembly. Final publication and hosted release CI remain with root; remote round 2 stays outside this candidate.
+
+2026-10-26 — Mask late/eager style comparison now opens both native category trees, activates existing hidden child layouts, and invalidates nested caches after child geometry settles. All original style, height and row assertions remain exact; Mask and Classify each pass on Qt 6.11.2 under the 8G CPU cap. Test-only; root owns publication and broader CI.
