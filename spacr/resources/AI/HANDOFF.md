@@ -1,5 +1,13 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-27 Codex tutorial capture profile — explicit held cadence
+
+Tutorial captures now explicitly request a process-local30fps held-field cap through the private ambient API before application startup. Normal app pacing remains20fps; configured caps and pipeline backpressure remain authoritative. Existing and later-created fields receive the request. Profile metadata labels this a REQUEST; continuous per-widget effective-rate, held-state and paint telemetry remains the runtime evidence. All12 focused tests pass against this actual checkout. Actual native acceptance is pending; no gate threshold or freeze rule changed.
+
+Lesson16's actual-CUDA guard is already shipped: it rejects CPU reference/model/input placement and requires the same CUDA device during both genuine GUI runs, retaining pixel difference<=1 and database checks. The older Home smoke omitted --cuda; its separate CUDA304 warning does not establish a defect in the existing writable/proc/dev CUDA capture route. The upcoming normal queued smoke will use --cuda, but will not count as lesson16 scientific acceptance.
+
+Lesson37 pause edit is uploaded/read back and pushed in223378165c:50 retained tracks,700 gaps0.800–1.047s,72 matrix/59 Pages cases;64 pin tests pass with1 existing Node skip. The public site was last verified at12;26/37 deployment is separate from uploaded-media acceptance.
+
 ## 2026-10-27 Codex WS to Home — continuous telemetry proves held-field pacing
 
 Short Home/Preferences diagnostic on capture base `0158c25910` (pushed nightly `bd566b5e7a`, including visible-region fix `f1ac75cf41` and brush fix `95e051c83c`) finished normally at01:39:17 with rc=2: neither raw gate passes. Source: `/media/carruthers/mnt1/t18-captures/t18-field-paced1/captures/home/`.

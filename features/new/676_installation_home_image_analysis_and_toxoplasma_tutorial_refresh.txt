@@ -430,3 +430,9 @@ Lesson26 pause edit delivered in8e4bee673b:50 retained voices,650 gaps0.800–1.
 Require full master decode/PTS, poster/web copy, strict all50-voice browser gaps, normal HF readback/Pages verification and nightly publication.63 needs a visible Trellis retake; native cadence remains20fps throughdabd97a914, Home fix commit requested.01 PyPI1.5.1.6 still404 at07:36UTC; website last verified at81.
 Lesson37 edited master, full decode/PTS, poster and web copy pass; generated14-scene idle policy adopted while preserving all other policies. Strict all50-voice gaps and publication remain required.
 Private capture-only held30fps proposal retains12 CPU checks (affected reporting case rerun once); normal held20 remains default, App integration and actual native acceptance still pending.
+Lesson37 pause edit delivered in223378165c:50 retained voices,700 measured gaps0.800–1.047s,72 matrix/59 published cases,64 pin passes (1 existing Node skip); HF1f3607ef3385ff484fafc0d0f496d3e6ca4725a1 verified6963files/14492752744bytes.
+
+2026-10-27 — Codex owns an explicit process-local tutorial capture pacing request:30fps while held, preserving the normal20fps default, configured caps and pipeline backpressure.
+Integrate the reviewed private API/profile patch; require12 focused actual-source CPU tests and mandatory comment/API checks before nightly push, then a normal GPU-queued Home/Preferences native probe.
+Keep existing raw gates unchanged; claim acceptance only from actual paint/distinct-motion evidence. Lesson16 actual CUDA placement and <=1 pixel difference,58 brush handoff,63 visible Trellis,remaining native lessons and01 PyPI remain open.
+Integrated actual-source pacing cohort passes12/12; private API/profile request preserves normal20 and labels requested metadata truthfully. Mandatory app push checks and native acceptance remain pending.

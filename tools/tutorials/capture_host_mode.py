@@ -62,6 +62,7 @@ PAINT_COUNTER_SEMANTICS = 'observed_per_widget_deltas'
 
 #: The capture profile (maintainer decisions, 2026-10-11).
 CAPTURE_PROFILE = {
+    'field_held_fps': 30,
     'theme': 'dark',
     'field': 'data_art_impulse_lens',
     # Maintainer 2026-10-24: record the app's CURRENT defaults -- the field at its shipped density
@@ -197,9 +198,12 @@ def prepare_profile(font_scale: float) -> dict:
         'show_alpha_features': prefs._get_show_alpha_features(),
         'show_alpha_species': prefs._get_show_alpha_species(),
         'font_scale': font_scale,
+        'requested_field_held_fps': CAPTURE_PROFILE['field_held_fps'],
         'store': prefs._settings().fileName(),
     }
-    skip = {'theme'}
+    # Held pacing is a later process-local API request, not a Qt-store readback.
+    # Per-widget runtime rate/paint observations establish what actually ran.
+    skip = {'theme', 'field_held_fps'}
     actual['spaceout'] = False
     actual.update(report_notice)
     wrong = {k: (v, actual.get(k)) for k, v in CAPTURE_PROFILE.items()
@@ -686,6 +690,9 @@ def run_child(stage: Path, capture_args: list[str]) -> int:
     import spacr
     assert Path(spacr.__file__).resolve().parent == REPO / 'spacr', spacr.__file__
     import spacr.qt
+
+    from spacr.qt.widgets.ambient import _set_capture_held_fps
+    _set_capture_held_fps(CAPTURE_PROFILE['field_held_fps'])
 
     human = HumanProcess(log=(logs / 'human_input.log').open('w'))
     human.press('Escape')                          # no overview, whatever the shell did
