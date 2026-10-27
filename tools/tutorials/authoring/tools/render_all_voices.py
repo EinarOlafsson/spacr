@@ -401,6 +401,13 @@ def track_speech_text(lesson_id, language, voice, display_text, speech_text):
         if re.search(r"[A-Za-z]", speech_text):
             raise ValueError("Unreviewed Latin text in PSF Japanese/Chinese narration")
         return speech_text
+    if (lesson_id, language, voice, display_text) == (
+        "58_graph_builder", "ja", "jf_tebukuro",
+        'replicateという出力列を追加します。rowIDの値r1、r4、r5、r6を、replicate 1というボックスで一致させます。同じ名前のボックスをもう一つ追加し、r7、r9、r10を指定します。同じラベルのボックスは和集合になります。一つの出力内で異なるラベルが衝突する場合は、Apply conditionsの前に解消する必要があります。例にはr5とr12が含まれるため、r5は一致し、r12は空のままです。これらの練習用ラベルは、生物学的な反復を示すものではありません。',
+    ):
+        if not speech_text.startswith("replicate"):
+            raise ValueError("The Graph Builder replicate pronunciation premise changed")
+        return "レプリケート" + speech_text[len("replicate"):]
     if (lesson_id, language, display_text) == (
         "12_map_barcodes", "en",
         "This Python verification figure displays read depth from the saved three-barcode GUI run.",

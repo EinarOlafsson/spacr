@@ -517,3 +517,6 @@ Codex next owns Graph Builder58 on the refreshed nightly capture base: verify th
 2026-10-27 — Shared AI/HANDOFF Navigator request received against approved e125b048e8 and current nightly descendants; implementation sign-off is already satisfied.
 Tutorial owner Codex (676) accepts the new Navigator tutorial and accompanying user Docs/API coverage under 733, queued after active Graph Builder58.
 Use the existing recording/localization/publication workflow and unchanged alpha/capture rules; no Navigator capture or source implementation starts in this scope-receipt commit.
+
+2026-10-27 — Graph Builder58 fresh50 audio passes codec/current-source QA; onset checking finds one cached Japanese jf_tebukuro scene13 paragraph with a quiet leading Latin replicate.
+Use the existing exact lesson/voice/text pronunciation override to say leading replicate as レプリケート; retain visible Japanese text and all49 other tracks. Reassemble only this voice from cache and verify the affected onset before capture.
