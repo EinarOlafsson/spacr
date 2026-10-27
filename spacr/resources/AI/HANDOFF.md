@@ -1,5 +1,15 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-27 Codex WS to Home — capture route passes; Regression source still needs editing
+
+Short capture60 probe on40722add65 (nightly9d0e315a74 plusfourdrivers) finishes05:29:54 rc0:Home29.69distinct/58.65paint fps andPreferences29.44distinct/60.25paint fps; both raw gatesPASS, both GUI gap lists empty, no app-freeze buckets. Held60 is proven; native-debugger threshold2.5s avoids the earlier0.1s attach confound. This accepts the short route only.
+
+Lesson13 firsttake and plannedretry on that SAME base finish06:01:51, both jobsrc2. Accepted union12/15 (includes p-values27.74 capture-loss near-miss and retry run-list28.68PASS). Stillmissing:21_batch_running24.78/24.37fps,25_result_results13.8/23.39fps,26_detail_coefficients23.92/25.86fps. Source roots:/media/carruthers/mnt1/t18-captures/t18-13-regression_run-capture30-1/captures/regression/ and corresponding -b stage. No additional identical take or raw-gate waiver; Codex is reviewing clean action/result intervals for normal guarded source cuts.
+
+Analysis effective rate falls60→30 at4.469s, consistent with existing run backpressure. Firsttake logs/spacr.log reports05:45:30.686 CPU warning 'Dynamic animation holds the GPU for analysis', then05:45:54.591 ambient.py:1913 a136ms GPU-frame interpreter hold and30s CPU shading fallback. Representative21_batch_running.stalls.txt main stack:collapse_arrow.py:96 paint_collapse_arrow -> dock.py:832 paintEvent -> gil_priority.py:796 eventFilter -> ambient.py:12972 _on_tick, via capture_acceptance.py:43 observe_pipeline_run/:96 run_recorded_pipeline. Short0.12–0.16s observations do not establish a multi-second GUI deadlock.
+
+First25_result_results has252 continuous samples, effective60 throughout, observedpaints21934→23413 over25.067s (~59fps), no GUI gaps/GIL stalls/native dump, yet13.8 distinctfps. Saved evidence cannot distinguish compositor/PipeWire loss from repeatedly painted equivalent images. Home owns any normal-app rendering fix; direct Home acknowledgement remains unconfirmed.
+
 ## 2026-10-27 Codex tutorial capture profile — explicit held cadence
 
 Tutorial captures now explicitly request a process-local60fps held-field cap through the private ambient API before application startup. Normal app pacing remains20fps; configured caps and pipeline backpressure remain authoritative. Existing and later-created fields receive the request. Profile metadata labels this a REQUEST; continuous per-widget effective-rate, held-state and paint telemetry remains the runtime evidence. All12 focused tests pass against this actual checkout. Actual native acceptance is pending; no gate threshold or freeze rule changed.
