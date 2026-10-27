@@ -17,6 +17,12 @@ Related:   641 (performance audit; the 2026-10-25/26 idle rows), 025b9e4ed
            _QuietBackgrounds and _CardTints in spacr/qt/widgets/ambient.py
            (earlier per-paint savings that kept the per-frame repaint).
 
+2026-10-26 regression requirement, owner Codex background lane: preserve the
+presented frame on disjoint exposure regions whose bounding rectangle covers
+the backdrop. Advance only for complete actual coverage or the existing held
+live-region tick. Verify two-frame CPU raster pixels and retained held-row
+behavior; the reported native flashing remains unconfirmed until reproduced.
+
 --------------------------------------------------------------------------------
 WHAT THE MAC RUN FOUND (2026-10-25, native)
 --------------------------------------------------------------------------------
@@ -381,3 +387,5 @@ StorageCacheTable 'Cache' failure, and test_home_v2's job-pause test ("the job
 never reached its first checkpoint" within 10 s) in a run the shared machine
 stretched to 38 minutes; it passed 3 of 3 alone and does not touch the
 backdrop.
+
+2026-10-26 Codex: use actual dirty-region coverage before taking a new frame; disjoint exposed corners no longer advance the whole backdrop. The new two-frame raster control fails against the immutable release method; fixed disjoint, held-live and whole-frame controls pass 3/3 under CPU/offscreen Qt 6.11.2. The dirty-region/frame-state defect is demonstrated; reported native symptom reproduction and coordinated publication remain pending.

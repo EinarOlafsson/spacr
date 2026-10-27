@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 import types
 import weakref
+from unittest.mock import Mock
 
 import numpy as np
 import pytest
@@ -128,6 +129,57 @@ def test_actual_widget_render_redirection_preserves_clipped_pixels(field, monkey
     assert capture() == want
     assert capture() == want
     assert capture() == want
+
+
+def test_disjoint_exposure_with_full_bounds_keeps_the_presented_frame(field, monkeypatch):
+    """Dirty corners cannot publish a new frame over an unchanged interior."""
+    whole = QRegion(field.rect())
+    corners = QRegion(QRect(0, 0, 13, 11)).united(
+        QRegion(QRect(field.width() - 13, field.height() - 11, 13, 11)))
+    assert corners.boundingRect() == field.rect()
+    assert not whole.subtracted(corners).isEmpty()
+    previous = field._last_frame
+    previous_whole = field._test_render(region=whole, reference=True)
+    expected = field._test_render(region=corners, reference=True)
+    producer = field._producer_box[0]
+    fresh = _frame(seed=9)
+    producer.publish(fresh)
+    latest = Mock(wraps=producer.latest)
+    monkeypatch.setattr(producer, "latest", latest)
+
+    actual = field._test_render(region=corners)
+
+    latest.assert_not_called()
+    assert field._last_frame is previous
+    assert actual == expected
+    changed = field._test_render(region=whole)
+    latest.assert_called_once_with()
+    assert field._last_frame is fresh
+    assert changed != previous_whole
+
+
+def test_complete_held_live_region_still_presents_the_next_frame(field, monkeypatch):
+    """A held field advances its live half without repainting the held half."""
+    held = field._held_rows
+    held.frame = field._last_frame
+    held.region = QRegion(QRect(0, 0, field.width() // 2, field.height()))
+    held.live = QRegion(field.rect()).subtracted(held.region)
+    field._timer.start(60000)
+    assert held.live.boundingRect() != field.rect()
+    previous = held.frame
+    before = field._test_render(region=held.live, reference=True)
+    producer = field._producer_box[0]
+    fresh = _frame(seed=10)
+    producer.publish(fresh)
+    latest = Mock(wraps=producer.latest)
+    monkeypatch.setattr(producer, "latest", latest)
+
+    after = field._test_render(region=held.live)
+
+    latest.assert_called_once_with()
+    assert field._last_frame is fresh
+    assert held.frame is previous
+    assert after != before
 
 
 def test_first_partial_is_original_second_builds_once_and_third_reuses(field, monkeypatch):
