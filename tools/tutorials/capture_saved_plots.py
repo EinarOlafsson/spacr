@@ -47,21 +47,26 @@ def _inspection_display(stage):
     return display
 
 
-def _inspection_window(stage, pid, title, *, fullscreen=False):
+def _inspection_window(stage, pid, title, *, fullscreen=False, window_id=None, require_active=True):
     """Read the actual active Xwayland viewer; never place a window by code."""
     _inspection_display(stage)
     def query(*args):
         return subprocess.check_output(args, text=True, timeout=5)
     active = query('xprop', '-root', '_NET_ACTIVE_WINDOW')
     match = re.search(r'0x[0-9a-fA-F]+', active)
-    if not match or int(match.group(), 16) == 0:
-        raise RuntimeError('The actual viewer is not the active X window')
-    wid = match.group()
+    active_id = match.group() if match else '0x0'
+    wid = window_id or active_id
+    if int(wid, 16) == 0:
+        raise RuntimeError(f'No active viewer: expected_pid={pid} title={title!r} active={active!r}')
     props = query('xprop', '-id', wid, '_NET_WM_PID', '_NET_WM_NAME', 'WM_NAME', '_NET_WM_STATE')
     owner = re.search(r'_NET_WM_PID\([^)]*\)\s*=\s*(\d+)', props)
     names = re.findall(r'(?:_NET_WM_NAME|WM_NAME)\([^)]*\)\s*=\s*"([^"\n]*)"', props)
     if not owner or int(owner.group(1)) != pid or not any(title in name for name in names):
-        raise RuntimeError('The active window does not belong to this actual saved PNG viewer')
+        raise RuntimeError(f'Viewer ownership mismatch: expected_pid={pid} title={title!r} '
+                           f'wid={wid} active={active_id} properties={props!r}')
+    if require_active and int(active_id, 16) != int(wid, 16):
+        raise RuntimeError(f'Owned viewer is not active: expected_pid={pid} title={title!r} '
+                           f'wid={wid} active={active_id} properties={props!r}')
     stats = query('xwininfo', '-id', wid, '-stats')
     def number(label):
         found = re.search(r'(?m)^\s*' + re.escape(label) + r':\s*(-?\d+)\s*$', stats)
@@ -73,9 +78,27 @@ def _inspection_window(stage, pid, title, *, fullscreen=False):
     is_fullscreen = '_NET_WM_STATE_FULLSCREEN' in props
     if fullscreen and not is_fullscreen:
         raise RuntimeError('The actual viewer did not enter native fullscreen')
-    return dict(window_id=wid, pid=pid, title=title, fullscreen=is_fullscreen,
+    return dict(window_id=wid, active_window_id=active_id, pid=pid, title=title, fullscreen=is_fullscreen,
                 rect=[number('Absolute upper-left X'), number('Absolute upper-left Y'),
                       number('Width'), number('Height')], image_viewport_verified=False)
+
+
+def _find_inspection_window(stage, pid, title):
+    _inspection_display(stage)
+    clients = subprocess.check_output(['xprop', '-root', '_NET_CLIENT_LIST_STACKING', '_NET_CLIENT_LIST'],
+                                      text=True, timeout=5)
+    found, rejected = [], []
+    for wid in dict.fromkeys(re.findall(r'0x[0-9a-fA-F]+', clients)):
+        if int(wid, 16) == 0:
+            continue
+        try:
+            found.append(_inspection_window(stage, pid, title, window_id=wid, require_active=False))
+        except RuntimeError as error:
+            rejected.append(str(error))
+    if len(found) != 1:
+        raise RuntimeError(f'Expected one owned PNG viewer: expected_pid={pid} title={title!r} '
+                           f'clients={clients!r} matches={found!r} rejected={rejected!r}')
+    return found[0]
 
 
 def _inspection_pan(dimensions, window, screen):
@@ -99,13 +122,22 @@ def _inspect_activation_grid(stage, capture, viewer, record, settle):
     import capture_ui
     if not capture_ui.live(capture):
         raise RuntimeError('Activation grid inspection is a native capture-host route only')
-    before = _inspection_window(stage, viewer.pid, Path(record['path']).name)
+    before = _find_inspection_window(stage, viewer.pid, Path(record['path']).name)
     if before['fullscreen']:
         raise RuntimeError('Expected an ordinary viewer before the native F11 action')
     adapter = capture_ui._h().host_of(capture).adapter
+    x, y, width, height = before['rect']
+    from PySide6.QtCore import QPoint
+    screens = QApplication.screens()
+    if (len(screens) != 1 or width < 300 or height < 100
+            or not screens[0].geometry().contains(QPoint(x + width // 2, y + 16))):
+        raise RuntimeError('The measured viewer titlebar is not reachable on the private monitor: ' + repr(before))
+    adapter.call('click_at', x + width // 2, y + 16)
+    settle(.4)
+    focused = _inspection_window(stage, viewer.pid, Path(record['path']).name, window_id=before['window_id'])
     adapter.call('press', 'F11'); settle(1.0)
     adapter.call('press', '1'); settle(.6)
-    measured = _inspection_window(stage, viewer.pid, Path(record['path']).name, fullscreen=True)
+    measured = _inspection_window(stage, viewer.pid, Path(record['path']).name, fullscreen=True, window_id=before['window_id'])
     screens = QApplication.screens()
     if len(screens) != 1:
         raise RuntimeError('Activation grid inspection requires the actual single capture monitor')
@@ -115,10 +147,10 @@ def _inspect_activation_grid(stage, capture, viewer, record, settle):
     adapter.call('drag', *pan['start'], *pan['end'], duration=pan['duration'])
     adapter.note('saved-grid-inspection', **pan)
     settle(.6)
-    after = _inspection_window(stage, viewer.pid, Path(record['path']).name, fullscreen=True)
+    after = _inspection_window(stage, viewer.pid, Path(record['path']).name, fullscreen=True, window_id=before['window_id'])
     if after['rect'] != measured['rect'] or after['window_id'] != measured['window_id']:
         raise RuntimeError('The measured actual viewer changed during image inspection')
-    return dict(before=before, fullscreen=measured, after=after, pan=pan,
+    return dict(before=before, focused=focused, fullscreen=measured, after=after, pan=pan,
                 png_modified=False, repeated_motion=False, native_frame_review_required=True)
 
 

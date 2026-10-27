@@ -89,12 +89,14 @@ def test_activation_grid_uses_one_native_documented_zoom_and_pan(monkeypatch):
     monkeypatch.setattr(capture_ui, '_h', lambda: helper)
     monkeypatch.setattr(QApplication, 'screens', lambda: [SimpleNamespace(geometry=lambda: QRect(0, 0, 2560, 1440))])
     windows = iter([dict(window_id='0x123', rect=[50, 50, 2200, 350], fullscreen=False),
+                    dict(window_id='0x123', rect=[50, 50, 2200, 350], fullscreen=False),
                     dict(window_id='0x123', rect=[0, 0, 2560, 1440], fullscreen=True),
                     dict(window_id='0x123', rect=[0, 0, 2560, 1440], fullscreen=True)])
+    monkeypatch.setattr(driver, '_find_inspection_window', lambda *a, **kw: next(windows))
     monkeypatch.setattr(driver, '_inspection_window', lambda *a, **kw: next(windows))
     proof = driver._inspect_activation_grid(Path('/private'), SimpleNamespace(host=object()), SimpleNamespace(pid=123),
                     dict(path='/private/batch_0_grid.png', dimensions=[4800, 600]), lambda _: None)
-    assert calls == [(('press', 'F11'), {}), (('press', '1'), {}),
+    assert calls == [(('click_at', 1150, 66), {}), (('press', 'F11'), {}), (('press', '1'), {}),
                      (('drag', 640, 720, 1760, 720), dict(duration=6.0))]
     assert proof['native_frame_review_required'] is True
     assert proof['png_modified'] is False and proof['repeated_motion'] is False
@@ -125,3 +127,30 @@ def test_activation_grid_private_display_one_requires_owned_stage_runtime(tmp_pa
             assert driver._inspection_display(stage) == ':1'
     finally:
         wayland.close()
+
+
+@pytest.mark.parametrize('wrong_owner', [False, True])
+def test_activation_grid_discovers_inactive_owned_viewer_without_waiving_focus(monkeypatch, wrong_owner):
+    import capture_saved_plots as driver
+    monkeypatch.setattr(driver, '_inspection_display', lambda stage: ':1')
+    def query(args, **kwargs):
+        if args[1] == '-root':
+            if args[2] == '_NET_ACTIVE_WINDOW':
+                return '_NET_ACTIVE_WINDOW(WINDOW): window id # 0x111'
+            return '_NET_CLIENT_LIST_STACKING(WINDOW): window id # 0x111, 0x222\n_NET_CLIENT_LIST(WINDOW): window id # 0x111, 0x222'
+        if args[0] == 'xprop':
+            viewer = args[2] == '0x222'
+            pid = 123 if viewer and not wrong_owner else 999
+            title = 'batch_0_grid.png' if viewer else 'spaCR'
+            return f'_NET_WM_PID(CARDINAL) = {pid}\n_NET_WM_NAME(UTF8_STRING) = "{title}"\n_NET_WM_STATE(ATOM) = \n'
+        return 'Absolute upper-left X: 50\nAbsolute upper-left Y: 50\nWidth: 2200\nHeight: 350\nMap State: IsViewable\n'
+    monkeypatch.setattr(driver.subprocess, 'check_output', query)
+    if wrong_owner:
+        with pytest.raises(RuntimeError, match='expected_pid=123'):
+            driver._find_inspection_window(Path('/private'), 123, 'batch_0_grid.png')
+    else:
+        actual = driver._find_inspection_window(Path('/private'), 123, 'batch_0_grid.png')
+        assert actual['window_id'] == '0x222' and actual['active_window_id'] == '0x111'
+        with pytest.raises(RuntimeError, match='Owned viewer is not active') as error:
+            driver._inspection_window(Path('/private'), 123, 'batch_0_grid.png', window_id='0x222')
+        assert 'wid=0x222 active=0x111 properties=' in str(error.value)
