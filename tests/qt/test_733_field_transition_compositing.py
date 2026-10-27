@@ -145,9 +145,24 @@ def test_real_idle_mouse_release_does_not_replay_displaced_window_text(
         for widget in [page.path_edit, page.field.details, *page.field.cards]:
             allowed |= QRegion(QRect(widget.mapTo(window, QPoint()), widget.size()).adjusted(-3, -3, 3, 3))
         card = page.field.cards[0]
+        held = backdrop._held_rows
+        releases = []
+        original_release = held.release
+
+        def observe_release(fade=True, repaint=True):
+            previous, region = held.frame, QRegion(held.region)
+            original_release(fade=fade, repaint=repaint)
+            if previous is not None:
+                created = held.fade
+                releases.append((fade, created is not None,
+                                 created is not None and created[1] is previous,
+                                 created is not None and created[2] == region))
+
+        monkeypatch.setattr(held, 'release', observe_release)
         qtbot.mouseMove(card, card.rect().center())
+        qtbot.waitUntil(lambda: bool(releases))
+        assert releases[0] == (True, True, True, True)
         qtbot.wait(25)
-        assert backdrop._held_rows.fade is not None
         after = pixels()
         mask = np.ones(before.shape[:2], dtype=bool)
         for rect in allowed:
