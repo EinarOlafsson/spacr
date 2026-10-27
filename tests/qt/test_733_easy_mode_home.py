@@ -91,7 +91,7 @@ def test_invalid_and_calibrated_collection_inputs_have_honest_local_guidance(
 @pytest.mark.parametrize('theme', ['light', 'dark'])
 @pytest.mark.parametrize('size', [(640, 650), (1280, 850)])
 def test_real_typed_inspection_keeps_cards_readable_disjoint_and_actionable(
-        qtbot, qapp, private_ai_profile, tmp_path, theme, size):
+        qtbot, qapp, private_ai_profile, tmp_path, theme, size, monkeypatch):
     from spacr.qt import theme as styling
     from spacr.qt.widgets.home import _EasyHomePage
 
@@ -130,6 +130,49 @@ def test_real_typed_inspection_keeps_cards_readable_disjoint_and_actionable(
         qtbot.mouseClick(card.button, Qt.LeftButton)
         assert selected == [('make_masks', str(image))]
         assert preferences.get_preferred_provider() == 'none'
+        if theme == 'light' and size == (1280, 850):
+            import random
+            from unittest.mock import Mock
+
+            from spacr.qt.widgets.home import _easy_inspect_path
+
+            table = tmp_path / 'objects.csv'
+            table.write_text('label,area\n1,12\n')
+            with sqlite3.connect(tmp_path / 'measurements.db') as connection:
+                connection.execute('create table cells(label integer)')
+            actions = _easy_inspect_path(str(tmp_path))['actions']
+            assert len(actions) == 4
+            preferences.set_reduce_motion(True)
+            positions = Mock()
+            positions.random.side_effect = [0.2] * 8 + [0.8] * 8
+            monkeypatch.setattr(random, 'SystemRandom', lambda: positions)
+            samples = []
+            for _ in range(2):
+                page.field.set_cards(actions)
+                rectangles = [card.geometry() for card in page.field.cards]
+                samples.append(rectangles)
+                assert all(page.field.rect().contains(rect) for rect in rectangles)
+                assert all(not rect.intersects(page.path_edit.geometry()) for rect in rectangles)
+                assert all(not first.intersects(second)
+                           for index, first in enumerate(rectangles)
+                           for second in rectangles[index + 1:])
+                assert all(rect.x() not in (24, page.field.width() - rect.width() - 24)
+                           for rect in rectangles)
+            assert all(first.topLeft() != second.topLeft()
+                       for first, second in zip(*samples))
+            anchors = list(page.field._anchors)
+            for resized in ((640, 650), (1100, 780), size):
+                page.resize(*resized)
+                qapp.processEvents()
+                assert page.field._anchors == anchors
+                assert positions.random.call_count == 16
+                rectangles = [card.geometry() for card in page.field.cards]
+                assert all(page.field.rect().contains(rect) for rect in rectangles)
+                assert all(not rect.intersects(page.path_edit.geometry()) for rect in rectangles)
+                assert all(not first.intersects(second)
+                           for index, first in enumerate(rectangles)
+                           for second in rectangles[index + 1:])
+            assert [card.geometry() for card in page.field.cards] == samples[-1]
         page.hide()
         assert not page.field._animations
     finally:

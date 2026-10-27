@@ -50,7 +50,8 @@ filename samples against the existing microscope/regex conventions, sibling
 images, parent/master folders, image subdirectories and local metadata.
 Present useful module choices with honest confidence and ambiguity guidance;
 never decode full image arrays, access the network or process source images.
-Suggestions emerge slowly at varied safe positions from the existing field,
+Suggestions emerge slowly at genuinely randomized safe coordinates from the existing field,
+using stable normalized anchors per inspection and legal disjoint positions on resize,
 with a tasteful icon, module name, short description and explicit Open action.
 Every module opened while Easy mode is enabled starts with Essential settings
 only, while preserving a clear way to expand the other settings. Ordinary-mode

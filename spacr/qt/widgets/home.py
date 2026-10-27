@@ -4111,6 +4111,7 @@ class _EasyHomeField(QWidget):
         super().__init__(parent)
         self.cards = []
         self._slots = [0, 1, 2, 3]
+        self._anchors = [(0.5, 0.5)] * 4
         self._animations = []
         self.feedback = None
         self.panel = _EasyPathEdit(self)
@@ -4164,7 +4165,9 @@ class _EasyHomeField(QWidget):
             card.hide()
             card.deleteLater()
         self.cards = [_EasySuggestionCard(action, self) for action in actions[:4]]
-        random.SystemRandom().shuffle(self._slots)
+        positions = random.SystemRandom()
+        positions.shuffle(self._slots)
+        self._anchors = [(positions.random(), positions.random()) for _ in range(4)]
         self._arrange()
         for index, card in enumerate(self.cards):
             card.show()
@@ -4205,7 +4208,7 @@ class _EasyHomeField(QWidget):
         wide = width >= 720
         panel_width = min(720, width - 48)
         panel_height = self.panel.height()
-        card_width = min(310, (width - 64) // 2) if wide else width - 32
+        card_width = min(310, (width - 64) // 2) if wide else min(310, width - 48)
         card_height = max([140] + [max(card.sizeHint().height(),
                                      card.layout().totalHeightForWidth(card_width))
                                    for card in self.cards])
@@ -4213,15 +4216,24 @@ class _EasyHomeField(QWidget):
             minimum = panel_height + (card_height * 2 + 128 if self.cards else 160)
             _set_actual_minimum_height(self, minimum)
             panel_y = (self.height() - panel_height) // 2
-            slots = [QRect(24, 24, card_width, card_height),
-                     QRect(width - card_width - 24, 24, card_width, card_height),
-                     QRect(24, self.height() - card_height - 24, card_width, card_height),
-                     QRect(width - card_width - 24, self.height() - card_height - 24, card_width, card_height)]
+            horizontal = [(24, width // 2 - card_width - 12),
+                          (width // 2 + 12, width - card_width - 24)]
+            vertical = [(24, panel_y - card_height - 24),
+                        (panel_y + panel_height + 24, self.height() - card_height - 24)]
+            slots = []
+            for index, (anchor_x, anchor_y) in enumerate(self._anchors):
+                left, right = horizontal[index % 2]
+                top, bottom = vertical[index // 2]
+                slots.append(QRect(left + round(max(0, right - left) * anchor_x),
+                                   top + round(max(0, bottom - top) * anchor_y),
+                                   card_width, card_height))
         else:
             panel_y = 32
-            _set_actual_minimum_height(self, panel_height + len(self.cards) * (card_height + 20) + 100)
-            slots = [QRect(16, panel_y + panel_height + 40 + index * (card_height + 20),
-                           width - 32, card_height) for index in range(4)]
+            _set_actual_minimum_height(self, panel_height + len(self.cards) * (card_height + 32) + 100)
+            slots = [QRect(16 + round(max(0, width - card_width - 32) * anchor_x),
+                           panel_y + panel_height + 40 + index * (card_height + 32)
+                           + round(12 * anchor_y), card_width, card_height)
+                     for index, (anchor_x, anchor_y) in enumerate(self._anchors)]
         self.panel.setGeometry((width - panel_width) // 2, panel_y, panel_width, panel_height)
         if self.feedback is not None:
             height = max(44, self.feedback.heightForWidth(panel_width))
