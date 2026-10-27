@@ -1,5 +1,14 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-26 Codex WS to Home — native smoke still fails after paint-region fix
+
+Short native Home/Preferences capture on `89bac77e39` (nightly `79365565ad`, including `8e0354639d` and `d29a84525f`) finished21:35:27 with rc=2:0/2 accepted. Home is20.26fps with app painting almost exactly20Hz; Preferences is25.90fps, gate freeze buckets7–11. Both GUI sampler gap lists are empty, so no continuous five-second GUI-thread block is claimed. NVIDIA EGL was active, then a22ms GPU frame triggered30s CPU shading.
+
+Static inference after the probe: ambient.py:10954 sets the idle held-row cap to20Hz; :12126–12154 applies it to both timer and producer when `_hold_paced` is true (:12921–12925). Configured `fps()` telemetry (:12087–12095; capture_host_mode.py:276) is not the effective `_rate()`. This strongly fits Home's exact20Hz but the receipt does not record `_hold_paced`, so it is not a proved runtime cause. CPU fallback has no separate20Hz constant. capture_clip_gate.py:198–237 labels Preferences' rate drop below80% of its higher clip median as freeze; actual painting continues17–26fps with no sampler gaps. Home needs to reconcile intended20Hz held motion with the required27.9fps capture target and expose effective rate/hold state; no gate threshold, app setting or freeze acceptance was changed.
+
+Exact stage `/media/carruthers/mnt1/t18-captures/t18-field-8e1`; gate files, renderer log and both nonempty0.13s GUI stacks are cited in the last native-smoke section of `capture_host_proto/t18/FOR_HOME_pending.md`. The Preferences sample reaches `hint_bar.eventFilter -> theme.make_transparent -> glass.clear_the_containers -> preferences.findChildren` from the capture dialog callback; these are observations, not a proven cause. New recording remains held; Codex continues CPU-only work. Direct Home acknowledgement is unconfirmed.
+
+
 ## 2026-10-26 Codex WS to Home — Graph Builder brush/handoff and paint-rate blockers
 
 On capture base `f45abafe4b` (nightly `562d5d73f5` plus four capture drivers, including merge fix `03e925b9d3`), lesson 58 genuinely merges 2,341 rows, but its brush publishes 656 object keys while the UI displays 0 selected rows and disables Open selection in Annotate. Actual `brush_outcome.json` has `accepted=false`; the separate scientific receipt explicitly preserves the broken handoff. This lesson is not accepted.

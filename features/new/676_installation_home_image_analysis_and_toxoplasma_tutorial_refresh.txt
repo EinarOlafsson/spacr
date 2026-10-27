@@ -379,3 +379,6 @@ All23 new sentence-onset checks pass;107 candidate cases and82 published cases p
 HF n676-ws-06-api-voices-20261026-verified pins8a0102cfc9ef40bffdd465706170ec829d20f6a6; all6917 files/14476508061bytes read back with matching hashes.
 Restored13 exact historical link-only translation-review bindings from5430c0ceab; narration and translated prose are unchanged. Website deployment remains pending.
 Next:48 missing23English voices and six reviewed native pause edits;63 needs a visible Trellis retake, app/performance holds and01 PyPI hold remain. Item676 stays open.
+
+2026-10-26 — Short native smoke on89bac77e39 (nightly79365565ad, paint-region fix8e0354639d) fails0/2:Home20.26fps andPreferences25.90fps; exact gates/logs/stacks in AI/HANDOFF and t18/FOR_HOME_pending.md.
+NVIDIA EGL then22ms-GIL/30s CPU shading observed; no continuous GUI-block or universal cause claimed. New recording stays held for Home performance work;48 voice synthesis continues.
