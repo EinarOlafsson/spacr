@@ -123,6 +123,11 @@ _merge_source_frames = ContextVar('spacr_merge_source_frames', default=None)
 
 class _DuplicateObservations(MergeError):
     def __init__(self, frames, keys):
+        """Record duplicate counts, local advice and anonymous key diagnostics.
+
+        :param frames: source DataFrames indexed by table name.
+        :param keys: observation-key columns for each affected table.
+        """
         self.counts = {table: int(frame.loc[frame[columns].notna().all(axis=1)]
                                  .duplicated(columns, keep=False).sum())
                        for table, columns in keys.items() for frame in (frames[table],)}
@@ -317,6 +322,13 @@ def _duplicate_observation_error(frame, keys, table):
 
 
 def _duplicate_observation_message(frame, keys, table):
+    """Describe repeated keys and existing identity columns that distinguish rows.
+
+    :param frame: source observations, read without changing their values.
+    :param keys: the currently selected observation-key columns.
+    :param table: table name used in the local validation message.
+    :returns: key advice, including whether complete identities still repeat.
+    """
     repeated = frame.loc[frame.duplicated(keys, keep=False)]
     prefix = f"{table}: {len(repeated)} rows have duplicate observation keys {list(keys)}. "
     candidates = [column for column in (*_keys_in(frame, include_file_name=True), OBJECT_COLUMN)
@@ -345,6 +357,12 @@ def _duplicate_observation_message(frame, keys, table):
 
 
 def _full_observation_keys(frame, table):
+    """Find available image/object identity columns or a PNG path identity.
+
+    :param frame: source observations whose available columns are inspected.
+    :param table: source table name, used to recognize the PNG table.
+    :returns: available identity columns, or an empty list without a supported identity.
+    """
     if OBJECT_COLUMN in frame and (set(IDENTITY).issubset(frame) or 'file_name' in frame):
         return _keys_in(frame, include_file_name=True) + [OBJECT_COLUMN]
     if table == PNG_TABLE and 'png_path' in frame:
@@ -353,6 +371,16 @@ def _full_observation_keys(frame, table):
 
 
 def _collapse_duplicate_observations(frame, keys, table, overrides):
+    """Aggregate complete duplicate identities while retaining other source rows.
+
+    :param frame: source observations to consolidate without modifying the input.
+    :param keys: columns defining each complete observation identity.
+    :param table: source table name for aggregation overrides and local errors.
+    :param overrides: aggregation methods keyed by column or table.column.
+    :returns: consolidated rows sorted by their original index, with the original columns.
+    :raises MergeError: if an identifier override is not first or last, or
+        duplicate identities disagree about an identifier or parent link.
+    """
     complete = frame[keys].notna().all(axis=1)
     repeated = complete & frame.duplicated(keys, keep=False)
     duplicates = frame.loc[repeated]
@@ -392,6 +420,20 @@ def _collapse_duplicate_observations(frame, keys, table, overrides):
 
 @contextlib.contextmanager
 def _merge_duplicate_sources(db_path, tables, overrides=None, standard=False, observation_keys=None):
+    """Yield validated source frames, consolidating duplicates only after opt-in.
+
+    Reuse an enclosing source-frame context for the same database and tables.
+    Newly read frames remain local; the source database is not changed.
+
+    :param db_path: source database whose tables are read.
+    :param tables: names of the required source tables.
+    :param overrides: optional column or table.column aggregation methods.
+    :param standard: require the base image keys in applicable child tables.
+    :param observation_keys: optional selected observation keys per table.
+    :yields: table-name to source-frame mapping for the active merge context.
+    :raises MergeError: if identity keys or relationships are invalid, or
+        repeated complete identities require duplicate-merging opt-in.
+    """
     path = str(Path(db_path).resolve())
     cached = _merge_source_frames.get()
     if cached is not None and cached[0] == path and set(tables).issubset(cached[1]):
