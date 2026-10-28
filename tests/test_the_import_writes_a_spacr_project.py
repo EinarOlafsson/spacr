@@ -193,3 +193,113 @@ def test_a_missing_axis_defaults_to_one_not_zero():
     name = canonical_name({"well": "A01", "field": 2, "channel": 1})
     assert "T0001" in name and "Z01" in name, name
     assert "T0000" not in name and "Z00" not in name
+
+
+
+@pytest.mark.parametrize("names,well,label", [
+    (("live_A1_BF_000002.tiff", "live_A1_BF_000003.tiff"), "A01", "BF"),
+    (("live_D8_Blue_000001.ome.tiff", "live_D8_Blue_000002.ome.tiff"), "D08", "Blue"),
+])
+def test_etaluma_live_collision_ordinals_import_as_independent_files(tmp_path, spacr_regex, names, well, label):
+    import json
+    import numpy as np
+    import tifffile
+
+    source = tmp_path / "snapshots"
+    source.mkdir()
+    for index, name in enumerate(names):
+        tifffile.imwrite(source / name, np.full((5, 7), index + 1, dtype=np.uint16))
+    before = {path.name: path.read_bytes() for path in source.iterdir()}
+    plan = plan_import(source)
+    assert plan.problems() == []
+    assert set(plan.files) == set(names)
+    entries = plan.files
+    assert {entry['well'] for entry in entries.values()} == {well}
+    assert {entry['channel_name'] for entry in entries.values()} == {label}
+    assert {entry['identity'] for entry in entries.values()} == {'independent_file'}
+    assert all(not {'field', 't', 'z'} & entry.keys() for entry in entries.values())
+    assert len({entry['import_id'] for entry in entries.values()}) == 2
+    assert {'import_id', 'identity', 'channel_name'} <= set(plan.columns())
+    result = apply_import(plan, tmp_path / "imported", link=False)
+    assert result.written == 2 and result.skipped == {} and result.stitched == 0
+    for rel, entry in entries.items():
+        destination = result.destination / canonical_name(entry)
+        assert destination.read_bytes() == before[rel]
+        groups = spacr_regex.fullmatch(destination.name).groupdict()
+        assert groups['wellID'] == well
+        assert int(groups['fieldID']) == entry['import_id']
+        assert int(groups['chanID']) == entry['channel']
+    from spacr.image_import import save_plan
+    saved = save_plan(plan, tmp_path / 'plan.json')
+    assert json.loads(saved.read_text(encoding='utf-8'))['files'] == entries
+    restored = load_plan(saved)
+    assert restored.files == entries
+    assert {path.name: path.read_bytes() for path in source.iterdir()} == before
+
+
+def test_etaluma_import_identity_never_pairs_channels_by_collision_ordinal(tmp_path):
+    import numpy as np
+    import tifffile
+
+    source = tmp_path / 'snapshots'
+    source.mkdir()
+    names = ['live_A1_BF_000001.tiff', 'live_A1_Blue_000001.ome.tiff']
+    for name in reversed(names):
+        tifffile.imwrite(source / name, np.ones((3, 4), dtype=np.uint16))
+    plan = plan_import(source)
+    assert not plan.problems()
+    before = plan.files
+    assert {entry['well'] for entry in before.values()} == {'A01'}
+    assert {entry['channel_name'] for entry in before.values()} == {'BF', 'Blue'}
+    assert len({entry['import_id'] for entry in before.values()}) == 2
+    assert len({canonical_name(entry) for entry in before.values()}) == 2
+    tifffile.imwrite(source / 'live_A1_BF_000002.tiff', np.ones((3, 4), dtype=np.uint16))
+    after = plan_import(source).files
+    assert all(after[name] == before[name] for name in names)
+    assert all(not {'field', 't', 'z'} & entry.keys() for entry in after.values())
+
+
+
+def test_etaluma_identical_basenames_in_different_folders_remain_independent(tmp_path):
+    import numpy as np
+    import tifffile
+
+    source = tmp_path / 'snapshots'
+    for index, folder in enumerate(('sessionA', 'sessionB')):
+        path = source / folder / 'live_A1_BF_000002.tiff'
+        path.parent.mkdir(parents=True)
+        tifffile.imwrite(path, np.full((3, 4), index + 1, dtype=np.uint16))
+    plan = plan_import(source)
+    assert not plan.problems()
+    assert len(plan.files) == len({entry['import_id'] for entry in plan.files.values()}) == 2
+    result = apply_import(plan, tmp_path / 'imported', link=False)
+    assert result.written == 2 and not result.skipped
+    for relative, entry in plan.files.items():
+        assert (result.destination / canonical_name(entry)).read_bytes() == (source / relative).read_bytes()
+
+
+def test_etaluma_import_identity_collision_is_refused_before_output(tmp_path, monkeypatch):
+    import hashlib
+    from types import SimpleNamespace
+    import numpy as np
+    import tifffile
+
+    source = tmp_path / 'snapshots'
+    source.mkdir()
+    for name in ('live_A1_BF_000002.tiff', 'live_A1_BF_000003.tiff'):
+        tifffile.imwrite(source / name, np.ones((3, 4), dtype=np.uint16))
+    before = {path.name: path.read_bytes() for path in source.iterdir()}
+    with monkeypatch.context() as local:
+        local.setattr(hashlib, 'sha256', lambda value: SimpleNamespace(hexdigest=lambda: '0' * 64))
+        plan = plan_import(source)
+    assert len(plan.problems()) == 1 and 'identities collide' in plan.problems()[0]
+    destination = tmp_path / 'refused'
+    with pytest.raises(ValueError, match='identities collide'):
+        apply_import(plan, destination)
+    assert not destination.exists()
+    assert {path.name: path.read_bytes() for path in source.iterdir()} == before
+
+
+def test_import_ids_do_not_override_regular_acquisition_fields():
+    assert canonical_name({'well': 'A01', 'field': 7, 'channel': 2, 'import_id': 99}) == (
+        'plate1_A01_T0001F007L01A01Z01C02.tif')

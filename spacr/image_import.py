@@ -194,10 +194,46 @@ def _resolve_marker(marker: str, seen_markers: set) -> str:
     return MARKERS.get(marker, "")
 
 
+def _etaluma_live_snapshots(paths, root):
+    """Read only the evidenced manual/live snapshot names, without acquisition axes.
+
+    The suffix is a basename collision ordinal, not a field or time index.
+    BF and Blue retain their labels alongside stable import channel slots.
+    A path-derived import identity keeps every snapshot independent, even
+    across channels; it is not a measured field. Mixed unrelated filenames
+    remain explicitly skipped rather than silently receiving this policy.
+
+    :param paths: the bounded image paths collected for this import.
+    :param root: their common import root.
+    :returns: relative paths and import metadata, or an empty dictionary.
+    """
+    import hashlib
+
+    entries = {}
+    pattern = re.compile(r"live_([A-Z])(\d{1,2})_(BF|Blue)_(\d{6})(?:\.ome)?\.tiff")
+    for path in paths:
+        match = pattern.fullmatch(path.name)
+        if match is None:
+            continue
+        row, column, layer, _ordinal = match.groups()
+        if not 1 <= int(column) <= 99:
+            continue
+        relative = path.relative_to(root).as_posix()
+        identity = int(hashlib.sha256(relative.encode("utf-8")).hexdigest()[:12], 16) + 1
+        entries[str(path.relative_to(root))] = dict(
+            well=f"{row}{int(column):02d}", channel={"BF": 1, "Blue": 2}[layer],
+            channel_name=layer, import_id=identity, identity="independent_file")
+    return entries
+
+
 def infer_layout(root, *, sample: int = 400,
                  extensions: Sequence[str] = (".tif", ".tiff", ".png",
                                               ".jpg", ".jpeg", ".bmp")) -> InferredLayout:
     """Infer which axes the filenames under ``root`` encode.
+
+    Manual/live Etaluma snapshots carry well and channel labels only. Each
+    receives a path-derived import identity, not an acquisition field/time;
+    their collision ordinals never pair separate channel snapshots.
 
     :param root: the folder to inspect.
     :param sample: how many files to read before deciding. Only this many
@@ -220,6 +256,13 @@ def infer_layout(root, *, sample: int = 400,
                 break
     layout = InferredLayout(root=root, sampled=len(paths))
     if not paths:
+        return layout
+
+    snapshots = _etaluma_live_snapshots(paths, root)
+    if snapshots:
+        layout.per_file = snapshots
+        layout.skipped = sorted(str(path.relative_to(root)) for path in paths
+                                if str(path.relative_to(root)) not in snapshots)
         return layout
 
     tokenised = {}
@@ -433,6 +476,12 @@ class ImportPlan:
         user can fix them in one pass rather than one at a time.
         """
         issues = []
+        independent = [entry["import_id"] for entry in self.files.values()
+                       if entry.get("identity") == "independent_file"]
+        if len(independent) != len(set(independent)):
+            from .qt.i18n import tr
+
+            issues.append(tr("Independent-file import identities collide; no images can be imported."))
         if not self.files:
             issues.append("No images could be read from this folder.")
         for position, values in self.unmapped.items():
@@ -491,10 +540,12 @@ class ImportPlan:
         axes = [a for a in AXES if any(a in e for e in entries.values())]
         extra = sorted({k for e in entries.values() for k in e
                         if k.endswith("_count")})
-        return ["file"] + axes + extra
+        provenance = [key for key in ("channel_name", "identity", "import_id")
+                      if any(key in entry for entry in entries.values())]
+        return ["file"] + axes + provenance + extra
 
     def columns(self) -> List[str]:
-        """``file`` then every axis anything resolved, counts last.
+        """``file``, known axes and independent-file provenance, counts last.
 
         Only axes present in at least one file get a column. A column of
         empty cells for an axis no file carries would read as "spaCR looked
@@ -577,18 +628,24 @@ def canonical_name(entry: Dict[str, object], *, plate: str = "plate1") -> str:
 
     Missing axes take 1 rather than 0: spaCR's convention is one-based, and a
     plate whose only timepoint is ``T0000`` reads as a bug in the acquisition
-    rather than as an absence.
+    rather than as an absence. For explicit ``independent_file`` entries,
+    the F slot carries ``import_id`` instead of implying an acquired field.
+    Their absent T/Z axes use singleton container placeholders; the source
+    plan continues to leave those acquisition axes unknown.
 
     :param entry: one resolved file's axes, read by the keys ``plate``,
         ``well``, ``t``, ``field``, ``z`` and ``channel``; a missing well
-        becomes ``A01`` and a missing or zero index becomes 1.
+        becomes ``A01`` and a missing or zero index becomes 1. An explicit
+        ``identity="independent_file"`` entry instead supplies ``import_id``
+        for the canonical F slot while leaving acquired field unknown.
     :param plate: the plate name used when ``entry`` has no ``plate`` key.
     """
     return CANONICAL.format(
         plate=str(entry.get("plate", plate)),
         well=str(entry.get("well", "A01")),
         t=int(entry.get("t", 1) or 1),
-        field=int(entry.get("field", 1) or 1),
+        field=int(entry["import_id"] if entry.get("identity") == "independent_file"
+                  else entry.get("field", 1) or 1),
         z=int(entry.get("z", 1) or 1),
         channel=int(entry.get("channel", 1) or 1),
     )
