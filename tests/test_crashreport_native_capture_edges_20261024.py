@@ -291,3 +291,52 @@ def test_consented_native_replay_does_not_invent_screen_or_repeat_event(
     assert '/private/' not in json.dumps(payload['summary'])
     assert cr._consume_native_crash(path) is None
     assert len(delivered) == 1
+
+
+@pytest.mark.parametrize('write_error', [OSError, ValueError, AttributeError])
+def test_closed_native_context_sink_cannot_interrupt_the_calling_session(
+        monkeypatch, write_error):
+    attempted = []
+
+    class ClosedCapture:
+        def write(self, line):
+            attempted.append(line)
+            raise write_error('native log is no longer writable')
+
+    monkeypatch.setattr(cr, '_NATIVE_CAPTURE_HANDLE', ClosedCapture())
+    assert cr._note_native_context(qt='6.11.3', private_path='/private/project') is False
+    assert len(attempted) == 1
+    payload = json.loads(attempted[0].removeprefix('=== spaCR context ').removesuffix(' ===\n'))
+    assert payload['qt'] == '6.11.3'
+    assert 'private_path' not in payload
+    assert '/private/' not in attempted[0]
+
+
+def test_partial_native_context_without_a_crashing_frame_does_not_invent_a_note(
+        configured, tmp_path, monkeypatch):
+    path = tmp_path / 'partial-native.log'
+    owner = '12345678-1234-1234-1234-123456789abc'
+    context = {'_thread': '0x10', '_session': owner, 'qt_platform': 'wayland'}
+    path.write_text('=== spaCR context ' + json.dumps(context) + ' ===\n'
+                    'Fatal Python error: Segmentation fault\n\n'
+                    'Thread 0x10 (most recent call first):\n'
+                    '  File "/private/project/worker.py", line 12 in run\n', encoding='utf-8')
+    delivered = []
+    marker = object()
+
+    def capture(message, **kwargs):
+        delivered.append((message, kwargs))
+        return marker
+
+    monkeypatch.setattr(cr, '_dispatch_error', capture)
+    assert cr._consume_native_crash(path) is marker
+    assert len(delivered) == 1
+    message, payload = delivered[0]
+    assert message == 'Native process termination: Segmentation fault'
+    assert payload['summary']['exception_type'] == 'NativeCrash'
+    assert not payload['summary'].get('user_note')
+    assert not payload['summary'].get('screen')
+    assert len(payload['summary']['frames']) == 1
+    assert '/private/' not in json.dumps(payload['summary'])
+    assert cr._consume_native_crash(path) is None
+    assert len(delivered) == 1

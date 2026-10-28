@@ -216,3 +216,18 @@ def test_x11_probe_failure_does_not_abort_startup(monkeypatch):
     monkeypatch.setattr(qtpkg, '_missing_x11_libraries', unavailable)
     assert qtpkg._check_the_x11_libraries({'QT_QPA_PLATFORM': 'xcb'}, linux=True, execv=lambda *args: attempted.append(args)) == 0
     assert attempted == []
+
+
+def test_complete_x11_dependencies_start_without_relaunch_or_warning(
+        monkeypatch, caplog, capsys):
+    examined, relaunched = [], []
+    env = {'QT_QPA_PLATFORM': 'xcb', 'DISPLAY': ':owned'}
+    monkeypatch.setattr(qtpkg, '_missing_x11_libraries', lambda current: examined.append(current) or [])
+    monkeypatch.setattr(qtpkg, '_relaunch_with_conda_x11_libraries', lambda *args, **kwargs: relaunched.append(args))
+    with caplog.at_level(logging.INFO, logger='spacr.qt'):
+        assert qtpkg._check_the_x11_libraries(env, linux=True) == 0
+    assert examined == [env]
+    assert relaunched == []
+    assert 'known environment problem' not in caplog.text
+    assert capsys.readouterr().err == ''
+    assert env == {'QT_QPA_PLATFORM': 'xcb', 'DISPLAY': ':owned'}
