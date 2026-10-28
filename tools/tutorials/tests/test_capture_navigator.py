@@ -202,3 +202,29 @@ def test_real_readonly_editor_cannot_be_a_drop_target(actual_path_editor):
     edit.setReadOnly(True)
     with pytest.raises(RuntimeError, match='unavailable'):
         driver.drop_text_point(edit, [0, 0, 100, 100])
+
+
+def test_real_news_header_hides_release_body_for_unchanged_capture_guard(qtbot):
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QLabel
+    from spacr.qt.widgets.home import Panel
+    from spacr.qt.widgets.foldable import make_foldable
+    from capture_policy import verify_visible_paths
+    panel = Panel('News')
+    qtbot.addWidget(panel)
+    release = QLabel('spaCR 9999.0.0', panel)
+    panel.add(release)
+    folder = make_foldable(panel.header, panel._box, shut_by_default=True)
+    panel.resize(400, 250)
+    panel.show()
+    qtbot.waitUntil(panel.header.isVisible)
+    assert folder.shut and not folder.body.isVisible()
+    verify_visible_paths([panel], '/tmp/navigator-news-test')
+    qtbot.mouseClick(folder.heading, Qt.LeftButton)
+    qtbot.waitUntil(release.isVisible)
+    with pytest.raises(RuntimeError, match='another spaCR release'):
+        verify_visible_paths([panel], '/tmp/navigator-news-test')
+    qtbot.mouseClick(folder.heading, Qt.LeftButton)
+    qtbot.waitUntil(lambda: folder.shut and not folder.body.isVisible())
+    assert folder.heading.isVisible() and not release.isVisible()
+    verify_visible_paths([panel], '/tmp/navigator-news-test')

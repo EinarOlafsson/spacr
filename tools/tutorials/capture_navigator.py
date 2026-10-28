@@ -421,11 +421,15 @@ def record_navigator(app, window, stage, captures, capture, settle, write_json, 
         handle = page._navigator_aside_split.handle(1)
         if page._navigator_aside_split.is_collapsed('Widgets'):
             click(handle)
-        click(page._navigator_aside._news.header)
-        wait(lambda: not page._navigator_aside._navigator_folders['News'].shut,
-             'The real News panel did not open')
-        capture_ui.point_at(capture, page._navigator_aside._news.header, dwell=1.5)
+        news = page._navigator_aside._navigator_folders['News']
+        if not news.shut:
+            click(news.heading)
+        wait(lambda: news.shut and not news.body.isVisible(),
+             'The native News header did not hide its release-history body')
+        capture_ui.point_at(capture, news.heading, dwell=1.5)
         click(handle)
+        wait(lambda: page._navigator_aside_split.is_collapsed('Widgets'),
+             'The native Widgets handle did not fold the side panel')
         checks.append(dict(scene=SCENES[2], dock_native=True, right_panel_native=True))
     with Rec(capture, SCENES[3], settle):
         enter('mEaSuRe')
