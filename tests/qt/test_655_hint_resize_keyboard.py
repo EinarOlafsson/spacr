@@ -8,7 +8,7 @@ from spacr.qt.widgets.hint_bar import HintBar
 
 
 @pytest.fixture
-def help_window(qtbot, monkeypatch, tmp_path):
+def help_window(qtbot, monkeypatch, tmp_path, activate_focus_window):
     settings = tmp_path / 'preferences.ini'
     monkeypatch.setattr(preferences, '_settings',
                         lambda: QSettings(str(settings), QSettings.IniFormat))
@@ -29,7 +29,7 @@ def help_window(qtbot, monkeypatch, tmp_path):
     qtbot.addWidget(host)
     host.resize(420, 700)
     host.show()
-    host.activateWindow()
+    activate_focus_window(host)
     before.setFocus(Qt.TabFocusReason)
     qtbot.waitUntil(before.hasFocus)
     QApplication.processEvents()

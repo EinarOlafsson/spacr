@@ -7,7 +7,7 @@ from spacr.qt.widgets.dock import Dock, DockEdge
 
 
 @pytest.fixture
-def edge(qtbot, monkeypatch):
+def edge(qtbot, monkeypatch, activate_focus_window):
     from spacr.qt.widgets import ambient
     monkeypatch.setattr(ambient, "field_ripple_for_widget", lambda *args, **kwargs: None)
     host = QWidget()
@@ -16,6 +16,7 @@ def edge(qtbot, monkeypatch):
     control = DockEdge(dock, host)
     control.show()
     host.show()
+    activate_focus_window(host)
     control.setFocus()
     QApplication.processEvents()
     assert control.hasFocus()

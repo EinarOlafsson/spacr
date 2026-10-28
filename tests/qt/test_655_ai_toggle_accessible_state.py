@@ -121,9 +121,10 @@ def test_other_accessible_texts_come_from_the_widget(toggle):
     assert interface.text(QAccessible.Name) == toggle.text()
 
 
-def test_a_non_toggle_action_reaches_the_widget_without_toggling(toggle, qtbot):
+def test_a_non_toggle_action_reaches_the_widget_without_toggling(
+        toggle, qtbot, activate_focus_window):
     """Moving focus by an assistive client focuses the label and leaves it off."""
-    toggle.window().activateWindow()
+    activate_focus_window(toggle)
     action = QAccessible.queryAccessibleInterface(toggle).actionInterface()
     focus = QAccessibleActionInterface.setFocusAction()
     assert focus in action.actionNames()

@@ -6,7 +6,7 @@ from PySide6.QtWidgets import QApplication, QPushButton, QVBoxLayout, QWidget
 from spacr.qt.widgets.figure_queue import _ClearFiguresLabel
 
 
-def test_held_space_activates_clear_once_like_a_native_button(qtbot):
+def test_held_space_activates_clear_once_like_a_native_button(qtbot, activate_focus_window):
     host = QWidget()
     layout = QVBoxLayout(host)
     native = QPushButton("Native action")
@@ -15,7 +15,7 @@ def test_held_space_activates_clear_once_like_a_native_button(qtbot):
         layout.addWidget(control)
     qtbot.addWidget(host)
     host.show()
-    host.activateWindow()
+    activate_focus_window(host)
     counts = [[], []]
     native.clicked.connect(lambda: counts[0].append(True))
     clear.clicked.connect(lambda: counts[1].append(True))

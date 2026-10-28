@@ -10,7 +10,7 @@ from spacr.qt.widgets.figure_grid_view import FigureGridView
 
 
 @pytest.fixture
-def section(qtbot, monkeypatch, tmp_path, request):
+def section(qtbot, monkeypatch, tmp_path, request, activate_focus_window):
     theme_name = getattr(request, "param", "dark")
     settings_path = tmp_path / "preferences.ini"
     monkeypatch.setattr(preferences, "_settings",
@@ -32,7 +32,7 @@ def section(qtbot, monkeypatch, tmp_path, request):
     qtbot.addWidget(host)
     host.resize(500, 380)
     host.show()
-    host.activateWindow()
+    activate_focus_window(host)
     qtbot.wait(50)
     before.setFocus(Qt.TabFocusReason)
     qtbot.waitUntil(before.hasFocus)

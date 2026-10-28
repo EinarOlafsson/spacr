@@ -9,6 +9,7 @@ import gc
 
 import os
 import sys
+from contextlib import contextmanager
 from importlib.util import find_spec
 
 import pytest
@@ -72,6 +73,59 @@ def pytest_configure(config):
     # for the native formats those platforms use.
     os.environ.setdefault("APPDATA", home)
     config._spacr_test_config_home = home
+
+
+def _activate_focus_window(widget, qtbot):
+    """Activate a focus test's window, or explain native Cocoa refusal.
+
+    A terminal-launched Cocoa test may not become frontmost under macOS's
+    cooperative activation policy. Only that environment can skip when the
+    window stays inactive; offscreen and other platforms must still fail.
+    Once active, all widget focus and keyboard assertions remain mandatory.
+    """
+    from PySide6.QtWidgets import QApplication
+
+    window = widget.window()
+    assert window.isVisible(), "focus test window must be shown before activation"
+    window.raise_()
+    window.activateWindow()
+    for _ in range(50):
+        if window.isActiveWindow():
+            break
+        qtbot.wait(100)
+    if not window.isActiveWindow():
+        message = ("the window manager did not make the test window active "
+                   "within 5 s; focus needs the active window")
+        if sys.platform == "darwin" and QApplication.platformName() == "cocoa":
+            pytest.skip(message + " (macOS cooperative activation)")
+        pytest.fail(message + f" (Qt platform: {QApplication.platformName()})")
+    QApplication.processEvents()
+
+
+@contextmanager
+def _all_controls_tab_focus(qapp):
+    """Give keyboard-order tests all-control navigation, restoring platform policy."""
+    from PySide6.QtCore import Qt
+
+    hints = qapp.styleHints()
+    previous = hints.tabFocusBehavior()
+    hints.setTabFocusBehavior(Qt.TabFocusAllControls)
+    try:
+        yield
+    finally:
+        hints.setTabFocusBehavior(previous)
+
+
+@pytest.fixture
+def activate_focus_window(qtbot, qapp):
+    """Activate a shown focus-test window with test-local all-control navigation.
+
+    These tests assert a Tab route through native buttons as well as custom
+    controls. Cocoa's default text-only navigation skips native buttons even
+    in an active window; the original platform policy is restored afterward.
+    """
+    with _all_controls_tab_focus(qapp):
+        yield lambda widget: _activate_focus_window(widget, qtbot)
 
 
 @pytest.fixture(scope="session")

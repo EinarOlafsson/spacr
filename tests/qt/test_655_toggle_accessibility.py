@@ -15,7 +15,7 @@ from spacr.qt.widgets.toggle import Toggle
 
 
 @pytest.fixture
-def switches(qtbot, monkeypatch, qt_theme_applied):
+def switches(qtbot, monkeypatch, qt_theme_applied, activate_focus_window):
     monkeypatch.setattr(preferences, "get_reduce_motion", lambda: False)
     host = QWidget()
     qtbot.addWidget(host)
@@ -27,7 +27,7 @@ def switches(qtbot, monkeypatch, qt_theme_applied):
         layout.addWidget(widget)
     switch.setFixedSize(180, 36)
     host.show()
-    host.activateWindow()
+    activate_focus_window(host)
     before.setFocus(Qt.TabFocusReason)
     qtbot.waitUntil(before.hasFocus)
     yield before, switch, after

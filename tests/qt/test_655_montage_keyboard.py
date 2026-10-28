@@ -12,7 +12,7 @@ from spacr.qt.widgets.cell_montage_view import _WellTab
 
 
 @pytest.fixture
-def montage(qtbot):
+def montage(qtbot, activate_focus_window):
     host = QWidget()
     layout = QVBoxLayout(host)
     before = QPushButton("Before")
@@ -27,7 +27,7 @@ def montage(qtbot):
     host.resize(700, 650)
     qtbot.addWidget(host)
     host.show()
-    host.activateWindow()
+    activate_focus_window(host)
     qtbot.wait(40)
     tab.set_content(rows, crops, "Two synthetic measured objects.", columns=2)
     retranslate_widget_tree(host, "en")

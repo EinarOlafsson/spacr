@@ -17,7 +17,7 @@ from .test_model_card_viewer import a_card, png_bytes
 
 
 @pytest.fixture
-def card_ui(qtbot, monkeypatch, tmp_path):
+def card_ui(qtbot, monkeypatch, tmp_path, activate_focus_window):
     monkeypatch.setattr(cards, "_spacr_home", lambda: tmp_path / "home")
     host = QWidget()
     qtbot.addWidget(host)
@@ -30,7 +30,7 @@ def card_ui(qtbot, monkeypatch, tmp_path):
     viewer.set_card(a_card())
     host.resize(480, 360)
     host.show()
-    host.activateWindow()
+    activate_focus_window(host)
     before.setFocus(Qt.TabFocusReason)
     qtbot.waitUntil(before.hasFocus)
     yield before, viewer, after

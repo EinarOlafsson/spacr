@@ -9,7 +9,7 @@ from spacr.qt.widgets.figure_grid_view import FigureGridView
 
 
 @pytest.fixture
-def grid(qtbot):
+def grid(qtbot, activate_focus_window):
     host = QWidget()
     layout = QVBoxLayout(host)
     view = FigureGridView()
@@ -22,7 +22,7 @@ def grid(qtbot):
     host.resize(640, 800)
     qtbot.addWidget(host)
     host.show()
-    host.activateWindow()
+    activate_focus_window(host)
     yield view
 
 

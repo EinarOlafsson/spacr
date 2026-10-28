@@ -12,7 +12,7 @@ from spacr.qt.widgets.figure_queue import _ClearFiguresLabel
 
 
 @pytest.fixture
-def control(qtbot, monkeypatch, tmp_path, request):
+def control(qtbot, monkeypatch, tmp_path, request, activate_focus_window):
     kind, theme_name = request.param
     path = tmp_path / "preferences.ini"
     monkeypatch.setattr(preferences, "_settings",
@@ -39,7 +39,7 @@ def control(qtbot, monkeypatch, tmp_path, request):
         layout.addWidget(child)
     qtbot.addWidget(host)
     host.show()
-    host.activateWindow()
+    activate_focus_window(host)
     QCursor.setPos(QPoint(-500, -500))
     if kind == "crop":
         QApplication.sendEvent(widget, QEvent(QEvent.Leave))
