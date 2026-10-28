@@ -955,3 +955,111 @@ def test_sidecar_budget_and_symlink_rules_preserve_only_structural_hints(tmp_pat
     assert home_mod._easy_metadata_hints([linked]) == []
     (folders[0] / 'metadata.json').write_text('{invalid')
     assert home_mod._easy_metadata_hints([folders[0]])[0]['unreadable']
+
+
+def test_header_reader_rejects_an_actual_atomic_file_replacement(tmp_path, monkeypatch):
+    """Replacing the path between stat and open cannot pass a different file as the original."""
+    path, previous = tmp_path / 'input.bin', tmp_path / 'original.bin'
+    path.write_bytes(b'original header')
+    original = home_mod.os
+
+    class ReplacedFile:
+        def __getattr__(self, name):
+            return getattr(original, name)
+
+        def open(self, selected, flags):
+            assert selected == path
+            original.replace(path, previous)
+            path.write_bytes(b'replacement header')
+            return original.open(selected, flags)
+
+    monkeypatch.setattr(home_mod, 'os', ReplacedFile())
+    with pytest.raises(ValueError, match='Not a regular file'):
+        home_mod._easy_read_header(path, 8)
+    assert previous.read_bytes() == b'original header'
+    assert path.read_bytes() == b'replacement header'
+
+
+@pytest.mark.parametrize('problem', ['missing_samples', 'unmatched_example'])
+def test_inline_regex_validation_requires_both_sample_and_example_identity(problem):
+    """A valid-looking expression cannot seed settings without all required local evidence."""
+    import copy
+
+    pattern = r'scan_(?P<fieldID>\d+)_C(?P<chanID>\d+)\.tif$'
+    result = {'regex': dict(sample_filenames=['scan_1_C1.tif'], img_format='tif',
+                            example_path='/local/not-the-sample.tif')}
+    if problem == 'missing_samples':
+        result['regex']['sample_filenames'] = []
+    before = copy.deepcopy(result)
+    actual = home_mod._easy_validate_regex_inline(result, pattern)
+    assert actual['regex']['required'] and actual['regex']['validation_error']
+    assert 'settings_overrides' not in actual
+    assert result == before
+
+
+@pytest.mark.parametrize('receiver_closed', [False, True])
+def test_regex_worker_invalid_payload_closes_the_real_pipe(receiver_closed):
+    """Bad serialized input and a retired receiver cannot leave an owned pipe open."""
+    import multiprocessing
+
+    receiver, sender = multiprocessing.Pipe(duplex=False)
+    if receiver_closed:
+        receiver.close()
+    try:
+        home_mod._easy_regex_worker('{invalid', '(', sender)
+        assert sender.closed
+        if not receiver_closed:
+            assert receiver.recv_bytes() == b'null'
+    finally:
+        receiver.close()
+        sender.close()
+
+
+def test_regex_child_missing_interpreter_returns_local_refusal_and_retires_process(tmp_path):
+    """A real failed spawn cannot leave a trusted mapping or a live owned child."""
+    import copy
+    import multiprocessing
+    from multiprocessing import spawn
+
+    result = {'regex': dict(sample_filenames=['scan_1_C1.tif'], img_format='tif',
+                            example_path='/local/scan_1_C1.tif')}
+    before = copy.deepcopy(result)
+    executable = spawn.get_executable()
+    children = {child.pid for child in multiprocessing.active_children()}
+    try:
+        multiprocessing.set_executable(str(tmp_path / 'missing-python'))
+        actual = home_mod._easy_validate_regex(result, r'scan_(?P<fieldID>\d+)_C(?P<chanID>\d+)\.tif$')
+    finally:
+        multiprocessing.set_executable(executable)
+    assert actual['regex']['required'] and actual['regex']['validation_error']
+    assert result == before
+    assert {child.pid for child in multiprocessing.active_children()} == children
+
+
+def test_regex_cancellation_after_real_spawn_retires_its_owned_child(monkeypatch):
+    """A real cancellation event after start is handled before accepting a worker result."""
+    import copy
+    import multiprocessing
+    import threading
+
+    context = multiprocessing.get_context('spawn')
+    factory = context.Process
+    start = factory.start
+    cancelled, created = threading.Event(), []
+
+    def started(child):
+        start(child)
+        created.append(child)
+        cancelled.set()
+
+    monkeypatch.setattr(factory, 'start', started)
+    result = {'regex': dict(sample_filenames=['scan_1_C1.tif'], img_format='tif',
+                            example_path='/local/scan_1_C1.tif')}
+    before = copy.deepcopy(result)
+    children = {child.pid for child in multiprocessing.active_children()}
+    actual = home_mod._easy_validate_regex(result, r'scan_(?P<fieldID>\d+)_C(?P<chanID>\d+)\.tif$',
+                                          cancelled=cancelled.is_set)
+    assert cancelled.is_set() and len(created) == 1 and created[0]._closed
+    assert actual['regex']['required'] and 'validation_error' not in actual['regex']
+    assert 'settings_overrides' not in actual and result == before
+    assert {child.pid for child in multiprocessing.active_children()} == children
