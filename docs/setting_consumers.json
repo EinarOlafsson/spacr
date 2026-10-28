@@ -3468,7 +3468,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "blue_channel",
-    "line": 3521,
+    "line": 3523,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -4293,7 +4293,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_channel",
-    "line": 3503,
+    "line": 3505,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "dense_mask_channel_positions"
@@ -4302,7 +4302,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_channel",
-    "line": 3521,
+    "line": 3523,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -4513,7 +4513,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_cycle_channel",
-    "line": 3521,
+    "line": 3523,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -5625,7 +5625,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_model_name",
-    "line": 3415,
+    "line": 3417,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_object_settings"
@@ -6422,7 +6422,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose3_add_nucleus_channel",
-    "line": 3521,
+    "line": 3523,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -6605,7 +6605,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose_all",
-    "line": 3521,
+    "line": 3523,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -6823,7 +6823,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose_diameter",
-    "line": 3521,
+    "line": 3523,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -6897,7 +6897,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose_masks",
-    "line": 3521,
+    "line": 3523,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -6980,7 +6980,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose_model",
-    "line": 3521,
+    "line": 3523,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -10516,7 +10516,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "confluency_channel",
-    "line": 3521,
+    "line": 3523,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -13025,7 +13025,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "db_path",
-    "line": 10119,
+    "line": 10121,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "add_column_to_database"
@@ -17205,7 +17205,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "gpu",
-    "line": 6714,
+    "line": 6716,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_choose_model"
@@ -17535,7 +17535,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "green_channel",
-    "line": 3521,
+    "line": 3523,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -22998,7 +22998,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "learning_rate",
-    "line": 7541,
+    "line": 7543,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "reduction_and_clustering"
@@ -23835,7 +23835,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "magnification",
-    "line": 3407,
+    "line": 3409,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_object_settings"
@@ -24425,7 +24425,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "measurement_backend",
-    "line": 3123,
+    "line": 3125,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_measurement_store_for"
@@ -24494,7 +24494,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "merge_pathogens",
-    "line": 3433,
+    "line": 3435,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_object_settings"
@@ -27748,7 +27748,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 7546,
+    "line": 7548,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "reduction_and_clustering"
@@ -27858,7 +27858,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_neighbors",
-    "line": 7561,
+    "line": 7563,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "reduction_and_clustering"
@@ -27867,7 +27867,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_neighbors",
-    "line": 7577,
+    "line": 7579,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "reduction_and_clustering"
@@ -27876,7 +27876,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_neighbors",
-    "line": 7578,
+    "line": 7580,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "reduction_and_clustering"
@@ -30062,7 +30062,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 3503,
+    "line": 3505,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "dense_mask_channel_positions"
@@ -30071,7 +30071,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 3521,
+    "line": 3523,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -30825,7 +30825,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "nucleus_model_name",
-    "line": 3415,
+    "line": 3417,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_object_settings"
@@ -32207,7 +32207,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_channel",
-    "line": 3521,
+    "line": 3523,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -33563,7 +33563,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_model_name",
-    "line": 3415,
+    "line": 3417,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_object_settings"
@@ -34549,7 +34549,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_channel",
-    "line": 3521,
+    "line": 3523,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -35062,7 +35062,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_model_name",
-    "line": 3415,
+    "line": 3417,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_object_settings"
@@ -35444,7 +35444,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_channel",
-    "line": 3521,
+    "line": 3523,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -35957,7 +35957,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_model_name",
-    "line": 3415,
+    "line": 3417,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_object_settings"
@@ -36339,7 +36339,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_channel",
-    "line": 3521,
+    "line": 3523,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -36852,7 +36852,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_model_name",
-    "line": 3415,
+    "line": 3417,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_object_settings"
@@ -37372,7 +37372,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "outside_channel",
-    "line": 3521,
+    "line": 3523,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -38005,7 +38005,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_measure_cross_channel",
-    "line": 3521,
+    "line": 3523,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -38730,7 +38730,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_reference_channel",
-    "line": 3521,
+    "line": 3523,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -39757,7 +39757,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "pathogen_channel",
-    "line": 3503,
+    "line": 3505,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "dense_mask_channel_positions"
@@ -39766,7 +39766,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "pathogen_channel",
-    "line": 3521,
+    "line": 3523,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -40920,7 +40920,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "pathogen_model_name",
-    "line": 3415,
+    "line": 3417,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_object_settings"
@@ -46055,7 +46055,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "red_channel",
-    "line": 3521,
+    "line": 3523,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -54491,16 +54491,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8327,
-    "module": "spacr.utils",
-    "nested": false,
-    "qualname": "measure_test_mode"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "src",
-    "line": 8328,
+    "line": 8329,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -54518,7 +54509,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8335,
+    "line": 8332,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -54527,7 +54518,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8339,
+    "line": 8337,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -54536,7 +54527,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8344,
+    "line": 8341,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -54545,7 +54536,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8350,
+    "line": 8346,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -54554,7 +54545,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8353,
+    "line": 8352,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -54563,7 +54554,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8357,
+    "line": 8355,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -54572,7 +54563,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8360,
+    "line": 8359,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -54581,19 +54572,10 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 10434,
+    "line": 8362,
     "module": "spacr.utils",
     "nested": false,
-    "qualname": "delete_intermedeate_files"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "src",
-    "line": 10435,
-    "module": "spacr.utils",
-    "nested": false,
-    "qualname": "delete_intermedeate_files"
+    "qualname": "measure_test_mode"
    },
    {
     "form": "subscript",
@@ -54707,7 +54689,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 10454,
+    "line": 10448,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "delete_intermedeate_files"
@@ -54716,7 +54698,25 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 10455,
+    "line": 10449,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "delete_intermedeate_files"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "src",
+    "line": 10456,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "delete_intermedeate_files"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "src",
+    "line": 10457,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "delete_intermedeate_files"
@@ -56855,7 +56855,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "test_mode",
-    "line": 8326,
+    "line": 8328,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -56893,16 +56893,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "test_nr",
-    "line": 8331,
-    "module": "spacr.utils",
-    "nested": false,
-    "qualname": "measure_test_mode"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "test_nr",
-    "line": 8336,
+    "line": 8333,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -56921,6 +56912,15 @@
     "function_depth": 1,
     "key": "test_nr",
     "line": 8340,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "measure_test_mode"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "test_nr",
+    "line": 8342,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -59766,7 +59766,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "total_channel",
-    "line": 3521,
+    "line": 3523,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -63202,7 +63202,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 3438,
+    "line": 3440,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_object_settings"
@@ -63413,7 +63413,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "viability_dead_channel",
-    "line": 3521,
+    "line": 3523,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -63613,7 +63613,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "viability_live_channel",
-    "line": 3521,
+    "line": 3523,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
@@ -64694,7 +64694,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "wound_channel",
-    "line": 3521,
+    "line": 3523,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_get_cellpose_channels"
