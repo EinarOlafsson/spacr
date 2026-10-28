@@ -1532,8 +1532,6 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     from tests.test_documentation_i18n import _current_735_volume_api
     volume_arrivals = _current_735_volume_api(volume_arrivals, docs)
     assert len(volume_arrivals) == 32
-    from tests.test_documentation_i18n import _current_735_volume_api
-    volume_arrivals = _current_735_volume_api(volume_arrivals, docs)
     assert {key: docs[key] for key in volume_arrivals} == volume_arrivals
     assert not volume_arrivals.keys() & (
         worker_arrivals.keys() | home_ui_arrivals.keys())
