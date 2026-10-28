@@ -656,3 +656,123 @@ def test_release_notes_render_markdown_links_headings_and_code():
     assert "<code>.pkg</code>" in html
     assert '<a href="https://example.org/notes"' in html and "notes</a>," in html
     assert "&lt;script&gt;" in html and "<script>" not in html
+
+
+def test_dashboard_watermarks_filter_real_manifests_without_deleting_history(
+        qtbot, tmp_path, monkeypatch):
+    """Clearing a dashboard preserves provenance while filtering dates and module keys."""
+    import json
+    from PySide6.QtCore import QSettings
+    from spacr import run_journal
+    from spacr.qt import preferences
+
+    settings = QSettings(str(tmp_path / 'private.ini'), QSettings.IniFormat)
+    monkeypatch.setattr(preferences, '_settings', lambda: settings)
+    root = tmp_path / 'runs'
+    root.mkdir()
+    monkeypatch.setattr(run_journal, 'runs_root', lambda: root)
+    rows = [('2026-10-27_110000', 'mask', '2026-10-27T11:00:00Z'),
+            ('2026-10-27_120100', 'measure', '2026-10-27T12:01:00Z'),
+            ('2026-10-27_120200', 'unregistered', '2026-10-27T12:02:00Z'),
+            ('2026-10-27_120300', 'mask', '2026-10-27T12:03:00Z')]
+    originals = {}
+    for folder, key, stamp in rows:
+        path = root / folder / 'manifest.json'
+        path.parent.mkdir()
+        path.write_text(json.dumps(dict(app_key=key, start_utc=stamp, status='complete')))
+        originals[path] = path.read_bytes()
+    broken = root / '2026-10-27_120400' / 'manifest.json'
+    broken.parent.mkdir()
+    broken.write_text('{invalid')
+    originals[broken] = broken.read_bytes()
+    preferences.set_dashboard_watermark('runs', '2026-10-27T12:00:00Z')
+    panel = RecentRunsPanel(limit=2, known_keys={'mask': 'Mask', 'measure': 'Measure'}, read_now=False)
+    qtbot.addWidget(panel)
+    assert [entry['app_key'] for entry in panel.read()] == ['mask', 'measure']
+    assert panel.name_for('mask') == 'Mask'
+    with qtbot.waitSignal(panel.cleared):
+        panel.clear_list()
+    assert panel.read() == []
+    totals = TotalsPanel._totals_since('2026-10-27T12:00:00Z')
+    assert totals == dict(total_runs=3, mask_runs=1, measure_runs=1,
+                          classify_runs=0, models_recorded=0)
+    assert TotalsPanel._totals_since('2026-10-27T12:00:00') == totals
+    assert TotalsPanel._totals_since('') == dict(
+        total_runs=4, mask_runs=2, measure_runs=1, classify_runs=0, models_recorded=0)
+    assert all(path.read_bytes() == raw for path, raw in originals.items())
+
+
+@pytest.mark.parametrize('format', ['json', 'csv', 'manifest'])
+def test_saved_settings_are_bounded_read_only_proposals(tmp_path, format):
+    """JSON, packed CSV and manifest-associated settings retain typed values only."""
+    import json
+
+    if format == 'csv':
+        path = tmp_path / 'mask_settings.csv'
+        path.write_text('setting,value\nsize,12\nenabled,True\nignored\n')
+    else:
+        path = tmp_path / ('settings.json' if format == 'manifest' else 'mask_settings.json')
+        path.write_text(json.dumps({'size': 12, 'enabled': True}))
+    if format == 'manifest':
+        (tmp_path / 'manifest.json').write_text(json.dumps({'app_key': 'mask'}))
+    before = {file: file.read_bytes() for file in tmp_path.iterdir()}
+    result = home_mod._easy_saved_settings(path)
+    assert result == dict(path=str(path), module='mask', settings={'size': 12, 'enabled': True})
+    assert all(file.read_bytes() == raw for file, raw in before.items())
+
+
+@pytest.mark.parametrize('contents', ['[]', '{}', 'x' * (65536 + 1)])
+def test_invalid_or_oversized_saved_settings_never_become_actions(tmp_path, contents):
+    """Invalid shapes and oversized data cannot seed a module's settings."""
+    path = tmp_path / 'mask_settings.json'
+    path.write_text(contents if len(contents) < 1000 else ' ' * (home_mod._EASY_METADATA_LIMIT + 1))
+    before = path.read_bytes()
+    assert home_mod._easy_saved_settings(path) is None
+    assert path.read_bytes() == before
+
+
+@pytest.mark.parametrize('kind', ['symlink', 'directory', 'offset'])
+def test_local_header_reader_refuses_nonregular_or_out_of_range_inputs(tmp_path, kind):
+    """The bounded reader neither follows symlinks nor reads beyond a real file."""
+    path = tmp_path / 'input.bin'
+    path.write_bytes(b'original bytes')
+    target = path
+    offset = 0
+    if kind == 'symlink':
+        target = tmp_path / 'link.bin'
+        target.symlink_to(path)
+    elif kind == 'directory':
+        target = tmp_path
+    else:
+        offset = path.stat().st_size + 1
+    with pytest.raises(ValueError):
+        home_mod._easy_read_header(target, 8, offset)
+    assert path.read_bytes() == b'original bytes'
+
+
+@pytest.mark.parametrize('reason', ['cancelled', 'pattern', 'samples', 'payload'])
+def test_regex_limits_preserve_input_and_never_start_a_validation_child(monkeypatch, reason):
+    """Expected cancellation or bounded-input refusal does not launch a process."""
+    import copy
+    import multiprocessing
+
+    result = {'path': '/local/images', 'settings_overrides': {'mask': {'size': 12}},
+              'regex': {'sample_filenames': ['image.tif'], 'example_path': '/local/image.tif'}}
+    pattern = '(.*)'
+    if reason == 'pattern':
+        pattern = 'x' * 4097
+    elif reason == 'samples':
+        result['regex']['sample_filenames'] = []
+    elif reason == 'payload':
+        result['regex']['example_path'] = 'x' * 1048577
+    before = copy.deepcopy(result)
+
+    def unexpected(*args, **kwargs):
+        raise AssertionError('bounded refusal must not start a child')
+
+    monkeypatch.setattr(multiprocessing, 'get_context', unexpected)
+    actual = home_mod._easy_validate_regex(result, pattern, cancelled=lambda: reason == 'cancelled')
+    assert result == before
+    assert actual['regex']['pattern'] == pattern and actual['regex']['required']
+    assert 'settings_overrides' not in actual
+    assert bool(actual['regex'].get('validation_error')) is (reason != 'cancelled')

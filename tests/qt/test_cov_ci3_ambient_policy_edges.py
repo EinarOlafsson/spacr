@@ -463,3 +463,201 @@ def test_the_probe_refusal_names_the_platform_path(monkeypatch):
     assert "Radeon devices only" in ambient._graphics_probe_refusal()
     monkeypatch.setattr(ambient, "_mac_radeon_graphics", lambda: True)
     assert ambient._graphics_probe_refusal() == "no hardware OpenGL 4.1 context (probe failed)"
+
+
+@pytest.mark.parametrize('low_power,reduce_motion,missing_process,expected', [
+    (True, False, False, True), (False, True, False, True),
+    (False, False, False, False), (False, True, True, True),
+])
+def test_macos_motion_policy_queries_the_runtime_and_caches_the_answer(
+        monkeypatch, low_power, reduce_motion, missing_process, expected):
+    """An explicit Objective-C API shim checks policy and TTL, not native macOS behavior."""
+    calls = []
+    clock = [100.0]
+    owners = {b'NSProcessInfo': 1, b'NSWorkspace': 2}
+    selectors = {b'processInfo': 10, b'sharedWorkspace': 20,
+                 b'isLowPowerModeEnabled': 30, b'accessibilityDisplayShouldReduceMotion': 40}
+
+    def get_class(name):
+        calls.append(name)
+        return 0 if missing_process and name == b'NSProcessInfo' else owners[name]
+
+    def selector(name):
+        return selectors[name]
+
+    objc = types.SimpleNamespace(objc_getClass=get_class, sel_registerName=selector,
+                                 objc_msgSend=object())
+    pointer, boolean = object(), object()
+
+    def function_type(result, *arguments):
+        def bind(address):
+            assert address == 123
+            if result is pointer:
+                return lambda owner, message: owner * 100
+            return lambda owner, message: low_power if message == 30 else reduce_motion
+        return bind
+
+    def load(name):
+        assert name == '/usr/lib/libobjc.A.dylib'
+        return objc
+
+    ffi = types.SimpleNamespace(cdll=types.SimpleNamespace(LoadLibrary=load),
+        c_void_p=pointer, c_bool=boolean, c_char_p=object(), CFUNCTYPE=function_type,
+        cast=lambda value, type: types.SimpleNamespace(value=123))
+    monkeypatch.setattr(ambient, 'sys', types.SimpleNamespace(platform='darwin'))
+    monkeypatch.setattr(ambient, 'time', types.SimpleNamespace(monotonic=lambda: clock[0]))
+    monkeypatch.setattr(ambient, '_MACOS_STILLNESS', [float('-inf'), False])
+    monkeypatch.setitem(sys.modules, 'ctypes', ffi)
+    assert ambient._macos_asks_for_stillness() is expected
+    first = list(calls)
+    assert first and first[0] == b'NSProcessInfo'
+    assert (b'NSWorkspace' in first) is not low_power
+    assert ambient._macos_asks_for_stillness() is expected
+    assert calls == first
+    clock[0] += ambient._MACOS_STILLNESS_TTL_S + 0.1
+    assert ambient._macos_asks_for_stillness() is expected
+    assert calls == first + first
+
+
+def test_macos_motion_metadata_failure_is_not_a_claim_of_native_stillness(monkeypatch):
+    """An unavailable Objective-C runtime returns an unknown/off answer and caches it."""
+    def unavailable(name):
+        raise OSError('runtime unavailable')
+
+    monkeypatch.setattr(ambient, 'sys', types.SimpleNamespace(platform='darwin'))
+    monkeypatch.setattr(ambient, '_MACOS_STILLNESS', [float('-inf'), False])
+    monkeypatch.setitem(sys.modules, 'ctypes', types.SimpleNamespace(
+        cdll=types.SimpleNamespace(LoadLibrary=unavailable)))
+    assert ambient._macos_asks_for_stillness() is False
+    assert ambient._MACOS_STILLNESS[1] is False
+
+
+@pytest.mark.parametrize('version', [410, 430])
+def test_gl_table_shader_adapter_changes_only_the_supported_access_protocol(version):
+    """A recording context observes source adaptation without claiming GPU compilation."""
+    source = ('#version 430\n'
+        'layout(std430, binding=2) readonly buffer P { uint palette[]; };\n'
+        'layout(std430, binding=3) readonly buffer C { vec4 columns[]; };\n'
+        'layout(std430, binding=4) readonly buffer L { vec4 lookup[]; };\n'
+        'void main() { uint p = palette[7]; vec4 c = columns[3]; vec4 l = lookup[2]; }')
+    recorded = {}
+    token = object()
+
+    def program(**sources):
+        recorded.update(sources)
+        return token
+
+    renderer = ambient._FlowPointGraphics.__new__(ambient._FlowPointGraphics)
+    renderer._context = types.SimpleNamespace(version_code=version, program=program)
+    assert renderer._make_program(vertex_shader=source) is token
+    actual = recorded['vertex_shader']
+    if version == 430:
+        assert actual == source
+    else:
+        assert actual.startswith('#version 410') and 'buffer ' not in actual
+        assert 'uniform usampler2D spacr_palette;' in actual
+        for name, index, suffix in [('palette', 7, '.r'), ('columns', 3, ''), ('lookup', 2, '')]:
+            assert f'texelFetch(spacr_{name}, ivec2(int({index}), 0), 0){suffix}' in actual
+    assert source.startswith('#version 430')
+
+
+@pytest.mark.parametrize('binding,components,dtype', [(2, 1, 'u4'), (3, 4, 'f4'), (4, 4, 'f4')])
+def test_gl_41_table_transfers_preserve_bytes_reuse_size_and_retire_replaced_texture(
+        binding, components, dtype):
+    """Recording texture APIs verify unchanged CPU bytes and resource ownership only."""
+    import numpy as np
+
+    created, events = [], []
+
+    class Texture:
+        def __init__(self, size, count, kind):
+            self.size = size
+            self.components = count
+            self.dtype = kind
+            self.raw = None
+
+        def write(self, raw):
+            self.raw = raw
+
+        def use(self, location):
+            events.append(('use', self, location))
+
+        def release(self):
+            events.append(('release', self))
+
+    def texture(size, count, *, dtype):
+        value = Texture(size, count, dtype)
+        created.append(value)
+        return value
+
+    renderer = ambient._FlowPointGraphics.__new__(ambient._FlowPointGraphics)
+    renderer._resources = []
+    renderer._context = types.SimpleNamespace(version_code=410, texture=texture)
+    uniform = types.SimpleNamespace(value=None)
+    name = {2: 'palette', 3: 'columns', 4: 'lookup'}[binding]
+    program = {'spacr_' + name: uniform}
+    raw = np.arange(2 * components, dtype=np.dtype(dtype)).tobytes()
+    buffer = types.SimpleNamespace(read=lambda: raw)
+    renderer._bind_storage(buffer, binding, program)
+    first = created[0]
+    assert first.raw == raw and first.size == (2, 1)
+    assert (first.components, first.dtype) == (components, dtype)
+    assert uniform.value == binding
+    renderer._bind_storage(buffer, binding, program)
+    assert created == [first]
+    raw = np.arange(3 * components, dtype=np.dtype(dtype)).tobytes()
+    renderer._bind_storage(buffer, binding, program)
+    second = created[1]
+    assert second.raw == raw and second.size == (3, 1)
+    assert ('release', first) in events
+    assert first not in renderer._resources and second in renderer._resources
+    assert events[-1] == ('use', second, binding)
+
+
+def test_gl_43_storage_binding_keeps_the_direct_buffer_protocol():
+    """A capable context keeps native storage API dispatch rather than inventing textures."""
+    calls = []
+    renderer = ambient._FlowPointGraphics.__new__(ambient._FlowPointGraphics)
+    renderer._context = types.SimpleNamespace(version_code=430)
+    renderer._bind_storage(types.SimpleNamespace(bind_to_storage_buffer=calls.append), 3, {})
+    assert calls == [3]
+    assert '_storage_textures' not in vars(renderer)
+
+
+def test_real_field_node_visits_follow_visibility_and_motion_preferences(qtbot):
+    """Visible native selection reaches the real CPU field; leave/stillness clears it."""
+    from PySide6.QtWidgets import QWidget
+
+    prefs.set_ambient_enabled(True)
+    prefs.set_reduce_motion(False)
+    host = QWidget()
+    qtbot.addWidget(host)
+    host.resize(320, 240)
+    backdrop = ambient.AmbientWidget(host, theme='data_art_impulse_lens', seed=7)
+    backdrop.setGeometry(host.rect())
+    node = QWidget(host)
+    node.setGeometry(80, 60, 100, 80)
+    host.show()
+    try:
+        qtbot.waitUntil(lambda: backdrop._should_run())
+        serial = backdrop._art_input._node_visit[0]
+        ambient._field_visit_node(node)
+        assert backdrop._art_input._node_visit == (serial + 1, (129 / 320, 99 / 240))
+        qtbot.waitUntil(lambda: backdrop._engine._node_visit is not None)
+        ambient._field_visit_node(node, active=False)
+        assert backdrop._art_input._node_visit[1] is None
+        qtbot.waitUntil(lambda: backdrop._engine._node_visit is None)
+        prefs.set_reduce_motion(True)
+        ambient._field_visit_node(node)
+        assert backdrop._art_input._node_visit[1] is None
+        prefs.set_reduce_motion(False)
+        node.hide()
+        ambient._field_visit_node(node)
+        assert backdrop._art_input._node_visit[1] is None
+        node.show()
+        prefs.set_ambient_enabled(False)
+        ambient._field_visit_node(node)
+        assert backdrop._art_input._node_visit[1] is None
+    finally:
+        backdrop.stop()
+        host.close()

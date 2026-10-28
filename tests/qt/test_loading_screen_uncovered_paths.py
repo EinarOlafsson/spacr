@@ -326,3 +326,63 @@ def test_the_deprecated_alias_still_names_the_splash_background():
     """An importer that spells it the old way gets the current colour."""
     assert ls.INSTALLER_GREEN == ls.SPLASH_BACKGROUND
     assert ls.splash_role is ls._role
+
+
+@pytest.mark.parametrize('reported,expected', [
+    (60, 60), (144, 144), (None, ls._DEFAULT_REFRESH_HZ),
+    ('unreadable', ls._DEFAULT_REFRESH_HZ), (float('nan'), ls._DEFAULT_REFRESH_HZ),
+    (0, ls._DEFAULT_REFRESH_HZ), (10000, ls._DEFAULT_REFRESH_HZ),
+])
+def test_screen_refresh_metadata_stays_within_supported_pacing_limits(reported, expected):
+    """Bad screen API metadata cannot produce a nonfinite or zero timer budget."""
+    from types import SimpleNamespace
+
+    screen = None if reported is None else SimpleNamespace(refreshRate=lambda: reported)
+    assert ls._screen_refresh_hz(screen) == expected
+
+
+def test_display_update_dispatch_and_starvation_watchdog_retire_with_real_cover(qtbot, monkeypatch):
+    """A display-capability shim exercises real window requests and owned timer cleanup."""
+    from tests.qt.test_694_photomosaic_blow_away_startup_screen import _Clock, _played
+
+    host = QWidget()
+    qtbot.addWidget(host)
+    host.resize(420, 320)
+    host.show()
+    screen = ls.LoadingScreen(total=2, parent=host)
+    clock = _Clock()
+    pace = _Clock()
+    screen._clock = clock
+    screen.clock = clock
+    screen._pace_clock = pace
+    monkeypatch.setattr(ls, '_display_paced', lambda platform: True)
+    assert screen.show_mosaic()
+    _played(screen)
+    handle = host.windowHandle()
+    assert handle is not None and screen._paced_window is handle and screen._vsync
+    requested, repainted = [], []
+    original_request, original_update = handle.requestUpdate, screen.update
+
+    def request():
+        requested.append(True)
+        original_request()
+
+    def update(*args):
+        repainted.append(True)
+        original_update(*args)
+
+    monkeypatch.setattr(handle, 'requestUpdate', request)
+    monkeypatch.setattr(screen, 'update', update)
+    screen._follow_the_display(handle)
+    assert requested == [True]
+    screen.grab()
+    assert screen._presented[-1] == pace.now
+    before_watchdog = len(repainted)
+    pace.now += 2 * screen._frame_budget_ms() / 1000
+    screen._tick()
+    assert repainted[before_watchdog:] == [True]
+    assert screen._tick_timer.isActive()
+    screen.skip()
+    assert screen._paced_window is None
+    assert screen._tick_timer is None or not screen._tick_timer.isActive()
+    screen._stop_pacing()
