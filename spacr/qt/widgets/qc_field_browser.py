@@ -9499,7 +9499,7 @@ class _FieldOverview(QWidget):
         """Toggle source channel IDs independently without changing their meaning."""
         values = [str(channel) for channel, widget in self._channel_buttons.items() if widget.isChecked()]
         self.channels.setText(",".join(values))
-        self._refresh_image()
+        self.channels.editingFinished.emit()
 
     def _install_channel_buttons(self, info):
         """Expose actual declared channels without decoding image pixels."""
