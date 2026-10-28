@@ -55,7 +55,9 @@ def test_minimize_restore_keeps_content_height_and_search_anchor(page, qtbot):
     qtbot.mouseClick(details._collapse, Qt.LeftButton)
     assert details._minimized and not details.viewport().isVisible()
     assert not field._details_grip.isVisible()
-    assert details.mask().boundingRect() == details._collapse.geometry()
+    assert details.mask().isEmpty()
+    assert details.width() == original.width()
+    assert details.height() >= details._collapse.height() + 8
     assert details._collapse.isVisible()
     assert field.panel.geometry() == search
     qtbot.mouseClick(details._collapse, Qt.LeftButton)
@@ -64,3 +66,29 @@ def test_minimize_restore_keeps_content_height_and_search_anchor(page, qtbot):
     assert details.toPlainText() == 'Keep this result'
     page._show_suggestions()
     assert details.parentWidget() is field and field._details_grip.isVisible()
+
+
+def test_thin_white_history_arrows_and_blue_expanded_toggle(page, qtbot):
+    details = page.field.details
+
+    def ink(button):
+        image = button.icon().pixmap(20, 20).toImage()
+        pixels = [(x, y, image.pixelColor(x, y)) for x in range(20) for y in range(20)
+                  if image.pixelColor(x, y).alpha() > 20]
+        return pixels
+
+    for button in (details._back, details._forward):
+        pixels = ink(button)
+        assert pixels and all(color.red() == color.green() == color.blue() == 255
+                              for _, _, color in pixels)
+        assert sum(color.alpha() / 255 for _, _, color in pixels) < 20
+    expanded = ink(details._collapse)
+    assert all(color.blue() > color.red() for _, _, color in expanded)
+    assert sum(y for x, y, _ in expanded if x < 8) / sum(x < 8 for x, _, _ in expanded) > 10
+    qtbot.mouseClick(details._collapse, Qt.LeftButton)
+    collapsed = ink(details._collapse)
+    assert all(color.red() == color.green() == color.blue() == 255 for _, _, color in collapsed)
+    assert sum(y for x, y, _ in collapsed if x < 8) / sum(x < 8 for x, _, _ in collapsed) < 9
+    qtbot.mouseClick(details._collapse, Qt.LeftButton)
+    assert details.viewport().isVisible()
+    assert all(color.blue() > color.red() for _, _, color in ink(details._collapse))

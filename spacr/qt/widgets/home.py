@@ -5901,20 +5901,46 @@ class _NavigatorDetailsBrowser(QTextBrowser):
         self._back = QToolButton(self)
         self._forward = QToolButton(self)
         self._collapse = QToolButton(self)
-        for button, name, icon in (
-                (self._back, tr('Back'), QStyle.SP_ArrowBack),
-                (self._forward, tr('Next'), QStyle.SP_ArrowForward),
-                (self._collapse, tr('Collapse or expand this container'), QStyle.SP_ArrowDown)):
+        for button, name, direction in (
+                (self._back, tr('Back'), 'back'),
+                (self._forward, tr('Next'), 'forward'),
+                (self._collapse, tr('Collapse or expand this container'), 'up')):
             button.setAutoRaise(True)
             button.setAccessibleName(name)
             button.setToolTip(name)
-            button.setIcon(self.style().standardIcon(icon))
+            button.setIcon(self._arrow_icon(direction))
             button.setFixedSize(28, 28)
             button.setCursor(Qt.PointingHandCursor)
         self._back.clicked.connect(lambda: self._navigate(-1))
         self._forward.clicked.connect(lambda: self._navigate(1))
         self._collapse.clicked.connect(self._toggle_minimized)
         self._update_controls()
+
+    def _arrow_icon(self, direction, color='white'):
+        from PySide6.QtCore import QPointF
+        from PySide6.QtGui import QPen, QPolygonF
+
+        points = {
+            'back': ((12, 6), (8, 10), (12, 14)),
+            'forward': ((8, 6), (12, 10), (8, 14)),
+            'up': ((6, 12), (10, 8), (14, 12)),
+            'down': ((6, 8), (10, 12), (14, 8)),
+        }
+        icon = QIcon()
+        ratio = self.devicePixelRatioF()
+        for mode, alpha in ((QIcon.Normal, 255), (QIcon.Disabled, 80)):
+            image = QPixmap(round(20 * ratio), round(20 * ratio))
+            image.setDevicePixelRatio(ratio)
+            image.fill(Qt.transparent)
+            painter = QPainter(image)
+            painter.setRenderHint(QPainter.Antialiasing, True)
+            ink = QColor(color)
+            ink.setAlpha(alpha)
+            painter.setPen(QPen(ink, 1.0, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+            painter.drawPolyline(QPolygonF([QPointF(x, y) for x, y in points[direction]]))
+            painter.end()
+            icon.addPixmap(image, mode)
+        return icon
 
     def _save_scroll(self):
         if 0 <= self._entry < len(self._entries):
@@ -5979,8 +6005,9 @@ class _NavigatorDetailsBrowser(QTextBrowser):
         self._forward.setEnabled(self._entry + 1 < len(self._entries))
         self._back.setVisible(not self._minimized)
         self._forward.setVisible(not self._minimized)
-        self._collapse.setIcon(self.style().standardIcon(
-            QStyle.SP_ArrowUp if self._minimized else QStyle.SP_ArrowDown))
+        self._collapse.setIcon(self._arrow_icon(
+            'down' if self._minimized else 'up',
+            'white' if self._minimized else palette_for('dark')['button_accent']))
         self.viewport().setVisible(not self._minimized)
         self._place_controls()
 
@@ -5988,12 +6015,7 @@ class _NavigatorDetailsBrowser(QTextBrowser):
         for offset, button in enumerate((self._collapse, self._forward, self._back)):
             button.move(max(0, self.width() - 34 - offset * 30), 4)
             button.raise_()
-        if self._minimized:
-            from PySide6.QtGui import QRegion
-
-            self.setMask(QRegion(self._collapse.geometry()))
-        else:
-            self.clearMask()
+        self.clearMask()
 
     def _toggle_minimized(self):
         self._minimized = not self._minimized
@@ -7172,13 +7194,13 @@ class _EasyHomePage(QWidget):
         folder = 'C:/Data/experiment/plate1' if os.name == 'nt' else '/data/experiment/plate1'
         image = folder + '/image.tif'
         lines = (
-            tr('File/folder: Drop an image or a folder of images to see tools that accept it.'),
-            tr('Path: Paste {folder} or {image} to see compatible tools. You can also type a file type, such as tif.',
+            tr('File/folder: Drop an image or a folder of images to see image based modules.'),
+            tr('Path: Paste {folder} or {image} to see compatible modules. You can also type a file type, such as tif.',
                folder=folder, image=image),
             tr('Question: Try “segment images” to find segmentation tools.'),
             tr('Module: Type “Measure” to find the measurement module.'),
-            tr('Explore: Click a card to see tools that can use its output or supply its input. Open the tool you want to use.'),
-            tr('spaCR AI: Ask for help with your spaCR analysis, e.g., ‘How do I generate object masks?’ or ‘How do i train a Cellpose or Torch model?’'),
+            tr('Explore: Click once to open the module network. Click twice to open the module.'),
+            tr('spaCR AI: Ask for help using spaCR, e.g., ‘How do I generate object masks?’ or ‘How do i train a Cellpose or Torch model?’'),
         )
         paragraphs = []
         for line in lines:
@@ -7187,7 +7209,7 @@ class _EasyHomePage(QWidget):
                     if len(parts) == 2 else escape(line))
             paragraphs.append('<p>' + text + '</p>')
         self._guide_writing = True
-        self.field.details.setHtml(''.join(paragraphs))
+        self.field.details.setHtml('<div style="color:#999999;">' + ''.join(paragraphs) + '</div>')
         self._guide_writing = False
         self._guide_visible = True
         self._details_has_content = False

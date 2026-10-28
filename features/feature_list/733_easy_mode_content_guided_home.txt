@@ -14,6 +14,8 @@ Related:   startup options, Preferences, Home, dock, spaCR AI
 
 CURRENT MAINTAINER FOLLOW-UP — 2026-10-27
 
+TEXT PANEL APPEARANCE FOLLOW-UP — 2026-10-28: retain the approved arrow positions/history behavior, render thin white line arrows, and keep the full-width collapsed text-box strip tall enough for its arrow. A white down-arrow expands the panel and becomes blue pointing up; the up-arrow collapses it to the strip. Show the maintainer-revised six guidance lines in gray, including image based modules, compatible modules, click-once network/click-twice module guidance and help using spaCR. Root owns UI/tests; retained translation peer owns changed captions and normal affected artifacts.
+
 TEXT HISTORY AND DOT FOLLOW-UP — 2026-10-28: add Back/Forward controls at the lower text box top right to revisit descriptions and AI responses, plus a minimize arrow with an accessible restore control. Preserve expandable fixed layout, fresh-Home reset and response streaming without one history entry per chunk. Enlarge the current hosted white fill by exactly 35 percent while preserving its ring and marker animation. Root owns implementation and focused checks.
 
 AI GUIDANCE EXAMPLE COPY — 2026-10-28: the maintainer replaces channel/error examples with exactly “Ask for help with your spaCR analysis, e.g., ‘How do I generate object masks?’ or ‘How do i train a Cellpose or Torch model?’” Preserve the approved other five guide examples.
