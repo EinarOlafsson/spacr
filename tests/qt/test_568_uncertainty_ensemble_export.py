@@ -27,6 +27,8 @@ def screen(qtbot, qt_theme_applied, tmp_path, monkeypatch):
     made = MakeMasksScreen()
     qtbot.addWidget(made)
     made._open_folder(str(tmp_path))
+    qtbot.waitUntil(lambda: not made._loading and made._reader_worker is None
+                    and made._load_worker is None)
     yield made
     _s().setValue('make_masks/uncertainty_second_model', '')
 

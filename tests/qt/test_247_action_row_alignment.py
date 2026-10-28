@@ -12,6 +12,8 @@ def test_save_navigation_share_action_row(qtbot, qt_theme_applied, tmp_path, wid
     screen = MakeMasksScreen()
     qtbot.addWidget(screen)
     screen._open_folder(str(tmp_path))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     screen.resize(width, 900)
     screen.show()
     qtbot.waitExposed(screen)
@@ -28,6 +30,10 @@ def test_save_navigation_share_action_row(qtbot, qt_theme_applied, tmp_path, wid
     assert np.max(saved) == 1  # Existing saver numbers new objects from one.
     assert np.count_nonzero(saved) == 4
     screen._btn_next.click()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._current_index == 1
     screen._btn_prev.click()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._current_index == 0

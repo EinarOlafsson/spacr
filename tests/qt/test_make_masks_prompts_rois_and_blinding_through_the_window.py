@@ -93,6 +93,8 @@ def screen(qtbot, qt_theme_applied, folder, journal, monkeypatch):
     widget = MakeMasksScreen()
     qtbot.addWidget(widget)
     widget._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not widget._loading and widget._reader_worker is None
+                    and widget._load_worker is None)
     widget.resize(1200, 800)
     widget.show()
     qtbot.waitExposed(widget)
@@ -488,6 +490,8 @@ def test_the_blind_switch_refuses_without_fields_and_asks_before_unblinding(
     screen = mm.MakeMasksScreen()
     qtbot.addWidget(screen)
     screen._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     screen._btn_blind.setChecked(True)
     key = screen._blind["key_id"]
     screen._btn_blind.setChecked(False)
@@ -509,6 +513,8 @@ def test_the_blind_switch_refuses_without_fields_and_asks_before_unblinding(
     other.mkdir()
     imageio.imwrite(other / "b.tif", np.zeros((16, 16), np.uint16))
     assert screen._open_folder(str(other))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._blind is None
     assert [e["event"] for e in rj._blinding_events(second)] == [
         "blinded", "closed"]
@@ -635,6 +641,8 @@ def test_a_blinded_curation_session_and_many_folders_restore_their_names(
     screen = mm.MakeMasksScreen()
     qtbot.addWidget(screen)
     assert screen.open_queue(build_queue(folder, order="name"))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     screen._btn_blind.setChecked(True)
     assert "Blinded: 3 fields" in screen._src_label.text()
     screen._btn_blind.setChecked(False)
@@ -645,6 +653,8 @@ def test_a_blinded_curation_session_and_many_folders_restore_their_names(
     imageio.imwrite(other / "z.tif", np.zeros((16, 16), np.uint16))
     assert screen.open_paths([str(folder / "img_00.tif"),
                               str(other / "z.tif")])
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     screen._btn_blind.setChecked(True)
     assert sorted(screen._field_folders) == sorted([str(folder), str(other)])
     screen._btn_blind.setChecked(False)
