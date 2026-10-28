@@ -1167,3 +1167,118 @@ def test_signed_reader_rejects_rebound_calibration_and_residual_misstatements(
             pytest.fail('incorrect calibration or residual metadata reached a consumer')
     assert _signed_source_descriptors(root) == descriptors
     assert {path: path.read_bytes() for path in root.rglob('*') if path.is_file()} == before
+
+
+@pytest.mark.parametrize('defect, message', [
+    ('oversized-file', '1 MiB'),
+    ('zero-spacing', 'positive finite YX'),
+    ('empty-channels', 'physical channels exactly once'),
+    ('nonobject-channel', 'physical channels exactly once'),
+    ('duplicate-channel', 'physical channels exactly once'),
+    ('absent-reference', 'selected reference channel'),
+    ('fractional-shift', 'integer YX shifts'),
+    ('negative-psf', 'nonnegative odd 2D kernel'),
+    ('combined-support', '127 pixels'),
+])
+def test_optical_calibration_refuses_unsafe_declarations_without_mutating_inputs(
+        calibrated_plate, defect, message):
+    """Reject real optical files that cannot define bounded same-grid acquired support."""
+    from spacr.psf_pipeline import _load_unmix_calibration
+
+    stack, settings, path, calibration, *_ = calibrated_plate
+    channels = (0, 1)
+    if defect == 'zero-spacing':
+        settings = dict(settings, unmix_pixel_size_um=[0., .3])
+    elif defect == 'empty-channels':
+        calibration['channels'] = []
+    elif defect == 'nonobject-channel':
+        calibration['channels'][1] = None
+    elif defect == 'duplicate-channel':
+        calibration['channels'][1]['channel'] = 0
+    elif defect == 'absent-reference':
+        calibration['reference_channel'] = 2
+    elif defect == 'fractional-shift':
+        calibration['channels'][1]['shift_to_reference_px'] = [.5, 0]
+    elif defect == 'negative-psf':
+        calibration['channels'][1]['psf'][0][0] = -1.
+    elif defect == 'combined-support':
+        channels = tuple(range(5))
+        calibration['channels'] = [dict(channel=channel, shift_to_reference_px=[0, 0],
+            psf=np.ones((31, 31)).tolist(), psf_origin_px=[15, 15],
+            psf_pixel_size_um=[.4, .3]) for channel in channels]
+    payload = json.dumps(calibration).encode()
+    if defect == 'oversized-file':
+        payload += b' ' * (1024 ** 2 + 1 - len(payload))
+    path.write_bytes(payload)
+    before = {file: file.read_bytes() for file in stack.iterdir()}
+    with pytest.raises(ValueError, match=message):
+        _load_unmix_calibration(settings, channels)
+    assert path.read_bytes() == payload
+    assert {file: file.read_bytes() for file in stack.iterdir()} == before
+
+
+@pytest.mark.parametrize('defect, message', [
+    ('empty', 'nonempty 2D channel-last'),
+    ('complex', 'nonempty 2D channel-last'),
+    ('nonfinite', 'finite source pixels'),
+    ('no-common-support', 'no common valid image region'),
+])
+def test_calibrated_application_refuses_invalid_acquired_pixels_without_writes(
+        calibrated_plate, defect, message):
+    """Never treat complex, missing or nonfinite acquisitions as quantitative pixels."""
+    stack, settings, path, _, _, target, *_ = calibrated_plate
+    plan = _prepare_unmixing(settings, stack, allow_calibrated=True)
+    image = target.astype(np.complex128) if defect == 'complex' else target.copy()
+    if defect == 'empty':
+        image = image[:0]
+    elif defect == 'nonfinite':
+        image[0, 0, 0] = np.nan
+    elif defect == 'no-common-support':
+        image = image[:1, :1]
+    original = image.copy()
+    before = {file: file.read_bytes() for file in stack.iterdir()}
+    optical_bytes = path.read_bytes()
+    with pytest.raises(ValueError, match=message):
+        plan.apply_calibrated(image)
+    np.testing.assert_array_equal(image, original)
+    assert path.read_bytes() == optical_bytes
+    assert {file: file.read_bytes() for file in stack.iterdir()} == before
+
+
+@needs_descriptor_relative_reads
+@pytest.mark.parametrize('defect', ['pipeline-version', 'zero-spacing', 'entry-order',
+                                  'common-support', 'negative-matrix', 'empty-source',
+                                  'boundary-label'])
+def test_signed_reader_refuses_rebound_optical_and_population_contract_changes(
+        completed_calibrated_cells, signed_reader_resources, defect):
+    """A fresh hash cannot legitimize incompatible optics, channels or cell identities."""
+    from spacr.psf_pipeline import _open_calibrated_cell_dataset
+
+    sample = completed_calibrated_cells
+    record = json.loads(sample['record'].read_text())
+    config = record['configuration']
+    unmixing = config['unmixing']
+    calibration = unmixing['calibration']
+    if defect == 'pipeline-version':
+        config['version'] = 2
+    elif defect == 'zero-spacing':
+        calibration['pixel_size_um'][0] = 0.
+    elif defect == 'entry-order':
+        calibration['channels'].reverse()
+    elif defect == 'common-support':
+        calibration['common_psf_support_yx'][0] += 2
+    elif defect == 'negative-matrix':
+        unmixing['matrix'][0][1] = -.1
+    elif defect == 'empty-source':
+        config['source_dataset'] = ''
+    else:
+        record['calibrated_fields']['000002']['excluded_boundary_label_ids'] = [65536]
+    _rewrite_calibrated_cell_record(sample['record'], record)
+    root = sample['inputs']['output']
+    before = {path: path.read_bytes() for path in root.rglob('*') if path.is_file()}
+    descriptors = _signed_source_descriptors(root)
+    with pytest.raises(ValueError):
+        with _open_calibrated_cell_dataset(root):
+            pytest.fail('incompatible quantitative provenance reached a consumer')
+    assert _signed_source_descriptors(root) == descriptors
+    assert {path: path.read_bytes() for path in root.rglob('*') if path.is_file()} == before
