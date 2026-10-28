@@ -10532,9 +10532,11 @@ class MainWindow(QMainWindow):
             if shortcut in _EASY_SHORTCUT_URLS:
                 self._open_url(_EASY_SHORTCUT_URLS[shortcut])
             elif shortcut == 'spaceout':
-                from .theme import enable_spaceout
+                from .preferences import apply_preferences_to_app
+                from .theme import disable_spaceout, enable_spaceout, spaceout_enabled
 
-                enable_spaceout()
+                (disable_spaceout if spaceout_enabled() else enable_spaceout)()
+                apply_preferences_to_app()
                 self.refresh_after_preferences({'spaceout'})
             elif shortcut == 'running':
                 self._startup._show_running_runs()

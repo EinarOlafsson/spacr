@@ -92,13 +92,31 @@ if str(TOOLS) not in sys.path:
 
 
 def _current_startup_frame_stats_api(entries, docs=None):
-    """Retain the original startup inventory and admit its reviewed cadence prose."""
+    """Retain the startup inventory and admit its reviewed cadence and hold prose."""
     assert len(entries) == 21
     assert hashlib.sha256(json.dumps(entries, sort_keys=True, ensure_ascii=False).encode()).hexdigest() == "4f9021a15b35e2c6cb8ffd900a00f14377edf4dba8fe471c8b90b1e7b9ea9b2d"
     current = dict(entries)
     symbol = "spacr.qt.widgets.loading_screen.LoadingScreen.frame_stats"
     current[symbol] = "What drawing the blow-away cost, for measuring it.\n\n:returns: ``frames``, ``mean_ms``, ``max_ms`` and ``most_tiles``;\n    ``paint_p95_ms``; the display's ``refresh_hz`` and ``refresh_ms``;\n    the final ``paced_ms``, ``stride``, ``divisor`` and ``vsync``;\n    ``interval_mean_ms``, ``interval_p50_ms``, ``interval_p95_ms``,\n    ``interval_p99_ms``, ``longest_gap_ms``, ``late_frames``,\n    ``dropped_frames`` and ``dropped_share``. Times are milliseconds.\n    Intervals measure paint callbacks, not verified display\n    presentation; dropped frames are estimates against the refresh\n    interval. With no paint callbacks, paint and interval summaries\n    and counters are zero; display and pacing metadata remain reported."
     assert hashlib.sha256(current[symbol].encode()).hexdigest() == "33b83cd0893cf1fabc001bd6735384102382d72c6d22052844e8df30f92bfaa7"
+    symbol = "spacr.qt.widgets.loading_screen.LoadingScreen.blow_away"
+    current[symbol] = current[symbol].replace(
+        "until two seconds after", "until half a second after")
+    assert hashlib.sha256(current[symbol].encode()).hexdigest() == "8c75846be50adca5f8ed03ccb5cac55a900139947177fd1d7b57b7c9f032fc3a"
+    if docs is not None:
+        assert {key: docs[key] for key in current} == current
+    return current
+
+
+def _current_startup_sequence_api(entries, docs=None):
+    """Retain the original sequence inventory and admit its reviewed half-second hold."""
+    assert len(entries) == 5
+    assert hashlib.sha256(json.dumps(entries, sort_keys=True, ensure_ascii=False).encode()).hexdigest() == "9fd2c9616108acdef62781037c8edb4c0ad14c00abda5ed2b81d6c6602ce2d6a"
+    current = dict(entries)
+    symbol = "spacr.qt.widgets.loading_screen.replay_startup_animation"
+    current[symbol] = current[symbol].replace(
+        "holds for two seconds", "holds for half a second")
+    assert hashlib.sha256(current[symbol].encode()).hexdigest() == "1e9d8972b79aeff1037ca6d84e143d7ee8bd5253c124a12e9d9442efdef4471d"
     if docs is not None:
         assert {key: docs[key] for key in current} == current
     return current
@@ -112,8 +130,9 @@ def test_startup_cadence_revision_keeps_its_historical_inventory(mutation):
     current = _current_startup_frame_stats_api(entries)
     assert entries == historical
     symbol = "spacr.qt.widgets.loading_screen.LoadingScreen.frame_stats"
-    other = next(key for key in entries if key != symbol)
-    assert all(current[key] == entries[key] for key in entries if key != symbol)
+    changed = {symbol, "spacr.qt.widgets.loading_screen.LoadingScreen.blow_away"}
+    other = next(key for key in entries if key not in changed)
+    assert all(current[key] == entries[key] for key in entries if key not in changed)
     if mutation == "historical_frame":
         entries[symbol] = current[symbol]
     elif mutation == "historical_other":
@@ -124,6 +143,35 @@ def test_startup_cadence_revision_keeps_its_historical_inventory(mutation):
         current[other] += " changed"
     with pytest.raises(AssertionError):
         _current_startup_frame_stats_api(entries, current)
+
+
+@pytest.mark.parametrize("contract", ["splash", "sequence"])
+@pytest.mark.parametrize("mutation", ["historical", "old_timing", "unrelated"])
+def test_half_second_startup_revision_preserves_exact_arrival_contracts(contract, mutation):
+    if contract == "splash":
+        filename = "694_startup_splash_api_arrivals_2026-10-12.json"
+        symbol = "spacr.qt.widgets.loading_screen.LoadingScreen.blow_away"
+        helper = _current_startup_frame_stats_api
+    else:
+        filename = "695_startup_sequence_api_arrivals_2026-10-12.json"
+        symbol = "spacr.qt.widgets.loading_screen.replay_startup_animation"
+        helper = _current_startup_sequence_api
+    entries = json.loads((ROOT / "tests/data/release_contracts" / filename).read_text())
+    historical = dict(entries)
+    current = helper(entries)
+    assert entries == historical
+    assert current.keys() == entries.keys()
+    assert "half a second" in current[symbol]
+    assert "four" in current[symbol] if contract == "splash" else "one second" in current[symbol]
+    if mutation == "historical":
+        entries[symbol] = current[symbol]
+    elif mutation == "old_timing":
+        current[symbol] = entries[symbol]
+    else:
+        other = next(key for key in entries if key != symbol)
+        current[other] += " changed"
+    with pytest.raises(AssertionError):
+        helper(entries, current)
 
 
 def _retired_707_home_api(docs):
@@ -3516,6 +3564,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
     sequence_arrivals = json.loads((ROOT / "tests/data/release_contracts"
         / "695_startup_sequence_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
     assert len(sequence_arrivals) == 5
+    sequence_arrivals = _current_startup_sequence_api(sequence_arrivals, docs)
     assert {key: docs[key] for key in sequence_arrivals} == sequence_arrivals
     assert not sequence_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **sequence_arrivals}

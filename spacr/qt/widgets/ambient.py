@@ -267,7 +267,8 @@ AMBIENT_THEMES: Tuple[str, ...] = (
     "drift",
 )
 
-SPACEOUT_ONLY_THEMES = ("data_art_spaceout_field", "data_art_fungal_growth",
+SPACEOUT_ONLY_THEMES = ("data_art_spaceout_field", "data_art_spaceout_vortex",
+                       "data_art_fungal_growth",
                        "aurora", "data_art_tissue_facets")
 
 DEFAULT_SPACEOUT_THEME = "data_art_spaceout_field"
@@ -306,6 +307,7 @@ _THEME_LABELS = {
     "drift": "spaCR stratified",
     "data_art_impulse_lens": "spaCR field",
     "data_art_spaceout_field": "spaCR field phenomena",
+    "data_art_spaceout_vortex": "Spaceout",
     "data_art_genetic_advection": "spaCR advection",
     "data_art_fungal_growth": "spaCR growth",
     "data_art_point_atlas": "spaCR waves",
@@ -319,6 +321,7 @@ _THEME_NOTES = {
     "drift": 'A slow starfield in three layers of depth.',
     "data_art_impulse_lens": 'A crisp gravitational dot field with optional local mouse influence and expanding ripples.',
     "data_art_spaceout_field": 'A crisp interactive field develops random gravitational landscapes, elastic releases, whirlwinds, density waves and flowing colour, with calm intervals and smooth transitions.',
+    "data_art_spaceout_vortex": 'White dots spiral into a rotating, breathing vortex.',
     "data_art_genetic_advection": 'Fine particles form evolving vortices and branching currents, with optional mouse gravity.',
     "data_art_fungal_growth": 'Connected mycelial filaments grow from common origins, with wandering tips and recursively branching fronts. Older trails fade as new colonies begin.',
     "data_art_point_atlas": 'An edge-free landscape of round points carries wide travelling waves.',
@@ -439,6 +442,8 @@ for _data_art_key in (key for key in AMBIENT_THEMES + SPACEOUT_ONLY_THEMES
         if palette != SPACEOUT_PALETTE)
 for _classic_key in ("blobs", "aurora", "drift"):
     _THEME_PALETTES[_classic_key] += ("random",)
+
+_THEME_PALETTES["data_art_spaceout_vortex"] = ("mono",)
 
 _PAINTABLE_THEMES: Tuple[str, ...] = AMBIENT_THEMES + SPACEOUT_ONLY_THEMES + (SPACEOUT_THEME,)
 
@@ -8635,6 +8640,53 @@ class _DataArtEngine(_GraphicsBackend, _BufferedEngine):
             np.maximum.at(flat, index, np.uint32(ink))
 
 
+class _SpaceoutVortexEngine(_BufferedEngine):
+    """Generate a bounded monochrome rosette from moving polar grain rows."""
+
+    name = "data_art_spaceout_vortex"
+    base_edge = 1280
+
+    def _configure(self, rng):
+        self._vortex_phase = rng.uniform(0.0, math.tau)
+
+    def geometry(self, width, height):
+        if width <= 0 or height <= 0:
+            return ()
+        population = math.sqrt(self.density / DEFAULT_DENSITY)
+        arms = max(8, min(48, round(36 * population)))
+        rings = max(12, min(96, round(64 * population)))
+        shorter = min(width, height)
+        clock = self.time * .72 + self._vortex_phase
+        rows = []
+        for ring in range(rings):
+            radial = .012 + 1.05 * ((ring + .5) / rings) ** 1.65
+            for arm in range(arms):
+                angle = arm * math.tau / arms + 4.8 * math.log(radial + .035) + clock
+                breathing = 1.0 + .13 * math.sin(2.0 * angle + clock * .7)
+                radius = radial * breathing
+                x = width / 2 + shorter * (radius * math.cos(angle)
+                    + .035 * math.sin(clock * .8))
+                y = height / 2 + shorter * (radius * math.sin(angle)
+                    * (.78 + .12 * math.cos(clock * .55))
+                    + .035 * math.cos(clock * .65))
+                depth = max(.12, min(1.0, 1.15 - radial))
+                dot = max(.3, shorter / 500 * self.size * (.55 + .6 * depth))
+                if -dot <= x <= width + dot and -dot <= y <= height + dot:
+                    rows.append((x, y, dot, depth))
+        return tuple(rows)
+
+    def _paint_field(self, painter, width, height):
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        inks = []
+        for index in range(4):
+            ink = QColor('white') if self.dark else QColor('#202020')
+            ink.setAlphaF((.25 + index * .25) * self.alpha_scale())
+            inks.append(ink)
+        for x, y, radius, depth in self.geometry(width, height):
+            painter.setBrush(inks[min(3, int(depth * 4))])
+            painter.drawEllipse(QRectF(x - radius, y - radius, radius * 2, radius * 2))
+
+
 class _SpaceoutFieldEngine(_DataArtEngine):
     """Seeded field phenomena share the ordinary field's input and grain renderer.
 
@@ -9690,6 +9742,7 @@ _ENGINES = {
     "data_art_genetic_advection": partial(_DataArtEngine, family="genetic_advection"),
     "data_art_impulse_lens": partial(_DataArtEngine, family="impulse_lens"),
     "data_art_spaceout_field": _SpaceoutFieldEngine,
+    "data_art_spaceout_vortex": _SpaceoutVortexEngine,
     "data_art_fungal_growth": _FungalGrowthEngine,
     SPACEOUT_THEME: FractalEngine,
 }
@@ -14225,9 +14278,7 @@ def _publish_widget_ripple(widget, edge, rect, strength, *, vertical,
 
 
 def _apply_spaceout_animation_choice(app) -> None:
-    """Replace native fractals when the spaceout animation selection changes."""
-    if not spaceout_enabled():
-        return
+    """Replace native fractals when the active animation or launch mode changes."""
     from ..preferences import get_ambient_theme, get_ambient_palette, get_ambient_enabled
 
     enabled = get_ambient_enabled()
