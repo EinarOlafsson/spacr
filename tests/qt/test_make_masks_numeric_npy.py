@@ -125,6 +125,26 @@ def test_unsupported_npy_headers_fail_before_pixels_are_loaded(tmp_path, monkeyp
         engine._npy_image_header(path)
 
 
+@pytest.mark.parametrize('prefix', [b'notNPY\x01\x00\x00\x00',
+                                   b'\x93NUMPY\x04\x00',
+                                   b'\x93NUMPY\x01\x00\x00\x00'],
+                         ids=['wrong-magic', 'unsupported-version', 'zero-header-length'])
+def test_malformed_npy_prefixes_refuse_public_loading_without_decoding(tmp_path, monkeypatch, prefix):
+    source = tmp_path / 'malformed.npy'
+    source.write_bytes(prefix)
+    reviewed = dict(engine._NPY_IMAGE_VIEWS)
+
+    def refuse_array_load(*args, **kwargs):
+        pytest.fail('Malformed NPY metadata must not reach array loading or pickle')
+
+    monkeypatch.setattr(np, 'load', refuse_array_load)
+    with pytest.raises(ValueError, match='NPY images require complete real numeric'):
+        engine.load_image_and_mask(str(tmp_path), source.name)
+    assert source.read_bytes() == prefix
+    assert list(tmp_path.iterdir()) == [source]
+    assert engine._NPY_IMAGE_VIEWS == reviewed
+
+
 def test_npy_truncation_and_reviewed_source_changes_fail_closed(tmp_path):
     path = tmp_path / 'image.npy'
     np.save(path, np.ones((3, 4, 2), np.uint16))
