@@ -269,3 +269,233 @@ def test_the_surface_sweep_finds_what_a_built_page_has_and_survives_a_bare_one(
     layout.addStretch(1)
     HomePage._clear_page_surfaces(spaced)
     assert layout.itemAt(0).widget() is None
+
+
+@pytest.fixture
+def classic_preferences(tmp_path, monkeypatch):
+    from PySide6.QtCore import QSettings
+    from spacr.qt import preferences
+
+    settings = QSettings(str(tmp_path / 'classic-home.ini'), QSettings.IniFormat)
+    monkeypatch.setattr(preferences, '_settings', lambda: settings)
+    return preferences
+
+
+@pytest.fixture
+def classic_journal(_empty_journal):
+    import json
+
+    manifests = []
+    for index, module in enumerate(('mask', 'measure')):
+        folder = _empty_journal / f'2020-01-01_12000{index}_{module}'
+        folder.mkdir()
+        path = folder / 'manifest.json'
+        path.write_text(json.dumps({'app_key': module, 'status': 'success',
+            'start_utc': f'2020-01-01T12:00:0{index}+00:00', 'elapsed_s': 3}), encoding='utf-8')
+        manifests.append(path)
+    return {path: path.read_bytes() for path in manifests}
+
+
+def test_registry_failure_keeps_real_recent_rows_named_and_navigable(qtbot, classic_preferences, classic_journal):
+    from PySide6.QtWidgets import QPushButton
+
+    def unavailable():
+        raise RuntimeError('application registry unavailable')
+
+    panel = RecentRunsPanel(known_keys=unavailable, read_now=False)
+    qtbot.addWidget(panel)
+    rows = panel.read()
+    assert {row['app_key'] for row in rows} == {'mask', 'measure'}
+    assert panel.name_for('measure') == 'measure'
+    panel.refresh(rows)
+    names = {label.text() for label in panel.findChildren(QLabel)}
+    assert {'mask', 'measure'} <= names
+    chosen = []
+    panel.run_clicked.connect(chosen.append)
+    buttons = [panel.body_layout.itemAt(index).widget() for index in range(panel.body_layout.count())]
+    assert all(isinstance(button, QPushButton) for button in buttons)
+    for button in buttons:
+        button.click()
+    assert chosen == [row['app_key'] for row in rows]
+    assert 'Run History' in panel._clear.toolTip()
+    assert all(path.read_bytes() == payload for path, payload in classic_journal.items())
+
+
+def test_recent_run_import_failure_shows_a_safe_empty_panel(qtbot, monkeypatch, classic_preferences):
+    import builtins
+
+    panel = RecentRunsPanel(read_now=False)
+    qtbot.addWidget(panel)
+    original = builtins.__import__
+
+    def unavailable(name, globals=None, locals=None, fromlist=(), level=0):
+        if name == 'spacr.run_journal' and 'recent_runs' in (fromlist or ()):
+            raise ImportError('journal service unavailable')
+        return original(name, globals, locals, fromlist, level)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(builtins, '__import__', unavailable)
+        assert panel.read() == []
+        panel.refresh()
+    assert any(label.text() == 'No runs yet.' for label in panel.findChildren(QLabel))
+    assert not panel._clear.isEnabled()
+
+
+def test_dashboard_reset_signals_move_only_watermarks_and_keep_manifests(qtbot, classic_preferences, classic_journal):
+    recent = RecentRunsPanel(known_keys={'mask': 'Segment', 'measure': 'Measure'}, read_now=False)
+    totals = TotalsPanel(read_now=False)
+    qtbot.addWidget(recent)
+    qtbot.addWidget(totals)
+    assert totals.read()['total_runs'] == 2
+    recent.refresh()
+    totals.refresh()
+    assert len(recent.read()) == 2
+    cleared, reset = [], []
+    recent.cleared.connect(lambda: cleared.append(True))
+    totals.reset_requested.connect(lambda: reset.append(True))
+    recent._clear.click()
+    totals._reset.click()
+    assert cleared == [True] and reset == [True]
+    assert classic_preferences.get_dashboard_watermark('runs')
+    assert classic_preferences.get_dashboard_watermark('totals')
+    assert recent.read() == []
+    assert totals.read()['total_runs'] == 0
+    assert not recent._clear.isEnabled() and not totals._reset.isEnabled()
+    assert all(path.read_bytes() == payload for path, payload in classic_journal.items())
+
+
+@pytest.mark.parametrize('failed_service', ['watermark', 'journal'])
+def test_totals_service_failures_preserve_the_real_journal(qtbot, monkeypatch, classic_preferences, classic_journal, failed_service):
+    from spacr import run_journal
+
+    panel = TotalsPanel(read_now=False)
+    qtbot.addWidget(panel)
+
+    def unavailable(*args, **kwargs):
+        raise OSError('optional dashboard service unavailable')
+
+    if failed_service == 'watermark':
+        monkeypatch.setattr(classic_preferences, 'get_dashboard_watermark', unavailable)
+        assert panel.read() == dict(total_runs=2, mask_runs=1, measure_runs=1,
+                                    classify_runs=0, models_recorded=0)
+    else:
+        monkeypatch.setattr(run_journal, 'journal_totals', unavailable)
+        assert panel.read() == dict(total_runs=0, mask_runs=0, measure_runs=0, models_recorded=0)
+        panel.refresh()
+        assert not panel._reset.isEnabled()
+    assert all(path.read_bytes() == payload for path, payload in classic_journal.items())
+
+
+@pytest.mark.parametrize('resource', ['missing', 'invalid_json', 'wrong_shape'])
+def test_unreadable_bundled_news_keeps_a_real_placeholder(qtbot, tmp_path, monkeypatch, classic_preferences, resource):
+    import importlib.resources
+
+    folder = tmp_path / 'package'
+    (folder / 'resources').mkdir(parents=True)
+    path = folder / 'resources' / 'release_notes.json'
+    if resource != 'missing':
+        path.write_text('{broken' if resource == 'invalid_json' else '[]', encoding='utf-8')
+    with monkeypatch.context() as patch:
+        patch.setattr(importlib.resources, 'files', lambda package: folder)
+        assert home_mod.NewsPanel.read_releases() == []
+        panel = home_mod.NewsPanel()
+    qtbot.addWidget(panel)
+    assert panel.releases == []
+    assert 'No release notes bundled' in panel._placeholder.text()
+    assert panel._placeholder.parentWidget() is panel._notes.widget()
+    assert panel._notes_column.indexOf(panel._placeholder) >= 0
+
+
+def test_bad_fetched_news_preserves_the_existing_release_widgets(qtbot, monkeypatch, classic_preferences):
+    releases = [{'tag': 'v1.2', 'name': 'Existing release', 'body': 'Preserved notes.'}]
+    monkeypatch.setattr(home_mod.NewsPanel, 'read_releases', staticmethod(lambda: releases))
+    panel = home_mod.NewsPanel()
+    qtbot.addWidget(panel)
+    headlines = tuple(panel._headline_labels)
+    texts = [label.text() for label in headlines]
+    panel.apply_releases(42)
+    assert panel.releases == releases
+    assert tuple(panel._headline_labels) == headlines
+    assert [label.text() for label in headlines] == texts
+    block = panel._release_block({'tag': 'v1.3', 'body': '   '})
+    labels = block.findChildren(QLabel)
+    assert len(labels) == 1 and labels[0].text() == 'v1.3'
+    assert labels[0].focusPolicy() == Qt.NoFocus
+    assert panel.render_body('  \n', '#123456') == ''
+    block.setParent(panel)
+
+
+def test_news_title_wraps_while_a_long_plain_date_can_scroll(qtbot, monkeypatch, classic_preferences):
+    from PySide6.QtWidgets import QFrame
+
+    name = 'A readable release heading with enough words to require several lines on a narrow panel'
+    date = 'Wednesday September 30 2026 23:59:59 UTC, localized publication date'
+    monkeypatch.setattr(home_mod.NewsPanel, 'read_releases', staticmethod(lambda: [
+        {'tag': 'v2', 'name': name, 'published': date, 'body': ''}]))
+    panel = home_mod.NewsPanel()
+    qtbot.addWidget(panel)
+    title, stamp = panel._headline_labels
+    title.setFrameStyle(QFrame.Box)
+    title.setMargin(4)
+    title.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+    panel.resize(580, 360)
+    panel.show()
+    qtbot.waitExposed(panel)
+    panel._news_title_fit._fit()
+    wide_height = title.property('minimumSize').height()
+    panel.resize(280, 360)
+    qtbot.waitUntil(lambda: panel._notes.viewport().property('size').width() < 400)
+    panel._news_title_fit._fit()
+    width = panel._notes.viewport().property('size').width()
+    assert title.property('minimumSize').width() == width
+    assert title.property('maximumSize').width() == width
+    assert title.property('minimumSize').height() > wide_height
+    assert title.text() == name and title.accessibleName() == name
+    assert stamp.text() == date and not stamp.wordWrap()
+    assert stamp.property('maximumSize').width() > width
+
+
+@pytest.mark.parametrize('state', ['zero_allocation', 'retired_viewport'])
+def test_news_title_fitter_declines_unusable_viewports(qtbot, classic_preferences, state):
+    from PySide6.QtWidgets import QWidget
+    from shiboken6 import isValid
+
+    panel = home_mod.NewsPanel()
+    qtbot.addWidget(panel)
+    fitter = panel._news_title_fit
+    titles = tuple(panel._headline_labels)
+    if state == 'retired_viewport':
+        previous = fitter._viewport
+        content = panel._notes.takeWidget()
+        panel._notes.setViewport(QWidget())
+        panel._notes.setWidget(content)
+        assert not isValid(previous)
+    else:
+        fitter._viewport.resize(0, 0)
+        assert fitter._viewport.property('size').width() == 0
+    fitter._fit()
+    assert tuple(panel._headline_labels) == titles
+    assert isValid(panel) and all(isValid(title) for title in titles)
+
+
+def test_retired_news_panel_drops_a_late_refresh_request(classic_preferences):
+    from shiboken6 import delete
+
+    panel = home_mod.NewsPanel()
+    requests = []
+    panel.refresh_requested.connect(lambda: requests.append(True))
+    panel._ask_for_newer_releases()
+    assert requests == [True]
+    delete(panel)
+    panel._ask_for_newer_releases()
+    assert requests == [True]
+
+
+def test_news_height_is_remembered_in_unscaled_units(qtbot, monkeypatch, classic_preferences):
+    panel = home_mod.NewsPanel()
+    qtbot.addWidget(panel)
+    with monkeypatch.context() as patch:
+        patch.setattr(classic_preferences, 'scaled_px', lambda pixels: pixels * 2)
+        panel._remember_height(642)
+        assert classic_preferences.get_news_height() == 321
+        assert panel._stored_height() == 642
