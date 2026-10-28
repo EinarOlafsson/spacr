@@ -323,3 +323,24 @@ def test_pending_puncta_request_refuses_duplicate_then_recovers_after_real_worke
         window._magnifier.close()
         window.close_folded()
         window.close()
+
+
+def test_puncta_request_without_a_primary_source_refuses_before_starting_any_worker(
+        qtbot, qt_theme_applied, tmp_path, monkeypatch):
+    image, parents = field()
+    window, old = _open_puncta_field(qtbot, tmp_path, image, parents)
+    warnings = []
+    monkeypatch.setattr(window, '_warn', lambda *args: warnings.append(args))
+    try:
+        window._primary_selector.path.clear()
+        window._primary_selector._source_changed()
+        assert window._primary_selector.snapshot is None
+        assert not window._start_puncta_detection('replace', window._otsu_settings())
+        assert window._detection_request is None and window._puncta_worker is None
+        assert warnings == [('Detect failed', 'Load a valid parent mask before detecting objects.')]
+        np.testing.assert_array_equal(window._canvas.mask, old)
+        assert window._btn_otsu.isEnabled() and window._btn_cellpose.isEnabled()
+    finally:
+        window._magnifier.close()
+        window.close_folded()
+        window.close()

@@ -1071,3 +1071,42 @@ def test_growing_field_regions_clip_outside_bounds_even_when_holding_is_disabled
     finally:
         backdrop.stop()
         host.close()
+
+
+def test_rewinding_the_animation_clock_defers_a_real_selected_node_visit(qtbot):
+    """A replay rewind renders the wandering field until its recorded visit begins."""
+    import math
+    from PySide6.QtWidgets import QWidget
+
+    prefs.set_ambient_enabled(True)
+    prefs.set_reduce_motion(False)
+    host = QWidget()
+    qtbot.addWidget(host)
+    host.resize(320, 240)
+    backdrop = ambient.AmbientWidget(host, theme='data_art_impulse_lens', seed=7)
+    backdrop.setGeometry(host.rect())
+    node = QWidget(host)
+    node.setGeometry(280, 12, 24, 24)
+    host.show()
+    try:
+        qtbot.waitUntil(lambda: backdrop._should_run() and node.isVisible())
+        with backdrop._engine_lock:
+            backdrop.set_time(10.0)
+            ambient._field_visit_node(node)
+            engine = backdrop._engine
+            started, point = engine._node_visit
+            assert started == 10.0
+            backdrop.set_time(13.0)
+            assert engine._field_center() == pytest.approx((*point, 1.0))
+            backdrop.set_time(0.0)
+            expected = (0.5 + 0.20 * math.sin(engine._anchors[0][0]),
+                        0.5 + 0.18 * math.cos(engine._anchors[0][1]), 0.0)
+            assert engine._field_center() == pytest.approx(expected)
+            assert engine._node_visit == (started, point)
+            frame = backdrop.grab().toImage()
+            assert not frame.isNull()
+            assert frame.deviceIndependentSize().toSize() == backdrop.size()
+            assert all(math.isfinite(value) for value in engine._field_center())
+    finally:
+        backdrop.stop()
+        host.close()

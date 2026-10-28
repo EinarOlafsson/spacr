@@ -231,3 +231,14 @@ def test_copy_publication_error_retires_worker_without_replacing_field_or_source
     assert warnings and 'publication denied' in warnings[0][1]
     assert not (tmp_path / 'make_masks').exists() and not list(tmp_path.glob('.spacr-paired-*'))
     assert all(Path(path).read_bytes() == data for path, data in originals.items())
+
+
+def test_pair_with_an_unsupported_image_dimension_refuses_without_output_or_source_changes(tmp_path):
+    pairs, _ = _pair(tmp_path)
+    image = Path(next(iter(pairs)))
+    tifffile.imwrite(image, np.zeros((2, 6, 8, 5), dtype=np.uint16), photometric='minisblack')
+    before = {path: Path(path).read_bytes() for path in (*pairs, *pairs.values())}
+    with pytest.raises(ValueError, match='dimensions are incompatible'):
+        mm._copy_paired_layout(pairs, tmp_path / 'copy')
+    assert not (tmp_path / 'copy').exists() and not list(tmp_path.glob('.spacr-paired-*'))
+    assert all(Path(path).read_bytes() == data for path, data in before.items())
