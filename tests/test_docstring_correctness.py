@@ -2848,6 +2848,21 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_calibrated_batch_inventory(callables)
     callables = _validated_signed_cell_measurement_arrival(callables)
     callables = _validated_733_easy_mode_callables(callables)
+    help_event_symbol = "spacr.qt.help_search.HelpSearchField.event"
+    help_events = [item for item in callables if item.symbol == help_event_symbol]
+    assert len(help_events) == 1
+    help_event = help_events[0]
+    assert help_event.category == "method" and help_event.exposure == "autoapi"
+    assert help_event.parameters == help_event.required_parameters == {"event"}
+    assert help_event.accepted_documented_parameters == {"event"}
+    assert help_event.variant_count == 1 and help_event.docless_variant_count == 0
+    assert not help_event.accepts_arbitrary_keywords
+    assert help_event.docstring == (
+        "Keep Escape in this field before window shortcuts handle it.\n\n"
+        ":param event: the incoming Qt event.\n"
+        ":returns: Whether the event was handled."
+    )
+    callables = [item for item in callables if item.symbol != help_event_symbol]
     imported_package_modules = {
         name for name in set(sys.modules) - before_modules
         if name == "spacr" or name.startswith("spacr.")

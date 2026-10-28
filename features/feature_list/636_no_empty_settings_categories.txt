@@ -3,6 +3,8 @@
 Lifecycle: new
 Status: DONE 2026-10-03
 
+CURRENT MAINTAINER FOLLOW-UP — 2026-10-28: investigate reported high-frequency settings-category open/close flicker immediately after opening Generate Masks; identify and fix actual visibility/layout feedback, preserving intentional expansion, channel-dependent categories and responsive input. Retained settings peer owns isolated implementation and focused reproduction; root integrates/publishes after current startup fix.
+
 Request (maintainer, verbatim):
 "In mask generation there are some setting categories related to cell that
 now have no settings in them, delete any empty settings classes, this goes
@@ -33,3 +35,5 @@ What was done (2026-10-03):
 Left: nothing.
 
 VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).
+
+2026-10-28 — Reproduced alternating body visibility during deferred Mask construction: maturity refresh showed a category that Essentials immediately hid. Search now publishes its filtered section identities and maturity honors them. Two native focused controls pass, including filter release, deliberate folds and channel/value preservation; no captions or public documentation changed.

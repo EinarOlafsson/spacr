@@ -8,11 +8,15 @@ Progress List name: N733 — Navigator (maintainer confirmed 2026-10-28).
 
 Lifecycle: new
 Status:    IMPLEMENTATION APPROVED — current Navigator guide/API and the new fifty-voice tutorial media are delivered; Workstation session 2 retains app follow-up.
+
+SPACEOUT TOGGLE FOLLOW-UP — 2026-10-28: the Navigator Spaceout card must toggle the active mode in both directions; clicking it again after activation deactivates Spaceout and restores the prior normal appearance. Retained Spaceout peer owns isolated handler/field theme work while root completes startup behavior.
 Requested: maintainer, 2026-10-26
 Owner:     Workstation session 2 (Navigator app); Codex tutorial lane (new tutorial and user Docs/API publication).
 Related:   startup options, Preferences, Home, dock, spaCR AI
 
 CURRENT MAINTAINER FOLLOW-UP — 2026-10-27
+
+STARTUP LOCATION FOLLOW-UP — 2026-10-28: normal close/relaunch always opens Navigator Home (classic Home when Navigator is off), while explicit Restart/Force restart restores the current module/location and settings once. Existing saved restore-last-session preferences must not override this. Canonical startup/shutdown work and focused checks are coordinated under 647.
 
 TEXT PANEL APPEARANCE FOLLOW-UP — 2026-10-28: retain the approved arrow positions/history behavior, render larger thin white line arrows (50 percent larger glyphs at an explicit 20-pixel icon size), and keep the full-width collapsed text-box strip tall enough for its arrow. The maintainer correction supersedes the earlier direction: a white up-arrow opens the panel; the blue down-arrow closes it to the strip. Show the maintainer-revised six guidance lines in darker neutral gray (#808080), including image based modules, compatible modules, click-once network/click-twice module guidance and help using spaCR. Root owns UI/tests; retained translation peer owns changed captions and normal affected artifacts.
 

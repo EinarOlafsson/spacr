@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:17-0400\n"
+"POT-Creation-Date: 2026-10-28 16:41-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
@@ -219,11 +219,13 @@ msgstr "Glugginn opnast sjálfgefið sem **Borderless**: hann hefur enga titilst
 msgid "Picking up where you left off"
 msgstr "Haldið áfram þar sem frá var horfið"
 
-msgid "**Session restore**: every ordinary start reopens the module that was on screen when spaCR last closed or crashed, with its settings and input folder. No run is started. While the status bar says what was reopened, its **Open fresh** button puts that module's default settings back and goes to Home; ``spacr-qt --fresh`` skips the restore for one start. Turn it off in **Preferences → Modules → Session** (on by default). A module named on the command line, or a Force restart record, takes precedence."
-msgstr "**Endurheimt lotu**: hver venjuleg ræsing opnar aftur eininguna sem var á skjánum þegar spaCR var síðast lokað eða hrundi, með stillingum hennar og inntaksmöppu. Engin keyrsla er ræst. Meðan stöðustikan segir hvað var opnað aftur setur hnappurinn **Opna upp á nýtt** sjálfgefnar stillingar einingarinnar aftur og fer á Heim; ``spacr-qt --fresh`` sleppir endurheimtinni í eina ræsingu. Slökktu á henni í **Kjörstillingar → Modúlar → Lota** (sjálfgefið á). Eining sem nefnd er á skipanalínunni, eða færsla frá Force restart, gengur fyrir."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Opening and restarting**: ordinary launches open Navigator Home, or classic Home when Navigator is off. **Restart** and **Force restart** reopen the previous module, location and settings once. They restore the interface; they do not resume a running analysis."
+msgstr "**Opnun og endurræsing**: venjuleg ræsing opnar Navigator Home, eða hefðbundið Home þegar slökkt er á Navigator. **Endurræsa** og **Þvinga endurræsingu** opna fyrri einingu, staðsetningu og stillingar einu sinni aftur. Þau endurheimta viðmótið; þau halda ekki áfram greiningu sem var í gangi."
 
-msgid "**Settings autosave**: every 30 seconds the unsaved settings of every open module are kept as a draft in the preference store; nothing is written when nothing changed. A clean exit drops the drafts. If spaCR ended without closing, the next start asks once whether to restore them (drafts identical to the reopened session are not asked about). The same behaviour applies on Linux, macOS and Windows, because the store is Qt's own settings store."
-msgstr "**Sjálfvirk vistun stillinga**: á 30 sekúndna fresti eru óvistaðar stillingar hverrar opinnar einingar geymdar sem drög í kjörstillingageymslunni; ekkert er skrifað ef ekkert hefur breyst. Eðlileg lokun fleygir drögunum. Ef spaCR hætti án þess að vera lokað spyr næsta ræsing einu sinni hvort endurheimta eigi þau (ekki er spurt um drög sem eru eins og enduropnaða lotan). Sama hegðun gildir á Linux, macOS og Windows, því geymslan er eigin stillingageymsla Qt."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Settings autosave**: every 30 seconds the unsaved settings of every open module are kept as a draft in the preference store; nothing is written when nothing changed. A clean exit drops the drafts. If spaCR ended without closing, the next start asks once whether to restore them (drafts already restored are not offered again). The same behaviour applies on Linux, macOS and Windows, because the store is Qt's own settings store."
+msgstr "**Sjálfvirk vistun stillinga**: á 30 sekúndna fresti eru óvistaðar stillingar hverrar opinnar einingar geymdar sem drög í kjörstillingageymslunni; ekkert er skrifað ef ekkert hefur breyst. Eðlileg lokun fleygir drögunum. Ef spaCR hætti án þess að vera lokað spyr næsta ræsing einu sinni hvort endurheimta eigi þau (drög sem þegar hafa verið endurheimt eru ekki boðin aftur). Sama hegðun gildir á Linux, macOS og Windows, því geymslan er eigin stillingageymsla Qt."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Settings files"

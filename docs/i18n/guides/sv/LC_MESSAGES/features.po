@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:17-0400\n"
+"POT-Creation-Date: 2026-10-28 16:41-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -219,11 +219,13 @@ msgstr "Fönstret öppnas som **Borderless** som standard: det saknar namnlist, 
 msgid "Picking up where you left off"
 msgstr "Fortsätta där du slutade"
 
-msgid "**Session restore**: every ordinary start reopens the module that was on screen when spaCR last closed or crashed, with its settings and input folder. No run is started. While the status bar says what was reopened, its **Open fresh** button puts that module's default settings back and goes to Home; ``spacr-qt --fresh`` skips the restore for one start. Turn it off in **Preferences → Modules → Session** (on by default). A module named on the command line, or a Force restart record, takes precedence."
-msgstr "**Sessionsåterställning**: varje vanlig start öppnar igen den modul som visades när spaCR senast stängdes eller kraschade, med dess inställningar och indatamapp. Ingen körning startas. Medan statusfältet anger vad som öppnades igen återställer dess knapp **Öppna nytt** modulens standardinställningar och går till Hem; ``spacr-qt --fresh`` hoppar över återställningen för en start. Stäng av den i **Inställningar → Moduler → Arbetssession** (på som standard). En modul som anges på kommandoraden, eller en post från Force restart, har företräde."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Opening and restarting**: ordinary launches open Navigator Home, or classic Home when Navigator is off. **Restart** and **Force restart** reopen the previous module, location and settings once. They restore the interface; they do not resume a running analysis."
+msgstr "**Öppna och starta om**: vanliga starter öppnar Navigator Home, eller klassiska Home när Navigator är avstängt. **Starta om** och **Tvinga omstart** öppnar föregående modul, plats och inställningar en gång. De återställer gränssnittet; de återupptar inte en pågående analys."
 
-msgid "**Settings autosave**: every 30 seconds the unsaved settings of every open module are kept as a draft in the preference store; nothing is written when nothing changed. A clean exit drops the drafts. If spaCR ended without closing, the next start asks once whether to restore them (drafts identical to the reopened session are not asked about). The same behaviour applies on Linux, macOS and Windows, because the store is Qt's own settings store."
-msgstr "**Automatisk sparning av inställningar**: var 30:e sekund sparas de osparade inställningarna för varje öppen modul som ett utkast i inställningslagret; ingenting skrivs när ingenting har ändrats. En ren avslutning tar bort utkasten. Om spaCR avslutades utan att stängas frågar nästa start en gång om de ska återställas (utkast som är identiska med den återöppnade sessionen frågas det inte om). Samma beteende gäller på Linux, macOS och Windows, eftersom lagret är Qt:s eget inställningslager."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Settings autosave**: every 30 seconds the unsaved settings of every open module are kept as a draft in the preference store; nothing is written when nothing changed. A clean exit drops the drafts. If spaCR ended without closing, the next start asks once whether to restore them (drafts already restored are not offered again). The same behaviour applies on Linux, macOS and Windows, because the store is Qt's own settings store."
+msgstr "**Automatisk sparning av inställningar**: var 30:e sekund sparas de osparade inställningarna för varje öppen modul som ett utkast i inställningslagret; ingenting skrivs när ingenting har ändrats. En ren avslutning tar bort utkasten. Om spaCR avslutades utan att stängas frågar nästa start en gång om de ska återställas (redan återställda utkast erbjuds inte igen). Samma beteende gäller på Linux, macOS och Windows, eftersom lagret är Qt:s eget inställningslager."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Settings files"

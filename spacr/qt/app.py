@@ -57,6 +57,7 @@ from ..logging_util import _spacr_home
 LOG = logging.getLogger(__name__)
 
 _OPEN_FRESH = [False]
+_RESUME_RESTART = [False]
 
 _MAIN_WINDOW_MINIMUM = (1200, 640)
 _MAIN_WINDOW_OPENING = (1200, 720)
@@ -6375,6 +6376,18 @@ def _say_where_the_paint_diagnostic_went(window, screen, files) -> None:
                     exc_info=True)
 
 
+def _restart_location(screen):
+    """Snapshot the selected native page rather than its folded host."""
+    pages = getattr(screen, '_fold_pages', None)
+    if pages is not None:
+        selected = pages.currentWidget()
+        if getattr(selected, 'app_key', ''):
+            screen = selected
+    key = str(getattr(screen, 'app_key', '') or '')
+    model = getattr(screen, '_settings_model', None)
+    return key, dict(model.collect() or {}) if key and model is not None else {}
+
+
 def _opened_module_screen(window, requested: str, host: str):
     """Return the requested form, including a page fold inside its host.
 
@@ -6681,6 +6694,8 @@ class MainWindow(QMainWindow):
         :param initial_app: the module to open on startup; ``None`` opens Home.
         """
         super().__init__()
+        restart_requested = _RESUME_RESTART[0]
+        _RESUME_RESTART[0] = False
         try:
             iconset._prefetch_themed_arrays(_startup_icon_paths())
         except Exception:                                    # noqa: BLE001
@@ -6836,8 +6851,8 @@ class MainWindow(QMainWindow):
 
         if initial_app:
             self.open_module(initial_app)
-        elif not self.resume_after_restart():
-            self._resume_last_session()
+        elif restart_requested:
+            self.resume_after_restart()
         self._start_settings_autosave()
 
         try:
@@ -8996,12 +9011,9 @@ class MainWindow(QMainWindow):
         """Save the visible module and request a normal, cooperative restart."""
         from spacr import restart_state
 
-        screen = self._stack.currentWidget()
-        module = str(getattr(screen, "app_key", "") or "__home__")
-        model = getattr(screen, "_settings_model", None)
         try:
-            settings = model.collect() if model is not None else {}
-            saved = restart_state.save(module=module, settings=settings)
+            module, settings = _restart_location(self._stack.currentWidget())
+            saved = restart_state.save(module=module or "__home__", settings=settings)
         except Exception:
             LOG.exception("Could not save the interface for an update restart")
             saved = None
@@ -9113,11 +9125,8 @@ class MainWindow(QMainWindow):
         from spacr import restart_state
 
         try:
-            screen = self._stack.currentWidget()
-            module = str(getattr(screen, "app_key", "") or "__home__")
-            model = getattr(screen, "_settings_model", None)
-            settings = model.collect() if model is not None else {}
-            saved = restart_state.save(module=module, settings=settings)
+            module, settings = _restart_location(self._stack.currentWidget())
+            saved = restart_state.save(module=module or "__home__", settings=settings)
         except Exception:
             saved = None
         if saved is None:
@@ -10084,9 +10093,7 @@ class MainWindow(QMainWindow):
 
     def _current_session(self) -> tuple:
         """Return the visible module key and its settings."""
-        screen = self._stack.currentWidget()
-        key = str(getattr(screen, "app_key", "") or "")
-        return key, (self._collect_screen(screen, strict=True) if key else {})
+        return _restart_location(self._stack.currentWidget())
 
     def _start_settings_autosave(self) -> None:
         """Start the timer that keeps the session and drafts current.
@@ -10128,7 +10135,7 @@ class MainWindow(QMainWindow):
         except Exception:
             LOG.debug("could not collect settings for autosave", exc_info=True)
             return False
-        fingerprint = json.dumps([module, drafts], sort_keys=True,
+        fingerprint = json.dumps([module, settings, drafts], sort_keys=True,
                                  default=str)
         if fingerprint in (getattr(self, "_last_autosave", ""),
                            getattr(self, "_autosave_queued", "")):
@@ -12991,7 +12998,15 @@ def _navigator_launch_target(initial_app, executable=None):
     from .preferences import set_easy_mode
 
     set_easy_mode(True)
-    return initial_app or '__home__'
+    return initial_app or (None if _RESUME_RESTART[0] else '__home__')
+
+
+def _startup_target(argv):
+    """Separate explicit module requests from one-use internal restart flags."""
+    _OPEN_FRESH[0] = '--fresh' in argv
+    _RESUME_RESTART[0] = '--resume-restart' in argv and not _OPEN_FRESH[0]
+    targets = [arg for arg in argv if arg not in ('--fresh', '--resume-restart')]
+    return targets[0] if targets else None
 
 
 def launch(argv: Optional[list[str]] = None) -> int:
@@ -13011,9 +13026,7 @@ def launch(argv: Optional[list[str]] = None) -> int:
 
     argv, told_to_skip_setup = take_the_setup_flags(argv)
 
-    _OPEN_FRESH[0] = "--fresh" in argv
-    argv = [arg for arg in argv if arg != "--fresh"]
-    initial_app = argv[0] if argv else None
+    initial_app = _startup_target(argv)
 
     _install_crash_dump()
     _quicken_the_pyside_import_probe()

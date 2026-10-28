@@ -103,3 +103,28 @@ def test_running_analysis_prevents_package_mutation(messages, monkeypatch):
     window = Window()
     window._on_update_check_done(updater.UpdateInfo("1.0", "2.0", None))
     assert "active analyses" in messages[-1][1]
+
+
+@pytest.mark.parametrize('handoff', ['installed', 'pip_approval'])
+def test_restart_returns_to_selected_folded_page_with_its_settings(messages, qtbot, handoff):
+    from PySide6.QtWidgets import QTabWidget, QWidget
+
+    window = Window()
+    host = window._stack.currentWidget()
+    pages = QTabWidget()
+    qtbot.addWidget(pages)
+    pages.addTab(QWidget(), 'Host')
+    page = QWidget()
+    page.app_key = 'ops'
+    page._settings_model = SimpleNamespace(collect=lambda: {'src': '/experiment/ops', 'round': 3})
+    pages.addTab(page, 'OPS')
+    pages.setCurrentWidget(page)
+    host._fold_pages = pages
+    if handoff == 'installed':
+        window._restart_after_package_upgrade()
+    else:
+        assert qt_app.MainWindow._save_pip_update_restart(window)
+    state = restart_state.peek()
+    assert state['module'] == 'ops'
+    assert state['settings'] == {'src': '/experiment/ops', 'round': 3}
+    assert qt_app.MainWindow._current_session(window) == ('ops', state['settings'])

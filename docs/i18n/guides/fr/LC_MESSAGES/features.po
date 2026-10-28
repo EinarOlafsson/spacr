@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:17-0400\n"
+"POT-Creation-Date: 2026-10-28 16:41-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: fr\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -219,11 +219,13 @@ msgstr "La fenêtre s'ouvre en mode **Borderless** par défaut : elle n'a pas de
 msgid "Picking up where you left off"
 msgstr "Reprendre là où vous vous étiez arrêté"
 
-msgid "**Session restore**: every ordinary start reopens the module that was on screen when spaCR last closed or crashed, with its settings and input folder. No run is started. While the status bar says what was reopened, its **Open fresh** button puts that module's default settings back and goes to Home; ``spacr-qt --fresh`` skips the restore for one start. Turn it off in **Preferences → Modules → Session** (on by default). A module named on the command line, or a Force restart record, takes precedence."
-msgstr "**Restauration de session** : chaque démarrage ordinaire rouvre le module qui était affiché lorsque spaCR a été fermé ou s’est arrêté brutalement pour la dernière fois, avec ses paramètres et son dossier d’entrée. Aucune exécution n’est lancée. Tant que la barre d’état indique ce qui a été rouvert, son bouton **Ouvrir à neuf** rétablit les paramètres par défaut de ce module et revient à l’Accueil ; ``spacr-qt --fresh`` ignore la restauration pour un démarrage. Désactivez-la dans **Préférences → Les modules → Session de travail** (activée par défaut). Un module indiqué sur la ligne de commande, ou un enregistrement de Force restart, est prioritaire."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Opening and restarting**: ordinary launches open Navigator Home, or classic Home when Navigator is off. **Restart** and **Force restart** reopen the previous module, location and settings once. They restore the interface; they do not resume a running analysis."
+msgstr "**Ouverture et redémarrage** : les lancements ordinaires ouvrent Navigator Home, ou le Home classique si Navigator est désactivé. **Redémarrer** et **Forcer le redémarrage** rouvrent une fois le module, l’emplacement et les paramètres précédents. Ils restaurent l’interface ; ils ne reprennent pas une analyse en cours."
 
-msgid "**Settings autosave**: every 30 seconds the unsaved settings of every open module are kept as a draft in the preference store; nothing is written when nothing changed. A clean exit drops the drafts. If spaCR ended without closing, the next start asks once whether to restore them (drafts identical to the reopened session are not asked about). The same behaviour applies on Linux, macOS and Windows, because the store is Qt's own settings store."
-msgstr "**Enregistrement automatique des paramètres** : toutes les 30 secondes, les paramètres non enregistrés de chaque module ouvert sont conservés comme brouillon dans le magasin de préférences ; rien n’est écrit si rien n’a changé. Une fermeture normale supprime les brouillons. Si spaCR s’est terminé sans être fermé, le démarrage suivant demande une fois s’il faut les restaurer (aucune question pour les brouillons identiques à la session rouverte). Le même comportement s’applique sous Linux, macOS et Windows, car le magasin est le magasin de paramètres propre à Qt."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Settings autosave**: every 30 seconds the unsaved settings of every open module are kept as a draft in the preference store; nothing is written when nothing changed. A clean exit drops the drafts. If spaCR ended without closing, the next start asks once whether to restore them (drafts already restored are not offered again). The same behaviour applies on Linux, macOS and Windows, because the store is Qt's own settings store."
+msgstr "**Enregistrement automatique des paramètres** : toutes les 30 secondes, les paramètres non enregistrés de chaque module ouvert sont conservés comme brouillon dans le magasin de préférences ; rien n’est écrit si rien n’a changé. Une fermeture normale supprime les brouillons. Si spaCR s’est terminé sans être fermé, le démarrage suivant demande une fois s’il faut les restaurer (les brouillons déjà restaurés ne sont pas proposés à nouveau). Le même comportement s’applique sous Linux, macOS et Windows, car le magasin est le magasin de paramètres propre à Qt."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Settings files"

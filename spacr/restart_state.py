@@ -11,8 +11,8 @@ the recorded run folders.
 
 Two further records live in the preference store rather than in a file. The
 last session (module, its settings and its folder) is written while spaCR runs
-and when it closes, so an ordinary start can reopen where the user left off
-after any exit or crash. Settings drafts hold the unsaved settings of every
+and when it closes as a local recovery snapshot. Ordinary launches open Home;
+only an explicit restart restores the saved interface. Settings drafts hold the unsaved settings of every
 open module; they are cleared on a clean exit, so a draft found at start-up
 means the previous run ended without closing.
 """
@@ -495,4 +495,5 @@ def command() -> List[str]:
     list of str
         Command arguments suitable for :class:`subprocess.Popen`.
     """
-    return [sys.executable] if getattr(sys, "frozen", False) else [sys.executable, "-m", "spacr.qt"]
+    argv = [sys.executable] if getattr(sys, "frozen", False) else [sys.executable, "-m", "spacr.qt"]
+    return [*argv, "--resume-restart"]

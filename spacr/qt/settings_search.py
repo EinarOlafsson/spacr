@@ -968,6 +968,10 @@ class SettingsSearchBar(QWidget):
                 id(s): bool(s.is_expanded()) for s in self._sections
                 if hasattr(s, "is_expanded")
             }
+        self._sections_filtered_out = {
+            id(section) for section in self._sections
+            if narrowing and shown.get(id(section), 0) == 0
+        }
         kept_before = self._sections_kept
         self._sections_kept = {
             id(s) for s in self._sections if shown.get(id(s), 0) > 0}

@@ -118,7 +118,7 @@ def restart_spacr(module: str, settings=None, *, running=(), run_folders=(),
     :returns: ``True`` when the replacement process was started; ``False``
         when saving or launching failed and the current process remains open.
     """
-    from ..restart_state import command, save
+    from ..restart_state import command, discard, save
 
     if save(module=module, settings=settings, running=running,
             run_folders=run_folders) is None:
@@ -143,6 +143,7 @@ def restart_spacr(module: str, settings=None, *, running=(), run_folders=(),
         else:
             launcher(started)
     except Exception as exc:                          # noqa: BLE001
+        discard()
         LOG.error("could not start spaCR again (%s); NOT quitting", exc)
         return False
 

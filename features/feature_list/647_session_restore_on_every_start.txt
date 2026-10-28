@@ -8,6 +8,10 @@ Requested: 2026-10-04, by the maintainer, who approved this program-level
            feature in the step-4 review ("is the program itself missing
            something?"), from the gap audit of the same day.
 
+
+CURRENT MAINTAINER STARTUP POLICY — 2026-10-28
+Normal launches after closing spaCR must always start at Navigator Home, or classic Home if Navigator is disabled, irrespective of old session-restore preferences or stale restart records. Only an explicit Restart or Force restart may restore the module/location and settings that were open; consume that restart request once and never automatically resume computations. Preserve explicit CLI module launches, crash-draft recovery, and autosave. Remove contradictory normal-launch session preference/help. Workstation root owns startup integration/tests/publication, retained shutdown and preferences peers own disjoint implementation, and index peer owns required normal localization/docs artifacts. This supersedes historical every-start restoration requirements below.
+
 WHAT TO BUILD
   Session restore on every start: reopen the last module, settings and folder after any exit or crash, not only after updates.
 
@@ -49,3 +53,5 @@ Evidence: features/data/647_unread_draft_preservation_2026-10-14/receipt.json.
 2026-10-21 ? Maintainer resumes Windows acceptance; Codex Windows lane owns the existing focused restoration cohort and isolated real-process clean-close/crash/reopen checks. Use disposable SPACR_HOME, preserve actual module/settings/folder identity and record native Windows process recovery separately from offscreen unit results; no accepted Mac/Linux scope is reopened.
 
 2026-10-21 ? Windows focused restoration/autosave cohort passes21 cases (100.97s). Real windows-QPA MainWindow subprocesses preserve regression/module, fdr_alpha0.03 and exact source folder through clean close/reopen; force-kill then fresh-process reopen restores Mask and offers the other module draft. Disposable built-in isolated INI profile, 8 GiB cap, backdrop/prewarm disabled; these checks do not establish default-registry, physical-input or full-launch acceptance.
+
+2026-10-28 — Ordinary launches now open the chosen Home, ignoring legacy restore preferences and stale restart records; explicit restart markers restore once, including selected folded pages and current settings. The contradictory preference is removed; autosave/draft recovery, verified launch failures, frozen/unfrozen commands, focused checks and normal multilingual guide/API/runtime outputs are retained.

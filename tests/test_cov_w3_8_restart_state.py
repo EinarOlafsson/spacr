@@ -402,4 +402,4 @@ def test_the_restart_command_names_this_interpreter_and_entry_point():
 
     from spacr.restart_state import command
 
-    assert command() == [sys.executable, "-m", "spacr.qt"]
+    assert command() == [sys.executable, "-m", "spacr.qt", "--resume-restart"]
