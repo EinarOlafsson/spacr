@@ -8,6 +8,7 @@ from check_completed_matrix import digest
 
 RECORD='published-native-edit.json'
 STAGED_RECORD='staged-native-edit.json'
+TERMINAL_KIND='terminal_prefix_published_native_intervals'
 
 def _staged_inputs(stage,identity):
     """Own an accepted private master without calling it a publication."""
@@ -184,7 +185,12 @@ def plan_intervals(english,original,tracks,edit,bindings):
     return rows
 
 
-def inputs(stage,identity,baseline,edit,*,staged_source=None,source_idle_policy=None):
+def inputs(stage,identity,baseline,edit,*,staged_source=None,source_idle_policy=None,
+           terminal_scene_removal=False):
+    if terminal_scene_removal:
+        if edit is not None or staged_source is not None or source_idle_policy is not None:
+            raise ValueError('Terminal removal requires only its published baseline and validated audio record')
+        return _terminal_inputs(stage,identity,baseline)
     from native_live_timing import verified_narration_tracks
     stage=Path(stage).resolve();root=stage/'production'/identity
     if staged_source is not None:
@@ -239,6 +245,110 @@ def inputs(stage,identity,baseline,edit,*,staged_source=None,source_idle_policy=
     return root,baseline,bindings,source,spec,timing
 
 
+
+def _terminal_inputs(stage,identity,baseline):
+    """Only Home's explicit published 39-to-38 terminal removal; no new capture."""
+    from published_terminal_prefix import RECORD as AUDIO_RECORD, _source, checked_terminal_narration
+    if identity!='05_home' or baseline is None:
+        raise ValueError('Terminal visual removal is only the published Home prefix')
+    stage=Path(stage).resolve();root=stage/'production'/identity
+    baseline=Path(baseline).resolve()
+    if (stage==baseline or stage.is_relative_to(baseline) or baseline.is_relative_to(stage)
+            or not root.resolve().is_relative_to(stage)
+            or not (root/'video').resolve().is_relative_to(root.resolve())):
+        raise ValueError('Terminal prefix outputs need an independent stage')
+    if any((root/name).exists() for name in [STAGED_RECORD,'published-native-reuse.json','published-native-mix.json']):
+        raise ValueError('Terminal prefix cannot join a second visual source route')
+    source,current,original=_source(stage,baseline)
+    tracks,proofs=checked_terminal_narration(stage,identity,baseline=baseline,decode=False)
+    bindings=source['published_bindings']
+    if (Path(source['baseline_root']).resolve()!=baseline
+            or source['original_visual_clock']!={'path':bindings['timing']['path'],
+                                                'sha256':bindings['timing']['sha256']}):
+        raise ValueError('Terminal audio and visual source clocks differ')
+    english=read(root/'lesson.en.json')
+    if english!=read(REPO/'tools/tutorials/lessons'/f'{identity}.json'):
+        raise ValueError('Terminal prefix differs from current canonical source')
+    old=original.get('scenes',[]);authored=english.get('scenes',[])
+    if (english.get('id')!=identity or current.get('id')!=identity
+            or len(old)!=39 or len(authored)!=38 or len(current.get('scenes',[]))!=38
+            or old[-1].get('visual')!='24_spaceout_field'
+            or [r.get('visual') for r in old[:-1]]!=[r.get('visual') for r in authored]
+            or [r.get('visual') for r in authored]!=[r.get('visual') for r in current['scenes']]
+            or len(tracks)!=50 or len(proofs)!=50):
+        raise ValueError('Require exact Home first38 scenes, removed terminal Spaceout and fifty tracks')
+    rows=[]
+    for index,(previous,scene) in enumerate(zip(old[:-1],authored)):
+        start,end,duration=(float(previous[k]) for k in ('speech_start','scene_end','duration'))
+        if (previous.get('scene')!=index+1 or type(previous.get('native_live_video')) is not bool
+                or not all(math.isfinite(x) for x in (start,end,duration))
+                or start<0 or duration<=0 or abs(end-start-duration)>1e-8
+                or any(abs(v*30-round(v*30))>1e-5 for v in (start,end))):
+            raise ValueError('Terminal prefix original indexed source clock changed')
+        durations=[];required=duration
+        for track in tracks:
+            if len(track.get('scenes',[]))!=38:
+                raise ValueError('Terminal prefix narration scene count changed')
+            spoken=track['scenes'][index]
+            a,b,d=(float(spoken[k]) for k in ('speech_start','speech_end','duration'))
+            if (not all(math.isfinite(x) for x in (a,b,d)) or not 0<=a<b or d<b-a
+                    or (index<37 and d>duration+1e-9)):
+                raise ValueError('Terminal prefix narration exceeds an original source interval')
+            durations.append(d)
+            if index==37:
+                sentences=spoken.get('sentences')
+                if not isinstance(sentences,list) or not sentences:
+                    raise ValueError('Terminal prefix needs real last audible endpoints')
+                last=sentences[-1].get('audible_end')
+                if type(last) not in (int,float) or not math.isfinite(last) or not a<=last<=b:
+                    raise ValueError('Terminal prefix last audible endpoint is invalid')
+                if a+d<last+1-1e-9:
+                    raise ValueError('Terminal prefix audio lacks the normal one-second EOF gap')
+                required=max(required,d,last-a+1)
+        original_frames=round(duration*30)
+        frames=max(original_frames,math.ceil(required*30-1e-8)) if index==37 else original_frames
+        row=deepcopy(previous)
+        row.update(scene=index+1,visual=scene['visual'],text=scene['narration'],
+            speech_start=start,speech_end=start+frames/30,scene_end=start+frames/30,
+            duration=frames/30,longest_narration_duration=max(durations),
+            source_start_frame=round(start*30),source_keep_frames=[[0,original_frames]],
+            confirmed_idle_frames=[],kept_frames=original_frames,
+            final_frame_hold_frames=frames-original_frames,edited=False,
+            original_published_interval=deepcopy(previous))
+        rows.append(row)
+    source=dict(source,terminal_scene_removal_record_sha256=digest(root/AUDIO_RECORD))
+    spec={'lesson':identity,'kind':TERMINAL_KIND,'size':[3840,2160],'fps':30,
+          'scenes':[{'visual':a['visual'],'narration':a['narration'],'published_frames':deepcopy(r)}
+                    for a,r in zip(authored,rows)]}
+    public={k:v for k,v in source.items() if k!='baseline_root'}
+    timing={'schema':1,'kind':'native_visual_timing','lesson':identity,'native_live_video':True,
+        'complete_native_clips':True,'fps':30,'playback_speed':1,'looped_or_stretched':False,
+        'preserve_visual_intervals':True,'total_duration':rows[-1]['scene_end'],
+        'scenes':rows,'source_tracks':proofs,
+        'english_sha256':hashlib.sha256(json.dumps(english,sort_keys=True,ensure_ascii=False).encode()).hexdigest(),
+        'published_native_edit':{**public,'source_master_sha256':bindings['master']['sha256'],
+            'source_timing_sha256':bindings['timing']['sha256'],'fresh_capture':False,
+            'raw_capture_revalidated':False,'removed_scene':39,'removed_visual':'24_spaceout_field'},
+        'coverage':{'accepted':True,'gaps':[],'track_count':50,
+            'native_scene_count':sum(r['native_live_video'] for r in rows),
+            'action_speed':1,'source_prefix_intervals_preserved':True}}
+    return root,baseline,bindings,source,spec,timing
+
+
+def _checked_terminal_native_timing(stage,identity):
+    root=Path(stage)/'production'/identity;record=read(root/RECORD)
+    root,_,_,source,spec,timing=_terminal_inputs(stage,identity,record['baseline_root'])
+    expected=dict(schema=1,kind=TERMINAL_KIND,lesson=identity,fresh_capture=False,
+        raw_capture_revalidated=False,**source,edit=None,
+        rendered_master_sha256=digest(root/'video'/f'{identity}_silent.mp4'))
+    if record!=expected or read(root/'scenes.json')!=spec:
+        raise ValueError('Terminal prefix source, audio record or rendered master changed')
+    timing['visual_spec_sha256']=digest(root/'scenes.json')
+    path=root/'video/native-live-timings.json'
+    if read(path)!=timing:raise ValueError('Terminal prefix source clocks or classifications changed')
+    return path
+
+
 def encode_scene(source,row,output,*,terminal_seekable=False):
     """Keep each reviewed source interval at 1x; duplicate ONLY its final result."""
     filters=[];labels=[]
@@ -264,8 +374,10 @@ def encode_scene(source,row,output,*,terminal_seekable=False):
         *seek_options,'-video_track_timescale','90000',str(output)],check=True)
 
 
-def render(stage,identity,baseline,edit,*,staged_source=None,source_idle_policy=None):
-    options=dict(staged_source=staged_source,source_idle_policy=source_idle_policy)
+def render(stage,identity,baseline,edit,*,staged_source=None,source_idle_policy=None,
+           terminal_scene_removal=False):
+    options=dict(staged_source=staged_source,source_idle_policy=source_idle_policy,
+                 terminal_scene_removal=terminal_scene_removal)
     root,baseline,bindings,source,spec,timing=inputs(stage,identity,baseline,edit,**options)
     record_name=STAGED_RECORD if staged_source is not None else RECORD
     target=root/'video'/f'{identity}_silent.mp4';timing_path=target.with_name('native-live-timings.json')
@@ -339,6 +451,8 @@ def edited_policy(root,identity,timing,bindings,*,original=None,policy=None):
 
 def checked_edited_native_timing(stage,identity):
     root=Path(stage)/'production'/identity;record=read(root/RECORD)
+    if record.get('kind')==TERMINAL_KIND:
+        return _checked_terminal_native_timing(stage,identity)
     policy=record.get('source_idle_policy',{}).get('path')
     root,_,_,source,spec,timing=inputs(stage,identity,record['baseline_root'],record['edit'],source_idle_policy=policy)
     expected=dict(schema=1,kind='edited_published_native_intervals',lesson=identity,
@@ -374,7 +488,11 @@ def main():
     source=p.add_mutually_exclusive_group(required=True)
     source.add_argument('--baseline',type=Path);source.add_argument('--staged-source',type=Path)
     p.add_argument('--source-idle-policy',type=Path)
-    p.add_argument('--reviewed-edit',type=Path,required=True)
-    a=p.parse_args();print(render(a.stage,a.lesson,a.baseline,read(a.reviewed_edit),
-        staged_source=a.staged_source,source_idle_policy=a.source_idle_policy))
+    mode=p.add_mutually_exclusive_group(required=True)
+    mode.add_argument('--reviewed-edit',type=Path)
+    mode.add_argument('--terminal-scene-removal',action='store_true')
+    a=p.parse_args();print(render(a.stage,a.lesson,a.baseline,
+        read(a.reviewed_edit) if a.reviewed_edit is not None else None,
+        staged_source=a.staged_source,source_idle_policy=a.source_idle_policy,
+        terminal_scene_removal=a.terminal_scene_removal))
 if __name__=='__main__':main()

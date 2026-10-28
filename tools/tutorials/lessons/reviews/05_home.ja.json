@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "79fe6df81176f5e6f8a9fe0631321321a3ce4b8b1a4e7f119c9607e5ce9a7111",
+  "english_sha256": "3a1433580ecf272e574eaec9d4451f2a889a41df465c948e8c7bd8bfeba16b19",
   "review": {
     "kind": "AI technical editorial review against exact authored English; unchanged translated sentences retained",
     "translator": "Local NLLB draft with source-bound Codex AI technical corrections",
@@ -59,7 +59,6 @@
     "Keep は適用した設定を受け入れ、Preferences を開いたままにします。別のタブの調整を続けるか、現在の値を保持してウィンドウを閉じる準備ができたら Save をクリックします。",
     "ModulesタブのSessionでは、起動時に最後のモジュール、設定、フォルダーを開き直すかどうかを決めます。Update channelでは安定版か夜間ビルドかを選び、ProxyとCertificate bundleを使うと、組織のプロキシの内側でもダウンロードできます。",
     "Storageタブでは、毎日のログ、実行ログ、実行フォルダーをspaCRがどれだけの期間保持するかと、それぞれのサイズ上限を設定します。その下のキャッシュ一覧には、モデルやダウンロードの保存場所が表示され、キャッシュごとにClearとMoveがあります。",
-    "Prune nowは、確認せずに削除することはありません。実行フォルダーに短い例の上限を設定すると、各フォルダーで削除する対象を一覧にして返答を待ちます。Cancelをクリックすれば何も削除されません。",
-    "Spaceoutモードでは、Preferencesに、八つの独立した効果を設定するspaCRフィールドのコントロールがあります。各効果を個別にオンまたはオフにします。通常の外観や設定ウィンドウのアニメーションのコントロールも引き続き使えます。Applyで変更をプレビューし、Keepで確定し、Revertで元の選択に戻します。"
+    "Prune nowは、確認せずに削除することはありません。実行フォルダーに短い例の上限を設定すると、各フォルダーで削除する対象を一覧にして返答を待ちます。Cancelをクリックすれば何も削除されません。"
   ]
 }

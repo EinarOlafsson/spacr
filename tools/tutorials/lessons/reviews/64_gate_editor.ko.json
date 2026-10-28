@@ -1,6 +1,6 @@
 {
   "lesson": "64_gate_editor",
-  "english_sha256": "01f265ce50e8499d28c789048acefe1cbd065a681286e5807ea3bb0e815efb0f",
+  "english_sha256": "d5f44c8e0d0a51713322291d6bc718a7da156c4c7ca8fb186898cf16f9f4e9a8",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -17,7 +17,7 @@
     "게이트 전략, 그림, 소속을 저장하고 다시 불러옵니다.",
     "3차원 보기, 군집화, 필터를 살펴봅니다."
   ],
-  "prerequisite": "Annotate 예제를 내려받아 measurements.db 작업 사본을 만드세요. Gate Editor는 그 세포 측정값 2,341개를 쓰며, 예제를 내려받는 별도 버튼은 없습니다. Export gates는 선택한 데이터베이스에 소속을 기록합니다. 생물학적 의미가 확인될 때까지 게이트 이름은 선택한 측정값을 설명해야 합니다.",
+  "prerequisite": "Gate Editor는 Alpha 모듈입니다. Preferences → Modules에서 Show Alpha modules and settings를 켜고 변경 사항을 적용한 다음 Tools → Gate Editor를 여세요. Show alpha features와 Show alpha species는 꺼 두세요. Annotate 예제를 내려받아 measurements.db 작업 사본을 만드세요. Gate Editor는 그 세포 측정값 2,341개를 쓰며, 예제를 내려받는 별도 버튼은 없습니다. Export gates는 선택한 데이터베이스에 소속을 기록합니다. 생물학적 의미가 확인될 때까지 게이트 이름은 선택한 측정값을 설명해야 합니다.",
   "scenes": [
     "Home에서 Tools를 열고 Gate Editor를 고르세요. 그래프, 게이트 표, 옆 컨트롤이 보이도록 구분선을 조정하세요. Annotate 예제의 측정 데이터베이스를 쓰세요.",
     "Load table을 클릭하고 measurements.db 작업 사본을 연 뒤 cell을 고르세요. 이 예제에는 객체 2,341개가 있습니다. Export gates가 이 데이터베이스에 소속을 기록하므로 사본을 보관하세요. 선택기 옆의 Merge tables는 Graph Builder에서처럼 세포 테이블을 핵 또는 병원체 테이블과 합쳐 새 테이블 하나를 만듭니다. 원본 테이블은 바뀌지 않습니다.",

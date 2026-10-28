@@ -1,6 +1,6 @@
 {
   "lesson": "64_gate_editor",
-  "english_sha256": "01f265ce50e8499d28c789048acefe1cbd065a681286e5807ea3bb0e815efb0f",
+  "english_sha256": "d5f44c8e0d0a51713322291d6bc718a7da156c4c7ca8fb186898cf16f9f4e9a8",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -17,7 +17,7 @@
     "保存并重新加载门策略、图和归属。",
     "探索三维视图、聚类和过滤。"
   ],
-  "prerequisite": "下载Annotate示例，并为measurements.db制作一份工作副本。Gate Editor使用其中的2341个细胞测量值；它没有单独的示例下载按钮。Export gates会把归属写入所选数据库。在其生物学含义确定之前，门的名称应描述所选的测量值。",
+  "prerequisite": "Gate Editor是Alpha模块。在Preferences → Modules中启用Show Alpha modules and settings，应用更改，然后打开Tools → Gate Editor。保持Show alpha features和Show alpha species关闭。下载Annotate示例，并为measurements.db制作一份工作副本。Gate Editor使用其中的2341个细胞测量值；它没有单独的示例下载按钮。Export gates会把归属写入所选数据库。在其生物学含义确定之前，门的名称应描述所选的测量值。",
   "scenes": [
     "从Home打开Tools并选择Gate Editor。调整分隔条，使图、门表和侧边控件都可见。使用Annotate示例中的测量数据库。",
     "点击Load table，打开measurements.db的工作副本并选择cell。该示例包含两千三百四十一个对象。请保留一份副本，因为Export gates会把归属写入这个数据库。选择器旁边的Merge tables会像在Graph Builder中一样，把细胞表与其细胞核表或病原体表合并成一张新表；源表保持不变。",

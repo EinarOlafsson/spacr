@@ -983,12 +983,6 @@
             1500
           ],
           "speech_text": "Prune now nunca borra sin preguntar. Con un límite de ejemplo corto para las carpetas de ejecución, enumera lo que borraría en cada carpeta y espera una respuesta. Haga clic en Cancel y no se elimina nada."
-        },
-        {
-          "visual": "24_spaceout_field",
-          "narration": "En el modo Spaceout, Preferences incluye controles del campo spaCR para ocho efectos independientes. Activa o desactiva cada efecto por separado. Los controles habituales de apariencia y animación de ventanas siguen disponibles; Apply previsualiza un cambio, Keep lo acepta y Revert restaura la opción anterior.",
-          "hold_after": 0.7,
-          "speech_text": "En el modo Spaceout, Preferences incluye controles del campo espáquer para ocho efectos independientes. Activa o desactiva cada efecto por separado. Los controles habituales de apariencia y animación de ventanas siguen disponibles; Apply previsualiza un cambio, Keep lo acepta y Revert restaura la opción anterior."
         }
       ],
       "narration_voices": {

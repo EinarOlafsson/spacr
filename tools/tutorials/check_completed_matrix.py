@@ -82,15 +82,15 @@ def reconcile_browser(report, lesson, language, voice, caption, audio_hash, scen
         raise ValueError('Invalid or unsynchronised browser clocks')
 
 
-def reconcile_english_catalog(translated, english, inventory, *, retained_narration=False):
+def reconcile_english_catalog(translated, english, inventory, *, retained_narration=False, published_voice_order=False):
     """Allow only the normal complete planned-voice declaration as metadata."""
     compared, authored = dict(translated), dict(english)
-    if retained_narration and 'narration_voices' not in compared:
+    if (retained_narration or published_voice_order) and 'narration_voices' not in compared:
         raise ValueError('Retained English needs its bound fifty-voice matrix')
     for item in (compared, authored):
         if 'narration_voices' in item:
             declared = item.pop('narration_voices')
-            if retained_narration:
+            if retained_narration or published_voice_order:
                 # The caller has already checked immutable published catalogs,
                 # all source tracks and exact current canonical lesson bytes.
                 valid = (isinstance(declared, dict) and set(declared) == set(inventory)
@@ -130,7 +130,8 @@ def reconcile_visual_sources(stage, lesson_id, english):
         from published_native_mix import checked_mixed_native_timing
         return read(checked_mixed_native_timing(stage, lesson_id))['published_native_mix']
     edit_mode = (specification.is_file() and
-        read(specification).get('kind') == 'edited_published_native_intervals')
+        read(specification).get('kind') in {'edited_published_native_intervals',
+                                           'terminal_prefix_published_native_intervals'})
     edit_record = folder / 'published-native-edit.json'
     if edit_mode or edit_record.exists():
         if (not edit_mode or not edit_record.is_file()
@@ -160,6 +161,28 @@ def reconcile_visual_sources(stage, lesson_id, english):
     return None
 
 
+
+def _terminal_published_voice_order(stage, lesson_id, *, retained_narration=False):
+    """Admit published voice ordering only after the explicit terminal proof."""
+    root=Path(stage)/'production'/lesson_id
+    audio=root/'published-terminal-scene-removal.json'
+    spec=root/'scenes.json';visual=root/'published-native-edit.json'
+    kind='terminal_prefix_published_native_intervals'
+    requested=(audio.exists() or audio.is_symlink()
+        or (spec.is_file() and read(spec).get('kind')==kind)
+        or (visual.is_file() and read(visual).get('kind')==kind))
+    if not requested:return False
+    if (lesson_id!='05_home' or retained_narration or not audio.is_file() or audio.is_symlink()
+            or not spec.is_file() or spec.is_symlink() or read(spec).get('kind')!=kind
+            or not visual.is_file() or visual.is_symlink() or read(visual).get('kind')!=kind):
+        raise ValueError('Terminal published ordering requires its exclusive Home audio/visual proof')
+    from published_terminal_prefix import checked_terminal_narration
+    tracks,proofs=checked_terminal_narration(stage,lesson_id,decode=False)
+    if len(tracks)!=50 or len(proofs)!=50:
+        raise ValueError('Terminal published ordering requires all fifty checked tracks')
+    return True
+
+
 def check(stage, lesson_id, renderer, *, retained_narration=False, baseline=None, retained_from=None):
     if retained_from is not None and not retained_narration:
         raise ValueError('Use retained-from only with retained-narration')
@@ -170,6 +193,7 @@ def check(stage, lesson_id, renderer, *, retained_narration=False, baseline=None
     english = read(folder / 'lesson.en.json')
     canonical = hashlib.sha256(json.dumps(english, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
     inventory = voice_matrix(renderer)
+    published_voice_order = _terminal_published_voice_order(stage, lesson_id, retained_narration=retained_narration)
     retention = None
     if retained_narration:
         from retain_narration import retained_sources
@@ -195,7 +219,8 @@ def check(stage, lesson_id, renderer, *, retained_narration=False, baseline=None
             raise ValueError('Catalog identity or scene count differs')
         translated = matches[0]
         if language == 'en':
-            reconcile_english_catalog(translated, english, inventory, retained_narration=retained_narration)
+            reconcile_english_catalog(translated, english, inventory, retained_narration=retained_narration,
+                                      published_voice_order=published_voice_order)
         elif not retained_narration:
             review = read(folder / f'review.{language}.json')
             if (review.get('english_sha256') != canonical or review.get('lesson') != lesson_id

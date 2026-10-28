@@ -355,8 +355,8 @@
     },
     {
       "lesson": "05_home",
-      "master_sha256": "a95dfe0af5e19edf39a8d201564fb59d0fa4cdb49918c15e342655da68b2b8be",
-      "visual_timing_sha256": "423a7765531ee5a714cc3cae6e5eb736f81afe712326ff797945c2d0aedec7d1",
+      "master_sha256": "1fd94f130aa34b9fdd30eab3d81874dcedb8061c178f457992be872e6a8c16fc",
+      "visual_timing_sha256": "ddbc2fbd64c72e2390ad0adad7061d8c2f3207dd7393040ded06816978dbf838",
       "scenes": [
         {
           "visual": "00_home",
@@ -379,13 +379,13 @@
         {
           "visual": "home_module_annotate",
           "source_start": 63.56666666666667,
-          "source_end": 75.86666666666666,
+          "source_end": 75.86666666666667,
           "idle_tail_start": 2
         },
         {
           "visual": "home_module_classify_merged",
           "source_start": 75.86666666666666,
-          "source_end": 93.2,
+          "source_end": 93.19999999999999,
           "idle_tail_start": 2
         },
         {
@@ -427,7 +427,7 @@
         {
           "visual": "home_module_power",
           "source_start": 162.26666666666668,
-          "source_end": 176.1,
+          "source_end": 176.10000000000002,
           "idle_tail_start": 2
         },
         {
@@ -481,7 +481,7 @@
         {
           "visual": "06_mask_host",
           "source_start": 284.4,
-          "source_end": 312.8666666666667,
+          "source_end": 312.8666666666666,
           "idle_tail_start": 5.5
         },
         {
@@ -493,7 +493,7 @@
         {
           "visual": "06c_mask_actions",
           "source_start": 336.6,
-          "source_end": 365.8333333333333,
+          "source_end": 365.83333333333337,
           "idle_tail_start": 5
         },
         {
@@ -517,13 +517,13 @@
         {
           "visual": "08_help_search",
           "source_start": 445.43333333333334,
-          "source_end": 475.46666666666664,
+          "source_end": 475.4666666666667,
           "idle_tail_start": 12.2
         },
         {
           "visual": "12_command_palette",
           "source_start": 475.46666666666664,
-          "source_end": 502.1666666666667,
+          "source_end": 502.16666666666663,
           "idle_tail_start": 3.5
         },
         {
@@ -553,7 +553,7 @@
         {
           "visual": "13d_appearance_animation",
           "source_start": 641.4333333333333,
-          "source_end": 718.3666666666667,
+          "source_end": 718.3666666666666,
           "idle_tail_start": 10.5
         },
         {
@@ -583,14 +583,8 @@
         {
           "visual": "13g_storage_prune",
           "source_start": 825.8,
-          "source_end": 846.0,
+          "source_end": 846.3,
           "idle_tail_start": 9.5
-        },
-        {
-          "visual": "24_spaceout_field",
-          "source_start": 846.0,
-          "source_end": 875.9666666666667,
-          "idle_tail_start": 0
         }
       ]
     },

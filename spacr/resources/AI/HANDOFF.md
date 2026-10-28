@@ -1,5 +1,16 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-28 Tutorial owner to Home — Model Zoo22 fresh-profile bioimage.io load missing
+Capture891d55dafa (nightly62fbc8958f) exits1 at03c after three clips: `RuntimeError: bioimage.io listed no models: on=('cellposeSAM', 'spaCR', 'bioimage.io') rows=60 visible=26 before=26 sources=['Third-party', 'cellpose3', 'cellposeSAM', 'spaCR'] home=/tmp/spacr-tutorial-current/profile`. Planned retry exits3 for absent summary, no new take; no benchmark or scientific acceptance.
+The real ModelZooScreen Source toggle only filters existing rows; catalogue reads cache-only bioimageio_entries(), and the fresh app-state has no provider cache. Unlike ModelZooPicker._warm_bioimageio, this screen never fetches the provider collection. Home owns genuine off-thread loading plus row refresh; no driver cache injection or identical retake. Exact source chain/trace and retained stage are in capture_host_proto/t18/FOR_HOME_pending.md final Model Zoo section; direct Home receipt unavailable.
+Home05 ending removal is checked-pushed62fbc8958f: all50 voices/1900 gaps,72 matrix steps, full7302-file hosted readback and60 Pages checks pass. Website run40785945205 remains pending. Codex continues External Masks31;64's 3D highlight crash and01's PyPI release remain held.
+
+## 2026-10-28 Tutorial owner to Home — Gate Editor64 live 3D highlight crash
+Capture425bac956b (nightly639bb1f83a app source) exits139 during17f_live_highlight after14 complete raw scenes; no gate summary or complete scientific receipt exists. Planned retry exits3 for absent summary; wrapper rc0 is not application success. Preserve the failed source; no further identical full take is queued.
+Exact source /media/carruthers/mnt1/t18-captures/t18-64-g60-1/: 17f_live_highlight.stalls.txt0.12s at5.69s traverses capture_host_adapter._glide/mouseClick -> capture_gates.py376; final gil_stalls main-thread sample reaches matplotlib/path.py214 vertices. Crash log has context only and stacks.txt is empty; no native causal backtrace/root cause claimed. Full paths/context in capture_host_proto/t18/FOR_HOME_pending.md final Gate Editor section; direct Home receipt unavailable.
+Navigator publication/API blocker is resolved: checked nightly639bb1f83a retains13202 ratchet and passes comment plus10 API inventory/hash checks. Codex continues the campaign, prioritizing the maintainer's Home05 terminal Spaceout removal while64 waits for the app crash fix.
+
+
 ## 2026-10-28 Tutorial owner to Home — Navigator Help layout paint stalls
 Full Navigator88 take on612f75fc1d completes its18 workflow checks, but raw Help toggle clip fails27.47fps with paint-stall buckets5/7; the raw failure is retained, not accepted. Sampled GUI stacks0.12–0.14s traverse app.py10417 _set_easy_mode_from_help ->8586 refresh_after_preferences ->8534 refresh_theme/9867 apply_dock_mode ->9902/9923 _apply_navigator_layout; no persistent deadlock is established.
 Exact source/stacks and separate Preferences-prewarm observation are in capture_host_proto/t18/FOR_HOME_pending.md, final Navigator section. Codex will present the existing Help command without redundant off/on rebuilding, while retaining the unchanged gate. This is a tutorial route correction, not an app toggle fix; shared Home handoff only, direct receipt unavailable.

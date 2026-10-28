@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "79fe6df81176f5e6f8a9fe0631321321a3ce4b8b1a4e7f119c9607e5ce9a7111",
+  "english_sha256": "3a1433580ecf272e574eaec9d4451f2a889a41df465c948e8c7bd8bfeba16b19",
   "review": {
     "kind": "AI technical editorial review against exact authored English; unchanged translated sentences retained",
     "translator": "Local NLLB draft with source-bound Codex AI technical corrections",
@@ -59,7 +59,6 @@
     "Keep 接受已应用的设置，并保持 Preferences 打开。您可以继续调整其他选项卡，或在准备保留当前值并关闭窗口时点击 Save。",
     "在Modules选项卡中，Session决定spaCR启动时是否重新打开上次的模块、设置和文件夹。Update channel 用于选择稳定版或每夜构建，Proxy 和 Certificate bundle 让下载在机构代理之后也能正常进行。",
     "Storage 选项卡设置 spaCR 保留每日日志、运行日志和运行文件夹的时长，以及每类的大小上限。下方的缓存列表显示模型和下载内容的存放位置，每个缓存都有 Clear 和 Move。",
-    "Prune now 绝不会不经询问就删除。为运行文件夹设置一个较短的示例上限后，它会列出每个文件夹中将要删除的内容并等待回答。点击 Cancel，则不会删除任何内容。",
-    "在Spaceout模式下，Preferences提供八种独立效果的spaCR场控制。各个效果可以分别开启或关闭。常规外观和设置窗口的动画控件仍然可用；Apply预览更改，Keep接受更改，Revert恢复先前的选择。"
+    "Prune now 绝不会不经询问就删除。为运行文件夹设置一个较短的示例上限后，它会列出每个文件夹中将要删除的内容并等待回答。点击 Cancel，则不会删除任何内容。"
   ]
 }

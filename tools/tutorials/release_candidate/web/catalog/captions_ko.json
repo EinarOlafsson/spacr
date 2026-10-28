@@ -881,11 +881,6 @@
             1200,
             1500
           ]
-        },
-        {
-          "visual": "24_spaceout_field",
-          "narration": "Spaceout 모드의 Preferences에는 8개의 독립적인 효과를 위한 spaCR 필드 컨트롤이 있습니다. 각 효과를 개별적으로 켜거나 끄세요. 일반적인 모양 설정과 설정 창 애니메이션 컨트롤도 계속 사용할 수 있습니다. Apply는 변경 사항을 미리 보여 주고, Keep은 이를 적용하며, Revert는 이전 선택으로 되돌립니다.",
-          "hold_after": 0.7
         }
       ],
       "narration_voices": {

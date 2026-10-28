@@ -1,6 +1,6 @@
 {
   "lesson": "64_gate_editor",
-  "english_sha256": "01f265ce50e8499d28c789048acefe1cbd065a681286e5807ea3bb0e815efb0f",
+  "english_sha256": "d5f44c8e0d0a51713322291d6bc718a7da156c4c7ca8fb186898cf16f9f4e9a8",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -17,7 +17,7 @@
     "Gate-Strategien, Abbildungen und Zugehörigkeiten speichern und neu laden.",
     "Dreidimensionale Ansichten, Clustering und Filter erkunden."
   ],
-  "prerequisite": "Laden Sie das Annotate-Beispiel herunter und erstellen Sie eine Arbeitskopie von measurements.db. Gate Editor verwendet deren 2.341 Zellmessungen; es hat keine eigene Schaltfläche zum Herunterladen des Beispiels. Export gates schreibt die Zugehörigkeit in die gewählte Datenbank. Gate-Namen sollten die gewählten Messgrößen beschreiben, bis ihre biologische Bedeutung geklärt ist.",
+  "prerequisite": "Gate Editor ist ein Alpha-Modul. Aktivieren Sie unter Preferences → Modules die Option Show Alpha modules and settings, übernehmen Sie die Änderung und öffnen Sie anschließend Tools → Gate Editor. Lassen Sie Show alpha features und Show alpha species ausgeschaltet. Laden Sie das Annotate-Beispiel herunter und erstellen Sie eine Arbeitskopie von measurements.db. Gate Editor verwendet deren 2.341 Zellmessungen; es hat keine eigene Schaltfläche zum Herunterladen des Beispiels. Export gates schreibt die Zugehörigkeit in die gewählte Datenbank. Gate-Namen sollten die gewählten Messgrößen beschreiben, bis ihre biologische Bedeutung geklärt ist.",
   "scenes": [
     "Öffnen Sie von Home aus Tools und wählen Sie Gate Editor. Passen Sie die Trenner so an, dass Diagramm, Gate-Tabelle und seitliche Steuerelemente sichtbar sind. Verwenden Sie die Messdatenbank aus dem Annotate-Beispiel.",
     "Klicken Sie auf Load table, öffnen Sie Ihre Arbeitskopie von measurements.db und wählen Sie cell. Das Beispiel enthält 2.341 Objekte. Bewahren Sie eine Kopie auf, da Export gates die Zugehörigkeit in diese Datenbank schreibt. Merge tables neben der Auswahl führt die Zelltabelle mit ihren Zellkern- oder Pathogentabellen zu einer neuen Tabelle zusammen, wie in Graph Builder; die Quelltabellen bleiben unverändert.",

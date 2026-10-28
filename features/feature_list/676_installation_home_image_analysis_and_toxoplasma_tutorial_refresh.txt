@@ -583,3 +583,17 @@ Current nightly is rebased preserving Home's newer Navigator guide/translations 
 The missing one-callback API arrival now retains the13202 baseline; three affected source-boundary checks pass. Existing nine-language reviews are retained, redundant alternatives retired without deletion, and the normal catalog build matches the existing API-memory pin byte-for-byte.
 Preserve Home's17 translated guide bindings and current Navigator guide; launch/preference references and Spaceout aliases remain in the API landing page. Required app checks guard the nightly push.
 Codex remains active on the full campaign; next64 uses its current25-scene script and unchanged50 tracks through normal adoption/QA. Remaining64/22/31/50/70/19/63/01 stay open;01 still awaits PyPI1.5.1.6 (404 on2026-10-28).
+
+2026-10-28 — Navigator88 checked nightly push639bb1f83a is verified; required comment test and all10 API inventory checks pass. Hosted media/readback/60 routes are complete; public website deployment remains pending.
+Gate Editor64 now states its real Alpha-module visibility prerequisite in all14 authored languages; narration stays unchanged. Its native driver scales the seven real divider drags to the measured window and requires visible usable panes.
+Codex continues64 end to end with25 scenes and the existing50 tracks, then22/31/50/70/19/63;01 remains release-held. No capture or scientific acceptance is claimed by these preparations.
+
+2026-10-28 — Maintainer requires no Spaceout reference in any tutorial. The public English60-lesson scan finds only Home05 finalscene39; remove that ending from English/all13 translations and all50 published narration tracks, preserving first38 scenes, with no re-recording or TTS.
+Codex implemented the exact38-scene published-prefix edit before22: all50 AAC tracks pass audio/onset checks, original visual intervals stay1x, and master/web full decode plus timestamps pass. Normal browser matrix and HF/Pages/nightly publication remain next; no re-recording or TTS.
+Gate Editor64 p54 reaches14 complete raw scenes then exits139 during17f live polygon highlight; no gate summary or complete scientific acceptance exists. Planned retry exits3 because no summary; preserve all source files and hold another64 take for the app fix.
+Navigator88 remains checked-pushed639bb1f83a; its Docs run40756766539 is cancelled, so live website delivery is still pending. Remaining campaign64/05/22/31/50/70/19/63/01 stays active;01 is release-held.
+
+2026-10-28 — Home05 terminal Spaceout removal is checked-pushed62fbc8958f, HF96ab746a53149d1dbaede400d65a970c648dc852:50 voices/1900 actual gaps0.799–1.049s,72 matrix steps,7302-file full readback and60 published routes pass; website40785945205 pending.
+Model Zoo22 p55 on891d55dafa/62fbc8958f exits1 after3 clips: bioimage.io source enabled but no provider rows/cache; planned retry exits3 without a take. Real screen lacks the picker’s off-thread provider fetch; exact exception/trace shared for Home, receipt unconfirmed. No scientific acceptance or identical retake.
+Codex continues31 External Masks with15 original scenes and50 unchanged tracks; fix only its native console-divider route, then capture/gate/publish. Prepared source metadata reflects Home38 scenes; no TTS or fake voice-completion markers.
+64 still waits for the live3D highlight crash fix;01 waits for PyPI1.5.1.6. Remaining50/70/19/63 stay open after31; full campaign remains active.

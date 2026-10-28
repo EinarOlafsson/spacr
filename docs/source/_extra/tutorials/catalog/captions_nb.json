@@ -872,11 +872,6 @@
             1200,
             1500
           ]
-        },
-        {
-          "visual": "24_spaceout_field",
-          "narration": "I Spaceout-modus har Preferences spaCR-feltkontroller for åtte uavhengige effekter. Slå hver effekt på eller av separat. Vanlige kontroller for utseende og animasjon av innstillingsvinduet er fortsatt tilgjengelige; Apply forhåndsviser en endring, Keep godtar den og Revert gjenoppretter forrige valg.",
-          "hold_after": 0.7
         }
       ],
       "narration_voices": {

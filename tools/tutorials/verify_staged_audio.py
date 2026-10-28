@@ -39,7 +39,11 @@ def main(argv=None):
                         help='Require byte-identical original tracks and catalogs instead of a new runtime')
     parser.add_argument('--retained-from', type=Path,
                         help='Original workspace for retained catalogs/audio; requires retained-narration')
+    parser.add_argument('--terminal-scene-removal', action='store_true',
+                        help='Validate explicit published Home prefix provenance, not fresh TTS')
     args = parser.parse_args(argv)
+    if args.terminal_scene_removal and (args.retained_narration or args.retained_from is not None):
+        raise ValueError('Terminal prefix removal is distinct from byte-identical track retention')
     if args.retained_from is not None and not args.retained_narration:
         raise ValueError('Use retained-from only with retained-narration')
     os.environ['SPACR_TUTORIAL_WORKSPACE'] = str(args.stage.resolve())
@@ -52,6 +56,10 @@ def main(argv=None):
                          {lang: values[1] for lang, values in verify.LANGUAGES.items()},
                          retained_from=args.retained_from)
 
+    if args.terminal_scene_removal:
+        from published_terminal_prefix import checked_terminal_narration
+        checked_terminal_narration(args.stage, args.lesson, decode=False)
+
     reports = []
     for language in args.languages:
         code, voices = verify.LANGUAGES[language]
@@ -59,7 +67,7 @@ def main(argv=None):
         lesson = next(item for item in catalog['lessons'] if item['id'] == args.lesson)
         for voice in voices:
             path = args.stage / 'production' / args.lesson / 'audio' / language / f'{voice}.m4a'
-            if args.retained_narration:
+            if args.retained_narration or args.terminal_scene_removal:
                 errors = verify.check_track(path)
             else:
                 dialect_code = 'b' if language == 'en' and voice.startswith('b') else code
@@ -76,9 +84,11 @@ def main(argv=None):
                 print('\n'.join(errors), flush=True)
     result = {'lesson': args.lesson, 'scope_languages': args.languages,
               'retained_narration': args.retained_narration,
-              'current_runtime_freshness_claimed': not args.retained_narration,
+              'current_runtime_freshness_claimed': not (args.retained_narration or args.terminal_scene_removal),
               'tracks_checked': len(reports), 'passed': all(not r['errors'] for r in reports),
               'human_listening_review': False, 'published': False, 'tracks': reports}
+    if args.terminal_scene_removal:
+        result['published_terminal_scene_removal'] = True
     write(args.stage / 'production' / args.lesson /
           f"audio-checks.{'+'.join(args.languages)}.json", result)
     return 0 if result['passed'] else 1

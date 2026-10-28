@@ -50,6 +50,10 @@ def main():
     p.add_argument('--stage', type=Path, required=True)
     p.add_argument('--lesson', required=True)
     a = p.parse_args()
+    from published_terminal_prefix import RECORD as TERMINAL_RECORD, checked_terminal_narration
+    terminal = a.stage / 'production' / a.lesson / TERMINAL_RECORD
+    if terminal.exists() or terminal.is_symlink():
+        checked_terminal_narration(a.stage, a.lesson, decode=False)
     root = a.stage / 'production' / a.lesson / 'audio'
     failures, tracks = {}, 0
     for meta_path in sorted(root.glob('*/*.json')):

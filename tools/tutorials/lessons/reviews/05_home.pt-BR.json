@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "79fe6df81176f5e6f8a9fe0631321321a3ce4b8b1a4e7f119c9607e5ce9a7111",
+  "english_sha256": "3a1433580ecf272e574eaec9d4451f2a889a41df465c948e8c7bd8bfeba16b19",
   "review": {
     "kind": "AI technical editorial review against exact authored English; unchanged translated sentences retained",
     "translator": "Local NLLB draft with source-bound Codex AI technical corrections",
@@ -59,7 +59,6 @@
     "Keep aceita as configurações aplicadas e mantém Preferences aberto. Continue ajustando outra aba, ou clique em Save quando quiser manter os valores atuais e fechar a janela.",
     "Na guia Modules, Session determina se spaCR reabre o último módulo, as configurações e a pasta ao iniciar. Update channel escolhe versões estáveis ou compilações noturnas, e Proxy e Certificate bundle permitem downloads atrás de um proxy institucional.",
     "A aba Storage define por quanto tempo o spaCR mantém seus logs diários, logs de execução e pastas de execução, e um limite de tamanho para cada um. Abaixo, a lista de caches mostra onde ficam os modelos e downloads, com Clear e Move para cada cache.",
-    "Prune now nunca apaga sem perguntar. Com um limite de exemplo curto para as pastas de execução, ele lista o que apagaria em cada pasta e espera uma resposta. Clique em Cancel e nada é removido.",
-    "No modo Spaceout, Preferences oferece controles do campo spaCR para oito efeitos independentes. Ative ou desative cada efeito separadamente. Os controles habituais de aparência e animação das janelas continuam disponíveis; Apply mostra a prévia de uma alteração, Keep a aceita e Revert restaura a opção anterior."
+    "Prune now nunca apaga sem perguntar. Com um limite de exemplo curto para as pastas de execução, ele lista o que apagaria em cada pasta e espera uma resposta. Clique em Cancel e nada é removido."
   ]
 }

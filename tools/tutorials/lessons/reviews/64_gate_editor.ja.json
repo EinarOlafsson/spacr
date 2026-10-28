@@ -1,6 +1,6 @@
 {
   "lesson": "64_gate_editor",
-  "english_sha256": "01f265ce50e8499d28c789048acefe1cbd065a681286e5807ea3bb0e815efb0f",
+  "english_sha256": "d5f44c8e0d0a51713322291d6bc718a7da156c4c7ca8fb186898cf16f9f4e9a8",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -17,7 +17,7 @@
     "ゲートの戦略、図、所属を保存して読み込み直す。",
     "三次元表示、クラスタリング、フィルターを試す。"
   ],
-  "prerequisite": "Annotateの例をダウンロードし、measurements.dbの作業用コピーを作ります。Gate Editorはその2341個の細胞の測定値を使います。例をダウンロードする専用のボタンはありません。Export gatesは、選んだデータベースに所属を書き込みます。生物学的な意味が確かめられるまでは、ゲートの名前は選んだ測定値を表すものにします。",
+  "prerequisite": "Gate EditorはAlphaモジュールです。Preferences → ModulesでShow Alpha modules and settingsをオンにして変更を適用し、Tools → Gate Editorを開きます。Show alpha featuresとShow alpha speciesはオフのままにします。Annotateの例をダウンロードし、measurements.dbの作業用コピーを作ります。Gate Editorはその2341個の細胞の測定値を使います。例をダウンロードする専用のボタンはありません。Export gatesは、選んだデータベースに所属を書き込みます。生物学的な意味が確かめられるまでは、ゲートの名前は選んだ測定値を表すものにします。",
   "scenes": [
     "HomeからToolsを開き、Gate Editorを選びます。プロット、ゲートの表、横の操作欄が見えるように仕切りを調整します。Annotateの例の測定データベースを使います。",
     "Load tableをクリックし、measurements.dbの作業用コピーを開いてcellを選びます。この例には二千三百四十一個の物体があります。Export gatesはこのデータベースに所属を書き込むので、コピーを残しておきます。選択欄の横にあるMerge tablesは、Graph Builderと同じように、細胞の表を核または病原体の表と組み合わせて一つの新しい表にします。元の表は変更されません。",

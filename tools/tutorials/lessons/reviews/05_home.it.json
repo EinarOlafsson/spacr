@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "79fe6df81176f5e6f8a9fe0631321321a3ce4b8b1a4e7f119c9607e5ce9a7111",
+  "english_sha256": "3a1433580ecf272e574eaec9d4451f2a889a41df465c948e8c7bd8bfeba16b19",
   "review": {
     "kind": "AI technical editorial review against exact authored English; unchanged translated sentences retained",
     "translator": "Local NLLB draft with source-bound Codex AI technical corrections",
@@ -59,7 +59,6 @@
     "Keep accetta le impostazioni applicate e lascia Preferences aperto. Continua a modificare un’altra scheda, oppure fai clic su Save quando vuoi conservare i valori attuali e chiudere la finestra.",
     "Nella scheda Modules, Session decide se spaCR riapre l’ultimo modulo, le impostazioni e la cartella all’avvio. Update channel sceglie versioni stabili o build notturne, e Proxy e Certificate bundle permettono i download dietro un proxy istituzionale.",
     "La scheda Storage imposta per quanto tempo spaCR conserva i log giornalieri, i log delle esecuzioni e le cartelle delle esecuzioni, con un limite di dimensione per ciascuno. Sotto, l’elenco delle cache mostra dove sono salvati modelli e download, con Clear e Move per ogni cache.",
-    "Prune now non cancella mai senza chiedere. Con un limite di esempio breve per le cartelle delle esecuzioni, elenca cosa cancellerebbe in ogni cartella e attende una risposta. Fai clic su Cancel e non viene rimosso nulla.",
-    "In modalità Spaceout, Preferences offre controlli del campo spaCR per otto effetti indipendenti. Attiva o disattiva ciascun effetto separatamente. I normali controlli di aspetto e animazione delle finestre restano disponibili; Apply mostra l’anteprima di una modifica, Keep la accetta e Revert ripristina la scelta precedente."
+    "Prune now non cancella mai senza chiedere. Con un limite di esempio breve per le cartelle delle esecuzioni, elenca cosa cancellerebbe in ogni cartella e attende una risposta. Fai clic su Cancel e non viene rimosso nulla."
   ]
 }
