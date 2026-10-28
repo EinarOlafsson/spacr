@@ -368,3 +368,132 @@ def test_guided_export_without_indexed_fields_creates_no_export_panel(overview, 
         assert dialog._open_guided_export() is None
         assert dialog._export_dock is None
         assert dialog.status.text() == 'Select fields or load a plate before exporting.'
+
+
+def test_failed_last_annotation_rolls_back_earlier_images_and_undo_history(overview, qtbot):
+    import sqlite3
+    from spacr.measure import _image_annotation_database
+
+    dialog = overview
+    source = dialog._metadata_source
+    database = _image_annotation_database(source)
+    _set_image_annotations(database, dialog._fields, 'condition', 'before', source=source)
+    baseline = _annotation_rows(source)
+    assert {field_id for plate, well, field_id, value in baseline if well == 'A01'} == {'f1', 'f2'}
+    with sqlite3.connect(database) as connection:
+        history = connection.execute('SELECT * FROM image_annotations_history').fetchall()
+        connection.execute("CREATE TRIGGER refuse_second_image BEFORE UPDATE OF condition "
+                           "ON image_annotations WHEN OLD.fieldID = 'f2' "
+                           "BEGIN SELECT RAISE(ABORT, 'second image is read only'); END")
+    dialog._store_image_annotation({('p1', 'A01')}, 'condition', 'refused')
+    qtbot.waitUntil(lambda: not dialog._metadata_jobs.is_busy()
+                    and 'could not be saved' in dialog.status.text(), timeout=10000)
+    assert _annotation_rows(source) == baseline
+    with sqlite3.connect(database) as connection:
+        assert connection.execute('SELECT * FROM image_annotations_history').fetchall() == history
+    assert not dialog._image_annotation_running
+    assert dialog._image_annotation_queue == []
+    assert str(database) in dialog.status.text()
+
+
+def test_import_scheme_waits_for_the_active_export_without_opening_a_picker(overview, qtbot, monkeypatch):
+    import threading
+    from unittest.mock import Mock
+    from PySide6.QtWidgets import QFileDialog
+
+    dialog = overview
+    entered, release = threading.Event(), threading.Event()
+
+    def export():
+        entered.set()
+        assert release.wait(10)
+        return 'existing export completed'
+
+    picker = Mock(side_effect=AssertionError('an active export must keep ownership'))
+    monkeypatch.setattr(QFileDialog, 'getOpenFileName', picker)
+    dialog._export_jobs.submit(export)
+    try:
+        qtbot.waitUntil(entered.is_set, timeout=5000)
+        submitted = dialog._export_jobs._next_id
+        dialog._import_annotation_scheme()
+        assert 'Wait for the current export' in dialog.status.text()
+        assert dialog._export_jobs._next_id == submitted
+        picker.assert_not_called()
+    finally:
+        release.set()
+        qtbot.waitUntil(lambda: not dialog._export_jobs.is_busy(), timeout=10000)
+
+
+@pytest.mark.parametrize('stacked', [False, True])
+def test_representative_rows_without_indexed_images_do_not_replace_the_image_view(overview, qtbot, stacked):
+    import pandas as pd
+    from pathlib import Path
+    from spacr import tabular
+
+    dialog = overview
+    database = Path(dialog._metadata_source) / 'measurements' / 'measurements.db'
+    tabular.write_database(pd.DataFrame([
+        dict(plate='p1', well='A01', field='999', time_id='1', z_id='1',
+             channel_1_mean=2., status='ok')]), database, 'fov',
+        if_exists='replace', canonicalise=False)
+    assert dialog.group_builder.add_group({'well': 'A01'})
+    qtbot.waitUntil(lambda: not dialog._group_jobs.is_busy(), timeout=10000)
+    dialog.comparison_measurement.setCurrentText('channel_1_mean')
+    dialog.representative_method.setCurrentIndex(dialog.representative_method.findData('measurement'))
+    before = dialog._comparison_signature
+    dialog.status.setText('Existing comparison owns the image view')
+    dialog._show_representatives(stacked=stacked)
+    qtbot.waitUntil(lambda: not dialog._export_jobs.is_busy(), timeout=10000)
+    assert dialog._comparison_signature == (before if stacked else None)
+    assert not dialog._image_views
+    if stacked:
+        assert dialog.status.text() == 'Existing comparison owns the image view'
+    else:
+        assert dialog.status.text() == 'No measured image matches the chosen annotation values.'
+    assert dialog.comparison_table.rowCount() == 0
+    assert not (Path(dialog._metadata_source) / 'results' / 'overview_comparisons').exists()
+
+
+def test_invalid_display_channels_preserve_the_last_visual_request_and_source_images(overview):
+    from pathlib import Path
+
+    dialog = overview
+    before_signature = dialog._visual_signature
+    before_jobs = (dialog._field_thumbnail_jobs._next_id, dialog._thumbnail_jobs._next_id,
+                   dialog._montage_jobs._next_id)
+    originals = {Path(path): Path(path).read_bytes() for field in dialog._fields for _, path in field.files}
+    previous = dialog.channels.text()
+    dialog.channels.blockSignals(True)
+    try:
+        dialog.channels.setText('not-a-channel')
+        dialog._update_visuals()
+        assert 'nonnegative channel indices' in dialog.status.text()
+        assert dialog._visual_signature == before_signature
+        assert (dialog._field_thumbnail_jobs._next_id, dialog._thumbnail_jobs._next_id,
+                dialog._montage_jobs._next_id) == before_jobs
+        assert all(path.read_bytes() == contents for path, contents in originals.items())
+    finally:
+        dialog.channels.setText(previous)
+        dialog.channels.blockSignals(False)
+
+
+def test_explicit_canvas_field_selection_takes_precedence_over_selected_wells(overview):
+    from PySide6.QtCore import Qt
+
+    dialog = overview
+    dialog._well(dialog.wells.item(*dialog._well_positions[('p1', 'B02')]))
+    dialog.fields.clearSelection()
+    chosen = dialog.fields.item(0)
+    chosen.setSelected(True)
+    dialog._remember_selection()
+    field = chosen.data(Qt.UserRole)
+    assert set(dialog._selected_fields) == {field.identity}
+    dialog._selected_wells = {('p1', 'A01')}
+    composer = dialog._open_custom_export()
+    try:
+        boxes = dialog._canvas_add_selection(composer)
+        assert len(boxes) == 1
+        assert tuple(boxes[0]['source']['key'][1:]) == ('p1', 'B02', '1', '1', '1')
+        assert boxes[0]['source']['well'] == 'B02'
+    finally:
+        dialog._close_export_dock()
