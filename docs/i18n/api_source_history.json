@@ -126,6 +126,16 @@
       "source_sha256": "789914357ad7f8b4d3797a04f0a0ae146e71514201bf13569cacc23fcd7337e7",
       "text": "Scan, preview, convert and map one folder in a single call.\n\nThe entry point used by the CLI and the Qt bridge: one function, one\nsettings dict, the same three phases underneath. It always prints\nthe plan before writing anything, so a headless\n``spacr-run format_convert`` also records the source → target table\nin the log.\n\nSettings (see :func:`default_settings`):\n\n``src``\n    folder to convert. Required.\n``dst``\n    destination; defaults to ``<src>_yokogawa``. Never ``src``.\n``layout`` / ``z_handling`` / ``plate_naming``\n    passed to :func:`scan` and :func:`plan`.\n``overwrite``\n    False by default — existing targets are left alone.\n``db_path``\n    when set, :func:`populate_db_from_map` loads the map into it.\n``preview_only``\n    print the plan and stop. The returned result has written\n    nothing and has no ``map_path``.\n``resume``\n    accept complete fields from a compatible checkpoint after validating\n    every output TIFF.\n``checkpoint_path``\n    optional checkpoint JSON path; defaults inside ``dst``.\n\n:returns: the :class:`ConversionResult`; for ``preview_only`` an\n    empty one carrying the plan.\n:raises ConfigurationError: no ``src``, or a plan with blocking\n    errors — a name collision must stop the run, not be printed and\n    walked past."
     },
+    "8d432e9c3f2948242e40713eb5942715992b805946267d30d9e20d6e2e2f9979": {
+      "source_blocks_sha256": [
+        "eeed90fda745c2db58d682395312593b69b4224ffa54aa8faacd63cc55aecbe8",
+        "54685fc5c4f48deb72c5f0ea5fcc738377677ae0c8d965d03ef6cb0d9c335bca",
+        "6ba6a29224d4dc076fc0ace4c2cf9a4e38f6ea773b308ebb638974040ab5ccc3",
+        "d03f7ba38e19859d551eae5ca0ce116bac591c9527275fcd9d75be58a2d2e027"
+      ],
+      "source_sha256": "8d432e9c3f2948242e40713eb5942715992b805946267d30d9e20d6e2e2f9979",
+      "text": "Persist GUI state across a forced spaCR restart.\n\nThe restart record stores the current module, its settings, a summary of\nactive runs, and the locations of any run folders. :func:`save` verifies the\nrecord before the current process exits, and :func:`take` consumes it when the\nnew process starts so that stale state is not restored repeatedly.\n\nOnly the interface configuration is restored. Active computations do not\nresume after a forced restart; output written before the restart remains in\nthe recorded run folders.\n\nTwo further records live in the preference store rather than in a file. The\nlast session (module, its settings and its folder) is written while spaCR runs\nand when it closes, so an ordinary start can reopen where the user left off\nafter any exit or crash. Settings drafts hold the unsaved settings of every\nopen module; they are cleared on a clean exit, so a draft found at start-up\nmeans the previous run ended without closing."
+    },
     "91aa9327ad66e9d70ba841db392dfca063d1e8d7665d4a46f8113aefe0055220": {
       "source_blocks_sha256": [
         "f7cab3eacdd9472794585913e7cbe3fe3a8265657899cf893e81a88736e4114a",

@@ -12,7 +12,7 @@ Repeated IDs retain their separate full filenames and histories; none were merge
 
 This is a declaration-based navigation list, not a verified unfinished count. Headers can be stale. Conversely, recorded-Done items 641 and 673 contain later Mac follow-ups; item 729 separates native checks from deferred implementation. Read their linked notes before assigning work.
 
-20 records have no recorded complete declaration; 702 have a recorded complete declaration. Neither is a verification result.
+19 records have no recorded complete declaration; 703 have a recorded complete declaration. Neither is a verification result.
 
 | ID | Lifecycle | Item (full filename) | Recorded status |
 |---|---|---|---|
@@ -35,7 +35,6 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 710 | New | [SLIM THE REPOSITORY: EVIDENCE AND MEDIA TO HUGGING FACE, CATALOGS BUILT IN CI — 710_slim_the_repository.txt](feature_list/710_slim_the_repository.txt) | in progress — phases 1-2, the phase 3 deck and API catalogs |
 | 711 | Future | [TIMEPOSE v1 IN TIMELAPSE, ON HUGGING FACE (PRIVATE), WITH A SCORECARD — 711_timepose_v1_in_timelapse_with_scorecard.txt](feature_list/711_timepose_v1_in_timelapse_with_scorecard.txt) | open — 2026-10-18; v1 not shipped (maintainer). Waits for Timepose |
 | 729 | New | [THE MAC AND APPLE SILICON CHECKS STILL TO RUN ON A REAL MACOS DISPLAY — 729_mac_apple_silicon_native_checks_remaining.txt](feature_list/729_mac_apple_silicon_native_checks_remaining.txt) | IN PROGRESS — Apple Silicon Mac required for remaining checks |
-| 733 | New | [NAVIGATOR: A CONTENT-GUIDED HOME WITH AN ANIMATED PATH AND DROP FIELD — 733_easy_mode_content_guided_home.txt](feature_list/733_easy_mode_content_guided_home.txt) | IMPLEMENTATION APPROVED — current Navigator guide/API and the new fifty-voice tutorial media are delivered; Workstation session 2 retains app follow-up. |
 
 ## All feature items
 
@@ -757,7 +756,7 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 730 | New | [NATIVE CRASH REPORTS CARRY THE CRASHED SESSION'S PLATFORM, QT, SCREENS AND THREAD — 730_native_crash_reports_carry_the_crashed_session_context.txt](feature_list/730_native_crash_reports_carry_the_crashed_session_context.txt) | done (nightly, 2026-10-26; ships in 1.5.1.6) |
 | 731 | New | [NATIVE CRASH REPORTS NAME THE TEARDOWN STEP A CLOSE CRASHED IN — 731_native_crash_reports_name_the_teardown_step.txt](feature_list/731_native_crash_reports_name_the_teardown_step.txt) | done (nightly, 2026-10-26; ships in 1.5.1.6) |
 | 732 | New | [REMOTE AND CLUSTER SUBMISSION: ANY SIGN-IN METHOD, A USER-EDITED JOB SCRIPT, — 732_remote_cluster_submission_for_any_sign_in_job_script_resources_and_login_node_safety.txt](feature_list/732_remote_cluster_submission_for_any_sign_in_job_script_resources_and_login_node_safety.txt) | DONE — 2026-10-27; full-job and reusable connection profile save/import controls delivered. |
-| 733 | New | [NAVIGATOR: A CONTENT-GUIDED HOME WITH AN ANIMATED PATH AND DROP FIELD — 733_easy_mode_content_guided_home.txt](feature_list/733_easy_mode_content_guided_home.txt) | IMPLEMENTATION APPROVED — current Navigator guide/API and the new fifty-voice tutorial media are delivered; Workstation session 2 retains app follow-up. |
+| 733 | New | [NAVIGATOR: A CONTENT-GUIDED HOME WITH AN ANIMATED PATH AND DROP FIELD — 733_easy_mode_content_guided_home.txt](feature_list/733_easy_mode_content_guided_home.txt) | DONE — Navigator implementation, translated guides/API and the fifty-voice tutorial are delivered; release CI is tracked separately. |
 | 734 | New | [POPUP RESIZING WITHOUT CONTENT OR BACKGROUND FLASHING — 734_popup_resize_without_content_or_background_flashing.txt](feature_list/734_popup_resize_without_content_or_background_flashing.txt) | DONE — Windows edge-drag backing-store timing corrected; focused and native checks pass. |
 | 735 | New | [MAKE MASKS OPENS IMAGES AND CONTAINERS THROUGH SHARED READER CAPABILITIES — 735_make_masks_shared_image_and_container_readers.txt](feature_list/735_make_masks_shared_image_and_container_readers.txt) | DONE 2026-10-28 — shared-reader implementation, focused validation |
 | 736 | New | [MEASURE RERUNS PRESERVE EXISTING TABLES AND NEVER MIX OBJECT POPULATIONS — 736_measure_reruns_archive_existing_database_tables.txt](feature_list/736_measure_reruns_archive_existing_database_tables.txt) | DONE 2026-10-27 — implemented, focused validation passed; delivered in this nightly publication. |

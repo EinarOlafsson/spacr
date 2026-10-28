@@ -7,7 +7,7 @@ DOCS/API DELIVERY — 2026-10-28
 Progress List name: N733 — Navigator (maintainer confirmed 2026-10-28).
 
 Lifecycle: new
-Status:    IMPLEMENTATION APPROVED — current Navigator guide/API and the new fifty-voice tutorial media are delivered; Workstation session 2 retains app follow-up.
+Status:    DONE — Navigator implementation, translated guides/API and the fifty-voice tutorial are delivered; release CI is tracked separately.
 
 SPACEOUT TOGGLE FOLLOW-UP — 2026-10-28: the Navigator Spaceout card must toggle the active mode in both directions; clicking it again after activation deactivates Spaceout and restores the prior normal appearance. Retained Spaceout peer owns isolated handler/field theme work while root completes startup behavior.
 Requested: maintainer, 2026-10-26
@@ -639,3 +639,5 @@ Preserve Home's17 accepted guide-message bindings across all nine languages by r
 2026-10-28 — Navigator88 tutorial media is hosted/fully read back and all60 published routes pass; its API callback has the exact dated arrival contract with the13202 baseline unchanged and three focused source-boundary checks passing.
 Current Home guide/Python-guide translations remain bound in all nine languages; detailed launch/preference API links and Spaceout aliases are preserved in the English API landing page. Normal assembled API memory is byte-identical to its existing publication, so no duplicate upload is made.
 The tutorial owner resumes the entire campaign after this guarded nightly publication; app follow-up ownership remains with Workstation session 2, and the reported Help paint stalls are not claimed fixed.
+
+2026-10-28 — Completed Navigator implementation, reviewed nine-language guide/API bindings and the published fifty-voice tutorial88. Current layout, native module handoff, focused Escape, calibrated warnings, passive overlays and held-frame invalidation have qualified owning checks; final normal Help/API/consumer outputs accompany Nightly publication. Release CI remains in item43.
