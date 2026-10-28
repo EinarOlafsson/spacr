@@ -1569,14 +1569,25 @@ def test_the_app_list_is_reachable_without_a_mouse(window, qapp, qtbot):
         "focus did not land inside the app list")
 
 
-def test_the_dock_action_does_nothing_when_the_dock_is_hidden(window, qapp):
-    """A shortcut must not overrule the preference that turned the dock off."""
+def test_the_dock_action_opens_and_focuses_despite_legacy_hidden_mode(
+        window, qapp, qtbot):
+    """The retired hidden preference cannot disable keyboard access to the dock."""
+    window.activateWindow()
+    qtbot.waitUntil(window.isActiveWindow, timeout=2000)
     window.apply_dock_mode("hidden")
-    before = qapp.focusWidget()
-    window.toggle_app_drawer()
-    qapp.processEvents()
-    assert qapp.focusWidget() is before
+    assert window._dock_mode == "locked"
+    assert window._act_all_apps.isEnabled()
+    edge = window._dock_edge
+    edge.set_collapsed(True)
+    assert edge.isVisible() and edge.is_collapsed()
     assert not window._dock_slot.isVisible()
+    active = window._stack.currentWidget()
+    window._act_all_apps.trigger()
+    qapp.processEvents()
+    assert edge.isVisible() and not edge.is_collapsed()
+    assert window._dock_slot.isVisible()
+    assert qapp.focusWidget() is window._sidebar.rows()[0]
+    assert window._stack.currentWidget() is active
 
 
 

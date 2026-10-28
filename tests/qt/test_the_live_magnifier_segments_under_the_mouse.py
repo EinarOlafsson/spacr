@@ -663,6 +663,7 @@ def test_the_lens_is_the_crop_magnified_with_the_cursor_pixel_underneath(
 
 
 def test_the_box_is_drawn_while_on_and_gone_when_off(qtbot, screen):
+    screen._canvas.setFixedSize(CANVAS_W, CANVAS_H)
     accent = QColor(active_palette()["accent"]).rgb()
 
     def accent_pixels() -> int:
@@ -673,6 +674,9 @@ def test_the_box_is_drawn_while_on_and_gone_when_off(qtbot, screen):
         return int((data == np.uint32(accent)).sum())
 
     baseline = accent_pixels()
+    assert (screen._canvas.width(), screen._canvas.height()) == (CANVAS_W, CANVAS_H)
+    assert screen._canvas.pixmap().deviceIndependentSize().width() == PIXMAP_N
+    assert screen._canvas._canvas_to_image(*canvas_xy(30, 30)) == (30, 30)
     switch_on(screen, CodedStub({}))
     hover(screen, 30, 30)
     wait_for_result(qtbot, screen)
