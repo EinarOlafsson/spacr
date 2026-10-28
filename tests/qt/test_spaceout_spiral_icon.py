@@ -42,6 +42,29 @@ def test_static_icon_uses_actual_black_white_reference_frame(qapp, monkeypatch, 
     assert np.ptp(pixels[:, :, :3].astype(int), axis=2).max() < 10
 
 
+@pytest.mark.parametrize('ratio', [1, 2])
+def test_static_still_uses_the_real_paint_device_density_and_logical_center(qapp, ratio):
+    canvas = QImage(90 * ratio, 65 * ratio, QImage.Format_RGBA8888)
+    canvas.setDevicePixelRatio(ratio)
+    canvas.fill(Qt.transparent)
+    engine = iconset._SpaceoutIconEngine()
+    painter = QPainter(canvas)
+    try:
+        engine.paint(painter, QRect(7, 5, 72, 48), QIcon.Normal, QIcon.Off)
+    finally:
+        painter.end()
+    original = QImageReader(str(iconset._spaceout_gif_path())).read()
+    assert original.width() == original.height() and not original.isNull()
+    reference = original.scaled(48 * ratio, 48 * ratio,
+                                Qt.KeepAspectRatio, Qt.SmoothTransformation)
+    reference = reference.convertToFormat(QImage.Format_RGBA8888)
+    expected = np.zeros((65 * ratio, 90 * ratio, 4), np.uint8)
+    expected[5 * ratio:53 * ratio, 19 * ratio:67 * ratio] = np.frombuffer(
+        reference.constBits(), np.uint8).reshape(48 * ratio, 48 * ratio, 4)
+    actual = np.frombuffer(canvas.constBits(), np.uint8).reshape(65 * ratio, 90 * ratio, 4)
+    np.testing.assert_array_equal(actual, expected)
+
+
 def test_native_still_does_not_ask_optional_font_provider(qapp, monkeypatch):
     monkeypatch.setattr(iconset, '_try_qta', lambda: pytest.fail('GIF must not request a font'))
     icon = iconset.app_icon('__easy_command__:Spaceout', theme='dark')
