@@ -956,3 +956,72 @@ def test_width_shrinking_level_releases_horizontal_room_and_restores_its_body(qt
     assert panel.property('maximumWidth') == 16777215
     assert splitter.geometry().width() == original[2]
     assert label.text() == 'A deliberately wide image description with original source identity'
+
+
+
+def test_a_native_pinch_in_field_wheel_mode_keeps_the_image_and_acquisition_axes(overview, qtbot):
+    from pathlib import Path
+    from PySide6.QtCore import QPointF
+    from PySide6.QtGui import QNativeGestureEvent, QPointingDevice
+    from PySide6.QtWidgets import QApplication
+
+    dialog = overview
+    dialog._well(dialog.wells.item(*dialog._well_positions[(dialog.plates.currentData(), 'B02')]))
+    dialog.fields.setCurrentRow(0)
+    qtbot.waitUntil(lambda: dialog.view._item is not None
+                    and not dialog._image_jobs.is_busy(), timeout=10000)
+    dialog.wheel_axis.setCurrentIndex(dialog.wheel_axis.findData('field'))
+    assert dialog.view.wheel_mode == 'field'
+    viewport = dialog.view.viewport()
+    assert dialog._readout_viewports[viewport] is dialog.view
+    axes = (dialog.fov_axis, dialog.time_axis, dialog.z_axis)
+    before_axes = tuple((axis.currentIndex(), axis.currentData()) for axis in axes)
+    before_transform = dialog.view.transform()
+    field = dialog._main_view_field
+    before_bytes = {path: Path(path).read_bytes() for _, path in field.files}
+    requests = []
+    dialog.view.detail_requested.connect(lambda: requests.append(True))
+    local = QPointF(viewport.rect().center())
+    pinch = QNativeGestureEvent(
+        Qt.ZoomNativeGesture, QPointingDevice.primaryPointingDevice(), 2,
+        local, local, QPointF(viewport.mapToGlobal(local.toPoint())), .25, QPointF(0, 0))
+    QApplication.sendEvent(viewport, pinch)
+    assert dialog.view.transform() == before_transform
+    assert tuple((axis.currentIndex(), axis.currentData()) for axis in axes) == before_axes
+    assert dialog._main_view_field.identity == field.identity
+    assert dialog._main_view_field.source == field.source
+    assert requests == []
+    assert {path: Path(path).read_bytes() for path in before_bytes} == before_bytes
+
+
+def test_an_unavailable_intensity_calculator_reports_real_tiff_roi_and_channel_metadata(
+        source_planes, monkeypatch):
+    import importlib
+    import json
+    from pathlib import Path
+
+    fields, _ = module._overview_index_sources(str(source_planes), PATTERN)
+    field = next(field for field in fields if field.well == 'B02')
+    before_bytes = {path: Path(path).read_bytes() for _, path in field.files}
+
+    def unavailable(*args, **kwargs):
+        raise RuntimeError('Intensity backend unavailable')
+
+    monkeypatch.setattr(importlib.import_module('spacr.measure'), '_image_level_features', unavailable)
+    record = module._overview_measurement(field, (1,), measurements=('intensity',))
+    assert record['status'] == 'error'
+    assert record['error'] == 'Intensity backend unavailable'
+    assert (record['plate'], record['well'], record['field_id']) == (
+        field.plate, field.well, field.field_id)
+    assert json.loads(record['source_files']) == [list(entry) for entry in field.files]
+    assert json.loads(record['channels']) == [1]
+    assert (record['height_px'], record['width_px'], record['roi_area']) == (30, 40, 1200)
+    assert record['roi'] == 'whole_image'
+    assert record['geometry_units'] == 'pixels'
+    assert record['intensity_units'] == 'raw_stored_pixel_values'
+    assert record['channel_1_source'] == field.files[0][1]
+    assert record['channel_1_dtype'] == 'uint16'
+    assert record['channel_1_finite_pixel_count'] == 1200
+    assert record['channel_1_nonfinite_pixel_count'] == 0
+    assert 'channel_1_mean' not in record
+    assert {path: Path(path).read_bytes() for path in before_bytes} == before_bytes

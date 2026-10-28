@@ -705,3 +705,62 @@ def test_beta_panel_actions_and_stage_legend_expose_their_real_meaning(qtbot):
         chip = row.findChild(QLabel, f'StageSwatch_{stage}')
         assert chip is not None and stage_hover(stage) in chip.styleSheet()
     assert legend.row_for('unregistered stage') is None
+
+
+def test_news_bottom_aligned_framed_heading_fits_and_short_date_stays_bounded(
+        qtbot, monkeypatch, classic_preferences):
+    from PySide6.QtWidgets import QFrame
+
+    title_text = 'A release heading with enough words to wrap inside the framed news panel'
+    date_text = '2026-10-28'
+    monkeypatch.setattr(home_mod.NewsPanel, 'read_releases', staticmethod(lambda: [
+        {'tag': 'v3', 'name': title_text, 'published': date_text, 'body': ''}]))
+    panel = home_mod.NewsPanel()
+    qtbot.addWidget(panel)
+    title, stamp = panel._headline_labels
+    title.setFrameStyle(QFrame.Box)
+    title.setMargin(4)
+    title.setIndent(-1)
+    title.setAlignment(Qt.AlignRight | Qt.AlignBottom)
+    panel.resize(300, 380)
+    panel.show()
+    qtbot.waitExposed(panel)
+    qtbot.waitUntil(lambda: title.property('minimumSize').height()
+                    >= title.heightForWidth(title.property('size').width()) > 0)
+    width = panel._notes.viewport().property('size').width()
+    assert title.wordWrap() and title.indent() == -1
+    assert title.property('minimumSize').width() == width
+    assert title.property('maximumSize').width() == width
+    assert title.text() == title.accessibleName() == title_text
+    assert stamp.text() == date_text and not stamp.wordWrap()
+    assert stamp.property('maximumSize').width() == width
+
+
+def test_replacing_reserved_news_survives_an_already_queued_surface_refresh(
+        real_classic_home, qtbot):
+    from PySide6.QtWidgets import QApplication, QFrame
+    from shiboken6 import isValid
+    from spacr.qt.widgets.home import panel_box_qss
+
+    page = real_classic_home
+    first = QFrame()
+    first.setObjectName('HomePanelBox')
+    first_layout = QVBoxLayout(first)
+    first_layout.addWidget(QLabel('The original featured news'))
+    page.set_reserved_content(first)
+    qtbot.waitUntil(first.isVisible)
+    assert page.refresh_pane_surfaces() >= 1
+    replacement = QFrame()
+    replacement.setObjectName('HomePanelBox')
+    replacement_layout = QVBoxLayout(replacement)
+    replacement_label = QLabel('Replacement featured news')
+    replacement_layout.addWidget(replacement_label)
+    page.set_reserved_content(replacement)
+    QApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+    assert not isValid(first)
+    assert page.refresh_pane_surfaces() >= 1
+    qtbot.waitUntil(lambda: replacement.isVisible()
+                    and replacement.styleSheet() == panel_box_qss(page._P))
+    assert page.news_panel.content is replacement
+    assert replacement_label.text() == 'Replacement featured news'
+    assert isValid(page) and isValid(replacement_label)

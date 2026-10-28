@@ -606,3 +606,168 @@ def test_hiding_the_active_plate_transfers_navigation_to_a_surviving_well_or_pla
         assert dialog.fields is dialog._well_panel.field_list
         assert dialog._scope == ('p1', None)
         assert {field.well for field in dialog._visible} == {'A01', 'B02'}
+
+
+def test_original_quality_retires_the_previous_detail_crop_and_preserves_physical_image(overview, qtbot):
+    from pathlib import Path
+    from PySide6.QtCore import Qt
+    from spacr.qt.hidpi import device_ratio
+
+    dialog = overview
+    dialog._well(dialog.wells.item(*dialog._well_positions[('p1', 'A01')]))
+    dialog.fields.setCurrentRow(0)
+    qtbot.waitUntil(lambda: not dialog._image_jobs.is_busy() and not dialog._image_pending
+                    and dialog.view._item is not None, timeout=10000)
+    field = dialog.fields.currentItem().data(Qt.UserRole)
+    originals = {Path(path): Path(path).read_bytes() for _, path in field.files}
+    assert dialog._source_shapes[field.identity] == (1536, 2048)
+    pixels_per_source_pixel = (dialog.view.transform().m11() * dialog.view._item.pixmap().width()
+                               / 2048 * device_ratio(dialog.view.viewport()))
+    dialog.view.zoom_by(1. / pixels_per_source_pixel)
+    assert dialog.view._user_zoomed
+    assert (dialog.view.transform().m11() * dialog.view._item.pixmap().width()
+            / 2048 * device_ratio(dialog.view.viewport())) == pytest.approx(1.)
+    dialog._load_native_detail()
+    qtbot.waitUntil(lambda: not dialog._native_jobs.is_busy() and dialog._native_item is not None, timeout=10000)
+    crop = dialog._native_item
+    assert crop.scene() is dialog.view.scene()
+    assert dialog._native_key[0] == field.identity
+    assert crop.pixmap().width() <= 2048 and crop.pixmap().height() <= 2048
+    dialog.preview_resolution.setCurrentIndex(dialog.preview_resolution.findData(None))
+    qtbot.waitUntil(lambda: not dialog._quality_timer.isActive() and not dialog._image_jobs.is_busy()
+                    and dialog.view._item is not None and dialog.view._item.pixmap().width() == 2048,
+                    timeout=10000)
+    assert dialog.view._item.pixmap().height() == 1536
+    assert dialog._native_item is None and dialog._native_key is None
+    assert crop.scene() is None
+    assert dialog._main_view_field.identity == field.identity
+    assert all(path.read_bytes() == content for path, content in originals.items())
+
+
+def test_channel_apply_refuses_invalid_enhancement_but_keeps_its_valid_display_settings(overview, qtbot):
+    import copy
+    from pathlib import Path
+    from PySide6.QtCore import Qt
+    from PySide6.QtGui import QImage
+    from spacr.qt.widgets import qc_field_browser as module
+
+    dialog = overview
+    dialog._well(dialog.wells.item(*dialog._well_positions[('p1', 'B02')]))
+    dialog.fields.setCurrentRow(0)
+    qtbot.waitUntil(lambda: not dialog._image_jobs.is_busy() and dialog.view._item is not None, timeout=10000)
+    field = dialog.fields.currentItem().data(Qt.UserRole)
+    originals = {Path(path): Path(path).read_bytes() for _, path in field.files}
+    dialog.norm_channel.setCurrentIndex(dialog.norm_channel.findData(1))
+    global_settings = copy.deepcopy(dialog._global_display)
+    dialog.low.setValue(10.)
+    dialog.high.setValue(90.)
+    dialog._channel_display_draft(dict(ink=.4, enhance_clahe=True, enhance_clahe_clip=0.))
+    generation = dialog._display_generation
+    dialog._channel_override_buttons[0].click()
+    assert dialog._display_generation > generation
+    assert set(dialog._channel_overrides) == {1}
+    assert dialog._global_display == global_settings
+    assert dialog._channel_overrides[1]['percentile_low'] == 10.
+    assert dialog._channel_overrides[1]['percentile_high'] == 90.
+    assert dialog._channel_overrides[1]['ink'] == .4
+    assert 'Channel 1 enhancement is not applied' in dialog.status.text()
+    assert 'enhance_clahe_clip must be above 0 and at most 1' in dialog.status.text()
+    qtbot.waitUntil(lambda: dialog._normalization_ready and not dialog._index_jobs.is_busy()
+                    and not dialog._image_jobs.is_busy() and not dialog._image_pending
+                    and dialog.view._item is not None, timeout=10000)
+    options = dialog._display_kwargs(view=True)
+    assert options['channel_percentiles'] == {1: (10., 90.)}
+    assert options['ink_intensity'] == {1: .4}
+    assert 'channel_enhancement' not in options
+    channels, limits = dialog._choices()
+    expected = module._overview_pixels(field, channels, limits, edge=dialog._preview_edge, **options)
+    image = dialog.view._item.pixmap().toImage().convertToFormat(QImage.Format_RGB888)
+    actual = np.frombuffer(image.constBits(), dtype=np.uint8).reshape(image.height(), image.bytesPerLine())
+    actual = actual[:, :image.width() * 3].reshape(image.height(), image.width(), 3)
+    np.testing.assert_array_equal(actual, expected)
+    assert dialog._main_view_field.identity == field.identity
+    assert all(path.read_bytes() == content for path, content in originals.items())
+
+
+def test_late_successful_group_comparison_cannot_replace_a_newer_representative_intent(
+        overview, qtbot, monkeypatch):
+    import threading
+    from pathlib import Path
+    from unittest.mock import Mock
+    import pandas as pd
+    from spacr import tabular
+    from spacr.schema import field_id
+    from spacr.qt.widgets import qc_field_browser as module
+
+    dialog = overview
+    database = Path(dialog._metadata_source) / 'measurements' / 'measurements.db'
+    records = [dict(plate=field.plate, well=field.well, field=str(field.field),
+                    fieldID=field_id(field.field_id), time_id=str(field.time_id), z_id=str(field.z_id),
+                    channel_1_mean=(1. if field.well == 'A01' else 7.) + 2. * (int(field.field_id) - 1),
+                    status='ok') for field in dialog._fields]
+    tabular.write_database(pd.DataFrame(records), database, 'fov', if_exists='replace', canonicalise=False)
+    assert dialog.group_builder.add_group({'well': 'A01'})
+    assert dialog.group_builder.add_group({'well': 'B02'})
+    dialog.group_builder.rename_group(row=0, name='Control')
+    dialog.group_builder.rename_group(row=1, name='Treated')
+    qtbot.waitUntil(lambda: not dialog._group_jobs.is_busy(), timeout=10000)
+    dialog.comparison_measurement.setCurrentText('channel_1_mean')
+    dialog.representative_method.setCurrentIndex(dialog.representative_method.findData('measurement'))
+    entered, release = threading.Event(), threading.Event()
+    reader_lock = threading.Lock()
+    reads = []
+    completed = []
+    original_reader = module._overview_comparison_frame
+    rendered_table = Mock(wraps=dialog._show_comparison_table)
+
+    def read(source):
+        with reader_lock:
+            reads.append(source)
+            first = len(reads) == 1
+        if first:
+            entered.set()
+            assert release.wait(30), 'the held comparison must be released during test cleanup'
+        return original_reader(source)
+
+    with monkeypatch.context() as local:
+        local.setattr(module, '_overview_comparison_frame', read)
+        local.setattr(dialog, '_show_comparison_table', rendered_table)
+        dialog._export_jobs.job_finished.connect(completed.append)
+        try:
+            dialog._comparison_buttons[0].click()
+            qtbot.waitUntil(entered.is_set, timeout=10000)
+            dialog._comparison_buttons[1].click()
+            qtbot.waitUntil(lambda: completed == [True] and dialog._export_jobs.active_jobs() == 1
+                            and not dialog._montage_jobs.is_busy()
+                            and 'Representative images' in dialog.status.text(), timeout=10000)
+            expected = tuple(field.identity for field in dialog._fields if field.field_id == '1')
+            assert dialog._comparison_signature[0] == expected
+            assert dialog._export_jobs.active_jobs() == 1
+            signature, caption = dialog._comparison_signature, dialog.status.text()
+            pixels = dialog.view._item.pixmap().toImage()
+            release.set()
+            qtbot.waitUntil(lambda: not dialog._export_jobs.is_busy() and completed == [True, True], timeout=30000)
+            assert len(reads) == 2
+            rendered_table.assert_not_called()
+            assert dialog.comparison_table.rowCount() == 0
+            assert dialog._comparison_signature == signature
+            assert dialog.status.text() == caption
+            assert dialog.view._item.pixmap().toImage() == pixels
+            assert not dialog._image_views
+            folder = Path(dialog._metadata_source) / 'results' / 'overview_comparisons'
+            summaries = list(folder.glob('*_summary.csv'))
+            tests = list(folder.glob('*_tests.csv'))
+            assert len(summaries) == len(tests) == 1
+            figures = [path for path in folder.iterdir() if path.suffix in ('.pdf', '.png', '.svg', '.tiff')]
+            assert len(figures) == 1 and figures[0].stat().st_size > 0
+            summary = tabular.read_table(summaries[0], canonicalise=False).set_index('group')
+            assert summary.loc['Control', 'mean'] == 2.
+            assert summary.loc['Treated', 'mean'] == 8.
+            assert np.log2(summary.loc['Control', 'mean'] / summary.loc['Treated', 'mean']) == -2.
+            result = tabular.read_table(tests[0], canonicalise=False)
+            assert set(result['measurement']) == {'channel_1_mean'}
+            assert 'pairwise' in set(result['stage'])
+        finally:
+            release.set()
+            qtbot.waitUntil(lambda: not dialog._export_jobs.is_busy() and not dialog._montage_jobs.is_busy(),
+                            timeout=30000)
