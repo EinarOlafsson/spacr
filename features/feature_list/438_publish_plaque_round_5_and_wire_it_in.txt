@@ -4,7 +4,7 @@ PLAQUE MODEL PUBLICATION AND V6 INTEGRATION
 
 CURRENT PLAQUE V6 HANDOFF — 2026-10-23
 Lifecycle: new
-Status:    OPEN — awaiting the training session’s verified v6 handoff; published v5 delivery is retained.
+Status: DONE — published plaque v6 is integrated and selected by default; the awaiting-handoff header was stale.
 Owner:     plaque model session; easy_n79 integration watch; root publication.
 The maintainer requests integration when v6 arrives. Keep the existing v5 default until checkpoint/architecture, channels, immutable checksums and scorecard are verified; then integrate the registry and required published assets with CPU-only load/sample checks and normal generated documentation. Do not touch the other session’s training or use the Home GPU.
 
@@ -254,3 +254,5 @@ of v3) is the same physical plate as ReimagedPlate1 (training data of v4).
 2026-10-19: verified on HF: cpsam-r7@e29ee85 weights/cpsam_plaque_r7 sha256 9243917b...8a1, matching the zoo row and the local checkpoint; v4's HF card (cpsam-r6@94e9989) already says v5 is the default.
 2026-10-19: web models.json regenerated with tools.web_mask_generator.provision from public Hub metadata (18/18 LFS checksums match; v4 now pinned at 94e9989, sources rebound).
 2026-10-19: browser ONNX toxoplasma_plaque_v5-a03c569178f1.onnx exported (torch vs onnxruntime check passed) and uploaded with browser-manifest.json to dataset einarolafsson/models web-onnx/ (commit 52aa66e6). Nothing remains for 438.
+
+2026-10-28 — Published a116d694903 integrates the epoch-100 v6 checkpoint, matching card/160-field scorecard, defaults, generated documentation and nine-language records on Main and Nightly. This reconciles existing delivery; no new weight-loading or inference run is claimed.

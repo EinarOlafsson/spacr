@@ -4,7 +4,7 @@ ONE PAGE PER MODEL CLASS, IN THE SPACR SITE STYLE
 ================================================================================
 
 Lifecycle: new
-Status:    new 2026-10-13
+Status: DONE — the Browser/WASM mask generator and Colab routes are published; the retired paid Space is removed.
 Requested: maintainer, 2026-10-13: "i would like a new web page in the same
            style as the spacr web page where the user can drop in or upload a
            picture or a pdf or whatever other supported filetype and the
@@ -743,3 +743,5 @@ Maintainer steps left (zero cost; Space retired 2026-10-18):
 - Browser ONNX models verified on HF 2026-10-18 (dataset einarolafsson/models/web-onnx). No site, app, README or docs link to the Space remained.
 - Space redeploy and hosted-run maintainer steps removed; keep one WebGPU browser run and one Colab run.
 - tools/web_mask_generator/README.md and space/README.md now say the Gradio sources are a self-hostable reference only.
+
+2026-10-28 — Pages deployment 0098832c145d serves site source c9a6f3dc2cb3, a descendant of 19af6af. Fresh public HTML/JavaScript match deployed blobs and expose Browser/WASM plus eight Colab links without the retired Space URL; retain prior inference results, without claiming a new WebGPU or inference run.

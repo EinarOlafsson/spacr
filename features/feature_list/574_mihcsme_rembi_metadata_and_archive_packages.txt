@@ -1,9 +1,7 @@
 METADATA AND ARCHIVE PACKAGES: MIHCSME/REMBI, IDR AND BIOIMAGE ARCHIVE
 
 Lifecycle: future
-Status: BLOCKED 2026-10-03 — IDR curator checks/accessions and a BioStudies
-        submission (no network writes from here). Implemented as alpha
-        2026-09-27; multi-run form and combined PAGETAB 2026-10-03.
+Status: DONE — metadata and archive submission packages are implemented, validated and published.
 
 Previous status (superseded 2026-10-04): IMPLEMENTED AS ALPHA 2026-09-27.
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
@@ -260,3 +258,5 @@ exit1 with checksum diagnostics. No uploads/real data changes. Prose is tr-wrapp
 with English fallback pending reviewed locale records. Evidence:
 features/data/574_checksum_verification_guide_2026-10-14/. External curator/service
 acceptance remains deferred; no whole-feature external closure is claimed.
+
+2026-10-28 — Published a6526c9ab retains 88 checks and recorded GUI/CLI/notebook/checksum exports. The original deliverable is submission packages; curator naming, IDR accessions and BioStudies service submission remain external follow-up, not claimed completed deposits.
