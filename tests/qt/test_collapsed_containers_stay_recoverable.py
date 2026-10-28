@@ -219,8 +219,11 @@ def test_a_cramped_screen_fills_its_scroll_area_at_any_gui_scale(
 
 def test_the_reset_action_restores_the_default_layout(
         qapp, qtbot, scales_restored):
-    window = _main_window(qtbot, WINDOWS[0])
+    previous_easy = prefs.get_easy_mode()
+    window = None
     try:
+        prefs.set_easy_mode(False)
+        window = _main_window(qtbot, WINDOWS[0])
         screen = _open(window, qtbot, "mask")
         split = screen._runtime_splitter
         for name in ("Actions", "System"):
@@ -243,7 +246,11 @@ def test_the_reset_action_restores_the_default_layout(
         assert split.pane("Console").extent == split.pane(
             "Console").default_extent
     finally:
-        window.close()
+        try:
+            if window is not None:
+                window.close()
+        finally:
+            prefs.set_easy_mode(previous_easy)
 
 
 @pytest.mark.parametrize("gui,font", SCALES)

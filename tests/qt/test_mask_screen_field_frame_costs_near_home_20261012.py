@@ -123,18 +123,24 @@ def applied(qapp):
     That is what installs the field fade, which ``qt_theme_applied`` alone
     does not; the application's look is put back afterwards.
     """
+    from spacr.qt import preferences
     from spacr.qt.preferences import apply_preferences_to_app
     from spacr.qt.widgets.field_fade import (invalidate_field_fade,
                                              uninstall_field_fade)
 
     sheet, palette, font = qapp.styleSheet(), qapp.palette(), qapp.font()
-    apply_preferences_to_app(qapp)
-    yield qapp
-    uninstall_field_fade(qapp)
-    invalidate_field_fade()
-    qapp.setFont(font)
-    qapp.setPalette(palette)
-    qapp.setStyleSheet(sheet)
+    previous_easy = preferences.get_easy_mode()
+    try:
+        preferences.set_easy_mode(False)
+        apply_preferences_to_app(qapp)
+        yield qapp
+    finally:
+        preferences.set_easy_mode(previous_easy)
+        uninstall_field_fade(qapp)
+        invalidate_field_fade()
+        qapp.setFont(font)
+        qapp.setPalette(palette)
+        qapp.setStyleSheet(sheet)
 
 
 @pytest.fixture
