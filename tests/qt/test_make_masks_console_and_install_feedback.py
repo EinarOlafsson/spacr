@@ -480,9 +480,8 @@ def loaded(qtbot, tmp_path):
     widget = mm.MakeMasksScreen()
     qtbot.addWidget(widget)
     widget._open_folder(str(folder))
-    if widget._loading:
-        widget._load_worker.wait(30_000)
-        widget._on_background_load_finished()
+    qtbot.waitUntil(lambda: not widget._loading and widget._reader_worker is None
+                    and widget._load_worker is None, timeout=30000)
     assert widget._canvas.image is not None
     yield widget
     widget.close_folded()

@@ -86,6 +86,8 @@ def screen(qtbot, qt_theme_applied, labelled: Path):
     made = mm.MakeMasksScreen()
     qtbot.addWidget(made)
     assert made._open_folder(str(labelled))
+    qtbot.waitUntil(lambda: not made._loading and made._reader_worker is None
+                    and made._load_worker is None)
     made._canvas.resize(CANVAS_W, CANVAS_H)
     made._canvas.refresh()
     assert made._canvas.pixmap().deviceIndependentSize().width() == PIXMAP_N, "geometry assumption broke"

@@ -101,6 +101,8 @@ def test_mask_folder_uses_short_label_and_always_saves_confirmed_masks(qtbot, mo
     qtbot.addWidget(screen)
     try:
         screen._open_folder(str(tmp_path))
+        qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                        and screen._load_worker is None)
         workbench = screen.folded_screen(MASK_FOLDER_KEY)
         workbench.apply_screen.apply_settings_dict({'save': False})
         started = []

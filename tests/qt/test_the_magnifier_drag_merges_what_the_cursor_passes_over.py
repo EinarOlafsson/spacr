@@ -328,6 +328,8 @@ def screen(qtbot, qt_theme_applied, fields: Path):
         made = mm.MakeMasksScreen()
         qtbot.addWidget(made)
         assert made._open_folder(str(fields))
+        qtbot.waitUntil(lambda: not made._loading and made._reader_worker is None
+                        and made._load_worker is None)
         made._canvas.resize(CANVAS_W, CANVAS_H)
         made._canvas.refresh()
         assert made._canvas.pixmap().deviceIndependentSize().width() == PIXMAP_N, "geometry assumption broke"
@@ -453,6 +455,8 @@ def test_gapped_detections_extend_the_first_object_and_persist(
     reopened = mm.MakeMasksScreen()
     qtbot.addWidget(reopened)
     assert reopened._open_folder(str(fields))
+    qtbot.waitUntil(lambda: not reopened._loading and reopened._reader_worker is None
+                    and reopened._load_worker is None)
     np.testing.assert_array_equal(reopened._canvas.mask, expected)
     assert reopened._canvas.manual_ids
     assert source.read_bytes() == original_image

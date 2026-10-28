@@ -190,11 +190,17 @@ def test_make_masks_opens_a_volume_in_its_own_view_and_back_to_2d(qtbot, tmp_pat
     assert screen._canvas.image.shape == (4, 5)
     assert not hasattr(screen, '_btn_volume')
     assert 'draw 3D masks slice by slice' in screen._btn_open.toolTip()
-    assert screen._on_pick_file(str(tmp_path / 'volume.tif')) is screen._mask_stage
+    assert screen._on_pick_file(str(tmp_path / 'volume.tif')) is True
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
+    assert screen._mask_stage is stage
+    np.testing.assert_array_equal(stage.session.image, volume)
     folder = tmp_path / 'fields'
     folder.mkdir()
     write_tiff(folder / 'field.tif', np.arange(25, dtype=np.uint16).reshape(5, 5))
     assert screen._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert stage.session is None and screen._canvas.image.shape == (5, 5)
 
 

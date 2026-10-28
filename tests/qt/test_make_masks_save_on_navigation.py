@@ -28,6 +28,8 @@ def opened(qtbot, qt_theme_applied, tmp_path, monkeypatch):
     screen = MakeMasksScreen()
     qtbot.addWidget(screen)
     assert screen._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     yield screen, folder, settings_path
     screen._magnifier.close()
     screen.close_folded()

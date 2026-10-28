@@ -66,6 +66,8 @@ def screen(qtbot, qt_theme_applied, tmp_path: Path):
     made = mm.MakeMasksScreen()
     qtbot.addWidget(made)
     assert made._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not made._loading and made._reader_worker is None
+                    and made._load_worker is None)
     try:
         yield made
     finally:

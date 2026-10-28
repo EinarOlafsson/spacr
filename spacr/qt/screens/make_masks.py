@@ -23961,14 +23961,14 @@ class MakeMasksScreen(QWidget):
         return action
 
     def _on_pick_file(self, path: Optional[str] = None):
-        """Open one image file: a 2D field with its folder, or a 3D volume.
+        """Admit one image file through the shared reader queue.
 
-        A z-stack or volume opens through :meth:`open_volume`. A 2D image
-        opens its folder, as Open folder does, at that image.
+        Metadata review and image loading may finish after admission. A
+        native spatial volume opens in the embedded stage; a reviewed
+        container opens its selected plane.
 
         :param path: the file; asked for when None.
-        :returns: the volume stage for a volume, True for a 2D image that
-            opened, else None.
+        :returns: True when admitted; False or None on cancellation or refusal.
         """
         from ..i18n import tr
 
@@ -24453,10 +24453,12 @@ class MakeMasksScreen(QWidget):
                     chosen, accepted = QInputDialog.getItem(
                         self, tr('NPY image layout'), tr('Choose an NPY image'), numeric, 0, False)
                     return self._open_numeric_npy(chosen) if accepted else False
-        if (len(paths) == 1 and os.path.isdir(paths[0]) and engine.list_images(paths[0])
-                and not dc.list_folder_images(paths[0])):
+        if (len(paths) == 1 and os.path.isdir(paths[0])
+                and any(not name.lower().endswith(dc.IMAGE_EXTS)
+                        for name in engine.list_images(paths[0]))):
             return self._open_queue(paths)
-        if (paths and (len(paths) == 1 or any(not path.lower().endswith(engine.IMAGE_EXTS) for path in paths))
+        if (paths and any(os.path.isfile(path) and not path.lower().endswith(dc.IMAGE_EXTS)
+                          for path in paths)
                 and all((os.path.isfile(path) and path.lower().endswith(engine._image_extensions())
                          and not engine.is_seg_bundle(path)) or os.path.isdir(path) for path in paths)):
             for path in paths:

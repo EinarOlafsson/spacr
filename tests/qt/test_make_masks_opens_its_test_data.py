@@ -177,11 +177,13 @@ def test_the_button_is_on_the_make_masks_screen_and_says_what_it_loads(screen):
         "the button is not in the row beside Open folder…")
 
 
-def test_the_download_then_opens_the_first_image_by_name(screen, tmp_path):
+def test_the_download_then_opens_the_first_image_by_name(qtbot, screen, tmp_path):
     folder = tmp_path / "cache" / "make_masks_toxo_pv"
     fake = _FakeDownload()
 
     demo.load_the_test_data(screen, ask=fake, folder=folder)
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
 
     assert fake.calls == 1
     assert fake.button_enabled_during is False, (
@@ -199,31 +201,39 @@ def test_the_download_then_opens_the_first_image_by_name(screen, tmp_path):
     assert screen._body_stack.currentWidget() is screen._image_page
 
 
-def test_the_ground_truth_is_not_offered_as_a_field_and_not_loaded(screen,
+def test_the_ground_truth_is_not_offered_as_a_field_and_not_loaded(qtbot, screen,
                                                                     tmp_path):
     folder = tmp_path / "data"
     demo.load_the_test_data(screen, ask=_FakeDownload(), folder=folder)
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
 
     assert all("/" not in name for name in screen._image_files)
     assert not np.any(screen._canvas.mask), (
         "the editor opened on the ground truth instead of an empty draft")
 
 
-def test_a_second_press_opens_from_the_cache_without_downloading(screen,
+def test_a_second_press_opens_from_the_cache_without_downloading(qtbot, screen,
                                                                  tmp_path):
     folder = tmp_path / "data"
     fake = _FakeDownload()
     assert demo.load_the_test_data(screen, ask=fake, folder=folder) is False
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
 
     screen._open_folder(str(tmp_path))          # somewhere else in between
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert demo.load_the_test_data(screen, ask=fake, folder=folder) is True
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
 
     assert fake.calls == 1, "the second press downloaded again"
     assert Path(screen._folder) == folder
     assert screen._image_files[screen._current_index] == _FIRST_BY_NAME
 
 
-def test_the_real_button_click_goes_through_the_same_load(screen, tmp_path,
+def test_the_real_button_click_goes_through_the_same_load(qtbot, screen, tmp_path,
                                                           monkeypatch):
     fake = _FakeDownload()
     folder = tmp_path / "clicked"
@@ -231,6 +241,8 @@ def test_the_real_button_click_goes_through_the_same_load(screen, tmp_path,
     monkeypatch.setattr(demo, "make_masks_example_folder", lambda: folder)
 
     screen._btn_test_data.click()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
 
     assert fake.calls == 1
     assert screen._image_files[screen._current_index] == _FIRST_BY_NAME

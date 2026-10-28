@@ -88,6 +88,8 @@ def test_two_folders_dropped_become_two_channels_end_to_end(
     exp = _tree(tmp_path)
     monkeypatch.setattr(screen, "_run_organize", _apply_popup)
     assert screen.open_paths([str(exp / "DAPI"), str(exp / "GFP")])
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None and getattr(screen, "_folder_job", None) is None, timeout=60000)
     dialog = screen._organize_dialog
     assert [c.kind for c in dialog.columns] == ["channel", "mask",
                                                 "channel", "mask"]
@@ -106,9 +108,11 @@ def test_two_folders_dropped_become_two_channels_end_to_end(
     assert not list((exp / "DAPI").glob("*.tif"))
 
 
-def test_cancelling_the_popup_opens_the_folders_as_a_queue(screen, tmp_path):
+def test_cancelling_the_popup_opens_the_folders_as_a_queue(qtbot, screen, tmp_path):
     exp = _tree(tmp_path)
     assert screen.open_paths([str(exp / "DAPI"), str(exp / "GFP")])
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None and getattr(screen, "_folder_job", None) is None)
     assert screen._organize_dialog is not None
     assert len(screen._image_files) == 6
     assert screen._field_folders is not None
@@ -130,7 +134,7 @@ def test_channel_like_subfolders_open_the_popup_prefilled(screen, tmp_path,
     assert len(seen[0].rows) == 3
 
 
-def test_other_nested_folders_still_get_the_consolidation_question(
+def test_other_nested_folders_still_get_the_consolidation_question(qtbot,
         screen, tmp_path, monkeypatch):
     src = tmp_path / "exp"
     _tif(src / "monday" / "x1.tif")
@@ -138,11 +142,13 @@ def test_other_nested_folders_still_get_the_consolidation_question(
     asked = []
     monkeypatch.setattr(screen, "_confirm", lambda *a: asked.append(a) or False)
     screen.open_paths([str(src)])
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None and getattr(screen, "_folder_job", None) is None)
     assert asked and "Consolidate" in asked[0][0]
     assert getattr(screen, "_organize_dialog", None) is None
 
 
-def test_images_dropped_with_their_masks_folder_open_with_them(screen,
+def test_images_dropped_with_their_masks_folder_open_with_them(qtbot, screen,
                                                                 tmp_path):
     for name in ("a.tif", "b.tif"):
         _tif(tmp_path / "imgs" / name)
@@ -150,12 +156,14 @@ def test_images_dropped_with_their_masks_folder_open_with_them(screen,
     assert screen.open_paths([str(tmp_path / "imgs" / "a.tif"),
                               str(tmp_path / "imgs" / "b.tif"),
                               str(tmp_path / "drawn_masks")])
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None and getattr(screen, "_folder_job", None) is None)
     assert screen._folder == str(tmp_path / "imgs")
     assert screen._masks_dir == str(tmp_path / "drawn_masks")
     assert screen._image_files == ["a.tif", "b.tif"]
 
 
-def test_masks_under_other_names_are_copied_beside_their_images(
+def test_masks_under_other_names_are_copied_beside_their_images(qtbot,
         screen, tmp_path, monkeypatch):
     a = _tif(tmp_path / "imgs" / "a.tif")
     _tif(tmp_path / "imgs" / "masks" / "b.tif", _mask(5))
@@ -166,6 +174,8 @@ def test_masks_under_other_names_are_copied_beside_their_images(
     asked = []
     monkeypatch.setattr(screen, "_confirm", lambda *a: asked.append(a) or True)
     assert screen.open_paths([str(a), str(b), str(ma), str(mb), str(stray)])
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None and getattr(screen, "_folder_job", None) is None)
     assert "1 image(s) already have a mask" in asked[0][1]
     copied = tifffile.imread(str(tmp_path / "imgs" / "masks" / "a.tif"))
     assert copied.max() == 2
@@ -175,7 +185,7 @@ def test_masks_under_other_names_are_copied_beside_their_images(
     assert "zz_cp_masks" in screen._masks_console.text()
 
 
-def test_a_png_mask_is_written_as_a_tiff(screen, tmp_path, monkeypatch):
+def test_a_png_mask_is_written_as_a_tiff(qtbot, screen, tmp_path, monkeypatch):
     from PIL import Image
 
     a = _tif(tmp_path / "imgs" / "a.tif")
@@ -185,15 +195,19 @@ def test_a_png_mask_is_written_as_a_tiff(screen, tmp_path, monkeypatch):
     Image.fromarray(_mask(7).astype(np.uint8)).save(png)
     monkeypatch.setattr(screen, "_confirm", lambda *a: True)
     assert screen.open_paths([str(a), str(b), str(png)])
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None and getattr(screen, "_folder_job", None) is None)
     written = tifffile.imread(str(tmp_path / "imgs" / "masks" / "a.tif"))
     assert written.max() == 7
 
 
-def test_a_sorted_channels_folder_opens_its_first_channel(screen, tmp_path):
+def test_a_sorted_channels_folder_opens_its_first_channel(qtbot, screen, tmp_path):
     dest = tmp_path / "sorted_channels"
     _tif(dest / "C01" / "plate1_A01_T0001F001L01A01Z01C01.tif")
     _tif(dest / "C02" / "plate1_A01_T0001F001L01A01Z01C02.tif")
     assert screen.open_paths([str(dest)])
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None and getattr(screen, "_folder_job", None) is None)
     assert screen._folder == str(dest / "C01")
     assert "sorted by spaCR" in screen._masks_console.text()
 
@@ -206,24 +220,28 @@ def test_merged_arrays_alone_open_nothing_and_say_why(screen, tmp_path):
     assert not screen._image_files
 
 
-def test_unrecognised_items_are_listed_in_the_console(screen, tmp_path):
+def test_unrecognised_items_are_listed_in_the_console(qtbot, screen, tmp_path):
     a = _tif(tmp_path / "a.tif")
-    npy = tmp_path / "x.npy"
-    np.save(npy, np.zeros(3))
-    assert screen.open_paths([str(a), str(npy)])
+    unsupported = tmp_path / "x.not_an_image"
+    unsupported.write_text("not an image", encoding="utf-8")
+    assert screen.open_paths([str(a), str(unsupported)])
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None and getattr(screen, "_folder_job", None) is None)
     assert screen._image_files == ["a.tif"]
     assert "Not used from this drop" in screen._masks_console.text()
-    assert "x.npy" in screen._masks_console.text()
+    assert unsupported.name in screen._masks_console.text()
     note = tmp_path / "n.txt"
     note.write_text("x", encoding="utf-8")
     assert not screen.open_paths([str(note)])
     assert "n.txt" in screen._masks_console.text()
 
 
-def test_the_organize_button_opens_the_popup_on_the_open_folder(
+def test_the_organize_button_opens_the_popup_on_the_open_folder(qtbot,
         screen, tmp_path, monkeypatch):
     _tif(tmp_path / "flat" / "a.tif")
     assert screen._open_folder(str(tmp_path / "flat"))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None and getattr(screen, "_folder_job", None) is None)
     seen = []
     monkeypatch.setattr(screen, "_run_organize",
                         lambda dialog: seen.append(dialog) or False)
