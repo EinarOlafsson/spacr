@@ -686,6 +686,26 @@ def _set_mac_preferences_aside() -> None:
                      stderr=subprocess.DEVNULL, start_new_session=True)
 
 
+def _guard_pytest_logging_capture(config):
+    """Serialize capture entry with ordinary concurrent logger registration."""
+    import functools
+    import logging
+    from _pytest.logging import catching_logs
+
+    if "attached_loggers" not in getattr(catching_logs, "__slots__", ()):
+        return
+    original_enter = catching_logs.__enter__
+
+    @functools.wraps(original_enter)
+    def enter(capture):
+        with logging._lock:
+            return original_enter(capture)
+
+    patch = pytest.MonkeyPatch()
+    patch.setattr(catching_logs, "__enter__", enter)
+    config.add_cleanup(patch.undo)
+
+
 def pytest_configure(config):
     """Sandbox QSettings, and pin one collection node per directory.
 
@@ -697,6 +717,7 @@ def pytest_configure(config):
     directory, which is one level too late to keep ``tests`` itself stable.
     """
     global _CAPTURE
+    _guard_pytest_logging_capture(config)
     _CAPTURE = config.pluginmanager.getplugin("capturemanager")
     # SettingWithCopyWarning, ONLY WHERE IT STILL EXISTS. Writing through a
     # slice is a real bug and this suite promotes it to an error -- but

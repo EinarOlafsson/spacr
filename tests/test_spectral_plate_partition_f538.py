@@ -93,6 +93,178 @@ def _run(inputs):
     return run_v2(inputs['source'], **inputs['kwargs'])
 
 
+def _captured_partition_plans(inputs):
+    import inspect
+    from spacr import pipeline_v2
+
+    bound = inspect.signature(pipeline_v2.run_v2).bind(inputs['source'], **inputs['kwargs'])
+    bound.apply_defaults()
+    mapper = pipeline_v2.FilenameMapper.discover(inputs['source'],
+        metadata_type=inputs['kwargs']['metadata_type'], custom_regex=inputs['kwargs']['custom_regex'])
+    return pipeline_v2._preflight_plate_partitions(inputs['source'], mapper,
+        inputs['settings'], bound.arguments)
+
+
+@needs_partition_access
+@pytest.mark.parametrize('boundary', ['headers', 'captured-summary', 'control-summary'])
+def test_real_calibration_and_metadata_bytes_obey_the_collection_retention_limit(
+        mixed_plate_inputs, monkeypatch, boundary):
+    from spacr import pipeline_v2
+
+    inputs = mixed_plate_inputs
+    source = inputs['source']
+    controls = json.loads(inputs['settings']['unmix_controls'])
+    template_paths = sorted(source.glob('plate1_*.tif'))
+    calibration = (source / inputs['optical_map']['plate1']['calibration_file']).read_bytes()
+    for number in range(3, 17):
+        plate = f'plate{number}'
+        for path in template_paths:
+            (source / path.name.replace('plate1_', plate + '_', 1)).write_bytes(path.read_bytes())
+        controls[plate] = deepcopy(controls['plate1'])
+        entry = deepcopy(inputs['optical_map']['plate1'])
+        entry['calibration_file'] = plate + '_optics.json'
+        entry['source_context']['plate'] = plate
+        (source / entry['calibration_file']).write_bytes(calibration)
+        inputs['optical_map'][plate] = entry
+    inputs['settings']['unmix_controls'] = json.dumps(controls)
+    inputs['settings']['unmix_plate_calibrations'] = json.dumps(inputs['optical_map'])
+    plans = _captured_partition_plans(inputs)
+    assert len(plans) == 16
+    pre = [dict(metadata={key: value for key, value in plan['metadata'].items()
+                          if key not in {'control_values', 'control_fields', 'matrix'}},
+                headers=plan['headers'], identities=plan['identities']) for plan in plans]
+    post = [dict(metadata=plan['metadata'], headers=plan['headers'], identities=plan['identities'])
+            for plan in plans]
+    pre_bytes, post_bytes = (len(json.dumps(value, allow_nan=False).encode()) for value in (pre, post))
+    header_bytes = 0
+    for plan in plans:
+        for field_id, records in plan['mapper'].by_field().items():
+            identity = plan['identities'][field_id]
+            header_bytes += len(json.dumps(dict(
+                identities={field_id: identity, f'stack_{field_id}.npy': identity},
+                headers={record.original_path: plan['headers'][record.original_path]
+                         for record in records}), allow_nan=False).encode())
+    assert header_bytes < pre_bytes < post_bytes
+    room = (128 if boundary == 'headers' else (header_bytes + pre_bytes) // 2
+            if boundary == 'captured-summary' else (pre_bytes + post_bytes) // 2)
+    budget = 16 * 1024 ** 2
+    target_raw_bytes = budget - room
+    each, remainder = divmod(target_raw_bytes, len(plans))
+    optical_files = [source / inputs['optical_map'][plan['metadata']['plate_id']]['calibration_file']
+                     for plan in plans]
+    for index, path in enumerate(optical_files):
+        raw = path.read_bytes()
+        size = each + (index < remainder)
+        assert len(raw) <= size <= 1024 ** 2
+        path.write_bytes(raw + b' ' * (size - len(raw)))
+    assert sum(path.stat().st_size for path in optical_files) == target_raw_bytes
+    before = {path: path.read_bytes() for path in source.rglob('*') if path.is_file()}
+    entries = set(source.rglob('*'))
+    reads = []
+    read_control = pipeline_v2._partition_read_control
+
+    def observe_control(*args, **kwargs):
+        reads.append(args[0][0].original_path)
+        return read_control(*args, **kwargs)
+
+    monkeypatch.setattr(pipeline_v2, '_partition_read_control', observe_control)
+    with pytest.raises(ValueError):
+        _run(inputs)
+    assert bool(reads) is (boundary == 'control-summary')
+    assert inputs['constructed'] == inputs['observed'] == []
+    assert set(source.rglob('*')) == entries
+    assert all(path.read_bytes() == raw for path, raw in before.items())
+    assert not list(source.glob('calibrated_plate_batch*'))
+
+
+@needs_partition_access
+@pytest.mark.parametrize('boundary', ['control-values', 'serialized-bytes'])
+def test_real_sparse_controls_stop_at_the_declared_value_or_serialization_budget(
+        mixed_plate_inputs, monkeypatch, boundary):
+    import tifffile
+    from spacr import pipeline_v2
+
+    inputs = mixed_plate_inputs
+    source = inputs['source']
+    extras = 3 if boundary == 'control-values' else 2
+    for field in range(20, 20 + extras):
+        for channel in inputs['kwargs']['channels']:
+            (source / f'plate1_A01_F{field}_T2_Z1_C{channel}.tif').touch()
+    paths = sorted(source.glob('plate1_*.tif'))
+    dtype = np.uint8 if boundary == 'control-values' else np.float64
+    for path in paths:
+        pixels = tifffile.memmap(path, shape=(4096, 2048), dtype=dtype, photometric='minisblack')
+        pixels[0, 0], pixels[-1, -1] = 19, 71
+        pixels.flush()
+        pixels._mmap.close()
+    inputs['kwargs']['batch_fields'] = 1
+    before = {path: path.stat() for path in paths}
+    untouched = {path: path.read_bytes() for path in source.rglob('*')
+                 if path.is_file() and path not in before}
+    entries = set(source.rglob('*'))
+    reads = []
+    read_control = pipeline_v2._partition_read_control
+
+    def observe_control(*args, **kwargs):
+        field = read_control(*args, **kwargs)
+        reads.append((field.shape, field.dtype, field.nbytes))
+        return field
+
+    monkeypatch.setattr(pipeline_v2, '_partition_read_control', observe_control)
+    with pytest.raises(ValueError):
+        _run(inputs)
+    assert len(reads) == 4 and all(shape == (4096, 2048, 2) for shape, dtype, size in reads)
+    assert sum(shape[0] * shape[1] * shape[2] for shape, dtype, size in reads) == 64 * 1024 ** 2
+    assert sum(size for shape, dtype, size in reads) == (
+        64 * 1024 ** 2 if boundary == 'control-values' else 512 * 1024 ** 2)
+    assert set(source.rglob('*')) == entries
+    assert inputs['constructed'] == inputs['observed'] == []
+    assert not list(source.glob('calibrated_plate_batch*'))
+    assert all(path.read_bytes() == raw for path, raw in untouched.items())
+    for path, stat in before.items():
+        current = path.stat()
+        assert (current.st_dev, current.st_ino, current.st_size, current.st_mtime_ns) == (
+            stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns)
+        pixels = tifffile.memmap(path, mode='r')
+        try:
+            assert pixels[0, 0] == 19 and pixels[-1, -1] == 71
+            assert pixels[2048, 1024] == 0
+        finally:
+            pixels._mmap.close()
+
+
+@needs_partition_access
+def test_a_missing_exception_note_api_preserves_the_real_model_failure(mixed_plate_inputs, monkeypatch):
+    from cellpose import models
+    from spacr import psf_pipeline
+
+    class UnannotatedError(RuntimeError):
+        add_note = None
+
+    inputs = mixed_plate_inputs
+    failure = UnannotatedError('original model refusal')
+    write = psf_pipeline._write_json
+
+    def fail_model(*args, **kwargs):
+        raise failure
+
+    def fail_status(path, record):
+        if Path(path).name == 'plate_batch.json' and record.get('status') == 'failed':
+            raise OSError('status write refused')
+        return write(path, record)
+
+    monkeypatch.setattr(models.CellposeModel, 'eval', fail_model)
+    monkeypatch.setattr(psf_pipeline, '_write_json', fail_status)
+    with pytest.raises(UnannotatedError) as caught:
+        _run(inputs)
+    assert caught.value is failure
+    path = next(inputs['source'].glob('calibrated_plate_batch*/plate_batch.json'))
+    record = json.loads(path.read_text())
+    assert record['status'] == record['children'][0]['status'] == 'running'
+    assert record['complete'] is record['segmentation_complete'] is False
+    _unchanged(inputs)
+
+
 @needs_partition_access
 @pytest.mark.parametrize('budget', ['aggregate', 'padded'])
 def test_real_sparse_headers_refuse_an_oversized_batch_before_decoding_controls(

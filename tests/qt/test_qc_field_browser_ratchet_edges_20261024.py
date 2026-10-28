@@ -794,3 +794,61 @@ def test_secondary_plate_table_regex_tracks_editor_and_restores_base(mixed_plate
     assert wizard._plate_regex == {} and wizard._plate_regex_errors == {}
     assert wizard.regex.text() == PATTERN and wizard._base_regex() == PATTERN
     assert {field.source for field in wizard._fields} == set(map(str, folders[1:]))
+
+
+
+def test_sparse_histogram_ignores_a_drag_that_did_not_pick_a_handle(qtbot):
+    from PySide6.QtCore import QPoint, Qt
+
+    histogram = module._OverviewLevelsHistogram()
+    qtbot.addWidget(histogram)
+    histogram.resize(320, 110)
+    counts = np.zeros(256)
+    counts[32], counts[224] = 3, 9
+    histogram.set_counts(counts)
+    histogram.show()
+    changed, released = [], []
+    histogram.levels_changed.connect(lambda *levels: changed.append(levels))
+    histogram.released.connect(lambda: released.append(True))
+    before = histogram.black, histogram.white, histogram.gamma
+    image = histogram.grab().toImage()
+    assert not image.isNull() and histogram.counts.sum() == 12
+    start = QPoint(round(histogram._x(.25)), 40)
+    qtbot.mousePress(histogram, Qt.LeftButton, pos=start)
+    assert histogram._dragging is None
+    qtbot.mouseMove(histogram, QPoint(round(histogram._x(.75)), 40))
+    qtbot.mouseRelease(histogram, Qt.LeftButton, pos=start)
+    assert (histogram.black, histogram.white, histogram.gamma) == before
+    assert changed == []
+    assert released == []
+    np.testing.assert_array_equal(histogram.counts, counts)
+
+
+def test_crossed_image_levels_keep_a_positive_range_and_only_edit_the_selected_image(overview, qtbot):
+    import hashlib
+    from pathlib import Path
+
+    dialog = overview
+    target, other = dialog._fields[:2]
+    before = {path: hashlib.sha256(Path(path).read_bytes()).hexdigest()
+              for field in (target, other) for _, path in field.files}
+    key, other_key = module._overview_image_key(target), module._overview_image_key(other)
+    assert key not in dialog._image_overrides and other_key not in dialog._image_overrides
+    dialog._open_image_settings(target)
+    panel = dialog._image_settings
+    try:
+        qtbot.waitUntil(lambda: panel.histogram.counts is not None, timeout=10000)
+        panel.white.setValue(.4)
+        panel.black.setValue(.8)
+        assert panel.black.value() == pytest.approx(.39)
+        assert panel.white.value() == pytest.approx(.4)
+        panel.white.setValue(.2)
+        assert panel.black.value() == pytest.approx(.39)
+        assert panel.white.value() == pytest.approx(.4)
+        panel.close()
+        assert dialog._image_overrides[key]['channels'][str(panel.channel)]['black'] == pytest.approx(.39)
+        assert dialog._image_overrides[key]['channels'][str(panel.channel)]['white'] == pytest.approx(.4)
+        assert other_key not in dialog._image_overrides
+        assert {path: hashlib.sha256(Path(path).read_bytes()).hexdigest() for path in before} == before
+    finally:
+        panel.close()

@@ -776,3 +776,23 @@ def test_empty_curated_folder_entry_chooses_a_safe_new_target_without_overwritin
     assert str(target) not in {row['path'] for row in screen._layers}
     assert not target.exists() and screen._layer_pending_target is None
     assert all(path.read_bytes() == value for path, value in original.items())
+
+
+@pytest.mark.parametrize('shown_ids', [[], [1], [1, 2]])
+def test_clearing_filtered_layers_twice_restores_all_ids_without_editing_or_saving(
+        screen, folder, shown_ids):
+    _open(screen, folder)
+    before = screen._canvas.mask.copy()
+    history = screen._history.head().copy()
+    originals = {path: path.read_bytes() for path in folder.rglob('*.tif')}
+    screen._show_curated_ids(shown_ids)
+    np.testing.assert_array_equal(screen._canvas.display_ids, shown_ids)
+    screen._clear_layers()
+    screen._clear_layers()
+    assert screen._canvas.display_ids is None
+    assert screen._canvas.layer_overlay is None and screen._canvas.layer_source is None
+    assert not screen._layers_active() and screen._layer_section.isHidden()
+    assert screen._canvas.mode == mm.MODE_BRUSH
+    np.testing.assert_array_equal(screen._canvas.mask, before)
+    np.testing.assert_array_equal(screen._history.head(), history)
+    assert all(path.read_bytes() == data for path, data in originals.items())

@@ -637,3 +637,47 @@ def test_register_console_target_wires_the_destroyed_signal(vlog, qapp):
     assert vlog._console_ref is None
     if vlog._relay is not None:
         vlog._relay.deleteLater()
+
+
+def test_detached_file_handler_is_reattached_without_losing_or_duplicating_records(vlog):
+    vlog._file_handler = None
+    handler = vlog._ensure_file_handler()
+    sink = logging.getLogger(vlog._SINK_LOGGER)
+    original_handlers, original_propagation = list(sink.handlers), sink.propagate
+    sink.handlers[:] = [handler]
+    sink.propagate = False
+    stream = handler.stream
+    path = vlog.current_log_file()
+    try:
+        handler.handle(logging.makeLogRecord({'name': 'spacr', 'levelno': logging.INFO,
+                                             'levelname': 'INFO', 'msg': 'before detach'}))
+        handler.flush()
+        before = path.read_text(encoding='utf-8')
+        sink.removeHandler(handler)
+        assert handler not in sink.handlers
+        assert vlog._ensure_file_handler() is handler
+        assert vlog._ensure_file_handler() is handler
+        assert sink.handlers.count(handler) == 1
+        assert handler.stream is stream and not stream.closed
+        assert path.read_text(encoding='utf-8') == before
+        sink.handle(logging.makeLogRecord({'name': 'spacr', 'levelno': logging.INFO,
+                                          'levelname': 'INFO', 'msg': 'after reattach'}))
+        handler.flush()
+        lines = path.read_text(encoding='utf-8').splitlines()
+        assert len(lines) == 2
+        assert lines[0].endswith('before detach')
+        assert lines[1].endswith('after reattach')
+    finally:
+        sink.handlers[:] = [item for item in original_handlers if item is not handler]
+        sink.propagate = original_propagation
+        handler.close()
+
+
+def test_short_custom_representation_keeps_its_complete_unicode_value(vlog):
+    class Value:
+        def __repr__(self):
+            return 'Sample(Δx=4, channels=(1, 3))'
+
+    value = Value()
+    assert vlog._brief(value) == 'Sample(Δx=4, channels=(1, 3))'
+    assert vlog._BRIEF_REPR.repr(value) == repr(value)

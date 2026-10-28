@@ -147,3 +147,50 @@ def test_a_reveal_on_one_setting_does_not_follow_to_the_next(tooltip):
 
     assert tooltip.animations_shown() is False, (
         "the next setting falls back to the preference, which is off")
+
+
+def test_sticky_tooltip_swallows_native_help_delivery_without_losing_accessible_text(
+        qapp, qtbot, tooltip):
+    """Claiming an anchor stops its native help event, preserving ordinary delivery."""
+    from PySide6.QtCore import QEvent, QPoint
+    from PySide6.QtGui import QAccessible, QHelpEvent
+    from PySide6.QtWidgets import QApplication, QToolTip
+
+    class HelpReceiver(QLabel):
+        """Record events that reach the widget instead of opening native help."""
+        def __init__(self):
+            super().__init__('Cell diameter')
+            self.delivered = []
+
+        def event(self, event):
+            if event.type() in (QEvent.ToolTip, QEvent.User):
+                self.delivered.append(event.type())
+                event.accept()
+                return True
+            return super().event(event)
+
+    label = HelpReceiver()
+    qtbot.addWidget(label)
+    body = 'Expected cell diameter in pixels.'
+    label.setToolTip(body)
+    label.setToolTipDuration(-1)
+    label.resize(240, 40)
+    label.show()
+    qapp.processEvents()
+    accessible = QAccessible.queryAccessibleInterface(label)
+    assert accessible is not None
+    assert accessible.text(QAccessible.Text.Description) == body
+    point = QPoint(8, 8)
+    QApplication.sendEvent(label, QHelpEvent(QEvent.ToolTip, point, label.mapToGlobal(point)))
+    QApplication.sendEvent(label, QEvent(QEvent.User))
+    assert label.delivered == [QEvent.ToolTip, QEvent.User]
+
+    tooltip.show_for(label, body, animation=None, immediate=True)
+    tooltip.show_for(label, body, animation=None, immediate=True)
+    assert tooltip.isVisible() and tooltip._label.text() == body
+    QApplication.sendEvent(label, QHelpEvent(QEvent.ToolTip, point, label.mapToGlobal(point)))
+    QApplication.sendEvent(label, QEvent(QEvent.User))
+    assert label.delivered == [QEvent.ToolTip, QEvent.User, QEvent.User]
+    assert label.toolTip() == body and label.toolTipDuration() == -1
+    assert accessible.text(QAccessible.Text.Description) == body
+    assert tooltip.isVisible() and not QToolTip.isVisible()

@@ -203,3 +203,50 @@ class TestTheFormShapeDecision:
         current = {"cell_diameter": 30}
         assert screen._bulk_apply_changes_form_shape(dict(current),
                                                      current) is False
+
+
+@pytest.mark.parametrize('refusal', ['missing_widget', 'value', 'metadata'])
+def test_verified_preview_refusal_preserves_model_text_and_other_settings(
+        screen, tmp_path, monkeypatch, refusal):
+    from copy import deepcopy
+    from spacr import model_zoo
+    from PySide6.QtWidgets import QMessageBox
+    import hashlib
+
+    path = tmp_path / 'verified.pt'
+    raw_bytes = b'local verified preview checkpoint'
+    path.write_bytes(raw_bytes)
+    record = dict(key='preview-control', name='verified.pt', kind='cellpose',
+                  sha256=hashlib.sha256(raw_bytes).hexdigest(),
+                  repo_id='local/fixture', repo_type='model', version='1')
+    monkeypatch.setattr(model_zoo, 'BUNDLED_REMOTE_MODELS', (record,))
+    entry = model_zoo._entry_from_mapping(record)
+    reference = model_zoo._verified_model_reference(entry, str(path))
+    assert reference is not None
+    model = screen._settings_model
+    field = model._widgets['cell_model_name']
+    before = deepcopy(model.collect())
+    text = field.currentText() if hasattr(field, 'currentText') else field.text()
+    warnings = []
+    monkeypatch.setattr(QMessageBox, 'warning', lambda *args: warnings.append(args[2]))
+    if refusal == 'missing_widget':
+        monkeypatch.delitem(model._widgets, 'cell_model_name')
+    elif refusal == 'value':
+        original = model.set_value_for_key
+        monkeypatch.setattr(model, 'set_value_for_key',
+                            lambda key, value: False if key == 'cell_model_name'
+                            else original(key, value))
+    else:
+        original = model.set_hidden_value
+        monkeypatch.setattr(model, 'set_hidden_value',
+                            lambda key, value: False if key == 'model_metadata'
+                            else original(key, value))
+    try:
+        screen._propagate_verified_live_settings(
+            {'cell_model_name': str(path), 'cell_diameter': 97}, reference)
+    finally:
+        if refusal == 'missing_widget':
+            model._widgets['cell_model_name'] = field
+    assert warnings and model.collect() == before
+    assert (field.currentText() if hasattr(field, 'currentText') else field.text()) == text
+    assert path.read_bytes() == raw_bytes
