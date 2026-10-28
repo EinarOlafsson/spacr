@@ -1036,6 +1036,285 @@ def test_regex_child_missing_interpreter_returns_local_refusal_and_retires_proce
     assert {child.pid for child in multiprocessing.active_children()} == children
 
 
+def _input_header_tiff(path):
+    from PIL import Image
+    import numpy as np
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    Image.fromarray(np.arange(30, dtype=np.uint16).reshape(5, 6)).save(path)
+    return path
+
+
+def _deny_named_input_scan(monkeypatch, denied):
+    from pathlib import Path
+
+    original = home_mod.os
+
+    class NamedScanBoundary:
+        def __getattr__(self, name):
+            return getattr(original, name)
+
+        def scandir(self, path):
+            if Path(path) == denied:
+                raise PermissionError('the named acquisition directory is unavailable')
+            return original.scandir(path)
+
+    monkeypatch.setattr(home_mod, 'os', NamedScanBoundary())
+
+
+def test_corrupt_merged_header_keeps_real_image_mask_pairs_unstructured(tmp_path):
+    image = _input_header_tiff(tmp_path / 'field.tif')
+    mask = _input_header_tiff(tmp_path / 'field_mask.tif')
+    merged = tmp_path / 'merged' / 'field.npy'
+    merged.parent.mkdir()
+    merged.write_bytes(b'\x93NUMPYtruncated')
+    before = {path: path.read_bytes() for path in (image, mask, merged)}
+    result = home_mod._easy_paired_layout([image, mask], tmp_path)
+    assert result == dict(kind='unstructured', pairs={str(image): str(mask)},
+                          project=str(tmp_path), filename_evidence=True)
+    assert home_mod._easy_merged_evidence(tmp_path) is False
+    assert all(path.read_bytes() == raw for path, raw in before.items())
+
+
+def test_manifest_discovers_its_coefficient_table_outside_the_supplied_sample(tmp_path):
+    import json
+
+    manifest = tmp_path / 'manifest.json'
+    manifest.write_text(json.dumps(dict(app_key='regression', schema_version=1,
+                                        status='success')))
+    table = tmp_path / 'results_gene.csv'
+    table.write_text('feature,coefficient\narea,1.5\n')
+    before = {path: path.read_bytes() for path in (manifest, table)}
+    result = home_mod._easy_run_evidence(tmp_path, [])
+    assert result == dict(manifests=[], results=[dict(path=str(table), folder=str(tmp_path),
+                        diagnostics=False, diagnostics_folder=None)])
+    assert all(path.read_bytes() == raw for path, raw in before.items())
+
+
+def test_malformed_named_settings_remain_a_local_refusal_without_applying_values(tmp_path):
+    path = tmp_path / 'mask_settings.json'
+    path.write_text('{"src": broken')
+    before = path.read_bytes()
+    result = home_mod._easy_inspect_path(str(path))
+    assert result['path'] == str(path) and result['actions'] == []
+    assert 'saved_settings' not in result.get('context', {})
+    assert path.read_bytes() == before
+
+
+@pytest.mark.skipif(not hasattr(os, 'mkfifo'), reason='requires a real local FIFO')
+def test_selected_fifo_is_refused_before_any_header_read(tmp_path, monkeypatch):
+    from spacr.qt.i18n import tr
+
+    path = tmp_path / 'input.pipe'
+    os.mkfifo(path)
+
+    def unexpected(*args, **kwargs):
+        raise AssertionError('a FIFO must never reach the blocking header reader')
+
+    monkeypatch.setattr(home_mod, '_easy_read_header', unexpected)
+    result = home_mod._easy_inspect_path(str(path))
+    assert result == dict(path=str(path), actions=[], message=tr(
+        'Choose a regular file or folder, rather than a device or pipe.'))
+
+
+def test_corrupt_sqlite_in_a_selected_folder_cannot_become_scientific_evidence(tmp_path):
+    database = tmp_path / 'measurements.db'
+    database.write_bytes(b'SQLite format 3\x00' + bytes(112))
+    before = database.read_bytes()
+    result = home_mod._easy_inspect_path(str(tmp_path))
+    assert result['context']['database_schemas'] == []
+    assert result['context']['analysis_inputs'] == {}
+    assert not any(action[0] in ('db_browser', 'graph_builder', 'regression', 'umap')
+                   for action in result['actions'])
+    assert database.read_bytes() == before
+
+
+def test_failed_plate_directory_scan_does_not_publish_partial_database_discovery(tmp_path, monkeypatch):
+    import sqlite3
+
+    database = tmp_path / 'measurements.db'
+    with sqlite3.connect(database) as connection:
+        connection.execute('CREATE TABLE cell (cell_area REAL)')
+    before = database.read_bytes()
+    _deny_named_input_scan(monkeypatch, tmp_path)
+    details = {}
+    assert home_mod._easy_analysis_inputs(tmp_path, details) == []
+    assert details == {} and database.read_bytes() == before
+
+
+def test_unreadable_merged_directory_preserves_local_pairing_without_promoting_project(tmp_path, monkeypatch):
+    image = _input_header_tiff(tmp_path / 'field.tif')
+    mask = _input_header_tiff(tmp_path / 'field_mask.tif')
+    merged = tmp_path / 'merged'
+    merged.mkdir()
+    before = {path: path.read_bytes() for path in (image, mask)}
+    _deny_named_input_scan(monkeypatch, merged)
+    result = home_mod._easy_paired_layout([image, mask], tmp_path)
+    assert result['kind'] == 'unstructured' and result['project'] == str(tmp_path)
+    assert result['pairs'] == {str(image): str(mask)}
+    assert home_mod._easy_merged_evidence(tmp_path) is False
+    assert all(path.read_bytes() == raw for path, raw in before.items())
+
+
+@pytest.mark.parametrize('value', [{'unit': 'unknown'}, 'not a physical scale'])
+def test_spatial_calibration_requires_a_positive_numeric_value(tmp_path, value):
+    import json
+
+    slide = _input_header_tiff(tmp_path / 'slide.tif')
+    scale = tmp_path / 'spatial' / 'scalefactors_json.json'
+    scale.parent.mkdir()
+    scale.write_text(json.dumps({'microns_per_pixel': value}))
+    before = {path: path.read_bytes() for path in (slide, scale)}
+    assert home_mod._easy_specialized_inputs(tmp_path, [slide], [], []) == {}
+    assert all(path.read_bytes() == raw for path, raw in before.items())
+
+
+def test_empty_hd_bins_offer_only_calibrated_morphology_review(tmp_path):
+    import json
+
+    slide = _input_header_tiff(tmp_path / 'slide.tif')
+    (tmp_path / 'binned_outputs').mkdir()
+    scale = tmp_path / 'spatial' / 'scalefactors_json.json'
+    scale.parent.mkdir()
+    scale.write_text(json.dumps({'microns_per_pixel': .5}))
+    before = {path: path.read_bytes() for path in (slide, scale)}
+    hints = home_mod._easy_specialized_inputs(tmp_path, [slide], [], [])
+    assert set(hints) == {'spatial_masks'}
+    assert hints['spatial_masks']['settings'] == dict(spatial_source=str(tmp_path),
+                                                    spatial_platform='visium_hd')
+    assert hints['spatial_masks']['image'] == str(slide)
+    assert all(path.read_bytes() == raw for path, raw in before.items())
+
+
+def test_unreadable_hd_bins_do_not_guess_a_bin_or_spatial_mapping(tmp_path, monkeypatch):
+    import json
+
+    slide = _input_header_tiff(tmp_path / 'slide.tif')
+    bins = tmp_path / 'binned_outputs'
+    (bins / 'square_002um').mkdir(parents=True)
+    scale = tmp_path / 'spatial' / 'scalefactors_json.json'
+    scale.parent.mkdir()
+    scale.write_text(json.dumps({'microns_per_pixel': .5}))
+    before = {path: path.read_bytes() for path in (slide, scale)}
+    _deny_named_input_scan(monkeypatch, bins)
+    hints = home_mod._easy_specialized_inputs(tmp_path, [slide], [], [])
+    assert set(hints) == {'spatial_masks'}
+    assert 'spatial_bin_um' not in hints['spatial_masks']['settings']
+    assert hints['spatial_masks']['image'] == str(slide)
+    assert all(path.read_bytes() == raw for path, raw in before.items())
+
+
+def test_unreadable_xenium_focus_directory_uses_the_real_mip_fallback(tmp_path, monkeypatch):
+    marker = tmp_path / 'experiment.xenium'
+    marker.write_text('{}')
+    slide = _input_header_tiff(tmp_path / 'morphology_mip.ome.tif')
+    focus = tmp_path / 'morphology_focus'
+    focus.mkdir()
+    before = {path: path.read_bytes() for path in (marker, slide)}
+    _deny_named_input_scan(monkeypatch, focus)
+    hints = home_mod._easy_specialized_inputs(tmp_path, [slide], [], [])
+    assert set(hints) == {'spatial_masks'}
+    assert hints['spatial_masks']['image'] == str(slide)
+    assert hints['spatial_masks']['settings']['spatial_platform'] == 'xenium'
+    assert all(path.read_bytes() == raw for path, raw in before.items())
+
+
+def test_unreadable_count_directory_does_not_promote_spatial_mapping(tmp_path, monkeypatch):
+    import json
+    import h5py
+
+    slide = _input_header_tiff(tmp_path / 'slide.tif')
+    spatial = tmp_path / 'spatial'
+    spatial.mkdir()
+    scale = spatial / 'scalefactors_json.json'
+    scale.write_text(json.dumps({'microns_per_pixel': .5}))
+    positions = spatial / 'tissue_positions.csv'
+    positions.write_text('barcode,in_tissue\na,1\n')
+    counts = tmp_path / 'filtered_feature_bc_matrix.h5'
+    with h5py.File(counts, 'w') as archive:
+        archive.create_dataset('data', data=[1])
+    before = {path: path.read_bytes() for path in (slide, scale, positions, counts)}
+    _deny_named_input_scan(monkeypatch, tmp_path)
+    hints = home_mod._easy_specialized_inputs(tmp_path, [slide], [], [])
+    assert set(hints) == {'spatial_masks'}
+    assert hints['spatial_masks']['image'] == str(slide)
+    assert all(path.read_bytes() == raw for path, raw in before.items())
+
+
+def test_spatial_schema_without_source_column_cannot_bind_an_acquisition(tmp_path):
+    import sqlite3
+    import numpy as np
+    import pandas as pd
+    from spacr.tabular import write_table
+
+    acquisition = tmp_path / 'acquisition'
+    slide = _input_header_tiff(acquisition / 'morphology_focus.ome.tif')
+    transcripts = acquisition / 'transcripts.parquet'
+    write_table(pd.DataFrame({'x_location': [1.0], 'y_location': [2.0]}), transcripts)
+    project = tmp_path / 'project'
+    merged = project / 'merged' / 'field.npy'
+    merged.parent.mkdir(parents=True)
+    np.save(merged, np.zeros((2, 3, 2), dtype=np.uint16))
+    database = project / 'measurements' / 'measurements.db'
+    database.parent.mkdir()
+    with sqlite3.connect(database) as connection:
+        connection.execute('CREATE TABLE spatial_fields (field_id INTEGER)')
+    before = {path: path.read_bytes() for path in (slide, transcripts, merged, database)}
+    schemas = [dict(path=str(database), tables=['spatial_fields'])]
+    hints = home_mod._easy_specialized_inputs(acquisition, [slide], [], schemas)
+    assert set(hints) == {'spatial_masks'}
+    assert hints['spatial_masks']['source'] == str(acquisition)
+    assert all(path.read_bytes() == raw for path, raw in before.items())
+
+
+def test_ops_library_requires_local_readable_headers_without_changing_tiles(tmp_path):
+    root = tmp_path / 'selected'
+    tile = _input_header_tiff(root / 'genotype' / '10X_c2_A1_A594_Site-0.tif')
+    malformed = root / 'library.csv'
+    malformed.write_bytes(b'\xffinvalid table')
+    outside = tmp_path / 'outside.csv'
+    outside.write_text('barcode,sequence\na,ACGT\n')
+    before = {path: path.read_bytes() for path in (tile, malformed, outside)}
+    hints = home_mod._easy_specialized_inputs(root, [outside, malformed], [tile], [])
+    assert set(hints) == {'ops'}
+    assert hints['ops']['settings'] == dict(genotype_source=str(tile.parent))
+    assert hints['ops']['source'] == str(tile.parent)
+    assert all(path.read_bytes() == raw for path, raw in before.items())
+
+
+def test_mixed_local_images_keep_external_document_guidance_without_claiming_its_reader(tmp_path):
+    image = _input_header_tiff(tmp_path / 'field.tif')
+    workspace = tmp_path / 'analysis.wsp'
+    workspace.write_bytes(b'<Workspace/>')
+    before = {path: path.read_bytes() for path in (image, workspace)}
+    result = home_mod._easy_inspect_path(str(tmp_path))
+    assert [action[0] for action in result['actions']] == ['make_masks', 'mask']
+    assert home_mod._easy_external_guidance('flowjo') in result['message']
+    assert result['context']['unsupported_documents'] == [dict(kind='flowjo', path=str(workspace))]
+    assert all(path.read_bytes() == raw for path, raw in before.items())
+
+
+def test_selected_path_stat_failure_becomes_local_guidance_without_opening_it(tmp_path, monkeypatch):
+    from pathlib import Path
+    from spacr.qt.i18n import tr
+
+    path = tmp_path / 'image.tif'
+    path.write_bytes(b'untouched input')
+    before = path.read_bytes()
+    exists = Path.exists
+
+    def denied(candidate):
+        if candidate == path:
+            raise PermissionError('the selected path is unavailable')
+        return exists(candidate)
+
+    monkeypatch.setattr(Path, 'exists', denied)
+    result = home_mod._easy_inspect_path(str(path))
+    assert result == dict(path=str(path), actions=[], message=tr(
+        'This input could not be inspected. Check permissions and choose another path.'))
+    assert path.read_bytes() == before
+
+
 def test_regex_cancellation_after_real_spawn_retires_its_owned_child(monkeypatch):
     """A real cancellation event after start is handled before accepting a worker result."""
     import copy
@@ -1063,3 +1342,91 @@ def test_regex_cancellation_after_real_spawn_retires_its_owned_child(monkeypatch
     assert actual['regex']['required'] and 'validation_error' not in actual['regex']
     assert 'settings_overrides' not in actual and result == before
     assert {child.pid for child in multiprocessing.active_children()} == children
+
+
+def _regex_protocol_worker_ignoring_termination(payload, pattern, connection, ready):
+    import signal
+    import threading
+
+    signal.signal(signal.SIGTERM, signal.SIG_IGN)
+    ready.set()
+    connection.send_bytes(b'null')
+    try:
+        threading.Event().wait(30)
+    finally:
+        connection.close()
+
+
+@pytest.mark.skipif(os.name != 'posix', reason='requires real POSIX terminate/kill semantics')
+def test_invalid_regex_worker_reply_escalates_real_child_retirement_to_kill(monkeypatch):
+    """A protocol-only worker refuses SIGTERM; the owner must kill, join and close it."""
+    import copy
+    import multiprocessing
+    import signal
+
+    context = multiprocessing.get_context('spawn')
+    process_class = context.Process
+    ready = context.Event()
+    children, pipes, operations, exits = [], [], [], []
+    original_start = process_class.start
+    original_terminate = process_class.terminate
+    original_kill = process_class.kill
+    original_close = process_class.close
+
+    class ProtocolWorkerContext:
+        def Pipe(self, **kwargs):
+            endpoints = context.Pipe(**kwargs)
+            pipes.extend(endpoints)
+            return endpoints
+
+        def Process(self, *, target, args):
+            assert target is home_mod._easy_regex_worker
+            child = process_class(target=_regex_protocol_worker_ignoring_termination,
+                                  args=(*args, ready))
+            children.append(child)
+            return child
+
+    def start(child):
+        original_start(child)
+        assert ready.wait(10), 'the real child must install its signal policy before the protocol reply'
+
+    def terminate(child):
+        operations.append('terminate')
+        original_terminate(child)
+
+    def kill(child):
+        operations.append('kill')
+        original_kill(child)
+
+    def close(child):
+        operations.append('close')
+        exits.append(child.exitcode)
+        original_close(child)
+
+    monkeypatch.setattr(multiprocessing, 'get_context', lambda method: ProtocolWorkerContext())
+    monkeypatch.setattr(process_class, 'start', start)
+    monkeypatch.setattr(process_class, 'terminate', terminate)
+    monkeypatch.setattr(process_class, 'kill', kill)
+    monkeypatch.setattr(process_class, 'close', close)
+    result = {'regex': dict(sample_filenames=['scan_1_C1.tif'], img_format='tif',
+                            example_path='/local/scan_1_C1.tif')}
+    before = copy.deepcopy(result)
+    prior_children = {child.pid for child in multiprocessing.active_children()}
+    try:
+        actual = home_mod._easy_validate_regex(result, r'scan_(?P<fieldID>\d+)_C(?P<chanID>\d+)\.tif$')
+        assert operations == ['terminate', 'kill', 'close']
+        assert exits == [-signal.SIGKILL]
+        assert len(children) == 1 and children[0]._closed
+        assert all(connection.closed for connection in pipes)
+        assert actual['regex']['required'] and actual['regex']['validation_error']
+        assert result == before and 'settings_overrides' not in actual
+        assert {child.pid for child in multiprocessing.active_children()} == prior_children
+    finally:
+        for child in children:
+            if not child._closed:
+                if child.is_alive():
+                    original_kill(child)
+                child.join()
+                original_close(child)
+        for connection in pipes:
+            connection.close()
