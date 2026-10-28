@@ -542,6 +542,15 @@ def measure_magnifier(field_px: int = 1024, moves: int = 40) -> List[dict]:
             _shut_down(screen, app)
             return [{"measurement": "magnifier",
                      "error": "the folder would not open"}]
+        deadline = time.monotonic() + 5.0
+        while (screen._loading or screen._reader_worker is not None
+               or screen._load_worker is not None) and time.monotonic() < deadline:
+            app.processEvents()
+            time.sleep(0.01)
+        if (screen._loading or screen._reader_worker is not None
+                or screen._load_worker is not None or screen._canvas.image is None):
+            _shut_down(screen, app)
+            return [{"measurement": "magnifier", "error": "the image did not finish loading"}]
         screen._canvas.resize(1200, 900)
         screen._canvas.refresh()
         _drain_until_quiet(app)

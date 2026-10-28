@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:22-0400\n"
+"POT-Creation-Date: 2026-10-28 14:46-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: pt\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -84,19 +84,21 @@ msgstr "Inspecione a imagem e os rótulos. Imagens e máscaras precisam ter as m
 msgid "Correct an object with a tool, or choose a detection method and inspect its preview before accepting objects. **Undo** and **Redo** apply to mask edits."
 msgstr "Corrija um objeto com uma ferramenta ou escolha um método de detecção e inspecione sua prévia antes de aceitar objetos. **Desfazer** e **Refazer** se aplicam às edições da máscara."
 
-msgid "Press **Save mask** or **Ctrl+S** before moving to another field. Saving writes a ``uint16`` label TIFF in the ordinary layout; a Cellpose bundle is updated as a bundle. The source image is preserved."
-msgstr "Pressione **Gravar máscara** ou **Ctrl+S** antes de passar para outro campo. O salvamento grava um TIFF de rótulos ``uint16`` no layout comum; um pacote do Cellpose é atualizado como pacote. A imagem de origem é preservada."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Press **Save mask** or **Ctrl+S** before moving to another field. Saving writes a label TIFF in the ordinary layout. Ordinary segmentation uses ``uint16``; existing ``uint32`` masks and exact IDs requiring that width retain ``uint32`` storage. A Cellpose bundle is updated as a bundle. The source image is preserved."
+msgstr "Prima **Gravar máscara** ou **Ctrl+S** antes de passar a outro campo. A gravação escreve um TIFF de rótulos na organização habitual. A segmentação normal usa ``uint16``; as máscaras ``uint32`` existentes e os identificadores exatos que requerem essa largura mantêm o armazenamento ``uint32``. Um pacote Cellpose é atualizado como pacote. A imagem de origem é preservada."
 
 msgid "Use **Keep** or **Discard** to record a field-level curation verdict and advance. These verdicts go to ``csv/keep_discard.csv``; Discard records a decision without deleting the image or its mask. Save edits separately."
 msgstr "Use **Manter** ou **Descartar** para registrar um veredito de curadoria no nível do campo e avançar. Esses vereditos vão para ``csv/keep_discard.csv``; Descartar registra uma decisão sem excluir a imagem nem sua máscara. Salve as edições separadamente."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Save mask**, **Previous image** and **Next image** share the top action row with the editing tools. Scroll that row horizontally on a narrow window to reach controls outside the visible area."
-msgstr "**Gravar máscara**, **Imagem anterior** e **Próxima imagem** compartilham a linha superior de ações com as ferramentas de edição. Role essa linha horizontalmente em uma janela estreita para alcançar controles fora da área visível."
+msgid "**Save mask** and the previous/next-image buttons are in the navigation group below the image. Editing and annotation controls wrap in the top bar as the window narrows. When the wrapped top controls need more height than available, scroll vertically within that bar to reach them."
+msgstr "**Gravar máscara** e os botões de imagem anterior/seguinte estão no grupo de navegação por baixo da imagem. Os controlos de edição e anotação passam para várias linhas na barra superior quando a janela fica mais estreita. Quando esses controlos superiores precisam de mais altura do que a disponível, desloque-se verticalmente nessa barra para lhes aceder."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "**Save on navigation**, after **Next image**, saves an edited mask before **Keep**, **Discard**, **Next image** or **Previous image** moves on. It is off by default and remembered between sessions. If the save fails, the image stays open and no verdict is recorded. **Skip** never writes a mask."
-msgstr "**Salvar ao navegar**, logo após **Próxima imagem**, salva uma máscara editada antes que **Manter**, **Descartar**, **Próxima imagem** ou **Imagem anterior** avance. A opção fica desativada por padrão e é lembrada entre sessões. Se o salvamento falhar, a imagem permanece aberta e nenhum veredito é registrado. **Ignorar** nunca grava uma máscara."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Save on navigation**, in the **Save mask** arrow menu, saves an edited mask before **Keep**, **Discard**, **Next image** or **Previous image** moves on. It is off by default and remembered between sessions. If the save fails, the image stays open and no verdict is recorded. **Skip** never writes a mask."
+msgstr "**Salvar ao navegar**, no menu da seta de **Gravar máscara**, grava uma máscara editada antes de **Manter**, **Descartar**, **Próxima imagem** ou **Imagem anterior** avançar. Está desligado por predefinição e é lembrado entre sessões. Se a gravação falhar, a imagem permanece aberta e não é registado um veredicto. **Ignorar** nunca escreve uma máscara."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on, the electron microscopy test data and the FIB-SEM volumes described under :ref:`mm-tem` and :ref:`mm-volumes`."
@@ -253,8 +255,8 @@ msgid "A saved edit history is stored beside the mask as ``<mask>.curation.json`
 msgstr "Um histórico de edições salvo é armazenado ao lado da máscara como ``<mask>.curation.json``. Abrir uma imagem sem editá-la não cria evidência de curadoria manual. O histórico existente é mantido ao editar uma máscara já curada. Consulte :func:`spacr.qt.mask_engine.save_mask` e :class:`spacr.curation.CurationLog` para o contrato de arquivos."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "The saved format has at most 65,535 positive labels. Saving refuses a binary mask with more connected objects, or an existing multi-label mask whose IDs exceed that range; it does not wrap oversized IDs into smaller numbers. A refused save preserves an existing TIFF or Cellpose bundle and its metadata. In ordinary mode, a mask with one foreground value is interpreted as binary and its connected components receive separate IDs. Deliberate groups created with Divide / Merge or a magnifier drag retain their shared IDs when saved and reopened with their matching curation history. For primary/secondary relationships, use the exact-ID path described below. See :func:`spacr.qt.mask_engine.canonical_labels` for these distinct conventions."
-msgstr "O formato salvo aceita no máximo 65.535 rótulos positivos. O salvamento recusa uma máscara binária com mais objetos conectados, ou uma máscara existente com vários rótulos cujos IDs excedam esse intervalo; IDs grandes demais não são reduzidos a números menores. Um salvamento recusado preserva um TIFF ou pacote do Cellpose existente e seus metadados. No modo comum, uma máscara com um único valor de primeiro plano é interpretada como binária, e seus componentes conectados recebem IDs distintos. Para relações primário/secundário, use o caminho com IDs exatos descrito abaixo. Consulte :func:`spacr.qt.mask_engine.canonical_labels` para essas convenções distintas. Grupos criados deliberadamente com Dividir / Unir ou ao arrastar na lupa mantêm seus IDs compartilhados ao salvar e reabrir com o histórico de curadoria correspondente."
+msgid "Ordinary segmentation stores at most 65,535 positive labels. Saving refuses a binary mask with more connected objects; it does not wrap oversized IDs into smaller numbers. Existing ``uint32`` masks and the exact-ID path retain that wider label storage when needed. A refused save preserves an existing TIFF or Cellpose bundle and its metadata. In ordinary mode, a mask with one foreground value is interpreted as binary and its connected components receive separate IDs. Deliberate groups created with Divide / Merge or a magnifier drag retain their shared IDs when saved and reopened with their matching curation history. For primary/secondary relationships, use the exact-ID path described below. See :func:`spacr.qt.mask_engine.canonical_labels` for these distinct conventions."
+msgstr "A segmentação normal armazena no máximo 65,535 rótulos positivos. A gravação recusa uma máscara binária com mais objetos ligados; não transforma identificadores excessivos em números menores. As máscaras ``uint32`` existentes e a via de identificadores exatos mantêm esse armazenamento mais largo quando necessário. Uma gravação recusada preserva o TIFF ou pacote Cellpose existente e os metadados. No modo normal, uma máscara com um único valor de primeiro plano é interpretada como binária e os componentes ligados recebem identificadores separados. Grupos intencionais criados com Divide / Merge ou um arrasto da lupa mantêm os identificadores comuns ao gravar e reabrir com o histórico de curadoria correspondente. Para relações primárias/secundárias, use a via de identificadores exatos descrita abaixo. Consulte :func:`spacr.qt.mask_engine.canonical_labels` para estas convenções distintas."
 
 msgid "Canvas tools and navigation"
 msgstr "Ferramentas da tela de desenho e navegação"
@@ -317,6 +319,14 @@ msgstr "Régua"
 
 msgid "Drag a line to measure image-pixel distance. Right-click with Ruler selected to clear it. Zooming and panning preserve the measurement."
 msgstr "Arraste uma linha para medir uma distância em pixels da imagem. Clique com o botão direito com a Régua selecionada para apagá-la. O zoom e o deslocamento preservam a medição."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Pick"
+msgstr "Escolher"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Shown while mask layers are loaded: remove, restore or add objects of the curated overlay; see `Curate against mask layers`_."
+msgstr "Mostrado enquanto há camadas de máscaras carregadas: remover, restaurar ou adicionar objetos da sobreposição revista; consulte `Curate against mask layers`_."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Shift or Alt + drag** pans. The wheel zooms about the cursor; **Esc** resets zoom. **Left/Right** selects the previous/next field. **Ctrl+Z/Ctrl+Y** undoes or redoes an edit. With Wand selected, **Ctrl + left click** removes the bounded intensity region. Outside Wand, **Ctrl + left click** splits an object at its waist; **Ctrl + right click** removes the object under the cursor. The shortcut panel beside the view lists the current gestures, including magnifier controls."
@@ -597,6 +607,50 @@ msgstr "Em **Importar imagens**, **Organizar imagens e máscaras…** ao lado de
 msgid "A file that holds several channels is split rather than refused: choose **Split multi-channel files**, or accept the offer when you press **Apply**. Each plane is copied into ``split_channels/`` with one channel column per plane, and the original files are not touched. Files move in the background, and the manifest records every move. If a move fails, the message names the error, and the manifest lists every move made before it."
 msgstr "Um arquivo com vários canais é dividido em vez de recusado: escolha **Dividir arquivos multicanal** ou aceite a oferta ao pressionar **Aplicar**. Cada plano é copiado para ``split_channels/`` com uma coluna de canal por plano, e os arquivos originais não são alterados. Os arquivos são movidos em segundo plano, e o manifesto registra cada movimentação. Se uma movimentação falhar, a mensagem indica o erro, e o manifesto lista todas as movimentações feitas antes dela."
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Curate against mask layers"
+msgstr "Rever comparando camadas de máscaras"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Mask layers compare any number of mask sets for the same images, such as the curated training labels and the masks two models made, and build one curated set from them. A layer is a folder of label masks matched to the images by stem, like ``masks/``. Add one with **Add mask layer…** in the arrow menu of **Open File / Folder…**, or start the session from a terminal:"
+msgstr "As camadas de máscaras comparam qualquer número de conjuntos para as mesmas imagens, como rótulos de treino revistos e máscaras de dois modelos, e constroem um conjunto revisto. Uma camada é uma pasta de máscaras rotuladas associadas às imagens pelo nome base, como ``masks/``. Adicione-a com **Adicionar camada de máscaras…** no menu da seta de **Abrir arquivo / pasta…**, ou inicie a sessão num terminal:"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A layer name that is not a folder where the command runs is looked for in ``--folder``. The **Mask layers** settings category lists the layers. Each is drawn as outlines in its own colour; click a layer's swatch to change the colour, or clear its check box to hide it. The choices are kept in ``curate_layers.json`` in the folder, so the next session of the folder opens with them."
+msgstr "Um nome de camada que não seja uma pasta onde o comando corre é procurado em ``--folder``. A categoria de definições **Camadas de máscaras** lista as camadas. Cada uma aparece em contornos na sua cor; clique na amostra para mudar a cor ou desmarque a caixa para a ocultar. As escolhas ficam em ``curate_layers.json`` na pasta e são usadas na próxima sessão."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The editable **curated overlay** starts as a copy of the **Base layer**, the first layer unless another is chosen. With **Show only flagged** off, the **Pick** tool edits it as follows:"
+msgstr "A **sobreposição revista** editável começa como cópia da **Camada base**, a primeira camada se não for escolhida outra. Com **Mostrar só sinalizadas** desligado, a ferramenta **Escolher** edita-a assim:"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Click an object of the curated overlay to remove it. A removed object of the base layer is drawn dashed; click it again to restore it."
+msgstr "Clique num objeto da sobreposição revista para o remover. Um objeto removido da camada base é desenhado a tracejado; volte a clicar para o restaurar."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Click an object of another visible layer to add it under a new, unused ID. An added object fills only background: where it overlaps an object of the overlay, the overlay keeps its pixels. When two visible layers have an object under the click, the first in the list is added."
+msgstr "Clique num objeto de outra camada visível para o adicionar com um identificador novo, ainda não usado. Só preenche fundo: onde se sobrepõe a um objeto da sobreposição, esta mantém os seus píxeis. Se duas camadas visíveis tiverem um objeto sob o clique, adiciona-se o primeiro da lista."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Hidden layers are not picked from. To add another layer's object where a removed base object lies, hide the base layer first."
+msgstr "Não são escolhidos objetos de camadas ocultas. Para adicionar um objeto de outra camada onde está um objeto base removido, oculte primeiro a camada base."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With **Show only flagged** on, picking a visible flagged object removes the curated objects it overlaps; picking it again restores them. A flagged object over background can instead be added. Hidden curated objects are not picked."
+msgstr "Com **Mostrar só sinalizadas** ligado, escolher um objeto sinalizado visível remove os objetos revistos que ele sobrepõe; escolhê-lo novamente restaura-os. Um objeto sinalizado sobre o fundo pode antes ser adicionado. Os objetos revistos ocultos não são escolhidos."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Brush, erase and the other tools edit the same overlay, and **Ctrl+Z** and **Ctrl+Y** undo and redo every click."
+msgstr "Pincel, apagar e as outras ferramentas editam a mesma sobreposição; **Ctrl+Z** e **Ctrl+Y** desfazem e refazem cada clique."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Save to** chooses where the overlay is written. The default is **New mask folder**, ``masks_curated_<date>`` beside the images (an existing ``masks_curated_*`` folder is reused, so a session resumes into it); type another name or a full path under **Folder name**, or pass ``--save-to``. Choosing one of the layer folders overwrites its masks field by field, and takes effect only after **Overwrite** in the confirmation shown under the control. A field already saved to the save folder opens from there."
+msgstr "**Gravar em** escolhe onde escrever a sobreposição. A predefinição é **Nova pasta de máscaras**, ``masks_curated_<date>`` junto às imagens (uma pasta ``masks_curated_*`` existente é reutilizada para continuar a sessão); escreva outro nome ou caminho completo em **Nome da pasta**, ou passe ``--save-to``. Escolher uma pasta de camada substitui as suas máscaras campo a campo e só tem efeito após **Sobrescrever** na confirmação sob o controlo. Um campo já gravado na pasta de destino abre a partir dela."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Keep** saves the overlay as edited, with its object IDs unchanged, and moves to the next field; **Next** behaves as in any queue. Edited saves write curation history (``<stem>.tif.curation.json``). Layer decisions are recorded in ``<stem>.decisions.json`` beside the mask: the base IDs that were removed and each added object's ID, source layer and ID in that layer. Progress is kept in the ``curate_status.csv`` inside the save folder, so a review resumes on its own record and offers again the fields the folder's ordinary curation already finished. Without layers, Make Masks behaves and saves exactly as before."
+msgstr "**Manter** grava a sobreposição editada com os identificadores de objeto intactos e avança ao campo seguinte; **Next** funciona como em qualquer fila. As gravações com alterações escrevem o histórico de curadoria (``<stem>.tif.curation.json``). As decisões de camadas ficam em ``<stem>.decisions.json`` junto à máscara: identificadores base removidos e, para cada objeto adicionado, o seu identificador, camada de origem e identificador nessa camada. O progresso fica em ``curate_status.csv`` na pasta de destino, permitindo retomar a revisão no seu registo e oferecer de novo campos que a curadoria normal da pasta já concluiu. Sem camadas, Make Masks funciona e grava como antes."
+
 msgid "Upload data"
 msgstr "Enviar dados"
 
@@ -626,6 +680,30 @@ msgstr "A normalização e a segmentação ainda precisam de memória de trabalh
 msgid "If memory still rises unexpectedly, record whether the last console stage was preprocessing filenames, normalization or model evaluation, together with image dimensions, channel count and the saved settings. Existing ``stack/`` files help distinguish a completed ingestion stage from a failure before the first field was written."
 msgstr "Se o uso de memória ainda aumentar inesperadamente, registre se a última etapa no console foi o pré-processamento de nomes de arquivos, a normalização ou a avaliação do modelo, junto com as dimensões das imagens, a quantidade de canais e as configurações salvas. Arquivos existentes em ``stack/`` ajudam a distinguir uma etapa de leitura concluída de uma falha antes de gravar o primeiro campo."
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Calibrated spectral live preview (alpha)"
+msgstr "Pré-visualização espectral calibrada em direto (alpha)"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The optional calibrated route supports organized two-dimensional channel-last ``stack/*.npy`` fields in Segmentation Live Preview. Enable alpha features and spectral unmixing, supply the existing single-stain control wells, and set ``unmix_calibration`` to your measured calibration JSON. Set ``unmix_pixel_size_um`` explicitly to the source's ``[Y, X]`` sampling in micrometers. No microscope calibration is inferred. Legacy batch segmentation, Measure, volumes, and additional PSF or enhancement processing refuse this route. A separate, explicitly configured calibrated V2 batch route supports independent two-dimensional fields within its validated settings limits. Leaving the calibration blank preserves legacy processing."
+msgstr "A via calibrada opcional suporta campos ``stack/*.npy`` organizados bidimensionais com o canal no último eixo em Segmentation Live Preview. Ative funcionalidades alpha e separação espectral, forneça os poços de controlo de coloração única existentes e defina ``unmix_calibration`` para o JSON da calibração medida. Defina explicitamente ``unmix_pixel_size_um`` para a amostragem ``[Y, X]`` da origem em micrómetros. Não se infere calibração do microscópio. A segmentação em lote antiga, Measure, volumes e processamento PSF ou de melhoria adicional recusam esta via. Uma via calibrada V2 em lote separada, configurada explicitamente, suporta campos bidimensionais independentes dentro dos limites das suas definições validadas. Deixar a calibração vazia preserva o processamento antigo."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The calibration JSON has ``version: 1``, ``axes: \"YX\"``, ``pixel_size_um: [Y, X]``, ``reference_channel`` and a ``channels`` list. Every physical channel appears exactly once. Each channel entry supplies ``channel``, ``shift_to_reference_px: [dy, dx]``, a measured two-dimensional ``psf`` array, ``psf_origin_px: [Y, X]`` and ``psf_pixel_size_um: [Y, X]``. The reference channel has zero shift. A shift means ``aligned[y, x] = acquired[y - dy, x - dx]``; only integer shifts are supported. Each finite nonnegative PSF must have positive mass, odd dimensions and its declared origin at its center. Image and PSF sampling must agree; no implicit resampling is performed."
+msgstr "O JSON de calibração tem ``version: 1``, ``axes: \"YX\"``, ``pixel_size_um: [Y, X]``, ``reference_channel`` e uma lista ``channels``. Cada canal físico surge exatamente uma vez. Cada entrada fornece ``channel``, ``shift_to_reference_px: [dy, dx]``, uma matriz ``psf`` bidimensional medida, ``psf_origin_px: [Y, X]`` e ``psf_pixel_size_um: [Y, X]``. O canal de referência tem desvio zero. Um desvio significa ``aligned[y, x] = acquired[y - dy, x - dx]``; só são suportados desvios inteiros. Cada PSF finita não negativa deve ter massa positiva, dimensões ímpares e a origem declarada no centro. A amostragem da imagem e da PSF deve coincidir; não há reamostragem implícita."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Each channel is convolved with all the other channels' supplied PSFs. Their common effective PSF is the product convolution of all supplied kernels: resolution is broadened, not restored by deconvolution. This assumes a shift-invariant PSF per observation channel and a common linear mixing matrix. Only the intersection supported by real acquired pixels is used. No reflected, wrapped or zero-padded image pixels enter the solve or segmentation. Controls and the selected image undergo the same calibrated operation."
+msgstr "Cada canal é convolvido com as PSF fornecidas de todos os outros canais. A sua PSF efetiva comum é a convolução produto de todos os núcleos fornecidos: a resolução é alargada, não restaurada por desconvolução. Isto assume uma PSF invariante à translação por canal de observação e uma matriz de mistura linear comum. Só é usada a interseção suportada por píxeis realmente adquiridos. Nenhum píxel refletido, circular ou preenchido com zeros entra na resolução ou segmentação. Os controlos e a imagem selecionada passam pela mesma operação calibrada."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The valid crop retains signed float residuals, including negative values from noise or model mismatch; these are not negative biological concentrations. Provenance records the matrix, calibration and kernel hashes, shifts, sampling, common support, original-canvas crop and negative fractions. Segmentation receives a separately recorded nonnegative view. Labels are restored to the original canvas; complete labels touching the valid crop boundary are excluded and recorded rather than presented as complete objects. Source files and raw measurement data remain unchanged. Real known-amount double-stain validation and calibrated Measure integration remain open."
+msgstr "O recorte válido mantém resíduos de vírgula flutuante com sinal, incluindo valores negativos de ruído ou desajuste do modelo; não são concentrações biológicas negativas. A proveniência regista hashes da matriz, calibração e núcleos, desvios, amostragem, suporte comum, recorte da área original e frações negativas. A segmentação recebe uma vista não negativa registada separadamente. Os rótulos são repostos na área original; rótulos completos que tocam a fronteira do recorte válido são excluídos e registados em vez de apresentados como objetos completos. Ficheiros de origem e dados brutos de medição não mudam. Continuam em aberto a validação real com dupla coloração de quantidade conhecida e a integração calibrada de Measure."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Calibration is bounded to 16 channels, 31-pixel individual PSF dimensions, 127-pixel combined support, integer shifts within 4096 pixels and 16,777,216 selected channel pixels per image. Oversized or incompatible inputs refuse before calibrated channel-copy allocation. These limits do not alter the legacy route. Across all selected control fields, at most 67,108,864 channel pixels are retained, bounding their matched float64 arrays to 512 MiB; this is not a total process-memory limit, as convolution and other working arrays require additional memory. Choose fewer or smaller control fields if this aggregate limit is exceeded. This limit never triggers additional sampling or dropping; the existing selection of up to 24 fields per dye is unchanged."
+msgstr "A calibração limita-se a 16 canais, dimensões PSF individuais de 31 píxeis, suporte combinado de 127 píxeis, desvios inteiros até 4096 píxeis e 16,777,216 píxeis de canal selecionados por imagem. Entradas excessivas ou incompatíveis são recusadas antes da alocação de cópias calibradas dos canais. Estes limites não alteram a via antiga. Em todos os campos de controlo selecionados, retêm-se no máximo 67,108,864 píxeis de canal, limitando as matrizes float64 correspondentes a 512 MiB; não é um limite total de memória do processo, pois convolução e outras matrizes de trabalho exigem mais memória. Escolha menos campos de controlo ou campos menores se exceder este limite agregado. O limite nunca desencadeia amostragem nem exclusão adicional; a seleção existente de até 24 campos por corante mantém-se."
+
 msgid "Engine parameter reference"
 msgstr "Referência de parâmetros dos mecanismos"
 
@@ -647,8 +725,9 @@ msgstr "peso de contraste local adimensional; padrão 0,2 nos dois modos. Niblac
 msgid "``propagate_sigma`` — default ``2.0``"
 msgstr "``propagate_sigma`` — padrão ``2.0``"
 
-msgid "the Gaussian blur before the maxima are found, in pixels. SEPARATE FROM THE IMAGE ENHANCEMENT CHAIN'S DENOISE, which has already run by the time a detector sees the image: this one exists because the blur that makes one object have one centre is usually far stronger than the blur anyone wants the object's EDGE measured through, and the propagation measures the edge on the same blurred image. Leave the chain's denoise off unless the field is genuinely noisy, or the two blurs compound."
-msgstr "o desfoque gaussiano aplicado antes da busca pelos máximos, em pixels. SEPARADO DA REDUÇÃO DE RUÍDO DA CADEIA DE REALCE DE IMAGEM, que já foi executada quando um detector vê a imagem: este existe porque o desfoque que dá a um objeto um único centro costuma ser muito mais forte do que o desfoque pelo qual alguém gostaria de medir a BORDA do objeto, e a propagação mede a borda na mesma imagem desfocada. Deixe a redução de ruído da cadeia desativada, a menos que o campo seja realmente ruidoso, ou os dois desfoques se somam."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "the Gaussian blur before the maxima are found, in pixels. This is separate from the image enhancement chain's denoise, which has already run by the time a detector sees the image: the blur that gives one object one centre is usually much stronger than the blur wanted for measuring the object's edge, and the propagation measures the edge on the same blurred image. Leave the chain's denoise off unless the field is genuinely noisy, or the two blurs compound."
+msgstr "o desfoque gaussiano antes de encontrar os máximos, em píxeis. É separado da redução de ruído da cadeia de melhoria, já executada quando o detetor vê a imagem: o desfoque que dá um centro a cada objeto é normalmente muito mais forte do que o pretendido para medir a sua margem, e a propagação mede a margem na mesma imagem desfocada. Deixe a redução de ruído da cadeia desligada salvo se o campo for realmente ruidoso, ou os dois desfoques acumulam-se."
 
 msgid "``propagate_min_distance`` — default ``10``"
 msgstr "``propagate_min_distance`` — padrão ``10``"

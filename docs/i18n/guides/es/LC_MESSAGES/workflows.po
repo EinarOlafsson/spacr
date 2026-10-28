@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-28 15:12-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: es\n"
@@ -608,9 +608,6 @@ msgstr ":ref:`Measure <workflow-module-measure>`: Defina la comparación de clas
 msgid ":doc:`API reference </api/spacr/qt/screens/feature_explorer/index>`."
 msgstr ":doc:`Referencia de la API </api/spacr/qt/screens/feature_explorer/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=65_feature_explorer>`__."
-msgstr "`Tutorial del módulo <tutorials/#lesson=65_feature_explorer>`__."
-
 msgid "Format Converter"
 msgstr "Convertidor de formatos"
 
@@ -698,9 +695,6 @@ msgstr "**Historial de ejecuciones y productos** — Registros de ejecuciones de
 msgid ":doc:`API reference </api/spacr/qt/plate_queue/index>`."
 msgstr ":doc:`Referencia de la API </api/spacr/qt/plate_queue/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=30_plate_queue>`__."
-msgstr "`Tutorial del módulo <tutorials/#lesson=30_plate_queue>`__."
-
 msgid "Batch Runner"
 msgstr "Ejecución por lotes"
 
@@ -737,9 +731,6 @@ msgstr ":ref:`Measure <workflow-module-measure>`: Inspeccione las tablas reales 
 msgid ":doc:`API reference </api/spacr/qt/screens/db_browser/index>`."
 msgstr ":doc:`Referencia de la API </api/spacr/qt/screens/db_browser/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=34_database>`__."
-msgstr "`Tutorial del módulo <tutorials/#lesson=34_database>`__."
-
 msgid "Run History"
 msgstr "Historial de ejecuciones"
 
@@ -766,9 +757,6 @@ msgstr "**Informes para compartir** — Documentos HTML/PDF o de métodos y resu
 
 msgid ":doc:`API reference </api/spacr/report/index>`."
 msgstr ":doc:`Referencia de la API </api/spacr/report/index>`."
-
-msgid "`Module tutorial <tutorials/#lesson=29_report>`__."
-msgstr "`Tutorial del módulo <tutorials/#lesson=29_report>`__."
 
 msgid "Data Manager"
 msgstr "Gestor de datos"
@@ -866,9 +854,6 @@ msgstr "**Abrir:** QC → Layer Viewer."
 msgid ":doc:`API reference </api/spacr/qt/layer_viewer/index>`."
 msgstr ":doc:`Referencia de la API </api/spacr/qt/layer_viewer/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=57_layer_viewer>`__."
-msgstr "`Tutorial del módulo <tutorials/#lesson=57_layer_viewer>`__."
-
 msgid "Power / Design"
 msgstr "Power / Design"
 
@@ -883,9 +868,6 @@ msgstr ":ref:`Experiment Design <workflow-module-experiment_design>`: Utilice la
 
 msgid ":doc:`API reference </api/spacr/qt/screens/power/index>`."
 msgstr ":doc:`Referencia de la API </api/spacr/qt/screens/power/index>`."
-
-msgid "`Module tutorial <tutorials/#lesson=68_power_design>`__."
-msgstr "`Tutorial del módulo <tutorials/#lesson=68_power_design>`__."
 
 msgid "Run Compare"
 msgstr "Run Compare"
@@ -920,9 +902,6 @@ msgstr "**Abrir:** Búsqueda de Ayuda → Explorador de base de datos → Tabula
 msgid ":doc:`API reference </api/spacr/qt/screens/tabulate/index>`."
 msgstr ":doc:`Referencia de la API </api/spacr/qt/screens/tabulate/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=61_tabulate>`__."
-msgstr "`Tutorial del módulo <tutorials/#lesson=61_tabulate>`__."
-
 msgid "Dose–Response"
 msgstr "Dose–Response"
 
@@ -943,9 +922,6 @@ msgstr ":ref:`Measure <workflow-module-measure>`: Una la respuesta medida a dosi
 
 msgid ":doc:`API reference </api/spacr/qt/screens/dose_response/index>`."
 msgstr ":doc:`Referencia de la API </api/spacr/qt/screens/dose_response/index>`."
-
-msgid "`Module tutorial <tutorials/#lesson=69_dose_response>`__."
-msgstr "`Tutorial del módulo <tutorials/#lesson=69_dose_response>`__."
 
 msgid "Project Browser"
 msgstr "Project Browser"
@@ -971,9 +947,6 @@ msgstr "**Abrir:** QC → Outliers."
 msgid ":doc:`API reference </api/spacr/qt/screens/outliers/index>`."
 msgstr ":doc:`Referencia de la API </api/spacr/qt/screens/outliers/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=66_outliers>`__."
-msgstr "`Tutorial del módulo <tutorials/#lesson=66_outliers>`__."
-
 msgid "Embeddings"
 msgstr "Embeddings"
 
@@ -998,9 +971,6 @@ msgstr ":ref:`Image UMAP <workflow-module-umap>`: Proporcione la tabla de caract
 
 msgid ":doc:`API reference </api/spacr/qt/screens/embeddings/index>`."
 msgstr ":doc:`Referencia de la API </api/spacr/qt/screens/embeddings/index>`."
-
-msgid "`Module tutorial <tutorials/#lesson=77_embeddings>`__."
-msgstr "`Tutorial del módulo <tutorials/#lesson=77_embeddings>`__."
 
 msgid "Control Charts"
 msgstr "Control Charts"
@@ -1243,9 +1213,6 @@ msgstr ":ref:`Make Masks <workflow-module-make_masks>`: Utilice máscaras de pla
 msgid ":doc:`API reference </api/spacr/submodules/index>`."
 msgstr ":doc:`Referencia de la API </api/spacr/submodules/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=24_plaque>`__."
-msgstr "`Tutorial del módulo <tutorials/#lesson=24_plaque>`__."
-
 msgid "Recruitment"
 msgstr "Ensayo de reclutamiento"
 
@@ -1257,9 +1224,6 @@ msgstr "**Abrir:** Toxoplasma → Ensayo de reclutamiento."
 
 msgid ":ref:`Measure <workflow-module-measure>`: Require the intended compartment intensities and identities."
 msgstr ":ref:`Measure <workflow-module-measure>`: Exija las intensidades y las identidades de los compartimentos previstos."
-
-msgid "`Module tutorial <tutorials/#lesson=25_recruitment>`__."
-msgstr "`Tutorial del módulo <tutorials/#lesson=25_recruitment>`__."
 
 msgid "Invasion Assay"
 msgstr "Ensayo de invasión"
@@ -1312,14 +1276,16 @@ msgstr ":ref:`Direct Cellpose mask generation <workflow-module-cellpose_masks>`:
 msgid "`Module tutorial <tutorials/#lesson=19_train_cellpose>`__."
 msgstr "`Tutorial del módulo <tutorials/#lesson=19_train_cellpose>`__."
 
-msgid "Mask the whole folder"
-msgstr "Generar máscaras para toda la carpeta"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Mask folder"
+msgstr "Crear máscaras de la carpeta"
 
 msgid "Apply the selected segmentation model to the open image folder through Make Masks; inspect saved labels before measuring them."
 msgstr "Aplique el modelo de segmentación seleccionado a la carpeta de imágenes abierta mediante Make Masks; inspeccione las etiquetas guardadas antes de medirlas."
 
-msgid "**Open:** Make Masks → Mask the whole folder."
-msgstr "**Abrir:** Crear máscaras → Generar máscaras para toda la carpeta."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Open:** Make Masks → Mask folder."
+msgstr "**Abrir:** Crear máscaras → Crear máscaras de la carpeta."
 
 msgid ":doc:`API reference </api/spacr/spacr_cellpose/index>`."
 msgstr ":doc:`Referencia de la API </api/spacr/spacr_cellpose/index>`."
@@ -1387,9 +1353,6 @@ msgstr "**Abrir:** Crear máscaras → Puente con napari."
 msgid ":doc:`API reference </api/spacr/napari_bridge/index>`."
 msgstr ":doc:`Referencia de la API </api/spacr/napari_bridge/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=46_napari_bridge>`__."
-msgstr "`Tutorial del módulo <tutorials/#lesson=46_napari_bridge>`__."
-
 msgid "Import Images"
 msgstr "Importar imágenes"
 
@@ -1423,9 +1386,6 @@ msgstr ":ref:`Map Barcodes <workflow-module-map_barcodes>`: Compruebe la asignac
 msgid ":doc:`API reference </api/spacr/sequencing_qc/index>`."
 msgstr ":doc:`Referencia de la API </api/spacr/sequencing_qc/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=47_barcode_qc>`__."
-msgstr "`Tutorial del módulo <tutorials/#lesson=47_barcode_qc>`__."
-
 msgid "Image Scatter"
 msgstr "Dispersión de imágenes"
 
@@ -1453,9 +1413,6 @@ msgstr "**Abrir:** UMAP de imágenes → PCA."
 msgid ":doc:`API reference </api/spacr/qt/screens/pca/index>`."
 msgstr ":doc:`Referencia de la API </api/spacr/qt/screens/pca/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=60_pca>`__."
-msgstr "`Tutorial del módulo <tutorials/#lesson=60_pca>`__."
-
 msgid "Volcano Explorer"
 msgstr "Explorador de gráficos volcán"
 
@@ -1470,9 +1427,6 @@ msgstr ":ref:`Regression <workflow-module-regression>`: Inspeccione los efectos 
 
 msgid ":doc:`API reference </api/spacr/volcano_style/index>`."
 msgstr ":doc:`Referencia de la API </api/spacr/volcano_style/index>`."
-
-msgid "`Module tutorial <tutorials/#lesson=72_volcano_explorer>`__."
-msgstr "`Tutorial del módulo <tutorials/#lesson=72_volcano_explorer>`__."
 
 msgid "Hit List"
 msgstr "Lista de candidatos"
@@ -1525,9 +1479,6 @@ msgstr ":ref:`Regression <workflow-module-regression>`: Abra los diagnósticos q
 msgid ":doc:`API reference </api/spacr/qt/screens/regression/index>`."
 msgstr ":doc:`Referencia de la API </api/spacr/qt/screens/regression/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=75_regression_diagnostics>`__."
-msgstr "`Tutorial del módulo <tutorials/#lesson=75_regression_diagnostics>`__."
-
 msgid "Illumination"
 msgstr "Iluminación"
 
@@ -1561,9 +1512,6 @@ msgstr ":ref:`Measure <workflow-module-measure>`: Exporte columnas compatibles d
 msgid ":doc:`API reference </api/spacr/anndata_export/index>`."
 msgstr ":doc:`Referencia de la API </api/spacr/anndata_export/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=59_anndata_export>`__."
-msgstr "`Tutorial del módulo <tutorials/#lesson=59_anndata_export>`__."
-
 msgid "Motility Assay"
 msgstr "Ensayo de motilidad"
 
@@ -1582,21 +1530,20 @@ msgstr ":ref:`Measure <workflow-module-measure>`: Combine los objetos medidos co
 msgid ":doc:`API reference </api/spacr/timelapse/index>`."
 msgstr ":doc:`Referencia de la API </api/spacr/timelapse/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=18_motility>`__."
-msgstr "`Tutorial del módulo <tutorials/#lesson=18_motility>`__."
-
 msgid "Timelapse"
 msgstr "Serie temporal"
 
-msgid "Open Timelapse within Mask to segment and link objects across ordered frames; inspect links before downstream motility analysis."
-msgstr "Abra Timelapse dentro de Mask para segmentar y enlazar objetos entre fotogramas ordenados; inspeccione los vínculos antes del análisis posterior de motilidad."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In Mask, press Time to show the time-axis and tracking settings, then segment and link objects across ordered frames; inspect links before downstream motility analysis."
+msgstr "En Mask, pulse Tiempo para mostrar los ajustes del eje temporal y del seguimiento; después, segmente y enlace objetos entre fotogramas ordenados e inspeccione los vínculos antes del análisis posterior de motilidad."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Lineage exports retain generation times in frames and add ``generation_time_hours`` with calibrated summary statistics. Supply a positive ``frame_interval_s`` or complete, increasing ``time_s`` values in the tracks table. If both are present, they must agree; irregular timestamps are supported without a fixed interval. Missing calibration and incomplete cell cycles have no generation time in hours. Exported tables record the calibration source and units. The tree axis and Newick branch lengths remain in frames."
 msgstr "Las exportaciones de linajes conservan los tiempos de generación en fotogramas y añaden ``generation_time_hours`` con estadísticas de resumen calibradas. Proporcione un valor positivo de ``frame_interval_s`` o valores de ``time_s`` completos y crecientes en la tabla de trayectorias. Si ambos están presentes, deben concordar; se admiten marcas de tiempo irregulares sin un intervalo fijo. Cuando falta la calibración o los ciclos celulares están incompletos, no se indica un tiempo de generación en horas. Las tablas exportadas registran la fuente de calibración y las unidades. El eje del árbol y las longitudes de las ramas Newick siguen expresándose en fotogramas."
 
-msgid "**Open:** Mask → Timelapse."
-msgstr "**Abrir:** Máscaras → Serie temporal."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Open:** Home → Mask → Time."
+msgstr "**Abrir:** Inicio → Máscaras → Tiempo."
 
 msgid ":ref:`Mask <workflow-module-mask>`: Enable the nested time-series route before generating linked labels."
 msgstr ":ref:`Mask <workflow-module-mask>`: Active la ruta anidada de series temporales antes de generar etiquetas enlazadas."
@@ -1627,9 +1574,6 @@ msgstr ":ref:`Regression <workflow-module-regression>`: Una o agregue explícita
 
 msgid ":doc:`API reference </api/spacr/ops_engine/index>`."
 msgstr ":doc:`Referencia de la API </api/spacr/ops_engine/index>`."
-
-msgid "`Module tutorial <tutorials/#lesson=76_ops>`__."
-msgstr "`Tutorial del módulo <tutorials/#lesson=76_ops>`__."
 
 msgid "Classifier Evaluation"
 msgstr "Evaluación del clasificador"
@@ -1741,9 +1685,6 @@ msgstr "**Abrir:** Regresión → Barrido de parámetros."
 
 msgid ":doc:`API reference </api/spacr/parameter_sweep/index>`."
 msgstr ":doc:`Referencia de la API </api/spacr/parameter_sweep/index>`."
-
-msgid "`Module tutorial <tutorials/#lesson=73_parameter_sweep>`__."
-msgstr "`Tutorial del módulo <tutorials/#lesson=73_parameter_sweep>`__."
 
 msgid "Toxoplasma"
 msgstr "Toxoplasma"

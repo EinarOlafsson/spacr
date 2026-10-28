@@ -10,6 +10,7 @@ def test_normal_registration_keeps_reference_guide_on_real_home(qtbot, tmp_path,
 
     monkeypatch.setattr(preferences, '_settings',
                         lambda: QSettings(str(tmp_path / 'private.ini'), QSettings.IniFormat))
+    preferences.set_easy_mode(False)
     preferences.set_show_alpha(False)
     preferences._set_show_alpha_features(False)
     preferences._set_show_alpha_species(False)

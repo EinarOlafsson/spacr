@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-28 15:12-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: de\n"
@@ -608,9 +608,6 @@ msgstr ":ref:`Measure <workflow-module-measure>`: Legen Sie den Klassenvergleich
 msgid ":doc:`API reference </api/spacr/qt/screens/feature_explorer/index>`."
 msgstr ":doc:`API-Referenz </api/spacr/qt/screens/feature_explorer/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=65_feature_explorer>`__."
-msgstr "`Modul-Tutorial <tutorials/#lesson=65_feature_explorer>`__."
-
 msgid "Format Converter"
 msgstr "Dateiformatkonverter"
 
@@ -698,9 +695,6 @@ msgstr "**Laufhistorie und erzeugte Dateien** — Projektlaufaufzeichnungen, Ein
 msgid ":doc:`API reference </api/spacr/qt/plate_queue/index>`."
 msgstr ":doc:`API-Referenz </api/spacr/qt/plate_queue/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=30_plate_queue>`__."
-msgstr "`Modul-Tutorial <tutorials/#lesson=30_plate_queue>`__."
-
 msgid "Batch Runner"
 msgstr "Stapelverarbeitung"
 
@@ -737,9 +731,6 @@ msgstr ":ref:`Measure <workflow-module-measure>`: Prüfen Sie die tatsächlichen
 msgid ":doc:`API reference </api/spacr/qt/screens/db_browser/index>`."
 msgstr ":doc:`API-Referenz </api/spacr/qt/screens/db_browser/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=34_database>`__."
-msgstr "`Modul-Tutorial <tutorials/#lesson=34_database>`__."
-
 msgid "Run History"
 msgstr "Ausführungsverlauf"
 
@@ -766,9 +757,6 @@ msgstr "**Teilbare Berichte** — Exportierte HTML/PDF-Dokumente oder Methoden- 
 
 msgid ":doc:`API reference </api/spacr/report/index>`."
 msgstr ":doc:`API-Referenz </api/spacr/report/index>`."
-
-msgid "`Module tutorial <tutorials/#lesson=29_report>`__."
-msgstr "`Modul-Tutorial <tutorials/#lesson=29_report>`__."
 
 msgid "Data Manager"
 msgstr "Datenverwaltung"
@@ -866,9 +854,6 @@ msgstr "**Öffnen:** QC → Layer Viewer."
 msgid ":doc:`API reference </api/spacr/qt/layer_viewer/index>`."
 msgstr ":doc:`API-Referenz </api/spacr/qt/layer_viewer/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=57_layer_viewer>`__."
-msgstr "`Modul-Tutorial <tutorials/#lesson=57_layer_viewer>`__."
-
 msgid "Power / Design"
 msgstr "Power / Design"
 
@@ -883,9 +868,6 @@ msgstr ":ref:`Experiment Design <workflow-module-experiment_design>`: Legen Sie 
 
 msgid ":doc:`API reference </api/spacr/qt/screens/power/index>`."
 msgstr ":doc:`API-Referenz </api/spacr/qt/screens/power/index>`."
-
-msgid "`Module tutorial <tutorials/#lesson=68_power_design>`__."
-msgstr "`Modul-Tutorial <tutorials/#lesson=68_power_design>`__."
 
 msgid "Run Compare"
 msgstr "Run Compare"
@@ -920,9 +902,6 @@ msgstr "**Öffnen:** Hilfe-Suche → Datenbankbrowser → Tabulate."
 msgid ":doc:`API reference </api/spacr/qt/screens/tabulate/index>`."
 msgstr ":doc:`API-Referenz </api/spacr/qt/screens/tabulate/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=61_tabulate>`__."
-msgstr "`Modul-Tutorial <tutorials/#lesson=61_tabulate>`__."
-
 msgid "Dose–Response"
 msgstr "Dose–Response"
 
@@ -943,9 +922,6 @@ msgstr ":ref:`Measure <workflow-module-measure>`: Verknüpfen Sie die gemessene 
 
 msgid ":doc:`API reference </api/spacr/qt/screens/dose_response/index>`."
 msgstr ":doc:`API-Referenz </api/spacr/qt/screens/dose_response/index>`."
-
-msgid "`Module tutorial <tutorials/#lesson=69_dose_response>`__."
-msgstr "`Modul-Tutorial <tutorials/#lesson=69_dose_response>`__."
 
 msgid "Project Browser"
 msgstr "Project Browser"
@@ -971,9 +947,6 @@ msgstr "**Öffnen:** QC → Outliers."
 msgid ":doc:`API reference </api/spacr/qt/screens/outliers/index>`."
 msgstr ":doc:`API-Referenz </api/spacr/qt/screens/outliers/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=66_outliers>`__."
-msgstr "`Modul-Tutorial <tutorials/#lesson=66_outliers>`__."
-
 msgid "Embeddings"
 msgstr "Embeddings"
 
@@ -998,9 +971,6 @@ msgstr ":ref:`Image UMAP <workflow-module-umap>`: Stellen Sie die Encoder-Merkma
 
 msgid ":doc:`API reference </api/spacr/qt/screens/embeddings/index>`."
 msgstr ":doc:`API-Referenz </api/spacr/qt/screens/embeddings/index>`."
-
-msgid "`Module tutorial <tutorials/#lesson=77_embeddings>`__."
-msgstr "`Modul-Tutorial <tutorials/#lesson=77_embeddings>`__."
 
 msgid "Control Charts"
 msgstr "Control Charts"
@@ -1243,9 +1213,6 @@ msgstr ":ref:`Make Masks <workflow-module-make_masks>`: Verwenden Sie Plaquemask
 msgid ":doc:`API reference </api/spacr/submodules/index>`."
 msgstr ":doc:`API-Referenz </api/spacr/submodules/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=24_plaque>`__."
-msgstr "`Modul-Tutorial <tutorials/#lesson=24_plaque>`__."
-
 msgid "Recruitment"
 msgstr "Rekrutierungsanalyse"
 
@@ -1257,9 +1224,6 @@ msgstr "**Öffnen:** Toxoplasma → Rekrutierungsanalyse."
 
 msgid ":ref:`Measure <workflow-module-measure>`: Require the intended compartment intensities and identities."
 msgstr ":ref:`Measure <workflow-module-measure>`: Erfordern Sie die vorgesehenen Kompartimentintensitäten und Kennungen."
-
-msgid "`Module tutorial <tutorials/#lesson=25_recruitment>`__."
-msgstr "`Modul-Tutorial <tutorials/#lesson=25_recruitment>`__."
 
 msgid "Invasion Assay"
 msgstr "Invasionsassay"
@@ -1312,14 +1276,16 @@ msgstr ":ref:`Direct Cellpose mask generation <workflow-module-cellpose_masks>`:
 msgid "`Module tutorial <tutorials/#lesson=19_train_cellpose>`__."
 msgstr "`Modul-Tutorial <tutorials/#lesson=19_train_cellpose>`__."
 
-msgid "Mask the whole folder"
-msgstr "Gesamten Ordner maskieren"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Mask folder"
+msgstr "Masken für Ordner erstellen"
 
 msgid "Apply the selected segmentation model to the open image folder through Make Masks; inspect saved labels before measuring them."
 msgstr "Wenden Sie das gewählte Segmentierungsmodell über Make Masks auf den geöffneten Bildordner an; prüfen Sie gespeicherte Labels, bevor Sie sie vermessen."
 
-msgid "**Open:** Make Masks → Mask the whole folder."
-msgstr "**Öffnen:** Masken erstellen → Gesamten Ordner maskieren."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Open:** Make Masks → Mask folder."
+msgstr "**Öffnen:** Masken erstellen → Masken für Ordner erstellen."
 
 msgid ":doc:`API reference </api/spacr/spacr_cellpose/index>`."
 msgstr ":doc:`API-Referenz </api/spacr/spacr_cellpose/index>`."
@@ -1387,9 +1353,6 @@ msgstr "**Öffnen:** Masken erstellen → Napari-Brücke."
 msgid ":doc:`API reference </api/spacr/napari_bridge/index>`."
 msgstr ":doc:`API-Referenz </api/spacr/napari_bridge/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=46_napari_bridge>`__."
-msgstr "`Modul-Tutorial <tutorials/#lesson=46_napari_bridge>`__."
-
 msgid "Import Images"
 msgstr "Bilder importieren"
 
@@ -1423,9 +1386,6 @@ msgstr ":ref:`Map Barcodes <workflow-module-map_barcodes>`: Prüfen Sie Zuordnun
 msgid ":doc:`API reference </api/spacr/sequencing_qc/index>`."
 msgstr ":doc:`API-Referenz </api/spacr/sequencing_qc/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=47_barcode_qc>`__."
-msgstr "`Modul-Tutorial <tutorials/#lesson=47_barcode_qc>`__."
-
 msgid "Image Scatter"
 msgstr "Bild-Streudiagramm"
 
@@ -1453,9 +1413,6 @@ msgstr "**Öffnen:** Bild-UMAP → PCA."
 msgid ":doc:`API reference </api/spacr/qt/screens/pca/index>`."
 msgstr ":doc:`API-Referenz </api/spacr/qt/screens/pca/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=60_pca>`__."
-msgstr "`Modul-Tutorial <tutorials/#lesson=60_pca>`__."
-
 msgid "Volcano Explorer"
 msgstr "Vulkanplot-Explorer"
 
@@ -1470,9 +1427,6 @@ msgstr ":ref:`Regression <workflow-module-regression>`: Prüfen Sie gespeicherte
 
 msgid ":doc:`API reference </api/spacr/volcano_style/index>`."
 msgstr ":doc:`API-Referenz </api/spacr/volcano_style/index>`."
-
-msgid "`Module tutorial <tutorials/#lesson=72_volcano_explorer>`__."
-msgstr "`Modul-Tutorial <tutorials/#lesson=72_volcano_explorer>`__."
 
 msgid "Hit List"
 msgstr "Trefferliste"
@@ -1525,9 +1479,6 @@ msgstr ":ref:`Regression <workflow-module-regression>`: Öffnen Sie die tatsäch
 msgid ":doc:`API reference </api/spacr/qt/screens/regression/index>`."
 msgstr ":doc:`API-Referenz </api/spacr/qt/screens/regression/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=75_regression_diagnostics>`__."
-msgstr "`Modul-Tutorial <tutorials/#lesson=75_regression_diagnostics>`__."
-
 msgid "Illumination"
 msgstr "Beleuchtung"
 
@@ -1561,9 +1512,6 @@ msgstr ":ref:`Measure <workflow-module-measure>`: Exportieren Sie kompatible Mer
 msgid ":doc:`API reference </api/spacr/anndata_export/index>`."
 msgstr ":doc:`API-Referenz </api/spacr/anndata_export/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=59_anndata_export>`__."
-msgstr "`Modul-Tutorial <tutorials/#lesson=59_anndata_export>`__."
-
 msgid "Motility Assay"
 msgstr "Motilitätsassay"
 
@@ -1582,21 +1530,20 @@ msgstr ":ref:`Measure <workflow-module-measure>`: Kombinieren Sie vermessene Obj
 msgid ":doc:`API reference </api/spacr/timelapse/index>`."
 msgstr ":doc:`API-Referenz </api/spacr/timelapse/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=18_motility>`__."
-msgstr "`Modul-Tutorial <tutorials/#lesson=18_motility>`__."
-
 msgid "Timelapse"
 msgstr "Zeitraffer"
 
-msgid "Open Timelapse within Mask to segment and link objects across ordered frames; inspect links before downstream motility analysis."
-msgstr "Öffnen Sie Timelapse innerhalb von Mask, um Objekte über geordnete Einzelbilder hinweg zu segmentieren und zu verknüpfen; prüfen Sie die Verknüpfungen vor der nachfolgenden Motilitätsanalyse."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In Mask, press Time to show the time-axis and tracking settings, then segment and link objects across ordered frames; inspect links before downstream motility analysis."
+msgstr "Drücken Sie in Mask auf Zeit, um die Einstellungen für Zeitachse und Tracking anzuzeigen; segmentieren und verknüpfen Sie dann Objekte über geordnete Einzelbilder hinweg und prüfen Sie die Verknüpfungen vor der nachfolgenden Motilitätsanalyse."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Lineage exports retain generation times in frames and add ``generation_time_hours`` with calibrated summary statistics. Supply a positive ``frame_interval_s`` or complete, increasing ``time_s`` values in the tracks table. If both are present, they must agree; irregular timestamps are supported without a fixed interval. Missing calibration and incomplete cell cycles have no generation time in hours. Exported tables record the calibration source and units. The tree axis and Newick branch lengths remain in frames."
 msgstr "Abstammungsexporte behalten die Generationszeiten in Einzelbildern bei und ergänzen ``generation_time_hours`` mit kalibrierten zusammenfassenden Statistiken. Geben Sie einen positiven Wert für ``frame_interval_s`` oder vollständige, ansteigende ``time_s``-Werte in der Track-Tabelle an. Wenn beides vorhanden ist, müssen die Angaben übereinstimmen; unregelmäßige Zeitstempel werden auch ohne festes Intervall unterstützt. Bei fehlender Kalibrierung oder unvollständigen Zellzyklen wird keine Generationszeit in Stunden angegeben. Die exportierten Tabellen dokumentieren die Kalibrierungsquelle und die Einheiten. Die Baumachse und die Newick-Astlängen bleiben in Einzelbildern angegeben."
 
-msgid "**Open:** Mask → Timelapse."
-msgstr "**Öffnen:** Masken → Zeitraffer."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Open:** Home → Mask → Time."
+msgstr "**Öffnen:** Startseite → Masken → Zeit."
 
 msgid ":ref:`Mask <workflow-module-mask>`: Enable the nested time-series route before generating linked labels."
 msgstr ":ref:`Mask <workflow-module-mask>`: Aktivieren Sie den untergeordneten Zeitreihenweg, bevor Sie verknüpfte Labels erzeugen."
@@ -1627,9 +1574,6 @@ msgstr ":ref:`Regression <workflow-module-regression>`: Verknüpfen beziehungswe
 
 msgid ":doc:`API reference </api/spacr/ops_engine/index>`."
 msgstr ":doc:`API-Referenz </api/spacr/ops_engine/index>`."
-
-msgid "`Module tutorial <tutorials/#lesson=76_ops>`__."
-msgstr "`Modul-Tutorial <tutorials/#lesson=76_ops>`__."
 
 msgid "Classifier Evaluation"
 msgstr "Klassifikatorauswertung"
@@ -1741,9 +1685,6 @@ msgstr "**Öffnen:** Regression → Parameter-Sweep."
 
 msgid ":doc:`API reference </api/spacr/parameter_sweep/index>`."
 msgstr ":doc:`API-Referenz </api/spacr/parameter_sweep/index>`."
-
-msgid "`Module tutorial <tutorials/#lesson=73_parameter_sweep>`__."
-msgstr "`Modul-Tutorial <tutorials/#lesson=73_parameter_sweep>`__."
 
 msgid "Toxoplasma"
 msgstr "Toxoplasma"

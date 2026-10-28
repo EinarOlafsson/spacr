@@ -40,6 +40,8 @@ def screen(qtbot, qt_theme_applied, tmp_path, monkeypatch):
     widget = MakeMasksScreen()
     qtbot.addWidget(widget)
     widget._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not widget._loading and widget._reader_worker is None
+                    and widget._load_worker is None)
     return widget
 
 
@@ -78,9 +80,11 @@ def test_ranking_while_hidden_reorders_and_reaches_the_terminal_queue(screen):
     assert queue.effective_order == "uncertain"
 
 
-def test_the_map_opens_on_its_own_tab(screen):
+def test_the_map_opens_on_its_own_tab(qtbot, screen):
     screen._current_index = 1
     screen._load_current()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     tabs = screen._view_tabs.count()
     assert screen._on_map_uncertainty(segment=_blind_corner, threaded=False)
     assert screen._view_tabs.count() == tabs + 1

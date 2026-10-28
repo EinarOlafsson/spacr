@@ -48,13 +48,15 @@ def _drag(widget, dx: int) -> None:
     y = widget.height() / 2
     start = QPointF(2, y)
     end = QPointF(2 + dx, y)
+    origin = QPointF(widget.mapToGlobal(QPoint(0, 0)))
     for kind, local, button, buttons in (
             (QEvent.MouseButtonPress, start, Qt.LeftButton, Qt.LeftButton),
             (QEvent.MouseMove, end, Qt.NoButton, Qt.LeftButton),
             (QEvent.MouseButtonRelease, end, Qt.LeftButton, Qt.NoButton)):
-        glob = QPointF(widget.mapToGlobal(local.toPoint()))
+        glob = origin + local
+        current_local = QPointF(widget.mapFromGlobal(glob.toPoint()))
         QApplication.sendEvent(widget, QMouseEvent(
-            kind, local, glob, button, buttons, Qt.NoModifier))
+            kind, current_local, glob, button, buttons, Qt.NoModifier))
     _pump()
 
 

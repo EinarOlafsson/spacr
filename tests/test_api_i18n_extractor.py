@@ -1529,6 +1529,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     volume_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts"
         / "672_673_editable_volume_api_arrivals_2026-10-10.json").read_text(encoding="utf-8"))
+    from tests.test_documentation_i18n import _current_735_volume_api
+    volume_arrivals = _current_735_volume_api(volume_arrivals, docs)
     assert len(volume_arrivals) == 32
     assert {key: docs[key] for key in volume_arrivals} == volume_arrivals
     assert not volume_arrivals.keys() & (
@@ -1994,6 +1996,16 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         | home_ui_arrivals.keys() | volume_arrivals.keys()
     )
     zoo_arrivals = {**zoo_arrivals, **easy_mode_arrivals}
+    navigator_helper_arrivals = {
+        "spacr.qt.widgets.home._EasyHomePage._choose_navigator_ai.configure":
+            "Reuse the existing install and sign-in dialog without sending a task.",
+    }
+    assert {key: docs[key] for key in navigator_helper_arrivals} == navigator_helper_arrivals
+    assert not navigator_helper_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **navigator_helper_arrivals}
     from tests.test_documentation_i18n import _retired_707_home_api
     retired_home = _retired_707_home_api(docs)
     actual = len((historical_docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_home.keys()) - len(builder.API_DOC_ALIASES)

@@ -114,6 +114,8 @@ def _built(qtbot, folder: Path):
     made = mm.MakeMasksScreen()
     qtbot.addWidget(made)
     assert made._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not made._loading and made._reader_worker is None
+                    and made._load_worker is None)
     made._canvas.resize(CANVAS_W, CANVAS_H)
     made._canvas.refresh()
     assert made._canvas.pixmap().deviceIndependentSize().width() == PIXMAP_N, "geometry assumption broke"
@@ -280,6 +282,8 @@ def test_the_rows_go_when_the_next_field_arrives(qtbot, screen, one_field):
     imageio.imwrite(one_field / "b.tif", image)
     imageio.imwrite(one_field / "masks" / "b.tif", mask)
     assert screen._open_folder(str(one_field))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     qtbot.waitUntil(lambda: screen._canvas.mask is not None, timeout=5_000)
     assert log_rows(screen) == []
 
@@ -294,6 +298,8 @@ def test_the_rows_of_the_field_on_screen_are_that_fields_own(qtbot, screen,
     imageio.imwrite(one_field / "b.tif", image)
     imageio.imwrite(one_field / "masks" / "b.tif", mask)
     assert screen._open_folder(str(one_field))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     qtbot.waitUntil(lambda: screen._canvas.mask is not None, timeout=5_000)
     assert log_rows(screen) == first, "the rows accumulated instead of being remade"
 

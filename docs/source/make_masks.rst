@@ -96,17 +96,20 @@ Open a field and save an edit
 #. Correct an object with a tool, or choose a detection method and inspect its
    preview before accepting objects. **Undo** and **Redo** apply to mask edits.
 #. Press **Save mask** or **Ctrl+S** before moving to another field. Saving
-   writes a ``uint16`` label TIFF in the ordinary layout; a Cellpose bundle
-   is updated as a bundle. The source image is preserved.
+   writes a label TIFF in the ordinary layout. Ordinary segmentation uses
+   ``uint16``; existing ``uint32`` masks and exact IDs requiring that width
+   retain ``uint32`` storage. A Cellpose bundle is updated as a bundle.
+   The source image is preserved.
 #. Use **Keep** or **Discard** to record a field-level curation verdict and
    advance. These verdicts go to ``csv/keep_discard.csv``; Discard records a
    decision without deleting the image or its mask. Save edits separately.
 
-**Save mask**, **Previous image** and **Next image** share the top action
-row with the editing tools. Scroll that row horizontally on a narrow window
-to reach controls outside the visible area.
+**Save mask** and the previous/next-image buttons are in the navigation group
+below the image. Editing and annotation controls wrap in the top bar as the
+window narrows. When the wrapped top controls need more height than available,
+scroll vertically within that bar to reach them.
 
-**Save on navigation**, after **Next image**, saves an edited mask before
+**Save on navigation**, in the **Save mask** arrow menu, saves an edited mask before
 **Keep**, **Discard**, **Next image** or **Previous image** moves on. It is
 off by default and remembered between sessions. If the save fails, the image
 stays open and no verdict is recorded. **Skip** never writes a mask.
@@ -274,9 +277,10 @@ curation. Existing history is retained when editing a previously curated
 mask. See :func:`spacr.qt.mask_engine.save_mask` and
 :class:`spacr.curation.CurationLog` for the file contract.
 
-The saved format has at most 65,535 positive labels. Saving refuses a binary
-mask with more connected objects, or an existing multi-label mask whose IDs
-exceed that range; it does not wrap oversized IDs into smaller numbers.
+Ordinary segmentation stores at most 65,535 positive labels. Saving refuses a
+binary mask with more connected objects; it does not wrap oversized IDs into
+smaller numbers. Existing ``uint32`` masks and the exact-ID path retain that
+wider label storage when needed.
 A refused save preserves an existing TIFF or Cellpose bundle and its metadata.
 In ordinary mode, a mask with one foreground value is interpreted as binary
 and its connected components receive separate IDs. Deliberate groups created
@@ -743,7 +747,8 @@ colour, or clear its check box to hide it. The choices are kept in
 opens with them.
 
 The editable **curated overlay** starts as a copy of the **Base layer**, the
-first layer unless another is chosen. The **Pick** tool edits it:
+first layer unless another is chosen. With **Show only flagged** off, the
+**Pick** tool edits it as follows:
 
 * Click an object of the curated overlay to remove it. A removed object of
   the base layer is drawn dashed; click it again to restore it.
@@ -753,6 +758,10 @@ first layer unless another is chosen. The **Pick** tool edits it:
   object under the click, the first in the list is added.
 * Hidden layers are not picked from. To add another layer's object where a
   removed base object lies, hide the base layer first.
+
+With **Show only flagged** on, picking a visible flagged object removes the
+curated objects it overlaps; picking it again restores them. A flagged object
+over background can instead be added. Hidden curated objects are not picked.
 
 Brush, erase and the other tools edit the same overlay, and **Ctrl+Z** and
 **Ctrl+Y** undo and redo every click.
@@ -766,8 +775,8 @@ takes effect only after **Overwrite** in the confirmation shown under the
 control. A field already saved to the save folder opens from there.
 
 **Keep** saves the overlay as edited, with its object IDs unchanged, and
-moves to the next field; **Next** behaves as in any queue. Each save also
-writes the curation history (``<stem>.tif.curation.json``) and
+moves to the next field; **Next** behaves as in any queue. Edited saves write
+curation history (``<stem>.tif.curation.json``). Layer decisions are recorded in
 ``<stem>.decisions.json`` beside the mask: the base IDs that were removed and
 each added object's ID, source layer and ID in that layer. Progress is kept
 in the ``curate_status.csv`` inside the save folder, so a review resumes on
@@ -827,9 +836,11 @@ The optional calibrated route supports organized two-dimensional channel-last
 spectral unmixing, supply the existing single-stain control wells, and set
 ``unmix_calibration`` to your measured calibration JSON. Set
 ``unmix_pixel_size_um`` explicitly to the source's ``[Y, X]`` sampling in
-micrometers. No microscope calibration is inferred. Batch segmentation,
+micrometers. No microscope calibration is inferred. Legacy batch segmentation,
 Measure, volumes, and additional PSF or enhancement processing refuse this
-route; leaving the calibration blank preserves legacy processing.
+route. A separate, explicitly configured calibrated V2 batch route supports
+independent two-dimensional fields within its validated settings limits.
+Leaving the calibration blank preserves legacy processing.
 
 The calibration JSON has ``version: 1``, ``axes: "YX"``,
 ``pixel_size_um: [Y, X]``, ``reference_channel`` and a ``channels`` list.
@@ -858,7 +869,7 @@ receives a separately recorded nonnegative view. Labels are restored to the
 original canvas; complete labels touching the valid crop boundary are excluded
 and recorded rather than presented as complete objects. Source files and raw
 measurement data remain unchanged. Real known-amount double-stain validation
-and calibrated batch/Measure integration remain open.
+and calibrated Measure integration remain open.
 
 Calibration is bounded to 16 channels, 31-pixel individual PSF dimensions,
 127-pixel combined support, integer shifts within 4096 pixels and 16,777,216

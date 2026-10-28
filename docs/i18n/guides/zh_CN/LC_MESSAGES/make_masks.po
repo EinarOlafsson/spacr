@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:22-0400\n"
+"POT-Creation-Date: 2026-10-28 14:46-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -84,19 +84,21 @@ msgstr "检查图像和标签。图像与掩膜的空间尺寸必须一致。普
 msgid "Correct an object with a tool, or choose a detection method and inspect its preview before accepting objects. **Undo** and **Redo** apply to mask edits."
 msgstr "使用工具校正对象，或选择一种检测方法并在接受对象之前检查其预览。**撤销** 和 **重做** 适用于掩膜编辑。"
 
-msgid "Press **Save mask** or **Ctrl+S** before moving to another field. Saving writes a ``uint16`` label TIFF in the ordinary layout; a Cellpose bundle is updated as a bundle. The source image is preserved."
-msgstr "切换到另一个视野之前，请按 **保存掩膜** 或 **Ctrl+S**。保存会在常规布局中写入一个 ``uint16`` 标签 TIFF；Cellpose 文件包会作为文件包更新。源图像保持不变。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Press **Save mask** or **Ctrl+S** before moving to another field. Saving writes a label TIFF in the ordinary layout. Ordinary segmentation uses ``uint16``; existing ``uint32`` masks and exact IDs requiring that width retain ``uint32`` storage. A Cellpose bundle is updated as a bundle. The source image is preserved."
+msgstr "切换到其他图像视野前，请按 **保存掩膜** 或 **Ctrl+S**。保存会在普通目录布局中写入标签 TIFF。普通分割使用 ``uint16``；已有的 ``uint32`` 掩膜以及需要该位宽的精确 ID 保留 ``uint32`` 存储。Cellpose 数据包仍以数据包形式更新。源图像保持不变。"
 
 msgid "Use **Keep** or **Discard** to record a field-level curation verdict and advance. These verdicts go to ``csv/keep_discard.csv``; Discard records a decision without deleting the image or its mask. Save edits separately."
 msgstr "使用 **保留** 或 **放弃** 记录视野级的整理结论并前进到下一个视野。这些结论写入 ``csv/keep_discard.csv``；放弃只记录决定，不会删除图像或其掩膜。编辑需要单独保存。"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Save mask**, **Previous image** and **Next image** share the top action row with the editing tools. Scroll that row horizontally on a narrow window to reach controls outside the visible area."
-msgstr "**保存掩膜**、**上一张图像** 和 **下一张图像** 与编辑工具共用顶部操作栏。窗口较窄时，可水平滚动此栏以访问可见区域以外的控件。"
+msgid "**Save mask** and the previous/next-image buttons are in the navigation group below the image. Editing and annotation controls wrap in the top bar as the window narrows. When the wrapped top controls need more height than available, scroll vertically within that bar to reach them."
+msgstr "**保存掩膜** 和上一张/下一张图像按钮位于图像下方的导航组中。窗口变窄时，编辑和标注控件会在顶部工具栏内换行排列。如果换行后的顶部控件需要的高度超过可用空间，请在该工具栏内垂直滚动以访问这些控件。"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "**Save on navigation**, after **Next image**, saves an edited mask before **Keep**, **Discard**, **Next image** or **Previous image** moves on. It is off by default and remembered between sessions. If the save fails, the image stays open and no verdict is recorded. **Skip** never writes a mask."
-msgstr "位于 **下一张图像** 之后的 **导航时保存** 会在 **保留**、**放弃**、**下一张图像** 或 **上一张图像** 切换之前保存已编辑的掩膜。该选项默认关闭，并在会话之间保留。如果保存失败，图像保持打开，且不记录任何判定。**跳过** 从不写入掩膜。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Save on navigation**, in the **Save mask** arrow menu, saves an edited mask before **Keep**, **Discard**, **Next image** or **Previous image** moves on. It is off by default and remembered between sessions. If the save fails, the image stays open and no verdict is recorded. **Skip** never writes a mask."
+msgstr "**保存掩膜** 箭头菜单中的 **导航时保存** 会在通过 **保留**、**放弃**、**下一张图像** 或 **上一张图像** 切换前保存已编辑的掩膜。默认关闭，并在会话间记住设置。保存失败时，图像保持打开且不记录判定。**跳过** 从不写入掩膜。"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on, the electron microscopy test data and the FIB-SEM volumes described under :ref:`mm-tem` and :ref:`mm-volumes`."
@@ -253,8 +255,8 @@ msgid "A saved edit history is stored beside the mask as ``<mask>.curation.json`
 msgstr "保存的编辑历史存储在掩膜旁的 ``<mask>.curation.json`` 中。只打开图像而不编辑不会产生手动整理的记录。编辑先前整理过的掩膜时，已有历史会被保留。文件约定请参阅 :func:`spacr.qt.mask_engine.save_mask` 和 :class:`spacr.curation.CurationLog`。"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "The saved format has at most 65,535 positive labels. Saving refuses a binary mask with more connected objects, or an existing multi-label mask whose IDs exceed that range; it does not wrap oversized IDs into smaller numbers. A refused save preserves an existing TIFF or Cellpose bundle and its metadata. In ordinary mode, a mask with one foreground value is interpreted as binary and its connected components receive separate IDs. Deliberate groups created with Divide / Merge or a magnifier drag retain their shared IDs when saved and reopened with their matching curation history. For primary/secondary relationships, use the exact-ID path described below. See :func:`spacr.qt.mask_engine.canonical_labels` for these distinct conventions."
-msgstr "保存格式最多支持 65,535 个正标签。对于连通对象更多的二值掩膜，或 ID 超出该范围的现有多标签掩膜，保存会被拒绝；它不会把过大的 ID 回绕成较小的数字。被拒绝的保存会保留现有的 TIFF 或 Cellpose 文件包及其元数据。在常规模式下，只有一个前景值的掩膜会被解释为二值掩膜，其连通分量会分别获得 ID。对于初级/次级关系，请使用下文所述的精确 ID 路径。关于这些不同的约定，请参阅 :func:`spacr.qt.mask_engine.canonical_labels`。 通过 分割 / 合并 或放大镜拖动有意建立的分组，在保存并连同对应校审历史重新打开时，会保留共同的标识符。"
+msgid "Ordinary segmentation stores at most 65,535 positive labels. Saving refuses a binary mask with more connected objects; it does not wrap oversized IDs into smaller numbers. Existing ``uint32`` masks and the exact-ID path retain that wider label storage when needed. A refused save preserves an existing TIFF or Cellpose bundle and its metadata. In ordinary mode, a mask with one foreground value is interpreted as binary and its connected components receive separate IDs. Deliberate groups created with Divide / Merge or a magnifier drag retain their shared IDs when saved and reopened with their matching curation history. For primary/secondary relationships, use the exact-ID path described below. See :func:`spacr.qt.mask_engine.canonical_labels` for these distinct conventions."
+msgstr "普通分割最多存储 65,535 个正标签。保存时会拒绝包含更多连通对象的二值掩膜，不会将过大的 ID 回绕成较小数字。现有 ``uint32`` 掩膜和精确 ID 路径在需要时保留更宽的标签存储。保存被拒绝时会保留现有 TIFF 或 Cellpose 数据包及其元数据。普通模式将只有一个前景值的掩膜视为二值掩膜，并为各连通分量分配独立 ID。用 Divide / Merge 或放大镜拖动有意创建的组，在保存并带匹配的整理历史重新打开时会保留共享 ID。对于主对象/次对象关系，请使用下述精确 ID 路径。不同约定见 :func:`spacr.qt.mask_engine.canonical_labels`。"
 
 msgid "Canvas tools and navigation"
 msgstr "画布工具与导航"
@@ -317,6 +319,14 @@ msgstr "标尺"
 
 msgid "Drag a line to measure image-pixel distance. Right-click with Ruler selected to clear it. Zooming and panning preserve the measurement."
 msgstr "拖出一条线以测量图像像素距离。选中标尺时右键单击可清除它。缩放和平移会保留该测量。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Pick"
+msgstr "选取"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Shown while mask layers are loaded: remove, restore or add objects of the curated overlay; see `Curate against mask layers`_."
+msgstr "加载掩膜图层时显示：移除、恢复或添加整理叠加层的对象；参见 `Curate against mask layers`_。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Shift or Alt + drag** pans. The wheel zooms about the cursor; **Esc** resets zoom. **Left/Right** selects the previous/next field. **Ctrl+Z/Ctrl+Y** undoes or redoes an edit. With Wand selected, **Ctrl + left click** removes the bounded intensity region. Outside Wand, **Ctrl + left click** splits an object at its waist; **Ctrl + right click** removes the object under the cursor. The shortcut panel beside the view lists the current gestures, including magnifier controls."
@@ -597,6 +607,50 @@ msgstr "在 **导入图像** 中，图像文件夹 **选择...** 旁边的 **整
 msgid "A file that holds several channels is split rather than refused: choose **Split multi-channel files**, or accept the offer when you press **Apply**. Each plane is copied into ``split_channels/`` with one channel column per plane, and the original files are not touched. Files move in the background, and the manifest records every move. If a move fails, the message names the error, and the manifest lists every move made before it."
 msgstr "包含多个通道的文件会被拆分而不是被拒绝：选择 **拆分多通道文件** ，或在按下 **应用** 时接受提示。每个平面都会复制到 ``split_channels/`` 中，每个平面对应一个通道列，原始文件不会被改动。文件在后台移动，清单会记录每一次移动。如果某次移动失败，消息会给出错误，清单会列出在此之前完成的每一次移动。"
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Curate against mask layers"
+msgstr "对照掩膜图层进行整理"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Mask layers compare any number of mask sets for the same images, such as the curated training labels and the masks two models made, and build one curated set from them. A layer is a folder of label masks matched to the images by stem, like ``masks/``. Add one with **Add mask layer…** in the arrow menu of **Open File / Folder…**, or start the session from a terminal:"
+msgstr "掩膜图层可比较同一批图像的任意数量掩膜集，例如整理过的训练标签及两个模型生成的掩膜，并据此构建一套整理结果。图层是标签掩膜文件夹，按文件名主干与图像匹配，例如 ``masks/``。通过 **打开文件 / 文件夹…** 箭头菜单中的 **添加掩膜图层…** 添加图层，或从终端启动会话："
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A layer name that is not a folder where the command runs is looked for in ``--folder``. The **Mask layers** settings category lists the layers. Each is drawn as outlines in its own colour; click a layer's swatch to change the colour, or clear its check box to hide it. The choices are kept in ``curate_layers.json`` in the folder, so the next session of the folder opens with them."
+msgstr "如果图层名不是命令执行位置的文件夹，就在 ``--folder`` 中查找。**掩膜图层** 设置类别列出各图层。每层以自己的颜色显示轮廓；单击色块可改色，取消勾选可隐藏。选择保存在文件夹中的 ``curate_layers.json``，下次打开该文件夹时沿用。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The editable **curated overlay** starts as a copy of the **Base layer**, the first layer unless another is chosen. With **Show only flagged** off, the **Pick** tool edits it as follows:"
+msgstr "可编辑的 **整理叠加层** 初始为 **基础图层** 的副本；未另行选择时，第一层是基础图层。关闭 **仅显示已标记** 后，**选取** 工具按以下规则编辑："
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Click an object of the curated overlay to remove it. A removed object of the base layer is drawn dashed; click it again to restore it."
+msgstr "单击整理叠加层的对象可移除它。基础图层中被移除的对象以虚线显示；再次单击可恢复。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Click an object of another visible layer to add it under a new, unused ID. An added object fills only background: where it overlaps an object of the overlay, the overlay keeps its pixels. When two visible layers have an object under the click, the first in the list is added."
+msgstr "单击另一可见图层的对象可用新的未占用 ID 添加它。新增对象只填充背景；与叠加层对象重叠时，保留叠加层原有像素。如果两个可见图层在单击位置都有对象，则添加列表中的第一个。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Hidden layers are not picked from. To add another layer's object where a removed base object lies, hide the base layer first."
+msgstr "不会从隐藏图层选取对象。如需在已移除的基础对象位置添加另一层的对象，应先隐藏基础图层。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With **Show only flagged** on, picking a visible flagged object removes the curated objects it overlaps; picking it again restores them. A flagged object over background can instead be added. Hidden curated objects are not picked."
+msgstr "开启 **仅显示已标记** 后，选取可见的已标记对象会移除与其重叠的整理对象；再次选取可恢复这些对象。背景上的已标记对象则可以添加。不会选取隐藏的整理对象。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Brush, erase and the other tools edit the same overlay, and **Ctrl+Z** and **Ctrl+Y** undo and redo every click."
+msgstr "画笔、擦除及其他工具编辑同一叠加层；**Ctrl+Z** 和 **Ctrl+Y** 可撤销和重做每次单击。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Save to** chooses where the overlay is written. The default is **New mask folder**, ``masks_curated_<date>`` beside the images (an existing ``masks_curated_*`` folder is reused, so a session resumes into it); type another name or a full path under **Folder name**, or pass ``--save-to``. Choosing one of the layer folders overwrites its masks field by field, and takes effect only after **Overwrite** in the confirmation shown under the control. A field already saved to the save folder opens from there."
+msgstr "**保存到** 决定叠加层的写入位置。默认是 **新建掩膜文件夹**，即图像旁的 ``masks_curated_<date>``；已有 ``masks_curated_*`` 文件夹会被复用以继续会话。可在 **文件夹名称** 下输入其他名称或完整路径，或传入 ``--save-to``。选择某个图层文件夹会逐视野覆盖其中掩膜，只有在控件下方的确认中选择 **覆盖** 后才生效。已保存到目标文件夹的视野将从该处打开。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Keep** saves the overlay as edited, with its object IDs unchanged, and moves to the next field; **Next** behaves as in any queue. Edited saves write curation history (``<stem>.tif.curation.json``). Layer decisions are recorded in ``<stem>.decisions.json`` beside the mask: the base IDs that were removed and each added object's ID, source layer and ID in that layer. Progress is kept in the ``curate_status.csv`` inside the save folder, so a review resumes on its own record and offers again the fields the folder's ordinary curation already finished. Without layers, Make Masks behaves and saves exactly as before."
+msgstr "**保留** 会保存编辑后的叠加层、保留对象 ID 并移至下一视野；**Next** 与普通队列相同。包含编辑的保存会写入整理历史（``<stem>.tif.curation.json``）。图层决定记录在掩膜旁的 ``<stem>.decisions.json`` 中，包括移除的基础 ID，以及每个新增对象的 ID、来源图层和在该层中的 ID。进度保存在目标文件夹内的 ``curate_status.csv``，因此复核可按独立记录继续，并再次提供该文件夹普通整理已完成的视野。不使用图层时，Make Masks 的行为和保存方式与以前相同。"
+
 msgid "Upload data"
 msgstr "上传数据"
 
@@ -626,6 +680,30 @@ msgstr "归一化和分割仍需要存放一个批次及模型的工作内存。
 msgid "If memory still rises unexpectedly, record whether the last console stage was preprocessing filenames, normalization or model evaluation, together with image dimensions, channel count and the saved settings. Existing ``stack/`` files help distinguish a completed ingestion stage from a failure before the first field was written."
 msgstr "若内存仍异常增加，请记录控制台最后处于文件名预处理、归一化还是模型评估阶段，同时记录图像尺寸、通道数和已保存的设置。现有的 ``stack/`` 文件有助于区分数据读取阶段已经完成，还是在写出第一个视野前就失败了。"
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Calibrated spectral live preview (alpha)"
+msgstr "经校准的光谱实时预览（alpha）"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The optional calibrated route supports organized two-dimensional channel-last ``stack/*.npy`` fields in Segmentation Live Preview. Enable alpha features and spectral unmixing, supply the existing single-stain control wells, and set ``unmix_calibration`` to your measured calibration JSON. Set ``unmix_pixel_size_um`` explicitly to the source's ``[Y, X]`` sampling in micrometers. No microscope calibration is inferred. Legacy batch segmentation, Measure, volumes, and additional PSF or enhancement processing refuse this route. A separate, explicitly configured calibrated V2 batch route supports independent two-dimensional fields within its validated settings limits. Leaving the calibration blank preserves legacy processing."
+msgstr "可选的校准路径支持在 Segmentation Live Preview 中处理已整理、通道轴在最后的二维 ``stack/*.npy`` 视野。启用 alpha 功能和光谱解混，提供现有单染对照孔，并将 ``unmix_calibration`` 设为实测校准 JSON。将 ``unmix_pixel_size_um`` 显式设为源图像以微米表示的 ``[Y, X]`` 采样间距。不会推断显微镜校准。旧版批量分割、Measure、体数据及额外 PSF 或增强处理拒绝此路径。另有需显式配置的校准 V2 批量路径，在其已验证的设置限制内支持独立二维视野。留空校准会保留旧版处理。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The calibration JSON has ``version: 1``, ``axes: \"YX\"``, ``pixel_size_um: [Y, X]``, ``reference_channel`` and a ``channels`` list. Every physical channel appears exactly once. Each channel entry supplies ``channel``, ``shift_to_reference_px: [dy, dx]``, a measured two-dimensional ``psf`` array, ``psf_origin_px: [Y, X]`` and ``psf_pixel_size_um: [Y, X]``. The reference channel has zero shift. A shift means ``aligned[y, x] = acquired[y - dy, x - dx]``; only integer shifts are supported. Each finite nonnegative PSF must have positive mass, odd dimensions and its declared origin at its center. Image and PSF sampling must agree; no implicit resampling is performed."
+msgstr "校准 JSON 包含 ``version: 1``、``axes: \"YX\"``、``pixel_size_um: [Y, X]``、``reference_channel`` 和 ``channels`` 列表。每个物理通道恰好出现一次。每个通道条目提供 ``channel``、``shift_to_reference_px: [dy, dx]``、实测二维 ``psf`` 数组、``psf_origin_px: [Y, X]`` 和 ``psf_pixel_size_um: [Y, X]``。参考通道的位移为零。位移表示 ``aligned[y, x] = acquired[y - dy, x - dx]``；只支持整数位移。每个有限、非负的 PSF 都必须有正质量、奇数尺寸，且声明的原点位于中心。图像与 PSF 的采样必须一致，不会隐式重采样。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Each channel is convolved with all the other channels' supplied PSFs. Their common effective PSF is the product convolution of all supplied kernels: resolution is broadened, not restored by deconvolution. This assumes a shift-invariant PSF per observation channel and a common linear mixing matrix. Only the intersection supported by real acquired pixels is used. No reflected, wrapped or zero-padded image pixels enter the solve or segmentation. Controls and the selected image undergo the same calibrated operation."
+msgstr "每个通道都与其他所有通道提供的 PSF 卷积。共同有效 PSF 是所有所给核的乘积卷积：分辨率被展宽，而非通过反卷积恢复。这里假定每个观测通道的 PSF 平移不变，且使用共同的线性混合矩阵。只使用实际采集像素所支持的交集区域。不将反射、环绕或补零的图像像素纳入求解或分割。对照与所选图像执行相同的校准运算。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The valid crop retains signed float residuals, including negative values from noise or model mismatch; these are not negative biological concentrations. Provenance records the matrix, calibration and kernel hashes, shifts, sampling, common support, original-canvas crop and negative fractions. Segmentation receives a separately recorded nonnegative view. Labels are restored to the original canvas; complete labels touching the valid crop boundary are excluded and recorded rather than presented as complete objects. Source files and raw measurement data remain unchanged. Real known-amount double-stain validation and calibrated Measure integration remain open."
+msgstr "有效裁剪保留带符号浮点残差，包括噪声或模型失配造成的负值；它们不代表负的生物浓度。来源记录包含矩阵、校准和核的哈希、位移、采样、共同支持区域、原始画布裁剪和负值比例。分割接收另行记录的非负视图。标签恢复到原始画布；触及有效裁剪边界的整个标签会被排除并记录，而不是作为完整对象呈现。源文件和原始测量数据保持不变。真实已知量双染验证及校准 Measure 集成仍未完成。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Calibration is bounded to 16 channels, 31-pixel individual PSF dimensions, 127-pixel combined support, integer shifts within 4096 pixels and 16,777,216 selected channel pixels per image. Oversized or incompatible inputs refuse before calibrated channel-copy allocation. These limits do not alter the legacy route. Across all selected control fields, at most 67,108,864 channel pixels are retained, bounding their matched float64 arrays to 512 MiB; this is not a total process-memory limit, as convolution and other working arrays require additional memory. Choose fewer or smaller control fields if this aggregate limit is exceeded. This limit never triggers additional sampling or dropping; the existing selection of up to 24 fields per dye is unchanged."
+msgstr "校准限制为 16 个通道、单个 PSF 各维 31 像素、组合支持范围 127 像素、4096 像素以内的整数位移，以及每幅图像 16,777,216 个所选通道像素。过大或不兼容的输入会在分配校准通道副本前被拒绝。这些限制不改变旧版路径。所有所选对照视野合计最多保留 67,108,864 个通道像素，将其匹配的 float64 数组限制为 512 MiB；这不是进程总内存上限，因为卷积等工作数组还需要额外内存。超过总量限制时，应选择更少或更小的对照视野。此限制不会触发额外抽样或丢弃；每种染料最多 24 个视野的既有选择不变。"
+
 msgid "Engine parameter reference"
 msgstr "引擎参数参考"
 
@@ -647,8 +725,9 @@ msgstr "无量纲的局部对比度权重；两种模式的默认值均为 0.2�
 msgid "``propagate_sigma`` — default ``2.0``"
 msgstr "``propagate_sigma`` — 默认值 ``2.0``"
 
-msgid "the Gaussian blur before the maxima are found, in pixels. SEPARATE FROM THE IMAGE ENHANCEMENT CHAIN'S DENOISE, which has already run by the time a detector sees the image: this one exists because the blur that makes one object have one centre is usually far stronger than the blur anyone wants the object's EDGE measured through, and the propagation measures the edge on the same blurred image. Leave the chain's denoise off unless the field is genuinely noisy, or the two blurs compound."
-msgstr "在查找极大值之前进行的高斯模糊，单位为像素。它独立于图像增强链的降噪（在检测器看到图像时后者已经运行）：之所以单独存在，是因为让一个对象只有一个中心所需的模糊通常远强于任何人希望用来测量对象边缘的模糊，而传播正是在同一张模糊图像上测量边缘。除非视野确实噪声很大，否则请关闭增强链的降噪，否则两种模糊会叠加。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "the Gaussian blur before the maxima are found, in pixels. This is separate from the image enhancement chain's denoise, which has already run by the time a detector sees the image: the blur that gives one object one centre is usually much stronger than the blur wanted for measuring the object's edge, and the propagation measures the edge on the same blurred image. Leave the chain's denoise off unless the field is genuinely noisy, or the two blurs compound."
+msgstr "查找极大值前的高斯模糊，单位为像素。它独立于图像增强链的降噪；检测器看到图像前，增强降噪已完成。为使一个对象对应一个中心所需的模糊通常远强于测量对象边缘所需的模糊，而传播在同一模糊图像上测量边缘。除非视野确有明显噪声，否则应关闭增强链降噪，以免两次模糊叠加。"
 
 msgid "``propagate_min_distance`` — default ``10``"
 msgstr "``propagate_min_distance`` — 默认值 ``10``"
