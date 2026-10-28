@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-28 15:12-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -608,9 +608,6 @@ msgstr ":ref:`Measure <workflow-module-measure>`: 定义类别比较并检查过
 msgid ":doc:`API reference </api/spacr/qt/screens/feature_explorer/index>`."
 msgstr ":doc:`API 参考 </api/spacr/qt/screens/feature_explorer/index>`。"
 
-msgid "`Module tutorial <tutorials/#lesson=65_feature_explorer>`__."
-msgstr "`模块教程 <tutorials/#lesson=65_feature_explorer>`__。"
-
 msgid "Format Converter"
 msgstr "格式转换器"
 
@@ -698,9 +695,6 @@ msgstr "**运行历史和产物** — 项目运行记录、设置、输出路径
 msgid ":doc:`API reference </api/spacr/qt/plate_queue/index>`."
 msgstr ":doc:`API 参考 </api/spacr/qt/plate_queue/index>`。"
 
-msgid "`Module tutorial <tutorials/#lesson=30_plate_queue>`__."
-msgstr "`模块教程 <tutorials/#lesson=30_plate_queue>`__。"
-
 msgid "Batch Runner"
 msgstr "批处理运行器"
 
@@ -737,9 +731,6 @@ msgstr ":ref:`Measure <workflow-module-measure>`: 导出前检查实际表格。
 msgid ":doc:`API reference </api/spacr/qt/screens/db_browser/index>`."
 msgstr ":doc:`API 参考 </api/spacr/qt/screens/db_browser/index>`。"
 
-msgid "`Module tutorial <tutorials/#lesson=34_database>`__."
-msgstr "`模块教程 <tutorials/#lesson=34_database>`__。"
-
 msgid "Run History"
 msgstr "运行历史"
 
@@ -766,9 +757,6 @@ msgstr "**可分享报告** — 根据记录的分析输出导出的 HTML/PDF �
 
 msgid ":doc:`API reference </api/spacr/report/index>`."
 msgstr ":doc:`API 参考 </api/spacr/report/index>`。"
-
-msgid "`Module tutorial <tutorials/#lesson=29_report>`__."
-msgstr "`模块教程 <tutorials/#lesson=29_report>`__。"
 
 msgid "Data Manager"
 msgstr "数据管理器"
@@ -866,9 +854,6 @@ msgstr "**打开：** QC → Layer Viewer。"
 msgid ":doc:`API reference </api/spacr/qt/layer_viewer/index>`."
 msgstr ":doc:`API 参考 </api/spacr/qt/layer_viewer/index>`。"
 
-msgid "`Module tutorial <tutorials/#lesson=57_layer_viewer>`__."
-msgstr "`模块教程 <tutorials/#lesson=57_layer_viewer>`__。"
-
 msgid "Power / Design"
 msgstr "Power / Design"
 
@@ -883,9 +868,6 @@ msgstr ":ref:`Experiment Design <workflow-module-experiment_design>`: 根据实�
 
 msgid ":doc:`API reference </api/spacr/qt/screens/power/index>`."
 msgstr ":doc:`API 参考 </api/spacr/qt/screens/power/index>`。"
-
-msgid "`Module tutorial <tutorials/#lesson=68_power_design>`__."
-msgstr "`模块教程 <tutorials/#lesson=68_power_design>`__。"
 
 msgid "Run Compare"
 msgstr "Run Compare"
@@ -920,9 +902,6 @@ msgstr "**打开：** 帮助搜索 → 数据库浏览器 → Tabulate。"
 msgid ":doc:`API reference </api/spacr/qt/screens/tabulate/index>`."
 msgstr ":doc:`API 参考 </api/spacr/qt/screens/tabulate/index>`。"
 
-msgid "`Module tutorial <tutorials/#lesson=61_tabulate>`__."
-msgstr "`模块教程 <tutorials/#lesson=61_tabulate>`__。"
-
 msgid "Dose–Response"
 msgstr "Dose–Response"
 
@@ -943,9 +922,6 @@ msgstr ":ref:`Measure <workflow-module-measure>`: 将实测响应与明确的剂
 
 msgid ":doc:`API reference </api/spacr/qt/screens/dose_response/index>`."
 msgstr ":doc:`API 参考 </api/spacr/qt/screens/dose_response/index>`。"
-
-msgid "`Module tutorial <tutorials/#lesson=69_dose_response>`__."
-msgstr "`模块教程 <tutorials/#lesson=69_dose_response>`__。"
 
 msgid "Project Browser"
 msgstr "Project Browser"
@@ -971,9 +947,6 @@ msgstr "**打开：** QC → Outliers。"
 msgid ":doc:`API reference </api/spacr/qt/screens/outliers/index>`."
 msgstr ":doc:`API 参考 </api/spacr/qt/screens/outliers/index>`。"
 
-msgid "`Module tutorial <tutorials/#lesson=66_outliers>`__."
-msgstr "`模块教程 <tutorials/#lesson=66_outliers>`__。"
-
 msgid "Embeddings"
 msgstr "Embeddings"
 
@@ -998,9 +971,6 @@ msgstr ":ref:`Image UMAP <workflow-module-umap>`: 提供具有匹配对象 ID �
 
 msgid ":doc:`API reference </api/spacr/qt/screens/embeddings/index>`."
 msgstr ":doc:`API 参考 </api/spacr/qt/screens/embeddings/index>`。"
-
-msgid "`Module tutorial <tutorials/#lesson=77_embeddings>`__."
-msgstr "`模块教程 <tutorials/#lesson=77_embeddings>`__。"
 
 msgid "Control Charts"
 msgstr "Control Charts"
@@ -1243,9 +1213,6 @@ msgstr ":ref:`Make Masks <workflow-module-make_masks>`: 使用与源图像匹配
 msgid ":doc:`API reference </api/spacr/submodules/index>`."
 msgstr ":doc:`API 参考 </api/spacr/submodules/index>`。"
 
-msgid "`Module tutorial <tutorials/#lesson=24_plaque>`__."
-msgstr "`模块教程 <tutorials/#lesson=24_plaque>`__。"
-
 msgid "Recruitment"
 msgstr "募集分析"
 
@@ -1257,9 +1224,6 @@ msgstr "**打开：** 弓形虫 → 募集分析。"
 
 msgid ":ref:`Measure <workflow-module-measure>`: Require the intended compartment intensities and identities."
 msgstr ":ref:`Measure <workflow-module-measure>`: 需要目标区室的强度测量值和标识。"
-
-msgid "`Module tutorial <tutorials/#lesson=25_recruitment>`__."
-msgstr "`模块教程 <tutorials/#lesson=25_recruitment>`__。"
 
 msgid "Invasion Assay"
 msgstr "侵袭分析"
@@ -1312,14 +1276,16 @@ msgstr ":ref:`Direct Cellpose mask generation <workflow-module-cellpose_masks>`:
 msgid "`Module tutorial <tutorials/#lesson=19_train_cellpose>`__."
 msgstr "`模块教程 <tutorials/#lesson=19_train_cellpose>`__。"
 
-msgid "Mask the whole folder"
-msgstr "为整个文件夹生成掩膜"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Mask folder"
+msgstr "为文件夹创建掩膜"
 
 msgid "Apply the selected segmentation model to the open image folder through Make Masks; inspect saved labels before measuring them."
 msgstr "通过 Make Masks 将所选分割模型应用于已打开的图像文件夹；测量前检查保存的标签。"
 
-msgid "**Open:** Make Masks → Mask the whole folder."
-msgstr "**打开：** 创建掩膜 → 为整个文件夹生成掩膜。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Open:** Make Masks → Mask folder."
+msgstr "**打开：** 创建掩膜 → 为文件夹创建掩膜。"
 
 msgid ":doc:`API reference </api/spacr/spacr_cellpose/index>`."
 msgstr ":doc:`API 参考 </api/spacr/spacr_cellpose/index>`。"
@@ -1387,9 +1353,6 @@ msgstr "**打开：** 创建掩膜 → napari 桥接。"
 msgid ":doc:`API reference </api/spacr/napari_bridge/index>`."
 msgstr ":doc:`API 参考 </api/spacr/napari_bridge/index>`。"
 
-msgid "`Module tutorial <tutorials/#lesson=46_napari_bridge>`__."
-msgstr "`模块教程 <tutorials/#lesson=46_napari_bridge>`__。"
-
 msgid "Import Images"
 msgstr "导入图像"
 
@@ -1423,9 +1386,6 @@ msgstr ":ref:`Map Barcodes <workflow-module-map_barcodes>`: 过滤向导计数�
 msgid ":doc:`API reference </api/spacr/sequencing_qc/index>`."
 msgstr ":doc:`API 参考 </api/spacr/sequencing_qc/index>`。"
 
-msgid "`Module tutorial <tutorials/#lesson=47_barcode_qc>`__."
-msgstr "`模块教程 <tutorials/#lesson=47_barcode_qc>`__。"
-
 msgid "Image Scatter"
 msgstr "图像散点图"
 
@@ -1453,9 +1413,6 @@ msgstr "**打开：** 图像 UMAP → PCA。"
 msgid ":doc:`API reference </api/spacr/qt/screens/pca/index>`."
 msgstr ":doc:`API 参考 </api/spacr/qt/screens/pca/index>`。"
 
-msgid "`Module tutorial <tutorials/#lesson=60_pca>`__."
-msgstr "`模块教程 <tutorials/#lesson=60_pca>`__。"
-
 msgid "Volcano Explorer"
 msgstr "火山图浏览器"
 
@@ -1470,9 +1427,6 @@ msgstr ":ref:`Regression <workflow-module-regression>`: 检查保存的效应和
 
 msgid ":doc:`API reference </api/spacr/volcano_style/index>`."
 msgstr ":doc:`API 参考 </api/spacr/volcano_style/index>`。"
-
-msgid "`Module tutorial <tutorials/#lesson=72_volcano_explorer>`__."
-msgstr "`模块教程 <tutorials/#lesson=72_volcano_explorer>`__。"
 
 msgid "Hit List"
 msgstr "命中列表"
@@ -1525,9 +1479,6 @@ msgstr ":ref:`Regression <workflow-module-regression>`: 打开本次运行实际
 msgid ":doc:`API reference </api/spacr/qt/screens/regression/index>`."
 msgstr ":doc:`API 参考 </api/spacr/qt/screens/regression/index>`。"
 
-msgid "`Module tutorial <tutorials/#lesson=75_regression_diagnostics>`__."
-msgstr "`模块教程 <tutorials/#lesson=75_regression_diagnostics>`__。"
-
 msgid "Illumination"
 msgstr "照明"
 
@@ -1561,9 +1512,6 @@ msgstr ":ref:`Measure <workflow-module-measure>`: 导出兼容的特征列和元
 msgid ":doc:`API reference </api/spacr/anndata_export/index>`."
 msgstr ":doc:`API 参考 </api/spacr/anndata_export/index>`。"
 
-msgid "`Module tutorial <tutorials/#lesson=59_anndata_export>`__."
-msgstr "`模块教程 <tutorials/#lesson=59_anndata_export>`__。"
-
 msgid "Motility Assay"
 msgstr "运动性分析"
 
@@ -1582,21 +1530,20 @@ msgstr ":ref:`Measure <workflow-module-measure>`: 将已测量对象与匹配的
 msgid ":doc:`API reference </api/spacr/timelapse/index>`."
 msgstr ":doc:`API 参考 </api/spacr/timelapse/index>`。"
 
-msgid "`Module tutorial <tutorials/#lesson=18_motility>`__."
-msgstr "`模块教程 <tutorials/#lesson=18_motility>`__。"
-
 msgid "Timelapse"
 msgstr "延时成像"
 
-msgid "Open Timelapse within Mask to segment and link objects across ordered frames; inspect links before downstream motility analysis."
-msgstr "在 Mask 中打开 Timelapse，对有序帧中的对象进行分割和关联；开展后续运动性分析前先检查关联。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In Mask, press Time to show the time-axis and tracking settings, then segment and link objects across ordered frames; inspect links before downstream motility analysis."
+msgstr "在 Mask 中按“时间”显示时间轴和跟踪设置，然后对有序帧中的对象进行分割和关联；开展后续运动性分析前先检查关联。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Lineage exports retain generation times in frames and add ``generation_time_hours`` with calibrated summary statistics. Supply a positive ``frame_interval_s`` or complete, increasing ``time_s`` values in the tracks table. If both are present, they must agree; irregular timestamps are supported without a fixed interval. Missing calibration and incomplete cell cycles have no generation time in hours. Exported tables record the calibration source and units. The tree axis and Newick branch lengths remain in frames."
 msgstr "谱系导出保留以帧为单位的世代时间，并添加 ``generation_time_hours`` 及经过校准的汇总统计量。请提供正数 ``frame_interval_s``，或在轨迹表中提供完整、递增的 ``time_s`` 值。如果两者都存在，则必须一致；不设固定间隔时可使用不规则时间戳。缺少校准或细胞周期不完整时，不提供以小时为单位的世代时间。导出表会记录校准来源和单位。树的坐标轴和 Newick 分支长度仍以帧为单位。"
 
-msgid "**Open:** Mask → Timelapse."
-msgstr "**打开：** 掩膜 → 延时成像。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Open:** Home → Mask → Time."
+msgstr "**打开：** 主页 → 掩膜 → 时间。"
 
 msgid ":ref:`Mask <workflow-module-mask>`: Enable the nested time-series route before generating linked labels."
 msgstr ":ref:`Mask <workflow-module-mask>`: 生成关联标签前，启用嵌套的时间序列路径。"
@@ -1627,9 +1574,6 @@ msgstr ":ref:`Regression <workflow-module-regression>`: 在 Regression 前，将
 
 msgid ":doc:`API reference </api/spacr/ops_engine/index>`."
 msgstr ":doc:`API 参考 </api/spacr/ops_engine/index>`。"
-
-msgid "`Module tutorial <tutorials/#lesson=76_ops>`__."
-msgstr "`模块教程 <tutorials/#lesson=76_ops>`__。"
 
 msgid "Classifier Evaluation"
 msgstr "分类器评估"
@@ -1741,9 +1685,6 @@ msgstr "**打开：** 回归 → 参数扫描。"
 
 msgid ":doc:`API reference </api/spacr/parameter_sweep/index>`."
 msgstr ":doc:`API 参考 </api/spacr/parameter_sweep/index>`。"
-
-msgid "`Module tutorial <tutorials/#lesson=73_parameter_sweep>`__."
-msgstr "`模块教程 <tutorials/#lesson=73_parameter_sweep>`__。"
 
 msgid "Toxoplasma"
 msgstr "弓形虫"
