@@ -289,9 +289,9 @@ def native_drop(capture, window, page, stage, tray, target, review, write_json, 
     if x <= destination[0] < x + width and y <= destination[1] < y + height:
         raise RuntimeError('The real Files window covers the Navigator drop target; review native placement first')
     adapter.call('move_to', *point)
-    adapter.call('click', 'left')
     adapter.call('button_down', 'left')
     try:
+        h.pause(capture, .12)
         adapter.call('move_to', *destination, duration=2.5)
     finally:
         adapter.call('button_up', 'left')
