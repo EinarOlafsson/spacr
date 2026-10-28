@@ -907,6 +907,57 @@ _METADATA_CONVENTIONS = (
         "status": "confirmed",
     },
     {
+        "key": "incell_full_form",
+        "label": "IN Cell Analyzer 7.2 Full Form (A_01_f1_c1_...)",
+        "vendor": "GE / Cytiva",
+        "instrument": "IN Cell Analyzer 2200 / 2500 / 6000 / 6500, software 7.2",
+        "pattern": (
+            r"(?P<wellID>[A-Z]_(?:0[1-9]|[1-9]\d))"
+            r"_f(?P<fieldID>[1-9]\d*)_c(?P<chanID>[1-9]\d*)"
+            r"_x[A-Za-z0-9]+_m[A-Za-z0-9]+"
+            r"_z(?P<sliceID>[1-9]\d*)_t(?P<timeID>[1-9]\d*)"
+            r"\.(?i:{ext})$"),
+        "ext": "suffix",
+        "examples": (
+            "A_01_f1_c1_x405_mBlue_z1_t1.tif",
+            "A_01_f1_c2_x488_mGreen_z1_t1.tif",
+            "A_01_f1_c3_x561_mOrange_z1_t1.tif",
+            "A_01_f2_c1_x405_mBlue_z1_t1.tif",
+            "A_01_f2_c2_x488_mGreen_z1_t1.tif",
+            "A_01_f2_c3_x561_mOrange_z1_t1.tif",
+            "A_02_f1_c1_x405_mBlue_z1_t1.tif",
+            "A_02_f1_c2_x488_mGreen_z1_t1.tif",
+            "A_02_f1_c3_x561_mOrange_z1_t1.tif",
+            "A_02_f2_c1_x405_mBlue_z1_t1.tif",
+            "A_02_f2_c2_x488_mGreen_z1_t1.tif",
+            "A_02_f2_c3_x561_mOrange_z1_t1.tif",
+        ),
+        "groups": {
+            "wellID": "well name with its underscore, A_01; Import and Mask "
+                      "normalize the separator to A01 without changing the well",
+            "fieldID": "one-based field index",
+            "chanID": "one-based channel index from c, not the excitation "
+                      "or emission name",
+            "sliceID": "one-based Z index",
+            "timeID": "one-based time point index",
+        },
+        "source": (
+            "Cytiva-hosted GE IN Cell Analyzer Acquisition Software Version "
+            "7.2 Release Notes - Patch 2, 27 April 2018, printed pages 6-7, "
+            "feature 2369: "
+            "https://download.cytivalifesciences.com/cellanalysis/download_data/"
+            "incell/incell_docs/INCell_Release_Notes_V7.2.pdf . The naming "
+            "table documents well, field, channel, excitation name, emission "
+            "name, Z and time in that order, separated by underscores, with "
+            "all indices one-based. All twelve examples are literal names "
+            "printed on page 7, not generated acquisition fixtures. Full "
+            "Form is an optional TIFF naming preference, not the legacy "
+            "parenthesized naming style. This bounded grammar covers the "
+            "documented alphanumeric filter names and single-letter wells; "
+            "it does not infer wavelengths from filter names."),
+        "status": "confirmed",
+    },
+    {
         "key": "arrayscan",
         "label": "ArrayScan / CellInsight, fixed endpoint (A01f01d2)",
         "vendor": "Thermo Fisher",
@@ -1030,8 +1081,8 @@ _METADATA_CONVENTIONS = (
             "A1--W00001--P00001--Z00000--T00000--mCherry1.tif",
         ),
         "groups": {
-            "wellID": "the well NAME, which ScanR writes before the "
-                      "well INDEX -- the W block is the index and is "
+            "wellID": "the leading well comment, A1 in both acquisition-user "
+                      "examples; the W block is the well index and is "
                       "matched and discarded",
             "fieldID": "the P block: the position within the well",
             "sliceID": "Z plane",
@@ -1047,9 +1098,16 @@ _METADATA_CONVENTIONS = (
             "'A1--W00001--P00001--Z00000--T00000--mCherry1' in "
             "https://forum.knime.com/t/combining-images-to-stack/2119 "
             "on 2012-06-29 while describing their Olympus ScanR Z-stack. "
-            "Both cited stems omit the file extension. The configured .tif "
-            "suffix is inferred for both runnable examples; these are "
-            "not observed complete filenames. The public OME ScanR TIFF "
+            "Both cited stems omit the file extension; the runnable examples "
+            "append the vendor-documented .tif suffix and are not observed "
+            "complete filenames. Olympus scanR Acquisition Software 3.1 "
+            "manual, section 9.1, printed page 99 (PDF page 107), "
+            "https://imaging.au.dk/fileadmin/dandrite/Logo/"
+            "scanR-Acquisition31_en_00__1_.pdf , documents TIFF images in "
+            "the Data subdirectory and double-dash-separated well comment, "
+            "well index, position, Z, time and channel in this order. This "
+            "confirms the suffix and token order, but does not make an "
+            "arbitrary well comment a physical well address. The public OME ScanR TIFF "
             "listing at downloads.openmicroscopy.org/images/ScanR/idr0009/"
             "0307-10--2007-05-30/data/ supports TIFF as a format, not the "
             "missing suffixes of these two stems. Bio-Formats confirms the "
@@ -1057,9 +1115,9 @@ _METADATA_CONVENTIONS = (
             "zero-pads to five digits and prepends the axis letter, so "
             "getBlock(1, \"W\") is 'W00001'. PROVISIONAL: the two user "
             "reports support the well-prefixed grammar, but their full "
-            "filenames were not supplied. Bio-Formats matches blocks by "
-            "substring search and does not establish the '--' separators "
-            "or the leading well name."),
+            "filenames were not supplied. The acquisition manual confirms "
+            "the separators; the two users establish the A1-prefixed subset "
+            "matched here, not every possible well comment."),
         "status": "provisional",
     },
     {

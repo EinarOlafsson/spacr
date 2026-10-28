@@ -2061,6 +2061,8 @@ def _extract_filename_metadata(filenames, src, regular_expression, metadata_type
                     plate = os.path.basename(src)
 
                 well = match.group('wellID')
+                if metadata_type == 'incell_full_form':
+                    well = well.replace('_', '')
                 if well[0].isdigit():
                     well = _int_or_token(well)
 

@@ -359,8 +359,8 @@ def test_cytation_real_world_derived_examples_keep_their_provenance_caveat():
         assert match.group("timeID") == "001"
 
 
-def test_scanr_user_stems_disclose_the_inferred_tiff_suffix():
-    """Two acquisition users supply stems; the configured suffix is inferred."""
+def test_scanr_user_stems_use_the_vendor_documented_tiff_suffix():
+    """Vendor grammar confirms the suffix without fabricating acquired names."""
     record = _metadata_convention("scanr")
     stems = (
         "A1--W00001--P00001--Z00000--T00000--Alexa 488",
@@ -372,8 +372,12 @@ def test_scanr_user_stems_disclose_the_inferred_tiff_suffix():
     assert "https://forum.knime.com/t/combining-images-to-stack/2119" in record["source"]
     assert "forum.image.sc thread 14872" in record["source"]
     assert "Both cited stems omit the file extension" in record["source"]
-    assert "configured .tif suffix is inferred" in record["source"]
-    assert "not observed complete filenames" in record["source"]
+    assert "vendor-documented .tif suffix" in record["source"]
+    assert "scanR-Acquisition31_en_00__1_.pdf" in record["source"]
+    assert "printed page 99" in record["source"]
+    assert "well comment" in record["groups"]["wellID"]
+    assert "not observed " in record["source"]
+    assert "complete filenames" in record["source"]
     assert "ONE literal filename" not in record["source"]
     for stem, channel in zip(stems, ("Alexa 488", "mCherry1")):
         assert stem in record["source"]
@@ -431,3 +435,118 @@ def test_imagexpress_refuses_malformed_uuid_and_thumbnail_suffixes(suffix):
     """A malformed acquisition suffix must not become channel digits."""
     pattern = re.compile(_metadata_pattern("imagexpress", "tif"))
     assert pattern.fullmatch(f"Plate_A01_s2_w{suffix}.tif") is None
+
+
+INCELL_FULL_FORM_VENDOR_NAMES = (
+    ("A_01_f1_c1_x405_mBlue_z1_t1.tif", "A_01", 1, 1),
+    ("A_01_f1_c2_x488_mGreen_z1_t1.tif", "A_01", 1, 2),
+    ("A_01_f1_c3_x561_mOrange_z1_t1.tif", "A_01", 1, 3),
+    ("A_01_f2_c1_x405_mBlue_z1_t1.tif", "A_01", 2, 1),
+    ("A_01_f2_c2_x488_mGreen_z1_t1.tif", "A_01", 2, 2),
+    ("A_01_f2_c3_x561_mOrange_z1_t1.tif", "A_01", 2, 3),
+    ("A_02_f1_c1_x405_mBlue_z1_t1.tif", "A_02", 1, 1),
+    ("A_02_f1_c2_x488_mGreen_z1_t1.tif", "A_02", 1, 2),
+    ("A_02_f1_c3_x561_mOrange_z1_t1.tif", "A_02", 1, 3),
+    ("A_02_f2_c1_x405_mBlue_z1_t1.tif", "A_02", 2, 1),
+    ("A_02_f2_c2_x488_mGreen_z1_t1.tif", "A_02", 2, 2),
+    ("A_02_f2_c3_x561_mOrange_z1_t1.tif", "A_02", 2, 3),
+)
+
+
+@pytest.mark.parametrize("name,well,field,channel", INCELL_FULL_FORM_VENDOR_NAMES)
+def test_incell_full_form_vendor_literals_keep_every_one_based_axis(
+        name, well, field, channel, tmp_path):
+    """Read literal names from Cytiva's 7.2 release notes, printed page 7."""
+    from spacr.convert import _parse_by_convention
+    from spacr.regex_infer import _metadata_match, _metadata_zero_based
+    from spacr.utils import _extract_filename_metadata
+
+    assert _metadata_zero_based("incell_full_form") == ()
+    found = _metadata_match(name, "incell_full_form")
+    assert found == {"wellID": well, "fieldID": str(field),
+                     "chanID": str(channel), "sliceID": "1", "timeID": "1"}
+    assert _parse_by_convention(name, "incell_full_form") == {
+        "plate": None, "well": well.replace("_", ""), "well_token": well,
+        "field": str(field), "field_number": field,
+        "channel": f"C{channel}", "z": 1, "t": 1,
+    }
+    grouped = _extract_filename_metadata(
+        [name], str(tmp_path), re.compile(_metadata_pattern("incell_full_form")),
+        "incell_full_form")
+    assert grouped == {
+        (tmp_path.name, well.replace("_", ""), str(field), str(channel), "1", "1"):
+            [str(tmp_path / name)]}
+
+
+@pytest.mark.parametrize("name", [
+    "A_01_f0_c1_x405_mBlue_z1_t1.tif",
+    "A_01_f1_c0_x405_mBlue_z1_t1.tif",
+    "A_01_f1_c1_x405_mBlue_z0_t1.tif",
+    "A_01_f1_c1_x405_mBlue_z1_t0.tif",
+    "A_00_f1_c1_x405_mBlue_z1_t1.tif",
+    "A_01_f1_c1_x_mBlue_z1_t1.tif",
+    "A_01_f1_c1_x405_m_z1_t1.tif",
+    "A_01_f1_c1_x405_mBlue_z1_t1.tif.bak",
+    "A - 01(fld 2 wv Blue - FITC).tif",
+])
+def test_incell_full_form_refuses_missing_or_zero_based_dimensions(name):
+    """The vendor's positive indices never become guessed default planes."""
+    from spacr.regex_infer import _metadata_match
+
+    assert _metadata_match(name, "incell_full_form") is None
+
+
+def test_incell_full_form_is_vendor_documented_and_offered_without_legacy_changes():
+    """An explicit optional preference is separate from legacy IN Cell names."""
+    record = _metadata_convention("incell_full_form")
+    assert record["examples"] == tuple(row[0] for row in INCELL_FULL_FORM_VENDOR_NAMES)
+    assert record["status"] == "confirmed"
+    assert "INCell_Release_Notes_V7.2.pdf" in record["source"]
+    assert "printed pages 6-7" in record["source"]
+    assert "optional TIFF naming preference" in record["source"]
+    assert "not generated acquisition fixtures" in record["source"]
+    assert ("incell_full_form", 12, 12) in _metadata_autodetect(
+        [row[0] for row in INCELL_FULL_FORM_VENDOR_NAMES])
+    rows = dict(_metadata_convention_menu())["GE / Cytiva"]
+    assert ("incell_full_form", record["label"], "confirmed") in rows
+    assert _metadata_convention("incell")["examples"][0] == (
+        "A - 01(fld 2 wv Blue - FITC).tif")
+
+
+def test_incell_full_form_real_tiffs_reach_mask_without_identity_or_pixel_changes(tmp_path):
+    """Synthetic TIFF pixels use the vendor's twelve literal documented names."""
+    import numpy as np
+    import tifffile
+
+    from spacr.io import _rename_and_organize_image_files
+    from spacr.utils import _map_wells
+
+    source = tmp_path / "incell_run"
+    source.mkdir()
+    originals = {}
+    for name, well, field, channel in INCELL_FULL_FORM_VENDOR_NAMES:
+        value = int(well[-2:]) * 100 + field * 10 + channel
+        path = source / name
+        tifffile.imwrite(path, np.full((5, 7), value, dtype=np.uint16))
+        originals[name] = path.read_bytes()
+    assert _rename_and_organize_image_files(
+        str(source), _metadata_pattern("incell_full_form"),
+        metadata_type="incell_full_form", save_original_images=True) == 3
+    stacks = list((source / "stack").glob("*.npy"))
+    assert len(stacks) == 4
+    identities = set()
+    for path in stacks:
+        plate, row, column, field, time, _ = _map_wells(path.name, timelapse=True)
+        identities.add((plate, row, column, field, time))
+        column_number, field_number = int(column[1:]), int(field[1:])
+        expected = np.stack([
+            np.full((5, 7), column_number * 100 + field_number * 10 + channel,
+                    dtype=np.uint16) for channel in (1, 2, 3)], axis=2)
+        assert np.array_equal(np.load(path), expected)
+    assert identities == {
+        ("incell_run", "r1", "c1", "f1", "t1"),
+        ("incell_run", "r1", "c1", "f2", "t1"),
+        ("incell_run", "r1", "c2", "f1", "t1"),
+        ("incell_run", "r1", "c2", "f2", "t1"),
+    }
+    assert {path.name: path.read_bytes() for path in (source / "orig").iterdir()} == originals
