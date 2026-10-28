@@ -553,3 +553,7 @@ Codex next owns Navigator tutorial plus Docs/API, then writes the Claude handoff
 
 2026-10-27 — Graph Builder58 is pushed4d0c2f38fe; Codex now owns88_navigator plus user Docs/API under733, the only remaining work before the requested Claude handoff and pause.
 Use current nightly with fresh native capture, all50 voices, reviewed roughly-one-second narration gaps and normal HF/Pages/nightly publication; retain alpha restrictions and factual feature-focused prose.
+
+2026-10-27 — Navigator88 source has18 scenes/407 words and13 source-bound translations; normal translation/pronunciation and focused Docs/RST/link/public-symbol checks pass.
+The user guide, toctree and existing public launch/preference API references are implemented. Native file/folder drops will use a real owned GNOME Files window and pointer drag; no drop-event injection.
+Real measured project/database offer Graph Builder and the saved settings CSV offers Annotate preview; retain its stale source as preview-only and Cancel rather than applying it. All50 voice production and native recording/publication remain.

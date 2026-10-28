@@ -1,0 +1,42 @@
+{
+  "lesson": "88_navigator",
+  "english_sha256": "7741adb41662bef10499abfc7d81f4d703c3f7a264d927607dcbe2f86d193f65",
+  "review": {
+    "kind": "Codex AI translation and technical text review",
+    "translator": "Codex (AI), translated from the current English source",
+    "date": "2026-10-27",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Navigator: finndu rétta verkfærið fyrir inntakið",
+  "description": "Finndu spaCR-verkfæri út frá verkefni, skrá eða verkefnismöppu, skoðaðu gögn og stillingar og fylgdu verkferlum inn í hefðbundnar einingar.",
+  "objectives": [
+    "Finna verkfæri með staðbundnum slóðum, skrám eða möppum sem eru dregnar inn og verkefnum sem eru send með Enter án tillits til há- og lágstafa.",
+    "Skoða inntaksgögn, tillögur að stillingum og skref verkferils áður en hefðbundið verkfæri er opnað.",
+    "Skoða verkferla fyrir lífverur, spjöld, virk verk og valfrjálsa gervigreindarstýringu.",
+    "Greina mælitöflur frá gagnagrunnum með skráningum eða ferli og byrja upp á nýtt með Home."
+  ],
+  "prerequisite": "Settu spaCR upp og opnaðu Navigator. Notaðu meðfylgjandi dæmimynd, myndamöppu, verkefni með mælingum, gagnagrunn með eingöngu skráningum eða ferli og stillingaskrá, eða samsvarandi staðbundin gögn.",
+  "scenes": [
+    "Navigator byrjar með leitarreit yfir spaCR-þemanu. Opnaðu hann með spacr-nav eða spacr-navigator og byrjaðu á verkefni, skrá eða möppu.",
+    "Þú getur líka virkjað Navigator í Help. Navigator er sjálfgefið virkur; vistað val helst.",
+    "Notaðu samanbrjótanlega hliðarvalmyndina til að opna einingu beint. News og Widgets opnast við hlið vinnusvæðisins á meðan leitin og lýsingin haldast á sínum stað.",
+    "Sláðu inn measure cells og ýttu á Enter. Leitin gerir ekki greinarmun á há- og lágstöfum. Innsláttur einn og sér heldur núverandi tillögum og ræsir ekkert verkfæri.",
+    "Dragðu eina staðbundna myndskrá inn í Navigator. Hann skoðar inntakið og býður upp á studd næstu skref í stað þess að hefja vinnslu.",
+    "Dragðu inn eina möppu til að skoða innihaldið. Tillögurnar ráðast af skrám og gögnum sem eru þegar í möppunni.",
+    "Límdu inn slóð að skrá eða verkefni og ýttu á Enter til að tilgreina nákvæma staðsetningu. Með Browse má líka velja skrá eða möppu.",
+    "Verkefni með mælingum inniheldur gögn sem greiningarverkfæri geta lesið. Hér gera mælitöflurnar verkfæri á borð við Graph Builder aðgengileg.",
+    "Þetta dæmi inniheldur töflur með skráningum og ferli, ekki mælda eiginleika. Skráarheiti gagnagrunnsins eitt og sér sannar ekki að mælingar hafi verið reiknaðar.",
+    "Stillingaskrár geta lagt til einingu og sýnt forskoðun stillinga. Farðu yfir tillöguna áður en einingin er opnuð; Navigator keyrir ekki greininguna fyrir þig.",
+    "Veldu spjald einingar til að skoða verkferil hennar. Lestu lýsinguna undir spjöldunum til að athuga tilganginn og nauðsynlegt inntak.",
+    "Skoðaðu næsta skref til að stækka netið. Fyrri greinar eru áfram sýnilegar og hjálpa þér að fylgja leiðinni frá inntaki í gegnum greiningu að niðurstöðum.",
+    "Leitaðu að Toxoplasma til að sjá verkferil lífverunnar og valkosti fyrir tilraunagreiningar. Veldu skref sem hentar gögnunum og líffræðilegu spurningunni þinni.",
+    "Notaðu Back eða Escape til að fara úr verkferli aftur í tillögurnar. Þessar leiðsagnaraðgerðir keyra enga greiningu og breyta ekki inntaksskránum þínum.",
+    "Opnaðu fyrirhugaða hefðbundna verkfærið þegar þú ert tilbúinn. Navigator flytur valið inntak í samsvarandi upprunastillingu; athugaðu stillingarnar áður en þú ýtir á Run.",
+    "Sláðu inn running jobs og veldu Running til að skoða virk spaCR-verk í Widgets. Stýringarnar Open, pause og stop eiga við verkin á listanum.",
+    "Gervigreindarstýringin er valfrjáls. Glugginn við fyrstu notkun leyfir þér að velja þjónustuveitanda. Staðbundnar slóðir og samsvarandi verkfæratillögur halda sínum venjulegu leiðum.",
+    "Home færir Navigator aftur í nýja leit og hreinsar fyrri tillögur og verkferil. Byrjaðu aftur með næsta verkefni eða inntak sem þú vilt skoða."
+  ]
+}

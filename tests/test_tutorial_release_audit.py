@@ -97,7 +97,7 @@ def test_release_audit_parsers_pin_the_current_inventory():
     # Wave 4 (candidate ake_bqpd) added the allow-listed alpha lessons 86 and 87.
     # The 1.5.1.6 archive hid the archived lessons; they keep their entries
     # in tools/tutorials/archive/ and return to these places on restore.
-    assert len(catalog["lessons"]) == 84 - len(ARCHIVED_IDS)
+    assert len(catalog["lessons"]) == 85 - len(ARCHIVED_IDS)
     assert not set(ARCHIVED_IDS) & {lesson["id"] for lesson in catalog["lessons"]}
     assert catalog["lesson_aliases"] == {
         "02_conda_install": "02_install_spacr",
@@ -107,6 +107,7 @@ def test_release_audit_parsers_pin_the_current_inventory():
         "01_pypi_github": 8, "02_install_spacr": 21,
         "04_platform_installers": 14, "05_home": 39,
         "80_image_analysis_pathways": 12, "82_toxoplasma": 7,
+        "88_navigator": 18,
     }
     assert {lesson["id"]: len(lesson["scenes"]) for lesson in catalog["lessons"]
             if lesson["id"] in refreshed_scenes} == refreshed_scenes
@@ -139,11 +140,12 @@ def test_release_audit_parsers_pin_the_current_inventory():
         scene["visual"] for scene in make_masks["scenes"]
     }
     # The accepted Home revision removes its hidden Spaceout ending.
+    # Navigator adds eighteen native scenes without restoring archived lessons.
     # Scene totals count the whole published inventory, archived lessons
     # included, so archiving or restoring a lesson leaves them unchanged.
     published = full_file("lesson_catalog.js", tutorial_root)
-    assert sum(len(lesson["scenes"]) for lesson in published["lessons"] if lesson["id"] != "14_make_masks") == 1170
-    assert sum(len(lesson["scenes"]) for lesson in published["lessons"]) == 1231
+    assert sum(len(lesson["scenes"]) for lesson in published["lessons"] if lesson["id"] != "14_make_masks") == 1188
+    assert sum(len(lesson["scenes"]) for lesson in published["lessons"]) == 1249
     assert len(languages) == 8
     assert len(voices) == 50
     assert not (live.RETIRED_VOICES & set(voices))

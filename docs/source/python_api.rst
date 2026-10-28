@@ -149,8 +149,27 @@ Follow :doc:`anndata_export` to export the measurement database through the
 same entry point used by the desktop application, choose a missing-value
 policy, and inspect the resulting object-by-feature matrix.
 
+.. _navigator-python-api:
 
-Navigator and desktop routing
-------------------------------
+Launch the desktop and select Navigator
+------------------------------------------
 
-See :doc:`navigator` for the desktop launchers and existing screen-registry APIs. Navigator discovers and opens tools interactively; it does not replace the pipeline calls above with an automatic or headless analysis route.
+:func:`spacr.qt.run` is the desktop launch entry point; its optional ``argv``
+list supplies the normal GUI arguments. :func:`spacr.qt.spaceout.main` launches
+the same application with process-local Spaceout presentation. For an explicit
+Navigator launch from a shell, use ``spacr-nav`` or ``spacr-navigator``
+(``spaceout-nav`` and ``spaceout-navigator`` select the Spaceout presentation).
+There is no separate ``--navigator`` option.
+
+The persisted Navigator preference retains its existing API names:
+:func:`spacr.qt.preferences.get_easy_mode` reads it and
+:func:`spacr.qt.preferences.set_easy_mode` writes it. Fresh profiles default
+to enabled; saved opt-outs remain effective on ordinary launches. Explicit
+Navigator launch aliases enable the preference. This choice does not configure
+an AI provider or enable alpha features.
+
+These functions launch or configure the interface; they are not headless
+analysis entry points. See :doc:`navigator` for input routing, settings
+previews and optional AI consent.
+
+The guide also describes the existing desktop screen-registry APIs.

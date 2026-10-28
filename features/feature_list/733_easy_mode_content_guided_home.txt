@@ -613,3 +613,6 @@ Implementation sign-off is retained; these requested outputs remain pending and 
 2026-10-27 — Graph Builder58 is published/pushed4d0c2f38fe. Codex now starts88_navigator and user Docs/API against current nightly, retaining implementation approval and app ownership with Workstation session2.
 Cover native launch/Help, file/folder drops and typed paths, Enter-only case-insensitive tasks, evidence/settings previews, Toxoplasma/workflow networks, Back/Escape, Home reset, module source handoff, dock/right panels, and analyzed versus annotation-only database evidence.
 Include current optional AI consent/provider controls and Running-card guidance without sending account-dependent requests or modifying unrelated jobs; keep alpha off. Finish publication, write the Claude handoff and pause, with other tutorial lessons left for Claude.
+
+2026-10-27 — Codex implements the Navigator user guide, normal toctree link, Python launch/preference section and curated API landing entries; focused RST/link/template/public-symbol checks pass without app API changes.
+Navigator88 has18 feature-focused scenes and13 source-bound localized reviews; native capture, all50 voices and tutorial/Docs publication remain in progress before the requested Claude handoff/pause.
