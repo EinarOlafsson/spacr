@@ -9,7 +9,7 @@ from spacr.qt.widgets.figure_grid_view import FigureGridView, _FigureCell
 
 
 @pytest.fixture
-def figure_grid(qtbot):
+def figure_grid(qtbot, activate_focus_window):
     host = QWidget()
     layout = QVBoxLayout(host)
     before = QPushButton("Before")
@@ -25,7 +25,7 @@ def figure_grid(qtbot):
     host.resize(640, 800)
     qtbot.addWidget(host)
     host.show()
-    host.activateWindow()
+    activate_focus_window(host)
     qtbot.wait(50)
     before.setFocus(Qt.TabFocusReason)
     qtbot.waitUntil(before.hasFocus)

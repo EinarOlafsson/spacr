@@ -92,10 +92,10 @@ def test_agreement_redraws(qtbot, qt_theme_applied, accessible, tmp_path):
     one = _build_db(tmp_path, "one", ["only"], [(1,), (2,)])
     screen = AgreementScreen(threaded=False)
     qtbot.addWidget(screen)
+    screen.show()
     seen = []
     for path, names in ((two, ["alice", "bob"]), (three, ["a", "b", "c"]),
-                        (one, ["only"]), (two, ["alice", "bob"]),
-                        (three, ["a", "b", "c"])):
+                        (one, ["only"])) * 10:
         screen.set_database(path)
         if len(names) > 1:
             screen.compute()
@@ -109,6 +109,8 @@ def test_agreement_redraws(qtbot, qt_theme_applied, accessible, tmp_path):
         seen.extend(_list_items(screen._columns_list))
         for table in (screen._kappa_table, screen._confusion_table,
                       screen._review_table):
+            table.sortByColumn(0, Qt.AscendingOrder)
+            _walk(table)
             seen.extend(_cells(table))
         assert all(shiboken6.isValid(i) for i in seen)
         if len(names) > 1:

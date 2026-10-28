@@ -9,32 +9,8 @@ from spacr.qt import i18n, preferences, theme
 from spacr.qt.widgets.plate_map_picker import PlateMapPicker, well_side
 
 
-def _activate(widget, qtbot):
-    """Make ``widget``'s window the active one before anything needs focus.
-
-    On macOS a widget takes keyboard focus only in the active window, and a
-    test process started from a terminal does not stay frontmost after
-    show(): setFocus then did nothing, every focus-ring comparison saw two
-    identical images, and keyClick(QApplication.focusWidget()) passed None
-    and tripped QtTest's assertion (SIGABRT). Offscreen this returns at once;
-    on a Mac whose window manager will not hand activation to a terminal-run
-    test, the test is skipped with that reason rather than failing on focus
-    it could never have.
-    """
-    widget.raise_()
-    widget.activateWindow()
-    for _ in range(50):
-        if widget.isActiveWindow():
-            break
-        qtbot.wait(100)
-    if not widget.isActiveWindow():
-        pytest.skip("the window manager did not make the test window active "
-                    "within 5 s (macOS cooperative activation); focus needs the active window")
-    QApplication.processEvents()
-
-
 @pytest.fixture
-def plate(qtbot, monkeypatch, tmp_path):
+def plate(qtbot, monkeypatch, tmp_path, activate_focus_window):
     monkeypatch.setattr(preferences, '_settings',
                         lambda: QSettings(str(tmp_path / 'prefs.ini'), QSettings.IniFormat))
     monkeypatch.setattr(preferences, '_SAFE_MODE', False)
@@ -46,7 +22,7 @@ def plate(qtbot, monkeypatch, tmp_path):
     i18n.retranslate_widget_tree(widget, 'en')
     widget.resize(500, 300)
     widget.show()
-    _activate(widget, qtbot)
+    activate_focus_window(widget)
     yield widget
     QApplication.setPalette(original_palette)
     theme._forget_painting_theme()
@@ -54,13 +30,14 @@ def plate(qtbot, monkeypatch, tmp_path):
 
 @pytest.mark.parametrize('scheme', ['dark', 'light', 'high_contrast'])
 @pytest.mark.parametrize('selected', [False, True])
-def test_focus_changes_pixels_and_tracks_strong_preference_on_open_well(plate, qtbot, scheme, selected):
+def test_focus_changes_pixels_and_tracks_strong_preference_on_open_well(
+        plate, qtbot, scheme, selected, activate_focus_window):
     preferences.set_theme_choice(scheme)
     theme.apply_qpalette(QApplication.instance(), scheme)
     plate.setStyleSheet(theme.stylesheet())
     well = plate._wells[(1, 1)]
     well.setChecked(selected)
-    _activate(plate, qtbot)
+    activate_focus_window(plate)
     plate.plate_button.setFocus(Qt.TabFocusReason)
     QApplication.processEvents()
     original_geometry = well.geometry()
@@ -99,12 +76,14 @@ def test_focus_changes_pixels_and_tracks_strong_preference_on_open_well(plate, q
     assert well.grab().toImage() == plain
 
 
-def test_real_tab_and_space_keep_well_identity_and_selection(plate, qtbot):
+def test_real_tab_and_space_keep_well_identity_and_selection(plate, qtbot, activate_focus_window):
     well = plate._wells[(1, 1)]
-    _activate(plate, qtbot)
+    activate_focus_window(plate)
     plate.plate_button.setFocus(Qt.TabFocusReason)
     for _ in range(24):
-        qtbot.keyClick(QApplication.focusWidget(), Qt.Key_Tab)
+        focused = QApplication.focusWidget()
+        assert focused is not None, "the active test window lost keyboard focus"
+        qtbot.keyClick(focused, Qt.Key_Tab)
         if well.hasFocus():
             break
     assert well.hasFocus()
