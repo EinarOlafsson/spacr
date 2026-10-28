@@ -24,6 +24,8 @@ def test_saved_mouse_edits_replace_legacy_mask_on_reopen(
     screen = MakeMasksScreen()
     qtbot.addWidget(screen)
     assert screen._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     screen._canvas.resize(600, 400)
     screen._canvas.show()
     screen._set_mode(mode)
@@ -44,6 +46,8 @@ def test_saved_mouse_edits_replace_legacy_mask_on_reopen(
     reopened = MakeMasksScreen()
     qtbot.addWidget(reopened)
     assert reopened._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not reopened._loading and reopened._reader_worker is None
+                    and reopened._load_worker is None)
     np.testing.assert_array_equal(reopened._canvas.mask, saved)
     np.testing.assert_array_equal(imageio.imread(folder / ("field_00" + extension)), image)
 
@@ -54,6 +58,8 @@ def test_clear_masks_is_in_object_operations_and_confirmed(
     screen = MakeMasksScreen()
     qtbot.addWidget(screen)
     assert screen._open_folder(str(tmp_path))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._object_ops_layout.indexOf(screen._btn_clear) >= 0
     screen._canvas.mask[3:8, 3:8] = 3
     screen._canvas.mask[15:20, 15:20] = 9

@@ -59,6 +59,8 @@ def screen(qtbot, qt_theme_applied, folder_3: Path):
     widget = MakeMasksScreen()
     qtbot.addWidget(widget)
     widget._open_folder(str(folder_3))
+    qtbot.waitUntil(lambda: not widget._loading and widget._reader_worker is None
+                    and widget._load_worker is None)
     widget._canvas.resize(CANVAS_W, CANVAS_H)
     widget._canvas.refresh()
     return widget
@@ -499,6 +501,8 @@ def test_closing_the_screen_stops_the_loader_before_qt_destroys_it(
     widget = MakeMasksScreen()
     qtbot.addWidget(widget)
     widget._open_folder(str(folder_3))
+    qtbot.waitUntil(lambda: not widget._loading and widget._reader_worker is None
+                    and widget._load_worker is None)
 
     interrupted = []
     drained = []
@@ -535,6 +539,8 @@ def test_a_loader_that_cannot_be_interrupted_is_still_drained(
     widget = MakeMasksScreen()
     qtbot.addWidget(widget)
     widget._open_folder(str(folder_3))
+    qtbot.waitUntil(lambda: not widget._loading and widget._reader_worker is None
+                    and widget._load_worker is None)
 
     drained = []
 

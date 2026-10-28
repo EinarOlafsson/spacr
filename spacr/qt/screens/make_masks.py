@@ -1288,7 +1288,8 @@ class _ToolbarViewport(QScrollArea):
         :returns: the toolbar's natural wrapped height.
         """
         widget = self.widget()
-        return (widget.heightForWidth(width) if widget is not None
+        viewport_width = max(0, width - (self.width() - self.viewport().width()))
+        return (widget.heightForWidth(viewport_width) if widget is not None
                 else super().heightForWidth(width))
 
     def minimumSizeHint(self):
@@ -24260,7 +24261,11 @@ class MakeMasksScreen(QWidget):
             if worker.token != self._load_token or worker.isInterruptionRequested():
                 return
             if worker.error is not None:
-                self._warn(tr('Open image'), str(worker.error))
+                if worker.paths is None:
+                    applied = True
+                    self._handle_load_failure(worker.error, source_path=worker.path)
+                else:
+                    self._warn(tr('Open image'), str(worker.error))
                 return
             header = worker.result
             if header['ext'] in ('.tif', '.tiff') and len(header['series']) == 1:
@@ -25039,8 +25044,12 @@ class MakeMasksScreen(QWidget):
                 "Lineage in {n} mask file(s) could not be read and was skipped.", n=skipped))
         return state
 
-    def _handle_load_failure(self, error: Exception) -> None:
-        """Clear stale canvas state and visibly report an image-load error."""
+    def _handle_load_failure(self, error: Exception, *, source_path=None) -> None:
+        """Clear stale canvas state and visibly report an image-load error.
+
+        :param error: Original reader exception, retaining optional-reader details.
+        :param source_path: Failed source identity for normal blinded reporting.
+        """
         self._primary_selector.clear_field()
         self._canvas.preserve_ids = False
         self._canvas.manual_ids = False
@@ -25070,7 +25079,8 @@ class MakeMasksScreen(QWidget):
                 "Install it with: pip install \"spacr[tem]\"",
                 kind=error.kind, package=error.package))
             return
-        self._warn("Load failed", str(error))
+        text = str(error) if source_path is None else f"{source_path}: {error}"
+        self._warn(tr("Load failed"), text)
 
     def _apply_loaded_pair(
         self,

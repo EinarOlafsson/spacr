@@ -105,6 +105,8 @@ def test_auto_accept_can_undo_and_survives_save_next_and_reopen(
     qtbot.addWidget(made)
     try:
         assert made._open_folder(str(fields))
+        qtbot.waitUntil(lambda: not made._loading and made._reader_worker is None
+                        and made._load_worker is None)
         np.testing.assert_array_equal(made._canvas.mask, saved)
         np.testing.assert_array_equal(imageio.imread(fields / 'masks' / 'a.tif'), saved)
     finally:

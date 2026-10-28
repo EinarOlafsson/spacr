@@ -23,6 +23,8 @@ def opened(qtbot, qt_theme_applied, tmp_path):
     screen = mm.MakeMasksScreen()
     qtbot.addWidget(screen)
     assert screen._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     screen._mag_mode.setCurrentIndex(screen._mag_mode.findData(cpu_modes.PUNCTA))
     yield screen, image, parents, image_file, parent_file
     screen._magnifier.close()

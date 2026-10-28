@@ -145,6 +145,8 @@ def screen(qtbot, qt_theme_applied, folder_3: Path):
     s = MakeMasksScreen()
     qtbot.addWidget(s)
     s._open_folder(str(folder_3))
+    qtbot.waitUntil(lambda: not s._loading and s._reader_worker is None
+                    and s._load_worker is None)
     # Pin the canvas geometry so canvas_xy() is valid for this screen too.
     s._canvas.resize(CANVAS_W, CANVAS_H)
     s._canvas.refresh()
@@ -795,12 +797,16 @@ def test_load_failure_clears_canvas_and_blocks_a_stale_save(
     s = MakeMasksScreen()
     qtbot.addWidget(s)
     s._open_folder(str(folder_corrupt_second))
+    qtbot.waitUntil(lambda: not s._loading and s._reader_worker is None
+                    and s._load_worker is None)
     assert s._image_files == ["img_00.tif", "img_01.tif"]
     s._canvas.mask[10:30, 10:30] = 255
     stale = s._canvas.mask.copy()
     assert stale.any()
 
     s._on_next()                                   # img_01.tif is garbage
+    qtbot.waitUntil(lambda: not s._loading and s._reader_worker is None
+                    and s._load_worker is None)
 
     assert s._current_index == 1
     assert s._canvas.mask is None, "stale mask left on the canvas"
@@ -822,6 +828,8 @@ def test_save_failure_is_reported_not_raised(qtbot, qt_theme_applied, headless,
     s = MakeMasksScreen()
     qtbot.addWidget(s)
     s._open_folder(str(folder_3))
+    qtbot.waitUntil(lambda: not s._loading and s._reader_worker is None
+                    and s._load_worker is None)
     s._canvas.mask[5:15, 5:15] = 255
     s._on_save()
     assert s._status_label.text().startswith("Save failed:")
@@ -870,6 +878,8 @@ def test_pick_folder_opens_the_chosen_directory(qtbot, qt_theme_applied,
     s = MakeMasksScreen()
     qtbot.addWidget(s)
     s._on_pick_folder()
+    qtbot.waitUntil(lambda: not s._loading and s._reader_worker is None
+                    and s._load_worker is None)
     assert seen["caption"] == "Pick images folder"
     assert seen["start"] == os.getcwd()          # no folder open yet
     assert s._folder == str(folder_3)
@@ -895,17 +905,27 @@ def test_pick_folder_cancelled_changes_nothing(qtbot, qt_theme_applied,
 # Screen — navigation, tool plumbing, history
 # ===========================================================================
 
-def test_navigation_updates_status_and_clamps_at_both_ends(screen):
+def test_navigation_updates_status_and_clamps_at_both_ends(qtbot, screen):
     assert screen._status_label.text() == "img_00.tif  (1/3)"
     screen._on_prev()                             # already first
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._current_index == 0
     screen._on_next()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._status_label.text() == "img_01.tif  (2/3)"
     screen._on_next()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     screen._on_next()                             # already last
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._current_index == 2
     assert screen._status_label.text() == "img_02.tif  (3/3)"
     screen._on_prev()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._current_index == 1
 
 
@@ -940,6 +960,8 @@ def test_normalize_spinboxes_change_the_rendered_image(qtbot, qt_theme_applied,
     s = MakeMasksScreen()
     qtbot.addWidget(s)
     s._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not s._loading and s._reader_worker is None
+                    and s._load_worker is None)
     s._canvas.resize(CANVAS_W, CANVAS_H)
     s._canvas.refresh()
     before = s._canvas.pixmap().toImage()
@@ -1054,10 +1076,14 @@ def test_tool_shortcuts_select_the_mode(screen, sequence, mode):
     assert screen._mode_buttons[mode].isChecked()
 
 
-def test_navigation_and_save_shortcuts(screen, folder_3: Path):
+def test_navigation_and_save_shortcuts(qtbot, screen, folder_3: Path):
     _shortcut(screen, "Right").activated.emit()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._current_index == 1
     _shortcut(screen, "Left").activated.emit()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._current_index == 0
 
     screen._canvas.mask[4:14, 4:14] = 255
@@ -1181,13 +1207,17 @@ def test_save_writes_labelled_uint16_and_reports_the_path(screen,
     assert int((disk > 0).sum()) == 200
 
 
-def test_saved_mask_is_reloaded_on_the_next_visit(screen, folder_3: Path):
+def test_saved_mask_is_reloaded_on_the_next_visit(qtbot, screen, folder_3: Path):
     screen._canvas.mask[:] = 0
     screen._canvas.mask[8:18, 8:18] = 255
     screen._on_save()
     screen._on_next()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert not screen._canvas.mask.any(), "img_01 has no mask yet"
     screen._on_prev()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert int((screen._canvas.mask > 0).sum()) == 100
     assert not screen._history.can_undo(), "history resets per field"
 
@@ -1205,6 +1235,8 @@ def test_screen_survives_a_missing_dnd_module(qtbot, qt_theme_applied,
     assert s.acceptDrops() is False, "dropzone should not have installed"
     # …and the screen is still fully functional.
     s._open_folder(str(folder_3))
+    qtbot.waitUntil(lambda: not s._loading and s._reader_worker is None
+                    and s._load_worker is None)
     assert len(s._image_files) == 3
     assert s._canvas.mask is not None
 

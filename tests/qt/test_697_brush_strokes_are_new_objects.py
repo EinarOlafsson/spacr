@@ -207,6 +207,8 @@ def screen(qtbot, qt_theme_applied, tmp_path):
     widget = MakeMasksScreen()
     qtbot.addWidget(widget)
     assert widget._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not widget._loading and widget._reader_worker is None
+                    and widget._load_worker is None)
     widget._canvas.resize(CANVAS_W, CANVAS_H)
     widget._canvas.show()
     widget._canvas.refresh()
@@ -291,6 +293,8 @@ def test_brush_label_256_and_shift_identity_survive_unicode_save_reopen(
     widget = MakeMasksScreen()
     qtbot.addWidget(widget)
     assert widget._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not widget._loading and widget._reader_worker is None
+                    and widget._load_worker is None)
     canvas = widget._canvas
     canvas.resize(CANVAS_W, CANVAS_H)
     canvas.show()
@@ -327,6 +331,8 @@ def test_brush_label_256_and_shift_identity_survive_unicode_save_reopen(
     reopened = MakeMasksScreen()
     qtbot.addWidget(reopened)
     assert reopened._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not reopened._loading and reopened._reader_worker is None
+                    and reopened._load_worker is None)
     assert _state(reopened._canvas.mask) == _state(expected)
     assert reopened._canvas.manual_ids
     assert sorted(engine._vvvv_object_table(reopened._canvas.mask)["label"]) == [254, 255, 256]

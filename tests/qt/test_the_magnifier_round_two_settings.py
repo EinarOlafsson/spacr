@@ -81,6 +81,8 @@ def test_the_size_reaches_the_open_images_longer_side_and_stops_there(
             "with no field open the range is the old one")
 
         assert made._open_folder(str(wide_then_square))
+        qtbot.waitUntil(lambda: not made._loading and made._reader_worker is None
+                        and made._load_worker is None)
         assert made._canvas.image.shape == (40, 700)
         assert (size.minimum(), size.maximum()) == (32, 700)
         size.setValue(700)
@@ -659,6 +661,8 @@ def blob_screen(qtbot, qt_theme_applied, tmp_path):
     made = mm.MakeMasksScreen()
     qtbot.addWidget(made)
     assert made._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not made._loading and made._reader_worker is None
+                    and made._load_worker is None)
     made._canvas.resize(CANVAS_W, CANVAS_H)
     made._canvas.refresh()
     assert made._canvas.pixmap().deviceIndependentSize().width() == PIXMAP_N

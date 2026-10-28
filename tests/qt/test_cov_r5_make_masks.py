@@ -103,9 +103,8 @@ def screen(qtbot, qt_theme_applied, field_folder):
     made = MakeMasksScreen()
     qtbot.addWidget(made)
     made._open_folder(str(field_folder))
-    if made._loading:
-        made._load_worker.wait(30_000)
-        made._on_background_load_finished()
+    qtbot.waitUntil(lambda: not made._loading and made._reader_worker is None
+                    and made._load_worker is None, timeout=30000)
     assert made._canvas.image is not None
     made._canvas.resize(CANVAS_W, CANVAS_H)
     made._canvas.refresh()

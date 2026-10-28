@@ -42,6 +42,8 @@ def test_linked_images_curate_save_and_resume_without_box_popups(
     qtbot.addWidget(widget)
     try:
         widget.open_queue(build_queue(folder, order='name'))
+        qtbot.waitUntil(lambda: not widget._loading and widget._reader_worker is None
+                        and widget._load_worker is None)
         assert warnings == []
         np.testing.assert_array_equal(widget._canvas.image, image)
         assert widget._box_load_error is not None
@@ -62,6 +64,8 @@ def test_linked_images_curate_save_and_resume_without_box_popups(
     qtbot.addWidget(resumed)
     try:
         resumed.open_queue(build_queue(folder, order='name'))
+        qtbot.waitUntil(lambda: not resumed._loading and resumed._reader_worker is None
+                        and resumed._load_worker is None)
         assert resumed._image_files == ['field_1.tif']
         assert warnings == []
         resumed._set_mode(MODE_BOX)
@@ -90,6 +94,8 @@ def test_linked_source_with_box_ledger_still_warns(
     qtbot.addWidget(widget)
     try:
         assert widget._open_folder(str(folder))
+        qtbot.waitUntil(lambda: not widget._loading and widget._reader_worker is None
+                        and widget._load_worker is None)
         assert len(warnings) == 1
         assert 'escapes its folder' in warnings[0][1]
         assert not widget._canvas.boxes_editable
@@ -111,6 +117,8 @@ def opened(qtbot, qt_theme_applied, tmp_path):
     widget = MakeMasksScreen()
     qtbot.addWidget(widget)
     assert widget._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not widget._loading and widget._reader_worker is None
+                    and widget._load_worker is None)
     yield widget, folder
     widget._magnifier.close()
     widget.close_folded()
@@ -137,6 +145,8 @@ def test_corrupt_project_refuses_box_mode_save_and_export(
     qtbot.addWidget(widget)
     try:
         assert widget._open_folder(str(folder))
+        qtbot.waitUntil(lambda: not widget._loading and widget._reader_worker is None
+                        and widget._load_worker is None)
         assert widget._box_load_error is not None
         assert not widget._canvas.boxes_editable
         assert not widget._mode_buttons[MODE_BOX].isEnabled()
@@ -358,7 +368,7 @@ def test_failed_box_save_refuses_opening_another_folder(opened, monkeypatch,
     assert not (folder / engine.YOLO_ANNOTATIONS_NAME).exists()
 
 
-def test_unreadable_next_image_clears_the_previous_fields_boxes(opened):
+def test_unreadable_next_image_clears_the_previous_fields_boxes(opened, qtbot):
     """A failed TIFF decode cannot leave the prior field's boxes on screen."""
     widget, folder = opened
     _edit_box(widget)
@@ -366,6 +376,8 @@ def test_unreadable_next_image_clears_the_previous_fields_boxes(opened):
     second.write_bytes(b"not a TIFF")
 
     widget._on_next()
+    qtbot.waitUntil(lambda: not widget._loading and widget._reader_worker is None
+                    and widget._load_worker is None)
 
     assert (folder / engine.YOLO_ANNOTATIONS_NAME).exists()
     assert widget._canvas.image is None

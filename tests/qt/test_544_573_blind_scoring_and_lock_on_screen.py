@@ -242,6 +242,8 @@ def masks(qtbot, qt_theme_applied, tmp_path, journal, alpha):
     widget = MakeMasksScreen()
     qtbot.addWidget(widget)
     widget._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not widget._loading and widget._reader_worker is None
+                    and widget._load_worker is None)
     return widget, folder, names
 
 
@@ -251,6 +253,8 @@ def test_make_masks_names_fields_by_code_while_blinded(masks, qtbot):
     assert sorted(listed) == sorted(names)
     screen._current_index = 2
     screen._load_current()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     screen._btn_blind.setChecked(True)
     blind = screen._blind
     assert blind is not None
@@ -314,6 +318,8 @@ def test_make_masks_blinds_raw_status_failures_and_actual_folder_confirmation(
         or QMessageBox.Ok)
     try:
         screen._load_current()
+        qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                        and screen._load_worker is None)
         assert 'Load failed' in screen._status_label.text()
         assert 'plate7' not in screen._status_label.text()
         assert 'drugA' not in screen._status_label.toolTip()
@@ -376,6 +382,8 @@ def test_make_masks_blinds_raw_status_failures_and_actual_folder_confirmation(
     assert 'plate7' not in str(shown) and 'drugA' not in str(shown)
     assert screen._folder == str(folder) and sorted(screen._image_files) == sorted(names)
     assert screen._end_blind(ask=lambda: True)
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._console_section.isVisible()
     assert before in screen._masks_console.console.copy_all()
     screen._canvas.status.emit(raw)

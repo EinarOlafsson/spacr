@@ -57,6 +57,8 @@ def screen(qtbot, qt_theme_applied, folder):
     widget = MakeMasksScreen()
     qtbot.addWidget(widget)
     assert widget._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not widget._loading and widget._reader_worker is None
+                    and widget._load_worker is None)
     widget._canvas.set_image_and_mask(field_image(), objects_mask())
     widget._history.clear()
     widget._history.push(widget._canvas.mask)
