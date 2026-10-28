@@ -1327,14 +1327,29 @@ class _ImageContainer(CollapsibleSplitter):
                              else self._height_for_width(bottom))
             body_height = max(body.minimumHeight(),
                               body.minimumSizeHint().height())
+            available = max(0, room - bottom_height - body_height)
+            groups_changed = False
+            if isinstance(top, _ToolbarViewport) and top.widget() is not None:
+                row = top.widget().layout()
+                if row is not None and row.count() == 2:
+                    tools, annotation = (row.itemAt(index).widget()
+                                         for index in range(2))
+                    margins = row.contentsMargins()
+                    width = (top.viewport().width() - row.spacing()
+                             - margins.left() - margins.right())
+                    tools_width = max(0, width - annotation.sizeHint().width())
+                    stretch = int(tools.heightForWidth(tools_width) > available)
+                    groups_changed = row.stretch(1) != stretch
+                    if groups_changed:
+                        row.setStretch(1, stretch)
             top_height = (0 if self.is_collapsed("Top bar")
                           else self._height_for_width(top))
-            available = max(0, room - bottom_height - body_height)
-            if top_height > available:
+            if top_height > available or groups_changed:
                 from ..gui_scale import _set_actual_sizes
 
-                _set_actual_sizes(self, [available,
-                                        max(body_height, room - available
+                top_height = min(top_height, available)
+                _set_actual_sizes(self, [top_height,
+                                        max(body_height, room - top_height
                                             - bottom_height), bottom_height])
 
 

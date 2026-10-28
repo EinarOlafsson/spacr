@@ -435,6 +435,9 @@ def test_map_barcodes_keeps_its_cards_over_the_rain(themed, qtbot, theme):
         rain.stop()
     backdrop._timer.stop()
     backdrop._producer_box[0].stop()
+    backdrop.advance_frame(0)
+    frame_time = backdrop.time()
+    assert tints.active
     before = _grab(window)
     backdrop.set_animating(False)
     backdrop.hide()
@@ -443,6 +446,7 @@ def test_map_barcodes_keeps_its_cards_over_the_rain(themed, qtbot, theme):
         rain.stop()
     assert not backdrop.is_running()
     assert not backdrop.shading_thread_alive()
+    assert backdrop.time() == frame_time
     assert _grab(window) == before
     backdrop.set_animating(True)
     backdrop.stop()

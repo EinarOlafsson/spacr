@@ -44,13 +44,30 @@ _LAST = ("tests/qt/test_ambient_none.py"
          "::test_none_has_a_label_and_a_note_that_states_the_cost")
 
 _DISABLE_PLUGIN = '''\
-"""Unregister the canonicaliser so the ordering hazard is live again."""
+"""Disable both directory reconciliation defenses for the original regression."""
+import pytest
+
+
+_patch = pytest.MonkeyPatch()
+_collect_one_node = pytest.Session._collect_one_node
+
+
+def _recollect_without_directory_reconciliation(session, node, handle_dupes=True):
+    if not handle_dupes and isinstance(node, pytest.Directory):
+        session._collection_cache.pop(node, None)
+    return _collect_one_node(session, node, handle_dupes)
 
 
 def pytest_configure(config):
     plugin = config.pluginmanager.get_plugin("spacr-one-node-per-directory")
     if plugin is not None:
         config.pluginmanager.unregister(plugin)
+    _patch.setattr(pytest.Session, "_collect_one_node",
+                   _recollect_without_directory_reconciliation)
+
+
+def pytest_unconfigure(config):
+    _patch.undo()
 '''
 
 

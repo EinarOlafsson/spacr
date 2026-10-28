@@ -40,7 +40,10 @@ def test_cluster_grid_uses_the_panel_color_in_its_legend(monkeypatch):
                         for axis in figure.axes[:2]]
         legend_colors = [patch.get_facecolor()[:3]
                          for patch in figure.patches]
-        assert legend_colors == pytest.approx(panel_colors)
+        legend_rgb = np.asarray(legend_colors)
+        panel_rgb = np.asarray(panel_colors)
+        assert legend_rgb.shape == panel_rgb.shape == (2, 3)
+        assert legend_rgb == pytest.approx(panel_rgb)
         assert legend_colors[1] == pytest.approx(colors[3])
     finally:
         plt.close(figure)
