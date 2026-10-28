@@ -11897,6 +11897,183 @@
           "zm_yunyang"
         ]
       }
+    },
+    {
+      "id": "88_navigator",
+      "number": 88,
+      "slug": "navigator",
+      "title": "Navigator: 입력에 맞는 도구 찾기",
+      "series": 1,
+      "app_key": null,
+      "section": "spaCR",
+      "description": "작업, 파일 또는 프로젝트로 spaCR 도구를 찾고, 입력 근거와 설정을 확인한 다음 워크플로를 따라 각 도구의 기본 화면으로 이동합니다.",
+      "objectives": [
+        "로컬 경로, 끌어 놓은 파일이나 폴더, Enter로 제출한 작업으로 도구를 찾습니다. 작업 검색은 영문 대소문자를 구분하지 않습니다.",
+        "도구의 기본 화면을 열기 전에 입력 근거, 제안된 설정, 워크플로 단계를 검토합니다.",
+        "생물별 워크플로, 패널, 활성 작업과 선택적 AI 컨트롤을 살펴봅니다.",
+        "측정 테이블과 주석 또는 기록 데이터베이스를 구분하고 Home으로 새로 시작합니다."
+      ],
+      "prerequisite": "spaCR을 설치하고 Navigator를 여세요. 제공된 예제 이미지, 이미지 폴더, 측정된 프로젝트, 주석이나 기록만 있는 데이터베이스, 설정 파일 또는 이에 해당하는 로컬 입력을 사용하세요.",
+      "scenes": [
+        {
+          "visual": "01_navigator_start",
+          "narration": "Navigator는 spaCR 테마 위에 검색창을 표시하며 시작합니다. spacr-nav 또는 spacr-navigator로 연 다음 작업, 파일 또는 폴더에서 시작하세요.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "02_help_navigator",
+          "narration": "Help에서도 Navigator를 켤 수 있습니다. Navigator는 기본적으로 켜져 있으며 저장된 선택은 유지됩니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_dock_right_panels",
+          "narration": "접을 수 있는 도크에서 모듈을 바로 여세요. News와 Widgets는 작업 공간 옆에 열리고 검색창과 설명은 제자리에 유지됩니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_enter_case_query",
+          "narration": "Measure를 입력하고 Enter를 누르세요. 검색은 영문 대소문자를 구분하지 않습니다. 입력만 하면 기존 제안이 유지되며 도구가 시작되지 않습니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_native_file_drop",
+          "narration": "로컬 이미지 파일 하나를 Navigator에 끌어 놓으세요. 입력을 확인하고 지원되는 다음 단계를 제안하며 처리 실행을 시작하지는 않습니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_native_folder_drop",
+          "narration": "폴더 하나를 끌어 놓아 내용을 확인하세요. 제안은 해당 폴더에 이미 있는 파일과 데이터에 따라 달라집니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07_typed_project_path",
+          "narration": "정확한 위치를 지정하려면 파일이나 프로젝트 경로를 붙여 넣고 Enter를 누르세요. Browse에서도 파일이나 폴더를 선택할 수 있습니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "08_measured_evidence_cards",
+          "narration": "측정된 프로젝트에는 분석 도구가 읽을 수 있는 데이터가 있습니다. 여기서는 측정 테이블 덕분에 Graph Builder 같은 도구를 사용할 수 있습니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09_annotation_only_scope",
+          "narration": "이 예제에는 측정된 특징이 아니라 주석과 기록 테이블이 있습니다. 데이터베이스 파일 이름만으로 측정값이 계산되었다고 판단할 수는 없습니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "10_saved_settings_preview",
+          "narration": "설정 파일은 모듈을 제안하고 설정 미리보기를 제공할 수 있습니다. 모듈을 열기 전에 제안을 검토하세요. Navigator가 대신 분석을 실행하지는 않습니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "11_module_workflow",
+          "narration": "모듈 카드를 선택해 워크플로를 살펴보세요. 카드 아래 설명을 읽고 목적과 필요한 입력을 확인하세요.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "12_incremental_next_steps",
+          "narration": "다음 단계를 살펴보며 네트워크를 확장하세요. 이전 분기가 계속 표시되어 입력에서 분석과 결과로 이어지는 경로를 따라갈 수 있습니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "13_toxoplasma_network",
+          "narration": "Toxoplasma를 검색해 해당 생물의 워크플로와 실험 분석 선택지를 보세요. 데이터와 생물학적 질문에 맞는 단계를 선택하세요.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "14_back_escape",
+          "narration": "Back이나 Escape를 사용해 워크플로에서 제안으로 돌아가세요. 이 탐색 동작은 분석을 실행하거나 입력 파일을 변경하지 않습니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "15_native_source_handoff",
+          "narration": "준비가 되면 제안된 도구의 기본 화면을 여세요. Navigator는 선택한 입력을 해당 소스 설정으로 전달합니다. Run을 누르기 전에 설정을 검토하세요.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "16_running_inspect",
+          "narration": "running jobs를 입력하고 Running을 선택하면 Widgets에서 활성 spaCR 작업을 확인할 수 있습니다. Open, pause, stop 컨트롤은 목록에 있는 작업에 적용됩니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "17_ai_consent_cancel",
+          "narration": "AI 컨트롤은 선택 사항입니다. 처음 사용할 때 표시되는 대화상자에서 제공업체를 선택할 수 있습니다. 로컬 경로와 일치하는 도구 제안은 기존 경로를 유지합니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "18_home_fresh_reset",
+          "narration": "Home은 Navigator의 이전 제안과 워크플로를 지우고 새 검색으로 돌아갑니다. 다음으로 살펴볼 작업이나 입력으로 다시 시작하세요.",
+          "hold_after": 0.7
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     }
   ],
   "lesson_aliases": {
