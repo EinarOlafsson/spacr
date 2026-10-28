@@ -519,7 +519,7 @@ def test_a_volume_opens_in_the_mask_tab_and_never_in_a_window(screen, tmp_path):
     assert screen._objects_now() == 0 and stage._count.text() == "0 objects in the volume"
 
 
-def test_the_view_list_sits_left_of_the_mask_tab_and_only_in_3d(stage, screen, tmp_path):
+def test_the_view_list_sits_left_of_the_mask_tab_and_only_in_3d(qtbot, stage, screen, tmp_path):
     tabs = screen._view_tabs
     picker = stage.view_picker
     assert tabs.cornerWidget(Qt.TopLeftCorner) is picker
@@ -538,6 +538,8 @@ def test_the_view_list_sits_left_of_the_mask_tab_and_only_in_3d(stage, screen, t
     flat.mkdir()
     tifffile.imwrite(flat / "field.tif", np.zeros((12, 16), dtype=np.uint16))
     assert screen._open_folder(str(flat))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                   and screen._load_worker is None, timeout=WAIT)
     _settle()
     assert stage.session is None and not picker.isVisible() and not stage._rail.isVisible()
     assert not stage._xz.isVisible() and stage.view == "default"
@@ -734,12 +736,14 @@ def test_the_view_list_appears_only_while_a_volume_is_open(screen, qtbot, tmp_pa
     assert screen._canvas.image.shape == (12, 16)
 
 
-def test_a_zstack_in_a_queue_asks_before_unsaved_edits_are_left(screen, tmp_path, monkeypatch):
+def test_a_zstack_in_a_queue_asks_before_unsaved_edits_are_left(qtbot, screen, tmp_path, monkeypatch):
     folder = tmp_path / "queue"
     folder.mkdir()
     _volume(folder, "a.tif")
     _volume(folder, "b.tif", seed=9)
     assert screen._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                   and screen._load_worker is None, timeout=WAIT)
     _settle()
     stage = screen._mask_stage
     assert Path(stage.session.source_path).name == "a.tif"
@@ -755,17 +759,23 @@ def test_a_zstack_in_a_queue_asks_before_unsaved_edits_are_left(screen, tmp_path
 
     monkeypatch.setattr(QMessageBox, "question", answer(QMessageBox.Cancel))
     screen._on_next()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                   and screen._load_worker is None, timeout=WAIT)
     assert Path(stage.session.source_path).name == "a.tif" and stage.dirty
     assert questions[-1][3] & QMessageBox.Save
     assert not screen._open_folder(str(folder))
     monkeypatch.setattr(QMessageBox, "question", answer(QMessageBox.Save))
     screen._on_next()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                   and screen._load_worker is None, timeout=WAIT)
     assert Path(stage.session.source_path).name == "b.tif"
     assert np.all(tifffile.imread(folder / "masks" / "a.tif")[5] == 1)
     stage.session.paint_plane("Z", 1, 4, paint=np.ones((24, 32), dtype=bool))
     stage.dirty = True
     screen._btn_save_on_navigation.setChecked(True)
     screen._on_prev()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                   and screen._load_worker is None, timeout=WAIT)
     assert Path(stage.session.source_path).name == "a.tif"
     assert np.all(tifffile.imread(folder / "masks" / "b.tif")[1] == 4)
     assert stage.session.mask[5].all()
@@ -819,7 +829,7 @@ def test_open_volume_respects_unsaved_boxes_and_the_open_folders_masks(screen, t
     assert screen._image_files == ["volume.tif"] and screen._src_label.text() == str(path)
 
 
-def test_a_volume_that_cannot_load_from_the_queue_is_reported(screen, tmp_path, monkeypatch):
+def test_a_volume_that_cannot_load_from_the_queue_is_reported(qtbot, screen, tmp_path, monkeypatch):
     folder = tmp_path / "queue"
     folder.mkdir()
     _volume(folder, "a.tif")
@@ -828,6 +838,8 @@ def test_a_volume_that_cannot_load_from_the_queue_is_reported(screen, tmp_path, 
     warned = []
     monkeypatch.setattr(screen, "_warn", lambda title, text: warned.append(text))
     assert screen._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                   and screen._load_worker is None, timeout=WAIT)
     assert screen._mask_stage.session is None
     assert warned and "does not match this volume" in warned[-1]
 
