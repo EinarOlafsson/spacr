@@ -132,7 +132,7 @@ blocks:
     AMD Radeon Pro 5300 4 GB) tog Cellpose-SAM 444.5 s på CPU och 3.2 s på Metal för en bild
     på 256×256, med torch 2.2.2, Python 3.12.11 och macOS 26.5.2. Detta är ett historiskt
     exempel, ingen hastighetsgaranti. GPU-acceleration kräver en fungerande backend och kompatibla
-    bibliotek. Se den `dokumenterade hårdvarumätningen <features/new/319_use_non_nvidia_accelerators_where_they_exist.txt>`_.
+    bibliotek. Se den `dokumenterade hårdvarumätningen <features/feature_list/319_use_non_nvidia_accelerators_where_they_exist.txt>`_.
 - h2: Installera spaCR
 - p: 'Välj en installationsväg:'
 - list:

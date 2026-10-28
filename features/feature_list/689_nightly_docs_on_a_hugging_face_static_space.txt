@@ -1,0 +1,328 @@
+=========================================================================NIGHTLY DOCS ON A HUGGING FACE STATIC SPACE, MAIN DOCS STAY ON GITHUB PAGES
+=========================================================================
+Lifecycle: new
+Status:    DONE 2026-10-20 — main-only Pages with the /nightly/ redirect is live;
+           nightly docs publish to the HF static Space and verify.
+Requested: 2026-10-10 — "Can you host the docs on huggingface? Removing docs
+           from nightly sees like a bad idea as my process is to change nightly
+           (including docs) then push and merge with main"; chose "Nightly on
+           HF, main on GitHub".
+Owner:     Home (CI/deploy); WS (docs links, translations)
+Related:   WS HANDOFF note 2026-10-10 (combined Pages site 960 of 996 MB; 54c0b404e
+           serves nightly's identical catalogs from main as a stopgap); N686/N687
+           website links to docs channels.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+.github/workflows/docs.yml builds main and nightly docs and publishes both
+channels into one GitHub Pages site (concurrency docs-pages-channels). Each
+channel is ~590 MB, so the combined site sits at 960 MB against GitHub's
+~1 GB Pages limit, with ~36 MB margin that disappears as nightly's
+translation catalogs diverge from main.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The maintainer edits nightly first, docs included, then merges to main, so
+nightly docs must stay complete. When the combined site overflows, the docs
+deploy fails for both channels.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Create a public Hugging Face static Space (sdk: static) for nightly docs,
+   e.g. einarolafsson/spacr-docs-nightly, served at its *.static.hf.space URL.
+   Large binaries via Git LFS/Xet as HF requires.
+2. docs.yml: main builds deploy to GitHub Pages as now (main only); nightly
+   builds upload the full nightly site to the Space with huggingface_hub
+   (upload_folder with delete_patterns so removed pages disappear). Auth via
+   a repository secret (HF token scoped to that Space only, write).
+3. Keep the GitHub Pages /nightly/ path as a redirect stub to the Space so
+   existing links keep working; revert 54c0b404e's main-catalog sharing once
+   nightly no longer shares the Pages budget.
+4. Update every link to nightly docs: README channel links, docs version
+   switcher, tutorials portal, site-src (N687), tests that pin URLs.
+5. Size guard: a CI check that fails before deploy if the main Pages site
+   exceeds 900 MB, so the next overflow is caught early.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+- A nightly push updates the Space; its URL serves the new build.
+- A main push updates GitHub Pages; the Pages artifact holds main only.
+- The old /nightly/ URLs redirect to the Space.
+- The docs workflow's Pages size is reported and under the guard.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+- Nightly docs are not trimmed (maintainer: nightly docs stay complete).
+- Main docs do not move; their public URL stays unchanged.
+
+2026-10-10 — Built (Home, Claude). Space einarolafsson/spacr-docs-nightly
+(sdk: static, public) serves https://einarolafsson-spacr-docs-nightly.static.hf.space/.
+First upload by hand from run 38059494495's nightly artifact (nightly
+34e95ef1b): Space commits 43166fc04 then f62a351be; 3297 files, 438.6 MB.
+Commits 7711e079c (workflow + publisher) and d1dca29cb (index.html links).
+docs.yml builds only the pushed branch: main -> assemble-main -> Pages
+(main only, /nightly/ index stub plus 404.html redirect to the same Space
+path, PAGES_LIMIT 900,000,000 bytes fails before upload, size in the step
+summary); nightly -> assemble-nightly -> upload_folder(delete_patterns=["*"])
+with secret HF_DOCS_TOKEN. 54c0b404e's shared catalogs/deck PDF reverted;
+cross-channel deck image sharing dropped. A static Space serves files only
+(/tutorials/ is 404), so nightly directory links get index.html (871 links).
+Run 38064345381 (d1dca29cb) is the first run of the new workflow.
+Open: (1) maintainer adds HF_DOCS_TOKEN (fine-grained, write to this Space
+only), else deploy-space stops with that instruction; (2) main's own
+docs.yml is still the combined one until nightly merges into main, so the
+Pages /nightly/ stub appears with that merge; (3) WS: site-src
+src/projects/spacr/index.html line 158 "Docs: nightly" card still points at
+https://einarolafsson.github.io/spacr/nightly/ (redirects once (2) lands).
+README.rst and the 9 localized READMEs carry no nightly-docs link.
+
+
+2026-10-13 21:37 EDT — Home independently checked automatic nightly deployment.
+Completed docs run38490733637/job115627344141 publishes source03c7ceb81b to
+public static Space revisionfb5978a399da588064666e903cfe8ed07da30ab0. Live
+publication/channels bind that source and immutable bytes; index matches after
+only HF's specific host injection is removed. Namespace inventory and sampled
+API, module, English/sv/fr guide and tutorial-index routes are verified. Token
+setup is no longer outstanding; no secret value was read.
+
+Live Pages remains the older combined main/nightly site, channels schema1,
+974730784bytes. Old /nightly/ serves the earlier site, not the HF redirect.
+Main-only artifact, actual900MBguard and redirect therefore remain OPEN until
+approved main promotion/deployment. HF directory listing200 is not the player;
+explicit index.html links remain necessary. Nine API locales use the existing
+English fallback and remain incompatible, not translation acceptance. Evidence:
+features/data/689_nightly_deployment_verification_2026-10-13/. No new deploy,
+build, deletion experiment or full-site download occurred in this audit.
+
+2026-10-14 — Home-B fixed complete-site size accounting.
+The 900 MB gate excluded the channels.json receipt written after its check;
+a real assembled artifact could exceed its accepted budget. Both channel
+receipts now report every published byte, including their own serialized
+size, and main applies the unchanged limit to that final total. Existing
+receipts copied from input are replaced without double-counting. Five new
+regression cases failed before the repair; all29 publisher tests pass after
+(4.93s), including actual oversized-artifact refusal and legacy redirects.
+Evidence: data/689_exact_site_size_2026-10-14/. Private Home-B commit awaits
+original Home integration; this does not complete the main deployment gate.
+
+Current live readback also confirms nightly source e85907fef4c357fa208741c83125c743cb1b887d
+from successful automatic docs run38611804321. Main Pages still reports the
+older combined schema1 artifact at974730784bytes. Actual main-only publication
+and legacy nightly redirects remain OPEN until the main promotion/deployment.
+
+2026-10-14 — Home-B checked the actual main deployment blocker.
+Latest main docs run38400845651 on e0bedd1534d71708f65b60a2d9e24b6328d4ce9d
+built both branch documentation jobs successfully. Its Assemble independent
+channels step failed at1,025,244,603bytes against the old996,147,200byte limit.
+The prepared main-only migration therefore addresses an observed publication
+failure; the run does not indicate a main-source Sphinx failure. Main-only
+assembly under900,000,000bytes and hosted redirect checks remain required.
+The run's one-day site artifacts are no longer listed; compatibility reports
+remain. No main promotion, deployment or new hosted CI was dispatched here.
+Original Home has the source-bound three-file migration patch and receipt in
+/mnt/wd4tb/scratch/home-b-coordination-20261014/main-docs-migration.json.
+
+2026-10-14 Home-B — homepage readback correctness repair
+Matching publication/channels receipts alone could falsely verify stale or missing
+homepage content. Verification now additionally requires the intended exact
+index.html bytes, with bounded retry and bounded read retained; trailing stale
+bytes are rejected. Three failures reproduced before; complete owning module
+38PASS/0skip after. No external calls, quota actions or whole-site/media proof
+claimed. Evidence: features/data/689_homepage_readback_2026-10-14/. Historical
+Space quota remains independently unresolved; no final deployment closure.
+
+2026-10-15 — Hosted homepage verification accepts only the known HF envelope
+Actual saved public responses had matching publication/channel receipts and
+the exact immutable index plus one101-byte static-host creator script. The
+previous verifier rejected that valid response. Verification now accepts only
+the precise HTTPS *.static.hf.space script schema/location, preserving every
+other index byte and both metadata comparisons. The read remains bounded by
+expected length plus101 bytes and one sentinel. Duplicate/misplaced/altered
+scripts, wrong IDs/schema/hosts, truncation and unrelated drift stay rejected.
+Saved-response replay changes FAIL to PASS without network calls; all67 owning
+tests pass5.06s. Independent code/evidence peer is0b7a9bb1. Evidence:
+features/data/689_hf_host_envelope_2026-10-15/ and the corresponding peer review.
+This closes this verifier defect only. No live deployment, current-source HF
+publication or Pages migration is claimed; those acceptance gates remain open.
+
+2026-10-15 — Home-B prepared a non-destructive free-host migration plan.
+Current403/readback proof is11835ed44; no deployment repeated. A fresh public
+sdk:static Space can hold the complete current~460MB artifact without rewriting
+the existing Space history, but it is a proposed recovery path, not durable
+quota management or completed deployment. Existing --space/--nightly-url/--url
+options support one coherent selected target. Workflow/token scope, main-only
+Pages /nightly/ redirects, the site-src link and two Work-owned tutorial URL
+consumers need coordinated cutover. Old direct HF bookmarks are a separate
+constraint: a new URL does not redirect them, and an old-Space small update may
+still hit quota. No rename, recreation, history deletion, paid plan, upload or
+dispatch was performed. Exact file/variable/URL map, ordered acceptance steps
+and limitations: data/689_quota_migration_plan_2026-10-15/plan.json. Final
+publication remains deferred; this note does not close N689.
+
+2026-10-15 — Avoid redundant source-page catalog-version churn
+Normal html-page-context now removes the unused digest only on plain standard
+viewcode pages; actual API consumers keep invalidation and shared script
+objects stay unchanged. Baseline3FAIL/7PASS, final11PASS; real Sphinx9.1
+context/render proves stable source HTML and appropriately changing API HTML.
+No full build/deployment or quota-saving claim. Evidence:
+features/data/689_viewcode_catalog_churn_2026-10-15/.
+Full HF metadata inventory also proves a historical partial-upload mix:
+3323files/456940125bytes versus publication receipt455793473bytes. Matching
+homepage/receipt alone certifies neither full tree nor current-source docs.
+Quota recovery, atomic coherent redeployment and main-only Pages/redirect
+remain open. See689_deployed_file_footprint_2026-10-15/.
+
+2026-10-15 — Configurable host and immutable complete-tree verification.
+The workflow resolves one checked HF_DOCS_SPACE/HF_DOCS_URL pair and passes it
+to both assemblers, the atomic uploader, immutable repository-tree check and
+public deployment check. Partial/mismatched targets fail before publication;
+with neither variable set the previous address remains the default.
+Twelve checks execute the actual YAML resolver and default/custom tiny-site
+assembly/publication command sequence. The new verify-space-tree CLI checks all
+expected paths, file sizes and Git/LFS content identities at a full immutable
+Space commit. Eleven focused checks pass; independent source review confirms
+the remote-only .gitattributes exemption and bounded stable-artifact scope.
+This is distinct from public-host freshness or downloading every remote file.
+
+A separate FREE PUBLIC STATIC candidate, einarolafsson/spacr-docs-nightly-v2,
+was created without paid hardware/storage options; old Space/history and all
+canonical variables/links remain unchanged. Existing artifact11963807254 was
+downloaded with its exact published SHA256 and reassembled normally for the new
+host: source8e0a1fdbead894e544b3c55a7e7d2efbd84df851,459836810bytes.
+That older build is not relabeled as the current nightly source. Candidate
+upload/readback and coordinated URL/token/Pages cutover remain separate pending
+gates. No full CI, Sphinx build, tutorial recording or media regeneration.
+Evidence: data/689_configurable_host_2026-10-15/,
+data/689_space_tree_verifier_2026-10-15/ and
+data/689_space_tree_verifier_peer_2026-10-15/.
+
+2026-10-15 — Free candidate hosted and project website link cut over.
+New static Space revision732766ad32dd47784cb5c2a15c8c57516aae8252 contains
+all3322 expected files/459836810bytes with matching Git/LFS identities.
+Live receipts/homepage match; six representative English/Swedish/API/tutorial
+requests return200 with exact expected content apart from the already accepted
+101-byte HF HTML envelope. Both JSON bodies and84 content-addressed media
+references are preserved. No video playback or current-head docs claim:
+this is the exact prebuilt8e0a1fd source, not relabeled newer software.
+
+Site-src source72d1b1a changes only the nightly href. Normal i18n/build/leak
+checks and all ten rendered locale hrefs pass. Production run38734054119 and
+Pages38734156236 pass, deploying7e697992; public English/Swedish project pages
+now point to the verified v2 host. The disposable local validation output was
+never deployed. Old Space/history were not written; no paid options or canonical
+repository variable/secret changes. Automated-target token/cutover, main Pages
+/nightly redirects and Work's two direct endpoints remain pending coordination.
+Evidence:data/689_free_static_candidate_2026-10-15/ and
+data/689_candidate_representative_readback_2026-10-15/.
+
+2026-10-15 — Home-B publication/status correction
+    CI access probe source and isolated workflow are public669ac7395e. Actual direct HTTP-boundary12tests pass; dispatched run38743415875 is pending, no live write permission claimed. Work portable owner patch is being published because Home scratch is unavailable there. Main migration remains owned by Original Home at final promotion.
+
+2026-10-15 — Precise CI write-permission blocker isolated
+Access-only run38754742270 on published67f3753f1a started normally after
+the reviewed scheduling repair. Exact nonsecret failure is HTTP403 at
+operation commit, after metadata/tree/README steps. No new revision or
+readback occurred; no published content changed. Public reads do not
+establish privileged authorization. All documentation build/deployment
+jobs were skipped. Previous38753580765 was cancelled before any job
+and is not an HTTP permission test. Evidence:
+data/689_operation_specific_ci_probe_2026-10-15/.
+Owner action: check existing HF_DOCS_TOKEN write permission to the existing
+einarolafsson/spacr-docs-nightly-v2 Space; no broad local token substitution
+or repeated probe without an actual permission correction. Main cutover,
+canonical variables and current-head deployment remain separate.
+
+2026-10-15 — HANDOVER to Claude Home (current maintainer ownership notice)
+Original Home acknowledges the N689 claim and stops N689 code, workflow, docs
+and item edits after this handover. All working implementation is already on
+nightly; no unpushed N689 implementation or active N689 job remains here.
+Published free-v2 host/tree/public-site receipts and validated configurable
+workflow/verifier remain in the dated evidence referenced above. The actual
+CI-secret probe38754742270 reached commit and returned HTTP403; token access,
+canonical variables, main Pages and current-source hosted acceptance were not
+claimed complete by Original. No broad local credential substitution or paid
+service action was taken. Work's portable URL patch/preimages are published at
+features/data/689_work_url_owner_packet_2026-10-15/. Claude owns reconciliation
+of those remaining gates and any newer implementation; general CI continues.
+
+2026-10-15 — BUILT (Claude Home, owner of 689 from today). Diagnosis of the
+"token write refusal", from gh run logs and public Hub metadata.
+There are two different 403s, and neither comes from the workflow YAML.
+docs.yml already has `permissions: contents: read`, Pages jobs get
+`pages: write` + `id-token: write`, and the secret name HF_DOCS_TOKEN
+matches the repository secret.
+ (a) Canonical Space einarolafsson/spacr-docs-nightly: every nightly
+     deploy fails at commit with "403 Forbidden: Storage limit reached for
+     this space (Max: 1 GB)" (e.g. run 38790283828, job "Publish nightly
+     documentation to the Hugging Face Space"). The Hub reports usedStorage
+     988,829,585 bytes. Daily history growth filled it. The live site is
+     still nightly 0b94804723 (2026-10-14).
+ (b) Candidate Space einarolafsson/spacr-docs-nightly-v2: access probe run
+     38754742270 got 403 at commit, but the Space uses only 191,085,051
+     bytes, so this is not storage. HF_DOCS_TOKEN is a fine-grained token
+     that is scoped to the old Space only and has no write grant on v2.
+Code change: verify-space-access now adds a fixed "reason"
+(storage-limit | not-authorized) without echoing server text, and
+upload-nightly prints a ::error:: annotation that names the cause before it
+fails. tests/test_docs_space_access.py has 4 new cases. The access, channels
+and tree suites pass: 99 tests.
+
+Verified live 2026-10-15:
+ - https://einarolafsson-spacr-docs-nightly.static.hf.space/ returns 200, channels
+   schema 2, nightly 0b94804723, 455,793,473 bytes. It is stale because of (a).
+ - https://einarolafsson-spacr-docs-nightly-v2.static.hf.space/ returns 200,
+   nightly 8e0a1fdbea, 459,836,810 bytes (the hand-uploaded candidate).
+ - https://einarolafsson.github.io/spacr/ is still the old combined schema-1
+   site (main 87ff67a085 + nightly c138911fb6, 974,730,784 bytes), and
+   /nightly/ is not a redirect yet. main's docs.yml is the old combined
+   workflow, whose runs fail at the old 996 MB limit. The main-only workflow
+   exists only on nightly.
+
+MAINTAINER STEPS (no agent may touch tokens; do them in order):
+ 1. Hugging Face, give the existing token write access to v2. This keeps the
+    token value, so the GitHub secret stays as it is:
+    huggingface.co -> avatar -> Settings -> Access Tokens -> the token used
+    as HF_DOCS_TOKEN -> "..." menu -> Edit permissions -> "Repositories
+    permissions" -> search and add einarolafsson/spacr-docs-nightly-v2 ->
+    tick "Write access to contents/settings of selected repos" -> Save.
+    (If you cannot tell which token it is, create a new fine-grained token
+    with exactly that one grant, then on GitHub: repo -> Settings -> Secrets
+    and variables -> Actions -> HF_DOCS_TOKEN -> Update secret.)
+ 2. GitHub, point nightly docs at v2: repo EinarOlafsson/spacr -> Settings
+    -> Secrets and variables -> Actions -> Variables tab -> New repository
+    variable:
+      HF_DOCS_SPACE = einarolafsson/spacr-docs-nightly-v2
+      HF_DOCS_URL   = https://einarolafsson-spacr-docs-nightly-v2.static.hf.space/
+    Set both (the resolver refuses only one).
+ 3. Check: Actions -> docs -> Run workflow -> branch nightly, mode
+    verify-host-access, access_space einarolafsson/spacr-docs-nightly-v2.
+    Green means the token can write. A red result now shows the "reason".
+ 4. Push anything to nightly (or Run workflow, mode publish). The
+    deploy-space job uploads to v2 and checks the tree and the public site.
+ 5. Merge nightly into main as usual. main then runs the main-only workflow:
+    GitHub Pages holds only main, under the 900 MB guard, and /nightly/
+    redirects to the v2 URL.
+ 6. Owner decision, before v2 also fills (it is at 191 MB of 1 GB; the old
+    Space filled in about 5 days of nightly pushes): either squash the
+    Space history now and then (Space -> Settings -> "Squash history"
+    / HfApi.super_squash_history, then delete orphaned LFS files on the
+    Settings "Storage" page), or accept a new Space when it fills. This
+    is irreversible history deletion, so no agent does it unasked.
+ The old Space keeps serving its stale 2026-10-14 build. Its direct
+ bookmarks do not redirect (see the 2026-10-15 quota plan).
+
+2026-10-15: maintainer granted the token write access and added HF_DOCS_SPACE/HF_DOCS_URL; verify-host-access run 38829534457 succeeded.
+2026-10-19: not superseded: the Space retired 2026-10-18 is 698's spacr-mask-generator, not this docs Space. v2 serves nightly d499821c1 (channels schema 2); nightly's docs.yml already builds the main-only Pages site with the /nightly/ redirect stub to HF_DOCS_URL (31 channel/stub tests pass).
+2026-10-19: REMAINING (maintainer): merge nightly into main so main runs the main-only docs.yml; Pages is still the old combined site (main 87ff67a, nightly c138911) and /nightly/ is not yet a redirect. Then decide on v2 history squashing before it fills.
+2026-10-19: 06a579801: docs.yml squashes the v2 Space before an upload (stored + site > 60% of 1 GB, or 20 commits) and deletes unserved LFS files; v2 was at 990 MB (785 MB unserved), so the next nightly deploy squashes it. Maintainer step 6 is no longer needed.
+2026-10-20: DONE. Pages (main) serves https://einarolafsson.github.io/spacr/nightly/ as the redirect stub to the v2 Space; the Space serves nightly d50622285 (docs run 39414159643 success, after d50622285 accepted HF's social-card tags in the public-index check).

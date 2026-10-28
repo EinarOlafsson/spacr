@@ -1,0 +1,186 @@
+================================================================================
+MAKE MASKS FOR TRANSMISSION ELECTRON MICROSCOPY (TEM) IMAGES
+================================================================================
+
+Lifecycle: new
+Status: DONE 2026-10-15 — original TEM workflow and translations accepted;
+        separate TEM tutorial explicitly withdrawn by maintainer via WS.
+Requested: 2026-10-11 — "I'd like to add a submodual to make masks where users
+           can make masks on them data, add that as a new feature" and "Not mask
+           generation, make masks. And add a new submodule or just a me training
+           dataset if there is no difference in drawing masks on TEm data"
+Owner:     Home (build); WS (translations, tutorial if not alpha)
+Related:   Make Masks (spacr/qt/screens/make_masks.py, mask_engine.py); N673
+           (3D editor); N685 (curation controls); the model zoo.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Make Masks draws and corrects masks on fluorescence and brightfield light-
+microscopy images. Nothing in spaCR is set up for TEM: no TEM file readers
+(Gatan .dm3/.dm4, MRC/.rec, large TIFF/BigTIFF), no EM-appropriate contrast
+handling, no EM segmentation models in the zoo, and no TEM example data.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Users with TEM images of infected cells (parasitophorous vacuoles, parasites,
+organelles such as mitochondria, ER, rhoptries) cannot curate masks on them in
+spaCR, so they cannot build training data or correct model output for EM.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Decide, with evidence, whether TEM needs a separate Make Masks submodule or
+   only a TEM training dataset in the existing Make Masks. Compare what drawing
+   on TEM needs against what Make Masks does today:
+   - file formats and size (dm3/dm4, MRC, multi-GB BigTIFF) and pixel size in nm;
+   - single-channel greyscale, often inverted contrast (membranes dark), need for
+     contrast/CLAHE and percentile windowing;
+   - object classes (cell, nucleus, vacuole, parasite, mitochondrion, membrane-
+     bound organelles) and very thin membrane boundaries;
+   - assisted segmentation: whether Cellpose-SAM/cpsam works on EM, and EM
+     models (e.g. empanada MitoNet, micro-sam EM generalist) as optional
+     backends;
+   - tiling/zoom for very large images.
+   If drawing is the same, add a TEM example/training dataset plus readers and
+   contrast settings to the existing Make Masks. If it differs, add a "TEM" Make
+   Masks submodule that reuses Make Masks' canvas, tools, save/undo and queue.
+2. Readers for TEM formats (optional extra for dm3/dm4/MRC with permissive-
+   licence libraries, lazy import), with physical pixel size carried through.
+3. A public TEM example/training dataset with masks (licence-checked; e.g.
+   EMPIAR, CEM-MitoLab, Lucchi/EPFL mitochondria, or a Toxoplasma TEM set if one
+   is public), published as spacr-example-tem on HF and wired to the "Load test
+   data" button.
+4. Tests, settings with tooltips, tr() strings, docs, and a tutorial if the
+   feature is not alpha.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+- A user opens a TEM image (dm3/dm4/MRC/TIFF) in Make Masks (or the TEM
+  submodule), sees it with sensible contrast, draws and corrects masks with the
+  usual tools, and saves label masks at the image's size with its pixel size.
+- "Load test data" opens the TEM example set offline after one download.
+- Assisted segmentation produces a usable draft on the example set (report F1
+  against its masks).
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+- No new TEM model is trained here; training uses the existing training paths
+  once curated TEM masks exist.
+
+2026-10-11 — Investigation and decision (Home, CPU only). DECISION: no "TEM"
+submodule. Drawing on TEM needs nothing new in the canvas or tools; it needs
+readers, pixel size, a contrast preset, a large-field fix and data, all added
+to the existing Make Masks.
+Data: EMPIAR-10982 "TEM 100 image benchmark" (data/tem_benchmark; Conrad and
+Narayan, Cell Systems 14:58, 2023; doi:10.1016/j.cels.2022.12.006). EMPIAR
+releases entries under CC0 1.0. 100 8-bit TEM images (73 at 1024 x 1024) with
+int32 instance label maps of every mitochondrion; no pixel size recorded.
+Sample: the benchmark's own NCI-TEM acquisitions at 1024 x 1024 with at
+least one mitochondrion, ordered by sha256("spacr-example-tem:"+uid), first
+ten (195 mitochondria). Published as HF dataset einarolafsson/spacr-example-tem
+(README card: source, CC0, citation; spacr-example-tem.tar, 31.5 MB, masks in
+ground_truth_masks/, manifest last). Built by tools/build_tem_example_dataset.py.
+Rejected: CEM-MitoLab (EMPIAR-11037) is mostly 224 px FIB-SEM patches; Lucchi
+is FIB-SEM with no stated licence; MitoEM is volume EM; no public Toxoplasma
+or Plasmodium TEM set with masks was found.
+Drawing tools, offscreen on the published set (real HF download, 8.4 s, then
+cached): opens tem_01 first by name, 10 fields queued; brush/erase, save,
+next/previous and reopen work unchanged (they edit label arrays, which do not
+know the modality); saved mask 1024 x 1024 uint16. Magic wand seeded in the
+largest mitochondrion: best IoU 0.57 at 30% tolerance (cristae texture), so
+the wand is a weak tool on TEM and the brush or a model draft is the way.
+Contrast: Make Masks already had percentile window, invert, gamma, CLAHE;
+added only a one-step "Contrast preset" (Electron microscopy: 0.5-99.5
+percentile window, CLAHE 128 px under Image enhancement with Apply on; inverted variant
+also turns on Invert image).
+Formats: dm3/dm4 readers that exist are GPL (ncempy 1.16 GPLv3+, rosettasciio
+GPL-3) and spaCR is BSD-3, so spacr.io.read_dm parses DM3/DM4 itself (no
+dependency): on the 26 rosettasciio 2-D sample files it returns the same
+shape, dtype and pixels as ncempy for every real type, refuses complex
+(FFT) and RGB-only files by name. Our synthetic DM writer
+(tests/tem_files.py) is read identically by ncempy (pixels, scale, unit).
+MRC via mrcfile (BSD) as extra spacr[tem] (also in spacr[all]); lazy import,
+missing package gives a tr() message naming pip install "spacr[tem]".
+BigTIFF already worked (tifffile). Pixel size in nm is read from DM
+calibration (nm/um/A), MRC voxel size (A) and TIFF tags, and every saved
+mask carries it (exact value in the TIFF JSON description, plus resolution
+tags in px/cm, rational chosen to 1e-10 relative).
+Huge images (the one real gap, fixed in the shared canvas, not a submodule):
+refresh composed the whole field at full resolution on every brush point;
+4,096 px field load 11.6 s, 8,192 px 255 s with ~4 s per stroke. The canvas
+now composes the viewed region at the widget's device resolution (integer
+stride) and caches the whole-field percentiles for fields >= 2048^2:
+4,096 px load 2.3 s, 8,192 px 6-8 s, ~0.3 s per refresh. Zoomed views are
+still composed at full resolution.
+Assisted segmentation, CPU, on the ten fields against their masks (instance
+F1 at IoU 0.5, greedy matching):
+  cpsam (Make Masks' default backend), half resolution (full-res CPU cost
+  ~25 min per field under load), raw: TP 145, FP 281, FN 50, F1 0.467,
+  pixel Dice 0.50. Recall 74%: it outlines mitochondria but also every other
+  organelle, so the draft needs deleting rather than drawing.
+  empanada MitoNet_v1_mini (BSD-3 code, CC-BY-4.0 Zenodo weights 6861565),
+  torchscript on CPU with our own 40-line panoptic grouping: TP 142, FP 8,
+  FN 53, F1 0.823, Dice 0.84, 18-39 s per 1024 px field. Usable; caveat: it was
+  trained on CEM-MitoLab, from the same lab, though this benchmark is its
+  held-out test set. empanada-dl itself pins numpy==1.22, so it cannot be a
+  pip dependency; a backend would ship our post-processing plus the Zenodo
+  weights. micro-sam (MIT, CC-BY weights) needs napari and bioimageio and was
+  not run. Recommendation: a follow-up item to add MitoNet to the model zoo
+  as a Make Masks backend (TEM mitochondria); not a submodule.
+Organelle class presets: not built; Make Masks labels instances, and the
+example set has one class. Revisit with the MitoNet backend if a
+multi-class TEM set appears.
+Code: spacr/io.py (read_dm, read_mrc, read_tem_image, tiff_pixel_size_nm,
+image_pixel_size_nm, MissingTEMReader); spacr/qt/mask_engine.py (TEM
+extensions, pixel_size_nm, save_mask resolution, CONTRAST_PRESETS, stride
+composition helpers); spacr/qt/screens/make_masks.py (preset box, missing
+reader message, stride refresh, TEM test data on the Load test data menu);
+spacr/qt/make_masks_demo.py (load_the_tem_test_data, offline cache
+~/.cache/spacr/example_data/make_masks_tem); spacr/example_archives.py
+(TEM_EXAMPLE_REPO, "tem" set, spacr-download tem); spacr/curation_queue.py
+(extensions); setup.py (tem extra).
+Tests: tests/test_690_tem_readers_and_pixel_size.py,
+tests/qt/test_690_make_masks_tem.py (+ expectation updates in cli_download,
+packaging, training-dataset menu and the API inventories; arrivals contract
+tests/data/release_contracts/690_tem_api_arrivals_2026-10-11.json).
+New runtime strings (11): reviewed AI translations for all nine locales are
+in docs/i18n/reviewed/runtime/<lang>/2026-10-11-n690-make-masks-tem.json.
+English manifests regenerated (runtime en.py, API en.json, Help index). The
+nine runtime and API catalogs were NOT regenerated: on nightly 7a27b4d2b
+both builders stop on reviewed sources N678 made stale (build_i18n_catalogs
+--audit lists them; build_documentation_i18n stops on
+spacr.model_zoo.source_of#3). Until WS regenerates them,
+test_every_help_string_on_the_panel_has_an_exact_catalog_row fails on the
+preset tooltip. Pre-existing on nightly and not from this item: the 685
+zoo arrival contract pins an old is_spacr_owned docstring (fails the three
+API inventory tests before they reach the 690 contract; with that pin
+refreshed locally the 690 counts pass).
+Tutorial: needed (not alpha). Suggested: Load test data > Mitochondria in
+TEM images; Contrast preset > Electron microscopy; zoom into a field; brush
+two mitochondria, divide one, undo; save and show the mask beside
+ground_truth_masks; next image; mention .dm3/.dm4/.mrc open the same way.
+
+
+2026-10-15 — Whole original TEM contract reconciled and accepted.
+Current owning source/test evidence retains49 backend and10 Qt PASS cases,
+readers/pixel scale/contrast/save/large-image support, public licensed example
+and recorded assisted-draft F1. Eleven runtime sources have99 current compiled
+reviewed targets; ten API symbols are source/context current across nine locales.
+One correct existing French callback paragraph now has an independently reviewed
+source/context record. The normal review/reuse/overlay/write_language producer
+was a byte-for-byte no-op for all ten API artifacts. Ordinary selected one-symbol
+French audit passes with one actual canonical capture plus fresh-original equality;
+all runtime and source pins remain exact. No model or unchanged test replay.
+The maintainer withdrew TEM/FIB-SEM tutorial creation (WS handoff d44a9c6a65d,
+retained CURRENT HANDOFF); the old tutorial-pending line is superseded, not
+falsely marked recorded. Whole N690 complete, without new scientific/native
+certification. Evidence:data/690_current_original_contract_reconciliation_2026-10-15/.

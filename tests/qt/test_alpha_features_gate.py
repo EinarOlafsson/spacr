@@ -35,7 +35,18 @@ from spacr.settings import (ALPHA_FEATURES, ALPHA_KINDS,          # noqa: E402
                             _alpha_choices, _alpha_names)
 
 ROOT = Path(__file__).resolve().parents[2]
-FUTURE = ROOT / "features" / "future"
+FEATURE_LIST = ROOT / "features" / "feature_list"
+
+
+def _future_items():
+    for path in sorted(FEATURE_LIST.glob("*.txt")):
+        if _item_number(path) is None:
+            continue
+        source = path.read_text(encoding="utf-8")
+        metadata = re.findall(r"^Lifecycle:.*$", source, re.M)
+        assert len(metadata) == 1 and re.fullmatch(r"Lifecycle:\s*(new|future)\s*", metadata[0]), path
+        if metadata[0].split(":", 1)[1].strip() == "future":
+            yield path
 
 # Future items that were built and released as ordinary features before the
 # alpha rule existed. Each is exempt from the guard below; the reason is the
@@ -415,7 +426,7 @@ def test_headless_runs_never_consult_the_gate():
 def test_a_built_future_item_registers_with_the_gate():
     """The standing rule: built from features/future means alpha until promoted."""
     offenders = []
-    for path in sorted(FUTURE.glob("*.txt")):
+    for path in _future_items():
         item = _item_number(path)
         if item is None:
             continue
@@ -434,6 +445,24 @@ def test_a_built_future_item_registers_with_the_gate():
 
 
 def test_the_exemption_list_names_only_future_items():
-    names = {_item_number(path) for path in FUTURE.glob("*.txt")}
+    names = {_item_number(path) for path in _future_items()}
     assert set(RELEASED_BEFORE_THE_ALPHA_RULE) <= names
     assert not set(RELEASED_BEFORE_THE_ALPHA_RULE) & set(ALPHA_FEATURES)
+
+
+def test_consolidated_lifecycle_keeps_only_future_items_behind_the_alpha_rule(tmp_path, monkeypatch):
+    monkeypatch.setattr(__import__(__name__, fromlist=['FEATURE_LIST']), 'FEATURE_LIST', tmp_path)
+    future = tmp_path / '540_assay.txt'
+    future.write_text('Assay\nLifecycle: future\nStatus: DONE\n', encoding='utf-8')
+    (tmp_path / '709_issues.txt').write_text('Issues\nLifecycle: new\nStatus: DONE\n', encoding='utf-8')
+    assert list(_future_items()) == [future]
+
+
+@pytest.mark.parametrize('metadata', ['', 'Lifecycle: retired\n',
+                                      'Lifecycle: future\nLifecycle: new\n'])
+def test_consolidated_alpha_scan_refuses_ambiguous_or_missing_lifecycle(tmp_path, monkeypatch, metadata):
+    monkeypatch.setattr(__import__(__name__, fromlist=['FEATURE_LIST']), 'FEATURE_LIST', tmp_path)
+    item = tmp_path / '540_assay.txt'
+    item.write_text('Assay\n' + metadata, encoding='utf-8')
+    with pytest.raises(AssertionError):
+        list(_future_items())

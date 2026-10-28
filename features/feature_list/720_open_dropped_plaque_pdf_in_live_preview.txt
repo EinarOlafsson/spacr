@@ -1,0 +1,32 @@
+================================================================================
+OPEN A DROPPED PLAQUE-ASSAY PDF IN LIVE PREVIEW
+================================================================================
+
+Lifecycle: new
+Status:    DONE 2026-10-22 — PDF drops open the chosen Live preview; localized outputs published and verified
+Requested: maintainer, 2026-10-22
+Priority:  P1 — maintainer-requested input-to-Live workflow
+Owner:     G1 — implementation, validation and publication; G2 — independent contract/code/test peer
+Related:   468 plaque/figure modes; 517 file drops; 518 mode choice; 526 PDF inputs
+
+REQUEST
+When a PDF is dropped into Plaque Assay and the user chooses Figure or Plaque,
+open Live with that PDF already loaded.
+
+ACCEPTANCE
+- Completing either mode choice opens the corresponding Live preview and loads
+  the dropped PDF, without another file selection or a separate Live click.
+- Retain the user's selected mode and document identity across asynchronous
+  loading; an earlier PDF or an empty preview must not replace the new input.
+- Cancellation does not launch a preview. Existing multiple-input handling,
+  reader installation prompts, and actionable loading errors remain intact.
+- Owning tests cover both choices, cancellation, and the actual loaded PDF.
+  Translate new user strings and regenerate affected outputs normally.
+
+2026-10-22 — Registered before implementation; extends the existing PDF-drop/mode-choice workflow without claiming prior item acceptance covers automatic Live opening.
+
+2026-10-22 — G1/G2 own this item end to end after published item 722. Next: trace the real PDF-drop/mode-choice and Live-opening path, retain the chosen mode and newest document through asynchronous loading, then validate both choices/cancel/multiple inputs and publish with normal integrated outputs. Coordinate the shared plaque-preview source with item 721 before generation.
+
+2026-10-22 — PDF-only drops now open Live in either chosen mode, retire prior image deliveries and keep the new document through asynchronous loading; real window-close/Escape cancel leaves Live closed. Seven focused cases pass with G1/G2 independent code/test review. Exact changes to four API prose blocks and two captions await reviewed localization; shared normal outputs follow item 721 integration before final publication.
+
+2026-10-22 — Delivered automatic Live opening in either chosen PDF mode, newest-document retention and real close/Escape cancellation. Seven focused workflow cases pass; nine-language captions/API, Help and consumer outputs are generated normally and independently reviewed. Shared runtime gates pass (2, 61.73 s); final API/Help checks pass (11, 153.23 s), with all ten assembled catalog bytes exact and immutable nine-file readback verified.

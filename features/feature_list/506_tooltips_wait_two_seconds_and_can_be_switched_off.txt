@@ -1,0 +1,130 @@
+TOOLTIPS WAIT TWO SECONDS, LINGER ONE, AND CAN BE SWITCHED OFF
+
+Lifecycle: new
+Status: DONE 2026-09-25 — Filed 2026-09-24.
+Owner: Claude.
+
+REQUEST (the maintainer, 2026-09-24, verbatim)
+    "the tooltipps pop up to fast have them uniformelly pop up after 2 seconds
+    and disappear if the mouse leavs them after 1 second. ig the mouse stays on
+    them they do not dissapear. and there should be a setting in preferences
+    that toggles all tooltips off, if there is not already. tooltips should be
+    on bu default."
+
+WHAT TO BUILD
+  * One rule for every tooltip in spaCR: it appears after 2 s of hovering,
+    stays while the pointer is on it or on its widget, and fades 1 s after the
+    pointer leaves. Set centrally (Qt's tooltip timings, or one event filter
+    installed once) rather than per widget, so a tooltip added later obeys it
+    without anyone remembering.
+  * A Preferences switch that turns every tooltip off, on by default.
+
+DONE WHEN
+A tooltip anywhere in spaCR appears at 2 s and not before, lingers as
+described, and the preference silences all of them.
+
+DONE, 2026-09-25
+`spacr/qt/tooltip_policy.py` is the one rule, an event filter installed on
+`QApplication` by `apply_preferences_to_app`, so a widget written tomorrow
+obeys it without anyone remembering. A tooltip appears two seconds after the
+pointer rests -- the style's own wake-up delay is SUBTRACTED, so the total is
+two seconds and not 2.7 -- stays while the pointer is on the widget or on the
+tooltip itself, and goes one second after it leaves both.
+
+Two things the filter had to keep working, and does. Qt propagates a tooltip
+event to the parent when the widget under the pointer has none, which is how
+a card explains itself while the pointer is on the label written on it: the
+text is resolved up the parent chain by `tooltip_text_for`. And a table, a
+header or a list answers from `Qt::ToolTipRole` inside its own `event`, which
+no filter can read: when nothing in the chain has a tooltip, the event is
+SENT AGAIN after the wait, so those appear too, on the same rule.
+
+The switch is `Preferences > Appearance > Tooltips`, `TooltipsEnabled`, ON by
+default (`get_tooltips_enabled` / `set_tooltips_enabled`). Cleared, the event
+is swallowed and nothing appears anywhere; setting it takes down whatever is
+on screen at that moment rather than letting one last popup through. The two
+older switches -- the settings tooltip BOX and the bottom STRIP -- are
+untouched and independent: they answer "what is this setting", this one
+answers "do small labels pop up at all".
+
+A widget with a reason can keep Qt's own instant tooltip by setting the
+`spacrNoTooltipPolicy` property; nothing in spaCR does.
+
+Tests: `tests/qt/test_tooltips_wait_two_seconds.py`, 17 cases, including the
+default, both numbers, the parent chain, the replay, the linger, the switch
+and the Preferences row. `tests/qt/test_tooltips.py`,
+`test_category_tooltips.py`, `test_setting_tooltip_footer.py`,
+`test_the_bottom_tooltip_survives_the_pointer_leaving.py`,
+`test_tooltip_no_duplicate.py`, `test_the_tooltip_is_on_the_title_only.py`
+-- 357 cases -- still pass, as do the Preferences dialog's own.
+
+NOT CHECKED IN A SCREENSHOT: the timings are read from the code and the
+filter's decisions, because a two-second wait per case would cost the suite
+a minute to measure a number this file names in one place.
+
+2026-09-27 — desktop settings duplicate repaired
+The maintainer reported an immediate settings/API popup followed by another
+popup to its right. The application-wide filter intercepted ToolTip before
+the custom popup's widget suppressor and scheduled a second native tooltip.
+Claimed custom-popup anchors now bypass the native policy and cancel its
+pending timer. The existing first popup, API link, animation behavior and
+accessible toolTip() text remain; unrelated native tooltips retain their delay.
+Both new real event-delivery cases failed before the repair. Four existing
+tooltip test files pass afterward: 72 passed in 47.47 s. The cases cover
+native requests arriving before and after custom-popup ownership, plus a
+positive control for ordinary native tooltips. This is offscreen Qt evidence,
+not a native-desktop screenshot or full-suite acceptance.
+Receipt: features/data/506_desktop_tooltip_duplicate_2026-09-27.json.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_tooltips.py, test_tooltips_wait_two_seconds.py pass; SHOW_DELAY_MS=2000 in tooltip_policy.
+
+2026-10-14 — Home-B repaired three real tooltip lifetime regressions
+  Native policy declared an hour-long hold but never passed it to Qt, so its
+  default expiry still removed help while the control stayed hovered. It now
+  supplies that existing hold explicitly; an actual popup survives an11-second
+  reading interval and the existing off switch still removes it promptly.
+  Rich help used700ms after leaving its title and250ms after leaving its popup.
+  Both now use the same central1000ms grace required by this item. Real timer
+  checks show the popup still present at850ms and gone after the grace period.
+  All3 regressions fail before;104 focused owning tests pass after in45.25s
+  on Qt6.12/Linux offscreen/6G/GPU hidden. Existing4-second delay, cancellation,
+  title targeting, pointer-crossing and duplicate-suppression cases still pass.
+  No preference/UIcaption/signature changes. The existing leaveEvent API text
+  loses its obsolete shorter-delay paragraph; coordinated APIcatalog refresh
+  remains with the documentation owner. No native Mac/Windows claim and no
+  blanket delegate-owned popup lifetime claim. Proof:
+  data/506_tooltip_lifetime_2026-10-14/receipt.json.
+
+2026-10-14 — Home-B master switch now dismisses real table-cell help
+  A real QTableWidget ToolTipRole popup survived switching tooltips off:
+  delayed delegate replay did not mark it as internally shown, and hide_now
+  only closed popups carrying that flag. The global hide now closes Qt tooltip
+  text regardless of who supplied it. The new real-table regression fails
+  before;58 focused lifecycle/policy tests pass after in30.45s. No caption,
+  API or preference change. Linux offscreen/Qt6.12/6G/GPU hidden; no native
+  Windows/macOS claim. Proof: data/506_delegate_tooltip_off_2026-10-14/receipt.json.
+
+2026-10-14 — Home-B table/delegate help now survives the native expiry
+  A real QTableWidget ToolTipRole tooltip still expired after Qt's default
+  ten seconds even while its cell stayed hovered. Successful delayed replay
+  now refreshes the same native text with the existing hour-long HOLD_MS.
+  Qt ignores duration-only changes to unchanged text/owner, so the refresh
+  passes through no owner and back to the real widget; no second popup is made.
+  The new actual-table case fails before. Final focused cohort: 29 passed in
+  18.04 s, including master off, four-second delay and delegate replay.
+  An isolated existing delay test exposed a separate setup inconsistency:
+  synthetic Enter targeted the label while the actual cursor was over its
+  background. Its real cursor now rests on the label; all timing assertions
+  and timeouts are unchanged. Original failure, event trace and correction
+  receipt remain separate from the runtime hold proof.
+  Qt 6.12/Linux offscreen/6G/GPU hidden, serialized with the Home-B heavy lock.
+  No API/caption changes or native Windows/macOS acceptance claim. Proof:
+  data/506_delegate_tooltip_hold_2026-10-14/receipt.json.
+
+2026-10-14 Home-B — source-current tooltip API locale refresh
+Normal API translation reuse regenerated the nine non-English leaveEvent entries
+after the obsolete shorter-grace paragraph was removed. Existing two paragraphs,
+translation provenance and all 13,398 other symbols per locale are unchanged;
+review record parameter index follows the removed paragraph. Eighteen retained
+blocks pass source/context gates; four focused tests PASS in16.95s. No human or
+native-speaker review is claimed. Receipt: features/data/506_tooltip_api_refresh_2026-10-14/.

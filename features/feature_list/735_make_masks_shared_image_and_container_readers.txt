@@ -1,0 +1,115 @@
+MAKE MASKS OPENS IMAGES AND CONTAINERS THROUGH SHARED READER CAPABILITIES
+
+Lifecycle: new
+Status:    NUMERIC NPY IMPLEMENTED 2026-10-27 — focused native-scene checks pass
+           for nightly publication; other container/reader gaps remain queued.
+Requested: maintainer, 2026-10-27, while correcting Easy-mode image routing.
+Owner:     Workstation session 2; bounded numeric NPY reader implementation.
+Related:   733 Easy routing; 363 Import; 462 vendor fixtures; 600 drops;
+           690 TEM; 706 volume editing; 725 Overview numeric-array reading.
+
+CURRENT NUMERIC NPY REQUEST — 2026-10-27
+
+Open an individually selected real numeric NPY in Make Masks, including the
+reported canonical merged uint16 field shaped (2000, 2000, 4). Preserve the
+individual path, validate bounded headers before mapping pixels, and never
+unpickle object arrays or reinterpret Cellpose bundles. Two-dimensional YX
+arrays open directly. Higher-rank images require explicit spatial/channel
+axis and image-channel review; do not infer fluorescence or label-mask planes
+from integer values. Support the existing native 2D/volume scene only for
+validated layouts and bounded decoded sizes. Keep separately selected
+channels in separate mask destinations so their coordinates and labels cannot
+be silently reused. Cancel leaves the current editor and source unchanged.
+Canonical merged data remains a Measure input at its parent project root;
+this new editor route does not make raw Generate Masks preprocessing support
+NPY or complete the queued ND2/CZI/LIF and other reader work.
+
+NPY IMPLEMENTATION AND VALIDATION — 2026-10-27
+
+The native file/folder entry now intercepts numeric NPY for bounded header
+validation and explicit axes/channel review before using the existing image
+loader or volume scene. No fluorescence/mask separation is guessed. Each
+selected axes/channel combination has its own mask destination and immutable
+review binding, so another open channel cannot reuse the wrong labels.
+Object arrays, structured/string/complex data, oversized or truncated arrays,
+unsupported ranks and changed reviewed sources fail closed. Cellpose bundles
+retain their separate route. No raw Generate Masks NPY ingest was added.
+
+Qualified 15 focused checks in tests/qt/test_make_masks_numeric_npy.py cover
+real background 2D display, the reported merged-style four-plane layout,
+CYX/ZYX/ZYXC/CZYX scenes, mask-save/channel isolation, cancellation, invalid
+headers, file changes and folder errors. Two additional real native handoff
+checks in tests/qt/test_733_generated_native_handoff.py verify the exact NPY
+file reaches Make Masks and the existing measurement database reaches Graph
+Builder without changing source bytes. The actual NAS file was inspected
+only through its header: uint16 (2000, 2000, 4), complete 32,000,128 bytes.
+No user image pixels were read and no user data was written.
+
+ORIGINAL READER/DISCOVERY GAPS (NPY ENTRY NOW IMPLEMENTED ABOVE)
+
+MakeMasksScreen.open_paths delegates to drop_classification.classify_drop,
+whose channel_sorting.IMAGE_EXTS excludes numeric NPY and ND2/CZI/LIF.
+_open_queue independently checks mask_engine.IMAGE_EXTS, which excludes the
+same four formats. mask_engine.read_image handles SCN/TEM specially and
+otherwise uses imageio.imread; it does not dispatch the existing vendor
+readers in spacr.convert. Merely adding suffixes cannot provide support.
+
+Ordinary NPY files are explicitly classified as arrays rather than images.
+The safe existing io._load_array_any reader uses allow_pickle=False;
+resume.read_npy_header can inspect shape and dtype without loading pixels.
+Cellpose *_seg.npy bundles have a distinct existing load_seg_bundle route;
+retain that contract rather than treating arbitrary object arrays as images.
+
+Import already exposes convert.IMAGE_EXTENSIONS, reader_requirement,
+reader_available, scan/_describe and _read_source for TIFF/OME-TIFF, ordinary
+raster images, ND2, CZI, LIF and SCN. Import also supports validated numeric
+two-dimensional YX NPY images; ambiguous higher-rank arrays require explicit
+axis selection and are not silently converted. Other shared readers cover
+numeric arrays and TEM. Current drop discovery
+also omits engine-supported DM3/DM4/MRC/REC; explicit MAP volume opening is
+not represented consistently in ordinary queues. The image picker advertises
+NPY but can open a different supported sibling image instead of the requested
+file because it opens the folder before verifying the requested queue entry.
+
+Single-frame GIF, WebP and other installed Pillow OPEN formats now have a real
+Import conversion route, including palette-to-RGB/RGBA conversion; multiframe
+rasters are explicitly refused pending frame/axis selection. Make Masks still
+lacks matching discovery/picker/queue support for those general raster formats.
+Easy mode must not claim a direct Make Masks route, nor imply that renaming
+genuine GIF/WebP bytes converts them into supported TIFFs. The capability
+follow-up must retain safe conversion of an unchanged original and conditional
+installed-reader coverage, including unavailable-reader diagnostics.
+
+REQUIRED FOLLOW-UP
+
+1. Reuse or consolidate a shared, lazy reader-capability registry for actual
+   installed Python readers. Discovery, picker, drops, queues and decoding
+   must agree. Report capabilities and missing dependencies without eagerly
+   importing every optional reader. Do not promise every possible extension.
+2. Open supported numeric NPY safely with pickle disabled and explicit shape,
+   dtype and dimensional validation. Refuse unsupported/object arrays clearly.
+   Preserve the separate Cellpose bundle and existing mask-label semantics.
+3. Reuse existing vendor reader implementations and metadata. Let users select
+   series/field, time, z and channel explicitly when they exist; preserve axis
+   identity and calibration. Never silently select, flatten or project an
+   ambiguous multidimensional container.
+4. Inspect bounded headers and samples first. Run necessary image reads in
+   cancellable background work with bounded memory and stale-result guards;
+   avoid whole-container decoding merely to offer a field or plane.
+5. Explain unavailable optional readers and provide their real installation
+   route. Advertise direct Make Masks opening only where its complete route
+   works; retain useful Import guidance when conversion is required.
+6. Opening must preserve original files, names and metadata. Keep existing
+   masks, source identities, save/export behavior and 2D/3D/TEM routes intact.
+   A requested unsupported file must not silently open a different sibling.
+
+ACCEPTANCE
+
+Use small synthetic fixtures and existing vendor fixtures or reader doubles
+for supported discovery, selected-series/plane pixels, dependency absence,
+invalid/object NPY rejection, cancellation and precise requested-file routing.
+Verify existing Cellpose bundles and mask round trips remain intact. Run the
+smallest affected cohorts, normal changed-source catalogs/Help/flow/index
+outputs and ordinary nightly publication. Record unavailable real-reader
+fixtures honestly; no full NAS decode, GPU run or universal-format claim is
+required to record this queued item.

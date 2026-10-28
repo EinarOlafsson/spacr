@@ -11,7 +11,7 @@ from tests.qt.test_733_easy_commands import commands
 from tests.qt.test_startup_ai_reporting_choice import private_ai_profile
 
 
-_ITEM = Path(__file__).resolve().parents[2] / 'features/new/733_easy_mode_content_guided_home.txt'
+_ITEM = Path(__file__).resolve().parents[2] / 'features/feature_list/733_easy_mode_content_guided_home.txt'
 _PAIRS = [(original, alternate, tuple(keys.split(', ')))
           for original, alternate, keys in re.findall(
               r'^\d{3}\. (.+) \| (.+) -> (.+)$', _ITEM.read_text(), re.M)]

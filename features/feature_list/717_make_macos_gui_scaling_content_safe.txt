@@ -1,0 +1,123 @@
+================================================================================
+MAKE MACOS GUI SCALING CONTENT-SAFE
+================================================================================
+
+Lifecycle: new
+Status:    DONE 2026-10-21 — native macOS acceptance and final-source runtime/API catalog closure complete
+Status:    DONE 2026-10-21 — native macOS scale fixes, tour readability and runtime/API catalog closure complete
+Requested: maintainer, 2026-10-21 — prevent clipped text, controls, icons and popup content at every supported scale
+Priority:  P1
+Owner:     Codex macOS GUI lane — native implementation/acceptance; Home — shared runtime/API catalog closure
+
+SCOPE
+Make scaling resilient throughout the Qt GUI, with macOS as the immediate
+acceptance platform. Text must receive enough space or adapt instead of being
+cut off, including Home's bottom help and module buttons such as Live, 3D and
+AI. Button icons must retain their intended proportion to their button as GUI
+scale changes and must never be clipped.
+
+Popup windows must initially fit their useful content on the available screen,
+including the usual content of tabbed dialogs, while remaining freely
+resizable. Content that cannot reasonably fit must be scrollable. macOS boolean
+controls must retain a clean ring or borderless silhouette, never bracket-like
+edges, and must not become oversized at particular GUI scales.
+
+Every tooltip API link must display exactly "API". A shown tooltip must remain
+visible while the pointer is still over its source or the tooltip itself. The
+default GUI and font scales, including the reset-to-default action, are 90%.
+
+Completed native follow-up: the first-run tour's title, body and button-row containers
+must remain readable on their dark card in the light application theme. A
+2026-10-21 Cocoa laptop screenshot shows pale text on unintended white child
+backgrounds. Repair the scoped popup styling, test both themes and confirm
+the corrected native popup; retain the completed scale and catalog checks.
+
+Open native regression follow-up, 2026-10-22: at 90% GUI/font scale,
+Preferences Modules gives verbose logging, redacted excerpts and Database
+editing toggles 18px height. Their fixed 17px track plus 1.5px stroke reaches
+above the widget boundary, unlike the other 19/20px toggles. The constructor's
+19px minimum is scaled down by the GUI setter while painted geometry is not.
+Repair the private switch sizing floor without growing the dialog offscreen,
+changing captions or enlarging the track. Require focused toggle checks, an
+actual 90% Modules layout regression and native recheck before closing this
+follow-up. Retain the prior DONE delivery/history and accepted evidence;
+this is new native regression evidence, not proof of an OpenGL timeout cause.
+The private Toggle weak scale listener now restores the actual 19px paint
+floor after construction/rescale without changing its remembered 19px design
+baseline or track/caption geometry; plain minimumSizeHint also reserves it.
+Twelve focused CPU/offscreen cases pass, including actual 90% Modules layout
+and the same plain/wrapped switches at 90/75/200/10/90% without floor inflation
+(7.50s; peak sampled aggregate RSS 0.312GiB). Native Cocoa90% Modules recheck
+passes all nine switch bounds: formerly18px controls now have actual/minimum/
+plain hints19px;17px tracks start at y1, containing their1.5px strokes. Three
+programmatic click/restore checks pass, dialog remains582x568/resizable and
+normal close exits0. A screenshot-only follow-up confirms the actual Modules
+tab after a paint/event turn; owner visual review confirms complete on/off
+rings and visible overflow/scroll mechanisms. Native68818 and capture1429
+both close normally with exit0. This resolves the scoped regression follow-up
+while retaining the previously delivered DONE status and separate human gaps.
+New retained-wrapper lifecycle regression on2026-10-23: native live rescaling
+logs deleted Toggle C++ wrapper RuntimeErrors from the private track-floor
+callback. Guard that callback with shiboken6.isValid before Qt access, keeping
+the19px floor and propagation of unrelated errors. Add a real deferred-delete
+regression retaining the Python wrapper, then rescale without the callback
+diagnostic; retain existing live/plain/wrapped geometry checks. No public
+API/caption change and no whole-item reopening or new closure is implied.
+The real deferred-delete Cocoa regression fails before the guard with the
+exact deleted-wrapper RuntimeError. The private isValid early return repairs
+it; four affected Cocoa checks pass in7.00s (sampled RSS0.342GiB), retaining
+compact-font, Modules90% and live plain/wrapped19px geometry. Other errors
+are not caught or suppressed; no public API/caption/catalog change.
+
+2026-10-22 retained-DONE regression follow-up: source 8e6a76b38b on
+macOS 26.6.1 Intel (host display DPR 2). A 101-PASS CPU/offscreen cohort includes
+affected dialog/toggle/wrapped-font cases, exact 90% default/reset and API-tail
+normalization guards, plus owning diameter/brush files (113.40s; peak sampled
+aggregate RSS 0.869GiB under an 8GiB RSS watchdog). 101 is the total cohort,
+not a 717-only count. This adds automated regression evidence only, not fresh
+physical-input/native-geometry acceptance; prior 503/55/482 and native closure
+are retained, and DONE is unchanged.
+
+2026-10-23 Startup follow-up requires normal-entrypoint default90% GUI/font,
+live change/global reset and normal Quit/restart in two isolated Cocoa processes.
+Native RED: fully visible align glyph39x39 received a43x43 DPR2 pixmap;
+nonzero-alpha ink[1.5,-0.5,41.5,37.5] crossed its top/right contents edges.
+Private AppTile icon label now renders its original QIcon at actual bounds
+on resize/DPR change, then uses scaled_for to preserve aspect and proportional
+size even for low-resolution rectangular plugin icons; no public API changes.
+Eight small/large square/rectangular DPR1/2 tests pass across GUI10/90/125/200%,
+including containment/filled-edge checks (5.26s; sampled RSS0.282GiB).
+Final normal-entrypoint startup/change/reset/Quit/restart passes56.56s,
+sampled RSS0.985GiB: visible ink, measured font/liveGUI90%, icon geometry and
+both normal exits verified on Intel macOS26.6.1,1440x900 display,DPR2.
+Earlier selector/mock-DPR setup failures and superseded passes are not current acceptance.
+Owned INI/app-state paths asserted before writes;8GiB/300s wrapper used.
+No user-profile writes, physical-input or smaller-display acceptance claimed;
+prior closure/history and separately owned physical acceptance remain unchanged.
+
+PROGRESS
+Requirement                         State
+Text and module controls fit        DONE
+Dialogs fit, resize and scroll      DONE
+Light-theme first-run tour readable DONE
+macOS boolean controls render clean DONE
+Icons remain proportional           DONE
+API tooltips persist while hovered  DONE
+GUI and font defaults are 90%       DONE
+
+ACCEPTANCE
+- A representative scale matrix covers the supported GUI/font range and finds
+  no clipped Home help, module-button text or module-button icons.
+- Dialog startup sizing uses content and available-screen bounds; dialogs stay
+  resizable and oversized/tabbed content remains reachable by scrolling.
+- macOS boolean controls render at stable proportions without bracket-like
+  perimeter artifacts across the scale matrix.
+- Tooltip API captions are exactly "API" and tooltip lifetime tests prove a
+  tooltip cannot time out while its source or tooltip remains hovered.
+- Fresh preferences and the global reset action select 90% GUI and font scales.
+
+2026-10-21 — Registered before implementation from direct macOS testing; Windows/Linux acceptance remains separately owned. Default GUI/font/reset scale is90%; visible and accessible setting API captions are exactly "API", with hovered tooltip lifetime retained.
+2026-10-21 — Popup startup sizing now preserves content size within 90% of the available screen, remains resizable and scrolls overflow; custom toggles suppress native checkbox perimeter geometry.
+2026-10-21 — 503 text-fit and 55 icon/action-row checks pass across scale/language matrices; 482 dialog/default/tooltip checks pass after repairing macOS isolated-profile coverage.
+2026-10-21 — Native Cocoa launch at90% on1440x870 passed and exited cleanly; font-change refitting uses the existing event handler, preserving the API inventory.122 affected Home layout checks and3 API inventory checks pass. Windows/Linux acceptance remains separately owned. Home catalog closure validates two runtime captions, two existing API blocks and the identical POSIX callback move; the removed changeEvent arrival is excluded. Reviews3214ea7/HFd1796ba, 17 final checks and all-ten-byte reproduction pass; native acceptance is retained and publication remains pending.
+2026-10-21 — Native light-theme/backdrop-off tour revealed pale text over white layout containers. Reuse existing transparent-container theming for its scroll content/viewport/button row; rendered dark/light regressions reproduce before and45 focused tour checks pass after. Native Cocoa90% pixels and visual review confirm a continuous dark readable card and preserved buttons, exit0. Private styling only; no public API/caption/catalog changes.

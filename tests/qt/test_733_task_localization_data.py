@@ -7,7 +7,7 @@ import pytest
 from spacr.qt import app
 
 _LANGUAGES = ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr')
-_ITEM = Path(__file__).resolve().parents[2] / 'features/new/733_easy_mode_content_guided_home.txt'
+_ITEM = Path(__file__).resolve().parents[2] / 'features/feature_list/733_easy_mode_content_guided_home.txt'
 
 
 def test_localized_data_covers_all_original_task_pairs_and_current_aliases():

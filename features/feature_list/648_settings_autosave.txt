@@ -1,0 +1,86 @@
+================================================================================
+SETTINGS AUTOSAVE
+================================================================================
+
+Lifecycle: new
+Status:    DONE 2026-10-04
+Requested: 2026-10-04, by the maintainer, who approved this program-level
+           feature in the step-4 review ("is the program itself missing
+           something?"), from the gap audit of the same day.
+
+WHAT TO BUILD
+  Settings autosave: periodic drafts of unsaved settings, offered back after a crash.
+
+DONE WHEN
+  The feature works on Linux, macOS and Windows, is reachable from the GUI
+  where it applies, has tests, and is documented.
+
+DONE 2026-10-04
+  MainWindow autosaves every open module's settings as drafts every 30 s
+  (only when changed); a clean close drops them. Drafts found at start-up
+  mean the last run crashed: a non-blocking "Restore unsaved settings" box
+  offers them once (drafts equal to the reopened session are skipped).
+  Tests: tests/qt/test_session_restore_and_settings_autosave.py. Docs:
+  docs/source/features.rst "Picking up where you left off".
+  Left: catalog rebuild for the new captions.
+
+2026-10-14 — Reported autosave failures now retry unchanged settings.
+  MainWindow previously advanced its saved-settings fingerprint before either
+  persistence helper returned. A failed session or draft write therefore
+  suppressed every later autosave until the form changed. The fingerprint now
+  advances only when both writes succeed; partial success still reports that
+  something was written, while the next timer turn retries the complete pair.
+  Three failure/recovery regressions failed against unchanged nightly and now
+  pass. The owning autosave/restart cohort:57PASS, CPU/offscreen Qt6.12, covered;
+  every changed statement and both new conditional arcs executed. Existing
+  captions, public API and documentation prose are unchanged, so no translation
+  or generated catalog update is needed. Evidence:
+  features/data/648_autosave_retry_2026-10-14/receipt.json.
+  Scope:reported False results from the existing persistence helpers. Native
+  QSettings errors reported only through status(), and new Windows/macOS/native
+  crash acceptance, are not established by this fix; those remain separate.
+
+2026-10-14 — Native Qt store-error handling and retry closure completed.
+  Session/draft writes and draft clearing now inspect QSettings.status()
+  after sync; AccessError or FormatError is not reported as a saved record.
+  Safe mode's existing write-through preference facade forwards the real
+  status. Eight real temporary-INI regressions failed before this repair:
+  a file blocked the INI parent directory, producing native AccessError.
+  They now pass for ordinary and safe-mode writes/clearing, and the same
+  path saves both JSON records after the directory becomes writable.
+  Owning covered cohort:65PASS, no skips/failures/errors. The two writers and
+  status forwarder have19/19 statements covered. The existing seven captions
+  are current in all nine runtime catalogs with matching source hashes and
+  placeholders; the old catalog-rebuild note is superseded. No UI strings,
+  existing API signatures or storage paths changed. Normal index check passes.
+  Proof:features/data/648_native_store_status_2026-10-14/receipt.json.
+  This is actual Linux/offscreen Qt6.12/temporary-INI acceptance. It does not
+  claim new Windows/macOS-native, screen-reader or hard-power-loss testing.
+
+2026-10-14 — Keep recovery drafts if the final session write fails.
+  Clean shutdown previously cleared already saved drafts even when saving
+  the final session returned False. It now clears only after a successful
+  final write, or when closing Home without an active module. Timer stopping
+  and exception preservation are unchanged. A real Qt-store draft readback
+  regression failed before the repair; failure/exception/Home guards and the
+  owning restoration/native-status cohort now pass28cases (actual exit0).
+  Both outcomes of the new condition execute under coverage. No new captions,
+  public API, storage paths or documentation prose. Proof:
+  features/data/648_failed_final_write_2026-10-14/receipt.json.
+
+2026-10-14 — Preserve recovery records when settings collection fails.
+  A form collection exception was swallowed into an empty mapping, which
+  overwrote the last good session and allowed clean close to clear drafts.
+  Persistence now requests strict collection; autosave skips all writes and
+  leaves its checkpoint intact on error, while clean close retains drafts.
+  Other collector callers keep the existing empty-mapping fallback. Four
+  real temporary Qt-store regressions failed before the fix; the owning
+  session restoration/native-store cohort passes32cases (exit0,33.00s).
+  All collector statements and branches and the new autosave exception
+  handler execute under coverage. No new captions or documentation prose.
+  Linux/offscreen acceptance only; native Windows/macOS remains separate.
+  Proof:features/data/648_collection_failure_recovery_2026-10-14/receipt.json.
+
+2026-10-21 ? Maintainer resumes Windows acceptance; Codex Windows lane owns focused autosave/recovery checks and disposable-profile process interruption/relaunch. Verify clean-close draft removal and crash draft presentation/restoration with actual Windows processes; distinguish timer/storage/UI checks from physical-user or hard-power-loss acceptance.
+
+2026-10-21 ? The same21 Windows Qt cases pass; actual isolated windows-QPA subprocess recovery confirms clean close removes drafts, forced process termination retains them, the visible Restore prompt applies regression fdr_alpha0.04, and drafts are consumed once. Autosave is invoked through the production method in this process probe; normal30s timer behavior is covered by the Qt cohort, not elapsed-time acceptance. Scoped recovery uses backdrop/prewarm opt-outs; a direct-MainWindow probe with ambient compilation timed out at90s and is not a packaged-launch verdict.

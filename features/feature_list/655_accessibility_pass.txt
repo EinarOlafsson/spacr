@@ -1,0 +1,704 @@
+================================================================================
+ACCESSIBILITY PASS
+================================================================================
+
+Lifecycle: new
+Status:    DONE 2026-10-21 — the maintainer listened to the native macOS
+           VoiceOver result and accepted it as working perfectly. Windows and
+           Linux native-reader acceptance are outside the accepted scope.
+           Not alpha.
+Requested: 2026-10-04, by the maintainer, who approved this program-level
+           feature in the step-4 review ("is the program itself missing
+           something?"), from the gap audit of the same day.
+
+WHAT TO BUILD
+  Accessibility pass: accessible names on every button (about 694; only 40 today), a high-contrast theme and an a11y lint test.
+
+DONE WHEN
+  The feature works on Linux, macOS and Windows, is reachable from the GUI
+  where it applies, has tests, and is documented.
+
+WHAT WAS BUILT (2026-10-04)
+  Names. `spacr.qt.i18n._name_for_assistive_tech` runs at the end of every
+  language pass (`retranslate_widget_tree`), which already reaches every
+  module screen when it is built, every dialog when shown and every subtree
+  that arrives later. A control assistive technology would announce with no
+  name (icon-only buttons, fields, spin boxes, combos, sliders, text boxes)
+  is named after, in order: its tooltip's first sentence, its placeholder,
+  the spin box or combo it is the editor of, its settings-row label, the
+  label a layout puts in front of it, the tab it is the page of, and its
+  object name read as words. A table's corner button is "Select all". A
+  control with no tooltip is described with its label's help. Names set by
+  code are never replaced; derived ones are recomputed on every pass, so
+  they follow language changes. Buttons with a caption are left to Qt,
+  which names them after the caption and follows it when it changes.
+  Measured with QAccessible on the 48 screens: 207 of 902 visible controls
+  had no name before, 0 after.
+
+  Keyboard. The same pass sets Tab to leave text boxes and tables (Qt's
+  defaults typed a tab or stepped between cells, trapping Tab on Mask,
+  Classify, Map barcodes and Regression). `a11yKeepsTab` opts a widget
+  out. The CSV column field's picker button was unreachable by Tab; its
+  tab order is now edit then button.
+
+  High contrast. `HIGH_CONTRAST_PALETTE` in spacr/qt/theme.py ("high_contrast"
+  in THEMES and PALETTE_THEMES), offered as "High contrast" in Preferences >
+  Appearance > Theme with a tooltip sentence. Every text role clears 7:1 on
+  every surface. The theme-invariant button roles (CONSTANT_ROLES) stay
+  blue at 4.75-6.96:1.
+
+  Tests: tests/qt/test_accessibility_pass.py (lint per module screen, Tab
+  traversal per Core screen, helper unit tests, theme contrast and choice).
+
+WHAT IS LEFT
+  - "High contrast" and its tooltip sentence await the nine-locale catalog
+    rebuild (_AWAITING_CATALOG_REBUILD).
+  - A user-guide paragraph on the theme and screen-reader support goes
+    with the next docs pass (docs last).
+
+2026-10-08 07:43 EDT — Workstation current-source follow-up audit
+  The current accessibility guide paragraph, actual High contrast central runtime label and source-hashed theme tooltip are translated in all nine runtime/guide locales. Normal guide checks pass. Translation follow-ups complete; broader item-view/MainWindow/Preferences lint and native assistive-technology review remain unverified and OPEN.
+  Proof: features/data/653_654_655_translation_followups_2026-10-08/receipt.json.
+  Existing portable/lock/storage/purge cohort:27PASS1.45s, Qt6.12/pytest8.4.2,
+  hidden CUDA/offscreen/8G. AI technical structural review, not native-speaker
+  signoff or a new cross-platform native acceptance claim.
+
+2026-10-08 07:52 EDT — Workstation broader read-only QAccessible audit
+  Original61 accessibility tests PASS17.90s actualQt6.12/pytest8.4.2/8G.
+  MainWindow/Home and every Preferences tab:216 native widgets checked;
+  all checked buttons/inputs named, StorageCacheTable unnamed plus its
+  two headers.48 module screens expose67 visible item views;35 non-header
+  views are unnamed (59 including headers). Ordinary original assertions
+  remain unchanged and61PASS16.46s during observation. Wider item-view
+  naming therefore remains genuinely OPEN; no blanket accessibility-DONE
+  or native screen-reader acceptance claim.
+  Proof: features/data/655_extended_accessibility_audit_2026-10-08/receipt.json.
+
+2026-10-08 08:34 EDT — Workstation concrete item-view candidate
+  Scratch-only proposal: concrete list/table/tree naming plus three constructor
+  object names. Original strict61 cases PASS16.91s across48 screens; all checked
+  visible non-header item views named. Actual30 names refresh across9 languages
+  andEnglish, explicit application name preserved. Original negative/setup logs
+  retained. No app file edited/adopted; storage/chrome/preferences lint and native
+  assistive-technology review remain OPEN.
+  Proof: features/data/655_item_view_naming_candidate_2026-10-08/receipt.json.
+
+2026-10-08 10:30 EDT — Workstation actual private source acceptance
+  Actual private13efaa1cc repair under HomeACK:70PASS115.03s; changed lines6/6. Source+test patch clean applies; original tests unedited. Nine-language derived-name checks included. Native header context/assistive technology and integration remain open. Proof: features/data/655_actual_private_view_repair_2026-10-08/receipt.json.
+
+2026-10-08 17:22 EDT — Published native header context checked
+  Root exercised actual Preferences Storage table on Qt6.12/xcb/Xvfb under
+  4G with CUDA hidden and software rendering. All nine translated languages
+  plus English expose three correctly translated QAccessible ColumnHeader
+  children (Cache, Size, Folder), matching the real model headers. Empty
+  QHeaderView widget names do not imply unnamed table-header children.
+  Existing wider controls/item-view acceptance remains published. This
+  checks native Linux accessibility semantics, not OS screen-reader speech
+  or Windows/macOS acceptance; broader native review remains open.
+  Proof: data/655_native_header_context_cpu_2026-10-08/receipt.json.
+
+2026-10-12 — Preferences > Appearance > Accessibility (maintainer-approved
+  section). A folded category after Animation, holder
+  PreferencesTabAccessibility:
+  - High contrast: a switch kept in step with the Theme control; clearing it
+    goes back to the replaced theme (prefs/high_contrast_previous_theme,
+    get_high_contrast/set_high_contrast). An unknown previous goes to Dark.
+  - Text size: the Font scale preference (prefs/font_scale) mirrored, no new
+    key; a drag of either waits for release before the live apply.
+  - Reduce motion (prefs/reduce_motion): ripples, click ripples, popup waves
+    and mouse gravity go to zero/off, the replaced values kept under
+    prefs/reduce_motion_before/* and given back exactly when it is cleared.
+    AmbientWidget._should_run and DnaRainWidget._should_run return False
+    while it is on (a still frame, popup backdrops included); install_ambient
+    and apply_ambient_preferences pause spaceout fractals and resume only
+    those it paused.
+  - Stronger focus outlines (prefs/strong_focus): theme.focus_ring_qss, a
+    3 px ring in theme.focus_ring_colour (accent when it clears 3:1 against
+    bg and field surface, else ink), appended by stylesheet(); part of the
+    applied style signature.
+  - Keyboard shortcuts…: opens the N656 editor (_KeymapDialog), app-modal
+    above Preferences.
+  Apply/Cancel/Save/Reset like every row; new keys are in group prefs, so
+  the kept-dialog comparison sees them. Docs: features.rst Accessibility.
+  Tests: tests/qt/test_655_accessibility_preferences.py (35); every changed
+  line and branch in preferences.py, theme.py, ambient.py and dna_rain.py
+  covered by it. API: 655_accessibility_api_arrivals_2026-10-12.json (15).
+  Left: 10 new UI captions need WS translations and caption-arrival
+  registration (tests/qt/test_i18n_caption_arrivals.py fails until then);
+  Preferences tutorials showing Appearance need re-recording (spacr-d7).
+
+2026-10-14 — Home-B custom switch focus and reduced motion repair
+  Toggle paints its own switch and caption, bypassing Qt's normal checkbox
+  focus drawing. It now draws the native keyboard-focus mark and the existing
+  Stronger focus outlines stylesheet border, including when the moving field
+  owns the switch's static picture. The current-theme three-pixel outline is
+  verified for Dark, Light and High contrast. Tab still enters/leaves the
+  switch and Space toggles it once. Reduce motion now moves the knob directly
+  to its final state instead of starting its 140 ms animation; ordinary
+  animation and drag behaviour remain covered by the owning switch tests.
+  No preference reads were added to the paint path, and no captions, shared
+  theme/preferences helpers or runtime catalogs changed.
+  Ten actual Qt6.12 regression cases fail on the unmodified base and pass with
+  this repair. Scoped owning cohort:60PASS22.01s, Linux/offscreen/Python3.12.13,
+  CUDA hidden, software rendering,6G memory cap. All10 changed statement lines
+  and6 changed branch arcs were executed. Existing field composition and
+  Accessibility preference tests pass unchanged. This closes these two concrete
+  switch defects; native screen-reader speech, macOS/Windows acceptance and
+  the Work-owned Appearance tutorial refresh remain separate open scope.
+  Proof: data/655_toggle_focus_motion_2026-10-14/receipt.json.
+
+2026-10-14 — Home-B model-card keyboard access repaired
+  The Qt model-card viewer's Previous/Next buttons now participate in native
+  Tab order and activate with Space. Return, numeric Enter and Space enlarge
+  the current page when the viewer itself owns focus; modifier combinations
+  and events from its child buttons do not open an unintended dialog. Existing
+  empty-card and enlarged-viewer guards prevent empty or recursive dialogs.
+  Keyboard focus has a visible frame border, and QAccessible receives the
+  current model display name, updated on selection and cleared with the card.
+  Existing translated captions and API docstrings/signatures are unchanged.
+  Ten new owning cases:6FAIL4PASS before, all10PASS after. Full scoped model-card
+  cohort46PASS12.87s on Qt6.12/Python3.12.13, Linux/offscreen/6G/CUDA hidden;
+  the whole changed module reached204/204statements and34/34branch arcs.
+  This closes these concrete viewer access gaps, not native reader speech,
+  macOS/Windows acceptance or the Work-owned tutorial refresh.
+  Proof: data/655_model_card_keyboard_2026-10-14/receipt.json.
+
+2026-10-14 — Home-B reconciled the explicit caption/API acceptance debt
+  The October12 note's ten pending captions are ALREADY IMPLEMENTED and
+  registered: all10 current source literals have generated runtime targets,
+  matching source/target SHA-256 values and exact reviewed-record proofs in
+  all9 locales (90 source/locale checks). The caption-arrival contract already
+  includes them; no ceiling, manifest or catalog was changed today.
+  The15 recorded Accessibility API arrivals also match the current preferences
+  and theme AST docstrings. English entries are exact; all135 localized symbol
+  entries have current source/block hashes and297 exact translated-block
+  bindings to their existing October12 reviewed records. The repeatable scoped
+  verifier passed. This closes the stale caption/catalog/API follow-up notes
+  as acceptance reconciliation of historical work, not new translations or
+  native-speaker review.
+  Remaining N655 acceptance: native screen-reader speech/platform review,
+  actual macOS/Windows checks and the Work-owned Appearance tutorial refresh.
+  Proof: data/655_caption_api_reconciliation_2026-10-14/receipt.json; reproduce
+  with python features/data/655_caption_api_reconciliation_2026-10-14/verify.py.
+
+2026-10-14 — Home-B Linux external AT-SPI acceptance
+  The old October8 zero-child observation selected the first accessibility
+  application with the Qt process PID. GTK platform-theme integration registers
+  an empty root named python before Qt registers its populated root under a
+  separate D-Bus name with the SAME PID. That probe therefore did not establish
+  a broken Qt bridge. An independent bounded system-Python AT-SPI D-Bus client
+  now enumerates all matching roots and inspected1397 actual spaCR nodes.
+  Real MainWindow and Preferences ran on Qt6.12/Linux/xcb in private Xvfb and
+  DBus sessions with private QSettings/config/cache/runtime/network/log paths,
+  hidden CUDA/software rendering and a4G memory cap. The client found the
+  visible High contrast check box, its name and full help, and its enabled,
+  focusable, showing, visible and checkable states. Its external Toggle action
+  succeeded, added CHECKED to the external state, and emitted the real Qt
+  toggled signal. Process-time hashes bind241 loaded spaCR source files.
+  This closes the recorded Linux external-tree/bridge observation. It is not
+  audible speech or human screen-reader usability acceptance. Windows/macOS,
+  actual reader speech and Work's Appearance tutorial refresh remain open.
+  Proof: data/655_external_reader_acceptance_2026-10-14/receipt.json; bounded
+  client and exact replay scripts included, with failed setup iterations kept.
+
+2026-10-14 — Home-B native Linux Orca speech-generation acceptance
+  Actual external Orca46.1 now receives focus and state events from the real
+  spaCR Preferences High contrast check box on Qt6.12/Linux/xcb. Its generated
+  speech text includes "High contrast check box not checked.", the full help
+  description and then "checked" after the independent AT-SPI client toggles
+  the control. External focus/action results are true; visible, focused and
+  checked states agree with the real Qt toggled signal. The receipt binds241
+  process-time source hashes and archives1397 inspected accessibility nodes.
+  The first bounded attempt lacked native window focus because private Xvfb
+  has no window manager. One authorized replay set X input focus on that
+  private Preferences window; it passed. Both attempts and exact scripts are
+  retained. No application source, live desktop or user preferences changed.
+  Orca speech/braille output remained disabled and audio endpoints isolated.
+  SPEECH OUTPUT here proves generated utterance text, not audible synthesized
+  speech or delivery to a speech engine. This closes the bounded native Linux
+  reader focus/help/state generation check. Human screen-reader usability,
+  audible speech, actual macOS/Windows checks and Work's Appearance tutorial
+  refresh remain separate acceptance scope; this is not full N655 closure.
+  Proof: data/655_orca_speech_generation_2026-10-14/receipt.json.
+
+2026-10-14 — Home-B current-nightly integration acceptance
+  Replayed the finite owning/native checks on exact merged0e52d443b4 after11
+  loaded dependencies changed with nightly integration. All106 switch/viewer
+  owning tests pass in26.30s. Independent AT-SPI and actual Orca each inspect
+  1415 nodes; the visible High contrast control retains external focus/action/
+  state acceptance and Orca generates its name, checkbox role, initial state,
+  full help and changed checked state. Both native process maps bind the same
+  242 current spaCR source files, including newly loaded crashreport.py.
+  Runs were sequential, capped6G/4G, GPU hidden and native desktop/settings
+  isolated. No application edits or extra test expansion. Audio stayed off;
+  audible/human, macOS/Windows and Work tutorial acceptance remain open.
+  Proof: data/655_current_integration_2026-10-14/receipt.json.
+
+2026-10-14 — Home-B final integration f7b358 acceptance
+  The final nightly merge f7b35846aa changes the process-loaded run_journal
+  dependency, so the existing finite owning/native cohort was replayed once.
+  All106 owning tests pass in29.86s. Independent AT-SPI and actual Orca each
+  inspect1415 nodes; external High contrast focus/action/state and Orca's
+  name/role/initial-state/help/checked utterance generation pass unchanged.
+  Both process maps match242 current source files. No application edits.
+  Sequential6G/4G caps, private native desktop/settings, GPU hidden, audio off.
+  Audible/human, macOS/Windows and Work tutorial acceptance remain open.
+  Proof: data/655_final_integration_f7b358_2026-10-14/receipt.json.
+
+2026-10-14 — Home-B figure-grid keyboard access repaired
+  Saved and interactive figure tiles were mouse-only: Tab skipped them,
+  activation keys did nothing, QAccessible names were empty and keyboard focus
+  had no visible border. Tiles now take Tab focus and Return, numeric Enter or
+  Space opens the focused tile through its existing activation signal. Sparse
+  saved-figure indices and live/pinned panel keys retain their existing meaning;
+  modifier combinations and all mouse paths remain unchanged.
+  Names reuse existing captions, panel letters or live keys. The focused tile
+  paints a two-pixel border using the current Highlight palette role, with its
+  painter finalized even on exceptions. No new captions or rendered API arrival
+  (the event overrides belong to the private _FigureCell class).
+  Baseline: 14 failing and 3 passing cases. Final four-file owning cohort:
+  40 passed in 22.71 s on Qt 6.12/Linux offscreen/6G/GPU hidden. Actual Tab-cycle,
+  key/signal identity, QAccessible names and rendered border pixels are checked;
+  existing mouse, section-fold and layout checks pass. The first rejected border
+  candidate and test-fixture corrections are preserved separately in the receipt.
+  This closes this concrete keyboard gap, not native Windows/macOS, external
+  reader speech, whole-application keyboard or tutorial acceptance.
+  Proof: data/655_figure_grid_keyboard_2026-10-14/receipt.json.
+
+2026-10-15 — Home-B montage-cell keyboard access repaired
+  Clickable cell crops were skipped by Tab, had empty accessible names and
+  could not open their provenance dialogs with the keyboard. Each crop now
+  takes Tab focus, exposes its existing provenance summary as its accessible
+  name, and opens its existing detail dialog with unmodified Return, numeric
+  Enter or Space. Modifier combinations do not activate it.
+  The existing current-cell ring also marks keyboard focus and remains visible
+  when the pointer leaves the focused crop. Focus departure restores the
+  appropriate resting/candidate ring; no second border or new caption is added.
+  Mouse handlers, crop arrays, measured rows and candidate highlights retain
+  their existing meaning. The event overrides belong to the private _Thumb
+  class and introduce no rendered public API arrival.
+  Baseline: 7 failing and 3 passing cases on nightly 342ebb46c7. Final owning
+  cohort: 24 passed in 3.95 s on Qt 6.12/Linux offscreen, capped at 6G with GPU
+  hidden and the shared test lock held. Tests exercise actual Tab traversal,
+  real provenance dialogs, unmodified/modified keys, QAccessible metadata,
+  rendered focus/hover/resting pixels and unchanged source rows/crop arrays;
+  existing mouse/paint/provenance cases also pass. No native Windows/macOS,
+  audible reader, whole-application keyboard or tutorial acceptance is claimed.
+  Proof: data/655_montage_keyboard_2026-10-15/receipt.json.
+
+2026-10-15 — Home-B Clear figures keyboard-focus marker repaired
+  The clear control already supported Tab, Enter/Space and accessible text;
+  its actual resting and focused renderings were nevertheless identical.
+  A two-pixel border now uses the current Highlight palette role while the
+  control owns focus. Focus entry/departure repaint it, and its painter ends
+  in finally. Existing red text, clear action, mouse-release cancellation and
+  shared click flash remain unchanged. No new captions or rendered public
+  API arrival: the overrides belong to private _ClearFiguresLabel.
+  Baseline: 3 failing and 4 passing cases. Final owning cohort: 14 passed in
+  5.03 s; actual command wall 8.31 s, peak RSS 654440 KiB, no swap. Qt 6.12,
+  Linux offscreen, GPU hidden, 2G hard cap and one computational thread, under
+  the coordinator's measured light-run exception. Existing 650 ms flash tests
+  were preserved. First-candidate failure is retained: a new test incorrectly
+  expected its synthetic palette override to survive Qt stylesheet repolish;
+  the corrected check verifies retained focus and the current palette border.
+  Workflow keyboard selectors and the native figure-list routes were already
+  implemented and left unchanged. This closes a concrete visible-focus gap,
+  not broader native, audible/human, macOS/Windows or tutorial acceptance.
+  Proof: data/655_clear_control_focus_2026-10-15/receipt.json.
+
+2026-10-15 — Home-B stronger-focus preference reaches custom figure controls
+  On current integration 57ba9006396 the documented stronger-focus preference
+  left all three owned custom controls unchanged: figure-grid cells, montage
+  crops and Clear figures. Nine actual pixel cases failed across Dark, Light
+  and High contrast; three no-paint-preference-read controls passed.
+  The controls now reuse FOCUS_RING_PX and focus_ring_colour through one private
+  lazy helper, caching the result at construction and refreshing on Qt style/
+  palette changes. Already-open controls acquire the existing three-pixel,
+  contrast-checked outline when the preference is enabled and recover their
+  exact ordinary rendering when disabled. No new store read enters painting.
+  Crops retain a single ring, replacing their ordinary border only while
+  focused with stronger focus enabled; inner content, candidate identity and
+  unfocused/hover behavior remain unchanged. No captions, public API arrival,
+  shared preference/theme source or native-control styling changes.
+  Targeted: 12 passed in 2.53 s. Final owning cohort: 68 passed in 12.06 s;
+  actual wall 14.77 s, peak RSS 667232 KiB, no swap, Qt 6.12/Linux offscreen,
+  2G hard cap, one computational thread, GPU hidden under the coordinator's
+  measured light-run exception. Real on/off changes occur after showing and
+  focusing the same controls; existing key/mouse/provenance/data/flash checks
+  pass. This closes the identified explicit preference inconsistency, not
+  every possible custom control or the remaining external N655 gates.
+  Proof: data/655_custom_strong_focus_2026-10-15/receipt.json.
+
+2026-10-15 — Home-B final requirement disposition after the custom-focus fix
+  Bound all eighteen source/test/guide/evidence files to actual delivery
+  727664dbcb on integrated nightly 57ba9006396. Preserved the earlier 2832
+  disposition as historical evidence. All twelve scoped N655 implementation
+  symbols remain byte-for-byte unchanged. The full Preferences file also
+  matches its prior hash; the N644 callback is already present at both pins.
+  Recorded full-file changes are the three owned controls and item notes.
+  The identified stronger-focus follow-up is now closed by the separate
+  68-case rendered/control acceptance. Ten explicit requirements are mapped;
+  no known local follow-up from this bounded disposition remains. This is not
+  a new whole-application lint, catalog or native replay, and previous receipts
+  retain their source pins. Human/audible, actual macOS/Windows and Work's
+  Appearance tutorial gates remain open; whole N655 remains PARTIAL.
+  Proof: data/655_requirement_disposition_2026-10-15/receipt.json, with the
+  original prior-disposition.json and a read-only pinned-source verifier.
+
+2026-10-15 — Home-B figure-section headings expose keyboard focus and identity
+  The run-section fold control accepted keyboard focus but announced no name
+  and drew no visible focus marker. Four real-widget cases failed on current
+  d4f9f21e7: the name stayed empty after the normal language pass, and focused
+  pixels matched resting pixels in Dark, Light and High contrast.
+  The private heading now reuses its displayed run title as its accessible
+  name and the existing custom-control outline policy. Already-open headings
+  react to Stronger focus outlines on/off, keep focus, and recover the exact
+  ordinary rendering. Painting reads no preference store; mouse/key folding
+  behavior and all source outside the private class remain unchanged.
+  Final focused plus existing figure-grid cohort:14PASS2.62s, wall4.51s,
+  peak583028KiB, zero swap, Qt6.12/Linux offscreen/2G/thread1/GPU hidden.
+  No new caption or public API arrival. This closes only the demonstrated
+  heading defects; native speech/human/macOS/Windows/tutorial gates stay open.
+  Proof: data/655_section_header_accessibility_2026-10-15/receipt.json.
+
+2026-10-15 — New figure heading verified through native Linux accessibility
+The published repair now has one isolated X11/AT-SPI/Orca acceptance run. An
+external process found its actual run name; real Tab/Shift+Tab entered, left
+and returned, with focus states read from the native bus. Orca generated the
+run name and fold-help text. Source pin,203 process source hashes, exact native
+scripts/output and cleanup evidence are retained. One pass7.74s/329172KiB/4G.
+Independent coordinator payload/source/reader review passed without replay.
+Evidence:data/655_native_figure_heading_2026-10-15/. Native role remains panel;
+audio was disabled. No audible speech, human usability, Windows/macOS or full
+application acceptance is claimed. Broader N655 gates stay open.
+
+2026-10-15 — Home-B AI/Live keyboard navigation and visible focus
+The two existing controls now participate in Tab/Shift+Tab navigation and
+show ordinary/strong focus outlines. Space, Return and numeric-keypad Enter
+toggle once; held repeats and unrelated modifiers do not change state.
+Provider routing, reporting, labels and existing mouse behavior are unchanged.
+Final targeted owning cohort:51PASS2.87s, capped2G, Qt offscreen, GPU hidden.
+Four newly documented event methods have81 reviewed nine-locale API targets;
+normal generation retained prior entries and source history. Normal Help adds
+four summaries; actual index/query consumers and five existing checks pass.
+An isolated native X11/AT-SPI/XTest run verifies both names, focus traversal
+and six actual toggle signals, including Qt numeric-keypad modifiers. The
+initial Orca-intercepted keypad run remains recorded; the passing native run
+does not claim Orca keypad support. Roles/check-state semantics, audible/human
+usage and other platforms remain open. Guide translations follow separately.
+Evidence:data/655_ai_live_keyboard_2026-10-15/,
+data/655_ai_live_help_acceptance_2026-10-15/,
+data/655_native_ai_live_keyboard_2026-10-15/ and coordinator review folders.
+
+2026-10-15 — Dock collapse responds once to an ordinary keyboard gesture
+The existing dock edge previously toggled for every auto-repeat and for
+modified Space/Return/Enter. Sixteen real-widget assertions reproduced these
+failures. The existing handler now consumes repeat presses without toggling
+and forwards unrelated modified keys, while native numeric Enter remains
+accepted. Release followed by a fresh activation toggles again.
+Final26PASS3.79s includes16 new cases and10 existing collapse/glyph/mouse/resize
+cases;2G/offscreen/thread1/private settings/GPU hidden. Independent peer verified
+all payload hashes and exact AST outside the existing handler, with unchanged
+docstrings/comments. No new caption or API arrival. The initial test fixture
+lifetime failure is retained separately from the actual source baseline.
+Evidence:data/655_dock_keyboard_activation_2026-10-15/ and independent peer.
+Native/human/other-platform and broader N655 acceptance remain open.
+
+2026-10-15 — Current features guide and all nine language catalogs reconciled
+The normal full features-domain gettext update/import now covers13 source
+messages in nine locales:117 technically reviewed targets. Four paragraphs
+were corrected against actual controls, covering five stale claims about the
+startup preference path, overlap selection, response diagnostics and export
+availability. The AI/Live paragraph documents keyboard activation and the
+observed screen-reader keypad interception fallback. Existing current-source
+arrivals are translated; the shorter obsolete Make Masks paragraph is retired
+with provenance. All117 compiled gettext lookups pass;1422 unrelated message
+records and297 other-domain PO files remain unchanged. Source/prose peer and
+independent target peer are required before publication. No full translated
+HTML, hosted, native-speaker or tutorial acceptance is claimed.
+Evidence:data/655_678_features_guide_inputs_2026-10-15/ and
+data/655_678_features_guide_catalogs_2026-10-15/.
+
+2026-10-15 — Home-B private HintBar keyboard resize and focus repair
+Five actual baseline failures showed that Tab skipped the help resize grip,
+Up did not resize it, and focus was invisible in all three supported themes.
+The grip now supports bounded, font-aware Up/Down resizing, held-arrow repeats,
+and normal Tab exit; only actual changed keyboard heights emit the existing
+persistence signal. Ordinary/strong outlines track live style changes through
+cached style values. Existing mouse and height-limit/restore code is unchanged.
+Final focused plus owning cohort:46PASS5.16s,2G/offscreen/thread1, GPU hidden.
+The existing actual Preferences mouse-save/reopen check and new keyboard
+signal checks pass; no direct native or keyboard-reopen acceptance is inferred.
+One shared translated caption now explains keyboard resizing at the handle
+and Preferences help registration. Source remains private until parent normal
+nine-locale runtime/guide closure and independent source peer are integrated.
+Five added direct methods of the private class are excluded by actual public
+API policy calls; no public docstrings or nested helper arrivals were added.
+Evidence:data/655_hint_resize_keyboard_2026-10-15/. Broader N655 gates stay open.
+
+2026-10-15 — Help-area resize grip now works with the keyboard
+The narrow help-strip edge was skipped by Tab, ignored Up and drew no visible
+focus. Five baseline assertions failed. It now accepts Tab and bounded
+font-line Up/Down resizing, including held-arrow repeats; unrelated modifiers
+are ignored and Tab leaves. Ordinary and stronger focus repaint correctly in
+Dark, Light and High contrast. Existing mouse methods and public API prose
+are unchanged; all five new private overrides are excluded by normal policy.
+Final46PASS5.16s covers9new+37existing checks,2G/offscreen/thread1/GPUhidden.
+An actual Preferences probe reaches the grip with two Tab presses from
+Cancel, changes97 to115, writes the existing private saved-height key and
+restores115 after actual close/reopen. It takes3.39s/340456KiB/4G, attempts no
+network connection and leaves source unchanged. This is offscreen consumer
+acceptance, not native/human or other-platform acceptance.
+One shared hover/accessibility caption has9 independent reviewed targets and
+normal runtime artifacts, preserving10777 unrelated targets perlocale. Nine
+obsolete mouse-only review rows are retained as retired provenance, every
+other record unchanged. Normal source audit passes; no gate is weakened.
+The guide adds9 reviewed/compiled targets;1539 existing records (including
+the prior117 targets) and297 other-domain files remain unchanged.126 actual
+compiled gettext lookups pass. Source, runtime target, guide target and old
+record retirement each have separate independent peer evidence.
+Evidence:data/655_hint_resize_keyboard_2026-10-15/,
+data/655_hint_resize_preferences_consumer_2026-10-15/,
+data/655_hint_resize_runtime_artifacts_2026-10-15/ and corresponding peer/
+guide evidence. Broader N655 native/human/macOS/Windows/tutorial gates remain.
+
+2026-10-15 — AI/Live accessible checkbox state and Toggle action
+The shared AiToggleLabel remains visually/caller-compatible QLabel while a
+private Qt accessibility adapter exposes checkbox role, checkable/current
+checked state and the standard Toggle action. Real transitions notify clients
+through the existing setter and emit the same existing toggled signal once.
+Disabled controls expose no actions and refuse changes. Public docs, keyboard
+and painting AST remain unchanged; normal private-declaration/helper policy
+proves no API or translation arrival. Corrected actual baseline six assertions
+fail; final21 targeted checks pass2.97s. Initial parent-lifetime/import-order
+harness failures are preserved separately and are not semantic baselines.
+Independent native Linux AT-SPI readback passes4.57s: four external Toggle
+actions produce four signals and matching checked states on AI/Live. Disabled
+actions are unavailable; the same Accessible objects remain readable/disabled
+and unchanged. The first protocol-expectation failure is retained.
+Evidence:features/data/655_ai_toggle_accessible_state_2026-10-15/ and the
+separate native/source-peer receipts. Official immutable PySide6v6.6.0 binding
+declarations include all newly imported accessibility classes and the Python
+factory hook; this is availability evidence, not an older-runtime test.
+This closes this role/state/action defect only. No audible Orca, human-user,
+other-platform, provider/reporting or whole-N655 acceptance is claimed.
+
+2026-10-15 — Home-B dock collapse accessibility semantics repaired
+  The DockEdge control previously appeared as a generic Client with only
+  Set Focus, without its collapse action or expanded/collapsed state. A
+  private adapter now exposes the primary Press action and current expansion
+  state through the existing setter. Real setter/mouse/keyboard transitions
+  notify assistive clients once; unchanged values and disabled actions do not
+  cause extra collapse signals. Names/help, width/drag/persistence and ordinary
+  widget accessibility remain covered. No captions or public API prose changed.
+  Actual baseline5FAIL4PASS3.05s; final51PASS40.66s (9new+42existing),
+  Linux/Qt6.12/offscreen/2G/thread1, wall42.20s and1188976KiB peakRSS.
+  Six new private declarations are excluded by the actual API policy, and
+  scoped helper inventory is empty. This is bounded software acceptance,
+  not native reader/human/macOS/Windows or whole-item acceptance.
+  Proof: data/655_dock_accessible_state_2026-10-15/receipt.json.
+
+2026-10-15 — Home-B help resize grip exposes its actual value and actions
+  Actual Qt baseline found Border/Set Focus only, no height value interface,
+  and three focused failures. A private retained adapter now exposes Grip,
+  live bounded logical-pixel height, Increase/Decrease actions and existing
+  Up/Down keys. Changed values reuse the existing clamp/persistence signal;
+  invalid/disabled/unchanged values do not create extra commits. Actual
+  resizes notify accessibility clients. Public HintBar/mouse methods and all
+  existing docstrings/captions stay unchanged;18 private declarations are
+  excluded by normal visibility policy and helper inventory stays empty.
+  Final33PASS3.97s,2G/Qt6.12/offscreen/thread1,7.63s wall,585896KiB peak.
+  Retained failures include the unsafe bare-pointer exit139 (replaced with
+  installed VoidPtr wrapper) and one new fixture's undelivered relayout;
+  GC/cache retirement and all existing focused keyboard/mouse checks pass.
+  No native value-interface, human-reader or other-platform acceptance is
+  inferred. Broader N655 gates remain open. Evidence:
+  data/655_hint_accessible_value_2026-10-15/receipt.json.
+
+2026-10-15 — Native HintBar failure found; numeric adapter removed
+  The single external AT-SPI readback crashed the earlier418e numeric-value
+  adapter on GetState despite33 in-process passes. That source is private
+  historical evidence, not accepted publication. No further pointer attempt.
+  The safe follow-up removes ValueInterface, interface_cast, shiboken pointer
+  conversion and numeric notification machinery. It retains ordinary Grip,
+  bounded Increase/Decrease and truthful Qt value text through the original
+  clamp/commit path. Seven supported-scope cases plus19 existing keyboard/
+  focus/mouse checks pass:26PASS4.51s. Numeric native min/max/step/set support
+  stays open. Nine private declarations are excluded by actual normal policy;
+  public docs/captions and original mouse/public methods remain unchanged.
+  Native action/tree replay follows separately; no full N655 completion.
+  Evidence:data/655_hint_safe_actions_2026-10-15/receipt.json includes the
+  exact native crash/source hashes and supersedes the earlier33 green claim.
+
+2026-10-15 — Safe help-grip native actions verified
+  The pointer-free04eebb fallback passes actual external Linux AT-SPI tree/
+  GetState and Increase/Decrease readback in4.75s/349012KiB. Native actions
+  change height97→115→97 and emit exactly[115,97] on the existing commit
+  signal. The grip is focusable/resizable with Up/Down action key bindings.
+  All204 loaded spaCR sources match final bytes; the owned app has exited.
+  Qt reports role name grip but numeric UNKNOWN(67); Value is intentionally
+  absent. Numeric native value/range/setter and speech/human/other-platform
+  acceptance remain open. This does not restore the rejected418e interface.
+  Evidence:data/655_hint_native_safe_actions_2026-10-15/receipt.json.
+
+2026-10-15 — Plate-map wells now show keyboard focus
+  An actual6-well baseline reached/named/toggled A01 correctly, but focused
+  and unfocused pixels were identical in Dark, Light and High contrast, and
+  Stronger focus changed nothing. Private _Well now overlays focus using
+  cached theme policy, including live3px strong focus. Empty and selected
+  wells retain their center fill, selection and square geometry; Tab/Space,
+  normal names and all original mouse/drag methods remain unchanged.
+  Final45PASS6.82s comprises8new+37existing checks;9.65s wall,588964KiB peak,
+  2G/offscreenQt6.12/thread1. Four private overrides are excluded by normal
+  API policy; the one pre-existing nested helper changes only source lines.
+  Public prose/captions remain exact. No new native/human/other-OS claim.
+  Evidence:data/655_plate_well_focus_2026-10-15/receipt.json.
+
+2026-10-15 — Plate focus contrast follow-up from independent review
+  Initial46b367 focus acceptance is superseded for selected fills: actual
+  palette/render checks reproduced2FAIL for the generic Dark/Light strong
+  ring against CHOSEN blue (1.714/1.238, below3:1). _Well now caches a local
+  selected-fill fallback only where generic focus fails the existing3:1
+  policy; passing generic colours and all unselected colours are retained.
+  Actual3theme×2state rendering now checks uniform3px focus, required contrast,
+  center-fill/geometry/selection preservation and live ordinary/strong changes.
+  Final45PASS7.21s,9.81s wall,595748KiB peak,2G/offscreenQt6.12/thread1.
+  Five private methods excluded; all public/old mouse/selection AST unchanged.
+  Evidence:data/655_plate_well_focus_2026-10-15/contrast-followup.json.
+
+2026-10-15 — Explicit application palette fixture corrected
+  Independent review caught that apply_qpalette(app) defaults to Dark even
+  when the test stylesheet changes. Passing scheme explicitly is the only
+  fixture edit; production5bf source and all assertions remain exact. Only
+  the six affected focus/selection cases were replayed:6PASS2.38s,4.79s wall,
+  578968KiB peak. These establish actual Dark/Light/High contrast palettes;
+  the earlier45 result remains evidence at its original narrower scope.
+  Evidence:data/655_plate_well_focus_2026-10-15/palette-fixture-followup.json.
+
+2026-10-15 — Shared panel height grip honors Stronger focus outlines
+  HeightGrip already supported keyboard resizing, but its hardcoded 1 px
+  focus line ignored the stronger-focus preference. Actual Tab-focus pixels
+  were identical with the preference on/off in Dark, Light and High contrast:
+  three baseline failures. It now caches the existing policy at construction
+  and style/palette/font changes, overlaying its 3 px outline while focused.
+  Ordinary hover/drag/focus painting, target bounds, resize/persistence signals
+  and all original mouse/key handlers remain unchanged. No preference read
+  is introduced during painting, and the painter ends in finally.
+  Final18PASS2.52s: four new rendered/Tab/cache cases, thirteen existing
+  pointer/keyboard/reset cases, and the existing actual paint-cache check.
+  The three actual application palettes and live preference toggling are
+  covered. No new definitions, captions or API prose; scoped normal helper
+  inventory remains exact. Evidence:
+  data/655_height_grip_strong_focus_2026-10-15/receipt.json.
+  No native reader/other-OS or whole-item completion claim is added.
+
+2026-10-15 — Clear figures exposes its existing button action
+  The actual focusable Clear figures label exposed StaticText and Set Focus
+  only, so an assistive client could not invoke its destructive action.
+  Two baseline role/action checks failed. A private ordinary QAccessibleWidget
+  adapter now exposes Button and enabled Press, dispatching the unchanged
+  flash and clicked signal once. Disabled actions refuse clearing; current
+  translated/explicit names and ordinary widget navigation are preserved.
+  Qt owns the cached interface; no pointer conversion or value adapter exists.
+  Final25PASS4.82s: six new action/name/cache tests and nineteen existing
+  focus, mouse, keyboard, queue-clearing, flash and destructive-colour checks.
+  All original source methods/docs/comments remain unchanged. Normal policy
+  excludes the six new private declarations; the four existing enabled
+  nested helpers retain exact semantic inventory. No caption/API arrival.
+  Evidence:data/655_clear_figures_accessible_action_2026-10-15/receipt.json.
+  This is in-process Linux/Qt6.12/offscreen acceptance; no native reader,
+  other-OS or whole-item completion claim is added.
+
+2026-10-15 — Numeric Enter opens figure tiles through their existing route
+  The actual Qt Key_Enter plus KeypadModifier event failed for saved, live
+  and pinned figure tiles, despite the ordinary Enter route already working.
+  _FigureCell now accepts keypad-only Enter through its existing focused
+  activation path. Named modifiers and keypad-modified Space/Return remain
+  refused; saved indices, live keys and the pinned signal stay distinct.
+  Three baseline route failures become 26PASS3.13s: nine new keypad/refusal
+  cases plus seventeen existing keyboard/name/focus cases. Shared lock,
+  2G/offscreen Qt6.12/thread1/private settings, no native replay or data work.
+  Only that private handler body changes; all docs, signatures, comments
+  and other module AST remain exact, with no caption/API arrival.
+  Evidence: data/655_figure_keypad_enter_2026-10-15/receipt.json.
+  This closes the concrete event-routing defect, not all N655 acceptance.
+
+2026-10-15 — Numeric Enter opens montage crop provenance
+  An actual _WellTab regression confirmed that Key_Enter with KeypadModifier
+  opened no details dialog. Only _Thumb.keyPressEvent now accepts keypad-only
+  Enter through its existing focused route. The real selected crop's complete
+  provenance appears in one visible dialog, while measurement rows and crop
+  pixels remain unchanged. All four named modifiers, with or without keypad,
+  and keypad-modified Space/Return still refuse activation.
+  Baseline1FAIL2.51s; final18PASS3.98s covers the expanded existing provenance,
+  Tab, naming and focus module under the shared lock/2G/offscreen/thread1.
+  All other module AST, comments, signatures and docstrings are exact; no
+  workspace/model changes or runtime/API arrival. No native replay or whole
+  N655 acceptance claim. Evidence:
+  data/655_montage_keypad_enter_2026-10-15/receipt.json.
+
+2026-10-15 — Numeric Enter enlarges the focused model card
+  The actual viewer could not enlarge its current card with Key_Enter plus
+  KeypadModifier. That one baseline failure is repaired only in the existing
+  keyPressEvent guard. Numeric Enter now opens the same card/page dialog;
+  the enlarged viewer still refuses recursion, child page buttons do not
+  trigger enlargement, and empty cards refuse it. All four named modifiers,
+  alone or combined with keypad, and keypad-modified Space/Return refuse.
+  Final12PASS2.24s includes ordinary keys, Tab/page buttons, current names and
+  focus. Local generated PNG input/private cache, shared lock,2G/offscreen/
+  thread1; no network/model operation or native replay. All other module AST,
+  docs, signatures and comments remain exact, with no runtime/API arrival.
+  Evidence:data/655_model_card_keypad_enter_2026-10-15/receipt.json.
+  No additional widget Enter guard rejecting KeypadModifier was identified
+  in the bounded source inspection; this is not whole-program acceptance.
+
+2026-10-15 — Figure-section headings expose their fold action and state
+  Actual headings exposed Border/Set Focus only, without expansion flags;
+  two baseline checks failed. A private ordinary QAccessibleWidget adapter
+  now exposes Button/Press and the current expandable/expanded/collapsed state.
+  Press uses the existing reach-first, fold-second handler; the unchanged
+  relayout replaces headings, and the replacement exposes current state.
+  Disabled Press refuses. Qt owns the cached interface; no raw pointer or
+  numeric Value interface is introduced. All original methods remain exact,
+  including fold persistence, geometry, titles, focus and keypad routing.
+  Final29PASS3.34s (5.07s wall/612996KiB): six new semantic/cache cases plus
+  five existing heading focus/name and eighteen fold/persistence/layout cases.
+  Actual cells and JSON workspace state are checked through fold/rebuild/open.
+  Normal policy excludes six private declarations; actual nested-helper
+  inventory stays empty. A metadata harness's mistaken enabled-module request
+  is retained and corrected using the real rollout membership. No caption or
+  API arrival, native replay, other-OS or whole N655 completion claim.
+  Evidence:data/655_figure_section_actions_2026-10-15/receipt.json.
+
+2026-10-15 — Native Linux figure actions verified through external AT-SPI
+  On frozen57b4, actual Clear figures and section-heading controls expose
+  push-button roles through the external accessibility bridge. One external
+  Press clears the seeded real queue/list; one Press on the current heading
+  folds its real section, hides its cell and preserves the collapsed workspace
+  key. Native expandable/expanded/collapsed states follow that transition.
+  Disabled controls remove actions and refuse invocation while their same
+  Accessible state remains readable; both action counts stay exactly one.
+  Final private Xvfb/D-Bus run passed in4.29s/401856KiB under2G/thread1;
+  the app exited cleanly and all211 loaded source hashes match the pinned tree.
+  Retained fixture failures cover initial scroll readiness and a stale header
+  reference after Clear's normal relayout. The final reader re-enumerates the
+  live tree; no product code or action/state assertions were changed.
+  Evidence:data/655_native_figure_actions_2026-10-15/receipt.json.
+  No speech, human, other-OS or whole-N655 completion claim is added.
+
+2026-10-15 — Clear figures now ignores held-key repeats (source df654f5d846); related14 checks pass; naming70 and preference51 checks pass.
+BLOCKED ON MAINTAINER: run current spaCR with Orca on Linux, NVDA on Windows and VoiceOver on macOS.
+Use Tab/Shift+Tab through module screens and Preferences; confirm spoken names, roles, values/states and single Space/Enter activation.
+Check High contrast, text size, Reduce motion and Stronger focus, language changes and Apply/Cancel/reopen; report OS/control/keys/spoken output for failures.
+Work owns the Appearance tutorial refresh; offscreen checks do not establish audible or human screen-reader usability.
+
+2026-10-16 — DEFERRED by maintainer: move this item to features/future and do no accessibility implementation or acceptance work now; resume after the updater work.
+Existing shipped behavior and verified results remain valid; relocation is scheduling only, not completion or a request to hide/remove existing accessibility controls.
+
+2026-10-17 — Resumed after the updater (703). The lint now also covers item views, the MainWindow chrome (toolbars, dock, status bar, menus) and every Preferences tab:
+every focusable control has a QAccessible name and Tab is never trapped. The naming pass now names scroll areas and menus; no new strings.
+Remaining: the native screen-reader check above (BLOCKED ON MAINTAINER).
+2026-10-17 — Naming-pass freeze fixed (ab6c1c80e0b): names are written only when they change, arrival passes skip controls already named for the language, scroll-area fallback is bounded; tests/qt/test_655_accessibility_pass_cost.py.
+2026-10-21 — DONE at maintainer-accepted scope: the maintainer listened to native VoiceOver on macOS and reports that it works perfectly. Retain all portable, native Linux structural and automated macOS results above; Windows/Linux native-reader acceptance is on hold and does not keep this item open.
+
+2026-10-21 — Reconcile accepted stable scope: the move to future on10/16 was scheduling-only, work resumed10/17, and the maintainer accepted native macOS VoiceOver on10/21 explicitly as Not alpha. Promote this item to features/new without changing product visibility or earlier history; Windows/Linux native-reader acceptance remains outside the accepted scope. obsolete_repo_cleanup owns the classification/index repair; the unchanged future-item registration guard passes2.75s, with no runtime/test/exemption changes. Root owns publication.

@@ -132,7 +132,7 @@ blocks:
     5300 4 GB) पर एक माप में torch 2.2.2, Python 3.12.11 और macOS 26.5.2 के साथ एक 256×256
     चित्र के लिए Cellpose-SAM ने CPU पर 444.5 s और Metal पर 3.2 s लिए। यह एक पुराना उदाहरण
     है, गति की गारंटी नहीं। GPU त्वरण के लिए उपयोग योग्य बैकएंड और संगत लाइब्रेरी आवश्यक हैं।
-    `दर्ज किया गया हार्डवेयर माप <features/new/319_use_non_nvidia_accelerators_where_they_exist.txt>`_
+    `दर्ज किया गया हार्डवेयर माप <features/feature_list/319_use_non_nvidia_accelerators_where_they_exist.txt>`_
     देखें।
 - h2: spaCR इंस्टॉल करें
 - p: 'इंस्टॉलेशन का तरीका चुनें:'

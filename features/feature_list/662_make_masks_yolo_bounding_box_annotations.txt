@@ -1,0 +1,147 @@
+MAKE MASKS BOUNDING-BOX ANNOTATIONS FOR YOLO MODELS
+Lifecycle: new
+Status: DONE 2026-10-05 — Box tool, editable annotations and YOLO labels.
+Requested: 2026-10-05 by the maintainer: "there should be a button like the
+draw button that the user can click to draw bounding boxes. this would allow
+make masks to be used to annotate images for yolo models."
+Owner: CPU feature/CI session; API, translations, docs and tutorials remain
+owned by the workstation session.
+
+Make Masks had rectangle-based Recrop and SAM prompts, and a plaque-specific
+community box editor, but lacked general class-labelled box annotations.
+This regular feature belongs in features/new and is visible beside Draw.
+
+The Box tool (X) draws full-image pixel rectangles independently of the
+segmentation mask. Drag inside a box to move it, drag a corner to resize,
+right-click the topmost box to delete, and Ctrl-drag to draw an overlapping
+or contained box. Zoom/pan preserve coordinates. Class selection and box
+undo/redo do not change segmentation labels or their history. Class names
+have stable integer IDs; Add class selects the next annotation's class.
+
+Save boxes stores editable annotations in .spacr_yolo_annotations.json next
+to source images. Image shape and source-file SHA256 bind boxes to the image
+they describe. Navigation and close save changes; failed saves retain the
+current field. Changed images, corrupt annotation ledgers, unsafe metadata
+paths, class-ID reassignment and another active writer are refused.
+
+Export YOLO labels writes the selected .txt file with normalized
+class/centre-X/centre-Y/width/height lines and the folder's .classes.json
+stable class-name mapping. A reviewed negative field exports an empty text
+file. Image pixels and existing segmentation masks remain unchanged. The
+original images must be paired with the label files by the training dataset;
+this annotation feature does not select train/validation splits or train a
+YOLO model.
+
+2026-10-05 — IMPLEMENTED AND VERIFIED ON CPU
+Hosted CI follow-up: the X binding is now recorded in the central screen
+ShortcutSpec registry, so Keyboard shortcuts documents the Box tool and the
+whole-map binding guard agrees with the actual Make Masks shortcut.
+
+The integrated functional/index cohort passes 270 cases under 4 GiB with
+CUDA hidden, including genuine TIFFs, mouse gestures, positive/negative
+YOLO exports, Draw, toolbar, shortcuts, Recrop, queue layouts, blinding and
+uncertainty. The subsequent two Keep/Discard save-failure cases pass as
+part of their six-case boundary file. Source/callable/field-list/coverage
+ratchet checks pass 130; the Sphinx-backed RST guard passes two without a
+skip. Fatal Ruff and git diff --check pass. A rendered offscreen screen
+confirms Box beside Draw and class/save/export controls beside Box.
+
+Project and export writers use exclusive locks and atomic replacement;
+another writer, abandoned lock, metadata symlink/FIFO and source drift fail
+closed. Forty-seven backend cases cover every new backend statement and
+branch. Changed-source saves preserve the current field and refuse queue
+Skip, Keep/Discard, blinding and uncertainty reorder before those decisions
+are committed. A corrupt next TIFF clears old annotation state and disables
+the Box controls. Competing mouse buttons cannot delete a moving box or
+shift its index; releases in the letterbox discard unfinished previews.
+
+Final bounded branch evidence combines 234 broad Qt cases with three
+positive Box-autosave, two canvas-edge and five host-boundary cases.
+All 393 added Make Masks executable statements and every branch arc
+touching added code are exercised, with no new missing line or arc.
+Production source blobs: mask_engine 1db1095c018b9ae95c305d836efb981635325bd0,
+Make Masks 76b129c3cf3ec20776d8aa76c9f3b9734c1edba6. No coverage allowance
+or memory guard was changed. This new-code proof does not replace the
+complete final-source per-module GitHub aggregate.
+
+Segmentation bundles rewrite their source when a mask is saved, so Box is
+explicitly unavailable for *_seg.npy fields: export/open a standalone image
+first. Images with positive boxes cannot be recropped; add boxes on a child
+after finishing Recrop. Blinded sessions retain editable boxes but refuse
+named YOLO export until unblinding, and save status hides source identifiers.
+
+The final hosted GitHub verdict remains item 43. Source-derived API and
+runtime-caption refresh is handed to the workstation owner in item 325;
+that separate work is not claimed by this functional implementation receipt.
+
+2026-10-05 — WORKSTATION FRESH NATIVE YOLO CAPTURE ACCEPTED
+    The actual current Make Masks application records nineteen fresh 4K
+    frames with alpha off, dark theme and the normal blobs backdrop. Real
+    folder/class/export dialogs and mouse gestures demonstrate drawing,
+    moving, corner resizing, Ctrl-overlap, right-click deletion, separate
+    undo/redo, Save boxes, YOLO export, negative labels and exact reload.
+    An independent readback checks full-image normalized XYWH, stable class
+    names, empty negative labels and unchanged acquired image/mask bytes.
+    Boxes are interaction demonstrations, not biological training truth.
+    Full native frames, metadata, exports and source snapshot are preserved:
+    features/data/662_yolo_native_capture_2026-10-05.json.
+
+    The current English guide and all nine translated guide HTML builds
+    pass with warnings as errors. All seven reviewed YOLO passages, four
+    exact file literals and runtime control names are verified in every
+    rendered language. The first Korean build remains a recorded failure;
+    six new passages were rephrased through normal import before acceptance.
+    Final API generation/audit and the complete lesson authoring, narration,
+    video/publication/deck follow-up remain workstation-owned and OPEN.
+
+2026-10-05 workstation generated checkpoint: all nine reviewed API languages now pass normal strict generation/audit with 13,181 symbols; each of all ten catalogs preserves every complete old 13,177 record and adds exactly the four named YOLO helpers. Full source/docstring guards pass 134 cases; strict all-language Sphinx succeeds; runtime checks pass 17 and all seven YOLO guide passages render in all nine languages. Receipt: features/data/662_api_docs_translation_2026-10-05.json. This is frozen to f4d6e8df3 before Home’s standard-install prose/runtime and central X-shortcut updates; normal source-current follow-up after integration is explicitly pending. YOLO scene authoring/video/deck/publication remain open. Home/Measure tutorial narration has a separately announced bounded GPU turn; do not start duplicate GPU work or touch livecell/cellposeTIME.
+
+2026-10-06 workstation YOLO tutorial stage: thirteen Box/class/draw/move/resize/overlap/delete/history/save/export/empty-file/reload scenes are authored and normally staged into lesson 14, now 58 scenes and 56 independently accepted native visuals. All 45 prior complete scene objects and translations remain exact, and every other 84 complete lesson object is preserved in all fourteen catalogs, including Mask 07 and the deployed Home/Measure/Conda corrections. All thirteen source-pinned reviews pass normal pronunciation checks; 27 scoped tutorial tests pass. Full-resolution readback proves every expected edge in ten annotation states from the original native r2 recording. Some two-pixel outlines were obscured by resized previews; the desktop/repaint experiments are private diagnostics only and both recorder edits have been removed. No application defect or source change is claimed. Native inputs, normalized full-image XYWH, class map, empty-label format and exact reload are independently checked. Demonstration boxes and the empty second microscopy field are not biological training truth or a biological negative. Receipts 662_yolo_native_capture_r2_2026-10-05.json and 662_yolo_tutorial_stage_2026-10-06.json preserve native frames, outputs, reviews, normal composition and staged catalog proof. Narration, video, browser/deck and publication remain OPEN.
+
+2026-10-06 workstation YOLO presentation acceptance: page 32 now describes independent class-labelled boxes, history, project saving and normalized YOLO export beside mask/puncta editing, with the genuine acquired-field save/reload screenshot. Normal source refresh, normal full-deck rendering and bounded page publication pass after the required normal alpha-page refresh; the first geometry refusal is retained, not waived. All other 56 vector page contents/text, slide/thumbnail pixels and animation files/placement are exact, including the alpha page. All 57 page routes and dimensions pass, and page 32 was visually inspected for readable, unclipped text and real box overlays. Receipt 662_yolo_deck_refresh_2026-10-06.json archives the source delta, strict provenance/preservation and completed normal logs. The video candidate independently passes all 85 playback routes and both mutation guards; immutable media upload/deployed readback remain pending. Mask 07 and current Home/Measure/Conda corrections stay unchanged.
+
+2026-10-06 workstation current YOLO media acceptance: all 50 narration tracks across eight spoken languages pass normal full decode/source/runtime/fingerprint/timing/activity/dead-air gates, with zero renderer peak failures. All 58 4K scene-start decoded pixel arrays match their independently composed native captures under the approved codec; the current 1440p video decodes with exact frame timing. All 14 desktop/mobile narration/caption cases, all 85 candidate routes and both placeholder mutation guards pass. Full native-size overlapping/brightness-lifted OCR on all 56 unique native scene images finds zero private path regions, with every source hash current. The actual decoded web Redo scene was inspected: the blue box outline and class label remain visible. All fourteen catalogs preserve every other 84 complete lesson object; 4,796 other media records remain exact. Receipt 662_yolo_media_acceptance_2026-10-06.json archives full normal evidence and failed private configuration checks. Page 32 has separate accepted deck evidence. Mask 07 and the deployed Measure/Home/Conda corrections stay intact. Immutable hosted playback and actual nightly deployed readback are separate acceptance steps; demonstration boxes are not biological training truth and no native-speaker/listening signoff is asserted.
+
+2026-10-06 workstation YOLO immutable hosted publication: normal upload and complete 5.52 GB readback pass for all 4,898 declared files, pinned to f3fe5e321a9734c103c8c83d3ca0b9753e7df79f. All 85 hosted player routes pass against that exact revision; lesson 14 has all 58 scenes, 50 verified voices and 13 source-bound translated entries. Normal Pages publication and hold release are recorded; fourteen catalogs retain all other 84 whole lesson objects and 4,796 other media records remain exact. Mask 07, the current Measure opening/Home navigation and accepted Conda frame remain unchanged. Receipt 662_yolo_publication_2026-10-06.json archives immutable upload/full-byte readback, exact hosted playback and normal publication. Actual nightly deployed/mobile/full-video readback remains OPEN after push. No biological truth is asserted for demonstration boxes. The source-current all-nine API strict audit is still live; its ten-language whole-record preservation, twelve catalog tests and full strict multilingual Sphinx already pass. Next scientific GPU label 552-instanseg-current-cuda-20261006-r1 remains queued under the normal scheduler. Home keeps CPU CI/coverage/Qt/source ownership.
+
+2026-10-06 workstation actual deployed API/YOLO and maintainer tutorial acceptance: completed docs workflow 37419061863 resolves nightly source 7d24dcf7760e63f38a85c311da3bd477d0be9479, verified from its normal downloaded/assembled channels artifact rather than inferred from the workflow trigger. Ten actual API catalogs and three HTML pages are byte-exact; all 108 actual API panels (twelve changed symbols by nine locales) pass current-source/protected-literal/visible-language checks. Actual deployed tutorial player and all fourteen catalogs are exact at immutable media f3fe5e321a9734c103c8c83d3ca0b9753e7df79f. Four actual phone playback/seek cases pass, complete downloaded videos match their release hashes, and decoded current Measure Source/Load test data, left-to-right Home/Data, corrected Conda Home and new YOLO drawn-box frames are visually reviewed. The new YOLO scene is zero-based index 17/frame 7475; the separately retained index 45/frame 18137 is a puncta scene and is not claimed as a new YOLO demonstration. Receipt 615_deployed_api_yolo_2026-10-06.json archives source provenance, full hash checks, actual browser receipts, reviewed decoded frames and failed private preflights. Mask 07 remains unchanged. This closes the current deployed API/YOLO and requested Measure/Home/Conda readback scopes; new installation 01/03/04 publication and wider scientific tasks remain open. Home retains CPU CI/coverage/serial Qt and application-source ownership; all GPU tasks stay workstation-owned.
+
+2026-10-07 workstation latest Home native captures accepted:
+Fresh current-source native Box capture includes 19 frames with real class
+and export dialogs. Independent source/label checks pass actual normalized
+boxes, empty negative labels, save/reload and original pixel preservation.
+Editor 47, puncta 6 and restoration 7 companion frames independently pass
+manual TIFF IDs/tool gestures, 150 measured puncta rows with 46 selected,
+and genuine source-bound restoration weights without a biological claim.
+Receipts: data/662_make_masks_current_{editor,puncta,restoration,yolo}_2026-10-07.json
+and data/615_latest_Home_native_recordings_2026-10-07.json.
+New composition uses 59 current native PNGs for 61 scenes while retaining
+all 84 other complete lessons in 14 catalogs and all 50 accepted narration
+tracks exactly. Final scene fidelity/browser/candidate/immutable readback,
+Pages and actual current-source deployment remain pending; earlier accepted
+published tutorials remain intact. Demonstration boxes are not training truth.
+
+2026-10-07 normal latest-source native61 hosted publication accepted:
+Fresh editor/puncta/restoration/Box native frames produce the accepted61-scene
+4K/browser-compatible master and web video; unchanged30dB full/focus gates,
+all50 narration,28 browser cases/sentence cues and all85 candidate/hosted
+routes pass. Immutable5036-file full-SHA readback passes at
+5b331d434e997e70264afd35b993b0ecc988d8e8. Normal Pages/hold/bundled-index
+publication and15 contracts pass; all84 other whole lessons remain intact,
+including Mask07 and current Home/Measure/Conda/installation lessons.
+Receipt:615_final_native61_publication_2026-10-07_r6.json. Actual deployed
+nightly/current-source browser and full-video checks remain required.
+
+2026-10-07 final latest-source actual deployed native61 acceptance:
+Successful workflow37559626331 deploys exact sourcee1f54c80650f60942ba6c98d4e999b36a3fa2846.
+The complete actual lesson14 video matches immutable5b331d434e997e70264afd35b993b0ecc988d8e8,
+with all61 native scenes/50 voices and accepted master fidelity retained.
+Actual hosted player/catalog checks and phone playback/seek/sync/layout pass.
+Decoded Wand add/Ctrl removal, filter settings and Box class-name popup frames
+are visually inspected with correct scene identities; no filter-frame drawn-Box
+claim is made. Complete native normalized-box/export/empty-label/save/reload
+acceptance remains independently archived. Current Home/Measure/Conda/Mask
+and installation lessons also pass complete actual deployed video checks.
+Receipt:615_final_actual_deployment_2026-10-07_r1.json. Available current-source
+API/docs/translations/video/deck/publication/deployment scopes are accepted;
+demonstration annotations are not expert biological training truth.

@@ -1,0 +1,157 @@
+AN OFFLINE / AIR-GAPPED INSTALLER
+
+Lifecycle: future
+Status: DONE (alpha) — COMPLETE 2026-10-27 under the 1.5.1.6 delivery rule.
+The literal DONE WHEN was verified on Linux CPU with networking disabled on
+2026-10-02 (evidence 5b9a352ed); retained Windows results are recorded below.
+Packaging only: no GUI, settings or app entry, so there is nothing for the alpha
+gate to hide; the bundle is not linked from README downloads and is labelled
+alpha in packaging/README.md.
+Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Also add to future features list the items in the non GPU list that would be valuable!"
+
+EVIDENCE
+    No image.sc thread; from general practice.
+
+WHAT TO BUILD
+    An installer bundle that installs spaCR and chosen backends and models
+    without internet access (wheels, model weights and environments packed),
+    for locked-down microscope PCs; the online installers stay the default.
+
+DONE WHEN
+    On a machine with networking disabled, the bundle installs and runs Mask
+    on the bundled test data.
+
+IMPLEMENTATION (2026-09-27, branch item-587-work)
+    packaging/offline/build_offline_bundle.py  builds a bundle on an online
+        machine: pinned uv (sha256 checked against the uv release), the CPython
+        build uv would download (as a UV_PYTHON_INSTALL_MIRROR layout), every
+        wheel of an environment locked with `uv pip compile --python-platform`
+        and fetched with `pip download --platform` (pure-Python sdists built
+        into py3-none-any wheels), Cellpose weights (default cpsam), optional
+        Mask test data (whole fields), bundle.json and SHA256SUMS. Targets
+        linux-x86_64, windows-x86_64, macos-arm64; the PyTorch wheel line
+        (cpu, cu126, ...) is fixed at build time.
+    packaging/online/install_spacr_unix.sh and install_spacr_windows.ps1 gain
+        --offline-bundle / -OfflineBundle (verify SHA256SUMS, bundled uv,
+        file:// python mirror, `uv pip install --offline --no-index`, copy
+        Cellpose weights without overwriting, install test data) and
+        --check-mask / -CheckMask (runs offline_mask_check.py: Mask on a
+        scratch copy of the test data, pass = masks and merged stacks written).
+        The online path is unchanged.
+    packaging/release.py: OFFLINE_PLATFORMS and offline_bundle_name().
+    features/data/587_offline_bundle_workflow_2026-09-27.yml: proposed manual
+        CI workflow (not installed; .github untouched).
+    tests/test_offline_bundle.py.
+
+VALIDATION (2026-09-27, CPU)
+    Built spaCR-1.5.1.0-Linux-x86_64-Offline-cpu from this checkout (167
+    wheels, cpsam, 2 fields of the Mask example plate; 2.6 GB) and installed
+    it inside `unshare -rn` (no network interface) with HOME and the cleanup
+    root pointed at scratch: SHA256SUMS verified, Python installed from the
+    file:// mirror, 167 packages installed offline, import check passed
+    (spaCR 1.5.1.0, torch 2.14.0+cpu), and --check-mask ran Mask (cell,
+    nucleus and pathogen with cpsam on CPU, ~70 min for 2 fields) to exit 0
+    with merged stacks written; installer exit 0. DONE WHEN met on Linux.
+
+LEFT
+    - Isolated segmentation backends (_segmentation_backends: Cellpose 3,
+      StarDist, InstanSeg, ...) still build their own environments online;
+      packing those environments and their weights is not done.
+    - Model Zoo models (e.g. toxoplasma_pv_v1) are not packed; the Mask check
+      replaces a `<models>/...` model with cpsam.
+    - Windows and macOS bundles are only statically checked (tests); they need
+      an install test on those systems with the network blocked.
+    - Linux system Qt libraries are not bundled (the offline install skips the
+      package manager); a minimal system without them runs headless only.
+    - The bundle is not signed; SHA256SUMS guards corruption, not tampering.
+
+ACCEPTANCE CHECK REPAIR (2026-10-02, partial)
+    Two pre-fix tests reproduced false success: every merged .npy was counted as
+    a mask because the scratch directory itself is named spacr-offline-mask-*,
+    and copied pre-existing results could satisfy the check without new output.
+
+    The checker now counts actual root-relative *_mask_stack/*.npy artifacts
+    and root-relative merged/*.npy outputs. Known generated merged and role-mask
+    directories are excluded from the scratch copy, so only this invocation's
+    new outputs can satisfy acceptance. Original test data and existing results
+    remain untouched. Both required output kinds and a zero child exit are still
+    required, and default scratch cleanup is preserved.
+
+    Validation: merged-only and stale-output reproductions failed as expected
+    in 0.38 and 0.76 seconds. All 16 corrected cases passed in 0.53 seconds:
+    six dedicated checker cases and ten existing offline packaging checks. The
+    child Mask process was controlled in these tests; small genuine NPY outputs
+    were written, with no model execution, downloads, GPU use or installation.
+    Runs used 1 GiB, CPU0 and zero swap. The previous Linux acceptance remains
+    historical evidence; this follow-up does not claim a new air-gapped run.
+    F587 remains partial/alpha for the listed backend and platform requirements.
+    Receipt: features/data/587_mask_acceptance_guard_2026-10-02.json.
+
+FRESH LINUX OFFLINE ACCEPTANCE (2026-10-02)
+    Built a new spaCR 1.5.1.1 Linux CPU bundle from pinned source f9e7fd81d:
+    168 wheels, checksum-verified uv 0.11.32, CPython 3.12.13, cpsam, and one
+    complete unmodified four-channel field from the cached example plate.
+    Build and private installation exited 0. Installation and real Mask each
+    ran inside unshare -rn, with only loopback in the network namespace.
+    Stages used CPU0, 4 GiB memory and zero swap; no GPU was used.
+
+    Real Mask exited 0 after 6131.5 seconds (6139.0 seconds for the surrounding
+    check). Normal keep_intermediate=False cleanup removed stack/, masks/ and
+    orig/ after writing merged/plate1_E01_1_1.npy. The retained layout sidecar
+    explicitly binds cell/nucleus/pathogen to planes 4/5/6 after four intensity
+    planes. Independent validation read the genuine 1994 x 1994 x 7 uint16
+    array and found positive label counts: cell=43, nucleus=49, pathogen=71.
+    All three mask planes are nonnegative integer labels with nonzero pixels;
+    plane pixel hashes and the complete array hash are retained in the receipt.
+    Input TIFF, settings and model hashes agree across source, bundle and
+    installed copies. Original cached and installed input data stay unchanged.
+
+    The original loaded checker exited 1 despite the actual Mask child exiting
+    0: its root-only mask glob missed nested intermediate roles, and those roles
+    are normally deleted after merging. The checker now accepts explicit nested
+    role stacks or validates retained embedded masks against the producer's
+    version1 layout. It rejects missing/malformed layouts, overlapping or
+    inconsistent plane indices, truncated arrays, and fractional, negative or
+    nonfinite labels. Metadata reads and label checks are bounded; stale copied
+    outputs and nonzero child exits still fail. Thirty checker/packaging cases
+    passed in 0.67 seconds under 1 GiB after a caught syntax error was corrected.
+
+    The actual corrected helper and final return expression were evaluated on
+    the retained real output and actual child exit: corrected verdict 0, three
+    valid embedded planes. This is explicitly not a second inference run or a
+    rewritten original checker exit. Model execution peaked at 3,866,902,528
+    bytes with zero OOM/max events; final array/hash validation used 1 GiB.
+
+    Bundle, private install and outputs remain at
+    /media/carruthers/mnt3/spacr-offline-f587-20261002. HOME was not reassigned;
+    the CLI also created its normal journal under ~/.spacr/runs, explicitly
+    recorded in the receipt. No bundle was published. The literal Linux offline
+    DONE WHEN is now met; additional backend/platform extensions above are
+    not represented as validated.
+    Receipt: features/data/587_linux_offline_acceptance_2026-10-02.json.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts); it is a CLI/bundle with no GUI, so nothing needs an alpha registry entry.
+
+2026-10-21 - Codex Windows lane resumes native CPU bundle/install/CheckMask acceptance on disposable roots with real bundled data/weights and required network isolation, preserving Linux's accepted scope. Native preparation reproduced published Mask examples using gen_masks_settings.csv instead of gen_mask_settings.csv; accept either input while retaining the canonical bundled filename, and validate both plus whole-field copying.
+2026-10-21 - Windows AppContainer acceptance reproduced volume-root free-space lookup and forced existing-parent recreation failures. Codex Windows isolation owns target-directory disk queries (same 5 GB/error refusal) and idempotent parent creation without ancestor access; native regressions precede regenerated-bundle real install/CheckMask acceptance.
+2026-10-21 - Codex Windows lane resumes native CPU bundle/install/CheckMask acceptance on disposable roots with real bundled data/weights and required network isolation, preserving Linux's accepted scope. Native preparation reproduced published Mask examples using gen_masks_settings.csv instead of gen_mask_settings.csv; accept either input while retaining the canonical bundled filename, and validate both plus whole-field copying. Windows AppContainer acceptance reproduced volume-root free-space lookup and forced existing-parent recreation failures. Codex Windows isolation owns target-directory disk queries (same 5 GB/error refusal) and idempotent parent creation without ancestor access; native regressions precede regenerated-bundle real install/CheckMask acceptance.
+2026-10-21 - Regenerated bundle passed checksum verification in network isolation; installation remains incomplete: PowerShell executable resolution and cleanup fail through restricted ancestors. The same uv executable launches through native ProcessStartInfo; no broader process-launch change or successful offline-install claim is included.
+2026-10-22 - Current 1.5.1.6 checksums/native helper/owned-cleanup proofs pass; uv normalized-path lookup denies access in both AppContainer storage routes. User authorized autonomous Server 2025 evaluation VM: standard-token WHPX setup/vCPU proof, official ISO size/Desktop Experience image/Microsoft setup signature and frozen-bundle checksums pass; read-only payload/private disk are ready, not booted. Network-disabled production install/CheckMask remains pending; preserve primary lease-release errors and do not run the host-discovering installer on the host.
+2026-10-23 - Codex Windows lane: clean Server2025 exposed missing CRT DLLs after369 compatible packages. Added pinned Microsoft14.50.35719 x64 app-local payload verification and shared online/offline/NSIS integration without elevation or System32 writes; retained private-owner/DACL/reparse/integrity guards. Native built-in Administrator ownership, inherit-only CREATOR OWNER semantics, early dedicated-venv preflight, bounded failed-native stderr transcripts and primary-error preservation during failed cleanup have30 focused passing checks. Real guest probes accept private staging and reject effective foreign writers; the earlier custom C: fixture was correctly refused. Final regenerated bundle/NSIS pass build checks; the fresh private-profile, network-disabled production retry passes payload verification,12-DLL preparation and pre-pip staging checks, with369-package installation currently running. Runtime import, one real Mask,24 popup DPI cases and NSIS uninstall/reinstall/purge remain pending; retain Linux acceptance and do not execute the host-discovering installer on the host.
+2026-10-24 - Windows fixes published in704aa7019 with30 focused passes. The real network-disabled Server2025 retry verifies the payload,12 private CRT DLLs and369-package compatibility; imports spaCR1.5.1.6/torch2.14.1+cpu and activates the installed runtime with privacy opt-outs. Its only real Mask invocation remained unfinished when the unchanged12h harness bound stopped the VM; no product ERROR/RESULT was reported. A verified internal VM checkpoint preserves that invocation for supported continuation. Mask outputs,24 process-DPR popup cases and NSIS ordinary uninstall/reinstall/literal PURGE remain pending; no physical Windows11 DPI or scientific-quality acceptance is inferred.
+2026-10-24 - The checkpointed guest continuation restored the same invocation but its software-emulated (TCG) CPU Mask produced no output in ~1 h at 0.14-0.8 core; stopped at the maintainer's request, checkpoint and logs kept. The same offline_mask_check.py on native Windows with the bundle's plate1 and cpsam weights (2 threads, 8GiB cap, HF offline) PASSES: Mask exit 0 in 726.5s (cpsam inference 103/131/475s for cell/nucleus/pathogen), 1 merged stack, 3 validated embedded mask planes, segmentation QC OK. The guest stall is emulation speed, not a product hang. Guest-only gates (24 popup DPR cases, NSIS uninstall/reinstall/PURGE) remain pending and need a WHPX-accelerated or faster guest run, or a Mask-free guest pass.
+2026-10-25 - Mask-free fresh Server2025 TCG guest from nightly 379e94fff: network-disabled offline install of 1.5.1.6 PASSES (bundle verified, 12 private CRT DLLs, 369 compatible packages, spaCR1.5.1.6/torch2.14.1+cpu imported, privacy opt-outs recorded, "spaCR installed successfully"; CheckMask skipped as covered natively). The NSIS upgrade had started 44 min before the unchanged 12 h harness bound stopped the VM, with no product error reported. 24 popup DPR cases and NSIS uninstall/reinstall/PURGE remain pending; under TCG they need a longer bound or a WHPX-accelerated guest.
+2026-10-25 - Payload rebuilt from nightly 18d6fe923c (online NSIS 611eb758, offline bundle wheel 2cfe8ed4, fresh disk) in scratch offline-vm-whpx-20261025. WHPX cannot run the Server2025 guest on this host: default irqchip loses MSI vector 0 and hangs in SeaBIOS; kernel-irqchip=off freezes WinPE right after its kernel starts (QEMU 10.2.0 and 11.1.0, q35 and pc). No guest gate ran. BLOCKED ON MAINTAINER: approve an 18-24 h TCG run of this payload (12 h only reached the NSIS upgrade) or provide a host with working WHPX/KVM/Hyper-V; the 24 popup DPR cases and NSIS upgrade, plain uninstall, reinstall and PURGE remain pending, also for 646.
+
+WINDOWS FOLLOW-UP — 2026-10-26
+Windows session: continue the existing verified 587/646 guest or its supported checkpoint; do not duplicate or restart a healthy installation. Report each gate separately: network-disabled offline install/import, 24 popup DPR cases, NSIS ordinary uninstall, reinstall and literal PURGE. The native CheckMask pass is retained; do not rerun its slow TCG inference merely for reassurance. Keep the host untouched: use the disposable guest/private installation and preserve unknown/shared data. Record guest/backend, exact source and bundle identities, observed exit codes and remaining gates here; reports go under /nas_mnt/data/sync/windows-lane/. Quiet output or a timeout alone does not prove product failure or completion.
+
+Windows execution owner: Codex Windows (root/windows_guest_current), existing 24-hour Server2025 build26100 TCG run offline-vm-tcg-20261026; source14283c09b6, 4GiB guest/8GiB Job, no NIC or host shares. Offline install/import PASS: installer exit0 enforced by the guest guard, foreign sentinels retained,369 compatible packages/12 private CRT DLLs, installed venv interpreter/module1.5.1.6 with torch2.14.1+cpu and privacy_and_cpu_verified:true. Normal bundle wheel SHA256=8be4fe85cb28a20367c423493146d494a232aa967393707cdd6f4ec4d5d96dc0; genuine NSIS SHA256=67a3e420ef44980e16bcbff46ef7b2a84eebfaa36c11e5a1911c68a9a4fd8cc1. Actual NSIS_UPGRADE_START reached; upgrade,24 popup DPR cases, ordinary uninstall/reinstall/literal PURGE remain pending. Retain native Mask acceptance; no duplicate VM or inference run. Normal logs remain in the private run directory.
+
+Windows report-transfer dependency: /nas_mnt/data/sync/windows-lane/ has no existing local path or mapped filesystem drive in this Windows session. The normal acceptance outputs remain in C:/mnt/wd4tb/scratch/windows-tests-20261021/offline-vm-tcg-20261026/. This item needs the existing Windows UNC/SFTP destination for shared report delivery; do not create a local surrogate NAS folder or claim reports were delivered. Guest execution continues independently.
+
+2026-10-27 — Acceptance update: under the maintainer’s 1.5.1.6 delivery rule, human review and optional native-platform acceptance no longer gate delivered software; the maintainer tests after delivery and silence requests no change.
+2026-10-27 — COMPLETE (alpha): the literal network-disabled Linux install/Mask criterion and published installer implementation are accepted, retaining native Windows CheckMask PASS (726.5 s) and offline install/import PASS (369 packages, 12 private CRT DLLs). Optional NSIS upgrade/DPR/uninstall/reinstall/PURGE checks remain unperformed; the existing Windows owner and healthy 24-hour TCG run retain their context and are not restarted, cancelled or claimed complete.

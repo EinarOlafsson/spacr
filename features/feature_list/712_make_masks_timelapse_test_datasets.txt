@@ -1,0 +1,46 @@
+================================================================================
+MAKE MASKS: TIMELAPSE TEST DATASETS WITH MASKS (YEAST, BACTERIA, MAMMALIAN)
+================================================================================
+
+Lifecycle: new
+Status:    DONE 2026-10-18 — three public movies on Load test data and spacr-download
+Requested: maintainer, 2026-10-18 — "the make mask modual needs a timelapse
+           dataset with masks as a test dataset for testing the tiemlapse new
+           functionalities for object tracking. please use a dataset from the
+           timepose training datase there should be one yeast, one bacteria,
+           and one mamalian cell timelapse. each with clear masks preferably
+           many cells, prefereably some that devide and for the mammals some
+           that move fast and some that devide."
+Owner:     Claude Home
+
+WHAT TO BUILD
+Three timelapse test datasets for Make Masks, one yeast, one bacteria and one
+mammalian movie, drawn from the public third-party sources in the Timepose
+training data. Each has clean ground-truth masks in every frame with
+consistent IDs, many cells and visible divisions; the mammalian movie also has
+fast-moving cells. Trim or crop to modest downloads while keeping divisions
+and fast movers.
+Package each in the Make Masks timelapse layout: source frames plus uint32
+mask TIFFs with the 708 embedded lineage converted from the ground-truth
+lineage, so Time mode and the lineage tools show the divisions on open.
+Host them beside the existing test-data downloads with sha256 pins and a
+README per movie (source, citation, licence, what it shows).
+Make Masks "Load Test Data" gains "Timelapse: yeast", "Timelapse: bacteria"
+and "Timelapse: mammalian" (tr(), nine reviewed locales); spacr-download
+gains the same keys.
+
+ACCEPTANCE
+Only public data whose licence allows redistribution; no lab-internal or
+unpublished movie, nothing from the locked test split and nothing that
+identifies the Timepose curated split. Source, citation and licence recorded.
+Each movie opens in Make Masks Time-mode-ready with lineage that shows its
+divisions. Tests (no network): registry entries and sha256 pins, the loader
+opens a tiny synthetic stand-in with lineage, captions translated. Normal
+generated artefacts; one integrated push to nightly.
+Timepose data is read-only; no GPU, no Timepose jobs touched.
+
+2026-10-18 — Registered the maintainer request.
+2026-10-18 — Built: yeast = LYN SJR1 (Zelic/Rahi, CC BY 4.0) frames 100-180, 25-82 cells, 57 buds, clean IDs (SJR2/SJR6 have ID jumps, Cell-ACDC <=56 cells); bacteria = C. glutamicum seq 00 (Seiffarth, Zenodo 7260137, CC BY 4.0) frames 440-499, 93-152 cells, 59 divisions; mammalian = Tui T98G (Zenodo 19026908, CC BY 4.0) 37 frames, ~71 cells, 8 mitoses, steps up to 44 px vs 4.5 median.
+2026-10-18 — Packaged with embedded 708 uint32 lineage by tools/build_timelapse_example_datasets.py, hosted as HF datasets einarolafsson/spacr-example-timelapse-{yeast,bacteria,mammalian} with sha256 pins in EXAMPLE_ARCHIVE_SHA256; menu entries, spacr-download keys, nine-locale reviewed captions, API contract and tests. Remaining: none (tutorial coverage stays with the docs lane).
+
+2026-10-18 — N43 artifact follow-up (accessibility_implementation + accessibility_acceptance): the four delivered public API entries still need their nine-locale catalogs. Product/data delivery above is retained; normal reviewed-only generation adds exactly36 locale entries, reusing36 old bindings alongside153 new reviewed bindings. All10 catalog currency cases pass (37.46s); root owns final publication.

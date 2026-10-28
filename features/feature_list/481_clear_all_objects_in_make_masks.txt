@@ -1,0 +1,20 @@
+CLEAR ALL OBJECTS IN MAKE MASKS
+
+Lifecycle: new
+Status: DONE 2026-09-22 (evidence: dated notes, record 9ad033f84) — validated 2026-09-22; see verification notes below.
+Owner: implementation; API/settings descriptions and translations coordinated with the documentation lane.
+
+REQUEST
+Add a clearly named Clear all objects button in Make Masks.
+
+ACCEPTANCE
+Clear all labels in the current field only, leave source pixels untouched, record the edit and support Undo/Redo. Disable appropriately while no editable field is loaded.
+
+Validate real UI interaction and affected pixel/mask behavior with focused tests.
+
+2026-09-22 — IMPLEMENTED: existing confirmed clear action is now explicitly
+labelled Clear all objects. Verified button interaction clears every current
+label, leaves source pixels intact, and Undo/Redo restores/clears exact labels.
+Included in209 passing checks; existing no-field disable guard retained.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_make_masks_apply_and_adaptive.py, test_magnifier_request_provenance.py pass.

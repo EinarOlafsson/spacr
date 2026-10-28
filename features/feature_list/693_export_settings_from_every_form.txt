@@ -1,0 +1,149 @@
+================================================================================
+EXPORT SETTINGS FROM EVERY FORM
+================================================================================
+
+Current Windows follow-up, owner Codex windows_scope: additionally drive production Measure n_jobs=1 on one retained synthetic field under a Unicode/spaces parent in an actual strict cp1252 child; require expected SQLite object identities, counts and numeric data without console encoding failure. Also hold the produced Unicode-path infection report with a real NTFS sharing lock: preserve its bytes, emit an encodable warning without ending the run, and recover after unlock. Fix only diagnostics exposed by this run. Verify real NTFS sharing-denial behavior with an owned CreateFileW lock, preserving the prior CSV and JSON and removing private staging before recovery after unlock. Verify production save/show/reload in a real strict cp1252 child with Unicode values and a spaces/Unicode NTFS path; console fallback must not end the run or corrupt the UTF-8 settings files. Use an isolated profile and a 2 GiB cap; preserve existing acceptance, no power-loss or two-file-transaction claim. Fix any reproduced failure in the owned Windows worktree before focused validation and nightly publication.
+
+Lifecycle: new
+Status:    DONE 2026-10-14 (not alpha); ships in 1.5.1.5
+Requested: GitHub issue EinarOlafsson/spacr #140 by @jak18015 (duplicated as
+           #141 and #142): "Measure (and other screens): add 'Export
+           settings…' to save the current form as a settings CSV".
+Owner:     Home (build); WS (translations)
+Related:   spacr-run (spacr/cli.py) and its settings loader; Distributed Jobs
+           (Submit remote…); spacr.utils.save_settings / load_settings.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE WAS
+--------------------------------------------------------------------------------
+
+Every module form (AppScreen) had "Import settings…" but nothing wrote the form
+to disk. save_settings() runs only inside a pipeline, after file listing,
+calibration, PSF and SQLite setup, so on a slow network mount the CSV came
+late, and a stopped run left none. "Submit remote…" snapshots the form to
+Distributed Jobs and writes no file. The workaround (get_*_settings() plus
+save_settings() in a script) used defaults and lost every GUI change.
+
+--------------------------------------------------------------------------------
+WHAT WAS BUILT
+--------------------------------------------------------------------------------
+
+1. "Export settings…" right after "Import settings…" on every AppScreen form
+   (one implementation in spacr/qt/screens/app_screen.py, so every module
+   form, including both Cellpose workbench tabs, has it).
+2. It collects the form exactly as Run does (SettingsModel.collect()), opens a
+   save dialog offering <module>_settings.csv in the src folder (else the
+   folder of the last imported/exported settings CSV, else home), and writes
+   the file. No run starts and nothing is listed or opened.
+3. spacr.cli.write_settings_file (public, the inverse of load_settings_file):
+   the save_settings layout -- Key,Value header, dict order, None as an empty
+   cell, str() of every value -- plus a .json copy beside it, as save_settings
+   writes. Differences from save_settings: test_mode/plot are kept as the form
+   has them, and a float whose str() is exponent-only (1e-05) is written
+   positionally (0.00001) so the loaders read a float, not a string.
+4. Paths are written exactly as shown. spacr.portable_paths has no portable
+   form for settings (it re-roots crop paths in databases); cluster paths are
+   changed with spacr-run --set src=... or a Distributed Jobs profile's
+   dataset roots.
+5. Distributed Jobs: "Save settings CSV…" beside Browse, enabled while a
+   Submit remote… snapshot is loaded, writes that snapshot with the same
+   function. Submit is unchanged.
+6. SettingsModel.set_hidden_value: None leaves an empty-string hidden setting
+   as "" (a CSV writes both as an empty cell), so the Timelapse form's hidden
+   text settings round-trip exactly.
+7. Docs: docs/source/distributed_execution.rst, "Settings files from the GUI".
+
+Tests: tests/qt/test_n693_export_settings_from_every_form.py (button placement
+and a non-default round trip on every AppScreen key, listing and run patched
+to raise; non-GUI loaders; spacr-run measure --dry-run),
+tests/qt/test_n693_distributed_jobs_saves_the_snapshot.py,
+tests/test_n693_write_settings_file.py.
+
+New English strings for WS: "Export settings…", "Export settings CSV",
+"Export failed", "Saved {count} settings to {path}\n", the Export hint, "Save
+settings CSV…", its tooltip, "Could not save the settings: {error}", "Saved
+the settings to {path}. On the cluster run: spacr-run {module} --settings
+{name}", and the docs section above.
+
+2026-10-12 — built and pushed to nightly (Home). Round trip measured on all 23
+AppScreen keys: no value drifted after Export, a fresh form and Import.
+
+2026-10-14 — remaining acceptance completed (Home):
+One actual caption gap remained: AppScreen imported set_translatable_text as
+_set_text, hiding "Export settings…" from the normal catalog extractor. The
+call now uses its canonical name. Normal generators added that one caption
+and its source hash to all nine language catalogs, with exact-source AI
+technical review records (no human/native-speaker signoff). Every earlier
+translated target is preserved. The normal arrival generator from N697
+retains all 9833 historical baseline records and every existing arrival,
+retirement and source-body change; no pin or ceiling was raised.
+
+All 89 distinct owning/contract cases pass across the recorded runs: the
+initial cohort passed 87; its two loader imports failed because the test
+launch mixed a Torch 2.14 CPU overlay with installed Torchvision 0.28. Only
+those two nodes were rerun with the existing compatible Torch 2.13 /
+Torchvision 0.28 pair and passed (17.38 s, exit 0). No package was installed
+or source assertion changed. The acceptance covers button placement and
+non-default export/import on all 24 currently registered AppScreen keys,
+the CSV/JSON writer, non-GUI loaders, spacr-run dry-run, snapshot save/cancel/
+error behavior, and the actual Export button in all nine non-English locales.
+The three public export-helper API entries match current source in all ten
+catalogs; all five new GUI-guide messages are translated in all nine guide
+catalogs. This is Linux CPU/offscreen Qt 6.12 evidence, not a new native
+Windows/macOS recording.
+Evidence: features/data/693_export_caption_acceptance_2026-10-14/receipt.json.
+
+2026-10-15 — last-good pipeline JSON snapshots survive failed writes:
+utils._save_settings_json now serializes with its existing plain/JSON format
+before mutation, stages privately, reuses the existing atomic journal writer,
+and publishes only complete JSON. Failed serialization, interrupted native
+streams or refused replacement retain the old bytes, or leave a new target
+absent; staging is cleaned and the original never-raises warning remains.
+Existing symlinks still address their targets, existing permission mode bits
+and normal new-file umask modes are retained, read-only targets still refuse, and missing
+parents are not created. Native baseline6FAIL/2PASS6.74seconds. Initial owning
+writer/export/pin cohort26PASS8.34seconds; final11 native permission/error cases
+PASS5.58seconds after the explicit read-only guard. These overlap:27distinct
+checks,11new cases, under6G/shared lock. CSV remains a separate output, not a
+CSV/JSON transaction. No host power-loss/directory-fsync or concurrent external
+writer guarantee, model/network/GPU/fullCI or native other-OS acceptance.
+Evidence: data/693_atomic_pipeline_json_2026-10-15/receipt.json.
+
+2026-10-15 — interrupted pipeline CSV writes preserve previous snapshots:
+The CSV publication hunk now uses spacr.tabular in a private same-filesystem
+stage, fsyncs complete bytes, retains file mode bits and publishes by native
+replace. Exact CSV format/header, existing symlink target/link, read-only
+refusal, warnings and CSV-before-JSON ordering are retained. A partial native
+stream or refused publication leaves the previous CSV and JSON unchanged,
+or a new CSV absent; staging is cleaned. Baseline4FAIL/3PASS7.11seconds; eight
+new native cases plus existing JSON/pin/export/legacy writer cohorts pass35
+in8.28seconds under6G/shared lock. No two-file transaction is claimed.
+Explicit edge: existing literal directory names containing expandable $VARS
+now refuse safely before table output, because tabular would otherwise
+redirect a staging path outside its private folder. No redirected tree is
+created. Native inode/hard-link/ownership/ACL/xattr semantics beyond mode bits,
+external concurrent writers and power-loss durability remain unverified.
+No model/network/GPU/fullCI or native other-OS acceptance. Evidence:
+data/693_atomic_pipeline_csv_2026-10-15/receipt.json.
+
+2026-10-15 — GUI/CLI export streams stage before replacing saved configurations
+The shared cli.write_settings_file behind every GUI Export and Distributed
+Jobs snapshot no longer truncates either saved output during serialization.
+Both CSV and JSON finish privately before any replacement; native partial
+streams, preparation permission failures and refused first publication retain
+previous files or leave new files absent. Format, returned paths, symlink
+targets, existing mode bits, normal new-file umask and metadata checks remain.
+Exact staged-file unlink/rmdir cleanup preserves the existing no-folder-listing
+contract: initial GUI26FAIL/57PASS exposed TemporaryDirectory's directory scan;
+the guard/assertions were not relaxed. Native baseline4FAIL/1PASS2.41s; final
+83PASS40.03s/exit0 under6G/shared lock includes every-form and DistributedJobs
+roundtrips. Independent domain peer accepted source design. Replacements remain
+independent, not a two-file transaction; second publication can fail after CSV
+completes. Atomic inode/ownership/ACL/xattr, external-writer and power-loss
+semantics are not claimed. Second-expansion paths that could escape staging
+refuse safely. No model/network/GPU, native other-OS or fullCI/release acceptance.
+Evidence: data/693_export_stream_staging_2026-10-15/.
+
+2026-10-22 Windows native follow-up: real NTFS locked-CSV preservation/recovery passes; a strict cp1252 child reproduced UnicodeEncodeError in the settings-path diagnostic. Progress/CSV-warning/JSON-warning output now uses existing console_safe without changing UTF-8 files or publication order. Two native cases plus the existing console regression pass under2GiB, including Unicode/spaces paths, exact typed CSV/JSON roundtrip, real CSV/JSON sharing locks, stage cleanup and unlock recovery; baseline1FAIL/1PASS retained. JSON refusal can follow successful CSV publication, as documented; no two-file transaction, power-loss or broader GUI acceptance claimed.
+
+2026-10-23 Windows Measure consumer: actual strict cp1252 single-field n_jobs=1 run reproduced UnicodeEncodeError in Processing-folder and format_path_for_system diagnostics. Existing console_safe now protects those path messages and the normal Infection-report path and its reproduced real-NTFS-lock warning; filenames, UTF-8 settings and scientific data stay intact. Focused native production regression passes27.75s/2GiB: SQLite counts4cell/4nucleus/2pathogen/4cytoplasm, unique identities, exact input-derived areas, finite intensities, Unicode/spaces plate paths and unchanged input; affected real report lock/warning/recovery also passes using that produced DB (prior bytes preserved, encodable warning, unlock rewrite/readable CSV, no staging residue after successful recovery), without rerunning measurement. Earlier settings/locks and four-field comparison passes retained.

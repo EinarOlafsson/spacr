@@ -1,0 +1,70 @@
+================================================================================
+UNDO REDO EVERYWHERE
+================================================================================
+
+Lifecycle: new
+Status:    COMPLETE 100% 2026-10-10
+Requested: 2026-10-04, by the maintainer, who approved this program-level
+           feature in the step-4 review ("is the program itself missing
+           something?"), from the gap audit of the same day.
+
+WHAT TO BUILD
+  A shared undo/redo stack for the settings editor and the other editors (today only the mask editor has redo).
+
+DONE WHEN
+  The feature works on Linux, macOS and Windows, is reachable from the GUI
+  where it applies, has tests, and is documented.
+
+DONE 2026-10-04
+  spacr.qt.shortcuts holds the shared mechanism: _ValueEdit (a QUndoCommand
+  replayed through a setter), _record_edit and _bind_undo_keys (Ctrl+Z,
+  Ctrl+Shift+Z, Ctrl+Y on an editor and its children; a focused text field
+  keeps its own Ctrl+Z). Wired into:
+  - the settings panel (SettingsWidgets.undo_stack): every committed setting
+    change is one step; bulk loads, presets and replays move the baseline only.
+  - the gate editor panel (GateEditorPanel.undo_stack): each gates_changed is
+    one step, replayed through set_gates.
+  - Annotate: the existing U undo gains a redo stack; Ctrl+Z / Ctrl+Shift+Z /
+    Ctrl+Y bound and listed on the shortcut map.
+  - the mask editor keeps mask_engine.MaskHistory, which already redoes.
+  Tests: tests/qt/test_undo_redo_everywhere.py.
+  Left: a menu Edit > Undo/Redo entry and catalog translations of the four
+  new captions (awaiting the catalog rebuild).
+
+2026-10-08 08:06 EDT — Workstation current translation follow-up
+  Undo, Redo, Edit gates and Change {setting} translated in all9 runtime
+  languages (36 exact-source/placeholder checks). Existing source hashes
+  checked where catalog entries exist; central rows retain existing binding.
+  Original6 editor tests PASS actualQt6.12/pytest8.4.2/8G. Translation
+  follow-up complete; Edit > Undo/Redo integration remains OPEN.
+  Proof: features/data/649_undo_redo_translation_followup_2026-10-08/receipt.json.
+
+2026-10-08 13:40 EDT — Home final private0527 source transferred in data/649_674_spaceout_edit_source_handoff_2026-10-08. Fourteen selected CPU/Qt files212PASS47.25s under4G; phases overlap earlier proofs. Exact nine source payloads and normal inventory diff verified. Final catalogs, coherent app publication/current GitHub/fullserial acceptance remain pending; no 100% or native frame-rate claim.
+
+2026-10-10 — Closed. Edit > Undo/Redo was already on nightly (integrated in
+6fa8fd257 from Codex's 1a671856a; its test tests/qt/test_edit_menu_undo_redo.py
+is there too), and its four captions are translated in all nine runtime
+catalogs. Added the user-guide paragraph for the Edit menu in
+docs/source/features.rst with reviewed translations in all nine guide
+catalogs. tests/qt/test_edit_menu_undo_redo.py and test_undo_redo_everywhere.py
+12 PASS (CUDA hidden, offscreen, 8G cap). The 3D gate and 3D mask editors
+(N672/N673) bring their own Undo/Redo, which the Edit menu reaches through
+the gate panel's undo stack.
+
+2026-10-14 — readonly text permission repair (Home):
+Edit's rich/plain text route used the document's available history without
+checking the widget's current read-only state. Actual native Qt baseline
+proved that an already enabled Undo action changed QTextEdit/QPlainTextEdit
+from "abcd" to "abc" after the editor was locked (2 failures, 4 passes).
+The two-line _edit_target guard now refuses the readonly editor, so the
+action cannot mutate it or fall through to a parent settings history.
+QLineEdit already enforces this itself and its source route is unchanged.
+
+The finite owning cohort passed 18 cases (21.53 s, exit 0): all three text
+types, editable/readonly transitions after menu activation, nonempty parent
+history, existing settings/gate/mask/temporary-annotation routes and editor
+keyboard histories. Fresh coverage executes both new statements and both
+readonly branch exits. No API/docstring/caption/key-binding change, no
+generator debt or source modification in an annotation/mask editor. Linux
+CPU/offscreen Qt 6.12; no physical Windows/macOS claim or new full-feature
+recount. Evidence: features/data/649_readonly_text_undo_2026-10-14/receipt.json.

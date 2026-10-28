@@ -40,59 +40,18 @@ def test_the_committed_index_matches_the_instruction_files():
     assert result.returncode == 0, result.stdout + result.stderr
 
 
-def test_every_open_instruction_appears():
+def test_every_lifecycle_record_appears_in_its_own_section():
     tool = _tool()
     text = (INSTRUCTIONS / "00_INDEX.txt").read_text(encoding="utf-8")
-    for path in (INSTRUCTIONS / "future").glob("*.txt"):
-        assert path.name in text, f"{path.name} is missing from the index"
-
-
-def test_a_done_instruction_is_not_listed_as_open():
-    """A CLOSED item never appears under OPEN -- unless it was REOPENED.
-
-    An item number can come back. 59, 82 and 83 were each closed and then
-    opened again with fresh content -- "the maintainer reordered the
-    release ahead of the rewrite" is the commit that did it for 82 -- so
-    the same filename legitimately exists in both folders, the done copy
-    being the earlier closure and the open copy the live item.
-
-    THE GUARD USED TO READ THAT AS A STALE INDEX and failed. What it is
-    actually for is catching an index that still advertises work already
-    finished, which is a file present ONLY in `done/`. A file present in
-    both is a reopening, and the honest index entry for it is the OPEN one
-    -- which is what `test_a_reopened_instruction_is_listed_once_and_open`
-    below now asserts, so the pair is no weaker than the single rule was.
-    """
-    text = (INSTRUCTIONS / "00_INDEX.txt").read_text(encoding="utf-8")
-    open_block = text.split("OPEN")[1].split("DONE")[0]
-    for path in (INSTRUCTIONS / "new").glob("*.txt"):
-        if (INSTRUCTIONS / "future" / path.name).exists():
-            continue
-        assert path.name not in open_block, (
-            f"{path.name} is done but listed under OPEN")
-
-
-def test_a_reopened_instruction_is_listed_once_and_open():
-    """The other half: a reopened item is OPEN in the index and not DONE.
-
-    Listing it in both blocks would make the count wrong and would let a
-    reader take the closure for the current state -- which is the failure
-    the rule above exists to prevent, in the one case that rule now skips.
-    """
-    text = (INSTRUCTIONS / "00_INDEX.txt").read_text(encoding="utf-8")
-    # RE-POINTED 2026-09-12 at the section names the index now prints. The
-    # two blocks are still the two lists and the assertions below are
-    # unchanged; only the words that separate them moved.
     future_block = text.split("FUTURE FEATURES")[1].split("NEW FEATURES")[0]
     new_block = text.split("NEW FEATURES")[1]
-    reopened = [path.name for path in (INSTRUCTIONS / "new").glob("*.txt")
-                if (INSTRUCTIONS / "future" / path.name).exists()]
-    for name in reopened:
-        assert name in future_block, (
-            f"{name} is on the future list but is not printed under it")
-        assert name not in new_block, (
-            f"{name} is printed under both lists; a reader cannot tell "
-            "which of the two describes the current state")
+    for category, section, other in (("future", future_block, new_block),
+                                     ("new", new_block, future_block)):
+        rows = tool._entries(category)
+        assert rows, category
+        for _number, _title, name in rows:
+            assert name in section
+            assert name not in other
 
 
 def test_the_counts_are_the_real_counts():
@@ -105,9 +64,9 @@ def test_the_counts_are_the_real_counts():
     """
     tool = _tool()
     text = (INSTRUCTIONS / "00_INDEX.txt").read_text(encoding="utf-8")
-    n_future = len(list((INSTRUCTIONS / "future").glob("*.txt")))
-    n_new = len(list((INSTRUCTIONS / "new").glob("*.txt")))
-    assert (f"{n_new} in features/new, {n_future} in features/future"
+    n_future = len(tool._entries("future"))
+    n_new = len(tool._entries("new"))
+    assert (f"{n_new} Lifecycle: new, {n_future} Lifecycle: future"
             in text)
     # The maintainer explicitly broadened release 1.5.1.5 on 2026-10-14.
     # Preserve the exact scope and the distinction from historical headers.
@@ -157,8 +116,7 @@ def test_codex_owned_open_files_are_marked_do_not_touch():
     tool = _tool()
     text = (INSTRUCTIONS / "00_INDEX.txt").read_text(encoding="utf-8")
     open_numbers = {
-        path.name.split("_", 1)[0]
-        for path in (INSTRUCTIONS / "future").glob("*.txt")
+        number for number, _title, _name in tool._entries("future")
     }
     # An owner whose instruction has since been DONE is the normal end state.
     # Asserting every owner is still open made the index fail for work being
@@ -168,7 +126,8 @@ def test_codex_owned_open_files_are_marked_do_not_touch():
         f"OWNERS names {sorted(stale)}, which are no longer open; remove "
         f"them so the marking tracks the folder")
     for number in tool.OWNERS:
-        paths = list((INSTRUCTIONS / "future").glob(f"{number}_*.txt"))
+        paths = [INSTRUCTIONS / "feature_list" / name for n, _title, name
+                 in tool._entries("future") if n == number]
         assert len(paths) == 1, number
         block = [b for b in text.split("\n\n") if paths[0].name in b]
         assert block, f"instruction {number} is not in the index"
@@ -212,7 +171,8 @@ def test_an_open_status_line_does_not_contradict_its_own_body():
     import re
 
     stale = []
-    for path in sorted((INSTRUCTIONS / "future").glob("*.txt")):
+    for _number, _title, name in _tool()._entries("future"):
+        path = INSTRUCTIONS / "feature_list" / name
         text = path.read_text(encoding="utf-8")
         header = re.search(r"^Status:\s*(.+?)(?=^\w+:|\Z)", text,
                            re.M | re.S)
@@ -231,3 +191,53 @@ def test_an_open_status_line_does_not_contradict_its_own_body():
     assert not stale, (
         "an open instruction's Status contradicts its own body:\n  "
         + "\n  ".join(stale))
+
+
+def test_lifecycle_metadata_cannot_become_a_title():
+    tool = _tool()
+    for lines in (["", "Lifecycle: new", "A title", "Status: OPEN"],
+                  ["Lifecycle: future", "402 — A title", "Status: DONE"]):
+        assert tool._instruction_title(lines, "402", "fallback") == "A title"
+
+
+def test_canonical_list_keeps_every_filename_and_disambiguates_shared_ids():
+    tool = _tool()
+    text = (INSTRUCTIONS / "FEATURE_LIST.md").read_text(encoding="utf-8")
+    all_items = text.split("## All feature items", 1)[1]
+    paths = tool._item_paths()
+    assert len(paths) == len(tool._entries("new")) + len(tool._entries("future"))
+    for path in paths:
+        assert all_items.count(f"](feature_list/{path.name})") == 1
+        assert tool._recorded_status(path.read_text(encoding="utf-8")).replace("|", "\\|") in all_items
+    for number in tool._duplicate_numbers():
+        assert f"| {number} (shared ID) |" in all_items
+    assert "not a verified unfinished count" in text
+    assert "Neither is a verification result" in text
+
+
+def test_new_record_in_old_folder_is_rejected_instead_of_disappearing(tmp_path, monkeypatch):
+    tool = _tool()
+    monkeypatch.setattr(tool, "INSTRUCTIONS", tmp_path)
+    (tmp_path / "new").mkdir()
+    (tmp_path / "new" / "901_lost.txt").write_text("901 — Lost\nLifecycle: new\n")
+    with pytest.raises(ValueError, match="outside features/feature_list"):
+        tool._item_paths()
+
+
+@pytest.mark.parametrize("metadata", ["", "Lifecycle: alpha", "Lifecycle: new\nLifecycle: future"])
+def test_item_category_is_mandatory_and_unambiguous(tmp_path, monkeypatch, metadata):
+    tool = _tool()
+    monkeypatch.setattr(tool, "INSTRUCTIONS", tmp_path)
+    folder = tmp_path / "feature_list"
+    folder.mkdir()
+    (folder / "901_test.txt").write_text(f"901 — Test\n{metadata}\nStatus: OPEN\n")
+    with pytest.raises(ValueError, match="exactly one Lifecycle"):
+        tool.render_feature_list()
+
+
+def test_recorded_header_status_does_not_reopen_an_archived_status_example():
+    tool = _tool()
+    # Item288 retains its original not-started record after its current OPEN header.
+    source = "288 — Current item\nLifecycle: future\nStatus: OPEN today\n\nArchived original:\nStatus: not started years ago\n"
+    assert tool._recorded_status(source) == "OPEN today"
+    assert tool._recorded_status("No authoritative status declaration\n") == "Unspecified"

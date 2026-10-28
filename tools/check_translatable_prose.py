@@ -263,12 +263,16 @@ def _known_instruction_numbers() -> frozenset:
     """
     found = set()
     base = ROOT / "features"
-    for directory in (base, base / "future", base / "new"):
+    for directory in (base, base / "feature_list"):
         if not directory.is_dir():
             continue
         for entry in directory.iterdir():
             match = re.match(r"(\d{1,3})[_.]", entry.name)
             if match:
+                if directory.name == "feature_list":
+                    metadata = re.findall(r"^Lifecycle:.*$", entry.read_text(encoding="utf-8"), re.M)
+                    if len(metadata) != 1 or not re.fullmatch(r"Lifecycle:\s*(new|future)\s*", metadata[0]):
+                        raise ValueError(f"{entry}: exactly one valid Lifecycle line is required")
                 found.add(int(match.group(1)))
     return frozenset(found)
 

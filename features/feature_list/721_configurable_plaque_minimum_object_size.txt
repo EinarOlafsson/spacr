@@ -1,0 +1,36 @@
+================================================================================
+CONFIGURABLE MINIMUM OBJECT SIZE IN PLAQUE SETTINGS
+================================================================================
+
+Lifecycle: new
+Status:    DONE 2026-10-22 — default-zero fractional thresholds and localized generated outputs validated
+Requested: maintainer, 2026-10-22
+Owner:     feature_takeover/widgets_g5 + widgets_g4 independent peer; parent coordinates shared source/publication
+Related:   468 plaque segmentation and its settings; 720 Live PDF loading
+
+REQUEST
+Inspect automatic removal of small objects in plaque segmentation. Expose its
+threshold in Plaque settings as "Minimum object size", with a default of 0.
+Accept integer and floating-point values; do not restrict input to integers.
+
+ACCEPTANCE
+- Find and replace any implicit small-object removal threshold with the user
+  setting. At the default 0, objects are not discarded merely for being small.
+- Preserve fractional input through editing, saving/loading settings, and worker
+  transport; do not silently round or impose an undisclosed positive minimum.
+- Use the existing segmentation size units, explain those units in Help, and
+  apply the same threshold in Live and full-run plaque segmentation.
+- Tests cover the default, integer and fractional thresholds, persistence, and
+  consistent Live/full-run object retention. Preserve unrelated filtering.
+- Translate the label and Help, and regenerate settings/API/Help outputs with
+  their owning tools. Implementation and generated-output acceptance are required before completion.
+
+2026-10-22 — Registered before implementation; default 0 and integer/float support are explicit maintainer requirements.
+
+2026-10-22 — Root authorizes implementation for release1.5.1.6 after current release CI work: G5 owns implementation and end-to-end closure with G4 independent source/test peer. Preserve default0, integer/fractional persistence, existing size units, Live/full-run consistency and unrelated filters; scope the actual threshold/settings transport before code. Shared plaque_preview writes and final nine-language settings/API/Help generation wait for parent’s exclusive lease after722/720 integration.
+
+2026-10-22 — The owning scientific-notation CSV roundtrip exposed a shared settings-cell parser defect: restore valid exponent-form float parsing while retaining ordinary text/IDs, quoted values, containers, booleans, integers and empty values. G5 owns this necessary persistence correction with G4/root source peer; retain the 22 passing integration cases and 12 passing backend cases, rerunning only the failed persistence case and narrow parser controls.
+
+2026-10-22 — Explicit unrounded pixel-area threshold now reaches Cellpose3/4, Live, folder and Figure runs; precise numeric editing, settings propagation and CSV/JSON persistence retain fractional values. Independent source peers and the Spanish/Korean translation peer accepted the owned changes; 47 unique focused checks pass, including the scientific-notation CSV regression and preserved text/type controls. Combined720/721 normal nine-language/API/Help/consumer generation, publication and release acceptance remain pending; no whole-item completion claimed.
+
+2026-10-22 — Delivered default-zero, unrounded input-pixel areas through precise editing, Cellpose3/4, Live, Figure/folder runs and CSV/JSON persistence; 47 unique focused checks pass. Nine-language label, Help and API records (including the unchanged return-block move) and normal outputs are independently accepted. Shared runtime2 and final API/Help11 checks pass, all ten assembled catalogs are byte-exact, and immutable review/media publication is verified.

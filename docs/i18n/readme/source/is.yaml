@@ -129,7 +129,7 @@ blocks:
     AMD Radeon Pro 5300 4 GB) tók Cellpose-SAM 444.5 s á CPU og 3.2 s með Metal fyrir eina
     256×256 mynd, með torch 2.2.2, Python 3.12.11 og macOS 26.5.2. Þetta er sögulegt dæmi,
     ekki hraðaloforð. GPU-hröðun krefst nothæfs bakenda og samhæfra safna. Sjá `skráða vélbúnaðarmælingu
-    <features/new/319_use_non_nvidia_accelerators_where_they_exist.txt>`_.
+    <features/feature_list/319_use_non_nvidia_accelerators_where_they_exist.txt>`_.
 - h2: Setja upp spaCR
 - p: 'Veldu uppsetningarleið:'
 - list:

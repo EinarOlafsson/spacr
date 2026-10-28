@@ -1,0 +1,59 @@
+================================================================================
+REBINDABLE SHORTCUTS
+================================================================================
+
+Lifecycle: new
+Status:    COMPLETE 100% 2026-10-12 — accepted by the maintainer on the desktop (see the trailing note)
+Requested: 2026-10-04, by the maintainer, who approved this program-level
+           feature in the step-4 review ("is the program itself missing
+           something?"), from the gap audit of the same day.
+
+WHAT TO BUILD
+  Rebindable keyboard shortcuts with user keymap overrides (a cheat sheet exists today).
+
+DONE WHEN
+  The feature works on Linux, macOS and Windows, is reachable from the GUI
+  where it applies, has tests, and is documented.
+
+DONE 2026-10-04
+  spacr/qt/shortcuts.py: the cheat sheet (F1 / ?) has a "Change shortcuts…"
+  button opening _KeymapDialog — one row per window-wide action (default key,
+  editable QKeySequenceEdit, clear = no key, Restore defaults). Conflicts with
+  another window action or a per-screen key are named under the table and
+  block Save. Overrides persist in the Preferences store (shortcuts/keymap,
+  JSON, Qt PortableText so one keymap reads the same on Linux, macOS and
+  Windows), are applied at install() to both QShortcuts and menu QActions
+  (Ctrl+P, Ctrl+0, F11 ...), and the sheet shows the rebound keys.
+  Tests: tests/qt/test_rebindable_shortcuts_and_settings_profiles.py.
+  Left: per-screen keys (Annotate, Make Masks, field browser) stay fixed;
+  a user-docs page and translations of the 16 new captions (catalog rebuild).
+
+2026-10-08 17:12 EDT — Actual per-screen rebinding implemented in privateccf9ce7a4ac and transferred via data/656_screen_shortcut_rebinding_cpu_2026-10-08. Final81+2checks, broader222 and6documentation guardsPASS in overlapping phases, not summed;234changed statements and changed arcs have zero gaps. Persisted live Annotate/MakeMasks/field-browser keys include aliases, clearing, conflict validation, legends and realQCquarantine. Normalinventory: one changed moduleAPIbody,22newUIcaptions. All9translation/user-guide refresh and coherent app publication remainOPEN; no 100% or nativeOS claim.
+
+2026-10-10 — Per-screen rebinding published on nightly. Codex's private
+ccf9ce7a4 source and tests ported cleanly onto current nightly (Annotate,
+Make Masks, QC field browser, shortcuts.py). tests/qt/test_cov_w2_6_shortcuts.py
+now accepts that the shared Left/Right keys are listed once per screen (each
+screen holds its own rebindable copy). All 22 new captions have AI-reviewed
+records in nine locales (docs/i18n/reviewed/runtime/*/2026-10-10-screen-
+shortcut-rebinding.json), catalogs regenerated (UI 7289 to 7311) and the
+arrivals recorded in the caption arrival ledger. Checks under run_capped,
+CUDA hidden, offscreen: shortcut, Annotate, field-browser and Make Masks
+Qt files 968+54 PASS; i18n ratchet/arrival/catalog/syntax guards PASS (the
+one report-only compact XFAIL predates this item: N677's Organism tour
+paragraph, Box tool, spaCR blobs). Left: docs/source/shortcuts_and_templates.rst
+still says per-screen keys cannot be changed; update it and its nine guide
+catalogs. No native-speaker review; no native macOS/Windows key check.
+
+2026-10-10 — Docs and API follow-up. The module docstring's rewritten
+paragraph has reviewed API translations in nine locales (retired the old
+records in place) and the API catalogs were regenerated (36579507d).
+tests/qt/test_screen_shortcut_rebinding.py's no-application test now asserts
+nothing is refreshed (suite-hygiene guard). docs/source/shortcuts_and_templates.rst
+now describes per-screen rows, the Scope column and same-screen conflicts,
+with reviewed translations in all nine guide catalogs. Left: press-testing
+rebound keys on native macOS and Windows (Cmd/Ctrl mapping), which needs the
+maintainer's machines.
+
+2026-10-12 — MAINTAINER ACCEPTANCE
+N656: maintainer desktop check 2026-10-12: "keyboard shortcuts can be changed". ACCEPTED — Status: COMPLETE 100%.

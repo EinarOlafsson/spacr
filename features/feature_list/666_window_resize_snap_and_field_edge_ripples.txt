@@ -1,0 +1,56 @@
+================================================================================
+FULLSCREEN RESIZE LOCK, EASIER EDGE GRABS AND FIELD RIPPLES
+================================================================================
+
+Lifecycle: new
+Status:    COMPLETE 100% 2026-10-10 for the software scope; native compositor check listed under N684
+Requested: 2026-10-08 — "in full screen mode the sides of the main window that can be dragged to change the window size should be deactivated and not visible by hovering."
+Owner:     Home/root; delegated CPU UI lanes
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Frameless window edges and dock/panel interactions need consistent fullscreen, snapping and field feedback.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The requested interaction should be predictable without distracting visual
+feedback, moving controls or unrelated animation preferences changing.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+Disable resize hit tests and hints in fullscreen/maximized state. Enlarge invisible edge grab regions without thickening blue guides, for main and popup windows. Snap dragged main window to the top (full screen), left/right (half screen) or bottom (bottom half). Use compositor dragging where supported. In spaCR field, emit ripples from the snapped side. Emit boundary ripples when a panel move/resize is released or a panel collapses, using final geometry and the existing bounded field physics.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Bounded Qt tests verify inactive fullscreen edges, unchanged guide paint width with larger hit regions, screen-relative snap geometry and bounded edge/rect ripple publication. Preserve original ordinary window resizing and popup behavior.
+Run only selected files with CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen
+tools/run_capped.sh 8G python -m pytest; never the whole local suite.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+No unrelated GPU jobs, global test skips, ratchet increases or wholesale
+resets of future user customization. CI N43 remains the priority in parallel.
+
+2026-10-08 — Registered the user request; implementation and focused validation
+are in progress. This entry is not a completion claim.
+
+2026-10-08 13:10 EDT — Private integrated source e31e19543a passes the final 313-case capped CPU/Qt interaction cohort. Source patch and exact bindings are transferred in data/666_671_ui_source_handoff_2026-10-08 for workstation normal catalog/inventory refresh. App publication and current-source CI are pending; this is not a 100% or native compositor acceptance claim. N674 is a separate follow-up, not included in this checkpoint.
+
+2026-10-08 16:43 EDT — Frozen checkpoint publication: accepted application source6fa8fd257 and matching API13232/runtime10066/UI7288/all9guide3050 catalogs are integrated into nightly with terminal local source/review/browser checks. See HANDOFF publication note and data/ui_publication_source_binding_2026-10-08/receipt.json. Later producer/3D/GPU continuations and matching hosted/native acceptance remain separate; this note does not close broader scope.
+
+2026-10-10 — Software scope closed. Fullscreen/maximised edges stay
+inactive, enlarged grab regions and snapping/ripple publication pass the
+bounded Qt files. Per N684 the top snap now maximises to the work area and
+full screen is a separate restorable state; one ripple per snap from the
+snapped side. Native compositor behaviour on Windows, Linux and macOS is a
+maintainer visual check tracked in N684.

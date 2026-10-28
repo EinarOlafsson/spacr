@@ -1,0 +1,599 @@
+NAVIGATOR: A CONTENT-GUIDED HOME WITH AN ANIMATED PATH AND DROP FIELD
+
+Progress List name: N733 — Navigator (maintainer confirmed 2026-10-28).
+
+Lifecycle: new
+Status:    IMPLEMENTATION APPROVED — 2026-10-27 maintainer sign-off received; new tutorial and Docs/API coverage handed off through shared HANDOFF.md; direct tutorial-session receipt unconfirmed.
+Requested: maintainer, 2026-10-26
+Owner:     Workstation session 2; root integration/publication with retained routing, rendering and reader peers.
+Related:   startup options, Preferences, Home, dock, spaCR AI
+
+CURRENT MAINTAINER FOLLOW-UP — 2026-10-27
+
+SPACEOUT FULL-CARD FOLLOW-UP — 2026-10-27: remove the visible Spaceout name and fill the entire button with the provided animated GIF, clipped to the same rounded card perimeter. Preserve the native border and hover outline, accessible name, click action, visible-only playback and Reduce motion support. Other cards keep their names and layout.
+
+INPUT PLACEHOLDER FOLLOW-UP — 2026-10-27: use exactly “Drop a file or folder | Type a Path | Ask a Question ◉” in the English Navigator input. Keep the input actions and AI control unchanged, and provide corresponding localized guidance.
+
+SPACEOUT UPDATED-REFERENCE FOLLOW-UP — 2026-10-27 (supersedes prior GIF):
+use the unchanged a84bd079c68e26a88e4b4f7db0b13bf3.gif provided in Downloads,
+a 500×500 animated dotted vortex. Match only Spaceout's card fill to the GIF's
+RGB(32,32,32) background in idle, hover and pressed states so its square is
+seamless, preserving title text and the existing colored maturity outlines.
+Keep the existing visible-only QMovie, Reduce motion and packaging behavior.
+
+SPACEOUT PROVIDED-REFERENCE FOLLOW-UP — 2026-10-27 (supersedes procedural mark):
+bundle the user's unchanged /home/carruthers/Downloads/spaceout.gif and use its
+actual black-background, white animated rosette for Spaceout. Play the GIF with
+a visible-only, uncached native QMovie at icon resolution; stop when hidden or
+Reduce motion is enabled, retain a representative still for static icons, and
+preserve the animation through workflow reparenting. Package only this new GIF
+alongside the already-used spinner; no unused variants or recoloring.
+
+SPACEOUT ICON FOLLOW-UP — 2026-10-27: replace the infinity-shaped Spaceout
+mark with a white spiral viewed from above. Continuously rotate only that
+Navigator card's cached native vector icon while it is visible; respect Reduce
+motion, stop hidden work and retain the animation through workflow reparenting.
+
+PANEL/PAINT FOLLOW-UP — 2026-10-27: snapping News/Widgets or the app dock
+must not repaint hidden module cards as non-interactive ghosts. Expanding
+or collapsing either side must leave Navigator's search, card/network
+content and lower text geometries and field theme unchanged; panels overlay
+the canvas rather than reflow it. Add an accessible upward resize affordance
+to the fixed-bottom text box without moving the search. Workstation session 2
+owns the correction, focused rendering/geometry checks and nightly publication.
+AI fill must be solid matte provider colour (spaCR AI: RGB 0,100,100); replace the spinning texture with
+a subtle rotating glow while retaining the white perimeter and typing pulse.
+Delivered in this follow-up: explicit hidden-card presentation state preserves
+departure fades; native side controls overlay a stationary canvas and publish
+no field feedback; the bottom-anchored text grip remembers its chosen height.
+Focused native geometry, rendering, resizing and animation checks pass.
+
+CURRENT RUNS FOLLOW-UP — 2026-10-27: typing current runs/running runs/running jobs/show running runs (and equivalents in all supported languages) offers a click-only Running card. Clicking reveals Navigator's Widgets pane and its Running fold, listing every active user-visible job from the existing live run registry with native open/pause/stop controls. Queue remains the separate plate queue. Keep hidden housekeeping out, reconcile completed jobs, default the fold collapsed, and do not launch processing or change global preferences.
+
+PASSIVE THEME OVERLAY FOLLOW-UP — 2026-10-27: Navigator input and module cards must simply overlay the selected spaCR field theme. Remove Navigator-owned search rim idle animation, search-click gravity feedback, card growth physics, ambient holds/exclusions and background/ripple policy overrides. Leaving the pointer still must not start a search or field effect. Preserve the selected theme's normal animation, fixed dark25 controls, ordinary card fades/growth and the independently requested AI typing/busy icon animation.
+
+STARTUP AI GUIDANCE FOLLOW-UP — 2026-10-27: remove the Navigator boolean from
+Start spaCR, preserving Navigator's current default, Help toggle and CLI
+launchers. In How it runs, explain application-wide AI assistance, the hosted
+spaCR AI free daily allowance, Claude/Codex/Gemini's own CLI logins, and how
+to enable unmatched-task Navigator answers and use module-console AI.
+
+PERSISTENT FIELD-BOX FOLLOW-UP — 2026-10-27: after an unknown/no-answer Enter with the pointer held still, a rectangular patch of static field dots above the search must not remain until pointer movement. Diagnose the actual software-rendered no-result lifecycle and retire stale card/growth/feedback exclusion regions; no invisible placeholder may keep ambient particles fixed. Preserve current AI-response controls, input sizes and native task/command precedence.
+
+NAVIGATOR AI FOLLOW-UP — 2026-10-27: add a small search-field toggle with a
+white perimeter, hollow when off and provider-colored textured fill when on
+(spaCR teal, Claude orange, Codex light green, Gemini blue). First use explains
+application-wide AI assistance and asks for a provider; remember the choice,
+allow changing it, and send only explicitly submitted unmatched tasks through
+existing provider workers and limits. Display streamed replies in the fixed
+lower description box. Pulse fill with typing speed and rotate its texture
+while awaiting an answer, respecting reduced motion. Matching cards and local
+paths retain their existing routes. Root owns implementation and validation.
+
+LATEST SHORTCUT FOLLOW-UP — 2026-10-27: saliency/Grad-CAM offer Activation
+Maps; ParaScape offers its native card. Spaceout offers a white infinity-spiral
+card that enables the existing process-local Spaceout view on click. Update
+spaCR (including uppdate) triggers the update dialog. PyPI/pip/install phrases
+open spaCR PyPI; Conda install variants open spaCR conda-forge. Add spaCR stats
+(ClickPy), logs/cache folders, models folder plus Model Zoo, Docker, tutorials
+and nightly URL shortcuts. Reuse actual configured paths, existing routes and
+source-controlled localization; never interpret real paths as command text.
+
+LATEST MAINTAINER CORRECTION — 2026-10-27: halve the current Navigator search
+field and its text, and double the lower tooltip/description box and its text
+within window bounds. Enter on any module/submodule name must show its card,
+never open the module until a card is clicked. All added task words/phrases
+must also match in all supported application languages, retaining noun/verb
+variants, case-insensitive matching, path isolation and maturity filtering.
+Workstation session 2 owns integration; retained peers own disjoint layout,
+localized matching and language validation work.
+
+FORMAT-KEYWORD FOLLOW-UP — 2026-10-27: pure file-format tokens with or without a leading dot (including sql/db/sqlite, npy, tif/tiff, bmp and explicit bnp typo, png/jpeg, csv/tsv, fastq/fq with optional gzip, pdf and available ND2/CZI/LIF readers) must offer real compatible native module cards on Enter without launching or processing. Derive support from existing reader/drop capabilities, keep maturity gates and canonical deduplication, and leave actual filenames/paths/existing relative folders to evidence-based inspection. A sql keyword refers to SQLite tools; an actual .sql dump is not a supported database ingest. No universal-format claim or new UI captions is required.
+
+FEATURE-DETECTION PHRASE FOLLOW-UP — 2026-10-27: detect features and feature
+detection must offer Measure on Enter, including case-insensitive questions.
+An empty search must not leave a frozen particle rectangle until mouse movement.
+
+NAVIGATOR ENTER-FEEDBACK FOLLOW-UP — 2026-10-27: entering a task such as
+“detect features” must resolve to cards without leaving a stationary square
+of dots above the search field. Completion, empty results, cancellation and
+feedback changes must invalidate stale growth/fade/overlay pixels without
+requiring mouse movement. Preserve live field rendering and Enter-only
+discovery; no GPU, tutorial or processing behavior changes are requested.
+
+MASK-ANALYSIS PHRASE FOLLOW-UP — 2026-10-27: case-insensitive analyze masks,
+analyse masks and mask analysis must offer Measure, QC and Make Masks on
+Enter. Reuse existing native cards; do not launch tools or run AI automatically.
+
+LATEST GENERATED-FOLDER FOLLOW-UP — 2026-10-27: dropping a canonical spaCR merged folder containing valid numeric NPY planes must offer Measure and its native downstream modules. Recognize other verified spaCR output folders and artifacts using existing producer/consumer contracts, including masks, crop data, measurement databases, result tables and model outputs; suggest the producer and relevant downstream routes without processing. Inspect bounded headers/schema and canonical structure, preserve correct project/input routing, and explain prerequisite review. An explicitly selected raw file must remain isolated from unrelated project analysis, and annotation-only databases must not masquerade as scientific measurements.
+
+LATEST GENERATED-FILE FOLLOW-UP — 2026-10-27: a verified NPY selected inside its canonical merged folder intentionally inherits its own plate context and downstream Measure routes. Measure must receive the parent plate root, while file-capable viewers/editors receive the actual selected file. Recognize both YXC and ZYXC numeric merged arrays with at least two final planes. Preserve explicit raw-TIFF scope isolation and calibrated-workflow barriers; do not claim a native module supports a selected input mode unless its existing reader/input contract does.
+
+LATEST INPUT SIZE FOLLOW-UP — 2026-10-27: double the Navigator search input's default text size and box dimensions, keeping its vertical center fixed and constraining width to the current window. Preserve Enter-only discovery, Browse access, stationary descriptions and suggestion/network transitions.
+
+LATEST DEFAULT FOLLOW-UP — 2026-10-27: Navigator is the default Home for spaCR profiles with no saved mode choice. Preserve an explicitly saved opt-out, Help > Navigator and the startup checkbox; explicit module launches still open that module. Update the documented default and verify fresh-profile Home/startup controls and saved choices.
+
+LATEST TASK-PHRASE ROUTING FOLLOW-UP — 2026-10-27: support the following 100 original task phrases paired with 100 alternate noun/task-label or verb forms (200 qualified inputs) as deterministic standard module-card suggestions on Enter, never automatic module opening. Match case-insensitively with punctuation normalization and bounded phrase matching inside questions. Preserve existing partial module-name search, canonical deduplication, native/folded routes and maturity/species gates. Typing alone does not launch or inspect. Explicit file/folder paths retain evidence-based discovery and must not acquire generic task suggestions. Change the field placeholder exactly to “Drop a file/folder, type a path or task”. Phrase groups reuse existing module titles and descriptions; no AI request or processing starts.
+
+001. image analysis | analyze images -> mask, measure, qc_dashboard
+002. high content image analysis | analyze high content images -> mask, measure, qc_dashboard
+003. analyze microscopy images | microscopy image analysis -> mask, measure, qc_dashboard
+004. help me analyze cell images | cell image analysis -> mask, measure, qc_dashboard
+005. I have imaging data | analyze imaging data -> mask, measure, qc_dashboard
+006. object detection | detect objects -> mask, make_masks
+007. segmentation | segment images -> mask, make_masks
+008. detect objects in images | image object detection -> mask, make_masks
+009. find cells in my images | cell detection -> mask, make_masks
+010. segment my cells | cell segmentation -> mask, make_masks
+011. mask curation | curate masks -> make_masks
+012. edit segmentation masks | segmentation mask editing -> make_masks
+013. correct cell boundaries | cell boundary correction -> make_masks
+014. fix my masks | mask correction -> make_masks
+015. manually outline cells | manual cell outlining -> make_masks
+016. measure cell features | cell feature measurement -> measure
+017. extract image measurements | image measurement extraction -> measure
+018. morphological profiling | profile cell morphology -> measure
+019. quantify cell shape | cell shape quantification -> measure
+020. measure fluorescence intensity | fluorescence intensity measurement -> measure
+021. read a database | database reading -> db_browser
+022. open my database | database opening -> db_browser
+023. inspect database tables | database table inspection -> db_browser
+024. browse measurement records | measurement record browsing -> db_browser
+025. view a sqlite database | sqlite database viewing -> db_browser
+026. make a figure | figure creation -> graph_builder
+027. make a graph | graph creation -> graph_builder
+028. plot my measurements | measurement plotting -> graph_builder
+029. create a scatter plot | scatter plot creation -> graph_builder
+030. draw a bar chart | bar chart drawing -> graph_builder
+031. gate my cells | cell gating -> gate_editor
+032. filter cells by measurements | measurement based cell filtering -> gate_editor
+033. select a cell population | cell population selection -> gate_editor
+034. set measurement gates | measurement gating -> gate_editor
+035. exclude outlier cells | outlier cell exclusion -> gate_editor
+036. classify cell images | cell image classification -> classify_merged
+037. predict image classes | image class prediction -> classify_merged
+038. train an image classifier | image classifier training -> classify_merged
+039. sort cells into classes | cell class sorting -> classify_merged
+040. classify my cropped cells | cropped cell classification -> classify_merged
+041. annotate cell images | cell image annotation -> annotate
+042. label cells for training | training cell labeling -> annotate
+043. assign image labels | image label assignment -> annotate
+044. review image annotations | image annotation review -> annotate
+045. manually label my cells | manual cell labeling -> annotate
+046. explore image embeddings | image embedding exploration -> umap
+047. make an image umap | image umap creation -> umap
+048. visualize cell clusters | cell cluster visualization -> umap
+049. compare cell embeddings | cell embedding comparison -> umap
+050. reduce image feature dimensions | image feature dimension reduction -> umap
+051. run a regression | regression analysis -> regression
+052. associate genes with phenotypes | gene phenotype association -> regression
+053. model phenotype associations | phenotype association modeling -> regression
+054. analyze perturbation effects | perturbation effect analysis -> regression
+055. find phenotype associations | phenotype association discovery -> regression
+056. fit a dose response | dose response fitting -> dose_response
+057. compare drug concentrations | drug concentration comparison -> dose_response
+058. calculate concentration effects | concentration effect calculation -> dose_response
+059. plot a dose response curve | dose response curve plotting -> dose_response
+060. analyze drug response | drug response analysis -> dose_response
+061. compare analysis runs | analysis run comparison -> run_compare
+062. compare two experiments | experiment comparison -> run_compare
+063. compare measurement runs | measurement run comparison -> run_compare
+064. review differences between runs | run difference review -> run_compare
+065. compare my results | result comparison -> run_compare
+066. check image quality | image quality checking -> qc_dashboard
+067. review experiment quality | experiment quality review -> qc_dashboard
+068. inspect segmentation quality | segmentation quality inspection -> qc_dashboard
+069. quality control my results | result quality control -> qc_dashboard
+070. find problematic fields | problematic field detection -> qc_dashboard
+071. import image data | image data import -> foreign, convert
+072. convert microscopy images | microscopy image conversion -> foreign, convert
+073. load external imaging data | external imaging data import -> foreign, convert
+074. bring images into spacr | spacr image import -> foreign, convert
+075. convert image file formats | image file format conversion -> foreign, convert
+076. analyze a time series | time series analysis -> timelapse
+077. track cells over time | cell tracking -> timelapse
+078. work with timelapse images | timelapse image analysis -> timelapse
+079. follow objects between frames | object tracking between frames -> timelapse
+080. analyze time lapse microscopy | time lapse microscopy analysis -> timelapse
+081. analyze a z stack | z stack analysis -> 3d
+082. work with 3d images | 3d image analysis -> 3d
+083. segment a volume | volumetric segmentation -> 3d
+084. measure three dimensional cells | three dimensional cell measurement -> 3d
+085. analyze volumetric microscopy | volumetric microscopy analysis -> 3d
+086. plan an experiment | experiment planning -> experiment_design, power
+087. design my plate layout | plate layout design -> experiment_design, power
+088. calculate statistical power | statistical power calculation -> experiment_design, power
+089. choose experiment sample size | experiment sample size selection -> experiment_design, power
+090. help with experimental planning | plan my experiment -> experiment_design, power
+091. map sequencing barcodes | sequencing barcode mapping -> map_barcodes
+092. analyze fastq barcodes | fastq barcode analysis -> map_barcodes
+093. count genetic barcodes | genetic barcode counting -> map_barcodes
+094. map my sequencing reads | sequencing read mapping -> map_barcodes
+095. process barcode sequencing | barcode sequencing processing -> map_barcodes
+096. analyze spatial imaging | spatial imaging analysis -> spatial_masks, spatial_map
+097. segment spatial tissue images | spatial tissue image segmentation -> spatial_masks, spatial_map
+098. map spatial measurements | spatial measurement mapping -> spatial_masks, spatial_map
+099. work with xenium images | xenium image analysis -> spatial_masks, spatial_map
+100. analyze visium imaging | visium imaging analysis -> spatial_masks, spatial_map
+
+LATEST SPACEOUT LAUNCH FOLLOW-UP — 2026-10-27: add spaceout-nav and spaceout-navigator as installed commands that launch the existing process-local Spaceout mode with Navigator enabled, matching spacr-nav/spacr-navigator preference and argument behavior. Preserve the ordinary launchers and the prior maintainer sign-off.
+
+LATEST HELP/BADGE CORRECTION — 2026-10-27: remove Help submenu entries that duplicate native modules or their registered submodules, while retaining genuine help/documentation actions and access through the original module routes. Double the Navigator card/network alpha badge size, keeping its teal Open Sans Light style and top-right placement.
+
+LATEST ORGANISM ENTRY CORRECTION — 2026-10-27: typing Toxoplasma gondii (or any other organism name/question recognized by Navigator) and pressing Enter must display the organism card, never open the native organism module directly. Preserve case-insensitive aliases and existing species/alpha visibility gates.
+
+LATEST GLOBAL DOCK CORRECTION — 2026-10-27: also remove the general App dock visibility/mode preference. The application dock must always remain present; users may open or collapse it, but neither Navigator nor ordinary mode may hide it. Retire hidden-mode effects of legacy preferences while preserving dock contents and direct open/collapse interaction.
+
+LATEST DOCK PREFERENCE CORRECTION — 2026-10-27: remove Show app dock in Navigator from Preferences. Navigator retains its visible dock, collapsed by default; the removed legacy boolean must not leave the dock hidden. Preserve ordinary-mode dock settings and direct dock expansion/collapse.
+
+LATEST HELP TOGGLE CORRECTION — 2026-10-27: unchecking Navigator in Help while a native module is active must retain that same module and its state; do not navigate Home as a side effect of disabling Navigator.
+
+LATEST ROUTING/NETWORK CORRECTION — 2026-10-27: measurement, feature and morphological profiling must offer Measure; remove duplicate Database Browser suggestions (including the generic-icon copy). For a TIFF-only image folder such as AssayPlate_PerkinElmer_CellCarrier-384, do not import unrelated parent/sibling analysis evidence into the action list, and offer Format Converter only when conversion is actually needed. Reveal every card sequentially with 200 ms between starts and a 500 ms reveal duration; no late cards may appear instantly. Speed up network emergence, remove the selected-node traveling field compression, and fade the search away with unchosen cards; Back/Escape restore the search. Clicking a network child must grow a new network from that child instead of replacing the existing network. Returning Home must discard Navigator state and open fresh, avoiding overlapping old networks and suggestions. Preserve native launch/input routes and the centered search anchor. Current ownership: root card timing/fresh-Home integration; retained inference peer input evidence; routing peer aliases/deduplication; network peer incremental exploration and search fades. Tutorial/Docs/API follow-up remains pending explicit sign-off.
+
+LATEST POSITION CORRECTION — 2026-10-27: restore the Navigator search bar to the vertical middle of the screen. It must stay centered when suggestions or the network appear; the prior move to the top was not requested. Keep the rounded description box fixed below and retain readable, non-overlapping cards.
+
+POST-SIGN-OFF FOLLOW-UP — 2026-10-27: after the maintainer tests the next Navigator implementation and explicitly signs off, send the other local tutorial session a handoff requesting a new Navigator tutorial and add Navigator coverage to the user documentation and API reference. Do not send the tutorial handoff or begin that follow-up before sign-off. The current corrective implementation is to be published for testing first; this explicit follow-up remains pending maintainer sign-off.
+
+LATEST LAUNCH FOLLOW-UP — 2026-10-27: installing spaCR provides both spacr-navigator and spacr-nav commands. Either command enables Navigator and launches spaCR directly in Navigator mode, while preserving the ordinary spacr launcher and its existing options. Validate installed entry-point registration and startup preference/argument handoff with focused checks.
+
+LATEST VISUAL CORRECTION — 2026-10-27 (supersedes earlier live-typing/card text requirements): module cards contain only their names, with matching card/icon background colors and the former card appearance/reveal animation. Descriptive text belongs in a rounded panel fixed in the bottom half of the window. Keep the search bar and description panel stationary. Suggestions appear gracefully only after Enter, never while typing. Add case-insensitive segmentation/object detection aliases for Mask Generation and Make Masks. Keep the colored highlight. Overflow choices occupy one horizontal scrollable row with gradual fading at both ends. Fade departing content as gracefully as the arriving network. Keep right-side container headers on-screen but collapsed, and retain the collapsed left dock at startup. Diagnose and remove particle accumulation at appearing-card edges, stale gray shapes after moving cards and the gray flash when moving the mouse after three seconds idle. Preserve native handoff, supported routes, explicit preferences, reduced motion and lifecycle cleanup. Focused layout/Enter/scroll/transition/render/idle checks and necessary normal outputs precede commit and nightly publication. Root owns card/layout integration, retained rendering peer owns field/ghost diagnosis, shell peer owns collapsed right containers and routing peer owns aliases.
+
+LATEST LAYOUT FOLLOW-UP — 2026-10-27: in Navigator, retain the app dock on
+the left in its collapsed state by default; an explicitly saved dock choice
+takes precedence. Keep the right-side containers/panels present but collapsed
+by default. Give the text description panel the same subtle opacity treatment
+as the bottom Home panel, rather than a fully opaque black fill. Preserve
+explicit user expansion, saved placement/state and normal non-Navigator mode.
+
+The maintainer-selected Navigator input hint is "Drop a file/folder, type a
+path or query" (query spelling corrected). This supersedes the proposed
+question/keyword alternatives; images are not the only supported input.
+
+NAMING: the maintainer selected Navigator on 2026-10-27. Rename visible Easy
+mode labels and explanations, including Help and Start spaCR, to Navigator;
+retain persisted preference keys, compatibility APIs and internal identities.
+
+Workstation session 2 owns this follow-up; preserve the other workstation's
+tutorial work and Home's general CI/source changes. Fix the black screen when
+selecting a suggested module after importing a file or folder, preserving the
+live field, anchored workflow, explicit navigation and Back/Escape behavior.
+
+Recognize the actual analyzed folder
+/nas_mnt/carruthers/anu/revision/Replication09182026_20260918_164600
+and offer Database Browser, Graph Builder, Gate Editor, Image UMAP, Regression,
+Dose Response, QC, Run Compare, Annotate and Classify with their actual inputs.
+Raw FASTQ files/folders offer Map Barcodes; completed spaCR sequencing analyses
+offer Regression. Numeric CSV files offer Graph Builder and Gate Editor.
+
+Use shared reader capabilities for images and containers (including NPY, ND2,
+LIF and CZI), rather than a new format whitelist. Image inputs with no matching
+canonical metadata preset still offer Import, Generate Masks and Make Masks;
+containers offer Import and Make Masks where a real reader supports opening.
+Keep editable regex guidance without replacing these useful choices. Audit
+Make Masks against the shared readers and record a separate feature item for
+any missing format support instead of silently claiming that it is supported.
+
+Enter on a module or submodule name opens that destination. An organism name
+within a question opens its organism module, including Toxoplasma gondii,
+T. gondii, T.gondii and T.g.; preserve existing species availability gates.
+Support About, homepage, GitHub, README (including "radme"), Preferences,
+every Help menu action, Update, API, paper/preprint, Pipeline overview and
+Overview through their existing real actions. File paths retain path semantics.
+Approved additional rules: matching images and masks offer Measure, QC and
+Annotate only when their spaCR project structure is valid. Unstructured pairs
+offer Import and Make Masks; before reorganizing them, ask whether to create
+the Make Masks images/ and masks/ layout. Preserve the originals and refuse
+ambiguous pairing or overwrites. A spaCR settings file previews its settings
+and opens its matching module with those settings actually applied. Mixed
+folders group suggestions by data type and explain each suggestion's basis.
+Also approved: retain separate plate identities and allow selecting one or
+all compatible plates; detect actual image dimensions for 3D/Time suggestions;
+recognize regression outputs for Hit List, Diagnostics and Prediction Profiler;
+explain incomplete/failed runs and offer Run History/QC as appropriate. Reuse
+real registered routes and required files; never infer completed analysis from
+a folder name alone or execute a scientific workflow during inspection.
+
+LATEST ACCESS CORRECTION: keep the Easy mode boolean in Start spaCR, remove
+the Easy mode boolean from Preferences, and expose Easy mode in the top Help
+menu. Preserve the saved setting and existing dock controls; do not offer two
+independent mode preferences. This supersedes the older Preferences-checkbox
+requirements elsewhere in this historical item.
+
+LATEST VISUAL FOLLOW-UP: the black flash lasts about one second while dropping
+the exact example folder, then the live field returns; verify frames during
+the drop rather than only settled screenshots. The user also reports a brief
+pause in field dots to the right of the card-to-network connection as the
+network opens. Diagnose that motion interruption, make the node illumination
+clearly visible, and steer the existing wandering compression toward the
+selected node before resuming its random walk. Preserve field colors, bounded
+rendering, normal app behavior, Reduce motion/off settings and hidden cleanup.
+The bottom workflow description box uses RGB(25,25,25), is 50 percent wider
+by default and gains two text rows in height, bounded by the available window.
+Alpha module cards show a small teal alpha symbol in Open Sans Light at the
+top-right corner. Hover and click use the existing old Home teal flash opacity;
+module icon backgrounds use RGB(25,25,25). Preserve alpha availability gates.
+All command and suggestion matching is case-insensitive. Partial names also
+produce matching module/submodule suggestions while typing; for example mask
+or mask: offers Make Masks and Mask Generation. Exact names retain explicit
+Enter-to-open behavior; partial/ambiguous searches remain selectable choices.
+
+LATEST UNSUPPORTED INPUT FOLLOW-UP — 2026-10-27: offer prepared, actionable
+responses for recognizable formats spaCR cannot read, including FlowJo
+workspaces recommending FlowJo and PDB/AlphaFold structural models recommending
+a structure viewer such as ChimeraX or PyMOL. Recognize structure formats and
+explicit PDB/AlphaFold references without unpickling model objects. Add a few evidence-based examples using
+actual unsupported-format detection, honest compatible-export guidance and
+no fake spaCR processing route. PDF files offer the Plaque Assay module via
+its actual supported input path; inspect real PDF reader behavior and do not
+silently discard pages or claim a scientific result from arbitrary PDFs.
+
+LATEST NETWORK FOLLOW-UP — 2026-10-27: include actual submodules reachable
+from the Help menu in the Easy mode networks, with their real host/input
+routes and existing maturity gates. Case-insensitive partial search "plan"
+offers both Experimental Design and Power Design. Preserve all-tools access
+and real scientific/containment relationships rather than inventing edges.
+
+LATEST INPUT FOLLOW-UP — 2026-10-27: characterize real input structures and
+settings for OPS, Spatial and 3D using their actual readers and registered
+submodule routes. Add evidence-based Easy mode suggestions for the appropriate
+submodule and settings; do not infer scientific mode solely from folder names
+or start processing. Reuse existing settings previews, dimensional metadata
+and native input handoff, preserving ambiguous-input guidance.
+
+Acceptance: focused real input/schema and navigation regressions, actual-folder
+read-only discovery, black-transition rendering/lifecycle verification, shared
+reader audit, normal changed-source catalogs/Help/flow/index outputs, commit
+and nightly publication. Do not run image processing or mutate inspected data.
+
+LATEST MAINTAINER REQUIREMENTS — 2026-10-27 (supersedes prior network placement)
+
+The first card press must never replace the live field with a black screen.
+Keep the selected card at its original on-screen position; reveal its sparse
+network around that anchor while the surrounding field gradually dims. Both
+field emergence and dimming must be slow, bounded and respect Reduce motion.
+Cards must be square with rounded corners, larger centered sharp module icons
+(including Measure), and elegant curved connections rather than plain blue
+lines. Keep consistent gaps between cards and submodule connector labels,
+including Time. Preserve the sparse downstream hierarchy, access to every
+available tool, fixed scrollable descriptions, explicit second press to open,
+and Back/Escape restoration without changing the inspected source.
+Each visible connection has its own solid circular output port on the source
+card's upper-right edge segment and its own matching input port on the target
+card's lower-left edge segment. All port dots have the same diameter; distribute
+multiple ports evenly with clear gaps. Put the direction arrow at the curved
+line's arc-length midpoint, aligned with its tangent, never at the target tip.
+Mode badges must retain uniform card clearance and never obscure an arrow or
+port. Verify counts, equal dot size, midpoint direction and node clearance.
+G2 owns graph/card implementation and necessary acceptance; G3 independently
+binds the first-click black transition and icon source. Root owns integration
+and normal changed-source outputs. Existing scientific/input/privacy results
+remain retained; validate the changed transition and native appearance before
+whole-item closure. Source/design only while another native lease is live.
+
+REQUIRED BEHAVIOUR
+
+1. Add an Easy mode boolean directly below spaCR AI in the Start spaCR
+   window and in the appropriate Preferences section. Default: off.
+   Keep the startup and Preferences choices consistent.
+
+2. When enabled, replace Home with a simple central field where the user
+   can type a file or folder path, or drop a file or folder. Accept drops
+   anywhere in the Easy mode window, not only over the field.
+
+3. Hide the dock and module icons by default in Easy mode. Let the user
+   turn the dock back on while keeping Easy mode enabled.
+
+4. Inspect the supplied file or folder and suggest appropriate spaCR
+   modules and next steps based on its contents. Suggestions must open
+   the relevant module with the supplied input available to that module.
+   Handle invalid paths, unsupported contents and ambiguous inputs with
+   clear, useful feedback.
+
+5. Animate the area around the central field. Suggestions should appear
+   with polished animations at varied, randomly chosen positions around
+   the screen, while remaining readable, clickable and within the window.
+   Keep the input field usable and avoid overlapping active controls.
+
+LATEST MAINTAINER DESIGN (2026-10-26; supersedes the initial preview)
+
+The center contains only one rounded, somewhat transparent path/search field.
+Its gray placeholder is exactly "Type a path or Drop some images here ...".
+Browse sits inside the far-right end as white text without button chrome.
+Use Open Sans Light throughout. Remove the title, explanatory panel, Find next
+steps button and local dock checkbox; keep saved dock choices in Preferences.
+Keep the Easy Home backdrop dark even under the global Light theme; restore the normal module backdrop on exit without changing global theme or palette preferences.
+Retain the existing dark blue dotted field colors, with only a subtle bounded
+CPU gravity effect. Respect Reduce motion/off and stop hidden animation.
+Suggestions may animate after input, remain readable and never overlap it.
+
+CONTENT AND ESSENTIAL-SETTINGS EXTENSION (2026-10-26)
+
+Accept image drops anywhere in the spaCR window. Inspect bounded, read-only
+filename samples against the existing microscope/regex conventions, sibling
+images, parent/master folders, image subdirectories and local metadata.
+Present useful module choices with honest confidence and ambiguity guidance;
+never decode full image arrays, access the network or process source images.
+Suggestions emerge slowly at genuinely randomized safe coordinates from the existing field,
+using stable normalized anchors per inspection and legal disjoint positions on resize,
+with a tasteful icon, module name, short description and explicit Open action.
+Every module opened while Easy mode is enabled starts with Essential settings
+only, while preserving a clear way to expand the other settings. Ordinary-mode
+defaults and saved choices remain unchanged.
+
+SUGGESTION EMERGENCE (2026-10-26)
+
+Each suggestion grows slowly from a point to its final rectangle, visibly
+emerging from underneath the existing spaCR field. The field must gradually
+part as the card expands; once it finishes, ripple from the new card's edges.
+The final card sits above the field. Couple the visible geometry and local
+field displacement through bounded existing effects, preserve its colors,
+and skip motion when Reduce motion or animation is off. Opacity alone does
+not meet this interaction contract.
+
+
+GRID AND INPUT CORRECTIONS (2026-10-26; supersedes random placement)
+
+Arrange suggestions in an organized left-to-right grid below the search
+field; reveal them sequentially from left to right. Enlarge module icons,
+make each entire card clickable, and remove its separate Open button.
+Remove text under the search and the rectangular backplate behind its
+rounded field. Give the field a rim using spaCR's existing chasing blue
+effect. Only a click on the search field triggers an Easy-mode ripple;
+drops, cards and automatic emergence must not trigger ripples. Other
+modules retain their normal ripple behavior.
+A file or folder drop anywhere in spaCR must remain on Easy Home and
+inspect there, with no module navigation before an explicit card click.
+Recognize valid CQ1 TIFFs and sibling images, inspect actual parent spaCR
+analysis outputs, and offer Generate Masks for the containing image folder,
+Make Masks for the single image, and Measure/Database Browser only where
+matching real outputs justify them. Do not label a valid image unsupported.
+When both databases exist, prefer the scientific measurements database over
+an artifacts/cache database for the Database Browser suggestion.
+Sample up to 100 filenames initially, distributed usefully across channels
+and wells, with only a few representative image-header reads. Expand filename
+sampling to at most 1,000 only when the initial sample is inconclusive;
+never default to 1,000 header parses. Reserve a separate bounded parent
+analysis-output budget so large raw-image folders cannot starve discovery.
+Easy mode is the general spaCR entry point for every image/container format
+supported by the actual import/readers and all existing metadata structures,
+not a separate format whitelist. Reuse shared import capabilities and metadata
+adapters for filenames, embedded metadata, siblings, bounded subfolders and
+parent analysis outputs, including Zeiss, Nikon, Thermo Fisher and Leica.
+Try existing microscope filename presets without decoding image arrays.
+When a required reader is unavailable, offer the real Import/install route
+instead of falsely declaring the input unsupported. Preserve valid source,
+metadata and confirmed regex state through module handoff without asking the
+user to repeat configuration.
+When none validates, make the first suggestion an editable regex card with
+the existing white regex icon, proposed pattern and image path underneath.
+Color corresponding capture groups in both pattern and path consistently.
+Editing remains native; an explicit card click validates and applies the
+pattern, regenerates module suggestions, and passes the validated regex to
+actual downstream module settings. No external regex file is required.
+G1 owns UI/routing/closure; retained G4 owns bounded inference and real-file
+regressions. Work remains isolated; root alone integrates and publishes.
+
+WORKFLOW-TREE EXTENSION (2026-10-27)
+
+Latest maintainer correction supersedes the dense all-module graph: keep
+spaCR's animated field visible while inspecting images and after clearing the
+path; an empty input returns to the clean search without a guidance card.
+G1 owns that backdrop/empty-input correction. G2 owns a sparse downstream
+workflow: the selected module stays prominent at the top/center, only useful
+direct downstream branches are initially visible, and selecting a child
+progressively reveals its next steps. Do not draw all compatible cross-links
+or disconnected tools simultaneously. Preserve every permitted real module
+and submodule through an explicit all-tools navigation control, without
+inventing IO edges. Mode labels such as 3D/Time/OPS belong on verified
+connectors. Preserve fixed scrollable hover guidance, explicit second-click
+opening, Back/Escape restoration, input/privacy contracts and availability
+gates. G4 independently peers the sparse structure and actual software frames.
+
+The first click on a suggestion selects and centers its card, hides the search
+field, and reveals an elegant skill-tree of all actual spaCR modules and
+submodules. A second click on the central card opens that module with the
+current input. Escape or a subtle Back control restores the suggestions.
+Keep a fixed-size, scrollable description box below the selected central card;
+hovering a node describes it without growing or obscuring the workflow.
+
+Cards represent actual modules or submodules only. Modes such as 3D are labels
+on connectors, for example Mask -> 3D -> supported downstream modules, rather
+than invented executable cards. Include Concatenate, Overview, OPS, timelapse
+and the other actual registered tools. Derive connections from their genuine
+input/output and workflow compatibility, with edge thickness showing the
+strength of that relationship; do not imply unsupported routes or silently
+process or convert inputs. Preserve bounded local inference, confirmed regex,
+Essential settings, ordinary-mode defaults and all accepted v2 behaviour.
+
+Acceptance must exercise first selection, centered graph/search transition,
+second-click module handoff, Escape/Back restoration, hover description scrolling
+and bounded layout. Check registry coverage and truthful mode/IO edges against
+actual module contracts; keep rendering and interaction usable at small and
+wide native sizes and with reduced motion. G1 retains the Home UI, G2 maps
+registry/IO/workflows independently, and the integration owner carries final
+source, changed translations and normal output closure through root publication.
+
+ACCEPTANCE
+
+2026-10-27 focus-surface followup: the Easy search field must have no
+rectangular backplate or rectangular blue focus highlight in either idle or
+focused state. Preserve its rounded translucent surface, editable text and
+Browse control, and the existing chasing blue rounded rim. G2 owns the
+isolated paint-source correction and meaningful idle/focus rendering checks;
+root owns integration and publication. Reopen this acceptance until verified.
+
+With Easy mode off, retain the ordinary Home experience. With it on,
+verify startup and Preferences consistency, whole-window file/folder
+drop and typed paths, content-dependent suggestions and module handoff,
+dock visibility controls, and readable animations in both themes and
+at supported window sizes. Easy mode must remain usable when spaCR AI
+is disabled or unavailable; document which suggestions use local file
+inspection and which, if any, require an enabled AI provider.
+
+The maintainer authorized implementation and immediate Night publication on
+2026-10-26, including accepted native visuals and reviewed nine-language outputs.
+
+2026-10-26 — G1 owns item 733 end to end on isolated published Night 7cd974072e; G2 owns the disjoint startup/Preferences persistence slice. Implement a local content-inspection Home in existing modules, whole-window drops and module handoff, with Easy mode/dock defaults off and no AI dependency. Required meaningful/native two-theme checks and nine-locale normal reviewed outputs precede one coherent commit; root alone authorizes integration/publication after release.
+
+2026-10-26 — Isolated English preview implements local header-guided Home, whole-window drops, explicit module input handoff and independent Easy dock choices. Fourteen targeted cases pass after two native fixture-premise corrections; both-theme native visual acceptance and nine-locale normal reviewed artefacts remain before root integration/publication.
+
+2026-10-26 — The maintainer replaces the first preview styling with a single translucent rounded field, exact gray placeholder, inset text-only Browse and Open Sans Light; remove surrounding controls, preserve the existing dark blue palette and add restrained CPU gravity. G1 retains end-to-end ownership; existing functional/doc gates remain, visual acceptance and affected locale outputs will follow the new design.
+
+2026-10-26 — Extend local discovery to bounded microscope filename/regex, sibling/master-folder and structural metadata inference with explicit uncertainty; add slowly appearing icon/name/short-description/Open cards. G1 owns Home/inference and central routing; retained G4 owns disjoint Essential-only defaults for every Easy-opened module, with user expansion and ordinary defaults preserved.
+2026-10-26 — Suggestions must grow point-to-card under the existing field with synchronized local displacement, final edge ripple and final foreground ownership; preserve palette and reduced-motion/off behavior with bounded existing rendering effects.
+
+2026-10-26 — Immediate Night delivery is now authorized: Easy mode defaults off, shares startup/Preferences choices, accepts whole-window drops and routes bounded local content suggestions without AI.
+Native wide/small/return frames and both-theme lifecycle controls are accepted; persistent random placement, independent dock/Essential settings and existing-worker card displacement retain their owning passing results.
+The 414 Easy drafts and 36 Overview drafts were independently reviewed; the final retargeted stage has 441 source-bound targets and all 18 normal API/runtime guards pass, with retired history preserved.
+Normal nine-language API/runtime, Help, consumer and settings-flow outputs are generated and independently accepted; four legitimate API arrivals have exact source-bound test admission, with historical ratchets unchanged.
+All 21 final owning source/API/runtime/Help/flow checks pass, preserving published catalog bytes; root owns the coherent Night push and shared editable-checkout update. No release or hosted-CI waiting condition remains.
+
+2026-10-27 — Maintainer adds a two-stage centered workflow tree with actual module/submodule cards, mode-labelled truthful IO edges, strength thickness, fixed scrollable hover descriptions and Escape/Back restoration. Requirements recorded before implementation; G1 retains UI, G2 maps actual registry/workflows, and the integration owner retains one final source/translation/output closure and root publication. Existing v2 fixes and passing controls remain valid.
+
+2026-10-27 — General input discovery, editable validated regex, ordered cards and two-click workflow navigation are implemented. Prominent centered cards, genuine branches, fixed descriptions and input handoff passed focused functional and both-theme native acceptance. All 144 new runtime targets passed nine normal locale admissions and independent output review; normal consumer/flow outputs and all eight final coherence checks pass. API records and the published API memory pin are unchanged. Delivered through the root Night publication; release CI remains separately tracked in item 43.
+
+2026-10-27 — The global form-field fade painted its smaller-radius focus chrome behind the custom Easy search field. Its existing opt-out now excludes only that editor, preserving normal fields and the rounded chasing blue rim. The two-theme failure reproduced (3.38 s); both focused/idle render controls pass (1.77 s), source peer accepted, and owned software frames confirm the rectangle is gone. Root owns publication; new field/workflow redesign requirements remain open.
+2026-10-27 — Reopened: entering an image path must retain the visible live spaCR field behind search and suggestions; remove any opaque container/lifetime regression rather than covering it with a black fill. Clearing the input cancels pending inspection/regex, clears suggestions and feedback, and restores the clean empty search with the live field; empty input never produces an Input guidance card. Nonempty invalid-input errors remain visible. G1 owns this disjoint lifecycle/input repair; G2 retains focus-surface and workflow presentation changes, root owns integration/publication.
+2026-10-27 — Empty input now cancels inspection/regex delivery, clears cards and feedback, and stays idle on Enter; two real MainWindow pending-work controls pass. One software-native Dark image→clear probe retains the live blue field and confirms no opaque viewport layer in the default profile. The reported black field is still under investigation with the actual CQ1 input and copied appearance settings; no speculative fill/transparency change is included.
+2026-10-27 — Exact CQ1 input and copied appearance settings expose stale dark card-shaped patches after removal: the old held backdrop survives completed-card coverage changes. Growth changes and explicit card replacement/removal now release that hold without producing extra ripples; unchanged empty/idle updates retain their held frame and normal 20 fps cap. The focused real-renderer completed-card regression passes; matching software-native before/after verification follows.
+
+2026-10-27 — Maintainer rejects the black image/cleared-input page and dense workflow graph. G1 owns restoring the field and clean empty input; G2 owns prominent selected-module and progressively explored sparse downstream branches with all-tools access, verified mode connectors and preserved explicit module opening. G4 peers graph semantics/layout; root alone integrates and publishes the reopened acceptance.
+
+2026-10-27 — Sparse downstream navigation now keeps the selected action and scientific guidance fixed above at most four direct branches, with separate remaining-next-step and all-tools selectors. Ownership stays distinct from scientific IO and retains mode labels. Four owning controls pass, including 500/640/desktop layout and native Mask/Overview routes; integrated field-backed visuals and normal changed-caption closure remain with root/G1 before whole-item acceptance.
+
+2026-10-27 — Native MainWindow evidence exposed seven pixels of clipped first-row content and Light-theme selectors painted dark on dark. The graph now budgets the existing compact guidance height from its actual available row space and gives only its own selectors readable dark surfaces, idle placeholders and popups. Both global-theme owning controls pass; the affected joint native frame and final publication remain with root.
+
+2026-10-27 — Sparse next-step branches, all-tools/remaining-step selectors, readable placeholders and full first child rows pass both-theme native acceptance; matching CQ1 before/after frames confirm stale held-card dark patches disappear after clearing. Whole-window black was not reproduced. The native WM clamps small requests to 1080×650; bare-page 640 px controls do not claim a native 640 px window. All 27 reviewed translations, nine normal locale admissions, ten catalog output peers and four final runtime checks pass; API and Help/flow remain unchanged. Delivered through root Night publication; release CI remains tracked separately in item 43.
+
+2026-10-27 — Reopened before implementation for the maintainer's anchored card/network transition, gradual field dimming, square rounded cards, sharper larger centered icons and consistently spaced curved submodule connectors. G2 owns this refinement, G3 supplies disjoint causal diagnosis, and root retains publication; prior functional/scientific acceptance is preserved subject to directly affected controls.
+
+2026-10-27 — The original card and live field remain in place while the sparse network gradually emerges and dims its surroundings; square rounded cards use original high-resolution icons, evenly sized per-connection ports and curved links with midpoint arrows.
+All 12 affected controls and both native window cases pass, including unchanged card position, live field, navigation and input restoration. API335, existing captions and 27 reviewed translations remain unchanged; the normal consumer output is refreshed.
+Implementation and reasonable validation qualify completion under the maintainer's updated release instructions; no human review or further testing is a delivery gate. Root publishes this qualified change to nightly.
+
+2026-10-27 — Renamed Navigator; case-insensitive partial/module/organism/Help commands, plan suggestions and ten-tool nested measurement discovery use real native routes. Settings and inferred OPS/Spatial values preview before applying; explicit T/Z, PDF, sequencing, tables, mixed types and unsupported-format guidance retain bounded read-only inspection.
+2026-10-27 — Exact-NAS repeated real drops retain the live field; hover paints within milliseconds. Alpha cards, illumination/node visits, grouped explanations, wider translucent RGB25 descriptions and collapsed left dock/runtime panels preserve saved choices and cleanup.
+2026-10-27 — Safe paired-layout copying, numeric 2D NPY and installed single-frame Pillow Import routes preserve sources; missing direct Make Masks/container/axis support is queued separately in 735. Focused input, command, reader, renderer and catalog checks pass; normal outputs and source-bound nine-language reviews are included in the nightly publication.
+
+2026-10-27 — Corrective implementation restores name-only matching-background cards, fixed search/lower descriptions, Enter-only suggestions, fading one-row overflow, gradual departing content and visible collapsed native panels. Segmentation/object detection offer both mask tools; spacr-navigator and spacr-nav enable Navigator through existing startup.
+2026-10-27 — Card growth no longer projects particles onto an edge ring; clearing the reused held-frame fade layer removes the reproduced post-idle duplicate/gray flash. Focused behavior, actual-frame and startup checks plus normal affected outputs accompany the corrective nightly publication for testing. The explicitly requested tutorial-session handoff and Docs/API coverage remain pending maintainer sign-off.
+
+2026-10-27 — Restored the search to the vertical center without state-dependent movement; choices use the free space above it and descriptions remain fixed below. Six focused centering, layout, native-panel and transition controls pass; tutorial/Docs/API follow-up still awaits explicit sign-off.
+
+2026-10-27 — Corrected Measure/organism keyword routing and duplicate native/Help cards; selected files/folders now use their own evidence, annotation-only databases no longer imply measurements, and readable TIFF/PNG omit Converter. Actual raw ALIX and analyzed Replication master probes retain the appropriate two and ten tools, respectively.
+2026-10-27 — All cards reveal in 500 ms at 200 ms start intervals; faster incremental networks retain explored branches, remove node-travel effects and fade/restore search. Home resets state; disabling Navigator retains the native module. Both dock visibility preferences and duplicate Help entries are removed, alpha badges doubled, and focused regressions pass. Tutorial/Docs/API coverage remains pending explicit sign-off.
+
+2026-10-27 — Maintainer tested Navigator and approved: "works much better now so send message to tutorial session". Sign-off prerequisite is satisfied. Shared HANDOFF.md now requests the new Navigator tutorial plus user Docs/API coverage against e125b048e8; direct session messaging is unavailable and receipt remains unconfirmed.
+
+2026-10-27 — Added the maintainer-requested spaceout-nav and spaceout-navigator launch aliases to the existing Spaceout entry-point and Navigator startup contract; focused registration, preference and launch checks precede root publication. Prior tutorial/Docs/API sign-off remains valid.
+
+2026-10-27 — Delivered 100 documented task-to-card mappings plus supplied typo/short-form aliases, task placeholder and spaceout-nav/spaceout-navigator launch commands. Case, path isolation, native/folded routes, visibility gates and Enter-only card behavior pass focused checks. Navigator implementation approval is retained; the separate tutorial/Docs/API handoff remains unacknowledged.
+
+2026-10-27 — Navigator now defaults on for fresh profiles while retaining saved opt-outs; the centered input doubles in font/size, and all 100 tasks have paired noun/verb forms. Canonical merged arrays and verified generated artifacts offer native downstream routes with prerequisite guidance and module-specific source paths. Numeric NPY Make Masks editing is delivered under 735; tutorial/Docs/API handoff receipt remains unconfirmed.
+
+2026-10-27 — Added analyzed-mask and feature-detection aliases plus dotted/undotted format queries from actual reader/handler capabilities; actual Enter controls pass. Card lifecycle/feedback invalidation fixes the reproduced stale particle square without mouse movement; five focused rendering controls pass.
+
+2026-10-27 — Delivered smaller centered search/larger lower text, localized task and shortcut cards, click-only native tools, current registry-backed Running jobs, passive selected-theme overlays, consented provider-colored Navigator AI with real-thread reply/cancel checks, and startup AI guidance without the Navigator checkbox. Focused rendering, routing, settings and transport controls pass; normal multilingual artifacts accompany publication. Tutorial and broader Docs/API handoff remains unacknowledged.
+2026-10-27 — Tutorial owner Codex confirms receipt of the approved Navigator handoff in shared AI/HANDOFF.md; the earlier receipt-unconfirmed status is superseded for this repository handoff.
+Codex owns the new Navigator tutorial plus user documentation and API-reference coverage, coordinated with 676 and queued after active Graph Builder58.
+Implementation sign-off is retained; these requested outputs remain pending and are not claimed published. No capture or source implementation begins with this acknowledgement.

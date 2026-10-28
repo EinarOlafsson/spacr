@@ -1,0 +1,135 @@
+================================================================================
+THE MAC AND APPLE SILICON CHECKS STILL TO RUN ON A REAL MACOS DISPLAY
+================================================================================
+
+Lifecycle: new
+Status:    NEW
+Requested: maintainer, 2026-10-26: "please send a message to main with
+           whatever mac or apple silicon or osx related tests are left. and
+           write a new features list item and push it"
+Owner:     the next Mac session (native Cocoa, Apple Silicon); Home (CI and
+           release decisions)
+Related:   641 (performance audit), 646 (clean uninstall/purge), 673 (true
+           3-D), 696, 697, 707, 709, 725, the 1.5.1.6 release candidate.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The 2026-10-24..26 Mac session (Apple Silicon MacBook, macOS 27.0.1, arm64
+CPython 3.12.15, Cocoa, Retina 2x) closed with these on nightly 85af46f88,
+which is also the final 1.5.1.6 release candidate:
+
+- macOS installs PySide6 >=6.6,<6.11 (74007972d). Qt 6.11.0-6.12.0 segfault
+  in the Cocoa accessibility bridge when a table whose cells an assistive
+  client has read is sorted (QAccessibleCache::deleteInterface). 6.8.3-6.10.3
+  are clean. The upstream report is written:
+  ~/.spacr/reports/mac-lane-2026-10-25/qt611_macos_accessibility_sort_crash.md
+  on that Mac (Home holds a copy for the maintainer to file).
+- The installers load every native library once after install (619f36b14):
+  macOS validates each new Mach-O on its first load, and the first launch
+  after a fresh install failed release acceptance (59 violations) without it.
+- Cold Home on Apple Silicon 5.36 s -> 2.28 s (bf2607b57); the animated
+  backdrop holds still in Low Power Mode / Reduce Motion (025b9e4ed);
+  tools/gpu_turn.sh queues on macOS (85af46f88).
+
+What was NOT finished, and is the work of this item:
+
+1. A1 on the final release candidate 85af46f88 was not run (session closed
+   when the SHA arrived). Earlier candidates: b928edeac passed on a warmed
+   install (0 violations, cold Home 2.27 s, worst stall 266 ms);
+   b961d6c08/d664c310c were prepared but superseded.
+2. Timed release acceptance with PySide6 6.10.3 (what macOS now resolves) was
+   not run on a quiet machine; only functional checks were.
+3. The native Cocoa tests/qt sweep stopped at 76% (worktree at ebf92ff1e,
+   PySide6 6.11.2). Found so far: the accessibility crash (now capped) and
+   the plate-well focus abort (fixed in a403af00f). The remaining 24% never
+   ran natively.
+4. 3-D on 6.10.3: the 673 cohort and native Metal probes passed on 6.11.2
+   (test_673_true3d_gpu 38/38 with the FIB-SEM fixture), not yet on 6.10.3.
+5. Full offscreen crash check with the stale-wrapper fixes (5cda829fd and
+   later) never completed on the Mac: the disk filled at 100 min. It had 0
+   segfaults until then (the comparable earlier run had 2 plus 7 dead
+   workers).
+6. Measure and Feature Explorer still stall 0.7-1.35 s on their first open
+   after a fresh install even with the warm step. No new native image is
+   mapped at those opens (dyld list), so it is probably CPU contention with
+   the backdrop kernel-cache helper or single-sample variance. Unproven.
+7. 646 steps 5-7 (clickable "Uninstall spaCR...", full installer purge,
+   uninstall-spacr.sh --purge on an installed .pkg) need a real .pkg of the
+   release; the warm step's survival of the staging-venv swap is also only
+   provable there.
+8. Focus- and accessibility-dependent Qt tests (test_655_*, toggles, strong
+   focus) cannot get an active window on native Cocoa from a terminal (macOS
+   cooperative activation); on 6.10.3 and 6.11.2 they fail or skip alike.
+   Only test_655_plate_well_focus has the activate-or-skip helper.
+9. post-release, already handed over: the idle repaint cost (154-196 widget
+   paints per backdrop frame, ~90-110 % CPU idle with animation on;
+   ~/.spacr/reports/mac-lane-2026-10-25/paints_*.json) and pausing on
+   battery.
+10. Native Cocoa crash reports to keep watching: the space theme
+    (fractal_space numba OpenMP abort/segfault) crashed only inside a large
+    6.10.3 cohort and passed alone and in parallel reruns.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+1.5.1.6 ships a different Qt on macOS than was benchmarked: no timed
+acceptance exists for 6.10.3, and A1 has not been run on the commit that
+will be released. Items 3, 5 and 8 are the only native coverage of the
+GUI; offscreen CI cannot see Retina, accessibility or activation behaviour,
+and every Mac-only bug found this week was invisible there.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+Work from a worktree at the exact commit; give every pytest run its own
+--basetemp under your scratch (the shared pytest-of-<user> temp grew to 43 GB
+and filled the disk); run GPU work through tools/gpu_turn.sh.
+
+1. A1 on 85af46f88: build its wheel (pip wheel --no-deps), clean-install it
+   into a fresh arm64 venv and confirm PySide6/Essentials/Addons/shiboken6
+   resolve 6.10.3; one excluded first launch
+   (tools/spacr_startup_benchmark.py --runs 1 --record-only --package-root
+   <site-packages>); then, at 1-min load under 3,
+   --release-acceptance --runs 2 --package-root <site-packages>.
+2. In that venv, natively: the Agreement accessibility loop (Agreement shown,
+   QAccessible active, 30 rounds of set_database over 2/3/1-annotator
+   databases with compute(), a cell walk of every list and table and a
+   sortByColumn per round) and
+   tests/qt/test_redraws_keep_their_items_20261018_screens_a.py x3.
+3. The full tests/qt sweep on QT_QPA_PLATFORM=cocoa with PySide6 6.10.3
+   (-n 4, --basetemp in scratch); triage every Cocoa-only failure against
+   offscreen.
+4. tools/gpu_turn.sh 673 cohort and native Metal probes on 6.10.3
+   (spacr-download fibsem first).
+5. The full offscreen suite once the shared temp is cleared, comparing
+   segfaults / dead workers with the 2-and-7 baseline.
+6. Profile the residual first-open stalls (item 6 above) on a fresh install
+   with the warm step, three samples each.
+7. 646 steps 5-7 on the released .pkg in a disposable account or prefix.
+8. Give the focus-dependent test_655 files the activate-or-skip helper from
+   test_655_plate_well_focus.py, so a native run reports skips, not aborts.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+- A1: "registry: 54 apps; violations: 0", both processes return 0, empty
+  stderr, on 85af46f88 with PySide6 6.10.3.
+- The Agreement loop and the screens_a file pass natively with no SIGSEGV.
+- The native sweep completes with no Fatal Python error; every remaining
+  failure either fails identically offscreen or skips with a stated reason.
+- 673 Metal probes 38/38 on 6.10.3.
+- The offscreen full suite: 0 segfaults, 0 dead workers.
+- Each result recorded as a dated line here and in its owning item.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+- The idle repaint rework and battery pause (post-release item, maintainer).
+- Filing the Qt bug publicly (maintainer's call; text prepared).
+- Physical keyboard/trackpad acceptance for 696/697 (needs a person).

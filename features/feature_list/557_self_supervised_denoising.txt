@@ -1,0 +1,565 @@
+SELF-SUPERVISED DENOISING TRAINED ON THE USER'S OWN IMAGES (Noise2Void / CAREamics)
+
+Lifecycle: future
+Status: DONE (alpha) 2026-10-11 — a simulated low-light benchmark with known
+        ground truth answers the item's question: denoising raises
+        segmentation F1 only below ~2 signal photons per object pixel and
+        only for large objects; no denoiser becomes a default. Simulated
+        noise is not a real low-light acquisition (see the 2026-10-11 note).
+
+Previous status (superseded 2026-10-11): BLOCKED 2026-10-04 — a second real low-light data set to tell whether
+        the Huh7 NLM/N2V gains hold. Implemented as alpha 2026-09-27; done-
+        when not met (GPU rounds 2026-09-30, CPU round 4 2026-10-04: no
+        denoiser raises F1 reliably), so none is a default.
+
+Previous status (superseded 2026-10-04): IMPLEMENTED AS ALPHA 2026-09-27; done-when NOT met (GPU rounds 2026-09-30 and CPU round 4 2026-10-04: neither N2V, Cellpose 3 restoration nor non-local means raises F1 reliably over raw images)
+Owner: item-557-work. Proposed from the 2026-09-26 deep-learning/GPU list.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Add to future features list: B1,2,3,4,(in its own env like cellpose 3),
+    B5 (if this isn't the same as magnifier),B7(if this is connecting
+    objects over frames), B8,B9,B10,B11B12,B13,B14,B15,B16,B17,B19,B20"
+
+EVIDENCE
+    https://forum.image.sc/t/need-assistance-into-issue-with-denoising-using-careamics-noise2void/112159
+
+WHAT TO BUILD
+    Train a Noise2Void/N2V2 (CAREamics) denoiser on the user's own noisy
+    images with no clean targets, then apply it as a step of the enhancement
+    chain in Make Masks and Mask generation (item 508). Own environment;
+    training on the GPU through gpu_turn.sh.
+
+DONE WHEN
+    On a low-light dataset, denoised images raise segmentation F1 (item 532
+    method) against the same pipeline without denoising, with the training
+    recorded in provenance.
+
+ALPHA: 2026-09-27. Settings n2v_denoise, n2v_model and n2v_epochs under a
+    "Self-Supervised Denoising (Alpha)" heading on Make Masks and Timelapse,
+    and the Model Zoo row careamics_v1 (the CAREamics backend), registered
+    under 557 in ALPHA_FEATURES (spacr/settings.py); hidden unless
+    Preferences -> Show alpha features is on. A value saved while hidden
+    still reaches the run (tests/qt/test_n2v_denoising_alpha_gate.py).
+
+WHAT WAS BUILT (2026-09-27, CPU only; the GPU was held by another session)
+    - spacr/_segmentation_backends.py: a "careamics" backend spec in its own
+      environment (careamics==0.3.4, lightning==2.6.6, torch>=2.6,<2.12,
+      torchvision<=0.26.0, Python 3.11-3.13, BSD-3-Clause, alpha,
+      segments=False), installed from the Model Zoo like Cellpose 3. Worker
+      ops n2v_train (N2V2, 64 px patches, batch 16, a tenth of the patches
+      (1-8) for validation, seeded, per-epoch train/val loss recorded) and
+      n2v_denoise (checkpoint loaded once per worker, 256 px tiles with 32 px
+      overlap above 256 px). Host helpers _n2v_train / _n2v_denoise.
+      Data loading runs in the worker's own process: a DataLoader process
+      forked from a worker reading requests on a thread never started (the
+      first real run hung; fixed and noted in the docstring).
+    - spacr/psf_pipeline.py: _prepare_n2v trains one model per segmentation
+      channel on up to 8 evenly spaced raw fields of the run into
+      <src>/n2v/channel_<c>.ckpt (+ .json training record), reuses them on
+      resume when the epochs match, or reads a named n2v_model folder. The
+      segmentation session denoises each field after illumination and before
+      the PSF and the enhancement chain (N2V assumes pixel-independent
+      noise), and the models (sha256, losses, epochs, patches, fields,
+      CAREamics/torch versions) join psf/segmentation_application.json, so a
+      changed model is refused on resume like a changed chain. Mask V1 and V2
+      (and so Timelapse) both go through this session.
+    - Settings, tooltips, categories, API targets, flow index, notebooks and
+      the generated settings artefacts; tests/test_n2v_denoising.py (13) and
+      the Qt alpha gate; guard pins bumped (tooltip census 887 -> 890,
+      KEYS_ADDED_BY_REGROUP, rendered sections, caption ratchet, backend
+      adapter/import lists).
+    - tools/validate_n2v_lowlight.py: the validation below, rerunnable on the
+      GPU through gpu_turn.sh.
+    - The CAREamics environment was built with spaCR's own installer
+      (_install_backend) on this machine, self-test passing (CPU torch
+      2.11.0+cpu), in a scratch backends folder. Maintainer: careamics is an
+      optional dependency of that environment only; nothing enters setup.py.
+
+RESULTS (CPU, 2026-09-27; item 532 method)
+    Data: the ten toxo_pv fields with curated ground truth (item 412), one
+    512 x 512 crop each (the window with the most whole objects; 160 GT
+    objects), photon-starved by simulation: signal above the median scaled
+    to PEAK photons at its 99.9th percentile, +2 background photons, Poisson,
+    read noise 1.5, offset 100, seed 0. N2V trained once on the ten noisy
+    crops only. Every arm runs through Mask generation (532 driver
+    stage_and_preprocess + run_strategy), Cellpose-SAM cpsam, the true
+    diameter, scored with score_field/pooled. Pooled F1 at IoU 0.5:
+
+        PEAK  arm                          F1@.5   P      R      FP
+        10    no denoising                 0.354   0.755  0.231  12
+        10    percentile clip              0.398   0.824  0.263   9
+        10    clip + Gaussian              0.404   0.759  0.275  14
+        10    N2V, 30 epochs (218 s CPU)   0.244   0.349  0.188  56
+        10    N2V 30 ep + clip             0.284   0.328  0.250  82
+        40    no denoising                 0.662   0.780  0.575  26
+        40    clip + Gaussian              0.562   0.621  0.513  50
+        40    N2V, 30 epochs               0.556   0.528  0.588  84
+
+    Image fidelity is NOT the problem: Pearson r against the clean crop
+    (PEAK 10, four fields) rose from 0.31-0.52 (noisy) to 0.90-0.96 (N2V),
+    above a Gaussian (sigma 1.5, 0.84-0.92). What costs F1 is precision:
+    an under-trained model leaves isolated background speckles that
+    percentile normalisation lifts and Cellpose-SAM calls objects (56-84 FP
+    against 12-26). Recall rises slightly at PEAK 40. So on this CPU budget
+    the done-when is NOT met; the training IS recorded in provenance
+    (psf/segmentation_application.json carries each model's sha256, epochs,
+    patches, per-epoch losses, fields and versions).
+
+    A 120-epoch CPU run at PEAK 10 was started and stopped unfinished after
+    75 minutes (load average ~55 on 32 cores from other sessions), so the
+    effect of longer training is untested here.
+
+    Re-check after merging nightly (2026-09-28, CPU, PEAK 10, 5 epochs,
+    arms off and n2v; tools/validate_n2v_lowlight.py EPOCHS=5
+    CHAINS=off,n2v): training 24 s (train loss 1.18 -> 1.11, val 1.09 ->
+    1.02), the backend, worker, Mask generation hook and scoring all run
+    end to end. F1@.5 0.354 (off; P 0.755, R 0.231, 12 FP) against 0.274
+    (N2V; P 0.470, R 0.194, 35 FP): the same precision loss as at 30
+    epochs, as expected from a barely trained model. The Qt alpha gate,
+    the 13 unit tests and the guards pass on the merged tree.
+
+WHAT IS LEFT
+    - The full GPU run (tools/validate_n2v_lowlight.py, DEVICE=cuda,
+      EPOCHS 100-200, all ten FULL fields at 1994-2000 px, i.e. ~9,600
+      patches instead of 640, through gpu_turn.sh). It adds what the CPU
+      could not: a converged model (the 30-epoch loss was still noisy at
+      ~1.05) that removes the background speckle, the F1 question answered
+      on whole fields, and GPU training time per field for the tooltip. If
+      speckle FPs persist, try N2V + the chain's background subtraction or
+      a minimum object size before calling the done-when failed.
+    - A real low-light acquisition (short exposure / low laser) with its own
+      ground truth instead of simulated photon noise.
+    - Make Masks' interactive detect chain (spacr/qt/detect_chain.py) does
+      not preview N2V yet; the step runs in the plate run only.
+    - Multi-channel N2V (one joint model) and structN2V for correlated
+      camera noise are not offered.
+
+GPU RUN 2026-09-30
+    /mnt/wd4tb/scratch/557/gpu_run.sh (DEVICE=cuda, EPOCHS 150, CROP 4096,
+    PEAK 10, CHAINS off,n2v,clip_gauss) got its gpu_turn.sh slot at 08:36:46
+    and stopped 5 s later, rc 1, before any training:
+        ImportError: CAREamics Noise2Void is not installed
+    Two causes. (1) The script did not set SPACR_BACKENDS_DIR, so it looked in
+    ~/.spacr/backends, which has no careamics env; the one used for the CPU
+    checks is /mnt/wd4tb/scratch-557/backends/careamics. (2) That env has
+    torch 2.11.0+cpu (torch.version.cuda None), so pointing at it would still
+    have trained on the CPU. No segmentation F1 was produced; the last
+    numbers are still the CPU ones above (F1@.5 0.354 raw vs 0.274 N2V, 5
+    epochs).
+    Next: install CAREamics from the Model Zoo with a CUDA torch build, set
+    SPACR_BACKENDS_DIR in gpu_run.sh if it is not ~/.spacr/backends, rerun.
+    Conclusion: unanswered -- the GPU run never trained, so whether a
+    converged N2V beats raw images on F1 is still open.
+
+GPU RUN 2026-09-30 (second attempt, trained on the GPU)
+    FIX. The backend install sent CAREamics to PyPI whenever spaCR's own
+    torch recorded a plain version in its metadata (conda's 2.6.0 is a
+    cu124 build), so a local wheelhouse or a PyPI torch newer than the
+    driver could leave it on the CPU. _torch_index_url now reads the build
+    torch/version.py states (_built_torch_version: '2.6.0+cu124', or its
+    cuda field) and uses that wheel index; users get the same fix. The
+    reinstalled ~/.spacr/backends/careamics has careamics 0.3.4 and torch
+    2.6.0+cu124, self-test device cuda (driver 580.178, CUDA 13.0, RTX 3090).
+    Test: tests/test_backends_live_in_their_own_environment.py (122 pass).
+    RUN. /mnt/wd4tb/scratch/557/gpu_run.sh via gpu_turn.sh (10:40-11:00,
+    rc 0): EPOCHS 150, all ten full toxo_pv fields (9,610 patches), PEAK
+    10, device cuda. Training 916 s; train loss 1.087 -> 1.037, val 1.268
+    -> 1.173. Pooled over 910 true objects:
+                     F1@.5   P@.5    R@.5   FP    F1@.75  mean field F1@.5
+      raw (off)      0.543   0.839   0.401   70   0.418   0.583
+      N2V            0.540   0.538   0.542  423   0.375   0.630
+      clip_gauss     0.441   0.807   0.303   66   0.321   0.389
+    Does F1 improve over raw images? No. Pooled F1@.5 is a tie (0.540 vs
+    0.543) and F1@.75 is lower. The converged N2V model recovers 128 more
+    true cells (recall 0.40 -> 0.54) but adds 353 false positives, so the
+    speckle-FP problem of the CPU runs persists after convergence; mean
+    per-field F1 rises (0.58 -> 0.63) because the sparse fields gain most.
+    Next, as planned: N2V + background subtraction or a minimum object
+    size before calling the done-when failed. Output:
+    /mnt/wd4tb/scratch/557/out_gpu_e150/results_p10_e150.json.
+
+ROUND 3 2026-09-30/10-01 (GPU through gpu_turn.sh, 16:58-19:17, rc 0; then a
+wider threshold grid on the CPU). Branch val-557g.
+    WHAT WAS ADDED
+    - structN2V: _n2v_train(struct_axes=, struct_span=) asks the CAREamics
+      worker for create_structn2v_config (N2V2 + a structured blind-spot
+      bar; span must be odd). Private, no setting yet; test in
+      tests/test_n2v_denoising.py (14 pass).
+    - tools/validate_n2v_lowlight.py: CROP, DATASET=huh7 (real low light),
+      NOISE=correlated (row noise: unit Gaussian box-smoothed over 5 px,
+      3 photons), VARIANT=struct, FLOWS=1 (keeps Cellpose-SAM's flows and
+      cell probability from the real Mask-generation run), and --sweep:
+      Cellpose's own mask step re-run on the kept flows over
+      cell_cellprob_threshold x cell_flow_threshold x object area floor
+      (0-0.5 of the diameter disc), chosen on one fold and scored on the
+      other (alternate toxo fields; the two Huh7 sequences), pooled.
+      The kept flows reproduce the Mask-generation F1 exactly.
+    HELD-OUT F1@.5 (pooled over both folds; default = spaCR defaults)
+      data (N2V epochs)              raw def  raw tuned  N2V def  N2V tuned
+      toxo PEAK 3 (40)               0.163    0.227      0.024    0.077 *
+      toxo PEAK 10 (150)             0.543    0.676      0.540    0.543
+      toxo PEAK 40 (40)              0.714    0.775      0.702    0.753
+      toxo PEAK 10 + row noise:
+        N2V2 (40)                    0.117    0.191 *    0.086    0.213 *
+        structN2V span 9 (40)        0.117    0.191 *    0.003    0.190 *
+      Huh7, CTC Fluo-C2DL-Huh7,
+        real low light, 523 cells    0.549    0.656      0.560    0.721
+      (* narrower grid: cellprob -1..3, flow 0.2-0.6; the others -3..2 and
+      0.4-1.0. Toxo 910 objects, 10 whole fields.)
+    WHAT IT SAYS
+    - Threshold re-tuning does NOT rescue N2V on the simulated data. The
+      353 extra FPs at PEAK 10 are object-shaped (they survive cellprob,
+      flow and size cuts; best N2V precision 0.63), while the same tuning
+      lifts RAW from 0.543 to 0.676. Re-tuning the thresholds on raw images
+      is worth far more than denoising them.
+    - Very low light (PEAK 3) is where N2V is worst: 11,737 FPs from
+      hallucinated blob texture that Cellpose-SAM segments; tuning cannot
+      fix it (0.077 vs raw 0.227).
+    - Correlated noise: N2V2 learns the row noise; structN2V removes it but
+      leaves stripes Cellpose-SAM tiles into 76,000 objects at default
+      thresholds; after tuning both tie raw (0.19-0.21; all poor).
+    - Real low light (Huh7) is the only regime with a gain: +0.011 at
+      default thresholds, +0.065 held-out after tuning (0.721 vs 0.656).
+      Caveat: the best setting in-sample is a tie (0.787 N2V vs 0.792 raw);
+      the held-out gain comes from N2V's best thresholds transferring
+      between the two sequences while raw's did not. Two sequences of one
+      cell line: suggestive, not proof.
+    - Why: Cellpose-SAM is already robust to pixel noise, so N2V buys
+      little recall it could not get from a lower cellprob threshold, and
+      at low photon counts N2V's prediction (the conditional mean) turns
+      noise into smooth cell-sized blobs. N2V helps where cells are large
+      relative to the noise grain and signal is not photon-starved (Huh7,
+      ~88 px cells, 8-bit, SNR ~8); it does not help small objects at
+      under ~40 photons.
+    Outputs: /mnt/wd4tb/scratch/557/out_gpu_e150/flows/p10_e150/sweep.json,
+    /mnt/wd4tb/scratch/557/out_r3/flows/*/sweep.json (sweep_grid1.json =
+    the first, narrower grid), gpu_run2.log, cpu_sweep2.log.
+    WHAT IS LEFT
+    - Keep alpha; do not promote. A Huh7-like real data set with more
+      sequences (or a second cell line) to confirm the +0.065.
+    - Better use of the time: a threshold auto-tune step on raw images
+      (cellprob/flow/area floor from a few annotated fields) gives +0.06 to
+      +0.13 F1 here with no denoiser.
+    - structN2V is backend-only; expose it as a setting only if a real
+      correlated-noise data set shows a gain.
+
+ROUND 4 2026-10-03/04 (CPU only; the GPU was held by another session's
+training). Other denoisers, same held-out sets and scoring as ROUND 3.
+    tools/validate_n2v_lowlight.py PREDENOISE=nlm|cp3_<model> denoises each
+    noisy field once, before Mask generation (linear rescale to uint16), then
+    runs the raw chain (off) with FLOWS=1, and --sweep re-tunes cellprob x
+    flow x area floor on one fold and scores the other, exactly as before.
+    nlm = scikit-image non-local means (fast, 5 px patches, 6 px search,
+    h 0.8 x estimate_sigma). cp3_* = Cellpose 3.1.1.3's restoration networks
+    (denoise_cyto3, denoise_nuclei; trained for segmentation) on the CPU at
+    each field's true diameter, in the Cellpose 3 backend environment. BM3D
+    was not tried (not installed; NLM is the non-deep baseline).
+    F1@.5, pooled (raw and N2V rows from ROUND 3):
+      data               arm                default  tuned held-out  in-sample best
+      toxo PEAK 10       raw                0.543    0.676           -
+                         N2V (150 ep)       0.540    0.543           -
+                         NLM                0.363    0.511           -
+                         CP3 denoise_cyto3  0.353    0.393           -
+                         CP3 denoise_nuclei 0.109    (not swept)     -
+      Huh7 real low      raw                0.549    0.656           0.792
+      light, 523 cells   N2V (40 ep)        0.560    0.721           0.787
+                         NLM                0.582    0.772           0.822
+                         CP3 denoise_cyto3  0.538    0.750           0.802
+                         CP3 denoise_nuclei 0.294    0.638           -
+    WHAT IT SAYS
+    - Nothing helps reliably. On simulated photon-starved toxo vacuoles
+      (small objects, PEAK 10) every denoiser lowers F1, with or without
+      re-tuning, mostly by losing recall: smoothing merges or erases the
+      small dim objects that Cellpose-SAM finds in the raw noise.
+    - On real low-light Huh7 (large cells), NLM is the best arm on every
+      measure (+0.033 default, +0.116 held-out, +0.030 in-sample best,
+      F1@.75 held-out 0.461 vs 0.377), and Cellpose 3 denoise_cyto3 helps
+      once re-tuned. One cell line, two sequences, 13 frames.
+    - Cellpose 3 denoise_nuclei is wrong for both (cyto-like objects).
+    - So no denoiser was made a default. NLM already exists as the
+      enhancement chain's enhance_denoise='nlm' (not alpha); use it for
+      large cells at low light, not for small objects. Outputs:
+      /mnt/wd4tb/scratch/557/out_r4/flows/*/sweep.json, r4_*.log.
+    WHAT IS LEFT
+    - Unchanged from ROUND 3: a second real low-light data set (another
+      cell line or more sequences) to tell whether the Huh7 NLM/N2V gains
+      hold; a raw-image threshold auto-tune is the bigger, safer win.
+
+2026-10-05 — ADDITIONAL REAL NUCLEAR DATASET PREPARED; NO NEW TRAINING CLAIM
+    CTC Fluo-N2DH-GOWT1 preparation preserves original raw image pixels and
+    annotation files. Twenty evenly spaced sequence-02 frames are selected
+    without evaluation labels for a predeclared 20-epoch, seed-0 N2V2 run.
+    Evaluation uses only complete sequence-01 gold frames 21/31/33/39,
+    each with a 24-object marker-to-segmentation bijection. Sequence-02's
+    partial gold frames are not promoted to complete truth. No silver labels
+    enter scoring and no artificial noise is added. These four timepoints
+    are one evaluation sequence, not four independent biological replicates.
+
+    The official annotation protocol gives GOWT1 a 50-pixel XY field-of-
+    interest border. Retain complete predicted objects that intersect that
+    region and ignore only objects wholly outside it. Compare retained full
+    masks to all gold objects using object IoU/Hungarian F1, explicitly our
+    benchmark rather than official CTC SEG/DET/TRA scores. Training and test
+    sequences remain disjoint; final checkpoint is not selected by test F1.
+
+    Normal private CAREamics 0.3.4 and fresh Cellpose3 3.1.1.3 installations
+    pass CPU self-tests. Prepared raw/NLM/nuclear-restoration/N2V comparison
+    awaits inference/training. No new GPU, denoising gain or low-photon
+    calibration claim. GOWT1 supplies additional real fluorescent nuclear
+    images but does not by itself satisfy the second calibrated low-light
+    dataset requirement. F557 remains open at that scientific boundary.
+    Receipt: features/data/557_gowt1_preparation_2026-10-05.json, including
+    input, annotation and exact-pixel export hashes and preparation script.
+
+2026-10-05 — FROZEN GOWT1 CPU COMPARISON; NEXT GPU TRAINING ANNOUNCED
+    Normal Cellpose3 nuclei learned-size estimates from twenty training-only
+    sequence-02 raw frames give fixed median diameter 14.862803134641222px.
+    Every arm uses this diameter, normalize=True, flow_threshold=0.4,
+    cellprob_threshold=0, min_size=15, resample=True, batch_size=8 and
+    augment=False. The four complete sequence-01 gold evaluation frames
+    never participate in training or parameter selection. Official 50px
+    field-of-interest handling retains intersecting whole objects.
+
+    CPU execution passes, but pooled segmentation scores are poor:
+    raw F1@0.5=0.035503 (TP3/FP70/FN93), NLM=0 (TP0/FP44/FN96),
+    Cellpose3 denoise_nuclei=0.331361 (TP28/FP45/FN68). Scores at 0.75
+    are 0.011834, 0 and 0.213018. These are spaCR Hungarian object-IoU
+    scores, not official CTC SEG/DET/TRA. No held-out tuning follows these
+    results. Source/input/model hashes are unchanged. Receipt:
+    features/data/557_gowt1_cpu_baseline_2026-10-05.json.
+
+    Next single GPU turn: 557-gowt1-normal-n2v-20epochs-r1, script
+    /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/
+    benchmark_gowt1_denoising.py --mode gpu-n2v, normal private CAREamics
+    backend and unchanged cpu-baseline-r1. Twenty epochs, seed zero,
+    training-only patches/validation and the final checkpoint are frozen.
+    GPU denoising is followed by the same CPU segmentation on all four
+    gold frames. Queue after this handoff is pushed, through gpu_turn.sh
+    with real HOME, six-minute idle, ten-minute gap and an 8GiB cap.
+    No training has run at this announcement. This additional real nuclear
+    dataset does not itself meet the calibrated low-light requirement.
+
+2026-10-05 — NORMAL GOWT1 GPU TRAINING AND HELD-OUT COMPARISON ACCEPTED
+    The announced normal GPU turn finishes at 23:05:24 UTC with rc=0.
+    Private CAREamics 0.3.4 trains N2V2 for all twenty predeclared epochs,
+    seed zero, on the twenty sequence-02 raw frames. The actual CUDA worker
+    PID is observed; all four held-out frames use the final epoch-20
+    checkpoint, with the same frozen CPU Cellpose3 segmentation parameters
+    and training-only diameter as the accepted CPU comparison.
+
+    Pooled object F1 is 0.450704 at IoU 0.5 (TP32/FP14/FN64), and 0.394366
+    at 0.75 (TP28/FP18/FN68), versus denoise_nuclei 0.331361/0.213018,
+    raw 0.035503/0.011834 and NLM 0/0. Saved predictions are independently
+    rescored; every frozen source, input, label, package and model hash
+    matches the CPU baseline and current files. Full checkpoint, paired
+    outputs, worker/training logs and source snapshot are preserved.
+
+    This is a measured improvement under this frozen GOWT1 setup, not four
+    independent biological replicates, calibrated low-light validation or
+    official CTC SEG/DET/TRA scoring. No production default is changed.
+    The second calibrated low-light dataset requirement remains OPEN.
+    Receipt: features/data/557_gowt1_gpu_acceptance_2026-10-05.json.
+
+2026-10-06 workstation additional real denoising dataset audit: the primary noisy-nuclei archive DOI 10.5281/zenodo.5750174 matches its published MD5 and all 50 acquired 1024x1024 uint16 TIFFs are independently reverified. Twenty original training pairs and five original test pairs match by basename; exact pixel duplicates and unshifted/phase-correlation diagnostics are recorded without modifying, registering or denoising any original. Maximum diagnostic shift is 0.30000001192092896 px. There are no manual masks, exposure/laser/gain/photon settings, OME metadata or acquisition-calibration text in the original archive; ImageJ display limits are not calibration. The related manual-mask StarDist archive DOI 10.5281/zenodo.3715492 is independently downloaded and verified against both published MD5 and SHA256, inventorying 98 original TIFFs. Exact pixel matches with the noisy/high-signal dataset: 0. Matching species/microscope descriptions do not justify mask transfer to unmatched images. Receipt 557_public_paired_image_audit_2026-10-06.json retains source records, complete original file/pixel inventories, all pair diagnostics, identity comparison, scripts and terminal logs; original archives remain intact in scratch. This advances actual dataset evidence but does not satisfy the still-open second calibrated low-light segmentation-F1 requirement or claim new training/GPU/biological accuracy. The optional request for a local real low-light/manual-mask acquisition with recorded exposure remains pending. Current DINOv2 normal retry continues through the unchanged scheduler; Home retains CPU CI/Qt/source and workstation retains all GPU/documentation lanes. Protected jobs remain untouched.
+
+2026-10-11 — PUBLIC-DATA UNBLOCK ATTEMPT (CPU)
+    SEARCHED. FMD (Zhang et al., CVPR 2019), BioSR, CARE (Weigert 2018),
+    public low-SNR sets with manual masks. None pairs real low-light
+    frames with human masks of countable cells; FMD has the cleanest
+    design (real raw frames + 50-frame mean of the same field), so it
+    was chosen with a pseudo ground truth, as briefed.
+    DATA. FMD, github.com/yinhaoz/denoising-fluorescence (was
+    bmmi/...), files on the authors' Google Drive (download_dataset.sh
+    ids). Code licence MIT; the data carry no separate licence (stated
+    "publicly available" in the paper); used locally, not redistributed.
+    Two BPAE DAPI-nucleus categories, 20 fields x 50 raw 8-bit 512 px
+    frames each: WideField_BPAE_B (tar 719 MB, sha256 a4db37c7...;
+    files PND_16_Exp_200_Gain_46) and TwoPhoton_BPAE_B (826 MB,
+    06cd148b...; WL780_P05_HV130). Confocal_BPAE_B (590 MB, 4b096075...)
+    is downloaded but not run. In /mnt/firecuda2/Claude/scratch/unblock/
+    F557/data/fmd. Raw-frame SNR against the mean (median nuclear
+    signal / noise sd in nuclei): widefield ~10-11 (one field 3.3),
+    noise sd 12-15 grey levels; two-photon 3.0-3.7, noise sd 29-35;
+    confocal 3.6-4.3. Two-photon is noisier than Huh7 (SNR ~8).
+    GT. NOT human truth: "agreement with high-SNR segmentation". The
+    reference is Cellpose-SAM cpsam (flow 0.4, cellprob 0) on each
+    field's avg50.png at a fixed diameter (84 px widefield, the median
+    of unrescaled cpsam on two means; 50 px two-photon, scaled by
+    Otsu sizes). It is frozen and shared by every arm. Widefield: 88
+    nuclei in 20 fields. Two-photon: 130 nuclei in 14 fields.
+    RAN. tools/validate_n2v_lowlight.py gains DATASET=fmd (FMD_ROOT,
+    FMD_FRAMES, FMD_FOVS, FMD_DIAMETER, --stage). Arms raw, NLM,
+    Cellpose 3 denoise_cyto3 and denoise_nuclei (3.1.1.3, CPU), each
+    through Mask generation cpsam at the true diameter, FLOWS=1, then
+    --sweep. The held-out folds are disjoint fields of view (1-10 and
+    11-20). Widefield: raw frames 0 and 25 of every field (40 fields,
+    176 object instances). Two-photon: frame 0 of 14 fields (folds
+    1,2,3,5,6,7,9,10 / 11,13,14,17,18,19). Six reference masks were
+    dropped for time; no frame was picked by its result. CPU only, about
+    2 h wall under load average 45-65.
+    N2V was NOT run. A CPU N2V2 training on the 40 widefield frames (20
+    epochs, 4 threads) was stopped unfinished after 55 min, past the
+    30-minute budget.
+    F1 (pooled; def = spaCR defaults; ho = tuned on one fold, scored on
+    the other):
+      set        arm              def@.5  def@.75  ho@.5   ho@.75  best
+      widefield  raw              0.986   0.968    0.983   0.948   0.989
+      40 fields  NLM              0.980   0.968    0.974   0.957   0.989
+                 CP3 cyto3        0.983   0.983    0.977   0.971   0.986
+                 CP3 nuclei       0.980   0.957    0.980   0.968   0.992
+      two-photon raw              0.992   0.985    0.985   0.969   0.996
+      14 fields  NLM              0.996   0.988    0.996   0.988   1.000
+                 CP3 cyto3        0.988   0.973    0.985   0.969   0.992
+                 CP3 nuclei       0.973   0.919    0.973   0.965   0.992
+    Every difference is 0-3 objects out of 130-176, i.e. noise.
+    WHAT IT SAYS. On these real low-light frames, Cellpose-SAM on a
+    single raw frame already agrees with its own segmentation of the
+    50-frame mean at F1 0.98-0.99, even at SNR ~3. Denoising has no
+    headroom, so no arm gains: NLM +0.004 (default) and +0.011
+    (held-out) on two-photon, -0.006 and -0.009 on widefield. The
+    Huh7 gains (NLM +0.116, N2V +0.065 held-out) are NOT reproduced.
+    Noise alone does not explain them. On large nuclei, noise costs
+    cpsam about 1-2% F1. The Huh7 deficit (raw 0.549 against human
+    truth) must come mostly from other causes: boundary conventions,
+    low contrast, touching cells. Smoothing can change those in either
+    direction. Caveats: a model-made reference rewards matching the
+    model's own clean output, not true boundaries. Objects are large
+    (50-84 px) and few per field. A smaller-object or human-annotated
+    low-light set could still differ.
+    STATUS: still BLOCKED, now with a precise reason. A second public
+    real low-light set is answered and shows NO denoising gain, because
+    raw images already segment as well as the high-SNR mean. A
+    confirming dataset would need low-light frames where raw cpsam
+    disagrees with the high-SNR result (F1 below ~0.9) or human masks.
+    No public set found has that. That needs the maintainer's own
+    acquisition: the same field at short and long exposure, with
+    manual or long-exposure masks. Keep alpha; promote no default.
+    Optional GPU step (completes the arm set; cannot change the verdict,
+    since headroom is <= 0.01): on this machine, from a worktree with
+    this harness,
+      mkdir -p $O/fmd && cp -r /mnt/firecuda2/Claude/scratch/unblock/F557/work/tp/out/fmd/gt $O/fmd/
+      tools/gpu_turn.sh f557-fmd-n2v tools/run_capped.sh 24G env \
+        DEVICE=cuda SPACR_DEVICE=cuda DATASET=fmd \
+        FMD_ROOT=/mnt/firecuda2/Claude/scratch/unblock/F557/data/fmd/TwoPhoton_BPAE_B \
+        FMD_DIAMETER=50 FMD_FRAMES=0 \
+        FMD_FOVS=1,2,3,5,6,7,9,10,11,13,14,17,18,19 EPOCHS=100 \
+        CHAINS=off,n2v FLOWS=1 CROP=4096 OUT=$O \
+        python tools/validate_n2v_lowlight.py
+      CUDA_VISIBLE_DEVICES='' tools/run_capped.sh 16G python \
+        tools/validate_n2v_lowlight.py --sweep $O/flows/fmd_e100
+    ($O = a new folder; the gt copy keeps the CPU references frozen;
+    the CAREamics env is ~/.spacr/backends/careamics, cu124.)
+    Outputs: /mnt/firecuda2/Claude/scratch/unblock/F557/work/
+    sweep_wf/sweep.json, tp/sweep/sweep.json, logs and arm.sh/arm2.sh.
+
+2026-10-11 — SIMULATED LOW-LIGHT BENCHMARK WITH KNOWN GROUND TRUTH (CPU)
+    Asked by the maintainer: "can't you simulate this with current
+    images?" Yes: clean high-SNR fields with masks, degraded to a photon
+    budget, so the effect of denoising on segmentation is measured
+    against a fixed truth at every light level.
+    DATA. (1) toxo_pv, human-curated masks (item 412): the ten fields,
+    one 512 px crop each (the window with the most whole objects; 160
+    vacuoles, 20-50 px). (2) FMD WideField_BPAE_B 50-frame means (20
+    fields, 512 px, 8-bit), with the frozen Cellpose-SAM masks of those
+    means from the 2026-10-11 FMD round as PSEUDO ground truth (88
+    nuclei, ~84 px). The clean images segment at F1@.5 0.750 (toxo,
+    human truth) and 1.000 (FMD, its own pseudo truth): the ceilings.
+    NOISE MODEL (tools/validate_n2v_lowlight.py simulate_lowlight). The
+    clean image's background (median outside the masks) is removed, the
+    rest scaled so the mean over object pixels is P photons, plus a flat
+    background of 0.1 P photons; Poisson shot noise, Gaussian read noise
+    1.5 e-, gain 1 ADU/e-, offset 100 ADU (16-bit) or 10 ADU (8-bit),
+    rounded and clipped to the source bit depth (nothing clipped at any
+    level). The scaling is recorded and inverts (photons_to_clean). Seed
+    (0, level, field, draw). P = 50, 20 (FMD only), 10, 5, 2, 1; per-
+    pixel object SNR P/sqrt(1.1P+2.25) = 6.6, 4.1, 2.7, 1.8, 0.95, 0.55,
+    measured on the draws within 0.01 of that. One draw per field for
+    every arm; a second independent draw for raw/NLM/CP3 cyto3 at P 10
+    and raw/NLM at P 2 measures draw-to-draw spread.
+    ARMS. Raw; NLM (scikit-image, as in ROUND 4); Cellpose 3.1.1.3
+    denoise_cyto3 and denoise_nuclei (CPU, true diameter; nuclei on FMD
+    only, ROUND 4 showed it wrong for vacuoles); N2V2 (CAREamics 0.3.4,
+    CPU, 20 epochs, trained per level on that level's noisy images
+    only, 10-20 crops, ~10 min each). Every arm segments through Mask
+    generation, Cellpose-SAM cpsam at the true diameter, spaCR defaults,
+    FLOWS=1, then the held-out sweep (cellprob -2..2 x flow 0.4-0.8 x
+    area floor 0-0.5 of the diameter disc; folds = alternate toxo fields,
+    FMD fields of view 1-10 / 11-20).
+    F1@.5 POOLED (def = spaCR defaults; ho = tuned on one fold, scored on
+    the other). Full table incl. F1@.75 and counts:
+    features/data/557_simulated_lowlight_f1_2026-10-11.csv.
+      FMD nuclei (pseudo-GT)  P=1          P=2          P=5          P=10   P=20   P=50
+                              def   ho     def   ho     def   ho     def    def    def
+      raw                     .632  .922   .946  .971   .971  .966   .989   .989   .994
+      NLM                     .922  .971   .977  .971   .989  .989   .989   .994   .994
+      CP3 denoise_cyto3       .883  .940   .977  .977   .977  .977   .977   .983   .994
+      CP3 denoise_nuclei      .753  .905   .923  .971   .983  .977   .977   .983   .972
+      N2V2 (20 ep, CPU)       .954  .948   .971  .977   .937  .954   .989   .994   .989
+      toxo vacuoles (human)   P=1          P=2          P=5          P=10         P=50
+                              def   ho     def   ho     def   ho     def   ho     def   ho
+      raw                     .157  .287   .396  .624   .556  .706   .676  .823   .694  .767
+      NLM                     .142  .223   .400  .405   .561  .660   .688  .679   .789  .788
+      CP3 denoise_cyto3       .159  .180   .367  .423   .613  .645   .697  .737   .630  .637
+      N2V2 (20 ep, CPU)       .277  .502   .138  .293   .583  .543   .047  .164   .519  .639
+    Draw-to-draw spread (second draw, toxo): P 10 raw .676/.650, NLM
+    .688/.771, cyto3 .697/.628 (def); P 2 raw .396/.348, NLM .400/.359.
+    So toxo differences under ~0.08 are noise. FMD: one object is 0.006.
+    WHAT IT SAYS
+    - Large nuclei: denoising starts to help below ~2 photons per object
+      pixel (per-pixel SNR < 1). At P 1 every denoiser lifts default-
+      threshold F1 a lot (raw .632; N2V +.32, NLM +.29, cyto3 +.25,
+      nuclei +.12) because raw loses half the nuclei (46 FN). But
+      re-tuning thresholds on raw recovers most of that (.922 held-out);
+      over tuned raw only NLM (+.049) and N2V (+.026) still gain. At P 2
+      the gain is +.031 at defaults (6 nuclei) and a tie after tuning.
+      From P 5 up nothing changes by more than 2 objects (N2V -.03 at P 5).
+    - Small vacuoles (human truth): no denoiser helps reliably at any
+      budget. At defaults the arms sit within the draw spread; after
+      tuning raw is best from P 2 to 10 (+.20, +.05, +.09 over the best
+      denoiser). The CPU N2V2 model hallucinates speckle objects (2,040
+      FP at P 10, 164 at P 2), as in the 2026-09-27/30 runs; its one win
+      (P 1 held-out .502 vs .287) comes from 35 objects and is not
+      trusted.
+    - This reproduces both earlier real-data findings in one controlled
+      setting: the FMD real frames (SNR ~3-11) had no headroom, and the
+      simulation says none is expected above ~2 photons; the toxo
+      simulations of ROUNDS 1-4 lost F1 with every denoiser.
+    PROMOTION. No default. A threshold re-tune on raw images is worth as
+    much as any denoiser everywhere except the very darkest large-object
+    images, where NLM (already the chain's enhance_denoise='nlm', not
+    alpha) is the best arm. N2V stays alpha. A future tooltip can say:
+    denoise large cells only below ~2 photons per pixel.
+    CAVEATS. Simulated noise is not a real low-light acquisition: no
+    photobleaching, no change of focus or background with exposure,
+    white pixel-independent noise only (no sCMOS fixed pattern or row
+    noise; see ROUND 3 for correlated noise). FMD truth is a model's
+    segmentation of the clean mean, which rewards matching cpsam. 512 px
+    toxo crops (160 objects) and CPU-trained N2V (20 epochs) limit
+    precision; P 20 was not run on toxo (time).
+    TOOL. tools/validate_n2v_lowlight.py DATASET=simulated (SIM_SOURCE,
+    PHOTONS, SIM_DRAWS, SIM_READ, SIM_GAIN, SIM_BACKGROUND, SEED), meta
+    per run under OUT/flows, SWEEP_GLOB, --report OUT (simulated_f1.csv
+    through spacr.tabular; figure through spacr.plot.save_figure).
+    Tests: tests/test_simulated_lowlight_degradation.py (7: mean and
+    variance of Poisson + read noise, photon budget, bit depth and
+    clipping, float refusal, seed determinism, inversion).
+    Outputs: /mnt/firecuda2/Claude/scratch/f557b/out (simulated_f1.png,
+    simulated_f1.csv, flows/*/sweep.json, sim_*/simulation.json),
+    logs in ../logs, job.sh/sweeper.sh.
+    OPTIONAL GPU STEP (workstation): raw and a converged N2V2 (150
+    epochs) on the whole toxo fields; it can refine the N2V rows, not
+    the NLM/Cellpose 3 verdict:
+      O=/mnt/firecuda2/Claude/scratch/f557b/out_gpu
+      for S in toxo_pv fmd; do for P in 1 2 5 10 50; do
+        tools/gpu_turn.sh f557-sim-$S-p$P tools/run_capped.sh 24G env \
+          DEVICE=cuda SPACR_DEVICE=cuda DATASET=simulated SIM_SOURCE=$S \
+          PHOTONS=$P SIM_DRAWS=2 CROP=4096 EPOCHS=150 CHAINS=off,n2v \
+          FLOWS=1 OUT=$O python tools/validate_n2v_lowlight.py
+        CUDA_VISIBLE_DEVICES='' SWEEP_CELLPROB=-2,-1,0,1,2 \
+          SWEEP_FLOW=0.4,0.6,0.8 tools/run_capped.sh 8G python \
+          tools/validate_n2v_lowlight.py --sweep $O/flows/<tag>_e150
+      done; done
+      python tools/validate_n2v_lowlight.py --report $O
+    (<tag> = sim_toxo_pv_c4096_p$P or sim_fmd_p$P; CROP=4096 keeps the
+    whole toxo fields, 910 objects; the CAREamics env is
+    ~/.spacr/backends/careamics, cu124.)

@@ -74,7 +74,7 @@ def repo(tmp_path: Path) -> Path:
     git(root, "commit", "--quiet", "-m", "the product")
 
     git(root, "checkout", "--quiet", "-b", "nightly")
-    write(root / "features" / "future" / "250_public.txt", "an instruction\n")
+    write(root / "features" / "feature_list" / "250_public.txt", "an instruction\n")
     write(root / "skill" / "engineer.md", "a skill\n")
     write(root / "proposals" / "a_proposal.md", "a proposal\n")
     write(root / ".claude" / "settings.json", "{}\n")
@@ -85,7 +85,7 @@ def repo(tmp_path: Path) -> Path:
 
 
 WORKING_PATHS = {
-    "features/future/250_public.txt",
+    "features/feature_list/250_public.txt",
     "skill/engineer.md",
     "proposals/a_proposal.md",
     ".claude/settings.json",
@@ -160,7 +160,7 @@ class TestEveryPromotionDropsThemAgain:
         assert not tracked(repo, "main") & WORKING_PATHS
 
         # More work on nightly, touching a working folder and the product.
-        write(repo / "features" / "future" / "251_next.txt", "the next one\n")
+        write(repo / "features" / "feature_list" / "251_next.txt", "the next one\n")
         write(repo / "spacr" / "later.py", "def later():\n    return 2\n")
         git(repo, "add", "-A")
         git(repo, "commit", "--quiet", "-m", "more work")
@@ -297,7 +297,7 @@ class TestASecondPromotionAfterTheFoldersMovedOn:
     def test_a_modified_working_file_does_not_stop_the_promotion(self, repo):
         assert self._promote(repo) == 0
         git(repo, "checkout", "--quiet", "nightly")
-        write(repo / "features" / "future" / "250_public.txt",
+        write(repo / "features" / "feature_list" / "250_public.txt",
               "the instruction, edited after the first promotion\n")
         write(repo / "spacr" / "second.py", "def second():\n    return 2\n")
         git(repo, "add", "-A")
@@ -310,7 +310,7 @@ class TestASecondPromotionAfterTheFoldersMovedOn:
     def test_the_source_still_tracks_them_afterwards(self, repo):
         self._promote(repo)
         git(repo, "checkout", "--quiet", "nightly")
-        write(repo / "features" / "future" / "250_public.txt", "edited\n")
+        write(repo / "features" / "feature_list" / "250_public.txt", "edited\n")
         git(repo, "add", "-A")
         git(repo, "commit", "--quiet", "-m", "edit the notes")
         self._promote(repo)

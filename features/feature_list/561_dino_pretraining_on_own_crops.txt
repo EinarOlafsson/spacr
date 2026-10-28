@@ -1,0 +1,207 @@
+SELF-SUPERVISED PRETRAINING (DINO) ON THE USER'S OWN UNLABELLED CROPS
+
+Lifecycle: future
+Status: BLOCKED ON MAINTAINER 2026-10-21 — software delivered; original numerical acceptance needs reliable access to the designated NAS backup or the recovered original records.
+Previous software status: DONE (alpha) 2026-09-28 (evidence dfe642354)
+VERIFIED 2026-10-04: test_dino_pretraining, qt/test_dino_pretrain_alpha_gate pass (nightly 85c3e41c2, CPU).
+Owner: Codex maintainer-input coordinator and retained benchmark-recovery worker.
+Proposed from the 2026-09-26 deep-learning/GPU list.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Add to future features list: B1,2,3,4,(in its own env like cellpose 3),
+    B5 (if this isn't the same as magnifier),B7(if this is connecting
+    objects over frames), B8,B9,B10,B11B12,B13,B14,B15,B16,B17,B19,B20"
+
+EVIDENCE
+    https://www.biorxiv.org/content/10.1101/2023.04.28.538691
+
+WHAT TO BUILD
+    Pretrain a ViT with DINO on a screen's own single-cell crops (no labels)
+    to get a screen-specific feature extractor, then use it for embeddings,
+    UMAP and fine-tuned classifiers. GPU training through gpu_turn.sh,
+    resumable.
+
+DONE WHEN
+    On a labelled subset, the self-supervised features beat ImageNet
+    features for kNN classification of phenotypes.
+
+ALPHA: 2026-09-28 -- the Embeddings screen's "Pretrain on these crops..."
+    button (ALPHA_FEATURES[561], widget EmbeddingsDinoPretrainButton),
+    hidden until Preferences -> Show alpha features. Test:
+    tests/qt/test_dino_pretrain_alpha_gate.py (hidden/shown, and a run
+    started while hidden still reaches the next Embed).
+
+WHAT WAS BUILT (spacr/embeddings.py, private helpers)
+    _dino_pretrain: DINO self-distillation (student vs EMA teacher, 2
+    global + n local views, centring and sharpening, cosine lr and
+    momentum schedules) on any timm backbone (ResNet or ViT), no labels.
+    Views are made batched on the device with an affine grid (random crop,
+    any rotation, flip, per-channel gain/offset, noise). Crops are scaled
+    exactly as embed_array scales them; per_channel trains on one stain
+    per image, project on all encoded channels. Resumable: the checkpoint
+    is rewritten atomically after every epoch; rerunning with the same
+    path continues, a finished run returns at once, and a checkpoint made
+    with other settings is refused, never overwritten.
+    _dino_encoder: EmbeddingSpec(backbone="dino:<path>") embeds with the
+    teacher backbone (the same route as item 560's foundation models).
+    _backbone_scorecards: one labelled stack, several backbones, one
+    _retrieval_scorecard row each.
+    GUI: the button trains in the background (default resnet18, 64 px,
+    20 epochs, random init), then adds "Own DINO: <file>" to item 560's
+    Foundation model picker and selects it, so the next Embed uses it.
+    Tests: tests/test_dino_pretraining.py (views, planes, resume, refusal,
+    embed + score, policy mismatch) on a tiny CPU run.
+
+MEASURED (CPU only, 2026-09-28; the GPU is held by a training job)
+    Tiny setting: resnet10t, 32 px crops, 8 epochs, batch 64, 4 local
+    views, per_channel, seed 0, ~41 min per run on 8 CPU threads.
+    Pool: all 2185 datasets_/plate1 crops x 3 channels (6555 one-stain
+    images); no labels used. Labelled set: the same 307 crops as item 560
+    (6 classes nucleus count x infection; 3 classes infection), labels
+    from spaCR's object counts, not a human. k = 10, same 32 px input for
+    every row. Loss 6.70 -> 5.43 (scratch), 6.88 -> 5.44 (ImageNet init).
+      backbone                     kNN6  mAP6  P@10  kNN3  mAP3  P@10
+      ImageNet resnet10t (baseline) 0.586 0.338 0.441 0.671 0.444 0.542
+      DINO from ImageNet init       0.515 0.347 0.424 0.645 0.464 0.555
+      DINO from random init         0.632 0.410 0.512 0.736 0.514 0.628
+      chance                              0.227             0.341
+    Reading: DINO from random weights on the plate's own crops beats the
+    same architecture's ImageNet features on every metric (mAP6 +0.07,
+    kNN3 +0.07), so the done-when holds for this small setting. Starting
+    from ImageNet weights did not help in 8 epochs (kNN fell), so the GUI
+    default is random init. For scale: item 560's ImageNet resnet18 at
+    224 px scored kNN6 0.720 / mAP6 0.438 -- the tiny 32 px model beats
+    its mAP but not its kNN. One seed, one plate, count-derived labels,
+    and the labelled crops are inside the unlabelled pool (legitimate for
+    self-supervision, but not a held-out plate).
+    Files: /mnt/wd4tb/scratch/561/bench.py, scorecard_32px.csv,
+    train_*_r10t_32.log, dino_*_r10t_32.pt.
+
+GPU RUN (ready, not started)
+    /mnt/wd4tb/scratch/561/gpu_train.sh: resnet18, 64 px, 100 epochs,
+    random init (ARCH/SIZE/EPOCHS/INIT overridable), queued through
+    tools/gpu_turn.sh, resumable, then scores against ImageNet resnet18 at
+    the same size.
+
+WHAT IS LEFT
+    - Run the GPU script; try a ViT (vit_small) and ImageNet init at 100
+      epochs; repeat with several seeds and on a held-out plate with
+      human labels.
+    - A picker entry for loading an existing checkpoint (today only the
+      run just trained is offered), and progress/epoch controls in the GUI.
+    - Fine-tuned classifiers from the DINO backbone (the brief's third use).
+
+2026-09-30 GPU RUN (resnet18, 64 px, 100 epochs, from random weights; 10 min on the RTX 3090).
+Retrieval on the 307-crop plate1 set, DINO vs ImageNet resnet18 at 64 px:
+  6 classes: kNN 0.687 vs 0.573, mAP 0.444 vs 0.355 (chance 0.227)
+  3 classes: kNN 0.785 vs 0.658, mAP 0.576 vs 0.469 (chance 0.341)
+The GPU run widens the CPU run's lead (6-class kNN 0.632 vs 0.586) at a larger backbone and
+crop size. Scorecard: /mnt/wd4tb/scratch/561/scorecard_64px.csv; weights
+dino_scratch_resnet18_64_gpu.pt next to it.
+
+2026-10-15 Home-B — existing-checkpoint, epochs and progress UI implemented
+    The alpha EmbeddingsDinoControls group now contains a path-only own-DINO
+    checkpoint picker, an epoch control (default20, total resume target) and
+    worker progress. Existing paths are deduplicated, including symlinks;
+    selecting one does not load/train/decode a model and selects the next Embed.
+    Backend channel policy and checkpoint trust/resume logic are unchanged.
+    Real fake-worker checks verify GUI-thread progress, busy/error recovery,
+    stale-report rejection and active-close cleanup. The actual registry
+    dependency e4458d409d6 gates the entire group.31 focused Qt tests pass;
+    before cases fail for the formerly absent controls. Exact source/logs in
+    features/data/561_dino_controls_2026-10-15/. Runtime/API translation
+    artifacts remain a required coherent-publication dependency. This closes
+    the explicit picker/epoch/progress implementation gap, not the remaining
+    classifier/scientific multi-seed/held-out-plate acceptance work.
+
+2026-10-15 Home-B — DINO controls cancellation and runtime artifacts ready
+    Independent source review found cancellation before the worker starts can
+    finish without an error signal. The new terminal handler restores controls
+    while preserving a newer pending retry; the exact failing regression and
+    final33 passing Qt cases are recorded with the source receipt. All108
+    source-bound runtime targets passed independent technical review and normal
+    candidate/load checks. The normal writer added exactly12 captions to each
+    catalog, preserved10,576 unrelated targets per language, and passed a fresh
+    normal source recheck plus English audit (91.27s,491,068KiB peak). Evidence:
+    features/data/561_dino_runtime_catalogs_2026-10-15/. API lifecycle artifacts
+    remain with the documentation owner; publish the coherent group together.
+
+2026-10-15 — Own-checkpoint, epoch and progress controls completed.
+The alpha control group selects an existing own spaCR DINO checkpoint without
+loading it, accepts an explicit total epoch count (default20), and displays
+worker progress. Dedicated runner/token handling restores controls after
+success, errors or cancellation and rejects stale reports after retry/close.
+The actual alpha registry gates the whole group. Source33 targeted Qt checks
+PASS; independent code review caught and verified the cancellation repair.
+All108 runtime and45 API translation targets are independently technically
+reviewed and normally generated. Coordinator merged all incoming web captions,
+verified exact unrelated preservation and normal arrival refresh; immutable
+9,833 baseline unchanged. Final current-source English audit passes after the
+published N641 source merge. No training/model/GPU/quality acceptance claimed.
+Evidence: features/data/561_dino_controls_2026-10-15/ and related runtime/API
+review/catalog directories. This closes the described software-control gap;
+scientific acceptance is not inferred from fake-backend Qt checks.
+
+
+2026-10-15 — private own-DINO classifier backend prepared (not whole-item closure)
+    Added a trainable own-DINO teacher/head factory with recorded scaling,
+    resize, ordered caller-declared physical channels, freeze/fine-tune policy
+    and strict restricted checkpoint reconstruction. A supervised raw-NHWC
+    producer holds out explicit acquisition groups with the existing shared
+    split and writes the best canonical classifier through private staging
+    and atomic no-overwrite publication. Late cancellation and foreign output
+    races refuse publication. Existing Classify/PIL decoding is unchanged.
+    Source-bound evidence: features/data/561_own_dino_classifier_backend_2026-10-15/.
+    Actual31owning software checks plus3compatibility and4publication followup
+    checks passed; historical failed reproductions/orchestration failures are
+    retained. Only tiny synthetic CPU encoders were trained. UI producer route,
+    normal runtime/API catalogs and actual localized callbacks remain pending;
+    nine-locale18runtime/81API inputs are private drafts. Human phenotype labels,
+    multi-seed independent-cohort performance and biological acceptance remain
+    separate. Historical channel identity is explicitly caller-declared.
+
+2026-10-15 — Saved own-DINO classifier application backend prepared privately.
+The classifier artifact has model_config/model_state_dict, not the teacher's
+setup/teacher/out_dim, and must not enter dino:path or generic plate scaling.
+The dedicated _dino_classifier_apply route accepts full raw NHWC crops, selects
+saved physical source channels once, and keeps saved scaling/resize/feature
+normalization inside the reconstructed classifier. It returns features, logits,
+probabilities, saved-order class labels and actual loaded checkpoint SHA-256.
+The existing strict restricted artifact loader accepts a held binary stream
+only with explicit weights_only=True; this route hashes and loads the same
+regular descriptor and refuses changed bytes/identity. Four missing-route
+baselines failed; 25 new synthetic application/trust/stream cases plus four
+existing gradient/reload controls pass (29 tests,8.18s). No pretrained weights,
+training runs, downloads or GPU were used. Normal API/runtime closure and
+Home-B's actual feature/prediction UI integration remain coherent-publication
+dependencies; this is not a whole-feature or scientific acceptance claim.
+Evidence: features/data/561_classifier_application_2026-10-15/.
+
+2026-10-15 — Coherent classifier training/application software closure.
+Actual alpha controls train from raw crops, ordered physical channels and
+explicit well-group CSV labels, then apply saved classifier preprocessing once.
+Predictions/features/logits/probabilities and complete CSV export are reachable.
+Normal23-symbol API output preserves every unrelated record;234 current targets,
+four precise Korean repairs and nine code-literal provenance records accepted.
+Normal runtime generation covers54UI identities plus one backend diagnostic;
+all existing stopped-message targets are preserved. Nine-language audit and
+fresh canonical equality pass. Actual45GUI buttons/nine dialogs/486lookups and
+nine real backend application refusal routes pass. Normal Help generation,
+23 actual consumers/46 searches and five existing Help checks pass. Exact
+approved19-helper arrival/constructor wiring passes three strict tests, with
+historical13218 floor and211 nonrendered boundary unchanged. Caption arrival
+writer preserves9833 baseline;1251added/33changed/153retired. User guide is in
+features.rst. Training/backend synthetic checks remain as originally scoped;
+no new phenotype, independent-cohort, GPU or scientific acceptance is inferred.
+Initial SDK/history/environment/harness failures remain recorded, not hidden.
+Evidence:561_classifier_* /561_combined_api_* /561_strict_api_arrival_acceptance_*.
+
+2026-10-15 Original independent original-contract reconciliation: all original software uses (resumable pretraining, embeddings/UMAP, fine-tuned classifier, existing-checkpoint/epochs/progress) match current tested publication receipts. No new human-label/multiseed/held-out-plate requirement is imposed. The historical kNN improvement remains recorded, but its primary scorecard_64px.csv/32px and benchmark log were not found in the named local scratch roots or published packets. Original dfe6423548 records prose only; bounded NAS inventory does not map these scratch roots. Independent whole-item numerical acceptance therefore remains unverified pending recovery of existing scorecard and source/input/model identities; no result falsification, artifact destruction, new training or scientific claim inferred.
+
+2026-10-21 — Maintainer identifies /nas_mnt/data/sync/ as the only backup; records truly absent there are deleted. Recovery is read-only and limited to that root.
+Original targets: scorecard_64px.csv / scorecard_32px.csv, bench.py, original training logs and matching checkpoint/crop identities; no originals recovered.
+The full-root filename query reached its 900-second bound while waiting on NFS RPCs; coverage was incomplete, so it does not establish absence or deletion.
+A separate complete .stversions query including timestamped filename variants returned no matches or errors; no NAS writes, model loading, training or GPU use occurred.
+Numerical acceptance remains blocked on reliable NAS traversal or the actual original records; software acceptance is retained and no surrogate result or new human-label requirement is introduced.
+
+2026-10-24 — Maintainer decision: re-run the DINO pretraining on current data on the workstation GPU (via tools/gpu_turn.sh), since the original records cannot be recovered.

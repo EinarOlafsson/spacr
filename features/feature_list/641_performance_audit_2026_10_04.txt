@@ -1,0 +1,819 @@
+641 -- Performance audit, 2026-10-04 (step 3 of the maintainer's audit)
+
+Lifecycle: new
+Status: DONE 2026-10-04 (CPU only; numbers below, what is left at the end)
+
+Request (maintainer): measure startup, per-module first open, memory, and
+the same small Mask / Measure / Classify run headless against launched from
+the GUI (an earlier agent saw the GUI 4-18x slower, item 638); find the
+slow paths, fix them, guard them, record before and after.
+
+Conditions: workstation, 32 cores, NO GPU used (CUDA_VISIBLE_DEVICES=''),
+Qt offscreen. Load average 30-70 from other sessions throughout, so every
+wall-clock number carries roughly +-20 % noise; before/after pairs were run
+interleaved against a detached checkout of 48006e30d ("base").
+Scratch and harnesses: /mnt/wd4tb/scratch/641/bin (startup_measure.py,
+prof_start.py, open_prof.py, pipe_bench.py, db_bench.py).
+
+MAC SESSION: EXISTING NATIVE PER-MODULE TIMING FOLLOW-UP
+
+2026-10-24 — Native Measure30854/2GDv9Y on c605ee362748: 2 PASS16.25s,
+process18.56s/0.782GiB; Cocoa exposed/DPR2/client1200×800/work1440×870.
+Pending471ms QC close has no late registration; real hidden/shown source refresh remains live.
+Both accepted-close latches true; registry/owned threads/compiler/helper cleanup zero.
+Window/pytest integration only, not public-run return, Metal/FPS or old native-fault attribution.
+
+2026-10-24 — Queued-close RED18102: pending432ms, empty registry before/after
+accepted close, then actual QC→bare Measure and separate chaining registrations.
+Local accepted-host guards: 5 GREEN87771/22.73s (process25.30s/0.534GiB), including
+hidden/shown source debounce, refused close and normal catchup/score; generator77813
+exit0/84.78s changes three source-line records only; old native fault not uniquely attributed.
+
+2026-10-24 — Integrated native78935/oBEKLG PASS36.87s (process39.82s/1.450GiB)
+on6051efec438: real FIBSEM Masks eye off/on, Metal75 fresh paint serial7→9→11,
+IDs43→0→43 and exact baseline RGB/IDs restore; siblings/pose/data/history/prefs fixed.
+Normal startup/tours/navigation/close/run0, registry0/threads0/resources/compiler cleanup PASS.
+This accepts affected integration only; no in-flight cancellation, FPS, or whole-641 claim.
+
+2026-10-24 — Home-only prewarm RED97071 (Queue consumed a Mask step), then
+10 affected GREEN27005/32.68s (process34.83s/0.580GiB): actual-page gate preserves
+order/generator and resumes on Home; input/opening/normal/half-built/close/animation pass.
+Both runs retained lock-file removal warnings; generator39493 exit0/85.39s byte-identical.
+No in-flight constructor cancellation, FPS/late-handle repair, or whole-641 completion claim.
+
+2026-10-24 — Sample86067/6TrUTA PASS41.81s/1.300GiB on38e476d6e3f:
+owned 3s/10ms tool exit0 naturally; wait4 CPU1.208s user/1.320s system; no abnormal cleanup.
+FIBSEM626×122/DPR2/Metal75,12moves/3.152s; freshframe/pick0/data/idle/registry0/cleanup PASS.
+Entry is inside Measure prewarm/SettingsModel.processEvents; main aggregate255 samples,
+233 under Qt timers (inclusive); overlap/pause cost unknown, no CPU-share/FPS or fix claim.
+
+2026-10-24 — Render86588/GnvU2e PASS35.23s/1.204GiB onc6469571:
+14 disjoint main-thread interactive75 calls328.647ms wall/48.868ms CPU,0straddlers.
+FIBSEM626×122/DPR2/Metal75,14motions/3.056s; entry mask/prewarm notrunning,unfinished.
+Entry stack app.exec→tick, no constructor; freshframe/pick0/data/idle/cleanup/registry0 PASS.
+Render boundary is inclusive, not GPU compute/FPS; remaining interval unattributed.
+
+2026-10-24 — RegistryTrace5305/OGjh8P PASS34.13s/1.228GiB onf18ee0a3:
+6 registrations: Home journal/Mask chain/4 usage; no Measure/post-close row.
+10 draws/core10, CPU191.666ms≤outer396.006ms;10motions/3.228s,626×122/DPR2/Metal75.
+Freshframe/IDs/pick0/idle/data/hooks/descriptors/resources/run0/registry0 PASS.
+Earlier late-Measure failure unresolved; no product repair/FPS/repetition claim.
+
+2026-10-24 — MeasureOpen54744/EU7qWD PASS8.34s, process0/11.48s/0.423GiB:
+real normal Measure factory retains QC banner/chaining bar and its actual
+measure-chaining registration/resolver settlement; factory maps restored.
+This validates the open-host control, not the native late bare-Measure cause.
+
+2026-10-24 — MeasureClose83462/rgy8yA node PASS10.04s, process0/36.60s/
+0.568GiB on910df89a; real SettingsModel.processEvents/prewarm close accepted,
+registry before/after empty, no registrations/publication, one screen built.
+Native bare-Measure failure NOT reproduced; no creation stack/source fix.
+Compiler-thread shutdown warning retained; it finished before process exit0.
+
+2026-10-24 — CoreText scratch Rasb5S exits1/0.038GiB on63d090e8: parityFAIL.
+JXA.281177s/562paths/219unique; ctypes.312042s/2915paths/384unique, both succeed.
+Predeclared Counter and raworder differ;165 extra unique/2353extra entries,
+so even production's path set differs. Reject adoption; no source fix/repeat.
+One exploratory sequential pair, no speed claim; Home5s/Mask10s/30FPS OPEN.
+
+2026-10-24 — CoreText13962/4we67n diagnostic0/0.061GiB/zero missed on2a4a8e6:
+one successful osascript call.526220s wall/.003866callerCPU, timeout3/562paths.
+Actual helper2.351935s wall/1.399459CPU inclusive; no additive or speed claim.
+Exact subprocess restore/HOME preserved/noQt/owned paths; no cache validation
+or optimization claim. Home5s/Mask10s/30FPS remain OPEN.
+
+2026-10-24 — Callback99187/nm73Bn diagnostic0/0.573GiB/zero missed on34229b6:
+before Home8.964s BOTH new fitters have0calls/0cost/no straddles. After Home,
+News1call.009528s wall/.009530CPU; Body2calls.003141wall/.002835CPU, MainThread.
+Exact class/loader restore and normalcleanup0; no constructor-delay cause/fix.
+Home5s/Mask10s/30FPS remain OPEN; instrumented result is not speed acceptance.
+
+2026-10-24 — Normal28320/b1lTpH on d348739ab3 returns0/0.500GiB/zero missed:
+observer-free public run, parent-spawn clock, GUI.9/font.9, exposed Cocoa/DPR2.
+MainWindow3.344s/eventloop8.648s/Home8.765s>5s;20 painted usable controls.
+Normal close/registry0/threads0/compiler cleanup pass; no causal speedup claim.
+Home5s/Mask10s/30FPS remain OPEN; Mask/FPS were not rerun.
+
+2026-10-24 — Fresh-alias RED52767 then GREEN71466:20PASS; parity26756 on86714
+passes830 real paths: original parses830→533, all1840TTF/61AFM ordered fields
+and normal JSON exact;1029 findfont path/index queries include789 ties/499 indexed.
+Fresh groups only; fallback/file/cache checks pass. Generator52790 ran once.
+Controlled font-only result, not startup acceptance; Home5s/Mask10s/30FPS OPEN.
+
+2026-10-24 — Corrected90629/jslqL8 diagnostic0/0.472GiB/zero missed:
+756 addfont calls/721 success cost.929s wall/.811CPU; valid JSON write.233s.
+Cache1828TTF/61AFM; class/instance/loader restored, normal cleanup0.
+35 original caught font errors retained; no font/cache-policy optimization.
+Home9.482s>5s; Home5s/Mask10s/30FPS remain OPEN, no acceptance claim.
+
+2026-10-24 — Font-entry69403/mc343d diagnostic0/0.507GiB/zero missed:
+default params1.770s wall/1.433CPU; nested manager1.592s/1.259CPU, once each.
+Post-import manager work1.094s measured; only4.8ms then earlylaunch/crashreport.
+Exact observer restoration/normal cleanup0; Home9.514s remains over5s.
+Internal cause unmeasured; inclusive times not additive, no fix/speedup claim.
+
+2026-10-24 — Operations67574/t4t9Zb returned0/0.495GiB/cleanup0 but INVALID:
+instance addfont observer entered manager.__dict__; JSON cache ends at addfont,
+not a product serialization failure or normal-cache/timing acceptance.
+Correct observer at class descriptor, counting only actual manager calls;
+preserve class/instance identity state and report exception types, not paths.
+
+2026-10-24 — Bootstrap49903/ZmrKd5 diagnostic0/0.532GiB/zero missed:
+no Qt/app/Mask preload; MainWindow3.857s/Home9.332s, normal close/registry0.
+126 pre-MainWindow import finishes: inclusive VisPy.340s/app.328/fontmanager.301;
+nested/threaded durations are not additive, no culprit or speedup acceptance.
+Home5s/Mask10s/30FPS targets remain OPEN; no source change or profiler replay.
+
+2026-10-24 narrow shutdown attribution: retain the 673 late finished
+classify_merged chaining registration failure. A portable real-MainWindow
+prewarm test delivers one normal close through an actual constructor breath,
+records registration stacks, and requires no new work/publication after
+accepted close. No fake chaining job, registry prune, or native timing claim.
+2026-10-24 — Proper RED1207 proves resumed real SettingsModel construction
+starts classify_merged chaining after accepted close; guard only that closed
+host before connecting/installing chaining. GREEN3854:4PASS/16.44s/0.447GiB,
+including real open-host job and normal/half-built prewarm; generator56536
+completed once; affected Cocoa38675 passes cleanup0 on669fb7fb (40.66s).
+
+Current narrow scope (2026-10-23, 193eda852c): normal MainWindow starts4.995s,
+event loop9.882s, Home10.605s>5s; later prewarm cannot explain the constructor.
+Profile only that constructor, disabling before prewarm/event-loop work;
+preserve normal owned close and require exact RGBA parity for any cold-icon
+optimization, without changing MAX_WORK_SIZE256/resampling/caches.
+Constructor diagnostic KZIh3T:4.7485s wall/4.5708s thread CPU, normal close with
+no helper/compiler threads left, RSS0.445GiB/zero missed. Dock refresh1.182s
+inclusive;30 cold loads0.985s, including decode0.258s/resize0.364s self.
+Style/stack/event-filter spans overlap; instrumented Home11.539s is not
+acceptance. No native sampling or timed Python stack dump was performed.
+CPU-only1zyE4U (RSS0.173GiB) finds exact pixels on two bundled masters plus
+four RGB/alpha synthetics when skipping only redundant RGBA-to-RGBA copy:
+logo median207.56→177.33ms, activation20.90→20.83ms. RGB-before-thumbnail
+changes180677/132107 channel values and is rejected. Adopt only the source
+mode conditional; preserve RGB conversion/internal premultiplied alpha work.
+Causal RED72962:1 intended failure/1 pass; GREEN89256:5 passes/4.58s/0.268GiB,
+covering exact old pixels/input preservation/lossless cache/bounded source.
+No whole-startup/native speed claim; existing performance gates remain open.
+
+Separate current Mac ownership: attribute the new GUI200/font200 Mask host
+construction blocker before Overview725 on publisheda5014584ec. Native69770/
+dyQlZa retains its20s host-phase gate and fails before Overview: Home9.641s,
+Mask ready29.032s/8of48 controls painted, child1/51.170s/RSS1.116GiB/zero missed,
+unchanged fixture and normal close. Existing timings identify screen build
+22.607s,249-widget build17.378s and a settings-panel marker20.801s worked/
+0.285s breathed; these overlapping spans are NOT additive. Ambient34–40ms
+paints do not establish their contribution or caller causality. Read only the
+actual construction hotpath and existing call-count contracts first; preserve
+all controls/quality/readiness and the20s gate. No product fix or new job yet.
+This does not reopen the completed CPU audit or resolve the older rare280s
+locale stall, whose caller remains unknown.
+Focused synthetic-clock RED58300 demonstrates a scheduling defect in the real
+SettingsWidgets.build_sections loop: all64 controls/order and excluded-input
+flags are correct, but40ms event pumps cause39 consecutive pumps after control
+25 rather than leaving25ms of new widget work between pumps. One failure4.79s/
+RSS0.286GiB. Source sets the next deadline before, not after, processing events.
+This proves the scheduling mechanism, not its contribution to the native max-
+scale delay; keep production unchanged until the bounded unchanged-workload
+pump-count/duration diagnostic is collected. No native improvement claim.
+Unchanged native diagnostic12789/PRp0Tn on a5014584ec attributes105 exact
+_build_sections/MainThread event pumps totaling16.755047s (maximum0.630691s);
+99of104 intervening gaps are below25ms, minimum0.001005s. Every call retains
+ExcludeUserInputEvents and the original Qt descriptor is restored. Home9.575794s/
+Mask25.451773s; the original20s host gate fails, child1/48.201s/RSS1.116GiB/
+zero missed, unchanged inputs/accepted close. This is diagnostic timing, not
+performance acceptance; no external capture. Together with the causal RED it
+justifies only moving the next25ms deadline AFTER processEvents returns,
+preserving widget bodies/order and flags. No secondary index/layout change.
+Affected green32595 PASSES two checks in5.25s/RSS0.298GiB: the real64-control
+synthetic-clock build now performs two properly spaced pumps while retaining
+exact widget order/flags, and the existing declined-widget build contract passes.
+Independent source/test peer approves the single assignment move. Native
+joint-maximum readiness/layout acceptance remains pending; no speed claim yet.
+Unprofiled affected native99706/LjKc2X on568dc00b6 verifies the narrow pacing
+improvement: actual Mask ready16.057505s versus unchanged uninstrumented
+dyQlZa29.032065s; widget build4.6781s versus17.3784s and settings-panel marker
+7.832s versus20.801s. Home9.878s; overlapping spans are not additive or a
+robust distribution claim. The10s target remains UNMET and this Mac follow-up
+stays open; the completed CPU audit is not reopened. Combined host-plus-wizard
+probe phase still fails20s after another approximately6s wizard construction
+(real Measure build5.323s/163-widget build2.694s). Child1/43.747s/RSS1.152GiB/
+zero missed, normal close/unchanged input. No complete max-layout acceptance.
+
+Mac owner: the current Mac session owns attribution of the isolated setup
+language-cycle timeout on d671f743c (707 follow-up3202). Its original280s
+watchdog terminated only the owned child; no locale epoch was certified.
+A separate one-second native sample shows timer-driven synchronous repaint,
+not proof of event-hub recursion or a particular Python caller. Preserve
+the earlier completed layout observations. Next diagnostic retains the20s
+modal/280s parent deadlines and unchanged workload, persists existing phase/
+partial-page checkpoints, and permits one delayed Python-only stack snapshot
+without faulthandler, signals, Qt calls from a worker, or product changes.
+No startup/performance acceptance is inferred; CPU-only completion stands.
+Instrumented locale15398/zuhKyF on925c9597c finishes normally: all ten pages
+and owned language restoration pass, modal8.740s, child28.679s/RSS0.955GiB/
+zero missed. The requested12s Python snapshot is NOT performed; no external
+native capture occurs. This fast diagnostic does not explain the prior280s
+timeout. Next scope is ONE bounded recurrence attempt with exactly the same
+instrumented workload/checkpoints and20s/280s gates, not an acceptance replay
+or evidence that the intermittent failure is resolved. No product changes.
+That single recurrence attempt66296/MT8fT0 also finishes normally on925c9597c:
+all ten pages clear, English/other answers restored, modal8.712s; child exit0
+in27.660s/RSS0.968GiB/zero missed/no aliases. Requested12s Python snapshot
+again NOT performed; no external native capture. The planned attempt is done;
+the prior stall's caller remains unattributed and no stall fix is claimed.
+Next bounded attribution batch permits at most THREE identical fresh-process
+attempts on925c9597c, each with a new owned profile, the same scales/workload,
+20s modal/280s parent/8GiB guards and one12s Python-only observer. Stop further
+launches on the first nonzero exit, timeout or actually performed snapshot;
+allow that process's normal bounded cleanup. If all three pass without a
+snapshot, stop the batch and retain rare-stall/unknown-caller status, not fixed.
+No external native sampling, faulthandler, product edits or acceptance replay.
+The three-attempt batch is complete and STOPPED: D0Mw7q/30002 exits0 in
+28.010s/RSS0.967GiB, RRLjqs/30662 in28.819s/0.999GiB, Cr4VVE/61256 in
+28.644s/0.956GiB. All use925c9597c, clear ten pages/English restoration/
+unchanged answers, zero missed samples/no aliases, and perform no12s snapshot
+or external/faulthandler capture; last modal8.949s. The rare280s stall remains
+unresolved with no fix or performance claim. No further batch attempts.
+
+Scoped shutdown follow-up: isolate normal MainWindow.close with the two
+production ambient compiler-start routes held at an owned test barrier, without
+real compilation or user settings. Check natural process termination after the
+event loop returns; always release and reap the exact child. Non-daemon compiler
+threads are a possible production exit delay, not an attribution of the retained
+15–25 s diagnostic tails. The initial isolated offscreen diagnostic fails at
+natural exit: normal close and
+event-loop return both succeed, but grain/satin compiler threads remain
+non-daemon and hold the process until the owned barrier is released. The child
+then exits0 naturally (11.49 s test, sampled RSS0.534GiB). An initial bootstrap
+indentation error was corrected before this finding. That whole-warm barrier
+cannot fairly test cooperative cancellation and was replaced by an actual
+owned-helper subprocess plus a queued warmer; it also fails before repair.
+Private lifecycle repair keeps non-daemon compilers, stops/reaps only the owned
+helper, blocks new compilation/publication after quit, and reports already-active
+local compilation honestly rather than interrupting LLVM. Fractal cancellation
+checkpoints preserve ordinary frozen/smoke/no-cache fallback. The affected CPU
+cohort has35passes plus its sole failed grain fixture passing after isolating its
+intended fake in-process compiler (5.59s/0.327GiB); the first failure allowed an
+unintended helper before its5s entry gate, but no exact delay attribution was
+captured. No owned worker/helper remains. Native870d208ae close PASS with actual
+Cocoa/exposed-window/nonzero-handle proof, owned helper reaped and both compiler
+threads drained, no late local compilation and normal process exit0 (11.27s,
+RSS0.610GiB). Earlier Cocoa pass lacked explicit exposure proof and is diagnostic
+only. Native03510c144 normal Home-to-Mask real-helper check PASS: both screens
+usable/no font alias, actual helper active before quit and reaped afterward
+(poll -15), no remaining tracked compiler threads/helper, natural process exit0;
+RSS0.937GiB/0 missed samples. No sampling/candidate hooks or timing acceptance.
+
+Next scoped Mac font check: from normal Home startup, open the public command
+palette and parentless shortcut-help fallback sequentially at default 90% GUI/
+font; inspect actual widget fonts/QSS and alias warnings before any repair.
+Both native popups returned normally without alias warnings but retained
+Open Sans/sans-serif in CommandInput and five fallback category headers.
+Repair only those two observed source literals with QSS_FONT_FAMILY; actual
+constructor/generated-header regressions precede changes. Geometry needs no fix.
+Both regressions fail before repair and pass afterward (4.28 s, sampled RSS
+0.269 GiB); ten prior font checks stand. Native4495f2178 now passes both popup
+font/geometry cases with normal exit0/no aliases, RSS0.960GiB/0 missed samples.
+
+Scoped current-source Regression coverage: run only the existing first-open
+10 s budget and fresh-screen navigation nodes on Cocoa with owned settings;
+observe platform/window exposure after each unchanged test call. This is not
+painted-usable timing, the 200 ms target or complete N641 acceptance.
+On1ed1a5fb7446 (macOS26.6.1 Intel), both unchanged nodes pass on Cocoa with
+shown/exposed1400x900 windows at DPR2: timed-test call6.180s, navigation3.274s;
+2 PASS in21.99s, sampled RSS0.780GiB, normal exit0. Qt reports OpenType script11
+coverage warnings for Apple system fonts; no assertion is weakened. Existing
+200 ms and native startup/stall targets remain unmet, not reclassified.
+
+Current Mac follow-up (2026-10-23): retain 61 unmet native comparisons and all
+startup/stall targets. Owned Cocoa Home→Mask diagnostics use exact source,
+isolated INI/state/cache and the sampled 8 GiB/300 s guard, not timing acceptance.
+The initial 2099.8 ms gap crossed first event-loop entry; a later live 1536.8 ms
+gap had 293/348 GUI samples waiting for the GIL beneath ambient repaint, while
+the Python witness showed settings prewarm importing pandas/pyarrow.
+Discarded scratch responsive_gui candidate: no demonstrated timing gain; its
+timed traceback diagnostic crashed, and its safe retry's global-zero assertion
+was invalid under another worker's claim despite its own balanced restoration.
+Observed 195 ms Sans-serif alias warning prompted twelve targeted font-site
+repairs: ten use existing QSS_FONT_FAMILY; two intentional monospaced roles
+(ShortcutOverlayKeys/GateConsoleLog) use verified Menlo on Darwin, preserving
+other-platform fallbacks. Ten affected font checks pass; colors/layout stay.
+The first ten-site native check still warned (202 ms), with normal app return.
+Targeted stored-font/QSS snapshots then exposed actual tour buttons' remaining
+generic fallback; only their two observed generators were additionally fixed.
+Unprofiled native d70875967 Home→Mask now passes with no missing-family alias
+warning, both screens usable and normal exit0; sampled RSS0.942GiB/0 missed.
+No candidate, sampling or traceback hooks were enabled. Startup/stall and
+physical gates remain open; this check is font-warning acceptance only.
+
+The CPU/offscreen audit remains DONE at its recorded scope. This section
+makes its existing quiet real-display follow-up actionable; it does not add
+an acceptance matrix or claim the historical <500 ms module/200 ms Mask and
+Regression targets were met. Follow spacr/resources/AI/MAC_HANDOFF.md,
+preserve accepted N703/F655/N686 work and reuse N305's optional native trace
+when the tested source/artifact and profile are the same.
+
+Preconditions: record fresh origin/nightly HEAD, actual app executable/module/
+version, macOS/Intel-or-Apple-Silicon, RAM, display/DPR and current machine
+load. Use a quiet real Cocoa desktop with recording/build/install/training
+work absent; do not kill unrelated sessions to manufacture quiet. Record if
+this condition cannot be met and do not call contended/offscreen numbers
+release-grade. Chrome/graphics processes are not compute queue blockers.
+Preserve normal theme, profile, prewarm and animation settings and record them;
+never hide preloading before the timer or change behavior to improve a number.
+
+1. Use the existing tools/spacr_startup_benchmark.py native mode and current
+   --help, with its release-acceptance cold/warm protocol where applicable.
+   Start each from a fresh process, using the same isolated profile/cache
+   arrangement as the existing tool. No --offscreen/--record-only substitute.
+   Measure process-start to painted usable Home and click to painted usable
+   controls for every currently registered module, not constructor return.
+2. Keep one per-module result with actual app key, cold/first-open versus
+   warm/revisit time, worst event-loop gap and RSS. Verify the measured key
+   set matches the current live registry; 54 was a historical count, not a
+   fixed current target. Reuse the normal tool's results; do not create a
+   parallel inventory or a new benchmark suite. A mean cannot hide one slow
+   screen or an unfinished modal/blocked control.
+3. Report existing 5 s Home/10 s module/500 ms stall comparisons where the tool
+   applies them, plus the audit's still-unmet <500 ms all-module and 200 ms
+   Mask/Regression improvement targets. A first-event-loop mark, warmed
+   preconstruction or partial key set does not satisfy first-paint timing.
+   Preserve nonzero exits and actual misses; do not raise budgets or turn a
+   diagnostic run into claimed acceptance. CPU-only results say CPU-only.
+4. If an actual Mac regression appears, preserve the action and native trace/
+   traceback and profile that path with the existing diagnostic seam before
+   proposing a source change. Keep timing evidence separate from profiler
+   overhead; do not attribute a function's cost from incoherent/mixed-thread
+   samples. Source fixes and affected retests need coordinated ownership,
+   not a second producer for Home's current Qt-worker or CI fixes.
+
+Record source/runtime/hardware/load/profile, trace scope/key count, Home and
+slowest per-module cold/warm results, worst stall/RSS and any unmeasured or
+failed condition in this item. Keep detailed normal tool output where the
+existing tool already writes it; no new receipt bundle. This follow-up does
+not rescind the accepted CPU audit, prove every machine/GPU path or add
+pipeline/model-quality work beyond the item's existing scope.
+
+1. STARTUP
+                                             before        after
+  import spacr (-X importtime, cumulative)   5 ms          5 ms
+  import spacr.qt                            6 ms          6 ms
+  (both already lazy: no numpy/pandas/torch/QtWidgets at import; now guarded)
+  first event-loop turn, real ~/.spacr       7.3-9.6 s     3.7-5.2 s
+    (11,091-run journal, Totals watermark set)
+  idle RSS 3 s after first paint, real home  815 MB        282 MB
+  benchmark (tools/spacr_startup_benchmark.py --offscreen, isolated home):
+    cold: Home interactive                   8.0 s         6.2 s
+    warm: Home interactive                   3.25 s        2.9 s
+    peak RSS after opening all 54 modules    ~1.0 GB       ~1.0 GB
+  `spacr` and `spacr-nightly` are the same entry point (spacr.qt.run).
+
+  Causes found and fixed:
+  - Home's Totals panel, with a Reset watermark set, called
+    recent_runs(limit=None): every manifest.json in ~/.spacr/runs parsed on
+    the GUI thread before the window existed (2.8 s, 11,209 json.loads) and
+    the full manifests kept in memory (~530 MB). Recent runs also read on
+    the GUI thread at construction. Both panels are now built empty and
+    filled by Home's existing worker; the watermark count opens only run
+    folders named from one hour before the watermark (folder names are the
+    UTC start second).
+  - The menu bar and fold strips ast.parse'd the same fold-host sources
+    several times (29 parses, 0.65 s). One shared, top-level-only parse per
+    module per process (app._top_level_nodes).
+  - theme import solved scrims through ~60k uncached colour parses;
+    _channels/relative_luminance are memoised (theme self time 94 -> 67 ms).
+
+2. PER MODULE (benchmark, offscreen, isolated home; first open, warm proc.)
+  All 54 registry screens open inside the 10 s budget before and after;
+  Mask is the slowest (1.9-3.1 s, noise-dominated under this load),
+  then Annotate, Regression, Make Masks, UMAP (0.8-1.9 s); the rest
+  0.1-0.9 s. Settings-panel build for Mask: 246 + 271 widgets, ~0.55 s.
+  Not changed here. What the Mask profile shows, for a later pass: 49
+  cached 512x512 icon PNGs decoded on the GUI thread (0.25 s alone, ~1 s
+  under contention with the icon pre-warm and backdrop threads), and 279
+  QBoxLayout.addWidget calls (0.7 s, Qt polish).
+
+3. PIPELINES, headless vs from the GUI (full MainWindow, Run with the same
+   settings, started 8 s after the screen opened)
+                                       headless   GUI before     GUI after
+  Measure (3 wells x 2 fields, n_jobs)   17-21 s    21.3 s (1.03x) 18.9 s (1.12x)
+  Classify (96 crops, resnet18, 2 ep)    14-17 s    25.0 s (1.6x)  21-25 s (1.25-1.45x)
+    (same-load pair at load ~15; an earlier pair at load 40-70 gave
+    103 s headless vs 60 s GUI, i.e. the noise is larger than the gap)
+  Mask (2 fields, cpsam, CPU)            606 s      600 s (0.99x)  not rerun
+  Synthetic, quiet (pure Python, 0.6 s)  0.6 s      1.48 s         0.99 s
+  Synthetic, chatty (13k lines/s out)    0.6 s      6.1-10.8 s     1.5-2.8 s
+  The real pipelines are already within 1.5x; the 4-18x of item 638
+  reproduces only with very chatty output (the synthetic row), which is
+  what was fixed:
+  - PipelineWorker emitted line_ready once per printed line; every line
+    became a queued slot call, a console append, a RunHandle update and a
+    Home banner refresh. Output is now joined into one chunk per 50 ms
+    (first line after a quiet spell still goes out at once; order kept;
+    drained before errors and before finished).
+  - The console trimmed its 200k-char head one paragraph per cursor
+    operation (qtpy's patched movePosition) on every line; now one edit.
+  - INFO/DEBUG log records reach the console batched every 50 ms; a
+    warning or error flushes first.
+  - RotatingFileHandler stats the log file and formats each record twice
+    per emit; spaCR's handlers now do that only near the size limit
+    (logging_util._quicken). Rollover point unchanged.
+  - The first run in a process enumerated every installed distribution
+    for the manifest (0.5-1 s on the worker); package versions are now
+    memoised and read on the post-startup background thread.
+  - Found while measuring and fixed before commit: the first version of
+    the output coalescing held its lock while emitting on the GUI thread,
+    so a DataLoader worker forked at that moment inherited it held and the
+    Classify run hung. The lock now never spans an emission.
+  Classify's remaining gap is matplotlib writing six progress PDFs per
+  epoch (35 % of the worker's samples) while sharing the interpreter lock
+  with the GUI thread at the 1 ms switch interval.
+  Remaining GUI overhead on the chatty case is the file logging the GUI
+  turns on (spacr.log, per-record flush) and interpreter-lock sharing with
+  the GUI thread at the 1 ms switch interval; the fixed per-run cost is
+  ~0.4 s (git hash for the manifest, thread start).
+
+4. OTHER
+  Database browser, 786,432-row x 297-column cell table (3.1 GB):
+                                 before     after
+    set_database                 0.40 s     0.01 s
+    first rows on screen         1.48 s     0.17 s
+    next page (scroll)           3.10 s     0.025 s
+  Every page read and COUNT(*) ran through make_thread with journal=True,
+  so each one wrote a run-journal folder (env snapshot, git subprocess) --
+  browsing a table polluted Run History -- and the next page queued behind
+  the full-table COUNT(*). Jobs now run journal=False, off Home's run list,
+  and the count has its own lane.
+  Settings load/save, large-folder listing and the plate viewer: not
+  measured in this pass.
+
+Guards (tests/qt/test_641_startup_and_browse_budgets.py):
+  import spacr / spacr.qt light and < 1.5 s; Totals window opens 3 of 31
+  manifests; Home panels build without reading the journal; next db page
+  not held behind a 6 s count and no journal record written; quickened log
+  file skips the per-record stat and still rolls over; 3000 printed lines
+  arrive in < 300 emissions, complete and in order. Each fails on base.
+
+5. SECOND PASS (2026-10-04, CPU only, load 17-22, interleaved against a
+   detached origin/nightly checkout; medians of 5; harnesses in
+   /mnt/wd4tb/scratch/641/b3: pb.py, final_chatty.sh, logbench2.py,
+   prefbench.py, pref2.py, list_bench.py, folder_bench.py, plate_bench.py)
+
+  Chatty run (print + log.info per step), Measure screen, full MainWindow:
+                                        headless   GUI before      GUI after
+    4,000 steps                          0.60 s     1.86 s (3.1x)   1.26 s (2.1x)
+    20,000 steps                         2.91 s     8.24 s (2.8x)   5.02 s (1.7x)
+    20,000 steps, headless with the
+      same spaCR file logging on         3.35 s                     (1.50x)
+    log.info per record, worker CPU      67 us      ->  42 us (9 sinks)
+  Causes found and fixed:
+  - Every log file flushed per record, and the rollover check's text
+    tell() flushed again; three files per INFO record. Files now flush
+    every 250 ms (a warning at once, a timer writes a burst's tail) and the
+    size check reads the byte buffer.
+  - The master log and its per-level file formatted each record twice; the
+    text is kept on the record. Timestamps formatted once a second. A
+    per-level file no longer sees quieter records (handler level = level).
+  - QtLogHandler queued one cross-thread event per record (4,000 slot
+    calls into every ConsolePanel). Worker records now go over in 50 ms
+    batches (records_ready list signal; warnings at once, order kept).
+  - The desktop notifier (notify-send) ran synchronously on the GUI
+    thread at every run end (60-200 ms); it now runs on a daemon thread.
+  - The ambient backdrop repaints the whole window; it drops to 4 fps
+    while a pipeline holds the interpreter (gil_priority.active()).
+  What remains of the gap is the logging itself (three files plus the
+  console sink, ~42 us a record, which a logged headless run also pays) and
+  ~0.2 s fixed per run for the journal (git status 50-120 ms).
+
+  Preferences:
+    200 set_* writes                     1.18 s (one file rewrite each)
+                                         -> 6 ms inside _one_store()
+    Preferences dialog Save              0.55 s -> 0.22 s
+    Preferences dialog build (warm)      0.08-0.16 s, unchanged
+  Each setter opened its own QSettings, whose destructor rewrote the file.
+  Save now runs under one store, synced once (and before the live apply).
+
+  Folder listing, 12,288-file plate, os.scandir/listdir wrapped with a
+  0.3 s sleep (NAS):
+    src set on Mask / Measure / Make Masks: no listing on the GUI thread,
+      worst event-loop gap 12-29 ms, before and after.
+    preview load (load_source_payload, worker)  0.77 s, 2 listings
+                                         -> 0.58 s first, 0.15 s again, 1
+    first_supported_image and enumerate_image_sets now share a listing
+    cached per folder against its mtime (8 folders; a folder changed in
+    the last 2 s is always re-listed).
+
+  Plate Viewer, 384 wells: there are no thumbnails in this screen (it is
+    a heatmap); set_plate 0.3-0.5 ms; paint 6.8-9.4 ms -> 4.2-5.9 ms
+    (brushes shared per colour, geometry computed once).
+
+  Module first open (benchmark, offscreen, base): 30 of 54 over 500 ms;
+    Mask 2.8 s, Regression 1.7-2.1 s, Annotate 1.3-1.8 s, Make Masks 1.6 s,
+    Classify 1.6 s, Plaques 1.4-1.6 s, UMAP 1.1-1.3 s. Profile of Mask: 0.65
+    s in Qt's own polish/layout inside processEvents, the rest spread thin.
+    Only micro-fixes here (object_settings_table._split memoised, organelle
+    slot prefix lookup longest-first); not re-benchmarked.
+
+  Guards (tests/qt/test_641_chatty_runs_settings_and_listing.py): paced
+  flush (<50 flushes per 2,000 records, warning on disk at once, tail
+  written by the timer); one format per record for master + level file;
+  level-file thresholds; worker records in <100 batches, in order; backdrop
+  run rate; notifier returns at once; 20 preference writes open one store;
+  a settled folder listed once per preview load and re-listed after a change.
+
+6. THIRD PASS: MODULE FIRST OPEN (2026-10-04, CPU only, offscreen)
+   Harnesses in /mnt/wd4tb/scratch/641/r3: bench.sh + inter.sh (the
+   startup benchmark, warm process, 5 interleaved base/after pairs), cmp.py
+   (medians), wall.py + sampall.sh (one module per process after a warm-up
+   open; a 1 ms GUI-thread stack sampler -- cProfile on Python 3.12 profiles
+   every thread through sys.monitoring and mis-attributed the shading and
+   data-library threads to the GUI thread), agg.py / common.py.
+   Base = 68cde04a8; after = base + this pass's two commits (the current
+   nightly cannot be benchmarked as-is, see below). Load average 20-30
+   throughout, so absolute numbers are 1.5-2x the round-2 ones.
+
+   Per module, seconds (median of 5, warm process, base -> after):
+    mask                    2.741  3.228
+    regression              2.701  2.509
+    analyze_plaques         1.812  1.215
+    make_masks              1.795  1.686
+    measure                 1.695  1.374
+    classify_merged         1.604  1.629
+    toxoplasma              1.467  1.082
+    replication             1.306  1.073
+    annotate                1.296  1.554
+    umap                    1.276  1.167
+    invasion                1.212  0.659
+    recruitment             1.166  0.917
+    virus                   1.094  0.862
+    external_masks          1.076  1.035
+    candida                 1.065  0.925
+    map_barcodes            1.064  1.102
+    giardia                 1.019  0.916
+    plasmodium              1.018  0.857
+    host_pathogen           1.001  0.781
+    mammalian               0.970  0.776
+    control_chart           0.908  0.727
+    trypanosoma             0.890  0.881
+    leishmania              0.887  0.879
+    power                   0.797  0.720
+    gate_editor             0.689  0.879
+    experiment_design       0.675  0.669
+    embeddings              0.656  0.500
+    trellis                 0.651  0.483
+    dose_response           0.605  0.601
+    tabulate                0.584  0.535
+    graph_builder           0.525  0.440
+    investigate_hit         0.503  0.499
+    feature_explorer        0.479  0.559
+    align                   0.459  0.440
+    train_compare           0.446  0.305
+    foreign                 0.416  0.422
+    plate_view              0.414  0.445
+    run_compare             0.398  0.329
+    outliers                0.396  0.440
+    feature_dict            0.395  0.420
+    profiler                0.381  0.403
+    run_history             0.374  0.339
+    db_browser              0.360  0.346
+    convert                 0.351  0.459
+    layer_viewer            0.326  0.338
+    distributed_jobs        0.326  0.343
+    batch                   0.318  0.368
+    data_manager            0.312  0.386
+    project_browser         0.298  0.289
+    report                  0.285  0.350
+    lineage                 0.281  0.273
+    pipeline_graph          0.199  0.261
+    qc_dashboard            0.178  0.232
+    queue                   0.130  0.169
+   Sum of all 54: 44.3 s -> 41.1 s; geometric mean ratio 0.95 (an earlier
+   interleaved set of 5 at load 29: 31.9 -> 29.6 s, ratio 0.91). Single
+   modules move +-30 % between pairs at this load (Mask 2.7 vs 3.2 here,
+   2.0 vs 1.9 in the earlier set); only the sums and the profiles are firm.
+
+   Causes found (GUI-thread samples summed over the 11 slowest modules):
+   - Preference reads, 10-13 % under load: every get_font_scale /
+     get_theme / _get_show_alpha_features built its own QSettings (25 us
+     idle, several thousand per open). The module open now runs inside
+     preferences._one_store(): one store, 1 us a read.
+   - The cursor policy's Show handler, 7.6 %: one cursor read per child
+     widget shown. A widget without WA_SetCursor (and no override cursor)
+     is now passed over.
+   - PySide's per-import probe (shibokensupport.feature._mod_uses_pyside)
+     ran inspect.getsource on every newly imported module (tokenised read,
+     kept in linecache), 3-4 %. Replaced at launch by a raw-bytes test of
+     the same substring; modules without a .py file still go to PySide's.
+   - categories_for_app re-expanded every setting key 5-6 times per open
+     (2-3 % of Mask): memoised per module against the category table's
+     shape, fresh copies handed out.
+   - close_mark_side rasterised its glyph (tightBoundingRect) at every
+     style change: measured once per font.
+   - The data-library thread's run-environment read (0.8 s of metadata
+     parsing sharing the interpreter lock with the second and third opens)
+     parsed each distribution twice; once now (0.16 s).
+
+   Looked at and left:
+   - Settings categories already build on expand (item 380's waiting
+     headings plus SettingsWidgets.wait_for for plain controls); what is
+     left of _build_sections is the open categories' own widgets.
+   - Previews: none is built before shown in the 11 slow modules' samples.
+   - QSS: each screen gets the sheet once, at its Show (380); the
+     remaining _sheet_one_window cost (0.25-0.35 s on Mask / Make Masks,
+     8-10 %) is Qt repolishing 1,000-1,400 widgets.
+   - The walkthrough offer (3.5 %) runs only on a user's first visit.
+   - The rest of a slow open is Qt's own C++ work inside the breaths and
+     addWidget calls (polish, layout, paint: 25-30 % of samples, invisible
+     to a Python sampler), spread over hundreds of widgets.
+
+   Target (< 500 ms everywhere) NOT met: 30 of 54 stay over 500 ms at load
+   20-30; at load ~15 (the five base runs before this pass) it was 11 of 54
+   with Mask 1.4 s, Classify 1.5 s. What is left is per-widget Qt cost; the
+   next real step is fewer widgets per screen (lazy object grid / runtime
+   panel on Mask, Regression's 351 parentless plot menus), not more caching.
+
+   Found while measuring: since 488cae902 (647/648, every start reopens the
+   last module) the startup benchmark's warm process reopened the cold
+   process's last module, so Home never became interactive and no module
+   was measured. The benchmark worker now starts with --fresh.
+
+   Guards (tests/qt/test_641_module_first_open_budgets.py): every registry
+   module's first open in a real MainWindow under 10 s (measured 0.1-2.3 s
+   here); one QSettings for 150 reads inside _one_store and the window's
+   open uses it; a Show of a widget without a cursor reads no cursor;
+   categories_for_app computed once and copied; one ink measurement per
+   font; the PySide probe answers from bytes and falls back without a file.
+
+7. FOURTH PASS: IDLE PREWARM OF THE MOST USED SCREENS (2026-10-04, CPU)
+   MainWindow._start_the_screen_prewarm (app.py, _ScreenPrewarm) starts at
+   launch; after 2 s with no user input it builds Mask, Measure, Make
+   Masks, Classify, Plaques, Regression, Annotate, one step per idle slice
+   (construct / theme / polish / join the stack + window sheet / translate
+   + detach + layout), 60 ms of free event loop between steps. A slice
+   waits while input was seen in the last 2 s, a button is held, a popup
+   or modal is up or a screen is opening. Screens carry WA_DontShowOnScreen
+   until they join the stack, and join _screens only when complete; a
+   module opened half built finishes its steps inside that open.
+   Off: SPACR_PREWARM=0, prefs/screen_prewarm=false, Laptop and Extra
+   Performance levels, laptop-mode machines (few cores / < 8 GiB), safe
+   mode, startup benchmark runs (unless SPACR_PREWARM=1); stops when the
+   headroom floor is crossed or free RAM is within 1 GB of the RAM guard's
+   reserve. Order: SPACR_PREWARM_ORDER or prefs/screen_prewarm_order.
+
+   First open after a 60 s idle Home, offscreen, median of 5 processes
+   (off: 10 processes), load fell 30 -> 3 during the set
+   (harness /mnt/wd4tb/scratch/641/r4/pw.py, pw.sh, on.txt, off.txt):
+                       prewarm off   prewarm on
+    mask                  1.974        0.287
+    measure               1.831        0.179
+    make_masks            1.232        0.082
+    classify_merged       1.106        0.171
+    analyze_plaques       0.771        0.159
+    regression            1.340        0.317
+    annotate              0.463        0.081
+   Cost of prewarm: process CPU over the 60 s idle window 2.0 -> 10.0 s
+   (about 8 CPU-s once, nothing after the seven are built); RSS 274 ->
+   556 MB (+243 MB for seven screens, +40 MB already at the 3 s mark).
+   5 of 7 under 200 ms; Mask and Regression stay at 0.29-0.32 s: what is
+   left is Qt's first Show (showChildren, ~1,000-1,400 Show events through
+   the Python event filters, layout) and first paint, ~0.1 s of it inside
+   setCurrentWidget. Pre-showing the page would fire its showEvent and
+   the stack's currentChanged (last-module memory, walkthrough offer), so
+   it was not done.
+
+   Polish census (setStyleSheet wrapped, one open each): Mask 70 calls,
+   13 ms; Regression 48, 10 ms; Measure 61, 16 ms; Make Masks 11, 1 ms; one
+   same-text repeat per open (an empty own rule). adjustSize has 10 call
+   sites, none in a screen build. So per-widget sheets and adjustSize are
+   not where the time goes; the cost is Qt's polish of the window sheet at
+   first Show, which the prewarm now pays while idle. Moving the window
+   sheet to the application was not done: it would restyle every window
+   and dialog, for a cost the prewarm already removes from the open.
+
+   Tests: tests/qt/test_641_screen_prewarm.py (no step while input is
+   recent, after a key press, inside an input event or during an open;
+   steps on the GUI thread; prewarmed open does not rebuild; half-built
+   open finishes; stops on short memory; off by env, preference, Laptop,
+   Extra Performance; order configurable).
+
+8. FIFTH PASS: PER-ROW SHEETS INTO THE THEME SHEET (2026-10-04, CPU)
+   The per-instance setStyleSheet calls on a module build moved into
+   theme.stylesheet() as objectName selectors: setting chips
+   (QFrame#SettingChip, QLabel#SettingChipText), the list footer
+   (QToolButton#SettingListFooter), card bodies (QWidget#CardBody),
+   resource-meter rows (QWidget#UsageBarRow and its bar), the category
+   hint strip and the console splitter handle; the help label's duplicate
+   transparent rule went (QLabel#SubtitleSmall already has it). Calls per
+   first open: Mask 70 -> 33, Regression 48 -> 21, Measure 61 -> 22.
+   Left per widget on purpose: AiToggleLabel (state and live zoom, own
+   tests, used outside themed windows), selector-less "background:
+   transparent" sheets that reach descendants (CPU row wrapper, console
+   scroll/holder), the walkthrough overlay, the figure-queue clear label
+   (flash colour), the hover-tooltip link colours.
+
+   Visuals: offscreen grabs of Home, Mask, Measure, Regression and
+   Preferences in light, dark and high contrast, before and after, pixel
+   diffed (harness /mnt/wd4tb/scratch/641/r5/grab.py, diff.py): every
+   difference lies in the live System meters (values) and Home's live
+   counter, the same regions two baseline runs differ in; Preferences
+   0 px. Checked by eye as well (chips, footer, meters, splitter).
+
+   First open after a 30 s idle Home, offscreen, median of 5 processes,
+   base and new interleaved, load 25-33 (prewarm order mask,regression;
+   fresh copy of the profile per run so no restore-drafts modal blocks
+   the prewarm; harness pw.sh/pw.py now main-guarded, the round-4 harness
+   ran a second, spawned copy of itself in parallel):
+                     prewarm off        prewarm on
+                     base    new        base    new
+    mask             2.365   2.362      0.240   0.263
+    regression       2.440   2.008      0.247   0.262
+   No measurable gain: the 200 ms target for Mask and Regression is NOT
+   met. As the round-4 census said, the per-widget sheets were ~10 ms of
+   the open; what is left is Qt's first Show and paint of ~1,000-1,400
+   widgets, which only fewer widgets (or a pre-shown page, rejected in
+   section 7) would remove.
+
+Left:
+  - Chatty GUI runs: 1.7x bare headless (1.5x a logged headless run). The
+    rest is the logging sinks themselves (master + level + dated file +
+    console) and the journal's git status; dropping a duplicate sink is a
+    product decision.
+  - Module first-open: 30 of 54 over 500 ms at load 20-30 (11 at load 15);
+    the seven most used now open in 0.08-0.32 s after an idle prewarm
+    (section 7); Mask and Regression still above 200 ms (first Show/paint;
+    moving per-row sheets into the theme sheet did not change it, section 8);
+    the rest is Qt polish/layout/stylesheet over 1,000+ widgets per slow
+    screen -- needs fewer widgets (section 6).
+  - GUI-thread listings left: FilePathListWidget._folder_members,
+    ask_for_the_path's folder check (one listdir each on user action).
+  - A real-display (not offscreen) cold/warm run on a quiet machine for
+    release-grade startup numbers.
+  - Pre-existing, not this item: test_a_qt_warning_reaches_the_console_once
+    fails after the logging_util tests in one process (also on base);
+    test_documentation_i18n en catalog stale for home.RecentRunsPanel /
+    TotalsPanel (from 0af688ea0..ea74caf5b, needs a catalog rebuild).
+
+2026-10-15 — FilePathListWidget folder-drop collection moved off GUI thread.
+The actual drop handler baseline proved os.listdir ran on the GUI thread.
+Multi-path drops now collect directory members on the existing drop scanner,
+then append ready batches on the GUI thread in drop order. Clear/replacement
+invalidate pending delivery; close uses existing scanner cancellation. Refused
+scanner submissions drain the pending queue without inline filesystem fallback.
+Synchronous add_paths/pick_folder and all pairing code remain unchanged.
+Six distinct lifecycle/order/refusal cases PASS; initial three output failures
+were a new fixture naming .txt as unsupported although table mode supports it.
+The fixture alone changed to .png, and all three failed cases passed. All raw
+results remain in features/data/n641_async_path_drop_2026-10-15/.
+Two new nested callback paragraphs have 18 exact-source technical AI review
+records plus independent peer review. Normal generated API closure follows the
+current public owner pairing merge; no native smoothness/full-CI claim.
+Normal API closure: all 18 source/context/target review gates and all nine
+selected-symbol writers passed, preserving every unrelated generated record.
+Normal complete English API manifest audit passed (13,480 symbols); fresh
+collector and all 669 Python source hashes matched the frozen snapshot. The
+initial normal-context failure and three GUI-acronym corrections remain in
+the evidence with independent v2 peer review. Owner pairing was normal-merged;
+FilePathListWidget AST remains identical to the tested source.
+The existing URL/invalid-drop contract now waits for asynchronous delivery
+before its unchanged exact CSV assertion: 1 PASS, 1.07s. Seven distinct
+acceptance nodes are covered across the six new cases and this existing one.
+Incoming F580 adds only excluded private API prose; actual published visibility
+proof and unchanged normal public inputs justify reusing the English audit.
+An unnecessary queued audit was stopped before Python launched, with actual
+wrapper/flock termination preserved; it is not reported as a passing audit.
+
+2026-10-21 — Added actionable current-Mac follow-up instructions above; preserve the accepted scope and record actual runtime/results or factual missing prerequisites here.
+No native execution or new completion claim is implied; existing source, tests and other-platform/tutorial ownership remain unchanged.
+2026-10-21 — Startup workers now force SPACR_ISOLATED_PROFILE=1 and an owned SPACR_HOME;23 protocol checks pass, including a real QSettings subprocess proving writes stay inside the worker profile. Six paint-store checks use an explicit owned INI file (including cross-process refresh) rather than assuming macOS has Linux's native storage. HOME-only macOS diagnostic results are not fresh-profile acceptance.
+2026-10-21 — Corrected native49cf704eed Cocoa/Qt6.11.2, Intel Iris Plus,16GB,1440×900 logical/DPR2, Conda Python3.12.15: both fresh-process runs reach painted usable controls in all54 registry modules. Cold/warm Home34.67/5.22s, slowest module8.22/6.50s, worst stall1497/1852ms, peakRSS1497/1473MB; strict acceptance exits1 (61violations). Existing CPU acceptance stands; native startup/stall and <500ms/200ms improvement targets remain unmet.
+
+2026-10-21 — Startup workers now force an isolated QSettings profile and owned SPACR_HOME, preventing macOS CFPreferences and inherited data roots from escaping the benchmark home.23 protocol checks pass, including a real settings-write subprocess. Native nightly49cf704eed on Cocoa/Qt6.11.2 Intel16GB/DPR2 reaches all54 modules cold/warm; Home34.67/5.22s, worst stall1497/1852ms, strict exit1. Native performance targets remain unmet; CPU audit acceptance is preserved.
+
+2026-10-21 — CoreText plus normal directory/fontconfig discovery preserves all1762 TrueType/OpenType and61 AFM records while font initialization falls29.60→1.85s;27 font/scope checks pass (16 factory/registration checks also pass on this port). Native cold/warm reach all54 modules, Home8.13/5.86s, max module8.42/6.62s, stalls1931/1903ms, strict exit1. Fast discovery is ported with normal fallback on older Matplotlib/native API failure; startup/stall targets remain open.
+2026-10-21 — CoreText discovery retains all1762 TrueType/OpenType and61 AFM records, preserves system/user/fontconfig fonts and opt-out, and reduces cold font initialization29.60→1.85s;27 font/scope checks pass. Native cold/warm reach all54 modules, Home8.13/5.86s, max module8.42/6.62s, stalls1931/1903ms, RSS1505/1500MB. Strict exit1 and61violations remain; normal fallback is retained for older Matplotlib/native API failure. Startup/stall targets are not claimed met.
+2026-10-24 — Home startup re-parsed the full source of every fold host (make_masks 1.1 MB) on each launch: ~0.42-0.52 s native Intel Mac. Kept top-level declarations are now cached as source text under SPACR_HOME/cache/top-level (keyed by source bytes + Python); warm profiled compile 0.418→0.040 s; 32 fold tests pass. Two batch failures (dock order pollution, offline translation pin) reproduce on unchanged HEAD. Home 5 s target still unmet.
+2026-10-24 — spacr.feature_dict compiled seven ~8 KB object/organelle alternation regexes at import (Help menu imports it during MainWindow build): import 108→15-39 ms; patterns compile on first use, sources unchanged; 406 feature-dictionary tests pass. NewsPanel's wrapped rich-text hints (~0.4 s of the aside) investigated; a hint override was geometry-identical but not faster, so reverted — lazy release blocks would be the remaining option.
+2026-10-24 — NewsPanel now builds the newest 2 of 17 releases with Home and appends the rest one turn after its first paint (300 ms after show if never painted); aside page setWidget 443-516→134 ms native Cocoa. Explicit refills stay complete. 235 news/Home/720p tests pass; aside-floor and two 707 layout failures reproduce on unchanged HEAD.
+2026-10-24 — Native 1271d4b89 Cocoa/Intel/DPR2, load avg ~3.8 (maintainer app running, not quiet): all 54 modules ready within 10 s both runs; Home cold/warm 9.74/5.56 s (10-21: 8.13/5.86), slowest module 6.89/4.69 s (8.42/6.62), worst stall 1291/1601 ms, peak RSS 1.58 GiB; strict exit 1, 97 violations (91 stall, Home budget both runs). Home 5 s and 500 ms stall targets remain unmet; output startup-native-final-20261024.CrUHv4.
+2026-10-24 — spacr.settings import (first reached by the alpha gate during MainWindow build) matched 36,029 keys against a 700-prefix startswith tuple: 0.18→0.01 s via a role-set lookup on the text before the first underscore, guarded by an import-time check that no role contains one; import 0.52→0.45 s; 92 settings tests pass.
+2026-10-24 — Organism screens (7 modules, worst stalls 0.7-1.0 s native): showing one ran OrganismDiagram's caption measurement ~30 times as its splitter settled through widths 136/367/372 with a last-width-only cache (~33 ms each, ~0.75 s in one blocking show). Heights are now cached per (width, GUI scale, caption font) and still cleared on font/language/style change; counted regression test added; 123 organism tests pass. Pre-existing on unchanged HEAD: 27 organism caption translation cases fail with KeyError 'Information and modules divider' (Home i18n).
+2026-10-24 — Preferences open (worst stall 1.3-1.6 s native): the after-show dialog translation walked the window with findChildren, whose override brings every waiting page back (7 pages, ~0.5 s, undoing the lazy pages). The pass now marks the dialog (i18n.WALKING_SHOWN_TREE) and Preferences answers it with the shown pages; returning pages still translate themselves. Shown-translation cost ~1 s→26 ms profiled; 260 Preferences/translation tests pass; test_preferences_polish_ahead_is_cheaper_than_before also fails on unchanged HEAD here (wall-clock ratio 0.76-0.84 vs 0.75).
+2026-10-24 — Native Cocoa navigation probe from settled Home (no profiler): backdrop on vs SPACR_NO_BACKDROP over-200 ms gap totals mask 2.20/0.77 s, mammalian 2.41/1.39 s, make_masks 2.99/2.82 s; worst gaps remain 0.57-0.89 s in single build_screen/_build_ui chunks and first show (setCurrentWidget 0.47-0.61 s). This Iris Mac keeps the backdrop on CPU by design (macOS GL 4.1 path is Radeon-only); its warning wrongly blamed OpenGL 4.3 and now names the Mac path. Apple Silicon GPU qualification remains unvalidated (no hardware).
+2026-10-24 — OrganismDiagram no longer re-fits for font/language/style changes while hidden (it fits once on show): organism page construction 277→188 ms unprofiled on Cocoa; 123 organism tests pass (27 pre-existing translation KeyErrors unchanged).
+2026-10-24 — Event hub (gil_priority) rebuilt its whole object index on every watch/unwatch, quadratic in watched objects (478 rebuilds, 355k set updates, ~0.28 s profiled building Make Masks). Watches now reindex one object; full rebuild kept as fallback; randomized equivalence test added. Make Masks construction 850→700 ms on Cocoa; 187 hub/Make Masks/Home/Preferences/organism tests pass.
+2026-10-24 — Native 78017541c (load ~4, not quiet): Home cold/warm 8.21/5.55 s; Preferences 1.33/1.92 s (stall 1262/1209 ms); organism pages ~1.7-2.1 s with ~600 ms worst stall (was 0.8-1.0 s); 94 violations (88 stall). Mask 8.46/5.67 s with unattributed post-show freezes (676/1089 ms, no span) — likely load noise but unverified; Home 5 s, Mask and 500 ms stall targets remain open. Output startup-native-final2-20261024.Fby1G2.
+2026-10-24 — Python-stack sampling of the GUI thread (5 ms, Cocoa) attributed an 880 ms freeze in the Home-time Make Masks prewarm to _volume_view_settings enumerating wgpu adapters (wgpu import + Metal query) even for the default Auto backend; it now enumerates only for a saved wgpu/OpenGL backend. 71 True 3D backend tests pass. Same sampling attributes Mask's 770 ms show freeze to theme _sheet_one_window → _restyle_holding_every_widget (open).
+2026-10-24 — _apply_alpha_widgets walked the widget tree once per registered alpha name (~170) and read the preference store per name; it now walks once and reads each switch once, in the same name/tree order. Make Masks construction 700→615 ms on Cocoa. 1844 alpha-related tests pass; the 57 remaining failures (translation/locale captions, cell-cycle DB table, wound diagnostic) fail identically on unchanged HEAD, and one desktop-width test fails only by batch order.
+2026-10-24 — Prebuilt module screens were restyled in full at first show (0.55-0.8 s): the Preferences warm-up recomposed the window sheet once late widget blocks registered, which cleared every screen's local block copies and bumped the serial. A registration-only recompose now keeps the copies, records each sheet's core, and lets a screen that already wears every new block take the new serial unrestyled; ensure_widget_qss_applied keeps the stored digest current. Native probe: prebuilt Mask current at show (serial 2/2), no restyle. 1217 theme/sheet tests pass (2 failures reproduce on HEAD). A screen missing a new block (e.g. Home after Mask's imports) is still restyled, by design.
+2026-10-24 — Two intermittent native SIGSEGVs in probe harnesses (crash reports 102930/121331, spacr-crash.log): main thread inside Sbk_QTimer_Init (_after from _warm_the_preferences) and Sbk_QVBoxLayout_Init (AppScreen.__init__), jump targets 0x2020202020202020 / 0x61002000660069 (string bytes: use-after-free heap corruption). First coincided with a background spacr.core→cv2 import (opencv-python-headless, no bundled Qt). Off-thread PySide6 call audit found only cross-thread Signal.emit; three MallocScribble/GuardEdges runs and ~10 normal runs did not reproduce. Culprit unidentified; open.
+2026-10-24 — _clone_organelle_registry now takes each primary key's slot suffix once instead of ~100k checked slot_setting calls; spacr.settings self import ~166→153 ms; every settings registry hashes identical to HEAD in separate processes (only _DEFAULTS_REGISTRY's function addresses vary run to run); 580 settings/organelle tests pass. Remaining settings import is its module body; numpy via spacr.illumination is not removable alone (spacr.figures imports numpy before MainWindow).
+2026-10-24 — Native 8c55bdcb3 (load ~4, not quiet): Home cold/warm 9.65/5.13 s (warm was 5.55); Preferences 1.22/1.77 s; organism pages 1.65-2.03 s, ~600 ms stalls; Mask 7.53/5.43 s (the benchmark opens it immediately after Home, before any prebuild); 97 violations (91 stall). Home 5 s, Mask and 500 ms targets still open. Output startup-native-final3-20261024.qgZnAQ.
+2026-10-24 — QtPy 2.4.3 imports QtDataVisualization at package init for a Qt5-on-Windows alias; iconset._try_qta skips that guarded import while QtPy initialises (explicit imports still work). qtawesome import 240→219 ms here (alias 12-64 ms measured). 205 icon tests pass. Remaining Home pre-paint cost is mostly qtpy.QtCore/QtGui/QtWidgets shims (~60 ms each, third-party) and spaCR's own module bodies.
+2026-10-25 — Linux offscreen, 32 cores, load 16-38 (not quiet), CPU only. Idle Home's ~0.2-0.8 s freezes came from the window sheet: each Preferences warm-up recompose restyled the visible Home in full for blocks naming only other screens' objects (now kept when every selector's id is absent from the root, its children and ancestors), recomposes also sheeted screens still built ahead so their stack join repolished them twice more (now skipped), and the settings search strip moved the sheeted form (Mask 0.8 s, ~3,000 style changes; now installed during the build). Make Masks' 0.15 s regionprop probe for its filter list moved to the start-up warm thread. 15 s idle on Home: style changes 11,110-11,546 → 6,283-6,476, on Home 3,385 → 0. Commits 85283682f, e2c5af809, 80d7066de; 10 counted tests, 1,379 theme/sheet/prewarm tests pass (PySide6 6.10 and 6.11.2).
+2026-10-25 — Benchmark (offscreen, prewarm off, 2 cold+warm pairs each, base aa1f3011b → after): worst stall cold 611/508 → 426/415 ms, warm 354/372 → 303/361 ms; Mask cold 2.16/2.09 → 1.94/2.04 s, warm 1.67/1.60 → 1.37/1.44 s; Make Masks 0.76-1.02 → 0.77-0.87 s (flat); Home warm 2.00/2.18 → 2.09/2.25 s (unchanged), cold 6.9 → 6.6-6.7 s, of which 3.0 s is the kept pre-paint kernel warm-up timing out. A quit within seconds of Home cancels that compile, so the next launch waits the 3 s again. Home warm pre-paint: ~0.5 s imports, ~1.35 s MainWindow (Home page ~0.25 s, menu bar incl. the spacr.settings import ~0.2 s, show-time sheet on Home's 338 widgets ~0.2 s); no further cut found. Native Mac Home 5 s / 500 ms stall targets still need a Cocoa rerun.
+2026-10-25 — Native Apple Silicon (M-series MacBook, 8 logical CPUs, 16 GB, macOS 27.0.1, Cocoa, Retina 1710x1112 @2x, 60 Hz, arm64 CPython 3.12.15, PySide6 6.11.2), source 4a5c39a46 (spacr 1.5.1.6), tools/spacr_startup_benchmark.py --runs 2 --release-acceptance, load ~3 after Spotlight/XProtect scans ended: 54 registry apps, all measured once. Home cold 5.36 s (FAILS the 5 s budget by 0.36 s; MainWindow built at 1.11 s, event loop entered 5.18 s), warm 1.99 s. Every module within 10 s in both runs; slowest Measure 4.42/4.53 s, then Mask 0.78/0.71 s and the organism pages 0.46-0.59 s. Worst event-loop stall 311 ms cold / 301 ms warm; no interval over 500 ms. The only violation is cold Home's pre-loop window construction (4.1 s cold vs 0.93 s warm).
+2026-10-25 — Cold Home fixed on Apple Silicon. Profiling the cold MainWindow-to-event-loop gap (4.1 s cold, 0.93 s warm) found 3.0 s in ambient._finish_kernel_warmup_before_first_paint. On an unprimed numba cache the backdrop kernels are compiled by a helper process (6.8 s for 13 kernels on this M-series), so the GUI thread's bounded join only waited out its 3 s timeout. The marker hashes the backdrop sources, so every update touching them made the next launch cold. The join now returns at once while the helper fills an unprimed cache; first frames use the exact NumPy path, as documented. Re-run, same machine and protocol, --release-acceptance: 0 violations; Home cold 2.28 s (was 5.36), warm 1.95 s; MainWindow to event loop 1.07 s cold; worst stall 296/293 ms; slowest module Measure 4.43/4.57 s.
+2026-10-25 — Idle cost on Apple Silicon: with the default animated backdrop, an idle spaCR used 90 % CPU on Home and 110 % on Mask. Every translucent settings row repaints each frame, about 12,000 widget paints/s on Mask and Measure alike. Measure's 4.4 s readiness is the probe waiting through that continuous repaint, not slow construction (screen shown at 0.3 s). 025b9e4ed holds the backdrop still while macOS Low Power Mode or the system Reduce Motion setting is on (6 % / 2 % idle). Still open: running on battery outside Low Power Mode keeps the full animation unless the user picks the Laptop level, and the per-frame repaint of every settings row is the underlying cost.
+2026-10-26 — Idle repaint data (post-release item), native Cocoa at Retina 2x, default dark theme, idle machine (load ~2.3), 10 s per screen: Home 8,774 paints/s at 57.0 backdrop fps (154 widgets per frame), Mask 11,113 at 56.6 (196), Measure 11,529 at 58.8 (196). QWidget and QLabel lead at ~2,000-2,600/s each, then QPushButton, QToolButton, AppTile and Toggle. Diagnostics limit: on macOS psutil numbers threads 1..N rather than by native id, so resource_log's detailed per-thread rows cannot be matched to Python threads (test_per_thread_figures fails on a Mac); no change made.
+
+WINDOWS FOLLOW-UP — 2026-10-26
+Windows session owns the native paced-pool retest of 005110639513345f22a4ead8d4555608fc8ef2c7. Verify the first queued task can run while later workers start through the gate; check close/join, terminate/cancel and pending-worker cleanup with the existing owning tests and a small native run. Preserve startup pacing and memory safeguards; no GPU or large model run is required. Record exact SHA, worker count, gate settings, first-task timing and cleanup outcome here, with logs under /nas_mnt/data/sync/windows-lane/. Do not infer native Windows acceptance from Linux passes.

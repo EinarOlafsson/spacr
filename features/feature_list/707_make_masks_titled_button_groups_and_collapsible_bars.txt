@@ -1,0 +1,1195 @@
+================================================================================
+MAKE MASKS BUTTONS IN TITLED GROUPS AROUND THE IMAGE, WITH COLLAPSIBLE BARS
+================================================================================
+
+Lifecycle: new
+Status:    IN PROGRESS — affected native setup-popup acceptance underway;
+           physical/small-display subgates remain BLOCKED ON MAINTAINER
+           (tutorial re-recordings belong to lane 676).
+Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
+           spacr/qt/preferences.py (Plugins tab), spacr/qt/screens/
+           settings_model.py and app_screen.py (vvvv), spacr/qt/theme.py
+           (group card style).
+
+MAC SESSION: CURRENT NATIVE LAYOUT AND SMALL-SCREEN ACCEPTANCE
+
+Action-word teardown scope: restartMFMIsX logs app_screen.py331 querying
+parentWidget on an already native-deleted AiToggleLabel during normal close.
+Add a real switch/row deferred-deletion reproducer with retained wrappers,
+captured Qt exceptions and owned timer lifetime; preserve word-floor behavior.
+No tour/673 acceptance or broad callback-registry change is implied.
+2026-10-24:8064 reproduces the exact native-deleted-switch error (6.09s).
+Cached row identity removes the teardown dereference;23516 PASS5.14s/0.278GiB
+with native deletion/live-sibling floors. Selected-word case54065 remains PASS;
+its mixed cohort exposed only a corrected test readiness gate. Normal consumer
+generation50270 is byte-identical; no new native/whole-item acceptance claim.
+
+News live-scale scope: real MainWindow normal .9/.9→2/2→.9/.9→2/2 rebuilds,
+fresh34 heading fonts/source/links/viewport/document floors and representative
+one-reveal full-text access. Verify native old-timer deletion/quiescence and
+normal close; compare equal-scale floors only at equal real width/font.
+No repeated width cycle or extra native/full-Home acceptance claim.
+Focused88277 PASS33.77s/0.447GiB: normal .9→2→.9→2 rebuilds retain all34
+sources/links/fonts and fresh floors; title10→48px, longest minheight28→198px
+and exact restoration at viewport201×81/546×380. Representative full-text
+access, retired native timers, quiescence, accepted close and state cleanup
+pass. Offscreen controlled integration only; prior native scopes retained.
+
+Five endpoint batches on02e991c63f PASS31.40/32.28/38.34/31.67/32.73s,
+RSS1.205..1.243GiB: bodies2..16 accepted30 endpoint lines via33 visible segments.
+Their369/399 middlelines remain untested; source/layout/doc/origin/line totals
+EXACTLY match ScihQT. Content5.756..7.251s/startup9.649..11.912s; all normal
+cleanup pass. No whole-body visibility or139whole-target acceptance claimed.
+
+Native17474/fpPOvJ onfc6add0fdd PASS30.93s/RSS1.087GiB: body1/v1.5.1.4
+endpoints[0,2] accepted2/2 lines/2/2 visible segments; middleline untested.
+Open Sans44/doc696×180/origin0/3lines; source/layout/doc witnesses EXACTLY
+match ScihQT intrinsic[1]. Startup7.378s/content1.951s,normal cleanup pass;
+17 whole bodies/139 whole targets remain uncertified; no further run.
+
+News endpoint scope: exact JSON1..3 unique structural body indices1..16,
+first/last rendered lines only (deduplicated), unchanged segment coverage and
+shared20s. Separate source/tag/document/allocation/endpoint queue ledger; no
+whole-body visibility claim or body0 replay. First[1] expects actual lines
+[0,2] for v1.5.1.4; middle line remains uncertified, intrinsic17 retained.
+
+Native37359/ScihQT on7cca95ed2b PASS46.23s/RSS1.446GiB: intrinsic17/17
+bodies/760 rendered lines fit actualcontents; source/layout/frozen fields stable.
+Open Sans44,docwidth696/origin0/heights180..21480; startup9.970s/content14.618s
+and normal cleanup pass. Geometry only: visibility/whole-body false and all139
+whole-manifest targets uncertified; prior34/358 access coverage is unchanged.
+
+News intrinsic scope: all17 actual body labels, original HTML/font/source and
+fresh document natural/glyph-run bounds versus actual contents. Freeze actual
+allocation/CPP/source and require owned-idle next turn; separate intrinsic
+ledger only, visibility uncertified and139 whole targets unaccepted. Preserve
+existing range semantics and both20s clocks; no scroll or whole-body claim.
+
+Native33043/2CF5Sa on919b170142 PASS42.61s/RSS1.238GiB: last[352,358)
+accepted6/6 lines via10/10 visible segments; startup10.351s/content9.086s.
+Source/layout/doc696×21480/origin0/358total EXACTLY match both earlier ranges;
+disjoint[0,28)+[352,358) accepted34/358,324unchecked (run-local352).
+Normal cleanup pass;17 whole bodies/139 whole targets remain uncertified.
+
+Native25138/ORpMMJ onfc36398a05 PASS50.59s/RSS1.324GiB: lines[16,28)
+accepted12/12 via21/21 visible segments; startup8.527s/content19.990752s.
+Source/layout/doc696×21480/origin0/358-line witnesses EXACTLY match Qqn93W;
+combined[0,28) accepted28/358,330remaining (run-local346). Normal cleanup pass;
+17 whole bodies/139 whole-manifest targets uncertified; no timing-margin claim.
+
+News range selection scope: validate and forward exact release index0..16,
+start>=0 and maxcount1..16; require start within actual rendered lines and
+stop at min(start+maxcount,total). Keep structural tag/source pairing, strict
+segment coverage and separate actual-range/accepted/untested accounting.
+Next release0 range[16,28) avoids replay; cross-run joining requires identical
+HTML/font/document size/layout/line count, never cross-process Qt pointers.
+
+Native25645/Qqn93W on878b600914 PASS48.07s/RSS1.322GiB: body0 lines[0,16)
+accepted via24/24 fully visible, frozen segments with full original-line union.
+Open Sans44/doc696×21480/origin0/source+allocation unchanged; capacity544×274.
+Startup9.983s/content15.488s and normal cleanup pass;342/358 lines remain
+untested,17 whole bodies and all139 whole-manifest targets remain uncertified.
+
+News line-segment scope: preserve each full natural/run rectangle and partition
+against the smallest real ancestor viewport, reserving2px for exclusive-edge
+ensureVisible margins. Reveal each chunk once; frozen/idle strict visibility
+and accepted QRegion union must cover the original line before acceptance.
+Separate line/segment attempts and acceptance; retain16 lines/shared20s,
+original source/allocation and139 wholly unaccepted manifest targets.
+
+News body-range scope: release0/v1.5.1.5 rendered lines[0,16) only, one shared
+20s content clock. Structural17-body identity/renderer/object checks precede
+actual line/run inner-to-outer reveal and frozen/idle/full-visible proofs.
+Keep139 whole targets unaccepted, with separate requested/checked/untested
+line accounting; oversized single-position lines are unaccepted, not alone
+a product-defect verdict. No activation or whole-body certification.
+Native77490/HTJMX4 on22db5eb334 fails32.81s/RSS1.089GiB: line0 checked,
+0 accepted/357 untested of358;691px line exceeds546px viewport with real150px
+horizontal range. Stable actual geometry/source; the additional1px vertical
+miss is probe center/exclusive-bound math, not a product defect. Startup8.000s/
+content1.256s and normal cleanup pass; all139 whole targets remain unaccepted.
+
+Native26067/20ewJJ titles and97887/XXj0fA dates PASS on1d31f5ebfe7:
+17/139 each,122 untested each; Open Sans48/40,546×380 notes viewport;
+all title shaped lines/runs (long titles198px high) and209×55 dates visible.
+Wall46.25/37.26s,RSS1.240/1.208GiB; content14.302/12.015s,startup8.841/9.155s.
+Both normalclose/run0/compiler cleanup pass;17 bodies remain unaccepted.
+
+News viewport repair scope: native22421 proves real title shaped lines clipped
+inside hidden-horizontal546px viewport, not merely blank696px document columns.
+First reproduce with real NewsPanel/bundled HTML/normal selected fonts and
+measure child minimum-width sources. Preserve title/date HTML/fonts/links and
+real access to wide bodies; no global font/window or whitespace waiver.
+Focused89569 reproduces native left74px clip and attributes696px minimum to
+the v1.5.0.5 body. First bounded repair28597 exposes a long-title393px width
+with132px allocation but198px document height; reserve the actual viewport
+width consistently for wrapped headings before considering any height floor.
+Width-only15319 still allocates546x132 for a198px rich title. Its local owned
+fitter now derives a fresh document minimum height from original HTML/current
+font/actual width and insets, with no prior-minimum feedback or height maximum.
+Focused2844 passes11.25s/RSS0.292GiB: all34 heading glyphs after real horizontal
+scroll and566→900→566; original HTML/links/fonts/body text retained. Long-title
+height shrinks/restores, current-ref rebuild/quiescence/pending deletion pass.
+Normal-app title/date and separate body-line native acceptance remain pending.
+
+News title attribution scope: native85931 rejects all17 full document columns,
+but allocated696px wrap width alone does not prove clipped title glyphs.
+Before the unchanged assertion, record actual rich line/run bounds and native
+QLabel origin/insets/visible/global mapping; same17 roles/reveal/20s, no waiver.
+Native22421/KAGCV0 on2a41f6522 fails45.57s/RSS1.240GiB: all17 shaped title
+runs start at0 while visible x74..620 clips the left74px; last two titles also
+have668px lines extending48px past the right. This is not blank-column-only
+overflow. Content13.031s/tour9.475s,17/139 checked/122 untested and normal
+cleanup pass; dates remain unrun and17 bodies separately unaccepted.
+
+Next News operations separately inspect17 titles and17 dates using actual
+release-block layout positions paired with owned bundled release records/tags.
+Require exact role/count/manifest membership and unchanged20s strict rich/plain
+text, one-reveal/global visibility checks. The17 body labels remain separately
+unaccepted; no regex, HTML-category selection or whole-document waiver.
+Native85931/R1TJIy on b1df5779d fails43.13s/RSS1.225GiB:17/139 titles
+checked,122 untested; all696px rich-document bounds exceed546px visible width
+after reveal. Hidden-horizontal News content is696px; actual glyph/blank-line
+attribution remains needed, not17 proven ink cuts. Content11.723s/tour9.941s
+and normal cleanup pass; dates were not run, and17 bodies remain unaccepted.
+
+Dimension-word repair scope: native91273 proves stable3D48px allocation cannot
+contain selected52px word68px plus80px real horizontal padding. Live passes;
+AI remains untested. Add real normal-font Mask caller regression for fresh
+native word/padding floors and font growth/shrink before a local dimension-only
+repair; preserve selected fonts and settings access, not the old clipped24px cap.
+Portable35105 reproduces exact48x663/negative32px contents at52px font,
+required fresh148x103 floor, in10.91s/RSS0.556GiB. Dimension-only owned fitting
+uses full native word/insets, local font/style/parent layout notifications and
+actual min setters; shrinking/no-op and generic long-word policy are retained.
+Focused67017 fixes dimension/Live slots and retains two settings-access passes,
+but measures AI51px word in40px contents. Reuse the same private caller fitter
+for actual AI only; generic long-toggle elision and Live remain unchanged.
+Failed-node52946 passes11.75s/RSS0.558GiB: selected52px Live/3D/AI full slots,
+3D/Time floors148x103/204x103, exact font shrink/restore, settings width reach,
+callback quiescence and queued deletion pass. Two prior settings cases retained;
+strict normal-app native word result is recorded below.
+Native50317/He74Jy on74a85f2d6 fails34.92s/RSS1.302GiB before word checks:
+all12 frozen/actual widget signatures match, but RuntimeViewport's owned floor
+timer remains queued, making strict readiness None. Controls2.422s after
+startup8.879s/module1.322s; tours and empty registry/compiler cleanup pass.
+No new glyph failure or fix acceptance; the actual pending work is attributed.
+Queued-floor observer scope: after one reveal, require exact frozen raw widget
+geometry on every tick while owned work finishes within the original20s;
+accept text only once the same frozen state is strictly idle. No re-reveal,
+baseline replacement, grace or idle/glyph waiver is permitted.
+Native4450/j42ey6 on a460c0b4a passes31.35s/RSS1.235GiB: actual52px Live,
+3D and AI words fully fit101/68/51px text slots and remain off. Pending floor
+work drains with identical frozen fields, then strict idle/text checks pass.
+Startup9.462s/module2.209s/controls3.753s; both owned tours, normal close and
+empty registry/compiler cleanup pass. No provider/inference/on-state claim.
+
+Native Mask word-toggle scope: normal owned startup at GUI/font200 and native
+1200x640 inspects exact Live/3D/AI controls, not Home tiles. Set owned normal
+AI-default-off before prewarm; no on-state click/provider/model/inference.
+Separate20s startup/module/control stages retain full displayed-text/native
+slot/one-reveal bounds and normal cleanup; no 64110s or whole-Home claim.
+Native19131 stops before word checks on an unidentified post-open tour;
+source offers a Mask-owned walkthrough. Verify that exact live owner/key and
+normal Skip/seen lifecycle inside the same module20s before inspecting words.
+Record registry identities at close/return; the prior count1 is unclassified.
+Corrected51868 verifies Mask Skip/seen and empty registry, but stops before
+words on Live post-reveal geometry drift. Persist its exact before/after native
+signature and owned readiness flags before that unchanged assertion; no waits,
+budget increase or inferred glyph/product defect. Prior remainder is history.
+Native19131/EVUagm on7d2814613 fails34.49s/RSS1.206GiB: after owned Home
+Skip/startup9.511s and Mask1.572s, a visible tour aborts controls at0.717s;
+all three refs exist but zero words are certified. AI remains default-off.
+Normal close/run0 and compiler cleanup pass; post-run registry count1 with
+zero pre-close captured threads remains unclassified, not a text-layout bug.
+Native51868/pw1Why on3bb4bba21 fails35.74s/RSS1.203GiB: exact owned Mask
+Skip/hidden/seen pass (startup9.209s/module2.282s), then first Live post-reveal
+signature changes at controls3.092s. Zero words certified; changed field is not
+recorded, so no glyph defect is claimed. Registry before/after are empty and
+normal close/compiler cleanup pass; prior remainder remains historical.
+Native91273/zjUqpt on e2be6c60b fails38.44s/RSS1.200GiB: Live passes; 3D's
+48px widget has native contents width−32px against68x71 full text, a real clip.
+Both frozen/actual signatures match with owned flags idle; earlier drift is not
+explained. AI remains untested. Startup9.360s/module2.467s/controls4.885s;
+tours, normal close and empty registry/compiler cleanup pass. No retry yet.
+
+Chrome lifetime scope: retain an actual button Python wrapper after its native
+parent is deferred-deleted, then change live GUI scale once alongside a live
+button. Require no listener exception and correct live repaint; this targets
+the focused cleanup log, not an asserted normal-app close/reopen reproduction.
+Causal66253 fails5.01s/RSS0.266GiB with that exact deleted-QTimer callback;
+the local queue method now ignores a native-deleted owned timer only.
+Focused51178 passes3.79s/RSS0.269GiB: no callback exception, live sibling
+still repaints exact native slot/DPR; no close/reopen reproduction is claimed.
+
+Status-height repair scope: native44719 exposes two real footer glyph clips
+inside fixed46px status bar; preserve29 ordinary-label passes. Real normal-font
+MainWindow regression covers GUI200/90, font grow/shrink, native resize and
+full styled label slots before trying natural Qt height instead of the early
+fixed-height snapshot. No global font/window floor or ordinary-text waiver.
+Focused57413 reproduces both cases in21.18s/RSS0.587GiB: GUI200 freezes44px
+against native71px hint, GUI90 freezes20px against35px hint; glyph slots clip.
+Try removing only the early fixed height so native Qt follows polished hints.
+Removing that snapshot passes focused10088: two cases35.13s/RSS0.452GiB,
+natural71/35px bars at GUI200/90 with font200; full native glyph containment,
+font/width grow-shrink and idle checks pass without imposed min/max records.
+Combined14 native status and affected Home-access result is recorded below.
+Caught GUI-scale listener RuntimeError remains observed/unattributed during
+focused cross-window scale cleanup: gui_scale.py1124 callback→app.py2224
+_queue_icon_paint→_icon_timer.start(0), "QTimer already deleted"; not repaired.
+
+Next status_home_access cohort combines two actual MainWindow status refs with
+the affected12 Home-access targets, retaining exact identities/full ledger and
+one20s strict content budget. Revalidate header/tile/aside/hint access as taller
+status takes body room; retain29 ordinary passes without broad-label replay.
+Native24680/tyHCTL on4a9e24673 passes37.47s/RSS1.224GiB: all14 of139 pass,
+125 untested. Natural71px status exposes full66/60px text; Hero/first Mask
+icon/name/five aside captions/hint fit the reduced276px body viewport, with
+source/DPR2 and hidden-H0 intact. Content11.975s/tour9.801s, errors[] and normal
+close/worker cleanup pass; retain29 ordinary passes, not full Home acceptance.
+
+Next ordinary_labels cohort selects31 actual owned labels: recent placeholder1,
+totals8, system6, text-size2, current Home bands8, panel headers4 and status2.
+Require exact semantic counts/identities within the full manifest and original
+20s strict text/reveal contract. Only the explicit News header is included;
+its51 title/date/body labels remain separately unaccepted, not waived.
+Native44719/LXNzg7 on56342d601 fails45.71s/RSS1.296GiB: all31 checked of139,
+108 untested;29 non-status labels pass. Home/version labels have41px slots
+but full native text needs67/61px; the fixed46px status bar clips both vertically.
+Content15.921s/tour9.360s, normal close/worker cleanup pass, no deadline/overlay
+failure. Status-height repair requires causal review; no full Home acceptance.
+
+Remaining tile scope is four disjoint batches: measure/annotate/map_barcodes;
+regression/foreign/run_compare; power/align; graph_builder/toxoplasma. Run each
+once, sequentially on one source pin under unchanged exact-key/role/manifest
+visibility rules and20s content budget; stop further batches on failure.
+AW8oik records42 tile members/97 non-tile targets; no whole-Home coverage sum.
+Native22713/44813/82728/83478 on ec31c8fb3 all pass31.95/30.80/30.48/30.66s;
+peak RSS1.191/1.213/1.211/1.201GiB. Exact ten keys/30 tile-icon-name roles pass,
+including native source/DPR2/text/hidden-H0. Per-run coverage9/9/6/6 of139 leaves
+130/130/133/133 untested; content≤7.556s/tour≤10.092s, errors[] and normal
+close/worker cleanup pass. All14 tile roles now covered, not full139 acceptance.
+
+Next tile_batch operation requests two or three real visible module keys through
+explicit JSON and checks each tile plus all its current-manifest descendants.
+Require exact requested/observed keys, module-role/full-caption ledger, full
+untested counts and unchanged20s native visibility/source-DPR rules. Prior Mask
+tile/icon/name acceptance does not exclude any untested description/stage rows.
+First requested keys are make_masks, umap and classify_merged; these are real
+registry tiles, not a claim about per-module Live/3D/AI controls.
+Native72323/AW8oik on54c3de73c passes32.60s/RSS1.213GiB: exact three keys,
+all nine tile/icon/name members pass;139 full targets/130 untested. Native
+DPR2/source/name fit and736px content/viewport with hidden-H0 pass throughout.
+Selected groups contain no description/stage manifest rows. Content6.870s/
+tour8.332s, errors[] and normal close/worker cleanup pass; full Home stays open.
+
+Tab-navigation scope: normal owned Home→last nonempty category→Home through
+actual QTest arrow/tab clicks, distinguishing strip scrolling from selection.
+Require full native tab captions (including mnemonic handling), category tile
+icon/name real access, exact page restoration, separate dynamic-state ledger
+and the original20s content budget; no setCurrentIndex or physical-input claim.
+Native77071/M3mVgj on14275c855 passes32.99s/RSS1.062GiB: three arrows each
+direction preserve selection; actual tab clicks Home→Organism→same Home pass
+full caption fields. Dynamic Toxoplasma icon/name/source/DPR2 and hidden-H0
+access pass separately from2/139 baseline targets (137 untested). Content6.300s/
+tour10.154s, errors[] and normal close/cleanup pass; physical gates remain open.
+
+Next tab_arrows cohort selects exactly the two real HomeTabs overflow buttons,
+including disabled controls, from the actual tab bar. Preserve full manifest,
+explicit untested counts and original20s content/reveal/native-field visibility
+rules; this observes arrow access only, not all tabs or physical input.
+Native69948/B2LxJ0 onbc4d4fed1 passes30.54s/RSS1.211GiB: disabled left and
+enabled right Home-tab arrows both expose their full16x101 native fields.
+Two of139 targets checked,137 untested; content5.656s/tour8.483s, errors[] and
+normal close/worker cleanup pass. No tab click or physical-input claim.
+
+Next home_access cohort checks three real Hero objects, the first current-page
+icon-bearing tile/icon/name, five aside buttons and the pinned hint (12 targets).
+Retain full manifest/untested ledger and original20s content budget, owned body
+fitter readiness and one-reveal strict glyph/source-DPR visibility. Reject hidden
+inner horizontal overflow; this is bounded access, not all Home targets tested.
+Native67514/sDimXo on012c5e114 passes34.10s/RSS1.208GiB: all12 selected of139
+pass,127 untested. Hero mark/text, five aside captions, first Mask icon/name
+and pinned prompt are individually fully visible; tile source/aspect/DPR2 and
+736px inner content/viewport with hidden-horizontal range0 pass. Content9.646s/
+tour8.122s, normal close/worker cleanup pass; full Home/physical gates stay open.
+
+Compressed Home scope: real factory/launch policy, GUI/font200, Home1200x496;
+mark/title/full wrapped subtitle and first tile icon/name must be individually
+reachable after one reveal with frozen next-turn/global bounds/source/DPR.
+Keep five aside captions, pinned hint and exact launch policy/count; intentional
+name elision retains full tooltip/module accessibility, not full displayed text.
+RED37393 proves192px icon/77px name expose only21px bands. Body-only transparent
+scrolling reserves actual tile width688 plus native page/frame/bar insets and
+own row height317 plus tab insets, never the full9408px page or window floor.
+Growth exposed hidden horizontal range676: grids now use their real viewport,
+native tile minima/margins/spacing and changed-column guards; tested content
+must fit viewport with hidden horizontal range0. No per-tile event filters.
+RED49508 exposes816px subtitle beyond301px viewport; local actual Hero cap
+tracks that viewport. Growth13843 proves fitted-font HFW feedback; selected-font
+preferred HFW restores full fonts on growth without new minimum/global policy.
+GREEN24271 passes9.95s/.325GiB: nine header reveals, exact selected styles/font
+restoration and quiescence. Final affected70991 passes2nodes16.23s/.334GiB:
+six Apps reveals/grow-shrink/source/DPR/no hidden overflow/quiescence/deletion,
+roomy90% control and retained five-caption/pane/launch checks. Native Apps/header
+acceptance remains pending; these isolated-background checks are not full Home.
+
+
+Next bounded native hint_bar cohort selects only the exact visible Home strip.
+Check initial default, real MainWindow mask hint and public release using the
+same strict glyph/reveal/readiness rules within one original20s content budget.
+Only default counts toward manifest coverage; held/released rows are separate,
+with full untested counts and no Apps-content usability inference.
+Native29473/7opZHW onb7e50fd4 passes28.92s/RSS1.243GiB: same1200x175 strip
+fully exposes default, real held mask/API/Tutorial and released default; full
+accessible text/state restoration pass. One of139 targets checked,138 untested;
+all three states use3.496s total after tour9.876s, normal close/cleanup pass.
+Apps viewport104x21 is geometry only; full Home/Apps usability remain open.
+
+Default hint scope: at GUI200/90/100%, font200, initial and released prompt
+must fit actual600px styled contents and restore full original on growth,
+retaining the full accessible prompt, empty key/no hold and no module revival.
+Require asserting RED before private default rendering; retain unlaid1px rule.
+RED53310: GUI2 initial/released730.22px prompt exceeds552px contents; GUI.9/1
+controls pass. Render the original translated prompt against actual contents
+on initial/release/local geometry-font-style events, without entering hold.
+GREEN65013 retains13passes (6.33s/.296GiB), including three default and six
+held/height cases; exact unlaid1px fallback correction passes26232 alone
+(4.14s/.269GiB). All14 affected checks pass; actual full native hint/Apps
+geometry remains unaccepted, not implied by these controlled rich-text cases.
+
+Held hint-width scope: GUI200/90/100%, font200, one long summary plus stage
+must fit actual styled contents through wide/narrow/grow, restore original
+text on growth, and preserve key/accessibility/links and the original30s timer.
+The unlaid1px fallback remains unchanged; causal RED precedes local rerender.
+RED53661: all three GUI cases retain stale elision after narrow/grow; GUI2/1
+also overflow initially. Cache original summary/stage/links and rerender only
+text from actual contents room on local geometry/font/style changes, without
+restarting the hold timer; release must prevent later resurrection.
+GREEN1268: three held-width cases pass4.42s/.278GiB; affected vertical cases
+GREEN95701 pass4.54s/.277GiB. Full originals restore on growth, timers/links/
+accessibility remain intact. Released default prompt still overflows atGUI2
+width600 (730.22px text/552px contents); default-prompt fit remains open.
+
+Module hint-height scope: at GUI200/90/100%, font200 and normal Open Sans,
+compare actual fixed height/min/max and stored scale records with the actual
+two-line font metric plus10; retain styled two-line contents, width-change,
+summary/link and release behavior. Causal RED precedes any actual-pixel setter
+correction; native aside five-caption PASS and Apps124x0 limitation remain.
+RED54494 confirms actual double scaling (GUI2:304 vs152; GUI.9:67 vs74)
+and independent GUI1 two-line padding loss (72px text/65px contents). Reserve
+actual two-line metric plus max(10, measured vertical contents insets), using
+actual fixed min/max setters; horizontal summary fit remains separately open.
+GREEN58202: all three GUI cases pass (4.82s/.278GiB), actual heights175/79/89
+leave exactly142/64/72px styled contents for two-line text; width/show/release
+and normalized records pass. This is vertical unit/style fit, not full Home.
+
+Normal launch-policy scope: repeat the real Home causal fixture through the
+actual post-build arrow-removal operation, recording unchanged fonts and
+before/after native pane/tab constraints. Extract only a behavior-neutral
+private launch seam shared by MainWindow and this test; require causal RED
+before restoring Home-only overflow navigation. Generic helper/public API
+and other tab bars remain unchanged; full native acceptance stays separate.
+RED94044 reproduces native overcommit after the shipped helper: tab minimum
+123→1482px, aside right1174px beyond1104px. Home-only builder/launch policy
+retains generic behavior elsewhere; GREEN64817 passes containment and all five
+native caption checks (8.83s/.330GiB). Apps page height0 and full native Home
+acceptance remain open; no global splitter, font or public-helper change.
+Native28655/9Kcjz8 on424cc4ba4 passes29.12s/RSS1.214GiB: all five selected
+captions fully visible, errors[];139 total targets include two tab arrows,
+134 remain untested. Split1104x84 allocates124/968 with arrows enabled and
+aside contained; Apps page remains0px high. Tour9.296s/content4.385s and normal
+close/worker cleanup pass. This accepts aside controls only, not full Home.
+
+Next native attribution records both splitter panes' actual geometry, minima,
+policies and stored pane records before the1200x640 resize and at content-ready,
+plus HomeTabs scroll bounds and settled panels/scrollbar hints. The controlled
+real-Home33965 pass does not reproduce native host clipping; no fix is assumed.
+This is observation only: existing checks, waits and operation budgets remain.
+Native88937/HgpVSa fails35.66s/RSS1.222GiB: all5 checked/132 untested,
+Pipeline passes, four other captions clip; normal close/cleanup pass.
+After shrink, native splitter slots546/546 disagree with the616px aside;
+Apps minHint1486 follows a1482px tabbar with scroll buttons disabled. Its
+101px bar leaves the84px pane's page0px high; no causal repair is claimed.
+
+Real Home overcommit scope: retain the correct aside floor and construct
+the shipped Apps/categories with normal fonts and layout policies. At the
+measured1104x84 child splitter allocation, record both pane minima/hints,
+policies, native sizes/handle and tab/page scroll constraints before requiring
+containment and actual aside-button text access. Isolate only unrelated
+ambient/journal/news background work; this is not normal-app acceptance.
+Require causal RED before any local left-pane or splitter-policy repair.
+Controlled33965 passes1/9.32s/RSS0.324GiB: direct-small real Home contains
+both panes and all five aside captions. This does not reproduce the native
+already-shown-window shrink failure; no product repair is justified yet.
+Launch applies preferences before MainWindow, matching this fixture; native
+style and resize chronology need actual before/after constraint observations.
+Non-vacuous99402 passes1/9.66s/RSS0.326GiB with exactly five visible controls:
+native pane sizes476/616,12px handle and Apps minimum hint127px. The current
+Apps page is0px high at this allocation; no Apps-content usability is claimed.
+
+Automatic aside-floor scope: after real Show/polish and settled52px controls,
+compare the native minimum to actual totalMinimumSize plus scrollbar hint
+without a manual fit call. Verify automatic local heading/style growth and
+shrink, logical pane records, no-op quiescence and queued deletion. Native
+69310 supports stale construction-time sizing but did not record its setter
+chronology; require causal RED before a local coalesced post-polish observer.
+RED77359 observes one construction fit and a settled52px floor462 versus
+required616. Panels-owned local event observation now coalesces the existing
+normalized fitter after polish/content changes. GREEN64341 passes1/8.62s/
+RSS0.297GiB, including automatic growth/shrink, pane record, idle/deletion.
+Affected normalization52656 passes3/20.11s/RSS0.305GiB on the final observer;
+these scoped checks are not full Home acceptance.
+Native18914/faN4gA on1b362ce70: floor616/viewport596/panels596; Pipeline passes.
+All5 selected checked in4.647s;132/137 untested. Aside616 starts at558 in a
+1104px splitter: Clear/Reset/Refresh lose50px right, Updates1px. Host fit stays
+open. Natural failure34.60s/RSS1.236GiB; tour9.327s, normal close/cleanup pass,
+no deadline/overlay failure. The local post-polish floor is now native-proved.
+
+The bounded native operation explicitly selects aside_controls: actual buttons under
+HomeAside only, with the original20s content budget. Default all retains the
+complete runtime target manifest. Record all identities/text, selected indices
+and inspected/untested counts; selected success is not full Home acceptance.
+No retained Chrome/Hero/header or prose replay and no News-policy waiver.
+Source pinning, normal cover/tour, strict styled visibility and process guards
+remain unchanged.
+Native69310 on b2fd77b41:5/5 selected checked in4.760s;132/137 untested.
+Clear/Reset/Refresh pass; Pipeline loses13/15px left/right, Updates29/31px.
+Aside458x84/viewport438x84 contains596px panels; both captions remain clipped.
+Natural failure34.69s/RSS1.211GiB, tour9.260s; normal close/cleanup pass,
+no deadline/overlay failure. Full Home and aside-controls acceptance stay open.
+
+Aside unit-normalization scope: `_fit_aside_minimum` measures actual native
+layout pixels but sends them through a GUI-scaled minimum setter. First
+prove the doubled floor using the real aside builder/fonts at GUI200/font200,
+with GUI90/100 controls; preserve exact actual minimum plus ceiling-converted
+logical records/pane minima through growth and reopening. Repair only that
+unit boundary if RED confirms it; do not infer full splitter/content fit or
+change global splitter policy from the existing native overflow.
+Clean25518 RED: GUI2001232px versus required616; GUI90248 versus276;
+GUI100 passes. Normalize only the measured minimum and independently sync
+the pane's ceiling-converted logical record. GREEN73063 passes3/18.67s/
+RSS0.312GiB, including content growth, repeated fit and collapse/reopen;
+prior fixture-only cleanup/setup failures are not native acceptance.
+
+Hero logo requirement: fit the actual masthead allocation from original source
+pixels, preserving aspect/DPR and selected preferred size on growth, without
+fixed floors. Controlled99256 reproduces the invisible logo in1104x84; focused
+89523 passes3/4.79s/RSS0.317GiB for shrink/grow, mockedDPR1/2/change, unchanged
+source and retained text-fit restoration/quiescence. Native17820/11zgAs on
+f40c66490 confirms full52x52 logo/DPR2, both text fields and all four Chrome
+marks. The case fails naturally1/50.72s/RSS1.305GiB:37/137 inspected,100 untested
+at content20.080s (tour8.712s). Pipeline overviews loses135px of styled text;
+Clear is outside the1200px client. News needs actual scroll-policy attribution.
+Normal close/worker cleanup pass. This accepts the bounded logo repair only;
+full Home minimum-content acceptance remains open, not a startup-speed failure.
+
+Chrome icon scope: current font200 paints a36px source while GUI200 uses a
+native72px icon slot; returned36px pixels cannot retain the same relative
+glyph size. Add an actual-slot GUI90→200→90/font200 regression with exact
+logical extent, alpha proportion and mocked DPR1/2 seams before a private
+rendering repair. Preserve hover/state behavior and public painter APIs;
+native DPR metadata alone is not a clipping verdict or physical acceptance.
+RED47826 proves the GUI200 extent failure;28584 independently proves the
+mocked DPR2 deficit (its DPR1 pointer-enter setup issue was corrected).
+The private renderer now paints actual native slot times device ratio,
+tags that density and coalesces GUI/screen changes without idle repainting.
+New raster/alpha/roundtrip/quiescence cases76437 pass2/3.88s/RSS0.262GiB;
+existing hover/zoom controls retain2 passes from76705. Their initial new-case
+pending-timer readiness failure was harness-only, not a pixel-fit waiver.
+This is mocked-DPR unit coverage; full native Home content remains pending.
+
+New minimum-content scope: actual1200x640 Home at GUI200/font200 on1440x870/DPR2;
+require full styled text/native slots and actual icon bounds after one real
+scroll reveal. Deliberate elision retains its full tooltip, not a full-text claim.
+Harness13337 timed out because timing was disabled;49850 used the wrong body
+role for HeroSubtitle. Both are oracle failures, not product hangs/clipping.
+Corrected66185 reaches real Open Sans208px title/68px subtitle and inspects12/137
+targets before unrelated post-reveal layout drift;125 remain untested.
+Title372x52 needs581x284; subtitle372x52 needs350x918, outside inner-tab scrolls.
+Normal close/return0 and helper/thread cleanup pass; chrome DPR findings remain
+unclassified. Probe corrections use actual iconSize/native-parent scope and
+target/ancestor idle/stability, preserving the same50ms/20s and strict visibility.
+Local Hero repair must fit only those text slots reversibly, retaining selected
+fonts/styles on growth/context changes and the logo source/aspect/DPR.
+Causal16422 reproduces actual208/68px clipping. Private coalesced fitting keeps
+selected preferred hints (not minima), raw actual-pixel QSS and no-op guards.
+Focused70020 PASS4.73s/RSS0.313GiB covers fit, exact styles/font reset, quiescence
+and queued deletion. Native probe separately checks selected68 and actual fit.
+Native2180/tmwFiQ on5d504ea58 exits naturally1 in34.89s/RSS1.205GiB.
+Selected subtitle68/Open Sans and actual1200x640/work1440x870/DPR2 pass.
+Local intrinsic text fitting passes: title38px has104x52 text in581x52;
+subtitle9px has142x42 text in163x52. Both still have empty visible regions.
+Hero is1104x84/minhint531x320 inside a1200x248 body; Home's hint is2510x929.
+Only17/137 targets are inspected before post-reveal geometry drift;120 are
+untested. Preserve14 widget failures and the structural abort, not a full pass.
+Chrome source-DPR and intentionally long scrollable News observations require
+attribution; startup-cover state was not captured, so empty regions alone do
+not prove parent clipping. Normal close/return0 and empty helper/thread state
+pass. Full Home/header/parent access remains pending; logo drawing is unchanged.
+Next attribution is probe-only: record the actual startup-sequence flag,
+cover/onboarding geometry/masks and current stack before assertions, and wait
+for the real sequence to finish inside the same20s. The prior fitted title
+text maps wholly inside its84px hero band yet has an empty visible region;
+without cover state this does not establish the reason for occlusion. Do not
+disable startup effects, extend budgets or dismiss interactive overlays. Long
+News documents need actual scroll access, not simultaneous whole-document
+visibility; defer that classification without treating clipped controls as fit.
+Native53797/NYn00Y on65a08b8af fails naturally1 in31.52s/RSS1.199GiB:
+the real startup cover clears at elapsed7.286s, then an actual1200x640 tour
+overlay appears at8.923s with enabled Skip/Next. The probe reports it without
+dismissing it. Only one of137 targets is checked before this interaction gate;
+its entire Minimise control is visible but QIcon returnsDPR1 from a36x36 source
+for the actual72x72 icon request. This is not established glyph clipping.
+Earlier empty Home regions must account for real startup cover/tour state;
+no new parent-visibility pass/failure is certified. Normal close/return0 and
+empty helper/thread state pass. Keep full minimum-content acceptance pending.
+The next probe has explicit authorization to click only this owned window's
+real tour Skip button, recording enabled/visible state and subsequent hidden/
+seen state. Do not call finish directly, seed its setting or dismiss any
+consent/privacy/provider dialog. Startup/tour is one bounded20s operation;
+the original20s content operation begins only after the tour is hidden and
+actual target/ancestor layout is idle/stable. The normal cover, child180s and
+aggregate300s guards remain unchanged; no product change is assumed.
+Native71664/pYhCIf on69b16f2a0 exits naturally1 in32.53s/RSS1.211GiB.
+Normal cover and the actual enabled/fully visible164x95 Skip click complete
+in9.6398s; tour is hidden and owned seen state becomes true. Minimise now
+passes actual72px slot/DPR2 and whole75x75 visibility. Content stops after
+3.2796s on post-reveal signature drift before the second target;136/137 remain
+untested and no widget clipping error is reported. Normal close/return0 and
+helper/thread cleanup pass. Expected/actual signatures were not persisted;
+attribute the changing field before any product fix or assertion change.
+The next observer-only capture persists both expected/actual raw signatures
+and Python-wrapper/native-C++ identities before that same strict comparison.
+Retain the existing identity assertion, waits and budgets so the data, not an
+assumption, distinguishes wrapper churn from actual geometry or font changes.
+Native19870/IUIKLz on5ef5a63fd fails naturally1 in32.61s/RSS1.210GiB.
+Tour completes in9.5261s; Minimise passes, then content stops after3.2516s
+before Maximise inspection. Persisted tuples prove all Python/native identities
+and actual widget sizes/positions/minima/maxima/fonts unchanged. The sole
+changed field is MainWindow's internal layout geometry:0,0,0,0 becomes
+0,98,1200,542. This disproves wrapper churn for this capture; it does not show
+target movement or clipping. One of137 targets is checked;136 remain untested.
+Normal close/return0 and helper/thread cleanup pass. Attribute internal Qt
+layout invalidation/readiness before changing any product geometry policy.
+The next evidence-based oracle correction omits only MainWindow's internal
+QLayout bookkeeping rectangle from stability equality, retaining it explicitly
+in both identity observations. Every actual widget/native geometry, position,
+minimum/maximum, font and identity remains strict, as do all other layouts,
+one-reveal/next-turn text/icon visibility and unchanged operation budgets.
+No product geometry repair or additional tested-target claim follows from this.
+Native95250 onb9f2dde4a: natural1/33.15s/RSS1.217GiB; real tour completes,
+four Chrome marks pass whole75x75/slot72/DPR2, but the logo lies outside its
+68px visible band;5/137 inspected,132 untested. Normal close/cleanup pass.
+Like19870, its structural abort changes only private layout bookkeeping, not
+actual widgets. Log QLayout rectangles separately; retain strict actual widget,
+glyph/visibility/reveal checks and20s budgets, with no content-policy waiver.
+No smaller physical display, physical input or tiny-font readability is certified.
+
+New MainWindow scale-fit scope: native59310/zKXERs on publishedaad96b90c
+passes separate20s operations (Mask14.205s, wizard construction6.952s), embedded
+wizard/browser and three opaque surfaces, then proves an actual top-level floor
+defect at GUI200/font200. QWindow frame/client and minimum are2400x1280 at0,30
+against1440x870 work area; maximum remains unbounded and plate is2220x25.
+Options is unreached. Natural child1/46.388s/RSS1.270GiB/zero missed, unchanged
+inputs and normal close. The logical MainWindow1200x640 floor is being doubled
+beyond its screen. First add a causal real-QMainWindow scale regression, then
+cap only the effective actual top-level minimum against native client room,
+preserving its logical baseline, live grow/shrink, free user resizing/no fixed
+maximum and every content's visibility-or-scrolling/usable plate. Do not hide
+overflow by resizing the probe or claim a smaller physical display test.
+Real-Cocoa causal RED64544 fails both font200/font10 cases at actual minimum
+2400x1280 against1440x870 (20.89s/RSS0.626GiB). The scoped repair opts in only
+MainWindow before its first floor setter; effective actual minima are capped
+against native work/client room in both initial and live reapplication while
+logical1200x640 records remain intact. Native work-area fitting reapplies those
+records rather than rewriting them through logical getters. No child/dialog
+policy, maximum size or font changes. Focused green and actual Mask→Overview
+content/whole-plate grid fit remain required; bare frame fit is not acceptance.
+Focused Cocoa green31217 PASSES seven checks in31.99s/RSS0.577GiB: real
+MainWindow fonts200/10 survive GUI200→10→200 with actual native frame/minimum
+within the current work area, original logical1200x640 intact and no maximum;
+unmarked child floors and existing default/unmarked fit/placement contracts
+remain unchanged. Independent source/test peer clears the bounded mechanism.
+Actual Mask→Overview reachability and whole-plate row/column fit still require
+the faithful native retake; no bare-window-only layout acceptance is claimed.
+Native83898/ijj1qi on08935 now passes full styled Next text, module ownership
+and three transparent surfaces, but actual frame/minimum1440x870 consumes the
+entire1440x870 work area with no legal resize direction at GUI200/font200.
+Natural child1/42.254s/RSS1.035GiB/zero missed and normal close/input preservation;
+this is a separate resize-floor defect, not acceptance of the oversized browser.
+Next bounded policy: for the opted-in MainWindow only, retain the recorded
+unscaled desktop minimum as the GUI-above100% ceiling, still bounded by actual
+native client room; preserve live smaller-GUI minima, logical1200x640 records,
+unbounded maxima and all child/dialog policies. Add native causal resize proof
+before changing the helper. Actual browser/plate visibility remains a separate gate.
+Causal Cocoa31235 fails the strengthened font200 node at actual1440x870
+minimum versus desktop1200x640 (15.23s/RSS.539GiB). The bounded helper now
+uses each current stored logical floor as an additional ceiling, not a literal
+1200x640 constant; initial, live and native-fit callers share this one policy.
+No app, maximum, child or ordinary-dialog policy changes are made.
+Peer-reviewed Cocoa43729 PASSES seven affected checks in34.43s/RSS.606GiB:
+both font200/10 cases preserve GUI200→10→200 logical baselines, actual native
+bounded20px grow and shrink on both axes and unbounded maxima; default and
+unmarked fit/placement controls remain passing. Full app/browser content and
+actual whole-plate visibility remain separate pending acceptance, not implied.
+
+Next uncovered supported setup corner: GUI10%/font200%, within the actual
+GUI_SCALE_MIN0.10/FONT_SCALE_MAX2.0 clamps. Normal live scaling precedes both
+real setup constructors; require actual3px body-font witnesses and exact two
+case names. Preserve untouched initial bounds, every slide/group, all offered
+native text slots/arrows/checkbox indicators, AI reachability, intrinsic labels
+and existing deadlines/normal cleanup. This checks layout at the supported
+minimum, not readability or physical input. No product fix is assumed.
+Native51203 on cd9bb49b6 fails Slides at GUI10%/font200%: untouched72x56
+opening with actual3px font compresses controls; pages0–2 report intrinsic/
+reach errors and42x19 Toggles have only42x1 or0x0 visible. Slides3/4 are untested
+after the callback assertion. Grouped SetupDialog independently passes its
+1082x686 initial layout, all checks and resize; retain that pass. Natural exit1
+in31.821s/RSS1.188GiB/zero missed. Expand undersized Slides to natural content
+requirements including all stack pages and floating GPU/navigation bands,
+without font shrink or harness resizing; focused regression precedes repair.
+The focused small-opening regression fails at56px height versus the actual
+149px card minimum (5.17s/RSS0.286GiB). For a screen-fitting but undersized
+opening only, the GPU note joins the actual card layout before navigation,
+its obsolete fixed width is cleared, and fresh natural/all-stack-page hints
+expand the actual window. Existing oversized scrolling and nonundersized
+overlay paths are preserved, with no font reduction or fixed maximum.
+Three focused checks pass (6.91s/RSS0.289GiB): all five tiny-GUI pages retain
+intrinsic text/whole-or-intentionally-scrollable controls, greeting/note/form
+nonoverlap, and exact unchanged648x504/overlay branches at GUI90/font90 and
+GUI90/font200. The unit's terms-label check was corrected to the same strict
+axis-specific scrolling oracle rather than forbidding intentional scrolling.
+Native Slides-only GUI10/font200 acceptance remains pending; grouped is retained.
+Native34237 on9b77f09bdb passes the affected Slides-only corner: untouched
+113x244 opening, actual3px body font, all five pages' intrinsic/reach/choice-slot
+checks and both bounded resize phases clear. Exec returns in6.053s; natural
+child exit0 in26.037s/RSS0.940GiB/zero missed/no aliases. Grouped's earlier
+GUI10/font200 pass is retained, as are default/font200/MAX scopes and failure
+history. No readability or physical-input acceptance is inferred.
+Next uncovered supported setup corner: GUI200%/font10%, from actual
+GUI_SCALE_MAX2.0/FONT_SCALE_MIN0.10. The body font is first floored to1px by
+theme scaling, then GUI scaling produces a2px witness. Prepare exact both-case
+normal-constructor checks with unchanged strict geometry/intrinsic/choice-slot/
+indicator/scroll/cleanup oracles and deadlines; no product fix is assumed.
+Native2623 on d671f743cc passes GUI200/font10 for both presentations:
+actual2px witnesses and1296x783 initial frames, all five Slides/one grouped
+page checks, offered slots/indicators, intrinsic/reach and both resize phases
+clear. Exec7.188/5.433s stays below20s; normal exit0 in33.333s/RSS1.330GiB,
+zero missed/no aliases. No readability or physical-input acceptance inferred.
+Last uncovered supported joint setup corner: GUI10%/font10%, with staged
+font/GUI floors producing an actual1px body witness. Prepare exact both-case
+normal-constructor inspection with unchanged strict oracles and deadlines,
+not a claim that1px text is readable or every intermediate scale is accepted.
+Native26670 on d671f743c passes joint GUI10/font10: Slides113x155 and
+grouped1082x685, actual1px witnesses, all five/one page checks and both resize
+phases clear. Exec5.748/3.902s stays below20s; natural exit0 in29.542s,
+RSS1.175GiB/zero missed/no aliases. The four min/max GUI/font combinations
+are now covered for these two setup presentations, alongside the retained
+default and independent-font checks. This does not certify intermediate
+scales, tiny-text readability, physical input or other screens/work areas.
+Next concrete live-layout gap: at GUI10/font200, change the real Slides
+language choice EN→DE→EN in its isolated profile without accepting setup or
+terms. Require actual stored/current language and Language→Sprache→Language
+witnesses, all pages' translated intrinsic/slot/reach checks and visible
+Hello/Hallo greeting placement under the original single20s modal deadline.
+Only the owned language preference may change; restore English and preserve
+other answers. This is programmatic native layout, not physical input.
+Native27950 on d671f743c reaches live German preference/Sprache and a clean
+DE page0, then fails the full-greeting-label visibility contract: Hallo's
+127x41 label has a113x41 visible region while the form has14px horizontal
+scroll range. This alone does not prove cut text; centered ink may fit inside
+that region. Remaining DE/restored-EN pages are uncertified; English restores.
+Natural exit1 in31.026s/RSS0.929GiB/zero missed. Attribute actual style text/
+tight glyph bounds and card/window geometry before any product repair; retain
+the full-label failure and all constructor/corner passes.
+Attribution80658 on the same source confirms clipped whitespace, not clipped
+greeting text: native30pt Open Sans Hallo has full style-text rectangle
+[29,0,69,41] and derived tight bounds[29,9,64,24], both wholly visible within
+113x41 despite the127x41 label. Natural exit1/32.213s/RSS0.962GiB/zero missed
+is the retained expected whole-label assertion failure, not product acceptance.
+The affected retake requires the FULL style-text rectangle visible, retaining
+intrinsic-height/nonoverlap checks and recording mapped title/blurb/note/button/
+language rectangles before assertions. No product change is justified by this
+whitespace-only finding; other translated pages remain pending.
+Retake88023 completes all ten DE/restored-EN page observations and both complete
+styled greetings with six nonoverlap checks; other answers/terms are unchanged,
+English restored, and exec takes8.594s within20s. Natural exit1/30.294s/
+RSS0.965GiB is solely the copied generic inspector's earlier restored-EN
+greeting whole-label check (127x41 label versus113x41 visible), before the
+new greeting placement. Full-case acceptance remains pending: record actual
+style-text visibility at that exact generic-inspection point and apply the
+same full-style-text contract ONLY to the actual dialog._greeting identity;
+all other widget reach/intrinsic checks remain unchanged. No product repair.
+Follow-up3202/H0NuCj on the unchanged source times out at280.201s; the watchdog
+terminates only its owned child (RSS1.338GiB/zero missed samples). No popups.json
+or locale epoch is certified, and no new glyph failure is established. One
+manual external native sample was captured at approximately3m48s; the wrapper's
+default external_sampling_performed=false does not describe that separate
+capture. Retain DC5GoA's ten-page partial results above; complete live-locale
+acceptance remains pending. No product edit or renewed acceptance claim.
+Scoped live-locale acceptance15398/zuhKyF now PASSES on925c9597c: untouched
+113x244 opening, all ten DE/restored-EN pages clear, both complete greeting
+style-text rectangles and six nonoverlaps clear, including full current text
+visibility at the formerly whitespace-clipped generic-inspection points.
+English restores and other answers/terms remain unchanged. Exec8.740s<20;
+normal exit0/28.679s/RSS0.955GiB/zero missed/no aliases. The requested12s
+Python snapshot was NOT performed because the case finished; no external
+native capture occurred in this run. Prior timeout history remains unresolved,
+not overwritten by this scoped layout pass.
+
+Affected setup follow-up after the new spaCR_AI row: inspect real SetupSlides
+and SetupDialog at normal owned Cocoa GUI/font90%/90%, actual1440x870 work
+area/DPR2. Require untouched initial frame, every slide/group, intrinsic label
+fit and reachable controls including the AI row; inspect resize/scroll mechanisms
+without first enlarging the window. Constructor-only checks must not apply
+answers, authenticate, install providers or touch real settings. Then separately
+check GUI90%/font200% after the default probe is accepted. These are automated
+layout checks, not physical input or actual smaller-display-mode acceptance.
+Default native32892 on6fa5aa1f passes both affected setup layouts: five slides
+initial648x504 and one all-groups dialog1098x710, actual11px body-font witnesses,
+AI controls visible/reachable, intrinsic text and native20px grow/shrink checks.
+Actual work1440x870/DPR2, GUI/font90%/90%; no aliases, normal exit0 in25.645s,
+sampled RSS1.116GiB/zero missed. No answers applied or provider operation; the
+separate GUI90%/font200% check remains pending, not a default-cohort replay.
+Font200 native4802 fails four checks on6fa5aa1f: the first slide's rich GPU
+note exceeds its allocated height; three grouped-dialog combos have39/40px
+height against44px minimum hints. Both native frames, all AI controls, remaining
+slides, grow/shrink and actual23px witnesses pass; no aliases, natural exit1
+in31.665s/RSS1.161GiB/zero missed. Diagnose the note's actual placement and
+combo selected-text/arrow rectangles before assigning product versus oracle
+failure; preserve default passes and all strict bounds/intrinsic checks.
+Focused GPU-note regression proves a real width double-scale: measuring at592px
+then scaled setFixedWidth enforces533px, whose rich text needs280px versus252px
+allocated. The regression fails before repair (4.95s/RSS0.269GiB). Set the
+already-measured width through the existing actual-dimension helper, preserving
+the band/floor placement. Three affected checks pass (8.46s/RSS0.456GiB,
+natural exit0); existing fixtures warn of a live grain compiler at session end.
+Native affected recheck and combo selected-text/arrow attribution remain pending.
+Native85004 on3a8932cb4 confirms the GPU-note repair across all five slides,
+with no remaining rich-text height error. Strict native combo-slot checks still
+fail: four offered-choice widths exceed slide edit fields by small amounts
+(Português106 versus105px; spaCR advection171 versus169px), and three grouped
+edit fields are29/30px high versus Qt line boxes32/33px. Tight glyph ink may fit;
+this establishes insufficient full text slots/padding, not proof of cut glyphs.
+Preserve strict offered-text/arrow fit as a proactive font-aware minimum-sizing
+contract, including live font/style changes. Default passes and all initial-frame,
+reachability and intrinsic checks remain retained; no native acceptance yet.
+Natural exit1 in33.727s/RSS1.192GiB/zero missed, no missing-font aliases.
+Both setup-editor factory regressions fail before the combo floor repair
+(3.07s/RSS0.242GiB): constrained native text slots can be shorter than Qt's
+full line box. A shared private setup combo derives actual minimums from fresh
+native hints, style edit-field insets and every offered text slot, updating on
+font/style/model changes without fixed/max sizes or changed choices/signals.
+Two strengthened checks pass (2.96s/RSS0.244GiB), including the same widget's
+font90→200→90 floor reset, long-choice insert/remove and padding change/reset;
+selected data stays unchanged. Native affected acceptance remains pending.
+Native9764 on626b04c788 passes the affected font200 setup checks: actual23px
+witnesses, all five slides648x504 and grouped dialog1098x724 initially bounded
+on1440x870/DPR2, full/reachable AI controls and intrinsic text. Every offered
+combo choice fits its actual native edit field with a contained arrow; slide
+widths144/209/178/231px and all combo heights44px provide full slots. Both
+native grow/shrink checks pass. No answers/provider actions, no aliases,
+normal exit0 in27.760s/RSS1.130GiB/zero missed. Retain the earlier failures.
+Affected default47670 on626b04c788 also passes both layouts after the repairs:
+actual11px witnesses, five slides648x504/all-groups1098x710, every offered
+native text slot/arrow, AI control, intrinsic/reachability and grow/shrink check.
+No aliases; natural exit0 in24.675s/RSS1.108GiB/zero missed. Default90/90 and
+GUI90/font200 acceptance are now current; joint maximum scales and physical/
+actual smaller-display subgates remain open. No whole-item completion claimed.
+Next affected supported boundary: inspect these same two setup presentations
+at joint GUI200%/font200% through normal live scaling before construction,
+with actual52px body-font witnesses. Keep untouched initial frames, all slides/
+groups, every offered native combo text slot/arrow, AI reachability, intrinsic
+labels and axis-specific scrolling strict. Only after initial inspection choose
+a positive resize of up to20px per axis within the actual work frame and above
+the actual minimum, then restore and prove both axes changed. Never clamp the
+opening window in the harness or infer physical/small-display acceptance.
+Joint-max native26699 on efe77c308 fails a real opening-frame requirement:
+SetupSlides opens1440x1120 at(0,30) on a1440x870 work area, with actual52px
+body fonts. All five slides' internal text/AI/choice-slot checks pass within
+that oversized window. Both post-inspection resize states still exceed the
+work area; the owned20s case deadline ends the case. SetupDialog is UNTESTED,
+not failed. Natural child exit1 in50.127s/RSS1.385GiB/zero missed/no aliases.
+Repair the scaled720x560 opening request without shrinking fonts or bypassing
+the strict native oracle; floating card/backdrop content must remain reachable
+through compatible natural-size/scroll handling. Focused regression first;
+default90/90 and GUI90/font200 acceptance remains retained.
+Focused joint-max regression fails before repair (5.60s/RSS0.291GiB): the real
+opening1440x1120 exceeds its actual800x800 test work area. Overflow-only setup
+handling moves the actual floating card, not the backdrop, into the existing
+scroll/natural-opening helpers and preserves natural card coordinates/minimums.
+An additional fuller GPU-note check exposes a4px Back-button overlap after
+scroll layout (5.45s/RSS0.288GiB); a card-owned coalesced resize timer reapplies
+the existing overlay placement after layout. The strict focused check now
+passes (5.26s/RSS0.287GiB), including initial bounds, actual card scrolling,
+last-control reach and note/form/navigation nonoverlap. Nonoverflow layouts and
+fonts stay unchanged; affected native max acceptance remains pending.
+Native9007 on3d387b227 establishes the scoped joint-max Slides pass: initial
+1296x783 at(134,77), actual52px font, all five pages' native choice slots/AI/
+intrinsic/reach checks and both resize phases pass; exec returns in8.635s.
+Grouped SetupDialog is now reached at1296x783/52px but fails its AI editor
+height-versus-minimum-hint assertion before the partial page is saved; the
+owned20s deadline closes it. Preserve that unresolved case, not a grouped pass
+or proven cut-glyph claim. Natural exit1 in52.906s/RSS1.454GiB/zero missed.
+Retain partial native page/AI geometry and rejection timestamps before further
+product changes; verify actual floating-card/scroll compatibility and clipping.
+The controlled grouped-layout regression reaches the actual indicator failure:
+AI checkbox571x10 versus native34x34 indicator positioned at y−12, outside its
+control (3.13s/RSS0.248GiB). This proves clipping in the compressed floating-card
+route, unlike the earlier minimum-hint-only evidence. The initial offscreen
+attempt lacked a backdrop; the affected retry supplies an owned QGraphicsView
+only at that decorative seam, retaining real form/checkbox/style behavior.
+Repair only overflow handling of the actual grouped card, keeping its snapshot
+outside scrolling and nonoverflow layouts unchanged; preserve strict native
+grouped-only acceptance, partial-page diagnostics and the original20s deadline.
+The overflow-only grouped repair preserves the card's natural actual minimums,
+moves that card into scrolling, and leaves its snapshot as a manual background;
+resize no longer compresses scrolled controls to the viewport. The focused
+check passes (3.23s/RSS0.245GiB): untouched opening fits, AI647x42 contains its
+34x34 indicator at y4, and every editor/label is whole or intentionally reachable.
+Default and Slides paths are unchanged. On 2026-10-23, grouped-only native Cocoa
+acceptance passes at 9a7e41e838 on this 1440x900/DPR2 Mac: initial 1296x783, actual
+52px font, all content/choice checks clear; AI 656x42 is intentionally scroll-
+reachable. Native resize 1306x803 and restore 1296x783 both pass. The case returns
+in 6.384s within its unchanged 20s deadline; normal child exit0 in 24.160s,
+sampled RSS 1.023GiB/0 missed, no alias warnings. Prior failures remain recorded;
+accepted Slides is not replayed, and physical/smaller-display gates remain open.
+
+Scoped popup follow-up: normal owned Cocoa startup at GUI/font 90%/90%, then
+public CommandPalette.exec and show_cheat_sheet(None)'s rare fallback dialog.
+Observe untouched initial native QWindow frame/work-area geometry and content
+reachability or intentional scrolling on 1440x900/DPR2; programmatic API/close
+checks do not establish physical menu/keyboard or smaller-display acceptance.
+Native baseline: both initial frames fit, with no unreachable controls:
+command palette 504x420 (87 model rows, vertical range77), fallback340x739.
+Actual GUI/font90%/90%, work1440x870/DPR2; app returned0, font assertions failed
+on CommandInput/five fallback headers. Preserve accepted geometry while those
+two source font declarations are repaired; no layout change is warranted.
+Affected stress follow-up: repeat only those two actual popup APIs at GUI90%/
+font200%, using normal live change_scales before construction. Require actual
+CommandInput/header pixel-font preconditions and unchanged native initial-frame,
+axis-specific content reachability, font-family and owned-close checks.
+Uncovered supported boundary: GUI_SCALE_MAX and FONT_SCALE_MAX are both2.0.
+Check the same two popup APIs at GUI200%/font200% through normal change_scales,
+with actual60px CommandInput/48px headers and the same native bounds, intrinsic
+rich-text and axis-specific reachability checks; no accepted cohort replay.
+Native e8c15928c combined maximum PASS: palette1120x467, fallback1296x783
+with vertical range1851; actual60/48px fonts, full/reachable text, no aliases,
+normal exit0, RSS0.969GiB/0 missed. Native1162f6ba1 remaining supported corners
+(GUI/font .1/.1, .1/2 and2/.1) all PASS with exact fonts, bounded frames,
+full/reachable controls and rich text, no aliases and normal exits0;
+RSS0.829/0.869/0.931GiB, no missed samples. These boundary checks do not certify
+every intermediate scale, readability at1px, or physical input.
+Native font200 stress confirms a real parentless shortcut-fallback defect:
+756x1295 exceeds the870px work area and has no scroll container. Palette fits
+1120x420 with87 rows scrolling and27px input; fallback fonts22/23px are correct.
+Repair only fallback construction using existing dialog scroll/opening/resize
+helpers, keeping all shortcut rows and the normal MainWindow overlay unchanged.
+The two focused fallback regressions fail before repair; afterward both plus
+the existing overlay route pass (4.62 s, sampled RSS0.281 GiB). Native63d1e247f
+default and font200 both PASS: fallback640x783/840x783, stress vertical range510,
+all controls reachable, stress rich text intrinsically fits, safe fonts and
+normal exits0; RSS0.986/0.855 GiB, no missed samples. No lasting maximum is set.
+Native4495f2178 final: both cases PASS at unchanged initial sizes, exact scales,
+whole/reachable controls and safe fonts; normal exit0, RSS0.960GiB/0 missed.
+
+2026-10-22 affected-source requirement: the new Field-of-view overview
+shares the unwrapped tab-corner row with Reset zoom/Ruler. Check all three
+buttons, naturally translated active tabs and the footer at 1280x680 and
+1366x728, English/German, GUI/font 90%/90%; add German 1280x680 at GUI 90%/
+font 200%. Require exact client dimensions after application and tab changes,
+whole nonoverlapping controls, and no resize-back hiding an expanded minimum.
+
+Unaccepted setup history on source a9904694f5: four offscreen passes used
+manual tab translations/unverified fonts (69.45s, sampled RSS 0.956GiB).
+Two Cocoa attempts each fail four font preconditions: 13px then 12px versus
+expected 11px (99.26s/104.81s, sampled RSS 0.990/0.988GiB). Correct startup
+order and explicitly set live GUI scale; change_scales can no-op when saved
+defaults already match. Intermediate one-plus-three Cocoa passes precede
+the final client-size assertion and do not prove it (39.62s/90.63s).
+
+2026-10-23 historical scoped Cocoa result on a9904694f5: four EN/DE cases PASS with
+actual QFont 11px (115.76s, sampled RSS 0.973GiB); one German independent-font
+stress PASS with QFont 23px (45.21s, sampled RSS 0.817GiB). All five verify
+exact target clients after preferences/normal translation and every tab
+switch, with whole nonoverlapping corner controls, active tab and footer.
+Actual display 1440x900/work 1440x870/DPR2, not smaller physical modes.
+These five establish the strengthened invariant only for that layout; prior native
+evidence and pending physical-input scope remain. No geometry repair needed.
+Caught DEBUG callbacks to deleted Toggle wrappers were separately handed
+to the 717 repair owner; they are not suppressed as a production fix here.
+
+Current upstream follow-up, 2026-10-23: 33fb405293 moves overview into IO
+as an icon-only QToolButton, preserving its object name. Adapt the five
+strict Cocoa cases to actual IO placement, whole button/size hint/icon,
+translated accessible name/tooltip, and the separate reset/ruler/tab/footer
+geometry. Rebased source bcb5659433 requires fresh results; historical five
+passes do not accept this changed upstream layout. No production repair
+is assumed, and physical/display-mode limitations remain unchanged.
+The first current-layout attempt fails five tooltip preconditions (121.26s;
+sampled RSS 1.042GiB): normal policy wraps the correct translated body in
+title/API HTML, while accessibleName remains plain text. Compare exact
+accessible text and parsed body/API lines rather than requiring HTML to
+equal plain text; no production defect or current geometry pass is inferred.
+Final current-layout result on bcb5659433: five Cocoa cases PASS (one
+setup case 36.61s/RSS 0.787GiB, remaining four 102.15s/RSS 1.039GiB).
+Exact final clients 1280x680/1366x728, actual fonts 11px normal/23px stress,
+natural EN/DE captions and IO icon/accessible name/rich tooltip/API all fit;
+reset/ruler, active tabs and footer remain whole/nonoverlapping. Actual
+display1440x900/work1440x870/DPR2. No production repair; physical-input and
+actual smaller-display-mode acceptance remain separate. No old-case replay
+or assertion weakening is counted toward these five current-source passes.
+
+Completed Mac follow-up (2026-10-21): the German native dark-to-light layout
+check retains pale folded-module icons against the light button plates.
+The existing icon resolver already re-inks correctly for each theme, but
+existing FoldButtons retain their constructed QIcons. Verify the actual
+Preferences refresh route reproduces it; refresh these icons through the existing
+owner-window theme refresh when the theme changes, preserving proportional size,
+module identity, fallback initial and checked/maturity behavior. The Mac lane
+retains18 passing focused fold checks, bidirectional icon-pixel regressions and
+a real Cocoa confirmation; retain passed geometry and separate unresolved
+physical/display acceptance.
+2026-10-22 affected-source native recheck passes four English100%GUI/font
+client1280x680/1366x728 dark/light cases: exact client sizes, visible groups/
+buttons/footer, aligned tabs/reset/ruler and programmatic fold/reopen; canvas
+855x156/916x204. Frames fit actual1440x900/work1440x870/DPR2, not smaller
+display modes. One90% Preferences popup opens582x568 with eight reachable tabs,
+scroll bottoms through maximum1667 and resize freedom. Three18px Modules
+switches expose a sizing regression; the scoped Toggle repair and native
+recheck restore all nine switches to at least19px with three click/restore
+checks and normal exit0. Retain earlier90% EN/DE matrices; physical input
+remains separate. No installer/VoiceOver/sound repeats.
+The two-process Cocoa restart check passes with one isolated90% profile and
+client1280x680: seven user fold/open states for Settings/TopBar/BottomBar/Title
+and Shortcut list/Console/System restore exactly, including the persisted
+mapping. Automatic narrow-side folding is not remembered; transient reopening
+preserves that mapping. Controls/footer remain reachable (canvas884x208,
+footer886x27), frame fits the actual work area and both processes close
+normally with exit0. This is automated persistence evidence, not physical-input
+or a new saved-main-window-geometry contract.
+
+Follow spacr/resources/AI/MAC_HANDOFF.md and finish running N703/N646 first.
+The Mac session owns real-display layout/input acceptance and Mac-specific
+repairs. Root retains Linux/general CI and Work retains current-layout
+recordings 14/42/46/79 and the related lesson checks. Do not implement or reopen F655 here. Start
+from fresh origin/nightly in the permitted Mac-local worktree and confirm the
+actual launched app uses that HEAD/interpreter/spacr.__file__; record installed
+version, macOS, hardware and display scaling. A 1.5.1.5 label is not proof of
+current nightly. Preserve existing collapse/preferences before changing them.
+
+1. Use actual display/work-area sizes corresponding to 1280x720 and 1366x768,
+   and 1920x1080 where available, in light and dark themes. Record logical
+   screen and available geometry, Retina device-pixel ratio and menu/Dock
+   reservations. Do not substitute physical screenshot pixels for Qt logical
+   size or claim a resolution that the Mac display cannot provide. Keep the
+   window within its available work area (the original small-screen targets
+   were about 1280x680 and 1366x728 usable pixels; Mac reservations may differ).
+2. Launch and restore the main window after saving a larger window geometry,
+   then move between available displays/scales if hardware permits. Window
+   edges and essential controls must remain reachable; restored geometry must
+   clamp to the current available screen. At small size, scroll/collapse must
+   reach all controls without shrinking them unusably. Check the selected
+   existing module screens for reachability, recording which were actually
+   opened; no claim of all-module native acceptance from Make Masks alone.
+3. In Make Masks inspect TOOLS/ANNOTATION/IO/NAVIGATION groups, wrapped tools,
+   Open File / Folder and its 2D/3D file menu, Keep and Save mask menus. Open a
+   real 2D image and then a 3D volume. The editable image index plus filename
+   must sit together at the container's bottom-left OUTSIDE image pixels,
+   with no duplicate row. Edit the index and verify navigation. In Blind mode
+   verify neither visible filename nor a stale tooltip reveals identity.
+4. Switch Mask/Flows and volume views. Flows stays an ordinary content tab;
+   Reset zoom/Ruler remain beside the tabs, fully visible with top edges
+   aligned, and work in the appropriate view. They and image identity must
+   not be embedded in Flows. Check the default 1 px brush, menu-based Save on
+   navigation, and Edit-menu Undo/Redo rather than expecting retired buttons.
+5. Fold/reopen settings, top bar, bottom bar and title; close/restart and
+   verify persisted states. At narrow width the side column may temporarily
+   auto-fold: its handle must reopen it without corrupting saved preference.
+   Check the smaller centred collapse arrows with mouse and trackpad. Fold
+   Shortcut list, Console/AI chat and System independently and confirm their
+   order/persistence. A reachable chat control does not require credentials,
+   paid AI calls or network interaction for layout acceptance.
+6. Repeat critical geometry with a supported translated language containing
+   longer labels, then restore the original language. Check text is readable,
+   controls are neither clipped nor overlapped, and normal 1920x1080 layout
+   remains unchanged. Missing physical display/scale combinations remain
+   explicitly untested; screenshots/offscreen tests do not close native feel.
+
+Pass requires full reachability at the tested small available geometries,
+correct footer/tab/tool placement, native input and restart persistence, with
+no regression at the tested large size. Record source/runtime, each actual
+logical size/DPR/theme/language, outcomes and any Mac-specific fix/retest in
+this item. Prior position acceptance and automated geometry checks are kept;
+the outstanding 1280x720 native recheck is not silently converted to PASS.
+Do not duplicate root's in-progress thumbnail lifetime/main-API repair or
+claim that native layout acceptance completes hosted CI or Work tutorials.
+
+--------------------------------------------------------------------------------
+2026-10-16 — the maintainer's request
+--------------------------------------------------------------------------------
+
+A. vvvv: remove the vvvv options from Make Masks ("Export for vvvv", "Export
+   on save"), Mask generation, Measure and every other module. Add one
+   boolean "Export to vvvv" in Preferences -> Plugins (create the section if
+   needed), default off. The existing export runs when it is on; the export
+   code stays.
+
+B. Make Masks buttons in titled containers (title top left) around the image:
+   - top left TOOLS: Brush, Erase, Erase Object, Wand, Draw, Box,
+     Divide/Merge, Zoom, Recrop, Magnifier;
+   - top right ANNOTATION: Keep, Skip, Discard; Keep gets a menu with
+     "Hide judged fields", "First unreviewed" and "Blind";
+   - bottom left IO: "Open File / Folder" (renamed from Open folder, merges
+     "Open 3D image": opens a 2D or 3D file, or a folder), "Measure" (renamed
+     from "Organize for measure"; another agent will add a 3D section, so a
+     clear extension point), "Load Test Data", "ROIs";
+   - bottom right NAVIGATION: "Save mask", "Previous", "Next"; Save mask gets
+     a menu with a checkable "Save on navigation" and "Upload data";
+   - Object operations gains "Object detection", "Clear all objects" and
+     "Apply virtual stain" (alpha);
+   - Undo/Redo buttons go (Edit menu and shortcuts stay); the Settings button
+     goes (the collapse arrow hides the settings);
+   - Reset zoom and Ruler move to the top left of the image, right of the
+     image counter;
+   - brush starts at 1 px;
+   - image index and name painted on the canvas, index first
+     ("12 / 240 · name.tif").
+
+C. The top bar and bottom bar of the image, and the "Make Masks" title with
+   its row of folded modules, hide/show with the same collapse arrow as the
+   settings; the states persist.
+
+D. All modules: the collapse arrow (handle that hides panels) at 75% of its
+   current size, exactly centred on its handle; fixed once in the shared
+   widget.
+
+E. Tests for all of the above; existing tests updated.
+
+--------------------------------------------------------------------------------
+2026-10-16 — what was done (Claude, worktree mm-layout)
+--------------------------------------------------------------------------------
+
+A. Preferences -> Plugins now exists whenever the plugin catalogue OR the
+   new "Export to vvvv" checkbox (object name PreferencesExportVvvv) is
+   shown. The checkbox is registered under item 685 in ALPHA_FEATURES in
+   place of the two retired Make Masks buttons, so it shows only with "Show
+   alpha features" on; default off (key plugins/export_vvvv).
+   preferences._vvvv_export_enabled() is the one switch: Make Masks exports
+   every saved mask to the remembered make_masks/vvvv_export_dir or else
+   <folder>/vvvv/make_masks; AppScreen._on_run overwrites a run's
+   export_vvvv with it, so Mask generation and Measure write vvvv/mask and
+   vvvv/measure as before. export_vvvv is in _APP_HIDDEN_KEYS for mask,
+   measure (and timelapse, already) and out of their category layouts, so
+   no module form shows it; the key stays in the settings dict, so headless
+   and CLI runs keep their own value.
+
+B. _build_ui/_build_tool_row/_build_navigation_bar build four QFrames
+   (makeMasksGroup property, title label MakeMasksGroupTitle; theme.py
+   styles them as cards): MakeMasksToolsGroup (a FlowLayout, so tools wrap
+   rather than scroll), MakeMasksAnnotationGroup, MakeMasksIoGroup,
+   MakeMasksNavigationGroup. Keep and Save mask are _SplitMenuButtons (as
+   Load test data); Hide judged fields, First unreviewed, Blind, Save on
+   navigation and Upload data are QActions under the old attribute and
+   object names. Open File / Folder: click = folder; arrow menu = Open
+   folder… / Open file (2D or 3D)… (_on_pick_file: volumes through
+   open_volume, 2D files open their folder at that image). Measure…: click
+   = Organize for Measure (2D); _add_measure_section(label, callback)
+   adds further sections (the 3D one) to its menu. Undo/Redo became
+   QActions _act_undo/_act_redo that the Edit menu reads (app.py). The body
+   stack (empty state / view tabs) now lives in the image container, so IO
+   stays usable before anything is open. Uncertainty and SAM2 tracking
+   (both alpha, not named in the request) moved to Object operations too.
+   DEFAULT_BRUSH_RADIUS = 1. _MaskCanvas.field_label paints
+   "index / total · name" bottom left of the image (blinded: the code).
+
+C. The image container is a vertical CollapsibleSplitter (Top bar / Image /
+   Bottom bar as EDGE panes, fold keys make_masks/TopBar and
+   make_masks/BottomBar); the title bar is an EDGE pane of
+   MakeMasksChrome (make_masks/Title). All persist via set_folded_panel.
+
+D. collapse_arrow.HANDLE_SCALE = 0.75 scales tab and chevron;
+   _collapse_arrow_geometry() computes both in floating point around
+   QRectF(rect).center(), so they are centred to the sub-pixel on every
+   splitter handle and the dock edge.
+
+E. tests/qt/test_707_make_masks_titled_groups_and_collapse.py (placement and
+   titles, one button per group, renamed/removed labels, Keep and Save
+   menus, Measure extension point, open file, brush 1 px, overlay format,
+   persisted collapse states, arrow geometry, vvvv preference); existing
+   tests moved to the new names.
+
+Screenshot: /mnt/wd4tb/scratch/mm-layout/make_masks_layout_dark.png (1920x1080
+offscreen).
+
+--------------------------------------------------------------------------------
+2026-10-16 — added to the same request (coordinator, for the maintainer)
+--------------------------------------------------------------------------------
+
+Asked: an AI chatbox under the Make Masks console, the same chat the other
+modules use (active provider, spaCR AI free by default, with the usage bar
+row); under it the "System" panel as the other modules have it; and the
+Shortcuts container hideable like the console, persisted. Order and fold
+behaviour as in the other modules (console -> AI chat -> System).
+
+Done: _MasksConsole's ConsolePanel now has chat=True (the module screens'
+chat box and its AiUsageRow, under the scrollback, persist_key make_masks).
+_SystemCard is the module screens' System card (RAM, GPU, VRAM, CPU
+UsageBars, Per-core, the off-thread app_screen._sample_usage every 2 s while
+shown), folding by its title under make_masks/System. The shortcut list folds
+by its title (fold_card, make_masks/Shortcut list). The side column is
+Shortcut list / Console (+ AI chat) / System; each fold persists.
+Tests: test_side_column_reads_shortcuts_console_chat_system and
+test_each_side_panel_folds_and_the_fold_is_remembered in the 707 test file.
+
+Also for the layout: the image canvas's minimum height went from 400 to 200
+px (Cell probability/Flows panes 300 -> 200) and the image stack's minimum is
+the page on show, so wrapped button bars fit on a 1366x768 laptop.
+
+Known, not from this item: tests/test_web_caption_extraction_n698.py::
+test_web_sources_join_production_inventory_before_compact_filtering fails on
+nightly (the tool reads spacr/channel_sorting.py, which the test's fake tree
+lacks); tools/build_documentation_i18n.py (full, not --sources-only) stops
+on nightly at a stale reviewed record for
+spacr.qt.install_consent.apply_choices#1 (sv), so the localized API catalogs
+were not rebuilt; the reviewed API records for this item are in
+docs/i18n/reviewed/api/*/2026-10-16-707-api-make-masks-layout-and-collapse-arrow.json.
+
+--------------------------------------------------------------------------------
+FOR THE TUTORIAL LANE (WS)
+--------------------------------------------------------------------------------
+
+These lessons show or narrate the old Make Masks layout and need re-recording
+(current layout only): 14_make_masks, 42_curate, 46_napari_bridge,
+79_module_inputs_outputs; check 19/20/21/22/54/57/80 and 05_home for Make
+Masks clips too. Old names to drop from narration: "Open folder", "Open 3D
+image", "Organize for Measure", "Prev image", "Next image", the Settings and
+Undo/Redo buttons, Save on navigation / Hide judged fields / First unreviewed
+as buttons (now menu entries). Lesson 87 (alpha) may mention Preferences ->
+Plugins -> Export to vvvv instead of the two retired Make Masks buttons.
+
+2026-10-16 — Follow-ups accepted:705/706 pair updates capture_make_masks_experiment.py to use current Edit actions instead of removed _btn_undo/_btn_redo and makes TOOLS/IO extractable through the normal caption pipeline.
+Tutorial owner retains fresh re-recording14/42/46/79 and checks05/19–22/54/57/80; no Home recording. Maintainer checks layout at1366×768 and1920×1080.
+CI pair handles the real N698 fake-tree and alpha tutorial contract failures; stale Swedish install_consent.apply_choices#1 is refreshed against final N703 source before normal API generation, preserving assertions and reviewed translations.
+
+2026-10-16 — Maintainer correction supersedes the original image-overlay placement: show the editable image index and filename together at the bottom-left of the image-containing container, outside the image pixels; remove their canvas overlay and duplicate row beneath Open File / Folder.
+Flows remains an ordinary content tab. Image index, Reset zoom and Ruler must not be embedded in the Flows tab; place Reset zoom/Ruler separately beside the tabs with their top edges aligned to the tab tops and their full height visible above the image.
+Retain index-based navigation, filenames, reset/ruler behavior, collapse persistence and the new705/706/708 controls. Check actual widget geometry/visibility at1366×768 and1920×1080, with translated captions and tab switching; no Home GPU/native-display claim.
+
+2026-10-16 — Footer now holds the editable index and filename outside image pixels; duplicate identity rows are removed, Flows is a normal tab, and Reset zoom/Ruler align beside the tabs with their full height visible.
+2026-10-16 — Retained26 focused checks cover behavior, EN/FR geometry at1366×768 and1920×1080, and clearing stale filename tooltips in blind mode; no native-display acceptance is inferred.
+2026-10-16 — Capture helper uses current Edit actions; TOOLS/IO are normally extracted with approved nine-language records. Runtime/API audits, Help/arrival generation and13 catalog checks pass; normal outputs ship with705.
+2026-10-16 — Remaining owner steps: maintainer native layout check at both resolutions; Work fresh recordings14/42/46/79 and checks05/19–22/54/57/80, preserving the current-layout/alpha-content rules.
+2026-10-17 — Claude Home re-verified on nightly ec3980daeb7: capture helper uses _act_edit_undo/_act_edit_redo, TOOLS/IO are tr() captions with nine-locale catalog rows, 30/30 test_707 checks pass. No code remains. Maintainer: open Make Masks at 1366×768 and 1920×1080 (light and dark), open a folder and a 3D image, fold/unfold top bar, bottom bar and title; confirm groups, footer, Reset zoom/Ruler beside the tabs; then set DONE.
+2026-10-18 — Maintainer native check: positions fine at both resolutions and 1080p perfect, but at 720 the window cannot fit on screen. New requirement: the main window and Make Masks must fit and be fully usable on 1280×720 and 1366×768 screens at 100% scaling (usable area about 1280×680 / 1366×728 after taskbar/menu bar), with the 707 layout.
+Acceptance: main-window minimum size ≤ 1280×680 with Make Masks and every module screen; saved/restored geometry clamped to the screen's available geometry; every control reachable by scroll or collapse; 1920×1080 layout unchanged. Owner: Claude Home.
+2026-10-18 — Fixed: main-window minimum 1200×720 → 1200×640 (opens at 1200×720 as before); launch, Restore and screen/work-area changes fit the window inside the available geometry. Below 1500 px Make Masks folds its side column (not remembered; arrow reopens), so TOOLS/IO no longer clip and the image gets ~157 px at 1280×680. 1920×1080 geometry unchanged. Remaining: maintainer native recheck at 1280×720; other module screens with content minima above 1280×680 (power, tabulate, foreign, batch, investigate_hit, profiler, train_compare, data_manager, gate_editor, dose_response, graph_builder) are a separate follow-up.
+2026-10-18 — Follow-up done: batch, data_manager, dose_response, foreign, gate_editor, graph_builder, investigate_hit, plate_view, power, profiler, tabulate and train_compare scroll inside their page when the page is below 1500×900 logical px and smaller than their content; at or above that, layout and pixels are unchanged (1920×1050 compared before/after). Every module screen now fits 1280×680 and 1366×728 unsqueezed; DPR-2 test included. Remaining: maintainer native recheck at 1280×720.
+
+2026-10-21 — Native Cocoa/macOS26.6.1 Intel at90%GUI/font: retained English and new German four-case client-window1280x720/1366x768 dark/light checks pass groups/buttons/footer/tabs and programmatic fold-reopen. German canvas858x204/919x296; unobscured native captures reviewed. Preferences theme refresh now re-inks existing FoldButton icons, preserving geometry/module/check state; both theme directions reproduce before and18 fold checks pass after, with native light icons corrected. Normal close exits0 with646's repair. Actual display1440x900/work1440x870/DPR2, not smaller display modes; physical input, restart persistence and3D remain open. Prior tests and Linux/Work ownership retained.
+
+2026-10-23 — Release follow-up: generic desktop windows must clamp actual client/frame dimensions and minimum sizes to the available screen at nondefault GUI scales, without applying the scale twice. Main704 app.py exactly matches the demonstrated pre-fix source. Port only the reviewed native correction and its two owning test files; preserve logical design sizes, saved-scale behavior and all existing physical-display acceptance limits. Both affected actual-pixel scale controls pass (2 tests, 3.20s) on the Main port under capped CPU/offscreen; no native-display acceptance is inferred.
+
+2026-10-24 — Documented the existing Home font-size predicate without behavior changes; nine reviewed translations and the concurrent removed-mark-helper retirement are closed through normal API/Help outputs. Review cb353d9a/API 833dedfe are published with immutable readback; two source guards and all 11 final API/Help checks pass with historical baselines preserved. Root owns Night source publication; physical display acceptance remains with the native lane.
+2026-10-25 — Mac (Apple M-series MacBook, macOS 27.0 (Darwin 27.0.0), arm64 CPython 3.12.15 venv, PySide6 6.11.2, Cocoa, Retina DPR 2, work area 1710x1074): Make Masks' masthead source label set the window minimum to the folder path's width (1336 px at the 1280x680 work area; tools cut). Fixed in 4900aff8c with an eliding _SourceLabel plus a long-path regression test. Native 707 checks also assumed the Intel Mac's 1440x900 display and raced the startup LoadingScreen; both fixed. On Cocoa 38/39 pass. test_native_home_content still fails: the update-news QLabel (release notes, 21480 px tall in a scroll area) can never be wholly visible. Its markdown rendering was fixed in 4a5c39a46. The offscreen-on-Mac 1280x680 canvas-height check (113 < 120 px) passes on Cocoa.

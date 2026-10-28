@@ -1,0 +1,196 @@
+APPTAINER / SINGULARITY IMAGES FOR HPC CLUSTERS
+
+Lifecycle: future
+Status: BLOCKED ON MAINTAINER 2026-10-20 — 1.5.1.5 SIFs published and
+        public; open: the cluster check (a CPU partition plus a GPU node
+        with --nv).
+        Built and alpha-gated; --nv Mask+Measure passed 2026-10-04.
+
+Previous status (superseded 2026-10-04): DONE 2026-10-02 (alpha-gated); only external points left: workflow adoption and GHCR visibility (maintainer), SingularityCE and Slurm (a cluster). --nv Mask+Measure passed 2026-10-04.
+        alpha registry does not apply). Built and CPU-proven; --nv run pending.
+Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Also add to future features list the items in the non GPU list that would be valuable!"
+
+EVIDENCE
+    https://forum.image.sc/t/what-are-the-best-practices-for-running-cellprofiler-v4-2-1-in-headless-mode-on-a-computing-cluster/85796
+
+WHAT TO BUILD
+    Build and publish Apptainer/Singularity images (CPU and CUDA) next to
+    the Docker images (item 425), with a documented HPC recipe for batch
+    runs.
+
+DONE WHEN
+    The images build and run a small Mask + Measure job under Apptainer with
+    GPU (--nv) and CPU.
+
+IMPLEMENTATION NOTE (2026-09-27, branch item-586-work)
+    Built on the item 425 Docker images, not beside them.
+
+    packaging/apptainer/spacr.def   one definition for both variants:
+        Bootstrap/From are build args (default the published ghcr cpu tag;
+        BOOTSTRAP=docker-daemon for a locally built image). Copies the
+        entrypoint and smoke script, runs the entrypoint without tini, and
+        its %test is the Docker smoke test.
+    packaging/apptainer/spacr_slurm.sh   Slurm array job, one plate per
+        task, Mask then Measure, n_jobs capped at SLURM_CPUS_PER_TASK.
+    packaging/apptainer/README.md    the HPC recipe: build, run, --nv,
+        what differs from Docker, models, batch runs.
+    packaging/docker/entrypoint.sh   under Apptainer/Singularity it no
+        longer links ~/.cellpose/models and ~/.spacr/models (HOME is the
+        user's real home there) and sets CELLPOSE_LOCAL_MODELS_PATH only
+        when /models is actually bound.
+    packaging/docker/smoke_pipeline.py   --mask: spacr-run mask (Cellpose-SAM)
+        then spacr-run measure on a synthetic 3-cell field; all 3 cells and
+        nuclei must be found. Prints the accelerator used.
+    tests/test_the_apptainer_image_is_the_docker_image.py   static contract.
+    features/data/586_apptainer_images_workflow.yml   PROPOSED release
+        workflow (build from the pushed Docker tags, %test, Mask+Measure,
+        push as oras://ghcr.io/<owner>/spacr-sif). Not in .github.
+
+    Checked locally, without root: Apptainer 1.5.4 from the official .deb,
+    unpacked in user space. CPU SIF (1.5 GB) and CUDA SIF (5.6 GB) both
+    built from local Docker images, %test 7/7; Mask + Measure 10/10 on the
+    CPU SIF and on the CUDA SIF without --nv. Three real problems surfaced
+    and are fixed (fakeroot %post vs glibc, read-only HOME in %test, links
+    into the real home). Receipt:
+    features/data/586_apptainer_smoke_2026-09-27.json.
+
+WHAT IS LEFT
+    * The --nv Mask + Measure run (the GPU half of DONE WHEN). Not run: the
+      GPU was held by a live_cell training job (~40 min/epoch of 100). It is
+      queued in tools/gpu_turn.sh as 586-apptainer-nv and logs to
+      /mnt/wd4tb/scratch/586/logs/gpu_mask_measure.log. By hand:
+        apptainer run --nv --bind <dir> spacr-cuda.sif \
+            python /opt/spacr/smoke_pipeline.py --mask --workspace <dir>/gpu
+    * Publishing: adopt features/data/586_apptainer_images_workflow.yml into
+      .github (maintainer), then flip the spacr-sif GHCR package public.
+    * Not tried: SingularityCE, and a real Slurm cluster.
+
+
+GPU RUN 2026-09-30
+`apptainer run --nv spacr-cuda.sif spacr-doctor` plus a torch.cuda check,
+via gpu_turn.sh. First run (10:01): rc 1, 12 passed, 2 failed.
+  * qt extra -- a real image bug. --nv binds the host's libglvnd
+    dispatchers (libEGL.so.1, libGL.so.1, libGLX.so.0, libGLdispatch.so.0)
+    into /.singularity.d/libs, which is on LD_LIBRARY_PATH and so shadows the
+    image's copies. Host glibc 2.39, image (Ubuntu 22.04) 2.35, so
+    `import PySide6.QtGui` failed: "GLIBC_2.38 not found (required by
+    /.singularity.d/libs/libEGL.so.1)". Fix: spacr.def %environment puts the
+    image's /usr/lib/<arch>-linux-gnu first on LD_LIBRARY_PATH. Only those
+    four of the bound names exist there, so libcuda and libnvidia-* still
+    come from the host. New test in
+    tests/test_the_apptainer_image_is_the_docker_image.py (15 pass).
+  * running checkout -- a smoke-script artefact, not an image bug. The script
+    cd'd into the spaCR worktree and Apptainer starts in $PWD, so the
+    doctor correctly flagged a source tree whose edits the image ignores.
+    /mnt/wd4tb/scratch/586/gpu_run.sh now starts in its own folder.
+Rebuilt the CUDA SIF from spacr:cuda-425-3bcac5fd6 (3 min 40 s, %test 7/7;
+old one kept as spacr-cuda.pre-glvnd.sif). Rerun (10:26): rc 0, 13 passed,
+0 failed (1 warning: czi extra half-installed), qt extra PASS (PySide6
+6.11.2), gpu PASS, "cuda ok NVIDIA GeForce RTX 3090 12.4".
+Conclusion: --nv now works on a newer host; the --nv Mask + Measure run
+(smoke_pipeline.py --mask) is still the open GPU half of DONE WHEN.
+
+SLURM SETTINGS BIND CORRECTION (2026-10-02, partial)
+    The wrapper accepted separate Mask/Measure settings paths but explicitly
+    bound only the Mask settings directory. A Measure file outside the default
+    home/working-directory mounts could therefore become inaccessible after
+    Mask had already run. A fake-Apptainer reproduction using the original
+    script confirmed that exact second-command failure.
+
+    Both files are now preflighted before Mask, resolved to absolute canonical
+    paths (including symlink targets), and both parent directories are bound
+    into the image. Paths with spaces, separate/shared folders and existing
+    per-task worker limits are preserved. Missing Measure settings fail before
+    any analysis command. No settings or input images are rewritten.
+
+    Validation: 20 unique checks passed across the 19-case initial cohort and
+    five-case affected rerun (1.88 and 1.02 seconds), under 1 GiB, CPU0, zero
+    swap. Five focused cases use a fake Apptainer executable to validate actual
+    shell arguments; the other 15 cover existing definition/entrypoint contracts.
+    This is not a real Slurm, Apptainer or GPU acceptance run. The --nv
+    Mask+Measure and publication gaps above remain open.
+    Receipt: features/data/586_slurm_settings_binds_2026-10-02.json.
+
+2026-10-02 — WHAT-IS-LEFT AUDIT
+    Done on nightly: --nv GLIBC shadowing fix (2026-09-30 note).
+    BLOCKED / open: --nv Mask+Measure run (GPU turn), workflow adoption and GHCR visibility (maintainer), SingularityCE and Slurm (another machine).
+
+2026-10-03 — GPU ACCEPTANCE RUN SCRIPTED, NOT RUN (lane 3)
+    GPU card held by cellposetime-r1-train (another session; epoch 14/100 at
+    08:25, ~31 min/epoch, so ~44 h left). Queued with tools/gpu_turn.sh at
+    08:26 and withdrawn at 08:50; not run. Rerun by itself: tools/gpu_turn.sh
+    586-apptainer-nv timeout 30m /mnt/wd4tb/scratch/586/gpu_mask.sh
+    (apptainer run --nv spacr-cuda.sif python /opt/spacr/smoke_pipeline.py
+    --mask --workspace /mnt/wd4tb/scratch/586/runs/gpu). The SIF from 09-30
+    is still in place.
+
+2026-10-03 — BLOCKED RECHECK
+    (c) --nv run: scripted, needs a GPU turn (/mnt/wd4tb/scratch/586/gpu_mask.sh).
+    (c) workflow adoption and GHCR package visibility: maintainer (.github is off
+    limits to agents). (c) SingularityCE + Slurm: needs a cluster node.
+
+2026-10-04 — GPU ACCEPTANCE 2026-10-04 (lane 3, rc=0)
+    apptainer run --nv spacr-cuda.sif smoke_pipeline.py --mask: 10/10 checks,
+    34 s wall. The 34 s is a real run, not an early exit: accelerator
+    "cuda (cuda:0) NVIDIA GeForce RTX 3090 (CUDA 12.4)"; run_status shows
+    preprocess_generate_masks complete 1/1 (05:28:23-05:28:32 UTC, cpsam
+    via cellpose) and measure_crop complete 1/1 (05:28:38-05:28:39);
+    measurements.db has cell/nucleus/cytoplasm 3 rows each, all 3 synthetic
+    cells and nuclei found. Small: one synthetic field.
+    GPU point: DONE. DONE WHEN met on this machine (GPU --nv and CPU).
+    Still open: workflow adoption, GHCR visibility, SingularityCE and Slurm.
+    Log: /mnt/wd4tb/scratch/586/logs/gpu_mask_measure_lane3.log.
+
+2026-10-10 22:50 EDT — PUBLISHED-IMAGE RECHECK AND MAINTAINER CHECKLIST (CPU)
+GHCR. ghcr.io/einarolafsson/spacr is public: anonymous tags/list HTTP 200,
+19 tags including 1.5.1.4, 1.5.1.4-cpu, 1.5.1.4-cuda12.4 (manifests 200).
+ghcr.io/einarolafsson/spacr-sif: anonymous token DENIED. Nothing has ever
+pushed it (no workflow in .github builds SIFs), so the package does not
+exist yet; there is nothing to flip public until the first push.
+Workflow. Not adopted: .github has no Apptainer workflow; release.yml only
+touches packaging/apptainer/README.md in the version bump.
+
+Rehearsal of the proposed workflow's steps on this machine, against the
+PUBLISHED image (no local Docker image, no GPU): spacr.def from tag v1.5.1.4
+(444fdbf88), build-arg IMAGE=ghcr.io/einarolafsson/spacr:1.5.1.4-cpu,
+Apptainer 1.5.4 unprivileged. Build 4 min 35 s, %test 7/7 PASS, SIF 1.57 GB
+(sha256 0f0f61a9...0a85). `spacr --version` in the SIF = 1.5.1.4.
+`apptainer exec --cleanenv spacr-cpu.sif python /opt/spacr/smoke_pipeline.py
+--mask`: rc 0, 10/10 PASS, accelerator cpu, 3/3 cells and nuclei, 186 s,
+3.2 GB RSS. The CUDA SIF was not rebuilt today.
+Fixed: the wiring comment in features/data/586_apptainer_images_workflow.yml
+named jobs that do not exist (docker, version); it now names bump and
+container-images. actions/checkout v4 -> v7 like every other workflow.
+Receipt: features/data/586_apptainer_published_image_recheck_2026-10-10.json.
+
+MAINTAINER CHECKLIST
+1. Copy features/data/586_apptainer_images_workflow.yml to
+   .github/workflows/apptainer-images.yml; delete its "PROPOSED, NOT ACTIVE"
+   header paragraph.
+2. Add the apptainer-images job to .github/workflows/release.yml exactly as
+   that header shows (needs: [bump, container-images]; packages: write).
+3. Merge to main (workflow_dispatch only runs files on the default branch),
+   then publish the current release once by hand:
+     gh workflow run apptainer-images.yml -R EinarOlafsson/spacr \
+       -f release_version=1.5.1.4 -f publish=true
+   Both matrix legs must be green (CUDA leg is %test + CPU smoke only).
+4. github.com/EinarOlafsson -> Packages -> spacr-sif -> Package settings ->
+   Change visibility -> Public. Check it is linked to EinarOlafsson/spacr.
+5. Anonymous check from any machine, logged out:
+     apptainer pull oras://ghcr.io/einarolafsson/spacr-sif:1.5.1.4-cpu
+6. Cluster check (needs a real Slurm site; SingularityCE >=4 if possible):
+     apptainer pull oras://ghcr.io/einarolafsson/spacr-sif:1.5.1.4-cuda12.4
+     apptainer run spacr-sif_1.5.1.4-cuda12.4.sif spacr-doctor
+     sbatch --array=0-0 spacr_slurm.sh   (edited copy of packaging/apptainer/spacr_slurm.sh)
+   on one CPU partition (drop --gres/--nv) and one GPU node (--nv); paste
+   job IDs, rc and measurements.db row counts here.
+7. Then change "Nothing is published yet" in packaging/apptainer/README.md.
+
+2026-10-11 (Home): .github/workflows/apptainer-images.yml added from the reviewed proposal (dispatch/workflow_call only, actionlint clean, 325 workflow tests pass). Not yet called from release.yml. Maintainer checklist steps 1 is done; remaining: wire into release.yml, merge to main, dispatch with publish=true, make spacr-sif public, anonymous oras pull, Slurm CPU and --nv checks, README line.
+
+2026-10-11 (Home, wiring): maintainer approved wiring the Apptainer workflow into releases. release.yml now has job apptainer-images after container-images: needs [bump, container-images], if always() && needs.container-images.result == 'success', permissions contents: read + packages: write, uses ./.github/workflows/apptainer-images.yml with release_version ${{ needs.bump.outputs.version }} and publish: true (inputs checked against its workflow_call). apptainer-images.yml header now says it is called from release.yml. packaging/apptainer/README.md: "Nothing is published yet" replaced by a "Published images" section (oras://ghcr.io/einarolafsson/spacr-sif:<version>-cpu and -cuda12.4; package must be public for anonymous pulls; settings link https://github.com/users/EinarOlafsson/packages/container/spacr-sif/settings, which exists after the first publish). New test test_the_release_publishes_the_sifs_after_the_docker_images in tests/test_the_apptainer_image_is_the_docker_image.py. actionlint 1.7.12 clean on release.yml, apptainer-images.yml, docker-images.yml; 343 workflow/release/apptainer tests pass. Checklist steps 1, 2 and 7 done; the next release (or a hand dispatch from main) publishes the SIFs.
+Status still open for the maintainer: (a) once after the first publish, make spacr-sif public at the settings link above (Change visibility -> Public; check it is linked to EinarOlafsson/spacr), then an anonymous `apptainer pull oras://ghcr.io/einarolafsson/spacr-sif:<version>-cpu`; (b) cluster check: spacr_slurm.sh on one CPU partition (no --gres/--nv) and one GPU node with --nv; paste job IDs, rc and measurements.db row counts here.
+2026-10-20 (Home): 1.5.1.5 published spacr-sif:1.5.1.5-cpu and -cuda12.4 (Apptainer run 39362919126); the maintainer made the package public, and an anonymous GHCR token lists both tags (HTTP 200). Remaining: the maintainer's Slurm CPU and --nv check with spacr_slurm.sh.

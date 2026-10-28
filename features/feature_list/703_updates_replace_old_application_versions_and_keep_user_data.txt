@@ -1,0 +1,1196 @@
+================================================================================
+UPDATES REPLACE OLD APPLICATION VERSIONS AND KEEP USER DATA
+================================================================================
+
+OVERNIGHT LINUX ACCEPTANCE — 2026-10-23
+Home Linux coordinator owns current-nightly managed installation, actual interpreter/module launch, staged update/cancel/rollback/reinstall and preserved-data acceptance in disposable WD roots. Retain earlier native passes; Mac/Windows remain separately owned. Root publishes repairs. Actual released1.5.1.5→1.5.1.6 replacement runs only after publication; a current-source same-version transaction does not satisfy that gate.
+
+CURRENT HOSTED LINUX UPDATE FIXTURE REPAIR — 2026-10-21
+Acceptance coordinator and retained installer worker own only the 16 failures
+in Minimum 1 job119485807319 on old nightly9d48020f289: seed real valid saved
+installer choices; align current upgrade/helper/privacy-refusal contracts and
+make the two Linux wrapper tests assert actual outcomes. Preserve guarded
+staging, all meaningful actions, safe refusals, data and hygiene assertions.
+Use the smallest failing cohort under the existing CPU cap; root peers and
+publishes nightly. Do not roll production back, weaken tests/ratchets, run the
+whole suite, or infer a main-branch failure. Newer-release Linux acceptance
+remains pending the actual published artifact.
+
+HOSTED MAC ARM CURRENT-INSTALL DEPENDENCY FOLLOW-UP — 2026-10-21
+Nightly Mac ARM job119524565286 on8a4c6b56810 passes the installed1.5.0.7
+health probe, then fails current installation before any staged upgrade or
+removal acceptance: cvxopt1.3.3 builds from source on macOS14 and cannot find
+umfpack.h under --skip-system-deps. The dependency owner verified that its
+cp312 ARM wheel needs macOS15;1.3.2 has a macOS11+ wheel. N718's retained
+worker owns the Mac-only online/offline binary resolver option and its tests.
+Preserve N703 profile/staging/verification/restart/rollback guards and prior
+Mac Intel/Linux acceptance. After the fix is published, consume actual
+exact-source hosted installation/update/removal results; this failure proves
+no main-branch defect and does not justify repeating blocked native trials.
+
+Lifecycle: new
+Status:    DONE — 2026-10-27; delivered updater accepted under the 1.5.1.6 delivery rule.
+Requested: maintainer, 2026-10-13: desktop installers and in-app updates can
+           reopen an old version. Replace obsolete application installations,
+           preserve cache and temporary/user files unless cleanup is required
+           for reinstall or explicitly chosen, and ask all macOS questions
+           inside the installer window instead of Terminal after it closes.
+Owner:     Home (updater/installers); Work (translations/tutorial 04);
+           native Windows/macOS/Linux validation lane
+Related:   spacr/updater.py, spacr/install_cleanup.py, packaging/online/,
+           frozen desktop packaging, N627 (never downgrade a newer runtime)
+
+--------------------------------------------------------------------------------
+HOME LINUX ACCEPTANCE — EXPLICITLY RESUMED 2026-10-21
+--------------------------------------------------------------------------------
+
+The maintainer explicitly requires real Linux installation acceptance on the
+Home host. Current start_update_helper refuses Linux-online installations
+because no verified staged adapter exists. The retained installer worker owns
+this actual product gap: reuse existing POSIX stage/identity/restart/rollback
+machinery, retain the old working runtime and user files until replacement is
+verified, preserve explicit CPU/backend profile choices, and never restore the
+old remove-and-update/delete-root fallback. Native acceptance must exercise
+the repaired current-source Linux button flow, not infer it from an older
+released updater or installer-only reinstall. This newly resumed Linux scope
+reopens the current goal's item while preserving the accepted Mac decision. The acceptance coordinator owns install/update/reinstall/uninstall
+through installed desktop/runtime paths; this resumes Linux only and preserves
+703's recorded Mac acceptance and the Mac session's ownership. The newly
+resumed Linux scope is in progress; Windows stays held.
+Use disposable owned installation roots, launchers, profiles and desktop
+entries. Protect the working host app, all user data and unrelated jobs.
+Run actual native installer/application/helper processes, identify their
+version/interpreter/module and requested target, and distinguish a no-op from
+a real upgrade. Check background install/update, restart into the intended
+version, same-version reinstall, default data preservation, uninstall defaults
+and category opt-outs with unrelated sentinels. An isolated Linux user/mount
+namespace may shield the real profile while exercising production paths;
+record that isolation and any genuine native-display limitation. No GPU,
+mocked-success claims, fabricated version bump or changed public release.
+Retain valid prior tests and run affected regressions only for actual repairs.
+Record actual outcomes and any missing route/prerequisite in at most five
+dated trailing lines; root owns integration/publication of resulting fixes.
+
+--------------------------------------------------------------------------------
+REQUIREMENTS
+--------------------------------------------------------------------------------
+
+1. Inventory spaCR-owned application copies, private runtimes, bundle/package
+   metadata and launchers on each supported OS. Install the requested version;
+   inherited package pins, cached wheels and offline bundles must not silently
+   install another version. Preserve N627's no-downgrade contract.
+2. Before success, verify the actual import version, module path, interpreter
+   and executable used by the desktop launcher and restarted application.
+   Installer exit 0, registry/plist display versions and isolated import probes
+   alone cannot establish the launched version.
+3. Stage and validate before retiring the working application. On failure
+   retain/restore its runtime and launchers. Then remove obsolete spaCR-owned
+   application code and launchers. Do not erase unrelated Python/Conda
+   environments, packages, projects, outputs, models or preferences.
+4. Preserve caches, downloaded data and nonessential temporary files by default.
+   A separate default-off GUI cleanup choice shows each folder's path, contents
+   and size. Automatically remove only identified spaCR-owned staging or
+   interrupted-install artifacts needed for replacement. Do not conflate app
+   replacement with whole-root deletion; retain macOS rollback backups safely.
+5. macOS consent, dependency, administrator, retry and cleanup choices stay in
+   the installer/progress window throughout first-user runtime setup. No helper
+   opens Terminal for questions after .pkg closes. Cancellation/failure leaves
+   a clear usable state. Use GUI choices on other desktop platforms too.
+6. Cover in-app update and each shipped installer: Windows NSIS/PowerShell,
+   macOS online .pkg/app launcher and frozen app, Linux online/frozen .deb and
+   launchers. Discover stale custom/all-users launchers safely. Do not claim
+   RPM app support merely because dnf dependencies exist.
+7. User strings use tr(); Work receives final strings/behavior for tutorial 04.
+   Publish required repairs with their owning checks; release acceptance stays open.
+
+--------------------------------------------------------------------------------
+ACCEPTANCE
+--------------------------------------------------------------------------------
+
+- Native old-to-new upgrade and same-version reinstall through in-app and each
+  desktop installer: reopened version/module/executable match the request;
+  obsolete spaCR application code and launchers are gone.
+- Newer runtime is not silently downgraded. Stable/nightly choices, overrides,
+  offline/cached wheels and interrupted locks cannot yield wrong-version success.
+- Default upgrade preserves caches, models, outputs, preferences and configured
+  folders nested inside an installation root. Optional cleanup removes only
+  selected folders. Required reinstall temp cleanup is narrowly scoped.
+- Missing dependencies, permissions, disk exhaustion, import failure and
+  cancellation preserve a working previous installation or verified rollback.
+- macOS first install and update require no Terminal answers. Native acceptance
+  exercises the actual installer and desktop launch, not just its helper.
+- Repeated installs are idempotent; owning contracts exercise wrong-version
+  detection, preservation, rollback and launcher resolution.
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+CURRENT MAC SESSION: INSTALL, UPDATE, RESTART AND LEGACY RECOVERY
+--------------------------------------------------------------------------------
+
+Accepted scope: the maintainer accepted 703 on 2026-10-21 after the Mac
+session's native installer matrix and automated update/rollback/identity/restart
+validation (published acceptance 3a45ba05c053). The second newer-candidate
+in-app run is explicitly waived. The procedure below is retained for actual
+regressions, not a new gate or a reason to repeat accepted tests. Continue
+with outstanding 646 work instead. Windows native acceptance remains on hold.
+The later explicit Home Linux acceptance section resumes Linux separately;
+Home general CI is separate.
+Current Mac-only follow-up on2026-10-22: all20 opt-in protected-native
+semantics cases pass in14.20s, peak sampled aggregate RSS0.164GiB under the
+owned8GiB/300s polling watchdog. These exercise unprivileged AppleScript
+transport, exact filesystem/inventory/journal/recovery behavior and Darwin
+directory exchange using only disposable fixtures. The inert32MiB read-only
+DMG is detached; a final owned-mount inspection finds none remaining. No
+administrator authorization, real application installation/removal or user-data
+mutation occurs. This supplements the accepted Mac decision and does not
+replace its manual/waived scope or claim fresh administrator/uninstall acceptance.
+
+Additional Mac unit follow-up, 2026-10-22, source 878e911ccc on macOS 26.6.1
+Intel: 44 runtime/profile, 194 packaging/refusal/rollback and 89 adjacent
+process-group/uninstall fixture cases pass (327 total across 13 files).
+These use temporary runtimes/local wheels,
+disposable filesystem fixtures and mocked authorization/tool boundaries;
+no accepted manual installer/update trial was repeated. The first two cohorts took
+80.40s/28.87s; the later 89-case cohort passed warning-free in 19.64s with
+peak sampled aggregate RSS 0.179GiB under the repaired watcher. The 194-case
+cohort's RSS watcher stopped on psutil.AccessDenied
+and emitted one harness warning: its 0.190GiB sampled peak is incomplete and
+is not full-run memory-guard evidence. Assertions all passed; the owned wrapper
+is repaired for future runs without repeating these functional checks.
+Overall newly checked Mac unit coverage is 435 passes across 21 files,
+including 25 menu cases and 83 other Mac-focused cases; 435 is not a703-only
+count. The separate 20 protected-native cases and accepted manual scope above
+remain retained, with no new administrator/user-install/data-purge claim.
+No functional assertions were weakened. The bounded explicit Mac-only gate
+check identifies no remaining ready automated Mac-only gap; physical-input,
+unavailable display modes and separately owned acceptance remain separate.
+After upstream installer changes, a9904694f5 on this Intel Mac passes ten
+new architecture-selection/cache-binding and graphics/crypto metadata cases
+in3.79s, sampled aggregate RSS0.174GiB (2026-10-22). Native /bin/bash runs
+owned fixtures; Rosetta/ARM identities are simulated, not native ARM acceptance.
+No download, install, admin action or accepted manual update rerun occurs.
+
+Owner: the maintainer's Mac session owns any newly demonstrated Mac-specific
+regression; root retains general CI. Preserve the latest accepted scope.
+Start here, together with 646, before the 3D, layout or audio items. Read
+spacr/resources/AI/MAC_HANDOFF.md and the Mac worktree exception in AGENTS.md.
+
+Source and artifact identity
+  * Fetch origin/nightly into an owned Mac worktree. Preserve the maintainer's
+    checkout and any other session's work. Record the actual tested commit,
+    macOS version/build and Intel/Apple Silicon architecture.
+  * At this handoff, setup.py VERSION and spacr/_version.py both say 1.5.1.5;
+    GitHub's latest published release is v1.5.1.5, published 2026-10-20.
+    1.5.1.6 is not published. Re-read these values after fetching. A newer
+    nightly commit can contain different code with the SAME version string.
+  * Verify the launched application's Help > About, bundle path, actual
+    interpreter, spacr.__file__ and installed distribution version. A plist,
+    successful installer exit or a terminal importing the source checkout
+    does not establish which code the desktop application ran.
+  * The supported local package build is
+      bash packaging/online/build_macos_online.sh
+    It reads setup.py and writes
+    dist/online/spaCR-<actual-version>-macOS-Universal-Online.pkg. Run builds
+    asynchronously. Signing is governed by macos_signing.py: no credentials
+    yields an explicitly unsigned development artifact; partial credentials
+    fail. Do not claim signing/notarization or bypass a failed signing gate.
+  * The online package normally requests the published package version. To
+    exercise unpublished runtime fixes, use an explicitly identified current
+    candidate wheel/source through the installer's supported --package-spec
+    route and verify its actual installed module bytes. Merely rebuilding a
+    same-version launcher does not put nightly runtime code into the app.
+    Do not substitute a terminal-only install for testing the native GUI.
+
+1. Establish controlled old and new installations
+  Use disposable installations and test-owned data, not the only working
+  installation or real user images. Record one actually older version, such
+  as 1.5.1.4, and the target candidate/release identity. Also retain the
+  existing older-profile case 1.5.0.7. Put distinct sentinel files in the
+  relevant preferences/model/cache/log locations and one unrelated environment.
+  Launch the old desktop icon and establish its actual interpreter/version.
+  Installing over an already-current version is a separate reinstall test;
+  it is not evidence that an upgrade selected and launched a newer version.
+
+2. Exercise the required user-facing flow
+  From the relevant installed app, choose Help > Check for updates/Update;
+  also exercise the current desktop installer against the older installation.
+  One Install/Update action must stage/install in the background, keep the
+  interface responsive, then offer Restart. Restart must show the spaCR
+  startup window and main window of the verified requested new version.
+  There must be no remove-old-app question, manual icon relaunch, terminal
+  interrogation or final relaunch into the old runtime. Verify sentinel data
+  is retained during ordinary updates and that inherited pins or cached
+  wheels cannot silently select an older version.
+  The maintainer has waived repeating the newer-candidate in-app run for
+  current acceptance. If a later concrete regression needs that route and
+  no newer target exists, record the limitation; do not fabricate a version
+  bump, call an already-current response an actual upgrade, or change public
+  release metadata merely to manufacture a test.
+
+3. Cancel, failure and recovery checks
+  Cancel Restart and confirm the old application remains usable. Exercise an
+  owned staging/permission or unavailable-package failure and confirm failure
+  is reported without retiring the working install or claiming success.
+  Preserve existing valid native lease proofs. If current lease changes or
+  an untested route require it, interrupt only a test-owned installer during
+  its package child: a second install must refuse while that child is live,
+  then permit takeover after it exits, removing only dead staging state.
+  Do not kill unrelated jobs or manually remove a live lease to get a pass.
+
+4. Complete the existing Intel Mac/legacy matrix, without redoing valid work
+  Existing requirements cover 1.4.9.9, 1.5.0.1, 1.5.0.4-1.5.0.9,
+  1.5.1.0 and 1.5.1.2-1.5.1.4. The October 18 native records are retained;
+  rerun affected paths when the current installer/profile/runtime changes
+  invalidate them, and identify any genuinely outstanding matrix cases.
+  Old releases remain immutable. Known old 1.5.0.5 duplicate-wheel and Intel
+  1.4.9.9 llvmlite installation failures are not fixed by editing their wheels;
+  verify that the current installer can recover their existing remnants.
+  Keep a stray/backup spaCR.app present for the relocation case: the current
+  package must install /Applications/spaCR.app, not a Spotlight-visible backup.
+  Verify the newest application's detected older installations include the
+  historical online, /Applications and conda cases where those actually exist.
+
+5. Handoff into 646's uninstall checks
+  Test current/all/older-only/ticked installations, cleanup category opt-out,
+  exact path preview and installer-window Uninstall. Package-only removal
+  from a shared Python/Conda environment must not remove that environment.
+
+Pass/reporting boundary
+  Record at most five dated trailing lines here: tested commit/artifact and
+  old/new versions, OS/architecture, actual launcher/interpreter/module, which
+  update/restart/reinstall/recovery paths passed or failed, and exact remaining
+  blocker. Existing ~/.spacr/logs/update.log and ~/spacr-uninstall-report.txt
+  can diagnose an actual failure; no new evidence packet is requested.
+  Mac results do not establish Windows/Linux or full hosted CI. Those native
+  platform lanes are on hold and do not reopen the accepted 703 scope. Do not
+  implement or reopen 655 here; preserve separately recorded acceptance.
+
+APPLE SILICON MIXED-ARCHITECTURE INSTALLATION — 2026-10-22
+Priority: urgent maintainer-reported failure; owner: f559_pinned_weights for
+bounded installer/dependency prevention, root for recovery instructions and
+publication. The reported Intel Conda Python selects x86_64 wheels on Apple
+Silicon, while the available compiler tools contain arm64/arm64e only. Preserve
+that environment and supported Intel installations; do not downgrade packages
+to conceal the architecture mismatch. Detect actual native versus translated
+bootstrap where applicable, preserve explicit supported architecture choices,
+and validate the smallest relevant architecture controls. The maintainer also
+requires automatic compatible dependency selection for pip and Conda installs:
+verify affected Intel/ARM macOS wheel availability and use only demonstrated
+architecture-specific compatible bounds, preserving newest ARM dependencies.
+Do not require users to repair compilers or destructively convert environments;
+direct pip cannot migrate an existing interpreter. Reuse the affected existing
+Conda recipe and verify actual binary resolution for both architectures. No Mac/native success or compiler availability
+is inferred from Linux tests; root coordinates the producer's generated outputs.
+
+2026-10-13 21:00 EDT — HOME SOURCE AUDIT, NOT NATIVE ACCEPTANCE
+--------------------------------------------------------------------------------
+
+Read-only evidence: features/data/703_installer_source_audit_2026-10-13/.
+macOS launcher only checks private Python existence, so replacing the bundle
+can launch an older runtime. First-user setup explicitly opens Terminal and
+the Unix helper asks three TTY questions. Linux Exec=spacr can pick an earlier
+PATH copy; discovery misses some custom/launcher roots. Windows inherited
+package/offline overrides can defeat the requested version; validation prints
+but does not compare it while NSIS records the requested display version.
+The updater trusts helper success without a final runtime/path check.
+Whole-root cleanup can delete cache/test_data and nested user folders; removal
+before dependencies validate defeats rollback. Some current tests require
+those old deletion behaviors.
+
+No installation, update, uninstall, deletion, native test or source edit was
+performed. Platform repairs and acceptance remain open after CI/release.
+
+--------------------------------------------------------------------------------
+2026-10-14 — HOME PRIVATE STAGED-RUNTIME REPLACEMENT COMPONENT
+--------------------------------------------------------------------------------
+
+Implemented on the Home updater/installer lane; not native installer acceptance.
+Windows and Unix online helpers stage dependencies and verify the actual imported
+spaCR code, distribution version, private interpreter and prefix before replacing
+the existing runtime. A published-runtime verification failure restores its prior
+runtime. The helper waits for a verified replacement before retiring other copies
+or restarting. Desktop and restart commands use the same isolated interpreter
+mode as the identity probe, preventing current-directory/PYTHONPATH shadow copies.
+Pinned pip upgrades reject an older target before invoking the package tool; the
+existing macOS unpinned adapter retains its no-downgrade floor and verifies actual
+code identity after installation.
+
+Default retirement preserves declared data/cache/model locations, known data
+folders nested inside installation roots, and unknown user folders. Current-root
+launchers are retained during staging. Offline test data is not overwritten. A
+configured user-data location inside the retiring Python environment causes a
+refusal before replacement, rather than destructive relocation. No real user
+installation or data was modified by the validation.
+
+Finite owning cohort: 292 PASS, actual exit 0, including real private temporary
+runtime/installer-CLI identity probes, wrong imported code/version/owner/prefix,
+no-downgrade, nested data retention and isolated-launch commands. The native-C
+launcher argument fixture ran on Linux; this is not native macOS acceptance.
+Fatal Ruff and Unix shell syntax passed. Normal English API regeneration/audit
+passed for 13,418 symbols. The normal scoped generator regenerated exactly
+three changed API entries in all nine locales and validated each current block
+(actual exit 0). Semantic review caught and corrected an initial German/Spanish
+MT inversion of cache preservation. All 27 rewritten locale paragraphs now have
+exact-source AI technical reviews (Codex; no human/native-speaker signoff).
+Unchanged review blocks were rebound to their actual index and rewritten blocks
+retired in place, retaining original reviews. Unrelated catalog/model-input
+records and existing review debt were unchanged.
+
+Remaining N703 acceptance: transactional in-place pip/macOS dependency failure
+rollback; Terminal-free macOS first-user progress/questions and GUI optional
+cleanup; native old-to-new and same-version reinstall on each shipped platform,
+actual desktop launch identity, frozen adapters, custom/all-users launchers and
+permission/disk/cancellation recovery. Existing native Windows/PowerShell and
+macOS execution cannot be established by Linux fixtures. N703 is still partial.
+
+--------------------------------------------------------------------------------
+2026-10-14 — HOME PRIVATE MACOS FIRST-USER WINDOW IMPLEMENTATION
+--------------------------------------------------------------------------------
+
+The native launcher now invokes a bundled AppKit setup window instead of Terminal
+when its private runtime is missing or fails actual identity/minimum-version
+verification against the packaged version. A verified newer runtime still opens
+without a pinned reinstall (N627); ordinary installer verification remains exact.
+The packaged standard-library verifier is the same source as the updater helper.
+
+The first-user window contains automatic/CPU backend selection and the existing
+three optional reporting/account choices, default off. It displays bounded live
+installation output and progress, provides cancel/retry controls, and starts the
+application only after helper success. All new window strings use the installer's
+normal ten-locale resources, including English; the nine translations are AI
+technical authoring, not human/native-speaker signoff. No service/provider setup
+or account action ran as part of this validation.
+
+The child helper runs with closed stdin and explicit consent choices. A private
+process group lets cancellation stop its installer children; signal handling runs
+the existing runtime-restoration cleanup and releases the per-user lock. The GUI
+cannot silently install into a runtime override that differs from the native
+launcher's user path. A second active installer is a failure to retry, not false
+success. The universal native GUI helper is signed before sealing its app bundle.
+
+Portable owning acceptance closed 313 distinct cases: 310 initial PASS plus the
+three corrected fixture expectations; the final four-node closure exited 0 with
+four PASS (one already-passed GUI guard also rechecked). No skips. Actual C launch
+routing, process-group cancellation/rollback-trap execution, helper arguments and
+lock cleanup, version-floor CLI, nested signing order and all locale keys were
+exercised. Existing failures were test harnesses expecting old -I-free argv or
+inline helper code, and a repeated printf header. Fatal Ruff and shell syntax
+passed; normal locale rendering/audit verified 10 catalogs with 78 keys each.
+
+Native macOS AppKit compilation, signed installer/desktop launch, fonts/layout,
+missing dependencies, cancel/retry and permission behavior have not run on Linux.
+Those native acceptance gates remain open, as do transactional in-place pip/macOS
+package rollback, optional per-folder GUI cleanup and the other native platform
+acceptance requirements. N703 remains partial; neither private component is a
+whole-item completion or full CI/release acceptance.
+
+--------------------------------------------------------------------------------
+2026-10-14 — HOME PRIVATE MACOS ONLINE RUNTIME TRANSACTION
+--------------------------------------------------------------------------------
+
+The supported macOS private-uv in-app adapter no longer runs its package command
+against the working runtime. After its existing authorized shutdown handshake,
+it copies the dedicated venv into private sibling staging, updates only that
+staged interpreter, checks package dependencies and the Qt package import, and
+verifies actual code/distribution/version/prefix identity. It refuses staged
+versions below either the offer or the previously recorded version.
+
+A supported atomic directory-exchange operation activates the verified runtime
+without an interval in which the desktop prefix is missing. Final identity/import
+checks and restart refusal restore the original runtime through the same atomic
+exchange. Successful updates retain the original runtime with a transaction
+journal as a rollback copy; data, caches and bootstrap files are not retired.
+A restoration failure keeps both the original bytes and journal/lock for explicit
+recovery, instead of deleting them or claiming success. The staged install rewrites
+its POSIX entrypoint headers to the final prefix, including pip's long-path shell
+trampolines. The approved private interpreter and existing uv bootstrap remain
+required; there is no in-place fallback.
+
+The owning evidence closes 205 distinct cases: 192 initial PASS, followed by a
+14-case PASS/actual exit 0 closure covering two corrected historical phase-list
+fixtures, eleven added branch cases and one already-passed success case extended
+with internal-link preservation. All 149 added helper statements were executed;
+the remaining two uncovered arcs are the benign-pth continuation and a redundant
+transaction-present condition after a successful exchange. Original raw coverage
+was retained; the local closure appended only to a copy with identical production
+source. No hosted CI/baseline/ceiling claim is made.
+
+Real offline fake wheels and private temporary venvs exercised Linux kernel
+atomic exchange, successful final console launch, byte-identical rollback after
+installation/dependency/import/final-identity/restart failure, unsupported shared
+or editable layouts, and preservation after deliberately refused restoration.
+Darwin binding/flags were unit-checked only; actual Darwin filesystem exchange,
+large dependency cloning, signed desktop restart and interruption/cancellation
+still require native macOS acceptance. No real user environment was copied,
+installed into, replaced or deleted; no network/model/GPU operation ran.
+
+Shared/system/Conda pip environments and Windows in-app activation remain open:
+they need an explicit deferred handoff/ownership contract, script relocation and
+native DLL/other-process validation. Their existing in-place API must not be
+advertised as transactional. Optional per-folder cleanup and remaining native
+installer acceptance are also still required. N703 remains partial.
+
+2026-10-14 — PRIVATE PIP TRANSACTION ENGINE (GUI HANDOFF STILL IN PROGRESS)
+The private POSIX runtime transaction now accepts an isolated Python/pip
+installation command as well as the existing uv command. Both package install
+and pip check target only the sibling clone. Pinned pip updates use the exact
+requested version for the staged identity probe; the uv adapter keeps its
+existing minimum-version semantics. The original runtime is retained until
+verification and is restored after dependency, import, identity or restart
+failure. Other Python interpreters and unsupported package operations are
+refused before any package command runs.
+
+Nine real offline fake-wheel/private-venv cases passed in 27.09 s, including
+byte-identical rollback, wrong-version rejection and final console-script
+relocation. Both selected existing uv regression cases also passed. An initial
+test-module import error is preserved separately and was corrected using the
+repository's tests-package import convention; no production workaround was
+needed. Fatal Ruff passed. No live environment, network, accounts or GPU were
+used. This engine component does not yet replace the generic pip GUI route:
+a deferred shutdown/ownership handoff is the next implementation step. Shared,
+Conda and Windows activation and native platform acceptance remain open.
+
+
+2026-10-14 22:53 EDT — Home private POSIX pip GUI shutdown handoff
+Implemented the deferred GUI route for dedicated owner-controlled POSIX pip
+virtual environments. Preparation runs outside the installation, reports readiness
+without changing it, and requires authenticated approval plus actual process exit.
+The GUI preserves the selected module/settings before approving shutdown; a
+settings-write failure or close veto cancels the update. The helper rechecks actual
+interpreter/package identity after exit so a stale offered release cannot replace
+a runtime another updater has changed. It stages pip in a sibling clone, verifies
+dependencies/imported code/version, atomically exchanges directories, and retains
+the previous runtime. A relaunch failure restores the old runtime. No running
+GUI path falls back to a live pip mutation.
+
+Offline CPU acceptance uses real temporary venvs and fake wheels only. Initial
+fixture-permission and preserved macOS log-prefix failures were corrected and
+retained in scratch; production owner-only directory checks were not relaxed.
+Current owning backend15 PASS, GUI45 PASS and the unchanged macOS/update contract
+passes are separate source-bound evidence, not hosted/native acceptance. Two new
+runtime messages and two changed API paragraphs have exact-source AI technical
+reviews in all nine locales; no human/native-speaker signoff is claimed.
+
+N703 remains PARTIAL. Shared/Conda/Windows pip replacement is refused safely and
+still needs an explicit supported adapter. The legacy public in-place pip helper
+has not acquired transactional guarantees. Native macOS/Windows install/update,
+real desktop relaunch and current full hosted CI remain unverified. No real user
+environment, data, model cache or launcher was modified by these checks.
+
+Final handoff acceptance: 94 distinct current owning cases passed (15 backend,
+45 GUI handoff, 20 existing macOS online, 5 restart, 9 actual locale lookup cases).
+The nine-locale tests exercise the real refusal mapper and actual settings-save
+warning against their exact review values. Normal scoped runtime generation and
+English audit passed, preserving every unrelated current translation. Caption-arrival refresh remains PENDING on the combined integration source.
+This older private base has no refresh CLI; an invocation with --refresh exited0
+without doing a check and is explicitly not counted as acceptance. The actual
+combined N700 review hold remains owned by its source lane.
+English API audit passed for13474symbols; all18 exact API and18 exact runtime
+review records were authored as AI technical reviews. Fatal Ruff passed.
+Raw source/exit/JUnit receipts remain in
+/mnt/wd4tb/scratch/n703-pip-handoff-20261014/handoff-delivery-receipt.json.
+
+
+2026-10-14 23:02 EDT — Home retained private POSIX runtime recovery
+Added explicit recover-runtime TRANSACTION --pid PREVIOUS_DESKTOP_PID for a
+retained, committed private POSIX runtime update. Run the helper with a Python
+interpreter outside both runtime directories. It requires the original private
+owner-only journal, unchanged directory device/inode identities and source/file
+content/modes, and the desktop process to have exited. Volatile __pycache__
+directories may differ; Python source, installed metadata and other files may not.
+It checks actual retained package/interpreter identity, atomically restores the
+old runtime, verifies it again at the original prefix, and keeps the newer runtime
+at the retained path. Failed restored identity exchanges back. The command never
+runs a package installer, removes either copy or automatically launches spaCR.
+
+Future update journals now bind both runtime directories and their inventories.
+An interrupted rollback can be completed from the actual directory orientation;
+a repeated successful recovery is idempotent. Legacy journals, altered content,
+shared directories, active desktop processes and an existing update lock refuse
+without changing either runtime. This does not recover arbitrary interrupted
+staging/activation or remove a stale update lock; those gaps remain explicit.
+
+Necessary offline cohort: 23 PASS, actual exit0 (14 new recovery cases plus9 pip
+transaction regressions), using real temporary venvs/fake wheels and actual Linux
+atomic exchanges. No real environment/user data or network was touched. Fatal
+Ruff passed. No public API paragraph, runtime UI caption or nested helper arrived,
+so the existing source-bound locale outputs remain applicable. Native macOS and
+Windows acceptance, shared/Conda/Windows replacement, current full hosted CI and
+release acceptance remain open. Raw receipts:
+/mnt/wd4tb/scratch/n703-runtime-recovery-20261014/owning.xml and owning.exit.
+
+
+2026-10-14 23:07 EDT — Home Linux generated-uninstaller preservation
+The Linux online installer's generated uninstaller now delegates to the existing
+shared remover with an explicit --only-root selection. It no longer recursively
+deletes the complete installation root or unconditionally deletes launcher paths.
+Only one recognized canonical installer root can be selected; other installs
+remain untouched and a targeted request cannot implicitly purge user data.
+Declared data/cache/model locations, known data folders and unknown root entries
+retain the existing preservation semantics. Literal uninstaller path metadata
+lets the finder retire only launchers still pointing to this installation.
+
+Actual disposable-tree subprocess proofs cover application retirement alongside
+preserved cache/models/test_data/outputs/unknown experiment folders and configured
+data nested inside the runtime, a second installation left intact, changed
+launchers retained, and unrecognized/symlink/global-purge refusal. Full necessary
+online-installer contract file plus five new tests:74 PASS, actualexit0/2.71s.
+Fatal Ruff, shell syntax and diff checks passed. No real installer/environment,
+user data, model cache or network was touched. This is Linux uninstaller behavior;
+it does not certify installer launch/update or native Windows/macOS acceptance.
+Windows NSIS's default root-recursive deletion still needs equivalent safe wiring.
+
+
+2026-10-14 23:14 EDT — Home Windows NSIS preservation wiring (native pending)
+Replaced the online NSIS uninstaller's recursive installation-root deletion with
+an extracted, noninteractive PowerShell helper. The installed interpreter first
+copies only its own installer-managed base Python and stdlib cleanup module into
+a private outside temporary folder. Shared/external Python, wrong interpreter or
+prefix, linked runtime content, nonempty/inside folders and declared data inside
+the base runtime refuse preparation. The copied helper requires its interpreter,
+prefix and cleanup module to resolve outside the selected installation before
+using the same targeted shared remover as Linux. No package download/install,
+account setup or terminal question occurs in this default removal path.
+
+The shared remover lists retained folders in NSIS's details pane, preserves data,
+cache/model and unknown folders and handles only matching launchers/registrations.
+NSIS removes the leftover root only when empty; it no longer independently wipes
+all Start Menu/desktop/registry entries or recursively removes the whole root.
+A safe failure message has exact-source AI technical review in all9 installer
+locales; the normal installer renderer emits every native LangString. Review:
+features/evidence/n703_windows_uninstall_20261014/locale-review.json.
+
+85 PASS, actualexit0/3.18s:11 new copy/refusal/outside-guard/NSIS routing/locale
+renderer contracts,5 actual Linux disposable-tree subprocess cases and69 existing
+online-installer contracts. Fixtures contain tiny fake managed runtime files;
+no real Python environment, user data, model cache or network was copied/changed.
+Fatal Ruff and diff checks passed. PowerShell and NSIS are unavailable on this
+Linux host: native syntax parsing, actual managed-Windows-Python relocation,
+active desktop/file-lock behavior and native uninstall/data retention remain
+PENDING. This is implemented wiring with CPU contracts, not Windows acceptance,
+installer/update success, current hosted full-CI green or parent N703 completion.
+Raw evidence: /mnt/wd4tb/scratch/n703-windows-uninstall-20261014/delivery-receipt.json.
+
+
+2026-10-14 23:22 EDT — Home CLI translation correction; artifact hold
+Review correctly found new unwrapped CLI help/refusal strings in the private
+Linux/Windows uninstall and retained-runtime changes. All9 newly introduced
+argparse/help/refusal/error-template strings now use literal tr calls. The private
+translation adapter uses spaCR's real catalog when importable and a stdlib-only
+formatted English fallback for an extracted helper without spaCR/Qt. It adds no
+public or nested helper. Exact current-source AI technical reviews for all9
+captions in all9 locales are in 2026-10-14-n703-uninstall-cli.json; all81 candidates
+passed the normal translation validity checker. No human/native review is claimed.
+
+Actual18 PASS/exit0 validate the Linux disposable-tree removals, Windows
+preparation/routing/outside guard, standalone formatting fallback and literal
+tr-call source contract. Nine real locale lookup/help tests are prepared but
+PENDING generated catalogs. The normal runtime writer refused preflight: this
+base's extractor does not scan spacr/install_cleanup.py, so none of these9 sources
+are canonical UI arrivals. No generated output was written, no caption was planted
+in an unrelated GUI source, and no unowned extractor or arrival fixture was edited.
+The extractor owner must add this actual source path with its owning contract,
+then normal generation and the9 locale tests must pass before publication. The
+combined N700 review/arrival hold remains separate. Earlier claims of no caption
+arrival apply to neither this correction nor the newly found CLI strings.
+Raw evidence: /mnt/wd4tb/scratch/n703-uninstall-cli-i18n-20261014/runtime-v2.log,
+owning.xml and owning.exit. Normal runtime generation is NOT claimed passed.
+
+
+2026-10-14 23:30 EDT — Home Linux desktop installer window (native pending)
+Implemented a normal desktop route for the online .run installer when a display
+is present, with explicit --gui support and preserved explicit noninteractive,
+headless/dry-run and child paths. It uses Zenity and Bash5.1+, reusing only existing
+reviewed installer captions. Three privacy/account checkboxes default off; only
+current selections reach an isolated backend. Existing command-line opt-ins are
+not silently retained after the user unticks them in the window. The backend
+receives consent-collected/skip-system-deps/no-launch, so this path never asks
+Terminal questions or installs optional system dependencies.
+
+The window streams the actual backend log. Closing it signals only the child's
+own process group and waits for its existing rollback/cleanup before returning.
+Backend failures retain their actual code and log with no automatic retry; normal
+success closes the progress window and launches only after the backend exits.
+Missing Zenity/Bash support refuses before payload mutation. Logs remain in the
+protected spaCR cache. Missing desktop dependencies, native GTK display/launch,
+OS-specific cancellation phase boundaries and actual installed application
+startup remain PENDING; this is not complete Linux desktop availability.
+
+83 distinct necessary cases passed:69 unchanged online-installer contracts,
+7 owning stub-dialog/disposable-child cases and7 actual Bash routing cases.
+Initial74PASS/2FAIL is preserved: an instantaneous success stub could finish before
+the dialog executed. The corrected fixture uses a deterministic dialog-ready FIFO,
+keeps its assertions, and installs its rollback trap before the first progress
+message; all7 cases passed after that correction. Production source was unchanged
+between those runs. Routing establishes X11/Wayland defaults, explicit GUI,
+no-display CLI, consent-collected/no-launch and child behavior. No real Zenity,
+desktop, capture, package install, user environment, GPU or network was used.
+Fatal Ruff, shell syntax and diff checks passed. Parent N703/full hosted release
+acceptance and the separate CLI extractor/catalog/combined N700 holds remain open.
+Raw receipts: /mnt/wd4tb/scratch/n703-linux-gui-20261014/{owning,closure,routing}.xml.
+
+
+2026-10-14 23:42 EDT — Home installer sidecar rollback consistency
+Closed the ordinary installer rollback gap where the old venv could be restored
+while runtime-identity.json, install-profile.json or launchers still described the
+new release. A stdlib helper snapshots only the explicit installer-owned sidecars
+before exchange, preserving bytes, modes, timestamps, symlinks and absence. It
+validates backup directory/journal/content/parent bindings before restoration,
+atomically restores files and retains backups for safe retry. Unknown user data
+is not included in this operation. A failed restoration keeps the work directory
+and its evidence rather than deleting the only previous metadata copies.
+
+Linux's final identity probe now writes to a staging receipt and publishes it
+only after successful verification, avoiding writes through a preexisting receipt
+symlink. Its existing EXIT rollback restores matching sidecars after the runtime.
+Windows captures a verified UTF-8 receipt without BOM, uses the same metadata
+snapshot/restore helper, preserves the original exception and recovery evidence,
+and does not attempt rollback from an already committed/partially retired backup.
+Its native PowerShell parsing and execution remain PENDING.
+
+13 PASS, actualexit0/3.02s:12 new real disposable-file/subprocess/helper/Linux
+EXIT-trap contracts and one existing stage-before-replace ordering check. These
+prove repeated restore, old bytes/modes/symlinks/absence, target-directory/userdata
+preservation, corrupt/link/traversal/duplicate/parent refusal before writes, old
+runtime+sidecar consistency and retained proof when rollback metadata is damaged.
+No real environment, user data, account, desktop, GPU or network was touched.
+Fatal Ruff, shell syntax and diff checks passed. One new literal tr CLI help row
+has all9 exact-source AI technical reviews; all9 pass normal candidate validation.
+Its normal generated output/locale lookup is PENDING the already-owned extractor
+source-path prerequisite and combined arrival closure, not claimed passed.
+Native OS/install/update acceptance and parent N703/full-CI remain open.
+Raw evidence: /mnt/wd4tb/scratch/n703-installer-sidecars-20261014/owning.xml and
+owning.exit; source/remaining scope is recorded in delivery-receipt.json there.
+
+
+2026-10-14 23:54 EDT — Current-nightly installer integration and CLI locale closure
+Integrated the seven private N703 source deliveries onto current public nightly,
+reusing the already-public pip transaction engine. The owner-provided extractor
+now includes install_cleanup.py. Normal runtime generation wrote all nine
+reviewed locales for the ten formerly held CLI captions, preserving EVERY
+unrelated source-current target; English/catalog source audit passed. Normal
+scoped generation verified both owned API symbols for all nine locales, preserved
+every unrelated localized symbol and passed the 13,474-symbol English audit.
+The ordinary source-history writer pruned one no-longer-referenced historical
+English entry; no generated artifact was hand-merged.
+
+63 distinct owning checks now PASS on this combined source. The initial run
+passed61 with two German/Icelandic help assertions failing because argparse
+wrapped compound words at hyphens under an unspecified terminal width. The
+fixture now fixes COLUMNS=240; its exact review/rendered-text assertions are
+unchanged, and all nine affected language cases passed. Nine additional metadata
+help locale cases passed in the first cohort. Original failures remain in WD
+scratch. The three GUI handoff methods exactly match the prior45PASS delivery,
+so that unchanged cohort was reused. Fatal Ruff, Bash syntax and diff checks pass.
+
+Global caption-arrival acceptance remains HELD: the public arrival tool still
+has neither a refresh callable nor CLI. No no-op invocation is counted as a
+check, no fixture was hand-edited, and root's separate N700 review hold is not
+waived. Native Windows/macOS/Linux installer acceptance, unsupported shared
+Python/frozen Debian adapters, full hosted CI and parentN703 remain open. The
+Debian outside helper exists but lacks a privileged verified rollback transaction;
+its refusal is retained and no real dpkg/root/package operation was run.
+Source-bound receipt: features/data/n703_current_catalog_closure_2026-10-14/.
+
+2026-10-15 00:05 EDT — Actual public caption-arrival refresh, explicit foreign hold
+Fetched and normally merged public helper e7a8e58a698, then executed its real
+--refresh command under the shared capped lock. Actualexit1: caption arrival
+lacks explicit reviewed record: sv/('UI', 'AI Error report'). The fixture is
+unchanged. This supersedes the earlier missing-tool hold with an observed
+N700-owned missing-review refusal. No waiver, manual fixture edit, model sweep
+or N700 source change was made. N703 runtime/API/63 owning PASS scope is
+unchanged; global acceptance remains held. Exact source/tool hashes and raw
+refusal are in features/data/n703_current_catalog_closure_2026-10-14/.
+
+
+2026-10-15 00:08 EDT — Online installer transaction leases and private NSIS staging
+Closed a concrete same-root concurrency defect: independent installer staging
+could overlap, and one failing installer could remove/restore a runtime that
+another installer had just activated. Unix now atomically acquires an outside
+owner-root lease before root/log/runtime mutations, then acquires the same
+private-runtime lease used by the in-app POSIX transaction. It retains both
+through rollback, resolves path aliases, restricts lease permissions and checks
+device/inode ownership before removal. Existing/interrupted leases are refused
+without PID guessing or deletion. Failed metadata recovery retains the leases
+and its evidence for explicit resolution. The desktop parent returns before
+the backend acquires leases, so no inherited GUI lease blocks its own child.
+
+The Windows PowerShell engine acquires exclusive CreateNew/FileShare.None
+handles before logging or environment changes, and releases only its owned
+handles after rollback. Failure before acquisition does not clean another
+process's staging/work files. Native behavior remains UNVERIFIED here. NSIS's
+helper extraction/invocation/cleanup now use its per-process PLUGINSDIR rather
+than the shared TEMP/spaCR-online-installer directory, preventing two wrappers
+from overwriting each other's bootstrap scripts. NSIS root writes before/after
+the PowerShell engine remain outside that lease; complete wrapper handoff is
+still OPEN, as is coordinating retirement across different installation roots.
+
+93 distinct owning checks PASS:12 new stdlib/actual shell concurrency/source
+contracts,12 existing sidecar rollback and69 existing installer checks. The
+old sidecar harness's exact trap delimiter was changed to parse the same
+cleanup function after the EXIT handler became composite; assertions remain.
+A final81-case NSIS/installer subset passes on final source. No Qt/model,
+live install, network, package operation or GPU was used. Existing reviewed
+already_running captions are reused in all installer languages. Fatal Ruff,
+Bash syntax and diff checks pass. Native Windows/macOS, interrupted-lease GUI
+recovery, global caption arrival/full CI and parentN703 acceptance remain OPEN.
+Evidence: features/data/n703_installer_transaction_lease_2026-10-15/.
+
+
+2026-10-15 00:27 EDT — Lease-aware retirement protects a different active installer
+Closed the cross-root retirement race left explicit by the preceding component.
+Before removing an online installation or uninstalling the package from a
+selected environment, the remover atomically acquires that target's existing
+installer/runtime lease protocol. It does not merely check whether a lease
+exists and then delete. Active/interrupted/unknown leases refuse before removal;
+partial acquisition releases only its own lease. Kept/running copies retain
+their prior behavior. Cleanup checks inode identity, preserves other owners'
+replacement leases and never relabels a core mutation error as a no-change
+refusal. It prunes an empty lease-only root only after the original root policy
+and protected user/shared-folder rules permit it, and never deletes a symlink's
+empty user-directory target. Native Windows behavior remains unverified.
+
+Final frozen source:193 owning checks PASS/actualexit0/118.08s with normal branch
+coverage enabled under2GiB. This includes192 retirement/cleanup/uninstaller
+cases and the separately delivered purge-ordering node. Actual shell processes
+exercise both directions of the installer/remover race. All9 locale refusals
+use actual generated catalogs and exact reviewed targets. The real standalone
+python -I -S helper succeeds without site packages. Three preexisting N703
+contract mismatches were reproduced at predecessor a4bdbf5ec83 and updated to
+assert optional translation fallback, delegated data-preserving Windows removal
+and explicit unsupported-Conda refusal. Core assertions were preserved.
+
+Normal nine-locale runtime generation passed, preserving every unrelated target;
+one exact new refusal caption has9 authored source-bound AI technical reviews.
+The first review schema refusal and corrected-input proof are retained. Existing
+module/public API prose is exactly unchanged; new private helpers are documented.
+Scoped coverage is public wrapper100%, removal core96.39%, lease helper87.67%;
+rare acquisition/release error-cleanup paths remain unexecuted. This is not a
+whole-module/global coverage acceptance claim. No baseline/exclusion was changed.
+Fatal Ruff and diff checks pass. Native OS acceptance, full NSIS wrapper lease
+handoff, interrupted-lease recovery UI, global N700 caption hold, current full
+hosted CI and parentN703 remain OPEN. No live install/account/package operation,
+network, user data or GPU was used. Evidence:
+features/data/n703_retirement_transaction_lease_2026-10-15/.
+
+2026-10-15 00:33 EDT — Current-public merge and normal catalog regeneration
+Merged the current public source normally. Both dated703 note tails were
+preserved. Generated catalog conflicts were resolved by taking all public
+catalogs intact and regenerating them with the normal tool from current
+sources and the four exact N703 review files. All9 locales preserve every
+unrelated public target and13 owned captions match their reviews; source audit
+passes with7,672UI entries. Own tested production and owning test files remain
+byte-identical to the193PASS source. Only Easy's unrelated journal fixture
+changes merged into the purge test file; its owned function is AST-identical.
+Ten actual post-merge locale/purge checks PASS/exit0/1.83s. The complete193-case
+cohort was reused, with no extra full-CI/native acceptance claim.
+
+2026-10-15 00:40 EDT — Final current-public publication closure
+Normal merge includes public1e329bcd55b; every runtime catalog was taken intact
+from public then regenerated with normal source-current writer/audit APIs. The
+four exact previously validated N703 review files were byte-pinned; all13 owned
+rows and10,554 unrelated current rows per locale validate across all9 locales.
+English/source audit passes with7,724UI entries. Actual final dependency checks
+are10PASS/exit0/2.69s. The production/owning test source remains byte-identical
+to the193PASS cohort, reused without repetition. The shared purge file retains
+current unrelated journal changes; its owned assertion is AST-identical.
+No new fullCI/native acceptance or foreign caption-arrival waiver is claimed.
+Source-bound proof: publication-receipt.json in the existing retirement evidence.
+
+2026-10-15 00:47 EDT — External online replacement refuses runtime downgrades
+Both existing Unix/Windows engines already pass the retiring prefix before
+retirement/swap. The standalone verifier now reads one private installed wheel
+identity using stdlib metadata/import resolution and optional shipped-version
+AST, without executing spaCR or GUI dependencies. Fresh installation, same
+version repair and newer replacement remain supported. A staged older version
+is refused using PEP440 ordering; missing/ambiguous/editable/shadowed identity
+and unsupported version produce recoverable machine-readable reasons. No
+old application/data/cache bytes are changed by verification. Missing previous
+interpreter remains an explicit recovery requirement, with no automatic bypass.
+Actual predecessor regression1FAIL (older staging previously accepted exit0);
+final44owningPASS/exit0/26.19s under2GiB, including22new and22existing cases,
+standalone python-I-S, broken-import repair and release/prerelease ordering.
+Fatal Ruff and scoped diff checks pass; no new user caption/public API prose.
+Normal English audit records existing foreign model_zoo/preferences staleness
+at public base021fd; current owner API closure/re-audit remains pending.
+Native desktop acceptance, all other parentN703 gaps and finalCI remain OPEN.
+Evidence: features/data/n703_online_no_downgrade_2026-10-15/.
+
+2026-10-15 00:48 EDT — Current-public non-downgrade source integration
+Normal current-public merge preserves the actual44PASS source/test bytes.
+The manifest-only re-audit clears earlier model_zoo/storage callback drift but
+records10 later foreign startup-animation/theme/montage/figure API symbols;
+none belongs to install_cleanup. Exact actualexit1/refusals are retained in
+the component receipt; no global English gate pass is claimed and no foreign
+API artifacts were edited. Source peer review accepted the bounded repair.
+Legacy runtimes without _version.py use installed metadata/package ownership
+identity only; an unavailable previous interpreter still refuses recoverably.
+ParentN703/native/fullCI acceptance stays OPEN.
+
+2026-10-15 00:53 EDT — Runtime identity rejects outside application/metadata paths
+A real disposable predecessor regression returns verified=true while loading
+a complete external wheel through.pth, despite a private interpreter/prefix.
+Six guard lines now require the resolved application, distribution base and
+actual metadata directory inside the expected environment, including old
+identity metadata. Managed Python interpreter symlinks remain supported.
+Outside package/data bytes are preserved. Metadata-directory symlinks are
+checked explicitly; unknown providers without concrete metadata paths refuse.
+Final frozen-source49PASS/actualexit0/33.00s under2GiB, zero skips, including
+the new .pth/link cases plus the existing44 identity/non-downgrade checks.
+The initial47PASS preceded the two metadata-link cases and is not added to49.
+All API docstrings are AST-identical; no user captions/generated artifacts
+changed. Existing foreign API/caption holds are retained, not waived/retested.
+Fatal Ruff/diff checks pass. Native Windows/macOS/fullCI and parent703 OPEN.
+Evidence: features/data/n703_runtime_path_containment_2026-10-15/.
+
+2026-10-15 01:00 EDT — macOS user bootstrap delegates mutation to leased backend
+The user wrapper now reads/refuses legacy markers but does not create the
+application root or any marker. Backend owner/runtime leases precede a macOS-
+only .installing marker with identity-aware cleanup. Unknown/replaced markers
+are preserved; failed acquisition cleans only owned modern leases, and
+retained-rollback mode keeps all three coherently. No stale markers are stolen.
+Actual predecessor1FAIL proves the wrapper previously created root before
+backend entry. Final production23 distinct portable process checks PASS/exit0/
+1.46s (9new+12existing lease+2existing option cases). Final Linux-only stat
+adapter correction9PASS/exit0/0.76s is a subset, not another9 achievements.
+Tests use actual disposable shell processes/filesystems, adapting BSD stat
+format on Linux; native macOS GUI/installer acceptance is NOT claimed.
+Shell syntax, fatal Ruff/diff checks pass; existing message keys reused, no
+new captions/API/generated artifacts. Parent703/native/fullCI remain OPEN.
+Evidence: features/data/n703_macos_bootstrap_lease_2026-10-15/.
+
+2026-10-15 01:05 EDT — Installer download preserves verified artifacts during checksum outages
+Actual predecessor1FAIL proves checksum HTTP503 was treated as missing legacy
+checksums, accepting executable bytes. Only actualHTTP404 now permits that
+historical compatibility; transport/server failures stop the update. Streamed
+bytes stay in a0600 sibling file until verification, then chmod/atomic replace.
+Wrong/empty/interrupted bytes, checksum outage and activation failure preserve
+the prior download; target symlinks cannot redirect writes into user files.
+Final34owningPASS/exit0/1.68s (22new+12existing), with actual _run_plan failure
+return4 and no install/retirement/relaunch under mocked HTTP503. No actual HTTP
+request or installer ran. Legacy test uses faithfulHTTPError404; its acceptance
+assertion and sums-file-without-asset compatibility remain unchanged.
+All API prose/captions unchanged; fatal Ruff/diff pass. Existing foreign API/
+caption holds, native/fullCI and parentN703 acceptance remain OPEN.
+Evidence: features/data/n703_installer_download_transaction_2026-10-15/.
+
+2026-10-15 01:19 EDT — Actual hosted Windows metadata-path failure repaired in source
+Read-only existing push run38685071978/attempt1/exact2adfa failed after verified
+staging: linked_metadata_folder at the genuineRUNNER~1 temporary-profile path.
+Snapshot/restore now canonicalize native Windows aliases only after lstat
+rejects real symlink/reparse components and samefile confirms existing native
+identity. Journal path/inode/content/parent checks stay intact; POSIX linked-
+folder refusal is unchanged. No broad guard disablement or unknown link pass.
+Modeled predecessor1FAIL reproduces the exact short-alias failure; final20
+checks PASS/exit0/2.13s (8alias/reparse/policy+12existing rollback), zero skips.
+Linux models of Windows name semantics are not native Windows acceptance.
+Source has proper private-helper docs; no new caption/public API/generated
+artifact changes. Fatal Ruff/diff pass. Fresh native confirmation/fullCI and
+parent703 remain OPEN. Nightly prerelease work is preserved/paused for CI.
+Evidence: features/data/n703_windows_metadata_alias_2026-10-15/.
+2026-10-15 — Hosted macOS legacy-Bash runtime-verification repair
+Existing automatic hosted run38685071978 at2adfa fails before activation:
+Apple Bash rejects empty identity_args under nounset, leaving finder version
+unknown. The verification array now always includes its command verb, retaining
+exact optional version/interpreter/retiring-prefix checks at both boundaries.
+The newly created installer temporary folder is physically canonicalized before
+metadata snapshot; POSIX linked-folder refusal remains unchanged.
+Actual GNU Bash3.2 built in WD on Linux reproduces this failure. Baseline3FAIL/
+6PASS becomes9PASS/0.77s; complete scoped shell/lease/installer cohort99PASS/
+3.16s/exit0. Raw fixture-development failure is retained separately. Source-only
+installer-owner peer review accepted. No native macOS replay, package install,
+fullCI or release acceptance. Evidence: data/n703_bash32_runtime_verification_2026-10-15/.
+
+2026-10-15 — Verify complete restart state before update shutdown approval
+Same module name alone previously accepted altered settings, run folders,
+active-run summary, timestamp or schema: native baseline5FAIL/1PASS1.12s.
+The saver now serializes once and compares complete text read back, retaining
+the existing module diagnostic and None refusal path. Actual MainWindow update
+and pip-approval methods keep the window open and withhold approval when
+same-module settings change. Existing JSON conversions remain unchanged.
+Targeted native/Qt/restart cohort79PASS18.85s/exit0 under6G/shared lock.
+Installer owner independently reviewed source. No real package upgrade, live
+shutdown/relaunch, native other-OS, concurrency/power-loss or fullCI acceptance.
+Evidence: data/n703_complete_restart_readback_2026-10-15/.
+
+2026-10-15 01:35 EDT — Explicit Nightly private-runtime updates and stale-bytecode collision repair
+Actual predecessor1FAIL proves a selected valid1.5.1.5.dev1 update was refused
+by the legacy numeric-only parser. Dedicated POSIX pip and modeled macOS online
+updates now use canonical PEP440 ordering; explicit prerelease/dev/local targets
+are pinned and exactly verified. Downgrades refuse before shutdown approval.
+Stable N627 unpinned/minimum behavior and frozen Apple validators are retained.
+The first92-case run also exposed a real console-entry discrepancy: external
+old bytecode matched updated same-size sources within one integer-second mtime.
+Only changed staged Python sources with that collision receive a different
+whole-second mtime before verification. The active old runtime and external
+cache are not rewritten by the updater; unchanged source timestamps remain.
+Final source59 distinct checks PASS:57 transaction/Nightly cases plus2 corrected
+cache fixtures (4.81s); the initial fixture-cwd import failure remains recorded.
+Both local/external caches are exercised; complete external cache hash inventory
+is unchanged after activation before the real console naturally refreshes it.
+Retained old-runtime bytes are identical. First-run35 unchanged handshake/stable
+plan passes are separate evidence, not added to59 frozen-source acceptance.
+Actual offline tiny wheels/private subprocess venvs only; macOS uv is modeled
+by a subprocess adapter to real pip on Linux. No network/live install or native
+macOS/Windows acceptance; shared/Conda/Windows adapters and parent703 remain OPEN.
+Existing API prose/captions unchanged; two new private helper docs are present.
+Fatal Ruff/diff checks pass. Global owner API/caption holds/fullCI not certified.
+Evidence: features/data/n703_nightly_runtime_and_cache_2026-10-15/.
+
+2026-10-15 01:43 EDT — Saved macOS plans bind the actual current runtime floor
+Actual predecessor1FAIL/4.72s proves a saved record1.5.1.4 could authorize real
+offline replacement of installed1.5.1.6 with1.5.1.5 and request relaunch. The
+existing isolated metadata/path/_version literal probe now refreshes actual
+identity before macOS approval and again under the POSIX runtime lease before
+transaction allocation or package operations. Staged verification receives the
+actual current version as its previous-version floor, including a replacement
+that lands during shutdown wait. No app/Qt import is needed for this old identity.
+Final62distinct focused checks PASS/actualexit0/45.02s, zero skips/errors:
+3new actual offline regressions,20mac command/handshake,22mac transaction,
+9pip transaction,2cache collision and6Nightly handoff cases. Tests prove newer
+current wheels refuse before approval, wait-time replacement refuses under the
+actual lease, old bytes survive, and broken old Qt remains repairable. Existing
+stubbed-runtime tests explicitly mock their absent distribution identity while
+retaining all behavioral assertions; actual venv/probe cases are separate.
+All API prose/captions unchanged; fatal Ruff/diff checks pass. Actual Linux
+private venv/pip subprocesses use tiny offline wheels; uv/macOS is modeled.
+No network/live install, native macOS/Windows, fullCI or wholeN703 acceptance.
+Noncooperating external mutation that ignores the lease is not excluded.
+Evidence: features/data/n703_actual_runtime_floor_2026-10-15/.
+
+2026-10-15 — Retirement preserves user data behind native path aliases.
+Actual disposable baseline6FAIL/2PASS0.83s reproduced data loss when configured
+SPACR_HOME/HF_HOME aliases pointed into an old venv, including parent aliases
+and moved/retargeted locations. Final lease cleanup also deleted an empty
+aliased user-data root. Configured spellings are now retained together with
+resolved targets; a local kept-path mapping also handles an independently
+aliased installation parent. Global containment/deletion, symlink unlink and
+purge semantics remain unchanged. No live environment/user data was touched.
+The first partial repair had190PASS/10FAIL: one genuine installation-parent
+alias case plus9missing sparse locale inputs. Those9pass1.48s after committed
+inputs were materialized, without source edits. The original failures remain.
+Final frozen-source60PASS1.37s:10new native path/data cases,30modeled released
+layout removals,5shared/user-data guards and15lease/removal contracts. Historical
+190+9 are not inflated into the final-source total. All original API prose,
+signatures and captions are unchanged; no generator/collector was needed.
+Evidence: features/data/n703_aliased_user_data_preservation_2026-10-15/.
+This uses actual Linux symlinks/processes and modeled other-OS layouts, not
+native Windows/macOS or whole N703/fullCI acceptance. Concurrent external
+retargeting that ignores the lease is not atomically excluded.
+
+2026-10-15 — Preserve directly configured independent backends during app retirement.
+Actual disposable predecessor7FAIL/3PASS0.80s shows SPACR_BACKENDS_DIR was
+omitted from ordinary preservation despite its explicit opt-in purge support.
+Normal retirement erased configured backend interpreters/models; replacement
+also accepted configured backends embedded in the primary runtime. The existing
+user-data guard now includes this root using its consumer's strip/home expansion,
+retaining lexical/resolved path protections. No broader whitelist/purge change.
+Final44PASS/1.83s/exit0:10new absolute/relative/home/padded/alias/staging/control
+cases plus34relevant alias/shared-root/lease/purge cases;9unchanged locale cases
+explicitly deselected. Unconfigured bundled software still retires, external
+backend roots survive, and explicit purge still deletes the selected root.
+Only disposable Linux files and symlinks; no backend executable/install/download
+or real user data touched. Native Windows/macOS, fullCI and wholeN703 remain open.
+Original API prose/signatures/captions are unchanged; no generated artifact work.
+Evidence: features/data/n703_direct_backend_preservation_2026-10-15/.
+
+2026-10-15 — Preserve all six verified direct configured cache roots together.
+Supported SPACR_MODEL_CACHE, SPACR_NEWS_CACHE, SPACR_SPACE_CACHE, SPACR_SOUND_CACHE,
+SPACR_ICON_CACHE and MPLCONFIGDIR were absent from ordinary retirement/staging
+protection. Their actual existing root functions place disposable bytes inside
+the old runtime:48baselineFAIL/2PASS1.51s. Nine added guard lines now retain these
+roots using each consumer's exact strip/raw/home semantics; no consumer change.
+Frozen-source94PASS2.70s/exit0:50new actual-root/retirement/staging/control cases
+plus44existing backend/alias/shared-root/lease/purge checks. Nine unchanged
+translated-refusal cases explicitly deselected. Unconfigured app files retire,
+external shared roots survive and never enter explicit purge by this change.
+Actual Linux temporary files only; exact root function ASTs avoid importing
+Qt/model/native modules. No live caches/models, downloads or installers touched.
+No arbitrary whitelist, purge-policy or global deletion changes. Prose/signatures/
+captions unchanged, so no generated API/runtime work. Native Windows/macOS,
+wholeN703/fullCI/release remain OPEN. Evidence:
+features/data/n703_direct_configured_caches_2026-10-15/.
+
+2026-10-15 — Windows shutdown proof refuses unqueryable or invalid process IDs.
+OpenProcess NULL previously meant "already exited" even for access denial.
+Four modeled baseline failures show actual update-plan fetch/install callbacks
+were reached after unverified shutdown; three further failures show invalid
+PID0/negative/out-of-DWORD values were accepted. No real installer/process ran.
+The existing Windows probe now validates positive DWORD IDs and distinguishes
+GetLastError87 from denied/unknown failures. Original handle waiting/close,
+WAIT_FAILED, timeout/approval and POSIX behavior remain. Microsoft API/error
+contracts are pinned in the source peer; absent-positive-PID inference remains
+modeled, not a native Windows claim. Final18PASS1.06s/exit0 proves plan refusal
+with zero replacement callbacks and byte-identical old runtime, plus original
+POSIX/Windows wait and positive update-plan controls. Original tests unchanged
+except explicit87 in the gone-process mock and stronger WAIT_FAILED control.
+No source prose/signature/caption changes or generator work; no network/GPU/
+live install/user-data action. Native Windows/fullCI/wholeN703 remain OPEN.
+Evidence: features/data/n703_windows_shutdown_exit_proof_2026-10-15/.
+
+
+2026-10-15 — Dedicated Windows pip updates now use verified private staging.
+The actual GUI previously refused ordinary Windows venv updates. A separate
+Windows adapter now verifies local fixed-drive ACL/no-reparse ownership for
+the runtime, every code descendant, external base interpreter and helper.
+Preparation runs on the existing background worker; single-path readiness
+and approval checks use local Win32 APIs rather than subprocesses or cached
+permission proof. Shared/Conda/editable/system-site/untrusted environments
+remain refused. Only a copied sibling runtime receives pip changes. Exact
+imported-code/distribution/interpreter/version and dependency checks precede
+activation; stage-bound Windows launchers are regenerated through ordinary
+distlib with final-prefix interpreters and matching RECORD hashes/sizes.
+
+Activation uses two journaled renames, not an atomic exchange. The prior
+runtime and user bytes are retained; ordinary activation/import/relaunch
+failures roll back only unchanged, identity-bound directories. Foreign
+replacement/modification preserves both runtimes and the lease for review.
+Existing authenticated approval, close vetoes, settings saving and late/cancel
+refusal remain. Final89 distinct owning checks PASS:75 core/native-API models,
+real disposable file/rename/journal/offline-wheel/distlib-byte contracts,
+12 existing Windows GUI lifecycle cases and2 background heartbeat/late-result
+cases. The initial2 cleanup-only QThread-lifetime failures remain documented;
+only those2 were corrected/rerun. Win32/interpreter identities are modeled on
+Linux; actual Windows executables, desktop file locks, native ACL/restart and
+interruption/manual-recovery acceptance remain OPEN. No live installation,
+user data, model/GPU or privileged operation was performed.
+
+Normal exact-source English/nine-locale API closure changes only public
+start_update_helper paragraph#1. Exact approved translations and ordinary
+source/history writer/selected-symbol audit preserve every unrelated API
+record, all unchanged translated paragraphs and foreign review/history data.
+Obsolete POSIX-only paragraph reviews remain retired in place with reasons;
+normal Help summary is unchanged, so no Help regeneration is needed.
+Whole N703, native Windows, final full CI and release acceptance remain OPEN.
+Evidence: features/data/n703_windows_private_pip_2026-10-15/.
+
+2026-10-15 — Debian transaction and guarded graphical cache review published.
+Coherent nightly9745d2dc78c includes the Debian native-package transaction,
+manual/startup optional-cache review, all66 current diagnostics in nine locales,
+and297 exact API targets with normal Help generation and offline nested-body
+lookup. Selected nine-symbol API audits and nine actual Help consumers/18
+queries pass;24 tested source/artifact hashes remain exact after owner merge.
+The broader API audit still refuses foreign N700 providers#6 reviewed-source
+mismatch. Its failure is retained; scoped acceptance does not certify global
+API currency, final full CI, main promotion or release.
+
+Debian software evidence:47 transaction checks, a real disposable onefile-helper
+build/four unprivileged command smokes,12 actual Qt handoff checks and nine
+localized cancellation/refusal callbacks. No host package was installed or
+removed, and no privileged native desktop update was performed. Both new and
+rollback packages require their published digests and exact package identities;
+ambiguous failure retains packages and journal for recovery.
+
+Optional cleanup evidence includes14 startup lifecycle, six manual-worker and
+nine actual localized GUI cases plus selected-cache mutation controls. Keep is
+the default; models/data/preferences remain protected; selected roots are
+revalidated before mutation and unrelated cache refreshes do not invalidate an
+otherwise unchanged selected root. The guard proves application-local job
+inactivity, not universal cross-process quiescence. No permission is persisted.
+Normal runtime generation/audits preserve10,779 unrelated records per locale;
+the immutable9,833 arrival baseline is unchanged. Source-bound receipts remain
+under data/703_debian_update_transaction_2026-10-15/,
+data/n703_optional_cleanup_preview_2026-10-15/ and Home-B API/Help receipts.
+Whole N703 remains OPEN for native cross-platform installer/restart/recovery
+acceptance and the final source-frozen CI/release gates.
+
+
+2026-10-15 — Hosted checkout paths no longer contaminate offline runtime fixtures.
+Run38699600639 at8fc2 inherited PYTHONPATH=$GITHUB_WORKSPACE. Matching
+checkout/old-wheel metadata let pip skip the disposable macOS old-wheel install;
+the ordinary pip console probe instead imported checkout spacr.qt. Two original
+nodes reproduce both failures under that same path/metadata condition. Only the
+two installation fixtures now remove inherited PYTHONPATH, verify physical old
+qt.py bytes and require the actual isolated old distribution/code identity.
+All original test assertions and production guards remain unchanged, including
+external PYTHONPYCACHEPREFIX behavior. Final26 affected original cases PASS
+65.17s/exit0 with the original hosted-style wrapper: rollback/fault branches,
+actual current-version floor and both internal/external bytecode-cache cases.
+No native macOS/Windows, full CI or whole N703 acceptance is claimed. Evidence:
+features/data/n703_hosted_path_fixture_isolation_2026-10-15/.
+
+2026-10-15 Original — cleanup review tree now uses the shared sorting and
+sortable-cell contract without changing selection defaults, hierarchy, user
+cache consent or translated captions. Two source-contract tests plus eighteen
+existing actual cleanup-dialog cases pass; independent source/evidence peer
+accepted. Published c91e613ad1 within e63990cd27. This bounded repair does not
+claim final hosted CI or native installer/whole release acceptance.
+
+2026-10-16 — Frozen Windows in-app updates now use checksum-pinned NSIS/UAC, authenticated shutdown, protected user-data paths, verified unelevated relaunch and retained recovery on uncertain completion (replaces the fail-closed path in 441abf1d9ab).
+Related native/coordinator/GUI checks pass; normal nine-language generation, audit, 126 compiled consumers and fresh-source check pass; existing translations are preserved.
+BLOCKED ON MAINTAINER: on disposable Windows, install the matching new desktop candidate first, then test its frozen in-app upgrade with published-checksum assets, UAC accept/cancel and actual restarted executable/module/version.
+Repeat native online/frozen old-to-new and same-version installs on Windows/macOS/Linux; verify models/cache/preferences, default-off cleanup and macOS GUI-only prompts; inject permission/disk/import failures and interrupted recovery.
+Native acceptance and full green hosted CI remain required before release; the installer wait timeout starts after UAC returns, not while the consent window is pending.
+
+2026-10-16 — Frozen environment capture now uses installed metadata instead of relaunching the GUI executable as pip; 13 related checks pass.
+Excluded only PySide6 6.12.0 after a Python3.10 painter reproduced fatal None reference loss; the same 10,000-frame control passes with6.11.2. Nine dependency checks pass.
+Native macOS rejection now records the blocking modal without extending its deadline or bypassing Quit safety; eight related checks pass.
+Native installer CI also triggers on environment-capture changes; its targeted workflow check passes. New native acceptance and full green CI remain required; wholeN703 is open.
+
+2026-10-16 — REOPENED for implementation; updater pair owns end-to-end delivery and GitHub-facing install/update/reinstall/uninstall instructions. Maintainer reproduced macOS Update→remove prompt→quit→manual icon launch→Terminal questions→same old version.
+Required desktop Install/Update flow: one action performs installation/update in the background, then offers Restart; Restart launches the verified requested new version through the spaCR startup window and then the main window, without manual relaunch or Terminal questions.
+Preferences > Performance must offer Uninstall and one popup selecting current version or all detected spaCR versions across environments, plus independently selectable cleanup categories for caches, models, logs, settings, history, temporary/downloaded artifacts and other identified spaCR-owned data.
+Uninstall cleanup categories default to deletion and permit opt-out; preview exact scope/paths before confirmation, preserve unrelated environments/data, and retain ordinary update data preservation. Validate actual installed/restarted executable, module and version plus cancellation/failure/recovery.
+Owners: release_path/preview_cache + updater_acceptance; installer/packaging and Preferences/layout edits wait for Claude's currently running owner commits, then integrate rather than overwrite their work.
+
+2026-10-16 — GitHub delivery criterion: the default-branch README must lead to the current install, update, reinstall and uninstall instructions after the authorized README-only promotion.
+The relative installer-guide link currently opens an older main-branch guide because docs/source is outside that publication scope; replace this route through normal README sources/tools and existing locales, without extending the main allowlist.
+Accepted native implementation, fixture checks and reviewed translations are retained; this separate documentation route remains to be delivered before whole-item closure.
+
+2026-10-17 — Claude Home integrated Codex's 15 unpushed N703 commits (background staging then one Restart prompt with verified GUI receipt; Preferences > Performance > Uninstall with current/all scopes and default-on category cleanup; native helpers; nightly installer guide route) onto nightly and fixed the integration: stdlib-only helper imports, outdated fixtures, retired prompt records archived; 1,632 related checks pass.
+2026-10-17 — README/guide, runtime catalogs, caption arrivals, API catalogs and Help index regenerated with their tools. No code remains on Linux fixtures.
+BLOCKED ON MAINTAINER (disposable machines, one per OS): 1) install the previous release, then the new candidate's in-app Help > Check for updates: confirm background progress, one Restart prompt, the startup window then the main window of the new version, and Help > About version; 2) Cancel at the Restart prompt keeps the old version working; 3) repeat with each desktop installer (Windows NSIS/online, macOS .pkg and frozen app, Linux online and .deb), old-to-new and same-version; no Terminal questions on macOS;
+4) Preferences > Performance > Uninstall…: the current version and all detected versions, untick one category, confirm the listed paths match what is removed and the unticked data and other environments remain; 5) report failures with ~/.spacr/logs/update.log and ~/spacr-uninstall-report.txt.
+2026-10-17 — Codex published the outstanding ten-language README guide routes to main in42e156b9c15: all134 allowlisted outputs match generated nightly3dc11a092a7, with30 readable panels and100 responsive image bindings checked. Native acceptance above remains blocked on maintainer; no backend implementation or generation was repeated.
+2026-10-18 — NEW MAINTAINER REQUIREMENT: the newest installation must be able to remove ANY older spaCR installation. Uninstall... adds an "Older versions only" scope (all detected except the running one) and a tick box per detected installation; current/all remain. Same preview, snapshot validation and package-only removal from shared Python/Conda environments.
+Acceptance: on the maintainer's Intel Mac (online 1.5.1.0, /Applications pkg 1.5.0.6, conda env "spacr" 1.5.0.7) the newest build lists all three, removes only the ticked ones, and keeps the running install and unticked data. Owner: Claude (macOS acceptance lane, branch macos-acceptance-2026-10-18); held until the 1.5.1.5 release hold lifts.
+2026-10-18 — MAINTAINER ACCEPTANCE MATRIX (macOS): install each macOS desktop .pkg since and including 1.4.9.9 (1.4.9.9, 1.5.0.1, 1.5.0.4-1.5.0.9, 1.5.1.0, 1.5.1.2-1.5.1.4); for every one, the NEW installer must update it and the NEW installer/app must remove it. Each old version's own in-app update is tried best-effort (its code is fixed); where it cannot work, the new release must still recover it. Run natively on the maintainer's Intel Mac by the Claude macOS lane.
+2026-10-18 — Implemented (branch macos-acceptance-2026-10-18): Uninstall scopes "Older versions only" and "Ticked installations" with per-installation tick boxes; unverified rows have none; spaCR reopens after a removal that kept the running install. 245 uninstall checks pass. English manifest refreshed; reviewed 9-language records added; catalog regeneration remains for the Linux translation host. Native acceptance runs in the macOS matrix.
+2026-10-18 — NATIVE FINDING: every published macOS .pkg marks spaCR.app relocatable; Installer updated a Spotlight-visible backup copy of spaCR.app and left /Applications/spaCR.app missing while reporting success. build_macos_online.sh now pins BundleIsRelocatable=false via --component-plist (PackageInfo <relocate/> empty); an install with a stray copy present lands in /Applications. Released pkgs keep the defect.
+2026-10-18 — NEW MAINTAINER REQUIREMENT: the desktop installer window offers a clickable "Uninstall spaCR…" that removes all spaCR software from the computer, with the same cleanup categories as Preferences > Performance > Uninstall (caches, models, logs, settings, history, temporary, downloads, other), each tickable, the same path preview and the same removal backend. Owner: Claude macOS lane; macOS installer first.
+2026-10-18 — NATIVE MATRIX (installer route, Intel MacBook, macOS 26.6.1): each released .pkg, then the 1.5.1.5 candidate .pkg + GUI installer: 1.5.1.4/1.5.1.3/1.5.1.2/1.5.1.0/1.5.0.9/1.5.0.8/1.5.0.7/1.5.0.6/1.5.0.4/1.5.0.1 all reopen 1.5.1.5 (numpy 1.26.4, data kept, one receipt, no Terminal). 1.5.0.5 cannot install itself (its PyPI wheel has duplicate ZIP entries); 1.4.9.9 cannot install on Intel (llvmlite source build). The new pkg now retires the 1.4.9.9 root runtime (venv/python/bootstrap) and keeps its cache; verified natively.
+2026-10-18 — Claude Home integrated branch macos-acceptance-2026-10-18 into nightly up to 70983049c (703: c77d0c768, 15d512bb5, 6c57e0726, 354d1e1d2, 70983049c; 627/221/305 commits alongside); later branch commits are cherry-picked from there. Home follow-ups: "Older versions only" and ticks that keep the running spaCR start with every cleanup category cleared, with a note (backend default too); the installer window's admin step removes /usr/local/bin/spacr only when it is the spaCR launcher symlink; the installer-window key test is tied to macos_installer.m and de/pt/fr translate caches/downloads; the helper's placeholder-only listing line is no longer a caption. Catalogs and caption arrivals regenerated. Remaining: the native macOS matrix (macOS lane) and the per-OS maintainer acceptance above.
+2026-10-18 — Claude Home integrated owner-stamped installer leases (branch macos-acceptance-2026-10-18 up to 3977b74f5) into nightly for 1.5.1.6. Home follow-ups: Linux stamps the start tick from /proc and other POSIX systems read ps lstart in the C locale and UTC; only an ESRCH null signal counts as gone; leases must be this user's and record the pid namespace; a stamped .takeover guard serialises takeovers; an open Windows lease file is never taken; the lease identity uses whichever stat is on PATH; the protected-update test can no longer raise a real admin prompt. Lease messages say "remove it" in ten languages; catalogs regenerated. Remaining: native macOS/Windows acceptance.
+2026-10-18 — NATIVE (Intel Mac): SIGKILL of the installer during uv pip install left uv, the log tee and a subshell running in the root; the next run took the leases over and two installers ran at once. Leases now also record the installer pgid; a lease stays live while a same-user member (not the checker's own lineage) survives, and the next run refuses naming it; once taken over, the dead run's .venv-staging-<pid> is removed. Verified natively end to end. Windows has the same orphan-child gap (Home).
+2026-10-18 — Claude Home integrated process-group leases (branch macos-acceptance-2026-10-18 up to e16e3c631, plus a bounded parent walk) and the Windows child-tree lease (kill-on-close Job Object in the PowerShell installer; tree=1 leases stay live while a child the owner started runs). BLOCKED BEFORE 1.5.1.6: the Windows Job Object and the Win32_Process / ToolHelp32 child check have only fake-table tests; they need a native Windows run (kill the installer mid-pip; the next install must refuse while the children run, then take over).
+
+2026-10-20 — Codex release_ci_takeover + feature_takeover own the native old-version profile repair before other installer work: upgrade39465358896 fails on all three OSes because1.5.0.7 cannot parse the current --without-wgpu option.
+The current installer must carry its profile writer, probe the staged runtime and preserve consent/backend/renderer choices without assuming newer helpers exist in the target package. Keep old PyPI releases immutable and preserve rollback and identity gates.
+Acceptance: focused old-package profile/renderer compatibility cases, source and packaged installer payloads, then native old-to-new upgrade on Windows/macOS/Linux after publication; existing native lease and legacy-matrix requirements remain open.
+2026-10-20 — Current writer payloads and bundled omission validation implemented and peer-reviewed; 99 focused checks pass, then the sole corrected offline-catalog fixture passes. Native old-to-new acceptance on all three OSes remains pending publication and the owning workflow; no whole-item completion.
+2026-10-20 — release_ci_takeover implements the bounded native Windows child-lease producer; root peers actual Job Object kill-mid-pip and real CIM/ToolHelp32 orphan refusal→post-exit takeover, using only owned temporary processes/paths. Preserve the three native upgrade cases; three portable producer checks pass (wheel/gate rechecked after deterministic ZIP timestamps), native result remains pending, and packaged GUI/Intel Mac acceptance stays separate.
+2026-10-21 — Native Intel macOS semantics pass all20 protected Darwin cases: atomic exchange, interruption recovery, HFS+ read-only mounting, AppleScript transport, exact inventories and durable receipts. The wider current Mac installer/update cohort passes411 cases with only2 Windows-only skips after supplying the fixture runner's required pip.
+The current universal online pkg builds natively, is non-relocatable, carries the AppKit first-run window and all10 locales, has matching1.5.1.5 metadata, and its x86_64/arm64 app passes deep ad-hoc signature verification. The outer local pkg is unsigned because Developer ID credentials are not configured.
+Old-to-new desktop acceptance remains open: this Mac and the current candidate are both1.5.1.5, so a newer published candidate is required to prove version replacement/relaunch without weakening identity checks. Native VoiceOver/human acceptance belongs to655; Windows/Linux and full release gates remain separate.
+2026-10-21 — Maintainer accepted native VoiceOver under655 and placed the remaining Windows/Linux acceptance on hold; do not pursue those platform lanes until explicitly resumed. The newer-candidate macOS replacement gate above remains accurately recorded.
+2026-10-21 — DONE at maintainer-accepted scope: the native macOS installer matrix plus automated in-app update, rollback, interruption, identity and restart validation satisfy703. The maintainer explicitly waives a second newer-candidate in-app run; Windows/Linux acceptance stays on hold and does not keep this item open.
+
+2026-10-21 — Home Ubuntu24.04.5 x86_64: real online1.5.1.4→released1.5.1.5 installation/update/restart passes; that legacy updater loses the inside-root file and CPU-wheel choice but retains four external sentinels. This is not current-source acceptance.
+2026-10-21 — Released1.5.1.5 Debian private-root dpkg install/reinstall/removal, frozen identity, native startup/Home and five retained data sentinels pass; no privileged host integration or nonexistent older frozen upgrade is claimed.
+2026-10-21 — Current-source GUI same-version reinstall preserves five files, byte-identical Qt settings and CPU torch; ff22a3fb16 stages Linux updates with existing POSIX identity/Restart/rollback machinery and safe missing-profile refusal;28 focused checks pass.
+2026-10-21 — Repaired wheel8a8e6579 native xcb/Xvfb1.5.1.5 same-version Restart passes atomic activation, authenticated new interpreter/module/version and visible Home; all files/preferences/CPU choice and rollback survive. Normal check correctly reports no newer release; current-source old→new replacement awaits a newer artifact.
+2026-10-21 — Final cc5f4f5bd2 wheelbc26f329 actual installer/readback and646 GUI/CLI cleanup pass; all owned native jobs finish. Root owns integrated publication; accepted Mac scope remains closed and unrelated Windows scope remains held.
+
+2026-10-21 — Hosted old-nightly9d48020f289 fixture repair877b9da98c1 distinguishes explicitly constructed supported historical plans from current linux-online-uv-v1; preserves legacy actions, current valid CPU choices and missing/corrupt-choice refusals. Linux stage/cancel wrappers now assert real committed identity or unchanged active runtime/data. All20 affected updater/privacy/hygiene cases pass; production code is unchanged. Root publishes this repair; native Mac acceptance remains retained and actual current-source newer-version Linux replacement still awaits the released artifact.
+
+2026-10-21 — Nightly Mac ARM job119524565286/on8a4 passes old1.5.0.7 health, then current installation fails on cvxopt1.3.3 source-build missing umfpack.h before staged upgrade/removal. N718's Mac-only online/offline CVXOPT binary-selection fix retains defaults and all staging guards. Exact pinned uv0.11.32 controls resolve367 packages: before macOS14 selects1.3.3 source, after it selects compatible1.3.2 wheel, and macOS15 retains1.3.3 wheel; eight owning checks pass. Exact-source hosted staged-upgrade/removal acceptance remains pending root publication. Prior native Mac Intel/Linux results remain valid; no main-branch failure, new update acceptance or removal acceptance is inferred.
+
+2026-10-21 - Maintainer explicitly resumes native Windows testing; Codex Windows lane owns checks and fixes on nightly. Exercise update/restart/cancel, installer child leases, rollback and data-preserving uninstall on disposable roots; retain accepted Mac/Linux scope and existing edits.
+
+2026-10-21 ? Native Windows child-lease acceptance passes both real Job Object kill-mid-pip and surviving-orphan CIM/ToolHelp32 refusal followed by post-exit takeover, on both installer/update lease paths. The existing producer uses owned temporary processes and a real local pip request under an 8 GiB Windows Job memory cap; stderr is empty and both scenarios complete. This establishes child-lease behavior, not packaged upgrade or GUI acceptance.
+Windows updater ownership (resumed 2026-10-23): Codex windows_backend owns genuine retained1.5.1.5 to the normal rebuilt nightly1.5.1.6 wheel with long-path fix9b841c203, using the existing offline wheelhouse and native ACL checks. Native core staging/identity/cancel/rollback/restart acceptance passes; the normal newer-release discovery route still needs a published newer Windows release. The completed disposable runtime is transferred to windows_scope for uninstall/cleanup; F587 owns installer PowerShell. Preserve accepted Mac/Linux results, all user files and recorded child-lease passes; no fabricated versions or live registry/profile changes.
+Native repair requirement (2026-10-22): real staging hit WinError3 copying three deep PySide6 QML object files beyond MAX_PATH. windows_backend owns Windows extended-path handling for complete staging, guarded inventories/ACL checks, rollback and abandoned-stage removal; retain normal displayed/journal paths, every payload file and all existing identity/private-volume guards. No registry long-path toggle or skipped files. The original1.5.1.5 runtime remains intact; actual cancel/rollback/restart resumes on the repaired candidate.
+
+2026-10-22 — Native Windows build22631/Python3.12.13: real old1.5.1.5 Home/interpreter/module identity passes; attempted1.5.1.6 staging safely preserves it after WinError3 on three deep PySide6 payload paths. Windows filesystem boundaries now use extended paths for complete copy/ACL/inventory checks, rollback and abandoned-copy removal while journals/commands keep normal paths and UNC/device/foreign-write guards remain.49 focused checks pass, including native deep-file commit/rollback/removal and ACL-identity controls; no public API prose/signatures or generated references change. Full genuine candidate cancel/rollback/restart retry awaits the normal rebuilt wheel and heavy-lane handoff; accepted Mac/Linux and prior child-lease results remain retained. Separate Mac installation repair: verified Rosetta online bootstraps restart natively and all managed Python requests bind architecture; offline targets remain unchanged. Intel Darwin metadata/flow-gpu and released-installer guards select ModernGL5.12, GLContext3.0 and Cryptography48, retaining newest ARM releases. Twelve unique focused controls pass (six retained and six affected fixture reruns); actual CPython3.12/macOS26 binary dependency downloads pass for both architectures with Paramiko5.1. Native Mac execution, other Python/OS combinations and existing scientific/newer-release gates are not newly accepted. Subsequent hosted ARM64 macOS run39889669852 passes universal-package build, managed native Python3.12.13,368-dependency installation and installed-app smoke; public release assets remain pending.
+
+2026-10-23 — Home Linux a9904694f53 source wheel installs369 packages with CPU Torch; installed interpreter/module/critical bytes and visible xcb Home pass in a private-home namespace (Xvfb GLX disabled for the host NVIDIA-server fault). Same-version reinstall and a missing-wheel preparation failure preserve six data/settings sentinels; the latter also preserves active runtime identity. Prior native staged restart/rollback results remain applicable to seven unchanged transaction/removal functions; actual released1.5.1.5→1.5.1.6 replacement remains pending publication, and system dependencies were not reinstalled. Disposable Conda Python3.12.15 current-wheel installation, actual installed CLI/offscreen Home and public package-only uninstall pass: Conda interpreter/metadata, pip, operational unrelated pyfiglet and four model/output/test-data/project sentinels remain. No environment deletion or newer released-version update is inferred.
+2026-10-23 — Native Windows genuine1.5.1.5→1.5.1.6 core acceptance passes actual staging/identity/Qt import, cancellation, injected relaunch-failure rollback and committed native main-window restart; four file sentinels and a Qt setting survive. The old process/window is verified live immediately before approval/normal close; upgraded native exitcode0 is observed after cancelling its real optional-cleanup modal first (earlier close waits raced that modal). The fixture's saved privacy opt-out had not been applied: corrected through production apply_choices(false,false), with no privacy-preservation claim. Runtime transferred to646; prior49 focused passes retained. BLOCKED ON MAINTAINER for normal newer-release discovery: publish genuine1.5.1.6-or-newer Windows setup/update assets, then exercise the normal in-app Check/Restart route; latest published release remains1.5.1.5. Accepted Mac/Linux scope and child-lease results remain unchanged.
+2026-10-23 — Windows privacy acceptance ownership: Codex windows_gpu_after_reboot closes the remaining opt-out proof with one private clone of the retained genuine1.5.1.5 runtime, production apply_choices(false,false), matching saved install-profile and Qt privacy flags before launch, then real staged1.5.1.6 activation/native acknowledgement/normal close and both-store readback. Preserve four user files, a Qt keep key, the original backup and host registry/profile; execution waits for the heavy VM lane to release resources. This adds no newer-release discovery claim and retains all earlier platform acceptance.
+2026-10-23 — Windows privacy acceptance ownership: Codex windows_gpu_after_reboot closes the remaining opt-out proof with one private clone of the retained genuine1.5.1.5 runtime, production apply_choices(false,false), matching saved install-profile and Qt privacy flags before launch, then real staged1.5.1.6 activation/native acknowledgement/normal close and both-store readback. Preserve four user files, a Qt keep key, the original backup and host registry/profile; execution waits for the heavy VM lane to release resources. This adds no newer-release discovery claim and retains all earlier platform acceptance. Resumed2026-10-24: current704aa native acceptance stops before copying/launch at a real274-character PySide6 backup path in _windows_pip_tree_acl (ordinary path missing, extended path exists). The same owner repairs only native filesystem boundaries, preserves ordinary ACL/map/journal paths and every ownership/reparse/foreign-write refusal, proves a native deep-file ACL regression, then rebuilds the normal current-source wheel and retries the affected private privacy upgrade once under2GiB.
+2026-10-24 — Windows privacy acceptance PASSES on the rebuilt aclfix wheel (sha256 f89ba02d): genuine1.5.1.5 clone with both stores opted out, live old window verified, staged369-package 1.5.1.6 transaction, new native window acknowledged, late cleanup modal cancelled, both apps exit0 normally; both stores still opted out afterwards, four sentinels/Qt keep key/original backup retained. Deep-path ACL walk fix committed with8 focused passes. The walk now queries the volume once per verified root instead of per file (4.7→0.6 ms/entry, ~400→51 s for an85k-entry runtime) in a separate commit. Newer-release discovery stays BLOCKED ON MAINTAINER as above.
+2026-10-25 — Optional cache cleanup works on Windows: news/backgrounds/icons/sounds under the default spaCR home are inspected through CreateFileW(FILE_FLAG_OPEN_REPARSE_POINT|FILE_FLAG_BACKUP_SEMANTICS) handles instead of POSIX dir_fd descriptors, refusing reparse points and junctions, binding volume serial + file ID and requiring each GetFinalPathNameByHandleW path to stay under the home (8.3 home spellings accepted). Each file is re-opened with DELETE access and deleted through that handle only while its identity still matches the preview; the folder itself stays. POSIX path unchanged; no new captions. Injectable handle layer tested on Linux (reparse, junction, final-path escape, swap before open/delete, root swap); native Windows run of tests/test_n703_optional_cleanup_windows.py, test_n703_optional_cleanup_dialog and test_n703_cache_review_workers pending on the Windows lane.
+2026-10-25 - Native Windows (build 22631, Python 3.10, 8 GiB cap) on a76c150f77: test_n703_optional_cleanup_windows, test_n703_optional_cleanup_dialog and test_n703_cache_review_workers give 43 passed, 14 skipped (injected-handle tests need O_PATH and /proc); both native ctypes tests pass, emptying a real selected cache through handles and refusing a real mklink /J junction root. The Windows cleanup pending item is closed; newer-release discovery stays BLOCKED ON MAINTAINER as above.
+
+2026-10-27 — Acceptance update: the maintainer removes human review/intervention and manual/native-platform acceptance gates through 1.5.1.6 delivery; reasonable implementation, focused validation and publication qualify delivery. The maintainer tests afterward, and silence requests no change. Unimplemented work, known defects and unmet scientific outcomes remain open.
+2026-10-27 — DONE under the revised delivery rule: published staging, identity, restart/rollback, cleanup and user-data/privacy preservation repairs retain their focused and staged native results. Normal newer-release discovery/testing follows actual release publication; this status does not claim that 1.5.1.6 assets are already released.

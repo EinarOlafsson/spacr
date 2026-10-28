@@ -135,7 +135,7 @@ blocks:
     com Metal para uma imagem de 256×256, usando torch 2.2.2, Python 3.12.11 e macOS 26.5.2.
     Este é um exemplo histórico, não uma garantia de velocidade. A aceleração por GPU requer
     um backend utilizável e bibliotecas compatíveis. Consulte a `medição de hardware registrada
-    <features/new/319_use_non_nvidia_accelerators_where_they_exist.txt>`_.
+    <features/feature_list/319_use_non_nvidia_accelerators_where_they_exist.txt>`_.
 - h2: Instalar o spaCR
 - p: 'Escolha uma forma de instalação:'
 - list:

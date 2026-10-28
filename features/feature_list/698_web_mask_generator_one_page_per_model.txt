@@ -1,0 +1,745 @@
+================================================================================
+WEB MASK GENERATOR: DROP AN IMAGE, GET MASKS, FLOWS, PROBABILITY AND A CSV,
+ONE PAGE PER MODEL CLASS, IN THE SPACR SITE STYLE
+================================================================================
+
+Lifecycle: new
+Status:    new 2026-10-13
+Requested: maintainer, 2026-10-13: "i would like a new web page in the same
+           style as the spacr web page where the user can drop in or upload a
+           picture or a pdf or whatever other supported filetype and the
+           webpage will generate masks for the user. this means the page will
+           need to have access to some type of gpu acceleration. the user
+           should then be able to download a zip of the picture, the mask,
+           flows, cell probability and a csv with data for the object. one
+           page per model class (pv, plaque, plaque well, cell from hoechst,
+           toxo from hoechst, etc.), like the tabs on the spacr homepage. and
+           the site should link to hugging face so the user should be able to
+           import a random image from an appropriate test data source on
+           hugging face."
+Owner:     Home (design, backend, site); WS (GPU testing, model export)
+Related:   site-src (private) -> EinarOlafsson.github.io Pages, the spaCR site
+           Models tab and flip score cards, spacr/resources/model_cards/*.json,
+           Hugging Face einarolafsson/models (a DATASET repo) and the test
+           datasets, spacr.tabular for the CSV, spacr-download test data.
+
+--------------------------------------------------------------------------------
+DESIGN QUESTIONS TO SETTLE FIRST (ask the maintainer with the question tool)
+--------------------------------------------------------------------------------
+
+- GPU: (a) a Hugging Face Space with ZeroGPU running spaCR's real Cellpose-
+  SAM pipeline behind a small API, the static site calling it; (b) in-browser
+  WebGPU/ONNX (no server, but Cellpose-SAM at ~300 M parameters is heavy and
+  YOLO/plaque-well detection would need separate exports); (c) both, browser
+  first with Space fallback. Cost, quotas, privacy (uploaded images leave the
+  user's machine in (a)) and the file-size limit follow from the choice.
+- Hosting: a new page on the existing site (site-src) or a separate site in
+  the same style.
+
+Decided 2026-10-13 (maintainer): BOTH GPU paths are options the user can
+pick on the page: "Hugging Face Space (ZeroGPU)" running spaCR's real
+pipeline, and "In my browser (WebGPU)" running exported models locally (no
+upload). The pages live ON the spaCR site (site-src), as a new section
+beside the Models tab.
+
+--------------------------------------------------------------------------------
+WHAT TO BUILD
+--------------------------------------------------------------------------------
+
+1. Pages: one tab/page per model class, matching the spaCR homepage tabs:
+   parasite vacuoles, plaques, plaque wells, cells from Hoechst, nuclei from
+   cell mask, vacuoles from cell mask, vacuoles from Hoechst, live cells, and
+   any later default model. Each page shows the model's score card and its
+   recommended input (channels, magnification, file types).
+2. Input: drag-and-drop or upload of every format spaCR reads that makes
+   sense on the web (TIFF incl. multi-channel/OME-TIFF, PNG, JPEG, CZI/ND2
+   where the reader is available, and PDF by rasterising its pages), with a
+   channel picker when the image has several channels.
+3. "Random test image": loads a random image from the matching Hugging Face
+   test dataset for that model class, credited and linked.
+4. Run: the real spaCR model and settings for that class (same weights, same
+   defaults, diameter from magnification per item 696), with progress, and
+   an overlay preview of the masks on the image.
+5. Download: one ZIP with the input image, the mask (label TIFF), the flows,
+   the cell probability, a CSV of per-object measurements (spacr.tabular
+   columns: label, area, centroid, intensity per channel, etc.) and a short
+   README naming the model version, settings and spaCR version.
+6. Style: the spaCR site's look (Open Sans, the field backdrop, the dark
+   GitHub-neutral cards with teal accents, symmetric layout), every string
+   translatable like the rest of the site, accessible (keyboard, screen
+   reader labels).
+7. Limits and privacy statement on the page: maximum file size, how long
+   uploads are kept (ideally not at all), and that results are for research.
+
+--------------------------------------------------------------------------------
+ACCEPTANCE
+--------------------------------------------------------------------------------
+
+- For each model class: a test image from Hugging Face produces masks that
+  match the desktop spaCR result on the same image (same label count, mask
+  IoU >= 0.99), and the ZIP contains all six items.
+- Works on a phone and a desktop browser; a 10 MB TIFF completes on the
+  chosen GPU path within a stated time.
+- Links from the main spaCR site and the README Models section.
+
+
+2026-10-13 21:37 EDT — Home independently checked the bounded source audit.
+Evidence: features/data/698_web_mask_source_audit_2026-10-13/. Receipt/schema
+validate;49 file bindings match bytes/SHA256/Git blobs, including19 private
+website files. Private raw website sources remain scratch-only. Current site
+is static; upload/inference/ZIP/WebGPU routes are not implemented. Inspected
+public model repositories contain no browser exports; large desktop weights
+require real export/operator/postprocessing and parity work.
+
+Select each route's exact weights/settings. Model Zoo/README highlight wellv3,
+while the published-figure pipeline intentionally retains wellv2. Plaque
+segmenter defaults tov4. Detectors yield boxes/confidence, not segmentation
+flows/cellprob: export actual model-appropriate outputs with explicit availability
+and README/manifest reasons, never fabricated arrays. Existing cellprob can be
+raw logits and must not be advertised as calibrated probability. Approved
+well/Hoechst-parasite sample sources and held automatic diameter need resolution.
+
+Current official ZeroGPU docs allow eligible verified personal accounts older
+than30days to create two free Spaces; visitor quotas and Gradio/runtime limits
+still apply. Owner eligibility and real hosted/browser/desktop parity remain
+requirements, not observed acceptance. No implementation, tests, GPU job, site
+publication or upload occurred. All required routes/options remain OPEN.
+
+2026-10-14 — Original Home: first implemented result-download backend component.
+tools/web_mask_generator/results.py now packages actual caller-supplied 2-D
+segmentation outputs: original uploaded bytes, selected YX/CYX TIFF, uint32
+labels, actual optional flows/scores, canonical per-object CSV via spacr.tabular,
+README and provenance/checksum manifest. Raw logits stay raw and are explicitly
+not advertised as calibrated probabilities. Missing backend outputs require
+reasons; no placeholder arrays are synthesized. Sparse high label IDs retain
+their IDs without allocating by maximum label. Atomic publication preserves a
+previous ZIP when CSV/ZIP/final replace fails. No network or inference occurs.
+This is partial implementation, not completion of N698: no web UI/hosting,
+WebGPU exports, actual model routing/inference or desktop/browser parity claimed.
+CPU synthetic result-package evidence: features/data/698_result_package_2026-10-14/.
+Owning closure: 35 PASS, actual exit 0, 2.44s; new tool 123/123 statements
+and 62/62 branch arcs covered. Original upload and supplied arrays round-trip,
+object IDs/areas/centroids/per-channel intensities and every manifest hash checked;
+invalid inputs and simulated full-disk/writer/final-replace failures preserve
+previous output. Normal feature-index check and diff check pass. No native,
+scientific real-data, hosted GPU or full-CI acceptance inferred from these tests.
+
+2026-10-14 — Original Home: implemented bounded offline upload decoding.
+The second N698 backend component reads TIFF/OME-TIFF, PNG/JPEG/BMP and PDF
+pages. Header choices precede pixel decode; non-singleton T/Z/other axes require
+explicit indices and selected channels keep their chosen order and exact dtype.
+PDF rasterization records page and DPI. No projection/normalization/blending or
+microscope calibration is inferred. Configured file/decoded-byte/plane-pixel
+limits and a PDF page limit reject before decode/render. CZI/ND2 adapters and
+actual inference/web routes remain open. The reader's selection receipt can
+travel in the download manifest alongside the true inference settings.
+Owning closure: 40 reader cases plus 35 package cases PASS (actual exit 0,
+3.51s); new reader 135/135 statements and 52/52 branch arcs covered. Real local
+OME/time/Z/channel, multiple TIFF series, ordinary image and two-page PDF fixtures
+exercise actual decoders. Initial 68 PASS/1 FAIL identified unsupported PDF page
+context management; explicit native handle closes fixed it; original result is
+retained. No hosted/GPU/browser or scientific parity acceptance is claimed.
+Evidence: features/data/698_upload_inputs_2026-10-14/.
+
+2026-10-14 — Original Home: optional CZI/ND2 upload adapters implemented.
+Scene-aware czifile retains explicit CZI scene/T/Z/channel identity; ND2Reader
+retains explicit ND2 position/time/depth/channel identity and exact decoder
+pixel values/dtype. Existing upload size/selection preflights apply. Missing
+readers, legacy CZI APIs without scene metadata, and unsupported ND2 spatial
+headers are refused rather than guessed. No installs/downloads occur.
+Owning closure: 8 vendor cases plus 75 earlier reader/package regressions PASS,
+actual exit 0, 4.62s; reader total172/172 statements and70/70 branch arcs covered.
+Actual two-scene TCZYX CZI from repository fixtures and an already-cached public
+OME MeOh ND2 were decoded and matched independent direct reader calls. Original
+source byte hashes remain unchanged. The first 82 PASS/1 FAIL caught the ND2
+reader's string-path-only API; converting Path to str fixed it. The cached ND2
+acceptance skips where unavailable, without a network fallback. Installed reader
+cannot read the other cached ND2 version's spatial metadata; that version remains
+explicitly unsupported. No new module under spacr/, UI route, inference or GPU
+claim. N698 still partial. Receipt: features/data/698_vendor_inputs_2026-10-14/.
+
+2026-10-14 — Original Home: plaque reader/inference/download path wired.
+tools/web_mask_generator/plaque.py now verifies an operator-provisioned trusted
+checkpoint SHA before delegating to the existing desktop model loader and
+spacr.plaque.segment_plaque_image. The actual desktop eval result supplies masks,
+raw vector fields and cell-score logits to the result ZIP in one inference call;
+RGB flow visualizations are not mislabeled as vectors and missing arrays are
+not fabricated. Explicit resolved diameter/thresholds and upload selection are
+recorded. No network weight resolution, alternative model/default selection or
+segmentation/postprocessing implementation was introduced. Future hosting must
+restrict model paths to the operator's registry and keep limits server-owned.
+Owning closure: 17 adapter contracts +83 package/decoder regressions PASS,
+actual exit0,10.49s; adapter58/58statements28/28branch arcs covered. Constructor/eval
+are injected CPU fakes; real existing desktop segmentation helper executes.
+This does NOT prove actual checkpoint availability, scientific accuracy, hosted
+GPU behavior, N696 default resolution or desktop/WebGPU parity. No actualmodel
+inference, HomeGPU or deployment was performed. ParentN698 remains partial.
+Source-bound receipt: features/data/698_plaque_adapter_2026-10-14/.
+
+2026-10-14 — Original Home: runnable operator entry point completed.
+python -m tools.web_mask_generator.run now composes header inspection, explicit
+image/page/channel/axis choices, trusted local weight identity, actual desktop
+plaque path and atomic result ZIP. --describe reads headers without model load;
+missing provenance, implicit diameter and duplicate axis choices are refused.
+No server, model download, auto-install or GPU action starts implicitly.
+Owning checks: 12 command contracts+100 prior adapter/reader/package checks PASS,
+actual exit0,10.47s. Covered CLI54/55statements13/14arcs; the normal __main__
+entry was additionally invoked successfully against the real two-scene CZI
+header (actualexit0,0.60s). No actualmodel inference was executed. README has
+operator usage tied to the bundled plaque-v4 weight hash, with diameter clearly
+an example rather than a selected scientific default. ParentN698 remains partial;
+webhosting/UI, modelclass routing and real GPU/browser parity remain open.
+Receipt: features/data/698_operator_command_2026-10-14/.
+
+2026-10-14 — Original Home: trusted model-class/version registry implemented.
+All eight requested existing model families derive from the normal model-card
+family/default rules, alpha filtering and CURRENT rescored card metrics. PVv5
+and plaquev3 alternatives do not replace their defaults; detector output kind
+is boxes, never fabricated masks/flows. Public metadata has no local paths;
+only an operator-owned provisioned-key mapping can resolve trusted checkpoint
+bytes, checked against the exact published checksum. Unavailable defaults do
+not silently fall back to older installed weights. Only plaque advertises an
+implemented inference adapter; other model-class adapters remain open.
+Owning closure10 registry cases+112 component regressions PASS, actualexit0,
+12.80s; registry32/32statements12/12branch arcs covered. Currentcatalog/default/
+alpha/card provenance are checked; controlled fake weight bytes exercise identity
+refusal without downloading or loading a real model. No new scientific benchmark
+or checkpoint-availability claim. No shared website/tool/settings file edited;
+registry imports existing owner-maintained model-card APIs. ParentN698 partial.
+Receipt: features/data/698_trusted_registry_2026-10-14/.
+
+2026-10-14 — Original Home: private service job/request boundary implemented.
+PlaqueService keeps the operator model mapping immutable; client paths/output
+folders/limit overrides are refused. Explicit upload consent is checked. Bounded
+stream copy cannot exceed configured bytes even if a source grows. Private
+mode700 input/result staging is removed after success, inference failure or
+consumer/transfer failure; any future framework download cache must disclose and
+manage its own retention. Explicit startup preload plus a digest-keyed desktop
+model cache supports documented ZeroGPU placement without import-time loading.
+More than three selected plaque channels now refuse before model load, avoiding
+silent Cellpose channel loss. No generic/shared website files were edited.
+Owning13service cases+1channel guard+122regressions=136PASS, actualexit0,15.34s.
+Service57/57statements15/16arcs; adapter62/62statements30/30arcs covered. Actualmodel
+construction/eval remain injected; no HomeGPU, checkpoint or scientific parity
+acceptance inferred. N698 site/service interface request for Home-B is committed
+in features/data/698_site_interface_2026-10-14/coordination.md. Parentpartial;
+actual Gradio/Space runtime, remaining model adapters, website and both GPU paths
+still need implementation/acceptance. Receipt:features/data/698_service_jobs_2026-10-14/.
+
+2026-10-14 — Original Home: actual Gradio/Space service UI source implemented.
+The dedicated tools/web_mask_generator/app.py constructs all eight current
+family/version/provenance tabs; only the implemented plaque adapter executes.
+Consent enables the file picker; real header choices populate ordered channels,
+series/T/Z/PDF controls and explicit effective diameter. Named model/segmentation
+API routes, one-worker/eight-pending queue, pending cancellation, true result ZIP
+and display-only red-boundary preview are wired to the service. Consent/header/
+diameter checks precede the decorated ZeroGPU call. Gradio's upload/download
+cache is configured to reap one-hour-old files every five minutes, while private
+job staging is removed after cache transfer. Retention on actual hosting remains
+an acceptance requirement. Public share/run-history are disabled; upload limit
+and strictCORS are set. SDK file entry and pinned optional UI requirements ship.
+ActualGradio6.30.0+spaces0.51.3 in a NEW privateWDvenv:12PASS,actualexit0,10.32s.
+Actual UI graph, callbacks, real header/PDF choices, package/cache/preview and
+Space decorator construction executed without a server/model/GPU. App128/131
+statements26/30arcs covered. A real dropdown-mode warning was fixed by preserving
+multiselect updates. The Space file entry and explicit launch policy are checked;
+launch was replaced by a recorder, not run. No global environment modified.
+Whole N698 remains partial: no hosted endpoint/account eligibility, real GPU/
+checkpoint/desktop-WebGPU parity, remaining class adapters, approved random HF
+samples, full UI localization/style/accessibility or browser exports accepted.
+Official eligibility/startup guidance and source-only free setup steps are in
+README; no paid resources or account changes. Home-B site interface ack remains
+required. Receipt:features/data/698_gradio_source_2026-10-14/.
+
+2026-10-14 — Original Home: explicit REST selection correctness repair.
+Review found infer() truncated fractional series/T/Z/page/DPI values with int().
+The actual Gradio Number(precision=0) preprocessor also rounded REST values
+before the callback. Index controls now preserve incoming precision, and strict
+validation rejects fractions, NaN/Inf, booleans and negative indices before GPU
+entry. Exact integer-valued REST floats are retained as their same explicit
+integer selection; ordered channels are validated too. Header choices share the
+strict validator. No silent frame/page substitution remains on these controls.
+Validation34distinctactualGradio cases:33PASS/actualexit0/25.53s (including20cases
+using real Number.preprocess then callback with a recorded GPU boundary), plus
+1PASS/actualexit0/7.17s for successful exact REST-float selection. No model/GPU
+or server launched. Original32PASS/1stale negative-index wording failure retained,
+then expectation corrected to the new strict validation wording. Source UI is
+still partialN698; no hosted/parity/fullfeature acceptance inferred. Receipt:
+features/data/698_explicit_rest_indices_2026-10-14/.
+
+2026-10-14 — Original Home: actual desktop well-detector backend implemented.
+Verified local checkpoint bytes reach spacr.plaque.detect_wells, preserving
+its RGB/BGR conversion, confidence/default image size, reading order and well
+axis-ratio filter. One grey or three RGB channels are accepted; other channel
+counts refuse. The result contains actual boxes/confidences/desktopWellgeometry,
+rectangle-labelled CSV measurements, original upload/selected TIFF and provenance
+hashes. Masks/flowvectors/per-pixel probabilities are explicitly unavailable,
+never synthesized; rectangular geometry is not presented as segmented wellarea
+or physical calibration. Segmentation and detection share the same atomic ZIP
+publisher; original segmentation payload semantics remain unchanged.
+Validation24detector cases+35segmentation-package regressions PASS, actualexit0,
+3.00s; detector80/80statements32/32arcs, sharedresults125/125statements62/62arcs.
+The actual desktop detect_wells body executes; predictor construction/output are
+injected CPU fakes, so no actualweights/GPU/scientific detector parity accepted.
+Malformed output geometry/provenance, badsettings, checksum failure, CSV/rename/
+predictor failures preserve prior outputs. Service/UI detector enablement remains
+open, and parentN698 partial. Receipt:features/data/698_well_detector_2026-10-14/.
+
+2026-10-14 — root dedicated GUI/detector source integration:
+Published actual Gradio component source with consent, private result caching,
+strict whole-number selections before GPU entry, and an independent desktop
+well-detection adapter with honest box-only ZIP export. The combined final
+source passed93 owning tests, actual exit0. Plaque is the executable GUI route
+in this source step; other families remain provenance listings pending their
+next adapter integration. No hosting, weights, GPU or scientific acceptance.
+Full localization/browser WebGPU/whole698 remain open.
+Evidence: data/698_gui_detector_integration_2026-10-14/receipt.json.
+
+2026-10-15 — Genuine installed well-detector CPU parity (bounded acceptance):
+Explicitly selected installed toxoplasma_well_detector_v2 (not a missing-default
+substitute), 5,382,085 bytes, full bundled SHA-256 f2a1e1110f09b2a1d5ef5545adaba7c57f1158669d0bfc50d8fabe9f86da30c7.
+Actual Ultralytics 8.4.157/Torch CPU inference runs both desktop detect_wells
+and the web adapter on declared synthetic grayscale and RGB PNGs. Each returns
+three actual boxes; all coordinates, confidence and Well geometry match exactly.
+Both ZIPs preserve source bytes, exact model/settings provenance and every
+output hash, and correctly omit masks/flows/per-pixel probabilities. Checkpoint
+and five relevant source files remain byte-identical before/after. Exit 0;
+CUDA unavailable/uninitialized, MPS unavailable. The script requests one Torch
+thread initially, but the receipt records eight after inference. No mocks,
+model/package downloads or biological accuracy claim. One toolkit temporary
+configuration fallback is recorded in the raw log. Inputs, ZIPs, script and
+receipt: data/698_native_well_cpu_2026-10-15/. Other models, default plaque-v4
+availability, actual hosted service/browser/GPU and biological acceptance remain
+open; this does not close N698 or imply all eight routes are public.
+
+2026-10-14 — Original Home: six remaining segmentation-family backend adapters
+implemented through canonical N696 diameter/settings and existing desktop
+normalization, Cellpose evaluation, mask filtering and field-size restoration.
+Exactly one explicitly chosen input channel; no invented reference channel or
+new scientific algorithm. Blank/magnification, explicit pixels and Auto use the
+same N696 helpers. Original intensities, actual returned vectors/logits and
+post-filter labels reach the result ZIP; desktop filtering can relabel objects.
+Validation: 27 owning CPU cases PASS, actualexit0/10.68s, including all six
+families, native/explicit diameter, role thresholds/resampling, original-intensity
+measurements, border/area filters, exact checkpoint identity and constructor
+cache. Actual desktop helpers execute; model construction/evaluation injected.
+Private validation uses nine owner-provided N696 backend source files, bound in
+receipt; these dependencies are not published by this web lane. Actual approved
+weights, scientific/GPU/browser parity, service/UI enablement and deployment
+remain open; parent N698 partial. Receipt:features/data/698_shared_masks_2026-10-14/.
+
+2026-10-14 — Original Home: private service dispatch and registry now enable all
+eight implemented desktop adapters: plaque, well detector and six Mask families.
+Exact family/version/checksum resolution remains server-owned; no visitor paths,
+limits or callbacks accepted. Each adapter shares consent, bounded private input
+copy and staging cleanup on success/failure/consumer exception. PlaqueService
+remains a compatibility alias for ModelService. Validation31 owning service and
+registry cases PASS/actualexit0/3.79s, including distinct dispatch for all eight
+families; dispatch tests inject adapters and make no scientific inference claim.
+UI enablement, approved weights, actual GPU/browser parity and deployment remain
+open; parentN698 partial. Receipt:features/data/698_all_family_service_2026-10-14/.
+
+2026-10-14 — Original Home: dedicated Gradio UI now exposes runnable callbacks
+for all eight model classes, with per-family closure factories (no loop-variable
+cross-routing), current version/provenance, consent and explicit image selection.
+Plaque resolved/native diameter remains distinct from generic blank/magnification
+and Auto; generic routes accept desktop normalization/filter JSON overrides.
+Well detection exposes confidence/axis-ratio and draws actual rectangles, with
+no fake segmentation mask. All callbacks share the bounded queue/private staging
+and strict nonfractional REST selection rules. Validation44 actual-Gradio cases
+PASS/actualexit0/40.60s, including each family's captured settings, original
+plaque API compatibility, JSON/path refusal, detector geometry preview and prior
+REST preprocessing regression cohort. Model service mocked; no server/GPU or
+real weights started. Native ZeroGPU placement/quota and actual checkpoint,
+scientific/browser parity, accessibility/localization and public hosting remain
+acceptance gates; parentN698 partial. Receipt:features/data/698_all_family_ui_2026-10-14/.
+
+2026-10-14 — Original Home: operator CLI now supports all eight desktop routes.
+--family selects the adapter; generic Mask routes preserve blank/magnification,
+Auto/native and explicit diameter plus role-specific cell-score defaults and
+optional normalization/filter JSON. Detector options expose confidence, image
+size and axis-ratio; plaque's required explicit scale behavior is retained.
+Non-Mask routes reject normalization/filter overrides rather than ignoring them.
+Validation23 command cases PASS/actualexit0/1.46s; actual header decoding plus
+injected adapter dispatch only. No real model/GPU/scientific parity inferred;
+parentN698 partial. Receipt:features/data/698_all_family_cli_2026-10-14/.
+
+2026-10-14 — Original Home: random public HF test-image transport and dedicated
+UI button implemented. Only operator-reviewed per-family test records are
+accepted, with immutable DATASET commit, exact relative filename, SHA-256, byte
+count and credit. No arbitrary visitor URLs, ambient authentication, directory
+scans or inferred dataset mappings. Download streams stop before exceeding the
+approved size; full size/hash and actual image headers are checked before
+serving. Temporary staging cleans on HTTP/hash/size/consumer failures; Gradio
+copies into its disclosed temporary cache and displays source/credit. Buttons
+stay disabled for families without reviewed records. Validation68 owning cases
+PASS/actualexit0/43.19s (23 transport and45 actual-Gradio callback regressions).
+HTTP and model service mocked: no real dataset download, test-split/rights
+review, hosted/GPU or scientific parity accepted. Reviewed real example records,
+all-family ZeroGPU deployment and browser route remain open; parentN698 partial.
+Receipt:features/data/698_approved_examples_2026-10-14/.
+
+2026-10-14 — Original Home: common desktop normalization/filter settings now
+have normal Gradio controls, inside a collapsed optional section: background,
+signal-to-noise, lower percentile, shared-perimeter merge and explicit
+Default/Enabled/Disabled background/border switches. Blank fields retain desktop
+role defaults; JSON remains optional for additional object filters. Detector
+image size now has an explicit control with strict integer validation before
+GPU entry. Validation47 actual-Gradio cases PASS/actualexit0/48.92s, including
+exact settings emission/default preservation and fractional detector-size refusal.
+No live server/model/GPU or scientific parity accepted; parentN698 partial.
+Receipt:features/data/698_normalization_controls_2026-10-14/.
+
+2026-10-15 — Preview/example boundary closure before full-family publication:
+Detection previews use finite clipped floor/ceil extents before edge indexing;
+empty/reversed/outside boxes cannot wrap an outline to the opposite edge.
+Approved example filenames containing NUL fail before network or file setup.
+Actual tiny-ZIP/no-network regressions: old committed functions8FAIL/3PASS,
+new functions11PASS (70 unrelated deselected),4.85/3.92s,exit1/0. No model
+substitution, scientific or hosted-service acceptance is implied. Receipt:
+data/698_preview_example_edges_2026-10-15/. Source integration still excludes
+the private nine-file N696 backend prerequisite; public N696 is authoritative.
+
+2026-10-15 — Original Home: reviewed all-eight-family source integrated against
+actual public N696 desktop backend (3335cf1), without the private nine-file
+backend dependency. Six segmentation families, plaque and well detection now
+have trusted service dispatch, dedicated Gradio callbacks and operator CLI.
+Shared desktop normalization, native/explicit/Auto diameter, role settings and
+filters remain canonical. Approved immutable HF example records are supported;
+none are fabricated or silently downloaded. Preview boxes clip/floor/ceil before
+indexing; NUL example filenames refuse before URL/network.
+Actual combined six-module CPU compatibility:162PASS44.83s, exit0; source hashes
+unchanged. Model construction/predictions injected, not eight-family scientific
+acceptance. Separate published native well-v2 receipt proves only that explicit
+installed checkpoint's synthetic grey/RGB CPU parity. Remaining171 tool tr()
+sources require scoped extractor/nine-locale closure (owner requested); actual
+free hosting, browser WebGPU/site integration, all approved checkpoints and
+biological parity remain open. No shared website/translation-tool edits.
+Evidence:data/698_public_backend_integration_2026-10-15/. Parent698 stays partial.
+
+2026-10-15 — Native detector receipt interpretation correction:
+The historical CPU parity script initially requests one Torch thread, but its
+actual post-inference receipt reports8. A one-thread inference or CPU-quota
+claim is therefore not established. Original raw receipt/script and synthetic
+inputs/output remain unchanged; exact detections/ZIP parity, CPU-only status
+and no-download evidence are unaffected. No rerun or timing guarantee implied.
+
+2026-10-15 — Actual current-default cross-channel nuclei CPU parity:
+Verified installed nuclei_from_cellmask_v1 (1,218,648,931bytes) against exact
+bundledSHA2675553a46e97a7bc4bd2bfe3e954954194fe71ca4e94261e752a02bf0b6eb47.
+One declared128x160uint16cellmask-like synthetic field, explicitdiameter32: actual
+desktop generate_cellpose_masks_sam (14.691s) and actual web run_mask_download
+(13.905s) each return3genuine masks, pixel-exact after desktop filtering.
+Actual vectors/logits are finite; original upload/selectedTIFF/modelidentity
+and everyZIP member hash verified. Eleven tested source files, original
+checkpoint/stat, sourceTIFF/rawNPY/normalizedNPZ/desktopmask remain unchanged.
+No construction/prediction mocks, model downloads, training or GPU. Observed
+threads1/interops1, processCPUaffinity[0], CUDAunavailable/uninitialized, MPSfalse,
+networkattempts0 under explicit socket network refusal. One bounded6G attempt,
+exit0; timings are single observations. This verifies native integration for
+that exact default model and tested source snapshot; no biological quality,
+other-family, hosted/browser/GPU or whole698 acceptance. Inputs, ZIP, desktop
+mask, source script/hashes/rawlog: data/698_native_nuclei_cpu_2026-10-15/.
+
+2026-10-15 — Nine-language web controls, refusals and exported README closure:
+Owner-scoped literal extraction covers the ten existing web backend/UI tools
+and family-label values:178 newly canonical normalized UI sources, all1,602
+language pairs independently AI technically reviewed. Adopted41 terminology/
+precision refinements and three exact Korean filename/CLI syntax followups;
+all immutable drafts, source/target hashes and peer approvals are retained.
+No native-speaker signoff is claimed. Normal nine-locale write_language passes,
+preserving10,576 unrelated current targets per locale. English-only writer
+check is explicitly languages0; separate actual full9runtime audit passes
+(settings1273/categories242/UI7911/modules77). Immutable caption baseline9833
+retained; normal refresh1071added/150retired/29changed.
+Actual final owning44PASS7.26s:27real locale-dependent eight-tab/refusal and
+mask/detector ZIP checks plus17owner extractor cases, no skips. Graph controller
+is stubbed and no model runs; real packagers verify translated README content,
+untouched original bytes, member hashes and genuine unavailable semantics.
+At owning-check time, twenty runtime/owner source bodies are byte-exact to
+frozenbaed73656e3; the test-only qualified fixture import repair is hash-bound.
+Later import sorting/explicit fixture reexport preserves every test/fixture
+body AST and exact import bindings; normal Ruff passes. Final incoming F370
+model_zoo and F580 settings bodies are separately identified; all eleven web
+tool files and the owned extractor body remain exact. No unchanged callback
+or native rerun, or new whole-source native parity, is asserted by that merge.
+Initial Korean gate rejection, fixture collection error, base-environment
+Gradio skip and one redundant metadata audit caused by separately scoped
+Python surviving wrapper cancellation are honestly archived; final raw log,
+XML and proper end-to-end audit exit0 are preserved. Existing private Gradio
+runtime reused, no new installs or model downloads.
+Parent698 remains partial: actual free hosting/GPU service, browser WebGPU,
+shared-site integration and broader model/biological acceptance remain open.
+No whole-feature, scientific, finalfullCI or release acceptance is asserted.
+Evidence:data/698_web_runtime_locales_2026-10-15/.
+
+Final normal merge includes F580 public9ade viafd365: all ten runtime catalogs
+merge cleanly. All178 owned targets and every current incoming unrelated
+row/hash are preserved in all9languages. Only the compressed immutable
+arrival delta needs normal regeneration; baseline9833 retained,1075added/
+151retired/30changed. Merged English-only guard explicitly languages0,
+settings1274/categories242/UI7912/modules77; prior full9audit remains bound
+to its tested premerge source/counts. No unchanged44/native rerun.
+
+
+2026-10-15 — private legacy CZI upload support prepared
+    The existing web input reader now uses explicit old-reader subblock scene
+    bounds through the existing desktop metadata helper. Global axes, integer
+    origins, bounds, shape and dtype are checked; the entire old-reader canvas
+    allocation must fit the byte budget before decoding. Current-reader pixels
+    and receipts retain their path. Scene/T/Z/channel choices preserve exact
+    pixels and input bytes without projection or inferred scene identity.
+    Evidence: features/data/698_legacy_czi_uploads_2026-10-15/.
+    Actual21current/synthetic cases pass. Exact oldczifile2019 real fixture
+    metadata/pixels pass2cases under an explicitly documented child import-
+    compatibility harness with zero JXR decoder calls, after a retained failed
+    old-package import. This is not stockPython3.9 or all-codec acceptance.
+    All25existing runtime caption identities remain unchanged. Source is private
+    pending independent final peer/publication; no fullCI, deployment, model
+    availability or biological acceptance is claimed. PDF provisioning remains
+    a separate CI-owner component.
+
+
+2026-10-15 — private legacy resource-preflight correction
+    Independent peer blocked initial private source: scene expansion happened
+    before raw interval containment and caller-specific full-canvas byte guards.
+    Both now precede desktop metadata expansion. A separate configurable positive
+    integer max_scenes defaults to4096 distinct legacy scenes; interval-union
+    counting preserves repeated subblocks and sparse scene IDs without allocating
+    scene dictionaries first. Current CZI pixel handling is unchanged.
+    Actual finite reproductions3FAIL+2FAIL and affected7PASS/final27PASS are
+    retained, plus final2current-native and2old-reader-harness fixture passes.
+    One precise new caption has nine private drafts. Source remains PRIVATE
+    until independent final peer and normal runtime catalogs/actual locale
+    callbacks close; no hosted fullCI or universal/native/scientific claim.
+    Evidence: data/698_legacy_czi_uploads_2026-10-15/resource-correction/.
+
+
+2026-10-15 — legacy CZI source/runtime closure complete locally
+    Independent final source/technical target peer accepts the corrected53d
+    source. Normal nine-language review/candidate/source checks, catalog writer,
+    full9runtime audit, arrival refresh and fresh source/body checks pass,
+    preserving10854 unrelated targets in every locale and all incoming English
+    source hashes. Exactly one CZI scene-limit caption arrives.
+    All9actual localized limit-refusal callbacks pass after a retained test-only
+    collection/import error was repaired through the existing tests namespace.
+    No unchanged model/source checks or generators were repeated for that repair.
+    Coherent source publication is pending. This closes the scoped legacy input
+    software/localization component only, not wholeN698, stockPython3.9/allcodecs,
+    scientific model performance, hosted fullCI or1.5.1.5 release acceptance.
+    Evidence: data/698_legacy_czi_uploads_2026-10-15/runtime-closure/.
+
+2026-10-15 — README Models linkage prepared through the normal generator.
+    English and all nine localized READMEs append a Mask generator panel;
+    the established N704 panel link opens readable text containing the exact
+    matching localized website route. Existing model-card links, older-model
+    links, readable panels and their numbers remain unchanged. Nine labels
+    reuse the technically reviewed website mask.title values verbatim.
+    Normal all-language --refresh-generated exits0; six focused existing/new
+    README checks pass, and2,434 previous tracked artifacts remain byte-exact.
+    Exactly20 prior README/source files gain the link, with20 new SVGs and10
+    readable pages. Initial missing-link proof, two new-fixture assumptions
+    and a missing-renderer-dependency failure are retained; generation reused
+    an existing environment and installed nothing. Website owner separately
+    verified production/Pages deployment and actual English/Swedish readback.
+    Root owns coherent publication; no hosted/browser inference, wholeN698,
+    scientific parity or finalCI completion is inferred from this linkage.
+    Evidence: data/698_readme_mask_link_2026-10-15/.
+
+2026-10-15 — Home-B publication/status correction
+    README and generated ten-language readable-panel route delivery is public669ac7395e. Existing2434 artifacts remain exact and six guards pass. Configuration site is live fromf138609 with production/Pages success. Actual accepted free inference endpoint/browser export remains unavailable: whole item is NOT complete.
+2026-10-15 — Configured-family startup warm-up prepared privately.
+The old ZeroGPU startup path always required the plaque default, even for an
+operator configuring only a different supported family. Startup now validates
+all configured exact public keys/checksums before any model construction and
+warms at most one configured segmentation model: the current plaque default
+when provisioned, otherwise a deterministic configured segmentation key. An
+empty/detector-only configuration returns None without unrelated plaque weights;
+detectors keep their existing request-scoped desktop loader. Request defaults,
+scientific adapters, caches, devices and endpoints are unchanged. Three real
+controlled baseline failures are retained; 22 focused lifecycle/registry checks
+pass(2.20s), with local fixture bytes and intercepted loaders only. The normal
+existing web AST caption owner finds the one new diagnostic; tools service.py
+is outside the normal public API source root. Nine target reviews and normal
+runtime/arrival generation remain required before coherent publication. Actual
+ZeroGPU placement/host resource and scientific acceptance remain explicit.
+Evidence: features/data/698_configured_startup_preload_2026-10-15/.
+
+2026-10-15 — verified configured startup warm-up
+    Startup warms actually provisioned registry families instead of always
+    requiring plaquev4; an unprovisioned default is not silently constructed.
+    Unknown supplied registry keys refuse before model load. Exact source
+    owning22PASS2.20s is retained, not replayed. Coalesced normal9-language
+    runtime closure and27 actual localized callbacks6.67s passed (9 invoke
+    actual startup refusal); all10,873 unrelated current rows/locale preserved.
+    Source-current/original collector pins and normal arrivals verified.
+    No actual hosted endpoint, model inference, scientific accuracy, whole698
+    or fullCI/release acceptance. Evidence:
+    data/702_698_runtime_closure_2026-10-15/receipt.json.
+
+2026-10-15 — Managed free-ZeroGPU SDK launch compatibility (private acceptance)
+The managed deployment candidate uses README sdk_version6.17.3, Python3.12.12,
+Hub0.36.2 and the supported Torch2.13.0/Torchvision0.28.0 pair. This avoids the
+actual empty intersection between Gradio6.30's Hub>=1.16 and spaCR's Hub<1 bound;
+no project bound or dependency bypass was introduced. Only exact Gradio6.17.3
+omits its unsupported run_history launch argument; every other version retains
+explicit False. Sharing/CORS/errors/upload limits and build options are preserved.
+Real isolated6.17.3 app construction reproduced1FAIL on the original launch;
+the final focused cohort passes16 cases, including all eight tabs/nine APIs,
+24-input inference routes, consent refusal and existing result-cache cleanup.
+No listening server, weights, actual inference, GPU or external Space was used.
+Managed root README/requirements templates are included; local-development
+requirements-space pins are deliberately separate. Exact source/provenance and
+raw baseline/final receipts are in698_managed_gradio_launch_2026-10-15.
+Remaining: actual free service creation/build/runtime, verified weight provisioning,
+real hosted execution and desktop parity, site endpoint integration and the other
+original N698 browser/export/accessibility requirements. This is not whole-item
+completion or native/hosted acceptance.
+
+2026-10-15 — Explicit managed-startup provisioning (private acceptance)
+Added a tools-only deterministic manifest generator and an explicitly opted-in
+Linux managed-startup adapter. The manifest binds all17 advertised versions to
+actual catalogue identities,40hex immutable repo revisions, exact filenames,
+byte sizes/SHA256 and seven relevant source files. Correct model/dataset URL
+semantics are retained. Only ZERO_GPU=1 plus PROVISION_MODELS=1 at entrypoint
+execution permits acquisition; local/default routes and import never download.
+The private, leased cache refuses unknown/corrupt/symlink state, bounds public
+HTTPS redirects/stream bytes/time, preserves existing verified files and never
+installs partial paths. No ambient Hub credentials, retry or model fallback.
+Normal manifest generation passed;53 pre-format offline/entry cases passed1.71s.
+Review caught a real loader-format issue: three format cases failed0.85s; the
+corrected source preserves original .pt/.CP_model/no-suffix contracts and passes
+the24 affected cases1.10s. Real disposable files/concurrent-process lease and
+bounded transport faults are covered. No actual checkpoint/network/model/server/
+GPU was used. This is software
+mechanics acceptance only. Actual free managed build/disk/native libraries,
+weight acquisition, CUDA/inference/parity/site acceptance and other N698 work
+remain open. Source-bound evidence:698_managed_model_provisioning_2026-10-15.
+
+2026-10-15 Original — Actual free managed build and startup now observed. Immutable deployed source f457356bbffa1c3166f01ea3e7a40c6ab44fca35 fetched the SHA-pinned ordinary source archive, built and installed normal spaCR dependencies, pushed the image and reached RUNNING/READY on current/requested zero-a10g. Both explicit startup flags remain exact; no paid hardware or storage option was requested. Build evidence:698_managed_build_success_2026-10-15; bounded startup/free-flags evidence:698_managed_startup_ready_2026-10-15. Root verified all seven startup payload hashes. This proves build/startup only: no complete17-file provisioning receipt, hosted inference, outputs/parity, browser execution or whole-item acceptance. Public schema/config read-only checking is next; website execution stays disabled until actual acceptance.
+
+2026-10-15 Original — Actual deployed public schema accepted, no inference. Provider-derived READY domain returned config and Gradio API info: eight intended families, exact24 source-ordered inputs/two outputs each,17 source-matching model choices, consent false and upload disabled by default. Exact f457/free zero-a10g/two startup flags held before and after. Root independently verified eight payload SHA/size identities. Evidence:698_live_schema_2026-10-15. No model job, GPU inference, service mutation or website activation occurred. Held-out public test examples, desktop/hosted parity and original browser-export acceptance remain open.
+
+2026-10-15 Original — First actual public-input call found a real managed API defect. One anonymous nuclei request on the reviewed CC-BY test image timed out281.4s; one cancellation returned true, active-versus-queued remains unknown. Actual server log shows channel0 rejected by Gradio initial empty dropdown choices before app inference. Private reproduction2FAIL; repair28PASS9.77s plus one final optional-collection check. Three dropdown constructors now admit explicit values; existing header/type/count/consent validation remains, with duplicate/range checks moved before GPU entry using the existing translated error. Root reverse-byte peer confirms only three flags/five guard lines changed, source/test hashes exact. Evidence:698_api_channel_preprocessing_2026-10-15. No second hosted call, repair deployment or model-output acceptance yet.
+
+2026-10-15 — HANDOVER to Claude Home (current maintainer claim).
+Original has stopped all N698 code/tools/site implementation; no N698 worker,
+export, model, GPU or provider call is active. All working managed-host source
+fixes are public; exact source66f5bfc5b0/schema24inputs/2outputs and provider
+quota failure receipts are retained. Free ZeroGPU returned180s requested vs
+167s remaining; no masks or inference/parity success is claimed, and no retry
+or paid-resource workaround is authorized. Site configuration is live in nine
+languages, while execution remains disabled pending accepted inference/export.
+Private unvalidated export prototype355e0314b1 is preserved on local branch
+codex-n698-managed-provisioning-20261015. It has33 staged guard checks and an
+independent source-preparation peer, but NO actual model export/native/browser
+run. It is not working end-to-end software and was not published as executable
+feature. Exact source/patch/tests/evidence plus official operator/normalization
+proposal are portable in data/698_handover_to_claude_2026-10-15/. Owner may
+adopt them; Original will not modify them further. No unpushed working N698
+source remains beyond this explicitly unvalidated prototype. Whole item stays
+open for actual hosted and browser/native numerical acceptance.
+2026-10-15 Claude Home — BUILT (handover from Codex accepted; Claude owns 698;
+the private export prototype was not adopted, export_onnx.py replaces it)
+What is done (spaCR nightly + private site-src main):
+- Site (site-src): the Mask generator tab now has one sub-tab per model class
+  (8 tabs, deep links #mask-<class>), each with its score card, model-version
+  picker and recommended input. Shared form: drag/drop or file picker (TIFF,
+  OME-TIFF, PNG, JPEG, BMP, PDF; CZI/ND2 hosted only), channel picker built
+  from the decoded file (geotiff.js / pdf.js / canvas), percentile preview with
+  mask outlines or boxes, "Random test image from Hugging Face" (96 pinned
+  held-out TEST images, 12 per class, sha256-checked in the browser;
+  data/mask-examples.json from tools/mask-examples.mjs), progress, cancel,
+  ZIP download. All strings in 9 languages; node tools/check_i18n.mjs passes
+  (600/600 every language); node --test tools/ 80/80.
+- Backend switch: "Hosted GPU (Hugging Face Space, ZeroGPU)" calls the live
+  public Space einarolafsson/spacr-mask-generator with @gradio/client 2.7.1
+  (consent required, queue position shown, provider errors such as the
+  ZeroGPU quota shown with a link to sign in on the Space). "In my browser"
+  runs onnxruntime-web 1.30.0 (WebGPU, WASM fallback); nothing is uploaded.
+  Each route probes itself and says "Hosted GPU not yet available" /
+  "In-browser model not yet published" until it works.
+- Browser pipeline (src/assets/js/mask-core.js, mask-package.js): spaCR
+  normalization, Cellpose-SAM tiling, Cellpose 4.2.1.1 mask dynamics incl.
+  flow-error filter, YOLO letterbox/NMS/well filter, ZIP with the same layout
+  as results.py/detector.py (input/, image.tif, mask.tif, flows.npy,
+  cell_probability.npy, objects.csv, README.txt, manifest.json). Parity vs the
+  real Python code (fixtures in tools/fixtures/mask): masks pixel-identical,
+  tiling diff 0, spacr normalization diff 0, letterbox bit-exact, objects.csv
+  byte-identical; JS ZIPs read back by zipfile/tifffile/np.load.
+- Model export: tools/web_mask_generator/export_onnx.py (+16 tests). The
+  current default of all 8 classes plus well detector v2 were exported on CPU
+  (9 files, 1.22 GB per Cellpose-SAM model, ~10 MB detectors); torch vs
+  onnxruntime max flow diff 1.1e-5, detector boxes < 6.1e-4 px. On the real
+  fixture ONNX masks equal desktop masks; well detector v3 ONNX boxes equal
+  desktop detect_wells exactly (rgb/gray). Files wait locally in
+  /mnt/firecuda2/Claude/scratch/n698-onnx/out (not uploaded).
+- Real-browser end-to-end (headless Chromium, WASM, model served from that
+  folder): well detector v3 on rgb.png gave the desktop's 3 wells, identical
+  boxes and confidences. Nuclei-from-cellmask v1: the site's JS pipeline
+  (spacrNormalize + cellposeEval) with the exported ONNX in onnxruntime-node
+  on the 128x160 fixture of 698_native_nuclei_cpu (diameter 32) gave the
+  desktop spaCR mask exactly: 3/3 objects, IoU 1.0 each, 3.8 s CPU. (A full
+  headless-browser run of the 1.2 GB model was not finished: Playwright's
+  request interception streams that file too slowly.)
+- Hosted: the site's JS client reached the live Space end to end (pre-GPU
+  consent refusal, schema, CORS for einarolafsson.github.io). One anonymous
+  real request was refused by the provider: "ZeroGPU quota (180s requested
+  vs. 167s left)". app.py now reserves 40-120 s by upload size
+  (gpu_seconds), so a request fits an anonymous allowance; needs a redeploy.
+Maintainer steps left (zero cost; Space retired 2026-10-18):
+1. One WebGPU run on a real GPU browser (label count / IoU >= 0.99 vs
+   desktop, 10 MB TIFF timing) using the web-onnx models on the public
+   dataset einarolafsson/models.
+2. One Colab run from tools/web_mask_generator/colab/by_class/<class>.ipynb.
+2026-10-15 Claude Home — Cellpose-style page + hosted ValueError fixed
+- Maintainer's "ValueError" reproduced by replaying the site's default hosted
+  request through the Space service on CPU with the real toxoplasma_pv_v4
+  weights: build_result_zip raised "flows must have shape (2, Y, X)" because
+  pathogen models (pv, toxoplasma_from_cellmask, toxoplasma_from_hoechst) run
+  with resample off and Cellpose returns flows/cell probability at the model
+  scale; ZeroGPU showed only the class name. masks.py now reports them
+  unavailable (same reason as the browser route) and app.py turns request
+  ValueErrors into gr.Error. Same replay now succeeds (4 objects).
+  Re-upload tools/web_mask_generator/app.py AND masks.py to the Space.
+- site-src 19af6af: drop zone becomes the image viewer immediately; controls
+  beside it (route, channels, diameter+auto, flow, cell probability, Run with
+  progress); result viewer with image/masks/outlines/flows/cell probability
+  (boxes for wells) + opacity; object count, mean area; ZIP, mask PNG/TIFF,
+  CSV downloads; translated friendly errors with technical details.
+2026-10-16 Claude Home — hosted route replaced by "Browser + Colab"
+- Maintainer decision: the hosted Hugging Face Space route needs a paid HF
+  PRO account (anonymous ZeroGPU allowances are too small for one request),
+  so it is replaced by Google Colab. Zero cost to the maintainer is kept: the
+  browser route runs on the visitor's computer and Colab runs on Google's free
+  GPU under the visitor's own Google account.
+- spaCR: tools/web_mask_generator/colab/spacr_mask_generator.ipynb plus one
+  notebook per class in colab/by_class/<class>.ipynb (class preselected),
+  generated by `python -m tools.web_mask_generator.notebook --write` from
+  notebook.py. The notebook clones nightly, installs ".[plaque]", takes an
+  upload or a random held-out test image (colab/examples.json, a copy of the
+  site's data/mask-examples.json), fetches and SHA-256-verifies the weights,
+  runs run.main (the operator command) and offers the same ZIP for download.
+  It runs on a CPU runtime too, slowly. Checked locally on CPU by executing
+  the notebook cells: nuclei_from_cellmask_v1 on a held-out test image gave
+  21 objects with flows and cell probability in the ZIP; the well detector v3
+  found 6 wells. tests/test_web_colab_notebook_n698.py checks the notebooks
+  are valid JSON, current, preselect their class and call only real helpers.
+- Site (site-src): the hosted Space option, its consent box, quota/queue
+  states and strings are gone. "In my browser" (WebGPU) is the default; the
+  Google Colab route shows an "Open in Google Colab" link for the tab's class,
+  and every class card has the same link. Colab is preselected when the
+  browser has no WebGPU, and suggested when the browser model is not
+  published. Strings in all nine languages.
+- The Colab links point at nightly, the only branch with the notebooks; main
+  gets them at the next release copy, after which data/mask-generator.json
+  ("colab.branch") and notebook.BRANCH can move to main.
+- The Space einarolafsson/spacr-mask-generator is no longer linked but was
+  not deleted; the maintainer can delete it on Hugging Face if wanted. The
+  Gradio sources (app.py, space_app.py, space/) stay in the repository.
+
+2026-10-18 Claude Home - Hugging Face Space einarolafsson/spacr-mask-generator RETIRED (paused, not deleted).
+- HF now requires PRO to update Gradio Spaces; item 698 stays zero-cost. Routes: Browser (WebGPU/WASM) + Colab.
+- Browser ONNX models verified on HF 2026-10-18 (dataset einarolafsson/models/web-onnx). No site, app, README or docs link to the Space remained.
+- Space redeploy and hosted-run maintainer steps removed; keep one WebGPU browser run and one Colab run.
+- tools/web_mask_generator/README.md and space/README.md now say the Gradio sources are a self-hostable reference only.

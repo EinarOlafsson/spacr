@@ -1,0 +1,224 @@
+================================================================================
+THE HOTKEY MAP IS IN THE HELP MENU
+================================================================================
+
+Lifecycle: new
+Status:    DONE 2026-08-21 — See the closing section.
+Requested: 2026-08-21 -- "add hotkey map to help tab"
+Owner:     Qt GUI (Help menu, spacr/qt/shortcuts.py)
+
+--------------------------------------------------------------------------------
+WHAT EXISTS, AND WHY IT IS NOT REACHABLE
+--------------------------------------------------------------------------------
+
+`shortcuts.show_cheat_sheet` already draws the map -- an overlay over the
+window, grouped by category, dismissed on the next key. It is a good screen.
+
+IT IS REACHABLE FROM TWO PLACES AND NEITHER IS THE HELP MENU: the `?` key,
+which you have to know about, and the command palette, which you have to know
+about. The Help menu is where a user who does not already know a shortcut
+goes to look for one -- which is the entire population this screen is for.
+
+    Help > Tutorial (web)
+    Help > Documentation (web)
+    Help > About spaCR
+    Help > Check for updates…
+    Help > Open log folder…
+
+Add "Keyboard shortcuts" to that list, above the web links, because it is the
+only entry that answers without a browser.
+
+--------------------------------------------------------------------------------
+A. THE MAP IS EVERY SHORTCUT, NOT THE SEVENTEEN SOMEBODY REGISTERED
+--------------------------------------------------------------------------------
+
+`SHORTCUTS` holds 17 entries. The Qt package binds 77 keys -- QShortcut,
+QKeySequence, `setShortcut` -- so most of what a user can press is not on the
+map, and nothing says which.
+
+A MAP THAT IS SILENTLY PARTIAL IS WORSE THAN A SHORT ONE, because a reader
+takes it for the whole list and concludes a key does not exist. The same
+argument 108's restyle menu makes about being built from the style object
+rather than a hand-written list: the map is generated from what is BOUND, so
+a shortcut added anywhere appears without anyone remembering to add it.
+
+Where a binding cannot be discovered automatically, it is registered
+explicitly -- and a test counts the bound keys against the mapped ones and
+fails when they drift, so "which is missing" is answered by the suite rather
+than by reading 77 call sites.
+
+--------------------------------------------------------------------------------
+B. IT SAYS WHAT THE KEY DOES, AND WHERE IT WORKS
+--------------------------------------------------------------------------------
+
+A shortcut that only works on one screen and is listed without saying so
+sends a user to press it somewhere it does nothing. Each row carries the
+keys, what it does, and the scope: the whole window, the current module, or
+one widget.
+
+GROUPED THE WAY THE MENUS ARE. A flat list of forty rows is a wall; the
+categories the cheat sheet already uses are the right ones.
+
+--------------------------------------------------------------------------------
+C. THE PLATFORM'S OWN SPELLING
+--------------------------------------------------------------------------------
+
+`Ctrl` is `Cmd` on macOS and Qt already knows: `QKeySequence.toString(
+QKeySequence.NativeText)` prints what the user's keyboard actually has.
+Writing "Ctrl+H" into a label hard-codes one platform into the help.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Help > Keyboard shortcuts opens the map.
+* Every key the application binds appears on it, and a test asserts the
+  bound set equals the mapped set.
+* Each row says what the key does and where it works.
+* The keys are printed in the platform's own spelling.
+* `?` and the command palette still reach the same screen -- one map, three
+  doors, not three maps.
+
+--------------------------------------------------------------------------------
+2026-08-21 -- DONE. AND THE MAP WAS MISSING FIFTEEN OF ITS THIRTY-THREE KEYS.
+--------------------------------------------------------------------------------
+
+Help > Keyboard shortcuts, above the web links because it is the only entry
+there that answers without a browser. It opens `show_cheat_sheet` -- the same
+screen `?` and the command palette open. One map, three doors.
+
+A. THE MAP IS EVERY KEY NOW. `SHORTCUTS` held 17 and the package binds these
+as well, none of which were on it:
+
+    Ctrl+B                      the full app list
+    Left / Right                previous / next image
+    PageUp / PageDown           the same, for older muscle memory
+    Alt+Left / Alt+Right        the same again
+    B  E  W  Z                  brush, erase, magic wand, zoom
+    Esc                         reset the zoom
+    Ctrl+S                      save the mask
+    Ctrl+Z / Ctrl+Y / Ctrl+Shift+Z   undo and redo
+
+THE SCAN HAD TO READ BOTH SPELLINGS. `QKeySequence("Ctrl+S")` and
+`QKeySequence(Qt.Key_Left)` are both bindings, and a scan for string literals
+misses the second entirely -- which is how the image navigation is bound. The
+test reads the tree for both and prints them through Qt, so the comparison is
+against what the card actually shows.
+
+B. AND `SHORTCUTS` WAS DOING TWO JOBS AT ONCE, which is why adding to it
+broke four tests in one run. It was both "what `install()` binds on the main
+window" and "what the map shows" -- and a per-screen key does not exist until
+that screen is built, so it can never be the first. Three names now:
+
+    SHORTCUTS         what `install()` is responsible for
+    SCREEN_SHORTCUTS  what a screen binds and the map still has to describe
+    mapped()          both, which is what the card is drawn from
+
+`BOUND_ELSEWHERE` names the one window-wide key something else binds:
+`Ctrl+B` is set on the menu action that opens the app list, which is a real
+binding and reaches the same place -- so it is on the map and is not in
+`install()`'s count. A test called it unwired because it only looked for
+`QShortcut`; it looks for a QAction's shortcut too now.
+
+C. SCOPE AND SPELLING. A key that works on one screen says so in its row --
+"Brush — the Make Masks screen" -- because one listed without that sends a
+user to press it somewhere it does nothing. And every key is printed through
+`QKeySequence.toString(NativeText)`, so `Ctrl` reads as the Command symbol on
+macOS; writing "Ctrl+H" into a label hard-codes one platform into the help.
+
+D. THE CARD HAD TO LEARN TO WRAP. One column-pair per category made it
+1,640 px wide against a 1,280 px overlay the moment the map went from 17 rows
+to 33. A map that runs off the screen is the same fault as one that leaves
+keys out. Categories fill the width and wrap, and a test asserts the card
+fits.
+
+13 tests in tests/qt/test_the_hotkey_map_is_the_whole_map.py; 1,251 pass
+across the shortcut, palette, window and menu suites.
+
+VERIFIED 2026-10-04: the 1 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).
+
+2026-10-15 — Annotate navigation captions match the actual actions.
+The shared Left/Right declarations called those keys Previous/Next image on
+Annotate, where they move focus within the current crop grid. Scoped help
+now reuses Move focus left/right there; PageUp/PageDown and their existing
+Alt-arrow aliases say Previous page/Next page. Keys, callbacks, saved
+rebinding identities and other screens' captions are unchanged. A real
+six-crop screen baseline failed both caption cases; the finite owning replay
+passes six cases, including page movement, restored pages and F8 rebinding.
+Caption-only delivery preserves the tested executable AST and all published
+docstrings; the longer N678 prose review stays separate. Eighteen reviewed
+inputs cover the two new page captions across nine locales. Root's batched
+normal runtime writer is pending; no native-platform acceptance is claimed.
+Proof: features/data/197_annotation_shortcut_captions_2026-10-15/receipt.json.
+
+2026-10-15 — Current shortcut contract acceptance reconciled.
+Two original CI failures now pass against published Annotate page/focus labels
+and the current declared-window-wide-keys paragraph. Exact six Annotate
+navigation key/label pairs, global ordering, per-screen Left/Right coverage and
+keyboard-versus-mapping semantic controls remain checked. No production
+shortcut, prose or generated artifact changed. Evidence:
+data/ci_shortcut_current_contracts_2026-10-15/ (2FAIL44.40s to2PASS36.35s).
+
+2026-10-15 — Whole original contract reconciled after current regressions.
+Status: DONE at the original A–D and five acceptance criteria. The historical
+2026-08-21 implementation date above remains unchanged; today's work closes
+Annotate's page-versus-focus caption regression and stale CI expectations.
+This is not a claim that the original Help-menu implementation was new today.
+
+A / criterion 2: mapped() combines window and scoped declarations, including
+saved per-screen keys; discover() adds existing child QShortcut/QAction keys.
+The original bound-key scan covers string and Qt enum bindings and refuses
+missing mapped keys. Its historical 13-case acceptance and 2026-10-04 owning
+verification remain the evidence for the original complete-map implementation.
+B / criterion 3: ShortcutSpec labels, categories and scope feed the same card.
+Today's real six-crop Annotate acceptance passes six cases: arrows move focus,
+page keys and Alt aliases change pages, and F8 rebinding keeps the correct
+focus caption. Make Masks and Field browser image captions remain unchanged.
+C / criterion 4: native() still renders QKeySequence.NativeText. The original
+platform-spelling guard remains intact; no new native-platform gate is added.
+D: ShortcutOverlay retains wrapping category bands and an internal scroll
+area; existing test_shortcut_overlay.py guards centred bounds and tail-row
+reachability. No fresh layout or native rendering run is claimed here.
+Criteria 1 / 5: Help's Keyboard shortcuts action, question-mark dispatch and
+the command-palette action still call the same show_cheat_sheet implementation.
+
+The earlier pending runtime-writer note is superseded by the normal reviewed
+197_678 batch: all nine locales passed source/candidate/placeholder checks,
+with 10,563 unrelated rows per locale preserved. Current readback matches all
+18 Previous page / Next page targets and source hashes to those exact reviewed
+records. The two current CI contract regressions also pass (2FAIL to 2PASS).
+Evidence: data/197_annotation_shortcut_captions_2026-10-15/receipt.json;
+data/197_678_runtime_batch_2026-10-15/receipt.json; and
+data/ci_shortcut_current_contracts_2026-10-15/receipt.json.
+
+Reconciled against published nightly 2d5dd8788d542e9d98929d90a59c69235bfaee65.
+Current shortcuts.py SHA256 is
+2956073d782df3eeacc5fda277d24948e8dd795a49c60ac992519405802e3f38,
+identical to the six-case tested source and current two-case CI provenance.
+No test, collector, generator or native acceptance was repeated for this
+reconciliation; the historical and today's overlapping counts are not summed.
+
+2026-10-15 — Original Help hotkey-map contract and page-caption debt reconciled
+The full shortcuts executable AST, including declarations and all seven actual
+Qt binding-source call sets, matches hosted8fc. Actual Help action and command-
+palette route remain unchanged; the original whole-map test file is byte-
+identical and its retained hosted log records14 unique PASS nodes. These cover
+Help reachability/order, complete bound-key coverage, scope/meaning, Qt native
+key spelling and one shared screen through three entrypoints. No unchanged
+Qt test was replayed.
+
+The last pending normal-writer statement is stale: Previous page and Next
+page now have exact reviewed/source-hashed compiled targets in all nine
+languages. Ordinary scoped review and candidate gates pass18 target checks.
+The five owning module/API documents match current English/source/context/
+block pins across all nine catalogs. Existing six-case actual Annotate
+navigation and two repaired current-caption/API-contract receipts retain
+their original evidence; no additional runtime/API writer was needed.
+
+All original N197 clauses are therefore source-bound and reconciled. This
+does not claim a new native Windows/macOS run or full release CI; the original
+platform spelling requirement uses Qt NativeText and has no mandatory extra
+native execution clause. Evidence:
+data/197_current_original_contract_reconciliation_2026-10-15/.
+
+Original Home independently accepts the whole original N197 contract.

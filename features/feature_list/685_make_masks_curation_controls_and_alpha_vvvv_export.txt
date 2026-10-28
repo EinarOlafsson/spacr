@@ -1,0 +1,268 @@
+================================================================================
+MAKE MASKS CURATION CONTROLS, PLAQUE MODEL CATEGORY AND ALPHA VVVV EXPORT
+================================================================================
+
+Lifecycle: new
+Status:    DONE 2026-10-10 (alpha) — vvvv gamma 7.4.1 run verified under
+           Wine; a Windows on-screen check is listed for the maintainer
+Requested: 2026-10-09 — "make this into a new feature"
+Owner:     Next session; coordinate Make Masks and model-zoo owners
+Related:   N396 queue; N448 keep/discard; N466 divider; N481 clear objects;
+           N417 magnifier; N680 save on navigation; N438 plaque checkpoint
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+This item registers six user requests. No application behavior or model
+metadata is changed by registration. Inspect the current Make Masks screen,
+mask-editing implementation, queue persistence and model-zoo metadata before
+changing them. Preserve previously accepted draw/save and navigation fixes.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A partial dividing stroke must remain available for subsequent cuts. Users
+also need consistent deletion while magnifying and direct access to queued
+images that have not been reviewed. The plaque model should appear under its
+correct source category, and an alpha export module should support VVVV use.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Preserve every dividing stroke
+   The user requested: "the deviding line tool in make masks should allways
+   draw the deviding line eaven if 2 objects are not seperated, several lines
+   are sometimes necessary."
+   Commit and retain a dividing stroke even when it does not yet separate
+   an object into two components. Subsequent strokes must build on earlier
+   cuts until separation occurs. Keep the cut visible; do not roll it back
+   solely because a connected-component test still finds one object. Preserve
+   undo/redo, mask saving and existing Divide / Merge mouse-button behavior.
+
+2. Delete objects with the magnifier enabled
+   Right-clicking an existing object while the magnifier is on removes that
+   object. Ensure magnifier event handling does not consume the deletion or
+   immediately re-detect the deleted object from the same click. Preserve the
+   intended right-drag merge gesture in Divide / Merge mode and distinguish
+   clicks from drags. Deletions must participate in undo and normal saving.
+
+3. Editable image-queue tally
+   When curating a folder, show an index tally such as 1/100 immediately to
+   the right of the Flows tab. The current 1-based index is editable and jumps
+   to that image in the queue; the total reflects the actual queue length.
+   Validate the entered index, handle empty queues and keep the tally in sync
+   with ordinary navigation and folder changes. Invalid input must not change
+   the loaded image. Respect the existing unsaved-edit/save-on-navigation
+   contract when jumping, without marking an image kept or discarded merely
+   because it was visited.
+
+4. Jump to the first unreviewed image
+   Add a button immediately to the left of Clear all objects. It goes to the
+   first image in queue order with neither a Keep nor a Discard value. Read
+   the actual persisted curation status, including after reopening a folder.
+   Respect pending edits and update the editable tally on arrival. Handle an
+   all-reviewed or empty queue without loading an invalid index or changing
+   existing review decisions. Use a clear translated label and explanation.
+
+5. Correct the Toxoplasma plaque model category
+   List the Toxoplasma plaque model in the spaCR category rather than spaCR
+   Community. Identify the canonical model record and update category metadata
+   through the normal source/generation path. Keep its identifier, checkpoint,
+   download route and existing saved selections working; do not duplicate it
+   into both categories or recategorize unrelated community models.
+
+6. Add an alpha VVVV export module
+   Provide an alpha module that exports users' spaCR data for a VVVV pipeline.
+   The exact target VVVV pipeline, accepted file formats and required data
+   schema were not supplied. Confirm the target and define the export contract
+   before implementing a format; do not invent a proprietary VVVV file schema.
+   Record which measurements, object identifiers, images/masks and metadata
+   are supported, preserving identifiers and coordinate/unit conventions.
+   The module must be hidden unless Show alpha features is enabled, registered
+   with ALPHA_FEATURES and literal widget object names. Use existing module
+   infrastructure; do not add a new Python module under spacr/. Export tables
+   through spacr.tabular and translate all user-facing controls/help.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Focused checks demonstrate an incomplete cut surviving a second cut, undo
+and save/reload; right-click deletion with magnification on; and unchanged
+right-drag merging. Queue checks cover valid first/middle/last index jumps,
+invalid input, pending edits, empty folders and a matching tally. Review
+checks demonstrate selecting the first unreviewed image after reopening and
+safe behavior when every image has Keep or Discard set.
+
+Model-zoo checks find the plaque model exactly once under spaCR, with its
+existing checkpoint and identity intact. Alpha-gate checks hide/show the
+export module. Validate an exported representative dataset by actually
+loading it into the agreed VVVV pipeline and checking identifiers, values,
+units and coordinates; writing files alone is not interoperability evidence.
+Use focused capped checks and normal generated metadata/catalog tools.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+No implementation, new model publication or VVVV compatibility is claimed.
+Existing curation decisions are not reset and source data must not be changed
+by export. The unspecified VVVV format remains an explicit follow-up.
+
+2026-10-09 — Registered as N685 for the next session; all six requests remain
+pending implementation and acceptance.
+
+2026-10-10 — Parts 1-6 implemented; VVVV pipeline validation outstanding.
+Done: (1) Divide keeps an incomplete cut as a background groove
+(mask_engine._divide_or_cut) and a later stroke finishes the division; one
+"divide" ledger entry/undo step per stroke, cut ids in cut_labels; a click
+or a band covering a whole object changes nothing. (2) With the magnifier on,
+a right click deletes the clicked object in region and whole-image scope and
+in Divide / Merge (a click shorter than the drag distance), using the clicked
+pixel even when the lens is locked; a right drag still merges; Auto accept
+holds off the deleted footprint until the pointer leaves it. (3) Editable
+index/total tally on the Flows tab (MakeMasksQueueIndex/MakeMasksQueueTotal);
+bad or out-of-range input restores the index and keeps the image; jumps use
+the Next/Prev leaving rules (box save and N680 Save on navigation, when
+enabled) and record no verdict. (4) "First unreviewed" left of Clear all
+objects reads csv/keep_discard.csv per field folder (works after reopening);
+all-reviewed or empty queues leave the image alone. (5) model_zoo.source_of
+files a shared/community row under spaCR only when its key and sha256 match a
+bundled spaCR record, so toxoplasma_plaque_v3 from the shared catalogue lists
+once under spaCR; other community rows are unchanged. (6) Alpha vvvv export
+(ALPHA_FEATURES 685: MakeMasksVvvvExport, MakeMasksVvvvExportOnSave), hidden
+while Show alpha features is off; refused while blinded.
+Contract for vvvv users (maintainer-confirmed vvvv gamma, coordinator default
+layout, version 1): the chosen export folder holds one folder per image,
+named after the image stem. Each holds <stem>_labels.png (16-bit grey labels,
+0 background, same ids as the saved mask), <stem>_outlines.png (RGBA, opaque
+white inner object outlines on a transparent background), <stem>_objects.csv
+(label, centroid_x, centroid_y, area, bbox_x0/y0/x1/y1, mean_intensity_<channel>
+per channel, class/score columns only when supplied; pixel coordinates with
+origin at the image's top-left corner, x right, y down, centroids at pixel
+centres, half-open boxes) and manifest.json (format spacr-vvvv-export,
+version, image, source_path, spacr_version, exported_at, width, height,
+pixel_size {x, y, unit} or null, channel_names, objects, files). Every file is
+written to a hidden sibling and renamed into place; manifest.json is written
+last, so a patch should watch manifest.json and then reload the other three.
+"Export on save" re-exports after each mask save so a watching patch updates
+live. Not yet done: loading an export into a real vvvv patch to check ids,
+values, units and coordinates; class/score are not yet supplied by Make Masks.
+Tests: tests/qt/test_685_make_masks_curation_controls.py.
+
+2026-10-10 — vvvv project file added and run in real vvvv gamma 7.4.1.
+Maintainer: "I want you to have an alpha module or that outputs data and a
+file that can be opened as a project in VVVV. So I want you to write this
+and test that this works". The export now also writes <stem>_image.png
+(the field as 8-bit RGB, 1-99.9 percentile stretch per channel, first three
+channels as R, G, B), <stem>.vl and README.txt; the manifest gains
+files.image/project/readme, export_id (ns clock, changes on every export)
+and vvvv_gamma "7.4". The .vl and README are rewritten only when their text
+changes, so an open project is not reloaded by each save; renames retry
+for about a second when a Windows reader holds a file.
+What <stem>.vl is: a vvvv gamma 7.4 document (LanguageVersion 2025.7.4,
+VL.CoreLib + VL.Skia) whose Application patch reads manifest.json and
+<stem>_objects.csv every frame (FileReader (String)), reloads both
+ImageReaders when the manifest text changes (Changed -> Load), draws the
+image and the outlines with DrawImage at pixel size, and runs a ForEach over
+the CSV rows (SplitToLines, Skip 1, Split ",", GetSlice, TryParse, Vector
+(Join)) to draw a yellow Circle at each centroid, the label above it and,
+when the table has a class column, the class below it (FontAndParagraph +
+Text). The scene sits in pixel space inside TransformSRT (scale 2/height,
+offset -width/height, -1), so it fills the Normalized Skia Renderer window
+titled "spaCR - <stem>". All paths are relative to the document. Node and
+pin forms were copied from the help patches vvvv 7.4 ships (VL.Skia,
+VL.CoreLib, LGPL-3.0); ids use vvvv's GUID codec (two 64-bit halves, 11
+base-62 digits each, A-Z a-z 0-9), checked against all 29,580 ids in
+VL.Skia.vl. Generator: mask_engine._vvvv_project_document/_VlWriter.
+Real run (no Windows machine or VM is reachable; system Wine 9.0 is
+installed, nothing system-wide was changed): vvvv gamma 7.4 setup, the .NET
+8.0.413 SDK zip, DXVK 2.3.1 and a portable Wine 10.0 build in user prefixes
+under /mnt/wd4tb/scratch/vvvv (prefix9: Wine 9, prefix10: Wine 10), CPU only
+(Xvfb, Mesa lavapipe, LIBGL_ALWAYS_SOFTWARE). Results: (a) vvvvc.exe 7.4.1
+compiled the generated document with no red nodes (it then stops at NuGet
+signature checks Wine cannot do); (b) vvvv.exe 7.4.1 opened the project,
+the patch editor shows every node resolved and linked, and Ctrl+S saved it
+back identical except for one XML comment (kept as the test fixture);
+(c) the runtime started: the Renderer window opened with the title from the
+patch; (d) a test-only copy that adds a PDFWriter (CPU Skia) on the same
+layer tree wrote a PDF showing the image, white outlines on the object
+edges, a marker and label on every centroid and the class names; (e) live:
+with vvvv running, a re-export that deleted object 4 and renamed a class
+removed that outline and marker and showed the new class within seconds,
+without reopening; the no-class layout (what Make Masks writes today)
+rendered too. Not verifiable here: pixels in the on-screen window. Under
+Wine the Skia Renderer window stays black for vvvv's own Bouncing Ball
+example as well, so this is the Wine/DXVK presentation path, not the file.
+Maintainer check on a Windows PC: (1) install vvvv gamma 7.4 or later from
+https://vvvv.org/download; (2) in spaCR turn on Show alpha features, open a
+folder in Make Masks, press "Export for vvvv…", pick a folder; (3) in vvvv
+choose File > Open and select <export folder>/<image stem>/<image stem>.vl;
+(4) expect a window "spaCR - <stem>" with the image, white outlines and a
+yellow circle plus label number at each object's centre; (5) turn on
+"Export on save", delete an object and save the mask: within a second the
+outline and marker disappear in the vvvv window. Report a red node or an
+empty window with the vvvv version.
+Tests: tests/qt/test_685_vvvv_project.py (id codec against vvvv-written
+documents; generated document equal, apart from layout, to the copy vvvv
+7.4.1 saved; every node and pin present in vvvv-written documents; links,
+relative paths, CSV column indices, pixel-to-window mapping, deterministic
+output, export files/manifest, unchanged .vl on re-export, retry on a held
+file) and the updated file list in test_685_make_masks_curation_controls.py.
+Fixtures: tests/data/vvvv (two VL.Skia 7.4 help patches, LGPL-3.0 text,
+provenance in README.txt). UI strings are unchanged, so no catalogs needed
+regenerating; the export tooltip does not yet mention the .vl.
+
+2026-10-10 — vvvv export as an alpha setting of Mask Generation and Measure.
+Maintainer: "The vvvv export should also be an alpha bool in mask gen and
+measure moduals". New setting export_vvvv (bool, default False), registered
+in ALPHA_FEATURES[685]['settings'] so its row is hidden while Show alpha
+features is off; a value set while hidden still reaches the run, and CLI/API
+runs read it directly. Placed under Visualization & Diagnostics on Mask and
+Crop Output on Measure (also offered by External Masks, which runs Measure;
+hidden on Timelapse); filed with the global Object Crops category.
+With it on, every processed 2-D field gets the same export Make Masks
+writes (<stem>_labels.png, _outlines.png, _image.png, _objects.csv,
+manifest.json, <stem>.vl, README.txt), one export root per object type:
+Mask Generation: <src>/vvvv/mask/<object>/<stem>/, from merged/ and its
+plane-layout sidecar after the merge (v1 path; the v2 path calls the same
+helper, which reports and writes nothing while v2 writes no sidecar).
+Measure: <run root>/vvvv/measure/<object>/<stem>/, written by the per-field
+worker with Measure's filtered masks (cell, nucleus, pathogen, organelles,
+cytoplasm as enabled). Its objects CSV keeps the export's columns first
+(label, centroid_x/y, area, bbox_x0/y0/x1/y1, mean_intensity_channel_<i>
+with i the measured channel's 0-based position, as in Measure's tables)
+and then appends Measure's morphology and intensity columns for that object
+by label (cell_area, cell_channel_0_mean_intensity, ...); a class or score
+column in those tables is carried and drawn by the .vl. With
+save_measurements off only the export's own columns are written. Pixel size
+comes from voxel_size_xy_um when set. 3-D fields and masks with ids above
+65535 are reported and skipped; the run continues.
+Code: mask_engine._export_vvvv gained table= (extra per-object columns,
+merged by label, repeated columns dropped) and origin= (named in
+README.txt); io._export_vvvv_field / io._export_vvvv_merged (non-Qt;
+mask_engine imports no Qt) and measure._export_vvvv_measured_field.
+Tests: tests/test_685_vvvv_pipeline_export.py (both pipelines on and off on
+synthetic fields, file set, CSV columns and values, labels, manifest, the
+.vl checked against the vvvv-saved fixture's nodes/pins, links, paths and
+slice indices; edge cases), tests/qt/test_685_vvvv_settings_alpha_gate.py
+(registration; the row follows the alpha switch on Mask and Measure).
+New strings for translation: the export_vvvv label and tooltip.
+
+2026-10-11 — Maintainer's models are spaCR by ownership. Maintainer: "make
+sure all the models I have trained and uploaded are in the spacr category
+not spacr community category". source_of() now files a shared or community
+row under spaCR when it is the bundled file (key AND checksum, unchanged) OR
+when its download URL lives in a repo of the maintainer's HF account
+(model_zoo.SPACR_HF_OWNERS, read strictly from the URL by hf_repo_of; the Add
+button's inbox einarolafsson/user-models stays community). A catalogue row's
+self-declared source/owner/trained_by is ignored. Version boxes in the zoo
+screen and picker open on the newest non-alternative version
+(default_version_index; alternatives are records whose display_name says so,
+so a default change only edits the records). HF catalogue.json needed no
+change: no category field; its 3 rows are maintainer-owned.
+Tests: tests/test_model_zoo_owner_decides_the_heading.py,
+tests/qt/test_model_zoo_alternatives_open_on_the_default.py.

@@ -135,7 +135,7 @@ blocks:
     (Core i5-10500, AMD Radeon Pro 5300 4 GB), Cellpose-SAM tardó 444.5 s en CPU y 3.2 s con
     Metal para una imagen de 256×256, con torch 2.2.2, Python 3.12.11 y macOS 26.5.2. Es un
     ejemplo histórico, no una garantía de velocidad. La aceleración por GPU requiere un backend
-    utilizable y bibliotecas compatibles. Consulte la `medición de hardware registrada <features/new/319_use_non_nvidia_accelerators_where_they_exist.txt>`_.
+    utilizable y bibliotecas compatibles. Consulte la `medición de hardware registrada <features/feature_list/319_use_non_nvidia_accelerators_where_they_exist.txt>`_.
 - h2: Instalar spaCR
 - p: 'Elija una vía de instalación:'
 - list:
