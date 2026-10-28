@@ -521,3 +521,146 @@ def test_opening_overview_copies_only_explicit_source_and_percentiles_from_its_o
     assert model._read_value('overview_percentile_low') == 2.5
     assert model._read_value('overview_percentile_high') == 97.5
     assert owner._settings_model._read_value('src') == original
+
+
+def test_prerun_placeholder_and_original_controls_leave_the_workspace_unstarted(workspace):
+    screen, folders = workspace
+    page, model = screen._overview_page, screen._settings_model
+    before = model.collect()
+    sources = {path: path.read_bytes() for root in folders for path in root.glob('*.tif')}
+    page.psf_controls.operation.setCurrentIndex(page.psf_controls.operation.findData('convolve'))
+    assert page._full_resolution_fields()['psf_operation'] == 'convolve'
+    page.export_pdfs()
+    page.export_measurements()
+    assert page.browser is None and page.export_menu() is None
+    wizard = page.run(dict(before, src='path'))
+    assert wizard.source.text() == '' and page.browser is None
+    assert model.collect() == before
+    assert all(path.read_bytes() == raw for path, raw in sources.items())
+
+
+def test_canceling_object_masks_before_run_keeps_the_committed_path(workspace, monkeypatch):
+    from PySide6.QtWidgets import QFileDialog, QLineEdit
+
+    screen, _ = workspace
+    page, model = screen._overview_page, screen._settings_model
+    row = model._widgets['overview_objects_path']
+    edit = row if isinstance(row, QLineEdit) else row.findChildren(QLineEdit)[0]
+    before, text = model.collect(), edit.text()
+    monkeypatch.setattr(QFileDialog, 'getExistingDirectory', lambda *args: '')
+    assert browser._overview_choose_object_masks(edit, page) is None
+    assert page.browser is None and model.collect() == before and edit.text() == text
+
+
+@pytest.mark.parametrize('mounted', [False, True])
+def test_valid_object_masks_commit_real_header_identity_before_or_after_next(
+        workspace, qtbot, tmp_path, monkeypatch, mounted):
+    from PySide6.QtWidgets import QFileDialog, QLineEdit
+
+    screen, folders = workspace
+    page, model = screen._overview_page, screen._settings_model
+    view = _workspace_browser(screen, qtbot) if mounted else None
+    fields = tuple(field.identity for field in view._fields) if view is not None else ()
+    source = model._read_value('src')
+    root = tmp_path / 'segmented'
+    stack = root / 'masks' / 'cell_mask_stack'
+    stack.mkdir(parents=True)
+    labels = np.zeros((16, 20), dtype=np.uint32)
+    labels[2:7, 3:9] = 70001
+    mask = stack / 'p1-A01-f1.tif'
+    tifffile.imwrite(mask, labels)
+    originals = {path: path.read_bytes() for folder in folders for path in folder.glob('*.tif')}
+    originals[mask] = mask.read_bytes()
+    row = model._widgets['overview_objects_path']
+    edit = row if isinstance(row, QLineEdit) else row.findChildren(QLineEdit)[0]
+    monkeypatch.setattr(QFileDialog, 'getExistingDirectory', lambda *args: str(root))
+    found = browser._overview_choose_object_masks(edit, page)
+    assert found['count'] == 1 and found['roles'] == {'cell': str(stack)}
+    assert found['files'] == {'cell': {'p1-A01-f1': str(mask)}}
+    assert model._read_value('overview_objects_path') == edit.text() == str(root)
+    assert model._read_value('src') == source
+    if view is None:
+        assert page.browser is None
+    else:
+        assert tuple(field.identity for field in view._fields) == fields
+        assert tuple(view._channel_buttons) == (1, 2)
+        assert '1 files' in view.status.text() and 'cell' in view.status.text()
+    assert all(path.read_bytes() == raw for path, raw in originals.items())
+
+
+def test_page_contact_sheet_export_preserves_selected_physical_fields_and_originals(workspace, qtbot):
+    import json
+    from pathlib import Path
+    from pypdf import PdfReader
+    import spacr.plot
+
+    screen, folders = workspace
+    view = _workspace_browser(screen, qtbot)
+    page, model = screen._overview_page, screen._settings_model
+    source = model._read_value('src')
+    originals = {path: path.read_bytes() for folder in folders for path in folder.glob('*.tif')}
+    plate_index = view.plates.findData(folders[0].name)
+    assert plate_index >= 0
+    view.plates.setCurrentIndex(plate_index)
+    model.set_value_for_key('overview_export_scope', 'plate')
+    model.set_value_for_key('overview_measurements_csv', False)
+    expected = tuple(field for field in view._fields if field.plate == folders[0].name)
+    assert {field.well for field in expected} == {'A01', 'A02'}
+    menu = page.export_menu()
+    try:
+        assert menu.parentWidget() is view and len(menu.actions()) == 3
+    finally:
+        menu.close()
+    page.export_pdfs()
+    qtbot.waitUntil(lambda: not view._export_jobs.is_busy(), timeout=30000)
+    selections = list((Path(view._metadata_source) / 'results').glob('overview_*/overview_selection.json'))
+    assert len(selections) == 1
+    record = json.loads(selections[0].read_text(encoding='utf-8'))
+    assert record['channels'] == [1, 2]
+    assert record['requested_field_count'] == record['written_field_count'] == 2
+    assert not record['cancelled'] and record['errors'] == []
+    assert {(row['plate'], row['well'], row['field']) for row in record['fields']} == {
+        (folders[0].name, 'A01', '1'), (folders[0].name, 'A02', '1')}
+    assert {path for row in record['fields'] for _channel, path in row['files']} == {
+        str(path) for path in folders[0].glob('*.tif')}
+    pdfs = list(selections[0].parent.glob('overview_*.pdf'))
+    assert len(pdfs) == 1
+    document = PdfReader(pdfs[0])
+    assert len(document.pages) == 1
+    text = document.pages[0].extract_text()
+    assert 'A01' in text and 'A02' in text
+    assert model._read_value('src') == source
+    assert all(path.read_bytes() == raw for path, raw in originals.items())
+
+
+def test_page_measurement_export_refuses_an_empty_explicit_selection_without_a_database(workspace, qtbot):
+    screen, folders = workspace
+    view = _workspace_browser(screen, qtbot)
+    model, page = screen._settings_model, screen._overview_page
+    before = {path: path.read_bytes() for folder in folders for path in folder.glob('*.tif')}
+    model.set_value_for_key('overview_export_scope', 'selection')
+    assert view._export_selection() == ()
+    page.export_measurements()
+    assert 'Select fields' in view.status.text()
+    assert not view._measurement_jobs.is_busy() and view._measurement_jobs.active_jobs() == 0
+    assert not [path for folder in folders for path in folder.rglob('*.db')]
+    assert all(path.read_bytes() == raw for path, raw in before.items())
+
+
+def test_invalid_global_channel_text_during_a_channel_draft_keeps_the_last_valid_target(workspace, qtbot):
+    screen, folders = workspace
+    view = _workspace_browser(screen, qtbot)
+    model, page = screen._settings_model, screen._overview_page
+    before = {path: path.read_bytes() for folder in folders for path in folder.glob('*.tif')}
+    model.set_value_for_key('overview_normalize_channels', '2')
+    assert page._bridge.apply() and view._normalize_channels == (2,)
+    qtbot.waitUntil(lambda: not view._metadata_jobs.is_busy(), timeout=15000)
+    prior = _pixels(view, folders[0].name, 'A01', (1, 2)).copy()
+    view.norm_channel.setCurrentIndex(view.norm_channel.findData(1))
+    assert view._editing_channel == 1
+    model.set_value_for_key('overview_normalize_channels', '1,9')
+    assert view._normalize_channels == (2,)
+    assert model._read_value('overview_normalize_channels') == '1,9'
+    assert page._check_channel_list() and '9' in view.status.text()
+    np.testing.assert_array_equal(_pixels(view, folders[0].name, 'A01', (1, 2)), prior)
+    assert all(path.read_bytes() == raw for path, raw in before.items())
