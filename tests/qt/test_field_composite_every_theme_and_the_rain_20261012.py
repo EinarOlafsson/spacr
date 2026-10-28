@@ -426,6 +426,9 @@ def test_map_barcodes_keeps_its_cards_over_the_rain(themed, qtbot, theme):
     tints = backdrop._card_tints
     qtbot.waitUntil(lambda: tints.plan is not None, timeout=20000)
     qtbot.wait(500)
+    qtbot.waitUntil(lambda: tints.plan is not None
+                   and backdrop._producer_box[0] is not None
+                   and (not tints.plan.items or tints.active), timeout=20000)
     covered = [w for w in window.findChildren(QFrame)
                if w.objectName() == "Card" and w.isVisible()]
     assert covered
@@ -437,7 +440,12 @@ def test_map_barcodes_keeps_its_cards_over_the_rain(themed, qtbot, theme):
     backdrop._producer_box[0].stop()
     backdrop.advance_frame(0)
     frame_time = backdrop.time()
-    assert tints.active
+    if tints.plan.items:
+        assert tints.active
+        assert backdrop._producer_box[0].cards is tints.plan
+    else:
+        assert not tints.active
+        assert backdrop._producer_box[0].cards is None
     before = _grab(window)
     backdrop.set_animating(False)
     backdrop.hide()
