@@ -143,3 +143,23 @@ def test_a_running_job_is_named_with_how_long_it_has_been_going():
     text = describe_active([_Handle()])
     assert "regression" in text
     assert "2 min" in text
+
+
+def test_windows_restart_detaches_without_inheriting_the_old_console(monkeypatch):
+    """Check launch options at the process boundary without launching Windows."""
+    from types import SimpleNamespace
+    import subprocess
+    from spacr.qt import shutdown
+
+    launched, exited = [], []
+    monkeypatch.setattr(shutdown, 'os', SimpleNamespace(name='nt', environ={}))
+    monkeypatch.setattr(subprocess, 'DETACHED_PROCESS', 8, raising=False)
+    monkeypatch.setattr(subprocess, 'CREATE_NEW_PROCESS_GROUP', 512, raising=False)
+    monkeypatch.setattr(subprocess, 'Popen', lambda command, **kw: launched.append((command, kw)))
+    monkeypatch.setattr('spacr.restart_state.save', lambda **kw: 'saved-state')
+    monkeypatch.setattr('spacr.restart_state.command', lambda: ['python', '-m', 'spacr.qt'])
+    assert shutdown.restart_spacr('measure', exiter=exited.append)
+    assert launched == [(['python', '-m', 'spacr.qt'],
+                         {'start_new_session': True, 'close_fds': True,
+                          'creationflags': 520})]
+    assert exited == [0]

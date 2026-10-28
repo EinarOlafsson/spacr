@@ -246,3 +246,38 @@ def test_a_whole_messy_lifecycle_still_ends_on_one_filter_and_one_owner(
     assert glass.uninstall_glass_everywhere() is True
     assert fifth.removed == fifth.glass_filters, \
         "a remembered owner still gets the filter taken off at shutdown"
+
+
+def test_deleted_settings_popup_is_not_classified_or_dereferenced(qapp):
+    from PySide6.QtWidgets import QDialog
+    from shiboken6 import delete
+
+    dialog = QDialog()
+    dialog.setProperty(glass.SETTINGS_POPUP, True)
+    delete(dialog)
+    assert glass._is_settings_popup(dialog) is False
+
+
+def test_settings_popup_default_colour_matches_the_active_surface_and_is_opaque(qapp, monkeypatch):
+    from PySide6.QtGui import QColor
+    from spacr.qt import theme
+
+    monkeypatch.setattr(theme, 'active_palette', lambda: {'surface': '#245678', 'bg': '#ffffff'})
+    actual = glass._settings_popup_colour()
+    assert actual == QColor('#245678')
+    assert actual.alpha() == 255
+
+
+def test_unavailable_wrapper_ownership_probe_does_not_prevent_show_treatment(qapp, monkeypatch):
+    from PySide6.QtWidgets import QDialog
+    from shiboken6 import Shiboken
+
+    def unavailable(widget):
+        raise RuntimeError('ownership metadata unavailable')
+
+    dialog = QDialog()
+    monkeypatch.setattr(Shiboken, 'createdByPython', unavailable)
+    assert glass._built_by_python(dialog) is True
+    glass.glass(dialog)
+    assert dialog.findChild(glass._Backdrop) is not None
+    dialog.close()

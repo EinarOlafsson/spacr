@@ -82,3 +82,38 @@ def test_attributes_hiding_qt_methods_never_reach_the_hub_169(qapp):
     with gil._restyle_unheard(QApplication.instance(), root):
         QWidget.setStyleSheet(root, "QWidget { color: #abc; }")
     QWidget.close(root)
+
+
+def test_deleted_wrapper_addresses_are_declined_without_reusing_a_live_identity(qapp, monkeypatch):
+    from shiboken6 import delete
+    import shiboken6
+
+    dead = QWidget()
+    delete(dead)
+    assert gil._cpp_address(dead) is None
+    live = QWidget()
+    real_pointer = shiboken6.getCppPointer
+
+    def unavailable(widget):
+        if widget is live:
+            raise RuntimeError('native pointer unavailable')
+        return real_pointer(widget)
+
+    monkeypatch.setattr(shiboken6, 'getCppPointer', unavailable)
+    assert gil._cpp_address(live) is None
+    assert live.isEnabled()
+    live.close()
+
+
+def test_unknown_wrapper_finalizer_cannot_drop_another_watch(qapp):
+    widget, watcher = QWidget(), QObject()
+    hub = SimpleNamespace(_objects={})
+    gil._hub_add_object(hub, widget, watcher, {QEvent.Type.Move})
+    original = hub._objects[id(widget)]
+    gil._hub_forget_wrapper(hub, -1, -2)
+    assert hub._objects[id(widget)] is original
+    assert gil._hub_held_wrapper(hub, id(widget)) is widget
+    gil._hub_forget_wrapper(hub, id(widget), id(widget))
+    assert gil._hub_held_wrapper(hub, id(widget)) is None
+    assert gil._hub_ask_object_watchers(hub, widget, QEvent(QEvent.Type.Move), QEvent.Type.Move) is False
+    widget.close()

@@ -129,3 +129,48 @@ def test_a_picker_that_rebuilds_while_shown_survives_its_walk(
         picker.close()
         shiboken6.delete(picker)
         qapp.processEvents()
+
+
+def test_accessibility_walk_skips_a_child_deleted_after_the_parent_snapshot(qapp):
+    class RebuildingParent(QWidget):
+        def children(self):
+            children = super().children()
+            shiboken6.delete(self.obsolete)
+            return children
+
+    from PySide6.QtWidgets import QFileDialog
+
+    parent = RebuildingParent()
+    parent.obsolete = QLabel('Gone', parent)
+    live = QLineEdit(parent)
+    picker = QFileDialog(parent)
+    try:
+        walked = i18n._a11y_live_tree(parent)
+        assert live in walked and picker in walked
+        assert all(shiboken6.isValid(widget) for widget in walked)
+        assert all(widget.parentWidget() is not picker for widget in walked)
+    finally:
+        shiboken6.delete(parent)
+
+
+def test_accessibility_name_probe_failure_preserves_an_explicit_control_name(qapp, monkeypatch):
+    from PySide6.QtGui import QAccessible
+    from PySide6.QtWidgets import QComboBox
+
+    combo = QComboBox()
+    combo.setAccessibleName('Physical channel')
+
+    def unavailable(widget):
+        raise RuntimeError('native accessibility interface unavailable')
+
+    monkeypatch.setattr(QAccessible, 'queryAccessibleInterface', unavailable)
+    try:
+        assert i18n._a11y_effective_name(combo) == 'Physical channel'
+        field = QLineEdit()
+        field.setAccessibleName('Object identity')
+        try:
+            assert i18n._a11y_effective_name(field) == 'Object identity'
+        finally:
+            shiboken6.delete(field)
+    finally:
+        shiboken6.delete(combo)
