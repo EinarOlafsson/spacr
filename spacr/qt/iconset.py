@@ -959,7 +959,6 @@ SHARED_ICON_ASSETS = {
     "explain_cv": "ml_analyze.png",
     "overview": "plate_view.png",
     "3d": "layer_viewer.png",
-    "host_pathogen": "recruitment.png",
     "import_images": "foreign.png",
     "ops": "sequencing.png",
     "spatial_masks": "mask.png",
