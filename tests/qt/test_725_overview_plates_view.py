@@ -1354,3 +1354,54 @@ def test_hovering_a_known_well_without_the_chosen_time_never_invents_an_image(qt
     assert view._selected_wells == selection and _item(view, plate, 'A01').isSelected()
     assert tuple(field.identity for field in view._all_fields) == identities
     assert all(Path(path).read_bytes() == data for path, data in originals.items())
+
+
+def test_adding_a_mixed_folder_with_an_invalid_well_refuses_before_workspace_mutation(view, qtbot, tmp_path):
+    import copy
+    from PySide6.QtTest import QSignalSpy
+
+    view._set_load_limits(2, 1)
+    assert view._set_plates_view('side')
+    _item(view, 'plateA', 'A01').setSelected(True)
+    view._well(_item(view, 'plateA', 'A01'))
+    qtbot.waitUntil(lambda: view.fields.count() > 0, timeout=10000)
+    view.fields.setCurrentRow(0)
+    qtbot.waitUntil(lambda: view._individual and view.view._item is not None
+                    and not view.view._item.pixmap().isNull(), timeout=10000)
+    _settle_plate_auxiliary_jobs(view, qtbot)
+    added = _plate(tmp_path / 'added', ('A01', 'A00'), 4000)
+    original = {path: path.read_bytes() for path in tmp_path.rglob('*.tif')}
+    saved = {path: path.read_bytes() for path in tmp_path.rglob('overview_view.json')}
+    assert saved
+    source = view.source.text()
+    fields, all_fields = view._fields, view._all_fields
+    identities = tuple(field.identity for field in all_fields)
+    selected = set(view._selected_wells)
+    current = view.plates.currentData()
+    scope = view._scope
+    displayed = view.view._item.pixmap().toImage().copy()
+    main_field = view._main_view_field
+    limits = view._load_limits
+    options = copy.deepcopy(view._overview_options)
+    state = copy.deepcopy(view._view_state)
+    paths = tuple(view._source_paths)
+    failed = QSignalSpy(view._index_jobs.job_failed)
+    finished = QSignalSpy(view._index_jobs.job_finished)
+    view._add_sources(str(added))
+    qtbot.waitUntil(lambda: failed.count() + finished.count() > 0
+                    and not view._index_jobs.is_busy(), timeout=15000)
+    _settle_plate_auxiliary_jobs(view, qtbot)
+    message = 'The filename regex must include a valid wellID for every image.'
+    assert failed.count() == 1 and finished.count() == 1
+    assert finished.at(0) == [False]
+    assert failed.at(0)[0].endswith(message) and view.status.text().endswith(message)
+    assert view.source.text() == source and tuple(view._source_paths) == paths
+    assert view._fields is fields and view._all_fields is all_fields
+    assert tuple(field.identity for field in view._all_fields) == identities
+    assert view._selected_wells == selected and view.plates.currentData() == current
+    assert view._scope == scope and view._main_view_field is main_field and view._individual
+    assert view.view._item.pixmap().toImage() == displayed
+    assert view._load_limits == limits == (2, 1)
+    assert view._overview_options == options and view._view_state == state
+    assert {path: path.read_bytes() for path in tmp_path.rglob('overview_view.json')} == saved
+    assert all(path.read_bytes() == data for path, data in original.items())
