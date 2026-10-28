@@ -63,53 +63,6 @@ LITERAL_HINTS = {
 _HINT_ORDER = tuple(sorted(LITERAL_HINTS, key=len, reverse=True))
 
 
-def _indexed_well_map(path, required):
-    """Resolve explicit plate/index identities without inferring plate geometry.
-
-    The CSV has exactly ``plate,index,well`` columns. Every acquired index
-    needs a plate-scoped physical well; duplicate keys or destinations refuse
-    the entire map before ingestion. Unused rows permit a map for a full run.
-    """
-    from collections.abc import Mapping
-    from .tabular import read_table
-    from .qt.i18n import tr
-
-    required = set(required)
-    if not path:
-        raise ValueError(tr("Indexed ScanR requires a plate/index/well CSV map."))
-    if isinstance(path, Mapping):
-        if any(not isinstance(key, tuple) or len(key) != 2 for key in path):
-            raise ValueError(tr("Indexed ScanR well assignments must include both plate and W index."))
-        rows = ((plate, index, well) for (plate, index), well in path.items())
-    else:
-        if not os.path.isfile(path) or os.path.splitext(os.fspath(path))[1].lower() != '.csv':
-            raise ValueError(tr("Choose a local well map CSV file."))
-        table = read_table(path, canonicalise=False, report=None, dtype=str,
-                           keep_default_na=False)
-        if list(table.columns) != ['plate', 'index', 'well']:
-            raise ValueError(tr("The well map must have exactly plate,index,well columns."))
-        rows = table.itertuples(index=False, name=None)
-    result = {}
-    destinations = set()
-    for plate, index, well in rows:
-        plate, index, well = str(plate).strip(), str(index).strip(), str(well).strip().upper()
-        match = re.fullmatch(r'W(\d{5})', index)
-        address = re.fullmatch(r'([A-Z]+)([1-9]\d*|0[1-9])', well)
-        if not plate or match is None or int(match.group(1)) < 1 or address is None:
-            raise ValueError(tr("The well map contains an invalid plate, W index or physical well."))
-        well = address.group(1) + str(int(address.group(2))).zfill(2)
-        key, destination = (plate, index), (plate, well)
-        if key in result or destination in destinations:
-            raise ValueError(tr("The well map repeats a plate/index or physical well."))
-        result[key] = well
-        destinations.add(destination)
-    missing = required.difference(result)
-    if missing:
-        names = ', '.join(f'{plate}/{index}' for plate, index in sorted(missing))
-        raise ValueError(tr("The well map has no assignment for: {indices}", indices=names))
-    return result
-
-
 def hint_for(before: str) -> str:
     """Infer a metadata role from the literal preceding a value slot.
 

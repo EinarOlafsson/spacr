@@ -2053,14 +2053,11 @@ def _extract_filename_metadata(filenames, src, regular_expression, metadata_type
     images_by_key = defaultdict(list)
     mapped_wells = {}
     if metadata_type == 'scanr_indexed':
-        from .regex_infer import _indexed_well_map
+        from .convert import _indexed_well_map
         source_plate = source_plate or os.path.basename(os.path.normpath(src))
         matches = [regular_expression.fullmatch(name) for name in filenames]
-        if any(match is None for match in matches):
-            from .qt.i18n import tr
-            raise ValueError(tr("Every indexed ScanR image must match its filename convention."))
         mapped_wells = _indexed_well_map(
-            metadata_well_map, {(source_plate, match.group('wellID')) for match in matches})
+            metadata_well_map, {(source_plate, match.group('wellID') if match else None) for match in matches})
     acquisition = None
     if metadata_type == 'cq1':
         from .regex_infer import _yokogawa_acquisition

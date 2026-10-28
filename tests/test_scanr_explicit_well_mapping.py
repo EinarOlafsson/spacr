@@ -203,3 +203,20 @@ def test_indexed_scanr_test_mode_samples_then_maps_against_original_plate(tmp_pa
                                   np.stack([np.full((5, 7), value, dtype=np.uint16)
                                             for value in (11, 12)], axis=2))
     assert {name: (source / name).read_bytes() for name in NAMES} == originals
+
+
+def test_indexed_scanr_malformed_late_orig_name_refuses_before_any_mutation(tmp_path):
+    """The shared resolver refuses incomplete acquisition names before sampling."""
+    from spacr.io import preprocess_img_data
+
+    source = tmp_path / 'plate'
+    _images(source)
+    orig = source / 'orig'
+    orig.mkdir()
+    (orig / '--W00003--P00001--Z00000--T00000--.tif').write_bytes(b'unread malformed image')
+    mapping = _map(tmp_path, 'plate,W00002,B07\nplate,W00003,C08\n')
+    before = _snapshot(tmp_path)
+    with pytest.raises(ValueError, match='must match'):
+        preprocess_img_data({'src': str(source), 'metadata_type': 'scanr_indexed',
+                             'metadata_well_map': mapping, 'test_mode': True})
+    assert _snapshot(tmp_path) == before

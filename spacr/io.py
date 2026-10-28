@@ -1222,14 +1222,11 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
     orig_filenames = _raw_image_names(orig_path, img_format)
     source_plate = source_plate or os.path.basename(os.path.normpath(src))
     if metadata_type == 'scanr_indexed':
-        from .regex_infer import _indexed_well_map
-        from .qt.i18n import tr
+        from .convert import _indexed_well_map
         matches = [regular_expression.fullmatch(name)
                    for name in src_filenames + orig_filenames]
-        if any(match is None for match in matches):
-            raise ValueError(tr("Every indexed ScanR image must match its filename convention."))
         metadata_well_map = _indexed_well_map(
-            metadata_well_map, {(source_plate, match.group('wellID')) for match in matches})
+            metadata_well_map, {(source_plate, match.group('wellID') if match else None) for match in matches})
     image_paths_by_key = defaultdict(list)
     for folder, names in ((src, src_filenames),
                           (orig_path, orig_filenames)):
@@ -1451,7 +1448,7 @@ def _move_to_chan_folder(src, regex, timelapse=False, metadata_type=''):
     """
     if metadata_type == 'scanr_indexed':
         from .qt.i18n import tr
-        raise ValueError(tr("Indexed ScanR requires the mapped Import or Mask ingestion route."))
+        raise ValueError(tr("Indexed ScanR requires a plate/index/well CSV map."))
     from .utils import _int_or_token, _convert_cq1_well_id
 
     src_path = src
@@ -4177,19 +4174,17 @@ def preprocess_img_data(settings):
     _validate_unmix_matrix_scope(settings)
     metadata_well_map = None
     if settings.get('metadata_type') == 'scanr_indexed':
-        from .regex_infer import _indexed_well_map
+        from .convert import _indexed_well_map
         from .utils import _get_regex
-        from .qt.i18n import tr
         source = os.fspath(settings['src'])
         names = (_raw_image_names(source) +
                  _raw_image_names(os.path.join(source, 'orig')))
         pattern = re.compile(_get_regex('scanr_indexed', 'tif'))
         matches = [pattern.fullmatch(name) for name in names]
-        if any(match is None for match in matches):
-            raise ValueError(tr("Every indexed ScanR image must match its filename convention."))
         metadata_well_map = _indexed_well_map(
             settings.get('metadata_well_map'),
-            {(os.path.basename(os.path.normpath(source)), match.group('wellID'))
+            {(os.path.basename(os.path.normpath(source)),
+              match.group('wellID') if match else None)
              for match in matches})
     if (settings.get('z_stack') and settings.get('t_stack')
             and settings.get('z_segmentation_mode') == 'volumetric'):
