@@ -86,3 +86,12 @@ def test_a_cancelled_answer_is_not_remembered(monkeypatch):
                         lambda parent, path, holder: "cancel")
     assert cr._claim_project(None, "/data/plate") == "cancel"
     assert cr._PROJECT_CHOICES == {}
+
+
+def test_unknown_local_hostname_does_not_mislabel_holder_as_remote(monkeypatch):
+    def unavailable():
+        raise OSError('hostname service unavailable')
+
+    monkeypatch.setattr(cr.socket, 'gethostname', unavailable)
+    assert not cr._held_on_another_host({'host': 'other-node'})
+    assert not cr._held_on_another_host({})

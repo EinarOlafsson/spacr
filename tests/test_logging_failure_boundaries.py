@@ -409,3 +409,38 @@ def test_a_failed_automatic_report_handler_keeps_the_original_error_log(monkeypa
         logger.removeHandler(ordinary)
         reporter.close()
         ordinary.close()
+
+
+@pytest.mark.parametrize('missing_stream', [False, True])
+def test_locked_rollover_preserves_append_stream_and_defers_retry(
+        tmp_path, monkeypatch, missing_stream):
+    path = tmp_path / 'owned.log'
+    handler = logging.handlers.RotatingFileHandler(path, maxBytes=100)
+    monkeypatch.setattr(lu.time, 'monotonic', lambda: 20.0)
+    original = handler.stream
+    if missing_stream:
+        original.close()
+        handler.stream = None
+
+    def locked():
+        raise PermissionError('another process holds the log')
+
+    try:
+        lu._rollover_or_keep_writing(handler, locked)
+        assert handler._spacr_rollover_blocked_until == 80.0
+        assert handler.stream is not None and not handler.stream.closed
+        if not missing_stream:
+            assert handler.stream is original
+        checked = []
+        record = logging.makeLogRecord({'msg': 'next'})
+        assert not lu._quick_should_rollover(handler, checked.append, record)
+        assert checked == []
+        handler.stream.write('still appendable\n')
+        handler.flush()
+        assert path.read_text() == 'still appendable\n'
+        handler.maxBytes = lu._NEAR_LIMIT_BYTES + 1024
+        monkeypatch.setattr(lu.time, 'monotonic', lambda: 100.0)
+        assert not lu._quick_should_rollover(handler, checked.append, record)
+        assert checked == []
+    finally:
+        handler.close()
