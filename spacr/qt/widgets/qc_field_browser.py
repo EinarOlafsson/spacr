@@ -12725,9 +12725,7 @@ class _OverviewSettingsBridge:
         self._image_keys = (*_OVERVIEW_IMAGE_SETTINGS, *_enhancement_keys())
         self._staged_keys = _OVERVIEW_STAGED_SETTINGS | set(_enhancement_keys())
         for key in self._image_keys:
-            row = self._model._widgets.get(key)
-            if row is not None:
-                self._listen(row, functools.partial(self._image_row_changed, key))
+            self._listen(self._model._widgets[key], functools.partial(self._image_row_changed, key))
         browser._tile_size_changed = lambda edge: self._write("overview_tile_size", edge)
         browser._tile_spacing_changed = lambda gap: self._write("overview_tile_spacing", gap)
         browser._write_display_rows = self._write_display_rows
@@ -12992,9 +12990,7 @@ class _OverviewChannelToggles(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(2)
         self._layout = layout
-        row = model._widgets.get(key)
-        if row is not None:
-            _connect_value_changed(row, self._row_changed)
+        _connect_value_changed(model._widgets[key], self._row_changed)
 
     def set_channels(self, channels):
         """Show one switch per channel, set from the setting's value.
@@ -13068,9 +13064,7 @@ class _OverviewChannelScopes(QWidget):
         self._writing = False
         self._layout = QFormLayout(self)
         self._layout.setContentsMargins(0, 0, 0, 0)
-        row = model._widgets.get(key)
-        if row is not None:
-            _connect_value_changed(row, self._row_changed)
+        _connect_value_changed(model._widgets[key], self._row_changed)
 
     def set_channels(self, channels):
         """Show one scope choice per channel, set from the setting's value.
@@ -13146,9 +13140,7 @@ class _OverviewCustomColors(QWidget):
         self._layout = QFormLayout(self)
         self._layout.setContentsMargins(0, 0, 0, 0)
         for name, slot in ((key, self._row_changed), ("overview_color_mode", self._mode_changed)):
-            row = model._widgets.get(name)
-            if row is not None:
-                _connect_value_changed(row, slot)
+            _connect_value_changed(model._widgets[name], slot)
         self._mode_changed()
 
     def colours(self):
@@ -13475,8 +13467,6 @@ class _OverviewModulePage(QWidget):
         if console is not None:
             self.restoration_controls.said.connect(lambda text, _kind: console.append_stdout(text + "\n"))
         section = _overview_section(self._screen, "Enhancement")
-        if section is None:
-            return
         note = QLabel(tr("PSF deconvolution and Cellpose 3 restoration apply only to images opened "
                          "with Original, never to previews or thumbnails."))
         note.setWordWrap(True)
@@ -13592,8 +13582,6 @@ class _OverviewModulePage(QWidget):
         keys = {}
         for title, rows in _overview_module_rows(browser).items():
             section = _overview_section(self._screen, title)
-            if section is None:
-                continue
             for caption, tooltip, widgets in rows:
                 label = _overview_row_label(caption, tooltip)
                 field = _overview_row_field(widgets)
@@ -13608,8 +13596,6 @@ class _OverviewModulePage(QWidget):
         model = self._screen._settings_model
         for title, key, caption, tooltip in _OVERVIEW_CHANNEL_TARGET_ROWS:
             section = _overview_section(self._screen, title)
-            if section is None or model._widgets.get(key) is None:
-                continue
             toggles = _OverviewChannelToggles(model, key)
             toggles.setProperty("settingKey", _overview_row_key(caption))
             toggles.setProperty("apiTooltipDescriptionSource", tooltip)
@@ -13621,51 +13607,46 @@ class _OverviewModulePage(QWidget):
             self._rows.append((section, toggles, ()))
             self._hidden_keys.append(key)
         section = _overview_section(self._screen, "Advanced normalization")
-        if section is not None and model._widgets.get("overview_normalization_scope") is not None:
-            caption, tooltip = _OVERVIEW_NORMALIZATION_SCOPE_ROW
-            scopes = _OverviewChannelScopes(model, "overview_normalization_scope")
-            scopes.setProperty("settingKey", _overview_row_key(caption))
-            scopes.setProperty("apiTooltipDescriptionSource", tooltip)
-            browser._channels_found.connect(scopes.set_channels)
-            if browser._channel_buttons:
-                scopes.set_channels(tuple(browser._channel_buttons))
-            section.add_prose_row(_overview_row_label(caption, tooltip), scopes)
-            keys[scopes] = _overview_row_key(caption)
-            self._rows.append((section, scopes, ()))
-            self._hidden_keys.append("overview_normalization_scope")
+        caption, tooltip = _OVERVIEW_NORMALIZATION_SCOPE_ROW
+        scopes = _OverviewChannelScopes(model, "overview_normalization_scope")
+        scopes.setProperty("settingKey", _overview_row_key(caption))
+        scopes.setProperty("apiTooltipDescriptionSource", tooltip)
+        browser._channels_found.connect(scopes.set_channels)
+        if browser._channel_buttons:
+            scopes.set_channels(tuple(browser._channel_buttons))
+        section.add_prose_row(_overview_row_label(caption, tooltip), scopes)
+        keys[scopes] = _overview_row_key(caption)
+        self._rows.append((section, scopes, ()))
+        self._hidden_keys.append("overview_normalization_scope")
         section = _overview_section(self._screen, "Channels")
-        if section is not None and model._widgets.get("overview_custom_colors") is not None:
-            caption, tooltip = _OVERVIEW_CUSTOM_COLORS_ROW
-            colours = _OverviewCustomColors(model, "overview_custom_colors")
-            colours.setProperty("settingKey", _overview_row_key(caption))
-            colours.setProperty("apiTooltipDescriptionSource", tooltip)
-            browser._channels_found.connect(colours.set_channels)
-            if browser._channel_buttons:
-                colours.set_channels(tuple(browser._channel_buttons))
-            section.add_prose_row(_overview_row_label(caption, tooltip), colours)
-            keys[colours] = _overview_row_key(caption)
-            self._rows.append((section, colours, ()))
-            self._hidden_keys.append("overview_custom_colors")
+        caption, tooltip = _OVERVIEW_CUSTOM_COLORS_ROW
+        colours = _OverviewCustomColors(model, "overview_custom_colors")
+        colours.setProperty("settingKey", _overview_row_key(caption))
+        colours.setProperty("apiTooltipDescriptionSource", tooltip)
+        browser._channels_found.connect(colours.set_channels)
+        if browser._channel_buttons:
+            colours.set_channels(tuple(browser._channel_buttons))
+        section.add_prose_row(_overview_row_label(caption, tooltip), colours)
+        keys[colours] = _overview_row_key(caption)
+        self._rows.append((section, colours, ()))
+        self._hidden_keys.append("overview_custom_colors")
         from spacr.settings import _OVERVIEW_WELL_VIEW_KEYS
 
         self._hidden_keys.extend(key for key in _OVERVIEW_WELL_VIEW_KEYS if model._widgets.get(key) is not None)
         self._mount_channel_list_check(browser, model)
-        if self._hidden_keys:
-            self._screen_hides = model.rows_the_screen_hides
-            model.rows_the_screen_hides = functools.partial(
-                _overview_rows_hidden, self._screen_hides, tuple(self._hidden_keys))
-            model.refresh_object_visibility()
-        objects = model._widgets.get("overview_objects_path")
-        if objects is not None:
-            from ..screens.settings_model import _add_folder_browse_action
+        self._screen_hides = model.rows_the_screen_hides
+        model.rows_the_screen_hides = functools.partial(
+            _overview_rows_hidden, self._screen_hides, tuple(self._hidden_keys))
+        model.refresh_object_visibility()
+        from ..screens.settings_model import _add_folder_browse_action
 
-            _add_folder_browse_action(objects, functools.partial(_overview_choose_object_masks, objects, self))
+        _add_folder_browse_action(model._widgets["overview_objects_path"], functools.partial(
+            _overview_choose_object_masks, model._widgets["overview_objects_path"], self))
         install_api_tooltips(self._screen, "overview", keys)
         section = _overview_section(self._screen, "Export")
-        if section is not None:
-            from ..widgets.section import Section
+        from ..widgets.section import Section
 
-            _overview_height_grip(section)
+        _overview_height_grip(section)
 
     def _mount_channel_list_check(self, browser, model):
         """Check Normalized channels as it is typed; a wrong list is framed and the Apply bar says why.

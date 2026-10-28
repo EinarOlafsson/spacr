@@ -12,6 +12,7 @@ import tifffile
 from PySide6.QtCore import Qt
 
 from spacr.qt.widgets import qc_field_browser as browser
+from tests.qt.test_startup_ai_reporting_choice import private_ai_profile
 
 
 PATTERN = r"(?P<plateID>p\d+)-(?P<wellID>[A-Z]\d+)-f(?P<fieldID>\d+)-c(?P<chanID>\d+)\.tif"
@@ -664,3 +665,61 @@ def test_invalid_global_channel_text_during_a_channel_draft_keeps_the_last_valid
     assert page._check_channel_list() and '9' in view.status.text()
     np.testing.assert_array_equal(_pixels(view, folders[0].name, 'A01', (1, 2)), prior)
     assert all(path.read_bytes() == raw for path, raw in before.items())
+
+
+@pytest.mark.parametrize('level', ['essentials', 'all'])
+def test_declared_workspace_headings_survive_lazy_disclosure_and_collapse(
+        qtbot, private_ai_profile, monkeypatch, level):
+    from spacr.qt import screens, settings_search
+    from spacr.qt.app import MainWindow
+    from spacr.qt.screens.settings_model import categories_for_app, get_categories
+
+    preferences, _, _ = private_ai_profile
+    preferences.set_easy_mode(False)
+    preferences.set_reduce_motion(True)
+    preferences._set_spacr_ai_enabled(False)
+    monkeypatch.setattr(settings_search, '_settings', preferences._settings)
+    settings_search.remember_disclosure('overview', level)
+    window = MainWindow(initial_app='__home__')
+    qtbot.addWidget(window)
+    window._tour_timer.stop()
+    window._consent_timer.stop()
+    previous_policy = screens._categories_wait_to_be_opened
+    screen = window._build_screen('overview')
+    qtbot.addWidget(screen, before_close_func=lambda widget: widget._overview_page.retire())
+    try:
+        assert screens._categories_wait_to_be_opened == previous_policy
+        assert screen._categories_wait and screen._settings_search._level == level
+        assert screen._overview_page.browser is None
+        model = screen._settings_model
+        widgets = model._widgets
+        export_keys = categories_for_app('overview', get_categories())['Export']
+        assert set(export_keys) <= set(widgets)
+        waiting = next(section for section in screen._settings_sections
+                       if section.property('settingsCategorySource') == 'Export')
+        assert screen._heading_is_waiting(waiting) and not waiting.is_expanded()
+        assert set(export_keys) & set(widgets.keys_to_come())
+        section = browser._overview_section(screen, 'Export')
+        assert section is waiting and not screen._heading_is_waiting(section)
+        controls = {key: widgets[key] for key in export_keys}
+        assert model.set_value_for_key('overview_pdf_dpi', 600)
+        assert model._read_value('overview_pdf_dpi') == 600
+        for title in ('Image', 'Channels', 'Enhancement', 'Advanced normalization'):
+            heading = browser._overview_section(screen, title)
+            assert heading is not None
+            heading.set_expanded(False)
+            assert browser._overview_section(screen, title) is heading
+            heading.set_expanded(True)
+            assert browser._overview_section(screen, title) is heading
+        section.set_expanded(True)
+        section.set_expanded(False)
+        assert browser._overview_section(screen, 'Export') is section
+        assert all(widgets[key] is control for key, control in controls.items())
+        assert model._read_value('overview_pdf_dpi') == 600
+        declared = [key for key, _, _ in section._spacr_declared_rows]
+        assert set(declared) == set(export_keys) and len(declared) == len(export_keys)
+        assert screen._overview_page.browser is None
+    finally:
+        screen._overview_page.retire()
+        screen.close()
+        window.close()

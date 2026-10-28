@@ -12035,7 +12035,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "custom_regex",
-    "line": 13528,
+    "line": 13518,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_OverviewModulePage.run"
@@ -26033,7 +26033,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "mode",
-    "line": 14188,
+    "line": 14169,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_overview_normalization_plan"
@@ -26042,7 +26042,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "mode",
-    "line": 15912,
+    "line": 15893,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_overview_prepare_normalization"
@@ -28501,7 +28501,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalization_percentiles",
-    "line": 14005,
+    "line": 13986,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_open_overview_module"
@@ -37642,7 +37642,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "overview_channels",
-    "line": 13524,
+    "line": 13514,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_OverviewModulePage.run"
@@ -38268,7 +38268,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "overview_normalize",
-    "line": 13529,
+    "line": 13519,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_OverviewModulePage.run"
@@ -38488,7 +38488,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "overview_percentile_high",
-    "line": 13531,
+    "line": 13521,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_OverviewModulePage.run"
@@ -38508,7 +38508,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "overview_percentile_low",
-    "line": 13530,
+    "line": 13520,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_OverviewModulePage.run"
@@ -41651,7 +41651,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "percentiles",
-    "line": 14192,
+    "line": 14173,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_overview_normalization_plan"
@@ -41660,7 +41660,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "percentiles",
-    "line": 15948,
+    "line": 15929,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_OverviewWellMeanContext.__init__"
@@ -53420,7 +53420,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 13515,
+    "line": 13505,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_OverviewModulePage.run"
@@ -53429,7 +53429,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 14001,
+    "line": 13982,
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_open_overview_module"

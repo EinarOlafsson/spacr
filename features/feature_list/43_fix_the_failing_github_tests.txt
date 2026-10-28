@@ -1,5 +1,9 @@
 GET THE GITHUB ACTIONS RUNS GREEN
 
+OVERVIEW WORKSPACE DECLARED CONTROLS — 2026-10-28
+2026-10-28 — Home G5 owns the Nightly-only declared-row/category cleanup in _OverviewSettingsBridge, the specialized channel editors and _OverviewModulePage; Mac retains _fill_field_list, _scan, _filter and thumbnail/item lifetime. Preserve supported lazy/Essentials/collapsed headings, all optional browser/source/retirement guards and physical channel/source identity; no Main promotion or crash-fix claim. Require actual Essential/All boundary controls plus the smallest mounted workspace companion, normal owning API/UI projection readback, and root's final joint consumer refresh/publication.
+2026-10-28 — Declared Overview workspace controls and categories now use their registered owners directly; lazy Essentials/All collapse/reopen and the mounted mask-folder companion pass. Normal scoped projection retains all 19 API records and every UI source exactly; Mac field-list/thumbnail work is untouched. Root retains joint consumer/index refresh, integration and Nightly publication.
+
 NATIVE MAC OVERVIEW HANDOFF — 2026-10-28
 
 CURRENT IMPLEMENTATION LEASE — 2026-10-28: the Mac session owns the grounded Overview reuse-item repair in qc_field_browser.py; Home G1 provides source peer and keeps its QC tests disjoint. Coordinate through this item; no duplicate product patch or Qt pin change.
