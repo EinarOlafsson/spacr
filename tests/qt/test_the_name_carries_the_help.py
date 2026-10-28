@@ -85,12 +85,14 @@ def test_the_help_is_on_the_name_not_the_field(window, qapp, key):
     opened first, as a user reaching every row would: since 2026-09-22 a
     closed category's rows are not built until it is.
     """
-    from spacr.qt.settings_search import remember_disclosure
+    from spacr.qt.settings_search import ALL, remember_disclosure
 
     remember_disclosure(key, "all")
     window._on_nav_selected(key)
     qapp.processEvents()
     screen = window._screens[key]
+    screen._settings_search.set_level(ALL)
+    assert screen._settings_search.level() == ALL
     screen._open_every_waiting_heading()
     qapp.processEvents()
 
