@@ -147,6 +147,46 @@ def test_missing_vendor_reader_refuses_exact_file_without_decoding_or_sibling(sc
     assert not screen._image_files
 
 
+def test_excessive_real_tiff_series_preserve_the_open_field_without_decoding(screen, qtbot, tmp_path, monkeypatch):
+    initial = tmp_path / 'initial.png'
+    pixels = np.arange(24 * 32, dtype=np.uint8).reshape(24, 32)
+    Image.fromarray(pixels).save(initial)
+    assert screen.open_paths([initial])
+    _settle(qtbot, screen)
+    displayed = screen._canvas.image.copy()
+    state = (list(screen._image_files), screen._folder,
+             screen._current_index, screen._masks_dir)
+    assert not screen.warnings
+
+    excessive = tmp_path / 'too-many-series.tif'
+    with tifffile.TiffWriter(excessive) as writer:
+        for index in range(513):
+            writer.write(np.full((2, 2), index % 256, np.uint8),
+                         photometric='minisblack', metadata={'axes': 'YX'})
+    with tifffile.TiffFile(excessive) as handle:
+        assert len(handle.series) == 513
+        assert all(series.shape == (2, 2) for series in handle.series)
+    before = {path.name: path.read_bytes() for path in tmp_path.iterdir()
+              if path.is_file()}
+    identity = engine._source_identity(excessive)
+
+    def refuse_decode(*args, **kwargs):
+        pytest.fail('Excessive series must be refused before decoding pixels')
+
+    monkeypatch.setattr(tifffile.TiffPageSeries, 'asarray', refuse_decode)
+    assert screen.open_paths([excessive])
+    _settle(qtbot, screen)
+    assert len(screen.warnings) == 1
+    assert 'too many series to review safely' in screen.warnings[0][1]
+    np.testing.assert_array_equal(screen._canvas.image, displayed)
+    np.testing.assert_array_equal(engine.read_image(initial), pixels)
+    assert (screen._image_files, screen._folder,
+            screen._current_index, screen._masks_dir) == state
+    assert engine._source_identity(excessive) == identity
+    assert before == {path.name: path.read_bytes() for path in tmp_path.iterdir()
+                      if path.is_file()}
+
+
 @pytest.mark.parametrize('suffix', ['.nd2', '.lif'])
 def test_vendor_plane_contract_never_requests_an_unselected_plane(tmp_path, monkeypatch, suffix):
     path = tmp_path / ('reader-contract' + suffix)
