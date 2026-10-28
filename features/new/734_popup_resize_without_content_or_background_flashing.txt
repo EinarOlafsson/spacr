@@ -3,6 +3,7 @@ POPUP RESIZING WITHOUT CONTENT OR BACKGROUND FLASHING
 Status: OPEN — reported flash not reproduced; focused software continuity qualified, cause unknown.
 
 NATIVE WINDOWS HANDOFF — 2026-10-28
+Windows owner: Codex root, worktree windows-n734-20261028, per maintainer goal. Investigate native intermediate resize frames and shared repaint ordering; preserve Home's ambient lifecycle work. Any glass.py/setup_card.py changes will stay confined to the demonstrated resize cause; ambient.py remains Home's lane. Completion requires cause-based correction, owning regression checks, normal affected generation and nightly publication; no reproduction alone is not completion.
 When the Windows session starts, take this item on current origin/nightly: resize real Preferences/Overview popups continuously larger and smaller in Light/Dark, opaque/translucent, and tab away/back. Observe intermediate native frames, focus, values and window identity; retain prior passing Linux software checks.
 If the reported underlying-field flash reproduces, isolate the shared repaint/backing-store cause and implement the smallest fix without disabling translucency/animation. Run only owning focused regressions, record platform/Qt and actual outcome here, then push to nightly. Coordinate any ambient.py/glass.py/SetupCard.py edits with Home first; Home currently changes ambient lifecycle guards. No reproduction is not completion.
 
