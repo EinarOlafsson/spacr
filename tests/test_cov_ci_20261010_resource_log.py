@@ -164,3 +164,31 @@ def test_pool_close_is_idempotent_and_waits_for_pending_starts(starts_done):
         assert pool._worker_handler._state == multiprocessing.pool.CLOSE
     stopped = SimpleNamespace(_starts_stopped=lambda: True)
     assert rl._PacedPool._start_worker(stopped) is None
+
+
+def _wait_for_owned_starter_stop(started, stop):
+    started.set()
+    stop.wait()
+
+
+def test_starter_stop_never_joins_the_calling_thread():
+    import threading
+    from spacr.resource_log import _PacedPool
+
+    stop = threading.Event()
+    _PacedPool._stop_starter(stop, threading.current_thread())
+    assert stop.is_set()
+    stop.clear()
+    _PacedPool._stop_starter(stop, None)
+    assert stop.is_set()
+    stop.clear()
+    started = threading.Event()
+    thread = threading.Thread(target=_wait_for_owned_starter_stop, args=(started, stop))
+    thread.start()
+    try:
+        assert started.wait(5)
+        _PacedPool._stop_starter(stop, thread)
+        assert stop.is_set() and not thread.is_alive()
+    finally:
+        stop.set()
+        thread.join(timeout=5)

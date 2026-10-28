@@ -301,3 +301,82 @@ def test_busy_transfers_and_failed_atomic_export_preserve_existing_store(screen,
     assert sentinel.read_text() == 'preserve this directory'
     assert 'operation failed' in screen._status.text()
     assert screen.manager.profiles.path.read_bytes() == before and screen.manager.jobs.list() == []
+
+
+def test_profile_value_types_and_cancelled_export_preserve_snapshot(screen, monkeypatch):
+    original = screen._profile_transfer_document('job')
+    before = screen.manager.profiles.path.read_bytes()
+    document = json.loads(json.dumps(original))
+    document['profile']['name'] = 123
+    with pytest.raises(RemoteExecutionError, match='unsupported or incompatible'):
+        dj._validate_profile_transfer(document, 'job')
+    monkeypatch.setattr(QFileDialog, 'getSaveFileName', lambda *args: ('', ''))
+    screen._save_profile_transfer('job')
+    assert screen._profile_transfer_document('job') == original
+    assert screen.manager.profiles.path.read_bytes() == before and screen.manager.jobs.list() == []
+
+
+def test_connection_needs_current_target_and_import_resources_fit_controls(screen):
+    connection = screen._profile_transfer_document('connection')
+    original = screen._profile_transfer_document('job')
+    before = screen.manager.profiles.path.read_bytes()
+    oversized = json.loads(json.dumps(original))
+    oversized['profile']['resources']['cpus'] = str(screen._res_cpus.maximum() + 1)
+    with pytest.raises(RemoteExecutionError, match='unsupported or incompatible'):
+        screen._prepare_profile_transfer(oversized, 'job')
+    screen._profile.clear()
+    with pytest.raises(RemoteExecutionError, match='Create an execution profile first'):
+        screen._prepare_profile_transfer(connection, 'connection')
+    assert screen.manager.profiles.path.read_bytes() == before and screen.manager.jobs.list() == []
+
+
+def test_raw_oversized_import_refuses_before_json_preview_or_store(screen, tmp_path, monkeypatch):
+    before = screen.manager.profiles.path.read_bytes()
+    path = tmp_path / 'oversized.json'
+    path.write_bytes(b' ' * (2 * 1024 * 1024 + 1))
+    _file_dialogs(monkeypatch, path)
+    seen = []
+    _preview(monkeypatch, True, seen)
+    screen._import_profile_transfer('job')
+    assert 'too large' in screen._status.text()
+    assert seen == [] and screen.manager.profiles.path.read_bytes() == before
+    assert screen.manager.jobs.list() == []
+
+
+class _RetireAllocationAfterValidation:
+    """Inject a real persisted scheduler-state change after the second validation boundary."""
+
+    def __init__(self, prepare, jobs, holder):
+        self.prepare, self.jobs, self.holder = prepare, jobs, holder
+        self.calls = 0
+
+    def __call__(self, *args):
+        result = self.prepare(*args)
+        self.calls += 1
+        if self.calls == 2:
+            self.jobs.save(replace(self.holder, status='cancelled'))
+        return result
+
+
+def test_allocation_retired_after_validation_cannot_apply_profile(screen, tmp_path, monkeypatch):
+    document = screen._profile_transfer_document('job')
+    profile = ExecutionProfile.from_dict(document['profile'])
+    screen.manager.profiles.save(profile)
+    holder = RemoteJob('abcdef123456', 'allocation', profile.name, 'slurm', status='running', profile=profile.to_dict())
+    screen.manager.jobs.save(holder)
+    document['job']['allocation_id'] = holder.job_id
+    path = tmp_path / 'allocation-race.json'
+    path.write_text(json.dumps(document))
+    before = screen.manager.profiles.path.read_bytes()
+    original_form = screen._profile_transfer_document('job')
+    _file_dialogs(monkeypatch, path)
+    seen = []
+    _preview(monkeypatch, True, seen)
+    race = _RetireAllocationAfterValidation(screen._prepare_profile_transfer, screen.manager.jobs, holder)
+    monkeypatch.setattr(screen, '_prepare_profile_transfer', race)
+    screen._import_profile_transfer('job')
+    assert race.calls == 2 and len(seen) == 1
+    assert 'allocation is unavailable' in screen._status.text()
+    assert screen.manager.profiles.path.read_bytes() == before
+    assert screen._profile_transfer_document('job') == original_form
+    assert screen.manager.jobs.get(holder.job_id).status == 'cancelled'

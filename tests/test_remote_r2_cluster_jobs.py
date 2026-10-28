@@ -822,3 +822,125 @@ def test_invalid_remote_log_response_preserves_job_and_offset(tmp_path, reply):
     assert isinstance(caught.value.__cause__, ValueError)
     assert manager.jobs.path.read_bytes() == before
     assert manager.runner.calls[0][1]['timeout'] == 60.0
+
+
+def test_lsf_notifications_and_no_shebang_jobs_keep_portable_defaults():
+    from spacr import remote_execution as rx
+
+    profile = replace(_slurm(resources={'mail_type': 'ALL', 'extra': '\n#BSUB -env all\n\n'}), backend='lsf')
+    directives = _scheduler_directives(profile, 'job', '/work/job.log').splitlines()
+    assert '#BSUB -B' in directives and '#BSUB -N' in directives
+    assert directives.count('#BSUB -env all') == 1 and all(line.strip() for line in directives)
+    assert rx._interpreter('echo hello\n') == ['/bin/sh']
+    assert rx._interpreter('#!   \necho hello\n') == ['/bin/sh']
+    assert rx._interpreter('#!/usr/bin/env bash\n') == ['/usr/bin/env', 'bash']
+
+
+def test_incomplete_cluster_probe_and_corrupt_suggestions_remain_safe(tmp_path, monkeypatch):
+    from spacr import remote_execution as rx
+
+    probe = _parse_cluster_probe('ignored preamble\n\n##host\nfake-host\n##sinfo\nshort|row\n'
+                                 'cpu*|up|1:00:00|2|4|8192|gpu:2\n##assoc\n|cpu|normal\n')
+    assert probe['host'] == 'fake-host' and probe['accounts'] == []
+    assert len(probe['partitions']) == 1
+    assert probe['partitions'][0]['gpus'] == 2 and probe['partitions'][0]['gpu_types'] == []
+    cache = tmp_path / 'cluster-cache.json'
+    monkeypatch.setattr(rx, '_cluster_cache_path', lambda: cache)
+    for content in ('not JSON', '[]'):
+        cache.write_text(content)
+        assert rx._load_cluster_cache('missing') == {}
+        assert cache.read_text() == content
+
+
+class _UnwritableControlFolder:
+    """A filesystem boundary that records the private-mode request and refuses directory creation."""
+
+    def __init__(self, path, calls):
+        self.path, self.calls = path, calls
+
+    def __truediv__(self, child):
+        return _UnwritableControlFolder(self.path + '/' + child, self.calls)
+
+    def __str__(self):
+        return self.path
+
+    def mkdir(self, **kwargs):
+        self.calls.append((self.path, kwargs))
+        raise PermissionError('directory unavailable')
+
+
+def test_unwritable_short_control_directory_keeps_connection_template(monkeypatch):
+    from spacr import remote_execution as rx
+
+    calls = []
+    monkeypatch.setattr(rx, 'state_directory', lambda: _UnwritableControlFolder('/private', calls))
+    assert rx._default_control_path() == '/private/ssh/cm-%C'
+    assert calls == [('/private/ssh', {'parents': True, 'exist_ok': True, 'mode': 0o700})]
+
+
+def test_invalid_allocation_process_identity_is_never_accepted(tmp_path):
+    from spacr import remote_execution as rx
+
+    profile = _slurm()
+    runner = QueueRunner(CommandResult(0), CommandResult(0, 'not-a-process-id'))
+    job = rx.RemoteJob('abcdef123456', 'mask', profile.name, 'slurm', allocation_id='1234')
+    before = job.status
+    with pytest.raises(RemoteExecutionError, match='non-numeric process ID'):
+        rx._SlurmBackend(runner).submit(profile, job, '{}')
+    assert job.status == before and job.status != 'running'
+    assert 'srun' in runner.calls[-1][1]['input_text'] or 'srun' in runner.calls[-1][0][-1]
+    with pytest.raises(RemoteExecutionError, match='no valid process identity'):
+        rx._allocation_cancel_script(job)
+    assert len(runner.calls) == 2
+
+
+def test_unknown_step_in_live_allocation_does_not_invent_terminal_state():
+    from spacr import remote_execution as rx
+
+    profile = _slurm()
+    runner = QueueRunner(CommandResult(0, 'UNKNOWN'), CommandResult(0, 'RUNNING'))
+    job = rx.RemoteJob('abcdef123456', 'mask', profile.name, 'slurm', status='running',
+                       external_id='4321', allocation_id='1234', remote_job_dir='/work/job')
+    rx._SlurmBackend(runner).refresh(profile, job)
+    assert job.status == 'unknown' and job.exit_code is None
+    assert job.external_id == '4321' and job.allocation_id == '1234'
+    assert '1234' in runner.calls[-1][0][-1] and 'squeue' in runner.calls[-1][0][-1]
+    assert not runner.results
+
+
+def test_wrong_allocation_kind_refuses_before_transport_or_store_mutation(tmp_path):
+    from spacr.remote_execution import RemoteJob
+
+    profile = _slurm()
+    runner = QueueRunner()
+    manager = _manager(tmp_path, profile, runner)
+    holder = RemoteJob('abcdef123456', 'mask', profile.name, 'slurm', status='running', profile=profile.to_dict())
+    manager.jobs.save(holder)
+    before = manager.jobs.path.read_bytes()
+    with pytest.raises(RemoteExecutionError, match='not an allocation'):
+        _submit_job(manager, 'mask', {'src': '/data'}, profile.name, allocation=holder.job_id)
+    assert runner.calls == [] and manager.jobs.path.read_bytes() == before
+
+
+def test_optional_and_command_log_offsets_do_not_repeat_or_fabricate_text(tmp_path):
+    from spacr.remote_execution import RemoteJob
+
+    profile = _slurm()
+    manager = _manager(tmp_path / 'ssh', profile, QueueRunner())
+    job = RemoteJob('abcdef123456', 'mask', profile.name, 'slurm', profile=profile.to_dict())
+    manager.jobs.save(job)
+    assert _log_chunk(manager, job.job_id, 7) == ('', 7) and manager.runner.calls == []
+    profile = ExecutionProfile(
+        'local', 'command', submit_command='echo {settings}',
+        status_command='echo {external_id}', cancel_command='echo {external_id}',
+        log_command='echo {external_id}',
+    )
+    manager = _manager(tmp_path / 'command', profile, QueueRunner(CommandResult(0, 'short'), CommandResult(0, 'short')))
+    job = RemoteJob('abcdef123456', 'mask', profile.name, 'command', external_id='42', profile=profile.to_dict())
+    manager.jobs.save(job)
+    assert _log_chunk(manager, job.job_id, 99) == ('short', 5)
+    assert _log_chunk(manager, job.job_id, 2) == ('ort', 5)
+    job.profile['log_command'] = ''
+    manager.jobs.save(job)
+    assert _log_chunk(manager, job.job_id, 5) == ('', 5)
+    assert len(manager.runner.calls) == 2

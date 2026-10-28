@@ -484,3 +484,108 @@ def test_failed_late_cluster_cache_does_not_replace_selected_profile_state(qtbot
     assert 'cluster cache unavailable' in screen._console.as_text()
     assert screen.manager.profiles.path.read_bytes() == profile_before
     assert screen.manager.jobs.list() == []
+
+
+def _dismiss_readonly_script_preview(dialog):
+    from PySide6.QtWidgets import QDialogButtonBox
+
+    assert dialog.text.isReadOnly() and 'spacr-run' in dialog.text.toPlainText()
+    assert dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Close) is not None
+    dialog.reject()
+    return dialog.result()
+
+
+def test_unknown_preset_and_unchecked_direct_run_preserve_other_validation(qtbot, qt_theme_applied):
+    dialog = ExecutionProfileDialog(profile=ExecutionProfile('cluster', 'ssh', host='fake-host', workdir='/work'))
+    qtbot.addWidget(dialog)
+    original = dialog.profile()
+    dialog._error.setText('An unrelated validation error')
+    dialog._warn_direct_run(False)
+    assert dialog._error.text() == 'An unrelated validation error'
+    dialog._apply_preset(0)
+    assert dialog.profile() == original
+
+
+def test_missing_or_invalid_editor_state_refuses_operations_before_transport(qtbot, qt_theme_applied, state, monkeypatch):
+    import functools
+    from spacr.remote_execution import RemoteExecutionError
+
+    runner = Runner()
+    screen = _screen(qtbot, state, runner)
+    before = screen.manager.profiles.path.read_bytes()
+    screen._profile.clear()
+    assert screen._store_editors('resources') is None
+    screen._save_resources()
+    screen._request_allocation()
+    assert screen._preview_script() == ''
+    assert screen.manager.profiles.path.read_bytes() == before
+    screen._reload_profiles('fakelakes')
+    screen.configure_submission('mask', {'src': '/data/input'})
+    previous_env = screen._env_edit.toPlainText()
+    screen._env_edit.setPlainText('\0invalid environment')
+    screen.submit()
+    assert 'must be text' in screen._status.text()
+    assert screen.manager.jobs.list() == []
+    screen._env_edit.setPlainText(previous_env)
+    screen._preview = True
+    monkeypatch.setattr(ui, '_preview_job_script', functools.partial(
+        _raise_owned_remote_error, RemoteExecutionError('owned preview refusal')))
+    screen.submit()
+    assert 'owned preview refusal' in screen._status.text()
+    assert screen.manager.jobs.list() == [] and runner.calls == []
+
+
+def test_preview_button_displays_readonly_script_without_submitting(qtbot, qt_theme_applied, state, monkeypatch):
+    screen = _screen(qtbot, state, Runner(), preview=True)
+    monkeypatch.setattr(ui._ScriptPreviewDialog, 'exec', _dismiss_readonly_script_preview)
+    text = screen._preview_script()
+    assert 'spacr-run' in text and '{run_command}' not in text
+    previews = screen.findChildren(ui._ScriptPreviewDialog)
+    assert len(previews) == 1 and previews[0].text.toPlainText() == text
+    assert previews[0].result() == QDialog.Rejected
+    assert screen.manager.jobs.list() == [] and screen.manager.runner.calls == []
+
+
+def test_cluster_read_warns_for_actual_current_resource_request(qtbot, qt_theme_applied, state):
+    from spacr.remote_execution import _parse_cluster_probe
+
+    screen = _screen(qtbot, state, Runner())
+    assert screen._check_resources() == [] and 'Read cluster first' in screen._status.text()
+    cluster = _parse_cluster_probe(PROBE)
+    screen._res_cpus.setValue(37)
+    screen._cluster_read('fakelakes', cluster)
+    assert screen._cluster == cluster
+    problems = screen._check_resources()
+    assert any('37 CPUs' in problem and '36' in problem for problem in problems)
+    assert '37 CPUs' in screen._console.as_text()
+    assert screen.manager.jobs.list() == [] and screen.manager.runner.calls == []
+
+
+def test_selected_active_job_arms_follow_and_keeps_failure_details_private(qtbot, qt_theme_applied, state, monkeypatch):
+    from dataclasses import replace
+    from spacr.remote_execution import RemoteJob
+
+    screen = _screen(qtbot, state, Runner())
+    profile = screen._current_profile().to_dict()
+    profile['ssh_command'] = 'private-command-not-for-display'
+    job = RemoteJob('abcdef123456', 'mask', 'fakelakes', 'ssh', status='running',
+                    profile=profile, log_reference='/work/job.log', error='known failure',
+                    created_utc='not-a-time', updated_utc='also-not-a-time')
+    screen.manager.jobs.save(job)
+    screen._render_jobs([job], select=job.job_id)
+    assert screen._follow[job.job_id] == 0
+    texts = [screen._table.item(0, column).text() for column in range(screen._table.columnCount())]
+    assert 'not-a-time' in texts
+    summary = screen._job_summary(job)
+    assert 'log /work/job.log' in summary and 'known failure' in summary and 'remote folder' not in summary
+    errors = []
+    monkeypatch.setattr(screen._console, 'append_error', errors.append)
+    screen._last_status[job.job_id] = 'running'
+    screen._report_transition(replace(job, status='failed', error=''))
+    assert len(errors) == 1 and 'failed with exit code ?' in errors[0]
+    assert '<configured command>' in errors[0] and 'private-command-not-for-display' not in errors[0]
+    without_log = replace(job, job_id='fedcba654321', status='queued', error='', log_reference='')
+    screen.manager.jobs.save(without_log)
+    screen._submitted(without_log)
+    assert without_log.job_id not in screen._follow
+    assert 'log ' not in screen._job_summary(without_log)
