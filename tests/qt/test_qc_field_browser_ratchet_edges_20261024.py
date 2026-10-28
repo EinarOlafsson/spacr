@@ -894,3 +894,65 @@ def test_unexpected_metadata_worker_failure_disables_next_without_replacing_sour
     assert wizard._fields is fields
     assert wizard._info is not None
     assert wizard.result() == module.QDialog.Rejected
+
+
+def test_remove_plates_without_a_selection_keeps_the_current_metadata_request(mixed_plate_wizard, qtbot):
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QPushButton
+
+    wizard, folders = mixed_plate_wizard
+    wizard.plate_table.clearSelection()
+    assert not wizard.plate_table.selectedIndexes()
+    before = wizard.source.text(), wizard._fields, wizard._info, wizard._runner._next_id
+    button = wizard.findChild(QPushButton, 'OverviewWizardRemovePlates')
+    assert button is not None and button.isVisible() and button.isEnabled()
+    qtbot.mouseClick(button, Qt.LeftButton)
+    assert wizard.source.text() == before[0] == str(folders[0])
+    assert wizard._fields is before[1] and wizard._info is before[2]
+    assert wizard._runner._next_id == before[3]
+    assert wizard.next.isEnabled() and not wizard._excluded_plates
+
+
+def test_custom_channel_colour_mapping_refuses_short_hex_without_losing_valid_entries():
+    colours = {'1': '#123', '2': '#336699'}
+    before = dict(colours)
+    parsed = module._overview_custom_colors(colours)
+    assert parsed == {'2': '#336699'}
+    assert module._overview_hex_rgb(parsed['2']) == pytest.approx((.2, .4, .6))
+    assert module._overview_custom_colors('1=#123, 2=#336699') == parsed
+    assert colours == before
+
+
+def test_width_shrinking_level_releases_horizontal_room_and_restores_its_body(qtbot):
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QLabel, QSplitter, QWidget, QVBoxLayout
+
+    splitter = QSplitter(Qt.Horizontal)
+    qtbot.addWidget(splitter)
+    panel = module._OverviewPanel('Images', shrink_width=True)
+    label = QLabel('A deliberately wide image description with original source identity')
+    panel.body_layout.addWidget(label)
+    neighbour = QWidget()
+    layout = QVBoxLayout(neighbour)
+    layout.addWidget(QLabel('Neighbouring images'))
+    splitter.addWidget(panel)
+    splitter.addWidget(neighbour)
+    splitter.resize(900, 220)
+    splitter.show()
+    splitter.setSizes([600, 300])
+    qtbot.waitUntil(lambda: panel.body.isVisible() and panel.geometry().width() > panel.arrow.width())
+    original = panel.geometry().width(), neighbour.geometry().width(), splitter.geometry().width()
+    panel.set_collapsed(True)
+    qtbot.waitUntil(lambda: not panel.body.isVisible()
+                    and neighbour.geometry().width() > original[1])
+    assert panel.is_collapsed()
+    assert panel.geometry().width() <= panel.property('maximumWidth')
+    assert panel.property('maximumWidth') < original[0]
+    assert splitter.geometry().width() == original[2]
+    panel.set_collapsed(False)
+    qtbot.waitUntil(lambda: panel.body.isVisible()
+                    and panel.geometry().width() > panel.arrow.width())
+    assert not panel.is_collapsed() and label.isVisible()
+    assert panel.property('maximumWidth') == 16777215
+    assert splitter.geometry().width() == original[2]
+    assert label.text() == 'A deliberately wide image description with original source identity'
