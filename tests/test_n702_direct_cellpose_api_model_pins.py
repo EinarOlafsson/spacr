@@ -105,7 +105,7 @@ def test_direct_api_constructor_and_journal_use_effective_bytes_while_snapshots_
         native_cache.mkdir(parents=True)
         native_checkpoint = native_cache / 'cpsam'
         native_checkpoint.write_bytes(payload)
-        monkeypatch.setattr(utils.cp_models, 'MODEL_DIR', native_cache)
+        monkeypatch.setattr(utils.cp_models._load(), 'MODEL_DIR', native_cache)
         monkeypatch.setenv('SPACR_MODEL_DOWNLOAD', 'off')
         input_bytes = {path: path.read_bytes()
                        for path in Path(settings['src']).rglob('*.tif')}

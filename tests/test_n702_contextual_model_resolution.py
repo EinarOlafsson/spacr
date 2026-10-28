@@ -3,6 +3,7 @@ from copy import deepcopy
 import hashlib
 import logging
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -77,7 +78,8 @@ def test_unknown_cellpose_request_names_setting_and_declared_candidates_before_c
         declared_model, monkeypatch, requested):
     raw, source, payload = declared_model
     monkeypatch.setattr(utils, '_installed_cellpose_models', lambda: ('cpsam',))
-    monkeypatch.setattr(utils.cp_models, 'CellposeModel', lambda **kwargs: pytest.fail('Unknown reached constructor'))
+    monkeypatch.setattr(utils, 'cp_models', SimpleNamespace(
+        CellposeModel=lambda **kwargs: pytest.fail('Unknown reached constructor')))
     monkeypatch.setattr(zoo, 'fetch', lambda *a, **k: pytest.fail('Unknown reached fetch'))
     with pytest.raises(zoo.ModelZooError) as error:
         utils._choose_model(requested, device='cpu', object_type='cell')
@@ -220,7 +222,8 @@ def test_actual_pathogen_selection_names_the_input_field_that_won(
         'pathogen_model': requested if override else None, 'verbose': False})
     expected_setting = 'pathogen_model' if override else 'pathogen_model_name'
     monkeypatch.setattr(utils, '_installed_cellpose_models', lambda: ('cpsam',))
-    monkeypatch.setattr(utils.cp_models, 'CellposeModel', lambda **k: pytest.fail('Unknown reached constructor'))
+    monkeypatch.setattr(utils, 'cp_models', SimpleNamespace(
+        CellposeModel=lambda **k: pytest.fail('Unknown reached constructor')))
     with pytest.raises(zoo.ModelZooError) as error:
         if route == 'prepare':
             _mask_workers._prepare_mask_model(settings, 'pathogen')

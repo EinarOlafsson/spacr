@@ -240,7 +240,12 @@ def test_the_submenu_lands_at_the_end_when_there_is_no_separator(qtbot,
     assert submenu is not None
     assert help_menu.actions()[-1] is submenu.menuAction()
     module_actions = [a for a in submenu.actions() if a.property("moduleAppKey")]
-    assert [a.text() for a in module_actions][:1] == ["Mask"]
+    assert [a.text() for a in module_actions] == [W.tr(W.MENU_TITLE) + ": " + W.tr("Mask")]
+    assert module_actions[0].property("moduleAppKey") == "mask"
+    shown = []
+    monkeypatch.setattr(W, "show_walkthrough", lambda win, key, **kw: shown.append((win, key, kw)))
+    module_actions[0].trigger()
+    assert shown == [(window, "mask", {"force": True})]
 
 
 def test_a_registry_that_cannot_be_read_still_leaves_a_reset_entry(qtbot,

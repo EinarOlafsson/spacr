@@ -48,7 +48,8 @@ def test_model_cache_relocation_is_used_by_exact_runtime_resolution(cache, tmp_p
     assert Path(row['path']) == relocated
 
 
-def test_new_acquisition_after_relocation_lands_only_in_new_model_cache(cache, tmp_path):
+def test_new_acquisition_after_relocation_lands_only_in_new_model_cache(cache, tmp_path, monkeypatch):
+    monkeypatch.setenv('SPACR_MODEL_DOWNLOAD', 'on')
     home, entry, _raw, data = cache
     relocated = journal._relocate_cache('models', tmp_path / 'other-drive')
     resolved = zoo._ensure_model_file(entry.key, kinds=('classifier',))

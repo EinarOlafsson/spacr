@@ -436,11 +436,15 @@ def test_map_barcodes_keeps_its_cards_over_the_rain(themed, qtbot, theme):
     backdrop._timer.stop()
     backdrop._producer_box[0].stop()
     before = _grab(window)
+    backdrop.set_animating(False)
     backdrop.hide()
     backdrop.show()
     for rain in rains:
         rain.stop()
+    assert not backdrop.is_running()
+    assert not backdrop.shading_thread_alive()
     assert _grab(window) == before
+    backdrop.set_animating(True)
     backdrop.stop()
     backdrop.start()
 
