@@ -85,14 +85,18 @@ def test_a_committed_slot_channel_brings_its_whole_settings_family(
     slot has to reveal the settings that make it segmentable.
     """
     from spacr.qt.app import MainWindow
+    from spacr.qt import preferences
     from spacr.qt.settings_search import (ALL, disclosure_for,
                                            remember_disclosure)
 
     previous = disclosure_for("mask")
-    remember_disclosure("mask", ALL)
-    window = MainWindow()
-    qtbot.addWidget(window)
+    previous_easy = preferences.get_easy_mode()
+    window = None
     try:
+        preferences.set_easy_mode(False)
+        remember_disclosure("mask", ALL)
+        window = MainWindow()
+        qtbot.addWidget(window)
         window.show()
         window._on_nav_selected("mask")
         qapp.processEvents()
@@ -125,8 +129,12 @@ def test_a_committed_slot_channel_brings_its_whole_settings_family(
         assert rebuilt._settings_model.collect()["organelle_channel"] == 2
         assert "organelle" in rebuilt._object_grid.objects()
     finally:
-        window.close()
-        remember_disclosure("mask", previous)
+        try:
+            if window is not None:
+                window.close()
+        finally:
+            remember_disclosure("mask", previous)
+            preferences.set_easy_mode(previous_easy)
 
 
 def test_zero_organelles_leaves_no_slot_on_screen(qtbot):
