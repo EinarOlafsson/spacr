@@ -365,6 +365,26 @@ def test_a_large_centred_well_uses_the_complete_acquired_frame():
     assert boxes == [dict(box=[10, 10, 90, 90], confidence=.9)]
 
 
+def test_a_small_corner_well_does_not_acquire_unrelated_frame_pixels():
+    boxes = [dict(box=[0, 0, 20, 20], confidence=.9)]
+    assert plaque._merge_well_boxes(boxes, (100, 100)) == boxes
+    assert boxes == [dict(box=[0, 0, 20, 20], confidence=.9)]
+
+
+def test_enlarging_a_single_channel_well_retains_its_acquired_channel_axis():
+    image = np.arange(42, dtype=np.uint16).reshape(6, 7, 1)
+    before = image.copy()
+    crop, metadata = plaque._well_resize_forward(image, [1, 1, 5, 5], side=8, max_factor=2)
+    assert crop.shape == (8, 8, 1)
+    assert metadata['ratio'] == metadata['scale_x'] == metadata['scale_y'] == 2
+    assert crop[0, 0, 0] == before[1, 1, 0]
+    assert crop[-1, -1, 0] == before[4, 4, 0]
+    assert np.all(np.diff(crop[..., 0].astype(np.int64), axis=0) >= 0)
+    assert np.all(np.diff(crop[..., 0].astype(np.int64), axis=1) >= 0)
+    crop[0, 0, 0] = 0
+    np.testing.assert_array_equal(image, before)
+
+
 @pytest.mark.parametrize('dtype', [np.uint16, np.float64])
 def test_well_resize_keeps_channels_and_source_pixels_for_identity_geometry(dtype):
     """A no-resize well still owns its crop and retains the acquired channel axis."""
