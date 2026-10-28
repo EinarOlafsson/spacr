@@ -56,3 +56,20 @@ def test_unsupported_pca_solver_refuses_before_tensor_allocation(monkeypatch):
     monkeypatch.setattr(torch, "as_tensor", unexpected_allocation)
     with pytest.raises(ValueError, match="This PCA solver remains on the CPU"):
         MetalPCA(n_components=2, svd_solver="randomized")
+
+
+def test_unwhitened_cpu_pca_projection_and_inverse_match_sklearn():
+    """A rank-deficient CPU projection retains float64 coordinates and the unwhitened inverse."""
+    from sklearn.decomposition import PCA
+
+    coordinate = np.arange(-5, 6, dtype=np.float64)
+    data = np.column_stack((coordinate, coordinate * 2, coordinate * -3)) + [17, -11, 23]
+    before = data.copy()
+    model = MetalPCA(n_components=3, whiten=False, svd_solver="full").fit(data)
+    reference = PCA(n_components=3, whiten=False, svd_solver="full").fit(data)
+    assert model.projection_backend_ == model.decomposition_backend_ == "cpu"
+    scores = model.transform(data)
+    np.testing.assert_array_equal(scores, reference.transform(data))
+    np.testing.assert_array_equal(model.inverse_transform(scores), reference.inverse_transform(scores))
+    np.testing.assert_allclose(model.inverse_transform(scores), data, rtol=1e-14, atol=1e-14)
+    np.testing.assert_array_equal(data, before)
