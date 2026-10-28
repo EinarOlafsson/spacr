@@ -1066,3 +1066,85 @@ def test_not_loaded_well_context_request_preserves_existing_selection_and_naviga
     finally:
         menu.close()
         _settle_plate_auxiliary_jobs(view, qtbot)
+
+
+def test_reopening_overlapping_wells_retains_the_shared_plate_panels_and_pixels(view, qtbot):
+    view._set_plates_view('side')
+    assert view._open_wells([('plateA', 'A01'), ('plateB', 'A01')]) == (('plateA', 'A01'), ('plateB', 'A01'))
+    _settle_plate_auxiliary_jobs(view, qtbot)
+    wells = {panel.field_list._overview_plate: panel for panel in view._well_panels}
+    images = {panel.field.plate: panel for panel in view._image_views}
+    assert set(wells) == set(images) == {'plateA', 'plateB'}
+    shared_well, shared_image = wells['plateB'], images['plateB']
+    displayed = shared_image.view._item.pixmap().toImage().copy()
+    original = tuple(field.identity for field in view._all_fields)
+    assert view._open_wells([('plateB', 'A01'), ('plateC', 'A01')]) == (('plateB', 'A01'), ('plateC', 'A01'))
+    _settle_plate_auxiliary_jobs(view, qtbot)
+    assert images['plateA'] not in view._image_views
+    assert wells['plateA'] is view._well_panel
+    assert wells['plateA'].field_list._overview_plate == 'plateC'
+    assert shared_well in view._well_panels and shared_image in view._image_views
+    assert {panel.field_list._overview_plate for panel in view._well_panels} == {'plateB', 'plateC'}
+    assert {panel.field.plate for panel in view._image_views} == {'plateB', 'plateC'}
+    assert shared_image.view._item.pixmap().toImage() == displayed
+    assert tuple(field.identity for field in view._all_fields) == original
+
+
+def test_removing_a_child_plate_from_a_parent_source_keeps_root_and_excludes_only_that_child(qtbot, plates):
+    root = plates[0].parent
+    original = {path: path.read_bytes() for plate in plates for path in plate.glob('*.tif')}
+    view = _open(qtbot, str(root))
+    assert {field.plate for field in view._all_fields} == set(PLATES)
+    kept = {field.identity for field in view._all_fields if field.plate != 'plateB'}
+    view._remove_plate('plateB')
+    _settle_plate_auxiliary_jobs(view, qtbot)
+    assert view.source.text() == str(root)
+    assert str(plates[1].resolve()) in view._overview_options['excluded_plates']
+    assert {field.identity for field in view._all_fields} == kept
+    view._scan()
+    qtbot.waitUntil(lambda: len(view._all_fields) == 5 and view._normalization_ready
+                    and not view._index_jobs.is_busy(), timeout=15000)
+    _settle_plate_auxiliary_jobs(view, qtbot)
+    assert view.source.text() == str(root) and {field.identity for field in view._all_fields} == kept
+    assert {field.source for field in view._all_fields} == {str(plates[0]), str(plates[2])}
+    assert all(path.read_bytes() == content for path, content in original.items())
+
+
+def test_single_remaining_plate_does_not_step_or_change_selection_on_late_navigation(view, qtbot):
+    from PySide6.QtTest import QSignalSpy
+
+    view._remove_plate('plateB')
+    view._remove_plate('plateC')
+    _settle_plate_auxiliary_jobs(view, qtbot)
+    assert view.plates.count() == 1 and view.plates.currentData() == 'plateA'
+    _item(view, 'plateA', 'A01').setSelected(True)
+    selected = set(view._selected_wells)
+    fields = tuple(view._all_fields)
+    changed = QSignalSpy(view.plates.currentIndexChanged)
+    for button, delta in zip(view._plate_buttons[:2], (-1, 1)):
+        assert not button.isEnabled()
+        button.click()
+        view._step_plate(delta)
+    assert changed.count() == 0 and view.plates.currentData() == 'plateA'
+    assert view._selected_wells == selected and selected == {('plateA', 'A01')}
+    assert tuple(view._all_fields) == fields
+
+
+def test_real_matched_invalid_well_is_refused_before_browser_fields_are_accepted(view, qtbot, plates):
+    from PySide6.QtTest import QSignalSpy
+
+    invalid = plates[0] / 'p1-A00-f9-c1.tif'
+    pixels = np.full((24, 32), 4096, dtype=np.uint16)
+    tifffile.imwrite(invalid, pixels)
+    original = {path: path.read_bytes() for plate in plates for path in plate.glob('*.tif')}
+    failures = QSignalSpy(view._index_jobs.job_failed)
+    view._scan()
+    qtbot.waitUntil(lambda: failures.count() == 1 and not view._index_jobs.is_busy(), timeout=15000)
+    _settle_plate_auxiliary_jobs(view, qtbot)
+    message = 'The filename regex must include a valid wellID for every image.'
+    assert failures.at(0)[0].endswith(message)
+    assert view.status.text().endswith(message)
+    assert not view._all_fields and not view._fields
+    assert view.fields.count() == 0 and view.view._item is None
+    assert all(path.read_bytes() == content for path, content in original.items())
+    np.testing.assert_array_equal(tifffile.imread(invalid), pixels)
