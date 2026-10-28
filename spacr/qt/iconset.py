@@ -39,9 +39,9 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Optional, Tuple
 
-from PySide6.QtGui import QIcon
-from ..logging_util import _spacr_home
+from PySide6.QtGui import QIcon, QIconEngine
 
+from ..logging_util import _spacr_home
 from .theme import (
     contrast_ratio,
     effective_surface,
@@ -257,6 +257,53 @@ def _theme_palette(theme: Optional[str]) -> dict:
 
 
 
+def _spaceout_gif_path():
+    """Locate the user's bundled animation without altering its pixels."""
+    return Path(__file__).resolve().parents[1] / 'resources' / 'icons' / 'spaceout.gif'
+
+
+class _SpaceoutIconEngine(QIconEngine):
+    """Keep a still from the provided animation for native static icon callers."""
+
+    def __init__(self):
+        """Decode only the representative first frame and keep scaled pixmaps."""
+        from PySide6.QtGui import QPixmap
+
+        super().__init__()
+        self._source = QPixmap(str(_spaceout_gif_path()))
+        self._pixmaps = {}
+
+    def clone(self):
+        """Keep copied QIcons independent of the original engine lifetime."""
+        return _SpaceoutIconEngine()
+
+    def paint(self, painter, rect, mode, state):
+        """Preserve the supplied black background and white artwork in every theme."""
+        from PySide6.QtCore import Qt
+
+        picture = self._source.scaled(rect.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        x = rect.x() + (rect.width() - picture.width()) // 2
+        y = rect.y() + (rect.height() - picture.height()) // 2
+        painter.drawPixmap(x, y, picture)
+
+    def pixmap(self, size, mode, state):
+        """Keep static rasterizations at each requested size, mode and state."""
+        from PySide6.QtCore import QRect, Qt
+        from PySide6.QtGui import QPainter, QPixmap
+
+        key = (size.width(), size.height(), mode, state)
+        if key not in self._pixmaps:
+            pixmap = QPixmap(size)
+            pixmap.fill(Qt.transparent)
+            painter = QPainter(pixmap)
+            try:
+                self.paint(painter, QRect(0, 0, size.width(), size.height()), mode, state)
+            finally:
+                painter.end()
+            self._pixmaps[key] = pixmap
+        return self._pixmaps[key]
+
+
 def icon(name: str, color: Optional[str] = None, size: int = 16,
          theme: Optional[str] = None) -> QIcon:
     """Return a QIcon for the named glyph, with a bundled fallback.
@@ -270,6 +317,8 @@ def icon(name: str, color: Optional[str] = None, size: int = 16,
     :param name: semantic icon key looked up in the module's glyph table,
         e.g. ``"open"`` or ``"run"``.
     """
+    if name == 'spaceout':
+        return QIcon(_SpaceoutIconEngine())
     qta = _try_qta()
     if qta is None:
         return _fallback_icon(name, theme, color=color, size=size)
@@ -908,7 +957,59 @@ SHARED_ICON_ASSETS = {
     "investigate_hit": "hit_list.png",
     "classify_merged": "classify.png",
     "explain_cv": "ml_analyze.png",
+    "overview": "plate_view.png",
+    "3d": "layer_viewer.png",
+    "host_pathogen": "recruitment.png",
+    "import_images": "foreign.png",
+    "ops": "sequencing.png",
+    "spatial_masks": "mask.png",
+    "spatial_map": "map_barcodes.png",
 }
+
+
+_APP_COMMAND_ICONS = {
+    "Spaceout": "spaceout",
+    "PyPI": "download", "conda-forge": "download",
+    "Statistics": "graph_builder", "Logs": "project_browser",
+    "Cache": "data_manager", "Models": "model_zoo",
+    "Docker": "distributed_jobs", "Nightly build": "download",
+    "Running": "queue",
+    "About": "agreement", "About spaCR": "agreement",
+    "Homepage": "home", "GitHub": "methods_export",
+    "README": "report", "Preferences": "settings",
+    "Update": "download", "Check for updates…": "download",
+    "API": "methods_export", "Paper": "report",
+    "Pipeline overviews": "pipeline_graph", "Overview": "overview",
+    "Navigator": "pipeline_graph", "spaCR flowchart": "pipeline_graph",
+    "Keyboard shortcuts": "settings", "Set spaCR up again…": "settings",
+    "Tutorial": "report", "Documentation": "report",
+    "Feature Dictionary…": "feature_dict",
+    "Show startup animation": "app_icon",
+    "Review installation caches…": "data_manager",
+    "What's new…": "report", "Open log folder…": "project_browser",
+    "Borderless window": "app_icon", "Close window": "abort",
+    "Full screen": "layer_viewer", "Jobs": "queue",
+    "Maximise": "layer_viewer", "Minimise": "layer_viewer", "Quit": "abort",
+    "Reset this module's layout": "settings", "Settings templates…": "settings",
+    "Snap down": "align", "Snap left": "align",
+    "Snap right": "align", "Snap up": "align",
+}
+
+
+def _app_icon_key(key):
+    """Resolve synthetic navigation commands without changing native app keys."""
+    if not key.startswith('__easy_command__:'):
+        return key
+    from .i18n import tr
+
+    label = key.split(':', 1)[1]
+    normalized = ''.join(character for character in label.casefold() if character.isalnum())
+    for source, target in _APP_COMMAND_ICONS.items():
+        for candidate in (source, tr(source)):
+            if normalized == ''.join(character for character in candidate.casefold()
+                                     if character.isalnum()):
+                return target
+    return key
 
 
 def bundled_icon_path(key: str, override: Optional[str] = None
@@ -927,6 +1028,7 @@ def bundled_icon_path(key: str, override: Optional[str] = None
         what it's pointed at, plus the handful of keys in
         :data:`SHARED_ICON_ASSETS` that share one picture everywhere.
     """
+    key = _app_icon_key(key)
     candidates = [override] if override else []
     candidates += [f"{key}.png", f"{key.replace('_', ' ')}.png"]
     alias = SHARED_ICON_ASSETS.get(key)
@@ -979,6 +1081,7 @@ def app_icon(key: str, override: Optional[str] = None,
         :func:`bundled_icon_path`, and used as the :func:`icon` name when no
         artwork is found or it cannot be read.
     """
+    key = _app_icon_key(key)
     path = bundled_icon_path(key, override)
     if path is not None:
         pix = themed_pixmap(path, theme)

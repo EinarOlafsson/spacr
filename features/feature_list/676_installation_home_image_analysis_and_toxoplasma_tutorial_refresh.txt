@@ -503,3 +503,50 @@ Normal explicit overview composition binds current50 tracks, current main/ML sci
 
 2026-10-27 — Classify overview targeted Activation capture passes29.19fps with genuine hover and no fallback; all eight main routes now accepted. Current50 audio QA/onsets and218.77s mixed master/decode/PTS/poster/web pass; generated12-scene pause policy adopted.
 All50-voice boundary/EOF playback, hosted-media readback and nightly publication remain; no app-freeze waiver or narration synthesis used.
+
+2026-10-27 — Classify overview published at46204baf8b:50voices/600gaps0.800–1.068s,72playback checks,7104hostedfiles fullyreadback,59Pages routes and64pin tests pass(1existingNode skip). Livewebsite deployment remains separate.
+Codex next owns Activation Maps16 on the freshly rebased nightly capture clone: require actual CUDA placement in both genuine GUI runs, all four maps within one pixel of the independent CUDA reference, and the existing database/input/output checks. Preserve old pending jobs; use fresh CUDA-enabled stages and the normal single retry.
+
+2026-10-27 — Activation Maps passes both actual CUDA runs: channel/reference errors [0,1,0,0], image errors all zero; original database, crops, model and card remain unchanged. Normal composition binds every selected take to the same scientific inputs.
+Native scrollbar inspection shows all four labeled cells. Reviewed grid excerpts pass the unchanged gate at29.38/29.06fps with100% pointer detection; full-clip failures remain preserved. All50 narration tracks are retained; final pause edit, playback checks and publication remain in progress.
+
+2026-10-27 — Activation Maps final master280.77s and all12 generated pause fences pass full decode, frame/PTS, poster and web checks. Retain50 tracks; strict all-voice playback and publication remain.
+
+2026-10-27 — Activation Maps published at202168f808:50voices,600gaps0.796–1.045s,72playback checks,7151hostedfiles fullyreadback,59Pages routes and64pin tests pass(1existingNode skip). Livewebsite deployment remains separate.
+Codex next owns Graph Builder58 on the refreshed nightly capture base: verify the2341-cell merge, exact brushed object identities, coherent selected count/highlight, enabled Annotate handoff and complete clear. Replace only the stale conditional handoff sentence; retain unaffected narration and translations, then record, gate, edit pauses and publish this lesson end to end.
+
+2026-10-27 — Shared AI/HANDOFF Navigator request received against approved e125b048e8 and current nightly descendants; implementation sign-off is already satisfied.
+Tutorial owner Codex (676) accepts the new Navigator tutorial and accompanying user Docs/API coverage under 733, queued after active Graph Builder58.
+Use the existing recording/localization/publication workflow and unchanged alpha/capture rules; no Navigator capture or source implementation starts in this scope-receipt commit.
+
+2026-10-27 — Graph Builder58 fresh50 audio passes codec/current-source QA; onset checking finds one cached Japanese jf_tebukuro scene13 paragraph with a quiet leading Latin replicate.
+Use the existing exact lesson/voice/text pronunciation override to say leading replicate as レプリケート; retain visible Japanese text and all49 other tracks. Reassemble only this voice from cache and verify the affected onset before capture.
+
+2026-10-27 — Graph Builder58 p43 stops before opening the app module: fresh-profile Navigator has no legacy Home tabs, and its native dock starts collapsed.
+Codex owns the capture-driver correction: expand the real visible dock handle and click its available module row, preserving native input, alpha visibility and legacy Home tiles; no app or preference override.
+Preserve the failed stage and all50 tracks; validate the affected production dock route before a fresh normal capture and retry.
+Real production DockEdge/Sidebar checks pass for collapsed and expanded docks, native category opening, disabled and missing rows; legacy Home routes remain accepted. Normal startup maturity registration retains Graph Builder beta with alpha off; native recording acceptance remains pending.
+
+2026-10-27 — Maintainer limits the remaining campaign to finishing Graph Builder58, then the new Navigator tutorial plus Docs/API; write the Claude handoff and pause afterward, with no other lessons.
+p44 completes real2341-cell merge and coherent656-object brush/handoff/clear, but raw quality failures remain preserved. Codex owns the Extract source combo viewport correction before the held normal retry; no app or gate change.
+The genotype dialog has a recorded1.348s GUI gap during initialization/restyling; retain its exact saved stack references for Home, without claiming a deadlock or bypassing freeze admission.
+Native dropdown choices now wheel to their reachable item before clicking; three affected combo checks pass. The Trellis shortcut opens its real empty Small Multiples page and closes its native tab; the production-widget route check passes, with actual capture acceptance still required.
+
+2026-10-27 — Graph Builder p45 stops at Extract source before a final scientific receipt: the native wheel does not change the combo scrollbar value, so the new reachability guard fails closed. Preserve this aborted stage without claiming scientific acceptance.
+Codex owns the production-style popup diagnosis and only the supported native viewport correction; inspect actual target/window geometry before another take, retaining app, gate and profile behavior.
+A production-styled ConditionAnnotationDialog menu reproduces clipped rowID above the viewport; two affected Qt checks pass for genuine Home/Down/Return selection and disabled-item refusal. Reuse the existing native keyboard route only when wheel input makes no actual row/window geometry progress, before an unreachable click; native acceptance remains pending.
+
+2026-10-27 — Graph Builder p46 executes coherent brush/clear and the2341-cell merge; actual Small Multiples opens, but its narrow Channels controls warrant one bounded native divider inspection. Raw failures and the final scientific receipts remain preserved.
+Codex owns only a three-second native drag of the inner Channels divider, followed by existing full-visible-canvas checks and native tab closure; no data, field setting, app, gate or cursor matcher change.
+Run the affected production fold check and request only the targeted normal capture after review; finish58, then Navigator tutorial/Docs/API, Claude handoff and pause.
+The extended real Graph Builder/Small Multiples Qt fixture passes: one native-input divider sequence widens Channels to the bounded target, the existing full-visible-canvas guard passes, and native tab closure restores Graph Builder. Actual targeted recording and its unchanged gates remain pending.
+
+2026-10-27 — Graph Builder completes the real2341-row/986-column merge, exact653-object brush/highlight/handoff and clear, preserving the source database.
+All23 reviewed native scenes have passing excerpt gates; full raw failures and the post-teardown p47 shutdown segfault/stacks remain preserved in FOR_HOME_pending.md.
+Retain50 passing audio/onset tracks; the572.17s edited master passes normal decode/PTS/poster/web checks and generates23 source-bound pause fences. Strict playback and publication are next.
+Finish58, then Navigator tutorial/Docs/API, write the Claude handoff and pause; other lessons remain for Claude.
+
+2026-10-27 — Graph Builder hosted publication a8a9796310 is fully read back:7198 files/15076422786 bytes; all59 Pages routes pass.
+All50 voices pass strict native-boundary/idle-cut playback:1150 scene/end gaps0.800–1.044s and every final native EOF observed; retain23 source-bound edit fences and the original scientific/raw-failure evidence.
+The shared Navigator ownership-note rebase conflict preserves both sessions; tutorial source/player/media bindings remain unchanged. Final nightly pin checks/push follow; live website deployment remains separate.
+Codex next owns Navigator tutorial plus Docs/API, then writes the Claude handoff and pauses; no other lesson is authorized before that pause.

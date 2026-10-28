@@ -5950,6 +5950,31 @@ def _media_tool():
     return module
 
 
+def _complete_reviewed_api_revisions(
+    docs: Mapping[str, str], language: str,
+) -> dict[str, str]:
+    """Rebuild changed documents only from complete, source-proven blocks."""
+    if not docs:
+        return {}
+    _records, histories, _from_head, _unproven = _proven_api_history(docs, language)
+    reviewed = reviewed_api_block_translations(docs, language)
+    completed: dict[str, str] = {}
+    for key, source in docs.items():
+        blocks, layout = translatable_blocks(source)
+        selected: list[str] = []
+        for block in blocks:
+            if not _api_block_requires_translation(block):
+                selected.append(block)
+                continue
+            target = reviewed.get(block, histories[key].get(block, ""))
+            if not target:
+                break
+            selected.append(target)
+        else:
+            completed[key] = rebuild_document(layout, selected)
+    return completed
+
+
 def assemble_api_catalog(docs: Mapping[str, str], language: str) -> dict[str, object]:
     """Build one locale's API catalog from translation memory and reviews.
 
@@ -5957,9 +5982,10 @@ def assemble_api_catalog(docs: Mapping[str, str], language: str) -> dict[str, ob
     wrote (item 710: kept at a pinned Hugging Face revision rather than in
     git, and placed at ``API_DIR`` by :func:`assemble_api_catalogs`). Every
     entry whose sources are unchanged gets the accepted reviewed blocks
-    exactly as a translation run would apply them; an entry whose English
-    has moved keeps its old record, so the site keeps falling back to
-    English for it; a symbol the package no longer documents is dropped.
+    exactly as a translation run would apply them. Changed documents advance
+    only when every block has an exact review or proven unchanged history;
+    otherwise their old record remains an English fallback. A symbol the
+    package no longer documents is dropped.
 
     :param docs: the current English docstrings.
     :param language: the locale.
@@ -5970,6 +5996,9 @@ def assemble_api_catalog(docs: Mapping[str, str], language: str) -> dict[str, ob
         raise ValueError(f"invalid API translation memory for {language}")
     reusable = reusable_api_translations(docs, language)
     overlaid = _reviewed_api_overlay(docs, reusable, language)
+    overlaid.update(_complete_reviewed_api_revisions(
+        {key: source for key, source in docs.items()
+         if key not in overlaid and key not in API_DOC_ALIASES}, language))
     old = memory.get("symbols", {})
     symbols: dict[str, dict[str, object]] = {}
     for key, source in docs.items():

@@ -178,6 +178,19 @@ def drag_qdrag(capture, widget, start, delta, *, duration=None):
     adapter.note('drag', start=[x0, y0], delta=list(delta))
 
 
+def _choose_combo_by_keys(capture, combo, view, target):
+    """Choose on the already opened popup using the normal native keyboard route."""
+    from PySide6.QtCore import Qt
+    key(view, Qt.Key_Home)
+    for _ in range(target):
+        key(view, Qt.Key_Down)
+    key(view, Qt.Key_Return)
+    wait_until(capture, lambda: not view.isVisible(), 8, 'combo list did not close')
+    if combo.currentIndex() != target:
+        raise RuntimeError('%s still shows item %d, not %d' % (
+            combo.objectName() or 'combo', combo.currentIndex(), target))
+
+
 def choose_combo(capture, combo, index=None):
     """Click a combo box, then click an item in its list (default: the current one).
 
@@ -201,8 +214,38 @@ def choose_combo(capture, combo, index=None):
     for attempt in range(3):
         if not view.isVisible():
             break                                    # the popup closed already (a click that closed it early)
-        rect = view.visualRect(combo.model().index(target, combo.modelColumn()))
-        click(view.viewport(), rect.center())
+        item = combo.model().index(target, combo.modelColumn())
+        from PySide6.QtCore import Qt
+        if (not item.isValid() or not item.flags() & Qt.ItemIsEnabled
+                or not item.flags() & Qt.ItemIsSelectable):
+            raise RuntimeError(f'Combo item {target} is not enabled and selectable')
+        for _ in range(combo.count() + 1):
+            rect = view.visualRect(item)
+            port = view.viewport().rect()
+            visible = rect.intersected(port)
+            point = visible.center()
+            if (not visible.isEmpty() and rect.top() >= port.top()
+                    and rect.bottom() <= port.bottom() and view.indexAt(point) == item):
+                break
+            before = (view.viewport().mapToGlobal(rect.topLeft()), rect.size(),
+                      view.viewport().mapToGlobal(port.topLeft()), port.size())
+            wheel(capture, view.viewport(), 1 if rect.center().y() > port.bottom() else -1,
+                  port.center())
+            after_rect, after_port = view.visualRect(item), view.viewport().rect()
+            after = (view.viewport().mapToGlobal(after_rect.topLeft()), after_rect.size(),
+                     view.viewport().mapToGlobal(after_port.topLeft()), after_port.size())
+            if after == before:
+                # Qt menu-style popups can clip leading rows without a moving scrollbar.
+                # Use the existing genuine keyboard selection before any unreachable click.
+                _choose_combo_by_keys(capture, combo, view, target)
+                return
+        else:
+            raise RuntimeError(f'Combo item {target} is outside its popup viewport')
+        adapter = host_of(capture).adapter
+        reason = adapter.reachable(view.viewport(), adapter.target_point(view.viewport(), point))
+        if reason is not None:
+            raise RuntimeError(f'Combo item {target} is not reachable: {reason}')
+        click(view.viewport(), point)
         try:
             wait_until(capture, lambda: not view.isVisible(), 8, 'combo list did not close')
             break
@@ -217,13 +260,7 @@ def choose_combo(capture, combo, index=None):
         from PySide6.QtCore import Qt
         click(combo)
         wait_until(capture, lambda: view.isVisible(), 8, 'combo list did not open')
-        key(view, Qt.Key_Home)
-        for _ in range(target):
-            key(view, Qt.Key_Down)
-        key(view, Qt.Key_Return)
-        wait_until(capture, lambda: not view.isVisible(), 8, 'combo list did not close')
-        if combo.currentIndex() != target:
-            raise RuntimeError('%s still shows item %d, not %d' % (combo.objectName() or 'combo', combo.currentIndex(), target))
+        _choose_combo_by_keys(capture, combo, view, target)
 
 
 def set_slider(capture, slider, value):

@@ -43,9 +43,16 @@ import warnings
 from html import escape
 from typing import Callable, Dict, List, Optional, Sequence, Tuple
 
-from PySide6.QtCore import QEvent, QObject, QRect, QRectF, QSize, Qt, QTimer, Signal
-from PySide6.QtGui import (QColor, QFont, QFontMetrics, QIcon, QPainter, QPixmap,
-                           QTextDocumentFragment)
+from PySide6.QtCore import QEvent, QObject, QRect, QRectF, QSize, Qt, QTimer, Signal, Slot
+from PySide6.QtGui import (
+    QColor,
+    QFont,
+    QFontMetrics,
+    QIcon,
+    QPainter,
+    QPixmap,
+    QTextDocumentFragment,
+)
 from PySide6.QtGui import QSyntaxHighlighter as _SyntaxHighlighter
 from PySide6.QtWidgets import (
     QApplication,
@@ -59,8 +66,8 @@ from PySide6.QtWidgets import (
     QProgressBar,
     QPushButton,
     QScrollArea,
-    QStyle,
     QSizePolicy,
+    QStyle,
     QTabWidget,
     QVBoxLayout,
     QWidget,
@@ -68,14 +75,21 @@ from PySide6.QtWidgets import (
 
 from ..hidpi import device_ratio, follow_device_ratio, scaled_for
 from ..theme import (
-    QSS_FONT_FAMILY, SPACING, TILE_H, TILE_ICON_PX, TILE_MAX_W, TILE_W, font_px,
-    make_transparent, palette_for,
+    QSS_FONT_FAMILY,
+    SPACING,
+    TILE_H,
+    TILE_ICON_PX,
+    TILE_MAX_W,
+    TILE_W,
+    font_px,
+    make_transparent,
+    palette_for,
 )
 from .divider import Divider
-from .setup_card import SetupCard as _SetupCard
 from .height_grip import HeightGrip
 from .workflow_diagram import WorkflowView as _WorkflowView
-from .workflow_diagram import _Node as _WorkflowNode, _Edge as _WorkflowEdge
+from .workflow_diagram import _Edge as _WorkflowEdge
+from .workflow_diagram import _Node as _WorkflowNode
 
 #: Hero brand sizes. The mark and wordmark are the first thing on the first
 #: screen, so they are sized to read as a masthead rather than as a row of
@@ -3876,7 +3890,8 @@ def _easy_file_kind(path, metadata=None):
                  and stream.tell() + math.prod(shape) * dtype.itemsize
                  <= os.stat(path, follow_symlinks=False).st_size)
         if metadata is not None:
-            metadata.update(shape=list(shape), axes='', axes_unresolved=True)
+            metadata.update(shape=list(shape), dtype=str(dtype), dtype_kind=dtype.kind,
+                            axes='', axes_unresolved=True)
         return 'array' if valid else 'unsupported'
     try:
         with Image.open(io.BytesIO(header)) as image:
@@ -4572,6 +4587,236 @@ def _easy_regex_evidence(images, chosen, hints):
                 sample_filenames=names, img_format=extension, groups=groups, required=True)
 
 
+def _easy_generated_sample(folder, depth=4):
+    """Inspect a fixed directory/entry budget inside a canonical output folder."""
+    from itertools import islice
+
+    pending, files, directories, entries_left = [(folder, 0)], [], 0, 1024
+    while pending and directories < 24 and entries_left > 0:
+        current, level = pending.pop(0)
+        if current.is_symlink():
+            continue
+        directories += 1
+        try:
+            with os.scandir(current) as entries:
+                sampled = list(islice(entries, min(entries_left, 128)))
+            entries_left -= len(sampled)
+            for entry in sampled:
+                if entry.name.startswith('.') or entry.is_symlink():
+                    continue
+                candidate = type(folder)(entry.path)
+                if entry.is_file(follow_symlinks=False):
+                    files.append(candidate)
+                elif level < depth and entry.is_dir(follow_symlinks=False):
+                    pending.append((candidate, level + 1))
+        except OSError:
+            continue
+    return files
+
+
+def _easy_generated_outputs(path, files, schemas, run_evidence, calibrated=False):
+    """Recognize bounded canonical outputs and enumerate their shared workflow consumers."""
+    import sqlite3
+    from pathlib import Path
+
+    from ...ports import CROPS, MASKS, MERGED_ARRAYS, MODEL_WEIGHTS, PORTS
+    from ..i18n import tr
+
+    empty = dict(project='', artifacts=[], routes={})
+    canonical = {Path(port.path).parts[0] for spec in PORTS.values()
+                 for port in spec.produces if port.path and '/' not in port.path.strip('/')}
+    canonical.update(('measurements',))
+    folder = path if path.is_dir() else path.parent
+    owner = next((parent for parent in (folder, *tuple(folder.parents)[:4])
+                  if parent.name in canonical), None)
+    if path.is_file() and (owner is None or
+            not (path.suffix.lower() == '.npy' and owner.name in ('merged', 'masks')
+                 or path.suffix.lower() == '.pth' and owner.name == 'model'
+                 or path.suffix.lower() == '.png' and owner.name == 'data'
+                 and path.parent.name.endswith('_png')
+                 or path.name == 'measurements.db' and owner.name == 'measurements'
+                 or any(item['path'] == str(path) for item in run_evidence['results']))):
+        return empty
+    project = owner.parent if owner is not None else folder
+    if owner is None:
+        discovered = next((item for item in schemas if item['objects'] and item['numeric']), None)
+        if discovered is not None:
+            discovered_database = Path(discovered['path'])
+            discovered_project = (discovered_database.parent.parent
+                                  if discovered_database.parent.name == 'measurements'
+                                  else discovered_database.parent)
+            if discovered_project.is_relative_to(folder):
+                project = discovered_project
+    if calibrated or os.path.lexists(project / 'plate_batch.json') or os.path.lexists(
+            project / 'psf' / 'segmentation_application.json'):
+        return empty
+    artifacts = []
+    port_kinds = {MERGED_ARRAYS: 'merged', MASKS: 'masks', CROPS: 'crops',
+                  MODEL_WEIGHTS: 'classifier'}
+    samples = {}
+    for spec in PORTS.values():
+        for port in spec.produces:
+            if port.kind not in port_kinds or not port.path or '/' in port.path:
+                continue
+            target = project / port.path
+            if target in samples or not target.is_dir() or target.is_symlink():
+                continue
+            if owner is not None and owner != target:
+                continue
+            if path.is_file():
+                candidates = [path]
+            elif port.kind in (CROPS, MODEL_WEIGHTS):
+                candidates = _easy_generated_sample(target)
+            else:
+                candidates = [item for item in files if item.is_relative_to(target)]
+                if not candidates:
+                    candidates = _easy_generated_sample(target, depth=1)
+            samples[target] = candidates
+            checked = 0
+            for candidate in candidates:
+                if checked >= 4:
+                    break
+                suffix = candidate.suffix.lower()
+                if port.kind in (MERGED_ARRAYS, MASKS) and suffix != '.npy':
+                    continue
+                if port.kind == CROPS and (suffix != '.png' or not any(
+                        parent.name.endswith('_png') for parent in candidate.parents
+                        if parent.is_relative_to(target))):
+                    continue
+                if port.kind == MODEL_WEIGHTS and suffix != '.pth':
+                    continue
+                checked += 1
+                try:
+                    metadata = {}
+                    if port.kind == MODEL_WEIGHTS:
+                        header = _easy_read_header(candidate, 16)
+                        valid = header.startswith((b'PK\x03\x04', b'\x80\x02', b'\x80\x03', b'\x80\x04', b'\x80\x05'))
+                    else:
+                        kind = _easy_file_kind(candidate, metadata)
+                        shape = metadata.get('shape', ())
+                        valid = (kind == 'image' if port.kind == CROPS else
+                                 kind == 'array' and metadata.get('dtype_kind') in
+                                 ('buif' if port.kind == MERGED_ARRAYS else 'bui')
+                                 and ((len(shape) in (3, 4) and shape[-1] >= 2)
+                                      if port.kind == MERGED_ARRAYS else len(shape) in (2, 3)))
+                except (OSError, ValueError, EOFError):
+                    continue
+                if valid:
+                    producer = 'measure' if port.kind == CROPS else 'classify_merged' if port.kind == MODEL_WEIGHTS else 'mask'
+                    artifacts.append(dict(kind=port_kinds[port.kind], path=str(candidate), producer=producer))
+                    break
+    scientific = next((item for item in schemas if item['objects'] and item['numeric']
+                       and Path(item['path']).parent in (project, project / 'measurements')), None)
+    database = project / 'measurements' / 'measurements.db'
+    if scientific is None and artifacts and database.is_file() and not database.is_symlink():
+        try:
+            evidence = _easy_database_evidence(database)
+            if evidence['objects'] and evidence['numeric']:
+                scientific = dict(path=str(database), **evidence)
+        except (OSError, sqlite3.Error):
+            pass
+    if scientific:
+        artifacts.append(dict(kind='measurements', path=scientific['path'], producer='measure'))
+        if scientific['crops']:
+            artifacts.append(dict(kind='crops', path=scientific['path'], producer='measure'))
+    for result in run_evidence['results']:
+        if Path(result['path']).is_relative_to(project):
+            artifacts.append(dict(kind='regression', path=result['path'], producer='regression'))
+    if not artifacts:
+        return empty
+    from ..app import APPS, folded_children
+    from ..dnd_handlers import NO_DROP_TARGET
+    from .fold_strip import fold_label
+    from .workflow_diagram import workflow_map
+
+    data = workflow_map()
+    modules = data['modules']
+    rows = {row[0]: row for row in APPS}
+    for children in folded_children().values():
+        for key in children:
+            title, guidance, _stage = fold_label(key)
+            rows.setdefault(key, (key, title, guidance, ''))
+    available = {item['kind'] for item in artifacts}
+    future = set(available)
+    selected = []
+    while True:
+        children = [key for key, module in modules.items() if key in rows and key not in selected
+                    and future.intersection(module.get('inputs', ()))
+                    and not set(module.get('inputs', ())) == {'raw_images'}]
+        if not children:
+            break
+        selected.extend(children)
+        for key in children:
+            future.update(modules[key].get('outputs', ()))
+    for producer in dict.fromkeys(item['producer'] for item in artifacts):
+        if producer in rows and producer not in selected:
+            selected.append(producer)
+    if 'merged' in available and 'measure' in selected:
+        selected.remove('measure')
+        selected.insert(0, 'measure')
+    routes = {}
+    for key in selected:
+        if key == 'mask':
+            continue
+        inputs = set(modules.get(key, {}).get('inputs', ()))
+        ready = False
+        source = project
+        producers = {item['producer'] for item in artifacts}
+        prerequisite = (key if key in producers else 'measure'
+                        if 'measurements' in future or 'crops' in future else artifacts[0]['producer'])
+        if key == 'measure' and 'merged' not in available and 'measure' not in producers:
+            prerequisite = 'mask'
+        if key == 'measure' and 'merged' in available:
+            ready = True
+        elif (scientific and inputs.intersection(('measurements', 'crops', 'labels', 'scores'))
+              and not (key in ('annotate', 'umap') and not scientific['crops'])):
+            ready = True
+            source = project if key in ('annotate', 'classify_merged', 'qc_dashboard', 'run_compare') else Path(scientific['path'])
+        elif key in ('hit_list', 'profiler', 'volcano_explorer') and 'regression' in available:
+            result = next(item for item in artifacts if item['kind'] == 'regression')
+            source = Path(result['path']).parent if key == 'hit_list' else Path(result['path'])
+            ready = True
+        elif key == 'regression_diagnostics':
+            diagnostics = next((item['diagnostics_folder'] for item in run_evidence['results']
+                                if item.get('diagnostics_folder')), None)
+            if diagnostics:
+                source = Path(diagnostics)
+                ready = True
+        if key in NO_DROP_TARGET:
+            ready = False
+            source = project
+            prerequisite = key
+        specification = PORTS.get(key)
+        required_port_kinds = dict(port_kinds, **{'measurements-db': 'measurements'})
+        if specification:
+            required = {required_port_kinds.get(port.kind, port.kind)
+                        for port in specification.consumes if port.required}
+        else:
+            required = {'measurements'} if 'measurements' in inputs else inputs.copy()
+        required.update(inputs.intersection(('classifier', 'feature_model', 'segmentation_model', 'evaluation')))
+        if 'measurements' not in inputs:
+            required.update(inputs.intersection(('labels', 'scores')))
+        if key in ('annotate', 'umap'):
+            required.add('crops')
+        missing = required - available
+        if ready and missing:
+            ready = False
+            source = project
+            prerequisite = next((producer for producer, module in modules.items()
+                                 if producer in rows and producer != key
+                                 and missing.intersection(module.get('outputs', ()))), prerequisite)
+        title = tr(rows[key][1])
+        prerequisite_title = tr(rows.get(prerequisite, (prerequisite, prerequisite))[1])
+        reason = (tr('Review merged arrays and mask channels.') if key == 'measure' and ready else
+                  tr(rows[key][2]) if ready or key == prerequisite else
+                  tr('Run {module} first, then review this module’s inputs before processing.', module=prerequisite_title))
+        routes[key] = dict(source=str(source), project=str(project), prerequisite=prerequisite,
+                           ready=ready, title=title, reason=reason, missing_inputs=sorted(missing))
+        if ready and scientific:
+            routes[key]['database'] = scientific['path']
+    return dict(project=str(project), artifacts=artifacts, routes=routes)
+
+
 def _easy_inspect_path_impl(value):
     """Infer local next steps from bounded headers, filename conventions and nearby folder structure."""
     from pathlib import Path
@@ -4712,6 +4957,25 @@ def _easy_inspect_path_impl(value):
         array_imports.append(dict(path=str(array), supported=True, axes=description['axes']))
         actions.append(('convert', tr('Import microscopy images'),
                         tr('Review the reader, embedded metadata and conversion plan before importing.'), str(array.parent)))
+    npy_image_source = None
+    if kinds.get('array'):
+        from ..mask_engine import _npy_image_header
+
+        for array in kinds['array'][:4]:
+            if array.parent != root and array.parent.parent != root:
+                continue
+            try:
+                _npy_image_header(array)
+            except (OSError, ValueError, EOFError):
+                continue
+            npy_image_source = str(array if path.is_file() else array.parent)
+            actions = [action for action in actions if action[0] != 'mask']
+            if path.is_file():
+                native_container = False
+            actions.append(('make_masks', tr('View and edit images'),
+                            tr('Inspect images and edit masks.'), npy_image_source))
+            input_map['make_masks'] = dict(source=npy_image_source)
+            break
     if candidates:
         exact = path if path.is_file() and path in candidates else chosen
         actions.extend([
@@ -4825,8 +5089,6 @@ def _easy_inspect_path_impl(value):
         actions.append(('map_barcodes', tr('Map Barcodes'), tr('FASTQ reads were found in this folder.'), str(fastq.parent)))
         input_map['map_barcodes'] = dict(source=str(fastq.parent), fastq=str(fastq))
     calibrated = os.path.lexists(root / 'plate_batch.json') or os.path.lexists(root / 'psf' / 'segmentation_application.json')
-    if path.is_dir() and any(item.parent == root / 'merged' for item in kinds.get('array', [])) and not calibrated:
-        actions.append(('measure', tr('Measure segmented objects'), tr('Review merged arrays and mask channels.'), str(path)))
     paired_layout = _easy_paired_layout(images, root)
     if paired_layout:
         if paired_layout['kind'] == 'unstructured':
@@ -4856,6 +5118,24 @@ def _easy_inspect_path_impl(value):
             input_map['regression_diagnostics'] = dict(source=result_file['diagnostics_folder'],
                                                      diagnostics_folder=result_file['diagnostics_folder'],
                                                      coefficients=result_file['path'])
+    generated_outputs = _easy_generated_outputs(path, files, schemas, run_evidence, calibrated)
+    if generated_outputs['artifacts']:
+        if path.is_file() and path.suffix.lower() == '.npy':
+            actions = [action for action in actions if action[0] not in ('mask', 'convert')]
+            native_container = False
+        if npy_image_source:
+            generated_outputs['routes']['make_masks'] = dict(
+                source=npy_image_source, project=generated_outputs['project'], prerequisite='',
+                ready=True, title=tr('View and edit images'), reason=tr('Inspect images and edit masks.'))
+        generated_actions = []
+        for key, route in generated_outputs['routes'].items():
+            generated_actions.append((key, route['title'], route['reason'], route['source']))
+            if route['ready']:
+                input_map.setdefault(key, {name: route[name] for name in ('source', 'project', 'database')
+                                           if name in route})
+            else:
+                input_map.pop(key, None)
+        actions = generated_actions + actions
     submodule_settings = _easy_specialized_inputs(root, files, images, schemas) if path.is_dir() else {}
     for key, title in (('ops', tr('OPS')), ('spatial_masks', tr('Spatial Mask Generation')),
                        ('spatial_map', tr('Spatial Map'))):
@@ -4889,7 +5169,7 @@ def _easy_inspect_path_impl(value):
     if actions and external_documents:
         message += ' ' + ' '.join(_easy_external_guidance(kind)
                                  for kind in dict.fromkeys(item['kind'] for item in external_documents))
-    if path.is_file():
+    if path.is_file() and not generated_outputs['artifacts']:
         preferred = [action for action in actions if action[3] == str(path)
                      or (path in containers and action[0] == 'convert' and action[3] == str(path.parent))]
         actions = preferred + [action for action in actions if action not in preferred]
@@ -4908,6 +5188,7 @@ def _easy_inspect_path_impl(value):
                                                   else Path(item['path']).parent))
                                  for item in schemas if item['objects'] and item['numeric']],
                    run_evidence=run_evidence,
+                   generated_outputs=generated_outputs,
                    submodule_settings=submodule_settings,
                    unsupported_documents=external_documents,
                    reader_candidates=[dict(path=str(item), format=item.suffix.lower(),
@@ -5008,47 +5289,142 @@ class _EasyDropWatcher(QObject):
         return True
 
 
-class _EasyPathRim(_SetupCard):
-    """Reuse the existing chasing blue rim without painting another backplate."""
+class _EasyPathRim(QWidget):
+    """Keep a static outline above the native search surface."""
 
     def __init__(self, parent=None):
-        """Keep the rounded outline transparent to native editor interaction."""
-        super().__init__(parent, radius=28, mode='glow')
+        """Draw a passive rounded border without a timer or field callbacks."""
+        super().__init__(parent)
+        self._radius = 28
         self.setObjectName('EasyPathRim')
         self.setAttribute(Qt.WA_TransparentForMouseEvents, True)
         make_transparent(self)
 
-    def _paint(self):
-        """Draw only the existing border and its pointer-following accent."""
-        from PySide6.QtCore import QRectF
+    def paintEvent(self, event):
+        """Paint the fixed border independently of pointer and idle time."""
         from PySide6.QtGui import QPen
 
         painter = QPainter(self)
-        self._frame = {}
-        try:
-            painter.setRenderHint(QPainter.Antialiasing, True)
-            rect = QRectF(self.rect()).adjusted(1, 1, -1, -1)
-            painter.setBrush(Qt.NoBrush)
-            painter.setPen(QPen(QColor(palette_for('dark')['border']), 1))
-            painter.drawRoundedRect(rect, self._radius, self._radius)
-            self._paint_accent(painter, QColor('#4A9EFF'), rect)
-        finally:
-            self._frame = None
-            painter.end()
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        painter.setBrush(Qt.NoBrush)
+        painter.setPen(QPen(QColor(palette_for('dark')['border']), 1))
+        painter.drawRoundedRect(QRectF(self.rect()).adjusted(1, 1, -1, -1),
+                                self._radius, self._radius)
+        painter.end()
 
-    def _sync_run_state(self):
-        """Keep this reused rim still when decorative motion is disabled."""
-        from ..preferences import get_ambient_enabled, get_reduce_motion
 
-        if not self.isVisible() or not get_ambient_enabled() or get_reduce_motion():
-            self._timer.stop()
+class _NavigatorAiReply(QObject):
+    """Keep generation-tagged stream callbacks on their owning GUI thread."""
+
+    def __init__(self, page, generation):
+        """Retain the page and request token until the stream is retired."""
+        super().__init__(page)
+        self._page = page
+        self._generation = generation
+
+    @Slot(str)
+    def chunk(self, text):
+        """Deliver a worker chunk through an actual GUI-affine Qt receiver."""
+        self._page._navigator_ai_chunk(self._generation, text)
+
+    @Slot(bool, str)
+    def finished(self, ok, text):
+        """Complete only the request this receiver was created for."""
+        self._page._navigator_ai_finished(self._generation, ok, text)
+
+
+class _NavigatorAiButton(QPushButton):
+    """A quiet provider-colored toggle with bounded typing and waiting motion."""
+
+    _COLORS = {'spacr_hosted': '#006464', 'claude': '#DE7356',
+               'codex': '#A8E6CF', 'gemini': '#4285F4'}
+
+    def __init__(self, parent=None):
+        """Keep a matte provider fill inside a native, keyboard-accessible toggle."""
+        from PySide6.QtCore import QElapsedTimer
+
+        from ..i18n import tr
+
+        super().__init__(parent)
+        self.setObjectName('NavigatorAiButton')
+        self.setAccessibleName(tr('Navigator AI'))
+        self.setCheckable(True)
+        self.setCursor(Qt.PointingHandCursor)
+        self.setFixedSize(36, 36)
+        self._provider = 'spacr_hosted'
+        self._busy = False
+        self._pulse = 0.0
+        self._last_key = -1000
+        self._clock = QElapsedTimer()
+        self._clock.start()
+        self._motion = QTimer(self)
+        self._motion.setInterval(33)
+        self._motion.timeout.connect(self._tick)
+        self.toggled.connect(self._tick)
+
+    def _typing(self, _text):
+        """Give rapid native edits a larger pulse without ever submitting text."""
+        now = self._clock.elapsed()
+        speed = max(0.0, 1.0 - (now - self._last_key) / 500.0)
+        self._last_key = now
+        self._pulse = 0.35 + 0.65 * speed
+        self._tick()
+
+    def _tick(self, *_args):
+        """Run a single small timer only while this visible icon needs motion."""
+        from ..preferences import get_reduce_motion
+
+        self.update()
+        if (self.isVisible() and self.isChecked() and not get_reduce_motion()
+                and (self._busy or self._clock.elapsed() - self._last_key < 850)):
+            if not self._motion.isActive():
+                self._motion.start()
         else:
-            self._start()
+            self._motion.stop()
 
     def showEvent(self, event):
-        """Apply the current motion policy when the editor becomes visible."""
+        """Resume pending motion only when the icon becomes visible."""
         super().showEvent(event)
-        self._sync_run_state()
+        self._tick()
+
+    def hideEvent(self, event):
+        """Release animation work while another module is on screen."""
+        self._motion.stop()
+        super().hideEvent(event)
+
+    def paintEvent(self, event):
+        """Keep the provider fill matte while a subtle busy glow circles outside."""
+        import math
+
+        from PySide6.QtGui import QPen
+
+        from ..preferences import get_reduce_motion
+
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        painter.translate(self.rect().center())
+        color = QColor(self._COLORS.get(self._provider, self._COLORS['spacr_hosted']))
+        if self.isChecked() and self._busy and not get_reduce_motion():
+            painter.save()
+            painter.rotate((self._clock.elapsed() * 0.18) % 360)
+            painter.setBrush(Qt.NoBrush)
+            for width, alpha in ((4.0, 18), (2.5, 35), (1.0, 90)):
+                glow = QColor(color)
+                glow.setAlpha(alpha)
+                painter.setPen(QPen(glow, width, Qt.SolidLine, Qt.RoundCap))
+                painter.drawArc(QRectF(-12, -12, 24, 24), 20 * 16, 100 * 16)
+            painter.restore()
+        painter.setPen(QPen(QColor('white'), 1.5 if not self.hasFocus() else 2.5))
+        painter.setBrush(Qt.NoBrush)
+        painter.drawEllipse(QRectF(-14, -14, 28, 28))
+        if self.isChecked():
+            elapsed = max(0, self._clock.elapsed() - self._last_key)
+            pulse = 0.0 if get_reduce_motion() else self._pulse * math.exp(-elapsed / 220.0)
+            radius = 8.0 + 5.0 * pulse
+            painter.setPen(Qt.NoPen)
+            painter.setBrush(color)
+            painter.drawEllipse(QRectF(-radius, -radius, radius * 2, radius * 2))
+        painter.end()
 
 
 class _EasyPathEdit(QLineEdit):
@@ -5056,8 +5432,6 @@ class _EasyPathEdit(QLineEdit):
 
     def __init__(self, parent=None):
         """Keep the browse affordance inside the editor's reserved text margin."""
-        from PySide6.QtCore import QElapsedTimer
-
         from ..i18n import tr
         from .field_fade import OPT_OUT_PROPERTY
 
@@ -5065,14 +5439,15 @@ class _EasyPathEdit(QLineEdit):
         self.setObjectName('EasyModePath')
         self.setProperty(OPT_OUT_PROPERTY, True)
         self.setFrame(False)
-        self.setPlaceholderText(tr('Drop a file/folder, type a path or task'))
+        self.setPlaceholderText(tr('Drop a file or folder | Type a Path | Ask a Question ◉'))
         self.setAccessibleName(tr('File or folder path'))
         self.setFixedHeight(64)
         self.setMouseTracking(True)
         self.browse = QPushButton(tr('Browse'), self)
         self.browse.setObjectName('EasyModeBrowse')
         self.browse.setCursor(Qt.PointingHandCursor)
-        self._gravity_clock = QElapsedTimer()
+        self.ai = _NavigatorAiButton(self)
+        self.textEdited.connect(self.ai._typing)
 
     def resizeEvent(self, event):
         """Reserve native editor space for Browse without covering editable text."""
@@ -5080,29 +5455,10 @@ class _EasyPathEdit(QLineEdit):
         if not hasattr(self, 'browse'):
             return
         width = self.browse.fontMetrics().horizontalAdvance(self.browse.text()) + 24
-        self.browse.setGeometry(self.width() - width - 12, 6, width, self.height() - 12)
-        self.setTextMargins(18, 0, width + 24, 0)
+        self.browse.setGeometry(self.width() - width - 60, 6, width, self.height() - 12)
+        self.ai.move(self.width() - 48, (self.height() - self.ai.height()) // 2)
+        self.setTextMargins(18, 0, width + 68, 0)
 
-    def _gravity_feedback(self, point):
-        """Offer a small rate-limited impulse through the existing field renderer."""
-        from ..preferences import _field_ripples_enabled, get_ambient_enabled, get_reduce_motion
-
-        if (not self.isVisible()
-                or (self._gravity_clock.isValid() and self._gravity_clock.elapsed() < 180)
-                or get_reduce_motion() or not get_ambient_enabled()
-                or not _field_ripples_enabled()):
-            return
-        self._gravity_clock.restart()
-        from .ambient import field_ripple_for_widget
-
-        field_ripple_for_widget(self, rect=QRect(point.x() - 2, point.y() - 2, 4, 4),
-                                strength=0.12)
-
-    def mousePressEvent(self, event):
-        """Keep native editing and ripple only on an actual search-field click."""
-        super().mousePressEvent(event)
-        if event.button() == Qt.LeftButton:
-            self._gravity_feedback(event.position().toPoint())
 
 
 _EASY_WORKFLOW_PORT_RADIUS = 4
@@ -5115,16 +5471,25 @@ class _EasySuggestionCard(QPushButton):
 
     def __init__(self, action, parent=None):
         """Make the whole module card a native keyboard-accessible action."""
-        from ..app import APPS
-        from ..iconset import app_icon
+        from ..app import APPS, _icon_for_app
         from ..i18n import tr
         from PySide6.QtWidgets import QGraphicsOpacityEffect, QLayout
 
         super().__init__(parent)
         self._key, title, description, self._path = action
+        self._spaceout_movie = None
+        if self._key == '__easy_command__:Spaceout':
+            from PySide6.QtGui import QMovie
+
+            from ..iconset import _spaceout_gif_path
+
+            self._spaceout_movie = QMovie(str(_spaceout_gif_path()), parent=self)
+            self._spaceout_movie.setCacheMode(QMovie.CacheNone)
+            self._spaceout_movie.frameChanged.connect(self._spaceout_frame)
         self._growing = False
         self._final_rect = QRect()
         self.setObjectName('EasySuggestionCard')
+        self.setProperty('spaceout', self._key == '__easy_command__:Spaceout')
         self._stage = self._stage_for(self._key)
         self.setProperty('stage', self._stage)
         self.setCursor(Qt.PointingHandCursor)
@@ -5147,7 +5512,7 @@ class _EasySuggestionCard(QPushButton):
         self.icon = icon
         icon.setAlignment(Qt.AlignCenter)
         icon.setStyleSheet('background: transparent;')
-        module_icon = app_icon(self._key, theme="dark")
+        module_icon = _icon_for_app(self._key, theme="dark")
         if module_icon is None or module_icon.isNull():
             module_icon = self.style().standardIcon(QStyle.SP_FileDialogContentsView)
         self._module_icon = module_icon
@@ -5181,6 +5546,9 @@ class _EasySuggestionCard(QPushButton):
         self.alpha.setAlignment(Qt.AlignCenter)
         self.alpha.resize(40, 40)
         self.alpha.setVisible(self._stage == 'alpha')
+        if self._spaceout_movie is not None:
+            self.content.hide()
+            self.alpha.hide()
 
     def enterEvent(self, event):
         """Keep card explanations in the stationary lower description panel."""
@@ -5200,11 +5568,15 @@ class _EasySuggestionCard(QPushButton):
     def _stage_for(key):
         """Resolve maturity from the registered app or its actual folded metadata."""
         from .fold_strip import fold_label
+        if key == 'parascape':
+            return 'alpha'
         return fold_label(key)[2]
 
     def resizeEvent(self, event):
         """Keep the alpha annotation at the rounded card's upper-right corner."""
         super().resizeEvent(event)
+        if getattr(self, '_spaceout_movie', None) is not None:
+            self._resize_spaceout()
         if hasattr(self, 'alpha'):
             self.alpha.move(max(0, self.width() - self.alpha.width() - 8), 8)
             self.alpha.raise_()
@@ -5212,6 +5584,37 @@ class _EasySuggestionCard(QPushButton):
     def paintEvent(self, event):
         """Keep native card painting and add equal output ports only for its network."""
         super().paintEvent(event)
+        picture = getattr(self, '_spaceout_display', None)
+        if picture is not None and not picture.isNull():
+            from PySide6.QtGui import QPainterPath
+
+            painter = QPainter(self)
+            painter.setRenderHint(QPainter.Antialiasing)
+            painter.setRenderHint(QPainter.SmoothPixmapTransform)
+            target = QRectF(self.rect()).adjusted(1, 1, -1, -1)
+            clip = QPainterPath()
+            clip.addRoundedRect(target, 15, 15)
+            painter.setClipPath(clip)
+            source = QRectF(picture.rect())
+            ratio = target.width() / max(1, target.height())
+            if source.width() / max(1, source.height()) > ratio:
+                wanted = source.height() * ratio
+                source.setLeft((source.width() - wanted) / 2)
+                source.setWidth(wanted)
+            else:
+                wanted = source.width() / ratio
+                source.setTop((source.height() - wanted) / 2)
+                source.setHeight(wanted)
+            painter.drawPixmap(target, picture, source)
+            if self.hasFocus():
+                from PySide6.QtWidgets import QStyle, QStyleOptionFocusRect
+
+                painter.setClipping(False)
+                focus = QStyleOptionFocusRect()
+                focus.initFrom(self)
+                focus.rect = self.rect().adjusted(3, 3, -3, -3)
+                self.style().drawPrimitive(QStyle.PE_FrameFocusRect, focus, painter, self)
+            painter.end()
         points = getattr(self, '_workflow_ports', ())
         if points:
             color = QColor(palette_for('dark')['accent'])
@@ -5230,6 +5633,60 @@ class _EasySuggestionCard(QPushButton):
         picture = self._module_icon.pixmap(pixels, pixels)
         picture.setDevicePixelRatio(device_ratio(self.icon))
         self.icon.setPixmap(picture)
+        if self._spaceout_movie is not None:
+            self._resize_spaceout()
+            self._sync_run_state()
+
+    def _resize_spaceout(self):
+        """Decode at bounded card resolution only when its size or density changes."""
+        pixels = max(1, min(500, round(max(self.width(), self.height()) * device_ratio(self))))
+        size = QSize(pixels, pixels)
+        if self._spaceout_movie.scaledSize() == size:
+            return
+        self._spaceout_movie.setScaledSize(size)
+        self._spaceout_picture = self._module_icon.pixmap(size)
+        self._spaceout_picture.setDevicePixelRatio(device_ratio(self))
+        self._spaceout_display = self._spaceout_picture
+        self.update()
+
+    def _sync_run_state(self):
+        """Play the provided animation only while visible and motion is allowed."""
+        from ..preferences import get_reduce_motion
+
+        if self._spaceout_movie is None:
+            return
+        if self.isVisible() and not get_reduce_motion():
+            self._spaceout_movie.start()
+        else:
+            self._spaceout_movie.stop()
+            self._spaceout_display = self._spaceout_picture
+            self.update()
+
+    def _spaceout_frame(self, _frame):
+        """Show one native decoded frame at the icon's current display density."""
+        picture = self._spaceout_movie.currentPixmap()
+        picture.setDevicePixelRatio(device_ratio(self))
+        self._spaceout_display = picture
+        self.update()
+
+    def showEvent(self, event):
+        """Resume the animation when the Spaceout card reappears."""
+        super().showEvent(event)
+        self._sync_run_state()
+
+    def hideEvent(self, event):
+        """Stop decoding the animation while its card is hidden."""
+        if self._spaceout_movie is not None:
+            self._spaceout_movie.stop()
+        super().hideEvent(event)
+
+    def keyPressEvent(self, event):
+        """Keep the image-only command explicitly keyboard-activatable."""
+        if self._spaceout_movie is not None and event.key() in (Qt.Key_Return, Qt.Key_Enter):
+            self.click()
+            event.accept()
+        else:
+            super().keyPressEvent(event)
 
     def _activate(self):
         """Emit the inspected input only after the user chooses this step."""
@@ -5371,6 +5828,71 @@ class _EasyGuidanceCard(_EasySuggestionCard):
         self.parentWidget().panel.setFocus()
 
 
+class _NavigatorDetailsGrip(HeightGrip):
+    """Resize the fixed-bottom description from its upper edge."""
+
+    def __init__(self, field):
+        """Carry the handle with the description when the workflow reparents it."""
+        from ..i18n import tr
+
+        self._field = field
+        super().__init__(field.details, 96, 4096, parent=field.details,
+                         name=tr('Resize this panel'))
+        self.setObjectName('NavigatorDetailsHeightGrip')
+        self.height_changed.connect(self._persist)
+
+    def resize_target(self, height):
+        """Clamp the requested height without imposing a fixed widget size."""
+        from ..preferences import get_font_scale
+
+        wanted = max(self._min, min(self._max, int(height)))
+        self._field._details_height_base = wanted / max(0.01, get_font_scale())
+        self._field._arrange()
+        return self._target.height()
+
+    def _persist(self, _height):
+        """Remember an explicit resize in font-independent pixels."""
+        from ..preferences import _settings
+
+        _settings().setValue('home/navigator_details_height', self._field._details_height_base)
+
+    def reset(self):
+        """Restore the responsive default through the existing reset menu."""
+        from ..preferences import _settings
+
+        self._field._details_height_base = None
+        _settings().remove('home/navigator_details_height')
+        self._field._arrange()
+        return self._target.height()
+
+    def mouseMoveEvent(self, event):
+        """Dragging upward grows the box while its lower edge stays fixed."""
+        if self._from_y is None:
+            return super().mouseMoveEvent(event)
+        self.resize_target(self._from_h + int(self._from_y - event.globalPosition().y()))
+        event.accept()
+
+    def mouseReleaseEvent(self, event):
+        """Persist the drag without adding an ambient-field gesture."""
+        if self._from_y is None:
+            return super().mouseReleaseEvent(event)
+        self._from_y = None
+        self.height_changed.emit(self._target.height())
+        event.accept()
+
+    def keyPressEvent(self, event):
+        """Up grows and Down shrinks this upper-edge handle."""
+        from ..preferences import scaled_px
+
+        moves = {Qt.Key_Up: 1, Qt.Key_Down: -1,
+                 Qt.Key_PageUp: 5, Qt.Key_PageDown: -5}
+        if event.key() in moves:
+            self.nudge(scaled_px(self.STEP) * moves[event.key()])
+            event.accept()
+        else:
+            super().keyPressEvent(event)
+
+
 class _EasyHomeField(QWidget):
     """Place a single centered editor over the window's unchanged ambient field."""
 
@@ -5378,21 +5900,34 @@ class _EasyHomeField(QWidget):
         """Own the path, feedback and suggestion widgets without another frame timer."""
         super().__init__(parent)
         self.cards = []
+        self._suggestions_active = True
         self._animations = []
         self.feedback = None
         self.setObjectName('EasyHomeField')
+        self.setProperty('spacrAmbientPassiveOverlay', True)
         make_transparent(self)
         self.panel = _EasyPathEdit(self)
         self.rim = _EasyPathRim(self)
+        self.panel.setProperty('spacrAmbientPassiveOverlay', True)
+        self.rim.setProperty('spacrAmbientPassiveOverlay', True)
         self.setMinimumSize(340, 340)
         from PySide6.QtWidgets import QScrollBar, QTextBrowser, QGraphicsOpacityEffect
         from ..i18n import tr
         from .field_fade import OPT_OUT_PROPERTY
         self.details = QTextBrowser(self)
         self.details.setObjectName('EasyWorkflowDetails')
+        self.details.setProperty('spacrAmbientPassiveOverlay', True)
         self.details.setAccessibleName(tr('Module description'))
         self.details.setOpenExternalLinks(True)
         self.details.setProperty(OPT_OUT_PROPERTY, True)
+        from ..preferences import _settings
+
+        try:
+            stored = float(_settings().value('home/navigator_details_height', 0))
+            self._details_height_base = stored if 0 < stored < 100000 else None
+        except (TypeError, ValueError):
+            self._details_height_base = None
+        self._details_grip = _NavigatorDetailsGrip(self)
         self._scrollbar = QScrollBar(Qt.Horizontal, self)
         self._scrollbar.setObjectName('EasySuggestionsScroll')
         self._scrollbar.setAccessibleName(tr('Tools'))
@@ -5409,10 +5944,9 @@ class _EasyHomeField(QWidget):
         return get_ambient_enabled() and not get_reduce_motion()
 
     def _publish_growth(self, *, invalidate=False):
-        """Clear transient card forces while keeping the original reveal animation."""
-        from .ambient import _field_growing_regions_for_widget
-
-        _field_growing_regions_for_widget(self, (), invalidate=invalidate)
+        """Track card animation locally without altering the shared field."""
+        self._growth_state = tuple((id(card), card._growing, card.isVisible())
+                                   for card in self.cards if card.parentWidget() is self)
 
     def _finish_growth(self):
         """Retire geometry animations and release their field ownership."""
@@ -5421,7 +5955,7 @@ class _EasyHomeField(QWidget):
             animation.deleteLater()
         self._animations.clear()
         for card in self.cards:
-            if card.parentWidget() is not self:
+            if card.parentWidget() is not self or not self._suggestions_active:
                 continue
             card._growing = False
             card._content_opacity.setOpacity(1.0)
@@ -5464,6 +5998,10 @@ class _EasyHomeField(QWidget):
             card.description.hide()
             card._explanation = '<b>' + escape(group) + '</b><br>' + escape(reason)
             card.setAccessibleDescription(group + ': ' + reason)
+        if isinstance(leading, _EasyGuidanceCard):
+            leading.hide()
+            leading.deleteLater()
+            leading = None
         if leading is not None:
             self.cards.insert(min(leading_index, len(self.cards)), leading)
         animate = self._motion_enabled() and self.isVisible()
@@ -5471,7 +6009,7 @@ class _EasyHomeField(QWidget):
             card._content_opacity.setOpacity(0.0 if animate else 1.0)
         self._arrange()
         for index, card in enumerate(self.cards):
-            card.setVisible(card._final_rect.intersects(self._row_rect))
+            card.setVisible(self._suggestions_active and card._final_rect.intersects(self._row_rect))
             card.setMinimumSize(0, 0)
             card.raise_()
             if animate:
@@ -5534,14 +6072,25 @@ class _EasyHomeField(QWidget):
 
         width, height = self.width(), self.height()
         panel_width = min(720, max(180, width - 48))
-        panel_y = max(16, (height - 64) // 2)
-        self._place_fixed(self.panel, QRect((width - panel_width) // 2, panel_y, panel_width, 64))
-        self._place_fixed(self.rim, QRect((width - panel_width) // 2, panel_y, panel_width, 64))
+        panel_height = self.panel.height()
+        panel_y = max(16, (height - panel_height) // 2)
+        self._place_fixed(self.panel, QRect((width - panel_width) // 2, panel_y, panel_width, panel_height))
+        self._place_fixed(self.rim, QRect((width - panel_width) // 2, panel_y, panel_width, panel_height))
         self.rim.raise_()
-        details_width = min(780, max(180, width - 32))
-        details_height = min(88 + 2 * self.details.fontMetrics().lineSpacing(), max(64, height // 4))
+        details_width = min(1560, max(180, width - 32))
+        from ..preferences import scaled_px
+
+        default_height = 176 + 2 * self.details.fontMetrics().lineSpacing()
+        maximum_height = max(1, height - panel_y - panel_height - 32)
+        wanted_height = (default_height if self._details_height_base is None
+                         else scaled_px(self._details_height_base))
+        details_height = min(maximum_height, max(min(scaled_px(96), maximum_height), wanted_height))
         self._place_fixed(self.details, QRect((width - details_width) // 2, height - details_height - 16,
                                               details_width, details_height))
+        self._details_grip._min = min(scaled_px(96), maximum_height)
+        self._details_grip._max = maximum_height
+        self._details_grip.setGeometry(12, 0, max(1, details_width - 24), self._details_grip.height())
+        self._details_grip.raise_()
         available = max(64, panel_y - 40)
         side = min(224, available, max(96, width - 64))
         card_height = max([side] + [min(available, max(card.sizeHint().height(), side))
@@ -5557,7 +6106,7 @@ class _EasyHomeField(QWidget):
         self._scrollbar.setSingleStep(side + gap)
         self._scrollbar.blockSignals(False)
         self._scrollbar.setGeometry(24, self._row_rect.bottom() + 5, max(1, width - 48), 12)
-        self._scrollbar.setVisible(bool(maximum))
+        self._scrollbar.setVisible(self._suggestions_active and bool(maximum))
         start = self._row_rect.left() + max(0, (self._row_rect.width() - total) // 2)
         start -= self._scrollbar.value()
         for index, card in enumerate(self.cards):
@@ -5566,6 +6115,8 @@ class _EasyHomeField(QWidget):
             if card.parentWidget() is self and not card._growing:
                 card.setGeometry(card._final_rect)
             if card.parentWidget() is not self:
+                continue
+            if not self._suggestions_active:
                 continue
             local = self._row_rect.translated(-card.x(), -card.y()).intersected(card.rect())
             if local.isEmpty():
@@ -5590,10 +6141,9 @@ class _EasyWorkflowNode(_WorkflowNode):
 
     def __init__(self, view, key):
         """Resolve one native icon and maturity once, outside repeated hover paints."""
-        from ..iconset import app_icon
+        from ..app import _icon_for_app
         super().__init__(view, key)
-        module = view.data['modules'][key]
-        self._glyph = app_icon(module['host_key'] if module.get('route') else key, theme='dark')
+        self._glyph = _icon_for_app(key, theme='dark')
         self._stage = _EasySuggestionCard._stage_for(key)
         self._hovered = False
         self._pressed = False
@@ -6041,6 +6591,7 @@ class _EasyWorkflowPage(QWidget):
         self._progress = 0.0
         super().__init__(parent)
         self.setObjectName('EasyWorkflowPage')
+        self.setProperty('spacrAmbientPassiveOverlay', True)
         make_transparent(self)
         self.setProperty("spacrAmbientTransparentOverlay", True)
         self.data = data
@@ -6345,7 +6896,6 @@ class _EasyHomePage(QWidget):
         from ..job_runner import JobRunner
 
         super().__init__(parent)
-        self._easy_backdrop_state = None
         self.setObjectName('EasyHomePage')
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -6361,6 +6911,21 @@ class _EasyHomePage(QWidget):
         self._workflow_escape.activated.connect(self._show_suggestions)
         self.path_edit = self.field.panel
         self.path_edit.browse.clicked.connect(self._browse)
+        self._ai_provider = ''
+        self._ai_thread = None
+        self._ai_worker = None
+        self._ai_relay = None
+        self._ai_retired = []
+        self._ai_generation = 0
+        self._ai_text = ''
+        self._ai_reply_timer = QTimer(self)
+        self._ai_reply_timer.setSingleShot(True)
+        self._ai_reply_timer.setInterval(50)
+        self._ai_reply_timer.timeout.connect(self._render_ai_reply)
+        self.path_edit.ai.clicked.connect(self._toggle_navigator_ai)
+        self.path_edit.ai.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.path_edit.ai.customContextMenuRequested.connect(self._choose_navigator_ai)
+        self._update_ai_tooltip()
         self.path_edit.setToolTip(tr('Local suggestions. No AI provider or network connection is required.'))
         self.status = QLabel(self.field)
         self.status.setObjectName('EasyInputFeedback')
@@ -6385,82 +6950,211 @@ class _EasyHomePage(QWidget):
         self._regex_cancel = None
         self.refresh()
 
-    def _sync_easy_backdrop(self):
-        """Use the existing dark field fill only while this Home is visible."""
-        import weakref
+    def _update_ai_tooltip(self):
+        """Describe the selected provider and the explicit change-provider gesture."""
+        from ..ai.providers import PROVIDER_CHOICES
+        from ..i18n import tr
 
-        from ..preferences import DEFAULT_AMBIENT_BACKGROUND, get_easy_mode
+        button = self.path_edit.ai
+        label = next((tr(label) for name, label, _needs in PROVIDER_CHOICES
+                      if name == self._ai_provider), '')
+        button.setToolTip(tr('AI: {provider}. Click to toggle; right-click to change provider.',
+                             provider=label) if button.isChecked() else
+                          tr('AI assistance is off. Click to choose a provider.'))
 
-        if not self.isVisible() or not get_easy_mode():
-            return
-        getter = getattr(self.window(), 'window_backdrop', None)
-        backdrop = getter() if callable(getter) else None
-        if backdrop is None:
-            return
-        owner = getattr(backdrop, '_easy_home_owner', None)
-        if self._easy_backdrop_state is not None:
-            if (self._easy_backdrop_state[0]() is backdrop
-                    and owner is not None and owner() is self):
+    def _toggle_navigator_ai(self, on):
+        """Reuse consent after first selection and cancel immediately when disabled."""
+        from ..ai.providers import PROVIDER_CHOICES
+        from ..i18n import tr
+        from ..preferences import _settings
+
+        if not on:
+            pending = self._ai_thread is not None
+            self._cancel_navigator_ai()
+            if pending:
+                self._feedback(tr('Cancelled.'))
+        elif not self._ai_provider:
+            self._ai_provider = str(_settings().value('home/navigator_ai_provider', '') or '')
+            if self._ai_provider not in {name for name, _label, _needs in PROVIDER_CHOICES if name != 'none'}:
+                self._ai_provider = ''
+                self.path_edit.ai.setChecked(False)
+                self._choose_navigator_ai()
                 return
-            self._restore_easy_backdrop()
-        state = getattr(backdrop, '_easy_home_background_state', None)
-        if state is None:
-            state = (backdrop.background_color(), backdrop._background_explicit, backdrop.backdrop())
-            backdrop._easy_home_background_state = state
-        self._easy_backdrop_state = (weakref.ref(backdrop), *state)
-        backdrop._easy_home_owner = weakref.ref(self)
-        backdrop.set_background_color(DEFAULT_AMBIENT_BACKGROUND)
-        backdrop.set_backdrop(None)
+        self.path_edit.ai._provider = self._ai_provider
+        self.path_edit.ai._tick()
+        self._update_ai_tooltip()
 
-    def _restore_easy_backdrop(self):
-        """Return the shared field to its existing module and theme policy."""
-        from shiboken6 import isValid
+    def _choose_navigator_ai(self, *_args):
+        """Explain sharing and assistance before accepting an explicit provider choice."""
+        from PySide6.QtWidgets import QDialog, QDialogButtonBox, QTextBrowser
 
-        from .ambient import _preferred_background
+        from ..ai.providers import PROVIDER_CHOICES, apply_provider_choice
+        from ..i18n import tr
+        from ..preferences import _settings
 
-        state = self._easy_backdrop_state
-        self._easy_backdrop_state = None
-        if state is None:
+        dialog = QDialog(self)
+        dialog.setObjectName('NavigatorAiProviderDialog')
+        dialog.setWindowTitle(tr('Navigator AI'))
+        layout = QVBoxLayout(dialog)
+        explanation = QTextBrowser(dialog)
+        explanation.setMinimumSize(520, 230)
+        explanation.setPlainText(tr(
+            'AI explains tools, settings, workflows and errors throughout spaCR. '
+            'In Navigator, unmatched tasks go to your chosen AI and answers appear below. '
+            'It does not run an analysis from this field.') + '\n\n' + tr(
+            'spaCR AI uses the hosted service and daily allowance. Claude, Codex and Gemini '
+            'use your own CLI login. Submitted text is shared with the chosen provider. '
+            'Check AI advice before using it.'))
+        layout.addWidget(explanation)
+        combo = QComboBox(dialog)
+        combo.setObjectName('NavigatorAiProviderChoice')
+        combo.setAccessibleName(tr('Choose AI provider'))
+        for name, label, _needs in PROVIDER_CHOICES:
+            if name != 'none':
+                combo.addItem(tr(label), name)
+        selected = combo.findData(self._ai_provider)
+        if selected >= 0:
+            combo.setCurrentIndex(selected)
+        layout.addWidget(combo)
+        providers = QPushButton(tr('Providers…'), dialog)
+
+        def configure():
+            """Reuse the existing install and sign-in dialog without sending a task."""
+            from .ai_chat_panel import _ProvidersDialog
+
+            _ProvidersDialog(dialog).exec()
+
+        providers.clicked.connect(configure)
+        layout.addWidget(providers)
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, dialog)
+        buttons.button(QDialogButtonBox.Ok).setText(tr('Use AI'))
+        buttons.accepted.connect(dialog.accept)
+        buttons.rejected.connect(dialog.reject)
+        layout.addWidget(buttons)
+        if dialog.exec() == QDialog.Accepted:
+            self._cancel_navigator_ai()
+            self._ai_provider = str(combo.currentData())
+            _settings().setValue('home/navigator_ai_provider', self._ai_provider)
+            apply_provider_choice(self._ai_provider)
+            self.path_edit.ai._provider = self._ai_provider
+            self.path_edit.ai.setChecked(True)
+        self.path_edit.ai._tick()
+        self._update_ai_tooltip()
+        dialog.deleteLater()
+
+    @staticmethod
+    def _navigator_ai_can_answer(value):
+        """Keep submitted paths and filenames in local inspection even with AI on."""
+        value = str(value).strip()
+        return bool(value and not (
+            value.startswith(('/', '\\', '~', '.')) or re.match(r'^[A-Za-z]:[\\/]', value)
+            or re.match(r'^\w+://', value)
+            or os.path.exists(os.path.expanduser(value))
+            or (not re.search(r'\s', value) and (
+                '/' in value or '\\' in value or re.search(r'\.[A-Za-z0-9]{1,10}$', value)))))
+
+    def _ask_navigator_ai(self, value):
+        """Stream one unmatched submission through the existing guarded transport."""
+        from ..ai import settings as ai_settings
+        from ..ai.providers import get_provider
+        from ..ai.worker import make_stream_thread
+        from ..i18n import tr
+
+        if self._ai_thread is not None:
+            self.field.details.setPlainText(tr('Turn AI off to cancel the current answer.'))
             return
-        reference, color, explicit, image = state
-        backdrop = reference()
-        getter = getattr(self.window(), 'window_backdrop', None)
-        if (backdrop is None or not isValid(backdrop)
-                or not callable(getter) or getter() is not backdrop):
+        provider = get_provider(self._ai_provider)
+        if provider is None or not provider.is_configured():
+            self._feedback(tr('No provider configured.'))
             return
-        owner = getattr(backdrop, '_easy_home_owner', None)
-        if owner is None or owner() is not self:
+        self._runner.cancel()
+        self._input_generation += 1
+        self._requested = value
+        self._last_result = None
+        self._settings_overrides = {}
+        self.field.set_cards([])
+        self._feedback(tr('Thinking…'))
+        self._ai_text = ''
+        self._ai_generation += 1
+        generation = self._ai_generation
+        alive = []
+        for thread, worker, relay in self._ai_retired:
+            try:
+                if thread.isRunning():
+                    alive.append((thread, worker, relay))
+                    continue
+            except RuntimeError:
+                pass
+            relay.deleteLater()
+        self._ai_retired = alive
+        system = ai_settings.get_system_prompt() + (
+            '\n\nNavigator is an advice interface. Answer the submitted task in text. '
+            'Do not invoke tools, run commands or analyses, or change files from this interface.')
+        thread, worker = make_stream_thread(provider, [{'role': 'user', 'content': value}],
+                                            system=system, parent=self)
+        self._ai_thread, self._ai_worker = thread, worker
+        self._ai_relay = _NavigatorAiReply(self, generation)
+        worker.chunk_ready.connect(self._ai_relay.chunk, Qt.QueuedConnection)
+        worker.finished.connect(self._ai_relay.finished, Qt.QueuedConnection)
+        self.path_edit.ai._busy = True
+        self.path_edit.ai._tick()
+        thread.start()
+
+    def _navigator_ai_chunk(self, generation, text):
+        """Ignore retired streams and coalesce partial replies into bounded repaints."""
+        if generation != self._ai_generation:
             return
-        backdrop._easy_home_owner = None
-        backdrop._easy_home_background_state = None
-        backdrop._background_explicit = explicit
-        backdrop._apply_background(color if explicit else _preferred_background(), explicit=explicit)
-        backdrop.set_backdrop(image)
+        self._ai_text += text
+        if not self._ai_reply_timer.isActive():
+            self._ai_reply_timer.start()
 
-    def _sync_easy_ripple_policy(self, active):
-        """Own the search-only policy independently of backdrop replacement."""
-        import weakref
+    def _render_ai_reply(self):
+        """Put response text in the fixed lower box without interpreting HTML."""
+        self.field.details.setPlainText(self._ai_text)
 
-        window = self.window()
-        owner = getattr(window, '_easy_search_ripple_owner', None)
-        if active:
-            window._easy_search_ripple_owner = weakref.ref(self)
-            window.setProperty('spacrEasySearchRippleOnly', True)
-        elif owner is not None and owner() is self:
-            window._easy_search_ripple_owner = None
-            window.setProperty('spacrEasySearchRippleOnly', False)
+    def _navigator_ai_finished(self, generation, ok, text):
+        """Stop the waiting texture and preserve worker ownership until thread exit."""
+        from ..i18n import tr
 
-    def showEvent(self, event):
-        """Apply the local backdrop after native Home visibility becomes real."""
-        super().showEvent(event)
-        self._sync_easy_ripple_policy(True)
-        self._sync_easy_backdrop()
+        if generation != self._ai_generation:
+            return
+        self._ai_reply_timer.stop()
+        self._ai_retired.append((self._ai_thread, self._ai_worker, self._ai_relay))
+        self._ai_thread = self._ai_worker = self._ai_relay = None
+        self.path_edit.ai._busy = False
+        self.path_edit.ai._tick()
+        self._ai_text = (text or tr('(empty response — try again or switch provider)')) if ok else tr(
+            'Failed: {detail}', detail=text)
+        self._render_ai_reply()
+
+    def _cancel_navigator_ai(self):
+        """Invalidate queued replies and retire threads without blocking navigation."""
+        from ..bridge import drain_thread
+
+        self._ai_generation += 1
+        self._ai_reply_timer.stop()
+        worker, thread, relay = self._ai_worker, self._ai_thread, self._ai_relay
+        self._ai_worker = self._ai_thread = self._ai_relay = None
+        self.path_edit.ai._busy = False
+        self.path_edit.ai._tick()
+        if worker is not None:
+            worker.cancel()
+        pairs = list(self._ai_retired)
+        self._ai_retired.clear()
+        if thread is not None:
+            pairs.append((thread, worker, relay))
+        for retired_thread, retired_worker, retired_relay in pairs:
+            try:
+                retired_thread.setParent(None)
+            except RuntimeError:
+                pass
+            drain_thread(retired_thread, retired_worker, timeout_ms=0)
+            retired_relay.deleteLater()
 
     def hideEvent(self, event):
         """Restore ordinary modules without changing their saved theme."""
+        self._cancel_navigator_ai()
         self._cancel_regex_validation()
-        self._sync_easy_ripple_policy(False)
-        self._restore_easy_backdrop()
         super().hideEvent(event)
 
     def refresh(self):
@@ -6485,10 +7179,14 @@ class _EasyHomePage(QWidget):
             f'QPushButton#EasyWorkflowBack {{ color: {foreground}; background: transparent; border: none; padding: 0px; }} '
             f'QComboBox#EasyWorkflowTools, QComboBox#EasyWorkflowNextTools {{ color: {foreground}; background: {background}; placeholder-text-color: {muted}; border: 1px solid {border}; border-radius: 10px; }} '
             f'QComboBox#EasyWorkflowTools QAbstractItemView, QComboBox#EasyWorkflowNextTools QAbstractItemView {{ color: {foreground}; background: {palette["surface"]}; selection-background-color: {palette["accent"]}; selection-color: {palette["bg"]}; }} '
-            f'QTextBrowser#EasyWorkflowDetails {{ color: {foreground}; background: {details_background}; border: 1px solid {border}; border-radius: 10px; padding: 8px; }} '
+            f'QTextBrowser#EasyWorkflowDetails {{ color: {foreground}; background: {details_background}; border: 1px solid {border}; border-radius: 10px; padding: 8px; font-size: {2 * font_px("body")}px; }} '
             f'QLabel#EasyInputFeedback {{ color: {muted}; background: transparent; }}')
         from ..theme import _stage_button_rules
         sheet += _stage_button_rules('QPushButton#EasySuggestionCard')
+        sheet += ('QPushButton#EasySuggestionCard[spaceout="true"], '
+                  'QPushButton#EasySuggestionCard[spaceout="true"]:hover, '
+                  'QPushButton#EasySuggestionCard[spaceout="true"]:pressed '
+                  '{ background-color: rgb(32, 32, 32); }')
         if getattr(self, '_easy_stylesheet', None) != sheet:
             self._easy_stylesheet = sheet
             self.setStyleSheet(sheet)
@@ -6503,6 +7201,7 @@ class _EasyHomePage(QWidget):
             self.field.set_cards([], _EasyGuidanceCard(message, self.field))
         self.field.details.setPlainText(message)
         self.field._arrange()
+        self.field._publish_growth(invalidate=True)
 
     def accept_paths(self, paths):
         """Accept exactly one local input and give useful feedback for ambiguous drops."""
@@ -6543,6 +7242,7 @@ class _EasyHomePage(QWidget):
 
     def _reset_for_home(self):
         """Return explicit Home navigation to a fresh input with no retained graph or job."""
+        self._cancel_navigator_ai()
         self._show_suggestions()
         self.path_edit.clear()
         self._queued_inspection = False
@@ -6550,6 +7250,7 @@ class _EasyHomePage(QWidget):
 
     def _clear_empty_input(self):
         """Return an empty editor to the live field without keeping stale work."""
+        self._cancel_navigator_ai()
         self._debounce.stop()
         self._cancel_regex_validation()
         self._input_generation += 1
@@ -6563,6 +7264,8 @@ class _EasyHomePage(QWidget):
 
     def _schedule_inspection(self, text):
         """Invalidate unfinished work while leaving submitted choices unchanged until Enter."""
+        if self._ai_thread is not None:
+            self._cancel_navigator_ai()
         self._debounce.stop()
         self._queued_inspection = False
         self._cancel_regex_validation()
@@ -6572,15 +7275,35 @@ class _EasyHomePage(QWidget):
             self._clear_empty_input()
 
     def _submit(self):
-        """Use Enter for explicit command navigation or suggestion discovery."""
-        from ..app import _easy_command_text, _easy_module_search, _easy_module_matches, _easy_task_keys
+        """Submit through explicit commands, local suggestions or opted-in AI."""
+        from ..app import (
+            _easy_command_text,
+            _easy_module_matches,
+            _easy_module_search,
+            _easy_shortcut_match,
+            _easy_task_keys,
+        )
         from ..organisms import ORGANISMS
 
         value = self.path_edit.text().strip()
         self._show_suggestions()
+        shortcut = _easy_shortcut_match(value)
+        if shortcut and shortcut not in ('spaceout', 'running'):
+            self._cancel_navigator_ai()
+            self._debounce.stop()
+            self._cancel_regex_validation()
+            self._runner.cancel()
+            self._input_generation += 1
+            self.command_requested.emit(value)
+            return
         organism = any(key in ORGANISMS for key in _easy_module_matches(value))
         if (organism or _easy_task_keys(value) or not _easy_command_text(value)
-                or value.endswith(':') or len(_easy_module_search(value)) > 1):
+                or shortcut in ('spaceout', 'running') or value.endswith(':')
+                or _easy_module_matches(value) or _easy_module_search(value)):
+            self._inspect()
+            return
+        suggest = getattr(self.window(), '_easy_navigation_suggestions', _easy_module_search)
+        if self.path_edit.ai.isChecked() and not suggest(value):
             self._inspect()
             return
         self._debounce.stop()
@@ -6590,7 +7313,7 @@ class _EasyHomePage(QWidget):
         self.command_requested.emit(value)
 
     def _inspect(self):
-        """Run one bounded local inspection off the GUI thread, never an AI request."""
+        """Inspect local inputs or send an explicitly enabled unmatched task to AI."""
         from functools import partial
 
         from ..i18n import tr
@@ -6606,6 +7329,7 @@ class _EasyHomePage(QWidget):
         suggest = getattr(self.window(), '_easy_navigation_suggestions', _easy_module_search)
         actions = suggest(value)
         if actions:
+            self._cancel_navigator_ai()
             self._runner.cancel()
             self._requested = value
             self._input_generation += 1
@@ -6617,6 +7341,10 @@ class _EasyHomePage(QWidget):
             self._show_result(self._input_generation, dict(path=value, actions=actions, message='',
                                                          context=dict(action_groups=groups)))
             return
+        if self.path_edit.ai.isChecked() and self._navigator_ai_can_answer(value):
+            self._ask_navigator_ai(value)
+            return
+        self._cancel_navigator_ai()
         if self._runner.is_busy() or self._runner.active_jobs():
             self._queued_inspection = value != self._requested or not self._runner.is_busy()
             if value != self._requested:
@@ -6676,7 +7404,17 @@ class _EasyHomePage(QWidget):
     def _select_suggestion(self, key, path):
         """Center a suggested tool and reveal its real workflow before opening it."""
         if key.startswith('__easy_command__:'):
-            self.command_requested.emit(key.split(':', 1)[1])
+            from ..app import _easy_shortcut_match
+
+            command = key.split(':', 1)[1]
+            self.command_requested.emit(key if _easy_shortcut_match(command, explicit=True) else command)
+            return
+        if key == 'parascape':
+            from ..app import app_is_visible
+            from ..preferences import maturity_is_visible
+
+            if maturity_is_visible('alpha') and app_is_visible(key):
+                self.module_requested.emit(key, path)
             return
         from ..app import APPS, _HELP_MODULES, app_is_visible, folded_children
         from ..preferences import maturity_is_visible
@@ -6715,6 +7453,7 @@ class _EasyHomePage(QWidget):
         departure = {card: (card.isVisible(), card._content_opacity.opacity())
                      for card in self.field.cards if card is not source_card}
         self.field._finish_growth()
+        self.field._suggestions_active = False
         for card, (visible, opacity) in departure.items():
             card._content_opacity.setOpacity(opacity)
             card.setVisible(visible and opacity > 0.0)
@@ -6730,6 +7469,7 @@ class _EasyHomePage(QWidget):
 
     def _show_suggestions(self):
         """Return to the unchanged path and suggestions without starting another inspection."""
+        self.field._suggestions_active = True
         if self._workflow is not None:
             source_card = self._workflow.release_source_card()
             source_card.activated.connect(self._select_suggestion)
@@ -6793,9 +7533,8 @@ class _EasyHomePage(QWidget):
     def closeEvent(self, event):
         """Stop owned timers and retire the local inspection worker before closing."""
         self._debounce.stop()
+        self._cancel_navigator_ai()
         self._cancel_regex_validation()
-        self._sync_easy_ripple_policy(False)
-        self._restore_easy_backdrop()
         self._show_suggestions()
         self.field._finish_growth()
         self._runner.shutdown(3000)

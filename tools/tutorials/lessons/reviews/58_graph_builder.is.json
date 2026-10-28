@@ -1,13 +1,18 @@
 {
   "lesson": "58_graph_builder",
-  "english_sha256": "3d874d9843bd844f57bf6948007176605319ec953a7a898c853f209c42aaa3d9",
+  "english_sha256": "fe7a247b559ad165edc22df71aa6a1c704762f256b3df7e0dbf3b08c2b822986",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
     "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "correction": {
+      "date": "2026-10-27",
+      "scope": "Scene 10 third sentence only: synchronized selection count, highlights and handoff availability",
+      "kind": "AI technical text correction; no listening review or native-speaker sign-off"
+    }
   },
   "language": "is",
   "title": "Graph Builder: teiknaðu mælingar og síaðu hluti",
@@ -30,7 +35,7 @@
     "Í síuspjaldinu hægra megin bætirðu við cell_area og slærð inn lágmark. Dæmið notar 21.925, sem skilur eftir 1.171 línu. Veldu þröskulda sem henta þínum mælingum og fylgstu með teiknaða fjöldanum og ásunum breytast.",
     "Smelltu á Clear all í síuspjaldinu til að fá alla töfluna aftur. Notaðu Clear all channels vinstra megin þegar þú vilt fjarlægja vörpun grafsins og byrja á öðru grafi.",
     "Clear all channels heldur gerð grafsins en fjarlægir alla dálka úr því, og strigi segir þá hvað vantar: dragðu dálk á X eða Y til að teikna graf aftur. Slepptu sömu dálkunum aftur til að halda áfram.",
-    "Fjarlægðu hlið með litla krossinum hennar til að fara aftur í eitt dreifirit. Dragðu rétthyrning utan um hluti til að velja svæði. Ef Open selection in Annotate er ekki tiltækt opnarðu Annotate sérstaklega með samsvarandi verkefni og skoðar hlutina þar.",
+    "Fjarlægðu hlið með litla krossinum hennar til að fara aftur í eitt dreifirit. Dragðu rétthyrning utan um hluti til að velja svæði. Fjöldi valinna hluta og auðkenndu punktarnir uppfærast saman og Open selection in Annotate verður tiltækt til að skoða þessa hluti í samsvarandi verkefni.",
     "Smelltu á auðan hluta grafsins til að hreinsa valið. Athugaðu virkar síur og birtan fjölda áður en þú kannar annan hóp hluta.",
     "Smelltu á Annotate conditions. Nefndu fyrsta úttakið genotype og notaðu Assign values. Veldu Exact values og merktu columnID-gildin c1, c2 og c3 sem WildType. Bættu við öðrum kassa sem heitir mutant fyrir c7, c4, c5 og c6. Þetta eru dæmamerki, ekki staðfestar arfgerðir. Niðurhalaða taflan inniheldur aðeins c1 og c2, svo allar frumur passa við WildType og engin við mutant. Exact values ber saman heil gildi: c1 passar ekki við c10.",
     "Bættu við úttaksdálki sem heitir replicate. Paraðu rowID-gildin r1, r4, r5 og r6 í kassa sem heitir replicate 1. Bættu við öðrum kassa með sama nafni fyrir r7, r9 og r10. Kassar með sama merki mynda sammengi; ólík merki sem stangast á í einu úttaki þarf að leysa fyrir Apply conditions. Dæmið inniheldur r5 og r12, svo r5 passar og r12 helst tómt. Þessi æfingamerki staðfesta ekki líffræðilega endurtekningu.",

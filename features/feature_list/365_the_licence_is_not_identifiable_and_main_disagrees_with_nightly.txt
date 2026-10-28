@@ -158,3 +158,5 @@ text and release policy are unchanged.
 No Space upload or service mutation was performed. Public metadata updates
 when a future deployment succeeds; N689's storage quota remains unresolved.
 Evidence: features/data/365_space_license_2026-10-14/.
+
+2026-10-27 — Maintainer requests the README licence badge text and alt text to read BSD 3-Clause. This is a badge-label correction; Workstation session 2 owns the narrow README edit.

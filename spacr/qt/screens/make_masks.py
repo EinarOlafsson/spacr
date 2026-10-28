@@ -101,8 +101,8 @@ callers. :func:`~spacr.qt.mask_engine.invert_mask` flips labels.
 
 Additional segmentation tools are opened from the masthead in
 :data:`FOLD_ORDER` through
-:class:`~spacr.qt.widgets.fold_strip.FoldStrip`. **Mask the whole folder**
-applies Cellpose to every image in the selected folder, while **Save mask** on
+:class:`~spacr.qt.widgets.fold_strip.FoldStrip`. **Mask folder**
+applies Cellpose to every lowercase ``.tif`` image in the selected folder, while **Save mask** on
 the Curate page calls :meth:`spacr.curation.MaskCuration.save_mask`. Folded
 modules retain their existing widgets inside :class:`FoldedModulePanel`.
 
@@ -278,7 +278,7 @@ FOLD_FALLBACK = {
         "trained model or a stock model to an image folder.",
         "beta"),
     MASK_FOLDER_KEY: (
-        "Mask the whole folder",
+        "Mask folder",
         "Apply the selected segmentation model to every image in the open "
         "folder.",
         "beta"),
@@ -15375,33 +15375,39 @@ class MakeMasksScreen(QWidget):
             session whose masks are not in ``<folder>/masks``, and a
             confirmation that is declined, all answer ``False``.
         """
+        from ..i18n import tr
+        from .train_cellpose import _cellpose_folder_error
+
         if not self._folder or not self._image_files:
             self._status_label.setText(
                 "Open a folder of images before masking it.")
             return False
         if self._field_folders:
-            from ..i18n import tr
-
             self._status_label.setText(tr(
-                "Mask the whole folder works on one folder, and this queue "
+                "Mask folder works on one folder, and this queue "
                 "was dropped from several, so it was not started."))
             return False
         if self._masks_dir or any(engine.is_seg_bundle(name)
                                   for name in self._image_files):
-            self._status_label.setText(
-                f"Mask the whole folder writes its masks into "
-                f"{os.path.join(self._folder, 'masks')}, and this set keeps "
-                f"its masks somewhere else, so it was not started.")
+            self._status_label.setText(tr(
+                'Mask folder writes its masks into {folder}, and this set keeps '
+                'its masks somewhere else, so it was not started.',
+                folder=os.path.join(self._folder, 'masks')))
+            return False
+        error = _cellpose_folder_error(self._folder)
+        if error:
+            self._status_label.setText(error)
             return False
         count = len(self._image_files)
         if not self._confirm(
-                "Mask the whole folder",
+                tr("Mask folder"),
                 f"Segment all {count} images in {self._folder}?\n\n"
                 f"Images that already have a mask are left alone."):
             return False
         dialog = self.open_folded(MASK_FOLDER_KEY)
         if dialog is None:
             return False
+        dialog.screen.apply_screen.apply_settings_dict({'save': True})
         self._status_label.setText(
             f"Masking {count} images in {self._folder}…")
         self._start_folded_run(dialog.screen.apply_screen)
@@ -23947,6 +23953,8 @@ class MakeMasksScreen(QWidget):
                 tr("Images (*.tif *.tiff *.png *.jpg *.jpeg *.npy *.mrc *.rec *.map)"))
         if not path:
             return None
+        if str(path).lower().endswith('.npy') and not engine.is_seg_bundle(path):
+            return self._open_numeric_npy(path)
         if engine._is_volume_file(path):
             return self.open_volume(path)
         folder, name = os.path.split(os.path.abspath(path))
@@ -24216,6 +24224,39 @@ class MakeMasksScreen(QWidget):
         if os.path.isdir(first):
             self._open_folder(first)
 
+    def _open_numeric_npy(self, path):
+        """Review array axes and select one intensity channel before native editing."""
+        from ..i18n import tr
+
+        path = os.path.abspath(os.fspath(path))
+        try:
+            header = engine._npy_image_header(path)
+            shape = header['shape']
+            axes, channel = 'YX', 0
+            if len(shape) > 2:
+                choices = ('YXC', 'CYX', 'ZYX') if len(shape) == 3 else ('ZYXC', 'CZYX')
+                axes, accepted = QInputDialog.getItem(
+                    self, tr('NPY image layout'),
+                    tr('Array shape: {shape}. Select the stored axes. No planes are assumed to be masks.',
+                       shape=str(shape)), list(choices), 0, False)
+                if not accepted:
+                    return False
+                if 'C' in axes:
+                    channel, accepted = QInputDialog.getInt(
+                        self, tr('NPY image layout'),
+                        tr('Select the image channel to edit (0-based). Label-mask planes are not imported automatically.'),
+                        0, 0, shape[axes.index('C')] - 1)
+                    if not accepted:
+                        return False
+            folder, filename = os.path.split(path)
+            target = os.path.join(folder, 'masks',
+                                  os.path.splitext(filename)[0] + f'_{axes}_C{channel}')
+            engine._set_npy_image_view(path, axes, channel, masks_dir=target)
+            return self._open_folder(folder, files=[filename], masks_dir=target)
+        except (ValueError, OSError) as exc:
+            self._warn(tr('NPY image layout'), str(exc))
+            return False
+
     def open_paths(self, paths) -> bool:
         """Open a drop the way its contents say, asking where there is a choice.
 
@@ -24236,8 +24277,10 @@ class MakeMasksScreen(QWidget):
           opens as it always did: the folder as it is, or a queue;
         * images dropped with their masks open with those masks
           (:meth:`_open_with_masks`);
+        * a numeric NPY opens after spatial axes and its image channel are
+          reviewed; no label-mask planes are inferred from array values;
         * a folder spaCR wrote is named in the console and its images, if
-          any, open -- a ``.npy`` is never opened as an image.
+          any, open.
 
         Everything the drop held that is used for nothing is listed in the
         console.
@@ -24249,6 +24292,27 @@ class MakeMasksScreen(QWidget):
         from ... import drop_classification as dc
 
         paths = [os.path.abspath(str(p)) for p in paths]
+        if len(paths) == 1:
+            selected = paths[0]
+            if os.path.isfile(selected) and selected.lower().endswith('.npy') and not engine.is_seg_bundle(selected):
+                return self._open_numeric_npy(selected)
+            if os.path.isdir(selected) and not engine.list_images(selected):
+                from itertools import islice
+
+                try:
+                    with os.scandir(selected) as entries:
+                        numeric = sorted(entry.path for entry in islice(entries, 512)
+                                         if entry.is_file() and entry.name.lower().endswith('.npy')
+                                         and not engine.is_seg_bundle(entry.name))
+                except OSError as exc:
+                    self._warn(tr('NPY image layout'), str(exc))
+                    return False
+                if numeric:
+                    if len(numeric) == 1:
+                        return self._open_numeric_npy(numeric[0])
+                    chosen, accepted = QInputDialog.getItem(
+                        self, tr('NPY image layout'), tr('Choose an NPY image'), numeric, 0, False)
+                    return self._open_numeric_npy(chosen) if accepted else False
         found = dc.classify_drop(paths)
         for line in found.unrecognised:
             self._masks_console.post(
@@ -24534,7 +24598,7 @@ class MakeMasksScreen(QWidget):
         filename = self._image_files[self._current_index]
         image_path = os.path.join(self._folder, filename)
         self._leave_volume()
-        if engine._is_volume_file(image_path):
+        if engine._is_volume_file(image_path, self._masks_dir):
             self._show_volume(self._folder, filename)
             return
         if self._should_background_load(image_path) or _mask_writes_pending():

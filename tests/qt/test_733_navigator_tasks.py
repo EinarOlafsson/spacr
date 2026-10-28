@@ -12,9 +12,12 @@ from tests.qt.test_startup_ai_reporting_choice import private_ai_profile
 
 
 _ITEM = Path(__file__).resolve().parents[2] / 'features/feature_list/733_easy_mode_content_guided_home.txt'
-_CASES = [(phrase, tuple(keys.split(', '))) for phrase, keys in re.findall(
-    r'^\d{3}\. (.+) -> (.+)$', _ITEM.read_text(), re.M)]
-assert len(_CASES) == 100
+_PAIRS = [(original, alternate, tuple(keys.split(', ')))
+          for original, alternate, keys in re.findall(
+              r'^\d{3}\. (.+) \| (.+) -> (.+)$', _ITEM.read_text(), re.M)]
+_CASES = [(original, keys) for original, _alternate, keys in _PAIRS]
+_ALTERNATES = [(alternate, keys) for _original, alternate, keys in _PAIRS]
+assert len(_CASES) == len(_ALTERNATES) == 100
 
 
 @pytest.mark.parametrize('phrase,expected', _CASES)
@@ -61,7 +64,7 @@ def test_task_cards_keep_maturity_filter_and_existing_module_partial_search(comm
     assert not commands.opened
     assert 'measure' in {row[0] for row in app._easy_module_search('MeAsUr')}
     assert 'db_browser' in {row[0] for row in app._easy_module_search('DaTaBaSe')}
-    assert page.path_edit.placeholderText() == 'Drop a file/folder, type a path or task'
+    assert page.path_edit.placeholderText() == 'Drop a file or folder | Type a Path | Ask a Question ◉'
 
 
 @pytest.mark.parametrize('phrase,expected', [
@@ -99,6 +102,31 @@ def test_user_supplied_analysis_spellings_offer_image_tools(commands, phrase):
     assert not commands.opened and not commands.navigated
 
 
+@pytest.mark.parametrize('phrase,expected', _ALTERNATES)
+def test_paired_alternate_tasks_offer_cards_without_opening_modules(
+        commands, qtbot, monkeypatch, phrase, expected):
+    test_reviewed_tasks_offer_cards_without_opening_modules(
+        commands, qtbot, monkeypatch, phrase, expected)
+
+
+@pytest.mark.parametrize('phrase', [
+    'analyze masks', 'ANALYSE MASKS', 'mask analysis',
+    'analyze segmentation masks', 'segmentation mask analysis',
+])
+def test_existing_mask_analysis_tasks_offer_native_cards_on_enter(
+        commands, qtbot, monkeypatch, phrase):
+    test_reviewed_tasks_offer_cards_without_opening_modules(
+        commands, qtbot, monkeypatch, phrase, ('measure', 'qc_dashboard', 'make_masks'))
+
+
+@pytest.mark.parametrize('phrase', [
+    'detect features', 'FEATURE DETECTION', 'detect image features',
+    'detect morphological features', 'extract features', 'feature extraction',
+])
+def test_feature_detection_tasks_offer_measure_without_launching(
+        commands, qtbot, monkeypatch, phrase):
+    test_reviewed_tasks_offer_cards_without_opening_modules(
+        commands, qtbot, monkeypatch, phrase, ('measure',))
 
 def test_hidden_native_route_keeps_the_current_page_and_reports_the_preference(
         qtbot, private_ai_profile):

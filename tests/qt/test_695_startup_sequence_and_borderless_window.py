@@ -3,7 +3,7 @@ and the Help replay.
 
 spaCR opens as ONE window, borderless and maximised to its screen's work
 area (not full-screen mode). The first thing painted in it is the black
-container with the logo photomosaic at half the screen height; the logo
+container with the logo photomosaic at a quarter of the screen height; the logo
 holds for 2 s (longer while loading), blows away from 2 to 6 s, and the
 container fades from 3 to 5 s. Help > Show startup animation plays it again.
 The borderless window carries its own minimise, maximise/restore and close
@@ -117,7 +117,7 @@ def test_the_startup_timeline_on_one_borderless_window(
     assert start == clock.now, "the logo is the first thing painted"
 
     x, y, side, tile, ratio = cover._mosaic_layout()
-    assert side == pytest.approx(screen.geometry().height() / 2.0)
+    assert side == pytest.approx(screen.geometry().height() / 4.0)
     assert x + side / 2.0 == pytest.approx(window.width() / 2.0)
     assert y + side / 2.0 == pytest.approx(window.height() / 2.0)
     mosaic = cover._mosaic
@@ -266,7 +266,7 @@ def test_a_cover_without_a_screen_sizes_the_logo_by_itself(host_cover):
     cover, _clock = host_cover
     cover.screen = lambda: None
     x, y, side, tile, ratio = cover._mosaic_layout()
-    assert side == pytest.approx(cover.height() / 2.0)
+    assert side == pytest.approx(cover.height() / 4.0)
 
 
 # --- Help > Show startup animation ----------------------------------------
@@ -538,3 +538,30 @@ def test_the_borderless_preference_defaults_on():
     assert preferences.get_borderless_window() is True
     preferences.set_borderless_window(False)
     assert preferences.get_borderless_window() is False
+
+
+@pytest.mark.parametrize('plain', [False, True])
+def test_mosaic_hold_and_initial_departure_have_no_text_or_rules(host_cover, monkeypatch, plain):
+    cover, clock = host_cover
+    from PySide6.QtGui import QImage
+
+    def assert_clear_below_logo(image):
+        _x, y, side, _tile, _ratio = cover._mosaic_layout()
+        start = int(y + side + 10)
+        image = image.toImage().convertToFormat(QImage.Format_RGBA8888)
+        values = np.frombuffer(image.bits(), np.uint8).reshape(image.height(), image.width(), 4)
+        band = values[start:, :, :3]
+        assert band.size
+        assert np.all(band == band[-1, -1])
+
+    def unexpected_strap(*args):
+        raise AssertionError('Mosaic rendering must not draw the plain-fallback strap.')
+
+    monkeypatch.setattr(cover, '_paint_strap_under', unexpected_strap)
+    assert_clear_below_logo(cover.grab())
+    assert cover.blow_away(force=True, plain=plain)
+    clock.now += ls._MOSAIC_MIN_HOLD_S
+    cover._begin()
+    clock.now = cover._began_at
+    assert_clear_below_logo(cover.grab())
+    cover._finish()

@@ -242,12 +242,11 @@ _LATE_SHARE = 0.25
 #: a test can reproduce a frame.
 _MOSAIC_SEED = 694
 
-#: Share of the screen's height the logo takes (item 695: half).
-_MOSAIC_SCREEN_SHARE = 0.5
+#: Share of the screen's height the logo takes (a quarter).
+_MOSAIC_SCREEN_SHARE = 0.25
 
-#: Most of the cover's width the logo may take, on a window narrower than
-#: half its screen's height.
-_MOSAIC_WIDTH_SHARE = 0.9
+#: Share of the cover's width the logo may take on a narrow window.
+_MOSAIC_WIDTH_SHARE = 0.45
 
 
 def _env_says_no_splash() -> bool:
@@ -592,9 +591,9 @@ class LoadingScreen(QWidget):
     """Full-window loading cover with optional photomosaic animation.
 
     By default it shows the white mark beside the strap line. Once
-    :meth:`show_mosaic` is called it shows the spaCR photomosaic above the
-    strap line instead, and :meth:`blow_away` ends it by blowing the mosaic's
-    tiles off the window to reveal the window underneath.
+    :meth:`show_mosaic` is called it shows only the spaCR photomosaic, with
+    no text or lines beneath it. :meth:`blow_away` ends it by blowing the
+    mosaic's tiles off the window to reveal the window underneath.
 
     :param total: how many steps will be reported. Zero or negative means
         "unknown", and the phases stay dim rather than dividing by it.
@@ -746,10 +745,10 @@ class LoadingScreen(QWidget):
         return max(1.0, float(device_ratio(self)))
 
     def _mosaic_layout(self):
-        """Where the mosaic and the strap line go at the current size.
+        """Where the mosaic goes at the current size.
 
-        The logo is half its screen's height, centred on the cover, with the
-        strap line under it; a cover too small for that shrinks it to fit.
+        The logo is a quarter of its screen's height, centred on the cover;
+        a cover too small for that shrinks it to fit.
         It is decoded at the whole number of device pixels per tile at or
         just above that size, so its tiles can be cut out again exactly, and
         drawn scaled down to the size, which keeps it sharp.
@@ -766,7 +765,7 @@ class LoadingScreen(QWidget):
             else self.height()
         side = max(1.0, min(tall * _MOSAIC_SCREEN_SHARE,
                             self.width() * _MOSAIC_WIDTH_SHARE,
-                            self.height() - 2.0 * strap_room))
+                            (self.height() - 2.0 * strap_room) / 2.0))
         tile = math.ceil(side * ratio / mosaic.grid - 1e-9)
         tile = max(1, min(mosaic.tile_px, tile))
         return ((self.width() - side) / 2.0, (self.height() - side) / 2.0,
@@ -992,7 +991,7 @@ class LoadingScreen(QWidget):
             painter.end()
 
     def _paint_mosaic(self, painter: QPainter) -> bool:
-        """Draw the still mosaic with the strap line under it.
+        """Draw the still mosaic without text or rules beneath it.
 
         :param painter: an active painter on this widget.
         :returns: ``False`` when the picture cannot be read, so the caller
@@ -1005,7 +1004,6 @@ class LoadingScreen(QWidget):
         painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
         target = QRectF(x, y, side, side)
         painter.drawPixmap(target, picture, QRectF(picture.rect()))
-        self._paint_strap_under(painter, target)
         return True
 
     def _paint_strap_under(self, painter: QPainter, target: QRectF) -> None:
@@ -1399,11 +1397,6 @@ class LoadingScreen(QWidget):
             ground.setAlphaF(self.container_opacity())
             painter.fillRect(self.rect(), ground)
             painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
-            fade = _PLAIN_FADE_S if self._plain else _STRAP_FADE_S
-            strap = 1.0 - float(_smoothstep(t / fade))
-            if strap > 0.0:
-                painter.setOpacity(strap)
-                self._paint_strap_under(painter, self._rest_target)
             if self._plain:
                 picture = self._mosaic_pixmap
                 painter.setOpacity(self.container_opacity())

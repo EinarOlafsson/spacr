@@ -60,19 +60,73 @@ def commands(qtbot, private_ai_profile):
     return window
 
 
-def test_typing_never_navigates_but_enter_uses_actual_command(qtbot, commands):
+@pytest.mark.parametrize('query,key', [('mAkE mAsKs', 'make_masks'), ('Measure', 'measure'),
+                                     ('Regression diagnostics', 'regression_diagnostics')])
+def test_exact_module_enter_shows_card_and_click_opens_native(qtbot, commands, monkeypatch, query, key):
     from spacr.qt.widgets.home import _EasyHomePage
 
-    page = _EasyHomePage()
+    monkeypatch.setattr(app, 'app_is_visible', lambda value: True)
+    page = _EasyHomePage(commands)
+    commands.setCentralWidget(page)
     qtbot.addWidget(page)
     page.command_requested.connect(commands._open_easy_command)
     page.show()
-    qtbot.keyClicks(page.path_edit, "mAkE mAsKs")
+    page.module_requested.connect(lambda value, _path: commands._open_easy_named_module(value))
+    qtbot.keyClicks(page.path_edit, query)
     page._debounce.stop()
     assert commands.opened == []
     qtbot.keyClick(page.path_edit, Qt.Key_Return)
-    assert commands.opened == ["make_masks"]
+    assert commands.opened == []
+    card = next(card for card in page.field.cards if card._key == key)
+    page.field._finish_growth()
+    qtbot.mouseClick(card, Qt.LeftButton)
+    assert page._workflow is not None and commands.opened == []
+    page._workflow._transition.setCurrentTime(500)
+    qtbot.mouseClick(card, Qt.LeftButton)
+    assert commands.opened == [key]
     assert not page._debounce.isActive()
+
+
+def test_nonmodule_menu_command_retains_explicit_enter_route(qtbot, commands):
+    from spacr.qt.widgets.home import _EasyHomePage
+
+    page = _EasyHomePage(commands)
+    commands.setCentralWidget(page)
+    page.command_requested.connect(commands._open_easy_command)
+    page.path_edit.setText('GitHub')
+    qtbot.keyClick(page.path_edit, Qt.Key_Return)
+    assert commands.urls == ['https://github.com/EinarOlafsson/spacr']
+    assert not page.field.cards and not commands.opened
+
+
+def test_overview_enter_keeps_native_card_until_click_opens_mask_host(qtbot, commands, monkeypatch):
+    from spacr.qt.widgets import qc_field_browser
+    from spacr.qt.widgets.home import _EasyHomePage
+
+    monkeypatch.setattr(app, 'app_is_visible', lambda key: True)
+    page = _EasyHomePage(commands)
+    commands.setCentralWidget(page)
+    commands._startup = page
+    commands._screens = {'mask': commands.screen}
+    commands.screen._settings_model = SimpleNamespace(collect=lambda: {'src': '/plate', 'channels': [0]})
+    opened = []
+    overview = []
+    monkeypatch.setattr(commands, 'open_module', lambda key: opened.append(key) or key, raising=False)
+    monkeypatch.setattr(qc_field_browser, '_open_overview_module',
+                        lambda owner, settings: overview.append((owner, settings)))
+    page.command_requested.connect(commands._open_easy_command)
+    page.module_requested.connect(lambda key, path: app.MainWindow._open_easy_suggestion(commands, key, path))
+    page.path_edit.setText('Overview')
+    qtbot.keyClick(page.path_edit, Qt.Key_Return)
+    assert not opened and not overview
+    card = next(card for card in page.field.cards if card._key == 'overview')
+    page.field._finish_growth()
+    qtbot.mouseClick(card, Qt.LeftButton)
+    assert page._workflow is not None and not opened and not overview
+    page._workflow._transition.setCurrentTime(500)
+    qtbot.mouseClick(card, Qt.LeftButton)
+    assert opened == ['mask']
+    assert overview == [(commands.screen, {'src': '/plate', 'channels': [0]})]
 
 
 @pytest.mark.parametrize("text,key", [
@@ -183,7 +237,7 @@ def test_help_toggle_persists_to_startup_without_preferences_checkbox(commands, 
     assert commands.refreshed == [{"easy_mode"}]
     startup = SetupSlides()
     qtbot.addWidget(startup)
-    assert startup._editors["easy_mode"].isChecked()
+    assert "easy_mode" not in startup._editors
     dialog = preferences.PreferencesDialog()
     qtbot.addWidget(dialog)
     assert dialog.findChild(Toggle, "EasyMode") is None
@@ -192,7 +246,8 @@ def test_help_toggle_persists_to_startup_without_preferences_checkbox(commands, 
     assert not preferences.get_easy_mode()
     reopened = SetupSlides()
     qtbot.addWidget(reopened)
-    assert not reopened._editors["easy_mode"].isChecked()
+    assert "easy_mode" not in reopened._editors
+    assert not preferences.get_easy_mode()
 
 
 @pytest.mark.parametrize("accept", [False, True])
@@ -424,6 +479,59 @@ def test_inferred_submodule_settings_preview_then_apply(commands, qtbot, monkeyp
     assert applied == ([settings] if accept else [])
 
 
+
+def test_upcoming_generated_folder_tool_opens_without_a_nonexistent_database(
+        qtbot, commands, monkeypatch, tmp_path):
+    from spacr.qt import dnd_handlers
+
+    project = str(tmp_path)
+    applied, messages = [], []
+    screen = QWidget(commands)
+    screen.apply_settings_dict = lambda settings: applied.append(settings)
+    commands._open_easy_named_module = lambda key: commands.opened.append(key) or screen
+    monkeypatch.setattr(type(commands), 'statusBar',
+                        lambda self: SimpleNamespace(showMessage=lambda *args: messages.append(args)))
+    monkeypatch.setattr(dnd_handlers, 'get_handler', lambda key: pytest.fail('unavailable output reached a file adapter'))
+    context = {'generated_outputs': {'routes': {'regression': {
+        'ready': False, 'project': project, 'prerequisite': 'measure',
+        'source': str(tmp_path / 'measurements' / 'measurements.db')}}},
+        'action_groups': {'regression': {'reason': 'Complete Measure first.'}}}
+    assert commands._open_easy_input('regression', project, context)
+    assert commands.opened == ['regression']
+    assert applied == [{'src': project}]
+    assert messages == [('Complete Measure first.', 10000)]
+    assert not (tmp_path / 'measurements').exists()
+
+
+
+def test_generated_measure_file_uses_native_project_source(
+        commands, tmp_path):
+    from spacr.qt.dnd_handlers import MeasureDropHandler
+    import numpy as np
+
+    project = tmp_path / 'plate1'
+    merged = project / 'merged'
+    merged.mkdir(parents=True)
+    file = merged / 'plate1_A03_8.npy'
+    np.save(file, np.zeros((8, 8, 4), dtype=np.uint16))
+    seen = []
+    class Model:
+        def set_value_for_key(self, key, value):
+            seen.append((key, value))
+            return True
+    screen = SimpleNamespace(_settings_model=Model())
+    original = commands._open_easy_named_module
+    commands._open_easy_named_module = lambda key: commands.opened.append(key) or screen
+    try:
+        context = {'generated_outputs': {'routes': {'measure': {
+            'source': str(project), 'project': str(project), 'ready': True}}},
+            'analysis_inputs': {'measure': {'source': str(project)}}}
+        assert commands._open_easy_input('measure', str(file), context)
+        assert commands.opened == ['measure']
+        assert ('src', str(project)) in seen
+        assert MeasureDropHandler().can_accept(file)
+    finally:
+        commands._open_easy_named_module = original
 class _DeferredRoutingFold:
     """Record an installed fold that has no page available yet."""
 

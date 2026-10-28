@@ -3286,7 +3286,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8215,10 +8238,10 @@
         {
           "visual": "main_06_feature_explorer_nested",
           "narration": "Öffnen Sie Feature Explorer, um gemessene Merkmale zwischen ausgewählten Gruppen zu vergleichen. Wählen Sie Gruppen und Filter und prüfen Sie dann die Merkmalsrangfolge und die Diagramme.",
+          "hold_after": 0.7,
           "related_lessons": [
             "65_feature_explorer"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "ml_25_ml_figure_02",
@@ -11368,7 +11391,7 @@
         },
         {
           "visual": "11_actual_brush_state",
-          "narration": "Entfernen Sie eine Facette über ihr kleines Kreuz, um zu einem einzelnen Streudiagramm zurückzukehren. Ziehen Sie ein Rechteck um Objekte, um einen Bereich auszuwählen. Ist Open selection in Annotate nicht verfügbar, öffnen Sie Annotate separat mit dem passenden Projekt und prüfen Sie die Objekte dort.",
+          "narration": "Entfernen Sie eine Facette über ihr kleines Kreuz, um zu einem einzelnen Streudiagramm zurückzukehren. Ziehen Sie ein Rechteck um Objekte, um einen Bereich auszuwählen. Die Anzahl der ausgewählten Objekte und die hervorgehobenen Punkte werden gemeinsam aktualisiert, und Open selection in Annotate wird verfügbar, um diese Objekte im zugehörigen Projekt zu untersuchen.",
           "hold_after": 0.7
         },
         {
@@ -11443,7 +11466,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

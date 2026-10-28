@@ -1,9 +1,16 @@
 ================================================================================
-Lifecycle: new
 THE MODULE CONSOLIDATION: SEVENTEEN TILES BECOME BUTTONS
 ================================================================================
 
-CURRENT FOLLOW-UP — 2026-10-23
+CURRENT FOLLOW-UP — 2026-10-27
+Lifecycle: new
+Status: DONE 2026-10-27 — renamed the Make Masks masthead action and confirmation to
+"Mask folder", retaining the existing cellpose_all legacy key and shared
+Workbench Apply route. Keep user-facing guidance consistent with the short
+label, explicit confirmation and correct output folder. Settings organization,
+Model Zoo selection and native Run acceptance are tracked with item 498.
+
+PREVIOUS FOLLOW-UP — 2026-10-23
 Status: DONE — 2026-10-23, Workstation session 2 / overview_normalization.
 The maintainer requests removal of the redundant Timelapse submodule control
 from Mask Generation because the existing Time button covers the same mode.
@@ -458,3 +465,5 @@ Tokenized top-level comma/semicolon separators and safe literal_eval now preserv
 Legacy scalar/bare-name coercions, captions and signatures remain; malformed literal syntax/pairs are rejected and raw Python text is never executed.
 All12 focused checks pass3.55s, including the real displayed-example config and existing inline-error behavior; no model weights, training or GPU work.
 Root owns final peer, integration/publication; no broader consolidation acceptance is claimed.
+
+2026-10-27 — Mask folder replaces the long label and uses the retained shared Workbench Apply route; focused native handoff, confirmation, mask output and format refusal checks pass. Settings and model-selection fixes are delivered with item 498.

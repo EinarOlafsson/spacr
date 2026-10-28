@@ -11235,7 +11235,8 @@ class _HeldRows(QObject):
         """Add what ``parent``'s children draw over the field to ``box[0]``."""
         for child in QObject.children(parent):
             if (not QObject.isWidgetType(child) or child is backdrop
-                    or QWidget.isWindow(child) or QWidget.isHidden(child)):
+                    or QWidget.isWindow(child) or QWidget.isHidden(child)
+                    or QObject.property(child, "spacrAmbientPassiveOverlay") is True):
                 continue
             rect = QWidget.geometry(child).translated(offset)
             visible = clip.intersected(rect)
@@ -14181,6 +14182,11 @@ def _publish_widget_ripple(widget, edge, rect, strength, *, vertical,
                            rings=False) -> None:
     """Send ``widget``'s ripple to every running field backdrop of its window."""
     try:
+        current = widget
+        while current is not None:
+            if current.property("spacrPassivePanelOverlay"):
+                return
+            current = current.parentWidget()
         window = widget.window()
     except RuntimeError:
         _note_container_ripple()

@@ -86,3 +86,70 @@ def test_real_controls_apply_and_check_every_row(tmp_path, real_example):
         screen.close()
         screen.deleteLater()
         app.processEvents()
+
+
+def test_native_trellis_inspection_opens_and_closes_real_fold_page(monkeypatch):
+    from types import SimpleNamespace
+    from PySide6.QtCore import Qt
+    from PySide6.QtTest import QTest
+    from PySide6.QtWidgets import QApplication, QVBoxLayout, QWidget
+    from spacr.qt.screens.graph_builder import GraphBuilderScreen, install_folds
+    from spacr.qt.screens.trellis import TrellisScreen
+    from capture_graph import _inspect_trellis_fold
+    import capture_ui
+
+    app = QApplication.instance() or QApplication([])
+    window = QWidget()
+    window.resize(2560, 1440)
+    layout = QVBoxLayout(window)
+    screen = GraphBuilderScreen(threaded=False)
+    layout.addWidget(screen)
+    def build(key, search=False):
+        assert key == 'trellis' and search is False
+        return TrellisScreen(threaded=False)
+    window._build_screen = build
+    strip = install_folds(screen)
+    button = strip.button_for('trellis')
+    clicks, inspected, drags = [], [], []
+    def settle(_):
+        QTest.qWait(5)
+        app.processEvents()
+    def click(widget):
+        assert widget.isVisible() and widget.isEnabled()
+        clicks.append(widget)
+        QTest.mouseClick(widget, Qt.LeftButton)
+        settle(0)
+    def drag(capture, handle, start, delta, duration):
+        child = next(opener.window for opener in screen._fold_openers if opener.key == 'trellis')
+        splitter = child.panel._splitter
+        assert handle is splitter.handle(1) and duration == 3.0 and delta[0] > 0 and delta[1] == 0
+        before = splitter.pane('Channels').widget.width()
+        destination = handle.mapToGlobal(start) + type(start)(*delta)
+        QTest.mousePress(handle, Qt.LeftButton, pos=start)
+        QTest.mouseMove(handle, handle.mapFromGlobal(destination), delay=20)
+        QTest.mouseRelease(handle, Qt.LeftButton, pos=handle.mapFromGlobal(destination))
+        settle(0)
+        after = splitter.pane('Channels').widget.width()
+        expected = max(300, min(600, round(splitter.width() * .30)))
+        assert after > before and abs(after - expected) <= 16
+        drags.append((before, after))
+    def inspect(capture, header, dwell):
+        child = next(opener.window for opener in screen._fold_openers if opener.key == 'trellis')
+        assert child is not None and child._header is header and child.panel.isVisible()
+        assert screen._fold_pages.currentWidget() is child
+        assert child._frame is None and dwell == 2.0
+        inspected.append(child)
+    monkeypatch.setattr(capture_ui, '_h', lambda: SimpleNamespace(click=click, drag=drag))
+    monkeypatch.setattr(capture_ui, 'point_at', inspect)
+    window.show()
+    settle(0)
+    try:
+        _inspect_trellis_fold(SimpleNamespace(host=object()), screen, button, settle, 5)
+        assert clicks[0] is button and len(clicks) == 2
+        assert len(inspected) == 1 and len(drags) == 1
+        assert screen._fold_pages.indexOf(inspected[0]) == -1
+        assert screen._fold_pages.currentIndex() == 0 and screen.builder.isVisible()
+    finally:
+        window.close()
+        window.deleteLater()
+        app.processEvents()

@@ -403,7 +403,7 @@ def open_module(capture, window, key, settle, prefer='sidebar'):
     h = _h()
     rows = [row for row in window._sidebar._rows if row.key == key and row.isVisible()]
     on_home = window._stack.currentWidget() is window._startup
-    if key != '__home__' and prefer == 'tile' and on_home:
+    if key != '__home__' and prefer == 'tile' and on_home and hasattr(window._startup, '_tabs'):
         rows = []
     if key in FOLDED_APPS:
         # Assays have no standalone Home tile: enter their public organism
@@ -417,6 +417,29 @@ def open_module(capture, window, key, settle, prefer='sidebar'):
         scroll_to(capture, guide._module_scroll, choices[0])
         h.pause(capture, 0.4)
         h.click(choices[0])
+    elif on_home and not hasattr(window._startup, '_tabs'):
+        if not rows:
+            edge = getattr(window, '_dock_edge', None)
+            if edge is None or not edge.isVisible() or not edge.isEnabled():
+                raise RuntimeError(f'No visible enabled native dock handle opens {key}')
+            if edge.is_collapsed():
+                h.click(edge)
+                h.pause(capture, 0.4)
+                rows = [row for row in window._sidebar._rows if row.key == key and row.isVisible()]
+        if not rows:
+            sidebar = window._sidebar
+            section = sidebar._section_of.get(key)
+            header = sidebar._headers.get(section)
+            if (header is not None and header.isVisible() and header.isEnabled()
+                    and not header.property('open')):
+                scroll_to(capture, sidebar._scroll, header)
+                h.click(header)
+                h.pause(capture, 0.4)
+                rows = [row for row in sidebar._rows if row.key == key and row.isVisible()]
+        if len(rows) != 1 or not rows[0].isEnabled():
+            raise RuntimeError(f'No unique visible enabled native dock row opens {key}')
+        scroll_to(capture, window._sidebar._scroll, rows[0])
+        h.click(rows[0])
     elif rows:
         h.click(rows[0])
     else:

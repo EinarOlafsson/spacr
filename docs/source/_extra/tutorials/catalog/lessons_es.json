@@ -3558,7 +3558,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -10469,9 +10492,9 @@
         },
         {
           "visual": "11_actual_brush_state",
-          "narration": "Quita una faceta con su pequeña cruz para volver a un solo gráfico de dispersión. Dibuja un rectángulo alrededor de objetos para seleccionar una región. Si Open selection in Annotate no está disponible, abre Annotate por separado con el proyecto correspondiente y revisa allí los objetos.",
+          "narration": "Quita una faceta con su pequeña cruz para volver a un solo gráfico de dispersión. Dibuja un rectángulo alrededor de objetos para seleccionar una región. El recuento de objetos seleccionados y los puntos resaltados se actualizan a la vez, y Open selection in Annotate pasa a estar disponible para inspeccionar esos objetos en el proyecto correspondiente.",
           "hold_after": 0.7,
-          "speech_text": "Quita una faceta con su pequeña cruz para volver a un solo gráfico de dispersión. Dibuja un rectángulo alrededor de objetos para seleccionar una región. Si Open selection in Annotate no está disponible, abre Annotate por separado con el proyecto correspondiente y revisa allí los objetos."
+          "speech_text": "Quita una faceta con su pequeña cruz para volver a un solo gráfico de dispersión. Dibuja un rectángulo alrededor de objetos para seleccionar una región. El recuento de objetos seleccionados y los puntos resaltados se actualizan a la vez, y Open selection in Annotate pasa a estar disponible para inspeccionar esos objetos en el proyecto correspondiente."
         },
         {
           "visual": "12_selection_cleared",
@@ -10558,7 +10581,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

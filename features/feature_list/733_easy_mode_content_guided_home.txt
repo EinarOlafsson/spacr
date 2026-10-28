@@ -10,108 +10,211 @@ Related:   startup options, Preferences, Home, dock, spaCR AI
 
 CURRENT MAINTAINER FOLLOW-UP — 2026-10-27
 
-LATEST TASK-PHRASE ROUTING FOLLOW-UP — 2026-10-27: support the following 100 realistic task phrases, questions and statements as deterministic standard module-card suggestions on Enter, never automatic module opening. Match case-insensitively with punctuation normalization and bounded phrase matching inside questions. Preserve existing partial module-name search, canonical deduplication, native/folded routes and maturity/species gates. Typing alone does not launch or inspect. Explicit file/folder paths retain evidence-based discovery and must not acquire generic task suggestions. Change the field placeholder exactly to “Drop a file/folder, type a path or task”. Phrase groups reuse existing module titles and descriptions; no AI request or processing starts.
+SPACEOUT FULL-CARD FOLLOW-UP — 2026-10-27: remove the visible Spaceout name and fill the entire button with the provided animated GIF, clipped to the same rounded card perimeter. Preserve the native border and hover outline, accessible name, click action, visible-only playback and Reduce motion support. Other cards keep their names and layout.
 
-001. image analysis -> mask, measure, qc_dashboard
-002. high content image analysis -> mask, measure, qc_dashboard
-003. analyze microscopy images -> mask, measure, qc_dashboard
-004. help me analyze cell images -> mask, measure, qc_dashboard
-005. I have imaging data -> mask, measure, qc_dashboard
-006. object detection -> mask, make_masks
-007. segmentation -> mask, make_masks
-008. detect objects in images -> mask, make_masks
-009. find cells in my images -> mask, make_masks
-010. segment my cells -> mask, make_masks
-011. mask curation -> make_masks
-012. edit segmentation masks -> make_masks
-013. correct cell boundaries -> make_masks
-014. fix my masks -> make_masks
-015. manually outline cells -> make_masks
-016. measure cell features -> measure
-017. extract image measurements -> measure
-018. morphological profiling -> measure
-019. quantify cell shape -> measure
-020. measure fluorescence intensity -> measure
-021. read a database -> db_browser
-022. open my database -> db_browser
-023. inspect database tables -> db_browser
-024. browse measurement records -> db_browser
-025. view a sqlite database -> db_browser
-026. make a figure -> graph_builder
-027. make a graph -> graph_builder
-028. plot my measurements -> graph_builder
-029. create a scatter plot -> graph_builder
-030. draw a bar chart -> graph_builder
-031. gate my cells -> gate_editor
-032. filter cells by measurements -> gate_editor
-033. select a cell population -> gate_editor
-034. set measurement gates -> gate_editor
-035. exclude outlier cells -> gate_editor
-036. classify cell images -> classify_merged
-037. predict image classes -> classify_merged
-038. train an image classifier -> classify_merged
-039. sort cells into classes -> classify_merged
-040. classify my cropped cells -> classify_merged
-041. annotate cell images -> annotate
-042. label cells for training -> annotate
-043. assign image labels -> annotate
-044. review image annotations -> annotate
-045. manually label my cells -> annotate
-046. explore image embeddings -> umap
-047. make an image umap -> umap
-048. visualize cell clusters -> umap
-049. compare cell embeddings -> umap
-050. reduce image feature dimensions -> umap
-051. run a regression -> regression
-052. associate genes with phenotypes -> regression
-053. model phenotype associations -> regression
-054. analyze perturbation effects -> regression
-055. find phenotype associations -> regression
-056. fit a dose response -> dose_response
-057. compare drug concentrations -> dose_response
-058. calculate concentration effects -> dose_response
-059. plot a dose response curve -> dose_response
-060. analyze drug response -> dose_response
-061. compare analysis runs -> run_compare
-062. compare two experiments -> run_compare
-063. compare measurement runs -> run_compare
-064. review differences between runs -> run_compare
-065. compare my results -> run_compare
-066. check image quality -> qc_dashboard
-067. review experiment quality -> qc_dashboard
-068. inspect segmentation quality -> qc_dashboard
-069. quality control my results -> qc_dashboard
-070. find problematic fields -> qc_dashboard
-071. import image data -> foreign, convert
-072. convert microscopy images -> foreign, convert
-073. load external imaging data -> foreign, convert
-074. bring images into spacr -> foreign, convert
-075. convert image file formats -> foreign, convert
-076. analyze a time series -> timelapse
-077. track cells over time -> timelapse
-078. work with timelapse images -> timelapse
-079. follow objects between frames -> timelapse
-080. analyze time lapse microscopy -> timelapse
-081. analyze a z stack -> 3d
-082. work with 3d images -> 3d
-083. segment a volume -> 3d
-084. measure three dimensional cells -> 3d
-085. analyze volumetric microscopy -> 3d
-086. plan an experiment -> experiment_design, power
-087. design my plate layout -> experiment_design, power
-088. calculate statistical power -> experiment_design, power
-089. choose experiment sample size -> experiment_design, power
-090. help with experimental planning -> experiment_design, power
-091. map sequencing barcodes -> map_barcodes
-092. analyze fastq barcodes -> map_barcodes
-093. count genetic barcodes -> map_barcodes
-094. map my sequencing reads -> map_barcodes
-095. process barcode sequencing -> map_barcodes
-096. analyze spatial imaging -> spatial_masks, spatial_map
-097. segment spatial tissue images -> spatial_masks, spatial_map
-098. map spatial measurements -> spatial_masks, spatial_map
-099. work with xenium images -> spatial_masks, spatial_map
-100. analyze visium imaging -> spatial_masks, spatial_map
+INPUT PLACEHOLDER FOLLOW-UP — 2026-10-27: use exactly “Drop a file or folder | Type a Path | Ask a Question ◉” in the English Navigator input. Keep the input actions and AI control unchanged, and provide corresponding localized guidance.
+
+SPACEOUT UPDATED-REFERENCE FOLLOW-UP — 2026-10-27 (supersedes prior GIF):
+use the unchanged a84bd079c68e26a88e4b4f7db0b13bf3.gif provided in Downloads,
+a 500×500 animated dotted vortex. Match only Spaceout's card fill to the GIF's
+RGB(32,32,32) background in idle, hover and pressed states so its square is
+seamless, preserving title text and the existing colored maturity outlines.
+Keep the existing visible-only QMovie, Reduce motion and packaging behavior.
+
+SPACEOUT PROVIDED-REFERENCE FOLLOW-UP — 2026-10-27 (supersedes procedural mark):
+bundle the user's unchanged /home/carruthers/Downloads/spaceout.gif and use its
+actual black-background, white animated rosette for Spaceout. Play the GIF with
+a visible-only, uncached native QMovie at icon resolution; stop when hidden or
+Reduce motion is enabled, retain a representative still for static icons, and
+preserve the animation through workflow reparenting. Package only this new GIF
+alongside the already-used spinner; no unused variants or recoloring.
+
+SPACEOUT ICON FOLLOW-UP — 2026-10-27: replace the infinity-shaped Spaceout
+mark with a white spiral viewed from above. Continuously rotate only that
+Navigator card's cached native vector icon while it is visible; respect Reduce
+motion, stop hidden work and retain the animation through workflow reparenting.
+
+PANEL/PAINT FOLLOW-UP — 2026-10-27: snapping News/Widgets or the app dock
+must not repaint hidden module cards as non-interactive ghosts. Expanding
+or collapsing either side must leave Navigator's search, card/network
+content and lower text geometries and field theme unchanged; panels overlay
+the canvas rather than reflow it. Add an accessible upward resize affordance
+to the fixed-bottom text box without moving the search. Workstation session 2
+owns the correction, focused rendering/geometry checks and nightly publication.
+AI fill must be solid matte provider colour (spaCR AI: RGB 0,100,100); replace the spinning texture with
+a subtle rotating glow while retaining the white perimeter and typing pulse.
+Delivered in this follow-up: explicit hidden-card presentation state preserves
+departure fades; native side controls overlay a stationary canvas and publish
+no field feedback; the bottom-anchored text grip remembers its chosen height.
+Focused native geometry, rendering, resizing and animation checks pass.
+
+CURRENT RUNS FOLLOW-UP — 2026-10-27: typing current runs/running runs/running jobs/show running runs (and equivalents in all supported languages) offers a click-only Running card. Clicking reveals Navigator's Widgets pane and its Running fold, listing every active user-visible job from the existing live run registry with native open/pause/stop controls. Queue remains the separate plate queue. Keep hidden housekeeping out, reconcile completed jobs, default the fold collapsed, and do not launch processing or change global preferences.
+
+PASSIVE THEME OVERLAY FOLLOW-UP — 2026-10-27: Navigator input and module cards must simply overlay the selected spaCR field theme. Remove Navigator-owned search rim idle animation, search-click gravity feedback, card growth physics, ambient holds/exclusions and background/ripple policy overrides. Leaving the pointer still must not start a search or field effect. Preserve the selected theme's normal animation, fixed dark25 controls, ordinary card fades/growth and the independently requested AI typing/busy icon animation.
+
+STARTUP AI GUIDANCE FOLLOW-UP — 2026-10-27: remove the Navigator boolean from
+Start spaCR, preserving Navigator's current default, Help toggle and CLI
+launchers. In How it runs, explain application-wide AI assistance, the hosted
+spaCR AI free daily allowance, Claude/Codex/Gemini's own CLI logins, and how
+to enable unmatched-task Navigator answers and use module-console AI.
+
+PERSISTENT FIELD-BOX FOLLOW-UP — 2026-10-27: after an unknown/no-answer Enter with the pointer held still, a rectangular patch of static field dots above the search must not remain until pointer movement. Diagnose the actual software-rendered no-result lifecycle and retire stale card/growth/feedback exclusion regions; no invisible placeholder may keep ambient particles fixed. Preserve current AI-response controls, input sizes and native task/command precedence.
+
+NAVIGATOR AI FOLLOW-UP — 2026-10-27: add a small search-field toggle with a
+white perimeter, hollow when off and provider-colored textured fill when on
+(spaCR teal, Claude orange, Codex light green, Gemini blue). First use explains
+application-wide AI assistance and asks for a provider; remember the choice,
+allow changing it, and send only explicitly submitted unmatched tasks through
+existing provider workers and limits. Display streamed replies in the fixed
+lower description box. Pulse fill with typing speed and rotate its texture
+while awaiting an answer, respecting reduced motion. Matching cards and local
+paths retain their existing routes. Root owns implementation and validation.
+
+LATEST SHORTCUT FOLLOW-UP — 2026-10-27: saliency/Grad-CAM offer Activation
+Maps; ParaScape offers its native card. Spaceout offers a white infinity-spiral
+card that enables the existing process-local Spaceout view on click. Update
+spaCR (including uppdate) triggers the update dialog. PyPI/pip/install phrases
+open spaCR PyPI; Conda install variants open spaCR conda-forge. Add spaCR stats
+(ClickPy), logs/cache folders, models folder plus Model Zoo, Docker, tutorials
+and nightly URL shortcuts. Reuse actual configured paths, existing routes and
+source-controlled localization; never interpret real paths as command text.
+
+LATEST MAINTAINER CORRECTION — 2026-10-27: halve the current Navigator search
+field and its text, and double the lower tooltip/description box and its text
+within window bounds. Enter on any module/submodule name must show its card,
+never open the module until a card is clicked. All added task words/phrases
+must also match in all supported application languages, retaining noun/verb
+variants, case-insensitive matching, path isolation and maturity filtering.
+Workstation session 2 owns integration; retained peers own disjoint layout,
+localized matching and language validation work.
+
+FORMAT-KEYWORD FOLLOW-UP — 2026-10-27: pure file-format tokens with or without a leading dot (including sql/db/sqlite, npy, tif/tiff, bmp and explicit bnp typo, png/jpeg, csv/tsv, fastq/fq with optional gzip, pdf and available ND2/CZI/LIF readers) must offer real compatible native module cards on Enter without launching or processing. Derive support from existing reader/drop capabilities, keep maturity gates and canonical deduplication, and leave actual filenames/paths/existing relative folders to evidence-based inspection. A sql keyword refers to SQLite tools; an actual .sql dump is not a supported database ingest. No universal-format claim or new UI captions is required.
+
+FEATURE-DETECTION PHRASE FOLLOW-UP — 2026-10-27: detect features and feature
+detection must offer Measure on Enter, including case-insensitive questions.
+An empty search must not leave a frozen particle rectangle until mouse movement.
+
+NAVIGATOR ENTER-FEEDBACK FOLLOW-UP — 2026-10-27: entering a task such as
+“detect features” must resolve to cards without leaving a stationary square
+of dots above the search field. Completion, empty results, cancellation and
+feedback changes must invalidate stale growth/fade/overlay pixels without
+requiring mouse movement. Preserve live field rendering and Enter-only
+discovery; no GPU, tutorial or processing behavior changes are requested.
+
+MASK-ANALYSIS PHRASE FOLLOW-UP — 2026-10-27: case-insensitive analyze masks,
+analyse masks and mask analysis must offer Measure, QC and Make Masks on
+Enter. Reuse existing native cards; do not launch tools or run AI automatically.
+
+LATEST GENERATED-FOLDER FOLLOW-UP — 2026-10-27: dropping a canonical spaCR merged folder containing valid numeric NPY planes must offer Measure and its native downstream modules. Recognize other verified spaCR output folders and artifacts using existing producer/consumer contracts, including masks, crop data, measurement databases, result tables and model outputs; suggest the producer and relevant downstream routes without processing. Inspect bounded headers/schema and canonical structure, preserve correct project/input routing, and explain prerequisite review. An explicitly selected raw file must remain isolated from unrelated project analysis, and annotation-only databases must not masquerade as scientific measurements.
+
+LATEST GENERATED-FILE FOLLOW-UP — 2026-10-27: a verified NPY selected inside its canonical merged folder intentionally inherits its own plate context and downstream Measure routes. Measure must receive the parent plate root, while file-capable viewers/editors receive the actual selected file. Recognize both YXC and ZYXC numeric merged arrays with at least two final planes. Preserve explicit raw-TIFF scope isolation and calibrated-workflow barriers; do not claim a native module supports a selected input mode unless its existing reader/input contract does.
+
+LATEST INPUT SIZE FOLLOW-UP — 2026-10-27: double the Navigator search input's default text size and box dimensions, keeping its vertical center fixed and constraining width to the current window. Preserve Enter-only discovery, Browse access, stationary descriptions and suggestion/network transitions.
+
+LATEST DEFAULT FOLLOW-UP — 2026-10-27: Navigator is the default Home for spaCR profiles with no saved mode choice. Preserve an explicitly saved opt-out, Help > Navigator and the startup checkbox; explicit module launches still open that module. Update the documented default and verify fresh-profile Home/startup controls and saved choices.
+
+LATEST TASK-PHRASE ROUTING FOLLOW-UP — 2026-10-27: support the following 100 original task phrases paired with 100 alternate noun/task-label or verb forms (200 qualified inputs) as deterministic standard module-card suggestions on Enter, never automatic module opening. Match case-insensitively with punctuation normalization and bounded phrase matching inside questions. Preserve existing partial module-name search, canonical deduplication, native/folded routes and maturity/species gates. Typing alone does not launch or inspect. Explicit file/folder paths retain evidence-based discovery and must not acquire generic task suggestions. Change the field placeholder exactly to “Drop a file/folder, type a path or task”. Phrase groups reuse existing module titles and descriptions; no AI request or processing starts.
+
+001. image analysis | analyze images -> mask, measure, qc_dashboard
+002. high content image analysis | analyze high content images -> mask, measure, qc_dashboard
+003. analyze microscopy images | microscopy image analysis -> mask, measure, qc_dashboard
+004. help me analyze cell images | cell image analysis -> mask, measure, qc_dashboard
+005. I have imaging data | analyze imaging data -> mask, measure, qc_dashboard
+006. object detection | detect objects -> mask, make_masks
+007. segmentation | segment images -> mask, make_masks
+008. detect objects in images | image object detection -> mask, make_masks
+009. find cells in my images | cell detection -> mask, make_masks
+010. segment my cells | cell segmentation -> mask, make_masks
+011. mask curation | curate masks -> make_masks
+012. edit segmentation masks | segmentation mask editing -> make_masks
+013. correct cell boundaries | cell boundary correction -> make_masks
+014. fix my masks | mask correction -> make_masks
+015. manually outline cells | manual cell outlining -> make_masks
+016. measure cell features | cell feature measurement -> measure
+017. extract image measurements | image measurement extraction -> measure
+018. morphological profiling | profile cell morphology -> measure
+019. quantify cell shape | cell shape quantification -> measure
+020. measure fluorescence intensity | fluorescence intensity measurement -> measure
+021. read a database | database reading -> db_browser
+022. open my database | database opening -> db_browser
+023. inspect database tables | database table inspection -> db_browser
+024. browse measurement records | measurement record browsing -> db_browser
+025. view a sqlite database | sqlite database viewing -> db_browser
+026. make a figure | figure creation -> graph_builder
+027. make a graph | graph creation -> graph_builder
+028. plot my measurements | measurement plotting -> graph_builder
+029. create a scatter plot | scatter plot creation -> graph_builder
+030. draw a bar chart | bar chart drawing -> graph_builder
+031. gate my cells | cell gating -> gate_editor
+032. filter cells by measurements | measurement based cell filtering -> gate_editor
+033. select a cell population | cell population selection -> gate_editor
+034. set measurement gates | measurement gating -> gate_editor
+035. exclude outlier cells | outlier cell exclusion -> gate_editor
+036. classify cell images | cell image classification -> classify_merged
+037. predict image classes | image class prediction -> classify_merged
+038. train an image classifier | image classifier training -> classify_merged
+039. sort cells into classes | cell class sorting -> classify_merged
+040. classify my cropped cells | cropped cell classification -> classify_merged
+041. annotate cell images | cell image annotation -> annotate
+042. label cells for training | training cell labeling -> annotate
+043. assign image labels | image label assignment -> annotate
+044. review image annotations | image annotation review -> annotate
+045. manually label my cells | manual cell labeling -> annotate
+046. explore image embeddings | image embedding exploration -> umap
+047. make an image umap | image umap creation -> umap
+048. visualize cell clusters | cell cluster visualization -> umap
+049. compare cell embeddings | cell embedding comparison -> umap
+050. reduce image feature dimensions | image feature dimension reduction -> umap
+051. run a regression | regression analysis -> regression
+052. associate genes with phenotypes | gene phenotype association -> regression
+053. model phenotype associations | phenotype association modeling -> regression
+054. analyze perturbation effects | perturbation effect analysis -> regression
+055. find phenotype associations | phenotype association discovery -> regression
+056. fit a dose response | dose response fitting -> dose_response
+057. compare drug concentrations | drug concentration comparison -> dose_response
+058. calculate concentration effects | concentration effect calculation -> dose_response
+059. plot a dose response curve | dose response curve plotting -> dose_response
+060. analyze drug response | drug response analysis -> dose_response
+061. compare analysis runs | analysis run comparison -> run_compare
+062. compare two experiments | experiment comparison -> run_compare
+063. compare measurement runs | measurement run comparison -> run_compare
+064. review differences between runs | run difference review -> run_compare
+065. compare my results | result comparison -> run_compare
+066. check image quality | image quality checking -> qc_dashboard
+067. review experiment quality | experiment quality review -> qc_dashboard
+068. inspect segmentation quality | segmentation quality inspection -> qc_dashboard
+069. quality control my results | result quality control -> qc_dashboard
+070. find problematic fields | problematic field detection -> qc_dashboard
+071. import image data | image data import -> foreign, convert
+072. convert microscopy images | microscopy image conversion -> foreign, convert
+073. load external imaging data | external imaging data import -> foreign, convert
+074. bring images into spacr | spacr image import -> foreign, convert
+075. convert image file formats | image file format conversion -> foreign, convert
+076. analyze a time series | time series analysis -> timelapse
+077. track cells over time | cell tracking -> timelapse
+078. work with timelapse images | timelapse image analysis -> timelapse
+079. follow objects between frames | object tracking between frames -> timelapse
+080. analyze time lapse microscopy | time lapse microscopy analysis -> timelapse
+081. analyze a z stack | z stack analysis -> 3d
+082. work with 3d images | 3d image analysis -> 3d
+083. segment a volume | volumetric segmentation -> 3d
+084. measure three dimensional cells | three dimensional cell measurement -> 3d
+085. analyze volumetric microscopy | volumetric microscopy analysis -> 3d
+086. plan an experiment | experiment planning -> experiment_design, power
+087. design my plate layout | plate layout design -> experiment_design, power
+088. calculate statistical power | statistical power calculation -> experiment_design, power
+089. choose experiment sample size | experiment sample size selection -> experiment_design, power
+090. help with experimental planning | plan my experiment -> experiment_design, power
+091. map sequencing barcodes | sequencing barcode mapping -> map_barcodes
+092. analyze fastq barcodes | fastq barcode analysis -> map_barcodes
+093. count genetic barcodes | genetic barcode counting -> map_barcodes
+094. map my sequencing reads | sequencing read mapping -> map_barcodes
+095. process barcode sequencing | barcode sequencing processing -> map_barcodes
+096. analyze spatial imaging | spatial imaging analysis -> spatial_masks, spatial_map
+097. segment spatial tissue images | spatial tissue image segmentation -> spatial_masks, spatial_map
+098. map spatial measurements | spatial measurement mapping -> spatial_masks, spatial_map
+099. work with xenium images | xenium image analysis -> spatial_masks, spatial_map
+100. analyze visium imaging | visium imaging analysis -> spatial_masks, spatial_map
 
 LATEST SPACEOUT LAUNCH FOLLOW-UP — 2026-10-27: add spaceout-nav and spaceout-navigator as installed commands that launch the existing process-local Spaceout mode with Navigator enabled, matching spacr-nav/spacr-navigator preference and argument behavior. Preserve the ordinary launchers and the prior maintainer sign-off.
 
@@ -485,3 +588,12 @@ Implementation and reasonable validation qualify completion under the maintainer
 2026-10-27 — Added the maintainer-requested spaceout-nav and spaceout-navigator launch aliases to the existing Spaceout entry-point and Navigator startup contract; focused registration, preference and launch checks precede root publication. Prior tutorial/Docs/API sign-off remains valid.
 
 2026-10-27 — Delivered 100 documented task-to-card mappings plus supplied typo/short-form aliases, task placeholder and spaceout-nav/spaceout-navigator launch commands. Case, path isolation, native/folded routes, visibility gates and Enter-only card behavior pass focused checks. Navigator implementation approval is retained; the separate tutorial/Docs/API handoff remains unacknowledged.
+
+2026-10-27 — Navigator now defaults on for fresh profiles while retaining saved opt-outs; the centered input doubles in font/size, and all 100 tasks have paired noun/verb forms. Canonical merged arrays and verified generated artifacts offer native downstream routes with prerequisite guidance and module-specific source paths. Numeric NPY Make Masks editing is delivered under 735; tutorial/Docs/API handoff receipt remains unconfirmed.
+
+2026-10-27 — Added analyzed-mask and feature-detection aliases plus dotted/undotted format queries from actual reader/handler capabilities; actual Enter controls pass. Card lifecycle/feedback invalidation fixes the reproduced stale particle square without mouse movement; five focused rendering controls pass.
+
+2026-10-27 — Delivered smaller centered search/larger lower text, localized task and shortcut cards, click-only native tools, current registry-backed Running jobs, passive selected-theme overlays, consented provider-colored Navigator AI with real-thread reply/cancel checks, and startup AI guidance without the Navigator checkbox. Focused rendering, routing, settings and transport controls pass; normal multilingual artifacts accompany publication. Tutorial and broader Docs/API handoff remains unacknowledged.
+2026-10-27 — Tutorial owner Codex confirms receipt of the approved Navigator handoff in shared AI/HANDOFF.md; the earlier receipt-unconfirmed status is superseded for this repository handoff.
+Codex owns the new Navigator tutorial plus user documentation and API-reference coverage, coordinated with 676 and queued after active Graph Builder58.
+Implementation sign-off is retained; these requested outputs remain pending and are not claimed published. No capture or source implementation begins with this acknowledgement.

@@ -51,7 +51,7 @@ def test_easy_search_keeps_only_its_rounded_surface_with_field_fade_enabled(
             frames[focused] = image
         assert not field_fade.fades(page.path_edit)
         assert field_fade.fades(ordinary)
-        assert page.field.rim.isVisible() and page.field.rim._timer.isActive()
+        assert page.field.rim.isVisible() and not hasattr(page.field.rim, '_timer')
         assert not page.path_edit.hasFrame()
         assert page.path_edit.rect().contains(page.path_edit.browse.geometry())
         for image in frames.values():

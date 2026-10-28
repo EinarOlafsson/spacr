@@ -3286,7 +3286,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8215,10 +8238,10 @@
         {
           "visual": "main_06_feature_explorer_nested",
           "narration": "Feature Explorer를 열어 선택한 그룹 사이의 측정 특징을 비교하세요. 그룹과 필터를 고른 뒤 특징 순위와 그래프를 확인하세요.",
+          "hold_after": 0.7,
           "related_lessons": [
             "65_feature_explorer"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "ml_25_ml_figure_02",
@@ -11368,7 +11391,7 @@
         },
         {
           "visual": "11_actual_brush_state",
-          "narration": "패싯의 작은 x 표시를 눌러 제거하면 산점도 하나로 돌아갑니다. 객체 주위로 사각형을 드래그해 영역을 선택하세요. Open selection in Annotate를 쓸 수 없다면, 대응하는 프로젝트로 Annotate를 따로 열어 그곳에서 객체를 확인하세요.",
+          "narration": "패싯의 작은 x 표시를 눌러 제거하면 산점도 하나로 돌아갑니다. 객체 주위로 사각형을 드래그해 영역을 선택하세요. 선택된 객체 수와 강조 표시된 점이 함께 업데이트되며, 해당 프로젝트에서 그 객체들을 살펴볼 수 있도록 Open selection in Annotate가 활성화됩니다.",
           "hold_after": 0.7
         },
         {
@@ -11443,7 +11466,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

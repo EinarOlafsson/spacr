@@ -144,3 +144,28 @@ def test_mouse_wheel_scrolls_only_the_choice_row(navigator, qtbot):
     QApplication.sendEvent(field, event)
     assert field._scrollbar.value() > 0 and event.isAccepted()
     assert (field.panel.geometry(), field.details.geometry()) == anchor
+
+
+@pytest.mark.parametrize('width', [640, 1800])
+def test_input_is_halved_and_bottom_description_is_doubled_within_window(
+        navigator, qtbot, width):
+    from spacr.qt.theme import font_px
+
+    navigator.resize(width, 760)
+    navigator.show()
+    qtbot.waitUntil(lambda: navigator.path_edit.height() == 64)
+    field, editor = navigator.field, navigator.path_edit
+    assert editor.width() == min(720, field.width() - 48)
+    assert editor.font().pixelSize() == font_px(18)
+    assert editor.browse.font().pixelSize() == font_px(14)
+    assert field.rim._radius == 28
+    assert field.details.width() == min(1560, field.width() - 32)
+    assert field.details.font().pixelSize() == 2 * font_px('body')
+    assert field.details.height() == min(176 + 2 * field.details.fontMetrics().lineSpacing(),
+                                         field.height() - editor.y() - editor.height() - 32)
+    assert abs(editor.geometry().center().y() - field.rect().center().y()) <= 1
+    assert editor.rect().contains(editor.browse.geometry())
+    geometry = editor.geometry()
+    choices(navigator, 3)
+    assert editor.geometry() == geometry
+    assert not editor.geometry().intersects(navigator.field.details.geometry())

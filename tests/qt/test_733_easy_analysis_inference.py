@@ -30,8 +30,10 @@ def test_master_analysis_discovers_scientific_database_and_all_requested_tools(t
                 'dose_response', 'qc_dashboard', 'run_compare', 'annotate', 'classify_merged'}
     assert expected <= actions.keys()
     assert sum(action[0] == 'regression' for action in result['actions']) == 1
-    for key in expected:
+    for key in expected - {'run_compare'}:
         assert result['context']['analysis_inputs'][key]['database'] == str(database)
+    assert result['context']['generated_outputs']['routes']['run_compare']['ready'] is False
+    assert 'run_compare' not in result['context']['analysis_inputs']
     assert actions['db_browser'] == str(database)
     assert actions['qc_dashboard'] == str(plate)
     assert hashlib.sha256(database.read_bytes()).hexdigest() == before
@@ -155,7 +157,8 @@ def test_regression_coefficients_and_failed_run_have_real_review_routes(tmp_path
     (folder / 'regression_data.csv').write_text('gene_a,response\n1,0.2\n')
     (folder / 'manifest.json').write_text(json.dumps({'schema_version': 1, 'app_key': 'regression', 'status': 'failed'}))
     result = home._easy_inspect_path(str(folder))
-    assert not any(row[0] == 'regression_diagnostics' for row in result['actions'])
+    assert result['context']['generated_outputs']['routes']['regression_diagnostics']['ready'] is False
+    assert 'regression_diagnostics' not in result['context']['analysis_inputs']
     diagnostics = folder / 'diagnostics'
     diagnostics.mkdir()
     (diagnostics / 'residuals.csv').write_text('observed,predicted\n1,0.8\n')
@@ -209,21 +212,25 @@ def test_feature_only_database_does_not_claim_image_annotation_inputs(tmp_path):
     result = home._easy_inspect_path(str(database))
     keys = {row[0] for row in result['actions']}
     assert {'db_browser', 'graph_builder', 'gate_editor', 'regression'} <= keys
-    assert not {'annotate', 'umap'} & keys
+    for key in ('annotate', 'umap'):
+        assert key in keys
+        assert result['context']['generated_outputs']['routes'][key]['ready'] is False
+        assert key not in result['context']['analysis_inputs']
 
 
-def test_safe_2d_array_has_actual_import_but_higher_rank_keeps_native_preview(tmp_path, monkeypatch):
+def test_safe_arrays_have_actual_editor_and_only_2d_has_import(tmp_path, monkeypatch):
     monkeypatch.setattr(np, 'load', lambda *a, **k: (_ for _ in ()).throw(AssertionError('No pixel decode')))
     for rank in (2, 3):
         path = tmp_path / ('array' + str(rank) + '.npy')
         np.save(path, np.zeros((8, 9) if rank == 2 else (8, 9, 3), dtype=np.uint16))
         result = home._easy_inspect_path(str(path))
         keys = {row[0] for row in result['actions']}
-        assert 'mask' in keys and 'make_masks' not in keys
+        assert 'mask' not in keys and 'make_masks' in keys
+        assert next(row[3] for row in result['actions'] if row[0] == 'make_masks') == str(path)
         assert ('convert' in keys) == (rank == 2)
         record = next(item for item in result['context']['array_imports'] if item['path'] == str(path))
         assert record['supported'] == (rank == 2)
-        assert result['context']['native_mask_container'] == str(path)
+        assert 'native_mask_container' not in result['context']
 
 
 def test_explicit_numeric_csv_keeps_source_beside_existing_project_database(tmp_path):

@@ -1,9 +1,10 @@
 ================================================================================
-Lifecycle: new
 EVERY BUTTON STILL WEARING THE DEFAULT ICON GETS AN INTUITIVE ONE
 ================================================================================
 
-Status:    DONE 2026-09-02 — Seven buttons wore the default icon; ZERO do.
+Lifecycle: new
+Status:    DONE 2026-10-27 — current module/submodule cards use the central semantic resolver; focused validation complete for nightly publication.
+History:   DONE 2026-09-02 — Seven buttons wore the default icon; ZERO do.
            Measured by booting a window, opening all 36 module screens and
            comparing every QAbstractButton's icon pixel-for-pixel against
            the artwork `iconset.icon()` returns for a name it does not know.
@@ -37,6 +38,30 @@ Requested: 2026-09-02, verbatim -- "make an intuitive, elegant logo for all
            buttons that are currently using the default logo, dor example
            diagnostics in regression"
 Owner:     spacr/qt -- the icon set and whatever resolves a button to an icon.
+
+CURRENT MAINTAINER FOLLOW-UP — 2026-10-27
+
+Spaceout shortcut follow-up: add a native white infinity-spiral mark for its
+Navigator card through the existing icon resolver, including optional icon-font
+absence. Workstation session 2 owns this bounded icon addition.
+
+Every current module, submodule and Help tool must have an appropriate icon;
+the generic default should basically never appear. Extend the existing central
+resolver and reuse the established bundled icon assets or semantic glyphs.
+Navigator suggestions and network nodes must resolve their own actual keys,
+including routed submodules, through that same registry. Preserve canonical
+Help/fold deduplication, plugin icons, alpha marks, sharp rendering and theme
+re-inking. Enumerate actual native/Help/fold/workflow keys and assert coverage,
+rather than maintaining a disconnected card-only whitelist. This follows the
+Navigator requirements in item 733. Workstation session 2 owns implementation,
+with a separate read-only inventory peer; root owns integration/publication.
+
+Validation: 43 existing icon cache/fold-heading/startup controls pass. The
+actual native/fold/page-fold/Help/organism catalog renders at 96 px in both
+themes with QtAwesome absent: zero icons equal the unknown or bundled default
+fallback (2 controls). Three real Overview/3D/Preferences card/node controls
+also pass, preserving their own artwork and alpha badges. Existing 17 public
+iconset symbol/docstrings remain unchanged; no new runtime captions.
 
 --------------------------------------------------------------------------------
 WHAT THE STATE IS

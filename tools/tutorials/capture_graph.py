@@ -18,6 +18,65 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _inspect_trellis_fold(capture, screen, button, settle, timeout):
+    """Open the actual empty Small Multiples page, then close its native tab."""
+    from PySide6.QtWidgets import QTabBar
+
+    human = capture_ui._h()
+    human.click(button)
+    deadline = time.monotonic() + timeout
+    while True:
+        openers = [opener for opener in screen._fold_openers if opener.key == 'trellis']
+        child = openers[0].window if len(openers) == 1 else None
+        pages = getattr(screen, '_fold_pages', None)
+        if (child is not None and pages is not None and child.isVisible()
+                and pages.currentWidget() is child):
+            break
+        if time.monotonic() >= deadline:
+            raise RuntimeError('The native Small Multiples fold did not open its page')
+        settle(.05)
+    panel = getattr(child, 'panel', None)
+    if (child.objectName() != 'TrellisScreen' or not child.isEnabled()
+            or panel is None or not panel.isVisible() or not panel.isEnabled()
+            or panel.width() <= 0 or panel.height() <= 0):
+        raise RuntimeError('The actual Small Multiples page has no visible usable panel')
+    splitter = panel._splitter
+    channels = splitter.pane('Channels')
+    heading = getattr(channels.widget, 'heading', None) if channels is not None else None
+    handle = splitter.handle(1)
+    if (channels is None or channels.is_collapsed() or heading is None
+            or not heading.isVisible() or not heading.isEnabled()
+            or handle is None or not handle.isVisible() or not handle.isEnabled()):
+        raise RuntimeError('The actual Channels divider is not visible and usable')
+    start = handle.rect().center()
+    shelf_width = max(300, min(600, round(splitter.width() * .30)))
+    delta = shelf_width - handle.mapTo(splitter, start).x()
+    if delta > 4:
+        human.drag(capture, handle, start, (delta, 0), duration=3.0)
+        settle(.4)
+    from capture_trellis import _require_visible_trellis
+    _require_visible_trellis(panel)
+    if (not channels.widget.isVisible() or not panel.well.isVisible()
+            or channels.widget.width() <= 0 or channels.widget.height() <= 0
+            or panel.well.width() <= 0 or panel.well.height() <= 0):
+        raise RuntimeError('The actual Channels controls are not readable after the native drag')
+    capture_ui.point_at(capture, child._header, dwell=2.0)
+    index = pages.indexOf(child)
+    if index <= 0:
+        raise RuntimeError('Small Multiples must be a closable child of Graph Builder')
+    bar = pages.tabBar()
+    close = [bar.tabButton(index, side) for side in (QTabBar.RightSide, QTabBar.LeftSide)]
+    close = [mark for mark in close if mark is not None and mark.isVisible() and mark.isEnabled()]
+    if len(close) != 1:
+        raise RuntimeError('The Small Multiples tab has no unique visible close mark')
+    human.click(close[0])
+    deadline = time.monotonic() + timeout
+    while pages.currentIndex() != 0 or not screen.builder.isVisible():
+        if time.monotonic() >= deadline:
+            raise RuntimeError('The native tab close did not restore Graph Builder')
+        settle(.05)
+
+
 def record_graph(app, window, screen, stage, captures, capture, settle, write_json, timeout, *, review_handoff=False):
     import sqlite3
 
@@ -161,7 +220,9 @@ def record_graph(app, window, screen, stage, captures, capture, settle, write_js
             if len(buttons) != 1:
                 raise RuntimeError(f'Expected one visible Graph Builder fold: {key}')
             with capture_ui.clip(capture, '02_fold_' + key):
-                if live:
+                if live and key == 'trellis':
+                    _inspect_trellis_fold(capture, screen, buttons[0], settle, timeout)
+                elif live:
                     capture_ui.point_at(capture, buttons[0], dwell=1.5)
                 else:
                     QTest.mouseMove(buttons[0])

@@ -4168,6 +4168,230 @@
           "idle_tail_start": 2
         }
       ]
+    },
+    {
+      "lesson": "16_activation",
+      "master_sha256": "34e4e4534ee36b81ad4dba9fdf5c21d8e610b52ceecd3650850fbb7820821c2f",
+      "visual_timing_sha256": "bafa785d705f6b60da169583ff60e82f0f249ba328603193d9a7de610740470b",
+      "scenes": [
+        {
+          "visual": "02_activation_fold",
+          "source_start": 0.0,
+          "source_end": 27.533333333333335,
+          "idle_tail_start": 6
+        },
+        {
+          "visual": "03_00_dataset",
+          "source_start": 27.533333333333335,
+          "source_end": 51.93333333333333,
+          "idle_tail_start": 5.8
+        },
+        {
+          "visual": "03_03_image_size",
+          "source_start": 51.93333333333333,
+          "source_end": 73.86666666666666,
+          "idle_tail_start": 6
+        },
+        {
+          "visual": "03_05_channels",
+          "source_start": 73.86666666666666,
+          "source_end": 94.43333333333334,
+          "idle_tail_start": 2.5
+        },
+        {
+          "visual": "03_06_normalize_input",
+          "source_start": 94.43333333333334,
+          "source_end": 117.43333333333334,
+          "idle_tail_start": 3.5
+        },
+        {
+          "visual": "04_channel_saliency_method_and_overlay",
+          "source_start": 117.43333333333334,
+          "source_end": 135.23333333333332,
+          "idle_tail_start": 7.0
+        },
+        {
+          "visual": "04_channel_saliency_finished_console",
+          "source_start": 135.23333333333332,
+          "source_end": 153.96666666666667,
+          "idle_tail_start": 9.0
+        },
+        {
+          "visual": "04_channel_saliency_09_saved_batch_0_grid",
+          "source_start": 153.96666666666667,
+          "source_end": 179.56666666666666,
+          "idle_tail_start": 3.2333333333333334
+        },
+        {
+          "visual": "05_image_saliency_method_and_overlay",
+          "source_start": 179.56666666666666,
+          "source_end": 202.5,
+          "idle_tail_start": 9.6
+        },
+        {
+          "visual": "05_image_saliency_09_saved_batch_0_grid",
+          "source_start": 202.5,
+          "source_end": 230.36666666666667,
+          "idle_tail_start": 4.3
+        },
+        {
+          "visual": "03_11_correlation",
+          "source_start": 230.36666666666667,
+          "source_end": 257.43333333333334,
+          "idle_tail_start": 10.5
+        },
+        {
+          "visual": "05_image_saliency_11_back_to_actual_gui",
+          "source_start": 257.43333333333334,
+          "source_end": 280.76666666666665,
+          "idle_tail_start": 1
+        }
+      ]
+    },
+    {
+      "lesson": "58_graph_builder",
+      "master_sha256": "feaf89e044e856642c9e05f7e26d346c70fa9d45a846adda5e5f94288077d033",
+      "visual_timing_sha256": "47c09ae28e9a0fb15323dd0cba34effe632695908c9cda1f96472fe9fd06281f",
+      "scenes": [
+        {
+          "visual": "01_module",
+          "source_start": 0.0,
+          "source_end": 16.366666666666667,
+          "idle_tail_start": 5.0
+        },
+        {
+          "visual": "03_choose_database",
+          "source_start": 16.366666666666667,
+          "source_end": 42.93333333333333,
+          "idle_tail_start": 3.0
+        },
+        {
+          "visual": "05_area_histogram",
+          "source_start": 42.93333333333333,
+          "source_end": 62.53333333333333,
+          "idle_tail_start": 6.0
+        },
+        {
+          "visual": "06_real_scatter",
+          "source_start": 62.53333333333333,
+          "source_end": 82.2,
+          "idle_tail_start": 5.0
+        },
+        {
+          "visual": "07_well_column_colour",
+          "source_start": 82.2,
+          "source_end": 96.9,
+          "idle_tail_start": 4.0
+        },
+        {
+          "visual": "08_acquisition_row_facets",
+          "source_start": 96.9,
+          "source_end": 116.0,
+          "idle_tail_start": 6.0
+        },
+        {
+          "visual": "09_live_area_filter",
+          "source_start": 116.0,
+          "source_end": 138.9,
+          "idle_tail_start": 6.0
+        },
+        {
+          "visual": "10_filter_cleared",
+          "source_start": 138.9,
+          "source_end": 154.86666666666667,
+          "idle_tail_start": 5.0
+        },
+        {
+          "visual": "10b_channels_cleared",
+          "source_start": 154.86666666666667,
+          "source_end": 175.9,
+          "idle_tail_start": 5.0
+        },
+        {
+          "visual": "11_actual_brush_state",
+          "source_start": 175.9,
+          "source_end": 203.4,
+          "idle_tail_start": 6.0
+        },
+        {
+          "visual": "12_selection_cleared",
+          "source_start": 203.4,
+          "source_end": 217.56666666666666,
+          "idle_tail_start": 2.0
+        },
+        {
+          "visual": "13_genotype_exact_values",
+          "source_start": 217.56666666666666,
+          "source_end": 254.03333333333333,
+          "idle_tail_start": 3.8
+        },
+        {
+          "visual": "14_replicate_rule_boxes",
+          "source_start": 254.03333333333333,
+          "source_end": 289.53333333333336,
+          "idle_tail_start": 4.0
+        },
+        {
+          "visual": "15_composed_condition_preview",
+          "source_start": 289.53333333333336,
+          "source_end": 331.53333333333336,
+          "idle_tail_start": 6.0
+        },
+        {
+          "visual": "15b_extract_text",
+          "source_start": 331.53333333333336,
+          "source_end": 368.23333333333335,
+          "idle_tail_start": 6.0
+        },
+        {
+          "visual": "15c_save_schema",
+          "source_start": 368.23333333333335,
+          "source_end": 393.6,
+          "idle_tail_start": 6.0
+        },
+        {
+          "visual": "15d_load_schema",
+          "source_start": 393.6,
+          "source_end": 413.6666666666667,
+          "idle_tail_start": 2.0
+        },
+        {
+          "visual": "15e_loaded_rules",
+          "source_start": 413.6666666666667,
+          "source_end": 440.96666666666664,
+          "idle_tail_start": 3.0
+        },
+        {
+          "visual": "16_annotations_applied",
+          "source_start": 440.96666666666664,
+          "source_end": 470.93333333333334,
+          "idle_tail_start": 6.0
+        },
+        {
+          "visual": "16b_save_annotated",
+          "source_start": 470.93333333333334,
+          "source_end": 503.46666666666664,
+          "idle_tail_start": 6.0
+        },
+        {
+          "visual": "17_merge_tables",
+          "source_start": 503.46666666666664,
+          "source_end": 531.6333333333333,
+          "idle_tail_start": 6.0
+        },
+        {
+          "visual": "18_merged_table",
+          "source_start": 531.6333333333333,
+          "source_end": 552.5666666666667,
+          "idle_tail_start": 6.0
+        },
+        {
+          "visual": "02_fold_trellis",
+          "source_start": 552.5666666666667,
+          "source_end": 572.1666666666666,
+          "idle_tail_start": 10.0
+        }
+      ]
     }
   ]
 }

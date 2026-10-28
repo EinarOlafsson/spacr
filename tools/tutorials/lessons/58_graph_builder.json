@@ -70,7 +70,7 @@
     },
     {
       "visual": "11_actual_brush_state",
-      "narration": "Remove a facet with its small cross to return to one scatter plot. Drag a rectangle around objects to select a region. If Open selection in Annotate is unavailable, open Annotate separately with the matching project and inspect objects there.",
+      "narration": "Remove a facet with its small cross to return to one scatter plot. Drag a rectangle around objects to select a region. The selected count and highlighted points update together, and Open selection in Annotate becomes available for inspecting those objects in the matching project.",
       "hold_after": 0.7
     },
     {

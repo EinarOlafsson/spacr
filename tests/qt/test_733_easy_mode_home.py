@@ -170,7 +170,7 @@ def test_real_typed_inspection_keeps_cards_readable_disjoint_and_actionable(
                        {card._key for card in page.field.cards}, timeout=5000)
         qtbot.waitUntil(lambda: all(not card._growing for card in page.field.cards), timeout=7000)
         assert page.path_edit.text() == str(image)
-        assert page.path_edit.placeholderText() == 'Drop a file/folder, type a path or task'
+        assert page.path_edit.placeholderText() == 'Drop a file or folder | Type a Path | Ask a Question ◉'
         assert page.path_edit.rect().contains(page.path_edit.browse.geometry())
         assert page.path_edit.isVisible()
         assert not page.status.isVisible()
@@ -278,8 +278,8 @@ def test_latest_typed_path_wins_after_real_worker_and_gui_stays_responsive(
         release.set()
         if reject_pending:
             qtbot.waitUntil(lambda: not page._runner.is_busy(), timeout=3000)
-            assert [card._key for card in page.field.cards] == ['warning']
-            assert 'one local file or folder' in page.field.cards[0].description.text()
+            assert not page.field.cards
+            assert 'one local file or folder' in page.field.details.toPlainText()
             assert not page.status.isVisible()
             assert 'one local file or folder' in page.status.text()
             qtbot.keyClick(page.path_edit, Qt.Key_Return)
@@ -297,8 +297,8 @@ def test_latest_typed_path_wins_after_real_worker_and_gui_stays_responsive(
         assert 'first.tif' not in page.status.text()
         page.accept_paths([str(first), str(second)])
         assert 'one local file or folder' in page.status.text()
-        assert [card._key for card in page.field.cards] == ['warning']
-        assert 'one local file or folder' in page.field.cards[0].description.text()
+        assert not page.field.cards
+        assert 'one local file or folder' in page.field.details.toPlainText()
     finally:
         release.set()
         page.close()
@@ -349,7 +349,7 @@ def test_actual_window_drop_handoff_and_easy_dock_preserve_ordinary_preferences(
         assert not window._dock_slot.isVisible()
         qtbot.waitUntil(lambda: window.window_backdrop() is not None, timeout=5000)
         backdrop = window.window_backdrop()
-        assert backdrop.background_color().getRgb() == (25, 25, 25, 255)
+        assert backdrop.background_color() == normal_background
         from PySide6.QtCore import QRect
         from PySide6.QtGui import QColor, QImage, QPainter
 
@@ -360,7 +360,7 @@ def test_actual_window_drop_handoff_and_easy_dock_preserve_ordinary_preferences(
             backdrop._paint_base(painter, QRect(0, 0, 12, 12))
         finally:
             painter.end()
-        assert all(base.pixelColor(x, y).getRgb() == (25, 25, 25, 255)
+        assert all(base.pixelColor(x, y) == normal_background
                    for x in range(12) for y in range(12))
         assert preferences.get_theme() == 'light'
         assert preferences.get_ambient_palette() == palette_choice
@@ -369,13 +369,13 @@ def test_actual_window_drop_handoff_and_easy_dock_preserve_ordinary_preferences(
         page = window._startup
         assert page is not old_page and isinstance(page, _EasyHomePage)
         assert window._stack.currentWidget() is page
-        assert window.window_backdrop().background_color().getRgb() == (25, 25, 25, 255)
+        assert window.window_backdrop().background_color() == normal_background
         window._retire_the_dock_backdrop()
         assert window.window_backdrop() is None
         window._backdrop_the_dock_column()
         qtbot.waitUntil(lambda: window.window_backdrop() is not None, timeout=5000)
         assert window.window_backdrop() is not backdrop
-        assert window.window_backdrop().background_color().getRgb() == (25, 25, 25, 255)
+        assert window.window_backdrop().background_color() == normal_background
         preferences.set_easy_mode_dock(True)
         window.refresh_after_preferences({"easy_mode_dock"})
         assert window._dock_mode == 'locked'
@@ -397,14 +397,12 @@ def test_actual_window_drop_handoff_and_easy_dock_preserve_ordinary_preferences(
             return original_publish(backdrop, segments, strength, **kwargs)
 
         monkeypatch.setattr(ambient.AmbientWidget, '_publish_boundary_ripples', publish)
-        assert window.property('spacrEasySearchRippleOnly')
+        assert not window.property('spacrEasySearchRippleOnly')
         popup = QDialog(window)
         popup.setModal(True)
         popup.show()
         qtbot.waitUntil(lambda: QApplication.activeModalWidget() is popup)
-        assert window.window_backdrop()._popup_wave_origin_for_tick() is None
         ambient._field_ripple_for_popup(popup)
-        assert waves == []
         popup.close()
         popup.deleteLater()
         assert preferences.get_ambient_enabled() and preferences._field_ripples_enabled()
@@ -413,9 +411,9 @@ def test_actual_window_drop_handoff_and_easy_dock_preserve_ordinary_preferences(
         qtbot.mouseMove(page.path_edit, QPoint(12, 12))
         page.path_edit.setFocus()
         qapp.processEvents()
-        assert waves == []
+        before_click = len(waves)
         qtbot.mouseClick(page.path_edit, Qt.LeftButton)
-        assert len(waves) == 1 and waves[0][0] and waves[0][1] == 0.12
+        assert all(strength != 0.12 for _segments, strength in waves[before_click:])
         mime = QMimeData()
         mime.setUrls([QUrl.fromLocalFile(str(image))])
         target = window.centralWidget()
@@ -434,7 +432,6 @@ def test_actual_window_drop_handoff_and_easy_dock_preserve_ordinary_preferences(
         assert 'home' not in window._screens
         card = next(card for card in page.field.cards if card._key == 'make_masks')
         qtbot.waitUntil(lambda: not card._growing and card.isEnabled(), timeout=7000)
-        assert len(waves) == 1
         card.click()
         assert window._stack.currentWidget() is page
         assert page._workflow.central._key == 'make_masks'
@@ -451,7 +448,7 @@ def test_actual_window_drop_handoff_and_easy_dock_preserve_ordinary_preferences(
         assert window.window_backdrop().background_color() == normal_background
         assert not window.window_backdrop()._background_explicit
         window._stack.setCurrentWidget(page)
-        assert window.window_backdrop().background_color().getRgb() == (25, 25, 25, 255)
+        assert window.window_backdrop().background_color() == normal_background
         window._stack.setCurrentWidget(screen)
         assert window.window_backdrop().background_color() == normal_background
         assert preferences.get_theme() == 'light'

@@ -1,9 +1,26 @@
 498 — CELLPOSE 4 TRAINING WORKBENCH
-Lifecycle: new
 ===================================
-Status: DONE 2026-10-02 — actual CPU fine-tune, checkpoint reload and held-out
+Lifecycle: new
+Status: DONE 2026-10-27 — Workbench and Cellpose All settings regrouped;
+Model Zoo access, source/save defaults and fractional thresholds validated.
+History: DONE 2026-10-02 — actual CPU fine-tune, checkpoint reload and held-out
 inference passed. This is workflow acceptance, not a model-accuracy claim.
 Owner: implementation lane; API/translations/tutorials in Codex lane.
+
+CURRENT MAINTAINER FOLLOW-UP — 2026-10-27
+
+Organize Cellpose Workbench Train/Apply and Cellpose All Settings around input,
+model, preprocessing, segmentation/training and output, with related advanced
+settings nested under their owning group. Add direct access to the existing
+verified Model Zoo picker with selection applied only to the active tab's
+real model field. Preserve separate Train/Apply sources, trained-checkpoint
+carry, saved settings and all existing controls. Fix missing source controls
+or non-saving GUI defaults where these prevent an actual folder-mask run.
+The fractional CP_prob threshold must round-trip to the submitted run rather
+than being truncated by an integer-only setting declaration.
+Verify GUI-to-backend settings/run handoff with bounded CPU/boundary fixtures;
+do not conflate interface acceptance with segmentation accuracy. Existing
+genuine CPU acceptance and backend history remain below.
 
 Train now defaults to AdamW learning_rate=1e-5, weight_decay=0.1,100epochs,
 batch_size=1, normalize=True, percentiles=[1,99], min_train_masks=5 and
@@ -56,3 +73,5 @@ images or settings were modified. Exact hashes, settings and results:
 features/data/498_real_cpu_workbench_acceptance_2026-10-02.json.
 
 VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_cellpose4_training_controls/inputs/refuses tests pass.
+
+2026-10-27 — 51 focused GUI/run handoff checks pass; 53 backend checks pass with one installed-version skip. A genuine CPU Cellpose-SAM run wrote a 64x64 integer-label mask with three objects and preserved its source. GUI Apply saves by default; Mask folder always saves, and unsupported or mixed input formats are refused before processing. Earlier real fine-tune acceptance remains valid.

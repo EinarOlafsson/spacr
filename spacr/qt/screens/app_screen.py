@@ -2288,6 +2288,11 @@ class AppScreen(QWidget):
         )
         self._header = header
         outer.addWidget(header)
+        if app_key == 'cellpose_all':
+            self._cellpose_zoo_button = QPushButton(tr('Model Zoo'), self)
+            self._cellpose_zoo_button.setObjectName('CellposeAllModelZoo')
+            self._cellpose_zoo_button.clicked.connect(self._show_cellpose_models)
+            header.add_trailing(self._cellpose_zoo_button)
 
         outer.addWidget(Divider())
 
@@ -5212,7 +5217,7 @@ class AppScreen(QWidget):
     _MODEL_ZOO_KEYS = (
         "pathogen_model", "pathogen_model_name",
         "cell_model_name", "nucleus_model_name", "organelle_model_name",
-        "custom_model", "plaque_model",
+        "custom_model", "plaque_model", "base_model",
     )
 
     @classmethod
@@ -5231,6 +5236,22 @@ class AppScreen(QWidget):
         if name in cls._MODEL_ZOO_KEYS:
             return True
         return bool(_ORGANELLE_MODEL_KEY.match(name))
+
+    def _show_cellpose_models(self):
+        """Browse stock comparison models without claiming a new model input."""
+        open_named = getattr(self.window(), '_open_easy_named_module', None)
+        if callable(open_named):
+            open_named('model_zoo')
+            return
+        from .model_zoo import ModelZooScreen
+
+        screen = getattr(self, '_cellpose_zoo_screen', None)
+        if screen is None:
+            screen = ModelZooScreen(parent=self)
+            screen.setWindowFlag(Qt.Window, True)
+            self._cellpose_zoo_screen = screen
+        screen.show()
+        screen.raise_()
 
     def _with_a_model_zoo_button(self, widget, key):
         """Add the model-zoo button beside a Cellpose-checkpoint field.
@@ -9383,6 +9404,18 @@ class AppScreen(QWidget):
         looking at" that quietly picked those up would compare two runs
         differing in more ways than the one the user chose.
         """
+        if self.app_key in ('cellpose_masks', 'cellpose_all'):
+            from .train_cellpose import _cellpose_folder_error
+
+            try:
+                proposed = override if override is not None else self._settings_model.collect()
+            except Exception as exc:
+                QMessageBox.warning(self, tr('Bad settings'), str(exc))
+                return
+            error = _cellpose_folder_error(proposed.get('src'))
+            if error:
+                QMessageBox.warning(self, tr('Input & Channels'), error)
+                return
         page = getattr(self, "_overview_page", None)
         if page is not None:
             page.run(self._settings_model.collect())
@@ -11283,6 +11316,10 @@ class AppScreen(QWidget):
             when the worker is still running three seconds after the cancel
             request.
         """
+        zoo = getattr(self, '_cellpose_zoo_screen', None)
+        if zoo is not None and not zoo.close():
+            event.ignore()
+            return
         builder = self.__dict__.get("_idle_prebuild")
         if builder is not None:
             builder.stop()

@@ -393,7 +393,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "agg_type",
-    "line": 601,
+    "line": 605,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -815,7 +815,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "analysis_mode",
-    "line": 9655,
+    "line": 9688,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._it_will_permute"
@@ -3725,7 +3725,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cam_type",
-    "line": 601,
+    "line": 605,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -4754,7 +4754,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_diameter",
-    "line": 605,
+    "line": 609,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -6751,7 +6751,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose_diameter",
-    "line": 605,
+    "line": 609,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -8688,7 +8688,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "classes",
-    "line": 13687,
+    "line": 13724,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._migrate_control_wells"
@@ -8697,7 +8697,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 13698,
+    "line": 13735,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._migrate_control_wells"
@@ -8724,7 +8724,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 19434,
+    "line": 19440,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._cpu_detect"
@@ -8733,7 +8733,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 19434,
+    "line": 19440,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._cpu_detect"
@@ -8742,7 +8742,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 19551,
+    "line": 19557,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._start_volume_detection"
@@ -8751,7 +8751,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 19551,
+    "line": 19557,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._start_volume_detection"
@@ -8760,7 +8760,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 19837,
+    "line": 19843,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._otsu_description"
@@ -10103,7 +10103,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "comp_type",
-    "line": 601,
+    "line": 605,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -10804,7 +10804,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "count_data",
-    "line": 14010,
+    "line": 14047,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "_first_count_file"
@@ -10813,7 +10813,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "count_data",
-    "line": 5391,
+    "line": 5404,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "_count_files_of"
@@ -11208,7 +11208,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cov_type",
-    "line": 601,
+    "line": 605,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -13487,7 +13487,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "diameter",
-    "line": 22690,
+    "line": 22696,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._on_detect_cellpose"
@@ -15431,7 +15431,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "export_vvvv",
-    "line": 9452,
+    "line": 9485,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"
@@ -16200,7 +16200,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "file_type",
-    "line": 601,
+    "line": 605,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -16856,7 +16856,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "fps",
-    "line": 14335,
+    "line": 14341,
     "module": "spacr.qt.widgets.ambient",
     "nested": false,
     "qualname": "install_ambient"
@@ -17620,7 +17620,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "grna_statistic",
-    "line": 9690,
+    "line": 9723,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._say_what_the_permutation_will_do"
@@ -18151,7 +18151,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "guide_permutation_block",
-    "line": 9691,
+    "line": 9724,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._say_what_the_permutation_will_do"
@@ -18245,7 +18245,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "guide_permutations",
-    "line": 9673,
+    "line": 9706,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._say_what_the_permutation_will_do"
@@ -20286,7 +20286,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "image_type",
-    "line": 601,
+    "line": 605,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -21389,7 +21389,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "inference",
-    "line": 9654,
+    "line": 9687,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._it_will_permute"
@@ -23054,7 +23054,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "level",
-    "line": 9689,
+    "line": 9722,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._say_what_the_permutation_will_do"
@@ -23063,7 +23063,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "level",
-    "line": 9742,
+    "line": 9775,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._announce_the_fit"
@@ -23660,7 +23660,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "loss_type",
-    "line": 601,
+    "line": 605,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -24812,7 +24812,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "metadata_type",
-    "line": 601,
+    "line": 605,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -26664,7 +26664,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "model_type",
-    "line": 601,
+    "line": 605,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -26908,7 +26908,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "multiple_testing_method",
-    "line": 12606,
+    "line": 12643,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_refit"
@@ -27541,7 +27541,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 11062,
+    "line": 11095,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -27550,7 +27550,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 11065,
+    "line": 11098,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -27559,7 +27559,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 11078,
+    "line": 11111,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -28836,7 +28836,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalize",
-    "line": 10902,
+    "line": 10935,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._crop_choice_warnings"
@@ -30154,7 +30154,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "nucleus_diameter",
-    "line": 605,
+    "line": 609,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -31160,7 +31160,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "object_filters",
-    "line": 4308,
+    "line": 4396,
     "module": "spacr.qt.mask_engine",
     "nested": false,
     "qualname": "settings_filters"
@@ -31254,7 +31254,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "object_type",
-    "line": 601,
+    "line": 605,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -31508,7 +31508,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "ops_library",
-    "line": 4203,
+    "line": 4218,
     "module": "spacr.qt.widgets.home",
     "nested": false,
     "qualname": "_easy_specialized_inputs"
@@ -31655,7 +31655,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "optimizer_type",
-    "line": 601,
+    "line": 605,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -32393,7 +32393,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_diameter",
-    "line": 605,
+    "line": 609,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -33657,7 +33657,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_morphology",
-    "line": 594,
+    "line": 598,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -34204,7 +34204,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_type",
-    "line": 601,
+    "line": 605,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -34632,7 +34632,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_diameter",
-    "line": 605,
+    "line": 609,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -35073,7 +35073,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_morphology",
-    "line": 594,
+    "line": 598,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -35168,7 +35168,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_type",
-    "line": 601,
+    "line": 605,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -35527,7 +35527,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_diameter",
-    "line": 605,
+    "line": 609,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -35968,7 +35968,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_morphology",
-    "line": 594,
+    "line": 598,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -36063,7 +36063,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_type",
-    "line": 601,
+    "line": 605,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -36422,7 +36422,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_diameter",
-    "line": 605,
+    "line": 609,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -36863,7 +36863,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_morphology",
-    "line": 594,
+    "line": 598,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -36958,7 +36958,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_type",
-    "line": 601,
+    "line": 605,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -38395,7 +38395,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_objects_morphology",
-    "line": 594,
+    "line": 598,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -39039,7 +39039,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "paired_data",
-    "line": 14005,
+    "line": 14042,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "_first_count_file"
@@ -39048,7 +39048,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "paired_data",
-    "line": 5384,
+    "line": 5397,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "_count_files_of"
@@ -39057,7 +39057,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "paired_data",
-    "line": 5481,
+    "line": 5494,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "regression_design_scan"
@@ -39858,7 +39858,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "pathogen_diameter",
-    "line": 605,
+    "line": 609,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -41826,7 +41826,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "phenotype_source",
-    "line": 4194,
+    "line": 4209,
     "module": "spacr.qt.widgets.home",
     "nested": false,
     "qualname": "_easy_specialized_inputs"
@@ -43791,7 +43791,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "png_type",
-    "line": 601,
+    "line": 605,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -45319,7 +45319,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ram_guard",
-    "line": 11046,
+    "line": 11079,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -45328,7 +45328,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "ram_guard",
-    "line": 11081,
+    "line": 11114,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -46308,7 +46308,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "regression_backend",
-    "line": 9743,
+    "line": 9776,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._announce_the_fit"
@@ -46593,7 +46593,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "regression_type",
-    "line": 9733,
+    "line": 9766,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._announce_the_fit"
@@ -46602,7 +46602,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "regression_type",
-    "line": 12605,
+    "line": 12642,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_refit"
@@ -46611,7 +46611,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "regression_type",
-    "line": 601,
+    "line": 605,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -48745,6 +48745,15 @@
     "qualname": "graph_importance"
    },
    {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "save",
+    "line": 242,
+    "module": "spacr.qt.screens.settings_model",
+    "nested": false,
+    "qualname": "resolve_default_settings"
+   },
+   {
     "form": "get",
     "function_depth": 1,
     "key": "save",
@@ -49971,7 +49980,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "seg_qc_min_diameter",
-    "line": 605,
+    "line": 609,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -50655,7 +50664,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "spatial_bin_um",
-    "line": 4268,
+    "line": 4283,
     "module": "spacr.qt.widgets.home",
     "nested": false,
     "qualname": "_easy_specialized_inputs"
@@ -50664,7 +50673,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "spatial_bin_um",
-    "line": 4276,
+    "line": 4291,
     "module": "spacr.qt.widgets.home",
     "nested": false,
     "qualname": "_easy_specialized_inputs"
@@ -50796,7 +50805,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "spatial_diameter",
-    "line": 605,
+    "line": 609,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "organelle_morphology_now"
@@ -53060,7 +53069,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 7942,
+    "line": 10763,
     "module": "spacr.qt.app",
     "nested": false,
     "qualname": "MainWindow._open_easy_suggestion"
@@ -53105,7 +53114,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 9358,
+    "line": 9379,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._claim_the_project"
@@ -53114,7 +53123,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 9467,
+    "line": 9500,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"
@@ -53123,7 +53132,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 9481,
+    "line": 9514,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"
@@ -53132,7 +53141,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 9493,
+    "line": 9526,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"
@@ -53141,7 +53150,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 10977,
+    "line": 11010,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_measure_plane_layout"
@@ -53150,7 +53159,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 11070,
+    "line": 11103,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -53159,7 +53168,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 11768,
+    "line": 11805,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._measurements_destination"
@@ -53168,7 +53177,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 12679,
+    "line": 12716,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._load_regression_results"
@@ -53177,7 +53186,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 13056,
+    "line": 13093,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._lock_analysis_now"
@@ -53241,6 +53250,15 @@
     "function_depth": 1,
     "key": "src",
     "line": 226,
+    "module": "spacr.qt.screens.settings_model",
+    "nested": false,
+    "qualname": "resolve_default_settings"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "src",
+    "line": 246,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "resolve_default_settings"
@@ -61703,7 +61721,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "use_bounding_box",
-    "line": 10913,
+    "line": 10946,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._crop_choice_warnings"
@@ -63962,7 +63980,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "watch_folder",
-    "line": 9492,
+    "line": 9525,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"
@@ -64087,7 +64105,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "watch_pipeline",
-    "line": 9498,
+    "line": 9531,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"

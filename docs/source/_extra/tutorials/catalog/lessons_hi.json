@@ -3558,7 +3558,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -10469,9 +10492,9 @@
         },
         {
           "visual": "11_actual_brush_state",
-          "narration": "एक ही स्कैटर प्लॉट पर लौटने के लिए फ़ैसेट को उसके छोटे क्रॉस से हटाएँ। कोई क्षेत्र चुनने के लिए वस्तुओं के चारों ओर आयत खींचें। अगर Open selection in Annotate उपलब्ध नहीं है, तो मेल खाते प्रोजेक्ट के साथ Annotate अलग से खोलें और वहाँ वस्तुएँ देखें।",
+          "narration": "एक ही स्कैटर प्लॉट पर लौटने के लिए फ़ैसेट को उसके छोटे क्रॉस से हटाएँ। कोई क्षेत्र चुनने के लिए वस्तुओं के चारों ओर आयत खींचें। चुनी गई वस्तुओं की संख्या और हाइलाइट किए गए बिंदु एक साथ अपडेट होते हैं, और संबंधित प्रोजेक्ट में उन वस्तुओं की जाँच के लिए Open selection in Annotate उपलब्ध हो जाता है।",
           "hold_after": 0.7,
-          "speech_text": "एक ही स्कैटर प्लॉट पर लौटने के लिए फ़ैसेट को उसके छोटे क्रॉस से हटाएँ। कोई क्षेत्र चुनने के लिए वस्तुओं के चारों ओर आयत खींचें। अगर Open selection in Annotate उपलब्ध नहीं है, तो मेल खाते प्रोजेक्ट के साथ Annotate अलग से खोलें और वहाँ वस्तुएँ देखें।"
+          "speech_text": "एक ही स्कैटर प्लॉट पर लौटने के लिए फ़ैसेट को उसके छोटे क्रॉस से हटाएँ। कोई क्षेत्र चुनने के लिए वस्तुओं के चारों ओर आयत खींचें। चुनी गई वस्तुओं की संख्या और हाइलाइट किए गए बिंदु एक साथ अपडेट होते हैं, और संबंधित प्रोजेक्ट में उन वस्तुओं की जाँच के लिए Open selection in Annotate उपलब्ध हो जाता है।"
         },
         {
           "visual": "12_selection_cleared",
@@ -10558,7 +10581,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

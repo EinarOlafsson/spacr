@@ -91,6 +91,41 @@ if str(TOOLS) not in sys.path:
 
 
 
+def _current_startup_frame_stats_api(entries, docs=None):
+    """Retain the original startup inventory and admit its reviewed cadence prose."""
+    assert len(entries) == 21
+    assert hashlib.sha256(json.dumps(entries, sort_keys=True, ensure_ascii=False).encode()).hexdigest() == "4f9021a15b35e2c6cb8ffd900a00f14377edf4dba8fe471c8b90b1e7b9ea9b2d"
+    current = dict(entries)
+    symbol = "spacr.qt.widgets.loading_screen.LoadingScreen.frame_stats"
+    current[symbol] = "What drawing the blow-away cost, for measuring it.\n\n:returns: ``frames``, ``mean_ms``, ``max_ms`` and ``most_tiles``;\n    ``paint_p95_ms``; the display's ``refresh_hz`` and ``refresh_ms``;\n    the final ``paced_ms``, ``stride``, ``divisor`` and ``vsync``;\n    ``interval_mean_ms``, ``interval_p50_ms``, ``interval_p95_ms``,\n    ``interval_p99_ms``, ``longest_gap_ms``, ``late_frames``,\n    ``dropped_frames`` and ``dropped_share``. Times are milliseconds.\n    Intervals measure paint callbacks, not verified display\n    presentation; dropped frames are estimates against the refresh\n    interval. With no paint callbacks, paint and interval summaries\n    and counters are zero; display and pacing metadata remain reported."
+    assert hashlib.sha256(current[symbol].encode()).hexdigest() == "33b83cd0893cf1fabc001bd6735384102382d72c6d22052844e8df30f92bfaa7"
+    if docs is not None:
+        assert {key: docs[key] for key in current} == current
+    return current
+
+
+@pytest.mark.parametrize("mutation", ["historical_frame", "historical_other", "current_frame", "current_other"])
+def test_startup_cadence_revision_keeps_its_historical_inventory(mutation):
+    entries = json.loads((ROOT / "tests/data/release_contracts"
+        / "694_startup_splash_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
+    historical = dict(entries)
+    current = _current_startup_frame_stats_api(entries)
+    assert entries == historical
+    symbol = "spacr.qt.widgets.loading_screen.LoadingScreen.frame_stats"
+    other = next(key for key in entries if key != symbol)
+    assert all(current[key] == entries[key] for key in entries if key != symbol)
+    if mutation == "historical_frame":
+        entries[symbol] = current[symbol]
+    elif mutation == "historical_other":
+        entries[other] += " changed"
+    elif mutation == "current_frame":
+        current[symbol] = historical[symbol]
+    else:
+        current[other] += " changed"
+    with pytest.raises(AssertionError):
+        _current_startup_frame_stats_api(entries, current)
+
+
 def _retired_707_home_api(docs):
     """Restore the exact removed Home helper only for historical inventory replay."""
     retirement = json.loads((ROOT / "tests/data/release_contracts"
@@ -154,15 +189,113 @@ def _retired_732_remote_api(docs):
 
 
 def _easy_mode_733_api_arrivals(docs):
-    """Bind the four Easy mode accessors to their complete canonical source text."""
+    """Bind current accessors while retaining their four original arrival records."""
     entries = json.loads((ROOT / "tests/data/release_contracts"
         / "733_easy_mode_api_arrivals_2026_10_26.json").read_text(encoding="utf-8"))
+    return _current_733_easy_mode_api(entries, docs)
+
+
+def test_startup_mosaic_review_rejects_the_old_strap_description(tmp_path, monkeypatch):
+    import ast
+
+    import build_documentation_i18n as builder
+
+    symbol = "spacr.qt.widgets.loading_screen.LoadingScreen"
+    tree = ast.parse((ROOT / "spacr/qt/widgets/loading_screen.py").read_text())
+    source = ast.get_docstring(next(node for node in tree.body
+        if isinstance(node, ast.ClassDef) and node.name == "LoadingScreen"))
+    old = "By default it shows the white mark beside the strap line. Once :meth:`show_mosaic` is called it shows the spaCR photomosaic above the strap line instead, and :meth:`blow_away` ends it by blowing the mosaic's tiles off the window to reveal the window underneath."
+    target = "Som standard visar det det vita märket bredvid slagordsraden. När :meth:`show_mosaic` har anropats visar det i stället spaCR:s fotomosaik ovanför slagordsraden, och :meth:`blow_away` avslutar det genom att blåsa mosaikens brickor av fönstret så att fönstret under syns."
+    directory = tmp_path / "sv"
+    directory.mkdir()
+    (directory / "old.json").write_text(json.dumps({
+        "schema": 1, "language": "sv", "records": [{
+            "label": symbol + "#1", "source": old,
+            "source_sha256": builder._source_hash(old),
+            "context": builder._api_translation_source(old), "translation": target,
+        }]}))
+    monkeypatch.setattr(builder, "REVIEWED_API_DIR", tmp_path)
+    with pytest.raises(ValueError, match="stale reviewed API source"):
+        builder.reviewed_api_block_translations({symbol: source}, "sv")
+
+
+def _current_735_volume_api(entries, docs=None):
+    """Bind reviewed numeric NPY guidance without changing the historical arrival pin."""
+    assert len(entries) == 32
+    assert hashlib.sha256(json.dumps(entries, sort_keys=True).encode()).hexdigest() == '126e9f50d91aa19b1d5013dc65a71a878adce3031a778ad110b514491005e208'
+    current = dict(entries)
+    symbol = 'spacr.qt.mask_engine.load_volume_image_and_mask'
+    current[symbol] = current[symbol].replace(
+        "means pixel coordinates.\nLabels retain", "means pixel coordinates.\nNumeric NPY volumes require an explicitly reviewed ZYX layout and image\nchannel; their spacing is in pixels and pickle is disabled.\nLabels retain")
+    current[symbol] = current[symbol].replace(
+        ":param filename: spatial TIFF or MRC volume filename.",
+        ":param filename: spatial TIFF, MRC or reviewed numeric NPY volume filename.")
+    assert hashlib.sha256(current[symbol].encode()).hexdigest() == '624c0f6738adc0ffba86ccf18e0a17f26ab4a0a238b7e175bd81156deadd1e04'
+    if docs is not None:
+        assert {key: docs[key] for key in current} == current
+    return current
+
+
+@pytest.mark.parametrize("mutation", ["historical_volume", "historical_other", "current_volume", "current_other"])
+def test_npy_revision_preserves_the_historical_volume_pin(mutation):
+    entries = json.loads((ROOT / "tests/data/release_contracts"
+        / "672_673_editable_volume_api_arrivals_2026-10-10.json").read_text(encoding="utf-8"))
+    historical = dict(entries)
+    current = _current_735_volume_api(entries)
+    volume = "spacr.qt.mask_engine.load_volume_image_and_mask"
+    other = next(key for key in entries if key != volume)
+    assert entries == historical
+    assert all(current[key] == entries[key] for key in entries if key != volume)
+    if mutation == "historical_volume":
+        entries[volume] = current[volume]
+    elif mutation == "historical_other":
+        entries[other] += " changed"
+    elif mutation == "current_volume":
+        current[volume] = historical[volume]
+    else:
+        current[other] += " changed"
+    with pytest.raises(AssertionError):
+        _current_735_volume_api(entries, current)
+
+
+def _current_733_easy_mode_api(entries, docs=None):
+    """Admit only the reviewed default-enabled getter over the original source pin."""
     expected = {'spacr.qt.preferences.get_easy_mode': 'de468de74c3e4525f1fea9423f000dc379ba0784d7626b030fff6ea3783d064a', 'spacr.qt.preferences.get_easy_mode_dock': '472567d34a3903317a34a5d98152a923cb4d29a4ab1e0133ad4f306149d0b578', 'spacr.qt.preferences.set_easy_mode': '3a86b22794bca1c940fe057dcebabefb375648d0da643c45330d6171fc776c51', 'spacr.qt.preferences.set_easy_mode_dock': '7b9ddcc231fc2de7c167d98bb8a180e2b1f413ada6d5e3a7a7d7f2b9289cc686'}
     assert entries.keys() == expected.keys()
-    assert {key: docs[key] for key in entries} == entries
     assert {key: hashlib.sha256(body.encode()).hexdigest()
             for key, body in entries.items()} == expected
-    return entries
+    current = dict(entries)
+    symbol = "spacr.qt.preferences.get_easy_mode"
+    current[symbol] = "Whether the content-guided Easy mode Home is enabled (default: ``True``)."
+    assert hashlib.sha256(current[symbol].encode()).hexdigest() == "463248d1e222fc2757eb571f8512d74818561c9bc8899ef3bfedb998b95b3bea"
+    if docs is not None:
+        assert {key: docs[key] for key in current} == current
+    return current
+
+
+@pytest.mark.parametrize("mutation", ["historical_getter", "historical_dock", "current_getter", "current_dock", "extra_symbol"])
+def test_navigator_default_revision_preserves_the_historical_api_pin(mutation):
+    entries = json.loads((ROOT / "tests/data/release_contracts"
+        / "733_easy_mode_api_arrivals_2026_10_26.json").read_text(encoding="utf-8"))
+    historical = dict(entries)
+    current = _current_733_easy_mode_api(entries)
+    getter = "spacr.qt.preferences.get_easy_mode"
+    dock = "spacr.qt.preferences.get_easy_mode_dock"
+    assert entries == historical
+    assert "``False``" in entries[getter] and "``True``" in current[getter]
+    assert all(current[key] == entries[key] for key in entries if key != getter)
+    if mutation == "historical_getter":
+        entries[getter] = current[getter]
+    elif mutation == "historical_dock":
+        entries[dock] += " changed"
+    elif mutation == "current_getter":
+        current[getter] = historical[getter]
+    elif mutation == "current_dock":
+        current[dock] += " changed"
+    else:
+        entries["spacr.qt.preferences.extra"] = "Unregistered arrival."
+    with pytest.raises(AssertionError):
+        _current_733_easy_mode_api(entries, current)
 
 
 def _current_718_metal_class_api(entries, docs):
@@ -3309,6 +3442,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
     volume_arrivals = json.loads((ROOT / "tests/data/release_contracts"
         / "672_673_editable_volume_api_arrivals_2026-10-10.json").read_text(encoding="utf-8"))
     assert len(volume_arrivals) == 32
+    volume_arrivals = _current_735_volume_api(volume_arrivals, docs)
     assert {key: docs[key] for key in volume_arrivals} == volume_arrivals
     # 2026-10-11: N685's four model-zoo helpers (9d48eefa6: default_version_index,
     # hf_repo_of, is_alternative, is_spacr_owned) are one named contract; the
@@ -3375,6 +3509,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
     splash_arrivals = json.loads((ROOT / "tests/data/release_contracts"
         / "694_startup_splash_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
     assert len(splash_arrivals) == 21
+    splash_arrivals = _current_startup_frame_stats_api(splash_arrivals, docs)
     assert {key: docs[key] for key in splash_arrivals} == splash_arrivals
     assert not splash_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **splash_arrivals}

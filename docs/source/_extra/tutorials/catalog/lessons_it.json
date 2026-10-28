@@ -3558,7 +3558,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -10469,9 +10492,9 @@
         },
         {
           "visual": "11_actual_brush_state",
-          "narration": "Rimuovi una sfaccettatura con la sua piccola croce per tornare a un solo grafico a dispersione. Trascina un rettangolo attorno agli oggetti per selezionare una regione. Se Open selection in Annotate non è disponibile, apri Annotate separatamente con il progetto corrispondente ed esamina lì gli oggetti.",
+          "narration": "Rimuovi una sfaccettatura con la sua piccola croce per tornare a un solo grafico a dispersione. Trascina un rettangolo attorno agli oggetti per selezionare una regione. Il conteggio degli oggetti selezionati e i punti evidenziati si aggiornano insieme, e Open selection in Annotate diventa disponibile per esaminare quegli oggetti nel progetto corrispondente.",
           "hold_after": 0.7,
-          "speech_text": "Rimuovi una sfaccettatura con la sua piccola croce per tornare a un solo grafico a dispersione. Trascina un rettangolo attorno agli oggetti per selezionare una regione. Se Open selection in Annotate non è disponibile, apri Annotate separatamente con il progetto corrispondente ed esamina lì gli oggetti."
+          "speech_text": "Rimuovi una sfaccettatura con la sua piccola croce per tornare a un solo grafico a dispersione. Trascina un rettangolo attorno agli oggetti per selezionare una regione. Il conteggio degli oggetti selezionati e i punti evidenziati si aggiornano insieme, e Open selection in Annotate diventa disponibile per esaminare quegli oggetti nel progetto corrispondente."
         },
         {
           "visual": "12_selection_cleared",
@@ -10558,7 +10581,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

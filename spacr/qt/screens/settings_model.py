@@ -238,9 +238,13 @@ def resolve_default_settings(app_key: str) -> Dict[str, Any]:
     if app_key == "ml_analyze":
         return set_default_analyze_screen(settings={})
     if app_key == "cellpose_masks":
-        return get_identify_masks_finetune_default_settings(settings={})
+        settings = get_identify_masks_finetune_default_settings(settings={})
+        settings['save'] = True
+        return settings
     if app_key == "cellpose_all":
-        return get_check_cellpose_models_default_settings(settings={})
+        settings = get_check_cellpose_models_default_settings(settings={})
+        settings.setdefault('src', '')
+        return settings
     if app_key == "map_barcodes":
         return set_default_generate_barecode_mapping(settings={})
     if app_key == "regression":
@@ -1640,11 +1644,9 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Runtime & Reliability", ("verbose",)),
     ),
     "cellpose_masks": (
-        ("Input & Channels", (
-            "src", "channels", "grayscale", "invert", "normalize",
-            "percentiles",
-        )),
+        ("Input & Channels", ("src", "channels")),
         ("Model", ("model_name", "custom_model", "diameter")),
+        ("Image Preprocessing", ("grayscale", "invert", "normalize", "percentiles")),
         ("Detection Thresholds", (
             "CP_prob", "flow_threshold", "rescale", "resample", "fill_in",
         )),
@@ -1655,10 +1657,9 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Output & Runtime", ("save", "batch_size", "verbose")),
     ),
     "cellpose_all": (
-        ("Input & Channels", (
-            "channels", "grayscale", "invert", "normalize", "percentiles",
-        )),
+        ("Input & Channels", ("src", "channels")),
         ("Model", ("diameter",)),
+        ("Image Preprocessing", ("grayscale", "invert", "normalize", "percentiles")),
         ("Detection Thresholds", ("CP_prob", "flow_threshold")),
         ("Image Geometry", ("resize", "target_height", "target_width")),
         ("Background & Denoising", (
@@ -1667,13 +1668,15 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Output & Runtime", ("plot", "save", "batch_size", "verbose")),
     ),
     "train_cellpose": (
-        ("Training Data", ("src", "mask_src", "test_src", "test_mask_src")),
-        ("Starting Point", ("base_model", "model_name")),
+        ("Training Data", ("src", "mask_src")),
+        ("Validation Data", ("test_src", "test_mask_src")),
+        ("Input & Channels", ("channels", "channel_axis")),
+        ("Image Preprocessing", ("normalize", "percentiles")),
+        ("Starting Point", ("base_model",)),
         ("Training Schedule", ("n_epochs", "learning_rate", "weight_decay", "batch_size")),
-        ("Input & Channels", ("channels", "channel_axis", "normalize", "percentiles")),
         ("Sampling & Augmentation", ("min_train_masks", "max_train_images", "nimg_per_epoch",
                                      "nimg_test_per_epoch", "scale_range")),
-        ("Checkpoints", ("save_path", "save_every", "save_each")),
+        ("Checkpoints", ("model_name", "save_path", "save_every", "save_each")),
     ),
     "analyze_plaques": (
         ("Input & Channels", ("src", "masks")),
@@ -1829,7 +1832,7 @@ _APP_ESSENTIAL_EXTRAS: Dict[str, Tuple[str, ...]] = {
     "cellpose_masks": ("@Model",),
     "cellpose_all": ("@Model",),
     "analyze_plaques": ("@Model",),
-    "train_cellpose": ("n_epochs", "learning_rate"),
+    "train_cellpose": ("@Starting Point", "n_epochs", "learning_rate"),
     "map_barcodes": ("@Barcode References",),
     "barcode_qc": ("@Well Expectations",),
     "illumination": ("illumination_correction", "illumination_model"),
@@ -2108,6 +2111,16 @@ _APP_CATEGORY_PARENTS["measure"] = {
         "CellProfiler α", "GPU Measurement α", "Time To Event α")},
     **{title: "Postprocessing" for title in (
         "Runtime & Reliability", "Profiling α", "Measurement Backend α")},
+}
+for _cellpose_app in ('cellpose_masks', 'cellpose_all'):
+    _APP_CATEGORY_PARENTS[_cellpose_app] = {
+        'Image Geometry': 'Image Preprocessing',
+        'Background & Denoising': 'Image Preprocessing',
+    }
+_APP_CATEGORY_PARENTS['train_cellpose'] = {
+    'Validation Data': 'Training Data',
+    'Image Preprocessing': 'Input & Channels',
+    'Sampling & Augmentation': 'Training Schedule',
 }
 
 

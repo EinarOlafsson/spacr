@@ -3583,7 +3583,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8819,11 +8842,11 @@
         {
           "visual": "main_06_feature_explorer_nested",
           "narration": "Abra o Feature Explorer para comparar características medidas entre grupos selecionados. Escolha os grupos e os filtros e inspecione a classificação das características e os gráficos.",
+          "hold_after": 0.7,
+          "speech_text": "Abra o Feature Explorer para comparar características medidas entre grupos selecionados. Escolha os grupos e os filtros e inspecione a classificação das características e os gráficos.",
           "related_lessons": [
             "65_feature_explorer"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Abra o Feature Explorer para comparar características medidas entre grupos selecionados. Escolha os grupos e os filtros e inspecione a classificação das características e os gráficos."
+          ]
         },
         {
           "visual": "ml_25_ml_figure_02",
@@ -12170,9 +12193,9 @@
         },
         {
           "visual": "11_actual_brush_state",
-          "narration": "Remova uma faceta pelo pequeno x para voltar a um único gráfico de dispersão. Desenhe um retângulo em volta de objetos para selecionar uma região. Se Open selection in Annotate não estiver disponível, abra o Annotate separadamente com o projeto correspondente e inspecione os objetos lá.",
+          "narration": "Remova uma faceta pelo pequeno x para voltar a um único gráfico de dispersão. Desenhe um retângulo em volta de objetos para selecionar uma região. A contagem de objetos selecionados e os pontos destacados são atualizados juntos, e Open selection in Annotate fica disponível para inspecionar esses objetos no projeto correspondente.",
           "hold_after": 0.7,
-          "speech_text": "Remova uma faceta pelo pequeno x para voltar a um único gráfico de dispersão. Desenhe um retângulo em volta de objetos para selecionar uma região. Se Open selection in Annotate não estiver disponível, abra o Annotate separadamente com o projeto correspondente e inspecione os objetos lá."
+          "speech_text": "Remova uma faceta pelo pequeno x para voltar a um único gráfico de dispersão. Desenhe um retângulo em volta de objetos para selecionar uma região. A contagem de objetos selecionados e os pontos destacados são atualizados juntos, e Open selection in Annotate fica disponível para inspecionar esses objetos no projeto correspondente."
         },
         {
           "visual": "12_selection_cleared",
@@ -12259,7 +12282,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

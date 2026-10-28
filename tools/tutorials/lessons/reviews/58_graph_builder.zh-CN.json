@@ -1,13 +1,18 @@
 {
   "lesson": "58_graph_builder",
-  "english_sha256": "3d874d9843bd844f57bf6948007176605319ec953a7a898c853f209c42aaa3d9",
+  "english_sha256": "fe7a247b559ad165edc22df71aa6a1c704762f256b3df7e0dbf3b08c2b822986",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
     "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "correction": {
+      "date": "2026-10-27",
+      "scope": "Scene 10 third sentence only: synchronized selection count, highlights and handoff availability",
+      "kind": "AI technical text correction; no listening review or native-speaker sign-off"
+    }
   },
   "language": "zh-CN",
   "title": "Graph Builder：绘制测量数据并过滤对象",
@@ -30,7 +35,7 @@
     "在右侧的过滤面板中添加cell_area并输入最小值。本例使用两万一千九百二十五，剩下一千一百七十一行。请为您自己的测量数据选择合适的阈值，并观察绘制的数量和坐标轴如何变化。",
     "在过滤面板中点击Clear all恢复完整的表。如果想移除绘图映射并开始另一张图，请使用左侧的Clear all channels。",
     "Clear all channels 会保留图表类型，但从图表中移除所有列，画布随即说明缺少什么：把一列拖到 X 或 Y 上即可重新绘图。把相同的列放回去就能继续。",
-    "点击分面的小叉号将其移除，回到单个散点图。围绕对象拖出一个矩形以选择一个区域。如果Open selection in Annotate不可用，请用对应项目单独打开Annotate，并在那里检查对象。",
+    "点击分面的小叉号将其移除，回到单个散点图。围绕对象拖出一个矩形以选择一个区域。选中对象数量和高亮显示的点会同步更新，同时 Open selection in Annotate 变为可用，可在对应项目中检查这些对象。",
     "点击图中的空白处清除选择。在探索另一组对象之前，请检查当前的过滤条件和显示的数量。",
     "点击 Annotate conditions。将第一个输出命名为 genotype，并使用 Assign values。选择 Exact values，然后将 columnID 值 c1、c2 和 c3 标记为 WildType。再添加一个名为 mutant 的规则框，用于 c7、c4、c5 和 c6。这些只是示例标签，并非经过验证的基因型。下载的表只包含 c1 和 c2，因此所有细胞都匹配 WildType，没有细胞匹配 mutant。Exact values 按完整值匹配：c1 不会匹配 c10。",
     "添加名为 replicate 的输出列。在名为 replicate 1 的规则框中匹配 rowID 值 r1、r4、r5 和 r6。再添加一个同名规则框，用于 r7、r9 和 r10。标签相同的规则框取并集；同一输出中相互冲突的不同标签必须在 Apply conditions 之前解决。示例包含 r5 和 r12，因此 r5 匹配，r12 保持为空。这些练习标签并不能证明生物学重复。",
