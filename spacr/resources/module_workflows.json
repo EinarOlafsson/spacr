@@ -1060,7 +1060,7 @@
       "guidance": "Open Cellpose Workbench inside Make Masks and train from verified image/mask pairs. Evaluate on separate fields before selecting the checkpoint in Mask."
     },
     "cellpose_all": {
-      "name": "Mask the whole folder",
+      "name": "Mask folder",
       "home": "make_masks",
       "parent": "make_masks",
       "api_module": "spacr.spacr_cellpose",

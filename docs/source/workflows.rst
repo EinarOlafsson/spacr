@@ -1574,12 +1574,12 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 .. _workflow-module-cellpose_all:
 
-Mask the whole folder
-~~~~~~~~~~~~~~~~~~~~~
+Mask folder
+~~~~~~~~~~~
 
 Apply the selected segmentation model to the open image folder through Make Masks; inspect saved labels before measuring them.
 
-**Open:** Make Masks → Mask the whole folder.
+**Open:** Make Masks → Mask folder.
 
 Inputs and outputs below include conditional alternatives. The guidance and handoff notes say which route applies.
 
