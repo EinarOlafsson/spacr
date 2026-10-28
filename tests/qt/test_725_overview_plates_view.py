@@ -359,3 +359,243 @@ def test_container_wheel_zoom_tracks_one_actual_well_and_keeps_all_plate_identit
     assert view._plate_extents[table][0] < grown
     assert tuple(field.identity for field in view._fields) == before
     assert set(view._plate_tables) == set(PLATES)
+
+
+def _settle_plate_auxiliary_jobs(view, qtbot):
+    runners = (*_runners(view), view._readout_jobs, view._levels_jobs)
+    qtbot.waitUntil(lambda: all(runner.active_jobs() == 0 for runner in runners), timeout=15000)
+
+
+def _stacked_plate_image(view, qtbot, plate='plateC'):
+    field = next(field for field in view._fields if field.plate == plate and field.well == 'A01')
+    view._open_image_views([field])
+    panel = next(panel for panel in view._image_views if panel.field.identity == field.identity)
+    _settle_plate_auxiliary_jobs(view, qtbot)
+    assert panel.view._item is not None and not panel.view._item.pixmap().isNull()
+    return panel
+
+
+def _move_plate_image_cursor(image_view):
+    point = image_view.viewportTransform().map(image_view._item.mapToScene(QPointF(1.5, 1.5)))
+    event = QMouseEvent(QEvent.MouseMove, point, image_view.viewport().mapToGlobal(point),
+                        Qt.NoButton, Qt.NoButton, Qt.NoModifier)
+    QApplication.sendEvent(image_view.viewport(), event)
+    return point
+
+
+@pytest.mark.parametrize('decoration', ['null_icon', 'missing_shape', 'outside_decoration'])
+def test_incomplete_well_decoration_never_invents_a_pixel_readout(view, qtbot, decoration):
+    from PySide6.QtGui import QIcon
+
+    view._set_plates_view('side')
+    assert view._open_wells([('plateB', 'A01')]) == (('plateB', 'A01'),)
+    _settle_plate_auxiliary_jobs(view, qtbot)
+    fields = view._well_panels[0].field_list
+    fields.doItemsLayout()
+    item = fields.item(0)
+    assert item is not None and not item.icon().isNull()
+    original_icon, original_shape = item.icon(), item.data(Qt.UserRole + 3)
+    point = QPointF(fields.visualItemRect(item).bottomRight())
+    try:
+        if decoration == 'null_icon':
+            item.setIcon(QIcon())
+        elif decoration == 'missing_shape':
+            item.setData(Qt.UserRole + 3, None)
+        assert view._readout_target(fields, point) is None
+        view._readout_pending = fields, point
+        view._pixel_readout.setText('old readout')
+        view._update_pixel_readout()
+        assert view._pixel_readout.text() == ''
+        assert view._readout_loading is None
+        fields.doItemsLayout()
+        rectangle = fields.visualItemRect(item)
+        assert rectangle.isValid() and rectangle.intersects(fields.viewport().rect())
+        hit = rectangle.center()
+        assert fields.itemAt(hit) is item
+        assert view._field_shown_in(fields, hit) is item.data(Qt.UserRole)
+        assert view._field_shown_in(fields, fields.viewport().rect().bottomRight()) is None
+    finally:
+        item.setIcon(original_icon)
+        item.setData(Qt.UserRole + 3, original_shape)
+        view._clear_pixel_readout()
+        _settle_plate_auxiliary_jobs(view, qtbot)
+
+
+@pytest.mark.parametrize('state', ['null_pixmap', 'singular_transform'])
+def test_stacked_image_readout_refuses_unavailable_display_geometry(view, qtbot, state):
+    from PySide6.QtGui import QPixmap, QTransform
+
+    panel = _stacked_plate_image(view, qtbot)
+    original = panel.view._item.pixmap()
+    transform = panel.view.transform()
+    try:
+        if state == 'null_pixmap':
+            panel.view._item.setPixmap(QPixmap())
+        else:
+            panel.view.setTransform(QTransform.fromScale(0, 0))
+        assert view._readout_target(panel.view, QPointF(1, 1)) is None
+        assert view._field_shown_in(panel.view) is panel.field
+        assert view._readout_loading is None
+    finally:
+        panel.view._item.setPixmap(original)
+        panel.view.setTransform(transform)
+        view._clear_pixel_readout()
+        _settle_plate_auxiliary_jobs(view, qtbot)
+
+
+@pytest.mark.parametrize('missing_source', [False, True])
+def test_stacked_raw_readout_reports_exact_plate_values_or_source_failure(view, qtbot, missing_source):
+    from pathlib import Path
+
+    panel = _stacked_plate_image(view, qtbot)
+    displayed = panel.view._item.pixmap().toImage().copy()
+    originals = {Path(path): Path(path).read_bytes() for _channel, path in panel.field.files}
+    moved = {}
+    try:
+        if missing_source:
+            for path in originals:
+                backup = path.with_suffix('.held-tif')
+                path.rename(backup)
+                moved[path] = backup
+            browser._OVERVIEW_PLANE_CACHE.clear()
+            browser._OVERVIEW_INFO_CACHE.clear()
+        _move_plate_image_cursor(panel.view)
+        if missing_source:
+            qtbot.waitUntil(lambda: 'Pixel values unavailable:' in view._pixel_readout.text(), timeout=10000)
+        else:
+            qtbot.waitUntil(lambda: 'Channel 1: 2101' in view._pixel_readout.text()
+                            and 'Channel 2: 2102' in view._pixel_readout.text(), timeout=10000)
+            assert view._pixel_readout.text().startswith('x 1, y 1')
+        text = view._pixel_readout.text()
+        assert 'Plate plateC' in text and 'Well A01' in text and 'Image 1' in text
+        assert panel.view._item.pixmap().toImage() == displayed
+    finally:
+        view._clear_pixel_readout()
+        _settle_plate_auxiliary_jobs(view, qtbot)
+        for path, backup in moved.items():
+            backup.rename(path)
+        assert all(path.read_bytes() == content for path, content in originals.items())
+
+
+def test_image_settings_reuse_ignores_stale_histograms_and_default_resets(view, qtbot):
+    from copy import deepcopy
+
+    first = next(field for field in view._fields if field.plate == 'plateA')
+    second = next(field for field in view._fields if field.plate == 'plateB')
+    original_fields = tuple(field.identity for field in view._fields)
+    original_overrides = deepcopy(view._image_overrides)
+    save_active = view._override_save_timer.isActive()
+    view._set_image_override(browser._overview_image_key(first), None)
+    view._copy_image_override(first, 'all')
+    assert view._image_overrides == original_overrides
+    assert view._override_save_timer.isActive() == save_active
+    view._open_image_settings(first)
+    panel = view._image_settings
+    try:
+        _settle_plate_auxiliary_jobs(view, qtbot)
+        assert panel.key == browser._overview_image_key(first)
+        view._open_image_settings(second)
+        assert view._image_settings is panel and panel.key == browser._overview_image_key(second)
+        _settle_plate_auxiliary_jobs(view, qtbot)
+        counts = deepcopy(panel.histogram.counts)
+        view._image_histograms_read(browser._overview_image_key(first), {1: np.array([999])})
+        np.testing.assert_array_equal(panel.histogram.counts, counts)
+        assert tuple(field.identity for field in view._fields) == original_fields
+        assert view._image_overrides == original_overrides
+    finally:
+        panel.close()
+        _settle_plate_auxiliary_jobs(view, qtbot)
+
+
+def test_invalid_channel_settings_preserve_open_image_and_histogram_panel(view, qtbot):
+    panel = _stacked_plate_image(view, qtbot)
+    before = panel.view._item.pixmap().toImage().copy()
+    original = view.channels.text()
+    settings_panel = view._image_settings
+    view.channels.setText('not a channel')
+    try:
+        view._open_image_settings(panel.field)
+        view._load_image_view(panel)
+        assert view._image_settings is settings_panel
+        assert 'nonnegative channel indices' in view.status.text()
+        assert panel.view._item.pixmap().toImage() == before
+    finally:
+        view.channels.setText(original)
+        _settle_plate_auxiliary_jobs(view, qtbot)
+
+
+class _HeldPlatePixels:
+    """Delay one real detached-image read until its actual panel has closed."""
+
+    def __init__(self, read, identity):
+        from threading import Event
+
+        self.read, self.identity = read, identity
+        self.entered, self.release = Event(), Event()
+
+    def __call__(self, field, *args, **kwargs):
+        if field.identity == self.identity and not self.entered.is_set():
+            self.entered.set()
+            assert self.release.wait(10)
+        return self.read(field, *args, **kwargs)
+
+
+def test_late_stacked_image_read_cannot_replace_another_plate_after_close(view, qtbot, monkeypatch):
+    first = _stacked_plate_image(view, qtbot, 'plateA')
+    other = _stacked_plate_image(view, qtbot, 'plateB')
+    displayed = other.view._item.pixmap().toImage().copy()
+    read = _HeldPlatePixels(browser._overview_pixels, first.field.identity)
+    monkeypatch.setattr(browser, '_overview_pixels', read)
+    try:
+        view._load_image_view(first)
+        qtbot.waitUntil(read.entered.is_set, timeout=5000)
+        view._readout_pending = first.view, QPointF(1, 1)
+        view._close_image_view(first)
+        view._close_image_view(first)
+        assert first not in view._image_views and other in view._image_views
+        assert view._readout_pending is None and view._pixel_readout.text() == ''
+        read.release.set()
+        _settle_plate_auxiliary_jobs(view, qtbot)
+        assert view._image_views == [other]
+        assert other.field.plate == 'plateB' and other.view._item.pixmap().toImage() == displayed
+        view._image_panel.hide()
+        view._close_image_view(other)
+        assert view._image_views == [] and view._image_column.isHidden()
+    finally:
+        read.release.set()
+        _settle_plate_auxiliary_jobs(view, qtbot)
+
+
+def test_original_chain_refusal_falls_back_then_source_failure_keeps_last_pixels(view, qtbot):
+    from pathlib import Path
+
+    panel = _stacked_plate_image(view, qtbot)
+    displayed = panel.view._item.pixmap().toImage().copy()
+    originals = {Path(path): Path(path).read_bytes() for _channel, path in panel.field.files}
+    moved = {}
+    steps = {'psf_operation': 'convolve', 'psf_error': 'owned missing calibration'}
+    view._original_steps = steps.copy
+    try:
+        view.preview_resolution.setCurrentIndex(view.preview_resolution.findData(None))
+        qtbot.waitUntil(lambda: not view._quality_timer.isActive(), timeout=5000)
+        _settle_plate_auxiliary_jobs(view, qtbot)
+        assert view._quality_original()
+        assert 'shown without PSF convolution' in view.status.text()
+        assert 'owned missing calibration' in view.status.text()
+        assert panel.view._item.pixmap().toImage() == displayed
+        for path in originals:
+            backup = path.with_suffix('.held-tif')
+            path.rename(backup)
+            moved[path] = backup
+        browser._OVERVIEW_PLANE_CACHE.clear()
+        browser._OVERVIEW_INFO_CACHE.clear()
+        view._load_image_view(panel)
+        _settle_plate_auxiliary_jobs(view, qtbot)
+        assert 'Could not read' in view.status.text()
+        assert panel.view._item.pixmap().toImage() == displayed
+    finally:
+        _settle_plate_auxiliary_jobs(view, qtbot)
+        for path, backup in moved.items():
+            backup.rename(path)
+        view._original_steps = None
+        assert all(path.read_bytes() == content for path, content in originals.items())
