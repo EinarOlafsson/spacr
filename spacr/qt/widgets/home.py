@@ -5949,8 +5949,16 @@ class _EasyHomeField(QWidget):
 
     def _publish_growth(self, *, invalidate=False):
         """Track card animation locally without altering the shared field."""
-        self._growth_state = tuple((id(card), card._growing, card.isVisible())
-                                   for card in self.cards if card.parentWidget() is self)
+        state = tuple((id(card), card._growing, card.isVisible())
+                      for card in self.cards if card.parentWidget() is self)
+        changed = state != getattr(self, '_growth_state', ())
+        self._growth_state = state
+        if changed or (invalidate and state):
+            import sys
+
+            ambient = sys.modules.get(f'{__package__}.ambient')
+            if ambient is not None:
+                ambient._field_growing_regions_for_widget(self, invalidate=True)
 
     def _finish_growth(self):
         """Retire geometry animations and release their field ownership."""
