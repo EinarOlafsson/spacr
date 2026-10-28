@@ -5343,6 +5343,10 @@ class _NavigatorAside(_HomePageBase):
             self._read_the_journal()
 
     def _new_running_banner(self):
+        """Build a vertically arranged run banner for the Navigator side panel.
+
+        :returns: the existing banner with its action buttons grouped together.
+        """
         from PySide6.QtWidgets import QBoxLayout, QHBoxLayout, QSizePolicy
 
         banner = super()._new_running_banner()
@@ -5363,6 +5367,7 @@ class _NavigatorAside(_HomePageBase):
         return banner
 
     def _on_runs_changed(self):
+        """Refresh active run banners and the empty-state label."""
         super()._on_runs_changed()
         self._running_empty.setVisible(not any(
             handle.app_key and getattr(handle, 'user_visible', True)
@@ -5413,6 +5418,7 @@ class _NavigatorHomePage(_NavigatorPageBase):
         _watch_object_events(self._suggestions_scroll, self, (QEvent.Resize, QEvent.Move))
 
     def _show_running_runs(self):
+        """Expand the Navigator side panel and reveal its current running jobs."""
         self._navigator_aside_split.set_collapsed('Widgets', False, by_user=False)
         aside = self._navigator_aside
         aside._navigator_folders['Running'].set_shut(False, by_user=False)
@@ -5449,6 +5455,7 @@ class _NavigatorHomePage(_NavigatorPageBase):
         self._fit_navigator_workflow()
 
     def _fit_navigator_aside(self):
+        """Fit the Navigator side-panel overlay to the current page geometry."""
         from PySide6.QtGui import QRegion
 
         split = getattr(self, '_navigator_aside_split', None)
@@ -9775,6 +9782,7 @@ class MainWindow(QMainWindow):
                 "could not write the hint for %s", key, exc_info=True)
 
     def _sync_navigator_dock_overlay(self):
+        """Keep the dock overlay attached to the active Navigator page."""
         if getattr(self, '_syncing_navigator_overlay', False):
             return
         stack = getattr(self, '_stack', None)
