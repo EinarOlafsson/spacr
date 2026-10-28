@@ -14,7 +14,7 @@ def extract_metadata(tmp_path, monkeypatch):
     for name in (
             'model_compare.py', 'embeddings.py', 'settings.py', 'object.py',
             'remote_execution.py', 'install_cleanup.py', 'data_manager.py', 'doctor.py', 'updater.py',
-            'model_zoo.py', 'utils.py', 'convert.py',
+            'model_zoo.py', 'utils.py', 'convert.py', 'image_import.py',
             'attribution.py', 'measure.py', 'channel_sorting.py', 'object_classifier.py', 'core.py',
             'psf_pipeline.py', 'pipeline_v2.py', '_lineage_trees.py', 'plot.py', 'run_journal.py', 'ml.py',
             'regression_layout.py', 'regression_failure.py', 'power_model.py'):
