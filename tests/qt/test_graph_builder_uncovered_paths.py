@@ -454,3 +454,68 @@ def test_the_plot_picker_stays_on_automatic_for_a_kind_it_does_not_offer(
 
     assert picker.currentData() == "bar"
     assert panel.canvas.spec.kind == EMPTY
+
+
+
+def test_transient_worker_column_classification_failure_still_delivers_the_exact_table(
+        qtbot, monkeypatch, tmp_path):
+    import sqlite3
+    import threading
+    from spacr.qt.screens import graph_builder as screen_module
+
+    path = tmp_path / 'measurements.db'
+    frame = _frame(12)
+    with sqlite3.connect(path) as connection:
+        frame.to_sql('cell', connection, index=False)
+    before = path.read_bytes()
+    gui_thread = threading.get_ident()
+    attempts = []
+
+    def refuse_in_worker(value):
+        attempts.append(threading.get_ident())
+        pd.testing.assert_frame_equal(value, frame)
+        raise RuntimeError('column cache is not ready')
+
+    monkeypatch.setattr(screen_module, 'classify_columns', refuse_in_worker)
+    screen = screen_module.GraphBuilderScreen(threaded=True, link=LinkedSelection())
+    qtbot.addWidget(screen)
+    try:
+        screen.load_path(str(path), table='cell')
+        qtbot.waitUntil(lambda: screen._annotation_base_frame is not None
+                        and screen._jobs.active_jobs() == 0, timeout=10000)
+        assert attempts and all(thread != gui_thread for thread in attempts)
+        pd.testing.assert_frame_equal(screen._annotation_base_frame, frame)
+        assert '12 rows' in screen._source.text()
+        assert screen._table_picker.currentText() == 'cell'
+        assert path.read_bytes() == before
+        assert not screen.is_busy()
+    finally:
+        screen.close()
+
+
+def test_csv_column_classification_failure_defers_without_discarding_the_loaded_table(
+        qtbot, monkeypatch, tmp_path):
+    from spacr.qt.screens import graph_builder as screen_module
+
+    path = tmp_path / 'measurements.csv'
+    frame = _frame(6)
+    frame.to_csv(path, index=False)
+    original = path.read_bytes()
+    attempts = []
+
+    def defer(value):
+        attempts.append(len(value))
+        raise ValueError('column type inference is not ready')
+
+    monkeypatch.setattr(screen_module, 'classify_columns', defer)
+    screen = screen_module.GraphBuilderScreen(threaded=False, link=LinkedSelection())
+    qtbot.addWidget(screen)
+    try:
+        screen.load_path(str(path))
+        assert attempts == [6]
+        pd.testing.assert_frame_equal(screen._annotation_base_frame, pd.read_csv(path))
+        assert '6 rows' in screen._source.text()
+        assert not screen.is_busy() and screen._jobs.active_jobs() == 0
+        assert path.read_bytes() == original
+    finally:
+        screen.close()

@@ -327,3 +327,24 @@ def test_successor_buttons_wrap_without_changing_order_or_actions(qtbot, pins, m
     for button in buttons:
         button.click()
     assert clicked == list(strip.steps)
+
+
+def test_a_refused_registry_submission_leaves_the_strip_ready_to_retry(qtbot, pins, monkeypatch):
+    bar = _bar(qtbot, pins)
+    monkeypatch.setattr(bar._resolver, 'submit', lambda work, done: False)
+    bar._refresh(finished=False)
+    assert not bar._resolving
+    assert not bar._resolver.is_busy()
+    assert bar._resolver.active_jobs() == 0
+    assert bar._offered == {}
+
+
+def test_legacy_staleness_drawing_resolves_once_and_clears_both_actions(qtbot, pins, monkeypatch):
+    bar = _bar(qtbot, pins)
+    asked = []
+    monkeypatch.setattr(bar, '_staleness', lambda settings: asked.append(dict(settings)) or ())
+    bar._stale.show()
+    bar._fix.show()
+    bar._draw_staleness({'src': '/plate'})
+    assert asked == [{'src': '/plate'}]
+    assert bar._stale.isHidden() and bar._fix.isHidden()

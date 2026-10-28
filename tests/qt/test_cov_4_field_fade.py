@@ -73,3 +73,42 @@ def test_a_field_with_no_room_inside_its_border_is_not_painted(qapp):
         painter.end()
     assert all(image.pixelColor(x, y).alpha() == 0
                for x in range(8) for y in range(8))
+
+
+def test_visible_field_snapshot_ignores_a_natively_deleted_window(qtbot):
+    """A retired top-level wrapper in a prior snapshot cannot hide a surviving field."""
+    from types import SimpleNamespace
+    import shiboken6
+
+    dead = QLineEdit()
+    live = QLineEdit()
+    qtbot.addWidget(live)
+    dead.show()
+    live.show()
+    snapshot = [dead, live]
+    shiboken6.delete(dead)
+    assert list(field_fade._visible_fields(SimpleNamespace(topLevelWidgets=lambda: snapshot))) == [live]
+
+
+def test_visible_field_snapshot_ignores_a_retired_candidate(qtbot):
+    """A captured native child can retire before inspection without losing live siblings."""
+    from types import SimpleNamespace
+    import shiboken6
+    from PySide6.QtWidgets import QWidget
+
+    host = QWidget()
+    qtbot.addWidget(host)
+    dead, live = QLineEdit(host), QLineEdit(host)
+    host.show()
+    snapshot = [dead, live]
+    shiboken6.delete(dead)
+
+    class CapturedWindow:
+        def isVisible(self):
+            return True
+
+        def findChildren(self, kind):
+            return snapshot if kind is QLineEdit else []
+
+    app = SimpleNamespace(topLevelWidgets=lambda: [CapturedWindow()])
+    assert list(field_fade._visible_fields(app)) == [live]

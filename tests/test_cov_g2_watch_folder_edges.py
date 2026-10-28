@@ -140,3 +140,84 @@ def test_a_conversion_map_with_repeated_or_zero_identifiers_is_refused(
         header + row.replace(",1,1,1,1,", ",0,1,1,1,"), encoding="utf-8")
     with pytest.raises(ValueError):
         core._watch_map_manifest(str(tmp_path), {})
+
+
+def test_legacy_ledger_keys_migrate_without_accepting_changed_or_missing_sources(tmp_path):
+    """Portable spelling must not turn a changed acquisition into a completed field."""
+    folder = tmp_path / 'nested'
+    folder.mkdir()
+    unchanged = folder / 'same.tif'
+    changed = folder / 'changed.tif'
+    unchanged.write_bytes(b'original unchanged camera pixels')
+    changed.write_bytes(b'new camera pixels')
+    same_stat, changed_stat = unchanged.stat(), changed.stat()
+    same = [same_stat.st_dev, same_stat.st_ino, same_stat.st_size,
+            same_stat.st_mtime_ns, same_stat.st_ctime_ns]
+    stale = [changed_stat.st_dev, changed_stat.st_ino, changed_stat.st_size + 1,
+             changed_stat.st_mtime_ns, changed_stat.st_ctime_ns]
+    entry = {'files': {'nested\\same.tif': [1, 2]},
+             'snapshot_sha256': {'nested\\same.tif': 'kept-digest'},
+             'source_identity': {'nested\\same.tif': same.copy(),
+                                 'nested\\changed.tif': stale.copy(),
+                                 'nested\\missing.tif': same.copy(),
+                                 'not-an-identity': 'preserved'},
+             'collection_checkpoint': {'files': {'nested\\same.tif': 'kept'},
+                                       'unchanged': None}}
+    before_bytes = unchanged.read_bytes(), changed.read_bytes()
+    core._watch_migrate_windows_entry(entry, str(tmp_path))
+    assert entry['files'] == {'nested/same.tif': [1, 2]}
+    assert entry['snapshot_sha256'] == {'nested/same.tif': 'kept-digest'}
+    assert entry['collection_checkpoint'] == {'files': {'nested/same.tif': 'kept'},
+                                              'unchanged': None}
+    assert entry['source_identity']['nested/same.tif'] == core._watch_file_identity(unchanged)
+    assert entry['source_identity']['nested/changed.tif'] == stale
+    assert entry['source_identity']['nested/missing.tif'] == same
+    assert entry['source_identity']['not-an-identity'] == 'preserved'
+    assert (unchanged.read_bytes(), changed.read_bytes()) == before_bytes
+    no_identity = {'files': ['an older nonmapping record']}
+    core._watch_migrate_windows_entry(no_identity, str(tmp_path))
+    assert no_identity == {'files': ['an older nonmapping record']}
+
+
+def test_windows_ledger_loader_migrates_only_legacy_regular_file_identities(tmp_path, monkeypatch):
+    """The Windows adapter updates legacy change-time keys without trusting unsafe files."""
+    image = tmp_path / 'same.tif'
+    image.write_bytes(b'acquired image')
+    directory = tmp_path / 'folder'
+    directory.mkdir()
+    info = image.stat()
+    identity = [info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns]
+    folder_info = directory.stat()
+    folder_identity = [folder_info.st_dev, folder_info.st_ino, folder_info.st_size,
+                       folder_info.st_mtime_ns, folder_info.st_ctime_ns]
+    changed = tmp_path / 'changed.tif'
+    changed.write_bytes(b'changed acquisition')
+    changed_info = changed.stat()
+    nonlegacy = [changed_info.st_dev, changed_info.st_ino, changed_info.st_size,
+                 changed_info.st_mtime_ns, changed_info.st_ctime_ns - 1]
+    entry = {'files': {4: 'nonpath metadata', 'same.tif': 'original'},
+             'source_identity': {'same.tif': identity, 'folder': folder_identity,
+                                 'changed.tif': nonlegacy}}
+    record = {'fields': {'valid': entry, 'legacy_nonmapping': None}}
+    path = tmp_path / 'watch_ledger.json'
+    path.write_text(json.dumps(record))
+    before = path.read_bytes(), image.read_bytes()
+
+    class WindowsOS:
+        name = 'nt'
+
+        def __getattr__(self, name):
+            return getattr(os, name)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(core, 'os', WindowsOS())
+        patch.setattr(core, '_watch_windows_change_ns', lambda **kwargs: 123456789)
+        loaded = core._watch_load_ledger(str(path), str(tmp_path))
+    actual = loaded['fields']['valid']
+    assert actual['source_identity']['same.tif'] == identity[:4] + [123456789]
+    assert actual['source_identity']['folder'] == folder_identity
+    assert actual['source_identity']['changed.tif'] == nonlegacy
+    assert actual['files'] == {'4': 'nonpath metadata', 'same.tif': 'original'}
+    assert loaded['fields']['legacy_nonmapping'] is None
+    assert (path.read_bytes(), image.read_bytes()) == before
+    assert core._watch_portable_keys({4: 'metadata', 'a\\b': 'path'}) == {4: 'metadata', 'a/b': 'path'}

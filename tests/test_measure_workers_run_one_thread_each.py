@@ -50,3 +50,30 @@ def test_the_initializer_still_hands_over_the_writer_endpoint(monkeypatch):
     measure._initialize_measure_worker(marker)
     assert measure._MEASURE_WRITE_ENDPOINT is marker
     assert all(os.environ[n] == "1" for n in measure._WORKER_THREAD_VARIABLES)
+
+
+def test_optional_thread_library_refusals_preserve_the_writer_endpoint_and_worker_budget(monkeypatch):
+    import importlib
+
+    threadpoolctl = importlib.import_module('threadpoolctl')
+    torch = importlib.import_module('torch')
+    cv2 = importlib.import_module('cv2')
+    calls = []
+
+    def refuse(name):
+        def fail(*args, **kwargs):
+            calls.append(name)
+            raise RuntimeError('optional thread controller unavailable')
+        return fail
+
+    for name in measure._WORKER_THREAD_VARIABLES:
+        monkeypatch.setenv(name, os.environ.get(name, '8'))
+    monkeypatch.setattr(threadpoolctl, 'threadpool_limits', refuse('blas'))
+    monkeypatch.setattr(torch, 'set_num_threads', refuse('torch'))
+    monkeypatch.setattr(cv2, 'setNumThreads', refuse('cv2'))
+    monkeypatch.setattr(measure, '_MEASURE_WRITE_ENDPOINT', None)
+    endpoint = object()
+    measure._initialize_measure_worker(endpoint)
+    assert measure._MEASURE_WRITE_ENDPOINT is endpoint
+    assert calls == ['blas', 'torch', 'cv2']
+    assert all(os.environ[name] == '1' for name in measure._WORKER_THREAD_VARIABLES)

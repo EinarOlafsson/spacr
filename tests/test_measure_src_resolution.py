@@ -627,3 +627,180 @@ def test_per_plate_control_settings_refuse_before_ordinary_measure_outputs(tmp_p
             measure.measure_from_field_table(table, settings, dst=str(tmp_path / 'features'))
     assert {path: path.read_bytes() for path in source.iterdir()} == before
     assert set(tmp_path.iterdir()) == {source}
+
+
+@pytest.mark.parametrize('refusal', ['invalid-cancellation', 'inside-source', 'existing-destination'])
+def test_calibrated_measurement_refuses_unsafe_publication_before_reading_the_dataset(plate, tmp_path, refusal):
+    """Bad output authority must not alter source images or an occupied result."""
+    from spacr.measure import measure_calibrated_cells
+
+    before = (plate / 'merged' / 'a.npy').read_bytes()
+    destination = tmp_path / 'results'
+    cancelled = None
+    if refusal == 'invalid-cancellation':
+        cancelled = False
+        expected = ValueError
+    elif refusal == 'inside-source':
+        destination = plate / 'results'
+        expected = ValueError
+    else:
+        destination.mkdir()
+        (destination / 'previous.csv').write_bytes(b'previous result\n')
+        expected = FileExistsError
+    with pytest.raises(expected):
+        measure_calibrated_cells(plate, dst=destination, cancelled=cancelled)
+    assert (plate / 'merged' / 'a.npy').read_bytes() == before
+    if refusal == 'existing-destination':
+        assert (destination / 'previous.csv').read_bytes() == b'previous result\n'
+        assert sorted(path.name for path in destination.iterdir()) == ['previous.csv']
+    else:
+        assert not destination.exists()
+    assert not tuple(tmp_path.glob('.results.*'))
+
+
+def test_calibrated_directory_publication_never_replaces_even_an_empty_destination(tmp_path):
+    """The real atomic primitive preserves both sides when a destination wins the race."""
+    import sys
+    from spacr.measure import _publish_calibrated_measurement_directory
+
+    if not sys.platform.startswith('linux'):
+        pytest.skip('this control exercises the installed Linux renameat2 primitive')
+    staging, destination = tmp_path / 'staging', tmp_path / 'result'
+    staging.mkdir()
+    destination.mkdir()
+    (staging / 'cells.csv').write_bytes(b'known staged rows\n')
+    with pytest.raises(OSError):
+        _publish_calibrated_measurement_directory(staging, destination)
+    assert (staging / 'cells.csv').read_bytes() == b'known staged rows\n'
+    assert list(destination.iterdir()) == []
+
+
+@pytest.mark.parametrize('platform', ['windows-adapter', 'darwin-adapter', 'unsupported-primitive'])
+def test_directory_publication_platform_protocol_preserves_owned_staging(tmp_path, monkeypatch, platform):
+    """Validate ABI dispatch using real directories, without native-platform claims."""
+    import ctypes
+    import sys
+    from types import SimpleNamespace
+    from spacr import measure
+
+    staging, destination = tmp_path / 'staging', tmp_path / 'published'
+    staging.mkdir()
+    (staging / 'cells.csv').write_bytes(b'staged signed-cell rows\n')
+    calls = []
+
+    class WindowsOS:
+        name = 'nt'
+
+        def __getattr__(self, name):
+            return getattr(os, name)
+
+        def rename(self, source, target):
+            calls.append((source, target))
+            return os.rename(source, target)
+
+    class DarwinSys:
+        platform = 'darwin'
+
+        def __getattr__(self, name):
+            return getattr(sys, name)
+
+    def renamex(source, target, flags):
+        assert flags == 4
+        calls.append((source, target, flags))
+        os.rename(source, target)
+        return 0
+
+    with monkeypatch.context() as patch:
+        if platform == 'windows-adapter':
+            patch.setattr(measure, 'os', WindowsOS())
+        elif platform == 'darwin-adapter':
+            patch.setitem(sys.modules, 'sys', DarwinSys())
+            patch.setattr(ctypes, 'CDLL', lambda *args, **kwargs: SimpleNamespace(renamex_np=renamex))
+        else:
+            patch.setattr(ctypes, 'CDLL', lambda *args, **kwargs: SimpleNamespace())
+        if platform == 'unsupported-primitive':
+            with pytest.raises(OSError, match='cannot atomically publish'):
+                measure._publish_calibrated_measurement_directory(staging, destination)
+        else:
+            measure._publish_calibrated_measurement_directory(staging, destination)
+    if platform == 'unsupported-primitive':
+        assert calls == [] and not destination.exists()
+        assert (staging / 'cells.csv').read_bytes() == b'staged signed-cell rows\n'
+    else:
+        assert len(calls) == 1 and not staging.exists()
+        assert (destination / 'cells.csv').read_bytes() == b'staged signed-cell rows\n'
+
+
+@pytest.mark.parametrize('record', [{'configuration': {}}, {'complete': True, 'configuration': {'version': True}}, []])
+def test_unverifiable_coordinate_records_refuse_measurement_without_repairing_source(plate, record):
+    import json
+    from spacr.measure import _validate_measurement_coordinate_source
+
+    folder = plate / 'psf'
+    folder.mkdir()
+    path = folder / 'segmentation_application.json'
+    path.write_text(json.dumps(record))
+    before = path.read_bytes(), (plate / 'merged' / 'a.npy').read_bytes()
+    with pytest.raises(ConfigurationError, match='Cannot verify'):
+        _validate_measurement_coordinate_source(plate / 'merged')
+    assert (path.read_bytes(), (plate / 'merged' / 'a.npy').read_bytes()) == before
+
+
+@pytest.mark.parametrize('damage', ['dangling-link', 'growing-record'])
+def test_coordinate_preflight_refuses_missing_targets_and_growth_during_read(plate, monkeypatch, damage):
+    from pathlib import Path
+    from spacr.measure import _validate_measurement_coordinate_source
+
+    folder = plate / 'psf'
+    folder.mkdir()
+    path = folder / 'segmentation_application.json'
+    before = (plate / 'merged' / 'a.npy').read_bytes()
+    if damage == 'dangling-link':
+        path.symlink_to(folder / 'absent.json')
+    else:
+        path.write_bytes(b'{}')
+        original_open = Path.open
+
+        def growing_open(candidate, *args, **kwargs):
+            handle = original_open(candidate, *args, **kwargs)
+            if candidate == path and args and args[0] == 'rb':
+                original_read = handle.read
+
+                def growing_read(*read_args):
+                    with original_open(path, 'ab') as writer:
+                        writer.truncate(32 * 1024 ** 2 + 1)
+                    return original_read(*read_args)
+
+                handle.read = growing_read
+            return handle
+
+        monkeypatch.setattr(Path, 'open', growing_open)
+    with pytest.raises(ConfigurationError, match='Cannot verify'):
+        _validate_measurement_coordinate_source(plate / 'merged')
+    assert (plate / 'merged' / 'a.npy').read_bytes() == before
+    assert not (plate / 'measurements').exists()
+    if damage == 'dangling-link':
+        assert path.is_symlink() and not path.exists()
+    else:
+        assert path.stat().st_size == 32 * 1024 ** 2 + 1
+
+
+def test_an_unsupported_directory_publication_platform_never_falls_back_to_replace(tmp_path, monkeypatch):
+    import sys
+    from spacr.measure import _publish_calibrated_measurement_directory
+
+    class UnsupportedSys:
+        platform = 'unsupported-test-platform'
+
+        def __getattr__(self, name):
+            return getattr(sys, name)
+
+    source, destination = tmp_path / 'staging', tmp_path / 'result'
+    source.mkdir()
+    (source / 'cells.csv').write_bytes(b'owned rows')
+    with monkeypatch.context() as patch:
+        patch.setitem(sys.modules, 'sys', UnsupportedSys())
+        with pytest.raises(OSError, match='cannot atomically publish'):
+            _publish_calibrated_measurement_directory(source, destination)
+    assert not destination.exists()
+    assert (source / 'cells.csv').read_bytes() == b'owned rows'

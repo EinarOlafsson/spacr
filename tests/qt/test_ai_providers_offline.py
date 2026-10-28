@@ -941,3 +941,31 @@ def test_make_stream_thread_worker_runs_off_the_gui_thread(qtbot,
     assert done == [(True, "done")]
     assert seen["tid"] != threading.get_ident()
     qtbot.waitUntil(lambda: _thread_stopped(thread), timeout=5000)
+
+
+@pytest.mark.parametrize('resolved,expected', [
+    ('C:/tools/vendor.CMD', 'C:/tools/vendor.CMD'),
+    ('C:/tools/vendor.bat', 'C:/tools/vendor.bat'),
+    ('C:/tools/vendor.exe', ''), (None, '')])
+def test_windows_cli_shim_selection_never_treats_executables_as_batch(
+        monkeypatch, resolved, expected):
+    from types import SimpleNamespace
+    from spacr.qt.ai import providers
+
+    monkeypatch.undo()
+    calls = []
+    monkeypatch.setattr(providers, 'os', SimpleNamespace(name='nt'))
+    monkeypatch.setattr(providers.shutil, 'which', lambda name: calls.append(name) or resolved)
+    assert providers._batch_shim('vendor') == expected
+    assert calls == ['vendor']
+
+
+def test_background_path_warming_skips_non_cli_providers(monkeypatch):
+    from types import SimpleNamespace
+    from spacr.qt.ai import providers
+
+    calls = []
+    monkeypatch.setattr(providers, '_PROVIDERS', [object(), SimpleNamespace(cli_name=''), SimpleNamespace(cli_name='vendor')])
+    monkeypatch.setattr(providers, '_found_on_path', calls.append)
+    providers._warm_path_lookups()
+    assert calls == ['vendor']

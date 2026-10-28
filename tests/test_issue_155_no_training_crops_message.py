@@ -56,3 +56,19 @@ def test_a_source_that_is_a_file(tmp_path):
     error = _no_training_crops_error(str(db), str(db / "x"), "cell", "cell_png")
     assert isinstance(error, FileNotFoundError)
     assert "Set src to that plate folder" in str(error)
+
+
+def test_a_corrupt_database_reports_missing_crops_without_repairing_or_replacing_it(tmp_path):
+    from spacr.io import _no_training_crops_error
+
+    folder = tmp_path / 'measurements'
+    folder.mkdir()
+    database = folder / 'measurements.db'
+    original = b'this is not a SQLite database; preserve the evidence\n'
+    database.write_bytes(original)
+    error = _no_training_crops_error(str(tmp_path), str(database), 'cell', 'cell_png')
+    assert isinstance(error, ValueError)
+    assert "no 'png_list' table" in str(error) and "no 'cell' table" in str(error)
+    assert 'Measure' in str(error)
+    assert database.read_bytes() == original
+    assert sorted(path.name for path in folder.iterdir()) == ['measurements.db']

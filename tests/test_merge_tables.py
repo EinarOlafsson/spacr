@@ -370,3 +370,71 @@ def test_png_list_is_offered_alongside_the_object_tables(tmp_path):
     with sqlite3.connect(path) as db:
         _png().to_sql("png_list", db, index=False)
     assert mergeable_tables(path) == ("cell", "png_list")
+
+
+def test_nested_source_context_keeps_frames_owned_and_the_database_unchanged(tmp_path):
+    """A nested merge borrows the active source context without replacing its owner."""
+    from spacr import merge_tables as mt
+
+    path = _db(tmp_path, {'cell': _cells(), 'pathogen': _pathogens()})
+    from pathlib import Path
+    before = Path(path).read_bytes()
+    assert mt._merge_source_frames.get() is None
+    with mt._merge_duplicate_sources(path, ['cell', 'pathogen']) as outer:
+        with mt._merge_duplicate_sources(path, ['cell']) as inner:
+            assert inner is outer and inner['cell'] is outer['cell']
+            assert mt._merge_source_frames.get()[1] is outer
+        assert mt._merge_source_frames.get()[1] is outer
+    assert mt._merge_source_frames.get() is None
+    assert Path(path).read_bytes() == before
+
+
+def test_standard_merge_refuses_a_child_missing_its_image_identity(tmp_path):
+    """Object labels shared by different images cannot be joined without field keys."""
+    from spacr import merge_tables as mt
+    from pathlib import Path
+
+    path = _db(tmp_path, {'cell': _cells(),
+                         'pathogen': _pathogens().drop(columns=['fieldID'])})
+    before = Path(path).read_bytes()
+    with pytest.raises(MergeError, match='missing keys fieldID'):
+        with mt._merge_duplicate_sources(path, ['cell', 'pathogen'], standard=True):
+            pytest.fail('a child with no field identity must not be admitted')
+    assert mt._merge_source_frames.get() is None
+    assert Path(path).read_bytes() == before
+
+
+def test_identity_only_duplicate_rows_collapse_without_inventing_measurements():
+    """An identity-only source is deduplicated, with incomplete rows left untouched."""
+    from spacr import merge_tables as mt
+
+    source = pd.DataFrame({'plateID': ['p1', 'p1', None],
+                           'object_label': [7, 7, 8]})
+    before = source.copy(deep=True)
+    result = mt._collapse_duplicate_observations(source, list(source.columns), 'cell', {})
+    pd.testing.assert_frame_equal(result, source.iloc[[0, 2]].reset_index(drop=True))
+    pd.testing.assert_frame_equal(source, before)
+
+
+def test_a_primary_table_without_object_identity_refuses_without_mutating_sqlite(tmp_path):
+    from pathlib import Path
+
+    source = _cells().drop(columns='object_label')
+    path = _db(tmp_path, {'cell': source})
+    before = Path(path).read_bytes()
+    with pytest.raises(MergeError, match='has no object_label'):
+        merge_tables(path, ['cell'], policy=MergePolicy(primary='cell'))
+    assert Path(path).read_bytes() == before
+
+
+def test_repeated_incomplete_primary_identities_cannot_duplicate_the_merged_population(tmp_path):
+    from pathlib import Path
+
+    cells = _cells()
+    cells['fieldID'] = None
+    cells['object_label'] = 7
+    path = _db(tmp_path, {'cell': cells})
+    before = Path(path).read_bytes()
+    with pytest.raises(MergeError):
+        merge_tables(path, ['cell'], policy=MergePolicy(primary='cell'))
+    assert Path(path).read_bytes() == before

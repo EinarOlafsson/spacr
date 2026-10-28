@@ -634,3 +634,56 @@ def test_the_batch_adapter_draws_the_grid_through_the_existing_layout():
     assert figure is not None
     assert len(figure.axes) >= 2
     matplotlib.pyplot.close(figure)
+
+
+class _HostBackedMetalTensor(torch.Tensor):
+    """Exercise host-transfer dispatch with real CPU storage, never an accelerator."""
+    transfers = []
+
+    @property
+    def device(self):
+        return torch.device("mps")
+
+    def cpu(self, *args, **kwargs):
+        type(self).transfers.append(tuple(self.shape))
+        return self.as_subclass(torch.Tensor).cpu(*args, **kwargs)
+
+
+def test_eigencam_host_transfer_preserves_the_cpu_map_and_retires_hooks():
+    with torch.random.fork_rng(devices=[]):
+        model = NegativeConv()
+        image = _image()
+        expected = attribute(model, image, "eigencam", layer="conv").map
+        _HostBackedMetalTensor.transfers = []
+        handle = model.conv.register_forward_hook(lambda module, args, output: output.as_subclass(_HostBackedMetalTensor))
+        try:
+            actual = attribute(model, image, "eigencam", layer="conv").map
+            assert np.allclose(actual, expected)
+            assert _HostBackedMetalTensor.transfers
+            assert len(model.conv._forward_hooks) == 1
+        finally:
+            handle.remove()
+        assert not model.conv._forward_hooks
+
+
+def test_counterfactual_host_score_transfer_preserves_frames_and_class_probabilities(monkeypatch):
+    from spacr import attribution as module
+
+    with torch.random.fork_rng(devices=[]):
+        torch.manual_seed(12)
+        model = nn.Sequential(nn.Flatten(), nn.Linear(16, 2))
+        generator = module._CounterfactualGenerator(1, side=4, n_classes=2, latent=2, width=2)
+        crops = torch.arange(16, dtype=torch.float32).reshape(1, 1, 4, 4) / 15
+        expected_rows, expected_frames = module._counterfactual_sequences(model, generator, crops, steps=3, keep=1)
+        softmax = torch.softmax
+        def host_dispatch(values, *args, **kwargs):
+            probabilities = softmax(values, *args, **kwargs)
+            return probabilities.as_subclass(_HostBackedMetalTensor) if len(probabilities) == 3 else probabilities
+        _HostBackedMetalTensor.transfers = []
+        monkeypatch.setattr(torch, "softmax", host_dispatch)
+        rows, frames = module._counterfactual_sequences(model, generator, crops, steps=3, keep=1)
+    assert rows == expected_rows
+    assert np.array_equal(frames, expected_frames)
+    assert _HostBackedMetalTensor.transfers == [(3, 2)]
+    assert frames.shape == (1, 3, 1, 4, 4)
+    assert np.isfinite(frames).all()

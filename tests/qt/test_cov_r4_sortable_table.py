@@ -518,3 +518,73 @@ def test_the_proxy_keeps_the_holes_last_descending_too():
     # The two holes compare equal to each other, so which of them is last is
     # not part of the contract; that they are both last is.
     assert set(_shown(proxy)[5:]) == {"", "n/a"}
+
+
+def test_cached_numeric_keys_survive_stale_priming_and_text_changes(qapp, monkeypatch):
+    from spacr.qt.widgets import sortable_table as st
+
+    first, second = tree_item(['2']), tree_item(['10'])
+    assert first._resolve_key() == (False, 2.)
+    assert first._resolve_key() == (False, 2.)
+    first._sort_primed = (object(),)
+    second._sort_primed = (object(),)
+    monkeypatch.setattr(st, '_PRIMED', (False, object()))
+    assert first < second
+    first.setText(0, '20')
+    assert second < first
+    assert first._resolve_key() == (False, 20.)
+
+
+def test_priming_walks_plain_tree_parents_and_keeps_current_token_keys(qtbot, monkeypatch):
+    from spacr.qt.widgets import sortable_table as st
+
+    tree = QTreeWidget()
+    qtbot.addWidget(tree)
+    parent = QTreeWidgetItem(['group'])
+    tree.addTopLevelItem(parent)
+    for value in ('10', '', '2'):
+        parent.addChild(tree_item([value]))
+    token = object()
+    primed = st._prime_tree_keys(tree, 0, token)
+    assert len(primed) == 3
+    original_keys = [item._sort_primed for item in primed]
+    assert st._prime_tree_keys(tree, 0, token) == primed
+    assert all(item._sort_primed is key for item, key in zip(primed, original_keys))
+    monkeypatch.setattr(st, '_PRIMED', (False, token))
+    parent.sortChildren(0, Qt.AscendingOrder)
+    assert [parent.child(row).text(0) for row in range(3)] == ['2', '10', '']
+    monkeypatch.setattr(st, '_PRIMED', (True, token))
+    parent.sortChildren(0, Qt.DescendingOrder)
+    assert [parent.child(row).text(0) for row in range(3)] == ['10', '2', '']
+
+
+def test_retired_sort_state_does_not_resume_or_change_a_live_tree(qtbot):
+    import shiboken6
+    from spacr.qt.widgets import sortable_table as st
+
+    tree = QTreeWidget()
+    qtbot.addWidget(tree)
+    tree.addTopLevelItems([tree_item(['10']), tree_item(['2'])])
+    install_sorting(tree)
+    state = getattr(tree, _STATE_ATTR)
+    shiboken6.delete(state)
+    before = [tree.topLevelItem(row).text(0) for row in range(2)]
+    st._hold_sorting_for_fill(tree)
+    st._keep_sorting_held(tree)
+    assert [tree.topLevelItem(row).text(0) for row in range(2)] == before
+    assert not shiboken6.isValid(state)
+
+
+def test_a_partially_primed_tree_still_compares_an_unprimed_numeric_row_with_plain_qt(qtbot, monkeypatch):
+    from spacr.qt.widgets import sortable_table as st
+
+    tree = QTreeWidget()
+    qtbot.addWidget(tree)
+    ours, plain = tree_item(['2']), QTreeWidgetItem(['10'])
+    tree.addTopLevelItems([ours, plain])
+    assert getattr(ours, '_sort_primed', None) is None
+    monkeypatch.setattr(st, '_PRIMED', (False, object()))
+    assert ours < plain
+    ours.setText(0, '20')
+    assert not ours < plain
+    assert [tree.topLevelItem(index).text(0) for index in range(2)] == ['20', '10']

@@ -93,6 +93,231 @@ def _run(inputs):
     return run_v2(inputs['source'], **inputs['kwargs'])
 
 
+@needs_partition_access
+@pytest.mark.parametrize('budget', ['aggregate', 'padded'])
+def test_real_sparse_headers_refuse_an_oversized_batch_before_decoding_controls(
+        mixed_plate_inputs, monkeypatch, budget):
+    import tifffile
+    from spacr import pipeline_v2
+
+    inputs = mixed_plate_inputs
+    source = inputs['source']
+    paths = sorted(source.glob('plate1_*.tif'))
+    if budget == 'aggregate':
+        template = paths[0]
+        for field in range(20, 26):
+            for channel in inputs['kwargs']['channels']:
+                path = source / f'plate1_A01_F{field}_T2_Z1_C{channel}.tif'
+                path.write_bytes(template.read_bytes())
+        paths = sorted(source.glob('plate1_*.tif'))
+    for path in paths:
+        shape = ((2048, 2048) if budget == 'aggregate' else
+                 (4096, 1) if '_A01_' in path.name else (1, 4096))
+        image = tifffile.memmap(path, shape=shape, dtype=np.uint8, photometric='minisblack')
+        image[0, 0] = 19
+        image[-1, -1] = 71
+        image.flush()
+        image._mmap.close()
+    inputs['kwargs']['batch_fields'] = 16
+    before = {path: path.stat() for path in paths}
+    entries = set(source.rglob('*'))
+    monkeypatch.setattr(pipeline_v2, '_read_plane',
+        lambda *args, **kwargs: pytest.fail('Batch bounds must precede all control decoding'))
+    with pytest.raises(ValueError):
+        _run(inputs)
+    assert set(source.rglob('*')) == entries
+    assert inputs['constructed'] == inputs['observed'] == []
+    for path, stat in before.items():
+        current = path.stat()
+        assert (current.st_ino, current.st_size, current.st_mtime_ns) == (
+            stat.st_ino, stat.st_size, stat.st_mtime_ns)
+        image = tifffile.memmap(path, mode='r')
+        try:
+            assert int(image[0, 0]) == 19 and int(image[-1, -1]) == 71
+        finally:
+            image._mmap.close()
+    assert not list(source.glob('calibrated_plate_batch*'))
+
+
+@needs_partition_access
+def test_exhausted_collection_names_preserve_every_existing_owner(mixed_plate_inputs):
+    inputs = mixed_plate_inputs
+    source = inputs['source']
+    occupied = [source / ('calibrated_plate_batch' if index == 0 else
+                         f'calibrated_plate_batch_{index:04d}') for index in range(10000)]
+    for path in occupied:
+        path.mkdir()
+    marker = occupied[-1] / 'keep.txt'
+    marker.write_bytes(b'previous independent collection')
+    with pytest.raises(ValueError):
+        _run(inputs)
+    assert all(path.is_dir() for path in occupied)
+    assert marker.read_bytes() == b'previous independent collection'
+    assert not list(source.glob('calibrated_plate_batch*/plate_batch.json'))
+    assert inputs['constructed'] == inputs['observed'] == []
+    _unchanged(inputs)
+
+
+@needs_partition_access
+@pytest.mark.parametrize('damage', ['mixed-identity', 'empty-discovery'])
+def test_untrustworthy_field_grouping_refuses_before_any_collection(mixed_plate_inputs, monkeypatch, damage):
+    from spacr import pipeline_v2
+
+    inputs = mixed_plate_inputs
+    mapper = pipeline_v2.FilenameMapper.discover(inputs['source'], metadata_type='custom',
+        custom_regex=inputs['kwargs']['custom_regex'])
+    if damage == 'mixed-identity':
+        first = mapper.by_field()[mapper.records[0].stack_field_id]
+        assert len(first) == 2
+        first[-1].well = 'H12'
+    else:
+        mapper.records = []
+    monkeypatch.setattr(pipeline_v2.FilenameMapper, 'discover', classmethod(lambda cls, *a, **k: mapper))
+    before = set(inputs['source'].rglob('*'))
+    with pytest.raises(ValueError):
+        _run(inputs)
+    assert set(inputs['source'].rglob('*')) == before
+    assert inputs['constructed'] == inputs['observed'] == []
+    _unchanged(inputs)
+
+
+@needs_partition_access
+@pytest.mark.parametrize('mismatch', ['fields', 'matrix', 'optics'])
+def test_reopened_child_optics_must_match_the_preflight_before_any_model(
+        mixed_plate_inputs, monkeypatch, mismatch):
+    from dataclasses import replace
+    from spacr import psf_pipeline
+
+    inputs = mixed_plate_inputs
+    prepare = psf_pipeline._prepare_segmentation_psf
+
+    def altered_session(*args, **kwargs):
+        session = prepare(*args, **kwargs)
+        if mismatch == 'fields':
+            session.unmixing = replace(session.unmixing, fields={})
+        elif mismatch == 'matrix':
+            session.unmixing = replace(session.unmixing,
+                matrix=np.asarray(session.unmixing.matrix) + .01)
+        else:
+            provenance = session.unmixing.calibration.provenance
+            monkeypatch.setattr(type(session.unmixing.calibration), 'provenance',
+                lambda self: dict(provenance(), wrong_acquisition=True))
+        return session
+
+    monkeypatch.setattr(psf_pipeline, '_prepare_segmentation_psf', altered_session)
+    with pytest.raises(ValueError):
+        _run(inputs)
+    path = next(inputs['source'].glob('calibrated_plate_batch*/plate_batch.json'))
+    record = json.loads(path.read_text())
+    assert record['status'] == record['children'][0]['status'] == 'failed'
+    assert record['complete'] is record['segmentation_complete'] is False
+    assert inputs['constructed'] == inputs['observed'] == []
+    _unchanged(inputs)
+
+
+@needs_partition_access
+@pytest.mark.parametrize('invalid', ['count', 'shape'])
+def test_model_output_cardinality_and_canvas_are_refused_without_source_replacement(
+        mixed_plate_inputs, monkeypatch, invalid):
+    from cellpose import models
+    from functools import wraps
+
+    inputs = mixed_plate_inputs
+    evaluate = models.CellposeModel.eval
+
+    @wraps(evaluate)
+    def invalid_labels(model, *args, **kwargs):
+        masks, flows, styles = evaluate(model, *args, **kwargs)
+        return (masks[:-1] if invalid == 'count' else [mask[:-1] for mask in masks]), flows, styles
+
+    monkeypatch.setattr(models.CellposeModel, 'eval', invalid_labels)
+    with pytest.raises(ValueError, match='one label image|match the image'):
+        _run(inputs)
+    path = next(inputs['source'].glob('calibrated_plate_batch*/plate_batch.json'))
+    record = json.loads(path.read_text())
+    assert record['status'] == record['children'][0]['status'] == 'failed'
+    assert record['complete'] is record['segmentation_complete'] is False
+    child = path.parent / record['children'][0]['path']
+    assert not list((child / 'signed').glob('*.npy'))
+    _unchanged(inputs)
+
+
+@needs_partition_access
+def test_oversized_completed_child_record_cannot_be_claimed_as_durable_success(mixed_plate_inputs, monkeypatch):
+    from spacr import pipeline_v2
+
+    inputs = mixed_plate_inputs
+    segment = pipeline_v2.stream_masks_from_stack
+
+    def grow_record(*args, **kwargs):
+        result = segment(*args, **kwargs)
+        record = kwargs['psf_session'].root / 'psf' / 'segmentation_application.json'
+        with record.open('ab') as stream:
+            stream.truncate(16 * 1024 ** 2 + 1)
+        return result
+
+    monkeypatch.setattr(pipeline_v2, 'stream_masks_from_stack', grow_record)
+    with pytest.raises(ValueError):
+        _run(inputs)
+    path = next(inputs['source'].glob('calibrated_plate_batch*/plate_batch.json'))
+    record = json.loads(path.read_text())
+    assert record['status'] == record['children'][0]['status'] == 'failed'
+    assert record['children'][0]['record_sha256'] is None
+    assert record['complete'] is record['segmentation_complete'] is False
+    _unchanged(inputs)
+
+
+@needs_partition_access
+def test_a_failed_error_note_cannot_replace_the_original_partition_failure(mixed_plate_inputs, monkeypatch):
+    from cellpose import models
+    from spacr import psf_pipeline
+
+    class UnnotableError(RuntimeError):
+        def add_note(self, note):
+            raise OSError('Cannot attach a note')
+
+    inputs = mixed_plate_inputs
+    failure = UnnotableError('actual model refusal')
+    original_write = psf_pipeline._write_json
+
+    def fail_model(*args, **kwargs):
+        raise failure
+
+    def failed_status(path, value):
+        if Path(path).name == 'plate_batch.json' and value.get('status') == 'failed':
+            raise OSError('Status journal unavailable')
+        return original_write(path, value)
+
+    monkeypatch.setattr(models.CellposeModel, 'eval', fail_model)
+    monkeypatch.setattr(psf_pipeline, '_write_json', failed_status)
+    with pytest.raises(UnnotableError) as caught:
+        _run(inputs)
+    assert caught.value is failure
+    path = next(inputs['source'].glob('calibrated_plate_batch*/plate_batch.json'))
+    record = json.loads(path.read_text())
+    assert record['status'] == record['children'][0]['status'] == 'running'
+    assert record['complete'] is record['segmentation_complete'] is False
+    _unchanged(inputs)
+
+
+def test_child_qc_failure_persists_only_the_error_type_without_invalidating_segmentation(completed_partition):
+    from spacr import pipeline_v2
+
+    inputs, result = completed_partition
+    child = result['plate_results'][0]
+    path = Path(result['manifest_path'])
+    prior = json.loads(path.read_text())
+    pipeline_v2._record_partition_qc(result, child, 'failed', RuntimeError('private detail'))
+    record = json.loads(path.read_text())
+    assert record['children'][0]['qc_error_type'] == 'RuntimeError'
+    assert record['children'][0]['qc_status'] == 'failed'
+    assert record['children'][0]['status'] == 'complete'
+    assert record['children'][0]['record_sha256'] == prior['children'][0]['record_sha256']
+    assert record['segmentation_complete'] is True and record['complete'] is False
+    assert 'private detail' not in path.read_text()
+    _unchanged(inputs)
+
+
 @pytest.fixture
 def completed_partition(mixed_plate_inputs):
     if not PARTITION_ACCESS:
@@ -864,4 +1089,107 @@ def test_refused_packed_control_closes_its_actual_mapping_before_model_use(
     assert record['status'] == record['children'][0]['status'] == 'failed'
     assert record['children'][1]['status'] == 'pending'
     assert record['complete'] is record['segmentation_complete'] is False
+    _unchanged(inputs)
+
+
+@needs_partition_access
+@pytest.mark.parametrize('invalid', ['physical-channel-order', 'model-position',
+                                     'batch-count', 'channel-names', 'background-percentile'])
+def test_invalid_public_partition_configuration_refuses_before_output_ownership(
+        mixed_plate_inputs, invalid):
+    """Invalid channel/axis/batch metadata cannot create a misleading calibrated run."""
+    inputs = mixed_plate_inputs
+    if invalid == 'physical-channel-order':
+        inputs['kwargs']['channels'] = (3, 3)
+    elif invalid == 'model-position':
+        inputs['kwargs']['channels_for_cellpose'] = (2,)
+    elif invalid == 'batch-count':
+        inputs['kwargs']['batch_fields'] = 0
+    elif invalid == 'channel-names':
+        inputs['kwargs']['channel_names'] = ('only one name',)
+    else:
+        inputs['settings']['unmix_background_percentile'] = 100
+    before = set(inputs['source'].rglob('*'))
+    with pytest.raises(ValueError):
+        _run(inputs)
+    assert set(inputs['source'].rglob('*')) == before
+    assert inputs['constructed'] == inputs['observed'] == []
+    _unchanged(inputs)
+
+
+@pytest.mark.parametrize('status,complete', [('off', True), ('skipped', False), ('failed', False)])
+def test_aggregate_qc_status_cannot_overstate_completed_child_segmentation(
+        completed_partition, status, complete):
+    """Only completed/off QC across every signed child authorizes aggregate success."""
+    from spacr import pipeline_v2
+
+    inputs, result = completed_partition
+    path = Path(result['manifest_path'])
+    record = json.loads(path.read_text())
+    signed = {entry['child_name']: entry['record_sha256'] for entry in record['children']}
+    for child in result['plate_results']:
+        pipeline_v2._record_partition_qc(result, child, 'off')
+    error = RuntimeError('private QC detail') if status == 'failed' else None
+    pipeline_v2._record_partition_qc(result, None, status, error=error)
+    actual = json.loads(path.read_text())
+    assert actual['complete'] is actual['aggregate_complete'] is complete
+    assert actual['segmentation_complete'] is True
+    assert [entry['status'] for entry in actual['children']] == ['complete', 'complete']
+    assert {entry['child_name']: entry['record_sha256'] for entry in actual['children']} == signed
+    if error is not None:
+        assert actual['qc_error_type'] == 'RuntimeError'
+        assert str(error) not in path.read_text()
+    _unchanged(inputs)
+
+
+def test_calibrated_vvvv_export_refuses_before_any_pipeline_or_output(tmp_path, monkeypatch):
+    from spacr import core, pipeline_v2
+
+    def forbidden(*args, **kwargs):
+        pytest.fail('nonquantitative VVVV export must refuse before segmentation')
+
+    monkeypatch.setattr(pipeline_v2, 'run_v2', forbidden)
+    settings = dict(src=str(tmp_path), pipeline_style='v2', export_vvvv=True,
+                    unmix_calibration=str(tmp_path / 'optics.json'))
+    with pytest.raises(ValueError, match='does not support VVVV'):
+        core.preprocess_generate_masks(settings)
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_qc_journal_failures_add_context_without_replacing_the_real_child_error(
+        completed_partition, monkeypatch):
+    from spacr import core, pipeline_v2
+
+    inputs, result = completed_partition
+    root = Path(result['plate_results'][0]['output_root'])
+    (root / 'qc').write_bytes(b'an existing file owns this destination')
+    actual_score = core._score_v2_masks
+    actual_record = pipeline_v2._record_partition_qc
+    errors, failed_writes = [], []
+
+    def score(*args, **kwargs):
+        try:
+            return actual_score(*args, **kwargs)
+        except FileExistsError as error:
+            errors.append(error)
+            raise
+
+    def write(result, child, status, error=None):
+        if status == 'failed':
+            failed_writes.append(child)
+            raise OSError('QC journal destination unavailable')
+        return actual_record(result, child, status, error=error)
+
+    monkeypatch.setattr(core, '_score_v2_masks', score)
+    monkeypatch.setattr(pipeline_v2, 'run_v2', lambda *args, **kwargs: result)
+    monkeypatch.setattr(pipeline_v2, '_record_partition_qc', write)
+    with pytest.raises(FileExistsError) as caught:
+        core.preprocess_generate_masks(_core_settings(inputs))
+    assert errors == [caught.value]
+    assert len(failed_writes) == 2 and failed_writes[1] is None
+    if callable(getattr(caught.value, 'add_note', None)):
+        assert sum('QC journal destination unavailable' in note for note in caught.value.__notes__) == 2
+    record = json.loads(Path(result['manifest_path']).read_text())
+    assert record['complete'] is record['aggregate_complete'] is False
+    assert (root / 'qc').read_bytes() == b'an existing file owns this destination'
     _unchanged(inputs)

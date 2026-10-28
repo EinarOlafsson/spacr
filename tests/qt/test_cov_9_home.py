@@ -656,3 +656,410 @@ def test_release_notes_render_markdown_links_headings_and_code():
     assert "<code>.pkg</code>" in html
     assert '<a href="https://example.org/notes"' in html and "notes</a>," in html
     assert "&lt;script&gt;" in html and "<script>" not in html
+
+
+def test_dashboard_watermarks_filter_real_manifests_without_deleting_history(
+        qtbot, tmp_path, monkeypatch):
+    """Clearing a dashboard preserves provenance while filtering dates and module keys."""
+    import json
+    from PySide6.QtCore import QSettings
+    from spacr import run_journal
+    from spacr.qt import preferences
+
+    settings = QSettings(str(tmp_path / 'private.ini'), QSettings.IniFormat)
+    monkeypatch.setattr(preferences, '_settings', lambda: settings)
+    root = tmp_path / 'runs'
+    root.mkdir()
+    monkeypatch.setattr(run_journal, 'runs_root', lambda: root)
+    rows = [('2026-10-27_110000', 'mask', '2026-10-27T11:00:00Z'),
+            ('2026-10-27_120100', 'measure', '2026-10-27T12:01:00Z'),
+            ('2026-10-27_120200', 'unregistered', '2026-10-27T12:02:00Z'),
+            ('2026-10-27_120300', 'mask', '2026-10-27T12:03:00Z')]
+    originals = {}
+    for folder, key, stamp in rows:
+        path = root / folder / 'manifest.json'
+        path.parent.mkdir()
+        path.write_text(json.dumps(dict(app_key=key, start_utc=stamp, status='complete')))
+        originals[path] = path.read_bytes()
+    broken = root / '2026-10-27_120400' / 'manifest.json'
+    broken.parent.mkdir()
+    broken.write_text('{invalid')
+    originals[broken] = broken.read_bytes()
+    preferences.set_dashboard_watermark('runs', '2026-10-27T12:00:00Z')
+    panel = RecentRunsPanel(limit=2, known_keys={'mask': 'Mask', 'measure': 'Measure'}, read_now=False)
+    qtbot.addWidget(panel)
+    assert [entry['app_key'] for entry in panel.read()] == ['mask', 'measure']
+    assert panel.name_for('mask') == 'Mask'
+    with qtbot.waitSignal(panel.cleared):
+        panel.clear_list()
+    assert panel.read() == []
+    totals = TotalsPanel._totals_since('2026-10-27T12:00:00Z')
+    assert totals == dict(total_runs=3, mask_runs=1, measure_runs=1,
+                          classify_runs=0, models_recorded=0)
+    assert TotalsPanel._totals_since('2026-10-27T12:00:00') == totals
+    assert TotalsPanel._totals_since('') == dict(
+        total_runs=4, mask_runs=2, measure_runs=1, classify_runs=0, models_recorded=0)
+    assert all(path.read_bytes() == raw for path, raw in originals.items())
+
+
+@pytest.mark.parametrize('format', ['json', 'csv', 'manifest'])
+def test_saved_settings_are_bounded_read_only_proposals(tmp_path, format):
+    """JSON, packed CSV and manifest-associated settings retain typed values only."""
+    import json
+
+    if format == 'csv':
+        path = tmp_path / 'mask_settings.csv'
+        path.write_text('setting,value\nsize,12\nenabled,True\nignored\n')
+    else:
+        path = tmp_path / ('settings.json' if format == 'manifest' else 'mask_settings.json')
+        path.write_text(json.dumps({'size': 12, 'enabled': True}))
+    if format == 'manifest':
+        (tmp_path / 'manifest.json').write_text(json.dumps({'app_key': 'mask'}))
+    before = {file: file.read_bytes() for file in tmp_path.iterdir()}
+    result = home_mod._easy_saved_settings(path)
+    assert result == dict(path=str(path), module='mask', settings={'size': 12, 'enabled': True})
+    assert all(file.read_bytes() == raw for file, raw in before.items())
+
+
+@pytest.mark.parametrize('contents', ['[]', '{}', 'x' * (65536 + 1)])
+def test_invalid_or_oversized_saved_settings_never_become_actions(tmp_path, contents):
+    """Invalid shapes and oversized data cannot seed a module's settings."""
+    path = tmp_path / 'mask_settings.json'
+    path.write_text(contents if len(contents) < 1000 else ' ' * (home_mod._EASY_METADATA_LIMIT + 1))
+    before = path.read_bytes()
+    assert home_mod._easy_saved_settings(path) is None
+    assert path.read_bytes() == before
+
+
+@pytest.mark.parametrize('kind', ['symlink', 'directory', 'offset'])
+def test_local_header_reader_refuses_nonregular_or_out_of_range_inputs(tmp_path, kind):
+    """The bounded reader neither follows symlinks nor reads beyond a real file."""
+    path = tmp_path / 'input.bin'
+    path.write_bytes(b'original bytes')
+    target = path
+    offset = 0
+    if kind == 'symlink':
+        target = tmp_path / 'link.bin'
+        target.symlink_to(path)
+    elif kind == 'directory':
+        target = tmp_path
+    else:
+        offset = path.stat().st_size + 1
+    with pytest.raises(ValueError):
+        home_mod._easy_read_header(target, 8, offset)
+    assert path.read_bytes() == b'original bytes'
+
+
+@pytest.mark.parametrize('reason', ['cancelled', 'pattern', 'samples', 'payload'])
+def test_regex_limits_preserve_input_and_never_start_a_validation_child(monkeypatch, reason):
+    """Expected cancellation or bounded-input refusal does not launch a process."""
+    import copy
+    import multiprocessing
+
+    result = {'path': '/local/images', 'settings_overrides': {'mask': {'size': 12}},
+              'regex': {'sample_filenames': ['image.tif'], 'example_path': '/local/image.tif'}}
+    pattern = '(.*)'
+    if reason == 'pattern':
+        pattern = 'x' * 4097
+    elif reason == 'samples':
+        result['regex']['sample_filenames'] = []
+    elif reason == 'payload':
+        result['regex']['example_path'] = 'x' * 1048577
+    before = copy.deepcopy(result)
+
+    def unexpected(*args, **kwargs):
+        raise AssertionError('bounded refusal must not start a child')
+
+    monkeypatch.setattr(multiprocessing, 'get_context', unexpected)
+    actual = home_mod._easy_validate_regex(result, pattern, cancelled=lambda: reason == 'cancelled')
+    assert result == before
+    assert actual['regex']['pattern'] == pattern and actual['regex']['required']
+    assert 'settings_overrides' not in actual
+    assert bool(actual['regex'].get('validation_error')) is (reason != 'cancelled')
+
+
+@pytest.mark.parametrize('raw,expected', [
+    (b'not metadata', {}),
+    (b'{"axes":"TZYX","shape":[2,-1,4,4]}', {}),
+    (b'<Pixels SizeT="3" SizeZ="4" SizeC="2"/>', {'t': 3, 'z': 4, 'axes': 'OME'}),
+])
+def test_image_dimension_hints_require_valid_structural_metadata(raw, expected):
+    """Malformed metadata never becomes a claim of time or depth acquisition."""
+    assert home_mod._easy_axes_metadata(raw) == expected
+
+
+@pytest.mark.parametrize('content,family', [
+    (b'<Workspace/>', 'flowjo'), (b'<GraphPadPrismFile/>', 'prism'),
+    (b'<CDXML/>', 'chemdraw'),
+])
+def test_external_document_headers_offer_original_software_not_analysis(tmp_path, content, family):
+    """Misnamed external documents are identified from bounded bytes, never executed."""
+    path = tmp_path / 'source.dat'
+    path.write_bytes(content)
+    assert home_mod._easy_file_kind(path) == 'external_' + family
+    assert path.read_bytes() == content
+    result = home_mod._easy_inspect_path(str(path))
+    assert result['actions'] == []
+    assert result['context']['unsupported_documents'] == [dict(kind=family, path=str(path))]
+
+
+@pytest.mark.parametrize('header', [
+    b'II+\x00\x04\x00\x00\x00' + b'\x00' * 8,
+    b'II*\x00\x08\x00\x00\x00\x01',
+    b'II*\x00\x08\x00\x00\x00\x00\x00',
+    b'II*\x00\x08\x00\x00\x00\xff\xff',
+    b'II*\x00\x08\x00\x00\x00\x01\x00' + b'\x00' * 5,
+], ids=['invalid-bigtiff-offset-width', 'short-count', 'empty-ifd', 'unbounded-ifd', 'short-entry'])
+def test_truncated_or_unbounded_tiff_directories_never_offer_image_processing(tmp_path, header):
+    """A magic prefix alone is not a validated microscope image."""
+    path = tmp_path / 'source.tif'
+    path.write_bytes(header)
+    assert home_mod._easy_file_kind(path) == 'unsupported'
+    assert home_mod._easy_inspect_path(str(path))['actions'] == []
+    assert path.read_bytes() == header
+
+
+def test_corrupt_compressed_sequence_is_not_misidentified_as_reads(tmp_path):
+    """A corrupt gzip header has no sequence payload to classify or process."""
+    path = tmp_path / 'source.fastq.gz'
+    raw = b'\x1f\x8b' + b'not compressed sequence bytes'
+    path.write_bytes(raw)
+    assert home_mod._easy_file_kind(path) == 'unsupported'
+    assert home_mod._easy_inspect_path(str(path))['actions'] == []
+    assert path.read_bytes() == raw
+
+
+def test_native_mask_archive_remains_a_native_input_without_unpacking_arrays(tmp_path):
+    """A genuine ZIP-backed NumPy archive is routed as a container, not decoded."""
+    import numpy as np
+
+    path = tmp_path / 'masks.npz'
+    np.savez(path, masks=np.zeros((2, 3, 4), dtype=np.uint16))
+    before = path.read_bytes()
+    assert home_mod._easy_file_kind(path) == 'native_container'
+    assert path.read_bytes() == before
+
+
+def test_empty_measurement_table_and_unsupported_csv_header_do_not_seed_values(tmp_path):
+    """Single-row measurements and a settings CSV with the wrong heading are not data."""
+    table = tmp_path / 'single.csv'
+    table.write_text('field,value\n')
+    assert home_mod._easy_table_evidence(table) == {}
+    settings = tmp_path / 'mask_settings.csv'
+    settings.write_text('wrong,heading\nsize,12\n')
+    assert home_mod._easy_saved_settings(settings) is None
+
+
+def test_bounded_run_discovery_keeps_failure_evidence_and_never_opens_extra_runs(tmp_path):
+    """Run and coefficient quotas retain incomplete-output provenance without model execution."""
+    import json
+
+    files = []
+    before = {}
+    for index in range(10):
+        folder = tmp_path / 'runs' / f'run-{index:02d}'
+        folder.mkdir(parents=True)
+        manifest = folder / 'manifest.json'
+        manifest.write_text(json.dumps(dict(app_key='mask', schema_version=1, status='partial')))
+        coefficients = folder / 'results.csv'
+        coefficients.write_text('feature,coefficient\narea,1.5\n')
+        (folder / 'diagnostics').mkdir()
+        report = folder / 'diagnostics' / 'fit.txt'
+        report.write_text('owned diagnostic')
+        files.extend((manifest, coefficients))
+        before.update({path: path.read_bytes() for path in (manifest, coefficients, report)})
+    result = home_mod._easy_run_evidence(tmp_path, files)
+    assert len(result['manifests']) == 8
+    assert all(item['missing_outputs'] == ['merged'] for item in result['manifests'])
+    assert len(result['results']) == 4 and all(item['diagnostics'] for item in result['results'])
+    assert all(path.read_bytes() == data for path, data in before.items())
+
+
+@pytest.mark.skipif(os.name != 'posix' or os.geteuid() == 0,
+                    reason='requires POSIX permission enforcement for a non-root user')
+def test_unreadable_and_malformed_local_evidence_leaves_accessible_results_intact(tmp_path):
+    """Real filesystem permission failures are local refusals, not phantom successful runs."""
+    import json
+
+    runs = tmp_path / 'runs'
+    runs.mkdir()
+    broken = runs / 'broken'
+    broken.mkdir()
+    (broken / 'manifest.json').write_text('{invalid')
+    denied = runs / 'denied'
+    denied.mkdir()
+    inaccessible = denied / 'manifest.json'
+    inaccessible.write_text(json.dumps(dict(app_key='mask', schema_version=1, status='failed')))
+    valid = tmp_path / 'results.csv'
+    valid.write_text('feature,coefficient\narea,2\n')
+    diagnostics = tmp_path / 'diagnostics'
+    diagnostics.mkdir()
+    (diagnostics / 'fit.txt').write_text('diagnostic')
+    empty = tmp_path / 'empty' / 'results.csv'
+    empty.parent.mkdir()
+    empty.write_bytes(b'\xff')
+    before = valid.read_bytes()
+    inaccessible.chmod(0)
+    diagnostics.chmod(0)
+    try:
+        result = home_mod._easy_run_evidence(tmp_path, [empty, valid])
+        assert result['manifests'] == []
+        assert result['results'] == [dict(path=str(valid), folder=str(tmp_path),
+                                        diagnostics=False, diagnostics_folder=None)]
+    finally:
+        inaccessible.chmod(0o600)
+        diagnostics.chmod(0o700)
+    assert valid.read_bytes() == before
+
+
+@pytest.mark.skipif(os.name != 'posix' or os.geteuid() == 0,
+                    reason='requires POSIX permission enforcement for a non-root user')
+def test_bounded_directory_sampling_preserves_selected_file_and_reports_real_permission_errors(tmp_path):
+    """Reservoir sampling keeps the explicit input and reports unreadable immediate siblings."""
+    root = tmp_path / 'source'
+    root.mkdir()
+    selected = root / 'explicit.csv'
+    selected.write_text('value,other\n1,2\n')
+    for index in range(180):
+        (root / f'other-{index:03d}.csv').write_text('value,other\n1,2\n')
+    denied = root / 'denied'
+    denied.mkdir()
+    denied.chmod(0)
+    try:
+        first = home_mod._easy_local_sample(selected, sample_limit=12)
+        second = home_mod._easy_local_sample(selected, sample_limit=12)
+        assert first == second
+        files, folders, unreadable, limited = first
+        assert selected in files and len(files) == 12
+        assert unreadable == 1 and limited
+    finally:
+        denied.chmod(0o700)
+
+
+def test_sidecar_budget_and_symlink_rules_preserve_only_structural_hints(tmp_path):
+    """At most four sidecars are described; linked external metadata is never read."""
+    import json
+
+    folders = []
+    for index in range(5):
+        folder = tmp_path / str(index)
+        folder.mkdir()
+        (folder / 'metadata.json').write_text(json.dumps({'channels': ['one'], 'private': 'excluded'}))
+        folders.append(folder)
+    hints = home_mod._easy_metadata_hints(folders)
+    assert len(hints) == 4 and all(item['fields'] == ['channels'] for item in hints)
+    linked = tmp_path / 'linked'
+    linked.mkdir()
+    (linked / 'metadata.json').symlink_to(folders[0] / 'metadata.json')
+    assert home_mod._easy_small_json(linked / 'metadata.json') == {}
+    assert home_mod._easy_metadata_hints([linked]) == []
+    (folders[0] / 'metadata.json').write_text('{invalid')
+    assert home_mod._easy_metadata_hints([folders[0]])[0]['unreadable']
+
+
+def test_header_reader_rejects_an_actual_atomic_file_replacement(tmp_path, monkeypatch):
+    """Replacing the path between stat and open cannot pass a different file as the original."""
+    path, previous = tmp_path / 'input.bin', tmp_path / 'original.bin'
+    path.write_bytes(b'original header')
+    original = home_mod.os
+
+    class ReplacedFile:
+        def __getattr__(self, name):
+            return getattr(original, name)
+
+        def open(self, selected, flags):
+            assert selected == path
+            original.replace(path, previous)
+            path.write_bytes(b'replacement header')
+            return original.open(selected, flags)
+
+    monkeypatch.setattr(home_mod, 'os', ReplacedFile())
+    with pytest.raises(ValueError, match='Not a regular file'):
+        home_mod._easy_read_header(path, 8)
+    assert previous.read_bytes() == b'original header'
+    assert path.read_bytes() == b'replacement header'
+
+
+@pytest.mark.parametrize('problem', ['missing_samples', 'unmatched_example'])
+def test_inline_regex_validation_requires_both_sample_and_example_identity(problem):
+    """A valid-looking expression cannot seed settings without all required local evidence."""
+    import copy
+
+    pattern = r'scan_(?P<fieldID>\d+)_C(?P<chanID>\d+)\.tif$'
+    result = {'regex': dict(sample_filenames=['scan_1_C1.tif'], img_format='tif',
+                            example_path='/local/not-the-sample.tif')}
+    if problem == 'missing_samples':
+        result['regex']['sample_filenames'] = []
+    before = copy.deepcopy(result)
+    actual = home_mod._easy_validate_regex_inline(result, pattern)
+    assert actual['regex']['required'] and actual['regex']['validation_error']
+    assert 'settings_overrides' not in actual
+    assert result == before
+
+
+@pytest.mark.parametrize('receiver_closed', [False, True])
+def test_regex_worker_invalid_payload_closes_the_real_pipe(receiver_closed):
+    """Bad serialized input and a retired receiver cannot leave an owned pipe open."""
+    import multiprocessing
+
+    receiver, sender = multiprocessing.Pipe(duplex=False)
+    if receiver_closed:
+        receiver.close()
+    try:
+        home_mod._easy_regex_worker('{invalid', '(', sender)
+        assert sender.closed
+        if not receiver_closed:
+            assert receiver.recv_bytes() == b'null'
+    finally:
+        receiver.close()
+        sender.close()
+
+
+def test_regex_child_missing_interpreter_returns_local_refusal_and_retires_process(tmp_path):
+    """A real failed spawn cannot leave a trusted mapping or a live owned child."""
+    import copy
+    import multiprocessing
+    from multiprocessing import spawn
+
+    result = {'regex': dict(sample_filenames=['scan_1_C1.tif'], img_format='tif',
+                            example_path='/local/scan_1_C1.tif')}
+    before = copy.deepcopy(result)
+    executable = spawn.get_executable()
+    children = {child.pid for child in multiprocessing.active_children()}
+    try:
+        multiprocessing.set_executable(str(tmp_path / 'missing-python'))
+        actual = home_mod._easy_validate_regex(result, r'scan_(?P<fieldID>\d+)_C(?P<chanID>\d+)\.tif$')
+    finally:
+        multiprocessing.set_executable(executable)
+    assert actual['regex']['required'] and actual['regex']['validation_error']
+    assert result == before
+    assert {child.pid for child in multiprocessing.active_children()} == children
+
+
+def test_regex_cancellation_after_real_spawn_retires_its_owned_child(monkeypatch):
+    """A real cancellation event after start is handled before accepting a worker result."""
+    import copy
+    import multiprocessing
+    import threading
+
+    context = multiprocessing.get_context('spawn')
+    factory = context.Process
+    start = factory.start
+    cancelled, created = threading.Event(), []
+
+    def started(child):
+        start(child)
+        created.append(child)
+        cancelled.set()
+
+    monkeypatch.setattr(factory, 'start', started)
+    result = {'regex': dict(sample_filenames=['scan_1_C1.tif'], img_format='tif',
+                            example_path='/local/scan_1_C1.tif')}
+    before = copy.deepcopy(result)
+    children = {child.pid for child in multiprocessing.active_children()}
+    actual = home_mod._easy_validate_regex(result, r'scan_(?P<fieldID>\d+)_C(?P<chanID>\d+)\.tif$',
+                                          cancelled=cancelled.is_set)
+    assert cancelled.is_set() and len(created) == 1 and created[0]._closed
+    assert actual['regex']['required'] and 'validation_error' not in actual['regex']
+    assert 'settings_overrides' not in actual and result == before
+    assert {child.pid for child in multiprocessing.active_children()} == children

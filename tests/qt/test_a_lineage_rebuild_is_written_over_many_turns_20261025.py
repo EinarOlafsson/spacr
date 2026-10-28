@@ -117,3 +117,23 @@ def test_a_newer_load_stops_the_fill_before_it(qtbot, qt_theme_applied,
     QApplication.processEvents()
     assert screen.tree.topLevelItemCount() == 6
     assert screen.tree.updatesEnabled()
+
+
+
+def test_a_new_tree_supersedes_an_already_queued_old_completion(
+        qtbot, qt_theme_applied, monkeypatch):
+    screen = _screen(qtbot, _frames(1))
+    monkeypatch.setattr(lgs, '_FILL_TURN_S', 0.0)
+    completions = []
+    screen._fill_tree_in_turns(lambda: completions.append('old'))
+    assert not screen.tree.updatesEnabled()
+    newer = _frames(3)
+    screen.set_frames(newer)
+    expected = _shape(screen.tree)
+    assert screen.tree.updatesEnabled() and len(expected) == 3
+    QApplication.processEvents()
+    QApplication.processEvents()
+    assert completions == []
+    assert _shape(screen.tree) == expected and screen.tree.updatesEnabled()
+    assert '3 of 3' in screen.status.text()
+    screen.close()

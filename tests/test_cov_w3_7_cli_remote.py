@@ -521,3 +521,58 @@ def test_the_parser_names_every_shipped_subcommand():
     assert set(actions[0].choices) == {
         "profile", "submit", "list", "status", "cancel", "logs", "watch",
         "allocate", "resources", "script"}
+
+
+def test_template_file_and_resource_argument_errors_are_explicit(tmp_path):
+    template = tmp_path / 'job.sh'
+    template.write_text('#!/bin/sh\necho café\n', encoding='utf-8')
+    assert cli_remote._read_text(str(template)) == '#!/bin/sh\necho café\n'
+    with pytest.raises(RemoteExecutionError, match='Could not read') as caught:
+        cli_remote._read_text(str(tmp_path / 'missing.sh'))
+    assert isinstance(caught.value.__cause__, OSError)
+    for value in ('missing-separator', '=empty-key'):
+        with pytest.raises(RemoteExecutionError, match='KEY=VALUE'):
+            cli_remote._resources_from_args([value])
+    assert cli_remote._resources_from_args([' cpus = 4 ']) == {'cpus': '4'}
+
+
+def test_watch_reports_terminal_error_and_requested_logs_without_polling(monkeypatch, capsys):
+    from types import SimpleNamespace
+    from spacr.remote_execution import RemoteJob
+
+    job = RemoteJob('abcdef123456', 'mask', 'cluster', 'slurm', status='failed', error='scheduler refused')
+    calls = []
+    manager = SimpleNamespace(refresh=lambda key, **kwargs: calls.append((key, kwargs)) or job,
+                              logs=lambda key, lines: calls.append((key, lines)) or 'last log')
+    monkeypatch.setattr(cli_remote, 'RemoteJobManager', lambda: manager)
+    assert cli_remote.main(['watch', job.job_id, '--logs', '--lines', '9']) == cli_remote.EXIT_RUNTIME
+    out = capsys.readouterr()
+    assert 'failed' in out.out and 'last log' in out.out and 'scheduler refused' in out.err
+    assert calls == [(job.job_id, {'include_logs': False}), (job.job_id, 9)]
+
+
+def test_resource_json_text_and_allocation_use_current_profile(state_dir, monkeypatch, capsys):
+    from spacr.remote_execution import ExecutionProfile, ProfileStore, RemoteJob
+
+    profile = ExecutionProfile('cluster', 'slurm', host='fake-host', workdir='/work', resources={'cpus': '8'})
+    store = ProfileStore()
+    store.save(profile)
+    before = store.path.read_bytes()
+    cluster = {'host': 'fake-host', 'user': 'fake-user', 'scheduler': 'slurm',
+               'partitions': [{'partition': 'cpu', 'default': True, 'nodes': 1, 'cpus': 4,
+                               'mem_mb': 8192, 'gpus': 0, 'gpu_types': [], 'time_limit': '1:00:00'}],
+               'accounts': [{'account': 'fake-account', 'partition': 'cpu', 'qos': ['normal']}]}
+    monkeypatch.setattr(cli_remote, '_probe_cluster', lambda chosen: cluster if chosen == profile else None)
+    assert cli_remote.main(['resources', '-p', 'cluster', '--json']) == cli_remote.EXIT_OK
+    report = json.loads(capsys.readouterr().out)
+    assert report['cluster'] == cluster and report['problems']
+    assert cli_remote.main(['resources', '-p', 'cluster']) == cli_remote.EXIT_OK
+    text = capsys.readouterr()
+    assert 'fake-host as fake-user; scheduler: slurm' in text.out
+    assert 'fake-account' in text.out and 'warning:' in text.err and 'CPUs' in text.err
+    holder = RemoteJob('abcdef123456', 'allocation', 'cluster', 'slurm', external_id='1234')
+    calls = []
+    monkeypatch.setattr(cli_remote, '_start_allocation', lambda manager, name: calls.append(name) or holder)
+    assert cli_remote.main(['allocate', '-p', 'cluster']) == cli_remote.EXIT_OK
+    assert 'Slurm 1234' in capsys.readouterr().out and calls == ['cluster']
+    assert store.path.read_bytes() == before

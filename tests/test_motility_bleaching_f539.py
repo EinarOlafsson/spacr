@@ -162,3 +162,44 @@ def test_geometric_smoothing_does_not_invent_a_missing_corrected_background():
     assert result['cell_centroid-0'].tolist() == [0., 0., 0.]
     assert np.isnan(result.cell_mean_intensity.iloc[1])
     np.testing.assert_allclose(result.cell_mean_intensity.iloc[[0, 2]], [100., 100.])
+
+
+def test_all_rows_rejected_by_infection_qc_preserve_original_mask_labels_and_raw_measurements(tmp_path, monkeypatch):
+    """An empty statistical QC selection cannot erase the acquired infection labels."""
+    args = field(tmp_path)
+    for name in args[1]:
+        path = tmp_path / 'merged' / name
+        pixels = np.load(path, allow_pickle=False)
+        pixels[3, pixels[2] == 2] = 0
+        np.save(path, pixels)
+    original = tl._process_merged_group(args)
+    before = snapshot(tmp_path / 'merged')
+    inspected = []
+
+    def reject_all(**kwargs):
+        inspected.append(kwargs['all_df'].copy(deep=True))
+        return kwargs['all_df'].iloc[:0].copy(), kwargs['infection_col']
+
+    monkeypatch.setattr(tl, '_apply_infection_intensity_qc', reject_all)
+    monkeypatch.setattr(tl, '_debug_plot_merged_planes', lambda **kwargs: None)
+    monkeypatch.setattr(tl, '_feature_velocity_correlations', lambda *args: None)
+    settings = dict(src=str(tmp_path), channels=[0, 1], cell_channel=0,
+                    nucleus_channel=None, pathogen_channel=1, n_jobs=1,
+                    bleach_correction='none', reuse_existing_measurements=False,
+                    make_mask_panel=False, make_adjusted_panel=False,
+                    infection_intensity_strategy='none', infection_intensity_qc=False)
+    output = tl.automated_motility_assay(settings)
+    assert len(inspected) == 1 and len(output) == len(original)
+    keys = ['frame', 'cellID']
+    expected = original.sort_values(keys).reset_index(drop=True)
+    actual = output.sort_values(keys).reset_index(drop=True)
+    mask_truth = actual['cellID'].eq(1)
+    assert set(mask_truth) == {False, True}
+    np.testing.assert_array_equal(actual['infected'], mask_truth)
+    np.testing.assert_array_equal(actual['adjusted_infected'], mask_truth.astype(int))
+    assert actual['infection_prob'].isna().all()
+    with sqlite3.connect(tmp_path / 'measurements' / 'measurements.db') as connection:
+        raw = pd.read_sql_query('SELECT * FROM timelapse_object_measurements', connection)
+    pd.testing.assert_frame_equal(raw[original.columns].sort_values(keys).reset_index(drop=True),
+                                  expected, check_dtype=False)
+    assert snapshot(tmp_path / 'merged') == before

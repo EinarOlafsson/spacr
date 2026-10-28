@@ -123,3 +123,24 @@ def test_an_unreadable_seed_releases_the_guard_for_a_later_retry(bound):
     panel.fail_reads = False
     binding.seed()
     assert grid.settings()['cell_diameter'] == 16
+
+
+def test_a_failed_calculation_read_leaves_diameters_and_the_next_edit_intact(bound):
+    grid, panel, binding = bound
+    before = grid.settings()
+    panel.fail_reads = True
+    binding._calculate_clicked()
+    assert grid.settings() == before
+    assert panel.writes == [] and binding._busy is False
+    panel.fail_reads = False
+    panel._widgets['cell_diameter'].setText('37')
+    assert grid.settings()['cell_diameter'] == 37
+    assert panel.writes == []
+
+
+def test_missing_claim_protocol_and_retired_signal_slots_preserve_other_settings(bound, monkeypatch):
+    grid, panel, binding = bound
+    before = panel.collect()
+    monkeypatch.setattr(grid, '_claimed_table', None)
+    assert binding._switch_keys() == frozenset()
+    assert panel.collect() == before

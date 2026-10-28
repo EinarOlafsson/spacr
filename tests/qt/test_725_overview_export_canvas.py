@@ -384,3 +384,87 @@ def test_nudging_and_page_switching_follow_the_grid(composer):
     composer.redo()
     composer.undo()
     assert len(composer.canvas.pages) == 1
+
+
+def test_overview_snapshot_json_preserves_numpy_scalars_tuple_keys_and_chains():
+    from spacr.qt.detect_chain import Chain
+    from spacr.qt.widgets import qc_field_browser as browser
+
+    key = ('plate/root', 'plate1', 'A01', 'field1', '', '')
+    value = {'channels': (np.int64(2),),
+             'display': {'image_overrides': {key: {'gamma': np.float32(.5)}},
+                         'enhancement': Chain(gamma=.75)},
+             'references': [np.int32(4), {'bounds': (1., 9.)}]}
+    encoded = browser._overview_canvas_pack(value)
+    decoded = browser._overview_canvas_unpack(json.loads(json.dumps(encoded)))
+    assert decoded == {'channels': (2,),
+                       'display': {'image_overrides': {key: {'gamma': .5}},
+                                   'enhancement': Chain(gamma=.75)},
+                       'references': [4, {'bounds': (1., 9.)}]}
+    decoded['display']['image_overrides'][key]['gamma'] = 2.
+    assert value['display']['image_overrides'][key]['gamma'] == .5
+
+
+def test_captured_overview_snapshot_owns_its_display_and_reports_missing_sources(monkeypatch):
+    from unittest.mock import create_autospec
+    from spacr.qt.widgets import qc_field_browser as browser
+
+    field = browser._OverviewField(source='plate/root', plate_id='p1', plate='Plate 1',
+                                   well='A01', row='A', column=1, field_id='f1',
+                                   field='field1', files=((1, 'field.tif'),))
+    options = {'channel_colors': {1: '#123456'}}
+    limits = [1., 99.]
+    snapshot = browser._OverviewCanvasSnapshot((field,), (1,), limits, options)
+    box = browser._overview_canvas_image(field)
+    snapshot.capture(box)
+    captured = json.loads(json.dumps(box['overview_display']))
+    options['channel_colors'][1] = '#abcdef'
+    limits[0] = 20.
+    assert box['overview_display'] == captured
+    assert snapshot._display['channel_colors'][1] == '#123456'
+    assert snapshot._limits == [1., 99.]
+    assert snapshot.field_of(box) is field
+    assert snapshot.field_of({'source': {'type': 'file', 'path': 'other.tif'}}) is None
+    pixels = np.arange(24, dtype=np.uint8).reshape(2, 3, 4)
+    render = create_autospec(browser._overview_pixels, return_value=pixels)
+    monkeypatch.setattr(browser, '_overview_pixels', render)
+    result = snapshot(box, 64)
+    np.testing.assert_array_equal(result, pixels[..., :3])
+    assert result.flags.c_contiguous
+    assert render.call_args.args == (field, (1,), [1., 99.])
+    assert render.call_args.kwargs == {
+        'edge': 64, 'normalization_context': None, 'channel_colors': {1: '#123456'}}
+    with pytest.raises(ValueError, match='not loaded'):
+        snapshot({'source': {'type': browser._OVERVIEW_CANVAS_SOURCE, 'key': ['missing']}, 'label': 'Missing field'}, None)
+
+
+def test_canvas_source_does_not_keep_a_closed_browser_alive():
+    import gc
+    import weakref
+    from spacr.qt.widgets import qc_field_browser as browser
+
+    class Owner:
+        def _canvas_snapshot(self):
+            return 'current snapshot'
+
+    owner = Owner()
+    source = browser._OverviewCanvasSource(owner)
+    assert source.fresh() == 'current snapshot'
+    ref = weakref.ref(owner)
+    del owner
+    gc.collect()
+    assert ref() is None
+    fresh = source.fresh()
+    assert fresh._fields == {} and fresh._channels == (0,) and fresh._limits is None
+
+
+@pytest.mark.parametrize('size,dpi', [((0., 0.), 150), ((10., 10.), 1000)])
+def test_pdf_density_never_upsamples_or_discards_pixels_in_an_unplaced_box(size, dpi):
+    from types import SimpleNamespace
+    from spacr.qt.widgets import qc_field_browser as browser
+
+    pixels = np.arange(60, dtype=np.uint8).reshape(4, 5, 3)
+    axis = SimpleNamespace(figure=SimpleNamespace(get_size_inches=lambda: size),
+                           get_position=lambda: SimpleNamespace(width=1., height=1.))
+    assert browser._overview_pdf_pixels(pixels, axis, dpi) is pixels
+    np.testing.assert_array_equal(pixels, np.arange(60, dtype=np.uint8).reshape(4, 5, 3))

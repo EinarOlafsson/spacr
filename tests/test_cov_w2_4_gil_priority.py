@@ -113,3 +113,16 @@ def test_the_context_manager_releases_through_an_exception():
             1 / 0
     assert gil_priority.active() is False
     assert sys.getswitchinterval() == pytest.approx(before)
+
+
+def test_unweakrefable_and_deleted_busy_owners_do_not_block_imports(monkeypatch):
+    from PySide6.QtCore import QObject
+    from shiboken6 import delete
+
+    monkeypatch.setattr(gil_priority, '_HOLDS', {})
+    gil_priority.hold_background_imports(object())
+    assert not gil_priority.background_imports_held()
+    owner = QObject()
+    gil_priority.hold_background_imports(owner, lambda value: value.objectName() == 'loading')
+    delete(owner)
+    assert not gil_priority.background_imports_held()

@@ -1494,3 +1494,77 @@ def test_the_result_summary_mentions_failed_planned_files(tmp_path, monkeypatch)
     assert result.n_written == 0
     assert len(result.failed) == 2
     assert "were not written because their source failed" in result.summary()
+
+
+def test_palette_header_keeps_alpha_without_decoding_image_pixels(tmp_path, monkeypatch):
+    from PIL import Image
+    from spacr.convert import _describe_plain
+
+    path = tmp_path / "palette.png"
+    image = Image.new("P", (7, 5))
+    image.putpalette([255, 0, 0] + [0, 0, 0] * 255)
+    image.save(path, transparency=0)
+    before = path.read_bytes()
+    def no_decode(*args, **kwargs):
+        raise AssertionError("header inspection must not decode pixel data")
+    monkeypatch.setattr(Image.Image, "load", no_decode)
+    description = _describe_plain(str(path))
+    assert description["shape"] == (5, 7, 4)
+    assert description["axes"] == "YXS" and description["dtype"] == "RGBA"
+    assert description["n_c"] == 4 and description["n_series"] == 1
+    assert path.read_bytes() == before
+
+
+def test_oversized_numeric_header_is_refused_before_parsing_or_allocating(tmp_path, monkeypatch):
+    from spacr.convert import _describe_npy
+    from spacr.errors import ConfigurationError
+    from spacr import resume
+
+    path = tmp_path / "large_header.npy"
+    payload = b"\x93NUMPY\x02\x00" + (65537).to_bytes(4, "little")
+    path.write_bytes(payload)
+    def forbidden(*args):
+        raise AssertionError("oversized header must not reach its parser")
+    monkeypatch.setattr(resume, "read_npy_header", forbidden)
+    with pytest.raises(ConfigurationError, match="header.*too large"):
+        _describe_npy(str(path))
+    assert path.read_bytes() == payload
+
+
+def test_cmyk_header_matches_rgb_decode_without_loading_pixels(tmp_path, monkeypatch):
+    from PIL import Image
+    from spacr.convert import _describe_plain
+
+    path = tmp_path / "print_image.jpg"
+    Image.new("CMYK", (7, 5), (0, 100, 200, 10)).save(path)
+    before = path.read_bytes()
+    with Image.open(path) as image:
+        decoded_shape = np.asarray(image.convert("RGB")).shape
+    def no_decode(*args, **kwargs):
+        raise AssertionError("header inspection must not decode pixel data")
+    with monkeypatch.context() as headers_only:
+        headers_only.setattr(Image.Image, "load", no_decode)
+        description = _describe_plain(str(path))
+    assert description["shape"] == decoded_shape == (5, 7, 3)
+    assert description["axes"] == "YXS" and description["dtype"] == "RGB"
+    assert description["n_c"] == 3 and description["n_series"] == 1
+    assert path.read_bytes() == before
+
+
+@pytest.mark.parametrize("payload", [
+    b"\x93NUMPY\x01",
+    b"BADNPY\x01\x00\x00\x00\x00\x00",
+    b"\x93NUMPY\x04\x00\x00\x00\x00\x00",
+])
+def test_invalid_numeric_prefix_is_refused_before_header_parsing(tmp_path, monkeypatch, payload):
+    from spacr.convert import _describe_npy
+    from spacr import resume
+
+    path = tmp_path / "invalid_header.npy"
+    path.write_bytes(payload)
+    def forbidden(*args):
+        raise AssertionError("invalid prefix must not reach its parser")
+    monkeypatch.setattr(resume, "read_npy_header", forbidden)
+    with pytest.raises(ConfigurationError, match="header.*invalid"):
+        _describe_npy(str(path))
+    assert path.read_bytes() == payload

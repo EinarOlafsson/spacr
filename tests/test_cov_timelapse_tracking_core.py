@@ -621,3 +621,49 @@ def test_trackpy_track_cells_track_by_iou_returns_mask_stack(tmp_path):
         timelapse_memory=1, timelapse_remove_transient=False,
         plot=False, save=False, mode="trackpy", track_by_iou=True)
     assert isinstance(stack, list) and len(stack) == 4
+
+
+def test_automatic_tracking_fallback_uses_a_bounded_range_and_retains_source_labels(tmp_path, monkeypatch):
+    """A failed range estimate falls back to50 without changing either mover's identity."""
+    from spacr import timelapse as TL
+
+    masks = _two_movers(n_frames=4)
+    before = np.asarray(masks).copy()
+    chosen = []
+    original = TL._facilitate_trackin_with_adaptive_removal
+
+    def track(*args, **kwargs):
+        chosen.append(kwargs['search_range'])
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(TL, '_find_optimal_search_range', lambda *args, **kwargs: None)
+    monkeypatch.setattr(TL, '_facilitate_trackin_with_adaptive_removal', track)
+    src = tmp_path / 'masks' / 'batch.npz'
+    src.parent.mkdir()
+    output = TL._trackpy_track_cells(str(src), 'known', [f'f{i}.tif' for i in range(4)],
+        'cell', masks, None, 1, False, False, False, mode='trackpy', track_by_iou=True)
+    assert chosen == [50]
+    np.testing.assert_array_equal(masks, before)
+    assert len(output) == 4
+    a_ids = {int(output[index][_a_center(index)]) for index in range(4)}
+    b_ids = {int(output[index][_b_center(index)]) for index in range(4)}
+    assert len(a_ids) == len(b_ids) == 1 and a_ids != b_ids
+
+
+def test_transient_filter_drops_a_one_frame_mover_without_changing_the_persistent_track(tmp_path):
+    from spacr import timelapse as TL
+
+    masks = np.asarray(_two_movers(n_frames=4))
+    for index in range(3):
+        transient = masks[index][_b_center(index)]
+        masks[index][masks[index] == transient] = 0
+    before = masks.copy()
+    src = tmp_path / 'masks' / 'transient.npz'
+    src.parent.mkdir()
+    output = TL._trackpy_track_cells(str(src), 'transient', [f'f{i}.tif' for i in range(4)],
+        'cell', masks, 10, 1, True, False, False, mode='trackpy', track_by_iou=True)
+    assert len(output) == 4
+    persistent = {int(output[index][_a_center(index)]) for index in range(4)}
+    assert len(persistent) == 1 and 0 not in persistent
+    assert output[3][_b_center(3)] == 0
+    np.testing.assert_array_equal(masks, before)

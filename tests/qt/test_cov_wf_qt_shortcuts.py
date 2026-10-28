@@ -258,3 +258,14 @@ def test_the_overlay_follows_the_window_it_dims(overlay, window):
     assert card.height() <= overlay.height()
     # centred, to within the odd-pixel rounding of an integer divide
     assert abs((overlay.width() - card.width()) // 2 - card.x()) <= 1
+
+
+def test_mac_tooltips_spell_native_keys_and_preserve_unparseable_gestures(monkeypatch):
+    from spacr.qt import shortcuts
+
+    monkeypatch.setattr(shortcuts.sys, 'platform', 'darwin')
+    translations = {'Ctrl+A': '⌘A', 'Ctrl+Shift+N': '⇧⌘N'}
+    monkeypatch.setattr(shortcuts, 'native', lambda keys: translations.get(keys, keys))
+    assert shortcuts._native_prose('Add (Ctrl+Shift+N); drag Ctrl+L+right-click.') == (
+        'Add (⇧⌘N); drag ⌘L+right-click.')
+    assert shortcuts._native_prose('No shortcut here.') == 'No shortcut here.'

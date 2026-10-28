@@ -209,3 +209,134 @@ def test_native_capture_reports_an_unusable_log_location_as_empty(tmp_path, monk
     blocker.write_text("not a directory")
     assert cr._install_native_error_capture(blocker / "nested" / "fatal.log") == ""
     assert cr._NATIVE_CAPTURE_HANDLE is None
+
+
+def test_untrusted_merge_structure_is_filtered_not_quoted():
+    error = ValueError('private raw error')
+    error._spacr_merge_structure = ['private', {'reason': 'private_reason'}]
+    assert cr._merge_structure_message(error) == ''
+    error._spacr_merge_structure.append({
+        'reason': 'duplicate_keys', 'table': 'private_table',
+        'present': ['plateID', 'secret_column'], 'rows': True,
+        'duplicate_rows': 2})
+    message = cr._merge_structure_message(error)
+    payload = json.loads(message.removeprefix('Merge validation: '))
+    assert len(payload['tables']) == 1
+    assert payload['tables'][0]['table'] == 'custom'
+    assert payload['tables'][0]['present'] == ['plateID']
+    assert payload['tables'][0]['rows'] is None
+    assert payload['tables'][0]['duplicate_rows'] == 2
+    assert 'secret' not in message and 'private' not in message
+
+
+def test_native_context_rejects_compound_values_and_foreign_sessions(monkeypatch):
+    monkeypatch.setattr(cr, '_identity_scrub', lambda text: text)
+    assert cr._native_context_values({'screen': ['private'], 'qt': {'path': 'secret'}}) == {}
+    owner = '12345678-1234-1234-1234-123456789abc'
+    lines = [
+        '=== spaCR context {bad} ===',
+        '=== spaCR context [] ===',
+        '=== spaCR context {"_thread":"bad"} ===',
+        '=== spaCR context {"_thread":"0x99","screen":"Foreign"} ===',
+        '=== spaCR context ' + json.dumps({'_thread': '0x10', '_session': owner, 'screen': 'Overview'}) + ' ===',
+        '=== spaCR context ' + json.dumps({'_thread': '0x10', '_session': owner, 'screen': []}) + ' ===',
+    ]
+    contexts, session = cr._native_contexts('\n'.join(lines), 'Current thread 0x10 (most recent call first):')
+    assert contexts == [{'screen': 'Overview'}]
+    assert session == owner
+    assert cr._native_contexts('\n'.join(lines), 'Current thread 0x11 (most recent call first):') == ([], '')
+    headers = '\n'.join(['=== spaCR session {bad} ===',
+                         '=== spaCR session [] ===',
+                         '=== spaCR session {"id":"foreign"} ===',
+                         '=== spaCR session ' + json.dumps({'id': owner, 'known': True}) + ' ==='])
+    assert cr._native_session_by_id(headers, owner) == {'id': owner, 'known': True}
+    assert cr._native_session_by_id(headers, 'absent') == {'known': False}
+
+
+def test_native_platform_survives_unavailable_qt_version(monkeypatch):
+    from types import SimpleNamespace
+
+    def unavailable():
+        raise RuntimeError('Qt version unavailable')
+
+    monkeypatch.setattr(cr.sys, 'platform', 'darwin')
+    monkeypatch.setattr(cr.platform, 'mac_ver', lambda: ('15.0', (), ''))
+    monkeypatch.setattr(cr.platform, 'machine', lambda: 'arm64')
+    monkeypatch.setattr(cr, '_distribution_version', lambda name: '6.11.3')
+    monkeypatch.setitem(sys.modules, 'PySide6.QtCore', SimpleNamespace(qVersion=unavailable))
+    assert cr._native_platform_context() == {'os': cr._os_family(), 'os_release': '15.0', 'machine': 'arm64', 'pyside6': '6.11.3'}
+
+
+def test_consented_native_replay_does_not_invent_screen_or_repeat_event(
+        configured, tmp_path, monkeypatch):
+    path = tmp_path / 'owned-native.log'
+    path.write_text('Fatal Python error: Segmentation fault\n\n'
+                    'Current thread 0x10 (most recent call first):\n'
+                    '  File "/private/project/worker.py", line 12 in run\n')
+    delivered = []
+    marker = object()
+
+    def capture(message, **kwargs):
+        delivered.append((message, kwargs))
+        return marker
+
+    monkeypatch.setattr(cr, '_dispatch_error', capture)
+    assert cr._consume_native_crash(path) is marker
+    assert len(delivered) == 1
+    message, payload = delivered[0]
+    assert message == 'Native process termination: Segmentation fault'
+    assert not payload['summary'].get('screen')
+    assert payload['summary']['exception_type'] == 'NativeCrash'
+    assert 'worker' in payload['summary']['user_note']
+    assert '/private/' not in json.dumps(payload['summary'])
+    assert cr._consume_native_crash(path) is None
+    assert len(delivered) == 1
+
+
+@pytest.mark.parametrize('write_error', [OSError, ValueError, AttributeError])
+def test_closed_native_context_sink_cannot_interrupt_the_calling_session(
+        monkeypatch, write_error):
+    attempted = []
+
+    class ClosedCapture:
+        def write(self, line):
+            attempted.append(line)
+            raise write_error('native log is no longer writable')
+
+    monkeypatch.setattr(cr, '_NATIVE_CAPTURE_HANDLE', ClosedCapture())
+    assert cr._note_native_context(qt='6.11.3', private_path='/private/project') is False
+    assert len(attempted) == 1
+    payload = json.loads(attempted[0].removeprefix('=== spaCR context ').removesuffix(' ===\n'))
+    assert payload['qt'] == '6.11.3'
+    assert 'private_path' not in payload
+    assert '/private/' not in attempted[0]
+
+
+def test_partial_native_context_without_a_crashing_frame_does_not_invent_a_note(
+        configured, tmp_path, monkeypatch):
+    path = tmp_path / 'partial-native.log'
+    owner = '12345678-1234-1234-1234-123456789abc'
+    context = {'_thread': '0x10', '_session': owner, 'qt_platform': 'wayland'}
+    path.write_text('=== spaCR context ' + json.dumps(context) + ' ===\n'
+                    'Fatal Python error: Segmentation fault\n\n'
+                    'Thread 0x10 (most recent call first):\n'
+                    '  File "/private/project/worker.py", line 12 in run\n', encoding='utf-8')
+    delivered = []
+    marker = object()
+
+    def capture(message, **kwargs):
+        delivered.append((message, kwargs))
+        return marker
+
+    monkeypatch.setattr(cr, '_dispatch_error', capture)
+    assert cr._consume_native_crash(path) is marker
+    assert len(delivered) == 1
+    message, payload = delivered[0]
+    assert message == 'Native process termination: Segmentation fault'
+    assert payload['summary']['exception_type'] == 'NativeCrash'
+    assert not payload['summary'].get('user_note')
+    assert not payload['summary'].get('screen')
+    assert len(payload['summary']['frames']) == 1
+    assert '/private/' not in json.dumps(payload['summary'])
+    assert cr._consume_native_crash(path) is None
+    assert len(delivered) == 1

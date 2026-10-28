@@ -482,3 +482,38 @@ def test_a_dependency_this_host_does_not_carry_is_a_no_op(qtbot):
 
     assert carried.is_active("timelapse")
     assert carried.apply_gates() == {"motility": True, "timelapse": True}
+
+
+
+@pytest.mark.parametrize('loaded', [True, 'true'])
+def test_loaded_fold_gate_round_trips_without_replacing_mounted_controls(qtbot, loaded):
+    from spacr.qt.screens.app_screen import AppScreen
+
+    screen = AppScreen('mask')
+    qtbot.addWidget(screen)
+    folds = mb.CategoryFoldSet(screen, {'timelapse': ('timelapse',)})
+    assert folds.mount() == ('timelapse',)
+    assert folds.build_strip(screen) is not None
+    fold = folds.folds['timelapse']
+    model = screen._settings_model
+    original_widgets = {key: model._widgets[key] for key in fold.settings_keys}
+    assert original_widgets and fold.gates
+    values = {gate: loaded for gate in fold.gates}
+    try:
+        screen.apply_settings_dict(values)
+        assert 'timelapse' in folds.sync_from_settings(values)
+        assert folds.is_active('timelapse')
+        assert all(model.collect()[gate] is True for gate in fold.gates)
+        assert any(not section.isHidden() for section in fold.sections)
+        disabled = {gate: False for gate in fold.gates}
+        screen.apply_settings_dict(disabled)
+        assert folds.sync_from_settings(disabled) == ()
+        assert not folds.is_active('timelapse')
+        assert all(model.collect()[gate] is False for gate in fold.gates)
+        assert all(section.isHidden() for section in fold.sections)
+        screen.apply_settings_dict(values)
+        assert 'timelapse' in folds.sync_from_settings(values)
+        assert all(model._widgets[key] is widget for key, widget in original_widgets.items())
+        assert screen._settings_model is model
+    finally:
+        screen.close()

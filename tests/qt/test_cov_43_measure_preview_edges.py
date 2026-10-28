@@ -115,3 +115,45 @@ def test_crop_dialog_rows_survive_a_form_that_cannot_place_them(
     assert "could not gate the organelle rows" in caplog.text
     dialog._filter_form = None
     assert dialog._adopt_new_slot_controls() is False
+
+
+@pytest.mark.parametrize('entrypoint', ['choose-export', 'export', 'crop'])
+def test_missing_source_refuses_cached_crop_work_without_touching_its_pixels(
+        panel, monkeypatch, tmp_path, entrypoint):
+    from unittest.mock import Mock
+
+    pixels = np.arange(48, dtype=np.uint8).reshape(4, 4, 3)
+    panel._data = None
+    panel._unmix_settings = {}
+    panel._crops = [{'crop': pixels.copy(), 'label': 7}]
+    panel._pending_crop_request = ('obsolete-request',)
+    queued = Mock(side_effect=AssertionError('missing source must not start work'))
+    choose = Mock(side_effect=AssertionError('missing source must not open a dialog'))
+    monkeypatch.setattr(panel._jobs, 'submit', queued)
+    monkeypatch.setattr(MP.QFileDialog, 'getExistingDirectory', choose)
+    before_tokens = panel._crop_token, panel._export_token
+    if entrypoint == 'choose-export':
+        panel._export_displayed_crops()
+    elif entrypoint == 'export':
+        panel._start_crop_export(tmp_path / 'export')
+    else:
+        panel.set_preview_busy(True)
+        panel._start_crop_request(('obsolete-request',))
+        assert panel._pending_crop_request is None
+    assert panel.PREVIEW_SOURCE_HINT in panel._status.text()
+    assert not panel._crop_running and not panel._export_running
+    assert (panel._crop_token, panel._export_token) == before_tokens
+    assert len(panel._crops) == 1 and panel._crops[0]['label'] == 7
+    np.testing.assert_array_equal(panel._crops[0]['crop'], pixels)
+    queued.assert_not_called()
+    choose.assert_not_called()
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_a_preview_without_a_runner_reports_only_its_pending_draw(panel, monkeypatch):
+    with monkeypatch.context() as local:
+        local.setattr(panel, '_jobs', None)
+        local.setattr(panel, '_render_plan', None, raising=False)
+        assert panel._loads_in_flight == []
+        panel._render_plan = object()
+        assert panel._loads_in_flight == [0]

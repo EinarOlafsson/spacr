@@ -219,3 +219,16 @@ def test_the_run_segments_at_the_values_the_switch_left(tmp_path,
     O.generate_cellpose_masks_sam(
         str(src), _settings(src, **dict(off, magnification=60)), "cell")
     assert seen == [120.0, 200.0, 120.0]
+
+
+@pytest.mark.parametrize('invalid', ['not a diameter', -1, True, float('inf')])
+def test_invalid_explicit_diameters_are_neither_filled_nor_pinned(invalid):
+    """Magnification never silently repairs a malformed explicit user value."""
+    settings = {'calculate_diameters': False, 'magnification': 40,
+                'cell_diameter': invalid}
+    before = settings.copy()
+    assert _blank_diameters_held_still(settings) == {}
+    assert settings == before
+    settings['calculate_diameters'] = True
+    assert not _diameter_is_pinned(settings, 'cell')
+    assert 'nucleus_diameter' not in settings and 'pathogen_diameter' not in settings

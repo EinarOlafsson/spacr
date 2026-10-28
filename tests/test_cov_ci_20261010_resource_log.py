@@ -78,3 +78,117 @@ def test_final_retry_keeps_polling_through_timeouts_until_the_result_arrives():
     assert pool._retry(pow, (2, 5)) == 32
     assert backend.submitted == [(pow, (2, 5))]
     assert backend.result.calls == [0.1, 0.1, 0.1]
+
+
+class _RecordedNativeCall:
+    """Record requested Win32 operations without making an operating-system call."""
+
+    def __init__(self, name, result, calls):
+        self.name, self.result, self.calls = name, result, calls
+
+    def __call__(self, *args):
+        self.calls.append((self.name, args))
+        if isinstance(self.result, Exception):
+            raise self.result
+        return self.result
+
+
+class _JobKernel:
+    def __init__(self, create=71, information=1, opened=81, assigned=1):
+        self.calls = []
+        for name, result in [('CreateJobObjectW', create), ('SetInformationJobObject', information),
+                             ('OpenProcess', opened), ('AssignProcessToJobObject', assigned), ('CloseHandle', 1)]:
+            setattr(self, name, _RecordedNativeCall(name, result, self.calls))
+
+
+@pytest.mark.parametrize('create,information', [(71, 1), (0, 1), (71, 0)])
+def test_windows_parent_job_requests_kill_on_close_and_cleans_failed_handles(monkeypatch, create, information):
+    import ctypes
+    from spacr import resource_log as rl
+
+    kernel = _JobKernel(create=create, information=information)
+    monkeypatch.setattr(ctypes, 'WinDLL', lambda *args, **kwargs: kernel, raising=False)
+    monkeypatch.setattr(ctypes, 'get_last_error', lambda: 5, raising=False)
+    monkeypatch.setattr(rl, '_PARENT_JOB', None)
+    if not create or not information:
+        with pytest.raises(OSError):
+            rl._parent_job()
+        assert rl._PARENT_JOB is None
+        assert [args[0] for name, args in kernel.calls if name == 'CloseHandle'] == ([71] if create else [])
+    else:
+        assert rl._parent_job() == rl._parent_job() == 71
+        assert [name for name, _args in kernel.calls] == ['CreateJobObjectW', 'SetInformationJobObject']
+        job, kind, pointer, size = kernel.calls[1][1]
+        assert job == 71 and kind == 9
+        assert pointer._obj.BasicLimitInformation.LimitFlags == 0x2000
+        assert size == ctypes.sizeof(pointer._obj)
+
+
+@pytest.mark.parametrize('opened,assigned,expected', [(0, 1, False), (81, 0, False), (81, 1, True),
+                                                     (81, OSError('assignment refused'), False)])
+def test_windows_binding_closes_only_the_opened_process_handle(monkeypatch, opened, assigned, expected):
+    import ctypes
+    from types import SimpleNamespace
+    from spacr import resource_log as rl
+
+    kernel = _JobKernel(opened=opened, assigned=assigned)
+    monkeypatch.setattr(ctypes, 'WinDLL', lambda *args, **kwargs: kernel, raising=False)
+    monkeypatch.setattr(rl, 'os', SimpleNamespace(name='nt'))
+    monkeypatch.setattr(rl, '_parent_job', lambda: 71)
+    assert rl._bind_to_parent_job(1234) is expected
+    assert kernel.calls[0] == ('OpenProcess', (0x0101, False, 1234))
+    assert [args[0] for name, args in kernel.calls if name == 'CloseHandle'] == ([81] if opened else [])
+    if opened:
+        assert kernel.calls[1] == ('AssignProcessToJobObject', (71, 81))
+
+
+@pytest.mark.parametrize('starts_done', [False, True])
+def test_pool_close_is_idempotent_and_waits_for_pending_starts(starts_done):
+    import functools
+    import queue
+    import threading
+    from types import SimpleNamespace
+    from spacr import resource_log as rl
+
+    notifier = queue.SimpleQueue()
+    pool = SimpleNamespace(_state=multiprocessing.pool.RUN, _starts_lock=threading.Lock(),
+                           _closing=False, _starts_done=starts_done, _change_notifier=notifier,
+                           _worker_handler=SimpleNamespace(_state=multiprocessing.pool.RUN))
+    pool._hand_over_close = functools.partial(rl._PacedPool._hand_over_close, pool)
+    rl._PacedPool.close(pool)
+    rl._PacedPool.close(pool)
+    assert pool._state == multiprocessing.pool.CLOSE and pool._closing
+    assert notifier.empty() is (not starts_done)
+    if starts_done:
+        assert notifier.get_nowait() is None and notifier.empty()
+        assert pool._worker_handler._state == multiprocessing.pool.CLOSE
+    stopped = SimpleNamespace(_starts_stopped=lambda: True)
+    assert rl._PacedPool._start_worker(stopped) is None
+
+
+def _wait_for_owned_starter_stop(started, stop):
+    started.set()
+    stop.wait()
+
+
+def test_starter_stop_never_joins_the_calling_thread():
+    import threading
+    from spacr.resource_log import _PacedPool
+
+    stop = threading.Event()
+    _PacedPool._stop_starter(stop, threading.current_thread())
+    assert stop.is_set()
+    stop.clear()
+    _PacedPool._stop_starter(stop, None)
+    assert stop.is_set()
+    stop.clear()
+    started = threading.Event()
+    thread = threading.Thread(target=_wait_for_owned_starter_stop, args=(started, stop))
+    thread.start()
+    try:
+        assert started.wait(5)
+        _PacedPool._stop_starter(stop, thread)
+        assert stop.is_set() and not thread.is_alive()
+    finally:
+        stop.set()
+        thread.join(timeout=5)

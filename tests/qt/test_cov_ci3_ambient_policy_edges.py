@@ -463,3 +463,509 @@ def test_the_probe_refusal_names_the_platform_path(monkeypatch):
     assert "Radeon devices only" in ambient._graphics_probe_refusal()
     monkeypatch.setattr(ambient, "_mac_radeon_graphics", lambda: True)
     assert ambient._graphics_probe_refusal() == "no hardware OpenGL 4.1 context (probe failed)"
+
+
+@pytest.mark.parametrize('low_power,reduce_motion,missing_process,expected', [
+    (True, False, False, True), (False, True, False, True),
+    (False, False, False, False), (False, True, True, True),
+])
+def test_macos_motion_policy_queries_the_runtime_and_caches_the_answer(
+        monkeypatch, low_power, reduce_motion, missing_process, expected):
+    """An explicit Objective-C API shim checks policy and TTL, not native macOS behavior."""
+    calls = []
+    clock = [100.0]
+    owners = {b'NSProcessInfo': 1, b'NSWorkspace': 2}
+    selectors = {b'processInfo': 10, b'sharedWorkspace': 20,
+                 b'isLowPowerModeEnabled': 30, b'accessibilityDisplayShouldReduceMotion': 40}
+
+    def get_class(name):
+        calls.append(name)
+        return 0 if missing_process and name == b'NSProcessInfo' else owners[name]
+
+    def selector(name):
+        return selectors[name]
+
+    objc = types.SimpleNamespace(objc_getClass=get_class, sel_registerName=selector,
+                                 objc_msgSend=object())
+    pointer, boolean = object(), object()
+
+    def function_type(result, *arguments):
+        def bind(address):
+            assert address == 123
+            if result is pointer:
+                return lambda owner, message: owner * 100
+            return lambda owner, message: low_power if message == 30 else reduce_motion
+        return bind
+
+    def load(name):
+        assert name == '/usr/lib/libobjc.A.dylib'
+        return objc
+
+    ffi = types.SimpleNamespace(cdll=types.SimpleNamespace(LoadLibrary=load),
+        c_void_p=pointer, c_bool=boolean, c_char_p=object(), CFUNCTYPE=function_type,
+        cast=lambda value, type: types.SimpleNamespace(value=123))
+    monkeypatch.setattr(ambient, 'sys', types.SimpleNamespace(platform='darwin'))
+    monkeypatch.setattr(ambient, 'time', types.SimpleNamespace(monotonic=lambda: clock[0]))
+    monkeypatch.setattr(ambient, '_MACOS_STILLNESS', [float('-inf'), False])
+    monkeypatch.setitem(sys.modules, 'ctypes', ffi)
+    assert ambient._macos_asks_for_stillness() is expected
+    first = list(calls)
+    assert first and first[0] == b'NSProcessInfo'
+    assert (b'NSWorkspace' in first) is not low_power
+    assert ambient._macos_asks_for_stillness() is expected
+    assert calls == first
+    clock[0] += ambient._MACOS_STILLNESS_TTL_S + 0.1
+    assert ambient._macos_asks_for_stillness() is expected
+    assert calls == first + first
+
+
+def test_macos_motion_metadata_failure_is_not_a_claim_of_native_stillness(monkeypatch):
+    """An unavailable Objective-C runtime returns an unknown/off answer and caches it."""
+    def unavailable(name):
+        raise OSError('runtime unavailable')
+
+    monkeypatch.setattr(ambient, 'sys', types.SimpleNamespace(platform='darwin'))
+    monkeypatch.setattr(ambient, '_MACOS_STILLNESS', [float('-inf'), False])
+    monkeypatch.setitem(sys.modules, 'ctypes', types.SimpleNamespace(
+        cdll=types.SimpleNamespace(LoadLibrary=unavailable)))
+    assert ambient._macos_asks_for_stillness() is False
+    assert ambient._MACOS_STILLNESS[1] is False
+
+
+@pytest.mark.parametrize('version', [410, 430])
+def test_gl_table_shader_adapter_changes_only_the_supported_access_protocol(version):
+    """A recording context observes source adaptation without claiming GPU compilation."""
+    source = ('#version 430\n'
+        'layout(std430, binding=2) readonly buffer P { uint palette[]; };\n'
+        'layout(std430, binding=3) readonly buffer C { vec4 columns[]; };\n'
+        'layout(std430, binding=4) readonly buffer L { vec4 lookup[]; };\n'
+        'void main() { uint p = palette[7]; vec4 c = columns[3]; vec4 l = lookup[2]; }')
+    recorded = {}
+    token = object()
+
+    def program(**sources):
+        recorded.update(sources)
+        return token
+
+    renderer = ambient._FlowPointGraphics.__new__(ambient._FlowPointGraphics)
+    renderer._context = types.SimpleNamespace(version_code=version, program=program)
+    assert renderer._make_program(vertex_shader=source) is token
+    actual = recorded['vertex_shader']
+    if version == 430:
+        assert actual == source
+    else:
+        assert actual.startswith('#version 410') and 'buffer ' not in actual
+        assert 'uniform usampler2D spacr_palette;' in actual
+        for name, index, suffix in [('palette', 7, '.r'), ('columns', 3, ''), ('lookup', 2, '')]:
+            assert f'texelFetch(spacr_{name}, ivec2(int({index}), 0), 0){suffix}' in actual
+    assert source.startswith('#version 430')
+
+
+@pytest.mark.parametrize('binding,components,dtype', [(2, 1, 'u4'), (3, 4, 'f4'), (4, 4, 'f4')])
+def test_gl_41_table_transfers_preserve_bytes_reuse_size_and_retire_replaced_texture(
+        binding, components, dtype):
+    """Recording texture APIs verify unchanged CPU bytes and resource ownership only."""
+    import numpy as np
+
+    created, events = [], []
+
+    class Texture:
+        def __init__(self, size, count, kind):
+            self.size = size
+            self.components = count
+            self.dtype = kind
+            self.raw = None
+
+        def write(self, raw):
+            self.raw = raw
+
+        def use(self, location):
+            events.append(('use', self, location))
+
+        def release(self):
+            events.append(('release', self))
+
+    def texture(size, count, *, dtype):
+        value = Texture(size, count, dtype)
+        created.append(value)
+        return value
+
+    renderer = ambient._FlowPointGraphics.__new__(ambient._FlowPointGraphics)
+    renderer._resources = []
+    renderer._context = types.SimpleNamespace(version_code=410, texture=texture)
+    uniform = types.SimpleNamespace(value=None)
+    name = {2: 'palette', 3: 'columns', 4: 'lookup'}[binding]
+    program = {'spacr_' + name: uniform}
+    raw = np.arange(2 * components, dtype=np.dtype(dtype)).tobytes()
+    buffer = types.SimpleNamespace(read=lambda: raw)
+    renderer._bind_storage(buffer, binding, program)
+    first = created[0]
+    assert first.raw == raw and first.size == (2, 1)
+    assert (first.components, first.dtype) == (components, dtype)
+    assert uniform.value == binding
+    renderer._bind_storage(buffer, binding, program)
+    assert created == [first]
+    raw = np.arange(3 * components, dtype=np.dtype(dtype)).tobytes()
+    renderer._bind_storage(buffer, binding, program)
+    second = created[1]
+    assert second.raw == raw and second.size == (3, 1)
+    assert ('release', first) in events
+    assert first not in renderer._resources and second in renderer._resources
+    assert events[-1] == ('use', second, binding)
+
+
+def test_gl_43_storage_binding_keeps_the_direct_buffer_protocol():
+    """A capable context keeps native storage API dispatch rather than inventing textures."""
+    calls = []
+    renderer = ambient._FlowPointGraphics.__new__(ambient._FlowPointGraphics)
+    renderer._context = types.SimpleNamespace(version_code=430)
+    renderer._bind_storage(types.SimpleNamespace(bind_to_storage_buffer=calls.append), 3, {})
+    assert calls == [3]
+    assert '_storage_textures' not in vars(renderer)
+
+
+def test_real_field_node_visits_follow_visibility_and_motion_preferences(qtbot):
+    """Visible native selection reaches the real CPU field; leave/stillness clears it."""
+    from PySide6.QtWidgets import QWidget
+
+    prefs.set_ambient_enabled(True)
+    prefs.set_reduce_motion(False)
+    host = QWidget()
+    qtbot.addWidget(host)
+    host.resize(320, 240)
+    backdrop = ambient.AmbientWidget(host, theme='data_art_impulse_lens', seed=7)
+    backdrop.setGeometry(host.rect())
+    node = QWidget(host)
+    node.setGeometry(80, 60, 100, 80)
+    host.show()
+    try:
+        qtbot.waitUntil(lambda: backdrop._should_run())
+        serial = backdrop._art_input._node_visit[0]
+        ambient._field_visit_node(node)
+        assert backdrop._art_input._node_visit == (serial + 1, (129 / 320, 99 / 240))
+        qtbot.waitUntil(lambda: backdrop._engine._node_visit is not None)
+        ambient._field_visit_node(node, active=False)
+        assert backdrop._art_input._node_visit[1] is None
+        qtbot.waitUntil(lambda: backdrop._engine._node_visit is None)
+        prefs.set_reduce_motion(True)
+        ambient._field_visit_node(node)
+        assert backdrop._art_input._node_visit[1] is None
+        prefs.set_reduce_motion(False)
+        node.hide()
+        ambient._field_visit_node(node)
+        assert backdrop._art_input._node_visit[1] is None
+        node.show()
+        prefs.set_ambient_enabled(False)
+        ambient._field_visit_node(node)
+        assert backdrop._art_input._node_visit[1] is None
+    finally:
+        backdrop.stop()
+        host.close()
+
+
+def test_shutdown_prevents_new_kernel_warmup_without_starting_compilers(monkeypatch):
+    """An owned shutdown event rejects warmup before invoking either compiler."""
+    stop = threading.Event()
+    stop.set()
+    monkeypatch.setattr(ambient, '_COMPILER_STOP', stop)
+
+    def unexpected():
+        raise AssertionError('shutdown must not start a compiler')
+
+    monkeypatch.setattr(ambient, '_ready_packed_scatter', unexpected)
+    monkeypatch.setattr(ambient, '_SATIN_COMPILER', types.SimpleNamespace(ready=unexpected))
+    assert ambient._start_kernel_warmup_before_first_paint() is False
+
+
+def test_kernel_warmup_wait_joins_only_owned_other_threads(monkeypatch, tmp_path):
+    """An already primed cache allows bounded joining without joining the current thread."""
+    done = threading.Event()
+    worker = threading.Thread(target=done.set)
+    worker.start()
+    monkeypatch.setattr(ambient, '_COMPILER_THREADS', {threading.current_thread(), worker})
+    monkeypatch.setattr(ambient, '_priming_allowed', lambda: True)
+    monkeypatch.setattr(ambient, '_numba_cache_directory', lambda: tmp_path)
+    marker = ambient._primed_marker(tmp_path)
+    marker.write_text('owned cache marker')
+    expected = (ambient._PACKED_SCATTER is not None and ambient._SUBPIXEL_SCATTER is not None
+                and (ambient._SATIN_COMPILER.kernel is not None or ambient._SATIN_COMPILER.failed))
+    assert ambient._finish_kernel_warmup_before_first_paint(timeout_s=.25) is expected
+    assert done.is_set() and not worker.is_alive()
+
+
+@pytest.mark.parametrize('platform', ['linux', 'darwin'])
+def test_native_graphics_name_refusal_does_not_start_a_probe(monkeypatch, platform):
+    """Unsupported OS or unavailable metadata refuses the known-driver graphics path."""
+    from spacr import accelerator
+
+    def unavailable():
+        raise OSError('GPU name unavailable')
+
+    monkeypatch.setattr(ambient, 'sys', types.SimpleNamespace(platform=platform))
+    monkeypatch.setattr(accelerator, '_metal_gpu_name', unavailable)
+    assert ambient._mac_radeon_graphics() is False
+
+
+def test_field_visit_expires_after_real_engine_time_and_rejects_malformed_column(qtbot):
+    """Actual selected-node delivery expires through engine time without adding a wave."""
+    from PySide6.QtWidgets import QWidget
+
+    prefs.set_ambient_enabled(True)
+    prefs.set_reduce_motion(False)
+    host = QWidget()
+    qtbot.addWidget(host)
+    host.resize(240, 180)
+    backdrop = ambient.AmbientWidget(host, theme='data_art_impulse_lens', seed=7)
+    backdrop.setGeometry(host.rect())
+    node = QWidget(host)
+    node.setGeometry(20, 20, 80, 60)
+    host.show()
+    try:
+        qtbot.waitUntil(lambda: backdrop._should_run())
+        ambient._field_visit_node(node)
+        with backdrop._engine_lock:
+            backdrop._art_input._consume(backdrop._engine)
+            engine = backdrop._engine
+            assert engine._node_visit is not None
+            engine.advance(7.0)
+            assert engine._field_center()[2] == 0.0 and engine._node_visit is None
+            before = list(engine._column_waves)
+            engine._add_column_wave((.2, .8, .5, .5, .1))
+            assert list(engine._column_waves) == before
+    finally:
+        backdrop.stop()
+        host.close()
+
+
+def test_held_probe_capacity_clears_real_retired_widget_samples(qtbot):
+    """A fresh walk replaces historical tile samples with current background observations."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QWidget
+
+    host = QWidget()
+    qtbot.addWidget(host)
+    backdrop = ambient.AmbientWidget(host, theme='blobs', seed=7)
+    backdrop.resize(80, 60)
+    held = backdrop._held_rows
+    for _ in range(ambient._HOLD_PROBES_MAX + 1):
+        field = QWidget(host)
+        field.resize(1, 1)
+        field.setAttribute(Qt.WA_StyledBackground, True)
+        field.setStyleSheet('background:#123456;')
+        held._painted_tiles(field)
+    assert len(held._probes) > ambient._HOLD_PROBES_MAX
+    historical = set(held._probes)
+    assert all(key[0] == 'tiles' for key in historical)
+    covered = held._covered()
+    assert covered == ambient.QRegion(ambient.QRect(0, 0, ambient._HOLD_GRID, ambient._HOLD_GRID))
+    assert historical.isdisjoint(held._probes)
+    assert all(key[0] == 'background' for key in held._probes)
+    assert all(sample[1]() is not None for sample in held._probes.values())
+    backdrop.stop()
+
+
+def test_empty_and_sparse_custom_paint_probes_cover_only_actual_ink(qtbot):
+    """A custom container's empty tiles stay live and its painted tiles are held."""
+    from PySide6.QtCore import QRect
+    from PySide6.QtGui import QRegion
+    from PySide6.QtWidgets import QWidget
+
+    class Ink(QWidget):
+        def paintEvent(self, event):
+            painter = QPainter(self)
+            painter.fillRect(QRect(32, 0, 16, 16), QColor('#ff0000'))
+            painter.end()
+
+    host = QWidget()
+    qtbot.addWidget(host)
+    backdrop = ambient.AmbientWidget(host, theme='blobs', seed=7)
+    field = Ink(host)
+    field.resize(80, 32)
+    field.setAttribute(ambient.Qt.WA_NoSystemBackground, True)
+    region = backdrop._held_rows._painted_tiles(field)
+    assert region.contains(ambient.QPoint(36, 4))
+    assert not region.contains(ambient.QPoint(4, 4))
+    field.resize(0, 0)
+    assert backdrop._held_rows._painted_tiles(field) == QRegion()
+    backdrop.stop()
+
+
+def test_field_dispatch_skips_noninteractive_backdrops_and_discarded_native_widgets(qtbot):
+    """Mixed background themes receive only their own supported input protocols."""
+    import shiboken6
+    from PySide6.QtWidgets import QWidget
+
+    host = QWidget()
+    qtbot.addWidget(host)
+    host.resize(240, 180)
+    classic = ambient.AmbientWidget(host, theme='blobs', seed=7)
+    node = QWidget(host)
+    ambient._field_visit_node(node)
+    ambient._field_growing_regions_for_widget(node, (ambient.QRect(-10, -10, 4, 4),))
+    assert classic._art_input is None
+    popup = QWidget(host)
+    shiboken6.delete(popup)
+    ambient._field_ripple_for_popup(popup)
+    ambient.field_ripple_for_widget(popup)
+    classic.stop()
+
+
+def test_wallpaper_held_region_and_fresh_region_paint_their_own_real_pixels(qtbot):
+    """A wallpaper-backed field uses the complete painter fallback with exact region boundaries."""
+    from PySide6.QtCore import QRect
+    from PySide6.QtGui import QPaintEvent, QRegion
+    from PySide6.QtWidgets import QWidget
+
+    host = QWidget()
+    qtbot.addWidget(host)
+    host.resize(120, 100)
+    wallpaper = QImage(120, 100, QImage.Format_RGB32)
+    wallpaper.fill(QColor('#102030'))
+    backdrop = ambient.AmbientWidget(host, theme='blobs', backdrop=wallpaper, seed=7)
+    backdrop.resize(120, 100)
+    old, fresh = QImage(120, 100, QImage.Format_RGB32), QImage(120, 100, QImage.Format_RGB32)
+    old.fill(QColor('#d02030'))
+    fresh.fill(QColor('#1040d0'))
+    held = backdrop._held_rows
+    held.frame = old
+    held.region = QRegion(QRect(24, 24, 48, 48))
+    backdrop._last_frame = fresh
+    backdrop._timer.start()
+    references = []
+    for frame in (old, fresh):
+        reference = QImage(120, 100, QImage.Format_ARGB32_Premultiplied)
+        reference.fill(0)
+        renderer = QPainter(reference)
+        backdrop._paint_base(renderer, backdrop.rect())
+        backdrop._engine.blit(renderer, frame, 120, 100)
+        renderer.end()
+        references.append(reference)
+    expected = references[1].copy()
+    renderer = QPainter(expected)
+    renderer.setClipRegion(held.region)
+    renderer.drawImage(0, 0, references[0])
+    renderer.end()
+    canvas = QImage(120, 100, QImage.Format_ARGB32_Premultiplied)
+    canvas.fill(0)
+    painter = QPainter(canvas)
+    try:
+        assert backdrop._paint_held(painter, QPaintEvent(backdrop.rect()), 120, 100)
+    finally:
+        painter.end()
+        backdrop.stop()
+    assert canvas == expected
+    assert canvas.pixelColor(40, 40) == references[0].pixelColor(40, 40)
+    assert canvas.pixelColor(100, 80) == references[1].pixelColor(100, 80)
+
+
+def test_no_fresh_frame_cannot_claim_a_complete_held_paint(qtbot):
+    """A held input alone is insufficient while the next field frame is unavailable."""
+    from PySide6.QtGui import QPaintEvent, QRegion
+    from PySide6.QtWidgets import QWidget
+
+    host = QWidget()
+    qtbot.addWidget(host)
+    backdrop = ambient.AmbientWidget(host, theme='blobs', seed=7)
+    backdrop.resize(80, 60)
+    held = backdrop._held_rows
+    held.frame = QImage(80, 60, QImage.Format_RGB32)
+    held.frame.fill(QColor('#123456'))
+    held.region = QRegion(backdrop.rect())
+    assert backdrop._last_frame is None
+    backdrop._timer.start()
+    canvas = QImage(80, 60, QImage.Format_ARGB32_Premultiplied)
+    canvas.fill(0)
+    painter = QPainter(canvas)
+    try:
+        assert not backdrop._paint_held(painter, QPaintEvent(backdrop.rect()), 80, 60)
+    finally:
+        painter.end()
+        backdrop.stop()
+    assert canvas.pixelColor(40, 30).alpha() == 0
+
+
+def test_unknown_power_supply_entries_do_not_override_a_real_discharging_battery(tmp_path):
+    """Only system battery and mains records take part in the local sysfs decision."""
+    for name, values in [('unknown', {'type': 'USB_PD'}),
+                         ('battery', {'type': 'Battery', 'status': 'Discharging'})]:
+        folder = tmp_path / name
+        folder.mkdir()
+        for key, value in values.items():
+            (folder / key).write_text(value)
+    assert ambient._linux_on_battery(tmp_path) is True
+
+
+def test_parentless_field_and_zero_sized_background_have_no_covered_area(qtbot):
+    """Unembedded fields and empty layout containers cannot hold unrelated pixels."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QWidget
+
+    backdrop = ambient.AmbientWidget(theme='blobs', seed=7)
+    qtbot.addWidget(backdrop)
+    assert backdrop._held_rows._covered().isEmpty()
+    widget = QWidget()
+    qtbot.addWidget(widget)
+    widget.setAttribute(Qt.WA_StyledBackground, True)
+    widget.resize(0, 0)
+    assert backdrop._held_rows._paints_a_background(widget) is False
+    backdrop.stop()
+
+
+def test_held_classic_field_updates_only_live_area_and_can_be_fully_covered(qtbot, monkeypatch):
+    """Real settling and explicit occluded-field capture drive exact tick dispatch regions."""
+    from PySide6.QtWidgets import QWidget
+
+    prefs.set_ambient_enabled(True)
+    prefs.set_reduce_motion(False)
+    host = QWidget()
+    qtbot.addWidget(host)
+    host.resize(240, 180)
+    backdrop = ambient.AmbientWidget(host, theme='blobs', seed=7)
+    backdrop.setGeometry(host.rect())
+    card = QWidget(host)
+    card.setGeometry(20, 20, 80, 60)
+    card.setAutoFillBackground(True)
+    host.show()
+    updates = []
+    original = backdrop.update
+
+    def update(*args):
+        updates.append(args)
+        original(*args)
+
+    monkeypatch.setattr(backdrop, 'update', update)
+    try:
+        qtbot.waitUntil(lambda: backdrop._held_rows.frame is not None, timeout=5000)
+        held = backdrop._held_rows
+        assert not held.live.isEmpty()
+        updates.clear()
+        backdrop._on_tick()
+        assert len(updates) == 1 and updates[0] == (held.live,)
+        from spacr.qt.gui_scale import _resize_actual
+        card.move(0, 0)
+        _resize_actual(card, host.size())
+        assert card.geometry() == host.rect() == backdrop.rect()
+        held.stir()
+        qtbot.waitUntil(lambda: held.arming and held.live.isEmpty(), timeout=5000)
+        backdrop.grab()
+        assert held.frame is not None and held.live.isEmpty()
+        updates.clear()
+        backdrop._on_tick()
+        assert updates == []
+    finally:
+        backdrop.stop()
+        host.close()
+
+
+def test_gl_table_adapter_rewrites_each_distinct_lookup_without_changing_indices():
+    """Repeated same-table lookups retain their own addresses through source adaptation."""
+    captured = {}
+    renderer = ambient._FlowPointGraphics.__new__(ambient._FlowPointGraphics)
+    renderer._context = types.SimpleNamespace(version_code=410,
+        program=lambda **sources: captured.update(sources))
+    renderer._make_program(fragment_shader=(
+        '#version 430\nlayout(std430,binding=2) readonly buffer P { uint palette[]; };\n'
+        'void main() { uint a = palette[3] + palette[9]; }'))
+    source = captured['fragment_shader']
+    assert 'ivec2(int(3), 0)' in source and 'ivec2(int(9), 0)' in source
+    assert source.count('texelFetch(spacr_palette,') == 2

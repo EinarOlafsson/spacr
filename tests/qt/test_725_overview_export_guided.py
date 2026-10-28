@@ -301,3 +301,236 @@ def test_selected_fields_and_wells_go_on_the_canvas_by_button_and_by_drag(view, 
     assert composer.add_images(dropped)[0]["source"]["well"] == "B01"
     composer.close()
     assert drags._watched == []
+
+
+def _canvas_mouse(kind, point, button=Qt.NoButton, buttons=Qt.NoButton, modifiers=Qt.NoModifier):
+    from PySide6.QtCore import QPointF
+    from PySide6.QtGui import QMouseEvent
+
+    return QMouseEvent(kind, QPointF(point), QPointF(point), button, buttons, modifiers)
+
+
+def test_restored_canvas_display_is_reused_without_rebinding_to_current_settings(view):
+    import json
+
+    captured = view._canvas_snapshot()
+    field = view._fields[0]
+    box = browser._overview_canvas_image(field)
+    captured.capture(box)
+    saved = json.loads(json.dumps(box['overview_display']))
+    expected = captured(box, None)
+    current = browser._OverviewCanvasSnapshot(view._fields, (2,), None, {'color_mode': 'additive'})
+    actual = current(box, None)
+    restored = current._restore(saved)
+    assert current._restore(json.loads(json.dumps(saved))) is restored
+    assert len(current._restored) == 1
+    assert np.array_equal(actual, expected)
+    assert np.array_equal(current(box, None), expected)
+    assert box['overview_display'] == saved
+    assert current._channels == (2,)
+
+
+def test_canvas_hold_and_selected_drag_preserve_the_actual_well_sources(view, monkeypatch):
+    from PySide6.QtCore import QEvent
+    from PySide6.QtWidgets import QApplication
+
+    composer = view._open_custom_export()
+    drags = view._canvas_drags
+    viewport = view.wells.viewport()
+    view.wells.clearSelection()
+    item = view.wells.item(*view._well_positions[(view.plates.currentData(), 'A01')])
+    position = view.wells.visualItemRect(item).center()
+    moves = []
+    monkeypatch.setattr(drags, '_start_drag', lambda watched, images, start: moves.append((watched, images, start)))
+    assert drags._press is None
+    drags._arm()
+    assert not drags._armed
+    assert not drags.eventFilter(viewport, _canvas_mouse(QEvent.MouseButtonPress, position, Qt.RightButton))
+    assert not drags.eventFilter(viewport, _canvas_mouse(QEvent.MouseButtonPress, QPoint(-100, -100), Qt.LeftButton,
+                                                      Qt.LeftButton, Qt.ControlModifier | Qt.ShiftModifier))
+    assert drags._press is None
+    assert not drags.eventFilter(viewport, _canvas_mouse(QEvent.MouseButtonPress, position, Qt.LeftButton, Qt.LeftButton))
+    assert drags._press[3] is False and drags._hold.isActive()
+    drags._arm()
+    assert drags._armed and viewport.cursor().shape() == Qt.DragCopyCursor
+    assert composer.status.text() == browser.tr('Move the pointer to drag the image onto the canvas.')
+    assert drags.eventFilter(viewport, _canvas_mouse(QEvent.MouseMove, position, buttons=Qt.LeftButton))
+    assert moves == []
+    assert not drags.eventFilter(viewport, _canvas_mouse(QEvent.MouseButtonRelease, position, Qt.LeftButton))
+    assert drags._press is None and not drags._armed and not drags._hold.isActive()
+    item.setSelected(True)
+    assert not drags.eventFilter(viewport, _canvas_mouse(QEvent.MouseButtonPress, position, Qt.LeftButton, Qt.LeftButton))
+    assert drags._press[3] is True
+    assert drags.eventFilter(viewport, _canvas_mouse(QEvent.MouseMove, position, buttons=Qt.LeftButton))
+    assert moves == []
+    destination = position + QPoint(QApplication.startDragDistance() + 2, 0)
+    assert drags.eventFilter(viewport, _canvas_mouse(QEvent.MouseMove, destination, buttons=Qt.LeftButton))
+    assert len(moves) == 1 and moves[0][0] is viewport
+    assert {(image['source']['plate'], image['source']['well'], image['source']['field']) for image in moves[0][1]} == {
+        ('p1', 'A01', '1'), ('p1', 'A01', '2'), ('p1', 'A01', '3')}
+    assert drags._press is None and not drags._armed
+
+
+def test_canvas_image_handle_moves_only_after_threshold_and_releases_selection(view, qtbot, monkeypatch):
+    from PySide6.QtCore import QEvent
+    from PySide6.QtWidgets import QApplication
+
+    view._open_custom_export()
+    view._well(view.wells.item(*view._well_positions[(view.plates.currentData(), 'A01')]))
+    qtbot.waitUntil(lambda: view.fields.count() == 3, timeout=15000)
+    view._field(view.fields.item(0))
+    qtbot.waitUntil(lambda: view._field_shown_in(view.view) is not None, timeout=15000)
+    drags = view._canvas_drags
+    drags.watch()
+    handle = next(handle for handle, viewport in drags._handles.items() if viewport is view.view.viewport())
+    dragged = []
+    monkeypatch.setattr(drags, '_start_drag', lambda watched, images, start: dragged.append((watched, images)))
+    start = handle.rect().center()
+    assert drags.eventFilter(handle, _canvas_mouse(QEvent.MouseButtonPress, start, Qt.LeftButton, Qt.LeftButton))
+    assert drags._press is not None
+    assert drags.eventFilter(handle, _canvas_mouse(QEvent.MouseMove, start, buttons=Qt.LeftButton))
+    assert dragged == []
+    end = start + QPoint(QApplication.startDragDistance() + 2, 0)
+    assert drags.eventFilter(handle, _canvas_mouse(QEvent.MouseMove, end, buttons=Qt.LeftButton))
+    assert len(dragged) == 1 and dragged[0][0] is handle
+    assert [(image['source']['well'], image['source']['field']) for image in dragged[0][1]] == [('A01', '1')]
+    assert drags.eventFilter(handle, _canvas_mouse(QEvent.MouseButtonRelease, end, Qt.LeftButton))
+    assert drags._press is None
+    assert not drags._handle_event(handle, QEvent(QEvent.Enter))
+
+
+def test_canvas_drag_boundary_preserves_mime_and_sends_the_source_a_release(view, monkeypatch):
+    from types import SimpleNamespace
+    from PySide6.QtCore import QEvent
+    from PySide6.QtWidgets import QApplication
+
+    view._open_custom_export()
+    drags = view._canvas_drags
+    actions = []
+    assert drags._run_drag(SimpleNamespace(exec=lambda action: actions.append(action) or Qt.IgnoreAction)) == Qt.IgnoreAction
+    assert actions == [Qt.CopyAction]
+    images = [browser._overview_canvas_image(view._fields[0])]
+    original_send = QApplication.sendEvent
+    releases, received = [], []
+    viewport = view.wells.viewport()
+
+    def send(receiver, event):
+        if receiver is viewport and event.type() == QEvent.MouseButtonRelease:
+            releases.append((event.button(), event.buttons()))
+        return original_send(receiver, event)
+
+    def finish(drag):
+        received.extend(picture_export._canvas_dropped_images(drag.mimeData()))
+        return Qt.IgnoreAction
+
+    monkeypatch.setattr(QApplication, 'sendEvent', send)
+    monkeypatch.setattr(drags, '_run_drag', finish)
+    assert drags._start_drag(viewport, images, QPoint(5, 5)) == Qt.IgnoreAction
+    assert received == images
+    assert releases == [(Qt.LeftButton, Qt.NoButton)]
+
+
+def test_guided_cell_picker_has_real_occupied_pixels_and_clamped_drag_selection(qtbot):
+    from PySide6.QtCore import QEvent, QPointF
+    from PySide6.QtGui import QColor
+
+    picker = browser._OverviewCellPicker()
+    qtbot.addWidget(picker)
+    picker.resize(240, 600)
+    picker.configure(3, 2, .7, {(0, 0): 'A01'})
+    picker.selection = (2, 1, 1, 1)
+    picker.show()
+    paper = picker._paper()
+    assert paper.width() == pytest.approx(picker.width() - 16)
+    assert paper.width() / paper.height() == pytest.approx(.7)
+    image = picker.grab().toImage()
+    x, y = int(paper.x()) + 8, int(paper.y()) + 8
+    assert image.pixelColor(x, y) == QColor('#d4ece9')
+    assert image.pixelColor(x, int(paper.y() + paper.height() / 3) + 8) == QColor('#ffffff')
+    changed = []
+    picker.changed.connect(lambda: changed.append(picker.selection))
+    picker.mouseMoveEvent(_canvas_mouse(QEvent.MouseMove, QPoint(0, 0)))
+    assert changed == []
+    first = QPointF(paper.left() + paper.width() * .25, paper.top() + paper.height() / 6)
+    last = QPointF(paper.left() + paper.width() * .75, paper.top() + paper.height() * .5)
+    picker.mousePressEvent(_canvas_mouse(QEvent.MouseButtonPress, first, Qt.LeftButton, Qt.LeftButton))
+    picker.mouseMoveEvent(_canvas_mouse(QEvent.MouseMove, last, buttons=Qt.LeftButton))
+    picker.mouseReleaseEvent(_canvas_mouse(QEvent.MouseButtonRelease, last, Qt.LeftButton))
+    assert changed == [(0, 0, 1, 1), (0, 0, 2, 2)]
+    assert picker.selection == (0, 0, 2, 2) and picker._anchor is None
+    assert picker._cell_at(QPointF(-1000, -1000)) == (0, 0)
+    assert picker._cell_at(QPointF(10000, 10000)) == (2, 1)
+
+
+def test_guided_preview_replacement_and_export_delegation_keep_the_chosen_well(view, monkeypatch):
+    from PySide6.QtCore import QCoreApplication, QEvent
+    from shiboken6 import isValid
+
+    guided = view._open_guided_export()
+    guided.back()
+    assert guided.steps.currentIndex() == 0
+    assert guided.export_pdf('not-started.pdf') is False
+    guided._ask_export()
+    guided.choose_wells('one', ('p2', 'B02'))
+    assert guided.next() and guided.next()
+    guided._turn_page(2)
+    assert guided._page == 2 and guided.page_label.text() == browser.tr('Page {number}', number=3)
+    guided._turn_page(-20)
+    assert guided._page == 0
+    assert guided.next()
+    first = guided.composer
+    expected = _wells_on(first.canvas.pages[0])
+    assert expected == [('p2', 'B02', str(field)) for field in (1, 2, 3)]
+    assert guided.next() is False
+    guided._show_preview()
+    second = guided.composer
+    QCoreApplication.sendPostedEvents(first, QEvent.DeferredDelete)
+    assert not isValid(first) and second is not first
+    assert _wells_on(second.canvas.pages[0]) == expected
+    asked, exported = [], []
+    monkeypatch.setattr(second, '_ask_export', lambda: asked.append(True))
+    monkeypatch.setattr(second, 'export_pdf', lambda path: exported.append(path) or True)
+    guided._ask_export()
+    assert guided.export_pdf('chosen.pdf') is True
+    assert asked == [True] and exported == ['chosen.pdf']
+
+
+def test_guided_measurement_caption_reports_missing_columns_without_cross_plate_rows(view):
+    guided = view._open_guided_export()
+    fields = view._canvas_well_fields('p1', 'A01')[:2]
+    guided._measurements_loaded(pd.DataFrame({'plate': ['p1', 'p1', 'p2'], 'well': ['A01'] * 3,
+                                             'value': [2., 4., 100.], 'empty': [np.nan] * 3}))
+    assert guided._measurement_text(('p1', 'A01'), fields, ['value', 'empty', 'absent']) == (
+        'value: 3\nempty: –\nabsent: –')
+    assert guided._measurement_text(('p1', 'A01'), fields, []) == ''
+    layout = browser._overview_guided_layout([{'page': 0, 'cell': (0, 0, 1, 1),
+                                             'images': [], 'captions': {'above': 'No selected fields'}}])
+    assert _texts(layout.pages[0]) == {'above': 'No selected fields'}
+    assert _wells_on(layout.pages[0]) == []
+
+
+@pytest.mark.parametrize('failure', [None, browser._OverviewValidationError, OSError, ValueError])
+def test_guided_measurement_read_requires_an_exported_database_and_preserves_read_failure(
+        tmp_path, monkeypatch, failure):
+    seen = []
+    frame = pd.DataFrame({'plateID': ['p1'], 'wellID': ['A01'], 'area': [12.]})
+
+    def read(source):
+        seen.append(source)
+        if failure is not None:
+            raise failure('measurement unavailable')
+        return frame
+
+    monkeypatch.setattr(browser, '_overview_comparison_frame', read)
+    assert browser._overview_guided_frame(str(tmp_path)) is None
+    assert seen == []
+    folder = tmp_path / 'measurements'
+    folder.mkdir()
+    (folder / 'measurements.db').touch()
+    result = browser._overview_guided_frame(str(tmp_path))
+    if failure is None:
+        assert result is frame
+        assert result.loc[0, 'area'] == 12.
+    else:
+        assert result is None
+    assert seen == [str(tmp_path)]

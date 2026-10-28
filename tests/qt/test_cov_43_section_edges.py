@@ -72,3 +72,40 @@ def test_the_body_is_sealed_as_a_surface(qtbot, monkeypatch):
     assert sealed == [(section._body, "surface")]
     section.changeEvent(QEvent(QEvent.StyleChange))
     assert sealed[-1] == (section._body, "surface") and len(sealed) == 2
+
+
+@pytest.mark.parametrize('expanded', [False, True])
+def test_missing_optional_ambient_entry_does_not_change_the_category_body(qtbot, monkeypatch, expanded):
+    import sys
+    from types import SimpleNamespace
+
+    section = Section('Editable category')
+    qtbot.addWidget(section)
+    label = QLabel('Preserved field', section._body)
+    section.add_row('Name', label)
+    section._expanded = expanded
+    monkeypatch.setitem(sys.modules, 'spacr.qt.widgets.ambient', SimpleNamespace())
+    assert section._category_ripple() is None
+    assert section._holds(label)
+    assert label.text() == 'Preserved field'
+
+
+def test_nested_detached_categories_are_unique_and_keep_their_live_field(qtbot):
+    from PySide6.QtCore import QEvent
+
+    outer, inner, leaf = Section('Outer'), Section('Inner'), Section('Leaf')
+    qtbot.addWidget(outer)
+    inner.add_row('', leaf)
+    outer.add_row('', inner)
+    field = QLabel('Original value')
+    leaf.add_row('Value', field)
+    inner._detach_body_while_hidden()
+    outer._detach_body_while_hidden()
+    found = outer._nested_sections()
+    assert set(found) == {inner, leaf}
+    assert len(found) == 2
+    assert outer._holds(field)
+    assert outer._attach_body()
+    assert inner._attach_body()
+    assert field.text() == 'Original value'
+    assert outer.eventFilter(outer._header, QEvent(QEvent.Type.Enter)) is False

@@ -138,3 +138,227 @@ def test_an_undone_annotation_can_be_redone(qtbot, tmp_path):
     finally:
         if screen._worker is not None:
             screen._worker.stop(wait=True)
+
+
+
+def test_committed_organelle_edit_undoes_without_losing_another_slots_hidden_values(qtbot):
+    from spacr.qt.screens.app_screen import AppScreen
+
+    screen = AppScreen('measure')
+    qtbot.addWidget(screen)
+    loaded = {'number_of_organelles': 2, 'organelle_mask_dim': 0,
+              'organelleb_mask_dim': 1, 'organelle_diameter': 12,
+              'organelleb_diameter': 23}
+    screen.apply_settings_dict(loaded)
+    model = screen._settings_model
+    assert model.collect()['organelleb_mask_dim'] == 1
+    assert model.collect()['organelleb_diameter'] == 23
+    stack = model.undo_stack
+    stack.clear()
+    assert model.set_value_for_key('organelle_diameter', 17)
+    assert model.collect()['organelle_diameter'] == 17
+    assert stack.count() == 1
+    stack.undo()
+    assert model.collect()['organelle_diameter'] == 12
+    stack.redo()
+    values = model.collect()
+    assert values['organelle_diameter'] == 17
+    assert values['organelleb_diameter'] == 23 and values['organelleb_mask_dim'] == 1
+    assert screen._settings_model is model and values['number_of_organelles'] == 2
+    screen.close()
+
+
+def test_app_bulk_load_rebases_the_next_real_edit_without_replacing_the_model(qtbot):
+    from spacr.qt.screens.app_screen import AppScreen
+
+    screen = AppScreen('measure')
+    qtbot.addWidget(screen)
+    model = screen._settings_model
+    screen.apply_settings_dict({'number_of_organelles': 1, 'organelle_mask_dim': 0,
+                                'organelle_diameter': 31})
+    assert screen._settings_model is model
+    assert model.collect()['organelle_diameter'] == 31
+    assert model.undo_stack.count() == 0
+    assert model.set_value_for_key('organelle_diameter', 37)
+    assert model.undo_stack.count() == 1
+    model.undo_stack.undo()
+    values = model.collect()
+    assert values['organelle_diameter'] == 31 and values['organelle_mask_dim'] == 0
+    assert values['number_of_organelles'] == 1
+    screen.close()
+
+
+def test_progressive_slot_classifier_keeps_shared_keys_and_marks_only_slots_above_the_count():
+    from spacr.qt.screens.settings_model import SettingsWidgets
+
+    settings = {'number_of_organelles': 2, 'organelle_channel': 0,
+                'organelleb_channel': 1, 'organellez_diameter': 9,
+                'cell_diameter': 15, 'organelle_custom_metadata': 'preserve'}
+    assert SettingsWidgets._organelle_keys_beyond(0, settings) == {
+        'organelle_channel', 'organelleb_channel', 'organellez_diameter',
+        'organelle_custom_metadata'}
+    assert SettingsWidgets._organelle_keys_beyond(1, settings) == {
+        'organelleb_channel', 'organellez_diameter'}
+    assert SettingsWidgets._organelle_keys_beyond(26, settings) == set()
+    assert settings['number_of_organelles'] == 2 and settings['cell_diameter'] == 15
+
+
+def test_incomplete_count_is_refused_for_commit_but_remains_undoable_without_losing_other_slots(qtbot):
+    import pytest
+    from spacr.qt.screens.app_screen import AppScreen
+
+    screen = AppScreen('measure')
+    qtbot.addWidget(screen)
+    screen.apply_settings_dict({'number_of_organelles': 2, 'organelle_mask_dim': 0,
+                                'organelleb_mask_dim': 1, 'organelleb_diameter': 23})
+    model = screen._settings_model
+    field = model._widgets['number_of_organelles']
+    stack = model.undo_stack
+    stack.clear()
+    existing = dict(model._widgets)
+    assert field.text() == '2' and model.collect()['number_of_organelles'] == 2
+    for invalid in ('-', '1.5', 'no', '703'):
+        field.setText(invalid)
+        with pytest.raises(ValueError):
+            model._valid_committed_value('number_of_organelles')
+        field.editingFinished.emit()
+        assert field.text() == invalid and stack.canUndo()
+        with pytest.raises(ValueError):
+            model.collect()
+        assert model._valid_committed_value('organelleb_diameter') == 23
+        stack.undo()
+        restored = model.collect()
+        assert field.text() == '2' and restored['number_of_organelles'] == 2
+        assert restored['organelleb_diameter'] == 23
+    field.setText('2')
+    field.editingFinished.emit()
+    assert model.collect()['number_of_organelles'] == 2
+    assert all(model._widgets[key] is value for key, value in existing.items())
+    assert model.collect()['organelleb_mask_dim'] == 1
+    screen.close()
+
+
+def test_canceled_real_model_picker_keeps_the_field_and_model_settings(qtbot, monkeypatch):
+    from PySide6.QtWidgets import QDialog, QLineEdit
+    from spacr.qt.screens.app_screen import AppScreen
+    from spacr.qt.widgets.model_zoo_picker import ModelZooPicker
+
+    screen = AppScreen('mask')
+    qtbot.addWidget(screen)
+    field = QLineEdit('existing-checkpoint', screen)
+    before = screen._settings_model.collect()
+    inspected = []
+
+    def cancel(dialog):
+        assert isinstance(dialog, ModelZooPicker)
+        inspected.append(dialog)
+        return QDialog.Rejected
+
+    monkeypatch.setattr(ModelZooPicker, 'exec', cancel)
+    screen._choose_a_model_for('custom_model', field)
+    assert len(inspected) == 1
+    assert field.text() == 'existing-checkpoint'
+    assert screen._settings_model.collect() == before
+    screen.close()
+
+
+def test_ram_guard_choices_change_only_the_requested_policy_and_recheck_after_freeing_memory(qtbot):
+    from spacr.qt.screens.app_screen import AppScreen
+
+    screen = AppScreen('measure')
+    qtbot.addWidget(screen)
+    for choice in ('use', 'keep', 'free', 'cancel'):
+        settings = {'src': 'unchanged-input', 'n_jobs': 8, 'ram_guard': True}
+        calls, freed = [], []
+
+        def plan_for(source, requested):
+            calls.append((source, requested))
+            return {'exceeds': not freed, 'max_safe': 2}
+
+        accepted = screen._confirm_ram_guard(
+            settings, plan_for=plan_for, ask=lambda plan: choice,
+            free_ram=lambda: freed.append(True))
+        assert accepted is (choice != 'cancel')
+        assert settings['src'] == 'unchanged-input'
+        assert settings['n_jobs'] == (2 if choice == 'use' else 8)
+        assert settings['ram_guard'] is (choice != 'keep')
+        assert calls == [('unchanged-input', 8)] * (2 if choice == 'free' else 1)
+        assert freed == ([True] if choice == 'free' else [])
+    screen.close()
+
+
+def test_report_fingerprints_expire_independently_at_the_in_flight_deadline(monkeypatch):
+    from types import SimpleNamespace
+    from spacr.qt.screens import app_screen
+
+    clock = [1000.]
+    pending = {'expired': clock[0] - app_screen.REPORT_IN_FLIGHT_SECONDS,
+               'active': clock[0] - 1}
+    monkeypatch.setattr(app_screen, '_REPORTS_BEING_FILED', pending)
+    monkeypatch.setattr(app_screen, 'time', SimpleNamespace(monotonic=lambda: clock[0]))
+    assert not app_screen._a_report_is_in_flight('expired')
+    assert pending == {'active': 999.}
+    assert app_screen._a_report_is_in_flight('active')
+    assert not app_screen._a_report_is_in_flight('unseen')
+    clock[0] += app_screen.REPORT_IN_FLIGHT_SECONDS
+    assert not app_screen._a_report_is_in_flight('active') and pending == {}
+
+
+def test_analysis_lock_dialog_cancellation_preserves_source_and_invalid_settings_never_open_it(
+        qtbot, monkeypatch, tmp_path):
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QDialog, QMessageBox
+    from spacr.qt.screens.app_screen import AppScreen
+
+    source = tmp_path / 'source'
+    source.mkdir()
+    marker = source / 'original.dat'
+    marker.write_bytes(b'unchanged scientific input')
+    screen = AppScreen('measure')
+    qtbot.addWidget(screen)
+    screen.apply_settings_dict({'src': str(source)})
+    before = screen._settings_model.collect()
+    screen._on_analysis_lock()
+    dialog = screen.findChild(QDialog, 'AnalysisLockDialog')
+    assert dialog is not None
+    qtbot.waitUntil(dialog.isVisible)
+    qtbot.keyClick(dialog, Qt.Key_Escape)
+    from shiboken6 import isValid
+    qtbot.waitUntil(lambda: not isValid(dialog) or not dialog.isVisible())
+    assert screen._settings_model.collect() == before
+    assert list(source.iterdir()) == [marker] and marker.read_bytes() == b'unchanged scientific input'
+    warnings = []
+
+    def unreadable():
+        raise ValueError('Number of organelles is incomplete')
+
+    monkeypatch.setattr(screen._settings_model, 'collect', unreadable)
+    monkeypatch.setattr(QMessageBox, 'warning', lambda *args: warnings.append(args[2]))
+    screen._on_analysis_lock()
+    assert warnings == ['Number of organelles is incomplete']
+    assert list(source.iterdir()) == [marker]
+    screen.close()
+
+
+def test_tooltip_label_lookup_does_not_steal_interactive_or_unlabelled_rows(qtbot):
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QFormLayout, QLabel, QLineEdit
+    from spacr.qt.screens.settings_model import _sibling_label_for, _widget_is_alive
+
+    host = QWidget()
+    qtbot.addWidget(host)
+    form = QFormLayout(host)
+    unlabelled = QLineEdit(host)
+    form.addRow(unlabelled)
+    assert _sibling_label_for(unlabelled) is None
+    interactive = QLabel('Open model documentation', host)
+    interactive.setCursor(Qt.PointingHandCursor)
+    link_field = QLineEdit(host)
+    form.addRow(interactive, link_field)
+    assert _sibling_label_for(link_field) is None
+    plain = QLabel('Object diameter', host)
+    plain_field = QLineEdit(host)
+    form.addRow(plain, plain_field)
+    assert _sibling_label_for(plain_field) is plain
+    assert not _widget_is_alive(None) and _widget_is_alive(plain)
+    assert interactive.cursor().shape() == Qt.PointingHandCursor

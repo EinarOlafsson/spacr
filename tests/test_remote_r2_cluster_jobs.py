@@ -738,3 +738,209 @@ def test_scheduler_output_paths_preserve_spaces_apostrophes_and_original_command
         remote = shlex.split(runner.calls[-1][0][-1])
         assert remote[remote.index('--output') + 1] == workdir + f'/spacr-jobs/{job.job_id}/job.log'
     assert ('--cpus-per-task=2' if backend == 'slurm' else 'ncpus=2' if backend == 'pbs' else '-n 2') in job.job_script
+
+
+def test_remaining_resource_and_script_refusals_do_not_mutate_profiles():
+    import re
+    from spacr import remote_execution as rx
+
+    for resources, message in (([], 'mapping'), ({'extra': 'x' * 16385}, 'too long')):
+        with pytest.raises(RemoteExecutionError, match=message):
+            rx._validate_resources(resources)
+    original = _slurm()
+    for changes, message in (({'direct_run': 'true'}, 'boolean'),
+                             ({'env_setup': 123}, 'must be text'),
+                             ({'job_script': 'x' * 65537}, 'must be text')):
+        with pytest.raises(RemoteExecutionError, match=message):
+            replace(original, **changes).validate()
+    with pytest.raises(RemoteExecutionError, match='unknown placeholder'):
+        rx._placeholder_value({'host': 'safe-host'}, 'script', re.match(r'{(\w+)}', '{unknown}'))
+    assert original == _slurm()
+    assert [rx._minutes(value) for value in ('45', '01:20', '1-02:03:01')] == [45, 2, 1564]
+
+
+@pytest.mark.parametrize('backend,submission,status,cancel', [
+    ('pbs', '123.fake', 'job_state = R', 'qdel'),
+    ('lsf', 'Job <123> is submitted', 'RUN -', 'bkill'),
+])
+def test_scheduler_refresh_logs_and_cancel_preserve_saved_job_state(
+        tmp_path, backend, submission, status, cancel):
+    profile = replace(_slurm(scheduler_options='-q cpu'), backend=backend)
+    runner = QueueRunner(CommandResult(0), CommandResult(0, submission),
+                         CommandResult(0, status), CommandResult(0, 'actual tail\n'), CommandResult(0))
+    manager = _manager(tmp_path, profile, runner)
+    job = manager.submit('mask', {'src': '/data/plate'}, profile.name)
+    assert job.status == 'queued' and '-q cpu' in runner.calls[1][0][-1]
+    assert manager.refresh(job.job_id, include_logs=False).status == 'running'
+    assert manager.logs(job.job_id, 7) == 'actual tail\n'
+    assert manager.cancel(job.job_id).status == 'cancelled'
+    assert manager.jobs.get(job.job_id).status == 'cancelled'
+    assert cancel in runner.calls[-1][0][-1] and job.external_id in runner.calls[-1][0][-1]
+    assert runner.calls[2][1]['timeout'] == 30.0
+    assert profile.to_dict() == manager.profiles.get(profile.name).to_dict()
+    assert not runner.results
+
+
+def test_scheduler_terminal_and_unknown_states_remain_distinct():
+    for text, expected in [('job_state = Q', ('pending', None)),
+                           ('job_state = F', ('unknown', None)), ('unrecognized', ('unknown', None))]:
+        assert _parse_pbs_status(text) == expected
+    for text, expected in [('RUN -', ('running', None)), ('unknown', ('unknown', None))]:
+        assert _parse_lsf_status(text) == expected
+
+
+@pytest.mark.parametrize('failure', [RemoteExecutionError('scheduler unavailable'), ValueError('bad reply')])
+def test_failed_allocation_is_persisted_and_preserves_original_error(tmp_path, failure):
+    profile = _slurm(scheduler_options='--qos=normal')
+    manager = _manager(tmp_path, profile, QueueRunner(CommandResult(0), failure))
+    with pytest.raises(RemoteExecutionError) as caught:
+        _start_allocation(manager, profile.name)
+    if isinstance(failure, RemoteExecutionError):
+        assert caught.value is failure
+    else:
+        assert caught.value.__cause__ is failure
+    jobs = manager.jobs.list()
+    assert len(jobs) == 1 and jobs[0].module == 'allocation' and jobs[0].status == 'failed'
+    assert jobs[0].error == f'{type(failure).__name__}: {failure}'
+    assert not jobs[0].external_id
+    assert '--qos=normal' in manager.runner.calls[-1][0][-1]
+
+
+@pytest.mark.parametrize('reply', ['wrong\n', '-1\n', '2\n', '4\ninvalid-base64!',
+                                   '4\n' + base64.b64encode(b'12345').decode()])
+def test_invalid_remote_log_response_preserves_job_and_offset(tmp_path, reply):
+    from spacr.remote_execution import RemoteJob
+
+    profile = _slurm()
+    manager = _manager(tmp_path, profile, QueueRunner(CommandResult(0, reply)))
+    job = RemoteJob('abcdef123456', 'mask', profile.name, 'slurm', status='running',
+                    profile=profile.to_dict(), log_reference='/remote/private job.log')
+    manager.jobs.save(job)
+    before = manager.jobs.path.read_bytes()
+    with pytest.raises(RemoteExecutionError, match='remote log response was invalid') as caught:
+        _log_chunk(manager, job.job_id, 4, limit=4)
+    assert isinstance(caught.value.__cause__, ValueError)
+    assert manager.jobs.path.read_bytes() == before
+    assert manager.runner.calls[0][1]['timeout'] == 60.0
+
+
+def test_lsf_notifications_and_no_shebang_jobs_keep_portable_defaults():
+    from spacr import remote_execution as rx
+
+    profile = replace(_slurm(resources={'mail_type': 'ALL', 'extra': '\n#BSUB -env all\n\n'}), backend='lsf')
+    directives = _scheduler_directives(profile, 'job', '/work/job.log').splitlines()
+    assert '#BSUB -B' in directives and '#BSUB -N' in directives
+    assert directives.count('#BSUB -env all') == 1 and all(line.strip() for line in directives)
+    assert rx._interpreter('echo hello\n') == ['/bin/sh']
+    assert rx._interpreter('#!   \necho hello\n') == ['/bin/sh']
+    assert rx._interpreter('#!/usr/bin/env bash\n') == ['/usr/bin/env', 'bash']
+
+
+def test_incomplete_cluster_probe_and_corrupt_suggestions_remain_safe(tmp_path, monkeypatch):
+    from spacr import remote_execution as rx
+
+    probe = _parse_cluster_probe('ignored preamble\n\n##host\nfake-host\n##sinfo\nshort|row\n'
+                                 'cpu*|up|1:00:00|2|4|8192|gpu:2\n##assoc\n|cpu|normal\n')
+    assert probe['host'] == 'fake-host' and probe['accounts'] == []
+    assert len(probe['partitions']) == 1
+    assert probe['partitions'][0]['gpus'] == 2 and probe['partitions'][0]['gpu_types'] == []
+    cache = tmp_path / 'cluster-cache.json'
+    monkeypatch.setattr(rx, '_cluster_cache_path', lambda: cache)
+    for content in ('not JSON', '[]'):
+        cache.write_text(content)
+        assert rx._load_cluster_cache('missing') == {}
+        assert cache.read_text() == content
+
+
+class _UnwritableControlFolder:
+    """A filesystem boundary that records the private-mode request and refuses directory creation."""
+
+    def __init__(self, path, calls):
+        self.path, self.calls = path, calls
+
+    def __truediv__(self, child):
+        return _UnwritableControlFolder(self.path + '/' + child, self.calls)
+
+    def __str__(self):
+        return self.path
+
+    def mkdir(self, **kwargs):
+        self.calls.append((self.path, kwargs))
+        raise PermissionError('directory unavailable')
+
+
+def test_unwritable_short_control_directory_keeps_connection_template(monkeypatch):
+    from spacr import remote_execution as rx
+
+    calls = []
+    monkeypatch.setattr(rx, 'state_directory', lambda: _UnwritableControlFolder('/private', calls))
+    assert rx._default_control_path() == '/private/ssh/cm-%C'
+    assert calls == [('/private/ssh', {'parents': True, 'exist_ok': True, 'mode': 0o700})]
+
+
+def test_invalid_allocation_process_identity_is_never_accepted(tmp_path):
+    from spacr import remote_execution as rx
+
+    profile = _slurm()
+    runner = QueueRunner(CommandResult(0), CommandResult(0, 'not-a-process-id'))
+    job = rx.RemoteJob('abcdef123456', 'mask', profile.name, 'slurm', allocation_id='1234')
+    before = job.status
+    with pytest.raises(RemoteExecutionError, match='non-numeric process ID'):
+        rx._SlurmBackend(runner).submit(profile, job, '{}')
+    assert job.status == before and job.status != 'running'
+    assert 'srun' in runner.calls[-1][1]['input_text'] or 'srun' in runner.calls[-1][0][-1]
+    with pytest.raises(RemoteExecutionError, match='no valid process identity'):
+        rx._allocation_cancel_script(job)
+    assert len(runner.calls) == 2
+
+
+def test_unknown_step_in_live_allocation_does_not_invent_terminal_state():
+    from spacr import remote_execution as rx
+
+    profile = _slurm()
+    runner = QueueRunner(CommandResult(0, 'UNKNOWN'), CommandResult(0, 'RUNNING'))
+    job = rx.RemoteJob('abcdef123456', 'mask', profile.name, 'slurm', status='running',
+                       external_id='4321', allocation_id='1234', remote_job_dir='/work/job')
+    rx._SlurmBackend(runner).refresh(profile, job)
+    assert job.status == 'unknown' and job.exit_code is None
+    assert job.external_id == '4321' and job.allocation_id == '1234'
+    assert '1234' in runner.calls[-1][0][-1] and 'squeue' in runner.calls[-1][0][-1]
+    assert not runner.results
+
+
+def test_wrong_allocation_kind_refuses_before_transport_or_store_mutation(tmp_path):
+    from spacr.remote_execution import RemoteJob
+
+    profile = _slurm()
+    runner = QueueRunner()
+    manager = _manager(tmp_path, profile, runner)
+    holder = RemoteJob('abcdef123456', 'mask', profile.name, 'slurm', status='running', profile=profile.to_dict())
+    manager.jobs.save(holder)
+    before = manager.jobs.path.read_bytes()
+    with pytest.raises(RemoteExecutionError, match='not an allocation'):
+        _submit_job(manager, 'mask', {'src': '/data'}, profile.name, allocation=holder.job_id)
+    assert runner.calls == [] and manager.jobs.path.read_bytes() == before
+
+
+def test_optional_and_command_log_offsets_do_not_repeat_or_fabricate_text(tmp_path):
+    from spacr.remote_execution import RemoteJob
+
+    profile = _slurm()
+    manager = _manager(tmp_path / 'ssh', profile, QueueRunner())
+    job = RemoteJob('abcdef123456', 'mask', profile.name, 'slurm', profile=profile.to_dict())
+    manager.jobs.save(job)
+    assert _log_chunk(manager, job.job_id, 7) == ('', 7) and manager.runner.calls == []
+    profile = ExecutionProfile(
+        'local', 'command', submit_command='echo {settings}',
+        status_command='echo {external_id}', cancel_command='echo {external_id}',
+        log_command='echo {external_id}',
+    )
+    manager = _manager(tmp_path / 'command', profile, QueueRunner(CommandResult(0, 'short'), CommandResult(0, 'short')))
+    job = RemoteJob('abcdef123456', 'mask', profile.name, 'command', external_id='42', profile=profile.to_dict())
+    manager.jobs.save(job)
+    assert _log_chunk(manager, job.job_id, 99) == ('short', 5)
+    assert _log_chunk(manager, job.job_id, 2) == ('ort', 5)
+    job.profile['log_command'] = ''
+    manager.jobs.save(job)
+    assert _log_chunk(manager, job.job_id, 5) == ('', 5)
+    assert len(manager.runner.calls) == 2

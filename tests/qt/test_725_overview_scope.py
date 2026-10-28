@@ -198,3 +198,222 @@ def test_the_canvas_snapshot_draws_the_shown_display_without_the_enhancement(vie
     shown.pop("enhancement", None)
     expected = browser._overview_pixels(field, snapshot._channels, snapshot._limits, edge=None, **shown)
     assert (drawn == expected[..., :3]).all()
+
+
+@pytest.mark.parametrize('value, expected', [
+    (None, None), (True, None), (3, (3,)), ([1, '2'], (1, 2)),
+    ('  ', None), ('all', None), ('2,1', (2, 1)),
+])
+def test_channel_target_input_keeps_typed_physical_ids(value, expected):
+    """Typed settings preserve channel identity instead of indexing channel positions."""
+    assert browser._overview_channel_targets(value) == expected
+
+
+def test_native_setting_controls_commit_values_and_ignore_unrepresentable_input(qtbot):
+    """The supported native editors keep their last representable value on bad input."""
+    from PySide6.QtWidgets import QCheckBox, QComboBox, QLabel, QLineEdit, QSpinBox, QWidget
+
+    host = QWidget()
+    qtbot.addWidget(host)
+    text, check, combo, spin = QLineEdit(host), QCheckBox(host), QComboBox(host), QSpinBox(host)
+    label = QLabel(host)
+    combo.addItem('Full image', None)
+    combo.addItem('Two pixels', 2)
+    spin.setRange(0, 10)
+    browser._overview_control_changed(text, lambda: label.setText(text.text()))
+    browser._overview_set_control(text, [2, 1])
+    assert text.text() == label.text() == '2,1'
+    browser._overview_set_control(text, None)
+    assert text.text() == label.text() == ''
+    browser._overview_set_control(check, True)
+    assert browser._overview_control_value(check) is True
+    assert browser._overview_control_value(combo) == 'full'
+    browser._overview_set_control(combo, 2)
+    browser._overview_set_control(combo, 'unavailable')
+    assert browser._overview_control_value(combo) == 2
+    browser._overview_set_control(spin, 7)
+    browser._overview_set_control(spin, 'not a number')
+    assert browser._overview_control_value(spin) == 7
+    assert browser._overview_control_value(host) is None
+    assert browser._overview_channel_list_error(2, (1, 2)) == ''
+    assert browser._overview_channel_list_error(3, (1, 2))
+
+
+@pytest.fixture
+def workspace(qtbot, tmp_path):
+    """An actual Overview module with tiny physical plate/channel inputs and owned cleanup."""
+    from spacr.qt.screens.app_screen import AppScreen
+
+    first = _plate(tmp_path / 'workspaceA', {'A01': 1, 'A02': 4})
+    second = _plate(tmp_path / 'workspaceB', {'A01': 10})
+    screen = AppScreen('overview')
+
+    def close(widget):
+        page = widget._overview_page
+        if page.browser is not None:
+            page.stop()
+            runners = (*_runners(page.browser), page.browser._levels_jobs)
+            qtbot.waitUntil(lambda: all(r.active_jobs() == 0 for r in runners), timeout=15000)
+            for runner in runners:
+                runner.shutdown(timeout_ms=3000)
+        page.retire()
+        widget.close()
+
+    qtbot.addWidget(screen, before_close_func=close)
+    screen.resize(1500, 1000)
+    screen.show()
+    screen._settings_model.set_value_for_key('src', f'{first}; {second}')
+    return screen, (first, second)
+
+
+def _workspace_browser(screen, qtbot):
+    """Take the real metadata Next transition before exercising a mounted workspace."""
+    page = screen._overview_page
+    wizard = page.run(screen._settings_model.collect())
+    wizard.preset.setCurrentIndex(wizard.preset.count() - 1)
+    wizard.regex.setText(PATTERN)
+    wizard._scan()
+    qtbot.waitUntil(lambda: wizard.next.isEnabled(), timeout=15000)
+    wizard._next()
+    qtbot.waitUntil(lambda: page.browser is not None and len(page.browser._fields) == 3
+                    and page.browser._normalization_ready and len(page.browser._channel_buttons) == 2,
+                    timeout=15000)
+    return page.browser
+
+
+def test_workspace_metadata_reuse_cancel_and_new_source_keep_module_settings(workspace, qtbot):
+    """Cancel and source replacement never borrow a stale metadata step or edit the source."""
+    screen, folders = workspace
+    model, page = screen._settings_model, screen._overview_page
+    original = model._read_value('src')
+    assert page.export_menu() is None and page._current_image_paths() == []
+    page.stop()
+    page._back()
+    assert page.stack.currentWidget() is page.placeholder
+    wizard = page.run(model.collect())
+    assert page.run(model.collect()) is wizard
+    assert page._metadata_step_shown()
+    wizard.reject()
+    assert page.wizard is None and page.stack.currentWidget() is page.placeholder
+    assert model._read_value('src') == original
+    another = page.run(dict(model.collect(), src=str(folders[0])))
+    replacement = page.run(dict(model.collect(), src=str(folders[1])))
+    assert replacement is not another and page.wizard is replacement
+    assert replacement.source.text() == str(folders[1])
+    page.stop()
+    assert replacement._cancelled.is_set()
+    replacement.reject()
+    assert page.wizard is None and model._read_value('src') == original
+
+
+def test_workspace_invalid_apply_detach_and_channel_drafts_preserve_physical_pixels(workspace, qtbot):
+    """Invalid staged input and retired bridges cannot change source pixels or channel ownership."""
+    screen, folders = workspace
+    model, page = screen._settings_model, screen._overview_page
+    before = {path: path.read_bytes() for folder in folders for path in folder.glob('*.tif')}
+    view = _workspace_browser(screen, qtbot)
+    bridge = page._bridge
+    source = model._read_value('src')
+    channels = tuple(view._channel_buttons)
+    model.set_value_for_key('overview_ink_intensity', .6)
+    model.set_value_for_key('overview_normalize_channels', '1,7')
+    assert bridge.apply() is False
+    assert view._ink_intensity == 1. and view._normalize_channels is None
+    assert '7' in view.status.text() and bridge.pending()
+    model.set_value_for_key('overview_normalize_channels', '2')
+    assert bridge.apply() is True
+    assert view._ink_intensity == .6 and view._normalize_channels == (2,)
+    view.norm_channel.setCurrentIndex(view.norm_channel.findData(1))
+    model.set_value_for_key('overview_ink_intensity', .2)
+    view._apply_channel_normalization()
+    assert view._channel_overrides[1]['ink'] == .2 and view._ink_intensity == .6
+    view.norm_channel.setCurrentIndex(view.norm_channel.findData(None))
+    assert model._read_value('overview_ink_intensity') == .6
+    assert tuple(view._channel_buttons) == channels
+    assert {path: path.read_bytes() for path in before} == before
+    view._cancel()
+    runners = (*_runners(view), view._levels_jobs)
+    qtbot.waitUntil(lambda: all(r.active_jobs() == 0 for r in runners), timeout=15000)
+    for runner in runners:
+        runner.shutdown(timeout_ms=3000)
+    page._retire_browser()
+    assert page.browser is None and page._bridge is None and not page._rows and not page._hidden_keys
+    assert bridge.apply() is False
+    model.set_value_for_key('overview_ink_intensity', .8)
+    assert model._read_value('src') == source
+    assert model._read_value('overview_ink_intensity') == .8
+    assert {path: path.read_bytes() for path in before} == before
+
+
+def test_channel_widgets_remount_choices_without_losing_the_model_contract(workspace, qtbot, monkeypatch):
+    """Real switches, scope choices and colour picks commit to their own physical channel."""
+    from PySide6.QtGui import QColor
+    from spacr.qt.widgets import colour_picker
+
+    screen, _ = workspace
+    view = _workspace_browser(screen, qtbot)
+    model, page = screen._settings_model, screen._overview_page
+    fields = [field for _section, field, _widgets in page._rows]
+    toggles = next(field for field in fields if isinstance(field, browser._OverviewChannelToggles))
+    scopes = next(field for field in fields if isinstance(field, browser._OverviewChannelScopes))
+    colours = next(field for field in fields if isinstance(field, browser._OverviewCustomColors))
+    assert tuple(toggles._toggles) == tuple(scopes._choices) == (1, 2)
+    toggles.set_channels((1, 2))
+    toggles._toggles[1].setChecked(False)
+    toggles._toggles[2].setChecked(False)
+    assert model._read_value(toggles._key) == 'none'
+    toggles._toggles[1].setChecked(True)
+    assert model._read_value(toggles._key) == '1'
+    toggles._toggles[2].setChecked(True)
+    assert model._read_value(toggles._key) == 'all'
+    scopes._choices[1].setCurrentIndex(scopes._choices[1].findData('plate'))
+    scopes._choices[2].setCurrentIndex(scopes._choices[2].findData('well'))
+    scopes.set_channels((2,))
+    assert tuple(scopes._choices) == (2,) and scopes._choices[2].currentData() == 'well'
+    scopes.set_channels((1, 2))
+    assert scopes._choices[1].currentData() == 'plate'
+    model.set_value_for_key('overview_color_mode', 'custom')
+    colours.set_channels((2,))
+    colours.set_channels((1, 2))
+    colours.set_channels((1, 2))
+    old = model._read_value('overview_custom_colors')
+    monkeypatch.setattr(colour_picker, 'pick_colour', lambda *_: QColor())
+    qtbot.mouseClick(colours._buttons['1'], Qt.LeftButton)
+    assert model._read_value('overview_custom_colors') == old
+    monkeypatch.setattr(colour_picker, 'pick_colour', lambda *_: QColor('#123abc'))
+    qtbot.mouseClick(colours._buttons['2'], Qt.LeftButton)
+    assert colours.colours()['2'] == '#123abc'
+    assert '#123abc' in model._read_value('overview_custom_colors')
+    assert tuple(view._channel_buttons) == (1, 2)
+
+
+def test_workspace_height_grip_drag_and_reset_preserve_category_expansion(qtbot):
+    """Native pointer events resize real category geometry, then restore content height."""
+    from PySide6.QtCore import QEvent, QPointF
+    from PySide6.QtGui import QMouseEvent
+    from PySide6.QtWidgets import QLabel
+    from spacr.qt.widgets.section import Section
+
+    section = Section('Export', expanded=True)
+    section.add_prose(QLabel('A real export row'))
+    qtbot.addWidget(section)
+    section.resize(400, 160)
+    grip = browser._overview_height_grip(section)
+    assert browser._overview_height_grip(section) is grip
+    section.show()
+    qtbot.waitUntil(lambda: grip.isVisible())
+    start = section._body.height()
+    local = QPointF(grip.rect().center())
+    global_point = QPointF(grip.mapToGlobal(grip.rect().center()))
+    for event in (
+        QMouseEvent(QEvent.MouseButtonPress, local, global_point, Qt.LeftButton, Qt.LeftButton, Qt.NoModifier),
+        QMouseEvent(QEvent.MouseMove, local + QPointF(0, 45), global_point + QPointF(0, 45),
+                    Qt.NoButton, Qt.LeftButton, Qt.NoModifier),
+        QMouseEvent(QEvent.MouseButtonRelease, local + QPointF(0, 45), global_point + QPointF(0, 45),
+                    Qt.LeftButton, Qt.NoButton, Qt.NoModifier),
+    ):
+        from PySide6.QtWidgets import QApplication
+        QApplication.sendEvent(grip, event)
+    assert section._body.minimumHeight() == start + 45
+    qtbot.mouseDClick(grip, Qt.LeftButton)
+    assert section._body.minimumHeight() == 0 and section.is_expanded()

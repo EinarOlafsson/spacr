@@ -1325,6 +1325,11 @@ def _trace_owned_qc_native_jobs(request, monkeypatch):
     """Let owned QC jobs inherit the public Python thread trace on native workers."""
     modules = {
         "test_qc_field_browser.py",
+        "test_qc_field_browser_ratchet_edges_20261024.py",
+        "test_725_overview_scope.py",
+        "test_725_overview_plates_view.py",
+        "test_725_overview_export_guided.py",
+        "test_overview_image_level_features.py",
         "test_cov_r3_qt_widgets_qc_field_browser_1.py",
         "test_cov_r3_qt_widgets_qc_field_browser_2.py",
         "test_cov_r5_qt_widgets_qc_field_browser.py",
