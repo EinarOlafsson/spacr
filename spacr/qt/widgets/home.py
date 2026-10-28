@@ -5904,11 +5904,12 @@ class _NavigatorDetailsBrowser(QTextBrowser):
         for button, name, direction in (
                 (self._back, tr('Back'), 'back'),
                 (self._forward, tr('Next'), 'forward'),
-                (self._collapse, tr('Collapse or expand this container'), 'up')):
+                (self._collapse, tr('Collapse or expand this container'), 'down')):
             button.setAutoRaise(True)
             button.setAccessibleName(name)
             button.setToolTip(name)
             button.setIcon(self._arrow_icon(direction))
+            button.setIconSize(QSize(20, 20))
             button.setFixedSize(28, 28)
             button.setCursor(Qt.PointingHandCursor)
         self._back.clicked.connect(lambda: self._navigate(-1))
@@ -5921,10 +5922,10 @@ class _NavigatorDetailsBrowser(QTextBrowser):
         from PySide6.QtGui import QPen, QPolygonF
 
         points = {
-            'back': ((12, 6), (8, 10), (12, 14)),
-            'forward': ((8, 6), (12, 10), (8, 14)),
-            'up': ((6, 12), (10, 8), (14, 12)),
-            'down': ((6, 8), (10, 12), (14, 8)),
+            'back': ((13, 4), (7, 10), (13, 16)),
+            'forward': ((7, 4), (13, 10), (7, 16)),
+            'up': ((4, 13), (10, 7), (16, 13)),
+            'down': ((4, 7), (10, 13), (16, 7)),
         }
         icon = QIcon()
         ratio = self.devicePixelRatioF()
@@ -6006,7 +6007,7 @@ class _NavigatorDetailsBrowser(QTextBrowser):
         self._back.setVisible(not self._minimized)
         self._forward.setVisible(not self._minimized)
         self._collapse.setIcon(self._arrow_icon(
-            'down' if self._minimized else 'up',
+            'up' if self._minimized else 'down',
             'white' if self._minimized else palette_for('dark')['button_accent']))
         self.viewport().setVisible(not self._minimized)
         self._place_controls()
@@ -7209,7 +7210,7 @@ class _EasyHomePage(QWidget):
                     if len(parts) == 2 else escape(line))
             paragraphs.append('<p>' + text + '</p>')
         self._guide_writing = True
-        self.field.details.setHtml('<div style="color:#999999;">' + ''.join(paragraphs) + '</div>')
+        self.field.details.setHtml('<div style="color:#808080;">' + ''.join(paragraphs) + '</div>')
         self._guide_writing = False
         self._guide_visible = True
         self._details_has_content = False

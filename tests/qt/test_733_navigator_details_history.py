@@ -84,11 +84,11 @@ def test_thin_white_history_arrows_and_blue_expanded_toggle(page, qtbot):
         assert sum(color.alpha() / 255 for _, _, color in pixels) < 20
     expanded = ink(details._collapse)
     assert all(color.blue() > color.red() for _, _, color in expanded)
-    assert sum(y for x, y, _ in expanded if x < 8) / sum(x < 8 for x, _, _ in expanded) > 10
+    assert sum(y for x, y, _ in expanded if x < 8) / sum(x < 8 for x, _, _ in expanded) < 9
     qtbot.mouseClick(details._collapse, Qt.LeftButton)
     collapsed = ink(details._collapse)
     assert all(color.red() == color.green() == color.blue() == 255 for _, _, color in collapsed)
-    assert sum(y for x, y, _ in collapsed if x < 8) / sum(x < 8 for x, _, _ in collapsed) < 9
+    assert sum(y for x, y, _ in collapsed if x < 8) / sum(x < 8 for x, _, _ in collapsed) > 10
     qtbot.mouseClick(details._collapse, Qt.LeftButton)
     assert details.viewport().isVisible()
     assert all(color.blue() > color.red() for _, _, color in ink(details._collapse))
