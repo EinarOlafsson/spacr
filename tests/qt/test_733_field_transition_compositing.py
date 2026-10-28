@@ -124,14 +124,15 @@ def test_real_idle_mouse_release_does_not_replay_displaced_window_text(
         backdrop._held_rows.release(fade=False)
         backdrop._held_rows._stirred = time.monotonic()
         native_window = window.windowHandle()
-        qtbot.mouseMove(native_window, native_window.mapFromGlobal(page.mapToGlobal(QPoint(4, 140))))
+        resting_point = page.mapToGlobal(QPoint(page.width() // 2, 40))
+        assert not window._dock_edge.rect().contains(window._dock_edge.mapFromGlobal(resting_point))
+        qtbot.mouseMove(native_window, native_window.mapFromGlobal(resting_point))
         qtbot.wait(3100)
-        assert backdrop._held_rows.frame is not None, (
-            backdrop.theme(), backdrop._held_rows._usable(producer),
-            backdrop._should_run(), backdrop._timer.isActive(),
-            time.monotonic() - backdrop._held_rows._stirred,
-            backdrop._corner_radius, backdrop._card_tints)
-        frame = backdrop._held_rows.frame.copy()
+        held = backdrop._held_rows
+        assert held.frame is None and not held.arming
+        assert held.region.isEmpty() and held.live.isEmpty()
+        assert held._covered().isEmpty()
+        frame = backdrop._last_frame.copy()
         monkeypatch.setattr(producer, 'latest', lambda: frame)
         backdrop._last_frame = frame
         backdrop.repaint()
@@ -162,9 +163,9 @@ def test_real_idle_mouse_release_does_not_replay_displaced_window_text(
         monkeypatch.setattr(held, 'release', observe_release)
         qtbot.mouseMove(native_window, native_window.mapFromGlobal(
             card.mapToGlobal(card.rect().center())))
-        qtbot.waitUntil(lambda: bool(releases))
-        assert releases[0] == (True, True, True, True)
         qtbot.wait(25)
+        assert releases == []
+        assert held.frame is None and held.fade is None and not held.arming
         after = pixels()
         mask = np.ones(before.shape[:2], dtype=bool)
         for rect in allowed:
