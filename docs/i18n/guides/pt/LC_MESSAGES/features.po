@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:17-0400\n"
+"POT-Creation-Date: 2026-10-28 16:41-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: pt\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -219,11 +219,13 @@ msgstr "A janela abre como **Borderless** por padrão: não tem barra de título
 msgid "Picking up where you left off"
 msgstr "Continuar de onde parou"
 
-msgid "**Session restore**: every ordinary start reopens the module that was on screen when spaCR last closed or crashed, with its settings and input folder. No run is started. While the status bar says what was reopened, its **Open fresh** button puts that module's default settings back and goes to Home; ``spacr-qt --fresh`` skips the restore for one start. Turn it off in **Preferences → Modules → Session** (on by default). A module named on the command line, or a Force restart record, takes precedence."
-msgstr "**Restauração da sessão**: cada início normal reabre o módulo que estava na tela quando o spaCR foi fechado ou travou pela última vez, com suas configurações e pasta de entrada. Nenhuma execução é iniciada. Enquanto a barra de status informa o que foi reaberto, o botão **Abrir do zero** restaura as configurações padrão desse módulo e vai para o Início; ``spacr-qt --fresh`` ignora a restauração em um início. Desative-a em **Preferências → Módulos → Sessão** (ativada por padrão). Um módulo indicado na linha de comando, ou um registro de Force restart, tem precedência."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Opening and restarting**: ordinary launches open Navigator Home, or classic Home when Navigator is off. **Restart** and **Force restart** reopen the previous module, location and settings once. They restore the interface; they do not resume a running analysis."
+msgstr "**Abrir e reiniciar**: as inicializações normais abrem o Navigator Home, ou o Home clássico quando o Navigator está desativado. **Reiniciar** e **Forçar reinicialização** reabrem uma vez o módulo, o local e as configurações anteriores. Eles restauram a interface; não retomam uma análise em execução."
 
-msgid "**Settings autosave**: every 30 seconds the unsaved settings of every open module are kept as a draft in the preference store; nothing is written when nothing changed. A clean exit drops the drafts. If spaCR ended without closing, the next start asks once whether to restore them (drafts identical to the reopened session are not asked about). The same behaviour applies on Linux, macOS and Windows, because the store is Qt's own settings store."
-msgstr "**Salvamento automático das configurações**: a cada 30 segundos, as configurações não salvas de cada módulo aberto são guardadas como rascunho no armazenamento de preferências; nada é gravado quando nada mudou. Um encerramento normal descarta os rascunhos. Se o spaCR terminou sem ser fechado, o próximo início pergunta uma vez se deve restaurá-los (rascunhos idênticos à sessão reaberta não geram pergunta). O mesmo comportamento vale para Linux, macOS e Windows, porque o armazenamento é o próprio armazenamento de configurações do Qt."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Settings autosave**: every 30 seconds the unsaved settings of every open module are kept as a draft in the preference store; nothing is written when nothing changed. A clean exit drops the drafts. If spaCR ended without closing, the next start asks once whether to restore them (drafts already restored are not offered again). The same behaviour applies on Linux, macOS and Windows, because the store is Qt's own settings store."
+msgstr "**Salvamento automático das configurações**: a cada 30 segundos, as configurações não salvas de cada módulo aberto são guardadas como rascunho no armazenamento de preferências; nada é gravado quando nada mudou. Um encerramento normal descarta os rascunhos. Se o spaCR terminou sem ser fechado, o próximo início pergunta uma vez se deve restaurá-los (rascunhos já restaurados não são oferecidos novamente). O mesmo comportamento vale para Linux, macOS e Windows, porque o armazenamento é o próprio armazenamento de configurações do Qt."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Settings files"

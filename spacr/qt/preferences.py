@@ -6408,16 +6408,16 @@ _KEY_RESTORE_SESSION = "prefs/restore_last_session"
 
 
 def _get_restore_session() -> bool:
-    """Whether an ordinary start reopens the last session (default on)."""
+    """Read the legacy launch preference retained for compatibility."""
     return _as_bool(
         _settings().value(_KEY_RESTORE_SESSION, DEFAULT_RESTORE_SESSION),
         DEFAULT_RESTORE_SESSION)
 
 
 def _set_restore_session(on: bool) -> None:
-    """Turn reopening the last module, settings and folder on or off.
+    """Store the legacy preference without changing the current launch policy.
 
-    :param on: true to reopen the last session on every start.
+    :param on: the legacy value retained for older callers.
     """
     settings = _settings()
     settings.setValue(_KEY_RESTORE_SESSION, bool(on))
@@ -10942,18 +10942,6 @@ class PreferencesDialog:
         refresh_news_check.setChecked(get_refresh_news())
         modules.addRow(tr("Release news"), refresh_news_check)
 
-        restore_session_check = Toggle(
-            tr("Reopen the last module, settings and folder on start"))
-        restore_session_check.setObjectName("RestoreLastSession")
-        restore_session_check.setToolTip(tr(
-            "Every start reopens the module that was on screen when spaCR "
-            "last closed or crashed, with its settings and folder. Open "
-            "fresh in the status bar, or starting with --fresh, skips it "
-            "once. Off always starts on Home. Default on."
-        ))
-        restore_session_check.setChecked(_get_restore_session())
-        modules.addRow(tr("Session"), restore_session_check)
-
         update_channel_combo = QComboBox()
         update_channel_combo.setObjectName("UpdateChannel")
         update_channel_combo.addItem(tr("Stable releases"), "stable")
@@ -12349,7 +12337,6 @@ class PreferencesDialog:
                 _select(error_report_combo,
                         _crashreport.DEFAULT_ERROR_REPORT_MODE)
                 refresh_news_check.setChecked(get_refresh_news())
-                restore_session_check.setChecked(_get_restore_session())
                 _select(update_channel_combo, _get_update_channel())
                 proxy_edit.clear()
                 ca_edit.clear()
@@ -12459,7 +12446,6 @@ class PreferencesDialog:
                 LOG.warning("could not save the error-report choice",
                             exc_info=True)
             set_refresh_news(refresh_news_check.isChecked())
-            _set_restore_session(restore_session_check.isChecked())
             _set_update_channel(update_channel_combo.currentData())
             try:
                 from spacr.updater import _write_network_config

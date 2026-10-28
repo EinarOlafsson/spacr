@@ -31582,7 +31582,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "ops_library",
-    "line": 4218,
+    "line": 4220,
     "module": "spacr.qt.widgets.home",
     "nested": false,
     "qualname": "_easy_specialized_inputs"
@@ -41900,7 +41900,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "phenotype_source",
-    "line": 4209,
+    "line": 4211,
     "module": "spacr.qt.widgets.home",
     "nested": false,
     "qualname": "_easy_specialized_inputs"
@@ -50738,7 +50738,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "spatial_bin_um",
-    "line": 4283,
+    "line": 4285,
     "module": "spacr.qt.widgets.home",
     "nested": false,
     "qualname": "_easy_specialized_inputs"
@@ -50747,7 +50747,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "spatial_bin_um",
-    "line": 4291,
+    "line": 4293,
     "module": "spacr.qt.widgets.home",
     "nested": false,
     "qualname": "_easy_specialized_inputs"
@@ -53152,7 +53152,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 10771,
+    "line": 10778,
     "module": "spacr.qt.app",
     "nested": false,
     "qualname": "MainWindow._open_easy_suggestion"

@@ -37,6 +37,8 @@ from spacr.qt.shutdown import (CANCEL, FORCE, GRACEFUL,          # noqa: E402
 @pytest.fixture(autouse=True)
 def _own_state_dir(tmp_path, monkeypatch):
     monkeypatch.setenv("SPACR_HOME", str(tmp_path / "spacr_home"))
+    import spacr.qt.app as app
+    monkeypatch.setattr(app, "_RESUME_RESTART", [False])
     yield
     restart_state.discard()
 
@@ -106,7 +108,7 @@ def test_the_command_uses_the_running_interpreter_not_the_path():
     # interface -- so `-m spacr` quit the Qt app and opened the old one.
     # Reported as "if i press stop and force restart i open the old tkinter
     # spacr", which is not a restart of anything.
-    assert restart_state.command()[1:] == ["-m", "spacr.qt"]
+    assert restart_state.command()[1:] == ["-m", "spacr.qt", "--resume-restart"]
 
 
 # -- what the dialog says ----------------------------------------------------
@@ -243,10 +245,11 @@ def test_a_restart_from_the_screen_carries_the_settings_it_had(qtbot):
 
 def test_a_restarted_spacr_opens_the_module_with_the_settings_it_had(qtbot):
     """The whole point: same module, same settings, fresh process."""
-    from spacr.qt.app import MainWindow
+    from spacr.qt.app import MainWindow, _startup_target
 
     restart_state.save(module="regression",
                        settings={"alpha": "auto", "fdr_alpha": 0.01})
+    _startup_target(["--resume-restart"])
     window = MainWindow()
     qtbot.addWidget(window)
 
@@ -270,15 +273,16 @@ def test_a_module_named_on_the_command_line_wins_over_a_saved_state(qtbot):
     qtbot.addWidget(window)
 
     assert "mask" in window._screens
-    # And the state is still there, so the next plain launch honours it.
+    # An ordinary launch ignores this record; only an explicit restart consumes it.
     assert restart_state.peek()["module"] == "regression"
 
 
 def test_the_run_is_not_restarted_only_the_configuration(qtbot):
     """142 C: the runs do not come back, and starting one unasked is worse."""
-    from spacr.qt.app import MainWindow
+    from spacr.qt.app import MainWindow, _startup_target
 
     restart_state.save(module="regression", settings={"fdr_alpha": 0.01})
+    _startup_target(["--resume-restart"])
     window = MainWindow()
     qtbot.addWidget(window)
 
@@ -502,9 +506,9 @@ def test_restart_child_gets_fresh_frozen_environment_without_changing_parent(mon
     if os.name == 'nt':
         kwargs['creationflags'] = (subprocess.DETACHED_PROCESS
                                    | subprocess.CREATE_NEW_PROCESS_GROUP)
-    argv = [sys.executable, '-m', 'spacr.qt']
+    argv = [sys.executable, '-m', 'spacr.qt', '--resume-restart']
     if frozen:
-        argv = [sys.executable]
+        argv = [sys.executable, '--resume-restart']
         kwargs['env'] = {**parent_environment, 'PYINSTALLER_RESET_ENVIRONMENT': '1'}
         assert calls[0][1]['env'] is not os.environ
     assert calls == [(argv, kwargs)]

@@ -242,19 +242,16 @@ choice is remembered.
 Picking up where you left off
 -----------------------------
 
-- **Session restore**: every ordinary start reopens the module that was on
-  screen when spaCR last closed or crashed, with its settings and input
-  folder. No run is started. While the status bar says what was reopened, its
-  **Open fresh** button puts that module's default settings back and goes to
-  Home; ``spacr-qt --fresh`` skips the restore for one start. Turn it off in
-  **Preferences → Modules → Session** (on by default). A module named on the
-  command line, or a Force restart record, takes precedence.
+- **Opening and restarting**: ordinary launches open Navigator Home, or classic
+  Home when Navigator is off. **Restart** and **Force restart** reopen the
+  previous module, location and settings once. They restore the interface;
+  they do not resume a running analysis.
 - **Settings autosave**: every 30 seconds the unsaved settings of every open
   module are kept as a draft in the preference store; nothing is written when
   nothing changed. A clean exit drops the drafts. If spaCR ended without
-  closing, the next start asks once whether to restore them (drafts identical
-  to the reopened session are not asked about). The same behaviour applies on
-  Linux, macOS and Windows, because the store is Qt's own settings store.
+  closing, the next start asks once whether to restore them (drafts already
+  restored are not offered again). The same behaviour applies on Linux,
+  macOS and Windows, because the store is Qt's own settings store.
 
 Settings files
 --------------

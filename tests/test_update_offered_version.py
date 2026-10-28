@@ -51,7 +51,7 @@ def test_relaunch_uses_this_interpreter_and_a_surviving_directory(monkeypatch, t
     monkeypatch.setattr(install_cleanup, "_spawn_detached",
                         lambda command, **kwargs: calls.append((command, kwargs)) or 123)
     assert updater.launch_updated_app() == 123
-    assert calls == [([sys.executable, "-I", "-m", "spacr.qt"], {"cwd": str(tmp_path)})]
+    assert calls == [([sys.executable, "-I", "-m", "spacr.qt", "--resume-restart"], {"cwd": str(tmp_path)})]
 
 
 @pytest.mark.parametrize('initial_reset', [None, '0'])
@@ -78,7 +78,7 @@ def test_frozen_relaunch_uses_exact_bundle_and_preserves_saved_workspace(monkeyp
     monkeypatch.setattr(install_cleanup, '_spawn_detached',
                         lambda argv, **kwargs: calls.append((argv, kwargs)) or 456)
     assert updater.launch_updated_app() == 456
-    assert calls == [([str(bundled)], {'cwd': str(tmp_path),
+    assert calls == [([str(bundled), '--resume-restart'], {'cwd': str(tmp_path),
                      'env': {**parent_environment, 'PYINSTALLER_RESET_ENVIRONMENT': '1'}})]
     assert calls[0][1]['env'] is not os.environ
     assert dict(os.environ) == parent_environment

@@ -1,11 +1,4 @@
-"""Every start reopens the last session; unsaved settings survive a crash.
-
-An ordinary start reopens the module, settings and folder that were on screen
-when spaCR last closed or crashed, unless Preferences turns it off or the
-start asked to open fresh. Unsaved settings of every open module are
-autosaved as drafts; a clean close drops them, so drafts found at start-up
-are offered back once.
-"""
+"""Normal launches open Home; explicit restarts restore UI and drafts survive crashes."""
 from __future__ import annotations
 
 import os
@@ -26,6 +19,7 @@ def _own_state_dir(tmp_path, monkeypatch):
     import spacr.qt.app as app_mod
 
     monkeypatch.setattr(app_mod, "_OPEN_FRESH", [False])
+    monkeypatch.setattr(app_mod, "_RESUME_RESTART", [False])
     yield
     restart_state._flush_writes()
     restart_state.discard()
@@ -64,33 +58,40 @@ def test_an_empty_or_broken_store_reads_as_nothing(monkeypatch):
     assert restart_state._save_session("mask", {}) is False
 
 
-def test_an_ordinary_start_reopens_the_last_module_with_its_settings(qtbot):
-    restart_state._save_session("regression", {"fdr_alpha": 0.01})
+@pytest.mark.parametrize('navigator', [False, True])
+@pytest.mark.parametrize('legacy_restore', [False, True])
+def test_an_ordinary_start_always_opens_selected_home(qtbot, navigator, legacy_restore):
+    from spacr.qt.preferences import _set_restore_session, set_easy_mode
+    from spacr.qt.widgets.home import _EasyHomePage
+
+    set_easy_mode(navigator)
+    _set_restore_session(legacy_restore)
+    restart_state._save_session('regression', {'fdr_alpha': 0.01})
+    restart_state.save(module='mask', settings={'src': '/stale/restart'})
     window = _window(qtbot)
-
-    screen = window._screens.get("regression")
-    assert screen is not None
-    assert screen._settings_model.collect()["fdr_alpha"] == 0.01
-    button = window.findChild(object, "OpenFreshButton")
-    assert button is not None and button.text()
-
-
-def test_the_session_is_reopened_on_every_start_not_once(qtbot):
-    restart_state._save_session("regression", {"fdr_alpha": 0.01})
-    _window(qtbot)
-    second = _window(qtbot)
-    assert "regression" in second._screens
-
-
-def test_the_preference_switch_turns_reopening_off(qtbot):
-    from spacr.qt.preferences import _get_restore_session, _set_restore_session
-
-    assert _get_restore_session() is True
-    _set_restore_session(False)
-    restart_state._save_session("regression", {"fdr_alpha": 0.01})
-    window = _window(qtbot)
-    assert "regression" not in window._screens
     assert window._stack.currentWidget() is window._startup
+    assert isinstance(window._startup, _EasyHomePage) is navigator
+    assert window.findChild(object, 'OpenFreshButton') is None
+
+
+def test_closed_module_does_not_reopen_on_next_launch(qtbot):
+    previous = _window(qtbot, initial_app='regression')
+    previous._screens['regression'].apply_settings_dict({'fdr_alpha': 0.03})
+    previous._end_session_cleanly()
+    previous.close()
+    second = _window(qtbot)
+    assert second._stack.currentWidget() is second._startup
+
+
+def test_explicit_module_request_still_wins(qtbot, monkeypatch):
+    import spacr.qt.app as app_mod
+
+    restart_state._save_session('regression', {'fdr_alpha': 0.01})
+    restart_state.save(module='mask', settings={})
+    app_mod._RESUME_RESTART[0] = True
+    window = _window(qtbot, initial_app='measure')
+    assert window._stack.currentWidget() is window._screens['measure']
+    assert app_mod._RESUME_RESTART[0] is False
 
 
 def test_fresh_on_the_command_line_skips_the_session(qtbot, monkeypatch):
@@ -105,6 +106,7 @@ def test_fresh_on_the_command_line_skips_the_session(qtbot, monkeypatch):
 def test_open_fresh_puts_the_defaults_back_and_goes_home(qtbot):
     restart_state._save_session("regression", {"fdr_alpha": 0.01})
     window = _window(qtbot)
+    window._resume_last_session()
     screen = window._screens["regression"]
     default = window._fresh_settings[1]["fdr_alpha"]
     assert default != 0.01
@@ -115,11 +117,17 @@ def test_open_fresh_puts_the_defaults_back_and_goes_home(qtbot):
     assert window._open_fresh_button is None
 
 
-def test_a_forced_restart_record_still_wins(qtbot):
+def test_an_explicit_restart_restores_once_then_next_launch_opens_home(qtbot):
+    import spacr.qt.app as app_mod
+
+    app_mod._RESUME_RESTART[0] = True
     restart_state._save_session("regression", {"fdr_alpha": 0.01})
     restart_state.save(module="mask", settings={})
     window = _window(qtbot)
     assert window._stack.currentWidget() is window._screens.get("mask")
+    assert restart_state.peek() is None and app_mod._RESUME_RESTART[0] is False
+    next_window = _window(qtbot)
+    assert next_window._stack.currentWidget() is next_window._startup
 
 
 def test_a_clean_close_records_the_session_and_drops_drafts(qtbot):
@@ -190,28 +198,36 @@ def test_drafts_from_a_crash_are_offered_and_restored(qtbot):
     assert window._stack.currentWidget() is window._screens["mask"]
 
 
-def test_a_draft_equal_to_the_reopened_session_is_not_offered(qtbot):
+def test_a_draft_from_previous_session_is_still_offered_on_home(qtbot):
     restart_state._save_session("regression", {"fdr_alpha": 0.01})
     restart_state._save_drafts({"regression": {"fdr_alpha": 0.01}})
     window = _window(qtbot)
-    qtbot.wait(50)
-    assert getattr(window, "_drafts_box", None) is None
+    qtbot.waitUntil(lambda: getattr(window, "_drafts_box", None) is not None)
+    assert window._stack.currentWidget() is window._startup
 
 
-def test_the_preferences_dialog_shows_and_saves_the_session_switch(
-        qtbot, monkeypatch):
+@pytest.mark.parametrize('saved', [False, True])
+def test_preferences_omit_legacy_restore_switch_without_changing_saved_value(
+        qtbot, monkeypatch, tmp_path, saved):
+    from PySide6.QtCore import QSettings
     from PySide6.QtWidgets import QDialogButtonBox, QWidget
 
     from spacr.qt import preferences as prefs
 
-    monkeypatch.setattr(prefs, "apply_preferences_to_app", lambda *args: None)
+    path = str(tmp_path / 'preferences.ini')
+    monkeypatch.setattr(prefs, '_settings', lambda: QSettings(path, QSettings.IniFormat))
+    monkeypatch.setattr(prefs, 'apply_preferences_to_app', lambda *args: None)
+    prefs._set_restore_session(saved)
     dialog = prefs.PreferencesDialog()
     qtbot.addWidget(dialog)
-    switch = dialog.findChild(QWidget, "RestoreLastSession")
-    assert switch is not None and switch.isChecked() is True
-    switch.setChecked(False)
+    assert dialog.findChild(QWidget, 'RestoreLastSession') is None
     dialog.findChild(QDialogButtonBox).accepted.emit()
-    assert prefs._get_restore_session() is False
+    assert prefs._get_restore_session() is saved
+    reopened = prefs.PreferencesDialog()
+    qtbot.addWidget(reopened)
+    assert reopened.findChild(QWidget, 'RestoreLastSession') is None
+    reopened.reject()
+    assert prefs._get_restore_session() is saved
 
 
 def test_autosave_writes_on_the_writer_thread_not_the_gui_thread(qtbot, monkeypatch):
@@ -319,3 +335,57 @@ def test_a_write_that_raises_is_logged_and_the_snapshot_retried(qtbot, monkeypat
     assert restart_state._flush_writes()
     assert len(calls) == 2
     assert restart_state._take_drafts()["regression"]["fdr_alpha"] == 0.055
+
+
+@pytest.mark.parametrize('args,target,resume,fresh', [
+    ([], None, False, False),
+    (['--resume-restart'], None, True, False),
+    (['--resume-restart', 'measure'], 'measure', True, False),
+    (['--fresh', '--resume-restart'], None, False, True),
+    (['measure', '--fresh'], 'measure', False, True),
+])
+def test_startup_flags_never_become_module_names(monkeypatch, args, target, resume, fresh):
+    from spacr.qt import app
+
+    assert app._startup_target(args) == target
+    assert app._RESUME_RESTART[0] is resume
+    assert app._OPEN_FRESH[0] is fresh
+
+
+def test_navigator_launcher_enables_navigator_without_overriding_restart(monkeypatch):
+    from spacr.qt import app
+    from spacr.qt.preferences import get_easy_mode, set_easy_mode
+
+    monkeypatch.setattr(app.sys, 'argv', ['spacr-navigator'])
+    app._RESUME_RESTART[0] = True
+    set_easy_mode(False)
+    assert app._navigator_launch_target(None) is None
+    assert get_easy_mode() is True
+    app._RESUME_RESTART[0] = False
+    assert app._navigator_launch_target(None) == '__home__'
+
+
+def test_selected_fold_settings_changes_are_autosaved_even_when_host_is_unchanged(qtbot):
+    from types import SimpleNamespace
+
+    from PySide6.QtWidgets import QTabWidget, QWidget
+
+    window = _window(qtbot, initial_app='regression')
+    host = window._screens['regression']
+    pages = QTabWidget()
+    qtbot.addWidget(pages)
+    pages.addTab(QWidget(), 'Host')
+    values = {'src': '/experiment/ops', 'round': 1}
+    page = QWidget()
+    page.app_key = 'ops'
+    page._settings_model = SimpleNamespace(collect=lambda: dict(values))
+    pages.addTab(page, 'OPS')
+    pages.setCurrentWidget(page)
+    host._fold_pages = pages
+    assert window._autosave_settings()
+    assert restart_state._flush_writes()
+    values['round'] = 2
+    assert window._autosave_settings()
+    assert restart_state._flush_writes()
+    assert restart_state._last_session()['module'] == 'ops'
+    assert restart_state._last_session()['settings']['round'] == 2

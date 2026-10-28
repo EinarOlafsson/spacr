@@ -3,6 +3,8 @@
 Lifecycle: new
 Status: DONE 2026-10-03
 
+CURRENT MAINTAINER FOLLOW-UP — 2026-10-28: investigate reported high-frequency settings-category open/close flicker immediately after opening Generate Masks; identify and fix actual visibility/layout feedback, preserving intentional expansion, channel-dependent categories and responsive input. Retained settings peer owns isolated implementation and focused reproduction; root integrates/publishes after current startup fix.
+
 Request (maintainer, verbatim):
 "In mask generation there are some setting categories related to cell that
 now have no settings in them, delete any empty settings classes, this goes

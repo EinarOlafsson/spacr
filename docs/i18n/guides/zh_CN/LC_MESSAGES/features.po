@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:17-0400\n"
+"POT-Creation-Date: 2026-10-28 16:41-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -219,11 +219,13 @@ msgstr "窗口默认以 **Borderless** 模式打开：没有标题栏，占满�
 msgid "Picking up where you left off"
 msgstr "从上次中断处继续"
 
-msgid "**Session restore**: every ordinary start reopens the module that was on screen when spaCR last closed or crashed, with its settings and input folder. No run is started. While the status bar says what was reopened, its **Open fresh** button puts that module's default settings back and goes to Home; ``spacr-qt --fresh`` skips the restore for one start. Turn it off in **Preferences → Modules → Session** (on by default). A module named on the command line, or a Force restart record, takes precedence."
-msgstr "**会话恢复** ：每次正常启动都会重新打开 spaCR 上次关闭或崩溃时屏幕上的模块，并恢复其设置和输入文件夹。不会启动任何运行。在状态栏显示重新打开了哪些内容时，其 **全新打开** 按钮会恢复该模块的默认设置并返回主页； ``spacr-qt --fresh`` 可在一次启动中跳过恢复。在 **偏好 → 模块 → 会话** 中关闭此功能（默认开启）。命令行中指定的模块或 Force restart 记录优先。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Opening and restarting**: ordinary launches open Navigator Home, or classic Home when Navigator is off. **Restart** and **Force restart** reopen the previous module, location and settings once. They restore the interface; they do not resume a running analysis."
+msgstr "**打开和重启** ：普通启动会打开 Navigator Home；关闭 Navigator 时则打开经典 Home。**重启** 和 **强制重启** 会恢复一次先前的模块、位置和设置。它们恢复的是界面，不会恢复正在运行的分析。"
 
-msgid "**Settings autosave**: every 30 seconds the unsaved settings of every open module are kept as a draft in the preference store; nothing is written when nothing changed. A clean exit drops the drafts. If spaCR ended without closing, the next start asks once whether to restore them (drafts identical to the reopened session are not asked about). The same behaviour applies on Linux, macOS and Windows, because the store is Qt's own settings store."
-msgstr "**设置自动保存** ：每 30 秒，各个已打开模块的未保存设置会作为草稿保存在偏好存储中；没有变化时不写入任何内容。正常退出会丢弃草稿。如果 spaCR 未经关闭就结束，下次启动时会询问一次是否恢复这些草稿（与重新打开的会话相同的草稿不会询问）。Linux、macOS 和 Windows 上的行为相同，因为该存储是 Qt 自身的设置存储。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Settings autosave**: every 30 seconds the unsaved settings of every open module are kept as a draft in the preference store; nothing is written when nothing changed. A clean exit drops the drafts. If spaCR ended without closing, the next start asks once whether to restore them (drafts already restored are not offered again). The same behaviour applies on Linux, macOS and Windows, because the store is Qt's own settings store."
+msgstr "**设置自动保存** ：每 30 秒，各个已打开模块的未保存设置会作为草稿保存在偏好存储中；没有变化时不写入任何内容。正常退出会丢弃草稿。如果 spaCR 未经关闭就结束，下次启动时会询问一次是否恢复这些草稿（已恢复的草稿不会再次提供）。Linux、macOS 和 Windows 上的行为相同，因为该存储是 Qt 自身的设置存储。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Settings files"
