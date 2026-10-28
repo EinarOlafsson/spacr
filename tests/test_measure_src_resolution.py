@@ -744,3 +744,63 @@ def test_unverifiable_coordinate_records_refuse_measurement_without_repairing_so
     with pytest.raises(ConfigurationError, match='Cannot verify'):
         _validate_measurement_coordinate_source(plate / 'merged')
     assert (path.read_bytes(), (plate / 'merged' / 'a.npy').read_bytes()) == before
+
+
+@pytest.mark.parametrize('damage', ['dangling-link', 'growing-record'])
+def test_coordinate_preflight_refuses_missing_targets_and_growth_during_read(plate, monkeypatch, damage):
+    from pathlib import Path
+    from spacr.measure import _validate_measurement_coordinate_source
+
+    folder = plate / 'psf'
+    folder.mkdir()
+    path = folder / 'segmentation_application.json'
+    before = (plate / 'merged' / 'a.npy').read_bytes()
+    if damage == 'dangling-link':
+        path.symlink_to(folder / 'absent.json')
+    else:
+        path.write_bytes(b'{}')
+        original_open = Path.open
+
+        def growing_open(candidate, *args, **kwargs):
+            handle = original_open(candidate, *args, **kwargs)
+            if candidate == path and args and args[0] == 'rb':
+                original_read = handle.read
+
+                def growing_read(*read_args):
+                    with original_open(path, 'ab') as writer:
+                        writer.truncate(32 * 1024 ** 2 + 1)
+                    return original_read(*read_args)
+
+                handle.read = growing_read
+            return handle
+
+        monkeypatch.setattr(Path, 'open', growing_open)
+    with pytest.raises(ConfigurationError, match='Cannot verify'):
+        _validate_measurement_coordinate_source(plate / 'merged')
+    assert (plate / 'merged' / 'a.npy').read_bytes() == before
+    assert not (plate / 'measurements').exists()
+    if damage == 'dangling-link':
+        assert path.is_symlink() and not path.exists()
+    else:
+        assert path.stat().st_size == 32 * 1024 ** 2 + 1
+
+
+def test_an_unsupported_directory_publication_platform_never_falls_back_to_replace(tmp_path, monkeypatch):
+    import sys
+    from spacr.measure import _publish_calibrated_measurement_directory
+
+    class UnsupportedSys:
+        platform = 'unsupported-test-platform'
+
+        def __getattr__(self, name):
+            return getattr(sys, name)
+
+    source, destination = tmp_path / 'staging', tmp_path / 'result'
+    source.mkdir()
+    (source / 'cells.csv').write_bytes(b'owned rows')
+    with monkeypatch.context() as patch:
+        patch.setitem(sys.modules, 'sys', UnsupportedSys())
+        with pytest.raises(OSError, match='cannot atomically publish'):
+            _publish_calibrated_measurement_directory(source, destination)
+    assert not destination.exists()
+    assert (source / 'cells.csv').read_bytes() == b'owned rows'

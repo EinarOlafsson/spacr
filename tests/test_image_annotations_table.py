@@ -319,3 +319,14 @@ def test_a_key_only_legacy_annotation_table_grows_without_losing_custom_values(t
         assert {'rowID', 'columnID', 'chanID', 'annotation_updated_at', 'custom_note', 'drug'} <= columns
         assert connection.execute("SELECT custom_note FROM image_annotations WHERE file='A01_1_c1.tif'").fetchone()[0] == 'preserved note'
         assert connection.execute('SELECT count(*) FROM image_annotations').fetchone()[0] == 12
+
+
+def test_partial_annotation_columns_extend_in_place_without_losing_explicit_row_identity(tmp_path):
+    database = tmp_path / 'partial.db'
+    with sqlite3.connect(database) as connection:
+        connection.execute('CREATE TABLE image_annotations (plateID TEXT, wellID TEXT, fieldID TEXT, file TEXT, rowID TEXT, custom_note TEXT)')
+        connection.execute("INSERT INTO image_annotations VALUES ('plate1','A01','f1','A01_1_c1.tif','A','preserved')")
+    _set_image_annotations(database, _fields(tmp_path), 'drug', 'treated', source=tmp_path)
+    with sqlite3.connect(database) as connection:
+        assert connection.execute("SELECT rowID,custom_note,drug FROM image_annotations WHERE file='A01_1_c1.tif'").fetchone() == ('A', 'preserved', 'treated')
+        assert connection.execute('SELECT count(*) FROM image_annotations').fetchone()[0] == 12

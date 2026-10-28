@@ -13,6 +13,22 @@ from tests.test_measure_crop_core_synth import _build_merged_stack, _settings_fo
 KEY = '_measurement_crop_output_dir'
 
 
+def test_direct_crop_worker_writes_only_its_owned_fresh_population(tmp_path, synth_masks_multi, rng):
+    merged, name = _write_stack(tmp_path, _build_merged_stack(synth_masks_multi, rng))
+    raw = (merged / name).read_bytes()
+    fresh = tmp_path / 'data' / 'measure_run_owned'
+    previous = tmp_path / 'data' / 'cell_png' / 'previous.png'
+    previous.parent.mkdir(parents=True)
+    previous.write_bytes(b'previous population')
+    settings = _settings_for(merged, **{KEY: str(fresh)})
+    index, elapsed, cells, figures, error = measure._measure_crop_core(0, [], name, settings)
+    assert index == 0 and error == ''
+    paths = _paths(tmp_path / 'measurements' / 'measurements.db')
+    assert len(paths) == 4 and all(fresh in path.parents and path.is_file() for path in paths)
+    assert previous.read_bytes() == b'previous population'
+    assert (merged / name).read_bytes() == raw
+
+
 def _paths(database, table='png_list'):
     with sqlite3.connect(database) as db:
         return [Path(row[0]) for row in db.execute(f'SELECT png_path FROM "{table}"')]
