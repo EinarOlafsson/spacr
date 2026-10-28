@@ -22,16 +22,21 @@ multi-objective mode therefore retains three separate measurements:
 ``stability``
    The mean fraction of nearest neighbours shared by embeddings fitted with
    different reproducible seeds. It is invariant to rotations and reflections.
-   A visually striking feature that disappears between repeats is not stable
-   structure.
+   The stability neighbourhood is capped at one fewer than the row count;
+   comparing every other row gives a score of 1 regardless of local structure.
+   Use a smaller neighbourhood to assess repeat-to-repeat local agreement.
 
 ``cluster_structure``
    The silhouette coefficient clipped to the range 0 to 1, so negative values
-   score 0. When labels are supplied through the Python API they define the
-   partition. Otherwise spaCR fits seeded K-means partitions with 2 through 8
-   clusters (at most one fewer than the number of rows) and reports the
-   highest silhouette together with the selected cluster counts. This is
-   evidence of geometric structure, not proof that a cluster is biological.
+   score 0. Labels supplied through the Python API define the partition only
+   when their length matches the rows and they contain at least two classes
+   but fewer classes than rows. Otherwise spaCR uses seeded K-means partitions
+   with 2 through 8 clusters (at most one fewer than the number of rows),
+   requiring at least four rows, and selects the highest silhouette among valid
+   partitions. If no partition resolves, the score is zero and
+   ``cluster_structure_method`` is ``no_resolved_clusters``. Check that field
+   and the selected cluster counts to see which partition was used. This
+   measures geometric structure, not biological identity.
 
 The three weights are normalized to sum to one. Their weighted geometric mean
 is called ``multi_objective`` and guides the grid or adaptive search. The

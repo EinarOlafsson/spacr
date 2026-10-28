@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-15 15:26-0400\n"
+"POT-Creation-Date: 2026-10-28 13:35-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -28,8 +28,9 @@ msgstr "spaCR은 ``spacr-run`` 이 제공하는 모든 모듈을 다른 워크�
 msgid "Execution profiles"
 msgstr "실행 프로필"
 
-msgid "An execution profile describes *how to reach compute*, not an analysis. Profiles never store passwords or API keys:"
-msgstr "실행 프로필은 분석이 아니라 *계산 자원에 접근하는 방법* 을 설명합니다. 프로필에는 비밀번호나 API 키가 절대 저장되지 않습니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "An execution profile describes *how to reach compute*, not an analysis. Connection options and command/script templates are saved in the local profile JSON. Keep passwords and API keys out of those templates: their text is stored as entered. Built-in SSH sign-in can optionally remember the login password in the operating-system keychain, not in the profile; one-time codes are not saved. The execution backends are:"
+msgstr "실행 프로필은 분석이 아니라 *연산 자원에 접근하는 방법* 을 설명합니다. 연결 옵션과 명령/스크립트 템플릿은 로컬 프로필 JSON에 저장됩니다. 템플릿에 비밀번호나 API 키를 넣지 마세요. 입력한 텍스트가 그대로 저장됩니다. 내장 SSH 로그인은 선택적으로 로그인 비밀번호를 프로필이 아닌 운영체제 키체인에 기억할 수 있으며, 일회용 코드는 저장하지 않습니다. 실행 백엔드는 다음과 같습니다:"
 
 msgid "``SSH workstation``"
 msgstr "``SSH workstation``"
@@ -51,8 +52,9 @@ msgstr "``Cloud / custom command``"
 msgid "Runs configured submit/status/cancel argument templates. This supports cloud CLIs and site-specific schedulers without embedding vendor credentials in spaCR. The command must print a job identifier containing only letters, digits and ``_.:+-``, and the status command should print a conventional state such as ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` or ``CANCELLED``."
 msgstr "구성된 제출/상태/취소 인수 템플릿을 실행합니다. 이를 통해 공급업체 자격 증명을 spaCR에 넣지 않고도 클라우드 CLI와 사이트별 스케줄러를 지원합니다. 명령은 문자, 숫자, ``_.:+-``\\ 만 포함하는 작업 식별자를 출력해야 하며, 상태 명령은 ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` 또는 ``CANCELLED``\\ 와 같은 일반적인 상태를 출력해야 합니다."
 
-msgid "Configure SSH keys, cloud authentication and VPN access outside spaCR. Test the same connection in a terminal before submitting a long run."
-msgstr "SSH 키, 클라우드 인증, VPN 접근은 spaCR 밖에서 구성합니다. 긴 실행을 제출하기 전에 터미널에서 같은 연결을 테스트합니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Configure SSH keys, cloud CLI authentication and VPN access outside spaCR. Built-in interactive SSH sign-in can instead prompt for a password and second factor in spaCR. Check the selected sign-in route before submitting a long run."
+msgstr "SSH 키, 클라우드 CLI 인증 및 VPN 접근은 spaCR 외부에서 설정합니다. 대신 내장 대화형 SSH 로그인은 spaCR 안에서 비밀번호와 두 번째 인증 요소를 요청할 수 있습니다. 장시간 실행을 제출하기 전에 선택한 로그인 경로를 확인하세요."
 
 msgid "Shared data and path mapping"
 msgstr "공유 데이터와 경로 매핑"
@@ -261,6 +263,36 @@ msgstr "외부 OpenSSH 명령 대신, 그래픽 인터페이스에서 키보드 
 msgid "remember the login password, never one-time codes or push answers, in the operating-system keychain; off by default."
 msgstr "운영 체제 키체인에 로그인 비밀번호를 기억합니다. 일회용 코드나 푸시 응답은 절대 기억하지 않습니다. 기본값은 꺼짐입니다."
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "how spaCR signs in: ``openssh`` (SSH config, keys, agent and ControlMaster reuse), ``interactive`` (password and second-factor prompts shown in spaCR), ``gssapi`` (Kerberos ticket) or ``custom`` (the user's own SSH command). Blank follows ``ssh_interactive``."
+msgstr "spaCR의 로그인 방식: ``openssh`` (SSH 설정, 키, 에이전트 및 ControlMaster 재사용), ``interactive`` (spaCR에서 비밀번호와 두 번째 인증 요소 요청), ``gssapi`` (Kerberos 티켓) 또는 ``custom`` (사용자 지정 SSH 명령)입니다. 비어 있으면 ``ssh_interactive`` 를 따릅니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+#, python-brace-format
+msgid "custom SSH command for ``custom`` sign-in; ``{host}`` is the target and ``{command}`` the remote command, appended when absent. It may not carry a password."
+msgstr "``custom`` 로그인을 위한 사용자 지정 SSH 명령입니다. ``{host}`` 는 대상이고 ``{command}`` 는 원격 명령이며, 없으면 덧붙입니다. 비밀번호를 포함할 수 없습니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "scheduler resources: partition, account, qos, gpus, gpu_type, cpus, mem, time, nodes, mail_type, mail_user and extra scheduler lines."
+msgstr "스케줄러 자원: partition, account, qos, gpus, gpu_type, cpus, mem, time, nodes, mail_type, mail_user 및 추가 스케줄러 행입니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "shell lines that prepare the remote environment before spaCR runs, such as ``module load mamba`` and ``mamba activate spacr``."
+msgstr "``module load mamba`` 및 ``mamba activate spacr`` 처럼 spaCR 실행 전에 원격 환경을 준비하는 셸 명령 행입니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+#, python-brace-format
+msgid "editable job-script template with placeholders such as ``{settings_path}`` and ``{run_command}``; blank uses the backend's default script."
+msgstr "``{settings_path}`` 및 ``{run_command}`` 같은 자리표시자를 포함한 편집 가능한 작업 스크립트 템플릿입니다. 비어 있으면 백엔드의 기본 스크립트를 사용합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "comma-separated host-name patterns of login nodes on which spaCR must never run compute."
+msgstr "spaCR이 절대 연산을 실행하면 안 되는 로그인 노드의 호스트 이름 패턴이며 쉼표로 구분합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "explicit opt-in to run directly over SSH on a host with no scheduler, skipping the login-node refusal."
+msgstr "로그인 노드 거부를 건너뛰고 스케줄러가 없는 호스트에서 SSH로 직접 실행하도록 명시적으로 동의하는 옵션입니다."
+
 msgid "Construct and validate a profile from JSON-compatible data."
 msgstr "JSON 호환 데이터에서 프로필을 만들고 검증합니다."
 
@@ -380,6 +412,14 @@ msgstr "가장 최근의 제출, 폴링 또는 취소 실패입니다. 새로 �
 
 msgid "submission-time profile snapshot, retained so the job remains operable after profile edits or deletion."
 msgstr "제출 시점의 프로필 스냅샷으로, 프로필이 편집되거나 삭제된 뒤에도 작업을 계속 다룰 수 있도록 보존됩니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "the rendered job script exactly as it was sent."
+msgstr "전송한 그대로의 생성된 작업 스크립트입니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "the scheduler allocation the job runs inside, or blank for a batch job."
+msgstr "작업이 실행되는 스케줄러 할당이며, 배치 작업이면 비어 있습니다."
 
 msgid "Construct a job from a stored mapping, tolerating future fields."
 msgstr "저장된 매핑에서 작업을 만들며, 향후 추가되는 필드도 허용합니다."

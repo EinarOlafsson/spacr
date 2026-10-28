@@ -1,5 +1,5 @@
 # spaCR user guide translation (zh_CN).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-28 13:35-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -41,15 +41,17 @@ msgstr "可信度（trustworthiness）与连续性（continuity）的几何平�
 msgid "``stability``"
 msgstr "``stability``"
 
-msgid "The mean fraction of nearest neighbours shared by embeddings fitted with different reproducible seeds. It is invariant to rotations and reflections. A visually striking feature that disappears between repeats is not stable structure."
-msgstr "用不同可重复随机种子拟合的嵌入之间共享的最近邻平均比例。它不受旋转和镜像的影响。在重复之间消失的醒目特征并不是稳定的结构。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The mean fraction of nearest neighbours shared by embeddings fitted with different reproducible seeds. It is invariant to rotations and reflections. The stability neighbourhood is capped at one fewer than the row count; comparing every other row gives a score of 1 regardless of local structure. Use a smaller neighbourhood to assess repeat-to-repeat local agreement."
+msgstr "使用不同可复现随机种子拟合的嵌入所共享最近邻比例的平均值。它对旋转和镜像不变。稳定性邻域最多为行数减一；比较所有其他行时，无论局部结构如何，得分都是 1。请使用较小邻域评估重复拟合之间的局部一致性。"
 
 msgid "``cluster_structure``"
 msgstr "``cluster_structure``"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The silhouette coefficient clipped to the range 0 to 1, so negative values score 0. When labels are supplied through the Python API they define the partition. Otherwise spaCR fits seeded K-means partitions with 2 through 8 clusters (at most one fewer than the number of rows) and reports the highest silhouette together with the selected cluster counts. This is evidence of geometric structure, not proof that a cluster is biological."
-msgstr "截断到 0 到 1 范围内的轮廓（silhouette）系数，因此负值计为 0。通过 Python API 提供标签时，由标签定义划分。否则 spaCR 会拟合 2 到 8 个簇（最多比行数少一个）的带种子 K-means 划分，并报告最高的轮廓值及所选的簇数。这是几何结构的证据，而不能证明某个簇具有生物学意义。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The silhouette coefficient clipped to the range 0 to 1, so negative values score 0. Labels supplied through the Python API define the partition only when their length matches the rows and they contain at least two classes but fewer classes than rows. Otherwise spaCR uses seeded K-means partitions with 2 through 8 clusters (at most one fewer than the number of rows), requiring at least four rows, and selects the highest silhouette among valid partitions. If no partition resolves, the score is zero and ``cluster_structure_method`` is ``no_resolved_clusters``. Check that field and the selected cluster counts to see which partition was used. This measures geometric structure, not biological identity."
+msgstr "轮廓系数被限制在 0 到 1 之间，因此负值计为 0。通过 Python API 提供的标签仅在长度与行数一致、类别至少为两个且少于行数时定义划分。否则 spaCR 使用固定随机种子的 K-means 划分，簇数为 2 至 8（最多为行数减一），要求至少四行，并选取有效划分中最高的轮廓系数。如果没有形成划分，得分为零，``cluster_structure_method`` 为 ``no_resolved_clusters``。检查该字段和所选簇数，以了解实际使用的划分。这测量的是几何结构，而非生物学身份。"
 
 msgid "The three weights are normalized to sum to one. Their weighted geometric mean is called ``multi_objective`` and guides the grid or adaptive search. The geometric mean penalizes a collapsed objective more strongly than an arithmetic average."
 msgstr "三个权重经过归一化，总和为 1。它们的加权几何平均数称为 ``multi_objective``，用于引导网格搜索或自适应搜索。与算术平均数相比，几何平均数对坍塌的目标惩罚更重。"

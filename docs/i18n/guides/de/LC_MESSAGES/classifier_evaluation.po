@@ -1,5 +1,5 @@
 # spaCR user guide translation (de).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-28 13:35-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: de\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -85,8 +85,9 @@ msgstr "Vor dem Training prüft spaCR exakte Pfade, Augmentierungsfamilien, Obje
 msgid "Temperature calibration"
 msgstr "Temperaturkalibrierung"
 
-msgid "``evaluation_calibration=temperature`` fits a scalar temperature without using a prediction to calibrate itself. For each held-out outer fold, the temperature is fit only from the other folds. Set it to ``none`` to retain raw model probabilities. ``evaluation_bins`` controls the reliability table and expected calibration error resolution."
-msgstr "``evaluation_calibration=temperature`` passt eine skalare Temperatur an, ohne eine Vorhersage zu ihrer eigenen Kalibrierung zu verwenden. Für jeden zurückgehaltenen äußeren Fold wird die Temperatur nur anhand der anderen Folds angepasst. Setzen Sie den Wert auf ``none``, um die rohen Modellwahrscheinlichkeiten beizubehalten. ``evaluation_bins`` steuert die Auflösung der Zuverlässigkeitstabelle und des erwarteten Kalibrierungsfehlers."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``evaluation_calibration=temperature`` requires predictions from at least two folds. For each held-out outer fold, it fits a scalar temperature only from the other folds. If that fit fails, for example because the other folds lack two classes, that fold retains its raw probabilities with temperature 1. The warning is printed and saved in ``calibration_warnings``; check it before interpreting the calibrated results. Set the option to ``none`` to retain raw model probabilities. ``evaluation_bins`` controls the reliability table and expected calibration error resolution."
+msgstr "``evaluation_calibration=temperature`` benötigt Vorhersagen aus mindestens zwei Folds. Für jeden zurückgehaltenen äußeren Fold wird eine skalare Temperatur nur anhand der anderen Folds angepasst. Schlägt diese Anpassung fehl, etwa weil die anderen Folds keine zwei Klassen enthalten, behält dieser Fold seine Rohwahrscheinlichkeiten mit Temperatur 1. Die Warnung wird ausgegeben und in ``calibration_warnings`` gespeichert; prüfen Sie sie vor der Interpretation der kalibrierten Ergebnisse. Mit ``none`` bleiben die Rohwahrscheinlichkeiten des Modells erhalten. ``evaluation_bins`` bestimmt die Auflösung der Zuverlässigkeitstabelle und des erwarteten Kalibrierungsfehlers."
 
 msgid "Evaluation bundle"
 msgstr "Auswertungspaket"

@@ -1,5 +1,5 @@
 # spaCR user guide translation (fr).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-28 13:35-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: fr\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -41,15 +41,17 @@ msgstr "La moyenne géométrique de la fiabilité (trustworthiness) et de la con
 msgid "``stability``"
 msgstr "``stability``"
 
-msgid "The mean fraction of nearest neighbours shared by embeddings fitted with different reproducible seeds. It is invariant to rotations and reflections. A visually striking feature that disappears between repeats is not stable structure."
-msgstr "La fraction moyenne des plus proches voisins partagés par des plongements ajustés avec différentes graines reproductibles. Elle est invariante par rotation et par réflexion. Un motif visuellement frappant qui disparaît d’une répétition à l’autre n’est pas une structure stable."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The mean fraction of nearest neighbours shared by embeddings fitted with different reproducible seeds. It is invariant to rotations and reflections. The stability neighbourhood is capped at one fewer than the row count; comparing every other row gives a score of 1 regardless of local structure. Use a smaller neighbourhood to assess repeat-to-repeat local agreement."
+msgstr "La fraction moyenne de plus proches voisins partagés entre des plongements ajustés avec différentes graines reproductibles. Elle est invariante aux rotations et aux réflexions. Le voisinage de stabilité est plafonné à un de moins que le nombre de lignes ; comparer toutes les autres lignes donne un score de 1 quelle que soit la structure locale. Utilisez un voisinage plus petit pour évaluer l’accord local entre répétitions."
 
 msgid "``cluster_structure``"
 msgstr "``cluster_structure``"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The silhouette coefficient clipped to the range 0 to 1, so negative values score 0. When labels are supplied through the Python API they define the partition. Otherwise spaCR fits seeded K-means partitions with 2 through 8 clusters (at most one fewer than the number of rows) and reports the highest silhouette together with the selected cluster counts. This is evidence of geometric structure, not proof that a cluster is biological."
-msgstr "Le coefficient de silhouette borné à l’intervalle de 0 à 1, de sorte que les valeurs négatives valent 0. Lorsque des étiquettes sont fournies via l’API Python, elles définissent la partition. Sinon, spaCR ajuste des partitions K-means avec graine de 2 à 8 clusters (au plus un de moins que le nombre de lignes) et rapporte la silhouette la plus élevée avec les nombres de clusters retenus. C’est un indice de structure géométrique, pas une preuve qu’un cluster est biologique."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The silhouette coefficient clipped to the range 0 to 1, so negative values score 0. Labels supplied through the Python API define the partition only when their length matches the rows and they contain at least two classes but fewer classes than rows. Otherwise spaCR uses seeded K-means partitions with 2 through 8 clusters (at most one fewer than the number of rows), requiring at least four rows, and selects the highest silhouette among valid partitions. If no partition resolves, the score is zero and ``cluster_structure_method`` is ``no_resolved_clusters``. Check that field and the selected cluster counts to see which partition was used. This measures geometric structure, not biological identity."
+msgstr "Le coefficient de silhouette est limité à l’intervalle de 0 à 1 ; les valeurs négatives valent donc 0. Les étiquettes fournies par l’API Python définissent la partition uniquement si leur longueur correspond aux lignes et si elles contiennent au moins deux classes, mais moins de classes que de lignes. Sinon, spaCR utilise des partitions K-means avec des graines fixées et 2 à 8 groupes (au plus un de moins que le nombre de lignes), exige au moins quatre lignes et retient la silhouette la plus élevée parmi les partitions valides. Si aucune partition ne se résout, le score est nul et ``cluster_structure_method`` vaut ``no_resolved_clusters``. Consultez ce champ et les nombres de groupes choisis pour connaître la partition utilisée. Cela mesure une structure géométrique, pas une identité biologique."
 
 msgid "The three weights are normalized to sum to one. Their weighted geometric mean is called ``multi_objective`` and guides the grid or adaptive search. The geometric mean penalizes a collapsed objective more strongly than an arithmetic average."
 msgstr "Les trois poids sont normalisés pour que leur somme vaille un. Leur moyenne géométrique pondérée s’appelle ``multi_objective`` et guide la recherche en grille ou adaptative. La moyenne géométrique pénalise un objectif effondré plus fortement qu’une moyenne arithmétique."
