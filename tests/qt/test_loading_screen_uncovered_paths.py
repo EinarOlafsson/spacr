@@ -386,3 +386,153 @@ def test_display_update_dispatch_and_starvation_watchdog_retire_with_real_cover(
     assert screen._paced_window is None
     assert screen._tick_timer is None or not screen._tick_timer.isActive()
     screen._stop_pacing()
+
+
+@pytest.mark.parametrize('operation', ['hold', 'release'])
+def test_optional_import_priority_failure_does_not_break_the_cover(qtbot, monkeypatch, operation):
+    """Unavailable background-import coordination cannot abort startup artwork."""
+    from spacr.qt import gil_priority
+
+    screen = ls.LoadingScreen(total=2)
+    qtbot.addWidget(screen)
+
+    def unavailable(*args):
+        raise OSError('import coordination unavailable')
+
+    target = 'hold_background_imports' if operation == 'hold' else 'release_background_imports'
+    monkeypatch.setattr(gil_priority, target, unavailable)
+    getattr(screen, '_hold_the_imports' if operation == 'hold' else '_release_the_imports')()
+    assert screen.fraction() == 0
+    screen.advance()
+    assert screen.fraction() == .5
+
+
+def test_removed_mosaic_resource_during_hold_cannot_prepare_tiles(qtbot, tmp_path):
+    """A resource removed after its map loads leaves no stale prepared flight."""
+    from tests.qt.test_694_photomosaic_blow_away_startup_screen import _Clock
+
+    folder = tmp_path / 'mosaic'
+    folder.mkdir()
+    original = ls.MosaicMap.load()
+    image = folder / 'image.jpg'
+    image.write_bytes(open(original.image_path, 'rb').read())
+    mosaic = ls.MosaicMap(image_path=str(image), grid=original.grid,
+                          tile_px=original.tile_px, occupied=original.occupied)
+    screen = ls.LoadingScreen(total=1)
+    qtbot.addWidget(screen)
+    clock = _Clock()
+    screen._clock = clock
+    screen.show_mosaic(mosaic)
+    assert screen.blow_away(force=True)
+    screen.grab()
+    image.unlink()
+    previous_key = screen._mosaic_key
+    screen.resize(240, 180)
+    assert screen._mosaic_layout()[3] != previous_key[0]
+    screen._prepare()
+    assert screen._prepared is None
+    assert screen._mosaic is None
+    screen.skip()
+
+
+def test_retired_native_display_handle_can_be_disconnected_twice(qtbot, monkeypatch):
+    """Window destruction between pacing setup and cleanup is an ordinary lifetime edge."""
+    import shiboken6
+    from types import SimpleNamespace
+    from PySide6.QtGui import QWindow
+
+    screen = ls.LoadingScreen(total=1)
+    qtbot.addWidget(screen)
+    handle = QWindow()
+    owner = SimpleNamespace(windowHandle=lambda: handle)
+    monkeypatch.setattr(screen, 'window', lambda: owner)
+    monkeypatch.setattr(ls, '_display_paced', lambda platform: True)
+    screen._start_pacing()
+    assert screen._paced_window is handle
+    shiboken6.delete(handle)
+    screen._stop_pacing()
+    assert screen._paced_window is None
+    screen._stop_pacing()
+
+
+def test_retired_window_lookup_uses_screen_fallback_without_a_handle(qtbot, monkeypatch):
+    """A stale native owner cannot prevent a live cover from selecting a safe timer budget."""
+    import shiboken6
+
+    screen = ls.LoadingScreen(total=1)
+    qtbot.addWidget(screen)
+    old = QWidget()
+    lookup = old.window
+    shiboken6.delete(old)
+    monkeypatch.setattr(screen, 'window', lookup)
+    screen._start_pacing()
+    assert screen._paced_window is None and not screen._vsync
+    assert screen._refresh_hz > 0
+    screen._schedule_tick()
+    assert screen._tick_timer is None
+
+
+@pytest.mark.parametrize('pixels', [18, 24])
+def test_strap_arrow_keeps_a_pixel_aligned_visible_stem(qtbot, pixels):
+    """Both even- and odd-pixel stems remain visible in actual offscreen paint."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtGui import QFont, QImage, QPainter
+
+    screen = ls.LoadingScreen(total=1)
+    qtbot.addWidget(screen)
+    image = QImage(140, 60, QImage.Format_ARGB32_Premultiplied)
+    image.fill(Qt.transparent)
+    painter = QPainter(image)
+    font = QFont()
+    font.setPixelSize(pixels)
+    painter.setFont(font)
+    try:
+        screen._paint_strap_arrow(painter, 20, 40, 60, QColor('#ffffff'))
+    finally:
+        painter.end()
+    ink = [(x, y) for y in range(image.height()) for x in range(image.width())
+           if image.pixelColor(x, y).alpha() > 0]
+    assert len(ink) > 20
+    assert min(x for x, y in ink) >= 20 and max(x for x, y in ink) < 80
+
+
+def test_late_display_paints_reduce_pacing_and_slow_costs_thin_real_tiles(qtbot, monkeypatch):
+    """Controlled callback timestamps/cost inputs exercise adaptive dispatch and real tile paint."""
+    from tests.qt.test_694_photomosaic_blow_away_startup_screen import _Clock, _played
+
+    host = QWidget()
+    qtbot.addWidget(host)
+    host.resize(420, 320)
+    host.show()
+    screen = ls.LoadingScreen(total=1, parent=host)
+    clock, pace = _Clock(), _Clock()
+    screen._clock = screen.clock = clock
+    screen._pace_clock = pace
+    monkeypatch.setattr(ls, '_display_paced', lambda platform: True)
+    assert screen.show_mosaic()
+    _played(screen)
+    initial = screen._divisor
+    for _ in range(ls._PACING_WINDOW + 2):
+        pace.now += 4 * screen._frame_budget_ms() / 1000
+        screen.grab()
+    assert screen._divisor > initial
+    requests = []
+    original = screen._paced_window.requestUpdate
+
+    def request():
+        requests.append(True)
+        original()
+
+    monkeypatch.setattr(screen._paced_window, 'requestUpdate', request)
+    screen._tick()
+    assert requests == [True]
+    screen._follow_the_display(screen._paced_window)
+    assert requests == [True]
+    for _ in range(8 * ls._SLOW_STREAK + 12):
+        screen._adapt(100.0)
+    assert screen._stride > 1
+    clock.now += 1.0
+    frame = screen.grab().toImage()
+    assert not frame.isNull() and screen._drawn[-1] > 0
+    assert screen._drawn[-1] <= len(screen._tiles) // screen._stride + 1
+    screen.skip()

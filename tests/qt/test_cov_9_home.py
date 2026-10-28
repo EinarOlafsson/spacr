@@ -776,3 +776,182 @@ def test_regex_limits_preserve_input_and_never_start_a_validation_child(monkeypa
     assert actual['regex']['pattern'] == pattern and actual['regex']['required']
     assert 'settings_overrides' not in actual
     assert bool(actual['regex'].get('validation_error')) is (reason != 'cancelled')
+
+
+@pytest.mark.parametrize('raw,expected', [
+    (b'not metadata', {}),
+    (b'{"axes":"TZYX","shape":[2,-1,4,4]}', {}),
+    (b'<Pixels SizeT="3" SizeZ="4" SizeC="2"/>', {'t': 3, 'z': 4, 'axes': 'OME'}),
+])
+def test_image_dimension_hints_require_valid_structural_metadata(raw, expected):
+    """Malformed metadata never becomes a claim of time or depth acquisition."""
+    assert home_mod._easy_axes_metadata(raw) == expected
+
+
+@pytest.mark.parametrize('content,family', [
+    (b'<Workspace/>', 'flowjo'), (b'<GraphPadPrismFile/>', 'prism'),
+    (b'<CDXML/>', 'chemdraw'),
+])
+def test_external_document_headers_offer_original_software_not_analysis(tmp_path, content, family):
+    """Misnamed external documents are identified from bounded bytes, never executed."""
+    path = tmp_path / 'source.dat'
+    path.write_bytes(content)
+    assert home_mod._easy_file_kind(path) == 'external_' + family
+    assert path.read_bytes() == content
+    result = home_mod._easy_inspect_path(str(path))
+    assert result['actions'] == []
+    assert result['context']['unsupported_documents'] == [dict(kind=family, path=str(path))]
+
+
+@pytest.mark.parametrize('header', [
+    b'II+\x00\x04\x00\x00\x00' + b'\x00' * 8,
+    b'II*\x00\x08\x00\x00\x00\x01',
+    b'II*\x00\x08\x00\x00\x00\x00\x00',
+    b'II*\x00\x08\x00\x00\x00\xff\xff',
+    b'II*\x00\x08\x00\x00\x00\x01\x00' + b'\x00' * 5,
+], ids=['invalid-bigtiff-offset-width', 'short-count', 'empty-ifd', 'unbounded-ifd', 'short-entry'])
+def test_truncated_or_unbounded_tiff_directories_never_offer_image_processing(tmp_path, header):
+    """A magic prefix alone is not a validated microscope image."""
+    path = tmp_path / 'source.tif'
+    path.write_bytes(header)
+    assert home_mod._easy_file_kind(path) == 'unsupported'
+    assert home_mod._easy_inspect_path(str(path))['actions'] == []
+    assert path.read_bytes() == header
+
+
+def test_corrupt_compressed_sequence_is_not_misidentified_as_reads(tmp_path):
+    """A corrupt gzip header has no sequence payload to classify or process."""
+    path = tmp_path / 'source.fastq.gz'
+    raw = b'\x1f\x8b' + b'not compressed sequence bytes'
+    path.write_bytes(raw)
+    assert home_mod._easy_file_kind(path) == 'unsupported'
+    assert home_mod._easy_inspect_path(str(path))['actions'] == []
+    assert path.read_bytes() == raw
+
+
+def test_native_mask_archive_remains_a_native_input_without_unpacking_arrays(tmp_path):
+    """A genuine ZIP-backed NumPy archive is routed as a container, not decoded."""
+    import numpy as np
+
+    path = tmp_path / 'masks.npz'
+    np.savez(path, masks=np.zeros((2, 3, 4), dtype=np.uint16))
+    before = path.read_bytes()
+    assert home_mod._easy_file_kind(path) == 'native_container'
+    assert path.read_bytes() == before
+
+
+def test_empty_measurement_table_and_unsupported_csv_header_do_not_seed_values(tmp_path):
+    """Single-row measurements and a settings CSV with the wrong heading are not data."""
+    table = tmp_path / 'single.csv'
+    table.write_text('field,value\n')
+    assert home_mod._easy_table_evidence(table) == {}
+    settings = tmp_path / 'mask_settings.csv'
+    settings.write_text('wrong,heading\nsize,12\n')
+    assert home_mod._easy_saved_settings(settings) is None
+
+
+def test_bounded_run_discovery_keeps_failure_evidence_and_never_opens_extra_runs(tmp_path):
+    """Run and coefficient quotas retain incomplete-output provenance without model execution."""
+    import json
+
+    files = []
+    before = {}
+    for index in range(10):
+        folder = tmp_path / 'runs' / f'run-{index:02d}'
+        folder.mkdir(parents=True)
+        manifest = folder / 'manifest.json'
+        manifest.write_text(json.dumps(dict(app_key='mask', schema_version=1, status='partial')))
+        coefficients = folder / 'results.csv'
+        coefficients.write_text('feature,coefficient\narea,1.5\n')
+        (folder / 'diagnostics').mkdir()
+        report = folder / 'diagnostics' / 'fit.txt'
+        report.write_text('owned diagnostic')
+        files.extend((manifest, coefficients))
+        before.update({path: path.read_bytes() for path in (manifest, coefficients, report)})
+    result = home_mod._easy_run_evidence(tmp_path, files)
+    assert len(result['manifests']) == 8
+    assert all(item['missing_outputs'] == ['merged'] for item in result['manifests'])
+    assert len(result['results']) == 4 and all(item['diagnostics'] for item in result['results'])
+    assert all(path.read_bytes() == data for path, data in before.items())
+
+
+@pytest.mark.skipif(os.name != 'posix' or os.geteuid() == 0,
+                    reason='requires POSIX permission enforcement for a non-root user')
+def test_unreadable_and_malformed_local_evidence_leaves_accessible_results_intact(tmp_path):
+    """Real filesystem permission failures are local refusals, not phantom successful runs."""
+    import json
+
+    runs = tmp_path / 'runs'
+    runs.mkdir()
+    broken = runs / 'broken'
+    broken.mkdir()
+    (broken / 'manifest.json').write_text('{invalid')
+    denied = runs / 'denied'
+    denied.mkdir()
+    inaccessible = denied / 'manifest.json'
+    inaccessible.write_text(json.dumps(dict(app_key='mask', schema_version=1, status='failed')))
+    valid = tmp_path / 'results.csv'
+    valid.write_text('feature,coefficient\narea,2\n')
+    diagnostics = tmp_path / 'diagnostics'
+    diagnostics.mkdir()
+    (diagnostics / 'fit.txt').write_text('diagnostic')
+    empty = tmp_path / 'empty' / 'results.csv'
+    empty.parent.mkdir()
+    empty.write_bytes(b'\xff')
+    before = valid.read_bytes()
+    inaccessible.chmod(0)
+    diagnostics.chmod(0)
+    try:
+        result = home_mod._easy_run_evidence(tmp_path, [empty, valid])
+        assert result['manifests'] == []
+        assert result['results'] == [dict(path=str(valid), folder=str(tmp_path),
+                                        diagnostics=False, diagnostics_folder=None)]
+    finally:
+        inaccessible.chmod(0o600)
+        diagnostics.chmod(0o700)
+    assert valid.read_bytes() == before
+
+
+@pytest.mark.skipif(os.name != 'posix' or os.geteuid() == 0,
+                    reason='requires POSIX permission enforcement for a non-root user')
+def test_bounded_directory_sampling_preserves_selected_file_and_reports_real_permission_errors(tmp_path):
+    """Reservoir sampling keeps the explicit input and reports unreadable immediate siblings."""
+    root = tmp_path / 'source'
+    root.mkdir()
+    selected = root / 'explicit.csv'
+    selected.write_text('value,other\n1,2\n')
+    for index in range(180):
+        (root / f'other-{index:03d}.csv').write_text('value,other\n1,2\n')
+    denied = root / 'denied'
+    denied.mkdir()
+    denied.chmod(0)
+    try:
+        first = home_mod._easy_local_sample(selected, sample_limit=12)
+        second = home_mod._easy_local_sample(selected, sample_limit=12)
+        assert first == second
+        files, folders, unreadable, limited = first
+        assert selected in files and len(files) == 12
+        assert unreadable == 1 and limited
+    finally:
+        denied.chmod(0o700)
+
+
+def test_sidecar_budget_and_symlink_rules_preserve_only_structural_hints(tmp_path):
+    """At most four sidecars are described; linked external metadata is never read."""
+    import json
+
+    folders = []
+    for index in range(5):
+        folder = tmp_path / str(index)
+        folder.mkdir()
+        (folder / 'metadata.json').write_text(json.dumps({'channels': ['one'], 'private': 'excluded'}))
+        folders.append(folder)
+    hints = home_mod._easy_metadata_hints(folders)
+    assert len(hints) == 4 and all(item['fields'] == ['channels'] for item in hints)
+    linked = tmp_path / 'linked'
+    linked.mkdir()
+    (linked / 'metadata.json').symlink_to(folders[0] / 'metadata.json')
+    assert home_mod._easy_small_json(linked / 'metadata.json') == {}
+    assert home_mod._easy_metadata_hints([linked]) == []
+    (folders[0] / 'metadata.json').write_text('{invalid')
+    assert home_mod._easy_metadata_hints([folders[0]])[0]['unreadable']
