@@ -709,3 +709,45 @@ def test_the_context_manager_stops_the_sampler_when_the_block_raises(tmp_path):
     assert sampler.is_running() is False
     assert _census() == before
     assert resource_log.read_log(tmp_path / "resources.jsonl")["samples"]
+
+
+def _ignore_owned_worker_termination(ready):
+    import signal
+    import time
+
+    signal.signal(signal.SIGTERM, signal.SIG_IGN)
+    ready.send(os.getpid())
+    ready.close()
+    while True:
+        time.sleep(.1)
+
+
+@pytest.mark.skipif(os.name != 'posix', reason='Requires an owned POSIX signal-handling child')
+def test_staggered_termination_escalates_and_reaps_its_own_signal_ignoring_child():
+    import multiprocessing
+    import signal
+    from spacr.resource_log import _StaggeredProcess
+
+    context = multiprocessing.get_context('spawn')
+    receiver, sender = context.Pipe(duplex=False)
+    child = context.Process(target=_ignore_owned_worker_termination, args=(sender,))
+    try:
+        child.start()
+        sender.close()
+        assert receiver.poll(15), 'owned child did not install its signal handler'
+        assert receiver.recv() == child.pid
+        assert child.is_alive()
+        wrapped = _StaggeredProcess(child, None)
+        wrapped.terminate()
+        child.join(timeout=5)
+        assert not child.is_alive()
+        assert child.exitcode == -signal.SIGKILL
+    finally:
+        sender.close()
+        receiver.close()
+        if child.pid is not None:
+            if child.is_alive():
+                child.kill()
+            child.join(timeout=5)
+            assert not child.is_alive(), 'owned child survived terminal cleanup'
+            child.close()
