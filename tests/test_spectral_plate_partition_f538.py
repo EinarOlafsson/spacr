@@ -93,6 +93,155 @@ def _run(inputs):
     return run_v2(inputs['source'], **inputs['kwargs'])
 
 
+@needs_partition_access
+@pytest.mark.parametrize('budget', ['aggregate', 'padded'])
+def test_real_sparse_headers_refuse_an_oversized_batch_before_decoding_controls(
+        mixed_plate_inputs, monkeypatch, budget):
+    import tifffile
+    from spacr import pipeline_v2
+
+    inputs = mixed_plate_inputs
+    source = inputs['source']
+    paths = sorted(source.glob('plate1_*.tif'))
+    if budget == 'aggregate':
+        template = paths[0]
+        for field in range(20, 26):
+            for channel in inputs['kwargs']['channels']:
+                path = source / f'plate1_A01_F{field}_T2_Z1_C{channel}.tif'
+                path.write_bytes(template.read_bytes())
+        paths = sorted(source.glob('plate1_*.tif'))
+    for path in paths:
+        shape = ((2048, 2048) if budget == 'aggregate' else
+                 (4096, 1) if '_A01_' in path.name else (1, 4096))
+        image = tifffile.memmap(path, shape=shape, dtype=np.uint8, photometric='minisblack')
+        image[0, 0] = 19
+        image[-1, -1] = 71
+        image.flush()
+        image._mmap.close()
+    inputs['kwargs']['batch_fields'] = 16
+    before = {path: path.stat() for path in paths}
+    entries = set(source.rglob('*'))
+    monkeypatch.setattr(pipeline_v2, '_read_plane',
+        lambda *args, **kwargs: pytest.fail('Batch bounds must precede all control decoding'))
+    with pytest.raises(ValueError):
+        _run(inputs)
+    assert set(source.rglob('*')) == entries
+    assert inputs['constructed'] == inputs['observed'] == []
+    for path, stat in before.items():
+        current = path.stat()
+        assert (current.st_ino, current.st_size, current.st_mtime_ns) == (
+            stat.st_ino, stat.st_size, stat.st_mtime_ns)
+        image = tifffile.memmap(path, mode='r')
+        try:
+            assert int(image[0, 0]) == 19 and int(image[-1, -1]) == 71
+        finally:
+            image._mmap.close()
+    assert not list(source.glob('calibrated_plate_batch*'))
+
+
+@needs_partition_access
+def test_exhausted_collection_names_preserve_every_existing_owner(mixed_plate_inputs):
+    inputs = mixed_plate_inputs
+    source = inputs['source']
+    occupied = [source / ('calibrated_plate_batch' if index == 0 else
+                         f'calibrated_plate_batch_{index:04d}') for index in range(10000)]
+    for path in occupied:
+        path.mkdir()
+    marker = occupied[-1] / 'keep.txt'
+    marker.write_bytes(b'previous independent collection')
+    with pytest.raises(ValueError):
+        _run(inputs)
+    assert all(path.is_dir() for path in occupied)
+    assert marker.read_bytes() == b'previous independent collection'
+    assert not list(source.glob('calibrated_plate_batch*/plate_batch.json'))
+    assert inputs['constructed'] == inputs['observed'] == []
+    _unchanged(inputs)
+
+
+@needs_partition_access
+@pytest.mark.parametrize('damage', ['mixed-identity', 'empty-discovery'])
+def test_untrustworthy_field_grouping_refuses_before_any_collection(mixed_plate_inputs, monkeypatch, damage):
+    from spacr import pipeline_v2
+
+    inputs = mixed_plate_inputs
+    mapper = pipeline_v2.FilenameMapper.discover(inputs['source'], metadata_type='custom',
+        custom_regex=inputs['kwargs']['custom_regex'])
+    if damage == 'mixed-identity':
+        first = mapper.by_field()[mapper.records[0].stack_field_id]
+        assert len(first) == 2
+        first[-1].well = 'H12'
+    else:
+        mapper.records = []
+    monkeypatch.setattr(pipeline_v2.FilenameMapper, 'discover', classmethod(lambda cls, *a, **k: mapper))
+    before = set(inputs['source'].rglob('*'))
+    with pytest.raises(ValueError):
+        _run(inputs)
+    assert set(inputs['source'].rglob('*')) == before
+    assert inputs['constructed'] == inputs['observed'] == []
+    _unchanged(inputs)
+
+
+@needs_partition_access
+@pytest.mark.parametrize('mismatch', ['fields', 'matrix', 'optics'])
+def test_reopened_child_optics_must_match_the_preflight_before_any_model(
+        mixed_plate_inputs, monkeypatch, mismatch):
+    from dataclasses import replace
+    from spacr import psf_pipeline
+
+    inputs = mixed_plate_inputs
+    prepare = psf_pipeline._prepare_segmentation_psf
+
+    def altered_session(*args, **kwargs):
+        session = prepare(*args, **kwargs)
+        if mismatch == 'fields':
+            session.unmixing = replace(session.unmixing, fields={})
+        elif mismatch == 'matrix':
+            session.unmixing = replace(session.unmixing,
+                matrix=np.asarray(session.unmixing.matrix) + .01)
+        else:
+            provenance = session.unmixing.calibration.provenance
+            monkeypatch.setattr(type(session.unmixing.calibration), 'provenance',
+                lambda self: dict(provenance(), wrong_acquisition=True))
+        return session
+
+    monkeypatch.setattr(psf_pipeline, '_prepare_segmentation_psf', altered_session)
+    with pytest.raises(ValueError):
+        _run(inputs)
+    path = next(inputs['source'].glob('calibrated_plate_batch*/plate_batch.json'))
+    record = json.loads(path.read_text())
+    assert record['status'] == record['children'][0]['status'] == 'failed'
+    assert record['complete'] is record['segmentation_complete'] is False
+    assert inputs['constructed'] == inputs['observed'] == []
+    _unchanged(inputs)
+
+
+@needs_partition_access
+@pytest.mark.parametrize('invalid', ['count', 'shape'])
+def test_model_output_cardinality_and_canvas_are_refused_without_source_replacement(
+        mixed_plate_inputs, monkeypatch, invalid):
+    from cellpose import models
+    from functools import wraps
+
+    inputs = mixed_plate_inputs
+    evaluate = models.CellposeModel.eval
+
+    @wraps(evaluate)
+    def invalid_labels(model, *args, **kwargs):
+        masks, flows, styles = evaluate(model, *args, **kwargs)
+        return (masks[:-1] if invalid == 'count' else [mask[:-1] for mask in masks]), flows, styles
+
+    monkeypatch.setattr(models.CellposeModel, 'eval', invalid_labels)
+    with pytest.raises(ValueError, match='one label image|match the image'):
+        _run(inputs)
+    path = next(inputs['source'].glob('calibrated_plate_batch*/plate_batch.json'))
+    record = json.loads(path.read_text())
+    assert record['status'] == record['children'][0]['status'] == 'failed'
+    assert record['complete'] is record['segmentation_complete'] is False
+    child = path.parent / record['children'][0]['path']
+    assert not list((child / 'signed').glob('*.npy'))
+    _unchanged(inputs)
+
+
 @pytest.fixture
 def completed_partition(mixed_plate_inputs):
     if not PARTITION_ACCESS:
