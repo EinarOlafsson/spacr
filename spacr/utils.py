@@ -2025,7 +2025,8 @@ def _get_cellpose_batch_size():
         )
         return 8
 
-def _extract_filename_metadata(filenames, src, regular_expression, metadata_type='cellvoyager'):
+def _extract_filename_metadata(filenames, src, regular_expression, metadata_type='cellvoyager',
+                               metadata_well_map=None, source_plate=None):
     
     """Group image paths by the metadata their filenames carry.
 
@@ -2043,9 +2044,23 @@ def _extract_filename_metadata(filenames, src, regular_expression, metadata_type
     :param regular_expression: the compiled pattern.
     :param metadata_type: the microscope convention; ``'cq1'`` also converts
         the well id, whose scheme differs from the well name it prints.
+    :param metadata_well_map: indexed ScanR CSV path or validated plate/index
+        mapping; every observed index requires an explicit physical well.
+    :param source_plate: owning plate basename, retained while reading orig/
+        or a test-mode sample. Other conventions ignore this override.
     :returns: ``{(plate, well, field, channel, time, slice): [paths]}``.
     """
     images_by_key = defaultdict(list)
+    mapped_wells = {}
+    if metadata_type == 'scanr_indexed':
+        from .regex_infer import _indexed_well_map
+        source_plate = source_plate or os.path.basename(os.path.normpath(src))
+        matches = [regular_expression.fullmatch(name) for name in filenames]
+        if any(match is None for match in matches):
+            from .qt.i18n import tr
+            raise ValueError(tr("Every indexed ScanR image must match its filename convention."))
+        mapped_wells = _indexed_well_map(
+            metadata_well_map, {(source_plate, match.group('wellID')) for match in matches})
     acquisition = None
     if metadata_type == 'cq1':
         from .regex_infer import _yokogawa_acquisition
@@ -2061,6 +2076,9 @@ def _extract_filename_metadata(filenames, src, regular_expression, metadata_type
                     plate = os.path.basename(src)
 
                 well = match.group('wellID')
+                if metadata_type == 'scanr_indexed':
+                    plate = source_plate
+                    well = mapped_wells[(plate, well)]
                 if metadata_type == 'incell_full_form':
                     well = well.replace('_', '')
                 if well[0].isdigit():

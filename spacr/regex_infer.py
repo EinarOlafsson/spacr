@@ -63,6 +63,53 @@ LITERAL_HINTS = {
 _HINT_ORDER = tuple(sorted(LITERAL_HINTS, key=len, reverse=True))
 
 
+def _indexed_well_map(path, required):
+    """Resolve explicit plate/index identities without inferring plate geometry.
+
+    The CSV has exactly ``plate,index,well`` columns. Every acquired index
+    needs a plate-scoped physical well; duplicate keys or destinations refuse
+    the entire map before ingestion. Unused rows permit a map for a full run.
+    """
+    from collections.abc import Mapping
+    from .tabular import read_table
+    from .qt.i18n import tr
+
+    required = set(required)
+    if not path:
+        raise ValueError(tr("Indexed ScanR requires a plate/index/well CSV map."))
+    if isinstance(path, Mapping):
+        if any(not isinstance(key, tuple) or len(key) != 2 for key in path):
+            raise ValueError(tr("Indexed ScanR well assignments must include both plate and W index."))
+        rows = ((plate, index, well) for (plate, index), well in path.items())
+    else:
+        if not os.path.isfile(path) or os.path.splitext(os.fspath(path))[1].lower() != '.csv':
+            raise ValueError(tr("Choose a local well map CSV file."))
+        table = read_table(path, canonicalise=False, report=None, dtype=str,
+                           keep_default_na=False)
+        if list(table.columns) != ['plate', 'index', 'well']:
+            raise ValueError(tr("The well map must have exactly plate,index,well columns."))
+        rows = table.itertuples(index=False, name=None)
+    result = {}
+    destinations = set()
+    for plate, index, well in rows:
+        plate, index, well = str(plate).strip(), str(index).strip(), str(well).strip().upper()
+        match = re.fullmatch(r'W(\d{5})', index)
+        address = re.fullmatch(r'([A-Z]+)([1-9]\d*|0[1-9])', well)
+        if not plate or match is None or int(match.group(1)) < 1 or address is None:
+            raise ValueError(tr("The well map contains an invalid plate, W index or physical well."))
+        well = address.group(1) + str(int(address.group(2))).zfill(2)
+        key, destination = (plate, index), (plate, well)
+        if key in result or destination in destinations:
+            raise ValueError(tr("The well map repeats a plate/index or physical well."))
+        result[key] = well
+        destinations.add(destination)
+    missing = required.difference(result)
+    if missing:
+        names = ', '.join(f'{plate}/{index}' for plate, index in sorted(missing))
+        raise ValueError(tr("The well map has no assignment for: {indices}", indices=names))
+    return result
+
+
 def hint_for(before: str) -> str:
     """Infer a metadata role from the literal preceding a value slot.
 
@@ -1067,6 +1114,34 @@ _METADATA_CONVENTIONS = (
         "status": "confirmed",
     },
     {
+        "key": "scanr_indexed",
+        "label": "ScanR indexed (--W00002--P00001; explicit well map)",
+        "vendor": "Olympus / Evident",
+        "instrument": "ScanR high-content screening station",
+        "pattern": (
+            r"--(?P<wellID>W\d{5})--P(?P<fieldID>\d{5})"
+            r"--Z(?P<sliceID>\d{5})--T(?P<timeID>\d{5})"
+            r"--(?P<chanID>[^.]+)\.(?i:{ext})$"),
+        "ext": "suffix",
+        "examples": (
+            "--W00002--P00001--Z00000--T00000--nucleus-dapi.tif",
+            "--W00002--P00001--Z00000--T00000--pm-647.tif",
+        ),
+        "groups": {
+            "wellID": "opaque acquisition W index; explicit plate/index/well map required",
+            "fieldID": "position within the indexed well",
+            "sliceID": "zero-based Z plane", "timeID": "zero-based time point",
+            "chanID": "channel name",
+        },
+        "source": (
+            "Observed complete filenames in the public OME ScanR idr0009 "
+            "0307-10--2007-05-30/data directory: "
+            "https://downloads.openmicroscopy.org/images/ScanR/idr0009/"
+            "0307-10--2007-05-30/data/ . The descriptor's well comments "
+            "are blank; W indices do not establish physical plate geometry."),
+        "status": "confirmed",
+    },
+    {
         "key": "scanr",
         "label": "ScanR (A1--W00001--P00001--Z00000--T00000--Channel)",
         "vendor": "Olympus / Evident",
@@ -1439,6 +1514,7 @@ _METADATA_ZERO_BASED = {
     "arrayscan_kinetic": ("fieldID", "chanID"),
     "evos": ("chanID",),
     "scanr": ("sliceID", "timeID"),
+    "scanr_indexed": ("sliceID", "timeID"),
     "leica_matrix_screener": ("timeID", "sliceID", "chanID"),
     "leica_lasx_series": ("sliceID", "chanID"),
     "leica_lasx_series_time": ("fieldID", "timeID", "sliceID", "chanID"),

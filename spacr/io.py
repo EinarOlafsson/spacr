@@ -1152,7 +1152,7 @@ def _stack_field_stems(stack_path):
             if name.endswith('.npy')}
 
 
-def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='', img_format='.tif', timelapse=False, save_original_images=True):
+def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='', img_format='.tif', timelapse=False, save_original_images=True, metadata_well_map=None, source_plate=None):
     """
     Convert z-stack images to maximum intensity projection (MIP) images and
     write the merged multi-channel ``stack/`` arrays **directly** — without
@@ -1219,15 +1219,30 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
     channels_seen = set()
 
     src_filenames = _raw_image_names(src, img_format)
+    orig_filenames = _raw_image_names(orig_path, img_format)
+    source_plate = source_plate or os.path.basename(os.path.normpath(src))
+    if metadata_type == 'scanr_indexed':
+        from .regex_infer import _indexed_well_map
+        from .qt.i18n import tr
+        matches = [regular_expression.fullmatch(name)
+                   for name in src_filenames + orig_filenames]
+        if any(match is None for match in matches):
+            raise ValueError(tr("Every indexed ScanR image must match its filename convention."))
+        metadata_well_map = _indexed_well_map(
+            metadata_well_map, {(source_plate, match.group('wellID')) for match in matches})
     image_paths_by_key = defaultdict(list)
     for folder, names in ((src, src_filenames),
-                          (orig_path, _raw_image_names(orig_path, img_format))):
+                          (orig_path, orig_filenames)):
         if folder != src and not names:
             continue
         print(f'All files: {len(names)} in {folder}')
-        parsed = _extract_filename_metadata(names, folder, regular_expression, metadata_type)
+        parsed = _extract_filename_metadata(
+            names, folder, regular_expression, metadata_type,
+            metadata_well_map=metadata_well_map,
+            source_plate=source_plate)
         for key, paths in parsed.items():
-            if folder != src and 'plateID' not in regular_expression.groupindex:
+            if (folder != src and metadata_type != 'scanr_indexed'
+                    and 'plateID' not in regular_expression.groupindex):
                 key = (os.path.basename(src),) + tuple(key[1:])
             image_paths_by_key[key].extend(paths)
     print(f'All unique FOV: {len(image_paths_by_key)} in {src}')
@@ -1434,6 +1449,9 @@ def _move_to_chan_folder(src, regex, timelapse=False, metadata_type=''):
     :param metadata_type: the microscope convention; ``'cq1'`` also converts
         the well id, whose scheme differs from the well name it prints.
     """
+    if metadata_type == 'scanr_indexed':
+        from .qt.i18n import tr
+        raise ValueError(tr("Indexed ScanR requires the mapped Import or Mask ingestion route."))
     from .utils import _int_or_token, _convert_cq1_well_id
 
     src_path = src
@@ -3276,7 +3294,7 @@ def _next_archive_index(masks_path):
     return max(used) + 1
 
 
-def _rebuild_stacks_from_raw(settings, src):
+def _rebuild_stacks_from_raw(settings, src, metadata_well_map=None):
     """Build the field stacks ``stack/`` lacks, from raw images ``orig/`` still holds.
 
     :param settings: the preprocessing settings. ``metadata_type``,
@@ -3301,11 +3319,16 @@ def _rebuild_stacks_from_raw(settings, src):
     _rename_and_organize_image_files(
         src, regex, int(settings.get('batch_size') or 50), metadata_type,
         list(_RAW_IMAGE_SUFFIXES), timelapse=settings.get('timelapse', False),
-        save_original_images=settings.get('save_original_images', True))
+        save_original_images=settings.get('save_original_images', True),
+        metadata_well_map=(metadata_well_map if metadata_well_map is not None
+                           else settings.get('metadata_well_map')),
+        source_plate=os.path.basename(os.path.dirname(src)
+                     if settings.get('test_mode') and os.path.basename(src) == 'test'
+                     else os.path.normpath(src)))
     return len(_stack_field_stems(stack_path)) - before
 
 
-def _resume_normalized_archives(settings, src, mask_channels):
+def _resume_normalized_archives(settings, src, mask_channels, metadata_well_map=None):
     """Check the archives an earlier run left in ``masks/`` before they are reused.
 
     A plate folder that already holds ``masks/`` skips preprocessing. Before
@@ -3346,7 +3369,7 @@ def _resume_normalized_archives(settings, src, mask_channels):
             return False
     _set_aside_damaged_stacks(stack_path)
     try:
-        _rebuild_stacks_from_raw(settings, src)
+        _rebuild_stacks_from_raw(settings, src, metadata_well_map=metadata_well_map)
         if _channel_folders(src):
             _merge_channels(src, plot=False)
     except Exception as exc:
@@ -3586,7 +3609,7 @@ def _volume_file_hash(path):
     return digest.hexdigest()
 
 
-def _preprocess_volume_tiffs(settings):
+def _preprocess_volume_tiffs(settings, metadata_well_map=None):
     """Preserve explicitly labelled ZYX TIFFs through raw Mask preprocessing.
 
     Each file is one complete field/channel volume. Filename metadata owns
@@ -3617,7 +3640,10 @@ def _preprocess_volume_tiffs(settings):
     if not names or any(Path(name).suffix.lower() not in ('.tif', '.tiff') for name in names):
         raise ValueError('Raw volumetric ingest requires metadata-labelled ZYX TIFF files in src')
     pattern = re.compile(_get_regex(settings['metadata_type'], 'tif', settings['custom_regex']))
-    parsed = _extract_filename_metadata(names, src, pattern, settings['metadata_type'])
+    parsed = _extract_filename_metadata(
+        names, src, pattern, settings['metadata_type'],
+        metadata_well_map=(metadata_well_map if metadata_well_map is not None
+                           else settings.get('metadata_well_map')))
     if sum(map(len, parsed.values())) != len(names):
         raise ValueError('Every volumetric TIFF must match the filename metadata pattern')
     fields = defaultdict(dict)
@@ -4149,11 +4175,27 @@ def preprocess_img_data(settings):
 
     _validate_unmix_plate_scope(settings)
     _validate_unmix_matrix_scope(settings)
+    metadata_well_map = None
+    if settings.get('metadata_type') == 'scanr_indexed':
+        from .regex_infer import _indexed_well_map
+        from .utils import _get_regex
+        from .qt.i18n import tr
+        source = os.fspath(settings['src'])
+        names = (_raw_image_names(source) +
+                 _raw_image_names(os.path.join(source, 'orig')))
+        pattern = re.compile(_get_regex('scanr_indexed', 'tif'))
+        matches = [pattern.fullmatch(name) for name in names]
+        if any(match is None for match in matches):
+            raise ValueError(tr("Every indexed ScanR image must match its filename convention."))
+        metadata_well_map = _indexed_well_map(
+            settings.get('metadata_well_map'),
+            {(os.path.basename(os.path.normpath(source)), match.group('wellID'))
+             for match in matches})
     if (settings.get('z_stack') and settings.get('t_stack')
             and settings.get('z_segmentation_mode') == 'volumetric'):
         return _preprocess_mapped_volume_series(settings)
     if settings.get('z_stack') and settings.get('z_segmentation_mode') == 'volumetric':
-        return _preprocess_volume_tiffs(settings)
+        return _preprocess_volume_tiffs(settings, metadata_well_map=metadata_well_map)
     src = settings['src']
     requested_src = src
     
@@ -4206,7 +4248,8 @@ def preprocess_img_data(settings):
             print('Found existing masks folder; test mode works on a sample '
                   'in test/ and does not reuse it.')
         elif (os.path.exists(os.path.join(src, 'masks')) and
-                _resume_normalized_archives(settings, src, mask_channels)):
+                _resume_normalized_archives(settings, src, mask_channels,
+                                            metadata_well_map=metadata_well_map)):
             print('Found existing masks folder. Skipping preprocessing')
             if (settings.get('illumination_correction', False) and
                     settings.get('masks', True)):
@@ -4275,7 +4318,10 @@ def preprocess_img_data(settings):
             nr_channel_folders = _rename_and_organize_image_files(
                 src, regex, settings['batch_size'], settings['metadata_type'], img_format,
                 timelapse=settings['timelapse'],
-                save_original_images=settings.get('save_original_images', True))
+                save_original_images=settings.get('save_original_images', True),
+                metadata_well_map=(metadata_well_map if metadata_well_map is not None
+                                   else settings.get('metadata_well_map')),
+                source_plate=os.path.basename(os.path.normpath(requested_src)))
 
             all_imgs = len([f for f in _listdir_visible(stack_path) if f.endswith('.npy')]) if os.path.isdir(stack_path) else 0
             if resuming and all_imgs == stacks_before:
