@@ -110,3 +110,13 @@ def test_real_cards_and_network_nodes_keep_their_own_semantic_icons(qtbot, monke
     qtbot.addWidget(alpha_card)
     assert alpha_card._stage == 'alpha'
     assert not alpha_card.alpha.isHidden()
+
+
+def test_an_unknown_synthetic_command_keeps_a_visible_generic_fallback(qapp, monkeypatch):
+    monkeypatch.setattr(iconset, '_try_qta', lambda: None)
+    key = '__easy_command__:Unregistered local operation 9409'
+    assert iconset.bundled_icon_path(key) is None
+    actual = _raster(iconset.app_icon(key, theme='dark'))
+    expected = _raster(iconset.app_icon('__unregistered_native_operation_9409__', theme='dark'))
+    assert actual == expected
+    assert actual != _raster(iconset.app_icon('measure', theme='dark'))
