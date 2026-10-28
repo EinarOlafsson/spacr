@@ -667,20 +667,32 @@ class TestDockModes:
         win._app_drawer.relayout()
         assert win._sidebar.width() == width
 
-    def test_hidden_takes_the_strip_away_and_says_where_to_get_it_back(
+    def test_legacy_hidden_mode_keeps_the_strip_and_keyboard_action(
             self, qtbot, qt_theme_applied, tmp_settings):
+        from PySide6.QtWidgets import QApplication
         from spacr.qt import preferences as prefs
         prefs.set_dock_mode("hidden")
         win = MainWindow()
         qtbot.addWidget(win)
-        assert not win._dock_slot.isVisible()
+        win.show()
+        win.activateWindow()
+        qtbot.waitUntil(win.isActiveWindow, timeout=2000)
+        assert win._dock_mode == "locked"
+        assert win._dock_edge.isVisible()
         assert not win._app_drawer.is_enabled()
         assert not win._app_drawer.is_open()
-        win.toggle_app_drawer()
-        assert not win._app_drawer.is_open(), (
-            "Ctrl+Shift+A opened a dock the user asked not to have")
-        assert not win._act_all_apps.isEnabled()
-        assert "Preferences" in win._act_all_apps.toolTip()
+        assert win._act_all_apps.isEnabled()
+        assert win._act_all_apps.toolTip() == "Show the full app list."
+        win._dock_edge.set_collapsed(True)
+        assert not win._dock_slot.isVisible()
+        active = win._stack.currentWidget()
+        win._act_all_apps.trigger()
+        QApplication.processEvents()
+        assert win._dock_edge.isVisible() and not win._dock_edge.is_collapsed()
+        assert win._dock_slot.isVisible()
+        assert QApplication.focusWidget() is win._sidebar.rows()[0]
+        assert win._stack.currentWidget() is active
+        assert prefs.get_dock_mode() == "hidden"
 
     def test_hiding_the_dock_leaves_every_app_reachable(self, qtbot,
                                                         qt_theme_applied,
@@ -775,15 +787,6 @@ class TestPreferencesDialog:
     this is here for: the dialog would look right and change nothing.
     """
 
-    def _dock_combo(self, dlg):
-        from PySide6.QtWidgets import QComboBox
-        from spacr.qt.preferences import VALID_DOCK_MODES
-        for combo in dlg.findChildren(QComboBox):
-            data = {combo.itemData(i) for i in range(combo.count())}
-            if data == set(VALID_DOCK_MODES):
-                return combo
-        raise AssertionError("no dock-mode combo in the Preferences dialog")
-
     def _opacity_slider(self, dlg):
         """The page-opacity slider, found by name rather than by range.
 
@@ -798,22 +801,26 @@ class TestPreferencesDialog:
         assert slider is not None, "no page-opacity slider in the dialog"
         return slider
 
-    def test_the_dock_mode_round_trips_through_the_dialog(
+    def test_the_dialog_saves_supported_controls_without_rewriting_legacy_dock_mode(
             self, qtbot, qt_theme_applied, tmp_settings, monkeypatch):
-        from PySide6.QtWidgets import QDialogButtonBox
+        from PySide6.QtWidgets import QComboBox, QDialogButtonBox
         from spacr.qt import preferences as prefs
 
         monkeypatch.setattr(prefs, "apply_preferences_to_app", lambda *a: None)
-        prefs.set_dock_mode("locked")
+        prefs.set_dock_mode("hidden")
+        prefs.set_pane_opacity(0.6)
         dlg = prefs.PreferencesDialog()
         qtbot.addWidget(dlg)
-        combo = self._dock_combo(dlg)
-        assert combo.currentData() == "locked", (
-            "the dialog opened on a mode the user did not choose")
-        combo.setCurrentIndex(
-            next(i for i in range(combo.count())
-                 if combo.itemData(i) == "hidden"))
+        assert all(not (combo.count() == len(prefs.VALID_DOCK_MODES)
+                        and all(any(combo.itemData(i) == mode
+                                    for i in range(combo.count()))
+                                for mode in prefs.VALID_DOCK_MODES))
+                   for combo in dlg.findChildren(QComboBox))
+        slider = self._opacity_slider(dlg)
+        assert slider.value() == 60
+        slider.setValue(35)
         dlg.findChild(QDialogButtonBox).accepted.emit()
+        assert prefs.get_pane_opacity() == pytest.approx(0.35)
         assert prefs.get_dock_mode() == "hidden"
 
     def test_the_opacity_round_trips_through_the_dialog(
