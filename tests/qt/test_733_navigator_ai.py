@@ -314,3 +314,142 @@ def test_real_stream_thread_delivers_on_gui_and_retires_cleanly(
                 thread.quit()
                 assert thread.wait(3000)
         page.close()
+
+
+def test_preferences_none_stops_an_already_enabled_navigator(
+        qtbot, private_ai_profile, monkeypatch):
+    import io
+    import json
+    import os
+    import urllib.request
+
+    import requests
+    from PySide6.QtCore import QTimer
+    from PySide6.QtWidgets import QApplication, QDialogButtonBox, QRadioButton
+    from shiboken6 import isValid
+
+    from spacr import crashreport
+    from spacr.qt.ai import providers
+    from spacr.qt.app import MainWindow
+    from spacr.qt.preferences_navigation import show_tab
+
+    preferences, terms, settings = private_ai_profile
+    terms.record_agreement()
+    accepted = terms.agreement_record()
+    preferences.set_easy_mode(True)
+    preferences.set_refresh_news(False)
+    preferences.set_issue_prompt_mode(preferences.ISSUE_PROMPT_ALWAYS)
+    settings.set_auto_file_issues(True)
+    crashreport.set_error_report_mode('all')
+    requests_seen = []
+
+    def relay(request, timeout):
+        requests_seen.append((request.full_url, json.loads(request.data)))
+        response = io.BytesIO(json.dumps({
+            'advice': 'Controlled Navigator reply', 'model': 'offline-test',
+            'tier': 'best',
+        }).encode())
+        response.status = 200
+        return response
+
+    def no_external_transport(*args, **kwargs):
+        raise AssertionError('Unexpected external HTTP transport')
+
+    monkeypatch.setattr(crashreport, '_open_url', relay)
+    monkeypatch.setattr(urllib.request, 'urlopen', no_external_transport)
+    monkeypatch.setattr(requests.sessions.Session, 'request', no_external_transport)
+    native_exec = next(original for owner, name, original in monkeypatch._setattr
+                       if owner is QDialog and name == 'exec')
+    network_before = os.environ.get('SPACR_NO_NETWORK')
+    window = None
+    dialogs = []
+    try:
+        monkeypatch.setenv('SPACR_NO_NETWORK', '0')
+        assert crashreport.network_allowed()
+        window = MainWindow()
+        qtbot.addWidget(window)
+        window.show()
+        page = window._startup
+        qtbot.waitUntil(lambda: page.path_edit.isVisible())
+
+        def choose_hosted():
+            dialog = QApplication.activeModalWidget()
+            try:
+                assert dialog is not None
+                assert dialog.objectName() == 'NavigatorAiProviderDialog'
+                combo = dialog.findChild(QComboBox, 'NavigatorAiProviderChoice')
+                combo.setCurrentIndex(combo.findData(providers.HOSTED_PROVIDER_NAME))
+                qtbot.mouseClick(dialog.findChild(QDialogButtonBox).button(
+                    QDialogButtonBox.Ok), Qt.LeftButton)
+            finally:
+                if dialog is not None and isValid(dialog) and dialog.result() != QDialog.Accepted:
+                    dialog.reject()
+
+        with monkeypatch.context() as modal:
+            modal.setattr(QDialog, 'exec', native_exec)
+            QTimer.singleShot(0, choose_hosted)
+            page.path_edit.ai.click()
+        assert page.path_edit.ai.isChecked()
+        assert preferences.get_preferred_provider() == providers.HOSTED_PROVIDER_NAME
+        assert not requests_seen
+        first = 'Explain why fluorescence becomes patchy across an unfamiliar experiment'
+        page.path_edit.setText(first)
+        qtbot.keyClick(page.path_edit, Qt.Key_Return)
+        qtbot.waitUntil(lambda: 'Controlled Navigator reply' in page.field.details.toPlainText())
+        qtbot.waitUntil(lambda: page._ai_thread is None)
+        assert len(requests_seen) == 1
+        assert requests_seen[0][0].endswith('/diagnose')
+        assert requests_seen[0][1]['question'] == first
+        assert terms.agreement_record() == accepted
+        assert crashreport.error_report_mode() == 'all'
+
+        dialog = preferences.PreferencesDialog(window)
+        dialogs.append(dialog)
+        qtbot.addWidget(dialog)
+        assert show_tab(dialog, 'PreferencesTabAI')
+        dialog.show()
+        none = dialog.findChild(QRadioButton, 'AiProvider_none')
+        none.click()
+        assert none.isChecked()
+        assert preferences.get_preferred_provider() == 'none'
+        reports = dialog.findChild(QComboBox, 'AiErrorReport')
+        assert reports.currentData() == 'all'
+        dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Save).click()
+        assert preferences.get_preferred_provider() == 'none'
+        assert providers.default_provider('none') is None
+        assert crashreport.error_report_mode() == 'all'
+        assert terms.agreement_record() == accepted
+        assert len(requests_seen) == 1
+        reopened = preferences.PreferencesDialog(window)
+        dialogs.append(reopened)
+        qtbot.addWidget(reopened)
+        assert reopened.findChild(QRadioButton, 'AiProvider_none').isChecked()
+        assert reopened.findChild(QComboBox, 'AiErrorReport').currentData() == 'all'
+        reopened.close()
+        page = window._startup
+        second = 'Explain an unrelated unfamiliar experimental imaging question'
+        page.path_edit.setText(second)
+        qtbot.keyClick(page.path_edit, Qt.Key_Return)
+        qtbot.waitUntil(lambda: page._ai_thread is None)
+        assert len(requests_seen) == 1
+        assert preferences.get_preferred_provider() == 'none'
+        assert crashreport.error_report_mode() == 'all'
+        assert terms.agreement_record() == accepted
+    finally:
+        if window is not None and isValid(window):
+            page = window._startup
+            threads = ([page._ai_thread] if page._ai_thread is not None else [])
+            threads += [thread for thread, _, _ in page._ai_retired]
+            page._cancel_navigator_ai()
+            for thread in threads:
+                if isValid(thread) and thread.isRunning():
+                    thread.quit()
+                    assert thread.wait(3000)
+            for dialog in dialogs:
+                if isValid(dialog):
+                    dialog.close()
+            window.close()
+        if network_before is None:
+            monkeypatch.delenv('SPACR_NO_NETWORK', raising=False)
+        else:
+            monkeypatch.setenv('SPACR_NO_NETWORK', network_before)

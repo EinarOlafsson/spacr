@@ -7339,7 +7339,13 @@ class _EasyHomePage(QWidget):
         from ..ai.providers import get_provider
         from ..ai.worker import make_stream_thread
         from ..i18n import tr
+        from ..preferences import get_preferred_provider
 
+        if get_preferred_provider() == 'none':
+            self._cancel_navigator_ai()
+            self.path_edit.ai.setChecked(False)
+            self._feedback(tr('No provider configured.'))
+            return
         if self._ai_thread is not None:
             self.field.details.setPlainText(tr('Turn AI off to cancel the current answer.'))
             return
