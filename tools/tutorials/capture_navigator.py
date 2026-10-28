@@ -87,14 +87,63 @@ def _query(*args):
     return subprocess.check_output(args, text=True, timeout=5)
 
 
+def _x_rectangle(stats):
+    def number(label):
+        match = re.search(r'(?m)^\s*' + re.escape(label) + r':\s*(-?\d+)\s*$', stats)
+        if not match:
+            raise RuntimeError('Missing actual X geometry: ' + label)
+        return int(match.group(1))
+    return [number(label) for label in ('Absolute upper-left X', 'Absolute upper-left Y', 'Width', 'Height')]
+
+
+def _visible_files_geometry(client_rect, properties, monitor_rect):
+    """Inset GTK's invisible CSD shadows; NET extents describe added WM borders.
+
+    See Gdk.Window.set_shadow_width and EWMH section5.17. The original X client
+    rectangle and both properties remain in the capture metadata unmodified.
+    """
+    def extents(name):
+        line = next((line for line in properties.splitlines()
+                     if line.startswith(name + '(') or line.startswith(name + ':')), None)
+        if line is None:
+            raise RuntimeError('The requested Files frame property was not returned: ' + name)
+        if re.fullmatch(re.escape(name) + r':\s*(?:not found\.|no such atom on any window\.)\s*', line):
+            return None
+        match = re.fullmatch(re.escape(name) + r'\(CARDINAL\)\s*=\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+)\s*', line)
+        if not match:
+            raise RuntimeError('Malformed actual Files frame extents: ' + line)
+        return [int(value) for value in match.groups()]
+    gtk = extents('_GTK_FRAME_EXTENTS')
+    net = extents('_NET_FRAME_EXTENTS')
+    x, y, width, height = client_rect
+    left, right, top, bottom = gtk if gtk is not None else [0, 0, 0, 0]
+    visible = [x + left, y + top, width - left - right, height - top - bottom]
+    nl, nr, nt, nb = net if net is not None else [0, 0, 0, 0]
+    wm_frame = [x - nl, y - nt, width + nl + nr, height + nt + nb]
+    mx, my, mw, mh = monitor_rect
+    def inside(rect):
+        rx, ry, rw, rh = rect
+        return (rw > 0 and rh > 0 and mx <= rx and my <= ry
+                and rx + rw <= mx + mw and ry + rh <= my + mh)
+    if (mw <= 0 or mh <= 0 or visible[2] < 400 or visible[3] < 300 or not inside(visible)
+            or (net is not None and any(net) and not inside(wm_frame))):
+        raise RuntimeError(f'Files visible geometry is outside its actual monitor or unusable: '
+                           f'client={client_rect} gtk={gtk} net={net} visible={visible} monitor={monitor_rect}')
+    return dict(rect=visible, client_rect=list(client_rect), gtk_frame_extents=gtk,
+                net_frame_extents=net, wm_frame_rect=wm_frame, monitor_rect=list(monitor_rect),
+                rect_kind='visible_frame_after_gtk_shadow', entry_geometry_verified=False)
+
+
 def files_window(stage, tray):
     """Read a single mapped Files window on this stage's owned private display."""
     from capture_saved_plots import _inspection_display
     display = _inspection_display(stage)
+    monitor = _x_rectangle(_query('xwininfo', '-root', '-stats'))
     clients = _query('xprop', '-root', '_NET_CLIENT_LIST_STACKING')
     found = []
     for wid in dict.fromkeys(re.findall(r'0x[0-9a-fA-F]+', clients)):
-        props = _query('xprop', '-id', wid, '_NET_WM_PID', '_NET_WM_NAME', 'WM_CLASS')
+        props = _query('xprop', '-id', wid, '_NET_WM_PID', '_NET_WM_NAME', 'WM_CLASS',
+                       '_GTK_FRAME_EXTENTS', '_NET_FRAME_EXTENTS')
         match = re.search(r'_NET_WM_PID\([^)]*\)\s*=\s*(\d+)', props)
         if not match or 'nautilus' not in props.casefold():
             continue
@@ -116,15 +165,8 @@ def files_window(stage, tray):
         stats = _query('xwininfo', '-id', wid, '-stats')
         if 'Map State: IsViewable' not in stats:
             continue
-        def number(label):
-            match = re.search(r'(?m)^\s*' + re.escape(label) + r':\s*(-?\d+)\s*$', stats)
-            if not match:
-                raise RuntimeError('Missing actual Files geometry: ' + label)
-            return int(match.group(1))
-        rect = [number(label) for label in ('Absolute upper-left X', 'Absolute upper-left Y', 'Width', 'Height')]
-        if rect[2] < 400 or rect[3] < 300 or min(rect[:2]) < 0:
-            raise RuntimeError(f'Files has unusable measured geometry: {rect}')
-        found.append(dict(window_id=wid, pid=pid, rect=rect, properties=props,
+        geometry = _visible_files_geometry(_x_rectangle(stats), props, monitor)
+        found.append(dict(window_id=wid, pid=pid, **geometry, properties=props, xwininfo=stats,
                           argv=argv, tray=str(tray), display=display, private_host_verified=True))
     if not found:
         return None
@@ -145,6 +187,32 @@ def checked_source_point(review, actual, target):
     x, y, width, height = actual['rect']
     if not (x + 8 < point[0] < x + width - 8 and y + 60 < point[1] < y + height - 8):
         raise ValueError('The reviewed entry point is outside the real Files content window')
+    return point
+
+
+def drop_text_point(edit, files_rect):
+    """Choose actual visible editor text, excluding inset controls and Files."""
+    from PySide6.QtCore import QPoint, QRect
+    from PySide6.QtGui import QRegion
+    from PySide6.QtWidgets import QAbstractButton, QLineEdit
+
+    if (not isinstance(edit, QLineEdit) or not edit.isVisible() or not edit.isEnabled()
+            or edit.isReadOnly()):
+        raise RuntimeError('The actual Navigator text editor is unavailable for a native drop')
+    text = edit.contentsRect().marginsRemoved(edit.textMargins()).adjusted(4, 4, -4, -4)
+    available = QRegion(text) & edit.visibleRegion()
+    for child in edit.findChildren(QAbstractButton):
+        if child.isVisible():
+            rect = QRect(child.mapTo(edit, QPoint(0, 0)), child.size()).adjusted(-4, -4, 4, 4)
+            available -= QRegion(rect)
+    x, y, width, height = files_rect
+    blocked = QRect(edit.mapFromGlobal(QPoint(x, y)), QRect(0, 0, width, height).size())
+    available -= QRegion(blocked.adjusted(-4, -4, 4, 4))
+    if available.isEmpty():
+        raise RuntimeError('The actual Files window leaves no uncovered Navigator text area')
+    point = available.boundingRect().center()
+    if not available.contains(point):
+        raise RuntimeError('The actual uncovered Navigator text area has no safe central point')
     return point
 
 
@@ -214,7 +282,8 @@ def native_drop(capture, window, page, stage, tray, target, review, write_json, 
         h.pause(capture, .5)
         return actual
     point = checked_source_point(review, actual, target)
-    destination = adapter.target_point(page.path_edit, page.path_edit.rect().center())
+    text_point = drop_text_point(page.path_edit, actual['rect'])
+    destination = adapter.target_point(page.path_edit, text_point)
     # Dropping onto an area hidden by the source window would hit Files, not Navigator.
     x, y, width, height = actual['rect']
     if x <= destination[0] < x + width and y <= destination[1] < y + height:
@@ -229,7 +298,8 @@ def native_drop(capture, window, page, stage, tray, target, review, write_json, 
     h.wait_until(capture, lambda: page.path_edit.text() == str(target), 10,
                  'The genuine Files drop did not deliver exactly its local path')
     adapter.note('navigator-native-files-drop', source_window=actual, source_point=point,
-                 destination=destination, accepted_path=page.path_edit.text())
+                 destination=destination, text_area_point=[text_point.x(), text_point.y()],
+                 accepted_path=page.path_edit.text())
     _close_files(adapter, actual)
     h.pause(capture, .5)
     return actual

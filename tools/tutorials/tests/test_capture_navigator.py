@@ -113,3 +113,92 @@ def test_scene_order_matches_canonical():
     import json
     canonical = json.loads((TOOLS / 'lessons/88_navigator.json').read_text())
     assert tuple(scene['visual'] for scene in canonical['scenes']) == driver.SCENES
+
+
+def test_gtk_shadow_inset_preserves_raw_client_and_reachable_frame():
+    properties = ('_GTK_FRAME_EXTENTS(CARDINAL) = 20, 20, 20, 20\n'
+                  '_NET_FRAME_EXTENTS(CARDINAL) = 0, 0, 0, 0\n')
+    client = [-20, -20, 1320, 1480]  # Observed p48 X client; extents here are a unit fixture.
+    row = driver._visible_files_geometry(client, properties, [0, 0, 2560, 1440])
+    assert row['rect'] == [0, 0, 1280, 1440]
+    assert row['client_rect'] == client and row['gtk_frame_extents'] == [20, 20, 20, 20]
+    assert row['net_frame_extents'] == [0, 0, 0, 0]
+    assert not row['entry_geometry_verified']
+    review = dict(window_rect=row['rect'], tray_name='file-tray', entry_name='real.png',
+                  source_point=[370, 230])
+    assert driver.checked_source_point(review, row, Path('/private/file-tray/real.png')) == [370, 230]
+    review['source_point'] = [-10, 230]
+    with pytest.raises(ValueError):
+        driver.checked_source_point(review, row, Path('/private/file-tray/real.png'))
+
+
+@pytest.mark.parametrize('gtk,net,client', [
+    ('_GTK_FRAME_EXTENTS:  not found.', '0, 0, 0, 0', [-20, -20, 1320, 1480]),
+    ('_GTK_FRAME_EXTENTS(CARDINAL) = 20, 20, 20, 20', '0, 0, 0, 0', [-21, -20, 1320, 1480]),
+    ('_GTK_FRAME_EXTENTS(CARDINAL) = 20, 20, 20, 20', '0, 0, 0, 0', [-20, -20, 1321, 1481]),
+    ('_GTK_FRAME_EXTENTS(CARDINAL) = -20, 20, 20, 20', '0, 0, 0, 0', [-20, -20, 1320, 1480]),
+    ('_GTK_FRAME_EXTENTS(STRING) = "20, 20, 20, 20"', '0, 0, 0, 0', [-20, -20, 1320, 1480]),
+    ('_GTK_FRAME_EXTENTS(CARDINAL) = 20, 20, 20, 20', '4, 4, 24, 4', [-20, -20, 1320, 1480]),
+])
+def test_frame_properties_cannot_excuse_visible_offscreen_or_malformed_geometry(gtk, net, client):
+    with pytest.raises(RuntimeError):
+        driver._visible_files_geometry(client, gtk + '\n_NET_FRAME_EXTENTS(CARDINAL) = ' + net,
+                                       [0, 0, 2560, 1440])
+
+
+def test_net_frame_extents_are_outward_wm_borders_not_inset_shadows():
+    properties = ('_GTK_FRAME_EXTENTS:  not found.\n'
+                  '_NET_FRAME_EXTENTS(CARDINAL) = 4, 4, 24, 4\n')
+    row = driver._visible_files_geometry([80, 60, 800, 600], properties, [0, 0, 2560, 1440])
+    assert row['rect'] == row['client_rect'] == [80, 60, 800, 600]
+    assert row['gtk_frame_extents'] is None
+    assert row['wm_frame_rect'] == [76, 36, 808, 628]
+
+
+@pytest.fixture
+def actual_path_editor(qtbot):
+    from PySide6.QtWidgets import QWidget
+    from spacr.qt.widgets.home import _EasyPathEdit
+    host = QWidget()
+    qtbot.addWidget(host)
+    host.resize(2560, 1440)
+    edit = _EasyPathEdit(host)
+    edit.setGeometry(920, 680, 720, 64)
+    host.show()
+    qtbot.waitUntil(lambda: edit.isVisible() and edit.textMargins().right() > 0)
+    return host, edit
+
+
+@pytest.mark.parametrize('retain_reserved_margin', [True, False])
+def test_real_path_editor_drop_point_avoids_tiled_files_and_native_controls(actual_path_editor,
+                                                                          retain_reserved_margin):
+    from PySide6.QtCore import QPoint, QRect
+    host, edit = actual_path_editor
+    if not retain_reserved_margin:
+        edit.setTextMargins(18, 0, 0, 0)
+    origin = host.mapToGlobal(QPoint(0, 0))
+    files = [origin.x(), origin.y(), 1280, 1440]
+    center = edit.mapToGlobal(edit.rect().center())
+    assert QRect(*files).contains(center)
+    point = driver.drop_text_point(edit, files)
+    actual = edit.mapToGlobal(point)
+    assert actual.x() > files[0] + files[2] + 4
+    assert not QRect(*files).contains(actual)
+    assert edit.contentsRect().marginsRemoved(edit.textMargins()).contains(point)
+    assert not edit.browse.geometry().contains(point)
+    assert not edit.ai.geometry().contains(point)
+
+
+def test_real_path_editor_fully_covered_drop_is_rejected(actual_path_editor):
+    from PySide6.QtCore import QPoint
+    host, edit = actual_path_editor
+    origin = host.mapToGlobal(QPoint(0, 0))
+    with pytest.raises(RuntimeError, match='no uncovered'):
+        driver.drop_text_point(edit, [origin.x(), origin.y(), host.width(), host.height()])
+
+
+def test_real_readonly_editor_cannot_be_a_drop_target(actual_path_editor):
+    _host, edit = actual_path_editor
+    edit.setReadOnly(True)
+    with pytest.raises(RuntimeError, match='unavailable'):
+        driver.drop_text_point(edit, [0, 0, 100, 100])
