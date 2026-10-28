@@ -1029,3 +1029,40 @@ def test_persisted_invalid_image_key_is_ignored_while_valid_image_and_plate_stat
     assert view._image_overrides == {key: {'brightness': .2}}
     assert view._view_state['plates'] == plates and view._view_state['options'] == options
     assert tuple(sorted({field.plate for field in view._fields})) == PLATES
+
+
+def test_not_loaded_well_context_request_preserves_existing_selection_and_navigation(view, qtbot):
+    view._set_load_limits('1', None)
+    view._set_plates_view('side')
+    _settle_plate_auxiliary_jobs(view, qtbot)
+    table = view._plate_tables['plateB']
+    loaded = _item(view, 'plateB', 'A01')
+    blocked = table.item(0, 1)
+    assert blocked is not None and blocked.text().splitlines()[0] == 'A02'
+    assert ('plateB', 'A02') not in view._well_positions
+    assert blocked.data(browser._OVERVIEW_NOT_LOADED_ROLE)
+    assert not (blocked.flags() & Qt.ItemIsSelectable)
+    loaded.setSelected(True)
+    selected = set(view._selected_wells)
+    assert selected == {('plateB', 'A01')}
+    before = tuple(field.identity for field in view._all_fields)
+    view._plate_zoom_actions[0].trigger()
+    point = table.visualItemRect(blocked).center()
+    assert table.viewport().rect().contains(point) and table.itemAt(point) is blocked
+    table.customContextMenuRequested.emit(point)
+    menu = view._well_context_menu
+    try:
+        assert view.wells is table and view.plates.currentData() == 'plateB'
+        assert view._selected_wells == selected and not blocked.isSelected()
+        assert loaded.isSelected() and not view._selected_fields
+        assert ('plateB', 'A02') not in view._well_fields
+        assert not view._well_panels and not view._image_views
+        assert all('A02' not in action.text() for action in menu.actions())
+        annotate = next(action for action in menu.actions() if action.text() == 'Annotate selected wells…')
+        assert annotate.isEnabled()
+        assert any(action.text() == 'Back to plate' for action in menu.actions())
+        assert tuple(field.identity for field in view._all_fields) == before and len(before) == 9
+        assert set(view._plate_tables) == set(PLATES)
+    finally:
+        menu.close()
+        _settle_plate_auxiliary_jobs(view, qtbot)
