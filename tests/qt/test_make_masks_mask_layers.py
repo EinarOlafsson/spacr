@@ -925,3 +925,49 @@ def test_reapplying_outline_width_and_folder_name_keeps_the_existing_review_unch
     assert screen._layer_target == target and screen._canvas._outline_view is cache
     np.testing.assert_array_equal(screen._canvas.mask, mask)
     assert (folder / 'curate_layers.json').read_bytes() == original
+
+
+def test_time_reselecting_the_current_cell_keeps_identity_pixels_and_unsaved_state(
+        screen, folder, monkeypatch):
+    assert screen._open_folder(str(folder))
+    assert screen._status_folder() is None
+    mask = screen._canvas.mask.copy()
+    originals = {path: path.read_bytes() for path in folder.rglob('*.tif')}
+    monkeypatch.setattr(screen, '_confirm', lambda *args: True)
+    screen._toggle_label_time(True)
+    screen._add_lineage_cell()
+    identity = screen._selected_cell
+    assert identity in screen._lineage['cells']
+    state = json.dumps(screen._lineage, sort_keys=True)
+    label = screen._lineage_model.labels.get(identity, screen._lineage['cells'][identity]['label'])
+    screen._select_label_identity(label)
+    screen._toggle_label_time(False)
+    screen._toggle_label_time(True)
+    assert screen._selected_cell == identity and json.dumps(screen._lineage, sort_keys=True) == state
+    assert screen._time_label_enabled and screen._lineage_dirty
+    np.testing.assert_array_equal(screen._canvas.mask, mask)
+    assert all(path.read_bytes() == data for path, data in originals.items())
+
+
+def test_lineage_rewrite_skips_missing_masks_and_reports_a_corrupt_sibling_without_touching_pixels(
+        screen, folder, monkeypatch, qtbot):
+    assert screen._open_folder(str(folder))
+    screen._rewrite_sequence_lineage()
+    assert not getattr(screen, '_mask_write_requests', [])
+    monkeypatch.setattr(screen, '_confirm', lambda *args: True)
+    screen._toggle_label_time(True)
+    screen._add_lineage_cell()
+    missing = folder / 'masks' / 'f_1.tif'
+    corrupt = folder / 'masks' / 'f_2.tif'
+    missing.unlink()
+    corrupt.write_bytes(b'not a TIFF mask')
+    originals = {path: path.read_bytes() for path in folder.rglob('*.tif')}
+    mask = screen._canvas.mask.copy()
+    screen._rewrite_sequence_lineage()
+    assert mm._wait_for_mask_writes(timeout=10)
+    qtbot.waitUntil(lambda: not screen._mask_write_requests, timeout=10000)
+    assert '1 mask file' in screen._status_label.text()
+    assert 'could not be rewritten' in screen._status_label.text()
+    assert not missing.exists()
+    np.testing.assert_array_equal(screen._canvas.mask, mask)
+    assert all(path.read_bytes() == data for path, data in originals.items())
