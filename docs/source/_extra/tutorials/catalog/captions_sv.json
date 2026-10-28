@@ -872,11 +872,6 @@
             1200,
             1500
           ]
-        },
-        {
-          "visual": "24_spaceout_field",
-          "narration": "I Spaceout-läget har Preferences spaCR-fältkontroller för åtta oberoende effekter. Slå på eller av varje effekt separat. Vanliga kontroller för utseende och animering av inställningsfönstret finns kvar; Apply förhandsvisar en ändring, Keep godkänner den och Revert återställer föregående val.",
-          "hold_after": 0.7
         }
       ],
       "narration_voices": {

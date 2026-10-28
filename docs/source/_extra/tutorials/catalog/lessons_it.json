@@ -974,12 +974,6 @@
             1500
           ],
           "speech_text": "Prune now non cancella mai senza chiedere. Con un limite di esempio breve per le cartelle delle esecuzioni, elenca cosa cancellerebbe in ogni cartella e attende una risposta. Fai clic su Cancel e non viene rimosso nulla."
-        },
-        {
-          "visual": "24_spaceout_field",
-          "narration": "In modalità Spaceout, Preferences offre controlli del campo spaCR per otto effetti indipendenti. Attiva o disattiva ciascun effetto separatamente. I normali controlli di aspetto e animazione delle finestre restano disponibili; Apply mostra l’anteprima di una modifica, Keep la accetta e Revert ripristina la scelta precedente.",
-          "hold_after": 0.7,
-          "speech_text": "In modalità Spaceout, Preferences offre controlli del campo spàker per otto effetti indipendenti. Attiva o disattiva ciascun effetto separatamente. I normali controlli di aspetto e animazione delle finestre restano disponibili; Apply mostra l’anteprima di una modifica, Keep la accetta e Revert ripristina la scelta precedente."
         }
       ],
       "narration_voices": {

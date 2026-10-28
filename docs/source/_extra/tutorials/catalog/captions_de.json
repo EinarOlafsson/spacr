@@ -872,11 +872,6 @@
             1200,
             1500
           ]
-        },
-        {
-          "visual": "24_spaceout_field",
-          "narration": "Im Spaceout-Modus bietet Preferences spaCR-Feldsteuerungen für acht unabhängige Effekte. Schalten Sie jeden Effekt einzeln ein oder aus. Die üblichen Steuerungen für Darstellung und Animation des Einstellungsfensters bleiben verfügbar; Apply zeigt eine Änderung als Vorschau, Keep übernimmt sie und Revert stellt die vorherige Auswahl wieder her.",
-          "hold_after": 0.7
         }
       ],
       "narration_voices": {
