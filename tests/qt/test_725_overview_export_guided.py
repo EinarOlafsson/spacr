@@ -534,3 +534,80 @@ def test_guided_measurement_read_requires_an_exported_database_and_preserves_rea
     else:
         assert result is None
     assert seen == [str(tmp_path)]
+
+
+@pytest.mark.parametrize('retirement', ['sync_live_view', 'close_canvas'])
+def test_canvas_drag_handles_retire_after_their_real_stacked_image_is_closed(
+        view, qtbot, retirement):
+    from PySide6.QtCore import QCoreApplication, QEvent
+    from shiboken6 import isValid
+
+    composer = view._open_custom_export()
+    view._open_image_views(tuple(view._fields[:2]))
+    qtbot.waitUntil(lambda: len(view._image_views) == 2, timeout=15000)
+    drags = view._canvas_drags
+    drags.watch()
+    removed, remaining = tuple(view._image_views)
+    viewport = removed.view.viewport()
+    handle = next(handle for handle, owner in drags._handles.items() if owner is viewport)
+    remaining_viewport = remaining.view.viewport()
+    remaining_handle = next(handle for handle, owner in drags._handles.items() if owner is remaining_viewport)
+    view._close_image_view(removed)
+    QCoreApplication.sendPostedEvents(removed, QEvent.DeferredDelete)
+    assert not isValid(removed) and not isValid(viewport) and not isValid(handle)
+    assert isValid(remaining) and isValid(remaining_handle)
+    if retirement == 'sync_live_view':
+        remaining.view.resize(remaining.view.width() + 1, remaining.view.height())
+        qtbot.waitUntil(lambda: handle not in drags._handles)
+        assert drags._handles[remaining_handle] is remaining_viewport
+        assert remaining in view._image_views
+        assert all(isValid(widget) for widget in drags._handles)
+    else:
+        composer.close()
+        assert drags._handles == {} and drags._watched == []
+        assert not drags._hold.isActive() and drags._press is None
+        assert remaining in view._image_views and isValid(remaining)
+
+
+def test_unarmed_field_motion_and_empty_space_do_not_start_a_canvas_drag(view, qtbot, monkeypatch):
+    from PySide6.QtCore import QEvent
+
+    view._open_custom_export()
+    view._well(view.wells.item(*view._well_positions[(view.plates.currentData(), 'A01')]))
+    qtbot.waitUntil(lambda: view.fields.count() == 3, timeout=15000)
+    drags = view._canvas_drags
+    view.fields.clearSelection()
+    viewport = view.fields.viewport()
+    item = view.fields.item(0)
+    position = view.fields.visualItemRect(item).center()
+    dragged = []
+    monkeypatch.setattr(drags, '_start_drag', lambda *args: dragged.append(args))
+    assert not drags.eventFilter(viewport, _canvas_mouse(QEvent.MouseButtonPress, position, Qt.LeftButton, Qt.LeftButton))
+    assert drags._press is not None and not drags._armed and drags._hold.isActive()
+    assert not drags.eventFilter(viewport, _canvas_mouse(QEvent.MouseMove, position, buttons=Qt.LeftButton))
+    assert dragged == [] and drags._press is not None
+    assert not drags.eventFilter(viewport, _canvas_mouse(QEvent.MouseButtonRelease, position, Qt.LeftButton))
+    empty = QPoint(1, view.fields.visualItemRect(view.fields.item(2)).bottom() + 2)
+    assert viewport.rect().contains(empty) and view.fields.itemAt(empty) is None
+    assert not drags.eventFilter(viewport, _canvas_mouse(QEvent.MouseButtonPress, empty, Qt.LeftButton, Qt.LeftButton))
+    assert drags._press is None and not drags._hold.isActive()
+    assert dragged == [] and view.fields.selectedItems() == []
+
+
+def test_no_selected_plate_keeps_condition_instructions_and_reserved_numeric_ids_out_of_measurements(view):
+    guided = view._open_guided_export()
+    for index in range(guided.plates.count()):
+        guided.plates.item(index).setCheckState(Qt.Unchecked)
+    assert guided.conditions.count() == 1
+    instruction = guided.conditions.item(0)
+    assert instruction.data(Qt.UserRole) is None
+    assert instruction.text() == browser.tr('Annotate wells, or define comparison groups, to choose by condition.')
+    assert guided.choose_wells('condition', []) == []
+    assert not guided.next()
+    assert guided.status.text() == browser.tr('Choose at least one well.')
+    guided._measurements_loaded(pd.DataFrame({'plateID': [1, 2], 'fieldID': [1, 2],
+                                             'time_id': [0, 0], 'z_id': [1, 2],
+                                             'signal': [12., 30.]}))
+    assert [guided.measurement_list.item(index).data(Qt.UserRole)
+            for index in range(guided.measurement_list.count())] == ['signal']
+    assert guided.sides['measurements'].isEnabled()
