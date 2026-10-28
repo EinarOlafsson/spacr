@@ -3150,25 +3150,6 @@ class HomePage(QWidget):
         for column in range(span):
             grid.setColumnStretch(column, 1 if column < columns else 0)
 
-    def _columns_for(self, width: int, tile_w: int) -> int:
-        """How many ``tile_w``-wide tiles fit beside the aside.
-
-        Recomputed on resize so a narrow window rewraps instead of
-        growing a horizontal scrollbar.
-        """
-        from ..preferences import scaled_px
-        aside = getattr(self, "_aside", None)
-        if aside is None:
-            aside_w = scaled_px(self.ASIDE_W)
-        elif aside.isHidden() or self._aside_collapsed():
-            aside_w = 0
-        else:
-            aside_w = max(aside.width(), aside.minimumWidth())
-        available = max(1, width - aside_w
-                        - SPACING["xl"] * 2 - SPACING["lg"]
-                        - SPACING["md"] * 2 - 4)
-        return max(1, available // (tile_w + SPACING["xs"]))
-
     def refresh_pane_surfaces(self) -> int:
         """Give the masthead, the panels and the tabs the page opacity now set.
 
@@ -3376,9 +3357,7 @@ class HomePage(QWidget):
         sizes are rewritten from the size it was built with. Panels rebuild
         rows on refresh, so this runs again after every refresh.
         """
-        panels = getattr(self, "_aside_panels", None)
-        if panels is None:
-            return
+        panels = self._aside_panels
         if self._aside_text == 1.0 and not getattr(
                 self, "_aside_text_applied", False):
             return
@@ -3394,10 +3373,8 @@ class HomePage(QWidget):
         clipping; dragging the handle past the floor folds the column away,
         as it does the module screens' settings column.
         """
-        aside = getattr(self, "_aside", None)
-        panels = getattr(self, "_aside_panels", None)
-        if aside is None or panels is None:
-            return
+        aside = self._aside
+        panels = self._aside_panels
         layout = panels.layout()
         layout.activate()
         floor = layout.totalMinimumSize().width()
@@ -3423,19 +3400,15 @@ class HomePage(QWidget):
         for holder, grid, tiles, _tile_w in self._grids:
             ancestor = holder
             margins = 0
-            while ancestor is not None and not isinstance(ancestor, QScrollArea):
+            while not isinstance(ancestor, QScrollArea):
                 layout = ancestor.layout()
                 if layout is not None:
                     left, _top, right, _bottom = layout.getContentsMargins()
                     margins += left + right
                 ancestor = ancestor.parentWidget()
-            if ancestor is None or not tiles:
-                continue
             available = max(0, ancestor.viewport().property('size').width() - margins)
             spacing = _ORIGINAL.get((QGridLayout, 'horizontalSpacing'),
                                     QGridLayout.horizontalSpacing)(grid)
-            if spacing < 0:
-                spacing = holder.style().pixelMetric(QStyle.PM_LayoutHorizontalSpacing, None, holder)
             spacing = max(0, spacing)
             tile_width = max(max(tile.property('minimumSize').width(),
                                  tile.layout().totalMinimumSize().width()) for tile in tiles)

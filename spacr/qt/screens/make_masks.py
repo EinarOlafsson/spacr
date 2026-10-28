@@ -998,8 +998,7 @@ def _copy_paired_layout(pairs, destination, cancelled=None):
         for image, mask in rows:
             check_cancelled()
             shape = cs.image_shape(image)
-            if shape is None or not (len(shape) == 2 or
-                                     (len(shape) == 3 and shape[-1] in (1, 3, 4))):
+            if shape is None or not (len(shape) == 2 or (len(shape) == 3 and shape[-1] in (1, 3, 4))):
                 raise ValueError(tr("Image and mask dimensions are incompatible: {image}", image=image))
             labels = engine._as_field_mask(
                 imread(mask), shape[:2], mask, os.path.basename(image))
@@ -13759,16 +13758,10 @@ class MakeMasksScreen(QWidget):
         self._layer_scan_generation = getattr(self, "_layer_scan_generation", 0) + 1
         self._layer_flag_removed = {}
         if "outline_thickness" in stored:
-            box = getattr(self, "_outline_thickness", None)
-            if box is not None:
-                box.setValue(engine._outline_thickness(stored["outline_thickness"]))
-            else:
-                self._on_outline_thickness_changed(stored["outline_thickness"])
+            self._outline_thickness.setValue(engine._outline_thickness(stored["outline_thickness"]))
         self._save_layer_settings()
         self._rebuild_layer_panel()
-        button = self._mode_buttons.get(MODE_PICK)
-        if button is not None:
-            button.setVisible(True)
+        self._mode_buttons[MODE_PICK].setVisible(True)
         if self._canvas.mode != MODE_PICK:
             self._set_mode(MODE_PICK)
 
@@ -13791,12 +13784,8 @@ class MakeMasksScreen(QWidget):
         if self._canvas.display_ids is not None:
             self._canvas.display_ids = None
             self._canvas.refresh()
-        section = getattr(self, "_layer_section", None)
-        if section is not None:
-            section.hide()
-        button = self._mode_buttons.get(MODE_PICK) if hasattr(self, "_mode_buttons") else None
-        if button is not None:
-            button.setVisible(False)
+        self._layer_section.hide()
+        self._mode_buttons[MODE_PICK].setVisible(False)
         if self._canvas.mode == MODE_PICK:
             self._set_mode(MODE_BRUSH)
         self._canvas.update()
@@ -14357,9 +14346,7 @@ class MakeMasksScreen(QWidget):
 
         while self._layer_rows.count():
             item = self._layer_rows.takeAt(0)
-            widget = item.widget()
-            if widget is not None:
-                widget.deleteLater()
+            item.widget().deleteLater()
         for index, layer in enumerate(self._layers):
             row = QWidget(self._layer_rows_host)
             line = QHBoxLayout(row)
@@ -14537,9 +14524,7 @@ class MakeMasksScreen(QWidget):
         from ..i18n import tr
 
         self._layer_scan_generation = getattr(self, "_layer_scan_generation", 0) + 1
-        label = getattr(self, "_layer_match_label", None)
-        if label is None:
-            return
+        label = self._layer_match_label
         required = self._layers_required()
         files = list(self._image_files or [])
         if not required or not files or not self._layers_active():
@@ -14606,8 +14591,7 @@ class MakeMasksScreen(QWidget):
             return
         self._layer_base = index
         self._save_layer_settings()
-        if (self._image_files and not self._edits_unsaved()
-                and not self._loaded_from_save_path):
+        if self._image_files and not self._edits_unsaved() and not self._loaded_from_save_path:
             self._load_current()
         else:
             self._refresh_layer_overlay()
@@ -22080,9 +22064,7 @@ class MakeMasksScreen(QWidget):
         -- whether or not Apply is on, since Apply is this screen's switch.
         """
         settings = detect_chain.chain_settings(self._enhancement_chain())
-        controls = getattr(self, "_psf_controls", None)
-        if controls is not None:
-            settings.update(controls.mask_settings())
+        settings.update(self._psf_controls.mask_settings())
         return settings
 
     def _send_chain_to_mask(self) -> None:

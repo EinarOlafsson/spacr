@@ -497,3 +497,112 @@ def test_explicit_canvas_field_selection_takes_precedence_over_selected_wells(ov
         assert boxes[0]['source']['well'] == 'B02'
     finally:
         dialog._close_export_dock()
+
+
+def test_representative_value_filter_and_refused_stack_preserve_the_current_comparison(overview, qtbot):
+    from pathlib import Path
+    import pandas as pd
+    from PySide6.QtCore import Qt
+    from spacr import tabular
+    from spacr.schema import field_id
+
+    dialog = overview
+    dialog._apply_annotation({('p1', 'A01')}, 'condition', 'control')
+    dialog._apply_annotation({('p1', 'B02')}, 'condition', 'treated')
+    qtbot.waitUntil(lambda: not dialog._metadata_jobs.is_busy(), timeout=10000)
+    records = [dict(plate=field.plate, well=field.well, field=str(field.field), fieldID=field_id(field.field_id),
+                    time_id=str(field.time_id), z_id=str(field.z_id),
+                    channel_1_mean=2. if field.well == 'A01' else 8., status='ok')
+               for field in dialog._fields if field.field_id == '1']
+    assert {record['well'] for record in records} == {'A01', 'B02'}
+    database = Path(dialog._metadata_source) / 'measurements' / 'measurements.db'
+    tabular.write_database(pd.DataFrame(records), database, 'fov', if_exists='replace', canonicalise=False)
+    for item in dialog._comparison_items():
+        item.setCheckState(0, Qt.Checked if item.parent().text(0) == 'condition'
+                           and item.text(0) == 'treated' else Qt.Unchecked)
+    assert dialog._comparison_selection()[:2] == (['condition'], {'condition': ['treated']})
+    dialog.comparison_measurement.setCurrentText('channel_1_mean')
+    dialog.representative_method.setCurrentIndex(dialog.representative_method.findData('measurement'))
+    dialog._show_representatives()
+    qtbot.waitUntil(lambda: not dialog._export_jobs.is_busy() and not dialog._montage_jobs.is_busy()
+                    and 'Representative images' in dialog.status.text(), timeout=10000)
+    expected = next(field.identity for field in dialog._fields if field.well == 'B02' and field.field_id == '1')
+    assert dialog._comparison_signature[0] == (expected,)
+    assert dialog.view._item is not None
+    signature, caption = dialog._comparison_signature, dialog.status.text()
+    pixmap = dialog.view._item.pixmap().toImage()
+    dialog.comparison_measurement.setCurrentText('unmeasured_feature')
+    dialog._show_representatives(stacked=True)
+    qtbot.waitUntil(lambda: not dialog._export_jobs.is_busy(), timeout=10000)
+    assert dialog._comparison_signature == signature
+    assert dialog.status.text() == caption
+    assert dialog.view._item.pixmap().toImage() == pixmap
+    assert not dialog._image_views
+
+
+def test_original_psf_refusal_shows_the_ordinary_image_without_modifying_its_tiff(overview, qtbot, monkeypatch):
+    from pathlib import Path
+    from PySide6.QtCore import Qt
+    from PySide6.QtGui import QImage
+    from spacr.qt.widgets import qc_field_browser as module
+
+    dialog = overview
+    dialog._well(dialog.wells.item(*dialog._well_positions[('p1', 'B02')]))
+    dialog.fields.setCurrentRow(0)
+    qtbot.waitUntil(lambda: not dialog._image_jobs.is_busy() and dialog.view._item is not None, timeout=10000)
+    field = dialog.fields.currentItem().data(Qt.UserRole)
+    originals = {Path(path): Path(path).read_bytes() for _, path in field.files}
+    channels, limits = dialog._choices()
+    expected = module._overview_pixels(field, channels, limits, edge=None, **dialog._display_kwargs(view=True))
+    monkeypatch.setattr(dialog, '_original_steps', lambda: dict(
+        psf_operation='deconvolve', psf=None, psf_error='A calibrated PSF is unavailable'))
+    dialog.preview_resolution.setCurrentIndex(dialog.preview_resolution.findData(None))
+    qtbot.waitUntil(lambda: not dialog._image_jobs.is_busy()
+                    and 'Original image shown without PSF deconvolution' in dialog.status.text(), timeout=10000)
+    assert 'A calibrated PSF is unavailable' in dialog.status.text()
+    assert dialog._original_image
+    image = dialog.view._item.pixmap().toImage().convertToFormat(QImage.Format_RGB888)
+    actual = np.frombuffer(image.constBits(), dtype=np.uint8).reshape(image.height(), image.bytesPerLine())
+    actual = actual[:, :image.width() * 3].reshape(image.height(), image.width(), 3)
+    np.testing.assert_array_equal(actual, expected)
+    assert all(path.read_bytes() == content for path, content in originals.items())
+    assert dialog._main_view_field.identity == field.identity
+
+
+@pytest.mark.parametrize('keep_other_well_open', [False, True])
+def test_hiding_the_active_plate_transfers_navigation_to_a_surviving_well_or_plate(
+        overview, qtbot, keep_other_well_open):
+    from pathlib import Path
+    import shutil
+
+    dialog = overview
+    source = Path(dialog._metadata_source)
+    shutil.copyfile(source / 'p1-B02-f1-t1-z1-c1.tif', source / 'p2-A01-f1-t1-z1-c1.tif')
+    dialog._scan()
+    qtbot.waitUntil(lambda: len(dialog._fields) == 5 and dialog._normalization_ready
+                    and not dialog._index_jobs.is_busy(), timeout=10000)
+    dialog._set_plates_view('side', persist=False)
+    assert set(dialog._plate_tables) == {'p1', 'p2'}
+    for plate, table in dialog._plate_tables.items():
+        table.item(*dialog._well_positions[(plate, 'A01')]).setSelected(True)
+    assert dialog._selected_wells == {('p1', 'A01'), ('p2', 'A01')}
+    dialog._open_selected_well()
+    assert {(panel.field_list._overview_plate, panel.field_list._overview_well)
+            for panel in dialog._well_panels} == {('p1', 'A01'), ('p2', 'A01')}
+    assert dialog._scope == ('p2', 'A01')
+    if not keep_other_well_open:
+        first = next(panel for panel in dialog._well_panels if panel.field_list._overview_plate == 'p1')
+        first.close_button.click()
+    dialog._set_plates_view(plates=('p1',), persist=False)
+    assert set(dialog._plate_tables) == {'p1'}
+    assert all(panel.field.plate == 'p1' for panel in dialog._image_views)
+    if keep_other_well_open:
+        assert len(dialog._well_panels) == 1
+        assert dialog.fields is dialog._well_panels[0].field_list
+        assert dialog._scope == ('p1', 'A01')
+        assert {field.well for field in dialog._visible} == {'A01'}
+    else:
+        assert dialog._well_panels == []
+        assert dialog.fields is dialog._well_panel.field_list
+        assert dialog._scope == ('p1', None)
+        assert {field.well for field in dialog._visible} == {'A01', 'B02'}

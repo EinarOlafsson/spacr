@@ -599,3 +599,233 @@ def test_original_chain_refusal_falls_back_then_source_failure_keeps_last_pixels
             backup.rename(path)
         view._original_steps = None
         assert all(path.read_bytes() == content for path, content in originals.items())
+
+
+class _HeldPlateReadout:
+    """Keep one genuine raw read in flight across cursor/source retirement."""
+
+    def __init__(self, read):
+        from threading import Event
+
+        self.read = read
+        self.entered, self.release = Event(), Event()
+        self.fields = []
+
+    def __call__(self, field, axes):
+        self.fields.append(field.identity)
+        self.entered.set()
+        assert self.release.wait(10)
+        return self.read(field, axes)
+
+
+@pytest.mark.parametrize('retirement', ['leave', 'cancel_source'])
+def test_pending_pixel_read_is_deduplicated_and_cannot_restore_retired_readout(
+        view, qtbot, monkeypatch, retirement):
+    panel = _stacked_plate_image(view, qtbot)
+    read = _HeldPlateReadout(browser._overview_readout_planes)
+    monkeypatch.setattr(browser, '_overview_readout_planes', read)
+    before = panel.view._item.pixmap().toImage().copy()
+    try:
+        _move_plate_image_cursor(panel.view)
+        qtbot.waitUntil(read.entered.is_set, timeout=5000)
+        axes = view._axis_options()
+        key = panel.field.identity, tuple(sorted(axes.items()))
+        assert view._readout_loading == key
+        view._load_readout_planes(panel.field, key, axes)
+        assert view._readout_jobs.active_jobs() == 1
+        view._clear_pixel_readout()
+        if retirement == 'cancel_source':
+            view._cancel()
+        read.release.set()
+        _settle_plate_auxiliary_jobs(view, qtbot)
+        assert read.fields == [panel.field.identity]
+        assert view._readout_pending is None and view._readout_loading is None
+        assert view._pixel_readout.text() == ''
+        if retirement == 'cancel_source':
+            assert view._readout_planes is None and view._cancelled.is_set()
+        else:
+            assert view._readout_planes[0] == key
+        assert panel.view._item.pixmap().toImage() == before
+    finally:
+        read.release.set()
+        view._clear_pixel_readout()
+        _settle_plate_auxiliary_jobs(view, qtbot)
+
+
+@pytest.mark.parametrize('edit', ['invalid_channels', 'outside_image'])
+def test_raw_pixel_readout_handles_incomplete_choices_and_blank_image_margins(view, qtbot, edit):
+    panel = _stacked_plate_image(view, qtbot)
+    original_channels = view.channels.text()
+    try:
+        _move_plate_image_cursor(panel.view)
+        qtbot.waitUntil(lambda: 'Channel 1: 2101' in view._pixel_readout.text(), timeout=10000)
+        if edit == 'invalid_channels':
+            view.channels.setText('unfinished channel')
+            view._update_pixel_readout()
+            assert 'Channel 1: 2101' in view._pixel_readout.text()
+            assert 'Channel 2: 2102' in view._pixel_readout.text()
+            assert 'Plate plateC' in view._pixel_readout.text()
+        else:
+            image_bounds = panel.view.viewportTransform().mapRect(panel.view._item.sceneBoundingRect())
+            assert image_bounds.top() > 1
+            point = QPointF(image_bounds.center().x(), image_bounds.top() / 2)
+            assert panel.view.viewport().rect().contains(point.toPoint())
+            assert not image_bounds.contains(point)
+            event = QMouseEvent(QEvent.MouseMove, point, panel.view.viewport().mapToGlobal(point),
+                                Qt.NoButton, Qt.NoButton, Qt.NoModifier)
+            QApplication.sendEvent(panel.view.viewport(), event)
+            qtbot.waitUntil(lambda: view._pixel_readout.text() == '', timeout=5000)
+        assert view._field_shown_in(panel.view) is panel.field
+    finally:
+        view.channels.setText(original_channels)
+        view._clear_pixel_readout()
+        _settle_plate_auxiliary_jobs(view, qtbot)
+
+
+class _RecordedPlateHistograms:
+    """Observe real worker histogram inputs while still computing every count."""
+
+    def __init__(self, read):
+        self.read, self.requests = read, []
+
+    def __call__(self, field, channels, limits, options):
+        from copy import deepcopy
+
+        self.requests.append((field.identity, tuple(channels), limits, deepcopy(options)))
+        return self.read(field, channels, limits, options)
+
+
+@pytest.mark.parametrize('layer', ['global_normalization', 'global_enhancement'])
+def test_image_layer_action_refreshes_only_its_matching_histogram_with_real_counts(
+        view, qtbot, monkeypatch, layer):
+    field = next(field for field in view._fields if field.plate == 'plateB')
+    view._open_image_settings(field)
+    panel = view._image_settings
+    _settle_plate_auxiliary_jobs(view, qtbot)
+    read = _RecordedPlateHistograms(browser._overview_display_histograms)
+    monkeypatch.setattr(browser, '_overview_display_histograms', read)
+    original_channels = view.channels.text()
+    try:
+        view._set_global_layer(field, layer, False)
+        _settle_plate_auxiliary_jobs(view, qtbot)
+        assert view._image_settings is panel and panel.key == browser._overview_image_key(field)
+        assert read.requests and all(row[0] == field.identity for row in read.requests)
+        assert read.requests[-1][3]['image_overrides'] == {panel.key: {layer: False}}
+        assert all(int(counts.sum()) == 24 * 32 for counts in panel._histograms.values())
+        assert set(panel._histograms) == set(panel.channels)
+        view.channels.setText('incomplete')
+        view._request_image_histograms(panel)
+        _settle_plate_auxiliary_jobs(view, qtbot)
+        assert read.requests[-1][2] is None
+        assert all(int(counts.sum()) == 24 * 32 for counts in panel._histograms.values())
+        view.channels.setText(original_channels)
+        view._set_global_layer(field, layer, True)
+        _settle_plate_auxiliary_jobs(view, qtbot)
+        assert layer not in (view._image_overrides.get(panel.key) or {})
+        assert 'image_overrides' not in read.requests[-1][3]
+    finally:
+        view.channels.setText(original_channels)
+        panel.close()
+        _settle_plate_auxiliary_jobs(view, qtbot)
+
+
+def test_plain_stacked_preview_read_error_keeps_pixels_and_original_input_bytes(view, qtbot):
+    from pathlib import Path
+
+    panel = _stacked_plate_image(view, qtbot)
+    assert view._original_chain(view._display_kwargs(view=True)) is None
+    displayed = panel.view._item.pixmap().toImage().copy()
+    originals = {Path(path): Path(path).read_bytes() for _channel, path in panel.field.files}
+    moved = {}
+    try:
+        for path in originals:
+            backup = path.with_suffix('.held-tif')
+            path.rename(backup)
+            moved[path] = backup
+        browser._OVERVIEW_PLANE_CACHE.clear()
+        browser._OVERVIEW_INFO_CACHE.clear()
+        view._load_image_view(panel)
+        _settle_plate_auxiliary_jobs(view, qtbot)
+        assert 'Could not read' in view.status.text() and panel.field.caption in view.status.text()
+        assert panel.view._item.pixmap().toImage() == displayed
+    finally:
+        _settle_plate_auxiliary_jobs(view, qtbot)
+        for path, backup in moved.items():
+            backup.rename(path)
+        assert all(path.read_bytes() == content for path, content in originals.items())
+
+
+def test_added_source_with_an_existing_basename_keeps_every_physical_plate_distinct(view, qtbot, tmp_path):
+    before = {field.identity: field for field in view._all_fields}
+    duplicate = _plate(tmp_path / 'another_project' / 'plateA', ('A01',), 3000)
+    originals = {path: path.read_bytes() for path in duplicate.glob('*.tif')}
+    view._add_sources(str(duplicate))
+    qtbot.waitUntil(lambda: len(view._all_fields) == len(before) + 1
+                    and view._normalization_ready and not view._index_jobs.is_busy(), timeout=15000)
+    _settle_plate_auxiliary_jobs(view, qtbot)
+    fields = {field.identity: field for field in view._all_fields}
+    assert all(fields[identity] == field for identity, field in before.items())
+    added = [field for identity, field in fields.items() if identity not in before]
+    assert len(added) == 1 and added[0].plate == 'plateA (2)'
+    assert added[0].source == str(duplicate) and added[0].well == 'A01'
+    assert tuple(view.plates.itemData(index) for index in range(view.plates.count())) == (
+        'plateA', 'plateA (2)', 'plateB', 'plateC')
+    assert all(path.read_bytes() == content for path, content in originals.items())
+
+
+def test_real_plate_header_action_collapses_only_its_owner(view, qtbot):
+    view._set_plates_view('side')
+    table = view._plate_tables['plateB']
+    header = table.verticalHeader()
+    from PySide6.QtCore import QPoint
+
+    position = QPoint(max(1, header.width() // 2), header.sectionViewportPosition(0) + header.sectionSize(0) // 2)
+    menu = view._plate_header_menu(table, 'row', position)
+    try:
+        assert view.plates.currentData() == 'plateB' and view.wells is table
+        collapse = next(action for action in menu.actions() if action.text() == 'Collapse row A')
+        collapse.trigger()
+        assert view._collapsed['plateB'][0] == {0}
+        assert view._collapsed.get('plateA', (set(), set())) == (set(), set())
+        assert view._collapsed.get('plateC', (set(), set())) == (set(), set())
+        assert table.rowHeight(0) == browser._OVERVIEW_COLLAPSED_STRIP
+    finally:
+        menu.close()
+        _settle_plate_auxiliary_jobs(view, qtbot)
+
+
+def test_stacked_image_limit_evicts_oldest_panels_without_conflating_wells(view, qtbot):
+    fields = tuple(view._fields)
+    assert len(fields) == 9 and browser._OVERVIEW_MAX_IMAGE_VIEWS == 6
+    view._open_image_views(fields[:6])
+    _settle_plate_auxiliary_jobs(view, qtbot)
+    oldest_viewports = [panel.view.viewport() for panel in view._image_views[:3]]
+    view._open_image_views(fields[6:])
+    _settle_plate_auxiliary_jobs(view, qtbot)
+    assert [panel.field.identity for panel in view._image_views] == [field.identity for field in fields[-6:]]
+    assert all(viewport not in view._readout_viewports for viewport in oldest_viewports)
+    assert all(panel.view._item is not None and not panel.view._item.pixmap().isNull()
+               for panel in view._image_views)
+    assert len({panel.field.identity for panel in view._image_views}) == 6
+
+
+def test_original_steps_reload_real_main_and_stacked_images_without_changing_sources(view, qtbot):
+    view._well(_item(view, view.plates.currentData(), 'A01'))
+    qtbot.waitUntil(lambda: view.fields.count() > 0, timeout=10000)
+    view.fields.setCurrentRow(0)
+    view._field(view.fields.item(0))
+    qtbot.waitUntil(lambda: view._individual and view.view._item is not None
+                    and not view._image_pending, timeout=10000)
+    panel = _stacked_plate_image(view, qtbot)
+    view.preview_resolution.setCurrentIndex(view.preview_resolution.findData(None))
+    qtbot.waitUntil(lambda: not view._quality_timer.isActive(), timeout=5000)
+    _settle_plate_auxiliary_jobs(view, qtbot)
+    main = view.view._item.pixmap().toImage().copy()
+    stacked = panel.view._item.pixmap().toImage().copy()
+    identity = view._main_view_field.identity
+    view._original_steps_changed()
+    _settle_plate_auxiliary_jobs(view, qtbot)
+    assert view._quality_original() and view._individual
+    assert view._main_view_field.identity == identity and panel.field.plate == 'plateC'
+    assert view.view._item.pixmap().toImage() == main
+    assert panel.view._item.pixmap().toImage() == stacked
