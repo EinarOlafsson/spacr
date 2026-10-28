@@ -290,3 +290,36 @@ def test_a_puncta_result_for_an_edited_mask_is_discarded(
         window._magnifier.close()
         window.close_folded()
         window.close()
+
+
+def test_pending_puncta_request_refuses_duplicate_then_recovers_after_real_worker_error(
+        qtbot, qt_theme_applied, tmp_path, monkeypatch):
+    image, parents = field()
+    window, old = _open_puncta_field(qtbot, tmp_path, image, parents)
+    entered, release = threading.Event(), threading.Event()
+    failure = ValueError('controlled puncta worker refusal')
+    warnings, calls = [], []
+    def refuse(*args, **kwargs):
+        calls.append(threading.get_ident())
+        entered.set()
+        assert release.wait(5)
+        raise failure
+    monkeypatch.setattr(cpu_modes, 'puncta', refuse)
+    monkeypatch.setattr(window, '_warn', lambda *args: warnings.append(args))
+    try:
+        assert window._start_puncta_detection('replace', window._otsu_settings())
+        qtbot.waitUntil(entered.is_set)
+        pending = window._detection_request
+        assert not window._start_puncta_detection('replace', window._otsu_settings())
+        assert window._detection_request is pending and len(calls) == 1
+        release.set()
+        qtbot.waitUntil(lambda: window._detection_request is None, timeout=10000)
+        np.testing.assert_array_equal(window._canvas.mask, old)
+        assert window._btn_otsu.isEnabled() and window._btn_cellpose.isEnabled()
+        assert warnings and str(failure) in warnings[0][1]
+        assert calls[0] != threading.get_ident()
+    finally:
+        release.set()
+        window._magnifier.close()
+        window.close_folded()
+        window.close()

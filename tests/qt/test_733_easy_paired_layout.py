@@ -176,3 +176,58 @@ def test_close_interrupts_a_live_copy_without_opening_result(screen, tmp_path, m
     assert not worker.isRunning()
     qtbot.waitUntil(lambda: screen._paired_layout_job is None, timeout=10000)
     assert not (tmp_path / "make_masks").exists()
+
+
+def test_empty_pairing_never_prompts_or_changes_the_current_field(screen, monkeypatch):
+    token, folder = screen._load_token, screen._folder
+    monkeypatch.setattr(screen, '_confirm', lambda *a: pytest.fail('Empty request prompted'))
+    assert not screen._open_paired_layout({})
+    assert screen._load_token == token and screen._folder == folder
+    assert getattr(screen, '_paired_layout_job', None) is None
+
+
+def test_busy_owned_copy_refuses_a_second_request_and_keeps_originals(
+        screen, tmp_path, monkeypatch, qtbot):
+    pairs, _ = _pair(tmp_path)
+    originals = {path: Path(path).read_bytes() for path in (*pairs, *pairs.values())}
+    entered, release = threading.Event(), threading.Event()
+    warnings = []
+    worker = mm._FolderJobWorker(None, screen)
+    worker.job = lambda: (entered.set(), release.wait(5))
+    screen._folder_job = worker
+    monkeypatch.setattr(screen, '_warn', lambda *a: warnings.append(a))
+    monkeypatch.setattr(screen, '_confirm', lambda *a: pytest.fail('Busy copy prompted'))
+    worker.start()
+    try:
+        qtbot.waitUntil(entered.is_set)
+        assert not screen._open_paired_layout(pairs)
+        assert screen._folder_job is worker and worker.isRunning()
+        assert len(warnings) == 1 and 'running' in warnings[0][1]
+        assert all(Path(path).read_bytes() == data for path, data in originals.items())
+    finally:
+        release.set()
+        assert worker.wait(5000)
+        screen._finish_folder_job(worker, lambda done: None)
+
+
+def test_copy_publication_error_retires_worker_without_replacing_field_or_sources(
+        screen, tmp_path, monkeypatch, qtbot):
+    pairs, _ = _pair(tmp_path)
+    originals = {path: Path(path).read_bytes() for path in (*pairs, *pairs.values())}
+    token, folder = screen._load_token, screen._folder
+    warnings = []
+    monkeypatch.setattr(screen, '_confirm', lambda *a: True)
+    monkeypatch.setattr(mm.QFileDialog, 'getExistingDirectory', lambda *a, **k: str(tmp_path))
+    monkeypatch.setattr(screen, '_warn', lambda *a: warnings.append(a))
+    original = mm.os.rename
+    def refuse_publication(source, destination):
+        if Path(destination).name == 'masks':
+            raise OSError('publication denied')
+        return original(source, destination)
+    monkeypatch.setattr(mm.os, 'rename', refuse_publication)
+    assert screen._open_paired_layout(pairs)
+    qtbot.waitUntil(lambda: screen._paired_layout_job is None, timeout=20000)
+    assert screen._folder_job is None and screen._load_token == token and screen._folder == folder
+    assert warnings and 'publication denied' in warnings[0][1]
+    assert not (tmp_path / 'make_masks').exists() and not list(tmp_path.glob('.spacr-paired-*'))
+    assert all(Path(path).read_bytes() == data for path, data in originals.items())
