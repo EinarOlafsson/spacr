@@ -131,11 +131,33 @@ def test_invalid_and_calibrated_collection_inputs_have_honest_local_guidance(
     merged.mkdir()
     np.save(merged / 'stack_1.npy', np.zeros((3, 4, 2), dtype=np.float32))
     ordinary = _easy_inspect_path(str(tmp_path))
-    assert [a[0] for a in ordinary['actions']] == ['measure']
+    context = ordinary['context']
+    routes = context['generated_outputs']['routes']
+    assert ordinary['actions'][0][0] == 'measure'
+    assert {key for key, route in routes.items() if route['ready']} == {'measure', 'make_masks'}
+    assert set(context['analysis_inputs']) == {'measure', 'make_masks'}
+    assert context['analysis_inputs']['make_masks'] == {'source': str(merged)}
+    assert routes['make_masks']['source'] == str(merged)
+    assert routes['make_masks']['prerequisite'] == ''
+    assert routes['measure']['source'] == str(tmp_path)
+    assert routes['measure']['missing_inputs'] == []
+    assert {'annotate', 'db_browser'} <= set(routes)
+    assert 'crops' in routes['annotate']['missing_inputs']
+    assert 'measurements' in routes['db_browser']['missing_inputs']
+    assert {action[0] for action in ordinary['actions']} == set(routes)
+    for key, title, reason, source in ordinary['actions']:
+        assert (title, reason, source) == tuple(routes[key][field]
+                                               for field in ('title', 'reason', 'source'))
+        if key not in ('measure', 'make_masks'):
+            assert routes[key]['prerequisite']
+            assert source == str(tmp_path)
     marker = tmp_path / 'plate_batch.json'
     marker.write_text('{incomplete')
     result = _easy_inspect_path(str(tmp_path))
-    assert not result['actions']
+    assert [action[0] for action in result['actions']] == ['make_masks']
+    assert result['actions'][0][3] == str(merged)
+    assert result['context']['analysis_inputs'] == {'make_masks': {'source': str(merged)}}
+    assert result['context']['generated_outputs']['routes'] == {}
     assert 'ordinary Measure is not suggested' in result['message']
     assert marker.read_text() == '{incomplete'
 
@@ -1188,6 +1210,8 @@ def test_owned_inspection_failure_retires_stale_actions_without_reviving_blank_i
     _image(path)
     page = _EasyHomePage()
     qtbot.addWidget(page)
+    if not blank:
+        page.resize(640, 650)
     page.show()
     try:
         page.accept_paths([str(path)])
@@ -1203,9 +1227,13 @@ def test_owned_inspection_failure_retires_stale_actions_without_reviving_blank_i
             assert not page.field.cards and page.path_edit.text() == ''
             assert not page.status.text()
         else:
-            assert [card._key for card in page.field.cards] == ['warning']
+            assert not page.field.cards
             assert 'Check permissions' in page.status.text()
-            assert 'Check permissions' in page.field.cards[0].description.text()
+            assert page.field.details.toPlainText() == page.status.text()
+            assert page.field.details.isVisible()
+            assert not page.field.details.visibleRegion().isEmpty()
+            assert page.path_edit.accessibleDescription() == page.status.text()
+            assert page.path_edit.toolTip() == page.status.text()
         assert path.exists()
     finally:
         page.close()
