@@ -20,6 +20,106 @@ from spacr import pipeline_v2 as PV
 from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
 
 
+@pytest.mark.parametrize('kind', ['gray-png', 'rgb-png', 'animated-gif', 'volume-tiff'])
+def test_calibrated_plane_readers_preserve_or_refuse_the_actual_acquired_axes(tmp_path, kind):
+    from PIL import Image
+    import tifffile
+
+    pixels = np.arange(20, dtype=np.uint8).reshape(4, 5)
+    path = tmp_path / ('source.tif' if kind == 'volume-tiff' else
+                       'source.gif' if kind == 'animated-gif' else 'source.png')
+    if kind == 'volume-tiff':
+        tifffile.imwrite(path, np.stack([pixels] * 2), photometric='minisblack')
+    elif kind == 'animated-gif':
+        Image.fromarray(pixels).save(path, save_all=True,
+            append_images=[Image.fromarray(pixels + 1)], duration=100)
+    else:
+        Image.fromarray(pixels if kind == 'gray-png' else np.stack([pixels] * 3, axis=-1)).save(path)
+    before = path.read_bytes()
+    if kind == 'gray-png':
+        header = PV._partition_plane_header(path)
+        assert header['shape'] == [4, 5] and np.dtype(header['dtype']) == pixels.dtype
+        np.testing.assert_array_equal(PV._read_plane(str(path), calibrated=True), pixels)
+        with pytest.raises(ValueError, match='pixel budget'):
+            PV._read_plane(str(path), calibrated=True, max_pixels=19)
+    else:
+        with pytest.raises(ValueError):
+            PV._partition_plane_header(path)
+        with pytest.raises(ValueError, match='single-channel 2D'):
+            PV._read_plane(str(path), calibrated=True)
+    assert path.read_bytes() == before
+
+
+@pytest.mark.parametrize('damage', ['missing-channel', 'different-shape'])
+def test_calibrated_stack_assembly_never_substitutes_or_broadcasts_camera_planes(tmp_path, damage):
+    import tifffile
+
+    source = tmp_path / 'camera'
+    source.mkdir()
+    records = []
+    for channel, shape in [(0, (4, 5)), (1, (5, 5) if damage == 'different-shape' else (4, 5))]:
+        path = source / f'c{channel}.tif'
+        tifffile.imwrite(path, np.full(shape, channel + 11, np.uint16))
+        records.append(PV.FilenameRecord(str(path), 'plate1', 'A01', 1, channel, stack_field_id='f1'))
+    mapper = PV.FilenameMapper(records[:1] if damage == 'missing-channel' else records, 'custom', '')
+    before = {path: path.read_bytes() for path in source.iterdir()}
+    destination = tmp_path / 'output'
+    with pytest.raises(ValueError, match='physical channel|same acquired YX'):
+        PV.stream_originals_to_stack(source, mapper, channels=(0, 1), dst=destination, calibrated=True)
+    assert not list(destination.glob('*.npy'))
+    assert all(path.read_bytes() == raw for path, raw in before.items())
+
+
+@pytest.mark.parametrize('moment', ['before-read', 'during-read'])
+def test_control_header_identity_is_rechecked_around_pixel_loading(tmp_path, monkeypatch, moment):
+    import tifffile
+
+    path = tmp_path / 'control.tif'
+    pixels = np.arange(20, dtype=np.uint16).reshape(4, 5)
+    tifffile.imwrite(path, pixels)
+    header = PV._partition_plane_header(path)
+    record = PV.FilenameRecord(str(path), 'plate1', 'A01', 1, 0)
+    original_read = PV._read_plane
+    reads = []
+
+    def mutate_during_read(*args, **kwargs):
+        reads.append(args[0])
+        value = original_read(*args, **kwargs)
+        tifffile.imwrite(path, pixels + 1)
+        return value
+
+    if moment == 'before-read':
+        tifffile.imwrite(path, pixels + 1)
+    monkeypatch.setattr(PV, '_read_plane', mutate_during_read)
+    with pytest.raises(ValueError):
+        PV._partition_read_control([record], (0,), {str(path): header})
+    assert reads == ([] if moment == 'before-read' else [str(path)])
+    np.testing.assert_array_equal(tifffile.imread(path), pixels + 1)
+
+
+@pytest.mark.parametrize('invalid', ['object', 'illumination', 'foreign-parent', 'position'])
+def test_calibrated_mask_entry_refuses_an_unowned_or_incompatible_stack_before_model(
+        tmp_path, monkeypatch, invalid):
+    from cellpose import models
+
+    root = tmp_path / 'calibrated'
+    merged = root / 'merged'
+    merged.mkdir(parents=True)
+    path = (tmp_path if invalid == 'foreign-parent' else merged) / 'stack_f1.npy'
+    np.save(path, np.ones((4, 5, 1), np.float32))
+    before = path.read_bytes()
+    stack = PV.StackFile('f1', path, (4, 5, 1), ['ch0'])
+    session = types.SimpleNamespace(calibrated=True, root=root, configuration={})
+    monkeypatch.setattr(models, 'CellposeModel', lambda **kwargs: pytest.fail('Rejected input built a model'))
+    with pytest.raises(ValueError):
+        PV.stream_masks_from_stack([stack], psf_session=session,
+            object_type='nucleus' if invalid == 'object' else 'cell',
+            illumination_session=object() if invalid == 'illumination' else None,
+            channels_for_cellpose=(1,) if invalid == 'position' else (0,))
+    assert path.read_bytes() == before
+    assert stack.shape == (4, 5, 1) and stack.channels == ['ch0']
+
+
 def make_plate(dst: Path, channels=3, size=12) -> Path:
     import tifffile
 
