@@ -437,8 +437,13 @@ def test_network_hover_paints_immediately_without_icon_reads_or_restyles(
     assert latencies and max(latencies) < .5
     assert page.styleSheet() == before_sheet
     assert workflow.details is page.field.details
-    assert workflow.details.width() == min(780, page.field.width() - 32)
-    assert workflow.details.height() == 88 + 2 * workflow.details.fontMetrics().lineSpacing()
+    assert not workflow.details._minimized
+    assert workflow.details.width() == min(1560, max(180, page.field.width() - 32))
+    assert workflow.details.x() == (page.field.width() - workflow.details.width()) // 2
+    available = max(1, page.field.height() - page.field.panel.y() - page.field.panel.height() - 32)
+    assert workflow.details.height() == min(
+        176 + 2 * workflow.details.fontMetrics().lineSpacing(), available)
+    assert workflow.details.y() + workflow.details.height() == page.field.height() - 16
     print('hover-to-paint seconds:', latencies)
     page.close()
 
