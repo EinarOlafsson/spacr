@@ -46,6 +46,15 @@ def _cpu_matrix(data):
     return torch.from_numpy(np.ascontiguousarray(data, dtype=np.float32))
 
 
+def _requested_mps_cpu_tensor(records, allocator, data, **kwargs):
+    """Record the requested Metal dispatch, then explicitly allocate a real CPU tensor for the oracle."""
+    assert kwargs.get("device") == "mps"
+    records.append({"device": kwargs["device"], "dtype": np.asarray(data).dtype,
+                    "contiguous": np.asarray(data).flags.c_contiguous,
+                    "values": np.asarray(data).copy()})
+    return allocator(data, **{**kwargs, "device": "cpu"})
+
+
 def _unexpected_tensor_allocation(*args, **kwargs):
     pytest.fail("invalid input reached tensor allocation")
 
@@ -109,6 +118,44 @@ def test_cpu_lloyd_boundary_matches_independent_clusters_and_sklearn(
     assert model.n_features_in_ == 2
     np.testing.assert_array_equal(labels, model.labels_)
     np.testing.assert_array_equal(points, before)
+
+    import torch
+    from functools import partial
+
+    held_out = np.array([[-20, 2], [-1, 3], [0, 0], [2, -1], [20, -2]], dtype=np.float64)
+    held_out += [2**20, -(2**19)]
+    original_queries = held_out.copy()
+    delta = held_out[:, None, :] - expected_centers[np.argsort(order)][None, :, :]
+    expected_queries = np.argmin(np.einsum("nkd,nkd->nk", delta, delta), axis=1)
+    assert expected_queries[2] == 0
+    records = []
+    monkeypatch.setattr(torch, "as_tensor", partial(_requested_mps_cpu_tensor, records, torch.as_tensor))
+    predicted = model.predict(held_out)
+    np.testing.assert_array_equal(predicted, expected_queries)
+    assert len(records) == 1 and records[0]["device"] == "mps"
+    np.testing.assert_array_equal(records[0]["values"], model._centered_centers)
+    np.testing.assert_array_equal(held_out, original_queries)
+
+
+def test_valid_matrix_records_float32_contiguous_mps_dispatch(monkeypatch):
+    """The real admission helper requests MPS with contiguous float32 data; the recorder returns actual CPU storage."""
+    import torch
+    from functools import partial
+    from spacr.mps_reduce import _matrix
+
+    data = np.arange(48, dtype=np.float64).reshape(8, 6)[:, ::2]
+    before = data.copy()
+    assert not data.flags.c_contiguous
+    records = []
+    monkeypatch.setattr(torch, "as_tensor", partial(_requested_mps_cpu_tensor, records, torch.as_tensor))
+    result = _matrix(data)
+    assert len(records) == 1
+    assert records[0]["device"] == "mps" and records[0]["dtype"] == np.dtype("float32")
+    assert records[0]["contiguous"]
+    assert result.device.type == "cpu" and result.dtype == torch.float32
+    assert result.is_contiguous() and tuple(result.shape) == (8, 3)
+    np.testing.assert_array_equal(result.numpy(), before.astype(np.float32))
+    np.testing.assert_array_equal(data, before)
 
 
 def test_cpu_lloyd_identical_rows_have_zero_inertia_and_stable_ties(monkeypatch):
