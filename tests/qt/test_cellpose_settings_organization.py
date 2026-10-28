@@ -188,3 +188,40 @@ def test_native_run_submits_organized_values_to_own_entry_boundary(qtbot, monkey
     assert {name: submitted[0][1][name] for name in changes} == changes
     assert screen._thread.started
     screen.close()
+
+
+@pytest.mark.parametrize('failure', ['missing', 'unreadable'])
+def test_native_folder_runner_refuses_unavailable_source_without_starting(
+        qtbot, monkeypatch, tmp_path, failure):
+    source = tmp_path / 'images'
+    if failure == 'unreadable':
+        source.mkdir()
+        tifffile.imwrite(source / 'field.tif', np.ones((8, 9), dtype=np.uint16))
+    before = {path.relative_to(tmp_path): path.read_bytes()
+              for path in tmp_path.rglob('*') if path.is_file()}
+    screen = app_screen.AppScreen('cellpose_masks')
+    qtbot.addWidget(screen)
+    screen.apply_settings_dict({'src': str(source)})
+    messages = []
+    original_scandir = train_cellpose.os.scandir
+
+    def unavailable(path):
+        if str(path) == str(source):
+            raise PermissionError('The selected source cannot be listed')
+        return original_scandir(path)
+
+    with monkeypatch.context() as guarded:
+        guarded.setattr(QMessageBox, 'warning',
+                        lambda _owner, _title, message: messages.append(message))
+        guarded.setattr(screen, '_wait_for_the_entry_import',
+                        lambda _override: pytest.fail('Unavailable input must not start an import or run'))
+        if failure == 'unreadable':
+            guarded.setattr(train_cellpose.os, 'scandir', unavailable)
+        screen._on_run()
+
+    assert len(messages) == 1 and 'lowercase .tif' in messages[0]
+    assert screen._btn_run.isEnabled()
+    assert source.is_dir() is (failure == 'unreadable')
+    assert {path.relative_to(tmp_path): path.read_bytes()
+            for path in tmp_path.rglob('*') if path.is_file()} == before
+    screen.close()

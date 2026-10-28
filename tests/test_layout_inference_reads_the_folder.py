@@ -213,3 +213,15 @@ def test_an_unreadable_file_does_not_stop_the_scan(tmp_path):
     inside = read_axes_inside(broken)
     assert inside.pages == 0
     assert not inside.declared
+
+
+def test_an_empty_source_folder_has_no_invented_images_or_axes(tmp_path):
+    layout = infer_layout(tmp_path)
+
+    assert layout.root == tmp_path
+    assert layout.sampled == 0
+    assert layout.per_file == {}
+    assert layout.axes == set()
+    assert layout.slots == [] and layout.unplaced == {} and layout.skipped == []
+    assert layout.summary() == "0 files, 0 axes resolved"
+    assert list(tmp_path.iterdir()) == []

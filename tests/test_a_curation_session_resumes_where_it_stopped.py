@@ -949,3 +949,15 @@ def test_write_cache_false_leaves_no_file_behind(tmp_path):
 
     assert _counts(folder, write_cache=False) == {"aaa": 2}
     assert not (folder / DRAFTS_FILENAME).exists()
+
+
+def test_a_negative_session_limit_refuses_without_changing_the_queue(tmp_path):
+    folder = _nested_layout(tmp_path, {"field_a": 2, "field_b": 3})
+    before = {path.relative_to(folder): path.read_bytes()
+              for path in folder.rglob("*") if path.is_file()}
+
+    with pytest.raises(ValueError, match="limit must not be negative"):
+        build_queue(folder, order="name", limit=-1)
+
+    assert {path.relative_to(folder): path.read_bytes()
+            for path in folder.rglob("*") if path.is_file()} == before
