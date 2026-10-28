@@ -1,5 +1,5 @@
 # spaCR user guide translation (fr).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-28 14:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: fr\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -61,8 +61,9 @@ msgstr "Mesure ne déduit pas l’optique à partir des métadonnées de l’ima
 msgid "Run Measure and inspect the resulting object-feature tables in ``measurements.db``. PSF processing changes the intensity stream used for quantitative features; source files and exported crops retain their usual behavior. The ``intensity_rescale`` table records the selected source and PSF processing details. Keep the database with the settings and kernel file."
 msgstr "Exécutez Mesure et examinez les tables objets-caractéristiques obtenues dans ``measurements.db``. Le traitement PSF modifie le flux d’intensités utilisé pour les caractéristiques quantitatives ; les fichiers sources et les vignettes exportées conservent leur comportement habituel. La table ``intensity_rescale`` enregistre la source choisie et les détails du traitement PSF. Conservez la base de données avec les paramètres et le fichier du noyau."
 
-msgid "To compare different kernels or original and processed measurements, use separate projects or output databases. An existing database cannot mix measurements made with different PSF configurations. Restore the recorded configuration when resuming a run. See :func:`spacr.psf_measurement.prepare_measurement_psf` for the Python settings contract."
-msgstr "Pour comparer différents noyaux, ou des mesures d’origine et traitées, utilisez des projets ou des bases de données de sortie distincts. Une base de données existante ne peut pas mélanger des mesures effectuées avec des configurations PSF différentes. Rétablissez la configuration enregistrée lors de la reprise d’une exécution. Consultez :func:`spacr.psf_measurement.prepare_measurement_psf` pour le contrat des paramètres Python."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "When resuming a run, keep the recorded PSF configuration: incompatible intensity sources or kernels are refused. A fresh SQLite run with ``resume=False`` can instead archive the previous measurement population in suffixed tables before writing new fields, keeping its records separate from the new population. A fresh run with a non-SQLite backend requires a separate project when a previous population must be archived. Separate projects or output databases also make comparisons easier to track. See :func:`spacr.psf_measurement.prepare_measurement_psf` for the Python settings contract."
+msgstr "Lors de la reprise d’une exécution, conservez la configuration PSF enregistrée : les sources d’intensité ou noyaux incompatibles sont refusés. Une nouvelle exécution SQLite avec ``resume=False`` peut à la place archiver la population de mesures précédente dans des tables suffixées avant d’écrire de nouveaux champs, afin de séparer ses enregistrements de la nouvelle population. Une nouvelle exécution avec un moteur autre que SQLite exige un projet distinct lorsqu’une population précédente doit être archivée. Des projets ou bases de données de sortie séparés facilitent aussi le suivi des comparaisons. Consultez :func:`spacr.psf_measurement.prepare_measurement_psf` pour le contrat des paramètres Python."
 
 msgid "Load the image and PSF"
 msgstr "Charger l’image et la PSF"

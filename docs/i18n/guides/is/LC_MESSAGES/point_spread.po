@@ -1,5 +1,5 @@
 # spaCR user guide translation (is).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-28 14:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -61,8 +61,9 @@ msgstr "Mæling ályktar ekki ljósfræði út frá lýsigögnum mynda: sláðu 
 msgid "Run Measure and inspect the resulting object-feature tables in ``measurements.db``. PSF processing changes the intensity stream used for quantitative features; source files and exported crops retain their usual behavior. The ``intensity_rescale`` table records the selected source and PSF processing details. Keep the database with the settings and kernel file."
 msgstr "Keyrðu Mæling og skoðaðu töflurnar yfir eiginleika hluta sem verða til í ``measurements.db``. PSF-vinnsla breytir styrkleikastraumnum sem notaður er fyrir megindlega eiginleika; upprunaskrár og útfluttir myndskurðir halda venjulegri hegðun sinni. Taflan ``intensity_rescale`` skráir valinn uppruna og upplýsingar um PSF-vinnslu. Geymdu gagnagrunninn með stillingunum og kjarnaskránni."
 
-msgid "To compare different kernels or original and processed measurements, use separate projects or output databases. An existing database cannot mix measurements made with different PSF configurations. Restore the recorded configuration when resuming a run. See :func:`spacr.psf_measurement.prepare_measurement_psf` for the Python settings contract."
-msgstr "Til að bera saman mismunandi kjarna eða upphaflegar og unnar mælingar skaltu nota aðskilin verkefni eða úttaksgagnagrunna. Fyrirliggjandi gagnagrunnur getur ekki blandað saman mælingum gerðum með mismunandi PSF-stillingum. Endurheimtu skráðu stillingarnar þegar keyrslu er haldið áfram. Sjá :func:`spacr.psf_measurement.prepare_measurement_psf` fyrir stillingasamning Python."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "When resuming a run, keep the recorded PSF configuration: incompatible intensity sources or kernels are refused. A fresh SQLite run with ``resume=False`` can instead archive the previous measurement population in suffixed tables before writing new fields, keeping its records separate from the new population. A fresh run with a non-SQLite backend requires a separate project when a previous population must be archived. Separate projects or output databases also make comparisons easier to track. See :func:`spacr.psf_measurement.prepare_measurement_psf` for the Python settings contract."
+msgstr "Haltu skráðri PSF-stillingu þegar keyrsla er endurupptekin: ósamrýmanlegum styrkleikauppsprettum eða kjörnum er hafnað. Ný SQLite-keyrsla með ``resume=False`` getur í staðinn varðveitt fyrra mæliþýðið í töflum með viðskeytum áður en ný myndsvið eru skrifuð og haldið færslum þess aðskildum frá nýja þýðinu. Ný keyrsla með öðru gagnagrunnskerfi en SQLite krefst sérstaks verkefnis þegar varðveita þarf fyrra þýði. Aðskilin verkefni eða úttaksgagnagrunnar auðvelda líka að rekja samanburð. Sjá :func:`spacr.psf_measurement.prepare_measurement_psf` fyrir stillingasamning Python."
 
 msgid "Load the image and PSF"
 msgstr "Hlaða myndinni og PSF"
