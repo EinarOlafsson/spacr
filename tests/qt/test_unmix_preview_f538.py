@@ -691,3 +691,15 @@ def test_invalid_ridge_scales_remain_visible_for_validation_and_blank_model_path
     panel._select_display_channel(None)
     assert panel.display_channel() == channel and panel._worker is None
     panel.close()
+
+
+def test_auto_diameter_spelling_normalizes_without_changing_a_manual_measurement(qtbot):
+    box = lp._DiameterSpinBox()
+    qtbot.addWidget(box)
+    for written in ('Auto', ' AUTO ', 'auto'):
+        assert box.fixup(written) == 'auto'
+        assert box.valueFromText(written) == 0
+    box.setValue(12)
+    before = box.text()
+    box.fixup('12')
+    assert box.value() == 12 and box.text() == before

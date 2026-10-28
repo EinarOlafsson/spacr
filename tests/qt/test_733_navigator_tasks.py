@@ -452,3 +452,91 @@ def test_workflow_native_route_delivers_only_schema_accepted_input(commands, mon
     app.MainWindow._open_easy_suggestion(commands, 'graph_builder', str(source))
     assert delivered == ([(source, commands.screen)] if accepts else [])
     assert source.read_bytes() == b'original input'
+
+
+@pytest.mark.parametrize('at_home', [False, True])
+def test_disabling_easy_mode_retains_an_active_module_and_only_home_stays_home(
+        commands, monkeypatch, at_home):
+    from PySide6.QtWidgets import QStackedWidget, QWidget
+    from spacr.qt import preferences
+
+    stack = QStackedWidget(commands)
+    home = QWidget(stack)
+    stack.addWidget(home)
+    stack.addWidget(commands.screen)
+    stack.setCurrentWidget(home if at_home else commands.screen)
+    commands.setCentralWidget(stack)
+    commands._startup, commands._stack = home, stack
+    preferences.set_easy_mode(True)
+    app.MainWindow._set_easy_mode_from_help(commands, False)
+    assert not preferences.get_easy_mode() and not commands._act_easy_mode.isChecked()
+    assert commands.refreshed == [{'easy_mode'}]
+    assert commands.navigated == (['__home__'] if at_home else [])
+    assert stack.currentWidget() is (home if at_home else commands.screen)
+
+
+def test_navigation_search_offers_only_visible_enabled_help_actions_without_duplicates(commands):
+    menu = commands._easy_help_menu.addMenu('Audit')
+    menu.addAction('Export audit report')
+    menu.addAction('Export audit report')
+    menu.addSeparator()
+    menu.addAction('Hidden audit report').setVisible(False)
+    menu.addAction('Disabled audit report').setEnabled(False)
+    rows = app.MainWindow._easy_navigation_suggestions(commands, 'audit report')
+    assert [(key, title) for key, title, description, path in rows] == [
+        ('__easy_command__:Export audit report', 'Export audit report')]
+    assert not commands.opened and not commands.navigated
+
+
+def test_native_help_pruning_handles_a_shared_real_submenu_without_removing_documentation(commands):
+    from PySide6.QtGui import QAction
+    from PySide6.QtWidgets import QMenu
+
+    untouched = commands._easy_help_menu.addAction('API documentation')
+    app._prune_native_help_actions(commands)
+    assert untouched in commands._easy_help_menu.actions()
+    native = QAction('Mask', commands)
+    commands._app_actions = {'mask': native}
+    branch = commands._easy_help_menu.addMenu('More help')
+    shared = QMenu('Shared module help', commands)
+    commands._easy_help_menu.addMenu(shared)
+    branch.addMenu(shared)
+    duplicate = shared.addAction('Open this module')
+    duplicate.setProperty('moduleAppKey', 'mask')
+    genuine = shared.addAction('Read module documentation')
+    app._prune_native_help_actions(commands)
+    assert duplicate not in shared.actions()
+    assert genuine in shared.actions() and untouched in commands._easy_help_menu.actions()
+    assert shared.menuAction() in branch.actions()
+    assert shared.menuAction() in commands._easy_help_menu.actions()
+
+
+@pytest.mark.parametrize('kind', ['dimension', 'paired', 'analysis'])
+def test_input_routing_with_an_unavailable_destination_cannot_apply_or_change_the_source(
+        commands, monkeypatch, tmp_path, kind):
+    source = tmp_path / 'source.tif'
+    source.write_bytes(b'unchanged input')
+    requests = []
+
+    def unavailable(key):
+        requests.append(key)
+        return None
+
+    monkeypatch.setattr(commands, '_open_easy_named_module', unavailable)
+    if kind == 'dimension':
+        key, context = '3d', {'dimension_routes': {'3d': {'source': str(source)}}}
+    elif kind == 'paired':
+        key, context = 'make_masks', {'paired_layout': {'kind': 'unstructured', 'pairs': {str(source): 'mask.tif'}}}
+    else:
+        key, context = 'graph_builder', {'analysis_inputs': {'graph_builder': {}}}
+    assert commands._open_easy_input(key, str(source), context)
+    assert requests == [key] and source.read_bytes() == b'unchanged input'
+
+
+def test_failed_native_screen_construction_does_not_return_a_phantom_module(commands, monkeypatch):
+    commands._screens = {}
+    requested = []
+    monkeypatch.setattr(commands, 'open_module', requested.append, raising=False)
+    monkeypatch.setattr(app, 'app_is_visible', lambda key: True)
+    assert app.MainWindow._open_easy_named_module(commands, 'mask') is None
+    assert requested == ['mask'] and commands._screens == {}

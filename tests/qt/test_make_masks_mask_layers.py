@@ -712,3 +712,67 @@ def test_invalid_pairing_request_cannot_create_a_destination(tmp_path, pairs):
     with pytest.raises(ValueError):
         mm._copy_paired_layout(pairs, str(destination))
     assert not destination.exists() and not list(tmp_path.glob('.spacr-paired-*'))
+
+
+@pytest.mark.parametrize('thickness', [.5, 2.0])
+def test_visible_layer_outlines_change_real_canvas_pixels_without_changing_the_mask(
+        screen, folder, qtbot, thickness):
+    from PySide6.QtGui import QImage
+
+    _open(screen, folder)
+    screen.resize(1280, 900)
+    screen.show()
+    qtbot.waitExposed(screen)
+    canvas = screen._canvas
+    screen._on_outline_thickness_changed(thickness)
+    before = canvas.mask.copy()
+    shown = canvas.grab().toImage().convertToFormat(QImage.Format_RGBA8888)
+    for index in range(len(screen._layers)):
+        screen._on_layer_visible(index, False)
+    hidden = canvas.grab().toImage().convertToFormat(QImage.Format_RGBA8888)
+    assert shown.size() == hidden.size() and not shown.isNull()
+    first = np.frombuffer(shown.bits(), dtype=np.uint8).copy()
+    second = np.frombuffer(hidden.bits(), dtype=np.uint8)
+    assert np.count_nonzero(first != second) > 0
+    np.testing.assert_array_equal(canvas.mask, before)
+    assert not screen._edits_unsaved()
+
+
+def test_source_mutation_during_a_real_paired_copy_refuses_publication_and_cleans_its_stage(tmp_path):
+    import os
+
+    root = tmp_path / 'source'
+    root.mkdir()
+    image, mask = root / 'field.tif', root / 'field_mask.tif'
+    imageio.imwrite(image, np.arange(64, dtype=np.uint16).reshape(8, 8))
+    imageio.imwrite(mask, np.ones((8, 8), dtype=np.uint16))
+    original = image.read_bytes(), mask.read_bytes()
+    destination = tmp_path / 'prepared'
+    mutated = []
+
+    def observe_copy():
+        if not mutated and any((stage / 'images/field.tif').exists()
+                               for stage in tmp_path.glob('.spacr-paired-*')):
+            stamp = image.stat()
+            os.utime(image, ns=(stamp.st_atime_ns, stamp.st_mtime_ns + 1_000_000_000))
+            mutated.append(True)
+        return False
+
+    with pytest.raises(ValueError, match='source changed'):
+        mm._copy_paired_layout([(str(image), str(mask))], str(destination), cancelled=observe_copy)
+    assert mutated == [True]
+    assert image.read_bytes() == original[0] and mask.read_bytes() == original[1]
+    assert not destination.exists() and not list(tmp_path.glob('.spacr-paired-*'))
+
+
+def test_empty_curated_folder_entry_chooses_a_safe_new_target_without_overwriting_a_layer(screen, folder):
+    _open(screen, folder)
+    original = {path: path.read_bytes() for path in folder.rglob('*.tif')}
+    screen._layer_name_edit.clear()
+    screen._on_layer_folder_named()
+    screen._on_layer_target_chosen(0)
+    target = Path(screen._layer_target)
+    assert target.parent == folder and target.name.startswith('masks_curated_')
+    assert str(target) not in {row['path'] for row in screen._layers}
+    assert not target.exists() and screen._layer_pending_target is None
+    assert all(path.read_bytes() == value for path, value in original.items())
