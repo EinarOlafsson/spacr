@@ -12733,6 +12733,201 @@
           "zm_yunyang"
         ]
       }
+    },
+    {
+      "id": "88_navigator",
+      "number": 88,
+      "slug": "navigator",
+      "title": "Navigator：为输入找到合适的工具",
+      "series": 1,
+      "app_key": null,
+      "section": "spaCR",
+      "description": "根据任务、文件或项目查找spaCR工具，检查输入依据和设置，并沿工作流程进入工具的原有界面。",
+      "objectives": [
+        "通过本地路径、拖入的文件或文件夹，以及按Enter提交的任务查找工具，任务匹配不区分英文字母大小写。",
+        "打开工具原有界面前，检查输入依据、建议设置和工作流程步骤。",
+        "浏览按生物组织的工作流程、面板、活动任务和可选AI控件。",
+        "区分测量表与标注或历史数据库，并通过Home重新开始。"
+      ],
+      "prerequisite": "安装spaCR并打开Navigator。使用提供的示例图像、图像文件夹、已完成测量的项目、仅含标注或历史记录的数据库以及设置文件，或使用同等的本地输入。",
+      "scenes": [
+        {
+          "visual": "01_navigator_start",
+          "narration": "Navigator启动后，在spaCR主题背景上显示搜索框。使用spacr-nav或spacr-navigator打开它，然后从任务、文件或文件夹开始。",
+          "hold_after": 0.7,
+          "speech_text": "Navigator启动后，在斯佩克尔主题背景上显示搜索框。使用斯佩克尔-nav或斯佩克尔-navigator打开它，然后从任务、文件或文件夹开始。"
+        },
+        {
+          "visual": "02_help_navigator",
+          "narration": "也可以从Help启用Navigator。Navigator默认开启，但会保留已保存的选择。",
+          "hold_after": 0.7,
+          "speech_text": "也可以从Help启用Navigator。Navigator默认开启，但会保留已保存的选择。"
+        },
+        {
+          "visual": "03_dock_right_panels",
+          "narration": "使用可折叠侧边栏直接打开模块。News和Widgets在工作区旁展开，搜索框和说明保持原位。",
+          "hold_after": 0.7,
+          "speech_text": "使用可折叠侧边栏直接打开模块。News和Widgets在工作区旁展开，搜索框和说明保持原位。"
+        },
+        {
+          "visual": "04_enter_case_query",
+          "narration": "输入Measure并按Enter。匹配不区分英文字母大小写。仅输入文字会保留当前建议，不会启动工具。",
+          "hold_after": 0.7,
+          "speech_text": "输入Measure并按Enter。匹配不区分英文字母大小写。仅输入文字会保留当前建议，不会启动工具。"
+        },
+        {
+          "visual": "05_native_file_drop",
+          "narration": "将一个本地图像文件拖入Navigator。它会检查输入并提供受支持的后续步骤，而不是启动处理任务。",
+          "hold_after": 0.7,
+          "speech_text": "将一个本地图像文件拖入Navigator。它会检查输入并提供受支持的后续步骤，而不是启动处理任务。"
+        },
+        {
+          "visual": "06_native_folder_drop",
+          "narration": "拖入一个文件夹以检查其内容。建议取决于该文件夹中已有的文件和数据。",
+          "hold_after": 0.7,
+          "speech_text": "拖入一个文件夹以检查其内容。建议取决于该文件夹中已有的文件和数据。"
+        },
+        {
+          "visual": "07_typed_project_path",
+          "narration": "要指定准确位置，请粘贴文件或项目路径并按Enter。也可以通过Browse选择文件或文件夹。",
+          "hold_after": 0.7,
+          "speech_text": "要指定准确位置，请粘贴文件或项目路径并按Enter。也可以通过Browse选择文件或文件夹。"
+        },
+        {
+          "visual": "08_measured_evidence_cards",
+          "narration": "已完成测量的项目含有分析工具可读取的数据。这里的测量表使Graph Builder等工具可供使用。",
+          "hold_after": 0.7,
+          "speech_text": "已完成测量的项目含有分析工具可读取的数据。这里的测量表使Graph Builder等工具可供使用。"
+        },
+        {
+          "visual": "09_annotation_only_scope",
+          "narration": "此示例包含标注和历史记录表，而不是已测量的特征。仅凭数据库文件名，无法证明已经计算了测量结果。",
+          "hold_after": 0.7,
+          "speech_text": "此示例包含标注和历史记录表，而不是已测量的特征。仅凭数据库文件名，无法证明已经计算了测量结果。"
+        },
+        {
+          "visual": "10_saved_settings_preview",
+          "narration": "设置文件可以提供建议模块和设置预览。打开模块前请检查建议；Navigator不会替你运行分析。",
+          "hold_after": 0.7,
+          "speech_text": "设置文件可以提供建议模块和设置预览。打开模块前请检查建议；Navigator不会替你运行分析。"
+        },
+        {
+          "visual": "11_module_workflow",
+          "narration": "选择模块卡片以浏览其工作流程。阅读卡片下方的说明，确认用途和所需输入。",
+          "hold_after": 0.7,
+          "speech_text": "选择模块卡片以浏览其工作流程。阅读卡片下方的说明，确认用途和所需输入。"
+        },
+        {
+          "visual": "12_incremental_next_steps",
+          "narration": "探索下一步骤以扩展网络。先前的分支仍然可见，帮助你沿输入、分析到结果的路径逐步查看。",
+          "hold_after": 0.7,
+          "speech_text": "探索下一步骤以扩展网络。先前的分支仍然可见，帮助你沿输入、分析到结果的路径逐步查看。"
+        },
+        {
+          "visual": "13_toxoplasma_network",
+          "narration": "搜索Toxoplasma，查看其生物相关工作流程和实验检测选项。选择符合现有数据和生物学问题的步骤。",
+          "hold_after": 0.7,
+          "speech_text": "搜索Toxoplasma，查看其生物相关工作流程和实验检测选项。选择符合现有数据和生物学问题的步骤。"
+        },
+        {
+          "visual": "14_back_escape",
+          "narration": "使用Back或Escape从工作流程返回建议。这些导航操作不会运行分析，也不会修改输入文件。",
+          "hold_after": 0.7,
+          "speech_text": "使用Back或Escape从工作流程返回建议。这些导航操作不会运行分析，也不会修改输入文件。"
+        },
+        {
+          "visual": "15_native_source_handoff",
+          "narration": "准备好后，打开建议工具的原有界面。Navigator会将所选输入传递给对应的来源设置；按Run前请检查设置。",
+          "hold_after": 0.7,
+          "speech_text": "准备好后，打开建议工具的原有界面。Navigator会将所选输入传递给对应的来源设置；按Run前请检查设置。"
+        },
+        {
+          "visual": "16_running_inspect",
+          "narration": "输入running jobs并选择Running，在Widgets中查看活动的spaCR任务。Open、pause和stop控件作用于列表中的任务。",
+          "hold_after": 0.7,
+          "speech_text": "输入running jobs并选择Running，在Widgets中查看活动的斯佩克尔任务。Open、pause和stop控件作用于列表中的任务。"
+        },
+        {
+          "visual": "17_ai_consent_cancel",
+          "narration": "AI控件是可选的。首次使用对话框允许选择服务提供方。本地路径和匹配的工具建议仍沿用正常流程。",
+          "hold_after": 0.7,
+          "speech_text": "AI控件是可选的。首次使用对话框允许选择服务提供方。本地路径和匹配的工具建议仍沿用正常流程。"
+        },
+        {
+          "visual": "18_home_fresh_reset",
+          "narration": "Home会清除Navigator之前的建议和工作流程，返回全新的搜索。用下一个想探索的任务或输入重新开始。",
+          "hold_after": 0.7,
+          "speech_text": "主页会清除Navigator之前的建议和工作流程，返回全新的搜索。用下一个想探索的任务或输入重新开始。"
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     }
   ],
   "language": "zh-CN",

@@ -18468,6 +18468,201 @@
           "zm_yunyang"
         ]
       }
+    },
+    {
+      "id": "88_navigator",
+      "number": 88,
+      "slug": "navigator",
+      "title": "Navigator : trouver le bon outil pour vos données",
+      "series": 1,
+      "app_key": null,
+      "section": "spaCR",
+      "description": "Trouvez les outils spaCR à partir d’une tâche, d’un fichier ou d’un projet, examinez les données d’entrée et les paramètres, puis suivez les flux vers les modules natifs.",
+      "objectives": [
+        "Trouver des outils avec des chemins locaux, des fichiers ou dossiers déposés et des tâches validées par Enter, sans distinction de casse.",
+        "Examiner les données d’entrée, les paramètres proposés et les étapes avant d’ouvrir un outil natif.",
+        "Parcourir les flux par organisme, les panneaux, les tâches actives et les commandes d’IA facultatives.",
+        "Distinguer les tables de mesures des bases d’annotations ou d’historique et repartir de zéro avec Home."
+      ],
+      "prerequisite": "Installez spaCR et ouvrez Navigator. Utilisez l’image, le dossier d’images, le projet avec mesures, la base contenant uniquement des annotations ou un historique et le fichier de paramètres fournis, ou des entrées locales équivalentes.",
+      "scenes": [
+        {
+          "visual": "01_navigator_start",
+          "narration": "Navigator affiche d’abord un champ de recherche sur le thème visuel de spaCR. Ouvrez-le avec spacr-nav ou spacr-navigator, puis commencez par une tâche, un fichier ou un dossier.",
+          "hold_after": 0.7,
+          "speech_text": "Navigator affiche d’abord un champ de recherche sur le thème visuel de spakeur. Ouvrez-le avec spakeur-nav ou spakeur-navigator, puis commencez par une tâche, un fichier ou un dossier."
+        },
+        {
+          "visual": "02_help_navigator",
+          "narration": "Vous pouvez aussi activer Navigator depuis Help. Navigator est activé par défaut ; un choix enregistré est conservé.",
+          "hold_after": 0.7,
+          "speech_text": "Vous pouvez aussi activer Navigator depuis Help. Navigator est activé par défaut ; un choix enregistré est conservé."
+        },
+        {
+          "visual": "03_dock_right_panels",
+          "narration": "Utilisez le volet escamotable pour ouvrir directement un module. News et Widgets s’ouvrent à côté de l’espace de travail, tandis que la recherche et la description restent en place.",
+          "hold_after": 0.7,
+          "speech_text": "Utilisez le volet escamotable pour ouvrir directement un module. News et Widgets s’ouvrent à côté de l’espace de travail, tandis que la recherche et la description restent en place."
+        },
+        {
+          "visual": "04_enter_case_query",
+          "narration": "Saisissez Measure et appuyez sur Enter. La recherche ne distingue pas les majuscules des minuscules. La saisie seule conserve les suggestions actuelles et ne lance aucun outil.",
+          "hold_after": 0.7,
+          "speech_text": "Saisissez Measure et appuyez sur Enter. La recherche ne distingue pas les majuscules des minuscules. La saisie seule conserve les suggestions actuelles et ne lance aucun outil."
+        },
+        {
+          "visual": "05_native_file_drop",
+          "narration": "Déposez un seul fichier image local dans Navigator. Il examine l’entrée et propose les étapes suivantes compatibles, sans démarrer de traitement.",
+          "hold_after": 0.7,
+          "speech_text": "Déposez un seul fichier image local dans Navigator. Il examine l’entrée et propose les étapes suivantes compatibles, sans démarrer de traitement."
+        },
+        {
+          "visual": "06_native_folder_drop",
+          "narration": "Déposez un dossier pour examiner son contenu. Les suggestions dépendent des fichiers et des données déjà présents dans ce dossier.",
+          "hold_after": 0.7,
+          "speech_text": "Déposez un dossier pour examiner son contenu. Les suggestions dépendent des fichiers et des données déjà présents dans ce dossier."
+        },
+        {
+          "visual": "07_typed_project_path",
+          "narration": "Pour indiquer un emplacement précis, collez le chemin d’un fichier ou d’un projet et appuyez sur Enter. Browse permet aussi de choisir un fichier ou un dossier.",
+          "hold_after": 0.7,
+          "speech_text": "Pour indiquer un emplacement précis, collez le chemin d’un fichier ou d’un projet et appuyez sur Enter. Browse permet aussi de choisir un fichier ou un dossier."
+        },
+        {
+          "visual": "08_measured_evidence_cards",
+          "narration": "Un projet avec mesures contient des données lisibles par les outils d’analyse. Ici, les tables de mesures rendent disponibles des outils tels que Graph Builder.",
+          "hold_after": 0.7,
+          "speech_text": "Un projet avec mesures contient des données lisibles par les outils d’analyse. Ici, les tables de mesures rendent disponibles des outils tels que Graph Builder."
+        },
+        {
+          "visual": "09_annotation_only_scope",
+          "narration": "Cet exemple contient des tables d’annotations et d’historique, pas des caractéristiques mesurées. Le nom du fichier de base de données ne prouve pas, à lui seul, que des mesures ont été calculées.",
+          "hold_after": 0.7,
+          "speech_text": "Cet exemple contient des tables d’annotations et d’historique, pas des caractéristiques mesurées. Le nom du fichier de base de données ne prouve pas, à lui seul, que des mesures ont été calculées."
+        },
+        {
+          "visual": "10_saved_settings_preview",
+          "narration": "Les fichiers de paramètres peuvent proposer un module et un aperçu des réglages. Examinez cette proposition avant d’ouvrir le module ; Navigator ne lance pas l’analyse à votre place.",
+          "hold_after": 0.7,
+          "speech_text": "Les fichiers de paramètres peuvent proposer un module et un aperçu des réglages. Examinez cette proposition avant d’ouvrir le module ; Navigator ne lance pas l’analyse à votre place."
+        },
+        {
+          "visual": "11_module_workflow",
+          "narration": "Choisissez la carte d’un module pour explorer son flux. Lisez la description sous les cartes pour vérifier son objectif et les données d’entrée requises.",
+          "hold_after": 0.7,
+          "speech_text": "Choisissez la carte d’un module pour explorer son flux. Lisez la description sous les cartes pour vérifier son objectif et les données d’entrée requises."
+        },
+        {
+          "visual": "12_incremental_next_steps",
+          "narration": "Explorez une étape suivante pour étendre le réseau. Les branches précédentes restent visibles et vous aident à suivre le parcours des données d’entrée jusqu’à l’analyse et aux résultats.",
+          "hold_after": 0.7,
+          "speech_text": "Explorez une étape suivante pour étendre le réseau. Les branches précédentes restent visibles et vous aident à suivre le parcours des données d’entrée jusqu’à l’analyse et aux résultats."
+        },
+        {
+          "visual": "13_toxoplasma_network",
+          "narration": "Recherchez Toxoplasma pour afficher son flux par organisme et les choix d’essais. Sélectionnez l’étape adaptée à vos données et à votre question biologique.",
+          "hold_after": 0.7,
+          "speech_text": "Recherchez Toxoplasma pour afficher son flux par organisme et les choix d’essais. Sélectionnez l’étape adaptée à vos données et à votre question biologique."
+        },
+        {
+          "visual": "14_back_escape",
+          "narration": "Utilisez Back ou Escape pour revenir d’un flux aux suggestions. Ces actions de navigation ne lancent aucune analyse et ne modifient pas vos fichiers d’entrée.",
+          "hold_after": 0.7,
+          "speech_text": "Utilisez Back ou Escape pour revenir d’un flux aux suggestions. Ces actions de navigation ne lancent aucune analyse et ne modifient pas vos fichiers d’entrée."
+        },
+        {
+          "visual": "15_native_source_handoff",
+          "narration": "Ouvrez l’outil natif proposé lorsque vous êtes prêt. Navigator transmet l’entrée sélectionnée au paramètre source correspondant ; vérifiez les réglages avant d’appuyer sur Run.",
+          "hold_after": 0.7,
+          "speech_text": "Ouvrez l’outil natif proposé lorsque vous êtes prêt. Navigator transmet l’entrée sélectionnée au paramètre source correspondant ; vérifiez les réglages avant d’appuyer sur Run."
+        },
+        {
+          "visual": "16_running_inspect",
+          "narration": "Saisissez running jobs et choisissez Running pour consulter les tâches spaCR actives dans Widgets. Les commandes Open, pause et stop s’appliquent aux tâches de la liste.",
+          "hold_after": 0.7,
+          "speech_text": "Saisissez running jobs et choisissez Running pour consulter les tâches spakeur actives dans Widgets. Les commandes Open, pause et stop s’appliquent aux tâches de la liste."
+        },
+        {
+          "visual": "17_ai_consent_cancel",
+          "narration": "La commande d’IA est facultative. Sa boîte de dialogue de première utilisation permet de choisir un fournisseur. Les chemins locaux et les suggestions d’outils correspondantes conservent leurs parcours habituels.",
+          "hold_after": 0.7,
+          "speech_text": "La commande d’IA est facultative. Sa boîte de dialogue de première utilisation permet de choisir un fournisseur. Les chemins locaux et les suggestions d’outils correspondantes conservent leurs parcours habituels."
+        },
+        {
+          "visual": "18_home_fresh_reset",
+          "narration": "Home ramène Navigator à une recherche vierge en effaçant ses suggestions et son flux précédents. Recommencez avec la prochaine tâche ou entrée à explorer.",
+          "hold_after": 0.7,
+          "speech_text": "Home ramène Navigator à une recherche vierge en effaçant ses suggestions et son flux précédents. Recommencez avec la prochaine tâche ou entrée à explorer."
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     }
   ],
   "language": "fr",

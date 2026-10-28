@@ -1,0 +1,47 @@
+{
+  "lesson": "88_navigator",
+  "english_sha256": "bc247555154ed849430770f0f22040a3e93391f8bfc3b19a2806fb4493eac031",
+  "review": {
+    "kind": "Codex AI translation and technical text review",
+    "translator": "Codex (AI), translated from the current English source",
+    "date": "2026-10-27",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "correction": {
+      "date": "2026-10-27",
+      "kind": "Codex AI translation and technical text correction; no listening review or native-speaker sign-off",
+      "scope": "Scene 4 first sentence only: use the supported literal query Measure instead of measure cells; all other prose unchanged"
+    }
+  },
+  "language": "de",
+  "title": "Navigator: das passende Werkzeug für Ihre Eingabe finden",
+  "description": "Finden Sie spaCR-Werkzeuge anhand einer Aufgabe, Datei oder eines Projekts, prüfen Sie Eingabebefunde und Einstellungen und folgen Sie Arbeitsabläufen zu den nativen Modulen.",
+  "objectives": [
+    "Werkzeuge über lokale Pfade, abgelegte Dateien oder Ordner und mit Enter bestätigte Aufgaben unabhängig von Groß- und Kleinschreibung finden.",
+    "Eingabebefunde, vorgeschlagene Einstellungen und Arbeitsschritte vor dem Öffnen eines nativen Werkzeugs prüfen.",
+    "Organismusspezifische Abläufe, Bedienfelder, aktive Aufträge und optionale KI-Steuerung erkunden.",
+    "Messtabellen von Anmerkungs- oder Verlaufsdatenbanken unterscheiden und mit Home neu beginnen."
+  ],
+  "prerequisite": "Installieren Sie spaCR und öffnen Sie Navigator. Verwenden Sie das bereitgestellte Beispielbild, den Bildordner, das Projekt mit Messdaten, die reine Anmerkungs- oder Verlaufsdatenbank und die Einstellungsdatei oder entsprechende lokale Eingaben.",
+  "scenes": [
+    "Navigator beginnt mit einem Suchfeld vor dem spaCR-Design. Öffnen Sie ihn mit spacr-nav oder spacr-navigator und beginnen Sie mit einer Aufgabe, Datei oder einem Ordner.",
+    "Sie können Navigator auch über Help aktivieren. Navigator ist standardmäßig eingeschaltet; eine gespeicherte Auswahl bleibt erhalten.",
+    "Über die einklappbare Seitenleiste öffnen Sie ein Modul direkt. News und Widgets erscheinen neben dem Arbeitsbereich, während Suche und Beschreibung an ihrem Platz bleiben.",
+    "Geben Sie Measure ein und drücken Sie Enter. Die Suche ignoriert Groß- und Kleinschreibung. Die Eingabe allein lässt die bisherigen Vorschläge stehen und startet kein Werkzeug.",
+    "Ziehen Sie eine einzelne lokale Bilddatei in Navigator. Er prüft die Eingabe und bietet unterstützte nächste Schritte an, statt einen Verarbeitungslauf zu starten.",
+    "Ziehen Sie einen Ordner hinein, um seinen Inhalt zu prüfen. Die Vorschläge hängen von den darin bereits vorhandenen Dateien und Daten ab.",
+    "Fügen Sie für einen genauen Speicherort einen Datei- oder Projektpfad ein und drücken Sie Enter. Mit Browse können Sie ebenfalls eine Datei oder einen Ordner auswählen.",
+    "Ein Projekt mit Messdaten enthält Daten, die Analysewerkzeuge lesen können. Hier machen die Messtabellen Werkzeuge wie Graph Builder verfügbar.",
+    "Dieses Beispiel enthält Anmerkungs- und Verlaufstabellen, keine gemessenen Merkmale. Der Dateiname der Datenbank allein beweist nicht, dass Messungen berechnet wurden.",
+    "Einstellungsdateien können ein Modul und eine Vorschau seiner Einstellungen vorschlagen. Prüfen Sie den Vorschlag vor dem Öffnen des Moduls; Navigator führt die Analyse nicht für Sie aus.",
+    "Wählen Sie eine Modulkarte, um ihren Arbeitsablauf zu erkunden. Lesen Sie die Beschreibung unter den Karten, um Zweck und erforderliche Eingabe zu prüfen.",
+    "Erkunden Sie einen nächsten Schritt, um das Netzwerk zu erweitern. Frühere Zweige bleiben sichtbar und helfen Ihnen, den Weg von der Eingabe über die Analyse zu den Ergebnissen nachzuvollziehen.",
+    "Suchen Sie nach Toxoplasma, um den organismusspezifischen Ablauf und die verfügbaren Assays zu sehen. Wählen Sie den Schritt passend zu Ihren Daten und Ihrer biologischen Fragestellung.",
+    "Mit Back oder Escape kehren Sie vom Arbeitsablauf zu den Vorschlägen zurück. Diese Navigation startet keine Analyse und verändert Ihre Eingabedateien nicht.",
+    "Öffnen Sie das vorgeschlagene native Werkzeug, sobald Sie bereit sind. Navigator übergibt die gewählte Eingabe an die passende Quelleinstellung; prüfen Sie die Einstellungen, bevor Sie Run drücken.",
+    "Geben Sie running jobs ein und wählen Sie Running, um aktive spaCR-Aufträge in Widgets anzusehen. Die Bedienelemente Open, pause und stop wirken auf die aufgeführten Aufträge.",
+    "Die KI-Steuerung ist optional. Beim ersten Gebrauch können Sie im Dialog einen Anbieter wählen. Lokale Pfade und passende Werkzeugvorschläge behalten ihre üblichen Wege.",
+    "Home setzt Navigator auf eine neue Suche zurück und entfernt die bisherigen Vorschläge und den bisherigen Ablauf. Beginnen Sie mit der nächsten Aufgabe oder Eingabe erneut."
+  ]
+}

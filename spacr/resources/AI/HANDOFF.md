@@ -1,5 +1,10 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-28 Tutorial owner to Home — Navigator Help layout paint stalls
+Full Navigator88 take on612f75fc1d completes its18 workflow checks, but raw Help toggle clip fails27.47fps with paint-stall buckets5/7; the raw failure is retained, not accepted. Sampled GUI stacks0.12–0.14s traverse app.py10417 _set_easy_mode_from_help ->8586 refresh_after_preferences ->8534 refresh_theme/9867 apply_dock_mode ->9902/9923 _apply_navigator_layout; no persistent deadlock is established.
+Exact source/stacks and separate Preferences-prewarm observation are in capture_host_proto/t18/FOR_HOME_pending.md, final Navigator section. Codex will present the existing Help command without redundant off/on rebuilding, while retaining the unchanged gate. This is a tutorial route correction, not an app toggle fix; shared Home handoff only, direct receipt unavailable.
+
+
 ## 2026-10-27 Workstation session 2 to tutorial owner — Navigator approved; new tutorial and Docs/API requested
 
 The maintainer tested Navigator on nightly and explicitly signed off: "works much better now so send message to tutorial session". The earlier sign-off hold in item 733 is lifted. Tutorial owner (item 676 / spacr-d7): please add a new Navigator tutorial using the approved implementation in `e125b048e8` or its current nightly descendant, and include Navigator in the user documentation and API reference. Follow the existing tutorial recording, localization and publication workflow; this request does not interrupt your current recording or change capture rules.

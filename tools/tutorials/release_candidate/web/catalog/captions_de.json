@@ -17216,6 +17216,183 @@
           "zm_yunyang"
         ]
       }
+    },
+    {
+      "id": "88_navigator",
+      "number": 88,
+      "slug": "navigator",
+      "title": "Navigator: das passende Werkzeug für Ihre Eingabe finden",
+      "series": 1,
+      "app_key": null,
+      "section": "spaCR",
+      "description": "Finden Sie spaCR-Werkzeuge anhand einer Aufgabe, Datei oder eines Projekts, prüfen Sie Eingabebefunde und Einstellungen und folgen Sie Arbeitsabläufen zu den nativen Modulen.",
+      "objectives": [
+        "Werkzeuge über lokale Pfade, abgelegte Dateien oder Ordner und mit Enter bestätigte Aufgaben unabhängig von Groß- und Kleinschreibung finden.",
+        "Eingabebefunde, vorgeschlagene Einstellungen und Arbeitsschritte vor dem Öffnen eines nativen Werkzeugs prüfen.",
+        "Organismusspezifische Abläufe, Bedienfelder, aktive Aufträge und optionale KI-Steuerung erkunden.",
+        "Messtabellen von Anmerkungs- oder Verlaufsdatenbanken unterscheiden und mit Home neu beginnen."
+      ],
+      "prerequisite": "Installieren Sie spaCR und öffnen Sie Navigator. Verwenden Sie das bereitgestellte Beispielbild, den Bildordner, das Projekt mit Messdaten, die reine Anmerkungs- oder Verlaufsdatenbank und die Einstellungsdatei oder entsprechende lokale Eingaben.",
+      "scenes": [
+        {
+          "visual": "01_navigator_start",
+          "narration": "Navigator beginnt mit einem Suchfeld vor dem spaCR-Design. Öffnen Sie ihn mit spacr-nav oder spacr-navigator und beginnen Sie mit einer Aufgabe, Datei oder einem Ordner.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "02_help_navigator",
+          "narration": "Sie können Navigator auch über Help aktivieren. Navigator ist standardmäßig eingeschaltet; eine gespeicherte Auswahl bleibt erhalten.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_dock_right_panels",
+          "narration": "Über die einklappbare Seitenleiste öffnen Sie ein Modul direkt. News und Widgets erscheinen neben dem Arbeitsbereich, während Suche und Beschreibung an ihrem Platz bleiben.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_enter_case_query",
+          "narration": "Geben Sie Measure ein und drücken Sie Enter. Die Suche ignoriert Groß- und Kleinschreibung. Die Eingabe allein lässt die bisherigen Vorschläge stehen und startet kein Werkzeug.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_native_file_drop",
+          "narration": "Ziehen Sie eine einzelne lokale Bilddatei in Navigator. Er prüft die Eingabe und bietet unterstützte nächste Schritte an, statt einen Verarbeitungslauf zu starten.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_native_folder_drop",
+          "narration": "Ziehen Sie einen Ordner hinein, um seinen Inhalt zu prüfen. Die Vorschläge hängen von den darin bereits vorhandenen Dateien und Daten ab.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07_typed_project_path",
+          "narration": "Fügen Sie für einen genauen Speicherort einen Datei- oder Projektpfad ein und drücken Sie Enter. Mit Browse können Sie ebenfalls eine Datei oder einen Ordner auswählen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "08_measured_evidence_cards",
+          "narration": "Ein Projekt mit Messdaten enthält Daten, die Analysewerkzeuge lesen können. Hier machen die Messtabellen Werkzeuge wie Graph Builder verfügbar.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09_annotation_only_scope",
+          "narration": "Dieses Beispiel enthält Anmerkungs- und Verlaufstabellen, keine gemessenen Merkmale. Der Dateiname der Datenbank allein beweist nicht, dass Messungen berechnet wurden.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "10_saved_settings_preview",
+          "narration": "Einstellungsdateien können ein Modul und eine Vorschau seiner Einstellungen vorschlagen. Prüfen Sie den Vorschlag vor dem Öffnen des Moduls; Navigator führt die Analyse nicht für Sie aus.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "11_module_workflow",
+          "narration": "Wählen Sie eine Modulkarte, um ihren Arbeitsablauf zu erkunden. Lesen Sie die Beschreibung unter den Karten, um Zweck und erforderliche Eingabe zu prüfen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "12_incremental_next_steps",
+          "narration": "Erkunden Sie einen nächsten Schritt, um das Netzwerk zu erweitern. Frühere Zweige bleiben sichtbar und helfen Ihnen, den Weg von der Eingabe über die Analyse zu den Ergebnissen nachzuvollziehen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "13_toxoplasma_network",
+          "narration": "Suchen Sie nach Toxoplasma, um den organismusspezifischen Ablauf und die verfügbaren Assays zu sehen. Wählen Sie den Schritt passend zu Ihren Daten und Ihrer biologischen Fragestellung.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "14_back_escape",
+          "narration": "Mit Back oder Escape kehren Sie vom Arbeitsablauf zu den Vorschlägen zurück. Diese Navigation startet keine Analyse und verändert Ihre Eingabedateien nicht.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "15_native_source_handoff",
+          "narration": "Öffnen Sie das vorgeschlagene native Werkzeug, sobald Sie bereit sind. Navigator übergibt die gewählte Eingabe an die passende Quelleinstellung; prüfen Sie die Einstellungen, bevor Sie Run drücken.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "16_running_inspect",
+          "narration": "Geben Sie running jobs ein und wählen Sie Running, um aktive spaCR-Aufträge in Widgets anzusehen. Die Bedienelemente Open, pause und stop wirken auf die aufgeführten Aufträge.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "17_ai_consent_cancel",
+          "narration": "Die KI-Steuerung ist optional. Beim ersten Gebrauch können Sie im Dialog einen Anbieter wählen. Lokale Pfade und passende Werkzeugvorschläge behalten ihre üblichen Wege.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "18_home_fresh_reset",
+          "narration": "Home setzt Navigator auf eine neue Suche zurück und entfernt die bisherigen Vorschläge und den bisherigen Ablauf. Beginnen Sie mit der nächsten Aufgabe oder Eingabe erneut.",
+          "hold_after": 0.7
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     }
   ],
   "lesson_aliases": {

@@ -1,0 +1,47 @@
+{
+  "lesson": "88_navigator",
+  "english_sha256": "bc247555154ed849430770f0f22040a3e93391f8bfc3b19a2806fb4493eac031",
+  "review": {
+    "kind": "Codex AI translation and technical text review",
+    "translator": "Codex (AI), translated from the current English source",
+    "date": "2026-10-27",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "correction": {
+      "date": "2026-10-27",
+      "kind": "Codex AI translation and technical text correction; no listening review or native-speaker sign-off",
+      "scope": "Scene 4 first sentence only: use the supported literal query Measure instead of measure cells; all other prose unchanged"
+    }
+  },
+  "language": "fr",
+  "title": "Navigator : trouver le bon outil pour vos données",
+  "description": "Trouvez les outils spaCR à partir d’une tâche, d’un fichier ou d’un projet, examinez les données d’entrée et les paramètres, puis suivez les flux vers les modules natifs.",
+  "objectives": [
+    "Trouver des outils avec des chemins locaux, des fichiers ou dossiers déposés et des tâches validées par Enter, sans distinction de casse.",
+    "Examiner les données d’entrée, les paramètres proposés et les étapes avant d’ouvrir un outil natif.",
+    "Parcourir les flux par organisme, les panneaux, les tâches actives et les commandes d’IA facultatives.",
+    "Distinguer les tables de mesures des bases d’annotations ou d’historique et repartir de zéro avec Home."
+  ],
+  "prerequisite": "Installez spaCR et ouvrez Navigator. Utilisez l’image, le dossier d’images, le projet avec mesures, la base contenant uniquement des annotations ou un historique et le fichier de paramètres fournis, ou des entrées locales équivalentes.",
+  "scenes": [
+    "Navigator affiche d’abord un champ de recherche sur le thème visuel de spaCR. Ouvrez-le avec spacr-nav ou spacr-navigator, puis commencez par une tâche, un fichier ou un dossier.",
+    "Vous pouvez aussi activer Navigator depuis Help. Navigator est activé par défaut ; un choix enregistré est conservé.",
+    "Utilisez le volet escamotable pour ouvrir directement un module. News et Widgets s’ouvrent à côté de l’espace de travail, tandis que la recherche et la description restent en place.",
+    "Saisissez Measure et appuyez sur Enter. La recherche ne distingue pas les majuscules des minuscules. La saisie seule conserve les suggestions actuelles et ne lance aucun outil.",
+    "Déposez un seul fichier image local dans Navigator. Il examine l’entrée et propose les étapes suivantes compatibles, sans démarrer de traitement.",
+    "Déposez un dossier pour examiner son contenu. Les suggestions dépendent des fichiers et des données déjà présents dans ce dossier.",
+    "Pour indiquer un emplacement précis, collez le chemin d’un fichier ou d’un projet et appuyez sur Enter. Browse permet aussi de choisir un fichier ou un dossier.",
+    "Un projet avec mesures contient des données lisibles par les outils d’analyse. Ici, les tables de mesures rendent disponibles des outils tels que Graph Builder.",
+    "Cet exemple contient des tables d’annotations et d’historique, pas des caractéristiques mesurées. Le nom du fichier de base de données ne prouve pas, à lui seul, que des mesures ont été calculées.",
+    "Les fichiers de paramètres peuvent proposer un module et un aperçu des réglages. Examinez cette proposition avant d’ouvrir le module ; Navigator ne lance pas l’analyse à votre place.",
+    "Choisissez la carte d’un module pour explorer son flux. Lisez la description sous les cartes pour vérifier son objectif et les données d’entrée requises.",
+    "Explorez une étape suivante pour étendre le réseau. Les branches précédentes restent visibles et vous aident à suivre le parcours des données d’entrée jusqu’à l’analyse et aux résultats.",
+    "Recherchez Toxoplasma pour afficher son flux par organisme et les choix d’essais. Sélectionnez l’étape adaptée à vos données et à votre question biologique.",
+    "Utilisez Back ou Escape pour revenir d’un flux aux suggestions. Ces actions de navigation ne lancent aucune analyse et ne modifient pas vos fichiers d’entrée.",
+    "Ouvrez l’outil natif proposé lorsque vous êtes prêt. Navigator transmet l’entrée sélectionnée au paramètre source correspondant ; vérifiez les réglages avant d’appuyer sur Run.",
+    "Saisissez running jobs et choisissez Running pour consulter les tâches spaCR actives dans Widgets. Les commandes Open, pause et stop s’appliquent aux tâches de la liste.",
+    "La commande d’IA est facultative. Sa boîte de dialogue de première utilisation permet de choisir un fournisseur. Les chemins locaux et les suggestions d’outils correspondantes conservent leurs parcours habituels.",
+    "Home ramène Navigator à une recherche vierge en effaçant ses suggestions et son flux précédents. Recommencez avec la prochaine tâche ou entrée à explorer."
+  ]
+}

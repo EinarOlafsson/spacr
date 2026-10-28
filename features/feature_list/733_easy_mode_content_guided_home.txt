@@ -7,9 +7,9 @@ DOCS/API DELIVERY — 2026-10-28
 Progress List name: N733 — Navigator (maintainer confirmed 2026-10-28).
 
 Lifecycle: new
-Status:    OPEN — Navigator implementation and current Docs/API are delivered; the separate Work-owned Navigator tutorial remains pending.
+Status:    IMPLEMENTATION APPROVED — current Navigator guide/API and the new fifty-voice tutorial media are delivered; Workstation session 2 retains app follow-up.
 Requested: maintainer, 2026-10-26
-Owner:     Workstation session 2; root integration/publication with retained routing, rendering and reader peers.
+Owner:     Workstation session 2 (Navigator app); Codex tutorial lane (new tutorial and user Docs/API publication).
 Related:   startup options, Preferences, Home, dock, spaCR AI
 
 CURRENT MAINTAINER FOLLOW-UP — 2026-10-27
@@ -611,3 +611,25 @@ Implementation and reasonable validation qualify completion under the maintainer
 2026-10-27 — Tutorial owner Codex confirms receipt of the approved Navigator handoff in shared AI/HANDOFF.md; the earlier receipt-unconfirmed status is superseded for this repository handoff.
 Codex owns the new Navigator tutorial plus user documentation and API-reference coverage, coordinated with 676 and queued after active Graph Builder58.
 Implementation sign-off is retained; these requested outputs remain pending and are not claimed published. No capture or source implementation begins with this acknowledgement.
+
+2026-10-27 — Graph Builder58 is published/pushed4d0c2f38fe. Codex now starts88_navigator and user Docs/API against current nightly, retaining implementation approval and app ownership with Workstation session2.
+Cover native launch/Help, file/folder drops and typed paths, Enter-only case-insensitive tasks, evidence/settings previews, Toxoplasma/workflow networks, Back/Escape, Home reset, module source handoff, dock/right panels, and analyzed versus annotation-only database evidence.
+Include current optional AI consent/provider controls and Running-card guidance without sending account-dependent requests or modifying unrelated jobs; keep alpha off. Finish publication, write the Claude handoff and pause, with other tutorial lessons left for Claude.
+
+2026-10-27 — Codex implements the Navigator user guide, normal toctree link, Python launch/preference section and curated API landing entries; focused RST/link/template/public-symbol checks pass without app API changes.
+Navigator88 has18 feature-focused scenes and13 source-bound localized reviews; native capture, all50 voices and tutorial/Docs publication remain in progress before the requested Claude handoff/pause.
+
+2026-10-28 — Navigator88 has18 native scenes and all50 voices;900 actual scene/end gaps0.800–1.046s and every final EOF pass. Hosted media fb5c45e785f2c7e67f3bc7a968314f9936d3131f passes full7301-file readback and all60 published routes.
+The Navigator user guide/toctree, existing Python launch/preference guidance and curated API links are delivered without adding app APIs. Focused documentation checks pass; normal Docs CI owns deployment.
+Codex transfers tutorial follow-up to Claude after the guarded nightly push and requested handoff/pause; Workstation session 2 retains Navigator app ownership. The observed Help layout paint stalls remain reported in shared AI/HANDOFF.md, without claiming an app-side fix.
+
+2026-10-28 — Navigator tutorial media and all60 page routes pass; source/guide/API references are committed, but mandatory app push checks fail the pre-existing English API13203/13202 inventory. Neither nightly push nor live website deployment is claimed.
+Claude receives the committed work and exact recovery state in the requested handoff; Codex pauses. Home retains the unrelated API contract correction; no assertions or ratchets are relaxed.
+
+2026-10-28 — Maintainer resumes Codex's full tutorial campaign. Codex retains existing88 media and current Home guide/translations while finishing guarded nightly publication; no new recording/audio is required for this push.
+The exact inventory blocker is the existing documented callback spacr.qt.widgets.home._EasyHomePage._choose_navigator_ai.configure, introduced by dabb6b7bfc without its dated API arrival. Add its normal one-symbol contract/review coverage and retain the13202 baseline; Navigator app behavior and Workstation session2 ownership remain unchanged.
+Preserve Home's17 accepted guide-message bindings across all nine languages by retaining its current Navigator/Python guide text; detailed launch/preference references and Spaceout aliases remain in the English API landing template.
+
+2026-10-28 — Navigator88 tutorial media is hosted/fully read back and all60 published routes pass; its API callback has the exact dated arrival contract with the13202 baseline unchanged and three focused source-boundary checks passing.
+Current Home guide/Python-guide translations remain bound in all nine languages; detailed launch/preference API links and Spaceout aliases are preserved in the English API landing page. Normal assembled API memory is byte-identical to its existing publication, so no duplicate upload is made.
+The tutorial owner resumes the entire campaign after this guarded nightly publication; app follow-up ownership remains with Workstation session 2, and the reported Help paint stalls are not claimed fixed.

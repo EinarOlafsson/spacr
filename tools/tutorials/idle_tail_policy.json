@@ -4392,6 +4392,121 @@
           "idle_tail_start": 10.0
         }
       ]
+    },
+    {
+      "lesson": "88_navigator",
+      "master_sha256": "d44615ef6b56b1273f021920c59cce3afffa8c44a8db99513881aeca5740fef3",
+      "visual_timing_sha256": "168f6defdc284654ff2555cd59d9b83389d233eca7f52135c79e227f41f6f328",
+      "scenes": [
+        {
+          "visual": "01_navigator_start",
+          "source_start": 0.0,
+          "source_end": 13.866666666666667,
+          "idle_tail_start": 3.5
+        },
+        {
+          "visual": "02_help_navigator",
+          "source_start": 13.866666666666667,
+          "source_end": 24.933333333333334,
+          "idle_tail_start": 3.2
+        },
+        {
+          "visual": "03_dock_right_panels",
+          "source_start": 24.933333333333334,
+          "source_end": 39.166666666666664,
+          "idle_tail_start": 6.2
+        },
+        {
+          "visual": "04_enter_case_query",
+          "source_start": 39.166666666666664,
+          "source_end": 53.266666666666666,
+          "idle_tail_start": 4.5
+        },
+        {
+          "visual": "05_native_file_drop",
+          "source_start": 53.266666666666666,
+          "source_end": 65.1,
+          "idle_tail_start": 7.066666666666666
+        },
+        {
+          "visual": "06_native_folder_drop",
+          "source_start": 65.1,
+          "source_end": 76.46666666666667,
+          "idle_tail_start": 5.0
+        },
+        {
+          "visual": "07_typed_project_path",
+          "source_start": 76.46666666666667,
+          "source_end": 88.46666666666667,
+          "idle_tail_start": 3.8
+        },
+        {
+          "visual": "08_measured_evidence_cards",
+          "source_start": 88.46666666666667,
+          "source_end": 101.96666666666667,
+          "idle_tail_start": 5.9
+        },
+        {
+          "visual": "09_annotation_only_scope",
+          "source_start": 101.96666666666667,
+          "source_end": 116.83333333333333,
+          "idle_tail_start": 1.2666666666666666
+        },
+        {
+          "visual": "10_saved_settings_preview",
+          "source_start": 116.83333333333333,
+          "source_end": 133.7,
+          "idle_tail_start": 5.4
+        },
+        {
+          "visual": "11_module_workflow",
+          "source_start": 133.7,
+          "source_end": 145.33333333333334,
+          "idle_tail_start": 4.2
+        },
+        {
+          "visual": "12_incremental_next_steps",
+          "source_start": 145.33333333333334,
+          "source_end": 158.76666666666668,
+          "idle_tail_start": 4.7
+        },
+        {
+          "visual": "13_toxoplasma_network",
+          "source_start": 158.76666666666668,
+          "source_end": 172.86666666666667,
+          "idle_tail_start": 4.8
+        },
+        {
+          "visual": "14_back_escape",
+          "source_start": 172.86666666666667,
+          "source_end": 185.0,
+          "idle_tail_start": 5.0
+        },
+        {
+          "visual": "15_native_source_handoff",
+          "source_start": 185.0,
+          "source_end": 201.83333333333334,
+          "idle_tail_start": 4.233333333333333
+        },
+        {
+          "visual": "16_running_inspect",
+          "source_start": 201.83333333333334,
+          "source_end": 215.83333333333334,
+          "idle_tail_start": 4.3
+        },
+        {
+          "visual": "17_ai_consent_cancel",
+          "source_start": 215.83333333333334,
+          "source_end": 229.9,
+          "idle_tail_start": 3.3
+        },
+        {
+          "visual": "18_home_fresh_reset",
+          "source_start": 229.9,
+          "source_end": 243.7,
+          "idle_tail_start": 5.5
+        }
+      ]
     }
   ]
 }

@@ -1,0 +1,47 @@
+{
+  "lesson": "88_navigator",
+  "english_sha256": "bc247555154ed849430770f0f22040a3e93391f8bfc3b19a2806fb4493eac031",
+  "review": {
+    "kind": "Codex AI translation and technical text review",
+    "translator": "Codex (AI), translated from the current English source",
+    "date": "2026-10-27",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "correction": {
+      "date": "2026-10-27",
+      "kind": "Codex AI translation and technical text correction; no listening review or native-speaker sign-off",
+      "scope": "Scene 4 first sentence only: use the supported literal query Measure instead of measure cells; all other prose unchanged"
+    }
+  },
+  "language": "nb",
+  "title": "Navigator: finn riktig verktøy for inndataene dine",
+  "description": "Finn spaCR-verktøy ut fra en oppgave, fil eller et prosjekt, undersøk inndata og innstillinger, og følg arbeidsflyter til de ordinære modulene.",
+  "objectives": [
+    "Finn verktøy med lokale stier, filer eller mapper som slippes inn, og oppgaver sendt med Enter uten hensyn til store og små bokstaver.",
+    "Gjennomgå inndata, foreslåtte innstillinger og arbeidstrinn før du åpner et ordinært verktøy.",
+    "Utforsk arbeidsflyter for organismer, paneler, aktive jobber og valgfrie KI-kontroller.",
+    "Skill måletabeller fra databaser med annotasjoner eller historikk, og begynn på nytt med Home."
+  ],
+  "prerequisite": "Installer spaCR og åpne Navigator. Bruk eksempelbildet, bildemappen, prosjektet med målinger, databasen med bare annotasjoner eller historikk og innstillingsfilen som følger med, eller tilsvarende lokale inndata.",
+  "scenes": [
+    "Navigator starter med et søkefelt over spaCR-temaet. Åpne det med spacr-nav eller spacr-navigator, og begynn med en oppgave, fil eller mappe.",
+    "Du kan også slå på Navigator fra Help. Navigator er på som standard; et lagret valg beholdes.",
+    "Bruk den sammenleggbare sidemenyen til å åpne en modul direkte. News og Widgets åpnes ved siden av arbeidsområdet, mens søket og beskrivelsen blir stående.",
+    "Skriv Measure og trykk Enter. Søket skiller ikke mellom store og små bokstaver. Skriving alene beholder de gjeldende forslagene og starter ikke noe verktøy.",
+    "Slipp én lokal bildefil i Navigator. Det undersøker inndataene og foreslår støttede neste trinn i stedet for å starte en behandling.",
+    "Slipp én mappe for å undersøke innholdet. Forslagene avhenger av filene og dataene som allerede finnes i mappen.",
+    "Lim inn en fil- eller prosjektsti og trykk Enter for å angi en nøyaktig plassering. Browse lar deg også velge en fil eller mappe.",
+    "Et prosjekt med målinger inneholder data som analyseverktøy kan lese. Her gjør måletabellene verktøy som Graph Builder tilgjengelige.",
+    "Dette eksemplet inneholder tabeller med annotasjoner og historikk, ikke målte egenskaper. Databasens filnavn beviser ikke i seg selv at målinger er beregnet.",
+    "Innstillingsfiler kan foreslå en modul og vise en forhåndsvisning av innstillingene. Gjennomgå forslaget før du åpner modulen; Navigator kjører ikke analysen for deg.",
+    "Velg en modulkort for å utforske arbeidsflyten. Les beskrivelsen under kortene for å kontrollere formålet og nødvendige inndata.",
+    "Utforsk et neste trinn for å utvide nettverket. Tidligere grener forblir synlige og hjelper deg å følge veien fra inndata via analyse til resultater.",
+    "Søk etter Toxoplasma for å se organismens arbeidsflyt og valgene for analyser. Velg trinnet som passer til dataene dine og det biologiske spørsmålet.",
+    "Bruk Back eller Escape for å gå fra en arbeidsflyt tilbake til forslagene. Disse navigasjonshandlingene kjører ingen analyse og endrer ikke inndatafilene dine.",
+    "Åpne det foreslåtte ordinære verktøyet når du er klar. Navigator overfører de valgte inndataene til den tilsvarende kildeinnstillingen; kontroller innstillingene før du trykker Run.",
+    "Skriv running jobs og velg Running for å se aktive spaCR-jobber i Widgets. Kontrollene Open, pause og stop gjelder jobbene i listen.",
+    "KI-kontrollen er valgfri. Dialogboksen ved første bruk lar deg velge en leverandør. Lokale stier og samsvarende verktøyforslag følger fortsatt sine vanlige ruter.",
+    "Home gir Navigator et nytt søk og fjerner de tidligere forslagene og arbeidsflyten. Begynn på nytt med neste oppgave eller inndata du vil utforske."
+  ]
+}

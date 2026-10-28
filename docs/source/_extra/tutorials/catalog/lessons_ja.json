@@ -12733,6 +12733,201 @@
           "zm_yunyang"
         ]
       }
+    },
+    {
+      "id": "88_navigator",
+      "number": 88,
+      "slug": "navigator",
+      "title": "Navigator：入力に適したツールを見つける",
+      "series": 1,
+      "app_key": null,
+      "section": "spaCR",
+      "description": "タスク、ファイル、プロジェクトからspaCRのツールを探し、入力の根拠と設定を確認して、ワークフローから各ツール本来の画面へ進みます。",
+      "objectives": [
+        "ローカルパス、ファイルやフォルダーのドロップ、Enterで送信するタスクを使ってツールを探します。タスクの照合では英字の大文字と小文字を区別しません。",
+        "各ツール本来の画面を開く前に、入力の根拠、推奨設定、ワークフローの手順を確認します。",
+        "生物種別のワークフロー、パネル、実行中のジョブ、任意のAI操作を確認します。",
+        "測定テーブルと、注釈や履歴のデータベースを区別し、Homeから新しく始めます。"
+      ],
+      "prerequisite": "spaCRをインストールしてNavigatorを開いてください。付属のサンプル画像、画像フォルダー、測定済みプロジェクト、注釈や履歴のみのデータベース、設定ファイル、または同等のローカル入力を使用します。",
+      "scenes": [
+        {
+          "visual": "01_navigator_start",
+          "narration": "NavigatorはspaCRのテーマを背景に検索欄を表示します。spacr-navまたはspacr-navigatorで開き、タスク、ファイル、フォルダーから始めます。",
+          "hold_after": 0.7,
+          "speech_text": "Navigatorはスペーカーのテーマを背景に検索欄を表示します。スペーカー-navまたはスペーカー-navigatorで開き、タスク、ファイル、フォルダーから始めます。"
+        },
+        {
+          "visual": "02_help_navigator",
+          "narration": "HelpからNavigatorを有効にすることもできます。Navigatorは初期設定で有効ですが、保存した選択は保持されます。",
+          "hold_after": 0.7,
+          "speech_text": "HelpからNavigatorを有効にすることもできます。Navigatorは初期設定で有効ですが、保存した選択は保持されます。"
+        },
+        {
+          "visual": "03_dock_right_panels",
+          "narration": "折りたたみ可能なドックからモジュールを直接開けます。NewsとWidgetsは作業領域の横に開き、検索欄と説明はその位置に残ります。",
+          "hold_after": 0.7,
+          "speech_text": "折りたたみ可能なドックからモジュールを直接開けます。NewsとWidgetsは作業領域の横に開き、検索欄と説明はその位置に残ります。"
+        },
+        {
+          "visual": "04_enter_case_query",
+          "narration": "Measureと入力してEnterを押します。照合では大文字と小文字を区別しません。入力しただけでは現在の候補が残り、ツールは起動しません。",
+          "hold_after": 0.7,
+          "speech_text": "Measureと入力してEnterを押します。照合では大文字と小文字を区別しません。入力しただけでは現在の候補が残り、ツールは起動しません。"
+        },
+        {
+          "visual": "05_native_file_drop",
+          "narration": "ローカルの画像ファイルを一つNavigatorにドロップします。入力を調べて対応する次の手順を提示し、処理は開始しません。",
+          "hold_after": 0.7,
+          "speech_text": "ローカルの画像ファイルを一つNavigatorにドロップします。入力を調べて対応する次の手順を提示し、処理は開始しません。"
+        },
+        {
+          "visual": "06_native_folder_drop",
+          "narration": "フォルダーを一つドロップして内容を調べます。候補は、そのフォルダーにすでに存在するファイルとデータに応じて変わります。",
+          "hold_after": 0.7,
+          "speech_text": "フォルダーを一つドロップして内容を調べます。候補は、そのフォルダーにすでに存在するファイルとデータに応じて変わります。"
+        },
+        {
+          "visual": "07_typed_project_path",
+          "narration": "正確な場所を指定するには、ファイルやプロジェクトのパスを貼り付けてEnterを押します。Browseからファイルやフォルダーを選ぶこともできます。",
+          "hold_after": 0.7,
+          "speech_text": "正確な場所を指定するには、ファイルやプロジェクトのパスを貼り付けてEnterを押します。Browseからファイルやフォルダーを選ぶこともできます。"
+        },
+        {
+          "visual": "08_measured_evidence_cards",
+          "narration": "測定済みのプロジェクトには、解析ツールで読めるデータがあります。ここでは測定テーブルがあるため、Graph Builderなどのツールが利用できます。",
+          "hold_after": 0.7,
+          "speech_text": "測定済みのプロジェクトには、解析ツールで読めるデータがあります。ここでは測定テーブルがあるため、Graph Builderなどのツールが利用できます。"
+        },
+        {
+          "visual": "09_annotation_only_scope",
+          "narration": "この例にあるのは注釈と履歴のテーブルで、測定済みの特徴量ではありません。データベースのファイル名だけでは、測定が計算済みとは判断できません。",
+          "hold_after": 0.7,
+          "speech_text": "この例にあるのは注釈と履歴のテーブルで、測定済みの特徴量ではありません。データベースのファイル名だけでは、測定が計算済みとは判断できません。"
+        },
+        {
+          "visual": "10_saved_settings_preview",
+          "narration": "設定ファイルから、モジュールの候補と設定のプレビューが得られることがあります。開く前に提案を確認してください。Navigatorが代わりに解析を実行するわけではありません。",
+          "hold_after": 0.7,
+          "speech_text": "設定ファイルから、モジュールの候補と設定のプレビューが得られることがあります。開く前に提案を確認してください。Navigatorが代わりに解析を実行するわけではありません。"
+        },
+        {
+          "visual": "11_module_workflow",
+          "narration": "モジュールのカードを選んでワークフローを確認します。カードの下の説明を読み、目的と必要な入力を確かめます。",
+          "hold_after": 0.7,
+          "speech_text": "モジュールのカードを選んでワークフローを確認します。カードの下の説明を読み、目的と必要な入力を確かめます。"
+        },
+        {
+          "visual": "12_incremental_next_steps",
+          "narration": "次の手順を選んでネットワークを広げます。前の分岐は表示されたままなので、入力から解析、結果へ至る経路をたどれます。",
+          "hold_after": 0.7,
+          "speech_text": "次の手順を選んでネットワークを広げます。前の分岐は表示されたままなので、入力から解析、結果へ至る経路をたどれます。"
+        },
+        {
+          "visual": "13_toxoplasma_network",
+          "narration": "Toxoplasmaを検索すると、生物種のワークフローとアッセイの選択肢が表示されます。手元のデータと生物学的な問いに合う手順を選びます。",
+          "hold_after": 0.7,
+          "speech_text": "Toxoplasmaを検索すると、生物種のワークフローとアッセイの選択肢が表示されます。手元のデータと生物学的な問いに合う手順を選びます。"
+        },
+        {
+          "visual": "14_back_escape",
+          "narration": "BackまたはEscapeで、ワークフローから候補に戻ります。この移動操作は解析を実行せず、入力ファイルも変更しません。",
+          "hold_after": 0.7,
+          "speech_text": "BackまたはEscapeで、ワークフローから候補に戻ります。この移動操作は解析を実行せず、入力ファイルも変更しません。"
+        },
+        {
+          "visual": "15_native_source_handoff",
+          "narration": "準備ができたら、推奨されたツール本来の画面を開きます。Navigatorは選択した入力を対応するソース設定へ渡します。Runを押す前に設定を確認してください。",
+          "hold_after": 0.7,
+          "speech_text": "準備ができたら、推奨されたツール本来の画面を開きます。Navigatorは選択した入力を対応するソース設定へ渡します。Runを押す前に設定を確認してください。"
+        },
+        {
+          "visual": "16_running_inspect",
+          "narration": "running jobsと入力し、Runningを選ぶと、Widgetsで実行中のspaCRジョブを確認できます。Open、pause、stopの操作は、一覧のジョブに適用されます。",
+          "hold_after": 0.7,
+          "speech_text": "running jobsと入力し、Runningを選ぶと、Widgetsで実行中のスペーカージョブを確認できます。Open、pause、stopの操作は、一覧のジョブに適用されます。"
+        },
+        {
+          "visual": "17_ai_consent_cancel",
+          "narration": "AI操作は任意です。初回のダイアログでプロバイダーを選択できます。ローカルパスと一致するツール候補は、通常の経路を保ちます。",
+          "hold_after": 0.7,
+          "speech_text": "AI操作は任意です。初回のダイアログでプロバイダーを選択できます。ローカルパスと一致するツール候補は、通常の経路を保ちます。"
+        },
+        {
+          "visual": "18_home_fresh_reset",
+          "narration": "Homeを選ぶと、Navigatorの以前の候補とワークフローが消え、新しい検索に戻ります。次に調べたいタスクや入力からやり直します。",
+          "hold_after": 0.7,
+          "speech_text": "ホームを選ぶと、Navigatorの以前の候補とワークフローが消え、新しい検索に戻ります。次に調べたいタスクや入力からやり直します。"
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     }
   ],
   "language": "ja",

@@ -550,3 +550,36 @@ Finish58, then Navigator tutorial/Docs/API, write the Claude handoff and pause; 
 All50 voices pass strict native-boundary/idle-cut playback:1150 scene/end gaps0.800–1.044s and every final native EOF observed; retain23 source-bound edit fences and the original scientific/raw-failure evidence.
 The shared Navigator ownership-note rebase conflict preserves both sessions; tutorial source/player/media bindings remain unchanged. Final nightly pin checks/push follow; live website deployment remains separate.
 Codex next owns Navigator tutorial plus Docs/API, then writes the Claude handoff and pauses; no other lesson is authorized before that pause.
+
+2026-10-27 — Graph Builder58 is pushed4d0c2f38fe; Codex now owns88_navigator plus user Docs/API under733, the only remaining work before the requested Claude handoff and pause.
+Use current nightly with fresh native capture, all50 voices, reviewed roughly-one-second narration gaps and normal HF/Pages/nightly publication; retain alpha restrictions and factual feature-focused prose.
+
+2026-10-27 — Navigator88 source has18 scenes/407 words and13 source-bound translations; normal translation/pronunciation and focused Docs/RST/link/public-symbol checks pass.
+The user guide, toctree and existing public launch/preference API references are implemented. Native file/folder drops will use a real owned GNOME Files window and pointer drag; no drop-event injection.
+Real measured project/database offer Graph Builder and the saved settings CSV offers Annotate preview; retain its stale source as preview-only and Cancel rather than applying it. All50 voice production and native recording/publication remain.
+
+2026-10-27 — Navigator native driver covers18 scenes with actual owned Files pointer drops, source preservation, evidence/settings checks, workflow exploration and native database handoff; no analysis, AI request or alpha enable.
+Eleven focused cases pass with ten retained and one affected query correction. Actual native widget rejects measure cells but accepts case-insensitive Measure; update only scene4 first sentence and13 matching query translations.
+The original50 voice render finishes with8/8 partitions0; retain it and every sentence cache, then synthesize only changed query units into a fresh voice stage. Native Files preflight awaits the normal quiet GPU turn before source-point review/full recording.
+
+
+2026-10-28 — Navigator88 full p52 completes18 workflow checks: genuine exact-path file/folder drops, original image/database/settings unchanged, no analysis/AI request or alpha enable. Raw14/18 gates pass; Help rebuilding paint stalls and covered Back require targeted correction.
+The two drop clips retain original pointer-detector failures despite visible real payloads; observed native dnd-move support passes five focused checks and both unchanged-threshold original clip gates (28.63/29.81fps,97.18/97.07% pointer detection). Preserve all originals; no native gate waiver or publication claim.
+Finish only Navigator tutorial/Docs/API after published Graph Builder58, finalize the Claude handoff and pause; the remaining campaign stays open.
+
+2026-10-28 — Graph Builder58 is pushed4d0c2f38fe; Navigator88 media is published at HF fb5c45e785f2c7e67f3bc7a968314f9936d3131f, with all7301 files fully read back and all60 published routes passing.
+Navigator's50 voices pass900 unique scene/end gaps0.800–1.046s with native EOF and real1x motion;18 reviewed scenes run243.7s. User guide/toctree and existing launch/preference API references accompany the normal publication commits.
+The generated app tutorial index is included after the publisher's unstaged-index rebase stop; retain the verified candidate and media without rerendering or reuploading.
+After guarded nightly push, transfer tutorial ownership to Claude using /media/carruthers/mnt3/claude/HANDOFF_codex_to_claude_2026-10-28.md and pause Codex. Remaining64/22/31/50/70/19/63/01 stay open; live website deployment is tracked separately in the handoff.
+
+2026-10-28 — Navigator88 media/readback/60 Pages routes/50 voices are complete, but guarded nightly push is BLOCKED ON HOME: English API inventory13203 versus pinned13202 at test_documentation_i18n.py:3730. No ratchet increase or push-check bypass.
+All tutorial/Docs/API source and publication progress is committed in spacr-tut17-nightly;64 pin tests pass with one existing Node skip. Historical startup fixture restoration retains four passing mutation checks; broader extractor still reports an unrelated volume-API contract mismatch.
+Codex writes /media/carruthers/mnt3/claude/HANDOFF_codex_to_claude_2026-10-28.md and pauses as requested; Claude owns continuation after the API blocker is fixed. Navigator is not claimed pushed or live; Graph Builder remains published4d0c2f38fe.
+
+2026-10-28 — Maintainer resumes the entire tutorial campaign; Codex owns completion again, superseding the prior finish-two-and-pause instruction. Finish existing Navigator88 publication first, then64/22/31/50/70/19/63 and01 once release prerequisites permit; retain completed media and all50 voices.
+Current nightly is rebased preserving Home's newer Navigator guide/translations and all local publication commits. The English API blocker is one existing newly documented Navigator AI callback missing its normal dated arrival/reviews; repair that exact contract without changing source behavior or ratchets, then checked nightly push and normal website deployment.
+
+2026-10-28 — Navigator88 hosted media fb5c45e785f2c7e67f3bc7a968314f9936d3131f passes full7301-file readback and60 published routes; all50 voices pass900 actual scene/end gaps0.800–1.046s and native EOF. Current publication includes its generated app index.
+The missing one-callback API arrival now retains the13202 baseline; three affected source-boundary checks pass. Existing nine-language reviews are retained, redundant alternatives retired without deletion, and the normal catalog build matches the existing API-memory pin byte-for-byte.
+Preserve Home's17 translated guide bindings and current Navigator guide; launch/preference references and Spaceout aliases remain in the API landing page. Required app checks guard the nightly push.
+Codex remains active on the full campaign; next64 uses its current25-scene script and unchanged50 tracks through normal adoption/QA. Remaining64/22/31/50/70/19/63/01 stay open;01 still awaits PyPI1.5.1.6 (404 on2026-10-28).

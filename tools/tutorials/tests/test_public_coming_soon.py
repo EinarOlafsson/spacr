@@ -32,7 +32,7 @@ def test_public_catalog_has_playable_lessons_and_translated_unavailable_screens(
     held = [lesson for lesson in catalog['lessons'] if lesson.get('status') == 'coming_soon']
     ready = [lesson for lesson in catalog['lessons'] if lesson.get('status') != 'coming_soon']
     assert [lesson['id'] for lesson in held] == REMAINING == []
-    assert len(ready) == 84 - len(ARCHIVED_IDS) and all(lesson['scenes'] for lesson in ready)
+    assert len(ready) == 85 - len(ARCHIVED_IDS) and all(lesson['scenes'] for lesson in ready)
     assert not set(ARCHIVED_IDS) & {lesson['id'] for lesson in catalog['lessons']}
     for lesson in held:
         assert (lesson['availability_title'], lesson['description']) == COPY[language]

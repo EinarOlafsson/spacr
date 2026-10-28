@@ -97,7 +97,7 @@ def test_release_audit_parsers_pin_the_current_inventory():
     # Wave 4 (candidate ake_bqpd) added the allow-listed alpha lessons 86 and 87.
     # The 1.5.1.6 archive hid the archived lessons; they keep their entries
     # in tools/tutorials/archive/ and return to these places on restore.
-    assert len(catalog["lessons"]) == 84 - len(ARCHIVED_IDS)
+    assert len(catalog["lessons"]) == 85 - len(ARCHIVED_IDS)
     assert not set(ARCHIVED_IDS) & {lesson["id"] for lesson in catalog["lessons"]}
     assert catalog["lesson_aliases"] == {
         "02_conda_install": "02_install_spacr",
@@ -107,6 +107,7 @@ def test_release_audit_parsers_pin_the_current_inventory():
         "01_pypi_github": 8, "02_install_spacr": 21,
         "04_platform_installers": 14, "05_home": 39,
         "80_image_analysis_pathways": 12, "82_toxoplasma": 7,
+        "88_navigator": 18,
     }
     assert {lesson["id"]: len(lesson["scenes"]) for lesson in catalog["lessons"]
             if lesson["id"] in refreshed_scenes} == refreshed_scenes
@@ -139,11 +140,12 @@ def test_release_audit_parsers_pin_the_current_inventory():
         scene["visual"] for scene in make_masks["scenes"]
     }
     # The accepted Home revision removes its hidden Spaceout ending.
+    # Navigator adds eighteen native scenes without restoring archived lessons.
     # Scene totals count the whole published inventory, archived lessons
     # included, so archiving or restoring a lesson leaves them unchanged.
     published = full_file("lesson_catalog.js", tutorial_root)
-    assert sum(len(lesson["scenes"]) for lesson in published["lessons"] if lesson["id"] != "14_make_masks") == 1170
-    assert sum(len(lesson["scenes"]) for lesson in published["lessons"]) == 1231
+    assert sum(len(lesson["scenes"]) for lesson in published["lessons"] if lesson["id"] != "14_make_masks") == 1188
+    assert sum(len(lesson["scenes"]) for lesson in published["lessons"]) == 1249
     assert len(languages) == 8
     assert len(voices) == 50
     assert not (live.RETIRED_VOICES & set(voices))
@@ -543,7 +545,7 @@ def test_pypi_preserves_the_final_i_and_reviewed_language_forms():
     # 07_mask and 08_measure were verified native publications on 2026-10-13:
     # 438464849 (07 r26b) and 52d5d99bf (08 r26), with dated publication
     # receipts under features/data/676_publication_2026-10-13_{07_mask,08_measure}.
-    native_ids = {"02_install_spacr", "04_platform_installers", "05_home", "07_mask", "08_measure", "09_annotate", "10_classify_cv", "11_classify_ml", "12_map_barcodes", "13_regression", "14_make_masks", "15_image_umap", "16_activation", "17_timelapse", "20_cellpose_masks", "21_model_compare", "23_agreement", "26_invasion", "27_replication", "28_training_runs", "32_align_stitch", "33_plate_viewer", "35_converter", "36_import", "37_batch", "38_distributed_jobs", "39_classifier_evaluation", "40_run_history", "41_classify", "42_curate", "43_illumination", "44_data_manager", "45_project_browser", "49_methods_results", "51_control_charts", "52_pipeline_graph", "53_prediction_profiler", "54_qc_dashboard", "55_image_scatter", "56_lineage", "58_graph_builder", "62_feature_dictionary", "63_small_multiples", "67_experiment_design", "74_import_images", "78_spacr_screens", "80_image_analysis_pathways", "81_sequencing_pathways", "82_toxoplasma", "85_host_pathogen"}
+    native_ids = {"02_install_spacr", "04_platform_installers", "05_home", "07_mask", "08_measure", "09_annotate", "10_classify_cv", "11_classify_ml", "12_map_barcodes", "13_regression", "14_make_masks", "15_image_umap", "16_activation", "17_timelapse", "20_cellpose_masks", "21_model_compare", "23_agreement", "26_invasion", "27_replication", "28_training_runs", "32_align_stitch", "33_plate_viewer", "35_converter", "36_import", "37_batch", "38_distributed_jobs", "39_classifier_evaluation", "40_run_history", "41_classify", "42_curate", "43_illumination", "44_data_manager", "45_project_browser", "49_methods_results", "51_control_charts", "52_pipeline_graph", "53_prediction_profiler", "54_qc_dashboard", "55_image_scatter", "56_lineage", "58_graph_builder", "62_feature_dictionary", "63_small_multiples", "67_experiment_design", "74_import_images", "78_spacr_screens", "80_image_analysis_pathways", "81_sequencing_pathways", "82_toxoplasma", "85_host_pathogen", "88_navigator"}
     original_ids = {"18_motility", "19_train_cellpose", "24_plaque",
                     "48_hit_list", "71_investigate_hit",
                     "87_alpha_features"}

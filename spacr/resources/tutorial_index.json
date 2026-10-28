@@ -412,6 +412,13 @@
       "number": 59,
       "slug": "feature_dictionary",
       "title": "Feature Dictionary: find definitions and units"
+    },
+    {
+      "app_key": "",
+      "lesson": "88_navigator",
+      "number": 60,
+      "slug": "navigator",
+      "title": "Navigator: find the right tool for your input"
     }
   ],
   "coming_soon": {

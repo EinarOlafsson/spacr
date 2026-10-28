@@ -7,6 +7,19 @@ complete reference below.
 
 New to the Python interface? Follow the :doc:`../python_api` first.
 
+Navigator and desktop launch
+----------------------------
+
+See the :doc:`Navigator guide <../navigator>` for local evidence, workflow
+exploration and native source handoff. The existing public interface is
+:func:`spacr.qt.run`, with :func:`spacr.qt.spaceout.main` for process-local
+Spaceout launch. :func:`spacr.qt.preferences.get_easy_mode` and
+:func:`spacr.qt.preferences.set_easy_mode` read and persist the Navigator
+preference; the historical function names remain unchanged. These functions
+do not submit AI requests or run an analysis. Launch Navigator with
+``spacr-nav`` or ``spacr-navigator``; ``spaceout-nav`` and
+``spaceout-navigator`` select the Spaceout presentation for that process.
+
 Applications and workflow
 -------------------------
 
