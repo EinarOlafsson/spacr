@@ -1,5 +1,5 @@
 # spaCR user guide translation (de).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-28 12:46-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: de\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -22,9 +22,9 @@ msgstr ""
 msgid "Checkpoint and resume"
 msgstr "Checkpoints und Fortsetzen"
 
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "spaCR writes a checkpoint only after a complete unit of work (a field, trial, or plate job) has finished; a write in progress is not interrupted. A later invocation reads the checkpoint to determine which units completed and continues after them. The Qt **Stop** button uses the same boundaries: it requests cooperative cancellation, lets the current safe unit finish, and retains the checkpoint for the next run. See :doc:`threading_cancellation_audit`."
-msgstr "spaCR schreibt einen Checkpoint erst, nachdem eine vollständige Arbeitseinheit (ein Bildfeld, ein Versuch oder ein Plattenauftrag) abgeschlossen ist; ein laufender Schreibvorgang wird nicht unterbrochen. Ein späterer Aufruf liest den Checkpoint, um festzustellen, welche Einheiten abgeschlossen sind, und fährt danach fort. Die Qt-Schaltfläche **Stopp** verwendet dieselben Grenzen: Sie fordert einen kooperativen Abbruch an, lässt die aktuelle sichere Einheit fertig werden und behält den Checkpoint für die nächste Ausführung. Siehe :doc:`threading_cancellation_audit`."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A checkpoint can be initialized before any unit finishes. Supported workflows mark completed units of work, such as fields, trials or plate jobs, at their checkpoint boundaries. A later resume validates the stored workflow identity and uses its completion records and workflow-specific output checks to decide what can be reused. A checkpoint is not a guarantee against forced process termination or damaged output files. The Qt **Stop** button uses the same boundaries: it requests cooperative cancellation, lets the current safe unit finish, and retains the checkpoint for the next run. See :doc:`threading_cancellation_audit`."
+msgstr "Ein Checkpoint kann initialisiert werden, bevor eine Einheit abgeschlossen ist. Unterstützte Workflows markieren fertige Arbeitseinheiten wie Bildfelder, Versuche oder Plattenjobs an ihren Checkpoint-Grenzen. Eine spätere Wiederaufnahme validiert die gespeicherte Workflow-Identität und verwendet Abschlussdatensätze sowie workflow-spezifische Ausgabeprüfungen, um die Wiederverwendbarkeit festzustellen. Ein Checkpoint schützt nicht garantiert vor erzwungenem Prozessende oder beschädigten Ausgabedateien. Die Qt-Schaltfläche **Stop** verwendet dieselben Grenzen: Sie fordert kooperatives Abbrechen an, lässt die aktuelle sichere Einheit abschließen und behält den Checkpoint für den nächsten Lauf. Siehe :doc:`threading_cancellation_audit`."
 
 msgid "Supported workflows"
 msgstr "Unterstützte Workflows"

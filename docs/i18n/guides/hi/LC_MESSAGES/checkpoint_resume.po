@@ -1,5 +1,5 @@
 # spaCR user guide translation (hi).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-28 12:46-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -22,9 +22,9 @@ msgstr ""
 msgid "Checkpoint and resume"
 msgstr "चेकपॉइंट और फिर से शुरू करना"
 
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "spaCR writes a checkpoint only after a complete unit of work (a field, trial, or plate job) has finished; a write in progress is not interrupted. A later invocation reads the checkpoint to determine which units completed and continues after them. The Qt **Stop** button uses the same boundaries: it requests cooperative cancellation, lets the current safe unit finish, and retains the checkpoint for the next run. See :doc:`threading_cancellation_audit`."
-msgstr "spaCR चेकपॉइंट केवल तब लिखता है जब कार्य की कोई पूरी इकाई (एक फ़ील्ड, परीक्षण या प्लेट कार्य) समाप्त हो जाए; चल रही लिखने की प्रक्रिया को बीच में नहीं रोका जाता। बाद का आह्वान चेकपॉइंट पढ़कर यह निर्धारित करता है कि कौन-सी इकाइयाँ पूरी हो चुकी हैं और उनके बाद से जारी रखता है। Qt का **रोकें** बटन भी इन्हीं सीमाओं का उपयोग करता है: यह सहयोगात्मक रद्दीकरण का अनुरोध करता है, वर्तमान सुरक्षित इकाई को पूरा होने देता है और अगले रन के लिए चेकपॉइंट बनाए रखता है। :doc:`threading_cancellation_audit` देखें।"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A checkpoint can be initialized before any unit finishes. Supported workflows mark completed units of work, such as fields, trials or plate jobs, at their checkpoint boundaries. A later resume validates the stored workflow identity and uses its completion records and workflow-specific output checks to decide what can be reused. A checkpoint is not a guarantee against forced process termination or damaged output files. The Qt **Stop** button uses the same boundaries: it requests cooperative cancellation, lets the current safe unit finish, and retains the checkpoint for the next run. See :doc:`threading_cancellation_audit`."
+msgstr "किसी भी इकाई के पूरा होने से पहले चेकपॉइंट प्रारंभ किया जा सकता है। समर्थित वर्कफ़्लो अपनी चेकपॉइंट सीमाओं पर पूरा हुआ काम, जैसे फ़ील्ड, ट्रायल या प्लेट जॉब, दर्ज करते हैं। बाद की पुनः शुरुआत सहेजी वर्कफ़्लो पहचान सत्यापित करती है और पूर्णता रिकॉर्ड तथा वर्कफ़्लो-विशिष्ट आउटपुट जाँचों से तय करती है कि क्या पुनः उपयोग हो सकता है। चेकपॉइंट जबरन प्रक्रिया समाप्ति या क्षतिग्रस्त आउटपुट फ़ाइलों से सुरक्षा की गारंटी नहीं है। Qt का **Stop** बटन उन्हीं सीमाओं का उपयोग करता है: वह सहयोगात्मक रद्दीकरण माँगता है, वर्तमान सुरक्षित इकाई को पूरा होने देता है और अगली रन के लिए चेकपॉइंट रखता है। :doc:`threading_cancellation_audit` देखें।"
 
 msgid "Supported workflows"
 msgstr "समर्थित कार्यप्रवाह"

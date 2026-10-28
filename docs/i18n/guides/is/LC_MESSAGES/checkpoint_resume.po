@@ -1,5 +1,5 @@
 # spaCR user guide translation (is).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-28 12:46-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -22,9 +22,9 @@ msgstr ""
 msgid "Checkpoint and resume"
 msgstr "Vistunarpunktar og framhald"
 
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "spaCR writes a checkpoint only after a complete unit of work (a field, trial, or plate job) has finished; a write in progress is not interrupted. A later invocation reads the checkpoint to determine which units completed and continues after them. The Qt **Stop** button uses the same boundaries: it requests cooperative cancellation, lets the current safe unit finish, and retains the checkpoint for the next run. See :doc:`threading_cancellation_audit`."
-msgstr "spaCR skrifar vistunarpunkt aðeins eftir að heil vinnueining (sjónsvið, tilraun eða plötuverk) hefur klárast; ritun sem er í gangi er ekki rofin. Síðari keyrsla les vistunarpunktinn til að ákvarða hvaða einingum lauk og heldur áfram á eftir þeim. Hnappurinn **Stöðva** í Qt notar sömu mörk: hann biður um samvinnuþýða afturköllun, leyfir núverandi öruggu einingu að klárast og heldur vistunarpunktinum fyrir næstu keyrslu. Sjá :doc:`threading_cancellation_audit`."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A checkpoint can be initialized before any unit finishes. Supported workflows mark completed units of work, such as fields, trials or plate jobs, at their checkpoint boundaries. A later resume validates the stored workflow identity and uses its completion records and workflow-specific output checks to decide what can be reused. A checkpoint is not a guarantee against forced process termination or damaged output files. The Qt **Stop** button uses the same boundaries: it requests cooperative cancellation, lets the current safe unit finish, and retains the checkpoint for the next run. See :doc:`threading_cancellation_audit`."
+msgstr "Hægt er að frumstilla endurheimtarpunkt áður en nokkur vinnslueining klárast. Studd verkflæði merkja loknar einingar, svo sem myndsvið, prófanir eða plötuverk, við mörk endurheimtarpunkta sinna. Síðari áframhald staðfestir vistað auðkenni verkflæðis og notar færslur um lok og úttaksprófanir þess til að ákveða hvað má endurnýta. Endurheimtarpunktur tryggir ekki vörn gegn þvinguðum ferlislokum eða skemmdum úttaksskrám. Qt-hnappurinn **Stop** notar sömu mörk: hann óskar eftir samvinnumiðaðri afturköllun, leyfir núverandi öruggri einingu að ljúka og heldur endurheimtarpunktinum fyrir næstu keyrslu. Sjá :doc:`threading_cancellation_audit`."
 
 msgid "Supported workflows"
 msgstr "Studd verkflæði"

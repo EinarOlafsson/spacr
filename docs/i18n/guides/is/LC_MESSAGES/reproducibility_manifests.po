@@ -1,5 +1,5 @@
 # spaCR user guide translation (is).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-28 12:46-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -38,8 +38,9 @@ msgid "``manifest.json``"
 msgstr "``manifest.json``"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "A versioned, atomically written record of the module, timestamps, status, settings hash, declared random seeds, Python/NumPy/Torch random-state identifiers, spaCR and Git versions, all installed package versions, model hashes, input hashes, output hashes, warnings, and, for a failed run, the exception traceback."
-msgstr "Útgáfumerkt, frumeindarlega skrifuð skrá yfir eininguna, tímastimpla, stöðu, tætigildi stillinga, uppgefin slembifræ, auðkenni slembistöðu Python/NumPy/Torch, útgáfur spaCR og Git, útgáfur allra uppsettra pakka, tætigildi líkana, inntaka og úttaka, viðvaranir og, fyrir keyrslu sem mistókst, rakningu undantekningarinnar."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A versioned, atomically written record of the module, timestamps, status, settings hash, declared seeds, available random-state metadata, spaCR and Git versions, recorded package versions, model/file records, warnings and an exception traceback when captured. NumPy state and Torch's initial seed are recorded only when those libraries are already loaded; file hashing is optional as described below."
+msgstr "Útgáfumerkt færsla, skrifuð með ódeilanlegri aðgerð, um einingu, tímastimpla, stöðu, hakk stillinga, tilgreind slembifræ, tiltæk lýsigögn slembistöðu, útgáfur spaCR og Git, skráðar pakkaútgáfur, líkan-/skráarfærslur, viðvaranir og rakningu undantekningar þegar hún næst. Staða NumPy og upphaflegt slembifræ Torch eru aðeins skráð ef söfnin eru þegar hlaðin; skráarhökkun er valfrjáls eins og lýst er hér að neðan."
 
 msgid "``log.txt``"
 msgstr "``log.txt``"
@@ -56,33 +57,38 @@ msgstr "Afurðir sem kóði vinnslukeðjunnar hengir sérstaklega við."
 msgid "``environment/``"
 msgstr "``environment/``"
 
-msgid "``requirements-lock.txt``, a ``pip freeze`` of the Python environment the run used, and, when spaCR runs inside a conda environment, ``conda-explicit.txt``, the output of ``conda list --explicit``. The manifest names both files under ``environment_lock`` together with a SHA-256 digest of the environment. Rebuild the environment with ``conda create --name rerun --file conda-explicit.txt`` followed by ``python -m pip install -r requirements-lock.txt``."
-msgstr "``requirements-lock.txt``, ``pip freeze`` af Python-umhverfinu sem keyrslan notaði, og, þegar spaCR keyrir í conda-umhverfi, ``conda-explicit.txt``, úttak ``conda list --explicit``. Manifest-skráin nefnir báðar skrárnar undir ``environment_lock`` ásamt SHA-256-tætigildi umhverfisins. Endurbyggðu umhverfið með ``conda create --name rerun --file conda-explicit.txt`` og síðan ``python -m pip install -r requirements-lock.txt``."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``requirements-lock.txt`` contains ``pip freeze`` output, or package name/version entries from installed-distribution metadata if pip cannot run. ``conda-explicit.txt`` is added only when a conda environment is detected and ``conda list --explicit`` succeeds. ``environment_lock`` names the files actually written and the environment digest. When the conda file is present, use ``conda create --name rerun --file conda-explicit.txt`` followed by ``python -m pip install -r requirements-lock.txt``; otherwise install the requirements into a compatible Python environment."
+msgstr "``requirements-lock.txt`` inniheldur úttak úr ``pip freeze``, eða pakkanöfn og útgáfur úr lýsigögnum uppsettra dreifinga ef ekki er hægt að keyra pip. ``conda-explicit.txt`` er aðeins bætt við þegar conda-umhverfi finnst og ``conda list --explicit`` tekst. ``environment_lock`` nefnir skrárnar sem voru raunverulega skrifaðar og tætigildi umhverfisins. Þegar conda-skráin er til skal nota ``conda create --name rerun --file conda-explicit.txt`` og síðan ``python -m pip install -r requirements-lock.txt``; annars skal setja kröfurnar upp í samhæfu Python-umhverfi."
 
-msgid "pip and conda are asked once per environment: the lists are kept under ``~/.spacr/env_locks/<digest>`` and every later run with the same digest copies them. Installing, removing or upgrading any package changes the digest. If the lists cannot be written, the run continues and the reason is listed under ``provenance_warnings``."
-msgstr "pip og conda eru spurð einu sinni fyrir hvert umhverfi: listarnir eru geymdir undir ``~/.spacr/env_locks/<digest>`` og hver síðari keyrsla með sama tætigildi afritar þá. Að setja upp, fjarlægja eða uppfæra pakka breytir tætigildinu. Ef ekki er hægt að skrifa listana heldur keyrslan áfram og ástæðan er skráð undir ``provenance_warnings``."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The lists are cached under ``~/.spacr/env_locks/<digest>`` and reused for the same digest. That digest includes the interpreter identity and recorded package versions; package metadata is cached within the process, so restart spaCR after changing installed packages to obtain a new snapshot. Failure to write a run's lockfiles is recorded under ``provenance_warnings`` and does not by itself stop the pipeline."
+msgstr "Listarnir eru geymdir í skyndiminni undir ``~/.spacr/env_locks/<digest>`` og endurnýttir fyrir sama tætigildi. Það inniheldur auðkenni túlksins og skráðar pakkaútgáfur; lýsigögn pakka eru geymd í skyndiminni innan ferlisins, svo endurræstu spaCR eftir breytingar á uppsettum pökkum til að fá nýja stöðumynd. Ef ekki tekst að skrifa læsiskrár keyrslu er það skráð undir ``provenance_warnings`` og stöðvar ekki eitt og sér vinnsluna."
 
 msgid "File provenance"
 msgstr "Uppruni skráa"
 
-msgid "spaCR recursively discovers existing paths in settings, including paths nested inside plate lists. Every regular input file receives a full SHA-256 digest, size, modification timestamp, and the setting key that selected it. Files that are created or modified under those roots during the run are recorded as outputs. Symlinks, version-control folders, caches, and the run journal itself are excluded."
-msgstr "spaCR finnur á endurkvæman hátt fyrirliggjandi slóðir í stillingum, þar á meðal slóðir sem eru hreiðraðar inni í plötulistum. Sérhver venjuleg inntaksskrá fær fullt SHA-256-tætigildi, stærð, breytingartímastimpil og stillingalykilinn sem valdi hana. Skrár sem eru búnar til eða breytt undir þessum rótum meðan á keyrslu stendur eru skráðar sem úttök. Tákntenglar, útgáfustýringarmöppur, skyndiminni og keyrsludagbókin sjálf eru undanskilin."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Set ``hash_inputs=True`` to record input/output file hashes; hashing is off by default and the manifest then reports ``input_hashing=\"skipped\"``. Discovery follows path-valued settings, including nested plate lists. Hashed file records contain the full SHA-256, size, modification timestamp and referring setting key. Directory walks skip linked entries, version-control folders, caches and the run journal. Before/after inventories used to identify changed outputs are limited to 200,000 files per root; truncation is reported in ``provenance_warnings``."
+msgstr "Settu ``hash_inputs=True`` til að skrá hakk inntaks-/úttaksskráa; sjálfgefið er slökkt á hökkun og þá tilgreinir birtingarskráin ``input_hashing=\"skipped\"``. Leit fylgir stillingum með slóðargildum, þar á meðal földuðum plötulistum. Færslur hakkaðra skráa innihalda fullt SHA-256, stærð, breytingartímastimpil og stillingarlykilinn sem vísar í skrána. Yfirferð mappa sleppir tengdum færslum, útgáfustýringarmöppum, skyndiminni og keyrsludagbókinni. Fyrir-/eftirskráningar til að finna breytt úttak takmarkast við 200000 skrár á hverja rót; stytting er tilkynnt undir ``provenance_warnings``."
 
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The manifest also includes deterministic aggregate ``input_tree_sha256`` and ``output_tree_sha256`` values. Comparing these single digests shows whether two complete sets match; the per-file records identify which files differ."
-msgstr "Skráin inniheldur einnig ákvörðunarbundin samantektargildi ``input_tree_sha256`` og ``output_tree_sha256``. Samanburður þessara stöku tætigilda sýnir hvort tvö heil söfn passa saman; skráningar hverrar skrár sýna hvaða skrár eru frábrugðnar."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The aggregate ``input_tree_sha256`` and ``output_tree_sha256`` values hash the recorded dictionaries, including their paths and metadata. Matching values mean those records match; they do not prove complete file coverage when hashing was skipped or provenance was incomplete. Check ``input_hashing``, ``provenance_warnings`` and the per-file records before comparing runs."
+msgstr "Samantektargildin ``input_tree_sha256`` og ``output_tree_sha256`` hakka skráðu orðabækurnar, ásamt slóðum og lýsigögnum þeirra. Samsvarandi gildi merkja að þessar færslur samsvari; þau sanna ekki að allar skrár séu með ef hökkun var sleppt eða upprunaskráning ófullkomin. Athugaðu ``input_hashing``, ``provenance_warnings`` og einstakar skráarfærslur áður en keyrslur eru bornar saman."
 
 msgid "Crash and failure behavior"
 msgstr "Hegðun við hrun og villur"
 
-msgid "A ``running`` manifest is written before the pipeline starts. It is replaced atomically when the run succeeds or fails. Exceptions are re-raised to the normal GUI/CLI error handling after their traceback is retained. Problems reading or hashing provenance are logged and listed under ``provenance_warnings``; they are not silently discarded."
-msgstr "Skrá með stöðuna ``running`` er skrifuð áður en vinnslukeðjan hefst. Henni er skipt út frumeindarlega þegar keyrslan tekst eða mistekst. Undantekningum er kastað aftur til venjulegrar villumeðhöndlunar GUI/CLI eftir að rakning þeirra hefur verið varðveitt. Vandamál við lestur eða tætigildisreikning upprunaupplýsinga eru skráð í annál og talin upp undir ``provenance_warnings``; þeim er ekki hent án þess að láta vita."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A ``running`` manifest is written before the pipeline starts. Normal context exit attempts an atomic update with success, failure or cancellation status; caught exceptions are re-raised after their traceback is captured. Forced process termination or failure to write the final manifest can leave the stored status as ``running``. Run History can display it as ``interrupted`` when its recorded owner is gone; this does not rewrite the stored manifest. Provenance failures are logged, with recorded warnings retained under ``provenance_warnings`` when the manifest can be written."
+msgstr "Birtingarskrá með ``running`` er skrifuð áður en vinnslan hefst. Við venjuleg lok samhengisins er reynt að uppfæra hana með ódeilanlegri aðgerð með stöðu árangurs, bilunar eða afturköllunar; gripnum undantekningum er kastað áfram eftir að rakning þeirra er tekin. Þvinguð lok ferlis eða bilun við að skrifa lokabirtingarskrána geta skilið vistaða stöðu eftir sem ``running``. Keyrslusagan getur sýnt hana sem ``interrupted`` þegar skráð eigandaferli er horfið; það endurskrifar ekki vistuðu birtingarskrána. Bilanir við upprunaskráningu eru skráðar í annál og skráðar viðvaranir varðveittar undir ``provenance_warnings`` þegar hægt er að skrifa birtingarskrána."
 
 msgid "Public API"
 msgstr "Opinbert API"
 
-msgid "Use :func:`spacr.run_journal.open_run` around a custom pipeline. Within the context, :meth:`spacr.run_journal.Run.record_input`, :meth:`spacr.run_journal.Run.record_model`, and :meth:`spacr.run_journal.Run.record_output` can add paths that are not present in settings."
-msgstr "Notaðu :func:`spacr.run_journal.open_run` utan um sérsniðna vinnslukeðju. Innan samhengisins geta :meth:`spacr.run_journal.Run.record_input`, :meth:`spacr.run_journal.Run.record_model` og :meth:`spacr.run_journal.Run.record_output` bætt við slóðum sem eru ekki í stillingunum."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use :func:`spacr.run_journal.open_run` around a custom pipeline. Within the context, :meth:`spacr.run_journal.Run.record_model` records a model path; :meth:`spacr.run_journal.Run.record_input` and :meth:`spacr.run_journal.Run.record_output` can add paths absent from settings when ``hash_inputs=True``. Those two methods are no-ops when hashing is off."
+msgstr "Notaðu :func:`spacr.run_journal.open_run` utan um eigin vinnslu. Innan samhengisins skráir :meth:`spacr.run_journal.Run.record_model` líkanaslóð; :meth:`spacr.run_journal.Run.record_input` og :meth:`spacr.run_journal.Run.record_output` geta bætt við slóðum sem vantar í stillingar þegar ``hash_inputs=True``. Þessar tvær aðferðir gera ekkert þegar slökkt er á hökkun."
 
 msgid "``spacr-repro <run-folder>`` replays supported modules with the recorded settings. The complete API is generated under :mod:`spacr.run_journal`."
 msgstr "``spacr-repro <run-folder>`` endurspilar studdar einingar með skráðu stillingunum. Heildar-API-ið er búið til undir :mod:`spacr.run_journal`."
