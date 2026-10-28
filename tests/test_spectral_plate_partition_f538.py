@@ -650,3 +650,218 @@ def test_later_plate_oversized_source_headers_refuse_before_any_pixel_decode(
             assert int(image[shape[0] // 2, shape[1] // 2]) == 0
         finally:
             image._mmap.close()
+
+
+@needs_partition_access
+@pytest.mark.parametrize('damage', ['missing-channel', 'duplicate-channel', 'shape',
+                                    'nonfinite-control', 'multiple-times'])
+def test_later_plate_acquisition_refuses_without_parent_or_model(
+        mixed_plate_inputs, damage):
+    """A bad later plate cannot leave even the earlier valid plate's outputs."""
+    import tifffile
+
+    inputs = mixed_plate_inputs
+    source = inputs['source']
+    target = source / 'plate2_C01_F10_T2_Z1_C3.tif'
+    if damage == 'missing-channel':
+        target.unlink()
+    elif damage == 'duplicate-channel':
+        target.with_suffix('.tiff').write_bytes(target.read_bytes())
+        inputs['kwargs']['custom_regex'] = inputs['kwargs']['custom_regex'].replace(
+            r'\.tif$', r'\.tiff?$')
+    elif damage == 'shape':
+        tifffile.imwrite(target, np.ones((17, 18), np.float32))
+    elif damage == 'nonfinite-control':
+        control = source / 'plate2_B01_F10_T2_Z1_C3.tif'
+        pixels = tifffile.imread(control)
+        pixels[4, 4] = np.nan
+        tifffile.imwrite(control, pixels)
+    else:
+        target.rename(target.with_name(target.name.replace('_T2_', '_T3_')))
+    inputs['before'] = {path: path.read_bytes() for path in source.rglob('*') if path.is_file()}
+    paths = set(source.rglob('*'))
+    with pytest.raises(ValueError):
+        _run(inputs)
+    assert inputs['constructed'] == inputs['observed'] == []
+    assert set(source.rglob('*')) == paths
+    assert not tuple(source.glob('calibrated_plate_batch*'))
+    _unchanged(inputs)
+
+
+@needs_partition_access
+def test_an_occupied_collection_is_preserved_and_never_resumed(mixed_plate_inputs):
+    """A new run chooses a fresh parent without touching an existing run marker."""
+    inputs = mixed_plate_inputs
+    occupied = inputs['source'] / 'calibrated_plate_batch'
+    occupied.mkdir()
+    marker = occupied / 'plate_batch.json'
+    original = b'{"artifact":"previous independent run","complete":false}\n'
+    marker.write_bytes(original)
+    result = _run(inputs)
+    assert Path(result['manifest_path']).parent.name == 'calibrated_plate_batch_0001'
+    assert marker.read_bytes() == original
+    assert sorted(path.name for path in occupied.iterdir()) == ['plate_batch.json']
+    record = json.loads(Path(result['manifest_path']).read_text())
+    assert record['segmentation_complete'] is True
+    assert record['complete'] is record['aggregate_complete'] is False
+    assert [child['status'] for child in record['children']] == ['complete', 'complete']
+    _unchanged(inputs)
+
+
+@needs_partition_access
+@pytest.mark.parametrize('failure', ['model-error', 'cancel', 'status-write-error'])
+def test_active_child_failure_preserves_the_completed_signed_sibling(
+        mixed_plate_inputs, monkeypatch, failure):
+    """Original child failures survive journaling, with no aggregate success claim."""
+    from functools import wraps
+    from cellpose import models
+    from spacr import psf_pipeline
+    from spacr.cancellation import PipelineCancelled
+    from spacr.psf_pipeline import _open_calibrated_cell_dataset
+
+    inputs = mixed_plate_inputs
+    original_eval = models.CellposeModel.eval
+    original_write = psf_pipeline._write_json
+    error = (PipelineCancelled('stop the second plate') if failure == 'cancel'
+             else RuntimeError('private model detail must not enter the manifest'))
+    evaluated = []
+
+    @wraps(original_eval)
+    def fail_second_plate(model, *args, **kwargs):
+        evaluated.append(model)
+        if len(evaluated) == 2:
+            raise error
+        return original_eval(model, *args, **kwargs)
+
+    def write_status(path, record):
+        if (failure == 'status-write-error' and Path(path).name == 'plate_batch.json'
+                and record.get('status') == 'failed'):
+            raise OSError('collection status destination unavailable')
+        return original_write(path, record)
+
+    monkeypatch.setattr(models.CellposeModel, 'eval', fail_second_plate)
+    monkeypatch.setattr(psf_pipeline, '_write_json', write_status)
+    with pytest.raises(type(error)) as caught:
+        _run(inputs)
+    assert caught.value is error and len(evaluated) == 2
+    manifest_path = next(inputs['source'].glob('calibrated_plate_batch*/plate_batch.json'))
+    record = json.loads(manifest_path.read_text())
+    assert record['complete'] is record['aggregate_complete'] is False
+    assert record['segmentation_complete'] is False
+    assert record['children'][0]['status'] == 'complete'
+    if failure == 'status-write-error':
+        assert record['status'] == record['children'][1]['status'] == 'running'
+        if callable(getattr(error, 'add_note', None)):
+            assert any('OSError' in note for note in error.__notes__)
+    else:
+        expected = 'cancelled' if failure == 'cancel' else 'failed'
+        assert record['status'] == record['children'][1]['status'] == expected
+        assert record['error_type'] == record['children'][1]['error_type'] == type(error).__name__
+        assert str(error) not in manifest_path.read_text()
+    first = manifest_path.parent / record['children'][0]['path']
+    application = first / 'psf/segmentation_application.json'
+    raw = application.read_bytes()
+    assert record['children'][0]['record_sha256'] == hashlib.sha256(raw).hexdigest()
+    with _open_calibrated_cell_dataset(first) as dataset:
+        assert len(list(dataset.fields())) == 3
+    assert application.read_bytes() == raw
+    second = manifest_path.parent / record['children'][1]['path']
+    assert json.loads((second / 'psf/segmentation_application.json').read_text())['complete'] is False
+    _unchanged(inputs)
+
+
+@pytest.mark.parametrize('damage', ['status', 'artifact', 'unknown-child', 'child-path'])
+def test_qc_cannot_rewrite_an_untrusted_collection_binding(
+        completed_partition, damage):
+    """Bad QC authority leaves both collection bytes and signed children intact."""
+    from spacr import pipeline_v2
+
+    inputs, result = completed_partition
+    path = Path(result['manifest_path'])
+    child = dict(result['plate_results'][0])
+    if damage == 'artifact':
+        record = json.loads(path.read_text())
+        record['artifact'] = 'an unrelated run'
+        path.write_text(json.dumps(record))
+    elif damage == 'unknown-child':
+        child['child_name'] = 'not-a-returned-child'
+    elif damage == 'child-path':
+        child['output_root'] = inputs['source']
+    before = path.read_bytes()
+    signed = {Path(entry['output_root']) / 'psf/segmentation_application.json':
+              (Path(entry['output_root']) / 'psf/segmentation_application.json').read_bytes()
+              for entry in result['plate_results']}
+    with pytest.raises(ValueError):
+        pipeline_v2._record_partition_qc(result, child,
+            'made-up-success' if damage == 'status' else 'complete')
+    assert path.read_bytes() == before
+    assert all(application.read_bytes() == raw for application, raw in signed.items())
+    _unchanged(inputs)
+
+
+def test_qc_atomic_replace_failure_preserves_the_previous_truthful_manifest(
+        completed_partition, monkeypatch):
+    """A failed rename cannot publish success or leave a temporary QC journal."""
+    from spacr import pipeline_v2, psf_pipeline
+
+    inputs, result = completed_partition
+    path = Path(result['manifest_path'])
+    before = path.read_bytes()
+    original_replace = psf_pipeline.os.replace
+    attempted = []
+
+    def refuse_collection_replace(source, destination):
+        if Path(destination) == path:
+            proposed = json.loads(Path(source).read_text())
+            assert proposed['children'][0]['qc_status'] == 'complete'
+            attempted.append(Path(source))
+            raise OSError('atomic collection replace refused')
+        return original_replace(source, destination)
+
+    monkeypatch.setattr(psf_pipeline.os, 'replace', refuse_collection_replace)
+    with pytest.raises(OSError, match='atomic collection replace refused'):
+        pipeline_v2._record_partition_qc(result, result['plate_results'][0], 'complete')
+    assert len(attempted) == 1 and not attempted[0].exists()
+    assert path.read_bytes() == before
+    record = json.loads(before)
+    assert record['status'] == 'segmented' and record['complete'] is False
+    assert [entry['qc_status'] for entry in record['children']] == ['pending', 'pending']
+    _unchanged(inputs)
+
+
+@needs_partition_access
+def test_refused_packed_control_closes_its_actual_mapping_before_model_use(
+        mixed_plate_inputs, monkeypatch):
+    """A changed child control is rejected and its real mmap handle is retired."""
+    from spacr import pipeline_v2
+
+    inputs = mixed_plate_inputs
+    original_stream = pipeline_v2.stream_originals_to_stack
+    original_load = pipeline_v2.np.load
+    mapped = []
+
+    def changed_control(*args, **kwargs):
+        stacks = original_stream(*args, **kwargs)
+        values = original_load(stacks[0].path, allow_pickle=False)
+        values[4, 4, 0] += 1
+        np.save(stacks[0].path, values)
+        return stacks
+
+    def observe_mapping(path, *args, **kwargs):
+        values = original_load(path, *args, **kwargs)
+        if kwargs.get('mmap_mode') == 'r' and Path(path).parent.name == 'merged':
+            mapped.append(values)
+        return values
+
+    monkeypatch.setattr(pipeline_v2, 'stream_originals_to_stack', changed_control)
+    monkeypatch.setattr(pipeline_v2.np, 'load', observe_mapping)
+    with pytest.raises(ValueError):
+        _run(inputs)
+    assert mapped and all(value._mmap.closed for value in mapped)
+    assert inputs['constructed'] == inputs['observed'] == []
+    path = next(inputs['source'].glob('calibrated_plate_batch*/plate_batch.json'))
+    record = json.loads(path.read_text())
+    assert record['status'] == record['children'][0]['status'] == 'failed'
+    assert record['children'][1]['status'] == 'pending'
+    assert record['complete'] is record['segmentation_complete'] is False
+    _unchanged(inputs)

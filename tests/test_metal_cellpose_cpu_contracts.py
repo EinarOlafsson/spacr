@@ -146,3 +146,136 @@ def test_radeon_profiler_query_failure_stays_unknown(monkeypatch):
             assert metal_cellpose._radeon_vram_bytes() is None
     finally:
         metal_cellpose._radeon_vram_bytes.cache_clear()
+
+
+@pytest.mark.parametrize('budget,migrate', [(None, False), (0, False), (152, False), (151, True)])
+def test_training_memory_policy_accounts_for_frozen_and_wide_cpu_parameters(
+        monkeypatch, capsys, budget, migrate):
+    """MPS metadata routes the measured CPU parameter budget without using a GPU."""
+    import torch
+    from spacr import metal_cellpose
+
+    parameters = torch.nn.ParameterList([
+        torch.nn.Parameter(torch.arange(3, dtype=torch.float16)),
+        torch.nn.Parameter(torch.arange(2, dtype=torch.float64)),
+        torch.nn.Parameter(torch.arange(5, dtype=torch.float64), requires_grad=False),
+    ])
+    before = [parameter.detach().clone() for parameter in parameters]
+    assert sum(parameter.numel() * parameter.element_size() for parameter in parameters) == 62
+    assert 3 * 4 + 2 * 8 + 5 * 8 + 3 * (3 * 4 + 2 * 8) == 152
+    metadata = [SimpleNamespace(
+        device=torch.device('mps'), numel=parameter.numel,
+        element_size=parameter.element_size, requires_grad=parameter.requires_grad,
+    ) for parameter in parameters]
+    moves, cache_calls = [], []
+
+    def move(device):
+        moves.append(device)
+        return parameters.to(device)
+
+    net = SimpleNamespace(parameters=lambda: iter(metadata), to=move)
+    monkeypatch.setattr(metal_cellpose, '_radeon_vram_bytes', lambda: budget)
+    monkeypatch.setattr(torch.mps, 'empty_cache', lambda: cache_calls.append('empty'))
+    metal_cellpose._fit_training_memory(net)
+    assert moves == (['cpu'] if migrate else [])
+    assert cache_calls == (['empty'] if migrate else [])
+    assert ('exceeding Radeon VRAM' in capsys.readouterr().out) is migrate
+    assert [parameter.requires_grad for parameter in parameters] == [True, True, False]
+    for parameter, original in zip(parameters, before):
+        assert parameter.device.type == 'cpu'
+        torch.testing.assert_close(parameter, original, rtol=0, atol=0)
+
+
+@pytest.mark.parametrize('net', [
+    object(), SimpleNamespace(parameters=None), SimpleNamespace(parameters=lambda: iter(())),
+])
+def test_training_memory_without_parameters_does_not_query_gpu_metadata(monkeypatch, net):
+    """Missing, non-callable and empty parameter providers cannot select a GPU policy."""
+    from spacr import metal_cellpose
+
+    def unexpected():
+        raise AssertionError('no usable parameters must not query VRAM')
+
+    monkeypatch.setattr(metal_cellpose, '_radeon_vram_bytes', unexpected)
+    metal_cellpose._fit_training_memory(net)
+
+
+def test_non_darwin_training_does_not_start_a_native_profiler(monkeypatch):
+    """Unsupported platforms return unknown VRAM without invoking system_profiler."""
+    from spacr import metal_cellpose
+
+    def unexpected(*args, **kwargs):
+        raise AssertionError('non-Darwin must not invoke a native profiler')
+
+    metal_cellpose._radeon_vram_bytes.cache_clear()
+    try:
+        with monkeypatch.context() as scope:
+            scope.setattr(sys, 'platform', 'linux')
+            scope.setattr(subprocess, 'run', unexpected)
+            assert metal_cellpose._radeon_vram_bytes() is None
+    finally:
+        metal_cellpose._radeon_vram_bytes.cache_clear()
+
+
+def test_metal_augmentation_dispatch_computes_on_cpu_then_requests_original_device(monkeypatch):
+    """Recording transfer metadata proves routing, without claiming native MPS execution."""
+    import cellpose
+    import torch
+    from spacr import accelerator, metal_cellpose
+
+    calls, transfers = [], []
+    pixels = torch.arange(6, dtype=torch.float32).reshape(2, 3)
+    original = pixels.clone()
+    extra = np.array([3, 7])
+
+    class TransferRequest:
+        """Keep actual CPU output while recording the adapter's requested destination."""
+        def __init__(self, tensor):
+            self.tensor = tensor
+
+        def to(self, device):
+            transfers.append(device)
+            return self.tensor
+
+    def augment(images, device='cpu', scale=2):
+        calls.append(torch.device(device))
+        assert torch.device(device).type == 'cpu'
+        return TransferRequest(images * scale), extra, None
+
+    train = SimpleNamespace(torch=torch, random_rotate_and_resize=augment)
+    monkeypatch.setattr(cellpose, 'train', train, raising=False)
+    monkeypatch.setattr(accelerator, 'resolve', lambda: accelerator.Accelerator(
+        kind='mps', device='mps', label='Metadata-only Metal'))
+    with pytest.raises(RuntimeError, match='owned cancellation'):
+        with metal_cellpose.training_context():
+            result = train.random_rotate_and_resize(pixels, torch.device('mps'), scale=3)
+            assert calls == [torch.device('cpu')]
+            assert transfers == [torch.device('mps')]
+            torch.testing.assert_close(result[0], pixels * 3, rtol=0, atol=0)
+            assert result[0].device.type == 'cpu'
+            assert result[1] is extra and result[2] is None
+            assert sys.modules['torch'] is torch
+            raise RuntimeError('owned cancellation')
+    assert train.torch is torch and train.random_rotate_and_resize is augment
+    assert not hasattr(train, 'dynamics')
+    torch.testing.assert_close(pixels, original, rtol=0, atol=0)
+
+
+def test_metal_context_preserves_older_training_modules_without_optional_seams(monkeypatch):
+    """A minimal older module receives only the temporary Torch adapter."""
+    import cellpose
+    import torch
+    from spacr import accelerator, metal_cellpose
+
+    train = SimpleNamespace(torch=torch)
+    monkeypatch.setattr(cellpose, 'train', train, raising=False)
+    monkeypatch.setattr(accelerator, 'resolve', lambda: accelerator.Accelerator(
+        kind='mps', device='mps', label='Metadata-only Metal'))
+    with metal_cellpose.training_context():
+        assert train.torch is not torch
+        with train.torch.autocast(device_type='mps'):
+            torch.testing.assert_close(train.torch.arange(3) + 2, torch.tensor([2, 3, 4]))
+        assert not hasattr(train, 'random_rotate_and_resize')
+        assert not hasattr(train, 'dynamics')
+    assert train.torch is torch
+    assert vars(train) == {'torch': torch}
