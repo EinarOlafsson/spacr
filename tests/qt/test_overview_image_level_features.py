@@ -771,3 +771,100 @@ def test_late_successful_group_comparison_cannot_replace_a_newer_representative_
             release.set()
             qtbot.waitUntil(lambda: not dialog._export_jobs.is_busy() and not dialog._montage_jobs.is_busy(),
                             timeout=30000)
+
+
+def test_late_representatives_cannot_replace_a_newer_group_comparison(overview, qtbot, monkeypatch):
+    import importlib
+    import threading
+    from pathlib import Path
+    from unittest.mock import Mock
+    import pandas as pd
+    from spacr import tabular
+    from spacr.schema import field_id
+    from spacr.qt.widgets import qc_field_browser as module
+
+    dialog = overview
+    database = Path(dialog._metadata_source) / 'measurements' / 'measurements.db'
+    records = [dict(plate=field.plate, well=field.well, field=str(field.field),
+                    fieldID=field_id(field.field_id), time_id=str(field.time_id), z_id=str(field.z_id),
+                    channel_1_mean=(1. if field.well == 'A01' else 7.) + 2. * (int(field.field_id) - 1),
+                    status='ok') for field in dialog._fields]
+    tabular.write_database(pd.DataFrame(records), database, 'fov', if_exists='replace', canonicalise=False)
+    assert dialog.group_builder.add_group({'well': 'A01'})
+    assert dialog.group_builder.add_group({'well': 'B02'})
+    dialog.group_builder.rename_group(row=0, name='Control')
+    dialog.group_builder.rename_group(row=1, name='Treated')
+    qtbot.waitUntil(lambda: not dialog._group_jobs.is_busy(), timeout=10000)
+    dialog.comparison_measurement.setCurrentText('channel_1_mean')
+    dialog.representative_method.setCurrentIndex(dialog.representative_method.findData('measurement'))
+    entered, release = threading.Event(), threading.Event()
+    worker_lock = threading.Lock()
+    reads, rankings, completed = [], [], []
+    stats = importlib.import_module('spacr.sp_stats')
+    original_reader, original_ranker = module._overview_comparison_frame, stats._representative_images
+    montage = Mock(wraps=dialog._compare_fields)
+
+    def read(source):
+        with worker_lock:
+            reads.append(source)
+            first = len(reads) == 1
+        if first:
+            entered.set()
+            assert release.wait(45), 'the held representatives must be released during test cleanup'
+        return original_reader(source)
+
+    def rank(*args, **kwargs):
+        result = original_ranker(*args, **kwargs)
+        with worker_lock:
+            rankings.append(result.to_dict('records'))
+        return result
+
+    with monkeypatch.context() as local:
+        local.setattr(module, '_overview_comparison_frame', read)
+        local.setattr(stats, '_representative_images', rank)
+        local.setattr(dialog, '_compare_fields', montage)
+        dialog._export_jobs.job_finished.connect(completed.append)
+        try:
+            dialog._comparison_buttons[1].click()
+            qtbot.waitUntil(entered.is_set, timeout=10000)
+            dialog._comparison_buttons[0].click()
+            qtbot.waitUntil(lambda: completed == [True, True] and dialog._export_jobs.active_jobs() == 1
+                            and len(dialog._image_views) == 2 and not dialog._image_stack_jobs.is_busy()
+                            and 'Comparison of channel_1_mean' in dialog.status.text(), timeout=30000)
+            columns = {dialog.comparison_table.horizontalHeaderItem(index).text(): index
+                       for index in range(dialog.comparison_table.columnCount())}
+            assert float(dialog.comparison_table.item(0, columns['mean_a']).text()) == 2.
+            assert float(dialog.comparison_table.item(0, columns['mean_b']).text()) == 8.
+            assert float(dialog.comparison_table.item(0, columns['log2_ratio']).text()) == -2.
+            assert dialog._comparison_signature[0] == 'groups'
+            assert Path(dialog._comparison_signature[1]).is_file()
+            signature, caption = dialog._comparison_signature, dialog.status.text()
+            pixels = dialog.view._item.pixmap().toImage()
+            table = tuple(tuple(dialog.comparison_table.item(row, column).text()
+                                for column in range(dialog.comparison_table.columnCount()))
+                          for row in range(dialog.comparison_table.rowCount()))
+            images = [(panel.field.identity, panel.view._item.pixmap().toImage()) for panel in dialog._image_views]
+            assert {identity for identity, image in images} == {
+                field.identity for field in dialog._fields if field.field_id == '1'}
+            assert all(not image.isNull() for identity, image in images)
+            release.set()
+            qtbot.waitUntil(lambda: not dialog._export_jobs.is_busy() and completed == [True, True, True],
+                            timeout=10000)
+            assert len(reads) == 3 and len(rankings) == 2
+            expected = {(field.plate, field.well, str(field.field), str(field.time_id), str(field.z_id))
+                        for field in dialog._fields if field.field_id == '1'}
+            assert all({tuple(str(row[key]) for key in ('plate', 'well', 'field', 'time_id', 'z_id'))
+                        for row in ranked} == expected for ranked in rankings)
+            montage.assert_not_called()
+            assert dialog._comparison_signature == signature
+            assert dialog.status.text() == caption
+            assert dialog.view._item.pixmap().toImage() == pixels
+            assert tuple(tuple(dialog.comparison_table.item(row, column).text()
+                               for column in range(dialog.comparison_table.columnCount()))
+                         for row in range(dialog.comparison_table.rowCount())) == table
+            assert [(panel.field.identity, panel.view._item.pixmap().toImage())
+                    for panel in dialog._image_views] == images
+        finally:
+            release.set()
+            qtbot.waitUntil(lambda: not dialog._export_jobs.is_busy() and not dialog._image_stack_jobs.is_busy()
+                            and not dialog._montage_jobs.is_busy(), timeout=30000)
