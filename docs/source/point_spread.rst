@@ -79,12 +79,14 @@ quantitative features; source files and exported crops retain their usual
 behavior. The ``intensity_rescale`` table records the selected source and PSF
 processing details. Keep the database with the settings and kernel file.
 
-To compare different kernels or original and processed measurements, use
-separate projects or output databases. An existing database cannot mix
-measurements made with different PSF configurations. Restore the recorded
-configuration when resuming a run. See
-:func:`spacr.psf_measurement.prepare_measurement_psf` for the Python settings
-contract.
+When resuming a run, keep the recorded PSF configuration: incompatible
+intensity sources or kernels are refused. A fresh SQLite run with ``resume=False``
+can instead archive the previous measurement population in suffixed tables
+before writing new fields, keeping its records separate from the new population.
+A fresh run with a non-SQLite backend requires a separate project when a previous
+population must be archived. Separate projects or output databases also make
+comparisons easier to track. See :func:`spacr.psf_measurement.prepare_measurement_psf`
+for the Python settings contract.
 
 Load the image and PSF
 ----------------------
