@@ -14752,7 +14752,7 @@ class MakeMasksScreen(QWidget):
 
         self._empty_state = EmptyState(
             title="Open a folder of images to edit masks",
-            subtitle=(
+            subtitle=tr(
                 "Pick a folder that contains microscopy images "
                 "(.tif / .png / .jpg), or one 2D or 3D image. Any existing "
                 "masks in a `masks/` subfolder are loaded; new masks save "
