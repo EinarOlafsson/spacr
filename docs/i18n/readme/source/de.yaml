@@ -135,7 +135,7 @@ blocks:
     444.5 s auf der CPU und 3.2 s mit Metal für ein Bild mit 256×256 Pixeln, mit torch 2.2.2,
     Python 3.12.11 und macOS 26.5.2. Dies ist ein historisches Beispiel, keine Geschwindigkeitsgarantie.
     GPU-Beschleunigung erfordert ein nutzbares Backend und kompatible Bibliotheken. Siehe
-    die `aufgezeichnete Hardwaremessung <features/new/319_use_non_nvidia_accelerators_where_they_exist.txt>`_.
+    die `aufgezeichnete Hardwaremessung <features/feature_list/319_use_non_nvidia_accelerators_where_they_exist.txt>`_.
 - h2: spaCR installieren
 - p: 'Wählen Sie einen Installationsweg:'
 - list:

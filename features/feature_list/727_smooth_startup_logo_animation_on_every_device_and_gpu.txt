@@ -1,0 +1,238 @@
+A STARTUP LOGO ANIMATION THAT IS AS SMOOTH AS POSSIBLE ON EVERY DEVICE AND GPU
+
+Lifecycle: new
+Status:    COMPLETE — software implementation and validation delivered with this Nightly change.
+Requested: maintainer, 2026-10-25: "also add as a ne item to make sure the
+           start up logo animation is as smooth as possible on all devises
+           and on all hardware"
+Owner:     G2 software implementation/qualification; G5 independent peer; root Nightly-only publication
+Related:   694 (photomosaic blow-away startup screen), 695 (startup logo on a
+           full-screen borderless window and a help replay), 55 (performance
+           sweep: nothing that loads belongs on the GUI thread), 684
+           (animation defaults, dynamic GPU use), N655 Reduce motion,
+           Preferences > Animation > Startup animation.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Where it lives: spacr/qt/widgets/loading_screen.py. LoadingScreen is the black
+cover that is the first thing in the one borderless window (695); BlowAway
+(same file) is the numpy model of the tile flight; app.py installs the cover
+(_install_loading_screen) ahead of the pipeline preloader.
+
+How it renders: pure QPainter on the widget's raster paintEvent. No OpenGL, no
+QtQuick, no QOpenGLWidget. Each frame (_paint_blow_away) draws the captured
+live-window underlay, the splash-coloured fade, the strap line, the resting
+tiles from one cached QImage, and then one drawPixmap per flying tile with a
+QTransform and opacity set per tile (_paint_tiles). Tiles are cut once, at the
+start of the blow-away (_cut_tiles); the mosaic pixmap is decoded once per
+size and ratio and cached (_mosaic_picture). The Reduce motion path is a
+single-pixmap cross-fade over about one second.
+
+What drives frame timing: a QTimer, PreciseTimer type, with a fixed 16 ms
+interval (_MOSAIC_FRAME_MS) that calls update(). It is not tied to the
+display's refresh. Motion itself is correct under lag, because tile positions
+are a function of elapsed monotonic time (elapsed()), not of a frame count, so
+a slow frame skips ahead instead of stretching the show. A 16 ms timer on a
+60 Hz display beats against the vsync (some frames double, some are skipped);
+on 120/144 Hz displays it caps the animation at about 62 fps.
+
+What adapts: _adapt() raises a tile-alpha floor by 0.08 when a frame paints in
+more than 14 ms, and lowers it by 0.04 under 9 ms, so slow machines draw
+fewer faint tiles. The thresholds are fixed milliseconds, not a share of the
+display's actual frame interval. frame_stats() reports only the paint time per
+frame (frames, mean, max, most tiles). It does not record when a frame was
+presented, so late and dropped frames, and the 95th/99th percentile of the
+frame-to-frame interval, are not measured.
+
+How the related items bear on it:
+- 694 built the blow-away and the loading cover; its tests cover the model and
+  the mean/max paint time, not pacing.
+- 695 fixed the timeline (2 s hold, 4 s blow-away, live window visible from 1 s
+  to 3 s) and added the Help replay, so the animation is repeatable on demand,
+  which makes it measurable.
+- 55 set the rule that nothing that loads runs on the GUI thread, and the
+  preloader (_PipelinePreloader) still imports pipeline modules in the
+  background while the cover animates; Python imports hold the GIL, so a heavy
+  import can still delay a paint. No test pins this down per frame.
+- 684 added animation defaults and dynamic GPU use for the live GUI; the
+  startup cover does not use the GPU path.
+- tests/qt/test_641_startup_and_browse_budgets.py and the startup benchmark
+  tests measure load times, not the animation's frame cadence.
+
+--------------------------------------------------------------------------------
+WHAT TO BUILD
+--------------------------------------------------------------------------------
+
+1. Measure first. Record, per frame, the time the frame was presented (frame
+   swapped signal or a vsync-aligned callback; paint time alone is not
+   enough). From it report dropped frames, late frames (more than 1.5 x the
+   display interval), the mean, the 95th and 99th percentile of the
+   frame-to-frame interval, and the longest gap. Extend frame_stats() with
+   these and write them to the startup benchmark output.
+
+2. Align to the display. Replace the fixed 16 ms timer with a vsync-aligned
+   driver (the window's frame callback, QWindow frameSwapped or an
+   update()-on-swap loop, or QScreen.refreshRate() as the interval at the
+   least). Keep elapsed-time motion. Acceptance: on 60, 120 and 144 Hz the
+   animation runs at the display rate, with no beat pattern in the interval
+   histogram.
+
+3. Cover the platforms and the display modes. Run the measurement on Linux
+   (X11 and Wayland), Windows and macOS, including Retina/HiDPI and
+   fractional scaling (125 %, 150 %, 175 %); tiles and pixmaps are cut at
+   device-pixel size, so the cost at 2x and at 1.5x must be measured, not
+   assumed.
+
+4. Cover the hardware. Software rendering with no GPU (Mesa llvmpipe on Linux,
+   WARP on Windows, the macOS software path), integrated against discrete
+   GPUs, low-core and loaded CPUs (for example 2 cores, and 100 % load on the
+   other cores), and a machine with a pipeline import running at the same
+   time.
+
+5. Keep the main thread free during the animation. No import, file read, model
+   load or decode runs on the GUI thread between the first paint and the end
+   of the blow-away; the underlay capture and the tile cut are done before the
+   first animated frame or moved off the thread. A test fails if any single
+   GUI-thread stall during the animation is longer than the budget in item 8.
+
+6. Use pre-rendered or cached frames where they measurably help. Candidates:
+   cache the tiles and the resting image between the start-up run and the
+   Help replay, pre-rasterise the strap line, and on software rendering swap
+   per-tile drawPixmap calls for a pre-composed frame sequence or a lower
+   tile count. Adopt each only if the measurement in item 1 shows a gain.
+
+7. Degrade gracefully, and respect reduced motion. Replace the fixed paint
+   thresholds in _adapt() with a share of the measured display interval, and
+   let the system step down in stages (fewer faint tiles, then fewer tiles,
+   then the one-second cross-fade) when the p95 frame time breaks the budget
+   during the first frames. Reduce motion, the Startup animation preference
+   and SPACR_NO_SPLASH keep working exactly as in 695, and the animation never
+   delays the window becoming usable.
+
+8. A regression test with a budget. On the CI runners (Linux with Xvfb and
+   software Mesa, Windows, macOS) run the Help replay with a real frame
+   source and assert: no frame gap above 100 ms, p99 frame interval under
+   2.5 x the display interval, dropped frames under 5 % of the frames of the
+   4 s blow-away, and mean paint time under 8 ms. Budgets are stored in one
+   file; a loosened budget needs a note in this item. Offscreen runs stay as
+   they are (the platform does not draw the splash).
+
+9. Native smoke runs. On a Windows machine and a Mac (Retina), run the
+   unmodified app start and the Help replay, save the frame_stats() output and
+   a screen recording, and record both in this file with the display refresh
+   rate and the GPU. WS runs Windows; the Mac run follows 725.
+
+Done when: items 1 to 9 are built, the CI budget test is green on all three
+runners, and the native Windows and Mac numbers are recorded below with a p99
+frame interval inside 2.5 x the display interval.
+
+--------------------------------------------------------------------------------
+WHAT WAS DONE (2026-10-25, Home)
+--------------------------------------------------------------------------------
+
+Abbreviations: Hz = hertz (display refreshes a second); ms = milliseconds;
+fps = frames per second; p95 = 95th percentile; DPR = device pixel ratio
+(device pixels per logical pixel); GIL = Python's global interpreter lock;
+X11 and Wayland = the two Linux display protocols; GNOME = the Linux desktop
+the Wayland figures were taken on.
+
+All of it is in spacr/qt/widgets/loading_screen.py; no new module.
+
+1. Pacing to the display (WHAT TO BUILD 2). The fixed 16 ms timer is gone.
+   The frame interval is the window's screen refresh interval
+   (QScreen.refreshRate(), believed between 23 and 500 Hz, 60 Hz otherwise),
+   and it is taken again when the native window emits screenChanged. The
+   timer is single-shot and keeps deadlines one interval apart from the
+   first frame, so whole-millisecond timer resolution does not drift
+   against the display; a deadline missed by more than one interval
+   resynchronises instead of catching up. On macOS (platform "cocoa"),
+   where QWindow.requestUpdate() is delivered by the display link, each
+   delivered update asks for the next, and the timer only finishes the show
+   and paints directly if no frame has come for 1.5 frame budgets.
+   Wayland also delivers update requests from the display, but in an
+   exploratory reading on GNOME at 144 Hz (a 1600 x 1000 window) a chain of
+   them paced the widget window at about 56 fps with a p95 interval of
+   25 ms, against about 79 fps and 19 ms for the deadlines, so Wayland,
+   X11, Windows and the offscreen platform all use the deadlines.
+2. Relative thresholds (WHAT TO BUILD 7). _adapt() judges a frame slow above
+   0.84 of the frame budget and fast below 0.54 of it: 14 ms and 9 ms at
+   60 Hz, as before, and 5.8 ms and 3.75 ms at 144 Hz.
+3. Stepping down in stages (WHAT TO BUILD 7). First the faint-tile floor
+   rises, as before. Six slow frames in a row with the floor at its top halve
+   the flying tiles (one in two, then one in four, chosen by tile so a tile
+   never flickers between frames). Separately, every 24 frames, if more than
+   a quarter of the intervals were longer than 1.5 frame budgets (the cost
+   outside the paint: flushing and compositing), each frame takes one display
+   frame more, never slower than 30 fps; an even 72 fps on a 144 Hz display
+   reads smoother than about 90 that miss at random. Reduce motion keeps the
+   one-second cross-fade, paced the same way, and cuts no tiles.
+4. Keeping the GUI thread free (WHAT TO BUILD 5). From blow_away() until the
+   cover is done, the cover takes the same hold the Overview takes
+   (gil_priority.hold_background_imports), so the warm imports started
+   through app._start_unless_held (data libraries, the PyTorch library map,
+   the Mask pipeline entry) wait instead of taking the GIL from the frames;
+   it is released in _finish(), including on a skip. Idle warming already
+   waits on blow_away_running(). The eager pipeline preloader finishes
+   before the blow-away starts, so it was not changed.
+5. Work before the first frame (WHAT TO BUILD 5 and 6). The tile cut
+   (about 21 ms for the 3999 flying tiles of a 1600 x 1000 window) now runs
+   during the two-second hold, keyed by the layout (position, side, tile
+   size and DPR); _begin() cuts again only if the layout changed meanwhile.
+   The mosaic is still decoded once per tile size and DPR, at device-pixel
+   size, and each tile carries its own DPR, so HiDPI, Retina and fractional
+   scales draw tiles 1:1 with device pixels.
+6. Measuring (WHAT TO BUILD 1). Each blow-away frame records when it was
+   painted. frame_stats() keeps its four keys and adds, from the private
+   _pacing_report(): the paint-time p95, the refresh rate and interval, the
+   final frame budget and step-down stage, whether the display drove the
+   frames, and the interval mean, median, p95 and 99th percentile, the
+   longest gap, late frames (over 1.5 display frames) and dropped frames
+   (display frames that passed without a new frame) with their share.
+   The public frame_stats() and eventFilter() docstrings were left word for
+   word, so no API translation record went stale; their new behaviour is
+   documented on the private helpers.
+7. Existing tests: test_694's timer check now asserts the paced single-shot
+   timer (interval within the screen's frame interval) instead of the old
+   16 ms constant, and its skipped-show check asserts the new pacing fields
+   are zero as well as the old four.
+
+--------------------------------------------------------------------------------
+DEFERRED (2026-10-25, the maintainer: "do inimation tests later")
+--------------------------------------------------------------------------------
+
+Still owed, in this order:
+- The recorded baseline and after timing table (Linux X11 and Wayland at
+  144 Hz, pinned with taskset -c 0,1, with LIBGL_ALWAYS_SOFTWARE=1 and
+  QT_QUICK_BACKEND=software, at QT_SCALE_FACTOR 1.5 and 2, offscreen), each
+  with a control row (the same driver painting one black fill a frame) and
+  the unchanged nightly code as the baseline. The measuring script and the
+  matrix runner are at /mnt/firecuda2/codex/scratch-docs/item727/
+  (measure.py, matrix.sh); a pristine baseline worktree is at
+  /mnt/wd4tb/spacr-worktrees/item-727-baseline.
+- The new animation tests, drafted but not committed
+  (/mnt/firecuda2/codex/scratch-docs/item727/test_727_draft.py): refresh-
+  derived intervals at 60, 120 and 144 Hz, re-pacing on screenChanged,
+  relative _adapt thresholds and the step-down stages, the import hold
+  during the show, the tile cut during the hold, the display-driven path,
+  and the real-time frame-pacing regression test with a control-based
+  budget whose tolerance is set from the recorded measurements.
+- frame_stats() written to the startup benchmark output (WHAT TO BUILD 1),
+  and its docstring updated with the new keys plus nine-locale records.
+- WHAT TO BUILD 3, 4, 8 and 9 on Windows and macOS, including the first
+  measurement of the cocoa display-link path on a Retina Mac.
+
+2026-10-26 — Maintainer followup, priority requested visual fix; easy_n79 owns source/CPU paint validation, root publication: retain only mosaic tiles forming the logo or its outline in still/hold, reduced motion, replay and flight. Preserve motion/pacing/skip/underlay behavior; deferred platform/performance items 1–9 remain open.
+2026-10-26 — Shared decoded mosaic now clears only non-logo cells before caching, preserving original logo/outline pixels and flight eligibility, including grouped Mac tiles. Fifteen focused CPU Qt checks pass (10.36s); real software before/after static, flight and reduced-motion frames cover 900×700/DPR1, 1200×900/DPR1.5 and 1920×1080/DPR2. Root publication pending; no whole-item completion claimed.
+
+2026-10-27 — The README deck cover now uses the app’s packaged mosaic and silhouette map: outside tiles are transparent, with layout and version 1.5.1.6 retained. Normal cover/template/README assets regenerated; both focused template/stamp checks pass (0.81 s), all other 56 slides and PDF page contents preserved, and exported cover visually accepted. The PDF is published and immutable-readback verified through the deck media pin; root owns Git publication. Deferred device/performance requirements remain open.
+
+2026-10-27 — Acceptance update: the maintainer removes human review/intervention and manual/native-platform acceptance gates through 1.5.1.6 delivery; reasonable implementation, focused validation and publication qualify delivery. The maintainer tests afterward, and silence requests no change. Unimplemented work, known defects and unmet scientific outcomes remain open.
+2026-10-27 — OPEN software work remains: the recorded deferred list still owes startup-benchmark frame_stats integration/documentation/locales and the drafted pacing/budget regressions. Published motion/pacing and silhouette/README fixes remain accepted; native timing tables and human visual review are no longer delivery gates.
+
+2026-10-27 — Required startup-metrics locale closure must update only the named English API owner and its source history, preserving unrelated records through an opt-in normal writer mode; default full builds retain their current pruning behavior. Integration owner implements this tool path with a focused regression and independent peer before N727 generation.
+2026-10-27 — G2 resumes the remaining software scope on published Nightly 2ca: export completed startup frame_stats into the normal benchmark, accurately document paint-callback cadence versus presentation, and qualify pacing/adaptation/budget controls with G5 peer. Retain delivered mosaic/README assets and prior results; no new native campaign or manual review gate, and no changes to the frozen Main candidate.
+2026-10-27 — Completed-cover frame_stats now survives widget deletion in normal startup-benchmark JSON; absent covers are null, and skipped/completed state is explicit. All 14 focused controls pass (9.90 s), including a real 900×700 offscreen software replay within the unchanged 8 ms paint, 100 ms gap, p99 <2.5 refresh intervals and <5% estimated-drop budgets. Paint-callback evidence is not compositor/hardware validation; G5 peer accepted, normal API/locales and root Nightly publication remain.
+
+2026-10-27 — COMPLETE under the current software acceptance: 14 focused pacing/export controls and two scoped English-history regressions pass; nine reviewed returns blocks and unchanged summaries pass normal admissions and independent output checks. Review union 00849c7c retains both Navigator/Measure and startup-metrics records; API memory 9c56cc21 is published and immutable-readback verified, preserving unrelated records/history/media; root delivers this change on Nightly. Measurements describe paint callbacks, not verified compositor presentation or a cross-device timing guarantee; no new native campaign or frozen-Main change is claimed.

@@ -1,0 +1,19 @@
+MAKE MASKS: MEASURE THE CURRENT 3D IMAGE INTO A SPACR-STYLE DATABASE
+
+Lifecycle: new
+Status:    COMPLETE — current-volume measurement, database append and related checks pass; normal translated artifacts ship with this item
+Requested: maintainer, 2026-10-16.
+Owner:     conda_acceptance + website_release; root publication; shared API generation owner
+
+In Make Masks > IO > Measure, add a 3D section with one button that measures the current 3D image: scikit-image regionprops (3D), channel correlation, object-to-object distances, and similar. It prompts to fill extra channel slots (drag and drop or paste paths) and lets the user add rows for new image sets. It writes a database in the image folder, or appends to one already there, using a structure as close as possible to spaCR Measure.
+
+2026-10-16 — Accepted Claude handover; start only after the titled-container Make Masks layout commit is verified on origin/nightly; finish705 before706 with reused available agents.
+Under IO > Measure add a3D section measuring the current image via3D region properties, channel correlations and object distances; prompt for extra channels by drag/drop or pasted paths and allow additional image-set rows.
+Write or append the image-folder database using existing spaCR Measure structures; use spacr.tabular for tables, related CPU checks, normal generated artifacts and one integrated publication.
+
+2026-10-16 — Dependency verified: use the landed _add_measure_section(label, callback) hook; reused pair owns705 end to end, then706, with volume-render changes coordinated with673.
+
+2026-10-16 — Implemented IO > Measure > 3D for the current edited volume, optional channel paths and additional image-set rows; results write or append the image-folder database using Measure-compatible tables.
+2026-10-16 — Retained17 backend and9 UI passes; four final source/API contracts pass onf5a37b6872a, including exact ten-symbol arrivals and complete constructor parameter documentation; Home used no GPU.
+2026-10-16 — All585 reviewed entries (45 runtime keys and20 API blocks across9 locales) bind to final source; normal runtime generation/audit passes UI8274/settings1282/categories242/modules77 in every locale.
+2026-10-16 — Full nine-locale API audit passes13574 symbols; normal Help/arrival generation and all13 affected catalog checks pass. Both retained owners accept the complete CPU feature; no705 work remains.

@@ -36,7 +36,7 @@ import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-ITEM = ROOT / "features" / "new" / "709_resolve_all_open_github_issues.txt"
+ITEM = ROOT / "features" / "feature_list" / "709_resolve_all_open_github_issues.txt"
 
 BEGIN = "--- OPEN ISSUES (auto) ---"
 END = "--- END OPEN ISSUES ---"

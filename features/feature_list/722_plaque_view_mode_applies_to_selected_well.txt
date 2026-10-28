@@ -1,0 +1,34 @@
+================================================================================
+APPLY THE PLAQUE FIGURE VIEW MODE TO THE SELECTED SINGLE WELL
+================================================================================
+
+Lifecycle: new
+Status:    DONE 2026-10-22 — selected-well views implemented, validated and published
+Requested: maintainer, 2026-10-22
+Owner:     G1 — implementation, validation and publication; G2 — independent contract/code/test peer
+Related:   468 plaque/figure modes; 524 segmentation views; 720 PDF Live opening
+
+REQUEST
+In Plaque Assay Figure mode, the chosen view (Overlay, Masks, Flows, Cell
+probability, and any other supported view) must also apply to the selected
+single-well image, rather than changing only the full-figure display.
+
+ACCEPTANCE
+- Selecting a view updates both the figure display and the single-well image
+  using the selected well's actual image, masks, flows or probability data.
+- Changing the selected well preserves the chosen view and displays that well's
+  corresponding data; a previous well's pixels must not remain visible.
+- Missing segmentation outputs use the existing truthful empty/unavailable
+  state instead of silently showing an unrelated view or stale data.
+- Preserve single-well selection, segmentation, zoom and existing figure views.
+  Focused tests cover view switching, switching wells and unavailable outputs.
+- Route any new user strings through translation and regenerate affected outputs
+  with their normal tools. Publish implementation only after related checks pass.
+
+2026-10-22 — Registered before implementation; extends item 524's full-figure views to the selected single-well image.
+
+2026-10-22 — G1/G2 own this item end to end. Next: trace the selected-well rendering path, apply the existing chosen view to that well’s actual arrays, and add focused switching/unavailable-output regressions before normal generation and nightly publication. Preserve the four figure-wide views, selection, segmentation and zoom; new UI wording requires the normal translation pipeline.
+
+2026-10-22 — The existing selected-well canvas now shares the chosen segmentation view and replaces its arrays for each well; unavailable outputs show the existing truthful messages. Five CPU/offscreen real-image cases pass, covering all views, well switching, missing outputs and retained zoom/pan; G1/G2 independently reviewed code and tests. Public docs/signatures and runtime captions are unchanged; normal consumer offsets are regenerated from final source. The reviewed implementation is ready for final root review and ordinary nightly publication.
+
+2026-10-22 — Published and remote-verified on nightly f183c84c540 after root acceptance. The selected well follows Overlay, Masks, Flows and Cell probability using its own arrays; five focused cases pass, including well changes, unavailable outputs and retained zoom/pan. Normal consumer output is current and the feature index is regenerated for completion.

@@ -28,7 +28,7 @@ def refresh(root, output, state):
     renderer = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     if state.get("source_sha") == sha and state.get("renderer_sha256") == renderer:
         return state
-    names = git(root, "ls-tree", "-r", "--name-only", ref, "features/data", "features/new")
+    names = git(root, "ls-tree", "-r", "--name-only", ref, "features/data", "features/feature_list")
     ledgers = sorted(name for name in names.splitlines()
                      if re.fullmatch(r"features/data/progress_\d{4}-\d{2}-\d{2}_\d{4}\.md", name))
     ledger = git(root, "show", f"{ref}:{ledgers[-1]}")
@@ -50,20 +50,36 @@ def refresh(root, output, state):
                             done=previous.get("done", False))
         if "100%" in cells[2]:
             rows[number]["done"] = True
+    paths = {Path(path).name: path for path in names.splitlines()
+             if re.fullmatch(r"features/feature_list/\d+_.*\.txt", path)}
+    sources = {}
+
+    def read_item(path):
+        if path not in sources:
+            source = git(root, "show", f"{ref}:{path}")
+            metadata = re.findall(r"^Lifecycle:.*$", source, re.M)
+            if len(metadata) != 1 or not re.fullmatch(r"Lifecycle:\s*(new|future)\s*", metadata[0]):
+                raise ValueError(f"{path}: exactly one Lifecycle: new or Lifecycle: future is required")
+            sources[path] = source, metadata[0].split(":", 1)[1].strip()
+        return sources[path]
+
     old_done = set(state.get("completed", []))
     highest = max(map(int, rows), default=0)
-    for path in names.splitlines():
-        match = re.fullmatch(r"features/new/(\d+)_.*\.txt", path)
-        if not match or int(match[1]) <= highest:
+    for path in paths.values():
+        number = re.fullmatch(r"features/feature_list/(\d+)_.*\.txt", path)[1]
+        if int(number) <= highest:
             continue
-        source = git(root, "show", f"{ref}:{path}")
+        source, lifecycle = read_item(path)
+        if lifecycle != "new":
+            continue
         owner = re.search(r"^Owner:\s*(.+)$", source, re.M)
         description = re.search(r"^Description:\s*(.+)$", source, re.M)
-        rows[match[1]] = dict(path=path, owner=owner[1] if owner else "Unassigned",
+        rows[number] = dict(path=path, owner=owner[1] if owner else "Unassigned",
                              percent="—", remaining="Unknown", done=False,
                              description=description[1] if description else source.splitlines()[0])
     for number, row in rows.items():
-        source = git(root, "show", f"{ref}:{row['path']}")
+        row['path'] = paths[Path(row['path']).name]
+        source, row['lifecycle'] = read_item(row['path'])
         if re.search(r"^Status:\s*(?:COMPLETE|DONE)\s+100%(?:\s|$)", source, re.I | re.M):
             row["done"] = True
         if row["done"]:
@@ -80,7 +96,7 @@ def refresh(root, output, state):
     html_rows = []
     for number in sorted(rows, key=int):
         row = rows[number]
-        item = ("F" if "/future/" in row["path"] else "N") + number
+        item = ("F" if row["lifecycle"] == "future" else "N") + number
         values = [item, row["owner"], row["percent"], row["remaining"], row["description"]]
         table.append("| " + " | ".join(value.replace("|", "\\|") for value in values) + " |")
         html_rows.append("<tr>" + "".join("<td>" + html.escape(value) + "</td>" for value in values) + "</tr>")

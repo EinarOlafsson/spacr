@@ -5,16 +5,17 @@ read the [current handoff](../spacr/resources/AI/HANDOFF.md) before working.
 
 Dated development snapshots are mapped in the [private archive index](../spacr/resources/AI/archive-index.md).
 
-Two lists, and **neither one blocks a release**.
+The canonical [Feature List](FEATURE_LIST.md) links every numbered item in
+[`feature_list/`](feature_list/), including distinct files that share a historic ID.
+Files retain their complete histories and original `Lifecycle: new` or
+`Lifecycle: future` metadata. Lifecycle is a category, not completion status.
+The generated list quotes recorded status; dated trailing notes remain authoritative.
 
-| | what it holds |
-|---|---|
-| `new/` | what spaCR has gained. Every feature that has landed, with the measurements and the reasoning that produced it. |
-| `future/` | what spaCR might gain next. Nothing here is promised and nothing here is scheduled. |
-
-`00_INDEX.txt` is generated from the two folders by
-`tools/build_instruction_index.py`. Do not hand-edit it — an index that
-disagrees with the folder is worse than no index, because it is believed.
+Run `python tools/build_instruction_index.py` to regenerate the Feature List and
+compatible [`00_INDEX.txt`](00_INDEX.txt), or add `--check` to verify both.
+The old New/Future section names remain as index aliases; their files now share
+one physical folder. Do not create replacement primary records in `new/` or `future/`.
+Unnumbered operational and historical documents retain their existing locations.
 
 ## Why the files are long
 
@@ -36,16 +37,16 @@ so was retiring two items outright and folding a third into the item it
 duplicated.
 
 The word "instruction" survives in `tools/build_instruction_index.py` and in
-prose inside older files. The tool works on the new folders; the name is the
+prose inside older files. The tool now reads the consolidated folder; the name is the
 only thing left over, and renaming it was not worth the churn while CI was
 being brought green.
 
 ## Alpha features (the maintainer's rule, 2026-09-26)
 
-Everything built from `features/future/` ships as an ALPHA feature: its
+Everything marked `Lifecycle: future` in `features/feature_list/` ships as an ALPHA feature: its
 settings, buttons, menu entries, screens and model-zoo rows are hidden unless
 the user turns on **Preferences -> Show alpha features** (off by default).
-Items in `features/new/` ship visible as before. When a future item is built,
+Items marked `Lifecycle: new` ship visible as before. When a future item is built,
 register everything it adds with the alpha gate (see item 569) and say so in
 the item's note; promoting a feature out of alpha is the maintainer's call.
 Registering is one entry in `ALPHA_FEATURES` in `spacr/settings.py`, keyed by

@@ -1,0 +1,81 @@
+================================================================================
+NATIVE CRASH REPORTS CARRY THE CRASHED SESSION'S PLATFORM, QT, SCREENS AND THREAD
+================================================================================
+
+Lifecycle: new
+Status:    done (nightly, 2026-10-26; ships in 1.5.1.6)
+Requested: maintainer, 2026-10-26: issues that lack the information to find
+           a cause, such as a native segfault with no stack: "fix the
+           reporter itself" so the next report of that kind carries what is
+           needed, with anonymity protected strictly; then comment and close.
+Owner:     Home
+Related:   700 (anonymous error reports, structured error dispatch), 709
+           (GitHub issues). GitHub #161 and #164.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+#161 and #164 were native segmentation faults filed by the in-app reporter.
+Each held only faulthandler's Python frames of every thread, flattened into
+one list and cut at 40 frames, so the crashing thread could not be told
+apart and the main thread was sometimes cut off. The environment block
+described the process that replayed the report at the next start, not the
+crashed one, and #164 said "Crashed session unknown: no complete supported
+startup header": the strict header rule (needed because several spaCR
+processes may append to one crash log) names a session only when the log
+holds one session. Nothing said which OS release, PySide6/Qt build, Qt
+platform plugin, accessibility state, GPU class or screen the crash came
+from.
+
+Now (spacr/crashreport.py, spacr/qt/app.py):
+- _note_native_context() appends "=== spaCR context {...} ===" lines to the
+  local crash log: at startup the OS family and release, machine and
+  installed PySide6; after QApplication exists the running Qt version, its
+  platform plugin, whether accessibility is active and the GPU class; and
+  the English title of every main screen shown (spacr.qt.app
+  ._note_native_screen on the main stack's currentChanged).
+- Each line also carries this process's main-thread id and random session
+  id, kept local. A fault is matched only to lines whose main-thread id
+  faulthandler lists in that fault's own dump, so a second process sharing
+  the log can never lend its context; the matched session id also names
+  the crashed session's own startup header when the strict rule cannot.
+- The report's thread frames are ordered crashing thread first, and the
+  note says the crashing thread's innermost Python frame, or that it had
+  none (a fault in native code, e.g. inside Qt's event loop).
+- The report's Screen field carries the last screen shown, and the note
+  lists the crashed build, OS, PySide6/Qt (platform plugin), accessibility,
+  GPU and the last four screens.
+
+--------------------------------------------------------------------------------
+PRIVACY
+--------------------------------------------------------------------------------
+
+Only the allowlisted keys are written or read back (_NATIVE_CONTEXT_KEYS).
+A value is dropped, never cut or cleaned, when it holds any character
+beyond letters, digits, spaces and ._+()- (so no path, e-mail or URL),
+looks like an IPv4 address, is too long, or names this computer's user or
+host. Lines are validated again when read, so a line edited on disk cannot
+pass anything else. Thread and session ids never leave the computer. No
+log lines, settings or file contents are added, matching the "What is
+sent" dialog. Reports still leave only under the existing consent and
+error-report mode.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+tests/test_700_structured_error_dispatch.py (native tests) and
+tests/qt/test_native_crash_screen_context_161_164.py pass, including a real
+faulthandler segfault in a child process whose report names its screen and
+crashing frame, a shared log whose other writer's context and header are
+never used, and redaction of paths, addresses, identities and unknown keys.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+- No C-level native stack: Python cannot unwind native frames from a signal
+  handler. The issue comments ask for the OS crash report when one exists.
+- The relay's report layout is unchanged; everything travels in fields it
+  already renders (Screen, the note and the frames).

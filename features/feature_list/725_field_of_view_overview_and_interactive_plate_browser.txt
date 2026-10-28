@@ -1,0 +1,1184 @@
+FIELD-OF-VIEW OVERVIEW, INTERACTIVE PLATE BROWSER AND PDF EXPORT
+Lifecycle: new
+Status:    DONE — 2026-10-27; delivered Overview accepted under the 1.5.1.6 delivery rule.
+Requested: maintainer, 2026-10-22
+Owner:     Claude Home (UI agent A + data agent B)
+Priority:  Current maintainer request; complete the expanded overview end to end
+Related:   155 montage provenance; 307 segmentation QC field browser; 639 import organization
+
+CURRENT LAYOUT FOLLOW-UP — 2026-10-26
+widgets_g2 owns the disjoint qc_field_browser.py layout/sizing slice; parent
+owns picture_export.py text editing and root owns integration/publication.
+With Canvas docked right, collapsing or reopening the top image must preserve
+independently adjustable well/image widths and existing splitter state.
+Repeated ordinary plate/well and right-canvas open/close/collapse cycles must
+keep plate/well content within its viewport above Console, with Console and
+bottom actions visible; scroll internally instead of growing outer minima.
+Preserve existing geometry assertions and settings. Diagnose the actual native
+layout cause, add focused expanded/collapsed and containment controls under the
+8G CPU cap, then deliver the minimal source/test fix for independent peer.
+
+MAINTAINER FEEDBACK — 2026-10-26 (round 7, image view, quality and tooltips)
+Verbatim:
+  "origional and the quality slider should be for the plate as well and for the image view it only
+   works when an event occurs. and a new image is loaded, these settings should periodically. only
+   the image the mouse is hovering should be zoomed, currently if i zoom one picture they all zoom.
+   some tooltips are one line and wide, these should either be removed or converted to normal spacr
+   tooltips"
+  "you can remove the origional button the slider max is the same thing, and you can remove the
+   metadata button for the overarching image view as each image gets one anyway"
+
+WHAT WAS DONE — round 7
+- Original is the top of the image-quality slider. The Original buttons (enlarged image, every
+  well view, every stacked image, All images) are gone; the slider (and the Preview resolution box)
+  runs 128, 256, 512, 1024, 2048, 4096, Original, and at Original the plate thumbnails, every well
+  view's tiles, every stacked image and the enlarged image read the source pixels (PSF and
+  restoration still apply to the enlarged and stacked images only, as before). The PDF export keeps
+  its own quality setting. overview_preview_resolution takes 0 for Original; the
+  overview_original_on_open setting is retired, and an old file holding it true is folded into
+  overview_preview_resolution 0 (spacr.settings._fold_overview_original_on_open, run by the Qt
+  loader, the CLI loader and get_overview_default_settings; spacr-doctor names the fold).
+- The slider is on the Plate header as well as the Image header; both move the same setting.
+  Moving it restarts a 200 ms timer, and only the resting position is applied: the plate
+  thumbnails, the well tiles, every stacked image and the enlarged image decode again on worker
+  threads at once (no new image or event needed), each keeping the zoom and centre the user chose.
+  Before, the stacked images kept their old pixels and the enlarged image stayed at its old edge.
+- The All images bar (Original and metadata for every stacked image) is removed; each stacked
+  image keeps its own metadata toggle, the enlarged image keeps its own.
+- Zoom: wheel and touchpad pinch zoom only the image under the pointer. The stacked images used to
+  copy each other's zoom and scroll on every move (_sync_image_views, a deliberate comparison
+  feature); that is now the optional "Link zoom" tick in a stacked image's right-click menu, off
+  by default.
+- Tooltips: Qt draws a plain-text tooltip on one line however long it is. The application tooltip
+  policy now shows any plain tooltip longer than 60 characters as wrapped rich text
+  (tooltip_policy._wrapped_tooltip), so it wraps at a quarter of the screen in the rounded spaCR
+  QToolTip style like every API tooltip. This covers widget tooltips, menu-action tooltips and
+  table/list/header cell tooltips (the replayed path) across spacr/qt, and the one direct
+  QToolTip.showText call (Organize for Measure's remove mark). Navigation buttons still carry no
+  tooltip (tooltip_policy rule). No Overview tooltip only repeated its label, so none was removed.
+- Tests: tests/qt/test_725_overview_round7_quality_zoom.py (8: buttons gone and slider top is
+  Original; quality change redraws open plate, well, stacked and enlarged views; slider drag
+  decodes once; zooming A leaves B; pinch zooms one; Link zoom tick off by default and linking;
+  no Link zoom on the enlarged image; the setting fold); three tooltip checks in
+  tests/qt/test_tooltips_wait_two_seconds.py (a widget, a menu action and a table cell must show
+  wrapped rich text in a word-wrapped label at most a quarter screen wide, multi-line, with the
+  rounded QToolTip rule present); round-2, round-3 and round-6 tests updated for the removals.
+- Screens (light and dark, Xvfb + gnome-shell): /nas_mnt/data/sync/imgview-r7/shots/.
+- Translations: 4 new or rewritten captions (slider tooltip, Link zoom, its tooltip, the
+  overview_preview_resolution help) with AI-reviewed records in nine languages; the 8 captions
+  removed (three Original tooltips, the all-images metadata tooltip, the old slider tooltip,
+  overview_original_on_open label and help, the old preview-resolution help) are archived, never
+  deleted.
+
+MAINTAINER FEEDBACK — 2026-10-26 (metadata step, per plate) (supersedes conflicting earlier notes)
+Verbatim:
+"i cant seem to pick which plate the settings are applied to in the overview first screen after adding 2
+plates. i should be able to select them and apply settings to them, so add a apply settings button beside
+each plate in the plate list to control this. also add a view of the regex applied to a sample in the right
+container for the second plate clearly distinguished from the first. also in channel names and colors in
+dark mode the colour text is black and i can barely see it and double clicking the color sould allow the
+user to pick a color from a color wheel and with rgm numbers not just the color cod text"
+
+WHAT WAS DONE — metadata step, per plate (branch perplate-meta)
+- Choosing a plate in the metadata step's plate list makes it the plate being edited: its name is bold
+  and selected in the list, "Editing plate: <name>" heads the filename settings, and the Microscope
+  preset and Filename regex show that plate's own regex (or the first plate's, which it inherits).
+  Typing a regex or choosing a preset edits that plate only; the first plate's regex stays every other
+  plate's default. Channel names and colours, geometry and display settings stay shared by all plates
+  (one channel legend in the pooled view); their tooltip says so.
+- Plate list: a Settings column beside the plate name with an "Apply settings" button on every row
+  gives that plate the settings being edited; "Apply to all plates" beside "Remove selected plates"
+  reads every plate with them. Applying to the first plate keeps the other plates on the regex they
+  were read with. Each plate's regex is saved in overview_view.json (options.plate_regex) and restored
+  on reopen.
+- Right-hand container: one section per plate, headed by the plate name with a coloured swatch that
+  matches the swatch beside the plate in the list and a coloured left edge (accent, teal, green, grey in
+  turn), the regex it is read with, and up to 20 of its files parsed by that regex (plate, well, row,
+  column, field, time, Z, channel; misses dimmed). The edited plate's section is framed in the accent.
+  An invalid regex shows "Invalid filename regex: …" in that plate's own section and is never scanned.
+- Channel colours: the swatch is drawn as the cell's decoration and the text uses the theme's text
+  colour, so it reads on every theme (the stylesheet had suppressed the cell background while the
+  black text remained). Double-clicking a colour opens spaCR's colour picker (Qt's own dialog, not the
+  platform one: colour field with hue strip, RGB and HSV number fields and #rrggbb); the choice is
+  written back. Typing a colour name or #rrggbb still works.
+- Tests: tests/qt/test_725_overview_perplate_metadata.py (choosing plates, typing per plate, Apply
+  settings and Apply to all, applying to the first plate, per-plate previews, invalid regex in its own
+  section, colour text contrast >= 4.5:1 on dark, light, cell, glass and high contrast, double-click
+  picker write-back, the real picker call, save and reopen).
+- Screenshots (light and dark, Xvfb + gnome-shell): /nas_mnt/data/sync/perplate-meta/shots/.
+- Translations: 9 captions x 9 languages, two reworded tooltips archived; spacr-translations 5b8520c.
+
+
+MAINTAINER FEEDBACK — 2026-10-26 (round 6) (supersedes conflicting earlier notes)
+Verbatim, display, normalization and settings:
+1. "measure saturation should be appart of intensity and not its own option"
+2. "their should be more color options and one should be custom to let the user choose
+   which color each channel is in"
+3. "CMY, CMYK, RGB on black should be and option to and: CMY, CMYK, RGB on white should be
+   and option to"
+4. "remove the display settings category in image there is already a slider for that move
+   overview tile spasing as a field to the left of the slider"
+5. "Normalize channels should be a field where the user can typew 1,2,3,4 e.g."
+6. "in overview normalize the settings that are not applicable based on the mode should be
+   grayed out"
+7. "everything except overview notrmalize, low and high should be a new Advanced
+   normalization settings category."
+8. "when normalizing images in overview (which worked great!) it did not seem to normalize
+   the image level loaded images (after clicking an image on the image grid it opens the
+   image and that image is not normalized, however opening a new iamge with the
+   normalization settings set does normalize the next iamge.) please change this so that
+   all images are normalized when the settings change, or lets instead add an apply button
+   at the bottom of the settings container that applyes the settings, (large paltes will
+   be to heavy to live change)"
+9. Right-click image settings: "has rounded edges on a black square, fix that so there is
+   no background black square"; "i was not able to move the levels at all whenever i
+   clicked the whole window moved"; "add two options to the left click menu: global
+   normalization and global Enhancement, each as a tick box if ticked i global
+   normalization/ enhancement settings are applied to the image otherwise not"
+10. "Measure should come before export."
+Verbatim, export (done on branch overview-r6-export, its WHAT WAS DONE in its own block):
+11. "for the custom export i want to be able to drag and drop pictures from the overview window onto the canvas."
+12. "the export windows need a close button."
+13. "the export popup should instead be a section opend to the far right of the overview tab and when it opens
+    the settings section should auto colapse."
+14. "the user should me able to hold down a button and click on any image on screen (or do the path option but
+    that is much more teadeus but keep it as an option) or select any image file and drag and drop it (there
+    should be import settings when this or path is used so the user is able to normalize and enhance these
+    images as well)"
+15. "in guided when puicking fields the user should be ablu to drag to select and right click and select and
+    deselect or click hold shift and the normal hotkeys."
+16. "the user should be able to go back choose dpi in the last page other wise dpi is set in the main
+    application i guess."
+17. "for the export the settings should be hidden under a settings button which triggers a popup so the canvs
+    can take as much space as possible"
+Verbatim, pooled plates (2026-10-26; done, see the dated "Plate container" entry):
+18. "with the side by side plates, the user should be able to add an arbitrary number of plates, the user
+    should easliy be able to toggle the visability of the plate and easily look at and compare a well in one
+    plate to another so the wells and image view should be pooled from all the plates then the user can loade
+    and expand certain plates and zoom and colapse all in the plate container. the well names will have to
+    indicate which plate they are from when more than 1 plate is loaded"
+19. "should be able to disable the metadata on the plate veiew as well. fit plate and the plus and minus should
+    be options when right clicking somewhere on the plate or image in the plate view, not butons. same for show
+    plates. same for plate view: single side by side and stacked. actually all the navigation butons should be
+    in the right click menu"
+Plate items (done; see the dated 2026-10-26 "Round-6 plate items" entry): collapse or show every
+selected row or column at once; a big, resizable folder picker for Add plates and Add folders; a
+filename regex per plate. The plate lane did not record the maintainer's wording verbatim, so
+it is not quoted here.
+
+WHAT WAS DONE — round 6, display, normalization and settings
+- 1: overview_measure_saturation is gone. The Intensity switch (overview_measure_intensity)
+  now measures the saturation group too (spacr.measure._IMAGE_FEATURE_SETTING maps
+  'saturation' to it); its tooltip says so. Old settings files that still name the key
+  are ignored for it.
+- 2, 3: overview_color_mode offers RGB on black ('additive', the unchanged default),
+  RGB on white ('rgb_white'), CMY on black ('cmy_black'), CMY on white ('cmy'), CMYK on
+  black ('cmyk_black'), CMYK on white ('cmyk'), Green and magenta on black
+  ('green_magenta', red-green colour-blind safe), Each channel in grey, side by side
+  ('greys') and Custom colours ('custom'). _overview_color_plan gives each channel a
+  colour and a background; _overview_composite adds light on black
+  (out = sum(plane * strength * colour)) and absorbs the complement on white
+  (out = 255 - sum(plane * strength * (1 - colour))), clipped. On black the CMYK key
+  channel is drawn white. One channel in the RGB modes stays grey (inverted on white).
+  The ink intensity applies to the CMY and CMYK modes on either background. Custom
+  colours: new setting overview_custom_colors ('1=#ff0000, 2=#00ff00'), edited with one
+  colour button per channel under Channels (spaCR's pick_colour), greyed out unless the
+  mode is Custom colours; unset channels take a default colour by position; any number
+  of channels is blended. Mosaic layout (more than three channels in the RGB modes, or
+  Greys) is decided by the colour plan everywhere, the pixel readout included.
+- 4: the Display category is gone. overview_tile_size and overview_tile_spacing stay
+  settings (spacr.settings.OVERVIEW_WELL_VIEW_KEYS, filed under Image but kept off the
+  form); every well view's header has an "Overview tile spacing" field (0-64 px) just
+  left of the size slider, written back to the setting.
+- 5: Normalized channels (overview_normalize_channels) is a text field again: 'all',
+  'none' or channel numbers such as 1,2,3,4. _overview_channel_list_error checks it as it
+  is typed against the source's channels; a wrong list is framed in the error colour, the
+  reason shows on the Apply bar and the status line, Apply is disabled, and the stretch
+  keeps its previous channels.
+- 6: rules in spacr.settings.get_setting_dependencies (_OVERVIEW_NORMALIZATION_RULES)
+  grey out, live, with the reason in the help: Low and High when Overview normalize is
+  off; Normalized channels when normalize is off or the advanced normalization is on;
+  method, background and gamma while the advanced normalization is off; advanced low and
+  high except for percentile, log, asinh, ratio and difference; fixed low and high except
+  for manual; the reference channel except for ratio and difference; epsilon except for
+  ratio.
+- 7: Normalization holds Overview normalize, Overview percentile low and high only. The
+  new Advanced normalization category (under Image) holds Normalized channels, the
+  per-channel Normalization scope, the advanced normalization switch, method, bounds,
+  background, gamma, reference channel and epsilon, plus the Reference group and Channel
+  to edit rows.
+- 8: an Apply bar is pinned to the bottom of the Overview settings column (over the
+  scroll area's bottom margin). Display and normalization settings wait for it
+  (_OVERVIEW_STAGED_SETTINGS plus every enhance_* setting); while some wait the bar says
+  "Unapplied changes" and the button reads "Apply changes" in the accent colour. Apply
+  pushes them to the browser and _FieldOverview._apply_display clears the preview and
+  thumbnail caches and redraws the plate thumbnails, every well view, every open image
+  view and the enlarged image. Still live, because they are cheap or not display
+  settings: the source, shown channels, preview resolution, opening at Original, Z mode,
+  wheel, fields per well, Max wells/fields, tile size and spacing, comparison, export and
+  measurement settings; edits made while a channel is picked in Channel to edit, which
+  already wait for Apply settings to channel (picking a channel applies any waiting
+  global changes first). The bug: a finished display preparation (the advanced
+  normalization, reference plans) redrew the plate and the enlarged image but not the
+  stacked image views, which had been reloaded before the new plan existed; it now
+  reloads them too.
+- 9: the image settings window is a plain translucent top-level window (Qt.Window, not
+  Qt.Tool, whose Popup bit made the glass helper's frameless flags a popup with an opaque
+  square); only the rounded card shows. Its histogram and body own their mouse gestures
+  (spacrOwnsMouseGesture), so the levels handles drag and only the title strip (move
+  cursor, "Drag this title to move the window.") and the rim move the window. The image
+  right-click menus (enlarged image, stacked images and well-view tiles) have Global
+  normalization and Global enhancement ticks; unticked, that image skips the global
+  normalization and scope limits (stretched between its own minimum and maximum) or the
+  enhancement chains. They are saved in the image's entry in overview_view.json
+  ('global_normalization': false / 'global_enhancement': false) and the levels histogram
+  follows them.
+- 10: Export image-level measurements comes before Export… in the module action strip,
+  the browser's action row and the Actions container; the Measurements categories come
+  before Export in the settings.
+- Tests: tests/qt/test_725_overview_round6_display.py (38); earlier Overview tests updated
+  for Apply, the new categories and Measure first.
+- Screens (light and dark): /nas_mnt/data/sync/overview-r6/shots/.
+- Translations: 40 new or rewritten captions with reviewed records in nine languages; the 18 captions
+  this round removes or rewrites are archived (162 records, never deleted). The overview_color_mode
+  tooltip was shortened under the 600-character tooltip rule. "Greys" (the colour map name) is
+  corrected in Swedish (was GRÖNSAKER), German (Graue) and Hindi (ग्रीन); those were unreviewed
+  catalog guesses, so there was no reviewed record to archive.
+
+WHAT WAS DONE — round 6, export (11-17; branch overview-r6-export)
+- Docked section: Guided and Custom export open as an export section at the far right of the Overview
+  (_OverviewExportDock in its own splitter beside the plate, well and image views, three fifths of the width),
+  not a popup window. Opening it folds the Settings column; Close (header button, or the export closing
+  itself) restores the column's previous folded state and width. One export at a time; "Open in Custom
+  export" swaps Guided for Custom in place.
+- Close: the section's header has a visible Close; the Custom export Settings popup has its own Close.
+- Settings popup: the canvas fills the section. The toolbar keeps Select, Draw text box, Add image…, Add
+  selected, Undo, Redo, Previous page / Page n of m / Next page, Settings… and Export PDF…. Settings… opens
+  _CanvasSettingsDialog (a spaCR settings popup, solid card, in the settings-popup inventory test) with Page
+  (paper, orientation, grid, snap), Pages (list, add, remove, reorder), Export (DPI, open and save layout),
+  Text, Image (aspect, scale bar), Import settings and Arrange. Every control applies live to the canvas.
+- Drag and drop from the Overview (_OverviewCanvasDrags, an application filter while the canvas is open, so
+  views opened later take part): a selected well or field drags at once (as before); any plate tile, well
+  tile or image drags after a press and hold of 350 ms (the cursor turns to a copy cursor), while a quick
+  drag still pans an image or selects wells; each image view carries a "Drag to canvas" handle; Alt-drag
+  still drags the shown image.
+- Pick mode: hold Ctrl+Shift and click any plate tile, well tile or image to add it to the current page
+  (named in the section's hint, the handle tooltip and the canvas status). "Add image…" by path stays.
+- Image files: dropped from the file manager or added by path, they open the Settings popup at Import
+  settings: per channel (or All channels) show/hide, percentile normalization (low/high), gamma, background
+  subtraction, denoise, CLAHE and sharpen. They render through the Overview's own _overview_pixels (the file
+  read as an _OverviewField, the per-channel percentiles and enhancement chains, the Overview's colour mode),
+  in the canvas preview and the PDF; files with no import settings are drawn as they are on disk. Settings
+  are undoable and saved with the layout JSON.
+- Guided field picker: extended selection, where the selection is the pick (ticks follow it and it follows
+  the ticks): drag over fields, Shift-click ranges, Ctrl-click toggles, Ctrl+A selects every field, and a
+  right-click menu offers Select, Deselect, Select all fields, Deselect all fields (on a well row, its
+  fields). Picking by hand switches to Pick fields.
+- Back works on every step (each well of the placement step and the preview). DPI: the export's DPI is in
+  Settings… (also on Guided's last page, whose hint says so), defaulting to the Preferences figure DPI, with
+  150/300/600/1200 and "Every source pixel". The DPI caps the pixels an image is embedded at for its printed
+  size (Lanczos down-sampling, never enlarged) and is passed to save_figure.
+- Tests: tests/qt/test_725_overview_export_round6.py (simulated drag and drop end to end, hold and handle
+  drags, pick mode, docked section and Settings folding in the Mask tab, canvas share of the section and live
+  popup changes, import pipeline, field picking with mouse and keys, Back and DPI); settings-popup inventory
+  entry for _CanvasSettingsDialog.
+- Screenshots (light and dark): /nas_mnt/data/sync/overview-r6-export/.
+- Real window manager (Xvfb + gnome-shell, the real app launched with --no-setup): the glass
+  treatment had lifted the embedded Custom and Guided exports (QDialogs) into frameless windows of their own,
+  which offscreen tests could not see; both are now built as plain widgets the glass leaves alone. Checked:
+  the section docks at the far right, the Settings column folds and comes back on Close, the Settings popup
+  is a solid rounded card and its changes reach the canvas. Screens and reports:
+  /nas_mnt/data/sync/overview-r6-export/realwm/.
+
+
+MAINTAINER FEEDBACK — 2026-10-25 (round 5) (supersedes conflicting earlier notes)
+Verbatim:
+1. "in the over view plate view the user should be able to collapse columns and rows
+   to bring other columns and rows closer together. the settings categories should
+   only be visable after clicking next. and the other settings should start out
+   wider, the settings that go with the overview tab before the next button is
+   pressed."
+2. "to overview add a cmyk and a cmy mode"
+3. "for the overvie i need to be able to load several plates"
+4. "there should be normalization options for normalizing on different levels. like
+   the image (this is what is currently possible i think), on the well level, plate
+   level, and all.
+   also the user should be able to right cklick on an image and change its settings,
+   those settings should include a levels histagram, brightness, contranst,
+   saturation and so on.
+   when the user hoves a picture the values for each channel should be shown in a
+   designated place in the botom left."
+5. "for any normalization or other operations to the image, the user must be able to
+   treat each channel individually."
+6. "in sourse settings category the user should be able to choose max number of wells
+   and fields per well that are loaded. wells is per plate"
+7. "the sourse should be able to be one path (one plate), or one path with
+   subdirectories that are plates, or several paths where each is either a plate or a
+   folder with plates. here plate is a folder with images."
+8. "the export tool is currently pretty useless. what should be is the user should
+   see a canvas whith a grid they should be able to draw text boxes on this grid or
+   drag and drop images to this grid. then export the canvas as pdf. this should be
+   a Custom export option in export. the other way export should work is the user
+   should be able to choose conditions or wells in one or several plates, several
+   wells, or one well, several fields or one, and export them to pdf. so the user
+   hits export, then gets prompted with what wells to choose , then if they want to
+   pick specific fields, then they get asked where on the pdf to put the image, and
+   what information to print above below to the left or to the right. then moove on
+   the the next chosen well."
+9. "in the figure settings there are a bunch of variables plate, Row, Column but
+   with no field or anything to their right"
+Round 5 supersedes round 4 point 4's "Settings open wider when the Overview tab
+opens": before Next the categories are held back and the empty settings column is
+folded; the metadata step's own settings column opens wide instead.
+
+WHAT WAS DONE — round 5, part 1 (collapse, categories after Next, wider metadata
+settings, CMY/CMYK); multi-plate loading, normalization scope, per-image settings
+and the hover readout are planned separately.
+- Plate rows and columns collapse to a 10-pixel highlighted strip (double-click a
+  header, the header's right-click menu, or the plate's right-click menu: Collapse
+  row B / Collapse column 3 / Show all rows and columns); clicking a strip or
+  double-clicking its header shows it again. In "Fit plate" the open rows and
+  columns take the freed space; zoomed, the neighbours move together. Collapsed
+  wells get no thumbnail reads. Selection, annotations, groups and measurements
+  are untouched. The state is kept per plate for the session; the Overview has no
+  saved view state yet, so it is not written to disk.
+- The Overview's settings categories are held back until Next opens the browser
+  (AppScreen._headings_held_back, honoured by refresh_maturity_visibility and the
+  settings search): before Run only Source shows; while the metadata step is shown
+  every category is held back and the settings column is folded so the step has
+  the width. After Next the column opens 520 px wide as in round 4.
+- The metadata step's settings column opens _OVERVIEW_SETTINGS_WIDTH (520 px) wide,
+  at most three fifths of the step, and keeps a width the user drags it to; its
+  labels, choices and buttons are no longer cut off.
+- New setting overview_color_mode (Image > Channels): Additive colours (default),
+  CMY inks on white, CMYK inks on white. Subtractive print:
+  out = 255 - sum(plane * (1 - ink)), clipped; one full channel is its ink, no
+  signal is white, full C+M+Y is black, K darkens every component alike. A channel
+  whose colour (the metadata step's colour cell) is cyan, magenta, yellow or black
+  keeps that ink, the others take the unused inks in C, M, Y, K order; with more
+  channels than inks the side-by-side view is kept. Live in the plate, well and
+  image views; recorded in the PDF header and overview_selection.json.
+- Tests: tests/qt/test_725_overview_round5.py; round-4 settings-width test updated
+  for the round-5 rule.
+
+WHAT WAS DONE — round 5, interface (b16967c39): plate-qualified keys
+(_overview_plate_key = (plate folder, plate name in it), _overview_image_key),
+results/overview_view.json (version 1: sources, options, per-plate collapse and name,
+per-image override slot; load/save off the GUI thread, one write at a time) and the
+display layer order global normalization -> scope channel_limits -> image_overrides.
+
+WHAT WAS DONE — round 5, M1 (several plates)
+- Source: one path, a folder of plate folders, or several paths (separated by ";", or
+  added with "Add folders…", which allows multi-select). Per path: a folder with
+  images directly in it is a plate; otherwise each immediate subfolder with images is
+  one (spaCR output folders from spacr.validate._PLATE_OUTPUT_FOLDERS and hidden
+  folders skipped; no deeper search, except that the recursive source scope still
+  reads a folder whose images sit deeper as one plate). A folder with both is one
+  plate, flagged, with a "Use subfolders" switch. Plate names default to the folder
+  name, parent/name when two folders share a name; renamable in the metadata step.
+- The metadata step lists the detected plates with their image counts before Next,
+  and can remove plates; an empty folder says "No images were found in ..." there.
+- One path that is itself the only plate is indexed exactly as before (its plate
+  names come from the filenames). Every field records its plate folder and its
+  plate name in it, so A01 of one plate never merges with A01 of another.
+- Plates group in the navigation bar: Previous plate, Next plate, Add plates…,
+  Remove plate. Removing a plate drops its fields, cached previews, selection and
+  collapse state; files on disk are untouched. Collapse state is per plate.
+- Comparisons: with several plates "plate" is a comparison column, so a group can be
+  "plate A, set x" against "plate B, set x"; tables carry the plate column.
+- Saving: every Overview output of a multi-plate session goes under the first
+  path's results/ and measurements/ folders, with the plate column naming each
+  plate; saved annotations carry the stable plate key, so they follow a plate from
+  a one-path to a several-path session. Reopening the first path alone brings back
+  every plate saved in its overview_view.json.
+- Not done in M1: a side-by-side or stacked view of several plates at once (the
+  plate view shows one plate; Previous/Next plate switch between them).
+- Tests: tests/qt/test_725_overview_multiplate.py.
+
+WHAT WAS DONE — round 5, M2 (Max wells per plate, Max fields per well)
+- Two Source settings, overview_max_wells and overview_max_fields, default 'all'.
+  Selection is deterministic, with no random sampling: each plate keeps its first
+  wells in plate order (A01, A02, ... B01), each well its first fields in field-number
+  order, with every time point and Z plane of a kept field.
+- The caps apply to what is loaded (thumbnails, well and image views, measurements,
+  normalization, comparisons, exports). The plate view still shows the whole plate:
+  wells beyond the cap are hatched and labelled "Not loaded", and can't be selected.
+- Changing a cap reapplies it to the already indexed source: no re-read, and the
+  dropped wells' and fields' previews and selections are removed from the caches.
+- Exports (overview_selection.json) and overview_view.json record the caps.
+- Tests: tests/qt/test_725_overview_load_limits.py, plus the live-setting test in
+  test_725_overview_round5.py.
+
+WHAT WAS DONE — round 5, M3 (per-channel normalization scope)
+- New setting overview_normalization_scope (Image > Normalization), shown as one
+  choice per channel: Each image (today's behaviour, the default), Each well, Each
+  plate, All loaded plates. Stored as one value for every channel or per channel as
+  '1=plate, 2=image'.
+- For a wider scope, the display percentiles are computed per channel over the
+  scope's loaded images and applied to every image in it, so brightness is
+  comparable across the scope. They use sampled pixels (at most 64 evenly spaced
+  images per scope, 4096 pixels per image, read at 256 pixels), computed on a job
+  thread; the tooltip says so.
+- The bounds are cached per channel, scope group, percentiles, acquisition axes and
+  the group's loaded images, so changing images, plates, caps, channels,
+  percentiles or axes computes new ones; nothing is recomputed otherwise.
+- They reach the plate thumbnails, well view and image view through the interface's
+  channel_limits layer: global normalization, then the scope, then any per-image
+  override.
+- Tests: tests/qt/test_725_overview_scope.py, plus the per-channel choice test in
+  test_725_overview_round5.py.
+
+WHAT WAS DONE — round 5, export (points 8 and 9; branch overview-r5c)
+- Point 9: the empty Plate/Row/Column/Field/Time/Z rows were the leftover labels
+  fixed in a3ebf8430 (rows now removed by index before their controls move back).
+  Reproduced before that commit and confirmed clean after it; no further change.
+- Export is one "Export…" button (browser row, module actions, Actions strip)
+  with three entries: Guided export…, Custom export…, Contact sheet PDFs.
+- Custom export (spacr.qt.widgets.picture_export._CanvasComposer): A4/Letter,
+  portrait/landscape pages with a snap grid (spacing, show, snap); draw text
+  boxes (text, size, bold, italic, alignment); drop image files from disk or
+  Overview fields (drag a selected well or field from the plate or a well view,
+  Alt-drag the shown image, or "Add selected"); move, resize, multi-select,
+  z-order, delete, arrow nudges, undo/redo; add, remove and reorder pages;
+  aspect ratio kept unless unlocked; per-image scale bar when the pixel size is
+  known; layouts save and reopen as JSON in results/.
+- PDF (_canvas_pdf): every page through spacr.plot.save_figure (house style,
+  print colours, integrity check), pages joined with pypdf; text is vector,
+  images are embedded with every source pixel, rendered through
+  _overview_pixels with the browser's display keywords, scope limits and
+  per-image overrides (not the display-only enhancement chain).
+- Guided export (_OverviewGuidedExport): 1 wells from one or several plates by
+  condition (annotation values and comparison groups), by ticking wells, or one
+  well (selected plate wells preselect); 2 all fields, the first N, or picked
+  fields per well; 3 per well, a cell (or block of cells) on a page-grid preview
+  and what is printed above, below, left or right (plate, well, condition,
+  field, channel names, measurements, free text), "Apply this layout to the
+  remaining wells", scale bars, an optional display-settings page; 4 preview in
+  the same canvas, export, or "Open in Custom export" with the same layout.
+- Kept: Contact sheet PDFs (the old twelve-per-page writer and its scope,
+  sampling, quality, DPI and CSV options) and Export image-level measurements.
+  Removed: the separate "Export PDFs" buttons, replaced by the Export menu.
+- Tests: tests/qt/test_725_overview_export_canvas.py,
+  tests/qt/test_725_overview_export_guided.py.
+
+MAINTAINER FEEDBACK — 2026-10-25 (round 4) (supersedes conflicting earlier notes)
+Crash fixes first (GitHub #165, #166): deleted QComboBox/QLineEdit accessed from
+_display_kwargs (time_axis) and _to_control/_overview_set_control; they ship in 1.5.1.6.
+1. Tooltips: every Overview tooltip uses spaCR's standard popup tooltip (rounded,
+   wrapped, API link at the end), like "Overview channels"; no wide one-line tips.
+2. Boolean channel options are one line each.
+3. Remove the separate "Channels" setting; "Overview channels" already drives every
+   level live.
+4. Settings open wider when the Overview tab opens, and are not collapsed after Next.
+5. Plate navigation moves out of Figure settings to above the "Plate" row, as
+   categorised buttons (e.g. Navigation). Remove "Open selected well" and
+   "Open selected images". Larger/smaller wells become a minus and a plus button.
+6. Remove the Annotations settings category; annotation moves to the right-click menu
+   on the plate or a selected group of wells.
+7. Measurements regrouped: Intensity (intensity, saturation, focus, background SNR,
+   cross channel, distribution, radial) and Texture (texture, granularity, radial).
+   Remove the object-based measurements.
+8. Import objects (masks), only in Mask generation's output format, with comparative
+   object measurement options.
+9. Comparisons: the user can name the groups.
+10. Easy import of a well annotation scheme.
+
+MAINTAINER FEEDBACK — 2026-10-24 (round 3) (supersedes conflicting earlier notes)
+UI agent U owns 1-8 and 10; measurement agent M2 owns 9 and the measurement side
+of 10. Priority order: speed (1, 6), live settings (5), then the rest.
+1. Plate view keeps one image per well visible at all times, also while the
+   well view and image view are open below it, so wells with images are easy
+   to identify. Load these thumbnails much faster than now.
+2. Image view is a stack like the well view: opening 2+ wells shows one image
+   from each well side by side (and several images per well when picked).
+3. The image-quality (preview resolution) slider is also in the image view,
+   not only in the well view.
+4. Every boolean in the Overview submodule uses spaCR's boolean slider.
+5. Settings: merge Display into Image; Overview channels move into Image;
+   Image is the main settings category, with sensible subcategories (e.g.
+   Channels, Display, Normalization, Enhancement). All Image settings,
+   including channels, apply live, fast and smoothly to thumbnails and to
+   Original images.
+6. Thumbnail visualization must be fast: caching, bounded background decode,
+   no full re-read when only display settings change.
+7. Normalizations and enhancements can be set per channel, not only applied
+   to all channels at once.
+8. Users can easily compare wells and conditions by eye (stacked views, same
+   display settings, side by side).
+9. Measurements: as many of the Measure module's measurements as possible, at
+   image level only (no object level); saved intuitively (one image-level
+   table in measurements.db, clear names, exported alongside) so wells and
+   conditions can be compared quantitatively.
+10. Comparisons combine qualitative (images side by side) and quantitative
+   (measurement plots/tables) views of the chosen wells/conditions.
+
+MAINTAINER FEEDBACK — 2026-10-24 (round 2) (supersedes conflicting earlier notes)
+UI agent A owns 1-4 and 8-11 and leaves a hook for the Measurements category;
+measurement agent M owns 5-7 and the multiprocess measurement backend.
+1. Overview is a TAB inside Mask generation (maintainer reversal, 2026-10-24,
+   superseding the brief "own Core module" wording): Mask generation's own
+   settings and view stay one tab away and nothing takes Mask over. The tab has
+   module-style settings categories, an Actions container and its own image
+   area; agent M's Measurements category plugs into the tab's settings. The way
+   in stays the existing hidden source-field icon/button in Mask generation (and
+   Make Masks): no Home tile, no menu entry, no prominent new control.
+   The icon is the ONLY way in; clicking it opens Overview in a tab, Mask's own
+   view is never replaced, the tab can be closed (returning to Mask) and the
+   icon reopens it. A separate Overview Core module is a possible later step.
+2. In Figure settings, Display, Annotations and Export every setting is shown
+   like a normal module setting: one setting per row with a name, a field of the
+   appropriate type and a tooltip. Settings that read better side by side may
+   share a row, but each keeps its own title and tooltip.
+3. The Export settings container is expandable in height.
+4. The settings categories have the same visual style as Mask generation,
+   Measure and the other core modules.
+5. A Measurements settings category lets the user choose which measurements to
+   compute (agent M).
+6. Measurements run with multiprocessing, one image per worker, like Measure (M).
+7. Measurements has an "Advanced" sub-category for advanced image operations,
+   e.g. networks an image is put through to generate features (M).
+8. The plate/well/field layout is kept. In the image view images sit closer
+   together, with a slider that controls their size.
+9. An "Original" button, left of the metadata button and the same size, loads
+   the original full-resolution image in the image view; an equivalent
+   "Original" button sits in the small-image (well) view.
+10. A settings category "Image" controls how images are shown (full-resolution
+   Original view and the smaller images), with a sub-category "Enhancement"
+   that borrows ALL image enhancement options from Make Masks and their
+   implementation.
+11. The Actions container holds the same as other core modules: Run, Stop,
+   Import settings and the rest of the standard actions.
+12. The image view stacks like the well views: after picking two or more wells
+   the user picks several fields in them and they open side by side, one
+   enlarged image per field, each labelled with its well and field. Metadata and
+   Original toggles work per image or for all, the size slider applies to them,
+   each image can be closed, and there is a sensible maximum as for wells.
+13. Comparisons compare LAYERED combinations of annotation conditions: a group
+   builder adds groups by choosing a value or "any" per condition column (unused
+   columns pooled), shows each group's label and image count, adds, removes and
+   reorders groups, and offers presets ("all combinations of the chosen columns",
+   "vary one column, hold the others"). Runs go through the existing
+   _image_groups(groups=...), _compare_image_groups, _image_comparison_figure
+   and _representative_images; rows have names and tooltips.
+14. Enhancement also offers Make Masks' PSF deconvolution (calibrated or measured
+   kernel) and Cellpose 3 restoration (model zoo loading), reusing Make Masks'
+   controls and implementation. They apply ONLY to images opened at full
+   resolution with Original, never to thumbnails or previews; they run off the
+   GUI thread with progress text and say clearly when a calibration or model is
+   missing. Tests: applied for Original, skipped for thumbnails, clean refusal.
+Acceptance: Qt tests cover icon -> Overview tab appears -> switch back to the
+Mask tab -> close the Overview tab -> the icon reopens it; every setting row has a label and tooltip; the
+Export container resizes; category style matches Mask's; the image-size slider
+changes tile size; Original loads full resolution in both views; fields from two
+wells open as stacked images and closing one keeps the others; three custom
+layered groups give the expected comparison groups and counts; Image and
+Enhancement settings apply; the Actions container contents; plus M's own tests.
+
+MAINTAINER BUG — 2026-10-24 (Yokogawa CQ1 import; metadata agent owns it, UI
+changes minimal and coordinated with A and M)
+1. Overview metadata detection (and spaCR's shared CQ1 well conversion) reads
+   CQ1 names W<well index>F<field>T<time>Z<z>C<channel>, from a Projection
+   folder or a raw image folder.
+2. A well INDEX is placed on the plate from the Yokogawa XMLs (well table, plate
+   rows x columns and row- or column-major numbering), e.g. W0049 -> C01 on a
+   384-well plate; channel names/wavelengths, pixel size, Z and time come from
+   the XMLs where they exist.
+3. Autofill plate geometry, display channels (count, names, default colours from
+   instrument view colours, wavelengths or names), field/Z/time and pixel size
+   for CQ1, CellVoyager and the other formats; every value stays editable.
+Acceptance: CQ1 fixture (filenames + trimmed XMLs) tests both index orders,
+channel detection and the autofilled geometry/channels; CellVoyager still works;
+read-only run on the maintainer's real CQ1 folder reports plate, wells, fields
+and channels.
+
+LATEST MAINTAINER REQUIREMENTS — 2026-10-24 (supersede conflicting earlier notes;
+all earlier delivered behavior is retained where compatible)
+UI agent A owns 1-8, the right-click menu of 9 and the UI shells of 10 and 12.
+Data agent B owns the annotation table of 9, the comparisons of 10, the
+measurements of 11 and the representative-image definitions of 12.
+1. The ripple animation when clicking categories is too pronounced; make it subtle.
+2. Overview images load faster: load ONE image per well first, across all wells,
+   then the rest, instead of all of A01, then all of A02, and so on.
+3. In the image view, a "metadata" text button (just the word) turns blue when
+   active and toggles the visibility of the filename/metadata text that overlaps
+   the image. It works exactly like the AI Ops toggle buttons.
+4. The plate level, the well level (shown when a well is clicked) and the image
+   level each sit on a translucent background with rounded edges and can be
+   minimised with spaCR's standard container-collapse arrow. These three
+   containers start at the top of the workspace, right under the current top
+   buttons, and extend down to the console.
+5. The current Figure settings move to a new "Figure settings" category in the
+   left settings column, giving the figures more space.
+6. The settings categories look and work like those of the Mask generation module.
+7. The user can open several well views; they stack on top of each other so
+   wells can be compared easily.
+8. Clicking A01 opens an A01 container whose images start loading. That view has
+   the "metadata" toggle. Clicking an image enlarges it in a container to the right.
+9. Annotation: click to select wells, then right-click -> annotate the selected
+   wells. The annotation is saved to a new image-level table in the same
+   measurements database the other spaCR modules use.
+10. In the Figure view the user easily picks annotation dimensions (for example
+   cell_type HeLa/HFF, pathogen_type Toxoplasma WT/Toxoplasma Ku80, replicate
+   1/2/3) and can compare any combination: replicates 1, 2 and 3; replicates for
+   HFF vs HeLa; HeLa+Toxo WT vs HeLa+Toxo Ku80; and so on.
+11. Capture image-level measurements for these comparisons: regionprops and as
+   many other useful image-level measurements as possible.
+12. For each annotated class, an easy way to choose a representative image, with
+   several measurement-based definitions of "representative" so the image is
+   truly representative.
+Acceptance: Qt tests cover the one-per-well-first load order, metadata toggle
+state and visibility, collapse/expand, stacked well views, the enlarged-image
+container, the Figure settings category and the reduced ripple amplitude/duration;
+B's data layer has its own tests; translations and normal generated artefacts.
+
+LATEST MAINTAINER REQUIREMENTS — 2026-10-23: Overview must reuse Mask Generation’s normal module layout: categorized left settings and the existing console, AI chat, actions and system chrome, inheriting the normal transparent themed background rather than a black custom workspace. The initial metadata screen must not show Back. Its filename preview must include Row and Column, with unmatched files in gray text. Diagnose and fix the valid CellVoyager acquisition at /nas_mnt/carruthers/anu/revision/ALIXALG2KOme49_20261004_144325/AssayPlate_PerkinElmer_CellCarrier-384 where metadata detection finishes but Next remains disabled; inspect user data read-only. Retain true QWidget embedded bodies, resolution controls, bounded fast readers and existing scientific behavior. Workstation session 2 owns implementation, focused full-app validation, normal artifacts and nightly publication; root independently reviews the dataset and UI. These requirements supersede conflicting earlier opaque-background/layout instructions.
+
+LIVE STARTUP REGRESSION — 2026-10-23: the maintainer reports published Overview opens a tab containing only a black box and Back. Reproduce and repair real AppScreen/Make Masks startup, empty source and source-selection/reopen lifecycle; visible source controls must never depend on pre-populated settings. Add a discoverable user-controlled display resolution, retain the independent settings window, and verify fast bounded progressive image loading. Workstation session 2 owns the repair and normal artifacts/nightly publication; root independently reviews actual UI. Prior passing tests do not close this live regression.
+
+WORKSPACE LAYOUT REQUIREMENT — 2026-10-23: the maintainer now requires Overview to open as an embedded submodule like OPS, with a solid background rather than a popup. The plate must expand with the main workspace, Options must open in its own window, and a clearly visible Back action must remain available. Preserve all previously accepted image/metadata/normalization/measurement behavior; validate actual embedded navigation, resizing, options ownership and closing before publication. Workstation session 2 retains implementation/publication ownership; root provides independent review.
+
+Mac visible-module follow-up — 2026-10-23: require real Mask embedding at GUI200/font200,
+whole native plate visibility, usable images, readable actions and exact Back restoration; real scrolling is allowed.
+Causal native failures exposed local/pane floors, inactive stack minima, undersized text fields,
+stale action-flow extents and settled HFW underallocation; local grid sums were not visibility proof.
+Repair only Overview: restore saved Figures/pane/page policies on Back, preserve normal focus collapse,
+and independently scroll essential/action controls. Shared native button floors preserve full text.
+A reversible action-only font fit restores selected styles on growth; refresh only its owned flow extent.
+Bound table allocation by actual ancestor capacity while retaining dense Fit/zoom, not a universal image floor.
+Use fresh embedded layout HFW and restore the original standalone minimum; no global Runtime sizing change.
+Coalesced no-op fits must remain quiescent. Focused76612 PASS6.44s/RSS0.303GiB covers font/viewport
+growth/shrink, custom-style restoration, dense Fit, standalone restoration and quiescence.
+Strict Cocoa98683 PASS36.87s/RSS1.058GiB: Open Sans52px, work1440x870/DPR2;
+complete694x91 plate with42px images and all3 full action texts, longest reversibly fitted to45px.
+Captions are intentionally omitted; tooltips remain. Back is fully readable after actual scrolling, not proven pinned.
+Exact borrowing/policies/Figures restoration, captured-job drain, normal close and unchanged TIFFs pass.
+Keep the original50ms cadence/20s deadline: owned timers/queues idle, two identical layout snapshots,
+one reveal and unchanged next-tick strict checks; never scroll until a failed assertion passes.
+The20px image target is measured for this small fixture, not guaranteed for every dense plate.
+Other scales, the full normal entrypoint, physical input and smaller-display acceptance remain separate.
+Normal-entrypoint GUI200/font200 follow-up: retain the preceding scoped passes.
+The real Options scan finds only norm_channel/export_scope native text overflow:
+277px field for278px "All channels", and524px for527px "Selected fields or wells".
+Use the existing font-aware combo only for these two controls; require bundled
+Open Sans52px and live52→2→52 floors/full offered text slots without changing
+values or imposing maxima. Also recheck affected manual zoom/Back/reopen behavior.
+Cocoa causal40722 reproduces both exact52px failures:2FAIL7.55s/RSS0.311GiB,
+native fields277/524px versus278/527px text. Change only those two factories
+to the existing font-aware combo; scientific values and all earlier scopes remain unchanged.
+Cocoa13404 retains both new selector PASSes; the manual workflow initially
+fails a width-only, unsettled plate baseline. With owned queues idle and two
+identical geometry snapshots under the unchanged5s waits, failed-node-only
+35476 PASSES7.03s/RSS0.404GiB: exact Options plate-area equality, manual zoom,
+field/well/plate Back navigation and retained-workspace reopen. No further
+production change or assertion tolerance was needed; three affected passes
+are retained across the two runs, not claimed as one complete cohort/full app.
+Normal-entrypoint Cocoa89912 on170ffcace PASSES atGUI200/font200/Open Sans52px:
+all89 Options controls, full native plate visibility, bounded resize, independent
+Options/reopen and full Back text after actual scrolling; original host restored.
+Inputs unchanged, all10 job groups and captured threads drained, normal close;
+child0/62.825s/RSS1.241GiB/zero missed samples. Normal generators are unchanged.
+Current-module normal-entrypoint scale matrix on72e62e264 also PASSES:
+GUI/font90/90,90/200,10/200,10/10,200/10; each checks all89 controls,
+full plate visibility, bounded resize, separate Options/reopen, native Back,
+unchanged inputs and actual job/thread drain with normal close. Five children0,
+40.274–46.177s/RSS1.169–1.294GiB/zero missed samples; no font-alias warnings.
+Together with200/200 above this covers six defined cases, not every intermediate
+scale, tiny-font readability, physical input or a different physical display.
+
+Mac acceptance addendum: retain Workstation's DONE implementation/ownership.
+On b453f2b0702abf5f158793c8b0e783974f488ea2, inspect two fresh normal-app
+Cocoa runs at GUI90/font90 and GUI90/font200 using owned tiny real TIFFs.
+Normal startup must install the real dialog policies before opening the actual
+Mask Generation host and its embedded metadata/Overview workspace. Require
+opaque embedded ownership/visible Back, plate expansion with bounded native
+host resize, untouched exposed Options frame within actual work area, actual
+11/23px control fonts, full wrapped labels/native button slots and whole-or-
+axis-scroll-reachable controls. Editable long paths retain native horizontal
+editing rather than an impossible full-path-width requirement. Verify independent
+Options close/reopen with retained value, Back to host, original TIFF bytes,
+no unintended input-folder writes and normal owned job drain/close. No PDF,
+measurement/export, provider/auth/network, physical-input or actual smaller-
+display-mode acceptance is inferred. Mac results remain pending until run.
+First faithful native run58453/OcS1TT on b453f2b070 fails the initial host
+phase: the real metadata wizard is a top-level window instead of an embedded
+page. No browser/Options/font200 phase is certified. Natural child exit1 in
+37.754s/RSS0.990GiB/zero missed; normal MainWindow close is accepted and TIFFs
+are unchanged. Source hypothesis: the application-wide dialog Polish policy
+rewrites intentionally Qt.Widget QDialogs to Qt.Window. First prove actual
+pre/post-Polish flags/parent/layout with a real installed filter and a normal
+popup control, then guard only embedded non-window QDialogs from detaching,
+resizing and opening-size policy. Preserve normal popup behavior and global
+policy in the native probe; no test-only policy bypass.
+Focused installed-filter regression92686 confirms the cause: the intentional
+Qt.Widget page starts non-window/parented/in-layout, then becomes a window
+after actual application-filter Polish+Show; ordinary popup control passes.
+One failure/one pass in5.94s/RSS0.271GiB. The minimal private policy guard skips
+non-window QDialogs before detach/resizing/opening policy; ordinary top-level
+dialogs retain those policies. Affected filter/embedded regression green and
+faithful native retakes remain required before claiming this repair accepted.
+Affected green42573 PASSES16 checks in5.93s/RSS0.299GiB: real embedded/page
+and popup controls, retained global detachment/window behavior, repeated-polish/
+address-reuse/deleted-wrapper safety and existing embedded Overview navigation.
+Source/test peer approves the two-line private guard. Faithful native Overview/
+Options default and font200 acceptance remains pending on the repaired source;
+no earlier native failure is overwritten and no other platform claim is added.
+The detacher-only faithful retake23210/VIksfD on5a795240be still fails the
+same wizard top-level assertion (normal child1/40.414s/RSS0.985GiB/zero missed,
+accepted normal close and unchanged TIFFs). Independent source review finds
+glass Polish/Show can also promote QDialog pages; no glass policy patch is
+adopted. Incoming bcaa3879c instead makes both embedded Overview classes
+QWidget with explicit wizard completion/cancellation semantics, removing both
+dialog-policy eligibility routes. Its existing actual application-filter test
+already covers Mask and Make Masks; reuse that plus changed filter cleanup,
+wizard cancel/source replacement and Options/Back regressions, not a duplicate
+test or scientific/export matrix. Native acceptance remains pending afterward.
+Integrated unit bodies pass, but two initial harness runs report eight owned
+QSettings-path teardown errors each (real files touched[]); custom basetemp is
+not registered early enough by this conftest. Preserve the guard. Confine only
+the upstream raw application subprocess through explicit isolated-profile and
+tmp_path/profile settings before imports; parent tests retain normal conftest
+isolation. This also closes that test's Darwin native-preference escape risk.
+Corrected integrated cohort5620 PASSES all eight in38.20s/RSS0.792GiB:
+the changed two-case detacher fixture restores only its own installed filter;
+both actual global-policy application hosts keep QWidget metadata/browser pages
+embedded, keyboard/close cancels once, Options/Back and source replacement pass.
+Parent QSettings guards remain intact; raw child profiles are explicitly owned.
+Prior sixteen filter checks remain retained. Faithful default/font200 native
+Options geometry on the final integrated source is still pending.
+Native57345/GxkNR5 on551c0ed79 confirms the metadata page is embedded in its
+QStackedWidget/MainWindow, in-stack and not glassed. It then fails only the
+probe's autoFillBackground assertion; QSS supplies an opaque background with
+WA_StyledBackground and may legitimately disable that flag. Attribute actual
+background painting before any product repair or opacity acceptance. No browser/
+Options phase is certified. Natural child1/35.094s/RSS0.983GiB/zero missed,
+unchanged inputs and accepted normal close; eight/sixteen unit passes retained.
+Native22640/KmTlZI on551c0ed79 proves opaque PE_Widget painting on all three
+embedded surfaces (alpha255/exact background), correct embedded pages and plate
+resize1344→1324. Untouched Options792x612 fits the work area with11px text.
+The actual PDF-quality combo full native text slot fails by ONE logical pixel:
+167x27 widget, edit field[8,5,129,17], full-source choice text[8,6,130,15], no
+icon. Do not waive the overflow or relabel it as proven cut ink. Earlier controls
+pass until this selector; remaining controls/font200 are not certified. Natural
+child1/42.017s/RSS1.044GiB/zero missed, accepted close/unchanged inputs.
+Add the focused native-style slot regression first, then reuse the established
+dynamic actual-pixel combo fitter for ONLY the proven PDF-quality selector;
+preserve every caption/data choice, font/GUI scale and grow/shrink behavior.
+Focused Cocoa regression27394 reproduces the same one-pixel contract failure
+at native minimum hint:172x27 widget/edit field134x17/full-source text135x15
+(unit font layout differs from full-app measurements); one failure6.44s/
+RSS0.306GiB. Reuse the existing _SetupComboBox locally for pdf_quality only,
+retaining PDF choices/data and the separate DPI selector. Its established fresh
+style/font/model-aware actual minimum floors impose no fixed/max size; verify
+this same selector through11→23→11px and retained Options/Back navigation.
+Green11560 proves the new PDF selector's exact Cocoa slots through11→23→11px,
+preserved data/no fixed maximum and shrinking floors. Its existing navigation
+companion fails only after manually making a bare host1440x1040: Options show
+reduces viewport height733→535, width1317 unchanged, consistent with deferred
+Cocoa work-area capping; this is not claimed as a repaired product failure.
+Only that unchanged manual-geometry contract is retaken offscreen85405 and
+PASSES5.28s/RSS0.301GiB; original combined Cocoa run6.91s/RSS0.402GiB.
+Source/test peer clears the PDF-only fitter reuse. Faithful bounded normal-app
+native acceptance must still verify Options text and no host/plate jump.
+Default90523/KwrZqO onb591911a8 confirms PDF quality fits and Options does not
+change the plate1324x471. Aggregate inspection of every Options control finds
+only two remaining one-pixel full-slot defects: pdf_dpi134x27/native field96x17/
+each Resolution choice97x15; grouping102x27/field64x17/Plate column65x15.
+All other inspected controls, opaque backgrounds, embedding and bounded initial
+frame pass at11px. Natural child1/35.631s/RSS1.025GiB/zero missed, unchanged
+inputs and normal close. Prepare the existing font-growth/shrink regression for
+these two proven selectors only; source remains frozen while font200 inspects
+remaining controls. Do not blanket-replace unproven combos or waive one pixel.
+Font20094980/eIIDGR onb591911a8 scans all85 controls at23px; opaque surfaces,
+embedding, plate1336→1316 and independent Options850x783 pass. Six selectors
+have proven full-slot deficits: annotation_scope145>144, annotation_key101>100,
+pdf_dpi202>199, grouping135>132, normalization_method356>178 and
+normalization_scope272>178. The advanced Subtract-background pair also has
+caption216x40 versus64px wrapped height and spinbox216x39/internal editor
+186x29 versus32px font line. Its local pair maximum240→216px constrains natural
+content while FlowLayout uses sizeHint rather than heightForWidth. Natural
+child1/37.033s/RSS0.990GiB/zero missed, unchanged inputs and normal close.
+Extend only the six observed selector regressions and add the real advanced
+pair's wrapped-caption/native-edit-field regression before source changes.
+Prefer natural uncapped pair sizing with existing Options scrolling; do not
+alter global FlowLayout, shrink fonts, remove captions or weaken slot checks.
+Focused Cocoa RED65960 reproduces all seven affected cases in8.95s/
+RSS0.347GiB, including the capped216x38 caption requiring64px at23px font.
+Use the existing fitter for precisely the six proven selectors and remove only
+the local advanced pair's arbitrary width cap, allowing natural hints/Options
+scrolling. Keep PDF quality's accepted fitter and every unproven selector
+unchanged; no global layout, normalization arithmetic or chosen values change.
+Affected Cocoa green45589 PASSES all seven in11.30s/RSS0.336GiB, with exact
+all-choice native slots and11→23→11px shrinking floors for the six selectors;
+the real advanced pair's wrapped caption, native editor line, nonoverlap,
+unchanged value and uncapped natural size also pass. Independent source/test
+peer clears this bounded repair. Retain earlier PDF-quality and navigation
+passes; aggregate normal-app default/font200 native acceptance remains pending.
+Faithful default native39250/QS45uQ on7a73c40fb now PASSES this Mac scope:
+actual11px, untouched Options792x612 within1440x870/DPR2, all85 controls/
+offered native text slots/intrinsic/reach clear; all three backgrounds paint
+opaque and pages remain embedded. Plate1344→1324 tracks host resize without
+Options changing it; independent close/reopen retains/restores gamma and Back
+returns to host. One captured actual QThread drains to zero alive; TIFFs remain
+unchanged and MainWindow closes normally. Child0/34.351s/RSS1.086GiB/zero
+missed/no aliases. Font200 acceptance was pending at this checkpoint.
+Faithful font200 native87919/nNbVkH on the same7a73c40fb also PASSES:
+actual23px, untouched Options850x783 within1440x870/DPR2, all85 controls/
+offered slots/intrinsic/reach clear, three opaque surfaces and embedded pages.
+Plate1336→1316 has no Options jump; independent close/reopen/value restore/Back,
+one actual captured thread drained to zero alive, unchanged TIFFs and normal
+MainWindow close pass. Child0/38.625s/RSS1.118GiB/zero missed/no aliases.
+Both requested default/font200 Mac addendum scopes are accepted on this host;
+Workstation's DONE implementation ownership is retained, with no other-platform,
+physical-input, smaller-display or all-scale certification inferred.
+Next bounded Mac layout scope on publisheda5014584ec: four supported GUI/font
+corners(.1,.1),(.1,2),(2,.1),(2,2) through normal live scale application before
+construction, with actual body fonts1/3/2/52px independently derived by
+scale_int(font_px('body',font),gui). Reuse owned tiny TIFFs and actual current
+1440x870/DPR2; require all Options controls/offered native slots/intrinsic text,
+opaque embedded surfaces, untouched initial Options work-area fit, strict
+axis-scroll reach, legal actual host/plate resize, independent Options close/
+reopen/value restore, Back, unchanged inputs and actual owned-thread drain/
+normal close. Preserve existing phase/process/memory caps and do not enlarge
+the opening in the probe. Tiny-font fit is not readability; these four corners
+do not certify intermediate scales, physical input, smaller displays or other
+platforms. No product change is assumed before an actual observed failure.
+Joint maximum native69770/dyQlZa on a5014584ec fails BEFORE Overview: the
+unchanged20s host-phase deadline expires, with Mask ready at29.032s and only
+8/48 controls painted. Home was ready9.641s. Natural child1/51.170s/
+RSS1.116GiB/zero missed, unchanged TIFFs and accepted normal close. No joint-
+maximum Overview/Options geometry is certified; do not raise the gate. The new
+narrow641 Mac max-scale construction attribution owns this blocker; retain
+default/font200 acceptance and inspect independent small-GUI corners separately.
+Independent GUI10/font200 native58982/yjDXDU on the samea5014584ec PASSES:
+actual3px, Options148x100 within current work area, all85 controls/native slots/
+intrinsic/reach, opaque embedding/navigation and actual thread drain clear.
+Host frame1440x870/minimum120x64/unbounded maximum; plate1386→1366 does not
+jump with Options. Inputs unchanged and normal close; child0/41.451s/
+RSS1.102GiB/zero missed/no aliases. Tiny-font fit is not readability or physical
+display-mode acceptance; the independent joint-maximum host blocker remains.
+Joint-minimum native59298/uF8y3V on a5014584ec also PASSES: actual1px and all85
+controls clear, Options88x68 fits, plate1388→1368 does not jump with Options;
+opaque embedding/navigation/thread drain/input preservation/normal close pass.
+Child0/39.934s/RSS1.079GiB/zero missed/no aliases. Readability is not certified;
+the maximum-scale construction blocker is unchanged.
+Affected unprofiled maximum99706/LjKc2X on568dc00b6 reaches actual Mask ready
+16.057505s, but the original combined host phase exceeds20s while also building
+the metadata wizard (approximately6s more, including Measure build5.323s).
+The wizard is embedded and workspace/wizard style-opacity observations pass; Next,
+browser and Options are not reached/certified. Natural child1/43.747s/
+RSS1.152GiB/zero missed, unchanged input and normal close. Preserve this failed
+combined-phase verdict. Next oracle review separates distinct module readiness
+and metadata opening into their own unchanged20s budgets; do not enlarge a
+budget, hide constructor time or infer an unproven layout defect. No new product
+change beyond the separately validated pacing repair is assumed.
+Separate-operation maximum59310/zKXERs on aad96b90c gets through Mask14.205s,
+wizard6.952s, reachable Next and embedded browser/three opaque surfaces, then
+fails actual host frame/client/minimum2400x1280 versus1440x870 work area;
+plate2220x25, Options unreached. Natural child1/46.388s/RSS1.270GiB/zero missed,
+unchanged input and normal close. New707 MainWindow scale-fit scope owns this
+proven floor overflow; retain all earlier accepted corner/layout results and
+do not relax bounds or certify usable plate/Options before the app is repaired.
+Floor candidate4b768 native23189/pXBSaT now reaches Mask11.189s and wizard
+construction2.158s, with embedded workspace/wizard opacity passing, but its
+1356x102 metadata allocation leaves enabled Next neither visible nor scroll
+reachable: actions lie outside the content scroller. Browser/Options remain
+unreached; natural child1/37.931s/RSS.991GiB/zero missed, unchanged inputs and
+normal close. Preserve seven floor checks, not whole-content acceptance.
+Mac owner now tests adaptive same-footer scrolling at this exact allocation,
+restoring sticky actions on growth; require full native styled text visibility
+after actual scrolling, unchanged signals/jobs, no smaller fonts or probe bypass.
+Causal Cocoa30074 fails at the exact allocation: Next164x78 has only164x44
+visible and no scroll ancestor (5.36s/RSS.318GiB). The private wizard now moves
+the same actions into its existing content scroller only in short allocations,
+drops redundant outer margins there, and restores sticky actions/margins on
+growth; no font, result or worker changes. Peer-reviewed Cocoa2850 passes four
+affected checks in5.78s/RSS.334GiB: actual52px1356x102→760→102, full native
+Next text-slot visibility after scrolling, same button, Escape/close and queued
+scan cancellation. Faithful maximum-scale content/plate/Options remains pending;
+this is not acceptance of every smaller-than-text viewport or of the whole item.
+Strict full-app27973/Y4fa9t on dba35 still fails: the host1440x870 fits and
+Next is range reachable after scrolling, but its170x78 button exposes170x65;
+native content field120x44 cannot hold the full120x72 text line. Mask10.742s,
+wizard2.194s, embedding/two opacity surfaces pass; browser remains unreached.
+Natural child1/37.939s/RSS.991GiB/zero missed, unchanged input/normal close.
+Correct the unit's normal-startup font/style precondition first, then reserve
+actual native button text floors and enough compact scroll viewport independently
+of the form's horizontal scrollbar. No font reduction, fixed height or waived slot.
+Normal preference bootstrap alone60856 still passes the unit (5.98s/.324GiB),
+but normal bundled-font registration/application resolves the missing fixture
+precondition:45054 fails full Open Sans52px text120x71 with only170x26 visible
+(6.61s/.329GiB). The candidate reserves fresh native minimum text slots for
+Cancel/Next and places the unchanged form scroller plus same footer in a
+compact-only vertical outer page, preserving independent form horizontal scroll.
+This is an unaccepted integration checkpoint:23048 retains three cancellation
+passes but the corrected text-visibility node still fails (7.67s/.349GiB);
+53022's allocation diagnostic likewise fails (7.01s/.335GiB), despite outer
+viewport1334x100 and button170x105, with only170x78 visible. Stop old-layout
+work here: newly fetched module-panel changes materially replace its wizard
+shell. Integrate first and adapt the wrapper to the actual new split/content,
+then test that final path; neither checkpoint nor prior bare-font green certifies it.
+After integrating module-panel work, the compact wrapper now moves the original
+split plus upstream's same module-actions widget, never borrowed settings;
+the action bar reserves current native button minima plus layout margins.
+Peer-reviewed merged Cocoa75040 passes the affected node in8.37s/RSS.333GiB:
+actual Open Sans52px, full native Next text visible after scrolling at1356x102,
+sticky760/restored102 and independent inner horizontal scrollbar, then the
+same buttons'52→2→52 minimum reset/unbounded maximum. Full normal-app merged
+module ownership, native maximum content/plate/Options acceptance remains pending.
+Full normal-app Cocoa83898 on merged08935 now passes actual maximum-scale
+Next text visibility (170x105 button; native field/full text120x71), both real
+module/settings ownership checks and all three intentional transparent surfaces.
+The run still fails before Options: the1440x870 native minimum equals the work
+area, leaving no bounded resize direction; browser1950x1271/plate1854x655 also
+exceeds the visible host. Local plate-section sums are not on-screen acceptance.
+Natural child1/42.254s/RSS1.035GiB/zero missed samples, unchanged inputs and
+normal close are retained. Continue707 resize-floor and725 visible-module
+repair; Options and complete maximum-scale acceptance are explicitly unresolved.
+
+CRITICAL CRASH REQUIREMENT — 2026-10-23: the maintainer supplied a full-app traceback from gil_priority._hub_geometry_before calling widget.geometry(). The overview wizard names its plate selector geometry, shadowing QWidget.geometry with a QComboBox. Rename that selector without replacing the Qt method; validate the actual wizard and event-hub geometry contract before immediate nightly publication. Workstation owns the wizard fix; root owns the defensive event-hub fix and bounded crash publication. The bounded repair renames the selector to plate_geometry and reads native QWidget geometry during event-hub snapshots/replay. The regression reproduces the supplied TypeError before the repair, then verifies actual move/resize/show replay; four real wizard/navigation checks pass. This supersedes the earlier unproven-crash note for this specific traceback; expanded overview qualification remains open.
+
+EXPANDED MAINTAINER REQUEST — 2026-10-23
+The maintainer restated the morning Home instructions directly to Workstation
+session 2, which owns this extension. This section supersedes narrower earlier
+completion claims and CSV-only measurement output; preserve earlier delivered
+behavior where compatible.
+
+1. Source and metadata: ask for a folder, then offer the Mask module's built-in
+   filename regex conventions and a custom regex with immediate filename/group
+   preview. Require a valid well identity at minimum, and enable Open only after
+   the user can verify the mapping. Field, plate, channel, Z and T are optional
+   captured metadata; retain independent-file identity when no field is captured.
+   Detect the smallest compatible standard plate and offer an explicit override:
+   coverslip, 6, 12, 24, 48, 96, 384 and 1536 wells. Never silently merge plates
+   or fabricate well identities; refuse an override that excludes observed wells.
+2. Plate and annotations: show representative well thumbnails in physical plate
+   positions. Support click/drag selection and a blue hover tint. Single-well
+   navigation shows higher-quality fields with an obvious Back path. Annotate
+   selected wells with any number of user-defined metadata keys/values; include
+   condition, cell type, pathogen, genotype and drug as standard suggestions.
+   Save/reload annotations and preserve them in exports and measurements.
+3. Image exploration: representative FOV plus explicit Z/T controls when present,
+   independent channel toggles and normalization controls at plate/well/field
+   levels. Zoom from a user-configurable thumbnail scale to original pixels at
+   cell detail; use bounded asynchronous loading/caching and preserve camera
+   context. Do not enlarge a downsampled thumbnail as the sole full-detail view.
+4. Normalization and comparisons: support per-channel min/max, percentiles,
+   fixed/manual bounds, background/zero baselines and additional useful intensity
+   transforms with explicit semantics. Reference scopes include image, well,
+   plate, row, column and every annotation key (including condition). Allow
+   independent channel settings and reproducible shared scaling for comparisons;
+   normalization changes display/PDF only, never raw measurement pixels.
+   Export annotated comparison PDFs for conditions or selected wells/FOVs under
+   source/results, recording channel, normalization, annotation, Z/T and selection
+   provenance. Retain styled publication output and non-overwrite safeguards.
+5. Measurements: a separate Export image-level measurements action runs in the
+   background with a user-selected worker count, one image per worker. Measure
+   original-resolution morphology and channel intensities using Measure's
+   conventions, retain diagnostics/cancellation and serialize database writes.
+   Persist image-level records to measurements/measurements.db in the fov table
+   using the same project database location as spaCR Measure (and report that
+   exact location in the UI); keep existing unrelated tables. PDFs go in results.
+
+ACCEPTANCE FOR THE EXPANDED REQUEST
+Real multichannel fixtures cover regex live preview/well-only mappings, invalid
+patterns and missing wells, standard plate detection/override, click/drag/hover,
+metadata persistence, Z/T plane identity, channel toggles and normalization
+groups, original-pixel zoom, annotated PDF comparisons, raw-value morphology/
+intensity and fov SQLite writes with bounded parallel processing, cancellation,
+errors and unrelated-table preservation. Inspect the actual GUI and PDFs; close
+only after normal runtime/API/Help generation, translations and nightly delivery.
+
+REQUEST
+Add an overview submodule to both Generate Masks and Make Masks. Given a source,
+channel choices and normalization settings, it must create representative PDFs
+and let users explore their fields of view interactively, including high-content
+plates.
+
+FOLLOW-UP REQUEST (2026-10-22)
+Keep the delivered PDF overview behavior (complete fields downsampled for display;
+not original-resolution PDFs) and optionally export an image-level measurements
+CSV for the same selected fields. Measure original-resolution raw selected
+channel pixels, never normalized or downsampled display RGB.
+
+UI FOLLOW-UP REQUEST (2026-10-22)
+Move the Generate Masks overview entry out of the OPS/AI toolbar into the source
+field immediately beside its folder-browse icon. In standalone Make Masks, place
+it beside the existing Open File/Folder chooser in IO and remove the old tab-corner
+entry. Use an
+icon-only control with the existing translated label as tooltip and accessible
+name. Preserve source/channel/normalization context and opening behavior.
+
+EXPANDED REQUEST (2026-10-23)
+Repair the real multichannel reader IndexError and investigate the reported native
+SIGSEGV through actual async lifetime evidence. Discover real axes/channel counts,
+validate requested indices with available-channel guidance, and preserve separate
+file channel identities without assuming a zero-based filename convention.
+The source icon first opens microscope metadata setup using Generate Masks preset
+and custom-regex controls with real filename parse previews and available channels.
+Make raw versus derived subfolder scope explicit, preview available filename channel
+IDs and stack indices separately, and offer a valid default for the official plate1
+sample without silently skipping incompatible selected files.
+Choose coverslip or plate geometry (6/12/24/96/384 and supported others), then Next
+opens a thumbnail plate browser initially fitting the entire chosen plate on desktop
+and small windows, with setup/export details collapsed and well details hidden until
+explicitly opened. Preserve selection separately from opening; cursor-centered zoom
+requests progressively sharper images. Provide translucent blue hover, responsive multiresolution
+zoom, well opening, FOV/Z/T navigation where present, click/rubber-band comparison,
+and condition annotations scoped to plate/row/column/wells. Provide explicit save/load
+of plate-qualified assignments with stable identity validation, defined replacement
+behavior, condition CSV/PDF provenance and a user-chosen destination; never write
+automatically into input folders. Configure representative
+1/N fields per well and Z/T choices. Define percentile, reference-channel and
+reference-well/column/condition normalization mathematically and expose its scope;
+never invent missing reference data. Reference-channel bounds apply the same raw
+low/high to every selected channel; mean matching uses all finite raw sampled pixels
+including zeros, then clip((gain*x-ref_low)/(ref_high-ref_low),0,1), with undefined
+or nonpositive means refused. Add a distinct display mode matching each well
+mean to the equal-well reference average (well/row/column/condition), using only
+chosen FOV/Z/T representatives and deterministic raw samples. Reference conditions
+are plate-qualified. Keep the existing bounds/channel modes distinct and unchanged.
+Label these operations display scaling, never measurement.
+Export whole or selected views at plate/well/
+field levels while retaining original raw measurement CSV and source-icon placement.
+Validate real YXC/CYX and separate-file missing/ambiguous channels, cancellation and
+widget lifetime, metadata preview, navigation/selection, reference normalization,
+PDF provenance and bounded selected-plane reads for large T/Z stacks. Navigation
+orders dimensions naturally and never substitutes another well for missing planes.
+PDF rendering uses full source at chosen quality independently of thumbnail caches,
+adapts page layout to actual panel count, and keeps channel labels plus display
+normalization/reference/sample provenance legible. The metadata opener reuses a
+visible wizard only for the same current source; a changed source replaces it.
+All new captions require normal reviewed
+translations and generated artifacts before atomic publication/whole acceptance.
+
+ACCEPTANCE
+- Reuse the existing filename-regex and image metadata workflow to resolve each
+  field to its plate, well, row and column. Show unresolved metadata honestly;
+  do not silently assign an image to an invented well or combine different plates.
+- Provide source-folder browsing, channel selection and normalization controls
+  consistent with spaCR image display. Preview and exported PDFs use those choices.
+- Provide a plate overview with quick click/zoom navigation into wells and their
+  fields, and easy zoom/back navigation to the plate. Retain navigation context.
+- Show representative image thumbnails in the plate overview and a paged field
+  montage when entering a well; retain quick navigation to individual fields and
+  back to the plate. Load imagery only for visible or explicitly requested views.
+- Remain responsive for high-content datasets using bounded, lazy image/thumbnail
+  loading and caching; avoid loading every full-resolution field into RAM. Handle
+  cancellation, source changes, unreadable files and missing channels gracefully.
+- At plate, row, column, well and field views, support PDF export of the relevant
+  fields: representative examples, random samples per selected well/row/column,
+  and explicit user selections. Offer sample counts and reproducible random
+  selection; include channel and field/well identities so examples are traceable.
+- Use spacr.plot.save_figure and existing figure styling for publication-quality
+  PDFs. Share the workflow between both module entry points without new spacr
+  modules. Translate UI text and regenerate affected artifacts with their tools.
+- Validate real small multichannel/plate fixtures, regex grouping, navigation,
+  selection/random sampling, normalization, PDF output and bounded lazy loading.
+
+- Follow-up: offer optional measurements CSV alongside the selected overview export.
+  Treat each complete image as one explicitly named whole-image region/ROI;
+  include regionprops geometry/intensity, original dimensions and raw pixel units,
+  selected channels and source paths, and plate/well/field provenance in one row
+  per field. Do not invent segmentation or object counts.
+- Follow-up: preserve finite/missing-channel/read-error diagnostics and cancellation;
+  avoid silently dropping selected fields, retain per-field error provenance, and
+  publish CSV and selection metadata atomically, retain the existing PDF writer
+  and its integrity sidecars, and refuse to overwrite prior overview files.
+- Follow-up: validate actual original raw intensities against normalized/downsampled
+  previews, selected-field CSV contents, error and cancellation paths. Translate
+  new UI/metadata messages and regenerate affected outputs normally.
+
+2026-10-22 — Shared lazy plate/well/field overview, channel/normalization controls and traceable PDF export passed 27 focused controls plus independent source, screenshot and PDF review. All 459 changed-caption translations passed independent AI meaning review; final normal source/catalog generation and publication remain pending under the retained coordinator.
+
+2026-10-22 — Delivered the shared responsive plate/well/field browser and traceable styled PDF export; 27 focused controls, independent source/screenshot/PDF review and both final runtime gates pass. Normal API remains unchanged; 459 AI-authored and independently AI-peered translations are published under immutable reviews 3f6f31cd, with all previous catalog values and metadata preserved.
+
+2026-10-22 — Reopened only the optional raw image-level CSV follow-up under widgets_g1; original overview/PDF delivery and its accepted 27 controls remain preserved. Raw whole-image ROI measurements, selected-channel provenance, errors/cancellation and atomic CSV/metadata output are the new acceptance gate.
+
+2026-10-22 — Optional original-resolution whole-image CSV measurements pass 13 focused controls and independent source review; 45 new runtime translations pass independent AI meaning review. The 45 independently peered runtime translations ship under immutable reviews f24e45ba; normal catalogs, caption-arrival/flow/consumer checks and final stock API checks pass. The original overview delivery is preserved; this change completes the optional CSV follow-up.
+
+2026-10-22 — Moved both overview entries to icon-only source-browse controls, removing the old toolbar/tab-corner buttons while retaining translated help, accessibility and opening context. Both owning entry checks and native source-icon adjacency pass; normal consumer output changes only source-line offsets and independent source/output review passes. This completes the UI follow-up; completed PDF and raw CSV delivery remain retained.
+
+2026-10-23 — Reopened only the figure-registration and editable-field help CI follow-up: register actual overview page images/provenance and move the same reviewed channel guidance to its setting label; preserve delivered CSV/PDF/icons and callback documentation. Both original gates plus real export/help controls pass (4 tests,25.36 s), with independent source/output review accepted. Normal consumer generation closes exactly21 line offsets; API/runtime/target map are unchanged. Root integrates and publishes this follow-up; prior delivery/history remain retained.
+
+2026-10-23 — Reopened only the well-thumbnail HiDPI follow-up under widgets_g1 with widgets_g4 peer and root publication: retain native screen-density detail, logical icon size and redraw from bounded source pixels after screen-ratio changes; preserve completed PDF/RAW CSV/source-icon and registration/help delivery. Validate the unchanged scaled-site audit and real thumbnail ratios without exemptions. PUBLICATION PENDING.
+
+2026-10-23 — Well thumbnails use native screen-density rendering with bounded density-aware source/cache and screen-change redraw; 1x-to-2x-to-1x real-image control, unchanged scaled-site audit and visible-thumbnail cache control pass (3 tests,5.88 s). Independent source review accepted; existing PDF/RAW CSV/icons/callback documentation remain retained. PUBLICATION PENDING under root.
+
+2026-10-23 — Final HiDPI postimages and three owning checks are accepted; normal consumer output changes only six line offsets, with all targets/metadata preserved. Root integrates the validated source and generated output for nightly/main publication; prior feature requirements and completed acceptance remain retained.
+
+2026-10-23 — Reopened only the overview well-cell contract under widgets_g1, widgets_g4 peer and root publication: construct plate cells through the existing shared sortable-cell factory while preserving coordinate placement, displayed field counts, read-only flags, selection and raw well identity. Validate the unchanged bare-cell gate and actual numeric/natural sorting identity control; retain all previous overview/CSV/icon/HiDPI requirements. PUBLICATION PENDING.
+
+2026-10-23 — Overview plate cells use the shared factory without changing physical coordinates, displayed counts, read-only flags or raw well identity. All six related registration/parity/HiDPI/bare-cell/sort-declaration gates plus the actual numeric/arrival-order identity control pass (7 tests,44.94 s); independent source/test peer accepted. Existing captions, API docs and source line counts are unchanged, so runtime/API/consumer generation is inapplicable. PUBLICATION PENDING under root.
+
+2026-10-23 — Shared plate cells retain well identity and physical layout; all seven related structural and sorting-identity checks pass with independent source review. Root integrates the exact validated source for nightly/main publication; API/runtime/consumer records and all prior delivered requirements are unchanged.
+
+2026-10-23 — Reopened reader/metadata-first workflow now has bounded channel-aware reads, whole-plate fit, typed-axis navigation, saved conditions, explicit balanced reference-mean display scaling, native full-source PDFs/raw CSV and automatic Coverslip entry. Root visual review,261 focused checks (259 retained plus two affected reruns),17 catalog checks and1026 shared reviewed targets pass; reported native crash cause remains unproven. Exact-source local coverage is46 missing lines/49 branches against unchanged30/9 ceilings, so qualification and root publication remain open; preserve all earlier requirements and ownership above.
+
+2026-10-23 — Home delivery retains Workstation session 2 ownership and all expanded requirements above; rebase onto current nightly before extending the shared browser.
+Home ships the preset/custom wizard, bounded axis-aware browser, condition persistence, explicit balanced reference modes, original-image comparison PDFs/raw ROI CSV,261 focused checks and reviewed normal catalogs.
+Work still owns arbitrary metadata, independent channel controls/transforms, strict well identity/1536 qualification, results-path convention and the separate parallel Measure-compatible fov database action; existing CSV export is not that database workflow.
+Local coverage remains46 missing lines/49 branches against unchanged30/9 limits; the reported native crash cause is unproven. Home retains general CI/release; this whole item stays IN PROGRESS.
+
+2026-10-23 — Workstation integration preserves Home’s wizard, selected-axis readers, balanced reference modes and full-source PDF export while adding arbitrary persisted metadata, independent channel transforms, native bounded cell-detail crops, strict physical wells/1536 and parallel Measure-compatible fov database export. Final frozen-source validation:355 focused checks plus24 additional safety controls pass; unchanged module ratchet passes at15 missing statements/9 branches with zero exclusions. Independent dark/light offscreen UI, original-image two-condition PDF/raw-value and477 reviewed-translation peers are accepted; final merged normal outputs and ordinary nightly publication remain pending.
+
+2026-10-23 — Overview now embeds metadata and image browsing on the existing OPS-style host page strip, with an opaque themed background, always-visible hierarchical Back and a separate retained Options window. Real Mask Generation dark and Make Masks light renders verify plate growth, independent Options and host return;384 focused checks pass, and the unchanged source coverage ratchet passes at16 missing statements/9 branches with no exclusions. Final combined normal outputs and ordinary nightly publication remain pending; all earlier scientific/PDF/translation acceptance is retained.
+
+2026-10-23 — DONE: embedded metadata/browser pages, opaque background, window-sized plate, independent Options and hierarchical Back preserve the complete metadata/normalization/native-image/PDF/fov workflow. Exact montage restoration fails before the stale-display repair and passes afterward;386 focused checks pass, with16 uncovered statements/8 branches against unchanged30/9 ceilings and zero exclusions. Normal combined catalogs, API/help/consumer/flow/caption/index outputs and strict558 reviewed-target/source-hash checks pass; immutable translation pin6da9a41d preserves both Overview and published AI work. Independent real Mask Generation dark/Make Masks light offscreen renders and original-source comparison PDF/raw-value peers are accepted; native Windows/Mac hardware remains owned by those sessions.
+
+2026-10-23 — LIVE REGRESSION REPAIRED: actual QWidget metadata/browser bodies remain embedded when the full app installs its global dialog filters, fixing the black tab; Options remains a separate retained window. Visible Preview resolution (128–4096 px) bounds plate/well/field loading while native cell crops retain original pixels; readonly TIFF mapping and request-local compressed-page reuse preserve exact RGB while avoiding repeated full-page decoding. All391 focused tests plus three lifecycle/camera controls pass; exact source coverage has15 missing statements/9 branches against unchanged30/9 ceilings, with no exclusions. Independent full MainWindow Mask dark/Make Masks light startup, source selection, resolution, Options and Back acceptance passes; normal artifacts and all576 reviewed targets/source hashes pass with immutable translation pin d86160b3 preserving Overview/AI history. Earlier scientific/PDF/database acceptance is retained; native Windows/Mac hardware remains with its owning sessions.
+
+2026-10-23 — DONE: Overview reuses the real Mask/Make Masks categorized settings, console/AI/system/actions and transparent theme; initial metadata has no Back, and retained Options restores the same controls. Row/Column remain visible and unmatched files are theme-dimmed; only actual regex nonmatches are excluded, so the supplied read-only CellVoyager source accepts3068 valid fields/12272 images while excluding8 OTF calibrations. Independent actual full-app dark/light and NAS metadata/384-well rendering pass; bounded eight-preview batches reduce the measured full-plate loading from about51 to30 seconds. All409 final merged-source focused tests pass, preserving native Mac text-sizing updates; exact source coverage has13 missing statements/8 branches, zero exclusions, against unchanged30/9 ceilings. Normal API/runtime/Help/consumer/flow/caption/index outputs and603 strict reviewed-target/source bindings pass with immutable review pin f3141ecf; prior scientific/database/PDF acceptance is retained, and native Windows/Mac hardware validation remains with its owning sessions.
+
+2026-10-24 — Reopened IN PROGRESS for the maintainer's twelve 2026-10-24 requirements above; Claude Home owns it (UI agent A: requirements 1-8, the annotate menu and UI shells for 10/12; data agent B: annotation table, image-level measurements, comparisons, representative images).
+
+2026-10-24 — Data layer (B) for 9-12, all private helpers for A to wire: spacr.measure _image_annotation_database(source), _image_annotation_columns(db), _add_image_annotation_column(db, name), _set_image_annotations(db, fields, column, value, source=, wells=[(plate, well)]) -> {operation, count}, _undo_image_annotations(db), _read_image_annotations(db), _well_image_annotations(db), _import_overview_annotations_json(db, json, fields), _IMAGE_ANNOTATION_SUGGESTIONS; table image_annotations (keys plateID/wellID/fieldID/file). fov rows gain _image_level_features through _overview_measurement (export already runs on _measurement_jobs; progress callback runs in the job thread). _image_measurement_frame(db) joins fov to annotations; spacr.sp_stats _image_measurement_columns, _image_groups, _compare_image_groups(frame, measurements, dimensions, groups=, levels=, within=, unit=image|well, correction=holm), _image_comparison_figure(kind=box|violin|strip, path=), _write_image_comparison, _representative_images(method=median|medoid|pca_centroid|measurement|typical_in_focus). Error messages are English diagnostics; A shows translated status text.
+
+2026-10-24 — UI (A) delivered: stacked plate/well/image panels with collapse arrows and metadata toggles, right-click well annotation, Comparisons settings (group comparison figure/tables, representative images by five methods). 34 new captions ship as AI-authored, independently AI-peered translations in nine languages under immutable reviews fb2f951b; catalogs, caption arrivals and setting consumers regenerated. Three overview workflow tests (font override, full-app dialog filters) fail identically on the untouched base and remain open.
+
+2026-10-24 — Round-2 maintainer feedback recorded above: Overview becomes its own first Core module with standard settings rows, Image/Enhancement categories, Original buttons, tile-size slider and standard Actions (A); Measurements category and multiprocess backend go to agent M.
+2026-10-24 — Maintainer reversed the own-module idea: Overview stays a closable tab inside Mask generation, opened only by the existing source-field icon; layered-condition comparisons and stacked image views added to round 2.
+2026-10-24 — Round-2 items 5-7 data side (M): spacr.settings._overview_measurement_declarations() gives the Measurements + "Advanced Measurements" (parent Measurements) keys, types, tooltips and category help for the tab's settings model; _image_level_features(groups=) skips unselected groups; fov export runs on Measure's _parallel_pool, one image per worker, RAM-guarded and cancellable; Advanced filter bank, image-quality network and embeddings are off by default. Remaining: U attaches the declarations and passes measurements=settings; captions need reviewed translations.
+2026-10-24 — Round 2 (A) in 262ab6ffbd/6f1550db9c: closable Overview tab from the Mask/Make Masks icon, standard setting rows and Actions, Image + Enhancement (19 enhance_* steps; PSF/restoration not offered), Original buttons, tile slider, stacked images, layered group builder, M's Measurements wired with progress; 12 tab tests pass. Remaining: new-caption translations (translation owner) and the two pre-existing unreadable-TIFF failures in test_field_of_view_overview.
+2026-10-24 — CQ1 import (metadata agent): Overview and the shared CQ1 converter place W<index> wells from the Yokogawa XMLs (well table, plate geometry, row/column numbering, override), and the wizard autofills geometry, editable channel names/colours, well order and pixel size for CQ1, CellVoyager and TIFF headers. 19 new tests pass; the real sulfide Projection folder reads as 384-well, 18 wells (C01-F10), 9 fields, 3 channels, 0.1625 µm. 24 new captions await translation.
+2026-10-24 — Round-3 maintainer feedback recorded above (persistent plate thumbnails, stacked image view, per-channel normalization/enhancement, merged Image settings applied live, speed, image-level Measure measurements); U owns UI/speed, M2 owns measurements.
+2026-10-24 — Round 3 point 9 and the numbers of 10 (M2) in f0d5531c10/afe4109f96/fb233f6b88: image-level groups now reuse Measure's distribution, radial-profile, colocalization (Pearson, Manders, overlap, Spearman, ICQ), granularity and spectral-focus statistics, plus full-resolution homogeneity and fibres under Advanced (off). spacr.measure _publish_image_measurements(db, rows, settings) upserts fov rows keyed by field_uid and indexed plateID/wellID/fieldID/file, keeps columns from earlier selections and writes image_measurements.csv/xlsx; spacr.sp_stats _image_well_groups, _image_comparison_table, _rank_image_differences and _image_effect_figure give the compact table beside stacked images. Remaining: U swaps the browser's fov write for _publish_image_measurements and shows the table; new captions need translations.
+2026-10-24 — Round 3 UI (U) decisions, maintainer asleep: plate thumbnails stay on show with wells/images open (decoded planes cached per file stamp, 768 MB; first well decoded alone, then up to 4 parallel batches of 8); display changes re-render from cached planes; Image is the main category (Channels, Display, Normalization, Enhancement); enhance_* steps stay on every view as in round 2, PSF/restoration Original-only; per-channel targets are "Normalize channels"/"Enhance channels" ("all" or IDs); 2+ open wells stack one image each with synced zoom; quality slider in the image view; all Overview booleans are Toggle; a group comparison stacks one representative per group beside its plot.
+2026-10-24 — Round 3 U wiring: measurements publish via spacr.measure._publish_image_measurements (browser fov write, rowid copy and intensity duplicate dropped; partial intensity kept on failed images); a group comparison shows _image_comparison_table beside its stacked representatives. Remaining: new-caption translations.
+
+2026-10-25 — Overview round-two, CQ1 import, PSF and measurement captions (210) ship in nine languages under immutable reviews db1b2eb2 with regenerated catalogs, caption arrivals, setting consumers and COVERAGE.md.
+2026-10-25 — Round-4 maintainer feedback recorded above (crashes #165/#166 first; tooltips, settings layout, navigation buttons, right-click annotation, measurement regrouping, object import, named groups, annotation-scheme import).
+2026-10-25 - Native Windows smoke (QPA windows, 8 GiB cap, CPU) on 18d6fe923c passes 9/9 with no crash, slot exception, faulthandler or error log: real AppScreen("mask") opens Overview from the src icon on a synthetic 4-well, 8-field, 2-channel plate; wells open and stack, 13 channel/percentile/normalization/gamma/resolution changes re-render, current-view and whole-plate Measurements (fov 2 and 8 rows, image_measurements.csv) and PDF+CSV exports succeed, and closing retires all jobs. Whole-plate measure+export takes 79 s for 8 small images (worker spawn on Windows); peak job memory 2.9 GiB. Not covered: launch() navigation, real pointer clicks, PSF/comparisons/annotation.
+2026-10-25 — Round 4 points 7, 8 and the data side of 9 and 10 (M2): Measurements now has Intensity, Texture (with a new radial texture profile), Objects and Advanced sub-categories, and Otsu object/coverage measurements are gone from the settings. Objects come only from imported Mask generation masks, checked by spacr.measure._validate_object_masks and measured by _image_object_record (per image) and _object_well_table (per well). _import_well_annotation_scheme reads CSV/Excel well lists or plate maps into image_annotations. _save_comparison_groups/_read_comparison_groups store named groups, and the sp_stats comparisons take group_names. Remaining: U wires the Objects path picker, scheme import and group names; new captions need translations.
+2026-10-25 — Native Mac smoke (Apple M-series, macOS 27.0, arm64 Python 3.12, Cocoa, Retina 2x) on nightly f726fb39b + fixes 5906b6682: full MainWindow → Mask → source-field icon → Overview on a 4-well/8-field/2-channel plate passes 10/10 with a clean quit: wizard and plate load, plate thumbnails, two wells opened, three stacked images and one closed, channels 2 / 1,2 / 1 and three percentile pairs plus gamma applied live, Original 640 px toggle, real image-level measurement export through the spawn worker pool (fov table + image_measurements.csv) and PDF export. All 448 Overview tests on Cocoa: 441 pass before the fixes; five Cocoa-only failures fixed (Retina native-crop gate now counts device pixels; three tests assumed 1x thumbnail edges; flowchart hover used the OS cursor). The two full-app dialog-filter cases fail on both platforms as already recorded. scikit-image 0.26 size-filter calls in the image-level measurements now keep the strict threshold (helpers in spacr.measure).
+2026-10-26 — Plates view for 1.5.1.6 (the round-5 gap "a side-by-side or stacked view of several plates"): the Plates navigation group has a Plates view choice (Single, the default and unchanged; Side by side; Stacked) and a Shown plates… menu for a subset. Each shown plate has its own table under a "Plate <name>" header, the current plate's in bold. The well-position map, well fields, representatives and installed thumbnails are keyed by (plate, well), so A01 of one plate never meets A01 of another. Selection, the hover readout (it now names the plate, well and image over a plate thumbnail), well and header menus, collapse, annotations, comparison groups, canvas drags and lazy thumbnails follow the plate they act on. A plain click on another plate starts a new selection, and Ctrl or Shift extend it across plates. Cross-plate selections reach annotation, comparison groups and the Guided export as plate-qualified wells. Collapse stays per plate. Fit plate fits each plate in its own view, and +/− size every plate alike. The not-loaded hatching shows per plate. overview_view.json gains "view": {"plates_view", "shown_plates"}, with the plates stored as plate-key texts. Tests: tests/qt/test_725_overview_plates_view.py (10, three synthetic plates with overlapping well names); existing tests now use the plate-qualified keys. The Overview cohort passes 697 tests plus 1 skip. Eight new captions ship with reviewed translations in nine languages. Screens: /mnt/wd4tb/scratch/overview-plates-view/{light,dark}_{single,side,stacked}.png.
+2026-10-26 — Round-6 plate items. (1) Collapse and Show apply to every selected row or column. This works from the header right-click, the plate right-click ("Collapse rows A, B"), and a header double-click when several lines are selected; a line outside the selection still acts alone. (2) The Add plates and Add folders pickers come from one helper, _overview_folders_dialog. It is a non-native folder picker that opens at four fifths of the screen, never smaller than its layout, with every button visible. It keeps a margin wider than the resize band and is resized by its edges through glass.let_the_user_resize. (3) Each plate can use its own filename regex. The metadata step's plate list has a "Filename regex" column; leaving it empty uses the filename regex above, which is the first plate's. An invalid regex is refused in the status line. The regexes are saved per plate folder in overview_view.json under options.plate_regex, and they are restored when that source is opened again. Indexing, matching, Add plates and the wizard probe all read a plate with its own regex. Tests: tests/qt/test_725_overview_round6_plates.py (10). Six new captions ship with reviewed translations in nine languages.
+2026-10-26 — Plate container (points 18 and 19 above, verbatim). Side by side and Stacked hold the shown plates in one scrolling container; any number of plates can be loaded (tested with six sharing their well names). Each plate has a header bar with the standard collapse arrow; a folded plate shrinks to that bar. Visibility, folding and every former navigation button live in the right-click menus of the plate, its headers and the plate panel, in titled sections: Navigation (Back to plate), Wells (Fit plate Ctrl+0, Zoom in Ctrl+=, Zoom out Ctrl+-, the shortcuts working while a plate has focus; Show plate metadata, which hides the well names under each well's image and is saved), Plates (Plates view: Single, Side by side, Stacked; Shown plates with All plates, Hide all and one tick per plate; Previous and Next plate; Add plates; Remove plate; Expand all; Collapse all; Collapse or Expand and Hide this plate) and, with a well open, Fields (Previous and Next fields, Compare selected fields; also in the well view menu). The navigation bar above the plate is gone and the hidden buttons only hold the actions' state. Hidden plates stay loaded but get no table; Hide all leaves a hint to right-click. Zoom and fit apply to the whole container: zoomed plates take their full size and the container scrolls them together (the wheel zooms about the well under the cursor); fitted plates share the view with square wells. Thumbnails are decoded only for wells visible in the container, so folded, hidden or scrolled-away plates cost nothing. Wells opened on several plates fill the same well and image views, filed by (plate, well): double-click wells on different plates, open every selected well ("Open the selected wells together", or Enter), or right-click a well and choose "Show A01 from every plate". With more than one plate loaded, well view titles, tile captions and image headers name the plate with a short display name (shared words at the start or end are dropped at a separator, long names are elided in the middle), e.g. "Well plate2 · A01"; with one plate they are unchanged. The hover readout, exports (field captions), Guided export and measurement tables already carry the plate. overview_view.json view gains no_plates_shown, collapsed_plates and plate_metadata. Tests: tests/qt/test_725_overview_pooled_plates.py (13); round-4 and round-5 tests now find the navigation in the menus. Twelve new captions ship AI-authored and independently AI-peered in nine languages (spacr-translations branch pooled-plates-on-3ff14cf, pinned at 28ed7e4d); "Fit the whole plate in view" is archived. Screens (Xvfb + gnome-shell, real Mask Generation tab): /nas_mnt/data/sync/pooled-plates/shots/{light,dark}/.
+2026-10-26 — Maintainer's decisions after pulling db3a33ab43 on the work computer. (1) "default for max fields should be 1": overview_max_fields (Overview max fields, Source) now defaults to 1 instead of 'all', so a new Overview loads the first field of each well; 'all' or any number still works, and saved settings keep their value. The default is the text '1', so the row stays a text field that also takes 'all' (an integer default turned it into a spin box that could not hold 'all'). The tooltip says "Default 1." in English and in the nine reviewed languages (spacr-translations df40bfae on main, pinned as 5552a8fd on branch overview-max-fields-on-3ff14cf). The tab tests whose synthetic plates have two fields per well set Overview max fields to 'all' once the browser opens; the round-5 load-limits test checks the default of one field per well. (2) "the popup that opens is huge, way to big": the Add folders and Add plates picker (_overview_folders_dialog) now opens at 960 by 640, at most three fifths of a smaller screen, never smaller than its layout minimum so Choose and Cancel show, and stays resizable by its edges. Both buttons were confirmed working by the maintainer. Tests: tests/qt/test_add_folders_and_add_plates_add_the_chosen_plates.py clicks each button, Ctrl-clicks one or two plate folders in the real modal picker, clicks Choose, and checks the plates reach the metadata step's plate list or the open Overview; the size tests in test_725_overview_round6_plates.py and test_the_add_folders_picker_survives_the_glass.py now check the layout minimum and the cap. tools/check_folder_dialog.py on GNOME Shell 46: under X11 (mutter on a 1920x1080 Xvfb) both pickers opened at 960x628 (three fifths of the 1048 px work area), active and on top, Choose and Cancel shown; under Wayland (headless gnome-shell, QT_QPA_PLATFORM=wayland) both opened at 960x640 with every button shown. Logs and screenshots: /nas_mnt/data/sync/folder-dialog-2/.
+
+2026-10-26 — Codex G1 owns the three post-pooled Overview fixes: locally contrasting per-image metadata toggle, viewport-fixed metadata overlays through zoom/pan, and the shared colour picker centred after dialog detachment. Real Xvfb/GNOME two-theme baseline reproduced weak selected text and top-left picker; native scroll measurements identify displaced viewport metadata as the clipped-edge remnant. Nine affected controls pass (19.38s); the final dedicated Xvfb/GNOME software-WM check passes in both themes with legible toggle backing, unchanged pixmap through real zoom/pan, overlay at (8,8), and picker centred on its parent within one pixel. Root accepted source/test design; parent-coordinated normal outputs and publication remain.
+
+WINDOWS FOLLOW-UP — 2026-10-26
+Windows session: test current nightly on a real desktop in light and dark themes, recording the SHA and screenshots under /nas_mnt/data/sync/windows-lane/. Home is integrating pooled plates, the one-field default and three UI fixes; do not call those delivered until their commit is on nightly. While awaiting that push, other Windows items remain actionable.
+Check resizable Add folders/Add plates pickers (about 960x640; every button visible); docked Guided/Custom export, Settings and Close; press-and-hold tile/well dragging and Explorer file drops; quality-slider Original at the top and redraw of open views; wheel/pinch zoom only under the pointer; wrapped tooltips; per-plate Apply, previews and channel colours. After the integration lands, also check multiple shown/hidden/folded plates, shared zoom, pooled wells with plate names, right-click navigation, a fresh default of one field per well, readable image-metadata toggles, no clipped metadata strip during zoom/pan, and a centred colour picker that retains the starting colour. Report each pass/failure separately; leave Linux-only observations labelled as such.
+2026-10-26 — Native visual follow-up found Qt’s DontUseNativeDialog transition resetting the constructor’s initial colour; set the initial colour only after selecting the Qt dialog. Add a genuinely shown two-theme OK/Cancel regression; retain the accepted metadata/anchoring/centering checks and shared return contract. The four real shown-dialog OK/Cancel cases pass (2.91s) on the dedicated native WM in both themes; three directly affected existing colour checks also pass, with earlier overlay/contrast checks retained. Source is frozen for parent-coordinated normal generation; final mapped-frame visual capture and publication remain.
+
+2026-10-26 — Pooled plates and the one-field default are integrated with metadata contrast, viewport-fixed overlays and a centred shared colour picker that retains its initial colour; real shown controls and both-theme visuals pass. Normal nine-language catalogs and affected reference, flow and consumer outputs are current. Owning Linux checks pass; final Night publication, hosted release CI and Windows follow-up remain with their owners.
+
+2026-10-26 — Codex Overview follow-up, authorized for immediate Night delivery: newly added canvas images freeze the currently adjusted visualization; saved layouts retain channel, normalization, colour and enhancement snapshots.
+Right-click Propagate settings updates only its target; the live boolean applies current settings to all pages and future images, while switching it off preserves each snapshot. Explicit disk-file Import settings remain independent.
+The multiwell size slider now invalidates size-dependent thumbnail icons, and Figures scrolls internally so opening it keeps the Console and Actions inside the window.
+Validation: six canvas/import controls, two real multiwell Original/capped-quality geometry cases and one real Figure-open allocation case passed; normal owning-module API/public boundaries remain 31/25 with zero arrivals or required-parameter omissions.
+The four-caption nine-language closure and normal runtime/consumer/flow outputs are generated and independently accepted; all 21 final joint contracts pass. Ready for root Night publication and shared-checkout update; native platform acceptance and other existing item requirements remain open.
+
+2026-10-26 — Canvas text editing follow-up: double-click a text box to enter inline editing with a visible cursor and keyboard focus; typing must update the saved layout and PDF text. Preserve image dragging, selection and context menus. Implemented with a text-only inline editor and the existing undo model; real Qt double-click, typing/backspace, JSON reload, vector PDF text and undo pass (8.71 s). Image interaction handlers are preserved; root publication follows the normal consumer-offset refresh.
+
+2026-10-26 — Canvas-container appearance follow-up: replace the black rectangle behind the export page with the shared spaCR translucent rounded gray surface, following the active theme and page opacity. The canvas view now reveals a shared surface_alt frame with the shared corner radius and page-opacity semantics; the actual page and image/text content are unchanged. Rendered Light/Dark controls pass (2 cases, 6.09 s), including matching viewport/frame gray, rounded corners and unchanged page/model; root publication follows the generated consumer-offset refresh.
+
+2026-10-27 — Vertical Image collapse no longer imposes a horizontal maximum on the shared image column; native right-canvas controls prove both columns remain adjustable and their splitter state survives collapse. Five focused native controls pass, including ordinary/right-canvas repeated containment cycles and clean owned-thread retirement. The reported below-Console overflow did not reproduce on these paths; no speculative containment change. Root owns integration/publication; broader item acceptance remains open.
+
+2026-10-27 — Diagnose hosted Coverage7 Figure/Console geometry overflow and quality-slider redraw timeout on the current published Overview. Preserve strict in-window geometry and the existing 20 s redraw deadline; identify the actual source or fixture cause before a minimal fix and affected controls. The quality test now binds the actual eight-field thumbnail stamp and its unchanged cap slot, preserving pixels, generation, zoom and 20 s waits. Both focused controls pass locally (9.86 s, Qt 6.10.0); hosted Qt 6.11.3 Figure overflow remains unreproduced, with strict geometry assertions enriched for the next actual failure. No containment source change or closure is claimed.
+
+2026-10-27 — Canonical styling reproduced the hosted Figure overflow (Card bottom 943 in a 900-pixel window): the full wrapping Actions height was expanding the whole runtime scroll area. Overview now scrolls inside its Actions card, preserving the true content layout, all buttons and folding; no global floors or arbitrary caps changed. The same strict styled Figure check now passes (10.85 s), including individual button access/fold/reopen; ordinary/right-canvas three-cycle containment also passes (2 cases, 9.04 s). Root publication follows the normal +11-line consumer refresh; older platform/item acceptance remains separate.
+
+2026-10-27 — Acceptance update: the maintainer removes human review/intervention and manual/native-platform acceptance gates through 1.5.1.6 delivery; reasonable implementation, focused validation and publication qualify delivery. The maintainer tests afterward, and silence requests no change. Unimplemented work, known defects and unmet scientific outcomes remain open.
+2026-10-27 — DONE under the revised delivery rule: published Overview/canvas/annotation/export/layout fixes retain 21 joint contracts, real text/PDF/undo controls, theme-canvas and strict styled Actions/Figure checks, repeated containment and the actual plate/well/image/quality/collapse/splitter plus distinct frozen S1/S2 native results. Later combined attempts stopped on fixture lifetime/context assumptions, not a demonstrated product defect; their unrun gates are not claimed and no further pre-release native sequence is required.

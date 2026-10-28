@@ -83,15 +83,55 @@ def test_upgraded_renderer_refreshes_old_cache_and_discovers_new_items(tmp_path,
     renderer = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(renderer)
     ledger = "features/data/progress_2026-10-08_2341.md"
-    old = "features/new/681_badge.txt"
-    new = "features/new/682_release.txt"
+    old = "features/feature_list/681_badge.txt"
+    new = "features/feature_list/682_release.txt"
     def fake_git(root, *args):
         if args[0] == "rev-parse": return "same-source"
         if args[0] == "ls-tree": return "\n".join([ledger, old, new])
         if args[-1].endswith(ledger): return f"| [681](/machine/{old}) | Home | — | Unknown | Badge |"
-        return "Status: COMPLETE 100%\nOwner: Home\nDescription: Verified scope\n"
+        return "Lifecycle: new\nStatus: COMPLETE 100%\nOwner: Home\nDescription: Verified scope\n"
     monkeypatch.setattr(renderer, "git", fake_git)
     state = renderer.refresh(tmp_path, tmp_path, dict(source_sha="same-source"))
     assert set(state["rows"]) == {"681", "682"}
     assert state["completed"] == ["681", "682"]
     assert state["renderer_sha256"]
+
+
+def test_progress_rows_follow_moved_items_without_turning_future_items_into_new_work(tmp_path, monkeypatch):
+    spec = importlib.util.spec_from_file_location("moved_progress", Path(__file__).resolve().parents[1] / "tools/watch_progress_table.py")
+    renderer = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(renderer)
+    ledger = "features/data/progress_2026-10-08_2341.md"
+    paths = {"709": "features/feature_list/709_issues.txt",
+             "540": "features/feature_list/540_assay.txt",
+             "710": "features/feature_list/710_cleanup.txt",
+             "900": "features/feature_list/900_proposal.txt",
+             "42": "features/feature_list/42_unrelated_history.txt"}
+    sources = {path: f"Lifecycle: {'future' if number in ('540', '900') else 'new'}\nStatus: OPEN\n"
+               for number, path in paths.items() if number != '42'}
+    reads = []
+
+    def fake_git(root, *args):
+        if args[0] == "rev-parse":
+            return "moved-source"
+        if args[0] == "ls-tree":
+            return "\n".join([ledger, *paths.values()])
+        target = args[-1].split(':', 1)[1]
+        if target == ledger:
+            return ("| [709](/machine/features/new/709_issues.txt) | Home | — | Unknown | Issues |\n"
+                    "| [540](/machine/features/future/540_assay.txt) | Home | — | Unknown | Assay |")
+        reads.append(target)
+        return sources[target]
+
+    monkeypatch.setattr(renderer, 'git', fake_git)
+    state = renderer.refresh(tmp_path, tmp_path, {'rows': {
+        '709': dict(path='features/new/709_issues.txt', done=False)}})
+    assert set(state['rows']) == {'540', '709', '710'}
+    assert {number: row['path'] for number, row in state['rows'].items()} == {
+        number: paths[number] for number in ('540', '709', '710')}
+    assert state['rows']['540']['lifecycle'] == 'future'
+    assert '| F540 |' in (tmp_path / 'progress.md').read_text()
+    assert '| N709 |' in (tmp_path / 'progress.md').read_text()
+    assert '| N710 |' in (tmp_path / 'progress.md').read_text()
+    assert set(reads) == {paths[number] for number in ('540', '709', '710', '900')}
+    assert len(reads) == len(set(reads)), "candidate and ledger reads must share the cache"

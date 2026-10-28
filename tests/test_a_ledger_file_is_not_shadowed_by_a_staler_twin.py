@@ -67,14 +67,14 @@ def test_no_new_top_level_ledger_file_appears():
     unexpected = _top_level() - KNOWN_SHADOWED - KNOWN_UNIQUE
     assert unexpected == set(), (
         "new ledger files at `features/` top level, where no index can see "
-        f"them: {sorted(unexpected)}. Put them in `features/new/` or "
-        "`features/future/`, which is where the index generator looks."
+        f"them: {sorted(unexpected)}. Put them in `features/feature_list/` with explicit Lifecycle metadata, "
+        "which is where the index generator looks."
     )
 
 
 def test_the_known_unique_files_have_not_grown_a_twin():
     """Two copies of one name is the defect; one copy anywhere is not."""
-    grew = {name for name in KNOWN_UNIQUE if (FEATURES / "new" / name).exists()}
+    grew = {name for name in KNOWN_UNIQUE if (FEATURES / "feature_list" / name).exists()}
     assert grew == set(), (
         f"these had no counterpart and now do: {sorted(grew)}. Two files with "
         "one name disagree with each other, and the shallower one is the one a "
@@ -86,7 +86,7 @@ def test_every_shadowed_file_really_is_shadowed():
     """If a twin disappears, this list is stale and should shrink with it."""
     missing = {
         name for name in KNOWN_SHADOWED
-        if not (FEATURES / "new" / name).exists()
+        if not (FEATURES / "feature_list" / name).exists()
     }
     assert missing == set(), (
         f"pinned as shadowed but no longer has a counterpart: {sorted(missing)}. "

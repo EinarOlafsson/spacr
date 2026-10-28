@@ -1,0 +1,2514 @@
+
+THE FULL tests/qt RUN HANGS PART-WAY THROUGH
+
+
+Lifecycle: new
+Status:    COMPLETE 100% 2026-10-11 — one uninterrupted original-order serial
+           tests/qt run on 0a3f3ff64 (31,136 collected) finished with its
+           summary in 4:37:32: no hang, no crash, no timeout, peak RSS
+           7.21 GB. 16 failed / 4 errors are listed in the 2026-10-11 note
+           (other lanes, load timing, or fixed after the run).
+Previous status (superseded 2026-10-10):    OPEN 2026-10-07 — protected b688 run37639050274 failed with
+           native SIGSEGV near39% in real distribution measurement;
+           last recorded RSS~4048MiB with zero OOM kills. Its retained native
+           trace reaches QEventLoop::exec. Ordinary bb7 separately crashes
+           in puncta; complete current-source native/serial acceptance is open.
+Previous status (superseded 2026-10-07):    OPEN 2026-10-02 — the whole-suite serial Qt run stops at the 10.8
+           GiB memory guard (about 71%); the growth has to be found and one
+           full uninterrupted run recorded. The three remaining real items are
+           green (2026-10-02).
+
+Previous status (superseded 2026-10-04):    OPEN: uninterrupted final-source Qt acceptance remains incomplete.
+           The latest full original-order frozen run ended 2026-09-28 with
+           exit3 at its memory guard after19,591 call reports out of27,269
+           collected cases. It reported11.4GiB over its10.8GiB ceiling;
+           the12GiB kernel cap and zero-swap limit remain unchanged.
+           All seven preserved assertion failures have focused current-source
+           repairs. Sustained memory growth is not yet localized, and the
+           run did not reach its complete pytest summary.
+Severity:  test-only, but it makes the qt suite unrunnable as a whole,
+           which is how the order-dependent failures in 03 and 46 stay
+           invisible.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+    QT_QPA_PLATFORM=offscreen pytest tests/qt -q -p no:randomly
+
+reaches roughly 25% and stops. The pytest process stays alive and the log
+file stops being written to -- 24 minutes with no output and no exit. Not
+slowness: nothing progresses.
+
+Individual files complete. test_all_module_smoke.py alone finishes in 144s
+(with the four failures of instruction 46). So it is either a later file or
+an interaction between files.
+
+Not caused by the Walk work or the figure grid: figure_grid.py is imported
+by nothing but its own test file, and the hang is at 25%, before it.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A suite that cannot finish is a suite nobody runs whole, and the failures
+it would have caught are exactly the order-dependent ones this project
+already has trouble with: instruction 03's five, and instruction 46's four.
+Those only show up in a full run, so the hang hides the class of bug it is
+most important to see.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Reproduce with `-v` so the last STARTED test is named. The compact `-q`
+   output only shows completed ones, which is why the culprit is still
+   unknown. Note that `-v` did not expand output in one attempt here --
+   check pytest.ini for an addopts that overrides it.
+2. Get a stack rather than a guess: `pip install py-spy` (not currently in
+   the env) and `py-spy dump --pid <pid>` while it is wedged. Do NOT do
+   what I did and `kill -ABRT` it -- with faulthandler not enabled that
+   produced no traceback and destroyed the only live copy of the state.
+   `pip install pytest-timeout` and `--timeout=120 --timeout-method=thread`
+   would also name it, and is cheaper.
+3. The likely families, given this codebase: a QThread that is waited on
+   and never finishes (INVARIANTS 4 -- a closure connected to
+   QThread.finished is discarded, so the job never retires), or a modal
+   dialog opened in a test with no one to close it. `exec()` on any dialog
+   in a headless run blocks for ever.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+The full `pytest tests/qt` run reaches its summary line unattended.
+
+--------------------------------------------------------------------------------
+2026-08-08 - THE HANG IS FIXED. NOW IT SEGFAULTS, SLIGHTLY FURTHER ON.
+--------------------------------------------------------------------------------
+
+THE HANG: found with pytest's own faulthandler, no extra package needed --
+`-o faulthandler_timeout=180`, which is what I should have used instead of
+SIGABRT the first time.
+
+    test_stop_survives_a_thread_that_refuses_to_be_interrupted
+      -> app_screen.py:2680 _on_stop
+      -> shutdown.py:89 ask_how_to_quit
+
+`_on_stop` asks how to quit before stopping anything, the test predates
+that feature, and it opened a real QMessageBox with nobody to click it. The
+`no_modals` guard had a genuine hole: it patched `QDialog.exec`, and
+QMessageBox OVERRIDES exec, so an instance-level `box.exec()` went straight
+past it. Both `exec` and `exec_` are patched now, and the guard immediately
+caught a second test, which is the evidence the hole was real. Fixed in
+commit 59a2d1a1; test_cov_app_screen.py is 149/149.
+
+THE SEGFAULT, which is now what stops the suite finishing:
+
+    Fatal Python error: Segmentation fault, at 28%
+      File "spacr/qt/screens/app_screen.py", line 2987 in _sample_usage
+      File "spacr/qt/screens/app_screen.py", line 2930 in <lambda>
+      File "spacr/qt/job_runner.py", line 60 in _capture
+      File "spacr/qt/job_runner.py", line 143 in <lambda>
+      File "spacr/qt/bridge.py", line 1018 in run
+
+So it dies inside the RESOURCE USAGE SAMPLER, running on a job-runner
+thread. Two candidates, both worth checking before changing anything:
+
+  * `_sample_usage` touching a QWidget from a non-GUI thread. Qt widgets
+    are not thread-safe and this is the classic way to earn a segfault
+    rather than an exception.
+  * the GPU/NVML query. `pynvml` is already warning it is deprecated in
+    this environment, and it is a C extension -- a bad call there crashes
+    the process rather than raising.
+
+Read `_sample_usage` and ask which objects it touches and which thread owns
+them. INVARIANTS 4 is the neighbouring rule and the same family: the last
+crash of this kind here was an object with two owners, measured at 3
+crashes in 8 runs.
+
+HOW TO KNOW IT WORKED is unchanged: the full `pytest tests/qt` run reaches
+its summary line unattended. It now gets to 28%, up from wedging at 25%.
+
+--------------------------------------------------------------------------------
+2026-08-08, THIRD FIND - AND THE REASON THIS KEPT HAPPENING
+--------------------------------------------------------------------------------
+
+The suite wedged AGAIN, at 35%, past both previous points. Same cause,
+third location -- pytest's faulthandler named it after five minutes:
+
+    dnd_handlers.py:730  _open_regex_editor   ->  dlg.exec()
+    dnd_handlers.py:573  _render_mask_report
+    dnd_handlers.py:420  <lambda>
+
+A QDialog modal, in a drag-and-drop path, in a test file with no modal
+guard. Order-dependent: `tests/qt/test_dnd.py` alone passes in 2.58 s, so
+some earlier test leaves the state that makes the regex editor open.
+
+THE PATTERN, which is the actual finding. Three hangs, three locations,
+one cause:
+
+    25%   _on_stop       -> shutdown.ask_how_to_quit   QMessageBox
+    28%   (segfault, different -- the usage sampler)
+    35%   drag-and-drop  -> dnd_handlers:730           QDialog
+
+Each was fixed by adding a guard to ONE test file, and each fix cost a
+multi-hour run to discover the next. Per-file guards do not scale: the next
+`.exec()` anyone writes hangs the suite again, and finding it costs another
+afternoon.
+
+SO THE GUARD IS GLOBAL NOW. An autouse fixture in `tests/qt/conftest.py`
+makes `QDialog.exec`, `QMessageBox.exec` and their `exec_` spellings RAISE,
+with a message naming the fix. A test that genuinely drives a dialog
+patches it itself, and because monkeypatch in the test body runs after the
+fixture, that patch wins.
+
+Verified: 5 dialog-heavy suites, 0 failures -- test_cov_app_screen,
+test_issue_report_url, test_gates, test_hyperparam_screen,
+test_layout_drops. test_dnd.py passes in 2.58 s.
+
+STILL UNCONFIRMED, and it is the whole point of this instruction: a full
+`pytest tests/qt` run reaching its summary line. It has now been stopped
+three times by three different causes and has never finished. Run it early;
+it takes hours.
+
+--------------------------------------------------------------------------------
+2026-08-08 - THE A/B, AND DELETING MY OWN FIX
+--------------------------------------------------------------------------------
+
+Five stopping points had been found and four "fixed", and the suite still
+would not finish. Two of those crashes were in `_drain_job_runners`, the
+fixture I wrote to fix the first one. So rather than guard it a third time,
+I ran the experiment:
+
+    WITH the fixture     segfault at 28% (dead widgets)
+                         segfault at 33% (event loop pumped at teardown)
+                         segfault at 35%
+    WITHOUT it           66%, ZERO crashes, ZERO failures -- and it stopped
+                         only because my own 5.5-hour timeout expired
+
+So it is deleted, and the reasoning is left in `tests/qt/conftest.py` where
+the next person will look.
+
+THREE BUGS CAME OUT OF ONE FIXTURE: a 3000ms-per-runner shutdown budget
+that turned "crashes at 28%" into "still going at 35% after 80 minutes";
+a crash on widgets whose C++ side was already gone; and a crash on LIVE
+ones, because `shutdown()` pumps the event loop, which runs pending
+deleteLater calls on widgets pytest-qt was about to close itself.
+
+THE SHAPE WAS THE PROBLEM, not the details. A teardown fixture that reaches
+across every widget in the application, during Qt teardown, cannot be made
+safe by guarding -- each guard I added revealed the next crash. That is the
+lesson worth keeping.
+
+WHAT SURVIVES, and should: the GLOBAL MODAL GUARD. `QDialog.exec` and
+`QMessageBox.exec` raise in tests unless a test patches them itself. Three
+separate hangs were modals with nobody to answer them, and per-file guards
+had already failed to scale -- each new `.exec()` cost another multi-hour
+run to find.
+
+STILL UNCONFIRMED: a full run reaching its summary line. Best so far is
+66%. The suite is slow enough under load that this needs a quiet machine
+and a longer budget than 5.5 hours, or `-p xdist` if that can be made to
+work with the Qt fixtures.
+
+--------------------------------------------------------------------------------
+2026-08-09 - THE CRASHES ARE GONE. WHAT IS LEFT IS WALL CLOCK, AND IT IS
+             NOT THE SUITE'S FAULT.
+--------------------------------------------------------------------------------
+
+Two consecutive full runs, one with the drain fixture removed and one after
+that:
+
+    66%, 0 crashes, 0 failures, killed by a 5.5-hour timeout
+    66%, 0 crashes, 0 failures, killed by a 5.5-hour timeout
+
+Identical stopping point, and neither is a crash -- exit 124 is the timeout
+I set. So every crash and hang catalogued in this file is fixed. What
+remains is that the run does not FIT in 5.5 hours.
+
+AND THE MACHINE IS NOT IDLE. Measured while the second run was going:
+
+    load average 29 on 32 cores
+    5 x tools/render_all_voices.py --languages all --lessons, ~294% CPU
+      each, 53 minutes elapsed
+
+That is the concurrent Codex session generating tutorial voice-overs
+(instruction 48), taking roughly 15 cores. The qt suite has been sharing a
+saturated machine for every run recorded here, so "the suite is slow" is
+not a supported conclusion -- it has never been timed on an idle box.
+
+This also explains a measurement I nearly reported as a regression: a
+startup timing that looked 2x worse was taken at load 33 and was noise.
+
+WHAT TO DO, in order of cost:
+
+  1. Time it once on an IDLE machine. Until then the duration is unknown,
+     not long. Coordinate with whoever is running the tutorials.
+  2. `pip install pytest-xdist` -- NOT currently installed. `-n 8` would
+     cut wall clock roughly eightfold, and the qt fixtures are mostly
+     per-test so it has a fair chance of working. Try it before assuming
+     the suite needs to stay serial; if the session-scoped `qt_theme_applied`
+     fixture fights it, that is worth knowing too.
+  3. Only if both fail, split the suite into halves that can run
+     separately in CI.
+
+HOW TO KNOW IT WORKED is unchanged: one run reaches its summary line. It is
+now a scheduling problem rather than a debugging one.
+
+--------------------------------------------------------------------------------
+2026-08-09 - pytest-xdist INSTALLED, AND IT WORKS ON THE QT SUITE
+--------------------------------------------------------------------------------
+
+Step 2 of WHAT TO DO, done. `pip install pytest-xdist` (3.8.0, with
+execnet 2.1.2). Measured on a five-file qt subset, same machine, same load:
+
+    serial      44 s
+    -n 4        17 s        2.6x, 0 failures
+
+THE QUESTION THIS ANSWERS is not the speed -- it is whether the fixtures
+survive being distributed. This file worried that the session-scoped
+`qt_theme_applied` fixture would fight xdist. It does not: xdist gives each
+worker its OWN session, so a session-scoped fixture runs once per worker
+rather than once, which is exactly what a per-process QApplication needs.
+That is the property that makes a Qt suite parallelisable at all, and it is
+why `-n` works here when it often does not for suites sharing a database.
+
+Used `--dist load` (the default), so tests are handed out as workers free
+up. If an order-dependent failure appears under `-n` that does not appear
+serially, `--dist loadfile` keeps each FILE on one worker and is the first
+thing to try -- that distinction matters here because instructions 03 and 46
+are about order-dependent failures, and xdist changes the order.
+
+A FULL `tests/qt` RUN AT `-n 4` IS IN FLIGHT as this is written, with
+`--timeout=300` so a single hung test names itself instead of stopping the
+run at a wall clock. That run is the actual success criterion for this task
+-- "one run reaches its summary line" -- and its result belongs in the next
+entry here.
+
+Note the machine is NOT idle (load ~18 from the concurrent tutorials
+session), so `-n 4` rather than `-n 8`: the standing constraint is 16 cores
+for this session, and oversubscribing would make the timing meaningless in
+the same way the load-33 measurement was.
+
+--------------------------------------------------------------------------------
+2026-08-10 - IT REACHED ITS SUMMARY LINE. THE TASK'S OWN CRITERION IS MET.
+--------------------------------------------------------------------------------
+
+    started   07:03:54    -n 8, --timeout=300
+    finished  07:45:09    41 minutes, pytest_exit=1
+    result    74 failed, the rest passed, NO hang and NO crash
+
+CORRECTION TO THE MACHINE STATE, made an hour later and worth more than the
+timing. This was FIRST RECORDED as "on an idle machine". It was not. The box
+was idle when the run started and the concurrent tutorials render
+(`render_all_voices.py --threads 16`, instruction 48) restarted at 07:06:09
+-- two minutes in -- and held ~10.6 cores for the remaining 39 minutes.
+Checked with `ps -eo pid,pcpu,etimes,args`, whose ELAPSED column dates the
+start precisely.
+
+"HOW TO KNOW IT WORKED is unchanged: one run reaches its summary line." It
+did. The suite is no longer unrunnable as a whole, which is what this task
+was about; the 74 failures are a NEW and separate work item, not this one.
+
+WHAT ACTUALLY FIXED IT was not a bug fix -- the crashes were already gone
+(see the entries above) -- and it was not an idle machine either, per the
+correction above. It was `-n 8` ALONE. The suite finished in 41 minutes
+while sharing the box with the same ~10-core renderer that was running
+during every serial attempt that never passed 66% in 5.5 hours. That is a
+cleaner result than the one first recorded: parallelism did it, and the
+contention this file kept blaming was never the whole story.
+
+A CORE-BUDGET TRAP worth knowing: `-n 8` does NOT bound the run to 8 cores.
+Load reached 20.6 with a single worker at 649% CPU, because the tests do
+numeric work and torch/numpy spawn threads per process. If a core budget has
+to be respected, set the thread env vars as well:
+
+    OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 -n 8
+
+TWO FAILURES ARE ALREADY UNDERSTOOD, and they share a cause with the bug
+fixed today in `_INLINE_LAYOUT_APPS`: `classify_merged` was registered as a
+module without the table entries that a registered module needs.
+`test_category_tooltips` fails 12 times because that module's categories
+have no tooltips. Verified pre-existing: 12 failures with OR without today's
+change, and they fail serially too, so this is not an xdist artefact.
+
+THE FAILURE LIST is at `<scratchpad>/qt_failures.txt` and the full log at
+`qtidle_keep.log`. Distribution, worst first:
+
+    12  test_category_tooltips        8  test_settings_list_editor
+     8  test_dnd_dropzone             4  test_cov_qt_app
+     3  test_theme_blind_widgets      3  test_qt_worker_teardown
+     3  test_preview_set_sampling     3  test_home_v2
+     3  test_home_layout              2  each x5, 1 each x15
+
+TRIAGE IS UNDERWAY as three-way: real bug / stale test / ordering artefact.
+xdist changes test ORDER, so some of these are the order-dependent failures
+that instructions 03 and 46 are about -- which means the suite finishing has
+made those visible for the first time, exactly as this file predicted.
+
+--------------------------------------------------------------------------------
+2026-08-10 - THE 74 TRIAGED. 24 REAL, 43 STALE, 6 ORDERING.
+--------------------------------------------------------------------------------
+
+Per-test verdicts: `features/data/47_qt_failure_triage.json`. Each "real"
+call was then handed to a separate agent told to REFUTE it; three were
+downgraded that way and are not counted below.
+
+    real       24      a user would see something wrong
+    stale      43      the test pins behaviour that was deliberately changed
+    ordering    6      passes alone, fails after other tests
+
+THE HEADLINE: 12 OF THE 24 ARE ONE BUG. Commit c41a75b6 (2026-08-06) added
+`"Computer Vision — "` and `"Machine Learning — "` prefixes to
+`classify_merged`'s group titles at `settings_model.py:1270-1295` and did not
+add matching keys to `CATEGORY_TOOLTIPS`, which is keyed on the UNPREFIXED
+names. `category_tooltip` does no prefix stripping, so every lookup misses
+and returns the generic fallback.
+
+  What the user sees, demonstrated on the real widget rather than inferred:
+  hovering the group header in Classify (merged) gives
+
+      COMPUTER VISION — IMAGES & CROPPING — Settings that control computer
+      vision — images & cropping.
+
+  while the SAME group in Classify gives
+
+      IMAGES & CROPPING — Where the training images come from and how they
+      are cut — the crop source, the path and format filters ...
+
+  Six of the module's nine headings fall back this way, and both modules are
+  on the home grid at once, so the inconsistency is reachable without
+  changing any preference.
+
+  This is the THIRD defect from the same root: `classify_merged` was
+  registered as a module without the table entries a registered module
+  needs. The other two were `_INLINE_LAYOUT_APPS` (fixed 2026-08-09) and
+  `CATS_STAGE5` in the home version generator (still open, below). Whatever
+  registers a module should fail loudly when its accompanying tables are
+  missing -- three separate tests found three separate halves of the same
+  omission.
+
+THE OTHER 12 REAL BUGS, one line each:
+
+    preview_controls.ImageSetSampler   one seed for what should be per-set;
+                                       the seed is derived from the wrong
+                                       thing (2 tests, one defect)
+    widget QSS ratchet                 three widgets added since 2026-08-03
+                                       without registering their block
+    classes setting                    half-finished migration from commit
+                                       30500970
+    crops channel mapping              half-finished migration from 2cab81f7
+    home version generator             classify_merged missing from CATS_STAGE5
+    animation_zoom.zoom_frames         erases frames it should keep
+    GateTree                           mark_surface makes a region two panels
+                                       thick
+    i18n                               classify_merged registers display name
+                                       "Classify", colliding with classify
+    ai_toggle_label._refresh_style     zoom does not reach the text (2 tests)
+
+THE 6 ORDERING FAILURES are the order-dependent failures instructions 03 and
+46 are about. They were invisible until the suite could finish, which is
+what this task unlocked -- they are findings, not regressions, and they are
+one fix per shared-state collision rather than one per test.
+
+THE 43 STALE TESTS are the larger number and the cheaper work: each pins
+behaviour that was deliberately changed and was not updated with it. They
+are listed per-test in the JSON with what changed under each.
+
+--------------------------------------------------------------------------------
+2026-08-10 - 20 OF THE 24 REAL BUGS ARE FIXED.
+--------------------------------------------------------------------------------
+
+    classify_merged category tooltips   12 tests, one fix   DONE
+    ai_toggle_label zoom                 2 tests            DONE
+    ImageSetSampler cache key            3 tests            DONE
+    annotate channel-order vocabulary    1 test             DONE
+    i18n "Classify" row                  1 test             DONE
+    home stage bands                     1 test             DONE
+    animation_zoom chrome mask           1 test             DONE
+    GateTree surface fill                1 test             DONE
+    plain QCheckBox ratchet              1 test             DONE
+
+REMAINING REAL: the `classes` setting migration (a half-finished change from
+commit 30500970 that needs the PRODUCT DEFAULT migrated, not the test), plus
+two pre-existing failures found while fixing the others and deliberately not
+touched -- `test_max_sets_control_sits_left_of_the_sets_dropdown` (a widget
+ordering assertion) and `test_no_variant_clips_elides_or_overflows` (variant
+22 splits `alphabetical()` at hardcoded [0:10]/[10:20]/[20:], so its third
+column holds 34 rows at 54 apps).
+
+THE METHOD THAT MADE THIS SAFE, and it is the transferable part. Every fix
+went through three independent agents: one triaged, a second tried to REFUTE
+the "real bug" verdict, and a third proved the fix by running the tests
+itself and comparing against a PRISTINE-HEAD CONTROL -- several built a
+detached git worktree at HEAD to establish which neighbour failures already
+existed. Three "real" verdicts were downgraded at the refutation stage, and
+every remaining-failure claim was backed by a control run rather than
+asserted.
+
+That matters because the obvious shortcut -- edit the test -- was available
+for most of these and would have looked identical in a summary line. The
+`classes` migration is the one left precisely because its honest fix is to
+change a product default, and the tempting fix is to change the test.
+
+A REPORTING GAP FOUND IN PASSING: this repo's pytest configuration suppresses
+the terminal "N passed" summary for some suites, so a run can exit 0 with no
+visible count. Two agents had to parse junitxml to get real numbers. That is
+the same blindness that let the QCheckBox ratchet regress unnoticed -- worth
+fixing on its own.
+
+--------------------------------------------------------------------------------
+2026-08-10 - THE ORDERING LEAKS AND THE STALE PINS ARE DONE. 73 OF 74 CLOSED.
+--------------------------------------------------------------------------------
+
+    real      24  ->  1 left   (the `classes` migration, below)
+    stale     43  ->  0
+    ordering   6  ->  0
+
+    827 passed, 1 failed across the eleven affected suites
+
+THE ORDERING SIX WERE THREE LEAKS, each fixed at the source rather than in
+the victim:
+
+  test_field_fade's `prefs_sandbox` snapshotted `theme._WIDGET_QSS` at SETUP,
+  before `load_widget_qss_registrars()` had ever run in the process, when
+  only 19 blocks were registered -- and restored that 19-entry snapshot at
+  teardown. The loader has a `_QSS_REGISTRARS_LOADED` latch, so it never
+  refilled and three tests downstream saw a starved registry.
+
+  test_cov_qt_app's `launch()` reaches `apply_console_levels`, which installs
+  a mutable LevelSetFilter({WARNING, ERROR, CRITICAL}) on verbose_logger's
+  MODULE-GLOBAL forwarder; nothing removed it, so two teardown tests logging
+  at DEBUG saw nothing at all.
+
+  test_spacr_mode left `field_fade._enabled` False in a module cache, so the
+  FieldFade QSS block rendered to the empty string afterwards.
+
+That is the shape to expect from the rest: a fixture that saves and restores
+process-global state, taken at the wrong MOMENT or not restored at all. None
+of them was a bug in the test that failed.
+
+TWO PRODUCT BUGS FOUND WHILE UPDATING "STALE" TESTS, which is the argument
+for not simply rewriting a failing assertion:
+
+  `style_as_danger` inked the danger hover fill with a hard-coded #ffffff.
+  Measured against the real palettes: 2.20:1 on cell, 2.04:1 on glass -- both
+  below AA-large -- on the button that FORCE-QUITS A RUN. theme.py's
+  CONTRAST_RULES already carries ("bg", "error", 4.5) and the application
+  sheet inks `#DangerButton:pressed` with `P["bg"]` for exactly this reason.
+  `bg` measures 6.23:1 (light) to 9.55:1 (glass).
+
+  `HomePage._install_ambient`'s docstring claimed an ordering guarantee that
+  `__init__` no longer depends on -- the same class of stale docstring
+  instruction 63 is fixing.
+
+STILL OPEN, one real bug: `test_every_default_round_trips_untouched[classify]`.
+Commit 30500970 turned `classes` from a list of names into a dict of
+name -> {column, value} and routed it to ClassEditorWidget, but the PRODUCT
+DEFAULT was never migrated. The honest fix changes that default; the tempting
+fix changes the test, which is why it is still here.
+
+A SEPARATE CONFLICT FOUND AND NOT RESOLVED: `test_no_shipped_code_calls_
+qthread_terminate` fails on two `thread.terminate()` calls introduced by
+commit 5cb219f1 ("stop: ask whether to wait or to kill"). A deliberate KILL
+feature collides with a ratchet saying terminate() is never safe here. Both
+positions are defensible -- a kill button that cannot kill is not a kill
+button -- so this needs a decision rather than a patch: either the kill path
+gets a safer mechanism, or the ratchet gets a narrow, documented exemption
+naming those two sites. Verified pre-existing.
+
+--------------------------------------------------------------------------------
+2026-08-10 - THE SWEEP AUDITED ITSELF, AND THAT IS WHERE THE VALUE WAS
+--------------------------------------------------------------------------------
+
+The stale/ordering sweep took its eleven suites from 48 failures to 3, but
+the useful output was its SELF-AUDIT: every agent's work was checked by a
+second agent that ran mutation tests against the new assertions. It found
+several of its own edits had produced tests that could no longer fail.
+
+TWO DEAD ASSERTIONS, both now repaired and both mutation-proven in each
+direction:
+
+  `assert not bar.clipped_items()` (twice in test_cov_qt_app) could NEVER
+  fail. `clipped_items()` reads `_elided`, which is only ever set in
+  `resizeEvent`, so a widget that was never shown reports nothing clipped
+  however narrow it is. Proven by mutation: a sidebar column 52 px too narrow
+  for its own text passed all six sidebar tests. One of the two was
+  pre-existing -- the sweep had merely copied it into a second parametrised
+  test. Both now lay the widget out first, and a WIDTH_MAX of 150 makes them
+  fail as they should.
+
+  `test_the_classes_setting_gets_the_class_editor` asserted shape with
+  `all(isinstance(rule, dict) for rule in value.values())`, which is
+  VACUOUSLY TRUE over an empty dict -- an editor that dropped every class
+  passed. It now pins the two default class names.
+
+AND A REAL PRODUCT BUG, found by an agent following the "if the change looks
+accidental the test is right" rule rather than editing the assertion:
+
+  A settings CSV stores `repr(value)`, so `classes` comes back as the TEXT
+  `"['nc', 'pc']"`. `ClassEditorWidget.set_value` handled Mapping and list
+  and nothing else, so the string matched neither arm, fell through to an
+  empty table, and REPORTED SUCCESS: `apply_settings_dict` returned
+  `applied=1` while `collect()['classes']` was `{}`. Because `{}` is a
+  Mapping, `classify_classes.normalize_settings` then skipped its own
+  legacy-translation branch, so nothing downstream recovered them.
+
+  Every other list-shaped key survived that round trip. This was the one that
+  decides WHAT GETS TRAINED, and losing it was silent. Fixed, with the
+  corrupt-string case tolerated rather than raising out of an import.
+
+THE LESSON, which is why the audit stage is worth its cost: a sweep that
+updates failing assertions will, left unchecked, produce a green suite that
+tests less than the red one did. Three of the weakenings here were
+introduced by the very pass that fixed the failures, and none would have been
+visible in a summary line. Mutation testing -- change the product, confirm
+the test screams -- is the only check that catches it.
+
+TWO MORE FINDINGS RECORDED, NOT FIXED:
+
+  `verbose_logger.apply_console_levels()` mutates a process-global forwarder
+  and has NO counterpart that restores or removes the filter. Fine for a GUI
+  that launches once; it means the console gate is unrestorable by design,
+  and the test fixture now has to reach into `_handler.filters` to undo it.
+  A small restore/reset API would let the fixture stop touching privates.
+
+  A flake, not reproducible on demand: constructing `AppScreen` leaves a
+  QThread alive ("QThread: Destroyed while thread '' is still running"), and
+  one run in ~5 segfaulted with a background PipelineWorker importing
+  matplotlib concurrently with pytest-qt's GC on the main thread.
+
+--------------------------------------------------------------------------------
+2026-08-10 - THE 15 SURVIVORS TRIAGED. ONE WAS MINE; SEVEN ARE ORDERING.
+--------------------------------------------------------------------------------
+
+74 -> 15 after the fixes above, and the suite now runs in 13 MINUTES at
+`-n 12` (it was 41 at `-n 8`). Triaged with a pristine-worktree control for
+every claim:
+
+    caused by this session   1    fixed
+    pre-existing            14    7 of them order-dependent
+
+THE ONE THAT WAS MINE: deleting `plate_dict` (it was one of five settings
+nothing read) removed the SPECIMEN a localization test used.
+`test_dictionary_type_name_is_localized` had hard-coded it as a convenient
+dict-typed key; with the key gone, `_type_hint` correctly returns "" and the
+translated word never appears. The product is right -- three dict-typed
+settings remain and all three render `(ordbok)` / `(사전)` correctly. Fixed by
+DERIVING a dict-typed key from `expected_types` rather than naming another
+one, so the same rot cannot recur the next time a setting is retired.
+
+SEVEN MORE ORDER-DEPENDENT FAILURES, which is the same class instruction 03
+is about and which only became visible once the suite could finish:
+
+    test_preferences_gear (5)          fail after tests/qt/test_button_roles.py
+    test_preferences_gear_visible (2)  fail after tests/qt/test_preferences.py
+
+Both pass alone. Both were reproduced at HEAD~12, HEAD~35 AND HEAD~40, so
+they predate this session by weeks -- `git log -L` dates the button_roles
+lines to commit 3e11c796 on 2026-08-03.
+
+A TRAP THAT NEARLY INVALIDATED THE CONTROLS, and the reason to write this
+entry at all. spaCR is installed EDITABLE, via a setuptools MetaPathFinder
+pinned to /mnt/firecuda2/codex/repo/spacr. That finder BEATS PYTHONPATH. So
+the obvious control --
+
+    git worktree add /tmp/pristine HEAD~35
+    cd /tmp/pristine && pytest tests/qt/...
+
+-- runs the pristine TESTS against the CURRENT product code, silently, and
+reports "pre-existing" for something you may have just broken. The triage
+agent caught this and worked around it with a shim that strips
+`_EditableFinder` from `sys.meta_path` and puts the worktree at
+`sys.path[0]`, then ASSERTS the resolved path before running anything:
+
+    CONTROL spacr resolved to: /tmp/pristine_gear/spacr/__init__.py
+
+Any future "it is pre-existing" claim made from a worktree in this repo is
+worthless without that check. Corroborate with a `diff` of the implicated
+files between the worktree and HEAD, which is what confirmed it here.
+
+REMAINING 15, none attributable to this session's work: the 7 ordering ones
+above, the `classes` migration (now folded into instruction 37), and the rest
+listed in `features/data/47_qt_failure_triage.json`.
+
+--------------------------------------------------------------------------------
+2026-08-12 - THE FIRST RUN AGAINST A REAL X SERVER, AND A FOURTH MODAL HANG
+--------------------------------------------------------------------------------
+
+xvfb is installed now, so this suite can be run against a real display for
+the first time. THE OBVIOUS COMMAND DOES NOT DO IT:
+
+    xvfb-run -a pytest tests/qt            # still offscreen
+
+`tests/qt/conftest.py` does `os.environ.setdefault("QT_QPA_PLATFORM",
+"offscreen")`, so an Xvfb display is started and then ignored. The platform
+has to be asked for:
+
+    QT_QPA_PLATFORM=xcb xvfb-run -a pytest tests/qt -q -p no:randomly \
+        -n 4 --timeout=120 --timeout-method=thread
+
+Both full runs, same machine (load ~17-24 from three concurrent sessions):
+
+    BEFORE   68 failed, 8028 passed, 2 errors, 52m19s, TWELVE workers killed
+    AFTER    51 failed, 8136 passed, 1 error, 48m09s, FOUR workers killed
+
+THE HANGING FILE IS tests/qt/test_make_masks_canvas.py -- six tests, and the
+cause is one line of product code doing exactly what it should:
+
+    make_masks.py:750   _warn()  ->  QMessageBox.warning(self, title, text)
+
+`_warn` opens a modal only when `is_headless()` says a display is attached.
+Under `xcb` a display IS attached, so the branch is correct and the box
+opens -- and an Xvfb screen has no more of a human in front of it than an
+offscreen one, so it never closes. Killed with `--timeout=120
+--timeout-method=thread`, which named it in one 2-minute run:
+
+    test_warn_falls_back_to_status_line_when_headless
+      -> make_masks.py:750 _warn -> QMessageBox.warning
+
+THE GUARD HAD A HOLE, one level down from the 2026-08-08 one. That entry
+found that QMessageBox OVERRIDES `QDialog.exec`, and patched both. But the
+STATIC convenience calls -- `QMessageBox.warning/question/information/
+critical/about`, `QFileDialog.getExistingDirectory/getOpenFileName/...`,
+`QInputDialog.getText/getInt/...`, `QColorDialog.getColor`,
+`QFontDialog.getFont` -- build the dialog and run its event loop entirely
+inside C++. A Python-level `exec` override is never consulted, so every one
+of them sails past the guard exactly as `box.exec()` used to.
+
+`_no_unguarded_modals` now replaces those statics as well. With the guard
+extended and NOTHING else changed, the same file went from six hangs that
+killed their worker to seven fast failures in 9.07 s -- which is the whole
+argument for the fixture, and how all six offenders were enumerated in one
+run instead of one per multi-hour run.
+
+SEVENTEEN test files carry a private copy of that same list as a per-file
+`no_modals` fixture. `test_make_masks_canvas` -- the file that actually hung
+-- is not one of them. The files that remember to write the guard are not
+the files that need it.
+
+THE TESTS WERE FIXED WHERE THEY WERE WRONG, not by loosening them. Two tests
+named `..._when_headless` and four more that assert the status-line fallback
+-- the six that hung -- were getting the headless branch by accident of the
+platform. They now take a `headless` fixture -- the mirror of the `fake_box` fixture that
+was already there for the other branch -- so a test about a branch chooses
+that branch. `test_message_box_would_block_headless` asserted
+`platformName() == "offscreen"`, an environment fact that stopped being true;
+it is rewritten as
+`test_a_message_box_has_nobody_to_answer_it_in_this_suite` and now pins the
+two properties that survive a platform change: the product branches on the
+display it can detect, and no test in this suite is left holding an
+unanswerable modal.
+
+NEW: `tests/qt/test_modal_guard.py` asserts the guard's COVERAGE, one
+parametrised case per blocking call. A missing entry is otherwise invisible
+until it costs somebody a whole run. Each case checks a marker attribute
+before making any call, so a regression fails in milliseconds instead of
+reproducing the hang. Mutation-checked in both directions: with the static
+patching disabled, 18 of its 20 tests fail in 2.86 s.
+
+THE OTHER FOUR WORKER KILLS ARE NOT HANGS -- they are tests slower than the
+120 s timeout, and the reason is worth its own item:
+
+    spacr.run_journal.open_run() TAKES 80 SECONDS.
+
+Measured directly, twice, outside pytest: 78.67 s and 82.26 s per call.
+cProfile puts 178 of 178 s in `_capture_initial_provenance` ->
+`_iter_files`, which walks 836,511 paths and calls `Path.resolve()` on each
+one, then checks it against the exclude list with `any(root in
+resolved.parents ...)` -- an O(files x excludes) walk with a syscall-heavy
+`realpath` inside it (6.2 M `posix.lstat` calls). Three tests pay it three
+times over:
+
+    test_batch_c_home_redesign  TestInsightsDashboard::...populated_journal
+                                223.65 s IN SETUP (_populated_journal opens 3)
+    test_batch_c_home_redesign  TestJournalTotals::test_counts_by_app_key
+                                 79.09 s
+    test_onboarding             ...shows_recent_runs_when_history_present
+                                 78.00 s
+
+That is a PRODUCT cost, not a test cost: every real spaCR run pays 80 s of
+provenance capture before it starts, and it grows with the repository --
+which now carries the tutorial media of instruction 48. Left unfixed here
+because `spacr/run_journal.py` is another session's file today.
+
+STILL UNEXPLAINED, two worker kills that are not slow tests and not modals:
+`test_scrim_solver::TestMakeTransparent::test_tagged_widgets_paint_nothing_
+in_the_opaque_themes` (its whole file runs in 8.35 s alone) and
+`test_space_theme::TestRuntimeSwitch::test_switching_theme_restyles_without_
+leaking_or_raising`. Both smell like the segfault flake already recorded
+above ("constructing AppScreen leaves a QThread alive"), not like a hang.
+
+--------------------------------------------------------------------------------
+2026-08-13 - THE THREE NAMED ITEMS RE-MEASURED. TWO ARE GONE, ONE MOVED.
+--------------------------------------------------------------------------------
+
+THE TWO "UNEXPLAINED WORKER KILLS" ARE NOT HANGS. Both run and PASS, alone
+and together, under xvfb:
+
+    test_scrim_solver::TestMakeTransparent::test_tagged_widgets_paint_
+      nothing_in_the_opaque_themes                            7.08 s  PASS
+    test_space_theme::TestRuntimeSwitch::...restyles_without_
+      leaking_or_raising                                      PASS
+
+The file's own guess was right -- they smell like the segfault flake, not a
+hang -- so they are flakes and not a standing defect. 155 tests across
+test_onboarding, test_scrim_solver and test_space_theme pass in 94 s.
+
+`TestJournalTotals::test_counts_by_app_key` IS NO LONGER SLOW: 0.28 s,
+against the 79.09 s recorded here. Nothing in this session touched it, so it
+was either a cold-cache artefact of a full-suite run or was fixed elsewhere.
+
+THE PROVENANCE ATTRIBUTION IS WRONG, and this is the part worth correcting
+because it is stated as a PRODUCT cost -- "every real spaCR run pays 80 s of
+provenance capture before it starts, and it grows with the repository".
+Measured directly:
+
+    _installed_packages()   0.60 s (404 distributions), and it is lru_cached
+    _git_hash()             0.02 s
+    git rev-parse           0.00 s
+    git status --porcelain  0.01 s   (on the 5.7 GB checkout)
+
+Both subprocess calls also carry `timeout=3`, so neither CAN take 80 s. No
+spaCR run pays 80 s of provenance capture. Whatever the 80 s was, it was not
+this, and the conclusion "left unfixed because run_journal.py is another
+session's file" was protecting a file that is not the problem.
+
+WHAT IS ACTUALLY SLOW, and it is one test, not the journal:
+
+    test_onboarding::test_home_page_shows_recent_runs_when_history_present
+                                                             61.74 s
+
+It writes ONE journal entry and then constructs a full `MainWindow()`.
+cProfile puts 364 million function calls behind those 61 s. Instruction 55
+measured MainWindow build at 731 ms after its fixes, so this is three orders
+of magnitude off that and is a DIFFERENT path -- most likely the
+`_PipelinePreloader` 55 handed to instruction 74, running to completion
+inside a test rather than behind the loading screen.
+
+NEXT STEP, for whoever takes it: profile with the preloader stubbed and
+compare. If that is the cause, the fix is a test-time seam rather than a
+product change, because 74 already covers the real launch.
+
+--------------------------------------------------------------------------------
+2026-08-13 (later) - THE 45 s TEST IS FIXED, AND IT WAS NOT MainWindow. IT WAS
+                     A PRODUCT BUG, AND MY OWN CORRECTION ABOVE WAS WRONG
+--------------------------------------------------------------------------------
+
+The note above pointed the next implementer at `_PipelinePreloader` and said
+the fix would be "a test-time seam rather than a product change". BOTH HALVES
+WERE WRONG. Measured, step by step, inside the test body:
+
+    open_run                 44.13 s     <-- all of it
+    import MainWindow         0.00 s
+    MainWindow()              0.72 s
+    findChildren(300)         0.00 s
+
+MainWindow is 0.72 s, in line with instruction 55's 731 ms. The preloader is
+innocent. cProfile put 91 s of cumulative time in
+`Run._capture_initial_provenance` -> `_iter_files`: 474,759 files walked,
+661,531 `Path.resolve()` calls, 6 M lstats.
+
+AND MY EARLIER CORRECTION IN THIS FILE IS ALSO WRONG, which matters more than
+being right the second time. It said:
+
+    "No spaCR run pays 80 s of provenance capture. Whatever the 80 s was, it
+     was not this, and the conclusion 'left unfixed because run_journal.py is
+     another session's file' was protecting a file that is not the problem."
+
+I had measured the ENVIRONMENT SNAPSHOT -- `_installed_packages`, `_git_hash`
+-- and not the INVENTORY WALK, which is the expensive half and is in the same
+function. The original note was right that this is a product cost. It is not
+80 s of package listing; it is an unbounded directory walk.
+
+THE BUG, one line:
+
+    root = path if path.is_dir() else path.parent
+
+A path-valued setting naming a FILE dragged in the whole directory that file
+sits in. `model_path` pointing at one checkpoint among 20,000 stat'ed 20,001
+paths -- of which 20,000 CANNOT CHANGE, because `model_path` is an input and
+the run writes nothing beside it. The test's `src` was `/tmp/x`, which exists
+on this machine as a file, so the root became `/tmp`: 475,250 paths, 44 s
+cold.
+
+AND EVERY RUN PAYS IT. The baseline is deliberately taken whether or not
+hashing was asked for -- it is what tells the final pass which files the run
+created -- so this was not confined to opted-in provenance.
+
+A path that does NOT exist costs nothing: `_setting_path_candidates` drops
+those. So the exposure is exactly "a setting naming an existing file", which
+is `model_path`, `csv`, `db`, `weights` -- ordinary inputs.
+
+THE FIX, `Run._inventory_root`: the baseline exists to answer ONE question --
+which files did this run CREATE -- so it only has to cover somewhere the run
+might write. A directory is walked as before. An OUTPUT file's directory is
+walked, because a run may write siblings beside it (a report beside its
+figures, a tar beside its manifest). An INPUT file is inventoried as itself,
+and nothing else.
+
+The two passes were narrowed TOGETHER, and that is the part that had to be
+right: a final pass walking wider than the baseline would report every
+sibling as a file this run created. Tested from both ends -- neighbours are
+not reported, and a genuinely modified input still is.
+
+A BUDGET AS A BACKSTOP for the case the narrowing cannot rule out, a real
+source folder holding a million crops: `INVENTORY_BUDGET`, recorded in
+`provenance_warnings` when hit, because a truncated inventory that says
+nothing is a manifest claiming completeness it does not have.
+
+MEASURED AFTER:
+
+    input model file among 20,000    20,001 -> 1 baseline entry
+    the folder itself as src         20,001 -> 20,001   (unchanged; correct)
+    an output file                   20,001 -> 20,001   (unchanged; correct)
+    the failing test                 44 s   -> 0.03 s
+
+test_onboarding: 11 tests, 12.1 s total, where one test used to take 45.
+
+15 tests in tests/test_run_journal_inventory_scope.py; 174 pass across
+run_journal, report and report coverage.
+
+--------------------------------------------------------------------------------
+2026-08-13 (last) - IT DOES NOT HANG. IT DECELERATES, BY ABOUT SIX TIMES.
+--------------------------------------------------------------------------------
+
+Two full runs today, both under a per-test `--timeout=900` that NEVER FIRED,
+so no single test hung. Both were killed by MY wrapper timeout, not by the
+suite stopping:
+
+    run A   `timeout 7200`  (2 h)   killed at 66%,  EXIT=124
+    run B   `timeout 18000` (5 h)   killed at 83%,  EXIT=124
+
+In both, output was still being written a minute before the kill. This file's
+title is wrong: THE SUITE DOES NOT HANG AT 25%.
+
+WHAT IT DOES IS SLOW DOWN AS IT GOES, and the numbers are the finding:
+
+    0  -> 66%     2.0 h      33.0 % / hour
+    66 -> 83%     3.0 h       5.7 % / hour     <- 5.8x slower
+
+That is not a slow test somewhere near the end; it is a rate that falls
+across the run. Something ACCUMULATES between tests -- leaked QWidgets, live
+QThreads, matplotlib figures never closed, or simply an ever-larger Qt object
+tree -- and every later test pays for everything before it.
+
+WHY THIS EXPLAINS THE OLD REPORT. Earlier runs "reached 66% and stopped,
+both stopped by a 5.5h timeout". At a decaying rate, where a run appears to
+stall depends on how long you waited, not on which test it reached -- which
+is exactly why two different timeouts produced two plausible-looking
+plateaus, and why "hangs at 25%" and "reaches 66%" are both in this file.
+
+THE NEXT STEP IS NO LONGER "FIND THE HANGING TEST". There isn't one. It is:
+
+  1. Measure the accumulation. Run with `-p no:randomly` and log RSS and
+     `len(QApplication.allWidgets())` per test; the leak is whatever climbs
+     monotonically.
+  2. Suspect the fixtures that build a whole `MainWindow` or `AppScreen`. The
+     handoff already records "constructing AppScreen leaves a QThread alive",
+     and a thread per test is exactly this shape.
+  3. `pytest-xdist` with `--dist loadfile` would ALSO make the suite finish,
+     by restarting workers -- but it would hide the leak rather than fix it,
+     and the leak is a product defect if those widgets outlive their screens
+     in the app too. Measure first.
+
+ABOUT 15 FAILURES appeared along the way in run A, at 33%, 38% (ten together)
+and 42%, 51% and 54%. They are unidentified: `-rf` was passed to run B and it
+was killed before the summary printed. Getting that list needs a run that
+finishes, which is why the deceleration is the first thing to fix.
+
+--------------------------------------------------------------------------------
+2026-08-14 - COMPLETE: THE ACCUMULATION IS GONE AND THE FULL SUITE FINISHES
+--------------------------------------------------------------------------------
+
+Measured at the same safe boundary between tests, the screen-heavy cohort
+showed the actual accumulator:
+
+    before   157 tests   246 s   63,934 peak retained widgets
+             20,909 widgets still present at the end, ~2.2 GB RSS
+    after    206 tests    73 s    2,169 peak widgets
+             7 widgets between screens
+
+pytest-qt schedules widget destruction with `deleteLater`, but the suite's
+`deferred_deletions_flushed` fixture was opt-in. The deferred deletes were
+therefore never delivered during ordinary tests, leaving thousands of dead
+widgets in QApplication's tree. Every later palette/style event traversed the
+whole retained tree, which produced the sixfold rate collapse.
+
+The fixture is now autouse at the next-test setup boundary. This deliberately
+does not resurrect the unsafe teardown drain documented above: it invokes no
+screen shutdown methods, touches no threads, and deletes nothing unsolicited;
+it only delivers the `DeferredDelete` events pytest-qt itself posted after the
+previous test.
+
+The completed run also exposed and fixed the accumulated-state failures hidden
+behind the slowdown: stale C++ wrappers in parametrized tests, style leakage,
+an over-broad semantic-button filter that erased authored icons, a leaked
+process-wide verbose-logging profiler, context-menu coordinate propagation,
+dialog cache identity, feature-ranking label/null edge cases, and several
+tests whose old assumptions no longer matched current product behavior.
+
+Final acceptance command (item 83's concurrently owned catalog file excluded):
+
+    OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 \
+    QT_QPA_PLATFORM=offscreen pytest tests/qt -q -p no:randomly -n 8 \
+      --dist loadfile --timeout=300 --timeout-method=thread --tb=short \
+      -rfEX --ignore=tests/qt/test_external_i18n_catalogs.py
+
+Result:
+
+    8,388 passed, 39 skipped, 73 warnings in 280.46 s (4m40s)
+
+The suite reaches its summary unattended, throughput stays steady, and no
+strict xfails remain from the six feature-dictionary/ranking defects repaired
+while triaging the formerly hidden failures.
+
+--------------------------------------------------------------------------------
+THE TWO REMAINING ITEMS DO NOT REPRODUCE, AND THE ONE FAILURE MODE NOTHING
+COVERED IS NOW BOUNDED
+--------------------------------------------------------------------------------
+
+`tests/qt/test_ambient_none.py` was carried here as a hanging test under the
+CI serial tail, with its neighbours costing about 50 s each. Run exactly as CI
+runs that tail -- its five files with that one appended, the Qt marker
+expression, `--timeout=300 --timeout-method=thread`:
+
+    3 failed, 150 passed, 3 deselected in 165 s
+
+No timeout fired, and the file's own two slowest tests are 5.05 s and 4.36 s.
+Alone it is 10 tests in 8.6 s. The three failures are import-budget
+assertions in `test_perf_guard` and `test_gui_responsiveness` and have
+nothing to do with a hang. The 50 s figure is not reproducible on this tree
+either: the slowest test in the whole tail is 3.04 s.
+
+THE FAILURE MODE THAT IS REAL, and that every guard in this file misses: the
+run finishing its tests and then never reporting them. `--timeout` is a
+PER-TEST guard, so once the last test is done it is gone. Anything that stops
+the interpreter exiting then stops the run between the final test and the
+summary line, with no test to blame and no output to read -- and under `-n`
+the workers have already written their results and sit on a core apiece while
+the controller waits.
+
+Python joins every NON-DAEMON thread before it finalises, which is what turns
+one forgotten thread into an unbounded wait. So `tests/conftest.py` now, at
+`pytest_sessionfinish`:
+
+  * NAMES every non-daemon thread still alive, with its target, while the run
+    can still print. Daemon threads are left out deliberately -- they cannot
+    delay finalisation, and this suite ends with a handful every run, so
+    listing them would bury the one that matters.
+
+  * ARMS A WATCHDOG. If shutdown has not finished inside the budget (300 s by
+    default, `SPACR_PYTEST_SHUTDOWN_WATCHDOG_S=0` turns it off), every
+    thread's stack is dumped and the process exits non-zero. An endless
+    shutdown becomes a diagnosis.
+
+Armed at `pytest_sessionfinish` because that is the last hook guaranteed to
+run: `pytest_unconfigure` is on the far side of the stall it exists to catch.
+
+Demonstrated rather than asserted, in `tests/test_shutdown_watchdog.py`: a
+generated one-test run that leaks a parked non-daemon thread. Without the
+hook that run prints nothing at all and never returns -- killed at 25 s with
+no summary, which is exactly the reported shape. With it, the leaked thread
+is named in the run's own output and the process dies with every stack
+printed.
+
+WHAT IS NOT ANSWERED, and it needs a distributed run to answer: WHICH object
+holds a worker open. No `-n` run was available here, and the wedge does not
+appear serially -- a 40-file Qt chunk under `--cov`, the thread-heavy files
+(`test_ai_shutdown`, `test_qt_worker_teardown`, `test_force_quit`,
+`test_bridge`, `test_console_thread_safety`, `test_worker_stack_size`,
+`test_threading_cancellation_audit`, `test_cov_4_shutdown`) and the serial
+tail all exit cleanly, leaving nothing but daemon `Dummy-*` threads, which are
+QThreads that have run Python and cannot delay finalisation. spaCR itself
+starts no non-daemon thread: the three `threading.Thread` call sites in the
+package all pass `daemon=True`.
+
+So the next distributed run answers it for free -- the wedged worker now
+prints its stacks and its lingering threads instead of spinning silently, and
+that output is the name of the culprit.
+
+--------------------------------------------------------------------------------
+THE WEDGE WAS OUTSIDE THE WATCHDOG'S BUDGET, AND THAT IS WHY IT PRINTED
+NOTHING
+--------------------------------------------------------------------------------
+
+THE TWO ITEMS THIS FILE WAS CARRYING, re-measured on this tree:
+
+    tests/qt/test_ambient_none.py alone      10 tests, 8.1 s, summary reached
+    the interleaved reproduction from 25     149 passed, 0 errors, 59 s
+
+Neither hangs, and the "~50 s per test" figure for the neighbours does not
+reproduce: the whole ten-test file costs less than nine seconds.
+
+THE LIVE ONE. A distributed run wedges after every worker has WRITTEN ITS
+COVERAGE DATA and before anything prints a summary, spinning at 100% CPU with
+no test to blame. The watchdog installed here for exactly that shape did not
+fire, and the reason is hook order rather than anything about Qt:
+
+    pytest-cov stops and SAVES coverage from the tail of its own
+    `pytest_runtestloop` WRAPPER -- before a single `pytest_sessionfinish`
+    implementation runs anywhere. Its source says why: "we need to wrap
+    pytest_runtestloop. by the time pytest_sessionfinish runs, it's too late
+    to set testsfailed".
+
+    xdist's worker reports itself finished from the tail of its
+    `pytest_sessionfinish` wrapper.
+
+    this file's watchdog was armed from a `pytest_sessionfinish`
+    implementation marked `trylast` -- after every other implementation of
+    that hook.
+
+So the interval between "coverage on disk" and "summary printed", which is
+where the evidence puts the wedge, was the one interval nothing was armed for.
+A stall there produces no stack dump, no exit code and no name, which is
+exactly what was reported.
+
+FIXED by starting the budget when the last test ends. tests/conftest.py now
+arms the watchdog from the post-yield of an INNERMOST `pytest_runtestloop`
+wrapper, so it covers the rest of that hook's wrappers (the coverage write
+included), every `pytest_sessionfinish`, `pytest_unconfigure`, `atexit` and
+interpreter finalisation. `pytest_sessionfinish` re-arms, so a shutdown that
+is honestly slow is measured from the point the reporting plugins have
+finished rather than from the last test.
+
+That reporting phase gets its own, longer budget --
+`SPACR_PYTEST_REPORT_WATCHDOG_S`, four times the shutdown one, and off when
+the shutdown watchdog is off. It holds the one operation here that is
+legitimately slow, combining and reporting a distributed run's coverage, and
+bounding that at the shutdown budget would have shot the runs this guard
+exists to protect. A distributed WORKER gets the SHORT budget instead: a
+collocated worker saves its coverage data and stops, the combining and
+reporting are the controller's job, and a worker that then goes quiet is the
+process most worth shooting quickly -- the whole run is waiting on it and
+until it says something there is nothing to read.
+
+Driven both ways in tests/test_teardown_watchdog_arming.py: a plugin that
+stalls in `pytest_sessionfinish` and one that stalls in the tail of a
+`pytest_runtestloop` wrapper are each dumped and killed with the stalling hook
+named in the stack, and switching the loop-end arming off restores the endless
+wait, so the hazard and the guard are both demonstrated rather than asserted.
+
+AND THE REPORT NOW NAMES WHAT PYTHON CANNOT SEE. "0 non-daemon threads" was
+the whole of the old report, and it is true and useless: a QThread that has
+run Python is a DAEMON `Dummy-N` and is filtered out with the harmless ones,
+and a QApplication is not a thread at all. The report also names, when there
+is something to name, a still-registered job in `bridge.registry()`, parked
+QThreads, busy JobRunners, live child processes, and a retained widget tree
+above five thousand -- with the threshold there because every Qt run ends with
+a live QApplication and a report that always prints is a report nobody reads.
+
+IT FOUND ONE ON ITS FIRST USE. `tests/qt/test_worker_stack_size.py` stubs
+`QThread.start` to test that the stack size is set BEFORE the thread runs,
+which means `finished` never fires and `make_thread`'s RunHandle is never
+retired: the job stayed in the process-wide registry for the rest of the run,
+so `registry().is_busy()` answered True for every later test and the activity
+spinner turned for a job nobody started. tests/qt/conftest.py now clears
+handles with NO LIVE THREAD at each test's setup -- never a running one, and
+never during Qt teardown, for the reason the 2026-08-08 drain fixture is
+documented above as having crashed the suite three ways. Pinned by
+tests/qt/test_bridge_registry_isolation.py, which leaks a handle in one test
+and finds it gone in the next, and separately proves a live job is left alone.
+
+THE ACCUMULATION THIS FILE BLAMED FOR THE SLOWDOWN IS NOT COSTING TIME.
+Measured over the first 24 files, 758 tests, same machine, back to back:
+
+    no collection between tests    274.55 s   peak 12,658 retained widgets
+    collect over 2,000 widgets     274.19 s   peak  5,133 retained widgets
+
+21 collections, 9.4 s of GC, and the wall clock is identical. The retained
+tree does churn -- it climbs into five figures and falls back to double digits
+on its own as allocation pressure triggers Python's own collector -- but it is
+not what the run is spending its time on, so no collection fixture was added.
+A change with no measured effect is a change that only makes the next
+measurement harder.
+
+WHAT STOPS A FULL SERIAL RUN TODAY IS A SEGFAULT, NOT A HANG.
+
+    tests/qt/test_cellpose_workbench.py::test_each_half_keeps_its_own_path_field
+
+dies with SIGSEGV, deterministically, ALONE, at about 15% of `pytest tests/qt`.
+Minimal reproduction, no pytest involved: give `spacr.settings.
+get_train_cellpose_default_settings` a `src` key -- which is what that file's
+`train_src_offered` fixture does, and which the training half's entry point
+genuinely reads -- and then just CONSTRUCT `CellposeWorkbenchScreen`. The
+process segfaults with no Python frame on the stack. Without the extra `src`
+key, constructing and deleting the same screen is clean.
+
+IT IS NOT ONE TEST. Four tests in that file use that fixture; deselecting all
+four moves the crash to a fifth,
+`test_the_factory_wires_the_host_the_way_a_module_page_is_wired`, which does
+not use it at all and builds the same screen through `build_screen(host=...)`.
+The common factor is `CellposeWorkbenchScreen`, so the whole file has to be
+ignored for a full serial run to get past 15%.
+
+WHERE IT DIES, under gdb, which makes it one bug rather than five:
+
+    PySide::destroyQCoreApplication()
+      Shiboken::BindingManager::visitAllPyObjects(...)
+        QWidget::~QWidget / QObjectPrivate::deleteChildren()   x5, through
+        QStackedWidget::~QStackedWidget()                      the tab stack
+          Shiboken::Object::destroy(SbkObject*, void*)
+            Shiboken::BindingManager::releaseWrapper(SbkObject*)   <-- SIGSEGV
+
+A Python wrapper is released a second time while the application destroys the
+widget tree: an ownership bug, not an arithmetic one. The two `AppScreen`s are
+built with no parent, `QTabWidget.addTab` then transfers ownership to the tab
+stack, and `self._screens` keeps holding them -- which is the shape that
+produces exactly this, and `QStackedWidget` sitting in the middle of the trace
+is the tab widget's own stack. This is a product crash in
+`spacr/qt/screens/train_cellpose.py` reachable by a user closing that screen,
+not a test artefact, and it is left for whoever owns that file.
+
+IT IS ALSO THE ONE CANDIDATE ON THE WEDGE LIST THAT IS REAL HERE. "A
+QApplication never destroyed" was on the list of things to rule out; what this
+tree actually has is a QApplication whose destruction walks into a released
+wrapper. That path -- `destroyQCoreApplication` -> `visitAllPyObjects` -> the
+whole tree -- runs at the end of EVERY Qt process, worker included, and it is
+the only place found so far where the amount of work at exit depends on the
+state the tests left behind.
+
+WHICH OBJECT HOLDS A WORKER OPEN IS STILL NOT NAMED, and the honest answer is
+that it is not visible serially. Every serial run measured here -- the
+thread-heavy Qt files, the ambient files, the mixed-ordering set -- reaches
+its summary and the interpreter is gone within half a second of it. What the
+candidates cost was measured rather than assumed, and three of them are ruled
+out as the shape being chased:
+
+    a live QThread at exit          ABORTS in 1.7 s (signal 6). Qt's
+                                    "Destroyed while thread is still running"
+                                    is fatal, whether the thread is spinning
+                                    or blocked in C++. Loud, not silent.
+    a retained widget tree          60,000 widgets built and torn down in
+                                    ~5 s. Proportional, not unbounded.
+    a parked non-daemon thread      0% CPU, and already named and bounded.
+
+None of those produces a process burning a core with nothing to read, which
+is what was reported. What does fit is work inside the teardown window itself,
+and that window is now inside the budget and dumps its stacks. So the next
+distributed run answers the question for free: the wedged process prints every
+thread's stack and names whatever Qt state it is still holding, instead of
+spinning unwatched.
+
+--------------------------------------------------------------------------------
+RE-AUDIT -- THE SEGFAULT NAMED IN THE STATUS HEADER NO LONGER REPRODUCES
+--------------------------------------------------------------------------------
+
+The header says a full SERIAL run is stopped at about 15% by SIGSEGV in
+`tests/qt/test_cellpose_workbench.py`, "five tests, reproducible alone and
+outside pytest", and that the file has to be ignored for a whole-suite run.
+
+Re-run alone, offscreen, single process:
+
+    pytest tests/qt/test_cellpose_workbench.py -q -p no:randomly
+    21 passed, exit 0
+
+and the minimal no-pytest reproduction -- give
+`get_train_cellpose_default_settings` a `src` key, construct and delete
+`CellposeWorkbenchScreen` -- also exits 0. The ownership shape the entry
+blames (`addTab` transferring ownership while `self._screens` still holds
+the screens) is unchanged in train_cellpose.py, so the crash was
+environment- or state-dependent rather than the deterministic one recorded.
+
+WHAT IS STILL NOT CHECKED: the criterion itself. A full `pytest tests/qt`
+was not re-run for this audit -- the machine was carrying a coverage run,
+and a whole-suite run is hours. The last recorded full run that reached its
+summary line is the `-n 8` one above. Treat "the blocker is gone" and "the
+run finishes" as two separate claims; only the first was measured here.
+
+--------------------------------------------------------------------------------
+2026-08-26 - RE-AUDIT: THE NAMED SEGFAULT FILE NO LONGER SEGFAULTS
+--------------------------------------------------------------------------------
+
+The header above says a serial `pytest tests/qt` is stopped at about 15% by
+segfaults in tests/qt/test_cellpose_workbench.py, "reproducible alone". Run
+alone today:
+
+    QT_QPA_PLATFORM=offscreen pytest tests/qt/test_cellpose_workbench.py
+      -q -p no:randomly --timeout=250     ->  21 passed in 7.29s
+
+No crash, no faulthandler dump. So the standalone half of that claim is
+stale; whatever fixed it is not recorded here.
+
+WHAT IS STILL NOT CHECKED, and it is this file's actual criterion: a full
+serial `pytest tests/qt` reaching its summary line. It was not run -- 512
+files, and CI needs 67 minutes for half of them WITH xdist. What CI shows
+instead is that both sharded runs reach a summary: shard 0 ended
+"27 failed, 7826 passed ... in 4026.68s" and shard 1 "15 failed, 5093 passed
+... in 1839.04s". Shard 1 printed one `Fatal Python error: Segmentation
+fault` on the way and still summarised, because an xdist worker that dies is
+replaced. That is the hang being gone; it is not the same statement as a
+serial run finishing, and nobody should read it as one.
+
+
+--------------------------------------------------------------------------------
+2026-09-25/26 -- THE SERIAL RUN, TWICE, AND WHAT STOPPED IT
+--------------------------------------------------------------------------------
+
+The criterion re-run, as asked: one process, offscreen,
+`tools/run_capped.sh 16G python -m pytest tests/qt -p no:cacheprovider -q
+--timeout 600`, scratch XDG dirs, log in /tmp/spacr-waveY-scratch/.
+
+RUN 1 (18:25) was stopped from outside at 24% after 1 h 34 min: it had
+initialised CUDA and held a GPU context, which blocks every session's
+tools/gpu_turn.sh queue. Not a hang -- it was advancing. Every later run
+sets CUDA_VISIBLE_DEVICES=''. Worth knowing for anyone repeating this: a
+serial qt run WILL touch CUDA unless it is hidden.
+
+RUN 2 (20:36, CUDA hidden) reached 28% at 00:09 and ended with exit status
+3 and NOTHING after the last progress dot -- no traceback, no summary, no
+kernel OOM (journal clean; the 16 GB scope was not the killer). The past
+blockers were passed cleanly: no segfault at 15%, no stall at 25%; a
+handful of F's along the way (-q gives no names without the summary).
+
+WHAT EXIT 3 IS: `_stop_before_the_machine_does` in tests/conftest.py, which
+`os._exit(3)`s when the pytest process's RSS passes SPACR_TEST_MEMORY_GB
+(default 6). So a serial qt run accumulates more than 6 GB of RSS by 28%.
+Two defects in that guard, both fixed in tests/conftest.py:
+
+  1. ITS MESSAGE NEVER REACHES THE LOG DURING A TEST. It writes to fd 2 so
+     pytest's sys-level capture cannot eat it -- but pytest's default FD
+     capture has pointed fd 2 at a temporary file while a test runs.
+     Reproduced: a test that allocates 1.5 GB under SPACR_TEST_MEMORY_GB=1
+     exits 3 SILENTLY on nightly, and prints "spaCR test guard: this pytest
+     reached 1.7 GB, over the 1.0 GB ceiling ..." with the fix. The guard
+     now suspends the global capture (the capture manager is kept by
+     pytest_configure) before writing.
+  2. IT IGNORED THE KERNEL CAP IT WAS RUNNING UNDER. The 6 GB is about
+     concurrency (a dozen UNcapped processes, 2026-09-04); a process inside
+     a run_capped.sh cgroup is already bounded by the kernel. With no
+     SPACR_TEST_MEMORY_GB set, the ceiling is now 90% of this cgroup's
+     memory.max when there is one (14.4 GB under 16G, measured), else 6 GB.
+     An explicit SPACR_TEST_MEMORY_GB still wins.
+
+STILL OPEN, and it is this file's criterion: a serial run that reaches the
+summary line. With the fix, a third run under run_capped.sh 16G gets a
+14.4 GB ceiling; whether the suite's growth stays under that to 100% is
+unmeasured. Run 2 took 3 h 33 min for 28% on a loaded machine, so a full
+serial run is 6-12 h. The growth itself (>6 GB by 28%) is the next thing to
+look at if the third run is stopped again -- the guard's message now says
+where.
+
+Tests: tests/test_conftest_guard_names_the_cause.py,
+test_a_lost_runner_leaves_its_memory_in_the_log,
+test_teardown_watchdog_arming and test_test_suite_hygiene pass, except
+test_no_new_assertion_free_tests, which names
+qt/test_bioimageio_rows_in_the_picker.py (already on nightly, not this
+change).
+
+2026-09-27 — RESUME AUDIT: SERIAL RUN ABORTED AT 61%, STILL OPEN
+The inherited /tmp/spacr-47-scratch/serial.log ends at
+outliers_screen::test_set_frame_scans_and_fills_both_result_tables with
+EXIT 134, after the preceding four tests passed. There is no traceback
+proving its cause. This is neither a completed run nor a memory-limit exit.
+The root boundary fixture also forced gc.collect() every twenty tests,
+contradicting its own live-wrapper crash guard. Removed that extra sweep;
+Qt deferred deletes and the application's threshold-driven GC tick remain.
+Focused ownership/GC/fold/import checks: 73 passed in 40.59s, CPU-only under
+8G. This does not establish that the 61% abort is fixed. A serial replay
+with memory and crash evidence is still required before closing this item.
+
+2026-09-27 — MEASUREMENT RELAY RACE REPRODUCED AND FIXED
+The remaining worker-to-panel signals identified in item43's handoff had
+an unsafe emission: concurrent progress and GUI deletion raised TypeError
+at stress cycle zero. Three updates now use the surviving process relay,
+checking weak panel references only on the GUI thread. 1,000 stress cycles
+with 100,000 emissions complete without errors; 83 focused tests pass.
+Outliers and the neighboring files pass all52 tests in serial order; the
+old failing Outliers test uses threaded=False and creates no QThread.
+The 61% abort is therefore still not attributed or declared fixed. Keep
+this item OPEN until the serial acceptance run reaches its summary.
+
+STATUS 2026-09-27 — serial acceptance stopped at the memory guard
+The frozen 969e97b74 run collected 27,186 tests from 1,445 explicit named files.
+It ran unattended from 09:19:50 to 11:46:38 EDT and reached 48%, then its
+memory guard ended pytest at 10.9 GB against a 10.8 GB ceiling (12G cgroup).
+Exit status was 3. There was no observed native crash, but no final pytest
+summary or completed acceptance either. Item 47 remains open.
+Six test failures were recorded. The first five have focused fixes or current
+runtime checks; the fresh-process heavy-import check remains to reproduce.
+Passive bounded probes are investigating cross-file retained memory without
+GC drains or higher limits. Receipt:
+features/data/47_serial_acceptance_2026-09-27.json.
+
+STATUS 2026-09-27 — bounded ownership defects repaired; acceptance still open
+Passive ordered-prefix observations found four unowned folded test pages,
+model-only controls without teardown ownership, controls detached from waiting
+categories, and a hidden Home legend without a Qt parent. Eager/lazy controls
+now keep the supplied owner; unopened categories park controls under a hidden
+screen-owned widget. Test-created pages/controls explicitly retire their own
+objects, and Home owns its hidden compatibility legend. No collector cadence,
+global cleanup, memory guard, or cgroup ceiling was changed.
+Two eager/lazy owner-destruction cases fail before the fix. Forty unique focused
+checks now pass; the combined ownership sequence and its following normal test
+boundary end with zero live Qt widgets. A busy JobRunner warning at one earlier
+test boundary remains recorded for longer-session follow-up. These bounded
+results do not close the full serial acceptance requirement. Receipt:
+features/data/47_qt_ownership_memory_probe_2026-09-27.json.
+
+STATUS 2026-09-27 — identical ordered prefix measured and contract repaired
+The unchanged first 78 named files reached summary in 414.44 seconds:
+873 passed, 1 skipped, 1 failed. Final sampled parent RSS fell from 2.78 GiB
+to 2.08 GiB (25.08%); the same quiet test boundary fell from 2,051 widgets
+to 12. Preserve that raw failure: the first parking fix kept controls inside
+the page, violating the existing detached-category styling contract.
+The correction keeps the parking root detached, using the existing Qt
+owner.destroyed → detached.deleteLater pattern, including lazily built fields.
+The last 12 widgets were four replaced TableChip trees; the source-set owner
+now explicitly retires superseded chips. The original value-collection test
+remains intact. The two focused sequences pass (43 and 8 checks; 50 unique),
+and both finish at zero live widgets. Their transient runner warning remains
+in the receipt. The whole prefix was not rerun after these final corrections,
+and full serial acceptance remains OPEN. No collector or limit was raised.
+Receipt: features/data/47_ordered_prefix_memory_comparison_2026-09-27.json.
+
+STATUS 2026-09-27 — host reboot interrupted the second frozen acceptance run
+The frozen928498503 run reached17,198 terminal test outcomes (63.2186%):
+17,165 passed,16 skipped,10 xfailed and7 FAILED. The host reboot interrupted
+one further test;10,005 had never started. There is no terminal pytest summary
+or exit status, so this run is INTERRUPTED, not accepted. The unfinished suffix
+contains10,006 exact node IDs. All seven failures remain open, including the
+Mask smoke case whose separate isolated pass did not reproduce the original
+order-dependent failure.
+
+Recovery recollected the original1,445 named files from the unchanged frozen
+checkout without executing tests:27,204 node IDs. Every observed original node
+and its complete order match the recollected prefix exactly. Completed,
+interrupted and never-started sets are exhaustive and disjoint. The remaining
+IDs and failures are preserved separately under
+/mnt/wd4tb/scratch/spacr-completion/item47-recovery-20260927/.
+No automatic restart or whole-suite repeat was performed. A future suffix run
+would use a fresh process and cannot establish completion of the interrupted
+continuous memory-acceptance run or erase its seven failures.
+
+The previous boot journal ended18:08:25; current boot began18:09:40–45 EDT.
+The last serial memory sample at18:08:20 was10,003,124KiB (about9.54GiB), below
+the unchanged guard. No previous-boot kernel entries were available after18:00;
+the reboot's cause is unknown. The test named at interruption is not evidence
+that it caused the reboot. Receipt:
+features/data/47_qt_reboot_recovery_2026-09-27.json.
+
+STATUS 2026-09-27 — resumed-run failures and focused reproduction
+The unchanged frozen suffix exposed two cold-start theme assertions reading
+caches warmed by prior tests, plus a disk-report assertion assuming the temp
+folder's name contains tmp. The theme startup checks now observe a fresh
+interpreter while preserving the exact eager/lazy theme expectations. The disk
+check requires the actual configured tempfile directory. Product caches and
+the GUI-thread filesystem guards are unchanged.
+
+An11-node current-source reproduction passed7 and failed4 in22.05 seconds.
+Both repaired theme checks and the configured-temp check passed, including a
+TMPDIR without tmp in its name. Remaining reproduced failures concern the Home
+legend membership, genuine Zeiss fixture generation, translated caption debt,
+and backdrop transmission. Four other earlier failures passed in isolation;
+that does not resolve their original order-dependent failure or establish an
+uninterrupted serial/memory pass. The frozen suffix continues unchanged.
+Evidence: /mnt/wd4tb/scratch/spacr-completion/item47-failure-reproduction-20260927/
+(results.xml and logs/reproduce.log). Item47 remains open.
+
+STATUS 2026-09-27 — three reproduced failures repaired
+The Home assertion now inspects the actual aside and verifies the retained
+Qt-owned legend is hidden. Thirteen already translated captions leave the
+exception list and pass the existing exact-row checks in every shipped catalog.
+The genuine Zeiss fixture exposed a current czifile API change: dimensions now
+belong to scene images. Conversion retains each scene's absolute coordinate and
+own dimensions while preserving the legacy shape/axes reader path.
+
+Eight named tests pass in4.55 seconds, including header-only scanning and exact
+output pixels for all11 planes of a real synthetic CZI with different scene
+dimensions. The native writer was installed only in task scratch; its dependency
+was already declared in the czi extra and blocking CI. No public signatures or
+runtime docstrings changed. The settings overlay and uninterrupted serial/memory
+acceptance remain open; the frozen suffix continues unchanged. Receipt:
+features/data/47_current_czi_and_stale_contract_repairs_2026-09-27.json.
+
+STATUS 2026-09-27 — stray settings overlay repaired
+The failed transmission probe identified an unmounted timelapse pathogen_model
+editor covering the visible Mask settings. Folded sections omitted that row
+after building its control; direct ownership by the visible form caused Qt to
+paint it at default geometry. SettingsWidgets now keeps unmounted eager and
+deferred controls under a hidden Qt-owned host. Actual form rows reparent their
+controls when mounted. The detached lazy-category owner remains unchanged.
+
+Seven focused checks pass in19.22 seconds, including the original transmission
+and animation-cycle calibration, eager/deferred visibility and destruction,
+lazy reveal and settings collection. Opacity and thresholds are unchanged.
+This repairs the reproduced overlay; it does not establish the interrupted
+full serial/memory acceptance or clear unrelated order-dependent failures.
+Receipt: features/data/47_unmounted_settings_overlay_repair_2026-09-27.json.
+
+STATUS 2026-09-27 — frozen suffix stopped at the unchanged memory guard
+The frozen928498503 suffix exited3 at20:25:12 EDT after1h08m34s. It completed
+6,054 nodes:6,011 passed,39 skipped and4 failed. The10.8GiB guard interrupted
+test_the_music_bed_is_a_piece.py::test_the_bed_is_exactly_its_bars_long;3,951
+other nodes never started. The remaining manifest therefore contains3,952 nodes.
+This was a controlled test-process stop, not another host reboot.
+
+Prefix/order and exhaustive disjoint-accounting checks pass. Combined completed
+coverage is23,252/27,204 (85.47%), with11 original frozen-source failures retained.
+No uninterrupted serial/memory acceptance is established. Current-source focused
+repairs above remain valid within their own scopes. Both pytest and its sampler
+ended; no restart was made. Memory growth and the interrupted music test require
+investigation before another long run. Receipt and exact remaining manifest:
+features/data/47_qt_suffix_guard_stop_2026-09-27.json.
+
+STATUS 2026-09-27 — screen-owned CPU backdrop joins on accepted close
+A bounded two-node stylesheet/Mask-completion probe passed its assertions but
+aborted at process exit twice (exit134). Passive start-origin evidence identified
+the live unnamed QThread as CpuFractalWidget._thread, installed by AppScreen;
+the GPU-discovery child was separate. AppScreen closed its jobs/settings without
+shutting down its owned backdrop. Child closeEvent does not run merely because
+the parent closes, and queued deletion/application quit was too late here.
+
+Accepted close now synchronously stops/removes that backdrop and suppresses
+pending reinstall callbacks while closed. Showing the reusable screen builds a
+fresh backdrop. A deferred pipeline close leaves the renderer alive with its
+screen. The original two nodes now pass and exit0 with the CPU thread stopped;
+44 named lifecycle/backdrop checks pass, including real-thread close/reopen and
+refused-close contracts. No global cleanup, forced GC or guard change was added.
+Two changed API docstrings are recorded for the final catalog delta.
+
+This closes the reproduced thread-shutdown defect, not the separate sustained
+memory growth or full serial acceptance. Receipt:
+features/data/47_cpu_backdrop_close_2026-09-27.json.
+
+STATUS 2026-09-27 — combined stylesheet/audio interval passed
+All73 original-order predecessor/audio nodes passed in38.92 seconds, exit0,
+with the original global stylesheet retained. Peak sampled RSS was1.29GiB;
+final RSS544MiB. The actual CPU backdrop thread finished during normal teardown
+and retired; no observed live threads, widgets or PCM arrays remained.
+The original sustained memory growth did not reproduce in this bounded interval.
+This is not a replacement for the still-required uninterrupted full Qt summary.
+Receipt: features/data/47_combined_stylesheet_audio_probe_2026-09-27.json.
+
+STATUS 2026-09-27 — REAL HOVER CONTRACT VERIFIED; OBSERVER REPAIR OPEN
+The fresh run at 9d173b961 retained 5,549 call reports and one hover assertion
+failure before its observer hit a deliberate Path.open mock. Its outer
+exit is 1; no full-summary acceptance or memory-guard diagnosis is claimed.
+The test now requires the actual bottom hint, anchor, active hold timer,
+no second popup and intact chat styling. The independent forced-polish
+sweep check remains. All 12 focused checks passed under 4G; no runtime
+source changed for this correction. Preserve the failed run and repair
+the scratch observer before attempting full acceptance again.
+Receipt: features/data/47_hover_contract_2026-09-27.json.
+
+STATUS 2026-09-28 — queued preview results and shared quit hooks verified
+The frozen full run exposed a completion callback executing on its worker
+thread. Five queued QObject slots now deliver provenance, masks, flows,
+probability maps and completion on the panel's GUI thread. The original
+thread assertion and a regression covering every payload and real overlay
+rendering pass. Dynamic handler spies still observe the actual callbacks.
+A cleared backdrop quit callback previously passed None to disconnect and
+removed every application exit hook. Shutdown now guards that callback;
+blanket-disconnect semantics are exercised on a private signal. The original
+GPU-discovery lifecycle failure passes after its original predecessors,
+without resetting the global timer or clearing shared connections.
+All 199 named Qt/gate/API checks pass. The Zeiss fixture also passes using
+the declared CZI extra in a private dependency folder; the shared Python
+environment is unchanged. The layout observer fixture retains actual themed
+geometry and clipping and passed in the separate 268-check acceptance.
+Receipt: features/data/47_queued_preview_and_quit_hooks_2026-09-28.json.
+The uninterrupted full run remains active on its older frozen source, with
+its failures preserved. Item 47 still requires a complete final-source run;
+these focused checks do not establish full acceptance or resolve sustained
+memory growth. No forced GC, global cache clearing or memory-guard change.
+
+STATUS 2026-09-28 — bounded preview snapshot regression repaired
+The still-running frozenf9 full Qt job reports five failures; four already
+have verified current-source fixes. Its new98304-file timing failure measured
+17.93ms over the unchanged15ms ceiling. Source inspection found each async
+preview enqueue copying the full plate population twice, even without projection.
+Non-projection loads now make no population snapshot; projection loads reuse
+one immutable tuple until the sampler replaces its population. Real old/new
+TIFF projections, stale callbacks and all rescan/invalidation paths are covered.
+All63 named preview-load/performance checks pass under4G with the original
+15ms ceiling. The existing benchmark queues async work, so this does not claim
+completed-field-change latency or a passing final full Qt run. The healthy
+frozen serial job continues without forced collection, restart or raised cap.
+Receipt: features/data/47_preview_population_snapshot_2026-09-28.json.
+
+STATUS 2026-09-28 — authoritative memory stop and regression measurement repair
+The frozenf9d5af988 original-order run is terminal, exit3, after6.52hours.
+It collected27,269 cases from1,448 named files and recorded19,528 passing,
+7 failing and56 skipped call reports before its unchanged guard stopped it.
+No full-summary acceptance is claimed. Original reports and source/order
+bindings are retained in features/data/47_frozen_serial_memory_stop_2026-09-28.json.
+The final sound test marks the stopping point, not an established retention
+cause. A passive per-file observer is being prepared; no forced collection,
+cache clearing, cap increase, changed ordering or reduced selection is used.
+
+Both Regression scrolling assertions were reproduced unchanged: the test read
+maximum103 before queued shell layout raised it to264/216. The same production
+screen reaches the bottom after settling. The test now waits for consecutive
+unchanged observed geometry/ranges and no queued splitter/floor work, within a
+finite1second bound. Original shell/reachability assertions and600/768 parameters
+remain; bottom/top reachability is repeated after fold/reopen. All14 focused
+checks pass under4GiB with zero skips and production app_screen.py unchanged.
+The600 parameter still meets the existing720 minimum window height; this is
+recorded rather than presented as a physical600-height acceptance. Receipt:
+features/data/47_regression_scroll_geometry_2026-09-28.json.
+
+2026-09-28 -- Qt CI uses bounded fresh-process batches; whole47 remains OPEN
+Run36419911411's Qt shard1 worker ended at the existing6GB memory ceiling,
+with6198widgets/2030top-levelwindows retained at session end. The reported
+Project Browser node is not established as the leak's cause: the complete
+original panel file passes77checks in a fresh8GB process. Qt CI now uses the
+existing runner for16-file batches/two workers. Allthree hash shards, markers,
+seven exclusions and designated measurement tail remain; the memory guard,
+1200-second ceiling and900-second dump are unchanged. Failed batches still
+allow later batches to run and keep a failing final status. All70 runner,
+workflow/classification/hygiene checks pass under4GB; an actual two-batch,
+two-worker Qt execution passes all80 selected checks under8GB. No GUI source,
+assertion, GC policy or memory ceiling was changed. Long serial accumulation
+and uninterrupted acceptance remain open; final CI is pending. Receipt:
+features/data/47_ci_qt_process_batches_2026-09-28.json.
+
+2026-09-30 (work, Claude, take-ci) -- the detached serial run did not finish
+The detached serial tests/qt run on the home box (frozen copy of 79df84b81 at
+/mnt/wd4tb/scratch/ci/serial, run_capped 12G, -p no:randomly, leakprobe
+plugin) started 2026-09-29 09:24 and ended 22:04 EDT, exit 3: the tests/
+conftest.py memory guard stopped it at 11.1 GB, over its 10.8 GB ceiling, at
+[71%] after 19,724 reported outcomes (25 F, no E). No pytest summary was
+printed, so the failing ids are not recorded; the leakprobe output file was
+never written (it writes at session end). Same stop as the 09-28 frozen run
+(exit 3 at the guard, 11.4 GiB), a little later in the order. Log:
+/mnt/wd4tb/scratch/ci/serial_run.log. Nothing is claimed green; a serial
+rerun on the current source follows (recorded below when it ends).
+
+2026-10-02 (Claude, ci-fix) -- the three REMAINING REAL items are green
+Rechecked on origin/nightly 1b9733338 with no change needed: the `classes`
+product default is already the dict shape (all three settings.setdefault("classes", {})
+in spacr/settings.py, from a260e0914), and
+tests/qt/test_settings_list_editor.py passes 83/83; tests/qt/test_home_variants.py
+(test_no_variant_clips_elides_or_overflows, no hardcoded alphabetical()
+slices remain in spacr/) and tests/qt/test_preview_set_sampling.py
+(test_max_sets_control_sits_left_of_the_sets_dropdown) pass. Whole-suite
+serial Qt acceptance remains open as recorded above.
+
+2026-10-04 — TEST-OWNERSHIP LEAKS REPAIRED; SERIAL ACCEPTANCE OPEN
+  SetupSlides tests left 23 dialog trees alive after their test ended; giving
+  the dialogs to qtbot reduced a passive following-file sample from 3,024
+  widgets/161 windows to zero. Alpha-gate and standalone settings tests also
+  built orphaned SettingsWidgets trees; owning their parents reduced a
+  following-file sample from about 501 widgets/211 windows to zero. Focused
+  checks passed (36, 12 and 146 respectively). These bounded probes do not
+  prove an uninterrupted whole Qt run, so the 10.8 GiB serial memory guard
+  remains an open acceptance gate.
+
+2026-10-05 — DYNAMIC CATEGORY OWNERSHIP REPAIRED; RSS ACCEPTANCE OPEN
+  Dynamically built settings headings now belong to their AppScreen even
+  if no layout mounts them. The organelle channel-growth case previously
+  retained an unparented IMAGE ENHANCEMENT alpha section with 46 widgets;
+  the same next-file sample now reports zero. In a 33-test adjacent
+  channel/close/category cohort, the final live-widget count fell from 87
+  to zero and all 33 tests passed. RSS remained about 780 MiB in both
+  cohorts, so this establishes widget ownership, not an immediate RSS
+  reduction. An original-order 78-file replay is measuring the next
+  comparison; uninterrupted serial acceptance remains open.
+
+2026-10-05 — MORE BOUNDED OWNERSHIP REPAIRS; SERIAL ACCEPTANCE OPEN
+  A 105-test settings-model coverage file left 1,848 widgets alive at the
+  next file boundary. Giving its large SettingsWidgets panels a qtbot-owned
+  parent reduced that boundary count to 2; 107 adjacent tests passed. A
+  separate Measure-panel test left 445 widgets alive; owning its parent
+  reduced that test boundary to zero, with 55 adjacent tests passing.
+  The UMAP greying test also left its RowExclusionEditor schema JobRunner
+  busy; calling the editor's shutdown after the assertion removed the
+  warning, and its full 105-test file passes. A further Mask-panel test
+  file retained 937 widgets at the next file boundary; owning its panels
+  reduced that count to zero. Its unrelated visibility tests also started
+  a GPU-discovery child process, which the file now isolates; a traced
+  44-test run starts no child and reports no lingering process. These are
+  bounded ownership findings. The original-order serial Qt run still needs
+  an uninterrupted guarded summary before this item can be marked done.
+
+2026-10-05 — FIGURE RETENTION REDUCED; FULL ACCEPTANCE STILL OPEN
+  The FigureQueue fixture now closes the pyplot figures it creates. In
+  identical 4 GiB capped 12-test comparisons, retained pyplot managers fell
+  from 7 to zero and final RSS fell from 582 to 551 MiB; all 12 tests passed.
+  The original-order 78-file comparison passed 882 tests with one skip after
+  dynamic Section ownership was repaired. A representative boundary fell
+  from 57 live widgets to zero, but final RSS was 1841 versus 1843 MiB, so
+  that repair does not establish an RSS reduction. The original prefix used
+  a 4 GiB cap and the replay an 8 GiB cap, with measured RSS below both.
+  Storage move tests now wait for the follow-up cache measurement worker as
+  well as the move result; the 39-test storage/catalogue cohort passes with
+  no lingering-worker warning. Uninterrupted whole-suite acceptance remains
+  open; these bounded comparisons do not close it.
+  A second FigureQueue helper now builds a direct Matplotlib Figure rather
+  than registering a pyplot manager. Its identical 4 GiB 11-test adjacent
+  comparison passed before and after: retained managers fell from 2 to zero
+  and final RSS from 434 to 404 MiB. These separate cohorts do not establish
+  a combined 61 MiB reduction or full-suite memory behavior.
+
+2026-10-05 — ORIGINAL-ORDER 100-FILE CPU PROBE; SERIAL ACCEPTANCE OPEN
+  Source 3b266f66c passed 1,148 tests with one skip across the first 100
+  files of the frozen original-order manifest under a 4 GiB cap, CUDA
+  hidden and offscreen Qt (605 seconds). Its first 78 files yielded the
+  same 883 node samples as the earlier comparisons. RSS at that matching
+  boundary was 1730.8 MiB versus 1841.4 MiB originally, about 110.6 MiB
+  lower. The sampled prefix peak was 1881.2 versus 1875.6 MiB originally,
+  so this is a boundary improvement, not a demonstrated lower peak.
+  The dynamic-Section-only replay used an 8 GiB cap; original and current
+  probes used 4 GiB. No ceiling, forced collection or skip was added.
+  Journal and summary: /mnt/wd4tb/scratch/item47-memory-codex-20261005/
+  qt-prefix100-current-3b266f.{jsonl,log}. The probe exposed retained pyplot
+  managers after figure-dialog cancellation; that ownership/render repair
+  is recorded separately below. This 100-file prefix is not uninterrupted
+  acceptance of the full Qt suite, which remains open.
+
+2026-10-05 — CANCEL RESTORES A VISIBLE PLOT AND RELEASES ITS SNAPSHOT
+  Unpickling the Cancel snapshot registered a second pyplot figure, which
+  the dialog now closes in finally after transferring its axes. A matched
+  4 GiB seven-test comparison reduced the next-file manager count from two
+  to zero; RSS was 361 versus 360 MiB, which is not a demonstrated RSS
+  reduction. Rendering review also found that the prior private axes-stack
+  insertion restored properties but left the canvas blank. The dialog now
+  uses Figure.add_axes after rebinding each axis to the original figure.
+  A qtbot-owned canvas test observes the original blue line, applies a red
+  edit, then proves Cancel redraws the blue line and removes the red edit.
+  It fails on the old insertion path. A forced restoration error also
+  proves the snapshot manager closes while the original figure remains.
+  The agent's focused neighbors and hygiene passed 49 tests; integrated
+  Cancel/menu checks passed 19. Source commits 673d2da89 and 806674f55.
+  Full serial acceptance remains open.
+
+2026-10-05 — TWO LATE-PREFIX TEST EDITORS NOW HAVE OWNERS
+  Two synthetic QLineEdit editors added to a settings model were parentless
+  and survived their screen test file. Registering both with qtbot reduced
+  the following sentinel from nine live widgets to seven, exactly the
+  intentional process-wide HoverTooltip singleton. Identical 4 GiB adjacent
+  cohorts passed 47 tests before and after; sampled final RSS was 462.3
+  versus 452.2 MiB. This is a small-cohort observation, not a general memory
+  savings claim. Source dbe918532. No forced collection or ceiling change.
+
+2026-10-05 — SHARED ANNOTATION FIXTURE RELEASES ITS WIDGET TREE
+  The module-scoped AnnotationStrategyPanel fixture shut down and closed
+  its panel but retained the complete 110-widget tree. Explicit deletion
+  after shutdown/close reduces the following sentinel from 110 widgets to
+  zero. Identical 4 GiB bounded cohorts pass 11 tests before and after;
+  RSS was 433.1 versus 433.7 MiB, so no RSS saving is claimed. Integrated
+  annotation/model neighbors pass 56. Source 47a30eb4b. Other suspected
+  dropdown/console owners in files 101-125 release cleanly in two five-test
+  probes; the 22-test AI-toggle file also retains zero widgets. These checks
+  do not establish uninterrupted whole-suite acceptance.
+
+2026-10-05 — SYNTHETIC DATA BUTTONS BELONG TO THEIR SCREEN
+  Four synthetic download buttons now use their screen as Qt parent.
+  A matched 4 GiB file-plus-sentinel probe passes 20 tests and reduces the
+  retained QPushButton count from one to zero. RSS was 399.0 versus
+  398.5 MiB, so no general RSS saving is claimed. Source e2b4d25b6.
+  Two other suspected files pass 25- and 27-test bounded probes with zero
+  retained widgets. Ownership edits are frozen for the next CI verdict;
+  full serial acceptance remains open.
+
+2026-10-05 — ANNOTATION COVERAGE FIXTURE RELEASES ITS SHARED PANEL
+  A second module-scoped AnnotationStrategyPanel fixture retained its
+  110-widget tree after shutdown/close. Explicit deletion at module teardown
+  reduces the following sentinel from 110 widgets to zero. Identical 4 GiB
+  file-plus-sentinel cohorts pass 12 tests before and after; sampled RSS was
+  361.9 versus 351.5 MiB, a 10.4 MiB observation in this cohort only. The
+  integrated fixture file passes 11 tests. Source 7db738792. Full serial
+  acceptance remains open; no forced collection or memory ceiling change.
+
+2026-10-05 — MORE BOUNDED FIXTURE OWNERSHIP; COVERAGE RSS FAILURE REPEATS
+  Two SetupSlides fixtures now belong to qtbot: their sentinel drops from
+  272 widgets to zero; the integrated file passes two cases. Synthetic
+  settings-model screens likewise belong to qtbot: the full file plus
+  sentinel passes 54 with seven retained widgets reduced to zero. The
+  integrated file passes 53. Preview-probe panels no longer survive in a
+  module dictionary; both host and mock panel have explicit test ownership.
+  Its full file plus sentinel passes 32 with zero retained widgets, and the
+  integrated file passes 31. These are bounded observations, not a summed
+  memory saving or whole-suite acceptance claim. Agent source commits:
+  02dceed9f, 852724211 and ad7301805.
+  Protected coverage shard 4 again exceeds its 6 GB worker guard at a
+  preferences case despite passing serial recovery of all 30 affected
+  files. The Qt owner is investigating the exact batch/source recurrence.
+  Dedicated Qt shards 0 and 2 pass; shard 1 remains in progress at this
+  receipt. No forced collection, memory-cap increase or full serial
+  acceptance is claimed. Item 47 remains OPEN.
+
+2026-10-05 — SETTINGS-LIST EDITOR LEAK ON THE FAILING WORKER PATH
+  Exact coverage-shard-4 logs place the settings-list editor file before
+  space-legibility and preferences on the failed worker. Its SettingsWidgets
+  models lacked a Qt parent or teardown. A bounded file-plus-sentinel run
+  passes 84 cases while retaining 7,454 widgets. Giving each model a
+  qtbot-owned QWidget parent, and owning directly constructed editors and
+  the screen, passes the same 84 with zero retained widgets at the observed
+  boundaries. Sampled sentinel RSS is 829.9 versus 752.1 MiB, about 77.8 MiB
+  lower in this cohort only. The busy JobRunner warning also disappears.
+  Agent source 3387359b8 is integrated. This confirms ownership improvement,
+  not that the full coverage worker is now below 6 GB; CI acceptance remains
+  required, and its limit is unchanged.
+
+2026-10-05 — EXACT COVERAGE BATCH REPLAY; MEMORY PASS, TIMING OUTLIER
+  A local replay of the 32-file coverage shard-4 batch on 0031f9fd0 uses
+  two loadfile workers, coverage tracing, the unchanged 6 GB worker guard
+  and an 8 GiB cgroup. It completes 872 passed and one failed in 8m45s,
+  without a memory-guard failure; the previously failing preferences case
+  passes. Highest sampled worker RSS is about 1.52 GiB, not a continuous
+  peak measurement. The outlier is the Home pause handshake's 10-second
+  startup wait; one isolated 4 GiB replay passes in 3.8s. No assertion or
+  timer is changed based on that context-sensitive result.
+  Worker scheduling differs, and local Python 3.12.4/PySide6 6.10.0 differs
+  from GitHub 3.12.14/6.11.2, so this supports the ownership repair rather
+  than replacing its CI verdict. Old protected source 1c99dd3e8 now passes
+  all three dedicated Qt jobs. Protected rerun 37359579362 tests 0031f9fd0;
+  memory and full serial acceptance remain open. Log:
+  /mnt/wd4tb/scratch/item47-memory-codex-20261005/coverage-shard4-batch3-0031.log.
+
+2026-10-05 — CANDIDATE TIMING AND FIXTURE OWNERSHIP, SERIAL GATE OPEN
+  Exact protected source 0031f9fd0 fails a Qt category-typing assertion in
+  coverage shard 0 at 215 ms, above its 200 ms bound. Candidate d5629e680
+  keeps the same bound on the synchronous edit, processes queued unrelated
+  work outside the stopwatch and asserts no full visibility recomputation
+  during typing. The independent GUI responsiveness watchdog remains.
+  Candidate 1ddcedfb5 changes the chaining test double to release its held
+  registry worker and wait until the resolver is idle even on assertion
+  failure; the abort-path worker retention observed in the local probe is
+  removed. Twenty-one related chaining/timing checks pass under a cap.
+  Existing Qt fixture ownership repairs remain in the candidate. These
+  bounded results do not prove the uninterrupted serial Qt run, nor a
+  complete protected coverage shard. No timing limit or memory guard is
+  increased. Item 47 remains OPEN.
+
+2026-10-06 — SOURCE-BOUND HOSTED SERIAL ACCEPTANCE AND DURABLE RSS
+  A separate opt-in hosted workflow now runs one original-order tests/qt
+  interpreter, CUDA hidden/offscreen, without xdist or file batching. It
+  retains the 10.8 GiB process guard, 12 GiB kernel cap and zero swap, and
+  verifies those values, checkout SHA and available host memory before
+  starting. The passive plugin writes fsynced JSONL collection hashes,
+  file begin/end RSS/HWM/thread counts and a normal terminal exit status.
+  It never changes Qt ownership, event processing, garbage collection or
+  test order. Two tiny real pytest subprocess probes verify an assertion
+  failure leaves both boundaries and os._exit leaves the prior completed
+  file plus current begin even without session teardown; both pass under
+  4 GiB. Whole Qt is not executed locally.
+
+  Because default main lacks the new workflow, its deliberate workflow-file
+  change on nightly bootstraps one hosted run; unrelated app/metadata pushes
+  do not retrigger it. workflow_dispatch remains for later main promotion.
+  The job has GitHub's six-hour limit and always uploads pytest/host/journal
+  evidence. A timeout, unmet runner preflight, or incomplete journal is
+  inconclusive, never a serial-memory pass. Existing three batched Qt CI
+  jobs plus their six-file serial tail remain unchanged and do not replace
+  this uninterrupted acceptance criterion. Earlier 100-file bounded probes
+  reduced matching-boundary RSS by about 110.6 MiB but did not reduce the
+  sampled peak; no unsupported whole-suite memory improvement is claimed.
+  This item remains OPEN until a complete source-bound serial summary passes.
+
+2026-10-06 hosted original-order attempt is live
+  Run37457998285, job112250232405 targets23750631790924590490e356144c8da72ac805af.
+  Dependency steps succeeded and guarded serial step began11:43:47UTC. It
+  remains in progress at this checkpoint; live job logs are unavailable from
+  the API until terminal. Do not infer the complete preflight or journal from
+  elapsed runtime. The later four-channel SubCell source is outside that
+  frozen run. Preserve its terminal evidence and then arrange a deliberate
+  final-source attempt; ordinary source/metadata pushes do not trigger the
+  serial workflow. Never cancel this diagnostic or run the full suite locally.
+  Item remains OPEN; no acceptance from focused cohorts or reduced file RSS.
+
+2026-10-06 — hosted terminal native failure and preserved original order
+Run37457998285 on237506317 ended with exit139 in puncta[False] after about
+four hours. Last completed-file RSS5432274944 bytes is5.059GiB (HWM5.179),
+below the unchanged10.8GiB guard. Nine earlier failed nodes lack assertion
+detail because the terminal summary was lost. All nine pass exact-source
+narrow replay; puncta passes both its isolated node and whole three-case file.
+Two bounded original-order17-file contexts pass268 and159 cases. These do
+not reproduce or resolve cumulative native death. Application crash-dump
+installation can redirect faulthandler outside the old artifact; actual fatal
+subprocess evidence proves this. New passive diagnostic code preserves failed
+reports immediately, retains an owned fatal stream through app redirection,
+and attempts bounded failure-only native GDB text when a real ELF core exists.
+It changes no memory/assertion guard, Qt ownership, GC or order. Archive:
+data/47_serial_native_failure_2026-10-06/. Next coherent source push deliberately
+restarts hosted acceptance through the workflow-file trigger. Item stays OPEN.
+
+2026-10-06 — final native4K Save/close source replay
+    Actual final930app/renderer/Preferences source, fresh settings, three real
+    modal Saves200->100->200detail/random->spacr->random, pointer reach0->65%
+    ->0, all four primary screens and six natural GUI-thread GC events complete
+    under4GiB. Close/deferred deletes leave0widgets/0ambient/0workers; peak
+    1182180KiB, remaining anonymous819008KiB is retained honestly. This bounded
+    probe does not resolve the reported installedSaveSIGSEGV or substitute
+    for full original-order hosted Qt. Exact final log/source hashes are in
+    data/663_random_palette_save_gc_2026-10-06/. Parent47 stays OPEN.
+
+2026-10-06 — protected original-order run is time-limited, not OOM
+    Old-source b779 run37503577012 reached GitHub's unchanged360minute job
+    timeout at63percent, after1053 completed Qt files. Peak journal RSS5933MiB
+    and zero OOM kills stay below the10.8GiB guard. Twenty-two old-source
+    failed-node labels lack finalized assertion tracebacks. The unfinished
+    test_page_is_never_black file ran over66minutes; field_fade took34.5minutes.
+    Full serial acceptance is not achieved; elapsed runtime and partial RSS
+    do not accept the unobserved tail or current source. Protected45f successor
+    started automatically and is left untouched. Root agents are examining
+    bounded timing causes and current224 terminal failures, without running
+    the full local suite, increasing limits or cancelling protected serial.
+
+2026-10-06 — bounded style diagnosis and passive cached-widget telemetry
+    Hosted slow files pass locally: field_fade 30 cases in 3.74 seconds and
+    page_is_never_black 115 in 41.14 seconds. A bounded measured benchmark
+    shows changed-style cost scales with Qt widgets, not unrelated Python
+    objects; unchanged saves already skip expensive stylesheet application.
+    This does not prove the cause of hosted multi-minute stalls. Raw profile,
+    benchmark and historical serial evidence are preserved in
+    data/47_qt_style_hotspot_2026-10-07/ (UTC archive date).
+    File-boundary serial records now read only the existing root fixture's
+    cached widget/top-level integer counts. Unknown/invalid values are null;
+    no Qt import/query, event processing, GC or ordering changes. All 16
+    focused journal cases pass, including PySide sentinels and hard exits.
+    This closes a diagnostic child, not memory or full serial acceptance.
+    Protected45f remains untouched; final-source acceptance stays OPEN.
+
+2026-10-06 — bounded predecessor-file widget diagnostic
+    Seven exact immediate predecessor files plus one field-fade node pass
+    all164 cases in21.86seconds under4GiB on publishedcd2. The node starts
+    with447cached widgets/166top levels and takes1.161seconds, versus0.627
+    seconds alone. This shows a modest local context cost, not the cause of
+    the hosted34.5minute file. Raw adjacent/isolated journals, exact source
+    hashes and results are appended to data/47_qt_style_hotspot_2026-10-07/;
+    root independently verifies both committed journal hashes. No fixture,
+    application, memory ceiling or original collection order changes.
+    Protected45f stays untouched and full final-source acceptance stays OPEN.
+
+2026-10-06 — bounded Python 3.13 native GC/Save negative reproduction
+    Actual Python 3.13.14 / PySide6 6.11.2 probes exercise a native 4K impulse
+    lens with six natural GC callbacks and 2625 cyclic QWidget destructions
+    on the GUI thread, and actual MainWindow/modal Preferences Save with two
+    natural GC callbacks. Both exit zero and stop workers; peak recorded
+    VmHWM is 357392/590604 KiB. Full scripts, source hashes and logs:
+    data/47_py313_gc_lifecycle_2026-10-07/. Scope is minimal CPU UI dependencies
+    and Home/Preferences only. The historical trace is timer-driven GC inside
+    app.exec, not an identified native destructor or proven Save trigger.
+    No crash fix or uninterrupted full serial acceptance is claimed.
+
+2026-10-06 — one retained Measure test owner repaired
+    Temporary heading-comparison SettingsWidgets now belongs to the existing
+    qtbot-owned MeasureInputsScreen. Every behavior assertion is unchanged.
+    Matched two-node runs pass; after the field-fade sentinel live widget/top
+    level counts fall from449/167 to2/1. Original seven immediate predecessor
+    files plus sentinel pass all164 cases in19.60seconds; cached field-fade
+    setup counts fall447/166 to0/0. RSS1608.7 to1604.4MiB does not establish
+    sustained process memory savings. Full journals/logs and source bindings:
+    data/47_measure_headings_owner_2026-10-07/. This concrete ownership repair
+    closes a child; final uninterrupted serial/memory acceptance remains OPEN.
+
+2026-10-06 — three additional bounded test ownership repairs
+    Temporary Timelapse controls now have a qtbot-owned QWidget parent; all9
+    cases pass and post-sentinel widget/top-level counts928/379 become2/1.
+    Temporary module-default controls are owned similarly; all153 affected
+    cases pass, file-boundary counts0/0, and matched sentinel1020/385 becomes2/1.
+    Regression fixture controls now belong to a Qt owner; all35 cases pass and
+    matched sentinel1227/136 becomes2/1. Scientific/default assertions remain
+    unchanged. Source-bound journals are in data/47_timelapse_settings_owner,
+    47_panel_defaults_owner and47_regression_panel_owner_2026-10-07/ archives
+    (all three directory names end_2026-10-07). Root verifies every payload
+    and runtime binding. Small/mixed RSS changes are not whole-suite savings.
+    Busy UMAP JobRunner warnings are separately retained, not claimed fixed.
+    Protected45f and final serial acceptance remain OPEN.
+
+2026-10-06 — sixth temporary settings owner repaired
+    UMAP reducer helper now parents every temporary control to a qtbot-owned
+    QWidget rather than registering only its reducer field. All5 matched
+    file/sentinel cases pass. Post-sentinel widget/top-level counts106/13
+    become2/1; RSS540.1 to539.7MiB is not material process-memory closure.
+    Two busy JobRunner warnings are absent in this pair; their timing sensitivity
+    prevents a worker-fix claim. Original reducer assertions remain. Proof:
+    data/47_umap_reducer_owner_2026-10-07/. Parent full serial remains OPEN.
+
+2026-10-06 — seventh/eighth owners and independent seven-file integration
+    UMAP row-exclusion helper now owns all five temporary model trees. All17
+    affected file/sentinel cases pass; sentinel156/18 widgets/top levels becomes
+    2/1. Working-set UMAP fixture gains its qtbot QWidget owner; all17 cases pass
+    and sentinel80/10 becomes2/1. RSS changes are small/mixed, not aggregate
+    savings. Receipts: data/47_umap_row_exclusion_owner_2026-10-07/ and
+    data/47_database_working_set_owner_2026-10-07/. Root independently verifies
+    every payload/runtime binding. Original database/filter/default assertions
+    remain. Negative screens for Map Barcodes and cov_r4 clear0/0 already;
+    no edits there or to the low-retention no-control cohort.
+
+    Root same-process bounded integration of seven repaired files plus one
+    field-fade sentinel passes250 cases in32.88seconds under4GiB. Four existing
+    Measure/project multi-threaded fork DeprecationWarnings are retained; not
+    silenced or claimed fixed. Source hashes/full log:
+    data/47_seven_owner_integration_2026-10-06/. Final full serial/memory
+    acceptance remains OPEN; protected45f remains uncancelled.
+
+2026-10-07 — ninth concrete owner, Exclude controls
+    Five Exclude settings cases now build their temporary forms under a
+    qtbot-owned QWidget. Original multi-column/default/round-trip assertions
+    and all remaining picker/database tests are unchanged. Matched complete
+    file plus one field-fade sentinel passes 21/21 before and after under 4 GiB.
+    File-end widget/top-level counts fall 60/4 to 0/0; sentinel-end 28/4 to 2/1.
+    RSS differs by only about 0.3 MiB, not meaningful whole-suite savings.
+    Source-bound raw journals/logs: data/47_exclude_settings_owner_2026-10-07/.
+    No production, forced-GC, collection-order or memory-limit change. Protected
+    45f remains untouched; native-crash/full serial acceptance stays OPEN.
+
+2026-10-07 — primary source reader native ownership, distinct crash boundary
+    A controlled source read exceeding the existing 5000 ms drain reproduced
+    a separate SIGABRT: Python parked the QThread, but the destroyed selector
+    still native-owned it. Shutdown now detaches only an actually running
+    worker after the drain. Completed readers retain normal parent ownership.
+    Real native owner destruction exits -6 before and 0 after; 23 focused
+    selector/source tests pass, including late publication rejection and both
+    new guard paths. The strictly inserted two-line guard plus exact old hosted
+    coverage retains 0 missing statements/0 missing branches without ratchets.
+    Source-bound proof: data/47_primary_source_reader_owner_2026-10-07/.
+    A DIFFERENT parent-loading SIGSEGV reproduced locally under GDB in
+    Shiboken releaseWrapper during deferred QObject deletion. That crash
+    persists with this independent ownership fix and is NOT claimed repaired.
+    Hosted/native crash and full serial N47 acceptance remain OPEN.
+
+2026-10-07 root integration: primary reader owner repair independently verifies
+all 18 proof payload hashes, the current source/test and four runtime bindings,
+and exact insertion-only coverage union (0 statement/0 branch gaps). Current
+selector file passes 10 checks in 7.39s with CUDA hidden/offscreen under 4 GiB.
+This closes the distinct parked-reader parent SIGABRT only. The reproduced
+Shiboken deferred-wrapper-deletion SIGSEGV and full serial acceptance stay OPEN.
+
+
+2026-10-07 queue runner ownership repair: a blocked real queue pipeline survives
+the existing 5000 ms close drain only if detached from its native screen owner.
+Controlled before owner deletion SIGABRT -6 becomes clean exit0; safe cancellation
+returns both plates to QUEUED and parked/native runner ownership is released.
+Forty-seven focused checks pass10.67s, including already-deleted and normal
+runner handling. Both new guard branches are directly covered; strict inherited
+hosted source union has0 statement/0 branch gaps without a changed allowance.
+Independent review accepted this distinct fix; no full-suite/crash-parent closure.
+Compact source-bound evidence: data/47_queue_runner_owner_2026-10-07/.
+
+2026-10-07 — large-field loader native owner after shutdown timeout
+    Independently reproduced a second timed-out parented-QThread SIGABRT:
+    the real _MaskLoadWorker outlasted the unchanged five-second drain, was
+    Python-parked, and was still native-owned by the destroyed editor screen.
+    MakeMasksScreen.closeEvent now detaches only an actually running loader
+    after the drain. Before native screen destruction exits -6, after exits0;
+    the detached reader then finishes, parked ownership drops and it is deleted.
+    Four focused cases pass, preserving stopped ownership, queued-load discard,
+    no late publication and existing large-decode responsiveness. Both inserted
+    guard paths execute; strict source-line coverage union retains11/28 gaps
+    within unchanged59/28 allowances. No new callable, user string or docstring.
+    Source-bound proof: data/47_mask_field_loader_owner_2026-10-07/.
+    This is distinct from the small-image Shiboken deferred-deletion SIGSEGV,
+    which remains OPEN along with installed Save and full serial acceptance.
+
+2026-10-07 — loader guard review correction and deleted-wrapper regression
+    The first loader candidate's second isRunning() call could raise after
+    close had already tolerated a native-deleted worker. Final d1cb435487
+    branches on drain_thread's result instead, preserving that original path
+    and normal stopped ownership. A real native-deleted wrapper closes safely.
+    Five final focused cases pass; real five-second native destruction still
+    exits0. The changed drain condition and both edges execute directly; no
+    old execution is inherited for that changed line. Final conservative
+    coverage stays11/28 within unchanged59/28 allowances. The same bounded
+    archive now binds final24cbc534 source; initial logs are superseded.
+    The separate small-image Shiboken SIGSEGV and full serial remain OPEN.
+
+
+2026-10-07 root corrected loader integration: all21 archive payloads and strict
+line/branch map independently verified (11/28 uncovered within original59/28).
+Current full loader-lifetime file passes4 cases10.42s under CUDA-hidden/offscreen
+4GiB, including real five-second native owner deletion and native-deleted wrapper.
+Source24cbc534a78939817fd4913cb258b3abb5a9d4ad166ebf84a6d7e110c4807898.
+The separate deferred crash is now statically identified as QThreadWrapper
+destruction; its exact Python thread instance and cause remain unresolved.
+
+2026-10-07 — Annotate parented worker ownership after the unchanged15s drain
+    Similarity, retrain and suggestion workers now detach from the closing
+    screen only when their existing drain returns false. Normal retirement
+    and native-deleted paths are preserved; page worker and bridge unchanged.
+    Actual retrain QThread plus blocked CPU model double reproduces native
+    screen-destruction SIGABRT before and clean exit after at the full15s
+    deadline, then completes parking cleanup. Twelve focused checks pass for
+    all three worker classes, interruption, late-publication disconnection,
+    normal parent ownership, deleted wrapper and parentless page controls.
+    Strict old-line inheritance discards three obsolete false-target arcs;
+    new target edges and statements are directly covered. Coverage union
+    169/68 stays within original219/77 allowances; no ratchet change.
+    Source-bound proof: data/47_annotate_worker_owner_2026-10-07/.
+    Separate Shiboken crash, installed Save and full serial remain OPEN.
+
+
+2026-10-07 — protected original serial terminal timeout and proven log retention
+    Protected45f run37521372347/job112556704860 is cancelled at original360min,
+    63%,27 recorded failed nodes; remaining37% unverified. Original memory guard
+    does not trip, OOM kills0, fatal-Python artifact empty. Full logs, memory,
+    source/environment provenance and failed-node inventory are archived in
+    data/47_45f_serial_terminal_2026-10-07/. This is not green acceptance.
+    QueueRunner and PipelineWorker INFO logs retained cancellation exceptions
+    and worker traceback frames in LogRecord.args. Format each exception to
+    string before logging, preserving cancellation messages/status. Direct
+    old-line controls fail weakref release and fixed cases pass; unchanged
+    scientific/teardown assertions remain. Both direct cases pass fresh branch
+    coverage; mixed agent cohort37/37. The prior mixed thread census is
+    intermittent and is not claimed to have this sole cause. Bridge still924
+    statements/262 branches, changed line directly exercised,0/0 allowance
+    unchanged. Source-bound proof data/47_cancel_log_retention_2026-10-07/.
+    Root independently passes13 changed shutdown cases and verifies17 Annotate
+    proof payloads, strict169/68 union within unchanged219/77. Native binding
+    crash, installed Save and final uninterrupted serial acceptance remain OPEN.
+
+2026-10-07 — independent root final mixed worker integration
+    Final source50004f3d20 passes39/39 in31.67s under4GiB, CUDA hidden/offscreen:
+    full original worker teardown25, Annotate ownership6, loader lifetime4,
+    original loader contracts2 and direct INFO-log release2. Fifteen artificial
+    unwired-signal disconnect warnings remain visible; no assertion suppressed.
+    This also exercises the unchanged census that failed in the earlier mixed
+    cohort, without count relaxation or forced collection. Agent causal negative
+    log tests and root positive integration support the actual log retention
+    fixes; intermittent census sole causation and native crash are not claimed.
+
+2026-10-07 — remaining historical serial failures classified and easy repairs
+    Of27 old45f failed IDs,21 pass in a bounded current-source replay; four
+    obsolete fungal cases have22 passing current visible-growth replacements;
+    one is the actual styled condition-row overlap, now repaired; one is a
+    backdrop test assuming the former Blobs default. The popup node expands
+    into two cases, so exact replay is22 passed/2 failed across24 cases.
+    Source-bound classification/logs: data/47_protected_serial_failure_recheck_2026-10-07/.
+    Loaded condition scroll content now honors its layout minimum: previously
+    a280px box compressed to191px and its40px button overlapped the next editor.
+    Existing geometry test now applies the real spaCR theme and retains every
+    assertion. Agent19 cases/root16 related condition cases pass4.37s, new
+    constraint line directly covered, no added branch. Exact API guard also
+    passes20.79s; no public inventory/catalog change.
+    Primary selector now tolerates a natively reaped reader's interruption
+    request and follows the unchanged drain bool contract. Old direct native
+    wrapper test fails, fixed12 cases pass; independent root12 pass7.57s.
+    All5 proof payloads/live bindings verified, exact146/146 statements and
+    30/30 branches directly covered, original0/0 allowance untouched. Proof:
+    data/47_primary_selector_reaped_worker_2026-10-07/. Not a nativeSIGSEGV fix.
+    Another unowned classifier screen left903 widgets/22 top levels into
+    field-fade sentinel. qtbot ownership leaves0/0 without forced collection;
+    full classifier file+sentinel7/7 passes2.01s. Backdrop screenshot threshold
+    was measured for Blobs; new impulse-lens default produces14.6% chromatic
+    under valid100% software-Xvfb marker capture. Pin only test animation to
+    Blobs: original25% threshold passes actual software Xvfb5.18s and serial
+    offscreen5.09s. Application default/serial command/selection unchanged.
+    Proof: data/47_classify_owner_and_backdrop_config_2026-10-07/. Helper-only
+    opaque-window-block control passed and is explicitly not causal evidence.
+    Further standalone comparison/classify/measure fixture ownership changes
+    have37 focused passes; independent combined integration follows. Whole
+    memory/runtime, native crash and final original serial acceptance stay OPEN.
+
+2026-10-07 — two more concrete SettingsWidgets fixture owners
+    Classifier-family and Regression analysis-unit fixtures now build their
+    controls beneath a qtbot-owned QWidget. All 18 original test-function
+    ASTs/assertions and parameter cases remain unchanged; no GC/style/guard
+    modifications. Matched two real nodes plus the existing field-fade
+    stylesheet sentinel pass 3/3 before and after under 4 GiB. Post-sentinel
+    cached widget/top-level counts change 412/129 -> 0/0; sampled RSS changes
+    775,503,872 -> 568,664,064 bytes, a bounded observation only. The final
+    two complete files plus the same sentinel pass 27 cases in 3.46 seconds,
+    final counts 0/0. Earlier cached snapshots can precede deferred teardown.
+    Tests-only source 8e1ef7d23c; source-bound logs/journals, unchanged-source
+    bindings, assertion AST checks and Git/filesystem hash verification:
+    data/47_family_analysis_fixture_owners_2026-10-07/.
+    These two ownership children are complete; full serial/memory acceptance
+    and the separate deferred Shiboken native SIGSEGV remain OPEN.
+
+2026-10-07 — final bounded fixture integration and synthetic-selector owner
+    Seven affected fixture files plus the entire field-fade file independently
+    pass102/102 in12.07s under4GiB, CUDA hidden, original ordered assertions.
+    Small global7/7 widget/top-level baseline remains in that mixed cohort;
+    no zero-global-widget or equivalent whole-serial speedup is claimed. Log
+    and current source hashes: data/47_root_settings_owner_integration_2026-10-07/.
+    A separate signal-less selector test retains20 composite controls at every
+    later boundary. Give its synthetic controls and model a qtbot-owned host:
+    matched12 checks pass before/after and actual sentinel drops20→0. r5-only
+    helpers already retain0, so the precautionary r5 candidate is excluded;
+    its original blob is unchanged. Root independently passes both complete
+    r4/r5 files+sentinel68/68 in3.38s, actual sentinel0 widgets/0 top levels.
+    Source-bound raw proofs: data/47_signal_less_selector_owner_2026-10-07/.
+    External Masks audit likewise finds actual0/0 before and after; no false
+    memory fix is promoted. RSS does not measurably fall in these small probes.
+    Current app/test source is ready for one original uninterrupted hosted
+    serial dispatch; full-source CI/native and sustained memory remain OPEN.
+
+2026-10-07 11:55 UTC — final original serial acceptance running, source frozen
+    Protected run 37615889146 binds actual app/test source
+    a44ef399af52bb7f39eb0136c369f6603ff8dc02. Job 112773999602 starts 11:46:58 UTC;
+    its original single Qt test process starts 11:50:54 UTC. Original order,
+    selection, 360-minute limit, 10.8 GiB pytest guard, 12 GiB cgroup and zero swap
+    are unchanged. Do not cancel/replace it. Full terminal verdict and sustained
+    memory evidence remain pending. Workstation may repair assigned README,
+    guide and translation-owner evidence, coordinating any source/test change
+    with Home; Home retains serial acceptance and native crash implementation.
+    No completion claim from earlier bounded 102/68-case ownership evidence.
+
+
+2026-10-07 14:20 UTC — TERMINAL a44 PROTECTED SERIAL; NATIVE FAULT
+The protected run37615889146, job112773999602, was never cancelled/replaced.
+It finished FAILURE14:20:06UTC on exact a44ef399af52bb7f39eb0136c369f6603ff8dc02.
+The original serial process began11:50:54UTC and ended with SIGSEGV at
+Make Masks puncta[False], the same node as ordinary Qt shard1. It reached
+about56%; there is no complete pytest summary. Maximum recorded process
+HWM5531549696bytes(5.152GiB), below the unchanged10.8GiB process guard.
+No memory-guard failure or OOM is recorded. Latest cached Qt census was
+404 top levels/18902 widgets; this does not prove all owner leaks resolved.
+Eight earlier failed call reports remain: tooltip invalidation, four crash-log/
+marker fallback cases, real distribution measurement and two LivePreview GUI
+thread affinity cases. Their prior bounded passes do not establish original-
+order correctness. Failure details were not printed before the native fault.
+The collector recorded an893160240-byte compressed systemd core but did not
+extract it, so the uploaded artifact has no native C++ stack. Do not infer
+application worker causation from the Python waitUntil frame or upstream PC.
+Complete original artifact files, hosted failed log, ordinary terminal jobs/log
+and digest metadata are retained under
+data/47_a44_serial_terminal_2026-10-07/receipt.json (10 verified gzip payloads).
+The source predates this turn's themes; it cannot accept their new implementation.
+
+
+2026-10-07 — COMPRESSED NATIVE CORE DIAGNOSTIC PATH IMPLEMENTED
+The hosted collector previously found the real systemd zstd report but could
+only read regular ELF cores. It now temporarily expands only a matching PID-
+field, recent, non-symlink systemd core after verifying the dispatched source
+and gdb availability. Streaming extraction has a60-second deadline, an output
+file-size ceiling no larger than the existing16GiB core ceiling or actual free
+disk minus512MiB reserve, and rejects failed decoders/non-core ELF. Temporary
+cores are removed after gdb and never included in the uploaded evidence paths.
+The hosted dependency list explicitly includes zstd. Eight tests use genuine
+compressed payloads to check exact extraction, unrelated PID/UID collision,
+stale reports, symlinks, corrupt frames, non-core output and output-limit failure.
+All8 pass locally under4GiB; fatal Ruff and whitespace checks pass. This repairs
+missing native diagnostic collection, not the original puncta crash. No new
+hosted native stack or full serial success is claimed, and no test selection,
+order, memory guard or timeout allowance is changed.
+
+
+2026-10-07 — SERIAL JOURNAL DETAIL AND FIVE VERIFIED TEST-ISOLATION REPAIRS
+Clarification: a44 stdout had no final detailed reports, but file-rss.jsonl
+retains all eight test_failure details. Portable-test cleanup polluted four
+later HOME fallback cases;3fbf93da8c fixes teardown only, original ordered pair
+fails before and5 original/72 relevant cases pass after. Tooltip's overbroad
+mock declared other dead wrappers valid;56ea003f13 scopes it properly, with
+same RuntimeError in negative control and43 passing related cases after.
+Three remaining reports (distribution, two LivePreview) remain unresolved;
+20e2be3002 records live native/Python/Qt identities and distribution-phase
+failure details while preserving assertions. No application crash causation
+is established. Protected37639050274/b6885af4fe remains untouched, predates
+these fixes and cannot accept current field/growth. Native fault/full serial
+acceptance remain OPEN. Original10.8GiB guard/order/selection remain unchanged.
+
+
+2026-10-07 — MASK EAGER WORK DEFERRED, NOT A HOSTED BUDGET CLOSURE
+Source4de4209138 integratedd878587d4f defers the hidden live Watch plate until
+begin and avoids full Mask-reader import for the default empty filter table.
+Follow-up4c1fdd80ce tests actual ledger refresh, reset/restart, alpha visibility,
+owned-child close and unchanged nonempty parsing. Root67 integration/113
+source guards pass; final8-case focused branch check covers all new proxy
+lines/arcs and both empty-guard arcs (overlapping scopes, not a unique sum).
+Fresh-config cold build1.535→1.187s; exact original32-file Coverage7 collection
+already loads pandas. Matched bounded two-node coverage calls5.73→5.66s both
+pass, so actual hosted10.58s breach remainsOPEN pending new hosted evidence.
+No threshold/coverage/quality changes or full-serial success are inferred.
+
+2026-10-07 — DISTINCT BB7 PUNCTA NATIVE FAULT, BOUNDED GDB NEGATIVE
+Coverage7 job113019199463 crashed at primary-source snapshot waitUntil55 in
+puncta[True], through the Qt event-loop wrapper. gw1 had no failed tests before
+this fault; the independently fixed Aurora failed-paint helper is not shown to
+cause it. One condensed original predecessor order (loader shutdown, sharing
+form, sorting contract, puncta) passes14 in26.76s under owned-process GDB,
+Qt/PySide6.11.2, cap8G CPU/CUDA-hidden. No identical rerun or source patch.
+Read-only selector/decoder review found no proved late-publication or native
+parent lifetime defect. Evidence/command/frozen7source-test hashes and full
+hosted-log-bound excerpt are in data/47_puncta_predecessor_native_cpu_2026-10-07.
+This is a negative local bound, not complete xdist history or crash acceptance.
+The original hosted puncta SIGSEGV and protected b688 QEventLoop SIGSEGV remain
+OPEN pending an actual fault's native C stack; no skip/pin/global suppression.
+
+2026-10-07 — CURRENT CI DIAGNOSIS WITHOUT A SPECULATIVE CRASH PATCH
+Protected b688 run37639050274 is terminal139 in real distribution measurement
+near39%; its actual C trace reaches QEventLoop::exec, with RSS~4048MiB/OOM0.
+This is distinct from bb7 Coverage7 puncta and the Qt0 fixture-GC fault.
+Read-only puncta source review finds no demonstrated unowned/running worker:
+the selector owns its QThread, completion holds a local worker reference,
+and shutdown drains or parks a timed-out child. No source patch is justified
+from a Python waitUntil stack alone. Ordinary source-bound native collection
+is being added with unique PID/start/executable identity journals and bounded
+failure-only text extraction; it is diagnostic work, not a crash fix.
+
+The bounded25-file Home cohort reports1071 passes/one obsolete initial-density
+failure; that assertion is repaired and its full file/default neighbors pass
+161. It excludes the full Qt suite and does not establish serial stability.
+All original memory/test/coverage gates stay active; full acceptance OPEN.
+
+2026-10-07 — ORDINARY QT/COVERAGE OWNED NATIVE CORE DIAGNOSTICS
+Existing collector/plugin now opt into ordinary identity-only journals. Each
+process writes only PID/start/boot/source/executable provenance and a terminal
+record, without RSS sampling, Qt queries, per-test observation or fatal-handler
+rebinding. Ordinary Qt and Coverage shells record their inherited core route
+and enable a soft core ceiling within the existing16GiB diagnostic bound.
+They never change global core_pattern. Failure-only collection refuses reused
+PID identities, stale/unrelated source/executable/boot records and symlinks.
+A unique NT_PRPSINFO process leader plus mapped executable must match; a
+PRSTATUS thread ID cannot attribute another process's core. Only one owned
+core is extracted/traced within existing60s/90s/4MiB/disk bounds, then removed.
+Artifacts include bounded text/identity JSON only, never raw cores. The
+protected serial workflow, test selection/order/workers/budgets/recovery policy
+and every application source remain unchanged.
+Source8e5dead63e requires follow-up4c27c26ae5 (leader attribution correction).
+Validation phases pass78 plus3 route plus5 systemd-identity cases;19 ordinary-
+plugin replay cases overlap. Final leader/extraction cohort passes47 plus a
+separate owned-leader case. A controlled owned Python SIGSEGV generated a
+13,086,152-byte core; actual leader/executable checks and gdb stack recovery
+pass, and the raw core is deleted. This proves diagnostics, not a spaCR crash
+fix. The preflight does not guarantee hosted handler storage; unsupported
+ordinary ELF architectures are explicitly refused. Hosted ordinary capture,
+puncta SIGSEGV and protected b688 QEventLoop SIGSEGV remain OPEN.
+Frozen6before/after files, source hashes, raw phase logs, bounded native trace,
+portable reproduction and verified manifest are archived in
+  data/47_ordinary_native_capture_cpu_2026-10-07/.
+
+2026-10-07 — ORDINARY ORIGINAL FAULT CONTEXT UNDER FAULTHANDLER RERAISE
+Collector882f2dcd1a adds ordinary-only bounded siginfo/current full bt24 before
+all-thread traces. A maximum24-frame SIGTRAMP walk selects the saved original
+fault frame, prints restored registers and16 instructions, then restores the
+current frame. Unsupported details are reported rather than killing collection.
+Protected serial gdb commands, all-thread bt24,90s/4MiB bounds, owned-core
+identity checks and all application/test policy remain unchanged.
+Five frame-selection/error/bound cases plus two cleanup cases pass7; original
+serial-command guard passes1. The controlled ctypes null-pointer probe actually
+reraises through CPython faulthandler: final siginfo is SI_TKILL(-6), whereas
+selected original frame5 is strlen with rdi=0 and faulting vpcmpeqb (%rdi).
+Gdb returns0 and the raw core is removed. The probe harness's final assertion
+erroneously matches a literal word in its logged script and exits1; the failed
+script is retained and existing output passes separate diagnostic-prefix
+checks without another core run. No spaCR or hosted-crash fix is inferred.
+Proof/source hashes, raw output, portable corrected reproduction and verified
+manifest: data/47_ordinary_fault_context_cpu_2026-10-07/.
+Current683 hosted execution stays untouched; native Qt faults remain OPEN.
+
+2026-10-07 — CURRENT MEASURE/UI FILE UNDER BOUNDED DEBUGGER
+Currenta47e499ec5 direct distribution_smoke file passes17/17 in41.91s
+under8GiB, CUDA-hidden/offscreen gdb. The real source Measure/Run/SQLite and
+layout check completes; inferior exits normally and noSIGSEGV is observed.
+Exact argv, debugger command and compressed complete raw log are retained in
+  data/47_current_measure_debugger_cpu_2026-10-07/.
+This cold file check neither reproduces nor closes protectedb688 original-
+order QEventLoop fault or bb7 puncta worker fault. No app fix is inferred.
+Current683 ordinary hosted tests remain running; full native/CI stay OPEN.
+
+2026-10-07 — FIRST ORDINARY HOSTED NATIVE ROUTE/IDENTITY RECEIPT
+Exact683 Coverage7 job113058129395 completes failure-only collector and upload
+successfully. Artifact11517807991 contains33 distinct-PID identity-only journals,
+all with exact source/root/executable provenance and session start/end only:
+no RSS/Qt/fault fields. Actual pytest shell core ceiling is16GiB; executable
+systemd handler and readable storage route are verified. Collector correctly
+reports no unfinished owned process/core. Full log has no native crash; the
+sole failure is older API inventory13214 vs13199(+15), handled by catalog owner.
+This accepts hosted diagnostic initialization/artifact delivery, not actual
+SIGSEGV recovery or a native Qt fix. The later fault-frame diagnostic update
+is absent from683. Raw ZIP/metadata, compressed full log, source hashes and
+verified manifest: data/47_ordinary_native_hosted_route_2026-10-07/.
+Original puncta/protected QEventLoop native faults remain OPEN.
+
+The named puncta True case PASSES in the primary hosted run at23:06:43.6002252Z
+(raw full-log line6014), independently of recovery. This single pass does not
+identify the historical native cause or establish whole Qt suite acceptance.
+Run provenance and raw-log SHA are included in the same receipt.
+
+2026-10-07 — BOUNDED ORIGINAL-ORDER GUI THREAD PREDECESSOR PAIR
+Currentc771b4627c distributed_jobs_screen then distribution_smoke files pass
+27/27 in45.25s under8GiB, CUDA-hidden/offscreen gdb with original1200s
+per-test timeout. A scratch observer adds no event pumping, GC or deletion.
+Of108 boundary rows,107 post-application samples show one valid application
+and GUI QThread C++ pointer, including both sides of the two suspect tests.
+This negative pair neither tests the13,590-widget original context nor rules
+out transient native corruption between hooks. Protectedb688 cause stays OPEN.
+Raw gdb,108 identities, observer and exact argv/env/source receipt are retained
+in data/47_b688_gui_thread_predecessor_2026-10-07/. No app patch is inferred.
+
+2026-10-08 — NATIVE CAUSE REMAINS UNIDENTIFIED AFTER ARCHIVE REVIEW
+The installed Preferences Save Python trace, local parent-source GDB stop,
+hosted puncta waitUntil faults and protected b688 QEventLoop core are distinct
+observations, not one proven cause. The GDB stop identifies a QThreadWrapper
+destructor but no worker instance; the actual small primary-source reader's
+twelve normal deferred deletions passed under the GUI GC timer. The official
+PySide/Shiboken6.11.2 weakref-resurrection mechanism reproduces at the same
+Shiboken function offset in a minimal script, but no original spaCR crash
+captured resurrection or a matching wrapper pointer. The protected b688
+QEventLoop C frame has no matching app-object identity. Exact683 ordinary Qt
+jobs completed all243 functional batches per shard without a native fault;
+this does not accept the uninterrupted original-order serial suite. Evidence
+is retained in data/43_qthread_wrapper_forensics_2026-10-07/ and the other
+source-bound receipts named above. N47/native causation remains OPEN; no
+speculative pin, forced GC, guard waiver or application patch was made.
+
+2026-10-07 — FINAL HOSTED SERIAL RUN NEEDS EXPLICIT DISPATCH
+The current qt-serial-acceptance.yml push trigger includes only changes to
+that workflow file. The workstation's accepted API/catalog publication will
+start ordinary tests, but cannot start N47 original-order acceptance. Home
+will explicitly dispatch this workflow on the final accepted nightly source
+and preserve its terminal verdict, exact-source provenance, native evidence
+and memory journal. This records the outstanding acceptance action, not a
+source repair or a claim of N47 completion; the existing12GiB hard cap,
+zero-swap condition and10.8GiB pytest guard remain unchanged.
+
+2026-10-08 — Supersede obsolete serial to prioritize corrected green acceptance
+Home/root preserves exact original55 source/job/step metadata then explicitly
+submits cancellation of serial37720605434. Its known stale cache assertion
+prevents green; retaining it could block corrected4133 serial37728434064 for
+the remainder of a six-hour window. Earlier protected-original retention
+notes are superseded. Any old logs/RSS/native artifacts remain partial, never
+full acceptance or a diagnosed cause. Corrected serial stays uninterrupted;
+12GiB hard cap, zero swap and10.8GiB guard are unchanged. N43/N47 remainOPEN.
+
+2026-10-08 — Cancelled serial prefix exposes real layout failure, not OOM
+All eight original payloads verify in
+ data/47_obsolete_serial_supersession_2026-10-08/sha256.json.
+Prefix:756 files complete,757th begun,43%; recorded RSS max4,221,161,472B,
+HWM4,410,544,128B. No whole-suite/native acceptance. The already-fixed
+DNA-rain assertion and real distribution-smoke measurement node both failed.
+For smoke, scientific analysis passes but layout settle/containment fails;
+pytest-v dictionary elision hides named violations before journal capture.
+Hosted source-unit/screenshots are absent. Adjacent current 11-node replay
+passes40.74s under4GiB: no repair or demonstrated cause. Corrected4133 serial
+37728434064 job113161465305 started05:21:38UTC. Full acceptance remainsOPEN.
+
+2026-10-08 Home: Source smoke failure diagnostics now use explicit JSON with full failed reachability rows and settle/restore flags. Actual Measure1PASS37.95s; actual pytest8.4.2 controlled formatter probe demonstrates dictionary elision versus complete JSON. Initial insufficient-size probes retained honestly. Proof data/47_explicit_layout_failure_diagnostics_cpu_2026-10-08/. This is diagnostics only, not an identified/fixed original layout cause or full serial/native acceptance; N47 remains OPEN.
+
+2026-10-08 Home: cancelled86 prefix proves replication first-open fixture cached-screen assertion (178complete/179begun,6%,RSS/HWM3,314,561,024B,fatalempty), no full acceptance. All21originalpayloads/ZIP verify data/47_obsolete_86_serial_supersession_2026-10-08/. Both641 freshfixtures nowexplicitHome with actualfixture oldnegative/fixedpositive and103two-file passes; further8fresh-contract files verified with real saved records. Original10s/12G/zero-swap/10.8G limits stay intact. Explicit latestserial supersedes stillqueued47 source lacking these verified fixtures; originalfullorder/native/RAM acceptance remainsOPEN.
+
+2026-10-08 — Parent-source worker native fault remains undiagnosed
+Exact69 Coverage0 records real SIGSEGV at Qt waitUntil while loading parent
+source, before detector mutation. Native artifacts skipped after intentional
+run supersession; no C++ cause/PID is known. Bounded original-order two-file
+GDB replay: actual12PASS77.70s, normal inferior exit, seven relevant files
+byte-identical69/current0b. Full raw fault and negative evidence:
+ data/43_69_native_parent_race_cpu_2026-10-08/receipt.json.
+No speculative fix, forced GC, budget change or native/serial acceptance.
+N47 remains OPEN; current0b serial and Coverage0 stay distinct.
+
+2026-10-08 — Original serial terminal verdict and live thread identity repair
+Run 37741618120 on exact 0b source reached 63% (19324 passed, 30 skipped,
+11 xfailed, 4 failed) before the six-hour job limit cancelled it. Recorded
+peak RSS was about 5710 MiB: no OOM or native fatal was recorded. This is
+partial execution, not full acceptance. The durable journal retains all four
+failure tracebacks. Two live-preview failures compare Python QThread wrappers
+by object identity although every callback has the exact GUI Qt pointer,
+native OS ID and Python thread ID; one stored wrapper was already invalid.
+Those two assertions now use live snapshots of all three actual identities.
+Actual worker difference, original handlers/rendering, signal order, token,
+results and 5-second waits remain checked. All original 13 lifecycle tests
+pass on both Qt 6.11.2 (10.42s) and Qt 6.12.0 (10.52s), pytest 8.4.2, CPU,
+offscreen, 4 GiB hard cap. Separate actual QThread controls are rejected on
+all three fields on each Qt version. Source-bound original failure details,
+original source, patch and full local logs are retained in
+ data/47_live_preview_thread_identity_cpu_2026-10-08/receipt.json.
+The real-display Home assertion still needs a validated software display;
+the Console end caret one-pixel reachability failure remains unresolved.
+No application/native crash repair, timeout extension, pixel tolerance or
+full serial acceptance is claimed. N47 remains OPEN.
+
+2026-10-08 15:02 EDT — Independently reproduced Console reachability repair
+Private1260c50e384 retains long stdout minimum height and the hidden Jump
+row. A real35-line Console previously compressed774px content into154px,
+leaving no outer scroll range; the first single-policy candidate then lost
+31px of viewport when Jump appeared. Both causes now fixed. Strict actual
+start/end caret and stable viewport assertions pass; removing either change
+independently fails. Combined selected111PASS48.51s, software-display82PASS,
+jump/font24PASS, performance3PASS and final strict1PASS, totals overlap.
+Source-bound transfer data/47_console_reachability_source_handoff_2026-10-08/
+receipt.json verifies two files and seven raw terminal phases. API/runtime
+strings identical to62; combined hashes require normal regeneration. This
+real local defect is not proof of the historical hosted one-pixel failure's
+cause or cure. Full serial/native/current-source acceptance remainsOPEN.
+
+2026-10-08 16:52 EDT — Independent small source checkpoint: Console stdout/jump clipping fix is now published after51offscreen+51softwareXvfb focusedPASS; normalAPI/runtime unchanged. The coverage-drop test keeps100ms actual delivery and700ms watchdog with a direct worker-thread classification assertion and expected failing inline negative control. Exactold2e full numerical664/664module,12/12integrity gatePASS; its selecteddrop test isRED. Current-source hosted CI and original-order fullQt acceptance remainOPEN. Proof: data/43_console_drop_publication_2026-10-08.
+
+
+2026-10-08 — Bounded existing-hidden-menu stylesheet CPU repair
+The fresh current field-fade file passes30 cases in6.54s, with no ambient
+ticks/shade paths captured; its unconditional application-sheet restore
+uses only0.1ms total, so no speculative fixture/ambient change is made.
+Instead existing hidden menus were eagerly restyled on every changed save,
+although the existing aboutToShow/Show path already delivers their current
+sheet. Three executable lines now defer that unseen work. In a bounded
+150-menu ABBA probe, six original calls take225.5–366.3ms, six candidate
+calls0.150–1.097ms; cold calls are included. Actual popup/direct show,
+visible update and hide/reopen delivery retain latest colors. All59 affected
+original+new style/module/field tests PASS24.39s with direct both-branch
+coverage; baseline closed-menu regressions2FAIL plus visible control1PASS.
+Complete normal API13232 and UI7288/all six runtime maps are byte-equivalent
+as parsed dictionaries. Frozen source35cefc993a8, raw profile/logs/coverage,
+full inventory maps and portable hashes: data/47_hidden_menu_stylesheet_cpu_2026-10-08/.
+This is a real avoidable CPU cost, not proof of the historical1824s file's
+cause or whole original-order six-hour acceptance. N47 remainsOPEN.
+
+2026-10-08 18:28 EDT — Published completed body/test repair wave; source-bound21payloads/fullmaps in data/43_current_body_repairs_2026-10-08. Source/API captions stable; independent Section57/29, DB/sweep89, codec45 plus original owning UI/resource cohorts pass. Full current required/serial and generated artifact gates remain OPEN; no skip/ratchet/timing/contrast weakening.
+
+2026-10-08 20:26 EDT — Home closes the idle category parity fixture's windows
+normally after each comparison. The prior102-case mixed cohort passed but logged
+one busy worker; final integrated whole idle file15PASS53.66s underCPU4G reports
+none. Deterministic initial snapshot retains closed>=5 and all completion/slice
+assertions. See data/47_idle_category_runner_lifecycle_2026-10-09/receipt.json
+and data/43_copy_idle_dependency_current_cpu_2026-10-09/receipt.json. Parent stays
+PARTIAL pending coherent current hosted serial acceptance, not a local full-suite
+run or a hard native performance claim.
+
+2026-10-08 21:13 EDT — Final Edit focus and bounded Xvfb Home fixtures pass owning6/219 and focused5/5 checks. Known-failing e600 serial will be superseded after push by one final-source original-order run. Hosted full-suite acceptance and native performance remain pending; no local full-suite run or weakened timing ceiling.
+
+2026-10-08 21:16 EDT — Final source4944c63dc7 pushed. Requiredfull37868897849 and original-orderQtserial37868900922 dispatched on exactsource; results/first numeric endpoint remain pending. No current hosted-green claim.
+
+2026-10-11 — UNINTERRUPTED LOCAL SERIAL RUN COMPLETES; LEAKS AND STALLS FIXED
+Acceptance run (run5): one process, `pytest tests/qt -v -p no:randomly`,
+no xdist, original order, CPU only (CUDA_VISIBLE_DEVICES=''),
+QT_QPA_PLATFORM=offscreen, tools/run_capped.sh 16G (MemorySwapMax=0),
+SPACR_TEST_MEMORY_GB=14, pytest-timeout 900 s (thread method),
+faulthandler_timeout=600, the qt_serial_rss_journal plugin. Source
+0a3f3ff64 in a frozen worktree. 00:55:44 to 05:33:24 EDT 2026-10-11.
+Result: 31,010 passed, 16 failed, 4 errors, 81 skipped, 26 xfailed in
+16,652.87 s (4:37:32). Exit 1 from test failures only: no hang, no native
+crash, no timeout, no memory-guard exit; the fatal-fault log is empty.
+Peak RSS 7,210,024 KiB (/usr/bin/time). Retained Qt widgets at file
+boundaries: median 805, 90th percentile 2,404 (run1: climbing to 13,549).
+Logs, junit, RSS journal: /mnt/wd4tb/scratch/claude-n47-20261010/run5-*.
+The guard is 900 s, not 300 s: the machine ran at load 40-50 from other
+sessions, and run4 (300 s) ended in test_empty_flowchart_caption_
+translates_without_changing_python_none, which takes 144 s alone.
+
+History of this pass. run1 (39aa0f46e, 300 s guard) was stopped at 63%
+after 3.5 h at 13,549 retained widgets: test_field_fade.py took 1,131 s
+(25 s in run5), test_one_close_mark.py 820 s (19 s),
+test_every_popup_has_the_card_and_the_rim.py 639 s (11 s). run2
+(7b7858e8d) completed in 5:40:15 with 26 failed / 4 errors. run3
+(aca79cb62) ended at its 300 s limit in test_preprocess_generate_masks_
+runs_on_mask_demo; run4 (534f5fcda) in the i18n catalog test above.
+
+Root causes fixed, all pushed to nightly:
+- Retained widget trees (7b7858e8d, aca79cb62): Make Masks now deletes the
+  closed folded modules it built (Cellpose workbench, Model Zoo, Compare)
+  unless a thread still runs; the sample-project dialog and the tutorial
+  renderer's MainWindow are deleted after use; twelve test files give their
+  screens/panels to qtbot or delete module fixtures.
+- Ten-second paced worker starts (664) spent on nothing: a finished
+  thread pool waited for its unused paced starts at shutdown (Calibration
+  preview 30 s+); measure_crop kept surplus fork workers and
+  adjust_cell_masks always opened Pool(n_jobs), so one demo field started
+  about 30 workers 10 s apart (296.8 s and over 300 s; now 6 s and 10 s).
+- OpenCC t2s dictionaries were reopened for every string checked
+  (231 s -> 144 s for one catalog test) (0a3f3ff64).
+- Figure settings handed translated captions to matplotlib
+  ("geradlinig", "am besten"); values now travel as item data, with a
+  regression test that fails on the old code.
+- Order-dependent test faults: stored QThread wrappers compared by `is`
+  (track previews), id() reuse and Qt's own scroll containers in the idle
+  prebuild check, a vanished SQLite -shm in du(), and the macOS menu probe
+  child, whose stubbed exec() never quit, so interpreter exit destroyed a
+  running bridge QThread (abort/segfault, 3 of 4 runs) after the result
+  sat unflushed in the pipe; it now prints flushed and leaves with
+  os._exit (fixed after run5, 3/3 passes).
+
+Run5 failures left for their owners (deterministic alone unless noted):
+i18n caption arrivals x7 (unreviewed arrivals); prerun row height
+(86 vs 48 alone); settings column black[umap] 0.5%; popup backdrop
+spaceout fractal count; tutorial capture alpha guard x2 and capture
+policy x3 ("visible backdrop widgets are not the requested backdrop");
+perf guard aurora frame cost (load). macOS menu x4 errors: fixed after
+the run, as above. Remaining observation, not a hang:
+test_the_text_fits_sweep.py still takes 1,157 s in the run (under 1 s per
+case alone, about 6 s per case late in the run at 2,400 retained widgets).

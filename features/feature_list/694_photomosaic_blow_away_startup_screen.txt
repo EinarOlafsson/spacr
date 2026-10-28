@@ -1,0 +1,103 @@
+================================================================================
+PHOTOMOSAIC BLOW-AWAY STARTUP SCREEN
+================================================================================
+
+Lifecycle: new
+Status:    built 2026-10-12 (not alpha: it is THE startup screen); ships in
+           1.5.1.5; translations current in all nine languages
+Requested: maintainer, 2026-10-12: "When you start spaCR, the photomosaic
+           picture appears, and then each picture in the tiled picture
+           unravels and flips away, like the individual pictures are being
+           blown away. Have it as the starting screen for spaCR."
+Owner:     Home (build); WS (translations, tutorial captures)
+Related:   the loading cover (spacr/qt/widgets/loading_screen.py), N655
+           Accessibility > Reduce motion, the genAI talk's color_final mosaic.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE WAS
+--------------------------------------------------------------------------------
+
+The window opened under a black loading cover with the white mark and the strap
+line. Under the default (lazy) preload policy the cover was closed as soon as
+the window was built; under the eager policy it stayed until the pipeline
+modules were imported and was then hidden in one step.
+
+--------------------------------------------------------------------------------
+WHAT WAS BUILT
+--------------------------------------------------------------------------------
+
+1. Resource: spacr/resources/splash/photomosaic.jpg (1600 px, 80 x 80 tiles of
+   20 px, ~0.5 MB) and photomosaic.json (grid, tile size, and which 4,004 of
+   the 6,400 tiles are occupied), written by tools/build_splash_mosaic.py from
+   the maintainer's full-colour mosaic color_final_v1.png (made by the genAI
+   talk's mosaic.py color: yellow-green cell outline, blue nucleus, red
+   parasites, single-cell microscopy tiles on black). The tool uses the
+   generator's exact grid (G = 80, T = 41; 3280 px), resamples each tile on
+   its own so tile edges stay on pixel rows, and marks a tile occupied when
+   its mean brightness exceeds 2.5 x the background level (the median of the
+   darkest 30 % of tiles): background 2.0, cell interior 6-8, logo 15-95, so
+   the cut is flat (4,003-4,020 tiles for any threshold from 4 to 5). The
+   faint background tiles do not fly; they fade with the front. Packaged
+   through setup.py package_data and MANIFEST.in.
+2. The loading cover shows the mosaic centred, with the strap line and its
+   progress rule under it. The picture is decoded by the JPEG reader straight
+   to a whole number of device pixels per tile (DPI-aware, up to 1600 device
+   px), and its black is made transparent (brightest channel as alpha), so
+   over black it is the same picture and over the window the tiles glow.
+3. When the window is ready (the preload ends, or at once under the lazy
+   policy) and at least 0.6 s after the mosaic first painted, the blow-away
+   plays (spacr.qt.widgets.loading_screen.BlowAway): a wind front sweeps
+   left to right with a slight downward slant over 1.1 s, ragged by row and
+   jittered per tile (seed 694). As it reaches a tile, the tile lifts (scale
+   1 -> 1.25), turns over like a card (one axis through cos of the flip
+   angle, a skew of 0.22 sin, 14 % foreshortening), spins, flies downwind
+   with an accelerating gust, turbulence across the wind and slight gravity,
+   and fades over 0.5-0.85 s. Background tiles leave with the front. The
+   cover's ground clears behind the front and fades ahead of it, so the live
+   window and its field backdrop appear underneath. About 1.85 s in all.
+   Motion is a pure function of elapsed time; frames are drawn by QPainter on
+   the CPU from tiles cut once, with a single reused QTransform per tile, a
+   16 ms precise timer parented to the cover, and an adaptive floor that drops
+   the faintest tiles while frames are slow.
+4. Any click or key skips to the end (the cover holds the keyboard focus
+   while it plays and gives it back). A click during loading skips the
+   animation when loading ends. Screen prewarm and Preferences warming wait
+   while it plays (blow_away_running), so their slices do not take frames.
+5. Off: Accessibility > Reduce motion; Preferences > Animation > Startup
+   animation (new switch, on by default; Reduce motion overrides it); the
+   offscreen platform; SPACR_NO_SPLASH=1, which also drops the mosaic and
+   keeps the previous plain cover. tools/tutorials/run_native_capture.py sets
+   SPACR_NO_SPLASH=1 so tutorial captures neither wait for nor show it;
+   unset it there to record the splash.
+
+Tests: tests/qt/test_694_photomosaic_blow_away_startup_screen.py (resource and
+tile map against the picture; switches; still layout; motion is time-based,
+ordered by the wind, lift/flip/spin/fade; hold, play, finish, skip by click and
+key, focus returned, no leftover timers or widgets; prewarm and Preferences
+warming wait; window integration under eager and lazy policies; the
+Preferences switch saves and resets).
+
+Measured (Home, 2026-10-12, colour mosaic): paint of one frame 5-7 ms mean
+offscreen at 1600 x 1000 with up to ~3,200 tiles in flight. Real launch on a
+private Xvfb (1920 x 1080, CPU only), two runs each: main window shown at
+4.00 / 3.90 s with the splash and 3.85 / 3.81 s without (within run-to-run
+noise; the mosaic overlaps loading and its JPEG is decoded at the cover's
+first paint), blow-away at 54-56 fps mean, median frame interval 14 ms, cover
+gone 2.75-2.85 s after the window was shown. Before prewarm and Preferences
+warming were made to wait, the same run gave 10-19 fps.
+
+New English strings for WS: "Startup animation" and its tooltip "When spaCR
+starts, the logo photomosaic blows away tile by tile to reveal the window. Off
+shows the mosaic without the animation. Reduce motion also turns it off. A
+click or a key skips it."
+
+2026-10-12 — built and pushed to nightly (Home).
+
+2026-10-12 — item 695 (Home) changes this screen's timing and size: the logo
+is drawn at half the screen height from a 2160 px resource (27 px tiles, built
+from the 17920 px picture), holds 2.0 s after it first paints (longer while
+loading), blows away over 4.0 s with the black container fading 3.0-5.0 s, and
+Help > Show startup animation replays it. See item 695's note.
+
+2026-10-15 — Normal runtime pipeline and all-nine audit pass on current source; caption-arrival tests13PASS.
+No new tutorial/native acceptance or release claim; those remain with their existing owners.

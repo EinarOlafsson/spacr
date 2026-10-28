@@ -802,7 +802,7 @@ def main(argv=None) -> int:
             reason = space_refusal_reason(error)
             if reason == "storage-limit":
                 print(f"::error::Hugging Face refused {args.space}: its storage limit is "
-                      "reached. See features/new/689_* for the maintainer steps.", file=sys.stderr)
+                      "reached. See features/feature_list/689_* for the maintainer steps.", file=sys.stderr)
             elif reason == "not-authorized":
                 print(f"::error::HF_DOCS_TOKEN cannot write {args.space}: give the "
                       "fine-grained token write access to this Space.", file=sys.stderr)

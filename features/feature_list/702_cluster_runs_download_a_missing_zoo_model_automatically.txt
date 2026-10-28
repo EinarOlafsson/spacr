@@ -1,0 +1,836 @@
+CLUSTER RUNS DOWNLOAD A MISSING ZOO MODEL AUTOMATICALLY
+
+Lifecycle: new
+Status:    BLOCKED ON MAINTAINER — software delivered; current real-cluster shared-cache, crash-recovery and offline acceptance are untested.
+Requested: maintainer, 2026-10-13: "when using run if the like with athe
+           cluster, if a user puts in a version of a model thatisnt on the
+           cluster it should be automatically downloaded. now it just fails
+           with a file not found error. ... what users tend to do is make a
+           settings file on their laptop computer then run spacr on the cloud
+           so spacr should always look at the provided path and if it cant
+           find the model and the model name is one in the spacr model zoo
+           then downloade it automatically"
+Owner:     Home (run / model resolution); WS (translations, tutorial capture)
+Related:   spacr-run, distributed execution (N693 Export settings / Save
+           settings CSV, docs/source/distributed_execution.rst),
+           spacr.model_zoo (zoo keys, hf_repo_of, checksum-verified download).
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+A settings file made on a laptop names a model by a local path (for example
+~/.spacr/models/cpsam_v2_toxo_r7) or by a zoo key/version. On a cluster node
+that path does not exist, and the run stops with FileNotFoundError instead of
+fetching the model.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The common workflow is: build the settings in the GUI on a laptop, export the
+settings CSV, run `spacr-run <module> --settings <csv>` on a cluster or cloud
+node. Every model setting then fails on the first run unless the user copies
+weights by hand.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. One resolver used by every model setting at run start (Cellpose model,
+   plaque/PV models, well detector, classifiers): first the given path as is;
+   if it does not exist, identify the zoo entry by (a) zoo key and version,
+   (b) the weights file name (e.g. cpsam_v2_toxo_r7, cpsam_plaque_r6_v4), or
+   (c) a recorded sha256 in the settings, then download that exact version
+   into the node's spaCR model cache with the existing checksum-verified
+   download, and use it. Log one line: "<setting>: <path> not found here;
+   downloaded zoo model <key> <version> (sha256 ...) to <cache path>".
+2. Never substitute a different version: if the name matches no zoo entry,
+   or the checksum fails, stop with a clear error naming the setting, the path
+   and the zoo keys that would match, instead of FileNotFoundError.
+3. Respect offline nodes: an env var / setting (e.g. SPACR_MODEL_DOWNLOAD=off)
+   turns auto-download off; then the error says which file to copy where.
+4. Export settings (N693) records each model setting's zoo key, version and
+   sha256 next to the path, so the cluster side can resolve exactly.
+5. Concurrent jobs on one node: the download is locked, so N jobs starting
+   together download once.
+6. Strings through tr(); docstrings into an API arrival contract (WS
+   translates); a short paragraph in distributed_execution.rst.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+- Test: a settings CSV whose model path does not exist but names zoo model
+  X version Y: the run downloads exactly X/Y (sha256 verified, mocked network)
+  and proceeds; the log line names the setting, path, key, version and sha.
+- Test: an unknown model name fails with the clear error listing candidate
+  zoo keys, not FileNotFoundError.
+- Test: SPACR_MODEL_DOWNLOAD=off fails with the copy-this-file message.
+- Test: two processes resolving the same missing model download it once.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+- Nothing yet.
+
+
+2026-10-13 — Home source-bound resolver audit; implementation remains OPEN.
+Evidence: features/data/702_missing_model_source_audit_2026-10-13/. Root
+independently verified all38 source/spec/test bindings against frozen bytes.
+Existing model_zoo._ensure_model_file handles bare exact key/name and checksums,
+but separated missing paths return before catalogue lookup. Generic fuzzy
+substring resolution is not an exact-version cluster fallback. Built-in remote
+entries inherit version='1'; lineage keys/filenames and exact hashes matter,
+while generated cache _vN suffixes do not identify model versions.
+
+Current download reservations avoid overwrites but do not coalesce processes.
+Nonblocking catalogue lookup can start background network refresh, so offline
+mode must prevent metadata traffic as well as weights downloads. N693 exports
+values unchanged and lacks pinned identities; GUI import rejects undeclared
+metadata. Planned resolver/metadata changes must preserve existing settings
+round trips, invalidate identities after model edits/CLI --set, recheck caches
+under a process lock and reject ambiguity/stale hashes. No code, tests, model
+downloads or GPU execution occurred; exact lookup/export/offline/lock/native
+acceptance remains to implement after release.
+
+2026-10-14 — exact missing-laptop-path resolver component (Home):
+The existing shared headless model resolver now accepts a missing POSIX,
+Windows or ~/ laptop path when its final component exactly names one unique
+catalogue key or checkpoint filename. Existing native files still win before
+any catalogue query. The selected immutable ModelEntry goes through the same
+kind restriction, cache hash verification, GUI-thread refusal and verified
+fetch implementation; no fuzzy prefix or neighbouring version is selected.
+Ambiguous identities remain unresolved for the caller's existing error path.
+Explicit remote URIs are not reinterpreted as laptop paths.
+
+The native offline file:// mirror baseline failed 5 new cases while 3 guards
+already passed. The first owning model-zoo/shared-catalogue/missing-model
+cohort passed 111 cases in 18.93 seconds. A final explicit-URI safeguard and
+its focused closure passed 26 cases in 7.24 seconds, actual exit 0; these
+cohorts overlap and are not summed. A prior test that incorrectly described
+an exact matching basename as unrelated now supplies a genuinely unrelated
+filename. Checksum rejection leaves no replacement weights; cache reuse,
+dry-run, wrong-kind, local-first and GUI-thread policies retain their tests.
+
+This closes only the bounded exact-path lookup component. Exported pinned
+key/version/hash metadata, metadata invalidation after edits, offline no-
+traffic controls, contextual unknown/ambiguous copy instructions, all-model
+entrypoint coverage, process download coalescing, docs/translations/native
+acceptance remain OPEN. No live weights download, network or GPU operation.
+Public signatures, docstrings and captions are unchanged.
+Evidence: data/702_exact_missing_path_resolver_2026-10-14/receipt.json.
+
+2026-10-14 — local-node process download coalescing component completed:
+Two resolver jobs previously both fetched the same checkpoint after checking
+an empty cache, and retained duplicate versioned copies. A deterministic
+native two-child file:// mirror baseline reproduced both downloads. Missing
+headless checkpoint acquisition now holds a QtCore QLockFile keyed by cache
+filename and expected SHA-256, then rechecks exact cached bytes and versioned
+cache files under that lock before fetch. Different hashes retain separate
+identities and fetch's existing no-overwrite/versioned reservation is intact.
+Preflight and the GUI-thread refusal happen before lock/file creation. Dead
+local owners are reclaimed through Qt's PID/host check; age-based expiration
+is disabled so long downloads do not become stale merely by taking time.
+
+Initial owning99PASS/20.06s, finite native closure4PASS/1.07s, final-source
+owning103PASS/17.80s and final native closure6PASS/1.38s; all actual exit0.
+Cohorts overlap and must not be summed. Native children fetch once and return
+the same checked path both with an empty cache and a preserved different-
+version file. A child exiting inside fetch leaves a real lock which its
+successor reclaims. Failed checksum then corrected retry releases its lock,
+and controlled permission/unknown lock failures preserve prior bytes and
+never fetch. No orphan locks or partial checkpoint files remain after success
+or handled failure. Existing resolver/type/checksum/versioning cases pass.
+
+This is CPU/native local-process and private file-mirror proof, not a real
+HPC/network-share/Windows/macOS acceptance claim. No live weights download,
+network or GPU operation. No new captions/public signatures/docstrings or
+translation-tool changes. Parent N702 remains partial: pinned settings export
+and invalidation, contextual unknown/ambiguous errors and all-model entrypoint
+acceptance remain open; the separate offline component retains its artifact
+hold until owner-generated catalogs and nine actual locale tests pass.
+Evidence: data/702_process_download_coalescing_2026-10-14/receipt.json.
+
+2026-10-14 — ambiguous exact identities refuse stock fallback:
+An exact basename matching multiple zoo entries previously returned None.
+The real Cellpose resolver then treated that known-but-ambiguous name as
+unknown and silently used stock cpsam weights. Native baseline2FAIL/1local
+file guardPASS reproduced the missing refusal and actual fallback message.
+The model resolver now raises ModelZooError with requested identifier, exact
+match count and EVERY candidate key@version [sha256=...] instead of choosing
+or handing ambiguity to a stock fallback. Existing local files still win.
+Unknown identifiers and known legacy behavior are unchanged by this repair.
+
+The error reuses the existing correctly translated '{name} · {n} matches'
+caption; no new source captions, generated artifacts, tool changes or review
+claims. The superficially suitable 'Ambiguous mapping' row was not reused
+because several existing translations have the wrong meaning. The finite
+owning cohort passed44cases in8.21seconds, actual exit0, including the real
+Cellpose resolution path and all nine actual shipped language error paths
+with unchanged exact candidate identities. Public signatures/docstrings are
+unchanged; no network/weights inference/GPU/native-other-OS/fullCI claim.
+Parent702 and the separate offline-catalog artifact hold remain open.
+Evidence: data/702_ambiguous_identity_refusal_2026-10-14/receipt.json.
+
+2026-10-14 — CLI and batch preserve and invalidate recorded model identities:
+Imported pins are validated before migration or overrides, preventing an edit
+from repairing stale evidence. Proven one-to-one setting renames move the pin;
+conflicting identities and one-to-many mappings fail. Explicit model overrides
+remove only that setting's pin, including repeated edits back to the original
+value, with a translated removal warning. Generic metadata and dotted metadata
+overrides are refused. Untouched pins survive as independent deep copies;
+failed pinned edits cannot partly mutate the caller. The actual CLI force and
+no-preflight paths cannot bypass malformed imports. CSV/JSON export validates
+existing supplied pins before either previous output is touched. Generic
+serialization does not automatically enrich identities.
+
+The finite owning CLI, batch and recorded-identity cohort passed407tests in
+8.90seconds, exit0 (one existing runpy warning), including seventeen new native
+file/actual CLI cases. Initial regression baseline10FAIL/1PASS. The independent
+Work fixtures now test raw validator rejection AND real settings-loader refusal
+at their respective boundaries. No new captions/modules, network/GPU/fullCI.
+Parent702 remains partial: module/backend kind enforcement, automatic capture,
+GUI edit lifecycle and shared acquisition acceptance remain separate work.
+Evidence: data/702_cli_batch_pin_integrity_2026-10-14/receipt.json.
+
+2026-10-14 — CLI/batch enforce model pins against the selected consumer:
+After original-key validation and proven migration/default overlay, imported
+pins must fit the actual module and backend before any override. Overrides
+then invalidate only explicitly edited model fields and the final backend is
+checked against every surviving pin. A classifier pin cannot be smuggled into
+Mask Generation by simultaneously replacing the model. A backend change
+cannot retain unrelated incompatible Cellpose pins, and rejection preserves
+the caller's original payload. Explicit backend and both model changes may
+remove both old pins. Generic moduleless serialization remains structural.
+
+The finite owning cohort passed427tests in8.40seconds, exit0 (one existing
+runpy warning), including ten new kind/route/atomicity cases. Depends on the
+parent-owned module-kind helper registry. No source captions, generated
+artifacts, network/weights/GPU/fullCI. Unsupported consumers, automatic export
+capture and GUI edit lifecycle remain distinct work; parent702 stays partial.
+Evidence: data/702_cli_backend_pin_integrity_2026-10-14/receipt.json.
+
+2026-10-14 — GUI model identity lifecycle component implemented:
+Settings forms retain validated model_metadata privately through rebuilds and
+independent collections. Explicit model edits invalidate only that model pin;
+stale uncommitted values refuse collection. Bulk imports validate original
+evidence before any widget mutation and preserve surviving pins. Actual GUI
+CSV export captures trusted explicit catalogue keys without network or hashing.
+Cluster submissions retain independent deep snapshots and recheck consumer kinds.
+79 distinct owning GUI cases pass, including ten new lifecycle regressions.
+Both changed API blocks have eighteen exact technical reviews across nine
+locales; normal scoped writers preserve unrelated records and the English
+manifest audit verifies13474symbols. No new runtime captions, weights, GPU,
+fullCI or native remote cluster acceptance. Parent702 remains partial.
+Evidence: data/702_gui_model_identity_2026-10-14/receipt.json.
+
+2026-10-14 — pinned runtime resolver verifies exact bytes before use:
+A shared settings-aware resolver now verifies a pinned supplied local file
+against its recorded SHA, preserving and refusing wrong bytes. Matching
+local bytes remain usable when the trusted catalogue is absent; known raw
+catalogue contradictions still fail. Missing files resolve the exact trusted
+raw key/version-status/version/filename/kind/hash conjunction, so an obsolete
+laptop basename does not force current-name substitution. Provider discovery
+is not consulted. Original settings and requested_value remain untouched.
+
+The already selected identity reuses the existing cache/OS lock/acquisition
+policy through a factored private helper. Planning returns the intended cache
+path without fetching, and actual returned bytes are verified before a
+consumer receives them. Nine native fixture cases plus the finite resolver,
+recorded-schema, ambiguity and coalescing cohort passed78tests in9.11seconds,
+exit0. Runtime callers/provenance wiring follows; trusted external raw
+catalogues, all-consumer acceptance and offline caption artifacts remain
+open. No real weights/network/GPU/fullCI; parent702 stays partial.
+Evidence: data/702_pinned_runtime_byte_resolution_2026-10-14/receipt.json.
+
+2026-10-14 — training/plaque consumers load the recorded pinned bytes:
+Actual Cellpose training now passes a verified pinned base path to model
+construction; plaque segmentation, well detection and Figure mode detection
+resolve their exact recorded pins before local/name fallbacks. Supplied
+wrong pinned files are preserved and refused. Plaque preview keeps its
+fetch=False boundary and never acquires missing weights. Effective paths
+are local derived arguments; original settings and requested_value remain
+unchanged. Unpinned legacy consumer behavior stays covered.
+
+Seven new native consumer cases and the finite owning training/plaque cohort
+passed42tests in6.87seconds, exit0 (two existing skimage deprecation warnings).
+Actual training model construction is intercepted before loading/inference;
+Figure mode intercepts the actual measure boundary. No network/weights/GPU/
+scientific or fullCI claim. Mask/classifier consumers and CLI provenance remain
+separate work; parent702 stays partial.
+Evidence: data/702_training_plaque_pinned_consumers_2026-10-14/receipt.json.
+
+2026-10-14 — actual CLI runs verify pinned bytes before pipeline import:
+The actual-run boundary now verifies/acquires every recorded model input
+after planning and before importing the pipeline. --force/--no-preflight
+cannot bypass checksum refusal. Dry-run exits before this acquisition gate.
+Original settings and pins go unchanged to open_run and the pipeline; the
+existing journal record_model hook separately receives the effective verified
+checkpoint paths. Both normal batch runners invoke this CLI boundary.
+
+Four new actual CLI cases and finite CLI/batch owning tests passed400cases
+in8.94seconds, exit0 (one existing runpy warning). Native stub fetcher and
+intercepted journal/pipeline boundaries establish ordering, original request
+preservation and record_model arguments; actual manifest-file acceptance is
+not claimed. A first failed test attempt exposed an unstubbed reserved
+trusted.invalid URL/DNS failure; the corrected test performs no network.
+Consumer-specific wiring/strict planning remain separate; parent702 partial.
+Evidence: data/702_cli_runtime_verification_gate_2026-10-14/receipt.json.
+
+2026-10-14 — Mask construction and parallel preparation retain valid pins:
+Actual Mask model construction resolves recorded role/pathogen pins to local
+arguments, choosing the scientific backend from the original model prefix
+first. Parallel preparation verifies/signs effective bytes while retaining
+original requests and metadata; the child reuses the verified shared cache.
+It does not rewrite requested_value to excuse a stale derived payload.
+Unpinned canonicalization keeps its prior behavior. Legacy Cellpose, organelle
+and robustness constructor paths reuse the same settings-aware boundary.
+
+Nine native pinned cases plus existing Mask worker/model/assignment stories
+passed91tests in45.78seconds, exit0. Actual SAM uses the established CPU model
+stand-in and writes native output masks. Actual Cellpose3/DINO loader calls
+are intercepted to prove selected backend+verified path. Non-Cellpose worker
+identity keeps its existing artifact-manifest hash, distinct from raw pinned
+file SHA; first-run two assertions corrected that expectation while preserving
+actual raw-byte verification. No model/GPU/network/fullCI acceptance claim.
+Other consumers/planning remain separate; parent702 stays partial.
+Evidence: data/702_mask_pinned_worker_construction_2026-10-14/receipt.json.
+
+2026-10-14 — strict planning honors pins before missing-path refusal:
+Actual settings validation checks recorded structure/binding, consumer kind,
+local checksum and exact trusted identity in download=False mode before
+generic validation. Invalid metadata is a structured error. A valid recorded
+model_path/custom_model/pathogen_model can plan the exact current bytes even
+when its old laptop basename no longer matches the catalogue filename. It
+does not discover model providers or fetch weights. Recognized metadata is
+not incorrectly warned as an unknown setting. Original values remain intact.
+
+Eight native pinned planning cases and finite validation/CLI integrity cohort
+passed148tests in7.98seconds, exit0. Cellpose3/DINO pathogen pins are covered;
+scientific backend compatibility stays in the shared registry. Would-acquire
+planning is not execution readiness. Legacy unpinned catalogue planning,
+external trusted catalogue wiring and remaining consumers remain separate;
+no real model/network/GPU/fullCI. Parent702 stays partial.
+Evidence: data/702_strict_pinned_model_planning_2026-10-14/receipt.json.
+
+2026-10-14 — classifier consumers honor pinned inference and training inputs:
+Tar inference, CAM, CV initialization and actual training custom/resume
+arguments resolve recorded classifier pins as local effective paths. Crop
+preprocessing policy reads the same verified file passed to training.
+Original input values/pins remain intact at these boundaries. The classifier
+orchestrator now resolves an exact pin before its model-path existence gate,
+so scoring is not silently skipped for a valid missing laptop path. When
+training intentionally creates a NEW model_path, validated invalidation
+removes only that replaced pin while retaining unrelated warm-start identity.
+
+Six new native boundary/orchestrator cases plus finite owning inference and
+entry pipeline tests passed40cases in10.17seconds, exit0. New tests intercept
+actual model/training calls before real weight loading; existing finite tests
+use deterministic CPU models. CAM/CV reuse the resolver but pinned full-CAM/CV
+acceptance is not claimed. No real models/network/GPU/fullCI. Other consumers
+and complete all-model integration remain open; parent702 stays partial.
+Evidence: data/702_classifier_pinned_consumer_paths_2026-10-14/receipt.json.
+
+2026-10-14 — unrelated wrong cache bytes do not block exact pin planning:
+Planning a missing pinned input now chooses an unused versioned storage
+destination when its cache basename already holds unrelated wrong bytes.
+It preserves that file, never reuses it, and does not treat the storage suffix
+as a publisher version. Explicitly supplied wrong local inputs still fail
+hard, including planning. Actual private-file-mirror acquisition proves the
+wrong cached file stays intact and exact pinned bytes use a separate path.
+Three new native cases and finite resolver/planning/coalescing cohort passed
+41tests in2.65seconds, exit0. Settings/pins unchanged; no external network,
+GPU or fullCI claim. Parent702 remains partial.
+Evidence: data/702_wrong_cache_planning_2026-10-14/receipt.json.
+
+2026-10-14 — OPS/spatial/standalone constructors honor registered model pins:
+OPS verifies its recorded Cellpose input before construction while keeping
+validated CPU/default constructor behavior. Spatial Mask Generation resolves
+its original spatial_cellpose_model pin at the actual window's construction
+boundary, before converting it to a derived Cellpose argument map. Standalone
+Cellpose mask generation resolves whichever pinned model_name/custom_model
+field is actually selected. Original settings and metadata remain unchanged.
+Four actual constructor/window boundary cases and finite OPS/Cellpose owning
+cohort passed19tests in6.46seconds, exit0. Constructors are intercepted;
+spatial input is a native private Xenium fixture. Legacy unpinned acquisition
+behavior is unchanged; no real model/network/GPU/fullCI. Parent702 partial.
+Evidence: data/702_other_registered_pinned_consumers_2026-10-14/receipt.json.
+
+2026-10-14 — native journal acceptance for the CLI pin verification component:
+Two actual CLI runs (cached and newly acquired native fixture bytes) now
+exercise the real open_run and journal file writers. Written settings.json
+and parsed settings.csv retain the exact original laptop request, version
+'001' and pin. Actual manifest model_files carries the effective absolute
+checkpoint path, full SHA256 and byte count; the historic short model label
+stays intact. The input payload remains unchanged. This closes the earlier
+journal-spy-only evidence gap without a new application implementation.
+The finite native CLI/resolver/journal cohort passed34tests in3.74seconds,
+exit0. Pipeline is a native stand-in; no scientific models/network/GPU/fullCI.
+Parent702 remains partial.
+Evidence: data/702_native_cli_model_provenance_2026-10-14/receipt.json.
+
+2026-10-14 — legacy planning never discovers providers or contacts HTTP:
+Unpinned download=False resolution now uses a bounded trusted bundled raw
+index rather than the execution catalogue. It never calls shared catalogue
+HTTP, plugin model providers or weight acquisition; explicit existing custom
+files still win. Exact declared identities and verified cache selection stay
+available. External catalogue/provider planning is explicitly unsupported.
+The original tripwire regression failed1case/passed1 before the change.
+Afterward133finite owning cases passed in4.91seconds, exit0, including actual
+HTTP/provider/shared-catalogue/fetch tripwires and prior cache/kind checks.
+Existing planning fixtures now inject the new pure entry seam instead of the
+broad execution catalogue. Actual execution discovery/offline caption policy
+remains a separate hold; no model/network/GPU/fullCI. Parent702 partial.
+Evidence: data/702_legacy_pure_model_planning_2026-10-14/receipt.json.
+
+2026-10-14 — root combined runtime integration verified:
+Exact pinned-byte acquisition, registered model-constructor boundaries, strict
+planning and actual CLI journal provenance now pass246 owning CPU/GUI cases
+in30.78seconds, exit0 on the combined public-policy source. Original laptop
+requests and pins remain in saved settings; effective loaded paths/hashes
+are separate provenance. Planning avoids provider discovery and HTTP. No
+private offline-caption policy was silently adopted. Real weights, scientific
+parity, native cluster acceptance and finalCI remain open; parent702 partial.
+Evidence: data/702_integrated_model_runtime_2026-10-14/receipt.json.
+
+2026-10-14 — legacy training/plaque/detector/figure missing paths resolve exactly:
+Missing POSIX/Windows model paths in legacy training, plaque analysis and
+figure measurement now reuse the exact shared basename resolver, including
+cache verification and cross-process acquisition. Well-detector paths enforce
+the detector kind. Unknown training paths fail before Cellpose could silently
+use stock weights. Plaque preview keeps pure download=False planning and does
+not acquire weights; explicit existing custom files retain priority.
+Eleven new native consumer/private-file-mirror cases and finite owning cohort
+passed41tests in6.78seconds, exit0 (one existing skimage warning). Stock/key
+legacy semantics are unchanged by this bounded repair; direct key-only fetch
+loops and broader figure-key fuzzy behavior remain separate gaps. No real
+models/external network/GPU/fullCI. Parent702 remains partial.
+Evidence: data/702_legacy_consumer_missing_paths_2026-10-14/receipt.json.
+
+2026-10-14 — legacy bare zoo keys share verified acquisition and exact identity:
+Training bases, plaque segmentation, well detection and figure models now
+reuse the shared cache/OS lock/acquisition path for bare catalogue keys as
+well as missing filenames. Repeated requests reuse verified cached bytes
+rather than fetching directly again. Figure model lookup no longer calls
+the fuzzy resolver, and actual detector/segmenter calls specify their kind.
+Plaque key preview uses the pure planning index only. Stock training names
+and supplied existing custom paths retain their semantics.
+Seven new native key/cache/fuzzy/kind/preview cases plus finite existing
+training/plaque/figure tests passed81cases in23.84seconds, exit0 (two existing
+skimage warnings). Older minimal mock namespaces now use the actual model
+entry protocol and shared destination type; no guard was relaxed. Legacy
+bulk bundled pack/historical provenance and offline catalog localization
+remain separate. No scientific model/GPU/external network/fullCI; parent702
+remains partial.
+Evidence: data/702_legacy_shared_key_acquisition_2026-10-14/receipt.json.
+
+2026-10-14 — offline runtime component private delivery; ARTIFACT HOLD:
+SPACR_MODEL_DOWNLOAD=off (also false/0/no, case/space-insensitive) now
+returns shared catalogue cache without foreground or daemon metadata traffic,
+even when forced. Verified cached weights and preflight remain usable. An
+uncached exact entry raises a tr()-wrapped message naming the model key,
+SHA-256 and precise cache file to copy, before creating files or fetching.
+Baseline: 9 FAIL, 2 existing guards PASS. Initial owning runtime cohort51PASS;
+final52PASS/9deselected (7.37s, actual exit0) includes the real resolver to
+declared-catalogue/shared-catalogue chain with both metadata paths forbidden.
+
+Nine exact-source AI technical runtime reviews are authored, with placeholders
+and SPACR_MODEL_DOWNLOAD preserved; no native-speaker signoff. Actual nine-
+locale error-path tests read shipped catalog rows and exercise the resolver.
+All9 currently FAIL (KeyError), as expected while normal owner-generated
+catalogs are pending. They are not skipped and localization is NOT accepted.
+The normal full builder encountered unrelated missing N700 translations and
+was stopped rather than running an unrelated MT sweep (exit143). Source-only
+English generation succeeded; generated files were restored to exact tracked
+bytes. The normal arrival CLI prerequisite is separate31d31495814, identical
+to reviewed7e269's tool; no pin or gzip was manually edited.
+
+Home-B owns translation tooling. Its required scoped extractor addition is
+only spacr.model_zoo._ensure_model_file's new literal tr() call. Combined
+normal catalog/arrival regeneration and all nine locale tests MUST pass before
+publication of this private component. Pinned export identity, process
+coalescing, all-model coverage and full parent acceptance remain OPEN.
+Evidence: data/702_offline_runtime_private_2026-10-14/receipt.json.
+
+2026-10-14 — combined legacy/offline implementation validated, HELD:
+Legacy training/plaque/detector/figure keys share exact verified acquisition;
+missing laptop paths use the resolver, figures no longer fuzzy-match and
+preview planning does not fetch. Offline policy blocks metadata and missing
+weight traffic while retaining verified local/cache reuse; its exact copy
+instruction has nine reviewed locale targets through normal writers. Combined
+owning cohort275PASS/29.16seconds/exit0. Publication remains held for caption
+contract owner review and existing foreign N700 review evidence. Public caption
+module --refresh has no CLI and its exit0 was a no-op, not a validation pass.
+The actual combined Masks refresh exited1 at missing sv/UI/AI Error report
+review evidence; owner request sent without weakening pins. Parent702 partial.
+Evidence: data/702_legacy_offline_integration_2026-10-14/receipt.json.
+
+2026-10-14 — legacy explicit bundled-pack corruption repair:
+The bulk dataset downloader stages every file in a private sibling folder,
+flushes successful bytes and publishes the complete directory atomically only
+after all streams finish. Failed streams/publication clean staging and leave
+the final empty cache retryable. Existing private cache bytes remain untouched;
+a file arriving during download prevents publication. Flattened basename
+collisions refuse before acquisition; retry streams truncate private staged
+bytes and close HTTP responses. Hugging Face remains a dataset repository.
+Three native baseline failures were reproduced (one passing preservation case).
+After the repair, six existing contracts pass in9.64seconds and eight native
+cases pass in7.81seconds, including seven new corruption/preservation cases.
+Existing nonempty legacy packs remain trusted without a manifest; abrupt OS
+termination may leave a hidden staging sibling, never a final partial pack.
+No real network/model/GPU/fullCI or native other-OS acceptance. Parent702 partial.
+Evidence: data/702_atomic_bulk_model_download_2026-10-14/receipt.json.
+
+2026-10-15 — legacy/offline implementation publication closure:
+Normal current-public merge preserves all six owning source hashes from the
+275PASS cohort. All nine actual offline target/hash pairs still exactly match
+reviewed inputs; normal English generation reconstructs the merged inventory
+(1273settings,242categories,7661UI) instead of hand-merging its conflict.
+The earlier missing offline-artifact/extractor hold is closed. Existing foreign
+N700 global failures remain explicitly open:37 exact-English runtime rows and
+missing AI Error report reviewed evidence. Nightly SOURCE publication does not
+claim those shared gates, finalCI, native cluster/scientific acceptance or whole
+702 completion. Original nonempty bulk packs/external raw catalogues and
+remaining historical provenance are separate work.
+Evidence: data/702_legacy_offline_integration_2026-10-14/receipt.json.
+2026-10-15 — recorded model filename must actually name a file:
+Metadata now refuses directory-like filename leaves (dot or trailing separator)
+and embedded NUL before the matching-local-byte shortcut or settings export.
+A malformed pin can no longer overwrite existing CSV/JSON outputs. Exact nested
+POSIX/Windows names and ./checkpoint.pt stay valid, as does opaque version001;
+existing traversal/absolute-path/URL/kind/identity checks remain intact. Root
+explicitly delegated this isolated helper hunk. Native baseline10FAIL/4PASS
+6.72seconds; the14new local-byte/serializer cases plus prior recorded-identity/
+CLI/batch owning cohort pass81 in2.22seconds under2G. No scientific model loading,
+network/GPU/fullCI or whole-item closure. Parent702 remains partial. Evidence:
+data/702_pin_filename_leaf_validation_2026-10-15/receipt.json.
+
+2026-10-15 — exact model identity survives unavailable original user home:
+A saved ~other-user/checkpoint path may raise native Path.expanduser RuntimeError
+on a cluster where that account does not exist. Both pinned and legacy local
+probes now treat that home as unavailable, then follow the existing exact
+trusted pin/unique basename logic. Original requests/settings/pins stay intact.
+Unknown or ambiguous models are not accepted, and planning never acquires
+bytes or discovers providers. Native POSIX baseline7FAIL1.56seconds; seven new
+actual named-user/file-mirror cases plus existing pin/path/filename contracts
+pass49 in2.45seconds under2G. Known wrong-local-byte refusals remain intact.
+The POSIX native expansion cases explicitly skip other OSes; no native cluster,
+scientific model loading, network/GPU/fullCI or whole-item acceptance is claimed.
+Evidence: data/702_unavailable_origin_home_2026-10-15/receipt.json.
+
+2026-10-15 — pipeline snapshot writer validates supplied pins before output:
+utils.save_settings now invokes the existing schema/identity validator only
+when model_metadata is supplied, before opening either output. Malformed
+schema/binding/hash/filename/version/kind/null metadata cannot replace existing
+CSV/JSON snapshots. Valid metadata and opaque versions round-trip verbatim;
+legacy settings without metadata retain their old behavior and fast path.
+This performs no model I/O, enrichment, provider discovery or acquisition.
+Native baseline7FAIL/2PASS8.88seconds; nine new actual writer/output-preservation
+cases plus existing legacy snapshot/N693/roundtrip contracts pass17 in12seconds
+under6G/shared lock. No model/inference/GPU/network/fullCI or whole-item closure.
+Evidence: data/702_pipeline_snapshot_pin_validation_2026-10-15/receipt.json.
+2026-10-15 — direct Cellpose apply/test APIs honor verified model pins:
+The public apply_cellpose_model/test_cellpose_model constructors now use the
+shared exact pinned-cellpose helper, or the existing legacy base resolver.
+Only the derived effective argument reaches CellposeModel; actual saved CSV/
+JSON settings retain the original request and pin. Once the constructor
+accepts an actual checkpoint file, the active journal records its effective
+path/fullSHA256. Local hash mismatch, incompatible pin kind and disabled
+acquisition refuse before construction. Existing explicit vendor stock alias
+semantics are retained, without new aliases or fuzzy catalogue substitution.
+Native baseline12FAIL/2PASS7.59seconds;18new cases plus strict existing apply/
+training/registered-consumer tests pass37 in10.30seconds under6G/shared lock.
+Actual16px TIFFs, lazy dataset reads, private local/cache/file mirrors and
+native settings/journal writes are exercised; constructor/evaluation are
+recording stand-ins. No actual model/inference/GPU/network/fullCI or scientific
+parity acceptance. These direct APIs remain outside CLI registration; parent
+702 stays partial. Evidence: data/702_direct_cellpose_api_pins_2026-10-15/receipt.json.
+
+2026-10-15 — CSV imports preserve exact requests and opaque pin metadata:
+CLI and utils readers now decode supplied metadata without coercing its
+contents, validate against raw requested strings, and apply ordinary legacy
+coercion only elsewhere. Pinned001/true/None/nan remain strings; opaque nested
+versions/null stay intact. JSON and Python-literal metadata are accepted.
+Malformed or conflicting pinned rows refuse; identical duplicates and unrelated
+legacy duplicates retain compatibility. Explicit utils custom headers remain
+supported. Input files stay unchanged. A local-file stamp guards utils'
+metadata-only raw reread against mixing settings and pins across replacement.
+Immutable-source native baseline22FAIL/11PASS11.23seconds; final34new cases plus
+CLI/legacy-utils/recorded-identity/batch cohorts pass446 in18.56seconds under6G/
+shared lock, with one existing runpy warning. Real pipeline writer/reader native
+roundtrips and concurrent replacement are exercised; no model I/O, enrichment,
+provider discovery, network/GPU/fullCI or whole-item closure. Parent702 partial.
+Evidence: data/702_csv_request_pin_preservation_2026-10-15/receipt.json.
+
+2026-10-15 — file-menu CSV import preserves exact model evidence:
+AppScreen's metadata-aware import now uses the shared torch-free validated
+reader for model_metadata and exactly its named raw request fields. Other
+rows retain the original pandas/tabular conversion, as do ordinary imports,
+accepted headers and existing empty/unknown-header diagnostics. A local stamp
+checks coherence across the metadata reread. Raw001/true/None/nan and opaque
+version001 survive literal and JSON metadata. Actual dialog/form tests prove
+valid pins retained and malformed evidence refused before form changes; native
+input bytes are preserved. Duplicate pinned fields refuse. A fresh process
+proves the metadata route imports neither torch nor spacr.utils. Immutable
+public-method baseline12FAIL/2PASS10.56seconds;14new cases plus existing import,
+legacy-header, pin-lifecycle and single-rebuild cohorts pass57 in49.00seconds
+under6G/shared lock. An initial reserved pytest parameter-name collection typo
+was corrected before product assertions and is retained separately. No model
+I/O/enrichment, provider/network/GPU/inference/fullCI or native other-OS
+acceptance. Parent702 partial. Evidence:
+data/702_gui_csv_pin_preservation_2026-10-15/receipt.json.
+
+2026-10-15 — checkpoint allocation preserves dangling user links:
+The existing versioned-path allocator treats a dangling symlink as occupied,
+then retains its ordinary basename/version/suffix rules and exclusive claim.
+Previously native O_EXCL refused the dangling checkpoint leaf while exists()
+continued to select it. Six native baseline failures include real claim and
+injected offline fetch: two actual refusals then explicit diagnostic stop
+before any third attempt, never an unbounded reproduction. Final15 cases pass
+in0.99seconds (six new plus nine existing version/fetch/install/concurrent/
+reservation/checksum/interruption/cancel controls), background2G/shared lock.
+User symlink/readlink target, original nonexistent target and exact landed
+bytes/hash are preserved. Only one predicate changes; no API prose/caption,
+model loading/provider/network/GPU/live data/fullCI or whole702 acceptance.
+Evidence: data/702_dangling_checkpoint_allocation_2026-10-15/receipt.json.
+
+2026-10-15 — rollback owned checkpoint reservation on final rename failure:
+The exclusive destination reservation is now identified from its native file
+descriptor before closing it. A final os.replace failure removes only that
+same lstat/samestat reservation and re-raises the original exception. The
+descriptor closes before replace as before, retaining current Windows ordering.
+Actual offline fetch+SHA baseline leaves a zero-byte installed filename after
+renameEIO. Six-case predecessor4FAIL2PASS0.95seconds covers direct/fetch EIO
+and KeyboardInterrupt plus already-passing foreign replacement controls. Final
+21cases pass1.24seconds, including15 existing version/fetch/dangling/concurrent/
+reservation/checksum/cancel/interruption contracts. Own original stage bytes,
+foreign regular/symlink bytes/identity and original exceptions are retained.
+Final lstat/unlink and inode-reuse races, success-path concurrency and fstat/
+close failures remain outside this narrow rename rollback; no blanket atomic
+concurrency or native Windows acceptance. No API prose/caption, actual model/
+network/GPU/live data/fullCI or whole702 acceptance. Evidence:
+data/702_claim_reservation_rollback_2026-10-15/receipt.json.
+
+
+2026-10-15 — private unknown Cellpose stock-substitution refusal
+    Actual runtime helper returnedstock for unknown bare keys, CP_model
+    filenames and missing Windows paths. It now refuses unresolved explicit
+    names before model construction. Installed stock, every declared legacy
+    alias, blank defaults and exact local/catalogue identity routes remain;
+    existing sam shorthand is used only after local/exact lookup. Root caught
+    the initial proposed alias placement before apply; actual named-sam file
+    and catalogue controls verify priority. Baseline3FAIL4PASS8.42s and final
+    owning25PASS9.49s. Old tests deliberately expecting unknown fallback now
+    enforce N702 refusal; no assertion silently removed to retain wrong output.
+    PRIVATE until exact runtime owner plus nine reviewed targets/generation
+    and actual localized refusals close. Two private doc changes have normal
+    visibility/zero-nested/committed-English absence evidence, no API targets.
+    No real model/network/GPU/nativecluster/fullCI or whole702 acceptance.
+    Evidence:data/702_unknown_model_stock_refusal_2026-10-15/.
+
+2026-10-15 — private stock offline constructor boundary
+    Actual installed Cellpose4.2.1.1 cache helper reached a replaced downloader
+    under SPACR_MODEL_DOWNLOAD=0 after the stock resolver returned cpsam.
+    No transport, constructor or checkpoint decode occurred. The constructor
+    boundary now refuses missing/nonregular native cache under0/off/false/no,
+    preserving explicit relative checkpoint precedence, cached stock, blank/
+    legacy/sam defaults and online behavior. Baseline8FAIL10PASS10.17s; final
+    owning18PASS8.35s. Existence-only preflight, not checksum verification or
+    safety against another process deleting cached files during construction.
+    PRIVATE pending exact owner/nine reviewed targets/normal generation and
+    actual localized refusal closure. No whole702/nativecluster/fullCI claim.
+    Evidence:data/702_stock_offline_constructor_guard_2026-10-15/receipt.json.
+
+2026-10-15 — verified coherent model refusal components
+    Unknown explicit Cellpose requests now refuse stock substitution, retaining
+    exact file/catalogue priority and existing default/legacy/sam identities.
+    _choose_model additionally refuses uncached installed stock when automatic
+    downloads are disabled; cached/native local files and online behavior pass.
+    Owning25 and18 checks remain source-bound; no replay. Normal three-source
+    runtime closure passed all9 languages and actual27 callbacks6.67s (18 for
+    these two diagnostics). All10,873 unrelated current rows/locale preserved;
+    fresh original source/hash checks and normal arrival refresh passed.
+    Swedish protected product-name inflection was refused before writes and
+    corrected through independent review; failed attempt retained. Existence-
+    only _choose_model boundary, not checksum/cross-process safety or coverage
+    of direct object/training constructors; that follow-up is separately held.
+    No whole702/nativecluster/model/fullCI/release acceptance. Evidence:
+    data/702_698_runtime_closure_2026-10-15/receipt.json.
+
+2026-10-15 — Shared offline stock preflight prepared privately.
+Direct object segmentation called the central resolver rather than _choose_model,
+so the recently added caller-only stock cache guard did not protect robustness
+or ordinary Mask construction. The exact guard is now a documented private
+utils helper reused by installed/default/legacy/sam resolution. Training base
+resolution delegates unresolved bare names to that central policy after its
+existing local file, exact catalogue and explicit missing-path checks, refusing
+unknown names rather than allowing silent stock substitution. Native baseline:
+11FAIL9PASS10.81s, including both actual object constructor seams. Final38PASS
+7.15s includes20new direct/central/training cases and all18existing stockguard
+cases. No real model/training/download/GPU was used; intercepted constructors,
+native-cache helper and provider fetching cannot run on refusal paths. Exact
+local/catalogue/cachedregular/online controls preserve original bytes. Existing
+public prose/signatures and the two diagnostic strings are unchanged; the new
+helper is normal API-excluded and has no nested helpers. Source remains private
+until the first three-caption publication and owner-supplied exact extractor
+helper adoption preserve normal runtime source identity. This is a bounded
+consumer-policy repair, not wholeN702/cluster/scientific acceptance. Evidence:
+features/data/702_shared_stock_preflight_2026-10-15/.
+
+2026-10-15 — Shared offline stock preflight integrated coherently.
+    The previously private direct-object/training resolver repair and exact
+    _cellpose_stock_preflight caption owner are integrated. Reviewed38owning
+    cases are unchanged and not replayed; private raises prose is corrected.
+    Runtime source identities are preserved through actual ordinary generation,
+    all9audit0 and fresh source/arrival checks in the combined locale batch.
+    No new model/refusal target was added by moving the guard. Actual remote
+    cluster acceptance, model integrity beyond existing checks and whole702
+    remain separate. Evidence:data/702_shared_stock_preflight_2026-10-15/
+    anddata/448_440_421_runtime_closure_2026-10-15/.
+
+
+2026-10-15 — PRIVATE verified picker pin backend.
+Normal picker selection returns a local path, but automatic export capture
+intentionally skips paths; trusted selected-row identity is lost. New private
+background verifier binds exact trusted bundled identity and actual held-FD
+SHA-256/regular-file identity, preserving raw declared publisher version and
+exact existing backend-prefix requests. Its immutable result retains no FD.
+A pure cheap attachment helper validates old pins, current request/kind,
+trusted conjunction and current file identity, then deep-copies ordinary JSON
+metadata. Custom same-basename paths and unverified selections are not pinned;
+raw forged results, changed bytes/paths, wrong consumers and cancellation refuse.
+Baseline1FAIL1PASS; prior-source owning26PASS0.78s; final typed internal
+cancellation-only correction3PASS0.63s. Normal scoped nested4/API/caption proof
+shows zero new arrivals and all original bodies/signatures/prose unchanged.
+Source remains private pending separate GUI-owner asynchronous picker/export
+adapter and acceptance. No real model/remote/network/GPU/whole702/fullCI claim.
+Evidence:data/702_verified_picker_pin_backend_2026-10-15/.
+
+2026-10-15 Original — Verified picker-to-export component published coherently. The actual selected file is SHA-checked off the GUI thread; only the verified trusted catalogue conjunction becomes a model-reference capsule. The AppScreen chooser commits it transactionally and preserves prior settings/pins on refusal. Normal nine-language runtime generation/audit and fresh canonical equality passed, preserving 10,959 unrelated targets per locale. Final merged actual nine localized worker callbacks plus actual CSV export/load:10 PASS in5.01s. Evidence: features/data/702_verified_picker_pin_gui_2026-10-15/final-merged-consumers/ and702_picker_verified_runtime_2026-10-15/. Whole N702 remains OPEN: actual Mask per-object grid separately reproduced missing exported metadata; its bounded adapter is next. No inference/scientific/full-CI acceptance claimed.
+
+2026-10-15 Original — Mounted Mask object-grid gap repaired. Exact private callback delegates existing field/key to the existing verified picker transaction; ordinary form signals update the grid. Actual cell/nucleus/pathogen picker-to-CSV tests preserve opaque version, raw filename, SHA and local path. Cancellation/refusal restores all prior pins; same-path, missing-widget and standalone behavior retained. Baseline1FAIL;11 distinct final cases pass across owning8/affected3 runs. Independent eight-line source peer and normal unchanged public/nested API inventory prove no new translation targets. Evidence:702_mask_grid_verified_export_2026-10-15. Whole N702 remains open: required complete success-log/candidate-error wording and cluster guide paragraph are being repaired; LivePreview propagation is a separately inspected path-only consumer, not yet accepted.
+
+2026-10-15 Original — Real-object single-file classifier provenance repaired. The Mask model registry now captures classifier identities; the actual filter resolves/verifies an exported file pin before calling its existing loader, without rewriting original settings. Existing local directory bundles and unpinned private files retain their prior loader contract. Baseline5FAIL/2PASS exposed missing registry entries, ignored acquired path and corrupt pinned bytes reaching deserialization; final7 new plus full existing classifier module42PASS14.44s. Independent source peer confirms only two owning methods changed, all docs/signatures/tr calls unchanged; no new translation generation. Evidence:702_real_object_file_pin_2026-10-15. This is no hostile-file atomic-deserialization or scientific acceptance claim; parent N702 remains open for the explicitly tracked preview/log/error/guide work.
+
+2026-10-15 Original — Verified Live Preview propagation repaired. An explicit private capsule channel preserves ordinary public callback(dict) and Propagate-off behavior. Actual Mask and Cellpose Masks registry routes retain exact model references on propagation/export and subsequent diameter/threshold edits; changed model values still invalidate old pins. Verified-only noneditable combo entries are inserted after validation and removed on refusal, restoring all prior items/selection and pins. Seventeen distinct owning cases passed across staged runs, including final three registry and four affected noncombo rollback cases; no claim of one full final17-case run. Independent peer and unchanged normal128 public/26nested documentation inventory confirm zero new caption/API targets. Root verified four tested source hashes exact on integration. Evidence:702_preview_verified_propagation_2026-10-15. Required full logging, candidate errors/offline lookup and short translated cluster guide remain the final tracked software/documentation batch; parent remains open until that acceptance.
+
+2026-10-15 — PRIVATE exact acquisition/error context and offline provider guard.
+Shared acquisition logs actual setting/request/key/raw version/SHA/final path
+only after fetch succeeds; cache hits and failures emit no false success.
+Pinned raw versions retain001/None, and foreign URI rows cannot borrow a
+bundled publisher version. Offline selection uses only bundled declarations,
+explicit local catalogue files and already-cached shared entries; arbitrary
+providers and metadata transport are not executed. Unknown Cellpose, training,
+plaque/detector and named classifier inputs refuse with their actual setting
+and declared compatible candidate identities, preserving local/default/stock
+and preview boundaries. Pathogen overrides forward their actual computed key.
+Named classifier resolution precedes initialization-policy reads and retains
+blank/new-training and existing file/directory behavior. Necessary finite
+source-bound cohorts and all failures/affected retries are recorded separately;
+no total obtained by summing overlapping runs. Two new runtime sources have18
+Root-reviewed targets, and public train_model#43 has9 Root-reviewed API targets.
+Normal owning extractor/catalog/API/arrival and localized callback closure is
+still pending; source not published alone. Guide closure is separately Root-owned.
+No real model, inference/training, network/GPU, actual cluster or fullCI claim.
+Evidence:data/702_resolution_context_2026-10-15/receipt.json.
+
+2026-10-15 — PRIVATE known-checksum failure context completed.
+Actual fetch ChecksumMismatch now preserves its type, cause and expected/got
+bytes while naming actual setting, unmodified request and selected identity.
+Both pinned local/returned SHA failures retain existing metadata refusal types
+and expected/actual hashes with actual setting/request/key/version/path context.
+Known identities are not falsely described as unmatched. Six actual baseline
+failures across two scoped runs become nine final focused passes5.14s, including
+three unchanged acquisition/success-log controls. Corrupt files and settings
+remain untouched; no false success log. All tr calls, signatures, docstrings and
+nested definitions are unchanged. This isolated source is private pending Root
+normal current-source reconciliation after the active runtime/API producer.
+Evidence:data/702_checksum_failure_context_2026-10-15/receipt.json.
+
+2026-10-15 Original — WHOLE ORIGINAL N702 ACCEPTED. Root reconciled all six clauses and twelve source-bound evidence receipts. Exact missing models resolve by trusted identity without fallback; success logs retain setting/request/key/raw publisher version/SHA/path; unknown and corrupt-byte failures name the actual setting/identity while preserving integrity refusal types. Offline copy guidance/provider tripwires, actual two-process download coalescing, verified picker/grid/LivePreview/classifier CSV provenance are accepted. Normal nine-language18 runtime/nine API targets plus18 N702 guide targets pass;18 prior N699 guide gaps are separately recorded. Postfix genuine canonical equality and normal Help pass;22 distinct actual localized/Help consumers accepted across explicitly staged runs. Evidence: features/data/702_whole_item_acceptance_2026-10-15/. No added real-cluster/GPU/scientific acceptance gate; final full CI and release remain separate.
+
+2026-10-15 — HANDOVER to Claude Home (current maintainer claim).
+Whole original six-clause contract was accepted and published b5724d096e;
+source-bound acceptance is in data/702_whole_item_acceptance_2026-10-15/.
+All resolver/export/offline/log/translation/guide working changes are already
+public; no unpushed N702 implementation branch differs from the accepted
+source. Already-working CI fixture repair b9208041dc (public cherry9fe6a3485d)
+uses real legacy cyto2 identity/offline native-cache policy and an explicit
+local checkpoint for snapshots, preserving all input/cache/request evidence.
+Its three original failures become3PASS; independent source/log peer retained.
+It was prepared before takeover and is published with this handover.
+Original has stopped N702 implementation/code/tests/docs work. Broader CI43/288
+and703 continue per the maintainer notice. Final hosted CI/release remain
+separate; no new real-cluster/GPU/scientific gate is invented for this item.
+
+2026-10-15 Claude Home — BUILT: cross-node download coalescing, offline command, HTTP tests.
+    Taken over from Codex per HANDOFF. Builds on the accepted resolver,
+    pins, success log and same-host QLockFile coalescing; nothing reworked.
+    Gap found: QLockFile with stale time 0 can only reclaim a dead holder on
+    the same host. On a shared cache (SPACR_MODEL_CACHE on NFS/Lustre or a
+    shared home), a node that crashed mid-download left a lock that blocked
+    every other node forever, with no log line.
+    - spacr/model_zoo.py: _acquire_model_download_lock polls tryLock, logs
+      "Waiting for another job to finish downloading model <key> (lock ...)"
+      once, and the holder runs a heartbeat thread that touches the lock
+      every min(30 s, stale/4). A lock whose inode/mtime/size stays unchanged
+      for SPACR_MODEL_LOCK_STALE_SECONDS (default 600) of the waiter's own
+      monotonic clock is removed with a warning; node clocks are never
+      compared. The download itself is still staged and os.replace'd
+      atomically and SHA-256 checked, so a lost race costs a second download,
+      never a wrong file.
+    - Offline (SPACR_MODEL_DOWNLOAD=off): the translated refusal now ends with
+      the exact command (_manual_model_copy_command), e.g.
+      mkdir -p <cache> && curl -fL -o <cache>/<name> <uri> && echo '<sha256>  <cache>/<name>' | sha256sum -c -
+      (cp for file:// mirrors). The command is not prose, so no new caption.
+    - docs/source/distributed_execution.rst: one paragraph on shared-cache
+      coalescing, SPACR_MODEL_LOCK_STALE_SECONDS and the offline command;
+      guide catalogs regenerated (extract/update) and the paragraph
+      translated into all nine languages, labelled "AI technical review
+      (Claude Opus 5.5), no native-speaker signoff".
+    - tests/test_n702_cluster_download_http.py (14 cases, local fake HTTP
+      server on 127.0.0.1, no real network): missing laptop path downloads
+      verified bytes and logs the one line; checksum mismatch names setting
+      and leaves no file; offline refusal carries the command and running
+      that command (curl + sha256sum) makes the next resolve succeed offline;
+      file:// command form; pinned identity fetches exactly the recorded
+      version even when the laptop basename names another zoo model; pin
+      refuses with zero GETs when the zoo now declares other bytes; four
+      parallel processes sharing one cache make exactly one GET; a live lock
+      from another host is waited for (no reclaim, no GET); an abandoned
+      foreign lock is reclaimed after the stale time; the holder's heartbeat
+      advances the lock mtime; stale-seconds parsing. Two existing tests
+      adjusted (lock fake gains tryLock/LockFailedError; offline message
+      equality includes the command line).
+    Tests: new file + all tests/test_n702_*.py + caption owners: 570 pass;
+    11 failed identically on clean origin/nightly 4108d3f99d: direct_cellpose_api
+    legacy_stock x2 (fixed upstream by 9fe6a3485d) and
+    unknown_model_refusal_locales x9, a stale test expecting the refusal
+    without the localized setting/candidate context line added later; it now
+    checks the first line exactly and the context line (9 pass). After the
+    rebase all tests/test_n702_*.py, caption owners and guide i18n pass.
+
+    MAINTAINER, on a real cluster (cannot be done here):
+    1. On the login node: export SPACR_MODEL_CACHE=/shared/path/spacr-models
+       (a folder every compute node sees), and make sure no copy of the test
+       model is in it: ls "$SPACR_MODEL_CACHE".
+    2. Export a Mask settings CSV on the laptop with a zoo model picked in
+       the model picker (it records key, version and sha256).
+    3. Submit 4 array tasks at once, e.g. sbatch --array=1-4 --wrap
+       "spacr-run mask --settings settings.csv" with the same
+       SPACR_MODEL_CACHE exported. Expect: exactly one log has
+       "<setting>: ... was not found here; downloaded zoo model ...", the
+       others have "Waiting for another job to finish downloading model",
+       and ls -la "$SPACR_MODEL_CACHE" shows one checkpoint and no .lock left.
+    4. Crash check: start one task, scancel it during the download, then
+       start another with SPACR_MODEL_LOCK_STALE_SECONDS=60. It must log
+       "Removing download lock" after about 60 s and then download.
+    5. Offline check: on a node without internet, SPACR_MODEL_DOWNLOAD=off
+       spacr-run mask --settings settings.csv with an empty cache. Copy the
+       last line of the error, run it on the login node, rerun the job: it
+       must start without downloading.
+
+2026-10-21 — Maintainer response: current real-cluster concurrent-download tests have not run. Resolver, pinned download, offline and local concurrency checks remain delivered.
+Real shared-cache four-task coalescing, interrupted-download stale recovery and offline-command acceptance remain unverified; routine approval is not a physical cluster result.

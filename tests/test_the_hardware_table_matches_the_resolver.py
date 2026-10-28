@@ -213,7 +213,7 @@ def test_every_readme_has_current_hardware_table_and_sourced_cpu_context(generat
                  "torch 2.2.2", "Python 3.12.11", "macOS 26.5.2", "Python 3.9",
                  "2.28", "Vulkan", "Direct3D 12", "OpenGL", "Metal", "wgpu"):
         assert term in page
-    target = "features/new/319_use_non_nvidia_accelerators_where_they_exist.txt"
+    target = "features/feature_list/319_use_non_nvidia_accelerators_where_they_exist.txt"
     assert (ROOT / target).is_file()
     assert "../../../" + target in page
     assert "444.5 s" not in readme and "True 3D" not in block

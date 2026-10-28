@@ -65,7 +65,7 @@ def _fake_features(tool, monkeypatch, tmp_path, strays):
     for folder in tool.SCANNED:
         (root / folder).mkdir(parents=True)
         (root / folder / f"900_{folder}_item.txt").write_text(
-            "=" * 80 + f"\nA {folder.upper()} ITEM\n" + "=" * 80 + "\n", encoding="utf-8")
+            "=" * 80 + f"\nA {folder.upper()} ITEM\n" + "=" * 80 + "\nLifecycle: new\n", encoding="utf-8")
     for name in strays:
         (root / name).write_text("a ledger file nothing indexes\n", encoding="utf-8")
     monkeypatch.setattr(tool, "INSTRUCTIONS", root)
@@ -120,10 +120,10 @@ def test_the_list_is_globbed_on_every_run_and_not_pinned(monkeypatch,
     """
     tool = _tool()
     root = _fake_features(tool, monkeypatch, tmp_path,
-                          ["07_known_bugs_not_fixed.txt", "TEMPLATE.txt"])
+                          ["known_bugs_not_fixed.txt", "TEMPLATE.txt"])
 
     before = _header(tool.render(today="2026-09-14"))
-    assert "07_known_bugs_not_fixed.txt" in before
+    assert "known_bugs_not_fixed.txt" in before
     assert "a_tenth_file_nobody_indexed.txt" not in before
 
     (root / "a_tenth_file_nobody_indexed.txt").write_text("filed today\n", encoding="utf-8")
@@ -131,7 +131,7 @@ def test_the_list_is_globbed_on_every_run_and_not_pinned(monkeypatch,
     assert "a_tenth_file_nobody_indexed.txt" in after, (
         "a file added to features/ top level is not in the header, so the "
         "list was pinned rather than globbed")
-    assert "07_known_bugs_not_fixed.txt" in after
+    assert "known_bugs_not_fixed.txt" in after
 
 
 def test_a_new_top_level_file_now_makes_the_committed_index_stale(monkeypatch,
@@ -145,7 +145,7 @@ def test_a_new_top_level_file_now_makes_the_committed_index_stale(monkeypatch,
     """
     tool = _tool()
     root = _fake_features(tool, monkeypatch, tmp_path,
-                          ["05_version_bump_and_github_actions.txt"])
+                          ["version_bump_and_github_actions.txt"])
     body = lambda text: "\n".join(
         line for line in text.splitlines()
         if not line.startswith("Regenerated "))

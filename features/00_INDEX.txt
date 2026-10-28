@@ -1,12 +1,12 @@
 ================================================================================
 spaCR FEATURES -- NEW, AND FUTURE
+Canonical discovery: features/FEATURE_LIST.md
 ================================================================================
 
 Regenerated 2026-10-28 by `tools/build_instruction_index.py`, from the files in
 these globs and nothing else:
 
-  features/future/*.txt
-  features/new/*.txt
+  features/feature_list/*.txt
 
 Do not hand-edit: it went nine days stale last time, and an index that
 disagrees with the folder is worse than none, because it is believed.
@@ -34,7 +34,8 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-645 in features/new, 76 in features/future. BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5.
+645 Lifecycle: new, 76 Lifecycle: future in features/feature_list/.
+BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
 do not establish current acceptance; use dated trailing evidence.
@@ -278,647 +279,1292 @@ NEW FEATURES
 --------------------------------------------------------------------------------
 
    01  THE DESKTOP INSTALLS CANNOT UPDATE THEMSELVES
+       01_pip_upgrade_is_broken_for_installed_builds.txt
    02  THE TIMELAPSE MOVIE SHOWS ONE FIELD; IT WAS ASKED FOR SEVERAL
+       02_multi_fov_loader_for_the_timelapse_movie.txt
    03  FIVE QT TESTS THAT PASS ALONE AND FAIL IN THE SUITE
+       03_five_order_dependent_qt_failures.txt
    04  THE TESTS MEASURE A FONT SCALE NO USER HAS
+       04_font_scale_default_disagrees_with_the_tests.txt
    05  THE VERSION BUMP AND GETTING ACTIONS GREEN
+       05_version_bump_and_github_actions.txt
    06  MODULES THAT OVERLAP — ANALYSIS ONLY, NOT ACTIONED
+       06_module_overlap_and_merge_candidates.txt
    07  FOUND, CONFIRMED, DELIBERATELY LEFT
+       07_known_bugs_not_fixed.txt
    08  FLOWVIEW — OPTIONAL PIPELINE VISUALISATION PANEL
+       08_flowview_pipeline_visualisation.txt
    10  CROP CHANNEL MAPPING: png_dims BECOMES AN EXPLICIT {r,g,b} DICT
+       10_crop_channel_mapping.txt
    11  ANNOTATE: AUTO-ANNOTATE BY METADATA, MEASUREMENT, GATE OR UMAP CLUSTER
+       11_annotate_auto_annotation.txt
    12  ANNOTATE: RUBBER-BAND MULTI-SELECT, AND ANNOTATE/CLEAR PAGE
+       12_annotate_multiselect_and_page_buttons.txt
    13  ANNOTATE: LINK TO THE DATABASE BROWSER AT png_list
+       13_annotate_database_browser_link.txt
    14  DATABASE BROWSER: SORT BY CLICKING A COLUMN HEADER
+       14_database_browser_column_sort.txt
    15  SEGMENTATION QC: TEXT SITS ON AN OPAQUE BLACK BOX
+       15_segmentation_qc_text_backdrop.txt
    16  SETTINGS WINDOW: DRAGGING IT UN-MAXIMIZES THE MAIN WINDOW
+       16_settings_window_movement.txt
    17  SURROGATE MODEL: EXPLAIN A CV CLASSIFIER WITH A FEATURE MODEL
+       17_surrogate_model_module.txt
    18  REVIEW: MODERN ATTRIBUTION METHODS AND MODEL COVERAGE
+       18_activation_map_review.txt
    19  CLASSIFY: MERGE THE CV AND ML MODULES INTO ONE
+       19_classify_module_unification.txt
    20  ANCHOR EVERY CHANNEL PROMPT TO COLOUR, NOT LIST POSITION
+       20_anchor_every_channel_prompt_to_colour.txt
    21  ANNOTATE SETTINGS: DROP THE API DOTS
+       21_annotate_drop_api_dots.txt
    22  THE REPRODUCIBILITY HASH SHOULD BE OPT-IN
+       22_reproducibility_hash_should_be_opt_in.txt
    23  macOS: PREFERENCES AND QUIT VANISH, AND THE PYTHON MENU OPENS RECIPES
+       23_macos_menu_roles_are_wrong.txt
    24  A PREFERENCES GEAR BESIDE COPY CONSOLE ON THE MODULE SCREENS
+       24_preferences_gear_in_module_screens.txt
    25  tests/qt/conftest.py IS LOST WHEN QT AND NON-QT FILES ARE INTERLEAVED
+       25_qt_conftest_is_lost_on_mixed_ordering.txt
    26  IMAGE UMAP: FIGURE SETTINGS SHOULD CARRY THE UMAP DISPLAY SETTINGS
+       26_umap_figure_settings_and_live_apply.txt
    27  IMAGE UMAP: DRAG TO ENLARGE THE PLOT WITHOUT ENLARGING THE IMAGES
+       27_umap_resizable_figure_container.txt
    28  CLASSIFY (CV): ONE GRAPH THAT GROWS, NOT ONE GRAPH PER EPOCH
+       28_classify_training_graphs.txt
    29  STOP DOES NOT STOP: OFFER SOFT AND HARD, LIKE THE QUIT BUTTON
+       29_stop_should_offer_hard_or_soft.txt
    30  CLASSIFY (MERGED): SAY WHICH SETTINGS ARE COMPUTER VISION
+       30_classify_merged_cv_vs_ml_categories.txt
    31  GATE EDITOR: A REDESIGN, NOT A CHANGE
+       31_gate_editor_redesign.txt
    32  AURORA THEME: SHARPER RAYS THAT BREATHE
+       32_aurora_rays_sharper_and_alive.txt
    33  MENU: DROP 'ALL APPS', ORDER HOME / PREFERENCES / QUIT
+       33_menu_order_and_all_apps.txt
    34  IMAGE UMAP: SEARCH THE WHOLE HYPERPARAMETER SPACE, AND CALL IT WALK
+       34_umap_hyperparameter_walk.txt
    35  SHOW SEARCH FIGURES AS THEY ARRIVE, ON A GRID THAT FITS THE CONTAINER
+       35_incremental_figure_grid.txt
    36  IMAGE UMAP: ZOOM EVERY PLOT, CLICK EVERY POINT
+       36_umap_point_inspection_and_zoom.txt
    37  CLASSIFY: CLASSES AS A DICT, HONEST CROP SOURCES, AND FEWER CATEGORIES
+       37_classify_settings_overhaul.txt
    38  DARK MODE: SELECTED COLUMNS IN THE SQL PICKER ARE INVISIBLE
+       38_sql_column_picker_invisible_selection.txt
    39  GATE EDITOR: SETTINGS THAT ACTUALLY APPLY, COLOUR-CODED GATES, MODES, CONSOLE
+       39_gate_editor_round_two.txt
    40  A RELATIONSHIPS TABLE, AND FILTERS BUILT ON TOP OF IT
+       40_relationships_table.txt
    41  GATE EDITOR: ADD TABLES TO A WORKING SET, AND MERGE THEM BY WHAT THEY MEASURE
+       41_working_table_set_and_merge_rules.txt
    42  CALL write_relationships AFTER THE MASK MODULE RUNS
+       42_relationships_after_mask.txt
    43  GET THE GITHUB ACTIONS RUNS GREEN
+       43_fix_the_failing_github_tests.txt
    44  THE INSTALLER ASKS CPU OR GPU, AND SAYS WHAT CPU COSTS
+       44_installer_cpu_vs_gpu_choice.txt
    45  INSTALLER: OPT-IN LOG SHARING, ACCOUNT SIGN-IN, AND THE ISSUE TOGGLE
+       45_installer_opt_in_logs_and_accounts.txt
    46  FOUR MODULES PAINT surface_alt UNDER THE RIGHT HALF OF A SETTING LABEL
+       46_setting_label_right_edge_paints_surface_alt.txt
    47  THE FULL tests/qt RUN HANGS PART-WAY THROUGH
+       47_the_qt_suite_hangs_at_about_25_percent.txt
    48  OPTIMIZE THE spaCR TUTORIALS
+       48_optimize_the_tutorials.txt
    49  xD IS DIMENSIONALITY REDUCTION, WITH ITS OWN COLUMN PICKER AND TABS
+       49_gate_editor_xd_dimensionality_reduction.txt
    50  SAVE THE GATE EDITOR'S GRAPH AS PDF OR PNG
+       50_gate_editor_save_graph_as_pdf_or_png.txt
    51  THE CONSOLE AND THE AI CHAT BOX ARE TOO SHORT
+       51_gate_editor_taller_console_and_ai_chat.txt
    52  3D GATES DRAWN ON A CHOSEN PLANE, COMPOSED WITH EACH OTHER, WITH THRESHOLDS
+       52_gate_editor_3d_plane_anchored_gates.txt
    53  THE INSTALLERS MUST ACTUALLY BUILD AND RUN, ON ALL THREE PLATFORMS
+       53_the_installers_must_actually_build_and_run.txt
    54  spaCR MUST RUN ON PYTHON 3.9 THROUGH 3.14, ON THE RIGHT DEPENDENCY VERSIONS
+       54_python_3_9_to_3_14_and_optimal_dependencies.txt
    55  A PERFORMANCE SWEEP: NOTHING THAT LOADS BELONGS ON THE GUI THREAD
+       55_performance_sweep_and_the_startup_stutter.txt
    56  THE AUTO-ISSUE BUTTON LEADS TO "PAGE NOT FOUND"
+       56_github_issue_generation_is_a_page_not_found.txt
    57  IMAGE UMAP: DROP THE API LINK DOTS FROM THE SETTINGS
+       57_image_umap_api_link_dots.txt
    58  CLAUDE SHOWS AS A CONTRIBUTOR ON THE spaCR GITHUB PAGE
+       58_remove_claude_and_github_actions_from_contributors.txt
    58  CLAUDE SHOWS AS A CONTRIBUTOR ON THE spaCR GITHUB PAGE
+       58_remove_claude_as_a_github_contributor.txt
    60  EVERY MODULE AT 100% TEST COVERAGE
+       60_every_module_to_100_percent_test_coverage.txt
    61  A TOOLTIP AND DOCUMENTATION SWEEP: SHORT, INFORMATIVE, CORRECTLY REFERENCED
+       61_tooltip_and_documentation_sweep.txt
    62  THE SETTING ANIMATIONS MUST SHOW WHAT THE SETTING ACTUALLY DOES
+       62_audit_the_setting_animations_for_accuracy.txt
    63  MAKE THE API PAGE LOOK PROFESSIONAL, CLEAN AND USEFUL
+       63_api_documentation_page_sweep.txt
    64  THE USER SETS THE PROGRAM'S LANGUAGE
+       64_user_sets_the_default_language.txt
    65  TRANSLATION COVERAGE: FULL UI, DOCUMENTATION AND INSTALLER SURFACES
+       65_translation_coverage.txt
    66  HOME SCREEN: KEEP THE BOTTOM TOOLTIP, DROP THE PER-MODULE POPUP
+       66_home_screen_module_tooltips.txt
    67  IMAGE UMAP: THE RESULTS TABLE IS AMBIGUOUS, AND THE WALK MAY NOT BE WALKING
+       67_umap_search_table_and_walk_convergence.txt
    68  GATE EDITOR: RIGHT-CLICK THE GRAPH FOR EVERYTHING YOU CAN DO TO IT
+       68_gate_editor_graph_context_menu.txt
    69  STANDARDISE EVERY LIVE VIEW AND EVERY HYPERPARAMETER SEARCH
+       69_standardise_live_views_and_searches.txt
    70  OFFLOAD THE COMPUTE THAT IS ACTUALLY GPU-SHAPED
+       70_gpu_offload_where_it_actually_helps.txt
    71  MORE MEASUREMENTS: THE CHEAP ONES, THE OPT-IN ONES, AND LEARNED FEATURES
+       71_more_measurements_opt_in_and_learned.txt
    72  ONE "ORGANELLE TYPE" CHOICE SHOULD DRIVE THE REST OF THE ORGANELLE SETTINGS
+       72_organelle_type_drives_the_settings.txt
    73  AN "ADVANCED SETTINGS" CATEGORY, ORGANISED BY WHAT A SETTING DOES
+       73_advanced_settings_with_real_subsections.txt
    74  LOAD EVERYTHING BEHIND A LOADING SCREEN, THEN SHOW A READY APP
+       74_loading_screen_covers_the_preload.txt
    75  IMAGE UMAP: THE NORMAL FIGURE VIEW, LIVE SETTINGS, AND A PROPAGATE BUTTON
+       75_image_umap_figures_and_live_settings.txt
    76  MORE THAN ONE ORGANELLE: organelle, organelle_1, organelle_2, ...
+       76_more_than_one_organelle.txt
    77  THE SETTINGS NOTHING READS, AND THE NUMBERS THAT COME OUT WRONG
+       77_phantom_settings_and_wrong_numbers.txt
    78  THE LOADING SCREEN BACKGROUND IS TEAL; MAKE IT BLACK OR DARK GREY
+       78_loading_screen_background_is_teal.txt
    79  ONE ANCHOR, ONE COPY OF EACH COLUMN, AND THE RIGHT AGGREGATION FOR EACH KIND
+       79_merge_keys_duplicate_columns_and_aggregation.txt
    80  THE REPORTED STATISTIC MUST BE COMPUTED AT THE LEVEL THE SETTING DECLARES
+       80_statistics_at_the_declared_level.txt
    81  CLOSE THE GITHUB ISSUES BY FIXING THEM, AND CLOSE THEM AS THE MAINTAINER
+       81_close_the_github_issues.txt
    82  GET EVERY GITHUB TEST GREEN, THEN RELEASE 1.5.0.5 — AND DO NOTHING AFTER
+       82_green_ci_then_release_1_5_0_5.txt
    82  GET EVERY GITHUB TEST GREEN, THEN RELEASE 1.5.0.5 — AND DO NOTHING AFTER
+       82_green_ci_then_release_1_5_0_7.txt
    83  FINISH THE MULTILINGUAL CATALOGS AND PUSH THE VERIFIED BATCH TO NIGHTLY
+       83_finish_multilingual_catalogs_and_push_nightly.txt
    83  FINISH THE MULTILINGUAL CATALOGS AND PUSH THE VERIFIED BATCH TO NIGHTLY
+       83_multilingual_catalogs_green_and_pushed_2026_09_12.txt
    84  ANNOTATION MODE OVERWRITES location_column, AND THE USER CANNOT GET OUT
+       84_classify_controls_and_the_location_column.txt
    84  TURN THE NATURAL NARRATION FINDINGS INTO A REUSABLE REPOSITORY SKILL
+       84_natural_voice_narration_skill.txt
    85  THE NAME IS spaCR
+       85_the_name_is_spaCR.txt
    86  THE API DOCS ARE NOT A ROADMAP -- REMOVE THE MODULE AUDIT, KEEP THE INSIGHTS
+       86_the_api_docs_are_not_a_roadmap.txt
    87  PR #74 -- LET A PROJECT CHOOSE WHICH STAIN RENDERS IN WHICH COLOUR
+       87_pr_74_display_order_in_annotate.txt
    88  EVERY NOTEBOOK CARRIES EVERY SETTING, WITH ITS TOOLTIP
+       88_notebooks_carry_every_setting_with_its_tooltip.txt
    89  A COLOURBLIND MODE FOR EVERY IMAGE SPACR SHOWS
+       89_colourblind_mode_rgb_as_cmyk.txt
    90  A FOURTH CHANNEL IN THE CROPS: A MASK, OR ANOTHER STAIN
+       90_a_fourth_channel_in_the_crops.txt
    91  LET THE USER CHOOSE THE CROP'S DTYPE AND SCALING
+       91_crop_dtype_and_scaling_are_the_users_choice.txt
    93  THE INTENSITY RESCALE FACTOR IS PER FIELD, AND NOTHING RECORDS IT
+       93_the_intensity_rescale_factor_is_per_field_and_unrecorded.txt
    94  EVERY TRAIN/TEST SPLIT GROUPS BY WELL
+       94_train_test_splits_must_group_by_well.txt
    95  IMAGE UMAP REBUILT THE ParaScape WAY: TABLE, VIEWER, GRID, WALK, GPU
+       95_image_umap_rebuilt_the_parascape_way.txt
    96  CLASSIFY (MERGED) SENDS THE CV MODEL TYPE INTO THE ML ANALYSIS
+       96_classify_merged_routes_the_ml_model_type.txt
    97  CLASSIFY SEGFAULTS IN libomp: THREE OpenMP RUNTIMES IN ONE PROCESS
+       97_classify_segfaults_on_duplicate_openmp_runtimes.txt
    98  CLASSIFY DIES WITH SIGBUS: A QThread GETS 512 KB OF STACK, LAPACK WANTS MORE
+       98_worker_threads_have_a_512kb_stack.txt
    99  EXPLAIN CV MODELS, THEN RESOLVE REGRESSION HITS BACK TO LIKELY CELLS
+       99_explain_cv_models_and_resolve_hits_back_to_cells.txt
   100  THE XFAIL BACKLOG IS FIFTEEN UNFIXED BUGS THE LEDGER CANNOT SEE
+       100_the_xfail_backlog_is_fifteen_unfixed_bugs.txt
   101  NIGHTLY CANCELS ITS OWN CI BEFORE IT CAN EVER FINISH
+       101_nightly_cancels_its_own_ci_before_it_finishes.txt
   102  A MISSING METADATA COLUMN ASKS WHICH ONE IT IS, INSTEAD OF DYING
+       102_a_missing_metadata_column_asks_instead_of_dying.txt
   103  NO ICON ON LINUX, AND A DIRTY FIRST FRAME AT LAUNCH
+       103_no_icon_on_linux_and_a_dirty_first_frame.txt
   104  THE HF E2E MASK STAGE PRODUCES NO CELL MASKS, IN BOTH ITS MODES
+       104_the_hf_e2e_mask_stage_produces_no_cell_masks.txt
   105  THE AI CHAT ALWAYS SEES THE CONSOLE, INCLUDING WHAT CAME BEFORE IT
+       105_the_ai_chat_always_sees_the_whole_console.txt
   106  A SETTING THAT CANNOT DO ANYTHING RIGHT NOW IS GREYED OUT, AND SAYS WHY
+       106_inapplicable_settings_are_greyed_out.txt
   107  SCORE AND COUNT CSVs ARE PAIRED WHEN THEY ARE ADDED, NOT BY LIST POSITION
+       107_score_and_count_csvs_are_paired_when_they_are_added.txt
   108  RIGHT-CLICK ANY FIGURE AND CHANGE HOW IT LOOKS, WITHOUT RE-RUNNING ANYTHING
+       108_right_click_any_figure_to_restyle_it.txt
   109  IMAGE UMAP AND THE GATE EDITOR TAKE MORE THAN ONE DATABASE, AND MERGE THEM
+       109_modules_take_more_than_one_database_and_merge_them.txt
   110  CLICK A CONSOLE SECTION HEADING TO BRING IT TO THE TOP AND EXPAND IT
+       110_click_a_console_heading_to_raise_and_expand_it.txt
   111  A CLEAR FIGURES CONTROL: PLAIN TEXT THAT FLICKERS BLUE WHEN CLICKED
+       111_a_clear_figures_control_that_is_text_and_flickers_blue.txt
   112  Status:    DONE 2026-10-21 — mechanical guards and finite semantic review accepted;
+       112_docstring_and_translation_correctness_sweep.txt
   113  A TOOLTIP APPEARS OVER THE SETTING, NOT OVER ITS FIELD
+       113_tooltips_belong_to_the_setting_not_its_field.txt
   114  A PARAMETER SEARCH THAT CANNOT TAKE THE MACHINE DOWN
+       114_parameter_search_that_cannot_take_the_machine_down.txt
   115  EVERY REGRESSION DIAGNOSTIC, SAVED AND SCORED -- NOT ONLY IN THE SEARCH
+       115_every_regression_diagnostic_graph_saved_and_scored.txt
   116  CLICK A SEARCH ROW TO SPAWN THAT RUN'S GRAPHS
+       116_click_a_search_row_to_spawn_its_graphs.txt
   117  FIGURES ON A GRID, AT THEIR OWN ASPECT, NOT STRETCHED
+       117_figures_on_a_grid_not_stretched.txt
   118  FIGURE PREFERENCES: GENERAL, AND PER GRAPH TYPE
+       118_figure_preferences_general_and_per_graph.txt
   119  THE REGRESSION FIGURE SURFACE: A GRID, A RESULTS TABLE, AND SPEED
+       119_the_regression_figure_surface.txt
   120  THE README'S INSTALLER LINKS ARE PLATFORM ICONS, IN WHITE LINE ART
+       120_readme_installer_links_are_platform_icons.txt
   121  CLICK A GENE IN THE REGRESSION AND EVERYTHING KNOWN ABOUT IT APPEARS
+       121_click_a_gene_to_see_everything_about_it.txt
   122  REGRESS ACROSS SCREENS: screenID, MERGED TABLES, AND A MEASUREMENT SEARCH
+       122_regress_across_screens.txt
   123  EVERY INSTALLER VERSION STAYS DOWNLOADABLE, ON ONE PAGE
+       123_every_installer_version_stays_downloadable.txt
   124  FINISHING THE REGRESSION FIGURES: EVERY PLOT, EVERY RUN, EVERY POINT
+       124_the_regression_figures_finished.txt
   125  THE OLD VOLCANO, A CLEAR GRAPH SETTING, EVERY RUN IN THE RUNS TAB, AND QT BY
+       125_the_old_volcano_the_runs_tab_and_qt_by_default.txt
   126  THE THEME MUST NOT LAG WHILE A RUN IS GOING
+       126_the_theme_must_not_lag_while_a_run_is_going.txt
   127  MODULES THAT OVERLAP OR ARE REDUNDANT, MEASURED 2026-08-17
+       127_module_overlap_after_the_regression_work.txt
   128  THE REGRESSION PANEL: DEFAULTS, COLOURING, THE GRID, MORE TABS, PLOT TYPES,
+       128_the_regression_panel_seven_asks.txt
   129  EVERY PLOT IN PYQTGRAPH, A TAB EACH, AND GENE/gRNA AS A RIGHT-CLICK FILTER
+       129_every_plot_in_pyqtgraph_with_a_tab_each.txt
   130  A MEASUREMENTS DATABASE PER PLATE, DROPPED INTO THE INPUT TABLE
+       130_measurements_databases_per_plate_in_the_input_table.txt
   131  SHOW THE CELLS BEHIND A DOT ON THE REGRESSION PLOT
+       131_show_the_cells_behind_a_dot_on_the_volcano.txt
   132  THE MODEL AND INFERENCE TAB EXPLAINS WHAT IT FITS, AND MIXED IS THE DEFAULT
+       132_the_model_tab_explains_what_it_fits.txt
   133  EVERY MODEL EXPLAINED AND FLAGGED, AND TOXOPLASMA ANNOTATION ON EVERY EXPORT
+       133_every_model_explained_and_toxoplasma_annotation.txt
   134  ANALYSIS MODE IS A DROPDOWN, NOT A TEXT BOX
+       134_analysis_mode_is_a_dropdown.txt
   135  THE REGRESSION SETTINGS ARE ONE PAGE A USER CAN READ
+       135_the_regression_settings_are_one_page_a_user_can_read.txt
   136  THE OLD MATPLOTLIB FIGURES GET THE HOUSE STYLE
+       136_the_old_matplotlib_figures_get_the_house_style.txt
   137  DRAG IMAGES IN, AND THE REGEX IS WORKED OUT FOR YOU
+       137_drag_images_in_and_the_regex_is_worked_out_for_you.txt
   138  THE EXPLAINER TEXT FILLS THE WIDTH OF ITS BOX
+       138_the_explainer_text_fills_its_box.txt
   139  EVERY REGRESSION GRAPH IN PYQTGRAPH, AND A BOXPLOT WHERE THERE WAS A BAR
+       139_every_regression_graph_in_pyqtgraph_and_box_not_bar.txt
   140  A LONG FIT SAYS IT WILL BE LONG, AND SAYS WHERE IT HAS GOT TO
+       140_a_long_fit_says_it_is_long_and_says_where_it_is.txt
   141  THE USER PICKS THE BACKEND, AND IS TOLD WHAT EACH ONE IS
+       141_the_user_picks_the_backend_and_is_told_what_it_costs.txt
   142  FORCE RESTART, FOR WHEN STOP DOES NOT STOP
+       142_force_restart_when_stop_does_not_stop.txt
   143  PLATE POSITION IS OPT IN, AND THE MODEL BOX IS SHORTER
+       143_plate_position_is_opt_in_and_the_box_is_shorter.txt
   144  THE MODEL BOX IS TYPESET, NOT DUMPED
+       144_the_model_box_is_typeset_not_dumped.txt
   145  ONE READER, ONE WRITER, ONE KEY VOCABULARY
+       145_one_reader_one_writer_one_vocabulary.txt
   146  DELETE A RUN FROM THE RUNS TAB, NOT ONLY FROM THE FIGURES
+       146_delete_a_run_from_the_runs_tab.txt
   147  BOTH FITS ARE VISIBLE, A SQUARE IS A SQUARE, AND THE MENU HAS CATEGORIES
+       147_both_fits_are_visible_a_square_is_a_square_and_the_menu_has_categories.txt
   148  THE X AND Y AXES BEHAVE AS EXPECTED, LOGGED OR NOT
+       148_the_axes_behave_as_expected_logged_or_not.txt
   149  THE VOLCANO'S Y AXIS IS CONTINUOUS AGAIN
+       149_the_volcano_y_axis_is_continuous_again.txt
   150  A SAVED FIGURE IS FOR PAPER, NOT FOR THE SCREEN
+       150_a_saved_figure_is_for_paper_not_for_the_screen.txt
   151  CHANGING A LINE WIDTH SHOULD NOT TAKE A MINUTE
+       151_changing_a_line_width_should_not_take_a_minute.txt
   152  TWO COLOURS -- LINES AND FONT -- AND THEY FOLLOW THE THEME
+       152_the_axis_and_text_colour_follow_the_theme_and_the_user.txt
   153  THE MODEL SUMMARY SURVIVES BEING LOADED FROM DISK
+       153_the_model_summary_survives_being_loaded_from_disk.txt
   154  THE MEASUREMENTS TAB IS A WORKFLOW, NOT A REPORT
+       154_the_measurements_tab_is_a_workflow_not_a_report.txt
   155  THE MONTAGE KNOWS ITS OWN RUN, AND SAYS HOW IT CHOSE
+       155_the_montage_knows_its_own_run_and_says_how_it_chose.txt
   156  EVERY REGRESSION MODE GETS A SUMMARY, NOT ONLY THE ONES STATSMODELS WRITES ONE FOR
+       156_every_regression_mode_gets_a_summary.txt
   157  THE LOADED MARK MOVES AND NOTHING RELOADS
+       157_the_loaded_mark_moves_and_nothing_reloads.txt
   158  AN UNAVAILABLE OPTION OFFERS TO MAKE ITSELF AVAILABLE
+       158_an_unavailable_option_offers_to_make_itself_available.txt
   159  LOADING A RUN HANGS THE APPLICATION
+       159_loading_a_run_hangs_the_application.txt
   160  TWO REGRESSIONS HUNG THE MACHINE
+       160_two_regressions_hung_the_machine.txt
   161  A REGRESSION THAT FAILS SAYS WHY
+       161_a_regression_that_fails_says_why.txt
   162  THE MEASURE MODULE'S ELEMENTS CAN BE RESIZED
+       162_the_measure_panels_resize.txt
   163  A TIMER STARTED OFF THE GUI THREAD NEVER FIRES
+       163_a_timer_started_off_the_gui_thread.txt
   164  THE MONTAGE'S COUNT TABLES ARE READ LIKE EVERY OTHER TABLE
+       164_the_montage_count_tables_are_canonicalised.txt
   165  AN UPGRADE NEVER REPLACES THE CHECKOUT IT RUNS FROM
+       165_an_upgrade_never_replaces_the_checkout.txt
   166  RESTYLING A FIGURE WHILE A RUN IS DRAWING ONE CRASHES spaCR
+       166_restyling_a_figure_while_a_run_draws_it.txt
   167  THE MONTAGE USES THE SCORES THE RUN ALREADY HAS
+       167_the_montage_uses_the_scores_the_run_already_has.txt
   168  THE RUN SUMMARY IS READABLE AT A GLANCE
+       168_the_run_summary_is_readable_at_a_glance.txt
   169  THE FIGURES CONTAINER IS RESIZABLE AND EACH CATEGORY COLLAPSES
+       169_the_figures_container_is_resizable_and_collapsible.txt
   170  THE CELLS TAB HAS TWO MODES, AND THE ANNOTATOR'S CONTROL OVER THE PICTURE
+       170_the_cells_tab_has_two_modes_and_the_annotator_settings.txt
   171  ONE NAME FOR LOADING AND ONE FOR STREAMING, EVERYWHERE
+       171_one_name_for_loading_and_one_for_streaming.txt
   172  HOW MANY CELLS, AND WHICH ONES
+       172_the_count_and_the_choice_of_cells.txt
   173  A GUIDE AND A PROBABILITY FOR EVERY CELL
+       173_a_guide_and_a_probability_for_every_cell.txt
   174  BETA AS A RESPONSE TRANSFORM FOR THE REGRESSION
+       174_beta_as_a_response_transform.txt
   175  EVERY GENE AGAINST EVERY MEASUREMENT, IN ONE TABLE
+       175_every_gene_against_every_measurement.txt
   176  A PANEL CANNOT WRITE AN IMPOSSIBLE NUMBER
+       176_a_panel_cannot_write_an_impossible_number.txt
   176  ONE CHANNEL VOCABULARY, TOOLTIPS ON EVERY CELL SETTING, AND A CALM TAB
+       176_one_channel_vocabulary_and_a_tab_that_opens_calm.txt
   177  ONE PARSE PER INPUT FILE, NOT ONE PER PAIR ROW
+       177_one_parse_per_input_file.txt
   177  THE CELLS TAB COMPARES MEASUREMENTS, AND THE CHROME BEHAVES
+       177_the_cells_tab_compares_measurements_and_the_chrome_behaves.txt
   178  EVERY FIGURE READS IN BOTH THEMES, THE SUMMARY IS A TABLE, AND A SAVED FIGURE
+       178_every_figure_reads_in_both_themes_and_the_summary_is_a_table.txt
   179  A GRAPH TAB IN THE CELLS PANEL, AND MEASUREMENTS THAT COMBINE
+       179_a_graph_tab_that_combines_two_measurements.txt
   180  A SAVED RUN CAN CARRY THE WHOLE WORKSPACE, NOT ONLY THE SETTINGS
+       180_a_saved_run_can_carry_the_whole_workspace.txt
   181  A PENALTY THAT SHRINKS EVERY COEFFICIENT TO ZERO IS NOT A DEFAULT
+       181_a_default_that_always_fails_is_not_a_default.txt
   182  THE GLM FAMILY MUST BE CHOSEN ON THE RESPONSE THE MODEL ACTUALLY FITS
+       182_the_family_is_chosen_on_the_untransformed_response.txt
   183  790 COEFFICIENTS DO NOT BELONG IN THE CONSOLE
+       183_the_console_is_not_where_790_coefficients_go.txt
   184  A CONTROL CAN BE NAMED AS A GENE OR AS A GUIDE
+       184_a_control_can_be_named_as_a_gene_or_as_a_guide.txt
   185  PICK WELLS OFF A PLATE MAP, INSTEAD OF TYPING THEM
+       185_pick_wells_off_a_plate_map.txt
   186  THE CELLS TAB, WALKED THROUGH: SIX THINGS FOUND IN ONE SITTING
+       186_the_cells_tab_walkthrough.txt
   187  THE MEASURE TAB: COMPARE ANYTHING, AND FILL THE SPACE
+       187_the_measure_tab_compares_and_fills.txt
   188  THE CELLS TAB: APPLY SETTINGS IN MILLISECONDS, AND R,G,B BACK
+       188_the_cells_tab_applies_settings_without_reloading.txt
   189  THE PLOTS MUST SHOW THE REGRESSION THAT ACTUALLY RAN
+       189_the_plots_must_show_the_regression_that_ran.txt
   190  A RUN OPENS ON DOUBLE-CLICK, AND THE TAB DOES NOT MOVE ON ITS OWN
+       190_a_run_opens_on_double_click_and_stays_put.txt
   191  EXAMPLE DATA THAT DOWNLOADS ITSELF AND FILLS THE RIGHT SLOTS
+       191_example_data_downloads_and_loads_itself.txt
   192  A BUTTON THAT PICKS THE SETTINGS FOR YOUR DATA
+       192_a_button_that_picks_the_settings_for_your_data.txt
   193  NO BUTTON EVER CUTS OFF ITS OWN TEXT
+       193_no_button_ever_cuts_off_its_own_text.txt
   194  THE PLATE MAP IS SQUARES YOU DRAG ACROSS, AND IT DOES NOT DRIFT
+       194_the_plate_map_is_squares_you_drag_across.txt
   195  THE DEFAULT CONTROL IN REGRESSION IS 000000
+       195_the_default_control_is_000000.txt
   196  THE ADVISOR'S SETTINGS HAVE TO ACTUALLY RUN
+       196_the_advisors_settings_have_to_actually_run.txt
   197  THE HOTKEY MAP IS IN THE HELP MENU
+       197_the_hotkey_map_is_in_the_help_menu.txt
   198  THE MEASUREMENTS TAB'S SUB-HEADINGS READ WHEN THEY ARE NOT HIGHLIGHTED
+       198_the_folded_headings_read_when_they_are_closed.txt
   199  EVERY FIGURE IN THE PANEL OPENS WHEN IT IS CLICKED
+       199_every_figure_in_the_panel_opens_when_it_is_clicked.txt
   200  THE FIGURE SETTINGS ARE THE GRAPH'S OWN CONTROLS
+       200_the_figure_settings_are_the_graphs_own_controls.txt
   201  THE OUTLINE SETTING LOOKS LIKE THE CHANNEL SETTINGS
+       201_the_outline_setting_looks_like_the_channel_settings.txt
   202  THE MEASUREMENTS TABLE'S COLUMNS SAY WHAT THEY CONTROL
+       202_the_measurements_table_columns_say_what_they_control.txt
   203  THE MERGED DATABASE KEEPS THE gRNA ANNOTATION
+       203_the_merged_database_keeps_the_grna_annotation.txt
   204  THE CELL TABLE'S BARS CARRY THE ERROR THE USER PICKS
+       204_the_cell_table_bars_carry_the_error_the_user_picks.txt
   205  "SHOW" OFFERS THE WELLS THE CHOSEN GUIDES ARE IN
+       205_show_offers_the_wells_the_chosen_guides_are_in.txt
   206  THE VOLCANO TAKES MORE THAN ONE GUIDE AT A TIME
+       206_the_volcano_takes_more_than_one_guide.txt
   207  THE ANNOTATED FRACTIONS ARE ALL ONE OR ZERO
+       207_the_annotated_fractions_are_all_one_or_zero.txt
   208  THE PICTURE SETTINGS TOOLTIPS STAY WHILE THEY ARE BEING READ
+       208_the_picture_settings_tooltips_stay_while_read.txt
   209  THE SUDOKU ANNOTATION METHODS
+       209_the_sudoku_annotation_methods.txt
   210  OUTLIERS CAN BE REMOVED BEFORE ANNOTATION
+       210_outliers_can_be_removed_before_annotation.txt
   211  THE IMAGE TABS PAGE INSTEAD OF SCROLLING
+       211_the_image_tabs_page_instead_of_scrolling.txt
   212  THE NONPARAMETRIC REGRESSIONS ARE OFFERED
+       212_the_nonparametric_regressions_are_offered.txt
   213  THE MERGE OFFERS png_list AND THE DEPENDENT VARIABLE
+       213_the_merge_offers_png_list_and_the_dependent_variable.txt
   214  THE POSITIVE CONTROL CALIBRATES THE gRNA FRACTIONS
+       214_the_positive_control_calibrates_the_fractions.txt
   215  THE UMAP SAYS WHETHER THE ANNOTATION WORKED
+       215_the_umap_says_whether_the_annotation_worked.txt
   216  EVERY POPUP IS A WINDOW THE USER CAN DRAG
+       216_every_popup_is_a_window_the_user_can_drag.txt
   217  "SETTINGS FOR MY DATA" ADVISES THE REST OF THE RUN
+       217_settings_for_my_data_advises_the_rest.txt
   218  THE RESPONSE HISTOGRAM, BEFORE AND AFTER THE TRANSFORM, ON ONE GRAPH
+       218_the_response_histogram_before_and_after_transform.txt
   219  A UNIT THAT CONSTRAINS THE DESIGN SAYS SO BEFORE THE RUN
+       219_a_unit_that_constrains_says_so_before_the_run.txt
   220  WHICH REGRESSION BACKENDS CAN BE DEFAULT DEPENDENCIES
+       220_the_backends_that_can_be_default_dependencies.txt
   221  THE FIRST RUN ASKS, INSTEAD OF THE INSTALLER
+       221_the_first_run_setup_screen.txt
   222  "COLOUR BY" TAKES MORE THAN ONE COLUMN
+       222_colour_by_takes_more_than_one_column.txt
   223  SAVING A GRAPH MAKES A FOLDER, NOT A FILE
+       223_saving_a_graph_makes_a_folder.txt
   224  THE PERMUTATION TEST SHOWS THE RESIDUALS IT PERMUTES
+       224_the_permutation_shows_its_residuals.txt
   225  THE SUMMARY MARKS A BROKEN ASSUMPTION, AND ENDS WITH WHAT TO DO
+       225_the_summary_flags_broken_assumptions_and_recommends.txt
   226  "SETTINGS FOR MY DATA" READS THE LAST RUN, NOT ONLY THE INPUT
+       226_the_advisor_reads_the_last_run.txt
   228  CONSOLE, AI CHAT AND SYSTEM ALL COLLAPSE
+       228_the_bottom_panels_collapse.txt
   229  THE CLASSES COLUMN CAN BE FILLED IN, AND THE CLASSES DEFINE THE FOLDERS
+       229_the_classify_classes_column_can_be_filled_in.txt
   230  IMAGES ARE STREAMED, NOT ONLY LOADED
+       230_images_are_streamed_not_only_loaded.txt
   231  THE TRAINING GRAPHS UPDATE, THEY DO NOT REGENERATE
+       231_training_graphs_update_not_regenerate.txt
   232  THE BOTTOM OF A CONSOLE IS ONE GESTURE AWAY
+       232_the_console_can_be_jumped_to_the_bottom.txt
   233  THE EVALUATION SETTINGS ARE SPLIT BY CATEGORY, AND BY ML VS CV
+       233_the_evaluation_settings_are_split_by_category.txt
   234  CODEX REPOSITORY FAMILIARISATION
+       234_codex_repository_familiarisation.txt
   234  THE SETUP SCREEN IS A SEQUENCE OF SLIDES, NOT A FORM
+       234_the_setup_screen_is_a_sequence_of_slides.txt
   235  TWO TESTS FAIL ON AN UNLUCKY ORDER, AND THE SUITE HIDES IT
+       235_two_tests_fail_on_an_unlucky_order.txt
   236  CLASSIFY AND REGRESSION, AUDITED EXHAUSTIVELY AGAINST A REAL SCREEN
+       236_classify_and_regression_audited_exhaustively.txt
   237  EVERY CORE MODULE DRIVEN ON REAL DATA, AND FULLY TESTED
+       237_every_core_module_driven_on_real_data.txt
   238  THE SETUP WINDOW, THE STARTUP NOISE, AND THE PROVIDER LOGINS
+       238_setup_window_and_startup_polish.txt
   239  GRAPH TYPE ON EVERY PLOT, THE CELL TAB, AND ONE CROP FROM THREE METHODS
+       239_regression_graphs_streaming_and_the_cell_tab.txt
   240  THE GUI PASS: NAVIGATION, WINDOW CHROME, AND THE LANGUAGE
+       240_the_gui_pass.txt
   241  EVERY DISTANCE WORTH MEASURING, WITHIN AND BETWEEN OBJECTS
+       241_every_distance_worth_measuring.txt
   242  THE MODULE CONSOLIDATION: SEVENTEEN TILES BECOME BUTTONS
+       242_the_module_consolidation.txt
   243  THE SETUP SCREEN, A BUTTON EXPLAINS ITSELF AT THE FOOT OF THE WINDOW
+       243_the_setup_screen_and_the_settings_panel.txt
   244  THE PLATE VIEWER: ONE LOCKED GRID, SQUARE WELLS, AND DRAG TO SELECT
+       244_the_plate_viewer_is_one_locked_grid.txt
   245  THE VOLCANO'S RIGHT-CLICK MENU, AND FOUR FILTERS THAT CANNOT FIRE
+       245_the_volcano_menu_and_four_dead_filters.txt
   246  SETTINGS APPEAR WHEN THEY APPLY, AND THE OBJECTS ARE NOT A FIXED FOUR
+       246_settings_appear_when_they_apply.txt
   247  MAKE MASKS: THE TOOLS THAT ARE MISSING, AND THE ROW THEY BELONG IN
+       247_the_make_masks_toolbar_is_short.txt
   248  A STRAY SENTENCE ON THE SETUP CARD, AND THREE TOGGLES THAT START OFF
+       248_the_setup_card_and_three_defaults.txt
   249  THE SECOND PLATE VIEWER IS LOCKED BY LUCK, AND DUPLICATES THE FIRST
+       249_the_second_plate_viewer_is_locked_by_luck.txt
   250  THE REPOSITORY AS THE PUBLIC SEES IT
+       250_the_repository_as_the_public_sees_it.txt
   251  FOUR THINGS ABOUT THE MODULES
+       251_four_things_about_the_modules.txt
   252  THE CELL TAB OFFERS THE BEST WAYS TO ANNOTATE, NOT ONLY THE OBVIOUS ONE
+       252_annotating_the_cells_in_regression.txt
   254  SEVEN MORE NONPARAMETRIC FITS, AND WHAT THE SCREEN DOES WITH A FIT THAT HAS
+       254_seven_more_nonparametric_fits.txt
   255  THE ANNOTATION APP: TWO CRASHES FIRST, THEN SIX THINGS ABOUT THE VIEW
+       255_the_annotation_app.txt
   256  AN OBJECT THAT IS NOT IN THE RUN: A MASK DIM THAT CANNOT BE EMPTIED, AND AN
+       256_the_objects_are_not_all_there.txt
   257  SPACEOUT: THE SAME APPLICATION, WEARING SOMETHING ELSE
+       257_spaceout.txt
   258  SIMPLER MARKS: NO INFORMATION DOTS, AND ONE CLOSE ICON EVERYWHERE
+       258_simpler_marks.txt
   259  DELETE THE DEAD CODE
+       259_delete_the_dead_code.txt
   260  SPACEOUT SHOULD LOOK ALIVE
+       260_spaceout_should_look_alive.txt
   261  INVESTIGATE HITS WEARS THE HIT ICON
+       261_investigate_hits_gets_the_hit_icon.txt
   262  STARTING UP TAKES TOO LONG
+       262_starting_up_takes_too_long.txt
   263  EVERY TABLE SORTS BY ITS COLUMNS, THE SAME WAY
+       263_every_table_sorts_by_its_columns.txt
   264  THE GENE-LEVEL COEFFICIENTS ARE FITTED AND CANNOT BE SEEN
+       264_the_gene_level_coefficients_are_unreachable.txt
   265  THE VOLCANO EXPLORER: PUBLICATION DEFAULTS, A RED LABEL INSTEAD OF A BLANK
+       265_the_volcano_explorer_defaults_and_its_settings.txt
   266  EVERY SETTINGS WINDOW RESIZES, BOTH WAYS
+       266_every_settings_window_resizes.txt
   267  THE SAVE FIGURE DIALOG: FOUR THINGS
+       267_the_save_figure_dialog.txt
   268  SPACR MUST RUN WELL ON A LAPTOP -- OPTIMISE FIRST, DISABLE SECOND
+       268_spacr_must_run_on_a_laptop.txt
   269  ON MACOS, PREFERENCES AND QUIT ARE IN A MENU THAT IS NOT CALLED SPACR
+       269_the_macos_application_menu.txt
   270  EVERY PICTURE IS DRAWN FOR THE SCREEN IT IS ON
+       270_every_picture_is_drawn_for_the_screen_it_is_on.txt
   271  THREE THINGS THE REGRESSION LOG SAID, TWO OF THEM WRONG
+       271_three_things_the_regression_log_said.txt
   272  REGRESSION OFFERS ITS OWN src, AND CREATES ONE LEVEL IF IT HAS TO
+       272_regression_offers_its_own_src.txt
   273  ONE CONTROL SAYS WHAT IS BEING FITTED, AND THE PERMUTATION TESTS GENES TOO
+       273_one_control_says_what_is_being_fitted.txt
   274  WHEN IMAGE LOADING CANNOT FIND WHAT IT NEEDS, ASK FOR IT
+       274_ask_for_the_path_when_the_usual_one_is_missing.txt
   275  SAVE A RUN'S STATE FROM THE LIST, AND MORE TO READ IN THE LIST
+       275_save_and_reload_run_states.txt
   277  XGBOOST SCORES NEVER REACHED THE MONTAGE
+       277_the_xgboost_scores_never_reached_the_montage.txt
   278  THE MEASUREMENT AND CELLS TABS FOLLOW THE LOADED RUN
+       278_the_tabs_follow_the_loaded_run.txt
   279  THE INTERFACE USES THE FONT IT SHIPS
+       279_the_interface_uses_the_font_it_ships.txt
   280  BACKDROP HOTKEYS, AND A HELP MENU WITHOUT BADGES
+       280_backdrop_hotkeys_and_a_tidier_help_menu.txt
   281  TIMING THAT MEASURES THE REAL PROCESS
+       281_timing_that_is_not_a_proxy.txt
   282  LIBRARIES LOAD WHEN CALLED, AND THE USER SETS THE MEMORY BUDGET
+       282_libraries_load_when_called_and_memory_is_budgeted.txt
   283  THE NOTEBOOK THAT ANSWERS WHICH TEST FITS THIS SCREEN
+       283_the_notebook_that_answers_which_test.txt
   284  HIGH PRIORITY: TWO-SECOND STARTUP AND RESPONSIVE MODULE LOADING
+       284_two_second_start_and_responsive_modules.txt
   285  REGRESSION OPENS IN LAPTOP AND EXTRA-PERFORMANCE MODES
+       285_regression_settings_span_nameerror.txt
   286  ONE PERFORMANCE SELECTOR WITH FIVE LEVELS
+       286_one_performance_selector_with_five_levels.txt
   287  THE WINDOW MARKS HAVE NO BLACK PLATE
+       287_window_chrome_has_no_black_plate.txt
   289  The setting NAME is the hover target, throughout
+       289_the_setting_name_is_the_hover_target.txt
   290  Tooltips read as paragraphs, and Preferences shows them in its own strip
+       290_tooltips_read_as_paragraphs_and_live_in_the_panel.txt
   291  Open Sans everywhere, including figures
+       291_open_sans_everywhere_including_figures.txt
   292  The startup window does not make you scroll the terms of service
+       292_terms_of_service_needs_no_scrolling.txt
   293  The default graph type is a setting, and it governs every graph
+       293_default_graph_type_is_a_setting.txt
   294  Verbose logging must be cheap before it can be the default
+       294_verbose_logging_must_be_cheap_before_it_is_default.txt
   296  `safespacr` starts the bare minimum
+       296_safespacr_starts_the_bare_minimum.txt
   297  Verbose logging is broken
+       297_verbose_logging_is_broken.txt
   298  The space theme, in spaceout
+       298_the_space_theme_in_spaceout.txt
   299  The pointer reaches every pattern, and the cascade draws on CPU
+       299_the_pointer_reaches_every_pattern.txt
   300  The organelle count controls its settings AND their categories
+       300_the_count_controls_the_categories.txt
   301  The Mandelbrot deep-zoom theme in spaceout
+       301_the_mandelbrot_deep_zoom_theme.txt
   302  A committed value brings its settings back
+       302_a_committed_value_brings_its_settings_back.txt
   303  The fractal settings need real controls, and real ranges
+       303_the_fractal_panel_needs_real_controls.txt
   304  Release 1.5.0.5, archived on Zenodo
+       304_release_1_5_0_5_to_zenodo.txt
   305  THE INSTALLED PACKAGE LOADS QUICKLY AND RUNS WITHIN MEASURED RESOURCE BUDGETS
+       305_the_installed_package_loads_and_runs_optimally.txt
   306  THE API, TOOLTIPS AND EVERY SUPPORTED TRANSLATION ARE CURRENT AND CORRECT
+       306_the_api_tooltips_and_translations_are_current_and_correct.txt
   307  SEGMENTATION QC -> FIELD BROWSER + QUARANTINE
+       307_segmentation_qc_field_browser.txt
   308  SETUP.PY DECLARES EVERY DEPENDENCY THE SHIPPED CODE NEEDS, ON EVERY SUPPORTED
+       308_setup_py_declares_every_dependency_on_every_os_and_python.txt
   309  SPACR KEEPS ITS SETTINGS IN ONE STORE UNDER ONE NAME, AND MIGRATES THE OLD ONES
+       309_one_settings_store_with_one_name.txt
   310  DEFECTS FOUND WHILE COVERING CODE THAT WAS EXCLUDED FROM COVERAGE
+       310_defects_found_while_covering_excluded_code.txt
   311  NOTHING ON A SCREEN IS OUTLINED UNLESS THE OUTLINE MEANS SOMETHING
+       311_no_outlines_between_the_module_rows.txt
   312  SPACR RECORDS WHAT EACH PROCESS AND THREAD ACTUALLY COST, UNDER ITS OWN SETTING
+       312_spacr_records_what_each_process_and_thread_cost.txt
   313  THE PYTHON CEILING ADMITS 3.15
+       313_the_ceiling_admits_python_315.txt
   314  THE REGRESSION MODULE HANGS, AND PREFERENCES IS SLOW AGAIN
+       314_regression_hangs_and_preferences_is_slow_again.txt
   315  315 THE GUI MUST NEVER MAKE THE COMPOSITOR OFFER TO FORCE-QUIT
+       315_the_gui_must_never_make_the_compositor_offer_to_force_quit.txt
   316  THE TRANSLATIONS ARE PRESENT, CURRENT, AND IN PLACES WRONG
+       316_the_translations_are_semantically_wrong_in_places.txt
   317  THE MASK EXAMPLE DATA: A CLIPPED DIALOG, AND SETTINGS THAT NEVER ARRIVE
+       317_the_mask_example_data_is_cut_off_and_brings_no_settings.txt
   318  FEWER MODULE TILES: FOLD THE SATELLITES INTO WHAT THEY BELONG TO
+       318_fewer_module_tiles_more_buttons_and_one_qc.txt
   319  USE NON-NVIDIA ACCELERATORS WHERE THEY EXIST, AND SAY SO IN SETUP
+       319_use_non_nvidia_accelerators_where_they_exist.txt
   320  THE QT CONSOLE IS NOISY, DUPLICATES EVERY LINE, AND CALLS WARNINGS ERRORS
+       320_the_qt_console_is_noisy_and_mislabels_warnings.txt
   321  THE API AND README STILL SHOW THE OLD MODULE STRUCTURE
+       321_the_api_and_readme_still_show_the_old_module_structure.txt
   322  REGRESSION MUST SHOW ITS DIAGNOSTICS, WHICH ARE ALREADY WRITTEN
+       322_regression_must_show_its_diagnostics.txt
   323  THE README NEEDS A TABLE OF WHAT EACH HARDWARE CONFIGURATION CAN DO
+       323_the_readme_needs_a_hardware_capability_table.txt
   324  THE SETUP SLIDE'S CAPABILITY LIST BECOMES A TABLE
+       324_the_setup_slide_shows_its_capabilities_as_a_table.txt
   326  THE ORGANELLE COUNT MUST BE ARBITRARY
+       326_the_organelle_count_must_be_arbitrary.txt
   327  THE BACKDROP CAMERA AND THE POINTER SHOULD FEEL LIKE GRAVITY
+       327_the_backdrop_camera_and_the_pointer_should_feel_like_gravity.txt
   328  A SOURCE INSTALL SHOULD NOT COST A GIGABYTE
+       328_a_source_install_should_not_cost_a_gigabyte.txt
   329  README, LOGOS, CHROME AND BACKDROP POLISH (2026-09-01)
+       329_readme_and_chrome_polish_2026_09_01.txt
   330  THE DOCK AND THE MENU BAR SHOULD SHOW THE NESTED STRUCTURE
+       330_the_dock_and_menu_should_show_the_nested_structure.txt
   331  WHAT MUST BE TRUE BEFORE THE VERSION UPDATE
+       331_before_the_version_update.txt
   332  MEASURE NEEDS DOWNLOADABLE TEST DATA, LIKE MASK HAS
+       332_measure_needs_downloadable_test_data.txt
   333  CUSTOM PATHOGEN MODELS MUST BE AVAILABLE IN LIVE PREVIEW
+       333_custom_pathogen_models_in_live_preview.txt
   334  NORMALIZE PERCENTILES ARE CAPPED AT TWO DECIMALS
+       334_normalize_percentiles_need_more_than_two_decimals.txt
   335  LIVE PREVIEW LOSES THE LOADED IMAGE AFTER A SETTINGS CHANGE
+       335_live_preview_loses_the_image_after_a_settings_change.txt
   336  A SETTING'S API LINK POINTS AT THE MODULE, NOT AT WHAT READS IT
+       336_the_api_link_points_at_the_module_not_the_consumer.txt
   337  ONE MANDERS DEFINITION, SPATIAL MEASUREMENTS ON, AND THE RUN'S SETTINGS AS
+       337_measure_defaults_manders_and_labels.txt
   338  GENERATE AN ANNOTATION DATABASE BY STREAMING, AND MAKE THE THREE ROUTES AGREE
+       338_generate_annotation_database_from_streams.txt
   339  ILLUMINATION CORRECTION BELONGS BEFORE SEGMENTATION, NOT ONLY BEFORE MEASURING
+       339_illumination_correction_before_segmentation.txt
   340  WHAT WAS ASKED FOR AND FINISHED ON 2026-09-01
+       340_the_session_of_2026_09_01.txt
   341  THREE ANNOTATE-ENGINE TESTS FAIL, AND HAVE FOR LONGER THAN ANYONE NOTICED
+       341_three_annotate_engine_tests_fail.txt
   342  THE INDEPENDENT-VARIABLE TABLE MAY BE LONG OR WIDE, AND PLATE IS A LAYOUT TERM
+       342_the_count_table_may_be_long_or_wide.txt
   343  THE REGRESSION MODULE WRITES COMPLETE, TRACEABLE SUBMISSION PANEL PACKAGES
+       343_the_regression_module_writes_submission_panel_packages.txt
   344  THE OPEN LIST WAS AUDITED AGAINST THE CODE, AND FIVE ITEMS WERE WRONG
+       344_the_open_list_audit_of_2026_09_01.txt
   345  THREE MORE ANNOTATE TESTS FAIL, AND ONE OF THEM ONLY IN COMPANY
+       345_three_more_annotate_tests_fail.txt
   346  TWENTY-ONE MEASURE TESTS FAIL ONLY IN COMPANY, AND HAVE FOR AT LEAST A DAY
+       346_the_measure_suite_fails_only_in_company.txt
   347  CATEGORY HELP BELONGS ONLY IN THE STRIP, THE API LINK BECOMES A DOT, AND EVERY
+       347_the_tooltip_strip_the_api_dot_and_every_setting_covered.txt
   348  THE DOCK: HELP GETS ITS OWN SECTION, THE ICONS GROW, AND THE NAMES MOVE OFF IT
+       348_the_dock_should_behave_like_a_dock.txt
   349  "LOAD TEST DATA" PUTS THE LITERAL <src> INTO MASK GENERATION'S PATH FIELD
+       349_load_test_data_leaves_the_literal_src_placeholder.txt
   350  A SWEEP: EVERY PIECE OF TEXT FITS ITS BUTTON, BOX OR CONTAINER
+       350_no_text_is_cut_off_anywhere_in_the_package.txt
   351  FIX AND CLOSE EVERY GITHUB ISSUE
+       351_close_every_github_issue_by_fixing_it.txt
   353  REGRESSION'S INPUT TABLES START WITH THE DOWNLOAD BUTTONS, NOT END WITH THEM
+       353_the_regression_download_buttons_belong_at_the_top.txt
   354  WHAT WAS DONE ON THE NIGHT OF 2026-09-02
+       354_the_night_of_2026_09_02.txt
   355  EVERY BUTTON STILL WEARING THE DEFAULT ICON GETS AN INTUITIVE ONE
+       355_every_button_deserves_its_own_icon.txt
   356  TYPING A CHANNEL NUMBER SHOULD REVEAL ITS CATEGORY, NOT RELOAD THE MODULE
+       356_a_channel_number_should_not_reload_the_module.txt
   358  REDO EVERY CORE-MODULE TUTORIAL WITH LIVE DATA AND THE FOLDED-IN ACTIONS
+       358_redo_every_core_module_tutorial_with_live_data.txt
   359  EVERY SETTINGS CONTAINER RESIZES, AND FIRST LAUNCH CHOOSES A MEASURED LAYOUT
+       359_every_settings_container_resizes_and_first_launch_chooses_a_measured_layout.txt
   361  THE README'S LANGUAGE PICKER: A DROPDOWN, AND WHY IT CANNOT STAY ON THE PAGE
+       361_the_readme_language_picker_should_be_a_dropdown.txt
   362  THE README FRONT PAGE: ONE MODULE GRID, A MODEL ZOO, AND ONE DOWNLOAD COMMAND
+       362_the_readme_front_page_rework.txt
   363  THE IMPORT MODULE MUST ACCEPT ANY IMAGES, IN ANY LAYOUT, FROM ANY MICROSCOPE
+       363_the_import_module_must_accept_anything.txt
   364  EVERY SETTING AUDITED: IS IT NEEDED, IS IT A DUPLICATE, IS ITS NAME HONEST
+       364_audit_every_setting_for_necessity_redundancy_and_clarity.txt
   365  THE LICENCE IS NOT IDENTIFIABLE, AND THE TWO BRANCHES DO NOT AGREE ON IT
+       365_the_licence_is_not_identifiable_and_main_disagrees_with_nightly.txt
   366  EQUAL GUTTERS, NO PER-MODULE PROSE IN THE README, AND REAL API PAGES
+       366_equal_gutters_one_module_section_and_thorough_api_pages.txt
   367  CLASSES DOCUMENT THEMSELVES BUT NOT THEIR __init__, WHERE THE PARAMETERS ARE
+       367_class_init_docstrings_and_the_api_they_should_reach.txt
   368  EVERY FUNCTION DOCUMENTED, AND A CLICKABLE TREE OF WHERE EACH SETTING IS USED
+       368_a_settings_flow_tree_and_docstrings_for_every_function.txt
   369  THE DOCK: THE spaCR MARK FOR HOME, NAMES IN BLUE ON HOVER, NO GREY TRAY
+       369_the_dock_reads_as_icons_with_names_on_hover.txt
   371  TWO TOOLTIP SURFACES, EITHER OR BOTH, AND THE BOTTOM ONE STAYS LONG ENOUGH
+       371_two_tooltip_surfaces_the_user_chooses_between.txt
   372  AN OPS BUTTON -- NOW ON MASK GENERATION -- OVER CODE ALREADY IN THE REPO
+       372_an_ops_button_on_align_and_stitch.txt
   373  THE CELLPOSE WORKBENCH DREW A DUMBBELL, AND FIVE MODULES WERE BORROWING ART
+       373_a_folded_module_wears_its_own_picture.txt
   374  THE API HOMEPAGE MUST SHOW THE MODULE STRUCTURE THE REST OF spaCR SHOWS
+       374_the_api_homepage_shows_the_module_structure.txt
   375  RETIRE metadata_type AND consolidate, ONCE IMPORT HAS ACTUALLY REPLACED THEM
+       375_retire_metadata_type_and_consolidate_after_migration.txt
   376  A SIMPLE DOCK: AN ICON, A NAME, AND A CATEGORY HEADING
+       376_a_simple_dock_icon_text_and_categories.txt
   377  AN INFECTION ASSAY MODULE: INFECTION RATE, AND EVERYTHING ELSE INFECTION MEANS
+       377_an_infection_assay_module.txt
   377  EVERY ROW OF GITHUB'S COMMUNITY STANDARDS CHECKLIST IS GREEN
+       377_the_github_community_standards_checklist_is_green.txt
   378  HOLD Z AND SCROLL TO CHANGE THE FONT SIZE LIVE -- IF IT CAN BE MADE FAST
+       378_hold_z_and_scroll_to_resize_the_interface.txt
   379  A SUGGEST BUTTON THAT LABELS THE REST
+       379_a_suggest_button_that_labels_the_rest.txt
   380  A PERFORMANCE SWEEP: STARTUP, THEMES, MODULES, WIDGETS AND SETTINGS
+       380_a_performance_sweep_for_smoothness_and_speed.txt
   381  ONE BACKDROP, AND THE PANELS ABOVE IT LET IT THROUGH
+       381_one_backdrop_that_is_actually_visible.txt
   382  A CHANNEL REVEALS ITS OBJECT'S SETTINGS, AND "ALL SETTINGS" STILL DOES NOT
+       382_a_channel_reveals_its_settings_without_unhiding_them_all.txt
   383  A SETTING'S API LINK LANDS ON THAT SETTING, IN THE MODULE THE USER IS IN
+       383_a_settings_api_link_lands_on_the_setting.txt
   384  THE API PROSE BACKLOG: 358 BLOCKS, AND IT NEEDS A MODEL THIS MACHINE LACKS
+       384_the_api_prose_backlog_is_358_blocks_and_needs_a_model_this_machine_lacks.txt
   385  THE BACKDROP KEEPS MOVING WHILE PREFERENCES OR HELP IS OPEN
+       385_the_backdrop_keeps_moving_while_a_dialog_is_open.txt
   386  A LABEL-FREE EMBEDDING FOR EVERY OBJECT, ALONGSIDE THE MEASURED FEATURES
+       386_self_supervised_embeddings_as_a_feature_source.txt
   387  WHAT DOSE-RESPONSE STILL CANNOT SAY: SELECTIVITY, SYNERGY, AND THE PLATE
+       387_what_the_dose_response_module_still_cannot_say.txt
   388  WHAT AN INFECTED CELL DOES TO ITS NEIGHBOURS: BYSTANDERS AND NEIGHBOURHOODS
+       388_the_infected_cell_and_its_neighbours.txt
   389  MERGING nightly INTO main, AND THE add/add RECOVERY THAT MADE IT POSSIBLE
+       389_merging_nightly_into_main_for_the_release.txt
   391  GENERATE MASKS SAYS PERCENTILE WHERE THE USER MEANS INTENSITY, AND THE LIVE
+       391_generate_masks_says_percentile_where_the_user_means_intensity.txt
   392  THE REGRESSION TABLE SHOULD NOT NEED THE PLATE NAME IN THE FILENAME
+       392_the_regression_table_should_not_need_the_plate_in_the_filename.txt
   393  A TEST PINS GENERATED PNG BYTES, SO THE BUILD TOOL'S VERSION IS PART OF THE
+       393_a_test_pins_generated_png_bytes_to_one_pillow_version.txt
   394  PROSE THAT CANNOT BE TRANSLATED IS ONLY FOUND AFTER A 65-MINUTE BUILD, AND
+       394_prose_that_cannot_be_translated_is_only_found_after_a_65_minute_build.txt
   395  MEASURE AN ENCODER THAT WAS TRAINED ON CELLS, BECAUSE THE ONE THAT LOST WAS
+       395_measure_an_encoder_that_was_trained_on_cells.txt
   396  MAKE MASKS SHOULD CURATE A QUEUE, NOT ONE FIELD AT A TIME
+       396_make_masks_should_curate_a_queue_not_one_field.txt
   397  SEVENTY-SEVEN API ROWS NAME A SETTING THAT DOES NOT EXIST
+       397_seventy_seven_api_rows_name_settings_that_do_not_exist.txt
   398  ELEVEN STALE LEDGER FILES SIT OUTSIDE THE INDEX
+       398_eleven_stale_ledger_files_sit_outside_the_index.txt
   399  MAP BARCODES SEARCHES FOR BARCODES, SETS ITS OWN SETTINGS, AND COLOURS READS
+       399_map_barcodes_searches_finds_and_colours_reads.txt
   400  EVERY COMMENT LEAVES THE MODULES AND THE REASONS MOVE TO docs/notes
+       400_every_comment_leaves_the_modules.txt
   401  CUDA IS PROTECTED AND METAL IS NOT, SO ONE GPU BACKEND SURVIVES TRANSLATION
+       401_the_gpu_backend_names_are_not_protected.txt
   402  Status:    DONE 2026-09-14 (evidence 324524948) — `tests/conftest.py` carries an autouse fixture
+       402_flowview_tracing_has_no_teardown.txt
   403  MAP BARCODES IS GENERAL BEYOND THREE NAMED REFERENCES
+       403_map_barcodes_is_general_beyond_three_named_references.txt
   406  THE TRANSLATION CACHE OUTLIVES A HAND FIX, AND A PLAIN BUILD PUTS THE BAD ROW
+       406_the_translation_cache_regresses_what_a_hand_fix_repairs.txt
   408  A TOOLTIP POPUP TURNS THE SETTINGS COLUMN AND THE AI CHAT BOX BLACK UNTIL THE
+       408_a_tooltip_popup_turns_the_settings_column_and_chat_box_black.txt
   409  THE REAL-WINDOW THEME SWEEP IS ONE WIDGET AWAY FROM GOING RED AGAIN
+       409_the_theme_sweep_is_one_widget_from_red.txt
   410  AN OBJECT'S EMBEDDING DEPENDS ON WHICH OTHER CROPS SHARE ITS BATCH
+       410_an_embedding_depends_on_which_crops_share_its_batch.txt
   412  A TEN-IMAGE TOXO PV TEST DATASET THAT OPENS IN MAKE MASKS
+       412_a_ten_image_toxo_pv_test_dataset_that_opens_in_make_masks.txt
   413  THE FONT ZOOM FLOOR IS 10%, NOT 75%
+       413_the_font_zoom_floor_is_ten_percent.txt
   414  CLAUDE CODE INSTALLS WITH CURL ON EVERY SYSTEM, WINDOWS INCLUDED
+       414_claude_code_installs_with_curl_on_every_system.txt
   415  THE STARTUP WINDOW'S TEXT IS BRIGHT IN DARK MODE
+       415_the_startup_window_text_is_bright_in_dark_mode.txt
   416  AN UPDATE REMOVES EVERY OLDER spaCR FIRST, ON EVERY SYSTEM
+       416_an_update_removes_every_older_spacr_first.txt
   417  THE MAGNIFIER, ROUND 2: LARGER BOX, MODELS, THRESHOLDS AND DRAG-TO-MERGE
+       417_the_magnifier_round_two.txt
   418  MASK FILTERS OBJECTS BY MIN AND MAX INTENSITY; THE SPLIT AND MERGE SETTINGS GO
+       418_mask_filters_objects_by_min_and_max_intensity.txt
   419  MAKE MASKS: A HOVER READOUT, THE LAYOUT, INSTALLABLE MODELS, AND HAND EDITING
+       419_make_masks_reads_out_lays_out_and_edits_by_hand.txt
   420  THE SETUP SCREEN INSTALLS THE AI PROVIDER IT OFFERS, INSTEAD OF PRINTING A LINK
+       420_the_setup_screen_installs_the_ai_provider_it_offers.txt
   421  CAPTURE MEASUREMENTS FROM HAND-DRAWN MASKS IN MAKE MASKS
+       421_capture_measurements_from_hand_drawn_masks.txt
   422  A SEARCH FIELD BESIDE THE HELP DROPDOWN
+       422_a_search_field_beside_the_help_dropdown.txt
   427  SOUND EFFECTS, BACKGROUND MUSIC, AND THE RESONANCE THEME
+       427_sound_effects_and_the_resonance_theme.txt
   428  THE FLOW THRESHOLD DEFAULT IS CELLPOSE'S OWN, 0.4, AND THE WARNING TELLS THE TRUTH
+       428_the_flow_threshold_default_is_cellpose_s_own.txt
   429  A MASK RUN ON A MAC EXTERNAL DRIVE DIED READING A FILE SPACR NEVER WROTE
+       429_a_stack_file_spacr_wrote_is_one_it_can_read.txt
   430  A RE-RUN TRUSTS NOTHING A KILLED RUN LEFT: MASK RESUMES A PLATE IT ALREADY
+       430_a_rerun_trusts_nothing_a_killed_run_left.txt
   431  MASK SETTINGS FOLLOW THE CHANNELS THE USER SETS -- FORM, LIVE SETTINGS, TABLE
+       431_mask_settings_follow_the_channels_the_user_sets.txt
   432  CURRENT FOLLOW-UP — ERROR STORMS AND AI ALLOWANCE, 2026-10-23
+       432_a_failed_run_offers_the_report_it_promised.txt
   433  THE ICONS FOLLOW THE ZOOM
+       433_icons_follow_the_zoom.txt
   434  THE LOCAL SPACR CHECKOUT IS MISSING A GIT OBJECT, SO IT CAN NO LONGER FETCH
+       434_the_local_spacr_checkout_is_missing_a_git_object.txt
   435  INVERT DOES NOT INVERT, AND OTSU NEEDS MORE OPTIONS
+       435_invert_does_not_invert_and_otsu_needs_more_options.txt
   436  THE MODEL ZOO STOPS AT PV ROUND 5; ROUND 6 IS PUBLISHED AND UNLISTED
+       436_wire_pv_round_6_into_the_model_zoo.txt
   437  THE WELL DETECTOR v4 IS UNLISTED, AND THE v3 ROW QUOTES A SCORE FROM AN EASIER
+       437_wire_the_v4_well_detector_and_fix_the_v3_row.txt
   438  PLAQUE MODEL PUBLICATION AND V6 INTEGRATION
+       438_publish_plaque_round_5_and_wire_it_in.txt
   439  BOTH HOECHST CROSS-CHANNEL MODELS ARE PUBLISHED AND MISSING FROM THE MODEL ZOO
+       439_the_two_hoechst_models_are_published_and_unlisted.txt
   440  THE MODEL ZOO PICKER IS ONE LONG LIST WITH A BOOLEAN; IT SHOULD BE FIVE FOLDABLE
+       440_the_model_zoo_picker_groups_by_source_and_folds.txt
   441  THE MASK MODULE KNOWS TWO MICROSCOPES, AND BOTH OF THEM ARE YOKOGAWA
+       441_a_metadata_type_for_every_common_microscope.txt
   442  THE PREVIEW ALREADY FOLLOWS THE CHANNEL YOU SET; IT REPAINTED TWICE DOING IT
+       442_the_preview_follows_the_channel_you_are_setting.txt
   443  THE MEASURE PREVIEW IGNORES THE CROP SIZE, AND ASKS FOR IT TWICE
+       443_the_measure_preview_ignores_the_crop_size.txt
   444  WITH SOUND ON, REOPENING PREFERENCES HANGS spaCR UNTIL IT IS FORCE QUIT
+       444_sound_on_wedges_the_preferences_dialog.txt
   445  THE WELL DETECTOR IS FED RGB AND ULTRALYTICS READS IT AS BGR
+       445_the_well_detector_is_fed_rgb_and_ultralytics_reads_bgr.txt
   446  CELLPOSE 3 AND CELLPOSE-SAM TAKE DIFFERENT SETTINGS, AND MASK GENERATION HANDS
+       446_cellpose_3_and_cellpose_sam_take_different_settings.txt
   447  THE TUTORIAL VIDEOS: DARK MODE AND BLOBS, THE CURRENT spaCR ONLY, AND NO PATHS
+       447_the_tutorial_videos_show_the_current_spacr_only.txt
   448  KEEP OR DISCARD A FIELD IN MAKE MASKS, AND A CSV THAT RECORDS THE VERDICT
+       448_keep_or_discard_a_field_in_make_masks.txt
   449  A CLASSIFICATION WRAPPER AROUND ANY CELLPOSE-SAM MODEL: PARASITES PER VACUOLE,
+       449_a_classification_wrapper_around_any_cellpose_model.txt
   450  A SAMPLE OF EVERY TRAINING DATASET, PICKABLE IN MAKE MASKS
+       450_a_sample_of_every_training_dataset_in_make_masks.txt
   451  TEST DATA FOR THE PLAQUE MODULE, AND IT HAD NONE
+       451_test_data_for_the_plaque_module.txt
   452  THE LIVE PREVIEW SITS ABOVE THE CONSOLE, NOT UNDER IT
+       452_the_live_preview_sits_above_the_console.txt
   453  A MEMORY WATCHDOG, SO ONE RUNAWAY PROCESS CANNOT TAKE THE DESKTOP DOWN
+       453_a_memory_watchdog_so_a_runaway_cannot_take_the_desktop.txt
   460  TEST DATA FOR EVERY MODULE THAT READS A MEASUREMENTS DB, AND PLATE TEMPLATES
+       460_test_data_for_every_module_that_reads_a_measurements_db.txt
   461  TEST DATA FOR OPS AND FOR ALIGN & STITCH, FROM THE PUBLISHED OPS SCREEN
+       461_test_data_for_ops_and_align_stitch.txt
   462  IMPORT TEST DATA IN EVERY VENDOR FORMAT AND NAMING, READ BACK BY IMPORT
+       462_import_test_data_in_every_vendor_format_and_naming.txt
   463  TEST DATA FOR THE REPLICATION, INVASION AND RECRUITMENT ASSAYS
+       463_test_data_for_the_replication_invasion_and_recruitment_assays.txt
   464  EVERY LIVE PREVIEW HAS A REFRESH BUTTON
+       464_every_live_preview_has_a_refresh_button.txt
   465  MAKE MASKS CAN DETECT ON THE NORMALIZED IMAGE
+       465_make_masks_can_detect_on_the_normalized_image.txt
   466  THE MAKE MASKS DIVIDER HOVERS AS A THIN LINE, NOT A BLUE BAR
+       466_the_make_masks_divider_hovers_as_a_thin_line.txt
   467  THE LIVE-CELL MODEL IN THE ZOO, UNDER spaCR, AND ITS DATASET IN MAKE MASKS
+       467_the_live_cell_model_in_the_zoo_and_its_dataset_in_make_masks.txt
   468  PLAQUE ASSAY HAS A PLAQUE MODE AND A FIGURE MODE, AND A SWITCH BETWEEN THEM
+       468_plaque_assay_has_plaque_and_figure_modes.txt
   469  THE FIGURE READER (YOLO + OCR) INSTALLS INTO AN ENVIRONMENT OF ITS OWN
+       469_the_figure_reader_installs_into_its_own_environment.txt
   471  THE GUI FITS A LAPTOP: A WHOLE-GUI SCALE, AND EVERYTHING COLLAPSES
+       471_the_gui_fits_a_laptop_scale_and_collapse.txt
   472  AFTER INSTALLATION: HOW THE MODULES CONNECT -- TUTORIALS, WALKTHROUGHS AND API
+       472_how_the_modules_connect_after_installation.txt
   473  MAKE MASKS OFFERS EVERY DETECTION METHOD, AND WAYS TO MAKE OBJECTS EASIER TO SEE
+       473_make_masks_offers_every_detection_method_and_contrast_help.txt
   477  A LINE RULER IN IMAGE EDITING AND MASK PREVIEWS
+       477_a_line_ruler_in_image_editing_and_mask_previews.txt
   478  MAKE MASKS LEVELS WITH AN INTERACTIVE HISTOGRAM
+       478_make_masks_levels_with_an_interactive_histogram.txt
   479  APPLY IMAGE ENHANCEMENT BEFORE DRAWING MASKS
+       479_apply_image_enhancement_before_drawing_masks.txt
   480  ADAPTIVE THRESHOLD KEEPS ITS MODE WHEN BLOCK SIZE CHANGES
+       480_adaptive_threshold_keeps_its_mode_when_block_size_changes.txt
   481  CLEAR ALL OBJECTS IN MAKE MASKS
+       481_clear_all_objects_in_make_masks.txt
   482  LOCK THE MAGNIFIER REGION AND ZOOM
+       482_lock_the_magnifier_region_and_zoom.txt
   483  PIPELINE OVERVIEWS AND THE SPACR MODULE FLOWCHART
+       483_pipeline_overviews_and_spacr_flowchart.txt
   484  INTEGRATED HOST–PATHOGEN ANALYSIS AND INFERENCE
+       484_integrated_host_pathogen_analysis_and_inference.txt
   485  IMAGE ZOOM FOLLOWS THE MOUSE CURSOR
+       485_image_zoom_follows_the_mouse_cursor.txt
   486  NATIVE OS CURSOR AND THIN RESIZE EDGE HINTS
+       486_native_os_cursor_and_thin_resize_edge_hints.txt
   488  PYPI README IMAGES WITHOUT LOSING THE GITHUB PAGE
+       488_pypi_readme_images.txt
   492  HOST–PATHOGEN LIVE PREVIEW
+       492_host_pathogen_live_preview.txt
   494  RETIRE DEMOS IN FAVOR OF TEST DATA AND WALKTHROUGHS
+       494_retire_help_demos_in_favor_of_test_data.txt
   495  ORGANISM DROPDOWN HIERARCHY
+       495_organism_dropdown_hierarchy.txt
   496  PARASCAPE UPDATE CHECKS AND PIP UPGRADES
+       496_parascape_updates_via_pip.txt
   497  ROUNDED TRANSLUCENT KEYBOARD INSTRUCTIONS
+       497_keyboard_instructions_surface.txt
   498  CELLPOSE 4 TRAINING WORKBENCH
+       498_cellpose4_training_workbench.txt
   499  PLAQUE PREVIEW STAYS AT ITS CHOSEN SCALE
+       499_plaque_preview_stable_initial_scale.txt
   500  PLAQUE WELL DIAMETER, SCALE AND FORMATION TIME
+       500_plaque_well_diameter_scale_and_time.txt
   502  THE DOWNLOAD PROGRESS LINE IS NEVER CUT OFF
+       502_the_download_progress_line_is_never_cut_off.txt
   503  CELLPOSE 3 MODELS ARE USABLE AFTER THE BACKEND IS INSTALLED
+       503_cellpose_3_models_are_usable_after_the_backend_is_installed.txt
   504  THE BIOIMAGE.IO CATEGORY CARRIES REAL MODELS, AND THEY RUN
+       504_bioimage_io_models_in_the_zoo_and_usable.txt
   505  LIVE VIEW: CELL PROBABILITY, SAVING A PANEL, AND COMPARING MASKS
+       505_live_view_gets_cell_probability_saving_and_a_mask_overlay_panel.txt
   506  TOOLTIPS WAIT TWO SECONDS, LINGER ONE, AND CAN BE SWITCHED OFF
+       506_tooltips_wait_two_seconds_and_can_be_switched_off.txt
   507  MAKE MASKS: A CONSOLE, AND AN INSTALL BUTTON THAT SAYS WHAT HAPPENED
+       507_make_masks_has_a_console_and_honest_backend_install_feedback.txt
   508  EVERY ENHANCEMENT AND DECONVOLUTION OPTION REACHES MASK GENERATION
+       508_enhancement_and_deconvolution_reach_mask_generation.txt
   509  DECONVOLUTION INFERS ITS OWN VALUES, AND THE ADVANCED SETTINGS COLLAPSE
+       509_deconvolution_settings_infer_themselves_and_stay_out_of_the_way.txt
   510  THE FEATURES WINDOW LOOKS LIKE EVERY OTHER spaCR WINDOW
+       510_the_features_window_looks_like_every_other_spacr_window.txt
   511  FILTERS ARE ANY scikit-image REGIONPROP, ADDED BY THE USER
+       511_filters_are_any_regionprop_the_user_adds.txt
   512  ANNOTATE: A PAGE FILLS THE SPACE, AND A SUGGESTION CAN BE JUDGED
+       512_annotate_pages_fill_the_space_and_suggestions_can_be_judged.txt
   513  PLAQUE PREVIEW: OUTLINE AND BOX STYLING, THE FOUR VIEWS, AND A RULER
+       513_plaque_preview_outline_styling_views_and_a_ruler.txt
   514  LOAD TEST DATA FILLS THE SOURCE, AND LIVE SHOWS IT AT ONCE
+       514_load_test_data_fills_src_and_live_shows_it_at_once.txt
   515  THE CONSOLE AND ACTIONS HEADINGS SIT IN THEIR BOXES, LIKE LIVE PREVIEW AND SYSTEM
+       515_console_and_actions_headings_sit_in_their_boxes.txt
   516  MEASURED DIAMETERS COME OUT IN THE WRONG ORDER: CELL 7.2, NUCLEUS 91.3, PATHOGEN 10.9
+       516_measured_diameters_come_out_in_the_wrong_order.txt
   517  DROP FILES AS WELL AS FOLDERS IN MAKE MASKS AND PLAQUE ASSAY
+       517_drop_files_as_well_as_folders_in_make_masks_and_plaque.txt
   518  PLAQUE ASSAY: THE FIGURE READER REINSTALLS IN PLACE, AND THE MODE FOLLOWS WHAT WAS DROPPED
+       518_plaque_mode_follows_what_was_dropped_and_the_reader_reinstalls_in_place.txt
   519  THE PLAQUE SIZE SLIDER HANDLE IS A CIRCLE
+       519_the_plaque_size_slider_handle_is_a_circle.txt
   520  OPS SAYS "src is missing" ON A RUN THAT SUCCEEDS, AND MASK'S TRACK PREVIEW SWITCH HIDES
+       520_ops_says_src_is_missing_and_the_track_preview_switch_hides.txt
   521  THE INSTALL DIALOG'S BUTTONS ARE RECTANGLES, AND ITS BAR SITS ON THEM
+       521_the_install_dialog_buttons_are_rectangles.txt
   522  A SCALED PREVIEW NO LONGER SCALES ITS DIALOGS
+       522_a_scaled_preview_no_longer_scales_its_dialogs.txt
   523  COMMUNITY PLAQUE TRAINING DATA: ANNOTATE WELLS AND PLAQUES, THEN UPLOAD TO HUGGING FACE
+       523_community_plaque_training_data_uploads_to_hugging_face.txt
   524  PLAQUE FIGURE MODE SHOWS THE FOUR VIEWS: OVERLAY, MASKS, FLOWS, CELL PROBABILITY
+       524_plaque_figure_mode_shows_the_four_views.txt
   525  CELLPOSE-DINO MODELS RUN IN AN ENVIRONMENT OF THEIR OWN
+       525_cellpose_dino_models_run_in_their_own_environment.txt
   526  PLAQUE ASSAY READS ANY NUMBER OF PDFS AND IMAGES
+       526_plaque_assay_reads_any_number_of_pdfs_and_images.txt
   527  THE EMBEDDING ICON'S LINES ARE THINNER
+       527_the_embedding_icon_lines_are_thinner.txt
   528  COMMUNITY IMAGES AND MASKS UPLOAD FROM MAKE MASKS
+       528_community_images_and_masks_upload_from_make_masks.txt
   529  THE DOCK AND THE RIGHT-HAND PANELS CAN BE RESIZED, AND CTRL+SCROLL SIZES THEIR TEXT
+       529_resizable_dock_and_right_panels_with_ctrl_scroll_text.txt
   530  SPACEOUT: FRACTAL THEME CHANGES TAKE EFFECT WITHOUT A RESTART
+       530_spaceout_fractal_changes_apply_without_a_restart.txt
   531  SPACEOUT: THE FRACTAL SUPERSAMPLING SETTING DOES SOMETHING
+       531_the_fractal_supersampling_setting_does_something.txt
   532  HOW GOOD EACH SEGMENTATION STRATEGY IS
+       532_how_good_each_segmentation_strategy_is.txt
   533  THE DIAMETER ESTIMATE MOVES INTO THE MODEL ZOO POPUP
+       533_the_diameter_estimate_moves_into_the_model_zoo_popup.txt
   569  A "SHOW ALPHA FEATURES" PREFERENCE, OFF BY DEFAULT, HIDES EVERYTHING BUILT FROM THE FUTURE LIST
+       569_show_alpha_features_preference.txt
   588  FILLING HOLES MERGES TOUCHING CELLS, AND APPLY'S DEFAULT CHANNELS/PERCENTILES FAIL
+       588_fill_holes_merges_touching_cells_and_apply_defaults_fail.txt
   589  THE PUBLIC SLIDE DECK IS FLAWLESS AND HIGH RESOLUTION
+       589_the_public_slide_deck_is_flawless_and_high_resolution.txt
   590  THE DECK SHOWS FOUR OBJECT CLASSES AND AN ALPHA FEATURES SLIDE
+       590_the_deck_shows_four_object_classes_and_an_alpha_features_slide.txt
   591  ALPHA CATEGORIES READ AS ALPHA, AND IMAGE PREPROCESSING HOLDS THE REST
+       591_alpha_categories_read_as_alpha_and_image_preprocessing_holds_the_rest.txt
   592  MASK GENERATION IS PER-OBJECT ONLY
+       592_mask_generation_is_per_object_only.txt
   593  MAKE MASKS: CONSOLIDATE A FOLDER TREE, AND SORT IMAGES INTO CHANNELS THEN MERGE
+       593_make_masks_consolidate_folders_and_sort_into_channels.txt
   594  CLASSIFY'S ESSENTIALS ARE ENOUGH TO PICK AND TRAIN A MODEL
+       594_classify_essentials_are_enough_to_train_a_model.txt
   595  MEASURE SETTINGS REGROUPED, AND THE MASK QC BEHIND A BUTTON
+       595_measure_settings_regrouped_and_qc_behind_a_button.txt
   596  596. Spectral unmixing is a sub-category of Image Preprocessing in Mask generation
+       596_spectral_unmixing_under_mask_image_preprocessing.txt
   597  597. Home screen sliders size the right-hand widgets and their text
+       597_home_screen_sliders_size_the_right_widgets_and_their_text.txt
   598  598. The contribute dialog shows a working dataset link
+       598_the_contribute_dialog_shows_a_working_dataset_link.txt
   600  MAKE MASKS UNDERSTANDS WHAT IS DROPPED, AND ONE POPUP ORGANIZES FOR MEASURE
+       600_make_masks_understands_what_is_dropped.txt
   601  601. Preferences: Theme and Animation are categories of Appearance
+       601_preferences_theme_and_animation_under_appearance.txt
   602  602. The window rim is one continuous gradient
+       602_window_rim_is_one_continuous_gradient.txt
   603  603. A Tooltip delay setting in Preferences
+       603_tooltip_delay_setting.txt
   604  604. Spaceout: the Mandelbrot camera glides to complex regions
+       604_spaceout_mandelbrot_camera_glides_to_complex_regions.txt
   605  605. Spaceout: a slider for the magnifying glass's size
+       605_spaceout_magnifier_size_slider.txt
   606  606. Space mode: galaxies pass by along with the stars
+       606_space_mode_passing_galaxies.txt
   607  HOME: WITH TEXT SIZE ABOVE 100% THE SYSTEM PANEL IS DRAWN TWICE
+       607_home_text_size_draws_system_panel_twice.txt
   608  PLAQUE: THE BUNDLED PLAQUE CHECKPOINT IS CELLPOSE 3 AND CELLPOSE 4 REFUSES IT
+       608_bundled_plaque_checkpoint_is_cellpose3.txt
   609  PLAQUE FIGURE MODE: ALPHA ESTIMATE COLUMNS SHOW, AND THE FIGURE FOLDER DOES NOT LOAD
+       609_plaque_figure_mode_alpha_columns_and_folder.txt
   610  ANNOTATE: ONE SUGGEST ROUND NEVER FINISHES ON THE SMALL EXAMPLE SET
+       610_annotate_suggest_round_never_finishes_on_cpu.txt
   611  MAKE MASKS THUMBNAIL QUALITY: LOW, MEDIUM AND HIGH
+       611_make_masks_thumbnail_quality.txt
   612  MEASURE LIVE DISPLAYS OBJECTS FROM MULTIPLE CHECKED IMAGES
+       612_measure_live_multiple_checked_images.txt
   613  GRAPH BUILDER MERGE-TABLES INTERFACE AND DERIVED-TABLE LIFECYCLE
+       613_graph_builder_merge_tables.txt
   614  GITHUB #134: MEASURE MASK-PLANE CONFIGURATION CONFLICTS WITH THE STORED LAYOUT
+       614_github_134_measure_plane_layout_conflict.txt
   615  REQUESTED BATCH: API, DOCUMENTATION, TRANSLATIONS, TUTORIALS AND ACCEPTANCE
+       615_requested_batch_api_docs_translations_tutorials_and_acceptance.txt
   620  620. Graph Builder metadata condition annotations
+       620_graph_builder_metadata_condition_annotations.txt
   621  621. Graph Builder clearing chart axes crashes
+       621_graph_builder_clearing_chart_axes_crashes.txt
   622  622. Mask preprocessing exhausts plate memory
+       622_mask_preprocessing_exhausts_plate_memory.txt
   623  623. Recover original filename metadata for condition annotation
+       623_original_filename_metadata_in_table_merges.txt
   624  624. Center window resize lines at half the side length
+       624_centered_half_length_window_resize_lines.txt
   625  625. Build condition labels from multiple metadata annotation columns
+       625_multiple_annotation_columns_and_composed_conditions.txt
   626  626. Organize for Measure must report incomplete folder consolidation
+       626_organizer_reports_partial_consolidation_failures.txt
   627  627. macOS updates must upgrade the existing spaCR environment and relaunch
+       627_macos_update_existing_environment_and_relaunch.txt
   628  628. Build metadata columns from extraction rules and compose labels with draggable tokens
+       628_metadata_extraction_rules_and_drag_composition.txt
   629  629. Save and load reusable annotation schemas in Graph Builder
+       629_save_and_load_annotation_schemas.txt
   630  630. Bump spaCR to 1.5.1.2 when the release is ready
+       630_bump_version_to_1_5_1_2_when_release_ready.txt
   631  631. RAM-aware worker guard for Measure
+       631_ram_aware_worker_guard.txt
   632  632. Gate editor 3D mode is usable
+       632_gate_editor_3d_mode_is_usable.txt
   633  633 Test data for every module and submodule
+       633_test_data_for_every_module.txt
   635  PLAQUE FIGURE MODE FINDS NO PLAQUES ON PAPER FIGURES
+       635_plaque_figure_mode_finds_no_plaques.txt
   636  636 -- No empty settings categories
+       636_no_empty_settings_categories.txt
   637  637 -- Graph Builder: loaded schema rules overlap
+       637_graph_builder_loaded_schema_rules_overlap.txt
   638  638 -- Verbose logging is usable
+       638_verbose_logging_is_usable.txt
   639  Item 639: Organize images in Mask Generation and Import Images
+       639_organize_import_in_mask_and_import_modules.txt
   640  640. Measure adds original_* filename columns from the conversion manifest
+       640_measure_adds_original_filename_columns.txt
   641  641 -- Performance audit, 2026-10-04 (step 3 of the maintainer's audit)
+       641_performance_audit_2026_10_04.txt
   642  642. Model Zoo's alpha models are missing with Show alpha features on
+       642_model_zoo_alpha_table_is_empty.txt
   643  PRUNE THE SPACR HOME FOLDER
+       643_prune_the_spacr_home_folder.txt
   644  DISK CACHE MANAGER
+       644_disk_cache_manager.txt
   645  MULTI INSTANCE LOCK
+       645_multi_instance_lock.txt
   646  CLEAN UNINSTALL PURGE
+       646_clean_uninstall_purge.txt
   647  SESSION RESTORE ON EVERY START
+       647_session_restore_on_every_start.txt
   648  SETTINGS AUTOSAVE
+       648_settings_autosave.txt
   649  UNDO REDO EVERYWHERE
+       649_undo_redo_everywhere.txt
   650  JOBS WINDOW
+       650_jobs_window.txt
   651  UPDATE CHANNEL AND WHATS NEW
+       651_update_channel_and_whats_new.txt
   652  PROXY AND CORPORATE CA
+       652_proxy_and_corporate_ca.txt
   653  PORTABLE MODE
+       653_portable_mode.txt
   654  ENVIRONMENT LOCKFILE PER RUN
+       654_environment_lockfile_per_run.txt
   655  ACCESSIBILITY PASS
+       655_accessibility_pass.txt
   656  REBINDABLE SHORTCUTS
+       656_rebindable_shortcuts.txt
   657  SETTINGS PROFILES
+       657_settings_profiles.txt
   658  FIGURE PREFERENCES THAT CONTROL EVERY FIGURE; RIGHT-CLICK CHANGE-GRAPH; ONE ZIP
+       658_figures_prefs_rightclick_and_zip_export.txt
   660  CLEAR ALL LOGS BUTTON
+       660_clear_all_logs_button.txt
   661  DIM-SENSITIVE CENTRE-PIXEL PUNCTA MASKS INSIDE PARENT OBJECTS
+       661_center_pixel_puncta_masks_inside_parent_objects.txt
   662  MAKE MASKS BOUNDING-BOX ANNOTATIONS FOR YOLO MODELS
+       662_make_masks_yolo_bounding_box_annotations.txt
   663  ABSTRACT DATA FLOW THEMES AND BACKDROP PERFORMANCE
+       663_abstract_data_flow_themes_and_performance.txt
   664  664. Stagger parallel workers and defer one final overload retry
+       664_stagger_parallel_workers_and_retry_overload_after_primary_queue.txt
   665  665. Single database writer with bounded queue RAM and disk spill
+       665_single_database_writer_with_bounded_ram_and_disk_spill.txt
   666  FULLSCREEN RESIZE LOCK, EASIER EDGE GRABS AND FIELD RIPPLES
+       666_window_resize_snap_and_field_edge_ripples.txt
   667  FIXED-HEIGHT INLINE HELP AND ONE ACTION PROGRESS INDICATOR
+       667_stable_inline_action_help_and_single_progress_indicator.txt
   668  SEPARATE SETTINGS ANIMATION CONTROLS AND SPACEOUT-ONLY THEMES
+       668_separate_settings_animation_controls_and_spaceout_theme_catalog.txt
   669  VERIFY TRACKASTRA IS AVAILABLE IN TIMELAPSE
+       669_trackastra_timelapse_availability_and_dispatch.txt
   670  INDEPENDENT FIELD RIPPLES AND FIELD SETUP BACKDROP
+       670_independent_field_ripples_and_setup_backdrop.txt
   671  ROUNDED PLOT BACKING IN THE GATE EDITOR
+       671_gate_editor_rounded_opaque_plot_backing.txt
   672  EDITABLE GATE ANCHORS AND SELECTABLE 3D SURFACES
+       672_gate_editor_editable_2d_3d_anchors_and_surfaces.txt
   673  3D MAKE MASKS WITH SHARED ANCHOR AND SURFACE EDITING
+       673_make_masks_3d_editable_anchors_and_surfaces.txt
   674  DEFAULT SPACEOUT FIELD WITH ELEGANT RANDOM PHENOMENA
+       674_spaceout_field_random_phenomena_and_effect_controls.txt
   675  UPDATE CONDA-FORGE TO THE MOST RECENT SPACR RELEASE
+       675_conda_forge_update_to_latest_spacr_release.txt
   676  INSTALL SPACR, COMPLETE HOME NAVIGATION AND CURRENT ORGANISM TUTORIALS
+       676_installation_home_image_analysis_and_toxoplasma_tutorial_refresh.txt
   677  RENAME THE ASSAYS CATEGORY TO ORGANISM
+       677_rename_assays_category_to_organism.txt
   678  OBJECTIVE, FACTUAL LANGUAGE THROUGHOUT SPACR
+       678_objective_factual_user_facing_language_review.txt
   679  GPU ACCELERATION FOR DATA FLOW THEMES WITH CPU FALLBACK
+       679_gpu_accelerated_data_flow_themes_with_cpu_fallback.txt
   680  OPTIONAL SAVE ON NAVIGATION IN MAKE MASKS
+       680_make_masks_save_on_navigation.txt
   681  NUMERIC HOSTED TEST COUNT BADGE
+       681_numeric_hosted_test_count_badge.txt
   682  RELEASE 1.5.1.4 VERSION AND MAIN PROMOTION
+       682_release_1_5_1_4_promotion.txt
   683  TOKEN-FREE PREPARED ITEM CHECKS AND PUBLICATION
+       683_token_free_prepared_item_publication.txt
   684  ANIMATION DEFAULTS, CLICK RIPPLES, WINDOW SNAPPING AND DYNAMIC GPU USE
+       684_animation_defaults_ripples_cross_platform_snap_and_dynamic_gpu.txt
   685  MAKE MASKS CURATION CONTROLS, PLAQUE MODEL CATEGORY AND ALPHA VVVV EXPORT
+       685_make_masks_curation_controls_and_alpha_vvvv_export.txt
   686  A FREE WEBSITE FOR spaCR AND THE MAINTAINER'S OTHER PROJECTS, WITH RICH EFFECTS
+       686_a_free_project_website_with_rich_effects.txt
   687  WEBSITE V2: spaCR FLOW THEME, OPEN SANS, A MODEL SHOWCASE AND RELEASE SYNC
+       687_website_v2_flow_theme_model_showcase_and_release_sync.txt
   688  CODECOV FOR spaCR, WITH A README BADGE
+       688_codecov_for_spacr_with_a_readme_badge.txt
   689  =========================================================================NIGHTLY DOCS ON A HUGGING FACE STATIC SPACE, MAIN DOCS STAY ON GITHUB PAGES
+       689_nightly_docs_on_a_hugging_face_static_space.txt
   690  MAKE MASKS FOR TRANSMISSION ELECTRON MICROSCOPY (TEM) IMAGES
+       690_make_masks_for_tem_images.txt
   691  MITONET AS AN ALPHA MAKE MASKS BACKEND FOR TEM
+       691_mitonet_tem_backend_alpha.txt
   692  3D MASK DRAWING IN MAKE MASKS AND A FIB-SEM EXAMPLE VOLUME WITH MASKS
+       692_three_d_mask_drawing_and_a_fib_sem_example.txt
   693  EXPORT SETTINGS FROM EVERY FORM
+       693_export_settings_from_every_form.txt
   694  PHOTOMOSAIC BLOW-AWAY STARTUP SCREEN
+       694_photomosaic_blow_away_startup_screen.txt
   695  STARTUP LOGO ON A FULL-SCREEN BORDERLESS WINDOW, A 2 + 4 S TIMELINE, AND A HELP REPLAY
+       695_startup_logo_on_a_full_screen_borderless_window_and_a_help_replay.txt
   696  MAGNIFICATION SETS THE DEFAULT CELLPOSE DIAMETER AGAIN; 0 AND "auto" MEAN
+       696_magnification_default_diameter_and_auto_diameter.txt
   697  MAKE MASKS: EACH NEW DISCONNECTED BRUSH STROKE IS A NEW OBJECT LABEL
+       697_each_disconnected_brush_stroke_is_a_new_object.txt
   698  WEB MASK GENERATOR: DROP AN IMAGE, GET MASKS, FLOWS, PROBABILITY AND A CSV,
+       698_web_mask_generator_one_page_per_model.txt
   699  SUBMIT TO CLUSTER: FILL THE SERVER FROM ~/.ssh, AND LOG IN THROUGH A SECOND
+       699_cluster_submit_reads_ssh_config_and_handles_mfa.txt
   700  ANONYMISED ERROR REPORTS WITHOUT A GITHUB ACCOUNT (ON BY DEFAULT)
+       700_anonymous_error_reports_without_a_github_account.txt
   701  MAKE MASKS CAN EXCLUDE FIELDS THAT ALREADY HAVE A KEEP OR DISCARD VERDICT
+       701_make_masks_can_exclude_fields_with_a_keep_or_discard_verdict.txt
   702  CLUSTER RUNS DOWNLOAD A MISSING ZOO MODEL AUTOMATICALLY
+       702_cluster_runs_download_a_missing_zoo_model_automatically.txt
   703  UPDATES REPLACE OLD APPLICATION VERSIONS AND KEEP USER DATA
+       703_updates_replace_old_application_versions_and_keep_user_data.txt
   704  README PANELS LINK TO READABLE TEXT
+       704_readme_panels_link_to_readable_text.txt
   705  MAKE MASKS: MEASURE THE CURRENT 3D IMAGE INTO A SPACR-STYLE DATABASE
+       705_make_masks_measure_current_3d_image.txt
   706  OBJECT DETECTION: A 3D SWITCH FOR 3D-CAPABLE MODELS AND THRESHOLDS
+       706_object_detection_3d_switch.txt
   707  MAKE MASKS BUTTONS IN TITLED GROUPS AROUND THE IMAGE, WITH COLLAPSIBLE BARS
+       707_make_masks_titled_button_groups_and_collapsible_bars.txt
   708  MAKE MASKS: EDIT LABELS AND CURATE TIMELAPSE IDENTITIES / DIVISIONS
+       708_make_masks_manual_labels_and_timelapse_lineage.txt
   709  RESOLVE ALL OPEN GITHUB ISSUES; THE ITEM REOPENS WHENEVER ISSUES ARE ADDED
+       709_resolve_all_open_github_issues.txt
   710  SLIM THE REPOSITORY: EVIDENCE AND MEDIA TO HUGGING FACE, CATALOGS BUILT IN CI
+       710_slim_the_repository.txt
   712  MAKE MASKS: TIMELAPSE TEST DATASETS WITH MASKS (YEAST, BACTERIA, MAMMALIAN)
+       712_make_masks_timelapse_test_datasets.txt
   714  OPERATIONAL AGENT RULES AND HANDOFFS UNDER spacr/resources/AI
+       714_operational_agent_documents_under_resources_ai.txt
   715  SOFTWARE JOURNAL REVIEW PREPARATION AND APPROVAL-GATED CLEANUP PROPOSALS
+       715_prepare_software_journal_review_and_cleanup_proposals.txt
   716  INTEGRATE WINDOWS WORK AND RETIRE THE BRANCH
+       716_integrate_windows_work_and_retire_the_branch.txt
   717  MAKE MACOS GUI SCALING CONTENT-SAFE
+       717_make_macos_gui_scaling_content_safe.txt
   718  AUDIT DEPENDENCY BOUNDS AND MODERNIZE DEFAULT DEPENDENCIES
+       718_audit_dependency_bounds_and_modernize_default_dependencies.txt
   719  NONCOMMERCIAL USE POLICY AND USER AGREEMENT
+       719_noncommercial_use_user_agreement.txt
   720  OPEN A DROPPED PLAQUE-ASSAY PDF IN LIVE PREVIEW
+       720_open_dropped_plaque_pdf_in_live_preview.txt
   721  CONFIGURABLE MINIMUM OBJECT SIZE IN PLAQUE SETTINGS
+       721_configurable_plaque_minimum_object_size.txt
   722  APPLY THE PLAQUE FIGURE VIEW MODE TO THE SELECTED SINGLE WELL
+       722_plaque_view_mode_applies_to_selected_well.txt
   723  BROWSE BUTTONS FOR EVERY SOURCE-FOLDER INPUT
+       723_browse_buttons_for_all_source_folder_inputs.txt
   724  SAVE ANY PLAQUE ASSAY TABLE FROM ITS CONTEXT MENU
+       724_plaque_tables_right_click_save.txt
   725  FIELD-OF-VIEW OVERVIEW, INTERACTIVE PLATE BROWSER AND PDF EXPORT
+       725_field_of_view_overview_and_interactive_plate_browser.txt
   726  ORGANELLE-SPECIFIC SETTINGS COLUMN IN LIVE MASK GENERATION
+       726_organelle_settings_column_in_live_mask_preview.txt
   727  A STARTUP LOGO ANIMATION THAT IS AS SMOOTH AS POSSIBLE ON EVERY DEVICE AND GPU
+       727_smooth_startup_logo_animation_on_every_device_and_gpu.txt
   728  THE IDLE CPU COST OF THE ANIMATED BACKDROP: STOP REPAINTING THE SETTINGS ROWS
+       728_idle_cpu_cost_of_the_animated_backdrop.txt
   729  THE MAC AND APPLE SILICON CHECKS STILL TO RUN ON A REAL MACOS DISPLAY
+       729_mac_apple_silicon_native_checks_remaining.txt
   730  NATIVE CRASH REPORTS CARRY THE CRASHED SESSION'S PLATFORM, QT, SCREENS AND THREAD
+       730_native_crash_reports_carry_the_crashed_session_context.txt
   731  NATIVE CRASH REPORTS NAME THE TEARDOWN STEP A CLOSE CRASHED IN
+       731_native_crash_reports_name_the_teardown_step.txt
   732  REMOTE AND CLUSTER SUBMISSION: ANY SIGN-IN METHOD, A USER-EDITED JOB SCRIPT,
+       732_remote_cluster_submission_for_any_sign_in_job_script_resources_and_login_node_safety.txt
   733  NAVIGATOR: A CONTENT-GUIDED HOME WITH AN ANIMATED PATH AND DROP FIELD
+       733_easy_mode_content_guided_home.txt
   734  POPUP RESIZING WITHOUT CONTENT OR BACKGROUND FLASHING
+       734_popup_resize_without_content_or_background_flashing.txt
   735  MAKE MASKS OPENS IMAGES AND CONTAINERS THROUGH SHARED READER CAPABILITIES
+       735_make_masks_shared_image_and_container_readers.txt
   736  MEASURE RERUNS PRESERVE EXISTING TABLES AND NEVER MIX OBJECT POPULATIONS
+       736_measure_reruns_archive_existing_database_tables.txt
   737  ANONYMOUS MERGE VALIDATION STRUCTURE
+       737_anonymous_merge_validation_structure.txt

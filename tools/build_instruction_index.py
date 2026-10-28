@@ -1,47 +1,16 @@
 #!/usr/bin/env python
-"""Regenerate ``features/00_INDEX.txt`` from the feature files.
+"""Build the canonical Feature List and compatible lifecycle index.
 
-TWO LISTS. ``features/new/`` records requested and implemented features;
-``features/future/`` records the future feature requests. The maintainer
-explicitly made BOTH lists part of the 1.5.1.5 release scope on 2026-10-14.
-Implementation and applicable acceptance must be complete before publication;
-a DONE header alone is not release acceptance.
-
-WHY THIS IS A TOOL AND NOT A DOCUMENT. The index was hand-written on
-2026-08-05 and was nine days stale by 2026-08-14: it listed work that had
-shipped and omitted work that had been filed. An index that disagrees with the
-folder is worse than no index, because it is believed -- and this repository
-has already lost time to eight instruction files that were wrong about their
-own state.
-
-Everything here is read off the filesystem at run time. The only hand-written
-part is the small table of stages and blockers below, which is the one thing
-the files themselves do not say in a machine-readable way.
-
-TWO FOLDERS, NOT THREE, AND THE HEADER NOW SAYS WHICH. The scan is
-``features/future/*.txt`` and ``features/new/*.txt`` -- the folders named in
-``SCANNED`` -- and nothing else. ``features/`` itself still holds ledger files
-the rename from ``instructions/`` left behind, and an index that told a reader
-it was generated "from the files themselves" while skipping them is what item
-398 was filed about. They are globbed per run by ``_unscanned_top_level`` and
-printed in the index header BY NAME, never as a count: a number written into
-prose does not move when the folder does, and this ledger has been caught by
-exactly that several times. Listing them also puts them under ``--check``, so
-a file arriving at the top level makes the committed index stale instead of
-being invisible to every check that exists.
-
-Usage::
-
-    python tools/build_instruction_index.py            # rewrite
-    python tools/build_instruction_index.py --check     # exit 1 if stale
-
-``--check`` is what a test calls, so the index cannot go stale again without
-CI saying so.
+Numbered records live only in features/feature_list/. Their explicit
+Lifecycle metadata preserves the old new/future categories and alpha policy;
+it is not completion status. Dated item notes remain authoritative.
+Run normally to regenerate both outputs, or --check to verify them.
 """
 from __future__ import annotations
 
 import argparse
 import datetime
+import re
 import sys
 from pathlib import Path
 from typing import Dict, List, Tuple
@@ -50,10 +19,29 @@ REPO = Path(__file__).resolve().parent.parent
 INSTRUCTIONS = REPO / "features"
 INDEX = INSTRUCTIONS / "00_INDEX.txt"
 
-#: The folders this index is generated from, named once. Every scan below
-#: reads this tuple and the header prints it, so the folders the tool claims
-#: to read cannot drift from the folders it does read.
-SCANNED: Tuple[str, ...] = ("future", "new")
+#: Physical record location; lifecycle categories are metadata, not folders.
+SCANNED: Tuple[str, ...] = ("feature_list",)
+LIFECYCLES: Tuple[str, ...] = ("future", "new")
+
+
+def _item_paths() -> List[Path]:
+    """All numbered records; reject a partial migration or an invisible item."""
+    paths = sorted(p for p in INSTRUCTIONS.rglob("*.txt")
+                   if re.match(r"^\d+_", p.name) and p.name != "00_INDEX.txt")
+    misplaced = [p for p in paths if p.parent != INSTRUCTIONS / "feature_list"]
+    if misplaced:
+        raise ValueError("numbered items outside features/feature_list/: "
+                         + ", ".join(str(p.relative_to(INSTRUCTIONS)) for p in misplaced))
+    return paths
+
+
+def _lifecycle(path: Path) -> str:
+    """Require one explicit category; unknown metadata must never hide alpha work."""
+    values = re.findall(r"^Lifecycle:[ \t]*(.*)$", path.read_text(encoding="utf-8"), re.M)
+    if len(values) != 1 or values[0].strip() not in LIFECYCLES:
+        raise ValueError(f"{path}: expected exactly one Lifecycle: new or future")
+    return values[0].strip()
+
 
 #: Instructions owned by the concurrent codex session. Named here rather than
 #: inferred, because "do not touch this" is not something a file says about
@@ -165,6 +153,7 @@ def _instruction_title(lines: List[str], number: str, fallback: str) -> str:
     only the first form, which silently produced blank rows as soon as the
     second form reached ``future/`` or ``new/``.
     """
+    lines = [line for line in lines if not line.startswith("Lifecycle:")]
     if (len(lines) >= 3 and lines[0].strip()
             and set(lines[0].strip()) == {"="} and lines[1].strip()):
         return lines[1].strip()
@@ -187,7 +176,12 @@ def _instruction_title(lines: List[str], number: str, fallback: str) -> str:
 def _entries(folder: str) -> List[Tuple[str, str, str]]:
     """``(number, title, filename)`` for one folder, in numeric order."""
     out = []
-    for path in (INSTRUCTIONS / folder).glob("*.txt"):
+    if folder not in (*LIFECYCLES, "feature_list"):
+        raise ValueError(f"unknown feature category: {folder}")
+    for path in _item_paths():
+        category = _lifecycle(path)
+        if folder != "feature_list" and category != folder:
+            continue
         number = path.name.split("_", 1)[0]
         if not number.isdigit():
             continue
@@ -221,13 +215,8 @@ def _sort_key(number: str) -> tuple[int, str]:
 
 def _files_for_number(number: str) -> List[str]:
     """Every feature file whose name starts with this item number."""
-    found: List[str] = []
-    for folder in SCANNED:
-        base = INSTRUCTIONS / folder
-        if not base.is_dir():
-            continue
-        found += sorted(path.name for path in base.glob(f"{number}_*"))
-    return found
+    return [path.name for path in _item_paths()
+            if path.name.split("_", 1)[0] == number]
 
 
 def _unscanned_top_level() -> List[str]:
@@ -252,15 +241,9 @@ def _unscanned_top_level() -> List[str]:
 def _duplicate_numbers() -> set:
     """Item numbers carried by more than one file, across both lists."""
     seen: Dict[str, int] = {}
-    for folder in SCANNED:
-        base = INSTRUCTIONS / folder
-        if not base.is_dir():
-            continue
-        for path in base.iterdir():
-            number = path.name.split("_", 1)[0]
-            if not number.isdigit():
-                continue
-            seen[number] = seen.get(number, 0) + 1
+    for path in _item_paths():
+        number = path.name.split("_", 1)[0]
+        seen[number] = seen.get(number, 0) + 1
     return {number for number, count in seen.items() if count > 1}
 
 
@@ -273,7 +256,7 @@ def render(today: str = "") -> str:
     # printed in the header, while its rows went into no list -- so a third
     # folder needs a list of its own below, which is why the two lookups are
     # spelled out here instead of iterated.
-    rows = {folder: _entries(folder) for folder in SCANNED}
+    rows = {folder: _entries(folder) for folder in LIFECYCLES}
     future_rows = rows["future"]
     new_rows = rows["new"]
     # Kept under the old names below so the rest of this renderer, which
@@ -289,6 +272,7 @@ def render(today: str = "") -> str:
     lines = [
         "=" * 80,
         "spaCR FEATURES -- NEW, AND FUTURE",
+        "Canonical discovery: features/FEATURE_LIST.md",
         "=" * 80,
         "",
         f"Regenerated {stamp} by `tools/build_instruction_index.py`, from "
@@ -348,8 +332,9 @@ def render(today: str = "") -> str:
         "wrong about",
         "themselves this week.",
         "",
-        f"{len(done_rows)} in features/new, {len(open_rows)} in "
-        f"features/future. BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5.",
+        f"{len(done_rows)} Lifecycle: new, {len(open_rows)} Lifecycle: future "
+        "in features/feature_list/.",
+        "BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).",
         "Maintainer requirement: implement every listed item and complete its",
         "applicable acceptance before publication. Historical DONE headers alone",
         "do not establish current acceptance; use dated trailing evidence.",
@@ -368,10 +353,68 @@ def render(today: str = "") -> str:
         lines.append("")
 
     lines += ["-" * 80, "NEW FEATURES", "-" * 80, ""]
-    for number, title, _name in done_rows:
+    for number, title, name in done_rows:
         lines.append(f"  {number:>3}  {title}".rstrip())
+        lines.append(f"       {name}")
     lines.append("")
     return "\n".join(lines)
+
+
+def _recorded_status(text: str) -> str:
+    """Quote the header declaration, never a Status line in archived trailing history."""
+    statuses = re.findall(r"^Status:[ \t]*(.*)$", text, re.M | re.I)
+    return statuses[0].strip() if statuses else "Unspecified"
+
+
+def render_feature_list() -> str:
+    """Every actual item, with full-slug links disambiguating repeated IDs."""
+    paths = sorted(_item_paths(), key=lambda p: (int(p.name.split("_", 1)[0]), p.name))
+    categories = {category: _entries(category) for category in LIFECYCLES}
+    duplicates = _duplicate_numbers()
+    unique = len({p.name.split("_", 1)[0] for p in paths})
+    lines = ["# Feature List", "",
+             "Canonical discovery for every numbered spaCR feature item. Generated by "
+             "`python tools/build_instruction_index.py`; do not hand-edit.", "",
+             f"{len(paths)} records, {unique} numeric IDs; "
+             f"{len(categories['new'])} New and {len(categories['future'])} Future lifecycle records.", "",
+             "All numbered files live in `features/feature_list/`. Lifecycle preserves the former "
+             "folder category; Future remains alpha-gated. It does not mean open or complete. "
+             "Recorded header status is quoted, may lag later notes, and is not release or native acceptance. "
+             "Read each item's dated trailing notes for its current requirements.", "",
+             "Repeated IDs retain their separate full filenames and histories; none were merged or renumbered. "
+             "The compatible lifecycle index remains [00_INDEX.txt](00_INDEX.txt).", "",
+             "## Not recorded as complete", "",
+             "This is a declaration-based navigation list, not a verified unfinished count. "
+             "Headers can be stale. Conversely, recorded-Done items 641 and 673 contain later "
+             "Mac follow-ups; item 729 separates native checks from deferred implementation. "
+             "Read their linked notes before assigning work.", ""]
+    def cell(value: str) -> str:
+        return value.replace("|", "\\|").replace("\n", " ")
+    def row(path: Path) -> str:
+        number = path.name.split("_", 1)[0]
+        text = path.read_text(encoding="utf-8")
+        title = _instruction_title(text.splitlines(), number, path.stem)
+        shared = " (shared ID)" if number in duplicates else ""
+        label = cell(f"{title} — {path.name}").replace("[", "\\[").replace("]", "\\]")
+        return (f"| {number}{shared} | {_lifecycle(path).title()} | "
+                f"[{label}](feature_list/{path.name}) | {cell(_recorded_status(text))} |")
+    complete = re.compile(r"^(DONE|CLOSED|COMPLETE|RETIRED|SUPERSEDED)\b", re.I)
+    pending = [path for path in paths if not complete.match(_recorded_status(path.read_text(encoding="utf-8")))]
+    lines += [f"{len(pending)} records have no recorded complete declaration; "
+              f"{len(paths) - len(pending)} have a recorded complete declaration. Neither is a verification result.", "",
+              "| ID | Lifecycle | Item (full filename) | Recorded status |",
+              "|---|---|---|---|"]
+    lines += [row(path) for path in pending]
+    lines += ["", "## All feature items", "",
+              "| ID | Lifecycle | Item (full filename) | Recorded status |",
+              "|---|---|---|---|"]
+    lines += [row(path) for path in paths]
+    ancillary = [p for p in INSTRUCTIONS.glob("*.txt") if p.name not in {INDEX.name, "TEMPLATE.txt"}]
+    if ancillary:
+        lines += ["", "## Unnumbered feature documents", "",
+                  "These distinct documents remain at their existing paths; they are not duplicate numbered items.", ""]
+        lines += [f"- [{p.name}]({p.name})" for p in sorted(ancillary)]
+    return "\n".join(lines) + "\n"
 
 
 def main(argv=None) -> int:
@@ -403,17 +446,21 @@ def main(argv=None) -> int:
               + ", ".join(resolved))
 
     fresh = render()
+    feature_list = INSTRUCTIONS / "FEATURE_LIST.md"
+    fresh_list = render_feature_list()
     if args.check:
         if unexpected:
             print(f"STALE -- {len(unexpected)} item number(s) used twice and "
                   "not in KNOWN_DUPLICATE_NUMBERS")
             return 1
-        if body(current) == body(fresh):
+        if (body(current) == body(fresh) and feature_list.exists()
+                and feature_list.read_text(encoding="utf-8") == fresh_list):
             print("the index matches the instruction files")
             return 0
         print("STALE — run tools/build_instruction_index.py")
         return 1
     INDEX.write_text(fresh, encoding="utf-8")
+    feature_list.write_text(fresh_list, encoding="utf-8")
     print(f"index regenerated: {INDEX}")
     return 0
 

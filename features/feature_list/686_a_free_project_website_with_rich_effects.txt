@@ -1,0 +1,220 @@
+================================================================================
+A FREE WEBSITE FOR spaCR AND THE MAINTAINER'S OTHER PROJECTS, WITH RICH EFFECTS
+================================================================================
+
+Lifecycle: new
+Status:    DONE — published site, current release facts, retained mobile/browser
+           checks and maintainer-accepted laptop performance complete the scope.
+Requested: 2026-10-10 — "I'd like to have a free webpage for spacr and my other
+           projects. I'd like the page to be able to have cooler effects than
+           GitHub allows me to have."
+Owner:     Complete; release owner maintains future release synchronization.
+Related:   README deck; docs Pages budget (WS note 2026-10-10: the combined
+           docs site is 960 of 996 MB); N684 animation; N674 field relief
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+spaCR's only web presence is the GitHub repository and README plus the Sphinx
+docs on GitHub Pages (main and nightly channels). A GitHub README cannot run
+JavaScript, CSS animation, WebGL or video autoplay: it is sanitized markdown.
+GitHub Pages itself has no such limit. It serves any static HTML/JS/WebGL. But
+the spaCR repository's Pages site is the docs, and it is already near the 1 GB
+Pages size limit, so a project site must not live there.
+
+The maintainer's other projects (live_cell / cellposeTIME, the Cellect phone
+eyepiece mount, and any others the maintainer lists) have no shared landing
+page.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The README is the first thing people see, and it can only show static images
+and GIFs. spaCR's own animated backgrounds (flow fields, ripples, Spaceout
+themes) and its segmentation results are its most striking features, and none
+of them can be shown live. There is no single place that presents all of the
+maintainer's projects together.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Host at no cost, separate from the docs.
+   Recommended: a GitHub user site, repository EinarOlafsson/EinarOlafsson.github.io
+   (free, own 1 GB budget, served at https://einarolafsson.github.io/, custom
+   domain optional later). Alternatives with the same zero cost: Cloudflare
+   Pages or Netlify (also free static hosting, higher bandwidth limits, preview
+   deploys per push). Ask the maintainer to choose the host and whether to buy
+   a custom domain (about USD 10/year; the only non-free part, optional).
+
+2. Build as a static site: plain HTML/CSS/JS, or Astro if pages multiply. No
+   server, no tracking, no build step the maintainer has to run by hand. A
+   GitHub Actions workflow in the site repository deploys on push.
+
+3. Effects that GitHub's README cannot do:
+   - a live WebGL background that ports spaCR's own flow-field / ripple /
+     field-relief shaders (N674, N684), reacting to the pointer, so the site
+     looks like the app;
+   - scroll-driven reveals and parallax of real spaCR screenshots and
+     segmentation overlays;
+   - before/after sliders (raw image vs. mask), autoplaying muted tutorial
+     clips from the existing tutorial media;
+   - an interactive 3D model viewer (three.js / <model-viewer>) for the Cellect
+     phone mount STL;
+   - respect prefers-reduced-motion (effects off, static fallback) and a
+     visible "pause effects" toggle; keep the first view under 1 MB and
+     60 fps on a mid-range laptop, and fall back to CSS when WebGL is absent.
+
+4. Pages: a landing page with one card per project; a spaCR page (what it does,
+   install links to PyPI and the installers, docs, tutorials, citation/DOI,
+   the README deck); one page per other project from material the maintainer
+   supplies; light/dark themes; mobile layout.
+
+5. Link it from spaCR's README, docs and setup.py project_urls ("Homepage").
+   Keep project facts (version, installer links, DOI) generated from
+   packaging/release.py's published metadata so the site never goes stale;
+   release.yml pings the site repository to rebuild after each release.
+
+6. Translations: after the English layout settles, WS adds the nine spaCR
+   locales for the spaCR page (same AI-reviewed labelling as the docs).
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+- The site is live at its public URL, served free, deployed by a push.
+- Lighthouse (mobile): performance >= 90, accessibility >= 95; first view
+  under 1 MB transferred.
+- With prefers-reduced-motion set, no animation runs; with WebGL disabled the
+  page still renders fully.
+- The spaCR page's version, installer links and DOI match PyPI and the latest
+  GitHub release after a release, without hand edits.
+- The spaCR README and docs link to it.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+- Not inside the spaCR repository's GitHub Pages: that site is the docs and
+  is close to its 1 GB limit.
+- No paid hosting, CMS, analytics or cookies; a custom domain only if the
+  maintainer chooses to buy one.
+- Other projects' content is not invented: each project page waits for the
+  maintainer's text, images and the list of projects to include.
+
+2026-10-10 — Built and live. Host chosen by the maintainer: GitHub user site
+https://einarolafsson.github.io/ (public repo EinarOlafsson/EinarOlafsson.github.io,
+built output only). Sources live in the PRIVATE repo EinarOlafsson/site-src, whose
+Actions workflow builds on push, daily at 06:17 UTC and on repository_dispatch
+type "spacr-release", encrypts the protected pages and pushes dist/ with a
+write deploy key. Pages: landing (project cards), /projects/spacr/ (public),
+/projects/live-cell/ and /projects/cellect/ (password, StatiCrypt 3.5.4:
+AES-256-CBC + HMAC, PBKDF2 600k; password in the site-src Actions secret
+SITE_PASSWORD and locally in ~/.config/spacr-site/password, never committed).
+The build fails if any protected-only word appears in dist/.
+spaCR facts are fetched at build time: version and Python range from PyPI,
+installers and SHA256SUMS from the latest GitHub release, authors and concept
+DOI from main's CITATION.cff, version DOI from Zenodo's latest record.
+Effects: WebGL field porting ambient.py BlobsEngine + RippleEngine (spacr
+palette, same timing constants) warped by a curl-noise flow field that the
+pointer stirs, click ripples; scroll reveals, hero parallax, image/mask/flow
+before-after slider, lazy muted tutorial clips (lessons 5 and 20), 3D
+<model-viewer> of the assembled Cellect mount (GLB from cellect_mount.assembly).
+Reduced motion: one still frame, no loops; pause toggle; CSS gradient fallback
+without WebGL; light/dark; mobile layout.
+Verified on the live URL with headless Chrome: 49/49 checks (themes, mobile,
+no horizontal scroll, slider, clips, pause, reduced motion, no-WebGL, both
+protected pages refuse a wrong password and decrypt with the right one, 3D model
+loads). Lighthouse mobile: home 99/100 (perf/a11y), spaCR page 97/100, live_cell
+lock page 100/100, Cellect lock page 85/100 (941 kB encrypted page carries the
+inlined 3D model). First view: home 13 KiB, spaCR page 77-132 KiB.
+Remaining here: link the site from README.rst, the docs and setup.py
+project_urls; optionally have release.yml send repository_dispatch
+"spacr-release" to EinarOlafsson/site-src (needs a token secret; the daily
+build covers it within 24 h otherwise). Found: CITATION.cff at tag v1.5.1.4
+lists 10.5281/zenodo.23111593 (the v1.5.1.3 record) as the version DOI; main
+and Zenodo say 10.5281/zenodo.23266544. Translations (point 6) not started.
+
+2026-10-14 — Home-B startup/loading repair validated privately.
+site-src commitcc81d2f367e31fc2ee389b39f1a2d562d54e6354, atopd9624b5, defers
+initial offscreen tab layout and removes four stale high-priority overview
+image preloads. The actual hero retains priority. Native fragment navigation
+disables the optimization when a real target exists; disabled/failed JavaScript
+keeps all content readable. All19 real-browser scenarios pass, including light/
+dark mobile/desktop, all nine tab URLs, nested/unknown fragments and keyboard/
+history behavior. Full123-file encrypted build, leak and locale checks pass.
+No Lighthouse score is claimed under active catalog/Timepose load. Deployment
+and idle-host performance acceptance remain OPEN. Source receipt:
+data/687_startup_loading_2026-10-14/receipt.json. Existing README/docs and project
+metadata links were already present; the old link follow-up above is superseded.
+
+2026-10-14 — Home-B reduced-motion repair and first-view acceptance.
+Separate site-src commit e33c81e244cfbad30e95a7657c1ad6c3f547ac22 adds four
+CSS lines disabling background opacity and model-chevron transitions under
+prefers-reduced-motion. A real200ms chevron animation reproduced before the
+fix. All23 functional/browser checks pass, including static interaction in
+all7 backgrounds, live preference changes, disabled JavaScript, paused clips
+and light/dark WebGL fallback. SwiftShader CPU only; Home GPU untouched.
+Cold mobile first view transfers for all5 candidate and live pages are below
+1,000,000bytes. Live spaCR:394,015bytes; candidate:392,492bytes. The full123-file
+encrypted build and75 protected-word checks pass. Source captions unchanged.
+Original Home owns deployment of this commit after d9624b5 and cc81d2f.
+Current uncontended mobile Lighthouse>=90 performance/>=95 accessibility and
+mid-range laptop60fps remain unverified; no score or whole-item claim.
+Proof: data/687_reduced_motion_2026-10-14/receipt.json.
+
+2026-10-14 22:08 EDT — Home-B published and verified the three website repairs.
+site-src/main e33c81e includes release-asset sync d9624b5, startup loading
+cc81d2f and reduced-motion e33c81e. Source workflow38669177349 and public
+Pages38669241478 both succeeded; public output bd0f63712ca6b7852cddbc778db011d35272909a.
+Sixteen HTTP200 checks verify exact CSS bytes, all ten spaCR locales and
+three installers, release fingerprint and encrypted protected pages. Hosted
+11release tests,123-file build and privacy leak scan/self-test all pass.
+Latest actual release remains1.5.1.4; no1.5.1.5release claim.
+Evidence:data/687_reduced_motion_2026-10-14/publication-receipt.json.
+This closes publication of these repairs. Current mobile Lighthouse thresholds
+and physical mid-range laptop60fps acceptance remain OPEN; full item PARTIAL.
+
+2026-10-15 — Release workflow now requests the site rebuild after PyPI/GitHub publication and final metadata;19 related checks pass.
+Superseded 2026-10-21: SITE_DISPATCH_TOKEN already exists in repository secret metadata; no token creation or disclosure is requested. Its effective permissions still require an actual eligible dispatch.
+GitHub permission reference: https://docs.github.com/en/rest/repos/repos#create-a-repository-dispatch-event ; never commit or paste the token.
+After main promotion/release, confirm refresh-project-site and site production/Pages success; check published version, three installer links and DOI.
+On an idle physical mid-range laptop, verify normal unpaused hardware-rendered pointer/scroll interaction at60fps and current mobile Lighthouse≥90/95,<1MB; retain hardware/browser results. Home GPU was not used.
+
+2026-10-16 — Same two website agents own completion: website_release + website_acceptance; incorporate Claude's published site changes and retain valid prior checks rather than repeating them.
+Current spaCR mobile check passed97 performance/100 accessibility/775,267bytes; finish actionable integration/publication work, identifying credential or physical-device gates precisely.
+Coordinate any shared docs/site3D column with the still-running wgpu owner; do not replace unpublished owner work or treat a blocker report as item completion.
+
+--------------------------------------------------------------------------------
+ACCEPTED WEBSITE SCOPE AND FUTURE RELEASE MAINTENANCE
+--------------------------------------------------------------------------------
+
+The current site is complete at the maintainer-accepted scope. Retain the
+published real-browser, reduced-motion, no-WebGL, privacy and first-view
+checks above, the spaCR mobile result of 97 performance / 100 accessibility
+and 775,267 bytes, and the current all-ten-locale 1.5.1.5 version, installer
+and DOI checks. The maintainer's "laptop performance is good!" accepts laptop
+performance qualitatively; no measured 60 fps result is claimed. No additional
+Safari matrix or future version publication is an acceptance gate for this
+item. Do not repeat these checks merely to reassure a new session.
+
+The release-triggered site refresh remains implemented for future releases.
+SITE_DISPATCH_TOKEN exists; never disclose it. The 2026-10-20 release run
+https://github.com/EinarOlafsson/spacr/actions/runs/39355725517 failed upstream
+and skipped refresh-project-site, so it demonstrated no site-dispatch failure.
+The Apptainer caller ordering was already corrected by c3911a7e30 to wait for
+the GitHub release that creates the tag. The release/CI owner retains upstream
+release work; it does not reopen the delivered website. The existing scheduled
+site build also refreshes release facts without manual site edits. If a future
+eligible dispatch actually fails, fix that concrete failure in the release
+lane rather than requesting another token or duplicating a known repair.
+
+Other projects' new content still waits for the maintainer's material, as
+explicitly excluded above. Installer/update/uninstall acceptance belongs to
+its own items. Item 655 is outside this website handoff; do not reopen it.
+
+2026-10-21 — DONE at maintainer-accepted scope: all ten live spaCR locales show 1.5.1.5 with current installer links and DOI; existing publication, privacy, reduced-motion/no-WebGL and mobile97/100/775,267-byte checks stand.
+Maintainer accepts laptop performance qualitatively ("laptop performance is good!"); no measured FPS is claimed and no new Safari or future-release gate is imposed.
+The dispatch secret exists; the old failed release skipped site refresh upstream, and its Apptainer tag-ordering repair is already published. Future release maintenance remains with the release owner, not an unfinished website requirement.
