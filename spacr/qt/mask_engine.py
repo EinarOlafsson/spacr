@@ -741,15 +741,18 @@ def _retain_native_image_header(header):
 
 def _tiff_series_pixel_size(handle, image):
     """Read calibration attached to this exact TIFF series, never another scene."""
-    from ..core import _WATCH_OME_UNITS, _watch_square_um, _watch_um
-    from ..io import _nm_per
-
     page = image.pages[0]
     try:
         shaped = json.loads(page.description or '{}')
     except (TypeError, ValueError):
         shaped = {}
     exact = shaped.get('pixel_size_nm') if isinstance(shaped, dict) else None
+    unit = (handle.imagej_metadata or {}).get('unit') if len(handle.series) == 1 else None
+    if exact is None and not handle.is_ome and not unit and page.resolutionunit != 3:
+        return None
+    from ..core import _WATCH_OME_UNITS, _watch_square_um, _watch_um
+    from ..io import _nm_per
+
     exact_um = _watch_um(exact, .001)
     if exact_um is not None:
         return exact_um * 1000
@@ -770,7 +773,7 @@ def _tiff_series_pixel_size(handle, image):
             xy = _watch_square_um(x, y)
             if xy is not None:
                 return xy * 1000
-    factor = _nm_per((handle.imagej_metadata or {}).get('unit')) if len(handle.series) == 1 else None
+    factor = _nm_per(unit)
     if factor is None and page.resolutionunit == 3:
         factor = 1e7
     if factor is None or 'XResolution' not in page.tags or 'YResolution' not in page.tags:
