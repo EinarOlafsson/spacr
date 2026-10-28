@@ -1067,3 +1067,92 @@ def test_cursor_export_menu_custom_action_adds_the_selected_physical_image_throu
                             timeout=10000)
         dialog._close_export_dock()
     assert dialog._export_dock is None
+
+
+def test_full_thumbnail_pool_defers_new_quality_until_real_decoders_drain(qtbot, tmp_path, monkeypatch):
+    import threading
+    import tifffile
+    from PySide6.QtCore import Qt
+    from spacr.qt.widgets import qc_field_browser as module
+    from tests.qt.test_qc_field_browser_ratchet_edges_20261024 import PATTERN, _retire
+
+    source = tmp_path / 'full_plate'
+    source.mkdir()
+    originals = {}
+    for row in 'ABCDEFGH':
+        for column in range(1, 13):
+            path = source / f'p1-{row}{column:02d}-f1-t1-z1-c1.tif'
+            pixels = np.arange(160 * 192, dtype=np.uint16).reshape(160, 192) + column
+            tifffile.imwrite(path, pixels)
+            originals[path] = path.read_bytes()
+    dialog = module._FieldOverview(settings={
+        'source': str(source), 'source_scope': 'folder', 'custom_regex': PATTERN,
+        'channels': (1,), 'geometry': (8, 12), 'representatives': 1})
+    qtbot.addWidget(dialog)
+    dialog.resize(1500, 1000)
+    released = threading.Event()
+    lock = threading.Lock()
+    held, completed = [], []
+    original_reader = module._overview_pixels
+
+    def decode(field, channels, limits, **options):
+        if options.get('edge') is None:
+            with lock:
+                held.append(field.identity)
+            if not released.wait(15):
+                raise TimeoutError('Original thumbnail readers were not released')
+        pixels = original_reader(field, channels, limits, **options)
+        with lock:
+            completed.append((field.identity, options.get('edge')))
+        return pixels
+
+    try:
+        dialog.show()
+        dialog._scan()
+        qtbot.waitUntil(lambda: len(dialog._fields) == 96 and dialog._normalization_ready
+                        and len(dialog._installed_thumbnails) == 96
+                        and not dialog._thumbnail_jobs.is_busy(), timeout=15000)
+        identities = tuple(field.identity for field in dialog._fields)
+        table = dialog.wells
+        items = [table.item(row, column) for row in range(8) for column in range(12)]
+        assert all(table.viewport().rect().contains(table.visualItemRect(item)) for item in items)
+        before = [item.data(Qt.UserRole + 1) for item in items]
+        assert all(key[4] is not None and 0 < key[4] <= 128 for key in before)
+        assert all(not item.icon().isNull() for item in items)
+        before_images = [item.icon().pixmap(table.iconSize()).toImage().copy() for item in items]
+        monkeypatch.setattr(module, '_overview_pixels', decode)
+        workers = module._OVERVIEW_THUMBNAIL_WORKERS
+        assert 2 <= workers <= 8
+        dialog.preview_resolution.setCurrentIndex(dialog.preview_resolution.findData(None))
+        qtbot.waitUntil(lambda: dialog._thumbnail_jobs.active_jobs() == workers
+                        and len(held) == workers, timeout=10000)
+        submitted = dialog._thumbnail_jobs._next_id
+        dialog.preview_resolution.setCurrentIndex(dialog.preview_resolution.findData(128))
+        qtbot.waitUntil(lambda: not dialog._quality_timer.isActive(), timeout=3000)
+        table.viewport().repaint()
+        qtbot.waitUntil(lambda: not dialog._visual_timer.isActive(), timeout=3000)
+        assert dialog._thumbnail_jobs.active_jobs() == workers
+        assert dialog._thumbnail_jobs._next_id == submitted
+        assert len(held) == workers and completed == []
+        assert [item.data(Qt.UserRole + 1) for item in items] == before
+        assert tuple(field.identity for field in dialog._fields) == identities
+        released.set()
+        qtbot.waitUntil(lambda: not dialog._thumbnail_jobs.is_busy()
+                        and not dialog._thumbnail_installs
+                        and not dialog._install_timer.isActive()
+                        and not dialog._visual_timer.isActive()
+                        and bool(completed) and len(completed) == len(held),
+                        timeout=15000)
+        assert dialog.preview_resolution.currentData() == 128
+        assert dialog._thumbnail_jobs._next_id == submitted
+        assert {identity for identity, edge in completed} == set(held)
+        assert all(edge is None for identity, edge in completed)
+        assert [item.data(Qt.UserRole + 1) for item in items] == before
+        assert [item.icon().pixmap(table.iconSize()).toImage() for item in items] == before_images
+        assert all(item.data(Qt.UserRole + 1)[0] == (field.identity,)
+                   for item, field in zip(items, dialog._fields))
+        assert tuple(field.identity for field in dialog._fields) == identities
+        assert all(path.read_bytes() == content for path, content in originals.items())
+    finally:
+        released.set()
+        _retire(dialog, qtbot)
