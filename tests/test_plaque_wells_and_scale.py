@@ -376,3 +376,206 @@ def test_well_resize_keeps_channels_and_source_pixels_for_identity_geometry(dtyp
     assert metadata['ratio'] == metadata['scale_x'] == metadata['scale_y'] == 1
     crop[0, 0, 0] = 0
     np.testing.assert_array_equal(image, before)
+
+
+@pytest.mark.parametrize('kind', ['planar-rgb', 'rgba', 'two-channel', 'invalid-volume'])
+def test_acquired_plaque_layouts_are_normalized_without_rewriting_the_image(tmp_path, kind):
+    import tifffile
+
+    if kind == 'planar-rgb':
+        image = np.arange(90, dtype=np.uint16).reshape(3, 5, 6)
+        expected = np.moveaxis(image, 0, -1)
+    elif kind == 'rgba':
+        image = np.arange(120, dtype=np.uint16).reshape(5, 6, 4)
+        expected = image[..., :3]
+    elif kind == 'two-channel':
+        image = np.arange(60, dtype=np.uint16).reshape(5, 6, 2)
+        expected = image[..., 0]
+    else:
+        image = np.ones((2, 2, 5, 6), np.uint16)
+        expected = None
+    path = tmp_path / 'acquired.tif'
+    tifffile.imwrite(path, image, photometric='minisblack')
+    before = path.read_bytes()
+    if expected is None:
+        with pytest.raises(ValueError, match='Unsupported plaque image shape'):
+            plaque._read_plaque_image(path)
+    else:
+        result = plaque._read_plaque_image(path)
+        np.testing.assert_array_equal(result, expected)
+        assert result.flags.c_contiguous
+    assert path.read_bytes() == before
+
+
+def test_declined_plaque_reader_names_the_unreadable_source(tmp_path, monkeypatch):
+    import importlib
+
+    cellpose_io = importlib.import_module('cellpose.io')
+
+    path = tmp_path / 'unreadable.tif'
+    path.write_bytes(b'preserved unreadable source')
+    monkeypatch.setattr(cellpose_io, 'imread', lambda path: None)
+    with pytest.raises(ValueError, match='Cannot read') as caught:
+        plaque._read_plaque_image(path)
+    assert str(path) in str(caught.value)
+    assert path.read_bytes() == b'preserved unreadable source'
+
+
+@pytest.mark.parametrize('requested,mode', [(True, 'on'), (False, 'off')])
+def test_boolean_well_resize_settings_keep_their_explicit_meaning(requested, mode):
+    assert plaque._well_resize_mode(requested) == mode
+
+
+@pytest.mark.parametrize('outcome', ['existing', 'resolved', 'unavailable', 'lookup-error'])
+def test_well_detector_resolution_honors_no_download_and_reports_unavailability(
+        tmp_path, monkeypatch, outcome):
+    import importlib
+
+    zoo = importlib.import_module('spacr.model_zoo')
+    weights = tmp_path / 'detector.pt'
+    if outcome in ('existing', 'resolved'):
+        weights.write_bytes(b'local checkpoint boundary only; not inferred')
+    calls = []
+
+    def ensure(requested, **kwargs):
+        calls.append((requested, kwargs))
+        if outcome == 'lookup-error':
+            raise OSError('registry unavailable')
+        return weights if outcome == 'resolved' else None
+
+    monkeypatch.setattr(zoo, '_ensure_model_file', ensure)
+    requested = str(weights) if outcome == 'existing' else 'requested-detector'
+    result = plaque._resolve_well_resize_detector(requested, fetch=False)
+    assert result == (str(weights) if outcome in ('existing', 'resolved') else None)
+    if outcome == 'existing':
+        assert calls == []
+    else:
+        assert calls == [(requested, {'kinds': ('detector',), 'download': False,
+                                      'setting': 'plaque_well_resize'})]
+
+
+def test_nonpositive_declared_well_geometry_refuses_before_detector_resolution(monkeypatch):
+    import importlib
+
+    zoo = importlib.import_module('spacr.model_zoo')
+    monkeypatch.setattr(zoo, '_model_preprocess', lambda model: {})
+    monkeypatch.setattr(plaque, '_resolve_well_resize_detector',
+                        lambda *args, **kwargs: pytest.fail('bad geometry cannot resolve a detector'))
+    with pytest.raises(ValueError, match='positive side'):
+        plaque._well_resize_plan({'plaque_well_resize': True,
+                                 'plaque_well_resize_side': 0}, fetch=False)
+
+
+@pytest.mark.parametrize('colour', [False, True])
+def test_nonbyte_detector_inputs_are_owned_bgr_with_bounded_levels(colour):
+    image = np.arange(90 if colour else 30, dtype=np.uint16).reshape((5, 6, 3) if colour else (5, 6))
+    before = image.copy()
+    result = plaque._well_detector_input(image)
+    assert result.dtype == np.uint8 and result.shape == (5, 6, 3)
+    assert result.min() == 0 and result.max() == 255
+    if colour:
+        assert result[2, 3, 0] > result[2, 3, 2]
+    else:
+        np.testing.assert_array_equal(result[..., 0], result[..., 1])
+        np.testing.assert_array_equal(result[..., 1], result[..., 2])
+    result[:] = 0
+    np.testing.assert_array_equal(image, before)
+
+
+@pytest.mark.parametrize('backend', ['cpu-detector', 'isolated-reader'])
+def test_well_detector_backends_keep_cpu_channel_and_cache_ownership(monkeypatch, backend):
+    from types import SimpleNamespace
+    import importlib.util
+    import importlib
+
+    plaque_papers = importlib.import_module('spacr.plaque_papers')
+
+    image = np.zeros((5, 6, 3), np.uint8)
+    image[:] = [10, 20, 30]
+    before = image.copy()
+    calls, loads = [], []
+    actual_find = importlib.util.find_spec
+    monkeypatch.setattr(importlib.util, 'find_spec',
+                        lambda name, *args, **kwargs: (None if backend == 'isolated-reader' else object())
+                        if name == 'ultralytics' else actual_find(name, *args, **kwargs))
+
+    class Detector:
+        def predict(self, values, **kwargs):
+            calls.append((values.copy(), kwargs))
+            assert kwargs['device'] == 'cpu'
+            return [SimpleNamespace(boxes=SimpleNamespace(
+                xyxy=np.array([[1, 2, 4, 5]]), conf=np.array([.8])))]
+
+    def load(weights):
+        loads.append(weights)
+        return Detector()
+
+    def isolated(values, weights, **kwargs):
+        calls.append((values.copy(), kwargs))
+        return [Well(1, 2, 4, 5, .8)]
+
+    monkeypatch.setattr(plaque, '_WELL_DETECTORS', {})
+    monkeypatch.setattr(plaque, '_load_detector', load)
+    monkeypatch.setattr(plaque_papers, 'reader_detect', isolated)
+    for unused in range(2):
+        assert plaque._raw_well_detections(image, 'local-detector') == [(1., 2., 4., 5., .8)]
+    assert len(calls) == 2
+    np.testing.assert_array_equal(calls[0][0], before if backend == 'isolated-reader' else before[..., ::-1])
+    assert loads == ([] if backend == 'isolated-reader' else ['local-detector'])
+    np.testing.assert_array_equal(image, before)
+
+
+def test_invalid_inverse_shape_and_empty_well_labels_never_modify_existing_labels():
+    meta = dict(box=[1, 1, 5, 5], width=4, height=4)
+    with pytest.raises(ValueError, match='does not match'):
+        plaque._well_resize_inverse(np.zeros((3, 4), np.uint16), meta)
+    full = np.arange(36, dtype=np.uint32).reshape(6, 6)
+    before = full.copy()
+    assert plaque._paste_well_labels(full, np.zeros((4, 4), np.uint16), meta) == {}
+    np.testing.assert_array_equal(full, before)
+    two = np.ones((4, 4, 2), np.float32)
+    normalized = plaque._well_resize_intensity(two)
+    assert normalized.shape == (3, 4, 4) and not normalized.any()
+
+
+@pytest.mark.parametrize('flows', ['both', 'probability-only', 'rgb-only'])
+def test_resized_well_flows_return_to_source_coordinates_without_overwriting_overlap(monkeypatch, flows):
+    """Each pixel keeps its first owning well's labels and optional display products."""
+    image = np.arange(80, dtype=np.float32).reshape(8, 10)
+    before = image.copy()
+    boxes = [dict(box=[0, 0, 6, 6], confidence=.9),
+             dict(box=[4, 2, 10, 8], confidence=.8)]
+    monkeypatch.setattr(plaque, '_well_resize_boxes', lambda *args, **kwargs: {'boxes': boxes})
+    calls = []
+
+    class Model:
+        def eval(self, values, **kwargs):
+            calls.append(kwargs)
+            number = len(calls)
+            rgb = (np.full((6, 6, 3), number * 30, np.uint8)
+                   if flows != 'probability-only' else None)
+            probability = (np.full((6, 6), float(number), np.float32)
+                           if flows != 'rgb-only' else None)
+            return np.ones((6, 6), np.uint16), [rgb, None, probability], None
+
+    result = plaque._segment_resized_wells(Model(), image,
+        dict(side=6, max_factor=2, detector='explicit-test-adapter'),
+        min_size=None, want_flows=True, want_metrics=False)
+    assert len(calls) == 2 and all('min_size' not in call for call in calls)
+    assert result['labels'].shape == image.shape
+    assert result['labels'][3, 5] == 1 and result['labels'][7, 9] == 2
+    if flows == 'probability-only':
+        assert result['flows']['flow_rgb'] is None
+    else:
+        rgb = result['flows']['flow_rgb']
+        assert rgb.shape == (8, 10, 3)
+        np.testing.assert_array_equal(rgb[3, 5], [30, 30, 30])
+        np.testing.assert_array_equal(rgb[7, 9], [60, 60, 60])
+    if flows == 'rgb-only':
+        assert result['flows']['cellprob'] is None
+    else:
+        probability = result['flows']['cellprob']
+        assert probability.shape == image.shape
+        assert probability[3, 5] == 1 and probability[7, 9] == 2
+    assert result['metrics'] == {}
+    np.testing.assert_array_equal(image, before)

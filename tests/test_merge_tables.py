@@ -425,3 +425,16 @@ def test_a_primary_table_without_object_identity_refuses_without_mutating_sqlite
     with pytest.raises(MergeError, match='has no object_label'):
         merge_tables(path, ['cell'], policy=MergePolicy(primary='cell'))
     assert Path(path).read_bytes() == before
+
+
+def test_repeated_incomplete_primary_identities_cannot_duplicate_the_merged_population(tmp_path):
+    from pathlib import Path
+
+    cells = _cells()
+    cells['fieldID'] = None
+    cells['object_label'] = 7
+    path = _db(tmp_path, {'cell': cells})
+    before = Path(path).read_bytes()
+    with pytest.raises(MergeError):
+        merge_tables(path, ['cell'], policy=MergePolicy(primary='cell'))
+    assert Path(path).read_bytes() == before
