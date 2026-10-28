@@ -292,3 +292,28 @@ def test_real_plate_rename_and_removal_preserve_source_identity_and_reject_bad_r
         assert {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in paths} == hashes
     finally:
         wizard.reject()
+
+
+def test_native_overview_callback_inherits_an_existing_trace_and_preserves_its_result(qtbot):
+    import sys
+    import threading
+    from PySide6.QtCore import QThread
+    from PySide6.QtWidgets import QApplication
+    from spacr.core import _watch_portable_keys
+    from spacr.qt.job_runner import JobRunner
+
+    expected_trace = threading.gettrace() is not None
+    main_thread = QApplication.instance().thread()
+    runner = JobRunner(threaded=True, app_key="field_overview", user_visible=False)
+    returned = []
+    def read_portable_result():
+        return (sys.gettrace() is not None,
+                QThread.currentThread() != main_thread,
+                _watch_portable_keys({r"plateA\field1.tif": {"complete": True}, 4: "numeric"}))
+    try:
+        assert runner.submit(read_portable_result, returned.append)
+        qtbot.waitUntil(lambda: bool(returned) and runner.active_jobs() == 0, timeout=10000)
+        assert returned == [(expected_trace, True,
+                             {"plateA/field1.tif": {"complete": True}, 4: "numeric"})]
+    finally:
+        runner.shutdown(timeout_ms=3000)
