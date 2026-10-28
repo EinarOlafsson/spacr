@@ -73,6 +73,18 @@ def window(qtbot, qt_theme_applied):
 
 
 @pytest.fixture
+def normal_window(request):
+    from spacr.qt import preferences
+
+    previous = preferences.get_easy_mode()
+    try:
+        preferences.set_easy_mode(False)
+        yield request.getfixturevalue("window")
+    finally:
+        preferences.set_easy_mode(previous)
+
+
+@pytest.fixture
 def field(window, help_index_rows):
     """The installed field, loaded with the index."""
     from spacr.qt.help_search import field_of
@@ -419,6 +431,8 @@ def test_the_keyboard_alone_gets_there(qtbot, window, field):
 
 def test_escape_closes_the_list_and_then_clears_the_box(field):
     """Two presses, two meanings, and neither is "lose what I typed"."""
+    field.setFocus()
+    assert field.hasFocus()
     field.type_and_search("mask")
     assert field.popup().isVisible()
     QTest.keyClick(field, Qt.Key_Escape)
@@ -453,7 +467,7 @@ def test_the_shortcut_is_bound_and_is_not_one_of_the_others():
     assert keys.count("Ctrl+F") == 1
 
 
-def test_arriving_here_does_not_rewrite_the_essentials_choice(qtbot, window):
+def test_arriving_here_does_not_rewrite_the_essentials_choice(qtbot, normal_window):
     """A lookup must not quietly change a preference the user set.
 
     The module remembers whether it opens on Essentials or on All settings.
@@ -466,6 +480,7 @@ def test_arriving_here_does_not_rewrite_the_essentials_choice(qtbot, window):
     from spacr.qt.help_search import reveal_setting
     from spacr.qt.settings_search import ALL, ESSENTIALS, disclosure_for
 
+    window = normal_window
     assert reveal_setting(window, "mask", "cell_diameter")
     bar = window._screens["mask"]._settings_search
     essential = set(bar._model.essential_keys())

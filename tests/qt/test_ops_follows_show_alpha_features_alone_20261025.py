@@ -45,7 +45,9 @@ def open_mask(qtbot):
         win.show()
         win._on_nav_selected("mask")
         qtbot.waitUntil(lambda: "mask" in win._screens, timeout=10000)
-        return win, win._screens["mask"]
+        mask = win._screens["mask"]
+        mask._actions_folder.set_shut(False, by_user=False)
+        return win, mask
 
     yield open_it
     for win in windows:

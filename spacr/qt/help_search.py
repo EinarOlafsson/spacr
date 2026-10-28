@@ -924,6 +924,17 @@ class HelpSearchField(QLineEdit):
                 LOG.debug("no status bar to report to", exc_info=True)
         self.opened.emit(entry)
 
+    def event(self, event) -> bool:
+        """Keep Escape in this field before window shortcuts handle it.
+
+        :param event: the incoming Qt event.
+        :returns: Whether the event was handled.
+        """
+        if event.type() == QEvent.ShortcutOverride and event.key() == Qt.Key_Escape:
+            event.accept()
+            return True
+        return super().event(event)
+
     def keyPressEvent(self, event: QKeyEvent) -> None:
         """Steer the list from the box, and let Esc give the window back.
 

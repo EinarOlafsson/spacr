@@ -93,14 +93,20 @@ def test_all_settings_does_not_put_the_absent_objects_back(qtbot):
 def test_a_module_remembered_at_all_settings_still_opens_clean(qtbot):
     """The state the maintainer's session was in: the level is persisted, so
     the strip is built at ALL rather than switched to it."""
+    from spacr.qt import preferences
     from spacr.qt.settings_search import ALL, remember_disclosure
 
-    remember_disclosure("mask", ALL)
-    screen, _model = _screen(qtbot, "mask")
-    bar = _strip(qtbot, screen)
-    assert bar.level() == ALL
-    qtbot.wait(1)
-    assert _shown(screen) == FRESH_VISIBILITY
+    previous = preferences.get_easy_mode()
+    try:
+        preferences.set_easy_mode(False)
+        remember_disclosure("mask", ALL)
+        screen, _model = _screen(qtbot, "mask")
+        bar = _strip(qtbot, screen)
+        assert bar.level() == ALL
+        qtbot.wait(1)
+        assert _shown(screen) == FRESH_VISIBILITY
+    finally:
+        preferences.set_easy_mode(previous)
 
 
 def test_releasing_a_search_query_does_not_put_them_back(qtbot):
