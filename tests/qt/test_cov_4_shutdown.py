@@ -163,3 +163,29 @@ def test_windows_restart_detaches_without_inheriting_the_old_console(monkeypatch
                          {'start_new_session': True, 'close_fds': True,
                           'creationflags': 520})]
     assert exited == [0]
+
+
+def test_failed_frozen_windows_restart_keeps_the_current_process_and_environment(monkeypatch):
+    from types import SimpleNamespace
+    import subprocess
+    from spacr.qt import shutdown
+
+    environment = {'KEEP_EXISTING': 'yes'}
+    monkeypatch.setattr(shutdown, 'os', SimpleNamespace(name='nt', environ=environment))
+    monkeypatch.setattr(shutdown.sys, 'frozen', True, raising=False)
+    monkeypatch.setattr(subprocess, 'DETACHED_PROCESS', 8, raising=False)
+    monkeypatch.setattr(subprocess, 'CREATE_NEW_PROCESS_GROUP', 512, raising=False)
+    monkeypatch.setattr('spacr.restart_state.save', lambda **kw: 'saved-state')
+    monkeypatch.setattr('spacr.restart_state.command', lambda: ['spacr.exe'])
+    launches, exits = [], []
+
+    def refuse(command, **options):
+        launches.append((command, options))
+        raise OSError('replacement executable unavailable')
+
+    monkeypatch.setattr(subprocess, 'Popen', refuse)
+    assert not shutdown.restart_spacr('measure', exiter=exits.append)
+    assert launches == [(['spacr.exe'], {'start_new_session': True, 'close_fds': True,
+        'creationflags': 520, 'env': {'KEEP_EXISTING': 'yes', 'PYINSTALLER_RESET_ENVIRONMENT': '1'}})]
+    assert environment == {'KEEP_EXISTING': 'yes'}
+    assert exits == []

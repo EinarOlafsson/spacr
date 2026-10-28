@@ -174,3 +174,86 @@ def test_accessibility_name_probe_failure_preserves_an_explicit_control_name(qap
             shiboken6.delete(field)
     finally:
         shiboken6.delete(combo)
+
+
+def test_accessibility_ignores_a_layout_retired_before_its_label_lookup(qapp):
+    class RebuildingParent(QWidget):
+        def layout(self):
+            return self.saved_layout
+
+    parent = RebuildingParent()
+    layout = QHBoxLayout(parent)
+    field = QLineEdit(parent)
+    layout.addWidget(field)
+    parent.saved_layout = layout
+    shiboken6.delete(layout)
+    try:
+        assert i18n._a11y_label_beside(field) is None
+        field.setAccessibleName('Stable field name')
+        assert field.accessibleName() == 'Stable field name'
+    finally:
+        shiboken6.delete(parent)
+
+
+def test_accessibility_ignores_a_label_removed_during_the_form_lookup(qapp):
+    from PySide6.QtWidgets import QFormLayout
+
+    class CachedLabelForm(QFormLayout):
+        def labelForField(self, field):
+            return self.retired_label
+
+    parent = QWidget()
+    layout = CachedLabelForm(parent)
+    field = QLineEdit(parent)
+    layout.addRow('Live label', field)
+    retired = QLabel('Retired cached label')
+    shiboken6.delete(retired)
+    layout.retired_label = retired
+    try:
+        assert i18n._a11y_label_beside(field) is None
+        assert shiboken6.isValid(field)
+        field.setText('Preserved value')
+        assert field.text() == 'Preserved value'
+        assert layout.itemAt(0, QFormLayout.LabelRole).widget().text() == 'Live label'
+    finally:
+        shiboken6.delete(parent)
+
+
+def test_dialog_retirement_during_its_queued_translation_is_not_stamped(qapp, monkeypatch):
+    dialog = QDialog()
+    dialog.setProperty(i18n.TRANSLATE_ONCE_PER_LANGUAGE, True)
+    dialog.show()
+    translated = []
+
+    def retire(root):
+        translated.append(root)
+        shiboken6.delete(root)
+
+    monkeypatch.setattr(i18n, 'retranslate_widget_tree', retire)
+    i18n._translate_shown_dialog(dialog)
+    assert translated == [dialog]
+    assert not shiboken6.isValid(dialog)
+
+
+
+def test_message_translation_skips_a_button_retired_after_the_button_snapshot(qapp):
+    from PySide6.QtWidgets import QMessageBox, QPushButton
+
+    class CachedButtonBox(QMessageBox):
+        def buttons(self):
+            return super().buttons() + [self.retired_button]
+
+    box = CachedButtonBox()
+    box.setText('Cancel')
+    box.setStandardButtons(QMessageBox.Yes)
+    live = box.button(QMessageBox.Yes)
+    retired = QPushButton('Retired cached action')
+    shiboken6.delete(retired)
+    box.retired_button = retired
+    try:
+        i18n.retranslate_widget_tree(box, 'sv')
+        assert box.text() == 'Avbryt'
+        assert not shiboken6.isValid(retired)
+        assert shiboken6.isValid(live) and live in box.buttons()
+    finally:
+        shiboken6.delete(box)
