@@ -498,7 +498,7 @@ def test_changed_and_cleared_card_growth_releases_the_held_frame(screen, qtbot, 
 
     from spacr.qt.widgets.home import _EasyHomeField
 
-    card.hide()
+    assert card.isVisible()
     field = _EasyHomeField(host)
     field.resize(host.size())
     monkeypatch.setattr(field, '_motion_enabled', lambda: False)

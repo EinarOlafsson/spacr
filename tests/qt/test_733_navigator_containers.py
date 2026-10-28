@@ -1,5 +1,5 @@
 """Navigator retains actual Home panels rather than omitting their headings."""
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QPoint, QRect, Qt
 
 from tests.qt.test_startup_ai_reporting_choice import private_ai_profile
 
@@ -22,13 +22,13 @@ def test_startup_has_visible_native_headings_with_collapsed_bodies(qtbot, privat
     page = _page(qtbot, private_ai_profile)
     try:
         aside = page._navigator_aside
-        assert set(aside._navigator_folders) == {'Queued', 'Recent runs', 'News', 'Totals', 'System'}
+        assert set(aside._navigator_folders) == {'Running', 'Queued', 'Recent runs', 'News', 'Totals', 'System'}
         for folder in aside._navigator_folders.values():
             assert folder.shut and folder.heading.isVisible() and not folder.body.isVisible()
             point = folder.heading.mapTo(page, folder.heading.rect().center())
             assert page.rect().contains(point)
         assert not aside._journal_jobs.is_busy()
-        assert aside._ambient is None and not hasattr(aside, '_ticker')
+        assert aside._ambient is None and not aside._ticker.isActive()
         assert not hasattr(aside, '_tabs')
     finally:
         page.close()
@@ -67,13 +67,27 @@ def test_workflow_does_not_cover_headers_after_resize_or_splitter_drag(qtbot, pr
         for width in (1280, 1000):
             page.resize(width, 900)
             qtbot.wait(20)
-            assert page._workflow.geometry().right() < page._navigator_aside.geometry().left()
-            assert all(folder.heading.isVisible()
-                       for folder in page._navigator_aside._navigator_folders.values())
+            assert page._workflow.geometry() == QRect(
+                page._suggestions_scroll.mapTo(page, QPoint()), page._suggestions_scroll.size())
+            for folder in page._navigator_aside._navigator_folders.values():
+                assert folder.heading.isVisible()
+                point = folder.heading.mapTo(page, folder.heading.rect().center())
+                assert page.rect().contains(point)
+                topmost = page.childAt(point)
+                assert topmost is not None
+                assert topmost is folder.heading or folder.heading.isAncestorOf(topmost)
         split = page._navigator_aside_split
         split.setSizes([600, 350])
         split.splitterMoved.emit(600, 1)
         assert page._workflow.width() == page._suggestions_scroll.width()
+        assert page._workflow.geometry() == QRect(
+            page._suggestions_scroll.mapTo(page, QPoint()), page._suggestions_scroll.size())
+        for folder in page._navigator_aside._navigator_folders.values():
+            point = folder.heading.mapTo(page, folder.heading.rect().center())
+            assert folder.heading.isVisible() and page.rect().contains(point)
+            topmost = page.childAt(point)
+            assert topmost is not None
+            assert topmost is folder.heading or folder.heading.isAncestorOf(topmost)
     finally:
         page.close()
 
