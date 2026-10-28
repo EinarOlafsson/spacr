@@ -868,3 +868,83 @@ def test_late_representatives_cannot_replace_a_newer_group_comparison(overview, 
             release.set()
             qtbot.waitUntil(lambda: not dialog._export_jobs.is_busy() and not dialog._image_stack_jobs.is_busy()
                             and not dialog._montage_jobs.is_busy(), timeout=30000)
+
+
+def test_real_plate_drag_keeps_selection_and_wheel_keeps_the_physical_well_under_the_pointer(overview, qtbot):
+    import shutil
+    from pathlib import Path
+    from PySide6.QtCore import QEvent, QPoint, QPointF, Qt
+    from PySide6.QtGui import QMouseEvent, QWheelEvent
+    from PySide6.QtWidgets import QApplication
+
+    dialog = overview
+    source = Path(dialog._metadata_source)
+    shutil.copyfile(source / 'p1-B02-f1-t1-z1-c1.tif', source / 'p2-A01-f1-t1-z1-c1.tif')
+    dialog._scan()
+    qtbot.waitUntil(lambda: len(dialog._fields) == 5 and dialog._normalization_ready
+                    and not dialog._index_jobs.is_busy(), timeout=10000)
+    dialog._set_plates_view('side', persist=False)
+    table = dialog._plate_tables['p1']
+    viewport = table.viewport()
+    item = table.item(*dialog._well_positions[('p1', 'A01')])
+    rect = table.visualItemRect(item)
+    distance = QApplication.startDragDistance() + 1
+    assert rect.width() > 2 * distance + 4, 'the fitted well must accommodate a real within-well drag'
+    start, end = rect.center() - QPoint(distance, 0), rect.center() + QPoint(distance, 0)
+    clicked = []
+    table.itemClicked.connect(lambda chosen: clicked.append(chosen.data(Qt.UserRole)))
+    for kind, point, button, buttons in (
+            (QEvent.MouseButtonPress, start, Qt.LeftButton, Qt.LeftButton),
+            (QEvent.MouseMove, end, Qt.NoButton, Qt.LeftButton),
+            (QEvent.MouseButtonRelease, end, Qt.LeftButton, Qt.NoButton)):
+        event = QMouseEvent(kind, QPointF(point), QPointF(viewport.mapToGlobal(point)),
+                            button, buttons, Qt.NoModifier)
+        QApplication.sendEvent(viewport, event)
+    assert clicked == ['A01']
+    assert dialog._selected_wells == {('p1', 'A01')}
+    assert dialog._well_panels == []
+    assert dialog._scope == ('p1', None)
+    fields = tuple(field.identity for field in dialog._fields)
+    dialog._plate_zoom_buttons[1].click()
+    dialog._plate_zoom_buttons[1].click()
+    scroll = dialog._plate_scroll
+    horizontal, vertical = scroll.horizontalScrollBar(), scroll.verticalScrollBar()
+    qtbot.waitUntil(lambda: horizontal.maximum() > 1 and vertical.maximum() > 1, timeout=5000)
+    horizontal.setValue(horizontal.maximum() // 2)
+    vertical.setValue(vertical.maximum() // 2)
+    QApplication.processEvents()
+    assert 0 < horizontal.value() < horizontal.maximum()
+    assert 0 < vertical.value() < vertical.maximum()
+    candidates = []
+    for plate, shown in dialog._plate_tables.items():
+        visible = shown.viewport().visibleRegion().boundingRect()
+        for address, position in dialog._well_positions.items():
+            if address[0] != plate:
+                continue
+            tile = shown.item(*position)
+            intersection = shown.visualItemRect(tile).intersected(visible)
+            if intersection.width() > 4 and intersection.height() > 4:
+                candidates.append((address, shown, intersection.center()))
+    assert candidates, 'normal scrolling must leave an indexed physical well visible'
+    address, shown, point = candidates[0]
+    viewport = shown.viewport()
+    assert shown.itemAt(point).data(Qt.UserRole) == address[1]
+    old_width, old_height = shown.columnWidth(0), shown.rowHeight(0)
+    assert old_width < 512 and old_height < 512, 'normal zoom must leave room for another magnification step'
+    fraction = point.x() / old_width, point.y() / old_height
+    anchor = viewport.mapTo(scroll.viewport(), point)
+    assert scroll.viewport().rect().contains(anchor)
+    event = QWheelEvent(QPointF(point), QPointF(viewport.mapToGlobal(point)), QPoint(), QPoint(0, 120),
+                        Qt.NoButton, Qt.NoModifier, Qt.ScrollUpdate, False)
+    QApplication.sendEvent(viewport, event)
+    assert event.isAccepted()
+    new_width, new_height = shown.columnWidth(0), shown.rowHeight(0)
+    assert new_width > old_width and new_height > old_height
+    same_physical_point = QPoint(round(fraction[0] * new_width), round(fraction[1] * new_height))
+    after = viewport.mapTo(scroll.viewport(), same_physical_point)
+    assert abs(after.x() - anchor.x()) <= 1
+    assert abs(after.y() - anchor.y()) <= 1
+    assert shown.itemAt(same_physical_point).data(Qt.UserRole) == address[1]
+    assert dialog._selected_wells == {('p1', 'A01')}
+    assert tuple(field.identity for field in dialog._fields) == fields
+    assert dialog._well_panels == []
