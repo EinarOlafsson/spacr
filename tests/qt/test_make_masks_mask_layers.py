@@ -866,3 +866,62 @@ def test_reopening_a_required_layer_review_selects_the_first_available_field_wit
     np.testing.assert_array_equal(screen._canvas.mask, BASE)
     assert all(path.read_bytes() == data for path, data in originals.items())
     assert not (folder / STATUS_FILENAME).exists()
+
+
+def test_accepting_a_real_layer_folder_adds_it_without_replacing_the_open_overlay(
+        screen, folder, monkeypatch):
+    _open(screen, folder)
+    added = folder / 'another_model'
+    added.mkdir()
+    imageio.imwrite(added / 'f_0.tif', MODEL_B)
+    before = screen._canvas.mask.copy()
+    originals = {path: path.read_bytes() for path in folder.rglob('*.tif')}
+    monkeypatch.setattr(mm.QFileDialog, 'getExistingDirectory', lambda *a, **k: str(added))
+    assert screen._on_add_mask_layer()
+    assert len(screen._layers) == 4 and screen._layers[-1]['path'] == str(added)
+    np.testing.assert_array_equal(screen._layer_masks[-1], MODEL_B)
+    np.testing.assert_array_equal(screen._canvas.mask, before)
+    assert all(path.read_bytes() == data for path, data in originals.items())
+
+
+def test_incomplete_legacy_decision_rows_are_ignored_while_valid_source_identity_survives(
+        screen, folder, tmp_path):
+    target = tmp_path / 'curated'
+    target.mkdir()
+    records = {'added': [None, {}, {'id': 51, 'layer': str(folder / 'model_b'), 'source_id': 3}]}
+    decision = target / 'f_0.decisions.json'
+    decision.write_text(json.dumps(records), encoding='utf-8')
+    before = decision.read_bytes()
+    _open(screen, folder, target=target)
+    assert screen._layer_added == {51: {'layer': str(folder / 'model_b'), 'source_id': 3}}
+    assert screen._layer_next_id == 52
+    np.testing.assert_array_equal(screen._canvas.mask, BASE)
+    assert decision.read_bytes() == before and not (target / 'f_0.tif').exists()
+
+
+def test_an_absent_base_field_keeps_other_layers_available_and_starts_an_empty_overlay(screen, folder):
+    (folder / 'masks' / 'f_0.tif').unlink()
+    originals = {path: path.read_bytes() for path in folder.rglob('*.tif')}
+    _open(screen, folder)
+    assert screen._layer_masks[0] is None
+    np.testing.assert_array_equal(screen._layer_masks[1], MODEL_A)
+    np.testing.assert_array_equal(screen._layer_masks[2], MODEL_B)
+    np.testing.assert_array_equal(screen._canvas.mask, np.zeros_like(BASE))
+    assert screen._layer_next_id == 1
+    assert all(path.read_bytes() == data for path, data in originals.items())
+    assert not (folder / 'masks' / 'f_0.tif').exists()
+
+
+def test_reapplying_outline_width_and_folder_name_keeps_the_existing_review_unchanged(screen, folder):
+    _open(screen, folder)
+    target = screen._layer_target
+    original = (folder / 'curate_layers.json').read_bytes()
+    cache = screen._canvas._outline_view
+    mask = screen._canvas.mask.copy()
+    assert screen._layer_target_combo.currentIndex() == 0
+    screen._layer_name_edit.setText(Path(target).name)
+    screen._on_layer_folder_named()
+    screen._on_outline_thickness_changed(screen._canvas.outline_thickness)
+    assert screen._layer_target == target and screen._canvas._outline_view is cache
+    np.testing.assert_array_equal(screen._canvas.mask, mask)
+    assert (folder / 'curate_layers.json').read_bytes() == original
