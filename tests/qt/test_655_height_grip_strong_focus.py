@@ -10,7 +10,7 @@ from spacr.qt.widgets.height_grip import HeightGrip
 
 
 @pytest.fixture
-def grip(qtbot, monkeypatch, tmp_path, qapp):
+def grip(qtbot, monkeypatch, tmp_path, qapp, activate_focus_window):
     store = QSettings(str(tmp_path / "grip-focus.ini"), QSettings.IniFormat)
     monkeypatch.setattr(preferences, "_settings", lambda: store)
     monkeypatch.setattr(preferences, "_SAFE_MODE", False)
@@ -29,7 +29,7 @@ def grip(qtbot, monkeypatch, tmp_path, qapp):
     handle.resize_target(200)
     host.resize(400, 340)
     host.show()
-    host.activateWindow()
+    activate_focus_window(host)
     QApplication.processEvents()
     yield host, handle, before, after
     qapp.setPalette(palette)

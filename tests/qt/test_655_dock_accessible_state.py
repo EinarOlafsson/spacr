@@ -69,7 +69,8 @@ def test_disabled_accessible_control_cannot_collapse(edge):
 
 
 @pytest.mark.parametrize("route", ["setter", "mouse", "keyboard"])
-def test_real_collapse_changes_notify_assistive_clients(edge, route, monkeypatch, qtbot):
+def test_real_collapse_changes_notify_assistive_clients(
+        edge, route, monkeypatch, qtbot, activate_focus_window):
     events = []
     original = QAccessible.updateAccessibility
 
@@ -90,6 +91,9 @@ def test_real_collapse_changes_notify_assistive_clients(edge, route, monkeypatch
     elif route == "mouse":
         qtbot.mouseClick(edge, Qt.LeftButton)
     else:
+        activate_focus_window(edge)
+        edge.setFocus(Qt.OtherFocusReason)
+        qtbot.waitUntil(edge.hasFocus)
         qtbot.keyClick(edge, Qt.Key_Space)
     assert changed == [True, False]
     assert events == [(True, True, True), (True, True, False)]
@@ -126,13 +130,13 @@ def test_ordinary_widget_accessibility_is_unchanged(qtbot):
     assert QAccessibleActionInterface.pressAction() not in interface.actionInterface().actionNames()
 
 
-def test_assistive_focus_does_not_toggle_or_resize_the_dock(edge, qtbot):
+def test_assistive_focus_does_not_toggle_or_resize_the_dock(edge, qtbot, activate_focus_window):
     from PySide6.QtWidgets import QPushButton
 
     other = QPushButton('Other control', edge.parentWidget())
     other.move(100, 100)
     other.show()
-    edge.parentWidget().activateWindow()
+    activate_focus_window(edge)
     other.setFocus(Qt.OtherFocusReason)
     qtbot.waitUntil(other.hasFocus)
     action = QAccessible.queryAccessibleInterface(edge).actionInterface()

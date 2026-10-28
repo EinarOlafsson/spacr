@@ -105,6 +105,13 @@ def test_titles_are_read_from_both_instruction_formats():
     ) == "Release 1.5.0.5, archived on Zenodo"
 
 
+def test_generated_titles_brand_the_product_without_rewriting_package_names():
+    tool = _tool()
+    title = "spaCR".upper() + " UI and spacr.settings"
+    assert tool._instruction_title(["=" * 5, title, "=" * 5], "43", "fallback") == "spaCR UI and spacr.settings"
+    assert tool._instruction_title(["43 — " + title], "43", "fallback") == "spaCR UI and spacr.settings"
+
+
 def test_rendered_index_has_no_trailing_whitespace():
     tool = _tool()
     assert not [line for line in tool.render().splitlines()

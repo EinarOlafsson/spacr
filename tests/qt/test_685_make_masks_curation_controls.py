@@ -90,6 +90,8 @@ def screen(qtbot, qt_theme_applied, folder):
     widget = MakeMasksScreen()
     qtbot.addWidget(widget)
     assert widget._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not widget._loading and widget._reader_worker is None
+                    and widget._load_worker is None)
     widget._canvas.set_image_and_mask(field_image(), merged_mask())
     widget._history.clear()
     widget._history.push(widget._canvas.mask)
@@ -147,6 +149,8 @@ def test_two_strokes_divide_with_undo_and_save_reopen(screen, qtbot):
     reopened = MakeMasksScreen()
     qtbot.addWidget(reopened)
     assert reopened._open_folder(folder)
+    qtbot.waitUntil(lambda: not reopened._loading and reopened._reader_worker is None
+                    and reopened._load_worker is None)
     saved = reopened._canvas.mask
     assert len(labels_of(saved)) == 4
     assert int(saved[30, 30]) == 0 and int(saved[34, 30]) == 0
@@ -283,6 +287,8 @@ def test_first_unreviewed_reads_persisted_verdicts_after_reopening(
     reopened = MakeMasksScreen()
     qtbot.addWidget(reopened)
     assert reopened._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not reopened._loading and reopened._reader_worker is None
+                    and reopened._load_worker is None)
     assert reopened._on_first_unreviewed() is True
     assert reopened._current_index == 2
     assert reopened._tally_index.text() == "3"

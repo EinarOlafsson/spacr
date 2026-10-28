@@ -9,7 +9,7 @@ from spacr.qt.widgets.figure_queue import _ClearFiguresLabel
 
 
 @pytest.fixture
-def clear_control(qtbot):
+def clear_control(qtbot, activate_focus_window):
     host = QWidget()
     layout = QVBoxLayout(host)
     before = QPushButton("Before")
@@ -20,7 +20,7 @@ def clear_control(qtbot):
     host.resize(320, 160)
     qtbot.addWidget(host)
     host.show()
-    host.activateWindow()
+    activate_focus_window(host)
     qtbot.wait(40)
     before.setFocus(Qt.TabFocusReason)
     qtbot.waitUntil(before.hasFocus)

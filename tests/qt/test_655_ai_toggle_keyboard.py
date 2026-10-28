@@ -8,7 +8,7 @@ from spacr.qt.widgets.ai_toggle_label import AiToggleLabel
 
 
 @pytest.fixture(params=['AI', 'Live'])
-def toggle_row(request, qtbot, monkeypatch, tmp_path):
+def toggle_row(request, qtbot, monkeypatch, tmp_path, activate_focus_window):
     settings = tmp_path / 'preferences.ini'
     monkeypatch.setattr(preferences, '_settings',
                         lambda: QSettings(str(settings), QSettings.IniFormat))
@@ -26,7 +26,7 @@ def toggle_row(request, qtbot, monkeypatch, tmp_path):
     qtbot.addWidget(host)
     host.resize(360, 180)
     host.show()
-    host.activateWindow()
+    activate_focus_window(host)
     before.setFocus(Qt.TabFocusReason)
     qtbot.waitUntil(before.hasFocus)
     yield host, before, label, after
@@ -37,7 +37,9 @@ def test_tab_can_reach_and_leave_the_toggle(toggle_row, qtbot):
     _, before, label, after = toggle_row
     reached = []
     for _ in range(8):
-        qtbot.keyClick(QApplication.focusWidget(), Qt.Key_Tab)
+        focused = QApplication.focusWidget()
+        assert focused is not None, "the active test window lost keyboard focus"
+        qtbot.keyClick(focused, Qt.Key_Tab)
         reached.append(QApplication.focusWidget())
     assert label in reached, (label.text(), label.focusPolicy(), reached)
     assert before in reached and after in reached

@@ -13846,6 +13846,7 @@ SETTING_CONSUMERS = {
     'metadata_item_2_name': (('spacr.settings', 'set_generate_training_dataset_defaults'),),
     'metadata_item_2_value': (('spacr.settings', 'set_generate_training_dataset_defaults'),),
     'metadata_type': (('spacr.core', 'preprocess_generate_masks'), ('spacr.io', 'preprocess_img_data'), ('spacr.qt.screens.settings_model', 'organelle_morphology_now'), ('spacr.settings', 'get_measure_crop_settings'), ('spacr.settings', 'get_setting_dependencies'), ('spacr.settings', 'organelle_measurement_caveats'), ('spacr.settings', 'set_default_settings_preprocess_generate_masks'), ('spacr.settings', 'set_default_settings_preprocess_img_data'),),
+    'metadata_well_map': (('spacr.convert', 'convert_folder'), ('spacr.io', 'preprocess_img_data'), ('spacr.settings', 'set_default_settings_preprocess_generate_masks'), ('spacr.settings', 'set_default_settings_preprocess_img_data'),),
     'metric': (('spacr.core', 'generate_image_umap'), ('spacr.core', 'reducer_hyperparameter_search'), ('spacr.settings', 'set_default_umap_image_settings'),),
     'microscope_driver': (('spacr.settings', 'set_default_settings_preprocess_generate_masks'),),
     'microscope_event_query': (('spacr.settings', 'set_default_settings_preprocess_generate_masks'),),

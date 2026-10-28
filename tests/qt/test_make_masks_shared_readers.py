@@ -459,3 +459,31 @@ def test_queues_larger_than_metadata_cache_open_and_review_only_the_current_fiel
     np.testing.assert_array_equal(engine.read_image(tmp_path / f'field128{suffix}'), np.full((24, 32), 128, np.uint8))
     np.testing.assert_array_equal(screen._canvas.image, np.full((24, 32), 65535, np.uint16))
     assert screen._current_index == 128 and not screen.warnings
+
+
+def test_uncalibrated_tiff_header_does_not_import_pipeline_libraries(tmp_path, monkeypatch):
+    import builtins
+
+    source = tmp_path / 'ordinary.tif'
+    tifffile.imwrite(source, np.arange(48, dtype=np.uint16).reshape(6, 8),
+                     metadata={'axes': 'YX'})
+    before = source.read_bytes()
+    original_import = builtins.__import__
+
+    def metadata_import(name, globals=None, locals=None, fromlist=(), level=0):
+        pipeline = name in ('spacr.core', 'spacr.io') or (
+            level == 2 and name in ('core', 'io')
+            and (globals or {}).get('__package__') == 'spacr.qt')
+        if pipeline:
+            raise AssertionError('Uncalibrated image metadata must not load pipeline libraries')
+        return original_import(name, globals, locals, fromlist, level)
+
+    with monkeypatch.context() as context:
+        context.setattr(builtins, '__import__', metadata_import)
+        header = engine._container_image_header(str(source))
+    assert len(header['series']) == 1
+    assert header['series'][0]['axes'] == 'YX'
+    assert header['series'][0]['shape'] == (6, 8)
+    assert header['series'][0]['dtype'] == 'uint16'
+    assert header['series'][0]['pixel_size_nm'] is None
+    assert source.read_bytes() == before

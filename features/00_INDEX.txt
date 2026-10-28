@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-645 Lifecycle: new, 76 Lifecycle: future in features/feature_list/.
+646 Lifecycle: new, 76 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -85,7 +85,7 @@ FUTURE FEATURES
   474  ONE MODULE PER ORGANISM: TOXOPLASMA, PLASMODIUM AND CANDIDA, EACH A PAGE OF ITS
        474_organism_modules_toxoplasma_plasmodium_candida.txt
 
-  475  SPOTNET IN THE MODEL ZOO, AND WHERE SPACR COULD USE IT
+  475  SPOTNET IN THE MODEL ZOO, AND WHERE spaCR COULD USE IT
        475_spotnet_for_spot_detection.txt
 
   476  SECONDARY OBJECTS GROWN FROM A PRIMARY MASK (CELLS FROM NUCLEI)
@@ -458,7 +458,7 @@ NEW FEATURES
        87_pr_74_display_order_in_annotate.txt
    88  EVERY NOTEBOOK CARRIES EVERY SETTING, WITH ITS TOOLTIP
        88_notebooks_carry_every_setting_with_its_tooltip.txt
-   89  A COLOURBLIND MODE FOR EVERY IMAGE SPACR SHOWS
+   89  A COLOURBLIND MODE FOR EVERY IMAGE spaCR SHOWS
        89_colourblind_mode_rgb_as_cmyk.txt
    90  A FOURTH CHANNEL IN THE CROPS: A MASK, OR ANOTHER STAIN
        90_a_fourth_channel_in_the_crops.txt
@@ -816,9 +816,9 @@ NEW FEATURES
        266_every_settings_window_resizes.txt
   267  THE SAVE FIGURE DIALOG: FOUR THINGS
        267_the_save_figure_dialog.txt
-  268  SPACR MUST RUN WELL ON A LAPTOP -- OPTIMISE FIRST, DISABLE SECOND
+  268  spaCR MUST RUN WELL ON A LAPTOP -- OPTIMISE FIRST, DISABLE SECOND
        268_spacr_must_run_on_a_laptop.txt
-  269  ON MACOS, PREFERENCES AND QUIT ARE IN A MENU THAT IS NOT CALLED SPACR
+  269  ON MACOS, PREFERENCES AND QUIT ARE IN A MENU THAT IS NOT CALLED spaCR
        269_the_macos_application_menu.txt
   270  EVERY PICTURE IS DRAWN FOR THE SCREEN IT IS ON
        270_every_picture_is_drawn_for_the_screen_it_is_on.txt
@@ -892,13 +892,13 @@ NEW FEATURES
        307_segmentation_qc_field_browser.txt
   308  SETUP.PY DECLARES EVERY DEPENDENCY THE SHIPPED CODE NEEDS, ON EVERY SUPPORTED
        308_setup_py_declares_every_dependency_on_every_os_and_python.txt
-  309  SPACR KEEPS ITS SETTINGS IN ONE STORE UNDER ONE NAME, AND MIGRATES THE OLD ONES
+  309  spaCR KEEPS ITS SETTINGS IN ONE STORE UNDER ONE NAME, AND MIGRATES THE OLD ONES
        309_one_settings_store_with_one_name.txt
   310  DEFECTS FOUND WHILE COVERING CODE THAT WAS EXCLUDED FROM COVERAGE
        310_defects_found_while_covering_excluded_code.txt
   311  NOTHING ON A SCREEN IS OUTLINED UNLESS THE OUTLINE MEANS SOMETHING
        311_no_outlines_between_the_module_rows.txt
-  312  SPACR RECORDS WHAT EACH PROCESS AND THREAD ACTUALLY COST, UNDER ITS OWN SETTING
+  312  spaCR RECORDS WHAT EACH PROCESS AND THREAD ACTUALLY COST, UNDER ITS OWN SETTING
        312_spacr_records_what_each_process_and_thread_cost.txt
   313  THE PYTHON CEILING ADMITS 3.15
        313_the_ceiling_admits_python_315.txt
@@ -1106,7 +1106,7 @@ NEW FEATURES
        427_sound_effects_and_the_resonance_theme.txt
   428  THE FLOW THRESHOLD DEFAULT IS CELLPOSE'S OWN, 0.4, AND THE WARNING TELLS THE TRUTH
        428_the_flow_threshold_default_is_cellpose_s_own.txt
-  429  A MASK RUN ON A MAC EXTERNAL DRIVE DIED READING A FILE SPACR NEVER WROTE
+  429  A MASK RUN ON A MAC EXTERNAL DRIVE DIED READING A FILE spaCR NEVER WROTE
        429_a_stack_file_spacr_wrote_is_one_it_can_read.txt
   430  A RE-RUN TRUSTS NOTHING A KILLED RUN LEFT: MASK RESUMES A PLATE IT ALREADY
        430_a_rerun_trusts_nothing_a_killed_run_left.txt
@@ -1116,7 +1116,7 @@ NEW FEATURES
        432_a_failed_run_offers_the_report_it_promised.txt
   433  THE ICONS FOLLOW THE ZOOM
        433_icons_follow_the_zoom.txt
-  434  THE LOCAL SPACR CHECKOUT IS MISSING A GIT OBJECT, SO IT CAN NO LONGER FETCH
+  434  THE LOCAL spaCR CHECKOUT IS MISSING A GIT OBJECT, SO IT CAN NO LONGER FETCH
        434_the_local_spacr_checkout_is_missing_a_git_object.txt
   435  INVERT DOES NOT INVERT, AND OTSU NEEDS MORE OPTIONS
        435_invert_does_not_invert_and_otsu_needs_more_options.txt
@@ -1194,7 +1194,7 @@ NEW FEATURES
        481_clear_all_objects_in_make_masks.txt
   482  LOCK THE MAGNIFIER REGION AND ZOOM
        482_lock_the_magnifier_region_and_zoom.txt
-  483  PIPELINE OVERVIEWS AND THE SPACR MODULE FLOWCHART
+  483  PIPELINE OVERVIEWS AND THE spaCR MODULE FLOWCHART
        483_pipeline_overviews_and_spacr_flowchart.txt
   484  INTEGRATED HOST–PATHOGEN ANALYSIS AND INFERENCE
        484_integrated_host_pathogen_analysis_and_inference.txt
@@ -1384,7 +1384,7 @@ NEW FEATURES
        641_performance_audit_2026_10_04.txt
   642  642. Model Zoo's alpha models are missing with Show alpha features on
        642_model_zoo_alpha_table_is_empty.txt
-  643  PRUNE THE SPACR HOME FOLDER
+  643  PRUNE THE spaCR HOME FOLDER
        643_prune_the_spacr_home_folder.txt
   644  DISK CACHE MANAGER
        644_disk_cache_manager.txt
@@ -1446,13 +1446,13 @@ NEW FEATURES
        673_make_masks_3d_editable_anchors_and_surfaces.txt
   674  DEFAULT SPACEOUT FIELD WITH ELEGANT RANDOM PHENOMENA
        674_spaceout_field_random_phenomena_and_effect_controls.txt
-  675  UPDATE CONDA-FORGE TO THE MOST RECENT SPACR RELEASE
+  675  UPDATE CONDA-FORGE TO THE MOST RECENT spaCR RELEASE
        675_conda_forge_update_to_latest_spacr_release.txt
-  676  INSTALL SPACR, COMPLETE HOME NAVIGATION AND CURRENT ORGANISM TUTORIALS
+  676  INSTALL spaCR, COMPLETE HOME NAVIGATION AND CURRENT ORGANISM TUTORIALS
        676_installation_home_image_analysis_and_toxoplasma_tutorial_refresh.txt
   677  RENAME THE ASSAYS CATEGORY TO ORGANISM
        677_rename_assays_category_to_organism.txt
-  678  OBJECTIVE, FACTUAL LANGUAGE THROUGHOUT SPACR
+  678  OBJECTIVE, FACTUAL LANGUAGE THROUGHOUT spaCR
        678_objective_factual_user_facing_language_review.txt
   679  GPU ACCELERATION FOR DATA FLOW THEMES WITH CPU FALLBACK
        679_gpu_accelerated_data_flow_themes_with_cpu_fallback.txt
@@ -1506,7 +1506,7 @@ NEW FEATURES
        703_updates_replace_old_application_versions_and_keep_user_data.txt
   704  README PANELS LINK TO READABLE TEXT
        704_readme_panels_link_to_readable_text.txt
-  705  MAKE MASKS: MEASURE THE CURRENT 3D IMAGE INTO A SPACR-STYLE DATABASE
+  705  MAKE MASKS: MEASURE THE CURRENT 3D IMAGE INTO A spaCR-STYLE DATABASE
        705_make_masks_measure_current_3d_image.txt
   706  OBJECT DETECTION: A 3D SWITCH FOR 3D-CAPABLE MODELS AND THRESHOLDS
        706_object_detection_3d_switch.txt
@@ -1568,3 +1568,5 @@ NEW FEATURES
        736_measure_reruns_archive_existing_database_tables.txt
   737  ANONYMOUS MERGE VALIDATION STRUCTURE
        737_anonymous_merge_validation_structure.txt
+  738  LINUX POPUPS OPEN NEAR THEIR PARENT WINDOW
+       738_linux_popups_open_near_their_parent_window.txt

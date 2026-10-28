@@ -691,6 +691,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'metadata_rules',
     'metadata_type',
     'metadata_type_by',
+    'metadata_well_map',
     'method',
     'metric',
     'microscope_driver',

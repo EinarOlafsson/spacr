@@ -486,7 +486,7 @@
     },
     {
       "visual": "module_cellpose_all",
-      "narration": "Open Make Masks from Home, then choose Mask the whole folder. Apply the selected segmentation model to the open image folder through Make Masks; inspect saved labels before measuring them. Mask the whole folder reads the microscope images and the segmentation checkpoint. From those, Mask the whole folder produces the label masks.",
+      "narration": "Open Make Masks from Home, then choose Mask folder. Apply the selected segmentation model to the open image folder through Make Masks; inspect saved labels before measuring them. Mask folder reads the microscope images and the segmentation checkpoint. From those, Mask folder produces the label masks.",
       "hold_after": 0.7,
       "related_lessons": [
         "20_cellpose_masks"

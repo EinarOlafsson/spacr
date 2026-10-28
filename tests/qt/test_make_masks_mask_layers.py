@@ -71,17 +71,19 @@ def _settle(qtbot, screen):
                     timeout=30000)
 
 
-def _open(screen, folder, target=None):
+def _open(qtbot, screen, folder, target=None):
     cli_make_masks._hand_over_layers({
         "layers": [str(folder / "masks"), str(folder / "model_a"),
                    str(folder / "model_b")],
         "save_to": str(target) if target else None, "root": str(folder)})
     assert screen.open_queue(build_queue(folder, order="name",
                                          include_reviewed=True))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
 
 
-def test_layers_load_with_the_overlay_a_copy_of_the_base(screen, folder):
-    _open(screen, folder)
+def test_layers_load_with_the_overlay_a_copy_of_the_base(qtbot, screen, folder):
+    _open(qtbot, screen, folder)
     assert len(screen._layers) == 3
     assert len({layer["colour"] for layer in screen._layers}) == 3
     assert np.array_equal(screen._canvas.mask, BASE)
@@ -93,8 +95,8 @@ def test_layers_load_with_the_overlay_a_copy_of_the_base(screen, folder):
     assert (folder / "curate_layers.json").is_file()
 
 
-def test_remove_restore_and_undo_go_through_the_history(screen, folder):
-    _open(screen, folder)
+def test_remove_restore_and_undo_go_through_the_history(qtbot, screen, folder):
+    _open(qtbot, screen, folder)
     screen._on_layer_pick(3, 3)
     assert 1 not in screen._canvas.mask
     screen._on_undo()
@@ -107,8 +109,8 @@ def test_remove_restore_and_undo_go_through_the_history(screen, folder):
     assert "layer_remove" in kinds and "layer_restore" in kinds
 
 
-def test_add_and_unadd_another_layers_object(screen, folder):
-    _open(screen, folder)
+def test_add_and_unadd_another_layers_object(qtbot, screen, folder):
+    _open(qtbot, screen, folder)
     screen._on_layer_pick(24, 24)
     added = int(screen._canvas.mask[24, 24])
     assert added == 3, "an added object did not get a new unique id"
@@ -121,8 +123,8 @@ def test_add_and_unadd_another_layers_object(screen, folder):
     assert int(screen._canvas.mask[24, 4]) == 4, "an id was reused"
 
 
-def test_a_hidden_layer_is_neither_drawn_nor_picked(screen, folder):
-    _open(screen, folder)
+def test_a_hidden_layer_is_neither_drawn_nor_picked(qtbot, screen, folder):
+    _open(qtbot, screen, folder)
     screen._on_layer_visible(2, False)
     before = screen._canvas.mask.copy()
     screen._on_layer_pick(24, 24)
@@ -131,21 +133,21 @@ def test_a_hidden_layer_is_neither_drawn_nor_picked(screen, folder):
     assert stored["layers"][2]["visible"] is False
 
 
-def test_a_chosen_colour_is_kept_for_the_session(screen, folder):
-    _open(screen, folder)
+def test_a_chosen_colour_is_kept_for_the_session(qtbot, screen, folder):
+    _open(qtbot, screen, folder)
     screen._on_layer_colour(1, "#123456")
     stored = json.loads((folder / "curate_layers.json").read_text())
     assert stored["layers"][1]["colour"] == "#123456"
     again = MakeMasksScreen()
     try:
-        _open(again, folder)
+        _open(qtbot, again, folder)
         assert again._layers[1]["colour"] == "#123456"
     finally:
         again.deleteLater()
 
 
 def test_a_click_on_the_canvas_reaches_the_pick_tool(screen, folder, qtbot):
-    _open(screen, folder)
+    _open(qtbot, screen, folder)
     screen.resize(1200, 900)
     screen.show()
     qtbot.waitExposed(screen)
@@ -156,7 +158,7 @@ def test_a_click_on_the_canvas_reaches_the_pick_tool(screen, folder, qtbot):
 
 
 def test_keep_saves_the_overlay_its_decisions_and_progress(screen, folder, qtbot):
-    _open(screen, folder)
+    _open(qtbot, screen, folder)
     original = (folder / "masks" / "f_0.tif").read_bytes()
     screen._on_layer_pick(3, 3)
     screen._on_layer_pick(24, 24)
@@ -179,13 +181,13 @@ def test_keep_saves_the_overlay_its_decisions_and_progress(screen, folder, qtbot
 def test_a_saved_field_resumes_from_the_save_folder(screen, folder, tmp_path,
                                                    qtbot):
     target = tmp_path / "review"
-    _open(screen, folder, target)
+    _open(qtbot, screen, folder, target)
     screen._on_layer_pick(3, 3)
     screen._on_curate(True)
     _settle(qtbot, screen)
     again = MakeMasksScreen()
     try:
-        _open(again, folder, target)
+        _open(qtbot, again, folder, target)
         _settle(qtbot, again)
         assert 1 not in again._canvas.mask
         assert int(again._canvas.mask[14, 14]) == 2, "a lone object lost its id"
@@ -195,7 +197,7 @@ def test_a_saved_field_resumes_from_the_save_folder(screen, folder, tmp_path,
 
 
 def test_a_layer_folder_needs_an_in_page_confirmation(screen, folder, qtbot):
-    _open(screen, folder)
+    _open(qtbot, screen, folder)
     first = screen._layer_target
     index = screen._layer_target_combo.findData(str(folder / "masks"))
     screen._layer_target_combo.setCurrentIndex(index)
@@ -213,27 +215,33 @@ def test_a_layer_folder_needs_an_in_page_confirmation(screen, folder, qtbot):
     assert 1 not in imageio.imread(folder / "masks" / "f_0.tif")
 
 
-def test_a_named_new_folder_becomes_the_save_folder(screen, folder):
-    _open(screen, folder)
+def test_a_named_new_folder_becomes_the_save_folder(qtbot, screen, folder):
+    _open(qtbot, screen, folder)
     screen._layer_name_edit.setText("masks_review_v2")
     screen._on_layer_folder_named()
     assert screen._layer_target == str(folder / "masks_review_v2")
 
 
-def test_layers_added_from_the_gui(screen, folder):
+def test_layers_added_from_the_gui(qtbot, screen, folder):
     assert screen._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._mode_buttons[mm.MODE_PICK].isHidden()
     assert screen._on_add_mask_layer(str(folder / "masks"))
     assert screen._on_add_mask_layer(str(folder / "model_a"))
     assert [layer["name"] for layer in screen._layers] == ["masks", "model_a"]
     assert np.array_equal(screen._canvas.mask, BASE)
     screen._open_folder(str(folder / "model_a"))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._layers == [], "layers outlived their folder"
 
 
-def test_no_layers_is_the_ordinary_editor_and_saves_the_same_bytes(
+def test_no_layers_is_the_ordinary_editor_and_saves_the_same_bytes(qtbot,
         screen, folder, tmp_path):
     assert screen.open_queue(build_queue(folder, order="name"))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._layers == []
     assert screen._layout_kwargs() == {}
     assert screen._mode_buttons[mm.MODE_PICK].isHidden()
@@ -278,7 +286,7 @@ def _outline_ink(screen, thickness):
 
 
 def test_thinner_outlines_draw_less_on_the_canvas(screen, folder, qtbot):
-    _open(screen, folder)
+    _open(qtbot, screen, folder)
     screen.resize(1200, 900)
     screen.show()
     qtbot.waitExposed(screen)
@@ -289,7 +297,7 @@ def test_thinner_outlines_draw_less_on_the_canvas(screen, folder, qtbot):
 
 
 def test_the_default_width_draws_the_overlay_as_before(screen, folder, qtbot):
-    _open(screen, folder)
+    _open(qtbot, screen, folder)
     assert screen._outline_thickness.value() == engine._OUTLINE_THICKNESS_DEFAULT
     assert screen._canvas.outline_thickness == 1.0
     screen.resize(1200, 900)
@@ -302,10 +310,10 @@ def test_the_default_width_draws_the_overlay_as_before(screen, folder, qtbot):
         "width 1 no longer draws the image-resolution overlay")
 
 
-def test_the_width_is_kept_in_the_preferences_and_the_layer_file(screen, folder):
+def test_the_width_is_kept_in_the_preferences_and_the_layer_file(qtbot, screen, folder):
     from spacr.qt.prefs import _s
 
-    _open(screen, folder)
+    _open(qtbot, screen, folder)
     screen._layer_outline_thickness.setValue(0.5)
     assert screen._outline_thickness.value() == 0.5
     assert float(_s().value(mm.OUTLINE_THICKNESS_KEY)) == 0.5
@@ -317,7 +325,7 @@ def test_the_width_is_kept_in_the_preferences_and_the_layer_file(screen, folder)
     again = MakeMasksScreen()
     try:
         assert again._outline_thickness.value() == 3.0
-        _open(again, folder)
+        _open(qtbot, again, folder)
         assert again._outline_thickness.value() == 0.25
         assert again._canvas.outline_thickness == 0.25
     finally:
@@ -327,6 +335,8 @@ def test_the_width_is_kept_in_the_preferences_and_the_layer_file(screen, folder)
 
 def test_without_layers_the_width_changes_nothing_drawn(screen, folder, qtbot):
     assert screen.open_queue(build_queue(folder, order="name"))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     _settle(qtbot, screen)
     screen.resize(1200, 900)
     screen.show()
@@ -340,9 +350,9 @@ def test_without_layers_the_width_changes_nothing_drawn(screen, folder, qtbot):
 
 
 @pytest.mark.parametrize('choice', ['cancel', 'not-folder'])
-def test_rejected_add_layer_keeps_the_current_masks_and_layer_configuration(
+def test_rejected_add_layer_keeps_the_current_masks_and_layer_configuration(qtbot,
         screen, folder, monkeypatch, choice):
-    _open(screen, folder)
+    _open(qtbot, screen, folder)
     before = screen._canvas.mask.copy()
     history = screen._history.head().copy()
     layers = [dict(layer) for layer in screen._layers]
@@ -361,7 +371,7 @@ def test_rejected_add_layer_keeps_the_current_masks_and_layer_configuration(
 
 def test_unsaved_layer_edits_survive_base_selection_and_target_cancellation(
         screen, folder, qtbot):
-    _open(screen, folder)
+    _open(qtbot, screen, folder)
     screen._on_layer_pick(3, 3)
     edited = screen._canvas.mask.copy()
     history = screen._history.head().copy()
@@ -384,9 +394,9 @@ def test_unsaved_layer_edits_survive_base_selection_and_target_cancellation(
     assert {path: path.read_bytes() for path in source} == source
 
 
-def test_corrupt_optional_layer_is_skipped_without_replacing_the_base_mask(
+def test_corrupt_optional_layer_is_skipped_without_replacing_the_base_mask(qtbot,
         screen, folder):
-    _open(screen, folder)
+    _open(qtbot, screen, folder)
     corrupt = folder / 'corrupt-layer'
     corrupt.mkdir()
     path = corrupt / 'f_0.tif'
@@ -407,7 +417,7 @@ def test_layer_colour_picker_changes_only_the_chosen_outline_and_persists_it(
     from PySide6.QtGui import QColor
     from spacr.qt.widgets import colour_picker
 
-    _open(screen, folder)
+    _open(qtbot, screen, folder)
     original = [dict(layer) for layer in screen._layers]
     mask = screen._canvas.mask.copy()
     sources = {path: path.read_bytes() for path in folder.rglob('*.tif')}
@@ -423,8 +433,8 @@ def test_layer_colour_picker_changes_only_the_chosen_outline_and_persists_it(
 
 
 @pytest.mark.parametrize('stale_index', [-1, 99])
-def test_stale_layer_controls_cannot_mutate_a_reconfigured_review(screen, folder, stale_index):
-    _open(screen, folder)
+def test_stale_layer_controls_cannot_mutate_a_reconfigured_review(qtbot, screen, folder, stale_index):
+    _open(qtbot, screen, folder)
     config = (folder / 'curate_layers.json').read_bytes()
     original = [dict(layer) for layer in screen._layers]
     mask = screen._canvas.mask.copy()
@@ -443,7 +453,7 @@ def test_required_layers_skip_only_fields_without_the_required_objects_and_resto
         screen, folder, qtbot, mode):
     imageio.imwrite(folder / 'model_a' / 'f_0.tif', np.zeros_like(BASE))
     imageio.imwrite(folder / 'model_b' / 'f_1.tif', np.zeros_like(BASE))
-    _open(screen, folder)
+    _open(qtbot, screen, folder)
     snapshots = {path: path.read_bytes() for path in folder.rglob('*.tif')}
     screen._on_layer_required(1, True)
     screen._on_layer_required(2, True)
@@ -463,9 +473,9 @@ def test_required_layers_skip_only_fields_without_the_required_objects_and_resto
 
 
 @pytest.mark.parametrize('absolute', [False, True])
-def test_new_curated_folder_name_changes_the_target_without_overwriting_a_layer(
+def test_new_curated_folder_name_changes_the_target_without_overwriting_a_layer(qtbot,
         screen, folder, absolute):
-    _open(screen, folder)
+    _open(qtbot, screen, folder)
     snapshots = {path: path.read_bytes() for path in folder.rglob('*.tif')}
     target = folder / 'a_new_review'
     screen._layer_name_edit.setText(str(target) if absolute else target.name)
@@ -479,9 +489,9 @@ def test_new_curated_folder_name_changes_the_target_without_overwriting_a_layer(
 
 
 @pytest.mark.parametrize('action', ['flag', 'visible', 'clear'])
-def test_layer_review_display_changes_preserve_the_editable_mask_and_source_labels(
+def test_layer_review_display_changes_preserve_the_editable_mask_and_source_labels(qtbot,
         screen, folder, action):
-    _open(screen, folder)
+    _open(qtbot, screen, folder)
     mask = screen._canvas.mask.copy()
     sources = {path: path.read_bytes() for path in folder.rglob('*.tif')}
     if action == 'flag':
@@ -565,9 +575,9 @@ def test_responsive_shortcut_fold_respects_a_manual_choice_until_the_window_is_w
 
 
 @pytest.mark.parametrize('review', ['duplicates', 'legacy-colours', 'no-layers'])
-def test_layer_session_configuration_recovers_without_duplicate_layers_or_losing_the_field(
+def test_layer_session_configuration_recovers_without_duplicate_layers_or_losing_the_field(qtbot,
         screen, folder, review):
-    _open(screen, folder)
+    _open(qtbot, screen, folder)
     before = screen._canvas.mask.copy()
     original = {path: path.read_bytes() for path in folder.rglob('*.tif')}
     paths = [str(folder / 'masks'), str(folder / 'model_a'), str(folder / 'model_b')]
@@ -600,7 +610,7 @@ def test_no_matching_required_layer_keeps_the_current_field_and_disabling_it_res
         screen, folder, qtbot):
     for path in (folder / 'model_a').glob('*.tif'):
         imageio.imwrite(path, np.zeros_like(BASE))
-    _open(screen, folder)
+    _open(qtbot, screen, folder)
     field = screen._current_index
     mask = screen._canvas.mask.copy()
     screen._on_layer_required(1, True)
@@ -615,9 +625,9 @@ def test_no_matching_required_layer_keeps_the_current_field_and_disabling_it_res
 
 
 @pytest.mark.parametrize('thickness', [.5, 2.0])
-def test_real_layer_outline_render_is_cached_at_the_requested_width_without_editing_labels(
+def test_real_layer_outline_render_is_cached_at_the_requested_width_without_editing_labels(qtbot,
         screen, folder, thickness):
-    _open(screen, folder)
+    _open(qtbot, screen, folder)
     canvas = screen._canvas
     before = canvas.mask.copy()
     source = {path: path.read_bytes() for path in folder.rglob('*.tif')}
@@ -637,11 +647,11 @@ def test_real_layer_outline_render_is_cached_at_the_requested_width_without_edit
 
 
 @pytest.mark.parametrize('cancel_at', ['confirmation', 'parent-folder'])
-def test_canceling_real_paired_layout_setup_never_launches_a_copy_or_changes_the_open_field(
+def test_canceling_real_paired_layout_setup_never_launches_a_copy_or_changes_the_open_field(qtbot,
         screen, folder, monkeypatch, cancel_at):
     from PySide6.QtWidgets import QFileDialog
 
-    _open(screen, folder)
+    _open(qtbot, screen, folder)
     before = screen._canvas.mask.copy()
     paths = {path: path.read_bytes() for path in folder.rglob('*.tif')}
     monkeypatch.setattr(screen, '_confirm', lambda *args: cancel_at != 'confirmation')
@@ -653,9 +663,9 @@ def test_canceling_real_paired_layout_setup_never_launches_a_copy_or_changes_the
     assert not list(folder.parent.glob('make_masks*'))
 
 
-def test_unsuccessful_mask_save_cannot_mark_a_field_as_kept_or_advance_the_queue(
+def test_unsuccessful_mask_save_cannot_mark_a_field_as_kept_or_advance_the_queue(qtbot,
         screen, folder, monkeypatch):
-    _open(screen, folder)
+    _open(qtbot, screen, folder)
     target = Path(screen._layer_target)
     before = screen._canvas.mask.copy()
     monkeypatch.setattr(screen, '_save_mask', lambda: None)
@@ -666,9 +676,9 @@ def test_unsuccessful_mask_save_cannot_mark_a_field_as_kept_or_advance_the_queue
     assert not (folder / STATUS_FILENAME).exists()
 
 
-def test_decision_log_write_failure_retains_the_previous_ledger_and_source_masks(
+def test_decision_log_write_failure_retains_the_previous_ledger_and_source_masks(qtbot,
         screen, folder, monkeypatch):
-    _open(screen, folder)
+    _open(qtbot, screen, folder)
     filename = screen._image_files[0]
     screen._on_layer_pick(24, 24)
     first = screen._write_layer_decisions(filename)
@@ -690,7 +700,7 @@ def test_decision_log_write_failure_retains_the_previous_ledger_and_source_masks
 def test_curated_added_objects_resume_with_their_source_identity_and_do_not_reload_the_new_base(
         screen, folder, tmp_path, qtbot):
     target = tmp_path / 'review'
-    _open(screen, folder, target)
+    _open(qtbot, screen, folder, target)
     screen._on_layer_pick(24, 24)
     expected = screen._canvas.mask.copy()
     screen._on_curate(True)
@@ -719,7 +729,7 @@ def test_visible_layer_outlines_change_real_canvas_pixels_without_changing_the_m
         screen, folder, qtbot, thickness):
     from PySide6.QtGui import QImage
 
-    _open(screen, folder)
+    _open(qtbot, screen, folder)
     screen.resize(1280, 900)
     screen.show()
     qtbot.waitExposed(screen)
@@ -765,8 +775,8 @@ def test_source_mutation_during_a_real_paired_copy_refuses_publication_and_clean
     assert not destination.exists() and not list(tmp_path.glob('.spacr-paired-*'))
 
 
-def test_empty_curated_folder_entry_chooses_a_safe_new_target_without_overwriting_a_layer(screen, folder):
-    _open(screen, folder)
+def test_empty_curated_folder_entry_chooses_a_safe_new_target_without_overwriting_a_layer(qtbot, screen, folder):
+    _open(qtbot, screen, folder)
     original = {path: path.read_bytes() for path in folder.rglob('*.tif')}
     screen._layer_name_edit.clear()
     screen._on_layer_folder_named()
@@ -779,9 +789,9 @@ def test_empty_curated_folder_entry_chooses_a_safe_new_target_without_overwritin
 
 
 @pytest.mark.parametrize('shown_ids', [[], [1], [1, 2]])
-def test_clearing_filtered_layers_twice_restores_all_ids_without_editing_or_saving(
+def test_clearing_filtered_layers_twice_restores_all_ids_without_editing_or_saving(qtbot,
         screen, folder, shown_ids):
-    _open(screen, folder)
+    _open(qtbot, screen, folder)
     before = screen._canvas.mask.copy()
     history = screen._history.head().copy()
     originals = {path: path.read_bytes() for path in folder.rglob('*.tif')}
@@ -799,10 +809,10 @@ def test_clearing_filtered_layers_twice_restores_all_ids_without_editing_or_savi
 
 
 @pytest.mark.parametrize('stage', ['unopened', 'cleared'])
-def test_late_layer_actions_cannot_edit_an_ordinary_or_unopened_editor(
+def test_late_layer_actions_cannot_edit_an_ordinary_or_unopened_editor(qtbot,
         screen, folder, monkeypatch, stage):
     if stage == 'cleared':
-        _open(screen, folder)
+        _open(qtbot, screen, folder)
         screen._clear_layers()
     before = None if screen._canvas.mask is None else screen._canvas.mask.copy()
     originals = {path: path.read_bytes() for path in folder.rglob('*.tif')}
@@ -822,8 +832,8 @@ def test_late_layer_actions_cannot_edit_an_ordinary_or_unopened_editor(
     assert all(path.read_bytes() == data for path, data in originals.items())
 
 
-def test_changing_the_base_of_an_unedited_field_loads_the_selected_source_exactly(screen, folder):
-    _open(screen, folder)
+def test_changing_the_base_of_an_unedited_field_loads_the_selected_source_exactly(qtbot, screen, folder):
+    _open(qtbot, screen, folder)
     originals = {path: path.read_bytes() for path in folder.rglob('*.tif')}
     assert not screen._edits_unsaved() and not screen._loaded_from_save_path
     screen._on_layer_base_changed(1)
@@ -833,8 +843,8 @@ def test_changing_the_base_of_an_unedited_field_loads_the_selected_source_exactl
     assert all(path.read_bytes() == data for path, data in originals.items())
 
 
-def test_reselecting_a_confirmed_layer_target_and_empty_confirmation_are_idempotent(screen, folder):
-    _open(screen, folder)
+def test_reselecting_a_confirmed_layer_target_and_empty_confirmation_are_idempotent(qtbot, screen, folder):
+    _open(qtbot, screen, folder)
     index = screen._layer_target_combo.findData(str(folder / 'model_a'))
     assert index > 0
     screen._on_layer_target_chosen(index)
@@ -852,7 +862,7 @@ def test_reselecting_a_confirmed_layer_target_and_empty_confirmation_are_idempot
 
 
 @pytest.mark.parametrize('matching', [False, True])
-def test_reopening_a_required_layer_review_selects_the_first_available_field_without_writing(
+def test_reopening_a_required_layer_review_selects_the_first_available_field_without_writing(qtbot,
         screen, folder, matching):
     for index in range(3):
         imageio.imwrite(folder / 'model_a' / f'f_{index}.tif',
@@ -862,15 +872,17 @@ def test_reopening_a_required_layer_review_selects_the_first_available_field_wit
                        root=str(folder), settings_root=str(folder),
                        require=[str(folder / 'model_a')])
     assert screen._open_folder(str(folder), files=[f'f_{index}.tif' for index in range(3)])
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._current_index == (1 if matching else 0)
     np.testing.assert_array_equal(screen._canvas.mask, BASE)
     assert all(path.read_bytes() == data for path, data in originals.items())
     assert not (folder / STATUS_FILENAME).exists()
 
 
-def test_accepting_a_real_layer_folder_adds_it_without_replacing_the_open_overlay(
+def test_accepting_a_real_layer_folder_adds_it_without_replacing_the_open_overlay(qtbot,
         screen, folder, monkeypatch):
-    _open(screen, folder)
+    _open(qtbot, screen, folder)
     added = folder / 'another_model'
     added.mkdir()
     imageio.imwrite(added / 'f_0.tif', MODEL_B)
@@ -884,7 +896,7 @@ def test_accepting_a_real_layer_folder_adds_it_without_replacing_the_open_overla
     assert all(path.read_bytes() == data for path, data in originals.items())
 
 
-def test_incomplete_legacy_decision_rows_are_ignored_while_valid_source_identity_survives(
+def test_incomplete_legacy_decision_rows_are_ignored_while_valid_source_identity_survives(qtbot,
         screen, folder, tmp_path):
     target = tmp_path / 'curated'
     target.mkdir()
@@ -892,17 +904,17 @@ def test_incomplete_legacy_decision_rows_are_ignored_while_valid_source_identity
     decision = target / 'f_0.decisions.json'
     decision.write_text(json.dumps(records), encoding='utf-8')
     before = decision.read_bytes()
-    _open(screen, folder, target=target)
+    _open(qtbot, screen, folder, target=target)
     assert screen._layer_added == {51: {'layer': str(folder / 'model_b'), 'source_id': 3}}
     assert screen._layer_next_id == 52
     np.testing.assert_array_equal(screen._canvas.mask, BASE)
     assert decision.read_bytes() == before and not (target / 'f_0.tif').exists()
 
 
-def test_an_absent_base_field_keeps_other_layers_available_and_starts_an_empty_overlay(screen, folder):
+def test_an_absent_base_field_keeps_other_layers_available_and_starts_an_empty_overlay(qtbot, screen, folder):
     (folder / 'masks' / 'f_0.tif').unlink()
     originals = {path: path.read_bytes() for path in folder.rglob('*.tif')}
-    _open(screen, folder)
+    _open(qtbot, screen, folder)
     assert screen._layer_masks[0] is None
     np.testing.assert_array_equal(screen._layer_masks[1], MODEL_A)
     np.testing.assert_array_equal(screen._layer_masks[2], MODEL_B)
@@ -912,8 +924,8 @@ def test_an_absent_base_field_keeps_other_layers_available_and_starts_an_empty_o
     assert not (folder / 'masks' / 'f_0.tif').exists()
 
 
-def test_reapplying_outline_width_and_folder_name_keeps_the_existing_review_unchanged(screen, folder):
-    _open(screen, folder)
+def test_reapplying_outline_width_and_folder_name_keeps_the_existing_review_unchanged(qtbot, screen, folder):
+    _open(qtbot, screen, folder)
     target = screen._layer_target
     original = (folder / 'curate_layers.json').read_bytes()
     cache = screen._canvas._outline_view
@@ -927,9 +939,11 @@ def test_reapplying_outline_width_and_folder_name_keeps_the_existing_review_unch
     assert (folder / 'curate_layers.json').read_bytes() == original
 
 
-def test_time_reselecting_the_current_cell_keeps_identity_pixels_and_unsaved_state(
+def test_time_reselecting_the_current_cell_keeps_identity_pixels_and_unsaved_state(qtbot,
         screen, folder, monkeypatch):
     assert screen._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._status_folder() is None
     mask = screen._canvas.mask.copy()
     originals = {path: path.read_bytes() for path in folder.rglob('*.tif')}
@@ -952,6 +966,8 @@ def test_time_reselecting_the_current_cell_keeps_identity_pixels_and_unsaved_sta
 def test_lineage_rewrite_skips_missing_masks_and_reports_a_corrupt_sibling_without_touching_pixels(
         screen, folder, monkeypatch, qtbot):
     assert screen._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     screen._rewrite_sequence_lineage()
     assert not getattr(screen, '_mask_write_requests', [])
     monkeypatch.setattr(screen, '_confirm', lambda *args: True)
@@ -977,7 +993,7 @@ def test_a_failed_queued_save_cannot_restore_the_previous_fields_state_after_ope
         screen, folder, tmp_path, monkeypatch, qtbot):
     import threading
 
-    _open(screen, folder)
+    _open(qtbot, screen, folder)
     screen._on_layer_pick(3, 3)
     assert screen._edits_unsaved()
     other = tmp_path / 'other_field'

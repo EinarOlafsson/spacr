@@ -1,0 +1,36 @@
+LINUX POPUPS OPEN NEAR THEIR PARENT WINDOW
+========================================
+
+Lifecycle: new
+Status: DONE — shared placement and visible-owner handoff implemented and qualified; root publishes.
+Requested: maintainer, 2026-10-28.
+Owner: retained Qt worker G1; root integrates and publishes.
+Related: 734 (popup resizing), 725 (Overview colour-picker placement).
+
+REQUEST
+Some Linux popups open at the top-left corner of spaCR, including file
+browsers and Make Masks dialogs. Correct their ownership and initial placement.
+
+REQUIREMENTS
+1. File browsers and ordinary Make Masks dialogs use their visible owning
+   window as their transient parent, with the spaCR main window as fallback.
+2. Qt/custom dialogs open centred over the owner once their initial size is
+   known, constrained to that monitor's available area. Native file browsers
+   receive the correct transient parent for the Linux window manager or portal.
+3. Account for moved/resized main windows, multiple monitors, negative screen
+   coordinates and display scaling. Avoid a visible jump from the top-left.
+4. Preserve deliberate restored positions, user-moved dialogs, anchored menus,
+   modality, keyboard focus and existing resize/background behaviour.
+
+DELIVERY
+Use the shared placement mechanism where possible, then repair affected callers.
+Run the smallest relevant ownership/geometry checks and a bounded Linux native
+check where available, using CPU/software rendering at Home. Preserve active
+Mac/Windows source work. Commit and push the fix to nightly with normal affected
+generated outputs; human review is not a completion gate.
+
+2026-10-28 — Added before implementation from the maintainer's Linux report. G1 owns the shared placement/caller repair through validation and publication; root retains release CI coordination.
+
+2026-10-28 — G1 added visible-owner/native-parent repair and one-time centred/clamped initial placement; explicit/restored/manual positions, menus and resizing are retained. Fourteen focused cases pass; bounded Linux WM check and normal publication remain.
+
+2026-10-28 — Fourteen focused cases pass. Owned Linux software WM confirms centred Make Masks histogram and actual Overview folder picker after owner movement/resizing, with matching server geometry and Qt/native parent; existing Qt.Window policy remains. External portal presentation was unavailable and is not claimed; root closes normal artifacts and publication.

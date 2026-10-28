@@ -26,6 +26,7 @@ from PySide6.QtWidgets import QApplication
 
 from spacr.qt import dnd as dnd_mod
 from spacr.qt import dnd_handlers as dh
+from spacr.qt.screens.make_masks import MakeMasksScreen
 
 
 def _tif(path: Path, value: int = 7) -> Path:
@@ -62,6 +63,13 @@ def _settle(widget, timeout_s: float = 20.0) -> None:
     while not seen and time.monotonic() < deadline:
         QApplication.processEvents()
     assert seen, "the drop classification never came back"
+    target = getattr(widget, "_dnd_screen", widget)
+    if isinstance(target, MakeMasksScreen):
+        while (target._loading or target._reader_worker is not None
+               or target._load_worker is not None) and time.monotonic() < deadline:
+            QApplication.processEvents()
+        assert not target._loading and target._reader_worker is None
+        assert target._load_worker is None
 
 
 def _drop(widget, paths) -> QDropEvent:

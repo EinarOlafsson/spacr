@@ -153,7 +153,9 @@ def _instruction_title(lines: List[str], number: str, fallback: str) -> str:
     only the first form, which silently produced blank rows as soon as the
     second form reached ``future/`` or ``new/``.
     """
-    lines = [line for line in lines if not line.startswith("Lifecycle:")]
+    lines = [re.sub(r"\bspacr\b", lambda match: (match.group() if match.group().islower()
+                      else "spaCR"), line, flags=re.I)
+             for line in lines if not line.startswith("Lifecycle:")]
     if (len(lines) >= 3 and lines[0].strip()
             and set(lines[0].strip()) == {"="} and lines[1].strip()):
         return lines[1].strip()

@@ -43,13 +43,40 @@ This linked reference contains the full generated setting descriptions. Return t
 
 
 <details>
-<summary>Training Data (3 settings)</summary>
+<summary>Training Data (1 settings)</summary>
 
 #### Training Data
 
 - **`mask_src`** *(optional)* — (str) - Optional separate folder of integer object-label masks (background 0). Leave blank to use masks inside the image folder. Match image basenames, optionally with a _masks suffix. Missing or ambiguous pairs stop training. Default blank. Default: `''`.
+
+</details>
+
+<details>
+<summary>Validation Data (2 settings)</summary>
+
+#### Validation Data
+
 - **`test_src`** *(optional)* — (str) - Optional validation image folder, separate from training images. Leave blank to train without validation losses. Split by well or experiment to avoid leakage between related fields. Default blank. Default: `''`.
 - **`test_mask_src`** *(optional)* — (str) - Optional validation label-mask folder. Leave blank to use the masks subfolder inside the validation image folder. Default blank. Default: `''`.
+
+</details>
+
+<details>
+<summary>Input &amp; Channels (1 settings)</summary>
+
+#### Input & Channels
+
+- **`channel_axis`** *(optional)* — (int or None) - Image channel axis: 0 for channel-first, -1 for channel-last, or blank to infer it from the mask dimensions. Ambiguous images require an explicit axis. Training supports 2-D fields with optional channels, not Z stacks. Default None (automatic). Default: `None`.
+
+</details>
+
+<details>
+<summary>Image Preprocessing (2 settings)</summary>
+
+#### Image Preprocessing
+
+- **`normalize`** *(optional)* — (bool or list) - Control percentile normalization before display, model input, or crop export. Display and activation-map tools use True for a 2nd-to-98th-percentile stretch. Measure and External Masks start at False; Measure accepts False or a two-number [low, high] percentile pair and refuses bare True because it supplies no bounds. It affects display and exported-crop scaling, not measured source intensities. Default True in the display-oriented tools. Default: `True`.
+- **`percentiles`** *(optional)* — (list) - Two percentiles [low, high] used to rescale each channel of each image to 0-1 before segmentation, e.g. [2, 98]. Narrowing the window boosts contrast on dim objects but clips bright ones. Set None to derive them automatically: low fixed at 2, high the first of 98/99/99.9/99.99/99.999 exceeding background * Signal_to_noise. In Cellpose Masks (Apply), None instead lets Cellpose normalise each image itself, as the live preview does. Default None in the Cellpose steps. Default: `[1, 99]`.
 
 </details>
 
@@ -71,17 +98,6 @@ This linked reference contains the full generated setting descriptions. Return t
 - **`learning_rate`** *(optional)* — (float) - Initial optimizer step size. Values that are too high may prevent convergence; values that are too low may slow convergence or converge to a suboptimal solution. A value near 1e-3 is commonly used for training from random initialization, while 1e-4 to 1e-5 is appropriate for fine-tuning ImageNet weights (init_weights=True). The selected schedule modifies this initial value during training. Default 0.001. Default: `1e-05`.
 - **`weight_decay`** *(optional)* — (float) - L2 penalty applied to the weights on every optimizer step (AdamW applies it decoupled from the gradient). Raise it, toward 1e-3 to 1e-2, when validation loss climbs while training loss keeps falling; lower it toward 0 when the model cannot fit the training set at all. Every supported optimizer honours it. Default 0.00001. Default: `0.1`.
 - **`batch_size`** *(optional)* — (int) - How many images are held and processed together in one pass: field stacks during normalization and Cellpose segmentation, crops per step during classifier training and activation maps. Raising it speeds runs up but increases RAM/VRAM roughly linearly; lower it on out-of-memory errors. Defaults: 50 for mask generation, 64 for training. Default: `1`.
-
-</details>
-
-<details>
-<summary>Input &amp; Channels (3 settings)</summary>
-
-#### Input & Channels
-
-- **`channel_axis`** *(optional)* — (int or None) - Image channel axis: 0 for channel-first, -1 for channel-last, or blank to infer it from the mask dimensions. Ambiguous images require an explicit axis. Training supports 2-D fields with optional channels, not Z stacks. Default None (automatic). Default: `None`.
-- **`normalize`** *(optional)* — (bool or list) - Control percentile normalization before display, model input, or crop export. Display and activation-map tools use True for a 2nd-to-98th-percentile stretch. Measure and External Masks start at False; Measure accepts False or a two-number [low, high] percentile pair and refuses bare True because it supplies no bounds. It affects display and exported-crop scaling, not measured source intensities. Default True in the display-oriented tools. Default: `True`.
-- **`percentiles`** *(optional)* — (list) - Two percentiles [low, high] used to rescale each channel of each image to 0-1 before segmentation, e.g. [2, 98]. Narrowing the window boosts contrast on dim objects but clips bright ones. Set None to derive them automatically: low fixed at 2, high the first of 98/99/99.9/99.99/99.999 exceeding background * Signal_to_noise. In Cellpose Masks (Apply), None instead lets Cellpose normalise each image itself, as the live preview does. Default None in the Cellpose steps. Default: `[1, 99]`.
 
 </details>
 

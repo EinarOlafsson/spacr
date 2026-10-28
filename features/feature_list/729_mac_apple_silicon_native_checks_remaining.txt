@@ -3,7 +3,7 @@ THE MAC AND APPLE SILICON CHECKS STILL TO RUN ON A REAL MACOS DISPLAY
 ================================================================================
 
 Lifecycle: new
-Status:    NEW
+Status:    IN PROGRESS — Apple Silicon Mac required for remaining checks
 Requested: maintainer, 2026-10-26: "please send a message to main with
            whatever mac or apple silicon or osx related tests are left. and
            write a new features list item and push it"
@@ -135,3 +135,9 @@ DELIBERATELY NOT DONE
 - Physical keyboard/trackpad acceptance for 696/697 (needs a person).
 
 2026-10-28 — Current Mac follow-ups include linked 673 stale/superseded pan-frame correctness and 641 idle repaint/battery/thread-identity diagnostics, plus this item's 0.7–1.35s first-open stalls and broad-cohort-only fractal_space OpenMP abort/segfault with unproved cause. Keep the known defects separate from already delivered software/manual-only qualification under AGENTS rule 40; Windows item 641 paced-pool follow-up remains separately owned. Canonical session instructions are in spacr/resources/AI/MAC_HANDOFF.md; no new native execution or completion is claimed.
+
+2026-10-28 — PARTIAL DELIVERY, item remains OPEN: Intel/macOS 26.6.1 checks and test improvements are published separately from the remaining Apple Silicon acceptance. An Apple Silicon Mac is required to finish the arm64/native checks; this Intel host cannot establish them.
+Shared bounded Cocoa activation guard and test-local/restored all-control Tab policy cover 17 N655 files; missing keyboard targets now fail an assertion instead of triggering QtTest's abort. Eight helper controls preserve non-Cocoa failures and prove actual navigation-policy restoration. Agreement is shown for 30 database-change/sorting rounds; every original assertion is retained.
+On nightly a65af4bbca with disposable PySide6/Essentials/Addons/shiboken6 6.10.3, five native lifetime checks pass (46.98 s) and 29 distinct native focus/helper controls pass with zero skips/aborts. Ten initial native Tab failures pass unchanged offscreen, then pass natively with the scoped all-controls policy. No production code or system preferences changed.
+Numerical/pytest dependencies were reused read-only from the original venv; the current 1.5.1.6 wheel was built and installed only in scratch. Clean arm64 installation, quiet timed A1, full native/offscreen sweeps, Metal qualification and released .pkg purge acceptance remain unverified; the latest release inspected was 1.5.1.5.
+The queued 3-D job was cancelled before GPU work started. Logs, wheel and disposable environment remain under ~/spacr-scratch/mac-regression-20261028/. Continue the original acceptance on an Apple Silicon Mac with the relevant release package; this partial delivery does not close N729.

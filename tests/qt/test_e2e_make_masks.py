@@ -47,6 +47,8 @@ def test_open_paint_save_reload_persists(
     screen = MakeMasksScreen()
     qtbot.addWidget(screen)
     screen._open_folder(str(synth_mask_folder))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._canvas.mask is not None
     H, W = screen._canvas.mask.shape[:2]
 
@@ -75,6 +77,8 @@ def test_open_paint_save_reload_persists(
     fresh = MakeMasksScreen()
     qtbot.addWidget(fresh)
     fresh._open_folder(str(synth_mask_folder))
+    qtbot.waitUntil(lambda: not fresh._loading and fresh._reader_worker is None
+                    and fresh._load_worker is None)
     assert (fresh._canvas.mask > 0).sum() > 0, (
         "reopened mask has no non-zero pixels; save didn't round-trip"
     )
@@ -90,6 +94,8 @@ def test_engine_ops_via_screen(
     screen = MakeMasksScreen()
     qtbot.addWidget(screen)
     screen._open_folder(str(synth_mask_folder))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     # Paint a tiny blob (4 px) and a big one (100 px)
     screen._canvas.mask[5:7, 5:7] = 255
     screen._canvas.mask[20:30, 20:30] = 255
