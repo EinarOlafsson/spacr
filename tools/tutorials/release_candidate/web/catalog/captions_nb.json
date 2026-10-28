@@ -17216,6 +17216,183 @@
           "zm_yunyang"
         ]
       }
+    },
+    {
+      "id": "88_navigator",
+      "number": 88,
+      "slug": "navigator",
+      "title": "Navigator: finn riktig verktøy for inndataene dine",
+      "series": 1,
+      "app_key": null,
+      "section": "spaCR",
+      "description": "Finn spaCR-verktøy ut fra en oppgave, fil eller et prosjekt, undersøk inndata og innstillinger, og følg arbeidsflyter til de ordinære modulene.",
+      "objectives": [
+        "Finn verktøy med lokale stier, filer eller mapper som slippes inn, og oppgaver sendt med Enter uten hensyn til store og små bokstaver.",
+        "Gjennomgå inndata, foreslåtte innstillinger og arbeidstrinn før du åpner et ordinært verktøy.",
+        "Utforsk arbeidsflyter for organismer, paneler, aktive jobber og valgfrie KI-kontroller.",
+        "Skill måletabeller fra databaser med annotasjoner eller historikk, og begynn på nytt med Home."
+      ],
+      "prerequisite": "Installer spaCR og åpne Navigator. Bruk eksempelbildet, bildemappen, prosjektet med målinger, databasen med bare annotasjoner eller historikk og innstillingsfilen som følger med, eller tilsvarende lokale inndata.",
+      "scenes": [
+        {
+          "visual": "01_navigator_start",
+          "narration": "Navigator starter med et søkefelt over spaCR-temaet. Åpne det med spacr-nav eller spacr-navigator, og begynn med en oppgave, fil eller mappe.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "02_help_navigator",
+          "narration": "Du kan også slå på Navigator fra Help. Navigator er på som standard; et lagret valg beholdes.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_dock_right_panels",
+          "narration": "Bruk den sammenleggbare sidemenyen til å åpne en modul direkte. News og Widgets åpnes ved siden av arbeidsområdet, mens søket og beskrivelsen blir stående.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_enter_case_query",
+          "narration": "Skriv Measure og trykk Enter. Søket skiller ikke mellom store og små bokstaver. Skriving alene beholder de gjeldende forslagene og starter ikke noe verktøy.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_native_file_drop",
+          "narration": "Slipp én lokal bildefil i Navigator. Det undersøker inndataene og foreslår støttede neste trinn i stedet for å starte en behandling.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_native_folder_drop",
+          "narration": "Slipp én mappe for å undersøke innholdet. Forslagene avhenger av filene og dataene som allerede finnes i mappen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07_typed_project_path",
+          "narration": "Lim inn en fil- eller prosjektsti og trykk Enter for å angi en nøyaktig plassering. Browse lar deg også velge en fil eller mappe.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "08_measured_evidence_cards",
+          "narration": "Et prosjekt med målinger inneholder data som analyseverktøy kan lese. Her gjør måletabellene verktøy som Graph Builder tilgjengelige.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09_annotation_only_scope",
+          "narration": "Dette eksemplet inneholder tabeller med annotasjoner og historikk, ikke målte egenskaper. Databasens filnavn beviser ikke i seg selv at målinger er beregnet.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "10_saved_settings_preview",
+          "narration": "Innstillingsfiler kan foreslå en modul og vise en forhåndsvisning av innstillingene. Gjennomgå forslaget før du åpner modulen; Navigator kjører ikke analysen for deg.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "11_module_workflow",
+          "narration": "Velg en modulkort for å utforske arbeidsflyten. Les beskrivelsen under kortene for å kontrollere formålet og nødvendige inndata.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "12_incremental_next_steps",
+          "narration": "Utforsk et neste trinn for å utvide nettverket. Tidligere grener forblir synlige og hjelper deg å følge veien fra inndata via analyse til resultater.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "13_toxoplasma_network",
+          "narration": "Søk etter Toxoplasma for å se organismens arbeidsflyt og valgene for analyser. Velg trinnet som passer til dataene dine og det biologiske spørsmålet.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "14_back_escape",
+          "narration": "Bruk Back eller Escape for å gå fra en arbeidsflyt tilbake til forslagene. Disse navigasjonshandlingene kjører ingen analyse og endrer ikke inndatafilene dine.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "15_native_source_handoff",
+          "narration": "Åpne det foreslåtte ordinære verktøyet når du er klar. Navigator overfører de valgte inndataene til den tilsvarende kildeinnstillingen; kontroller innstillingene før du trykker Run.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "16_running_inspect",
+          "narration": "Skriv running jobs og velg Running for å se aktive spaCR-jobber i Widgets. Kontrollene Open, pause og stop gjelder jobbene i listen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "17_ai_consent_cancel",
+          "narration": "KI-kontrollen er valgfri. Dialogboksen ved første bruk lar deg velge en leverandør. Lokale stier og samsvarende verktøyforslag følger fortsatt sine vanlige ruter.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "18_home_fresh_reset",
+          "narration": "Home gir Navigator et nytt søk og fjerner de tidligere forslagene og arbeidsflyten. Begynn på nytt med neste oppgave eller inndata du vil utforske.",
+          "hold_after": 0.7
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
     }
   ],
   "lesson_aliases": {
