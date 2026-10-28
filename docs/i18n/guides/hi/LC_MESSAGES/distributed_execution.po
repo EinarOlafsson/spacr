@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-15 15:26-0400\n"
+"POT-Creation-Date: 2026-10-28 13:35-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -28,8 +28,9 @@ msgstr "spaCR ``spacr-run`` द्वारा उपलब्ध कराय�
 msgid "Execution profiles"
 msgstr "निष्पादन प्रोफ़ाइल"
 
-msgid "An execution profile describes *how to reach compute*, not an analysis. Profiles never store passwords or API keys:"
-msgstr "निष्पादन प्रोफ़ाइल बताती है कि *कंप्यूट तक कैसे पहुँचें*, कोई विश्लेषण नहीं। प्रोफ़ाइल कभी पासवर्ड या API कुंजियाँ संग्रहीत नहीं करतीं:"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "An execution profile describes *how to reach compute*, not an analysis. Connection options and command/script templates are saved in the local profile JSON. Keep passwords and API keys out of those templates: their text is stored as entered. Built-in SSH sign-in can optionally remember the login password in the operating-system keychain, not in the profile; one-time codes are not saved. The execution backends are:"
+msgstr "निष्पादन प्रोफ़ाइल किसी विश्लेषण के बजाय *कंप्यूट संसाधनों तक पहुँचने का तरीका* बताती है। कनेक्शन विकल्प और कमांड/स्क्रिप्ट टेम्पलेट स्थानीय प्रोफ़ाइल JSON में सहेजे जाते हैं। इन टेम्पलेट में पासवर्ड या API कुंजियाँ न डालें: उनका पाठ जैसा दर्ज किया गया है वैसा ही सहेजा जाता है। अंतर्निहित SSH साइन-इन वैकल्पिक रूप से लॉगिन पासवर्ड को ऑपरेटिंग सिस्टम के कीचेन में याद रख सकता है, प्रोफ़ाइल में नहीं; एक बार उपयोग होने वाले कोड सहेजे नहीं जाते। निष्पादन बैकएंड हैं:"
 
 msgid "``SSH workstation``"
 msgstr "``SSH workstation``"
@@ -51,8 +52,9 @@ msgstr "``Cloud / custom command``"
 msgid "Runs configured submit/status/cancel argument templates. This supports cloud CLIs and site-specific schedulers without embedding vendor credentials in spaCR. The command must print a job identifier containing only letters, digits and ``_.:+-``, and the status command should print a conventional state such as ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` or ``CANCELLED``."
 msgstr "विन्यस्त सबमिट/स्थिति/रद्द तर्क टेम्पलेट चलाता है। यह spaCR में विक्रेता क्रेडेंशियल डाले बिना क्लाउड CLI और साइट-विशिष्ट शेड्यूलर का समर्थन करता है। कमांड को ऐसा कार्य पहचानकर्ता छापना चाहिए जिसमें केवल अक्षर, अंक और ``_.:+-`` हों, और स्थिति कमांड को ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` या ``CANCELLED`` जैसी पारंपरिक स्थिति छापनी चाहिए।"
 
-msgid "Configure SSH keys, cloud authentication and VPN access outside spaCR. Test the same connection in a terminal before submitting a long run."
-msgstr "SSH कुंजियाँ, क्लाउड प्रमाणीकरण और VPN पहुँच spaCR के बाहर विन्यस्त करें। लंबा रन सबमिट करने से पहले उसी कनेक्शन का टर्मिनल में परीक्षण करें।"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Configure SSH keys, cloud CLI authentication and VPN access outside spaCR. Built-in interactive SSH sign-in can instead prompt for a password and second factor in spaCR. Check the selected sign-in route before submitting a long run."
+msgstr "SSH कुंजियाँ, क्लाउड CLI प्रमाणीकरण और VPN पहुँच spaCR के बाहर कॉन्फ़िगर करें। इसके बजाय अंतर्निहित इंटरैक्टिव SSH साइन-इन spaCR में पासवर्ड और दूसरा कारक माँग सकता है। लंबा रन सबमिट करने से पहले चुना हुआ साइन-इन तरीका जाँचें।"
 
 msgid "Shared data and path mapping"
 msgstr "साझा डेटा और पथ मैपिंग"
@@ -261,6 +263,36 @@ msgstr "बाहरी OpenSSH कमांड के बजाय सत्य
 msgid "remember the login password, never one-time codes or push answers, in the operating-system keychain; off by default."
 msgstr "ऑपरेटिंग सिस्टम कीचेन में लॉगिन पासवर्ड याद रखें, एक-बार वाले कोड या पुश उत्तर कभी नहीं; डिफ़ॉल्ट रूप से बंद।"
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "how spaCR signs in: ``openssh`` (SSH config, keys, agent and ControlMaster reuse), ``interactive`` (password and second-factor prompts shown in spaCR), ``gssapi`` (Kerberos ticket) or ``custom`` (the user's own SSH command). Blank follows ``ssh_interactive``."
+msgstr "spaCR का साइन-इन तरीका: ``openssh`` (SSH कॉन्फ़िगरेशन, कुंजियाँ, एजेंट और ControlMaster का पुनः उपयोग), ``interactive`` (spaCR में पासवर्ड और दूसरे कारक के संकेत), ``gssapi`` (Kerberos टिकट) या ``custom`` (उपयोगकर्ता का अपना SSH कमांड)। खाली होने पर ``ssh_interactive`` का अनुसरण करता है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+#, python-brace-format
+msgid "custom SSH command for ``custom`` sign-in; ``{host}`` is the target and ``{command}`` the remote command, appended when absent. It may not carry a password."
+msgstr "``custom`` साइन-इन के लिए अपना SSH कमांड; ``{host}`` लक्ष्य और ``{command}`` दूरस्थ कमांड है, जो न होने पर जोड़ दिया जाता है। इसमें पासवर्ड नहीं होना चाहिए।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "scheduler resources: partition, account, qos, gpus, gpu_type, cpus, mem, time, nodes, mail_type, mail_user and extra scheduler lines."
+msgstr "शेड्यूलर संसाधन: partition, account, qos, gpus, gpu_type, cpus, mem, time, nodes, mail_type, mail_user और अतिरिक्त शेड्यूलर पंक्तियाँ।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "shell lines that prepare the remote environment before spaCR runs, such as ``module load mamba`` and ``mamba activate spacr``."
+msgstr "spaCR चलने से पहले दूरस्थ परिवेश तैयार करने वाली शेल पंक्तियाँ, जैसे ``module load mamba`` और ``mamba activate spacr``।"
+
+# AI technical review (Codex), no native-speaker signoff.
+#, python-brace-format
+msgid "editable job-script template with placeholders such as ``{settings_path}`` and ``{run_command}``; blank uses the backend's default script."
+msgstr "``{settings_path}`` और ``{run_command}`` जैसे प्लेसहोल्डर वाला संपादन योग्य जॉब-स्क्रिप्ट टेम्पलेट; खाली होने पर बैकएंड की डिफ़ॉल्ट स्क्रिप्ट उपयोग होती है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "comma-separated host-name patterns of login nodes on which spaCR must never run compute."
+msgstr "लॉगिन नोड के होस्ट-नाम पैटर्न, अल्पविराम से अलग, जिन पर spaCR को कभी कंप्यूट नहीं चलाना चाहिए।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "explicit opt-in to run directly over SSH on a host with no scheduler, skipping the login-node refusal."
+msgstr "बिना शेड्यूलर वाले होस्ट पर सीधे SSH से चलाने की स्पष्ट सहमति, जो लॉगिन-नोड अस्वीकृति को छोड़ती है।"
+
 msgid "Construct and validate a profile from JSON-compatible data."
 msgstr "JSON-संगत डेटा से प्रोफ़ाइल बनाएँ और उसका सत्यापन करें।"
 
@@ -380,6 +412,14 @@ msgstr "नवीनतम सबमिशन, पोलिंग या रद�
 
 msgid "submission-time profile snapshot, retained so the job remains operable after profile edits or deletion."
 msgstr "सबमिशन के समय की प्रोफ़ाइल की प्रति, ताकि प्रोफ़ाइल संपादित या हटाए जाने के बाद भी कार्य संचालन योग्य रहे।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "the rendered job script exactly as it was sent."
+msgstr "तैयार की गई जॉब स्क्रिप्ट, ठीक उसी रूप में जैसे भेजी गई थी।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "the scheduler allocation the job runs inside, or blank for a batch job."
+msgstr "वह शेड्यूलर आवंटन जिसमें जॉब चलती है, या बैच जॉब के लिए खाली।"
 
 msgid "Construct a job from a stored mapping, tolerating future fields."
 msgstr "संग्रहीत मैपिंग से कार्य बनाएँ, भविष्य के फ़ील्ड को सहन करते हुए।"

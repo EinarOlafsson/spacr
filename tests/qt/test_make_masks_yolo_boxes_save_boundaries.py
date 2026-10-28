@@ -22,6 +22,8 @@ def opened(qtbot, qt_theme_applied, tmp_path):
     widget = MakeMasksScreen()
     qtbot.addWidget(widget)
     assert widget._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not widget._loading and widget._reader_worker is None
+                    and widget._load_worker is None)
     yield widget, folder
     widget._magnifier.close()
     widget.close_folded()
@@ -44,10 +46,12 @@ def _unwritable_boxes(monkeypatch):
 
 
 def test_previous_stays_on_second_field_when_dirty_boxes_cannot_be_saved(
-        opened, monkeypatch):
+        opened, monkeypatch, qtbot):
     """Previous cannot show field zero while field one's edit is unsaved."""
     widget, folder = opened
     widget._on_next()
+    qtbot.waitUntil(lambda: not widget._loading and widget._reader_worker is None
+                    and widget._load_worker is None)
     assert widget._current_index == 1
     _edited_box(widget)
     before_image = widget._canvas.image.copy()

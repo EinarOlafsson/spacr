@@ -1,5 +1,5 @@
 # spaCR user guide translation (es).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-28 13:35-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: es\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -55,8 +55,9 @@ msgstr "``drop_features`` elimina las columnas de características que contienen
 msgid "``drop_objects`` removes object rows containing missing feature values."
 msgstr "``drop_objects`` elimina las filas de objetos que contienen valores de características ausentes."
 
-msgid "``mean`` replaces missing values with the observed feature mean."
-msgstr "``mean`` sustituye los valores ausentes por la media observada de la característica."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``mean`` replaces missing values with the observed feature mean. A feature with no observed values is filled with zero; that zero is an imputation, not an observed measurement."
+msgstr "``mean`` sustituye los valores ausentes por la media observada de la característica. Una característica sin valores observados se rellena con cero; ese cero es una imputación, no una medición observada."
 
 msgid "``zero`` replaces missing values with zero. Use it only when zero is an appropriate value for the intended analysis."
 msgstr "``zero`` sustituye los valores ausentes por cero. Úselo solo cuando cero sea un valor adecuado para el análisis previsto."
@@ -78,9 +79,6 @@ msgstr "Lo siguiente usa el mismo punto de entrada que el botón **Ejecutar** de
 
 msgid "For explicit function arguments, see :func:`spacr.anndata_export.export_anndata`."
 msgstr "Para los argumentos explícitos de la función, consulte :func:`spacr.anndata_export.export_anndata`."
-
-msgid "Follow the video"
-msgstr "Seguir el vídeo"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Object metadata columns that are entirely missing are stored as empty categorical columns in ``obs``; no placeholder value is written. If writing a replacement fails, an existing completed output is preserved."

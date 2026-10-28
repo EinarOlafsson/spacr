@@ -1,5 +1,5 @@
 # spaCR user guide translation (zh_CN).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:05-0400\n"
+"POT-Creation-Date: 2026-10-28 13:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -26,8 +26,9 @@ msgstr "解释 CV 模型并调查命中项"
 msgid "spaCR provides three separate analyses that answer different questions:"
 msgstr "spaCR 提供三种相互独立的分析，分别回答不同的问题："
 
-msgid "activation or occlusion maps show **where** a vision model attended;"
-msgstr "激活图或遮挡图显示视觉模型关注的 **位置**；"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "gradient-based maps estimate input contributions to a selected model output, while occlusion maps measure output changes when image regions are replaced;"
+msgstr "基于梯度的图估计输入对所选模型输出的贡献，而遮挡图测量替换图像区域后的输出变化；"
 
 msgid "the **Explain CV Model** module shows which measured morphology can reproduce the model's decisions; and"
 msgstr "**解释 CV 模型** 模块显示哪些已测量的形态特征能够重现模型的决策；以及"
@@ -100,8 +101,9 @@ msgstr "默认情况下，原始表型分数被排除在形态模型之外。将
 msgid "Quantitative evidence"
 msgstr "定量证据"
 
-msgid "The report uses wells, not cells, as the independent experimental unit. It reports target-versus-control candidate prevalence, a well-bootstrap interval, a plate-blocked permutation test, guide-dose response, guide-specific effects, and two stricter nulls. The stricter guide-fraction and well-label nulls repeat the cross-fitting pipeline inside every permutation rather than shuffling only the final summary labels."
-msgstr "报告以孔而不是细胞作为独立的实验单元。它报告靶标与对照的候选细胞流行率、孔水平 bootstrap 区间、按孔板分块的置换检验、向导剂量反应、向导特异性效应以及两个更严格的零假设。更严格的向导比例零假设和孔标签零假设会在每次置换中重复交叉拟合流程，而不仅仅是打乱最终的汇总标签。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The report uses wells, not cells, as the independent experimental unit. It reports target-versus-control candidate prevalence, a well-bootstrap interval, a plate-blocked permutation test, guide-dose response, and guide-specific effects. Configured guide-fraction and well-label nulls repeat cross-fitting inside each permutation. Investigate Hit requests 100 permutations per null by default through ``hit_pipeline_permutations``; zero disables them. Direct calls to ``fit_hit_attribution`` default to zero through ``n_pipeline_permutations``. For positive requests, the report records requested and completed counts; failed fits and permutations without both target-containing and target-free wells are omitted. Refitted-null p-values are unavailable when no permutations complete."
+msgstr "报告以孔而非细胞作为独立实验单位，报告含靶标孔与对照孔的候选比例、孔级自助法区间、按板分块的置换检验、向导剂量响应和各向导的效应。配置的向导比例与孔标签零模型在每次置换内重复交叉拟合。Investigate Hit 默认通过 ``hit_pipeline_permutations`` 为每个零模型请求 100 次置换；零表示禁用。直接调用 ``fit_hit_attribution`` 时，``n_pipeline_permutations`` 的默认值为零。对于正数请求，报告记录请求次数和完成次数；拟合失败以及未同时包含含靶标孔和无靶标孔的置换会被省略。如果没有完成任何置换，则重新拟合的零模型 p 值不可用。"
 
 msgid "The two-dimensional comparison is a PCA fit only on target-free control-cell morphology and then used to transform all cells. Guide identity, target-well status, and the original classifier output are excluded. The exported table contains exact object keys and sample counts so a visual cluster can be traced back to its wells and images; the quantitative enrichment remains the primary claim."
 msgstr "二维比较是一个仅在无靶标对照细胞形态上拟合、然后用于变换所有细胞的 PCA。向导标识、靶标孔状态和原始分类器输出都被排除在外。导出的表格包含确切的对象键和样本计数，因此可以将视觉上的聚类追溯到其孔和图像；定量富集仍是主要结论。"

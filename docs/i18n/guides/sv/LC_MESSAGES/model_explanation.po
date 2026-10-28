@@ -1,5 +1,5 @@
 # spaCR user guide translation (sv).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:05-0400\n"
+"POT-Creation-Date: 2026-10-28 13:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -26,8 +26,9 @@ msgstr "Förklara CV-modeller och undersöka träffar"
 msgid "spaCR provides three separate analyses that answer different questions:"
 msgstr "spaCR tillhandahåller tre separata analyser som besvarar olika frågor:"
 
-msgid "activation or occlusion maps show **where** a vision model attended;"
-msgstr "aktiverings- eller ocklusionskartor visar **var** en bildmodell fäste uppmärksamheten;"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "gradient-based maps estimate input contributions to a selected model output, while occlusion maps measure output changes when image regions are replaced;"
+msgstr "gradientbaserade kartor uppskattar indatans bidrag till en vald modellutdata, medan ocklusionskartor mäter förändringar i utdata när bildområden ersätts;"
 
 msgid "the **Explain CV Model** module shows which measured morphology can reproduce the model's decisions; and"
 msgstr "modulen **Förklara CV-modell** visar vilken uppmätt morfologi som kan återskapa modellens beslut; och"
@@ -100,8 +101,9 @@ msgstr "Den ursprungliga fenotyppoängen utesluts som standard ur morfologimodel
 msgid "Quantitative evidence"
 msgstr "Kvantitativa belägg"
 
-msgid "The report uses wells, not cells, as the independent experimental unit. It reports target-versus-control candidate prevalence, a well-bootstrap interval, a plate-blocked permutation test, guide-dose response, guide-specific effects, and two stricter nulls. The stricter guide-fraction and well-label nulls repeat the cross-fitting pipeline inside every permutation rather than shuffling only the final summary labels."
-msgstr "Rapporten använder brunnar, inte celler, som oberoende experimentell enhet. Den rapporterar förekomsten av kandidater i mål- jämfört med kontrollbrunnar, ett bootstrapintervall över brunnar, ett permutationstest blockerat per platta, dos–respons för guider, guidespecifika effekter och två striktare nollhypoteser. De striktare nollhypoteserna för guidefraktion och brunnsetikett upprepar korsanpassningen inuti varje permutation i stället för att bara blanda om de slutliga sammanfattningsetiketterna."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The report uses wells, not cells, as the independent experimental unit. It reports target-versus-control candidate prevalence, a well-bootstrap interval, a plate-blocked permutation test, guide-dose response, and guide-specific effects. Configured guide-fraction and well-label nulls repeat cross-fitting inside each permutation. Investigate Hit requests 100 permutations per null by default through ``hit_pipeline_permutations``; zero disables them. Direct calls to ``fit_hit_attribution`` default to zero through ``n_pipeline_permutations``. For positive requests, the report records requested and completed counts; failed fits and permutations without both target-containing and target-free wells are omitted. Refitted-null p-values are unavailable when no permutations complete."
+msgstr "Rapporten använder brunnar, inte celler, som oberoende experimentell enhet. Den redovisar kandidatprevalens i målbrunnar jämfört med kontrollbrunnar, ett bootstrap-intervall på brunnsnivå, ett plattblockerat permutationstest, dosrespons för guider och guidespecifika effekter. Konfigurerade nollmodeller för guidefraktion och brunnsetiketter upprepar korsanpassningen inom varje permutation. Investigate Hit begär som standard 100 permutationer per nollmodell via ``hit_pipeline_permutations``; noll stänger av dem. Direkta anrop till ``fit_hit_attribution`` har standardvärdet noll via ``n_pipeline_permutations``. Vid positiva begärda antal redovisar rapporten begärda och slutförda antal; misslyckade anpassningar och permutationer utan både mål-innehållande och målfria brunnar utelämnas. P-värden för omanpassade nollmodeller är inte tillgängliga när inga permutationer slutförs."
 
 msgid "The two-dimensional comparison is a PCA fit only on target-free control-cell morphology and then used to transform all cells. Guide identity, target-well status, and the original classifier output are excluded. The exported table contains exact object keys and sample counts so a visual cluster can be traced back to its wells and images; the quantitative enrichment remains the primary claim."
 msgstr "Den tvådimensionella jämförelsen är en PCA som bara anpassas på morfologin hos kontrollceller utan mål och sedan används för att transformera alla celler. Guidens identitet, målbrunnsstatus och den ursprungliga klassificerarens utdata utesluts. Den exporterade tabellen innehåller exakta objektnycklar och provantal, så att ett visuellt kluster kan spåras tillbaka till sina brunnar och bilder; den kvantitativa anrikningen förblir det primära påståendet."

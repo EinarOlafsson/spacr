@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-15 15:26-0400\n"
+"POT-Creation-Date: 2026-10-28 13:35-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: pt\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -28,8 +28,9 @@ msgstr "O spaCR pode enviar qualquer módulo exposto por ``spacr-run`` para outr
 msgid "Execution profiles"
 msgstr "Perfis de execução"
 
-msgid "An execution profile describes *how to reach compute*, not an analysis. Profiles never store passwords or API keys:"
-msgstr "Um perfil de execução descreve *como chegar aos recursos de computação*, e não uma análise. Os perfis nunca armazenam senhas nem chaves de API:"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "An execution profile describes *how to reach compute*, not an analysis. Connection options and command/script templates are saved in the local profile JSON. Keep passwords and API keys out of those templates: their text is stored as entered. Built-in SSH sign-in can optionally remember the login password in the operating-system keychain, not in the profile; one-time codes are not saved. The execution backends are:"
+msgstr "Um perfil de execução descreve *como aceder a recursos de computação*, não uma análise. As opções de ligação e os modelos de comandos ou scripts são guardados no JSON local do perfil. Não introduza palavras-passe nem chaves de API nesses modelos: o texto é guardado tal como foi introduzido. O início de sessão SSH integrado pode, opcionalmente, memorizar a palavra-passe de acesso no porta-chaves do sistema operativo, não no perfil; os códigos de utilização única não são guardados. Os sistemas de execução são:"
 
 msgid "``SSH workstation``"
 msgstr "``SSH workstation``"
@@ -51,8 +52,9 @@ msgstr "``Cloud / custom command``"
 msgid "Runs configured submit/status/cancel argument templates. This supports cloud CLIs and site-specific schedulers without embedding vendor credentials in spaCR. The command must print a job identifier containing only letters, digits and ``_.:+-``, and the status command should print a conventional state such as ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` or ``CANCELLED``."
 msgstr "Executa modelos de argumentos configurados para enviar, consultar o status e cancelar. Isso dá suporte a CLIs de nuvem e agendadores específicos de cada instituição sem incorporar credenciais de fornecedores ao spaCR. O comando deve imprimir um identificador de trabalho contendo apenas letras, dígitos e ``_.:+-``, e o comando de status deve imprimir um estado convencional, como ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` ou ``CANCELLED``."
 
-msgid "Configure SSH keys, cloud authentication and VPN access outside spaCR. Test the same connection in a terminal before submitting a long run."
-msgstr "Configure as chaves SSH, a autenticação na nuvem e o acesso VPN fora do spaCR. Teste a mesma conexão em um terminal antes de enviar uma execução longa."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Configure SSH keys, cloud CLI authentication and VPN access outside spaCR. Built-in interactive SSH sign-in can instead prompt for a password and second factor in spaCR. Check the selected sign-in route before submitting a long run."
+msgstr "Configure as chaves SSH, a autenticação das CLI de nuvem e o acesso VPN fora do spaCR. Em alternativa, o início de sessão SSH interativo integrado pode pedir uma palavra-passe e um segundo fator no spaCR. Verifique a via de início de sessão selecionada antes de submeter uma execução longa."
 
 msgid "Shared data and path mapping"
 msgstr "Dados compartilhados e mapeamento de caminhos"
@@ -261,6 +263,36 @@ msgstr "utilizar uma sessão SSH persistente e verificada, com pedidos gráficos
 msgid "remember the login password, never one-time codes or push answers, in the operating-system keychain; off by default."
 msgstr "lembrar a senha de login, nunca códigos de uso único nem respostas push, no chaveiro do sistema operacional; desativado por padrão."
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "how spaCR signs in: ``openssh`` (SSH config, keys, agent and ControlMaster reuse), ``interactive`` (password and second-factor prompts shown in spaCR), ``gssapi`` (Kerberos ticket) or ``custom`` (the user's own SSH command). Blank follows ``ssh_interactive``."
+msgstr "como o spaCR inicia sessão: ``openssh`` (configuração SSH, chaves, agente e reutilização de ControlMaster), ``interactive`` (palavra-passe e segundo fator pedidos no spaCR), ``gssapi`` (ticket Kerberos) ou ``custom`` (comando SSH do utilizador). Em branco, segue ``ssh_interactive``."
+
+# AI technical review (Codex), no native-speaker signoff.
+#, python-brace-format
+msgid "custom SSH command for ``custom`` sign-in; ``{host}`` is the target and ``{command}`` the remote command, appended when absent. It may not carry a password."
+msgstr "comando SSH personalizado para o início de sessão ``custom``; ``{host}`` é o destino e ``{command}`` o comando remoto, acrescentado quando ausente. Não pode conter uma palavra-passe."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "scheduler resources: partition, account, qos, gpus, gpu_type, cpus, mem, time, nodes, mail_type, mail_user and extra scheduler lines."
+msgstr "recursos do escalonador: partition, account, qos, gpus, gpu_type, cpus, mem, time, nodes, mail_type, mail_user e linhas adicionais do escalonador."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "shell lines that prepare the remote environment before spaCR runs, such as ``module load mamba`` and ``mamba activate spacr``."
+msgstr "linhas de shell que preparam o ambiente remoto antes de executar o spaCR, como ``module load mamba`` e ``mamba activate spacr``."
+
+# AI technical review (Codex), no native-speaker signoff.
+#, python-brace-format
+msgid "editable job-script template with placeholders such as ``{settings_path}`` and ``{run_command}``; blank uses the backend's default script."
+msgstr "modelo editável de script de tarefa com marcadores como ``{settings_path}`` e ``{run_command}``; em branco, usa o script predefinido do sistema de execução."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "comma-separated host-name patterns of login nodes on which spaCR must never run compute."
+msgstr "padrões de nomes de hosts, separados por vírgulas, dos nós de acesso onde o spaCR nunca deve executar computação."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "explicit opt-in to run directly over SSH on a host with no scheduler, skipping the login-node refusal."
+msgstr "opção explícita para executar diretamente por SSH num host sem escalonador, ignorando a recusa de nós de acesso."
+
 msgid "Construct and validate a profile from JSON-compatible data."
 msgstr "Constrói e valida um perfil a partir de dados compatíveis com JSON."
 
@@ -380,6 +412,14 @@ msgstr "falha mais recente de envio, consulta ou cancelamento; é apagada após 
 
 msgid "submission-time profile snapshot, retained so the job remains operable after profile edits or deletion."
 msgstr "instantâneo do perfil no momento do envio, mantido para que o trabalho continue operável depois de edições ou da exclusão do perfil."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "the rendered job script exactly as it was sent."
+msgstr "o script de tarefa gerado, exatamente como foi enviado."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "the scheduler allocation the job runs inside, or blank for a batch job."
+msgstr "a alocação do escalonador na qual a tarefa é executada, ou em branco para uma tarefa por lotes."
 
 msgid "Construct a job from a stored mapping, tolerating future fields."
 msgstr "Constrói um trabalho a partir de um mapeamento armazenado, tolerando campos futuros."

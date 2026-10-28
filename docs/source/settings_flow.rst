@@ -1,11 +1,11 @@
 Where a setting goes
 ====================
 
-This page lists every setting spaCR reads, with its tooltip text and the
-call paths that pass it from an entry point to the functions that read it.
-When the function that reads a setting has no published API anchor, the
-**API** link in the setting's tooltip opens the setting's section on this page
-instead.
+This page lists settings and call paths identified by spaCR's static source
+analysis, with their published tooltip text. It is not a runtime trace or a
+guarantee that every dynamic setting access was found. When the function that
+reads a listed setting has no published API anchor, the **API** link in its
+tooltip opens the setting's section on this page instead.
 
 Each line of a branch is a call, indented under its caller. A step marked
 **-- reads it** is where the value is used rather than passed on. Branches

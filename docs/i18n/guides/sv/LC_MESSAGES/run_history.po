@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:22-0400\n"
+"POT-Creation-Date: 2026-10-28 13:49-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -34,8 +34,9 @@ msgstr "modul, status, start- och sluttid, verklig tid och processens CPU-tid;"
 msgid "exact resolved settings;"
 msgstr "exakta upplösta inställningar;"
 
-msgid "SHA-256 records for inputs, outputs and models;"
-msgstr "SHA-256-poster för indata, utdata och modeller;"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "available input, output and model hash records; input/output hashing is optional and ``hash_inputs`` is off by default;"
+msgstr "tillgängliga hashposter för indata, utdata och modeller; hashning av in- och utdata är valfri och ``hash_inputs`` är avstängt som standard;"
 
 msgid "structured warnings, provenance warnings and failure tracebacks;"
 msgstr "strukturerade varningar, härkomstvarningar och felspårningar (tracebacks);"
@@ -47,14 +48,16 @@ msgid "declared seeds and runtime random-state identifiers."
 msgstr "deklarerade slumpfrön och identifierare för slumptillstånd under körning."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Search terms are combined: ``adamw plate_03 warning`` shows only records containing all three terms anywhere in settings, paths, warnings, failures or environment data. Module and status filters can be applied at the same time. Interrupted and corrupt run folders remain listed, with status ``running`` or ``corrupt`` and diagnostic warnings."
-msgstr "Söktermer kombineras: ``adamw plate_03 warning`` visar bara poster som innehåller alla tre termerna någonstans i inställningar, sökvägar, varningar, fel eller miljödata. Modul- och statusfilter kan användas samtidigt. Avbrutna och skadade körningsmappar finns kvar i listan, med status ``running`` eller ``corrupt`` och diagnostiska varningar."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Search terms are combined: ``adamw plate_03 warning`` shows only records containing all three terms anywhere in settings, paths, warnings, failures or environment data. Module and status filters can be applied at the same time. A stored ``running`` record is displayed as ``interrupted`` only when its recorded owner is provably gone; this does not change the stored status. Unverifiable owners, including records from other hosts, remain ``running``. Corrupt run folders remain listed with ``corrupt`` status and diagnostic warnings."
+msgstr "Söktermer kombineras: ``adamw plate_03 warning`` visar bara poster som innehåller alla tre termerna någonstans i inställningar, sökvägar, varningar, fel eller miljödata. Modul- och statusfilter kan användas samtidigt. En lagrad ``running``-post visas som ``interrupted`` endast när dess registrerade ägare bevisligen är borta; detta ändrar inte den lagrade statusen. Ägare som inte kan verifieras, inklusive poster från andra värdar, förblir ``running``. Skadade körmappar finns kvar i listan med status ``corrupt`` och diagnostiska varningar."
 
 msgid "Select a row to inspect its details. **Load settings in module** opens the original module and propagates the exact recorded settings into its controls; it does not start a run. **Open run folder** and **Copy path** expose the underlying ``~/.spacr/runs/...`` folder."
 msgstr "Markera en rad för att granska detaljerna. **Läs in inställningar i modulen** öppnar den ursprungliga modulen och för över de exakt registrerade inställningarna till dess kontroller; ingen körning startas. **Öppna körningsmapp** och **Kopiera sökväg** ger åtkomst till den underliggande mappen ``~/.spacr/runs/...``."
 
-msgid "Right-click selected rows to open their folders or delete them; **Clear all** deletes every run the table lists. Deleting asks first and removes only the journal folders; outputs written into your projects are not touched."
-msgstr "Högerklicka på markerade rader för att öppna deras mappar eller ta bort dem; **Rensa alla** tar bort alla körningar som tabellen listar. Borttagning kräver bekräftelse och tar bara bort journalmapparna; utdata som skrivits till dina projekt berörs inte."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Right-click selected rows to open their folders or delete them. **Clear all** requests deletion of every loaded run, including rows hidden by the current filters; it does not include runs created since the last refresh. Deleting asks first and removes only journal folders, not outputs in your projects. The result reports any folders that could not be deleted, including active runs protected by this spaCR process."
+msgstr "Högerklicka på markerade rader för att öppna eller ta bort deras mappar. **Rensa alla** begär borttagning av varje inläst körning, även rader som döljs av aktuella filter; körningar skapade efter senaste uppdateringen ingår inte. Borttagningen kräver bekräftelse och tar bara bort journalmappar, inte utdata i dina projekt. Resultatet anger mappar som inte kunde tas bort, inklusive aktiva körningar som skyddas av denna spaCR-process."
 
 msgid "Storage: pruning and caches"
 msgstr "Lagring: rensning och cachar"

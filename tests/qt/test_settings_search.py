@@ -475,17 +475,26 @@ def test_no_setting_is_hidden_in_every_state(mask_screen):
         + ", ".join(sorted(unreachable - typed)))
 
 
-def test_the_choice_is_remembered_per_module(mask_screen, qtbot):
-    bar = install(mask_screen)
-    bar.set_level(ALL)
-    assert disclosure_for("mask") == ALL
-    assert disclosure_for("measure") == ESSENTIALS, (
-        "one module's choice leaked into another's")
-
+def test_the_choice_is_remembered_per_module(qtbot):
+    from spacr.qt import preferences
     from spacr.qt.screens.app_screen import AppScreen
-    second = AppScreen("mask")
-    qtbot.addWidget(second)
-    assert install(second).level() == ALL
+
+    previous = preferences.get_easy_mode()
+    preferences.set_easy_mode(False)
+    try:
+        mask_screen = AppScreen("mask")
+        qtbot.addWidget(mask_screen)
+        bar = install(mask_screen)
+        bar.set_level(ALL)
+        assert disclosure_for("mask") == ALL
+        assert disclosure_for("measure") == ESSENTIALS, (
+            "one module's choice leaked into another's")
+
+        second = AppScreen("mask")
+        qtbot.addWidget(second)
+        assert install(second).level() == ALL
+    finally:
+        preferences.set_easy_mode(previous)
 
 
 def test_essentials_narrows_a_search_rather_than_fighting_it(mask_screen):

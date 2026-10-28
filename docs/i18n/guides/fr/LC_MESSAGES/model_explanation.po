@@ -1,5 +1,5 @@
 # spaCR user guide translation (fr).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:05-0400\n"
+"POT-Creation-Date: 2026-10-28 13:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: fr\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -26,8 +26,9 @@ msgstr "Expliquer les modèles CV et examiner les résultats positifs"
 msgid "spaCR provides three separate analyses that answer different questions:"
 msgstr "spaCR propose trois analyses distinctes qui répondent à des questions différentes :"
 
-msgid "activation or occlusion maps show **where** a vision model attended;"
-msgstr "les cartes d’activation ou d’occlusion montrent **où** un modèle de vision a porté son attention ;"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "gradient-based maps estimate input contributions to a selected model output, while occlusion maps measure output changes when image regions are replaced;"
+msgstr "les cartes fondées sur les gradients estiment les contributions des entrées à une sortie sélectionnée du modèle, tandis que les cartes d’occlusion mesurent les changements de sortie lorsque des régions de l’image sont remplacées ;"
 
 msgid "the **Explain CV Model** module shows which measured morphology can reproduce the model's decisions; and"
 msgstr "le module **Expliquer le modèle CV** montre quelle morphologie mesurée peut reproduire les décisions du modèle ; et"
@@ -100,8 +101,9 @@ msgstr "Le score phénotypique d’origine est exclu par défaut du modèle morp
 msgid "Quantitative evidence"
 msgstr "Preuves quantitatives"
 
-msgid "The report uses wells, not cells, as the independent experimental unit. It reports target-versus-control candidate prevalence, a well-bootstrap interval, a plate-blocked permutation test, guide-dose response, guide-specific effects, and two stricter nulls. The stricter guide-fraction and well-label nulls repeat the cross-fitting pipeline inside every permutation rather than shuffling only the final summary labels."
-msgstr "Le rapport utilise les puits, et non les cellules, comme unité expérimentale indépendante. Il rapporte la prévalence des candidats entre cible et contrôle, un intervalle bootstrap sur les puits, un test de permutation bloqué par plaque, la relation dose-réponse des guides, les effets propres à chaque guide et deux hypothèses nulles plus strictes. Les nulles plus strictes sur les fractions de guides et les étiquettes de puits répètent le pipeline d’ajustement croisé à l’intérieur de chaque permutation au lieu de ne permuter que les étiquettes du résumé final."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The report uses wells, not cells, as the independent experimental unit. It reports target-versus-control candidate prevalence, a well-bootstrap interval, a plate-blocked permutation test, guide-dose response, and guide-specific effects. Configured guide-fraction and well-label nulls repeat cross-fitting inside each permutation. Investigate Hit requests 100 permutations per null by default through ``hit_pipeline_permutations``; zero disables them. Direct calls to ``fit_hit_attribution`` default to zero through ``n_pipeline_permutations``. For positive requests, the report records requested and completed counts; failed fits and permutations without both target-containing and target-free wells are omitted. Refitted-null p-values are unavailable when no permutations complete."
+msgstr "Le rapport utilise les puits, et non les cellules, comme unité expérimentale indépendante. Il présente la prévalence des candidats dans les puits contenant la cible par rapport aux témoins, un intervalle bootstrap au niveau des puits, un test de permutation bloqué par plaque, la réponse à la dose de guides et les effets propres à chaque guide. Les modèles nuls configurés pour les fractions de guides et les étiquettes de puits répètent l’ajustement croisé dans chaque permutation. Investigate Hit demande par défaut 100 permutations par modèle nul via ``hit_pipeline_permutations`` ; zéro les désactive. Les appels directs à ``fit_hit_attribution`` utilisent zéro par défaut via ``n_pipeline_permutations``. Pour les demandes positives, le rapport indique les nombres demandés et terminés ; les ajustements échoués et les permutations ne contenant pas à la fois des puits avec la cible et des puits sans la cible sont omis. Les valeurs p des modèles nuls réajustés ne sont pas disponibles lorsqu’aucune permutation n’est terminée."
 
 msgid "The two-dimensional comparison is a PCA fit only on target-free control-cell morphology and then used to transform all cells. Guide identity, target-well status, and the original classifier output are excluded. The exported table contains exact object keys and sample counts so a visual cluster can be traced back to its wells and images; the quantitative enrichment remains the primary claim."
 msgstr "La comparaison bidimensionnelle est une ACP ajustée uniquement sur la morphologie des cellules de contrôle sans cible, puis utilisée pour transformer toutes les cellules. L’identité des guides, le statut de puits cible et la sortie du classifieur d’origine sont exclus. Le tableau exporté contient les clés d’objet exactes et le nombre d’échantillons, de sorte qu’un cluster visuel peut être rattaché à ses puits et à ses images ; l’enrichissement quantitatif reste l’affirmation principale."

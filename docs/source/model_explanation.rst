@@ -3,7 +3,8 @@ Explain CV models and investigate hits
 
 spaCR provides three separate analyses that answer different questions:
 
-* activation or occlusion maps show **where** a vision model attended;
+* gradient-based maps estimate input contributions to a selected model output,
+  while occlusion maps measure output changes when image regions are replaced;
 * the **Explain CV Model** module shows which measured morphology can
   reproduce the model's decisions; and
 * **Investigate Hit** asks which cells in wells supporting a regression hit
@@ -79,10 +80,14 @@ Quantitative evidence
 
 The report uses wells, not cells, as the independent experimental unit. It
 reports target-versus-control candidate prevalence, a well-bootstrap interval,
-a plate-blocked permutation test, guide-dose response, guide-specific effects,
-and two stricter nulls. The stricter guide-fraction and well-label nulls repeat
-the cross-fitting pipeline inside every permutation rather than shuffling only
-the final summary labels.
+a plate-blocked permutation test, guide-dose response, and guide-specific effects.
+Configured guide-fraction and well-label nulls repeat cross-fitting inside each
+permutation. Investigate Hit requests 100 permutations per null by default through
+``hit_pipeline_permutations``; zero disables them. Direct calls to
+``fit_hit_attribution`` default to zero through ``n_pipeline_permutations``.
+For positive requests, the report records requested and completed counts; failed
+fits and permutations without both target-containing and target-free wells are
+omitted. Refitted-null p-values are unavailable when no permutations complete.
 
 The two-dimensional comparison is a PCA fit only on target-free control-cell
 morphology and then used to transform all cells. Guide identity, target-well

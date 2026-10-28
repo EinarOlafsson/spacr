@@ -1,5 +1,5 @@
 # spaCR user guide translation (ko).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-28 14:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -61,8 +61,9 @@ msgstr "측정 모듈은 이미지 메타데이터에서 광학 정보를 추론
 msgid "Run Measure and inspect the resulting object-feature tables in ``measurements.db``. PSF processing changes the intensity stream used for quantitative features; source files and exported crops retain their usual behavior. The ``intensity_rescale`` table records the selected source and PSF processing details. Keep the database with the settings and kernel file."
 msgstr "측정을 실행하고 ``measurements.db`` 에 생성된 객체 특징 표를 검사합니다. PSF 처리는 정량 특징에 쓰이는 강도 흐름을 바꾸지만, 원본 파일과 내보낸 크롭은 평소와 같이 동작합니다. ``intensity_rescale`` 표에는 선택한 출처와 PSF 처리 세부 정보가 기록됩니다. 데이터베이스를 설정 및 커널 파일과 함께 보관합니다."
 
-msgid "To compare different kernels or original and processed measurements, use separate projects or output databases. An existing database cannot mix measurements made with different PSF configurations. Restore the recorded configuration when resuming a run. See :func:`spacr.psf_measurement.prepare_measurement_psf` for the Python settings contract."
-msgstr "서로 다른 커널이나 원본 측정값과 처리된 측정값을 비교하려면 별도의 프로젝트나 출력 데이터베이스를 사용합니다. 기존 데이터베이스에는 서로 다른 PSF 구성으로 얻은 측정값을 섞을 수 없습니다. 실행을 재개할 때는 기록된 구성을 복원합니다. Python 설정 규약은 :func:`spacr.psf_measurement.prepare_measurement_psf` 를 참조합니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "When resuming a run, keep the recorded PSF configuration: incompatible intensity sources or kernels are refused. A fresh SQLite run with ``resume=False`` can instead archive the previous measurement population in suffixed tables before writing new fields, keeping its records separate from the new population. A fresh run with a non-SQLite backend requires a separate project when a previous population must be archived. Separate projects or output databases also make comparisons easier to track. See :func:`spacr.psf_measurement.prepare_measurement_psf` for the Python settings contract."
+msgstr "실행을 재개할 때는 기록된 PSF 설정을 유지하세요. 호환되지 않는 강도 소스나 커널은 거부됩니다. 대신 ``resume=False`` 인 새 SQLite 실행은 새 이미지 필드를 쓰기 전에 이전 측정 집단을 접미사가 붙은 테이블에 보관하여 그 기록을 새 집단과 분리할 수 있습니다. 이전 집단을 보관해야 하는 경우 SQLite 이외의 백엔드를 사용하는 새 실행에는 별도 프로젝트가 필요합니다. 별도 프로젝트나 출력 데이터베이스를 사용하면 비교를 추적하기도 쉽습니다. Python 설정 계약은 :func:`spacr.psf_measurement.prepare_measurement_psf` 를 참조하세요."
 
 msgid "Load the image and PSF"
 msgstr "이미지와 PSF 불러오기"

@@ -12,7 +12,7 @@ Repeated IDs retain their separate full filenames and histories; none were merge
 
 This is a declaration-based navigation list, not a verified unfinished count. Headers can be stale. Conversely, recorded-Done items 641 and 673 contain later Mac follow-ups; item 729 separates native checks from deferred implementation. Read their linked notes before assigning work.
 
-21 records have no recorded complete declaration; 701 have a recorded complete declaration. Neither is a verification result.
+20 records have no recorded complete declaration; 702 have a recorded complete declaration. Neither is a verification result.
 
 | ID | Lifecycle | Item (full filename) | Recorded status |
 |---|---|---|---|
@@ -36,7 +36,6 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 711 | Future | [TIMEPOSE v1 IN TIMELAPSE, ON HUGGING FACE (PRIVATE), WITH A SCORECARD — 711_timepose_v1_in_timelapse_with_scorecard.txt](feature_list/711_timepose_v1_in_timelapse_with_scorecard.txt) | open — 2026-10-18; v1 not shipped (maintainer). Waits for Timepose |
 | 729 | New | [THE MAC AND APPLE SILICON CHECKS STILL TO RUN ON A REAL MACOS DISPLAY — 729_mac_apple_silicon_native_checks_remaining.txt](feature_list/729_mac_apple_silicon_native_checks_remaining.txt) | IN PROGRESS — Apple Silicon Mac required for remaining checks |
 | 733 | New | [NAVIGATOR: A CONTENT-GUIDED HOME WITH AN ANIMATED PATH AND DROP FIELD — 733_easy_mode_content_guided_home.txt](feature_list/733_easy_mode_content_guided_home.txt) | OPEN — Navigator implementation and current Docs/API are delivered; the separate Work-owned Navigator tutorial remains pending. |
-| 738 | New | [LINUX POPUPS OPEN NEAR THEIR PARENT WINDOW — 738_linux_popups_open_near_their_parent_window.txt](feature_list/738_linux_popups_open_near_their_parent_window.txt) | OPEN — reported 2026-10-28; implementation assigned. |
 
 ## All feature items
 
@@ -763,7 +762,7 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 735 | New | [MAKE MASKS OPENS IMAGES AND CONTAINERS THROUGH SHARED READER CAPABILITIES — 735_make_masks_shared_image_and_container_readers.txt](feature_list/735_make_masks_shared_image_and_container_readers.txt) | DONE 2026-10-28 — shared-reader implementation, focused validation |
 | 736 | New | [MEASURE RERUNS PRESERVE EXISTING TABLES AND NEVER MIX OBJECT POPULATIONS — 736_measure_reruns_archive_existing_database_tables.txt](feature_list/736_measure_reruns_archive_existing_database_tables.txt) | DONE 2026-10-27 — implemented, focused validation passed; delivered in this nightly publication. |
 | 737 | New | [ANONYMOUS MERGE VALIDATION STRUCTURE — 737_anonymous_merge_validation_structure.txt](feature_list/737_anonymous_merge_validation_structure.txt) | COMPLETE — implementation and focused validation passed; published on Nightly. |
-| 738 | New | [LINUX POPUPS OPEN NEAR THEIR PARENT WINDOW — 738_linux_popups_open_near_their_parent_window.txt](feature_list/738_linux_popups_open_near_their_parent_window.txt) | OPEN — reported 2026-10-28; implementation assigned. |
+| 738 | New | [LINUX POPUPS OPEN NEAR THEIR PARENT WINDOW — 738_linux_popups_open_near_their_parent_window.txt](feature_list/738_linux_popups_open_near_their_parent_window.txt) | DONE — shared placement and visible-owner handoff implemented and qualified; root publishes. |
 
 ## Unnumbered feature documents
 

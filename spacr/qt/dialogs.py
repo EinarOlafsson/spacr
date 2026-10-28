@@ -709,6 +709,105 @@ def make_the_window_resizable(dialog) -> bool:
 _GLASS_DETACHED = "spacrDetached"
 
 
+def _visible_dialog_owner(dialog):
+    """Return the visible owning window, or a visible application main window.
+
+    :param dialog: the top-level dialog whose parent chain is inspected.
+    :returns: the nearest visible parent window, a visible QMainWindow fallback,
+        or None when no suitable owner exists.
+    """
+    from PySide6.QtWidgets import QApplication, QMainWindow
+
+    parent = dialog.parentWidget()
+    while parent is not None:
+        window = parent.window()
+        if window is not dialog and window.isVisible():
+            return window
+        parent = parent.parentWidget()
+    app = QApplication.instance()
+    if app is None:
+        return None
+    active = app.activeWindow()
+    windows = app.topLevelWidgets()
+    if isinstance(active, QMainWindow) and active.isVisible():
+        return active
+    return next((window for window in windows
+                 if isinstance(window, QMainWindow) and window.isVisible()), None)
+
+
+def _prepare_dialog_owner(dialog):
+    """Give an unowned or hidden-owner dialog its visible native parent.
+
+    :param dialog: a hidden top-level dialog being polished before presentation.
+    :returns: the resolved visible owner, or None without changing ownership.
+    """
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QWidget
+
+    owner = _visible_dialog_owner(dialog)
+    if owner is None:
+        return None
+    parent = dialog.parentWidget()
+    if parent is None or parent.window() is not owner:
+        moved = dialog.testAttribute(Qt.WidgetAttribute.WA_Moved)
+        geometry, modality = dialog.geometry(), dialog.windowModality()
+        dialog.setParent(owner, dialog.windowFlags())
+        dialog.setWindowModality(modality)
+        if moved:
+            QWidget.setGeometry(dialog, geometry)
+    return owner
+
+
+def _centred_dialog_frame(owner_frame, size, available):
+    """Centre a frame on its owner and constrain its origin to the work area.
+
+    :param owner_frame: the owner's global frame rectangle in logical pixels.
+    :param size: the dialog's frame size in the same coordinates.
+    :param available: the owner monitor's available global rectangle.
+    :returns: the clamped global frame rectangle; an oversized frame starts at
+        the work area's origin without changing its established size.
+    """
+    from PySide6.QtCore import QRect
+
+    frame = QRect(available.topLeft(), size)
+    frame.moveCenter(owner_frame.center())
+    frame.moveLeft(max(available.left(), min(frame.left(), available.right() + 1 - frame.width())))
+    frame.moveTop(max(available.top(), min(frame.top(), available.bottom() + 1 - frame.height())))
+    return frame
+
+
+def _place_dialog_on_first_show(dialog):
+    """Place an unpositioned dialog once, after its opening size is known.
+
+    Explicit and restored positions, and subsequent shows, remain untouched.
+    Native dialogs retain their native backend and use the prepared parent.
+
+    :param dialog: the top-level QDialog receiving its first Show event.
+    :returns: True when its initial frame was moved, otherwise False.
+    """
+    from PySide6.QtCore import Qt
+    from .hidpi import screen_for_widget
+
+    if dialog.property("spacrInitiallyPlaced"):
+        return False
+    dialog.setProperty("spacrInitiallyPlaced", True)
+    owner = _visible_dialog_owner(dialog)
+    if owner is None:
+        return False
+    handle, owner_handle = dialog.windowHandle(), owner.windowHandle()
+    if handle is not None and owner_handle is not None:
+        handle.setTransientParent(owner_handle)
+    if dialog.testAttribute(Qt.WidgetAttribute.WA_Moved):
+        return False
+    screen = screen_for_widget(owner)
+    if screen is None:
+        return False
+    frame = _centred_dialog_frame(owner.frameGeometry(), dialog.frameGeometry().size(),
+                                 screen.availableGeometry())
+    dialog.move(frame.topLeft())
+    return True
+
+
 class _DetachEveryDialog:
     """Application-wide filter: every dialog is a window the user can drag,
     and one the user can resize.
@@ -790,6 +889,7 @@ class _DetachEveryDialog:
                 return False
             polished = kind == self._polish
             if polished and isinstance(obj, self._dialog):
+                _prepare_dialog_owner(obj)
                 if obj.property(_GLASS_DETACHED):
                     obj.setProperty(FILTER_DETACHED, True)
                 elif not obj.property(FILTER_DETACHED):
@@ -797,8 +897,11 @@ class _DetachEveryDialog:
                     detach_from_window_manager(obj)
             if wants_resizing(obj):
                 make_the_window_resizable(obj)
-            if kind == self._show and obj.property(OPENS_AT) is not None:
-                open_at_its_natural_size(obj)
+            if kind == self._show:
+                if obj.property(OPENS_AT) is not None:
+                    open_at_its_natural_size(obj)
+                if isinstance(obj, self._dialog):
+                    _place_dialog_on_first_show(obj)
         except Exception:
             pass
         return False

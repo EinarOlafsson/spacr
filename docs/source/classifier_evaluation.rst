@@ -83,11 +83,14 @@ splitting so transformed copies cannot enter a held-out fold.
 Temperature calibration
 -----------------------
 
-``evaluation_calibration=temperature`` fits a scalar temperature without using
-a prediction to calibrate itself. For each held-out outer fold, the temperature
-is fit only from the other folds. Set it to ``none`` to retain raw model
-probabilities. ``evaluation_bins`` controls the reliability table and expected
-calibration error resolution.
+``evaluation_calibration=temperature`` requires predictions from at least two
+folds. For each held-out outer fold, it fits a scalar temperature only from
+the other folds. If that fit fails, for example because the other folds lack
+two classes, that fold retains its raw probabilities with temperature 1.
+The warning is printed and saved in ``calibration_warnings``; check it before
+interpreting the calibrated results. Set the option to ``none`` to retain raw
+model probabilities. ``evaluation_bins`` controls the reliability table and
+expected calibration error resolution.
 
 Evaluation bundle
 -----------------

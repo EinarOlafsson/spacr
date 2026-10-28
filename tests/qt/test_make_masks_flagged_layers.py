@@ -72,7 +72,7 @@ def screen(qtbot, qt_theme_applied):
 NAMES = ("masks", "masks_suspect", "masks_model_wrong", "masks_model_right")
 
 
-def _open(screen, folder, require=None, mode=None):
+def _open(qtbot, screen, folder, require=None, mode=None):
     handed = {"layers": [str(folder / name) for name in NAMES],
               "save_to": None, "root": str(folder)}
     if require is not None:
@@ -82,6 +82,8 @@ def _open(screen, folder, require=None, mode=None):
     cli_make_masks._hand_over_layers(handed)
     assert screen.open_queue(build_queue(folder, order="name",
                                          include_reviewed=True))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
 
 
 def _settle(qtbot, screen):
@@ -128,8 +130,8 @@ def test_engine_flagged_pick_removes_restores_and_adds():
     assert engine._flagged_pick(BASE, [(2, WRONG)], 14, 14, 9, {}) == (None, None)
 
 
-def test_suspect_and_wrong_layers_are_flagged_and_reviewed_by_default(screen, folder):
-    _open(screen, folder)
+def test_suspect_and_wrong_layers_are_flagged_and_reviewed_by_default(qtbot, screen, folder):
+    _open(qtbot, screen, folder)
     flags = [layer["flagged"] for layer in screen._layers]
     assert flags == [False, True, True, False]
     assert screen._layer_only_flagged is True
@@ -144,8 +146,8 @@ def test_suspect_and_wrong_layers_are_flagged_and_reviewed_by_default(screen, fo
     assert screen._canvas.layer_source[1][0][2] is True
 
 
-def test_pick_on_a_flagged_object_works_with_the_base_hidden(screen, folder):
-    _open(screen, folder)
+def test_pick_on_a_flagged_object_works_with_the_base_hidden(qtbot, screen, folder):
+    _open(qtbot, screen, folder)
     screen._on_layer_visible(0, False)
     screen._on_layer_pick(3, 3)
     assert 1 not in screen._canvas.mask
@@ -169,7 +171,7 @@ def test_pick_on_a_flagged_object_works_with_the_base_hidden(screen, folder):
 
 
 def test_hidden_objects_are_saved_unchanged(screen, folder, qtbot):
-    _open(screen, folder)
+    _open(qtbot, screen, folder)
     screen._on_layer_pick(3, 3)
     screen._on_curate(True)
     _settle(qtbot, screen)
@@ -190,7 +192,7 @@ def test_hidden_objects_are_saved_unchanged(screen, folder, qtbot):
 ])
 def test_required_layers_choose_the_images(screen, folder, qtbot, require, mode,
                                            expected):
-    _open(screen, folder, require=require, mode=mode)
+    _open(qtbot, screen, folder, require=require, mode=mode)
     _settle(qtbot, screen)
     if require:
         qtbot.waitUntil(lambda: "match" in screen._layer_match_label.text(),
@@ -204,7 +206,7 @@ def test_required_layers_choose_the_images(screen, folder, qtbot, require, mode,
 
 def test_the_filter_starts_on_a_matching_image_and_changes_in_place(
         screen, folder, qtbot):
-    _open(screen, folder, require=("masks_suspect",))
+    _open(qtbot, screen, folder, require=("masks_suspect",))
     _settle(qtbot, screen)
     screen._go_to_index(2)
     _settle(qtbot, screen)
@@ -222,7 +224,7 @@ def test_the_filter_starts_on_a_matching_image_and_changes_in_place(
 
 
 def test_flags_requirements_and_mode_are_kept(screen, folder, qtbot):
-    _open(screen, folder)
+    _open(qtbot, screen, folder)
     stored = json.loads((folder / "curate_layers.json").read_text())
     assert all("flagged" not in row and "required" not in row
                for row in stored["layers"])
@@ -242,7 +244,7 @@ def test_flags_requirements_and_mode_are_kept(screen, folder, qtbot):
     assert stored["require_mode"] == "all" and stored["show_only_flagged"] is False
     again = MakeMasksScreen()
     try:
-        _open(again, folder)
+        _open(qtbot, again, folder)
         _settle(qtbot, again)
         assert [layer["flagged"] for layer in again._layers] == [False, True, False, True]
         assert [layer["required"] for layer in again._layers] == [False, True, False, False]
@@ -264,6 +266,8 @@ def test_unflagged_layers_change_nothing(screen, tmp_path, qtbot):
         "layers": [str(root / "masks"), str(root / "model_a")],
         "save_to": None, "root": str(root)})
     assert screen.open_queue(build_queue(root, order="name", include_reviewed=True))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._canvas.display_ids is None
     assert not screen._layer_only_flagged_box.isEnabled()
     stored = json.loads((root / "curate_layers.json").read_text())
@@ -307,7 +311,7 @@ def test_engine_merge_fills_only_background_with_new_ids():
 
 
 def test_merge_visible_layers_is_one_step_and_is_logged(screen, folder, qtbot):
-    _open(screen, folder)
+    _open(qtbot, screen, folder)
     screen._on_layer_visible(2, False)
     assert screen._on_merge_layers() is False, "a hidden layer was merged"
     screen._on_layer_visible(2, True)
@@ -326,11 +330,11 @@ def test_merge_visible_layers_is_one_step_and_is_logged(screen, folder, qtbot):
                               "ids": [merged], "source_ids": [5]}]
 
 
-def test_only_flagged_layers_are_merged_while_showing_only_flagged(screen, folder):
+def test_only_flagged_layers_are_merged_while_showing_only_flagged(qtbot, screen, folder):
     extra = _labels((9, (26, 30, 10, 14)))
     for index in range(4):
         imageio.imwrite(folder / "masks_model_right" / f"f_{index}.tif", extra)
-    _open(screen, folder)
+    _open(qtbot, screen, folder)
     screen._on_layer_visible(2, False)
     assert screen._on_merge_layers() is False
     screen._layer_only_flagged_box.setChecked(False)
@@ -363,7 +367,7 @@ def _edit_and(screen, path, qtbot):
 @pytest.mark.parametrize("overwrite", [False, True])
 def test_every_save_path_follows_the_save_target(screen, folder, qtbot, path,
                                                  overwrite):
-    _open(screen, folder)
+    _open(qtbot, screen, folder)
     _settle(qtbot, screen)
     originals = {p.name: p.read_bytes() for p in (folder / "masks").glob("*.tif")}
     if overwrite:
@@ -385,13 +389,13 @@ def test_every_save_path_follows_the_save_target(screen, folder, qtbot, path,
                 for p in (folder / "masks").glob("*.tif")} == originals
 
 
-def test_a_new_layer_does_not_take_a_stored_layers_colour(screen, folder):
+def test_a_new_layer_does_not_take_a_stored_layers_colour(qtbot, screen, folder):
     stored = {"layers": [
         {"path": str(folder / "masks"), "colour": "#00e5ff", "visible": True},
         {"path": str(folder / "masks_model_right"), "colour": "#ffd60a", "visible": True},
         {"path": str(folder / "masks_model_wrong"), "colour": "#ff4d6d", "visible": True}]}
     (folder / "curate_layers.json").write_text(json.dumps(stored))
-    _open(screen, folder)
+    _open(qtbot, screen, folder)
     colours = [layer["colour"] for layer in screen._layers]
     assert len(set(colours)) == 4, colours
     assert colours[1] == "#7cff6b"

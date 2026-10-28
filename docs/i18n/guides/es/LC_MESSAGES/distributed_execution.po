@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-15 15:26-0400\n"
+"POT-Creation-Date: 2026-10-28 13:35-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: es\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -28,8 +28,9 @@ msgstr "spaCR puede enviar cualquier módulo expuesto por ``spacr-run`` a otra e
 msgid "Execution profiles"
 msgstr "Perfiles de ejecución"
 
-msgid "An execution profile describes *how to reach compute*, not an analysis. Profiles never store passwords or API keys:"
-msgstr "Un perfil de ejecución describe *cómo llegar a los recursos de cálculo*, no un análisis. Los perfiles nunca guardan contraseñas ni claves de API:"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "An execution profile describes *how to reach compute*, not an analysis. Connection options and command/script templates are saved in the local profile JSON. Keep passwords and API keys out of those templates: their text is stored as entered. Built-in SSH sign-in can optionally remember the login password in the operating-system keychain, not in the profile; one-time codes are not saved. The execution backends are:"
+msgstr "Un perfil de ejecución describe *cómo acceder a recursos de cómputo*, no un análisis. Las opciones de conexión y las plantillas de comandos o scripts se guardan en el JSON local del perfil. No introduzca contraseñas ni claves de API en esas plantillas: su texto se guarda tal como se introduce. El inicio de sesión SSH integrado puede recordar opcionalmente la contraseña en el llavero del sistema operativo, no en el perfil; no se guardan códigos de un solo uso. Los sistemas de ejecución son:"
 
 msgid "``SSH workstation``"
 msgstr "``SSH workstation``"
@@ -51,8 +52,9 @@ msgstr "``Cloud / custom command``"
 msgid "Runs configured submit/status/cancel argument templates. This supports cloud CLIs and site-specific schedulers without embedding vendor credentials in spaCR. The command must print a job identifier containing only letters, digits and ``_.:+-``, and the status command should print a conventional state such as ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` or ``CANCELLED``."
 msgstr "Ejecuta plantillas de argumentos configuradas para enviar, consultar el estado y cancelar. Esto admite CLI de nube y planificadores propios de cada centro sin incrustar credenciales de proveedores en spaCR. El comando debe imprimir un identificador de trabajo que contenga solo letras, dígitos y ``_.:+-``, y el comando de estado debe imprimir un estado convencional como ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` o ``CANCELLED``."
 
-msgid "Configure SSH keys, cloud authentication and VPN access outside spaCR. Test the same connection in a terminal before submitting a long run."
-msgstr "Configure las claves SSH, la autenticación en la nube y el acceso VPN fuera de spaCR. Pruebe la misma conexión en una terminal antes de enviar una ejecución larga."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Configure SSH keys, cloud CLI authentication and VPN access outside spaCR. Built-in interactive SSH sign-in can instead prompt for a password and second factor in spaCR. Check the selected sign-in route before submitting a long run."
+msgstr "Configure las claves SSH, la autenticación de las CLI de nube y el acceso VPN fuera de spaCR. Como alternativa, el inicio de sesión SSH interactivo integrado puede pedir una contraseña y un segundo factor en spaCR. Compruebe la vía de inicio de sesión seleccionada antes de enviar una ejecución larga."
 
 msgid "Shared data and path mapping"
 msgstr "Datos compartidos y asignación de rutas"
@@ -261,6 +263,36 @@ msgstr "usar una sesión SSH persistente y verificada con solicitudes gráficas 
 msgid "remember the login password, never one-time codes or push answers, in the operating-system keychain; off by default."
 msgstr "recordar la contraseña de inicio de sesión, nunca códigos de un solo uso ni respuestas push, en el llavero del sistema operativo; desactivado de forma predeterminada."
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "how spaCR signs in: ``openssh`` (SSH config, keys, agent and ControlMaster reuse), ``interactive`` (password and second-factor prompts shown in spaCR), ``gssapi`` (Kerberos ticket) or ``custom`` (the user's own SSH command). Blank follows ``ssh_interactive``."
+msgstr "cómo inicia sesión spaCR: ``openssh`` (configuración SSH, claves, agente y reutilización de ControlMaster), ``interactive`` (contraseña y segundo factor solicitados en spaCR), ``gssapi`` (ticket Kerberos) o ``custom`` (comando SSH propio del usuario). Si está vacío, sigue ``ssh_interactive``."
+
+# AI technical review (Codex), no native-speaker signoff.
+#, python-brace-format
+msgid "custom SSH command for ``custom`` sign-in; ``{host}`` is the target and ``{command}`` the remote command, appended when absent. It may not carry a password."
+msgstr "comando SSH propio para el inicio de sesión ``custom``; ``{host}`` es el destino y ``{command}`` el comando remoto, que se añade si falta. No puede contener una contraseña."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "scheduler resources: partition, account, qos, gpus, gpu_type, cpus, mem, time, nodes, mail_type, mail_user and extra scheduler lines."
+msgstr "recursos del planificador: partition, account, qos, gpus, gpu_type, cpus, mem, time, nodes, mail_type, mail_user y líneas adicionales del planificador."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "shell lines that prepare the remote environment before spaCR runs, such as ``module load mamba`` and ``mamba activate spacr``."
+msgstr "líneas de shell que preparan el entorno remoto antes de ejecutar spaCR, como ``module load mamba`` y ``mamba activate spacr``."
+
+# AI technical review (Codex), no native-speaker signoff.
+#, python-brace-format
+msgid "editable job-script template with placeholders such as ``{settings_path}`` and ``{run_command}``; blank uses the backend's default script."
+msgstr "plantilla editable de script del trabajo con marcadores como ``{settings_path}`` y ``{run_command}``; si está vacía, usa el script predeterminado del backend."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "comma-separated host-name patterns of login nodes on which spaCR must never run compute."
+msgstr "patrones de nombres de hosts separados por comas para nodos de acceso donde spaCR nunca debe ejecutar cómputo."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "explicit opt-in to run directly over SSH on a host with no scheduler, skipping the login-node refusal."
+msgstr "aceptación explícita para ejecutar directamente por SSH en un host sin planificador, omitiendo el rechazo de nodos de acceso."
+
 msgid "Construct and validate a profile from JSON-compatible data."
 msgstr "Construye y valida un perfil a partir de datos compatibles con JSON."
 
@@ -380,6 +412,14 @@ msgstr "último fallo de envío, consulta o cancelación; se borra tras una actu
 
 msgid "submission-time profile snapshot, retained so the job remains operable after profile edits or deletion."
 msgstr "instantánea del perfil en el momento del envío, conservada para que el trabajo siga siendo operable después de editar o eliminar el perfil."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "the rendered job script exactly as it was sent."
+msgstr "el script del trabajo generado, exactamente como se envió."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "the scheduler allocation the job runs inside, or blank for a batch job."
+msgstr "la asignación del planificador dentro de la que se ejecuta el trabajo, o vacío para un trabajo por lotes."
 
 msgid "Construct a job from a stored mapping, tolerating future fields."
 msgstr "Construye un trabajo a partir de un mapeo guardado, tolerando campos futuros."

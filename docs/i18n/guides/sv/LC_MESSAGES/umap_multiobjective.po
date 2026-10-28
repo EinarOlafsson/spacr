@@ -1,5 +1,5 @@
 # spaCR user guide translation (sv).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-28 13:35-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -41,15 +41,17 @@ msgstr "Det geometriska medelvärdet av pålitlighet (trustworthiness) och konti
 msgid "``stability``"
 msgstr "``stability``"
 
-msgid "The mean fraction of nearest neighbours shared by embeddings fitted with different reproducible seeds. It is invariant to rotations and reflections. A visually striking feature that disappears between repeats is not stable structure."
-msgstr "Den genomsnittliga andelen närmaste grannar som delas av inbäddningar som anpassats med olika reproducerbara slumpfrön. Måttet är invariant under rotationer och speglingar. En visuellt slående egenskap som försvinner mellan upprepningar är inte stabil struktur."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The mean fraction of nearest neighbours shared by embeddings fitted with different reproducible seeds. It is invariant to rotations and reflections. The stability neighbourhood is capped at one fewer than the row count; comparing every other row gives a score of 1 regardless of local structure. Use a smaller neighbourhood to assess repeat-to-repeat local agreement."
+msgstr "Medelvärdet av andelen närmaste grannar som delas av inbäddningar anpassade med olika reproducerbara frön. Måttet är invariant mot rotationer och speglingar. Stabilitetens grannskap begränsas till en mindre än antalet rader; om alla andra rader jämförs blir poängen 1 oavsett lokal struktur. Använd ett mindre grannskap för att bedöma lokal överensstämmelse mellan upprepningar."
 
 msgid "``cluster_structure``"
 msgstr "``cluster_structure``"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The silhouette coefficient clipped to the range 0 to 1, so negative values score 0. When labels are supplied through the Python API they define the partition. Otherwise spaCR fits seeded K-means partitions with 2 through 8 clusters (at most one fewer than the number of rows) and reports the highest silhouette together with the selected cluster counts. This is evidence of geometric structure, not proof that a cluster is biological."
-msgstr "Silhuettkoefficienten begränsad till intervallet 0 till 1, så negativa värden ger 0. När etiketter anges via Python-API:t definierar de partitionen. Annars anpassar spaCR K-means-partitioner med fast frö och 2 till 8 kluster (högst ett färre än antalet rader) och rapporterar den högsta silhuetten tillsammans med de valda klusterantalen. Detta är belägg för geometrisk struktur, inte bevis för att ett kluster är biologiskt."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The silhouette coefficient clipped to the range 0 to 1, so negative values score 0. Labels supplied through the Python API define the partition only when their length matches the rows and they contain at least two classes but fewer classes than rows. Otherwise spaCR uses seeded K-means partitions with 2 through 8 clusters (at most one fewer than the number of rows), requiring at least four rows, and selects the highest silhouette among valid partitions. If no partition resolves, the score is zero and ``cluster_structure_method`` is ``no_resolved_clusters``. Check that field and the selected cluster counts to see which partition was used. This measures geometric structure, not biological identity."
+msgstr "Silhuettkoefficienten begränsad till intervallet 0 till 1, så negativa värden får poängen 0. Etiketter som anges via Python-API:t definierar partitionen endast när deras antal motsvarar raderna och de innehåller minst två klasser men färre klasser än rader. Annars använder spaCR K-means-partitioner med satta frön och 2 till 8 kluster (högst en mindre än antalet rader), vilket kräver minst fyra rader, och väljer högsta silhuettvärdet bland giltiga partitioner. Om ingen partition kan lösas är poängen noll och ``cluster_structure_method`` är ``no_resolved_clusters``. Kontrollera det fältet och de valda klusterantalen för att se vilken partition som användes. Detta mäter geometrisk struktur, inte biologisk identitet."
 
 msgid "The three weights are normalized to sum to one. Their weighted geometric mean is called ``multi_objective`` and guides the grid or adaptive search. The geometric mean penalizes a collapsed objective more strongly than an arithmetic average."
 msgstr "De tre vikterna normaliseras så att de summerar till ett. Deras viktade geometriska medelvärde kallas ``multi_objective`` och styr rutnätssökningen eller den adaptiva sökningen. Det geometriska medelvärdet bestraffar ett kollapsat mål hårdare än ett aritmetiskt medelvärde."

@@ -1067,6 +1067,34 @@ _METADATA_CONVENTIONS = (
         "status": "confirmed",
     },
     {
+        "key": "scanr_indexed",
+        "label": "ScanR indexed (--W00002--P00001; explicit well map)",
+        "vendor": "Olympus / Evident",
+        "instrument": "ScanR high-content screening station",
+        "pattern": (
+            r"--(?P<wellID>W\d{5})--P(?P<fieldID>\d{5})"
+            r"--Z(?P<sliceID>\d{5})--T(?P<timeID>\d{5})"
+            r"--(?P<chanID>[^.]+)\.(?i:{ext})$"),
+        "ext": "suffix",
+        "examples": (
+            "--W00002--P00001--Z00000--T00000--nucleus-dapi.tif",
+            "--W00002--P00001--Z00000--T00000--pm-647.tif",
+        ),
+        "groups": {
+            "wellID": "opaque acquisition W index; explicit plate/index/well map required",
+            "fieldID": "position within the indexed well",
+            "sliceID": "zero-based Z plane", "timeID": "zero-based time point",
+            "chanID": "channel name",
+        },
+        "source": (
+            "Observed complete filenames in the public OME ScanR idr0009 "
+            "0307-10--2007-05-30/data directory: "
+            "https://downloads.openmicroscopy.org/images/ScanR/idr0009/"
+            "0307-10--2007-05-30/data/ . The descriptor's well comments "
+            "are blank; W indices do not establish physical plate geometry."),
+        "status": "confirmed",
+    },
+    {
         "key": "scanr",
         "label": "ScanR (A1--W00001--P00001--Z00000--T00000--Channel)",
         "vendor": "Olympus / Evident",
@@ -1439,6 +1467,7 @@ _METADATA_ZERO_BASED = {
     "arrayscan_kinetic": ("fieldID", "chanID"),
     "evos": ("chanID",),
     "scanr": ("sliceID", "timeID"),
+    "scanr_indexed": ("sliceID", "timeID"),
     "leica_matrix_screener": ("timeID", "sliceID", "chanID"),
     "leica_lasx_series": ("sliceID", "chanID"),
     "leica_lasx_series_time": ("fieldID", "timeID", "sliceID", "chanID"),

@@ -1,5 +1,5 @@
 # spaCR user guide translation (is).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:05-0400\n"
+"POT-Creation-Date: 2026-10-28 13:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -26,8 +26,9 @@ msgstr "Skýra CV-líkön og rannsaka marktækar niðurstöður"
 msgid "spaCR provides three separate analyses that answer different questions:"
 msgstr "spaCR býður upp á þrjár aðskildar greiningar sem svara ólíkum spurningum:"
 
-msgid "activation or occlusion maps show **where** a vision model attended;"
-msgstr "virkjunar- eða huliðskort sýna **hvar** sjónlíkan beindi athygli sinni;"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "gradient-based maps estimate input contributions to a selected model output, while occlusion maps measure output changes when image regions are replaced;"
+msgstr "kort byggð á stiglum meta framlag inntaks til valins úttaks líkans, en hulunarkort mæla breytingar á úttaki þegar myndsvæðum er skipt út;"
 
 msgid "the **Explain CV Model** module shows which measured morphology can reproduce the model's decisions; and"
 msgstr "einingin **Skýra CV-líkan** sýnir hvaða mælda formgerð getur endurskapað ákvarðanir líkansins; og"
@@ -100,8 +101,9 @@ msgstr "Upphaflega svipgerðarskorið er sjálfgefið útilokað úr formgerðar
 msgid "Quantitative evidence"
 msgstr "Megindlegar vísbendingar"
 
-msgid "The report uses wells, not cells, as the independent experimental unit. It reports target-versus-control candidate prevalence, a well-bootstrap interval, a plate-blocked permutation test, guide-dose response, guide-specific effects, and two stricter nulls. The stricter guide-fraction and well-label nulls repeat the cross-fitting pipeline inside every permutation rather than shuffling only the final summary labels."
-msgstr "Skýrslan notar brunna, ekki frumur, sem óháðu tilraunaeininguna. Hún tilkynnir tíðni kandídata í mark- á móti viðmiðunarbrunnum, bootstrap-bil yfir brunna, umröðunarpróf með blokkun á plötum, skammtasvörun leiðara, leiðarasértæk áhrif og tvær strangari núlltilgátur. Strangari núlltilgátur um hlutfall leiðara og brunnmerki endurtaka víxlmátunarferlið innan hverrar umröðunar í stað þess að stokka aðeins lokamerki samantektarinnar."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The report uses wells, not cells, as the independent experimental unit. It reports target-versus-control candidate prevalence, a well-bootstrap interval, a plate-blocked permutation test, guide-dose response, and guide-specific effects. Configured guide-fraction and well-label nulls repeat cross-fitting inside each permutation. Investigate Hit requests 100 permutations per null by default through ``hit_pipeline_permutations``; zero disables them. Direct calls to ``fit_hit_attribution`` default to zero through ``n_pipeline_permutations``. For positive requests, the report records requested and completed counts; failed fits and permutations without both target-containing and target-free wells are omitted. Refitted-null p-values are unavailable when no permutations complete."
+msgstr "Skýrslan notar brunna, ekki frumur, sem óháða tilraunaeiningu. Hún sýnir hlutfall kandídata í markbrunnum samanborið við viðmiðunarbrunna, bootstrap-bil á brunnastigi, umröðunarpróf með plötublokkum, skammtasvörun leiðara og áhrif hvers leiðara. Stillt núlllíkön fyrir leiðarahlutföll og brunnamerkingar endurtaka krossaða aðlögun í hverri umröðun. Investigate Hit óskar sjálfgefið eftir 100 umröðunum fyrir hvert núlllíkan með ``hit_pipeline_permutations``; núll slekkur á þeim. Bein köll á ``fit_hit_attribution`` nota sjálfgefið núll með ``n_pipeline_permutations``. Fyrir jákvæðan umbeðinn fjölda skráir skýrslan umbeðinn fjölda og fjölda lokinna umröðana; aðlögunum sem mistakast og umröðunum án bæði markbrunna og markfrírra brunna er sleppt. P-gildi enduraðlagaðra núlllíkana eru ekki tiltæk ef engri umröðun er lokið."
 
 msgid "The two-dimensional comparison is a PCA fit only on target-free control-cell morphology and then used to transform all cells. Guide identity, target-well status, and the original classifier output are excluded. The exported table contains exact object keys and sample counts so a visual cluster can be traced back to its wells and images; the quantitative enrichment remains the primary claim."
 msgstr "Tvívíði samanburðurinn er PCA sem er aðeins mátað á formgerð viðmiðunarfrumna án marks og síðan notað til að umbreyta öllum frumum. Auðkenni leiðara, staða markbrunns og upphaflegt úttak flokkarans eru útilokuð. Útflutta taflan inniheldur nákvæma hlutalykla og sýnafjölda þannig að hægt er að rekja sjónrænan klasa aftur til brunna sinna og mynda; megindlega auðgunin er áfram aðalfullyrðingin."
