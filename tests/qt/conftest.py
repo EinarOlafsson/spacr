@@ -1374,6 +1374,33 @@ def hover_now():
     return hover
 
 
+@pytest.fixture
+def trace_mask_reader_native_jobs(monkeypatch):
+    """Let real mask-reader native workers inherit the public thread trace."""
+    import threading
+    from functools import wraps
+    from spacr.qt.screens.make_masks import _MaskLoadWorker, _MaskReaderMetadataWorker
+
+    def trace_run(original_run):
+        @wraps(original_run)
+        def traced_run(worker):
+            previous = sys.gettrace()
+            inherited = threading.gettrace()
+            installed = previous is None and inherited is not None
+            if installed:
+                sys.settrace(inherited)
+            try:
+                return original_run(worker)
+            finally:
+                if installed:
+                    sys.settrace(previous)
+
+        return traced_run
+
+    for worker_type in (_MaskReaderMetadataWorker, _MaskLoadWorker):
+        monkeypatch.setattr(worker_type, "run", trace_run(worker_type.run))
+
+
 @pytest.fixture(autouse=True)
 def _trace_owned_qc_native_jobs(request, monkeypatch):
     """Let owned QC jobs inherit the public Python thread trace on native workers."""

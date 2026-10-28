@@ -13,28 +13,7 @@ from spacr.qt.screens.make_masks import MakeMasksScreen, QInputDialog
 
 
 @pytest.fixture
-def screen(qtbot, monkeypatch):
-    import sys
-    import threading
-    from functools import wraps
-    from spacr.qt.screens.make_masks import _MaskReaderMetadataWorker
-
-    original_run = _MaskReaderMetadataWorker.run
-
-    @wraps(original_run)
-    def traced_run(worker):
-        previous = sys.gettrace()
-        inherited = threading.gettrace()
-        installed = previous is None and inherited is not None
-        if installed:
-            sys.settrace(inherited)
-        try:
-            return original_run(worker)
-        finally:
-            if installed:
-                sys.settrace(previous)
-
-    monkeypatch.setattr(_MaskReaderMetadataWorker, 'run', traced_run)
+def screen(qtbot, monkeypatch, trace_mask_reader_native_jobs):
     widget = MakeMasksScreen()
     qtbot.addWidget(widget)
     widget.warnings = []

@@ -10,7 +10,7 @@ from spacr.qt.screens.make_masks import MakeMasksScreen, QInputDialog
 
 
 @pytest.fixture
-def screen(qtbot, monkeypatch):
+def screen(qtbot, monkeypatch, trace_mask_reader_native_jobs):
     widget = MakeMasksScreen()
     qtbot.addWidget(widget)
     widget.warnings = []
