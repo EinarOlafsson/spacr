@@ -1,5 +1,5 @@
 # spaCR user guide translation (hi).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:05-0400\n"
+"POT-Creation-Date: 2026-10-28 13:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -26,8 +26,9 @@ msgstr "CV मॉडल समझाएँ और हिट की जाँच 
 msgid "spaCR provides three separate analyses that answer different questions:"
 msgstr "spaCR तीन अलग-अलग विश्लेषण प्रदान करता है जो अलग-अलग प्रश्नों का उत्तर देते हैं:"
 
-msgid "activation or occlusion maps show **where** a vision model attended;"
-msgstr "सक्रियण या अवरोधन मानचित्र दिखाते हैं कि दृष्टि मॉडल ने **कहाँ** ध्यान दिया;"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "gradient-based maps estimate input contributions to a selected model output, while occlusion maps measure output changes when image regions are replaced;"
+msgstr "ग्रेडिएंट-आधारित मानचित्र किसी चुने हुए मॉडल आउटपुट में इनपुट के योगदान का अनुमान लगाते हैं, जबकि ऑक्लूज़न मानचित्र छवि के क्षेत्रों को बदलने पर आउटपुट में होने वाले परिवर्तन मापते हैं;"
 
 msgid "the **Explain CV Model** module shows which measured morphology can reproduce the model's decisions; and"
 msgstr "**CV मॉडल समझाएँ** मॉड्यूल दिखाता है कि कौन-सी मापी गई आकृति मॉडल के निर्णयों को दोहरा सकती है; और"
@@ -100,8 +101,9 @@ msgstr "मूल फ़ेनोटाइप स्कोर डिफ़ॉल
 msgid "Quantitative evidence"
 msgstr "मात्रात्मक साक्ष्य"
 
-msgid "The report uses wells, not cells, as the independent experimental unit. It reports target-versus-control candidate prevalence, a well-bootstrap interval, a plate-blocked permutation test, guide-dose response, guide-specific effects, and two stricter nulls. The stricter guide-fraction and well-label nulls repeat the cross-fitting pipeline inside every permutation rather than shuffling only the final summary labels."
-msgstr "रिपोर्ट स्वतंत्र प्रायोगिक इकाई के रूप में कोशिकाओं के बजाय कूपों का उपयोग करती है। यह लक्ष्य-बनाम-नियंत्रण उम्मीदवार प्रसार, कूप-बूटस्ट्रैप अंतराल, प्लेट-अवरुद्ध क्रमचय परीक्षण, गाइड-मात्रा प्रतिक्रिया, गाइड-विशिष्ट प्रभाव और दो अधिक कठोर शून्य मॉडल की सूचना देती है। अधिक कठोर गाइड-अंश और कूप-लेबल शून्य मॉडल केवल अंतिम सारांश लेबलों को फेंटने के बजाय हर क्रमचय के भीतर क्रॉस-फ़िटिंग पाइपलाइन दोहराते हैं।"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The report uses wells, not cells, as the independent experimental unit. It reports target-versus-control candidate prevalence, a well-bootstrap interval, a plate-blocked permutation test, guide-dose response, and guide-specific effects. Configured guide-fraction and well-label nulls repeat cross-fitting inside each permutation. Investigate Hit requests 100 permutations per null by default through ``hit_pipeline_permutations``; zero disables them. Direct calls to ``fit_hit_attribution`` default to zero through ``n_pipeline_permutations``. For positive requests, the report records requested and completed counts; failed fits and permutations without both target-containing and target-free wells are omitted. Refitted-null p-values are unavailable when no permutations complete."
+msgstr "रिपोर्ट स्वतंत्र प्रायोगिक इकाई के रूप में कोशिकाओं के बजाय वेल का उपयोग करती है। इसमें लक्ष्य वाले वेल और नियंत्रण वेल में उम्मीदवारों की व्यापकता, वेल-स्तरीय बूटस्ट्रैप अंतराल, प्लेट के अनुसार ब्लॉक किया गया पर्म्यूटेशन परीक्षण, गाइड की मात्रा के प्रति प्रतिक्रिया और गाइड-विशिष्ट प्रभाव दिए जाते हैं। कॉन्फ़िगर किए गए गाइड-अंश और वेल-लेबल नल मॉडल हर पर्म्यूटेशन में क्रॉस-फ़िटिंग दोहराते हैं। Investigate Hit डिफ़ॉल्ट रूप से ``hit_pipeline_permutations`` के माध्यम से प्रत्येक नल मॉडल के लिए 100 पर्म्यूटेशन माँगता है; शून्य उन्हें अक्षम करता है। ``fit_hit_attribution`` को सीधे कॉल करने पर ``n_pipeline_permutations`` का डिफ़ॉल्ट शून्य है। धनात्मक अनुरोधों के लिए रिपोर्ट अनुरोधित और पूर्ण हुई संख्याएँ दर्ज करती है; असफल फ़िट और ऐसे पर्म्यूटेशन छोड़ दिए जाते हैं जिनमें लक्ष्य वाले और लक्ष्य-रहित दोनों प्रकार के वेल नहीं होते। कोई पर्म्यूटेशन पूरा न होने पर दोबारा फ़िट किए गए नल मॉडल के p-मूल्य उपलब्ध नहीं होते।"
 
 msgid "The two-dimensional comparison is a PCA fit only on target-free control-cell morphology and then used to transform all cells. Guide identity, target-well status, and the original classifier output are excluded. The exported table contains exact object keys and sample counts so a visual cluster can be traced back to its wells and images; the quantitative enrichment remains the primary claim."
 msgstr "द्विविमीय तुलना एक PCA है जो केवल लक्ष्य-रहित नियंत्रण-कोशिका आकृति पर फ़िट की जाती है और फिर सभी कोशिकाओं को रूपांतरित करने में उपयोग होती है। गाइड पहचान, लक्ष्य-कूप स्थिति और मूल वर्गीकारक आउटपुट बाहर रखे जाते हैं। निर्यात की गई तालिका में सटीक ऑब्जेक्ट कुंजियाँ और नमूना संख्याएँ होती हैं ताकि किसी दृश्य क्लस्टर को उसके कूपों और छवियों तक खोजा जा सके; मात्रात्मक संवर्धन ही प्राथमिक दावा रहता है।"

@@ -1,5 +1,5 @@
 # spaCR user guide translation (es).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:05-0400\n"
+"POT-Creation-Date: 2026-10-28 13:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: es\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -26,8 +26,9 @@ msgstr "Explicar modelos CV e investigar candidatos"
 msgid "spaCR provides three separate analyses that answer different questions:"
 msgstr "spaCR ofrece tres análisis independientes que responden a preguntas distintas:"
 
-msgid "activation or occlusion maps show **where** a vision model attended;"
-msgstr "los mapas de activación u oclusión muestran **dónde** prestó atención un modelo de visión;"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "gradient-based maps estimate input contributions to a selected model output, while occlusion maps measure output changes when image regions are replaced;"
+msgstr "los mapas basados en gradientes estiman las contribuciones de la entrada a una salida seleccionada del modelo, mientras que los mapas de oclusión miden los cambios de salida al sustituir regiones de la imagen;"
 
 msgid "the **Explain CV Model** module shows which measured morphology can reproduce the model's decisions; and"
 msgstr "el módulo **Explicar modelo CV** muestra qué morfología medida puede reproducir las decisiones del modelo; y"
@@ -100,8 +101,9 @@ msgstr "La puntuación fenotípica original se excluye del modelo morfológico d
 msgid "Quantitative evidence"
 msgstr "Evidencia cuantitativa"
 
-msgid "The report uses wells, not cells, as the independent experimental unit. It reports target-versus-control candidate prevalence, a well-bootstrap interval, a plate-blocked permutation test, guide-dose response, guide-specific effects, and two stricter nulls. The stricter guide-fraction and well-label nulls repeat the cross-fitting pipeline inside every permutation rather than shuffling only the final summary labels."
-msgstr "El informe usa los pocillos, no las células, como unidad experimental independiente. Informa de la prevalencia de candidatos en diana frente a control, un intervalo bootstrap por pocillos, una prueba de permutación bloqueada por placa, la relación dosis-respuesta de las guías, los efectos específicos de cada guía y dos hipótesis nulas más estrictas. Las nulas más estrictas de fracción de guías y de etiquetas de pocillo repiten la canalización de ajuste cruzado dentro de cada permutación en lugar de barajar solo las etiquetas del resumen final."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The report uses wells, not cells, as the independent experimental unit. It reports target-versus-control candidate prevalence, a well-bootstrap interval, a plate-blocked permutation test, guide-dose response, and guide-specific effects. Configured guide-fraction and well-label nulls repeat cross-fitting inside each permutation. Investigate Hit requests 100 permutations per null by default through ``hit_pipeline_permutations``; zero disables them. Direct calls to ``fit_hit_attribution`` default to zero through ``n_pipeline_permutations``. For positive requests, the report records requested and completed counts; failed fits and permutations without both target-containing and target-free wells are omitted. Refitted-null p-values are unavailable when no permutations complete."
+msgstr "El informe usa los pocillos, no las células, como unidad experimental independiente. Presenta la prevalencia de candidatos en pocillos con la diana frente a controles, un intervalo bootstrap por pocillo, una prueba de permutación bloqueada por placa, la respuesta a la dosis de guías y efectos específicos de cada guía. Los modelos nulos configurados de fracción de guías y etiquetas de pocillos repiten el ajuste cruzado en cada permutación. Investigate Hit solicita por defecto 100 permutaciones por modelo nulo mediante ``hit_pipeline_permutations``; cero las desactiva. Las llamadas directas a ``fit_hit_attribution`` usan por defecto cero mediante ``n_pipeline_permutations``. Para solicitudes positivas, el informe registra los recuentos solicitados y completados; se omiten los ajustes fallidos y las permutaciones sin ambos tipos de pocillos, con y sin la diana. Los valores p de los modelos nulos reajustados no están disponibles si no se completa ninguna permutación."
 
 msgid "The two-dimensional comparison is a PCA fit only on target-free control-cell morphology and then used to transform all cells. Guide identity, target-well status, and the original classifier output are excluded. The exported table contains exact object keys and sample counts so a visual cluster can be traced back to its wells and images; the quantitative enrichment remains the primary claim."
 msgstr "La comparación bidimensional es un PCA ajustado solo a la morfología de células de control sin diana y usado después para transformar todas las células. Se excluyen la identidad de las guías, el estado de pocillo diana y la salida del clasificador original. La tabla exportada contiene las claves de objeto exactas y los recuentos de muestras, de modo que un grupo visual puede rastrearse hasta sus pocillos e imágenes; el enriquecimiento cuantitativo sigue siendo la afirmación principal."

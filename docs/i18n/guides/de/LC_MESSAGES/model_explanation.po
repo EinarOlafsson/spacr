@@ -1,5 +1,5 @@
 # spaCR user guide translation (de).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:05-0400\n"
+"POT-Creation-Date: 2026-10-28 13:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: de\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -26,8 +26,9 @@ msgstr "CV-Modelle erklären und Treffer untersuchen"
 msgid "spaCR provides three separate analyses that answer different questions:"
 msgstr "spaCR bietet drei getrennte Analysen, die unterschiedliche Fragen beantworten:"
 
-msgid "activation or occlusion maps show **where** a vision model attended;"
-msgstr "Aktivierungs- oder Okklusionskarten zeigen, **wohin** ein Bildverarbeitungsmodell seine Aufmerksamkeit gerichtet hat;"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "gradient-based maps estimate input contributions to a selected model output, while occlusion maps measure output changes when image regions are replaced;"
+msgstr "gradientenbasierte Karten schätzen die Beiträge der Eingaben zu einer ausgewählten Modellausgabe; Okklusionskarten messen dagegen Änderungen der Ausgabe, wenn Bildbereiche ersetzt werden;"
 
 msgid "the **Explain CV Model** module shows which measured morphology can reproduce the model's decisions; and"
 msgstr "das Modul **CV-Modell erklären** zeigt, welche gemessene Morphologie die Entscheidungen des Modells reproduzieren kann; und"
@@ -100,8 +101,9 @@ msgstr "Der ursprüngliche Phänotyp-Score ist standardmäßig vom Morphologiemo
 msgid "Quantitative evidence"
 msgstr "Quantitative Evidenz"
 
-msgid "The report uses wells, not cells, as the independent experimental unit. It reports target-versus-control candidate prevalence, a well-bootstrap interval, a plate-blocked permutation test, guide-dose response, guide-specific effects, and two stricter nulls. The stricter guide-fraction and well-label nulls repeat the cross-fitting pipeline inside every permutation rather than shuffling only the final summary labels."
-msgstr "Der Bericht verwendet Wells und nicht Zellen als unabhängige experimentelle Einheit. Er meldet die Prävalenz von Kandidaten in Ziel- gegenüber Kontroll-Wells, ein Well-Bootstrap-Intervall, einen plattenweise geblockten Permutationstest, die Guide-Dosis-Wirkungs-Beziehung, guidespezifische Effekte und zwei strengere Nullmodelle. Die strengeren Nullmodelle für Guide-Anteile und Well-Labels wiederholen die Cross-Fitting-Pipeline innerhalb jeder Permutation, statt nur die abschließenden Zusammenfassungslabels zu mischen."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The report uses wells, not cells, as the independent experimental unit. It reports target-versus-control candidate prevalence, a well-bootstrap interval, a plate-blocked permutation test, guide-dose response, and guide-specific effects. Configured guide-fraction and well-label nulls repeat cross-fitting inside each permutation. Investigate Hit requests 100 permutations per null by default through ``hit_pipeline_permutations``; zero disables them. Direct calls to ``fit_hit_attribution`` default to zero through ``n_pipeline_permutations``. For positive requests, the report records requested and completed counts; failed fits and permutations without both target-containing and target-free wells are omitted. Refitted-null p-values are unavailable when no permutations complete."
+msgstr "Der Bericht verwendet Wells, nicht Zellen, als unabhängige experimentelle Einheit. Er berichtet die Kandidatenprävalenz in Ziel- gegenüber Kontroll-Wells, ein Bootstrap-Intervall auf Well-Ebene, einen nach Platten geblockten Permutationstest, eine Guide-Dosis-Wirkungs-Beziehung und Guide-spezifische Effekte. Konfigurierte Nullmodelle für Guide-Anteile und Well-Labels wiederholen die Kreuzanpassung innerhalb jeder Permutation. Investigate Hit fordert über ``hit_pipeline_permutations`` standardmäßig 100 Permutationen pro Nullmodell an; null deaktiviert sie. Direkte Aufrufe von ``fit_hit_attribution`` verwenden über ``n_pipeline_permutations`` standardmäßig null. Bei positiven Anforderungen gibt der Bericht die angeforderten und abgeschlossenen Anzahlen an; fehlgeschlagene Anpassungen und Permutationen ohne sowohl zielhaltige als auch zielfreie Wells werden ausgelassen. P-Werte der neu angepassten Nullmodelle sind nicht verfügbar, wenn keine Permutationen abgeschlossen werden."
 
 msgid "The two-dimensional comparison is a PCA fit only on target-free control-cell morphology and then used to transform all cells. Guide identity, target-well status, and the original classifier output are excluded. The exported table contains exact object keys and sample counts so a visual cluster can be traced back to its wells and images; the quantitative enrichment remains the primary claim."
 msgstr "Der zweidimensionale Vergleich ist eine PCA, die nur an der Morphologie zielfreier Kontrollzellen angepasst und dann zur Transformation aller Zellen verwendet wird. Guide-Identität, Zielwell-Status und die ursprüngliche Klassifikatorausgabe sind ausgeschlossen. Die exportierte Tabelle enthält exakte Objektschlüssel und Stichprobenzahlen, sodass sich ein visueller Cluster bis zu seinen Wells und Bildern zurückverfolgen lässt; die quantitative Anreicherung bleibt die primäre Aussage."
