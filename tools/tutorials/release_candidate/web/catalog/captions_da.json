@@ -881,11 +881,6 @@
             1200,
             1500
           ]
-        },
-        {
-          "visual": "24_spaceout_field",
-          "narration": "I Spaceout-tilstand har Preferences spaCR-feltkontroller til otte uafhængige effekter. Tænd eller sluk hver effekt separat. De sædvanlige kontroller til udseende og animation af indstillingsvinduet er stadig tilgængelige; Apply viser en forhåndsvisning af en ændring, Keep accepterer den, og Revert gendanner det tidligere valg.",
-          "hold_after": 0.7
         }
       ],
       "narration_voices": {

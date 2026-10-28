@@ -881,11 +881,6 @@
             1200,
             1500
           ]
-        },
-        {
-          "visual": "24_spaceout_field",
-          "narration": "Í Spaceout-ham býður Preferences spaCR-sviðsstýringar fyrir átta óháð áhrif. Kveiktu eða slökktu á hverjum áhrifavalkosti fyrir sig. Venjulegar stýringar fyrir útlit og hreyfingar í stillingaglugganum eru áfram tiltækar; Apply forskoðar breytingu, Keep samþykkir hana og Revert endurheimtir fyrra val.",
-          "hold_after": 0.7
         }
       ],
       "narration_voices": {

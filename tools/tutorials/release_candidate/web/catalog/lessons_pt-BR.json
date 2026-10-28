@@ -983,12 +983,6 @@
             1500
           ],
           "speech_text": "Prune now nunca apaga sem perguntar. Com um limite de exemplo curto para as pastas de execução, ele lista o que apagaria em cada pasta e espera uma resposta. Clique em Cancel e nada é removido."
-        },
-        {
-          "visual": "24_spaceout_field",
-          "narration": "No modo Spaceout, Preferences oferece controles do campo spaCR para oito efeitos independentes. Ative ou desative cada efeito separadamente. Os controles habituais de aparência e animação das janelas continuam disponíveis; Apply mostra a prévia de uma alteração, Keep a aceita e Revert restaura a opção anterior.",
-          "hold_after": 0.7,
-          "speech_text": "No modo Spaceout, Preferences oferece controles do campo espáquer para oito efeitos independentes. Ative ou desative cada efeito separadamente. Os controles habituais de aparência e animação das janelas continuam disponíveis; Apply mostra a prévia de uma alteração, Keep a aceita e Revert restaura a opção anterior."
         }
       ],
       "narration_voices": {

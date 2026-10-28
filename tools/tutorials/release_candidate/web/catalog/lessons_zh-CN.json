@@ -983,12 +983,6 @@
             1500
           ],
           "speech_text": "Prune now 绝不会不经询问就删除。为运行文件夹设置一个较短的示例上限后，它会列出每个文件夹中将要删除的内容并等待回答。点击 Cancel，则不会删除任何内容。"
-        },
-        {
-          "visual": "24_spaceout_field",
-          "narration": "在Spaceout模式下，Preferences提供八种独立效果的spaCR场控制。各个效果可以分别开启或关闭。常规外观和设置窗口的动画控件仍然可用；Apply预览更改，Keep接受更改，Revert恢复先前的选择。",
-          "hold_after": 0.7,
-          "speech_text": "在Spaceout模式下，Preferences提供八种独立效果的斯佩克尔场控制。各个效果可以分别开启或关闭。常规外观和设置窗口的动画控件仍然可用；Apply预览更改，Keep接受更改，Revert恢复先前的选择。"
         }
       ],
       "narration_voices": {

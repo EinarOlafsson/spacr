@@ -983,12 +983,6 @@
             1500
           ],
           "speech_text": "Prune now ne supprime jamais sans demander. Avec une limite d’exemple courte pour les dossiers d’exécution, il liste ce qu’il supprimerait dans chaque dossier et attend une réponse. Cliquez sur Cancel et rien n’est supprimé."
-        },
-        {
-          "visual": "24_spaceout_field",
-          "narration": "En mode Spaceout, Preferences propose des contrôles du champ spaCR pour huit effets indépendants. Activez ou désactivez chaque effet séparément. Les contrôles habituels d’apparence et d’animation des fenêtres restent disponibles ; Apply prévisualise une modification, Keep l’accepte et Revert rétablit le choix précédent.",
-          "hold_after": 0.7,
-          "speech_text": "En mode Spaceout, Preferences propose des contrôles du champ spakeur pour huit effets indépendants. Activez ou désactivez chaque effet séparément. Les contrôles habituels d’apparence et d’animation des fenêtres restent disponibles ; Apply prévisualise une modification, Keep l’accepte et Revert rétablit le choix précédent."
         }
       ],
       "narration_voices": {
