@@ -3,7 +3,7 @@ THE MASK MODULE KNOWS TWO MICROSCOPES, AND BOTH OF THEM ARE YOKOGAWA
 ================================================================================
 
 Lifecycle: new
-Status:    OPEN 2026-10-21 — repair detected folder metadata being replaced by synthetic channel IDs.
+Status:    OPEN — folder/ImageXpress/Etaluma import repairs and translated artifacts are delivered; documented vendor-evidence and unsupported naming variants remain.
 Previous status: DONE 2026-09-19 — Built, tested and pushed to nightly.
            The trailing notes at the end of this file are the current
            state; they list what was confirmed, what is provisional,

@@ -1,7 +1,7 @@
 SELF-SUPERVISED PRETRAINING (DINO) ON THE USER'S OWN UNLABELLED CROPS
 
 Lifecycle: future
-Status: BLOCKED ON MAINTAINER 2026-10-21 — software delivered; original numerical acceptance needs reliable access to the designated NAS backup or the recovered original records.
+Status: OPEN — software delivered; the 2026-10-24 authorization permits current-data DINO pretraining on the workstation GPU, and the numerical benchmark remains unfinished.
 Previous software status: DONE (alpha) 2026-09-28 (evidence dfe642354)
 VERIFIED 2026-10-04: test_dino_pretraining, qt/test_dino_pretrain_alpha_gate pass (nightly 85c3e41c2, CPU).
 Owner: Codex maintainer-input coordinator and retained benchmark-recovery worker.
