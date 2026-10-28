@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-15 15:26-0400\n"
+"POT-Creation-Date: 2026-10-28 13:35-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
@@ -28,8 +28,9 @@ msgstr "spaCR getur sent hvaða einingu sem ``spacr-run`` býður upp á til ann
 msgid "Execution profiles"
 msgstr "Keyrslusnið"
 
-msgid "An execution profile describes *how to reach compute*, not an analysis. Profiles never store passwords or API keys:"
-msgstr "Keyrslusnið lýsir *hvernig á að ná í reikniafl*, ekki greiningu. Snið geyma aldrei lykilorð eða API-lykla:"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "An execution profile describes *how to reach compute*, not an analysis. Connection options and command/script templates are saved in the local profile JSON. Keep passwords and API keys out of those templates: their text is stored as entered. Built-in SSH sign-in can optionally remember the login password in the operating-system keychain, not in the profile; one-time codes are not saved. The execution backends are:"
+msgstr "Keyrslusnið lýsir *hvernig er tengst reikniþjónustu*, ekki greiningu. Tengivalkostir og skipana-/skriftusniðmát eru vistuð í staðbundinni JSON-skrá sniðsins. Ekki setja lykilorð eða API-lykla í sniðmátin: textinn er vistaður eins og hann er sleginn inn. Innbyggð SSH-innskráning getur valfrjálst munað innskráningarlykilorðið í lyklakippu stýrikerfisins, ekki í sniðinu; einnota kóðar eru ekki vistaðir. Keyrslukerfin eru:"
 
 msgid "``SSH workstation``"
 msgstr "``SSH workstation``"
@@ -51,8 +52,9 @@ msgstr "``Cloud / custom command``"
 msgid "Runs configured submit/status/cancel argument templates. This supports cloud CLIs and site-specific schedulers without embedding vendor credentials in spaCR. The command must print a job identifier containing only letters, digits and ``_.:+-``, and the status command should print a conventional state such as ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` or ``CANCELLED``."
 msgstr "Keyrir stillt viðfangasniðmát fyrir sendingu/stöðu/afturköllun. Þetta styður skýja-CLI og staðbundna tímaáætlara án þess að fella auðkenni framleiðenda inn í spaCR. Skipunin verður að prenta auðkenni verks sem inniheldur aðeins bókstafi, tölustafi og ``_.:+-``, og stöðuskipunin ætti að prenta hefðbundna stöðu eins og ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` eða ``CANCELLED``."
 
-msgid "Configure SSH keys, cloud authentication and VPN access outside spaCR. Test the same connection in a terminal before submitting a long run."
-msgstr "Stilltu SSH-lykla, auðkenningu í skýi og VPN-aðgang utan spaCR. Prófaðu sömu tengingu í útstöð áður en löng keyrsla er send."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Configure SSH keys, cloud CLI authentication and VPN access outside spaCR. Built-in interactive SSH sign-in can instead prompt for a password and second factor in spaCR. Check the selected sign-in route before submitting a long run."
+msgstr "Stilltu SSH-lykla, auðkenningu fyrir skýjaskipanir og VPN-aðgang utan spaCR. Innbyggð gagnvirk SSH-innskráning getur þess í stað beðið um lykilorð og annan auðkenningarþátt í spaCR. Athugaðu valda innskráningarleið áður en þú sendir inn langa keyrslu."
 
 msgid "Shared data and path mapping"
 msgstr "Sameiginleg gögn og vörpun slóða"
@@ -261,6 +263,36 @@ msgstr "nota staðfesta, viðvarandi SSH-tengingu með grafískum spurningum fyr
 msgid "remember the login password, never one-time codes or push answers, in the operating-system keychain; off by default."
 msgstr "muna innskráningarlykilorðið, aldrei einnota kóða eða svör við ýtitilkynningum, í lyklakippu stýrikerfisins; óvirkt sjálfgefið."
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "how spaCR signs in: ``openssh`` (SSH config, keys, agent and ControlMaster reuse), ``interactive`` (password and second-factor prompts shown in spaCR), ``gssapi`` (Kerberos ticket) or ``custom`` (the user's own SSH command). Blank follows ``ssh_interactive``."
+msgstr "hvernig spaCR skráir sig inn: ``openssh`` (SSH-stillingar, lyklar, agent og endurnýting ControlMaster), ``interactive`` (lykilorð og annar auðkenningarþáttur beðinn í spaCR), ``gssapi`` (Kerberos-miði) eða ``custom`` (eigin SSH-skipun notanda). Tómt fylgir ``ssh_interactive``."
+
+# AI technical review (Codex), no native-speaker signoff.
+#, python-brace-format
+msgid "custom SSH command for ``custom`` sign-in; ``{host}`` is the target and ``{command}`` the remote command, appended when absent. It may not carry a password."
+msgstr "eigin SSH-skipun fyrir ``custom`` innskráningu; ``{host}`` er áfangastaðurinn og ``{command}`` fjarskipunin, sem er bætt við ef hún vantar. Hún má ekki innihalda lykilorð."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "scheduler resources: partition, account, qos, gpus, gpu_type, cpus, mem, time, nodes, mail_type, mail_user and extra scheduler lines."
+msgstr "tilföng verkröðunar: partition, account, qos, gpus, gpu_type, cpus, mem, time, nodes, mail_type, mail_user og aukalínur fyrir verkröðun."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "shell lines that prepare the remote environment before spaCR runs, such as ``module load mamba`` and ``mamba activate spacr``."
+msgstr "skeljalínur sem undirbúa fjartengda umhverfið áður en spaCR keyrir, svo sem ``module load mamba`` og ``mamba activate spacr``."
+
+# AI technical review (Codex), no native-speaker signoff.
+#, python-brace-format
+msgid "editable job-script template with placeholders such as ``{settings_path}`` and ``{run_command}``; blank uses the backend's default script."
+msgstr "breytanlegt verksskriftusniðmát með staðgenglum eins og ``{settings_path}`` og ``{run_command}``; tómt notar sjálfgefna skriftu keyrslukerfisins."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "comma-separated host-name patterns of login nodes on which spaCR must never run compute."
+msgstr "kommaskilin vélarnafnamynstur fyrir innskráningarhnúta þar sem spaCR má aldrei keyra útreikninga."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "explicit opt-in to run directly over SSH on a host with no scheduler, skipping the login-node refusal."
+msgstr "skýr heimild til að keyra beint yfir SSH á vél án verkröðunar og sleppa höfnun innskráningarhnúta."
+
 msgid "Construct and validate a profile from JSON-compatible data."
 msgstr "Smíða og sannprófa snið úr JSON-samhæfðum gögnum."
 
@@ -380,6 +412,14 @@ msgstr "nýjasta villa við sendingu, könnun eða afturköllun; hreinsuð eftir
 
 msgid "submission-time profile snapshot, retained so the job remains operable after profile edits or deletion."
 msgstr "skyndimynd af sniðinu á sendingartíma, varðveitt svo verkið haldist nothæft eftir breytingar á sniðinu eða eyðingu þess."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "the rendered job script exactly as it was sent."
+msgstr "fullgerð verksskrifta nákvæmlega eins og hún var send."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "the scheduler allocation the job runs inside, or blank for a batch job."
+msgstr "úthlutun verkröðunar sem verkið keyrir innan, eða tómt fyrir runuvinnsluverk."
 
 msgid "Construct a job from a stored mapping, tolerating future fields."
 msgstr "Smíða verk úr vistaðri vörpun og þola framtíðarreiti."

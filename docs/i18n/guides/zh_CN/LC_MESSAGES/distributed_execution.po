@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-15 15:26-0400\n"
+"POT-Creation-Date: 2026-10-28 13:35-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -28,8 +28,9 @@ msgstr "spaCR 可以将 ``spacr-run`` 公开的任何模块提交到另一台工
 msgid "Execution profiles"
 msgstr "执行配置文件"
 
-msgid "An execution profile describes *how to reach compute*, not an analysis. Profiles never store passwords or API keys:"
-msgstr "执行配置文件描述的是 *如何访问计算资源*，而不是分析。配置文件绝不存储密码或 API 密钥："
+# AI technical review (Codex), no native-speaker signoff.
+msgid "An execution profile describes *how to reach compute*, not an analysis. Connection options and command/script templates are saved in the local profile JSON. Keep passwords and API keys out of those templates: their text is stored as entered. Built-in SSH sign-in can optionally remember the login password in the operating-system keychain, not in the profile; one-time codes are not saved. The execution backends are:"
+msgstr "执行配置描述的是 *如何访问计算资源* ，而非分析本身。连接选项及命令/脚本模板保存在本地配置 JSON 中。不要在这些模板中填入密码或 API 密钥：文本会按输入内容保存。内置 SSH 登录可以选择将登录密码记在操作系统钥匙串中，而非配置中；一次性验证码不会保存。执行后端包括："
 
 msgid "``SSH workstation``"
 msgstr "``SSH workstation``"
@@ -51,8 +52,9 @@ msgstr "``Cloud / custom command``"
 msgid "Runs configured submit/status/cancel argument templates. This supports cloud CLIs and site-specific schedulers without embedding vendor credentials in spaCR. The command must print a job identifier containing only letters, digits and ``_.:+-``, and the status command should print a conventional state such as ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` or ``CANCELLED``."
 msgstr "运行配置的提交/状态/取消参数模板。这样无需在 spaCR 中嵌入厂商凭据即可支持云 CLI 和站点特定的调度器。命令必须输出一个仅包含字母、数字和 ``_.:+-`` 的作业标识符，状态命令应输出常规状态，例如 ``PENDING``、``RUNNING``、``SUCCEEDED``、``FAILED`` 或 ``CANCELLED``。"
 
-msgid "Configure SSH keys, cloud authentication and VPN access outside spaCR. Test the same connection in a terminal before submitting a long run."
-msgstr "请在 spaCR 之外配置 SSH 密钥、云身份验证和 VPN 访问。在提交长时间运行之前，请先在终端中测试相同的连接。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Configure SSH keys, cloud CLI authentication and VPN access outside spaCR. Built-in interactive SSH sign-in can instead prompt for a password and second factor in spaCR. Check the selected sign-in route before submitting a long run."
+msgstr "SSH 密钥、云 CLI 身份验证及 VPN 访问在 spaCR 外部配置。内置交互式 SSH 登录也可以在 spaCR 中提示输入密码和第二验证因素。提交长时间运行前，请检查所选登录方式。"
 
 msgid "Shared data and path mapping"
 msgstr "共享数据与路径映射"
@@ -261,6 +263,36 @@ msgstr "使用经过验证的持久 SSH 会话，并通过图形界面提示进�
 msgid "remember the login password, never one-time codes or push answers, in the operating-system keychain; off by default."
 msgstr "在操作系统钥匙串中记住登录密码，但从不记住一次性验证码或推送应答；默认关闭。"
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "how spaCR signs in: ``openssh`` (SSH config, keys, agent and ControlMaster reuse), ``interactive`` (password and second-factor prompts shown in spaCR), ``gssapi`` (Kerberos ticket) or ``custom`` (the user's own SSH command). Blank follows ``ssh_interactive``."
+msgstr "spaCR 的登录方式：``openssh`` （SSH 配置、密钥、代理和 ControlMaster 复用）、``interactive`` （在 spaCR 中提示密码和第二验证因素）、``gssapi`` （Kerberos 票据）或 ``custom`` （用户自定义 SSH 命令）。留空时遵循 ``ssh_interactive``。"
+
+# AI technical review (Codex), no native-speaker signoff.
+#, python-brace-format
+msgid "custom SSH command for ``custom`` sign-in; ``{host}`` is the target and ``{command}`` the remote command, appended when absent. It may not carry a password."
+msgstr "用于 ``custom`` 登录的自定义 SSH 命令；``{host}`` 为目标，``{command}`` 为远程命令，缺少时会追加。不得包含密码。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "scheduler resources: partition, account, qos, gpus, gpu_type, cpus, mem, time, nodes, mail_type, mail_user and extra scheduler lines."
+msgstr "调度器资源：partition、account、qos、gpus、gpu_type、cpus、mem、time、nodes、mail_type、mail_user 及额外调度器行。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "shell lines that prepare the remote environment before spaCR runs, such as ``module load mamba`` and ``mamba activate spacr``."
+msgstr "在 spaCR 运行前准备远程环境的 shell 行，例如 ``module load mamba`` 和 ``mamba activate spacr``。"
+
+# AI technical review (Codex), no native-speaker signoff.
+#, python-brace-format
+msgid "editable job-script template with placeholders such as ``{settings_path}`` and ``{run_command}``; blank uses the backend's default script."
+msgstr "可编辑的作业脚本模板，包含 ``{settings_path}`` 和 ``{run_command}`` 等占位符；留空时使用后端默认脚本。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "comma-separated host-name patterns of login nodes on which spaCR must never run compute."
+msgstr "登录节点的主机名模式，以逗号分隔；spaCR 绝不能在这些节点上运行计算。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "explicit opt-in to run directly over SSH on a host with no scheduler, skipping the login-node refusal."
+msgstr "明确选择在无调度器的主机上通过 SSH 直接运行，跳过登录节点拒绝检查。"
+
 msgid "Construct and validate a profile from JSON-compatible data."
 msgstr "根据 JSON 兼容数据构造并验证一个配置文件。"
 
@@ -380,6 +412,14 @@ msgstr "最近一次提交、轮询或取消失败；在成功刷新或取消后
 
 msgid "submission-time profile snapshot, retained so the job remains operable after profile edits or deletion."
 msgstr "提交时的配置文件快照，保留下来以便在配置文件被编辑或删除后作业仍可操作。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "the rendered job script exactly as it was sent."
+msgstr "生成的作业脚本，与发送内容完全一致。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "the scheduler allocation the job runs inside, or blank for a batch job."
+msgstr "作业所在的调度器分配；批处理作业则为空。"
 
 msgid "Construct a job from a stored mapping, tolerating future fields."
 msgstr "根据存储的映射构造作业，并容忍未来新增的字段。"

@@ -10,7 +10,11 @@ Execution profiles
 ------------------
 
 An execution profile describes *how to reach compute*, not an analysis.
-Profiles never store passwords or API keys:
+Connection options and command/script templates are saved in the local profile
+JSON. Keep passwords and API keys out of those templates: their text is stored
+as entered. Built-in SSH sign-in can optionally remember the login password in
+the operating-system keychain, not in the profile; one-time codes are not saved.
+The execution backends are:
 
 ``SSH workstation``
    Uploads the resolved settings JSON over SSH, starts ``spacr-run`` as a
@@ -30,8 +34,9 @@ Profiles never store passwords or API keys:
    status command should print a conventional state such as ``PENDING``,
    ``RUNNING``, ``SUCCEEDED``, ``FAILED`` or ``CANCELLED``.
 
-Configure SSH keys, cloud authentication and VPN access outside spaCR. Test
-the same connection in a terminal before submitting a long run.
+Configure SSH keys, cloud CLI authentication and VPN access outside spaCR.
+Built-in interactive SSH sign-in can instead prompt for a password and second
+factor in spaCR. Check the selected sign-in route before submitting a long run.
 
 Shared data and path mapping
 ----------------------------

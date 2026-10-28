@@ -28,7 +28,9 @@ Choose how to handle missing features
   handle them in the downstream analysis.
 * ``drop_features`` removes feature columns containing missing values.
 * ``drop_objects`` removes object rows containing missing feature values.
-* ``mean`` replaces missing values with the observed feature mean.
+* ``mean`` replaces missing values with the observed feature mean. A feature
+  with no observed values is filled with zero; that zero is an imputation,
+  not an observed measurement.
 * ``zero`` replaces missing values with zero. Use it only when zero is an
   appropriate value for the intended analysis.
 

@@ -1,5 +1,5 @@
 # spaCR user guide translation (ko).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-28 13:35-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -41,15 +41,17 @@ msgstr "신뢰도(trustworthiness)와 연속성(continuity)의 기하 평균입�
 msgid "``stability``"
 msgstr "``stability``"
 
-msgid "The mean fraction of nearest neighbours shared by embeddings fitted with different reproducible seeds. It is invariant to rotations and reflections. A visually striking feature that disappears between repeats is not stable structure."
-msgstr "서로 다른 재현 가능 시드로 적합한 임베딩들이 공유하는 최근접 이웃의 평균 비율입니다. 회전과 반사에 영향을 받지 않습니다. 반복 사이에 사라지는 눈에 띄는 특징은 안정적인 구조가 아닙니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The mean fraction of nearest neighbours shared by embeddings fitted with different reproducible seeds. It is invariant to rotations and reflections. The stability neighbourhood is capped at one fewer than the row count; comparing every other row gives a score of 1 regardless of local structure. Use a smaller neighbourhood to assess repeat-to-repeat local agreement."
+msgstr "서로 다른 재현 가능한 시드로 적합한 임베딩들이 공유하는 최근접 이웃 비율의 평균입니다. 회전과 반사에 불변입니다. 안정성 이웃 크기는 행 수보다 하나 작은 값으로 제한되며, 다른 모든 행을 비교하면 국소 구조와 관계없이 점수 1이 됩니다. 반복 간 국소 일치도를 평가하려면 더 작은 이웃 크기를 사용하세요."
 
 msgid "``cluster_structure``"
 msgstr "``cluster_structure``"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The silhouette coefficient clipped to the range 0 to 1, so negative values score 0. When labels are supplied through the Python API they define the partition. Otherwise spaCR fits seeded K-means partitions with 2 through 8 clusters (at most one fewer than the number of rows) and reports the highest silhouette together with the selected cluster counts. This is evidence of geometric structure, not proof that a cluster is biological."
-msgstr "0에서 1 범위로 잘라 낸 실루엣 계수로, 음수 값은 0점이 됩니다. Python API로 레이블을 제공하면 레이블이 분할을 정의합니다. 그렇지 않으면 spaCR이 클러스터 2~8개(최대 행 수보다 하나 적은 수)로 시드가 지정된 K-means 분할을 적합하고, 가장 높은 실루엣과 선택된 클러스터 수를 함께 보고합니다. 이는 기하학적 구조의 증거이지 클러스터가 생물학적이라는 증명이 아닙니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The silhouette coefficient clipped to the range 0 to 1, so negative values score 0. Labels supplied through the Python API define the partition only when their length matches the rows and they contain at least two classes but fewer classes than rows. Otherwise spaCR uses seeded K-means partitions with 2 through 8 clusters (at most one fewer than the number of rows), requiring at least four rows, and selects the highest silhouette among valid partitions. If no partition resolves, the score is zero and ``cluster_structure_method`` is ``no_resolved_clusters``. Check that field and the selected cluster counts to see which partition was used. This measures geometric structure, not biological identity."
+msgstr "실루엣 계수를 0에서 1 사이로 제한하므로 음수 값은 0점입니다. Python API로 제공한 레이블은 길이가 행 수와 일치하고 클래스 수가 최소 둘이면서 행 수보다 작을 때만 분할을 정의합니다. 그 외에는 spaCR이 고정 시드의 K-means 분할과 2~8개 클러스터(최대 행 수보다 하나 적게)를 사용하며, 최소 네 행을 요구하고 유효한 분할 중 가장 높은 실루엣을 선택합니다. 분할이 형성되지 않으면 점수는 0이고 ``cluster_structure_method`` 는 ``no_resolved_clusters`` 입니다. 어떤 분할이 사용되었는지 해당 필드와 선택된 클러스터 수를 확인하세요. 이는 기하학적 구조를 측정하며 생물학적 정체성을 뜻하지 않습니다."
 
 msgid "The three weights are normalized to sum to one. Their weighted geometric mean is called ``multi_objective`` and guides the grid or adaptive search. The geometric mean penalizes a collapsed objective more strongly than an arithmetic average."
 msgstr "세 가중치는 합이 1이 되도록 정규화됩니다. 이들의 가중 기하 평균을 ``multi_objective`` 라고 하며, 그리드 검색이나 적응형 검색을 이끕니다. 기하 평균은 산술 평균보다 무너진 목표에 더 큰 벌점을 줍니다."

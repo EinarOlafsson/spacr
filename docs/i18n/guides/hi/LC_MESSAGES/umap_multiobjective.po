@@ -1,5 +1,5 @@
 # spaCR user guide translation (hi).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-28 13:35-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -41,15 +41,17 @@ msgstr "विश्वसनीयता (trustworthiness) और निरं�
 msgid "``stability``"
 msgstr "``stability``"
 
-msgid "The mean fraction of nearest neighbours shared by embeddings fitted with different reproducible seeds. It is invariant to rotations and reflections. A visually striking feature that disappears between repeats is not stable structure."
-msgstr "अलग-अलग पुनरुत्पादनीय सीड से फ़िट की गई एम्बेडिंग द्वारा साझा किए गए निकटतम पड़ोसियों का औसत अंश। यह घुमाव और परावर्तन से अप्रभावित रहता है। दोहरावों के बीच गायब हो जाने वाली कोई आकर्षक विशेषता स्थिर संरचना नहीं है।"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The mean fraction of nearest neighbours shared by embeddings fitted with different reproducible seeds. It is invariant to rotations and reflections. The stability neighbourhood is capped at one fewer than the row count; comparing every other row gives a score of 1 regardless of local structure. Use a smaller neighbourhood to assess repeat-to-repeat local agreement."
+msgstr "अलग-अलग पुनरुत्पादनीय सीड से फ़िट किए गए एम्बेडिंग में साझा निकटतम पड़ोसियों का औसत अंश। यह घुमाव और प्रतिबिंब से नहीं बदलता। स्थिरता का पड़ोस पंक्तियों की संख्या से एक कम तक सीमित है; सभी दूसरी पंक्तियों की तुलना करने पर स्थानीय संरचना चाहे जैसी हो, स्कोर 1 मिलता है। पुनरावृत्तियों के बीच स्थानीय सहमति आँकने के लिए छोटा पड़ोस लें।"
 
 msgid "``cluster_structure``"
 msgstr "``cluster_structure``"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The silhouette coefficient clipped to the range 0 to 1, so negative values score 0. When labels are supplied through the Python API they define the partition. Otherwise spaCR fits seeded K-means partitions with 2 through 8 clusters (at most one fewer than the number of rows) and reports the highest silhouette together with the selected cluster counts. This is evidence of geometric structure, not proof that a cluster is biological."
-msgstr "0 से 1 की सीमा में काटा गया सिल्हूट गुणांक, इसलिए ऋणात्मक मानों का स्कोर 0 होता है। जब Python API के माध्यम से लेबल दिए जाते हैं तो वे विभाजन को परिभाषित करते हैं। अन्यथा spaCR 2 से 8 क्लस्टर (अधिकतम पंक्तियों की संख्या से एक कम) वाले सीड किए गए K-means विभाजन फ़िट करता है और चुनी गई क्लस्टर संख्याओं के साथ उच्चतम सिल्हूट की सूचना देता है। यह ज्यामितीय संरचना का साक्ष्य है, इस बात का प्रमाण नहीं कि कोई क्लस्टर जैविक है।"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The silhouette coefficient clipped to the range 0 to 1, so negative values score 0. Labels supplied through the Python API define the partition only when their length matches the rows and they contain at least two classes but fewer classes than rows. Otherwise spaCR uses seeded K-means partitions with 2 through 8 clusters (at most one fewer than the number of rows), requiring at least four rows, and selects the highest silhouette among valid partitions. If no partition resolves, the score is zero and ``cluster_structure_method`` is ``no_resolved_clusters``. Check that field and the selected cluster counts to see which partition was used. This measures geometric structure, not biological identity."
+msgstr "सिल्हूट गुणांक को 0 से 1 तक सीमित किया जाता है, इसलिए ऋणात्मक मानों का स्कोर 0 है। Python API से दिए गए लेबल विभाजन तभी निर्धारित करते हैं जब उनकी लंबाई पंक्तियों से मेल खाती हो और उनमें कम से कम दो वर्ग हों, लेकिन वर्गों की संख्या पंक्तियों से कम हो। अन्यथा spaCR निश्चित सीड वाले K-means विभाजन, 2 से 8 क्लस्टर (अधिकतम पंक्तियों से एक कम), उपयोग करता है; कम से कम चार पंक्तियाँ आवश्यक हैं और मान्य विभाजनों में सबसे अधिक सिल्हूट चुना जाता है। कोई विभाजन न मिलने पर स्कोर शून्य और ``cluster_structure_method`` का मान ``no_resolved_clusters`` होता है। उपयोग किया गया विभाजन जानने के लिए वह फ़ील्ड और चुनी गई क्लस्टर संख्याएँ देखें। यह ज्यामितीय संरचना मापता है, जैविक पहचान नहीं।"
 
 msgid "The three weights are normalized to sum to one. Their weighted geometric mean is called ``multi_objective`` and guides the grid or adaptive search. The geometric mean penalizes a collapsed objective more strongly than an arithmetic average."
 msgstr "तीनों भारों को इस तरह सामान्यीकृत किया जाता है कि उनका योग एक हो। उनका भारित ज्यामितीय माध्य ``multi_objective`` कहलाता है और ग्रिड या अनुकूली खोज का मार्गदर्शन करता है। ज्यामितीय माध्य अंकगणितीय औसत की तुलना में ढहे हुए उद्देश्य को अधिक कड़ाई से दंडित करता है।"
