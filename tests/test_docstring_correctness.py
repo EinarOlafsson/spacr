@@ -5183,6 +5183,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     sequence_additions = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts" / "695_startup_sequence_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
     assert len(sequence_additions) == 5
+    from tests.test_documentation_i18n import _current_startup_sequence_api
+    sequence_additions = _current_startup_sequence_api(sequence_additions, docs)
     assert {key: docs[key] for key in sequence_additions} == sequence_additions
     assert not sequence_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **sequence_additions}

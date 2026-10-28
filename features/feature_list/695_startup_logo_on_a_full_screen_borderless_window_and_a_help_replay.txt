@@ -18,6 +18,8 @@ Requested: maintainer, 2026-10-12 (clarified the same day: "the spacr window
            to become visable and after 3 seconds the screen should be bully
            visable and after 4 seconds the logo tiles should have completely
            blown away."
+CURRENT MAINTAINER TIMING FOLLOW-UP — 2026-10-28: the logo needs only 0.5 seconds before disintegration; shorten deliberate startup waiting periods so the app becomes usable sooner, preserving actual readiness, reduced-motion behavior, accepted size/text-free visuals and replay. This supersedes the older two-second hold. Retained startup peer owns isolated timing investigation/fix and smallest relevant checks; root integrates and publishes.
+
 Owner:     Home (build, maintainer: "the home machine should take care of
            that"); WS (translations, tutorial capture)
 Related:   694 (photomosaic blow-away startup screen,
@@ -225,3 +227,5 @@ No new tutorial/native acceptance or release claim; those remain with their exis
 2026-10-27 — Reopened only the requested removal of text and rule lines beneath the mosaic; preserve the accepted size, timeline, fallback and Help replay behavior.
 
 2026-10-27 — Removed under-mosaic text and rules in normal and reduced-motion departure; three actual rendering/telemetry checks and five historical/current-document controls pass. Scoped public API text is reviewed in all nine languages.
+
+2026-10-28 — Reduced the sole deliberate mosaic hold from two seconds to half a second after first paint. Actual loading readiness still gates departure; late completion adds no new hold. Four-second blow-away/fade offsets and text-free size are retained; five focused timing/replay/reduced-motion controls pass.

@@ -16856,7 +16856,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "fps",
-    "line": 14341,
+    "line": 14392,
     "module": "spacr.qt.widgets.ambient",
     "nested": false,
     "qualname": "install_ambient"
@@ -53152,7 +53152,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 10778,
+    "line": 10780,
     "module": "spacr.qt.app",
     "nested": false,
     "qualname": "MainWindow._open_easy_suggestion"

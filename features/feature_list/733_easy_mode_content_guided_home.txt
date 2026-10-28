@@ -16,6 +16,8 @@ Related:   startup options, Preferences, Home, dock, spaCR AI
 
 CURRENT MAINTAINER FOLLOW-UP — 2026-10-27
 
+COLLAPSED TEXT SCROLLBAR FOLLOW-UP — 2026-10-28: hide text-box scrollbars completely while collapsed so they cannot overlap the expand arrow; restore normal overflow scrolling when expanded. Preserve the visible strip, arrow positions and history. Root owns the narrow correction and native interaction check.
+
 STARTUP LOCATION FOLLOW-UP — 2026-10-28: normal close/relaunch always opens Navigator Home (classic Home when Navigator is off), while explicit Restart/Force restart restores the current module/location and settings once. Existing saved restore-last-session preferences must not override this. Canonical startup/shutdown work and focused checks are coordinated under 647.
 
 TEXT PANEL APPEARANCE FOLLOW-UP — 2026-10-28: retain the approved arrow positions/history behavior, render larger thin white line arrows (50 percent larger glyphs at an explicit 20-pixel icon size), and keep the full-width collapsed text-box strip tall enough for its arrow. The maintainer correction supersedes the earlier direction: a white up-arrow opens the panel; the blue down-arrow closes it to the strip. Show the maintainer-revised six guidance lines in darker neutral gray (#808080), including image based modules, compatible modules, click-once network/click-twice module guidance and help using spaCR. Root owns UI/tests; retained translation peer owns changed captions and normal affected artifacts.
@@ -641,3 +643,4 @@ Current Home guide/Python-guide translations remain bound in all nine languages;
 The tutorial owner resumes the entire campaign after this guarded nightly publication; app follow-up ownership remains with Workstation session 2, and the reported Help paint stalls are not claimed fixed.
 
 2026-10-28 — Completed Navigator implementation, reviewed nine-language guide/API bindings and the published fifty-voice tutorial88. Current layout, native module handoff, focused Escape, calibrated warnings, passive overlays and held-frame invalidation have qualified owning checks; final normal Help/API/consumer outputs accompany Nightly publication. Release CI remains in item43.
+2026-10-28 — Spaceout card activation now toggles both ways and restores the previous palette without rewriting saved preferences; the real command handler passes its repeated-activation control.

@@ -1619,6 +1619,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         / "data/release_contracts"
         / "695_startup_sequence_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
     assert len(sequence_arrivals) == 5
+    from tests.test_documentation_i18n import _current_startup_sequence_api
+    sequence_arrivals = _current_startup_sequence_api(sequence_arrivals, docs)
     assert {key: docs[key] for key in sequence_arrivals} == sequence_arrivals
     assert not sequence_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **sequence_arrivals}

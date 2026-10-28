@@ -92,3 +92,19 @@ def test_thin_white_history_arrows_and_blue_expanded_toggle(page, qtbot):
     qtbot.mouseClick(details._collapse, Qt.LeftButton)
     assert details.viewport().isVisible()
     assert all(color.blue() > color.red() for _, _, color in ink(details._collapse))
+
+
+def test_collapsed_text_overflow_cannot_cover_expand_button(page, qtbot):
+    details = page.field.details
+    details.setPlainText('Overflow line\n' * 200)
+    qtbot.waitUntil(lambda: details.verticalScrollBar().maximum() > 0)
+    assert details.verticalScrollBar().isVisible()
+    qtbot.mouseClick(details._collapse, Qt.LeftButton)
+    assert details._minimized
+    assert not details.verticalScrollBar().isVisible()
+    assert not details.horizontalScrollBar().isVisible()
+    assert details.childAt(details._collapse.geometry().center()) is details._collapse
+    qtbot.mouseClick(details._collapse, Qt.LeftButton)
+    assert not details._minimized
+    qtbot.waitUntil(lambda: details.verticalScrollBar().isVisible())
+    assert details.verticalScrollBarPolicy() == Qt.ScrollBarAsNeeded

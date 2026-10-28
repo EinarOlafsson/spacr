@@ -167,15 +167,15 @@ _MOSAIC_MAP_FILE = "photomosaic.json"
 NO_SPLASH_ENV = "SPACR_NO_SPLASH"
 
 #: The logo holds still this long after it first paints, and longer while
-#: the window is still loading (item 695: 0-2 s).
-_MOSAIC_MIN_HOLD_S = 2.0
+#: the window is still loading (item 695: 0-0.5 s).
+_MOSAIC_MIN_HOLD_S = 0.5
 
 #: The blow-away's length: the last tile has gone this long after it began
-#: (item 695: 2-6 s).
+#: (item 695: 0.5-4.5 s).
 _BLOW_AWAY_S = 4.0
 
 #: Seconds into the blow-away the black container starts to fade and is
-#: gone: the window shows from 3 s and is fully visible at 5 s.
+#: gone: the window shows from 1.5 s and is fully visible at 3.5 s.
 _CONTAINER_FADE_S = (1.0, 3.0)
 
 #: Seconds the wind front takes to cross the logo, and how much slower than
@@ -1023,7 +1023,7 @@ class LoadingScreen(QWidget):
                   *, force: bool = False, plain: bool = False) -> bool:
         """End the cover by blowing the mosaic's tiles off the window.
 
-        The logo holds until two seconds after the cover first painted (at
+        The logo holds until half a second after the cover first painted (at
         once when called later than that), then blows away over four
         seconds: the black container fades from one to three seconds in and
         the last tile has gone at four. The cover deletes itself then.
@@ -1687,7 +1687,7 @@ def replay_startup_animation(window: QWidget) -> Optional[LoadingScreen]:
     """Play the startup sequence again inside ``window``.
 
     Help > Show startup animation. The black container with the logo comes
-    back over the window, holds for two seconds and blows away as it does
+    back over the window, holds for half a second and blows away as it does
     at startup. It plays even when Preferences > Appearance > Animation >
     Startup animation is off; under Preferences > Appearance > Accessibility
     > Reduce motion the logo holds and then cross-fades away in one second.

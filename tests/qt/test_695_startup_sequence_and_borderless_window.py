@@ -1,11 +1,11 @@
-"""Item 695: the startup logo on one borderless window, its 2 + 4 s timeline
+"""Item 695: the startup logo on one borderless window, its 0.5 + 4 s timeline
 and the Help replay.
 
 spaCR opens as ONE window, borderless and maximised to its screen's work
 area (not full-screen mode). The first thing painted in it is the black
 container with the logo photomosaic at a quarter of the screen height; the logo
-holds for 2 s (longer while loading), blows away from 2 to 6 s, and the
-container fades from 3 to 5 s. Help > Show startup animation plays it again.
+holds for 0.5 s (longer while loading), blows away from 0.5 to 4.5 s, and the
+container fades from 1.5 to 3.5 s. Help > Show startup animation plays it again.
 The borderless window carries its own minimise, maximise/restore and close
 marks, and a remembered switch gives back a framed window.
 
@@ -74,7 +74,7 @@ def _menu(window, title):
 
 def test_the_startup_timeline_on_one_borderless_window(
         qtbot, qt_theme_applied, monkeypatch, on_a_display):
-    """The 695 acceptance test: one window, the logo, 0-2-3-5-6 s."""
+    """The 695 acceptance test: one window, the logo, 0-0.5-1.5-3.5-4.5 s."""
     from spacr.qt import app as app_mod
     from spacr.qt import preferences
 
@@ -128,50 +128,50 @@ def test_the_startup_timeline_on_one_borderless_window(
     qtbot.waitUntil(lambda: window._loading_screen is None, timeout=3000)
     assert cover._state == "holding"
     assert not ls.blow_away_running(), "the window loads under the hold"
-    for held in (0.5, 1.0, 1.99):
+    for held in (0.1, 0.25, 0.49):
         clock.now = start + held
         cover._begin()
         assert cover._state == "holding", f"no tile moves at {held} s"
         assert window.grab().toImage() == first
 
-    clock.now = start + 2.0
+    clock.now = start + 0.5
     cover._begin()
     assert cover._state == "playing" and cover.elapsed() == 0.0
     model = cover._model
-    assert model.frame(0.0)[0].size == 0, "nothing moves at 2.0 s"
+    assert model.frame(0.0)[0].size == 0, "nothing moves at 0.5 s"
     assert ls.blow_away_running()
 
     opacity = []
-    for seq in np.arange(2.0, 6.0001, 0.05):
+    for seq in np.arange(0.5, 4.5001, 0.05):
         clock.now = start + float(seq)
         opacity.append((float(seq), cover.container_opacity()))
-    assert all(o == 1.0 for s, o in opacity if s <= 3.0 + 1e-9)
-    fading = [o for s, o in opacity if 3.0 + 1e-9 < s < 5.0 - 1e-9]
+    assert all(o == 1.0 for s, o in opacity if s <= 1.5 + 1e-9)
+    fading = [o for s, o in opacity if 1.5 + 1e-9 < s < 3.5 - 1e-9]
     assert fading and all(0.0 < o < 1.0 for o in fading)
     assert all(b < a for a, b in zip(fading, fading[1:])), "monotonic"
-    assert all(o == 0.0 for s, o in opacity if s >= 5.0 - 1e-9)
+    assert all(o == 0.0 for s, o in opacity if s >= 3.5 - 1e-9)
 
     corner = (4, window.height() // 2)
-    clock.now = start + 3.0
+    clock.now = start + 1.5
     cover._tick()
     assert window.grab().toImage().pixelColor(*corner).name() == "#000000"
-    clock.now = start + 5.0
+    clock.now = start + 3.5
     cover._tick()
     shown = window.grab().toImage().pixelColor(*corner)
     cover.hide()
     bare = window.grab().toImage().pixelColor(*corner)
     cover.show()
-    assert shown.name() == bare.name(), "fully visible at 5.0 s"
+    assert shown.name() == bare.name(), "fully visible at 3.5 s"
 
     assert float(np.max(model.fly_launch + model.life)) <= 4.0
     assert model.frame(4.0)[0].size == 0
     assert model.launched(4.0).size == model.grid ** 2
-    clock.now = start + 5.99
+    clock.now = start + 4.49
     cover._tick()
     assert cover._state == "playing"
-    clock.now = start + 6.0
+    clock.now = start + 4.5
     cover._tick()
-    assert cover._state == "done" and cover.isHidden(), "no tile after 6 s"
+    assert cover._state == "done" and cover.isHidden(), "no tile after 4.5 s"
     assert not ls.blow_away_running()
 
 
@@ -194,7 +194,7 @@ def test_an_early_timer_waits_out_the_hold(host_cover, qtbot):
     cover, clock = host_cover
     cover.grab()
     assert cover.blow_away(force=True)
-    clock.now += 1.9995
+    clock.now += 0.4995
     cover._begin()
     assert cover._state == "holding"
     clock.now += 0.01
@@ -297,7 +297,7 @@ def test_help_replays_the_sequence_and_leaves_the_window_as_it_was(
     assert ls.replay_startup_animation(window) is None, "one at a time"
     cover.grab()
     assert cover._state == "holding"
-    clock.now += 2.0
+    clock.now += 0.5
     cover._begin()
     assert cover._state == "playing" and cover._model is not None
     clock.now += 4.0
@@ -328,7 +328,7 @@ def test_reduce_motion_holds_then_cross_fades(window, qtbot):
     clock = _Clock()
     cover._clock = clock
     cover.grab()
-    clock.now += 2.0
+    clock.now += 0.5
     cover._begin()
     assert cover._state == "playing" and cover._model is None
     assert cover._tiles == []
