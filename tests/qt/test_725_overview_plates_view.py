@@ -252,3 +252,110 @@ def test_single_mode_is_unchanged(view, qtbot):
     assert len(view._plate_tables) == 1 and view.wells is view._plate_tables[view.plates.currentData()]
     assert sum(block.isVisible() for block, _header in view._plate_blocks.values()) == 1
     assert not any(header.isVisible() for _block, header in view._plate_blocks.values())
+
+
+def test_plate_visibility_and_collapse_are_idempotent_and_preserve_loaded_selection(view, qtbot):
+    before = tuple(field.identity for field in view._fields)
+    view.plates_view.setCurrentIndex(view.plates_view.findData('side'))
+    address = ('plateB', 'A01')
+    _item(view, *address).setSelected(True)
+    selected = set(view._selected_wells)
+    assert address in selected
+    assert view._set_plates_expanded(('plateB',), False)
+    assert not view._set_plates_expanded(('plateB',), False)
+    assert set(view._selected_wells) == selected
+    assert view._set_plates_expanded(('plateB',), True)
+    assert not view._set_plates_expanded(('plateB',), True)
+    assert view._hide_every_plate(persist=False)
+    assert not view._hide_every_plate(persist=False)
+    assert view._plate_tables == {} and view._plates_subset == ()
+    assert tuple(field.identity for field in view._fields) == before
+    view._show_every_plate()
+    qtbot.waitUntil(lambda: len(view._plate_tables) == 3)
+    assert set(view._selected_wells) == selected
+    assert tuple(field.identity for field in view._fields) == before
+
+
+def test_opening_wells_closes_only_unrelated_stacked_images_and_ignores_unknown_addresses(view, qtbot):
+    view.plates_view.setCurrentIndex(view.plates_view.findData('side'))
+    before = tuple(field.identity for field in view._fields)
+    assert view._open_wells([('missing', 'A01')]) == ()
+    assert 'no image' in view.status.text()
+    opened = [('plateA', 'A01'), ('plateB', 'A01')]
+    assert view._open_wells(opened + opened) == tuple(opened)
+    fields = [next(field for field in view._fields if (field.plate, field.well) == address)
+              for address in opened]
+    view._open_image_views(fields)
+    qtbot.waitUntil(lambda: view._image_stack_jobs.active_jobs() == 0
+                    and all(panel.view._item is not None for panel in view._image_views), timeout=15000)
+    assert [(panel.field.plate, panel.field.well) for panel in view._image_views] == opened
+    view._open_image_views(fields)
+    assert len(view._image_views) == 2
+    assert view._open_wells([('plateC', 'A01')]) == (('plateC', 'A01'),)
+    assert view._image_views == []
+    assert [(panel.field_list._overview_plate, panel.field_list._overview_well)
+            for panel in view._well_panels] == [('plateC', 'A01')]
+    assert tuple(field.identity for field in view._fields) == before
+    view._selected_fields.clear()
+    view._open_selected_images()
+    assert 'Select fields' in view.status.text() and view._image_views == []
+
+
+def test_removing_a_plate_drops_only_its_selection_and_cache_and_cannot_remove_the_last(view, qtbot):
+    view.plates_view.setCurrentIndex(view.plates_view.findData('side'))
+    removed = tuple(field for field in view._all_fields if field.plate == 'plateB')
+    keep = tuple(field for field in view._all_fields if field.plate != 'plateB')
+    field = removed[0]
+    address = (field.plate, field.well)
+    view._selected_wells.add(address)
+    view._selected_well_axes[address] = {'time_index': 0}
+    view._selected_well_options[address] = {'color_mode': 'additive'}
+    view._selected_fields[field.identity] = field
+    view._selected_field_options[field.identity] = {'color_mode': 'additive'}
+    view._collapsed[field.plate] = True
+    view._collapsed_plates.add(field.plate)
+    view._plates_subset = ('plateA', 'plateB')
+    view._cache[(field.identity, 'preview')] = np.zeros((2, 2, 3), dtype=np.uint8)
+    view._thumbnail_cache[(field.identity, 'thumb')] = np.zeros((2, 2, 3), dtype=np.uint8)
+    view._remove_plate('plateB')
+    assert tuple(view._all_fields) == keep
+    assert address not in view._selected_wells and address not in view._selected_well_axes
+    assert field.identity not in view._selected_fields and field.identity not in view._selected_field_options
+    assert not any(key[0] == field.identity for key in view._cache)
+    assert not any(key[0] == field.identity for key in view._thumbnail_cache)
+    assert 'plateB' not in view._collapsed and 'plateB' not in view._collapsed_plates
+    plates_path = keep[0].source
+    assert str(plates_path) in view.source.text()
+    assert all(not path.endswith('plateB') for path in browser._overview_source_paths(view.source.text()))
+    assert browser.Path(removed[0].files[0][1]).is_file()
+    view._remove_plate('absent')
+    assert tuple(view._all_fields) == keep
+    view._remove_plate('plateC')
+    last = tuple(view._all_fields)
+    assert {field.plate for field in last} == {'plateA'}
+    view._remove_plate('plateA')
+    assert tuple(view._all_fields) == last and str(plates_path) in view.source.text()
+
+
+def test_adding_the_same_source_is_inert_and_late_source_results_do_not_replace_navigation(view):
+    original = view._fields
+    submitted = view._index_jobs._next_id
+    view._add_sources(view.source.text())
+    assert view._index_jobs._next_id == submitted
+    view._sources_added(['/not-applied'], tuple(list(original)), ((), {}))
+    assert view._fields is original and '/not-applied' not in view.source.text()
+
+
+def test_container_wheel_zoom_tracks_one_actual_well_and_keeps_all_plate_identities(view, qtbot):
+    view.plates_view.setCurrentIndex(view.plates_view.findData('side'))
+    table = view._plate_tables['plateB']
+    before = tuple(field.identity for field in view._fields)
+    position = table.visualItemRect(_item(view, 'plateB', 'A01')).center()
+    width = view._plate_extents[table][0]
+    view._wheel_zoom_container(table, position, 120)
+    assert view._plate_extents[table][0] > width
+    grown = view._plate_extents[table][0]
+    view._wheel_zoom_container(table, position, -120)
+    assert view._plate_extents[table][0] < grown
+    assert tuple(field.identity for field in view._fields) == before
+    assert set(view._plate_tables) == set(PLATES)
