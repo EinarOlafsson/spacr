@@ -709,7 +709,7 @@ def test_side_views_draw_with_the_brush_and_follow_the_main_tool(stage, screen, 
     assert "does not match" in screen._status_label.text()
 
 
-def test_the_view_list_appears_only_while_a_volume_is_open(screen, tmp_path):
+def test_the_view_list_appears_only_while_a_volume_is_open(screen, qtbot, tmp_path):
     stage = screen._mask_stage
     flat = tmp_path / "flat"
     flat.mkdir()
@@ -717,13 +717,19 @@ def test_the_view_list_appears_only_while_a_volume_is_open(screen, tmp_path):
     _volume(flat, "zstack.tif")
     assert screen._open_folder(str(flat))
     _settle()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                   and screen._load_worker is None, timeout=WAIT)
     assert not stage.view_picker.isVisible()
     screen._on_next()
     _settle()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                   and screen._load_worker is None, timeout=WAIT)
     assert stage.session is not None and stage.view_picker.isVisible()
     assert Path(stage.session.source_path).name == "zstack.tif"
     screen._on_prev()
     _settle()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                   and screen._load_worker is None, timeout=WAIT)
     assert stage.session is None and not stage.view_picker.isVisible()
     assert screen._canvas.image.shape == (12, 16)
 
