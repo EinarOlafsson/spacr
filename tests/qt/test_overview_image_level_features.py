@@ -903,6 +903,7 @@ def test_real_plate_drag_keeps_selection_and_wheel_keeps_the_physical_well_under
     assert clicked == ['A01']
     assert dialog._selected_wells == {('p1', 'A01')}
     assert dialog._well_panels == []
+
     assert dialog._scope == ('p1', None)
     fields = tuple(field.identity for field in dialog._fields)
     dialog._plate_zoom_buttons[1].click()
@@ -948,3 +949,57 @@ def test_real_plate_drag_keeps_selection_and_wheel_keeps_the_physical_well_under
     assert dialog._selected_wells == {('p1', 'A01')}
     assert tuple(field.identity for field in dialog._fields) == fields
     assert dialog._well_panels == []
+
+
+def test_ctrl_selected_row_headers_collapse_together_after_qt_narrows_the_live_selection(overview, qtbot):
+    import shutil
+    from pathlib import Path
+    from PySide6.QtCore import QEvent, QPoint, QPointF, Qt
+    from PySide6.QtGui import QMouseEvent
+    from PySide6.QtWidgets import QApplication
+
+    dialog = overview
+    source = Path(dialog._metadata_source)
+    shutil.copyfile(source / 'p1-B02-f1-t1-z1-c1.tif', source / 'p2-A01-f1-t1-z1-c1.tif')
+    dialog._scan()
+    qtbot.waitUntil(lambda: len(dialog._fields) == 5 and dialog._normalization_ready
+                    and not dialog._index_jobs.is_busy(), timeout=10000)
+    dialog._set_plates_view('side', persist=False)
+    dialog._plate_zoom_buttons[1].click()
+    table, other = dialog._plate_tables['p1'], dialog._plate_tables['p2']
+    other_item = other.item(*dialog._well_positions[('p2', 'A01')])
+    qtbot.mouseClick(other.viewport(), Qt.LeftButton, stateKey=Qt.ControlModifier,
+                     pos=other.visualItemRect(other_item).center())
+    header = table.verticalHeader()
+    first = QPoint(header.viewport().rect().center().x(),
+                   header.sectionViewportPosition(0) + header.sectionSize(0) // 2)
+    second = QPoint(first.x(), header.sectionViewportPosition(1) + header.sectionSize(1) // 2)
+    assert header.viewport().rect().contains(first) and header.viewport().rect().contains(second)
+    qtbot.mouseClick(header.viewport(), Qt.LeftButton, pos=first)
+    qtbot.mouseClick(header.viewport(), Qt.LeftButton, stateKey=Qt.ControlModifier, pos=second)
+    assert {index.row() for index in table.selectedIndexes()} == {0, 1}
+    assert dialog._selected_wells == {('p1', 'A01'), ('p1', 'B02'), ('p2', 'A01')}
+    original_rows = tuple(table.rowHeight(row) for row in range(table.rowCount()))
+    other_rows = tuple(other.rowHeight(row) for row in range(other.rowCount()))
+    other_columns = tuple(other.columnWidth(column) for column in range(other.columnCount()))
+    other_selection = {(index.row(), index.column()) for index in other.selectedIndexes()}
+    fields = tuple(field.identity for field in dialog._fields)
+    double_clicked = []
+    header.sectionDoubleClicked.connect(double_clicked.append)
+    qtbot.mouseClick(header.viewport(), Qt.LeftButton, pos=first)
+    assert {index.row() for index in table.selectedIndexes()} == {0}
+    for kind, buttons in ((QEvent.MouseButtonDblClick, Qt.LeftButton),
+                          (QEvent.MouseButtonRelease, Qt.NoButton)):
+        event = QMouseEvent(kind, QPointF(first), QPointF(header.viewport().mapToGlobal(first)),
+                            Qt.LeftButton, buttons, Qt.NoModifier)
+        QApplication.sendEvent(header.viewport(), event)
+    assert double_clicked == [0]
+    assert table.rowHeight(0) == table.rowHeight(1) < min(original_rows)
+    assert dialog._collapsed['p1'][0] == {0, 1}
+    assert dialog._collapsed.get('p2', (set(), set())) == (set(), set())
+    assert dialog.plates.currentData() == 'p1' and dialog.wells is table
+    assert tuple(other.rowHeight(row) for row in range(other.rowCount())) == other_rows
+    assert tuple(other.columnWidth(column) for column in range(other.columnCount())) == other_columns
+    assert {(index.row(), index.column()) for index in other.selectedIndexes()} == other_selection
+    assert other_selection and other_item.isSelected()
+    assert tuple(field.identity for field in dialog._fields) == fields
