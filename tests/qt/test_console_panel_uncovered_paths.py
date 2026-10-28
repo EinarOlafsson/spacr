@@ -661,14 +661,15 @@ def test_a_saved_answer_survives_a_heading_that_is_already_gone(panel):
 
 
 def test_routine_records_arriving_together_are_written_in_one_flush(panel,
-                                                                   qtbot):
+                                                                   qtbot, monkeypatch):
     """A second INFO record joins the pending flush instead of restarting it."""
     import logging
 
+    monkeypatch.setattr(cp, '_visible_console_levels', lambda: {logging.INFO})
     panel._on_log_record("first record", logging.INFO)
     assert panel._log_flush.isActive()
     panel._on_log_record("second record", logging.INFO)
-    assert panel._log_pending[-2:] == ["first record", "second record"]
+    assert panel._log_pending[-2:] == [("first record", logging.INFO), ("second record", logging.INFO)]
     qtbot.waitUntil(lambda: not panel._log_pending)
 
 

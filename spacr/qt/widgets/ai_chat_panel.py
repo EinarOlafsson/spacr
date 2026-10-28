@@ -56,6 +56,89 @@ from .empty_state import EmptyState
 
 
 
+def _ai_reply_html(text):
+    """Render assistant Markdown without activating model HTML or image resources."""
+    import re
+    from html import escape
+    from html.parser import HTMLParser
+    from urllib.parse import urlsplit
+
+    from PySide6.QtGui import QTextDocument
+
+    class PassiveDocument(QTextDocument):
+        def loadResource(self, kind, url):
+            return None
+
+    class Markup(HTMLParser):
+        allowed = {'p', 'span', 'b', 'strong', 'i', 'em', 'u', 's', 'ul', 'ol',
+                   'li', 'pre', 'code', 'blockquote', 'h1', 'h2', 'h3', 'h4',
+                   'h5', 'h6', 'table', 'thead', 'tbody', 'tr', 'td', 'th',
+                   'a', 'br', 'hr'}
+
+        def __init__(self):
+            super().__init__(convert_charrefs=True)
+            self.parts = []
+            self.head = False
+
+        def handle_starttag(self, tag, attrs):
+            if tag == 'head':
+                self.head = True
+            if self.head:
+                return
+            values = dict(attrs)
+            if tag == 'img':
+                self.parts.append(escape(values.get('alt', '')))
+            elif tag in self.allowed:
+                kept = []
+                for name, value in attrs:
+                    if name == 'style' or (tag == 'ol' and name in ('start', 'type')):
+                        kept.append((name, value))
+                    elif tag == 'a' and name == 'href':
+                        try:
+                            safe = urlsplit(value).scheme.lower() in ('http', 'https', 'mailto')
+                        except ValueError:
+                            safe = False
+                        if safe:
+                            kept.append((name, value))
+                attributes = ''.join(' ' + name + '="' + escape(value, quote=True) + '"'
+                                     for name, value in kept)
+                self.parts.append('<' + tag + attributes + '>')
+
+        def handle_endtag(self, tag):
+            if tag == 'head':
+                self.head = False
+            elif not self.head and tag in self.allowed and tag not in ('br', 'hr'):
+                self.parts.append('</' + tag + '>')
+
+        def handle_data(self, data):
+            if not self.head:
+                self.parts.append(escape(data))
+
+    lines = []
+    fence = None
+    for line in str(text).splitlines(keepends=True):
+        marker = re.match(r'^\s*(`{3,}|~{3,})', line)
+        if marker:
+            token = marker.group(1)[0]
+            fence = None if fence == token else token
+            lines.append(line)
+        elif fence:
+            lines.append(line)
+        else:
+            line = re.sub(r'\\`([^`\n]*?)\\`', r'`\1`', line)
+            pieces = re.split(r'(`+[^`\n]*`+)', line)
+            for index in range(0, len(pieces), 2):
+                part = re.sub(r'\\\*\\\*(.*?)\\\*\\\*', r'**\1**', pieces[index])
+                part = re.sub(r'^(\s*\d+)\\\.(\s+)', r'\1.\2', part)
+                pieces[index] = re.sub(r'^(\s*)\\([*+-])(\s+)', r'\1\2\3', part)
+            lines.append(''.join(pieces))
+    document = PassiveDocument()
+    document.setMarkdown(''.join(lines), QTextDocument.MarkdownDialectGitHub | QTextDocument.MarkdownNoHTML)
+    markup = Markup()
+    markup.feed(document.toHtml())
+    return '<div style="line-height:130%;">' + ''.join(markup.parts) + '</div>'
+
+
 class _MessageBubble(QWidget):
     """Aligned QLabel bubble — right-aligned for ``"user"``, left for other.
 
@@ -73,7 +156,7 @@ class _MessageBubble(QWidget):
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(SPACING["sm"])
-        self._text = QLabel(text)
+        self._text = QLabel()
         self._text.setProperty("i18nSkipText", True)
         self._text.setWordWrap(True)
         self._text.setTextInteractionFlags(
@@ -84,6 +167,7 @@ class _MessageBubble(QWidget):
             "ChatBubbleUser" if role == "user" else "ChatBubbleAssistant"
         )
         self._text.setMaximumWidth(720)
+        self.set_text(text)
         if role == "user":
             layout.addStretch(1)
             layout.addWidget(self._text)
@@ -93,7 +177,11 @@ class _MessageBubble(QWidget):
 
     def set_text(self, text: str) -> None:
         """Replace the bubble's body text."""
-        self._text.setText(text)
+        import re
+
+        rich = self.role != 'user' and bool(re.search(r'[\n*_`<>#]|!?\[[^]]+\]\([^)]+\)|^\s*(?:[-+]|\d+[.)])\s', text))
+        self._text.setTextFormat(Qt.RichText if rich else Qt.PlainText)
+        self._text.setText(_ai_reply_html(text) if rich else text)
 
 
 
@@ -107,6 +195,9 @@ class _ProvidersDialog(QDialog):
     def __init__(self, parent=None):
         """Build the providers and settings tabs."""
         super().__init__(parent)
+        self._provider_rows = {}
+        self._provider_status_jobs = {}
+        self._provider_signins = {}
         self.setWindowTitle("AI Console — providers & settings")
         from ..preferences import scaled_px
         
@@ -392,7 +483,7 @@ class _ProvidersDialog(QDialog):
         title.setTextFormat(Qt.RichText)
         header.addWidget(title)
         header.addStretch(1)
-        installed = provider.is_installed()
+        installed = bool(self._provider_login_argv(provider)) or provider.is_installed()
         status_label = QLabel(
             f"<span style='color:#3fb950;'>● {tr('installed')}</span>"
             if installed
@@ -403,6 +494,27 @@ class _ProvidersDialog(QDialog):
         header.addWidget(status_label)
         header_wrap = QWidget(); header_wrap.setLayout(header)
         col.addWidget(header_wrap)
+
+        official = {
+            'claude': 'https://code.claude.com/docs/en/setup',
+            'codex': 'https://developers.openai.com/codex/cli',
+            'gemini': 'https://geminicli.com/docs/get-started/installation/',
+        }.get(provider.name)
+        if official:
+            from html import escape
+
+            link = QLabel(f'<a href="{official}">{escape(provider.label)}</a>')
+            link.setObjectName('ProviderInstallLink_' + provider.name)
+            link.setProperty('i18nSkipText', True)
+            link.setOpenExternalLinks(True)
+            col.addWidget(link)
+        if provider.name == 'gemini':
+            requirement = QLabel(tr(
+                'Gemini requires Node.js. On macOS and Linux, the command below installs '
+                'Node.js and Gemini CLI in your user account. On Windows, install Node.js '
+                'before running the npm command.'))
+            requirement.setWordWrap(True)
+            col.addWidget(requirement)
 
         install_row = QHBoxLayout()
         install_row.addWidget(QLabel("Install:"))
@@ -420,11 +532,23 @@ class _ProvidersDialog(QDialog):
         login_edit = QLineEdit(provider.login_command)
         login_edit.setReadOnly(True)
         login_row.addWidget(login_edit, 1)
+        sign_in = QPushButton(tr('Sign in'))
+        sign_in.setObjectName('ProviderSignIn_' + provider.name)
+        sign_in.setEnabled(bool(self._provider_login_argv(provider)))
+        sign_in.clicked.connect(lambda _checked=False, p=provider: self._sign_in_provider(p))
+        login_row.addWidget(sign_in)
         copy_l = QPushButton("Copy")
         copy_l.clicked.connect(lambda _, e=login_edit: self._copy_to_clipboard(e.text()))
         login_row.addWidget(copy_l)
         login_wrap = QWidget(); login_wrap.setLayout(login_row)
         col.addWidget(login_wrap)
+        auth_status = QLabel('')
+        auth_status.setObjectName('ProviderAuthStatus_' + provider.name)
+        auth_status.setWordWrap(True)
+        if not sign_in.isEnabled():
+            sign_in.setToolTip(tr('Copy the login command and run it in a terminal on this platform.'))
+        col.addWidget(auth_status)
+        self._provider_rows[provider.name] = (provider, card, status_label, auth_status, sign_in)
 
         palette = active_palette()
         card.setStyleSheet(
@@ -433,6 +557,147 @@ class _ProvidersDialog(QDialog):
             f"border-radius: 6px;}}"
         )
         return card
+
+    @staticmethod
+    def _provider_login_argv(provider):
+        """Use only known provider login arguments and a discovered executable."""
+        from ..ai.cli_install import locate, put_on_path
+
+        arguments = {'claude': ['auth', 'login'], 'codex': ['login'], 'gemini': []}
+        if provider.name not in arguments:
+            return []
+        location = locate(provider)
+        if not location:
+            return []
+        put_on_path(location)
+        return [location, *arguments[provider.name]]
+
+    def _sign_in_provider(self, provider):
+        """Launch an explicit native sign-in and check the tool's resulting state."""
+        import os
+
+        from ..ai.pty_sign_in import SignInDialog, pty_available
+
+        argv = self._provider_login_argv(provider)
+        if not argv:
+            self._refresh_provider_status(provider)
+            return
+        try:
+            if os.name == 'nt':
+                self._start_windows_sign_in(provider, argv)
+                return
+            if not pty_available():
+                self._provider_rows[provider.name][3].setText(tr(
+                    'Copy the login command and run it in a terminal on this platform.'))
+                return
+            dialog = SignInDialog(provider.label, argv, self)
+            try:
+                dialog.exec()
+            finally:
+                dialog.deleteLater()
+        except (OSError, ValueError) as error:
+            self._provider_rows[provider.name][3].setText(tr('Failed: {detail}', detail=str(error)))
+        self._refresh_provider_status(provider)
+
+    def _start_windows_sign_in(self, provider, argv):
+        """Open fixed login arguments in a separate native Windows console."""
+        import os
+        import subprocess
+
+        from PySide6.QtCore import QTimer
+
+        if provider.name in self._provider_signins:
+            return
+        command = argv
+        if argv[0].lower().endswith(('.cmd', '.bat')):
+            if any(character in argv[0] for character in '\r\n"%!'):
+                raise ValueError(tr('Copy the login command and run it in a terminal on this platform.'))
+            shell = os.environ.get('COMSPEC', os.path.join(os.environ.get('SystemRoot', r'C:\Windows'),
+                                                          'System32', 'cmd.exe'))
+            command = subprocess.list2cmdline([shell]) + ' /d /s /c ""' + argv[0] + '"'
+            if len(argv) > 1:
+                command += ' ' + ' '.join(argv[1:])
+            command += '"'
+        process = subprocess.Popen(command, shell=False,
+                                   creationflags=getattr(subprocess, 'CREATE_NEW_CONSOLE', 0x10))
+        timer = QTimer(self)
+        timer.setInterval(250)
+        timer.timeout.connect(lambda p=provider: self._poll_provider_sign_in(p))
+        self._provider_signins[provider.name] = (process, timer)
+        self._provider_rows[provider.name][4].setEnabled(False)
+        timer.start()
+
+    def _poll_provider_sign_in(self, provider):
+        """Recheck authentication after the separate console exits."""
+        pair = self._provider_signins.get(provider.name)
+        if pair is None or pair[0].poll() is None:
+            return
+        pair[1].stop()
+        pair[1].deleteLater()
+        del self._provider_signins[provider.name]
+        self._refresh_provider_status(provider)
+
+    def _refresh_provider_status(self, provider):
+        """Check installed, authenticated and configured state off the GUI thread."""
+        from functools import partial
+
+        from ..ai import providers
+        from ..job_runner import JobRunner
+
+        self._provider_login_argv(provider)
+        providers._PATH_LOOKUPS.clear()
+        row = self._provider_rows[provider.name]
+        row[3].setText(tr('Checking sign-in…'))
+        row[4].setEnabled(False)
+        runner = self._provider_status_jobs.get(provider.name)
+        if runner is None:
+            runner = JobRunner(self, app_key='ai', user_visible=False)
+            self._provider_status_jobs[provider.name] = runner
+        runner.cancel()
+        runner.submit(partial(self._read_provider_status, provider),
+                      on_done=partial(self._show_provider_status, provider.name))
+
+    @staticmethod
+    def _read_provider_status(provider):
+        """Never treat the interactive process's exit status as proof of authentication."""
+        installed = provider.is_installed()
+        signed_in = provider.check_signed_in() if installed else False
+        return installed, signed_in, provider.is_configured() if installed else False
+
+    def _show_provider_status(self, name, state):
+        """Expose actual status without promoting an unknown sign-in to success."""
+        provider, card, installed_label, auth_label, button = self._provider_rows[name]
+        installed, signed_in, configured = state
+        installed_label.setText(tr('installed') if installed else tr('missing'))
+        auth_label.setText(tr('Signed in.') if signed_in is True else tr('Not signed in.')
+                           if signed_in is False else tr(
+                               'Sign-in status is unavailable; use the CLI to confirm your account.'))
+        card.setProperty('providerConfigured', configured)
+        card.setProperty('providerSignedIn', signed_in)
+        button.setEnabled(bool(self._provider_login_argv(provider)))
+
+    def done(self, result):
+        """Cancel status deliveries and owned console processes when this dialog closes."""
+        import subprocess
+
+        for runner in self._provider_status_jobs.values():
+            runner.shutdown(timeout_ms=0)
+        for process, timer in self._provider_signins.values():
+            timer.stop()
+            if process.poll() is None:
+                try:
+                    process.terminate()
+                    process.wait(timeout=0.1)
+                except subprocess.TimeoutExpired:
+                    try:
+                        process.kill()
+                        process.wait(timeout=0.1)
+                    except (OSError, subprocess.TimeoutExpired):
+                        pass
+                except OSError:
+                    pass
+        self._provider_signins.clear()
+        super().done(result)
 
     def _copy_to_clipboard(self, text: str) -> None:
         """Put ``text`` on the clipboard, if there is one.

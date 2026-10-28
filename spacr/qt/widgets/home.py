@@ -5336,7 +5336,7 @@ class _NavigatorAiReply(QObject):
 class _NavigatorAiButton(QPushButton):
     """A quiet provider-colored toggle with bounded typing and waiting motion."""
 
-    _COLORS = {'spacr_hosted': '#006464', 'claude': '#DE7356',
+    _COLORS = {'spacr_hosted': '#FFFFFF', 'claude': '#DE7356',
                'codex': '#A8E6CF', 'gemini': '#4285F4'}
 
     def __init__(self, parent=None):
@@ -5353,6 +5353,10 @@ class _NavigatorAiButton(QPushButton):
         self.setFixedSize(36, 36)
         self._provider = 'spacr_hosted'
         self._busy = False
+        self._marker_busy = False
+        self._marker_phase = None
+        self._marker_started = 0
+        self._marker_origin = (0.0, 0.0)
         self._pulse = 0.0
         self._last_key = -1000
         self._clock = QElapsedTimer()
@@ -5370,13 +5374,55 @@ class _NavigatorAiButton(QPushButton):
         self._pulse = 0.35 + 0.65 * speed
         self._tick()
 
+    def _hosted_marker(self, now, reduced=False):
+        """Describe the marker in fill-radius units with a whiteward return tint."""
+        import math
+
+        if reduced:
+            return (0.5, 0.0, 0) if self._busy else None
+        elapsed = max(0, now - self._marker_started)
+        if self._marker_phase == 'enter':
+            fraction = min(1.0, elapsed / 250.0)
+            distance = 0.5 * fraction * fraction * (3.0 - 2.0 * fraction)
+            return distance, 0.0, 0
+        if self._marker_phase == 'orbit':
+            angle = elapsed * math.tau / 1800.0
+            return 0.5 * math.cos(angle), 0.5 * math.sin(angle), 0
+        if self._marker_phase == 'return' and elapsed < 300:
+            fraction = elapsed / 300.0
+            eased = fraction * fraction * (3.0 - 2.0 * fraction)
+            return (self._marker_origin[0] * (1.0 - eased),
+                    self._marker_origin[1] * (1.0 - eased), round(255 * eased))
+        return None
+
     def _tick(self, *_args):
-        """Run a single small timer only while this visible icon needs motion."""
+        """Run the existing timer only for visible typing, work or marker return."""
         from ..preferences import get_reduce_motion
 
+        now = self._clock.elapsed()
+        reduced = get_reduce_motion()
+        hosted = self.isChecked() and self._provider == 'spacr_hosted'
+        busy = hosted and self._busy
+        if busy and not self._marker_busy:
+            self._marker_phase = 'enter'
+            self._marker_started = now
+        elif not busy and self._marker_busy:
+            marker = self._hosted_marker(now, reduced)
+            self._marker_origin = marker[:2] if marker is not None else (0.0, 0.0)
+            self._marker_phase = 'return'
+            self._marker_started = now
+        self._marker_busy = busy
+        if not hosted or (reduced and not busy):
+            self._marker_phase = None
+        elif self._marker_phase == 'enter' and now - self._marker_started >= 250:
+            self._marker_phase = 'orbit'
+            self._marker_started += 250
+        elif self._marker_phase == 'return' and now - self._marker_started >= 300:
+            self._marker_phase = None
         self.update()
-        if (self.isVisible() and self.isChecked() and not get_reduce_motion()
-                and (self._busy or self._clock.elapsed() - self._last_key < 850)):
+        if (self.isVisible() and self.isChecked() and not reduced
+                and (self._busy or self._marker_phase == 'return'
+                     or now - self._last_key < 850)):
             if not self._motion.isActive():
                 self._motion.start()
         else:
@@ -5404,7 +5450,8 @@ class _NavigatorAiButton(QPushButton):
         painter.setRenderHint(QPainter.Antialiasing, True)
         painter.translate(self.rect().center())
         color = QColor(self._COLORS.get(self._provider, self._COLORS['spacr_hosted']))
-        if self.isChecked() and self._busy and not get_reduce_motion():
+        if (self.isChecked() and self._busy and self._provider != 'spacr_hosted'
+                and not get_reduce_motion()):
             painter.save()
             painter.rotate((self._clock.elapsed() * 0.18) % 360)
             painter.setBrush(Qt.NoBrush)
@@ -5420,10 +5467,17 @@ class _NavigatorAiButton(QPushButton):
         if self.isChecked():
             elapsed = max(0, self._clock.elapsed() - self._last_key)
             pulse = 0.0 if get_reduce_motion() else self._pulse * math.exp(-elapsed / 220.0)
-            radius = 8.0 + 5.0 * pulse
+            radius = (8.0 + 5.0 * pulse) * (0.75 if self._provider == 'spacr_hosted' else 1.0)
             painter.setPen(Qt.NoPen)
             painter.setBrush(color)
             painter.drawEllipse(QRectF(-radius, -radius, radius * 2, radius * 2))
+            marker = self._hosted_marker(self._clock.elapsed(), get_reduce_motion())
+            if self._provider == 'spacr_hosted' and marker is not None:
+                x, y, shade = marker
+                size = radius * 0.2
+                painter.setBrush(QColor(shade, shade, shade))
+                painter.drawEllipse(QRectF(x * radius - size, y * radius - size,
+                                          size * 2, size * 2))
         painter.end()
 
 
@@ -6948,7 +7002,60 @@ class _EasyHomePage(QWidget):
         self._last_result = None
         self._settings_overrides = {}
         self._regex_cancel = None
+        self._guide_visible = False
+        self._guide_writing = False
+        self._details_has_content = False
+        self.field.details.textChanged.connect(self._guide_details_changed)
+        self.path_edit.textChanged.connect(self._guide_input_changed)
         self.refresh()
+        self._show_empty_guide()
+
+    def _guide_details_changed(self):
+        """Distinguish real descriptions and answers from the guide's own writes."""
+        if not self._guide_writing:
+            self._guide_visible = False
+            self._details_has_content = bool(self.field.details.toPlainText().strip())
+
+    def _guide_input_changed(self, text):
+        """Retire introductory copy on the first edit, including a dropped path."""
+        if text.strip():
+            if self._guide_visible:
+                self._guide_writing = True
+                self.field.details.clear()
+                self._guide_writing = False
+                self._guide_visible = False
+        else:
+            self._show_empty_guide()
+
+    def _show_empty_guide(self):
+        """Use only an otherwise unoccupied lower description box for guidance."""
+        from ..i18n import tr
+
+        if (self.path_edit.text().strip() or self.field.cards or self._workflow is not None
+                or self._ai_thread is not None or self._details_has_content):
+            return
+        folder = 'C:/Data/experiment/plate1' if os.name == 'nt' else '/data/experiment/plate1'
+        image = folder + '/image.tif'
+        lines = (
+            tr('File/folder: Drop an image or a folder of images to see tools that accept it.'),
+            tr('Path: Paste {folder} or {image} to see compatible tools. You can also type a file type, such as tif.',
+               folder=folder, image=image),
+            tr('Question: Try “segment images” to find segmentation tools.'),
+            tr('Module: Type “Measure” to find the measurement module.'),
+            tr('Explore: Click a card to see tools that can use its output or supply its input. Open the tool you want to use.'),
+            tr('spaCR AI: Ask for help with your spaCR analysis, e.g., ‘How do I generate object masks?’ or ‘How do i train a Cellpose or Torch model?’'),
+        )
+        paragraphs = []
+        for line in lines:
+            parts = re.split(r'[:：]', line, maxsplit=1)
+            text = ('<b>' + escape(parts[0]) + ':</b>' + escape(parts[1])
+                    if len(parts) == 2 else escape(line))
+            paragraphs.append('<p>' + text + '</p>')
+        self._guide_writing = True
+        self.field.details.setHtml(''.join(paragraphs))
+        self._guide_writing = False
+        self._guide_visible = True
+        self._details_has_content = False
 
     def _update_ai_tooltip(self):
         """Describe the selected provider and the explicit change-provider gesture."""
@@ -7109,8 +7216,10 @@ class _EasyHomePage(QWidget):
             self._ai_reply_timer.start()
 
     def _render_ai_reply(self):
-        """Put response text in the fixed lower box without interpreting HTML."""
-        self.field.details.setPlainText(self._ai_text)
+        """Present a readable reply using the same passive Markdown renderer as chat."""
+        from .ai_chat_panel import _ai_reply_html
+
+        self.field.details.setHtml(_ai_reply_html(self._ai_text))
 
     def _navigator_ai_finished(self, generation, ok, text):
         """Stop the waiting texture and preserve worker ownership until thread exit."""
@@ -7200,6 +7309,9 @@ class _EasyHomePage(QWidget):
         if visible:
             self.field.set_cards([], _EasyGuidanceCard(message, self.field))
         self.field.details.setPlainText(message)
+        self._details_has_content = False
+        if not message:
+            self._show_empty_guide()
         self.field._arrange()
         self.field._publish_growth(invalidate=True)
 
@@ -7244,6 +7356,8 @@ class _EasyHomePage(QWidget):
         """Return explicit Home navigation to a fresh input with no retained graph or job."""
         self._cancel_navigator_ai()
         self._show_suggestions()
+        self._details_has_content = False
+        self.field.details.clear()
         self.path_edit.clear()
         self._queued_inspection = False
         self._clear_empty_input()
@@ -7259,7 +7373,8 @@ class _EasyHomePage(QWidget):
         self._last_result = None
         self._settings_overrides = {}
         self.field.set_cards([])
-        self._feedback('')
+        if not self._details_has_content:
+            self._feedback('')
         self._show_suggestions()
 
     def _schedule_inspection(self, text):

@@ -486,6 +486,28 @@ def _keep(raw: bytes, kept: deque,
         on_output(line)
 
 
+def _nvm_folders() -> List[Path]:
+    """Find bounded user-local Node installations without invoking a shell."""
+    roots = [Path(os.environ.get("NVM_DIR") or Path.home() / ".nvm")]
+    if os.environ.get("XDG_CONFIG_HOME"):
+        roots.append(Path(os.environ["XDG_CONFIG_HOME"]) / "nvm")
+    folders = []
+    for root in roots:
+        versions = []
+        try:
+            with os.scandir(root.expanduser() / "versions" / "node") as entries:
+                for index, entry in enumerate(entries):
+                    if index >= 128:
+                        break
+                    match = re.fullmatch(r"v(\d+)\.(\d+)\.(\d+)", entry.name)
+                    if match and entry.is_dir():
+                        versions.append((tuple(map(int, match.groups())), Path(entry.path) / "bin"))
+        except OSError:
+            continue
+        folders.extend(folder for _, folder in sorted(versions, reverse=True))
+    return folders
+
+
 def likely_folders(platform: Optional[str] = None) -> List[str]:
     """Folders installers put a CLI in that may not be on ``PATH``.
 
@@ -507,7 +529,8 @@ def likely_folders(platform: Optional[str] = None) -> List[str]:
         roaming = Path(os.environ.get("APPDATA", home / "AppData/Roaming"))
         programs = Path(os.environ.get("ProgramFiles", "C:/Program Files"))
         folders = [home / ".local" / "bin", local / "Microsoft/WinGet/Links",
-                   programs / "GitHub CLI", roaming / "npm"]
+                   programs / "GitHub CLI", roaming / "npm",
+                   local / "Programs" / "OpenAI" / "Codex" / "bin"]
         for prefix in prefixes:
             folders += [prefix / "Scripts", prefix / "Library" / "bin"]
     else:
@@ -516,6 +539,7 @@ def likely_folders(platform: Optional[str] = None) -> List[str]:
                    Path("/home/linuxbrew/.linuxbrew/bin"),
                    home / ".linuxbrew" / "bin"]
         folders += [prefix / "bin" for prefix in prefixes]
+        folders += _nvm_folders()
     npm = _npm_folder(platform)
     if npm:
         folders.append(Path(npm))

@@ -1226,6 +1226,35 @@ def _register_error_console(console):
         crashreport._ERROR_RESULT_LISTENERS.append(listener)
 
 
+def _visible_console_levels():
+    """Read the saved console policy only at the GUI-owned display boundary."""
+    from ..preferences import get_log_console_levels
+
+    return get_log_console_levels()
+
+
+_CONSOLE_LINE_LEVEL = re.compile(
+    r'^(?:(?:\d{4}-\d{2}-\d{2})[ T])?'
+    r'(?:\[?\d{2}:\d{2}:\d{2}(?:[.,]\d+)?\]?\s*)?'
+    r'(?:\[(DEBUG|INFO|WARNING|WARN|ERROR|CRITICAL|FATAL)\]'
+    r'|(?:[\w.:-]+\s+)?(DEBUG|INFO|WARNING|WARN|ERROR|CRITICAL|FATAL)(?:\s|:))', re.IGNORECASE)
+
+
+def _partial_console_header(line):
+    """Hold only short, unfinished severity headers rather than arbitrary stdout."""
+    if len(line) > 256 or '\n' in line or '\r' in line:
+        return False
+    header = re.sub(r'^(?:\d{4}-\d{2}-\d{2}[ T])?'
+                    r'\[?\d{2}:\d{2}:\d{2}(?:[.,]\d+)?\]?\s*', '', line)
+    header = re.sub(r'^[\w.:-]+\s+(?=\[|DEBUG|INFO|WARN|ERROR|CRITICAL|FATAL)', '', header,
+                    flags=re.IGNORECASE)
+    candidates = ('[DEBUG]', '[INFO]', '[WARNING]', '[WARN]', '[ERROR]', '[CRITICAL]', '[FATAL]',
+                  'DEBUG', 'INFO', 'WARNING', 'WARN', 'ERROR', 'CRITICAL', 'FATAL',
+                  'Traceback (most recent call last):')
+    return bool(header and any(candidate.upper().startswith(header.upper())
+                               and len(header) < len(candidate) for candidate in candidates))
+
+
 class ConsolePanel(QWidget):
     """Merged pipeline stdout + AI chat panel.
 
@@ -1252,6 +1281,7 @@ class ConsolePanel(QWidget):
     #: on the GUI thread and falls through to the real body.
     _relay_stdout = Signal(str)
     _relay_error = Signal(str)
+    _relay_warning = Signal(str)
     _relay_notice = Signal(str, object)
     _error_batch_ready = Signal(str, str, bool, str, object)
 
@@ -1274,7 +1304,15 @@ class ConsolePanel(QWidget):
         super().__init__(parent)
         self._error_batch_ready.connect(self._open_batched_error)
         self.setObjectName("ConsolePanel")
-        self._log_pending: List[str] = []
+        self._log_pending: List[tuple] = []
+        self._stdout_continuation_level = None
+        self._stdout_in_traceback = False
+        self._stdout_last_level = None
+        self._stdout_prefix_fragment = ''
+        self._stdout_prefix_flush = QTimer(self)
+        self._stdout_prefix_flush.setSingleShot(True)
+        self._stdout_prefix_flush.setInterval(100)
+        self._stdout_prefix_flush.timeout.connect(self._flush_stdout_prefix)
         self._log_flush = QTimer(self)
         self._log_flush.setSingleShot(True)
         self._log_flush.setInterval(_LOG_FLUSH_MS)
@@ -1310,6 +1348,7 @@ class ConsolePanel(QWidget):
 
         self._relay_stdout.connect(self._display_stdout)
         self._relay_error.connect(self._display_error)
+        self._relay_warning.connect(self.append_warning)
         self._relay_notice.connect(self._append_notice_on_gui_thread)
         from ... import crashreport
         from ..ai.issue_report import _sync_automatic_failure_policy
@@ -1796,7 +1835,7 @@ class ConsolePanel(QWidget):
             pass
         self._display_stdout(text)
 
-    def _display_stdout(self, text):
+    def _display_stdout(self, text, *, _filtered=False):
         """Display already-classified output without capturing it a second time."""
         if not self._on_gui_thread():
             self._relay_stdout.emit(text)
@@ -1804,6 +1843,10 @@ class ConsolePanel(QWidget):
         if console_write_in_progress():
             return
         with console_write():
+            if not _filtered:
+                text = self._filter_stdout_levels(text)
+                if not text:
+                    return
             if (self._current_stdout is None
                     or self._needs_topic("stdout")
                     or self._current_stdout.property(
@@ -1819,6 +1862,58 @@ class ConsolePanel(QWidget):
                 self._last_entry_kind = "stdout"
             self._current_stdout.append(text)
             self._scroll_to_bottom()
+
+    def _filter_stdout_levels(self, text, *, _partial=True):
+        """Keep severity-labelled lines and complete traceback continuations together."""
+        import logging
+
+        allowed = _visible_console_levels()
+        text = self._stdout_prefix_fragment + text
+        self._stdout_prefix_fragment = ''
+        self._stdout_prefix_flush.stop()
+        level = self._stdout_continuation_level or logging.INFO
+        shown = []
+        for index, line in enumerate(text.splitlines(keepends=True)):
+            if _partial and _partial_console_header(line):
+                self._stdout_prefix_fragment = line
+                self._stdout_prefix_flush.start()
+                break
+            matched = _CONSOLE_LINE_LEVEL.match(line)
+            if matched:
+                name = (matched.group(1) or matched.group(2)).upper()
+                level = logging._nameToLevel.get({'WARN': 'WARNING', 'FATAL': 'CRITICAL'}.get(name, name),
+                                                logging.INFO)
+                self._stdout_in_traceback = False
+            elif line.lstrip().startswith('Traceback (most recent call last)'):
+                level = logging.ERROR
+                self._stdout_in_traceback = True
+            elif re.match(r'^(?:[\w.]+(?:Error|Exception)|Exception|Error|KeyboardInterrupt|SystemExit)\s*:', line):
+                level = logging.ERROR
+                self._stdout_in_traceback = False
+            elif line.startswith(('During handling of the above exception',
+                                  'The above exception was the direct cause')):
+                level = logging.ERROR
+                self._stdout_in_traceback = True
+            elif re.search(r'(?:^|:\s*)\w*Warning\s*:', line):
+                level = logging.WARNING
+            elif self._stdout_in_traceback:
+                level = logging.ERROR
+            elif index == 0 and line[:1].isspace() and self._stdout_last_level is not None:
+                level = self._stdout_last_level
+            if level in allowed:
+                shown.append(line)
+        self._stdout_last_level = level
+        self._stdout_continuation_level = level if not text.endswith(('\n', '\r')) else None
+        return ''.join(shown)
+
+    def _flush_stdout_prefix(self):
+        """Release an isolated incomplete prefix promptly without a growing line buffer."""
+        fragment = self._stdout_prefix_fragment
+        if fragment:
+            with console_write():
+                text = self._filter_stdout_levels('', _partial=False)
+            if text:
+                self._display_stdout(text, _filtered=True)
 
     def append_notice(self, source: str, **values: object) -> None:
         """Append one localized spaCR-authored UI notice.
@@ -1861,7 +1956,7 @@ class ConsolePanel(QWidget):
         trailing = source[len(source.rstrip()):]
         self.append_stdout(leading + tr(core, **mapping) + trailing)
 
-    def _on_log_record(self, text: str, level: int) -> None:
+    def _on_log_record(self, text: str, level: int, *, _allowed=None) -> None:
         """Slot for QtLogHandler.record_ready, routed by level.
 
         A WARNING IS NOT AN ERROR. This used to send everything at or above
@@ -1876,14 +1971,20 @@ class ConsolePanel(QWidget):
         Three bands now, not two.
         """
         import logging as _logging
+
+        if _allowed is None:
+            with console_write():
+                _allowed = level in _visible_console_levels()
+        if not _allowed:
+            return
         if level < _logging.WARNING:
-            self._log_pending.append(text)
+            self._log_pending.append((text, level))
             if not self._log_flush.isActive():
                 self._log_flush.start()
             return
         self._flush_log_records()
         if level >= _logging.ERROR:
-            self._display_error(text)
+            self._display_error(text, _level=level)
         else:
             self.append_warning(text)
 
@@ -1893,14 +1994,11 @@ class ConsolePanel(QWidget):
         :param records: ``(text, level)`` pairs as :meth:`_on_log_record`
             takes them.
         """
-        import logging as _logging
+        with console_write():
+            allowed = _visible_console_levels()
         for text, level in records:
-            if level < _logging.WARNING:
-                self._log_pending.append(text)
-            else:
-                self._on_log_record(text, level)
-        if self._log_pending and not self._log_flush.isActive():
-            self._log_flush.start()
+            if level in allowed:
+                self._on_log_record(text, level, _allowed=True)
 
     def _flush_log_records(self) -> None:
         """Append the informational records waiting, as one write.
@@ -1912,9 +2010,12 @@ class ConsolePanel(QWidget):
         self._log_flush.stop()
         if not self._log_pending:
             return
-        text = "".join(self._log_pending)
+        with console_write():
+            allowed = _visible_console_levels()
+            text = ''.join(text for text, level in self._log_pending if level in allowed)
         self._log_pending.clear()
-        self._display_stdout(text)
+        if text:
+            self._display_stdout(text, _filtered=True)
 
     def append_warning(self, text: str) -> None:
         """Append warning text in the theme's amber, under the output banner.
@@ -1929,7 +2030,14 @@ class ConsolePanel(QWidget):
         """
         if not text:
             return
+        if not self._on_gui_thread():
+            self._relay_warning.emit(text)
+            return
         with console_write():
+            import logging
+
+            if logging.WARNING not in _visible_console_levels():
+                return
             amber = color_warning()
             self.begin_topic(self._output_banner("spaCR output"), accent=amber)
             block = _StdoutBlock(text, text_color=amber)
@@ -1956,7 +2064,7 @@ class ConsolePanel(QWidget):
             pass
         self._display_error(tb)
 
-    def _display_error(self, tb):
+    def _display_error(self, tb, *, _level=None):
         """Display already-classified output without capturing it a second time."""
         if not self._on_gui_thread():
             self._relay_error.emit(tb)
@@ -1964,6 +2072,10 @@ class ConsolePanel(QWidget):
         if console_write_in_progress():
             return
         with console_write():
+            import logging
+
+            if (_level or logging.ERROR) not in _visible_console_levels():
+                return
             red = color_error()
             self.begin_topic(self._output_banner("spaCR ERROR"), accent=red)
             block = _StdoutBlock(tb, error=True, text_color=red)
@@ -2759,6 +2871,8 @@ class ConsolePanel(QWidget):
         :param event: the close event, passed to the base class after
             :meth:`shutdown` drains the AI thread.
         """
+        self._stdout_prefix_flush.stop()
+        self._stdout_prefix_fragment = ''
         self.shutdown()
         super().closeEvent(event)
 

@@ -60,7 +60,7 @@ def test_returning_home_discards_graph_input_and_stale_results(qtbot, private_ai
     assert window._stack.currentWidget() is page
     assert page._workflow is None and not page.field.cards
     assert page.path_edit.text() == '' and page.path_edit.isVisible()
-    assert not page.field.details.toPlainText()
+    assert page._guide_visible and 'File/folder:' in page.field.details.toPlainText()
     assert page._last_result is None and page._settings_overrides == {}
     assert not page._queued_inspection and not page._debounce.isActive()
     page._show_result(generation, result)

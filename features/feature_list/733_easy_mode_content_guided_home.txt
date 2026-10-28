@@ -14,6 +14,14 @@ Related:   startup options, Preferences, Home, dock, spaCR AI
 
 CURRENT MAINTAINER FOLLOW-UP — 2026-10-27
 
+AI GUIDANCE EXAMPLE COPY — 2026-10-28: the maintainer replaces channel/error examples with exactly “Ask for help with your spaCR analysis, e.g., ‘How do I generate object masks?’ or ‘How do i train a Cellpose or Torch model?’” Preserve the approved other five guide examples.
+
+AI BUSY-DOT MOTION FOLLOW-UP — 2026-10-28: spaCR AI's small white fill must spawn a small black dot at its center, move it halfway to the edge and orbit it while a reply is pending. On completion move it back to the center and blend it into white until invisible. Typing pulses scale the white fill and black marker together. Preserve the outer white ring, reduced-motion support and zero hidden/idle animation work.
+
+EMPTY NAVIGATOR GUIDANCE FOLLOW-UP — 2026-10-28: when Navigator has no input or response/description, show a concise example each for dropping a file/folder, entering a path, asking for a task and finding a module. Explain click-to-explore and double-click-to-open using actual card behavior. Hide the guidance on input/drop/response; restore it on a fresh empty Home. Preserve real card explanations, AI answers, fixed layout and translations.
+
+AI DOT APPEARANCE FOLLOW-UP — 2026-10-28: change the spaCR AI fill from teal to white and shrink its diameter by 25 percent; keep the clean outer white ring unchanged and retain typing/busy feedback.
+
 SPACEOUT FULL-CARD FOLLOW-UP — 2026-10-27: remove the visible Spaceout name and fill the entire button with the provided animated GIF, clipped to the same rounded card perimeter. Preserve the native border and hover outline, accessible name, click action, visible-only playback and Reduce motion support. Other cards keep their names and layout.
 
 INPUT PLACEHOLDER FOLLOW-UP — 2026-10-27: use exactly “Drop a file or folder | Type a Path | Ask a Question ◉” in the English Navigator input. Keep the input actions and AI control unchanged, and provide corresponding localized guidance.

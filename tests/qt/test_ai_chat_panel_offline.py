@@ -560,8 +560,12 @@ def test_dialog_saving_a_blank_prompt_clears_the_override(ai_env, qtbot):
     assert dlg._prompt_status.text() == "Using the default spaCR-aware prompt."
 
 
-def test_dialog_provider_rows_show_install_state_and_commands(ai_env, qtbot):
+def test_dialog_provider_rows_show_install_state_and_commands(ai_env, qtbot, monkeypatch):
+    from spacr.qt.ai import cli_install
     from spacr.qt.widgets.ai_chat_panel import _ProvidersDialog
+
+    monkeypatch.setattr(cli_install, 'locate', lambda tool: '/offline/' + tool.name if tool.is_installed() else '')
+    monkeypatch.setattr(cli_install, 'put_on_path', lambda path: False)
 
     ai_env["providers"] = [
         _ScriptedProvider("claude", "Claude", installed=True),
