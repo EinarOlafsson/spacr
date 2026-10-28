@@ -706,11 +706,13 @@ class DockEdge(QWidget):
         QAccessible.updateAccessibility(QAccessibleStateChangeEvent(self, changed))
         self.collapsedChanged.emit(collapsed)
         if self._pressed_x is None:
-            from .ambient import field_ripple_for_widget
+            import sys
 
-            _after(0, self, partial(
-                field_ripple_for_widget, self if collapsed else self._dock,
-                edge="right"))
+            ambient = sys.modules.get(f"{__package__}.ambient")
+            if ambient is not None:
+                _after(0, self, partial(
+                    ambient.field_ripple_for_widget, self if collapsed else self._dock,
+                    edge="right"))
 
     def keyPressEvent(self, event) -> None:  # noqa: N802
         """Let a keyboard user activate the same collapse control.
