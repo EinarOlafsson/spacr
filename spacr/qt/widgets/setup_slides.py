@@ -20,7 +20,7 @@ from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (QComboBox, QDialog, QFormLayout,
                                QGraphicsOpacityEffect,
                                QHBoxLayout, QLabel, QPushButton,
-                               QStackedWidget, QVBoxLayout, QWidget)
+                               QSizePolicy, QStackedWidget, QVBoxLayout, QWidget)
 
 LOG = logging.getLogger("spacr.qt.setup_slides")
 
@@ -478,6 +478,7 @@ class SetupSlides(QDialog):
         self._show_slide(0)
         self.resize(720, 560)
         self._fit_opening_to_screen()
+        self._opening_fitted = True
 
     def _fit_opening_to_screen(self) -> None:
         """Fit undersized content naturally and scroll an oversized opening.
@@ -493,6 +494,8 @@ class SetupSlides(QDialog):
         available = screen.availableGeometry().size()
         self.card.ensurePolished()
         self.card.layout().activate()
+        if getattr(self, "_card_scrolls", False):
+            return
         if (opening.width() <= available.width() and opening.height() <= available.height()
                 and (opening.width() < self.card.minimumSizeHint().width()
                      or opening.height() < self.card.minimumSizeHint().height())):
@@ -505,15 +508,27 @@ class SetupSlides(QDialog):
             column.insertWidget(column.count() - 1, self._gpu_note)
             self._card_in_layout = True
             self.layout().addWidget(self.card)
+            for index in range(self._pages.count()):
+                self._pages.widget(index).setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+            self._pages.layout().invalidate()
+            self._pages.updateGeometry()
+            column.invalidate()
             column.activate()
             opening = opening.expandedTo(self.card.sizeHint()).expandedTo(self.card.minimumSizeHint())
             _resize_actual(self, opening)
         if opening.width() <= available.width() and opening.height() <= available.height():
             return
-        from ..dialogs import (OPENS_AT, let_the_content_scroll,
+        from ..dialogs import (OPENS_AT, _centred_dialog_frame, let_the_content_scroll,
                                make_the_window_resizable, open_at_its_natural_size)
         from ..gui_scale import _set_actual_dim
 
+        for index in range(self._pages.count()):
+            self._pages.widget(index).setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        self._pages.layout().invalidate()
+        self._pages.updateGeometry()
+        self.card.layout().invalidate()
+        self.card.layout().activate()
+        opening = opening.expandedTo(self.card.sizeHint()).expandedTo(self.card.minimumSizeHint())
         _set_actual_dim(self.card, "minw", opening.width())
         _set_actual_dim(self.card, "minh", opening.height())
         self._card_scrolls = True
@@ -524,6 +539,9 @@ class SetupSlides(QDialog):
         make_the_window_resizable(self)
         self.setProperty(OPENS_AT, opening)
         open_at_its_natural_size(self)
+        if self.isVisible():
+            frame = self.frameGeometry()
+            self.move(_centred_dialog_frame(frame, frame.size(), screen.availableGeometry()).topLeft())
 
     def _use_the_light_face(self) -> None:
         """Set every slide in Open Sans Light.
@@ -1277,6 +1295,12 @@ class SetupSlides(QDialog):
         index = max(0, min(int(index), len(SLIDES) - 1))
         self._index = index
         title, blurb, _keys = SLIDES[index]
+        if not getattr(self, "_card_scrolls", False):
+            for page_index in range(self._pages.count()):
+                policy = QSizePolicy.Preferred if page_index == index else QSizePolicy.Ignored
+                self._pages.widget(page_index).setSizePolicy(policy, policy)
+            self._pages.layout().invalidate()
+            self._pages.updateGeometry()
         self._pages.setCurrentIndex(index)
         closing = index == len(SLIDES) - 1
         self._title.setVisible(not closing)
@@ -1295,6 +1319,8 @@ class SetupSlides(QDialog):
         self._back.setEnabled(index > 0)
         self._next.setText(_say("Start spaCR") if index == len(SLIDES) - 1
                            else _say("Next ›"))
+        if getattr(self, "_opening_fitted", False):
+            self._fit_opening_to_screen()
         self._drop_the_fade()
         if fade:
             self._fade_in()
