@@ -1148,3 +1148,74 @@ def test_real_matched_invalid_well_is_refused_before_browser_fields_are_accepted
     assert view.fields.count() == 0 and view.view._item is None
     assert all(path.read_bytes() == content for path, content in original.items())
     np.testing.assert_array_equal(tifffile.imread(invalid), pixels)
+
+
+def test_returning_from_one_field_to_its_montage_refuses_stale_image_readout_and_settings(view, qtbot):
+    from pathlib import Path
+    from PySide6.QtCore import QPoint
+    from PySide6.QtTest import QSignalSpy
+
+    item = _item(view, 'plateA', 'A01')
+    view._well(item)
+    qtbot.waitUntil(lambda: view.fields.count() > 0, timeout=10000)
+    view.fields.setCurrentRow(0)
+    qtbot.waitUntil(lambda: view._individual and view.view._item is not None
+                    and not view.view._item.pixmap().isNull(), timeout=10000)
+    _settle_plate_auxiliary_jobs(view, qtbot)
+    field = view._main_view_field
+    originals = {Path(path): Path(path).read_bytes() for _channel, path in field.files}
+    _move_plate_image_cursor(view.view)
+    qtbot.waitUntil(lambda: view._pixel_readout.text().startswith('x '), timeout=10000)
+    view._well(_item(view, 'plateA', 'A01'))
+    qtbot.waitUntil(lambda: not view._individual and view._displayed_montage is not None
+                    and view.view._item is not None
+                    and not view.view._item.pixmap().isNull(), timeout=10000)
+    _settle_plate_auxiliary_jobs(view, qtbot)
+    assert view._main_view_field is field
+    displayed = view.view._item.pixmap().toImage().copy()
+    navigation = (view._scope, view.plates.currentData(), view.fields.count(),
+                  tuple(candidate.identity for candidate in view._fields))
+    readouts = QSignalSpy(view._readout_jobs.job_finished)
+    cursor_updates = QSignalSpy(view._readout_timer.timeout)
+    _move_plate_image_cursor(view.view)
+    qtbot.waitUntil(lambda: cursor_updates.count() >= 1)
+    assert view._pixel_readout.text() == ''
+    view.view.customContextMenuRequested.emit(QPoint(1, 1))
+    assert view._image_menu_shown is None and view._image_settings is None
+    assert view._readout_jobs.active_jobs() == 0 and readouts.count() == 0
+    assert view.view._item.pixmap().toImage() == displayed
+    assert (view._scope, view.plates.currentData(), view.fields.count(),
+            tuple(candidate.identity for candidate in view._fields)) == navigation
+    assert all(path.read_bytes() == data for path, data in originals.items())
+
+
+def test_hovering_a_real_empty_plate_cell_clears_the_previous_well_readout(view, qtbot):
+    from pathlib import Path
+    from PySide6.QtCore import QPoint
+
+    view._set_plates_view('side')
+    _settle_plate_auxiliary_jobs(view, qtbot)
+    _item(view, 'plateB', 'A01').setSelected(True)
+    selected = set(view._selected_wells)
+    current = view.plates.currentData()
+    identities = tuple(field.identity for field in view._fields)
+    originals = {Path(path): Path(path).read_bytes()
+                 for field in view._fields for _channel, path in field.files}
+    _hover(view, 'plateA', 'A01')
+    qtbot.waitUntil(lambda: 'Plate plateA' in view._pixel_readout.text()
+                    and 'Well A01' in view._pixel_readout.text())
+    table = view._plate_tables['plateA']
+    assert table.item(1, 2) is None
+    point = QPoint(table.columnViewportPosition(2) + table.columnWidth(2) // 2,
+                   table.rowViewportPosition(1) + table.rowHeight(1) // 2)
+    assert table.viewport().rect().contains(point) and table.itemAt(point) is None
+    local = QPointF(point)
+    event = QMouseEvent(QEvent.MouseMove, local, table.viewport().mapToGlobal(point),
+                        Qt.NoButton, Qt.NoButton, Qt.NoModifier)
+    QApplication.sendEvent(table.viewport(), event)
+    qtbot.waitUntil(lambda: view._pixel_readout.text() == '')
+    assert view._selected_wells == selected
+    assert view.plates.currentData() == current
+    assert tuple(field.identity for field in view._fields) == identities
+    assert _item(view, 'plateB', 'A01').isSelected()
+    assert all(path.read_bytes() == data for path, data in originals.items())
