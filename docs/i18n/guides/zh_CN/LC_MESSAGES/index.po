@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:05-0400\n"
+"POT-Creation-Date: 2026-10-28 10:47-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -87,6 +87,10 @@ msgstr "提交错误报告、功能请求或提出问题。"
 
 msgid "Applications and workflow"
 msgstr "应用与工作流程"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use :doc:`Navigator <navigator>` to discover tools from a local input or task, explore their workflow branches and choose an explicit native-module handoff."
+msgstr "使用 :doc:`Navigator <navigator>` 根据本地输入或任务发现工具、探索工作流分支，并显式选择交接到常规模块。"
 
 msgid "New to spaCR? :doc:`Choose a workflow after installation <workflows>` for the first Home tile, the inputs each step needs, and what to open next."
 msgstr "初次使用 spaCR？请 :doc:`在安装后选择工作流程 <workflows>`，了解主页上的第一个磁贴、每个步骤所需的输入以及下一步要打开什么。"

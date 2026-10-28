@@ -134,3 +134,74 @@ def test_repeated_level_cycles_keep_runtime_console_and_actions_inside_window(ov
         for panel in tuple(view._well_panels):
             view._close_well_panel(panel)
         view._image_panel.hide()
+
+
+
+def test_overview_field_redraws_keep_accessible_items_and_replace_all_old_payloads(overview, qtbot):
+    import shiboken6
+    from PySide6.QtGui import QAccessible
+    from tests.qt.test_redraws_keep_their_items_20261018 import _walk
+
+    screen, view = overview
+    view._well(view.wells.item(*view._well_positions[('p1', 'A01')]))
+    listing = view.fields
+    qtbot.waitUntil(lambda: listing.count() == 2 and all(
+        listing.item(row).data(Qt.UserRole + 1) is not None
+        and not listing.item(row).icon().isNull() for row in range(2)), timeout=15000)
+    initial = [listing.item(row) for row in range(2)]
+    first = tuple(item.data(Qt.UserRole) for item in initial)
+    second = tuple(field for field in view._fields if field.well == 'B02')
+    assert len(second) == 2 and {field.identity for field in first}.isdisjoint(
+        field.identity for field in second)
+    initial[1].setSelected(True)
+    assert first[1].identity in view._selected_fields
+    before_accessible = QAccessible.isActive()
+    QAccessible.setActive(True)
+    geometry = view._overview_options.get('geometry')
+    try:
+        _walk(listing)
+        initial[0].setData(Qt.UserRole + 4, True)
+        initial[0].setData(Qt.UserRole + 99, 'old source payload')
+        view._fill_field_list(listing, first, first[0].identity)
+        assert [listing.item(row) for row in range(2)] == initial
+        assert listing.currentItem() is initial[0]
+        assert not initial[0].isSelected() and initial[1].isSelected()
+        assert all(item.text() == '' for item in initial)
+        assert all(item.data(Qt.UserRole + 2) and item.toolTip() for item in initial)
+        view._fill_field_list(listing, second, first[0].identity)
+        _walk(listing)
+        assert [listing.item(row) for row in range(2)] == initial
+        assert [item.data(Qt.UserRole).identity for item in initial] == [field.identity for field in second]
+        assert listing.currentItem() is None and listing.selectedItems() == []
+        assert all(item.icon().isNull() for item in initial)
+        assert all(item.data(role) is None for item in initial
+                   for role in (Qt.UserRole + 1, Qt.UserRole + 3, Qt.UserRole + 4, Qt.UserRole + 99))
+        assert all('B02' in item.data(Qt.UserRole + 2) for item in initial)
+        assert all(item.text() == '' for item in initial)
+        view._fill_field_list(listing, second[:1], None)
+        assert listing.count() == 1 and initial[1].listWidget() is None
+        view._fill_field_list(listing, (), None)
+        _walk(listing)
+        assert listing.count() == 0 and listing.currentItem() is None
+        assert all(shiboken6.isValid(item) and item.listWidget() is None for item in initial)
+        assert all(item.data(Qt.UserRole) is None and item.icon().isNull() for item in initial)
+        view._fill_field_list(listing, first, first[0].identity)
+        assert [listing.item(row) for row in range(2)] == initial
+        assert listing.currentItem() is initial[0] and initial[1].isSelected()
+        view._well_metadata_toggled(listing, True)
+        assert all(item.text() == item.data(Qt.UserRole + 2) for item in initial)
+        view._scan()
+        assert listing.count() == 0 and all(shiboken6.isValid(item) for item in initial)
+        qtbot.waitUntil(lambda: not view._index_jobs.is_busy() and view._normalization_ready
+                        and listing.count() == len(WELLS) * 2, timeout=15000)
+        assert view._scope == ('p1', None)
+        assert {listing.item(row).data(Qt.UserRole).well for row in range(listing.count())} == set(WELLS)
+        assert all(shiboken6.isValid(item) for item in initial)
+        view._overview_options['geometry'] = (1, 1)
+        view._filter()
+        assert not view._geometry_valid and listing.count() == 0
+        assert listing.currentItem() is None and listing.selectedItems() == []
+        assert all(shiboken6.isValid(item) and item.listWidget() is None for item in initial)
+    finally:
+        view._overview_options['geometry'] = geometry
+        QAccessible.setActive(before_accessible)

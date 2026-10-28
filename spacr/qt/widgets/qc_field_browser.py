@@ -8267,21 +8267,20 @@ class _FieldOverview(QWidget):
         :param records: the field records on its current page.
         :param current_identity: the identity to keep current, if present.
         """
-        from PySide6.QtWidgets import QListWidgetItem
         from PySide6.QtCore import QItemSelectionModel
+        from .sortable_table import _reuse_list_items
 
         fields.blockSignals(True)
-        fields.clear()
-        for field in records:
+        items = _reuse_list_items(fields, len(records))
+        for item, field in zip(items, records):
             caption = tr("{well} · field {field} · T {time} · Z {z}",
                 well=self._well_label(field.plate, field.well), field=getattr(field, "field_id", "") or field.field,
                 time=getattr(field, "time_id", "") or str(self.time_axis.currentData()),
                 z=getattr(field, "z_id", "") or str(self.z_axis.currentData()))
-            item = QListWidgetItem(caption if fields._overview_metadata else "")
+            item.setText(caption if fields._overview_metadata else "")
             item.setData(Qt.UserRole + 2, caption)
             item.setToolTip(caption + "\n" + field.caption)
             item.setData(Qt.UserRole, field)
-            fields.addItem(item)
             item.setSelected(field.identity in self._selected_fields)
             if field.identity == current_identity:
                 fields.setCurrentItem(item, QItemSelectionModel.NoUpdate)
@@ -10780,7 +10779,7 @@ class _FieldOverview(QWidget):
         self._all_fields = ()
         for table in self._plate_table_list():
             table.clear()
-        self.fields.clear()
+        self._fill_field_list(self.fields, (), None)
         self.view.clear_image()
         source, regex, convention, cancelled = self.source.text(), self.regex.text(), self._convention, self._cancelled
         self.status.setText(tr("Indexing image metadata…"))
@@ -10910,7 +10909,7 @@ class _FieldOverview(QWidget):
             self._visible = ()
             for table in self._plate_tables.values():
                 self._clear_plate_table(table)
-            self.fields.clear()
+            self._fill_field_list(self.fields, (), None)
             self.view.clear_image()
             self.status.setText(str(error))
             return

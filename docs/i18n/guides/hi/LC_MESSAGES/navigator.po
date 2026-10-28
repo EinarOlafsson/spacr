@@ -1,0 +1,77 @@
+# spaCR user guide translation (hi).
+# AI technical review (Codex), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-28 10:47-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Codex (AI technical translation)\n"
+"Language: hi\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Navigator: choose a tool from your input"
+msgstr "Navigator: अपने इनपुट के अनुसार उपकरण चुनें"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Navigator is the default Home for a fresh profile; a saved opt-out is respected. Launch it with ``spacr-nav`` or ``spacr-navigator``, or enable **Navigator** in **Help**. Explicit module launches still open that module."
+msgstr "नई प्रोफ़ाइल में Navigator डिफ़ॉल्ट Home है; पहले से सहेजा गया बंद रखने का विकल्प मान्य रहता है। इसे ``spacr-nav`` या ``spacr-navigator`` से शुरू करें, या **Help** में **Navigator** चालू करें। किसी मॉड्यूल को सीधे शुरू करने पर वही मॉड्यूल खुलता है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Find a starting point"
+msgstr "शुरुआत का बिंदु खोजें"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Drop a local file or folder, browse for one, or type a path or task and press Enter. Typing alone does not inspect data or open a module. For example, “detect features” offers Measure; tool names and supported task phrases match without case sensitivity. Recognized commands, such as opening tutorials, can follow their own command route on Enter."
+msgstr "स्थानीय फ़ाइल या फ़ोल्डर छोड़ें, ब्राउज़ करके चुनें, या पथ अथवा कार्य लिखकर Enter दबाएँ। केवल टाइप करने से डेटा की जाँच या मॉड्यूल नहीं खुलता। उदाहरण के लिए, “detect features” से Measure का सुझाव मिलता है; उपकरणों के नाम और समर्थित कार्य-वाक्य बड़े-छोटे अक्षरों के भेद के बिना मिलते हैं। पहचाने गए आदेश, जैसे ट्यूटोरियल खोलना, Enter दबाने पर अपने आदेश-पथ से चल सकते हैं।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Suggestions appear as a grid of named cards. The first click anchors the selected card and reveals a sparse workflow; it does not run analysis. Hover to read the fixed, scrollable description. A second click on the selected tool opens its native screen. Review its settings and input before pressing Run."
+msgstr "सुझाव नाम वाले कार्डों की ग्रिड में आते हैं। पहला क्लिक चुने हुए कार्ड को स्थिर करता है और सीमित शाखाओं वाला वर्कफ़्लो दिखाता है; विश्लेषण नहीं चलाता। स्थिर, स्क्रॉल करने योग्य विवरण पढ़ने के लिए पॉइंटर ऊपर रखें। चुने हुए उपकरण पर दूसरा क्लिक उसकी सामान्य स्क्रीन खोलता है। Run दबाने से पहले उसकी सेटिंग और इनपुट जाँचें।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Explore without running"
+msgstr "चलाए बिना खोजबीन करें"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Select a downstream card to reveal its branches. **More next steps** exposes additional direct choices; **All tools** includes the other available registered tools and subtools. Availability follows maturity and species preferences. A connector describes a workflow relationship, not proof that the current input satisfies every prerequisite. Modes such as 3D, Time and OPS label connections rather than inventing separate processing steps."
+msgstr "आगे के चरण का कार्ड चुनने पर उसकी शाखाएँ दिखती हैं। **अगले चरणों के और विकल्प** अतिरिक्त सीधे विकल्प दिखाता है; **सभी उपकरण** में बाकी उपलब्ध पंजीकृत उपकरण और उप-उपकरण होते हैं। उपलब्धता परिपक्वता और प्रजाति की प्राथमिकताओं के अनुसार होती है। कनेक्शन वर्कफ़्लो का संबंध बताता है, यह प्रमाण नहीं कि वर्तमान इनपुट हर पूर्वशर्त पूरी करता है। 3D, Time और OPS जैसे मोड कनेक्शनों के लेबल हैं; वे अलग प्रसंस्करण चरण नहीं बनाते।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use **Back** or Escape to return to suggestions. Returning Home starts a fresh Navigator visit. The original card stays anchored while branches grow; the description remains below, and the app dock and side panes can be collapsed without changing the input."
+msgstr "सुझावों पर लौटने के लिए **वापस** या Escape इस्तेमाल करें। Home पर लौटने से Navigator की नई यात्रा शुरू होती है। शाखाएँ बढ़ते समय मूल कार्ड स्थिर रहता है; विवरण नीचे रहता है और ऐप डॉक तथा पार्श्व पैनल इनपुट बदले बिना समेटे जा सकते हैं।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Check what the input supports"
+msgstr "जाँचें कि इनपुट क्या समर्थित करता है"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Local discovery uses bounded filenames, headers and project metadata, not a full analysis. An explicit raw image stays scoped to that input; a verified generated array inside a canonical merged folder can inherit its plate context. Handoffs use the selected file or project root required by the destination. An annotation-only database is not evidence of measured features, and a format keyword is not a promise that every file with that suffix can be read. Missing readers or calibrated-data prerequisites still need attention in the native workflow."
+msgstr "स्थानीय पहचान सीमित फ़ाइल-नामों, हेडरों और परियोजना मेटाडेटा का उपयोग करती है, पूरा विश्लेषण नहीं करती। स्पष्ट रूप से चुनी गई कच्ची छवि का दायरा उसी इनपुट तक रहता है; मानक merged फ़ोल्डर के भीतर सत्यापित जनित ऐरे को उसकी प्लेट का संदर्भ मिल सकता है। हस्तांतरण में गंतव्य की आवश्यकता के अनुसार चुनी हुई फ़ाइल या परियोजना की रूट निर्देशिका दी जाती है। केवल एनोटेशन वाली डेटाबेस मापी गई विशेषताओं का प्रमाण नहीं है, और फ़ॉर्मैट का कीवर्ड यह वादा नहीं कि उस प्रत्यय की हर फ़ाइल पढ़ी जा सकेगी। अनुपस्थित रीडर और कैलिब्रेट किए गए डेटा की पूर्वशर्तें सामान्य वर्कफ़्लो में अभी भी जाँचनी होती हैं।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "An offered filename-pattern editor requires explicit validation before its pattern is passed onward. Navigator does not silently convert data, run models or complete scientific prerequisite review. Optional AI assistance sends explicitly submitted unmatched questions only when enabled with a chosen provider; local tool and path matches retain their normal routes."
+msgstr "यदि फ़ाइल-नाम पैटर्न संपादक दिया गया हो तो पैटर्न आगे भेजने से पहले स्पष्ट सत्यापन आवश्यक है। Navigator चुपचाप डेटा परिवर्तित नहीं करता, मॉडल नहीं चलाता और पूर्वशर्तों की वैज्ञानिक समीक्षा पूरी नहीं करता। वैकल्पिक AI सहायता केवल चुने हुए प्रदाता के साथ चालू होने पर स्पष्ट रूप से भेजे गए बेमेल प्रश्न भेजती है; स्थानीय उपकरण और पथ के मेल अपने सामान्य मार्ग बनाए रखते हैं।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Desktop entry points and API reference"
+msgstr "डेस्कटॉप प्रवेश-बिंदु और API संदर्भ"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The launchers use :func:`spacr.qt.run`. Registered screen metadata is described by :class:`spacr.qt.app_catalog.DeclaredApp` and retrieved with :func:`spacr.qt.app_catalog.declared_app`; :func:`spacr.qt.app_catalog.register_declared` registers an existing declaration. Resolving :func:`spacr.qt.app.registered_factory` can import its screen. These are desktop registry contracts, not a headless Navigator inference API."
+msgstr "लॉन्चर :func:`spacr.qt.run` का उपयोग करते हैं। पंजीकृत स्क्रीन का मेटाडेटा :class:`spacr.qt.app_catalog.DeclaredApp` बताता है और :func:`spacr.qt.app_catalog.declared_app` से मिलता है; :func:`spacr.qt.app_catalog.register_declared` मौजूदा घोषणा पंजीकृत करता है। :func:`spacr.qt.app.registered_factory` को हल करने पर उसकी स्क्रीन आयात हो सकती है। ये डेस्कटॉप रजिस्ट्री के अनुबंध हैं, बिना ग्राफ़िकल इंटरफ़ेस वाला Navigator अनुमान API नहीं।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For scripted processing, use the supported entry points in :doc:`python_api`. For the files and prerequisites of each scientific step, see :doc:`workflows`."
+msgstr "स्क्रिप्ट द्वारा प्रसंस्करण के लिए :doc:`python_api` के समर्थित प्रवेश-बिंदु इस्तेमाल करें। हर वैज्ञानिक चरण की फ़ाइलों और पूर्वशर्तों के लिए :doc:`workflows` देखें।"
+

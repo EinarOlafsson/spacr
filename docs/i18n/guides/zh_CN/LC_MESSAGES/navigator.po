@@ -1,0 +1,77 @@
+# spaCR user guide translation (zh_CN).
+# AI technical review (Codex), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-28 10:47-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Codex (AI technical translation)\n"
+"Language: zh_CN\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Navigator: choose a tool from your input"
+msgstr "Navigator：根据输入选择工具"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Navigator is the default Home for a fresh profile; a saved opt-out is respected. Launch it with ``spacr-nav`` or ``spacr-navigator``, or enable **Navigator** in **Help**. Explicit module launches still open that module."
+msgstr "新配置默认以 Navigator 作为 Home；已保存的停用选择会被保留。使用 ``spacr-nav`` 或 ``spacr-navigator`` 启动，或在 **Help** 中启用 **Navigator**。显式启动某个模块时仍会打开该模块。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Find a starting point"
+msgstr "寻找起点"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Drop a local file or folder, browse for one, or type a path or task and press Enter. Typing alone does not inspect data or open a module. For example, “detect features” offers Measure; tool names and supported task phrases match without case sensitivity. Recognized commands, such as opening tutorials, can follow their own command route on Enter."
+msgstr "拖入本地文件或文件夹、浏览选择，或输入路径或任务后按 Enter。仅键入不会检查数据或打开模块。例如，“detect features”会推荐 Measure；工具名和受支持的任务短语不区分大小写。打开教程等已识别命令可以在按 Enter 后走其自身的命令路径。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Suggestions appear as a grid of named cards. The first click anchors the selected card and reveals a sparse workflow; it does not run analysis. Hover to read the fixed, scrollable description. A second click on the selected tool opens its native screen. Review its settings and input before pressing Run."
+msgstr "建议以带名称的卡片网格显示。首次点击会固定所选卡片并显示简明工作流，不会运行分析。悬停可阅读固定且可滚动的说明。再次点击所选工具会打开其常规界面。按 Run 前请检查设置和输入。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Explore without running"
+msgstr "探索而不运行"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Select a downstream card to reveal its branches. **More next steps** exposes additional direct choices; **All tools** includes the other available registered tools and subtools. Availability follows maturity and species preferences. A connector describes a workflow relationship, not proof that the current input satisfies every prerequisite. Modes such as 3D, Time and OPS label connections rather than inventing separate processing steps."
+msgstr "选择下游卡片可显示其分支。**更多后续步骤** 提供更多直接选项；**所有工具** 包含其余可用的已注册工具和子工具。可用性遵循成熟度和物种偏好设置。连线描述工作流关系，并不证明当前输入满足所有前提。3D、Time 和 OPS 等模式是连线标签，不会虚构独立处理步骤。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use **Back** or Escape to return to suggestions. Returning Home starts a fresh Navigator visit. The original card stays anchored while branches grow; the description remains below, and the app dock and side panes can be collapsed without changing the input."
+msgstr "使用 **返回** 或 Escape 返回建议。返回 Home 会开始一次新的 Navigator 访问。分支展开时原始卡片保持固定；说明仍位于下方，应用停靠栏和侧面板可折叠而不改变输入。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Check what the input supports"
+msgstr "检查输入支持的范围"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Local discovery uses bounded filenames, headers and project metadata, not a full analysis. An explicit raw image stays scoped to that input; a verified generated array inside a canonical merged folder can inherit its plate context. Handoffs use the selected file or project root required by the destination. An annotation-only database is not evidence of measured features, and a format keyword is not a promise that every file with that suffix can be read. Missing readers or calibrated-data prerequisites still need attention in the native workflow."
+msgstr "本地发现使用有界的文件名、文件头和项目元数据采样，而非完整分析。显式选择的原始图像仅限于该输入；标准 merged 文件夹内经验证的生成数组可以继承其板上下文。交接使用目标所需的选中文件或项目根目录。仅含标注的数据库不能证明存在已测量特征，格式关键词也不保证同一后缀的所有文件均可读取。缺失的读取器或校准数据前提仍需在常规工作流中检查。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "An offered filename-pattern editor requires explicit validation before its pattern is passed onward. Navigator does not silently convert data, run models or complete scientific prerequisite review. Optional AI assistance sends explicitly submitted unmatched questions only when enabled with a chosen provider; local tool and path matches retain their normal routes."
+msgstr "如果提供文件名模式编辑器，必须显式验证后才能传递模式。Navigator 不会悄然转换数据、运行模型或完成科学前提审查。可选 AI 辅助仅在选择提供商并启用后发送显式提交的未匹配问题；本地工具和路径匹配保留正常路由。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Desktop entry points and API reference"
+msgstr "桌面入口与 API 参考"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The launchers use :func:`spacr.qt.run`. Registered screen metadata is described by :class:`spacr.qt.app_catalog.DeclaredApp` and retrieved with :func:`spacr.qt.app_catalog.declared_app`; :func:`spacr.qt.app_catalog.register_declared` registers an existing declaration. Resolving :func:`spacr.qt.app.registered_factory` can import its screen. These are desktop registry contracts, not a headless Navigator inference API."
+msgstr "启动器使用 :func:`spacr.qt.run`。已注册界面元数据由 :class:`spacr.qt.app_catalog.DeclaredApp` 描述，并通过 :func:`spacr.qt.app_catalog.declared_app` 获取；:func:`spacr.qt.app_catalog.register_declared` 注册已有声明。解析 :func:`spacr.qt.app.registered_factory` 可能导入对应界面。这些是桌面注册表契约，并非无图形界面的 Navigator 推断 API。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For scripted processing, use the supported entry points in :doc:`python_api`. For the files and prerequisites of each scientific step, see :doc:`workflows`."
+msgstr "对于脚本处理，请使用 :doc:`python_api` 中受支持的入口。各科学步骤所需的文件和前提见 :doc:`workflows`。"
+

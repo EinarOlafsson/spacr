@@ -146,3 +146,9 @@ Export measured objects to AnnData
 Follow :doc:`anndata_export` to export the measurement database through the
 same entry point used by the desktop application, choose a missing-value
 policy, and inspect the resulting object-by-feature matrix.
+
+
+Navigator and desktop routing
+------------------------------
+
+See :doc:`navigator` for the desktop launchers and existing screen-registry APIs. Navigator discovers and opens tools interactively; it does not replace the pipeline calls above with an automatic or headless analysis route.

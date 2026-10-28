@@ -1,0 +1,77 @@
+# spaCR user guide translation (is).
+# AI technical review (Codex), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-28 10:47-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Codex (AI technical translation)\n"
+"Language: is\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
+"X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Navigator: choose a tool from your input"
+msgstr "Navigator: veldu verkfæri út frá inntakinu"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Navigator is the default Home for a fresh profile; a saved opt-out is respected. Launch it with ``spacr-nav`` or ``spacr-navigator``, or enable **Navigator** in **Help**. Explicit module launches still open that module."
+msgstr "Navigator er sjálfgefin upphafssíða nýs notandasniðs; vistuð ákvörðun um að slökkva á því er virt. Ræstu það með ``spacr-nav`` eða ``spacr-navigator``, eða virkjaðu **Navigator** í **Help**. Bein ræsing tiltekinnar einingar opnar áfram þá einingu."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Find a starting point"
+msgstr "Finndu upphafspunkt"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Drop a local file or folder, browse for one, or type a path or task and press Enter. Typing alone does not inspect data or open a module. For example, “detect features” offers Measure; tool names and supported task phrases match without case sensitivity. Recognized commands, such as opening tutorials, can follow their own command route on Enter."
+msgstr "Slepptu staðbundinni skrá eða möppu, veldu hana í skráavali eða sláðu inn slóð eða verkefni og ýttu á Enter. Innsláttur einn og sér skoðar ekki gögn og opnar ekki einingu. Til dæmis býður „detect features“ upp á Measure; verkfæranöfn og studdar verkefnasetningar passa óháð há- og lágstöfum. Þekktar skipanir, svo sem að opna kennsluefni, geta fylgt eigin skipanaleið þegar ýtt er á Enter."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Suggestions appear as a grid of named cards. The first click anchors the selected card and reveals a sparse workflow; it does not run analysis. Hover to read the fixed, scrollable description. A second click on the selected tool opens its native screen. Review its settings and input before pressing Run."
+msgstr "Tillögur birtast sem grind af nafngreindum spjöldum. Fyrsti smellur festir valda spjaldið og sýnir fágreint verkflæði; hann keyrir ekki greiningu. Haltu bendlinum yfir spjaldi til að lesa fasta, skrunnanlega lýsingu. Annar smellur á valið verkfæri opnar venjulegan skjá þess. Farðu yfir stillingar og inntak áður en þú ýtir á Run."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Explore without running"
+msgstr "Skoðaðu án þess að keyra"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Select a downstream card to reveal its branches. **More next steps** exposes additional direct choices; **All tools** includes the other available registered tools and subtools. Availability follows maturity and species preferences. A connector describes a workflow relationship, not proof that the current input satisfies every prerequisite. Modes such as 3D, Time and OPS label connections rather than inventing separate processing steps."
+msgstr "Veldu spjald næsta verkþáttar til að birta greinar þess. **Fleiri næstu skref** sýnir fleiri beina valkosti; **Öll verkfæri** inniheldur önnur tiltæk skráð verkfæri og undirverkfæri. Aðgengi fylgir stillingum um þroskastig og tegundir. Tenging lýsir sambandi í verkflæði en sannar ekki að núverandi inntak uppfylli allar forsendur. Hamir eins og 3D, Time og OPS merkja tengingar í stað þess að búa til sjálfstæð vinnsluskref."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use **Back** or Escape to return to suggestions. Returning Home starts a fresh Navigator visit. The original card stays anchored while branches grow; the description remains below, and the app dock and side panes can be collapsed without changing the input."
+msgstr "Notaðu **Til baka** eða Escape til að fara aftur í tillögurnar. Þegar farið er aftur á Home hefst ný heimsókn í Navigator. Upprunalega spjaldið helst fest á meðan greinar vaxa; lýsingin er áfram fyrir neðan og hægt er að fella saman forritakví og hliðarspjöld án þess að breyta inntakinu."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Check what the input supports"
+msgstr "Athugaðu hvað inntakið styður"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Local discovery uses bounded filenames, headers and project metadata, not a full analysis. An explicit raw image stays scoped to that input; a verified generated array inside a canonical merged folder can inherit its plate context. Handoffs use the selected file or project root required by the destination. An annotation-only database is not evidence of measured features, and a format keyword is not a promise that every file with that suffix can be read. Missing readers or calibrated-data prerequisites still need attention in the native workflow."
+msgstr "Staðbundin leit notar takmarkað úrtak skráarnafna, skráarhausa og lýsigagna verkefnis, ekki fulla greiningu. Sérstaklega valin hrámynd er áfram bundin við það inntak; staðfest myndað fylki í hefðbundinni merged-möppu getur erft samhengi plötunnar. Afhendingar nota valda skrá eða verkefnisrót sem viðtökutólið krefst. Gagnagrunnur með merkingum einum og sér sannar ekki tilvist mældra eiginleika og sniðlykilorð tryggir ekki að hver skrá með þeirri endingu sé læsileg. Vantaða lesara og forsendur kvarðaðra gagna þarf enn að yfirfara í venjulegu verkflæði."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "An offered filename-pattern editor requires explicit validation before its pattern is passed onward. Navigator does not silently convert data, run models or complete scientific prerequisite review. Optional AI assistance sends explicitly submitted unmatched questions only when enabled with a chosen provider; local tool and path matches retain their normal routes."
+msgstr "Ef ritill fyrir skráarnafnamynstur er boðinn þarf skýra staðfestingu áður en mynstrið er sent áfram. Navigator umbreytir ekki gögnum í kyrrþey, keyrir ekki líkön og kemur ekki í stað vísindalegrar yfirferðar forsendna. Valfrjáls aðstoð gervigreindar sendir aðeins sérstaklega innsendar spurningar án samsvörunar þegar hún er virk með völdum þjónustuaðila; staðbundnar verkfæra- og slóðarsamsvaranir halda sínum venjulegu leiðum."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Desktop entry points and API reference"
+msgstr "Inngangar skjáborðs og API-tilvísun"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The launchers use :func:`spacr.qt.run`. Registered screen metadata is described by :class:`spacr.qt.app_catalog.DeclaredApp` and retrieved with :func:`spacr.qt.app_catalog.declared_app`; :func:`spacr.qt.app_catalog.register_declared` registers an existing declaration. Resolving :func:`spacr.qt.app.registered_factory` can import its screen. These are desktop registry contracts, not a headless Navigator inference API."
+msgstr "Ræsiskipanirnar nota :func:`spacr.qt.run`. Lýsigögnum skráðra skjáa er lýst með :class:`spacr.qt.app_catalog.DeclaredApp` og þau sótt með :func:`spacr.qt.app_catalog.declared_app`; :func:`spacr.qt.app_catalog.register_declared` skráir fyrirliggjandi yfirlýsingu. Upplausn :func:`spacr.qt.app.registered_factory` getur flutt inn skjá þess. Þetta eru samningar skjáborðsskrárinnar, ekki API fyrir Navigator-ályktun án myndræns viðmóts."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For scripted processing, use the supported entry points in :doc:`python_api`. For the files and prerequisites of each scientific step, see :doc:`workflows`."
+msgstr "Fyrir skriftustýrða vinnslu skal nota studdu inngangana í :doc:`python_api`. Sjá :doc:`workflows` varðandi skrár og forsendur hvers vísindalegs skrefs."
+

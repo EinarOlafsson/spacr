@@ -21,7 +21,7 @@ def extract_backend_sources(tmp_path, monkeypatch):
         "attribution.py", "measure.py", "object_classifier.py", "core.py",
         "psf_pipeline.py", "pipeline_v2.py", "convert.py",
         "_lineage_trees.py",
-        "utils.py", "channel_sorting.py", "run_journal.py", "ml.py",
+        "utils.py", "channel_sorting.py", "image_import.py", "run_journal.py", "ml.py",
         "regression_layout.py", "regression_failure.py", "power_model.py",
     ):
         (source_root / filename).write_text("", encoding="utf-8")
@@ -34,6 +34,13 @@ def extract_backend_sources(tmp_path, monkeypatch):
         return set(builder.extract_static_ui_sources())
 
     return extract
+
+
+def test_independent_import_identity_refusal_enters_its_declared_owner(
+        extract_backend_sources):
+    caption = "Independent-file import identities collide; no images can be imported."
+    source = f'class ImportPlan:\n    def problems(self):\n        return [tr({caption!r})]\n'
+    assert extract_backend_sources('image_import.py', source) == {caption}
 
 
 def test_explicit_cellpose_selection_refusal_enters_its_declared_owner(
