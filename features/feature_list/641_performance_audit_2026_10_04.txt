@@ -1,7 +1,7 @@
 641 -- Performance audit, 2026-10-04 (step 3 of the maintainer's audit)
 
 Lifecycle: new
-Status: DONE 2026-10-04 (CPU only; numbers below, what is left at the end)
+Status: DONE — accepted CPU audit; Windows paced-pool follow-up passed 2026-10-28. Separate Mac follow-ups retain their owning scope.
 
 Request (maintainer): measure startup, per-module first open, memory, and
 the same small Mask / Measure / Classify run headless against launched from
@@ -819,3 +819,5 @@ WINDOWS FOLLOW-UP — 2026-10-26
 Windows session owns the native paced-pool retest of 005110639513345f22a4ead8d4555608fc8ef2c7. Verify the first queued task can run while later workers start through the gate; check close/join, terminate/cancel and pending-worker cleanup with the existing owning tests and a small native run. Preserve startup pacing and memory safeguards; no GPU or large model run is required. Record exact SHA, worker count, gate settings, first-task timing and cleanup outcome here, with logs under /nas_mnt/data/sync/windows-lane/. Do not infer native Windows acceptance from Linux passes.
 
 2026-10-28 — Native ownership clarification: Windows retains the Oct26 paced-pool follow-up for 005110639513345f22a4ead8d4555608fc8ef2c7: first task during later worker startup, close/join, terminate/cancel and pending-worker cleanup; record exact source/count/gate/timing/outcome, CPU only. Mac item 729 retains the idle repaint/battery and thread-identity diagnostic limitations above. Accepted CPU audit scope remains complete; this handoff adds no native result.
+
+2026-10-28 — Codex Windows completed the remaining paced-pool follow-up on a65af4bbcad80a6fc68b7d53cb20745928e98df4 (includes 0051106395), native win32/Python 3.10.22/spaCR 1.5.1.6, CPU only with verified spawn-safe 8 GiB kernel Job cap. Owning cohort: 19 passed in 22.97 s, including close/join, terminate, cancellation and pending-worker cleanup. Small native spawn run requested 4 workers, burst 1, production gate 10 s: constructor 0.031 s, first result 0.344 s while only worker 1 had started; subsequent actual starts 10.031/20.031 s (gaps 10.016/10.000 s), queued work drained on close/join, all pool threads/workers stopped; separate termination with later starts pending left exactly one start and zero active children. No product defect or source change required. Normal logs: C:/mnt/wd4tb/scratch/n641-paced-tests.{out,err} and n641-native-pool.{out,err}; NAS path unavailable here, no transfer claimed. Current 103771b25b changes only ownership docs; tested pool source is unchanged. Accepted CPU audit and separate Mac 729 obligations are preserved.
