@@ -13,9 +13,50 @@ if shutil.which('ffmpeg') is None or not Path('/usr/share/icons/Yaru/cursors/lef
     pytest.skip('needs ffmpeg and the Yaru cursor theme', allow_module_level=True)
 import capture_clip_gate  # noqa: E402
 from measure_capture_host_proof import xcursor_image  # noqa: E402
+import measure_capture_host_proof as host_proof  # noqa: E402
 
 W, H, FPS = 640, 360, 30
 SPRITE, HOT = xcursor_image(Path('/usr/share/icons/Yaru/cursors/left_ptr').resolve(), 32)
+
+
+def _drag_frame():
+    path = Path('/usr/share/icons/Yaru/cursors/dnd-move')
+    if not path.exists():
+        pytest.skip('needs the installed Yaru drag-and-drop cursor')
+    sprite, hotspot = xcursor_image(path.resolve(), 32)
+    frame = np.random.default_rng(88).integers(55, 95, (160, 240, 3), dtype=np.uint8)
+    x, y = 121, 83
+    x0, y0 = x - hotspot[0], y - hotspot[1]
+    h, w = sprite.shape[:2]
+    region = frame[y0:y0 + h, x0:x0 + w].astype(np.float32)
+    alpha = sprite[..., 3:4].astype(np.float32) / 255
+    frame[y0:y0 + h, x0:x0 + w] = (sprite[..., :3] * alpha + region * (1 - alpha)).astype(np.uint8)
+    return frame, x, y
+
+
+def test_real_installed_drag_move_sprite_is_found_at_unchanged_threshold(monkeypatch):
+    frame, x, y = _drag_frame()
+    monkeypatch.setattr(host_proof, 'frames', lambda _path: iter([(0, frame)]))
+    row, = host_proof.track_cursor(Path('unused'), host_proof.cursor_templates('Yaru', 32))
+    assert row['found'] and row['shape'] == 'dnd-move@32'
+    assert (row['x'], row['y']) == (x, y)
+    assert row['score'] <= .004
+
+
+def test_old_shapes_cannot_substitute_for_real_drag_move_sprite(monkeypatch):
+    frame, _, _ = _drag_frame()
+    monkeypatch.setattr(host_proof, 'frames', lambda _path: iter([(0, frame)]))
+    templates = [t for t in host_proof.cursor_templates('Yaru', 32)
+                 if not t['name'].startswith('dnd-move@')]
+    row, = host_proof.track_cursor(Path('unused'), templates)
+    assert row['found'] is False and row['score'] > .004
+
+
+def test_adding_drag_shape_does_not_accept_a_missing_pointer(monkeypatch):
+    frame = np.random.default_rng(88).integers(55, 95, (160, 240, 3), dtype=np.uint8)
+    monkeypatch.setattr(host_proof, 'frames', lambda _path: iter([(0, frame)]))
+    row, = host_proof.track_cursor(Path('unused'), host_proof.cursor_templates('Yaru', 32))
+    assert row['found'] is False and row['score'] > .004
 
 
 def draw_cursor(frame, x, y):

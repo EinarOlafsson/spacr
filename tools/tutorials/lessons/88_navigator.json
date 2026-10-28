@@ -1,0 +1,109 @@
+{
+  "id": "88_navigator",
+  "number": 88,
+  "slug": "navigator",
+  "title": "Navigator: find the right tool for your input",
+  "series": 1,
+  "app_key": null,
+  "section": "spaCR",
+  "description": "Find spaCR tools from a task, file or project, inspect input evidence and settings, and follow workflows into the native modules.",
+  "objectives": [
+    "Find tools with local paths, file or folder drops, and case-insensitive tasks submitted with Enter.",
+    "Review input evidence, suggested settings and workflow steps before opening a native tool.",
+    "Navigate organism workflows, panels, active jobs and optional AI controls.",
+    "Distinguish measurement tables from annotation or history databases and start fresh with Home."
+  ],
+  "prerequisite": "Install spaCR and open Navigator. Use the supplied example image, image folder, measured project, annotation/history-only database and saved settings file, or equivalent local inputs.",
+  "scenes": [
+    {
+      "visual": "01_navigator_start",
+      "narration": "Navigator starts with a search field over the spaCR theme. Open it with spacr-nav or spacr-navigator, then begin with a task, file or folder.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "02_help_navigator",
+      "narration": "You can also enable Navigator from Help. Navigator is on by default; a saved choice is kept.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_dock_right_panels",
+      "narration": "Use the collapsible dock to open a module directly. News and Widgets open beside the workspace while the search and description stay in place.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_enter_case_query",
+      "narration": "Type Measure and press Enter. Matching ignores letter case. Typing alone leaves the current suggestions in place and does not start a tool.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_native_file_drop",
+      "narration": "Drop a single local image file into Navigator. It inspects the input and offers supported next steps, rather than starting a processing run.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_native_folder_drop",
+      "narration": "Drop one folder to inspect its contents. Suggestions depend on the files and data already present in that folder.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_typed_project_path",
+      "narration": "For an exact location, paste a file or project path and press Enter. Browse also lets you choose a file or folder.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08_measured_evidence_cards",
+      "narration": "A measured project has data that analysis tools can read. Here, the measurement tables make tools such as Graph Builder available.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_annotation_only_scope",
+      "narration": "This example contains annotation and history tables, not measured features. The database filename alone does not prove measurements have been calculated.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "10_saved_settings_preview",
+      "narration": "Settings files can provide a proposed module and settings preview. Review the proposal before opening the module; Navigator does not run the analysis for you.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "11_module_workflow",
+      "narration": "Choose a module card to explore its workflow. Read the description below the cards to check its purpose and required input.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "12_incremental_next_steps",
+      "narration": "Explore a next step to extend the network. Earlier branches stay visible, helping you follow the route from input through analysis and results.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "13_toxoplasma_network",
+      "narration": "Search for Toxoplasma to see its organism workflow and assay choices. Select the step that matches the data and biological question you have.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "14_back_escape",
+      "narration": "Use Back or Escape to return from a workflow to the suggestions. These navigation actions do not run an analysis or change your input files.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "15_native_source_handoff",
+      "narration": "Open the suggested native tool when ready. Navigator passes the selected input to its matching source setting; review the settings before you press Run.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "16_running_inspect",
+      "narration": "Enter running jobs and choose Running to inspect active spaCR jobs in Widgets. Open, pause and stop controls apply to the listed jobs.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "17_ai_consent_cancel",
+      "narration": "The AI control is optional. Its first-use dialog lets you choose a provider. Local paths and matching tool suggestions keep their normal routes.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "18_home_fresh_reset",
+      "narration": "Home returns Navigator to a fresh search, clearing its previous suggestions and workflow. Start again with the next task or input you want to explore.",
+      "hold_after": 0.7
+    }
+  ]
+}

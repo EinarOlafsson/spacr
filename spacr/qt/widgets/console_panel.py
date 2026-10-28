@@ -43,6 +43,7 @@ from PySide6.QtWidgets import (
     QSizePolicy,
     QSpinBox,
     QSplitter,
+    QTextBrowser,
     QTextEdit,
     QVBoxLayout,
     QWidget,
@@ -913,6 +914,127 @@ class _StdoutBlock(QPlainTextEdit):
         self.updateGeometry()
 
 
+class _AiReplyView(QTextBrowser):
+    """Keep all model-authored resources passive, including local image URLs."""
+
+    def loadResource(self, kind, url):
+        """Never fetch resources while laying out an assistant answer."""
+        return None
+
+
+class _AiReplyBlock(_StdoutBlock):
+    """Use the shared safe rich renderer inside the existing console section controls."""
+
+    def __init__(self, text_color=None):
+        """Keep ordinary pipeline blocks separate from rich assistant documents."""
+        self._rich_view = None
+        super().__init__(text_color=text_color)
+        self._reply_parts = []
+        self._reply_chars = 0
+        self._rich_view = _AiReplyView(self.viewport())
+        self._rich_view.setFrameShape(QFrame.NoFrame)
+        self._rich_view.setOpenExternalLinks(False)
+        self._rich_view.setOpenLinks(False)
+        self._rich_view.anchorClicked.connect(self._open_reply_link)
+        self._rich_view.setReadOnly(True)
+        self._rich_view.setAccessibleName(tr('spaCR AI'))
+        self._rich_view.viewport().setAutoFillBackground(False)
+        self._rich_view.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self._rich_view.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.document().setDocumentMargin(0)
+        self._refresh_style()
+        self._rich_view.show()
+        self._reply_flush = QTimer(self)
+        self._reply_flush.setSingleShot(True)
+        self._reply_flush.setInterval(40)
+        self._reply_flush.timeout.connect(self._render_reply)
+
+    def document(self):
+        """Expose the actual rich document to section sizing and inspection."""
+        if self._rich_view is not None:
+            return self._rich_view.document()
+        return super().document()
+
+    def toPlainText(self):
+        """Keep copying and contextual export free of Markdown syntax and HTML."""
+        if self._rich_view is not None:
+            return self._rich_view.toPlainText()
+        return super().toPlainText()
+
+    def _refresh_style(self):
+        """Preserve the console's chosen font, provider color and transparent surface."""
+        super()._refresh_style()
+        if self._rich_view is not None:
+            self._rich_view.setFont(self._font)
+            self._rich_view.document().setDefaultFont(self._font)
+            self._rich_view.setStyleSheet(
+                'QTextBrowser { background: transparent; border: none; padding: 0; '
+                f'color: {self._text_color}; font-family: {QSS_FONT_FAMILY}; '
+                f'font-size: {self._font_pt}pt; font-weight: 300; }}')
+
+    def append(self, text):
+        """Coalesce streamed chunks without reparsing an entire reply per token."""
+        if not text:
+            return
+        self._reply_parts.append(text)
+        self._reply_chars += len(text)
+        if self._reply_chars > self.MAX_CHARS:
+            source = ''.join(self._reply_parts)[-self.MAX_CHARS:]
+            self._reply_parts = [source]
+            self._reply_chars = len(source)
+        if not self._reply_flush.isActive():
+            self._reply_flush.start()
+
+    def show_markdown(self, text):
+        """Render saved or final answers immediately through the common sanitizer."""
+        self._reply_flush.stop()
+        source = str(text)[-self.MAX_CHARS:]
+        self._reply_parts = [source]
+        self._reply_chars = len(source)
+        self._render_reply()
+
+    def _render_reply(self):
+        """Render only the assistant body; stdout and tracebacks stay literal."""
+        from .ai_chat_panel import _ai_reply_html
+
+        self._rich_view.setHtml(_ai_reply_html(''.join(self._reply_parts)))
+        self._chars = self.document().characterCount()
+        self._height_key = ()
+        self.updateGeometry()
+
+    def _open_reply_link(self, url):
+        """Open only explicit clicks on sanitized web or mail links."""
+        from PySide6.QtGui import QDesktopServices
+
+        if url.scheme().lower() in ('http', 'https', 'mailto'):
+            QDesktopServices.openUrl(url)
+
+    def link_at(self, pos):
+        """Resolve sanitized rich anchors rather than matching visible label text."""
+        return self._rich_view.anchorAt(pos)
+
+    def sizeHint(self):
+        """Fit rich lists and code while retaining an explicit user height."""
+        if self._rich_view is None:
+            return super().sizeHint()
+        if self._user_height is not None:
+            return QSize(120, self._user_height)
+        self.document().setTextWidth(max(1, self._rich_view.viewport().width()))
+        height = self.document().documentLayout().documentSize().height()
+        return QSize(120, max(32, int(height) + 2 * SPACING['sm'] + 2))
+
+    def resizeEvent(self, event):
+        """Keep rich selection and links inside the unchanged section grip."""
+        super().resizeEvent(event)
+        if self._rich_view is not None:
+            self._rich_view.setGeometry(self.viewport().rect())
+
+    def closeEvent(self, event):
+        """Retire only this answer's pending rendering timer."""
+        self._reply_flush.stop()
+        super().closeEvent(event)
+
+
 class _BlockHeightHandle(QFrame):
     """Thin drag handle along a console section's lower edge.
 
@@ -1226,6 +1348,35 @@ def _register_error_console(console):
         crashreport._ERROR_RESULT_LISTENERS.append(listener)
 
 
+def _visible_console_levels():
+    """Read the saved console policy only at the GUI-owned display boundary."""
+    from ..preferences import get_log_console_levels
+
+    return get_log_console_levels()
+
+
+_CONSOLE_LINE_LEVEL = re.compile(
+    r'^(?:(?:\d{4}-\d{2}-\d{2})[ T])?'
+    r'(?:\[?\d{2}:\d{2}:\d{2}(?:[.,]\d+)?\]?\s*)?'
+    r'(?:\[(DEBUG|INFO|WARNING|WARN|ERROR|CRITICAL|FATAL)\]'
+    r'|(?:[\w.:-]+\s+)?(DEBUG|INFO|WARNING|WARN|ERROR|CRITICAL|FATAL)(?:\s|:))', re.IGNORECASE)
+
+
+def _partial_console_header(line):
+    """Hold only short, unfinished severity headers rather than arbitrary stdout."""
+    if len(line) > 256 or '\n' in line or '\r' in line:
+        return False
+    header = re.sub(r'^(?:\d{4}-\d{2}-\d{2}[ T])?'
+                    r'\[?\d{2}:\d{2}:\d{2}(?:[.,]\d+)?\]?\s*', '', line)
+    header = re.sub(r'^[\w.:-]+\s+(?=\[|DEBUG|INFO|WARN|ERROR|CRITICAL|FATAL)', '', header,
+                    flags=re.IGNORECASE)
+    candidates = ('[DEBUG]', '[INFO]', '[WARNING]', '[WARN]', '[ERROR]', '[CRITICAL]', '[FATAL]',
+                  'DEBUG', 'INFO', 'WARNING', 'WARN', 'ERROR', 'CRITICAL', 'FATAL',
+                  'Traceback (most recent call last):')
+    return bool(header and any(candidate.upper().startswith(header.upper())
+                               and len(header) < len(candidate) for candidate in candidates))
+
+
 class ConsolePanel(QWidget):
     """Merged pipeline stdout + AI chat panel.
 
@@ -1252,6 +1403,7 @@ class ConsolePanel(QWidget):
     #: on the GUI thread and falls through to the real body.
     _relay_stdout = Signal(str)
     _relay_error = Signal(str)
+    _relay_warning = Signal(str)
     _relay_notice = Signal(str, object)
     _error_batch_ready = Signal(str, str, bool, str, object)
 
@@ -1274,7 +1426,15 @@ class ConsolePanel(QWidget):
         super().__init__(parent)
         self._error_batch_ready.connect(self._open_batched_error)
         self.setObjectName("ConsolePanel")
-        self._log_pending: List[str] = []
+        self._log_pending: List[tuple] = []
+        self._stdout_continuation_level = None
+        self._stdout_in_traceback = False
+        self._stdout_last_level = None
+        self._stdout_prefix_fragment = ''
+        self._stdout_prefix_flush = QTimer(self)
+        self._stdout_prefix_flush.setSingleShot(True)
+        self._stdout_prefix_flush.setInterval(100)
+        self._stdout_prefix_flush.timeout.connect(self._flush_stdout_prefix)
         self._log_flush = QTimer(self)
         self._log_flush.setSingleShot(True)
         self._log_flush.setInterval(_LOG_FLUSH_MS)
@@ -1310,6 +1470,7 @@ class ConsolePanel(QWidget):
 
         self._relay_stdout.connect(self._display_stdout)
         self._relay_error.connect(self._display_error)
+        self._relay_warning.connect(self.append_warning)
         self._relay_notice.connect(self._append_notice_on_gui_thread)
         from ... import crashreport
         from ..ai.issue_report import _sync_automatic_failure_policy
@@ -1796,7 +1957,7 @@ class ConsolePanel(QWidget):
             pass
         self._display_stdout(text)
 
-    def _display_stdout(self, text):
+    def _display_stdout(self, text, *, _filtered=False):
         """Display already-classified output without capturing it a second time."""
         if not self._on_gui_thread():
             self._relay_stdout.emit(text)
@@ -1804,6 +1965,10 @@ class ConsolePanel(QWidget):
         if console_write_in_progress():
             return
         with console_write():
+            if not _filtered:
+                text = self._filter_stdout_levels(text)
+                if not text:
+                    return
             if (self._current_stdout is None
                     or self._needs_topic("stdout")
                     or self._current_stdout.property(
@@ -1819,6 +1984,58 @@ class ConsolePanel(QWidget):
                 self._last_entry_kind = "stdout"
             self._current_stdout.append(text)
             self._scroll_to_bottom()
+
+    def _filter_stdout_levels(self, text, *, _partial=True):
+        """Keep severity-labelled lines and complete traceback continuations together."""
+        import logging
+
+        allowed = _visible_console_levels()
+        text = self._stdout_prefix_fragment + text
+        self._stdout_prefix_fragment = ''
+        self._stdout_prefix_flush.stop()
+        level = self._stdout_continuation_level or logging.INFO
+        shown = []
+        for index, line in enumerate(text.splitlines(keepends=True)):
+            if _partial and _partial_console_header(line):
+                self._stdout_prefix_fragment = line
+                self._stdout_prefix_flush.start()
+                break
+            matched = _CONSOLE_LINE_LEVEL.match(line)
+            if matched:
+                name = (matched.group(1) or matched.group(2)).upper()
+                level = logging._nameToLevel.get({'WARN': 'WARNING', 'FATAL': 'CRITICAL'}.get(name, name),
+                                                logging.INFO)
+                self._stdout_in_traceback = False
+            elif line.lstrip().startswith('Traceback (most recent call last)'):
+                level = logging.ERROR
+                self._stdout_in_traceback = True
+            elif re.match(r'^(?:[\w.]+(?:Error|Exception)|Exception|Error|KeyboardInterrupt|SystemExit)\s*:', line):
+                level = logging.ERROR
+                self._stdout_in_traceback = False
+            elif line.startswith(('During handling of the above exception',
+                                  'The above exception was the direct cause')):
+                level = logging.ERROR
+                self._stdout_in_traceback = True
+            elif re.search(r'(?:^|:\s*)\w*Warning\s*:', line):
+                level = logging.WARNING
+            elif self._stdout_in_traceback:
+                level = logging.ERROR
+            elif index == 0 and line[:1].isspace() and self._stdout_last_level is not None:
+                level = self._stdout_last_level
+            if level in allowed:
+                shown.append(line)
+        self._stdout_last_level = level
+        self._stdout_continuation_level = level if not text.endswith(('\n', '\r')) else None
+        return ''.join(shown)
+
+    def _flush_stdout_prefix(self):
+        """Release an isolated incomplete prefix promptly without a growing line buffer."""
+        fragment = self._stdout_prefix_fragment
+        if fragment:
+            with console_write():
+                text = self._filter_stdout_levels('', _partial=False)
+            if text:
+                self._display_stdout(text, _filtered=True)
 
     def append_notice(self, source: str, **values: object) -> None:
         """Append one localized spaCR-authored UI notice.
@@ -1861,7 +2078,7 @@ class ConsolePanel(QWidget):
         trailing = source[len(source.rstrip()):]
         self.append_stdout(leading + tr(core, **mapping) + trailing)
 
-    def _on_log_record(self, text: str, level: int) -> None:
+    def _on_log_record(self, text: str, level: int, *, _allowed=None) -> None:
         """Slot for QtLogHandler.record_ready, routed by level.
 
         A WARNING IS NOT AN ERROR. This used to send everything at or above
@@ -1876,14 +2093,20 @@ class ConsolePanel(QWidget):
         Three bands now, not two.
         """
         import logging as _logging
+
+        if _allowed is None:
+            with console_write():
+                _allowed = level in _visible_console_levels()
+        if not _allowed:
+            return
         if level < _logging.WARNING:
-            self._log_pending.append(text)
+            self._log_pending.append((text, level))
             if not self._log_flush.isActive():
                 self._log_flush.start()
             return
         self._flush_log_records()
         if level >= _logging.ERROR:
-            self._display_error(text)
+            self._display_error(text, _level=level)
         else:
             self.append_warning(text)
 
@@ -1893,14 +2116,11 @@ class ConsolePanel(QWidget):
         :param records: ``(text, level)`` pairs as :meth:`_on_log_record`
             takes them.
         """
-        import logging as _logging
+        with console_write():
+            allowed = _visible_console_levels()
         for text, level in records:
-            if level < _logging.WARNING:
-                self._log_pending.append(text)
-            else:
-                self._on_log_record(text, level)
-        if self._log_pending and not self._log_flush.isActive():
-            self._log_flush.start()
+            if level in allowed:
+                self._on_log_record(text, level, _allowed=True)
 
     def _flush_log_records(self) -> None:
         """Append the informational records waiting, as one write.
@@ -1912,9 +2132,12 @@ class ConsolePanel(QWidget):
         self._log_flush.stop()
         if not self._log_pending:
             return
-        text = "".join(self._log_pending)
+        with console_write():
+            allowed = _visible_console_levels()
+            text = ''.join(text for text, level in self._log_pending if level in allowed)
         self._log_pending.clear()
-        self._display_stdout(text)
+        if text:
+            self._display_stdout(text, _filtered=True)
 
     def append_warning(self, text: str) -> None:
         """Append warning text in the theme's amber, under the output banner.
@@ -1929,7 +2152,14 @@ class ConsolePanel(QWidget):
         """
         if not text:
             return
+        if not self._on_gui_thread():
+            self._relay_warning.emit(text)
+            return
         with console_write():
+            import logging
+
+            if logging.WARNING not in _visible_console_levels():
+                return
             amber = color_warning()
             self.begin_topic(self._output_banner("spaCR output"), accent=amber)
             block = _StdoutBlock(text, text_color=amber)
@@ -1956,7 +2186,7 @@ class ConsolePanel(QWidget):
             pass
         self._display_error(tb)
 
-    def _display_error(self, tb):
+    def _display_error(self, tb, *, _level=None):
         """Display already-classified output without capturing it a second time."""
         if not self._on_gui_thread():
             self._relay_error.emit(tb)
@@ -1964,6 +2194,10 @@ class ConsolePanel(QWidget):
         if console_write_in_progress():
             return
         with console_write():
+            import logging
+
+            if (_level or logging.ERROR) not in _visible_console_levels():
+                return
             red = color_error()
             self.begin_topic(self._output_banner("spaCR ERROR"), accent=red)
             block = _StdoutBlock(tb, error=True, text_color=red)
@@ -2327,7 +2561,7 @@ class ConsolePanel(QWidget):
         self._pending_ai_topic = self.begin_topic(
             tr("spaCR AI"), accent=ai_color, trailing=self._working_dots)
         self._working_dots.start()
-        self._current_stdout = _StdoutBlock(text_color=ai_color)
+        self._current_stdout = _AiReplyBlock(text_color=ai_color)
         self._insert_entry(self._current_stdout)
         self._pending_ai_block = self._current_stdout
         self._last_entry_kind = "ai"
@@ -2420,7 +2654,7 @@ class ConsolePanel(QWidget):
         dots = _WorkingDots(teal)
         self._current_topic_label = None
         bar = self.begin_topic(tr("spaCR AI"), accent=teal, trailing=dots)
-        block = _StdoutBlock(text_color=teal)
+        block = _AiReplyBlock(text_color=teal)
         block.setProperty("consoleContextKind", "spacr_ai")
         block.hide()
         block._ai_dots = dots
@@ -2759,6 +2993,8 @@ class ConsolePanel(QWidget):
         :param event: the close event, passed to the base class after
             :meth:`shutdown` drains the AI thread.
         """
+        self._stdout_prefix_flush.stop()
+        self._stdout_prefix_fragment = ''
         self.shutdown()
         super().closeEvent(event)
 
@@ -2848,7 +3084,7 @@ class ConsolePanel(QWidget):
             ai_color = ai_color_for_provider(self._current_provider_name)
             dots = self._take_down_the_waiting_heading()
             self.begin_topic(tr("spaCR AI"), accent=ai_color, trailing=dots)
-            self._current_stdout = _StdoutBlock(text_color=ai_color)
+            self._current_stdout = _AiReplyBlock(text_color=ai_color)
             self._insert_entry(self._current_stdout)
             self._last_entry_kind = "ai"
         else:
@@ -2879,6 +3115,9 @@ class ConsolePanel(QWidget):
         self._ai_worker = None
         if thread is not None:
             self._retired.append((thread, worker))
+        if isinstance(self._current_stdout, _AiReplyBlock):
+            self._current_stdout._reply_flush.stop()
+            self._current_stdout._render_reply()
         if ok:
             self._ai_messages.append(
                 {"role": "assistant", "content": final_text}

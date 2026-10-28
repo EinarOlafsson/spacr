@@ -3687,6 +3687,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("538_signed_cell_measurement_api_arrival_2026-10-24.json", 1),
         ("707_api_help_label_size_hint_api_arrival_2026-10-24.json", 1),
         ("707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json", 5),
+        ("733_navigator_ai_provider_api_arrival_2026-10-28.json", 1),
     ):
         arrivals = json.loads((ROOT / "tests/data/release_contracts"
                               / filename).read_text(encoding="utf-8"))
@@ -3757,6 +3758,10 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
             ":returns: Whether the event was handled.",
     }
     assert {key: docs[key] for key in navigator_help_arrivals} == navigator_help_arrivals
+    navigator_helper = "spacr.qt.widgets.home._EasyHomePage._choose_navigator_ai.configure"
+    assert zoo_arrivals[navigator_helper] == navigator_help_arrivals[navigator_helper]
+    navigator_help_arrivals = {key: value for key, value in navigator_help_arrivals.items()
+                              if key != navigator_helper}
     assert not navigator_help_arrivals.keys() & (
         zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
         | home_ui_arrivals.keys() | volume_arrivals.keys()

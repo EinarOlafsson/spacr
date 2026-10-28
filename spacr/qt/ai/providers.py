@@ -100,6 +100,24 @@ _CLAUDE_WINDOWS = (
 )
 _CODEX_NPM = InstallMethod(("npm",), "npm install -g @openai/codex")
 _GEMINI_NPM = InstallMethod(("npm",), "npm install -g @google/gemini-cli")
+_CODEX_NATIVE = InstallMethod(
+    ("curl", "bash", "sh"),
+    "curl -fsSL https://chatgpt.com/codex/install.sh | sh", "shell")
+_CODEX_WINDOWS = InstallMethod(
+    ("powershell.exe",),
+    'powershell.exe -NoProfile -NonInteractive -Command '
+    '"$ErrorActionPreference=\'Stop\'; irm https://chatgpt.com/codex/install.ps1 | iex"')
+_GEMINI_BOOTSTRAP_SCRIPT = (
+    'export NVM_DIR="${NVM_DIR:-$HOME/.nvm}" && '
+    '{ if [ ! -s "$NVM_DIR/nvm.sh" ]; then '
+    'mkdir -p "$NVM_DIR" && '
+    'curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.8/install.sh '
+    '| PROFILE=/dev/null METHOD=script bash; fi; } && '
+    '. "$NVM_DIR/nvm.sh" && nvm install 24 && nvm use 24 && '
+    'npm install -g @google/gemini-cli')
+_GEMINI_BOOTSTRAP = InstallMethod(
+    ("curl", "bash"),
+    "bash -o pipefail -c " + shlex.quote(_GEMINI_BOOTSTRAP_SCRIPT))
 
 
 def quote_path(path: str, platform: str) -> str:
@@ -139,8 +157,8 @@ def gh_conda_row(prefix: str, platform: str) -> InstallMethod:
 
 _GH_CONDA = gh_conda_row(_sys.prefix, _sys.platform)
 _GH_POSIX = (InstallMethod(("brew",), "brew install gh"), _GH_CONDA)
-_CODEX_POSIX = (_CODEX_NPM, InstallMethod(("brew",), "brew install codex"))
-_GEMINI_POSIX = (_GEMINI_NPM,
+_CODEX_POSIX = (_CODEX_NATIVE, _CODEX_NPM, InstallMethod(("brew",), "brew install codex"))
+_GEMINI_POSIX = (_GEMINI_BOOTSTRAP, _GEMINI_NPM,
                  InstallMethod(("brew",), "brew install gemini-cli"))
 
 #: Every way spaCR knows to install each tool, per operating system, in the
@@ -156,7 +174,7 @@ INSTALL_METHODS: Dict[str, Dict[str, Tuple[InstallMethod, ...]]] = {
     "claude": {"linux": _CLAUDE_POSIX, "darwin": _CLAUDE_POSIX,
                "win32": _CLAUDE_WINDOWS},
     "codex": {"linux": _CODEX_POSIX, "darwin": _CODEX_POSIX,
-              "win32": (_CODEX_NPM,)},
+              "win32": (_CODEX_WINDOWS, _CODEX_NPM)},
     "gemini": {"linux": _GEMINI_POSIX, "darwin": _GEMINI_POSIX,
                "win32": (_GEMINI_NPM,)},
     "gh": {"linux": _GH_POSIX, "darwin": _GH_POSIX,

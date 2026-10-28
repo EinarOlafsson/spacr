@@ -18,6 +18,26 @@ Related:   spacr/crashreport.py (existing redaction), the report-filing flow
            (tests test_the_report_files_itself, test_a_failed_run_offers_the_
            report_it_promised), Preferences privacy settings.
 
+CURRENT AI REPLY PRESENTATION FOLLOW-UP — 2026-10-28
+Apply the same readable, safe Markdown rendering to AI responses inside the console; retain literal pipeline output and tracebacks. Retained console peer owns implementation and focused checks; root integrates and publishes.
+Render assistant replies as readable rich text with bold emphasis, numbered
+and bulleted lists, code spans and readable links in Navigator and AI chat.
+Normalize backslash-escaped Markdown markers outside code without corrupting
+paths/code, keep user messages literal, and do not activate raw model HTML or
+load model-provided images. Root owns the shared private formatter and native
+rendering checks; provider install/sign-in work continues with its owners.
+
+CURRENT OPTIONAL PROVIDER SETUP FOLLOW-UP — 2026-10-28
+The maintainer requests curl-led installation commands that work without a
+pre-existing npm installation, official Claude/Codex/Gemini installation links
+above each command, and a sign-in button that launches the provider's login.
+Keep this in the optional AI provider dialog; do not restore startup installers
+or change consented error reporting. Use documented native installers where
+available and explicitly bootstrap Gemini's required Node runtime. Preserve
+platform-specific shells, executable discovery, cancellation and actual
+readiness checks. Root workstation session2 integrates and publishes; retained
+install and UI peers own disjoint implementation and focused checks.
+
 CURRENT CONSENTED ERROR-DISPATCH FOLLOW-UP (2026-10-23)
 The maintainer supersedes the worker-only route: classified ERROR output from
 shared logging, GUI console or terminal dispatch must reach the configured

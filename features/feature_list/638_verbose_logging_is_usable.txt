@@ -3,6 +3,14 @@
 Lifecycle: new
 Status: DONE 2026-10-04
 
+CURRENT MAINTAINER FOLLOW-UP — 2026-10-28
+The console still displays INFO output when its INFO switch is off. Trace
+structured Qt records, worker/stdout forwarding and batching; apply the saved
+console severity controls at the actual visible output boundary without
+silencing file logging or higher-priority warnings/errors. Workstation root
+integrates; retained console peer owns the correction and focused native
+controls. No destructive runs or changes to the user's logging preference.
+
 Request (maintainer, verbatim):
 "verbose logging last time I used it would crash the program; make sure this
 feature is usable"

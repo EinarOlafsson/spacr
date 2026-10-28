@@ -181,11 +181,11 @@ def test_every_tool_on_this_system_carries_its_own_rows(provider):
                                                      sys.platform)
 
 
-def test_the_hints_that_existed_before_are_unchanged():
-    assert install_hint_for("codex", "linux") == (
-        "npm install -g @openai/codex   # or brew install codex")
-    assert install_hint_for("gemini", "darwin") == (
-        "npm install -g @google/gemini-cli   # or brew install gemini-cli")
+def test_provider_hints_prefer_native_or_user_local_bootstrap_on_posix():
+    assert install_hint_for("codex", "linux").startswith(
+        "curl -fsSL https://chatgpt.com/codex/install.sh | sh")
+    assert install_hint_for("gemini", "darwin").startswith("bash -o pipefail -c ")
+    assert "nvm install 24" in install_hint_for("gemini", "darwin")
     assert install_hint_for("claude", "linux") == (
         "curl -fsSL https://claude.ai/install.sh | bash")
 

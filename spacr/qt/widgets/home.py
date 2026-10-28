@@ -69,6 +69,8 @@ from PySide6.QtWidgets import (
     QSizePolicy,
     QStyle,
     QTabWidget,
+    QTextBrowser,
+    QToolButton,
     QVBoxLayout,
     QWidget,
 )
@@ -5340,7 +5342,7 @@ class _NavigatorAiReply(QObject):
 class _NavigatorAiButton(QPushButton):
     """A quiet provider-colored toggle with bounded typing and waiting motion."""
 
-    _COLORS = {'spacr_hosted': '#006464', 'claude': '#DE7356',
+    _COLORS = {'spacr_hosted': '#FFFFFF', 'claude': '#DE7356',
                'codex': '#A8E6CF', 'gemini': '#4285F4'}
 
     def __init__(self, parent=None):
@@ -5357,6 +5359,10 @@ class _NavigatorAiButton(QPushButton):
         self.setFixedSize(36, 36)
         self._provider = 'spacr_hosted'
         self._busy = False
+        self._marker_busy = False
+        self._marker_phase = None
+        self._marker_started = 0
+        self._marker_origin = (0.0, 0.0)
         self._pulse = 0.0
         self._last_key = -1000
         self._clock = QElapsedTimer()
@@ -5374,13 +5380,55 @@ class _NavigatorAiButton(QPushButton):
         self._pulse = 0.35 + 0.65 * speed
         self._tick()
 
+    def _hosted_marker(self, now, reduced=False):
+        """Describe the marker in fill-radius units with a whiteward return tint."""
+        import math
+
+        if reduced:
+            return (0.5, 0.0, 0) if self._busy else None
+        elapsed = max(0, now - self._marker_started)
+        if self._marker_phase == 'enter':
+            fraction = min(1.0, elapsed / 250.0)
+            distance = 0.5 * fraction * fraction * (3.0 - 2.0 * fraction)
+            return distance, 0.0, 0
+        if self._marker_phase == 'orbit':
+            angle = elapsed * math.tau / 1800.0
+            return 0.5 * math.cos(angle), 0.5 * math.sin(angle), 0
+        if self._marker_phase == 'return' and elapsed < 300:
+            fraction = elapsed / 300.0
+            eased = fraction * fraction * (3.0 - 2.0 * fraction)
+            return (self._marker_origin[0] * (1.0 - eased),
+                    self._marker_origin[1] * (1.0 - eased), round(255 * eased))
+        return None
+
     def _tick(self, *_args):
-        """Run a single small timer only while this visible icon needs motion."""
+        """Run the existing timer only for visible typing, work or marker return."""
         from ..preferences import get_reduce_motion
 
+        now = self._clock.elapsed()
+        reduced = get_reduce_motion()
+        hosted = self.isChecked() and self._provider == 'spacr_hosted'
+        busy = hosted and self._busy
+        if busy and not self._marker_busy:
+            self._marker_phase = 'enter'
+            self._marker_started = now
+        elif not busy and self._marker_busy:
+            marker = self._hosted_marker(now, reduced)
+            self._marker_origin = marker[:2] if marker is not None else (0.0, 0.0)
+            self._marker_phase = 'return'
+            self._marker_started = now
+        self._marker_busy = busy
+        if not hosted or (reduced and not busy):
+            self._marker_phase = None
+        elif self._marker_phase == 'enter' and now - self._marker_started >= 250:
+            self._marker_phase = 'orbit'
+            self._marker_started += 250
+        elif self._marker_phase == 'return' and now - self._marker_started >= 300:
+            self._marker_phase = None
         self.update()
-        if (self.isVisible() and self.isChecked() and not get_reduce_motion()
-                and (self._busy or self._clock.elapsed() - self._last_key < 850)):
+        if (self.isVisible() and self.isChecked() and not reduced
+                and (self._busy or self._marker_phase == 'return'
+                     or now - self._last_key < 850)):
             if not self._motion.isActive():
                 self._motion.start()
         else:
@@ -5408,7 +5456,8 @@ class _NavigatorAiButton(QPushButton):
         painter.setRenderHint(QPainter.Antialiasing, True)
         painter.translate(self.rect().center())
         color = QColor(self._COLORS.get(self._provider, self._COLORS['spacr_hosted']))
-        if self.isChecked() and self._busy and not get_reduce_motion():
+        if (self.isChecked() and self._busy and self._provider != 'spacr_hosted'
+                and not get_reduce_motion()):
             painter.save()
             painter.rotate((self._clock.elapsed() * 0.18) % 360)
             painter.setBrush(Qt.NoBrush)
@@ -5424,10 +5473,17 @@ class _NavigatorAiButton(QPushButton):
         if self.isChecked():
             elapsed = max(0, self._clock.elapsed() - self._last_key)
             pulse = 0.0 if get_reduce_motion() else self._pulse * math.exp(-elapsed / 220.0)
-            radius = 8.0 + 5.0 * pulse
+            radius = (8.0 + 5.0 * pulse) * (1.0125 if self._provider == 'spacr_hosted' else 1.0)
             painter.setPen(Qt.NoPen)
             painter.setBrush(color)
             painter.drawEllipse(QRectF(-radius, -radius, radius * 2, radius * 2))
+            marker = self._hosted_marker(self._clock.elapsed(), get_reduce_motion())
+            if self._provider == 'spacr_hosted' and marker is not None:
+                x, y, shade = marker
+                size = radius * 0.2
+                painter.setBrush(QColor(shade, shade, shade))
+                painter.drawEllipse(QRectF(x * radius - size, y * radius - size,
+                                          size * 2, size * 2))
         painter.end()
 
 
@@ -5832,6 +5888,159 @@ class _EasyGuidanceCard(_EasySuggestionCard):
         self.parentWidget().panel.setFocus()
 
 
+class _NavigatorDetailsBrowser(QTextBrowser):
+    """Keep bounded description history and controls on the shared native surface."""
+
+    def __init__(self, field):
+        from ..i18n import tr
+
+        super().__init__(field)
+        self._field = field
+        self._entries = []
+        self._entry = -1
+        self._stream_token = None
+        self._stream_entry = -1
+        self._minimized = False
+        self.setViewportMargins(8, 36, 8, 8)
+        self._back = QToolButton(self)
+        self._forward = QToolButton(self)
+        self._collapse = QToolButton(self)
+        for button, name, direction in (
+                (self._back, tr('Back'), 'back'),
+                (self._forward, tr('Next'), 'forward'),
+                (self._collapse, tr('Collapse or expand this container'), 'down')):
+            button.setAutoRaise(True)
+            button.setAccessibleName(name)
+            button.setToolTip(name)
+            button.setIcon(self._arrow_icon(direction))
+            button.setIconSize(QSize(20, 20))
+            button.setFixedSize(28, 28)
+            button.setCursor(Qt.PointingHandCursor)
+        self._back.clicked.connect(lambda: self._navigate(-1))
+        self._forward.clicked.connect(lambda: self._navigate(1))
+        self._collapse.clicked.connect(self._toggle_minimized)
+        self._update_controls()
+
+    def _arrow_icon(self, direction, color='white'):
+        from PySide6.QtCore import QPointF
+        from PySide6.QtGui import QPen, QPolygonF
+
+        points = {
+            'back': ((13, 4), (7, 10), (13, 16)),
+            'forward': ((7, 4), (13, 10), (7, 16)),
+            'up': ((4, 13), (10, 7), (16, 13)),
+            'down': ((4, 7), (10, 13), (16, 7)),
+        }
+        icon = QIcon()
+        ratio = self.devicePixelRatioF()
+        for mode, alpha in ((QIcon.Normal, 255), (QIcon.Disabled, 80)):
+            image = QPixmap(round(20 * ratio), round(20 * ratio))
+            image.setDevicePixelRatio(ratio)
+            image.fill(Qt.transparent)
+            painter = QPainter(image)
+            painter.setRenderHint(QPainter.Antialiasing, True)
+            ink = QColor(color)
+            ink.setAlpha(alpha)
+            painter.setPen(QPen(ink, 1.0, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+            painter.drawPolyline(QPolygonF([QPointF(x, y) for x, y in points[direction]]))
+            painter.end()
+            icon.addPixmap(image, mode)
+        return icon
+
+    def _save_scroll(self):
+        if 0 <= self._entry < len(self._entries):
+            self._entries[self._entry][2] = self.verticalScrollBar().value()
+
+    def _display_entry(self):
+        kind, text, scroll = self._entries[self._entry]
+        if kind == 'html':
+            super().setHtml(text)
+        else:
+            super().setPlainText(text)
+        self.verticalScrollBar().setValue(scroll)
+
+    def _record(self, kind, text, stream=None):
+        if not text.strip():
+            super().clear()
+            self._update_controls()
+            return
+        self._save_scroll()
+        if stream is not None and stream == self._stream_token and self._stream_entry >= 0:
+            index = self._stream_entry
+            self._entries[index][:2] = [kind, text]
+            if self._entry == index:
+                self._display_entry()
+        elif (self._entry >= 0 and self._entries[self._entry][:2] == [kind, text]):
+            self._display_entry()
+        else:
+            del self._entries[self._entry + 1:]
+            if self._stream_entry > self._entry:
+                self._stream_entry = -1
+            self._entries.append([kind, text, 0])
+            self._entry = len(self._entries) - 1
+            if stream is not None:
+                self._stream_token, self._stream_entry = stream, self._entry
+            while len(self._entries) > 40 or (len(self._entries) > 1 and
+                    sum(len(entry[1]) for entry in self._entries) > 2_000_000):
+                self._entries.pop(0)
+                self._entry -= 1
+                self._stream_entry -= 1
+            self._display_entry()
+        self._update_controls()
+
+    def setHtml(self, text, *, stream=None):
+        self._record('html', str(text), stream)
+
+    def setPlainText(self, text):
+        self._record('plain', str(text))
+
+    def _start_reply(self, token):
+        self._stream_token, self._stream_entry = token, self._entry
+
+    def _navigate(self, direction):
+        target = self._entry + direction
+        if 0 <= target < len(self._entries):
+            self._save_scroll()
+            self._entry = target
+            self._display_entry()
+            self._update_controls()
+
+    def _update_controls(self):
+        self._back.setEnabled(self._entry > 0)
+        self._forward.setEnabled(self._entry + 1 < len(self._entries))
+        self._back.setVisible(not self._minimized)
+        self._forward.setVisible(not self._minimized)
+        self._collapse.setIcon(self._arrow_icon(
+            'up' if self._minimized else 'down',
+            'white' if self._minimized else palette_for('dark')['button_accent']))
+        self.viewport().setVisible(not self._minimized)
+        self._place_controls()
+
+    def _place_controls(self):
+        for offset, button in enumerate((self._collapse, self._forward, self._back)):
+            button.move(max(0, self.width() - 34 - offset * 30), 4)
+            button.raise_()
+        self.clearMask()
+
+    def _toggle_minimized(self):
+        self._minimized = not self._minimized
+        self._update_controls()
+        self._field._arrange()
+
+    def _reset_history(self):
+        self._entries.clear()
+        self._entry = self._stream_entry = -1
+        self._stream_token = None
+        self._minimized = False
+        super().clear()
+        self._update_controls()
+        self._field._arrange()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._place_controls()
+
+
 class _NavigatorDetailsGrip(HeightGrip):
     """Resize the fixed-bottom description from its upper edge."""
 
@@ -5915,10 +6124,10 @@ class _EasyHomeField(QWidget):
         self.panel.setProperty('spacrAmbientPassiveOverlay', True)
         self.rim.setProperty('spacrAmbientPassiveOverlay', True)
         self.setMinimumSize(340, 340)
-        from PySide6.QtWidgets import QScrollBar, QTextBrowser, QGraphicsOpacityEffect
+        from PySide6.QtWidgets import QGraphicsOpacityEffect, QScrollBar
         from ..i18n import tr
         from .field_fade import OPT_OUT_PROPERTY
-        self.details = QTextBrowser(self)
+        self.details = _NavigatorDetailsBrowser(self)
         self.details.setObjectName('EasyWorkflowDetails')
         self.details.setProperty('spacrAmbientPassiveOverlay', True)
         self.details.setAccessibleName(tr('Module description'))
@@ -6088,13 +6297,16 @@ class _EasyHomeField(QWidget):
         maximum_height = max(1, height - panel_y - panel_height - 32)
         wanted_height = (default_height if self._details_height_base is None
                          else scaled_px(self._details_height_base))
-        details_height = min(maximum_height, max(min(scaled_px(96), maximum_height), wanted_height))
+        details_height = (36 if self.details._minimized else
+                          min(maximum_height, max(min(scaled_px(96), maximum_height), wanted_height)))
         self._place_fixed(self.details, QRect((width - details_width) // 2, height - details_height - 16,
                                               details_width, details_height))
         self._details_grip._min = min(scaled_px(96), maximum_height)
         self._details_grip._max = maximum_height
         self._details_grip.setGeometry(12, 0, max(1, details_width - 24), self._details_grip.height())
+        self._details_grip.setVisible(not self.details._minimized)
         self._details_grip.raise_()
+        self.details._place_controls()
         available = max(64, panel_y - 40)
         side = min(224, available, max(96, width - 64))
         card_height = max([side] + [min(available, max(card.sizeHint().height(), side))
@@ -6952,7 +7164,60 @@ class _EasyHomePage(QWidget):
         self._last_result = None
         self._settings_overrides = {}
         self._regex_cancel = None
+        self._guide_visible = False
+        self._guide_writing = False
+        self._details_has_content = False
+        self.field.details.textChanged.connect(self._guide_details_changed)
+        self.path_edit.textChanged.connect(self._guide_input_changed)
         self.refresh()
+        self._show_empty_guide()
+
+    def _guide_details_changed(self):
+        """Distinguish real descriptions and answers from the guide's own writes."""
+        if not self._guide_writing:
+            self._guide_visible = False
+            self._details_has_content = bool(self.field.details.toPlainText().strip())
+
+    def _guide_input_changed(self, text):
+        """Retire introductory copy on the first edit, including a dropped path."""
+        if text.strip():
+            if self._guide_visible:
+                self._guide_writing = True
+                self.field.details.clear()
+                self._guide_writing = False
+                self._guide_visible = False
+        else:
+            self._show_empty_guide()
+
+    def _show_empty_guide(self):
+        """Use only an otherwise unoccupied lower description box for guidance."""
+        from ..i18n import tr
+
+        if (self.path_edit.text().strip() or self.field.cards or self._workflow is not None
+                or self._ai_thread is not None or self._details_has_content):
+            return
+        folder = 'C:/Data/experiment/plate1' if os.name == 'nt' else '/data/experiment/plate1'
+        image = folder + '/image.tif'
+        lines = (
+            tr('File/folder: Drop an image or a folder of images to see image based modules.'),
+            tr('Path: Paste {folder} or {image} to see compatible modules. You can also type a file type, such as tif.',
+               folder=folder, image=image),
+            tr('Question: Try “segment images” to find segmentation tools.'),
+            tr('Module: Type “Measure” to find the measurement module.'),
+            tr('Explore: Click once to open the module network. Click twice to open the module.'),
+            tr('spaCR AI: Ask for help using spaCR, e.g., ‘How do I generate object masks?’ or ‘How do i train a Cellpose or Torch model?’'),
+        )
+        paragraphs = []
+        for line in lines:
+            parts = re.split(r'[:：]', line, maxsplit=1)
+            text = ('<b>' + escape(parts[0]) + ':</b>' + escape(parts[1])
+                    if len(parts) == 2 else escape(line))
+            paragraphs.append('<p>' + text + '</p>')
+        self._guide_writing = True
+        self.field.details.setHtml('<div style="color:#808080;">' + ''.join(paragraphs) + '</div>')
+        self._guide_writing = False
+        self._guide_visible = True
+        self._details_has_content = False
 
     def _update_ai_tooltip(self):
         """Describe the selected provider and the explicit change-provider gesture."""
@@ -7081,6 +7346,7 @@ class _EasyHomePage(QWidget):
         self._ai_text = ''
         self._ai_generation += 1
         generation = self._ai_generation
+        self.field.details._start_reply(generation)
         alive = []
         for thread, worker, relay in self._ai_retired:
             try:
@@ -7113,8 +7379,10 @@ class _EasyHomePage(QWidget):
             self._ai_reply_timer.start()
 
     def _render_ai_reply(self):
-        """Put response text in the fixed lower box without interpreting HTML."""
-        self.field.details.setPlainText(self._ai_text)
+        """Present a readable reply using the same passive Markdown renderer as chat."""
+        from .ai_chat_panel import _ai_reply_html
+
+        self.field.details.setHtml(_ai_reply_html(self._ai_text), stream=self._ai_generation)
 
     def _navigator_ai_finished(self, generation, ok, text):
         """Stop the waiting texture and preserve worker ownership until thread exit."""
@@ -7204,6 +7472,9 @@ class _EasyHomePage(QWidget):
         if visible:
             self.field.set_cards([], _EasyGuidanceCard(message, self.field))
         self.field.details.setPlainText(message)
+        self._details_has_content = False
+        if not message:
+            self._show_empty_guide()
         self.field._arrange()
         self.field._publish_growth(invalidate=True)
 
@@ -7248,6 +7519,8 @@ class _EasyHomePage(QWidget):
         """Return explicit Home navigation to a fresh input with no retained graph or job."""
         self._cancel_navigator_ai()
         self._show_suggestions()
+        self._details_has_content = False
+        self.field.details._reset_history()
         self.path_edit.clear()
         self._queued_inspection = False
         self._clear_empty_input()
@@ -7263,7 +7536,8 @@ class _EasyHomePage(QWidget):
         self._last_result = None
         self._settings_overrides = {}
         self.field.set_cards([])
-        self._feedback('')
+        if not self._details_has_content:
+            self._feedback('')
         self._show_suggestions()
 
     def _schedule_inspection(self, text):

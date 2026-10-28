@@ -3281,7 +3281,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "538_signed_cell_measurement_api_arrival_2026-10-24.json",
                      "707_api_help_label_size_hint_api_arrival_2026-10-24.json",
                      "707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json",
-                     "733_easy_mode_api_arrivals_2026_10_26.json"):
+                     "733_easy_mode_api_arrivals_2026_10_26.json",
+                     "733_navigator_ai_provider_api_arrival_2026-10-28.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -5264,6 +5265,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("707_api_help_label_size_hint_api_arrival_2026-10-24.json", 1),
         ("707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json", 5),
         ("733_easy_mode_api_arrivals_2026_10_26.json", 4),
+        ("733_navigator_ai_provider_api_arrival_2026-10-28.json", 1),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -5382,7 +5384,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
             "Reuse the existing install and sign-in dialog without sending a task.",
     }
     assert {key: docs[key] for key in navigator_helper_arrivals} == navigator_helper_arrivals
-    current_help_arrivals = {**navigator_helper_arrivals, **help_escape_arrivals}
+    assert {key: zoo_additions[key] for key in navigator_helper_arrivals} == navigator_helper_arrivals
+    current_help_arrivals = help_escape_arrivals
     assert not current_help_arrivals.keys() & (
         hidden_close.keys() | home_ui_arrivals.keys() | worker_additions.keys()
         | private_additions.keys() | radius_symbols | channel_additions.keys()
@@ -5808,7 +5811,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "538_signed_cell_measurement_api_arrival_2026-10-24.json",
                      "707_api_help_label_size_hint_api_arrival_2026-10-24.json",
                      "707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json",
-                     "733_easy_mode_api_arrivals_2026_10_26.json"):
+                     "733_easy_mode_api_arrivals_2026_10_26.json",
+                     "733_navigator_ai_provider_api_arrival_2026-10-28.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -5899,7 +5903,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "538_signed_cell_measurement_api_arrival_2026-10-24.json",
                      "707_api_help_label_size_hint_api_arrival_2026-10-24.json",
                      "707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json",
-                     "733_easy_mode_api_arrivals_2026_10_26.json"):
+                     "733_easy_mode_api_arrivals_2026_10_26.json",
+                     "733_navigator_ai_provider_api_arrival_2026-10-28.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

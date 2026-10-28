@@ -1,0 +1,47 @@
+{
+  "lesson": "88_navigator",
+  "english_sha256": "bc247555154ed849430770f0f22040a3e93391f8bfc3b19a2806fb4493eac031",
+  "review": {
+    "kind": "Codex AI translation and technical text review",
+    "translator": "Codex (AI), translated from the current English source",
+    "date": "2026-10-27",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "correction": {
+      "date": "2026-10-27",
+      "kind": "Codex AI translation and technical text correction; no listening review or native-speaker sign-off",
+      "scope": "Scene 4 first sentence only: use the supported literal query Measure instead of measure cells; all other prose unchanged"
+    }
+  },
+  "language": "it",
+  "title": "Navigator: trova lo strumento adatto ai tuoi dati",
+  "description": "Trova gli strumenti di spaCR a partire da un’attività, un file o un progetto, esamina i dati in ingresso e le impostazioni e segui i flussi fino ai moduli nativi.",
+  "objectives": [
+    "Trovare strumenti tramite percorsi locali, file o cartelle trascinati e attività inviate con Enter, senza distinzione tra maiuscole e minuscole.",
+    "Esaminare i dati in ingresso, le impostazioni suggerite e i passaggi del flusso prima di aprire uno strumento nativo.",
+    "Esplorare flussi per organismo, pannelli, processi attivi e controlli facoltativi dell’IA.",
+    "Distinguere le tabelle di misurazione dai database di annotazioni o cronologia e ricominciare con Home."
+  ],
+  "prerequisite": "Installa spaCR e apri Navigator. Usa l’immagine, la cartella di immagini, il progetto con misurazioni, il database contenente solo annotazioni o cronologia e il file di impostazioni forniti, oppure dati locali equivalenti.",
+  "scenes": [
+    "Navigator si apre con un campo di ricerca sul tema grafico di spaCR. Avvialo con spacr-nav o spacr-navigator e inizia da un’attività, un file o una cartella.",
+    "Puoi anche attivare Navigator da Help. Navigator è attivo per impostazione predefinita; una scelta salvata viene mantenuta.",
+    "Usa il pannello laterale comprimibile per aprire direttamente un modulo. News e Widgets si aprono accanto all’area di lavoro, mentre ricerca e descrizione restano al loro posto.",
+    "Digita Measure e premi Enter. La ricerca non distingue tra maiuscole e minuscole. La sola digitazione mantiene i suggerimenti attuali e non avvia alcuno strumento.",
+    "Trascina un solo file immagine locale in Navigator. Esamina i dati in ingresso e propone i passaggi successivi supportati, anziché avviare un’elaborazione.",
+    "Trascina una cartella per esaminarne il contenuto. I suggerimenti dipendono dai file e dai dati già presenti nella cartella.",
+    "Per indicare una posizione precisa, incolla il percorso di un file o di un progetto e premi Enter. Anche Browse consente di scegliere un file o una cartella.",
+    "Un progetto con misurazioni contiene dati leggibili dagli strumenti di analisi. Qui le tabelle di misurazione rendono disponibili strumenti come Graph Builder.",
+    "Questo esempio contiene tabelle di annotazioni e cronologia, non caratteristiche misurate. Il solo nome del file del database non dimostra che siano state calcolate misurazioni.",
+    "I file di impostazioni possono proporre un modulo e un’anteprima della configurazione. Esamina la proposta prima di aprire il modulo; Navigator non esegue l’analisi al tuo posto.",
+    "Scegli la scheda di un modulo per esplorarne il flusso. Leggi la descrizione sotto le schede per verificarne lo scopo e i dati richiesti.",
+    "Esplora un passaggio successivo per estendere la rete. I rami precedenti restano visibili e ti aiutano a seguire il percorso dai dati iniziali all’analisi e ai risultati.",
+    "Cerca Toxoplasma per vedere il flusso relativo all’organismo e le opzioni di saggio. Seleziona il passaggio adatto ai tuoi dati e alla domanda biologica.",
+    "Usa Back o Escape per tornare da un flusso ai suggerimenti. Queste azioni di navigazione non eseguono analisi e non modificano i file in ingresso.",
+    "Apri lo strumento nativo suggerito quando sei pronto. Navigator passa i dati selezionati all’impostazione di origine corrispondente; controlla le impostazioni prima di premere Run.",
+    "Digita running jobs e scegli Running per esaminare i processi spaCR attivi in Widgets. I controlli Open, pause e stop agiscono sui processi elencati.",
+    "Il controllo dell’IA è facoltativo. La finestra del primo utilizzo permette di scegliere un fornitore. I percorsi locali e i suggerimenti di strumenti corrispondenti mantengono i percorsi abituali.",
+    "Home riporta Navigator a una ricerca vuota, cancellando i suggerimenti e il flusso precedenti. Ricomincia con la prossima attività o i dati che vuoi esplorare."
+  ]
+}

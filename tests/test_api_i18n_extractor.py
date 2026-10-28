@@ -1998,16 +1998,15 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         | home_ui_arrivals.keys() | volume_arrivals.keys()
     )
     zoo_arrivals = {**zoo_arrivals, **easy_mode_arrivals}
-    navigator_helper_arrivals = {
-        "spacr.qt.widgets.home._EasyHomePage._choose_navigator_ai.configure":
-            "Reuse the existing install and sign-in dialog without sending a task.",
-    }
-    assert {key: docs[key] for key in navigator_helper_arrivals} == navigator_helper_arrivals
-    assert not navigator_helper_arrivals.keys() & (
+    navigator_ai_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "733_navigator_ai_provider_api_arrival_2026-10-28.json").read_text(encoding="utf-8"))
+    assert len(navigator_ai_arrivals) == 1
+    assert {key: docs[key] for key in navigator_ai_arrivals} == navigator_ai_arrivals
+    assert not navigator_ai_arrivals.keys() & (
         zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
         | home_ui_arrivals.keys() | volume_arrivals.keys()
     )
-    zoo_arrivals = {**zoo_arrivals, **navigator_helper_arrivals}
+    zoo_arrivals = {**zoo_arrivals, **navigator_ai_arrivals}
     help_escape_arrivals = {
         'spacr.qt.help_search.HelpSearchField.event': 'Keep Escape in this field before window shortcuts handle it.\n\n:param event: the incoming Qt event.\n:returns: Whether the event was handled.',
     }

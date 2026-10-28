@@ -174,7 +174,12 @@ def test_icon_is_hollow_off_matte_on_and_busy_glow_rotates_while_typing_pulses(a
         center = button.rect().center()
         assert all(frame.pixelColor(center.x() + dx, center.y() + dy)
                    == QColor(button._COLORS[provider])
-                   for dx in range(-4, 5) for dy in range(-4, 5))
+                   for dx in range(-3, 4) for dy in range(-3, 4))
+        if provider == 'spacr_hosted':
+            assert frame.pixelColor(center.x() + 4, center.y()) == QColor('white')
+            assert frame.pixelColor(center.x() + 9, center.y()) != QColor('white')
+            assert 14 <= sum(frame.pixelColor(center.x() + dx, center.y()) == QColor('white')
+                             for dx in range(-10, 11)) <= 16
         pictures.append(bytes(frame.constBits()))
     assert len(set(pictures)) == 4 and bytes(off.constBits()) not in pictures
     button._last_key = button._clock.elapsed() - 1000

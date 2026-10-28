@@ -121,7 +121,8 @@ def xcursor_image(path: Path, size: int):
     return np.dstack([rgb.clip(0, 255), a]).astype(np.uint8), (xhot, yhot)
 
 
-CURSOR_SHAPES = ('left_ptr', 'xterm', 'hand2', 'sb_h_double_arrow', 'sb_v_double_arrow')
+CURSOR_SHAPES = ('left_ptr', 'xterm', 'hand2', 'sb_h_double_arrow', 'sb_v_double_arrow',
+                 'dnd-move')
 
 
 def cursor_templates(theme: str, size: int):
