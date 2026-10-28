@@ -1,14 +1,14 @@
 MAKE MASKS OPENS IMAGES AND CONTAINERS THROUGH SHARED READER CAPABILITIES
 
 Lifecycle: new
-Status:    NUMERIC NPY IMPLEMENTED 2026-10-27 — focused native-scene checks pass
-           for nightly publication; other container/reader gaps remain queued.
+Status:    IMPLEMENTED AND QUALIFIED 2026-10-28 — normal affected artifacts
+           and Nightly publication remain with the coordinating publisher.
 Requested: maintainer, 2026-10-27, while correcting Easy-mode image routing.
-Owner:     Workstation session 2; bounded numeric NPY reader implementation.
+Owner:     Codex G4 implementation and closure; G2 independent source peer; root publishes.
 Related:   733 Easy routing; 363 Import; 462 vendor fixtures; 600 drops;
            690 TEM; 706 volume editing; 725 Overview numeric-array reading.
 
-CURRENT NUMERIC NPY REQUEST — 2026-10-27
+ORIGINAL NUMERIC NPY REQUEST — 2026-10-27
 
 Open an individually selected real numeric NPY in Make Masks, including the
 reported canonical merged uint16 field shaped (2000, 2000, 4). Preserve the
@@ -113,3 +113,7 @@ smallest affected cohorts, normal changed-source catalogs/Help/flow/index
 outputs and ordinary nightly publication. Record unavailable real-reader
 fixtures honestly; no full NAS decode, GPU run or universal-format claim is
 required to record this queued item.
+
+2026-10-28: Shared capabilities now drive exact picker/drop/folder queues and background metadata review; explicit series/time/Z/channel choices, bounded selected-series decoding, revision-isolated masks and declared calibration retain original sources. Missing readers, unsupported axes and stale bindings refuse honestly.
+2026-10-28: Qualified 23 new controls plus one existing spatial-volume control; five affected calibration checks and one existing Cellpose-bundle check pass. Real TIFF/GIF/WebP/CZI/LIF/DM3/DM4/MAP fixtures are covered; ND2 has a strict reader-API contract, not a claimed real-file acceptance. Earlier 15 NPY and two native handoff passes remain retained.
+2026-10-28: G2 independently accepted source and controls. Parent/root own final normal translated catalogs, Help/API/flow/index binding and ordinary Nightly publication; no promotion of this feature into frozen Main.

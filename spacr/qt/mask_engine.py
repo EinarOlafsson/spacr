@@ -657,6 +657,333 @@ TEM_SUFFIXES = (".dm3", ".dm4", ".mrc", ".rec")
 _NPY_IMAGE_VIEWS = {}
 
 
+def _image_extensions():
+    """Return shared scientific and installed raster reader suffixes lazily."""
+    from ..convert import _image_extensions as shared_extensions
+
+    return tuple(dict.fromkeys((*IMAGE_EXTS, '.map', *shared_extensions())))
+
+
+def _requires_container_review(path):
+    """Keep native spatial volumes and numeric-array review on their existing routes."""
+    ext = Path(path).suffix.lower()
+    if ext in ('.tif', '.tiff'):
+        return True
+    return (ext in ('.nd2', '.czi', '.lif')
+            or (ext in _image_extensions() and ext not in (*IMAGE_EXTS, '.map', '.npy')))
+
+
+def _source_identity(path):
+    """Bind a review to the same regular source revision."""
+    from .i18n import tr
+
+    revision = os.stat(path)
+    if not stat.S_ISREG(revision.st_mode):
+        raise ValueError(tr('The image source is not a regular file.'))
+    return (revision.st_dev, revision.st_ino, revision.st_size,
+            revision.st_mtime_ns, revision.st_ctime_ns)
+
+
+_CONTAINER_IMAGE_VIEWS = {}
+_CONTAINER_CURRENT_VIEWS = {}
+_CONTAINER_NATIVE_HEADERS = {}
+
+
+def _current_container_image_view(path):
+    """Forget superseded reviews so reopening a changed source offers a fresh choice."""
+    path = os.path.abspath(os.fspath(path))
+    view = _CONTAINER_CURRENT_VIEWS.get(path)
+    if view is not None:
+        try:
+            unchanged = _source_identity(path) == view['header']['identity']
+        except (OSError, ValueError):
+            unchanged = False
+        if not unchanged:
+            _CONTAINER_CURRENT_VIEWS.pop(path, None)
+            return None
+    return view
+
+
+def _current_native_image_header(path):
+    """Use only metadata inspected from the current native TIFF revision."""
+    path = os.path.abspath(os.fspath(path))
+    header = _CONTAINER_NATIVE_HEADERS.get(path)
+    if header is not None:
+        try:
+            unchanged = _source_identity(path) == header['identity']
+        except (OSError, ValueError):
+            unchanged = False
+        if not unchanged:
+            _CONTAINER_NATIVE_HEADERS.pop(path, None)
+            return None
+    return header
+
+
+def _container_reviewed(path):
+    """Whether the exact source has a current native or explicit-plane review."""
+    return (_current_container_image_view(path) is not None
+            or _current_native_image_header(path) is not None)
+
+
+def _retain_native_image_header(header):
+    """Retain a bounded ordinary TIFF or existing spatial-volume interpretation."""
+    from .i18n import tr
+
+    entry = header['series'][0]
+    size = math.prod(entry['shape']) * np.dtype(entry['dtype']).itemsize
+    if size > 256 * 1024 * 1024:
+        raise ValueError(tr('The selected native image exceeds the 256 MiB editor limit. Use Import.'))
+    path = header['path']
+    if len(_CONTAINER_NATIVE_HEADERS) >= 128 and path not in _CONTAINER_NATIVE_HEADERS:
+        _CONTAINER_NATIVE_HEADERS.pop(next(iter(_CONTAINER_NATIVE_HEADERS)))
+    _CONTAINER_NATIVE_HEADERS[path] = dict(header, decoded_bytes=size)
+
+
+def _tiff_series_pixel_size(handle, image):
+    """Read calibration attached to this exact TIFF series, never another scene."""
+    from ..core import _WATCH_OME_UNITS, _watch_square_um, _watch_um
+    from ..io import _nm_per
+
+    page = image.pages[0]
+    try:
+        shaped = json.loads(page.description or '{}')
+    except (TypeError, ValueError):
+        shaped = {}
+    exact = shaped.get('pixel_size_nm') if isinstance(shaped, dict) else None
+    exact_um = _watch_um(exact, .001)
+    if exact_um is not None:
+        return exact_um * 1000
+    if handle.is_ome:
+        import tifffile
+
+        metadata = tifffile.xml2dict(handle.ome_metadata).get('OME', {})
+        images = metadata.get('Image', ()) or ()
+        images = [images] if isinstance(images, dict) else images
+        for node in images:
+            pixels = node.get('Pixels', {})
+            references = pixels.get('TiffData', ()) or ()
+            references = [references] if isinstance(references, dict) else references
+            if not any(int(reference.get('IFD', 0)) == page.index for reference in references):
+                continue
+            x = _watch_um(pixels.get('PhysicalSizeX'), _WATCH_OME_UNITS.get(pixels.get('PhysicalSizeXUnit', 'µm'), 0))
+            y = _watch_um(pixels.get('PhysicalSizeY'), _WATCH_OME_UNITS.get(pixels.get('PhysicalSizeYUnit', 'µm'), 0))
+            xy = _watch_square_um(x, y)
+            if xy is not None:
+                return xy * 1000
+    factor = _nm_per((handle.imagej_metadata or {}).get('unit')) if len(handle.series) == 1 else None
+    if factor is None and page.resolutionunit == 3:
+        factor = 1e7
+    if factor is None or 'XResolution' not in page.tags or 'YResolution' not in page.tags:
+        return None
+    x, y = page.resolution
+    xy = _watch_square_um(factor / x / 1000 if x > 0 else None,
+                          factor / y / 1000 if y > 0 else None)
+    return None if xy is None else xy * 1000
+
+
+def _container_pixel_sizes(path, ext, series):
+    """Retain declared square-pixel calibration through existing unit validators."""
+    from .. import convert
+    from ..core import _watch_czi_voxel, _watch_square_um, _watch_um
+
+    if ext == '.nd2':
+        module = convert._import_reader(ext)
+        with module.ND2Reader(path) as handle:
+            value = (getattr(handle, 'metadata', None) or {}).get('pixel_microns')
+        xy = _watch_square_um(value, value)
+        return [None if xy is None else xy * 1000 for _entry in series]
+    if ext == '.lif':
+        images = convert._lif_images(path)
+        sizes = []
+        for entry in series:
+            scale = tuple(getattr(images[entry['lif_image']], 'scale', ()) or ())
+            x, y = (_watch_um(scale[0]), _watch_um(scale[1])) if len(scale) >= 2 else (None, None)
+            xy = _watch_square_um(1 / x, 1 / y) if x is not None and y is not None else None
+            sizes.append(None if xy is None else xy * 1000)
+        return sizes
+    if ext == '.czi':
+        module = convert._import_reader(ext)
+        with module.CziFile(path) as handle:
+            read_metadata = getattr(handle, 'metadata', None)
+            text = read_metadata() if callable(read_metadata) else ''
+        xy = _watch_czi_voxel(text if isinstance(text, str) else '', 1)['xy']
+        return [None if xy is None else xy * 1000 for _entry in series]
+    return [None for _entry in series]
+
+
+def _container_image_header(path):
+    """Inspect shared reader metadata without decoding container pixels."""
+    from .. import convert
+    from .i18n import tr
+
+    path = os.path.abspath(os.fspath(path))
+    before = _source_identity(path)
+    ext = Path(path).suffix.lower()
+    if ext not in _image_extensions() or ext == '.npy':
+        raise ValueError(tr('This file has no shared image reader. Use Import to inspect it.'))
+    if not convert.reader_available(ext):
+        raise ValueError(convert.missing_reader_message(ext))
+    if ext in ('.tif', '.tiff'):
+        import tifffile
+
+        with tifffile.TiffFile(path) as handle:
+            if len(handle.series) > 512:
+                raise ValueError(tr('This container has too many series to review safely. Use Import.'))
+            series = [dict(shape=tuple(image.shape), axes=str(image.axes),
+                           dtype=str(image.dtype), reader='tifffile',
+                           pixel_size_nm=_tiff_series_pixel_size(handle, image))
+                      for image in handle.series]
+    elif ext in ('.nd2', '.czi', '.lif'):
+        described = convert._describe(path, ext)
+        series = [dict({key: value for key, value in described.items() if key != 'per_series'}, **entry)
+                  for entry in described.get('per_series', ())]
+        if not series:
+            count = int(described['n_series'])
+            if count > 512:
+                raise ValueError(tr('This container has too many series to review safely. Use Import.'))
+            series = [dict(described, series=index) for index in range(count)]
+        if ext == '.czi':
+            module = convert._import_reader(ext)
+            with module.CziFile(path) as handle:
+                if not hasattr(handle, 'scenes'):
+                    decode_bytes = math.prod(handle.shape) * np.dtype(handle.dtype).itemsize
+                    for entry in series:
+                        entry['decode_bytes'] = decode_bytes
+    else:
+        from PIL import Image
+
+        with Image.open(path) as image:
+            if int(getattr(image, 'n_frames', 1)) > 10000:
+                raise ValueError(tr('This image has too many frames to review safely. Use Import.'))
+            mode = image.mode
+            if mode in ('P', 'PA', 'CMYK', 'YCbCr', 'LAB', 'HSV'):
+                mode = 'RGBA' if 'transparency' in image.info or mode == 'PA' else 'RGB'
+            channels = {'RGB': 3, 'RGBA': 4, 'LA': 2}.get(mode, 1)
+            dtype = 'float32' if mode == 'F' else 'int32' if mode == 'I' else 'uint16' if '16' in mode else 'uint8'
+            series = [dict(shape=(image.height, image.width), axes='YX',
+                           dtype=dtype, n_t=int(getattr(image, 'n_frames', 1)),
+                           n_z=1, n_c=channels, reader='PIL', mode=mode)]
+    if not series or len(series) > 512:
+        raise ValueError(tr('This container has no bounded image series. Use Import.'))
+    for entry in series:
+        shape = tuple(int(size) for size in entry['shape'])
+        if entry['reader'] == 'czifile':
+            stored = entry['axes']
+            retained = [(axis, size) for axis, size in zip(stored, shape)
+                        if axis in 'TZCYX' or size != 1]
+            entry['axes'] = ''.join(axis for axis, _size in retained)
+            shape = tuple(size for _axis, size in retained)
+            if set(entry['axes']) - set('TZCYX'):
+                raise ValueError(tr('This container needs an unsupported spatial layout. Use Import.'))
+        if (not 2 <= len(shape) <= 5 or any(size <= 0 for size in shape)
+                or any(not 1 <= int(entry.get(name, 1)) <= 2147483647 for name in ('n_t', 'n_z', 'n_c'))):
+            raise ValueError(tr('This container needs an unsupported spatial layout. Use Import.'))
+        entry['shape'] = shape
+    if ext in ('.nd2', '.lif', '.czi'):
+        for entry, pixel_size in zip(series, _container_pixel_sizes(path, ext, series)):
+            entry['pixel_size_nm'] = pixel_size
+    if _source_identity(path) != before:
+        raise ValueError(tr('The source changed while its image metadata was read. Open it again.'))
+    return dict(path=path, identity=before, ext=ext, series=series)
+
+
+def _set_container_image_view(header, series=0, time=0, z=0, channel=0, axes=None):
+    """Validate and retain one explicitly selected image plane and mask identity."""
+    from .i18n import tr
+
+    if _source_identity(header['path']) != header['identity']:
+        raise ValueError(tr('The source changed after its image layout was reviewed. Open it again.'))
+    if not isinstance(series, Integral) or isinstance(series, bool) or not 0 <= series < len(header['series']):
+        raise ValueError(tr('Choose a valid image series.'))
+    entry = dict(header['series'][series])
+    stored = axes or entry['axes']
+    if entry['reader'] in ('tifffile', 'czifile'):
+        stored = stored.replace('S', 'C')
+        if (len(stored) != len(entry['shape']) or len(set(stored)) != len(stored)
+                or set(stored) - set('TZCYX') or 'X' not in stored or 'Y' not in stored):
+            raise ValueError(tr('Review the stored spatial, time and channel axes before opening this image.'))
+        sizes = dict(zip(stored, entry['shape']))
+        entry.update(n_t=sizes.get('T', 1), n_z=sizes.get('Z', 1), n_c=sizes.get('C', 1))
+        dtype = np.dtype(entry['dtype'])
+        if dtype.kind not in 'buif' or max(math.prod(entry['shape']) * dtype.itemsize, entry.get('decode_bytes', 0)) > 256 * 1024 * 1024:
+            raise ValueError(tr('This reader needs the selected series decoded together; its numeric data must fit within 256 MiB. Use Import for larger series.'))
+    for selected, count in ((time, entry.get('n_t', 1)), (z, entry.get('n_z', 1)),
+                            (channel, entry.get('n_c', 1))):
+        if isinstance(selected, bool) or not isinstance(selected, Integral) or not 0 <= selected < int(count):
+            raise ValueError(tr('Choose a valid time, Z plane and image channel.'))
+    width, height = (entry['shape'][stored.index('X')], entry['shape'][stored.index('Y')]) if 'X' in stored and 'Y' in stored else entry['shape'][-1::-1][:2]
+    if int(width) * int(height) * 8 > 256 * 1024 * 1024:
+        raise ValueError(tr('The selected image plane exceeds the 256 MiB editor limit.'))
+    path = header['path']
+    revision = hashlib.sha256(repr(header['identity']).encode('ascii')).hexdigest()[:16]
+    suffix = f'_S{series}_T{time}_Z{z}_C{channel}_{stored}_{revision}'
+    target = os.path.join(os.path.dirname(path), 'masks', '.spacr-reader-' + Path(path).stem + suffix)
+    view = dict(header=header, series=int(series), time=int(time), z=int(z),
+                channel=int(channel), axes=stored, entry=entry, masks_dir=target,
+                shape=(int(height), int(width)))
+    if len(_CONTAINER_IMAGE_VIEWS) >= 128 and (path, os.path.abspath(target)) not in _CONTAINER_IMAGE_VIEWS:
+        _CONTAINER_IMAGE_VIEWS.pop(next(iter(_CONTAINER_IMAGE_VIEWS)))
+    _CONTAINER_IMAGE_VIEWS[(path, os.path.abspath(target))] = view
+    if len(_CONTAINER_CURRENT_VIEWS) >= 128 and path not in _CONTAINER_CURRENT_VIEWS:
+        _CONTAINER_CURRENT_VIEWS.pop(next(iter(_CONTAINER_CURRENT_VIEWS)))
+    _CONTAINER_CURRENT_VIEWS[path] = view
+    return view
+
+
+def _read_container_image_view(path, masks_dir=None):
+    """Read exactly the reviewed plane through the shared reader contracts."""
+    from .. import convert
+    from .i18n import tr
+
+    path = os.path.abspath(os.fspath(path))
+    view = (_CONTAINER_IMAGE_VIEWS[(path, os.path.abspath(masks_dir))]
+            if masks_dir is not None else _CONTAINER_CURRENT_VIEWS[path])
+    header, entry = view['header'], view['entry']
+    if _source_identity(path) != header['identity']:
+        raise ValueError(tr('The source changed after its image layout was reviewed. Open it again.'))
+    t, z, c = view['time'], view['z'], view['channel']
+    if header['ext'] == '.nd2':
+        module = convert._import_reader('.nd2')
+        with module.ND2Reader(path) as handle:
+            image = np.array(handle.get_frame_2D(t=t, z=z, c=c, v=view['series']), copy=True)
+    elif header['ext'] == '.lif':
+        images = convert._lif_images(path)
+        image = np.array(images[entry['lif_image']].get_frame(
+            z=z, t=t, c=c, m=entry['lif_tile']), copy=True)
+    elif entry['reader'] == 'PIL':
+        from PIL import Image
+
+        with Image.open(path) as handle:
+            handle.seek(t)
+            if handle.mode != entry['mode']:
+                handle = handle.convert(entry['mode'])
+            image = np.array(handle)
+        if image.ndim == 3:
+            image = image[..., c]
+    else:
+        if entry['reader'] == 'tifffile':
+            import tifffile
+
+            with tifffile.TiffFile(path) as handle:
+                image = handle.series[view['series']].asarray()
+        else:
+            source = convert.SourceImage(path, '', '', '', z=entry.get('n_z', 1),
+                                         t=entry.get('n_t', 1), n_channels=entry.get('n_c', 1),
+                                         meta=dict(entry, ext=header['ext'], series=view['series']))
+            image = convert._read_czi(source)
+            image = image[t, z, c]
+        if entry['reader'] == 'tifffile':
+            selection = tuple(t if axis == 'T' else z if axis == 'Z' else c if axis == 'C' else slice(None)
+                              for axis in view['axes'])
+            image = image[selection]
+            if view['axes'].index('X') < view['axes'].index('Y'):
+                image = image.T
+    if (image.shape != view['shape'] or image.dtype.kind not in 'buif'
+            or image.nbytes > 256 * 1024 * 1024 or _source_identity(path) != header['identity']):
+        raise ValueError(tr('The reader returned an invalid or changed image plane.'))
+    return np.array(image, copy=True)
+
+
 def _npy_image_header(path):
     """Check bounded numeric array metadata without mapping source pixels."""
     from ..resume import read_npy_header
@@ -743,14 +1070,22 @@ def _read_npy_image_view(path, masks_dir=None):
 def read_image(path: str) -> np.ndarray:
     """Read one image file the way Make Masks shows it.
 
-    A Bio-Rad Image Lab ``.scn`` is read by :func:`spacr.convert.read_scn`
-    (``uint16``, inverted so it looks like Image Lab's own exports); every
-    other format goes through :func:`imageio.v2.imread`.
+    Explicitly reviewed container planes use their shared scientific or
+    raster reader and source identity. Native SCN and TEM readers retain
+    their calibration; ordinary unreviewed images use imageio.
 
     :param path: the image file.
     :returns: the pixels.
     """
     lower = str(path).lower()
+    if os.path.abspath(os.fspath(path)) in _CONTAINER_CURRENT_VIEWS:
+        return _read_container_image_view(path)
+    if lower.endswith(".map"):
+        from ..io import read_mrc
+
+        image, meta = read_mrc(path)
+        _PIXEL_SIZES[os.path.abspath(os.fspath(path))] = meta["pixel_size_nm"]
+        return image
     if lower.endswith(".scn"):
         from ..convert import read_scn
 
@@ -778,6 +1113,9 @@ def pixel_size_nm(path) -> Optional[float]:
         files not yet read are read for their calibration.
     """
     key = os.path.abspath(os.fspath(path))
+    reviewed = _current_container_image_view(key)
+    if reviewed is not None:
+        return reviewed['entry'].get('pixel_size_nm')
     if key in _PIXEL_SIZES:
         return _PIXEL_SIZES[key]
     from ..io import image_pixel_size_nm
@@ -1397,7 +1735,7 @@ def list_images(folder: str) -> List[str]:
         return []
     return sorted(
         f for f in os.listdir(folder)
-        if f.lower().endswith(IMAGE_EXTS)
+        if f.lower().endswith(_image_extensions()) and not is_seg_bundle(f)
     )
 
 
@@ -1562,8 +1900,15 @@ def load_image_and_mask(folder: str, filename: str,
     if is_seg_bundle(filename):
         return load_seg_bundle(os.path.join(folder, filename))
     image_path = os.path.join(folder, filename)
-    pixels = (_read_npy_image_view(image_path, masks_dir)[0]
-              if filename.lower().endswith('.npy') else read_image(image_path))
+    if (os.path.abspath(image_path), os.path.abspath(masks_dir) if masks_dir else None) in _CONTAINER_IMAGE_VIEWS:
+        pixels = _read_container_image_view(image_path, masks_dir)
+    else:
+        if (masks_dir is not None and os.path.basename(os.path.normpath(masks_dir)).startswith('.spacr-reader-')):
+            from .i18n import tr
+
+            raise ValueError(tr('Review this source and image plane again before reusing its mask destination.'))
+        pixels = (_read_npy_image_view(image_path, masks_dir)[0]
+                  if filename.lower().endswith('.npy') else read_image(image_path))
     image = _as_field_image(pixels, image_path)
 
     mask_dir = masks_folder(folder, masks_dir)
@@ -2932,6 +3277,19 @@ def save_mask(folder: str, filename: str, mask: np.ndarray,
     """
     save_path = mask_save_path(folder, filename, masks_dir)
     metadata = load_mask_metadata(folder, filename, masks_dir)
+    source_path = os.path.abspath(os.path.join(folder, filename))
+    reviewed = None
+    if masks_dir is not None and os.path.basename(os.path.normpath(masks_dir)).startswith('.spacr-reader-'):
+        from .i18n import tr
+
+        reviewed = _CONTAINER_IMAGE_VIEWS.get((source_path, os.path.abspath(masks_dir)))
+        if reviewed is None:
+            raise ValueError(tr('Review this source and image plane again before reusing its mask destination.'))
+        if _source_identity(source_path) != reviewed['header']['identity']:
+            raise ValueError(tr('The source changed after its image layout was reviewed. Open it again.'))
+        metadata['image_view'] = {key: reviewed[key] for key in ('series', 'time', 'z', 'channel', 'axes', 'shape')}
+        metadata['image_view'].update(source=source_path, source_identity=reviewed['header']['identity'],
+                                      pixel_size_nm=reviewed['entry'].get('pixel_size_nm'))
     if lineage is None:
         lineage = metadata.get("lineage")
     preserve_ids = bool(preserve_ids or metadata.get("preserve_ids")
@@ -2953,7 +3311,7 @@ def save_mask(folder: str, filename: str, mask: np.ndarray,
         save_seg_bundle(save_path, labels, preserve_ids=preserve_ids)
     else:
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
-        size = pixel_size_nm(os.path.join(folder, filename))
+        size = reviewed['entry'].get('pixel_size_nm') if reviewed is not None else pixel_size_nm(source_path)
         resolution = _resolution_for(size)
         description_metadata = resolution.pop("metadata", {})
         description_metadata.update(shape=labels.shape, spacr_mask=metadata)

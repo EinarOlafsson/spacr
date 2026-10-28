@@ -366,12 +366,12 @@ WHAT IS LEFT
     that basename already exists. It is a per-basename collision ordinal,
     NOT an acquisition field/time ID; different channels must not be paired
     by this number. Only well/channel are established by these names.
-    Still NOT SHIPPED: Mask's _extract_filename_metadata requires fieldID.
-    Import Images canonical_name defaults absent field/time to 1 and
-    apply_import refuses repeated destinations; it does not supply stable
-    independent-file identities while preserving only well/channel. Safe
-    support requires explicit Import handling of missing acquisition axes,
-    preserving each snapshot independently without implying channel pairing.
+    Mask's _extract_filename_metadata still requires fieldID, so these are
+    not enabled as a metadata_type. Import Images now has bounded support
+    for the sourced BF/Blue manual snapshots: a visible independent_file
+    import_id keeps every relative source path separate, while field/time/Z
+    remain unknown in the source plan. Required F/T/Z output slots are
+    container encoding only, not evidence of acquired axes or channel pairing.
     Protocol tiled/time-lapse filenames have a different generator and are
     outside this manual-snapshot evidence; no all-Etaluma support is claimed.
   * NANOLIVE: NOT FOUND. Closed-source STEVE/EVE, no manual, no dataset with
@@ -500,3 +500,9 @@ IN Cell 7.2 issue3725 and its sole comment still provide only one literal modern
 Known UUID and bare names retain their groups; constructed channels10/12/123 remain separate from complete UUIDs, while malformed suffixes/thumbnails are refused. Original four patterns and cross-convention pins remain unchanged.
 Focused23 controls pass (16 retained +7 affected rerun4.55s); public signatures/docs unchanged. Etaluma and IN Cell evidence limits above remain open; whole-item completion is not claimed.
 Normal old/new canonical runtime collection has zero changes across all six tables; 15 owning AutoAPI entries and all other module AST remain exact, with zero consumer-map references requiring offsets. No catalog generation or locale targets are applicable.
+
+2026-10-28 — Priority: repair Etaluma manual/live snapshot Import identity; owner: G1 with G3 source/test peer, root publication.
+Preserve only evidenced well/channel and stable independent-file identities; never treat collision ordinals as acquisition field/time or pair channels by suffix.
+Acceptance: all four vendor-owner literals import without collisions or invented acquisition metadata; existing folder channel fallback and immutable source bytes remain intact.
+Keep IN Cell 7.2 single-example and ScanR inferred-extension limits explicit; no unsupported metadata_type, native-device claim or new corpus example.
+Focused 12 controls pass (12.79 s): real TIFF bytes, exact source pairs, parser/save-load, independent channel/folder identities, collision refusal and existing missing-axis/folder fallback; normal artifacts/publication pending.

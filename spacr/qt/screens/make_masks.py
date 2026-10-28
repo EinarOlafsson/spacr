@@ -686,6 +686,27 @@ def _retire_worker(worker, *, delete: bool = True) -> None:
     selector._RETIRED.append(worker)
 
 
+class _MaskReaderMetadataWorker(QThread):
+    """Inspect one source without decoding its image planes on the GUI thread."""
+
+    def __init__(self, path, token, parent=None):
+        """:param path: exact selected source.
+        :param token: current screen request generation.
+        :param parent: owner retaining this worker until retirement.
+        """
+        super().__init__(parent)
+        self.path, self.token = path, token
+        self.result, self.error = None, None
+
+    def run(self):
+        """Keep metadata or the reader's original refusal for the current request."""
+        try:
+            if not self.isInterruptionRequested():
+                self.result = engine._container_image_header(self.path)
+        except Exception as exc:
+            self.error = exc
+
+
 class _MaskLoadWorker(QThread):
     """Decode one image/mask pair without blocking Qt's main thread."""
 
@@ -13353,6 +13374,11 @@ class MakeMasksScreen(QWidget):
         #: :meth:`finish_recrop`.
         self._recrop_children: List[str] = []
         self._load_worker: Optional[_MaskLoadWorker] = None
+        self._reader_worker = None
+        self._reader_workers = []
+        self._queue_masks_dir = None
+        self._npy_queue_targets = {}
+        self._reader_displayed_field = None
         self._pending_load = None
         self._loading = False
         self._label_time_queue = deque()
@@ -13475,6 +13501,7 @@ class MakeMasksScreen(QWidget):
         self._reset_flow_panes()
         self._close_levels()
         self._mask_stage.open(session)
+        self._reader_displayed_field = (self._folder, os.path.basename(session.source_path), self._masks_dir)
         self._history = _VolumeSliceHistory(self._mask_stage)
         self._btn_label_time.setChecked(False)
         if self._canvas.mode in (MODE_NONE, MODE_BOX, MODE_RECROP, MODE_EDIT_LABEL, MODE_LABEL_TIME):
@@ -23950,20 +23977,13 @@ class MakeMasksScreen(QWidget):
                      else self._folder or os.getcwd())
             path, _ = QFileDialog.getOpenFileName(
                 self, tr("Open a 2D or 3D image"), start,
-                tr("Images (*.tif *.tiff *.png *.jpg *.jpeg *.npy *.mrc *.rec *.map)"))
+                tr("Images ({patterns})", patterns=" ".join("*" + ext for ext in engine._image_extensions())))
         if not path:
             return None
         if str(path).lower().endswith('.npy') and not engine.is_seg_bundle(path):
             return self._open_numeric_npy(path)
-        if engine._is_volume_file(path):
-            return self.open_volume(path)
-        folder, name = os.path.split(os.path.abspath(path))
-        if not self._open_folder(folder):
-            return None
-        files = list(self._image_files or [])
-        if name in files and files.index(name) != self._current_index:
-            self._go_to_index(files.index(name))
-        return True
+        engine._CONTAINER_CURRENT_VIEWS.pop(os.path.abspath(path), None)
+        return self._open_queue([os.path.abspath(path)])
 
     def _finish_folder_job(self, worker, report) -> None:
         """Report a finished folder job, then retire its thread safely.
@@ -24224,8 +24244,125 @@ class MakeMasksScreen(QWidget):
         if os.path.isdir(first):
             self._open_folder(first)
 
-    def _open_numeric_npy(self, path):
-        """Review array axes and select one intensity channel before native editing."""
+    def _review_container_header(self, worker):
+        """Offer explicit series and plane choices for the current metadata request."""
+        from ..i18n import tr
+
+        if worker in self._reader_workers:
+            self._reader_workers.remove(worker)
+        if worker is not getattr(self, '_reader_worker', None):
+            _retire_worker(worker)
+            return
+        self._reader_worker = None
+        self._loading = self._load_worker is not None
+        applied = False
+        try:
+            if worker.token != self._load_token or worker.isInterruptionRequested():
+                return
+            if worker.error is not None:
+                self._warn(tr('Open image'), str(worker.error))
+                return
+            header = worker.result
+            if header['ext'] in ('.tif', '.tiff') and len(header['series']) == 1:
+                entry = header['series'][0]
+                axes = engine._spatial_page_axes(entry['axes'])
+                native_volume = (len(entry['shape']) == len(axes)
+                                 and len(entry['shape']) in (3, 4)
+                                 and sorted(axes.replace('C', '', 1)) == ['X', 'Y', 'Z'])
+                if (entry['axes'] == 'YX' and len(entry['shape']) == 2) or native_volume:
+                    engine._retain_native_image_header(dict(header, native_volume=native_volume))
+                    applied = True
+                    if worker.paths is not None:
+                        self._open_queue(worker.paths)
+                    else:
+                        self._load_current()
+                    return
+            series = 0
+            if len(header['series']) > 1:
+                labels = [tr('Series {index}: {shape}', index=index, shape=str(entry['shape']))
+                          for index, entry in enumerate(header['series'])]
+                chosen, accepted = QInputDialog.getItem(self, tr('Image series'),
+                                                        tr('Choose the stored image series.'), labels, 0, False)
+                if not accepted:
+                    return
+                series = labels.index(chosen)
+            entry = header['series'][series]
+            axes = entry['axes'].replace('S', 'C')
+            if entry['reader'] in ('tifffile', 'czifile'):
+                if (len(axes) != len(entry['shape']) or len(set(axes)) != len(axes)
+                        or set(axes) - set('TZCYX') or 'Y' not in axes or 'X' not in axes):
+                    choices = {2: ('YX',), 3: ('ZYX', 'CYX', 'YXC', 'TYX'),
+                               4: ('ZCYX', 'TZYX', 'TCYX', 'ZYXC'), 5: ('TZCYX', 'TCZYX')}
+                    axes, accepted = QInputDialog.getItem(
+                        self, tr('Image axes'), tr('Stored shape: {shape}. Choose the recorded axis order; no projection is applied.',
+                                                   shape=str(entry['shape'])), list(choices[len(entry['shape'])]), 0, False)
+                    if not accepted:
+                        return
+                sizes = dict(zip(axes, entry['shape']))
+                counts = (sizes.get('T', 1), sizes.get('Z', 1), sizes.get('C', 1))
+            else:
+                counts = (entry.get('n_t', 1), entry.get('n_z', 1), entry.get('n_c', 1))
+            selected = []
+            for label, count in zip((tr('Time'), tr('Z plane'), tr('Image channel')), counts):
+                value, accepted = (0, True)
+                if int(count) > 1:
+                    value, accepted = QInputDialog.getInt(self, tr('Image plane'),
+                                                          tr('{axis} (0-based)', axis=label), 0, 0, int(count) - 1)
+                if not accepted:
+                    return
+                selected.append(value)
+            if worker.token != self._load_token:
+                return
+            engine._set_container_image_view(header, series, *selected, axes=axes)
+            applied = True
+            if worker.paths is not None:
+                self._open_queue(worker.paths)
+            else:
+                self._load_current()
+        except (ValueError, OSError) as exc:
+            self._warn(tr('Open image'), str(exc))
+        finally:
+            if not applied and worker.paths is None and worker.token == self._load_token:
+                self._restore_reader_displayed_field()
+            self._sync_button_states()
+            _retire_worker(worker)
+
+    def _restore_reader_displayed_field(self):
+        """Keep a cancelled lazy plane review bound to the still-visible field."""
+        previous = self._reader_displayed_field
+        if previous is None:
+            return
+        folder, name, masks_dir = previous
+        for index, candidate in enumerate(self._image_files):
+            owner = self._field_folders[index] if self._field_folders else self._folder
+            if (owner, candidate) == (folder, name):
+                self._current_index, self._folder, self._masks_dir = index, folder, masks_dir
+                self._sync_queue_tally()
+                return
+
+    def _start_container_review(self, path, token, paths=None):
+        """Read metadata off the GUI thread and discard superseded requests."""
+        from ..i18n import tr
+
+        previous = getattr(self, '_reader_worker', None)
+        if previous is not None:
+            previous.requestInterruption()
+        worker = _MaskReaderMetadataWorker(path, token, self)
+        worker.paths = paths
+        self._reader_worker = worker
+        self._reader_workers.append(worker)
+        self._loading = True
+        self._status_label.setText(tr('Reading image metadata…'))
+        worker.finished.connect(partial(self._review_container_header, worker))
+        self._sync_button_states()
+        worker.start()
+
+    def _open_numeric_npy(self, path, *, queue=False):
+        """Review array axes and select one intensity channel before native editing.
+
+        :param path: exact numeric source.
+        :param queue: return its reviewed mask destination without replacing the current queue.
+        """
         from ..i18n import tr
 
         path = os.path.abspath(os.fspath(path))
@@ -24252,6 +24389,8 @@ class MakeMasksScreen(QWidget):
             target = os.path.join(folder, 'masks',
                                   os.path.splitext(filename)[0] + f'_{axes}_C{channel}')
             engine._set_npy_image_view(path, axes, channel, masks_dir=target)
+            if queue:
+                return target
             return self._open_folder(folder, files=[filename], masks_dir=target)
         except (ValueError, OSError) as exc:
             self._warn(tr('NPY image layout'), str(exc))
@@ -24296,7 +24435,8 @@ class MakeMasksScreen(QWidget):
             selected = paths[0]
             if os.path.isfile(selected) and selected.lower().endswith('.npy') and not engine.is_seg_bundle(selected):
                 return self._open_numeric_npy(selected)
-            if os.path.isdir(selected) and not engine.list_images(selected):
+            if os.path.isdir(selected) and not any(not name.lower().endswith('.npy')
+                                                    for name in engine.list_images(selected)):
                 from itertools import islice
 
                 try:
@@ -24313,6 +24453,16 @@ class MakeMasksScreen(QWidget):
                     chosen, accepted = QInputDialog.getItem(
                         self, tr('NPY image layout'), tr('Choose an NPY image'), numeric, 0, False)
                     return self._open_numeric_npy(chosen) if accepted else False
+        if (len(paths) == 1 and os.path.isdir(paths[0]) and engine.list_images(paths[0])
+                and not dc.list_folder_images(paths[0])):
+            return self._open_queue(paths)
+        if (paths and (len(paths) == 1 or any(not path.lower().endswith(engine.IMAGE_EXTS) for path in paths))
+                and all((os.path.isfile(path) and path.lower().endswith(engine._image_extensions())
+                         and not engine.is_seg_bundle(path)) or os.path.isdir(path) for path in paths)):
+            for path in paths:
+                engine._CONTAINER_CURRENT_VIEWS.pop(path, None)
+                self._npy_queue_targets.pop(path, None)
+            return self._open_queue(paths)
         found = dc.classify_drop(paths)
         for line in found.unrecognised:
             self._masks_console.post(
@@ -24475,14 +24625,12 @@ class MakeMasksScreen(QWidget):
         """
         from ..i18n import tr
 
-        if len(paths) == 1 and os.path.isdir(paths[0]):
-            return self._open_folder(paths[0])
         fields: list = []
         for path in paths:
             if os.path.isdir(path):
                 found = [(path, name) for name in engine.list_images(path)]
             elif (os.path.isfile(path)
-                  and path.lower().endswith(engine.IMAGE_EXTS)):
+                  and path.lower().endswith(engine._image_extensions())):
                 found = [(os.path.dirname(path), os.path.basename(path))]
             else:
                 found = []
@@ -24494,6 +24642,18 @@ class MakeMasksScreen(QWidget):
                        tr("None of the dropped items is an image Make Masks "
                           "can open."))
             return False
+        for folder, name in fields[:1]:
+            source = os.path.join(folder, name)
+            if (source.lower().endswith('.npy') and not engine.is_seg_bundle(source)
+                    and source not in self._npy_queue_targets):
+                target = self._open_numeric_npy(source, queue=True)
+                if not target:
+                    return False
+                self._npy_queue_targets[source] = target
+            if engine._requires_container_review(source) and not engine._container_reviewed(source):
+                self._load_token += 1
+                self._start_container_review(source, self._load_token, paths=list(paths))
+                return True
         folders = [folder for folder, _name in fields]
         spans = list(dict.fromkeys(folders))
         if not self._open_folder(
@@ -24527,6 +24687,12 @@ class MakeMasksScreen(QWidget):
         :returns: whether a folder was opened. ``False`` means there was
             nothing in it to edit, which the user has been told about.
         """
+        if files is None and any((name.lower().endswith('.npy')
+                                  and os.path.abspath(os.path.join(folder, name)) not in self._npy_queue_targets)
+                                 or (engine._requires_container_review(os.path.join(folder, name))
+                                     and not engine._container_reviewed(os.path.join(folder, name)))
+                                 for name in engine.list_images(folder)):
+            return self._open_queue([os.path.abspath(folder)])
         files = list(files) if files is not None else engine.list_images(folder)
         if not files:
             self._warn("No images", f"Found no image files in: {folder}")
@@ -24546,6 +24712,7 @@ class MakeMasksScreen(QWidget):
         self._queue = None
         self._session_notice = ""
         self._masks_dir = masks_dir
+        self._queue_masks_dir = masks_dir
         self._folder = folder
         self._hide_judged_folder = folder
         self._image_files = files
@@ -24597,8 +24764,28 @@ class MakeMasksScreen(QWidget):
         token = self._load_token
         filename = self._image_files[self._current_index]
         image_path = os.path.join(self._folder, filename)
+        if (filename.lower().endswith('.npy') and not engine.is_seg_bundle(filename)
+                and os.path.abspath(image_path) not in self._npy_queue_targets
+                and (os.path.abspath(image_path), os.path.abspath(self._queue_masks_dir) if self._queue_masks_dir else None)
+                not in engine._NPY_IMAGE_VIEWS):
+            target = self._open_numeric_npy(image_path, queue=True)
+            if not target:
+                self._restore_reader_displayed_field()
+                return
+            self._npy_queue_targets[os.path.abspath(image_path)] = target
+        view = engine._current_container_image_view(image_path)
+        if view is not None:
+            self._masks_dir = view['masks_dir']
+        elif engine._requires_container_review(image_path) and not engine._container_reviewed(image_path):
+            self._start_container_review(image_path, token)
+            return
+        else:
+            self._masks_dir = self._npy_queue_targets.get(os.path.abspath(image_path), self._queue_masks_dir)
         self._leave_volume()
-        if engine._is_volume_file(image_path, self._masks_dir):
+        native = engine._current_native_image_header(image_path)
+        native_volume = native is not None and native.get('native_volume', False)
+        if view is None and (native_volume or (not image_path.lower().endswith(('.tif', '.tiff'))
+                                               and engine._is_volume_file(image_path, self._masks_dir))):
             self._show_volume(self._folder, filename)
             return
         if self._should_background_load(image_path) or _mask_writes_pending():
@@ -24620,6 +24807,11 @@ class MakeMasksScreen(QWidget):
         header read also catches highly compressed large images without
         decoding their pixels.
         """
+        if os.path.abspath(os.fspath(path)) in engine._CONTAINER_CURRENT_VIEWS:
+            return True
+        native = engine._current_native_image_header(path)
+        if native is not None:
+            return native['decoded_bytes'] >= 8 * 1024 * 1024
         threshold = 8 * 1024 * 1024
         try:
             if os.path.getsize(path) >= threshold:
@@ -24751,6 +24943,15 @@ class MakeMasksScreen(QWidget):
         self.close_folded()
         self._release_folded()
         self._pending_load = None
+        self._load_token += 1
+        self._reader_worker = None
+        readers, self._reader_workers = self._reader_workers, []
+        for reader in readers:
+            reader.requestInterruption()
+            if not drain_thread(reader, timeout_ms=5000):
+                reader.setParent(None)
+            else:
+                _retire_worker(reader, delete=False)
         worker, self._load_worker = self._load_worker, None
         if worker is not None:
             try:
@@ -24888,6 +25089,7 @@ class MakeMasksScreen(QWidget):
         """
         if token != self._load_token:
             return
+        self._reader_displayed_field = (self._folder, filename, self._masks_dir)
         if metadata is None:
             metadata = engine.load_mask_metadata(self._folder, filename, **self._layout_kwargs())
         if lineage_state is ...:
