@@ -9,7 +9,7 @@ Progress List name: N733 — Navigator (maintainer confirmed 2026-10-28).
 Lifecycle: new
 Status:    OPEN — Navigator implementation and current Docs/API are delivered; the separate Work-owned Navigator tutorial remains pending.
 Requested: maintainer, 2026-10-26
-Owner:     Workstation session 2; root integration/publication with retained routing, rendering and reader peers.
+Owner:     Workstation session 2 (Navigator app); Codex tutorial lane (new tutorial and user Docs/API publication).
 Related:   startup options, Preferences, Home, dock, spaCR AI
 
 CURRENT MAINTAINER FOLLOW-UP — 2026-10-27
@@ -609,3 +609,7 @@ Implementation and reasonable validation qualify completion under the maintainer
 2026-10-27 — Tutorial owner Codex confirms receipt of the approved Navigator handoff in shared AI/HANDOFF.md; the earlier receipt-unconfirmed status is superseded for this repository handoff.
 Codex owns the new Navigator tutorial plus user documentation and API-reference coverage, coordinated with 676 and queued after active Graph Builder58.
 Implementation sign-off is retained; these requested outputs remain pending and are not claimed published. No capture or source implementation begins with this acknowledgement.
+
+2026-10-27 — Graph Builder58 is published/pushed4d0c2f38fe. Codex now starts88_navigator and user Docs/API against current nightly, retaining implementation approval and app ownership with Workstation session2.
+Cover native launch/Help, file/folder drops and typed paths, Enter-only case-insensitive tasks, evidence/settings previews, Toxoplasma/workflow networks, Back/Escape, Home reset, module source handoff, dock/right panels, and analyzed versus annotation-only database evidence.
+Include current optional AI consent/provider controls and Running-card guidance without sending account-dependent requests or modifying unrelated jobs; keep alpha off. Finish publication, write the Claude handoff and pause, with other tutorial lessons left for Claude.

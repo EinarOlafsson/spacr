@@ -550,3 +550,6 @@ Finish58, then Navigator tutorial/Docs/API, write the Claude handoff and pause; 
 All50 voices pass strict native-boundary/idle-cut playback:1150 scene/end gaps0.800–1.044s and every final native EOF observed; retain23 source-bound edit fences and the original scientific/raw-failure evidence.
 The shared Navigator ownership-note rebase conflict preserves both sessions; tutorial source/player/media bindings remain unchanged. Final nightly pin checks/push follow; live website deployment remains separate.
 Codex next owns Navigator tutorial plus Docs/API, then writes the Claude handoff and pauses; no other lesson is authorized before that pause.
+
+2026-10-27 — Graph Builder58 is pushed4d0c2f38fe; Codex now owns88_navigator plus user Docs/API under733, the only remaining work before the requested Claude handoff and pause.
+Use current nightly with fresh native capture, all50 voices, reviewed roughly-one-second narration gaps and normal HF/Pages/nightly publication; retain alpha restrictions and factual feature-focused prose.
