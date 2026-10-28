@@ -344,3 +344,28 @@ def test_puncta_request_without_a_primary_source_refuses_before_starting_any_wor
         window._magnifier.close()
         window.close_folded()
         window.close()
+
+
+def test_a_second_puncta_pass_reuses_the_owned_worker_and_is_one_reversible_edit(
+        qtbot, qt_theme_applied, tmp_path):
+    image, parents = field()
+    window, old = _open_puncta_field(qtbot, tmp_path, image, parents)
+    try:
+        assert window._start_puncta_detection('replace', window._otsu_settings())
+        worker = window._puncta_worker
+        qtbot.waitUntil(lambda: window._detection_request is None, timeout=10000)
+        result = window._canvas.mask.copy()
+        assert np.any(result) and not np.array_equal(result, old)
+        window._on_undo()
+        np.testing.assert_array_equal(window._canvas.mask, old)
+        assert window._start_puncta_detection('replace', window._otsu_settings())
+        assert window._puncta_worker is worker
+        qtbot.waitUntil(lambda: window._detection_request is None, timeout=10000)
+        np.testing.assert_array_equal(window._canvas.mask, result)
+        assert window._btn_otsu.isEnabled() and window._btn_cellpose.isEnabled()
+        window._on_undo()
+        np.testing.assert_array_equal(window._canvas.mask, old)
+    finally:
+        window._magnifier.close()
+        window.close_folded()
+        window.close()

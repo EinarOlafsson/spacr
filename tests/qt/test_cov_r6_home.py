@@ -499,3 +499,146 @@ def test_news_height_is_remembered_in_unscaled_units(qtbot, monkeypatch, classic
         panel._remember_height(642)
         assert classic_preferences.get_news_height() == 321
         assert panel._stored_height() == 642
+
+
+def _retire_real_classic_home(page, qtbot):
+    """Close all test-owned widgets while their private preferences still exist."""
+    from PySide6.QtWidgets import QApplication
+
+    page.close()
+    qtbot.waitUntil(lambda: page._journal_jobs.active_jobs() == 0
+                    and not page._journal_jobs.is_busy(), timeout=10000)
+    page.deleteLater()
+    QApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+
+
+def _open_real_classic_home(qtbot):
+    from spacr.qt.theme import stylesheet
+
+    apps = APPS + [('annotate', 'Annotate', 'Review cell labels', 'Core'),
+                   ('db_browser', 'Browse data', 'Inspect measurements', 'Core'),
+                   ('graph_builder', 'Graphs', 'Plot measurements', 'Core')]
+    page = HomePage(apps, lambda key: None)
+    page.setStyleSheet(stylesheet())
+    page._apply_aside_text()
+    page.resize(2200, 1000)
+    page.show()
+    qtbot.waitExposed(page)
+    qtbot.waitUntil(lambda: page._journal_jobs.active_jobs() == 0
+                    and not page._journal_jobs.is_busy(), timeout=10000)
+    return page
+
+
+@pytest.fixture
+def real_classic_home(qtbot, classic_preferences, _empty_journal):
+    page = _open_real_classic_home(qtbot)
+    try:
+        yield page
+    finally:
+        _retire_real_classic_home(page, qtbot)
+
+
+def test_actual_aside_handle_collapses_and_restores_the_same_panels(real_classic_home, qtbot):
+    from PySide6.QtTest import QTest
+
+    page = real_classic_home
+    split = page._aside_split
+    handle = split.handle(split.indexOf(page._aside))
+    panels = page._aside_panels
+    texts = [(label, label.text()) for label in panels.findChildren(QLabel)]
+    assert not page._aside_collapsed()
+    assert page._aside.isVisible() and page._aside.width() > 0
+    before_tip = handle.toolTip()
+    assert before_tip
+    QTest.mouseClick(handle, Qt.LeftButton, pos=handle.rect().center())
+    qtbot.waitUntil(page._aside_collapsed)
+    assert split.sizes()[-1] == 0
+    assert handle.toolTip() and handle.toolTip() != before_tip
+    QTest.mouseClick(handle, Qt.LeftButton, pos=handle.rect().center())
+    qtbot.waitUntil(lambda: not page._aside_collapsed() and page._aside.width() > 0)
+    assert page._aside_panels is panels
+    assert all(label.text() == text for label, text in texts)
+    assert handle.toolTip() == before_tip
+
+
+def test_aside_text_refits_its_real_minimum_without_zooming_tiles_and_persists(
+        real_classic_home, qtbot, classic_preferences):
+    from PySide6.QtWidgets import QSlider
+    from spacr.qt.gui_scale import _actual_minimum_size
+
+    page = real_classic_home
+    slider = page.findChild(QSlider, 'HomeAsideTextSlider')
+    assert slider is not None and slider.value() == 100
+    tile_labels = [label for tile in page._tile_hints for label in tile.findChildren(QLabel)
+                   if label.text()]
+    assert tile_labels
+    for label in tile_labels:
+        label.ensurePolished()
+    tile_fonts = [(label, label.fontInfo().pixelSize()) for label in tile_labels]
+    qtbot.waitUntil(lambda: _actual_minimum_size(page._aside).width()
+                    == page._aside_panels.layout().totalMinimumSize().width()
+                    + page._aside_scroll.verticalScrollBar().sizeHint().width())
+    before = _actual_minimum_size(page._aside).width()
+    assert slider.maximum() == 160
+    slider.setValue(160)
+    qtbot.waitUntil(lambda: _actual_minimum_size(page._aside).width() > before)
+    minimum = _actual_minimum_size(page._aside).width()
+    content_floor = page._aside_panels.layout().totalMinimumSize().width()
+    bar_width = page._aside_scroll.verticalScrollBar().sizeHint().width()
+    assert minimum >= content_floor + bar_width
+    assert float(classic_preferences._settings().value('prefs/home_aside_text')) == 1.6
+    assert all(label.fontInfo().pixelSize() == size for label, size in tile_fonts)
+    assert page._aside_scroll.horizontalScrollBar().maximum() == 0
+    again = _open_real_classic_home(qtbot)
+    try:
+        restored = again.findChild(QSlider, 'HomeAsideTextSlider')
+        assert restored.value() == 160
+        assert _actual_minimum_size(again._aside).width() >= minimum
+        assert float(classic_preferences._settings().value('prefs/home_aside_text')) == 1.6
+    finally:
+        _retire_real_classic_home(again, qtbot)
+
+
+def test_classic_grid_rewraps_against_the_actual_scroll_viewport_without_overflow(real_classic_home, qtbot):
+    from PySide6.QtCore import QPoint
+    from PySide6.QtWidgets import QScrollArea
+
+    page = real_classic_home
+    holder, grid, tiles, unused = next(entry for entry in page._grids if len(entry[2]) >= 5)
+    ancestor = holder
+    while not isinstance(ancestor, QScrollArea):
+        ancestor = ancestor.parentWidget()
+    qtbot.waitUntil(lambda: any(grid.getItemPosition(grid.indexOf(tile))[1] > 0
+                               for tile in tiles))
+    wide_rows = [grid.getItemPosition(grid.indexOf(tile))[0] for tile in tiles]
+    identities = tuple(tiles)
+    page.resize(1100, 1000)
+    qtbot.waitUntil(lambda: max(grid.getItemPosition(grid.indexOf(tile))[0] for tile in tiles)
+                    > max(wide_rows))
+    assert tuple(tiles) == identities
+    assert grid.horizontalSpacing() >= 0
+    qtbot.waitUntil(lambda: ancestor.horizontalScrollBar().maximum() == 0)
+    assert ancestor.horizontalScrollBar().maximum() == 0
+    for tile in tiles:
+        origin = tile.mapTo(ancestor.viewport(), QPoint())
+        assert origin.x() >= 0
+        assert origin.x() + tile.width() <= ancestor.viewport().width()
+        assert tile.property('size').width() >= tile.property('minimumSize').width()
+    page.resize(2200, 1000)
+    qtbot.waitUntil(lambda: [grid.getItemPosition(grid.indexOf(tile))[0] for tile in tiles] == wide_rows)
+    qtbot.waitUntil(lambda: ancestor.horizontalScrollBar().maximum() == 0)
+    assert ancestor.horizontalScrollBar().maximum() == 0
+
+
+def test_known_module_hint_uses_the_existing_summary_and_unknown_keys_preserve_it(real_classic_home):
+    from PySide6.QtGui import QTextDocumentFragment
+    from spacr.qt.i18n_module_summaries import module_summary
+
+    page = real_classic_home
+    expected = module_summary('mask', 'Segment a plate')
+    assert expected
+    assert page.show_module_hint('mask')
+    assert expected in QTextDocumentFragment.fromHtml(page._hint_bar.text()).toPlainText()
+    previous = page._hint_bar.text()
+    assert not page.show_module_hint('not-a-registered-module')
+    assert page._hint_bar.text() == previous

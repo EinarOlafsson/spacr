@@ -242,3 +242,20 @@ def test_pair_with_an_unsupported_image_dimension_refuses_without_output_or_sour
         mm._copy_paired_layout(pairs, tmp_path / 'copy')
     assert not (tmp_path / 'copy').exists() and not list(tmp_path.glob('.spacr-paired-*'))
     assert all(Path(path).read_bytes() == data for path, data in before.items())
+
+
+def test_duplicate_completion_after_a_real_copy_cannot_reopen_or_change_the_current_field(
+        screen, tmp_path, monkeypatch, qtbot):
+    pairs, labels = _pair(tmp_path)
+    originals = {path: Path(path).read_bytes() for path in (*pairs, *pairs.values())}
+    monkeypatch.setattr(screen, '_confirm', lambda *a: True)
+    monkeypatch.setattr(mm.QFileDialog, 'getExistingDirectory', lambda *a, **k: str(tmp_path))
+    assert screen._open_paired_layout(pairs)
+    qtbot.waitUntil(lambda: screen._paired_layout_job is None, timeout=20000)
+    token, folder = screen._load_token, screen._folder
+    assert folder == str(tmp_path / 'make_masks' / 'images')
+    monkeypatch.setattr(screen, '_open_folder', lambda *a, **k: pytest.fail('Completed copy reopened'))
+    screen._on_paired_layout_finished()
+    assert screen._load_token == token and screen._folder == folder and screen._folder_job is None
+    np.testing.assert_array_equal(screen._canvas.mask, labels)
+    assert all(Path(path).read_bytes() == data for path, data in originals.items())

@@ -866,3 +866,108 @@ def test_reopening_a_required_layer_review_selects_the_first_available_field_wit
     np.testing.assert_array_equal(screen._canvas.mask, BASE)
     assert all(path.read_bytes() == data for path, data in originals.items())
     assert not (folder / STATUS_FILENAME).exists()
+
+
+def test_accepting_a_real_layer_folder_adds_it_without_replacing_the_open_overlay(
+        screen, folder, monkeypatch):
+    _open(screen, folder)
+    added = folder / 'another_model'
+    added.mkdir()
+    imageio.imwrite(added / 'f_0.tif', MODEL_B)
+    before = screen._canvas.mask.copy()
+    originals = {path: path.read_bytes() for path in folder.rglob('*.tif')}
+    monkeypatch.setattr(mm.QFileDialog, 'getExistingDirectory', lambda *a, **k: str(added))
+    assert screen._on_add_mask_layer()
+    assert len(screen._layers) == 4 and screen._layers[-1]['path'] == str(added)
+    np.testing.assert_array_equal(screen._layer_masks[-1], MODEL_B)
+    np.testing.assert_array_equal(screen._canvas.mask, before)
+    assert all(path.read_bytes() == data for path, data in originals.items())
+
+
+def test_incomplete_legacy_decision_rows_are_ignored_while_valid_source_identity_survives(
+        screen, folder, tmp_path):
+    target = tmp_path / 'curated'
+    target.mkdir()
+    records = {'added': [None, {}, {'id': 51, 'layer': str(folder / 'model_b'), 'source_id': 3}]}
+    decision = target / 'f_0.decisions.json'
+    decision.write_text(json.dumps(records), encoding='utf-8')
+    before = decision.read_bytes()
+    _open(screen, folder, target=target)
+    assert screen._layer_added == {51: {'layer': str(folder / 'model_b'), 'source_id': 3}}
+    assert screen._layer_next_id == 52
+    np.testing.assert_array_equal(screen._canvas.mask, BASE)
+    assert decision.read_bytes() == before and not (target / 'f_0.tif').exists()
+
+
+def test_an_absent_base_field_keeps_other_layers_available_and_starts_an_empty_overlay(screen, folder):
+    (folder / 'masks' / 'f_0.tif').unlink()
+    originals = {path: path.read_bytes() for path in folder.rglob('*.tif')}
+    _open(screen, folder)
+    assert screen._layer_masks[0] is None
+    np.testing.assert_array_equal(screen._layer_masks[1], MODEL_A)
+    np.testing.assert_array_equal(screen._layer_masks[2], MODEL_B)
+    np.testing.assert_array_equal(screen._canvas.mask, np.zeros_like(BASE))
+    assert screen._layer_next_id == 1
+    assert all(path.read_bytes() == data for path, data in originals.items())
+    assert not (folder / 'masks' / 'f_0.tif').exists()
+
+
+def test_reapplying_outline_width_and_folder_name_keeps_the_existing_review_unchanged(screen, folder):
+    _open(screen, folder)
+    target = screen._layer_target
+    original = (folder / 'curate_layers.json').read_bytes()
+    cache = screen._canvas._outline_view
+    mask = screen._canvas.mask.copy()
+    assert screen._layer_target_combo.currentIndex() == 0
+    screen._layer_name_edit.setText(Path(target).name)
+    screen._on_layer_folder_named()
+    screen._on_outline_thickness_changed(screen._canvas.outline_thickness)
+    assert screen._layer_target == target and screen._canvas._outline_view is cache
+    np.testing.assert_array_equal(screen._canvas.mask, mask)
+    assert (folder / 'curate_layers.json').read_bytes() == original
+
+
+def test_time_reselecting_the_current_cell_keeps_identity_pixels_and_unsaved_state(
+        screen, folder, monkeypatch):
+    assert screen._open_folder(str(folder))
+    assert screen._status_folder() is None
+    mask = screen._canvas.mask.copy()
+    originals = {path: path.read_bytes() for path in folder.rglob('*.tif')}
+    monkeypatch.setattr(screen, '_confirm', lambda *args: True)
+    screen._toggle_label_time(True)
+    screen._add_lineage_cell()
+    identity = screen._selected_cell
+    assert identity in screen._lineage['cells']
+    state = json.dumps(screen._lineage, sort_keys=True)
+    label = screen._lineage_model.labels.get(identity, screen._lineage['cells'][identity]['label'])
+    screen._select_label_identity(label)
+    screen._toggle_label_time(False)
+    screen._toggle_label_time(True)
+    assert screen._selected_cell == identity and json.dumps(screen._lineage, sort_keys=True) == state
+    assert screen._time_label_enabled and screen._lineage_dirty
+    np.testing.assert_array_equal(screen._canvas.mask, mask)
+    assert all(path.read_bytes() == data for path, data in originals.items())
+
+
+def test_lineage_rewrite_skips_missing_masks_and_reports_a_corrupt_sibling_without_touching_pixels(
+        screen, folder, monkeypatch, qtbot):
+    assert screen._open_folder(str(folder))
+    screen._rewrite_sequence_lineage()
+    assert not getattr(screen, '_mask_write_requests', [])
+    monkeypatch.setattr(screen, '_confirm', lambda *args: True)
+    screen._toggle_label_time(True)
+    screen._add_lineage_cell()
+    missing = folder / 'masks' / 'f_1.tif'
+    corrupt = folder / 'masks' / 'f_2.tif'
+    missing.unlink()
+    corrupt.write_bytes(b'not a TIFF mask')
+    originals = {path: path.read_bytes() for path in folder.rglob('*.tif')}
+    mask = screen._canvas.mask.copy()
+    screen._rewrite_sequence_lineage()
+    assert mm._wait_for_mask_writes(timeout=10)
+    qtbot.waitUntil(lambda: not screen._mask_write_requests, timeout=10000)
+    assert '1 mask file' in screen._status_label.text()
+    assert 'could not be rewritten' in screen._status_label.text()
+    assert not missing.exists()
+    np.testing.assert_array_equal(screen._canvas.mask, mask)
+    assert all(path.read_bytes() == data for path, data in originals.items())
