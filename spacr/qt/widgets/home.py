@@ -6009,6 +6009,9 @@ class _NavigatorDetailsBrowser(QTextBrowser):
         self._collapse.setIcon(self._arrow_icon(
             'up' if self._minimized else 'down',
             'white' if self._minimized else palette_for('dark')['button_accent']))
+        policy = Qt.ScrollBarAlwaysOff if self._minimized else Qt.ScrollBarAsNeeded
+        self.setVerticalScrollBarPolicy(policy)
+        self.setHorizontalScrollBarPolicy(policy)
         self.viewport().setVisible(not self._minimized)
         self._place_controls()
 
