@@ -3,6 +3,7 @@ import hashlib
 import json
 import logging
 from pathlib import Path
+from types import SimpleNamespace
 import urllib.request
 
 import pytest
@@ -48,7 +49,8 @@ def test_actual_unknown_request_uses_localized_context(publisher, monkeypatch, l
     raw, source, payload = publisher
     monkeypatch.setenv('SPACR_LANGUAGE', language)
     monkeypatch.setattr(utils, '_installed_cellpose_models', lambda: ('cpsam',))
-    monkeypatch.setattr(utils.cp_models, 'CellposeModel', lambda **kwargs: pytest.fail('constructor reached'))
+    monkeypatch.setattr(utils, 'cp_models', SimpleNamespace(
+        CellposeModel=lambda **kwargs: pytest.fail('constructor reached')))
     monkeypatch.setattr(zoo, 'fetch', lambda *args, **kwargs: pytest.fail('unknown request fetched'))
     requested = 'unknown-localized-model.CP_model'
     row, = [r for r in records(language) if r['source'].startswith('Model setting ')]

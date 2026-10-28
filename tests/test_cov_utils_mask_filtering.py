@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import os
 import re
+from types import SimpleNamespace
 
 import numpy as np
 import pandas as pd
@@ -636,7 +637,7 @@ def fake_cellpose(monkeypatch):
     # test parameter is a new run and must not inherit an earlier parameter's
     # suppressed notice.
     U.reset_cellpose_model_reports()
-    monkeypatch.setattr(U.cp_models, "CellposeModel", _FakeCellposeModel)
+    monkeypatch.setattr(U, "cp_models", SimpleNamespace(CellposeModel=_FakeCellposeModel))
     yield _FakeCellposeModel
     U.reset_cellpose_model_reports()
 

@@ -14968,7 +14968,7 @@ class MakeMasksScreen(QWidget):
             "stay as they are."))
         self._btn_discard.clicked.connect(lambda: self._on_curate(False))
         curate_row.addWidget(self._btn_discard)
-        self._top_bar_layout.addWidget(annotation, 1, Qt.AlignTop)
+        self._top_bar_layout.addWidget(annotation, 0, Qt.AlignTop)
 
         io_group, io_row = self._titled_group(tr("IO"), "MakeMasksIoGroup")
         io_row._space = SPACING["xs"]
