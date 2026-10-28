@@ -971,3 +971,67 @@ def test_lineage_rewrite_skips_missing_masks_and_reports_a_corrupt_sibling_witho
     assert not missing.exists()
     np.testing.assert_array_equal(screen._canvas.mask, mask)
     assert all(path.read_bytes() == data for path, data in originals.items())
+
+
+def test_a_failed_queued_save_cannot_restore_the_previous_fields_state_after_opening_another(
+        screen, folder, tmp_path, monkeypatch, qtbot):
+    import threading
+
+    _open(screen, folder)
+    screen._on_layer_pick(3, 3)
+    assert screen._edits_unsaved()
+    other = tmp_path / 'other_field'
+    (other / 'masks').mkdir(parents=True)
+    imageio.imwrite(other / 'other.tif', np.full(BASE.shape, 150, np.uint16))
+    new_mask = np.where(BASE > 0, 77, 0).astype(np.uint16)
+    imageio.imwrite(other / 'masks' / 'other.tif', new_mask)
+    originals = {path: path.read_bytes() for root in (folder, other)
+                 for path in root.rglob('*.tif')}
+    entered, release = threading.Event(), threading.Event()
+    warnings, warning_states = [], []
+    previous_saved = screen._last_saved_mask
+
+    def refuse_save(*args, **kwargs):
+        entered.set()
+        assert release.wait(10)
+        raise OSError('previous field write failed')
+
+    def report_failure(*args):
+        warnings.append(args)
+        warning_states.append((screen._last_saved_mask, screen._lineage_format,
+                               screen._lineage_dirty, screen._loading))
+
+    monkeypatch.setattr(engine, '_MASK_SAVE_WAIT_SECONDS', 0.1)
+    monkeypatch.setattr(engine, 'save_mask', refuse_save)
+    monkeypatch.setattr(screen, '_warn', report_failure)
+    try:
+        screen._save_mask()
+        qtbot.waitUntil(entered.is_set, timeout=10000)
+        assert len(screen._mask_write_requests) == 1
+        request = screen._mask_write_requests[0]
+        assert screen._open_folder(str(other))
+        assert screen._load_token != request['token']
+        saved = screen._last_saved_mask
+        state = screen._lineage_format, screen._lineage_dirty
+        assert screen._loading and saved is not previous_saved
+        release.set()
+        qtbot.waitUntil(lambda: request.get('finished', False), timeout=10000)
+        assert screen._mask_write_requests == []
+        assert len(warning_states) == 1
+        observed_saved, observed_format, observed_dirty, loading = warning_states[0]
+        assert observed_saved is not previous_saved
+        assert (observed_format, observed_dirty) == state
+        if loading:
+            assert observed_saved is saved
+        else:
+            np.testing.assert_array_equal(observed_saved, new_mask)
+        qtbot.waitUntil(lambda: not screen._loading, timeout=10000)
+        assert screen._folder == str(other)
+        np.testing.assert_array_equal(screen._last_saved_mask, new_mask)
+        assert (screen._lineage_format, screen._lineage_dirty) == state
+        np.testing.assert_array_equal(screen._canvas.mask, new_mask)
+        assert warnings == [('Save failed', 'previous field write failed')]
+        assert all(path.read_bytes() == data for path, data in originals.items())
+    finally:
+        release.set()
+        assert mm._wait_for_mask_writes(timeout=10)
