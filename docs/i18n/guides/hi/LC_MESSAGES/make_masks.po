@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:22-0400\n"
+"POT-Creation-Date: 2026-10-28 14:46-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -84,19 +84,21 @@ msgstr "छवि और लेबलों की जाँच करें। 
 msgid "Correct an object with a tool, or choose a detection method and inspect its preview before accepting objects. **Undo** and **Redo** apply to mask edits."
 msgstr "किसी उपकरण से ऑब्जेक्ट सुधारें, या कोई पहचान विधि चुनें और ऑब्जेक्ट स्वीकार करने से पहले उसके पूर्वावलोकन की जाँच करें। **पूर्ववत करें** और **फिर से करें** मास्क संपादनों पर लागू होते हैं।"
 
-msgid "Press **Save mask** or **Ctrl+S** before moving to another field. Saving writes a ``uint16`` label TIFF in the ordinary layout; a Cellpose bundle is updated as a bundle. The source image is preserved."
-msgstr "दूसरे फ़ील्ड पर जाने से पहले **मास्क सहेजें** या **Ctrl+S** दबाएँ। सहेजना सामान्य विन्यास में ``uint16`` लेबल TIFF लिखता है; Cellpose बंडल बंडल के रूप में अद्यतन होता है। स्रोत छवि सुरक्षित रहती है।"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Press **Save mask** or **Ctrl+S** before moving to another field. Saving writes a label TIFF in the ordinary layout. Ordinary segmentation uses ``uint16``; existing ``uint32`` masks and exact IDs requiring that width retain ``uint32`` storage. A Cellpose bundle is updated as a bundle. The source image is preserved."
+msgstr "दूसरे इमेज फ़ील्ड पर जाने से पहले **मास्क सहेजें** या **Ctrl+S** दबाएँ। सहेजने पर सामान्य फ़ोल्डर व्यवस्था में लेबल TIFF लिखा जाता है। सामान्य सेगमेंटेशन ``uint16`` का उपयोग करता है; मौजूदा ``uint32`` मास्क और उस चौड़ाई की आवश्यकता वाले सटीक ID ``uint32`` भंडारण बनाए रखते हैं। Cellpose बंडल को बंडल के रूप में अपडेट किया जाता है। स्रोत छवि सुरक्षित रहती है।"
 
 msgid "Use **Keep** or **Discard** to record a field-level curation verdict and advance. These verdicts go to ``csv/keep_discard.csv``; Discard records a decision without deleting the image or its mask. Save edits separately."
 msgstr "फ़ील्ड-स्तरीय क्यूरेशन निर्णय दर्ज करने और आगे बढ़ने के लिए **रखें** या **त्यागें** का उपयोग करें। ये निर्णय ``csv/keep_discard.csv`` में जाते हैं; त्यागें छवि या उसके मास्क को हटाए बिना निर्णय दर्ज करता है। संपादन अलग से सहेजें।"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Save mask**, **Previous image** and **Next image** share the top action row with the editing tools. Scroll that row horizontally on a narrow window to reach controls outside the visible area."
-msgstr "**मास्क सहेजें**, **पिछली छवि** और **अगली छवि** संपादन उपकरणों के साथ ऊपर की एक ही कार्रवाई पंक्ति में हैं। संकरी विंडो में दिखाई न देने वाले नियंत्रण तक पहुँचने के लिए इस पंक्ति को क्षैतिज रूप से स्क्रॉल करें।"
+msgid "**Save mask** and the previous/next-image buttons are in the navigation group below the image. Editing and annotation controls wrap in the top bar as the window narrows. When the wrapped top controls need more height than available, scroll vertically within that bar to reach them."
+msgstr "**मास्क सहेजें** और पिछली/अगली छवि के बटन छवि के नीचे नेविगेशन समूह में हैं। खिड़की संकरी होने पर संपादन और एनोटेशन नियंत्रण ऊपर की पट्टी में कई पंक्तियों में आ जाते हैं। जब ऊपर के इन नियंत्रणों को उपलब्ध जगह से अधिक ऊँचाई चाहिए, तो उन तक पहुँचने के लिए उसी पट्टी में लंबवत स्क्रॉल करें।"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "**Save on navigation**, after **Next image**, saves an edited mask before **Keep**, **Discard**, **Next image** or **Previous image** moves on. It is off by default and remembered between sessions. If the save fails, the image stays open and no verdict is recorded. **Skip** never writes a mask."
-msgstr "**अगली छवि** के बाद स्थित **नेविगेट करते समय सहेजें**, **रखें**, **त्यागें**, **अगली छवि** या **पिछली छवि** के आगे बढ़ने से पहले संपादित मास्क को सहेजता है। यह डिफ़ॉल्ट रूप से बंद रहता है और सत्रों के बीच याद रखा जाता है। यदि सहेजना विफल हो, तो छवि खुली रहती है और कोई निर्णय दर्ज नहीं होता। **छोड़ें** कभी मास्क नहीं लिखता।"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Save on navigation**, in the **Save mask** arrow menu, saves an edited mask before **Keep**, **Discard**, **Next image** or **Previous image** moves on. It is off by default and remembered between sessions. If the save fails, the image stays open and no verdict is recorded. **Skip** never writes a mask."
+msgstr "**मास्क सहेजें** के तीर वाले मेनू में **नेविगेट करते समय सहेजें**, **रखें**, **त्यागें**, **अगली छवि** या **पिछली छवि** से आगे बढ़ने से पहले संपादित मास्क सहेजता है। यह डिफ़ॉल्ट रूप से बंद है और सत्रों के बीच याद रखा जाता है। सहेजना विफल होने पर छवि खुली रहती है और कोई निर्णय दर्ज नहीं होता। **छोड़ें** कभी मास्क नहीं लिखता।"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on, the electron microscopy test data and the FIB-SEM volumes described under :ref:`mm-tem` and :ref:`mm-volumes`."
@@ -253,8 +255,8 @@ msgid "A saved edit history is stored beside the mask as ``<mask>.curation.json`
 msgstr "सहेजा गया संपादन इतिहास मास्क के बगल में ``<mask>.curation.json`` के रूप में संग्रहीत होता है। संपादन किए बिना छवि खोलने से मैन्युअल क्यूरेशन का साक्ष्य नहीं बनता। पहले क्यूरेट किए गए मास्क को संपादित करने पर मौजूदा इतिहास बना रहता है। फ़ाइल अनुबंध के लिए :func:`spacr.qt.mask_engine.save_mask` और :class:`spacr.curation.CurationLog` देखें।"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "The saved format has at most 65,535 positive labels. Saving refuses a binary mask with more connected objects, or an existing multi-label mask whose IDs exceed that range; it does not wrap oversized IDs into smaller numbers. A refused save preserves an existing TIFF or Cellpose bundle and its metadata. In ordinary mode, a mask with one foreground value is interpreted as binary and its connected components receive separate IDs. Deliberate groups created with Divide / Merge or a magnifier drag retain their shared IDs when saved and reopened with their matching curation history. For primary/secondary relationships, use the exact-ID path described below. See :func:`spacr.qt.mask_engine.canonical_labels` for these distinct conventions."
-msgstr "सहेजे गए प्रारूप में अधिकतम 65,535 धनात्मक लेबल होते हैं। अधिक जुड़े ऑब्जेक्ट वाले द्विआधारी मास्क, या उस सीमा से अधिक ID वाले मौजूदा बहु-लेबल मास्क को सहेजना अस्वीकार करता है; यह बहुत बड़े ID को छोटी संख्याओं में नहीं लपेटता। अस्वीकृत सहेजना मौजूदा TIFF या Cellpose बंडल और उसके मेटाडेटा को सुरक्षित रखता है। सामान्य मोड में एक अग्रभूमि मान वाले मास्क को द्विआधारी माना जाता है और उसके जुड़े घटकों को अलग ID मिलती हैं। प्राथमिक/द्वितीयक संबंधों के लिए नीचे वर्णित सटीक-ID मार्ग का उपयोग करें। इन भिन्न परंपराओं के लिए :func:`spacr.qt.mask_engine.canonical_labels` देखें। विभाजित करें / मिलाएँ या आवर्धक में ड्रैग करके जानबूझकर बनाए गए समूह अपने मिलते हुए क्यूरेशन इतिहास के साथ सहेजने और फिर खोलने पर साझा ID बनाए रखते हैं।"
+msgid "Ordinary segmentation stores at most 65,535 positive labels. Saving refuses a binary mask with more connected objects; it does not wrap oversized IDs into smaller numbers. Existing ``uint32`` masks and the exact-ID path retain that wider label storage when needed. A refused save preserves an existing TIFF or Cellpose bundle and its metadata. In ordinary mode, a mask with one foreground value is interpreted as binary and its connected components receive separate IDs. Deliberate groups created with Divide / Merge or a magnifier drag retain their shared IDs when saved and reopened with their matching curation history. For primary/secondary relationships, use the exact-ID path described below. See :func:`spacr.qt.mask_engine.canonical_labels` for these distinct conventions."
+msgstr "सामान्य सेगमेंटेशन अधिकतम 65,535 धनात्मक लेबल रखता है। इससे अधिक जुड़े ऑब्जेक्ट वाला बाइनरी मास्क सहेजना अस्वीकार होता है; बड़े ID को छोटे अंकों में लपेटा नहीं जाता। मौजूदा ``uint32`` मास्क और सटीक-ID मार्ग आवश्यक होने पर वही अधिक चौड़ा भंडारण रखते हैं। अस्वीकृत सहेजना मौजूदा TIFF या Cellpose बंडल और उसके मेटाडेटा को सुरक्षित रखता है। सामान्य मोड में एक ही अग्रभूमि मान वाला मास्क बाइनरी माना जाता है और उसके जुड़े घटकों को अलग ID मिलते हैं। Divide / Merge या आवर्धक को खींचकर जानबूझकर बनाए समूह, संबंधित क्यूरेशन इतिहास के साथ सहेजने और दोबारा खोलने पर साझा ID बनाए रखते हैं। प्राथमिक/द्वितीयक संबंधों के लिए नीचे दिया सटीक-ID मार्ग अपनाएँ। इन अलग नियमों के लिए :func:`spacr.qt.mask_engine.canonical_labels` देखें।"
 
 msgid "Canvas tools and navigation"
 msgstr "कैनवास उपकरण और नेविगेशन"
@@ -317,6 +319,14 @@ msgstr "रूलर"
 
 msgid "Drag a line to measure image-pixel distance. Right-click with Ruler selected to clear it. Zooming and panning preserve the measurement."
 msgstr "छवि-पिक्सेल दूरी मापने के लिए एक रेखा खींचें। इसे साफ़ करने के लिए रूलर चुने होने पर राइट-क्लिक करें। ज़ूम और पैन करने से माप बना रहता है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Pick"
+msgstr "चुनें"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Shown while mask layers are loaded: remove, restore or add objects of the curated overlay; see `Curate against mask layers`_."
+msgstr "मास्क परतें लोड होने पर दिखता है: क्यूरेट किए ओवरले के ऑब्जेक्ट हटाएँ, बहाल करें या जोड़ें; `Curate against mask layers`_ देखें।"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Shift or Alt + drag** pans. The wheel zooms about the cursor; **Esc** resets zoom. **Left/Right** selects the previous/next field. **Ctrl+Z/Ctrl+Y** undoes or redoes an edit. With Wand selected, **Ctrl + left click** removes the bounded intensity region. Outside Wand, **Ctrl + left click** splits an object at its waist; **Ctrl + right click** removes the object under the cursor. The shortcut panel beside the view lists the current gestures, including magnifier controls."
@@ -597,6 +607,50 @@ msgstr "**छवियाँ आयात करें** में छवि फ
 msgid "A file that holds several channels is split rather than refused: choose **Split multi-channel files**, or accept the offer when you press **Apply**. Each plane is copied into ``split_channels/`` with one channel column per plane, and the original files are not touched. Files move in the background, and the manifest records every move. If a move fails, the message names the error, and the manifest lists every move made before it."
 msgstr "कई चैनल रखने वाली फ़ाइल अस्वीकार किए जाने के बजाय विभाजित की जाती है: **बहु-चैनल फ़ाइलें विभाजित करें** चुनें, या **लागू करें** दबाने पर प्रस्ताव स्वीकार करें। हर प्लेन को ``split_channels/`` में कॉपी किया जाता है, हर प्लेन के लिए एक चैनल कॉलम के साथ, और मूल फ़ाइलें नहीं छुई जातीं। फ़ाइलें पृष्ठभूमि में स्थानांतरित होती हैं, और मैनिफ़ेस्ट हर स्थानांतरण दर्ज करता है। यदि कोई स्थानांतरण विफल होता है, तो संदेश त्रुटि बताता है, और मैनिफ़ेस्ट उससे पहले किए गए हर स्थानांतरण को सूचीबद्ध करता है।"
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Curate against mask layers"
+msgstr "मास्क परतों से तुलना करके क्यूरेशन"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Mask layers compare any number of mask sets for the same images, such as the curated training labels and the masks two models made, and build one curated set from them. A layer is a folder of label masks matched to the images by stem, like ``masks/``. Add one with **Add mask layer…** in the arrow menu of **Open File / Folder…**, or start the session from a terminal:"
+msgstr "मास्क परतें उन्हीं छवियों के कितने भी मास्क सेट की तुलना करती हैं, जैसे क्यूरेट किए प्रशिक्षण लेबल और दो मॉडलों के मास्क, और उनसे एक क्यूरेट किया सेट बनाती हैं। परत लेबल मास्क का फ़ोल्डर है, जिनका मिलान छवियों से फ़ाइल के मूल नाम द्वारा होता है, जैसे ``masks/``। **फ़ाइल / फ़ोल्डर खोलें…** के तीर मेनू में **मास्क परत जोड़ें…** से जोड़ें, या टर्मिनल से सत्र शुरू करें:"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A layer name that is not a folder where the command runs is looked for in ``--folder``. The **Mask layers** settings category lists the layers. Each is drawn as outlines in its own colour; click a layer's swatch to change the colour, or clear its check box to hide it. The choices are kept in ``curate_layers.json`` in the folder, so the next session of the folder opens with them."
+msgstr "जो परत नाम कमांड चलने के स्थान पर फ़ोल्डर नहीं है, उसे ``--folder`` में खोजा जाता है। **मास्क परतें** सेटिंग श्रेणी परतें सूचीबद्ध करती है। हर परत अपने रंग की रूपरेखा में दिखती है; रंग बदलने के लिए उसका रंग नमूना दबाएँ या छिपाने के लिए चेक बॉक्स हटाएँ। विकल्प फ़ोल्डर में ``curate_layers.json`` में रहते हैं ताकि अगला सत्र उन्हें इस्तेमाल करे।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The editable **curated overlay** starts as a copy of the **Base layer**, the first layer unless another is chosen. With **Show only flagged** off, the **Pick** tool edits it as follows:"
+msgstr "संपादन योग्य **क्यूरेट किया गया ओवरले**, **आधार परत** की प्रति से शुरू होता है; अन्य चयन न होने पर पहली परत आधार है। **केवल चिह्नित दिखाएँ** बंद होने पर **चुनें** उपकरण इसे इस तरह संपादित करता है:"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Click an object of the curated overlay to remove it. A removed object of the base layer is drawn dashed; click it again to restore it."
+msgstr "क्यूरेट किए ओवरले के ऑब्जेक्ट पर क्लिक करके उसे हटाएँ। आधार परत का हटाया ऑब्जेक्ट टूटी रेखा में दिखता है; फिर क्लिक करने पर बहाल होता है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Click an object of another visible layer to add it under a new, unused ID. An added object fills only background: where it overlaps an object of the overlay, the overlay keeps its pixels. When two visible layers have an object under the click, the first in the list is added."
+msgstr "दूसरी दिखाई देने वाली परत के ऑब्जेक्ट पर क्लिक करके नया, अप्रयुक्त ID देकर जोड़ें। जोड़ा ऑब्जेक्ट केवल पृष्ठभूमि भरता है: ओवरले के ऑब्जेक्ट से मिलने पर ओवरले अपने पिक्सेल रखता है। यदि दो दिखाई देने वाली परतों का ऑब्जेक्ट क्लिक के नीचे हो, सूची की पहली परत का ऑब्जेक्ट जोड़ा जाता है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Hidden layers are not picked from. To add another layer's object where a removed base object lies, hide the base layer first."
+msgstr "छिपी परतों से ऑब्जेक्ट नहीं चुने जाते। हटाए आधार ऑब्जेक्ट की जगह दूसरी परत का ऑब्जेक्ट जोड़ने के लिए पहले आधार परत छिपाएँ।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With **Show only flagged** on, picking a visible flagged object removes the curated objects it overlaps; picking it again restores them. A flagged object over background can instead be added. Hidden curated objects are not picked."
+msgstr "**केवल चिह्नित दिखाएँ** चालू होने पर दिखाई देने वाला चिह्नित ऑब्जेक्ट चुनने से उससे ओवरलैप करते क्यूरेट किए ऑब्जेक्ट हटते हैं; फिर चुनने पर बहाल होते हैं। पृष्ठभूमि पर मौजूद चिह्नित ऑब्जेक्ट को इसके बजाय जोड़ा जा सकता है। छिपे क्यूरेट किए ऑब्जेक्ट नहीं चुने जाते।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Brush, erase and the other tools edit the same overlay, and **Ctrl+Z** and **Ctrl+Y** undo and redo every click."
+msgstr "ब्रश, मिटाना और दूसरे उपकरण उसी ओवरले को संपादित करते हैं; **Ctrl+Z** और **Ctrl+Y** हर क्लिक पूर्ववत और फिर लागू करते हैं।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Save to** chooses where the overlay is written. The default is **New mask folder**, ``masks_curated_<date>`` beside the images (an existing ``masks_curated_*`` folder is reused, so a session resumes into it); type another name or a full path under **Folder name**, or pass ``--save-to``. Choosing one of the layer folders overwrites its masks field by field, and takes effect only after **Overwrite** in the confirmation shown under the control. A field already saved to the save folder opens from there."
+msgstr "**यहाँ सहेजें** ओवरले लिखने का स्थान चुनता है। डिफ़ॉल्ट **नया मास्क फ़ोल्डर** है, छवियों के पास ``masks_curated_<date>`` (मौजूदा ``masks_curated_*`` फ़ोल्डर फिर इस्तेमाल होता है ताकि सत्र वहीं जारी रहे); **फ़ोल्डर का नाम** में दूसरा नाम या पूरा पथ दें, या ``--save-to`` पास करें। किसी परत का फ़ोल्डर चुनने से उसके मास्क फ़ील्ड दर फ़ील्ड अधिलेखित होते हैं, और यह केवल नियंत्रण के नीचे पुष्टि में **अधिलेखित करें** चुनने के बाद लागू होता है। गंतव्य फ़ोल्डर में पहले सहेजा फ़ील्ड वहीं से खुलता है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Keep** saves the overlay as edited, with its object IDs unchanged, and moves to the next field; **Next** behaves as in any queue. Edited saves write curation history (``<stem>.tif.curation.json``). Layer decisions are recorded in ``<stem>.decisions.json`` beside the mask: the base IDs that were removed and each added object's ID, source layer and ID in that layer. Progress is kept in the ``curate_status.csv`` inside the save folder, so a review resumes on its own record and offers again the fields the folder's ordinary curation already finished. Without layers, Make Masks behaves and saves exactly as before."
+msgstr "**रखें** संपादित ओवरले को उसके ऑब्जेक्ट ID बदले बिना सहेजकर अगले फ़ील्ड पर जाता है; **Next** किसी भी कतार की तरह काम करता है। बदलाव वाले सहेजने पर क्यूरेशन इतिहास (``<stem>.tif.curation.json``) लिखा जाता है। परत निर्णय मास्क के पास ``<stem>.decisions.json`` में दर्ज होते हैं: हटाए आधार ID तथा हर जोड़े ऑब्जेक्ट का ID, स्रोत परत और उस परत में ID। प्रगति गंतव्य फ़ोल्डर के ``curate_status.csv`` में रहती है ताकि समीक्षा अपने रिकॉर्ड से जारी रहे और फ़ोल्डर की सामान्य क्यूरेशन द्वारा पहले पूरे फ़ील्ड फिर प्रस्तुत हों। परतों के बिना Make Masks पहले की तरह चलता और सहेजता है।"
+
 msgid "Upload data"
 msgstr "डेटा अपलोड करें"
 
@@ -626,6 +680,30 @@ msgstr "सामान्यीकरण और विभाजन के ल�
 msgid "If memory still rises unexpectedly, record whether the last console stage was preprocessing filenames, normalization or model evaluation, together with image dimensions, channel count and the saved settings. Existing ``stack/`` files help distinguish a completed ingestion stage from a failure before the first field was written."
 msgstr "मेमोरी फिर भी अप्रत्याशित रूप से बढ़े, तो दर्ज करें कि कंसोल का आखिरी चरण फ़ाइल नामों का पूर्वप्रसंस्करण, सामान्यीकरण या मॉडल मूल्यांकन था; साथ में चित्र के आयाम, चैनल संख्या और सहेजी सेटिंग्स भी रखें। मौजूदा ``stack/`` फ़ाइलें यह पहचानने में मदद करती हैं कि डेटा ग्रहण चरण पूरा हुआ था या पहला दृश्य-क्षेत्र लिखने से पहले ही विफलता हुई।"
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Calibrated spectral live preview (alpha)"
+msgstr "कैलिब्रेटेड स्पेक्ट्रल लाइव पूर्वावलोकन (alpha)"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The optional calibrated route supports organized two-dimensional channel-last ``stack/*.npy`` fields in Segmentation Live Preview. Enable alpha features and spectral unmixing, supply the existing single-stain control wells, and set ``unmix_calibration`` to your measured calibration JSON. Set ``unmix_pixel_size_um`` explicitly to the source's ``[Y, X]`` sampling in micrometers. No microscope calibration is inferred. Legacy batch segmentation, Measure, volumes, and additional PSF or enhancement processing refuse this route. A separate, explicitly configured calibrated V2 batch route supports independent two-dimensional fields within its validated settings limits. Leaving the calibration blank preserves legacy processing."
+msgstr "वैकल्पिक कैलिब्रेटेड मार्ग Segmentation Live Preview में व्यवस्थित द्वि-आयामी, अंतिम-अक्ष चैनल वाले ``stack/*.npy`` फ़ील्ड समर्थित करता है। alpha सुविधाएँ और स्पेक्ट्रल अनमिक्सिंग चालू करें, मौजूदा एकल-रंजित नियंत्रण वेल दें, और ``unmix_calibration`` को अपने मापे कैलिब्रेशन JSON पर सेट करें। ``unmix_pixel_size_um`` को स्पष्ट रूप से स्रोत के ``[Y, X]`` सैंपलिंग, माइक्रोमीटर में, पर सेट करें। माइक्रोस्कोप कैलिब्रेशन का अनुमान नहीं लगता। पुराना बैच सेगमेंटेशन, Measure, वॉल्यूम तथा अतिरिक्त PSF या एन्हांसमेंट प्रसंस्करण यह मार्ग अस्वीकार करते हैं। अलग और स्पष्ट रूप से कॉन्फ़िगर कैलिब्रेटेड V2 बैच मार्ग अपनी सत्यापित सेटिंग सीमाओं में स्वतंत्र द्वि-आयामी फ़ील्ड समर्थित करता है। कैलिब्रेशन खाली रखने पर पुराना प्रसंस्करण बना रहता है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The calibration JSON has ``version: 1``, ``axes: \"YX\"``, ``pixel_size_um: [Y, X]``, ``reference_channel`` and a ``channels`` list. Every physical channel appears exactly once. Each channel entry supplies ``channel``, ``shift_to_reference_px: [dy, dx]``, a measured two-dimensional ``psf`` array, ``psf_origin_px: [Y, X]`` and ``psf_pixel_size_um: [Y, X]``. The reference channel has zero shift. A shift means ``aligned[y, x] = acquired[y - dy, x - dx]``; only integer shifts are supported. Each finite nonnegative PSF must have positive mass, odd dimensions and its declared origin at its center. Image and PSF sampling must agree; no implicit resampling is performed."
+msgstr "कैलिब्रेशन JSON में ``version: 1``, ``axes: \"YX\"``, ``pixel_size_um: [Y, X]``, ``reference_channel`` और ``channels`` सूची होती है। हर भौतिक चैनल ठीक एक बार आता है। हर चैनल प्रविष्टि में ``channel``, ``shift_to_reference_px: [dy, dx]``, मापा द्वि-आयामी ``psf`` ऐरे, ``psf_origin_px: [Y, X]`` और ``psf_pixel_size_um: [Y, X]`` होते हैं। संदर्भ चैनल का शिफ़्ट शून्य होता है। शिफ़्ट का अर्थ ``aligned[y, x] = acquired[y - dy, x - dx]`` है; केवल पूर्णांक शिफ़्ट समर्थित हैं। हर परिमित गैर-ऋणात्मक PSF का द्रव्यमान धनात्मक, आयाम विषम और घोषित मूल केंद्र पर होना चाहिए। छवि और PSF सैंपलिंग मेल खानी चाहिए; कोई अंतर्निहित रीसैंपलिंग नहीं होती।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Each channel is convolved with all the other channels' supplied PSFs. Their common effective PSF is the product convolution of all supplied kernels: resolution is broadened, not restored by deconvolution. This assumes a shift-invariant PSF per observation channel and a common linear mixing matrix. Only the intersection supported by real acquired pixels is used. No reflected, wrapped or zero-padded image pixels enter the solve or segmentation. Controls and the selected image undergo the same calibrated operation."
+msgstr "हर चैनल का अन्य सभी चैनलों के दिए PSF से कन्वोल्यूशन होता है। उनका साझा प्रभावी PSF सभी दिए कर्नल का उत्पाद कन्वोल्यूशन है: रिज़ॉल्यूशन फैलता है, डीकन्वोल्यूशन द्वारा बहाल नहीं होता। इसमें हर प्रेक्षण चैनल का शिफ़्ट-अपरिवर्तनीय PSF और साझा रैखिक मिश्रण मैट्रिक्स माना जाता है। केवल सचमुच प्राप्त पिक्सेल द्वारा समर्थित प्रतिच्छेद इस्तेमाल होता है। कोई परावर्तित, लपेटा या शून्य-भरा छवि पिक्सेल समाधान या सेगमेंटेशन में नहीं जाता। नियंत्रण और चुनी छवि एक ही कैलिब्रेटेड प्रक्रिया से गुजरते हैं।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The valid crop retains signed float residuals, including negative values from noise or model mismatch; these are not negative biological concentrations. Provenance records the matrix, calibration and kernel hashes, shifts, sampling, common support, original-canvas crop and negative fractions. Segmentation receives a separately recorded nonnegative view. Labels are restored to the original canvas; complete labels touching the valid crop boundary are excluded and recorded rather than presented as complete objects. Source files and raw measurement data remain unchanged. Real known-amount double-stain validation and calibrated Measure integration remain open."
+msgstr "वैध क्रॉप धन/ऋण चिह्न वाले फ़्लोटिंग-पॉइंट अवशेष बनाए रखता है, जिनमें शोर या मॉडल असंगति के ऋणात्मक मान भी हैं; वे ऋणात्मक जैविक सांद्रताएँ नहीं हैं। स्रोत-अभिलेख मैट्रिक्स, कैलिब्रेशन और कर्नल हैश, शिफ़्ट, सैंपलिंग, साझा समर्थन, मूल कैनवास क्रॉप और ऋणात्मक अंश दर्ज करता है। सेगमेंटेशन को अलग दर्ज गैर-ऋणात्मक दृश्य मिलता है। लेबल मूल कैनवास पर लौटते हैं; वैध क्रॉप सीमा छूते पूरे लेबल पूर्ण ऑब्जेक्ट की तरह दिखाने के बजाय हटाकर दर्ज होते हैं। स्रोत फ़ाइल और मूल मापन डेटा नहीं बदलते। ज्ञात मात्रा वाले वास्तविक दोहरे रंजन का सत्यापन और कैलिब्रेटेड Measure एकीकरण अभी खुले हैं।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Calibration is bounded to 16 channels, 31-pixel individual PSF dimensions, 127-pixel combined support, integer shifts within 4096 pixels and 16,777,216 selected channel pixels per image. Oversized or incompatible inputs refuse before calibrated channel-copy allocation. These limits do not alter the legacy route. Across all selected control fields, at most 67,108,864 channel pixels are retained, bounding their matched float64 arrays to 512 MiB; this is not a total process-memory limit, as convolution and other working arrays require additional memory. Choose fewer or smaller control fields if this aggregate limit is exceeded. This limit never triggers additional sampling or dropping; the existing selection of up to 24 fields per dye is unchanged."
+msgstr "कैलिब्रेशन 16 चैनल, व्यक्तिगत PSF के 31-पिक्सेल आयाम, 127-पिक्सेल संयुक्त समर्थन, 4096 पिक्सेल के भीतर पूर्णांक शिफ़्ट तथा प्रति छवि 16,777,216 चुने चैनल-पिक्सेल तक सीमित है। बड़े या असंगत इनपुट कैलिब्रेटेड चैनल प्रतियों के आवंटन से पहले अस्वीकार होते हैं। ये सीमाएँ पुराना मार्ग नहीं बदलतीं। सभी चुने नियंत्रण फ़ील्ड में अधिकतम 67,108,864 चैनल-पिक्सेल रखे जाते हैं, जिससे उनके मेल खाते float64 ऐरे 512 MiB तक सीमित हैं; यह कुल प्रक्रिया-मेमोरी सीमा नहीं है, क्योंकि कन्वोल्यूशन और अन्य कार्य ऐरे अधिक मेमोरी माँगते हैं। समग्र सीमा पार होने पर कम या छोटे नियंत्रण फ़ील्ड चुनें। सीमा कभी अतिरिक्त सैंपलिंग या फ़ील्ड हटाना शुरू नहीं करती; प्रति डाई अधिकतम 24 फ़ील्ड का मौजूदा चयन नहीं बदलता।"
+
 msgid "Engine parameter reference"
 msgstr "इंजन पैरामीटर संदर्भ"
 
@@ -647,8 +725,9 @@ msgstr "आयामहीन स्थानीय कंट्रास्ट 
 msgid "``propagate_sigma`` — default ``2.0``"
 msgstr "``propagate_sigma`` — डिफ़ॉल्ट ``2.0``"
 
-msgid "the Gaussian blur before the maxima are found, in pixels. SEPARATE FROM THE IMAGE ENHANCEMENT CHAIN'S DENOISE, which has already run by the time a detector sees the image: this one exists because the blur that makes one object have one centre is usually far stronger than the blur anyone wants the object's EDGE measured through, and the propagation measures the edge on the same blurred image. Leave the chain's denoise off unless the field is genuinely noisy, or the two blurs compound."
-msgstr "मैक्सिमा खोजे जाने से पहले का गॉसियन धुंधलापन, पिक्सेल में। यह छवि संवर्धन श्रृंखला के शोर हटाने से अलग (SEPARATE) है, जो डिटेक्टर के छवि देखने तक पहले ही चल चुका होता है: यह इसलिए मौजूद है क्योंकि एक ऑब्जेक्ट को एक केंद्र देने वाला धुंधलापन सामान्यतः उस धुंधलेपन से कहीं अधिक प्रबल होता है जिसके माध्यम से कोई भी ऑब्जेक्ट के किनारे (EDGE) को मापना चाहेगा, और प्रसार उसी धुंधली छवि पर किनारा मापता है। जब तक फ़ील्ड वास्तव में शोरयुक्त न हो, श्रृंखला का शोर हटाना बंद रखें, अन्यथा दोनों धुंधलापन जुड़ जाते हैं।"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "the Gaussian blur before the maxima are found, in pixels. This is separate from the image enhancement chain's denoise, which has already run by the time a detector sees the image: the blur that gives one object one centre is usually much stronger than the blur wanted for measuring the object's edge, and the propagation measures the edge on the same blurred image. Leave the chain's denoise off unless the field is genuinely noisy, or the two blurs compound."
+msgstr "मैक्सिमा खोजने से पहले गॉसियन ब्लर, पिक्सेल में। यह छवि एन्हांसमेंट श्रृंखला के डीनॉइज़ से अलग है, जो डिटेक्टर के छवि देखने तक पहले ही चल चुका होता है: हर ऑब्जेक्ट का एक केंद्र बनाने वाला ब्लर, उसकी सीमा मापने के लिए चाहने वाले ब्लर से सामान्यतः बहुत अधिक है, और प्रसार उसी धुंधली छवि पर सीमा मापता है। जब तक फ़ील्ड वास्तव में शोरयुक्त न हो, श्रृंखला का डीनॉइज़ बंद रखें, वरना दोनों ब्लर जुड़ते हैं।"
 
 msgid "``propagate_min_distance`` — default ``10``"
 msgstr "``propagate_min_distance`` — डिफ़ॉल्ट ``10``"
