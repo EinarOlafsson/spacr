@@ -189,3 +189,130 @@ def test_runtime_review_checks_each_distinct_semantic_candidate_once(
     if candidate != target:
         expected_targets.append(candidate)
     assert checked == [(source, value, "fr") for value in expected_targets]
+
+
+@pytest.fixture
+def repeated_runtime_reviews(tmp_path, monkeypatch):
+    source = "Count cells per well during the run."
+    target = "Compter les cellules par puits pendant l’exécution."
+    directory = tmp_path / "runtime" / "fr"
+    directory.mkdir(parents=True)
+    sources = {"setting_tooltips": {"first": source, "second": source}}
+    paths = []
+    for key in ("first", "second"):
+        payload = {"schema": 1, "language": "fr", "records": [{
+            "table": "setting_tooltips", "key": key, "source": source,
+            "source_sha256": hashlib.sha256(source.encode()).hexdigest(),
+            "translation": target,
+        }]}
+        path = directory / f"{key}.json"
+        path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+        paths.append(path)
+    builder.reviewed_runtime_translations.cache_clear()
+    monkeypatch.setattr(builder, "REVIEWED_RUNTIME_DIR", directory.parent)
+    monkeypatch.setattr(builder, "canonical_sources", lambda: sources)
+    try:
+        yield source, target, sources, paths
+    finally:
+        builder.reviewed_runtime_translations.cache_clear()
+
+
+def test_repeated_runtime_targets_keep_each_bound_identity_and_validate_real_gates_once(
+        repeated_runtime_reviews, monkeypatch):
+    source, target, sources, paths = repeated_runtime_reviews
+    original = {path: path.read_bytes() for path in paths}
+    guard = builder._translation_rejection_reasons
+    checked = []
+    def check(source, target, language, **kwargs):
+        checked.append((source, target, language))
+        return guard(source, target, language, **kwargs)
+    monkeypatch.setattr(builder, "_translation_rejection_reasons", check)
+    assert builder.reviewed_runtime_translations("fr") == {source: target}
+    assert checked == [(source, target, "fr")]
+    assert {path: path.read_bytes() for path in paths} == original
+    assert set(sources["setting_tooltips"]) == {"first", "second"}
+
+
+@pytest.mark.parametrize("target,problem", [
+    ("Compter les cellules par bien pendant l’exécution.", "rejected reviewed runtime target"),
+    ("Compter les cellules par puits pendant la exécution.", "non-idempotent reviewed runtime target"),
+])
+def test_repeated_invalid_runtime_targets_still_report_every_bound_record(
+        repeated_runtime_reviews, monkeypatch, target, problem):
+    source, _target, _sources, paths = repeated_runtime_reviews
+    contextualize = builder._contextualize
+    guard = builder._translation_rejection_reasons
+    contextualized, checked = [], []
+    def contextualize_actual(value, language, current_source=""):
+        if (current_source, value, language) == (source, target, "fr"):
+            contextualized.append((current_source, value, language))
+        return contextualize(value, language, current_source)
+    def check_actual(current_source, value, language, **kwargs):
+        checked.append((current_source, value, language))
+        return guard(current_source, value, language, **kwargs)
+    monkeypatch.setattr(builder, "_contextualize", contextualize_actual)
+    monkeypatch.setattr(builder, "_translation_rejection_reasons", check_actual)
+    for path in paths:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload["records"][0]["translation"] = target
+        path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+    original = {path: path.read_bytes() for path in paths}
+    with pytest.raises(ValueError) as error:
+        builder.reviewed_runtime_translations("fr")
+    message = str(error.value)
+    assert f"{problem} setting_tooltips/first: {paths[0]}" in message
+    assert f"{problem} setting_tooltips/second: {paths[1]}" in message
+    assert "...and 1 more reviewed runtime problems in fr:" in message
+    assert {path: path.read_bytes() for path in paths} == original
+    if problem.startswith("non-idempotent"):
+        assert contextualized == [(source, target, "fr")]
+        assert checked == []
+    else:
+        assert checked == [(source, target, "fr")]
+
+
+@pytest.mark.parametrize("mutation,message", [
+    ("source", "stale reviewed runtime source"),
+    ("hash", "stale reviewed runtime hash"),
+    ("fields", "invalid reviewed runtime record:"),
+    ("header", "invalid reviewed runtime evidence header:"),
+])
+def test_a_duplicate_target_never_bypasses_its_own_source_hash_or_schema(
+        repeated_runtime_reviews, mutation, message):
+    source, _target, sources, paths = repeated_runtime_reviews
+    payload = json.loads(paths[1].read_text(encoding="utf-8"))
+    if mutation == "source":
+        sources["setting_tooltips"]["second"] = source + " Different current meaning."
+    elif mutation == "hash":
+        payload["records"][0]["source_sha256"] = "0" * 64
+    elif mutation == "fields":
+        payload["records"][0]["retired"] = "2026-10-28"
+    else:
+        payload["language"] = "de"
+    paths[1].write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+    original = {path: path.read_bytes() for path in paths}
+    with pytest.raises(ValueError, match=message) as error:
+        builder.reviewed_runtime_translations("fr")
+    assert str(paths[1]) in str(error.value)
+    assert {path: path.read_bytes() for path in paths} == original
+
+
+def test_distinct_valid_runtime_targets_still_conflict_despite_duplicate_sources(
+        repeated_runtime_reviews):
+    source, _target, _sources, paths = repeated_runtime_reviews
+    payload = json.loads(paths[1].read_text(encoding="utf-8"))
+    payload["records"][0]["translation"] = "Comptez les cellules par puits pendant l’exécution."
+    paths[1].write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+    with pytest.raises(ValueError, match="conflicting reviewed runtime targets") as error:
+        builder.reviewed_runtime_translations("fr")
+    assert repr(source) in str(error.value)
+
+
+def test_runtime_target_check_exceptions_still_escape_and_release_the_loading_guard(
+        repeated_runtime_reviews, monkeypatch):
+    def unavailable(*args, **kwargs):
+        raise OSError("target validator unavailable")
+    monkeypatch.setattr(builder, "_translation_rejection_reasons", unavailable)
+    with pytest.raises(OSError, match="target validator unavailable"):
+        builder.reviewed_runtime_translations("fr")
+    assert "fr" not in builder._REVIEWED_RUNTIME_LOADING
