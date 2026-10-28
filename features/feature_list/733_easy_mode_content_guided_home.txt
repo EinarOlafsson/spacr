@@ -7,7 +7,7 @@ DOCS/API DELIVERY — 2026-10-28
 Progress List name: N733 — Navigator (maintainer confirmed 2026-10-28).
 
 Lifecycle: new
-Status:    IMPLEMENTATION APPROVED — 2026-10-27 maintainer sign-off received; new tutorial and Docs/API coverage handed off through shared HANDOFF.md; direct tutorial-session receipt unconfirmed.
+Status:    OPEN — Navigator implementation and current Docs/API are delivered; the separate Work-owned Navigator tutorial remains pending.
 Requested: maintainer, 2026-10-26
 Owner:     Workstation session 2; root integration/publication with retained routing, rendering and reader peers.
 Related:   startup options, Preferences, Home, dock, spaCR AI

@@ -2173,7 +2173,7 @@ API_ENTRIES = (
     ('spacr.image_colors.write_image_rgb', 'Write an RGB/RGBA array through OpenCV without leaking BGR internally.'),
     ('spacr.image_import', 'Infer what the filenames in a folder of images encode, and import the folder.'),
     ('spacr.image_import.ImportPlan', 'A proposed import, shown to the user for checking before anything is written.'),
-    ('spacr.image_import.ImportPlan.columns', '``file`` then every axis anything resolved, counts last.'),
+    ('spacr.image_import.ImportPlan.columns', '``file``, known axes and independent-file provenance, counts last.'),
     ('spacr.image_import.ImportPlan.counts', 'Return the number of distinct values per axis.'),
     ('spacr.image_import.ImportPlan.files', 'Relative path -> every axis known, from all three sources.'),
     ('spacr.image_import.ImportPlan.problems', 'Return every problem that would make this import wrong, as sentences.'),
