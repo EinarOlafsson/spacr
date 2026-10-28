@@ -85,7 +85,7 @@ def _link_df_shim(monkeypatch):
     def shim(f, search_range, **kwargs):
         return real(f, search_range=search_range, **kwargs)
 
-    monkeypatch.setattr(TL.tp, "link_df", shim)
+    monkeypatch.setattr(TL.tp._load(), "link_df", shim)
     return shim
 
 
@@ -116,7 +116,7 @@ def test_find_optimal_search_range_forwards_memory_and_search_range(monkeypatch)
         seen["n_rows"] = len(features)
         return pd.DataFrame({"particle": [0]})
 
-    monkeypatch.setattr(TL.tp, "link", fake_link)
+    monkeypatch.setattr(TL.tp._load(), "link", fake_link)
     features = TL._prepare_for_tracking(_two_movers())
     out = TL._find_optimal_search_range(features, initial_search_range=123,
                                         increment=7, max_attempts=4, memory=9)
@@ -136,7 +136,7 @@ def test_find_optimal_search_range_decrements_until_link_succeeds(monkeypatch, c
             raise RuntimeError("SubnetOversizeException")
         return pd.DataFrame({"particle": [0, 1]})
 
-    monkeypatch.setattr(TL.tp, "link", flaky_link)
+    monkeypatch.setattr(TL.tp._load(), "link", flaky_link)
     features = TL._prepare_for_tracking(_two_movers())
     out = TL._find_optimal_search_range(features, initial_search_range=100,
                                         increment=10, max_attempts=6, memory=3)
@@ -158,7 +158,7 @@ def test_find_optimal_search_range_exhausts_attempts_and_warns(monkeypatch, caps
         calls.append(search_range)
         raise RuntimeError("SubnetOversizeException")
 
-    monkeypatch.setattr(TL.tp, "link", always_fail)
+    monkeypatch.setattr(TL.tp._load(), "link", always_fail)
     features = TL._prepare_for_tracking(_two_movers())
     out = TL._find_optimal_search_range(features, initial_search_range=50,
                                         increment=10, max_attempts=3, memory=3)
@@ -176,7 +176,7 @@ def test_find_optimal_search_range_zero_attempts_is_a_noop(monkeypatch, capsys):
     def boom(*a, **k):  # pragma: no branch - must never run
         raise AssertionError("tp.link must not be called with max_attempts=0")
 
-    monkeypatch.setattr(TL.tp, "link", boom)
+    monkeypatch.setattr(TL.tp._load(), "link", boom)
     features = TL._prepare_for_tracking(_two_movers())
     out = TL._find_optimal_search_range(features, initial_search_range=37,
                                         increment=10, max_attempts=0, memory=3)
@@ -254,7 +254,7 @@ def test_facilitate_auto_search_range_from_area_quantile(monkeypatch):
         out["particle"] = out["original_label"] - 1
         return out
 
-    monkeypatch.setattr(TL.tp, "link_df", fake_link_df)
+    monkeypatch.setattr(TL.tp._load(), "link_df", fake_link_df)
     _, _, tracks = TL._facilitate_trackin_with_adaptive_removal(
         masks, search_range=None, max_attempts=3, memory=4, min_mass=50,
         track_by_iou=False)
@@ -278,7 +278,7 @@ def test_facilitate_retries_with_shrunken_search_range(monkeypatch, capsys):
         out["particle"] = out["original_label"] - 1
         return out
 
-    monkeypatch.setattr(TL.tp, "link_df", flaky_link_df)
+    monkeypatch.setattr(TL.tp._load(), "link_df", flaky_link_df)
     masks, features, tracks = TL._facilitate_trackin_with_adaptive_removal(
         _two_movers(), search_range=100, max_attempts=4, memory=1, min_mass=10,
         track_by_iou=False)
@@ -300,7 +300,7 @@ def test_facilitate_search_range_never_shrinks_below_one(monkeypatch, capsys):
         calls.append(search_range)
         raise ValueError("nope")
 
-    monkeypatch.setattr(TL.tp, "link_df", always_fail)
+    monkeypatch.setattr(TL.tp._load(), "link_df", always_fail)
     with pytest.raises(RuntimeError) as exc:
         TL._facilitate_trackin_with_adaptive_removal(
             _two_movers(), search_range=3, max_attempts=6, memory=1,
@@ -319,7 +319,7 @@ def test_facilitate_raises_runtime_error_after_max_attempts(monkeypatch):
     def always_fail(features, search_range, memory):
         raise ZeroDivisionError("inner failure")
 
-    monkeypatch.setattr(TL.tp, "link_df", always_fail)
+    monkeypatch.setattr(TL.tp._load(), "link_df", always_fail)
     with pytest.raises(RuntimeError, match=r"Failed to track after 2 attempts"):
         TL._facilitate_trackin_with_adaptive_removal(
             _two_movers(), search_range=10, max_attempts=2, memory=1,
@@ -333,7 +333,7 @@ def test_facilitate_track_by_iou_ignores_link_df_entirely(monkeypatch):
     def boom(*a, **k):
         raise AssertionError("tp.link_df must not be called when track_by_iou=True")
 
-    monkeypatch.setattr(TL.tp, "link_df", boom)
+    monkeypatch.setattr(TL.tp._load(), "link_df", boom)
     _, _, tracks = TL._facilitate_trackin_with_adaptive_removal(
         _two_movers(), search_range=10, max_attempts=2, memory=1, min_mass=10,
         track_by_iou=True)
