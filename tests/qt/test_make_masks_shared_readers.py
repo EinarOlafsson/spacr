@@ -208,6 +208,60 @@ def test_excessive_real_tiff_series_preserve_the_open_field_without_decoding(scr
                       if path.is_file()}
 
 
+def test_a_reviewed_file_replaced_by_a_directory_preserves_the_open_field(screen, qtbot, tmp_path, monkeypatch):
+    initial = tmp_path / 'initial.png'
+    pixels = np.arange(24 * 32, dtype=np.uint8).reshape(24, 32)
+    Image.fromarray(pixels).save(initial)
+    assert screen.open_paths([initial])
+    _settle(qtbot, screen)
+    displayed = screen._canvas.image.copy()
+    state = (list(screen._image_files), screen._folder,
+             screen._current_index, screen._masks_dir)
+    initial_bytes = initial.read_bytes()
+    assert not screen.warnings
+
+    selected = tmp_path / 'reviewed.tif'
+    backup = tmp_path / 'reviewed.backup'
+    with tifffile.TiffWriter(selected) as writer:
+        writer.write(np.zeros((24, 32), np.uint16))
+        writer.write(np.ones((25, 33), np.uint16))
+    source_bytes = selected.read_bytes()
+    with tifffile.TiffFile(selected) as handle:
+        assert [series.shape for series in handle.series] == [(24, 32), (25, 33)]
+    decisions = []
+
+    def replace_at_series_choice(parent, title, prompt, labels, current, editable):
+        assert parent is screen
+        assert title == 'Image series'
+        assert prompt == 'Choose the stored image series.'
+        assert labels == ['Series 0: (24, 32)', 'Series 1: (25, 33)']
+        assert current == 0 and editable is False
+        selected.rename(backup)
+        selected.mkdir()
+        decisions.append(labels[0])
+        return labels[0], True
+
+    def refuse_decode(*args, **kwargs):
+        pytest.fail('A directory replacing the reviewed file must not decode pixels')
+
+    monkeypatch.setattr(QInputDialog, 'getItem', replace_at_series_choice)
+    monkeypatch.setattr(tifffile.TiffPageSeries, 'asarray', refuse_decode)
+    assert screen.open_paths([selected])
+    _settle(qtbot, screen)
+    assert decisions == ['Series 0: (24, 32)']
+    assert len(screen.warnings) == 1
+    assert 'not a regular file' in screen.warnings[0][1]
+    assert selected.is_dir() and list(selected.iterdir()) == []
+    assert backup.read_bytes() == source_bytes
+    assert initial.read_bytes() == initial_bytes
+    np.testing.assert_array_equal(screen._canvas.image, displayed)
+    np.testing.assert_array_equal(engine.read_image(initial), pixels)
+    assert (screen._image_files, screen._folder,
+            screen._current_index, screen._masks_dir) == state
+    assert engine._current_container_image_view(selected) is None
+    assert engine._current_native_image_header(selected) is None
+
+
 @pytest.mark.parametrize('suffix', ['.nd2', '.lif'])
 def test_vendor_plane_contract_never_requests_an_unselected_plane(tmp_path, monkeypatch, suffix):
     path = tmp_path / ('reader-contract' + suffix)
