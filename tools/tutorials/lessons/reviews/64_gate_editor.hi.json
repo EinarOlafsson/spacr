@@ -1,6 +1,6 @@
 {
   "lesson": "64_gate_editor",
-  "english_sha256": "01f265ce50e8499d28c789048acefe1cbd065a681286e5807ea3bb0e815efb0f",
+  "english_sha256": "d5f44c8e0d0a51713322291d6bc718a7da156c4c7ca8fb186898cf16f9f4e9a8",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -17,7 +17,7 @@
     "गेट रणनीतियाँ, चित्र और सदस्यता सहेजें और फिर लोड करें।",
     "त्रिआयामी दृश्य, क्लस्टरिंग और फ़िल्टर देखें।"
   ],
-  "prerequisite": "Annotate उदाहरण डाउनलोड करें और measurements.db की एक कार्य प्रति बनाएँ। Gate Editor उसकी 2341 कोशिका मापों का उपयोग करता है; इसमें उदाहरण डाउनलोड करने का अलग बटन नहीं है। Export gates चुने गए डेटाबेस में सदस्यता लिखता है। जब तक जैविक अर्थ तय न हो, गेट के नाम चुने गए मापों का वर्णन करें।",
+  "prerequisite": "Gate Editor एक Alpha मॉड्यूल है। Preferences → Modules में Show Alpha modules and settings चालू करें, बदलाव लागू करें, फिर Tools → Gate Editor खोलें। Show alpha features और Show alpha species बंद रखें। Annotate उदाहरण डाउनलोड करें और measurements.db की एक कार्य प्रति बनाएँ। Gate Editor उसकी 2341 कोशिका मापों का उपयोग करता है; इसमें उदाहरण डाउनलोड करने का अलग बटन नहीं है। Export gates चुने गए डेटाबेस में सदस्यता लिखता है। जब तक जैविक अर्थ तय न हो, गेट के नाम चुने गए मापों का वर्णन करें।",
   "scenes": [
     "Home से Tools खोलें और Gate Editor चुनें। विभाजक ऐसे सेट करें कि प्लॉट, गेट तालिका और किनारे के नियंत्रण दिखें। Annotate उदाहरण का माप डेटाबेस इस्तेमाल करें।",
     "Load table पर क्लिक करें, measurements.db की अपनी कार्य प्रति खोलें और cell चुनें। उदाहरण में दो हज़ार तीन सौ इकतालीस वस्तुएँ हैं। एक प्रति संभालकर रखें, क्योंकि Export gates इसी डेटाबेस में सदस्यता लिखता है। चयनकर्ता के बगल में Merge tables, Graph Builder की तरह, cell तालिका को उसकी केंद्रक या रोगाणु तालिकाओं के साथ एक नई तालिका में जोड़ता है; स्रोत तालिकाएँ नहीं बदलतीं।",

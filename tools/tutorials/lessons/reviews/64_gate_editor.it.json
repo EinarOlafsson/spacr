@@ -1,6 +1,6 @@
 {
   "lesson": "64_gate_editor",
-  "english_sha256": "01f265ce50e8499d28c789048acefe1cbd065a681286e5807ea3bb0e815efb0f",
+  "english_sha256": "d5f44c8e0d0a51713322291d6bc718a7da156c4c7ca8fb186898cf16f9f4e9a8",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -17,7 +17,7 @@
     "Salvare e ricaricare strategie di gate, figure e appartenenze.",
     "Esplorare viste tridimensionali, clustering e filtri."
   ],
-  "prerequisite": "Scarica l’esempio di Annotate e crea una copia di lavoro di measurements.db. Gate Editor usa le sue 2341 misure di cellule; non ha un pulsante proprio per scaricare l’esempio. Export gates scrive l’appartenenza nel database scelto. I nomi dei gate devono descrivere le misure selezionate finché il loro significato biologico non è stato stabilito.",
+  "prerequisite": "Gate Editor è un modulo Alpha. In Preferences → Modules, attiva Show Alpha modules and settings, applica la modifica e apri Tools → Gate Editor. Lascia disattivati Show alpha features e Show alpha species. Scarica l’esempio di Annotate e crea una copia di lavoro di measurements.db. Gate Editor usa le sue 2341 misure di cellule; non ha un pulsante proprio per scaricare l’esempio. Export gates scrive l’appartenenza nel database scelto. I nomi dei gate devono descrivere le misure selezionate finché il loro significato biologico non è stato stabilito.",
   "scenes": [
     "Da Home, apri Tools e scegli Gate Editor. Regola i divisori in modo da vedere il grafico, la tabella dei gate e i comandi laterali. Usa il database di misure dell’esempio di Annotate.",
     "Fai clic su Load table, apri la tua copia di lavoro di measurements.db e scegli cell. L’esempio contiene duemilatrecentoquarantuno oggetti. Tieni una copia, perché Export gates scrive l’appartenenza in questo database. Merge tables, accanto al selettore, combina la tabella delle cellule con le sue tabelle dei nuclei o dei patogeni in un’unica nuova tabella, come in Graph Builder; le tabelle di origine restano invariate.",

@@ -1,6 +1,6 @@
 {
   "lesson": "64_gate_editor",
-  "english_sha256": "01f265ce50e8499d28c789048acefe1cbd065a681286e5807ea3bb0e815efb0f",
+  "english_sha256": "d5f44c8e0d0a51713322291d6bc718a7da156c4c7ca8fb186898cf16f9f4e9a8",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -17,7 +17,7 @@
     "Guardar y volver a cargar estrategias de compuertas, figuras y pertenencias.",
     "Explorar vistas tridimensionales, agrupamiento y filtros."
   ],
-  "prerequisite": "Descarga el ejemplo de Annotate y haz una copia de trabajo de measurements.db. Gate Editor usa sus 2341 mediciones de células; no tiene un botón propio para descargar el ejemplo. Export gates escribe la pertenencia en la base de datos elegida. Los nombres de las compuertas deben describir las mediciones seleccionadas hasta que se haya establecido su significado biológico.",
+  "prerequisite": "Gate Editor es un módulo Alpha. En Preferences → Modules, activa Show Alpha modules and settings, aplica el cambio y abre Tools → Gate Editor. Deja desactivadas Show alpha features y Show alpha species. Descarga el ejemplo de Annotate y haz una copia de trabajo de measurements.db. Gate Editor usa sus 2341 mediciones de células; no tiene un botón propio para descargar el ejemplo. Export gates escribe la pertenencia en la base de datos elegida. Los nombres de las compuertas deben describir las mediciones seleccionadas hasta que se haya establecido su significado biológico.",
   "scenes": [
     "Desde Home, abre Tools y elige Gate Editor. Ajusta los divisores para ver el gráfico, la tabla de compuertas y los controles laterales. Usa la base de datos de mediciones del ejemplo de Annotate.",
     "Haz clic en Load table, abre tu copia de trabajo de measurements.db y elige cell. El ejemplo contiene dos mil trescientos cuarenta y un objetos. Guarda una copia, porque Export gates escribe la pertenencia en esta base de datos. Merge tables, junto al selector, combina la tabla de células con sus tablas de núcleos o de patógenos en una tabla nueva, como en Graph Builder; las tablas de origen no cambian.",

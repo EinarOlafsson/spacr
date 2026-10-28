@@ -1,6 +1,6 @@
 {
   "lesson": "64_gate_editor",
-  "english_sha256": "01f265ce50e8499d28c789048acefe1cbd065a681286e5807ea3bb0e815efb0f",
+  "english_sha256": "d5f44c8e0d0a51713322291d6bc718a7da156c4c7ca8fb186898cf16f9f4e9a8",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -17,7 +17,7 @@
     "Lagre og laste inn igjen gatestrategier, figurer og tilhørighet.",
     "Utforske tredimensjonale visninger, klynging og filtre."
   ],
-  "prerequisite": "Last ned Annotate-eksemplet og lag en arbeidskopi av measurements.db. Gate Editor bruker de 2 341 cellemålingene; den har ingen egen knapp for å laste ned eksemplet. Export gates skriver tilhørighet til den valgte databasen. Gatenavn bør beskrive de valgte målingene inntil den biologiske betydningen er fastslått.",
+  "prerequisite": "Gate Editor er en Alpha-modul. Under Preferences → Modules slår du på Show Alpha modules and settings, bruker endringen og åpner deretter Tools → Gate Editor. La Show alpha features og Show alpha species være slått av. Last ned Annotate-eksemplet og lag en arbeidskopi av measurements.db. Gate Editor bruker de 2 341 cellemålingene; den har ingen egen knapp for å laste ned eksemplet. Export gates skriver tilhørighet til den valgte databasen. Gatenavn bør beskrive de valgte målingene inntil den biologiske betydningen er fastslått.",
   "scenes": [
     "Fra Home åpner du Tools og velger Gate Editor. Juster skillelinjene slik at du ser plottet, gatetabellen og sidekontrollene. Bruk måledatabasen fra Annotate-eksemplet.",
     "Klikk på Load table, åpne arbeidskopien av measurements.db og velg cell. Eksemplet inneholder 2 341 objekter. Behold en kopi, fordi Export gates skriver tilhørighet til denne databasen. Merge tables ved siden av velgeren slår sammen celletabellen med kjerne- eller patogentabellene til én ny tabell, som i Graph Builder; kildetabellene forblir uendret.",

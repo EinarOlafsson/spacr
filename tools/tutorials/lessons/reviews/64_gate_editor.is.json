@@ -1,6 +1,6 @@
 {
   "lesson": "64_gate_editor",
-  "english_sha256": "01f265ce50e8499d28c789048acefe1cbd065a681286e5807ea3bb0e815efb0f",
+  "english_sha256": "d5f44c8e0d0a51713322291d6bc718a7da156c4c7ca8fb186898cf16f9f4e9a8",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -17,7 +17,7 @@
     "Vista og hlaða aftur inn hliðaáætlunum, myndum og aðild.",
     "Kanna þrívíðar sýnir, klösun og síur."
   ],
-  "prerequisite": "Sæktu Annotate-dæmið og gerðu vinnuafrit af measurements.db. Gate Editor notar 2.341 frumumælingu þess; það hefur engan eigin hnapp til að sækja dæmið. Export gates skrifar aðild í valinn gagnagrunn. Heiti hliða ættu að lýsa völdum mælingum þar til líffræðileg merking þeirra hefur verið staðfest.",
+  "prerequisite": "Gate Editor er Alpha-eining. Í Preferences → Modules skaltu kveikja á Show Alpha modules and settings, staðfesta breytinguna og opna síðan Tools → Gate Editor. Hafðu slökkt á Show alpha features og Show alpha species. Sæktu Annotate-dæmið og gerðu vinnuafrit af measurements.db. Gate Editor notar 2.341 frumumælingu þess; það hefur engan eigin hnapp til að sækja dæmið. Export gates skrifar aðild í valinn gagnagrunn. Heiti hliða ættu að lýsa völdum mælingum þar til líffræðileg merking þeirra hefur verið staðfest.",
   "scenes": [
     "Frá Home opnarðu Tools og velur Gate Editor. Stilltu skilin svo að grafið, hliðataflan og hliðarstýringarnar sjáist. Notaðu mælingagagnagrunninn úr Annotate-dæminu.",
     "Smelltu á Load table, opnaðu vinnuafritið þitt af measurements.db og veldu cell. Dæmið inniheldur 2.341 hlut. Geymdu afrit því að Export gates skrifar aðild í þennan gagnagrunn. Merge tables við hlið valsins sameinar frumutöfluna og kjarna- eða sýklatöflur hennar í eina nýja töflu, eins og í Graph Builder; upprunatöflurnar haldast óbreyttar.",

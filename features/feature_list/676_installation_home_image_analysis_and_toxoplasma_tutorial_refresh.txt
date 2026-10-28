@@ -583,3 +583,7 @@ Current nightly is rebased preserving Home's newer Navigator guide/translations 
 The missing one-callback API arrival now retains the13202 baseline; three affected source-boundary checks pass. Existing nine-language reviews are retained, redundant alternatives retired without deletion, and the normal catalog build matches the existing API-memory pin byte-for-byte.
 Preserve Home's17 translated guide bindings and current Navigator guide; launch/preference references and Spaceout aliases remain in the API landing page. Required app checks guard the nightly push.
 Codex remains active on the full campaign; next64 uses its current25-scene script and unchanged50 tracks through normal adoption/QA. Remaining64/22/31/50/70/19/63/01 stay open;01 still awaits PyPI1.5.1.6 (404 on2026-10-28).
+
+2026-10-28 — Navigator88 checked nightly push639bb1f83a is verified; required comment test and all10 API inventory checks pass. Hosted media/readback/60 routes are complete; public website deployment remains pending.
+Gate Editor64 now states its real Alpha-module visibility prerequisite in all14 authored languages; narration stays unchanged. Its native driver scales the seven real divider drags to the measured window and requires visible usable panes.
+Codex continues64 end to end with25 scenes and the existing50 tracks, then22/31/50/70/19/63;01 remains release-held. No capture or scientific acceptance is claimed by these preparations.

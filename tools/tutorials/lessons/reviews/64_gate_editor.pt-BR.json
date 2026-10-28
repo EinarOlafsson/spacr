@@ -1,6 +1,6 @@
 {
   "lesson": "64_gate_editor",
-  "english_sha256": "01f265ce50e8499d28c789048acefe1cbd065a681286e5807ea3bb0e815efb0f",
+  "english_sha256": "d5f44c8e0d0a51713322291d6bc718a7da156c4c7ca8fb186898cf16f9f4e9a8",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -17,7 +17,7 @@
     "Salvar e recarregar estratégias de gates, figuras e associações.",
     "Explorar visualizações tridimensionais, agrupamento e filtros."
   ],
-  "prerequisite": "Baixe o exemplo do Annotate e faça uma cópia de trabalho de measurements.db. O Gate Editor usa suas 2341 medições de células; ele não tem um botão próprio para baixar o exemplo. Export gates grava a associação no banco de dados escolhido. Os nomes dos gates devem descrever as medições selecionadas até que o significado biológico delas esteja estabelecido.",
+  "prerequisite": "Gate Editor é um módulo Alpha. Em Preferences → Modules, ative Show Alpha modules and settings, aplique a alteração e abra Tools → Gate Editor. Deixe Show alpha features e Show alpha species desativados. Baixe o exemplo do Annotate e faça uma cópia de trabalho de measurements.db. O Gate Editor usa suas 2341 medições de células; ele não tem um botão próprio para baixar o exemplo. Export gates grava a associação no banco de dados escolhido. Os nomes dos gates devem descrever as medições selecionadas até que o significado biológico delas esteja estabelecido.",
   "scenes": [
     "Na tela Home, abra Tools e escolha Gate Editor. Ajuste os divisores para ver o gráfico, a tabela de gates e os controles laterais. Use o banco de dados de medições do exemplo do Annotate.",
     "Clique em Load table, abra sua cópia de trabalho de measurements.db e escolha cell. O exemplo contém dois mil trezentos e quarenta e um objetos. Guarde uma cópia, porque Export gates grava a associação neste banco de dados. Merge tables, ao lado do seletor, combina a tabela de células com as tabelas de núcleos ou de patógenos em uma nova tabela, como no Graph Builder; as tabelas de origem não mudam.",

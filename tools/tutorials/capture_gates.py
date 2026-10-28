@@ -77,18 +77,36 @@ def record_gates(app, window, screen, stage, captures, capture, settle, write_js
         settle(0.8)
 
     def drag_handle(splitter, index, target):
+        # Existing targets describe the 3840-wide non-host layout.
+        # Native GNOME uses its measured window width, without pointer clamping.
+        target = round(target * window.width() / 3840)
         handle = splitter.handle(index)
+        if (window.width() <= 0 or handle is None or not handle.isVisible()
+                or not handle.isEnabled() or handle.width() <= 0 or handle.height() <= 0):
+            raise RuntimeError('The actual Gate Editor divider has no usable geometry')
         start = handle.rect().center()
-        end = start + QPoint(target - handle.mapTo(window, start).x(), 0)
-        QTest.mousePress(handle, Qt.LeftButton, pos=start)
-        QTest.mouseMove(handle, end, delay=150)
-        QTest.mouseRelease(handle, Qt.LeftButton, pos=end)
+        delta = target - handle.mapTo(window, start).x()
+        end = start + QPoint(delta, 0)
+        destination = handle.mapToGlobal(end)
+        if (not 0 < target < window.width()
+                or not window.screen().geometry().contains(destination)):
+            raise RuntimeError('The actual Gate Editor divider target is outside the screen')
+        if capture_ui.live(capture):
+            capture_ui._h().drag(capture, handle, start, (delta, 0), duration=.9)
+        else:
+            QTest.mousePress(handle, Qt.LeftButton, pos=start)
+            QTest.mouseMove(handle, end, delay=150)
+            QTest.mouseRelease(handle, Qt.LeftButton, pos=end)
         settle(0.5)
 
     # Keep every real panel. Resize with the same handles a user can drag.
     S.begin('01b_readable_panels')
     drag_handle(screen.gates.parentWidget(), 1, 3220)
     drag_handle(screen.gates.body, 1, 2440)
+    for pane in (screen.gates.tree, screen.gates.canvas):
+        if (not pane.isVisible() or not pane.isEnabled()
+                or pane.width() < max(1, pane.minimumWidth()) or pane.height() <= 0):
+            raise RuntimeError('The actual gate table and graph must remain visible and usable')
     S.end('01b_readable_panels', screen.gates.tree, screen.gates.canvas)
 
     def file_dialog(button, path, frame, *, save=False, next_frame=None):

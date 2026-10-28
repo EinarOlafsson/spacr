@@ -1,6 +1,6 @@
 {
   "lesson": "64_gate_editor",
-  "english_sha256": "01f265ce50e8499d28c789048acefe1cbd065a681286e5807ea3bb0e815efb0f",
+  "english_sha256": "d5f44c8e0d0a51713322291d6bc718a7da156c4c7ca8fb186898cf16f9f4e9a8",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -17,7 +17,7 @@
     "Enregistrer et recharger des stratégies de portes, des figures et des appartenances.",
     "Explorer des vues tridimensionnelles, le regroupement et les filtres."
   ],
-  "prerequisite": "Téléchargez l’exemple Annotate et faites une copie de travail de measurements.db. Gate Editor utilise ses 2341 mesures de cellules ; il n’a pas de bouton propre de téléchargement d’exemple. Export gates écrit l’appartenance dans la base de données choisie. Les noms de portes doivent décrire les mesures sélectionnées tant que leur signification biologique n’est pas établie.",
+  "prerequisite": "Gate Editor est un module Alpha. Dans Preferences → Modules, activez Show Alpha modules and settings, appliquez la modification, puis ouvrez Tools → Gate Editor. Laissez Show alpha features et Show alpha species désactivés. Téléchargez l’exemple Annotate et faites une copie de travail de measurements.db. Gate Editor utilise ses 2341 mesures de cellules ; il n’a pas de bouton propre de téléchargement d’exemple. Export gates écrit l’appartenance dans la base de données choisie. Les noms de portes doivent décrire les mesures sélectionnées tant que leur signification biologique n’est pas établie.",
   "scenes": [
     "Depuis Home, ouvrez Tools et choisissez Gate Editor. Ajustez les séparateurs pour voir le graphique, la table des portes et les commandes latérales. Utilisez la base de données de mesures de l’exemple Annotate.",
     "Cliquez sur Load table, ouvrez votre copie de travail de measurements.db et choisissez cell. L’exemple contient deux mille trois cent quarante et un objets. Gardez une copie, car Export gates écrit l’appartenance dans cette base de données. Merge tables, à côté du sélecteur, combine la table des cellules avec ses tables de noyaux ou de pathogènes en une nouvelle table, comme dans Graph Builder ; les tables sources restent inchangées.",

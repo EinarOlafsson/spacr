@@ -12,7 +12,7 @@
     "Save and reload gate strategies, figures and membership.",
     "Explore three-dimensional views, clustering and filters."
   ],
-  "prerequisite": "Download the Annotate example and make a working copy of measurements.db. Gate Editor uses its 2,341 cell measurements; it has no separate example-download button. Export gates writes membership to the chosen database. Gate names should describe the selected measurements until their biological meaning has been established.",
+  "prerequisite": "Gate Editor is an Alpha module. In Preferences → Modules, enable Show Alpha modules and settings and apply the change, then open Tools → Gate Editor. Leave Show alpha features and Show alpha species off. Download the Annotate example and make a working copy of measurements.db. Gate Editor uses its 2,341 cell measurements; it has no separate example-download button. Export gates writes membership to the chosen database. Gate names should describe the selected measurements until their biological meaning has been established.",
   "scenes": [
     {
       "visual": "01b_readable_panels",
