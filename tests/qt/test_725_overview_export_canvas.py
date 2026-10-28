@@ -456,3 +456,15 @@ def test_canvas_source_does_not_keep_a_closed_browser_alive():
     assert ref() is None
     fresh = source.fresh()
     assert fresh._fields == {} and fresh._channels == (0,) and fresh._limits is None
+
+
+@pytest.mark.parametrize('size,dpi', [((0., 0.), 150), ((10., 10.), 1000)])
+def test_pdf_density_never_upsamples_or_discards_pixels_in_an_unplaced_box(size, dpi):
+    from types import SimpleNamespace
+    from spacr.qt.widgets import qc_field_browser as browser
+
+    pixels = np.arange(60, dtype=np.uint8).reshape(4, 5, 3)
+    axis = SimpleNamespace(figure=SimpleNamespace(get_size_inches=lambda: size),
+                           get_position=lambda: SimpleNamespace(width=1., height=1.))
+    assert browser._overview_pdf_pixels(pixels, axis, dpi) is pixels
+    np.testing.assert_array_equal(pixels, np.arange(60, dtype=np.uint8).reshape(4, 5, 3))

@@ -317,3 +317,229 @@ def test_native_overview_callback_inherits_an_existing_trace_and_preserves_its_r
                              {"plateA/field1.tif": {"complete": True}, 4: "numeric"})]
     finally:
         runner.shutdown(timeout_ms=3000)
+
+
+def test_raw_plane_memory_cache_replacement_and_eviction_obey_byte_and_entry_bounds():
+    cache = module._OverviewCache(entries=2, budget_bytes=12)
+    first, second = np.arange(4, dtype=np.uint8), np.arange(8, dtype=np.uint8)
+    cache.put('first', first)
+    cache.put('second', second)
+    assert cache.get('first') is first
+    cache.put('third', np.ones(4, dtype=np.uint8))
+    assert cache.get('second') is None
+    assert cache.get('first') is first
+    cache.put('first', (np.ones(8, dtype=np.uint8), 'metadata'))
+    assert cache.get('first')[0].nbytes == 8 and cache._bytes == 12
+    cache.put('oversized', np.zeros(13, dtype=np.uint8))
+    assert cache.get('oversized') is None and cache._bytes == 12
+    cache.put('metadata', {'source': 'unchanged'})
+    assert cache.get('third') is None
+    assert cache.get('metadata') == {'source': 'unchanged'}
+    assert cache._bytes == 8
+    cache.clear()
+    assert cache._bytes == 0 and cache.get('first') is None
+
+
+def test_disk_plane_cache_is_atomic_readonly_and_never_replaces_the_source(tmp_path, monkeypatch):
+    monkeypatch.setenv('XDG_CACHE_HOME', str(tmp_path / 'cache'))
+    monkeypatch.setenv('SPACR_OVERVIEW_DISK_CACHE', '1')
+    source = tmp_path / 'source.npy'
+    raw = np.arange(24, dtype=np.uint16).reshape(4, 6)
+    np.save(source, raw, allow_pickle=False)
+    original = source.read_bytes()
+    key = ('source-stamp', 1)
+    module._overview_store_disk_plane(key, str(source), raw)
+    path, decoded = module._overview_disk_plane(key, str(source))
+    assert path == str(source) and not decoded.flags.writeable
+    np.testing.assert_array_equal(decoded, raw)
+    assert module._overview_disk_plane(('new-source-stamp', 2), str(source)) is None
+    assert not list(module._overview_disk_name(key).parent.glob('*.tmp'))
+    assert source.read_bytes() == original
+    monkeypatch.setattr(module.os, 'replace', lambda *args: (_ for _ in ()).throw(OSError('cache is read-only')))
+    module._overview_store_disk_plane(('failed', 3), str(source), raw)
+    assert module._overview_disk_plane(('failed', 3), str(source)) is None
+    assert source.read_bytes() == original
+
+
+def test_disk_cache_pruning_preserves_unremovable_entries_without_touching_sources(tmp_path, monkeypatch):
+    from pathlib import Path
+    import os
+
+    cache = tmp_path / 'cache'
+    shard = cache / 'aa'
+    shard.mkdir(parents=True)
+    entries = [shard / f'{name}.npy' for name in ('old', 'middle', 'new')]
+    for index, path in enumerate(entries):
+        path.write_bytes(b'12345678')
+        os.utime(path, (index + 1, index + 1))
+    original_unlink = Path.unlink
+
+    def unlink(path, *args, **kwargs):
+        if path == entries[0]:
+            raise OSError('another process owns this cache entry')
+        return original_unlink(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, 'unlink', unlink)
+    monkeypatch.setattr(module, '_OVERVIEW_DISK_BUDGET', 8)
+    module._overview_prune_disk_cache(cache)
+    assert entries[0].read_bytes() == b'12345678'
+    assert not entries[1].exists() and not entries[2].exists()
+    monkeypatch.setattr(Path, 'glob', lambda *args: (_ for _ in ()).throw(OSError('mount lost')))
+    module._overview_prune_disk_cache(cache)
+    assert entries[0].read_bytes() == b'12345678'
+
+
+def test_periodic_disk_cache_pruning_and_unstamped_planes_preserve_raw_values(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+
+    monkeypatch.setenv('XDG_CACHE_HOME', str(tmp_path / 'cache'))
+    monkeypatch.setenv('SPACR_OVERVIEW_DISK_CACHE', '1')
+    monkeypatch.setattr(module, '_OVERVIEW_DISK_WRITES', [0])
+    monkeypatch.setattr(module, '_OVERVIEW_DISK_BUDGET', 0)
+    raw = np.arange(6, dtype=np.uint16).reshape(2, 3)
+    source = tmp_path / 'source.npy'
+    np.save(source, raw, allow_pickle=False)
+    before = source.read_bytes()
+    for index in range(module._OVERVIEW_DISK_PRUNE_EVERY):
+        module._overview_store_disk_plane(('pruned', index), str(source), raw)
+    assert module._OVERVIEW_DISK_WRITES == [module._OVERVIEW_DISK_PRUNE_EVERY]
+    assert module._overview_disk_plane(('pruned', 0), str(source)) is None
+    assert module._overview_disk_plane(('pruned', index), str(source)) is None
+    assert not list(module._overview_disk_cache_folder().glob('*/*.npy'))
+    assert source.read_bytes() == before
+    field = SimpleNamespace(files=((2, str(tmp_path / 'missing.tif')),), identity=('missing',))
+    calls = []
+
+    def read(given, channels, **axes):
+        calls.append((given, channels, axes))
+        yield 2, str(tmp_path / 'missing.tif'), raw
+
+    monkeypatch.setattr(module, '_overview_raw_planes', read)
+    decoded = list(module._overview_cached_raw_planes(field, (2,), edge=20, time_index=1))
+    assert decoded[0][2] is raw
+    assert calls == [(field, (2,), {'edge': 20, 'time_index': 1})]
+    np.testing.assert_array_equal(raw, np.arange(6, dtype=np.uint16).reshape(2, 3))
+
+
+@pytest.mark.parametrize('recursive', [False, True])
+def test_plate_detection_refuses_missing_paths_and_respects_explicit_recursive_scope(tmp_path, recursive):
+    import threading
+
+    source = tmp_path / 'source'
+    nested = source / 'one' / 'two'
+    nested.mkdir(parents=True)
+    tifffile.imwrite(nested / 'p1-A01-f1-t1-z1-c1.tif', np.ones((4, 5), dtype=np.uint16))
+    missing = str(tmp_path / 'missing')
+    assert module._overview_direct_images(missing) == 0
+    assert module._overview_plate_subfolders(missing) == []
+    detected = module._overview_detect_plates([missing, str(source)], source_scope='recursive' if recursive else 'folder')
+    assert 'not a folder' in detected['messages'][0]
+    assert [plate['path'] for plate in detected['plates']] == ([str(source)] if recursive else [])
+    if not recursive:
+        assert 'No images' in detected['messages'][1]
+    cancelled = threading.Event()
+    cancelled.set()
+    assert module._overview_detect_plates(str(source), cancelled=cancelled) == {'plates': [], 'messages': []}
+    with pytest.raises(ValueError, match='existing image folder'):
+        module._overview_index_sources(missing, PATTERN)
+
+
+def test_indexing_multiple_filename_plates_keeps_each_source_and_axis_identity(tmp_path):
+    folders = [tmp_path / name for name in ('batch1', 'batch2')]
+    for folder in folders:
+        folder.mkdir()
+        for plate in ('p1', 'p2'):
+            tifffile.imwrite(folder / f'{plate}-A01-f1-t1-z1-c1.tif', np.zeros((4, 5), dtype=np.uint16))
+    fields, detected = module._overview_index_sources(list(map(str, folders)), PATTERN)
+    assert {field.plate for field in fields} == {'batch1 / p1', 'batch1 / p2', 'batch2 / p1', 'batch2 / p2'}
+    assert len({module._overview_image_key(field) for field in fields}) == 4
+    assert {field.source for field in fields} == set(map(str, folders))
+    assert len(detected['plates']) == 2
+    unresolved = module._OverviewField('unresolved', '', '', 0, 'unknown', (), unresolved=True)
+    kept = module._overview_limited_fields((*fields, unresolved), max_wells=1, max_fields=1)
+    assert kept == (*fields, unresolved)
+
+
+def test_index_cancellation_after_detection_publishes_no_partial_fields(tmp_path, monkeypatch):
+    import threading
+    from unittest.mock import Mock
+
+    tifffile.imwrite(tmp_path / 'p1-A01-f1-t1-z1-c1.tif', np.ones((4, 5), dtype=np.uint16))
+    cancelled = threading.Event()
+    detect = module._overview_detect_plates
+
+    def cancel_after_detection(*args, **kwargs):
+        result = detect(*args, **kwargs)
+        cancelled.set()
+        return result
+
+    monkeypatch.setattr(module, '_overview_detect_plates', cancel_after_detection)
+    read = Mock(side_effect=AssertionError('cancelled metadata must not decode fields'))
+    monkeypatch.setattr(module, '_overview_index', read)
+    fields, detected = module._overview_index_sources(str(tmp_path), PATTERN, cancelled=cancelled)
+    assert fields == () and len(detected['plates']) == 1
+    read.assert_not_called()
+
+
+def test_comparison_and_representative_workers_publish_real_tables_and_current_fields(overview, qtbot):
+    import pandas as pd
+    from spacr import tabular
+
+    dialog = overview
+    database = module.Path(dialog._metadata_source) / 'measurements' / 'measurements.db'
+    records = []
+    for field in dialog._fields:
+        value = 1. if field.well == 'A01' else 7.
+        value += 2. * (int(field.field_id or field.field) - 1)
+        records.append({'plate': field.plate, 'well': field.well,
+                        'field': str(field.field), 'time_id': str(field.time_id), 'z_id': str(field.z_id),
+                        'channel_1_mean': value, 'status': 'ok'})
+    tabular.write_database(pd.DataFrame(records), database, 'fov', if_exists='replace', canonicalise=False)
+    assert dialog.group_builder.add_group({'well': 'A01'})
+    assert dialog.group_builder.add_group({'well': 'B02'})
+    dialog.group_builder.rename_group(row=0, name='Control')
+    dialog.group_builder.rename_group(row=1, name='Treated')
+    dialog.comparison_measurement.setCurrentText('channel_1_mean')
+    dialog._compare_groups()
+    qtbot.waitUntil(lambda: dialog.comparison_table.rowCount() > 0
+                    and dialog._export_jobs.active_jobs() == 0, timeout=10000)
+    columns = {dialog.comparison_table.horizontalHeaderItem(index).text(): index
+               for index in range(dialog.comparison_table.columnCount())}
+    assert float(dialog.comparison_table.item(0, columns['mean_a']).text()) == 2.
+    assert float(dialog.comparison_table.item(0, columns['mean_b']).text()) == 8.
+    assert float(dialog.comparison_table.item(0, columns['log2_ratio']).text()) == -2.
+    assert dialog._comparison_signature[0] == 'groups'
+    result_folder = module.Path(dialog._metadata_source) / 'results' / 'overview_comparisons'
+    assert list(result_folder.glob('*'))
+    dialog._show_representatives(stacked=False)
+    qtbot.waitUntil(lambda: dialog._export_jobs.active_jobs() == 0
+                    and 'Representative images' in dialog.status.text(), timeout=10000)
+    assert 'Control' in dialog.status.text() and 'Treated' in dialog.status.text()
+    assert {field.well for field in dialog._fields} == {'A01', 'B02'}
+
+
+@pytest.mark.parametrize('failure', ['no_measurements', 'unknown_measurement'])
+def test_group_workers_refuse_missing_measurements_without_publishing_figures(overview, qtbot, failure):
+    import pandas as pd
+    from spacr import tabular
+
+    dialog = overview
+    dialog.group_builder.add_group({'well': 'A01'})
+    dialog.group_builder.add_group({'well': 'B02'})
+    if failure == 'unknown_measurement':
+        database = module.Path(dialog._metadata_source) / 'measurements' / 'measurements.db'
+        frame = pd.DataFrame([{'plate': field.plate, 'well': field.well, 'field': field.field,
+                               'channel_1_mean': 2., 'status': 'ok'} for field in dialog._fields])
+        tabular.write_database(frame, database, 'fov', if_exists='replace', canonicalise=False)
+        dialog.comparison_measurement.setCurrentText('missing_measurement')
+        dialog.representative_method.setCurrentIndex(dialog.representative_method.findData('measurement'))
+    dialog._compare_groups()
+    qtbot.waitUntil(lambda: dialog._export_jobs.active_jobs() == 0, timeout=10000)
+    assert ('Export image-level measurements first' if failure == 'no_measurements'
+            else 'cannot be compared') in dialog.status.text()
+    assert not (module.Path(dialog._metadata_source) / 'results' / 'overview_comparisons').exists()
+    dialog._show_representatives(stacked=False)
+    qtbot.waitUntil(lambda: dialog._export_jobs.active_jobs() == 0, timeout=10000)
+    assert ('Export image-level measurements first' if failure == 'no_measurements'
+            else 'No representative image') in dialog.status.text()
+    assert dialog.comparison_table.rowCount() == 0

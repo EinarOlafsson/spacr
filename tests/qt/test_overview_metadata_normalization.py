@@ -1589,3 +1589,55 @@ def test_display_histograms_count_rendered_channels_or_return_the_read_error(mon
         expected[[0, 128, 255]] = (1, 2, 1)
         np.testing.assert_array_equal(result[4], expected)
         assert result[4].sum() == 4
+
+
+@pytest.mark.parametrize('denoise', ['gaussian', 'median', 'bilateral', 'none'])
+def test_downsampled_enhancement_scales_only_spatial_units_and_keeps_the_source_chain(denoise):
+    from spacr.qt.detect_chain import Chain
+
+    chain = Chain(background_radius=16, clahe_tile=32, sharpen_radius=2,
+                  denoise=denoise, denoise_strength=4)
+    scaled = browser._overview_scaled_chain(chain, 4)
+    assert scaled.background_radius == 4 and scaled.clahe_tile == 8
+    assert scaled.sharpen_radius == .5
+    assert scaled.denoise_strength == (1. if denoise != 'none' else 4.)
+    assert chain.background_radius == 16 and chain.clahe_tile == 32 and chain.denoise_strength == 4
+    assert browser._overview_scaled_chain(chain, 1) is chain
+
+
+def test_pixel_readout_uses_original_channel_values_and_explains_missing_source(tmp_path):
+    import hashlib
+    import tifffile
+
+    paths = [tmp_path / f'channel{channel}.tif' for channel in (1, 2)]
+    arrays = [np.arange(20, dtype=np.uint16).reshape(4, 5),
+              np.arange(20, dtype=np.uint16).reshape(4, 5) + 500]
+    for path, array in zip(paths, arrays):
+        tifffile.imwrite(path, array)
+    before = {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in paths}
+    field = browser._OverviewField('p1', 'A01', 'A', 1, '1', tuple(zip((1, 2), map(str, paths))))
+    result = browser._overview_readout_planes(field, {})
+    assert set(result) == {1, 2}
+    for channel, expected in zip((1, 2), arrays):
+        np.testing.assert_array_equal(result[channel], expected)
+    assert {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in paths} == before
+    missing = browser._OverviewField('p1', 'A01', 'A', 1, '1', ((1, str(tmp_path / 'missing.tif')),))
+    error = browser._overview_readout_planes(missing, {})
+    assert isinstance(error, str) and 'Pixel values unavailable' in error
+    assert browser._overview_device(str(tmp_path / 'missing.tif')) is None
+
+
+@pytest.mark.parametrize('point', [(-1, 20), (20, -1), (60, 70), (100, 20)])
+def test_mosaic_readout_never_reports_pixels_for_empty_tiles_or_outside_points(point):
+    assert browser._overview_source_pixel(*point, rendered=(100, 100), source=(40, 40),
+                                          count=3, mosaic=True) is None
+
+
+def test_invalid_custom_colors_are_ignored_without_changing_valid_channel_choices():
+    assert browser._overview_hex_rgb('#zz0011') is None
+    assert browser._overview_custom_colors('1=#FF0000, 2=broken, =#ffffff') == {'1': '#ff0000'}
+    assert browser._overview_custom_colors({3: '#00FF00', 4: '#nothex'}) == {'3': '#00ff00'}
+    mode = next(key for key, (palette, background) in browser._OVERVIEW_COLOR_MODES.items()
+                if palette in browser._OVERVIEW_INK_SETS)
+    maximum = len(browser._OVERVIEW_INK_SETS[browser._OVERVIEW_COLOR_MODES[mode][0]])
+    assert browser._overview_color_plan(tuple(range(maximum + 1)), None, mode) is None
