@@ -114,9 +114,8 @@ def screen(qtbot, qt_theme_applied, field_folder):
     made = MakeMasksScreen()
     qtbot.addWidget(made)
     made._open_folder(str(field_folder))
-    if made._loading:
-        made._load_worker.wait(30_000)
-        made._on_background_load_finished()
+    qtbot.waitUntil(lambda: not made._loading and made._reader_worker is None
+                    and made._load_worker is None, timeout=30000)
     assert made._canvas.image is not None
     yield made
     made.close_folded()
@@ -411,7 +410,7 @@ def test_a_failed_run_is_reported_and_the_button_comes_back(screen):
     assert "out of memory" in screen._status_label.text()
 
 
-def test_moving_to_another_field_empties_the_panes(screen):
+def test_moving_to_another_field_empties_the_panes(screen, qtbot):
     """The intermediates belong to one run on one field.
 
     Left on screen after the field changed they would be a picture of the
@@ -423,9 +422,8 @@ def test_moving_to_another_field_empties_the_panes(screen):
     assert screen._prob_pane.has_image()
 
     screen._on_next()
-    if screen._loading:
-        screen._load_worker.wait(30_000)
-        screen._on_background_load_finished()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None, timeout=30000)
 
     assert screen._current_index == 1
     assert not screen._prob_pane.has_image()

@@ -83,7 +83,7 @@ def screen(qtbot, qt_theme_applied):
     cli_make_masks.hand_over(None)
 
 
-def test_screen_skip_and_save_write_rows(screen, tmp_path):
+def test_screen_skip_and_save_write_rows(qtbot, screen, tmp_path):
     folder = tmp_path / "q"
     (folder / "masks").mkdir(parents=True)
     rng = np.random.default_rng(1)
@@ -93,8 +93,12 @@ def test_screen_skip_and_save_write_rows(screen, tmp_path):
     imageio.imwrite(folder / "masks" / "f_00.tif", _lab((2, 10, 2, 10)))
     queue = build_queue(folder, order="name")
     assert screen.open_queue(queue) is True
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._field_timer is not None
     screen._on_skip()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     screen._save_mask()
     with open(folder / ct._TIMING_FILE, encoding="utf-8") as handle:
         rows = list(csv.DictReader(handle))

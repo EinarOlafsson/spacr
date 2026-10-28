@@ -23,6 +23,8 @@ def screen(qtbot, qt_theme_applied, tmp_path, monkeypatch):
     made = mm.MakeMasksScreen()
     qtbot.addWidget(made)
     assert made._open_folder(str(tmp_path))
+    qtbot.waitUntil(lambda: not made._loading and made._reader_worker is None
+                    and made._load_worker is None)
     monkeypatch.setattr(made, '_detect_chain', lambda: detect_chain.NO_CHAIN)
     made._otsu_smoothing.setValue(0)
     made._otsu_fill_holes.setChecked(False)

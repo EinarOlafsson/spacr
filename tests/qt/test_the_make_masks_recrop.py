@@ -494,6 +494,8 @@ def screen(qtbot, qt_theme_applied, folder):
     qtbot.addWidget(widget)
     widget._canvas.setFixedSize(CANVAS_W, CANVAS_H)
     widget._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not widget._loading and widget._reader_worker is None
+                    and widget._load_worker is None)
     widget._canvas.refresh()
     widget._set_mode(MODE_RECROP)
     assert widget._image_files[widget._current_index] == "field_a.tif"
@@ -735,6 +737,8 @@ def test_retiring_the_only_field_leaves_an_empty_queue_and_says_so(
     qtbot.addWidget(widget)
     widget._canvas.setFixedSize(CANVAS_W, CANVAS_H)
     widget._open_folder(str(root))
+    qtbot.waitUntil(lambda: not widget._loading and widget._reader_worker is None
+                    and widget._load_worker is None)
     widget._canvas.refresh()
     widget._set_mode(MODE_RECROP)
     box_drag(widget._canvas, *BOX_A)

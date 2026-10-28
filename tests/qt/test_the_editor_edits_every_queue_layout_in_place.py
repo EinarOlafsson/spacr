@@ -148,6 +148,8 @@ def handed_screen(qtbot, folder: Path) -> MakeMasksScreen:
                                          cache_counts=False))
     screen = MakeMasksScreen()
     qtbot.addWidget(screen)
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     screen._canvas.setFixedSize(CANVAS_W, CANVAS_H)
     screen._canvas.refresh()
     return screen
