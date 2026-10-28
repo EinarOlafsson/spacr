@@ -279,11 +279,12 @@ class _SpaceoutIconEngine(QIconEngine):
 
     def paint(self, painter, rect, mode, state):
         """Preserve the supplied black background and white artwork in every theme."""
-        from PySide6.QtCore import Qt
+        from .hidpi import logical_size, scaled_for
 
-        picture = self._source.scaled(rect.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        x = rect.x() + (rect.width() - picture.width()) // 2
-        y = rect.y() + (rect.height() - picture.height()) // 2
+        picture = scaled_for(self._source, painter.device(), rect.size())
+        size = logical_size(picture)
+        x = rect.x() + (rect.width() - size.width()) // 2
+        y = rect.y() + (rect.height() - size.height()) // 2
         painter.drawPixmap(x, y, picture)
 
     def pixmap(self, size, mode, state):
