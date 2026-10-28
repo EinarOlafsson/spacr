@@ -229,3 +229,19 @@ def test_weights_asked_for_in_a_folder_that_does_not_exist(tmp_path):
     with pytest.raises(mz.ModelUnreadable, match="not in"):
         mz.mitonet_weights(dest=folder, download=False)
     assert not folder.exists()
+
+
+@pytest.mark.parametrize("payload", ["{broken", "[]", '{"preprocess": []}'])
+def test_invalid_local_preprocessing_sidecar_retains_declared_model_fallback(tmp_path, payload):
+    from pathlib import Path
+    path = tmp_path / "model.bin"
+    path.write_bytes(b"local checkpoint")
+    sidecar = Path(str(path) + ".preprocess.json")
+    sidecar.write_text(payload)
+    declaration = {"normalization": "percentile", "channels": [0, 1]}
+    records = [{"name": "model.bin", "preprocess": declaration}]
+    result = mz._model_preprocess(str(path), records=records)
+    assert result == declaration
+    result["channels"].append(9)
+    assert declaration["channels"] == [0, 1]
+    assert sidecar.read_text() == payload

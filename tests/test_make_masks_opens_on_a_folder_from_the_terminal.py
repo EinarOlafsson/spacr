@@ -585,3 +585,41 @@ def test_setup_py_installs_the_command():
             if getattr(key, "value", None) == "console_scripts":
                 scripts.extend(element.value for element in value.elts)
     assert "spacr-make-masks=spacr.cli_make_masks:main" in scripts
+
+
+@pytest.mark.parametrize("option", ["--save-uncertainty-maps", "--uncertainty-second-model=other.pt"])
+def test_uncertainty_outputs_require_explicit_computation_before_queue_work(nested, monkeypatch, capsys, option):
+    def forbidden(*args, **kwargs):
+        raise AssertionError("invalid uncertainty options must not discover images or start Qt")
+    monkeypatch.setattr(cli_make_masks, "build_queue", forbidden)
+    with pytest.raises(SystemExit) as caught:
+        cli_make_masks.main(["--folder", str(nested), option])
+    assert caught.value.code == 2
+    assert "requires --compute-uncertainty" in capsys.readouterr().err
+
+
+def test_mask_layer_resume_cap_is_applied_after_pending_selection(nested, tmp_path):
+    queue = build_queue(nested, order="name", include_reviewed=True)
+    target = tmp_path / "layer-session"
+    target.mkdir()
+    (target / STATUS_FILENAME).write_text("stem,state,n_objects,updated\nf_00,done,4,2026-09-12T10:00:00\n", encoding="utf-8")
+    resumed = cli_make_masks._layer_queue(queue, target, 2)
+    assert len(resumed.items) == 2
+    assert [item.image.name for item in resumed.items] == ["f_01.tif", "f_02.tif"]
+    assert (resumed.summary.done, resumed.summary.remaining) == (1, 3)
+    assert resumed.status["f_00"].state == "done"
+    assert [item.stem for item in queue.items] == ["f_00", "f_01", "f_02", "f_03"]
+
+
+def test_layers_refuse_segmentation_bundles_without_opening_editor(seg, handed, capsys):
+    code = cli_make_masks.main(["--folder", str(seg), "--layers", "cell"])
+    assert code == cli_make_masks.EXIT_USAGE
+    assert "--layers needs a folder of images" in capsys.readouterr().err
+    assert handed == []
+
+
+def test_module_entrypoint_refuses_missing_folder_before_gui_import(tmp_path):
+    result = subprocess.run([sys.executable, "-m", "spacr.cli_make_masks", "--folder", str(tmp_path / "missing")], capture_output=True, text=True, timeout=20)
+    assert result.returncode == cli_make_masks.EXIT_USAGE
+    assert "no such folder" in result.stderr
+    assert "QApplication" not in result.stderr

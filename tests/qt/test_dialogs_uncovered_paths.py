@@ -356,3 +356,37 @@ def test_natural_opening_helper_failure_keeps_physical_size_and_position(
                 settings.setValue(key, previous)
             else:
                 settings.remove(key)
+
+
+@pytest.mark.parametrize('detail', ['', 'No files will be changed.'])
+def test_mac_alert_keeps_the_question_and_supporting_text_visible(qtbot, monkeypatch, detail):
+    from PySide6.QtWidgets import QMessageBox
+    from spacr.qt import dialogs
+
+    box = QMessageBox()
+    qtbot.addWidget(box)
+    monkeypatch.setattr(sys, 'platform', 'darwin')
+    dialogs._set_question(box, 'Continue?', 'The next step is optional.', detail)
+    assert box.text() == 'Continue?'
+    assert box.informativeText() == ('The next step is optional.' +
+                                    ('\n\n' + detail if detail else ''))
+
+
+def test_scrollbar_room_is_reserved_when_no_screen_bound_is_available(qtbot):
+    from PySide6.QtCore import QSize
+    from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QStyle
+    from spacr.qt import dialogs
+
+    dialog = QDialog()
+    qtbot.addWidget(dialog)
+    scroll = dialogs._form_scroll_class()(dialog)
+    content = QLabel('A tall form')
+    content.setMinimumSize(200, 1200)
+    scroll.setWidget(content)
+    QVBoxLayout(dialog).addWidget(scroll)
+    wanted = QSize(400, 100)
+    extent = scroll.style().pixelMetric(QStyle.PM_ScrollBarExtent, None, scroll)
+    result = dialogs._with_room_for_the_scroll_bar(dialog, wanted, None)
+    assert result.width() == 400 + extent
+    assert result.height() == 100
+    assert scroll.widget() is content

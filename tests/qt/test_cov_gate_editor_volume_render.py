@@ -976,3 +976,96 @@ def test_a_matplotlib_that_refuses_the_trail_leaves_the_volume_alone(drawing):
     axes.plot = boom
     drawing._draw_gates()
     assert _limits_of(axes) == pytest.approx(before)
+
+
+@pytest.mark.parametrize('zsort', ['average', 'min', 'max'])
+@pytest.mark.parametrize('colours', ['individual', 'single', 'no-edge', 'individual-edges'])
+def test_legacy_mesh_projects_each_corner_and_stably_depth_sorts_its_colours(zsort, colours):
+    """The legacy storage adapter must draw the same measured triangles."""
+    from matplotlib.colors import to_rgba_array
+    from matplotlib.figure import Figure
+    from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+    from spacr.qt.widgets import gate_editor as ge
+
+    triangle = np.array([[0., 0., 0.], [1., 0., 0.], [0., 1., 0.]])
+    triangles = np.stack([triangle, triangle, triangle + [0., 0., 2.]])
+    faces = ['red', 'green', 'blue'] if colours != 'single' else ['orange']
+    edges = ('none' if colours == 'no-edge' else ['cyan', 'magenta', 'yellow']
+             if colours == 'individual-edges' else ['black'])
+    artist = Poly3DCollection(triangles, facecolors=faces, edgecolors=edges, zsort=zsort)
+    axes = Figure().add_subplot(projection='3d')
+    axes.add_collection3d(artist)
+    axes.view_init(elev=27., azim=-41.)
+    axes.M = axes.get_proj()
+    ge._mesh_get_vector(artist, triangles)
+    artist._codes3d = None
+    artist._axlim_clip = False
+    artist._closed = True
+    artist._reused_paths = None
+    artist._sort_zpos = None
+    homogeneous = np.column_stack([triangles.reshape(-1, 3), np.ones(9)])
+    projected = (axes.M @ homogeneous.T).T
+    projected = (projected[:, :3] / projected[:, 3:]).reshape(3, 3, 3)
+    depth_of = {'average': np.mean, 'min': np.min, 'max': np.max}[zsort]
+    order = sorted(range(3), key=lambda index: -float(depth_of(projected[index, :, 2])))
+    depth = ge._mesh_projection(artist)
+    assert depth == pytest.approx(projected[:, :, 2].min())
+    assert order.index(0) < order.index(1)
+    expected_faces = to_rgba_array(faces)
+    if len(expected_faces) == 1:
+        expected_faces = np.repeat(expected_faces, 3, axis=0)
+    np.testing.assert_allclose(artist._facecolors2d, expected_faces[order])
+    if colours == 'no-edge':
+        assert len(artist._edgecolors2d) == 0
+    elif colours == 'individual-edges':
+        np.testing.assert_allclose(artist._edgecolors2d, to_rgba_array(edges)[order])
+    else:
+        np.testing.assert_allclose(artist._edgecolors2d, to_rgba_array(['black']))
+    for path, index in zip(artist.get_paths(), order):
+        np.testing.assert_allclose(path.vertices[:-1], projected[index, :, :2])
+        np.testing.assert_array_equal(path.vertices[-1], path.vertices[0])
+    paths = artist.get_paths().copy()
+    ge._mesh_projection(artist)
+    assert all(before is after for before, after in zip(paths, artist.get_paths()))
+    artist._sort_zpos = 1.25
+    projected_position = axes.M @ [0., 0., 1.25, 1.]
+    assert ge._mesh_projection(artist) == pytest.approx(projected_position[2] / projected_position[3])
+
+
+@pytest.mark.parametrize('closed', [False, True])
+def test_mesh_paths_reuse_updated_corners_and_rebuild_when_face_count_changes(closed):
+    from matplotlib.collections import PolyCollection
+    from spacr.qt.widgets import gate_editor as ge
+
+    artist = PolyCollection([])
+    artist._closed, artist._reused_paths = closed, None
+    first = np.array([[[1., 2.], [3., 2.], [1., 5.]]])
+    ge._mesh_set_triangles(artist, first)
+    original = artist.get_paths()[0]
+    moved = first + [7., -3.]
+    ge._mesh_set_triangles(artist, moved)
+    assert artist.get_paths()[0] is original
+    np.testing.assert_array_equal(original.vertices[:3], moved[0])
+    assert len(original.vertices) == (4 if closed else 3)
+    ge._mesh_set_triangles(artist, np.concatenate([moved, first]))
+    assert len(artist.get_paths()) == 2
+    assert artist.get_paths()[0] is not original
+    np.testing.assert_array_equal(artist.get_paths()[1].vertices[:3], first[0])
+
+
+def test_nontriangular_mesh_keeps_matplotlibs_native_polygon_projection():
+    from matplotlib.figure import Figure
+    from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+    from spacr.qt.widgets import gate_editor as ge
+
+    quadrilateral = np.array([[[0., 0., 0.], [2., 0., 0.], [2., 3., 1.], [0., 3., 1.]]])
+    artist = Poly3DCollection(quadrilateral)
+    axes = Figure().add_subplot(projection='3d')
+    axes.add_collection3d(artist)
+    axes.M = axes.get_proj()
+    assert np.isfinite(ge._mesh_projection(artist))
+    ge._mesh_get_vector(artist, quadrilateral)
+    assert artist._triangle_count is None
+    assert np.isfinite(ge._mesh_projection(artist))
+    assert len(artist.get_paths()) == 1
+    assert len(artist.get_paths()[0].vertices) == 5

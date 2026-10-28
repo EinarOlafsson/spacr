@@ -99,3 +99,40 @@ def test_the_screen_lists_the_runs_of_a_moved_project(moved, qtbot):
     assert sorted(run.run_id for run in page.runs()) == ["run-a", "run-b"]
     assert page._a_combo.count() == 2
     assert page.comparison() is not None
+
+
+def test_relocation_preserves_foreign_or_unlocated_artifacts_and_refuses_other_registry(tmp_path, monkeypatch):
+    from dataclasses import replace
+    from types import SimpleNamespace
+
+    monkeypatch.delenv(ARTIFACTS_DB_ENV, raising=False)
+    root = tmp_path / "project"
+    registry = _two_runs(root)
+    sample = next(iter(registry.all()))
+    old_root = str(tmp_path / "old-root")
+    external = str(tmp_path / "outside" / "result.csv")
+    old_result = str(tmp_path / "old-root" / "run" / "result.csv")
+    rows = [replace(sample, project="", path=""),
+            replace(sample, project=old_root, path=external),
+            replace(sample, project=old_root, path=old_result),
+            replace(sample, project="foreign-drive", path="other-drive/result.csv")]
+    proxy = SimpleNamespace(path=registry.path, all=lambda: rows)
+    commonpath = os.path.commonpath
+    class PathOperations:
+        def __getattr__(self, name):
+            return getattr(os.path, name)
+        def commonpath(self, paths):
+            if paths[0] == "foreign-drive":
+                raise ValueError("different drives")
+            return commonpath(paths)
+    class FileOperations:
+        path = PathOperations()
+        def __getattr__(self, name):
+            return getattr(os, name)
+    monkeypatch.setattr(rc, "os", FileOperations())
+    relocated = rc._rows_of_a_moved_project(proxy, root)
+    assert [row.path for row in relocated] == ["", external, str(root / "run/result.csv"), "other-drive/result.csv"]
+    assert all(row.project == str(root) for row in relocated)
+    assert [row.path for row in rows] == ["", external, old_result, "other-drive/result.csv"]
+    proxy.path = str(tmp_path / "unrelated.db")
+    assert rc._rows_of_a_moved_project(proxy, root) == []

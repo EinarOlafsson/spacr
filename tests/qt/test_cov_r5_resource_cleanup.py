@@ -626,3 +626,95 @@ def test_an_uninstallable_sweep_says_so_instead_of_raising(monkeypatch,
     monkeypatch.setitem(sys.modules, "PySide6.QtCore", None)
     assert rc.install_budget_sweep() is False
     assert rc._BUDGET_TIMER is None
+
+
+def test_macos_memory_probe_uses_owned_result_and_rejects_failure(monkeypatch):
+    import ctypes
+    import ctypes.util
+
+    codes = iter([0, 1])
+    calls = []
+
+    def usage(pid, flavor, pointer):
+        calls.append((pid, flavor))
+        pointer._obj[8] = 123456
+        return next(codes)
+
+    monkeypatch.setattr(ctypes.util, 'find_library', lambda name: None)
+    monkeypatch.setattr(ctypes, 'CDLL', lambda path: types.SimpleNamespace(proc_pid_rusage=usage))
+    assert rc._macos_rss() == 123456
+    assert rc._macos_rss() == 0
+    assert calls == [(rc.os.getpid(), 0)] * 2
+
+    def unavailable(path):
+        raise OSError('libproc unavailable')
+
+    monkeypatch.setattr(ctypes, 'CDLL', unavailable)
+    assert rc._macos_rss() == 0
+
+
+def test_missing_psutil_on_macos_uses_platform_measurement(monkeypatch):
+    monkeypatch.setitem(sys.modules, 'psutil', None)
+    monkeypatch.setattr(rc.sys, 'platform', 'darwin')
+    monkeypatch.setattr(rc, '_macos_rss', lambda: 2048)
+    assert rc.process_rss() == 2048
+
+
+def test_allocator_failure_never_claims_reclaimed_memory(monkeypatch):
+    from spacr import accelerator
+
+    def failed(torch):
+        raise RuntimeError('allocator refused')
+
+    samples = iter([4096, None])
+    monkeypatch.setattr(rc, 'cuda_reserved', lambda: next(samples))
+    monkeypatch.setattr(rc, '_torch_if_loaded', lambda: None)
+    monkeypatch.setattr(accelerator, 'empty_cache', failed)
+    report = rc.clear_vram(release_models=False)
+    assert report.before == report.after == 4096
+    assert report.details == ()
+    assert 'Model references were kept' in report.note
+    assert 'another process' in report.note
+
+
+def test_gui_detection_declines_unavailable_qt_and_deleted_threads(monkeypatch):
+    import builtins
+    from PySide6.QtCore import QCoreApplication, QThread
+
+    original = builtins.__import__
+
+    def missing(name, *args, **kwargs):
+        if name == 'PySide6.QtCore':
+            raise ImportError('Qt unavailable')
+        return original(name, *args, **kwargs)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(builtins, '__import__', missing)
+        assert not rc._the_gui_thread_is_asking()
+    with monkeypatch.context() as patch:
+        patch.setattr(QCoreApplication, 'instance', lambda: None)
+        assert not rc._the_gui_thread_is_asking()
+
+    def deleted():
+        raise RuntimeError('thread wrapper deleted')
+
+    with monkeypatch.context() as patch:
+        patch.setattr(QCoreApplication, 'instance', lambda: object())
+        patch.setattr(QThread, 'currentThread', deleted)
+        assert not rc._the_gui_thread_is_asking()
+
+
+def test_missing_gui_path_probe_declines_without_blocking_stat(monkeypatch):
+    import builtins
+
+    original = builtins.__import__
+
+    def missing(name, globals=None, locals=None, fromlist=(), level=0):
+        if 'path_probe' in (fromlist or ()):
+            raise ImportError('probe unavailable')
+        return original(name, globals, locals, fromlist, level)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(rc, '_the_gui_thread_is_asking', lambda: True)
+        patch.setattr(builtins, '__import__', missing)
+        assert not rc._is_a_folder('/unavailable/share')

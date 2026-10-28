@@ -276,3 +276,25 @@ class TestTheWarmUpOffTheGuiThread:
         assert list(cache.glob("*.part")) == []
         iconset._themed_array.cache_clear()
         assert iconset.themed_array(icon, "dark") is not None
+
+
+def test_failed_prefetch_still_returns_the_exact_synchronous_icon(cache, icon):
+    """A worker failure must not become a missing or differently inked icon."""
+    from concurrent.futures import Future
+
+    expected = iconset.themed_array(icon, 'dark').copy()
+    iconset._themed_array.cache_clear()
+    key = (iconset._file_stamp(icon), 'dark')
+    failed = Future()
+    failed.set_exception(OSError('prefetch decoder unavailable'))
+    with iconset._PREFETCH_LOCK:
+        previous = iconset._PREFETCHED.get(key)
+        iconset._PREFETCHED[key] = failed
+    try:
+        assert np.array_equal(iconset.themed_array(icon, 'dark'), expected)
+        assert key not in iconset._PREFETCHED
+    finally:
+        with iconset._PREFETCH_LOCK:
+            iconset._PREFETCHED.pop(key, None)
+            if previous is not None:
+                iconset._PREFETCHED[key] = previous

@@ -236,3 +236,33 @@ def test_a_rectangle_bounding_one_axis_still_drops_rows_the_other_never_measured
 
     assert list(frame.index[keep]) == [0, 2]
     assert not bool(keep[1]), "a row with no intensity is not inside the gate"
+
+
+@pytest.mark.parametrize('failure, message', [
+    ('nonfinite', 'finite and distinct'),
+    ('duplicate', 'finite and distinct'),
+    ('flat', 'nonzero extent'),
+    ('collapsed', 'triangles must not collapse'),
+    ('zero-volume', 'enclose a nonzero region'),
+])
+def test_preview_rejects_invalid_moved_geometry_without_mutating_its_inputs(failure, message):
+    from spacr.qt.widgets.gate_spec import GateError, _validate_moved_triangles
+
+    vertices = np.array([[0., 0., 0.], [1., 0., 0.], [0., 1., 0.], [0., 0., 1.]])
+    faces = np.array([[0, 2, 1], [0, 1, 3], [0, 3, 2], [1, 2, 3]])
+    if failure == 'nonfinite':
+        vertices[3, 2] = np.inf
+    elif failure == 'duplicate':
+        vertices[3] = vertices[0]
+    elif failure == 'flat':
+        vertices = np.array([[0., 0., 0.], [1., 0., 0.], [0., 1., 0.], [1., 1., 0.]])
+    elif failure == 'collapsed':
+        vertices[2] = [2., 0., 0.]
+        vertices[3] = [0., 1., 1.]
+    else:
+        vertices = np.array([[0., 0., 0.], [1., 0., 1.], [0., 1., 1.], [1., 1., 2.]])
+    before_vertices, before_faces = vertices.copy(), faces.copy()
+    with pytest.raises(GateError, match=message):
+        _validate_moved_triangles(vertices, faces, np.arange(4))
+    np.testing.assert_array_equal(vertices, before_vertices)
+    np.testing.assert_array_equal(faces, before_faces)

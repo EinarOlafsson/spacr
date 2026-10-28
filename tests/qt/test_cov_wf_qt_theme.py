@@ -286,3 +286,77 @@ def test_a_run_of_blocks_is_scoped_to_one_screen_without_restyling_the_app(
         assert root.styleSheet() == screen_sheet
     finally:
         theme.clear_widget_qss_overlays(qapp)
+
+
+def test_invalid_hex_colours_are_declined_instead_of_becoming_rendered_black():
+    assert theme._parse_hex('#gg0011') is None
+    assert theme._parse_hex('12xy56') is None
+    assert theme._parse_hex('#abc') == (170, 187, 204)
+
+
+def test_qss_selector_cache_eviction_preserves_the_actual_selector_requirements(monkeypatch):
+    monkeypatch.setattr(theme, '_BLOCK_ID_REQUIREMENTS', {})
+    for index in range(515):
+        assert theme._selector_id_requirements(f'QWidget#Field{index} {{ color: red; }}') == (
+            frozenset({f'Field{index}'}),)
+    assert theme._selector_id_requirements('QWidget { color: blue; }') is None
+    assert theme._selector_id_requirements('QWidget#Field0 { color: red; }') == (
+        frozenset({'Field0'}),)
+
+
+def test_absent_registered_rule_cannot_skip_a_needed_window_restyle(qtbot, monkeypatch):
+    from types import SimpleNamespace
+
+    widget = QWidget()
+    qtbot.addWidget(widget)
+    fragment = theme._WIDGET_QSS_MARKER.format(name='Present') + 'QWidget#Other { color: red; }'
+    app = SimpleNamespace()
+    setattr(app, theme._WINDOW_SHEET_ATTRIBUTE, fragment)
+    monkeypatch.setattr(theme, '_LAST_WIDGET_QSS_FRAGMENT', fragment)
+    assert theme._registered_block_text(fragment, 'Missing') is None
+    assert theme._no_missing_block_can_reach(app, widget, ['Missing']) is False
+    assert theme._no_missing_block_can_reach(app, widget, ['Present']) is True
+
+
+def test_legacy_window_sheet_recovers_only_its_own_rules(qtbot):
+    window = QWidget()
+    qtbot.addWidget(window)
+    base, own, suffix = 'QWidget { color: red; }', 'QWidget#Mine { margin: 2px; }', 'QLabel { padding: 1px; }'
+    window.setStyleSheet(base + own + suffix)
+    setattr(window, theme._LOCAL_WIDGET_QSS_ATTRIBUTE, suffix)
+    window.setProperty(theme._WINDOW_SHEET_BASE_LEN, len(base))
+    window.setProperty(theme._WINDOW_SHEET_BASE_DIGEST, theme._sheet_digest(base))
+    assert theme._the_windows_own_stylesheet(window) == own
+    assert theme._the_windows_own_stylesheet(window) == own
+
+
+def test_departed_prewarm_window_does_not_abort_other_window_styling():
+    from shiboken6 import delete
+
+    window = QWidget()
+    delete(window)
+    assert theme._a_screen_built_ahead(window) is False
+
+
+def test_close_hit_targets_stay_large_enough_after_font_cache_eviction(qapp, monkeypatch):
+    from PySide6.QtGui import QFont, QFontMetrics
+
+    monkeypatch.setattr(theme, '_CLOSE_MARK_INK', {})
+    button = QWidget()
+    try:
+        for size in range(8, 76):
+            font = QFont(button.font())
+            font.setPixelSize(size)
+            button.setFont(font)
+            side = theme.close_mark_side(button, body_px=size)
+            measured = QFont(button.font())
+            measured.setPixelSize(max(size, theme.close_mark_font_px(size)))
+            ink = QFontMetrics(measured).tightBoundingRect(theme.CLOSE_MARK)
+            assert side >= max(theme.CLOSE_MARK_HIT_PX,
+                               ink.width() + theme.CLOSE_MARK_PAD_PX,
+                               ink.height() + theme.CLOSE_MARK_PAD_PX)
+        guard = theme._CloseMarkResizer(button)
+        from PySide6.QtCore import QEvent
+        assert guard.eventFilter(button, QEvent(QEvent.Type.Enter)) is False
+    finally:
+        button.close()

@@ -207,3 +207,33 @@ def test_the_strip_still_paints_once_the_worker_lands(qtbot, qt_theme_applied):
     assert painted, "the worker landed without repainting the strip"
     assert bar._resolve_again is None, (
         "a catch-up refresh is still queued, so this one did not finish")
+
+
+def test_a_real_registry_answer_after_host_close_never_repaints_or_restarts(
+        qtbot, slow_registry, qt_theme_applied, monkeypatch, tmp_path):
+    from PySide6.QtWidgets import QWidget
+    from spacr import chaining as core
+
+    monkeypatch.setenv(core.PIN_STATE_ENV, str(tmp_path / 'pins.json'))
+    core.pin_store(refresh=True)
+    host = QWidget()
+    host.app_key = 'map_barcodes'
+    qtbot.addWidget(host)
+    bar = _bar(qtbot, host)
+    painted = []
+    monkeypatch.setattr(bar, '_paint', lambda *args, **kw: painted.append(args))
+    try:
+        bar._refresh(finished=False)
+        assert bar._resolving
+        host._closing = True
+        bar._on_edited()
+        bar._on_screen_shown()
+        assert not bar._timer.isActive()
+        _finish_registry_test(qtbot, slow_registry, bar)
+        assert painted == []
+        assert bar._resolve_again is None
+        assert bar._resolver.active_jobs() == 0
+    finally:
+        slow_registry.set()
+        _finish_registry_test(qtbot, slow_registry, bar)
+        core.pin_store(refresh=True)

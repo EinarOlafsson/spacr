@@ -549,3 +549,57 @@ def test_faces_that_add_without_resolving_are_reported_as_unresolved(cold,
 
     assert cold.use_open_sans_for_figures() is False
     assert manager.added                          # it did try
+
+
+@pytest.mark.parametrize('refusal', ['directory', 'copy', 'alias_changed'])
+def test_alias_reuse_refusals_keep_the_original_parser_and_complete_faces(
+        tmp_path, monkeypatch, refusal):
+    """A failed fast path cannot discard faces or substitute stale metadata."""
+    import dataclasses
+    from spacr import figure_font
+
+    from pathlib import Path
+
+    Entry = dataclasses.make_dataclass('Entry',
+        [('fname', str), ('index', int), ('name', str), ('style', str),
+         ('variant', str), ('weight', int), ('stretch', str), ('size', str)], frozen=True)
+    first, alias = tmp_path / 'face.ttf', tmp_path / 'alias.ttf'
+    first.write_text('old')
+    os.link(first, alias)
+    calls = []
+    manager = SimpleNamespace(__version__='3.11.0', ttflist=[], afmlist=[],
+        _findfont_cached=SimpleNamespace(cache_clear=lambda: None))
+
+    def parse(path):
+        calls.append(path)
+        if os.path.isdir(path):
+            raise IsADirectoryError(path)
+        manager.ttflist.append(Entry(path, 0, Path(path).read_text(), 'normal',
+                                    'normal', 400, 'normal', 'medium'))
+
+    manager.addfont = parse
+    add = figure_font._fresh_figure_font_adder(manager, SimpleNamespace(FontEntry=Entry))
+    add(str(first))
+    if refusal == 'directory':
+        directory = tmp_path / 'directory.ttf'
+        directory.mkdir()
+        with pytest.raises(IsADirectoryError):
+            add(str(directory))
+        assert calls == [str(first), str(directory)]
+        assert len(manager.ttflist) == 1
+        return
+    original_replace = dataclasses.replace
+
+    def replace(entry, **kwargs):
+        if refusal == 'copy':
+            raise ValueError('font metadata cannot be copied')
+        result = original_replace(entry, **kwargs)
+        alias.unlink()
+        alias.write_text('new')
+        return result
+
+    monkeypatch.setattr(dataclasses, 'replace', replace)
+    add(str(alias))
+    assert calls == [str(first), str(alias)]
+    assert [(entry.fname, entry.name) for entry in manager.ttflist] == [
+        (str(first), 'old'), (str(alias), 'new' if refusal == 'alias_changed' else 'old')]

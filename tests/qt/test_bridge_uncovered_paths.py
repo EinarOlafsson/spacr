@@ -948,3 +948,54 @@ def test_reporting_failures_preserve_pipeline_output_error_and_failed_manifest(
         assert "ValueError: the input measurement is invalid" in manifest["traceback"]
     finally:
         worker.deleteLater()
+
+
+def test_import_gate_continues_to_later_finders_without_a_loader(monkeypatch):
+    from types import SimpleNamespace
+
+    calls = []
+    first = SimpleNamespace(find_spec=lambda *args: calls.append('miss'))
+    selected = SimpleNamespace(loader=None)
+    second = SimpleNamespace(find_spec=lambda *args: calls.append('selected') or selected)
+    monkeypatch.setattr(B, '_BACKGROUND_IMPORTERS', {threading.get_ident() + 1: threading.Event()})
+    monkeypatch.setattr(sys, 'meta_path', [B._HeavyImportGate, object(), first, second])
+    assert B._HeavyImportGate.find_spec('torch.edge') is selected
+    assert calls == ['miss', 'selected']
+    assert selected.loader is None
+    monkeypatch.setattr(sys, 'meta_path', [B._HeavyImportGate, object(), first])
+    assert B._HeavyImportGate.find_spec('torch.edge') is None
+    assert calls == ['miss', 'selected', 'miss']
+
+
+def test_waiting_loader_executes_the_original_module(monkeypatch):
+    from types import SimpleNamespace
+
+    seen = []
+    module = object()
+    loader = SimpleNamespace(exec_module=seen.append)
+    B._WaitingLoader(loader).exec_module(module)
+    assert seen == [module]
+
+
+def test_retiring_gui_relay_does_not_interrupt_worker_join(monkeypatch):
+    from PySide6.QtCore import QCoreApplication
+    from types import SimpleNamespace
+
+    waits, relays = [], []
+    results = iter([False, True])
+
+    def wait(milliseconds):
+        waits.append(milliseconds)
+        return next(results)
+
+    relay = object()
+
+    def gone(receiver, event):
+        relays.append(receiver)
+        raise RuntimeError('relay already deleted')
+
+    monkeypatch.setattr(B, '_GUI_CALLS', [relay])
+    monkeypatch.setattr(QCoreApplication, 'sendPostedEvents', gone)
+    assert B._wait_serving_the_interface(SimpleNamespace(wait=wait), 1000)
+    assert relays == [relay]
+    assert len(waits) == 2 and all(0 <= ms <= 20 for ms in waits)
