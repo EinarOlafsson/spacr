@@ -219,6 +219,41 @@ def test_startup_mosaic_review_rejects_the_old_strap_description(tmp_path, monke
         builder.reviewed_api_block_translations({symbol: source}, "sv")
 
 
+def _current_735_scn_api(entries, docs=None):
+    """Keep the three original reader contracts while binding reviewed shared readers."""
+    assert len(entries) == 3
+    assert hashlib.sha256(json.dumps(entries, sort_keys=True, ensure_ascii=False).encode()).hexdigest() == 'dfae0a387359b48a079cb322497d50149357a995fc7958fa8a9300742b2f45fd'
+    current = dict(entries)
+    symbol = "spacr.qt.mask_engine.read_image"
+    current[symbol] = 'Read one image file the way Make Masks shows it.\n\nExplicitly reviewed container planes use their shared scientific or\nraster reader and source identity. Native SCN and TEM readers retain\ntheir calibration; ordinary unreviewed images use imageio.\n\n:param path: the image file.\n:returns: the pixels.'
+    assert hashlib.sha256(current[symbol].encode()).hexdigest() == '078f7778ea1644f4cbc0d8f98c58656fbb100f9df68de92e24fa67ec45731809'
+    if docs is not None:
+        assert {key: docs[key] for key in current} == current
+    return current
+
+
+@pytest.mark.parametrize("mutation", ["historical_reader", "historical_other", "current_reader", "current_other"])
+def test_shared_reader_revision_preserves_the_historical_scn_pin(mutation):
+    entries = json.loads((ROOT / "tests/data/release_contracts"
+        / "424_scn_public_api_arrivals_2026-10-06.json").read_text(encoding="utf-8"))
+    historical = dict(entries)
+    current = _current_735_scn_api(entries)
+    symbol = "spacr.qt.mask_engine.read_image"
+    other = next(key for key in entries if key != symbol)
+    assert entries == historical
+    assert all(current[key] == entries[key] for key in entries if key != symbol)
+    if mutation == "historical_reader":
+        entries[symbol] = current[symbol]
+    elif mutation == "historical_other":
+        entries[other] += " changed"
+    elif mutation == "current_reader":
+        current[symbol] = historical[symbol]
+    else:
+        current[other] += " changed"
+    with pytest.raises(AssertionError):
+        _current_735_scn_api(entries, current)
+
+
 def _current_735_volume_api(entries, docs=None):
     """Bind reviewed numeric NPY guidance without changing the historical arrival pin."""
     assert len(entries) == 32
@@ -3713,6 +3748,20 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         | home_ui_arrivals.keys() | volume_arrivals.keys()
     )
     zoo_arrivals = {**zoo_arrivals, **easy_mode_arrivals}
+    navigator_help_arrivals = {
+        "spacr.qt.widgets.home._EasyHomePage._choose_navigator_ai.configure":
+            "Reuse the existing install and sign-in dialog without sending a task.",
+        "spacr.qt.help_search.HelpSearchField.event":
+            "Keep Escape in this field before window shortcuts handle it.\n\n"
+            ":param event: the incoming Qt event.\n"
+            ":returns: Whether the event was handled.",
+    }
+    assert {key: docs[key] for key in navigator_help_arrivals} == navigator_help_arrivals
+    assert not navigator_help_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **navigator_help_arrivals}
     retirement = json.loads((ROOT / "tests/data/release_contracts"
         / "700_retired_setup_api_inverse_2026-10-15.json").read_text(encoding="utf-8"))
     assert retirement["source_commit"] == "0881044e8b310515e2434b1046fe94a02d769b47"

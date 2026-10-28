@@ -4771,6 +4771,15 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                 _validated_prior_worker_callables(actual_callables)))
         if item.exposure == "autoapi" and item.docstring
     }
+    help_escape_arrivals = {
+        "spacr.qt.help_search.HelpSearchField.event":
+            "Keep Escape in this field before window shortcuts handle it.\n\n"
+            ":param event: the incoming Qt event.\n"
+            ":returns: Whether the event was handled.",
+    }
+    assert {key: docs[key] for key in help_escape_arrivals} == help_escape_arrivals
+    assert {key: rendered_documented_callables[key]
+            for key in help_escape_arrivals} == help_escape_arrivals
     # The gap between the two is the entries AutoAPI never renders: the
     # configured ignore paths plus the CLI/compatibility entries.
     # 9,427 -> 9,441. Seven public symbols were added earlier today and
@@ -5013,6 +5022,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert scn_additions.keys() == {
         "spacr.convert.read_scn", "spacr.convert.scn_to_rgb8",
         "spacr.qt.mask_engine.read_image"}
+    from tests.test_documentation_i18n import _current_735_scn_api
+    scn_additions = _current_735_scn_api(scn_additions, docs)
     assert {key: docs[key] for key in scn_additions} == scn_additions
     actual_by_symbol = {item.symbol: item for item in actual_callables}
     assert {key: actual_by_symbol[key].docstring for key in scn_additions} == scn_additions
@@ -5366,6 +5377,19 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         | animation_arrivals.keys() | volume_additions.keys() | zoo_additions.keys()
     )
     zoo_additions = {**zoo_additions, **approval_preferences}
+    navigator_helper_arrivals = {
+        "spacr.qt.widgets.home._EasyHomePage._choose_navigator_ai.configure":
+            "Reuse the existing install and sign-in dialog without sending a task.",
+    }
+    assert {key: docs[key] for key in navigator_helper_arrivals} == navigator_helper_arrivals
+    current_help_arrivals = {**navigator_helper_arrivals, **help_escape_arrivals}
+    assert not current_help_arrivals.keys() & (
+        hidden_close.keys() | home_ui_arrivals.keys() | worker_additions.keys()
+        | private_additions.keys() | radius_symbols | channel_additions.keys()
+        | scn_additions.keys() | popup_additions.keys() | background_additions.keys()
+        | animation_arrivals.keys() | volume_additions.keys() | zoo_additions.keys()
+    )
+    zoo_additions = {**zoo_additions, **current_help_arrivals}
     from tests.test_documentation_i18n import _retired_707_home_api
     retired_home = _retired_707_home_api(docs)
     assert len((historical_docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
@@ -5801,6 +5825,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         / "data/release_contracts"
         / "tutorial_cli_api_changes_2026-10-12.json").read_text(encoding="utf-8"))["added"])
     contract_callables |= help_arrivals.keys()
+    assert not help_escape_arrivals.keys() & contract_callables
+    contract_callables |= help_escape_arrivals.keys()
     assert not approval_callables & contract_callables
     contract_callables |= approval_callables
     prior = prior - contract_callables
@@ -5883,6 +5909,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         / "data/release_contracts"
         / "tutorial_cli_api_changes_2026-10-12.json").read_text(encoding="utf-8"))["added"])
     arrival_callables |= help_arrivals.keys()
+    assert not help_escape_arrivals.keys() & arrival_callables
+    arrival_callables |= help_escape_arrivals.keys()
     assert not approval_callables & arrival_callables
     arrival_callables |= approval_callables
     arrival_callables &= rendered_documented_callables.keys()
