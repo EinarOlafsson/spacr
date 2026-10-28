@@ -519,6 +519,12 @@ class _ResizeByEdge(QObject):
         :returns: whether a resize gesture consumed the event. Wayland uses
             its required compositor operation; other platforms use anchored
             geometry while respecting minimum and maximum window sizes.
+
+        Windows layered popups need the resized backing store painted before
+        returning to the next mouse move. Deferring that paint leaves the old
+        rim and contents on screen while the requested bounds already include
+        the window underneath. Flush only actual edge-drag geometry changes;
+        ordinary resizes and clamped pointer moves keep deferred painting.
         """
         window = getattr(self, "_window", None)
         if window is None or watched is not window:
@@ -554,7 +560,12 @@ class _ResizeByEdge(QObject):
                     height = min(max(proposed, max(1, minimum.height())), maximum.height())
                     if edges & Qt.TopEdge:
                         y = rectangle.bottom() - height + 1
-                window.setGeometry(QRect(x, y, width, height))
+                target = QRect(x, y, width, height)
+                if target != window.geometry():
+                    window.setGeometry(target)
+                    if (QApplication.platformName() == "windows"
+                            and window.testAttribute(Qt.WA_TranslucentBackground)):
+                        window.repaint()
                 return True
             if kind == QEvent.Type.MouseButtonRelease:
                 resized = (self._grab is not None
