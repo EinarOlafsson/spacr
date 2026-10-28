@@ -4,7 +4,10 @@ Make Masks is filed under **Tools** on the home screen and is the manual
 half of segmentation: it corrects masks a model got wrong, one field at a
 time, and its masthead opens the Cellpose workflows that produced them.
 :class:`MakeMasksScreen` loads images and labelled masks from
-``<folder>/masks`` and saves edited labels as ``uint16`` TIFF files.
+``<folder>/masks`` and saves ordinary edited labels as ``uint16`` TIFF files.
+Existing ``uint32`` masks retain their exact IDs and storage width; explicit
+exact-ID modes use ``uint32`` when needed. Masks with Time lineage are saved
+as ``uint32`` TIFFs.
 
 THE TEN TOOLS, in :data:`TOOL_MODES` order, because this vocabulary is what
 a reader needs before opening the screen:
@@ -14753,7 +14756,10 @@ class MakeMasksScreen(QWidget):
                 "Pick a folder that contains microscopy images "
                 "(.tif / .png / .jpg), or one 2D or 3D image. Any existing "
                 "masks in a `masks/` subfolder are loaded; new masks save "
-                "back there as labeled uint16 TIFFs."
+                "back there as labeled TIFFs. Ordinary masks use uint16; "
+                "existing uint32 masks keep their exact IDs and width. "
+                "Exact-ID modes use uint32 when needed, and masks with "
+                "Time lineage use uint32."
             ),
             icon=iconset.accent_icon("brush"),
             cta_label="Open File / Folder…",
@@ -15061,8 +15067,10 @@ class MakeMasksScreen(QWidget):
         self._btn_save.setIcon(iconset.contrast_icon("save"))
         self._btn_save.setCursor(Qt.PointingHandCursor)
         self._btn_save.setToolTip(tr(
-            "Save the mask of this field as a labelled uint16 TIFF in its "
-            "masks folder.") + " " + tr(
+            "Save this field's mask in its masks folder. TIFF masks use "
+            "uint16 for ordinary labels, retain existing uint32 IDs and width, "
+            "and use uint32 for exact-ID modes when needed or masks with "
+            "Time lineage.") + " " + tr(
             "The arrow offers Save on navigation and Upload data."))
         self._btn_save.clicked.connect(self._on_save)
         save_menu = QMenu(self._btn_save)
