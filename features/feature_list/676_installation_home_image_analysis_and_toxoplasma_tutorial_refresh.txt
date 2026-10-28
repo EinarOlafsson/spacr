@@ -571,3 +571,7 @@ Finish only Navigator tutorial/Docs/API after published Graph Builder58, finaliz
 Navigator's50 voices pass900 unique scene/end gaps0.800–1.046s with native EOF and real1x motion;18 reviewed scenes run243.7s. User guide/toctree and existing launch/preference API references accompany the normal publication commits.
 The generated app tutorial index is included after the publisher's unstaged-index rebase stop; retain the verified candidate and media without rerendering or reuploading.
 After guarded nightly push, transfer tutorial ownership to Claude using /media/carruthers/mnt3/claude/HANDOFF_codex_to_claude_2026-10-28.md and pause Codex. Remaining64/22/31/50/70/19/63/01 stay open; live website deployment is tracked separately in the handoff.
+
+2026-10-28 — Navigator88 media/readback/60 Pages routes/50 voices are complete, but guarded nightly push is BLOCKED ON HOME: English API inventory13203 versus pinned13202 at test_documentation_i18n.py:3730. No ratchet increase or push-check bypass.
+All tutorial/Docs/API source and publication progress is committed in spacr-tut17-nightly;64 pin tests pass with one existing Node skip. Historical startup fixture restoration retains four passing mutation checks; broader extractor still reports an unrelated volume-API contract mismatch.
+Codex writes /media/carruthers/mnt3/claude/HANDOFF_codex_to_claude_2026-10-28.md and pauses as requested; Claude owns continuation after the API blocker is fixed. Navigator is not claimed pushed or live; Graph Builder remains published4d0c2f38fe.
