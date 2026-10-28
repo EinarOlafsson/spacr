@@ -23,7 +23,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "CP_prob",
-    "line": 3396,
+    "line": 3397,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_check_cellpose_models_default_settings"
@@ -32,7 +32,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "CP_prob",
-    "line": 3428,
+    "line": 3429,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_identify_masks_finetune_default_settings"
@@ -41,7 +41,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "CP_prob",
-    "line": 7147,
+    "line": 7148,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -227,7 +227,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "Signal_to_noise",
-    "line": 3408,
+    "line": 3409,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_check_cellpose_models_default_settings"
@@ -236,7 +236,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "Signal_to_noise",
-    "line": 3427,
+    "line": 3428,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_identify_masks_finetune_default_settings"
@@ -245,7 +245,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "Signal_to_noise",
-    "line": 7146,
+    "line": 7147,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -501,7 +501,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "agg_type",
-    "line": 7548,
+    "line": 7549,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -905,7 +905,7 @@
     "form": "get",
     "function_depth": 2,
     "key": "analysis_mode",
-    "line": 6387,
+    "line": 6388,
     "module": "spacr.settings",
     "nested": true,
     "qualname": "get_setting_dependencies.permutation_active"
@@ -914,7 +914,7 @@
     "form": "get",
     "function_depth": 2,
     "key": "analysis_mode",
-    "line": 6406,
+    "line": 6407,
     "module": "spacr.settings",
     "nested": true,
     "qualname": "get_setting_dependencies.permutation_is_certain"
@@ -1042,7 +1042,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "analysis_unit",
-    "line": 6522,
+    "line": 6523,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -1051,7 +1051,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "analysis_unit",
-    "line": 6543,
+    "line": 6544,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -1060,7 +1060,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "analysis_unit",
-    "line": 6546,
+    "line": 6547,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -1585,7 +1585,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "annotation_column",
-    "line": 6997,
+    "line": 6998,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_annotate_default_settings"
@@ -1762,7 +1762,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "attribution_baseline",
-    "line": 7079,
+    "line": 7080,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -1782,7 +1782,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "attribution_steps",
-    "line": 7078,
+    "line": 7079,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -1903,7 +1903,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "background",
-    "line": 3407,
+    "line": 3408,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_check_cellpose_models_default_settings"
@@ -1912,7 +1912,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "background",
-    "line": 3425,
+    "line": 3426,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_identify_masks_finetune_default_settings"
@@ -1921,7 +1921,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "background",
-    "line": 7145,
+    "line": 7146,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -1959,7 +1959,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "background_correction",
-    "line": 7227,
+    "line": 7228,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -2028,7 +2028,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "barcode_mismatches",
-    "line": 7028,
+    "line": 7029,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_default_generate_barecode_mapping"
@@ -2361,7 +2361,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "batch_correction",
-    "line": 6551,
+    "line": 6552,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -2370,7 +2370,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "batch_correction",
-    "line": 6557,
+    "line": 6558,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -2379,7 +2379,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "batch_correction",
-    "line": 6564,
+    "line": 6565,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -2388,7 +2388,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "batch_correction",
-    "line": 6569,
+    "line": 6570,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -2397,7 +2397,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "batch_correction",
-    "line": 6575,
+    "line": 6576,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -2406,7 +2406,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "batch_correction",
-    "line": 6578,
+    "line": 6579,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -3073,7 +3073,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "batch_size",
-    "line": 3395,
+    "line": 3396,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_check_cellpose_models_default_settings"
@@ -3082,7 +3082,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "batch_size",
-    "line": 3430,
+    "line": 3431,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_identify_masks_finetune_default_settings"
@@ -3091,7 +3091,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "batch_size",
-    "line": 7058,
+    "line": 7059,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -3100,7 +3100,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "batch_size",
-    "line": 7149,
+    "line": 7150,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -3174,7 +3174,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "bimodality_cutoff",
-    "line": 7235,
+    "line": 7236,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -3459,7 +3459,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "blue_channel",
-    "line": 7545,
+    "line": 7546,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -3743,7 +3743,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cam_type",
-    "line": 7060,
+    "line": 7061,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -3752,7 +3752,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cam_type",
-    "line": 7548,
+    "line": 7549,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -4266,7 +4266,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_channel",
-    "line": 7393,
+    "line": 7394,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -4275,7 +4275,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_channel",
-    "line": 7545,
+    "line": 7546,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -4504,7 +4504,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_cycle_channel",
-    "line": 7545,
+    "line": 7546,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -5430,7 +5430,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 7544,
+    "line": 7545,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -5710,7 +5710,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_plate_metadata",
-    "line": 7246,
+    "line": 7247,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -5719,7 +5719,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_plate_metadata",
-    "line": 7285,
+    "line": 7286,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_replication_defaults"
@@ -5728,7 +5728,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_plate_metadata",
-    "line": 7307,
+    "line": 7308,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_endodyogeny_defaults"
@@ -5737,7 +5737,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_plate_metadata",
-    "line": 7340,
+    "line": 7341,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_class_proportion_defaults"
@@ -6051,7 +6051,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_types",
-    "line": 7245,
+    "line": 7246,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -6060,7 +6060,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_types",
-    "line": 7284,
+    "line": 7285,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_replication_defaults"
@@ -6069,7 +6069,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_types",
-    "line": 7306,
+    "line": 7307,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_endodyogeny_defaults"
@@ -6078,7 +6078,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_types",
-    "line": 7339,
+    "line": 7340,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_class_proportion_defaults"
@@ -6413,7 +6413,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose3_add_nucleus_channel",
-    "line": 7545,
+    "line": 7546,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -7087,7 +7087,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "change_plate",
-    "line": 7253,
+    "line": 7254,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -7096,7 +7096,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "change_plate",
-    "line": 7292,
+    "line": 7293,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_replication_defaults"
@@ -7105,7 +7105,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "change_plate",
-    "line": 7322,
+    "line": 7323,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_endodyogeny_defaults"
@@ -7997,7 +7997,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "channels",
-    "line": 3400,
+    "line": 3401,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_check_cellpose_models_default_settings"
@@ -8006,7 +8006,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "channels",
-    "line": 3424,
+    "line": 3425,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_identify_masks_finetune_default_settings"
@@ -8015,7 +8015,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "channels",
-    "line": 6995,
+    "line": 6996,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_annotate_default_settings"
@@ -8024,7 +8024,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "channels",
-    "line": 7065,
+    "line": 7066,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -8033,7 +8033,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "channels",
-    "line": 7160,
+    "line": 7161,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -8042,7 +8042,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "channels",
-    "line": 7392,
+    "line": 7393,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -8208,7 +8208,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "chunk_size",
-    "line": 7039,
+    "line": 7040,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_default_generate_barecode_mapping"
@@ -8304,7 +8304,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "class_column",
-    "line": 7327,
+    "line": 7328,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_endodyogeny_defaults"
@@ -8313,7 +8313,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "class_column",
-    "line": 7346,
+    "line": 7347,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_class_proportion_defaults"
@@ -9279,7 +9279,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cmap",
-    "line": 7255,
+    "line": 7256,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -9288,7 +9288,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cmap",
-    "line": 7293,
+    "line": 7294,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_replication_defaults"
@@ -9297,7 +9297,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cmap",
-    "line": 7323,
+    "line": 7324,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_endodyogeny_defaults"
@@ -9654,7 +9654,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "colony_counting",
-    "line": 7136,
+    "line": 7137,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -9692,7 +9692,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "colony_detector",
-    "line": 7144,
+    "line": 7145,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -9766,7 +9766,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "colony_dilution",
-    "line": 7137,
+    "line": 7138,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -9804,7 +9804,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "colony_min_area_px",
-    "line": 7143,
+    "line": 7144,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -9824,7 +9824,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "colony_plated_volume_ul",
-    "line": 7138,
+    "line": 7139,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -9844,7 +9844,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "colony_polarity",
-    "line": 7141,
+    "line": 7142,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -9864,7 +9864,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "colony_threshold",
-    "line": 7142,
+    "line": 7143,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -9884,7 +9884,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "colony_too_few",
-    "line": 7140,
+    "line": 7141,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -9904,7 +9904,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "colony_too_many",
-    "line": 7139,
+    "line": 7140,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -10063,7 +10063,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "column_csv",
-    "line": 7033,
+    "line": 7034,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_default_generate_barecode_mapping"
@@ -10092,7 +10092,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "comp_level",
-    "line": 7038,
+    "line": 7039,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_default_generate_barecode_mapping"
@@ -10139,7 +10139,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "comp_type",
-    "line": 7037,
+    "line": 7038,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_default_generate_barecode_mapping"
@@ -10148,7 +10148,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "comp_type",
-    "line": 7548,
+    "line": 7549,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -10168,7 +10168,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "compartment",
-    "line": 7223,
+    "line": 7224,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -10177,7 +10177,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "compartment",
-    "line": 7273,
+    "line": 7274,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_replication_defaults"
@@ -10186,7 +10186,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "compartment",
-    "line": 7315,
+    "line": 7316,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_endodyogeny_defaults"
@@ -10269,7 +10269,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "confirm_annotations",
-    "line": 7112,
+    "line": 7113,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -10507,7 +10507,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "confluency_channel",
-    "line": 7545,
+    "line": 7546,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -10634,7 +10634,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "control_quantile",
-    "line": 7231,
+    "line": 7232,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -10712,7 +10712,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "correlation",
-    "line": 7068,
+    "line": 7069,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -10981,7 +10981,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "counterfactual_checkpoint",
-    "line": 7090,
+    "line": 7091,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -11001,7 +11001,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "counterfactual_checkpoint_sha256",
-    "line": 7091,
+    "line": 7092,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -11030,7 +11030,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "counterfactual_condition",
-    "line": 7085,
+    "line": 7086,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -11050,7 +11050,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "counterfactual_crops",
-    "line": 7083,
+    "line": 7084,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -11070,7 +11070,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "counterfactual_epochs",
-    "line": 7084,
+    "line": 7085,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -11090,7 +11090,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "counterfactual_generator",
-    "line": 7087,
+    "line": 7088,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -11110,7 +11110,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "counterfactual_strength",
-    "line": 7088,
+    "line": 7089,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -11130,7 +11130,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "counterfactual_structure_weight",
-    "line": 7089,
+    "line": 7090,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -11150,7 +11150,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "counterfactual_target",
-    "line": 7086,
+    "line": 7087,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -11170,7 +11170,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "counterfactuals",
-    "line": 7082,
+    "line": 7083,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -11235,7 +11235,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cov_type",
-    "line": 7548,
+    "line": 7549,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -11459,7 +11459,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "crop_size",
-    "line": 6996,
+    "line": 6997,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_annotate_default_settings"
@@ -11560,7 +11560,7 @@
     "form": "get",
     "function_depth": 2,
     "key": "crop_source",
-    "line": 6620,
+    "line": 6621,
     "module": "spacr.settings",
     "nested": true,
     "qualname": "get_setting_dependencies._streaming"
@@ -11569,7 +11569,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "crop_source",
-    "line": 7010,
+    "line": 7011,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_annotate_default_settings"
@@ -11725,7 +11725,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "custom_model",
-    "line": 3423,
+    "line": 3424,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_identify_masks_finetune_default_settings"
@@ -12062,7 +12062,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "custom_regex",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -12390,7 +12390,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cv_group_by",
-    "line": 7015,
+    "line": 7016,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_annotate_default_settings"
@@ -12738,7 +12738,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "data_column",
-    "line": 7176,
+    "line": 7177,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_graph_importance_defaults"
@@ -12747,7 +12747,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "data_column",
-    "line": 7361,
+    "line": 7362,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_plot_data_from_csv_default_settings"
@@ -12859,7 +12859,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "dataset",
-    "line": 7054,
+    "line": 7055,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -13036,7 +13036,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "db_table_name",
-    "line": 7409,
+    "line": 7410,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -13541,7 +13541,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "diameter",
-    "line": 3404,
+    "line": 3405,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_check_cellpose_models_default_settings"
@@ -13550,7 +13550,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "diameter",
-    "line": 3429,
+    "line": 3430,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_identify_masks_finetune_default_settings"
@@ -13559,7 +13559,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "diameter",
-    "line": 7148,
+    "line": 7149,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -13711,7 +13711,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "drop_straight_tracks",
-    "line": 7405,
+    "line": 7406,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -14182,7 +14182,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "edge_image",
-    "line": 7004,
+    "line": 7005,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_annotate_default_settings"
@@ -14193,7 +14193,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "edge_thickness",
-    "line": 7002,
+    "line": 7003,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_annotate_default_settings"
@@ -14204,7 +14204,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "edge_transparency",
-    "line": 7003,
+    "line": 7004,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_annotate_default_settings"
@@ -15460,7 +15460,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "extracellular_class",
-    "line": 7243,
+    "line": 7244,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -15716,7 +15716,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "feature_importance",
-    "line": 7196,
+    "line": 7197,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_interpret_vision_model_defaults"
@@ -15783,7 +15783,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "figure_confidence",
-    "line": 7110,
+    "line": 7111,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -15830,7 +15830,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "figure_detector",
-    "line": 7108,
+    "line": 7109,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -15877,7 +15877,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "figure_imgsz",
-    "line": 7109,
+    "line": 7110,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -15915,7 +15915,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "figure_read_text",
-    "line": 7111,
+    "line": 7112,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -16227,7 +16227,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "file_type",
-    "line": 7548,
+    "line": 7549,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -16238,7 +16238,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "fill_in",
-    "line": 3443,
+    "line": 3444,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_identify_masks_finetune_default_settings"
@@ -16247,7 +16247,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "fill_in",
-    "line": 7158,
+    "line": 7159,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -16285,7 +16285,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "fill_na",
-    "line": 7045,
+    "line": 7046,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_default_generate_barecode_mapping"
@@ -16650,7 +16650,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "flow_threshold",
-    "line": 3397,
+    "line": 3398,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_check_cellpose_models_default_settings"
@@ -16659,7 +16659,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "flow_threshold",
-    "line": 3431,
+    "line": 3432,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_identify_masks_finetune_default_settings"
@@ -16668,7 +16668,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "flow_threshold",
-    "line": 7150,
+    "line": 7151,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -17326,7 +17326,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "grayscale",
-    "line": 3405,
+    "line": 3406,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_check_cellpose_models_default_settings"
@@ -17335,7 +17335,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "grayscale",
-    "line": 3442,
+    "line": 3443,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_identify_masks_finetune_default_settings"
@@ -17344,7 +17344,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "grayscale",
-    "line": 7163,
+    "line": 7164,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -17526,7 +17526,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "green_channel",
-    "line": 7545,
+    "line": 7546,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -17600,7 +17600,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "grna_csv",
-    "line": 7034,
+    "line": 7035,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_default_generate_barecode_mapping"
@@ -17649,7 +17649,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "group_by_class",
-    "line": 7326,
+    "line": 7327,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_endodyogeny_defaults"
@@ -17669,7 +17669,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "group_column",
-    "line": 7251,
+    "line": 7252,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -17678,7 +17678,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "group_column",
-    "line": 7290,
+    "line": 7291,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_replication_defaults"
@@ -17687,7 +17687,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "group_column",
-    "line": 7314,
+    "line": 7315,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_endodyogeny_defaults"
@@ -17696,7 +17696,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "group_column",
-    "line": 7345,
+    "line": 7346,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_class_proportion_defaults"
@@ -19127,7 +19127,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ig_baseline",
-    "line": 7077,
+    "line": 7078,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -19138,7 +19138,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ig_steps",
-    "line": 7076,
+    "line": 7077,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -19275,7 +19275,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_correction",
-    "line": 6678,
+    "line": 6679,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -19284,7 +19284,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_correction",
-    "line": 6685,
+    "line": 6686,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -19429,7 +19429,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_model",
-    "line": 6680,
+    "line": 6681,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -19438,7 +19438,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_model",
-    "line": 6687,
+    "line": 6688,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -19574,7 +19574,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_vendor_profile",
-    "line": 6679,
+    "line": 6680,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -19583,7 +19583,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_vendor_profile",
-    "line": 6686,
+    "line": 6687,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -20219,7 +20219,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "image_size",
-    "line": 7057,
+    "line": 7058,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -20275,7 +20275,7 @@
     "form": "get",
     "function_depth": 2,
     "key": "image_source",
-    "line": 6620,
+    "line": 6621,
     "module": "spacr.settings",
     "nested": true,
     "qualname": "get_setting_dependencies._streaming"
@@ -20304,7 +20304,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "image_type",
-    "line": 6994,
+    "line": 6995,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_annotate_default_settings"
@@ -20313,7 +20313,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "image_type",
-    "line": 7548,
+    "line": 7549,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -20411,7 +20411,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_mode",
-    "line": 7408,
+    "line": 7409,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -20449,7 +20449,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_n_bins",
-    "line": 7410,
+    "line": 7411,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -20507,7 +20507,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_qc_graphs",
-    "line": 7411,
+    "line": 7412,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -20664,7 +20664,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_qc_scope",
-    "line": 7398,
+    "line": 7399,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -20684,7 +20684,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_intensity_strategy",
-    "line": 7407,
+    "line": 7408,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -20749,7 +20749,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_pca_log_intensity",
-    "line": 7437,
+    "line": 7438,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -20769,7 +20769,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_pca_max_cells",
-    "line": 7438,
+    "line": 7439,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -20809,7 +20809,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_pca_min_gt_separation",
-    "line": 7439,
+    "line": 7440,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -20829,7 +20829,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_pca_min_silhouette",
-    "line": 7440,
+    "line": 7441,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -20849,7 +20849,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_pca_pathogen_weight",
-    "line": 7436,
+    "line": 7437,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -20869,7 +20869,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_pca_random_state",
-    "line": 7435,
+    "line": 7436,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -20898,7 +20898,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_pca_tsne_learning_rate_grid",
-    "line": 7450,
+    "line": 7451,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -20909,7 +20909,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_pca_tsne_perplexity",
-    "line": 7451,
+    "line": 7452,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -20920,7 +20920,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_pca_tsne_perplexity_grid",
-    "line": 7449,
+    "line": 7450,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -20931,7 +20931,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_pca_tsne_search",
-    "line": 7448,
+    "line": 7449,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -20942,7 +20942,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_pca_umap_min_dist",
-    "line": 7446,
+    "line": 7447,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -20953,7 +20953,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_pca_umap_min_dist_grid",
-    "line": 7444,
+    "line": 7445,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -20964,7 +20964,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_pca_umap_n_neighbors",
-    "line": 7445,
+    "line": 7446,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -20975,7 +20975,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_pca_umap_n_neighbors_grid",
-    "line": 7443,
+    "line": 7444,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -20986,7 +20986,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_pca_umap_search",
-    "line": 7442,
+    "line": 7443,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -20997,7 +20997,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_ambiguous_high",
-    "line": 7432,
+    "line": 7433,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -21026,7 +21026,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_ambiguous_low",
-    "line": 7431,
+    "line": 7432,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -21055,7 +21055,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_colsample_bytree",
-    "line": 7422,
+    "line": 7423,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -21075,7 +21075,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_drop_ambiguous",
-    "line": 7430,
+    "line": 7431,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -21104,7 +21104,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_learning_rate",
-    "line": 7420,
+    "line": 7421,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -21124,7 +21124,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_margin",
-    "line": 7427,
+    "line": 7428,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -21144,7 +21144,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_max_depth",
-    "line": 7419,
+    "line": 7420,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -21164,7 +21164,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_min_cells_per_class",
-    "line": 7433,
+    "line": 7434,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -21184,7 +21184,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_n_estimators",
-    "line": 7418,
+    "line": 7419,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -21222,7 +21222,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_n_jobs",
-    "line": 7425,
+    "line": 7426,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -21242,7 +21242,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_proba_column",
-    "line": 7429,
+    "line": 7430,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -21271,7 +21271,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_proba_threshold",
-    "line": 7426,
+    "line": 7427,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -21291,7 +21291,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_random_state",
-    "line": 7424,
+    "line": 7425,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -21311,7 +21311,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_reg_lambda",
-    "line": 7423,
+    "line": 7424,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -21331,7 +21331,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_subsample",
-    "line": 7421,
+    "line": 7422,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -21351,7 +21351,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "infection_xgb_top_features",
-    "line": 7428,
+    "line": 7429,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -21515,7 +21515,7 @@
     "form": "get",
     "function_depth": 2,
     "key": "inference",
-    "line": 6383,
+    "line": 6384,
     "module": "spacr.settings",
     "nested": true,
     "qualname": "get_setting_dependencies.permutation_active"
@@ -21524,7 +21524,7 @@
     "form": "get",
     "function_depth": 2,
     "key": "inference",
-    "line": 6401,
+    "line": 6402,
     "module": "spacr.settings",
     "nested": true,
     "qualname": "get_setting_dependencies.permutation_is_certain"
@@ -21533,7 +21533,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "inference",
-    "line": 6428,
+    "line": 6429,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -21542,16 +21542,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "inference",
-    "line": 6473,
-    "module": "spacr.settings",
-    "nested": false,
-    "qualname": "get_setting_dependencies"
-   },
-   {
-    "form": "get",
-    "function_depth": 1,
-    "key": "inference",
-    "line": 6476,
+    "line": 6474,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -21567,9 +21558,18 @@
    },
    {
     "form": "get",
+    "function_depth": 1,
+    "key": "inference",
+    "line": 6478,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "get_setting_dependencies"
+   },
+   {
+    "form": "get",
     "function_depth": 2,
     "key": "inference",
-    "line": 6484,
+    "line": 6485,
     "module": "spacr.settings",
     "nested": true,
     "qualname": "get_setting_dependencies._is_nonparametric"
@@ -21589,7 +21589,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "inflation_warn",
-    "line": 7238,
+    "line": 7239,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -22096,7 +22096,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "intensity_statistic",
-    "line": 7226,
+    "line": 7227,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -22143,7 +22143,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "intercept",
-    "line": 6451,
+    "line": 6452,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -22152,7 +22152,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "intercept",
-    "line": 6453,
+    "line": 6454,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -22248,7 +22248,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "invert",
-    "line": 3402,
+    "line": 3403,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_check_cellpose_models_default_settings"
@@ -22257,7 +22257,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "invert",
-    "line": 3436,
+    "line": 3437,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_identify_masks_finetune_default_settings"
@@ -22266,7 +22266,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "invert",
-    "line": 7162,
+    "line": 7163,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -23162,7 +23162,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "level",
-    "line": 7252,
+    "line": 7253,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -23171,7 +23171,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "level",
-    "line": 7291,
+    "line": 7292,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_replication_defaults"
@@ -23180,7 +23180,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "level",
-    "line": 7318,
+    "line": 7319,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_endodyogeny_defaults"
@@ -23189,7 +23189,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "level",
-    "line": 7349,
+    "line": 7350,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_class_proportion_defaults"
@@ -23456,7 +23456,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "log_x",
-    "line": 7370,
+    "line": 7371,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_plot_data_from_csv_default_settings"
@@ -23503,7 +23503,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "log_y",
-    "line": 7369,
+    "line": 7370,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_plot_data_from_csv_default_settings"
@@ -23705,7 +23705,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "loss_type",
-    "line": 7548,
+    "line": 7549,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -23882,7 +23882,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "manders_thresholds",
-    "line": 7069,
+    "line": 7070,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -24007,7 +24007,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "masks",
-    "line": 7101,
+    "line": 7102,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -24027,7 +24027,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "max_area",
-    "line": 7313,
+    "line": 7314,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_endodyogeny_defaults"
@@ -24047,7 +24047,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "max_bins",
-    "line": 7320,
+    "line": 7321,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_endodyogeny_defaults"
@@ -24085,7 +24085,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "max_displacement",
-    "line": 7403,
+    "line": 7404,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -24152,7 +24152,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "max_parasite_area",
-    "line": 7241,
+    "line": 7242,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -24161,7 +24161,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "max_parasite_area",
-    "line": 7279,
+    "line": 7280,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_replication_defaults"
@@ -24235,7 +24235,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "max_parasites_per_vacuole",
-    "line": 7280,
+    "line": 7281,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_replication_defaults"
@@ -24351,7 +24351,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "measurement",
-    "line": 7007,
+    "line": 7008,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_annotate_default_settings"
@@ -24866,7 +24866,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "metadata_type",
-    "line": 6655,
+    "line": 6656,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -24875,7 +24875,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "metadata_type",
-    "line": 6660,
+    "line": 6661,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -24884,7 +24884,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "metadata_type",
-    "line": 7548,
+    "line": 7549,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -25306,7 +25306,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "min_area_bin",
-    "line": 7312,
+    "line": 7313,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_endodyogeny_defaults"
@@ -25445,7 +25445,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "min_control_objects",
-    "line": 7232,
+    "line": 7233,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -25568,7 +25568,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "min_objects_for_bimodality",
-    "line": 7234,
+    "line": 7235,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -25606,7 +25606,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "min_objects_for_threshold",
-    "line": 7233,
+    "line": 7234,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -25655,7 +25655,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "min_parasite_area",
-    "line": 7240,
+    "line": 7241,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -25664,7 +25664,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "min_parasite_area",
-    "line": 7278,
+    "line": 7279,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_replication_defaults"
@@ -25738,7 +25738,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "min_parasites_per_well",
-    "line": 7239,
+    "line": 7240,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -25843,7 +25843,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "min_total_intensity",
-    "line": 7242,
+    "line": 7243,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -25919,7 +25919,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "minimum_object_size",
-    "line": 7104,
+    "line": 7105,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -26179,7 +26179,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "mode",
-    "line": 7042,
+    "line": 7043,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_default_generate_barecode_mapping"
@@ -26237,7 +26237,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "model_name",
-    "line": 3422,
+    "line": 3423,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_identify_masks_finetune_default_settings"
@@ -26246,7 +26246,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "model_name",
-    "line": 7165,
+    "line": 7166,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -26383,7 +26383,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "model_path",
-    "line": 7056,
+    "line": 7057,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -26783,7 +26783,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "model_type",
-    "line": 7055,
+    "line": 7056,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -26792,7 +26792,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "model_type",
-    "line": 7548,
+    "line": 7549,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -26877,7 +26877,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "motility_analysis",
-    "line": 7399,
+    "line": 7400,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -26888,7 +26888,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "motility_xlim",
-    "line": 7415,
+    "line": 7416,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -26917,7 +26917,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "motility_ylim",
-    "line": 7416,
+    "line": 7417,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -27723,7 +27723,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 7040,
+    "line": 7041,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_default_generate_barecode_mapping"
@@ -27732,7 +27732,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 7070,
+    "line": 7071,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -27741,7 +27741,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 7204,
+    "line": 7205,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_interpret_vision_model_defaults"
@@ -27750,7 +27750,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 7401,
+    "line": 7402,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -28362,7 +28362,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "non_power_of_two_warn",
-    "line": 7283,
+    "line": 7284,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_replication_defaults"
@@ -29036,7 +29036,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalize",
-    "line": 3399,
+    "line": 3400,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_check_cellpose_models_default_settings"
@@ -29045,7 +29045,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalize",
-    "line": 3434,
+    "line": 3435,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_identify_masks_finetune_default_settings"
@@ -29054,7 +29054,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalize",
-    "line": 7059,
+    "line": 7060,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -29063,7 +29063,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalize",
-    "line": 7159,
+    "line": 7160,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -29229,7 +29229,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalize_channels",
-    "line": 6998,
+    "line": 6999,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_annotate_default_settings"
@@ -29258,7 +29258,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalize_input",
-    "line": 7064,
+    "line": 7065,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -29505,7 +29505,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "nuclei_limit",
-    "line": 7200,
+    "line": 7201,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_interpret_vision_model_defaults"
@@ -29514,7 +29514,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "nuclei_limit",
-    "line": 7317,
+    "line": 7318,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_endodyogeny_defaults"
@@ -29523,7 +29523,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "nuclei_limit",
-    "line": 7348,
+    "line": 7349,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_class_proportion_defaults"
@@ -30109,7 +30109,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 7394,
+    "line": 7395,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -30118,7 +30118,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 7545,
+    "line": 7546,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -30713,7 +30713,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
-    "line": 7544,
+    "line": 7545,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -31205,7 +31205,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "object_distances",
-    "line": 7558,
+    "line": 7559,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -31290,7 +31290,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "object_size",
-    "line": 7005,
+    "line": 7006,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_annotate_default_settings"
@@ -31346,7 +31346,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "object_type",
-    "line": 7081,
+    "line": 7082,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -31355,7 +31355,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "object_type",
-    "line": 7548,
+    "line": 7549,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -31366,7 +31366,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "occlusion_stride",
-    "line": 7075,
+    "line": 7076,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -31377,7 +31377,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "occlusion_window",
-    "line": 7074,
+    "line": 7075,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -31415,7 +31415,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "offset_start",
-    "line": 7031,
+    "line": 7032,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_default_generate_barecode_mapping"
@@ -31774,7 +31774,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "optimizer_type",
-    "line": 7548,
+    "line": 7549,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -32272,7 +32272,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_channel",
-    "line": 7545,
+    "line": 7546,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -33173,7 +33173,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_mask_dim",
-    "line": 7544,
+    "line": 7545,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -33379,7 +33379,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_method",
-    "line": 6667,
+    "line": 6668,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -33388,7 +33388,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "organelle_method",
-    "line": 6671,
+    "line": 6672,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -34305,7 +34305,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_type",
-    "line": 7548,
+    "line": 7549,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -34614,7 +34614,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_channel",
-    "line": 7545,
+    "line": 7546,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -34953,7 +34953,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_mask_dim",
-    "line": 7544,
+    "line": 7545,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -35260,7 +35260,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_type",
-    "line": 7548,
+    "line": 7549,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -35509,7 +35509,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_channel",
-    "line": 7545,
+    "line": 7546,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -35848,7 +35848,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_mask_dim",
-    "line": 7544,
+    "line": 7545,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -36155,7 +36155,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_type",
-    "line": 7548,
+    "line": 7549,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -36404,7 +36404,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_channel",
-    "line": 7545,
+    "line": 7546,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -36743,7 +36743,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_mask_dim",
-    "line": 7544,
+    "line": 7545,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -37050,7 +37050,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_type",
-    "line": 7548,
+    "line": 7549,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -37090,7 +37090,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "outline",
-    "line": 6999,
+    "line": 7000,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_annotate_default_settings"
@@ -37159,7 +37159,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "outline_sigma",
-    "line": 7001,
+    "line": 7002,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_annotate_default_settings"
@@ -37199,7 +37199,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "outline_threshold_factor",
-    "line": 7000,
+    "line": 7001,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_annotate_default_settings"
@@ -37401,7 +37401,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "outside_channel",
-    "line": 7224,
+    "line": 7225,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -37410,7 +37410,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "outside_channel",
-    "line": 7545,
+    "line": 7546,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -37466,7 +37466,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "outside_threshold",
-    "line": 7229,
+    "line": 7230,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -37504,7 +37504,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "outside_threshold_method",
-    "line": 7228,
+    "line": 7229,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -37605,7 +37605,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "overlay",
-    "line": 7066,
+    "line": 7067,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -37645,7 +37645,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_advanced_high",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -37656,7 +37656,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_advanced_low",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -37667,7 +37667,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "overview_advanced_normalization",
-    "line": 6748,
+    "line": 6749,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "_overview_rule_holds"
@@ -37676,7 +37676,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "overview_advanced_normalization",
-    "line": 6767,
+    "line": 6768,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "_overview_rule_reason"
@@ -37685,7 +37685,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_advanced_normalization",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -37705,7 +37705,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_background",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -37725,7 +37725,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_channels",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -37736,7 +37736,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_color_mode",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -37747,7 +37747,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_custom_colors",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -37798,7 +37798,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_enhance_channels",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -37809,7 +37809,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_export_scope",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -37820,7 +37820,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_export_selection",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -37831,7 +37831,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_fixed_high",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -37842,7 +37842,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_fixed_low",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -37853,7 +37853,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_gamma",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -37864,7 +37864,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_ink_intensity",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -37875,7 +37875,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_max_fields",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -37886,7 +37886,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_max_wells",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38070,7 +38070,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_measure_cross_channel",
-    "line": 7545,
+    "line": 7546,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -38282,7 +38282,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_measurements_csv",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38293,7 +38293,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "overview_normalization_method",
-    "line": 6749,
+    "line": 6750,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "_overview_rule_holds"
@@ -38302,7 +38302,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "overview_normalization_method",
-    "line": 6771,
+    "line": 6772,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "_overview_rule_reason"
@@ -38311,7 +38311,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_normalization_method",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38331,7 +38331,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_normalization_scope",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38351,7 +38351,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "overview_normalize",
-    "line": 6747,
+    "line": 6748,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "_overview_rule_holds"
@@ -38360,7 +38360,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "overview_normalize",
-    "line": 6762,
+    "line": 6763,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "_overview_rule_reason"
@@ -38369,7 +38369,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_normalize",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38380,7 +38380,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_normalize_channels",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38540,7 +38540,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_pdf_dpi",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38551,7 +38551,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_pdf_quality",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38571,7 +38571,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_percentile_high",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38591,7 +38591,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_percentile_low",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38611,7 +38611,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_preview_resolution",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38622,7 +38622,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_random_sample",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38786,7 +38786,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_reference_channel",
-    "line": 7545,
+    "line": 7546,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -38795,7 +38795,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_reference_channel",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38824,7 +38824,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_reference_epsilon",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38835,7 +38835,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_representative_method",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38855,7 +38855,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_representatives",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38866,7 +38866,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_sample_count",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38877,7 +38877,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_sample_grouping",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38888,7 +38888,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_sample_seed",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38899,7 +38899,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_sample_selected",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38910,7 +38910,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_tile_size",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38921,7 +38921,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_tile_spacing",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38932,7 +38932,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_wheel",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -38943,7 +38943,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_z_mode",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -39178,7 +39178,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "parasite_count_column",
-    "line": 7277,
+    "line": 7278,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_replication_defaults"
@@ -39216,7 +39216,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "parasite_table",
-    "line": 7222,
+    "line": 7223,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -39225,7 +39225,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "parasite_table",
-    "line": 7272,
+    "line": 7273,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_replication_defaults"
@@ -39795,7 +39795,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pathogen_channel",
-    "line": 7395,
+    "line": 7396,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -39804,7 +39804,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "pathogen_channel",
-    "line": 7545,
+    "line": 7546,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -40289,7 +40289,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pathogen_limit",
-    "line": 7201,
+    "line": 7202,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_interpret_vision_model_defaults"
@@ -40298,7 +40298,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pathogen_limit",
-    "line": 7316,
+    "line": 7317,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_endodyogeny_defaults"
@@ -40307,7 +40307,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pathogen_limit",
-    "line": 7347,
+    "line": 7348,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_class_proportion_defaults"
@@ -40698,7 +40698,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "pathogen_mask_dim",
-    "line": 7544,
+    "line": 7545,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -41070,7 +41070,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pathogen_plate_metadata",
-    "line": 7248,
+    "line": 7249,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -41079,7 +41079,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pathogen_plate_metadata",
-    "line": 7287,
+    "line": 7288,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_replication_defaults"
@@ -41088,7 +41088,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pathogen_plate_metadata",
-    "line": 7309,
+    "line": 7310,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_endodyogeny_defaults"
@@ -41097,7 +41097,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pathogen_plate_metadata",
-    "line": 7342,
+    "line": 7343,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_class_proportion_defaults"
@@ -41411,7 +41411,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pathogen_types",
-    "line": 7247,
+    "line": 7248,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -41420,7 +41420,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pathogen_types",
-    "line": 7286,
+    "line": 7287,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_replication_defaults"
@@ -41429,7 +41429,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pathogen_types",
-    "line": 7308,
+    "line": 7309,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_endodyogeny_defaults"
@@ -41438,7 +41438,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pathogen_types",
-    "line": 7341,
+    "line": 7342,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_class_proportion_defaults"
@@ -41761,7 +41761,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "percentiles",
-    "line": 3401,
+    "line": 3402,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_check_cellpose_models_default_settings"
@@ -41770,7 +41770,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "percentiles",
-    "line": 3435,
+    "line": 3436,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_identify_masks_finetune_default_settings"
@@ -41779,7 +41779,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "percentiles",
-    "line": 7006,
+    "line": 7007,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_annotate_default_settings"
@@ -41788,7 +41788,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "percentiles",
-    "line": 7161,
+    "line": 7162,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -41853,7 +41853,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "permutation_importance",
-    "line": 7197,
+    "line": 7198,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_interpret_vision_model_defaults"
@@ -42104,7 +42104,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pixels_per_um",
-    "line": 7413,
+    "line": 7414,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -42133,7 +42133,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plaque_estimate_growth",
-    "line": 7133,
+    "line": 7134,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -42162,7 +42162,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plaque_formation_hours",
-    "line": 7132,
+    "line": 7133,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -42218,7 +42218,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plaque_growth_reference_hours",
-    "line": 7135,
+    "line": 7136,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -42247,7 +42247,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plaque_growth_reference_um",
-    "line": 7134,
+    "line": 7135,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -42258,7 +42258,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plaque_mode",
-    "line": 7103,
+    "line": 7104,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -42323,7 +42323,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plaque_model",
-    "line": 7102,
+    "line": 7103,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -42361,7 +42361,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plaque_pixels_per_um",
-    "line": 7131,
+    "line": 7132,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -42408,7 +42408,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plaque_well_resize",
-    "line": 7105,
+    "line": 7106,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -42428,7 +42428,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plaque_well_resize_max_factor",
-    "line": 7107,
+    "line": 7108,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -42448,7 +42448,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plaque_well_resize_side",
-    "line": 7106,
+    "line": 7107,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -42678,7 +42678,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plate_format",
-    "line": 7129,
+    "line": 7130,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -43420,7 +43420,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plot",
-    "line": 3403,
+    "line": 3404,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_check_cellpose_models_default_settings"
@@ -43429,7 +43429,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plot",
-    "line": 7062,
+    "line": 7063,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -43883,7 +43883,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "png_type",
-    "line": 7548,
+    "line": 7549,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -45226,7 +45226,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "qc_plot_max_panels",
-    "line": 7254,
+    "line": 7255,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -45311,7 +45311,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "queue_by_uncertainty",
-    "line": 7011,
+    "line": 7012,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_annotate_default_settings"
@@ -45322,7 +45322,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "queue_diversity",
-    "line": 7013,
+    "line": 7014,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_annotate_default_settings"
@@ -45333,7 +45333,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "queue_limit",
-    "line": 7014,
+    "line": 7015,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_annotate_default_settings"
@@ -45344,7 +45344,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "queue_measure",
-    "line": 7012,
+    "line": 7013,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_annotate_default_settings"
@@ -45492,7 +45492,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ram_guard",
-    "line": 7041,
+    "line": 7042,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_default_generate_barecode_mapping"
@@ -45501,7 +45501,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ram_guard",
-    "line": 7071,
+    "line": 7072,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -45510,7 +45510,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ram_guard",
-    "line": 7205,
+    "line": 7206,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_interpret_vision_model_defaults"
@@ -45519,7 +45519,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ram_guard",
-    "line": 7402,
+    "line": 7403,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -45602,7 +45602,7 @@
     "form": "get",
     "function_depth": 2,
     "key": "random_row_column_effects",
-    "line": 6496,
+    "line": 6497,
     "module": "spacr.settings",
     "nested": true,
     "qualname": "get_setting_dependencies._level_is_read"
@@ -45611,7 +45611,7 @@
     "form": "get",
     "function_depth": 2,
     "key": "random_row_column_effects",
-    "line": 6502,
+    "line": 6503,
     "module": "spacr.settings",
     "nested": true,
     "qualname": "get_setting_dependencies._level_reason"
@@ -46120,7 +46120,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "red_channel",
-    "line": 7545,
+    "line": 7546,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -46353,7 +46353,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "regex",
-    "line": 7029,
+    "line": 7030,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_default_generate_barecode_mapping"
@@ -46883,7 +46883,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "regression_type",
-    "line": 6353,
+    "line": 6354,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -46892,7 +46892,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "regression_type",
-    "line": 6356,
+    "line": 6357,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -46901,7 +46901,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "regression_type",
-    "line": 6436,
+    "line": 6437,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -46910,7 +46910,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "regression_type",
-    "line": 6463,
+    "line": 6464,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -46919,7 +46919,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "regression_type",
-    "line": 6466,
+    "line": 6467,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -46928,7 +46928,7 @@
     "form": "get",
     "function_depth": 2,
     "key": "regression_type",
-    "line": 6498,
+    "line": 6499,
     "module": "spacr.settings",
     "nested": true,
     "qualname": "get_setting_dependencies._level_is_read"
@@ -46937,7 +46937,7 @@
     "form": "get",
     "function_depth": 2,
     "key": "regression_type",
-    "line": 6503,
+    "line": 6504,
     "module": "spacr.settings",
     "nested": true,
     "qualname": "get_setting_dependencies._level_reason"
@@ -46946,7 +46946,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "regression_type",
-    "line": 7548,
+    "line": 7549,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -47020,7 +47020,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "remove_background",
-    "line": 3406,
+    "line": 3407,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_check_cellpose_models_default_settings"
@@ -47029,7 +47029,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "remove_background",
-    "line": 3426,
+    "line": 3427,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_identify_masks_finetune_default_settings"
@@ -47038,7 +47038,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "remove_background",
-    "line": 7164,
+    "line": 7165,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -47047,7 +47047,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "remove_background",
-    "line": 7670,
+    "line": 7671,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "_set_organelle_defaults"
@@ -47397,7 +47397,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "replication_method",
-    "line": 7266,
+    "line": 7267,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_replication_defaults"
@@ -47426,7 +47426,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "require_host_cell",
-    "line": 7281,
+    "line": 7282,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_replication_defaults"
@@ -47473,7 +47473,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "resample",
-    "line": 3441,
+    "line": 3442,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_identify_masks_finetune_default_settings"
@@ -47482,7 +47482,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "resample",
-    "line": 7157,
+    "line": 7158,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -47511,7 +47511,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "rescale",
-    "line": 3440,
+    "line": 3441,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_identify_masks_finetune_default_settings"
@@ -47520,7 +47520,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "rescale",
-    "line": 7156,
+    "line": 7157,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -47540,7 +47540,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "resize",
-    "line": 3410,
+    "line": 3411,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_check_cellpose_models_default_settings"
@@ -47549,7 +47549,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "resize",
-    "line": 3437,
+    "line": 3438,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_identify_masks_finetune_default_settings"
@@ -47558,7 +47558,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "resize",
-    "line": 7153,
+    "line": 7154,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -47955,7 +47955,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "reuse_existing_measurements",
-    "line": 7397,
+    "line": 7398,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -48171,7 +48171,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "row_csv",
-    "line": 7035,
+    "line": 7036,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_default_generate_barecode_mapping"
@@ -48424,7 +48424,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "sanity_check",
-    "line": 7080,
+    "line": 7081,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -48894,7 +48894,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "save",
-    "line": 3398,
+    "line": 3399,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_check_cellpose_models_default_settings"
@@ -48903,7 +48903,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "save",
-    "line": 3432,
+    "line": 3433,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_identify_masks_finetune_default_settings"
@@ -48912,7 +48912,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "save",
-    "line": 7063,
+    "line": 7064,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -48921,7 +48921,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "save",
-    "line": 7151,
+    "line": 7152,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -48930,7 +48930,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "save",
-    "line": 7181,
+    "line": 7182,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_graph_importance_defaults"
@@ -48939,7 +48939,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "save",
-    "line": 7199,
+    "line": 7200,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_interpret_vision_model_defaults"
@@ -48948,7 +48948,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "save",
-    "line": 7256,
+    "line": 7257,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -48957,7 +48957,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "save",
-    "line": 7294,
+    "line": 7295,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_replication_defaults"
@@ -48966,7 +48966,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "save",
-    "line": 7321,
+    "line": 7322,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_endodyogeny_defaults"
@@ -48975,7 +48975,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "save",
-    "line": 7350,
+    "line": 7351,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_class_proportion_defaults"
@@ -48984,7 +48984,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "save",
-    "line": 7367,
+    "line": 7368,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_plot_data_from_csv_default_settings"
@@ -49226,7 +49226,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "save_h5",
-    "line": 7036,
+    "line": 7037,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_default_generate_barecode_mapping"
@@ -49564,7 +49564,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "score_column",
-    "line": 7207,
+    "line": 7208,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_interpret_vision_model_defaults"
@@ -49759,7 +49759,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "scores",
-    "line": 7194,
+    "line": 7195,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_interpret_vision_model_defaults"
@@ -49806,7 +49806,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "seconds_per_frame",
-    "line": 7414,
+    "line": 7415,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -49835,7 +49835,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "seed_wells_from_cells",
-    "line": 7244,
+    "line": 7245,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -49844,7 +49844,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "seed_wells_from_cells",
-    "line": 7282,
+    "line": 7283,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_replication_defaults"
@@ -50396,7 +50396,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "shap",
-    "line": 7198,
+    "line": 7199,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_interpret_vision_model_defaults"
@@ -50434,7 +50434,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "shap_sample",
-    "line": 7203,
+    "line": 7204,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_interpret_vision_model_defaults"
@@ -50472,7 +50472,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "shuffle",
-    "line": 7067,
+    "line": 7068,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -50546,7 +50546,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "single_direction",
-    "line": 7043,
+    "line": 7044,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_default_generate_barecode_mapping"
@@ -50642,7 +50642,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "smoothgrad_samples",
-    "line": 7072,
+    "line": 7073,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -50680,7 +50680,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "smoothgrad_sigma",
-    "line": 7073,
+    "line": 7074,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -51080,7 +51080,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "spatial_measurements",
-    "line": 7558,
+    "line": 7559,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -53800,7 +53800,16 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 3421,
+    "line": 3395,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "get_check_cellpose_models_default_settings"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "src",
+    "line": 3422,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_identify_masks_finetune_default_settings"
@@ -53809,7 +53818,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 6993,
+    "line": 6994,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_annotate_default_settings"
@@ -53818,7 +53827,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 7027,
+    "line": 7028,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_default_generate_barecode_mapping"
@@ -53827,7 +53836,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 7100,
+    "line": 7101,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -53836,7 +53845,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 7193,
+    "line": 7194,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_interpret_vision_model_defaults"
@@ -53845,7 +53854,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 7221,
+    "line": 7222,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -53854,7 +53863,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 7271,
+    "line": 7272,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_replication_defaults"
@@ -53863,7 +53872,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 7304,
+    "line": 7305,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_endodyogeny_defaults"
@@ -53872,7 +53881,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 7337,
+    "line": 7338,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_class_proportion_defaults"
@@ -53881,7 +53890,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 7360,
+    "line": 7361,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_plot_data_from_csv_default_settings"
@@ -53890,7 +53899,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 7391,
+    "line": 7392,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -53899,7 +53908,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "src",
-    "line": 8388,
+    "line": 8389,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_overview_default_settings"
@@ -54828,7 +54837,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "stain_baseline_wells",
-    "line": 7230,
+    "line": 7231,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -54960,7 +54969,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "straightness_threshold",
-    "line": 7406,
+    "line": 7407,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -54989,7 +54998,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "stream_method",
-    "line": 6643,
+    "line": 6644,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -54998,7 +55007,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "stream_method",
-    "line": 6647,
+    "line": 6648,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -55804,7 +55813,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "tables",
-    "line": 7195,
+    "line": 7196,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_interpret_vision_model_defaults"
@@ -55813,7 +55822,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "tables",
-    "line": 7305,
+    "line": 7306,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_endodyogeny_defaults"
@@ -55822,7 +55831,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "tables",
-    "line": 7338,
+    "line": 7339,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_class_proportion_defaults"
@@ -56149,7 +56158,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "target_height",
-    "line": 3411,
+    "line": 3412,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_check_cellpose_models_default_settings"
@@ -56158,7 +56167,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "target_height",
-    "line": 3438,
+    "line": 3439,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_identify_masks_finetune_default_settings"
@@ -56167,7 +56176,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "target_height",
-    "line": 7154,
+    "line": 7155,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -56333,7 +56342,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "target_layer",
-    "line": 7061,
+    "line": 7062,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
@@ -56371,7 +56380,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "target_sequence",
-    "line": 7030,
+    "line": 7031,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_default_generate_barecode_mapping"
@@ -56496,7 +56505,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "target_width",
-    "line": 3412,
+    "line": 3413,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_check_cellpose_models_default_settings"
@@ -56505,7 +56514,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "target_width",
-    "line": 3439,
+    "line": 3440,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_identify_masks_finetune_default_settings"
@@ -56514,7 +56523,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "target_width",
-    "line": 7155,
+    "line": 7156,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -56734,7 +56743,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "test",
-    "line": 7044,
+    "line": 7045,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_default_generate_barecode_mapping"
@@ -57128,7 +57137,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "text_ignore",
-    "line": 7121,
+    "line": 7122,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -57139,7 +57148,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "text_min_confidence",
-    "line": 7120,
+    "line": 7121,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -57150,7 +57159,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "text_order",
-    "line": 7122,
+    "line": 7123,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -57161,7 +57170,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "text_panel_reach",
-    "line": 7119,
+    "line": 7120,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -57172,7 +57181,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "text_reach_above",
-    "line": 7113,
+    "line": 7114,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -57183,7 +57192,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "text_reach_below",
-    "line": 7115,
+    "line": 7116,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -57194,7 +57203,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "text_reach_left",
-    "line": 7114,
+    "line": 7115,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -57205,7 +57214,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "text_reread",
-    "line": 7124,
+    "line": 7125,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -57216,7 +57225,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "text_reread_scale",
-    "line": 7125,
+    "line": 7126,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -57227,7 +57236,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "text_separator",
-    "line": 7123,
+    "line": 7124,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -57238,7 +57247,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "text_use_above",
-    "line": 7116,
+    "line": 7117,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -57249,7 +57258,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "text_use_below",
-    "line": 7118,
+    "line": 7119,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -57260,7 +57269,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "text_use_left",
-    "line": 7117,
+    "line": 7118,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -57280,7 +57289,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "threshold",
-    "line": 7008,
+    "line": 7009,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_annotate_default_settings"
@@ -57318,7 +57327,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "threshold_agreement_tolerance",
-    "line": 7236,
+    "line": 7237,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -57356,7 +57365,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "threshold_direction",
-    "line": 7009,
+    "line": 7010,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_annotate_default_settings"
@@ -57470,7 +57479,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "threshold_sensitivity",
-    "line": 7237,
+    "line": 7238,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -58526,7 +58535,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 6692,
+    "line": 6693,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -58535,7 +58544,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse",
-    "line": 6701,
+    "line": 6702,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -59595,7 +59604,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "top_features",
-    "line": 7202,
+    "line": 7203,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_interpret_vision_model_defaults"
@@ -59822,7 +59831,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "total_channel",
-    "line": 7225,
+    "line": 7226,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -59831,7 +59840,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "total_channel",
-    "line": 7545,
+    "line": 7546,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -59878,7 +59887,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "track_outlier_zscore",
-    "line": 7404,
+    "line": 7405,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -59965,7 +59974,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "tracked_object",
-    "line": 7396,
+    "line": 7397,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
@@ -60367,7 +60376,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "transform",
-    "line": 6437,
+    "line": 6438,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -60376,7 +60385,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "transform",
-    "line": 6440,
+    "line": 6441,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
@@ -60443,7 +60452,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "treatment_plate_metadata",
-    "line": 7250,
+    "line": 7251,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -60452,7 +60461,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "treatment_plate_metadata",
-    "line": 7289,
+    "line": 7290,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_replication_defaults"
@@ -60461,7 +60470,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "treatment_plate_metadata",
-    "line": 7311,
+    "line": 7312,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_endodyogeny_defaults"
@@ -60470,7 +60479,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "treatment_plate_metadata",
-    "line": 7344,
+    "line": 7345,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_class_proportion_defaults"
@@ -60688,7 +60697,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "treatments",
-    "line": 7249,
+    "line": 7250,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -60697,7 +60706,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "treatments",
-    "line": 7288,
+    "line": 7289,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_replication_defaults"
@@ -60706,7 +60715,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "treatments",
-    "line": 7310,
+    "line": 7311,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_endodyogeny_defaults"
@@ -60715,7 +60724,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "treatments",
-    "line": 7343,
+    "line": 7344,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_class_proportion_defaults"
@@ -61184,7 +61193,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "um_per_px",
-    "line": 7319,
+    "line": 7320,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_endodyogeny_defaults"
@@ -61907,7 +61916,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "vacuole_key",
-    "line": 7274,
+    "line": 7275,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_replication_defaults"
@@ -61945,7 +61954,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "vacuole_link_distance",
-    "line": 7275,
+    "line": 7276,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_replication_defaults"
@@ -61992,7 +62001,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "vacuole_link_factor",
-    "line": 7276,
+    "line": 7277,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_replication_defaults"
@@ -62907,7 +62916,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "verbose",
-    "line": 3409,
+    "line": 3410,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_check_cellpose_models_default_settings"
@@ -62916,7 +62925,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "verbose",
-    "line": 3433,
+    "line": 3434,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_identify_masks_finetune_default_settings"
@@ -62925,7 +62934,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "verbose",
-    "line": 7152,
+    "line": 7153,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -62934,7 +62943,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "verbose",
-    "line": 7257,
+    "line": 7258,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_invasion_defaults"
@@ -62943,7 +62952,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "verbose",
-    "line": 7295,
+    "line": 7296,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_replication_defaults"
@@ -62952,7 +62961,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "verbose",
-    "line": 7324,
+    "line": 7325,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_endodyogeny_defaults"
@@ -62961,7 +62970,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "verbose",
-    "line": 7351,
+    "line": 7352,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_analyze_class_proportion_defaults"
@@ -62970,7 +62979,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "verbose",
-    "line": 7375,
+    "line": 7376,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_plot_data_from_csv_default_settings"
@@ -62979,7 +62988,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "verbose",
-    "line": 7655,
+    "line": 7656,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "_set_organelle_defaults"
@@ -62988,7 +62997,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "verbose",
-    "line": 7659,
+    "line": 7660,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "_set_organelle_defaults"
@@ -62997,7 +63006,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "verbose",
-    "line": 7664,
+    "line": 7665,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "_set_organelle_defaults"
@@ -63496,7 +63505,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "viability_dead_channel",
-    "line": 7545,
+    "line": 7546,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -63696,7 +63705,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "viability_live_channel",
-    "line": 7545,
+    "line": 7546,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
@@ -64349,7 +64358,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "well_confidence",
-    "line": 7127,
+    "line": 7128,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -64378,7 +64387,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "well_detection",
-    "line": 7126,
+    "line": 7127,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -64416,7 +64425,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "well_diameter_mm",
-    "line": 7130,
+    "line": 7131,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -64445,7 +64454,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "well_pad",
-    "line": 7128,
+    "line": 7129,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_analyze_plaque_settings"
@@ -64523,7 +64532,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "window_length",
-    "line": 7032,
+    "line": 7033,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "set_default_generate_barecode_mapping"
@@ -64777,7 +64786,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "wound_channel",
-    "line": 7545,
+    "line": 7546,
     "module": "spacr.settings",
     "nested": false,
     "qualname": "organelle_measurement_caveats"
