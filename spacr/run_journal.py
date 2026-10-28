@@ -2287,8 +2287,11 @@ def search_runs(
 
     Search covers the run id, module, status, settings keys and values, input
     and output paths, warnings, failure traceback, and environment versions.
-    Corrupt or interrupted run folders remain visible with an explicit
-    ``"corrupt"``/``"running"`` status and diagnostic warnings.
+    Corrupt run folders remain visible with ``"corrupt"`` status and
+    diagnostic warnings. A stored ``"running"`` record is displayed as
+    ``"interrupted"`` only when its recorded owner is provably gone; this
+    does not change the stored status. Unverifiable owners, including
+    records from other hosts, remain ``"running"``.
 
     :param query: whitespace-separated case-insensitive terms; every term must
         occur somewhere in the record.
