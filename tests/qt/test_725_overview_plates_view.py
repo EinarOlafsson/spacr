@@ -829,3 +829,203 @@ def test_original_steps_reload_real_main_and_stacked_images_without_changing_sou
     assert view._main_view_field.identity == identity and panel.field.plate == 'plateC'
     assert view.view._item.pixmap().toImage() == main
     assert panel.view._item.pixmap().toImage() == stacked
+
+
+def test_plate_area_menu_identifies_the_real_child_owner_and_hides_only_that_plate(view, qtbot):
+    view._set_plates_view('side')
+    table = view._plate_tables['plateB']
+    header = _header(view, 'plateB')
+    view._plate_scroll.ensureWidgetVisible(header)
+    QApplication.processEvents()
+    body = view._plate_panel.body
+    point = header.mapTo(body, header.rect().center())
+    assert body.rect().contains(point) and body.childAt(point) is not None
+    before = tuple(field.identity for field in view._all_fields)
+    menu = view._plate_area_menu(point)
+    try:
+        hide = next(action for action in menu.actions() if action.text() == 'Hide plate plateB')
+        assert hide.isEnabled()
+        hide.trigger()
+        assert set(view._plate_tables) == {'plateA', 'plateC'}
+        assert table not in view._plate_tables.values()
+        assert tuple(field.identity for field in view._all_fields) == before
+    finally:
+        menu.close()
+        _settle_plate_auxiliary_jobs(view, qtbot)
+
+
+def test_remove_plate_toolbar_keeps_the_final_plate_and_every_original_file(view, qtbot):
+    from pathlib import Path
+
+    originals = {Path(path): Path(path).read_bytes()
+                 for field in view._all_fields for _channel, path in field.files}
+    remove = view._plate_buttons[3]
+    view.plates.setCurrentIndex(view.plates.findData('plateB'))
+    remove.click()
+    _settle_plate_auxiliary_jobs(view, qtbot)
+    assert {field.plate for field in view._all_fields} == {'plateA', 'plateC'}
+    view.plates.setCurrentIndex(view.plates.findData('plateC'))
+    remove.click()
+    _settle_plate_auxiliary_jobs(view, qtbot)
+    last = tuple(view._all_fields)
+    assert {field.plate for field in last} == {'plateA'}
+    assert view.plates.count() == 1 and not remove.isEnabled()
+    remove.click()
+    view._remove_shown_plate()
+    assert tuple(view._all_fields) == last
+    assert all(path.read_bytes() == content for path, content in originals.items())
+
+
+def test_smaller_load_cap_drops_a_real_field_selection_but_keeps_the_indexed_source(view, qtbot):
+    view._set_plates_view('side')
+    assert view._open_wells([('plateA', 'A02')]) == (('plateA', 'A02'),)
+    _settle_plate_auxiliary_jobs(view, qtbot)
+    fields = view.fields
+    fields.doItemsLayout()
+    item = fields.item(0)
+    field = item.data(Qt.UserRole)
+    item.setSelected(True)
+    assert field.well == 'A02' and field.identity in view._selected_fields
+    assert field.identity in view._selected_field_options
+    originals = tuple(view._all_fields)
+    view._set_load_limits('1', None)
+    _settle_plate_auxiliary_jobs(view, qtbot)
+    assert view._all_fields == originals and len(view._all_fields) == 9
+    assert len(view._fields) == 3 and all(field.well == 'A01' for field in view._fields)
+    assert field.identity not in view._selected_fields
+    assert field.identity not in view._selected_field_options
+    assert all(browser.Path(path).exists() for _channel, path in field.files)
+
+
+@pytest.mark.parametrize('change', ['color', 'enhancement'])
+def test_main_image_display_changes_reload_the_selected_field_without_touching_raw_data(view, qtbot, change):
+    from pathlib import Path
+    from PySide6.QtTest import QSignalSpy
+    from spacr.qt.detect_chain import NO_CHAIN
+
+    view._well(_item(view, view.plates.currentData(), 'A01'))
+    qtbot.waitUntil(lambda: view.fields.count() > 0, timeout=10000)
+    view.fields.setCurrentRow(0)
+    view._field(view.fields.item(0))
+    qtbot.waitUntil(lambda: view._individual and view.view._item is not None
+                    and not view._image_pending, timeout=10000)
+    _settle_plate_auxiliary_jobs(view, qtbot)
+    field = view._main_view_field
+    originals = {Path(path): Path(path).read_bytes() for _channel, path in field.files}
+    completed = QSignalSpy(view._image_jobs.job_finished)
+    if change == 'color':
+        view._set_color_mode('greys')
+        assert view._color_mode == 'greys'
+    else:
+        chain = NO_CHAIN._replace(gamma=2.)
+        view._set_enhancement(chain)
+        assert view._enhancement == chain
+    _settle_plate_auxiliary_jobs(view, qtbot)
+    assert completed.count() >= 1 and not view._image_pending
+    assert view._main_view_field is field and view._individual
+    assert not view.view._item.pixmap().isNull()
+    assert all(path.read_bytes() == content for path, content in originals.items())
+
+
+@pytest.mark.parametrize('owner', ['well', 'field'])
+def test_blank_context_menu_retains_navigation_without_inventing_an_image_selection(view, qtbot, owner):
+    from PySide6.QtCore import QPoint
+
+    view._set_plates_view('side')
+    if owner == 'well':
+        view._focus_plate_table(view._plate_tables['plateA'])
+        view._zoom_plate()
+        table = view.wells
+        assert table.item(1, 2) is None
+        point = QPoint(table.columnViewportPosition(2) + table.columnWidth(2) // 2,
+                       table.rowViewportPosition(1) + table.rowHeight(1) // 2)
+        assert table.viewport().rect().contains(point) and table.itemAt(point) is None
+        menu = view._well_menu(point)
+        target_caption = 'Annotate selected wells…'
+    else:
+        assert view._open_wells([('plateA', 'A01')]) == (('plateA', 'A01'),)
+        _settle_plate_auxiliary_jobs(view, qtbot)
+        fields = view.fields
+        fields.doItemsLayout()
+        point = fields.viewport().rect().bottomRight()
+        assert view._tile_at(fields, point) is None
+        view._field_menu(fields, point)
+        menu = view._image_menu_shown
+        target_caption = 'Open selected images'
+    try:
+        target = next(action for action in menu.actions() if action.text() == target_caption)
+        assert not target.isEnabled()
+        assert any(action.text() == 'Back to plate' for action in menu.actions())
+        assert not view._selected_fields and not view._selected_wells
+        assert not any(action.text() == 'Image settings…' for action in menu.actions())
+    finally:
+        menu.close()
+        _settle_plate_auxiliary_jobs(view, qtbot)
+
+
+class _OrderedPlateReadouts:
+    """Let the previous field finish while a different real field is still reading."""
+
+    def __init__(self, read, fields):
+        from threading import Event
+
+        self.read = read
+        self.entered = {field.identity: Event() for field in fields}
+        self.release = {field.identity: Event() for field in fields}
+
+    def __call__(self, field, axes):
+        self.entered[field.identity].set()
+        assert self.release[field.identity].wait(10)
+        return self.read(field, axes)
+
+
+def test_previous_field_readout_completion_does_not_erase_the_current_loading_key(view, qtbot, monkeypatch):
+    first = _stacked_plate_image(view, qtbot, 'plateA')
+    second = _stacked_plate_image(view, qtbot, 'plateB')
+    read = _OrderedPlateReadouts(browser._overview_readout_planes, [first.field, second.field])
+    monkeypatch.setattr(browser, '_overview_readout_planes', read)
+    try:
+        _move_plate_image_cursor(first.view)
+        qtbot.waitUntil(read.entered[first.field.identity].is_set, timeout=5000)
+        _move_plate_image_cursor(second.view)
+        qtbot.waitUntil(read.entered[second.field.identity].is_set, timeout=5000)
+        axes = tuple(sorted(view._axis_options().items()))
+        current_key = second.field.identity, axes
+        assert view._readout_loading == current_key
+        read.release[first.field.identity].set()
+        qtbot.waitUntil(lambda: view._readout_planes is not None
+                        and view._readout_planes[0] == (first.field.identity, axes), timeout=5000)
+        assert view._readout_loading == current_key
+        assert 'Plate plateB' in view._pixel_readout.text()
+        assert 'reading pixel values' in view._pixel_readout.text()
+        assert 'Channel 1: 101' not in view._pixel_readout.text()
+        read.release[second.field.identity].set()
+        qtbot.waitUntil(lambda: 'Channel 1: 1101' in view._pixel_readout.text()
+                        and 'Channel 2: 1102' in view._pixel_readout.text(), timeout=10000)
+        assert view._readout_planes[0] == current_key and view._readout_loading is None
+    finally:
+        for release in read.release.values():
+            release.set()
+        view._clear_pixel_readout()
+        _settle_plate_auxiliary_jobs(view, qtbot)
+
+
+def test_persisted_invalid_image_key_is_ignored_while_valid_image_and_plate_state_survive(view, qtbot):
+    from copy import deepcopy
+
+    field = view._fields[0]
+    key = browser._overview_image_key(field)
+    view._persist_view_state()
+    _settle_plate_auxiliary_jobs(view, qtbot)
+    path = browser._overview_view_state_path(view._metadata_source)
+    state = json.loads(path.read_text())
+    plates = deepcopy(state['plates'])
+    options = deepcopy(state['options'])
+    state['images'] = {browser._overview_key_text(key): {'brightness': .2},
+                       'not a JSON image key': {'brightness': .9}}
+    path.write_text(json.dumps(state))
+    view._restore_view_state()
+    _settle_plate_auxiliary_jobs(view, qtbot)
+    assert view._image_overrides == {key: {'brightness': .2}}
+    assert view._view_state['plates'] == plates and view._view_state['options'] == options
+    assert tuple(sorted({field.plate for field in view._fields})) == PLATES
