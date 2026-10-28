@@ -262,9 +262,11 @@ def test_canceled_real_model_picker_keeps_the_field_and_model_settings(qtbot, mo
     screen.close()
 
 
-def test_ram_guard_choices_change_only_the_requested_policy_and_recheck_after_freeing_memory(qtbot):
+def test_ram_guard_choices_change_only_the_requested_policy_and_recheck_after_freeing_memory(qtbot, monkeypatch):
+    from spacr import measure
     from spacr.qt.screens.app_screen import AppScreen
 
+    monkeypatch.setattr(measure.mp, 'cpu_count', lambda: 8)
     screen = AppScreen('measure')
     qtbot.addWidget(screen)
     for choice in ('use', 'keep', 'free', 'cancel'):
