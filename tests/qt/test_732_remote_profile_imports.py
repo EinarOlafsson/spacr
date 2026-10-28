@@ -239,3 +239,65 @@ def test_profile_edited_after_allocation_cannot_redirect_import_to_new_host(scre
     document['job']['allocation_id'] = holder.job_id
     with pytest.raises(RemoteExecutionError, match='allocation is unavailable'):
         screen._prepare_profile_transfer(document, 'job')
+
+
+def test_nested_profile_secrets_are_refused_without_echoing_or_writing(screen, tmp_path, monkeypatch):
+    document = screen._profile_transfer_document('job')
+    document['job']['settings_snapshot']['steps'] = [{'token': '${TOKEN}'}, {'token': False}]
+    assert dj._validate_profile_transfer(document, 'job') == document
+    document['job']['settings_snapshot']['steps'][0]['token'] = 'private-token-must-not-appear'
+    path = tmp_path / 'nested-secret.json'
+    path.write_text(json.dumps(document))
+    before = screen.manager.profiles.path.read_bytes()
+    _file_dialogs(monkeypatch, path)
+    seen = []
+    _preview(monkeypatch, True, seen)
+    screen._import_profile_transfer('job')
+    assert seen == [] and screen.manager.profiles.path.read_bytes() == before
+    assert 'private-token-must-not-appear' not in screen._status.text()
+    assert 'may not contain passwords' in screen._status.text()
+    assert screen.manager.jobs.list() == []
+
+
+def test_profile_schema_types_and_metadata_budget_refuse_without_mutation(screen):
+    original = screen._profile_transfer_document('job')
+    before = screen.manager.profiles.path.read_bytes()
+    changes = [('version', True), ('resources', {'cpus': 7}), ('allocated_gpus', 1),
+               ('settings_snapshot', []), ('settings_path', '\0invalid')]
+    for key, value in changes:
+        document = json.loads(json.dumps(original))
+        target = document if key == 'version' else document['profile'] if key == 'resources' else document['job']
+        target[key] = value
+        with pytest.raises(RemoteExecutionError, match='unsupported or incompatible'):
+            dj._validate_profile_transfer(document, 'job')
+    document = json.loads(json.dumps(original))
+    document['job']['settings_snapshot']['notes'] = 'x' * (2 * 1024 * 1024)
+    with pytest.raises(RemoteExecutionError, match='too large'):
+        dj._validate_profile_transfer(document, 'job')
+    connection = screen._profile_transfer_document('connection')
+    del connection['profile']['host']
+    with pytest.raises(RemoteExecutionError, match='unsupported or incompatible'):
+        dj._validate_profile_transfer(connection, 'connection')
+    assert screen._profile_transfer_document('job') == original
+    assert screen.manager.profiles.path.read_bytes() == before and screen.manager.jobs.list() == []
+
+
+def test_busy_transfers_and_failed_atomic_export_preserve_existing_store(screen, tmp_path, monkeypatch):
+    before = screen.manager.profiles.path.read_bytes()
+    monkeypatch.setattr(QFileDialog, 'getSaveFileName', _no_remote)
+    monkeypatch.setattr(QFileDialog, 'getOpenFileName', _no_remote)
+    screen._busy = True
+    try:
+        screen._save_profile_transfer('job')
+        screen._import_profile_transfer('job')
+    finally:
+        screen._busy = False
+    target = tmp_path / 'existing-directory'
+    target.mkdir()
+    sentinel = target / 'keep.txt'
+    sentinel.write_text('preserve this directory')
+    monkeypatch.setattr(QFileDialog, 'getSaveFileName', lambda *args: (str(target), ''))
+    screen._save_profile_transfer('job')
+    assert sentinel.read_text() == 'preserve this directory'
+    assert 'operation failed' in screen._status.text()
+    assert screen.manager.profiles.path.read_bytes() == before and screen.manager.jobs.list() == []

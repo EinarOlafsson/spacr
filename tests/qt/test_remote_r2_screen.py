@@ -393,3 +393,94 @@ def test_a_logged_operation_failure_has_one_central_occurrence_and_real_console_
     assert "spaCR ERROR" in screen._console.as_text()
     assert str(failure) in screen._console.as_text()
     assert str(failure) in screen._status.text()
+
+
+def _raise_owned_remote_error(error, *args, **kwargs):
+    raise error
+
+
+def test_editor_presets_and_readonly_preview_preserve_real_script_text(qtbot, qt_theme_applied, state):
+    from PySide6.QtWidgets import QDialogButtonBox
+    from PySide6.QtGui import QTextCursor
+
+    screen = _screen(qtbot, state, Runner())
+    key, lines = next((key, value) for key, value in ui._ENV_PRESETS.items() if value)
+    screen._env_preset.setCurrentIndex(screen._env_preset.findData(key))
+    screen._env_edit.setPlainText('echo before\n')
+    screen._add_env_lines()
+    assert screen._env_edit.toPlainText() == 'echo before\n' + lines
+    screen._env_edit.clear()
+    screen._add_env_lines()
+    assert screen._env_edit.toPlainText() == lines
+    screen._script_edit.setPlainText('run ')
+    screen._script_edit.moveCursor(QTextCursor.End)
+    placeholder = str(screen._placeholder.currentData())
+    screen._insert_placeholder()
+    assert screen._script_edit.toPlainText() == 'run {' + placeholder + '}'
+    screen._script_edit.setPlainText('#!/bin/bash\n{run_command}\n')
+    text = screen._preview_script()
+    assert text.startswith('#!/bin/bash') and '{run_command}' not in text and 'spacr-run' in text
+    assert text.rstrip() in screen._console.as_text()
+    preview = ui._ScriptPreviewDialog(screen, text, confirm=False)
+    qtbot.addWidget(preview)
+    assert preview.text.isReadOnly() and preview.text.toPlainText() == text
+    buttons = preview.findChild(QDialogButtonBox)
+    assert buttons.button(QDialogButtonBox.Close) is not None
+    assert buttons.button(QDialogButtonBox.Cancel) is None
+    assert screen.manager.jobs.list() == []
+
+
+def test_missing_profile_and_preview_errors_never_submit(qtbot, qt_theme_applied, state, monkeypatch):
+    import functools
+    from spacr.remote_execution import RemoteExecutionError
+
+    runner = Runner()
+    screen = _screen(qtbot, state, runner)
+    error = RemoteExecutionError('preview unavailable')
+    monkeypatch.setattr(ui, '_preview_job_script', functools.partial(_raise_owned_remote_error, error))
+    assert screen._preview_script() == ''
+    assert 'preview unavailable' in screen._console.as_text()
+    monkeypatch.setattr(screen.manager.profiles, 'get', functools.partial(_raise_owned_remote_error, error))
+    assert screen._current_profile() is None
+    with pytest.raises(RemoteExecutionError, match='Create an execution profile first'):
+        screen._profile_transfer_document('connection')
+    screen._read_cluster()
+    assert 'Choose an SSH' in screen._status.text()
+    screen._copy_allocation_shell()
+    assert 'Choose a running allocation' in screen._status.text()
+    assert screen.manager.jobs.list() == [] and runner.calls == []
+
+
+def test_signin_copy_preserves_clipboard_on_validation_error(qtbot, qt_theme_applied, monkeypatch):
+    import functools
+    from PySide6.QtWidgets import QApplication
+    from spacr.remote_execution import RemoteExecutionError
+
+    dialog = ExecutionProfileDialog(profile=ExecutionProfile('cluster', 'ssh', host='fake-host', workdir='/work'))
+    qtbot.addWidget(dialog)
+    expected = ui._signin_command(dialog._connection_profile())
+    dialog._copy_signin_command()
+    assert QApplication.clipboard().text() == expected
+    assert expected in dialog._error.text()
+    monkeypatch.setattr(ui, '_signin_command', functools.partial(
+        _raise_owned_remote_error, RemoteExecutionError('sign-in command unavailable')))
+    dialog._copy_signin_command()
+    assert dialog._error.text() == 'sign-in command unavailable'
+    assert QApplication.clipboard().text() == expected
+
+
+def test_failed_late_cluster_cache_does_not_replace_selected_profile_state(qtbot, qt_theme_applied, state, monkeypatch):
+    import functools
+    from spacr.remote_execution import RemoteExecutionError, _parse_cluster_probe
+
+    screen = _screen(qtbot, state, Runner())
+    original = screen._cluster
+    profile_before = screen.manager.profiles.path.read_bytes()
+    monkeypatch.setattr(ui, '_save_cluster_cache', functools.partial(
+        _raise_owned_remote_error, RemoteExecutionError('cluster cache unavailable')))
+    screen._cluster_read('another-profile', _parse_cluster_probe(PROBE))
+    assert screen._cluster is original
+    assert 'another-profile' in screen._status.text()
+    assert 'cluster cache unavailable' in screen._console.as_text()
+    assert screen.manager.profiles.path.read_bytes() == profile_before
+    assert screen.manager.jobs.list() == []
