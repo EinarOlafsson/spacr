@@ -606,3 +606,84 @@ def test_hiding_the_active_plate_transfers_navigation_to_a_surviving_well_or_pla
         assert dialog.fields is dialog._well_panel.field_list
         assert dialog._scope == ('p1', None)
         assert {field.well for field in dialog._visible} == {'A01', 'B02'}
+
+
+def test_original_quality_retires_the_previous_detail_crop_and_preserves_physical_image(overview, qtbot):
+    from pathlib import Path
+    from PySide6.QtCore import Qt
+    from spacr.qt.hidpi import device_ratio
+
+    dialog = overview
+    dialog._well(dialog.wells.item(*dialog._well_positions[('p1', 'A01')]))
+    dialog.fields.setCurrentRow(0)
+    qtbot.waitUntil(lambda: not dialog._image_jobs.is_busy() and not dialog._image_pending
+                    and dialog.view._item is not None, timeout=10000)
+    field = dialog.fields.currentItem().data(Qt.UserRole)
+    originals = {Path(path): Path(path).read_bytes() for _, path in field.files}
+    assert dialog._source_shapes[field.identity] == (1536, 2048)
+    pixels_per_source_pixel = (dialog.view.transform().m11() * dialog.view._item.pixmap().width()
+                               / 2048 * device_ratio(dialog.view.viewport()))
+    dialog.view.zoom_by(1. / pixels_per_source_pixel)
+    assert dialog.view._user_zoomed
+    assert (dialog.view.transform().m11() * dialog.view._item.pixmap().width()
+            / 2048 * device_ratio(dialog.view.viewport())) == pytest.approx(1.)
+    dialog._load_native_detail()
+    qtbot.waitUntil(lambda: not dialog._native_jobs.is_busy() and dialog._native_item is not None, timeout=10000)
+    crop = dialog._native_item
+    assert crop.scene() is dialog.view.scene()
+    assert dialog._native_key[0] == field.identity
+    assert crop.pixmap().width() <= 2048 and crop.pixmap().height() <= 2048
+    dialog.preview_resolution.setCurrentIndex(dialog.preview_resolution.findData(None))
+    qtbot.waitUntil(lambda: not dialog._quality_timer.isActive() and not dialog._image_jobs.is_busy()
+                    and dialog.view._item is not None and dialog.view._item.pixmap().width() == 2048,
+                    timeout=10000)
+    assert dialog.view._item.pixmap().height() == 1536
+    assert dialog._native_item is None and dialog._native_key is None
+    assert crop.scene() is None
+    assert dialog._main_view_field.identity == field.identity
+    assert all(path.read_bytes() == content for path, content in originals.items())
+
+
+def test_channel_apply_refuses_invalid_enhancement_but_keeps_its_valid_display_settings(overview, qtbot):
+    import copy
+    from pathlib import Path
+    from PySide6.QtCore import Qt
+    from PySide6.QtGui import QImage
+    from spacr.qt.widgets import qc_field_browser as module
+
+    dialog = overview
+    dialog._well(dialog.wells.item(*dialog._well_positions[('p1', 'B02')]))
+    dialog.fields.setCurrentRow(0)
+    qtbot.waitUntil(lambda: not dialog._image_jobs.is_busy() and dialog.view._item is not None, timeout=10000)
+    field = dialog.fields.currentItem().data(Qt.UserRole)
+    originals = {Path(path): Path(path).read_bytes() for _, path in field.files}
+    dialog.norm_channel.setCurrentIndex(dialog.norm_channel.findData(1))
+    global_settings = copy.deepcopy(dialog._global_display)
+    dialog.low.setValue(10.)
+    dialog.high.setValue(90.)
+    dialog._channel_display_draft(dict(ink=.4, enhance_clahe=True, enhance_clahe_clip=0.))
+    generation = dialog._display_generation
+    dialog._channel_override_buttons[0].click()
+    assert dialog._display_generation > generation
+    assert set(dialog._channel_overrides) == {1}
+    assert dialog._global_display == global_settings
+    assert dialog._channel_overrides[1]['percentile_low'] == 10.
+    assert dialog._channel_overrides[1]['percentile_high'] == 90.
+    assert dialog._channel_overrides[1]['ink'] == .4
+    assert 'Channel 1 enhancement is not applied' in dialog.status.text()
+    assert 'enhance_clahe_clip must be above 0 and at most 1' in dialog.status.text()
+    qtbot.waitUntil(lambda: dialog._normalization_ready and not dialog._index_jobs.is_busy()
+                    and not dialog._image_jobs.is_busy() and not dialog._image_pending
+                    and dialog.view._item is not None, timeout=10000)
+    options = dialog._display_kwargs(view=True)
+    assert options['channel_percentiles'] == {1: (10., 90.)}
+    assert options['ink_intensity'] == {1: .4}
+    assert 'channel_enhancement' not in options
+    channels, limits = dialog._choices()
+    expected = module._overview_pixels(field, channels, limits, edge=dialog._preview_edge, **options)
+    image = dialog.view._item.pixmap().toImage().convertToFormat(QImage.Format_RGB888)
+    actual = np.frombuffer(image.constBits(), dtype=np.uint8).reshape(image.height(), image.bytesPerLine())
+    actual = actual[:, :image.width() * 3].reshape(image.height(), image.width(), 3)
+    np.testing.assert_array_equal(actual, expected)
+    assert dialog._main_view_field.identity == field.identity
+    assert all(path.read_bytes() == content for path, content in originals.items())
