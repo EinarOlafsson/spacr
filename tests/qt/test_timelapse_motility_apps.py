@@ -118,15 +118,25 @@ def test_icon_provider_returns_an_icon(qtbot, qt_theme_applied, key):
 
 
 def test_neither_module_is_on_the_sidebar_or_the_home_page(
-        qtbot, qt_theme_applied):
+        qtbot, qt_theme_applied, tmp_path, monkeypatch):
     """Both are reached from a host now, and a second door is the thing
     the fold removed. Both surfaces are built from the registry, so a row
     on either would mean the drop had not really happened.
     """
     from PySide6.QtWidgets import QPushButton
+    from PySide6.QtCore import QSettings
+    from spacr.qt import preferences
     from spacr.qt.app import Sidebar, make_home_page
     from spacr.qt.widgets.home import AppTile
 
+    path = tmp_path / 'normal-home.ini'
+    current = preferences._settings()
+    private = QSettings(str(path), QSettings.IniFormat)
+    for key in current.allKeys():
+        private.setValue(key, current.value(key))
+    private.sync()
+    monkeypatch.setattr(preferences, '_settings', lambda: QSettings(str(path), QSettings.IniFormat))
+    preferences.set_easy_mode(False)
     bar = Sidebar()
     qtbot.addWidget(bar)
     labels = {b.accessibleName() for b in bar.findChildren(QPushButton)}

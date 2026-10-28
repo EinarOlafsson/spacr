@@ -115,6 +115,7 @@ def test_home_contains_only_enabled_maturity_stages(
     from spacr.qt import app as _app
     monkeypatch.setitem(_app.APP_STAGE, "umap", "beta")
 
+    maturity_prefs.set_easy_mode(False)
     maturity_prefs.set_show_alpha(False)
     maturity_prefs.set_show_beta(True)
     page = make_home_page()
@@ -298,6 +299,7 @@ def test_main_window_refreshes_home_dock_and_menus_together(
     # Alpha-gated apps (item 634) answer to the alpha-features switch.
     gated = _alpha_names("apps")
 
+    maturity_prefs.set_easy_mode(False)
     maturity_prefs.set_show_alpha(False)
     maturity_prefs.set_show_beta(False)
     window = MainWindow()

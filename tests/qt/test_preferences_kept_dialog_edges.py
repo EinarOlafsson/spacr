@@ -392,6 +392,7 @@ def test_home_sets_again_only_the_rules_that_changed(
     from spacr.qt.app import MainWindow
     from spacr.qt.widgets import home as home_module
 
+    preferences.set_easy_mode(False)
     preferences.set_pane_opacity(0.8)
     window = MainWindow()
     qtbot.addWidget(window)
