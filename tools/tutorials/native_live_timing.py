@@ -133,6 +133,12 @@ def _mixed_prose_native_tracks(stage, identity, english):
 
 def verified_narration_tracks(stage, identity, english):
     """Validate fresh tracks, or explicitly bound immutable published narration."""
+    from published_terminal_prefix import RECORD as TERMINAL_RECORD, checked_terminal_narration
+    terminal = Path(stage) / 'production' / identity / TERMINAL_RECORD
+    if terminal.exists() or terminal.is_symlink():
+        if english != read(Path(stage) / 'production' / identity / 'lesson.en.json'):
+            raise ValueError('Terminal-removal canonical English changed')
+        return checked_terminal_narration(stage, identity, decode=False)
     mixed = Path(stage) / 'production' / identity / 'published-prose-audio-refresh.json'
     if mixed.exists() or mixed.is_symlink():
         return _mixed_prose_native_tracks(stage, identity, english)

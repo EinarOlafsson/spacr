@@ -513,9 +513,30 @@ def selected_visual_timing(stage, identity, baseline, retained_ids):
     return checked_native_timing(stage, identity)
 
 
+def require_terminal_visual_join(stage, baseline, source):
+    """Only the same explicit published terminal prefix can supply this video."""
+    from published_terminal_prefix import RECORD as AUDIO_RECORD
+    from published_native_edit import RECORD, TERMINAL_KIND, checked_edited_native_timing
+    root = Path(stage) / 'production/05_home'
+    record = read(root / RECORD)
+    if (record.get('kind') != TERMINAL_KIND
+            or Path(source['baseline_root']).resolve() != Path(baseline).resolve()
+            or any(record.get(key) != value for key, value in source.items())
+            or record.get('terminal_scene_removal_record_sha256') != digest(root / AUDIO_RECORD)):
+        raise ValueError('Terminal audio/visual source baseline or removal record differs')
+    return checked_edited_native_timing(stage, '05_home')
+
+
+def require_terminal_selection(identities, refresh_ids, retained, retained_visual, links, metadata, withdraw):
+    """The approved terminal-removal mode refreshes only Home, never a subset."""
+    if (list(identities) != ['05_home'] or list(refresh_ids) != ['05_home']
+            or any((retained, retained_visual, links, metadata, withdraw))):
+        raise ValueError('Terminal removal requires only the explicit Home refresh')
+
+
 def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_ids=(), metadata_ids=(),
           host_web=False, migrate_web=(), retain_narration=(), retain_visual_timing=(), withdraw=(), candidate_root=None,
-          hardlink_preserved=False, idle_tail_policy=None):
+          hardlink_preserved=False, idle_tail_policy=None, terminal_scene_removal=False):
     """Create a new private candidate; never upload or modify the published tree.
 
     ``withdraw`` unlists published lessons: they leave every catalog, the
@@ -531,6 +552,9 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
         raise ValueError('Use either replace-existing or a refresh subset')
     refresh_ids = list(identities) if replace else list(refresh_ids)
     identities = list(identities) if replace else [*identities, *refresh_ids]
+    if terminal_scene_removal:
+        require_terminal_selection(identities, refresh_ids, retain_narration, retain_visual_timing,
+                                   link_ids, metadata_ids, withdraw)
     retained_ids = list(retain_narration)
     if (len(retained_ids) != len(set(retained_ids))
             or set(retained_ids) - set(refresh_ids)):
@@ -588,7 +612,18 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
     checks, voices = {}, {}
     for lesson in lessons:
         identity = lesson['id']
-        if identity in retained_ids:
+        if terminal_scene_removal:
+            from published_terminal_prefix import _source, checked_terminal_narration
+            source, terminal_english, _ = _source(stage, baseline)
+            # Cheap source, visual and finished-web guards precede final AAC QA.
+            if {k: v for k, v in terminal_english.items() if k != 'narration_voices'} != lesson:
+                raise ValueError('Terminal-removal canonical projection differs')
+            require_terminal_visual_join(stage, baseline, source)
+            checked_web_input(stage, identity)
+            _, checks[identity] = checked_terminal_narration(stage, identity, baseline, decode=True)
+            voices[identity] = deepcopy(terminal_english['narration_voices'])
+            label = 'published terminal-prefix tracks verified; no new synthesis'
+        elif identity in retained_ids:
             voices[identity], checks[identity] = verify_retained_tracks(
                 stage, baseline, lesson, catalogs, previous)
             label = 'byte-identical published audio tracks verified'
@@ -650,6 +685,11 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
     for lesson in lessons:
         identity = lesson['id']
         source = stage / 'production' / identity
+        if terminal_scene_removal:
+            from published_terminal_prefix import RECORD as TERMINAL_RECORD
+            proof = source / TERMINAL_RECORD
+            copy_checked(proof, root / 'media_host' / identity / 'video' / TERMINAL_RECORD,
+                         records, root, digest(proof))
         native_timings = selected_visual_timing(stage, identity, baseline, retained_visual_ids)
         if native_timings is not None:
             copy_checked(native_timings, root / 'media_host' / identity / 'video' / native_timings.name,
@@ -763,6 +803,12 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
                   new_lesson_tracks=checks, translation_incompatibilities=compatibility,
                   all_workflows_demonstrated=False, native_speaker_signoff=False,
                   human_listening_signoff=False, release_hold=True, uploaded=False, published=False)
+    if terminal_scene_removal:
+        from published_terminal_prefix import RECORD as TERMINAL_RECORD
+        report['published_terminal_scene_removal'] = dict(lesson='05_home',
+            removed_visual='24_spaceout_field', retained_scenes=38, track_count=50,
+            record_sha256=digest(stage / 'production/05_home' / TERMINAL_RECORD),
+            resynthesized=False, current_runtime_freshness_claimed=False, fresh_capture=False)
     if metadata_ids:
         report['metadata_only_updates']={identity: dict(fields=list(METADATA_FIELDS),
             narration_changed=False, current_runtime_freshness_claimed=False) for identity in metadata_ids}
@@ -785,6 +831,8 @@ def main(argv=None):
                         help='Refresh only the selected existing lessons; keep all other lesson media and prose')
     parser.add_argument('--refresh-lesson', action='append', default=[],
                         help='Refresh an existing lesson alongside the new lessons being appended')
+    parser.add_argument('--terminal-scene-removal', action='store_true',
+                        help='Remove only the source-bound final Home Spaceout scene without TTS')
     parser.add_argument('--retain-narration', action='append', default=[],
                         help='Refresh visuals with exact verified baseline narration and lesson objects')
     parser.add_argument('--retain-visual-timing', action='append', default=[],
@@ -809,7 +857,8 @@ def main(argv=None):
           host_web=args.host_web, migrate_web=args.migrate_web, retain_narration=args.retain_narration,
           retain_visual_timing=args.retain_visual_timing,
           withdraw=args.withdraw, candidate_root=args.candidate_root,
-          hardlink_preserved=args.hardlink_preserved_media, idle_tail_policy=args.idle_tail_policy)
+          hardlink_preserved=args.hardlink_preserved_media, idle_tail_policy=args.idle_tail_policy,
+          terminal_scene_removal=args.terminal_scene_removal)
 
 
 if __name__ == '__main__':

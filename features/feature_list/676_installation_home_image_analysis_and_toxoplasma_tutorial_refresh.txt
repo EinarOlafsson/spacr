@@ -589,6 +589,6 @@ Gate Editor64 now states its real Alpha-module visibility prerequisite in all14 
 Codex continues64 end to end with25 scenes and the existing50 tracks, then22/31/50/70/19/63;01 remains release-held. No capture or scientific acceptance is claimed by these preparations.
 
 2026-10-28 — Maintainer requires no Spaceout reference in any tutorial. The public English60-lesson scan finds only Home05 finalscene39; remove that ending from English/all13 translations and all50 published narration tracks, preserving first38 scenes, with no re-recording or TTS.
-Codex owns this correction next, before22; implement a narrowly source-bound published-prefix edit with normal audio/onset/native-EOF/candidate/HF/Pages/nightly validation. Other tutorial content and archived lessons remain unchanged.
+Codex implemented the exact38-scene published-prefix edit before22: all50 AAC tracks pass audio/onset checks, original visual intervals stay1x, and master/web full decode plus timestamps pass. Normal browser matrix and HF/Pages/nightly publication remain next; no re-recording or TTS.
 Gate Editor64 p54 reaches14 complete raw scenes then exits139 during17f live polygon highlight; no gate summary or complete scientific acceptance exists. Planned retry exits3 because no summary; preserve all source files and hold another64 take for the app fix.
 Navigator88 remains checked-pushed639bb1f83a; its Docs run40756766539 is cancelled, so live website delivery is still pending. Remaining campaign64/05/22/31/50/70/19/63/01 stays active;01 is release-held.
