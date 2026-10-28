@@ -11757,9 +11757,7 @@ class AmbientWidget(QWidget):
         """
         self._partial_frame = None
         self._still = None
-        held = self.__dict__.get("_held_rows")
-        if held is not None:
-            held.release(fade=False)
+        self._held_rows.release(fade=False)
         producer = self._producer_box[0]
         if producer is None:
             return
@@ -12319,9 +12317,7 @@ class AmbientWidget(QWidget):
         self._partial_frame = None
         self._field_grab = None
         self._timer.stop()
-        held = self.__dict__.get("_held_rows")
-        if held is not None:
-            held.settle_into_still()
+        self._held_rows.settle_into_still()
         self._sync_interaction_filter()
         producer = self._producer_box[0]
         self._holds_still = bool(self.isVisible()
@@ -12354,9 +12350,7 @@ class AmbientWidget(QWidget):
         """Give the cards their own paint back, when they are composited,
         and paint the whole field again (:class:`_HeldRows`)."""
         self._partial_frame = None
-        held = self.__dict__.get("_held_rows")
-        if held is not None:
-            held.release(fade=False)
+        self._held_rows.release(fade=False)
         tints = self._card_tints
         if tints is not None:
             tints.invalidate()
