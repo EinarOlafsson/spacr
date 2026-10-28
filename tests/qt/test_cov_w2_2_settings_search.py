@@ -592,8 +592,21 @@ def test_the_search_box_reports_what_was_typed_into_it(qapp, form_screen):
     assert bar.query() == "  cell "
 
 
+@pytest.fixture
+def normal_mode():
+    from spacr.qt import preferences
+
+    previous = preferences.get_easy_mode()
+    try:
+        preferences.set_easy_mode(False)
+        yield
+    finally:
+        preferences.set_easy_mode(previous)
+
+
 def test_an_empty_section_is_left_alone_while_nothing_is_filtered(qapp,
-                                                                  form_screen):
+                                                                  form_screen,
+                                                                  normal_mode):
     """A section with no rows was already hidden for its own reasons.
 
     Maturity decides that, and a filter that is not filtering has no business

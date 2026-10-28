@@ -31,6 +31,18 @@ pytestmark = pytest.mark.qt
 PLANE_KEYS = ("cell_mask_dim", "nucleus_mask_dim", "pathogen_mask_dim")
 
 
+@pytest.fixture
+def normal_mode():
+    from spacr.qt import preferences
+
+    previous = preferences.get_easy_mode()
+    try:
+        preferences.set_easy_mode(False)
+        yield
+    finally:
+        preferences.set_easy_mode(previous)
+
+
 def _screen(qtbot, app_key: str, current=None):
     from spacr.qt.screens.app_screen import AppScreen
 
@@ -112,7 +124,7 @@ def test_an_emptied_cell_mask_dim_keeps_the_cell_family_available(qtbot):
 
 @pytest.mark.parametrize("role", ["nucleus", "pathogen"])
 def test_a_committed_optional_mask_dim_rebuilds_the_live_form(
-        qapp, qtbot, role, monkeypatch):
+        qapp, qtbot, role, monkeypatch, normal_mode):
     """Measure watches its mask planes, not Mask's similarly named channels."""
     from spacr.qt.app import MainWindow
     from spacr.qt.settings_search import (ALL, disclosure_for,
