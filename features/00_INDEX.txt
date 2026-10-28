@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-645 Lifecycle: new, 76 Lifecycle: future in features/feature_list/.
+646 Lifecycle: new, 76 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -1568,3 +1568,5 @@ NEW FEATURES
        736_measure_reruns_archive_existing_database_tables.txt
   737  ANONYMOUS MERGE VALIDATION STRUCTURE
        737_anonymous_merge_validation_structure.txt
+  738  LINUX POPUPS OPEN NEAR THEIR PARENT WINDOW
+       738_linux_popups_open_near_their_parent_window.txt
