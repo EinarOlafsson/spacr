@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:22-0400\n"
+"POT-Creation-Date: 2026-10-28 13:49-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -34,8 +34,9 @@ msgstr "模块、状态、开始/结束时间、实际耗时和进程 CPU 时间
 msgid "exact resolved settings;"
 msgstr "确切的解析后设置；"
 
-msgid "SHA-256 records for inputs, outputs and models;"
-msgstr "输入、输出和模型的 SHA-256 记录；"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "available input, output and model hash records; input/output hashing is optional and ``hash_inputs`` is off by default;"
+msgstr "可用的输入、输出和模型哈希记录；输入/输出哈希计算是可选的，``hash_inputs`` 默认关闭；"
 
 msgid "structured warnings, provenance warnings and failure tracebacks;"
 msgstr "结构化警告、来源警告和失败回溯；"
@@ -47,14 +48,16 @@ msgid "declared seeds and runtime random-state identifiers."
 msgstr "声明的随机种子和运行时随机状态标识。"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Search terms are combined: ``adamw plate_03 warning`` shows only records containing all three terms anywhere in settings, paths, warnings, failures or environment data. Module and status filters can be applied at the same time. Interrupted and corrupt run folders remain listed, with status ``running`` or ``corrupt`` and diagnostic warnings."
-msgstr "搜索词会组合使用：``adamw plate_03 warning`` 只显示在设置、路径、警告、失败或环境数据中任意位置同时包含这三个词的记录。模块和状态过滤器可以同时应用。中断和损坏的运行文件夹仍会列出，其状态为 ``running`` 或 ``corrupt``，并附有诊断警告。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Search terms are combined: ``adamw plate_03 warning`` shows only records containing all three terms anywhere in settings, paths, warnings, failures or environment data. Module and status filters can be applied at the same time. A stored ``running`` record is displayed as ``interrupted`` only when its recorded owner is provably gone; this does not change the stored status. Unverifiable owners, including records from other hosts, remain ``running``. Corrupt run folders remain listed with ``corrupt`` status and diagnostic warnings."
+msgstr "搜索词会组合使用：``adamw plate_03 warning`` 只显示设置、路径、警告、失败或环境数据中包含全部三个词的记录。模块和状态筛选可以同时使用。只有在能够证实记录的所有者已不存在时，存储为 ``running`` 的记录才会显示为 ``interrupted``；这不会更改存储的状态。无法验证的所有者（包括其他主机的记录）仍显示为 ``running``。损坏的运行文件夹仍会列出，状态为 ``corrupt``，并附有诊断警告。"
 
 msgid "Select a row to inspect its details. **Load settings in module** opens the original module and propagates the exact recorded settings into its controls; it does not start a run. **Open run folder** and **Copy path** expose the underlying ``~/.spacr/runs/...`` folder."
 msgstr "选择一行即可查看其详细信息。**在模块中加载设置** 会打开原始模块，并将记录的确切设置填入其控件；它不会启动运行。**打开运行文件夹** 和 **复制路径** 可访问底层的 ``~/.spacr/runs/...`` 文件夹。"
 
-msgid "Right-click selected rows to open their folders or delete them; **Clear all** deletes every run the table lists. Deleting asks first and removes only the journal folders; outputs written into your projects are not touched."
-msgstr "右键单击所选行可打开或删除其文件夹；**全部清除** 会删除表中列出的所有运行。删除前会先询问，并且只删除日志文件夹；写入项目中的输出不会受到影响。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Right-click selected rows to open their folders or delete them. **Clear all** requests deletion of every loaded run, including rows hidden by the current filters; it does not include runs created since the last refresh. Deleting asks first and removes only journal folders, not outputs in your projects. The result reports any folders that could not be deleted, including active runs protected by this spaCR process."
+msgstr "右键点击所选行可打开或删除对应文件夹。**全部清除** 会请求删除所有已加载的运行，包括被当前筛选条件隐藏的行；不包括上次刷新后新建的运行。删除前会要求确认，且只删除日志文件夹，不影响项目中的输出。结果会报告无法删除的文件夹，包括由当前 spaCR 进程保护的活动运行。"
 
 msgid "Storage: pruning and caches"
 msgstr "存储：清理与缓存"
