@@ -10492,9 +10492,9 @@
         },
         {
           "visual": "11_actual_brush_state",
-          "narration": "点击分面的小叉号将其移除，回到单个散点图。围绕对象拖出一个矩形以选择一个区域。如果Open selection in Annotate不可用，请用对应项目单独打开Annotate，并在那里检查对象。",
+          "narration": "点击分面的小叉号将其移除，回到单个散点图。围绕对象拖出一个矩形以选择一个区域。选中对象数量和高亮显示的点会同步更新，同时 Open selection in Annotate 变为可用，可在对应项目中检查这些对象。",
           "hold_after": 0.7,
-          "speech_text": "点击分面的小叉号将其移除，回到单个散点图。围绕对象拖出一个矩形以选择一个区域。如果Open selection in Annotate不可用，请用对应项目单独打开Annotate，并在那里检查对象。"
+          "speech_text": "点击分面的小叉号将其移除，回到单个散点图。围绕对象拖出一个矩形以选择一个区域。选中对象数量和高亮显示的点会同步更新，同时 Open selection in Annotate 变为可用，可在对应项目中检查这些对象。"
         },
         {
           "visual": "12_selection_cleared",
@@ -10581,7 +10581,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
