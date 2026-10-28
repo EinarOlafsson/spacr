@@ -2,8 +2,9 @@
 from __future__ import annotations
 
 import pytest
-from PySide6.QtCore import QEvent, QObject, QPoint, QRect
-from PySide6.QtGui import QRegion
+from PySide6.QtCore import QEvent, QObject, QPoint, QPointF, QRect, QSize, Qt
+from PySide6.QtGui import QMouseEvent, QRegion
+from PySide6.QtWidgets import QApplication
 
 from tests.qt.test_startup_ai_reporting_choice import private_ai_profile
 
@@ -109,6 +110,111 @@ def test_shared_popup_resizes_keep_software_coverage_and_native_identity(
         assert len(observer.paints) >= 10
         assert dialog.size() == initial
     finally:
+        if observer is not None:
+            observer.armed = False
+            dialog.removeEventFilter(observer)
+            card.removeEventFilter(observer)
+        dialog.close()
+        if installed:
+            glass.uninstall_glass_everywhere()
+        qapp.setPalette(old_palette)
+        qapp.setStyleSheet(old_sheet)
+
+
+@pytest.mark.parametrize('theme_name', ['light', 'dark'])
+@pytest.mark.parametrize('opaque,backdrop_name', [
+    (False, 'off'), (False, 'blobs'), (True, 'off'),
+], ids=['translucent', 'animated-translucent', 'opaque'])
+def test_windows_edge_drag_paints_before_returning_to_the_mouse_queue(
+        qapp, qtbot, private_ai_profile, monkeypatch,
+        theme_name, opaque, backdrop_name):
+    """An owned resize must submit its new surface before the next move."""
+    from spacr.qt import preferences, theme
+    from spacr.qt.widgets import glass
+    from spacr.qt.widgets.model_share_dialog import ShareDialog
+    from spacr.qt.widgets.setup_card import SetupCard
+
+    preferences.set_theme(theme_name)
+    preferences.set_pane_opacity(0.6)
+    preferences._set_flow_graphics_backend('cpu')
+    preferences.set_popup_backdrop(backdrop_name)
+    old_sheet, old_palette = qapp.styleSheet(), qapp.palette()
+    theme.apply_qpalette(qapp, theme_name)
+    qapp.setStyleSheet(theme.stylesheet(theme_name, preferences.get_font_scale()))
+    installed = glass.install_glass_everywhere(qapp)
+    dialog = ShareDialog('edge-resize-continuity')
+    qtbot.addWidget(dialog)
+    dialog.setProperty(glass.SETTINGS_POPUP, opaque)
+    dialog.resize(1000, 800)
+    dialog.show()
+    observer = None
+    original_platform = QApplication.platformName
+    try:
+        qtbot.waitExposed(dialog)
+        card, = dialog.findChildren(SetupCard)
+        backdrop = getattr(dialog, '_spacr_popup_backdrop', None)
+        if backdrop_name != 'off':
+            assert backdrop is not None and backdrop.isVisible()
+            assert backdrop.is_running()
+        identity = int(dialog.effectiveWinId())
+        edit = next(iter(dialog._edits.values()))
+        edit.setText('keep this value during edge drag')
+        dialog.activateWindow()
+        edit.setFocus()
+        qtbot.waitUntil(edit.hasFocus)
+        initial = dialog.size()
+        dialog.setMinimumSize(initial)
+        dialog.setMaximumSize(initial + QSize(72, 72))
+        observer = _PaintObserver(dialog, card)
+        dialog.installEventFilter(observer)
+        card.installEventFilter(observer)
+        if QApplication.platformName() != 'windows':
+            monkeypatch.setattr(QApplication, 'platformName', staticmethod(lambda: 'windows'))
+        origin = dialog.mapToGlobal(dialog.rect().bottomRight() - QPoint(1, 1))
+
+        def send_mouse(kind, point, button, buttons):
+            QApplication.sendEvent(dialog, QMouseEvent(
+                kind, QPointF(dialog.mapFromGlobal(point)), QPointF(point),
+                button, buttons, Qt.NoModifier))
+
+        send_mouse(QEvent.MouseButtonPress, origin, Qt.LeftButton, Qt.LeftButton)
+        assert dialog._spacr_resizer._grab is not None
+        qapp.processEvents()
+        observer.armed = True
+        for step in (24, 24, 48, 72, 48, 24, 0, -24, -48, 96, 120):
+            previous = QRect(dialog.rect())
+            start = len(observer.paints)
+            send_mouse(QEvent.MouseMove, origin + QPoint(step, step),
+                       Qt.NoButton, Qt.LeftButton)
+            bounded = min(72, max(0, step))
+            assert dialog.size() == initial + QSize(bounded, bounded)
+            current = observer.paints[start:]
+            card_paints = [row for row in current if row[0] is card]
+            if dialog.rect() == previous:
+                assert not card_paints, 'stationary or clamped moves must not repaint synchronously'
+                continue
+            assert card_paints, 'the resize returned before painting the card'
+            assert all(row[1] == dialog.size() and row[2] == row[3]
+                       and row[4] == identity for row in card_paints)
+            exposed = QRegion(dialog.rect()).subtracted(QRegion(previous))
+            assert exposed.subtracted(_painted_region(
+                current, card, dialog.size())).isEmpty()
+            assert edit.hasFocus()
+            assert edit.text() == 'keep this value during edge drag'
+            if backdrop is not None:
+                assert backdrop.geometry() == dialog.rect() and backdrop.is_running()
+            assert not observer.lifecycle
+        send_mouse(QEvent.MouseButtonRelease, origin + QPoint(120, 120),
+                   Qt.LeftButton, Qt.NoButton)
+        assert dialog._spacr_resizer._grab is None
+        start = len(observer.paints)
+        dialog.resize(initial)
+        assert not [row for row in observer.paints[start:] if row[0] is card], (
+            'ordinary programmatic resizing must retain deferred painting')
+        qtbot.waitUntil(lambda: any(row[0] is card and row[1] == dialog.size()
+                                  for row in observer.paints[start:]))
+    finally:
+        monkeypatch.setattr(QApplication, 'platformName', staticmethod(original_platform))
         if observer is not None:
             observer.armed = False
             dialog.removeEventFilter(observer)
