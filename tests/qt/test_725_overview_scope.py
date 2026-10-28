@@ -417,3 +417,107 @@ def test_workspace_height_grip_drag_and_reset_preserve_category_expansion(qtbot)
     assert section._body.minimumHeight() == start + 45
     qtbot.mouseDClick(grip, Qt.LeftButton)
     assert section._body.minimumHeight() == 0 and section.is_expanded()
+
+
+def test_workspace_back_returns_the_actual_field_through_well_to_plate(workspace, qtbot):
+    """Back navigates real populated views without changing plate, field or source identity."""
+    screen, folders = workspace
+    view = _workspace_browser(screen, qtbot)
+    page, model = screen._overview_page, screen._settings_model
+    source = model._read_value('src')
+    before = {path: path.read_bytes() for folder in folders for path in folder.glob('*.tif')}
+    plate = view.plates.currentData()
+    well = next(field.well for field in view._fields if field.plate == plate)
+    item = view.wells.item(*view._well_positions[(plate, well)])
+    view._well(item)
+    qtbot.waitUntil(lambda: view.fields.count() > 0, timeout=15000)
+    field_item = view.fields.item(0)
+    field = field_item.data(Qt.UserRole)
+    view._field(field_item)
+    assert view._individual and view._main_view_field.identity == field.identity
+    assert view._scope == (plate, well)
+    page._back()
+    assert not view._individual and view._scope == (plate, well)
+    assert not page.back_button.isHidden()
+    qtbot.mouseClick(page.back_button, Qt.LeftButton)
+    assert view._scope == (plate, None) and not view._individual
+    assert page.back_button.isHidden()
+    assert field.identity in {entry.identity for entry in view._fields}
+    assert view.plates.currentData() == plate and model._read_value('src') == source
+    assert {path: path.read_bytes() for path in before} == before
+
+
+def test_workspace_stop_cancels_only_its_browser_and_keeps_loaded_source_identity(workspace, qtbot):
+    """Stop cancels the browser generation while preserving its loaded metadata and files."""
+    screen, folders = workspace
+    view = _workspace_browser(screen, qtbot)
+    page, model = screen._overview_page, screen._settings_model
+    source = model._read_value('src')
+    fields = tuple(field.identity for field in view._fields)
+    channels = tuple(view._channel_buttons)
+    before = {path: path.read_bytes() for folder in folders for path in folder.glob('*.tif')}
+    assert not view._cancelled.is_set()
+    page.stop()
+    assert view._cancelled.is_set() and page.browser is view
+    runners = (*_runners(view), view._levels_jobs)
+    qtbot.waitUntil(lambda: all(runner.active_jobs() == 0 for runner in runners), timeout=15000)
+    assert tuple(field.identity for field in view._fields) == fields
+    assert tuple(view._channel_buttons) == channels and model._read_value('src') == source
+    assert {path: path.read_bytes() for path in before} == before
+
+
+def test_workspace_rejects_a_real_nonmask_folder_without_replacing_the_saved_path(
+        workspace, qtbot, tmp_path, monkeypatch):
+    """A native directory selection must pass the real mask validator before it is committed."""
+    from PySide6.QtWidgets import QFileDialog, QLineEdit
+
+    screen, folders = workspace
+    view = _workspace_browser(screen, qtbot)
+    model, page = screen._settings_model, screen._overview_page
+    model.set_value_for_key('overview_objects_path', str(folders[0]))
+    row = model._widgets['overview_objects_path']
+    edit = row if isinstance(row, QLineEdit) else row.findChildren(QLineEdit)[0]
+    saved = edit.text()
+    invalid = tmp_path / 'not-masks'
+    invalid.mkdir()
+    tifffile.imwrite(invalid / 'ordinary.tif', np.ones((8, 8), dtype=np.uint16))
+    original = (invalid / 'ordinary.tif').read_bytes()
+    monkeypatch.setattr(QFileDialog, 'getExistingDirectory', lambda *_: str(invalid))
+    assert browser._overview_choose_object_masks(edit, page) is None
+    assert edit.text() == saved and model._read_value('overview_objects_path') == saved
+    assert (invalid / 'ordinary.tif').read_bytes() == original
+    assert str(invalid) in view.status.text()
+
+
+def test_opening_overview_copies_only_explicit_source_and_percentiles_from_its_owner(qtbot, tmp_path):
+    """A real module supplies Overview context without rewriting its own saved settings."""
+    from spacr.qt.screens.app_screen import AppScreen
+
+    source = _plate(tmp_path / 'owner-source', {'A01': 1})
+    owner = AppScreen('mask')
+
+    def close(widget):
+        tab = getattr(widget, '_overview_tab', None)
+        if tab is not None:
+            tab._overview_page.retire()
+            tab.close()
+        widget.close()
+
+    qtbot.addWidget(owner, before_close_func=close)
+    owner.resize(1300, 900)
+    owner.show()
+    owner._settings_model.set_value_for_key('src', str(source))
+    original = owner._settings_model._read_value('src')
+    wizard = browser._open_overview_module(owner, {
+        'src': str(source), 'normalization_percentiles': (2.5, 97.5)})
+    tab = owner._overview_tab
+    model = tab._settings_model
+    assert wizard is tab._overview_page.wizard and wizard.source.text() == str(source)
+    assert model._read_value('src') == str(source)
+    assert model._read_value('overview_percentile_low') == 2.5
+    assert model._read_value('overview_percentile_high') == 97.5
+    assert browser._open_overview_module(owner) is wizard
+    assert model._read_value('src') == str(source)
+    assert model._read_value('overview_percentile_low') == 2.5
+    assert model._read_value('overview_percentile_high') == 97.5
+    assert owner._settings_model._read_value('src') == original
