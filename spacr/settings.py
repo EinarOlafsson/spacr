@@ -1210,6 +1210,7 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('calculate_diameters', True)
     settings.setdefault('custom_regex', None)
     settings.setdefault('metadata_type', 'cellvoyager')
+    settings.setdefault('metadata_well_map', '')
     settings.setdefault('n_jobs', _default_worker_count(reserve=4))
     settings.setdefault('ram_guard', True)
     settings.setdefault('randomize', True)
@@ -1463,6 +1464,7 @@ def set_default_settings_preprocess_img_data(settings):
     :returns: the settings dict with defaults applied.
     """
     settings.setdefault('metadata_type', 'cellvoyager')
+    settings.setdefault('metadata_well_map', '')
     settings.setdefault('custom_regex', None)
     settings.setdefault('nr', 1)
     settings.setdefault('plot', True)
@@ -3560,6 +3562,7 @@ expected_types = {
     "predictions_file": str,
     "path_column": str,
     "metadata_type": str,
+    "metadata_well_map": str,
     "custom_regex": (str, type(None)),
     "cov_type": (str, type(None)),
     "experiment": str,
@@ -4960,6 +4963,7 @@ tooltips = {
     "colony_min_area_px": "(float, int or None) - Smallest colony counted, in pixels of the original photo. Raise it to ignore dust, bubbles and pinpoint artefacts; lower it for pinpoint colonies. Blank uses 0.4 % of the dish diameter, squared: about 36 pixels for a dish 1500 pixels across. Default None.",
     "colony_detector": "(str or None) - A YOLO colony detector to find the colonies with, in place of thresholding: a checkpoint path or a Model Zoo key. It needs the ultralytics package. Detection counts colonies in chains and at the dish rim that thresholding merges or loses; polarity, threshold and minimum area are then not used. Blank thresholds. Default None.",
     "well_diameter_mm": "(float, int or None) - Known interior diameter of a detected well in millimetres, overriding plate_format when both are set. It converts the detected pixel diameter into pixels per millimetre and therefore rescales every physical plaque area; use None when the diameter is unknown. Default None.",
+    "metadata_well_map": "(str) - CSV path with exactly plate,index,well columns for indexed ScanR filenames. Every observed W index requires an explicit physical well in its source plate; no plate geometry is inferred. Missing, invalid, duplicate or incomplete mappings refuse before ingestion. Default empty.",
     "metadata_type": "(str) - Raw-image filename convention, grouped by microscope vendor. Default 'cellvoyager' (Yokogawa CV7000/CV8000). 'custom' uses custom_regex; 'auto' first renames files to Yokogawa naming, using custom_regex when supplied or automatic detection. Provisional conventions come from public-dataset filenames, not vendor documentation. A wrong choice can misassign plate, well, field or channel IDs and channel folders. Use Test on my folder before running.",
     "n_jobs": "(int) - CPU workers for parallel stages: measurement, mask adjustment, DataLoader loading, and the sklearn/UMAP calls where -1 means every core. Raise it to shorten CPU-bound steps until RAM or disk I/O saturates. Note the measure-and-crop pipeline overrides your value with cpu_count()-4. Defaults vary by pipeline: cpu_count()-4, -1, or None.",
     "ram_guard": "(bool) - Keep worker pools from filling RAM. Before any module starts its workers, spaCR estimates each worker's memory from one input (a field, mask, crop batch or table) and lowers n_jobs to the count that leaves 12.5% of RAM free, printing a warning; the GUI asks first. Off keeps your n_jobs, and Measure fields still wait while free RAM is below that reserve. Default True.",
@@ -5784,7 +5788,7 @@ organelle_basic_settings.insert(0, NUMBER_OF_ORGANELLES)
 categories = {
     "Paths": ["src", "mask_src", "test_src", "test_mask_src", "save_path", "custom_model_path", "resume_checkpoint", "dataset", "model_path", "tar_path", "grna_csv", "row_csv", "column_csv", "metadata_files", "paired_data", "score_data", "count_data"],
 
-    "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "organelle_channel", "organelle_mask_dim", "organelle_chann_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel", "segmentation_backend", "channels", "channel_dims", "normalize", "magnification", "calculate_diameters", "metadata_type", "custom_regex", "experiment", "plot", "test_mode", "timelapse", "apply_model_to_dataset", "generate_training_dataset", "generate_full_dataset", "delete_intermediate", "uninfected", "object_filters", "real_object_classifier", "real_object_threshold"],
+    "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "organelle_channel", "organelle_mask_dim", "organelle_chann_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel", "segmentation_backend", "channels", "channel_dims", "normalize", "magnification", "calculate_diameters", "metadata_type", "metadata_well_map", "custom_regex", "experiment", "plot", "test_mode", "timelapse", "apply_model_to_dataset", "generate_training_dataset", "generate_full_dataset", "delete_intermediate", "uninfected", "object_filters", "real_object_classifier", "real_object_threshold"],
 
     "Cellpose": ["channel_axis", "min_train_masks", "max_train_images",
         "nimg_per_epoch", "nimg_test_per_epoch", "scale_range",

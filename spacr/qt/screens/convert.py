@@ -425,6 +425,15 @@ class ConvertScreen(QWidget):
         opt_row.addWidget(self._resume)
         outer.addLayout(opt_row)
 
+        map_row = QHBoxLayout()
+        self._metadata_well_map = QLineEdit(self)
+        self._metadata_well_map.setObjectName("MetadataWellMap")
+        self._metadata_well_map.setPlaceholderText(tr("CSV with plate,index,well columns; required for indexed ScanR"))
+        self._metadata_well_map.textChanged.connect(self._on_option_changed)
+        map_row.addWidget(QLabel(tr("Well map CSV")))
+        map_row.addWidget(self._metadata_well_map, 1)
+        outer.addLayout(map_row)
+
         dst_row = QHBoxLayout()
         dst_row.setSpacing(SPACING["sm"])
         self._dst_edit = QLineEdit(self)
@@ -665,13 +674,14 @@ class ConvertScreen(QWidget):
         z_handling = self.z_handling()
         plate_naming = self.plate_naming()
         linkage = _barcode_settings(self)
+        well_map = self._metadata_well_map.text().strip() or None
         dst = self.destination_path() or (os.path.normpath(src) + "_yokogawa")
 
         def _job():
             """Scan the source and plan the conversion. Off the GUI thread."""
             sources = cvt.scan(src, layout=layout)
             plan = cvt.plan(sources, z_handling=z_handling,
-                            plate_naming=plate_naming)
+                            plate_naming=plate_naming, well_map=well_map)
             if plan.ok and linkage["plate_barcode_source"]:
                 try:
                     cvt._prepare_conversion_barcodes(linkage, plan, src, dst)
@@ -826,7 +836,8 @@ class ConvertScreen(QWidget):
         for widget in (self._btn_pick_src, self._btn_pick_dst,
                        self._btn_preview, self._src_edit, self._dst_edit,
                        self._layout_box, self._z_box, self._plate_box,
-                       self._resume, self._barcode_source, self._barcode_pick,
+                       self._resume, self._metadata_well_map,
+                       self._barcode_source, self._barcode_pick,
                        self._barcode_assignments, self._barcode_column):
             widget.setEnabled(idle)
         self._btn_convert.setEnabled(idle and has_plan)

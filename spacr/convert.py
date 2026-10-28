@@ -1608,6 +1608,55 @@ def _convention_key(metadata_type: Optional[str],
     return key
 
 
+def _indexed_well_map(path, required):
+    """Resolve explicit plate/index identities without inferring plate geometry.
+
+    The CSV has exactly ``plate,index,well`` columns. Every acquired index
+    needs a plate-scoped physical well; duplicate keys or destinations refuse
+    the entire map before ingestion. Unused rows permit a map for a full run.
+    """
+    from collections.abc import Mapping
+    from .tabular import read_table
+    from .qt.i18n import tr
+
+    required = set(required)
+    if any(index is None for _, index in required):
+        raise ValueError(tr("Every indexed ScanR image must match its filename convention."))
+    if not path:
+        raise ValueError(tr("Indexed ScanR requires a CSV map with plate, index and well columns."))
+    if isinstance(path, Mapping):
+        if any(not isinstance(key, tuple) or len(key) != 2 for key in path):
+            raise ValueError(tr("Indexed ScanR well assignments must include both plate and W index."))
+        rows = ((plate, index, well) for (plate, index), well in path.items())
+    else:
+        if not os.path.isfile(path) or os.path.splitext(os.fspath(path))[1].lower() != '.csv':
+            raise ValueError(tr("Choose a local well map CSV file."))
+        table = read_table(path, canonicalise=False, report=None, dtype=str,
+                           keep_default_na=False)
+        if list(table.columns) != ['plate', 'index', 'well']:
+            raise ValueError(tr("The well map must have exactly plate,index,well columns."))
+        rows = table.itertuples(index=False, name=None)
+    result = {}
+    destinations = set()
+    for plate, index, well in rows:
+        plate, index, well = str(plate).strip(), str(index).strip(), str(well).strip().upper()
+        match = re.fullmatch(r'W(\d{5})', index)
+        address = re.fullmatch(r'([A-Z]+)([1-9]\d*|0[1-9])', well)
+        if not plate or match is None or int(match.group(1)) < 1 or address is None:
+            raise ValueError(tr("The well map contains an invalid plate, W index or physical well."))
+        well = address.group(1) + str(int(address.group(2))).zfill(2)
+        key, destination = (plate, index), (plate, well)
+        if key in result or destination in destinations:
+            raise ValueError(tr("The well map repeats a plate/index or physical well."))
+        result[key] = well
+        destinations.add(destination)
+    missing = required.difference(result)
+    if missing:
+        names = ', '.join(f'{plate}/{index}' for plate, index in sorted(missing))
+        raise ValueError(tr("The well map has no assignment for: {indices}", indices=names))
+    return result
+
+
 def _convention_well(key: str, token: str) -> Optional[str]:
     """Turn one vendor's spelling of a well into ``A01``, or None.
 
@@ -1645,6 +1694,8 @@ def _convention_well(key: str, token: str) -> Optional[str]:
             return None
         return normalise_well(schema.well_id(int(found.group(2)) + 1,
                                              int(found.group(1)) + 1))
+    if key == 'scanr_indexed':
+        return None
     return normalise_well(text)
 
 
@@ -1763,7 +1814,9 @@ def scan(src: str, layout: str = 'auto',
         group, the well for one whose "well" is a scene index or a literal
         word. A file whose name does not follow the convention is reported
         unreadable, with the reason, rather than guessed at. ``None``,
-        ``''`` and ``'auto'`` keep the folder-and-token inference.
+        ``''`` and ``'auto'`` keep the folder-and-token inference, except
+        indexed ScanR names beginning ``--W`` retain their opaque W token
+        and require an explicit plate-scoped well map at planning time.
     :param custom_regex: the pattern for ``metadata_type='custom'``, with
         named groups ``wellID``, ``fieldID`` and ``chanID`` (and optionally
         ``plateID``, ``timeID``, ``sliceID``).
@@ -1781,6 +1834,9 @@ def scan(src: str, layout: str = 'auto',
 
     exts = tuple(extensions) if extensions else _image_extensions()
     entries = _iter_files(src, exts)
+    if convention is None and any(re.match(r'^--W\d{5}--P', parts[-1])
+                                  for _, parts in entries):
+        convention = 'scanr_indexed'
     resolved = _detect_layout(entries) if layout == 'auto' else layout
     src_name = os.path.basename(os.path.normpath(src)) or 'plate'
 
@@ -1808,8 +1864,9 @@ def scan(src: str, layout: str = 'auto',
             folder_well = (normalise_well(well_key)
                            if resolved != 'flat' else None)
             plate_key = parsed['plate'] or plate_key
-            well_key = (parsed['well'] or folder_well
-                        or parsed['well_token'] or well_key)
+            well_key = (parsed['well_token'] if convention == 'scanr_indexed'
+                        else (parsed['well'] or folder_well
+                              or parsed['well_token'] or well_key))
             field_key = parsed['field'] or field_key
             field_number = parsed['field_number']
             channel_key = parsed['channel']
@@ -1949,7 +2006,10 @@ def plan(sources: Sequence[SourceImage], z_handling: str = Z_KEEP,
     :param z_handling: one of :data:`Z_HANDLING`.
     :param plate_naming: ``'index'`` or ``'name'``.
     :param well_map: explicit ``{well key: well id}`` or
-        ``{(plate key, well key): well id}`` overrides.
+        ``{(plate key, well key): well id}`` overrides. Indexed ScanR requires
+        plate-scoped overrides or a local CSV path with ``plate,index,well``
+        columns. Missing or conflicting assignments block conversion; its
+        opaque W indices are never assigned synthetic physical wells.
     :param plate_map: explicit ``{plate key: plate token}`` overrides.
     :returns: a :class:`ConversionPlan`.
     :raises ConfigurationError: for an unknown ``z_handling`` or
@@ -1985,7 +2045,16 @@ def plan(sources: Sequence[SourceImage], z_handling: str = Z_KEEP,
         else:
             result.plate_map[key] = _sanitise(key)
 
-    explicit_wells = dict(well_map or {})
+    indexed = {(s.plate, s.well) for s in readable
+               if s.meta.get('metadata_type') == 'scanr_indexed'}
+    if indexed:
+        try:
+            explicit_wells = _indexed_well_map(well_map, indexed)
+        except (ValueError, OSError) as exc:
+            result.errors.append(str(exc))
+            return result
+    else:
+        explicit_wells = dict(well_map or {})
     for plate_key in plate_keys:
         well_keys = {s.well for s in readable if s.plate == plate_key}
         pending = []
@@ -3069,6 +3138,7 @@ def default_settings(settings: Optional[TMapping[str, Any]] = None) -> Dict[str,
         'layout': 'auto',
         'z_handling': Z_KEEP,
         'plate_naming': 'index',
+        'metadata_well_map': '',
         'overwrite': False,
         'map_name': MAP_FILENAME,
         'db_path': None,
@@ -3102,6 +3172,11 @@ def convert_folder(settings: Optional[TMapping[str, Any]] = None,
         destination; defaults to ``<src>_yokogawa``. Never ``src``.
     ``layout`` / ``z_handling`` / ``plate_naming``
         passed to :func:`scan` and :func:`plan`.
+    ``metadata_well_map``
+        local CSV path with ``plate,index,well`` columns. Indexed ScanR needs
+        an explicit physical well for every observed plate/W index. The
+        acquisition index is retained in ``source_well``; no plate geometry
+        is inferred.
     ``overwrite``
         False by default — existing targets are left alone.
     ``db_path``
@@ -3135,7 +3210,8 @@ def convert_folder(settings: Optional[TMapping[str, Any]] = None,
     sources = scan(src, layout=str(resolved.get('layout') or 'auto'))
     conversion_plan = plan(sources,
                            z_handling=str(resolved.get('z_handling') or Z_KEEP),
-                           plate_naming=str(resolved.get('plate_naming') or 'index'))
+                           plate_naming=str(resolved.get('plate_naming') or 'index'),
+                           well_map=resolved.get('metadata_well_map') or None)
 
     print(conversion_plan.summary())
     rows = int(resolved.get('preview_rows') or 0)
