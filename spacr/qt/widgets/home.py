@@ -5144,6 +5144,8 @@ def _easy_inspect_path_impl(value):
             actions.append((key, title, hint['evidence'], hint['source']))
             input_map[key] = dict(source=hint['source'], settings=hint['settings'])
     metadata = _easy_metadata_hints(folders)
+    calibrated_message = (tr('This folder has a calibrated-workflow marker. Use a completed child dataset and the supported calibrated measurement workflow; ordinary Measure is not suggested.')
+                          if path.is_dir() and calibrated else '')
     if actions:
         message = tr('Suggestions come from local file headers. Review each module before running; nothing has been processed or sent to AI.')
         if len(kinds.keys() - {'unsupported'}) > 1:
@@ -5156,12 +5158,14 @@ def _easy_inspect_path_impl(value):
             message += ' ' + tr('Nearby files with metadata-style names were found. Review their contents before choosing channels or calibration.')
     elif external_documents:
         message = _easy_external_guidance(external_documents[0]['kind'])
-    elif path.is_dir() and calibrated:
-        message = tr('This folder has a calibrated-workflow marker. Use a completed child dataset and the supported calibrated measurement workflow; ordinary Measure is not suggested.')
+    elif calibrated_message:
+        message = calibrated_message
     elif kinds.get('filename_format'):
         message = tr('The contents look supported, but the filename extension is not accepted by the matching module. Keep the original and make a correctly named copy before continuing.')
     else:
         message = tr('No supported image, data table or SQLite database was found in the bounded sample. Choose an image folder, a delimited table or a spaCR database.')
+    if actions and calibrated_message:
+        message += ' ' + calibrated_message
     if limited:
         message += ' ' + tr('A bounded sample of this folder was inspected; other files may differ.')
     if unreadable:
