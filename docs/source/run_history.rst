@@ -9,7 +9,8 @@ The dashboard combines:
 
 * module, status, start/end time, wall time and process CPU time;
 * exact resolved settings;
-* SHA-256 records for inputs, outputs and models;
+* available input, output and model hash records; input/output hashing is
+  optional and ``hash_inputs`` is off by default;
 * structured warnings, provenance warnings and failure tracebacks;
 * package, spaCR, Git and platform versions;
 * declared seeds and runtime random-state identifiers.
@@ -17,17 +18,22 @@ The dashboard combines:
 Search terms are combined: ``adamw plate_03 warning`` shows only records
 containing all three terms anywhere in settings, paths, warnings, failures or
 environment data. Module and status filters can be applied at the same time.
-Interrupted and corrupt run folders remain listed, with status ``running``
-or ``corrupt`` and diagnostic warnings.
+A stored ``running`` record is displayed as ``interrupted`` only when its
+recorded owner is provably gone; this does not change the stored status.
+Unverifiable owners, including records from other hosts, remain ``running``.
+Corrupt run folders remain listed with ``corrupt`` status and diagnostic warnings.
 
 Select a row to inspect its details. **Load settings in module** opens the
 original module and propagates the exact recorded settings into its controls;
 it does not start a run. **Open run folder** and **Copy path** expose the
 underlying ``~/.spacr/runs/...`` folder.
 
-Right-click selected rows to open their folders or delete them; **Clear all**
-deletes every run the table lists. Deleting asks first and removes only the
-journal folders; outputs written into your projects are not touched.
+Right-click selected rows to open their folders or delete them. **Clear all**
+requests deletion of every loaded run, including rows hidden by the current
+filters; it does not include runs created since the last refresh. Deleting
+asks first and removes only journal folders, not outputs in your projects.
+The result reports any folders that could not be deleted, including active
+runs protected by this spaCR process.
 
 Storage: pruning and caches
 ---------------------------

@@ -1,5 +1,5 @@
 # spaCR user guide translation (hi).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-28 13:49-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -83,6 +83,7 @@ msgstr "हर प्रतिगमन सुधार प्रतिगमन
 msgid "Python API"
 msgstr "Python API"
 
-msgid "The shared implementation is :func:`spacr.batch_correction.correct_batch_effects`. Most integrations use :func:`spacr.batch_correction.correct_from_metadata`, which ensures metadata columns never enter the numeric feature matrix."
-msgstr "साझा कार्यान्वयन :func:`spacr.batch_correction.correct_batch_effects` है। अधिकांश एकीकरण :func:`spacr.batch_correction.correct_from_metadata` का उपयोग करते हैं, जो सुनिश्चित करता है कि मेटाडेटा स्तंभ कभी भी संख्यात्मक विशेषता मैट्रिक्स में प्रवेश न करें।"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The shared implementation is :func:`spacr.batch_correction.correct_batch_effects`. Most integrations use :func:`spacr.batch_correction.correct_from_metadata` with separate feature and metadata frames. The adapter reads batch, control and covariate columns from metadata; it does not remove metadata columns already included in the feature frame. Select only measurement features for that frame, excluding numeric identifiers and other metadata."
+msgstr "साझा कार्यान्वयन :func:`spacr.batch_correction.correct_batch_effects` है। अधिकतर एकीकरण अलग विशेषता और मेटाडेटा फ़्रेम के साथ :func:`spacr.batch_correction.correct_from_metadata` का उपयोग करते हैं। एडाप्टर मेटाडेटा से बैच, नियंत्रण और सहचर स्तंभ पढ़ता है; वह विशेषता फ़्रेम में पहले से शामिल मेटाडेटा स्तंभ नहीं हटाता। उस फ़्रेम के लिए केवल मापी गई विशेषताएँ चुनें और संख्यात्मक पहचानकर्ता तथा अन्य मेटाडेटा बाहर रखें।"
 

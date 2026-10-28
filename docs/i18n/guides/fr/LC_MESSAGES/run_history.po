@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:22-0400\n"
+"POT-Creation-Date: 2026-10-28 13:49-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: fr\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -34,8 +34,9 @@ msgstr "le module, le statut, l’heure de début et de fin, la durée réelle e
 msgid "exact resolved settings;"
 msgstr "les paramètres résolus exacts ;"
 
-msgid "SHA-256 records for inputs, outputs and models;"
-msgstr "les empreintes SHA-256 des entrées, des sorties et des modèles ;"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "available input, output and model hash records; input/output hashing is optional and ``hash_inputs`` is off by default;"
+msgstr "les empreintes disponibles des entrées, sorties et modèles ; le calcul des empreintes d’entrée et de sortie est facultatif et ``hash_inputs`` est désactivé par défaut ;"
 
 msgid "structured warnings, provenance warnings and failure tracebacks;"
 msgstr "les avertissements structurés, les avertissements de provenance et les traces d’erreur ;"
@@ -47,14 +48,16 @@ msgid "declared seeds and runtime random-state identifiers."
 msgstr "les graines déclarées et les identifiants d’état aléatoire à l’exécution."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Search terms are combined: ``adamw plate_03 warning`` shows only records containing all three terms anywhere in settings, paths, warnings, failures or environment data. Module and status filters can be applied at the same time. Interrupted and corrupt run folders remain listed, with status ``running`` or ``corrupt`` and diagnostic warnings."
-msgstr "Les termes de recherche sont combinés : ``adamw plate_03 warning`` n’affiche que les enregistrements contenant les trois termes, où que ce soit dans les paramètres, les chemins, les avertissements, les échecs ou les données d’environnement. Les filtres par module et par statut peuvent être appliqués simultanément. Les dossiers d’exécution interrompus ou corrompus restent listés, avec le statut ``running`` ou ``corrupt`` et des avertissements de diagnostic."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Search terms are combined: ``adamw plate_03 warning`` shows only records containing all three terms anywhere in settings, paths, warnings, failures or environment data. Module and status filters can be applied at the same time. A stored ``running`` record is displayed as ``interrupted`` only when its recorded owner is provably gone; this does not change the stored status. Unverifiable owners, including records from other hosts, remain ``running``. Corrupt run folders remain listed with ``corrupt`` status and diagnostic warnings."
+msgstr "Les termes de recherche sont combinés : ``adamw plate_03 warning`` n’affiche que les entrées contenant les trois termes dans les paramètres, chemins, avertissements, échecs ou données d’environnement. Les filtres de module et de statut peuvent être appliqués ensemble. Une entrée stockée comme ``running`` s’affiche comme ``interrupted`` uniquement si l’absence de son propriétaire enregistré est établie ; cela ne modifie pas le statut stocké. Les propriétaires invérifiables, y compris les entrées d’autres hôtes, restent ``running``. Les dossiers d’exécution corrompus restent affichés avec le statut ``corrupt`` et des avertissements de diagnostic."
 
 msgid "Select a row to inspect its details. **Load settings in module** opens the original module and propagates the exact recorded settings into its controls; it does not start a run. **Open run folder** and **Copy path** expose the underlying ``~/.spacr/runs/...`` folder."
 msgstr "Sélectionnez une ligne pour en examiner les détails. **Charger les paramètres dans le module** ouvre le module d’origine et reporte les paramètres exacts enregistrés dans ses contrôles ; aucune exécution n’est lancée. **Ouvrir le dossier d’exécution** et **Copier le chemin** donnent accès au dossier ``~/.spacr/runs/...`` sous-jacent."
 
-msgid "Right-click selected rows to open their folders or delete them; **Clear all** deletes every run the table lists. Deleting asks first and removes only the journal folders; outputs written into your projects are not touched."
-msgstr "Faites un clic droit sur les lignes sélectionnées pour ouvrir leurs dossiers ou les supprimer ; **Tout effacer** supprime toutes les exécutions listées dans le tableau. La suppression demande d’abord confirmation et ne retire que les dossiers du journal ; les sorties écrites dans vos projets ne sont pas touchées."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Right-click selected rows to open their folders or delete them. **Clear all** requests deletion of every loaded run, including rows hidden by the current filters; it does not include runs created since the last refresh. Deleting asks first and removes only journal folders, not outputs in your projects. The result reports any folders that could not be deleted, including active runs protected by this spaCR process."
+msgstr "Faites un clic droit sur les lignes sélectionnées pour ouvrir ou supprimer leurs dossiers. **Tout effacer** demande la suppression de toutes les exécutions chargées, y compris les lignes masquées par les filtres actuels ; les exécutions créées depuis la dernière actualisation ne sont pas incluses. La suppression demande confirmation et ne retire que les dossiers du journal, pas les résultats dans vos projets. Le résultat signale les dossiers qui n’ont pas pu être supprimés, notamment les exécutions actives protégées par ce processus spaCR."
 
 msgid "Storage: pruning and caches"
 msgstr "Stockage : nettoyage et caches"

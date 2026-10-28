@@ -67,9 +67,11 @@ Python API
 ----------
 
 The shared implementation is :func:`spacr.batch_correction.correct_batch_effects`.
-Most integrations use
-:func:`spacr.batch_correction.correct_from_metadata`, which ensures metadata
-columns never enter the numeric feature matrix.
+Most integrations use :func:`spacr.batch_correction.correct_from_metadata`
+with separate feature and metadata frames. The adapter reads batch, control
+and covariate columns from metadata; it does not remove metadata columns
+already included in the feature frame. Select only measurement features for
+that frame, excluding numeric identifiers and other metadata.
 
 .. code-block:: python
 

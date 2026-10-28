@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:22-0400\n"
+"POT-Creation-Date: 2026-10-28 13:49-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -34,8 +34,9 @@ msgstr "모듈, 상태, 시작/종료 시간, 경과 시간, 프로세스 CPU �
 msgid "exact resolved settings;"
 msgstr "정확히 확정된 설정;"
 
-msgid "SHA-256 records for inputs, outputs and models;"
-msgstr "입력, 출력, 모델의 SHA-256 기록;"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "available input, output and model hash records; input/output hashing is optional and ``hash_inputs`` is off by default;"
+msgstr "사용 가능한 입력, 출력 및 모델 해시 기록이며, 입력/출력 해싱은 선택 사항이고 ``hash_inputs`` 는 기본적으로 꺼져 있습니다;"
 
 msgid "structured warnings, provenance warnings and failure tracebacks;"
 msgstr "구조화된 경고, 출처 경고, 실패 트레이스백;"
@@ -47,14 +48,16 @@ msgid "declared seeds and runtime random-state identifiers."
 msgstr "선언된 시드와 런타임 난수 상태 식별자."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Search terms are combined: ``adamw plate_03 warning`` shows only records containing all three terms anywhere in settings, paths, warnings, failures or environment data. Module and status filters can be applied at the same time. Interrupted and corrupt run folders remain listed, with status ``running`` or ``corrupt`` and diagnostic warnings."
-msgstr "검색어는 함께 적용됩니다. ``adamw plate_03 warning``\\ 은 설정, 경로, 경고, 실패 또는 환경 데이터 어디에든 세 단어를 모두 포함하는 기록만 표시합니다. 모듈 필터와 상태 필터를 동시에 적용할 수 있습니다. 중단되거나 손상된 실행 폴더는 ``running`` 또는 ``corrupt`` 상태 및 진단 경고와 함께 계속 목록에 표시됩니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Search terms are combined: ``adamw plate_03 warning`` shows only records containing all three terms anywhere in settings, paths, warnings, failures or environment data. Module and status filters can be applied at the same time. A stored ``running`` record is displayed as ``interrupted`` only when its recorded owner is provably gone; this does not change the stored status. Unverifiable owners, including records from other hosts, remain ``running``. Corrupt run folders remain listed with ``corrupt`` status and diagnostic warnings."
+msgstr "검색어는 결합됩니다. ``adamw plate_03 warning`` 는 설정, 경로, 경고, 실패 또는 환경 데이터 어디에든 세 단어가 모두 포함된 기록만 표시합니다. 모듈 및 상태 필터는 동시에 적용할 수 있습니다. 저장된 ``running`` 기록은 기록된 소유자가 사라졌음이 입증된 경우에만 ``interrupted`` 로 표시되며, 저장된 상태는 바뀌지 않습니다. 다른 호스트의 기록을 포함하여 소유자를 확인할 수 없으면 ``running`` 으로 유지됩니다. 손상된 실행 폴더는 ``corrupt`` 상태 및 진단 경고와 함께 계속 나열됩니다."
 
 msgid "Select a row to inspect its details. **Load settings in module** opens the original module and propagates the exact recorded settings into its controls; it does not start a run. **Open run folder** and **Copy path** expose the underlying ``~/.spacr/runs/...`` folder."
 msgstr "행을 선택하면 세부 정보를 볼 수 있습니다. **모듈에 설정 불러오기** 는 원래 모듈을 열고 기록된 정확한 설정을 컨트롤에 채우며, 실행을 시작하지는 않습니다. **실행 폴더 열기** 와 **경로 복사** 는 기본 ``~/.spacr/runs/...`` 폴더에 접근할 수 있게 합니다."
 
-msgid "Right-click selected rows to open their folders or delete them; **Clear all** deletes every run the table lists. Deleting asks first and removes only the journal folders; outputs written into your projects are not touched."
-msgstr "선택한 행을 마우스 오른쪽 버튼으로 클릭하여 폴더를 열거나 삭제합니다. **모두 지우기** 는 표에 나열된 모든 실행을 삭제합니다. 삭제 전에 먼저 확인을 요청하며 기록 폴더만 제거합니다. 프로젝트에 기록된 출력은 건드리지 않습니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Right-click selected rows to open their folders or delete them. **Clear all** requests deletion of every loaded run, including rows hidden by the current filters; it does not include runs created since the last refresh. Deleting asks first and removes only journal folders, not outputs in your projects. The result reports any folders that could not be deleted, including active runs protected by this spaCR process."
+msgstr "선택한 행을 마우스 오른쪽 버튼으로 클릭하여 해당 폴더를 열거나 삭제합니다. **모두 지우기** 는 현재 필터에 의해 숨겨진 행을 포함한 모든 로드된 실행의 삭제를 요청하며, 마지막 새로 고침 이후 생성된 실행은 포함하지 않습니다. 삭제 전에 확인을 요청하며 프로젝트의 출력이 아닌 저널 폴더만 제거합니다. 결과에는 이 spaCR 프로세스가 보호하는 활성 실행을 포함하여 삭제하지 못한 폴더가 보고됩니다."
 
 msgid "Storage: pruning and caches"
 msgstr "저장 공간: 정리와 캐시"

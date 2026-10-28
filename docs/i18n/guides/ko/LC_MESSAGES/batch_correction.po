@@ -1,5 +1,5 @@
 # spaCR user guide translation (ko).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-28 13:49-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -83,6 +83,7 @@ msgstr "모든 회귀 보정은 회귀 출력 옆에 ``batch_correction.json`` �
 msgid "Python API"
 msgstr "Python API"
 
-msgid "The shared implementation is :func:`spacr.batch_correction.correct_batch_effects`. Most integrations use :func:`spacr.batch_correction.correct_from_metadata`, which ensures metadata columns never enter the numeric feature matrix."
-msgstr "공통 구현은 :func:`spacr.batch_correction.correct_batch_effects` 입니다. 대부분의 통합 기능은 메타데이터 열이 숫자 특징 행렬에 들어가지 않도록 보장하는 :func:`spacr.batch_correction.correct_from_metadata` 를 사용합니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The shared implementation is :func:`spacr.batch_correction.correct_batch_effects`. Most integrations use :func:`spacr.batch_correction.correct_from_metadata` with separate feature and metadata frames. The adapter reads batch, control and covariate columns from metadata; it does not remove metadata columns already included in the feature frame. Select only measurement features for that frame, excluding numeric identifiers and other metadata."
+msgstr "공통 구현은 :func:`spacr.batch_correction.correct_batch_effects` 입니다. 대부분의 통합은 별도의 특징 프레임과 메타데이터 프레임으로 :func:`spacr.batch_correction.correct_from_metadata` 를 사용합니다. 어댑터는 메타데이터에서 배치, 대조 및 공변량 열을 읽으며, 이미 특징 프레임에 포함된 메타데이터 열은 제거하지 않습니다. 해당 프레임에는 측정 특징만 선택하고 숫자 식별자와 기타 메타데이터는 제외하세요."
 
