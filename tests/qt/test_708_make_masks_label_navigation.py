@@ -34,6 +34,8 @@ def screen(qtbot, qt_theme_applied, tmp_path, monkeypatch):
     qtbot.addWidget(widget)
     widget._set_mode(mm.MODE_EDIT_LABEL)
     assert widget._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not widget._loading and widget._reader_worker is None
+                   and widget._load_worker is None and widget._canvas.mask is not None)
     widget._canvas.resize(400, 400)
     widget._canvas.refresh()
     widget._btn_save_on_navigation.setChecked(False)
