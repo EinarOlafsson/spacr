@@ -1003,3 +1003,67 @@ def test_ctrl_selected_row_headers_collapse_together_after_qt_narrows_the_live_s
     assert {(index.row(), index.column()) for index in other.selectedIndexes()} == other_selection
     assert other_selection and other_item.isSelected()
     assert tuple(field.identity for field in dialog._fields) == fields
+
+
+def test_cursor_export_menu_custom_action_adds_the_selected_physical_image_through_its_button(overview, qtbot):
+    from pathlib import Path
+    from PySide6.QtCore import Qt
+    from PySide6.QtGui import QImage
+    from PySide6.QtWidgets import QPushButton
+
+    dialog = overview
+    item = dialog.wells.item(*dialog._well_positions[('p1', 'B02')])
+    qtbot.mouseClick(dialog.wells.viewport(), Qt.LeftButton,
+                     pos=dialog.wells.visualItemRect(item).center())
+    qtbot.waitUntil(lambda: dialog.fields.count() == 2, timeout=10000)
+    field_item = dialog.fields.item(0)
+    field = field_item.data(Qt.UserRole)
+    dialog.fields.clearSelection()
+    qtbot.mouseClick(dialog.fields.viewport(), Qt.LeftButton,
+                     pos=dialog.fields.visualItemRect(field_item).center())
+    qtbot.waitUntil(lambda: not dialog._image_jobs.is_busy() and not dialog._image_pending
+                    and dialog.view._item is not None, timeout=10000)
+    assert set(dialog._selected_fields) == {field.identity}
+    assert (field.plate, field.well, field.field_id, field.time_id, field.z_id) == ('p1', 'B02', '1', '1', '1')
+    pixels = dialog.view._item.pixmap().toImage().convertToFormat(QImage.Format_RGB888)
+    fields = tuple(record.identity for record in dialog._fields)
+    originals = {Path(path): Path(path).read_bytes() for record in dialog._fields for _, path in record.files}
+    menu = dialog._export_menu()
+    composer = None
+    try:
+        qtbot.waitUntil(menu.isVisible, timeout=5000)
+        actions = menu.actions()
+        assert [action.text() for action in actions] == ['Guided export…', 'Custom export…', 'Contact sheet PDFs']
+        assert all(action.isEnabled() and action.toolTip() for action in actions)
+        custom = actions[1]
+        qtbot.mouseClick(menu, Qt.LeftButton, pos=menu.actionGeometry(custom).center())
+        qtbot.waitUntil(lambda: dialog._export_dock is not None, timeout=10000)
+        composer = dialog._export_dock.content
+        assert composer is dialog._canvas_composer
+        assert composer.canvas.pages == [[]]
+        add_selected = next(button for button in composer.findChildren(QPushButton)
+                            if button.text() == 'Add selected')
+        assert add_selected.isEnabled()
+        qtbot.mouseClick(add_selected, Qt.LeftButton)
+        qtbot.waitUntil(lambda: len(composer.canvas.pages[0]) == 1 and bool(composer._previews)
+                        and not composer._preview_jobs.is_busy(), timeout=10000)
+        box = composer.canvas.pages[0][0]
+        assert box['kind'] == 'image'
+        assert tuple(box['source']['key'][1:]) == ('p1', 'B02', '1', '1', '1')
+        assert box['source']['well'] == 'B02'
+        assert box['overview_display']
+        preview = next(iter(composer._previews.values())).convertToFormat(QImage.Format_RGB888)
+        assert (preview.width(), preview.height()) == (40, 30)
+        assert preview == pixels
+        assert box['aspect'] == pytest.approx(4. / 3.)
+        assert dialog.view._item.pixmap().toImage().convertToFormat(QImage.Format_RGB888) == pixels
+        assert set(dialog._selected_fields) == {field.identity}
+        assert tuple(record.identity for record in dialog._fields) == fields
+        assert all(path.read_bytes() == content for path, content in originals.items())
+    finally:
+        menu.close()
+        if composer is not None:
+            qtbot.waitUntil(lambda: not composer._preview_jobs.is_busy() and not composer._export_jobs.is_busy(),
+                            timeout=10000)
+        dialog._close_export_dock()
+    assert dialog._export_dock is None
