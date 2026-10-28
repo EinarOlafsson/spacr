@@ -51,6 +51,15 @@ Create a standard spaCR merge
    selected in the normal table picker. Its columns are available for charts
    and gates.
 
+During standard validation, **Duplicate objects detected** means that rows
+repeat complete available image/object identities, including time when present.
+**Abort** is the default and the Escape action. Inspect the duplicate records
+and the aggregation details before choosing **Merge duplicates**; that choice
+explicitly consolidates repeated observations for the merged result, leaving
+the source tables unchanged. Distinct child objects sharing a parent join key
+are not duplicate observations. Conflicting identifiers or parent links still
+cause refusal and must be corrected before validation can succeed.
+
 Changing a table, name or rule invalidates the preview. Validate again before
 creating the result. Selecting a different table or base also resets custom
 relationships and overrides, so choose your sources before customizing them.

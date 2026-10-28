@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:06-0400\n"
+"POT-Creation-Date: 2026-10-28 18:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: de\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -75,6 +75,10 @@ msgstr "Drücken Sie **Validierung und Vorschau**. Prüfen Sie die Zeilenzahlen 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Press **Create merged table** after validation succeeds. The result is selected in the normal table picker. Its columns are available for charts and gates."
 msgstr "Drücken Sie nach erfolgreicher Validierung **Zusammengeführte Tabelle erstellen**. Das Ergebnis wird in der normalen Tabellenauswahl ausgewählt. Seine Spalten stehen für Diagramme und Gates zur Verfügung."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "During standard validation, **Duplicate objects detected** means that rows repeat complete available image/object identities, including time when present. **Abort** is the default and the Escape action. Inspect the duplicate records and the aggregation details before choosing **Merge duplicates**; that choice explicitly consolidates repeated observations for the merged result, leaving the source tables unchanged. Distinct child objects sharing a parent join key are not duplicate observations. Conflicting identifiers or parent links still cause refusal and must be corrected before validation can succeed."
+msgstr "Bei der Standardvalidierung bedeutet **Duplicate objects detected**, dass Zeilen vollständige verfügbare Bild-/Objektidentitäten wiederholen, einschließlich der Zeit, sofern vorhanden. **Abort** ist die Standardauswahl und die Aktion für Escape. Prüfen Sie die wiederholten Datensätze und die Aggregationsdetails, bevor Sie **Merge duplicates** wählen; diese Wahl fasst wiederholte Beobachtungen ausdrücklich für das zusammengeführte Ergebnis zusammen, ohne die Quelltabellen zu verändern. Verschiedene untergeordnete Objekte mit demselben Verknüpfungsschlüssel zum übergeordneten Objekt sind keine doppelten Beobachtungen. Widersprüchliche Kennungen oder Verknüpfungen zum übergeordneten Objekt führen weiterhin zur Ablehnung und müssen korrigiert werden, bevor die Validierung erfolgreich sein kann."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Changing a table, name or rule invalidates the preview. Validate again before creating the result. Selecting a different table or base also resets custom relationships and overrides, so choose your sources before customizing them."

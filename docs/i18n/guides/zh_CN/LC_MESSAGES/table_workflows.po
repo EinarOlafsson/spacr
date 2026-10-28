@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:06-0400\n"
+"POT-Creation-Date: 2026-10-28 18:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -75,6 +75,10 @@ msgstr "按 **验证和预览**。检查输入和输出行数、连接键、未�
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Press **Create merged table** after validation succeeds. The result is selected in the normal table picker. Its columns are available for charts and gates."
 msgstr "验证成功后按 **创建合并表**。结果会在普通表选择器中被选中，其列可用于图表和门控。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "During standard validation, **Duplicate objects detected** means that rows repeat complete available image/object identities, including time when present. **Abort** is the default and the Escape action. Inspect the duplicate records and the aggregation details before choosing **Merge duplicates**; that choice explicitly consolidates repeated observations for the merged result, leaving the source tables unchanged. Distinct child objects sharing a parent join key are not duplicate observations. Conflicting identifiers or parent links still cause refusal and must be corrected before validation can succeed."
+msgstr "在标准验证中，**Duplicate objects detected** 表示某些行重复了完整的可用图像/对象身份信息，其中也包括存在的时间信息。**Abort** 是默认选项，也是按 Escape 键执行的操作。选择 **Merge duplicates** 前，请检查重复记录和聚合详情；这一选择会明确地为合并结果整合重复观测，而不改变源表。共享同一父对象连接键的不同子对象不是重复观测。标识符或父对象链接存在冲突时仍会被拒绝，必须先纠正这些冲突，验证才能成功。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Changing a table, name or rule invalidates the preview. Validate again before creating the result. Selecting a different table or base also resets custom relationships and overrides, so choose your sources before customizing them."

@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:06-0400\n"
+"POT-Creation-Date: 2026-10-28 18:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: pt\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -75,6 +75,10 @@ msgstr "Pressione **Validar e pré-visualizar**. Inspecione as contagens de linh
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Press **Create merged table** after validation succeeds. The result is selected in the normal table picker. Its columns are available for charts and gates."
 msgstr "Pressione **Criar tabela mesclada** após a validação bem-sucedida. O resultado é selecionado no seletor normal de tabelas. Suas colunas ficam disponíveis para gráficos e gates."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "During standard validation, **Duplicate objects detected** means that rows repeat complete available image/object identities, including time when present. **Abort** is the default and the Escape action. Inspect the duplicate records and the aggregation details before choosing **Merge duplicates**; that choice explicitly consolidates repeated observations for the merged result, leaving the source tables unchanged. Distinct child objects sharing a parent join key are not duplicate observations. Conflicting identifiers or parent links still cause refusal and must be corrected before validation can succeed."
+msgstr "Na validação padrão, **Duplicate objects detected** significa que há linhas que repetem identidades completas de imagem/objeto disponíveis, incluindo o tempo quando presente. **Abort** é a opção padrão e a ação da tecla Escape. Inspecione os registros repetidos e os detalhes da agregação antes de escolher **Merge duplicates**; essa escolha consolida explicitamente as observações repetidas no resultado combinado, sem alterar as tabelas de origem. Objetos filhos distintos que compartilham uma chave de junção com o objeto pai não são observações duplicadas. Identificadores ou vínculos com o objeto pai que sejam conflitantes continuam causando recusa e precisam ser corrigidos para que a validação possa ser concluída."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Changing a table, name or rule invalidates the preview. Validate again before creating the result. Selecting a different table or base also resets custom relationships and overrides, so choose your sources before customizing them."

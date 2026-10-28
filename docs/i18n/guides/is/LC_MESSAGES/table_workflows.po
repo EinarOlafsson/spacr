@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:06-0400\n"
+"POT-Creation-Date: 2026-10-28 18:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
@@ -75,6 +75,10 @@ msgstr "Ýttu á **Sannprófa og forskoða**. Skoðaðu fjölda inntaks- og útt
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Press **Create merged table** after validation succeeds. The result is selected in the normal table picker. Its columns are available for charts and gates."
 msgstr "Ýttu á **Búa til sameinaða töflu** eftir að sannprófun tekst. Niðurstaðan er valin í venjulega töfluvalinu. Dálkar hennar eru tiltækir fyrir gröf og gates."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "During standard validation, **Duplicate objects detected** means that rows repeat complete available image/object identities, including time when present. **Abort** is the default and the Escape action. Inspect the duplicate records and the aggregation details before choosing **Merge duplicates**; that choice explicitly consolidates repeated observations for the merged result, leaving the source tables unchanged. Distinct child objects sharing a parent join key are not duplicate observations. Conflicting identifiers or parent links still cause refusal and must be corrected before validation can succeed."
+msgstr "Við staðlaða sannprófun merkir **Duplicate objects detected** að raðir endurtaki full auðkenni mynda/hluta sem eru tiltæk, þar með talið tíma þegar hann er til staðar. **Abort** er sjálfgefinn valkostur og aðgerðin sem Escape virkjar. Skoðaðu endurteknu færslurnar og upplýsingar um samantekt áður en þú velur **Merge duplicates**; það val sameinar endurteknar athuganir sérstaklega fyrir sameinuðu niðurstöðuna án þess að breyta upprunatöflunum. Aðskildir undirhlutir sem deila tengilykli yfirhlutar eru ekki tvíteknar athuganir. Ósamrýmanleg auðkenni eða tengingar við yfirhluti valda enn höfnun og þarf að leiðrétta þau áður en sannprófun getur tekist."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Changing a table, name or rule invalidates the preview. Validate again before creating the result. Selecting a different table or base also resets custom relationships and overrides, so choose your sources before customizing them."
