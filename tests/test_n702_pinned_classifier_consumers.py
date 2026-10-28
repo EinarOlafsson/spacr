@@ -15,6 +15,7 @@ from tests.test_cov_deep_spacr_entry_fusion import ds_stubs
 
 @pytest.fixture
 def pinned(tmp_path, monkeypatch):
+    monkeypatch.setenv('SPACR_MODEL_DOWNLOAD', 'on')
     payload = b'recorded classifier checkpoint'
     raw = {'key': 'recorded-classifier', 'name': 'current-classifier.pth',
            'kind': 'classifier', 'sha256': hashlib.sha256(payload).hexdigest(),

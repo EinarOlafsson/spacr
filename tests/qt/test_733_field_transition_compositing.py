@@ -123,7 +123,8 @@ def test_real_idle_mouse_release_does_not_replay_displaced_window_text(
         assert producer is not None
         backdrop._held_rows.release(fade=False)
         backdrop._held_rows._stirred = time.monotonic()
-        qtbot.mouseMove(page, QPoint(4, 140))
+        native_window = window.windowHandle()
+        qtbot.mouseMove(native_window, native_window.mapFromGlobal(page.mapToGlobal(QPoint(4, 140))))
         qtbot.wait(3100)
         assert backdrop._held_rows.frame is not None, (
             backdrop.theme(), backdrop._held_rows._usable(producer),
@@ -159,7 +160,8 @@ def test_real_idle_mouse_release_does_not_replay_displaced_window_text(
                                  created is not None and created[2] == region))
 
         monkeypatch.setattr(held, 'release', observe_release)
-        qtbot.mouseMove(card, card.rect().center())
+        qtbot.mouseMove(native_window, native_window.mapFromGlobal(
+            card.mapToGlobal(card.rect().center())))
         qtbot.waitUntil(lambda: bool(releases))
         assert releases[0] == (True, True, True, True)
         qtbot.wait(25)

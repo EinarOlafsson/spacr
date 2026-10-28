@@ -1,4 +1,6 @@
 """Unknown models refuse stock substitution; explicit existing identities win."""
+from types import SimpleNamespace
+
 import pytest
 
 from spacr import model_zoo as zoo
@@ -8,6 +10,9 @@ from spacr import utils as utilities
 @pytest.fixture
 def isolated(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(utilities, "cp_models", SimpleNamespace(
+        MODEL_DIR=tmp_path / "native-cellpose-cache",
+        CellposeModel=lambda **kwargs: pytest.fail("Unconfigured model reached constructor")))
     monkeypatch.setattr(zoo, "catalogue", lambda **kwargs: [])
     monkeypatch.setattr(zoo, "fetch", lambda *args, **kwargs: pytest.fail("No weights may be fetched"))
     monkeypatch.setattr(utilities, "_installed_cellpose_models", lambda: ("cpsam", "cpsam_v2", "cpdino", "cpdino-vitb"))
