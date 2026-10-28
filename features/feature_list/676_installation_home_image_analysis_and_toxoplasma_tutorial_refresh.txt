@@ -557,3 +557,7 @@ Use current nightly with fresh native capture, all50 voices, reviewed roughly-on
 2026-10-27 — Navigator88 source has18 scenes/407 words and13 source-bound translations; normal translation/pronunciation and focused Docs/RST/link/public-symbol checks pass.
 The user guide, toctree and existing public launch/preference API references are implemented. Native file/folder drops will use a real owned GNOME Files window and pointer drag; no drop-event injection.
 Real measured project/database offer Graph Builder and the saved settings CSV offers Annotate preview; retain its stale source as preview-only and Cancel rather than applying it. All50 voice production and native recording/publication remain.
+
+2026-10-27 — Navigator native driver covers18 scenes with actual owned Files pointer drops, source preservation, evidence/settings checks, workflow exploration and native database handoff; no analysis, AI request or alpha enable.
+Eleven focused cases pass with ten retained and one affected query correction. Actual native widget rejects measure cells but accepts case-insensitive Measure; update only scene4 first sentence and13 matching query translations.
+The original50 voice render finishes with8/8 partitions0; retain it and every sentence cache, then synthesize only changed query units into a fresh voice stage. Native Files preflight awaits the normal quiet GPU turn before source-point review/full recording.

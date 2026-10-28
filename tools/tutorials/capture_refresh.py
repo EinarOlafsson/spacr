@@ -166,6 +166,12 @@ def build_parser() -> argparse.ArgumentParser:
     """The recorder options (shared with the capture-host launcher, which parses them first)."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--module', default='home')
+    parser.add_argument('--navigator-files-preflight', action='store_true',
+                        help='With navigator, record actual owned Files trays and stop before any drop')
+    parser.add_argument('--navigator-files-points', type=Path,
+                        help='Root-reviewed real Files entry points and exact window geometry for both native drops')
+    parser.add_argument('--navigator-files-points-sha256',
+                        help='Exact SHA256 of the reviewed Files entry-point JSON')
     parser.add_argument('--home-preferences-only', action='store_true',
                         help='Refresh only Home Preferences scenes and the real Apply/Keep/Revert flow, using the default spaCR field backdrop')
     parser.add_argument('--home-navigation-only', action='store_true',
@@ -292,6 +298,14 @@ def main() -> int:
     if args.gate_chrome_only and (args.module != 'gate_editor' or args.gate_database is None
                                  or args.run or args.download or args.preview):
         parser.error('--gate-chrome-only requires --module gate_editor and --gate-database, without run/download/preview')
+    if (args.navigator_files_preflight or args.navigator_files_points is not None
+            or args.navigator_files_points_sha256 is not None):
+        if (args.module != 'navigator' or args.run or args.download or args.preview
+                or (args.navigator_files_preflight and args.navigator_files_points is not None)
+                or ((args.navigator_files_points is None) != (args.navigator_files_points_sha256 is None))):
+            parser.error('Navigator Files options require navigator alone, either preflight or one SHA-bound review')
+    if args.module == 'navigator' and (args.run or args.download or args.preview or args.openings):
+        parser.error('Navigator never runs analysis, downloads inputs or records another tour')
     if args.home_navigation_only and (args.module != 'home' or args.openings or args.home_preferences_only
                                      or args.run or args.download or args.preview):
         parser.error('--home-navigation-only requires Home alone without Preferences, download or analysis')
@@ -760,7 +774,7 @@ def main() -> int:
             capture_openings.record_mask_source_channels(app, window, stage, captures, capture, settle, write_json)
         else:
             capture_openings.record_align_test_data(app, window, stage, captures, capture, settle, write_json, args.timeout)
-    elif args.module not in ('workflow_overview', 'toxoplasma', 'plasmodium', 'candida') and not (
+    elif args.module not in ('navigator', 'workflow_overview', 'toxoplasma', 'plasmodium', 'candida') and not (
             host is not None and args.module in ('embeddings', 'host_pathogen')) and not args.record_startup:
         # (host: these drivers record their own 00_home, with the pointer on the tile)
         capture('00_home')
@@ -861,6 +875,12 @@ def main() -> int:
         finally:
             if browser is not None:
                 browser.close()
+    elif args.module == 'navigator':
+        from capture_navigator import record_navigator
+        record_navigator(app, window, stage, captures, capture, settle, write_json, args.timeout,
+                         files_preflight=args.navigator_files_preflight,
+                         files_points=args.navigator_files_points,
+                         files_points_sha256=args.navigator_files_points_sha256)
     elif args.module == 'alpha_organisms':
         from capture_alpha_organisms import record_alpha_organisms
         record_alpha_organisms(app, window, stage, captures, capture, settle, write_json)

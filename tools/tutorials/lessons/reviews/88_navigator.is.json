@@ -1,13 +1,18 @@
 {
   "lesson": "88_navigator",
-  "english_sha256": "7741adb41662bef10499abfc7d81f4d703c3f7a264d927607dcbe2f86d193f65",
+  "english_sha256": "bc247555154ed849430770f0f22040a3e93391f8bfc3b19a2806fb4493eac031",
   "review": {
     "kind": "Codex AI translation and technical text review",
     "translator": "Codex (AI), translated from the current English source",
     "date": "2026-10-27",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "correction": {
+      "date": "2026-10-27",
+      "kind": "Codex AI translation and technical text correction; no listening review or native-speaker sign-off",
+      "scope": "Scene 4 first sentence only: use the supported literal query Measure instead of measure cells; all other prose unchanged"
+    }
   },
   "language": "is",
   "title": "Navigator: finndu rétta verkfærið fyrir inntakið",
@@ -23,7 +28,7 @@
     "Navigator byrjar með leitarreit yfir spaCR-þemanu. Opnaðu hann með spacr-nav eða spacr-navigator og byrjaðu á verkefni, skrá eða möppu.",
     "Þú getur líka virkjað Navigator í Help. Navigator er sjálfgefið virkur; vistað val helst.",
     "Notaðu samanbrjótanlega hliðarvalmyndina til að opna einingu beint. News og Widgets opnast við hlið vinnusvæðisins á meðan leitin og lýsingin haldast á sínum stað.",
-    "Sláðu inn measure cells og ýttu á Enter. Leitin gerir ekki greinarmun á há- og lágstöfum. Innsláttur einn og sér heldur núverandi tillögum og ræsir ekkert verkfæri.",
+    "Sláðu inn Measure og ýttu á Enter. Leitin gerir ekki greinarmun á há- og lágstöfum. Innsláttur einn og sér heldur núverandi tillögum og ræsir ekkert verkfæri.",
     "Dragðu eina staðbundna myndskrá inn í Navigator. Hann skoðar inntakið og býður upp á studd næstu skref í stað þess að hefja vinnslu.",
     "Dragðu inn eina möppu til að skoða innihaldið. Tillögurnar ráðast af skrám og gögnum sem eru þegar í möppunni.",
     "Límdu inn slóð að skrá eða verkefni og ýttu á Enter til að tilgreina nákvæma staðsetningu. Með Browse má líka velja skrá eða möppu.",

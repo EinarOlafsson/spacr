@@ -1,13 +1,18 @@
 {
   "lesson": "88_navigator",
-  "english_sha256": "7741adb41662bef10499abfc7d81f4d703c3f7a264d927607dcbe2f86d193f65",
+  "english_sha256": "bc247555154ed849430770f0f22040a3e93391f8bfc3b19a2806fb4493eac031",
   "review": {
     "kind": "Codex AI translation and technical text review",
     "translator": "Codex (AI), translated from the current English source",
     "date": "2026-10-27",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "correction": {
+      "date": "2026-10-27",
+      "kind": "Codex AI translation and technical text correction; no listening review or native-speaker sign-off",
+      "scope": "Scene 4 first sentence only: use the supported literal query Measure instead of measure cells; all other prose unchanged"
+    }
   },
   "language": "nb",
   "title": "Navigator: finn riktig verktøy for inndataene dine",
@@ -23,7 +28,7 @@
     "Navigator starter med et søkefelt over spaCR-temaet. Åpne det med spacr-nav eller spacr-navigator, og begynn med en oppgave, fil eller mappe.",
     "Du kan også slå på Navigator fra Help. Navigator er på som standard; et lagret valg beholdes.",
     "Bruk den sammenleggbare sidemenyen til å åpne en modul direkte. News og Widgets åpnes ved siden av arbeidsområdet, mens søket og beskrivelsen blir stående.",
-    "Skriv measure cells og trykk Enter. Søket skiller ikke mellom store og små bokstaver. Skriving alene beholder de gjeldende forslagene og starter ikke noe verktøy.",
+    "Skriv Measure og trykk Enter. Søket skiller ikke mellom store og små bokstaver. Skriving alene beholder de gjeldende forslagene og starter ikke noe verktøy.",
     "Slipp én lokal bildefil i Navigator. Det undersøker inndataene og foreslår støttede neste trinn i stedet for å starte en behandling.",
     "Slipp én mappe for å undersøke innholdet. Forslagene avhenger av filene og dataene som allerede finnes i mappen.",
     "Lim inn en fil- eller prosjektsti og trykk Enter for å angi en nøyaktig plassering. Browse lar deg også velge en fil eller mappe.",

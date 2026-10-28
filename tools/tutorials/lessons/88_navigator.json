@@ -32,7 +32,7 @@
     },
     {
       "visual": "04_enter_case_query",
-      "narration": "Type measure cells and press Enter. Matching ignores letter case. Typing alone leaves the current suggestions in place and does not start a tool.",
+      "narration": "Type Measure and press Enter. Matching ignores letter case. Typing alone leaves the current suggestions in place and does not start a tool.",
       "hold_after": 0.7
     },
     {

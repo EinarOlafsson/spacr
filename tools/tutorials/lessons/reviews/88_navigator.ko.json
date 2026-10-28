@@ -1,13 +1,18 @@
 {
   "lesson": "88_navigator",
-  "english_sha256": "7741adb41662bef10499abfc7d81f4d703c3f7a264d927607dcbe2f86d193f65",
+  "english_sha256": "bc247555154ed849430770f0f22040a3e93391f8bfc3b19a2806fb4493eac031",
   "review": {
     "kind": "Codex AI translation and technical text review",
     "translator": "Codex (AI), translated from the current English source",
     "date": "2026-10-27",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "correction": {
+      "date": "2026-10-27",
+      "kind": "Codex AI translation and technical text correction; no listening review or native-speaker sign-off",
+      "scope": "Scene 4 first sentence only: use the supported literal query Measure instead of measure cells; all other prose unchanged"
+    }
   },
   "language": "ko",
   "title": "Navigator: 입력에 맞는 도구 찾기",
@@ -23,7 +28,7 @@
     "Navigator는 spaCR 테마 위에 검색창을 표시하며 시작합니다. spacr-nav 또는 spacr-navigator로 연 다음 작업, 파일 또는 폴더에서 시작하세요.",
     "Help에서도 Navigator를 켤 수 있습니다. Navigator는 기본적으로 켜져 있으며 저장된 선택은 유지됩니다.",
     "접을 수 있는 도크에서 모듈을 바로 여세요. News와 Widgets는 작업 공간 옆에 열리고 검색창과 설명은 제자리에 유지됩니다.",
-    "measure cells를 입력하고 Enter를 누르세요. 검색은 영문 대소문자를 구분하지 않습니다. 입력만 하면 기존 제안이 유지되며 도구가 시작되지 않습니다.",
+    "Measure를 입력하고 Enter를 누르세요. 검색은 영문 대소문자를 구분하지 않습니다. 입력만 하면 기존 제안이 유지되며 도구가 시작되지 않습니다.",
     "로컬 이미지 파일 하나를 Navigator에 끌어 놓으세요. 입력을 확인하고 지원되는 다음 단계를 제안하며 처리 실행을 시작하지는 않습니다.",
     "폴더 하나를 끌어 놓아 내용을 확인하세요. 제안은 해당 폴더에 이미 있는 파일과 데이터에 따라 달라집니다.",
     "정확한 위치를 지정하려면 파일이나 프로젝트 경로를 붙여 넣고 Enter를 누르세요. Browse에서도 파일이나 폴더를 선택할 수 있습니다.",
