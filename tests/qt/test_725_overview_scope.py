@@ -723,3 +723,76 @@ def test_declared_workspace_headings_survive_lazy_disclosure_and_collapse(
         screen._overview_page.retire()
         screen.close()
         window.close()
+
+
+def test_crossed_enhancement_percentiles_report_refusal_without_changing_pixels(workspace, qtbot):
+    screen, folders = workspace
+    view = _workspace_browser(screen, qtbot)
+    page, model = screen._overview_page, screen._settings_model
+    originals = {path: path.read_bytes() for folder in folders for path in folder.glob('*.tif')}
+    before = _pixels(view, folders[0].name, 'A01', (1, 2)).copy()
+    assert model.set_value_for_key('enhance_percentile_low', 99.)
+    assert model.set_value_for_key('enhance_percentile_high', 1.)
+    assert {'enhance_percentile_low', 'enhance_percentile_high'} <= set(page._bridge.pending())
+    qtbot.mouseClick(page._apply_bar.apply_button, Qt.LeftButton)
+    assert model._read_value('enhance_percentile_low') == 99.
+    assert model._read_value('enhance_percentile_high') == 1.
+    assert view._enhancement is None
+    assert 'enhance_percentile_low' in view.status.text()
+    assert 'enhance_percentile_high' in view.status.text()
+    np.testing.assert_array_equal(_pixels(view, folders[0].name, 'A01', (1, 2)), before)
+    assert all(path.read_bytes() == raw for path, raw in originals.items())
+
+
+def test_original_metadata_paths_follow_field_selection_and_first_field_fallback(workspace, qtbot):
+    screen, folders = workspace
+    view = _workspace_browser(screen, qtbot)
+    page, model = screen._overview_page, screen._settings_model
+    original = model._read_value('src')
+    view.fields.setCurrentRow(-1)
+    assert view.fields.currentItem() is None
+    assert set(page._current_image_paths()) == {
+        str(folders[0] / 'p1-A01-f1-c1.tif'), str(folders[0] / 'p1-A01-f1-c2.tif')}
+    view.plates.setCurrentIndex(view.plates.findData(folders[0].name))
+    view._well(view.wells.item(*view._well_positions[(folders[0].name, 'A02')]))
+    qtbot.waitUntil(lambda: view.fields.count() == 1, timeout=15000)
+    view.fields.setCurrentRow(0)
+    assert set(page._current_image_paths()) == {
+        str(folders[0] / 'p1-A02-f1-c1.tif'), str(folders[0] / 'p1-A02-f1-c2.tif')}
+    assert model._read_value('src') == original
+
+
+def test_category_height_ignores_right_button_gestures_and_survives_folding(qtbot):
+    from PySide6.QtCore import QEvent, QPointF
+    from PySide6.QtGui import QMouseEvent
+    from PySide6.QtWidgets import QApplication, QLabel
+    from spacr.qt.widgets.section import Section
+
+    section = Section('Export', expanded=True)
+    section.add_prose(QLabel('A real export row'))
+    qtbot.addWidget(section)
+    section.resize(400, 240)
+    grip = browser._overview_height_grip(section)
+    grip.set_height(180)
+    section.show()
+    qtbot.waitUntil(lambda: grip.isVisible())
+    minimum = section._body.minimumHeight()
+    local = QPointF(grip.rect().center())
+    global_point = QPointF(grip.mapToGlobal(grip.rect().center()))
+    for event in (
+        QMouseEvent(QEvent.MouseButtonPress, local, global_point,
+                    Qt.RightButton, Qt.RightButton, Qt.NoModifier),
+        QMouseEvent(QEvent.MouseMove, local + QPointF(0, 45), global_point + QPointF(0, 45),
+                    Qt.NoButton, Qt.RightButton, Qt.NoModifier),
+        QMouseEvent(QEvent.MouseButtonRelease, local, global_point,
+                    Qt.RightButton, Qt.NoButton, Qt.NoModifier),
+        QMouseEvent(QEvent.MouseButtonDblClick, local, global_point,
+                    Qt.RightButton, Qt.RightButton, Qt.NoModifier),
+    ):
+        QApplication.sendEvent(grip, event)
+    assert section._body.minimumHeight() == minimum == 180
+    section.set_expanded(False)
+    assert grip.isHidden() and not section.is_expanded()
+    section.set_expanded(True)
+    assert not grip.isHidden() and section.is_expanded()
+    assert section._body.minimumHeight() == minimum
