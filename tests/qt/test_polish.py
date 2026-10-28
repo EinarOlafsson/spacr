@@ -148,6 +148,8 @@ def test_make_masks_empty_state_cta_swaps_to_editor(qtbot, qt_theme_applied,
     qtbot.addWidget(screen)
     assert screen._body_stack.currentWidget() is screen._empty_state
     screen._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._body_stack.currentWidget() is screen._image_page
 
 
