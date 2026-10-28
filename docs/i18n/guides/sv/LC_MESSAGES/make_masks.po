@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:22-0400\n"
+"POT-Creation-Date: 2026-10-28 14:46-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -84,19 +84,21 @@ msgstr "Granska bilden och etiketterna. Bilder och masker måste ha samma rumsli
 msgid "Correct an object with a tool, or choose a detection method and inspect its preview before accepting objects. **Undo** and **Redo** apply to mask edits."
 msgstr "Korrigera ett objekt med ett verktyg, eller välj en detektionsmetod och granska dess förhandsvisning innan du godtar objekt. **Ångra** och **Gör om** gäller för maskändringar."
 
-msgid "Press **Save mask** or **Ctrl+S** before moving to another field. Saving writes a ``uint16`` label TIFF in the ordinary layout; a Cellpose bundle is updated as a bundle. The source image is preserved."
-msgstr "Tryck på **Spara mask** eller **Ctrl+S** innan du går till ett annat fält. Sparandet skriver en etikett-TIFF av typen ``uint16`` i den vanliga layouten; ett Cellpose-paket uppdateras som ett paket. Källbilden bevaras."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Press **Save mask** or **Ctrl+S** before moving to another field. Saving writes a label TIFF in the ordinary layout. Ordinary segmentation uses ``uint16``; existing ``uint32`` masks and exact IDs requiring that width retain ``uint32`` storage. A Cellpose bundle is updated as a bundle. The source image is preserved."
+msgstr "Tryck på **Spara mask** eller **Ctrl+S** innan du går till ett annat bildfält. Sparandet skriver en etikett-TIFF i det vanliga upplägget. Vanlig segmentering använder ``uint16``; befintliga ``uint32``-masker och exakta ID:n som kräver den bredden behåller ``uint32``-lagring. Ett Cellpose-paket uppdateras som ett paket. Källbilden bevaras."
 
 msgid "Use **Keep** or **Discard** to record a field-level curation verdict and advance. These verdicts go to ``csv/keep_discard.csv``; Discard records a decision without deleting the image or its mask. Save edits separately."
 msgstr "Använd **Behåll** eller **Kassera** för att registrera ett kureringsbeslut för fältet och gå vidare. Besluten skrivs till ``csv/keep_discard.csv``; Kassera registrerar ett beslut utan att radera bilden eller dess mask. Spara ändringar separat."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Save mask**, **Previous image** and **Next image** share the top action row with the editing tools. Scroll that row horizontally on a narrow window to reach controls outside the visible area."
-msgstr "**Spara mask**, **Föregående bild** och **Nästa bild** finns på den översta åtgärdsraden tillsammans med redigeringsverktygen. Rulla raden i sidled i ett smalt fönster för att nå kontroller utanför det synliga området."
+msgid "**Save mask** and the previous/next-image buttons are in the navigation group below the image. Editing and annotation controls wrap in the top bar as the window narrows. When the wrapped top controls need more height than available, scroll vertically within that bar to reach them."
+msgstr "**Spara mask** och knapparna för föregående/nästa bild finns i navigeringsgruppen under bilden. Redigerings- och annoteringskontrollerna radbryts i det övre fältet när fönstret blir smalare. När de radbrutna övre kontrollerna behöver mer höjd än vad som finns, rulla vertikalt i det fältet för att nå dem."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "**Save on navigation**, after **Next image**, saves an edited mask before **Keep**, **Discard**, **Next image** or **Previous image** moves on. It is off by default and remembered between sessions. If the save fails, the image stays open and no verdict is recorded. **Skip** never writes a mask."
-msgstr "**Spara vid navigering**, efter **Nästa bild**, sparar en redigerad mask innan **Behåll**, **Kassera**, **Nästa bild** eller **Föregående bild** går vidare. Det är avstängt som standard och kommer ihåg mellan sessioner. Om sparningen misslyckas förblir bilden öppen och inget beslut registreras. **Hoppa över** skriver aldrig någon mask."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Save on navigation**, in the **Save mask** arrow menu, saves an edited mask before **Keep**, **Discard**, **Next image** or **Previous image** moves on. It is off by default and remembered between sessions. If the save fails, the image stays open and no verdict is recorded. **Skip** never writes a mask."
+msgstr "**Spara vid navigering**, i pilmenyn för **Spara mask**, sparar en ändrad mask innan **Behåll**, **Kassera**, **Nästa bild** eller **Föregående bild** går vidare. Funktionen är avstängd som standard och valet sparas mellan sessioner. Om sparandet misslyckas förblir bilden öppen och inget omdöme registreras. **Hoppa över** skriver aldrig en mask."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on, the electron microscopy test data and the FIB-SEM volumes described under :ref:`mm-tem` and :ref:`mm-volumes`."
@@ -253,8 +255,8 @@ msgid "A saved edit history is stored beside the mask as ``<mask>.curation.json`
 msgstr "En sparad ändringshistorik lagras bredvid masken som ``<mask>.curation.json``. Att öppna en bild utan att redigera den skapar inga belägg för manuell kurering. Befintlig historik behålls när en tidigare kurerad mask redigeras. Se :func:`spacr.qt.mask_engine.save_mask` och :class:`spacr.curation.CurationLog` för filkontraktet."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "The saved format has at most 65,535 positive labels. Saving refuses a binary mask with more connected objects, or an existing multi-label mask whose IDs exceed that range; it does not wrap oversized IDs into smaller numbers. A refused save preserves an existing TIFF or Cellpose bundle and its metadata. In ordinary mode, a mask with one foreground value is interpreted as binary and its connected components receive separate IDs. Deliberate groups created with Divide / Merge or a magnifier drag retain their shared IDs when saved and reopened with their matching curation history. For primary/secondary relationships, use the exact-ID path described below. See :func:`spacr.qt.mask_engine.canonical_labels` for these distinct conventions."
-msgstr "Det sparade formatet har högst 65 535 positiva etiketter. Sparandet vägrar en binär mask med fler sammanhängande objekt, eller en befintlig mask med flera etiketter vars ID överskrider intervallet; det lindar inte om för stora ID till mindre tal. Ett vägrat sparande bevarar en befintlig TIFF eller ett befintligt Cellpose-paket och dess metadata. I vanligt läge tolkas en mask med ett enda förgrundsvärde som binär, och dess sammanhängande komponenter får separata ID. För relationer mellan primära och sekundära objekt, använd vägen med exakta ID som beskrivs nedan. Se :func:`spacr.qt.mask_engine.canonical_labels` för dessa olika konventioner. Avsiktliga grupper skapade med Dela / Slå samman eller en magnifier-dragning behåller sina gemensamma ID när de sparas och öppnas igen med sin motsvarande kurateringshistorik."
+msgid "Ordinary segmentation stores at most 65,535 positive labels. Saving refuses a binary mask with more connected objects; it does not wrap oversized IDs into smaller numbers. Existing ``uint32`` masks and the exact-ID path retain that wider label storage when needed. A refused save preserves an existing TIFF or Cellpose bundle and its metadata. In ordinary mode, a mask with one foreground value is interpreted as binary and its connected components receive separate IDs. Deliberate groups created with Divide / Merge or a magnifier drag retain their shared IDs when saved and reopened with their matching curation history. For primary/secondary relationships, use the exact-ID path described below. See :func:`spacr.qt.mask_engine.canonical_labels` for these distinct conventions."
+msgstr "Vanlig segmentering lagrar högst 65,535 positiva etiketter. Sparandet vägrar en binär mask med fler sammanhängande objekt; för stora ID:n omvandlas inte till mindre tal. Befintliga ``uint32``-masker och exakt-ID-vägen behåller den bredare lagringen när det behövs. Ett vägrat sparande bevarar en befintlig TIFF eller ett Cellpose-paket med dess metadata. I vanligt läge tolkas en mask med ett enda förgrundsvärde som binär, och dess sammanhängande komponenter får separata ID:n. Avsiktliga grupper skapade med Divide / Merge eller ett förstoringsglasdrag behåller sina gemensamma ID:n när de sparas och öppnas med sin matchande kureringshistorik. För primära/sekundära relationer används exakt-ID-vägen nedan. Se :func:`spacr.qt.mask_engine.canonical_labels` för dessa skilda konventioner."
 
 msgid "Canvas tools and navigation"
 msgstr "Verktyg på arbetsytan och navigering"
@@ -317,6 +319,14 @@ msgstr "Linjal"
 
 msgid "Drag a line to measure image-pixel distance. Right-click with Ruler selected to clear it. Zooming and panning preserve the measurement."
 msgstr "Dra en linje för att mäta avstånd i bildpixlar. Högerklicka med Linjal vald för att rensa den. Zoomning och panorering bevarar mätningen."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Pick"
+msgstr "Välj"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Shown while mask layers are loaded: remove, restore or add objects of the curated overlay; see `Curate against mask layers`_."
+msgstr "Visas när masklager är inlästa: ta bort, återställ eller lägg till objekt i det kurerade överlägget; se `Curate against mask layers`_."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Shift or Alt + drag** pans. The wheel zooms about the cursor; **Esc** resets zoom. **Left/Right** selects the previous/next field. **Ctrl+Z/Ctrl+Y** undoes or redoes an edit. With Wand selected, **Ctrl + left click** removes the bounded intensity region. Outside Wand, **Ctrl + left click** splits an object at its waist; **Ctrl + right click** removes the object under the cursor. The shortcut panel beside the view lists the current gestures, including magnifier controls."
@@ -597,6 +607,50 @@ msgstr "I **Importera bilder** tar **Ordna bilder och masker…** bredvid bildma
 msgid "A file that holds several channels is split rather than refused: choose **Split multi-channel files**, or accept the offer when you press **Apply**. Each plane is copied into ``split_channels/`` with one channel column per plane, and the original files are not touched. Files move in the background, and the manifest records every move. If a move fails, the message names the error, and the manifest lists every move made before it."
 msgstr "En fil som innehåller flera kanaler delas upp i stället för att avvisas: välj **Dela upp flerkanalsfiler**, eller godta erbjudandet när du trycker på **Verkställ**. Varje plan kopieras till ``split_channels/`` med en kanalkolumn per plan, och originalfilerna rörs inte. Filerna flyttas i bakgrunden, och manifestet registrerar varje flytt. Om en flytt misslyckas anger meddelandet felet, och manifestet listar varje flytt som gjordes före den."
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Curate against mask layers"
+msgstr "Kurera mot masklager"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Mask layers compare any number of mask sets for the same images, such as the curated training labels and the masks two models made, and build one curated set from them. A layer is a folder of label masks matched to the images by stem, like ``masks/``. Add one with **Add mask layer…** in the arrow menu of **Open File / Folder…**, or start the session from a terminal:"
+msgstr "Masklager jämför valfritt antal maskuppsättningar för samma bilder, exempelvis kurerade träningsetiketter och masker från två modeller, och bygger en kurerad uppsättning av dem. Ett lager är en mapp med etikettmasker som matchas till bilderna efter filnamnsstam, som ``masks/``. Lägg till ett med **Lägg till masklager…** i pilmenyn för **Öppna fil / katalog…**, eller starta sessionen från en terminal:"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A layer name that is not a folder where the command runs is looked for in ``--folder``. The **Mask layers** settings category lists the layers. Each is drawn as outlines in its own colour; click a layer's swatch to change the colour, or clear its check box to hide it. The choices are kept in ``curate_layers.json`` in the folder, so the next session of the folder opens with them."
+msgstr "Ett lagernamn som inte är en mapp där kommandot körs söks i ``--folder``. Inställningskategorin **Masklager** listar lagren. Varje lager ritas som konturer i sin egen färg; klicka på färgrutan för att ändra färg eller avmarkera kryssrutan för att dölja lagret. Valen lagras i ``curate_layers.json`` i mappen och används när nästa session öppnar mappen."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The editable **curated overlay** starts as a copy of the **Base layer**, the first layer unless another is chosen. With **Show only flagged** off, the **Pick** tool edits it as follows:"
+msgstr "Det redigerbara **kurerat överlägg** börjar som en kopia av **Baslager**, det första lagret om inget annat väljs. Med **Visa bara flaggade** avstängt redigerar verktyget **Välj** det så här:"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Click an object of the curated overlay to remove it. A removed object of the base layer is drawn dashed; click it again to restore it."
+msgstr "Klicka på ett objekt i det kurerade överlägget för att ta bort det. Ett borttaget objekt från baslagret ritas streckat; klicka på det igen för att återställa det."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Click an object of another visible layer to add it under a new, unused ID. An added object fills only background: where it overlaps an object of the overlay, the overlay keeps its pixels. When two visible layers have an object under the click, the first in the list is added."
+msgstr "Klicka på ett objekt i ett annat synligt lager för att lägga till det med ett nytt, oanvänt ID. Ett tillagt objekt fyller bara bakgrund: där det överlappar ett objekt i överlägget behåller överlägget sina pixlar. Om två synliga lager har ett objekt under klicket läggs det första i listan till."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Hidden layers are not picked from. To add another layer's object where a removed base object lies, hide the base layer first."
+msgstr "Dolda lager används inte vid val. Dölj först baslagret för att lägga till ett annat lagers objekt där ett borttaget basobjekt ligger."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With **Show only flagged** on, picking a visible flagged object removes the curated objects it overlaps; picking it again restores them. A flagged object over background can instead be added. Hidden curated objects are not picked."
+msgstr "Med **Visa bara flaggade** aktiverat tar ett klick på ett synligt flaggat objekt bort de kurerade objekt som det överlappar; nästa klick återställer dem. Ett flaggat objekt över bakgrund kan i stället läggas till. Dolda kurerade objekt väljs inte."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Brush, erase and the other tools edit the same overlay, and **Ctrl+Z** and **Ctrl+Y** undo and redo every click."
+msgstr "Pensel, sudd och övriga verktyg redigerar samma överlägg; **Ctrl+Z** och **Ctrl+Y** ångrar och gör om varje klick."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Save to** chooses where the overlay is written. The default is **New mask folder**, ``masks_curated_<date>`` beside the images (an existing ``masks_curated_*`` folder is reused, so a session resumes into it); type another name or a full path under **Folder name**, or pass ``--save-to``. Choosing one of the layer folders overwrites its masks field by field, and takes effect only after **Overwrite** in the confirmation shown under the control. A field already saved to the save folder opens from there."
+msgstr "**Spara till** väljer var överlägget skrivs. Standard är **Ny maskmapp**, ``masks_curated_<date>`` bredvid bilderna (en befintlig ``masks_curated_*``-mapp återanvänds så att sessionen fortsätter där); skriv ett annat namn eller en fullständig sökväg under **Mappnamn**, eller ange ``--save-to``. Ett val av en lagermapp skriver över dess masker bildfält för bildfält och börjar gälla först efter **Skriv över** i bekräftelsen under kontrollen. Ett redan sparat bildfält öppnas från målmappen."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Keep** saves the overlay as edited, with its object IDs unchanged, and moves to the next field; **Next** behaves as in any queue. Edited saves write curation history (``<stem>.tif.curation.json``). Layer decisions are recorded in ``<stem>.decisions.json`` beside the mask: the base IDs that were removed and each added object's ID, source layer and ID in that layer. Progress is kept in the ``curate_status.csv`` inside the save folder, so a review resumes on its own record and offers again the fields the folder's ordinary curation already finished. Without layers, Make Masks behaves and saves exactly as before."
+msgstr "**Behåll** sparar överlägget som redigerat med oförändrade objekt-ID:n och går till nästa bildfält; **Next** fungerar som i andra köer. Ändrade sparningar skriver kureringshistorik (``<stem>.tif.curation.json``). Lagerbeslut registreras i ``<stem>.decisions.json`` bredvid masken: borttagna bas-ID:n samt varje tillagt objekts ID, källager och ID i det lagret. Förloppet sparas i ``curate_status.csv`` i målmappen, så granskningen fortsätter med sin egen post och åter erbjuder bildfält som mappens vanliga kurering redan avslutat. Utan lager fungerar och sparar Make Masks precis som tidigare."
+
 msgid "Upload data"
 msgstr "Ladda upp data"
 
@@ -626,6 +680,30 @@ msgstr "Normalisering och segmentering behöver fortfarande arbetsminne för en 
 msgid "If memory still rises unexpectedly, record whether the last console stage was preprocessing filenames, normalization or model evaluation, together with image dimensions, channel count and the saved settings. Existing ``stack/`` files help distinguish a completed ingestion stage from a failure before the first field was written."
 msgstr "Om minnesanvändningen fortfarande stiger oväntat, notera om det senaste konsolsteget var förbehandling av filnamn, normalisering eller modellutvärdering, tillsammans med bilddimensioner, antal kanaler och sparade inställningar. Befintliga filer i ``stack/`` hjälper till att skilja avslutad inläsning från ett fel som inträffade innan det första bildfältet skrevs."
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Calibrated spectral live preview (alpha)"
+msgstr "Kalibrerad spektral liveförhandsvisning (alpha)"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The optional calibrated route supports organized two-dimensional channel-last ``stack/*.npy`` fields in Segmentation Live Preview. Enable alpha features and spectral unmixing, supply the existing single-stain control wells, and set ``unmix_calibration`` to your measured calibration JSON. Set ``unmix_pixel_size_um`` explicitly to the source's ``[Y, X]`` sampling in micrometers. No microscope calibration is inferred. Legacy batch segmentation, Measure, volumes, and additional PSF or enhancement processing refuse this route. A separate, explicitly configured calibrated V2 batch route supports independent two-dimensional fields within its validated settings limits. Leaving the calibration blank preserves legacy processing."
+msgstr "Den valfria kalibrerade vägen stöder organiserade tvådimensionella ``stack/*.npy``-bildfält med kanalaxeln sist i Segmentation Live Preview. Aktivera alpha-funktioner och spektral avblandning, ange befintliga enfärgskontrollbrunnar och sätt ``unmix_calibration`` till uppmätt kalibrerings-JSON. Ange uttryckligen källans ``[Y, X]``-sampling i mikrometer med ``unmix_pixel_size_um``. Ingen mikroskopkalibrering härleds. Äldre batchsegmentering, Measure, volymer och ytterligare PSF- eller förbättringsbehandling vägrar denna väg. En separat, uttryckligen konfigurerad kalibrerad V2-batchväg stöder oberoende tvådimensionella bildfält inom sina validerade inställningsgränser. Tom kalibrering behåller äldre bearbetning."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The calibration JSON has ``version: 1``, ``axes: \"YX\"``, ``pixel_size_um: [Y, X]``, ``reference_channel`` and a ``channels`` list. Every physical channel appears exactly once. Each channel entry supplies ``channel``, ``shift_to_reference_px: [dy, dx]``, a measured two-dimensional ``psf`` array, ``psf_origin_px: [Y, X]`` and ``psf_pixel_size_um: [Y, X]``. The reference channel has zero shift. A shift means ``aligned[y, x] = acquired[y - dy, x - dx]``; only integer shifts are supported. Each finite nonnegative PSF must have positive mass, odd dimensions and its declared origin at its center. Image and PSF sampling must agree; no implicit resampling is performed."
+msgstr "Kalibrerings-JSON innehåller ``version: 1``, ``axes: \"YX\"``, ``pixel_size_um: [Y, X]``, ``reference_channel`` och en ``channels``-lista. Varje fysisk kanal förekommer exakt en gång. Varje kanalpost anger ``channel``, ``shift_to_reference_px: [dy, dx]``, en uppmätt tvådimensionell ``psf``-array, ``psf_origin_px: [Y, X]`` och ``psf_pixel_size_um: [Y, X]``. Referenskanalen har noll förskjutning. En förskjutning betyder ``aligned[y, x] = acquired[y - dy, x - dx]``; endast heltalsförskjutningar stöds. Varje ändlig icke-negativ PSF måste ha positiv massa, udda dimensioner och sitt deklarerade origo i mitten. Bildens och PSF:ens sampling måste stämma; ingen implicit omsampling görs."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Each channel is convolved with all the other channels' supplied PSFs. Their common effective PSF is the product convolution of all supplied kernels: resolution is broadened, not restored by deconvolution. This assumes a shift-invariant PSF per observation channel and a common linear mixing matrix. Only the intersection supported by real acquired pixels is used. No reflected, wrapped or zero-padded image pixels enter the solve or segmentation. Controls and the selected image undergo the same calibrated operation."
+msgstr "Varje kanal faltas med alla andra kanalers angivna PSF:er. Deras gemensamma effektiva PSF är produktfaltningen av alla angivna kärnor: upplösningen breddas, inte återställs genom dekonvolution. Detta antar en skiftinvariant PSF per observationskanal och en gemensam linjär blandningsmatris. Endast snittet som stöds av verkligt förvärvade pixlar används. Inga speglade, lindade eller nollutfyllda bildpixlar ingår i lösningen eller segmenteringen. Kontroller och vald bild genomgår samma kalibrerade operation."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The valid crop retains signed float residuals, including negative values from noise or model mismatch; these are not negative biological concentrations. Provenance records the matrix, calibration and kernel hashes, shifts, sampling, common support, original-canvas crop and negative fractions. Segmentation receives a separately recorded nonnegative view. Labels are restored to the original canvas; complete labels touching the valid crop boundary are excluded and recorded rather than presented as complete objects. Source files and raw measurement data remain unchanged. Real known-amount double-stain validation and calibrated Measure integration remain open."
+msgstr "Det giltiga utsnittet behåller flyttalsresidualer med tecken, även negativa värden från brus eller modellavvikelse; dessa är inte negativa biologiska koncentrationer. Proveniensen registrerar matris-, kalibrerings- och kärnhashar, förskjutningar, sampling, gemensamt stöd, utsnitt i ursprunglig bildyta och negativa andelar. Segmenteringen får en separat registrerad icke-negativ vy. Etiketter återställs till ursprunglig bildyta; hela etiketter som berör den giltiga utsnittsgränsen utesluts och registreras i stället för att presenteras som kompletta objekt. Källfiler och råa mätdata ändras inte. Verklig validering med känd mängd och dubbelfärgning samt kalibrerad Measure-integration återstår."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Calibration is bounded to 16 channels, 31-pixel individual PSF dimensions, 127-pixel combined support, integer shifts within 4096 pixels and 16,777,216 selected channel pixels per image. Oversized or incompatible inputs refuse before calibrated channel-copy allocation. These limits do not alter the legacy route. Across all selected control fields, at most 67,108,864 channel pixels are retained, bounding their matched float64 arrays to 512 MiB; this is not a total process-memory limit, as convolution and other working arrays require additional memory. Choose fewer or smaller control fields if this aggregate limit is exceeded. This limit never triggers additional sampling or dropping; the existing selection of up to 24 fields per dye is unchanged."
+msgstr "Kalibrering begränsas till 16 kanaler, 31 pixlar per individuell PSF-dimension, 127 pixlars kombinerat stöd, heltalsförskjutningar inom 4096 pixlar och 16,777,216 valda kanaler×pixlar per bild. För stora eller inkompatibla indata vägras före allokering av kalibrerade kanalkopior. Dessa gränser ändrar inte den äldre vägen. Över alla valda kontrollbildfält behålls högst 67,108,864 kanaler×pixlar, vilket begränsar deras matchade float64-arrayer till 512 MiB; det är ingen total processminnesgräns eftersom faltning och andra arbetsarrayer kräver ytterligare minne. Välj färre eller mindre kontrollbildfält om totalgränsen överskrids. Gränsen utlöser aldrig extra sampling eller borttagning; det befintliga urvalet av högst 24 bildfält per färgämne är oförändrat."
+
 msgid "Engine parameter reference"
 msgstr "Referens för motorparametrar"
 
@@ -647,8 +725,9 @@ msgstr "dimensionslös lokal kontrastvikt; standard 0,2 för båda lägena. Nibl
 msgid "``propagate_sigma`` — default ``2.0``"
 msgstr "``propagate_sigma`` — standard ``2.0``"
 
-msgid "the Gaussian blur before the maxima are found, in pixels. SEPARATE FROM THE IMAGE ENHANCEMENT CHAIN'S DENOISE, which has already run by the time a detector sees the image: this one exists because the blur that makes one object have one centre is usually far stronger than the blur anyone wants the object's EDGE measured through, and the propagation measures the edge on the same blurred image. Leave the chain's denoise off unless the field is genuinely noisy, or the two blurs compound."
-msgstr "den Gaussiska oskärpan innan maxima hittas, i pixlar. SKILD FRÅN BRUSREDUCERINGEN I BILDFÖRBÄTTRINGSKEDJAN, som redan har körts när en detektor ser bilden: den här finns eftersom den oskärpa som ger ett objekt ett enda centrum vanligen är mycket starkare än den oskärpa man vill mäta objektets KANT genom, och propageringen mäter kanten på samma oskarpa bild. Låt kedjans brusreducering vara avstängd om inte fältet verkligen är brusigt, annars förstärker de två oskärpesteget varandra."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "the Gaussian blur before the maxima are found, in pixels. This is separate from the image enhancement chain's denoise, which has already run by the time a detector sees the image: the blur that gives one object one centre is usually much stronger than the blur wanted for measuring the object's edge, and the propagation measures the edge on the same blurred image. Leave the chain's denoise off unless the field is genuinely noisy, or the two blurs compound."
+msgstr "Gaussisk oskärpa före maximisökningen, i pixlar. Den är skild från bildförbättringskedjans brusreducering, som redan körts när detektorn ser bilden: oskärpan som ger varje objekt ett centrum är oftast mycket starkare än den som önskas när objektets kant mäts, och propagationen mäter kanten på samma suddade bild. Lämna kedjans brusreducering avstängd om bildfältet inte är tydligt brusigt, annars adderas de två suddningarna."
 
 msgid "``propagate_min_distance`` — default ``10``"
 msgstr "``propagate_min_distance`` — standard ``10``"
