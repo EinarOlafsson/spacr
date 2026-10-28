@@ -349,6 +349,8 @@ KEYS_RETIRED = frozenset({
 
 
 KEYS_ADDED_BY_REGROUP = frozenset({
+    # item 441: explicit plate-scoped well mapping for indexed ScanR filenames.
+    "metadata_well_map",
     # item 631: the Measure RAM guard switch
     "ram_guard",
     "object_filters",
