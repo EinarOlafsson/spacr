@@ -202,8 +202,9 @@ def test_the_mosaic_is_painted_centred_above_the_strap_line(cover):
     assert abs((x + side / 2.0) - cover.width() / 2.0) < 1.0
     def green_share(x0, y0, x1, y1):
         hits = total = 0
-        for py in range(int(y0), int(y1), 3):
-            for px in range(int(x0), int(x1), 3):
+        # A stride aliases the downscaled microscopy tile grid; count every pixel.
+        for py in range(int(y0), int(y1)):
+            for px in range(int(x0), int(x1)):
                 total += 1
                 hits += shot.pixelColor(px, py).green() > 80
         return hits / max(1, total)
