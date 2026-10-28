@@ -250,3 +250,70 @@ def test_verified_preview_refusal_preserves_model_text_and_other_settings(
     assert warnings and model.collect() == before
     assert (field.currentText() if hasattr(field, 'currentText') else field.text()) == text
     assert path.read_bytes() == raw_bytes
+
+
+def test_run_refuses_a_real_read_only_project_without_changing_its_inputs(
+        screen, qtbot, tmp_path, monkeypatch):
+    from copy import deepcopy
+    from pathlib import Path
+    import subprocess
+    import sys
+    import textwrap
+    import numpy as np
+    import tifffile
+    from spacr.qt import crash_recovery
+
+    monkeypatch.setenv('SPACR_LOCK_DIR', str(tmp_path / 'locks'))
+    project = tmp_path / 'project'
+    project.mkdir()
+    image = project / 'field.tif'
+    tifffile.imwrite(image, np.arange(72, dtype=np.uint16).reshape(8, 9))
+    screen._settings_model.set_value_for_key('src', str(project))
+    lock_path = Path(crash_recovery._lock_file_for(project))
+    ready = tmp_path / 'holder-ready'
+    holder_code = textwrap.dedent('''
+        import os, sys
+        from pathlib import Path
+        from PySide6.QtCore import QLockFile
+        lock = QLockFile(sys.argv[1])
+        lock.setStaleLockTime(0)
+        assert lock.tryLock(5000)
+        Path(sys.argv[2]).write_text(str(os.getpid()))
+        sys.stdin.readline()
+        lock.unlock()
+    ''')
+    process = subprocess.Popen([sys.executable, '-c', holder_code, str(lock_path), str(ready)],
+                               stdin=subprocess.PIPE, stdout=subprocess.DEVNULL,
+                               stderr=subprocess.PIPE, text=True)
+    try:
+        qtbot.waitUntil(lambda: ready.exists() or process.poll() is not None, timeout=7000)
+        assert process.poll() is None and ready.read_text() == str(process.pid)
+        lock_bytes = lock_path.read_bytes()
+        image_bytes = image.read_bytes()
+        settings = deepcopy(screen._settings_model.collect())
+        holders, messages = [], []
+        monkeypatch.setattr(crash_recovery, '_ask_about_a_locked_project',
+                            lambda _parent, _path, holder: holders.append(holder) or 'read_only')
+        monkeypatch.setattr(mod.QMessageBox, 'information',
+                            lambda _parent, _title, text: messages.append(text))
+        monkeypatch.setattr(screen, '_wait_for_the_entry_import', lambda _override: False)
+        monkeypatch.setattr(mod, 'resolve_pipeline_entry', lambda _key: object())
+        monkeypatch.setattr(mod, 'make_thread',
+                            lambda *_args, **_kwargs: pytest.fail('Read-only Run must not create a worker'))
+
+        screen._on_run()
+
+        assert len(holders) == 1 and holders[0]['pid'] == process.pid
+        assert len(messages) == 1 and 'read-only' in messages[0] and str(project) in messages[0]
+        assert screen._thread is None and getattr(screen, '_worker', None) is None
+        assert screen._settings_model.collect() == settings
+        assert image.read_bytes() == image_bytes and lock_path.read_bytes() == lock_bytes
+        assert process.poll() is None
+    finally:
+        try:
+            process.communicate('\n', timeout=5)
+        except (subprocess.TimeoutExpired, BrokenPipeError):
+            process.kill()
+            process.communicate(timeout=5)
+        finally:
+            crash_recovery._PROJECT_CHOICES.pop(str(lock_path), None)
