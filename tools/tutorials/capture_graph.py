@@ -40,6 +40,26 @@ def _inspect_trellis_fold(capture, screen, button, settle, timeout):
             or panel is None or not panel.isVisible() or not panel.isEnabled()
             or panel.width() <= 0 or panel.height() <= 0):
         raise RuntimeError('The actual Small Multiples page has no visible usable panel')
+    splitter = panel._splitter
+    channels = splitter.pane('Channels')
+    heading = getattr(channels.widget, 'heading', None) if channels is not None else None
+    handle = splitter.handle(1)
+    if (channels is None or channels.is_collapsed() or heading is None
+            or not heading.isVisible() or not heading.isEnabled()
+            or handle is None or not handle.isVisible() or not handle.isEnabled()):
+        raise RuntimeError('The actual Channels divider is not visible and usable')
+    start = handle.rect().center()
+    shelf_width = max(300, min(600, round(splitter.width() * .30)))
+    delta = shelf_width - handle.mapTo(splitter, start).x()
+    if delta > 4:
+        human.drag(capture, handle, start, (delta, 0), duration=3.0)
+        settle(.4)
+    from capture_trellis import _require_visible_trellis
+    _require_visible_trellis(panel)
+    if (not channels.widget.isVisible() or not panel.well.isVisible()
+            or channels.widget.width() <= 0 or channels.widget.height() <= 0
+            or panel.well.width() <= 0 or panel.well.height() <= 0):
+        raise RuntimeError('The actual Channels controls are not readable after the native drag')
     capture_ui.point_at(capture, child._header, dwell=2.0)
     index = pages.indexOf(child)
     if index <= 0:
