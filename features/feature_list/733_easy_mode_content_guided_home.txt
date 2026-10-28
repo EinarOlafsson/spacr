@@ -7,7 +7,7 @@ DOCS/API DELIVERY — 2026-10-28
 Progress List name: N733 — Navigator (maintainer confirmed 2026-10-28).
 
 Lifecycle: new
-Status:    OPEN — Navigator implementation and current Docs/API are delivered; the separate Work-owned Navigator tutorial remains pending.
+Status:    IMPLEMENTATION APPROVED — current Navigator guide/API and the new fifty-voice tutorial media are delivered; Workstation session 2 retains app follow-up.
 Requested: maintainer, 2026-10-26
 Owner:     Workstation session 2 (Navigator app); Codex tutorial lane (new tutorial and user Docs/API publication).
 Related:   startup options, Preferences, Home, dock, spaCR AI
@@ -623,3 +623,11 @@ Codex transfers tutorial follow-up to Claude after the guarded nightly push and 
 
 2026-10-28 — Navigator tutorial media and all60 page routes pass; source/guide/API references are committed, but mandatory app push checks fail the pre-existing English API13203/13202 inventory. Neither nightly push nor live website deployment is claimed.
 Claude receives the committed work and exact recovery state in the requested handoff; Codex pauses. Home retains the unrelated API contract correction; no assertions or ratchets are relaxed.
+
+2026-10-28 — Maintainer resumes Codex's full tutorial campaign. Codex retains existing88 media and current Home guide/translations while finishing guarded nightly publication; no new recording/audio is required for this push.
+The exact inventory blocker is the existing documented callback spacr.qt.widgets.home._EasyHomePage._choose_navigator_ai.configure, introduced by dabb6b7bfc without its dated API arrival. Add its normal one-symbol contract/review coverage and retain the13202 baseline; Navigator app behavior and Workstation session2 ownership remain unchanged.
+Preserve Home's17 accepted guide-message bindings across all nine languages by retaining its current Navigator/Python guide text; detailed launch/preference references and Spaceout aliases remain in the English API landing template.
+
+2026-10-28 — Navigator88 tutorial media is hosted/fully read back and all60 published routes pass; its API callback has the exact dated arrival contract with the13202 baseline unchanged and three focused source-boundary checks passing.
+Current Home guide/Python-guide translations remain bound in all nine languages; detailed launch/preference API links and Spaceout aliases are preserved in the English API landing page. Normal assembled API memory is byte-identical to its existing publication, so no duplicate upload is made.
+The tutorial owner resumes the entire campaign after this guarded nightly publication; app follow-up ownership remains with Workstation session 2, and the reported Help paint stalls are not claimed fixed.

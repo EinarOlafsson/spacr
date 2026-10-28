@@ -16,7 +16,9 @@ exploration and native source handoff. The existing public interface is
 Spaceout launch. :func:`spacr.qt.preferences.get_easy_mode` and
 :func:`spacr.qt.preferences.set_easy_mode` read and persist the Navigator
 preference; the historical function names remain unchanged. These functions
-do not submit AI requests or run an analysis.
+do not submit AI requests or run an analysis. Launch Navigator with
+``spacr-nav`` or ``spacr-navigator``; ``spaceout-nav`` and
+``spaceout-navigator`` select the Spaceout presentation for that process.
 
 Applications and workflow
 -------------------------

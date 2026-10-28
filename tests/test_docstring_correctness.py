@@ -3281,7 +3281,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "538_signed_cell_measurement_api_arrival_2026-10-24.json",
                      "707_api_help_label_size_hint_api_arrival_2026-10-24.json",
                      "707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json",
-                     "733_easy_mode_api_arrivals_2026_10_26.json"):
+                     "733_easy_mode_api_arrivals_2026_10_26.json",
+                     "733_navigator_ai_provider_api_arrival_2026-10-28.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -5013,6 +5014,20 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert scn_additions.keys() == {
         "spacr.convert.read_scn", "spacr.convert.scn_to_rgb8",
         "spacr.qt.mask_engine.read_image"}
+    assert hashlib.sha256(json.dumps(
+        scn_additions, sort_keys=True, ensure_ascii=False,
+    ).encode()).hexdigest() == "dfae0a387359b48a079cb322497d50149357a995fc7958fa8a9300742b2f45fd"
+    scn_additions = dict(scn_additions)
+    scn_additions["spacr.qt.mask_engine.read_image"] = (
+        "Read one image file the way Make Masks shows it.\n\n"
+        "Explicitly reviewed container planes use their shared scientific or\n"
+        "raster reader and source identity. Native SCN and TEM readers retain\n"
+        "their calibration; ordinary unreviewed images use imageio.\n\n"
+        ":param path: the image file.\n:returns: the pixels."
+    )
+    assert hashlib.sha256(scn_additions[
+        "spacr.qt.mask_engine.read_image"].encode()).hexdigest() == (
+            "078f7778ea1644f4cbc0d8f98c58656fbb100f9df68de92e24fa67ec45731809")
     assert {key: docs[key] for key in scn_additions} == scn_additions
     actual_by_symbol = {item.symbol: item for item in actual_callables}
     assert {key: actual_by_symbol[key].docstring for key in scn_additions} == scn_additions
@@ -5253,6 +5268,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("707_api_help_label_size_hint_api_arrival_2026-10-24.json", 1),
         ("707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json", 5),
         ("733_easy_mode_api_arrivals_2026_10_26.json", 4),
+        ("733_navigator_ai_provider_api_arrival_2026-10-28.json", 1),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -5784,7 +5800,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "538_signed_cell_measurement_api_arrival_2026-10-24.json",
                      "707_api_help_label_size_hint_api_arrival_2026-10-24.json",
                      "707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json",
-                     "733_easy_mode_api_arrivals_2026_10_26.json"):
+                     "733_easy_mode_api_arrivals_2026_10_26.json",
+                     "733_navigator_ai_provider_api_arrival_2026-10-28.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -5873,7 +5890,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "538_signed_cell_measurement_api_arrival_2026-10-24.json",
                      "707_api_help_label_size_hint_api_arrival_2026-10-24.json",
                      "707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json",
-                     "733_easy_mode_api_arrivals_2026_10_26.json"):
+                     "733_easy_mode_api_arrivals_2026_10_26.json",
+                     "733_navigator_ai_provider_api_arrival_2026-10-28.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
