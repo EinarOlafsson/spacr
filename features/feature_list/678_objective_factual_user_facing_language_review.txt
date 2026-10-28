@@ -1,8 +1,5 @@
 ================================================================================
 OBJECTIVE, FACTUAL LANGUAGE THROUGHOUT SPACR
-
-2026-10-28 — G5 resumes the factual user-documentation lane on current Nightly, with root integration/publication. First scope is a bounded source-verified reproducibility/checkpoint guide review; retain citations, licenses, scientific meaning and required disclosures, record retained/revised coverage, and use normal affected localization only with a writer lease. Navigator Docs/API is already delivered; Work retains tutorial production. Broad app/API/localized/tutorial review and hosted acceptance remain open.
-2026-10-28 — Corrected eight source-verified paragraphs in the reproducibility and checkpoint guides: optional hashing, bounded inventories, recorded-dictionary digests, environment fallbacks/cache lifetime, attempted finalization and initial checkpoint creation. G4 independently reviewed English and all 72 translated paragraphs; normal two-domain guide generation/import/audit passes in nine languages, preserving 297 unrelated translated records. No executable/API/caption/disclosure/license/citation changes; root retains publication and the remaining broad review.
 ================================================================================
 
 Lifecycle: new
@@ -388,3 +385,6 @@ Native review, fifth batch:
   pt (1): qt.preferences.spacr_mode_for_level#3
   sv (0): 
   zh_CN (4): qt.screens.db_browser#14, qt.screens.db_browser#1, qt.screens.db_browser.EditRefused#1, qt.preferences.spacr_mode_for_level#3
+
+2026-10-28 — G5 resumes the factual user-documentation lane on current Nightly, with root integration/publication. First scope is a bounded source-verified reproducibility/checkpoint guide review; retain citations, licenses, scientific meaning and required disclosures, record retained/revised coverage, and use normal affected localization only with a writer lease. Navigator Docs/API is already delivered; Work retains tutorial production. Broad app/API/localized/tutorial review and hosted acceptance remain open.
+2026-10-28 — Corrected eight source-verified paragraphs in the reproducibility and checkpoint guides: optional hashing, bounded inventories, recorded-dictionary digests, environment fallbacks/cache lifetime, attempted finalization and initial checkpoint creation. G4 independently reviewed English and all 72 translated paragraphs; normal two-domain guide generation/import/audit passes in nine languages, preserving 297 unrelated translated records. No executable/API/caption/disclosure/license/citation changes; root retains publication and the remaining broad review.
