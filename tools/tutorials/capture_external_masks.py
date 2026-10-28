@@ -724,7 +724,7 @@ def record_external_masks(app, window, screen, stage, captures, capture,
             console_fold(False)
             runtime_space(False)
             if host:
-                capture_ui_drv_b.splitter_to(capture, console._split, [1400, 80])
+                capture_ui.splitter_sizes(capture, console._split, [1400, 80])
             else:
                 console.set_split_sizes(1400, 80)
             settle(0.5)
