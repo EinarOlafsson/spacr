@@ -242,6 +242,82 @@ def test_model_output_cardinality_and_canvas_are_refused_without_source_replacem
     _unchanged(inputs)
 
 
+@needs_partition_access
+def test_oversized_completed_child_record_cannot_be_claimed_as_durable_success(mixed_plate_inputs, monkeypatch):
+    from spacr import pipeline_v2
+
+    inputs = mixed_plate_inputs
+    segment = pipeline_v2.stream_masks_from_stack
+
+    def grow_record(*args, **kwargs):
+        result = segment(*args, **kwargs)
+        record = kwargs['psf_session'].root / 'psf' / 'segmentation_application.json'
+        with record.open('ab') as stream:
+            stream.truncate(16 * 1024 ** 2 + 1)
+        return result
+
+    monkeypatch.setattr(pipeline_v2, 'stream_masks_from_stack', grow_record)
+    with pytest.raises(ValueError):
+        _run(inputs)
+    path = next(inputs['source'].glob('calibrated_plate_batch*/plate_batch.json'))
+    record = json.loads(path.read_text())
+    assert record['status'] == record['children'][0]['status'] == 'failed'
+    assert record['children'][0]['record_sha256'] is None
+    assert record['complete'] is record['segmentation_complete'] is False
+    _unchanged(inputs)
+
+
+@needs_partition_access
+def test_a_failed_error_note_cannot_replace_the_original_partition_failure(mixed_plate_inputs, monkeypatch):
+    from cellpose import models
+    from spacr import psf_pipeline
+
+    class UnnotableError(RuntimeError):
+        def add_note(self, note):
+            raise OSError('Cannot attach a note')
+
+    inputs = mixed_plate_inputs
+    failure = UnnotableError('actual model refusal')
+    original_write = psf_pipeline._write_json
+
+    def fail_model(*args, **kwargs):
+        raise failure
+
+    def failed_status(path, value):
+        if Path(path).name == 'plate_batch.json' and value.get('status') == 'failed':
+            raise OSError('Status journal unavailable')
+        return original_write(path, value)
+
+    monkeypatch.setattr(models.CellposeModel, 'eval', fail_model)
+    monkeypatch.setattr(psf_pipeline, '_write_json', failed_status)
+    with pytest.raises(UnnotableError) as caught:
+        _run(inputs)
+    assert caught.value is failure
+    path = next(inputs['source'].glob('calibrated_plate_batch*/plate_batch.json'))
+    record = json.loads(path.read_text())
+    assert record['status'] == record['children'][0]['status'] == 'running'
+    assert record['complete'] is record['segmentation_complete'] is False
+    _unchanged(inputs)
+
+
+def test_child_qc_failure_persists_only_the_error_type_without_invalidating_segmentation(completed_partition):
+    from spacr import pipeline_v2
+
+    inputs, result = completed_partition
+    child = result['plate_results'][0]
+    path = Path(result['manifest_path'])
+    prior = json.loads(path.read_text())
+    pipeline_v2._record_partition_qc(result, child, 'failed', RuntimeError('private detail'))
+    record = json.loads(path.read_text())
+    assert record['children'][0]['qc_error_type'] == 'RuntimeError'
+    assert record['children'][0]['qc_status'] == 'failed'
+    assert record['children'][0]['status'] == 'complete'
+    assert record['children'][0]['record_sha256'] == prior['children'][0]['record_sha256']
+    assert record['segmentation_complete'] is True and record['complete'] is False
+    assert 'private detail' not in path.read_text()
+    _unchanged(inputs)
+
+
 @pytest.fixture
 def completed_partition(mixed_plate_inputs):
     if not PARTITION_ACCESS:
