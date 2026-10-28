@@ -1279,3 +1279,78 @@ def test_lazy_overview_plate_configuration_never_persists_without_a_source(qtbot
     assert all(runner.active_jobs() == 0 and not runner.is_busy()
                for runner in (*_runners(view), view._readout_jobs, view._levels_jobs))
     assert list(tmp_path.iterdir()) == []
+
+
+def test_hovering_a_real_not_loaded_well_never_borrows_the_previous_well_identity(view, qtbot):
+    from pathlib import Path
+
+    view._set_load_limits('1', None)
+    view._set_plates_view('side')
+    _settle_plate_auxiliary_jobs(view, qtbot)
+    _item(view, 'plateB', 'A01').setSelected(True)
+    selection = set(view._selected_wells)
+    identities = tuple(field.identity for field in view._all_fields)
+    originals = {Path(path): Path(path).read_bytes()
+                 for field in view._all_fields for _channel, path in field.files}
+    _hover(view, 'plateA', 'A01')
+    qtbot.waitUntil(lambda: 'Well A01' in view._pixel_readout.text()
+                    and 'Image ' in view._pixel_readout.text())
+    table = view._plate_tables['plateA']
+    hatch = table.item(0, 1)
+    assert hatch is not None and hatch.text().startswith('A02\n')
+    assert hatch.data(browser._OVERVIEW_NOT_LOADED_ROLE)
+    assert hatch.data(Qt.UserRole) is None
+    point = QPointF(table.visualItemRect(hatch).center())
+    assert table.viewport().rect().contains(point.toPoint())
+    assert table.itemAt(point.toPoint()) is hatch
+    event = QMouseEvent(QEvent.MouseMove, point, table.viewport().mapToGlobal(point),
+                        Qt.NoButton, Qt.NoButton, Qt.NoModifier)
+    QApplication.sendEvent(table.viewport(), event)
+    qtbot.waitUntil(lambda: view._pixel_readout.text() == 'Plate plateA')
+    assert view._selected_wells == selection
+    assert _item(view, 'plateB', 'A01').isSelected()
+    assert tuple(field.identity for field in view._all_fields) == identities
+    assert all(path.read_bytes() == data for path, data in originals.items())
+
+
+def test_hovering_a_known_well_without_the_chosen_time_never_invents_an_image(qtbot, tmp_path):
+    from pathlib import Path
+
+    source = tmp_path / 'timed_plate'
+    source.mkdir()
+    for well, time in (('A01', 1), ('A02', 2)):
+        for channel in (1, 2):
+            tifffile.imwrite(source / f'p1-{well}-t{time}-f1-c{channel}.tif',
+                             np.full((24, 32), 100 * time + channel, dtype=np.uint16))
+    pattern = (r'(?P<plateID>p\d+)-(?P<wellID>[A-Z]\d+)-t(?P<timeID>\d+)'
+               r'-f(?P<fieldID>\d+)-c(?P<chanID>\d+)\.tif')
+    originals = {path: path.read_bytes() for path in source.glob('*.tif')}
+    view = _open(qtbot, str(source), custom_regex=pattern)
+    plate = view.plates.currentData()
+    assert {(field.well, field.time_id) for field in view._all_fields} == {('A01', '1'), ('A02', '2')}
+    identities = tuple(field.identity for field in view._all_fields)
+    index = view.time_axis.findData('2')
+    assert index >= 0
+    view.time_axis.setCurrentIndex(index)
+    qtbot.waitUntil(lambda: (plate, 'A02') in view._well_representatives)
+    _hover(view, plate, 'A02')
+    qtbot.waitUntil(lambda: 'Well A02' in view._pixel_readout.text()
+                    and 'Image ' in view._pixel_readout.text())
+    index = view.time_axis.findData('1')
+    assert index >= 0
+    view.time_axis.setCurrentIndex(index)
+    qtbot.waitUntil(lambda: (plate, 'A01') in view._well_representatives
+                    and (plate, 'A02') not in view._well_representatives)
+    _settle_plate_auxiliary_jobs(view, qtbot)
+    _item(view, plate, 'A01').setSelected(True)
+    selection = set(view._selected_wells)
+    item = _item(view, plate, 'A02')
+    assert item.data(Qt.UserRole) == 'A02'
+    assert not item.data(browser._OVERVIEW_NOT_LOADED_ROLE)
+    assert 'No image at the selected acquisition axes.' in item.toolTip()
+    _hover(view, plate, 'A02')
+    qtbot.waitUntil(lambda: view._pixel_readout.text() == f'Plate {plate}   ·   Well A02')
+    assert view.time_axis.currentData() == '1'
+    assert view._selected_wells == selection and _item(view, plate, 'A01').isSelected()
+    assert tuple(field.identity for field in view._all_fields) == identities
+    assert all(Path(path).read_bytes() == data for path, data in originals.items())
