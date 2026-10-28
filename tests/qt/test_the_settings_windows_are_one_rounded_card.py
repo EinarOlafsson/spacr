@@ -393,9 +393,9 @@ class TestSetupNeedsNoGithubAccount:
             answers = slides.answers()
             assert set(answers) == {question[0] for question in setup_screen.questions()}
             assert set(answers) == {"language", "theme", "colour_blind",
-                                    "spacr_mode", "hash_inputs", "spacr_ai", "easy_mode"}
+                                    "spacr_mode", "hash_inputs", "spacr_ai"}
             assert answers["spacr_ai"] is False
-            assert answers["easy_mode"] is easy_before
+            assert "easy_mode" not in slides._editors
             assert setup_screen.apply(answers) == []
             assert preferences.get_preferred_provider() == "none"
             assert crashreport.error_report_mode() == "off"
