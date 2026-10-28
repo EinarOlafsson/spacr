@@ -5270,6 +5270,7 @@ def reviewed_runtime_translations(language: str) -> dict[str, str]:
     # anything matching on the message keeps matching. What changes is that
     # the message now carries the whole list.
     problems: list[str] = []
+    target_checks: dict[tuple[str, str], str | None] = {}
     expected_fields = {
         "table", "key", "source_sha256", "source", "translation",
     }
@@ -5317,19 +5318,19 @@ def reviewed_runtime_translations(language: str) -> dict[str, str]:
                         f"stale reviewed runtime hash {table_name}/{key}: {path}"
                     )
                     continue
-                if _contextualize(target, language, source) != target:
-                    problems.append(
-                        f"non-idempotent reviewed runtime target "
-                        f"{table_name}/{key}: {path}"
-                    )
-                    continue
-                if _translation_rejection_reasons(
-                    source, target, language, force=_looks_translatable(source),
-                ):
-                    problems.append(
-                        f"rejected reviewed runtime target "
-                        f"{table_name}/{key}: {path}"
-                    )
+                pair = (source, target)
+                if pair not in target_checks:
+                    problem = None
+                    if _contextualize(target, language, source) != target:
+                        problem = "non-idempotent reviewed runtime target"
+                    elif _translation_rejection_reasons(
+                        source, target, language, force=_looks_translatable(source),
+                    ):
+                        problem = "rejected reviewed runtime target"
+                    target_checks[pair] = problem
+                problem = target_checks[pair]
+                if problem is not None:
+                    problems.append(f"{problem} {table_name}/{key}: {path}")
                     continue
                 previous = reviewed.setdefault(source, target)
                 if previous != target:

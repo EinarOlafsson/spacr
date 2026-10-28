@@ -561,6 +561,10 @@ def test_invalid_inverse_shape_and_empty_well_labels_never_modify_existing_label
 @pytest.mark.parametrize('flows', ['both', 'probability-only', 'rgb-only'])
 def test_resized_well_flows_return_to_source_coordinates_without_overwriting_overlap(monkeypatch, flows):
     """Each pixel keeps its first owning well's labels and optional display products."""
+    from unittest.mock import Mock
+    from tests.cellpose_api_contract import assert_declares_installed_eval_signature
+    from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
+
     image = np.arange(80, dtype=np.float32).reshape(8, 10)
     before = image.copy()
     boxes = [dict(box=[0, 0, 6, 6], confidence=.9),
@@ -569,8 +573,16 @@ def test_resized_well_flows_return_to_source_coordinates_without_overwriting_ove
     calls = []
 
     class Model:
-        def eval(self, values, **kwargs):
-            calls.append(kwargs)
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+                 invert=False, rescale=None, diameter=None, flow_threshold=0.4,
+                 cellprob_threshold=0.0, do_3D=False, anisotropy=None,
+                 flow3D_smooth=0, stitch_threshold=0.0, min_size=15,
+                 max_size_fraction=0.4, niter=None, augment=False,
+                 tile_overlap=0.1, bsize=256, compute_masks=True, progress=None):
+            check_cellpose_eval_call(x, channel_axis, z_axis=z_axis, do_3D=do_3D,
+                                     stitch_threshold=stitch_threshold)
+            calls.append(channel_axis)
             number = len(calls)
             rgb = (np.full((6, 6, 3), number * 30, np.uint8)
                    if flows != 'probability-only' else None)
@@ -578,10 +590,14 @@ def test_resized_well_flows_return_to_source_coordinates_without_overwriting_ove
                            if flows != 'rgb-only' else None)
             return np.ones((6, 6), np.uint16), [rgb, None, probability], None
 
-    result = plaque._segment_resized_wells(Model(), image,
+    assert_declares_installed_eval_signature(Model.eval)
+    model = Model()
+    model.eval = Mock(wraps=model.eval)
+    result = plaque._segment_resized_wells(model, image,
         dict(side=6, max_factor=2, detector='explicit-test-adapter'),
         min_size=None, want_flows=True, want_metrics=False)
-    assert len(calls) == 2 and all('min_size' not in call for call in calls)
+    assert calls == [0, 0] and model.eval.call_count == 2
+    assert all('min_size' not in call.kwargs for call in model.eval.call_args_list)
     assert result['labels'].shape == image.shape
     assert result['labels'][3, 5] == 1 and result['labels'][7, 9] == 2
     if flows == 'probability-only':
