@@ -127,6 +127,13 @@ def window(qtbot, qt_theme_applied, store):
     theme.finish_the_sliced_sheeting()
 
 
+@pytest.fixture
+def classic_window(store, request):
+    """Select ordinary Home before its own Apply/Revert surface is built."""
+    preferences.set_easy_mode(False)
+    return request.getfixturevalue("window")
+
+
 def _open_on_appearance(window, qtbot):
     dialog = preferences.PreferencesDialog(window)
     dialog.show()
@@ -206,8 +213,9 @@ def test_apply_keep_and_revert_hold_the_loop_a_fraction_of_the_old_apply(
 
 
 def test_an_opacity_apply_redraws_home_in_place_and_revert_puts_it_back(
-        window, qtbot):
+        classic_window, qtbot):
     """Home's own surfaces follow Apply and Revert without a rebuild."""
+    window = classic_window
     from spacr.qt.widgets.home import _selected_tab_qss, hero_qss
 
     home = window._startup

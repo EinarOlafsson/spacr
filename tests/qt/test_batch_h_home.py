@@ -7,7 +7,24 @@ from PySide6.QtWidgets import QLabel
 
 
 @pytest.fixture
-def _empty_journal(tmp_path, monkeypatch):
+def _normal_home_preferences(tmp_path, monkeypatch):
+    """Select the classic surface in an isolated copy of current preferences."""
+    from PySide6.QtCore import QSettings
+    from spacr.qt import preferences
+
+    source = preferences._settings()
+    path = str(tmp_path / "normal-home.ini")
+    private = QSettings(path, QSettings.IniFormat)
+    for key in source.allKeys():
+        private.setValue(key, source.value(key))
+    private.sync()
+    monkeypatch.setattr(preferences, "_settings",
+                        lambda: QSettings(path, QSettings.IniFormat))
+    preferences.set_easy_mode(False)
+
+
+@pytest.fixture
+def _empty_journal(tmp_path, monkeypatch, _normal_home_preferences):
     from spacr import run_journal as rj
     monkeypatch.setattr(rj, "runs_root", lambda: tmp_path)
     yield tmp_path

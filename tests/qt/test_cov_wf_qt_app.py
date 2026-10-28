@@ -37,6 +37,29 @@ from spacr.qt.widgets import fractal_travel
 
 
 @pytest.fixture
+def _normal_home_preferences(tmp_path, monkeypatch):
+    """Select the classic surface in an isolated copy of current preferences."""
+    from PySide6.QtCore import QSettings
+    from spacr.qt import preferences
+
+    source = preferences._settings()
+    path = str(tmp_path / "normal-home.ini")
+    private = QSettings(path, QSettings.IniFormat)
+    for key in source.allKeys():
+        private.setValue(key, source.value(key))
+    private.sync()
+    monkeypatch.setattr(preferences, "_settings",
+                        lambda: QSettings(path, QSettings.IniFormat))
+    preferences.set_easy_mode(False)
+
+
+@pytest.fixture
+def normal_win(_normal_home_preferences, request):
+    """Construct the ordinary Home before testing a dockless focus no-op."""
+    return request.getfixturevalue("win")
+
+
+@pytest.fixture
 def win(qtbot, qt_theme_applied):
     """A live MainWindow, cleaned up by pytest-qt."""
     window = MainWindow(initial_app="__home__")
@@ -561,7 +584,7 @@ def test_the_backdrop_can_be_blanked_without_its_menu_item(win):
     assert backdrop.isHidden() is False
 
 
-def test_the_dock_shortcuts_do_nothing_when_there_is_no_dock(win):
+def test_the_dock_shortcuts_do_nothing_when_there_is_no_dock(normal_win):
     """Ctrl+Shift+A and a nav click must not raise on a dockless window.
 
     Both run on every window, including one whose dock could not be built
@@ -569,6 +592,7 @@ def test_the_dock_shortcuts_do_nothing_when_there_is_no_dock(win):
     shortcut, and raising there would take the window down for the sake of
     a control that has nothing to act on.
     """
+    win = normal_win
     before = win._stack.currentWidget()
 
     win._dock_mode = "locked"
