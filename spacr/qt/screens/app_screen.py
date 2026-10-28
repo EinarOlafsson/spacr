@@ -6674,6 +6674,8 @@ class AppScreen(QWidget):
                  | self._headings_the_run_lacks()
                  | self._alpha_hidden_sections()
                  | self._headings_held_back())
+        search = getattr(self, '_settings_search', None)
+        gated.update(getattr(search, '_sections_filtered_out', ()))
         for section in self.rendered_settings_sections():
             visible = (maturity_is_visible(section.maturity())
                        or (alpha_feature and section.maturity() == "alpha"))

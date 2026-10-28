@@ -35,3 +35,5 @@ What was done (2026-10-03):
 Left: nothing.
 
 VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).
+
+2026-10-28 — Reproduced alternating body visibility during deferred Mask construction: maturity refresh showed a category that Essentials immediately hid. Search now publishes its filtered section identities and maturity honors them. Two native focused controls pass, including filter release, deliberate folds and channel/value preservation; no captions or public documentation changed.
