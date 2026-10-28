@@ -45,6 +45,18 @@ def _fresh_disclosure():
 
 
 @pytest.fixture
+def normal_mode():
+    from spacr.qt import preferences
+
+    previous = preferences.get_easy_mode()
+    try:
+        preferences.set_easy_mode(False)
+        yield
+    finally:
+        preferences.set_easy_mode(previous)
+
+
+@pytest.fixture
 def grid_preference():
     """The preferences module; the per-object table has no preference of its
     own since item 592 made it Mask generation's only layout."""
@@ -149,7 +161,7 @@ def test_essentials_still_hides_what_it_hid(qtbot):
 
 @pytest.mark.parametrize("app", ["mask", "timelapse"])
 @pytest.mark.parametrize("level", ["essentials", "all"])
-def test_clearing_the_channel_keeps_the_table(qtbot, level, app):
+def test_clearing_the_channel_keeps_the_table(qtbot, level, app, normal_mode):
     """On, off and on again, at either level: no heading over no rows."""
     window = _open_mask(qtbot, level, app=app)
     screen = _screen(window, app)
@@ -214,7 +226,7 @@ def test_the_per_object_table_stays_on_screen_under_essentials(
 
 
 def test_the_search_strip_decides_the_tables_section(
-        qtbot, grid_preference):
+        qtbot, grid_preference, normal_mode):
     """The strip hides and restores the table's section like any other.
 
     2026-09-29 (item 592, "hide unset objects"): measured under All

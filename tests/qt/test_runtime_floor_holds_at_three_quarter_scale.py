@@ -102,6 +102,8 @@ def test_every_actions_and_system_button_is_whole_on_measure(qtbot, scaled):
                         timeout=60000)
         qtbot.wait(1500)
         screen = window._screens["measure"]
+        screen._actions_folder.set_shut(False, by_user=False)
+        screen._usage_card.folder.set_shut(False, by_user=False)
         assert gui_scale.current_scale() == scaled
         screen._console.append_stdout("".join(
             f"field {line}: segmented, measured and written\n"
