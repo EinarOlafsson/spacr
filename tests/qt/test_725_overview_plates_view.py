@@ -1219,3 +1219,63 @@ def test_hovering_a_real_empty_plate_cell_clears_the_previous_well_readout(view,
     assert tuple(field.identity for field in view._fields) == identities
     assert _item(view, 'plateB', 'A01').isSelected()
     assert all(path.read_bytes() == data for path, data in originals.items())
+
+
+def test_cancelling_before_queued_plate_hover_timeout_keeps_the_prior_readout(view, qtbot):
+    from pathlib import Path
+    from PySide6.QtTest import QSignalSpy
+
+    view._set_plates_view('side')
+    _settle_plate_auxiliary_jobs(view, qtbot)
+    _item(view, 'plateC', 'A01').setSelected(True)
+    selection = set(view._selected_wells)
+    identities = tuple(field.identity for field in view._fields)
+    originals = {Path(path): Path(path).read_bytes()
+                 for field in view._fields for _channel, path in field.files}
+    _hover(view, 'plateA', 'A01')
+    qtbot.waitUntil(lambda: 'Plate plateA' in view._pixel_readout.text()
+                    and 'Well A01' in view._pixel_readout.text())
+    before = view._pixel_readout.text()
+    timeouts = QSignalSpy(view._readout_timer.timeout)
+    readouts = QSignalSpy(view._readout_jobs.job_finished)
+    _hover(view, 'plateB', 'A01')
+    assert view._readout_pending[0] is view._plate_tables['plateB']
+    assert view._readout_timer.isActive() and timeouts.count() == 0
+    cancel = next(button for button in view._module_action_buttons
+                  if button.text() == 'Cancel loading or export')
+    assert cancel.isEnabled()
+    cancel.click()
+    assert view._cancelled.is_set()
+    qtbot.waitUntil(lambda: timeouts.count() >= 1)
+    assert view._pixel_readout.text() == before
+    assert view._readout_jobs.active_jobs() == 0 and readouts.count() == 0
+    assert view._selected_wells == selection
+    assert _item(view, 'plateC', 'A01').isSelected()
+    assert tuple(field.identity for field in view._fields) == identities
+    assert all(path.read_bytes() == data for path, data in originals.items())
+
+
+def test_lazy_overview_plate_configuration_never_persists_without_a_source(qtbot, tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    view = browser._FieldOverview()
+    qtbot.addWidget(view, before_close_func=lambda widget: _retire(widget, qtbot))
+    view.resize(1500, 1000)
+    view.show()
+    qtbot.waitExposed(view)
+    assert view.source.text() == '' and view._metadata_source == ''
+    assert not view._fields and view.plates.count() == 0
+    assert view._set_plates_view('side')
+    assert view.plates_view.currentData() == 'side'
+    assert view._plates_layout.direction() == QBoxLayout.LeftToRight
+    assert view._set_plates_view('stacked')
+    assert view.plates_view.currentData() == 'stacked'
+    assert view._plates_layout.direction() == QBoxLayout.TopToBottom
+    assert view._hide_every_plate()
+    assert not view._hide_every_plate()
+    assert view._plates_subset == ()
+    assert view.plates.count() == 0 and view.fields.count() == 0
+    assert not view._plate_tables and view.wells.rowCount() == 0
+    assert view._view_state_pending is None and not view._view_state_writing
+    assert all(runner.active_jobs() == 0 and not runner.is_busy()
+               for runner in (*_runners(view), view._readout_jobs, view._levels_jobs))
+    assert list(tmp_path.iterdir()) == []
