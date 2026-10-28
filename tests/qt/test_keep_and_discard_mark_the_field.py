@@ -43,6 +43,8 @@ def screen(qtbot, qt_theme_applied, two_fields: Path):
     made = mm.MakeMasksScreen()
     qtbot.addWidget(made)
     assert made._open_folder(str(two_fields))
+    qtbot.waitUntil(lambda: not made._loading and made._reader_worker is None
+                    and made._load_worker is None)
     yield made
     made._magnifier.close()
     made.close_folded()

@@ -16,6 +16,8 @@ def screen(qtbot, tmp_path):
     made = mm.MakeMasksScreen()
     qtbot.addWidget(made)
     made._open_folder(str(tmp_path))
+    qtbot.waitUntil(lambda: not made._loading and made._reader_worker is None
+                    and made._load_worker is None)
     made._canvas.resize(400, 400)
     made._canvas.refresh()
     yield made
