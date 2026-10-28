@@ -209,3 +209,31 @@ def test_a_scree_pick_for_a_component_that_is_not_offered_moves_no_axis(
     panel.scree.component_picked.emit(panel.result.n_components + 40)
 
     assert panel._pc_x.currentData() == before
+
+
+
+def test_export_worker_failure_reports_the_destination_without_discarding_the_fit(qtbot, link):
+    from spacr.qt.screens.pca import PCAScreen
+
+    screen = PCAScreen(link=link, threaded=False)
+    qtbot.addWidget(screen)
+    frame = cluster_frame()
+    screen.set_frame(frame)
+    result, scores = screen.pca.result, screen.pca.scores_frame.copy()
+    assert result is not None
+    failure = OSError('the destination is read-only')
+
+    def write_export():
+        raise failure
+
+    try:
+        with qtbot.waitSignal(screen._export_jobs.job_failed, timeout=2000) as signal:
+            screen._export_jobs.submit(write_export)
+        assert signal.args == ['the destination is read-only']
+        assert screen._source.text() == 'could not write those files: the destination is read-only'
+        assert screen.pca.result is result
+        pd.testing.assert_frame_equal(screen.pca.scores_frame, scores)
+        pd.testing.assert_frame_equal(screen._frame, frame)
+        assert not screen._export_jobs.is_busy()
+    finally:
+        screen.close()

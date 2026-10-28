@@ -138,3 +138,51 @@ def test_an_undone_annotation_can_be_redone(qtbot, tmp_path):
     finally:
         if screen._worker is not None:
             screen._worker.stop(wait=True)
+
+
+
+def test_committed_organelle_edit_undoes_without_losing_another_slots_hidden_values(qtbot):
+    from spacr.qt.screens.app_screen import AppScreen
+
+    screen = AppScreen('measure')
+    qtbot.addWidget(screen)
+    loaded = {'number_of_organelles': 2, 'organelle_mask_dim': 0,
+              'organelleb_mask_dim': 1, 'organelle_diameter': 12,
+              'organelleb_diameter': 23}
+    screen.apply_settings_dict(loaded)
+    model = screen._settings_model
+    assert model.collect()['organelleb_mask_dim'] == 1
+    assert model.collect()['organelleb_diameter'] == 23
+    stack = model.undo_stack
+    stack.clear()
+    assert model.set_value_for_key('organelle_diameter', 17)
+    assert model.collect()['organelle_diameter'] == 17
+    assert stack.count() == 1
+    stack.undo()
+    assert model.collect()['organelle_diameter'] == 12
+    stack.redo()
+    values = model.collect()
+    assert values['organelle_diameter'] == 17
+    assert values['organelleb_diameter'] == 23 and values['organelleb_mask_dim'] == 1
+    assert screen._settings_model is model and values['number_of_organelles'] == 2
+    screen.close()
+
+
+def test_app_bulk_load_rebases_the_next_real_edit_without_replacing_the_model(qtbot):
+    from spacr.qt.screens.app_screen import AppScreen
+
+    screen = AppScreen('measure')
+    qtbot.addWidget(screen)
+    model = screen._settings_model
+    screen.apply_settings_dict({'number_of_organelles': 1, 'organelle_mask_dim': 0,
+                                'organelle_diameter': 31})
+    assert screen._settings_model is model
+    assert model.collect()['organelle_diameter'] == 31
+    assert model.undo_stack.count() == 0
+    assert model.set_value_for_key('organelle_diameter', 37)
+    assert model.undo_stack.count() == 1
+    model.undo_stack.undo()
+    values = model.collect()
+    assert values['organelle_diameter'] == 31 and values['organelle_mask_dim'] == 0
+    assert values['number_of_organelles'] == 1
+    screen.close()

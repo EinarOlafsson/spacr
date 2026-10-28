@@ -97,3 +97,65 @@ def test_user_supplied_analysis_spellings_offer_image_tools(commands, phrase):
     rows = app.MainWindow._easy_navigation_suggestions(commands, phrase)
     assert tuple(row[0] for row in rows) == ('mask', 'measure', 'qc_dashboard')
     assert not commands.opened and not commands.navigated
+
+
+
+def test_hidden_native_route_keeps_the_current_page_and_reports_the_preference(
+        qtbot, private_ai_profile):
+    from spacr.qt import preferences
+
+    preferences.set_show_alpha(False)
+    window = app.MainWindow(initial_app='__home__')
+    qtbot.addWidget(window)
+    window._tour_timer.stop()
+    window._consent_timer.stop()
+    hidden = next(key for key, *_ in app.APPS if not app.app_is_visible(key))
+    before = window._stack.currentWidget()
+    existing = dict(window._screens)
+    try:
+        assert window._open_easy_named_module(hidden) is None
+        assert window._stack.currentWidget() is before and window._screens == existing
+        assert 'hidden by the current application preferences' in window.statusBar().currentMessage()
+    finally:
+        window.close()
+
+
+def test_canceling_actual_saved_settings_preview_does_not_open_or_apply_the_module(
+        qtbot, private_ai_profile, monkeypatch, tmp_path):
+    import json
+    from copy import deepcopy
+    from PySide6.QtWidgets import QDialog, QDialogButtonBox, QPlainTextEdit
+
+    window = app.MainWindow(initial_app='__home__')
+    qtbot.addWidget(window)
+    window._tour_timer.stop()
+    window._consent_timer.stop()
+    source = tmp_path / 'settings.csv'
+    source.write_text('setting,value\nsrc,unchanged\n')
+    before_bytes = source.read_bytes()
+    settings = {'src': str(tmp_path), 'number_of_organelles': 1}
+    context = {'saved_settings': {'module': 'measure', 'path': str(source), 'settings': settings}}
+    original = deepcopy(context)
+    before = window._stack.currentWidget()
+    screens = dict(window._screens)
+    shown = []
+
+    def cancel(dialog):
+        dialog.show()
+        qtbot.waitExposed(dialog)
+        preview = dialog.findChild(QPlainTextEdit, 'EasySettingsPreview')
+        shown.append(json.loads(preview.toPlainText()))
+        assert preview.isReadOnly()
+        button = dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Cancel)
+        qtbot.mouseClick(button, Qt.LeftButton)
+        assert dialog.result() == QDialog.Rejected
+        return dialog.result()
+
+    monkeypatch.setattr(QDialog, 'exec', cancel)
+    try:
+        assert window._open_easy_input('measure', str(source), context)
+        assert shown == [settings]
+        assert window._stack.currentWidget() is before and window._screens == screens
+        assert context == original and source.read_bytes() == before_bytes
+    finally:
+        window.close()

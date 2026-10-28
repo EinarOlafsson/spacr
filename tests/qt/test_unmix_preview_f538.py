@@ -558,3 +558,58 @@ def test_real_preview_refuses_per_plate_controls_before_worker_dispatch(plate, q
         assert all(path.read_bytes() == content for path, content in before.items())
     finally:
         panel.shutdown()
+
+
+@pytest.mark.parametrize('completion', ['stale-error', 'current-error', 'empty'])
+def test_calibrated_preview_completion_keeps_only_current_valid_state_and_recovers(
+        calibrated_plate, qtbot, monkeypatch, completion):
+    plate, settings = calibrated_plate
+    panel = lp.LivePreviewPanel(threaded=True)
+    qtbot.addWidget(panel)
+    monkeypatch.setattr(lp, 'preview_cellpose_model', lambda *a: pytest.fail('loaded a model'))
+    panel.apply_settings({**settings, 'organelle_channel': 0})
+    panel._object_box.setCurrentIndex(panel._object_box.findData('organelle'))
+    assert panel.load_image(plate[0]['C01'])
+    source = {p: p.read_bytes() for p in plate[0].values()}
+    panel.show()
+    try:
+        panel.run_preview()
+        qtbot.waitUntil(lambda: bool(panel._masks) and panel._worker is not None
+                        and not panel._worker.isRunning(), timeout=15000)
+        token = panel._run_token
+        display = panel._calibrated_display.copy()
+        provenance = deepcopy(panel._processing_provenance)
+        masks = {key: value.copy() for key, value in panel._masks.items()}
+        ready = []
+        panel.preview_ready.connect(ready.append)
+        if completion == 'stale-error':
+            panel._on_worker_done(None, 'obsolete worker failure', token=token - 1)
+            assert panel._processing_provenance == provenance
+            np.testing.assert_array_equal(panel._calibrated_display, display)
+            assert not ready
+            for key, value in masks.items():
+                np.testing.assert_array_equal(panel._masks[key], value)
+        else:
+            panel._on_worker_done(None if completion == 'current-error' else {},
+                                  'controlled worker failure' if completion == 'current-error' else '',
+                                  token=token)
+            assert not panel._masks and not panel._raw_masks
+            assert panel._calibrated_display is None
+            assert panel._processing_provenance == {}
+            assert panel._pending_calibrated_display is None and panel._pending_provenance is None
+            assert not panel._flows and not panel._cellprob
+            assert not panel._filter_timer.isActive()
+            if completion == 'current-error':
+                assert ready == [None]
+                assert 'controlled worker failure' in panel._status.text()
+            else:
+                assert not ready
+                assert 'no masks' in panel._status.text()
+            panel.run_preview()
+            qtbot.waitUntil(lambda: bool(panel._masks) and panel._worker is not None
+                            and not panel._worker.isRunning(), timeout=15000)
+            np.testing.assert_array_equal(panel._calibrated_display, display)
+            assert panel._processing_provenance['unmixing'] == provenance['unmixing']
+        assert {p: p.read_bytes() for p in source} == source
+    finally:
+        panel.close()

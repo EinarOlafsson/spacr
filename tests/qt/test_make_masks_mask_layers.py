@@ -337,3 +337,65 @@ def test_without_layers_the_width_changes_nothing_drawn(screen, folder, qtbot):
     assert np.array_equal(before, _canvas_array(screen._canvas))
     assert not (folder / "curate_layers.json").exists()
     screen._outline_thickness.setValue(1.0)
+
+
+@pytest.mark.parametrize('choice', ['cancel', 'not-folder'])
+def test_rejected_add_layer_keeps_the_current_masks_and_layer_configuration(
+        screen, folder, monkeypatch, choice):
+    _open(screen, folder)
+    before = screen._canvas.mask.copy()
+    history = screen._history.head().copy()
+    layers = [dict(layer) for layer in screen._layers]
+    source = {path: path.read_bytes() for path in folder.rglob('*.tif')}
+    if choice == 'cancel':
+        monkeypatch.setattr(mm.QFileDialog, 'getExistingDirectory', lambda *a, **k: '')
+        assert not screen._on_add_mask_layer()
+    else:
+        assert not screen._on_add_mask_layer(str(folder / 'f_0.tif'))
+        assert 'not a folder' in screen._status_label.text()
+    np.testing.assert_array_equal(screen._canvas.mask, before)
+    np.testing.assert_array_equal(screen._history.head(), history)
+    assert screen._layers == layers
+    assert {path: path.read_bytes() for path in source} == source
+
+
+def test_unsaved_layer_edits_survive_base_selection_and_target_cancellation(
+        screen, folder, qtbot):
+    _open(screen, folder)
+    screen._on_layer_pick(3, 3)
+    edited = screen._canvas.mask.copy()
+    history = screen._history.head().copy()
+    source = {path: path.read_bytes() for path in folder.rglob('*.tif')}
+    assert screen._edits_unsaved()
+    assert not screen._on_add_mask_layer(str(folder / 'model_a'))
+    screen._on_layer_base_changed(1)
+    assert screen._layer_base == 1
+    assert 'keeps its edits' in screen._status_label.text()
+    target = screen._layer_target
+    index = screen._layer_target_combo.findData(str(folder / 'model_b'))
+    assert index >= 0
+    screen._layer_target_combo.setCurrentIndex(index)
+    assert screen._layer_pending_target == str(folder / 'model_b')
+    qtbot.mouseClick(screen._layer_confirm_no, Qt.LeftButton)
+    assert screen._layer_pending_target is None and screen._layer_target == target
+    np.testing.assert_array_equal(screen._canvas.mask, edited)
+    np.testing.assert_array_equal(screen._history.head(), history)
+    assert engine._read_layer_settings(str(folder))['base'] == str(folder / 'model_a')
+    assert {path: path.read_bytes() for path in source} == source
+
+
+def test_corrupt_optional_layer_is_skipped_without_replacing_the_base_mask(
+        screen, folder):
+    _open(screen, folder)
+    corrupt = folder / 'corrupt-layer'
+    corrupt.mkdir()
+    path = corrupt / 'f_0.tif'
+    path.write_bytes(b'not a TIFF mask')
+    source = {p: p.read_bytes() for p in folder.rglob('*.tif')}
+    before = screen._canvas.mask.copy()
+    assert screen._on_add_mask_layer(str(corrupt))
+    assert screen._layers[-1]['path'] == str(corrupt)
+    assert screen._layer_masks[-1] is None
+    assert not engine._layer_has_objects(str(corrupt), 'f_0.tif')
+    np.testing.assert_array_equal(screen._canvas.mask, before)
+    assert {p: p.read_bytes() for p in source} == source
