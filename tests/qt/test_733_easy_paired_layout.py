@@ -141,6 +141,8 @@ def test_copy_runs_off_gui_and_opens_selected_copy_not_sibling(screen, tmp_path,
     assert screen._folder == str(destination_parent / "make_masks" / "images")
     assert screen._image_files == ["field.ome.tif"]
     assert screen._masks_dir == str(destination_parent / "make_masks" / "masks")
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                   and screen._load_worker is None and screen._canvas.mask is not None)
     np.testing.assert_array_equal(screen._canvas.mask, labels)
     assert sibling.is_file()
 
