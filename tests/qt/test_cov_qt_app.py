@@ -2338,10 +2338,24 @@ def test_the_window_can_open_straight_into_an_app(qtbot, qt_theme_applied):
     assert w._status_app_label.text() == "Mask"
 
 
+@pytest.mark.parametrize("navigator", (False, True))
 def test_the_window_still_opens_without_shortcuts_or_the_tour(
-        qtbot, qt_theme_applied, monkeypatch):
-    """Neither optional subsystem may take the whole window down with it."""
+        qtbot, qt_theme_applied, monkeypatch, tmp_path, navigator):
+    """Refused optional systems leave only the current Home's own bindings."""
+    from PySide6.QtCore import QSettings, Qt
+    from PySide6.QtGui import QKeySequence
+    from spacr.qt import preferences
     import spacr.qt
+
+    source = preferences._settings()
+    path = str(tmp_path / "optional-shortcuts.ini")
+    private = QSettings(path, QSettings.IniFormat)
+    for key in source.allKeys():
+        private.setValue(key, source.value(key))
+    private.sync()
+    monkeypatch.setattr(preferences, "_settings",
+                        lambda: QSettings(path, QSettings.IniFormat))
+    preferences.set_easy_mode(navigator)
     monkeypatch.setitem(sys.modules, "spacr.qt.shortcuts", None)
     monkeypatch.setitem(sys.modules, "spacr.qt.first_run", None)
     monkeypatch.delattr(spacr.qt, "shortcuts", raising=False)
@@ -2350,8 +2364,14 @@ def test_the_window_still_opens_without_shortcuts_or_the_tour(
     qtbot.addWidget(w, before_close_func=_close_owned_screens)
     assert w._stack.currentWidget() is w._startup
     from PySide6.QtGui import QShortcut
-    assert not w.findChildren(QShortcut), (
-        "shortcuts should be absent when the module failed to import")
+    if navigator:
+        escape = w._startup._workflow_escape
+        assert escape.key() == QKeySequence(Qt.Key_Escape)
+        assert escape.parent() is w._startup
+        assert w.findChildren(QShortcut) == [escape]
+    else:
+        assert not w.findChildren(QShortcut), (
+            "shortcuts should be absent when the module failed to import")
 
 
 def test_shortcuts_are_installed_when_the_module_is_available(win):
