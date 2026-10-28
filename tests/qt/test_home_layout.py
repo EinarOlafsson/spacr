@@ -47,6 +47,21 @@ from spacr.qt.widgets.home import AppTile, HomePage
 _DOCK_ROWS = list(dock_rows())
 
 
+@pytest.fixture(autouse=True)
+def _normal_home_preferences(tmp_path, monkeypatch):
+    from PySide6.QtCore import QSettings
+    from spacr.qt import preferences
+
+    path = tmp_path / 'normal-home.ini'
+    current = preferences._settings()
+    private = QSettings(str(path), QSettings.IniFormat)
+    for key in current.allKeys():
+        private.setValue(key, current.value(key))
+    private.sync()
+    monkeypatch.setattr(preferences, '_settings', lambda: QSettings(str(path), QSettings.IniFormat))
+    preferences.set_easy_mode(False)
+
+
 def test_real_home_split_contains_both_panes_at_compressed_native_allocation(qtbot, qapp, monkeypatch):
     import json
     from PySide6.QtCore import QPoint, QRect, QSize, Qt
@@ -1090,7 +1105,7 @@ def _counts() -> dict[str, int]:
 
 
 @pytest.fixture(scope="module", params=["dark", "light"])
-def home(request, qapp, qt_theme_applied):
+def home(request, qapp, qt_theme_applied, tmp_path_factory):
     """A laid-out Home page + sidebar under one theme.
 
     Module-scoped so the (fairly expensive) page build happens twice for
@@ -1114,12 +1129,21 @@ def home(request, qapp, qt_theme_applied):
     from spacr.qt import preferences as _prefs
     from spacr.qt.preferences import get_font_scale
     from spacr.qt.theme import stylesheet
+    from PySide6.QtCore import QSettings
 
     # Alpha tiles are off for a new user; these tests lay out every tile.
     # Module scope builds this before the per-test seed in conftest runs.
     _prefs_patch = pytest.MonkeyPatch()
     _prefs_patch.setattr(_prefs, "DEFAULT_SHOW_ALPHA", True)
     request.addfinalizer(_prefs_patch.undo)
+    path = tmp_path_factory.mktemp('normal-home-layout') / 'preferences.ini'
+    current = _prefs._settings()
+    private = QSettings(str(path), QSettings.IniFormat)
+    for key in current.allKeys():
+        private.setValue(key, current.value(key))
+    private.sync()
+    _prefs_patch.setattr(_prefs, '_settings', lambda: QSettings(str(path), QSettings.IniFormat))
+    _prefs.set_easy_mode(False)
     theme = request.param
     qss = stylesheet(theme)
 

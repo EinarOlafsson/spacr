@@ -198,7 +198,22 @@ def _empty_journal(tmp_path, monkeypatch):
 
 
 @pytest.fixture
-def home(qtbot, qt_theme_applied, _empty_journal):
+def _normal_home_preferences(tmp_path, monkeypatch):
+    from PySide6.QtCore import QSettings
+    from spacr.qt import preferences
+
+    path = tmp_path / 'normal-home.ini'
+    current = preferences._settings()
+    private = QSettings(str(path), QSettings.IniFormat)
+    for key in current.allKeys():
+        private.setValue(key, current.value(key))
+    private.sync()
+    monkeypatch.setattr(preferences, '_settings', lambda: QSettings(str(path), QSettings.IniFormat))
+    preferences.set_easy_mode(False)
+
+
+@pytest.fixture
+def home(qtbot, qt_theme_applied, _empty_journal, _normal_home_preferences):
     page = make_home_page()  # the page MainWindow ships
     qtbot.addWidget(page)
     page.resize(1200, 860)
@@ -1500,7 +1515,7 @@ def test_a_finished_worker_never_leaves_its_gate_latched():
 # ===========================================================================
 
 @pytest.fixture
-def window(qtbot, qt_theme_applied, _empty_journal, monkeypatch):
+def window(qtbot, qt_theme_applied, _empty_journal, monkeypatch, _normal_home_preferences):
     # MainWindow intentionally restores the user's persisted dock mode.  That
     # is application state, not test input: a developer who prefers a locked
     # or hidden dock must not change the outcome of the auto-drawer tests.
