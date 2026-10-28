@@ -2,6 +2,10 @@ POPUP RESIZING WITHOUT CONTENT OR BACKGROUND FLASHING
 
 Status: OPEN — reported flash not reproduced; focused software continuity qualified, cause unknown.
 
+NATIVE WINDOWS HANDOFF — 2026-10-28
+When the Windows session starts, take this item on current origin/nightly: resize real Preferences/Overview popups continuously larger and smaller in Light/Dark, opaque/translucent, and tab away/back. Observe intermediate native frames, focus, values and window identity; retain prior passing Linux software checks.
+If the reported underlying-field flash reproduces, isolate the shared repaint/backing-store cause and implement the smallest fix without disabling translucency/animation. Run only owning focused regressions, record platform/Qt and actual outcome here, then push to nightly. Coordinate any ambient.py/glass.py/SetupCard.py edits with Home first; Home currently changes ambient lifecycle guards. No reproduction is not completion.
+
 When a popup is resized, its contents must remain stable and the spaCR field or other content underneath must not flash through the popup surface. Cover continuous enlargement and shrinking in both themes, including translucent popups and their child controls.
 
 Identify a demonstrated repaint, backing-store or transparency cause and fix the shared popup path where appropriate without disabling the requested appearance or animation globally. Reuse existing owned-display evidence; do not repeat broad native campaigns when the symptom was not reproduced. Preserve focus, interaction, sizing and close behavior. Keep the popup correctly drawn throughout resize, not only in its final frame.

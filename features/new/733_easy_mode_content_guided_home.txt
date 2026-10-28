@@ -1,5 +1,7 @@
 NAVIGATOR: A CONTENT-GUIDED HOME WITH AN ANIMATED PATH AND DROP FIELD
 
+Progress List name: N733 — Navigator (maintainer confirmed 2026-10-28).
+
 Status:    IMPLEMENTATION APPROVED — 2026-10-27 maintainer sign-off received; new tutorial and Docs/API coverage handed off through shared HANDOFF.md; direct tutorial-session receipt unconfirmed.
 Requested: maintainer, 2026-10-26
 Owner:     Workstation session 2; root integration/publication with retained routing, rendering and reader peers.

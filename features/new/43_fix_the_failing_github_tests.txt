@@ -1,5 +1,9 @@
 GET THE GITHUB ACTIONS RUNS GREEN
 
+NATIVE MAC OVERVIEW HANDOFF — 2026-10-28
+When the Mac session starts, investigate the unresolved Overview item-list destruction crash on current origin/nightly with native Cocoa and the installed Qt/PySide version. The actual Linux CI failure is tests/qt/test_overview_layout_containment.py::test_repeated_level_cycles_keep_runtime_console_and_actions_inside_window[right-canvas]: _well -> _filter -> _fill_field_list -> fields.clear(), Shiboken6.11.3 releaseWrapper+80 during Qt item destruction; serial recovery and one bounded local diagnostic passed, so no fix is established.
+Exercise the real plate/well/field open-close-collapse flow with the canvas on the right; retain meaningful containment/source-preservation assertions and capture native/Python stacks if it fails. Use an isolated profile, do not run broad stress loops or change Qt pins/ownership speculatively. Coordinate qc_field_browser.py edits with Home before writing; if a cause is demonstrated, implement, run only affected checks, record exact platform/Qt/commit/outcome here and push to nightly. Home owns Linux CI, coverage gaps and release publication; no Mac/Windows acceptance wait is added to release.
+
 CURRENT METADATA CAPTION FAKE SOURCE TREE — 2026-10-27
 widgets_g1 owns Coverage 6 job 122347867652 and Minimum 0 job
 122347866761: include required empty convert.py in the shared metadata
