@@ -544,3 +544,8 @@ The extended real Graph Builder/Small Multiples Qt fixture passes: one native-in
 All23 reviewed native scenes have passing excerpt gates; full raw failures and the post-teardown p47 shutdown segfault/stacks remain preserved in FOR_HOME_pending.md.
 Retain50 passing audio/onset tracks; the572.17s edited master passes normal decode/PTS/poster/web checks and generates23 source-bound pause fences. Strict playback and publication are next.
 Finish58, then Navigator tutorial/Docs/API, write the Claude handoff and pause; other lessons remain for Claude.
+
+2026-10-27 — Graph Builder hosted publication a8a9796310 is fully read back:7198 files/15076422786 bytes; all59 Pages routes pass.
+All50 voices pass strict native-boundary/idle-cut playback:1150 scene/end gaps0.800–1.044s and every final native EOF observed; retain23 source-bound edit fences and the original scientific/raw-failure evidence.
+The shared Navigator ownership-note rebase conflict preserves both sessions; tutorial source/player/media bindings remain unchanged. Final nightly pin checks/push follow; live website deployment remains separate.
+Codex next owns Navigator tutorial plus Docs/API, then writes the Claude handoff and pauses; no other lesson is authorized before that pause.
