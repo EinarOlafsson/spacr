@@ -25,6 +25,8 @@ def opened(qtbot, qt_theme_applied, tmp_path):
     widget = MakeMasksScreen()
     qtbot.addWidget(widget)
     assert widget.open_paths([str(first / "a.tif"), str(second / "b.tif")])
+    qtbot.waitUntil(lambda: not widget._loading and widget._reader_worker is None
+                    and widget._load_worker is None)
     yield widget, first, second
     widget._magnifier.close()
     widget.close_folded()

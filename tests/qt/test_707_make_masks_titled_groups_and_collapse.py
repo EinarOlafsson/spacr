@@ -35,6 +35,8 @@ def _screen(qtbot, folder=None):
     screen.show()
     if folder is not None:
         assert screen._open_folder(str(folder))
+        qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                        and screen._load_worker is None)
     qtbot.waitUntil(lambda: screen._image_container.isVisible())
     return screen
 
@@ -254,9 +256,11 @@ def test_measure_button_is_an_extension_point(screen):
     assert hits == [1]
 
 
-def test_open_file_opens_a_2d_field_with_its_folder(screen, folder):
+def test_open_file_opens_a_2d_field_with_its_folder(qtbot, screen, folder):
     screen._go_to_index(0)
     assert screen._on_pick_file(str(folder / "field_2.tif")) is True
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._image_files[screen._current_index] == "field_2.tif"
 
 
