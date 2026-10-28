@@ -294,31 +294,6 @@ def test_real_plate_rename_and_removal_preserve_source_identity_and_reject_bad_r
         wizard.reject()
 
 
-def test_native_overview_callback_inherits_an_existing_trace_and_preserves_its_result(qtbot):
-    import sys
-    import threading
-    from PySide6.QtCore import QThread
-    from PySide6.QtWidgets import QApplication
-    from spacr.core import _watch_portable_keys
-    from spacr.qt.job_runner import JobRunner
-
-    expected_trace = threading.gettrace() is not None
-    main_thread = QApplication.instance().thread()
-    runner = JobRunner(threaded=True, app_key="field_overview", user_visible=False)
-    returned = []
-    def read_portable_result():
-        return (sys.gettrace() is not None,
-                QThread.currentThread() != main_thread,
-                _watch_portable_keys({r"plateA\field1.tif": {"complete": True}, 4: "numeric"}))
-    try:
-        assert runner.submit(read_portable_result, returned.append)
-        qtbot.waitUntil(lambda: bool(returned) and runner.active_jobs() == 0, timeout=10000)
-        assert returned == [(expected_trace, True,
-                             {"plateA/field1.tif": {"complete": True}, 4: "numeric"})]
-    finally:
-        runner.shutdown(timeout_ms=3000)
-
-
 def test_raw_plane_memory_cache_replacement_and_eviction_obey_byte_and_entry_bounds():
     cache = module._OverviewCache(entries=2, budget_bytes=12)
     first, second = np.arange(4, dtype=np.uint8), np.arange(8, dtype=np.uint8)
@@ -691,3 +666,131 @@ def test_wizard_restores_saved_sources_and_reports_a_real_worker_refusal(qtbot, 
         wizard.reject()
         qtbot.waitUntil(lambda: wizard._runner.active_jobs() == 0, timeout=10000)
         wizard._runner.shutdown(timeout_ms=3000)
+
+
+def test_native_overview_callback_inherits_an_existing_trace_and_preserves_its_result(qtbot):
+    import sys
+    import threading
+    from PySide6.QtCore import QThread
+    from PySide6.QtWidgets import QApplication
+    from spacr.core import _watch_portable_keys
+    from spacr.qt.job_runner import JobRunner
+
+    expected_trace = threading.gettrace() is not None
+    main_thread = QApplication.instance().thread()
+    runner = JobRunner(threaded=True, app_key="field_overview", user_visible=False)
+    returned = []
+    def read_portable_result():
+        return (sys.gettrace() is not None,
+                QThread.currentThread() != main_thread,
+                _watch_portable_keys({r"plateA\field1.tif": {"complete": True}, 4: "numeric"}))
+    try:
+        assert runner.submit(read_portable_result, returned.append)
+        qtbot.waitUntil(lambda: bool(returned) and runner.active_jobs() == 0, timeout=10000)
+        assert returned == [(expected_trace, True,
+                             {"plateA/field1.tif": {"complete": True}, 4: "numeric"})]
+    finally:
+        runner.shutdown(timeout_ms=3000)
+
+
+@pytest.mark.parametrize('truncated', [False, True])
+def test_sparse_tiff_fallback_reads_exact_samples_and_closes_short_rows(tmp_path, monkeypatch, truncated):
+    import os
+    from types import SimpleNamespace
+
+    pixels = np.arange(11 * 13, dtype=np.uint16).reshape(11, 13)
+    path = tmp_path / 'raw.tif'
+    tifffile.imwrite(path, pixels, byteorder='>', compression=None)
+    before = path.read_bytes()
+    closed = []
+
+    def close(descriptor):
+        closed.append(descriptor)
+        os.close(descriptor)
+
+    portable = SimpleNamespace(**{key: value for key, value in vars(os).items() if key != 'pread'})
+    portable.close = close
+    monkeypatch.setattr(module, 'os', portable)
+    with tifffile.TiffFile(path) as image:
+        target = path
+        if truncated:
+            target = tmp_path / 'short.tif'
+            target.write_bytes(before[:-1])
+            with pytest.raises(module._OverviewValidationError, match='bounded image planes'):
+                module._overview_sparse_rows(target, image.pages[0], 2, image.byteorder)
+        else:
+            actual = module._overview_sparse_rows(target, image.pages[0], 2, image.byteorder)
+            np.testing.assert_array_equal(actual, pixels[::2, ::2])
+            assert actual.dtype.isnative and actual.flags.c_contiguous
+    assert len(closed) == 1
+    with pytest.raises(OSError):
+        os.fstat(closed[0])
+    assert path.read_bytes() == before
+
+
+def test_pdf_fitted_dpi_reduction_retains_exact_source_samples_without_interpolation():
+    from matplotlib.figure import Figure
+
+    figure = Figure(figsize=(4, 2))
+    axis = figure.add_axes((0, 0, 1, 1))
+    pixels = np.arange(100 * 200 * 3, dtype=np.uint32).reshape(100, 200, 3)
+    before = pixels.copy()
+    reduced = module._overview_pdf_pixels(pixels, axis, 10)
+    np.testing.assert_array_equal(reduced, pixels[::5, ::5])
+    assert reduced.shape == (20, 40, 3)
+    assert reduced.flags.c_contiguous
+    assert not np.shares_memory(reduced, pixels)
+    np.testing.assert_array_equal(pixels, before)
+    assert module._overview_pdf_pixels(pixels, axis, None) is pixels
+
+
+def test_comparison_group_refusal_preserves_the_input_and_available_annotations():
+    import pandas as pd
+
+    frame = pd.DataFrame({'condition': ['control', 'treated'], 'intensity': [2., 8.]})
+    before = frame.copy(deep=True)
+    with pytest.raises(KeyError, match='unavailable'):
+        module._overview_grouped_frame(frame, [{'unavailable': 'control'}])
+    pd.testing.assert_frame_equal(frame, before)
+    grouped = module._overview_grouped_frame(frame, [{'condition': 'treated'}], ['chosen'])
+    assert grouped.to_dict('records') == [
+        {'condition': 'treated', 'intensity': 8., '_overview_group': 'chosen'}]
+    pd.testing.assert_frame_equal(frame, before)
+
+
+def test_plate_display_name_can_be_restored_without_changing_physical_source(mixed_plate_wizard):
+    wizard, folders = mixed_plate_wizard
+    item = wizard.plate_table.item(0, 0)
+    identity = item.data(module.Qt.UserRole)
+    sources = tuple(field.identity for field in wizard._fields)
+    item.setText('Renamed plate')
+    assert wizard._plate_names == {identity: 'Renamed plate'}
+    item.setText(identity)
+    assert wizard._plate_names == {}
+    assert tuple(field.identity for field in wizard._fields) == sources
+    assert wizard.source.text() == str(folders[0])
+
+
+def test_secondary_plate_table_regex_tracks_editor_and_restores_base(mixed_plate_wizard, qtbot):
+    wizard, folders = mixed_plate_wizard
+    wizard._use_plate_subfolders(str(folders[0]), True)
+    qtbot.waitUntil(lambda: len(wizard._detected_plates) == 2
+                    and wizard._runner.active_jobs() == 0, timeout=10000)
+    second = wizard._detected_plates[1]['path']
+    wizard._edit_plate(second)
+    changed = PATTERN.replace(r'p\d+', r'p[0-9]+')
+    assert changed != PATTERN
+
+    def regex_item():
+        return next(wizard.plate_table.item(row, 4) for row in range(wizard.plate_table.rowCount())
+                    if wizard.plate_table.item(row, 4).data(module.Qt.UserRole) == second)
+
+    regex_item().setText(changed)
+    qtbot.waitUntil(lambda: wizard._runner.active_jobs() == 0 and wizard._info is not None, timeout=10000)
+    assert wizard._plate_regex == {second: changed}
+    assert wizard.regex.text() == changed and wizard._base_regex() == PATTERN
+    regex_item().setText('')
+    qtbot.waitUntil(lambda: wizard._runner.active_jobs() == 0 and wizard._info is not None, timeout=10000)
+    assert wizard._plate_regex == {} and wizard._plate_regex_errors == {}
+    assert wizard.regex.text() == PATTERN and wizard._base_regex() == PATTERN
+    assert {field.source for field in wizard._fields} == set(map(str, folders[1:]))
