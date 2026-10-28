@@ -106,8 +106,14 @@ class TestInsightsDashboard:
         assert any(lbl.strip() == "Models" for lbl in labels)
 
     def test_totals_card_reflects_populated_journal(
-            self, qtbot, _populated_journal):
+            self, qtbot, _populated_journal, monkeypatch):
+        from PySide6.QtCore import QSettings
+        from spacr.qt import preferences
         from spacr.qt.app import MainWindow
+
+        monkeypatch.setattr(preferences, '_settings', lambda: QSettings(
+            str(_populated_journal / 'normal-home.ini'), QSettings.IniFormat))
+        preferences.set_easy_mode(False)
         win = MainWindow()
         qtbot.addWidget(win)
         # 3 mask runs → the Totals card should carry "3" for both
