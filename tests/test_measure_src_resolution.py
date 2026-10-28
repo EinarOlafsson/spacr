@@ -627,3 +627,49 @@ def test_per_plate_control_settings_refuse_before_ordinary_measure_outputs(tmp_p
             measure.measure_from_field_table(table, settings, dst=str(tmp_path / 'features'))
     assert {path: path.read_bytes() for path in source.iterdir()} == before
     assert set(tmp_path.iterdir()) == {source}
+
+
+@pytest.mark.parametrize('refusal', ['invalid-cancellation', 'inside-source', 'existing-destination'])
+def test_calibrated_measurement_refuses_unsafe_publication_before_reading_the_dataset(plate, tmp_path, refusal):
+    """Bad output authority must not alter source images or an occupied result."""
+    from spacr.measure import measure_calibrated_cells
+
+    before = (plate / 'merged' / 'a.npy').read_bytes()
+    destination = tmp_path / 'results'
+    cancelled = None
+    if refusal == 'invalid-cancellation':
+        cancelled = False
+        expected = ValueError
+    elif refusal == 'inside-source':
+        destination = plate / 'results'
+        expected = ValueError
+    else:
+        destination.mkdir()
+        (destination / 'previous.csv').write_bytes(b'previous result\n')
+        expected = FileExistsError
+    with pytest.raises(expected):
+        measure_calibrated_cells(plate, dst=destination, cancelled=cancelled)
+    assert (plate / 'merged' / 'a.npy').read_bytes() == before
+    if refusal == 'existing-destination':
+        assert (destination / 'previous.csv').read_bytes() == b'previous result\n'
+        assert sorted(path.name for path in destination.iterdir()) == ['previous.csv']
+    else:
+        assert not destination.exists()
+    assert not tuple(tmp_path.glob('.results.*'))
+
+
+def test_calibrated_directory_publication_never_replaces_even_an_empty_destination(tmp_path):
+    """The real atomic primitive preserves both sides when a destination wins the race."""
+    import sys
+    from spacr.measure import _publish_calibrated_measurement_directory
+
+    if not sys.platform.startswith('linux'):
+        pytest.skip('this control exercises the installed Linux renameat2 primitive')
+    staging, destination = tmp_path / 'staging', tmp_path / 'result'
+    staging.mkdir()
+    destination.mkdir()
+    (staging / 'cells.csv').write_bytes(b'known staged rows\n')
+    with pytest.raises(OSError):
+        _publish_calibrated_measurement_directory(staging, destination)
+    assert (staging / 'cells.csv').read_bytes() == b'known staged rows\n'
+    assert list(destination.iterdir()) == []

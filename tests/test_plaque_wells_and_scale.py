@@ -340,3 +340,39 @@ def test_a_crop_well_inside_the_image_gets_its_padding():
     well = Well(x0=40, y0=40, x1=60, y1=60)
     assert crop_well(image, well, pad=5).shape == (30, 30)
     assert crop_well(image, well).shape == (20, 20)
+
+
+@pytest.mark.parametrize('scores,expected', [([.6, .9], .9), ([None, None], None)])
+def test_duplicate_well_boxes_merge_before_physical_scaling_without_mutating_input(scores, expected):
+    """Overlapping detector views are one well; separated wells stay independent."""
+    from copy import deepcopy
+
+    boxes = [dict(box=[2, 3, 22, 23], confidence=scores[0]),
+             dict(box=[5, 5, 25, 25], confidence=scores[1]),
+             dict(box=[50, 3, 70, 23], confidence=.8)]
+    before = deepcopy(boxes)
+    merged = plaque._merge_well_boxes(boxes, (40, 100))
+    assert merged == [dict(box=[2, 3, 25, 25], confidence=expected),
+                      dict(box=[50, 3, 70, 23], confidence=.8)]
+    assert boxes == before
+    assert scale_from_well(Well(2, 3, 25, 25), well_diameter_mm=6.4).px_per_mm == pytest.approx(22.5 / 6.4)
+
+
+def test_a_large_centred_well_uses_the_complete_acquired_frame():
+    boxes = [dict(box=[10, 10, 90, 90], confidence=.9)]
+    assert plaque._merge_well_boxes(boxes, (100, 100)) == [
+        dict(box=[0, 0, 100, 100], confidence=.9, whole_frame_rule=True)]
+    assert boxes == [dict(box=[10, 10, 90, 90], confidence=.9)]
+
+
+@pytest.mark.parametrize('dtype', [np.uint16, np.float64])
+def test_well_resize_keeps_channels_and_source_pixels_for_identity_geometry(dtype):
+    """A no-resize well still owns its crop and retains the acquired channel axis."""
+    image = np.arange(42, dtype=dtype).reshape(6, 7, 1)
+    before = image.copy()
+    crop, metadata = plaque._well_resize_forward(image, [1, 1, 5, 5], side=4, max_factor=2)
+    np.testing.assert_array_equal(crop[..., 0], before[1:5, 1:5, 0])
+    assert crop.shape == (4, 4, 1)
+    assert metadata['ratio'] == metadata['scale_x'] == metadata['scale_y'] == 1
+    crop[0, 0, 0] = 0
+    np.testing.assert_array_equal(image, before)

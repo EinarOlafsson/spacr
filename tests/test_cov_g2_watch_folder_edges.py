@@ -140,3 +140,40 @@ def test_a_conversion_map_with_repeated_or_zero_identifiers_is_refused(
         header + row.replace(",1,1,1,1,", ",0,1,1,1,"), encoding="utf-8")
     with pytest.raises(ValueError):
         core._watch_map_manifest(str(tmp_path), {})
+
+
+def test_legacy_ledger_keys_migrate_without_accepting_changed_or_missing_sources(tmp_path):
+    """Portable spelling must not turn a changed acquisition into a completed field."""
+    folder = tmp_path / 'nested'
+    folder.mkdir()
+    unchanged = folder / 'same.tif'
+    changed = folder / 'changed.tif'
+    unchanged.write_bytes(b'original unchanged camera pixels')
+    changed.write_bytes(b'new camera pixels')
+    same_stat, changed_stat = unchanged.stat(), changed.stat()
+    same = [same_stat.st_dev, same_stat.st_ino, same_stat.st_size,
+            same_stat.st_mtime_ns, same_stat.st_ctime_ns]
+    stale = [changed_stat.st_dev, changed_stat.st_ino, changed_stat.st_size + 1,
+             changed_stat.st_mtime_ns, changed_stat.st_ctime_ns]
+    entry = {'files': {'nested\\same.tif': [1, 2]},
+             'snapshot_sha256': {'nested\\same.tif': 'kept-digest'},
+             'source_identity': {'nested\\same.tif': same.copy(),
+                                 'nested\\changed.tif': stale.copy(),
+                                 'nested\\missing.tif': same.copy(),
+                                 'not-an-identity': 'preserved'},
+             'collection_checkpoint': {'files': {'nested\\same.tif': 'kept'},
+                                       'unchanged': None}}
+    before_bytes = unchanged.read_bytes(), changed.read_bytes()
+    core._watch_migrate_windows_entry(entry, str(tmp_path))
+    assert entry['files'] == {'nested/same.tif': [1, 2]}
+    assert entry['snapshot_sha256'] == {'nested/same.tif': 'kept-digest'}
+    assert entry['collection_checkpoint'] == {'files': {'nested/same.tif': 'kept'},
+                                              'unchanged': None}
+    assert entry['source_identity']['nested/same.tif'] == core._watch_file_identity(unchanged)
+    assert entry['source_identity']['nested/changed.tif'] == stale
+    assert entry['source_identity']['nested/missing.tif'] == same
+    assert entry['source_identity']['not-an-identity'] == 'preserved'
+    assert (unchanged.read_bytes(), changed.read_bytes()) == before_bytes
+    no_identity = {'files': ['an older nonmapping record']}
+    core._watch_migrate_windows_entry(no_identity, str(tmp_path))
+    assert no_identity == {'files': ['an older nonmapping record']}

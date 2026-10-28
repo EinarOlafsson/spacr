@@ -370,3 +370,35 @@ def test_png_list_is_offered_alongside_the_object_tables(tmp_path):
     with sqlite3.connect(path) as db:
         _png().to_sql("png_list", db, index=False)
     assert mergeable_tables(path) == ("cell", "png_list")
+
+
+def test_nested_source_context_keeps_frames_owned_and_the_database_unchanged(tmp_path):
+    """A nested merge borrows the active source context without replacing its owner."""
+    from spacr import merge_tables as mt
+
+    path = _db(tmp_path, {'cell': _cells(), 'pathogen': _pathogens()})
+    from pathlib import Path
+    before = Path(path).read_bytes()
+    assert mt._merge_source_frames.get() is None
+    with mt._merge_duplicate_sources(path, ['cell', 'pathogen']) as outer:
+        with mt._merge_duplicate_sources(path, ['cell']) as inner:
+            assert inner is outer and inner['cell'] is outer['cell']
+            assert mt._merge_source_frames.get()[1] is outer
+        assert mt._merge_source_frames.get()[1] is outer
+    assert mt._merge_source_frames.get() is None
+    assert Path(path).read_bytes() == before
+
+
+def test_standard_merge_refuses_a_child_missing_its_image_identity(tmp_path):
+    """Object labels shared by different images cannot be joined without field keys."""
+    from spacr import merge_tables as mt
+    from pathlib import Path
+
+    path = _db(tmp_path, {'cell': _cells(),
+                         'pathogen': _pathogens().drop(columns=['fieldID'])})
+    before = Path(path).read_bytes()
+    with pytest.raises(MergeError, match='missing keys fieldID'):
+        with mt._merge_duplicate_sources(path, ['cell', 'pathogen'], standard=True):
+            pytest.fail('a child with no field identity must not be admitted')
+    assert mt._merge_source_frames.get() is None
+    assert Path(path).read_bytes() == before

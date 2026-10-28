@@ -865,3 +865,53 @@ def test_refused_packed_control_closes_its_actual_mapping_before_model_use(
     assert record['children'][1]['status'] == 'pending'
     assert record['complete'] is record['segmentation_complete'] is False
     _unchanged(inputs)
+
+
+@needs_partition_access
+@pytest.mark.parametrize('invalid', ['physical-channel-order', 'model-position',
+                                     'batch-count', 'channel-names', 'background-percentile'])
+def test_invalid_public_partition_configuration_refuses_before_output_ownership(
+        mixed_plate_inputs, invalid):
+    """Invalid channel/axis/batch metadata cannot create a misleading calibrated run."""
+    inputs = mixed_plate_inputs
+    if invalid == 'physical-channel-order':
+        inputs['kwargs']['channels'] = (3, 3)
+    elif invalid == 'model-position':
+        inputs['kwargs']['channels_for_cellpose'] = (2,)
+    elif invalid == 'batch-count':
+        inputs['kwargs']['batch_fields'] = 0
+    elif invalid == 'channel-names':
+        inputs['kwargs']['channel_names'] = ('only one name',)
+    else:
+        inputs['settings']['unmix_background_percentile'] = 100
+    before = set(inputs['source'].rglob('*'))
+    with pytest.raises(ValueError):
+        _run(inputs)
+    assert set(inputs['source'].rglob('*')) == before
+    assert inputs['constructed'] == inputs['observed'] == []
+    _unchanged(inputs)
+
+
+@pytest.mark.parametrize('status,complete', [('off', True), ('skipped', False), ('failed', False)])
+def test_aggregate_qc_status_cannot_overstate_completed_child_segmentation(
+        completed_partition, status, complete):
+    """Only completed/off QC across every signed child authorizes aggregate success."""
+    from spacr import pipeline_v2
+
+    inputs, result = completed_partition
+    path = Path(result['manifest_path'])
+    record = json.loads(path.read_text())
+    signed = {entry['child_name']: entry['record_sha256'] for entry in record['children']}
+    for child in result['plate_results']:
+        pipeline_v2._record_partition_qc(result, child, 'off')
+    error = RuntimeError('private QC detail') if status == 'failed' else None
+    pipeline_v2._record_partition_qc(result, None, status, error=error)
+    actual = json.loads(path.read_text())
+    assert actual['complete'] is actual['aggregate_complete'] is complete
+    assert actual['segmentation_complete'] is True
+    assert [entry['status'] for entry in actual['children']] == ['complete', 'complete']
+    assert {entry['child_name']: entry['record_sha256'] for entry in actual['children']} == signed
+    if error is not None:
+        assert actual['qc_error_type'] == 'RuntimeError'
+        assert str(error) not in path.read_text()
+    _unchanged(inputs)
