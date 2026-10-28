@@ -313,6 +313,23 @@ def test_fitting_setup_opening_retains_overlay_and_nominal_size(qtbot, qapp, mon
         qtbot.waitExposed(dialog)
         assert not getattr(dialog, '_gpu_note_in_layout', False)
         assert dialog.size() == QSize(648, 504)
+        if font_scale == 2.0:
+            from PySide6.QtWidgets import QAbstractScrollArea
+
+            dialog._show_slide(2)
+            qapp.processEvents()
+            assert dialog._pages.currentIndex() == 2
+            assert dialog._card_scrolls
+            scroll = dialog.card.parentWidget()
+            while scroll is not None and not isinstance(scroll, QAbstractScrollArea):
+                scroll = scroll.parentWidget()
+            assert scroll is not None
+            assert dialog.windowHandle().screen().availableGeometry().contains(
+                dialog.windowHandle().frameGeometry())
+            card_parent = dialog.card.parentWidget()
+            dialog._show_slide(1)
+            dialog._show_slide(2)
+            assert dialog.card.parentWidget() is card_parent
     finally:
         QDialog.reject(dialog)
         qapp.setStyleSheet(old_sheet)
