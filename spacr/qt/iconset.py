@@ -39,7 +39,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Optional, Tuple
 
-from PySide6.QtGui import QIcon, QIconEngine
+from PySide6.QtGui import QIcon
 
 from ..logging_util import _spacr_home
 from .theme import (
@@ -262,49 +262,6 @@ def _spaceout_gif_path():
     return Path(__file__).resolve().parents[1] / 'resources' / 'icons' / 'spaceout.gif'
 
 
-class _SpaceoutIconEngine(QIconEngine):
-    """Keep a still from the provided animation for native static icon callers."""
-
-    def __init__(self):
-        """Decode only the representative first frame and keep scaled pixmaps."""
-        from PySide6.QtGui import QPixmap
-
-        super().__init__()
-        self._source = QPixmap(str(_spaceout_gif_path()))
-        self._pixmaps = {}
-
-    def clone(self):
-        """Keep copied QIcons independent of the original engine lifetime."""
-        return _SpaceoutIconEngine()
-
-    def paint(self, painter, rect, mode, state):
-        """Preserve the supplied black background and white artwork in every theme."""
-        from .hidpi import logical_size, scaled_for
-
-        picture = scaled_for(self._source, painter.device(), rect.size())
-        size = logical_size(picture)
-        x = rect.x() + (rect.width() - size.width()) // 2
-        y = rect.y() + (rect.height() - size.height()) // 2
-        painter.drawPixmap(x, y, picture)
-
-    def pixmap(self, size, mode, state):
-        """Keep static rasterizations at each requested size, mode and state."""
-        from PySide6.QtCore import QRect, Qt
-        from PySide6.QtGui import QPainter, QPixmap
-
-        key = (size.width(), size.height(), mode, state)
-        if key not in self._pixmaps:
-            pixmap = QPixmap(size)
-            pixmap.fill(Qt.transparent)
-            painter = QPainter(pixmap)
-            try:
-                self.paint(painter, QRect(0, 0, size.width(), size.height()), mode, state)
-            finally:
-                painter.end()
-            self._pixmaps[key] = pixmap
-        return self._pixmaps[key]
-
-
 def icon(name: str, color: Optional[str] = None, size: int = 16,
          theme: Optional[str] = None) -> QIcon:
     """Return a QIcon for the named glyph, with a bundled fallback.
@@ -319,7 +276,14 @@ def icon(name: str, color: Optional[str] = None, size: int = 16,
         e.g. ``"open"`` or ``"run"``.
     """
     if name == 'spaceout':
-        return QIcon(_SpaceoutIconEngine())
+        from PySide6.QtGui import QPixmap
+
+        source = QPixmap(str(_spaceout_gif_path()))
+        result = QIcon()
+        for mode in (QIcon.Normal, QIcon.Disabled, QIcon.Active, QIcon.Selected):
+            for state in (QIcon.Off, QIcon.On):
+                result.addPixmap(source, mode, state)
+        return result
     qta = _try_qta()
     if qta is None:
         return _fallback_icon(name, theme, color=color, size=size)

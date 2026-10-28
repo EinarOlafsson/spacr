@@ -42,17 +42,15 @@ def test_static_icon_uses_actual_black_white_reference_frame(qapp, monkeypatch, 
     assert np.ptp(pixels[:, :, :3].astype(int), axis=2).max() < 10
 
 
-@pytest.mark.parametrize('ratio', [1, 2])
-def test_static_still_uses_the_real_paint_device_density_and_logical_center(qapp, ratio):
+@pytest.mark.parametrize('ratio, mode, state', [
+    (1, QIcon.Normal, QIcon.Off),
+    (2, QIcon.Normal, QIcon.Off),
+    (2, QIcon.Disabled, QIcon.On),
+])
+def test_static_still_uses_the_real_paint_device_density_and_logical_center(qapp, ratio, mode, state):
     canvas = QImage(90 * ratio, 65 * ratio, QImage.Format_RGBA8888)
     canvas.setDevicePixelRatio(ratio)
-    canvas.fill(Qt.transparent)
-    engine = iconset._SpaceoutIconEngine()
-    painter = QPainter(canvas)
-    try:
-        engine.paint(painter, QRect(7, 5, 72, 48), QIcon.Normal, QIcon.Off)
-    finally:
-        painter.end()
+    icon = iconset.app_icon('__easy_command__:Spaceout', theme='dark')
     original = QImageReader(str(iconset._spaceout_gif_path())).read()
     assert original.width() == original.height() and not original.isNull()
     reference = original.scaled(48 * ratio, 48 * ratio,
@@ -61,6 +59,12 @@ def test_static_still_uses_the_real_paint_device_density_and_logical_center(qapp
     expected = np.zeros((65 * ratio, 90 * ratio, 4), np.uint8)
     expected[5 * ratio:53 * ratio, 19 * ratio:67 * ratio] = np.frombuffer(
         reference.constBits(), np.uint8).reshape(48 * ratio, 48 * ratio, 4)
+    canvas.fill(Qt.transparent)
+    painter = QPainter(canvas)
+    try:
+        icon.paint(painter, QRect(7, 5, 72, 48), Qt.AlignCenter, mode, state)
+    finally:
+        painter.end()
     actual = np.frombuffer(canvas.constBits(), np.uint8).reshape(65 * ratio, 90 * ratio, 4)
     np.testing.assert_array_equal(actual, expected)
 
@@ -187,3 +191,18 @@ def test_native_spaceout_card_fill_matches_gif_on_hover_and_press(qtbot, private
     qtbot.keyClick(card, Qt.Key_Return)
     assert activated == [('__easy_command__:Spaceout', '')]
     page.close()
+
+
+def test_a_detached_icon_copy_survives_the_original_with_independent_mask_state(qapp):
+    import gc
+
+    original = iconset.app_icon('__easy_command__:Spaceout', theme='dark')
+    expected = _pixels(original, 96)
+    copied = QIcon(original)
+    copied.setIsMask(True)
+    assert copied.isMask() and not original.isMask()
+    np.testing.assert_array_equal(_pixels(copied, 96), expected)
+    del original
+    gc.collect()
+    assert not copied.isNull() and copied.isMask()
+    np.testing.assert_array_equal(_pixels(copied, 96), expected)
