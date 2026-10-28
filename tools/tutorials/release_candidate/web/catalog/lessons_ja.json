@@ -12193,9 +12193,9 @@
         },
         {
           "visual": "11_actual_brush_state",
-          "narration": "ファセットを小さな×印で外すと、一つの散布図に戻ります。物体の周りに四角形をドラッグすると、領域を選べます。Open selection in Annotateが使えない場合は、対応するプロジェクトでAnnotateを別に開き、そこで物体を確認します。",
+          "narration": "ファセットを小さな×印で外すと、一つの散布図に戻ります。物体の周りに四角形をドラッグすると、領域を選べます。選択数とハイライトされた点は連動して更新され、対応するプロジェクトでそれらのオブジェクトを確認するためにOpen selection in Annotateが使えるようになります。",
           "hold_after": 0.7,
-          "speech_text": "ファセットを小さな×印で外すと、一つの散布図に戻ります。物体の周りに四角形をドラッグすると、領域を選べます。Open selection in Annotateが使えない場合は、対応するプロジェクトでAnnotateを別に開き、そこで物体を確認します。"
+          "speech_text": "ファセットを小さな×印で外すと、一つの散布図に戻ります。物体の周りに四角形をドラッグすると、領域を選べます。選択数とハイライトされた点は連動して更新され、対応するプロジェクトでそれらのオブジェクトを確認するためにOpen selection in Annotateが使えるようになります。"
         },
         {
           "visual": "12_selection_cleared",
@@ -12282,7 +12282,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
