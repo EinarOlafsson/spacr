@@ -1,5 +1,5 @@
 # spaCR user guide translation (ko).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:05-0400\n"
+"POT-Creation-Date: 2026-10-28 13:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -26,8 +26,9 @@ msgstr "CV 모델 설명과 히트 조사"
 msgid "spaCR provides three separate analyses that answer different questions:"
 msgstr "spaCR은 서로 다른 질문에 답하는 세 가지 별도 분석을 제공합니다:"
 
-msgid "activation or occlusion maps show **where** a vision model attended;"
-msgstr "활성화 맵이나 가림 맵은 비전 모델이 **어디에** 주목했는지 보여 줍니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "gradient-based maps estimate input contributions to a selected model output, while occlusion maps measure output changes when image regions are replaced;"
+msgstr "기울기 기반 맵은 선택한 모델 출력에 대한 입력의 기여를 추정하고, 가림 맵은 이미지 영역을 대체했을 때의 출력 변화를 측정합니다;"
 
 msgid "the **Explain CV Model** module shows which measured morphology can reproduce the model's decisions; and"
 msgstr "**CV 모델 설명** 모듈은 측정된 형태 중 무엇이 모델의 결정을 재현할 수 있는지 보여 줍니다."
@@ -100,8 +101,9 @@ msgstr "원래 표현형 점수는 기본적으로 형태 모델에서 제외됩
 msgid "Quantitative evidence"
 msgstr "정량적 증거"
 
-msgid "The report uses wells, not cells, as the independent experimental unit. It reports target-versus-control candidate prevalence, a well-bootstrap interval, a plate-blocked permutation test, guide-dose response, guide-specific effects, and two stricter nulls. The stricter guide-fraction and well-label nulls repeat the cross-fitting pipeline inside every permutation rather than shuffling only the final summary labels."
-msgstr "보고서는 세포가 아니라 웰을 독립적인 실험 단위로 사용합니다. 표적 대 대조군 후보 유병률, 웰 부트스트랩 구간, 플레이트 블록 순열 검정, 가이드 용량 반응, 가이드별 효과, 그리고 더 엄격한 두 가지 귀무 모델을 보고합니다. 더 엄격한 가이드 비율 귀무 모델과 웰 레이블 귀무 모델은 최종 요약 레이블만 섞는 것이 아니라 순열마다 교차 적합 파이프라인을 반복합니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The report uses wells, not cells, as the independent experimental unit. It reports target-versus-control candidate prevalence, a well-bootstrap interval, a plate-blocked permutation test, guide-dose response, and guide-specific effects. Configured guide-fraction and well-label nulls repeat cross-fitting inside each permutation. Investigate Hit requests 100 permutations per null by default through ``hit_pipeline_permutations``; zero disables them. Direct calls to ``fit_hit_attribution`` default to zero through ``n_pipeline_permutations``. For positive requests, the report records requested and completed counts; failed fits and permutations without both target-containing and target-free wells are omitted. Refitted-null p-values are unavailable when no permutations complete."
+msgstr "보고서는 세포가 아니라 웰을 독립적인 실험 단위로 사용합니다. 표적 포함 웰과 대조 웰의 후보 유병률, 웰 수준 부트스트랩 구간, 플레이트별 블록 순열 검정, 가이드 용량 반응 및 가이드별 효과를 보고합니다. 설정된 가이드 비율 및 웰 레이블 귀무모형은 각 순열 내에서 교차 적합을 반복합니다. Investigate Hit는 ``hit_pipeline_permutations`` 를 통해 귀무모형당 기본적으로 100회 순열을 요청하며, 0으로 설정하면 비활성화됩니다. ``fit_hit_attribution`` 을 직접 호출할 때는 ``n_pipeline_permutations`` 의 기본값이 0입니다. 요청 횟수가 양수이면 보고서는 요청 횟수와 완료 횟수를 기록하며, 적합 실패와 표적 포함 웰과 표적 비포함 웰 두 유형을 모두 갖추지 못한 순열은 제외됩니다. 완료된 순열이 없으면 재적합 귀무모형의 p값을 사용할 수 없습니다."
 
 msgid "The two-dimensional comparison is a PCA fit only on target-free control-cell morphology and then used to transform all cells. Guide identity, target-well status, and the original classifier output are excluded. The exported table contains exact object keys and sample counts so a visual cluster can be traced back to its wells and images; the quantitative enrichment remains the primary claim."
 msgstr "2차원 비교는 표적이 없는 대조군 세포 형태에만 적합한 뒤 모든 세포를 변환하는 데 사용하는 PCA입니다. 가이드 식별 정보, 표적 웰 상태, 원래 분류기 출력은 제외됩니다. 내보낸 표에는 정확한 객체 키와 표본 수가 들어 있어 시각적 클러스터를 해당 웰과 이미지까지 추적할 수 있으며, 정량적 농축이 여전히 주된 주장입니다."
