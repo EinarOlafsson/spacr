@@ -13709,6 +13709,7 @@ class AppScreen(QWidget):
                 continue
             try:
                 self._apply_value(w, val)
+                self._settings_model._record_setting_undo(key, rebase=True)
                 applied += 1
             except Exception:
                 pass

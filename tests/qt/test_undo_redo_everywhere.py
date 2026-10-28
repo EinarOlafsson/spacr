@@ -186,3 +186,102 @@ def test_app_bulk_load_rebases_the_next_real_edit_without_replacing_the_model(qt
     assert values['organelle_diameter'] == 31 and values['organelle_mask_dim'] == 0
     assert values['number_of_organelles'] == 1
     screen.close()
+
+
+def test_progressive_slot_classifier_keeps_shared_keys_and_marks_only_slots_above_the_count():
+    from spacr.qt.screens.settings_model import SettingsWidgets
+
+    settings = {'number_of_organelles': 2, 'organelle_channel': 0,
+                'organelleb_channel': 1, 'organellez_diameter': 9,
+                'cell_diameter': 15, 'organelle_custom_metadata': 'preserve'}
+    assert SettingsWidgets._organelle_keys_beyond(0, settings) == {
+        'organelle_channel', 'organelleb_channel', 'organellez_diameter',
+        'organelle_custom_metadata'}
+    assert SettingsWidgets._organelle_keys_beyond(1, settings) == {
+        'organelleb_channel', 'organellez_diameter'}
+    assert SettingsWidgets._organelle_keys_beyond(26, settings) == set()
+    assert settings['number_of_organelles'] == 2 and settings['cell_diameter'] == 15
+
+
+def test_incomplete_count_is_refused_for_commit_but_remains_undoable_without_losing_other_slots(qtbot):
+    import pytest
+    from spacr.qt.screens.app_screen import AppScreen
+
+    screen = AppScreen('measure')
+    qtbot.addWidget(screen)
+    screen.apply_settings_dict({'number_of_organelles': 2, 'organelle_mask_dim': 0,
+                                'organelleb_mask_dim': 1, 'organelleb_diameter': 23})
+    model = screen._settings_model
+    field = model._widgets['number_of_organelles']
+    stack = model.undo_stack
+    stack.clear()
+    existing = dict(model._widgets)
+    assert field.text() == '2' and model.collect()['number_of_organelles'] == 2
+    for invalid in ('-', '1.5', 'no', '703'):
+        field.setText(invalid)
+        with pytest.raises(ValueError):
+            model._valid_committed_value('number_of_organelles')
+        field.editingFinished.emit()
+        assert field.text() == invalid and stack.canUndo()
+        with pytest.raises(ValueError):
+            model.collect()
+        assert model._valid_committed_value('organelleb_diameter') == 23
+        stack.undo()
+        restored = model.collect()
+        assert field.text() == '2' and restored['number_of_organelles'] == 2
+        assert restored['organelleb_diameter'] == 23
+    field.setText('2')
+    field.editingFinished.emit()
+    assert model.collect()['number_of_organelles'] == 2
+    assert all(model._widgets[key] is value for key, value in existing.items())
+    assert model.collect()['organelleb_mask_dim'] == 1
+    screen.close()
+
+
+def test_canceled_real_model_picker_keeps_the_field_and_model_settings(qtbot, monkeypatch):
+    from PySide6.QtWidgets import QDialog, QLineEdit
+    from spacr.qt.screens.app_screen import AppScreen
+    from spacr.qt.widgets.model_zoo_picker import ModelZooPicker
+
+    screen = AppScreen('mask')
+    qtbot.addWidget(screen)
+    field = QLineEdit('existing-checkpoint', screen)
+    before = screen._settings_model.collect()
+    inspected = []
+
+    def cancel(dialog):
+        assert isinstance(dialog, ModelZooPicker)
+        inspected.append(dialog)
+        return QDialog.Rejected
+
+    monkeypatch.setattr(ModelZooPicker, 'exec', cancel)
+    screen._choose_a_model_for('custom_model', field)
+    assert len(inspected) == 1
+    assert field.text() == 'existing-checkpoint'
+    assert screen._settings_model.collect() == before
+    screen.close()
+
+
+def test_ram_guard_choices_change_only_the_requested_policy_and_recheck_after_freeing_memory(qtbot):
+    from spacr.qt.screens.app_screen import AppScreen
+
+    screen = AppScreen('measure')
+    qtbot.addWidget(screen)
+    for choice in ('use', 'keep', 'free', 'cancel'):
+        settings = {'src': 'unchanged-input', 'n_jobs': 8, 'ram_guard': True}
+        calls, freed = [], []
+
+        def plan_for(source, requested):
+            calls.append((source, requested))
+            return {'exceeds': not freed, 'max_safe': 2}
+
+        accepted = screen._confirm_ram_guard(
+            settings, plan_for=plan_for, ask=lambda plan: choice,
+            free_ram=lambda: freed.append(True))
+        assert accepted is (choice != 'cancel')
+        assert settings['src'] == 'unchanged-input'
+        assert settings['n_jobs'] == (2 if choice == 'use' else 8)
+        assert settings['ram_guard'] is (choice != 'keep')
+        assert calls == [('unchanged-input', 8)] * (2 if choice == 'free' else 1)
+        assert freed == ([True] if choice == 'free' else [])
+    screen.close()

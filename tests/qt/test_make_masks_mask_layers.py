@@ -399,3 +399,316 @@ def test_corrupt_optional_layer_is_skipped_without_replacing_the_base_mask(
     assert not engine._layer_has_objects(str(corrupt), 'f_0.tif')
     np.testing.assert_array_equal(screen._canvas.mask, before)
     assert {p: p.read_bytes() for p in source} == source
+
+
+@pytest.mark.parametrize('accepted', [False, True])
+def test_layer_colour_picker_changes_only_the_chosen_outline_and_persists_it(
+        screen, folder, qtbot, monkeypatch, accepted):
+    from PySide6.QtGui import QColor
+    from spacr.qt.widgets import colour_picker
+
+    _open(screen, folder)
+    original = [dict(layer) for layer in screen._layers]
+    mask = screen._canvas.mask.copy()
+    sources = {path: path.read_bytes() for path in folder.rglob('*.tif')}
+    chosen = QColor('#3456ab') if accepted else QColor()
+    monkeypatch.setattr(colour_picker, 'pick_colour', lambda *args: chosen)
+    screen._on_layer_colour(1)
+    assert screen._layers[0] == original[0] and screen._layers[2] == original[2]
+    assert screen._layers[1]['colour'] == ('#3456ab' if accepted else original[1]['colour'])
+    assert np.array_equal(screen._canvas.mask, mask)
+    saved = json.loads((folder / 'curate_layers.json').read_text())
+    assert saved['layers'][1]['colour'] == screen._layers[1]['colour']
+    assert all(path.read_bytes() == value for path, value in sources.items())
+
+
+@pytest.mark.parametrize('stale_index', [-1, 99])
+def test_stale_layer_controls_cannot_mutate_a_reconfigured_review(screen, folder, stale_index):
+    _open(screen, folder)
+    config = (folder / 'curate_layers.json').read_bytes()
+    original = [dict(layer) for layer in screen._layers]
+    mask = screen._canvas.mask.copy()
+    screen._on_layer_colour(stale_index, '#102030')
+    screen._on_layer_visible(stale_index, False)
+    screen._on_layer_flagged(stale_index, True)
+    screen._on_layer_required(stale_index, True)
+    screen._on_layer_base_changed(stale_index)
+    assert screen._layers == original
+    assert (folder / 'curate_layers.json').read_bytes() == config
+    assert np.array_equal(screen._canvas.mask, mask)
+
+
+@pytest.mark.parametrize('mode', ['any', 'all'])
+def test_required_layers_skip_only_fields_without_the_required_objects_and_restore_them(
+        screen, folder, qtbot, mode):
+    imageio.imwrite(folder / 'model_a' / 'f_0.tif', np.zeros_like(BASE))
+    imageio.imwrite(folder / 'model_b' / 'f_1.tif', np.zeros_like(BASE))
+    _open(screen, folder)
+    snapshots = {path: path.read_bytes() for path in folder.rglob('*.tif')}
+    screen._on_layer_required(1, True)
+    screen._on_layer_required(2, True)
+    index = screen._layer_require_combo.findData(mode)
+    assert index >= 0
+    screen._on_layer_require_mode(index)
+    qtbot.waitUntil(lambda: all((str(folder / layer), filename) in screen._layer_object_cache
+                               for layer in ('model_a', 'model_b')
+                               for filename in screen._image_files), timeout=10000)
+    assert [screen._field_matches_layers(i) for i in range(3)] == (
+        [True, True, True] if mode == 'any' else [False, False, True])
+    screen._on_layer_required(1, False)
+    screen._on_layer_required(2, False)
+    assert all(screen._field_matches_layers(i) for i in range(3))
+    assert all(path.read_bytes() == value for path, value in snapshots.items())
+    assert not (folder / STATUS_FILENAME).exists()
+
+
+@pytest.mark.parametrize('absolute', [False, True])
+def test_new_curated_folder_name_changes_the_target_without_overwriting_a_layer(
+        screen, folder, absolute):
+    _open(screen, folder)
+    snapshots = {path: path.read_bytes() for path in folder.rglob('*.tif')}
+    target = folder / 'a_new_review'
+    screen._layer_name_edit.setText(str(target) if absolute else target.name)
+    screen._on_layer_folder_named()
+    assert screen._layer_target == str(target)
+    assert screen._layer_pending_target is None
+    assert not target.exists()
+    screen._on_layer_target_chosen(0)
+    assert screen._layer_target == str(target)
+    assert all(path.read_bytes() == value for path, value in snapshots.items())
+
+
+@pytest.mark.parametrize('action', ['flag', 'visible', 'clear'])
+def test_layer_review_display_changes_preserve_the_editable_mask_and_source_labels(
+        screen, folder, action):
+    _open(screen, folder)
+    mask = screen._canvas.mask.copy()
+    sources = {path: path.read_bytes() for path in folder.rglob('*.tif')}
+    if action == 'flag':
+        screen._on_layer_flagged(1, True)
+        assert screen._layer_only_flagged and screen._layers_flagged() == [1]
+        screen._on_layer_flagged(1, False)
+        assert not screen._layers_flagged()
+    elif action == 'visible':
+        screen._on_layer_visible(2, False)
+        assert not screen._layers[2]['visible']
+        screen._on_layer_visible(2, True)
+        assert screen._layers[2]['visible']
+    else:
+        screen._clear_layers()
+        assert screen._canvas.mode == mm.MODE_BRUSH
+        assert not screen._layers and screen._canvas.layer_overlay is None
+        assert screen._layer_section.isHidden()
+    assert np.array_equal(screen._canvas.mask, mask)
+    assert all(path.read_bytes() == value for path, value in sources.items())
+
+
+@pytest.mark.parametrize('failure', ['missing', 'wrong-shape', 'occupied', 'cancelled'])
+def test_paired_copy_refusal_preserves_original_images_and_leaves_no_partial_output(
+        tmp_path, failure):
+    root = tmp_path / 'source'
+    root.mkdir()
+    image, mask = root / 'field.tif', root / 'field_mask.tif'
+    imageio.imwrite(image, np.arange(64, dtype=np.uint16).reshape(8, 8))
+    imageio.imwrite(mask, np.ones((7, 7) if failure == 'wrong-shape' else (8, 8), dtype=np.uint16))
+    destination = tmp_path / 'prepared'
+    if failure == 'occupied':
+        destination.mkdir()
+        (destination / 'keep.txt').write_bytes(b'existing review')
+    snapshots = {path: path.read_bytes() for path in root.iterdir()}
+    candidate = root / 'absent.tif' if failure == 'missing' else mask
+    with pytest.raises((ValueError, FileExistsError, InterruptedError)):
+        mm._copy_paired_layout([(str(image), str(candidate))], str(destination),
+                               cancelled=lambda: failure == 'cancelled')
+    assert all(path.read_bytes() == value for path, value in snapshots.items())
+    if failure == 'occupied':
+        assert (destination / 'keep.txt').read_bytes() == b'existing review'
+        assert list(destination.iterdir()) == [destination / 'keep.txt']
+    else:
+        assert not destination.exists()
+    assert not list(tmp_path.glob('.spacr-paired-*'))
+
+
+def test_flagged_restore_never_overwrites_an_object_added_after_the_removal():
+    original = np.zeros((5, 5), dtype=np.uint16)
+    flagged = np.zeros_like(original)
+    flagged[1:4, 1:4] = 7
+    original[0, 0] = 12
+    snapshots = original.copy(), flagged.copy()
+    removed = {(0, 7): {4: np.array([0])}}
+    result, action = engine._flagged_pick(original, [(0, None), (0, flagged)], 1, 1, 20, removed)
+    assert result[0, 0] == 12
+    assert action['kind'] == 'add' and action['id'] == 20
+    assert np.all(result[(flagged > 0) & (original == 0)] == 20)
+    assert np.array_equal(original, snapshots[0]) and np.array_equal(flagged, snapshots[1])
+    unchanged, no_action = engine._flagged_pick(original, [(0, flagged)], 0, 0, 21, removed)
+    assert unchanged is None and no_action is None
+
+
+def test_responsive_shortcut_fold_respects_a_manual_choice_until_the_window_is_wide(screen, qtbot):
+    screen.resize(1000, 760)
+    screen.show()
+    qtbot.waitExposed(screen)
+    screen._fit_the_side_column()
+    pane = screen._view_pane
+    assert pane.is_collapsed('Shortcuts') and screen._side_folded_for_width
+    pane.set_collapsed('Shortcuts', False, by_user=True)
+    assert screen._side_held_by_user and not screen._side_folded_for_width
+    screen._fit_the_side_column()
+    assert not pane.is_collapsed('Shortcuts')
+    screen.resize(mm._COMPACT_WIDTH + 100, 900)
+    screen._fit_the_side_column()
+    assert not screen._side_held_by_user and not pane.is_collapsed('Shortcuts')
+    screen.resize(1000, 760)
+    screen._fit_the_side_column()
+    assert pane.is_collapsed('Shortcuts') and screen._side_folded_for_width
+
+
+@pytest.mark.parametrize('review', ['duplicates', 'legacy-colours', 'no-layers'])
+def test_layer_session_configuration_recovers_without_duplicate_layers_or_losing_the_field(
+        screen, folder, review):
+    _open(screen, folder)
+    before = screen._canvas.mask.copy()
+    original = {path: path.read_bytes() for path in folder.rglob('*.tif')}
+    paths = [str(folder / 'masks'), str(folder / 'model_a'), str(folder / 'model_b')]
+    if review == 'duplicates':
+        paths += paths
+    elif review == 'legacy-colours':
+        (folder / 'curate_layers.json').write_text(json.dumps({
+            'layers': [{'path': paths[0], 'colour': 'not-a-colour', 'flagged': 'old'},
+                       {'path': paths[1], 'colour': '#123456', 'visible': False}],
+            'base': paths[1], 'require_mode': 'obsolete', 'outline_thickness': .5}))
+    else:
+        paths = []
+    screen._set_layers(paths, root=str(folder), settings_root=str(folder), require=[])
+    assert np.array_equal(screen._canvas.mask, before)
+    assert all(path.read_bytes() == value for path, value in original.items())
+    if review == 'no-layers':
+        assert not screen._layers and screen._canvas.mode == mm.MODE_BRUSH
+        assert screen._canvas.layer_overlay is None
+    else:
+        assert len(screen._layers) == len({row['path'] for row in screen._layers}) == 3
+        assert not screen._layers_required()
+        if review == 'legacy-colours':
+            assert screen._layer_base == 1 and screen._layer_require_mode == 'any'
+            assert screen._layers[1]['colour'] == '#123456' and not screen._layers[1]['visible']
+            assert screen._canvas.outline_thickness == .5
+            assert all(len(row['colour']) == 7 and row['colour'].startswith('#') for row in screen._layers)
+
+
+def test_no_matching_required_layer_keeps_the_current_field_and_disabling_it_restores_navigation(
+        screen, folder, qtbot):
+    for path in (folder / 'model_a').glob('*.tif'):
+        imageio.imwrite(path, np.zeros_like(BASE))
+    _open(screen, folder)
+    field = screen._current_index
+    mask = screen._canvas.mask.copy()
+    screen._on_layer_required(1, True)
+    qtbot.waitUntil(lambda: all((str(folder / 'model_a'), name) in screen._layer_object_cache
+                               for name in screen._image_files), timeout=10000)
+    assert not any(screen._field_matches_layers(i) for i in range(3))
+    assert screen._current_index == field and np.array_equal(screen._canvas.mask, mask)
+    screen._on_layer_required(1, False)
+    assert all(screen._field_matches_layers(i) for i in range(3))
+    assert screen._step_target(1) == 1
+    assert not (folder / STATUS_FILENAME).exists()
+
+
+@pytest.mark.parametrize('thickness', [.5, 2.0])
+def test_real_layer_outline_render_is_cached_at_the_requested_width_without_editing_labels(
+        screen, folder, thickness):
+    _open(screen, folder)
+    canvas = screen._canvas
+    before = canvas.mask.copy()
+    source = {path: path.read_bytes() for path in folder.rglob('*.tif')}
+    screen._on_outline_thickness_changed(thickness)
+    assert screen._outline_thickness.value() == thickness
+    assert screen._layer_outline_thickness.value() == thickness
+    picture = canvas._outline_picture((0, 0, 32, 32), (256, 256), thickness)
+    assert picture is not None and not picture.isNull()
+    same = canvas._outline_picture((0, 0, 32, 32), (256, 256), thickness)
+    assert same is picture
+    alpha = np.frombuffer(picture.bits(), dtype=np.uint8).reshape(256, picture.bytesPerLine())[:, 3::4]
+    assert np.any(alpha > 0) and np.any(alpha == 0)
+    assert np.array_equal(canvas.mask, before)
+    assert all(path.read_bytes() == value for path, value in source.items())
+    stored = json.loads((folder / 'curate_layers.json').read_text())
+    assert stored['outline_thickness'] == thickness
+
+
+@pytest.mark.parametrize('cancel_at', ['confirmation', 'parent-folder'])
+def test_canceling_real_paired_layout_setup_never_launches_a_copy_or_changes_the_open_field(
+        screen, folder, monkeypatch, cancel_at):
+    from PySide6.QtWidgets import QFileDialog
+
+    _open(screen, folder)
+    before = screen._canvas.mask.copy()
+    paths = {path: path.read_bytes() for path in folder.rglob('*.tif')}
+    monkeypatch.setattr(screen, '_confirm', lambda *args: cancel_at != 'confirmation')
+    monkeypatch.setattr(QFileDialog, 'getExistingDirectory', lambda *args: '')
+    assert not screen._open_paired_layout({str(folder / 'f_0.tif'): str(folder / 'masks/f_0.tif')})
+    assert not screen._folder_job_running()
+    assert np.array_equal(screen._canvas.mask, before)
+    assert all(path.read_bytes() == value for path, value in paths.items())
+    assert not list(folder.parent.glob('make_masks*'))
+
+
+def test_unsuccessful_mask_save_cannot_mark_a_field_as_kept_or_advance_the_queue(
+        screen, folder, monkeypatch):
+    _open(screen, folder)
+    target = Path(screen._layer_target)
+    before = screen._canvas.mask.copy()
+    monkeypatch.setattr(screen, '_save_mask', lambda: None)
+    assert screen._on_curate(True) is None
+    assert screen._current_index == 0
+    assert not (target / STATUS_FILENAME).exists()
+    assert np.array_equal(screen._canvas.mask, before)
+    assert not (folder / STATUS_FILENAME).exists()
+
+
+def test_decision_log_write_failure_retains_the_previous_ledger_and_source_masks(
+        screen, folder, monkeypatch):
+    _open(screen, folder)
+    filename = screen._image_files[0]
+    screen._on_layer_pick(24, 24)
+    first = screen._write_layer_decisions(filename)
+    assert first is not None
+    path = Path(first)
+    stored = path.read_bytes()
+    previous = dict(screen._layer_previous)
+    sources = {p: p.read_bytes() for p in folder.rglob('*.tif')}
+
+    def fail(*args):
+        raise OSError('ledger destination is read-only')
+
+    monkeypatch.setattr(engine, '_write_layer_decisions', fail)
+    assert screen._write_layer_decisions(filename) is None
+    assert path.read_bytes() == stored and screen._layer_previous == previous
+    assert all(p.read_bytes() == value for p, value in sources.items())
+
+
+def test_curated_added_objects_resume_with_their_source_identity_and_do_not_reload_the_new_base(
+        screen, folder, tmp_path, qtbot):
+    target = tmp_path / 'review'
+    _open(screen, folder, target)
+    screen._on_layer_pick(24, 24)
+    expected = screen._canvas.mask.copy()
+    screen._on_curate(True)
+    _settle(qtbot, screen)
+    screen._go_to_index(0)
+    _settle(qtbot, screen)
+    assert screen._loaded_from_save_path
+    assert screen._layer_added == {3: {'layer': str(folder / 'model_b'), 'source_id': 3}}
+    screen._on_layer_base_changed(1)
+    assert screen._layer_base == 1 and screen._loaded_from_save_path
+    np.testing.assert_array_equal(screen._canvas.mask, expected)
+    assert screen._layer_added[3]['source_id'] == 3
+    assert int(imageio.imread(target / 'f_0.tif')[24, 24]) == 3
+
+
+@pytest.mark.parametrize('pairs', [[], [('one-path',)]])
+def test_invalid_pairing_request_cannot_create_a_destination(tmp_path, pairs):
+    destination = tmp_path / 'review'
+    with pytest.raises(ValueError):
+        mm._copy_paired_layout(pairs, str(destination))
+    assert not destination.exists() and not list(tmp_path.glob('.spacr-paired-*'))

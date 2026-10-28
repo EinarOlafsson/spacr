@@ -613,3 +613,81 @@ def test_calibrated_preview_completion_keeps_only_current_valid_state_and_recove
         assert {p: p.read_bytes() for p in source} == source
     finally:
         panel.close()
+
+
+@pytest.mark.parametrize('morphology,method,visible,hidden', [
+    ('spots', 'dog', ('dog_sigma_low', 'dog_sigma_high'), ('ridge_filter', 'hysteresis_low')),
+    ('network', 'ridge', ('ridge_filter', 'ridge_sigmas'), ('dog_sigma_low', 'hysteresis_low')),
+    ('network', 'hysteresis', ('hysteresis_low', 'hysteresis_high'), ('ridge_filter', 'dog_sigma_low')),
+    ('irregular', 'adaptive', ('adaptive_block_size', 'morph_radius'), ('ridge_filter', 'dog_sigma_low')),
+])
+def test_detector_changes_retain_hidden_tuning_and_offer_only_pipeline_supported_methods(
+        qtbot, morphology, method, visible, hidden):
+    from spacr.organelle_types import LEGAL_METHODS
+
+    panel = lp.LivePreviewPanel(threaded=False)
+    qtbot.addWidget(panel)
+    settings = {'organelle_morphology': morphology, 'organelle_method': method,
+                'organelle_ridge_sigmas': [1, 3], 'organelle_dog_sigma_low': 2,
+                'organelle_hysteresis_low': .2, 'organelle_hysteresis_high': .8}
+    panel.apply_settings(settings)
+    box = panel._organelle_widgets['method']
+    offered = [box.itemData(i) or box.itemText(i) for i in range(box.count())]
+    assert offered == list(LEGAL_METHODS[morphology]) and box.currentData() == method
+    for suffix in visible:
+        assert panel._organelle_field_visible(suffix, None, morphology)
+    for suffix in hidden:
+        assert not panel._organelle_field_visible(suffix, None, morphology)
+    values = panel._organelle_settings()
+    assert values['organelle_ridge_sigmas'] == [1, 3]
+    assert values['organelle_hysteresis_low'] == .2
+    assert values['organelle_hysteresis_high'] == .8
+    assert values['organelle_dog_sigma_low'] == 2
+    assert panel._worker is None
+    panel.close()
+
+
+def test_actual_channel_cycle_keeps_each_plane_and_the_two_object_composite_distinct(qtbot, plate):
+    panel = lp.LivePreviewPanel(threaded=False)
+    qtbot.addWidget(panel)
+    panel.apply_settings({'cell_channel': 0, 'nucleus_channel': 1})
+    panel._object_box.setCurrentIndex(panel._object_box.findData('cell + nucleus'))
+    assert panel.load_image(plate[0]['C01'])
+    source = plate[0]['C01'].read_bytes()
+    panel._cycle_index = 0
+    panel._apply_cycle_stop()
+    assert panel._composite_roles == () and panel.display_channel() == 0
+    panel._cycle_view(1)
+    assert panel._composite_roles == () and panel.display_channel() == 1
+    panel._cycle_view(1)
+    assert panel._composite_roles == ('cell', 'nucleus')
+    composite = panel._composite_view()
+    reference = panel._reference_display_image()
+    np.testing.assert_array_equal(composite[..., 0], lp._select_channel(reference, 1))
+    np.testing.assert_array_equal(composite[..., 1], lp._select_channel(reference, 0))
+    np.testing.assert_array_equal(composite[..., 2], composite[..., 0])
+    panel._object_box.setCurrentIndex(panel._object_box.findData('cell'))
+    panel._apply_cycle_stop()
+    assert panel._composite_roles == () and panel._cycle_stops() == []
+    assert panel._composite_view() is None
+    assert plate[0]['C01'].read_bytes() == source and panel._worker is None
+    panel.close()
+
+
+def test_invalid_ridge_scales_remain_visible_for_validation_and_blank_model_path_stays_unselected(qtbot):
+    panel = lp.LivePreviewPanel(threaded=False)
+    qtbot.addWidget(panel)
+    field = panel._organelle_widgets['ridge_sigmas']
+    for text in ('1, bad', '', '0, 2', '-1, 2'):
+        field.setText(text)
+        assert panel._widget_value(field) == text
+        assert panel._organelle_settings()['organelle_ridge_sigmas'] == text
+    field.setText('1, 2.5')
+    assert panel._widget_value(field) == [1., 2.5]
+    path = panel._organelle_widgets['unet_model_path']
+    path.setText('   ')
+    assert panel._widget_value(path) is None
+    channel = panel.display_channel()
+    panel._select_display_channel(None)
+    assert panel.display_channel() == channel and panel._worker is None
+    panel.close()

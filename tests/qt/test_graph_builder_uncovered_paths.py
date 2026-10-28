@@ -491,3 +491,31 @@ def test_transient_worker_column_classification_failure_still_delivers_the_exact
         assert not screen.is_busy()
     finally:
         screen.close()
+
+
+def test_csv_column_classification_failure_defers_without_discarding_the_loaded_table(
+        qtbot, monkeypatch, tmp_path):
+    from spacr.qt.screens import graph_builder as screen_module
+
+    path = tmp_path / 'measurements.csv'
+    frame = _frame(6)
+    frame.to_csv(path, index=False)
+    original = path.read_bytes()
+    attempts = []
+
+    def defer(value):
+        attempts.append(len(value))
+        raise ValueError('column type inference is not ready')
+
+    monkeypatch.setattr(screen_module, 'classify_columns', defer)
+    screen = screen_module.GraphBuilderScreen(threaded=False, link=LinkedSelection())
+    qtbot.addWidget(screen)
+    try:
+        screen.load_path(str(path))
+        assert attempts == [6]
+        pd.testing.assert_frame_equal(screen._annotation_base_frame, pd.read_csv(path))
+        assert '6 rows' in screen._source.text()
+        assert not screen.is_busy() and screen._jobs.active_jobs() == 0
+        assert path.read_bytes() == original
+    finally:
+        screen.close()
