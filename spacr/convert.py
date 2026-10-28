@@ -1623,7 +1623,7 @@ def _indexed_well_map(path, required):
     if any(index is None for _, index in required):
         raise ValueError(tr("Every indexed ScanR image must match its filename convention."))
     if not path:
-        raise ValueError(tr("Indexed ScanR requires a plate/index/well CSV map."))
+        raise ValueError(tr("Indexed ScanR requires a CSV map with plate, index and well columns."))
     if isinstance(path, Mapping):
         if any(not isinstance(key, tuple) or len(key) != 2 for key in path):
             raise ValueError(tr("Indexed ScanR well assignments must include both plate and W index."))

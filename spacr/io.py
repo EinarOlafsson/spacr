@@ -1448,7 +1448,7 @@ def _move_to_chan_folder(src, regex, timelapse=False, metadata_type=''):
     """
     if metadata_type == 'scanr_indexed':
         from .qt.i18n import tr
-        raise ValueError(tr("Indexed ScanR requires a plate/index/well CSV map."))
+        raise ValueError(tr("Indexed ScanR requires a CSV map with plate, index and well columns."))
     from .utils import _int_or_token, _convert_cq1_well_id
 
     src_path = src
