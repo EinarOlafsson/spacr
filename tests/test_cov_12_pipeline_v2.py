@@ -205,6 +205,25 @@ def test_empty_custom_mapping_returns_no_completed_calibrated_fields(tmp_path):
     assert all(path.read_bytes() == raw for path, raw in before.items())
 
 
+def test_exhausted_singular_calibrated_output_names_preserve_all_existing_owners(tmp_path, monkeypatch):
+    source = make_plate(tmp_path)
+    before = {path: path.read_bytes() for path in source.iterdir()}
+    occupied = [source / ('calibrated_segmentation' if index == 0 else
+                         f'calibrated_segmentation_{index:04d}') for index in range(10000)]
+    for path in occupied:
+        path.mkdir()
+    marker = occupied[-1] / 'preserved.csv'
+    marker.write_bytes(b'original result owner')
+    monkeypatch.setattr(PV, '_read_plane', lambda *a, **k: pytest.fail('Output exhaustion decoded images'))
+    with pytest.raises(ValueError, match='No unused calibrated segmentation output directory'):
+        PV.run_v2(source, channels=(0, 1), channels_for_cellpose=(0,),
+            postprocess_settings={'unmix': True, 'unmix_calibration': 'not-opened.json'})
+    assert all(path.is_dir() for path in occupied)
+    assert marker.read_bytes() == b'original result owner'
+    assert not list(source.glob('calibrated_segmentation*/psf/segmentation_application.json'))
+    assert all(path.read_bytes() == raw for path, raw in before.items())
+
+
 def make_plate(dst: Path, channels=3, size=12) -> Path:
     import tifffile
 
