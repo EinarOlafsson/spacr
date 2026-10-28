@@ -1156,3 +1156,92 @@ def test_full_thumbnail_pool_defers_new_quality_until_real_decoders_drain(qtbot,
     finally:
         released.set()
         _retire(dialog, qtbot)
+
+
+@pytest.mark.parametrize('invalid,layer', [('', 'global_normalization'),
+                                         ('not a channel', 'global_enhancement')])
+def test_image_layer_histograms_keep_committed_ink_when_global_channels_are_incomplete(
+        overview, qtbot, monkeypatch, invalid, layer):
+    import copy
+    from pathlib import Path
+    from PySide6.QtCore import Qt
+    from spacr.qt.widgets import qc_field_browser as module
+
+    dialog = overview
+    item = dialog.wells.item(*dialog._well_positions[('p1', 'B02')])
+    qtbot.mouseClick(dialog.wells.viewport(), Qt.LeftButton,
+                     pos=dialog.wells.visualItemRect(item).center())
+    qtbot.waitUntil(lambda: dialog.fields.count() == 2)
+    dialog.fields.setCurrentRow(0)
+    qtbot.waitUntil(lambda: not dialog._image_jobs.is_busy() and not dialog._image_pending
+                    and dialog.view._item is not None, timeout=10000)
+    field = dialog.fields.currentItem().data(Qt.UserRole)
+    assert (field.plate, field.well, field.field_id) == ('p1', 'B02', '1')
+    originals = {Path(path): Path(path).read_bytes() for _, path in field.files}
+    dialog.norm_channel.setCurrentIndex(dialog.norm_channel.findData(1))
+    dialog._channel_display_draft({'ink': .4})
+    dialog._channel_override_buttons[0].click()
+    qtbot.waitUntil(lambda: dialog._normalization_ready and not dialog._index_jobs.is_busy()
+                    and not dialog._image_jobs.is_busy() and not dialog._image_pending,
+                    timeout=10000)
+    assert dialog._channel_overrides[1]['ink'] == .4
+    dialog.view.customContextMenuRequested.emit(dialog.view.viewport().rect().center())
+    menu = dialog._image_menu_shown
+    next(action for action in menu.actions() if action.text() == 'Image settings…').trigger()
+    menu.close()
+    panel = dialog._image_settings
+    qtbot.waitUntil(lambda: not dialog._levels_jobs.is_busy() and panel.histogram.counts is not None,
+                    timeout=10000)
+    key = panel.key
+    before = dialog.view._item.pixmap().toImage().copy()
+    overrides = copy.deepcopy(dialog._channel_overrides)
+    fields = tuple(record.identity for record in dialog._fields)
+    reads = []
+    original_reader = module._overview_pixels
+
+    def read(record, channels, percentiles, **options):
+        if options.get('channel_views'):
+            reads.append((record.identity, channels, percentiles, copy.deepcopy(options)))
+        return original_reader(record, channels, percentiles, **options)
+
+    monkeypatch.setattr(module, '_overview_pixels', read)
+    try:
+        dialog.channels.setText(invalid)
+        dialog.channels.editingFinished.emit()
+        assert 'nonnegative channel indices' in dialog.status.text()
+        dialog.view.customContextMenuRequested.emit(dialog.view.viewport().rect().center())
+        menu = dialog._image_menu_shown
+        action = next(action for action in menu.actions()
+                      if action.objectName() == 'OverviewImage_' + layer)
+        assert action.isCheckable() and action.isChecked()
+        action.trigger()
+        menu.close()
+        qtbot.waitUntil(lambda: bool(reads) and not dialog._levels_jobs.is_busy(), timeout=10000)
+        identity, channels, limits, options = reads[-1]
+        assert identity == field.identity and channels == (1,) and limits is None
+        assert options['ink_intensity'] == {1: .4}
+        assert options['image_overrides'] == {key: {layer: False}}
+        assert panel.channels == (1,) and panel.key == key
+        assert panel.histogram.counts.shape == (256,)
+        assert int(panel.histogram.counts.sum()) == 40 * 30
+        assert np.all(panel.histogram.counts >= 0)
+        assert dialog._image_overrides == {key: {layer: False}}
+        assert dialog._channel_overrides == overrides
+        assert dialog.view._item.pixmap().toImage() == before
+        assert dialog._main_view_field.identity == field.identity
+        assert tuple(record.identity for record in dialog._fields) == fields
+        dialog.channels.setText('1')
+        dialog.channels.editingFinished.emit()
+        qtbot.waitUntil(lambda: not dialog._image_jobs.is_busy() and not dialog._image_pending
+                        and dialog.view._item is not None, timeout=10000)
+        image = dialog.view._item.pixmap().toImage()
+        assert (image.width(), image.height()) == (40, 30)
+        assert dialog._main_view_field.identity == field.identity
+        assert dialog._channel_overrides == overrides
+        assert dialog._image_overrides == {key: {layer: False}}
+        assert all(path.read_bytes() == content for path, content in originals.items())
+    finally:
+        dialog.channels.setText('1')
+        menu.close()
+        qtbot.waitUntil(lambda: not dialog._levels_jobs.is_busy(), timeout=10000)
+        panel.close()

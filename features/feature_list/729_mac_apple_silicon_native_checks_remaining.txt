@@ -133,3 +133,5 @@ DELIBERATELY NOT DONE
 - The idle repaint rework and battery pause (post-release item, maintainer).
 - Filing the Qt bug publicly (maintainer's call; text prepared).
 - Physical keyboard/trackpad acceptance for 696/697 (needs a person).
+
+2026-10-28 — Current Mac follow-ups include linked 673 stale/superseded pan-frame correctness and 641 idle repaint/battery/thread-identity diagnostics, plus this item's 0.7–1.35s first-open stalls and broad-cohort-only fractal_space OpenMP abort/segfault with unproved cause. Keep the known defects separate from already delivered software/manual-only qualification under AGENTS rule 40; Windows item 641 paced-pool follow-up remains separately owned. Canonical session instructions are in spacr/resources/AI/MAC_HANDOFF.md; no new native execution or completion is claimed.

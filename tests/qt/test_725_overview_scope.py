@@ -846,3 +846,53 @@ def test_same_channel_scope_refresh_preserves_controls_and_dormant_channel_setti
     assert model._read_value('overview_normalization_scope') == value
     assert tuple(view._channel_buttons) == (1, 2)
     assert all(path.read_bytes() == raw for path, raw in originals.items())
+
+
+def test_reapplying_the_same_channel_text_preserves_the_users_selection(qtbot):
+    from PySide6.QtWidgets import QLineEdit
+
+    edit = QLineEdit('1,9')
+    qtbot.addWidget(edit)
+    edit.show()
+    edit.setSelection(2, 1)
+    assert edit.selectedText() == '9' and edit.selectionStart() == 2
+    browser._overview_set_control(edit, [1, 9])
+    assert edit.text() == '1,9'
+    assert edit.selectedText() == '9'
+    assert edit.selectionStart() == 2 and edit.cursorPosition() == 3
+
+
+def test_overview_without_a_module_page_host_uses_the_owned_metadata_fallback(qtbot, tmp_path):
+    from PySide6.QtWidgets import QWidget
+
+    source = _plate(tmp_path / 'bare-owner-source', {'A01': 3})
+    originals = {path: path.read_bytes() for path in source.glob('*.tif')}
+    owner = QWidget()
+
+    def close(widget):
+        workspace = getattr(widget, '_field_overview_workspace', None)
+        if workspace is not None:
+            workspace._retire()
+            workspace.close()
+        tab = getattr(widget, '_overview_tab', None)
+        if tab is not None:
+            tab._overview_page.retire()
+            tab.close()
+        widget.close()
+
+    qtbot.addWidget(owner, before_close_func=close)
+    owner.resize(1100, 800)
+    owner.show()
+    wizard = browser._open_overview_module(owner, {'src': str(source), 'custom_regex': PATTERN})
+    workspace = owner._field_overview_workspace
+    assert wizard is owner._field_overview_wizard
+    assert wizard.parentWidget() is workspace.stack and workspace.parentWidget() is not None
+    assert owner._overview_tab._overview_page.browser is None
+    assert wizard.source.text() == str(source)
+    qtbot.waitUntil(lambda: len(wizard._fields) == 1 and not wizard._runner.is_busy(), timeout=15000)
+    assert wizard._fields[0].well == 'A01'
+    assert {path for _channel, path in wizard._fields[0].files} == {
+        str(source / 'p1-A01-f1-c1.tif'), str(source / 'p1-A01-f1-c2.tif')}
+    wizard.reject()
+    assert wizard._cancelled.is_set() and owner.isVisible()
+    assert all(path.read_bytes() == raw for path, raw in originals.items())

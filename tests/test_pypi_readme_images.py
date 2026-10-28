@@ -72,7 +72,7 @@ def test_packaged_readme_renders_all_original_images(metadata):
     assert [i["src"].split("/main/")[-1] for i in desktop] == [
         s["srcset"] for s in original.sources]
     assert all(i["src"].startswith("https://") for i in converted.images)
-    assert all(re.match(r"(?:https?://|mailto:|#)", link) for link in converted.links)
+    assert all(re.match(r"(?:https?://|mailto:|#)", link, re.I) for link in converted.links)
     restored = packaged["long_description"].replace(
         "https://raw.githubusercontent.com/EinarOlafsson/spacr/main/", "").replace(
         "https://github.com/EinarOlafsson/spacr/blob/main/", "")
@@ -139,7 +139,7 @@ def test_conversion_handles_figures_links_and_preserves_external_urls(metadata):
     assert "main/docs/picture.png" in converted
     assert "blob/main/docs/guide.rst#example" in converted
     assert "blob/main/docs/guide.rst>`_" in converted
-    for value in ("mailto:someone@example.org", "<#example>",
+    for value in ("MAILTO:someone@example.org", "<#example>",
                   "https://example.org/page?q=a&b=c", "https://example.org/image.svg?q=a&b=c"):
         assert value in converted
     assert convert(converted) == converted

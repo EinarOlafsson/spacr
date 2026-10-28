@@ -667,7 +667,7 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 638 | New | [638 -- Verbose logging is usable — 638_verbose_logging_is_usable.txt](feature_list/638_verbose_logging_is_usable.txt) | DONE 2026-10-04 |
 | 639 | New | [Item 639: Organize images in Mask Generation and Import Images — 639_organize_import_in_mask_and_import_modules.txt](feature_list/639_organize_import_in_mask_and_import_modules.txt) | DONE 2026-10-04 |
 | 640 | New | [640. Measure adds original_* filename columns from the conversion manifest — 640_measure_adds_original_filename_columns.txt](feature_list/640_measure_adds_original_filename_columns.txt) | DONE 2026-10-04 |
-| 641 | New | [641 -- Performance audit, 2026-10-04 (step 3 of the maintainer's audit) — 641_performance_audit_2026_10_04.txt](feature_list/641_performance_audit_2026_10_04.txt) | DONE 2026-10-04 (CPU only; numbers below, what is left at the end) |
+| 641 | New | [641 -- Performance audit, 2026-10-04 (step 3 of the maintainer's audit) — 641_performance_audit_2026_10_04.txt](feature_list/641_performance_audit_2026_10_04.txt) | DONE — accepted CPU audit; Windows paced-pool follow-up passed 2026-10-28. Separate Mac follow-ups retain their owning scope. |
 | 642 | New | [642. Model Zoo's alpha models are missing with Show alpha features on — 642_model_zoo_alpha_table_is_empty.txt](feature_list/642_model_zoo_alpha_table_is_empty.txt) | DONE 2026-10-04 |
 | 643 | New | [PRUNE THE SPACR HOME FOLDER — 643_prune_the_spacr_home_folder.txt](feature_list/643_prune_the_spacr_home_folder.txt) | DONE 2026-10-04. |
 | 644 | New | [DISK CACHE MANAGER — 644_disk_cache_manager.txt](feature_list/644_disk_cache_manager.txt) | DONE 2026-10-04. |
