@@ -71,19 +71,26 @@ def mask_window(qapp, qtbot):
     # no channel set only the cell column is drawn, none of its questions is
     # essential, and so under Essentials -- where a first visit opens -- the
     # table's section is hidden on purpose. All settings keeps it on screen.
-    remember_disclosure("mask", "all")
-    prefs.apply_preferences_to_app(qapp)
-    window = MainWindow()
-    qtbot.addWidget(window)
+    previous_easy = prefs.get_easy_mode()
+    window = None
     try:
+        prefs.set_easy_mode(False)
+        remember_disclosure("mask", "all")
+        prefs.apply_preferences_to_app(qapp)
+        window = MainWindow()
+        qtbot.addWidget(window)
         window.resize(1400, 900)
         window.show()
         window._on_nav_selected("mask")
         _settle(qapp)
         yield window
     finally:
-        window.close()
-        forget_disclosure()
+        try:
+            if window is not None:
+                window.close()
+        finally:
+            forget_disclosure()
+            prefs.set_easy_mode(previous_easy)
 
 
 def test_without_the_variable_no_key_is_bound(qapp, qtbot, monkeypatch):
