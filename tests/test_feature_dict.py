@@ -746,3 +746,28 @@ def test_importing_the_dictionary_compiles_no_object_alternation():
     facts = json.loads(done.stdout.strip().splitlines()[-1])
     assert facts == {"lazy": 7, "compiled_at_import": 0, "matches": True,
                      "compiled_on_use": True}, facts
+
+
+def test_lazy_regex_delegation_and_non_embedding_refusal():
+    from spacr.feature_dict import _LazyPattern, _parse_embedding
+
+    pattern = _LazyPattern(r"(?P<channel>channel_[0-9]+)")
+    assert pattern._compiled is None
+    assert pattern.findall("channel_2 and channel_17") == ["channel_2", "channel_17"]
+    assert pattern.groupindex == {"channel": 1}
+    assert _parse_embedding("cell_area") is None
+
+
+def test_embedding_help_does_not_guess_channel_from_malformed_prefix(monkeypatch):
+    import builtins
+    from spacr.feature_dict import _parse_embedding
+
+    original = builtins.__import__
+    def absent(name, globals=None, locals=None, fromlist=(), level=0):
+        if name in ("embeddings", "spacr.embeddings"):
+            raise ImportError("embedding runtime not installed")
+        return original(name, globals, locals, fromlist, level)
+    monkeypatch.setattr(builtins, "__import__", absent)
+    info = _parse_embedding("emb_texture_without_channel")
+    assert info is not None and info.channel is None
+    assert "embedding" in info.description

@@ -2081,3 +2081,55 @@ def test_macos_qt_release_flags_the_accessibility_crash_range(
     assert row.status == status
     if status == doctor.WARN:
         assert "<6.11" in row.fix and version in row.message
+
+
+@pytest.mark.parametrize("discovery_fails,font_fails", [(False, False), (True, False), (False, True)])
+def test_installer_warming_continues_after_optional_import_failures(qapp, monkeypatch, tmp_path, discovery_fails, font_fails):
+    import importlib
+    import pkgutil
+
+    (tmp_path / "working_screen.py").touch()
+    (tmp_path / "broken_screen.py").touch()
+    imported = []
+    drawn = []
+    original = importlib.import_module
+
+    def load(name, *args, **kwargs):
+        imported.append(name)
+        if name == "spacr.qt.screens":
+            if discovery_fails:
+                raise ImportError("screen discovery unavailable")
+            return types.SimpleNamespace(__path__=[str(tmp_path)])
+        if name.endswith("broken_screen") or name == "optional_failure":
+            raise ImportError("optional dependency absent")
+        if name == "qtawesome":
+            def icon(glyph):
+                if font_fails:
+                    raise RuntimeError("font registration unavailable")
+                return types.SimpleNamespace(pixmap=lambda *size: drawn.append((glyph, size)))
+            return types.SimpleNamespace(icon=icon)
+        if name == "working_module" or name.endswith("working_screen"):
+            return object()
+        return original(name, *args, **kwargs)
+
+    monkeypatch.setattr(doctor, "_WARM_MODULES", ("optional_failure", "working_module"))
+    monkeypatch.setattr(importlib, "import_module", load)
+    failed = doctor._warm_native_libraries()
+    assert "optional_failure" in failed
+    assert "working_module" in imported
+    assert drawn == ([] if font_fails else [("fa5s.square", (16, 16))])
+    assert ("qtawesome fonts" in failed) is font_fails
+    assert ("spacr.qt.screens" in failed) is discovery_fails
+    if not discovery_fails:
+        assert "spacr.qt.screens.broken_screen" in failed
+        assert "spacr.qt.screens.working_screen" in imported
+    from PySide6.QtWidgets import QApplication
+    assert QApplication.instance() is qapp
+
+
+def test_macos_qt_check_distinguishes_missing_distribution(ctx, monkeypatch):
+    monkeypatch.setattr(doctor.sys, "platform", "darwin")
+    monkeypatch.setattr(doctor, "_distribution_version", lambda name: None)
+    row = doctor._check_macos_qt_release(ctx)
+    assert row.status == doctor.SKIP
+    assert "not installed" in row.message

@@ -340,3 +340,67 @@ def test_a_trial_is_built_even_when_its_settings_cannot_be_saved(tmp_path,
     assert settings["src"] == folder
     assert settings["regression_type"] == "ols"
     assert settings["regression_qc"] is False
+
+
+@pytest.mark.parametrize("permission_denied", [False, True])
+def test_windows_priority_and_memory_fallback_are_scoped_to_worker(monkeypatch, permission_denied):
+    import psutil
+
+    class WindowsOS:
+        name = "nt"
+        def __getattr__(self, name):
+            return getattr(os, name)
+
+    native_os_name = os.name
+    calls = []
+    def priority(value):
+        calls.append(value)
+        if permission_denied:
+            raise PermissionError("priority adjustment denied")
+    monkeypatch.setattr(ps, "os", WindowsOS())
+    monkeypatch.setattr(psutil, "IDLE_PRIORITY_CLASS", 64, raising=False)
+    monkeypatch.setattr(psutil, "Process", lambda: types.SimpleNamespace(nice=priority))
+    ps._idle_priority_on_windows()
+    assert calls == [64]
+    original_open = builtins.open
+    def inaccessible(path, *args, **kwargs):
+        if path == "/proc/meminfo":
+            raise OSError("no proc filesystem")
+        return original_open(path, *args, **kwargs)
+    monkeypatch.setattr(builtins, "open", inaccessible)
+    def memory():
+        if permission_denied:
+            raise PermissionError("memory query denied")
+        return types.SimpleNamespace(available=3500000000)
+    monkeypatch.setattr(psutil, "virtual_memory", memory)
+    assert ps.free_memory_gb() == (float("inf") if permission_denied else 3.5)
+    assert os.name == native_os_name
+
+
+def test_windows_trial_launch_preserves_child_payload_and_thread_budget(tmp_path, monkeypatch):
+    import json
+
+    class WindowsOS:
+        name = "nt"
+        def __getattr__(self, name):
+            return getattr(os, name)
+
+    monkeypatch.setattr(ps, "os", WindowsOS())
+    monkeypatch.setattr(ps, "containment_available", lambda: False)
+    monkeypatch.setattr(subprocess, "IDLE_PRIORITY_CLASS", 64, raising=False)
+    captured = []
+    def run(command, **kwargs):
+        captured.append((command, kwargs))
+        payload = json.loads(Path(command[-2]).read_text())
+        assert payload == {"settings": {"src": str(tmp_path)}, "trial_id": 9, "controls": {"group": "control"}}
+        Path(command[-1]).write_text(json.dumps({"trial_id": 9, "status": "ok", "n_hi": 3}))
+        return subprocess.CompletedProcess(command, 0, "", "")
+    from pathlib import Path
+    monkeypatch.setattr(subprocess, "run", run)
+    result = ps.run_trial_contained({"src": str(tmp_path)}, trial_id=9, controls={"group": "control"}, timeout=7)
+    assert result["trial_id"] == 9 and result["status"] == "ok" and result["n_hi"] == 3
+    command, options = captured[0]
+    assert command[:3] == [sys.executable, "-m", "spacr.sweep_child"]
+    assert "nice" not in command and options["creationflags"] == 64
+    assert options["timeout"] == 7
+    assert all(options["env"][key] == "1" for key in ps._THREAD_VARS)
