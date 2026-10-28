@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "79fe6df81176f5e6f8a9fe0631321321a3ce4b8b1a4e7f119c9607e5ce9a7111",
+  "english_sha256": "3a1433580ecf272e574eaec9d4451f2a889a41df465c948e8c7bd8bfeba16b19",
   "review": {
     "kind": "AI technical editorial review against exact authored English; unchanged translated sentences retained",
     "translator": "Local NLLB draft with source-bound Codex AI technical corrections",
@@ -59,7 +59,6 @@
     "Keep는 적용한 설정을 유지하고 Preferences를 열린 상태로 둡니다. 다른 탭을 계속 조정하거나, 현재 값을 유지하고 창을 닫을 준비가 되면 Save를 클릭합니다.",
     "Modules 탭의 Session은 spaCR가 시작될 때 마지막 모듈, 설정, 폴더를 다시 열지 결정합니다. Update channel은 안정 릴리스와 야간 빌드 중에서 고르며, Proxy와 Certificate bundle을 쓰면 기관 프록시 뒤에서도 다운로드가 됩니다.",
     "Storage 탭에서는 spaCR이 일일 로그, 실행 로그, 실행 폴더를 얼마나 오래 보관할지와 각각의 크기 상한을 정합니다. 그 아래 캐시 목록은 모델과 다운로드가 저장된 위치를 보여 주며, 캐시마다 Clear와 Move가 있습니다.",
-    "Prune now는 묻지 않고 삭제하지 않습니다. 실행 폴더에 짧은 예시 상한을 두면 각 폴더에서 삭제할 항목을 나열하고 답을 기다립니다. Cancel을 클릭하면 아무것도 삭제되지 않습니다.",
-    "Spaceout 모드의 Preferences에는 8개의 독립적인 효과를 위한 spaCR 필드 컨트롤이 있습니다. 각 효과를 개별적으로 켜거나 끄세요. 일반적인 모양 설정과 설정 창 애니메이션 컨트롤도 계속 사용할 수 있습니다. Apply는 변경 사항을 미리 보여 주고, Keep은 이를 적용하며, Revert는 이전 선택으로 되돌립니다."
+    "Prune now는 묻지 않고 삭제하지 않습니다. 실행 폴더에 짧은 예시 상한을 두면 각 폴더에서 삭제할 항목을 나열하고 답을 기다립니다. Cancel을 클릭하면 아무것도 삭제되지 않습니다."
   ]
 }

@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "79fe6df81176f5e6f8a9fe0631321321a3ce4b8b1a4e7f119c9607e5ce9a7111",
+  "english_sha256": "3a1433580ecf272e574eaec9d4451f2a889a41df465c948e8c7bd8bfeba16b19",
   "review": {
     "kind": "AI technical editorial review against exact authored English; unchanged translated sentences retained",
     "translator": "Local NLLB draft with source-bound Codex AI technical corrections",
@@ -59,7 +59,6 @@
     "Keep godtar de anvendte innstillingene og lar Preferences være åpent. Fortsett å justere en annen fane, eller klikk på Save når du vil beholde de gjeldende verdiene og lukke vinduet.",
     "På fanen Modules bestemmer Session om spaCR åpner forrige modul, innstillingene og mappen igjen ved oppstart. Update channel velger stabile utgivelser eller nattlige bygg, og med Proxy og Certificate bundle fungerer nedlastinger bak en institusjonell proxy.",
     "Fanen Storage bestemmer hvor lenge spaCR beholder daglige logger, kjørelogger og kjøremapper, og en størrelsesgrense for hver. Under viser hurtigbufferlisten hvor modeller og nedlastinger lagres, med Clear og Move for hver hurtigbuffer.",
-    "Prune now sletter aldri uten å spørre. Med en kort eksempelgrense for kjøremapper lister den opp hva den ville slettet i hver mappe og venter på svar. Klikk Cancel, så fjernes ingenting.",
-    "I Spaceout-modus har Preferences spaCR-feltkontroller for åtte uavhengige effekter. Slå hver effekt på eller av separat. Vanlige kontroller for utseende og animasjon av innstillingsvinduet er fortsatt tilgjengelige; Apply forhåndsviser en endring, Keep godtar den og Revert gjenoppretter forrige valg."
+    "Prune now sletter aldri uten å spørre. Med en kort eksempelgrense for kjøremapper lister den opp hva den ville slettet i hver mappe og venter på svar. Klikk Cancel, så fjernes ingenting."
   ]
 }

@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "79fe6df81176f5e6f8a9fe0631321321a3ce4b8b1a4e7f119c9607e5ce9a7111",
+  "english_sha256": "3a1433580ecf272e574eaec9d4451f2a889a41df465c948e8c7bd8bfeba16b19",
   "review": {
     "kind": "AI technical editorial review against exact authored English; unchanged translated sentences retained",
     "translator": "Local NLLB draft with source-bound Codex AI technical corrections",
@@ -59,7 +59,6 @@
     "Keep übernimmt die angewendeten Einstellungen und lässt Preferences geöffnet. Bearbeiten Sie eine weitere Registerkarte, oder klicken Sie auf Save, wenn Sie die aktuellen Werte behalten und das Fenster schließen möchten.",
     "Auf der Registerkarte Modules bestimmt Session, ob spaCR beim Start das letzte Modul, die Einstellungen und den Ordner erneut öffnet. Update channel wählt stabile Versionen oder nächtliche Builds, und mit Proxy und Certificate bundle funktionieren Downloads hinter einem institutionellen Proxy.",
     "Die Registerkarte Storage legt fest, wie lange spaCR seine täglichen Logs, Lauf-Logs und Laufordner behält, und eine Größenobergrenze für jede Art. Darunter zeigt die Cache-Liste, wo Modelle und Downloads liegen, mit Clear und Move für jeden Cache.",
-    "Prune now löscht nie ohne Nachfrage. Mit einer kurzen Beispielgrenze für Laufordner listet es auf, was es in jedem Ordner löschen würde, und wartet auf eine Antwort. Klicken Sie auf Cancel, dann wird nichts entfernt.",
-    "Im Spaceout-Modus bietet Preferences spaCR-Feldsteuerungen für acht unabhängige Effekte. Schalten Sie jeden Effekt einzeln ein oder aus. Die üblichen Steuerungen für Darstellung und Animation des Einstellungsfensters bleiben verfügbar; Apply zeigt eine Änderung als Vorschau, Keep übernimmt sie und Revert stellt die vorherige Auswahl wieder her."
+    "Prune now löscht nie ohne Nachfrage. Mit einer kurzen Beispielgrenze für Laufordner listet es auf, was es in jedem Ordner löschen würde, und wartet auf eine Antwort. Klicken Sie auf Cancel, dann wird nichts entfernt."
   ]
 }

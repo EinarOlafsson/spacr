@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "79fe6df81176f5e6f8a9fe0631321321a3ce4b8b1a4e7f119c9607e5ce9a7111",
+  "english_sha256": "3a1433580ecf272e574eaec9d4451f2a889a41df465c948e8c7bd8bfeba16b19",
   "review": {
     "kind": "AI technical editorial review against exact authored English; unchanged translated sentences retained",
     "translator": "Local NLLB draft with source-bound Codex AI technical corrections",
@@ -59,7 +59,6 @@
     "Keep accepterar de tillämpade inställningarna och lämnar Preferences öppet. Fortsätt att ändra en annan flik, eller klicka på Save när du är redo att behålla de aktuella värdena och stänga fönstret.",
     "På fliken Modules avgör Session om spaCR öppnar den senaste modulen, inställningarna och mappen igen när programmet startas. Update channel väljer stabila versioner eller nattliga byggen, och med Proxy och Certificate bundle fungerar nedladdningar bakom en institutionell proxy.",
     "Fliken Storage anger hur länge spaCR behåller sina dagliga loggar, körloggar och körmappar, och en storleksgräns för var och en. Under dem visar cachelistan var modeller och nedladdningar lagras, med Clear och Move för varje cache.",
-    "Prune now raderar aldrig utan att fråga. Med en kort exempelgräns för körmappar listar den vad den skulle radera i varje mapp och väntar på svar. Klicka på Cancel så tas inget bort.",
-    "I Spaceout-läget har Preferences spaCR-fältkontroller för åtta oberoende effekter. Slå på eller av varje effekt separat. Vanliga kontroller för utseende och animering av inställningsfönstret finns kvar; Apply förhandsvisar en ändring, Keep godkänner den och Revert återställer föregående val."
+    "Prune now raderar aldrig utan att fråga. Med en kort exempelgräns för körmappar listar den vad den skulle radera i varje mapp och väntar på svar. Klicka på Cancel så tas inget bort."
   ]
 }

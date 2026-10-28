@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "79fe6df81176f5e6f8a9fe0631321321a3ce4b8b1a4e7f119c9607e5ce9a7111",
+  "english_sha256": "3a1433580ecf272e574eaec9d4451f2a889a41df465c948e8c7bd8bfeba16b19",
   "review": {
     "kind": "AI technical editorial review against exact authored English; unchanged translated sentences retained",
     "translator": "Local NLLB draft with source-bound Codex AI technical corrections",
@@ -59,7 +59,6 @@
     "Keep samþykkir stillingarnar sem hafa verið notaðar og heldur Preferences opnu. Haltu áfram að breyta öðrum flipa eða smelltu á Save þegar þú vilt halda núverandi gildum og loka glugganum.",
     "Á flipanum Modules ræður Session hvort spaCR opnar síðustu einingu, stillingar og möppu aftur við ræsingu. Update channel velur stöðugar útgáfur eða næturútgáfur, og Proxy og Certificate bundle láta niðurhal virka á bak við stofnanaproxy.",
     "Flipinn Storage stillir hve lengi spaCR geymir daglegar annálaskrár, keyrsluannála og keyrslumöppur, og stærðarmörk fyrir hvert. Fyrir neðan sýnir skyndiminnislistinn hvar líkön og niðurhal eru geymd, með Clear og Move fyrir hvert skyndiminni.",
-    "Prune now eyðir aldrei án þess að spyrja. Með stuttum dæmamörkum fyrir keyrslumöppur sýnir það hvað það myndi eyða í hverri möppu og bíður svars. Smelltu á Cancel og ekkert er fjarlægt.",
-    "Í Spaceout-ham býður Preferences spaCR-sviðsstýringar fyrir átta óháð áhrif. Kveiktu eða slökktu á hverjum áhrifavalkosti fyrir sig. Venjulegar stýringar fyrir útlit og hreyfingar í stillingaglugganum eru áfram tiltækar; Apply forskoðar breytingu, Keep samþykkir hana og Revert endurheimtir fyrra val."
+    "Prune now eyðir aldrei án þess að spyrja. Með stuttum dæmamörkum fyrir keyrslumöppur sýnir það hvað það myndi eyða í hverri möppu og bíður svars. Smelltu á Cancel og ekkert er fjarlægt."
   ]
 }

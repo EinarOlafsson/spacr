@@ -378,11 +378,6 @@
         1200,
         1500
       ]
-    },
-    {
-      "visual": "24_spaceout_field",
-      "narration": "In Spaceout mode, Preferences includes spaCR field controls for eight independent effects. Turn each effect on or off separately. Ordinary appearance and settings-window animation controls remain available; Apply previews a change, Keep accepts it and Revert restores the previous choice.",
-      "hold_after": 0.7
     }
   ]
 }

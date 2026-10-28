@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "79fe6df81176f5e6f8a9fe0631321321a3ce4b8b1a4e7f119c9607e5ce9a7111",
+  "english_sha256": "3a1433580ecf272e574eaec9d4451f2a889a41df465c948e8c7bd8bfeba16b19",
   "review": {
     "kind": "AI technical editorial review against exact authored English; unchanged translated sentences retained",
     "translator": "Local NLLB draft with source-bound Codex AI technical corrections",
@@ -59,7 +59,6 @@
     "Keep accepte les paramètres appliqués et laisse Preferences ouvert. Continuez à modifier un autre onglet, ou cliquez sur Save lorsque vous souhaitez conserver les valeurs actuelles et fermer la fenêtre.",
     "Dans l’onglet Modules, Session détermine si spaCR rouvre le dernier module, les paramètres et le dossier au démarrage. Update channel choisit les versions stables ou les builds nocturnes, et Proxy et Certificate bundle permettent les téléchargements derrière un proxy institutionnel.",
     "L’onglet Storage règle combien de temps spaCR conserve ses journaux quotidiens, ses journaux d’exécution et ses dossiers d’exécution, avec une limite de taille pour chacun. En dessous, la liste des caches montre où sont stockés les modèles et les téléchargements, avec Clear et Move pour chaque cache.",
-    "Prune now ne supprime jamais sans demander. Avec une limite d’exemple courte pour les dossiers d’exécution, il liste ce qu’il supprimerait dans chaque dossier et attend une réponse. Cliquez sur Cancel et rien n’est supprimé.",
-    "En mode Spaceout, Preferences propose des contrôles du champ spaCR pour huit effets indépendants. Activez ou désactivez chaque effet séparément. Les contrôles habituels d’apparence et d’animation des fenêtres restent disponibles ; Apply prévisualise une modification, Keep l’accepte et Revert rétablit le choix précédent."
+    "Prune now ne supprime jamais sans demander. Avec une limite d’exemple courte pour les dossiers d’exécution, il liste ce qu’il supprimerait dans chaque dossier et attend une réponse. Cliquez sur Cancel et rien n’est supprimé."
   ]
 }

@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "79fe6df81176f5e6f8a9fe0631321321a3ce4b8b1a4e7f119c9607e5ce9a7111",
+  "english_sha256": "3a1433580ecf272e574eaec9d4451f2a889a41df465c948e8c7bd8bfeba16b19",
   "review": {
     "kind": "AI technical editorial review against exact authored English; unchanged translated sentences retained",
     "translator": "Local NLLB draft with source-bound Codex AI technical corrections",
@@ -59,7 +59,6 @@
     "Keep accepterer de anvendte indstillinger og lader Preferences være åbent. Fortsæt med at justere en anden fane, eller klik på Save, når du vil beholde de aktuelle værdier og lukke vinduet.",
     "På fanen Modules afgør Session, om spaCR åbner det sidste modul, indstillingerne og mappen igen ved opstart. Update channel vælger stabile udgivelser eller natlige builds, og med Proxy og Certificate bundle virker downloads bag en institutionel proxy.",
     "Fanen Storage indstiller, hvor længe spaCR beholder sine daglige logfiler, kørselslogfiler og kørselsmapper, og en størrelsesgrænse for hver. Nedenunder viser cachelisten, hvor modeller og downloads ligger, med Clear og Move for hver cache.",
-    "Prune now sletter aldrig uden at spørge. Med en kort eksempelgrænse for kørselsmapper viser den, hvad den ville slette i hver mappe, og venter på svar. Klik på Cancel, så fjernes intet.",
-    "I Spaceout-tilstand har Preferences spaCR-feltkontroller til otte uafhængige effekter. Tænd eller sluk hver effekt separat. De sædvanlige kontroller til udseende og animation af indstillingsvinduet er stadig tilgængelige; Apply viser en forhåndsvisning af en ændring, Keep accepterer den, og Revert gendanner det tidligere valg."
+    "Prune now sletter aldrig uden at spørge. Med en kort eksempelgrænse for kørselsmapper viser den, hvad den ville slette i hver mappe, og venter på svar. Klik på Cancel, så fjernes intet."
   ]
 }
