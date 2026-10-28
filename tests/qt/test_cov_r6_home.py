@@ -642,3 +642,66 @@ def test_known_module_hint_uses_the_existing_summary_and_unknown_keys_preserve_i
     previous = page._hint_bar.text()
     assert not page.show_module_hint('not-a-registered-module')
     assert page._hint_bar.text() == previous
+
+
+def test_reserved_news_content_preserves_point_units_when_aside_text_changes(real_classic_home, qtbot):
+    from PySide6.QtWidgets import QSlider
+
+    page = real_classic_home
+    content = QWidget()
+    layout = QVBoxLayout(content)
+    label = QLabel('Custom release briefing')
+    label.setStyleSheet('font-size: 12pt;')
+    layout.addWidget(label)
+    page.set_reserved_content(content)
+    qtbot.waitUntil(content.isVisible)
+    assert page.news_panel.content is content
+    assert not page.news_panel._notes.isVisible()
+    label.ensurePolished()
+    initial_pixels = label.fontInfo().pixelSize()
+    tile_fonts = [(child, child.fontInfo().pixelSize())
+                  for tile in page._tile_hints for child in tile.findChildren(QLabel)
+                  if child.text()]
+    slider = page.findChild(QSlider, 'HomeAsideTextSlider')
+    slider.setValue(160)
+    qtbot.waitUntil(lambda: label.fontInfo().pixelSize() > initial_pixels)
+    assert 'font-size: 19.2pt' in label.styleSheet()
+    assert label.text() == 'Custom release briefing'
+    assert page.news_panel.content is content and content.isVisible()
+    assert all(child.fontInfo().pixelSize() == pixels for child, pixels in tile_fonts)
+    slider.setValue(100)
+    qtbot.waitUntil(lambda: label.fontInfo().pixelSize() == initial_pixels)
+    assert 'font-size: 12.0pt' in label.styleSheet()
+    assert page.news_panel.content is content
+
+
+def test_beta_panel_actions_and_stage_legend_expose_their_real_meaning(qtbot):
+    from PySide6.QtTest import QSignalSpy, QTest
+    from spacr.qt.theme import STAGE_LABEL, STAGE_NOTE, stage_hover, stylesheet
+
+    panel = home_mod.Panel('Experimental tools', beta=True)
+    qtbot.addWidget(panel)
+    panel.setStyleSheet(stylesheet())
+    action = panel.add_action('Refresh', kind='safe', tip='Read the current results again')
+    panel.resize(500, 160)
+    panel.show()
+    qtbot.waitExposed(panel)
+    assert panel.header.text() == 'EXPERIMENTAL TOOLS' + home_mod.BETA_SUFFIX
+    assert panel.header.toolTip() == home_mod.BETA_PANEL_TOOLTIP
+    assert panel.action('REFRESH') is action
+    assert panel.action('not an action') is None
+    assert action.focusPolicy() != Qt.NoFocus
+    assert action.toolTip() == action.accessibleDescription() == 'Read the current results again'
+    clicked = QSignalSpy(action.clicked)
+    QTest.keyClick(action, Qt.Key_Space)
+    assert clicked.count() == 1
+    legend = home_mod.StageLegend()
+    qtbot.addWidget(legend)
+    for stage in ('alpha', 'beta', 'stable'):
+        row = legend.row_for(stage)
+        assert row is not None and row.parentWidget() is not None
+        assert row.toolTip() == STAGE_NOTE[stage]
+        assert any(label.text() == STAGE_LABEL[stage] for label in row.findChildren(QLabel))
+        chip = row.findChild(QLabel, f'StageSwatch_{stage}')
+        assert chip is not None and stage_hover(stage) in chip.styleSheet()
+    assert legend.row_for('unregistered stage') is None
