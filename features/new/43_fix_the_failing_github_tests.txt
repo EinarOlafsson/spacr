@@ -1,5 +1,12 @@
 GET THE GITHUB ACTIONS RUNS GREEN
 
+CURRENT LIVE MAGNIFIER RESULT READINESS — 2026-10-28
+widgets_g1 owns prior-0911 Qt3 job 122528660247: diagnose the actual
+magnifier event/worker/result path on frozen Main f1957555e6 and repair
+only the proven cause of the box on/off result timeout. Preserve the
+10-second deadline, real segmentation and drawing assertions; G5 peer,
+one affected CPU/offscreen selector, no model download or GPU; root publishes.
+
 CURRENT METADATA CAPTION FAKE SOURCE TREE — 2026-10-27
 widgets_g1 owns Coverage 6 job 122347867652 and Minimum 0 job
 122347866761: include required empty convert.py in the shared metadata
@@ -5294,3 +5301,5 @@ Also check the per-host instance lock and unclean-exit counter: concurrent windo
 2026-10-27 — Merge fixtures use unique image-wide child identities and retain parent links, measurements and strict aggregation assertions. Avoiding empty-frame concatenation preserves nullable booleans. Provenance tests distinguish explicit continuation refusal from fresh-run archive isolation, retaining historical rows, reference hashes and size/mtime controls.
 2026-10-27 — Repaired Dock paint preference reads and responsive toolbar/IO/canvas allocation; unchanged strict geometry and live-theme checks pass. Genuine walkthroughs remain accessible. Preference, dock-action, News reading, merge-redraw, fade-event and lazy-proxy fixtures now exercise supported behavior while preserving their data, visibility, pixel and restoration assertions.
 2026-10-27 — Pytest 9.2 fixture-registry compatibility and child-only legacy-hazard reconstruction pass all three strict guard cases. Qualified repairs retain focused passing tests and independent G5 peers; the normal consumer refresh changes only 190 source positions with target semantics unchanged; root owns Main/Nightly publication and subsequent CI qualification. One hosted deferred-widget wrapper crash remains unidentified: its single bounded Qt 6.11.3 diagnostic passed without reproduction, so no lifecycle fix or native-clearance claim is made.
+
+2026-10-28 — The magnifier drawing fixture now pins its advertised 600×400 canvas before the baseline grab and verifies the resulting pixmap and hover mapping. The bounded readout demonstrated layout-driven geometry drift, not the exact hosted no-request condition; its separate shutdown abort is not a resolved product fault. G5 accepted the four-line test-only change; the sole affected selector passes (8.42 s), preserving the real worker, 10-second deadline and box on/off pixel assertions. Root owns publication.
