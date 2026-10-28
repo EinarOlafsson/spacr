@@ -173,3 +173,170 @@ def test_forcing_the_detected_kind_does_not_replace_measured_capabilities():
     found = acc.Accelerator(kind='xpu', device='xpu:0', label='Test GPU', bfloat16=False)
     assert acc._forced_device('xpu', found) is found
     assert acc._forced_device('xpu:0', found) is found
+
+
+@pytest.mark.parametrize('answer', [0, 1, 2, 'unavailable', 'raises'])
+def test_rosetta_reads_the_kernel_integer_and_refuses_failed_queries(monkeypatch, answer):
+    import ctypes
+
+    def query(name, value, size, new_value, new_size):
+        assert name == b'sysctl.proc_translated'
+        assert size._obj.value == ctypes.sizeof(ctypes.c_int)
+        assert new_value is None and new_size.value == 0
+        if answer == 'raises':
+            raise OSError('sysctl unavailable')
+        if answer == 'unavailable':
+            return -1
+        ctypes.cast(value, ctypes.POINTER(ctypes.c_int))[0] = answer
+        return 0
+
+    probe = Mock(side_effect=query)
+    monkeypatch.setattr(acc.platform, 'system', lambda: 'Darwin')
+    monkeypatch.setattr(acc, '_libc', lambda: SimpleNamespace(sysctlbyname=probe))
+    assert acc._rosetta_translated.__wrapped__() is (answer == 1)
+    assert probe.call_count == 1
+
+
+@pytest.mark.parametrize('process_symbols', ['available', 'missing', 'raises'])
+def test_libc_prefers_process_symbols_and_falls_back_only_when_needed(
+        monkeypatch, process_symbols):
+    import ctypes
+    import ctypes.util
+
+    native = SimpleNamespace(sysctlbyname=object())
+    fallback = SimpleNamespace(sysctlbyname=object())
+    first = native if process_symbols == 'available' else SimpleNamespace()
+    outcomes = [OSError('symbol table unavailable'), fallback] if process_symbols == 'raises' else [first, fallback]
+    load = Mock(side_effect=outcomes)
+    locate = Mock(return_value='test-libSystem')
+    monkeypatch.setattr(ctypes, 'CDLL', load)
+    monkeypatch.setattr(ctypes.util, 'find_library', locate)
+    assert acc._libc.__wrapped__() is (native if process_symbols == 'available' else fallback)
+    assert load.call_args_list[0].args == (None,)
+    if process_symbols == 'available':
+        assert load.call_count == 1
+        locate.assert_not_called()
+    else:
+        locate.assert_called_once_with('c')
+        assert load.call_args_list[1].args == ('test-libSystem',)
+
+
+@pytest.mark.parametrize('failure', [None, 'size', 'value', 'raises'])
+def test_sysctl_strings_obey_the_two_pass_buffer_protocol(monkeypatch, failure):
+    import ctypes
+
+    payload = b'  Apple Test\xff  \x00'
+
+    def query(name, buffer, size, new_value, new_size):
+        assert name == b'machdep.cpu.brand_string'
+        assert new_value is None and new_size.value == 0
+        if failure == 'raises':
+            raise OSError('sysctl unavailable')
+        if buffer is None:
+            assert size._obj.value == 0
+            size._obj.value = len(payload)
+            return -1 if failure == 'size' else 0
+        assert size._obj.value == len(payload)
+        assert ctypes.sizeof(buffer) == len(payload)
+        if failure == 'value':
+            return -1
+        ctypes.memmove(buffer, payload, len(payload))
+        return 0
+
+    probe = Mock(side_effect=query)
+    monkeypatch.setattr(acc, '_libc', lambda: SimpleNamespace(sysctlbyname=probe))
+    assert acc._sysctl_string(b'machdep.cpu.brand_string') == (
+        'Apple Test\ufffd' if failure is None else '')
+    assert probe.call_count == (2 if failure in (None, 'value') else 1)
+
+
+def test_an_unknown_macos_release_does_not_invent_an_upgrade_requirement(monkeypatch):
+    monkeypatch.setattr(acc.platform, 'system', lambda: 'Darwin')
+    monkeypatch.setattr(acc.platform, 'machine', lambda: 'arm64')
+    monkeypatch.setattr(acc.platform, 'mac_ver', lambda: ('', (), ''))
+    monkeypatch.setattr(acc, '_metal_gpu_name', lambda: 'Apple Test GPU')
+    label, note = acc._why_metal_is_unavailable()
+    assert label == 'Apple Test GPU'
+    assert 'does not offer a Metal device' in note and 'Upgrading' not in note
+
+
+def test_a_non_apple_sysctl_name_defers_to_the_actual_profiler_row(monkeypatch):
+    monkeypatch.setattr(acc.platform, 'system', lambda: 'Darwin')
+    monkeypatch.setattr(acc, '_apple_silicon', lambda: True)
+    chip = Mock(return_value='Unrecognized processor')
+    profiler = Mock(return_value=SimpleNamespace(stdout='Chipset Model: Test GPU\n'))
+    monkeypatch.setattr(acc, '_sysctl_string', chip)
+    monkeypatch.setattr(subprocess, 'run', profiler)
+    assert acc._metal_gpu_name.__wrapped__() == 'Test GPU'
+    chip.assert_called_once_with(b'machdep.cpu.brand_string')
+    assert profiler.call_args.args == (['system_profiler', 'SPDisplaysDataType'],)
+
+
+@pytest.mark.parametrize('enabled', [False, True])
+def test_fallback_needs_both_the_environment_and_the_import_time_state(monkeypatch, enabled):
+    import spacr
+
+    monkeypatch.setattr(spacr, '_MPS_FALLBACK_LIVE', False)
+    if enabled:
+        monkeypatch.setenv('PYTORCH_ENABLE_MPS_FALLBACK', '1')
+    else:
+        monkeypatch.delenv('PYTORCH_ENABLE_MPS_FALLBACK', raising=False)
+    found = acc.Accelerator(kind='xpu', device='xpu', label='Test XPU', fallback=True)
+    assert acc._mps_fallback_live(found) is False
+
+
+@pytest.mark.parametrize('state', ['missing_torch', 'wrong_backend', 'broken_properties'])
+def test_mask_discovery_refuses_unavailable_or_inconsistent_devices(monkeypatch, state):
+    driver = SimpleNamespace(is_available=Mock(return_value=True),
+                             device_count=Mock(return_value=1),
+                             get_device_properties=Mock(side_effect=OSError('driver failed')))
+    torch = SimpleNamespace(cuda=driver, version=SimpleNamespace(hip=None),
+                            zeros=Mock(side_effect=AssertionError('no tensor allocation')))
+    monkeypatch.setattr(acc, '_forced', lambda: 'rocm' if state == 'wrong_backend' else None)
+    monkeypatch.setattr(acc, '_torch', lambda: None if state == 'missing_torch' else torch)
+    assert acc._mask_devices() == ()
+    torch.zeros.assert_not_called()
+    if state == 'broken_properties':
+        driver.get_device_properties.assert_called_once_with(0)
+    else:
+        driver.device_count.assert_not_called()
+        driver.get_device_properties.assert_not_called()
+
+
+@pytest.mark.parametrize('error', [None, AttributeError, ValueError, OSError])
+def test_physical_memory_multiplies_os_units_or_returns_unknown(monkeypatch, error):
+    values = {'SC_PAGE_SIZE': 4096, 'SC_PHYS_PAGES': 2 ** 20}
+    query = Mock(side_effect=error('no sysconf') if error else lambda key: values[key])
+    monkeypatch.setattr(acc.os, 'sysconf', query)
+    assert acc._physical_memory() == (0 if error else 4 * 1024 ** 3)
+    assert query.call_args_list[0].args == ('SC_PAGE_SIZE',)
+    if error is None:
+        assert query.call_args_list[1].args == ('SC_PHYS_PAGES',)
+
+
+@pytest.mark.parametrize('state', ['already_applied', 'missing_function', 'already_wrapped'])
+def test_metal_flow_workaround_preserves_an_existing_or_absent_wrapper(monkeypatch, state):
+    original = Mock()
+    original._spacr_cpu_flows = True
+    dynamics = SimpleNamespace(remove_bad_flow_masks=original) if state == 'already_wrapped' else SimpleNamespace()
+    monkeypatch.setattr(acc, '_FLOW_PATCH_APPLIED', state == 'already_applied')
+    torch = SimpleNamespace(device=Mock(side_effect=AssertionError('no device construction')))
+    monkeypatch.setitem(sys.modules, 'torch', torch)
+    monkeypatch.setitem(sys.modules, 'cellpose', SimpleNamespace(dynamics=dynamics))
+    acc._keep_cellpose_flows_off_metal()
+    assert acc._FLOW_PATCH_APPLIED is True
+    assert getattr(dynamics, 'remove_bad_flow_masks', None) is (original if state == 'already_wrapped' else None)
+    torch.device.assert_not_called()
+    original.assert_not_called()
+
+
+def test_a_working_shader_probe_does_not_query_the_fallback_renderer(monkeypatch):
+    shader = Mock(return_value=True)
+    fallback = Mock(side_effect=AssertionError('fallback should not be queried'))
+    monkeypatch.setitem(sys.modules, 'spacr.qt.widgets.fractal_travel',
+                        SimpleNamespace(gpu_is_available=shader))
+    monkeypatch.setitem(sys.modules, 'spacr.qt.widgets.ambient',
+                        SimpleNamespace(_flow_graphics_preflight=fallback))
+    assert acc._opengl_likely() is True
+    shader.assert_called_once_with()
+    fallback.assert_not_called()
