@@ -2153,6 +2153,19 @@ def _directory_fixture_nodeid(fixturedef):
     return None
 
 
+def _registered_fixture_definitions(fixture_manager):
+    """Yield fixture names and definitions from the running pytest registry."""
+    all_definitions = getattr(fixture_manager, "_get_all_fixture_defs", None)
+    if callable(all_definitions):
+        for definition in all_definitions():
+            yield definition.argname, definition
+        return
+    registry = getattr(fixture_manager, "_arg2fixturedefs", None) or {}
+    for name, definitions in registry.items():
+        for definition in definitions:
+            yield name, definition
+
+
 def directory_fixture_expectations(fixture_manager):
     """Map a directory's nodeid to the fixture names its conftest defines.
 
@@ -2166,15 +2179,11 @@ def directory_fixture_expectations(fixture_manager):
     session fails, which is the right place for "the check needs updating" to
     show up.
     """
-    registry = getattr(fixture_manager, "_arg2fixturedefs", None)
-    if not registry:
-        return {}
     expectations = {}
-    for argname, fixturedefs in registry.items():
-        for fixturedef in fixturedefs:
-            nodeid = _directory_fixture_nodeid(fixturedef)
-            if nodeid is not None:
-                expectations.setdefault(nodeid, set()).add(argname)
+    for argname, fixturedef in _registered_fixture_definitions(fixture_manager):
+        nodeid = _directory_fixture_nodeid(fixturedef)
+        if nodeid is not None:
+            expectations.setdefault(nodeid, set()).add(argname)
     return expectations
 
 
@@ -2223,19 +2232,15 @@ def directory_conftest_parse_nodes(fixture_manager, items=None):
     A pytest that keeps its registry somewhere else answers with nothing, for
     the same reason ``directory_fixture_expectations`` does.
     """
-    registry = getattr(fixture_manager, "_arg2fixturedefs", None)
-    if not registry:
-        return {}
     parse_nodes = {}
     nodeids = set()
-    for fixturedefs in registry.values():
-        for fixturedef in fixturedefs:
-            node = getattr(fixturedef, "node", None)
-            if isinstance(node, pytest.Directory):
-                parse_nodes.setdefault(node.nodeid, node)
-            nodeid = _directory_fixture_nodeid(fixturedef)
-            if nodeid is not None:
-                nodeids.add(nodeid)
+    for _argname, fixturedef in _registered_fixture_definitions(fixture_manager):
+        node = getattr(fixturedef, "node", None)
+        if isinstance(node, pytest.Directory):
+            parse_nodes.setdefault(node.nodeid, node)
+        nodeid = _directory_fixture_nodeid(fixturedef)
+        if nodeid is not None:
+            nodeids.add(nodeid)
     if items is None:
         session = getattr(fixture_manager, "session", None)
         items = getattr(session, "items", ())
