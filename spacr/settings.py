@@ -3392,6 +3392,7 @@ def get_check_cellpose_models_default_settings(settings):
     :param settings: dict to fill in place.
     :returns: the settings dict with defaults applied.
     """
+    settings.setdefault('src', '')
     settings.setdefault('batch_size', 10)
     settings.setdefault('CP_prob', 0)
     settings.setdefault('flow_threshold', 0.4)

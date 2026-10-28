@@ -1241,6 +1241,20 @@ def test_the_panel_factory_list_still_matches_the_panel(module_id):
         f"longer built from the factory this list names")
 
 
+def test_cellpose_comparison_source_default_matches_the_panel_and_keeps_explicit_inputs():
+    """Keep the canonical source field aligned without replacing caller choices."""
+    from spacr.qt.screens.settings_model import resolve_default_settings
+
+    empty = S.get_check_cellpose_models_default_settings({})
+    assert empty["src"] == resolve_default_settings("cellpose_all")["src"] == ""
+    for source in ("/chosen/cellpose-input", None):
+        supplied = {"src": source, "diameter": 19}
+        result = S.get_check_cellpose_models_default_settings(supplied)
+        assert result is supplied
+        assert result["src"] == source
+        assert result["diameter"] == 19
+
+
 def test_no_panel_factory_ships_a_key_that_has_no_declared_type():
     """The invariant, stated once over every module the panel can open."""
     undeclared = {}
