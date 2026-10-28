@@ -278,3 +278,18 @@ def test_apply_augmentation_methods(rng):
         except Exception:
             continue
         assert out.shape == img.shape
+
+
+@pytest.mark.parametrize('source', [None, [None]])
+def test_invalid_dataset_source_types_do_not_spawn_packers_or_modify_files(tmp_path, monkeypatch, source):
+    """Invalid public source authority cannot reach image collection or worker creation."""
+    from spacr import io, utils
+    import multiprocessing
+
+    settings_seen = []
+    monkeypatch.setattr(utils, 'save_settings', lambda settings, *args, **kwargs: settings_seen.append(dict(settings)))
+    monkeypatch.setattr(multiprocessing, 'Pool', lambda *args, **kwargs: pytest.fail('invalid sources cannot own a pool'))
+    with pytest.raises((RuntimeError, TypeError)):
+        io.generate_dataset({'src': source, 'file_metadata': 'cell_png', 'experiment': 'invalid-source'})
+    assert settings_seen
+    assert list(tmp_path.iterdir()) == []

@@ -915,3 +915,56 @@ def test_aggregate_qc_status_cannot_overstate_completed_child_segmentation(
         assert actual['qc_error_type'] == 'RuntimeError'
         assert str(error) not in path.read_text()
     _unchanged(inputs)
+
+
+def test_calibrated_vvvv_export_refuses_before_any_pipeline_or_output(tmp_path, monkeypatch):
+    from spacr import core, pipeline_v2
+
+    def forbidden(*args, **kwargs):
+        pytest.fail('nonquantitative VVVV export must refuse before segmentation')
+
+    monkeypatch.setattr(pipeline_v2, 'run_v2', forbidden)
+    settings = dict(src=str(tmp_path), pipeline_style='v2', export_vvvv=True,
+                    unmix_calibration=str(tmp_path / 'optics.json'))
+    with pytest.raises(ValueError, match='does not support VVVV'):
+        core.preprocess_generate_masks(settings)
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_qc_journal_failures_add_context_without_replacing_the_real_child_error(
+        completed_partition, monkeypatch):
+    from spacr import core, pipeline_v2
+
+    inputs, result = completed_partition
+    root = Path(result['plate_results'][0]['output_root'])
+    (root / 'qc').write_bytes(b'an existing file owns this destination')
+    actual_score = core._score_v2_masks
+    actual_record = pipeline_v2._record_partition_qc
+    errors, failed_writes = [], []
+
+    def score(*args, **kwargs):
+        try:
+            return actual_score(*args, **kwargs)
+        except FileExistsError as error:
+            errors.append(error)
+            raise
+
+    def write(result, child, status, error=None):
+        if status == 'failed':
+            failed_writes.append(child)
+            raise OSError('QC journal destination unavailable')
+        return actual_record(result, child, status, error=error)
+
+    monkeypatch.setattr(core, '_score_v2_masks', score)
+    monkeypatch.setattr(pipeline_v2, 'run_v2', lambda *args, **kwargs: result)
+    monkeypatch.setattr(pipeline_v2, '_record_partition_qc', write)
+    with pytest.raises(FileExistsError) as caught:
+        core.preprocess_generate_masks(_core_settings(inputs))
+    assert errors == [caught.value]
+    assert len(failed_writes) == 2 and failed_writes[1] is None
+    if callable(getattr(caught.value, 'add_note', None)):
+        assert sum('QC journal destination unavailable' in note for note in caught.value.__notes__) == 2
+    record = json.loads(Path(result['manifest_path']).read_text())
+    assert record['complete'] is record['aggregate_complete'] is False
+    assert (root / 'qc').read_bytes() == b'an existing file owns this destination'
+    _unchanged(inputs)
