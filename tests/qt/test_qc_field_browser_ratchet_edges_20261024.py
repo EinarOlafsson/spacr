@@ -852,3 +852,45 @@ def test_crossed_image_levels_keep_a_positive_range_and_only_edit_the_selected_i
         assert {path: hashlib.sha256(Path(path).read_bytes()).hexdigest() for path in before} == before
     finally:
         panel.close()
+
+
+def test_duplicate_terminal_plate_folders_get_distinct_labels_without_aliasing_sources(tmp_path):
+    import hashlib
+
+    folders = [tmp_path / site / 'group' / 'plate' for site in ('siteA', 'siteB')]
+    paths = []
+    for index, folder in enumerate(folders):
+        folder.mkdir(parents=True)
+        path = folder / 'p1-A01-f1-t1-z1-c1.tif'
+        tifffile.imwrite(path, np.full((5, 7), index + 1, dtype=np.uint16))
+        paths.append(path)
+    before = {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in paths}
+    detected = module._overview_detect_plates(list(map(str, folders)))
+    assert [plate['default_name'] for plate in detected['plates']] == ['group/plate', 'group/plate (2)']
+    assert [plate['path'] for plate in detected['plates']] == list(map(str, folders))
+    fields, indexed = module._overview_index_sources(list(map(str, folders)), PATTERN)
+    assert len(fields) == len(indexed['plates']) == 2
+    assert {field.source for field in fields} == set(map(str, folders))
+    assert len({module._overview_image_key(field) for field in fields}) == 2
+    assert {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in paths} == before
+
+
+def test_unexpected_metadata_worker_failure_disables_next_without_replacing_source(
+        mixed_plate_wizard, qtbot, monkeypatch):
+    wizard, folders = mixed_plate_wizard
+    assert wizard.next.isEnabled()
+    fields = wizard._fields
+    source = wizard.source.text()
+
+    def unreadable_header(*args, **kwargs):
+        raise RuntimeError('Microscopy header inspection failed')
+
+    monkeypatch.setattr(module, '_overview_wizard_probe', unreadable_header)
+    wizard._scan()
+    qtbot.waitUntil(lambda: wizard._runner.active_jobs() == 0
+                    and 'Microscopy header inspection failed' in wizard.status.text(), timeout=10000)
+    assert not wizard.next.isEnabled()
+    assert wizard.source.text() == source == str(folders[0])
+    assert wizard._fields is fields
+    assert wizard._info is not None
+    assert wizard.result() == module.QDialog.Rejected
