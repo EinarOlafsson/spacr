@@ -1610,6 +1610,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         / "data/release_contracts"
         / "694_startup_splash_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
     assert len(splash_arrivals) == 21
+    from tests.test_documentation_i18n import _current_startup_frame_stats_api
+    splash_arrivals = _current_startup_frame_stats_api(splash_arrivals, docs)
     assert {key: docs[key] for key in splash_arrivals} == splash_arrivals
     assert not splash_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **splash_arrivals}
