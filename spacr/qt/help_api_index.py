@@ -4874,6 +4874,7 @@ API_ENTRIES = (
     ('spacr.qt.help_search', 'The search field beside the Help menu, and what each result opens.'),
     ('spacr.qt.help_search.ApiEntryDialog', "A symbol's local docstring, shown when its web page cannot be reached."),
     ('spacr.qt.help_search.HelpSearchField', 'The box beside the Help menu.'),
+    ('spacr.qt.help_search.HelpSearchField.event', 'Keep Escape in this field before window shortcuts handle it.'),
     ('spacr.qt.help_search.HelpSearchField.focusOutEvent', 'Close the list when the caret leaves the box.'),
     ('spacr.qt.help_search.HelpSearchField.hide_popup', 'Put the popup away.'),
     ('spacr.qt.help_search.HelpSearchField.index', 'The index, or ``None`` while it is still being built.'),
