@@ -1430,3 +1430,185 @@ def test_invalid_regex_worker_reply_escalates_real_child_retirement_to_kill(monk
                 original_close(child)
         for connection in pipes:
             connection.close()
+
+
+def test_queued_directory_replaced_by_a_symlink_does_not_expand_the_input(tmp_path, monkeypatch):
+    from pathlib import Path
+
+    root = tmp_path / 'selected'
+    child = root / 'acquisition'
+    child.mkdir(parents=True)
+    local = child / 'local.txt'
+    local.write_text('local acquisition notes')
+    outside = tmp_path / 'outside'
+    outside.mkdir()
+    foreign = outside / 'private.txt'
+    foreign.write_text('not part of the selected input')
+    archived = tmp_path / 'original-acquisition'
+    original_os = home_mod.os
+    visited = []
+
+    class AdmissionEntry:
+        def __init__(self, entry):
+            self.entry = entry
+
+        def __getattr__(self, name):
+            return getattr(self.entry, name)
+
+        def is_dir(self, *, follow_symlinks=True):
+            admitted = self.entry.is_dir(follow_symlinks=follow_symlinks)
+            if admitted and Path(self.entry.path) == child:
+                child.rename(archived)
+                child.symlink_to(outside, target_is_directory=True)
+            return admitted
+
+    class SelectedScan:
+        def __enter__(self):
+            self.entries = original_os.scandir(root)
+            return (AdmissionEntry(entry) for entry in self.entries)
+
+        def __exit__(self, *args):
+            self.entries.close()
+
+    class DirectoryAdmissionBoundary:
+        def __getattr__(self, name):
+            return getattr(original_os, name)
+
+        def scandir(self, folder):
+            visited.append(Path(folder))
+            return SelectedScan() if Path(folder) == root else original_os.scandir(folder)
+
+    monkeypatch.setattr(home_mod, 'os', DirectoryAdmissionBoundary())
+    files, directories, unreadable, limited = home_mod._easy_local_sample(root)
+    assert files == [] and directories == (root,) and visited == [root]
+    assert unreadable == 0 and not limited
+    assert child.is_symlink() and child.resolve() == outside
+    assert (archived / local.name).read_text() == 'local acquisition notes'
+    assert foreign.read_text() == 'not part of the selected input'
+
+
+def test_unreadable_representative_keeps_accessible_image_routes_and_permission_guidance(tmp_path, monkeypatch):
+    image = _input_header_tiff(tmp_path / 'field.tif')
+    denied = tmp_path / 'unreadable.dat'
+    denied.write_bytes(b'private inaccessible acquisition metadata')
+    before = {path: path.read_bytes() for path in (image, denied)}
+    original_read = home_mod._easy_read_header
+    refused = []
+
+    def read(path, limit, offset=0):
+        if path == denied:
+            refused.append(path)
+            raise PermissionError('the selected representative cannot be read')
+        return original_read(path, limit, offset)
+
+    monkeypatch.setattr(home_mod, '_easy_read_header', read)
+    result = home_mod._easy_inspect_path(str(tmp_path))
+    actions = {action[0]: action[3] for action in result['actions']}
+    assert refused and actions['make_masks'] == str(tmp_path)
+    assert actions['mask'] == str(tmp_path)
+    assert 'Some files could not be read' in result['message']
+    assert result['context']['database_schemas'] == []
+    assert result['context']['image_dimensions'][0]['path'] == str(image)
+    assert all(path.read_bytes() == raw for path, raw in before.items())
+
+
+def test_table_removed_after_classification_does_not_gain_numeric_analysis_routes(tmp_path, monkeypatch):
+    image = _input_header_tiff(tmp_path / 'field.tif')
+    table = tmp_path / 'observations.csv'
+    table.write_text('field,value\n1,2.5\n2,3.5\n')
+    original = table.read_bytes()
+    image_bytes = image.read_bytes()
+    archived = tmp_path / 'removed-observations.csv'
+    original_read = home_mod._easy_read_header
+    removed = []
+
+    def read(path, limit, offset=0):
+        if path == table and limit == home_mod._EASY_HEADER_LIMIT and not removed:
+            table.rename(archived)
+            removed.append(path)
+        return original_read(path, limit, offset)
+
+    monkeypatch.setattr(home_mod, '_easy_read_header', read)
+    result = home_mod._easy_inspect_path(str(tmp_path))
+    keys = {action[0] for action in result['actions']}
+    assert removed == [table] and not table.exists()
+    assert {'make_masks', 'mask'} <= keys
+    assert keys.isdisjoint({'graph_builder', 'gate_editor', 'regression'})
+    assert result['context']['analysis_inputs'] == {}
+    assert archived.read_bytes() == original and image.read_bytes() == image_bytes
+
+
+def test_xenium_counts_without_readable_morphology_do_not_offer_spatial_steps(tmp_path):
+    import pandas as pd
+    from spacr.tabular import write_table
+
+    marker = tmp_path / 'experiment.xenium'
+    marker.write_text('{}')
+    transcripts = tmp_path / 'transcripts.parquet'
+    write_table(pd.DataFrame({'x_location': [1.], 'y_location': [2.]}), transcripts)
+    slide = tmp_path / 'morphology_focus.ome.tif'
+    slide.write_bytes(b'II*\x00\x08\x00\x00\x00')
+    before = {path: path.read_bytes() for path in (marker, transcripts, slide)}
+    assert home_mod._easy_specialized_inputs(tmp_path, [slide, transcripts], [], []) == {}
+    assert all(path.read_bytes() == raw for path, raw in before.items())
+
+
+@pytest.mark.parametrize('missing_evidence', ['spatial_table', 'merged_images'])
+def test_spatial_mapping_requires_both_its_measurement_table_and_generated_images(tmp_path, missing_evidence):
+    import sqlite3
+    import numpy as np
+    import pandas as pd
+    from spacr.tabular import write_table
+
+    acquisition = tmp_path / 'acquisition'
+    slide = _input_header_tiff(acquisition / 'morphology_focus.ome.tif')
+    transcripts = acquisition / 'transcripts.parquet'
+    write_table(pd.DataFrame({'x_location': [1.], 'y_location': [2.]}), transcripts)
+    project = tmp_path / 'measured'
+    database = project / 'measurements' / 'measurements.db'
+    database.parent.mkdir(parents=True)
+    with sqlite3.connect(database) as connection:
+        if missing_evidence == 'spatial_table':
+            connection.execute('CREATE TABLE image_annotations (condition TEXT)')
+        else:
+            connection.execute('CREATE TABLE spatial_fields (source TEXT)')
+            connection.execute('INSERT INTO spatial_fields VALUES (?)', (str(acquisition),))
+    if missing_evidence == 'spatial_table':
+        merged = project / 'merged' / 'field.npy'
+        merged.parent.mkdir()
+        np.save(merged, np.zeros((2, 3, 2), np.uint16))
+    schema = dict(path=str(database), **home_mod._easy_database_evidence(database))
+    before = {path: path.read_bytes() for path in tmp_path.rglob('*') if path.is_file()}
+    hints = home_mod._easy_specialized_inputs(acquisition, [slide, transcripts], [], [schema])
+    assert set(hints) == {'spatial_masks'}
+    assert hints['spatial_masks']['source'] == str(acquisition)
+    assert hints['spatial_masks']['image'] == str(slide)
+    assert 'spatial_map' not in hints
+    assert all(path.read_bytes() == raw for path, raw in before.items())
+
+
+def test_hd_root_calibration_does_not_validate_a_malformed_selected_bin_calibration(tmp_path):
+    import json
+    import h5py
+
+    slide = _input_header_tiff(tmp_path / 'slide.tif')
+    root_scale = tmp_path / 'spatial' / 'scalefactors_json.json'
+    root_scale.parent.mkdir()
+    root_scale.write_text(json.dumps({'microns_per_pixel': .5}))
+    selected = tmp_path / 'binned_outputs' / 'square_002um'
+    spatial = selected / 'spatial'
+    spatial.mkdir(parents=True)
+    bin_scale = spatial / 'scalefactors_json.json'
+    bin_scale.write_text(json.dumps({'microns_per_pixel': ['not a calibration']}))
+    positions = spatial / 'tissue_positions.csv'
+    positions.write_text('barcode,in_tissue\na,1\n')
+    counts = selected / 'filtered_feature_bc_matrix.h5'
+    with h5py.File(counts, 'w') as archive:
+        archive.create_dataset('data', data=[1])
+    before = {path: path.read_bytes() for path in (slide, root_scale, bin_scale, positions, counts)}
+    hints = home_mod._easy_specialized_inputs(tmp_path, [slide], [], [])
+    assert set(hints) == {'spatial_masks'}
+    assert hints['spatial_masks']['settings'] == dict(
+        spatial_source=str(tmp_path), spatial_platform='visium_hd', spatial_bin_um=2)
+    assert hints['spatial_masks']['image'] == str(slide)
+    assert all(path.read_bytes() == raw for path, raw in before.items())
