@@ -155,6 +155,18 @@
       "source_sha256": "aa49b5e0d3a00c2689a5e0e6b720a2ae6b7fe28aa540028d47575b69d4acac30",
       "text": "The spaCR filename for one resolved image.\n\nMissing axes take 1 rather than 0: spaCR's convention is one-based, and a\nplate whose only timepoint is ``T0000`` reads as a bug in the acquisition\nrather than as an absence.\n\n:param entry: one resolved file's axes, read by the keys ``plate``,\n    ``well``, ``t``, ``field``, ``z`` and ``channel``; a missing well\n    becomes ``A01`` and a missing or zero index becomes 1.\n:param plate: the plate name used when ``entry`` has no ``plate`` key."
     },
+    "ae0a3c59ee4c215ea9e15fd570a825eb92aaa9afc857866ebc16f3228416a0f5": {
+      "source_blocks_sha256": [
+        "903498dd3cdf7fb3c626e6a8a5d3b153a31328727171a8aeb633758feb59b553",
+        "6efefcdf4e85f61d1f97a90af92af73062ad47bb2158659a803945de350a2ce3",
+        "916fdd1de872f030cd3a28082a14e730768f44c38ac08e8d442d36832643fdd4",
+        "ec5380f74a5384036fd4b2782649ecf274594c3e1ff229bdb93f7f21cfd73461",
+        "5a3404365eb8f1412ef14154c877341c9d2e76b7bb168aa59c816ffd70d94386",
+        "dd3d1f3709e1b67c4e617ff070b83694f8596fc1527fabeb1f7a93e3e2446995"
+      ],
+      "source_sha256": "ae0a3c59ee4c215ea9e15fd570a825eb92aaa9afc857866ebc16f3228416a0f5",
+      "text": "End the cover by blowing the mosaic's tiles off the window.\n\nThe logo holds until two seconds after the cover first painted (at\nonce when called later than that), then blows away over four\nseconds: the black container fades from one to three seconds in and\nthe last tile has gone at four. The cover deletes itself then.\n\n:param on_finished: called once, when the cover has gone.\n:param force: play even where :func:`startup_animation_allowed` says\n    no; for the Help replay, tests and previews.\n:param plain: hold the logo, then cross-fade it and the container\n    away in one second instead of blowing it away (Reduce motion).\n:returns: ``True`` when the blow-away will play and the cover will\n    take itself down; ``False`` when it will not -- no mosaic, the\n    animation is off, or a click already asked to skip -- and the\n    caller takes the cover down as before."
+    },
     "b3f24b5a17a04921acec1b62476d23f5f94ca9170f08353c45d24227457fb5ce": {
       "source_blocks_sha256": [
         "f36dbc465a40f36e437177b297595e1dd1a53d722fc94fb2ab001a71865805a2",
@@ -228,6 +240,16 @@
       ],
       "source_sha256": "ed4ec5c5cfce5bb0a3a7196bc0e1fbede6ed1b8ca23e52eefab5d33d6c06fe2e",
       "text": "Build the controls a raised ``number_of_organelles`` asks for.\n\nA slot's controls do not exist until the count says so, and\nrebuilding the whole screen to add them would discard what the user\nhad typed. This builds ONLY the new slots' controls, on the panel already\non screen; every control that existed keeps its identity and\nwhatever the user typed into it. The caller lays the new controls\nout.\n\nEXISTING VALUES WIN. A slot above the count that a settings file\ncarried is already in ``_defaults`` (see :meth:`set_hidden_value`),\nand its control is built holding that value rather than the one the\npanel would invent.\n\n:param count: the new ``number_of_organelles``.\n:returns: the new settings keys with a control, in the order the\n    panel declares them; empty when the count asks for nothing new."
+    },
+    "f9e2a1e4905f0f97a0f3148305ec630e850a47bb523c6374e170054e10a658a5": {
+      "source_blocks_sha256": [
+        "b3f3091c0f092a29eda04742a58c4e54a25c2d3861fb35815db9ff5eeebeb59e",
+        "cadcec354bb6efc8df952337831c882079280af0eee04248b29ea6ba3644446c",
+        "152efb5b5401382d36f20a888c053df26ef069aef9653fa0c92148cf28094c29",
+        "9e29f201cf930607d9e4c06d28289c973eed643fe6a3c71a71ff4561235c16b2"
+      ],
+      "source_sha256": "f9e2a1e4905f0f97a0f3148305ec630e850a47bb523c6374e170054e10a658a5",
+      "text": "Play the startup sequence again inside ``window``.\n\nHelp > Show startup animation. The black container with the logo comes\nback over the window, holds for two seconds and blows away as it does\nat startup. It plays even when Preferences > Appearance > Animation >\nStartup animation is off; under Preferences > Appearance > Accessibility\n> Reduce motion the logo holds and then cross-fades away in one second.\nA click or a key skips it. The window's size, state and keyboard focus\nare left as they were.\n\n:param window: the window to play it in.\n:returns: the cover now playing, or ``None`` when the logo cannot be\n    read or a cover is already over the window."
     },
     "fad8d2002ffc7cb5d40726d31a3dd56f1e981826e8b6ff14fa5b5b019bad5a2e": {
       "source_blocks_sha256": [
