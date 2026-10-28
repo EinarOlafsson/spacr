@@ -1006,3 +1006,164 @@ def test_per_plate_control_hash_stops_at_original_size_plus_one(plate_scoped_inp
     assert sum(consumed) == original_size + 1
     assert path.stat().st_size == original_size + 1024 ** 2
     assert not plate_scoped_inputs['output'].exists()
+
+
+def _signed_source_descriptors(root):
+    """Snapshot this dataset's actual open descriptors where procfs exposes them."""
+    if not os.path.isdir('/proc/self/fd'):
+        return None
+    prefix = os.fspath(root.resolve())
+    descriptors = set()
+    for name in os.listdir('/proc/self/fd'):
+        try:
+            target = os.readlink('/proc/self/fd/' + name)
+        except FileNotFoundError:
+            continue
+        if target == prefix or target.startswith(prefix + '/'):
+            descriptors.add((name, target))
+    return descriptors
+
+
+@pytest.fixture
+def signed_reader_resources(monkeypatch):
+    """Observe real reader streams and maps without replacing their file operations."""
+    import spacr.psf_pipeline as pipeline
+
+    streams, maps = [], []
+    original_open, original_map = pipeline._cell_record_open, pipeline._cell_record_map
+
+    def opened(*args, **kwargs):
+        stream = original_open(*args, **kwargs)
+        streams.append(stream)
+        return stream
+
+    def mapped(*args, **kwargs):
+        array = original_map(*args, **kwargs)
+        maps.append(array)
+        return array
+
+    monkeypatch.setattr(pipeline, '_cell_record_open', opened)
+    monkeypatch.setattr(pipeline, '_cell_record_map', mapped)
+    yield
+    assert streams and all(stream.closed for stream in streams)
+    assert all(array._mmap.closed for array in maps)
+
+
+@needs_descriptor_relative_reads
+@pytest.mark.parametrize('artifact', ['signed', 'output', 'record'])
+def test_signed_reader_rejects_identical_byte_replacement_after_borrow(
+        completed_calibrated_cells, signed_reader_resources, artifact):
+    """Content equality cannot conceal replacement of a borrowed input's inode."""
+    from spacr.psf_pipeline import _open_calibrated_cell_dataset
+
+    sample = completed_calibrated_cells
+    root = sample['inputs']['output']
+    before = {path: path.read_bytes() for path in root.rglob('*') if path.is_file()}
+    descriptors = _signed_source_descriptors(root)
+    path = sample[artifact]
+    with pytest.raises(ValueError):
+        with _open_calibrated_cell_dataset(root) as dataset:
+            signed = next(dataset.fields())['signed']
+            np.testing.assert_array_equal(signed, sample['result'].image)
+            original_inode = path.stat().st_ino
+            replacement = path.with_name(path.name + '.replacement')
+            replacement.write_bytes(before[path])
+            os.replace(replacement, path)
+            assert path.stat().st_ino != original_inode
+            assert path.read_bytes() == before[path]
+    assert signed._mmap.closed
+    assert _signed_source_descriptors(root) == descriptors
+    assert {path: path.read_bytes() for path in root.rglob('*') if path.is_file()} == before
+
+
+@needs_descriptor_relative_reads
+@pytest.mark.parametrize('caller_error', [False, True])
+def test_signed_reader_early_consumer_exit_preserves_errors_and_closes_inputs(
+        completed_calibrated_cells, signed_reader_resources, caller_error):
+    """Early consumers release borrowed resources and retain their own failure identity."""
+    from spacr.psf_pipeline import _open_calibrated_cell_dataset
+
+    sample = completed_calibrated_cells
+    root = sample['inputs']['output']
+    before = {path: path.read_bytes() for path in root.rglob('*') if path.is_file()}
+    descriptors = _signed_source_descriptors(root)
+    failure = OSError('the consumer destination is full')
+    try:
+        with _open_calibrated_cell_dataset(root) as dataset:
+            signed = next(dataset.fields())['signed']
+            assert not signed.flags.writeable
+            np.testing.assert_array_equal(signed, sample['result'].image)
+            if caller_error:
+                raise failure
+    except OSError as error:
+        assert caller_error and error is failure
+    else:
+        assert not caller_error
+    assert signed._mmap.closed
+    dataset.close()
+    with pytest.raises(ValueError):
+        dataset.fields()
+    assert _signed_source_descriptors(root) == descriptors
+    assert {path: path.read_bytes() for path in root.rglob('*') if path.is_file()} == before
+
+
+@needs_descriptor_relative_reads
+@pytest.mark.parametrize('defect', ['fortran', 'trailing-bytes', 'nonfinite'])
+def test_signed_reader_rejects_rebound_unsafe_pixel_artifacts(
+        completed_calibrated_cells, signed_reader_resources, defect):
+    """Validate actual NPY layout and finite signed values even with current hashes."""
+    from spacr.psf_pipeline import _open_calibrated_cell_dataset
+
+    sample = completed_calibrated_cells
+    pixels = np.load(sample['signed'], allow_pickle=False)
+    if defect == 'fortran':
+        np.save(sample['signed'], np.asfortranarray(pixels))
+    elif defect == 'trailing-bytes':
+        with sample['signed'].open('ab') as stream:
+            stream.write(b'unexpected trailing payload')
+    else:
+        pixels[0, 0, 0] = np.inf
+        np.save(sample['signed'], pixels)
+    record = json.loads(sample['record'].read_text())
+    row = record['calibrated_fields']['000002']
+    row['signed_crop']['sha256'] = hashlib.sha256(sample['signed'].read_bytes()).hexdigest()
+    _rewrite_calibrated_cell_record(sample['record'], record)
+    root = sample['inputs']['output']
+    before = {path: path.read_bytes() for path in root.rglob('*') if path.is_file()}
+    descriptors = _signed_source_descriptors(root)
+    with pytest.raises(ValueError):
+        with _open_calibrated_cell_dataset(root):
+            pytest.fail('unsafe pixels were exposed to a consumer')
+    assert _signed_source_descriptors(root) == descriptors
+    assert {path: path.read_bytes() for path in root.rglob('*') if path.is_file()} == before
+
+
+@needs_descriptor_relative_reads
+@pytest.mark.parametrize('defect', ['psf-hash', 'reference-shift', 'negative-fraction'])
+def test_signed_reader_rejects_rebound_calibration_and_residual_misstatements(
+        completed_calibrated_cells, signed_reader_resources, defect):
+    """Hash-consistent records must still describe the measured calibration and pixels."""
+    from spacr.psf_pipeline import _open_calibrated_cell_dataset
+
+    sample = completed_calibrated_cells
+    record = json.loads(sample['record'].read_text())
+    calibration = record['configuration']['unmixing']['calibration']
+    if defect == 'psf-hash':
+        calibration['channels'][0]['normalized_psf_sha256'] = '0' * 64
+    elif defect == 'reference-shift':
+        reference = next(entry for entry in calibration['channels']
+                         if entry['channel'] == calibration['reference_channel'])
+        reference['shift_to_reference_px'] = [1, 0]
+    else:
+        fractions = record['calibrated_fields']['000002']['negative_fraction_per_channel']
+        channel = str(record['configuration']['physical_channel_order'][0])
+        fractions[channel] = 1.0 if fractions[channel] != 1.0 else 0.0
+    _rewrite_calibrated_cell_record(sample['record'], record)
+    root = sample['inputs']['output']
+    before = {path: path.read_bytes() for path in root.rglob('*') if path.is_file()}
+    descriptors = _signed_source_descriptors(root)
+    with pytest.raises(ValueError):
+        with _open_calibrated_cell_dataset(root):
+            pytest.fail('incorrect calibration or residual metadata reached a consumer')
+    assert _signed_source_descriptors(root) == descriptors
+    assert {path: path.read_bytes() for path in root.rglob('*') if path.is_file()} == before
