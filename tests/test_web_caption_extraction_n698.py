@@ -103,7 +103,7 @@ def test_web_sources_join_production_inventory_before_compact_filtering(web_sour
         "settings.py", "object.py", "remote_execution.py",
         "attribution.py", "measure.py", "channel_sorting.py", "utils.py",
         "object_classifier.py", "core.py", "pipeline_v2.py",
-        "psf_pipeline.py",
+        "psf_pipeline.py", "image_import.py",
         "_lineage_trees.py", "run_journal.py", "ml.py",
         "regression_layout.py", "regression_failure.py", "power_model.py",
     ):
