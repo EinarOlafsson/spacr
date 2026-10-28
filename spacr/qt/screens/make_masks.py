@@ -23983,7 +23983,7 @@ class MakeMasksScreen(QWidget):
         if str(path).lower().endswith('.npy') and not engine.is_seg_bundle(path):
             return self._open_numeric_npy(path)
         engine._CONTAINER_CURRENT_VIEWS.pop(os.path.abspath(path), None)
-        return self._open_queue([os.path.abspath(path)])
+        return self._open_queue([os.path.abspath(path)]) or None
 
     def _finish_folder_job(self, worker, report) -> None:
         """Report a finished folder job, then retire its thread safely.

@@ -299,12 +299,14 @@ def screen(qtbot, qt_theme_applied):
     widget._mask_stage.dirty = False
 
 
-def test_no_vvvv_export_without_a_folder_to_write_beside(screen, tmp_path, monkeypatch):
+def test_no_vvvv_export_without_a_folder_to_write_beside(qtbot, screen, tmp_path, monkeypatch):
     from spacr.qt import preferences
     from spacr.qt import prefs
 
     folder = _fields(tmp_path / "fields")
     assert screen._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     monkeypatch.setattr(preferences, "_vvvv_export_enabled", lambda: True)
     prefs._s().remove("make_masks/vvvv_export_dir")
     written = []
@@ -334,12 +336,14 @@ def test_hide_judged_with_no_folder_is_not_remembered(screen, monkeypatch):
     assert screen._hide_judged and stored == []
 
 
-def test_settings_that_cannot_be_written_or_read_do_not_stop_the_switch(
+def test_settings_that_cannot_be_written_or_read_do_not_stop_the_switch(qtbot,
         screen, tmp_path, monkeypatch):
     from spacr.qt import prefs
 
     folder = _fields(tmp_path / "fields")
     assert screen._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
 
     class _Broken:
         def setValue(self, *_a):  # noqa: N802
@@ -355,12 +359,14 @@ def test_settings_that_cannot_be_written_or_read_do_not_stop_the_switch(
     assert not screen._btn_hide_judged.isChecked()
 
 
-def test_hiding_judged_fields_when_every_field_is_judged_says_so(screen, tmp_path):
+def test_hiding_judged_fields_when_every_field_is_judged_says_so(qtbot, screen, tmp_path):
     folder = _fields(tmp_path / "judged", 2)
     for index in range(2):
         path = str(folder / f"img_{index:02d}.tif")
         engine.record_curation(str(folder), path, path, 1, index == 0)
     assert screen._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     screen._btn_hide_judged.setChecked(True)
     assert screen._status_label.text() == "Every field in this queue has Keep or Discard."
     screen._btn_hide_judged.setChecked(False)
@@ -385,9 +391,11 @@ def test_open_file_cancelled_or_unreadable_opens_nothing(screen, tmp_path, monke
     assert screen._on_pick_file(str(tmp_path / "missing.tif")) is None
 
 
-def test_open_file_on_the_field_already_shown_stays_there(screen, tmp_path, monkeypatch):
+def test_open_file_on_the_field_already_shown_stays_there(qtbot, screen, tmp_path, monkeypatch):
     folder = _fields(tmp_path / "fields")
     assert screen._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     current = screen._current_index
     moved = []
     monkeypatch.setattr(screen, "_go_to_index", lambda index: moved.append(index) or True)
