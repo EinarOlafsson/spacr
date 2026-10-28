@@ -5297,3 +5297,6 @@ Also check the per-host instance lock and unclean-exit counter: concurrent windo
 
 2026-10-27 — G3 owns the stale no-separator walkthrough label check: retain actual Help submenu insertion and bind the approved distinct walkthrough label to its real module handler. Qualify only the reported selector after G5 peer; root owns publication.
 2026-10-27 — The no-separator walkthrough check retains submenu ordering, requires the full qualified module-action list and exercises the real Mask handler with force=True. The sole selector passes on Qt 6.11.3 (3.56 s), G5 peer accepted; no product/generated changes, root owns publication.
+
+2026-10-27 — G3 owns the Mask/Measure fixed-point applied-count mismatch: bind accepted settings to existing model defaults as well as visible/dedicated controls, preserving exact round-trip values and rejecting unknown keys. Qualify only the two reported selectors after G5 peer; root owns publication.
+2026-10-27 — The fixed-point oracle now snapshots known lazy defaults before applying, retains exact applied-count and value/key equality, and verifies unknown keys count zero and stay absent. The two reported parameters pass on Qt 6.11.3 (4.49 s), G5 peer accepted; no product/generated changes, root owns publication.

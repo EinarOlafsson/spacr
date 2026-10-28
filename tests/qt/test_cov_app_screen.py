@@ -526,17 +526,22 @@ class TestRoundTrip:
         """apply(collect()) must not perturb a single value, for any app."""
         scr = _make_screen(qtbot, app_key)
         first = scr._settings_model.collect()
-        applied = scr.apply_settings_dict(first)
-        second = scr._settings_model.collect()
         from spacr.qt.screens.settings_model import _APP_HIDDEN_KEYS
 
         accepted = set(scr._settings_model._widgets)
+        accepted.update(scr._settings_model._defaults)
         accepted.update(_APP_HIDDEN_KEYS.get(app_key, set()))
+        applied = scr.apply_settings_dict(first)
+        second = scr._settings_model.collect()
         assert applied == len(set(first) & accepted)
         assert set(first) == set(second)
         drifted = {k: (first[k], second[k])
                    for k in first if first[k] != second[k]}
         assert drifted == {}, f"{app_key} lost values on round trip: {drifted}"
+        unknown = "not_a_declared_run_setting"
+        assert unknown not in accepted
+        assert scr.apply_settings_dict({unknown: 123}) == 0
+        assert unknown not in scr._settings_model.collect()
 
     def test_csv_strings_are_coerced_back_to_python_types(self, qtbot):
         """Values arrive from a CSV as strings; they must land typed."""
