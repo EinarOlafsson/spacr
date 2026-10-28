@@ -306,3 +306,16 @@ def test_wells_with_only_cleared_values_are_not_summarised(tmp_path):
     _set_image_annotations(db, fields, "cell_type", "HeLa", wells=[("plate1", "A02")])
     _set_image_annotations(db, fields, "drug", None, wells=[("plate1", "A01")])
     assert _well_image_annotations(db) == {("plate1", "A02"): {"cell_type": "HeLa"}}
+
+
+def test_a_key_only_legacy_annotation_table_grows_without_losing_custom_values(tmp_path):
+    database = tmp_path / 'minimal.db'
+    with sqlite3.connect(database) as connection:
+        connection.execute('CREATE TABLE image_annotations (plateID TEXT, wellID TEXT, fieldID TEXT, file TEXT, custom_note TEXT)')
+        connection.execute("INSERT INTO image_annotations VALUES ('plate1','A01','f1','A01_1_c1.tif','preserved note')")
+    _set_image_annotations(database, _fields(tmp_path), 'drug', 'treated', source=tmp_path)
+    with sqlite3.connect(database) as connection:
+        columns = {row[1] for row in connection.execute('PRAGMA table_info(image_annotations)')}
+        assert {'rowID', 'columnID', 'chanID', 'annotation_updated_at', 'custom_note', 'drug'} <= columns
+        assert connection.execute("SELECT custom_note FROM image_annotations WHERE file='A01_1_c1.tif'").fetchone()[0] == 'preserved note'
+        assert connection.execute('SELECT count(*) FROM image_annotations').fetchone()[0] == 12

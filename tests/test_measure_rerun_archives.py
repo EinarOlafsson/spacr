@@ -368,3 +368,60 @@ def test_non_sqlite_rerun_refuses_before_archiving_or_mixing_existing_output(tmp
     with pytest.raises(ConfigurationError, match='separate project folder'):
         measure._archive_measurement_run({'src': str(merged), 'measurement_backend': backend})
     assert _snapshot(database) == before
+
+
+@pytest.mark.parametrize('state', ['empty', 'existing', 'busy'])
+def test_windows_lock_adapter_owns_and_closes_only_its_actual_file_handle(tmp_path, monkeypatch, state):
+    """Exercise the protocol with real file descriptors, not a native Windows claim."""
+    import os
+    import sys
+    from types import SimpleNamespace
+
+    merged, database = _project(tmp_path)
+    source = (merged / 'plate1_A01_F001.npy').read_bytes()
+    lock = tmp_path / '.spacr-measure-run.lock'
+    if state == 'existing':
+        lock.write_bytes(b'prior lock marker')
+    calls = []
+
+    class WindowsOS:
+        name = 'nt'
+
+        def __getattr__(self, name):
+            return getattr(os, name)
+
+    def locking(descriptor, operation, length):
+        assert length == 1 and os.fstat(descriptor).st_size > 0
+        calls.append((descriptor, operation))
+        if state == 'busy' and operation == 1:
+            raise OSError('lock already owned')
+
+    with monkeypatch.context() as patch:
+        patch.setattr(measure, 'os', WindowsOS())
+        patch.setitem(sys.modules, 'msvcrt', SimpleNamespace(locking=locking, LK_NBLCK=1, LK_UNLCK=2))
+        if state == 'busy':
+            with pytest.raises(ConfigurationError, match='Another Measure run'):
+                with measure._measurement_run_locks([str(merged)]):
+                    pytest.fail('an unavailable lock cannot admit a writer')
+        else:
+            with measure._measurement_run_locks([str(merged)]):
+                assert calls[0][1] == 1
+                assert lock.read_bytes() == (b'prior lock marker' if state == 'existing' else b'0')
+    assert [operation for descriptor, operation in calls] == ([1] if state == 'busy' else [1, 2])
+    assert len({descriptor for descriptor, operation in calls}) == 1
+    for descriptor, operation in calls:
+        with pytest.raises(OSError):
+            os.fstat(descriptor)
+    assert (merged / 'plate1_A01_F001.npy').read_bytes() == source
+
+
+def test_archive_without_an_annotation_receipt_preserves_every_population_row(tmp_path):
+    merged, database = _project(tmp_path)
+    _seed(database, tables=('cell',))
+    with sqlite3.connect(database) as connection:
+        connection.execute('CREATE TABLE _spacr_condition_annotations (table_name TEXT, payload_json TEXT)')
+    before_rows = _snapshot(database)[1]['cell']
+    measure._archive_measurement_run({'src': [str(merged)]})
+    assert _snapshot(database)[1]['cell_1'] == before_rows
+    with sqlite3.connect(database) as connection:
+        assert connection.execute('SELECT * FROM _spacr_condition_annotations').fetchall() == []

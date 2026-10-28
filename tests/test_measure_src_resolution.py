@@ -673,3 +673,74 @@ def test_calibrated_directory_publication_never_replaces_even_an_empty_destinati
         _publish_calibrated_measurement_directory(staging, destination)
     assert (staging / 'cells.csv').read_bytes() == b'known staged rows\n'
     assert list(destination.iterdir()) == []
+
+
+@pytest.mark.parametrize('platform', ['windows-adapter', 'darwin-adapter', 'unsupported-primitive'])
+def test_directory_publication_platform_protocol_preserves_owned_staging(tmp_path, monkeypatch, platform):
+    """Validate ABI dispatch using real directories, without native-platform claims."""
+    import ctypes
+    import sys
+    from types import SimpleNamespace
+    from spacr import measure
+
+    staging, destination = tmp_path / 'staging', tmp_path / 'published'
+    staging.mkdir()
+    (staging / 'cells.csv').write_bytes(b'staged signed-cell rows\n')
+    calls = []
+
+    class WindowsOS:
+        name = 'nt'
+
+        def __getattr__(self, name):
+            return getattr(os, name)
+
+        def rename(self, source, target):
+            calls.append((source, target))
+            return os.rename(source, target)
+
+    class DarwinSys:
+        platform = 'darwin'
+
+        def __getattr__(self, name):
+            return getattr(sys, name)
+
+    def renamex(source, target, flags):
+        assert flags == 4
+        calls.append((source, target, flags))
+        os.rename(source, target)
+        return 0
+
+    with monkeypatch.context() as patch:
+        if platform == 'windows-adapter':
+            patch.setattr(measure, 'os', WindowsOS())
+        elif platform == 'darwin-adapter':
+            patch.setitem(sys.modules, 'sys', DarwinSys())
+            patch.setattr(ctypes, 'CDLL', lambda *args, **kwargs: SimpleNamespace(renamex_np=renamex))
+        else:
+            patch.setattr(ctypes, 'CDLL', lambda *args, **kwargs: SimpleNamespace())
+        if platform == 'unsupported-primitive':
+            with pytest.raises(OSError, match='cannot atomically publish'):
+                measure._publish_calibrated_measurement_directory(staging, destination)
+        else:
+            measure._publish_calibrated_measurement_directory(staging, destination)
+    if platform == 'unsupported-primitive':
+        assert calls == [] and not destination.exists()
+        assert (staging / 'cells.csv').read_bytes() == b'staged signed-cell rows\n'
+    else:
+        assert len(calls) == 1 and not staging.exists()
+        assert (destination / 'cells.csv').read_bytes() == b'staged signed-cell rows\n'
+
+
+@pytest.mark.parametrize('record', [{'configuration': {}}, {'complete': True, 'configuration': {'version': True}}, []])
+def test_unverifiable_coordinate_records_refuse_measurement_without_repairing_source(plate, record):
+    import json
+    from spacr.measure import _validate_measurement_coordinate_source
+
+    folder = plate / 'psf'
+    folder.mkdir()
+    path = folder / 'segmentation_application.json'
+    path.write_text(json.dumps(record))
+    before = path.read_bytes(), (plate / 'merged' / 'a.npy').read_bytes()
+    with pytest.raises(ConfigurationError, match='Cannot verify'):
+        _validate_measurement_coordinate_source(plate / 'merged')
+    assert (path.read_bytes(), (plate / 'merged' / 'a.npy').read_bytes()) == before

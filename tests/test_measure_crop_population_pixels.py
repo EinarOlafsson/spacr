@@ -97,3 +97,23 @@ def test_resume_restores_recorded_current_directory_and_refuses_another_project(
     with pytest.raises(ConfigurationError, match='outside'):
         measure._prepare_measurement_crop_output(settings, [])
     assert not (tmp_path / 'data').exists()
+
+
+def test_an_occupied_run_uuid_is_skipped_without_replacing_or_creating_a_population(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+    import uuid
+
+    merged = tmp_path / 'merged'
+    merged.mkdir()
+    occupied = tmp_path / 'data' / 'measure_run_occupied'
+    occupied.mkdir(parents=True)
+    marker = occupied / 'preserved.png'
+    marker.write_bytes(b'previous image population')
+    choices = iter(['occupied', 'fresh'])
+    monkeypatch.setattr(uuid, 'uuid4', lambda: SimpleNamespace(hex=next(choices)))
+    settings = {'src': str(merged), 'resume': False}
+    plan = [{'db_path': str(tmp_path / 'measurements' / 'measurements.db')}]
+    measure._prepare_measurement_crop_output(settings, plan)
+    assert settings[KEY] == str(tmp_path / 'data' / 'measure_run_fresh')
+    assert marker.read_bytes() == b'previous image population'
+    assert sorted(path.name for path in (tmp_path / 'data').iterdir()) == ['measure_run_occupied']
