@@ -1,5 +1,5 @@
 # spaCR user guide translation (de).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-28 12:46-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: de\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -38,8 +38,9 @@ msgid "``manifest.json``"
 msgstr "``manifest.json``"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "A versioned, atomically written record of the module, timestamps, status, settings hash, declared random seeds, Python/NumPy/Torch random-state identifiers, spaCR and Git versions, all installed package versions, model hashes, input hashes, output hashes, warnings, and, for a failed run, the exception traceback."
-msgstr "Einen versionierten, atomar geschriebenen Datensatz mit Modul, Zeitstempeln, Status, Einstellungs-Hash, deklarierten Zufalls-Seeds, Kennungen der Zufallszustände von Python/NumPy/Torch, spaCR- und Git-Versionen, allen installierten Paketversionen, Modell-Hashes, Eingabe-Hashes, Ausgabe-Hashes, Warnungen und, bei einer fehlgeschlagenen Ausführung, dem Exception-Traceback."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A versioned, atomically written record of the module, timestamps, status, settings hash, declared seeds, available random-state metadata, spaCR and Git versions, recorded package versions, model/file records, warnings and an exception traceback when captured. NumPy state and Torch's initial seed are recorded only when those libraries are already loaded; file hashing is optional as described below."
+msgstr "Ein versionierter, atomar geschriebener Datensatz mit Modul, Zeitstempeln, Status, Einstellungshash, angegebenen Zufallszahlen-Startwerten, verfügbaren Metadaten des Zufallszustands, spaCR- und Git-Versionen, erfassten Paketversionen, Modell-/Dateidatensätzen, Warnungen und einem erfassten Ausnahme-Traceback. NumPy-Zustand und anfänglicher Torch-Startwert werden nur erfasst, wenn diese Bibliotheken bereits geladen sind; Datei-Hashing ist wie unten beschrieben optional."
 
 msgid "``log.txt``"
 msgstr "``log.txt``"
@@ -56,33 +57,38 @@ msgstr "Artefakte, die vom Pipeline-Code explizit angehängt wurden."
 msgid "``environment/``"
 msgstr "``environment/``"
 
-msgid "``requirements-lock.txt``, a ``pip freeze`` of the Python environment the run used, and, when spaCR runs inside a conda environment, ``conda-explicit.txt``, the output of ``conda list --explicit``. The manifest names both files under ``environment_lock`` together with a SHA-256 digest of the environment. Rebuild the environment with ``conda create --name rerun --file conda-explicit.txt`` followed by ``python -m pip install -r requirements-lock.txt``."
-msgstr "``requirements-lock.txt``, ein ``pip freeze`` der vom Lauf verwendeten Python-Umgebung, und, wenn spaCR in einer conda-Umgebung läuft, ``conda-explicit.txt``, die Ausgabe von ``conda list --explicit``. Das Manifest nennt beide Dateien unter ``environment_lock`` zusammen mit einem SHA-256-Digest der Umgebung. Bauen Sie die Umgebung mit ``conda create --name rerun --file conda-explicit.txt`` und anschließend ``python -m pip install -r requirements-lock.txt`` neu auf."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``requirements-lock.txt`` contains ``pip freeze`` output, or package name/version entries from installed-distribution metadata if pip cannot run. ``conda-explicit.txt`` is added only when a conda environment is detected and ``conda list --explicit`` succeeds. ``environment_lock`` names the files actually written and the environment digest. When the conda file is present, use ``conda create --name rerun --file conda-explicit.txt`` followed by ``python -m pip install -r requirements-lock.txt``; otherwise install the requirements into a compatible Python environment."
+msgstr "``requirements-lock.txt`` enthält die Ausgabe von ``pip freeze`` oder Paketnamen und Versionen aus den Metadaten installierter Distributionen, wenn pip nicht ausgeführt werden kann. ``conda-explicit.txt`` wird nur ergänzt, wenn eine conda-Umgebung erkannt wird und ``conda list --explicit`` erfolgreich ist. ``environment_lock`` benennt die tatsächlich geschriebenen Dateien und die Prüfsumme der Umgebung. Ist die conda-Datei vorhanden, verwenden Sie ``conda create --name rerun --file conda-explicit.txt`` und danach ``python -m pip install -r requirements-lock.txt``; andernfalls installieren Sie die Anforderungen in einer kompatiblen Python-Umgebung."
 
-msgid "pip and conda are asked once per environment: the lists are kept under ``~/.spacr/env_locks/<digest>`` and every later run with the same digest copies them. Installing, removing or upgrading any package changes the digest. If the lists cannot be written, the run continues and the reason is listed under ``provenance_warnings``."
-msgstr "pip und conda werden einmal pro Umgebung abgefragt: Die Listen werden unter ``~/.spacr/env_locks/<digest>`` abgelegt, und jeder spätere Lauf mit demselben Digest kopiert sie. Das Installieren, Entfernen oder Aktualisieren eines Pakets ändert den Digest. Können die Listen nicht geschrieben werden, läuft der Lauf weiter, und der Grund wird unter ``provenance_warnings`` aufgeführt."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The lists are cached under ``~/.spacr/env_locks/<digest>`` and reused for the same digest. That digest includes the interpreter identity and recorded package versions; package metadata is cached within the process, so restart spaCR after changing installed packages to obtain a new snapshot. Failure to write a run's lockfiles is recorded under ``provenance_warnings`` and does not by itself stop the pipeline."
+msgstr "Die Listen werden unter ``~/.spacr/env_locks/<digest>`` zwischengespeichert und bei gleicher Prüfsumme wiederverwendet. Diese umfasst Interpreter-Identität und erfasste Paketversionen; Paketmetadaten werden innerhalb des Prozesses zwischengespeichert. Starten Sie spaCR nach Änderungen installierter Pakete neu, um eine neue Momentaufnahme zu erhalten. Fehler beim Schreiben der Lockdateien eines Laufs werden unter ``provenance_warnings`` erfasst und stoppen die Pipeline nicht allein deshalb."
 
 msgid "File provenance"
 msgstr "Dateiprovenienz"
 
-msgid "spaCR recursively discovers existing paths in settings, including paths nested inside plate lists. Every regular input file receives a full SHA-256 digest, size, modification timestamp, and the setting key that selected it. Files that are created or modified under those roots during the run are recorded as outputs. Symlinks, version-control folders, caches, and the run journal itself are excluded."
-msgstr "spaCR ermittelt rekursiv vorhandene Pfade in den Einstellungen, einschließlich Pfaden, die in Plattenlisten verschachtelt sind. Jede reguläre Eingabedatei erhält einen vollständigen SHA-256-Digest, ihre Größe, den Änderungszeitstempel und den Einstellungsschlüssel, der sie ausgewählt hat. Dateien, die während der Ausführung unterhalb dieser Wurzeln erstellt oder geändert werden, werden als Ausgaben erfasst. Symbolische Links, Versionskontrollordner, Caches und das Ausführungsjournal selbst sind ausgenommen."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Set ``hash_inputs=True`` to record input/output file hashes; hashing is off by default and the manifest then reports ``input_hashing=\"skipped\"``. Discovery follows path-valued settings, including nested plate lists. Hashed file records contain the full SHA-256, size, modification timestamp and referring setting key. Directory walks skip linked entries, version-control folders, caches and the run journal. Before/after inventories used to identify changed outputs are limited to 200,000 files per root; truncation is reported in ``provenance_warnings``."
+msgstr "Setzen Sie ``hash_inputs=True``, um Hashwerte von Ein-/Ausgabedateien aufzuzeichnen; standardmäßig ist Hashing deaktiviert, und das Manifest meldet dann ``input_hashing=\"skipped\"``. Die Erkennung folgt pfadwertigen Einstellungen einschließlich verschachtelter Plattenlisten. Gehashte Dateidatensätze enthalten die vollständige SHA-256-Prüfsumme, Größe, Änderungszeit und den verweisenden Einstellungsschlüssel. Verzeichnisdurchläufe überspringen verknüpfte Einträge, Versionskontrollordner, Caches und das Laufjournal. Vorher-/Nachher-Inventare zur Erkennung geänderter Ausgaben sind auf 200000 Dateien je Wurzel begrenzt; eine Kürzung wird unter ``provenance_warnings`` gemeldet."
 
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The manifest also includes deterministic aggregate ``input_tree_sha256`` and ``output_tree_sha256`` values. Comparing these single digests shows whether two complete sets match; the per-file records identify which files differ."
-msgstr "Das Manifest enthält außerdem deterministische Gesamtwerte ``input_tree_sha256`` und ``output_tree_sha256``. Der Vergleich dieser einzelnen Digests zeigt, ob zwei vollständige Dateisätze übereinstimmen; die dateibezogenen Einträge zeigen, welche Dateien sich unterscheiden."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The aggregate ``input_tree_sha256`` and ``output_tree_sha256`` values hash the recorded dictionaries, including their paths and metadata. Matching values mean those records match; they do not prove complete file coverage when hashing was skipped or provenance was incomplete. Check ``input_hashing``, ``provenance_warnings`` and the per-file records before comparing runs."
+msgstr "Die aggregierten Werte ``input_tree_sha256`` und ``output_tree_sha256`` hashen die erfassten Dictionaries einschließlich ihrer Pfade und Metadaten. Übereinstimmende Werte bedeuten, dass diese Datensätze übereinstimmen; sie belegen keine vollständige Dateiabdeckung, wenn Hashing übersprungen wurde oder die Provenienz unvollständig war. Prüfen Sie ``input_hashing``, ``provenance_warnings`` und die einzelnen Dateidatensätze, bevor Sie Läufe vergleichen."
 
 msgid "Crash and failure behavior"
 msgstr "Verhalten bei Abstürzen und Fehlern"
 
-msgid "A ``running`` manifest is written before the pipeline starts. It is replaced atomically when the run succeeds or fails. Exceptions are re-raised to the normal GUI/CLI error handling after their traceback is retained. Problems reading or hashing provenance are logged and listed under ``provenance_warnings``; they are not silently discarded."
-msgstr "Vor dem Start der Pipeline wird ein Manifest mit dem Status ``running`` geschrieben. Es wird atomar ersetzt, wenn die Ausführung erfolgreich ist oder fehlschlägt. Exceptions werden nach dem Sichern ihres Tracebacks erneut an die normale Fehlerbehandlung der GUI bzw. CLI weitergegeben. Probleme beim Lesen oder Hashen der Provenienz werden protokolliert und unter ``provenance_warnings`` aufgeführt; sie werden nicht stillschweigend verworfen."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A ``running`` manifest is written before the pipeline starts. Normal context exit attempts an atomic update with success, failure or cancellation status; caught exceptions are re-raised after their traceback is captured. Forced process termination or failure to write the final manifest can leave the stored status as ``running``. Run History can display it as ``interrupted`` when its recorded owner is gone; this does not rewrite the stored manifest. Provenance failures are logged, with recorded warnings retained under ``provenance_warnings`` when the manifest can be written."
+msgstr "Ein Manifest mit ``running`` wird vor dem Pipeline-Start geschrieben. Beim normalen Verlassen des Kontexts wird eine atomare Aktualisierung mit Erfolgs-, Fehler- oder Abbruchstatus versucht; abgefangene Ausnahmen werden nach Erfassung ihres Tracebacks erneut ausgelöst. Erzwungenes Prozessende oder ein Schreibfehler beim abschließenden Manifest können den gespeicherten Status auf ``running`` belassen. Der Laufverlauf kann ihn als ``interrupted`` anzeigen, wenn sein erfasster Besitzerprozess nicht mehr existiert; dabei wird das gespeicherte Manifest nicht umgeschrieben. Provenienzfehler werden protokolliert, und erfasste Warnungen bleiben unter ``provenance_warnings`` erhalten, sofern das Manifest geschrieben werden kann."
 
 msgid "Public API"
 msgstr "Öffentliche API"
 
-msgid "Use :func:`spacr.run_journal.open_run` around a custom pipeline. Within the context, :meth:`spacr.run_journal.Run.record_input`, :meth:`spacr.run_journal.Run.record_model`, and :meth:`spacr.run_journal.Run.record_output` can add paths that are not present in settings."
-msgstr "Verwenden Sie :func:`spacr.run_journal.open_run` um eine eigene Pipeline herum. Innerhalb dieses Kontexts können :meth:`spacr.run_journal.Run.record_input`, :meth:`spacr.run_journal.Run.record_model` und :meth:`spacr.run_journal.Run.record_output` Pfade hinzufügen, die nicht in den Einstellungen enthalten sind."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use :func:`spacr.run_journal.open_run` around a custom pipeline. Within the context, :meth:`spacr.run_journal.Run.record_model` records a model path; :meth:`spacr.run_journal.Run.record_input` and :meth:`spacr.run_journal.Run.record_output` can add paths absent from settings when ``hash_inputs=True``. Those two methods are no-ops when hashing is off."
+msgstr "Verwenden Sie :func:`spacr.run_journal.open_run` um eine eigene Pipeline. Im Kontext erfasst :meth:`spacr.run_journal.Run.record_model` einen Modellpfad; :meth:`spacr.run_journal.Run.record_input` und :meth:`spacr.run_journal.Run.record_output` können bei ``hash_inputs=True`` Pfade ergänzen, die nicht in den Einstellungen stehen. Bei deaktiviertem Hashing führen diese beiden Methoden keine Aktion aus."
 
 msgid "``spacr-repro <run-folder>`` replays supported modules with the recorded settings. The complete API is generated under :mod:`spacr.run_journal`."
 msgstr "``spacr-repro <run-folder>`` spielt unterstützte Module mit den aufgezeichneten Einstellungen erneut ab. Die vollständige API wird unter :mod:`spacr.run_journal` generiert."

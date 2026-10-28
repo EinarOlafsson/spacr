@@ -158,6 +158,9 @@ def pypi_readme(source):
         ):
             if value.startswith(prefix + "main/"):
                 return prefix + reference + "/" + value[len(prefix + "main/"):]
+        # Warehouse adds a wrapping pseudo-icon to lowercase mailto: links.
+        if value.lower().startswith("mailto:"):
+            return "MAILTO:" + value[len("mailto:"):]
         if re.match(r"[a-zA-Z][a-zA-Z0-9+.-]*:", value) or value.startswith(("//", "#")):
             return value
         base = (f"https://raw.githubusercontent.com/EinarOlafsson/spacr/{reference}/"

@@ -509,6 +509,11 @@ Focused 12 controls pass (12.79 s): real TIFF bytes, exact source pairs, parser/
 
 2026-10-28 — Priority/owner: feature_takeover with G3 source peer and root publication; Etaluma is delivered, and this isolated follow-up covers documented modern IN Cell and ScanR evidence without changing legacy naming.
 2026-10-28 — IN Cell 7.2 Full Form now reads the twelve literal vendor-documented names, preserving one-based axes and canonical well identity; the existing parenthesized IN Cell style remains separate.
-2026-10-28 — All 30 focused controls pass (13.02 s): parser/Import/Mask identities, twelve synthetic TIFFs to four three-channel stacks, immutable originals and legacy/refusal checks; declarations/docs and normal UI inventory are unchanged, with consumer offsets and publication pending.
+2026-10-28 — All 30 focused controls pass (13.02 s): parser/Import/Mask identities, twelve synthetic TIFFs to four three-channel stacks, immutable originals and legacy/refusal checks; declarations/docs and normal UI inventory are unchanged. The normal consumer generator advances exactly 76 existing utils locations by two lines with all other data and API targets unchanged; root owns publication.
 2026-10-28 — Olympus scanR Acquisition 3.1 manual section 9.1, printed page 99, confirms .tif storage and token order; the two user stems still lack observed complete acquired filenames, so ScanR remains provisional.
 2026-10-28 — Acceptance retains exact vendor-source provenance, no fabricated filename pair or acquired axes, and the original corpus obligations; the whole item remains OPEN while unsupported vendor variants and complete example evidence remain.
+
+2026-10-28 — Priority/ownership: feature_takeover implements indexed ScanR with G3 map/source peer and root publication; retain existing A1 provisional evidence and all legacy conventions.
+2026-10-28 — Require an explicit plate/index/well CSV for the two observed OME indexed-only filenames; never infer physical wells from W indices or plate geometry.
+2026-10-28 — Import preview and Mask ingest/test/resume must reject missing, incomplete, invalid or conflicting maps before writes; preserve raw index provenance, channels and immutable originals.
+2026-10-28 — Acceptance: real tiny TIFF ingestion plus mapped output and failure-before-mutation controls; normal affected settings, API/UI, docs and generated outputs follow qualified source under root lease.

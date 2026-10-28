@@ -199,7 +199,8 @@ def test_responsive_rows_hide_contact_links_with_their_images(rendered):
         image_classes = {image["class"] for image in row["images"]}
         assert len(image_classes) == 1
         assert image_classes.pop() in row["class"].split()
-    assert 'href="mailto:olafsson%40med.umich.com"' in rendered
+    assert 'href="MAILTO:olafsson@med.umich.com"' in rendered
+    assert 'href="mailto:' not in rendered
 
 
 class Lines(HTMLParser):

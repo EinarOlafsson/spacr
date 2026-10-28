@@ -1,5 +1,5 @@
 # spaCR user guide translation (zh_CN).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-28 12:46-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -38,8 +38,9 @@ msgid "``manifest.json``"
 msgstr "``manifest.json``"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "A versioned, atomically written record of the module, timestamps, status, settings hash, declared random seeds, Python/NumPy/Torch random-state identifiers, spaCR and Git versions, all installed package versions, model hashes, input hashes, output hashes, warnings, and, for a failed run, the exception traceback."
-msgstr "带版本、以原子方式写入的记录，内容包括模块、时间戳、状态、设置哈希、声明的随机种子、Python/NumPy/Torch 随机状态标识、spaCR 和 Git 版本、所有已安装软件包的版本、模型哈希、输入哈希、输出哈希、警告，以及运行失败时的异常回溯。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A versioned, atomically written record of the module, timestamps, status, settings hash, declared seeds, available random-state metadata, spaCR and Git versions, recorded package versions, model/file records, warnings and an exception traceback when captured. NumPy state and Torch's initial seed are recorded only when those libraries are already loaded; file hashing is optional as described below."
+msgstr "一份带版本且以原子方式写入的记录，包含模块、时间戳、状态、设置哈希、声明的种子、可用的随机状态元数据、spaCR 和 Git 版本、已记录的包版本、模型/文件记录、警告以及捕获到的异常回溯。仅当相关库已加载时，才记录 NumPy 状态和 Torch 初始种子；文件哈希如下面所述是可选的。"
 
 msgid "``log.txt``"
 msgstr "``log.txt``"
@@ -56,33 +57,38 @@ msgstr "流程代码显式附加的产物。"
 msgid "``environment/``"
 msgstr "``environment/``"
 
-msgid "``requirements-lock.txt``, a ``pip freeze`` of the Python environment the run used, and, when spaCR runs inside a conda environment, ``conda-explicit.txt``, the output of ``conda list --explicit``. The manifest names both files under ``environment_lock`` together with a SHA-256 digest of the environment. Rebuild the environment with ``conda create --name rerun --file conda-explicit.txt`` followed by ``python -m pip install -r requirements-lock.txt``."
-msgstr "``requirements-lock.txt`` ，即该运行所用 Python 环境的 ``pip freeze`` ；当 spaCR 在 conda 环境中运行时，还有 ``conda-explicit.txt`` ，即 ``conda list --explicit`` 的输出。清单在 ``environment_lock`` 下列出这两个文件以及该环境的 SHA-256 摘要。可先运行 ``conda create --name rerun --file conda-explicit.txt`` ，再运行 ``python -m pip install -r requirements-lock.txt`` 来重建环境。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``requirements-lock.txt`` contains ``pip freeze`` output, or package name/version entries from installed-distribution metadata if pip cannot run. ``conda-explicit.txt`` is added only when a conda environment is detected and ``conda list --explicit`` succeeds. ``environment_lock`` names the files actually written and the environment digest. When the conda file is present, use ``conda create --name rerun --file conda-explicit.txt`` followed by ``python -m pip install -r requirements-lock.txt``; otherwise install the requirements into a compatible Python environment."
+msgstr "``requirements-lock.txt`` 包含 ``pip freeze`` 的输出；如果无法运行 pip，则包含来自已安装分发包元数据的包名称/版本条目。仅在检测到 conda 环境且 ``conda list --explicit`` 成功时才添加 ``conda-explicit.txt``。``environment_lock`` 列出实际写入的文件和环境摘要。存在 conda 文件时，先使用 ``conda create --name rerun --file conda-explicit.txt``，再使用 ``python -m pip install -r requirements-lock.txt``；否则请将所需依赖安装到兼容的 Python 环境中。"
 
-msgid "pip and conda are asked once per environment: the lists are kept under ``~/.spacr/env_locks/<digest>`` and every later run with the same digest copies them. Installing, removing or upgrading any package changes the digest. If the lists cannot be written, the run continues and the reason is listed under ``provenance_warnings``."
-msgstr "每个环境只查询一次 pip 和 conda：这些列表保存在 ``~/.spacr/env_locks/<digest>`` 下，之后摘要相同的每次运行都会复制它们。安装、删除或升级任何软件包都会改变摘要。如果无法写入这些列表，运行会继续，原因会列在 ``provenance_warnings`` 下。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The lists are cached under ``~/.spacr/env_locks/<digest>`` and reused for the same digest. That digest includes the interpreter identity and recorded package versions; package metadata is cached within the process, so restart spaCR after changing installed packages to obtain a new snapshot. Failure to write a run's lockfiles is recorded under ``provenance_warnings`` and does not by itself stop the pipeline."
+msgstr "列表缓存在 ``~/.spacr/env_locks/<digest>`` 下，并在摘要相同时复用。该摘要包含解释器身份和已记录的包版本；包元数据在进程内缓存，因此更改已安装的包后，请重启 spaCR 以获取新快照。运行锁定文件写入失败会记录在 ``provenance_warnings`` 下，本身不会使管线停止。"
 
 msgid "File provenance"
 msgstr "文件来源"
 
-msgid "spaCR recursively discovers existing paths in settings, including paths nested inside plate lists. Every regular input file receives a full SHA-256 digest, size, modification timestamp, and the setting key that selected it. Files that are created or modified under those roots during the run are recorded as outputs. Symlinks, version-control folders, caches, and the run journal itself are excluded."
-msgstr "spaCR 会递归地发现设置中已存在的路径，包括嵌套在孔板列表中的路径。每个常规输入文件都会记录完整的 SHA-256 摘要、大小、修改时间戳以及选中它的设置键。运行期间在这些根目录下创建或修改的文件会被记录为输出。符号链接、版本控制文件夹、缓存以及运行日志本身不在其列。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Set ``hash_inputs=True`` to record input/output file hashes; hashing is off by default and the manifest then reports ``input_hashing=\"skipped\"``. Discovery follows path-valued settings, including nested plate lists. Hashed file records contain the full SHA-256, size, modification timestamp and referring setting key. Directory walks skip linked entries, version-control folders, caches and the run journal. Before/after inventories used to identify changed outputs are limited to 200,000 files per root; truncation is reported in ``provenance_warnings``."
+msgstr "设置 ``hash_inputs=True`` 可记录输入/输出文件的哈希；默认关闭哈希，此时清单报告 ``input_hashing=\"skipped\"``。发现过程遵循路径值设置，包括嵌套的板列表。已计算哈希的文件记录包含完整 SHA-256、大小、修改时间和引用该文件的设置键。目录遍历跳过链接条目、版本控制文件夹、缓存和运行日志。用于识别输出变化的前后文件清单每个根目录最多包含 200000 个文件；截断会在 ``provenance_warnings`` 中报告。"
 
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The manifest also includes deterministic aggregate ``input_tree_sha256`` and ``output_tree_sha256`` values. Comparing these single digests shows whether two complete sets match; the per-file records identify which files differ."
-msgstr "清单还包含确定性的汇总值 ``input_tree_sha256`` 和 ``output_tree_sha256``。比较这两个单一摘要即可看出两个完整集合是否一致；逐文件记录则可确定哪些文件存在差异。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The aggregate ``input_tree_sha256`` and ``output_tree_sha256`` values hash the recorded dictionaries, including their paths and metadata. Matching values mean those records match; they do not prove complete file coverage when hashing was skipped or provenance was incomplete. Check ``input_hashing``, ``provenance_warnings`` and the per-file records before comparing runs."
+msgstr "汇总值 ``input_tree_sha256`` 和 ``output_tree_sha256`` 对实际记录的字典计算哈希，包括其中的路径和元数据。数值相同表示这些记录相同；如果跳过哈希或来源记录不完整，它们不能证明文件覆盖完整。比较运行前，请检查 ``input_hashing``、``provenance_warnings`` 和逐文件记录。"
 
 msgid "Crash and failure behavior"
 msgstr "崩溃与失败时的行为"
 
-msgid "A ``running`` manifest is written before the pipeline starts. It is replaced atomically when the run succeeds or fails. Exceptions are re-raised to the normal GUI/CLI error handling after their traceback is retained. Problems reading or hashing provenance are logged and listed under ``provenance_warnings``; they are not silently discarded."
-msgstr "流程开始前会写入一个 ``running`` 清单。运行成功或失败时，该清单会被原子替换。异常的回溯被保留后，异常会重新抛给常规的 GUI/CLI 错误处理。读取来源信息或计算其哈希时遇到的问题会被写入日志并列在 ``provenance_warnings`` 下；它们不会被悄然丢弃。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A ``running`` manifest is written before the pipeline starts. Normal context exit attempts an atomic update with success, failure or cancellation status; caught exceptions are re-raised after their traceback is captured. Forced process termination or failure to write the final manifest can leave the stored status as ``running``. Run History can display it as ``interrupted`` when its recorded owner is gone; this does not rewrite the stored manifest. Provenance failures are logged, with recorded warnings retained under ``provenance_warnings`` when the manifest can be written."
+msgstr "管线启动前会写入 ``running`` 清单。正常退出上下文时会尝试原子更新成功、失败或取消状态；捕获的异常在记录回溯后会重新抛出。强制终止进程或最终清单写入失败可能使已保存状态保持 ``running``。记录中的所属进程消失后，运行历史可将其显示为 ``interrupted``，但不会重写已保存清单。来源记录失败会写入日志；能够写入清单时，记录的警告会保留在 ``provenance_warnings`` 下。"
 
 msgid "Public API"
 msgstr "公共 API"
 
-msgid "Use :func:`spacr.run_journal.open_run` around a custom pipeline. Within the context, :meth:`spacr.run_journal.Run.record_input`, :meth:`spacr.run_journal.Run.record_model`, and :meth:`spacr.run_journal.Run.record_output` can add paths that are not present in settings."
-msgstr "在自定义流程外层使用 :func:`spacr.run_journal.open_run`。在该上下文中，:meth:`spacr.run_journal.Run.record_input`、:meth:`spacr.run_journal.Run.record_model` 和 :meth:`spacr.run_journal.Run.record_output` 可以添加设置中未出现的路径。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use :func:`spacr.run_journal.open_run` around a custom pipeline. Within the context, :meth:`spacr.run_journal.Run.record_model` records a model path; :meth:`spacr.run_journal.Run.record_input` and :meth:`spacr.run_journal.Run.record_output` can add paths absent from settings when ``hash_inputs=True``. Those two methods are no-ops when hashing is off."
+msgstr "使用 :func:`spacr.run_journal.open_run` 包裹自定义管线。在上下文中，:meth:`spacr.run_journal.Run.record_model` 记录模型路径；当 ``hash_inputs=True`` 时，:meth:`spacr.run_journal.Run.record_input` 和 :meth:`spacr.run_journal.Run.record_output` 可添加设置中没有的路径。关闭哈希时，这两个方法不执行任何操作。"
 
 msgid "``spacr-repro <run-folder>`` replays supported modules with the recorded settings. The complete API is generated under :mod:`spacr.run_journal`."
 msgstr "``spacr-repro <run-folder>`` 使用记录的设置重放受支持的模块。完整的 API 文档生成在 :mod:`spacr.run_journal` 下。"

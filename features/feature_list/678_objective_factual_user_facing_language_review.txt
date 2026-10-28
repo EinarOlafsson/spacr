@@ -3,7 +3,7 @@ OBJECTIVE, FACTUAL LANGUAGE THROUGHOUT SPACR
 ================================================================================
 
 Lifecycle: new
-Status:    queued; start after the existing completion tasks
+Status:    IN PROGRESS — bounded factual-guide corrections ready; broader surface review and publication remain open.
 Requested: 2026-10-08
 Owner:     Workstation root; API/docs, runtime translation and tutorial lanes
            support their surfaces. Home receives this item through the repo.
@@ -385,3 +385,8 @@ Native review, fifth batch:
   pt (1): qt.preferences.spacr_mode_for_level#3
   sv (0): 
   zh_CN (4): qt.screens.db_browser#14, qt.screens.db_browser#1, qt.screens.db_browser.EditRefused#1, qt.preferences.spacr_mode_for_level#3
+
+2026-10-28 — G5 resumes the factual user-documentation lane on current Nightly, with root integration/publication. First scope is a bounded source-verified reproducibility/checkpoint guide review; retain citations, licenses, scientific meaning and required disclosures, record retained/revised coverage, and use normal affected localization only with a writer lease. Navigator Docs/API is already delivered; Work retains tutorial production. Broad app/API/localized/tutorial review and hosted acceptance remain open.
+2026-10-28 — Corrected eight source-verified paragraphs in the reproducibility and checkpoint guides: optional hashing, bounded inventories, recorded-dictionary digests, environment fallbacks/cache lifetime, attempted finalization and initial checkpoint creation. G4 independently reviewed English and all 72 translated paragraphs; normal two-domain guide generation/import/audit passes in nine languages, preserving 297 unrelated translated records. No executable/API/caption/disclosure/license/citation changes; root retains publication and the remaining broad review.
+2026-10-28 — Next G5 guide batch covers three current Model Zoo/Python quickstart paragraphs: automatic download policy versus explicit actions, cached/local reuse, GUI-thread refusal and the explicit low-level unverified-checksum override. Preserve default download permission, real preflight and offline stock-model boundaries, existing API contracts and unrelated translations; use the exclusive two-domain guide writer only after source peer.
+2026-10-28 — Corrected the three model-acquisition/checksum paragraphs and normally reconciled the full Model Zoo/Python guide domains, including 40 existing generated model-card rows (397 English words). G3 bound those rows to packaged declarations/scorecards; G4 reviewed all 43 changed messages in nine languages, with 18 numeric rows retained exactly. Normal import/audit passes for 387 targets and current affected templates, preserving unrelated records; no benchmark, native-speaker, job/model or whole-N678 completion claim.

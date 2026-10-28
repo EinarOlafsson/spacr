@@ -1,14 +1,21 @@
 Model zoo
 =========
 
-spaCR ships a catalogue of trained models and fetches them on demand. Name a
-key in a settings file — ``pathogen_model: toxoplasma_pv_v1`` — and the model
-is downloaded and checksum-verified the first time it is needed, or open
-**Model Zoo** from the **Make Masks** masthead to browse and install them.
+Select a registered model key, for example
+``pathogen_model: toxoplasma_pv_v1``. A missing registered checkpoint can be
+downloaded and checksum-verified when automatic acquisition is allowed.
+``SPACR_MODEL_DOWNLOAD=off`` disables that automatic acquisition; compatible
+local paths and verified cached checkpoints remain usable. A missing model
+requested directly on the GUI thread is refused. Open **Model Zoo** from the
+**Make Masks** masthead to browse and explicitly download models.
 
-Every published entry carries a SHA-256. An entry without one is refused
-rather than installed, because a truncated or substituted checkpoint cannot
-be told from the real one.
+Downloads through :func:`spacr.model_zoo.fetch` require a published or
+explicitly supplied SHA-256 by default. The digest checks the acquired bytes
+against that expected identity; it does not validate a model's biological
+performance. The explicit low-level Python override
+``require_checksum=False`` permits acquisition without a published digest;
+:func:`spacr.model_zoo.install` then reports ``verified=False`` when no expected
+digest was supplied. This is not a verified installation.
 
 .. include:: _generated/model_zoo_table.rst
 

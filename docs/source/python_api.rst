@@ -108,15 +108,17 @@ values before importing PyTorch, Cellpose and the other pipeline dependencies.
    spacr-run mask --settings mask_settings.csv
 
 Use ``spacr-run --list-models`` (or ``--models``) to list registered models,
-including models that have not been downloaded. Supply the registered key or
-filename in ``custom_model`` for masking or ``model_path`` for classifier
-inference. Python and notebook entry points use the same resolver. A missing
-registered checkpoint is downloaded through Model Zoo when the workflow runs,
-verified against its catalogue checksum, and cached for reuse. Preflight
-recognizes registered downloadable selections without downloading the weights.
-Existing local paths take precedence; an unknown missing local path or a model
-of the wrong kind raises an error rather than selecting another model.
-Built-in foundation models retain their backend's normal download behavior.
+including models not yet downloaded. Supply a registered key or filename in
+``custom_model`` for masking or ``model_path`` for classifier inference. Python
+and notebook entry points use the same resolver. When automatic acquisition is
+allowed, missing registered weights are downloaded, checksum-verified and
+cached; ``SPACR_MODEL_DOWNLOAD=off`` instead refuses missing weights while
+retaining usable local or verified cached files. Preflight recognizes trusted
+registered selections without fetching weights. Existing local paths take
+precedence; unknown selections and incompatible model kinds are refused.
+With downloads disabled, an uncached Cellpose stock model is refused before
+its constructor runs. See :doc:`model_zoo` for interactive acquisition and the
+explicit low-level checksum override.
 
 Boolean values in settings CSV files are case-insensitive. ``TRUE`` and
 ``FALSE``, including surrounding whitespace, load as Python booleans, so

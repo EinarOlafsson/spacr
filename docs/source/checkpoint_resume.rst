@@ -1,10 +1,12 @@
 Checkpoint and resume
 =====================
 
-spaCR writes a checkpoint only after a complete unit of work (a field, trial,
-or plate job) has finished; a write in progress is not interrupted. A later
-invocation reads the checkpoint to determine which units completed and
-continues after them.
+A checkpoint can be initialized before any unit finishes. Supported workflows
+mark completed units of work, such as fields, trials or plate jobs, at their
+checkpoint boundaries. A later resume validates the stored workflow identity
+and uses its completion records and workflow-specific output checks to decide
+what can be reused. A checkpoint is not a guarantee against forced process
+termination or damaged output files.
 The Qt **Stop** button uses the same boundaries: it requests cooperative
 cancellation, lets the current safe unit finish, and retains the checkpoint for
 the next run. See :doc:`threading_cancellation_audit`.

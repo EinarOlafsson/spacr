@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:05-0400\n"
+"POT-Creation-Date: 2026-10-28 13:04-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: pt\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -22,11 +22,13 @@ msgstr ""
 msgid "Model zoo"
 msgstr "Modelo zoo"
 
-msgid "spaCR ships a catalogue of trained models and fetches them on demand. Name a key in a settings file — ``pathogen_model: toxoplasma_pv_v1`` — and the model is downloaded and checksum-verified the first time it is needed, or open **Model Zoo** from the **Make Masks** masthead to browse and install them."
-msgstr "O spaCR inclui um catálogo de modelos treinados e os baixa sob demanda. Informe uma chave em um arquivo de configurações — ``pathogen_model: toxoplasma_pv_v1`` — e o modelo será baixado e terá a soma de verificação conferida na primeira vez que for necessário; ou abra a **Biblioteca de modelos** pelo cabeçalho de **Criar máscaras** para explorá-los e instalá-los."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Select a registered model key, for example ``pathogen_model: toxoplasma_pv_v1``. A missing registered checkpoint can be downloaded and checksum-verified when automatic acquisition is allowed. ``SPACR_MODEL_DOWNLOAD=off`` disables that automatic acquisition; compatible local paths and verified cached checkpoints remain usable. A missing model requested directly on the GUI thread is refused. Open **Model Zoo** from the **Make Masks** masthead to browse and explicitly download models."
+msgstr "Selecione uma chave de modelo registrada, por exemplo ``pathogen_model: toxoplasma_pv_v1``. Um checkpoint registrado ausente pode ser baixado e verificado por checksum quando a aquisição automática é permitida. ``SPACR_MODEL_DOWNLOAD=off`` desativa essa aquisição automática; caminhos locais compatíveis e checkpoints verificados em cache continuam utilizáveis. Um modelo ausente solicitado diretamente na thread da interface gráfica é recusado. Abra **Model Zoo** no cabeçalho de **Make Masks** para explorar e baixar modelos explicitamente."
 
-msgid "Every published entry carries a SHA-256. An entry without one is refused rather than installed, because a truncated or substituted checkpoint cannot be told from the real one."
-msgstr "Toda entrada publicada traz um SHA-256. Uma entrada sem ele é recusada em vez de instalada, porque um ponto de verificação truncado ou substituído não pode ser distinguido do verdadeiro."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Downloads through :func:`spacr.model_zoo.fetch` require a published or explicitly supplied SHA-256 by default. The digest checks the acquired bytes against that expected identity; it does not validate a model's biological performance. The explicit low-level Python override ``require_checksum=False`` permits acquisition without a published digest; :func:`spacr.model_zoo.install` then reports ``verified=False`` when no expected digest was supplied. This is not a verified installation."
+msgstr "Downloads por :func:`spacr.model_zoo.fetch` exigem por padrão um SHA-256 publicado ou fornecido explicitamente. O resumo verifica os bytes adquiridos contra essa identidade esperada; não valida o desempenho biológico do modelo. A substituição explícita de baixo nível em Python ``require_checksum=False`` permite aquisição sem resumo publicado; :func:`spacr.model_zoo.install` então informa ``verified=False`` quando nenhum resumo esperado foi fornecido. Não é uma instalação verificada."
 
 msgid "Model"
 msgstr "Modelo"
@@ -211,6 +213,21 @@ msgstr "1.507 campos de placas de lise curados de 2026-10-15 (poços do Gel Doc,
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "F1 0.816 against stock cpsam_v2's 0.227 on the 153 strict hold-out fields at IoU 0.5; AJI 0.737 against 0.178"
 msgstr "F1 0,816 contra 0,227 do cpsam_v2 original nos 153 campos de retenção estrita com IoU 0,5; AJI 0,737 contra 0,178"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``toxoplasma_plaque_v6`` (Cellpose-SAM (cpsam_v2, Cellpose 4.2.1.1))"
+msgstr "``toxoplasma_plaque_v6`` (Cellpose-SAM (cpsam_v2, Cellpose 4.2.1.1))"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Codex), no native-speaker signoff.
+msgid "1,520 curated plaque fields (Gel Doc wells, lab plates, published figures, earlier curation rounds); 1,196 train / 164 validation / 160 test, grouped per-domain split of 2026-10-24"
+msgstr "1520 campos de placas de lise curados (poços Gel Doc, placas de laboratório, figuras publicadas, rodadas anteriores de curadoria); 1196 treino / 164 validação / 160 teste, divisão agrupada por domínio de 2026-10-24"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Codex), no native-speaker signoff.
+msgid "F1 0.768 against stock cpsam_v2's 0.294 on the 160 strict hold-out fields at IoU 0.5; AJI 0.752 against 0.249"
+msgstr "F1 0.768 contra 0.294 do cpsam_v2 padrão nos 160 campos estritamente reservados em IoU 0.5; AJI 0.752 contra 0.249"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "``toxoplasma_well_detector_v3`` (YOLO11n (fine-tuned from detector v3))"
@@ -1263,14 +1280,19 @@ msgstr "Resultados publicados do Toxoplasma PV v5 (rodada 8, alternativo): cards
 msgid "SHA-256 ``a1d7f1a978cf4925ec60db486a00eea33e87e6fc5a6b0d0f34c6db5f132d5c1c``."
 msgstr "SHA-256 ``a1d7f1a978cf4925ec60db486a00eea33e87e6fc5a6b0d0f34c6db5f132d5c1c``."
 
-msgid "Live cell v1 (phase, brightfield, DIC)"
-msgstr "Live cell v1 (contraste de fase, campo claro, DIC)"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Live cell v1 (phase, brightfield, DIC; alternative)"
+msgstr "Live cell v1 (fase, campo claro, DIC; alternativa)"
 
 msgid "**Trained on.** unstained cells in phase contrast, brightfield and DIC: LIVECell, DeepSea, YeaZ, yeast microstructures, five Cell Tracking Challenge sets, BBBC009, BBBC030, QPI and Revvity. Base cpsam_v2, cellpose 4.2.1.1, lr 1e-5, batch 4; stopped at epoch 37 of 100"
 msgstr "**Treinado com.** células não coradas em contraste de fase, campo claro e DIC: LIVECell, DeepSea, YeaZ, microestruturas de levedura, cinco conjuntos do Cell Tracking Challenge, BBBC009, BBBC030, QPI e Revvity. Base cpsam_v2, cellpose 4.2.1.1, lr 1e-5, lote de 4; interrompido na época 37 de 100"
 
 msgid "**Measured.** on the datasets stock cpsam_v2 never trained on, F1 0.960 against 0.885 at IoU 0.5; over all 2,199 test fields, 0.694 against 0.738, because stock trained on LIVECell and YeaZ and wins on LIVECell"
 msgstr "**Medido.** nos conjuntos de dados com os quais o cpsam_v2 padrão nunca foi treinado, F1 0,960 contra 0,885 com IoU 0,5; em todos os 2.199 campos de teste, 0,694 contra 0,738, porque o modelo padrão foi treinado com LIVECell e YeaZ e vence no LIVECell"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "an optional alternative: stock Cellpose-SAM (cpsam_v2) stays the default for label-free and live-cell segmentation"
+msgstr "uma alternativa opcional: Cellpose-SAM padrão (cpsam_v2) permanece o padrão para segmentação sem marcação e de células vivas"
 
 msgid "TWO STOCK COMPARISONS, NOT ONE: stock cpsam_v2 trained on LIVECell and YeaZ, so its score there is partly memorisation. On the datasets it never saw (DeepSea, the CTC sets, BBBC009, BBBC030, QPI, Revvity, yeast microstructures) this model scores F1 0.960 against 0.885"
 msgstr "DUAS COMPARAÇÕES COM O MODELO PADRÃO, NÃO UMA: o cpsam_v2 padrão foi treinado com LIVECell e YeaZ, então sua pontuação neles é em parte memorização. Nos conjuntos de dados que ele nunca viu (DeepSea, os conjuntos CTC, BBBC009, BBBC030, QPI, Revvity, microestruturas de levedura), este modelo obtém F1 0,960 contra 0,885"
@@ -1642,8 +1664,9 @@ msgid "SHA-256 ``744aee3f71efa68f6a369a6f91fe5850dc61e35f3dc20d53dda2c04fce17b35
 msgstr "SHA-256 ``744aee3f71efa68f6a369a6f91fe5850dc61e35f3dc20d53dda2c04fce17b35f``."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Toxoplasma Plaque v5 (round 7, cpsam_v2, default)"
-msgstr "Toxoplasma Plaque v5 (rodada 7, cpsam_v2, padrão)"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Toxoplasma Plaque v5 (round 7, cpsam_v2)"
+msgstr "Toxoplasma Plaque v5 (rodada 7, cpsam_v2)"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Architecture.** Cellpose-SAM (cpsam_v2, Cellpose 4.2.1.1)"
@@ -1734,8 +1757,9 @@ msgid "Evaluation set: ``plaque_curated_20261015_test``; version ``strict hold-o
 msgstr "Conjunto de avaliação: ``plaque_curated_20261015_test``; versão ``strict hold-out, pooled``; 153 campos pontuados e 6540 objetos anotados."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The default plaque model since 2026-10-17, by the maintainer's choice; toxoplasma_plaque_v3 is the recommended alternative for Gel Doc wells and toxoplasma_plaque_v4 stays selectable."
-msgstr "O modelo padrão de placas de lise desde 2026-10-17, por escolha do mantenedor; toxoplasma_plaque_v3 é a alternativa recomendada para poços do Gel Doc e toxoplasma_plaque_v4 continua selecionável."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The default plaque model 2026-10-17 to 2026-10-25; toxoplasma_plaque_v6 replaced it by the maintainer's choice, and v5 stays selectable so recorded runs reproduce. toxoplasma_plaque_v3 is the recommended alternative for Gel Doc wells and toxoplasma_plaque_v4 stays selectable."
+msgstr "Modelo de placas de lise padrão de 2026-10-17 a 2026-10-25; toxoplasma_plaque_v6 o substituiu por escolha do mantenedor, e v5 segue selecionável para reproduzir execuções registradas. toxoplasma_plaque_v3 é a alternativa recomendada para poços Gel Doc e toxoplasma_plaque_v4 continua selecionável."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Scored 2026-10-17 on the 153 test fields of the curated 2026-10-15 dataset (spacr.plaque.segment_plaque_image, defaults): object F1 0.816 (95% bootstrap CI 0.778 to 0.848), v4 0.725, v3 0.741, stock cpsam_v2 0.227. On the 81 test fields neither v3 nor v4 saw: v5 0.803, v4 0.661, v3 0.684. AJI is level with v4 (0.737 against 0.744); Gel Doc wells 0.868 against v4 0.901 and v3 0.954."
@@ -1755,22 +1779,169 @@ msgstr "Publicado em `einarolafsson/toxoplasma-plaque-segmentation-cpsam-r7 <htt
 
 # AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Published scorecard for Toxoplasma Plaque v5 (round 7, cpsam_v2, default): cards/page1.png"
-msgstr "Resultados publicados do Toxoplasma Plaque v5 (rodada 7, cpsam_v2, padrão): cards/page1.png"
+msgid "Published scorecard for Toxoplasma Plaque v5 (round 7, cpsam_v2): cards/page1.png"
+msgstr "Ficha de resultados publicada de Toxoplasma Plaque v5 (rodada 7, cpsam_v2): cards/page1.png"
 
 # AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Published scorecard for Toxoplasma Plaque v5 (round 7, cpsam_v2, default): cards/page2.png"
-msgstr "Resultados publicados do Toxoplasma Plaque v5 (rodada 7, cpsam_v2, padrão): cards/page2.png"
+msgid "Published scorecard for Toxoplasma Plaque v5 (round 7, cpsam_v2): cards/page2.png"
+msgstr "Ficha de resultados publicada de Toxoplasma Plaque v5 (rodada 7, cpsam_v2): cards/page2.png"
 
 # AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Published scorecard for Toxoplasma Plaque v5 (round 7, cpsam_v2, default): cards/page3.png"
-msgstr "Resultados publicados do Toxoplasma Plaque v5 (rodada 7, cpsam_v2, padrão): cards/page3.png"
+msgid "Published scorecard for Toxoplasma Plaque v5 (round 7, cpsam_v2): cards/page3.png"
+msgstr "Ficha de resultados publicada de Toxoplasma Plaque v5 (rodada 7, cpsam_v2): cards/page3.png"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "SHA-256 ``9243917beefbc3d1c8d997d56c1980b811ffef9ee075dac60b099aec715fa8a1``."
 msgstr "SHA-256 ``9243917beefbc3d1c8d997d56c1980b811ffef9ee075dac60b099aec715fa8a1``."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Toxoplasma Plaque v6 (round 8, cpsam_v2, resized wells, default)"
+msgstr "Toxoplasma Plaque v6 (rodada 8, cpsam_v2, poços redimensionados, padrão)"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Trained on.** Toxoplasma plaques from Gel Doc wells, lab plates, published figures and earlier curation rounds, each well resized so its longest side is 1500 px (enlargement at most 6x); 100 epochs, final epoch kept, base cpsam_v2"
+msgstr "**Treinado com.** Placas de lise de Toxoplasma de poços Gel Doc, placas de laboratório, figuras publicadas e rodadas anteriores de curadoria, cada poço redimensionado para lado maior de 1500 px (ampliação máxima 6x); 100 épocas, última época mantida, base cpsam_v2"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Measured.** F1 0.768 against stock cpsam_v2's 0.294 on the 160 strict hold-out fields at IoU 0.5; AJI 0.752 against 0.249"
+msgstr "**Medido.** F1 0.768 contra 0.294 do cpsam_v2 padrão nos 160 campos estritamente reservados em IoU 0.5; AJI 0.752 contra 0.249"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Codex), no native-speaker signoff.
+msgid "0.7683"
+msgstr "0.7683"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Codex), no native-speaker signoff.
+msgid "0.2941"
+msgstr "0.2941"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Codex), no native-speaker signoff.
+msgid "0.4742"
+msgstr "0.4742"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Codex), no native-speaker signoff.
+msgid "0.7811"
+msgstr "0.7811"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Codex), no native-speaker signoff.
+msgid "0.3028"
+msgstr "0.3028"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Codex), no native-speaker signoff.
+msgid "0.4782"
+msgstr "0.4782"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Codex), no native-speaker signoff.
+msgid "0.7770"
+msgstr "0.7770"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Codex), no native-speaker signoff.
+msgid "0.5571"
+msgstr "0.5571"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Codex), no native-speaker signoff.
+msgid "0.2199"
+msgstr "0.2199"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Codex), no native-speaker signoff.
+msgid "0.7598"
+msgstr "0.7598"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "0.1998"
+msgstr "0.1998"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Codex), no native-speaker signoff.
+msgid "0.5600"
+msgstr "0.5600"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Codex), no native-speaker signoff.
+msgid "0.7517"
+msgstr "0.7517"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Codex), no native-speaker signoff.
+msgid "0.2493"
+msgstr "0.2493"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Codex), no native-speaker signoff.
+msgid "0.5024"
+msgstr "0.5024"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Codex), no native-speaker signoff.
+msgid "0.9091"
+msgstr "0.9091"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Codex), no native-speaker signoff.
+msgid "0.4142"
+msgstr "0.4142"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Codex), no native-speaker signoff.
+msgid "0.4950"
+msgstr "0.4950"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Evaluation set: ``plaque_v6_20261024_test``; version ``strict hold-out, pooled``; 160 scored fields and 6182 annotated objects."
+msgstr "Conjunto de avaliação: ``plaque_v6_20261024_test``; versão ``strict hold-out, pooled``; 160 campos avaliados e 6182 objetos anotados."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The default plaque model since 2026-10-25, by the maintainer's choice; it needs well resize (plaque_well_resize auto follows this record's preprocess). toxoplasma_plaque_v5 stays selectable."
+msgstr "Modelo de placas de lise padrão desde 2026-10-25 por escolha do mantenedor; requer redimensionamento dos poços (plaque_well_resize segue automaticamente o preprocess deste registro). toxoplasma_plaque_v5 permanece selecionável."
+
+# AI technical review (Codex), no native-speaker signoff.
+#, python-format
+msgid "Scored 2026-10-25 on the 160 test fields (single locked test, validation-chosen thresholds cellprob -0.5, flow 0.4, min size 0): object F1 0.768 (95% group-bootstrap CI 0.715 to 0.815), precision 0.777, recall 0.760, boundary F1 0.781, AJI 0.752, Dice 0.909. Recall by plaque size 0.432 (<5 px), 0.795 (5-10 px), 0.811 (>=10 px). Control: stock cpsam_v2 with the same well resize and its own validation-tuned thresholds, object F1 0.294."
+msgstr "Avaliado em 2026-10-25 nos 160 campos de teste (teste único bloqueado, limiares escolhidos em validação cellprob -0.5, flow 0.4, tamanho mínimo 0): F1 de objetos 0.768 (IC de 95% por bootstrap de grupos 0.715 a 0.815), precisão 0.777, revocação 0.760, F1 de contorno 0.781, AJI 0.752, Dice 0.909. Revocação por tamanho de placa de lise: 0.432 (<5 px), 0.795 (5-10 px), 0.811 (>=10 px). Controle: cpsam_v2 padrão com o mesmo redimensionamento e seus próprios limiares ajustados em validação, F1 de objetos 0.294."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Final epoch 100 shipped by the maintainer's choice; the validation objective peaked at epoch 25 (0.673 against 0.651)."
+msgstr "A época final 100 foi distribuída por escolha do mantenedor; o objetivo de validação atingiu o máximo na época 25 (0.673 contra 0.651)."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Published as `einarolafsson/toxoplasma-plaque-segmentation-cpsam-v6 <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-v6>`_, as ``cpsam_plaque_v6``."
+msgstr "Publicado como `einarolafsson/toxoplasma-plaque-segmentation-cpsam-v6 <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-v6>`_, como ``cpsam_plaque_v6``."
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Published scorecard for Toxoplasma Plaque v6 (round 8, cpsam_v2, resized wells, default): cards/page1.png"
+msgstr "Ficha de resultados publicada de Toxoplasma Plaque v6 (rodada 8, cpsam_v2, poços redimensionados, padrão): cards/page1.png"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Published scorecard for Toxoplasma Plaque v6 (round 8, cpsam_v2, resized wells, default): cards/page2.png"
+msgstr "Ficha de resultados publicada de Toxoplasma Plaque v6 (rodada 8, cpsam_v2, poços redimensionados, padrão): cards/page2.png"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Published scorecard for Toxoplasma Plaque v6 (round 8, cpsam_v2, resized wells, default): cards/page3.png"
+msgstr "Ficha de resultados publicada de Toxoplasma Plaque v6 (rodada 8, cpsam_v2, poços redimensionados, padrão): cards/page3.png"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "SHA-256 ``a22697ddfa002c99605f1a1a95df5f5f09f35167fcd9da97ed314f27a346c919``."
+msgstr "SHA-256 ``a22697ddfa002c99605f1a1a95df5f5f09f35167fcd9da97ed314f27a346c919``."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Toxoplasma Well Detector v3 (YOLO11 Gel Doc, default)"

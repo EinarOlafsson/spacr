@@ -2300,6 +2300,10 @@ def _overview_index_sources(source, pattern="", convention="auto", cancelled=Non
                 name = plate["default_name"] + " / " + (Path(field.plate).name if os.path.isabs(field.plate)
                                                         else field.plate)
             fields.append(dataclasses.replace(field, plate=name))
+    if folder_names:
+        matched = _overview_matched_fields(fields, pattern, patterns)
+        if any(not field.well or field.unresolved for field in matched):
+            raise _OverviewValidationError(tr("The filename regex must include a valid wellID for every image."))
     return tuple(fields), detection
 
 
