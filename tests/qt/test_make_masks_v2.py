@@ -41,6 +41,8 @@ def test_set_mode_toggles_only_selected(qtbot, qt_theme_applied,
     screen = MakeMasksScreen()
     qtbot.addWidget(screen)
     screen._open_folder(str(synth_mask_folder))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     screen._set_mode(MODE_BRUSH)
     assert screen._mode_buttons[MODE_BRUSH].isChecked()
     for m in (MODE_ERASE, MODE_WAND_ADD, MODE_ZOOM):
@@ -89,6 +91,8 @@ def test_single_wand_ctrl_edit_undo_redo_save_next_and_reopen(qtbot, qt_theme_ap
     np.testing.assert_array_equal(screen._canvas.mask, expected)
     screen._on_save()
     screen._on_next()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     screen.close()
     reopened = MakeMasksScreen()
     qtbot.addWidget(reopened)
@@ -110,6 +114,8 @@ def test_history_undo_reverts_object_op(qtbot, qt_theme_applied,
     screen = MakeMasksScreen()
     qtbot.addWidget(screen)
     screen._open_folder(str(synth_mask_folder))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     # Paint a blob and then run clear-mask → should be undoable back to blob
     screen._canvas.mask[10:20, 10:20] = 255
     before = screen._canvas.mask.copy()
@@ -130,12 +136,16 @@ def test_new_image_resets_history(qtbot, qt_theme_applied,
     screen = MakeMasksScreen()
     qtbot.addWidget(screen)
     screen._open_folder(str(synth_mask_folder))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     # Push a fake edit
     screen._canvas.mask[0:5, 0:5] = 100
     screen._history.push(screen._canvas.mask)
     assert screen._history.can_undo()
     # Navigating to next image should reset history to seed
     screen._on_next()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert not screen._history.can_undo()
 
 
@@ -144,6 +154,8 @@ def test_zoom_reset_button_enabled_when_zoomed(qtbot, qt_theme_applied,
     screen = MakeMasksScreen()
     qtbot.addWidget(screen)
     screen._open_folder(str(synth_mask_folder))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert not screen._btn_reset_zoom.isEnabled()
     # Simulate a zoom via direct state (no widget-space click needed)
     screen._canvas._zoom_x0, screen._canvas._zoom_y0 = 5, 5

@@ -60,18 +60,20 @@ def screen(qtbot, qt_theme_applied):
     cli_make_masks.hand_over(None)
 
 
-def test_the_screen_opens_the_folder_the_terminal_chose(screen, nested):
+def test_the_screen_opens_the_folder_the_terminal_chose(qtbot, screen, nested):
     """The folder reaches the editor without anybody touching a file dialog."""
     queue = build_queue(nested, order="name")
 
     assert screen.open_queue(queue) is True
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._folder == str(nested)
     assert screen._image_files == ["f_00.tif", "f_01.tif", "f_02.tif",
                                    "f_03.tif"]
     assert screen._canvas.image is not None
 
 
-def test_the_editor_offers_the_session_rather_than_the_folder(screen, nested):
+def test_the_editor_offers_the_session_rather_than_the_folder(qtbot, screen, nested):
     """Reviewed fields are gone and ``--limit`` holds: this is the queue.
 
     Opening the folder would offer four fields, two of them already
@@ -85,6 +87,8 @@ def test_the_editor_offers_the_session_rather_than_the_folder(screen, nested):
     queue = build_queue(nested, order="name", limit=1)
 
     assert screen.open_queue(queue) is True
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._image_files == ["f_01.tif"]
     assert "1 done" in screen._status_label.text()
     assert "1 skip" in screen._status_label.text()
@@ -150,12 +154,14 @@ def test_the_session_survives_the_real_launch_path(qtbot, qt_theme_applied,
             window.close()
 
 
-def test_a_screen_opened_the_ordinary_way_has_no_session(screen, nested):
+def test_a_screen_opened_the_ordinary_way_has_no_session(qtbot, screen, nested):
     """No handover means the file dialog, and the file dialog means no queue."""
     assert screen._queue is None
     assert screen._folder == ""
 
     screen._open_folder(str(nested))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
 
     assert screen._folder == str(nested)
     assert screen._queue is None
@@ -163,7 +169,7 @@ def test_a_screen_opened_the_ordinary_way_has_no_session(screen, nested):
                                    "f_03.tif"]
 
 
-def test_picking_another_folder_ends_the_session(screen, nested, tmp_path):
+def test_picking_another_folder_ends_the_session(qtbot, screen, nested, tmp_path):
     """A folder chosen from the dialog is a different set of fields.
 
     Saving in it must not write a ``done`` row into the session that was
@@ -171,12 +177,16 @@ def test_picking_another_folder_ends_the_session(screen, nested, tmp_path):
     invented there would take one of them out of its own queue.
     """
     assert screen.open_queue(build_queue(nested, order="name")) is True
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
 
     other = tmp_path / "other"
     (other / "masks").mkdir(parents=True)
     imageio.imwrite(other / "z_00.tif",
                     np.zeros((24, 24), dtype=np.uint16))
     assert screen._open_folder(str(other)) is True
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     screen._on_save()
 
     assert screen._queue is None
@@ -184,13 +194,17 @@ def test_picking_another_folder_ends_the_session(screen, nested, tmp_path):
     assert not (other / STATUS_FILENAME).exists()
 
 
-def test_saving_records_the_field_as_done_so_the_session_resumes(screen,
+def test_saving_records_the_field_as_done_so_the_session_resumes(qtbot, screen,
                                                                  nested):
     """The resume record is written by the editor, or it is never written."""
     queue = build_queue(nested, order="name")
     assert screen.open_queue(queue) is True
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     screen._current_index = screen._image_files.index("f_01.tif")
     screen._load_current()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
 
     screen._on_save()
 
@@ -203,12 +217,16 @@ def test_saving_records_the_field_as_done_so_the_session_resumes(screen,
         "f_00", "f_02", "f_03"], "the next session still offers f_01"
 
 
-def test_saving_a_folder_that_is_not_a_queue_writes_no_record(screen, nested,
+def test_saving_a_folder_that_is_not_a_queue_writes_no_record(qtbot, screen, nested,
                                                             caplog):
     """A folder opened from the dialog must not grow a file nobody asked for."""
     screen._open_folder(str(nested))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     screen._current_index = screen._image_files.index("f_01.tif")
     screen._load_current()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
 
     with caplog.at_level("WARNING"):
         screen._on_save()
@@ -224,13 +242,15 @@ def test_saving_a_folder_that_is_not_a_queue_writes_no_record(screen, nested,
         "the early return was skipped and the failure was logged instead")
 
 
-def test_a_record_that_cannot_be_written_does_not_lose_the_mask(screen, nested,
+def test_a_record_that_cannot_be_written_does_not_lose_the_mask(qtbot, screen, nested,
                                                                 monkeypatch):
     """The mask is on disk; the session's place is the smaller loss of the two."""
     from spacr import curation_queue
 
     queue = build_queue(nested, order="name")
     assert screen.open_queue(queue) is True
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
 
     def _explode(*_args, **_kwargs):
         raise curation_queue.StatusFileError("the sync folder is read-only")
@@ -238,6 +258,8 @@ def test_a_record_that_cannot_be_written_does_not_lose_the_mask(screen, nested,
     monkeypatch.setattr(curation_queue, "mark_state", _explode)
     screen._current_index = screen._image_files.index("f_01.tif")
     screen._load_current()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
 
     # THE MASK IS ON DISK -- which is the claim in the name of this test, and
     # the reason the failure above is allowed to be swallowed at all. The
@@ -264,7 +286,7 @@ def test_a_record_that_cannot_be_written_does_not_lose_the_mask(screen, nested,
     assert not (nested / STATUS_FILENAME).exists()
 
 
-def test_skip_is_recorded_as_skip_and_the_field_is_not_offered_again(screen,
+def test_skip_is_recorded_as_skip_and_the_field_is_not_offered_again(qtbot, screen,
                                                                      nested):
     """ITEM 396: the reader had three reviewed states and the editor wrote one.
 
@@ -274,9 +296,13 @@ def test_skip_is_recorded_as_skip_and_the_field_is_not_offered_again(screen,
     """
     queue = build_queue(nested, order="name")
     assert screen.open_queue(queue) is True
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._btn_skip.isEnabled()
     screen._current_index = screen._image_files.index("f_02.tif")
     screen._load_current()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
 
     screen._btn_skip.click()
 
@@ -290,9 +316,11 @@ def test_skip_is_recorded_as_skip_and_the_field_is_not_offered_again(screen,
         "f_00", "f_01", "f_03"]
 
 
-def test_skip_is_not_offered_for_a_folder_that_is_not_a_queue(screen, nested):
+def test_skip_is_not_offered_for_a_folder_that_is_not_a_queue(qtbot, screen, nested):
     """Only a queue has a record to write a skip to."""
     assert screen._open_folder(str(nested)) is True
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert not screen._btn_skip.isEnabled()
 
     screen._on_skip()
@@ -311,7 +339,7 @@ def _split_seed(folder: Path) -> Path:
     return path
 
 
-def test_a_save_with_no_edit_leaves_the_mask_file_untouched(screen, nested):
+def test_a_save_with_no_edit_leaves_the_mask_file_untouched(qtbot, screen, nested):
     """ITEM 396: "open it, look, save" must mean the seed was right.
 
     Every save went through `canonical_labels`, which splits a label lying in
@@ -322,8 +350,12 @@ def test_a_save_with_no_edit_leaves_the_mask_file_untouched(screen, nested):
     before = seed.read_bytes()
     queue = build_queue(nested, order="name")
     assert screen.open_queue(queue) is True
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     screen._current_index = screen._image_files.index("f_01.tif")
     screen._load_current()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
 
     screen._on_save()
 
@@ -334,13 +366,17 @@ def test_a_save_with_no_edit_leaves_the_mask_file_untouched(screen, nested):
     assert "Unchanged" in screen._status_label.text()
 
 
-def test_a_save_after_an_edit_still_writes(screen, nested):
+def test_a_save_after_an_edit_still_writes(qtbot, screen, nested):
     """The no-op is for no edit only; a changed mask is written as before."""
     seed = _split_seed(nested)
     queue = build_queue(nested, order="name")
     assert screen.open_queue(queue) is True
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     screen._current_index = screen._image_files.index("f_01.tif")
     screen._load_current()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
 
     edited = screen._canvas.mask.copy()
     edited[12:18, 12:18] = 0
@@ -352,7 +388,7 @@ def test_a_save_after_an_edit_still_writes(screen, nested):
     assert "Saved" in screen._status_label.text()
 
 
-def test_an_edited_save_records_the_count_the_file_holds(screen, nested):
+def test_an_edited_save_records_the_count_the_file_holds(qtbot, screen, nested):
     """ITEM 396: the count is taken after `canonical_labels`, not before.
 
     The seed's label 1 lies in two pieces; an edit elsewhere on the field
@@ -362,8 +398,12 @@ def test_an_edited_save_records_the_count_the_file_holds(screen, nested):
     seed = _split_seed(nested)
     queue = build_queue(nested, order="name")
     assert screen.open_queue(queue) is True
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     screen._current_index = screen._image_files.index("f_01.tif")
     screen._load_current()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
 
     edited = screen._canvas.mask.copy()
     edited[12:14, 12:18] = 0
