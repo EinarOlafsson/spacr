@@ -1266,7 +1266,8 @@ def test_refused_packed_control_closes_its_actual_mapping_before_model_use(
 
 @needs_partition_access
 @pytest.mark.parametrize('invalid', ['physical-channel-order', 'model-position',
-                                     'batch-count', 'channel-names', 'background-percentile'])
+                                     'batch-count', 'channel-names', 'background-percentile',
+                                     'missing-control-well', 'quality-exclusion'])
 def test_invalid_public_partition_configuration_refuses_before_output_ownership(
         mixed_plate_inputs, invalid):
     """Invalid channel/axis/batch metadata cannot create a misleading calibrated run."""
@@ -1279,6 +1280,12 @@ def test_invalid_public_partition_configuration_refuses_before_output_ownership(
         inputs['kwargs']['batch_fields'] = 0
     elif invalid == 'channel-names':
         inputs['kwargs']['channel_names'] = ('only one name',)
+    elif invalid == 'missing-control-well':
+        controls = json.loads(inputs['settings']['unmix_controls'])
+        controls['plate2']['3'] = ['H12']
+        inputs['settings']['unmix_controls'] = json.dumps(controls)
+    elif invalid == 'quality-exclusion':
+        inputs['settings']['image_qc_mode'] = 'exclude'
     else:
         inputs['settings']['unmix_background_percentile'] = 100
     before = set(inputs['source'].rglob('*'))

@@ -1058,3 +1058,96 @@ def test_stylesheet_diagnostic_reads_only_gated_numeric_headers(monkeypatch, def
     assert len(report.encode()) <= 2048
     assert 'sensitive' not in report and library not in report
     assert not any('call ' in command or 'full' in command for command in commands)
+
+
+@pytest.mark.parametrize('case,expected', [
+    ('list_item', 'wrapper_type_diagnostic=PySide6.QtWidgets.QListWidgetItem wrapper_ptr=0x10000'),
+    ('wrong_hash', 'wrapper_type_diagnostic=unsupported_library_hash'),
+    ('wrong_suffix', 'wrapper_type_diagnostic=unsupported_library'),
+    ('wrong_pc', 'wrapper_type_diagnostic=unsupported_fault_pc'),
+    ('wrong_architecture', 'wrapper_type_diagnostic=unsupported_architecture'),
+    ('wrong_python', 'wrapper_type_diagnostic=unsupported_python_abi'),
+    ('wrong_instruction', 'wrapper_type_diagnostic=unsupported_instructions'),
+    ('short_instruction', 'wrapper_type_diagnostic=unsupported_instructions'),
+    ('unaligned_wrapper', 'wrapper_type_diagnostic=unreadable_wrapper'),
+    ('unreadable_type', 'wrapper_type_diagnostic=unavailable'),
+    ('unsafe_type', 'wrapper_type_diagnostic=unreadable_type_name'),
+])
+def test_release_wrapper_fault_reads_only_the_qualified_6113_rbp_type(
+    tmp_path, monkeypatch, case, expected,
+):
+    """The 6.11.3 fault keeps the wrapper in RBP, not the damaged R15 array."""
+    from types import SimpleNamespace
+
+    suffix = '6.12' if case == 'wrong_suffix' else '6.11'
+    library = tmp_path / ('libshiboken6.abi3.so.' + suffix)
+    library.write_bytes(b'controlled library with private signed-url token')
+    fingerprint = ('unmatched' if case == 'wrong_hash' else
+                   'a13ba52dc4ff2770fb749084a0e7fc38331ce5506d185c1a9858f73efa2edf2d')
+    monkeypatch.setattr('hashlib.sha256',
+                        lambda _bytes: SimpleNamespace(hexdigest=lambda: fingerprint))
+    base = 0x40000
+    instructions = {
+        base + 0x0c: b'\x48\x89\xf5',
+        base + 0x32: b'\x48\x8b\x45\x20',
+        base + 0x41: b'\x4c\x8b\x38',
+        base + 0x50: b'\x49\x8b\x34\xdf',
+        base + 0x5f: b'\x48\x89\xea',
+    }
+    if case == 'wrong_instruction':
+        instructions[base + 0x0c] = b'\x48\x89\xf7'
+    if case == 'short_instruction':
+        instructions[base + 0x50] = b'\x49'
+    type_name = (b'/private/signed-url?token=secret' if case == 'unsafe_type'
+                 else b'PySide6.QtWidgets.QListWidgetItem')
+    memory = dict(instructions)
+    memory.update({0x10008: struct.pack('<Q', 0x20000),
+                   0x20018: struct.pack('<Q', 0x30000),
+                   0x30000: (type_name + b'\0').ljust(96, b'\0')})
+    reads, expressions, messages = [], [], []
+
+    def read_memory(address, size):
+        reads.append((address, size))
+        if case == 'unreadable_type' and address == 0x20018:
+            raise RuntimeError('private memory error token=secret')
+        return memory[address][:size]
+
+    def evaluate(expression):
+        expressions.append(expression)
+        if expression == 'Py_Version':
+            return 0x30B0DF0 if case == 'wrong_python' else 0x30C0DF0
+        assert expression == '$rbp'
+        return 0x10001 if case == 'unaligned_wrapper' else 0x10000
+
+    class Frame:
+        def name(self):
+            return 'Shiboken::BindingManager::releaseWrapper(SbkObject*)'
+
+        def architecture(self):
+            return SimpleNamespace(name=lambda: (
+                'aarch64' if case == 'wrong_architecture' else 'i386:x86-64'))
+
+        def pc(self):
+            return base + 80
+
+    def execute(command, *, to_string=False):
+        assert command == 'info symbol ' + hex(base + 80) and to_string
+        offset = 64 if case == 'wrong_pc' else 80
+        return (Frame().name() + f' + {offset} in section .text of {library}\n')
+
+    gdb = SimpleNamespace(execute=execute, write=messages.append,
+                          solib_name=lambda _pc: str(library), parse_and_eval=evaluate,
+                          selected_inferior=lambda: SimpleNamespace(read_memory=read_memory))
+    monkeypatch.setitem(sys.modules, 'gdb', gdb)
+    namespace = {}
+    exec(collector._ORDINARY_FAULT_SCRIPT.split('\ndef diagnostic(command):', 1)[0], namespace)
+    namespace['wrapper_type_at_fault'](Frame())
+    output = ''.join(messages)
+    assert expected in output
+    assert 'private' not in output and 'secret' not in output and 'token=' not in output
+    assert '$r15' not in expressions
+    assert all(size <= 96 for _address, size in reads)
+    if case in {'wrong_hash', 'wrong_suffix', 'wrong_pc', 'wrong_architecture', 'wrong_python'}:
+        assert reads == []
+    elif case in {'wrong_instruction', 'short_instruction', 'unaligned_wrapper'}:
+        assert all(address in instructions for address, _size in reads)

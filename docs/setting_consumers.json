@@ -2590,7 +2590,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "batch_fields",
-    "line": 1366,
+    "line": 1362,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -2599,7 +2599,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "batch_fields",
-    "line": 1368,
+    "line": 1364,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -7808,7 +7808,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channels",
-    "line": 1290,
+    "line": 1288,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -7817,7 +7817,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "channels",
-    "line": 1325,
+    "line": 1323,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -7826,7 +7826,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channels",
-    "line": 1326,
+    "line": 1324,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -7835,7 +7835,16 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channels",
-    "line": 1333,
+    "line": 1331,
+    "module": "spacr.pipeline_v2",
+    "nested": false,
+    "qualname": "_run_partitioned_v2"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "channels",
+    "line": 1338,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -7853,16 +7862,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channels",
-    "line": 1344,
-    "module": "spacr.pipeline_v2",
-    "nested": false,
-    "qualname": "_run_partitioned_v2"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "channels",
-    "line": 1347,
+    "line": 1343,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -11999,7 +11999,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "custom_regex",
-    "line": 1274,
+    "line": 1272,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -12008,7 +12008,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "custom_regex",
-    "line": 1275,
+    "line": 1273,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -13460,7 +13460,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "diameter",
-    "line": 1366,
+    "line": 1362,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -13469,7 +13469,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "diameter",
-    "line": 1368,
+    "line": 1364,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -16596,7 +16596,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "flow_threshold",
-    "line": 1366,
+    "line": 1362,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -16605,7 +16605,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "flow_threshold",
-    "line": 1370,
+    "line": 1366,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -22447,7 +22447,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "keep_npz",
-    "line": 1366,
+    "line": 1362,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -22456,7 +22456,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "keep_npz",
-    "line": 1369,
+    "line": 1365,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -24785,7 +24785,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "metadata_type",
-    "line": 1274,
+    "line": 1272,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -24794,7 +24794,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "metadata_type",
-    "line": 1274,
+    "line": 1272,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -26145,7 +26145,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "model_name",
-    "line": 1366,
+    "line": 1362,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -26154,7 +26154,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "model_name",
-    "line": 1366,
+    "line": 1362,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -47381,7 +47381,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "resample",
-    "line": 1366,
+    "line": 1362,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -47390,7 +47390,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "resample",
-    "line": 1371,
+    "line": 1367,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"

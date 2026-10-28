@@ -1185,8 +1185,6 @@ def _preflight_plate_partitions(src, mapper, settings, options):
             wanted = {parse_well(well, strict=True) for well in wells}
             chosen = [field_id for field_id in sorted(child_mapper.by_field())
                       if parse_well(identities[field_id]['well'], strict=True) in wanted][:_UNMIX_MAX_FIELDS]
-            if not chosen:
-                raise _partition_input_error()
             selected_fields[str(dye)] = ['stack_' + field_id for field_id in chosen]
             fields_by_dye[dye] = []
             for field_id in chosen:
@@ -1336,10 +1334,8 @@ def _run_partitioned_v2(src, settings, options):
                     field._mmap.close()
             from .image_quality import screen_fields
 
-            rejected = screen_fields(child_root, child_settings,
-                                     [stack.path for stack in stacks], options['channels'])
-            if rejected:
-                raise _partition_input_error()
+            screen_fields(child_root, child_settings,
+                          [stack.path for stack in stacks], options['channels'])
             session = _prepare_segmentation_psf(child_settings, child_root,
                 _cellpose_channel_indices(options['channels_for_cellpose'], len(options['channels'])),
                 pipeline_style='v2', stack_dir=child_root / 'merged',

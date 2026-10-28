@@ -39,6 +39,7 @@ import re
 from pathlib import Path
 
 _SHIBOKEN_612_SHA256 = "2b3d9767d69da0afabe4a383dc241a110fac4c0bb63cdeb3d01314e9c702241e"
+_SHIBOKEN_6113_SHA256 = "a13ba52dc4ff2770fb749084a0e7fc38331ce5506d185c1a9858f73efa2edf2d"
 
 def stylesheet_entry_at_fault(frame):
     '''Report numeric header facts only after exact future-binary qualification.'''
@@ -97,19 +98,21 @@ def stylesheet_entry_at_fault(frame):
 
 def wrapper_type_at_fault(frame):
     '''Read only the class of an exact-version Shiboken faulting wrapper.'''
-    if frame.name() != "Shiboken::BindingManager::unregisterWrapper(SbkObject*)":
+    name = frame.name()
+    release = name == "Shiboken::BindingManager::releaseWrapper(SbkObject*)"
+    if not release and name != "Shiboken::BindingManager::unregisterWrapper(SbkObject*)":
         return
     try:
         if frame.architecture().name() != "i386:x86-64":
             gdb.write("wrapper_type_diagnostic=unsupported_architecture\n")
             return
         library = gdb.solib_name(frame.pc())
-        if not library or not library.endswith("/libshiboken6.abi3.so.6.12"):
+        suffix = "/libshiboken6.abi3.so.6.11" if release else "/libshiboken6.abi3.so.6.12"
+        if not library or not library.endswith(suffix):
             gdb.write("wrapper_type_diagnostic=unsupported_library\n")
             return
         symbol = gdb.execute("info symbol " + hex(frame.pc()), to_string=True)
-        expected = ("Shiboken::BindingManager::unregisterWrapper(SbkObject*) "
-                    "+ 80 in section .text of " + library)
+        expected = name + " + 80 in section .text of " + library
         if symbol.strip() != expected:
             gdb.write("wrapper_type_diagnostic=unsupported_fault_pc\n")
             return
@@ -117,15 +120,28 @@ def wrapper_type_at_fault(frame):
         if not 0 < library_path.stat().st_size <= 1024 * 1024:
             gdb.write("wrapper_type_diagnostic=unsupported_library_size\n")
             return
-        if hashlib.sha256(library_path.read_bytes()).hexdigest() != _SHIBOKEN_612_SHA256:
+        fingerprint = _SHIBOKEN_6113_SHA256 if release else _SHIBOKEN_612_SHA256
+        if hashlib.sha256(library_path.read_bytes()).hexdigest() != fingerprint:
             gdb.write("wrapper_type_diagnostic=unsupported_library_hash\n")
             return
         version = int(gdb.parse_and_eval("Py_Version"))
         if (version >> 24) != 3 or ((version >> 16) & 255) != 12:
             gdb.write("wrapper_type_diagnostic=unsupported_python_abi\n")
             return
-        wrapper = int(gdb.parse_and_eval("$r15"))
-        if wrapper < 4096:
+        if release:
+            memory = gdb.selected_inferior().read_memory
+            base = frame.pc() - 80
+            instructions = [(0x0c, b"\x48\x89\xf5"),
+                            (0x32, b"\x48\x8b\x45\x20"),
+                            (0x41, b"\x4c\x8b\x38"),
+                            (0x50, b"\x49\x8b\x34\xdf"),
+                            (0x5f, b"\x48\x89\xea")]
+            if any(bytes(memory(base + offset, len(expected))) != expected
+                   for offset, expected in instructions):
+                gdb.write("wrapper_type_diagnostic=unsupported_instructions\n")
+                return
+        wrapper = int(gdb.parse_and_eval("$rbp" if release else "$r15"))
+        if wrapper < 4096 or (release and wrapper % 8):
             gdb.write("wrapper_type_diagnostic=unreadable_wrapper\n")
             return
         memory = gdb.selected_inferior().read_memory

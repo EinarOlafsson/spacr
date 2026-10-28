@@ -532,3 +532,184 @@ def test_generated_measure_file_uses_native_project_source(
         assert MeasureDropHandler().can_accept(file)
     finally:
         commands._open_easy_named_module = original
+class _DeferredRoutingFold:
+    """Record an installed fold that has no page available yet."""
+
+    key = 'graph_builder'
+
+    def __init__(self):
+        self.calls = []
+
+    def open(self):
+        self.calls.append(self.key)
+        return None
+
+
+class _RoutingHost(QWidget):
+    """Expose the native folded-opener boundary without building another module."""
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.requests = []
+
+    def open_folded(self, key):
+        self.requests.append(key)
+        return None
+
+
+class _RoutingCalls:
+    """Record exact native delegation arguments at an explicit UI boundary."""
+
+    def __init__(self):
+        self.calls = []
+
+    def __call__(self, *args):
+        self.calls.append(args)
+
+
+class _ExistingRoutingScreens:
+    """Return the registry key used by the actual opened-screen lookup."""
+
+    def __init__(self, window):
+        self.window = window
+
+    def __call__(self, key):
+        self.window.opened.append(key)
+        return key
+
+
+def _routing_modules_visible(key):
+    return True
+
+
+def _routing_modules_hidden(key):
+    return False
+
+
+@pytest.mark.parametrize('mode', ['host_opener', 'installed_opener', 'uninstalled'])
+def test_missing_fold_page_falls_back_to_existing_host_without_duplicate_open(
+        commands, monkeypatch, mode):
+    host = _RoutingHost(commands) if mode == 'host_opener' else QWidget(commands)
+    installed = _DeferredRoutingFold()
+    host._fold_openers = {'graph_builder': installed} if mode == 'installed_opener' else {}
+    switches = _RoutingCalls()
+    commands._switch_a_fold_on = switches
+    commands._screens = {'mask': host}
+    commands.open_module = _ExistingRoutingScreens(commands)
+    monkeypatch.setattr(app, 'folded_children', dict(mask=['graph_builder']).copy)
+    monkeypatch.setattr(app, 'app_is_visible', _routing_modules_visible)
+    result = app.MainWindow._open_easy_named_module(commands, 'graph_builder')
+    assert result is host and commands.opened == ['mask']
+    assert installed.calls == (['graph_builder'] if mode == 'installed_opener' else [])
+    assert switches.calls == ([('mask', 'graph_builder')] if mode == 'uninstalled' else [])
+    if mode == 'host_opener':
+        assert host.requests == ['graph_builder']
+
+
+@pytest.mark.parametrize('available', [False, True])
+def test_overview_command_delegates_only_to_an_available_mask_screen(commands, monkeypatch, available):
+    from spacr.qt.widgets import qc_field_browser
+
+    settings = {'src': '/existing/plate', 'diameter': 31}
+    screen = commands.screen
+    screen._settings_model = SimpleNamespace(collect=settings.copy)
+    commands.screen = screen if available else None
+    overview = _RoutingCalls()
+    monkeypatch.setattr(qc_field_browser, '_open_overview_module', overview)
+    commands._open_easy_command('field of view overview')
+    assert commands.opened == ['mask']
+    assert overview.calls == ([(screen, settings)] if available else [])
+    if available:
+        assert overview.calls[0][1] is not settings
+    assert settings == {'src': '/existing/plate', 'diameter': 31}
+    assert commands.inspections == []
+
+
+@pytest.mark.parametrize('exists', [False, True])
+def test_diagnostics_route_opens_only_an_existing_local_directory(commands, monkeypatch, tmp_path, exists):
+    from PySide6.QtGui import QDesktopServices
+
+    folder = tmp_path / 'diagnostics'
+    if exists:
+        folder.mkdir()
+    context = {'analysis_inputs': {'regression_diagnostics': {'diagnostics_folder': str(folder)}}}
+    before = json.loads(json.dumps(context))
+    urls = _RoutingCalls()
+    monkeypatch.setattr(QDesktopServices, 'openUrl', urls)
+    assert commands._open_easy_input('regression_diagnostics', '/unchanged/input', context)
+    assert len(urls.calls) == int(exists)
+    if exists:
+        assert urls.calls[0][0].isLocalFile()
+        assert urls.calls[0][0].toLocalFile() == str(folder)
+    assert commands.opened == [] and commands.inspections == []
+    assert context == before and folder.exists() is exists
+
+
+def test_missing_help_menu_keeps_builtin_suggestions_and_unknown_command_inspection(commands):
+    commands._easy_help_menu = None
+    rows = app.MainWindow._easy_navigation_suggestions(commands, 'About')
+    assert any(key == '__easy_command__:About' for key, _title, _description, _path in rows)
+    commands._open_easy_command('not a registered spaCR command')
+    assert commands.inspections == [True] and commands.opened == []
+    assert commands.urls == []
+
+
+@pytest.mark.parametrize('kind', ['file', 'folder', 'empty', 'unavailable'])
+def test_overview_suggestion_preserves_owner_settings_and_local_source_identity(
+        commands, monkeypatch, tmp_path, kind):
+    from spacr.qt.widgets import qc_field_browser
+
+    folder = tmp_path / 'plate'
+    folder.mkdir()
+    image = folder / 'field.tif'
+    image.write_bytes(b'original input bytes')
+    path = '' if kind == 'empty' else str(folder if kind == 'folder' else image)
+    settings = {'src': '/previous/plate', 'diameter': 31}
+    owner = commands.screen
+    owner._settings_model = SimpleNamespace(collect=settings.copy)
+    commands._screens = {'mask': owner} if kind != 'unavailable' else {}
+    commands.open_module = _ExistingRoutingScreens(commands)
+    commands._startup._workflow = SimpleNamespace(
+        data={'modules': {'overview': {'route': 'overview', 'host_key': 'mask'}}})
+    overview = _RoutingCalls()
+    monkeypatch.setattr(qc_field_browser, '_open_overview_module', overview)
+    monkeypatch.setattr(app, 'app_is_visible', _routing_modules_visible)
+    app.MainWindow._open_easy_suggestion(commands, 'overview', path)
+    assert commands.opened == ['mask']
+    expected = dict(settings, src=str(folder)) if path else settings
+    assert overview.calls == ([] if kind == 'unavailable' else [(owner, expected)])
+    if overview.calls:
+        assert overview.calls[0][1] is not settings
+    assert settings == {'src': '/previous/plate', 'diameter': 31}
+    assert image.read_bytes() == b'original input bytes'
+
+
+@pytest.mark.parametrize('mode', ['hidden', 'no_path', 'apply_override', 'fallback_override', 'plain_seed'])
+def test_suggestion_visibility_and_seed_handoff_keep_inputs_unchanged(commands, monkeypatch, tmp_path, mode):
+    path = '' if mode == 'no_path' else str(tmp_path)
+    overrides = {'mask': {'diameter': 37, 'timelapse': False}} if mode.endswith('override') else {}
+    commands._startup._settings_overrides = overrides
+    before = json.loads(json.dumps(overrides))
+    commands._screens = {'mask': commands.screen}
+    commands.open_module = _ExistingRoutingScreens(commands)
+    training = _RoutingCalls()
+    commands._on_train_requested = training
+    applied = []
+    if mode == 'apply_override':
+        commands.screen.apply_settings_dict = applied.append
+    monkeypatch.setattr(app, 'app_is_visible',
+                        _routing_modules_hidden if mode == 'hidden' else _routing_modules_visible)
+    app.MainWindow._open_easy_suggestion(commands, 'mask', path)
+    seed = {'src': path, **overrides.get('mask', {})}
+    if mode == 'hidden':
+        assert commands.opened == [] and training.calls == [] and applied == []
+        assert 'hidden' in commands.statusBar().currentMessage()
+    elif mode == 'no_path':
+        assert commands.opened == ['mask'] and training.calls == [] and applied == []
+    elif mode == 'apply_override':
+        assert commands.opened == ['mask'] and applied == [seed] and training.calls == []
+        assert applied[0] is not overrides['mask']
+    else:
+        assert commands.opened == (['mask'] if mode == 'fallback_override' else [])
+        assert training.calls == [('mask', seed)] and applied == []
+    assert overrides == before and commands.inspections == [] and commands.urls == []
