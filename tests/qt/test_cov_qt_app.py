@@ -2898,3 +2898,66 @@ def test_native_dialogs_are_turned_off_before_the_app_exists(launched):
         "the attribute was set after a QApplication had been constructed, "
         "where Qt ignores it")
     assert args[-1] is True
+
+
+
+def test_concurrent_home_news_requests_keep_bundled_rows_until_one_real_fetch_finishes(
+        normal_win, qtbot, monkeypatch):
+    from PySide6.QtTest import QSignalSpy
+    from spacr import updater
+    from spacr.qt import preferences
+    from tests.qt.test_the_news_panel_shows_the_latest_release import NEWER
+
+    window = normal_win
+    page = window._startup
+    assert isinstance(page, HomePage) and window._stack.currentWidget() is page
+    automatic = QSignalSpy(page.news_refresh_requested)
+    monkeypatch.setenv('SPACR_NO_NETWORK', '1')
+    window.show()
+    qtbot.waitUntil(lambda: automatic.count() == 1)
+    assert getattr(window, '_news_worker', None) is None
+    panel = page.news_panel
+    bundled = panel.releases
+    assert bundled and NEWER not in bundled
+    entered, release = threading.Event(), threading.Event()
+    called_from = []
+    worker = None
+
+    def fetch():
+        called_from.append(threading.get_ident())
+        entered.set()
+        assert release.wait(10)
+        return [dict(NEWER)]
+
+    monkeypatch.setattr(updater, 'fetch_release_notes', fetch)
+    preferences.set_refresh_news(True)
+    monkeypatch.delenv('SPACR_NO_NETWORK', raising=False)
+    try:
+        page.news_refresh_requested.emit()
+        qtbot.waitUntil(entered.is_set)
+        worker = window._news_worker
+        assert worker.isRunning()
+        finished = QSignalSpy(worker.finished)
+        page.news_refresh_requested.emit()
+        assert window._news_worker is worker and worker.isRunning()
+        assert len(called_from) == 1 and called_from[0] != threading.get_ident()
+        assert panel.releases == bundled
+        assert all(NEWER['name'] not in label.text() for label in panel.findChildren(QLabel))
+        release.set()
+        qtbot.waitUntil(lambda: panel.releases[0] == NEWER)
+        qtbot.waitUntil(lambda: finished.count() == 1)
+        assert len(called_from) == 1
+        assert panel.releases[1:] == bundled
+        labels = [label.text() for label in panel.findChildren(QLabel)]
+        assert any(NEWER['name'] in text for text in labels)
+        assert any(NEWER['url'] in text for text in labels)
+        assert window._startup is page and window._stack.currentWidget() is page
+    finally:
+        release.set()
+        if worker is None:
+            worker = getattr(window, '_news_worker', None)
+        if worker is not None:
+            try:
+                assert worker.wait(10000)
+            except RuntimeError:
+                pass
