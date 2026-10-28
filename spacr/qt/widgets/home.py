@@ -7389,7 +7389,13 @@ class _EasyHomePage(QWidget):
 
     def _navigator_ai_chunk(self, generation, text):
         """Ignore retired streams and coalesce partial replies into bounded repaints."""
+        from ..preferences import get_preferred_provider
+
         if generation != self._ai_generation:
+            return
+        if get_preferred_provider() == 'none':
+            self._cancel_navigator_ai()
+            self.path_edit.ai.setChecked(False)
             return
         self._ai_text += text
         if not self._ai_reply_timer.isActive():
@@ -7397,6 +7403,12 @@ class _EasyHomePage(QWidget):
 
     def _render_ai_reply(self):
         """Present a readable reply using the same passive Markdown renderer as chat."""
+        from ..preferences import get_preferred_provider
+
+        if get_preferred_provider() == 'none':
+            self._cancel_navigator_ai()
+            self.path_edit.ai.setChecked(False)
+            return
         from .ai_chat_panel import _ai_reply_html
 
         self.field.details.setHtml(_ai_reply_html(self._ai_text), stream=self._ai_generation)
@@ -7404,8 +7416,13 @@ class _EasyHomePage(QWidget):
     def _navigator_ai_finished(self, generation, ok, text):
         """Stop the waiting texture and preserve worker ownership until thread exit."""
         from ..i18n import tr
+        from ..preferences import get_preferred_provider
 
         if generation != self._ai_generation:
+            return
+        if get_preferred_provider() == 'none':
+            self._cancel_navigator_ai()
+            self.path_edit.ai.setChecked(False)
             return
         self._ai_reply_timer.stop()
         self._ai_retired.append((self._ai_thread, self._ai_worker, self._ai_relay))

@@ -7,7 +7,7 @@ DOCS/API DELIVERY — 2026-10-28
 Progress List name: N733 — Navigator (maintainer confirmed 2026-10-28).
 
 Lifecycle: new
-Status:    IN PROGRESS — post-None Navigator dispatch fix is qualified; normal scoped applicability and publication remain with root.
+Status:    DONE — Navigator, reviewed guides/API, the published tutorial and provider-None privacy follow-ups are delivered; release CI is tracked separately.
 
 SPACEOUT TOGGLE FOLLOW-UP — 2026-10-28: the Navigator Spaceout card must toggle the active mode in both directions; clicking it again after activation deactivates Spaceout and restores the prior normal appearance. Retained Spaceout peer owns isolated handler/field theme work while root completes startup behavior.
 Requested: maintainer, 2026-10-26
@@ -647,3 +647,5 @@ The tutorial owner resumes the entire campaign after this guarded nightly public
 2026-10-28 — Retained privacy owner reproduces an enabled Navigator sending a new request after real Preferences None/Save/reopen; preserve explicit reporting mode and accepted terms. Check authoritative None before dispatch, invalidate stale owned work and update the toggle; scope is new post-None requests, not immediate cancellation of an already-started network call. Root owns publication after peer, affected regression and normal scoped applicability.
 
 2026-10-28 — Navigator now checks authoritative None before new dispatch, cancels stale owned work and unchecks AI without changing provider/report/terms preferences. The real enable/reply→Preferences None/Save/reopen→later Enter regression passes (1 case, 8.13 s); independent hunk peer accepted. Normal scoped output applicability and root publication remain; no immediate cancellation of an already-started request is claimed.
+
+2026-10-28 — Root extended None privacy to queued replies from a request already started. The real held-response case first showed stale text after None/Save, then passed (1 case, 8.05 s) with authoritative checks at chunk, timer-render and completion admission; accepted terms/report mode and the earlier dispatch pass are retained. Independent peer and final scoped closure pass: API72 and UI1737 remain unchanged, and no downstream artifacts need regeneration. Both privacy regressions are qualified for publication; existing network requests cannot be unsent.
