@@ -6,6 +6,7 @@ import sqlite3
 import sys
 
 import pytest
+from tests.qt.test_startup_ai_reporting_choice import private_ai_profile
 
 ROOT = Path(__file__).resolve().parents[3]
 TOOLS = ROOT / 'tools/tutorials'
@@ -228,3 +229,90 @@ def test_real_news_header_hides_release_body_for_unchanged_capture_guard(qtbot):
     qtbot.waitUntil(lambda: folder.shut and not folder.body.isVisible())
     assert folder.heading.isVisible() and not release.isVisible()
     verify_visible_paths([panel], '/tmp/navigator-news-test')
+
+
+def test_targeted_help_and_back_use_real_widgets_without_replaying_tour(
+        qtbot, qapp, private_ai_profile, local_inputs, monkeypatch):
+    from types import SimpleNamespace
+    from PySide6.QtCore import Qt
+    from PySide6.QtTest import QTest
+    import spacr.qt
+    from spacr.qt.app import MainWindow
+    from capture_host_adapter import QTestAdapter
+    preferences, _, _ = private_ai_profile
+    preferences.set_easy_mode(True)
+    preferences.set_show_alpha(False)
+    preferences.set_ambient_enabled(False)
+    preferences.set_reduce_motion(True)
+    spacr.qt.register_self_registering_modules()
+    window = MainWindow(initial_app='__home__')
+    qtbot.addWidget(window)
+    window._tour_timer.stop()
+    window._consent_timer.stop()
+    window.resize(1280, 900)
+    window.show()
+    window.activateWindow()
+    qtbot.waitUntil(window.isActiveWindow)
+    page = window._startup
+    triggered, back_clicks = [], []
+    window._act_easy_mode.triggered.connect(triggered.append)
+
+    class RealQtInput:
+        @staticmethod
+        def click(widget, pos=None):
+            point = pos if pos is not None else widget.rect().center()
+            reason = QTestAdapter.reachable(widget, QTestAdapter.target_point(widget, point))
+            assert reason is None, reason
+            if widget.objectName() == 'EasyWorkflowBack':
+                back_clicks.append(window._dock_edge.is_collapsed())
+            QTest.mouseClick(widget, Qt.LeftButton, pos=point)
+
+        @staticmethod
+        def hover(widget, pos):
+            QTest.mouseMove(widget, pos)
+
+        @staticmethod
+        def key(widget, key, modifier=Qt.NoModifier):
+            widget.setFocus()
+            QTest.keyClick(widget, key, modifier)
+
+        @staticmethod
+        def type_text(widget, text):
+            QTest.keyClicks(widget, text)
+
+        @staticmethod
+        def pause(capture, seconds):
+            qtbot.wait(round(seconds * 1000))
+
+        @staticmethod
+        def wait_until(capture, predicate, timeout, what):
+            qtbot.waitUntil(lambda: bool(predicate()), timeout=round(timeout * 1000))
+            return predicate()
+
+    monkeypatch.setattr(driver.capture_ui, '_h', lambda: RealQtInput)
+    # Reproduce the genuine sidebar overlap without altering any app preferences.
+    if window._dock_edge.is_collapsed():
+        RealQtInput.click(window._dock_edge)
+    qtbot.waitUntil(lambda: not window._dock_edge.is_collapsed())
+    recorded, reports = [], {}
+    capture = SimpleNamespace(host=object(), begin=lambda name: recorded.append(name) or True,
+                              end=lambda: None)
+    def no_drop(*args, **kwargs):
+        raise AssertionError('A targeted navigation retake must not replay Files drops')
+    monkeypatch.setattr(driver, 'native_drop', no_drop)
+    driver.record_navigator(qapp, window, local_inputs, local_inputs, capture,
+                            lambda seconds: qtbot.wait(round(seconds * 1000)),
+                            lambda path, data: reports.update({path.name: data}), 15,
+                            files_points=local_inputs / 'unused-drop-review.json',
+                            files_points_sha256='unused-no-drops',
+                            selected_scenes='02_help_navigator,14_back_escape')
+    assert recorded == ['02_help_navigator', '14_back_escape']
+    assert not triggered and preferences.get_easy_mode() and window._startup is page
+    assert page._workflow is None and window._dock_edge.is_collapsed()
+    assert back_clicks == [True]
+    proof = reports['navigator-workflow.json']
+    assert proof['accepted'] and proof['partial_capture']
+    assert proof['scenes'] == recorded and len(proof['scenes']) != 18
+    assert proof['native_drop_review_sha256'] is None
+    assert all(proof['source_preservation'].values())
+    assert not proof['analysis_executed'] and not proof['ai_request_sent']

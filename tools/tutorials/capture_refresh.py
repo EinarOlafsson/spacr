@@ -880,7 +880,8 @@ def main() -> int:
         record_navigator(app, window, stage, captures, capture, settle, write_json, args.timeout,
                          files_preflight=args.navigator_files_preflight,
                          files_points=args.navigator_files_points,
-                         files_points_sha256=args.navigator_files_points_sha256)
+                         files_points_sha256=args.navigator_files_points_sha256,
+                         selected_scenes=args.record_scenes)
     elif args.module == 'alpha_organisms':
         from capture_alpha_organisms import record_alpha_organisms
         record_alpha_organisms(app, window, stage, captures, capture, settle, write_json)

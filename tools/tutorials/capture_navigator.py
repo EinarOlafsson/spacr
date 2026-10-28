@@ -306,7 +306,8 @@ def native_drop(capture, window, page, stage, tray, target, review, write_json, 
 
 
 def record_navigator(app, window, stage, captures, capture, settle, write_json, timeout,
-                     *, files_preflight=False, files_points=None, files_points_sha256=None):
+                     *, files_preflight=False, files_points=None, files_points_sha256=None,
+                     selected_scenes=None):
     from PySide6.QtCore import Qt
     from PySide6.QtWidgets import QDialogButtonBox, QLineEdit, QMenu, QPlainTextEdit
     from spacr.qt import preferences
@@ -326,11 +327,6 @@ def record_navigator(app, window, stage, captures, capture, settle, write_json, 
     inputs = prepare_inputs(stage)
     input_routes = checked_input_routes(inputs)
     write_json(captures / 'navigator-input-routes.json', input_routes)
-    reviews = {}
-    if files_points is not None:
-        if not files_points_sha256 or digest(files_points) != files_points_sha256:
-            raise ValueError('Files source-point review SHA must match its actual bytes')
-        reviews = json.loads(Path(files_points).read_text())
     checks = []
 
     def wait(predicate, what):
@@ -389,6 +385,70 @@ def record_navigator(app, window, stage, captures, capture, settle, write_json, 
             click(box.button(QDialogButtonBox.Cancel))
         return inside_next_dialog(app, match, steps)
 
+    def checked_help():
+        bar = window.menuBar()
+        help_action = next(action for action in bar.actions() if action.text().replace('&', '') == 'Help')
+        h.click(bar, bar.actionGeometry(help_action).center())
+        menu = wait(lambda: app.activePopupWidget(), 'Help menu did not open')
+        action = window._act_easy_mode
+        if (not isinstance(menu, QMenu) or action not in menu.actions()
+                or not action.isEnabled() or not action.isVisible()
+                or not action.isChecked() or not preferences.get_easy_mode()):
+            raise RuntimeError('Help does not show the actual enabled, checked Navigator choice')
+        h.hover(menu, menu.actionGeometry(action).center())
+        settle(1.5)
+        h.key(menu, Qt.Key_Escape)
+        wait(lambda: not menu.isVisible(), 'Escape did not close the actual Help menu')
+        if (window._startup is not page or window._stack.currentWidget() is not page
+                or not action.isChecked() or not preferences.get_easy_mode()):
+            raise RuntimeError('Inspecting Help changed the actual Navigator choice or Home')
+        checks.append(dict(scene=SCENES[1], navigator_checked=True, preference_changed=False))
+
+    def back_escape():
+        edge = window._dock_edge
+        if not edge.is_collapsed():
+            click(edge)
+        wait(edge.is_collapsed, 'The native dock handle did not close the sidebar before Back')
+        if page._workflow is None:
+            raise RuntimeError('Back requires the actual open Toxoplasma workflow')
+        click(page._workflow.back)
+        wait(lambda: page._workflow is None, 'Back did not restore suggestions')
+        click(card('toxoplasma'))
+        wait(lambda: page._workflow is not None, 'Toxoplasma did not reopen its actual workflow')
+        h.key(page, Qt.Key_Escape)
+        wait(lambda: page._workflow is None, 'Escape did not restore suggestions')
+        checks.append(dict(scene=SCENES[13], native_dock_closed=True, back=True, escape=True))
+
+    def finish(scenes, *, partial=False):
+        unchanged = {path: digest(path) == sha for path, sha in inputs['original'].items()}
+        if not all(unchanged.values()) or [handle for handle in registry().active() if getattr(handle, 'user_visible', True)]:
+            raise RuntimeError('The Navigator tour modified source inputs or left an analysis job active')
+        proof = dict(accepted=True, scenes=list(scenes), checks=checks, source_preservation=unchanged,
+                     analysis_executed=False, ai_request_sent=False, alpha_enabled=False,
+                     native_drop_review_sha256=None if partial else files_points_sha256)
+        if partial:
+            proof['partial_capture'] = True
+        write_json(captures / 'navigator-workflow.json', proof)
+
+    selected = set(selected_scenes.split(',')) if selected_scenes else set()
+    if not files_preflight and selected and selected <= {SCENES[1], SCENES[13]}:
+        if SCENES[1] in selected:
+            with Rec(capture, SCENES[1], settle):
+                checked_help()
+        if SCENES[13] in selected:
+            enter('Toxoplasma')
+            click(card('toxoplasma'))
+            wait(lambda: page._workflow is not None, 'Toxoplasma did not reveal its actual network')
+            with Rec(capture, SCENES[13], settle):
+                back_escape()
+        finish([scene for scene in SCENES if scene in selected], partial=True)
+        return
+
+    reviews = {}
+    if files_points is not None:
+        if not files_points_sha256 or digest(files_points) != files_points_sha256:
+            raise ValueError('Files source-point review SHA must match its actual bytes')
+        reviews = json.loads(Path(files_points).read_text())
     with Rec(capture, SCENES[0], settle):
         capture_ui.point_at(capture, page.path_edit, dwell=2)
     if files_preflight:
@@ -403,18 +463,7 @@ def record_navigator(app, window, stage, captures, capture, settle, write_json, 
     if set(reviews) != {'file', 'folder'}:
         raise ValueError('Both actual Files entry positions must be reviewed before the full tour')
     with Rec(capture, SCENES[1], settle):
-        bar = window.menuBar()
-        help_action = next(action for action in bar.actions() if action.text().replace('&', '') == 'Help')
-        # Checked QAction toggles off first; enable it again through the same real menu.
-        for expected in (False, True):
-            h.click(bar, bar.actionGeometry(help_action).center())
-            menu = wait(lambda: app.activePopupWidget(), 'Help menu did not open')
-            if not isinstance(menu, QMenu) or window._act_easy_mode not in menu.actions():
-                raise RuntimeError('Help has no actual Navigator action')
-            h.click(menu, menu.actionGeometry(window._act_easy_mode).center())
-            wait(lambda: preferences.get_easy_mode() == expected, 'Help did not apply the actual Navigator choice')
-        page = window._startup
-        wait(lambda: window._stack.currentWidget() is page, 'Help Navigator did not return Home')
+        checked_help()
     with Rec(capture, SCENES[2], settle):
         capture_ui.open_module(capture, window, 'measure', settle, prefer='sidebar')
         home()
@@ -496,11 +545,7 @@ def record_navigator(app, window, stage, captures, capture, settle, write_json, 
         click(card('toxoplasma'))
         wait(lambda: page._workflow is not None, 'Toxoplasma did not reveal its real network')
     with Rec(capture, SCENES[13], settle):
-        click(page._workflow.back)
-        wait(lambda: page._workflow is None, 'Back did not restore suggestions')
-        click(card('toxoplasma'))
-        h.key(page, Qt.Key_Escape)
-        wait(lambda: page._workflow is None, 'Escape did not restore suggestions')
+        back_escape()
     home()
     with Rec(capture, SCENES[14], settle):
         enter(inputs['database'])
@@ -532,9 +577,4 @@ def record_navigator(app, window, stage, captures, capture, settle, write_json, 
         home()
         if page._last_result is not None or page._settings_overrides:
             raise RuntimeError('Explicit Home retained stale input evidence or settings')
-    unchanged = {path: digest(path) == sha for path, sha in inputs['original'].items()}
-    if not all(unchanged.values()) or [handle for handle in registry().active() if getattr(handle, 'user_visible', True)]:
-        raise RuntimeError('The Navigator tour modified source inputs or left an analysis job active')
-    write_json(captures / 'navigator-workflow.json', dict(accepted=True, scenes=list(SCENES),
-               checks=checks, source_preservation=unchanged, analysis_executed=False,
-               ai_request_sent=False, alpha_enabled=False, native_drop_review_sha256=files_points_sha256))
+    finish(SCENES)
