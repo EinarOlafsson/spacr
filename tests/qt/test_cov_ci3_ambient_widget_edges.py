@@ -331,11 +331,12 @@ def test_a_dialog_owned_by_a_nested_child_still_sends_popup_waves(qtbot, no_prod
     assert field._popup_wave_origin_for_tick() is None
 
 
-def test_feedback_for_a_widget_whose_object_is_gone_is_dropped():
-    class Gone:
-        def window(self):
-            raise RuntimeError("Internal C++ object already deleted")
+def test_feedback_for_a_widget_whose_object_is_gone_is_dropped(qapp):
+    import shiboken6
 
+    gone = QWidget()
+    shiboken6.delete(gone)
+    assert not shiboken6.isValid(gone)
     before = ambient._CONTAINER_RIPPLES[0]
-    assert ambient.field_ripple_for_widget(Gone(), edge="left") is None
+    assert ambient.field_ripple_for_widget(gone, edge="left") is None
     assert ambient._CONTAINER_RIPPLES[0] == before + 1
