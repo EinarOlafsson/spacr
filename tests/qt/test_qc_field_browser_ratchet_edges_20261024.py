@@ -543,3 +543,151 @@ def test_group_workers_refuse_missing_measurements_without_publishing_figures(ov
     assert ('Export image-level measurements first' if failure == 'no_measurements'
             else 'No representative image') in dialog.status.text()
     assert dialog.comparison_table.rowCount() == 0
+
+
+@pytest.fixture
+def mixed_plate_wizard(qtbot, tmp_path):
+    import hashlib
+
+    root = tmp_path / 'mixed'
+    folders = [root, root / 'plate1', root / 'plate2']
+    paths = []
+    for folder in folders:
+        folder.mkdir(parents=True, exist_ok=True)
+        path = folder / 'p1-A01-f1-t1-z1-c1.tif'
+        tifffile.imwrite(path, np.arange(120, dtype=np.uint16).reshape(10, 12))
+        paths.append(path)
+    before = {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in paths}
+    wizard = module._OverviewMetadataWizard(str(root), {'custom_regex': PATTERN})
+    qtbot.addWidget(wizard)
+    try:
+        wizard.show()
+        qtbot.waitUntil(lambda: wizard._info is not None and wizard._runner.active_jobs() == 0, timeout=10000)
+        yield wizard, folders
+        assert {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in paths} == before
+    finally:
+        wizard.reject()
+        qtbot.waitUntil(lambda: wizard._runner.active_jobs() == 0, timeout=10000)
+        wizard._runner.shutdown(timeout_ms=3000)
+
+
+def test_mixed_folder_toggle_switches_real_plate_sources_without_rewriting_raw_files(mixed_plate_wizard, qtbot):
+    wizard, folders = mixed_plate_wizard
+    root = str(folders[0])
+    assert [plate['path'] for plate in wizard._detected_plates] == [root]
+    toggle = wizard.plate_table.cellWidget(0, 3)
+    assert toggle is not None and not toggle.isChecked()
+    toggle.setChecked(True)
+    qtbot.waitUntil(lambda: len(wizard._detected_plates) == 2
+                    and wizard._runner.active_jobs() == 0, timeout=10000)
+    assert set(plate['path'] for plate in wizard._detected_plates) == set(map(str, folders[1:]))
+    assert wizard._use_subfolders == {root}
+    assert {field.source for field in wizard._fields} == set(map(str, folders[1:]))
+    wizard._use_plate_subfolders(root, False)
+    qtbot.waitUntil(lambda: len(wizard._detected_plates) == 1
+                    and wizard._runner.active_jobs() == 0, timeout=10000)
+    assert [plate['path'] for plate in wizard._detected_plates] == [root]
+    assert wizard._use_subfolders == set()
+    assert {field.source for field in wizard._fields} == {root}
+
+
+def test_plate_regex_apply_refuses_invalid_edits_and_preserves_other_plate_patterns(mixed_plate_wizard, qtbot):
+    wizard, folders = mixed_plate_wizard
+    wizard._use_plate_subfolders(str(folders[0]), True)
+    qtbot.waitUntil(lambda: len(wizard._detected_plates) == 2
+                    and wizard._runner.active_jobs() == 0, timeout=10000)
+    first, second = [plate['path'] for plate in wizard._detected_plates]
+    wizard._edit_plate(second)
+    assert wizard._edited_plate == second and wizard._base_regex() == PATTERN
+    before = dict(wizard._plate_regex)
+    wizard.regex.setText('[')
+    assert not wizard._apply_to_plate(second)
+    assert not wizard._apply_to_all_plates()
+    assert wizard._plate_regex == before
+    assert 'Invalid filename regex' in wizard.status.text()
+    changed = PATTERN.replace('p\\d+', 'p[0-9]+')
+    wizard._show_editor_regex(changed)
+    assert wizard._apply_to_plate(second)
+    assert wizard._plate_regex[second] == changed
+    assert wizard._base_regex() == PATTERN
+    wizard._show_editor_regex(changed)
+    assert wizard._apply_to_plate(first)
+    assert wizard._base_regex() == changed
+    assert first not in wizard._plate_regex
+    assert all(value != changed for value in wizard._plate_regex.values())
+    wizard._show_editor_regex(PATTERN)
+    assert wizard._apply_to_all_plates()
+    qtbot.waitUntil(lambda: wizard._runner.active_jobs() == 0
+                    and wizard._info is not None, timeout=10000)
+    assert wizard._plate_regex == {} and wizard._plate_regex_errors == {}
+    assert wizard._default_regex == PATTERN
+    assert {field.source for field in wizard._fields} == {first, second}
+
+
+@pytest.mark.parametrize('cancelled', [False, True])
+def test_channel_colour_picker_saves_only_an_accepted_real_colour(mixed_plate_wizard, monkeypatch, cancelled):
+    from PySide6.QtGui import QColor
+    from spacr.qt.widgets import colour_picker
+
+    wizard, _ = mixed_plate_wizard
+    item = wizard.channel_table.item(0, 3)
+    before = item.text()
+    seen = []
+    chosen = QColor() if cancelled else QColor('#123456')
+
+    def pick(parent, current, title):
+        seen.append((parent, current, title))
+        return chosen
+
+    monkeypatch.setattr(colour_picker, 'pick_colour', pick)
+    assert wizard._pick_channel_colour(0) == chosen
+    assert item.text() == (before if cancelled else '#123456')
+    assert seen[0][0] is wizard and 'Channel' in seen[0][2]
+    assert not wizard._pick_channel_colour(wizard.channel_table.rowCount()).isValid()
+
+
+def test_view_state_save_failure_is_reported_without_replacing_the_source(tmp_path):
+    import json
+
+    source = tmp_path / 'plate'
+    source.mkdir()
+    state = {'sources': [str(source)], 'options': {'plate_regex': {str(source): PATTERN}}}
+    saved = module._overview_try_save_view_state(str(source), state)
+    assert saved.is_file()
+    payload = json.loads(saved.read_text(encoding='utf-8'))
+    assert payload['sources'] == [str(source)] and payload['options'] == state['options']
+    assert 'version' not in state
+    blocked = tmp_path / 'not-a-folder'
+    blocked.write_bytes(b'original source')
+    error = module._overview_try_save_view_state(str(blocked), state)
+    assert isinstance(error, str) and error
+    assert blocked.read_bytes() == b'original source'
+
+
+def test_wizard_restores_saved_sources_and_reports_a_real_worker_refusal(qtbot, tmp_path):
+    folders = [tmp_path / name for name in ('first', 'second')]
+    for folder in folders:
+        folder.mkdir()
+        tifffile.imwrite(folder / 'p1-A01-f1-t1-z1-c1.tif', np.ones((5, 7), dtype=np.uint16))
+    module._overview_save_view_state(str(folders[0]),
+        {'sources': list(map(str, folders)), 'options': {'plate_regex': {str(folders[0]): PATTERN}}})
+    wizard = module._OverviewMetadataWizard(str(folders[0]), {'custom_regex': PATTERN})
+    qtbot.addWidget(wizard)
+    wizard.show()
+    try:
+        qtbot.waitUntil(lambda: len(wizard._detected_plates) == 2
+                        and wizard._runner.active_jobs() == 0, timeout=10000)
+        assert module._overview_source_paths(wizard.source.text()) == list(map(str, folders))
+        assert 'Restored' in wizard.plate_summary.text()
+        assert {field.source for field in wizard._fields} == set(map(str, folders))
+        wizard.source.setText(str(tmp_path / 'missing'))
+        wizard._scan()
+        qtbot.waitUntil(lambda: wizard._runner.active_jobs() == 0
+                        and 'existing image folder' in wizard.status.text(), timeout=10000)
+        assert not wizard.next.isEnabled()
+        assert wizard.source.text() == str(tmp_path / 'missing')
+        assert all(list(folder.glob('*.tif')) for folder in folders)
+    finally:
+        wizard.reject()
+        qtbot.waitUntil(lambda: wizard._runner.active_jobs() == 0, timeout=10000)
+        wizard._runner.shutdown(timeout_ms=3000)
