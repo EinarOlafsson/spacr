@@ -1069,3 +1069,61 @@ def test_nontriangular_mesh_keeps_matplotlibs_native_polygon_projection():
     assert np.isfinite(ge._mesh_projection(artist))
     assert len(artist.get_paths()) == 1
     assert len(artist.get_paths()[0].vertices) == 5
+
+
+def test_legacy_vector_factory_overrides_the_native_reader_and_preserves_polygon_fallback(monkeypatch):
+    """An older collection's vector protocol must keep real projection intact."""
+    from matplotlib.backends.backend_agg import FigureCanvasAgg
+    from matplotlib.figure import Figure
+    from mpl_toolkits.mplot3d import art3d
+    from spacr.qt.widgets import gate_editor as ge
+
+    native = art3d.Poly3DCollection
+    read_vector = getattr(native, '_get_vector', None) or native.get_vector
+    native_reads = []
+
+    class LegacyVectorCollection(native):
+        """Adapt the installed real collection to the older homogeneous-vector store."""
+        def __init__(self, vertices, **kwargs):
+            super().__init__(vertices, **kwargs)
+            read_vector(self, vertices)
+            if not hasattr(self, '_vec'):
+                corners = np.asarray(vertices, dtype=float).reshape(-1, 3)
+                self._vec = np.column_stack((corners, np.ones(len(corners)))).T
+                self._segslices = [slice(3 * index, 3 * index + 3)
+                                   for index in range(len(vertices))]
+
+        def _get_vector(self, vertices):
+            """Keep the installed native polygon reader for delegated geometry."""
+            native_reads.append(vertices)
+            return read_vector(self, vertices)
+
+    monkeypatch.setattr(art3d, 'Poly3DCollection', LegacyVectorCollection)
+    monkeypatch.setattr(ge, '_TRIANGLE_MESH_CLASS', None)
+    triangles = np.array([[[0., 0., 0.], [2., 0., 0.], [0., 1., 0.]],
+                          [[0., 0., 3.], [2., 0., 3.], [0., 1., 3.]]])
+    artist = ge._triangle_mesh(triangles, facecolors=['red', 'blue'])
+    assert isinstance(artist, native)
+    assert artist._triangle_count == 2
+    reads_before = len(native_reads)
+    artist._get_vector(triangles)
+    assert len(native_reads) == reads_before
+    figure = Figure()
+    canvas = FigureCanvasAgg(figure)
+    axes = figure.add_subplot(projection='3d')
+    axes.add_collection3d(artist)
+    canvas.draw()
+    homogeneous = np.column_stack((triangles.reshape(-1, 3), np.ones(6)))
+    projected = (axes.get_proj() @ homogeneous.T).T
+    projected = (projected[:, :3] / projected[:, 3:]).reshape(2, 3, 3)
+    order = sorted(range(2), key=lambda index: -float(np.mean(projected[index, :, 2])))
+    for path, index in zip(artist.get_paths(), order):
+        np.testing.assert_allclose(path.vertices[:3], projected[index, :, :2])
+    assert ge._mesh_projection(artist) == pytest.approx(projected[:, :, 2].min())
+    polygon = [[[0., 0., 0.], [2., 0., 0.], [2., 1., 1.], [0., 1., 1.]]]
+    ge._mesh_get_vector(artist, polygon)
+    assert artist._triangle_count is None
+    assert native_reads[-1] is polygon
+    assert np.isfinite(ge._mesh_projection(artist))
+    assert len(artist.get_paths()) == 1
+    assert len(artist.get_paths()[0].vertices) == 5

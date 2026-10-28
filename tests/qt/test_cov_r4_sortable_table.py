@@ -573,3 +573,18 @@ def test_retired_sort_state_does_not_resume_or_change_a_live_tree(qtbot):
     st._keep_sorting_held(tree)
     assert [tree.topLevelItem(row).text(0) for row in range(2)] == before
     assert not shiboken6.isValid(state)
+
+
+def test_a_partially_primed_tree_still_compares_an_unprimed_numeric_row_with_plain_qt(qtbot, monkeypatch):
+    from spacr.qt.widgets import sortable_table as st
+
+    tree = QTreeWidget()
+    qtbot.addWidget(tree)
+    ours, plain = tree_item(['2']), QTreeWidgetItem(['10'])
+    tree.addTopLevelItems([ours, plain])
+    assert getattr(ours, '_sort_primed', None) is None
+    monkeypatch.setattr(st, '_PRIMED', (False, object()))
+    assert ours < plain
+    ours.setText(0, '20')
+    assert not ours < plain
+    assert [tree.topLevelItem(index).text(0) for index in range(2)] == ['20', '10']
