@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-28 15:12-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -608,9 +608,6 @@ msgstr ":ref:`Measure <workflow-module-measure>`: 클래스 비교를 정의하�
 msgid ":doc:`API reference </api/spacr/qt/screens/feature_explorer/index>`."
 msgstr ":doc:`API 참조 </api/spacr/qt/screens/feature_explorer/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=65_feature_explorer>`__."
-msgstr "`모듈 튜토리얼 <tutorials/#lesson=65_feature_explorer>`__."
-
 msgid "Format Converter"
 msgstr "형식 변환기"
 
@@ -698,9 +695,6 @@ msgstr "**실행 기록 및 산출물** — 프로젝트 실행 기록, 설정, 
 msgid ":doc:`API reference </api/spacr/qt/plate_queue/index>`."
 msgstr ":doc:`API 참조 </api/spacr/qt/plate_queue/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=30_plate_queue>`__."
-msgstr "`모듈 튜토리얼 <tutorials/#lesson=30_plate_queue>`__."
-
 msgid "Batch Runner"
 msgstr "배치 실행기"
 
@@ -737,9 +731,6 @@ msgstr ":ref:`Measure <workflow-module-measure>`: 내보내기 전에 실제 표
 msgid ":doc:`API reference </api/spacr/qt/screens/db_browser/index>`."
 msgstr ":doc:`API 참조 </api/spacr/qt/screens/db_browser/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=34_database>`__."
-msgstr "`모듈 튜토리얼 <tutorials/#lesson=34_database>`__."
-
 msgid "Run History"
 msgstr "실행 기록"
 
@@ -766,9 +757,6 @@ msgstr "**공유 가능한 보고서** — 기록된 분석 출력에서 만든 
 
 msgid ":doc:`API reference </api/spacr/report/index>`."
 msgstr ":doc:`API 참조 </api/spacr/report/index>`."
-
-msgid "`Module tutorial <tutorials/#lesson=29_report>`__."
-msgstr "`모듈 튜토리얼 <tutorials/#lesson=29_report>`__."
 
 msgid "Data Manager"
 msgstr "데이터 관리자"
@@ -866,9 +854,6 @@ msgstr "**열기:** QC → Layer Viewer."
 msgid ":doc:`API reference </api/spacr/qt/layer_viewer/index>`."
 msgstr ":doc:`API 참조 </api/spacr/qt/layer_viewer/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=57_layer_viewer>`__."
-msgstr "`모듈 튜토리얼 <tutorials/#lesson=57_layer_viewer>`__."
-
 msgid "Power / Design"
 msgstr "Power / Design"
 
@@ -883,9 +868,6 @@ msgstr ":ref:`Experiment Design <workflow-module-experiment_design>`: 실험 레
 
 msgid ":doc:`API reference </api/spacr/qt/screens/power/index>`."
 msgstr ":doc:`API 참조 </api/spacr/qt/screens/power/index>`."
-
-msgid "`Module tutorial <tutorials/#lesson=68_power_design>`__."
-msgstr "`모듈 튜토리얼 <tutorials/#lesson=68_power_design>`__."
 
 msgid "Run Compare"
 msgstr "Run Compare"
@@ -920,9 +902,6 @@ msgstr "**열기:** 도움말 검색 → 데이터베이스 브라우저 → Tab
 msgid ":doc:`API reference </api/spacr/qt/screens/tabulate/index>`."
 msgstr ":doc:`API 참조 </api/spacr/qt/screens/tabulate/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=61_tabulate>`__."
-msgstr "`모듈 튜토리얼 <tutorials/#lesson=61_tabulate>`__."
-
 msgid "Dose–Response"
 msgstr "Dose–Response"
 
@@ -943,9 +922,6 @@ msgstr ":ref:`Measure <workflow-module-measure>`: 측정된 반응을 명시적�
 
 msgid ":doc:`API reference </api/spacr/qt/screens/dose_response/index>`."
 msgstr ":doc:`API 참조 </api/spacr/qt/screens/dose_response/index>`."
-
-msgid "`Module tutorial <tutorials/#lesson=69_dose_response>`__."
-msgstr "`모듈 튜토리얼 <tutorials/#lesson=69_dose_response>`__."
 
 msgid "Project Browser"
 msgstr "Project Browser"
@@ -971,9 +947,6 @@ msgstr "**열기:** QC → Outliers."
 msgid ":doc:`API reference </api/spacr/qt/screens/outliers/index>`."
 msgstr ":doc:`API 참조 </api/spacr/qt/screens/outliers/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=66_outliers>`__."
-msgstr "`모듈 튜토리얼 <tutorials/#lesson=66_outliers>`__."
-
 msgid "Embeddings"
 msgstr "Embeddings"
 
@@ -998,9 +971,6 @@ msgstr ":ref:`Image UMAP <workflow-module-umap>`: 일치하는 객체 ID와 함�
 
 msgid ":doc:`API reference </api/spacr/qt/screens/embeddings/index>`."
 msgstr ":doc:`API 참조 </api/spacr/qt/screens/embeddings/index>`."
-
-msgid "`Module tutorial <tutorials/#lesson=77_embeddings>`__."
-msgstr "`모듈 튜토리얼 <tutorials/#lesson=77_embeddings>`__."
 
 msgid "Control Charts"
 msgstr "Control Charts"
@@ -1243,9 +1213,6 @@ msgstr ":ref:`Make Masks <workflow-module-make_masks>`: 일치하는 원본 이�
 msgid ":doc:`API reference </api/spacr/submodules/index>`."
 msgstr ":doc:`API 참조 </api/spacr/submodules/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=24_plaque>`__."
-msgstr "`모듈 튜토리얼 <tutorials/#lesson=24_plaque>`__."
-
 msgid "Recruitment"
 msgstr "리크루트먼트 분석"
 
@@ -1257,9 +1224,6 @@ msgstr "**열기:** 톡소플라스마 → 리크루트먼트 분석."
 
 msgid ":ref:`Measure <workflow-module-measure>`: Require the intended compartment intensities and identities."
 msgstr ":ref:`Measure <workflow-module-measure>`: 의도한 구획 강도와 식별 정보가 필요합니다."
-
-msgid "`Module tutorial <tutorials/#lesson=25_recruitment>`__."
-msgstr "`모듈 튜토리얼 <tutorials/#lesson=25_recruitment>`__."
 
 msgid "Invasion Assay"
 msgstr "침입 분석"
@@ -1312,14 +1276,16 @@ msgstr ":ref:`Direct Cellpose mask generation <workflow-module-cellpose_masks>`:
 msgid "`Module tutorial <tutorials/#lesson=19_train_cellpose>`__."
 msgstr "`모듈 튜토리얼 <tutorials/#lesson=19_train_cellpose>`__."
 
-msgid "Mask the whole folder"
-msgstr "전체 폴더의 마스크 생성"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Mask folder"
+msgstr "폴더 마스크 생성"
 
 msgid "Apply the selected segmentation model to the open image folder through Make Masks; inspect saved labels before measuring them."
 msgstr "Make Masks를 통해 열린 이미지 폴더에 선택한 분할 모델을 적용하세요. 측정하기 전에 저장된 레이블을 검사하세요."
 
-msgid "**Open:** Make Masks → Mask the whole folder."
-msgstr "**열기:** 마스크 만들기 → 전체 폴더의 마스크 생성."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Open:** Make Masks → Mask folder."
+msgstr "**열기:** 마스크 만들기 → 폴더 마스크 생성."
 
 msgid ":doc:`API reference </api/spacr/spacr_cellpose/index>`."
 msgstr ":doc:`API 참조 </api/spacr/spacr_cellpose/index>`."
@@ -1387,9 +1353,6 @@ msgstr "**열기:** 마스크 만들기 → 나파리 브리지."
 msgid ":doc:`API reference </api/spacr/napari_bridge/index>`."
 msgstr ":doc:`API 참조 </api/spacr/napari_bridge/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=46_napari_bridge>`__."
-msgstr "`모듈 튜토리얼 <tutorials/#lesson=46_napari_bridge>`__."
-
 msgid "Import Images"
 msgstr "이미지 가져오기"
 
@@ -1423,9 +1386,6 @@ msgstr ":ref:`Map Barcodes <workflow-module-map_barcodes>`: 가이드 필터링 
 msgid ":doc:`API reference </api/spacr/sequencing_qc/index>`."
 msgstr ":doc:`API 참조 </api/spacr/sequencing_qc/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=47_barcode_qc>`__."
-msgstr "`모듈 튜토리얼 <tutorials/#lesson=47_barcode_qc>`__."
-
 msgid "Image Scatter"
 msgstr "이미지 산점도"
 
@@ -1453,9 +1413,6 @@ msgstr "**열기:** 이미지 UMAP → PCA."
 msgid ":doc:`API reference </api/spacr/qt/screens/pca/index>`."
 msgstr ":doc:`API 참조 </api/spacr/qt/screens/pca/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=60_pca>`__."
-msgstr "`모듈 튜토리얼 <tutorials/#lesson=60_pca>`__."
-
 msgid "Volcano Explorer"
 msgstr "볼케이노 플롯 탐색기"
 
@@ -1470,9 +1427,6 @@ msgstr ":ref:`Regression <workflow-module-regression>`: 저장된 효과와 보�
 
 msgid ":doc:`API reference </api/spacr/volcano_style/index>`."
 msgstr ":doc:`API 참조 </api/spacr/volcano_style/index>`."
-
-msgid "`Module tutorial <tutorials/#lesson=72_volcano_explorer>`__."
-msgstr "`모듈 튜토리얼 <tutorials/#lesson=72_volcano_explorer>`__."
 
 msgid "Hit List"
 msgstr "히트 목록"
@@ -1525,9 +1479,6 @@ msgstr ":ref:`Regression <workflow-module-regression>`: 이 실행이 실제로 
 msgid ":doc:`API reference </api/spacr/qt/screens/regression/index>`."
 msgstr ":doc:`API 참조 </api/spacr/qt/screens/regression/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=75_regression_diagnostics>`__."
-msgstr "`모듈 튜토리얼 <tutorials/#lesson=75_regression_diagnostics>`__."
-
 msgid "Illumination"
 msgstr "조명"
 
@@ -1561,9 +1512,6 @@ msgstr ":ref:`Measure <workflow-module-measure>`: 호환되는 특징 및 메타
 msgid ":doc:`API reference </api/spacr/anndata_export/index>`."
 msgstr ":doc:`API 참조 </api/spacr/anndata_export/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=59_anndata_export>`__."
-msgstr "`모듈 튜토리얼 <tutorials/#lesson=59_anndata_export>`__."
-
 msgid "Motility Assay"
 msgstr "운동성 분석"
 
@@ -1582,21 +1530,20 @@ msgstr ":ref:`Measure <workflow-module-measure>`: 측정된 객체를 일치하�
 msgid ":doc:`API reference </api/spacr/timelapse/index>`."
 msgstr ":doc:`API 참조 </api/spacr/timelapse/index>`."
 
-msgid "`Module tutorial <tutorials/#lesson=18_motility>`__."
-msgstr "`모듈 튜토리얼 <tutorials/#lesson=18_motility>`__."
-
 msgid "Timelapse"
 msgstr "타임랩스"
 
-msgid "Open Timelapse within Mask to segment and link objects across ordered frames; inspect links before downstream motility analysis."
-msgstr "마스크에서 타임랩스를 열어 순서가 있는 프레임에 걸쳐 객체를 분할하고 연결하세요. 하위 운동성 분석 전에 연결을 검사하세요."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In Mask, press Time to show the time-axis and tracking settings, then segment and link objects across ordered frames; inspect links before downstream motility analysis."
+msgstr "마스크에서 시간을 눌러 시간 축과 추적 설정을 표시한 다음, 순서가 있는 프레임에 걸쳐 객체를 분할하고 연결하세요. 후속 운동성 분석 전에 연결을 검사하세요."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Lineage exports retain generation times in frames and add ``generation_time_hours`` with calibrated summary statistics. Supply a positive ``frame_interval_s`` or complete, increasing ``time_s`` values in the tracks table. If both are present, they must agree; irregular timestamps are supported without a fixed interval. Missing calibration and incomplete cell cycles have no generation time in hours. Exported tables record the calibration source and units. The tree axis and Newick branch lengths remain in frames."
 msgstr "계보 내보내기는 프레임 단위의 세대 시간을 유지하면서 ``generation_time_hours`` 열과 보정된 요약 통계를 추가합니다. 양의 ``frame_interval_s`` 값을 지정하거나 추적 표에 누락 없이 증가하는 ``time_s`` 값을 제공하세요. 둘 다 있으면 서로 일치해야 하며, 고정 간격이 없을 때는 불규칙한 타임스탬프도 지원합니다. 보정 정보가 없거나 세포 주기가 불완전하면 시간 단위의 세대 시간은 제공되지 않습니다. 내보낸 표에는 보정 정보의 출처와 단위가 기록됩니다. 트리 축과 Newick 가지 길이는 프레임 단위로 유지됩니다."
 
-msgid "**Open:** Mask → Timelapse."
-msgstr "**열기:** 마스크 → 타임랩스."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Open:** Home → Mask → Time."
+msgstr "**열기:** 홈 → 마스크 → 시간."
 
 msgid ":ref:`Mask <workflow-module-mask>`: Enable the nested time-series route before generating linked labels."
 msgstr ":ref:`Mask <workflow-module-mask>`: 연결된 레이블을 생성하기 전에 중첩 시계열 경로를 켜세요."
@@ -1627,9 +1574,6 @@ msgstr ":ref:`Regression <workflow-module-regression>`: 회귀 전에 디코딩�
 
 msgid ":doc:`API reference </api/spacr/ops_engine/index>`."
 msgstr ":doc:`API 참조 </api/spacr/ops_engine/index>`."
-
-msgid "`Module tutorial <tutorials/#lesson=76_ops>`__."
-msgstr "`모듈 튜토리얼 <tutorials/#lesson=76_ops>`__."
 
 msgid "Classifier Evaluation"
 msgstr "분류기 평가"
@@ -1741,9 +1685,6 @@ msgstr "**열기:** 회귀 → 매개변수 탐색."
 
 msgid ":doc:`API reference </api/spacr/parameter_sweep/index>`."
 msgstr ":doc:`API 참조 </api/spacr/parameter_sweep/index>`."
-
-msgid "`Module tutorial <tutorials/#lesson=73_parameter_sweep>`__."
-msgstr "`모듈 튜토리얼 <tutorials/#lesson=73_parameter_sweep>`__."
 
 msgid "Toxoplasma"
 msgstr "톡소플라스마"
