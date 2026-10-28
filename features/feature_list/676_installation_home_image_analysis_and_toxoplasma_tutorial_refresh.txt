@@ -566,3 +566,8 @@ The original50 voice render finishes with8/8 partitions0; retain it and every se
 2026-10-28 — Navigator88 full p52 completes18 workflow checks: genuine exact-path file/folder drops, original image/database/settings unchanged, no analysis/AI request or alpha enable. Raw14/18 gates pass; Help rebuilding paint stalls and covered Back require targeted correction.
 The two drop clips retain original pointer-detector failures despite visible real payloads; observed native dnd-move support passes five focused checks and both unchanged-threshold original clip gates (28.63/29.81fps,97.18/97.07% pointer detection). Preserve all originals; no native gate waiver or publication claim.
 Finish only Navigator tutorial/Docs/API after published Graph Builder58, finalize the Claude handoff and pause; the remaining campaign stays open.
+
+2026-10-28 — Graph Builder58 is pushed4d0c2f38fe; Navigator88 media is published at HF fb5c45e785f2c7e67f3bc7a968314f9936d3131f, with all7301 files fully read back and all60 published routes passing.
+Navigator's50 voices pass900 unique scene/end gaps0.800–1.046s with native EOF and real1x motion;18 reviewed scenes run243.7s. User guide/toctree and existing launch/preference API references accompany the normal publication commits.
+The generated app tutorial index is included after the publisher's unstaged-index rebase stop; retain the verified candidate and media without rerendering or reuploading.
+After guarded nightly push, transfer tutorial ownership to Claude using /media/carruthers/mnt3/claude/HANDOFF_codex_to_claude_2026-10-28.md and pause Codex. Remaining64/22/31/50/70/19/63/01 stay open; live website deployment is tracked separately in the handoff.

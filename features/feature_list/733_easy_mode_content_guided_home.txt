@@ -616,3 +616,7 @@ Include current optional AI consent/provider controls and Running-card guidance 
 
 2026-10-27 — Codex implements the Navigator user guide, normal toctree link, Python launch/preference section and curated API landing entries; focused RST/link/template/public-symbol checks pass without app API changes.
 Navigator88 has18 feature-focused scenes and13 source-bound localized reviews; native capture, all50 voices and tutorial/Docs publication remain in progress before the requested Claude handoff/pause.
+
+2026-10-28 — Navigator88 has18 native scenes and all50 voices;900 actual scene/end gaps0.800–1.046s and every final EOF pass. Hosted media fb5c45e785f2c7e67f3bc7a968314f9936d3131f passes full7301-file readback and all60 published routes.
+The Navigator user guide/toctree, existing Python launch/preference guidance and curated API links are delivered without adding app APIs. Focused documentation checks pass; normal Docs CI owns deployment.
+Codex transfers tutorial follow-up to Claude after the guarded nightly push and requested handoff/pause; Workstation session 2 retains Navigator app ownership. The observed Help layout paint stalls remain reported in shared AI/HANDOFF.md, without claiming an app-side fix.
