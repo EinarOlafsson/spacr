@@ -1336,3 +1336,85 @@ def test_graph_keyboard_and_field_wheel_preserve_the_real_borrowed_anchor(
         assert page.path_edit.text() == str(path) and path.read_bytes() == before
     finally:
         page.close()
+
+
+def test_workflow_without_a_valid_selection_can_arrange_then_recover_its_real_card(
+        qtbot, private_ai_profile, isolated_input_root):
+    from PySide6.QtTest import QSignalSpy
+    from spacr.qt.widgets.home import _EasyHomePage, _EasyWorkflowPage
+
+    preferences, _, _ = private_ai_profile
+    preferences.set_reduce_motion(True)
+    path = isolated_input_root / 'objects.csv'
+    path.write_text('label,area\n1,12\n')
+    page = _EasyHomePage()
+    qtbot.addWidget(page)
+    page.resize(640, 650)
+    page.show()
+    try:
+        page.accept_paths([str(path)])
+        qtbot.waitUntil(lambda: page._last_result is not None and not page._runner.is_busy(), timeout=5000)
+        source = next(card for card in page.field.cards if card._key == 'graph_builder')
+        source.click()
+        data = page._workflow.data
+        actions = list(page._last_result['actions'])
+        page._show_suggestions()
+        anchor = QRect(source.mapTo(page, QPoint()), source.size())
+        source.activated.disconnect(page._select_suggestion)
+        workflow = _EasyWorkflowPage(data, actions, 'missing-tool', source, anchor, page)
+        page._workflow = workflow
+        workflow.setGeometry(page.rect())
+        opened = QSignalSpy(workflow.open_requested)
+        rectangle = QRect(source.geometry())
+        assert workflow.central is None and workflow._chosen_key is None
+        workflow._arrange()
+        assert source.geometry() == rectangle and opened.count() == 0
+        workflow.select('missing-tool')
+        assert workflow.central is None and opened.count() == 0
+        workflow.select(source._key)
+        assert workflow.central is source and workflow._chosen_key == source._key
+        assert source.geometry() == anchor and opened.count() == 0
+        assert workflow.view.width() > 0 and workflow.view.height() > 0
+        assert not workflow.view.geometry().intersects(source.geometry())
+        page._show_suggestions()
+        assert page._workflow is None and source.parentWidget() is page.field
+        assert source.geometry() == source._final_rect and page.path_edit.text() == str(path)
+    finally:
+        page.close()
+
+
+def test_compact_workflow_uses_real_space_below_its_unchanged_anchor(
+        qtbot, qapp, private_ai_profile, isolated_input_root):
+    from spacr.qt.widgets.home import _EasyHomePage
+
+    preferences, _, _ = private_ai_profile
+    preferences.set_reduce_motion(True)
+    path = isolated_input_root / 'objects.csv'
+    path.write_text('label,area\n1,12\n')
+    page = _EasyHomePage()
+    qtbot.addWidget(page)
+    page.resize(340, 650)
+    page.show()
+    try:
+        page.accept_paths([str(path)])
+        qtbot.waitUntil(lambda: page._last_result is not None and not page._runner.is_busy(), timeout=5000)
+        source = next(card for card in page.field.cards if card._key == 'graph_builder')
+        compact_height = source.height() + 2 * page.path_edit.height()
+        page.resize(page.width(), compact_height)
+        qapp.processEvents()
+        rectangle = QRect(source.mapToGlobal(QPoint()), source.size())
+        source.click()
+        workflow = page._workflow
+        assert workflow.central is source and workflow.view._node_side == 144
+        assert workflow.view._root_y == 0
+        assert workflow.view.y() == source.geometry().bottom() + 1
+        assert workflow.view.width() > 0 and workflow.view.height() > 0
+        assert page.rect().contains(workflow.view.geometry())
+        assert not workflow.view.geometry().intersects(source.geometry())
+        assert QRect(source.mapToGlobal(QPoint()), source.size()) == rectangle
+        assert page.path_edit.text() == str(path)
+        qtbot.keyClick(source, Qt.Key_Escape)
+        assert page._workflow is None and source.parentWidget() is page.field
+        assert source.geometry() == source._final_rect
+    finally:
+        page.close()
