@@ -193,11 +193,15 @@ def test_training_memory_without_parameters_does_not_query_gpu_metadata(monkeypa
     """Missing, non-callable and empty parameter providers cannot select a GPU policy."""
     from spacr import metal_cellpose
 
+    metadata_queries = []
+
     def unexpected():
+        metadata_queries.append('vram')
         raise AssertionError('no usable parameters must not query VRAM')
 
     monkeypatch.setattr(metal_cellpose, '_radeon_vram_bytes', unexpected)
     metal_cellpose._fit_training_memory(net)
+    assert metadata_queries == []
 
 
 def test_non_darwin_training_does_not_start_a_native_profiler(monkeypatch):
