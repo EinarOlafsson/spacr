@@ -19,6 +19,7 @@ Related:   spacr/crashreport.py (existing redaction), the report-filing flow
            report_it_promised), Preferences privacy settings.
 
 CURRENT AI REPLY PRESENTATION FOLLOW-UP — 2026-10-28
+Apply the same readable, safe Markdown rendering to AI responses inside the console; retain literal pipeline output and tracebacks. Retained console peer owns implementation and focused checks; root integrates and publishes.
 Render assistant replies as readable rich text with bold emphasis, numbered
 and bulleted lists, code spans and readable links in Navigator and AI chat.
 Normalize backslash-escaped Markdown markers outside code without corrupting

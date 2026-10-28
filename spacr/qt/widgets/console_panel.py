@@ -43,6 +43,7 @@ from PySide6.QtWidgets import (
     QSizePolicy,
     QSpinBox,
     QSplitter,
+    QTextBrowser,
     QTextEdit,
     QVBoxLayout,
     QWidget,
@@ -911,6 +912,127 @@ class _StdoutBlock(QPlainTextEdit):
         self.setMinimumHeight(0)
         self.setMaximumHeight(16_777_215)
         self.updateGeometry()
+
+
+class _AiReplyView(QTextBrowser):
+    """Keep all model-authored resources passive, including local image URLs."""
+
+    def loadResource(self, kind, url):
+        """Never fetch resources while laying out an assistant answer."""
+        return None
+
+
+class _AiReplyBlock(_StdoutBlock):
+    """Use the shared safe rich renderer inside the existing console section controls."""
+
+    def __init__(self, text_color=None):
+        """Keep ordinary pipeline blocks separate from rich assistant documents."""
+        self._rich_view = None
+        super().__init__(text_color=text_color)
+        self._reply_parts = []
+        self._reply_chars = 0
+        self._rich_view = _AiReplyView(self.viewport())
+        self._rich_view.setFrameShape(QFrame.NoFrame)
+        self._rich_view.setOpenExternalLinks(False)
+        self._rich_view.setOpenLinks(False)
+        self._rich_view.anchorClicked.connect(self._open_reply_link)
+        self._rich_view.setReadOnly(True)
+        self._rich_view.setAccessibleName(tr('spaCR AI'))
+        self._rich_view.viewport().setAutoFillBackground(False)
+        self._rich_view.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self._rich_view.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.document().setDocumentMargin(0)
+        self._refresh_style()
+        self._rich_view.show()
+        self._reply_flush = QTimer(self)
+        self._reply_flush.setSingleShot(True)
+        self._reply_flush.setInterval(40)
+        self._reply_flush.timeout.connect(self._render_reply)
+
+    def document(self):
+        """Expose the actual rich document to section sizing and inspection."""
+        if self._rich_view is not None:
+            return self._rich_view.document()
+        return super().document()
+
+    def toPlainText(self):
+        """Keep copying and contextual export free of Markdown syntax and HTML."""
+        if self._rich_view is not None:
+            return self._rich_view.toPlainText()
+        return super().toPlainText()
+
+    def _refresh_style(self):
+        """Preserve the console's chosen font, provider color and transparent surface."""
+        super()._refresh_style()
+        if self._rich_view is not None:
+            self._rich_view.setFont(self._font)
+            self._rich_view.document().setDefaultFont(self._font)
+            self._rich_view.setStyleSheet(
+                'QTextBrowser { background: transparent; border: none; padding: 0; '
+                f'color: {self._text_color}; font-family: {QSS_FONT_FAMILY}; '
+                f'font-size: {self._font_pt}pt; font-weight: 300; }}')
+
+    def append(self, text):
+        """Coalesce streamed chunks without reparsing an entire reply per token."""
+        if not text:
+            return
+        self._reply_parts.append(text)
+        self._reply_chars += len(text)
+        if self._reply_chars > self.MAX_CHARS:
+            source = ''.join(self._reply_parts)[-self.MAX_CHARS:]
+            self._reply_parts = [source]
+            self._reply_chars = len(source)
+        if not self._reply_flush.isActive():
+            self._reply_flush.start()
+
+    def show_markdown(self, text):
+        """Render saved or final answers immediately through the common sanitizer."""
+        self._reply_flush.stop()
+        source = str(text)[-self.MAX_CHARS:]
+        self._reply_parts = [source]
+        self._reply_chars = len(source)
+        self._render_reply()
+
+    def _render_reply(self):
+        """Render only the assistant body; stdout and tracebacks stay literal."""
+        from .ai_chat_panel import _ai_reply_html
+
+        self._rich_view.setHtml(_ai_reply_html(''.join(self._reply_parts)))
+        self._chars = self.document().characterCount()
+        self._height_key = ()
+        self.updateGeometry()
+
+    def _open_reply_link(self, url):
+        """Open only explicit clicks on sanitized web or mail links."""
+        from PySide6.QtGui import QDesktopServices
+
+        if url.scheme().lower() in ('http', 'https', 'mailto'):
+            QDesktopServices.openUrl(url)
+
+    def link_at(self, pos):
+        """Resolve sanitized rich anchors rather than matching visible label text."""
+        return self._rich_view.anchorAt(pos)
+
+    def sizeHint(self):
+        """Fit rich lists and code while retaining an explicit user height."""
+        if self._rich_view is None:
+            return super().sizeHint()
+        if self._user_height is not None:
+            return QSize(120, self._user_height)
+        self.document().setTextWidth(max(1, self._rich_view.viewport().width()))
+        height = self.document().documentLayout().documentSize().height()
+        return QSize(120, max(32, int(height) + 2 * SPACING['sm'] + 2))
+
+    def resizeEvent(self, event):
+        """Keep rich selection and links inside the unchanged section grip."""
+        super().resizeEvent(event)
+        if self._rich_view is not None:
+            self._rich_view.setGeometry(self.viewport().rect())
+
+    def closeEvent(self, event):
+        """Retire only this answer's pending rendering timer."""
+        self._reply_flush.stop()
+        super().closeEvent(event)
 
 
 class _BlockHeightHandle(QFrame):
@@ -2439,7 +2561,7 @@ class ConsolePanel(QWidget):
         self._pending_ai_topic = self.begin_topic(
             tr("spaCR AI"), accent=ai_color, trailing=self._working_dots)
         self._working_dots.start()
-        self._current_stdout = _StdoutBlock(text_color=ai_color)
+        self._current_stdout = _AiReplyBlock(text_color=ai_color)
         self._insert_entry(self._current_stdout)
         self._pending_ai_block = self._current_stdout
         self._last_entry_kind = "ai"
@@ -2532,7 +2654,7 @@ class ConsolePanel(QWidget):
         dots = _WorkingDots(teal)
         self._current_topic_label = None
         bar = self.begin_topic(tr("spaCR AI"), accent=teal, trailing=dots)
-        block = _StdoutBlock(text_color=teal)
+        block = _AiReplyBlock(text_color=teal)
         block.setProperty("consoleContextKind", "spacr_ai")
         block.hide()
         block._ai_dots = dots
@@ -2962,7 +3084,7 @@ class ConsolePanel(QWidget):
             ai_color = ai_color_for_provider(self._current_provider_name)
             dots = self._take_down_the_waiting_heading()
             self.begin_topic(tr("spaCR AI"), accent=ai_color, trailing=dots)
-            self._current_stdout = _StdoutBlock(text_color=ai_color)
+            self._current_stdout = _AiReplyBlock(text_color=ai_color)
             self._insert_entry(self._current_stdout)
             self._last_entry_kind = "ai"
         else:
@@ -2993,6 +3115,9 @@ class ConsolePanel(QWidget):
         self._ai_worker = None
         if thread is not None:
             self._retired.append((thread, worker))
+        if isinstance(self._current_stdout, _AiReplyBlock):
+            self._current_stdout._reply_flush.stop()
+            self._current_stdout._render_reply()
         if ok:
             self._ai_messages.append(
                 {"role": "assistant", "content": final_text}

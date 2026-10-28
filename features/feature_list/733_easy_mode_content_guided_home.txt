@@ -14,6 +14,8 @@ Related:   startup options, Preferences, Home, dock, spaCR AI
 
 CURRENT MAINTAINER FOLLOW-UP — 2026-10-27
 
+TEXT HISTORY AND DOT FOLLOW-UP — 2026-10-28: add Back/Forward controls at the lower text box top right to revisit descriptions and AI responses, plus a minimize arrow with an accessible restore control. Preserve expandable fixed layout, fresh-Home reset and response streaming without one history entry per chunk. Enlarge the current hosted white fill by exactly 35 percent while preserving its ring and marker animation. Root owns implementation and focused checks.
+
 AI GUIDANCE EXAMPLE COPY — 2026-10-28: the maintainer replaces channel/error examples with exactly “Ask for help with your spaCR analysis, e.g., ‘How do I generate object masks?’ or ‘How do i train a Cellpose or Torch model?’” Preserve the approved other five guide examples.
 
 AI BUSY-DOT MOTION FOLLOW-UP — 2026-10-28: spaCR AI's small white fill must spawn a small black dot at its center, move it halfway to the edge and orbit it while a reply is pending. On completion move it back to the center and blend it into white until invisible. Typing pulses scale the white fill and black marker together. Preserve the outer white ring, reduced-motion support and zero hidden/idle animation work.

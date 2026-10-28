@@ -69,6 +69,8 @@ from PySide6.QtWidgets import (
     QSizePolicy,
     QStyle,
     QTabWidget,
+    QTextBrowser,
+    QToolButton,
     QVBoxLayout,
     QWidget,
 )
@@ -5467,7 +5469,7 @@ class _NavigatorAiButton(QPushButton):
         if self.isChecked():
             elapsed = max(0, self._clock.elapsed() - self._last_key)
             pulse = 0.0 if get_reduce_motion() else self._pulse * math.exp(-elapsed / 220.0)
-            radius = (8.0 + 5.0 * pulse) * (0.75 if self._provider == 'spacr_hosted' else 1.0)
+            radius = (8.0 + 5.0 * pulse) * (1.0125 if self._provider == 'spacr_hosted' else 1.0)
             painter.setPen(Qt.NoPen)
             painter.setBrush(color)
             painter.drawEllipse(QRectF(-radius, -radius, radius * 2, radius * 2))
@@ -5882,6 +5884,136 @@ class _EasyGuidanceCard(_EasySuggestionCard):
         self.parentWidget().panel.setFocus()
 
 
+class _NavigatorDetailsBrowser(QTextBrowser):
+    """Keep bounded description history and controls on the shared native surface."""
+
+    def __init__(self, field):
+        from ..i18n import tr
+
+        super().__init__(field)
+        self._field = field
+        self._entries = []
+        self._entry = -1
+        self._stream_token = None
+        self._stream_entry = -1
+        self._minimized = False
+        self.setViewportMargins(8, 36, 8, 8)
+        self._back = QToolButton(self)
+        self._forward = QToolButton(self)
+        self._collapse = QToolButton(self)
+        for button, name, icon in (
+                (self._back, tr('Back'), QStyle.SP_ArrowBack),
+                (self._forward, tr('Next'), QStyle.SP_ArrowForward),
+                (self._collapse, tr('Collapse or expand this container'), QStyle.SP_ArrowDown)):
+            button.setAutoRaise(True)
+            button.setAccessibleName(name)
+            button.setToolTip(name)
+            button.setIcon(self.style().standardIcon(icon))
+            button.setFixedSize(28, 28)
+            button.setCursor(Qt.PointingHandCursor)
+        self._back.clicked.connect(lambda: self._navigate(-1))
+        self._forward.clicked.connect(lambda: self._navigate(1))
+        self._collapse.clicked.connect(self._toggle_minimized)
+        self._update_controls()
+
+    def _save_scroll(self):
+        if 0 <= self._entry < len(self._entries):
+            self._entries[self._entry][2] = self.verticalScrollBar().value()
+
+    def _display_entry(self):
+        kind, text, scroll = self._entries[self._entry]
+        if kind == 'html':
+            super().setHtml(text)
+        else:
+            super().setPlainText(text)
+        self.verticalScrollBar().setValue(scroll)
+
+    def _record(self, kind, text, stream=None):
+        if not text.strip():
+            super().clear()
+            self._update_controls()
+            return
+        self._save_scroll()
+        if stream is not None and stream == self._stream_token and self._stream_entry >= 0:
+            index = self._stream_entry
+            self._entries[index][:2] = [kind, text]
+            if self._entry == index:
+                self._display_entry()
+        elif (self._entry >= 0 and self._entries[self._entry][:2] == [kind, text]):
+            self._display_entry()
+        else:
+            del self._entries[self._entry + 1:]
+            if self._stream_entry > self._entry:
+                self._stream_entry = -1
+            self._entries.append([kind, text, 0])
+            self._entry = len(self._entries) - 1
+            if stream is not None:
+                self._stream_token, self._stream_entry = stream, self._entry
+            while len(self._entries) > 40 or (len(self._entries) > 1 and
+                    sum(len(entry[1]) for entry in self._entries) > 2_000_000):
+                self._entries.pop(0)
+                self._entry -= 1
+                self._stream_entry -= 1
+            self._display_entry()
+        self._update_controls()
+
+    def setHtml(self, text, *, stream=None):
+        self._record('html', str(text), stream)
+
+    def setPlainText(self, text):
+        self._record('plain', str(text))
+
+    def _start_reply(self, token):
+        self._stream_token, self._stream_entry = token, self._entry
+
+    def _navigate(self, direction):
+        target = self._entry + direction
+        if 0 <= target < len(self._entries):
+            self._save_scroll()
+            self._entry = target
+            self._display_entry()
+            self._update_controls()
+
+    def _update_controls(self):
+        self._back.setEnabled(self._entry > 0)
+        self._forward.setEnabled(self._entry + 1 < len(self._entries))
+        self._back.setVisible(not self._minimized)
+        self._forward.setVisible(not self._minimized)
+        self._collapse.setIcon(self.style().standardIcon(
+            QStyle.SP_ArrowUp if self._minimized else QStyle.SP_ArrowDown))
+        self.viewport().setVisible(not self._minimized)
+        self._place_controls()
+
+    def _place_controls(self):
+        for offset, button in enumerate((self._collapse, self._forward, self._back)):
+            button.move(max(0, self.width() - 34 - offset * 30), 4)
+            button.raise_()
+        if self._minimized:
+            from PySide6.QtGui import QRegion
+
+            self.setMask(QRegion(self._collapse.geometry()))
+        else:
+            self.clearMask()
+
+    def _toggle_minimized(self):
+        self._minimized = not self._minimized
+        self._update_controls()
+        self._field._arrange()
+
+    def _reset_history(self):
+        self._entries.clear()
+        self._entry = self._stream_entry = -1
+        self._stream_token = None
+        self._minimized = False
+        super().clear()
+        self._update_controls()
+        self._field._arrange()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._place_controls()
+
+
 class _NavigatorDetailsGrip(HeightGrip):
     """Resize the fixed-bottom description from its upper edge."""
 
@@ -5965,10 +6097,10 @@ class _EasyHomeField(QWidget):
         self.panel.setProperty('spacrAmbientPassiveOverlay', True)
         self.rim.setProperty('spacrAmbientPassiveOverlay', True)
         self.setMinimumSize(340, 340)
-        from PySide6.QtWidgets import QScrollBar, QTextBrowser, QGraphicsOpacityEffect
+        from PySide6.QtWidgets import QGraphicsOpacityEffect, QScrollBar
         from ..i18n import tr
         from .field_fade import OPT_OUT_PROPERTY
-        self.details = QTextBrowser(self)
+        self.details = _NavigatorDetailsBrowser(self)
         self.details.setObjectName('EasyWorkflowDetails')
         self.details.setProperty('spacrAmbientPassiveOverlay', True)
         self.details.setAccessibleName(tr('Module description'))
@@ -6138,13 +6270,16 @@ class _EasyHomeField(QWidget):
         maximum_height = max(1, height - panel_y - panel_height - 32)
         wanted_height = (default_height if self._details_height_base is None
                          else scaled_px(self._details_height_base))
-        details_height = min(maximum_height, max(min(scaled_px(96), maximum_height), wanted_height))
+        details_height = (36 if self.details._minimized else
+                          min(maximum_height, max(min(scaled_px(96), maximum_height), wanted_height)))
         self._place_fixed(self.details, QRect((width - details_width) // 2, height - details_height - 16,
                                               details_width, details_height))
         self._details_grip._min = min(scaled_px(96), maximum_height)
         self._details_grip._max = maximum_height
         self._details_grip.setGeometry(12, 0, max(1, details_width - 24), self._details_grip.height())
+        self._details_grip.setVisible(not self.details._minimized)
         self._details_grip.raise_()
+        self.details._place_controls()
         available = max(64, panel_y - 40)
         side = min(224, available, max(96, width - 64))
         card_height = max([side] + [min(available, max(card.sizeHint().height(), side))
@@ -7184,6 +7319,7 @@ class _EasyHomePage(QWidget):
         self._ai_text = ''
         self._ai_generation += 1
         generation = self._ai_generation
+        self.field.details._start_reply(generation)
         alive = []
         for thread, worker, relay in self._ai_retired:
             try:
@@ -7219,7 +7355,7 @@ class _EasyHomePage(QWidget):
         """Present a readable reply using the same passive Markdown renderer as chat."""
         from .ai_chat_panel import _ai_reply_html
 
-        self.field.details.setHtml(_ai_reply_html(self._ai_text))
+        self.field.details.setHtml(_ai_reply_html(self._ai_text), stream=self._ai_generation)
 
     def _navigator_ai_finished(self, generation, ok, text):
         """Stop the waiting texture and preserve worker ownership until thread exit."""
@@ -7357,7 +7493,7 @@ class _EasyHomePage(QWidget):
         self._cancel_navigator_ai()
         self._show_suggestions()
         self._details_has_content = False
-        self.field.details.clear()
+        self.field.details._reset_history()
         self.path_edit.clear()
         self._queued_inspection = False
         self._clear_empty_input()
