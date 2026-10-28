@@ -969,3 +969,105 @@ def test_gl_table_adapter_rewrites_each_distinct_lookup_without_changing_indices
     source = captured['fragment_shader']
     assert 'ivec2(int(3), 0)' in source and 'ivec2(int(9), 0)' in source
     assert source.count('texelFetch(spacr_palette,') == 2
+
+
+def test_unrecognized_power_supply_kind_is_ignored_before_battery_policy(tmp_path):
+    """Vendor-specific supply records do not masquerade as mains power."""
+    for name, values in [('unknown', {'type': 'VendorPrivate'}),
+                         ('battery', {'type': 'Battery', 'status': 'Discharging'})]:
+        folder = tmp_path / name
+        folder.mkdir()
+        for key, value in values.items():
+            (folder / key).write_text(value)
+    assert ambient._linux_on_battery(tmp_path) is True
+
+
+def test_disallowed_external_priming_still_joins_an_owned_resident_worker(monkeypatch):
+    """The no-helper policy bypasses disk-marker lookup while retiring a real worker."""
+    done = threading.Event()
+    worker = threading.Thread(target=done.set)
+    worker.start()
+    monkeypatch.setattr(ambient, '_COMPILER_THREADS', {worker})
+    monkeypatch.setattr(ambient, '_priming_allowed', lambda: False)
+
+    def unexpected():
+        raise AssertionError('disabled external priming must not query its cache marker')
+
+    monkeypatch.setattr(ambient, '_numba_cache_directory', unexpected)
+    expected = (ambient._PACKED_SCATTER is not None and ambient._SUBPIXEL_SCATTER is not None
+                and (ambient._SATIN_COMPILER.kernel is not None or ambient._SATIN_COMPILER.failed))
+    assert ambient._finish_kernel_warmup_before_first_paint(timeout_s=.25) is expected
+    assert done.is_set() and not worker.is_alive()
+
+
+def test_native_line_separator_with_a_child_is_not_treated_as_a_hollow_ring(qtbot):
+    """Line-shaped QFrames cover their own native paint rather than an invented ring."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QFrame, QWidget
+
+    host = QWidget()
+    qtbot.addWidget(host)
+    backdrop = ambient.AmbientWidget(host, theme='blobs', seed=7)
+    line = QFrame(host)
+    line.setFrameShape(QFrame.HLine)
+    line.setLineWidth(2)
+    line.setAttribute(Qt.WA_NoSystemBackground, True)
+    QWidget(line)
+    assert line.frameWidth() > 0
+    assert backdrop._held_rows._own_paint(line) is None
+    backdrop.stop()
+
+
+@pytest.mark.parametrize('route', ['popup', 'widget'])
+def test_retired_native_owner_during_ripple_lookup_is_ignored(qtbot, monkeypatch, route):
+    """A real owner retiring after lookup cannot send feedback through an invalid wrapper."""
+    import shiboken6
+    from PySide6.QtWidgets import QWidget
+
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    widget = QWidget(owner)
+    qtbot.addWidget(widget)
+    lookup = widget.parentWidget if route == 'popup' else widget.window
+
+    def retired():
+        previous = lookup()
+        widget.setParent(None)
+        shiboken6.delete(owner)
+        assert not shiboken6.isValid(previous)
+        return previous
+
+    monkeypatch.setattr(widget, 'parentWidget' if route == 'popup' else 'window', retired)
+    if route == 'popup':
+        ambient._field_ripple_for_popup(widget)
+    else:
+        ambient.field_ripple_for_widget(widget)
+    assert shiboken6.isValid(widget) and not shiboken6.isValid(owner)
+
+
+def test_growing_field_regions_clip_outside_bounds_even_when_holding_is_disabled(qtbot):
+    """Geometry still reaches the real field while optional row holding is switched off."""
+    from PySide6.QtCore import QRect
+    from PySide6.QtWidgets import QWidget
+
+    prefs.set_ambient_enabled(True)
+    prefs.set_reduce_motion(False)
+    host = QWidget()
+    qtbot.addWidget(host)
+    host.resize(240, 180)
+    backdrop = ambient.AmbientWidget(host, theme='data_art_impulse_lens', seed=7)
+    backdrop.setGeometry(host.rect())
+    host.show()
+    try:
+        qtbot.waitUntil(lambda: backdrop._should_run())
+        backdrop._held_rows.enabled = False
+        inside = QRect(8, 8, 20, 30)
+        outside = QRect(-100, -100, 10, 10)
+        ambient._field_growing_regions_for_widget(host, (outside, inside), invalidate=True)
+        width, height = backdrop.width(), backdrop.height()
+        assert backdrop._art_input._growing_regions == ((8 / width, 8 / height,
+                                                         28 / width, 38 / height),)
+        assert backdrop._held_rows.frame is None
+    finally:
+        backdrop.stop()
+        host.close()

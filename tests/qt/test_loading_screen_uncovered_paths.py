@@ -536,3 +536,59 @@ def test_late_display_paints_reduce_pacing_and_slow_costs_thin_real_tiles(qtbot,
     assert not frame.isNull() and screen._drawn[-1] > 0
     assert screen._drawn[-1] <= len(screen._tiles) // screen._stride + 1
     screen.skip()
+
+
+def test_timely_display_ticks_do_not_repaint_and_unrelated_windows_cannot_drive_the_cover(qtbot, monkeypatch):
+    """A normal display cadence owns repaint requests; another window owns no cover callbacks."""
+    from PySide6.QtGui import QWindow
+    from tests.qt.test_694_photomosaic_blow_away_startup_screen import _Clock, _played
+
+    host = QWidget()
+    qtbot.addWidget(host)
+    host.resize(420, 320)
+    host.show()
+    screen = ls.LoadingScreen(total=1, parent=host)
+    clock, pace = _Clock(), _Clock()
+    screen._clock = screen.clock = clock
+    screen._pace_clock = pace
+    monkeypatch.setattr(ls, '_display_paced', lambda platform: True)
+    screen.show_mosaic()
+    _played(screen)
+    screen.grab()
+    assert screen._divisor == 1
+    updates = []
+    original = screen.update
+
+    def update(*args):
+        updates.append(args)
+        original(*args)
+
+    monkeypatch.setattr(screen, 'update', update)
+    other = QWindow()
+    try:
+        screen._follow_the_display(other)
+        screen._tick()
+        assert updates == [] and screen._tick_timer.isActive()
+    finally:
+        other.destroy()
+        screen.skip()
+
+
+def test_unavailable_native_underlay_capture_restores_cover_visibility(qtbot, monkeypatch):
+    """A null capture response leaves no stale backdrop and still restores the cover."""
+    from PySide6.QtGui import QGuiApplication
+
+    class UnavailableCapture(QWidget):
+        def grab(self, *args):
+            return QPixmap()
+
+    parent = UnavailableCapture()
+    qtbot.addWidget(parent)
+    parent.resize(420, 320)
+    parent.show()
+    screen = ls.LoadingScreen(total=1, parent=parent)
+    screen.show()
+    monkeypatch.setattr(QGuiApplication, 'platformName', lambda: 'cocoa')
+    screen._capture_underlay()
+    assert screen._underlay is None
+    assert screen.isVisible()
