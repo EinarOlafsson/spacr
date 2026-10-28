@@ -10804,7 +10804,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "count_data",
-    "line": 14009,
+    "line": 14010,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "_first_count_file"
@@ -39039,7 +39039,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "paired_data",
-    "line": 14004,
+    "line": 14005,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "_first_count_file"
