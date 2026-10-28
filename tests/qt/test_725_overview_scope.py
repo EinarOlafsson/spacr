@@ -796,3 +796,53 @@ def test_category_height_ignores_right_button_gestures_and_survives_folding(qtbo
     section.set_expanded(True)
     assert not grip.isHidden() and section.is_expanded()
     assert section._body.minimumHeight() == minimum
+
+
+def test_reindexing_real_source_keeps_physical_channel_nine_distinct_from_old_two(
+        workspace, qtbot, tmp_path):
+    screen, folders = workspace
+    view = _workspace_browser(screen, qtbot)
+    page, model = screen._overview_page, screen._settings_model
+    originals = {path: path.read_bytes() for folder in folders for path in folder.glob('*.tif')}
+    replacement = _plate(tmp_path / 'replacement', {'B03': 7})
+    (replacement / 'p1-B03-f1-c2.tif').rename(replacement / 'p1-B03-f1-c9.tif')
+    originals.update({path: path.read_bytes() for path in replacement.glob('*.tif')})
+    assert model.set_value_for_key('overview_channels', '2')
+    assert view.channels.text() == '2'
+    assert model.set_value_for_key('src', str(replacement))
+    view._scan()
+    qtbot.waitUntil(lambda: len(view._fields) == 1 and view._fields[0].well == 'B03'
+                    and tuple(view._channel_buttons) == (1, 9), timeout=15000)
+    fields = [field for _section, field, _widgets in page._rows]
+    toggles = [field for field in fields if isinstance(field, browser._OverviewChannelToggles)]
+    assert toggles and all(tuple(field._toggles) == (1, 9) for field in toggles)
+    assert view._metadata_source == str(replacement)
+    assert {int(channel) for channel, _path in view._fields[0].files} == {1, 9}
+    assert {path for _channel, path in view._fields[0].files} == {
+        str(replacement / 'p1-B03-f1-c1.tif'), str(replacement / 'p1-B03-f1-c9.tif')}
+    assert view.channels.text() == model._read_value('overview_channels') == '2'
+    assert not view._channel_buttons[9].isChecked()
+    view._channel_buttons[9].setChecked(True)
+    assert view.channels.text() == model._read_value('overview_channels') == '9'
+    assert model._read_value('src') == str(replacement)
+    assert all(path.read_bytes() == raw for path, raw in originals.items())
+
+
+def test_same_channel_scope_refresh_preserves_controls_and_dormant_channel_settings(workspace, qtbot):
+    screen, folders = workspace
+    view = _workspace_browser(screen, qtbot)
+    page, model = screen._overview_page, screen._settings_model
+    scopes = next(field for _section, field, _widgets in page._rows
+                  if isinstance(field, browser._OverviewChannelScopes))
+    originals = {path: path.read_bytes() for folder in folders for path in folder.glob('*.tif')}
+    value = '1=plate, 2=well, 9=all'
+    assert model.set_value_for_key('overview_normalization_scope', value)
+    choices = dict(scopes._choices)
+    scopes.set_channels(tuple(view._channel_buttons))
+    assert tuple(scopes._choices) == (1, 2)
+    assert all(scopes._choices[channel] is control for channel, control in choices.items())
+    assert scopes._choices[1].currentData() == 'plate'
+    assert scopes._choices[2].currentData() == 'well'
+    assert model._read_value('overview_normalization_scope') == value
+    assert tuple(view._channel_buttons) == (1, 2)
+    assert all(path.read_bytes() == raw for path, raw in originals.items())
