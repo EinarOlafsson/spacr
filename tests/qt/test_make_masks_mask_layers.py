@@ -796,3 +796,73 @@ def test_clearing_filtered_layers_twice_restores_all_ids_without_editing_or_savi
     np.testing.assert_array_equal(screen._canvas.mask, before)
     np.testing.assert_array_equal(screen._history.head(), history)
     assert all(path.read_bytes() == data for path, data in originals.items())
+
+
+@pytest.mark.parametrize('stage', ['unopened', 'cleared'])
+def test_late_layer_actions_cannot_edit_an_ordinary_or_unopened_editor(
+        screen, folder, monkeypatch, stage):
+    if stage == 'cleared':
+        _open(screen, folder)
+        screen._clear_layers()
+    before = None if screen._canvas.mask is None else screen._canvas.mask.copy()
+    originals = {path: path.read_bytes() for path in folder.rglob('*.tif')}
+    if stage == 'unopened':
+        assert not screen._edits_unsaved()
+        monkeypatch.setattr(mm.QFileDialog, 'getExistingDirectory',
+                            lambda *a, **k: pytest.fail('Unopened layer action prompted'))
+        assert not screen._on_add_mask_layer()
+        assert 'Open one folder' in screen._status_label.text()
+    screen._on_layer_pick(3, 3)
+    assert not screen._on_merge_layers()
+    assert not screen._layers_active()
+    if before is None:
+        assert screen._canvas.mask is None
+    else:
+        np.testing.assert_array_equal(screen._canvas.mask, before)
+    assert all(path.read_bytes() == data for path, data in originals.items())
+
+
+def test_changing_the_base_of_an_unedited_field_loads_the_selected_source_exactly(screen, folder):
+    _open(screen, folder)
+    originals = {path: path.read_bytes() for path in folder.rglob('*.tif')}
+    assert not screen._edits_unsaved() and not screen._loaded_from_save_path
+    screen._on_layer_base_changed(1)
+    assert screen._layer_base == 1
+    np.testing.assert_array_equal(screen._canvas.mask, MODEL_A)
+    np.testing.assert_array_equal(screen._history.head(), MODEL_A)
+    assert all(path.read_bytes() == data for path, data in originals.items())
+
+
+def test_reselecting_a_confirmed_layer_target_and_empty_confirmation_are_idempotent(screen, folder):
+    _open(screen, folder)
+    index = screen._layer_target_combo.findData(str(folder / 'model_a'))
+    assert index > 0
+    screen._on_layer_target_chosen(index)
+    assert screen._layer_pending_target == str(folder / 'model_a')
+    screen._confirm_layer_target()
+    assert screen._layer_target == str(folder / 'model_a')
+    mask = screen._canvas.mask.copy()
+    before = {path: path.read_bytes() for path in folder.rglob('*') if path.is_file()}
+    screen._on_layer_target_chosen(index)
+    screen._confirm_layer_target()
+    assert screen._layer_pending_target is None and screen._layer_confirm.isHidden()
+    assert screen._layer_target == str(folder / 'model_a')
+    np.testing.assert_array_equal(screen._canvas.mask, mask)
+    assert all(path.read_bytes() == data for path, data in before.items())
+
+
+@pytest.mark.parametrize('matching', [False, True])
+def test_reopening_a_required_layer_review_selects_the_first_available_field_without_writing(
+        screen, folder, matching):
+    for index in range(3):
+        imageio.imwrite(folder / 'model_a' / f'f_{index}.tif',
+                        MODEL_A if matching and index == 1 else np.zeros_like(BASE))
+    originals = {path: path.read_bytes() for path in folder.rglob('*.tif')}
+    screen._set_layers([str(folder / 'masks'), str(folder / 'model_a')],
+                       root=str(folder), settings_root=str(folder),
+                       require=[str(folder / 'model_a')])
+    assert screen._open_folder(str(folder), files=[f'f_{index}.tif' for index in range(3)])
+    assert screen._current_index == (1 if matching else 0)
+    np.testing.assert_array_equal(screen._canvas.mask, BASE)
+    assert all(path.read_bytes() == data for path, data in originals.items())
+    assert not (folder / STATUS_FILENAME).exists()
