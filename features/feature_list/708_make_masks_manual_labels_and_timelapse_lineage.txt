@@ -1,7 +1,7 @@
 MAKE MASKS: EDIT LABELS AND CURATE TIMELAPSE IDENTITIES / DIVISIONS
 
 Lifecycle: new
-Status:    built 2026-10-17; uint32 time labels with lineage embedded in the mask TIFFs, no generation limit.
+Status: DONE — manual labels, uint32 TIFF lineage and timelapse curation are implemented and published.
 Requested: maintainer, 2026-10-16.
 
 WHAT TO BUILD
@@ -51,3 +51,5 @@ Regression: real T98G crop (tests/data/708_t98g_division_crop) built by tools/bu
 
 2026-10-18 — Maintainer decision "Yes, merge into 61": a lone-daughter continuation traced with the mother's identity becomes the same cell. In the real movie 712 made lone daughter 107 a founder that starts the frame after 61 ends; tracing 61 onto it now merges 107 into 61 (its frames carry 61, its division is re-parented so 107a/107b become daughters of 61) and 107 disappears.
 Only an exact continuation merges: a founder whose first frame directly follows the last frame of a childless selected cell, never two coexisting cells and never a real two-daughter division; a contradiction is refused with a status message. Every saved frame's TIFF is rewritten with the merged lineage (and again on Undo/Redo), and newer revisions win ancestry on reopen so all frames agree.
+
+2026-10-28 — Retain the published lineage/undo/save implementation, seven real classic/BigTIFF checks and the corrected T98G61 continuation/division regression. No new physical-input acceptance or inference run is claimed.

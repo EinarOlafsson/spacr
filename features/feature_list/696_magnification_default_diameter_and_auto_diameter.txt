@@ -4,7 +4,7 @@ CELLPOSE ESTIMATES IT
 ================================================================================
 
 Lifecycle: new
-Status:    built; nine-language translations current; release pending
+Status: DONE — magnification and automatic-diameter behavior, API/Help and translations are published.
 Requested: maintainer, 2026-10-13: "in older versions of spacr we had an
            equation use magnification to calculate what the default cellpose
            diameter is. i'd like to start using this again. also now it is not
@@ -295,3 +295,5 @@ Tests: tests/test_calculate_diameters.py,
 tests/qt/test_calculate_diameters_follows_magnification.py.
 Tutorials that show the Make Masks Input & Metadata rows need a re-record
 (WS lane): one new switch under Magnification.
+
+2026-10-28 — Retain d3812e82 API/Help delivery, the recorded 235 merged controls and later Calculate diameters implementation/documentation/translations. Broader release, tutorial and physical-input follow-ups remain with their owning items; no new native run is claimed.

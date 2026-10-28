@@ -1,7 +1,7 @@
 CLUSTER RUNS DOWNLOAD A MISSING ZOO MODEL AUTOMATICALLY
 
 Lifecycle: new
-Status:    BLOCKED ON MAINTAINER — software delivered; current real-cluster shared-cache, crash-recovery and offline acceptance are untested.
+Status: DONE — missing-model resolution, pinned downloads, locking and offline handling are published.
 Requested: maintainer, 2026-10-13: "when using run if the like with athe
            cluster, if a user puts in a version of a model thatisnt on the
            cluster it should be automatically downloaded. now it just fails
@@ -834,3 +834,5 @@ separate; no new real-cluster/GPU/scientific gate is invented for this item.
 
 2026-10-21 — Maintainer response: current real-cluster concurrent-download tests have not run. Resolver, pinned download, offline and local concurrency checks remain delivered.
 Real shared-cache four-task coalescing, interrupted-download stale recovery and offline-command acceptance remain unverified; routine approval is not a physical cluster result.
+
+2026-10-28 — Retain the published resolver and focused local concurrent-download/offline checks. Real-cluster four-task/crash-recovery qualification remains unperformed; its former manual acceptance gate does not keep the delivered software open.

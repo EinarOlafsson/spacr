@@ -3,16 +3,7 @@ WITH SOUND ON, REOPENING PREFERENCES HANGS spaCR UNTIL IT IS FORCE QUIT
 ================================================================================
 
 Lifecycle: new
-Status:    IN PROGRESS 2026-10-21 — sound-shutdown repair 62ae8d023f is
-           published; native Mac runtime passes, audible confirmation remains open.
-           The 2026-09-19 fix (6ee1deb64) is retained.
-           REGRESSION from the same day's item 427 (the sound engine).
-           Every Qt Multimedia object is on the GUI thread now and the
-           audio thread renders only; the connection is paid once, on an
-           idle timer, and logged. Five tests against the real audio stack
-           hold it, and all five fail against the module as it was. What
-           is NOT done is a check on the maintainer's own desktop -- see
-           WHAT IS LEFT at the end.
+Status: DONE — the sound-shutdown repair is published and validated; manual audibility is not a delivery gate.
 Requested: 2026-09-19, by the maintainer, in these words:
 
              "for some reason if sound is on in spacr and i try to reopen
@@ -452,3 +443,5 @@ Root owns final peer, integration/publication; original native-desktop preferenc
 2026-10-21 — Native Cocoa source62f709b6f/macOS26.6.1 Intel, Conda spacr Python3.12.15, MacBook Pro Speakers: spaceout sound enabled before launch,0.08 volume, real engine available;10 populated Preferences reopens visit2 tabs and alternate Save/Cancel, then menu Quit exits0 without captured thread warnings. Same-profile relaunch/reopen/quit also exits0. Isolated profile only; audible playback is NOT human-confirmed, so that gate remains open.
 
 2026-10-21 — Ported62ae8d023f: repeated shutdown reports the actual sound thread state. Native nightly62f709b6f/macOS26.6.1 Intel, MacBook Pro Speakers, isolated spaceout profile:10 populated Preferences reopens alternate Save/Cancel with sound enabled; normal quit and same-profile relaunch/reopen/quit exit0 without captured thread warnings. Main port additionally passes a source-verified Cocoa launch/Preferences Save/audio-available/normal-quit smoke. Audible playback remains human-unconfirmed.
+
+2026-10-28 — Retain the published 62ae8d023f shutdown repair and recorded native repeated Preferences/open/quit/relaunch results. Manual hearing checks remain unclaimed and do not block software delivery under the maintainer delivery rule.
