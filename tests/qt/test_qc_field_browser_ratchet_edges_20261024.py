@@ -187,3 +187,108 @@ def test_wizard_action_fit_does_not_reenter_and_measures_styled_buttons(
         assert button.minimumWidth() > 0 and button.minimumHeight() > 0
         assert button.minimumWidth() >= min(hint.width(), button.minimumWidth())
     wizard.close()
+
+
+def test_annotation_groups_preserve_definitions_while_renaming_reordering_and_removing(qtbot, monkeypatch):
+    from PySide6.QtWidgets import QInputDialog
+
+    records = ({'drug': 'A'}, {'drug': 'A'}, {'drug': 'B'})
+    builder = module._OverviewGroupBuilder(
+        lambda definition: sum(all(record.get(key) == value for key, value in definition.items())
+                               for record in records), lambda: {'drug': ['A', 'B']})
+    qtbot.addWidget(builder)
+    builder.set_columns({'drug': {'A', 'B'}})
+    first, second = {'drug': 'A'}, {'drug': 'B'}
+    assert builder.add_group(first) and builder.add_group(second)
+    assert not builder.add_group(first)
+    assert not builder.rename_group(row=-1, name='missing')
+    assert builder.rename_group(row=0, name='Control')
+    assert not builder.rename_group(row=1, name='Control')
+    assert builder.names() == ['Control', '']
+    monkeypatch.setattr(QInputDialog, 'getText', lambda *args, **kwargs: ('ignored', False))
+    assert not builder.rename_group(row=0)
+    assert builder.names() == ['Control', '']
+    assert builder.definitions() == [first, second]
+    assert '2 images' in builder.groups.item(0).text()
+    assert '1 images' in builder.groups.item(1).text()
+    builder.groups.setCurrentRow(0)
+    builder.move_group(1)
+    assert builder.definitions() == [second, first]
+    assert builder.names() == ['', 'Control']
+    builder.move_group(1)
+    assert builder.definitions() == [second, first]
+    builder.remove_group()
+    assert builder.definitions() == [second]
+    builder.groups.setCurrentRow(-1)
+    builder.remove_group()
+    assert builder.definitions() == [second]
+    builder.clear_groups()
+    assert builder.definitions() == [] and builder.names() == []
+    assert first == {'drug': 'A'} and second == {'drug': 'B'}
+
+
+def test_annotation_presets_keep_the_held_column_and_handle_a_removed_vary_column(qtbot):
+    levels = {}
+    builder = module._OverviewGroupBuilder(lambda definition: len(definition), lambda: levels)
+    qtbot.addWidget(builder)
+    builder.set_columns({'drug': {'A', 'B'}, 'batch': {'1', '2'}})
+    builder._pickers['batch'].setCurrentIndex(builder._pickers['batch'].findData('2'))
+    builder.preset.setCurrentIndex(builder.preset.findData('vary'))
+    builder.vary.setCurrentIndex(builder.vary.findData('drug'))
+    assert builder.apply_preset() == 2
+    assert builder.definitions() == [{'batch': '2', 'drug': 'A'}, {'batch': '2', 'drug': 'B'}]
+    saved = builder.definitions()
+    builder.vary.clear()
+    assert builder.apply_preset() == 0
+    assert builder.definitions() == saved
+    levels.update({'drug': ['A', 'B'], 'batch': ['1', '2']})
+    builder.preset.setCurrentIndex(builder.preset.findData('combinations'))
+    assert builder.apply_preset() == 4
+    assert {tuple(sorted(group.items())) for group in builder.definitions()} == {
+        (('batch', batch), ('drug', drug)) for batch in ('1', '2') for drug in ('A', 'B')}
+
+
+def test_real_plate_rename_and_removal_preserve_source_identity_and_reject_bad_regex(qtbot, tmp_path):
+    import hashlib
+
+    folders = [tmp_path / name for name in ('plate1', 'plate2')]
+    paths = []
+    for folder in folders:
+        folder.mkdir()
+        path = folder / 'p1-A01-f1-t1-z1-c1.tif'
+        tifffile.imwrite(path, np.arange(120, dtype=np.uint16).reshape(10, 12))
+        paths.append(path)
+    hashes = {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in paths}
+    wizard = module._OverviewMetadataWizard('; '.join(map(str, folders)), settings={'custom_regex': PATTERN})
+    qtbot.addWidget(wizard)
+    wizard.show()
+    try:
+        qtbot.waitUntil(lambda: len(wizard._detected_plates) == 2
+                        and not wizard._runner.is_busy(), timeout=10000)
+        first = next(plate for plate in wizard._detected_plates if plate['path'] == str(folders[0]))
+        row = next(index for index in range(wizard.plate_table.rowCount())
+                   if wizard.plate_table.item(index, 0).data(Qt.UserRole) == first['default_name'])
+        name = wizard.plate_table.item(row, 0)
+        name.setText('Display name')
+        assert wizard._plate_names[first['default_name']] == 'Display name'
+        assert name.data(Qt.UserRole) == first['default_name']
+        assert first['path'] == str(folders[0])
+        regex = wizard.plate_table.item(row, 4)
+        regex.setText('[')
+        assert wizard._plate_regex_errors[str(folders[0])][0] == '['
+        assert str(folders[0]) not in wizard._plate_regex
+        regex.setText('')
+        qtbot.waitUntil(lambda: not wizard._runner.is_busy()
+                        and not wizard._plate_regex_errors, timeout=10000)
+        row = next(index for index in range(wizard.plate_table.rowCount())
+                   if wizard.plate_table.item(index, 0).toolTip() == str(folders[1]))
+        wizard.plate_table.selectRow(row)
+        wizard._remove_selected_plates()
+        qtbot.waitUntil(lambda: len(wizard._detected_plates) == 1
+                        and not wizard._runner.is_busy(), timeout=10000)
+        assert module._overview_source_paths(wizard.source.text()) == [str(folders[0])]
+        assert wizard._detected_plates[0]['path'] == str(folders[0])
+        assert wizard._plate_names[first['default_name']] == 'Display name'
+        assert {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in paths} == hashes
+    finally:
+        wizard.reject()

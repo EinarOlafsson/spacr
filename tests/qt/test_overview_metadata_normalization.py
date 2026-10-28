@@ -1503,3 +1503,89 @@ def test_metadata_wizard_keeps_native_geometry_during_a_real_hub_paint(qtbot, qa
         hub.deleteLater()
         wizard.reject()
         qtbot.waitUntil(lambda: wizard._runner.active_jobs() == 0, timeout=10000)
+
+
+def test_scope_statistics_pool_finite_raw_pixels_with_channel_specific_percentiles(monkeypatch):
+    first, second = _field(number=1), _field(number=2)
+    arrays = {first.identity: np.array([0., 10., np.nan, np.inf]),
+              second.identity: np.array([20., 30., -np.inf])}
+    original = {key: value.copy() for key, value in arrays.items()}
+    calls = []
+
+    def read(field, channels, **options):
+        calls.append((field.identity, tuple(channels), options))
+        return [(channels[0], 'raw', arrays[field.identity])]
+
+    monkeypatch.setattr(browser, '_overview_cached_raw_planes', read)
+    result = browser._overview_scope_statistics(
+        {'shared': (3, (first, second))}, (0, 100), {'time_index': 2},
+        channel_percentiles={3: (25, 75)})
+    assert result == {'shared': (7.5, 22.5)}
+    assert [call[0] for call in calls] == [first.identity, second.identity]
+    assert all(call[1:] == ((3,), {'edge': 256, 'time_index': 2}) for call in calls)
+    for key, before in original.items():
+        np.testing.assert_array_equal(arrays[key], before)
+
+
+def test_scope_sampling_is_bounded_and_cancellation_does_not_read_the_next_group(monkeypatch):
+    fields = tuple(_field(number=index) for index in range(130))
+    raw = np.arange(8192, dtype=np.float64)
+    before = raw.copy()
+    calls = []
+
+    def read(field, channels, **options):
+        calls.append(field.identity)
+        assert options == {'edge': 256}
+        return [(channels[0], 'raw', raw)]
+
+    monkeypatch.setattr(browser, '_overview_cached_raw_planes', read)
+    result = browser._overview_scope_statistics({'plate': (0, fields)}, (0, 100), {})
+    assert result == {'plate': (0., 8190.)}
+    assert calls == [field.identity for field in fields[::3]]
+    assert len(calls) <= browser._OVERVIEW_SCOPE_IMAGES
+    np.testing.assert_array_equal(raw, before)
+    cancelled = threading.Event()
+    calls.clear()
+
+    def cancel_after_read(field, channels, **options):
+        calls.append(field.identity)
+        cancelled.set()
+        return [(channels[0], 'raw', np.array([2., 8.]))]
+
+    monkeypatch.setattr(browser, '_overview_cached_raw_planes', cancel_after_read)
+    assert browser._overview_scope_statistics(
+        {'first': (0, fields[:1]), 'next': (0, fields[1:2])}, (0, 100), {},
+        cancelled=cancelled) == {'first': (2., 8.)}
+    assert calls == [fields[0].identity]
+
+
+def test_empty_scope_samples_do_not_invent_bounds_and_saturation_keeps_raw_pixels(monkeypatch):
+    field = _field()
+    monkeypatch.setattr(browser, '_overview_cached_raw_planes',
+                        lambda *args, **kwargs: [(0, 'raw', np.array([np.nan, np.inf]))])
+    assert browser._overview_scope_statistics({'empty': (0, (field,))}, (0, 100), {}) == {}
+    rgb = np.array([[[255, 0, 0], [0, 255, 0], [0, 0, 255]]], dtype=np.uint8)
+    before = rgb.copy()
+    np.testing.assert_array_equal(browser._overview_saturated(rgb, 0),
+                                  [[[76, 76, 76], [149, 149, 149], [29, 29, 29]]])
+    np.testing.assert_array_equal(rgb, before)
+    assert browser._overview_saturated(rgb, 1) is rgb
+
+
+@pytest.mark.parametrize('failed', [False, True])
+def test_display_histograms_count_rendered_channels_or_return_the_read_error(monkeypatch, failed):
+    from unittest.mock import Mock
+
+    plane = np.array([[[0, 9, 9], [128, 9, 9]], [[255, 9, 9], [128, 9, 9]]], dtype=np.uint8)
+    render = Mock(side_effect=OSError('unreadable channel')) if failed else Mock(return_value=[(4, plane)])
+    monkeypatch.setattr(browser, '_overview_pixels', render)
+    field = _field()
+    result = browser._overview_display_histograms(field, (4,), (2, 98), {'time_index': 3})
+    render.assert_called_once_with(field, (4,), (2, 98), edge=512, channel_views=True, time_index=3)
+    if failed:
+        assert result == 'unreadable channel'
+    else:
+        expected = np.zeros(256, dtype=np.int64)
+        expected[[0, 128, 255]] = (1, 2, 1)
+        np.testing.assert_array_equal(result[4], expected)
+        assert result[4].sum() == 4
