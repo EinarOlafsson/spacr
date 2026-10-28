@@ -334,3 +334,108 @@ def test_no_mask_on_screen_no_upload(screen, qtbot, prefs):
     _agree(dialog)
     assert dialog.upload() is False
     assert upload.calls == []
+
+
+def test_duplicate_image_names_block_upload_with_a_bounded_complete_report(qtbot, prefs, tmp_path):
+    names = tuple(f'field_{index:02d}' for index in range(8))
+    images, masks = _pair_folders(tmp_path, names=names)
+    for name in names:
+        imageio.imwrite(images / f'{name}.tif', imageio.imread(images / f'{name}.png'))
+    originals = {path: path.read_bytes() for folder in (images, masks) for path in folder.iterdir()}
+    duplicate_names = sorted(path.name for path in images.iterdir())
+    upload = _Upload()
+    dialog = msd.ContributeMasksDialog(images_dir=str(images), masks_dir=str(masks),
+                                       name='HeLa nuclei', upload=upload, threaded=False)
+    qtbot.addWidget(dialog)
+    asked = _agree(dialog)
+
+    assert dialog.report['images'] == 16 and dialog.report['masks'] == 8
+    assert dialog.report['duplicates'] == duplicate_names
+    assert dialog.report['pairs'] == []
+    assert 'More than one file with the same name' in dialog.check.text()
+    assert 'and 4 more' in dialog.check.text()
+    assert all(name in dialog.check.text() for name in duplicate_names[:12])
+    assert all(name not in dialog.check.text() for name in duplicate_names[12:])
+    assert not dialog.upload_button.isEnabled()
+    assert dialog.upload() is False
+    assert asked == [] and upload.calls == [] and dialog.contribution_folder is None
+    assert all(path.read_bytes() == data for path, data in originals.items())
+
+
+def test_browsing_empty_then_matched_folders_recovers_and_cancel_preserves_the_choice(
+        qtbot, prefs, tmp_path, monkeypatch):
+    from PySide6.QtWidgets import QPushButton
+
+    images, masks = _pair_folders(tmp_path)
+    empty_images, empty_masks = tmp_path / 'empty_images', tmp_path / 'empty_masks'
+    empty_images.mkdir()
+    empty_masks.mkdir()
+    originals = {path: path.read_bytes() for folder in (images, masks) for path in folder.iterdir()}
+    choices = iter((str(empty_images), str(empty_masks), str(images), str(masks), ''))
+    requests = []
+
+    def browse(owner, title, previous):
+        requests.append((owner, title, previous))
+        return next(choices)
+
+    monkeypatch.setattr(msd.QFileDialog, 'getExistingDirectory', browse)
+    upload = _Upload()
+    dialog = msd.ContributeMasksDialog(name='HeLa nuclei', upload=upload, threaded=False)
+    qtbot.addWidget(dialog)
+    buttons = dialog.folders.findChildren(QPushButton)
+    assert len(buttons) == 2
+    buttons[0].click()
+    buttons[1].click()
+    assert dialog.images_edit.text() == str(empty_images)
+    assert dialog.masks_edit.text() == str(empty_masks)
+    assert 'There are no image and mask pairs to send.' in dialog.check.text()
+    assert not dialog.upload_button.isEnabled() and dialog.upload() is False
+    buttons[0].click()
+    buttons[1].click()
+    assert dialog.upload_button.isEnabled()
+    assert 'Every image has its mask. Ready.' in dialog.check.text()
+    before = (dialog.images_edit.text(), dialog.masks_edit.text(), dialog.check.text())
+    buttons[0].click()
+    assert (dialog.images_edit.text(), dialog.masks_edit.text(), dialog.check.text()) == before
+    assert requests == [(dialog, 'Choose the images folder', ''),
+                        (dialog, 'Choose the masks folder', ''),
+                        (dialog, 'Choose the images folder', str(empty_images)),
+                        (dialog, 'Choose the masks folder', str(empty_masks)),
+                        (dialog, 'Choose the images folder', str(images))]
+    assert dialog.upload_button.isEnabled() and upload.calls == []
+    assert list(empty_images.iterdir()) == list(empty_masks.iterdir()) == []
+    assert all(path.read_bytes() == data for path, data in originals.items())
+
+
+def test_unavailable_preferences_do_not_lose_an_explicitly_agreed_contribution(
+        qtbot, tmp_path, monkeypatch):
+    import tifffile
+
+    images, masks = _pair_folders(tmp_path, names=('only',))
+    originals = {path: path.read_bytes() for folder in (images, masks) for path in folder.iterdir()}
+
+    def unavailable():
+        raise OSError('The preference store is unavailable')
+
+    monkeypatch.setattr(msd, '_preferences', unavailable)
+    upload = _Upload()
+    dialog = msd.ContributeMasksDialog(images_dir=str(images), masks_dir=str(masks),
+                                       upload=upload, threaded=False)
+    qtbot.addWidget(dialog)
+    assert dialog.name_edit.text() == ''
+    assert not dialog.upload_button.isEnabled()
+    dialog.name_edit.setText('HeLa nuclei')
+    asked = _agree(dialog)
+    assert dialog.upload() is True
+    assert asked == [1]
+    assert upload.calls == [(dialog.contribution_folder, 'community_hela_nuclei')]
+    folder = dialog.contribution_folder
+    record = json.loads((folder / 'contribution.json').read_text(encoding='utf-8'))
+    assert record['repo'] == 'einarolafsson/community_hela_nuclei'
+    assert record['images'] == 1 and record['objects'] == 2
+    assert record['consent'] == {'rights_to_share': True, 'licence': msd.COMMUNITY_LICENCE}
+    assert (folder / 'images' / 'only.png').read_bytes() == originals[images / 'only.png']
+    np.testing.assert_array_equal(tifffile.imread(folder / 'masks' / 'only.tif'),
+                                  tifffile.imread(masks / 'only.tif'))
+    assert 'discussions/1' in dialog.status.text()
+    assert all(path.read_bytes() == data for path, data in originals.items())
