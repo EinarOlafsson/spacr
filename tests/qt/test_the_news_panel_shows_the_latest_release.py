@@ -45,6 +45,23 @@ NEWER = {
 
 
 @pytest.fixture
+def _normal_home_preferences(tmp_path, monkeypatch):
+    """Select ordinary Home in a private copy of current preferences."""
+    from PySide6.QtCore import QSettings
+    from spacr.qt import preferences
+
+    source = preferences._settings()
+    path = str(tmp_path / "normal-home.ini")
+    private = QSettings(path, QSettings.IniFormat)
+    for key in source.allKeys():
+        private.setValue(key, source.value(key))
+    private.sync()
+    monkeypatch.setattr(preferences, "_settings",
+                        lambda: QSettings(path, QSettings.IniFormat))
+    preferences.set_easy_mode(False)
+
+
+@pytest.fixture
 def news(qtbot):
     """A real News panel, built from the bundled resource."""
     panel = NewsPanel("1.5.1.0")
@@ -237,7 +254,8 @@ def test_news_title_words_fit_the_real_notes_viewport(qtbot, qapp, monkeypatch):
             qapp.setPalette(palette)
 
 
-def test_news_headings_follow_normal_mainwindow_live_scale_rebuilds(qtbot, qapp, monkeypatch):
+def test_news_headings_follow_normal_mainwindow_live_scale_rebuilds(
+        qtbot, qapp, monkeypatch, _normal_home_preferences):
     """Measure normal Home rebuilds, not a surrogate font or retained old panel."""
     from math import ceil
     import shiboken6
@@ -582,7 +600,7 @@ def test_the_refresh_is_asked_for_after_the_panel_is_shown(news, qtbot):
     assert asked == [True], "a second show asked again"
 
 
-def test_home_relays_the_request_and_the_answer(qtbot):
+def test_home_relays_the_request_and_the_answer(qtbot, _normal_home_preferences):
     """The page carries the ask out and the release list back in."""
     from spacr.qt.app import make_home_page
 

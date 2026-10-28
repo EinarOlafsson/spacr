@@ -226,9 +226,19 @@ def test_cancelling_opens_nothing(qtbot):
         sp.SampleProjectDialog.exec = original
 
 
-def test_home_has_the_button_and_asks_the_window_for_it(qtbot):
+def test_home_has_the_button_and_asks_the_window_for_it(qtbot, tmp_path, monkeypatch):
+    from PySide6.QtCore import QSettings
+    from spacr.qt import preferences
     from spacr.qt.app import make_home_page
 
+    path = tmp_path / 'normal-home.ini'
+    current = preferences._settings()
+    private = QSettings(str(path), QSettings.IniFormat)
+    for key in current.allKeys():
+        private.setValue(key, current.value(key))
+    private.sync()
+    monkeypatch.setattr(preferences, '_settings', lambda: QSettings(str(path), QSettings.IniFormat))
+    preferences.set_easy_mode(False)
     page = make_home_page()
     qtbot.addWidget(page)
     assert page._sample_project_button.text() == "Pipeline overviews"

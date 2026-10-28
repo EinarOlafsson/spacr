@@ -93,7 +93,21 @@ def _empty_journal(tmp_path, monkeypatch):
 
 
 @pytest.fixture
-def themed_home(qtbot, qapp, monkeypatch, _empty_journal):
+def _normal_home_preferences(tmp_path, monkeypatch):
+    from PySide6.QtCore import QSettings
+
+    path = tmp_path / 'normal-home.ini'
+    current = preferences._settings()
+    private = QSettings(str(path), QSettings.IniFormat)
+    for key in current.allKeys():
+        private.setValue(key, current.value(key))
+    private.sync()
+    monkeypatch.setattr(preferences, '_settings', lambda: QSettings(str(path), QSettings.IniFormat))
+    preferences.set_easy_mode(False)
+
+
+@pytest.fixture
+def themed_home(qtbot, qapp, monkeypatch, _empty_journal, _normal_home_preferences):
     """Build a Home page rendered *as* the given theme, and hand it back.
 
     The stylesheet goes on the page rather than on the QApplication: a
@@ -452,7 +466,7 @@ def test_the_deleted_home_screen_is_gone_and_unreferenced():
     assert not offenders, f"still import the deleted Home screen: {offenders}"
 
 
-def test_home_is_the_only_home_the_window_installs():
+def test_home_is_the_only_home_the_window_installs(_normal_home_preferences):
     """Was a grep of ``_install_startup_page`` alone for "HomePage".
 
     That method now calls ``make_home_page``, the single constructor the

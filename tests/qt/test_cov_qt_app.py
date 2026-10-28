@@ -72,6 +72,29 @@ from spacr.qt.widgets.home import AppTile, HomePage
 # ---------------------------------------------------------------------------
 
 @pytest.fixture
+def _normal_home_preferences(tmp_path, monkeypatch):
+    """Select ordinary Home in a private copy of current preferences."""
+    from PySide6.QtCore import QSettings
+    from spacr.qt import preferences
+
+    source = preferences._settings()
+    path = str(tmp_path / "normal-home.ini")
+    private = QSettings(path, QSettings.IniFormat)
+    for key in source.allKeys():
+        private.setValue(key, source.value(key))
+    private.sync()
+    monkeypatch.setattr(preferences, "_settings",
+                        lambda: QSettings(path, QSettings.IniFormat))
+    preferences.set_easy_mode(False)
+
+
+@pytest.fixture
+def normal_win(_normal_home_preferences, request):
+    """Build the normal host only after its private preference is selected."""
+    return request.getfixturevalue("win")
+
+
+@pytest.fixture
 def win(qtbot, qt_theme_applied):
     """A live MainWindow, cleaned up by pytest-qt."""
     w = MainWindow()
@@ -855,12 +878,23 @@ def _home_geometry_at_design_scale():
 
 
 @pytest.fixture(scope="module")
-def home_page(qapp, qt_theme_applied):
+def home_page(qapp, qt_theme_applied, tmp_path_factory, request):
     # Alpha tiles are off for a new user (DEFAULT_SHOW_ALPHA is False) and
     # this page is built at module scope, before conftest's per-test
     # fixture raises the fallback, so raise it here for the page's life.
     from spacr.qt import preferences as _prefs
+    from PySide6.QtCore import QSettings
+    source = _prefs._settings()
+    path = str(tmp_path_factory.mktemp("classic-home") / "preferences.ini")
+    private = QSettings(path, QSettings.IniFormat)
+    for key in source.allKeys():
+        private.setValue(key, source.value(key))
+    private.sync()
     patch = pytest.MonkeyPatch()
+    request.addfinalizer(patch.undo)
+    patch.setattr(_prefs, "_settings",
+                  lambda: QSettings(path, QSettings.IniFormat))
+    _prefs.set_easy_mode(False)
     patch.setattr(_prefs, "DEFAULT_SHOW_ALPHA", True)
     with _at_design_scale():
         page = make_home_page()  # the page MainWindow ships
@@ -871,7 +905,6 @@ def home_page(qapp, qt_theme_applied):
     page.hide()
     page.deleteLater()
     qapp.processEvents()
-    patch.undo()
 
 
 def test_home_renders_one_tile_per_app_under_every_section_heading(home_page):
@@ -1188,7 +1221,8 @@ def test_every_other_key_builds_a_generic_app_screen(win):
         f"{sorted((dedicated & {k for k, *_r in APPS}) - built_dedicated)}")
 
 
-def test_clicking_a_home_tile_navigates(win, qtbot):
+def test_clicking_a_home_tile_navigates(normal_win, qtbot):
+    win = normal_win
     tile = _tiles(win._startup)["Measure"]
     tile.click()
     assert win._status_app_label.text() == "Measure"

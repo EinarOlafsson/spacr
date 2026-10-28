@@ -60,6 +60,23 @@ SANDBOX_NOTE = ("Declared by the test fixture, claimed by nothing until a "
 
 
 @pytest.fixture
+def _normal_home_preferences(tmp_path, monkeypatch):
+    """Select ordinary Home in a private copy of current preferences."""
+    from PySide6.QtCore import QSettings
+    from spacr.qt import preferences
+
+    source = preferences._settings()
+    path = str(tmp_path / "normal-home.ini")
+    private = QSettings(path, QSettings.IniFormat)
+    for key in source.allKeys():
+        private.setValue(key, source.value(key))
+    private.sync()
+    monkeypatch.setattr(preferences, "_settings",
+                        lambda: QSettings(path, QSettings.IniFormat))
+    preferences.set_easy_mode(False)
+
+
+@pytest.fixture
 def registry_sandbox():
     """Restore the whole app registry after the test.
 
@@ -281,7 +298,7 @@ def test_a_registered_app_reaches_every_reader_of_the_registry(
 
 
 def test_a_registered_app_is_drawn_on_home_and_in_the_sidebar(
-        qtbot, qt_theme_applied, registry_sandbox):
+        qtbot, qt_theme_applied, registry_sandbox, _normal_home_preferences):
     """The shipped widgets, not a stand-in: a tile and a nav row appear."""
     from spacr.qt.widgets.home import AppTile
 
@@ -331,7 +348,7 @@ def test_a_registered_app_is_drawn_on_home_and_in_the_sidebar(
 
 
 def test_claiming_an_empty_section_makes_it_appear_with_its_note(
-        qtbot, qt_theme_applied, registry_sandbox):
+        qtbot, qt_theme_applied, registry_sandbox, _normal_home_preferences):
     """The first app of an empty section is what gives it a tab.
 
     This is the whole point of the two extra sections: seven new modules

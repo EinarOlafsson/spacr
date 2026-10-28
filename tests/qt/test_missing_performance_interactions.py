@@ -59,6 +59,7 @@ def test_pointer_actions_have_real_state_witnesses(qtbot, qapp, harness):
     from spacr.qt import preferences
 
     with harness._settings_elsewhere():
+        preferences.set_easy_mode(False)
         preferences._set_tooltip_delay(2.0)
         rows = harness.measure_pointer_interaction("mask")
         assert preferences._get_tooltip_delay() == 2.0
