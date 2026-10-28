@@ -2,7 +2,7 @@ LINUX POPUPS OPEN NEAR THEIR PARENT WINDOW
 ========================================
 
 Lifecycle: new
-Status: OPEN — reported 2026-10-28; implementation assigned.
+Status: OPEN — shared placement qualified; Linux window-manager check and publication remain.
 Requested: maintainer, 2026-10-28.
 Owner: retained Qt worker G1; root integrates and publishes.
 Related: 734 (popup resizing), 725 (Overview colour-picker placement).
@@ -30,3 +30,5 @@ Mac/Windows source work. Commit and push the fix to nightly with normal affected
 generated outputs; human review is not a completion gate.
 
 2026-10-28 — Added before implementation from the maintainer's Linux report. G1 owns the shared placement/caller repair through validation and publication; root retains release CI coordination.
+
+2026-10-28 — G1 added visible-owner/native-parent repair and one-time centred/clamped initial placement; explicit/restored/manual positions, menus and resizing are retained. Fourteen focused cases pass; bounded Linux WM check and normal publication remain.
