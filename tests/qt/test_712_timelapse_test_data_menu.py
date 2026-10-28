@@ -18,6 +18,7 @@ import tifffile
 from PySide6.QtWidgets import QMessageBox
 
 from spacr.qt import make_masks_demo as demo
+from spacr.qt import mask_engine as engine
 from spacr.qt.i18n import tr
 from spacr.qt.screens.make_masks import MakeMasksScreen
 
@@ -89,11 +90,13 @@ def test_the_captions_are_translated_in_every_language():
             assert translated and translated != caption, (caption, code)
 
 
-def test_the_movie_opens_with_masks_and_lineage_and_keeps_the_truth(screen, movie):
+def test_the_movie_opens_with_masks_and_lineage_and_keeps_the_truth(screen, movie, qtbot):
     truth = movie / "ground_truth_masks" / "t98g_t002.tif"
     published = truth.read_bytes()
     assert demo.load_the_timelapse_test_data(screen, "mammalian", folder=movie)
-    assert screen._masks_dir == str(movie / "masks")
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                   and screen._load_worker is None and screen._canvas.mask is not None)
+    assert engine.masks_folder(screen._folder, screen._masks_dir) == str(movie / "masks")
     assert sorted(path.name for path in (movie / "masks").iterdir()) == [
         f"t98g_t{t:03d}.tif" for t in range(4)]
     assert screen._image_files[0] == "t98g_t000.tif"
@@ -106,7 +109,7 @@ def test_the_movie_opens_with_masks_and_lineage_and_keeps_the_truth(screen, movi
     assert truth.read_bytes() == published
 
 
-def test_a_missing_movie_is_downloaded_then_opened(screen, movie, tmp_path):
+def test_a_missing_movie_is_downloaded_then_opened(screen, movie, tmp_path, qtbot):
     target = tmp_path / "cache" / "make_masks_timelapse_mammalian"
     seen = {}
 
@@ -120,6 +123,8 @@ def test_a_missing_movie_is_downloaded_then_opened(screen, movie, tmp_path):
         screen, "mammalian", ask=fake_download, folder=target)
     assert seen["dest"] == target
     assert screen._btn_test_data.isEnabled()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                   and screen._load_worker is None and screen._canvas.mask is not None)
     assert screen._folder == str(target)
     assert any(cell["children"] for cell in screen._lineage["cells"].values())
 

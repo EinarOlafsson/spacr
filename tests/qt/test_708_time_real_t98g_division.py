@@ -52,6 +52,8 @@ def movie(qtbot, qt_theme_applied, tmp_path, monkeypatch):
     screen.resize(900, 700)
     screen.show()
     assert demo._open_timelapse(screen, folder)
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                   and screen._load_worker is None and screen._canvas.mask is not None)
     screen._canvas.resize(480, 680)
     screen._canvas.refresh()
     screen._btn_save_on_navigation.setChecked(False)
