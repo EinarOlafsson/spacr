@@ -1,0 +1,77 @@
+# spaCR user guide translation (ko).
+# AI technical review (Codex), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-28 10:47-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Codex (AI technical translation)\n"
+"Language: ko\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Navigator: choose a tool from your input"
+msgstr "Navigator: 입력에 맞는 도구 선택"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Navigator is the default Home for a fresh profile; a saved opt-out is respected. Launch it with ``spacr-nav`` or ``spacr-navigator``, or enable **Navigator** in **Help**. Explicit module launches still open that module."
+msgstr "새 프로필의 기본 Home은 Navigator이며, 저장된 사용 안 함 선택은 유지됩니다. ``spacr-nav`` 또는 ``spacr-navigator`` 로 실행하거나 **Help** 에서 **Navigator** 를 켜세요. 모듈을 명시적으로 실행하면 해당 모듈이 그대로 열립니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Find a starting point"
+msgstr "시작점 찾기"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Drop a local file or folder, browse for one, or type a path or task and press Enter. Typing alone does not inspect data or open a module. For example, “detect features” offers Measure; tool names and supported task phrases match without case sensitivity. Recognized commands, such as opening tutorials, can follow their own command route on Enter."
+msgstr "로컬 파일이나 폴더를 끌어 놓거나 찾아서 선택하거나, 경로 또는 작업을 입력하고 Enter를 누르세요. 입력만으로는 데이터를 검사하거나 모듈을 열지 않습니다. 예를 들어 “detect features”는 Measure를 제안하며, 도구 이름과 지원되는 작업 문구는 대소문자를 구분하지 않습니다. 튜토리얼 열기 등 인식된 명령은 Enter를 누르면 자체 명령 경로를 따를 수 있습니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Suggestions appear as a grid of named cards. The first click anchors the selected card and reveals a sparse workflow; it does not run analysis. Hover to read the fixed, scrollable description. A second click on the selected tool opens its native screen. Review its settings and input before pressing Run."
+msgstr "제안은 이름이 있는 카드 격자로 표시됩니다. 첫 클릭은 선택한 카드를 고정하고 간결한 워크플로를 보여 주며, 분석을 실행하지 않습니다. 포인터를 올려 고정된 스크롤 가능 설명을 읽으세요. 선택한 도구를 두 번째 클릭하면 해당 도구의 일반 화면이 열립니다. Run을 누르기 전에 설정과 입력을 확인하세요."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Explore without running"
+msgstr "실행하지 않고 탐색하기"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Select a downstream card to reveal its branches. **More next steps** exposes additional direct choices; **All tools** includes the other available registered tools and subtools. Availability follows maturity and species preferences. A connector describes a workflow relationship, not proof that the current input satisfies every prerequisite. Modes such as 3D, Time and OPS label connections rather than inventing separate processing steps."
+msgstr "후속 카드를 선택하면 해당 분기가 표시됩니다. **다음 단계 더 보기** 는 추가 직접 선택지를 보여 주며, **모든 도구** 에는 사용 가능한 나머지 등록 도구와 하위 도구가 포함됩니다. 가용성은 성숙도 및 종 기본 설정을 따릅니다. 연결선은 워크플로 관계를 나타낼 뿐, 현재 입력이 모든 사전 조건을 충족한다는 증거는 아닙니다. 3D, Time, OPS 같은 모드는 별도 처리 단계를 만드는 대신 연결선에 표시됩니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use **Back** or Escape to return to suggestions. Returning Home starts a fresh Navigator visit. The original card stays anchored while branches grow; the description remains below, and the app dock and side panes can be collapsed without changing the input."
+msgstr "**돌아오는** 또는 Escape를 사용해 제안으로 돌아가세요. Home으로 돌아가면 Navigator 방문이 새로 시작됩니다. 분기가 확장되는 동안 원래 카드는 고정되며, 설명은 아래에 유지되고 앱 독과 측면 패널은 입력 변경 없이 접을 수 있습니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Check what the input supports"
+msgstr "입력의 지원 범위 확인"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Local discovery uses bounded filenames, headers and project metadata, not a full analysis. An explicit raw image stays scoped to that input; a verified generated array inside a canonical merged folder can inherit its plate context. Handoffs use the selected file or project root required by the destination. An annotation-only database is not evidence of measured features, and a format keyword is not a promise that every file with that suffix can be read. Missing readers or calibrated-data prerequisites still need attention in the native workflow."
+msgstr "로컬 탐색은 제한된 파일명, 헤더, 프로젝트 메타데이터를 사용하며 전체 분석을 수행하지 않습니다. 명시적으로 선택한 원시 이미지는 해당 입력 범위에 한정됩니다. 표준 merged 폴더 안의 검증된 생성 배열은 해당 플레이트의 맥락을 이어받을 수 있습니다. 전달 시에는 대상에 필요한 선택 파일 또는 프로젝트 루트를 사용합니다. 주석만 있는 데이터베이스는 측정된 특성의 증거가 아니며, 형식 키워드가 같은 접미사의 모든 파일을 읽을 수 있음을 보장하지 않습니다. 없는 리더나 보정 데이터의 사전 조건은 여전히 일반 워크플로에서 확인해야 합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "An offered filename-pattern editor requires explicit validation before its pattern is passed onward. Navigator does not silently convert data, run models or complete scientific prerequisite review. Optional AI assistance sends explicitly submitted unmatched questions only when enabled with a chosen provider; local tool and path matches retain their normal routes."
+msgstr "파일명 패턴 편집기가 제공되면 패턴을 전달하기 전에 명시적 검증이 필요합니다. Navigator는 데이터를 조용히 변환하거나 모델을 실행하거나 과학적 사전 조건 검토를 대신 완료하지 않습니다. 선택적 AI 지원은 제공자를 선택해 켠 경우에만 명시적으로 제출한 미일치 질문을 전송하며, 로컬 도구 및 경로 일치는 정상 경로를 유지합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Desktop entry points and API reference"
+msgstr "데스크톱 진입점과 API 참조"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The launchers use :func:`spacr.qt.run`. Registered screen metadata is described by :class:`spacr.qt.app_catalog.DeclaredApp` and retrieved with :func:`spacr.qt.app_catalog.declared_app`; :func:`spacr.qt.app_catalog.register_declared` registers an existing declaration. Resolving :func:`spacr.qt.app.registered_factory` can import its screen. These are desktop registry contracts, not a headless Navigator inference API."
+msgstr "실행기는 :func:`spacr.qt.run` 을 사용합니다. 등록된 화면 메타데이터는 :class:`spacr.qt.app_catalog.DeclaredApp` 에 설명되며 :func:`spacr.qt.app_catalog.declared_app` 으로 조회합니다. :func:`spacr.qt.app_catalog.register_declared` 는 기존 선언을 등록합니다. :func:`spacr.qt.app.registered_factory` 를 해석하면 해당 화면을 가져올 수 있습니다. 이는 데스크톱 레지스트리 계약이며, 그래픽 인터페이스 없는 Navigator 추론 API가 아닙니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For scripted processing, use the supported entry points in :doc:`python_api`. For the files and prerequisites of each scientific step, see :doc:`workflows`."
+msgstr "스크립트 처리에는 :doc:`python_api` 의 지원 진입점을 사용하세요. 각 과학 단계의 파일과 사전 조건은 :doc:`workflows` 를 참조하세요."
+

@@ -83,6 +83,8 @@ build.
 Applications and workflow
 -------------------------
 
+Use :doc:`Navigator <navigator>` to discover tools from a local input or task, explore their workflow branches and choose an explicit native-module handoff.
+
 New to spaCR? :doc:`Choose a workflow after installation <workflows>` for
 the first Home tile, the inputs each step needs, and what to open next.
 
@@ -137,6 +139,7 @@ Contents
 
    installer_guide
    system_requirements
+   navigator
    workflows
    table_workflows
    installers

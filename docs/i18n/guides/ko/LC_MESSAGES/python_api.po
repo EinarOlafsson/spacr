@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-28 10:47-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -93,4 +93,12 @@ msgstr "측정된 객체를 AnnData로 내보내기"
 
 msgid "Follow :doc:`anndata_export` to export the measurement database through the same entry point used by the desktop application, choose a missing-value policy, and inspect the resulting object-by-feature matrix."
 msgstr ":doc:`anndata_export` 를 따라 데스크톱 애플리케이션과 같은 진입점으로 측정 데이터베이스를 내보내고, 누락값 정책을 선택하고, 생성된 객체×특징 행렬을 검사합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Navigator and desktop routing"
+msgstr "Navigator와 데스크톱 라우팅"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "See :doc:`navigator` for the desktop launchers and existing screen-registry APIs. Navigator discovers and opens tools interactively; it does not replace the pipeline calls above with an automatic or headless analysis route."
+msgstr "데스크톱 실행기와 기존 화면 레지스트리 API는 :doc:`navigator` 를 참조하세요. Navigator는 도구를 대화형으로 찾아 열며, 위의 파이프라인 호출을 자동 분석 또는 그래픽 인터페이스 없는 분석 경로로 대체하지 않습니다."
 

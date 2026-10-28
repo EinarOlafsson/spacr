@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-28 10:47-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -93,4 +93,12 @@ msgstr "Exportera uppmätta objekt till AnnData"
 
 msgid "Follow :doc:`anndata_export` to export the measurement database through the same entry point used by the desktop application, choose a missing-value policy, and inspect the resulting object-by-feature matrix."
 msgstr "Följ :doc:`anndata_export` för att exportera mätdatabasen via samma ingångspunkt som skrivbordsprogrammet använder, välja en policy för saknade värden och granska den resulterande matrisen med objekt och egenskaper."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Navigator and desktop routing"
+msgstr "Navigator och skrivbordsroutning"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "See :doc:`navigator` for the desktop launchers and existing screen-registry APIs. Navigator discovers and opens tools interactively; it does not replace the pipeline calls above with an automatic or headless analysis route."
+msgstr "Se :doc:`navigator` för skrivbordets startkommandon och befintliga API:er för skärmregistret. Navigator upptäcker och öppnar verktyg interaktivt; det ersätter inte pipelineanropen ovan med en automatisk eller huvudlös analysväg."
 

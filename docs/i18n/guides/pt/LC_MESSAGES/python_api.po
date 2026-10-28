@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-28 10:47-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: pt\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -93,4 +93,12 @@ msgstr "Exportar objetos medidos para AnnData"
 
 msgid "Follow :doc:`anndata_export` to export the measurement database through the same entry point used by the desktop application, choose a missing-value policy, and inspect the resulting object-by-feature matrix."
 msgstr "Siga :doc:`anndata_export` para exportar o banco de dados de medições pelo mesmo ponto de entrada usado pelo aplicativo de desktop, escolher uma política para valores ausentes e inspecionar a matriz resultante de objetos por características."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Navigator and desktop routing"
+msgstr "Navigator e roteamento de desktop"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "See :doc:`navigator` for the desktop launchers and existing screen-registry APIs. Navigator discovers and opens tools interactively; it does not replace the pipeline calls above with an automatic or headless analysis route."
+msgstr "Consulte :doc:`navigator` para os inicializadores de desktop e as APIs existentes do registro de telas. Navigator descobre e abre ferramentas interativamente; não substitui as chamadas de pipeline acima por uma rota de análise automática ou sem interface."
 

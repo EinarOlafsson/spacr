@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:05-0400\n"
+"POT-Creation-Date: 2026-10-28 10:47-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: pt\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -87,6 +87,10 @@ msgstr "Relate um bug, solicite um recurso ou faça uma pergunta."
 
 msgid "Applications and workflow"
 msgstr "Aplicativos e fluxo de trabalho"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use :doc:`Navigator <navigator>` to discover tools from a local input or task, explore their workflow branches and choose an explicit native-module handoff."
+msgstr "Use :doc:`Navigator <navigator>` para descobrir ferramentas a partir de uma entrada local ou tarefa, explorar ramificações do fluxo e escolher uma transferência explícita para um módulo habitual."
 
 msgid "New to spaCR? :doc:`Choose a workflow after installation <workflows>` for the first Home tile, the inputs each step needs, and what to open next."
 msgstr "Novo no spaCR? :doc:`Escolha um fluxo de trabalho após a instalação <workflows>` para conhecer o primeiro bloco de Início, as entradas de que cada etapa precisa e o que abrir em seguida."

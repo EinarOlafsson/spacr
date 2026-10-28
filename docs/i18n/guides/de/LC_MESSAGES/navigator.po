@@ -1,0 +1,77 @@
+# spaCR user guide translation (de).
+# AI technical review (Codex), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-28 10:47-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Codex (AI technical translation)\n"
+"Language: de\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Navigator: choose a tool from your input"
+msgstr "Navigator: ein Werkzeug anhand Ihrer Eingabe auswählen"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Navigator is the default Home for a fresh profile; a saved opt-out is respected. Launch it with ``spacr-nav`` or ``spacr-navigator``, or enable **Navigator** in **Help**. Explicit module launches still open that module."
+msgstr "Navigator ist die voreingestellte Startseite eines neuen Profils; eine gespeicherte Abwahl bleibt erhalten. Starten Sie ihn mit ``spacr-nav`` oder ``spacr-navigator``, oder aktivieren Sie **Navigator** unter **Help**. Ein ausdrücklicher Modulstart öffnet weiterhin dieses Modul."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Find a starting point"
+msgstr "Einen Einstieg finden"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Drop a local file or folder, browse for one, or type a path or task and press Enter. Typing alone does not inspect data or open a module. For example, “detect features” offers Measure; tool names and supported task phrases match without case sensitivity. Recognized commands, such as opening tutorials, can follow their own command route on Enter."
+msgstr "Ziehen Sie eine lokale Datei oder einen Ordner hinein, wählen Sie diese über den Dateidialog oder geben Sie einen Pfad oder eine Aufgabe ein und drücken Sie Enter. Bloßes Tippen untersucht keine Daten und öffnet kein Modul. Beispielsweise schlägt „detect features“ Measure vor; Werkzeugnamen und unterstützte Aufgabenformulierungen werden ohne Beachtung der Großschreibung erkannt. Bekannte Befehle, etwa zum Öffnen von Tutorials, können bei Enter ihrem eigenen Befehlsweg folgen."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Suggestions appear as a grid of named cards. The first click anchors the selected card and reveals a sparse workflow; it does not run analysis. Hover to read the fixed, scrollable description. A second click on the selected tool opens its native screen. Review its settings and input before pressing Run."
+msgstr "Vorschläge erscheinen als Raster benannter Karten. Der erste Klick verankert die ausgewählte Karte und zeigt einen übersichtlichen Workflow; er startet keine Analyse. Beim Darüberfahren lesen Sie die feste, scrollbar angelegte Beschreibung. Ein zweiter Klick auf das ausgewählte Werkzeug öffnet dessen regulären Bildschirm. Prüfen Sie Einstellungen und Eingabe, bevor Sie Run drücken."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Explore without running"
+msgstr "Erkunden ohne Ausführung"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Select a downstream card to reveal its branches. **More next steps** exposes additional direct choices; **All tools** includes the other available registered tools and subtools. Availability follows maturity and species preferences. A connector describes a workflow relationship, not proof that the current input satisfies every prerequisite. Modes such as 3D, Time and OPS label connections rather than inventing separate processing steps."
+msgstr "Wählen Sie eine nachgelagerte Karte, um ihre Zweige einzublenden. **Weitere Folgeschritte** zeigt weitere direkte Möglichkeiten; **Alle Werkzeuge** enthält die übrigen verfügbaren registrierten Werkzeuge und Unterwerkzeuge. Die Verfügbarkeit richtet sich nach den Einstellungen zu Reifegrad und Arten. Eine Verbindung beschreibt eine Workflow-Beziehung und beweist nicht, dass die aktuelle Eingabe alle Voraussetzungen erfüllt. Modi wie 3D, Time und OPS beschriften Verbindungen, statt zusätzliche Verarbeitungsschritte zu erfinden."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use **Back** or Escape to return to suggestions. Returning Home starts a fresh Navigator visit. The original card stays anchored while branches grow; the description remains below, and the app dock and side panes can be collapsed without changing the input."
+msgstr "Mit **Zurück** oder Escape gelangen Sie zu den Vorschlägen zurück. Die Rückkehr zu Home beginnt einen neuen Navigator-Besuch. Die ursprüngliche Karte bleibt verankert, während Zweige wachsen; die Beschreibung bleibt darunter, und App-Dock sowie Seitenbereiche lassen sich ohne Änderung der Eingabe einklappen."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Check what the input supports"
+msgstr "Unterstützung der Eingabe prüfen"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Local discovery uses bounded filenames, headers and project metadata, not a full analysis. An explicit raw image stays scoped to that input; a verified generated array inside a canonical merged folder can inherit its plate context. Handoffs use the selected file or project root required by the destination. An annotation-only database is not evidence of measured features, and a format keyword is not a promise that every file with that suffix can be read. Missing readers or calibrated-data prerequisites still need attention in the native workflow."
+msgstr "Die lokale Erkennung nutzt begrenzte Stichproben von Dateinamen, Headern und Projektmetadaten, keine vollständige Analyse. Ein ausdrücklich ausgewähltes Rohbild bleibt auf diese Eingabe beschränkt; ein geprüftes erzeugtes Array in einem kanonischen merged-Ordner kann den Kontext seiner Platte übernehmen. Übergaben verwenden die ausgewählte Datei oder Projektwurzel, die das Ziel benötigt. Eine reine Annotationsdatenbank belegt keine gemessenen Merkmale; ein Formatstichwort garantiert nicht die Lesbarkeit jeder Datei mit dieser Endung. Fehlende Leser und Voraussetzungen für kalibrierte Daten müssen weiterhin im regulären Workflow berücksichtigt werden."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "An offered filename-pattern editor requires explicit validation before its pattern is passed onward. Navigator does not silently convert data, run models or complete scientific prerequisite review. Optional AI assistance sends explicitly submitted unmatched questions only when enabled with a chosen provider; local tool and path matches retain their normal routes."
+msgstr "Ein angebotener Dateinamensmuster-Editor verlangt eine ausdrückliche Validierung, bevor das Muster weitergegeben wird. Navigator konvertiert Daten nicht stillschweigend, führt keine Modelle aus und ersetzt keine wissenschaftliche Prüfung der Voraussetzungen. Optionale KI-Hilfe sendet ausdrücklich eingereichte, nicht zugeordnete Fragen nur bei Aktivierung mit einem gewählten Anbieter; lokale Werkzeug- und Pfadtreffer behalten ihre regulären Wege."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Desktop entry points and API reference"
+msgstr "Desktop-Einstiegspunkte und API-Referenz"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The launchers use :func:`spacr.qt.run`. Registered screen metadata is described by :class:`spacr.qt.app_catalog.DeclaredApp` and retrieved with :func:`spacr.qt.app_catalog.declared_app`; :func:`spacr.qt.app_catalog.register_declared` registers an existing declaration. Resolving :func:`spacr.qt.app.registered_factory` can import its screen. These are desktop registry contracts, not a headless Navigator inference API."
+msgstr "Die Startbefehle verwenden :func:`spacr.qt.run`. Registrierte Bildschirmmetadaten werden durch :class:`spacr.qt.app_catalog.DeclaredApp` beschrieben und mit :func:`spacr.qt.app_catalog.declared_app` abgerufen; :func:`spacr.qt.app_catalog.register_declared` registriert eine vorhandene Deklaration. Das Auflösen von :func:`spacr.qt.app.registered_factory` kann dessen Bildschirm importieren. Dies sind Verträge des Desktop-Registers, keine headless Navigator-Inferenz-API."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For scripted processing, use the supported entry points in :doc:`python_api`. For the files and prerequisites of each scientific step, see :doc:`workflows`."
+msgstr "Für skriptgesteuerte Verarbeitung verwenden Sie die unterstützten Einstiegspunkte in :doc:`python_api`. Dateien und Voraussetzungen jedes wissenschaftlichen Schritts finden Sie unter :doc:`workflows`."
+

@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-28 10:47-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -93,4 +93,12 @@ msgstr "मापे गए ऑब्जेक्ट को AnnData में �
 
 msgid "Follow :doc:`anndata_export` to export the measurement database through the same entry point used by the desktop application, choose a missing-value policy, and inspect the resulting object-by-feature matrix."
 msgstr "डेस्कटॉप एप्लिकेशन वाले ही प्रवेश बिंदु से मापन डेटाबेस निर्यात करने, अनुपस्थित-मान नीति चुनने और परिणामी ऑब्जेक्ट-बनाम-विशेषता मैट्रिक्स की जाँच करने के लिए :doc:`anndata_export` का पालन करें।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Navigator and desktop routing"
+msgstr "Navigator और डेस्कटॉप रूटिंग"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "See :doc:`navigator` for the desktop launchers and existing screen-registry APIs. Navigator discovers and opens tools interactively; it does not replace the pipeline calls above with an automatic or headless analysis route."
+msgstr "डेस्कटॉप लॉन्चर और स्क्रीन रजिस्ट्री के मौजूदा API के लिए :doc:`navigator` देखें। Navigator उपकरणों को संवादात्मक रूप से खोजता और खोलता है; यह ऊपर दिए पाइपलाइन कॉल को स्वचालित या बिना ग्राफ़िकल इंटरफ़ेस वाले विश्लेषण मार्ग से नहीं बदलता।"
 

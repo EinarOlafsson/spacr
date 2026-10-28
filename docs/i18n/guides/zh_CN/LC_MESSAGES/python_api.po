@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-28 10:47-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -93,4 +93,12 @@ msgstr "将测量的对象导出为 AnnData"
 
 msgid "Follow :doc:`anndata_export` to export the measurement database through the same entry point used by the desktop application, choose a missing-value policy, and inspect the resulting object-by-feature matrix."
 msgstr "按照 :doc:`anndata_export` 的说明，通过与桌面应用程序相同的入口点导出测量数据库，选择缺失值策略，并检查生成的对象 × 特征矩阵。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Navigator and desktop routing"
+msgstr "Navigator 与桌面路由"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "See :doc:`navigator` for the desktop launchers and existing screen-registry APIs. Navigator discovers and opens tools interactively; it does not replace the pipeline calls above with an automatic or headless analysis route."
+msgstr "桌面启动器及已有界面注册表 API 见 :doc:`navigator`。Navigator 以交互方式发现并打开工具，不会用自动或无图形界面的分析路径替代上述管线调用。"
 

@@ -1,5 +1,9 @@
 NAVIGATOR: A CONTENT-GUIDED HOME WITH AN ANIMATED PATH AND DROP FIELD
 
+DOCS/API DELIVERY — 2026-10-28
+2026-10-28 — G5 owns the approved Navigator user-guide/API-route follow-up on current Nightly, with parent source/document peer and root sole publication. Document the actual organized suggestion grid, anchored branch exploration, registered native/folded routes, Back/Escape, bounded input evidence and privacy/availability limits; preserve existing workflow/API coverage. Use normal affected guide localization tools and scoped API eligibility only if public docstrings change. Tutorial production remains Work-owned and is not duplicated; this docs task is priority over further residual UI controls.
+2026-10-28 — Added the current Navigator guide and index/API-quickstart links, with existing desktop entry/registry API references and explicit input/processing limits. Normal gettext and affected guide writers deliver all 17 new messages in nine languages; independent meaning and normal markup/role/review-label checks pass, preserving prior translations. Root owns Nightly publication; the separate Work-owned tutorial remains pending.
+
 Progress List name: N733 — Navigator (maintainer confirmed 2026-10-28).
 
 Lifecycle: new
