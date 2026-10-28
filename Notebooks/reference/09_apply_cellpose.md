@@ -44,23 +44,23 @@ This linked reference contains the full generated setting descriptions. Return t
 
 
 <details>
-<summary>Input &amp; Channels (4 settings)</summary>
-
-#### Input & Channels
-
-- **`grayscale`** *(optional)* — (bool) - Force the Cellpose channel pair to [0, 0] so the network treats the input as a single combined channel, overriding the [cytoplasm, nucleus] pair otherwise inferred from model_name (cyto -&gt; [1,0], cyto2 -&gt; [2,1], nucleus -&gt; [0,0]). Leave it on for single-channel inputs; switch it off only when feeding a genuine two-channel stack. Default True. Default: `True`.
-- **`invert`** *(optional)* — (bool) - Invert intensities as each image is loaded, pixel -&gt; dtype_max - pixel (255 - x for uint8). Switch it on for brightfield or phase-contrast data where objects are darker than the background, since Cellpose expects bright objects on a dark field; leave it off for fluorescence. Default False. Default: `False`.
-- **`normalize`** *(optional)* — (bool or list) - Control percentile normalization before display, model input, or crop export. Display and activation-map tools use True for a 2nd-to-98th-percentile stretch. Measure and External Masks start at False; Measure accepts False or a two-number [low, high] percentile pair and refuses bare True because it supplies no bounds. It affects display and exported-crop scaling, not measured source intensities. Default True in the display-oriented tools. Default: `True`.
-- **`percentiles`** *(optional)* — (list) - Two percentiles [low, high] used to rescale each channel of each image to 0-1 before segmentation, e.g. [2, 98]. Narrowing the window boosts contrast on dim objects but clips bright ones. Set None to derive them automatically: low fixed at 2, high the first of 98/99/99.9/99.99/99.999 exceeding background * Signal_to_noise. In Cellpose Masks (Apply), None instead lets Cellpose normalise each image itself, as the live preview does. Default None in the Cellpose steps. Default: `None`.
-
-</details>
-
-<details>
 <summary>Model (1 settings)</summary>
 
 #### Model
 
 - **`diameter`** *(optional)* — (float) - Deprecated expected object diameter in pixels, passed to model.eval(diameter=...) by the mask-finetune tool and check_cellpose_models. Cellpose rescales each image by 30/diameter to match its approximately 30-pixel working size; a value below the true diameter upscales the image, whereas a larger value downscales it. Prefer the per-object diameter settings. Default 30. Default: `30`.
+
+</details>
+
+<details>
+<summary>Image Preprocessing (4 settings)</summary>
+
+#### Image Preprocessing
+
+- **`grayscale`** *(optional)* — (bool) - Force the Cellpose channel pair to [0, 0] so the network treats the input as a single combined channel, overriding the [cytoplasm, nucleus] pair otherwise inferred from model_name (cyto -&gt; [1,0], cyto2 -&gt; [2,1], nucleus -&gt; [0,0]). Leave it on for single-channel inputs; switch it off only when feeding a genuine two-channel stack. Default True. Default: `True`.
+- **`invert`** *(optional)* — (bool) - Invert intensities as each image is loaded, pixel -&gt; dtype_max - pixel (255 - x for uint8). Switch it on for brightfield or phase-contrast data where objects are darker than the background, since Cellpose expects bright objects on a dark field; leave it off for fluorescence. Default False. Default: `False`.
+- **`normalize`** *(optional)* — (bool or list) - Control percentile normalization before display, model input, or crop export. Display and activation-map tools use True for a 2nd-to-98th-percentile stretch. Measure and External Masks start at False; Measure accepts False or a two-number [low, high] percentile pair and refuses bare True because it supplies no bounds. It affects display and exported-crop scaling, not measured source intensities. Default True in the display-oriented tools. Default: `True`.
+- **`percentiles`** *(optional)* — (list) - Two percentiles [low, high] used to rescale each channel of each image to 0-1 before segmentation, e.g. [2, 98]. Narrowing the window boosts contrast on dim objects but clips bright ones. Set None to derive them automatically: low fixed at 2, high the first of 98/99/99.9/99.99/99.999 exceeding background * Signal_to_noise. In Cellpose Masks (Apply), None instead lets Cellpose normalise each image itself, as the live preview does. Default None in the Cellpose steps. Default: `None`.
 
 </details>
 

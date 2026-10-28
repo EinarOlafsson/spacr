@@ -68,6 +68,19 @@
       "source_sha256": "4b72b2b038a95576baee27ca722de94a123b2d12adb7e5982a20cc73b33f3eca",
       "text": "Read one image file the way Make Masks shows it.\n\nA Bio-Rad Image Lab ``.scn`` is read by :func:`spacr.convert.read_scn`\n(``uint16``, inverted so it looks like Image Lab's own exports); every\nother format goes through :func:`imageio.v2.imread`.\n\n:param path: the image file.\n:returns: the pixels."
     },
+    "4e416702c4df5a1bb0ef5504ff56d05a076b627c256941e69e1ffab5ae2d06e6": {
+      "source_blocks_sha256": [
+        "49ec6bd523f7cde36f515802c8f40cebc6890fb7b827e74b15c0788fcd279225",
+        "1e7c8900e9d684ac84577ee1c068cd95cf12e4a0f17dcab7dd63a860df7c7b09",
+        "88ffbbd22bb02476d797fca5d1a516e705390db98b48979e1a64e6ad938efe14",
+        "66fb99f93d7cb584400d9aee1f0253a9c4a132773ddc5b33375ad07628f92e14",
+        "03a196ab9ab45074d031b9c8de5482f76e13c9213ebe8899b04466599541e520",
+        "9d866a1981e1366ea36d022e7f5f478f4ee3a7a5474310b694ef0d5de52b75bf",
+        "bd76b018612db628d5c8f756a8e9aa757d79ebb3512de165d5367a06bb962479"
+      ],
+      "source_sha256": "4e416702c4df5a1bb0ef5504ff56d05a076b627c256941e69e1ffab5ae2d06e6",
+      "text": "Return searchable, dashboard-ready records for all journalled runs.\n\nSearch covers the run id, module, status, settings keys and values, input\nand output paths, warnings, failure traceback, and environment versions.\nCorrupt or interrupted run folders remain visible with an explicit\n``\"corrupt\"``/``\"running\"`` status and diagnostic warnings.\n\n:param query: whitespace-separated case-insensitive terms; every term must\n    occur somewhere in the record.\n:param app_key: optional exact module filter.\n:param status: optional exact status filter.\n:param limit: maximum returned records after newest-first sorting.\n:returns: JSON-friendly record dictionaries. ``dir`` remains a\n    :class:`~pathlib.Path` for convenient GUI use."
+    },
     "54cadabf1ce0778b99b430347404b72f4d1f9db5523698a628f04d6e5b5c2bf0": {
       "source_blocks_sha256": [
         "3f88708f9eecc8104fc924a31b06e392ea40c751271b634c71dd24aaa7a02b2e",
@@ -101,6 +114,18 @@
       "source_sha256": "57dd4c23476f91b5049fcf282d726298a7f81901760a3229dfc4efd5d9daaf02",
       "text": "Build the organelle slots a raised count now asks for.\n\n:param count: the new ``number_of_organelles``.\n:returns: how many slots the panel holds afterwards.\n\nTHE PANEL OPENS WITH WHAT THE RUN HAS. Building every nameable slot\nup front and hiding the surplus is what made the Mask screen 1,551\nwidgets; a control that was never built cannot be revealed, so the\npanel has to be able to grow instead.\n\nONE CONTROL, DELIBERATELY CHANGED. This is safe to do here and was\nnot safe to do per keystroke: the count is a single spinbox somebody\nsets on purpose, where a channel is a field they type digits into.\nGrowing never shrinks -- a slot built once keeps whatever the user\nhas since put in it, and a count lowered and raised again finds its\nvalues where it left them."
     },
+    "789914357ad7f8b4d3797a04f0a0ae146e71514201bf13569cacc23fcd7337e7": {
+      "source_blocks_sha256": [
+        "78258e4f75b5999752f439d48cb5ec61f58f11bd533c6b7695fe23a60bf48dce",
+        "a570abc379e5ddd0c12e3b997f9b37d603dd21f27b60e97f883fe779e13b5a28",
+        "9e64fec27945d5da2dfd26dd3d73a7b63dbb5666d3e9982cc4763724679b552b",
+        "3d8d73d2ce65d6becb4f1a950f3b412e84608926b80ca257e8fd517dadbb721a",
+        "8123fcfab65a652277aad8440abd74956ac54abc70c561db461e16d292b71245",
+        "8f121f1f1aaef471a6d45476891c1ddb2c30f9cb2782cb4e979f7f9d17074653"
+      ],
+      "source_sha256": "789914357ad7f8b4d3797a04f0a0ae146e71514201bf13569cacc23fcd7337e7",
+      "text": "Scan, preview, convert and map one folder in a single call.\n\nThe entry point used by the CLI and the Qt bridge: one function, one\nsettings dict, the same three phases underneath. It always prints\nthe plan before writing anything, so a headless\n``spacr-run format_convert`` also records the source → target table\nin the log.\n\nSettings (see :func:`default_settings`):\n\n``src``\n    folder to convert. Required.\n``dst``\n    destination; defaults to ``<src>_yokogawa``. Never ``src``.\n``layout`` / ``z_handling`` / ``plate_naming``\n    passed to :func:`scan` and :func:`plan`.\n``overwrite``\n    False by default — existing targets are left alone.\n``db_path``\n    when set, :func:`populate_db_from_map` loads the map into it.\n``preview_only``\n    print the plan and stop. The returned result has written\n    nothing and has no ``map_path``.\n``resume``\n    accept complete fields from a compatible checkpoint after validating\n    every output TIFF.\n``checkpoint_path``\n    optional checkpoint JSON path; defaults inside ``dst``.\n\n:returns: the :class:`ConversionResult`; for ``preview_only`` an\n    empty one carrying the plan.\n:raises ConfigurationError: no ``src``, or a plan with blocking\n    errors — a name collision must stop the run, not be printed and\n    walked past."
+    },
     "91aa9327ad66e9d70ba841db392dfca063d1e8d7665d4a46f8113aefe0055220": {
       "source_blocks_sha256": [
         "f7cab3eacdd9472794585913e7cbe3fe3a8265657899cf893e81a88736e4114a",
@@ -119,6 +144,44 @@
       ],
       "source_sha256": "aa49b5e0d3a00c2689a5e0e6b720a2ae6b7fe28aa540028d47575b69d4acac30",
       "text": "The spaCR filename for one resolved image.\n\nMissing axes take 1 rather than 0: spaCR's convention is one-based, and a\nplate whose only timepoint is ``T0000`` reads as a bug in the acquisition\nrather than as an absence.\n\n:param entry: one resolved file's axes, read by the keys ``plate``,\n    ``well``, ``t``, ``field``, ``z`` and ``channel``; a missing well\n    becomes ``A01`` and a missing or zero index becomes 1.\n:param plate: the plate name used when ``entry`` has no ``plate`` key."
+    },
+    "b3f24b5a17a04921acec1b62476d23f5f94ca9170f08353c45d24227457fb5ce": {
+      "source_blocks_sha256": [
+        "f36dbc465a40f36e437177b297595e1dd1a53d722fc94fb2ab001a71865805a2",
+        "93948793ab158fc5ddd984241478f6e531ba2cd0d41d6ab44fb269504b409e6e",
+        "e0074732633d29a54b1878363bef0a8a988a425f50573412fb44e303bc681132",
+        "b4741926595533aa6f6623b1d056bda8b685209a8ad04b3f76a9c716c928e78a",
+        "177761fce27dd1e8884f86556304b77fb5aa3851fed724ef451d5e0079bcafb3",
+        "ae4e4f7b858d8cf45edb533958b87787fb70e8e463ef5e9bcbaefd1e833eeb4c",
+        "f8c35582bbe3c99bb9da163d5b6c65f0dd8c94b7680293bf84302cecfda641ac",
+        "14cb6ae0653b7b7622e06af801b540513f4df6b129bb358ae24135b9649d0091",
+        "e8cf8c99d55295fa4b672504bb85a79562d58dc0b7635c2beddd9e2ebe7b69b6",
+        "a69d1645e44ae514654008fbe1b31d7ab1819b62d70c844d67f856b73e2c50cd",
+        "37622a6154bf7d2c271781047b72361d833a160f2ae70724f0bb728d5063da44",
+        "52c9cda9166a7d9f9c36919c034e6f56d23e3cff5d47f48d75f2145735221307"
+      ],
+      "source_sha256": "b3f24b5a17a04921acec1b62476d23f5f94ca9170f08353c45d24227457fb5ce",
+      "text": "Walk ``src`` and describe every image it holds. Writes nothing.\n\nThis is the read-only half of the converter: it opens headers, not\npixels, and produces the :class:`SourceImage` list that :func:`plan`\nturns into a preview.\n\nLayouts:\n\n``'plate_well'``\n    ``src/<plate>/<well>/…`` — the user's ``run1/wt/`` case.\n``'well'``\n    ``src/<well>/…``, with ``src``'s own name as the plate.\n``'flat'``\n    images directly in ``src``; one plate, one well (``A01``), one\n    field per file.\n``'auto'`` (default)\n    chooses from how deep the images actually sit.\n\nA file whose reader is not installed, or that will not open, comes\nback as a ``SourceImage`` with ``meta['error']`` set rather than\nraising — the plan shows it, the ledger counts it and the summary\nnames it.\n\n:param src: folder to scan.\n:param layout: one of :data:`LAYOUTS`.\n:param extensions: override the scanned extensions.\n:param metadata_type: a filename convention from Mask's ``metadata_type``\n    list (``'opera_phenix'``, ``'cq1'``, ``'zeiss_zen_split_tiles'``, ...).\n    When given, plate, well, field, channel, z and t are READ FROM EACH\n    NAME by that convention's pattern, and the folders only supply what\n    the name does not carry -- the plate for a convention with no plate\n    group, the well for one whose \"well\" is a scene index or a literal\n    word. A file whose name does not follow the convention is reported\n    unreadable, with the reason, rather than guessed at. ``None``,\n    ``''`` and ``'auto'`` keep the folder-and-token inference.\n:param custom_regex: the pattern for ``metadata_type='custom'``, with\n    named groups ``wellID``, ``fieldID`` and ``chanID`` (and optionally\n    ``plateID``, ``timeID``, ``sliceID``).\n:returns: one :class:`SourceImage` per file (or per series in a file).\n:raises ConfigurationError: when ``src`` is not a directory,\n    ``layout`` is not recognised, or ``metadata_type`` names no\n    convention."
+    },
+    "d0b2ea494b969706ef8f01c1e0fcb10e712a32e4bb2a8fafc5ab81db8a891f3c": {
+      "source_blocks_sha256": [
+        "e9d3d71ad2216117c17be922f2da6ff58250802af6d2e6ee6ba70a18e1844410",
+        "767459f3e34d2ee94865e3b65558f706dd66395ad53fd87153f3650970ecb9ba",
+        "8e57dca20d523ccb4196b812064d91b30fa3588c3c0777e3ccab918805df7b9d",
+        "7aca426611c243c272b92ec4b32fe33c2c1cfce20bfc2740621ba786c5430858",
+        "3f3ab89675f685c50d567d9021e54db406a00eff0ec183bf7b70d5ddb35ea939",
+        "d37f3a78772dee98e17d249d2d38165fc04c7f4118d6618fa7722b28fa860cf3",
+        "077a3364891736728f9f44345c4ae28811942a22976329ae2e42d6a54b02b757",
+        "8a974fd3cfee1b18effccd28e9e54b72d76524f4060ad41195dbf5ca9e61b810",
+        "7bbd8294a565be01694da9802086e808329fb68fdff52fcf41dc0809bd33f61e",
+        "0f2ed6e8bedefae084b8b17d926c67fefcad4e4db3671a8d0f723ee4a4318292",
+        "5c029786438a06842414d333894154286359b3086cb28212ae772275c47be95f",
+        "755eb6353de1f1119e6d77b61a90f1cf49007b004b7fdee48d7629a3ac5d384c",
+        "cee4c2e60306889016409688391707a2a83d3f0bf5c771855bab07a993298185",
+        "b7d3550d6940995029143500858c0329069de74c152f4e687a5983139fdd83b8"
+      ],
+      "source_sha256": "d0b2ea494b969706ef8f01c1e0fcb10e712a32e4bb2a8fafc5ab81db8a891f3c",
+      "text": "Turn scanned sources into the preview table. Writes nothing.\n\nIds are handed out deterministically, always from a\n:func:`_natural_key` sort so that the same tree yields the same\nnumbers on every machine:\n\n* **plate** — ``plate1, plate2, …`` in sorted order of the source\n  plate folder (``plate_naming='index'``, the default, and what\n  produces the ``plate1_A01_…`` the converter is specified against),\n  or the sanitised folder name with ``plate_naming='name'``.\n* **well** — see :func:`assign_wells`.\n* **field** — 1..N per well, over the distinct field keys; or, for\n  sources :func:`scan` read by a ``metadata_type``, the field numbers\n  the filenames state, when every field has one and none repeats.\n* **channel** — 1..N per plate, over the distinct channel keys, so\n  ``C01`` means the same stain in every well of a plate.\n\nZ projection is never implicit. :data:`Z_KEEP` (default)\nwrites every plane; :data:`Z_MAX` max-projects and :data:`Z_FIRST`\nkeeps only plane 1 — both are announced in :attr:`ConversionPlan.warnings`\nand recorded per row in the map file, so discarded planes are always\nreported.\n\n:param sources: output of :func:`scan`.\n:param z_handling: one of :data:`Z_HANDLING`.\n:param plate_naming: ``'index'`` or ``'name'``.\n:param well_map: explicit ``{well key: well id}`` or\n    ``{(plate key, well key): well id}`` overrides.\n:param plate_map: explicit ``{plate key: plate token}`` overrides.\n:returns: a :class:`ConversionPlan`.\n:raises ConfigurationError: for an unknown ``z_handling`` or\n    ``plate_naming``."
     },
     "da0221fb731e3b6991e4b5f22fb593ac3721369da7046e4fbc745710dc889a61": {
       "source_blocks_sha256": [

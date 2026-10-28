@@ -53,7 +53,7 @@ This linked reference contains the full generated setting descriptions. Return t
 
 
 <details>
-<summary>Input &amp; Metadata (5 settings)</summary>
+<summary>Input &amp; Metadata (6 settings)</summary>
 
 #### Input & Metadata
 
@@ -61,6 +61,7 @@ This linked reference contains the full generated setting descriptions. Return t
 - **`magnification`** *(optional)* — (int) - Objective magnification, used only to derive expected object sizes: pixel diameter is 2*mag+80 for cells, 0.75*mag+45 for nuclei and mag for pathogens, with min/max area limits of diameter^2/4 and diameter^2*10. A blank cell_diameter, nucleus_diameter or pathogen_diameter is segmented at that default diameter with every model, Cellpose-SAM included; an explicit number or 'auto' overrides it. Set this to the acquisition objective magnification (10, 20, 40 or 60). Default 40. Default: `40`.
 - **`calculate_diameters`** *(optional)* — (bool) - When True, the cell, nucleus and pathogen diameters are calculated from magnification: a blank diameter is its magnification default (2*magnification+80 px for cells, 0.75*magnification+45 px for nuclei, magnification px for pathogens), greyed in Per-object settings, and follows every magnification change. A diameter you type, or auto, is pinned (bold) and kept until you clear its cell or turn this off and on again, which recalculates all three. When False, magnification changes no longer touch any diameter. Default True. Default: `True`.
 - **`metadata_type`** *(optional)* — (str) - Raw-image filename convention, grouped by microscope vendor. Default 'cellvoyager' (Yokogawa CV7000/CV8000). 'custom' uses custom_regex; 'auto' first renames files to Yokogawa naming, using custom_regex when supplied or automatic detection. Provisional conventions come from public-dataset filenames, not vendor documentation. A wrong choice can misassign plate, well, field or channel IDs and channel folders. Use Test on my folder before running. Default: `'cellvoyager'`.
+- **`metadata_well_map`** *(optional)* — (str) - CSV path with exactly plate,index,well columns for indexed ScanR filenames. Every observed W index requires an explicit physical well in its source plate; no plate geometry is inferred. Missing, invalid, duplicate or incomplete mappings refuse before ingestion. Default empty. Default: `''`.
 - **`custom_regex`** *(optional)* — (str or None) - Python regex with named groups that extracts metadata from raw image filenames. It must supply wellID, fieldID and chanID; plateID is optional (falling back to the source folder name), and timeID or sliceID may be absent. With metadata_type='custom', a filename that does not match or lacks a required group is skipped with a warning, which can reduce the dataset. With 'auto', the regex is tried first for Yokogawa renaming and requires only wellID; automatic detection is used if it fails. Default None. Default: `None`.
 
 </details>
