@@ -1098,3 +1098,241 @@ def test_single_action_keeps_its_anchor_and_complete_children_in_narrow_windows(
         assert path.read_bytes() == original
     finally:
         page.close()
+
+
+def _choose_home_browse_action(qtbot, choice):
+    from PySide6.QtWidgets import QMenu
+
+    menu = QApplication.activePopupWidget()
+    assert isinstance(menu, QMenu)
+    try:
+        if choice == 'cancel':
+            qtbot.keyClick(menu, Qt.Key_Escape)
+        else:
+            action = menu.actions()[0 if choice == 'file' else 1]
+            qtbot.mouseClick(menu, Qt.LeftButton, pos=menu.actionGeometry(action).center())
+    finally:
+        menu.close()
+
+
+class _HomeBrowseDialogs:
+    """Record only the standard file-dialog boundary after a real menu choice."""
+
+    def __init__(self, path):
+        self.path, self.calls = path, []
+
+    def file(self, *args):
+        self.calls.append('file')
+        return self.path, ''
+
+    def folder(self, *args):
+        self.calls.append('folder')
+        return self.path
+
+
+def _fail_owned_home_inspection():
+    raise PermissionError('owned unreadable input')
+
+
+def _wait_owned_home_inspection(entered, release):
+    entered.set()
+    assert release.wait(5)
+
+
+@pytest.mark.parametrize('choice,accepted', [
+    ('file', True), ('folder', True), ('cancel', False),
+    ('file', False), ('folder', False),
+])
+def test_browse_uses_real_menu_choice_and_only_accepts_confirmed_paths(
+        qtbot, private_ai_profile, isolated_input_root, monkeypatch, choice, accepted):
+    from functools import partial
+    from PySide6.QtCore import QTimer
+    from PySide6.QtWidgets import QFileDialog
+    from spacr.qt.widgets.home import _EasyHomePage
+
+    image = isolated_input_root / 'field.tif'
+    _image(image)
+    path = str(image if choice == 'file' else isolated_input_root)
+    dialogs = _HomeBrowseDialogs(path if accepted else '')
+    monkeypatch.setattr(QFileDialog, 'getOpenFileName', dialogs.file)
+    monkeypatch.setattr(QFileDialog, 'getExistingDirectory', dialogs.folder)
+    page = _EasyHomePage()
+    qtbot.addWidget(page)
+    page.show()
+    before = image.read_bytes()
+    timer = QTimer(page)
+    timer.setSingleShot(True)
+    timer.timeout.connect(partial(_choose_home_browse_action, qtbot, choice))
+    try:
+        timer.start(0)
+        qtbot.mouseClick(page.path_edit.browse, Qt.LeftButton)
+        assert dialogs.calls == ([] if choice == 'cancel' else [choice])
+        if accepted:
+            qtbot.waitUntil(lambda: page._last_result is not None and not page._runner.is_busy(), timeout=5000)
+            assert page.path_edit.text() == path and page._requested == path
+            assert page._last_result['path'] == path
+            assert {'make_masks', 'mask'} <= {card._key for card in page.field.cards}
+        else:
+            assert page.path_edit.text() == '' and page._last_result is None
+            assert not page._runner.active_jobs() and not page.field.cards
+        assert image.read_bytes() == before
+    finally:
+        timer.stop()
+        page.close()
+        assert not page._runner.active_jobs()
+
+
+@pytest.mark.parametrize('blank', [False, True])
+def test_owned_inspection_failure_retires_stale_actions_without_reviving_blank_input(
+        qtbot, private_ai_profile, isolated_input_root, blank):
+    from spacr.qt.widgets.home import _EasyHomePage
+
+    path = isolated_input_root / 'field.tif'
+    _image(path)
+    page = _EasyHomePage()
+    qtbot.addWidget(page)
+    page.show()
+    try:
+        page.accept_paths([str(path)])
+        qtbot.waitUntil(lambda: page._last_result is not None and not page._runner.is_busy(), timeout=5000)
+        assert any(card._key == 'mask' for card in page.field.cards)
+        if blank:
+            page.path_edit.clear()
+            page._clear_empty_input()
+        with qtbot.waitSignal(page._runner.job_finished, timeout=5000):
+            page._runner.submit(_fail_owned_home_inspection)
+        qtbot.waitUntil(lambda: not page._runner.active_jobs(), timeout=5000)
+        if blank:
+            assert not page.field.cards and page.path_edit.text() == ''
+            assert not page.status.text()
+        else:
+            assert [card._key for card in page.field.cards] == ['warning']
+            assert 'Check permissions' in page.status.text()
+            assert 'Check permissions' in page.field.cards[0].description.text()
+        assert path.exists()
+    finally:
+        page.close()
+
+
+def test_regex_refusal_preserves_owned_busy_job_and_missing_result(
+        qtbot, private_ai_profile, isolated_input_root):
+    from functools import partial
+    from spacr.qt.widgets.home import _EasyHomePage
+
+    preferences, _, _ = private_ai_profile
+    preferences.set_reduce_motion(True)
+    page = _EasyHomePage()
+    qtbot.addWidget(page)
+    page.show()
+    entered, release = threading.Event(), threading.Event()
+    try:
+        generation = page._input_generation
+        page._apply_regex('(?P<channel>.*)')
+        assert page._input_generation == generation and page._regex_cancel is None
+        assert not page._runner.active_jobs()
+        path = isolated_input_root / 'field.tif'
+        _image(path)
+        page.accept_paths([str(path)])
+        qtbot.waitUntil(lambda: page._last_result is not None and not page._runner.is_busy(), timeout=5000)
+        cards, result, generation = tuple(page.field.cards), page._last_result, page._input_generation
+        page._runner.submit(partial(_wait_owned_home_inspection, entered, release))
+        qtbot.waitUntil(entered.is_set, timeout=3000)
+        jobs = page._runner.active_jobs()
+        page._apply_regex('(?P<channel>.*)')
+        assert page._runner.active_jobs() == jobs and page._runner.is_busy()
+        assert page._last_result is result and tuple(page.field.cards) == cards
+        assert page._input_generation == generation and page._regex_cancel is None
+        assert all(card.isEnabled() for card in cards)
+    finally:
+        release.set()
+        qtbot.waitUntil(lambda: not page._runner.active_jobs(), timeout=5000)
+        page.close()
+
+
+def test_suggestion_refusals_and_host_commands_do_not_create_a_workflow(
+        qtbot, private_ai_profile):
+    from PySide6.QtTest import QSignalSpy
+    from spacr.qt.widgets.home import _EasyHomePage
+
+    page = _EasyHomePage()
+    qtbot.addWidget(page)
+    page.show()
+    commands = QSignalSpy(page.command_requested)
+    modules = QSignalSpy(page.module_requested)
+    try:
+        page._select_suggestion('missing-tool', '/missing')
+        page._select_suggestion('mask', '/missing')
+        assert page._workflow is None and not page._runner.active_jobs()
+        page._select_suggestion('__easy_command__:preferences', '')
+        assert commands.count() == 1 and commands.at(0) == ['preferences']
+        assert modules.count() == 0 and page._workflow is None
+        assert page.path_edit.text() == '' and page._last_result is None
+    finally:
+        page.close()
+
+
+def test_graph_keyboard_and_field_wheel_preserve_the_real_borrowed_anchor(
+        qtbot, private_ai_profile, isolated_input_root):
+    from PySide6.QtCore import QEvent
+    from PySide6.QtGui import QKeyEvent, QWheelEvent
+    from PySide6.QtTest import QSignalSpy
+    from spacr.qt.widgets.home import _EasyHomePage
+
+    preferences, _, _ = private_ai_profile
+    preferences.set_easy_mode(True)
+    preferences.set_reduce_motion(True)
+    path = isolated_input_root / 'objects.csv'
+    path.write_text('label,area\n1,12\n2,9\n')
+    page = _EasyHomePage()
+    qtbot.addWidget(page)
+    page.resize(340, 650)
+    page.show()
+    before = path.read_bytes()
+    try:
+        page.accept_paths([str(path)])
+        qtbot.waitUntil(lambda: page._last_result is not None and not page._runner.is_busy(), timeout=5000)
+        field = page.field
+        source = next(card for card in field.cards if card._key == 'graph_builder')
+        field._scrollbar.setValue(0)
+        source.click()
+        workflow = page._workflow
+        rectangle = QRect(source.mapToGlobal(QPoint()), source.size())
+        chosen = QSignalSpy(workflow.view.chosen)
+        node = next(node for node in workflow.view.nodes.values() if node.isVisible())
+        for key in (Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space):
+            workflow.view.scene().sendEvent(node, QKeyEvent(QEvent.KeyPress, key, Qt.NoModifier))
+        assert chosen.count() == 3 and all(chosen.at(index) == [node.key] for index in range(3))
+        workflow.view.scene().sendEvent(node, QKeyEvent(QEvent.KeyPress, Qt.Key_A, Qt.NoModifier))
+        assert chosen.count() == 3
+        selected = workflow._chosen_key
+        workflow.select('missing-tool')
+        assert workflow._chosen_key == selected and workflow.central is source
+        panel, details = QRect(field.panel.geometry()), QRect(field.details.geometry())
+        assert field._scrollbar.maximum() > 0
+        position = QPointF(field._row_rect.center())
+        event = QWheelEvent(position, QPointF(field.mapToGlobal(position.toPoint())),
+                            QPoint(-24, 0), QPoint(), Qt.NoButton, Qt.NoModifier,
+                            Qt.ScrollUpdate, False)
+        QApplication.sendEvent(field, event)
+        assert event.isAccepted() and field._scrollbar.value() == min(24, field._scrollbar.maximum())
+        event = QWheelEvent(position, QPointF(field.mapToGlobal(position.toPoint())),
+                            QPoint(), QPoint(0, -120), Qt.NoButton, Qt.NoModifier,
+                            Qt.ScrollUpdate, False)
+        QApplication.sendEvent(field, event)
+        assert event.isAccepted() and field._scrollbar.value() == min(84, field._scrollbar.maximum())
+        value = field._scrollbar.value()
+        outside = QWheelEvent(QPointF(), QPointF(field.mapToGlobal(QPoint())),
+                              QPoint(), QPoint(0, -120), Qt.NoButton, Qt.NoModifier,
+                              Qt.ScrollUpdate, False)
+        QApplication.sendEvent(field, outside)
+        assert field._scrollbar.value() == value
+        assert field.panel.geometry() == panel and field.details.geometry() == details
+        assert QRect(source.mapToGlobal(QPoint()), source.size()) == rectangle
+        assert workflow.central is source and source.parentWidget() is workflow
+        assert workflow.view.width() > 0 and workflow.view.height() > 0
+        assert not workflow.view.geometry().intersects(source.geometry())
+        qtbot.keyClick(source, Qt.Key_Escape)
+        assert page._workflow is None and source.parentWidget() is field
+        assert page.path_edit.text() == str(path) and path.read_bytes() == before
+    finally:
+        page.close()
