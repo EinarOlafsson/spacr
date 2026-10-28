@@ -597,3 +597,6 @@ Navigator88 remains checked-pushed639bb1f83a; its Docs run40756766539 is cancell
 Model Zoo22 p55 on891d55dafa/62fbc8958f exits1 after3 clips: bioimage.io source enabled but no provider rows/cache; planned retry exits3 without a take. Real screen lacks the picker’s off-thread provider fetch; exact exception/trace shared for Home, receipt unconfirmed. No scientific acceptance or identical retake.
 Codex continues31 External Masks with15 original scenes and50 unchanged tracks; fix only its native console-divider route, then capture/gate/publish. Prepared source metadata reflects Home38 scenes; no TTS or fake voice-completion markers.
 64 still waits for the live3D highlight crash fix;01 waits for PyPI1.5.1.6. Remaining50/70/19/63 stay open after31; full campaign remains active.
+
+2026-10-28 — External Masks31 p56 finishes with c10=1/d10=3: ten raw clips, no gate summary or scientific acceptance. The actual preview worker succeeds, but both saved console arrays are empty; preserve the failed take and do not repeat it unchanged.
+Fresh console defaults hide INFO, including the preview plan; the driver connects its line signal after the fast native click returns. Correct the driver through the real Preferences Logs Info/Console control, retaining exact two-field, non-writing and readability checks; then take fresh source on one base.
