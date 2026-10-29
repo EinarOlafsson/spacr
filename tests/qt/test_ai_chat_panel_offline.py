@@ -184,7 +184,16 @@ def test_bubble_is_selectable_wrapped_and_width_capped(qtbot, qt_theme_applied):
     flags = b._text.textInteractionFlags()
     assert flags & Qt.TextSelectableByMouse       # users copy AI answers
     assert flags & Qt.LinksAccessibleByMouse
-    assert b._text.openExternalLinks() is True
+    assert b._text.openExternalLinks() is False
+    from PySide6.QtGui import QGuiApplication
+
+    clipboard = QGuiApplication.clipboard()
+    clipboard.setText("previous clipboard")
+    b.show()
+    b._text.setFocus()
+    b._text.setSelection(0, 1)
+    QTest.keyClick(b._text, Qt.Key_C, Qt.ControlModifier)
+    assert clipboard.text() == "x"
 
 
 def test_bubble_set_text_replaces_the_body(qtbot, qt_theme_applied):
@@ -737,7 +746,9 @@ def test_send_clears_input_appends_bubble_and_streams(panel, qtbot, ai_env):
     qtbot.waitUntil(lambda: panel._thread is None, timeout=5000)
     assert provider.seen[0]["messages"] == [
         {"role": "user", "content": "why did masks fail?"}]
-    assert provider.seen[0]["system"] == "Be brief."
+    from spacr.qt.ai.prompts import _navigation_context
+
+    assert provider.seen[0]["system"] == "Be brief.\n\n" + _navigation_context()
     assert panel._messages[1] == {"role": "assistant",
                                   "content": "Hello world"}
     assert panel._status.text() == "Ready."

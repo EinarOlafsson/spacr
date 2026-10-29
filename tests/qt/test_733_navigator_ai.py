@@ -5,6 +5,7 @@ from PySide6.QtGui import QColor, QImage
 from PySide6.QtWidgets import QComboBox, QDialog, QTextBrowser
 
 from tests.qt.test_startup_ai_reporting_choice import private_ai_profile as private_ai_profile
+from tests.qt.test_733_easy_commands import commands as commands
 
 
 class _Worker(QObject):
@@ -114,9 +115,13 @@ def test_only_unmatched_enter_streams_to_lower_box(ai_page, qtbot):
 
 
 @pytest.mark.parametrize('value', ['Measure', 'Make Masks', 'Overview', '/tmp/unknown-images', 'field.npy'])
-def test_tools_and_paths_never_enter_ai_transport(ai_page, qtbot, monkeypatch, value):
+def test_tools_and_paths_never_enter_ai_transport(ai_page, qtbot, monkeypatch, value, commands):
     from spacr.qt.widgets import home
     page, calls, drained = ai_page
+    commands._startup = page
+    commands.setCentralWidget(page)
+    commands.show()
+    page.command_requested.connect(commands._open_easy_command)
     _enable(page)
     inspected = []
     monkeypatch.setattr(home, '_easy_inspect_path', lambda path: (
