@@ -18,6 +18,7 @@ from tests.qt.test_startup_ai_reporting_choice import private_ai_profile
 
 class _Commands(QMainWindow):
     _open_easy_command = app.MainWindow._open_easy_command
+    _easy_navigation_suggestions = app.MainWindow._easy_navigation_suggestions
     _open_easy_input = app.MainWindow._open_easy_input
     _easy_input_paths = app.MainWindow._easy_input_paths
     _preview_easy_settings = app.MainWindow._preview_easy_settings
