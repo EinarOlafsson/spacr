@@ -2829,14 +2829,6 @@ def _easy_module_matches(value):
     for key, (name, _description) in _easy_native_extra_rows().items():
         for label in (key, name, tr(name)):
             names.setdefault(_easy_command_text(label), set()).add(key)
-    aliases = {'generate masks': 'mask', 'mask generation': 'mask',
-               'make mask': 'make_masks', 'image umap': 'umap', 'classify': 'classify_merged',
-               'experimental design': 'experiment_design', 'power design': 'power',
-               'measurement': 'measure', 'feature': 'measure', 'morphological profiling': 'measure',
-               'qc': 'qc_dashboard', 'quality control': 'qc_dashboard',
-               'import': 'foreign', 'time': 'timelapse', '3d': '3d'}
-    if wanted in aliases:
-        return (aliases[wanted],)
     if wanted in names:
         return tuple(sorted(names[wanted]))
     patterns = {
