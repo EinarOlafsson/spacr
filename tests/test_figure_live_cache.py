@@ -839,7 +839,7 @@ def test_a_umap_figure_still_gets_its_live_umap_controls(qtbot, queue):
 
 
 def test_a_live_figure_is_shown_by_matplotlib_not_as_a_picture_of_itself(
-        qtbot, queue):
+        qtbot, queue, tmp_path):
     """"i dont get why you cant have it be vector based" -- it can, and now is.
 
     The raster pipeline draws the figure, encodes it, and stretches the
@@ -847,19 +847,45 @@ def test_a_live_figure_is_shown_by_matplotlib_not_as_a_picture_of_itself(
     the size the raster was drawn at, which is most of the time and always
     when zoomed. A canvas redraws from the Figure at the widget's own
     resolution, so it is crisp at any size, and showing a figure costs no
-    render at all.
+    render at all. Measured slow figures deliberately keep their raster;
+    this case exercises an eligible, unmeasured prerendered-PNG handoff.
     """
+    from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
     from matplotlib.figure import Figure
+    from PySide6.QtCore import QPoint, QPointF, Qt
+    from PySide6.QtGui import QWheelEvent
+    from PySide6.QtWidgets import QApplication
 
     figure = Figure()
-    figure.add_subplot(111).plot([0, 1], [0, 1])
-    queue.add_figure(figure)
+    axes = figure.add_subplot(111)
+    axes.plot([0, 1], [0, 1])
+    preview = tmp_path / "worker-preview.png"
+    figure.savefig(preview)
+    # Exercise an unmeasured worker handoff; measured slow figures keep the raster.
+    assert not hasattr(figure, "_spacr_raster_seconds")
+    queue.add_figure(figure, prerendered_png=str(preview))
 
     assert queue._canvas is not None, "a live figure fell back to the raster"
+    assert isinstance(queue._canvas, FigureCanvasQTAgg)
     assert queue._stack.currentIndex() == 1
     assert queue._canvas.figure is queue._figures[0]
     # Zoom and pan re-render from the figure rather than magnifying pixels.
     assert queue._canvas_toolbar is not None
+
+    canvas = queue._canvas
+    canvas.draw()
+    before = axes.get_xlim()
+    x, y = axes.transData.transform((0.5, 0.5))
+    ratio = canvas.devicePixelRatioF()
+    position = QPointF(x / ratio, (figure.bbox.height - y) / ratio)
+    wheel = QWheelEvent(position, QPointF(canvas.mapToGlobal(position.toPoint())),
+                        QPoint(), QPoint(0, 120), Qt.NoButton, Qt.NoModifier,
+                        Qt.ScrollUpdate, False)
+    QApplication.sendEvent(canvas, wheel)
+    after = axes.get_xlim()
+    assert after[1] - after[0] == pytest.approx(
+        (before[1] - before[0]) / queue.CANVAS_ZOOM_STEP)
+    assert sum(after) / 2 == pytest.approx(0.5)
 
 
 def test_restyling_a_live_figure_costs_the_gui_thread_nothing(qtbot, queue):
