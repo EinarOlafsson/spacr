@@ -12,7 +12,7 @@ Repeated IDs retain their separate full filenames and histories; none were merge
 
 This is a declaration-based navigation list, not a verified unfinished count. Headers can be stale. Conversely, recorded-Done items 641 and 673 contain later Mac follow-ups; item 729 separates native checks from deferred implementation. Read their linked notes before assigning work.
 
-19 records have no recorded complete declaration; 703 have a recorded complete declaration. Neither is a verification result.
+18 records have no recorded complete declaration; 704 have a recorded complete declaration. Neither is a verification result.
 
 | ID | Lifecycle | Item (full filename) | Recorded status |
 |---|---|---|---|
@@ -23,7 +23,6 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 441 | New | [THE MASK MODULE KNOWS TWO MICROSCOPES, AND BOTH OF THEM ARE YOKOGAWA — 441_a_metadata_type_for_every_common_microscope.txt](feature_list/441_a_metadata_type_for_every_common_microscope.txt) | OPEN — folder/ImageXpress/Etaluma import repairs and translated artifacts are delivered; documented vendor-evidence and unsupported naming variants remain. |
 | 449 | New | [A CLASSIFICATION WRAPPER AROUND ANY CELLPOSE-SAM MODEL: PARASITES PER VACUOLE, — 449_a_classification_wrapper_around_any_cellpose_model.txt](feature_list/449_a_classification_wrapper_around_any_cellpose_model.txt) | BLOCKED 2026-09-25 — maintainer hand counts: per-PV parasite |
 | 470 | Future | [OBJECT CROPS FROM THE CROSS-CHANNEL GROUND TRUTH, TO JUDGE EVERY LABEL — 470_object_crops_from_the_cross_channel_ground_truth_to_judge_every_label.txt](feature_list/470_object_crops_from_the_cross_channel_ground_truth_to_judge_every_label.txt) | BLOCKED 2026-10-03 — maintainer annotation of the crop sample; the |
-| 488 | New | [PYPI README IMAGES WITHOUT LOSING THE GITHUB PAGE — 488_pypi_readme_images.txt](feature_list/488_pypi_readme_images.txt) | REOPENED 2026-10-21 — PyPI layout acceptance required for1.5.1.6. |
 | 534 | Future | [MAP BARCODES READS VISIUM AND XENIUM DATA AND RELATES IT TO IMAGE COORDINATES — 534_map_barcodes_reads_visium_and_xenium_and_maps_them_to_cells.txt](feature_list/534_map_barcodes_reads_visium_and_xenium_and_maps_them_to_cells.txt) | ALPHA 2026-10-11 (redesigned by the maintainer into two |
 | 536 | Future | [SCRATCH / WOUND-CLOSURE ASSAY — 536_scratch_wound_closure_assay.txt](feature_list/536_scratch_wound_closure_assay.txt) | IN PROGRESS (alpha) 2026-10-27 — software delivered; original scientific closure accuracy remains unmet. Measure finds the scratch wound in |
 | 538 | Future | [SPECTRAL UNMIXING / BLEED-THROUGH CORRECTION — 538_spectral_unmixing_and_bleed_through_correction.txt](feature_list/538_spectral_unmixing_and_bleed_through_correction.txt) | IN PROGRESS (alpha) — supported software delivered; known-amount scientific outcome not demonstrated. |
@@ -518,7 +517,7 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 485 | New | [IMAGE ZOOM FOLLOWS THE MOUSE CURSOR — 485_image_zoom_follows_the_mouse_cursor.txt](feature_list/485_image_zoom_follows_the_mouse_cursor.txt) | DONE 2026-09-25 — (validated 2026-09-23, re-checked 2026-09-25). The feel |
 | 486 | New | [NATIVE OS CURSOR AND THIN RESIZE EDGE HINTS — 486_native_os_cursor_and_thin_resize_edge_hints.txt](feature_list/486_native_os_cursor_and_thin_resize_edge_hints.txt) | DONE 2026-09-25 — (implemented 2026-09-23, re-checked 2026-09-25). |
 | 487 | Future | [GITHUB ISSUE AUDIT AND RESOLUTION — 487_github_issue_audit_and_resolution.txt](feature_list/487_github_issue_audit_and_resolution.txt) | CLOSED 2026-10-01 (audit complete, nothing to build: zero open GitHub |
-| 488 | New | [PYPI README IMAGES WITHOUT LOSING THE GITHUB PAGE — 488_pypi_readme_images.txt](feature_list/488_pypi_readme_images.txt) | REOPENED 2026-10-21 — PyPI layout acceptance required for1.5.1.6. |
+| 488 | New | [PYPI README IMAGES WITHOUT LOSING THE GITHUB PAGE — 488_pypi_readme_images.txt](feature_list/488_pypi_readme_images.txt) | COMPLETE 2026-10-29 — Published 1.5.1.6 PyPI README accepted by the maintainer. |
 | 489 | Future | [DEEP IMAGE ENHANCEMENT — 489_deep_image_enhancement.txt](feature_list/489_deep_image_enhancement.txt) | DONE (alpha) 2026-10-01 — Runtime acceptance was completed |
 | 490 | Future | [MEASURED AND CALCULATED POINT SPREAD FUNCTIONS — 490_measured_and_calculated_point_spread_functions.txt](feature_list/490_measured_and_calculated_point_spread_functions.txt) | DONE (alpha) 2026-10-05 — the user accepts the built, alpha-gated |
 | 491 | Future | [spaCR 1.5.1.0 RELEASE MILESTONE — 491_release_1_5_1_0.txt](feature_list/491_release_1_5_1_0.txt) | DONE 2026-09-24 — 1.5.1.0 is on PyPI, GitHub and main (see the last note). |

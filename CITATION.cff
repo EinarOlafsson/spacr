@@ -30,12 +30,12 @@ contact:
     given-names: "Einar B."
     orcid: "https://orcid.org/0000-0002-3388-061X"
 version: "1.5.1.6"
-date-released: "2026-10-21"
-doi: "10.5281/zenodo.21343316"
+date-released: "2026-10-29"
+doi: "10.5281/zenodo.23768193"
 identifiers:
   - type: doi
-    value: "10.5281/zenodo.21343316"
-    description: "Version DOI: pending for spaCR 1.5.1.6. Zenodo mints it after the GitHub release; until then this is the concept DOI."
+    value: "10.5281/zenodo.23768193"
+    description: "Version DOI: this release, spaCR 1.5.1.6. Cite this to point at the exact code a result came from."
   - type: doi
     value: "10.5281/zenodo.21343316"
     description: "Concept DOI: all versions of spaCR. Resolves to the most recent release."
