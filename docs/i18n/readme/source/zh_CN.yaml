@@ -128,8 +128,8 @@ blocks:
   - '**conda-forge**：在 Conda 环境中运行 ``conda install conda-forge::spacr``。'
   - '**Docker**：在 Linux 容器中运行命令行处理流程，可使用 CPU 镜像或 NVIDIA GPU 镜像：'
 - code: |-
-    docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.6 spacr-run --list
-    docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.6-cuda12.4 spacr-run --list
+    docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.7 spacr-run --list
+    docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.7-cuda12.4 spacr-run --list
   lang: bash
 - p: '`Docker 指南（nightly，英文） <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst#container-images>`_
     介绍了 GPU 设置、数据挂载和处理流程命令。'

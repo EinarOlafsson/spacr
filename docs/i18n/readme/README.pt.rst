@@ -127,8 +127,8 @@ Site: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/p
 
 .. code-block:: bash
 
-   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.6 spacr-run --list
-   docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.6-cuda12.4 spacr-run --list
+   docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.7 spacr-run --list
+   docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.7-cuda12.4 spacr-run --list
 
 .. raw:: html
 
@@ -144,13 +144,13 @@ Site: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/p
 
 .. |InstallerWindows| raw:: html
 
-   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.6/spaCR-1.5.1.6-Windows-Online-Setup.exe"><img src="../../readme_assets/cells/platforms/windows.png" width="14.14%" align="middle" alt="Baixar o spaCR 1.5.1.6 para Windows 10/11"></a>
+   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.7/spaCR-1.5.1.7-Windows-Online-Setup.exe"><img src="../../readme_assets/cells/platforms/windows.png" width="14.14%" align="middle" alt="Baixar o spaCR 1.5.1.7 para Windows 10/11"></a>
 .. |InstallerMacOS| raw:: html
 
-   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.6/spaCR-1.5.1.6-macOS-Universal-Online.pkg"><img src="../../readme_assets/cells/platforms/macos.png" width="14.14%" align="middle" alt="Baixar o spaCR 1.5.1.6 para macOS 11+ (Intel e Apple Silicon)"></a>
+   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.7/spaCR-1.5.1.7-macOS-Universal-Online.pkg"><img src="../../readme_assets/cells/platforms/macos.png" width="14.14%" align="middle" alt="Baixar o spaCR 1.5.1.7 para macOS 11+ (Intel e Apple Silicon)"></a>
 .. |InstallerLinux| raw:: html
 
-   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.6/spaCR-1.5.1.6-Linux-x86_64-Online.run"><img src="../../readme_assets/cells/platforms/linux.png" width="14.14%" align="middle" alt="Baixar o spaCR 1.5.1.6 para Linux de 64 bits"></a>
+   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.7/spaCR-1.5.1.7-Linux-x86_64-Online.run"><img src="../../readme_assets/cells/platforms/linux.png" width="14.14%" align="middle" alt="Baixar o spaCR 1.5.1.7 para Linux de 64 bits"></a>
 .. |InstallerSpaCR| raw:: html
 
    <a href="https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installers.rst"><img src="../../readme_assets/cells/app_icon.png" width="14.14%" align="middle" alt="Todos os instaladores do spaCR"></a>

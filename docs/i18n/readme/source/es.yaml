@@ -146,8 +146,8 @@ blocks:
   - '**Docker**: los flujos de procesamiento de línea de comandos en un contenedor
     Linux, con la imagen para CPU o la imagen para GPU NVIDIA:'
 - code: |-
-    docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.6 spacr-run --list
-    docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.6-cuda12.4 spacr-run --list
+    docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.7 spacr-run --list
+    docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.7-cuda12.4 spacr-run --list
   lang: bash
 - p: La `guía de Docker (nightly, en inglés) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst#container-images>`_
     explica la configuración de la GPU, el montaje de datos y los comandos de los
