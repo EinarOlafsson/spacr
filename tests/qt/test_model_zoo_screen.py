@@ -787,3 +787,301 @@ def test_selecting_nothing_clears_what_was_selected(screen, local_models):
     screen.select()
 
     assert screen.selected_entries() == []
+
+
+@pytest.fixture
+def bioimage_collection(qtbot, monkeypatch, tmp_path):
+    import io
+    import json
+    import urllib.request
+
+    from PySide6.QtCore import QSettings, QThread
+    from spacr.qt.widgets import model_zoo_picker
+
+    home = tmp_path / 'private-home'
+    monkeypatch.setattr(zoo, '_spacr_home', lambda: home)
+    monkeypatch.setattr(zoo, 'shared_catalogue', lambda **kwargs: [])
+    settings_path = str(tmp_path / 'source-headings.ini')
+    monkeypatch.setattr(model_zoo_picker, '_store', lambda: QSettings(
+        settings_path, QSettings.IniFormat))
+    model_zoo_picker._remember_sources(())
+    root = tmp_path / 'images'
+    local = root / 'models' / 'cellpose_model' / 'local.CP_model'
+    write_checkpoint(local, b'unchanged local checkpoint')
+    original = local.read_bytes()
+    payload = {'items': []}
+    for alias, name in (('controlled-sam', 'Controlled Cellpose-SAM'),
+                        ('standin-sam', 'Standin Cellpose-SAM')):
+        payload['items'].append({'alias': alias, 'manifest': {
+            'type': 'model', 'name': name, 'license': 'BSD-3-Clause',
+            'authors': [{'name': 'Test collection author'}],
+            'tags': ['cellpose-sam'], 'weights': {'pytorch_state_dict': {
+                'source': f'https://models.invalid/{alias}.pth',
+                'sha256': 'ab' * 32,
+                'architecture': {'callable': 'CPnetBioImageIO'},
+            }},
+        }})
+    calls = []
+    control = {'fail': False, 'hold': False}
+    entered, release = threading.Event(), threading.Event()
+
+    class MetadataOnly:
+        status = 206
+
+        def __init__(self, size):
+            self.headers = {'Content-Range': f'bytes 0-0/{size}'}
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def read(self, *args):
+            pytest.fail('Collection listing must not read model weights')
+
+    def open_collection(request, timeout):
+        url = request if isinstance(request, str) else request.full_url
+        calls.append((url, QThread.currentThread()))
+        if url == zoo.BIOIMAGEIO_COLLECTION:
+            entered.set()
+            if control['hold'] and not release.wait(15):
+                raise RuntimeError('Collection test transport was not released')
+            if control['fail']:
+                raise OSError('Controlled collection mirror unavailable')
+            return io.BytesIO(json.dumps(payload).encode())
+        assert isinstance(request, urllib.request.Request)
+        assert request.get_header('Range') == 'bytes=0-0'
+        assert url in ('https://models.invalid/controlled-sam.pth',
+                       'https://models.invalid/standin-sam.pth')
+        return MetadataOnly(1596 if 'standin' in url else 2 << 20)
+
+    monkeypatch.setattr(urllib.request, 'urlopen', open_collection)
+    widget = ModelZooScreen(threaded=True)
+    qtbot.addWidget(widget)
+    widget._scan_edit.setText(str(root))
+    widget.show()
+    state = dict(widget=widget, home=home, local=local, original=original,
+                 payload=payload, calls=calls, control=control,
+                 entered=entered, release=release, gui=QThread.currentThread())
+    try:
+        yield state
+    finally:
+        release.set()
+        widget.close()
+        qtbot.waitUntil(lambda: widget.active_jobs() == 0, timeout=10000)
+
+
+def test_fresh_bioimage_heading_loads_collection_once_off_thread(
+        bioimage_collection, qtbot, monkeypatch):
+    from PySide6.QtCore import QThread
+
+    state = bioimage_collection
+    screen = state['widget']
+    listed_on = []
+    screen.models_listed.connect(lambda count: listed_on.append(QThread.currentThread()))
+    monkeypatch.setenv('SPACR_NO_NETWORK', '0')
+    assert not state['home'].exists()
+    assert not state['calls']
+    assert screen.sources.set_on('bioimage.io', True)
+    qtbot.waitUntil(lambda: not screen.is_busy() and screen.active_jobs() == 0)
+    assert [url for url, _ in state['calls']] == [
+        zoo.BIOIMAGEIO_COLLECTION,
+        'https://models.invalid/controlled-sam.pth',
+        'https://models.invalid/standin-sam.pth',
+    ]
+    assert all(thread != state['gui'] for _, thread in state['calls'])
+    assert listed_on and all(thread == state['gui'] for thread in listed_on)
+    by_key = {entry.key: entry for entry in screen.entries()}
+    runnable = by_key['bioimageio_controlled_cellpose_sam']
+    refused = by_key['bioimageio_standin_cellpose_sam']
+    assert runnable.uri == 'https://models.invalid/controlled-sam.pth'
+    assert runnable.size_bytes == 2 << 20 and runnable.licence == 'BSD-3-Clause'
+    assert not refused.uri and '1596-byte stand-in' in refused.notes[0]
+    bio_rows = []
+    for entry in (runnable, refused):
+        group = next(index for index, (_, pairs) in enumerate(screen._groups)
+                     if any(candidate.key == entry.key for _, candidate in pairs))
+        row = screen._row_of_group(group)
+        assert row is not None and not screen._table.isRowHidden(row)
+        assert screen._table.item(row, 0).text() == entry.key
+        assert screen._table.item(row, 1).text() == entry.kind
+        bio_rows.append(row)
+    assert any(entry.path == str(state['local']) for entry in screen.entries())
+    assert state['local'].read_bytes() == state['original']
+    assert (state['home'] / 'bioimageio_children.json').is_file()
+    assert {path.name for path in state['home'].iterdir()} == {
+        'bioimageio_children.json', 'bioimageio_weight_sizes.json'}
+    screen.sources.set_on('bioimage.io', False)
+    assert all(screen._table.isRowHidden(row) for row in bio_rows)
+    screen.sources.set_on('bioimage.io', True)
+    assert all(not screen._table.isRowHidden(row) for row in bio_rows)
+    qtbot.waitUntil(lambda: not screen.is_busy() and screen.active_jobs() == 0)
+    assert len(state['calls']) == 3
+
+
+def test_offline_bioimage_cache_and_failed_fetch_allow_explicit_retry(
+        bioimage_collection, qtbot, monkeypatch):
+    import json
+    from spacr.qt.widgets import model_zoo_picker
+
+    state = bioimage_collection
+    screen = state['widget']
+    state['home'].mkdir()
+    cache = state['home'] / 'bioimageio_children.json'
+    cache.write_text(json.dumps(state['payload']), encoding='utf-8')
+    os.utime(cache, (1, 1))
+    cached_bytes = cache.read_bytes()
+    monkeypatch.setenv('SPACR_NO_NETWORK', '1')
+    assert screen.sources.set_on('bioimage.io', True)
+    qtbot.waitUntil(lambda: not screen.is_busy() and screen.active_jobs() == 0)
+    assert not state['calls']
+    assert any(entry.key == 'bioimageio_controlled_cellpose_sam'
+               for entry in screen.entries())
+    assert cache.read_bytes() == cached_bytes
+    state['control']['fail'] = True
+    monkeypatch.setenv('SPACR_NO_NETWORK', '0')
+    assert screen.scan()
+    qtbot.waitUntil(lambda: not screen.is_busy() and screen.active_jobs() == 0)
+    assert sum(url == zoo.BIOIMAGEIO_COLLECTION for url, _ in state['calls']) == 1
+    assert any(entry.key == 'bioimageio_controlled_cellpose_sam'
+               for entry in screen.entries())
+    assert cache.read_bytes() == cached_bytes
+    assert state['local'].read_bytes() == state['original']
+    screen.sources.set_on('bioimage.io', False)
+    screen.sources.set_on('bioimage.io', True)
+    qtbot.waitUntil(lambda: not screen.is_busy() and screen.active_jobs() == 0)
+    assert sum(url == zoo.BIOIMAGEIO_COLLECTION for url, _ in state['calls']) == 1
+    state['control']['fail'] = False
+    state['payload']['items'][0]['manifest']['name'] = 'Refreshed Cellpose-SAM'
+    assert screen.scan()
+    qtbot.waitUntil(lambda: not screen.is_busy() and screen.active_jobs() == 0)
+    assert sum(url == zoo.BIOIMAGEIO_COLLECTION for url, _ in state['calls']) == 2
+    assert any(entry.key == 'bioimageio_refreshed_cellpose_sam'
+               for entry in screen.entries())
+    assert cache.stat().st_mtime > 1
+    assert state['local'].read_bytes() == state['original']
+    before = tuple(state['calls'])
+    monkeypatch.setattr(model_zoo_picker, 'confirm_community_uploads', lambda owner: False)
+    assert not screen.sources.set_on('spaCR community', True)
+    assert not screen.sources.is_on('spaCR community')
+    assert tuple(state['calls']) == before
+
+
+def test_bioimage_intent_during_owned_scan_waits_for_that_scan(
+        bioimage_collection, qtbot, monkeypatch):
+    state = bioimage_collection
+    screen = state['widget']
+    root = state['local'].parents[2]
+    entered, release = threading.Event(), threading.Event()
+    discover = zoo.discover_local
+
+    def held_discovery(folder, *args, **kwargs):
+        if os.fspath(folder) == str(root):
+            entered.set()
+            if not release.wait(15):
+                raise RuntimeError('Local scan was not released')
+        return discover(folder, *args, **kwargs)
+
+    monkeypatch.setattr(zoo, 'discover_local', held_discovery)
+    monkeypatch.setenv('SPACR_NO_NETWORK', '0')
+    try:
+        assert screen.scan()
+        qtbot.waitUntil(entered.is_set)
+        assert screen.sources.set_on('bioimage.io', True)
+        assert not screen.scan(), 'An owned scan must not overlap another scan'
+        assert len(screen._jobs) == 1
+        assert not state['calls']
+        release.set()
+        qtbot.waitUntil(lambda: not screen.is_busy() and screen.active_jobs() == 0)
+        assert sum(url == zoo.BIOIMAGEIO_COLLECTION for url, _ in state['calls']) == 1
+        assert any(entry.key == 'bioimageio_controlled_cellpose_sam'
+                   for entry in screen.entries())
+        assert any(entry.path == str(state['local']) for entry in screen.entries())
+        assert state['local'].read_bytes() == state['original']
+    finally:
+        release.set()
+
+
+def test_closing_owned_bioimage_fetch_keeps_rows_without_late_delivery(
+        bioimage_collection, qtbot, monkeypatch):
+    from PySide6.QtCore import QTimer
+
+    state = bioimage_collection
+    screen = state['widget']
+    original_entries = list(zoo.discover_local(state['local'].parents[2]))
+    screen.set_entries(original_entries)
+    deliveries = []
+    screen.models_listed.connect(deliveries.append)
+    state['control']['hold'] = True
+    monkeypatch.setenv('SPACR_NO_NETWORK', '0')
+    assert screen.sources.set_on('bioimage.io', True)
+    qtbot.waitUntil(state['entered'].is_set)
+    QTimer.singleShot(0, state['release'].set)
+    assert screen.close()
+    qtbot.waitUntil(lambda: screen.active_jobs() == 0)
+    assert not screen.isVisible()
+    assert screen.entries() == original_entries
+    assert not deliveries
+    assert (state['home'] / 'bioimageio_children.json').is_file()
+    assert sum(url == zoo.BIOIMAGEIO_COLLECTION for url, _ in state['calls']) == 1
+    assert state['local'].read_bytes() == state['original']
+
+
+def test_accepted_community_intent_survives_a_failed_owned_scan(
+        bioimage_collection, qtbot, monkeypatch):
+    from spacr.qt.widgets import model_zoo_picker
+
+    state = bioimage_collection
+    screen = state['widget']
+    root = state['local'].parents[2]
+    entered, release = threading.Event(), threading.Event()
+    discover = zoo.discover_local
+    failed = []
+    consent, community_calls = [], []
+    community = zoo.ModelEntry(key='owned_community_row', name='Shared checkpoint',
+                               source='community', kind='cellpose')
+
+    def fail_first_local_scan(folder, *args, **kwargs):
+        if os.fspath(folder) == str(root) and not failed:
+            failed.append(True)
+            entered.set()
+            if not release.wait(15):
+                raise RuntimeError('Failed local scan was not released')
+            raise PermissionError('Controlled local scan permission failure')
+        return discover(folder, *args, **kwargs)
+
+    def accept_community(owner):
+        consent.append(owner)
+        return True
+
+    def community_rows(allow_network=False):
+        community_calls.append(allow_network)
+        return [community]
+
+    monkeypatch.setattr(zoo, 'discover_local', fail_first_local_scan)
+    monkeypatch.setattr(zoo, 'community_entries', community_rows)
+    monkeypatch.setattr(model_zoo_picker, 'confirm_community_uploads', accept_community)
+    monkeypatch.setenv('SPACR_NO_NETWORK', '0')
+    settled = []
+    screen.job_finished.connect(settled.append)
+    try:
+        assert screen.scan()
+        qtbot.waitUntil(entered.is_set)
+        assert screen.sources.set_on('spaCR community', True)
+        assert consent == [screen]
+        assert not community_calls and not state['calls']
+        release.set()
+        qtbot.waitUntil(lambda: not screen.is_busy() and screen.active_jobs() == 0)
+        assert settled == [False, True]
+        assert community_calls == [True]
+        assert community in screen.entries()
+        assert any(entry.path == str(state['local']) for entry in screen.entries())
+        group = next(index for index, (_, pairs) in enumerate(screen._groups)
+                     if any(entry is community for _, entry in pairs))
+        row = screen._row_of_group(group)
+        assert row is not None and not screen._table.isRowHidden(row)
+        assert not state['calls'], 'Community intent must not fetch bioimage.io'
+        assert state['local'].read_bytes() == state['original']
+    finally:
+        release.set()

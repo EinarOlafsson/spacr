@@ -452,6 +452,9 @@ class ModelZooScreen(QWidget):
         self._segment_fn: Optional[Callable] = None
         self._opener: Optional[Callable] = None
         self._busy = False
+        self._bioimageio_attempted = False
+        self._source_scan_pending = False
+        self._closing = False
         self._cancel = {"stop": False}
         self._jobs: List[tuple] = []
         self._pending: List[tuple] = []
@@ -769,16 +772,24 @@ class ModelZooScreen(QWidget):
         self._update_controls()
 
     def _sources_changed(self) -> None:
-        """A heading was clicked: re-fold the table, and re-list if the
-        shared catalogue was just asked for.
+        """Fold source rows and load a newly requested collection.
 
-        Only "spaCR community" needs a re-list: the other four headings'
-        rows are already in the listing, folded away. The community rows are
-        fetched exactly when somebody asks for them, so a user who never
-        turns that heading on never makes that request.
+        bioimage.io is requested once automatically per screen when network
+        access is allowed; an explicit Scan can retry. A heading changed
+        during an owned job is applied when that job settles. Community
+        uploads retain their separate heading and confirmation policy.
         """
-        if self.sources.is_on("spaCR community"):
-            self.scan(include_catalogue=True)
+        if self._closing:
+            return
+        if self._busy:
+            self._source_scan_pending = True
+            self._apply_source_filter()
+            self._update_controls()
+            return
+        if (self.sources.is_on("spaCR community")
+                or self.sources.is_on("bioimage.io")
+                and not self._bioimageio_attempted):
+            self.scan(include_catalogue=True, refresh_bioimageio=False)
             return
         self._apply_source_filter()
         self._update_controls()
@@ -911,7 +922,8 @@ class ModelZooScreen(QWidget):
                 for r in range(self._table.rowCount())]
 
     def scan(self, folder: Optional[str] = None,
-             include_catalogue: bool = True) -> bool:
+             include_catalogue: bool = True, *,
+             refresh_bioimageio: bool = True) -> bool:
         """List the catalogue plus every checkpoint under ``folder``.
 
         Never raises and never opens a dialog: a mistyped path, a folder with
@@ -919,9 +931,17 @@ class ModelZooScreen(QWidget):
 
         :param folder: folder to scan; None uses whatever is in the box.
         :param include_catalogue: also list the bundled and declared entries.
+        :param refresh_bioimageio: retry the enabled bioimage.io collection
+            on threaded scans when network access is allowed; automatic
+            heading refreshes pass False to retain one attempt per screen.
         :returns: for the synchronous path, whether anything was listed; for
-            the threaded path, True once the job started.
+            the threaded path, True once the job started. False while a job
+            is already running or the screen is closing.
         """
+        from ...crashreport import network_allowed
+
+        if self._busy or self._closing:
+            return False
         target = folder if folder is not None else self._scan_edit.text()
         target = str(target or "").strip()
         if folder is not None:
@@ -934,9 +954,24 @@ class ModelZooScreen(QWidget):
         strip = getattr(self, "sources", None)
         community = bool(strip is not None
                          and strip.is_on("spaCR community"))
+        warm_bioimageio = bool(
+            self._threaded and include_catalogue and strip is not None
+            and strip.is_on("bioimage.io") and network_allowed()
+            and (refresh_bioimageio or not self._bioimageio_attempted))
+        self._source_scan_pending = False
+        if warm_bioimageio:
+            self._bioimageio_attempted = True
 
         def _job() -> List[zoo.ModelEntry]:
             """Find every model, catalogue plus local. Off the GUI thread."""
+            if warm_bioimageio:
+                if network_allowed():
+                    try:
+                        zoo.bioimageio_entries(allow_network=True)
+                    except Exception:
+                        pass
+                else:
+                    self._bioimageio_attempted = False
             found = list(zoo.catalogue()) if include_catalogue else []
             if community:
                 found += list(zoo.community_entries(allow_network=True))
@@ -956,6 +991,8 @@ class ModelZooScreen(QWidget):
 
         :param entries: the models it found.
         """
+        if self._closing:
+            return
         self.set_entries(entries)
         unknown = sum(1 for e in entries if not e.provenance_known)
         self._set_status(
@@ -1512,6 +1549,9 @@ class ModelZooScreen(QWidget):
                 self._error_handler = on_error
                 self._report_failure(e)
                 ok = False
+        if self._source_scan_pending and not self._closing:
+            self._source_scan_pending = False
+            self._sources_changed()
         self._update_controls()
         self.job_finished.emit(ok)
 
@@ -1627,6 +1667,7 @@ class ModelZooScreen(QWidget):
         :param event: the close event, passed on to the base class after
             running jobs are cancelled and waited on (up to five seconds each).
         """
+        self._closing = True
         self._cancel["stop"] = True
         for thread, _worker in list(self._jobs):
             try:
