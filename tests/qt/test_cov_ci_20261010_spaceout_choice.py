@@ -91,7 +91,10 @@ def test_turning_animation_off_and_on_restores_each_fractals_own_state(qtbot, sp
     theme.disable_spaceout()
     prefs.set_ambient_animation("none")
     _switch()
-    assert not running.isHidden() and not running.is_paused()
+    assert running.isHidden() and running.is_paused()
+    assert running.property("spacrPreferenceDisabled") is True
+    assert running.property("spacrPreferenceWasHidden") is False
+    assert running.property("spacrPreferenceWasPaused") is False
 
 
 def test_a_disabled_fractal_replaced_by_a_regular_theme_keeps_its_saved_state(

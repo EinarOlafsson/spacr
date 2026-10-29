@@ -164,11 +164,12 @@ def test_a_language_change_repoints_every_profile_label(
 
 
 def test_current_settings_submit_and_status_refresh(
-    qtbot, qt_theme_applied, tmp_path
+    qtbot, qt_theme_applied, tmp_path, console_info_enabled
 ):
     runner = Runner(
         CommandResult(0, "cloud-12\n"),
         CommandResult(0, "SUCCEEDED\n"),
+        CommandResult(0, "cloud-12: mask completed\n"),
     )
     screen = DistributedJobsScreen(
         manager=_manager(tmp_path, runner),
@@ -191,6 +192,12 @@ def test_current_settings_submit_and_status_refresh(
     screen.refresh()
     assert screen._table.item(0, 1).text() == "success"
     assert "cloud-12" in screen._console.as_text()
+    assert "cloud-12: mask completed" in screen._console.as_text()
+    assert [call[0][0] for call in runner.calls] == [
+        "cloud-submit", "cloud-status", "cloud-logs"]
+    assert runner.calls[1][0] == ["cloud-status", "cloud-12"]
+    assert runner.calls[2][0] == ["cloud-logs", "cloud-12"]
+    assert not runner.results
 
 
 def test_file_mode_resolves_settings_and_cancel_is_confirmed(

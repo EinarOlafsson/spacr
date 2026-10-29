@@ -371,8 +371,12 @@ def test_committed_objects_survive_toggle_off_save_and_the_next_field(
     assert CurationLog.read_beside(path).counts().get("magnifier") == 1
 
     screen._on_next()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert not screen._canvas.mask.any(), "b.tif has a mask of its own"
     screen._on_prev()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     np.testing.assert_array_equal(screen._canvas.mask, committed)
 
 
@@ -592,6 +596,8 @@ def test_the_screen_offers_and_runs_otsu_with_no_model(
     qtbot.addWidget(made)
     try:
         assert made._open_folder(str(folder))
+        qtbot.waitUntil(lambda: not made._loading and made._reader_worker is None
+                        and made._load_worker is None)
         made._canvas.resize(CANVAS_W, CANVAS_H)
         made._canvas.refresh()
         made._min_area.setValue(20)
@@ -778,7 +784,9 @@ def whole_image_on(screen, stub) -> None:
 def wait_for_whole_image(qtbot, screen) -> None:
     magnifier = screen._magnifier
     qtbot.waitUntil(
-        lambda: magnifier._image_result is not None and not magnifier.updating(),
+        lambda: not screen._loading and screen._reader_worker is None
+        and screen._load_worker is None
+        and magnifier._image_result is not None and not magnifier.updating(),
         timeout=15_000)
 
 
@@ -971,12 +979,21 @@ def test_whole_image_objects_survive_a_save_and_follow_the_field(
     path = engine.mask_save_path(str(fields), "a.tif")
     np.testing.assert_array_equal(imageio.imread(path), committed)
 
-    screen._on_next()
-    assert screen._magnifier._image_result is None, (
-        "the objects found on a.tif were offered on b.tif")
+    gate = threading.Event()
+    stub.gate = gate
+    try:
+        screen._on_next()
+        qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                        and screen._load_worker is None)
+        assert screen._magnifier._image_result is None, (
+            "the objects found on a.tif were offered on b.tif")
+    finally:
+        gate.set()
     wait_for_whole_image(qtbot, screen)
     assert len(stub.calls) == 2, "the next field is segmented of its own"
     screen._on_prev()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     np.testing.assert_array_equal(screen._canvas.mask, committed)
 
 

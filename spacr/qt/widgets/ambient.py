@@ -14240,7 +14240,7 @@ def _apply_spaceout_animation_choice(app) -> None:
                     or old.property("spacrSetupBackdrop")
                     or old.parentWidget() is None):
                 continue
-            if not enabled and (not fractal or selected == SPACEOUT_THEME):
+            if not enabled:
                 if fractal and not old.property("spacrPreferenceDisabled"):
                     old.setProperty("spacrPreferenceWasHidden", old.isHidden())
                     old.setProperty("spacrPreferenceWasPaused", old.is_paused())

@@ -123,6 +123,7 @@ def test_legacy_chat_body_and_cancel_state_survive_runtime_retranslation(
     assert bubble._text.text() == "Run"
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_append_notice_translates_only_the_template(
     qtbot, qt_theme_applied, monkeypatch,
 ):
@@ -140,6 +141,7 @@ def test_append_notice_translates_only_the_template(
     assert "Einstellungen" in rendered
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_append_notice_from_worker_thread_is_queued_and_preserves_values(
     qtbot, qt_theme_applied, monkeypatch,
 ):

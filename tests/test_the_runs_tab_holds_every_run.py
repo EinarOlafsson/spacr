@@ -361,6 +361,7 @@ def test_the_summary_counts_both_kinds(qtbot, trials):
 #  Picking one
 # --------------------------------------------------------------------------- #
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_picking_a_run_that_is_still_going_says_so(screen):
     """Not "did not produce a regression" -- it has not finished trying, and
     a click that reports a failure that has not happened is worse than one
@@ -372,6 +373,7 @@ def test_picking_a_run_that_is_still_going_says_so(screen):
     assert "still going" in text, text
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_picking_a_run_names_it_the_way_its_row_does(screen):
     """"Trial nan" is how a mixed table stops being readable."""
     screen._on_run(False)

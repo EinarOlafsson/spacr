@@ -13384,6 +13384,7 @@ class MakeMasksScreen(QWidget):
         self._npy_queue_targets = {}
         self._reader_displayed_field = None
         self._pending_load = None
+        self._pending_curation_status = None
         self._loading = False
         self._label_time_queue = deque()
         self._label_time_pending = None
@@ -17109,6 +17110,10 @@ class MakeMasksScreen(QWidget):
             self._status_label.setText(
                 tr("{judged} kept", judged=judged) if keep else tr(
                     "{judged} discarded — nothing was deleted", judged=judged))
+        if moved and self._loading:
+            self._pending_curation_status = (
+                os.path.join(self._folder or "", self._image_files[self._current_index]),
+                self._status_label.text())
         self._sync_queue_tally()
         return moved
 
@@ -24342,6 +24347,7 @@ class MakeMasksScreen(QWidget):
 
     def _restore_reader_displayed_field(self):
         """Keep a cancelled lazy plane review bound to the still-visible field."""
+        self._pending_curation_status = None
         previous = self._reader_displayed_field
         if previous is None:
             return
@@ -24779,6 +24785,9 @@ class MakeMasksScreen(QWidget):
         token = self._load_token
         filename = self._image_files[self._current_index]
         image_path = os.path.join(self._folder, filename)
+        if (self._pending_curation_status is not None
+                and self._pending_curation_status[0] != image_path):
+            self._pending_curation_status = None
         if (filename.lower().endswith('.npy') and not engine.is_seg_bundle(filename)
                 and os.path.abspath(image_path) not in self._npy_queue_targets
                 and (os.path.abspath(image_path), os.path.abspath(self._queue_masks_dir) if self._queue_masks_dir else None)
@@ -25058,6 +25067,7 @@ class MakeMasksScreen(QWidget):
         :param error: Original reader exception, retaining optional-reader details.
         :param source_path: Failed source identity for normal blinded reporting.
         """
+        self._pending_curation_status = None
         self._primary_selector.clear_field()
         self._canvas.preserve_ids = False
         self._canvas.manual_ids = False
@@ -25179,6 +25189,9 @@ class MakeMasksScreen(QWidget):
         self._refresh_lineage_rows()
         if self._layers:
             self._refresh_layer_overlay()
+        pending, self._pending_curation_status = self._pending_curation_status, None
+        if pending is not None and pending[0] == os.path.join(self._folder or "", filename):
+            self._status_label.setText(pending[1])
 
     def _start_field_timer(self, filename: str, mask) -> None:
         """Start timing the field just loaded (see :mod:`spacr.curation_queue`)."""
