@@ -8,6 +8,8 @@ Progress List name: N733 — Navigator (maintainer confirmed 2026-10-28).
 
 PARASCAPE ICON FOLLOW-UP — 2026-10-29: use ParaScape’s actual application artwork for its Navigator card instead of the generic fallback. Retained icon worker owns bundled canonical artwork, central resolution and package inclusion with focused native rendering checks; preserve the existing external-app route and other icons. Root integrates and publishes.
 
+LOCAL ANSWER CACHE FOLLOW-UP — 2026-10-29: stale desktop question replies bypass the relay prompt identity and continue showing obsolete inline links. Hosted questions must defer to the relay cache; local-provider question caches must include system prompt, provider and model identity. Preserve error caches, quota and real conversation history. Root owns focused regression, removal of obsolete local question entries and nightly publication.
+
 AI LINK PLACEMENT FOLLOW-UP — 2026-10-29: keep all links out of the main answer text. End with a compact Tools section listing each mentioned module once in first-mention order, using its real name as the clickable module label and its verified API and Tutorial links on the same row. Never emit the literal placeholder “Module name”; documentation links are required when catalog targets exist. Preserve click-only routing, privacy and error-report structure. Root owns shared/hosted prompts, focused validation and deployment/publication.
 
 ACTIONABLE AI ANSWERS — 2026-10-29
@@ -667,3 +669,5 @@ The tutorial owner resumes the entire campaign after this guarded nightly public
 2026-10-29 — Maintainer authenticated Wrangler; root deployed relay version 0a93c1d3-d338-4ba8-904b-55ca743e7f02 with Gemma primary and verified the live health endpoint. An uncached live answer confirmed the Gemma model identity, clickable Mask/Measure links and preview/propagation/Actions guidance. Native app changes and translations ship on nightly; the separate tutorial remains owned by its lane.
 
 2026-10-29 — Moved AI module links to a required first-mention-order Tools footer with each available API/Tutorial target. Live general-workflow testing exposed the old 600-token cap truncating that footer; expanded the accounted output reservation to 1200 tokens without changing daily quota controls.
+
+2026-10-29 — Hosted questions now always consult the relay’s prompt-aware cache; local-provider answers are scoped to system prompt, provider and selected model. Both actual saved-file regressions pass. Removed 16 obsolete local question answers on this workstation while preserving its two error explanations.

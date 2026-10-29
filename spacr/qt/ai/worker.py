@@ -9,13 +9,15 @@ Emits:
 """
 from __future__ import annotations
 
+import hashlib
+import json
 import sys
 import traceback
 from typing import Dict, List, Optional
 
 from PySide6.QtCore import QObject, QThread, Signal
 
-from .providers import ChatProvider, ProviderFailed, question_cache_key
+from .providers import ChatProvider, ProviderFailed, HOSTED_PROVIDER_NAME, question_cache_key
 
 
 class StreamWorker(QObject):
@@ -98,6 +100,13 @@ class StreamWorker(QObject):
 
         buf: List[str] = []
         key = "" if self._system == error_explainer_prompt() else question_cache_key(self._messages)
+        if getattr(self._provider, "name", "") == HOSTED_PROVIDER_NAME:
+            key = ""
+        elif key:
+            identity = json.dumps([key, self._system,
+                                   str(getattr(self._provider, "name", "") or ""),
+                                   self._model], ensure_ascii=True)
+            key = "q:" + hashlib.sha256(identity.encode()).hexdigest()
         if key:
             saved = crashreport.saved_explanation(key)
             if saved:
