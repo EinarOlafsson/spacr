@@ -21,6 +21,10 @@ def _system_steps():
             for step in definition.get("steps", []):
                 if step.get("name", "").startswith("Install system libraries"):
                     steps.append((f"{name}:{job}", step["run"]))
+    workflow = yaml.safe_load((ROOT / ".github/workflows/compat-matrix.yml").read_text())
+    for step in workflow["jobs"]["python315-linux"]["steps"]:
+        if step.get("name", "").startswith("Install system libraries"):
+            steps.append(("compat-matrix.yml:python315-linux", step["run"]))
     return steps
 
 
@@ -28,7 +32,11 @@ STEPS = _system_steps()
 
 
 def test_all_four_system_library_steps_use_existing_ubuntu_definitions():
-    assert len(STEPS) == 4
+    assert len([name for name, _source in STEPS
+                if name != "compat-matrix.yml:python315-linux"]) == 4
+    assert [name for name, _source in STEPS
+            if name == "compat-matrix.yml:python315-linux"] == [
+                "compat-matrix.yml:python315-linux"]
     for _name, source in STEPS:
         assert f"ubuntu_sources={UBUNTU_SOURCES}" in source
         assert "allow-unauthenticated" not in source
@@ -107,3 +115,19 @@ def test_native_apt_source_selection_excludes_vendor_uris_without_network(tmp_pa
     assert selected.returncode == 0, selected.stderr
     assert "archive.ubuntu.com" in selected.stdout
     assert "packages.microsoft.com" not in selected.stdout
+
+
+def test_python315_installs_required_qt_libraries_before_native_controls():
+    """Qt-first controls need real runtime libraries even with offscreen QPA."""
+    workflow = yaml.safe_load((ROOT / ".github/workflows/compat-matrix.yml").read_text())
+    steps = workflow["jobs"]["python315-linux"]["steps"]
+    installs = [(index, step) for index, step in enumerate(steps)
+                if step.get("name") == "Install system libraries"]
+    assert len(installs) == 1
+    index, install = installs[0]
+    assert not install.get("if") and not install.get("continue-on-error", False)
+    native = next(index for index, step in enumerate(steps)
+                  if step.get("name") == "Check installed native imports in both cold-start orders")
+    assert index < native
+    shared = dict(STEPS)["_pytest-suite.yml:pytest"]
+    assert install["run"] == shared
