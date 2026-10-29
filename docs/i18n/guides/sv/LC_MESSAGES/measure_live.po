@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-15 01:34-0400\n"
+"POT-Creation-Date: 2026-10-29 16:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
@@ -28,8 +28,8 @@ msgid "Open **Measure** with a run folder or its ``merged`` folder. If ``src`` p
 msgstr "Öppna **Mätning** med en körningsmapp eller dess ``merged``-mapp. Om ``src`` pekar på en av plattans utdataundermappar, till exempel ``measurements`` eller ``masks``, läser Mätning plattans ``merged``-mapp och anger det i konsolen. Om det inte finns någon ``merged``-mapp att läsa startar Mätning inte, och meddelandet anger den saknade mappen och vad som ska anges i stället. Vyn **Live** läser in ett bildfält och visar utsnitt från dess konfigurerade objektmask. Använd **Beskärningsinställningar…** för att välja objekt, maskplan, bildkanaler, utsnittsstorlek och filter innan hela experimentet mäts."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "With **Show alpha features** enabled, intensity calibration accepts an optional named reference plate in ``intensity_calibration_reference_plate``; leave it blank to use the first plate by name."
-msgstr "När **Visa alfafunktioner** är aktiverat accepterar intensitetskalibreringen en valfri namngiven referensplatta i ``intensity_calibration_reference_plate``; lämna fältet tomt för att använda den första plattan i namnordning."
+msgid "With **Show alpha features** enabled, the default plate-based intensity calibration accepts an optional named reference plate in ``intensity_calibration_reference_plate``; leave it blank to use the first plate by name. With acquisition-session mappings or external references, ``intensity_calibration_reference_session`` selects the reference session. If both reference settings are blank in that mode, the first available session by name is used."
+msgstr "Med **Visa alfafunktioner** aktiverat accepterar den förvalda plattbaserade intensitetskalibreringen en valfri referensplatta i ``intensity_calibration_reference_plate``; lämna värdet tomt för att använda den första plattan i namnordning. Med mappningar för bildtagningssessioner eller externa referenser väljer ``intensity_calibration_reference_session`` referenssessionen. Om båda referensinställningarna är tomma i det läget används den första tillgängliga sessionen i namnordning."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Compare objects from several fields"
@@ -48,8 +48,8 @@ msgid "The image list uses the existing bounded random sample. Already checked f
 msgstr "Bildlistan använder det befintliga begränsade slumpurvalet. Redan markerade bildfält finns kvar när urvalet ändras. **Max. antal bildutsnitt i förhandsvisning** begränsar det gemensamma rutnätet, med platser fördelade mellan markerade bildfält. Öka värdet om fler bildfält är markerade än det finns platser. Ytterligare bildfält läses ett i taget. Ett inläsningsfel anger bildfältets namn och lämnar giltiga bildfält tillgängliga för granskning."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Checking images changes the preview only. It does not select the fields that Measure processes or change saved measurements or exports. **Propagate settings** retains its existing purpose: copying crop and filter settings into the Measure form."
-msgstr "Markering av bilder ändrar bara förhandsvisningen. Det väljer inte vilka bildfält Mätning bearbetar och ändrar inte sparade mätningar eller exporter. **Överför inställningar** behåller sin befintliga funktion: att kopiera utsnitts- och filterinställningar till formuläret i Mätning."
+msgid "Checking images changes the preview selection. It does not select the fields that Measure processes or alter existing measurements or files. **Export displayed crops…** explicitly saves the completed preview crops as PNGs with provenance in a new folder; that export follows the checked fields and current display settings. **Propagate settings** copies crop and filter settings into the Measure form."
+msgstr "Att markera bilder ändrar förhandsvisningens urval. Det väljer inte vilka bildfält Measure bearbetar och ändrar inte befintliga mätningar eller filer. **Exportera visade bildutsnitt…** sparar uttryckligen bildutsnitten från den färdiga förhandsvisningen som PNG-filer med ursprungsinformation i en ny mapp; exporten följer de markerade bildfälten och aktuella visningsinställningarna. **Överför inställningar** kopierar inställningarna för bildutsnitt och filter till Measure-formuläret."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Save measured fields"

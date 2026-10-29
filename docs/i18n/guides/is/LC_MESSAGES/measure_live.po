@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-15 01:34-0400\n"
+"POT-Creation-Date: 2026-10-29 16:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -28,8 +28,8 @@ msgid "Open **Measure** with a run folder or its ``merged`` folder. If ``src`` p
 msgstr "Opnaðu **Mæling** með vinnslumöppu eða ``merged``-möppunni í henni. Ef ``src`` vísar á eina af úttaksundirmöppum plötunnar, svo sem ``measurements`` eða ``masks``, les Mæling ``merged``-möppu þeirrar plötu og segir frá því í stjórnborðinu. Ef engin ``merged``-mappa er til að lesa ræsist Mæling ekki og skilaboðin nefna möppuna sem vantar og hvað eigi að stilla í staðinn. Sýnin **Beint** hleður sjónsviði og sýnir myndskurði úr stilltri hlutagrímu þess. Notaðu **Stillingar myndskurðar…** til að velja hlut, grímuplön, myndrásir, skurðarstærð og síur áður en þú mælir alla tilraunina."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "With **Show alpha features** enabled, intensity calibration accepts an optional named reference plate in ``intensity_calibration_reference_plate``; leave it blank to use the first plate by name."
-msgstr "Þegar **Sýna alfa-eiginleika** er virkt tekur styrkkvörðun við valfrjálsu heiti viðmiðunarplötu í ``intensity_calibration_reference_plate``; skildu reitinn eftir auðan til að nota fyrstu plötuna í nafnaröð."
+msgid "With **Show alpha features** enabled, the default plate-based intensity calibration accepts an optional named reference plate in ``intensity_calibration_reference_plate``; leave it blank to use the first plate by name. With acquisition-session mappings or external references, ``intensity_calibration_reference_session`` selects the reference session. If both reference settings are blank in that mode, the first available session by name is used."
+msgstr "Þegar **Sýna alfa-eiginleika** er virkt tekur sjálfgefin plötubundin styrkkvörðun við valfrjálsu nafni viðmiðunarplötu í ``intensity_calibration_reference_plate``; autt gildi velur fyrstu plötuna í nafnaröð. Þegar vörpun á myndatökulotur eða ytri viðmiðanir eru gefnar velur ``intensity_calibration_reference_session`` viðmiðunarlotuna. Ef báðar viðmiðunarstillingarnar eru auðar í þeim ham er fyrsta tiltæka lotan í nafnaröð notuð."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Compare objects from several fields"
@@ -48,8 +48,8 @@ msgid "The image list uses the existing bounded random sample. Already checked f
 msgstr "Myndalistinn notar fyrirliggjandi slembiúrtak af takmarkaðri stærð. Sjónsvið sem þegar eru merkt eru áfram tiltæk þegar úrtakið breytist. **Hám. forskoðunarskurðir** takmarkar sameinuðu grindina og sætunum er skipt milli merktra sjónsviða. Hækkaðu gildið ef fleiri sjónsvið eru merkt en sætin leyfa. Viðbótarsjónsvið eru lesin eitt í einu. Ef hleðsla bregst er sjónsviðið nefnt og gild sjónsvið áfram tiltæk til skoðunar."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Checking images changes the preview only. It does not select the fields that Measure processes or change saved measurements or exports. **Propagate settings** retains its existing purpose: copying crop and filter settings into the Measure form."
-msgstr "Merking mynda breytir aðeins forskoðuninni. Hún velur ekki sjónsviðin sem Mæling vinnur úr og breytir hvorki vistuðum mælingum né útflutningi. **Afrita stillingar** heldur fyrra hlutverki sínu: að afrita skurðar- og síustillingar í Mæling-eyðublaðið."
+msgid "Checking images changes the preview selection. It does not select the fields that Measure processes or alter existing measurements or files. **Export displayed crops…** explicitly saves the completed preview crops as PNGs with provenance in a new folder; that export follows the checked fields and current display settings. **Propagate settings** copies crop and filter settings into the Measure form."
+msgstr "Að haka við myndir breytir vali forskoðunar. Það velur ekki sjónsviðin sem Measure vinnur úr og breytir ekki fyrirliggjandi mælingum eða skrám. **Flytja út sýnd myndútsnið…** vistar myndútsnið úr tilbúinni forskoðun sérstaklega sem PNG-myndir með upprunaupplýsingum í nýrri möppu; sá útflutningur fylgir merktum sjónsviðum og núverandi birtingarstillingum. **Afrita stillingar** afritar útsniðs- og síustillingar í Measure-eyðublaðið."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Save measured fields"

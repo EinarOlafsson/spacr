@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-15 01:34-0400\n"
+"POT-Creation-Date: 2026-10-29 16:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -28,8 +28,8 @@ msgid "Open **Measure** with a run folder or its ``merged`` folder. If ``src`` p
 msgstr "在 **测量** 中打开运行文件夹或其 ``merged`` 文件夹。如果 ``src`` 指向该板的某个输出子文件夹（例如 ``measurements`` 或 ``masks`` ），测量会读取该板的 ``merged`` 文件夹，并在控制台中说明。如果没有可读取的 ``merged`` 文件夹，测量不会启动，其消息会指出缺失的文件夹以及应改为设置什么。**实时** 视图加载一个视野，并显示从配置的对象掩膜中取得的裁剪图。测量整个实验前，使用 **图像裁剪设置…** 选择对象、掩膜层、图像通道、裁剪尺寸和筛选条件。"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "With **Show alpha features** enabled, intensity calibration accepts an optional named reference plate in ``intensity_calibration_reference_plate``; leave it blank to use the first plate by name."
-msgstr "启用 **显示 Alpha 功能** 后，强度校准允许在 ``intensity_calibration_reference_plate`` 中选择性地填写参考微孔板的名称；留空则使用按名称排序的第一块微孔板。"
+msgid "With **Show alpha features** enabled, the default plate-based intensity calibration accepts an optional named reference plate in ``intensity_calibration_reference_plate``; leave it blank to use the first plate by name. With acquisition-session mappings or external references, ``intensity_calibration_reference_session`` selects the reference session. If both reference settings are blank in that mode, the first available session by name is used."
+msgstr "启用 **显示 Alpha 功能** 后，默认的按板强度校准允许在 ``intensity_calibration_reference_plate`` 中指定可选的参考板名称；留空时使用按名称排序的第一块板。提供采集会话映射或外部参考数据时，``intensity_calibration_reference_session`` 选择参考会话。在该模式下，如果两个参考设置均留空，则使用按名称排序的第一个可用会话。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Compare objects from several fields"
@@ -48,8 +48,8 @@ msgid "The image list uses the existing bounded random sample. Already checked f
 msgstr "图像列表使用现有的有数量上限的随机样本。样本变化时，已勾选视野仍然可用。**最大预览裁剪图数** 限制合并网格的大小，可用位置分配给各个已勾选视野。若勾选视野数多于可用位置，请提高此限制。额外视野每次只读取一个。加载失败时会指出视野名称，并保留可供检查的有效视野。"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Checking images changes the preview only. It does not select the fields that Measure processes or change saved measurements or exports. **Propagate settings** retains its existing purpose: copying crop and filter settings into the Measure form."
-msgstr "勾选图像只改变预览，不会选择 测量 处理哪些视野，也不会改变已保存的测量结果或导出内容。**传递设置** 保留原有用途：把裁剪和筛选设置复制到 测量 表单。"
+msgid "Checking images changes the preview selection. It does not select the fields that Measure processes or alter existing measurements or files. **Export displayed crops…** explicitly saves the completed preview crops as PNGs with provenance in a new folder; that export follows the checked fields and current display settings. **Propagate settings** copies crop and filter settings into the Measure form."
+msgstr "勾选图像会改变预览选择，不会选择 Measure 要处理的视野，也不会更改已有测量结果或文件。**导出显示的裁剪图…** 会将已完成预览的裁剪图连同来源信息明确保存为新文件夹中的 PNG 文件；该导出遵循勾选的视野和当前显示设置。**传递设置** 将裁剪和筛选设置复制到 Measure 表单。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Save measured fields"

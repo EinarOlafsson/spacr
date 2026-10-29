@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-15 01:34-0400\n"
+"POT-Creation-Date: 2026-10-29 16:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -28,8 +28,8 @@ msgid "Open **Measure** with a run folder or its ``merged`` folder. If ``src`` p
 msgstr "실행 폴더 또는 그 안의 ``merged`` 폴더로 **측정**\\ 을 여세요. ``src`` 가 ``measurements`` 나 ``masks`` 처럼 플레이트의 출력 하위 폴더 중 하나를 가리키면, 측정은 그 플레이트의 ``merged`` 폴더를 읽고 콘솔에 그 사실을 알립니다. 읽을 ``merged`` 폴더가 없으면 측정이 시작되지 않으며, 메시지에 누락된 폴더와 대신 설정할 항목이 표시됩니다. **실시간** 보기는 시야를 로드하고 설정된 객체 마스크에서 잘라낸 이미지를 표시합니다. 전체 실험을 측정하기 전에 **이미지 자르기 설정…**\\ 에서 객체, 마스크 평면, 이미지 채널, 잘라내기 크기 및 필터를 선택하세요."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "With **Show alpha features** enabled, intensity calibration accepts an optional named reference plate in ``intensity_calibration_reference_plate``; leave it blank to use the first plate by name."
-msgstr "**알파 기능 표시** 옵션을 활성화하면 강도 보정에서 ``intensity_calibration_reference_plate`` 항목에 참조 플레이트 이름을 선택적으로 지정할 수 있습니다. 이름순으로 첫 번째 플레이트를 사용하려면 비워 두세요."
+msgid "With **Show alpha features** enabled, the default plate-based intensity calibration accepts an optional named reference plate in ``intensity_calibration_reference_plate``; leave it blank to use the first plate by name. With acquisition-session mappings or external references, ``intensity_calibration_reference_session`` selects the reference session. If both reference settings are blank in that mode, the first available session by name is used."
+msgstr "**알파 기능 표시** 옵션을 켜면 기본 플레이트 기반 강도 보정에서 ``intensity_calibration_reference_plate`` 설정에 기준 플레이트 이름을 선택적으로 지정할 수 있습니다. 비워 두면 이름순으로 첫 번째 플레이트를 사용합니다. 획득 세션 매핑이나 외부 기준을 제공한 경우에는 ``intensity_calibration_reference_session`` 설정이 기준 세션을 선택합니다. 해당 모드에서 두 기준 설정을 모두 비워 두면 이름순으로 첫 번째 사용 가능한 세션을 사용합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Compare objects from several fields"
@@ -48,8 +48,8 @@ msgid "The image list uses the existing bounded random sample. Already checked f
 msgstr "이미지 목록은 기존의 크기가 제한된 무작위 표본을 사용합니다. 표본이 변경되어도 이미 선택된 시야는 계속 사용할 수 있습니다. **최대 미리보기 크롭 수**\\ 는 전체 격자에 표시할 잘라낸 이미지 수를 제한하고 표시 슬롯을 선택된 시야에 나누어 배정합니다. 선택된 시야가 슬롯보다 많으면 이 값을 늘리세요. 추가 시야는 한 번에 하나씩 읽습니다. 로드에 실패하면 해당 시야 이름이 표시되며 정상적인 시야는 계속 확인할 수 있습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Checking images changes the preview only. It does not select the fields that Measure processes or change saved measurements or exports. **Propagate settings** retains its existing purpose: copying crop and filter settings into the Measure form."
-msgstr "이미지 선택은 미리보기만 변경합니다. 측정이 처리할 시야를 선택하거나 저장된 측정값 또는 내보내기 결과를 변경하지 않습니다. **설정 복사**\\ 는 기존과 같이 잘라내기 및 필터 설정을 측정 양식으로 복사하는 용도입니다."
+msgid "Checking images changes the preview selection. It does not select the fields that Measure processes or alter existing measurements or files. **Export displayed crops…** explicitly saves the completed preview crops as PNGs with provenance in a new folder; that export follows the checked fields and current display settings. **Propagate settings** copies crop and filter settings into the Measure form."
+msgstr "이미지에 체크하면 미리보기 선택이 바뀝니다. Measure가 처리할 시야를 선택하거나 기존 측정값 또는 파일을 변경하지는 않습니다. **표시된 자르기 이미지 내보내기…** 기능은 완료된 미리보기의 자르기 이미지를 출처 정보와 함께 PNG로 새 폴더에 명시적으로 저장합니다. 이 내보내기는 체크한 시야와 현재 표시 설정을 따릅니다. **설정 복사** 기능은 자르기 및 필터 설정을 Measure 양식으로 복사합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Save measured fields"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-15 01:34-0400\n"
+"POT-Creation-Date: 2026-10-29 16:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: pt\n"
@@ -28,8 +28,8 @@ msgid "Open **Measure** with a run folder or its ``merged`` folder. If ``src`` p
 msgstr "Abra **Medição** com uma pasta de execução ou sua pasta ``merged``. Se ``src`` apontar para uma das subpastas de saída da placa, como ``measurements`` ou ``masks``, a Medição lê a pasta ``merged`` dessa placa e informa isso no console. Se não houver uma pasta ``merged`` para ler, a Medição não inicia, e sua mensagem indica a pasta ausente e o que definir no lugar. A visualização **Ao vivo** carrega um campo e mostra recortes da máscara de objetos configurada. Use **Configurações de recorte…** para escolher o objeto, os planos de máscara, os canais de imagem, o tamanho dos recortes e os filtros antes de medir todo o experimento."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "With **Show alpha features** enabled, intensity calibration accepts an optional named reference plate in ``intensity_calibration_reference_plate``; leave it blank to use the first plate by name."
-msgstr "Com **Mostrar recursos alfa** ativado, a calibração de intensidade aceita uma placa de referência opcional indicada pelo nome em ``intensity_calibration_reference_plate``; deixe o campo em branco para usar a primeira placa por ordem de nome."
+msgid "With **Show alpha features** enabled, the default plate-based intensity calibration accepts an optional named reference plate in ``intensity_calibration_reference_plate``; leave it blank to use the first plate by name. With acquisition-session mappings or external references, ``intensity_calibration_reference_session`` selects the reference session. If both reference settings are blank in that mode, the first available session by name is used."
+msgstr "Com **Mostrar recursos alfa** ativado, a calibração de intensidade padrão por placa aceita uma placa de referência opcional em ``intensity_calibration_reference_plate``; em branco, utiliza a primeira placa por nome. Com mapeamentos de sessões de aquisição ou referências externas, ``intensity_calibration_reference_session`` seleciona a sessão de referência. Se ambas as configurações de referência estiverem em branco nesse modo, será utilizada a primeira sessão disponível por nome."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Compare objects from several fields"
@@ -48,8 +48,8 @@ msgid "The image list uses the existing bounded random sample. Already checked f
 msgstr "A lista de imagens usa a amostra aleatória limitada existente. Campos já marcados continuam disponíveis quando a amostra muda. **Máx. de recortes na prévia** limita a grade combinada, dividindo seus espaços entre os campos marcados. Aumente esse valor se houver mais campos marcados do que espaços disponíveis. Campos adicionais são lidos um por vez. Uma falha de carregamento identifica o campo e mantém os campos válidos disponíveis para inspeção."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Checking images changes the preview only. It does not select the fields that Measure processes or change saved measurements or exports. **Propagate settings** retains its existing purpose: copying crop and filter settings into the Measure form."
-msgstr "Marcar imagens altera apenas a pré-visualização. Isso não seleciona os campos que Medição processa nem altera medições salvas ou exportações. **Propagar configurações** mantém sua finalidade existente: copiar configurações de recortes e filtros para o formulário de Medição."
+msgid "Checking images changes the preview selection. It does not select the fields that Measure processes or alter existing measurements or files. **Export displayed crops…** explicitly saves the completed preview crops as PNGs with provenance in a new folder; that export follows the checked fields and current display settings. **Propagate settings** copies crop and filter settings into the Measure form."
+msgstr "Marcar imagens altera a seleção da pré-visualização. Não seleciona os campos que o Measure processa nem altera medições ou arquivos existentes. **Exportar recortes apresentados…** salva explicitamente os recortes da pré-visualização concluída como PNGs com informações de proveniência numa nova pasta; essa exportação segue os campos marcados e as configurações de exibição atuais. **Propagar configurações** copia as configurações de recorte e filtragem para o formulário do Measure."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Save measured fields"

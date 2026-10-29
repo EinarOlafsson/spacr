@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-15 01:34-0400\n"
+"POT-Creation-Date: 2026-10-29 16:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -28,8 +28,8 @@ msgid "Open **Measure** with a run folder or its ``merged`` folder. If ``src`` p
 msgstr "रन फ़ोल्डर या उसके ``merged`` फ़ोल्डर के साथ **मापन** खोलें। यदि ``src`` प्लेट के किसी आउटपुट उप-फ़ोल्डर, जैसे ``measurements`` या ``masks``, की ओर इशारा करता है, तो मापन उस प्लेट का ``merged`` फ़ोल्डर पढ़ता है और कंसोल में यह बताता है। यदि पढ़ने के लिए कोई ``merged`` फ़ोल्डर नहीं है, तो मापन शुरू नहीं होता और उसका संदेश गायब फ़ोल्डर तथा उसके बजाय क्या सेट करना है, बताता है। **लाइव** दृश्य एक दृश्य-क्षेत्र लोड करता है और उसके कॉन्फ़िगर किए ऑब्जेक्ट मास्क से क्रॉप दिखाता है। पूरा प्रयोग मापने से पहले ऑब्जेक्ट, मास्क प्लेन, चित्र चैनल, क्रॉप आकार और फ़िल्टर चुनने के लिए **इमेज क्रॉप सेटिंग्स…** उपयोग करें।"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "With **Show alpha features** enabled, intensity calibration accepts an optional named reference plate in ``intensity_calibration_reference_plate``; leave it blank to use the first plate by name."
-msgstr "**अल्फ़ा सुविधाएँ दिखाएँ** सक्षम होने पर, तीव्रता कैलिब्रेशन में ``intensity_calibration_reference_plate`` के ज़रिए वैकल्पिक संदर्भ प्लेट का नाम दिया जा सकता है; नाम के क्रम में पहली प्लेट का उपयोग करने के लिए इसे खाली छोड़ें।"
+msgid "With **Show alpha features** enabled, the default plate-based intensity calibration accepts an optional named reference plate in ``intensity_calibration_reference_plate``; leave it blank to use the first plate by name. With acquisition-session mappings or external references, ``intensity_calibration_reference_session`` selects the reference session. If both reference settings are blank in that mode, the first available session by name is used."
+msgstr "**अल्फ़ा सुविधाएँ दिखाएँ** सक्षम होने पर, डिफ़ॉल्ट प्लेट-आधारित तीव्रता अंशांकन में ``intensity_calibration_reference_plate`` में वैकल्पिक संदर्भ प्लेट का नाम दिया जा सकता है; खाली छोड़ने पर नाम के क्रम में पहली प्लेट ली जाती है। अधिग्रहण-सत्र मैपिंग या बाहरी संदर्भ दिए जाने पर ``intensity_calibration_reference_session`` संदर्भ सत्र चुनता है। उस मोड में दोनों संदर्भ सेटिंग्स खाली हों तो नाम के क्रम में पहला उपलब्ध सत्र उपयोग होता है।"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Compare objects from several fields"
@@ -48,8 +48,8 @@ msgid "The image list uses the existing bounded random sample. Already checked f
 msgstr "चित्र सूची मौजूदा सीमित यादृच्छिक नमूना उपयोग करती है। नमूना बदलने पर पहले से चुने दृश्य-क्षेत्र उपलब्ध रहते हैं। **अधिकतम पूर्वावलोकन क्रॉप** संयुक्त ग्रिड को सीमित करता है; उपलब्ध स्थान चुने दृश्य-क्षेत्रों में बाँटे जाते हैं। चुने दृश्य-क्षेत्रों की संख्या उपलब्ध स्थानों से अधिक हो तो सीमा बढ़ाएँ। अतिरिक्त दृश्य-क्षेत्र एक-एक करके पढ़े जाते हैं। लोड असफल होने पर दृश्य-क्षेत्र का नाम बताया जाता है और सही दृश्य-क्षेत्र जाँच के लिए उपलब्ध रहते हैं।"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Checking images changes the preview only. It does not select the fields that Measure processes or change saved measurements or exports. **Propagate settings** retains its existing purpose: copying crop and filter settings into the Measure form."
-msgstr "चित्र चुनने से केवल पूर्वावलोकन बदलता है। इससे मापन द्वारा संसाधित दृश्य-क्षेत्र नहीं चुने जाते, न सहेजे मापन या निर्यात बदलते हैं। **सेटिंग्स आगे लागू करें** का मौजूदा उद्देश्य वही रहता है: क्रॉप और फ़िल्टर सेटिंग्स को मापन फ़ॉर्म में कॉपी करना।"
+msgid "Checking images changes the preview selection. It does not select the fields that Measure processes or alter existing measurements or files. **Export displayed crops…** explicitly saves the completed preview crops as PNGs with provenance in a new folder; that export follows the checked fields and current display settings. **Propagate settings** copies crop and filter settings into the Measure form."
+msgstr "छवियों पर चेक लगाने से पूर्वावलोकन का चयन बदलता है। इससे Measure द्वारा संसाधित दृश्य-क्षेत्र नहीं चुने जाते और मौजूदा माप या फ़ाइलें नहीं बदलतीं। **दिखाई गई क्रॉप छवियाँ निर्यात करें…** पूर्ण हो चुके पूर्वावलोकन की क्रॉप छवियाँ उनके स्रोत-विवरण सहित PNG के रूप में नए फ़ोल्डर में सहेजता है; यह निर्यात चेक किए गए दृश्य-क्षेत्रों और वर्तमान प्रदर्शन सेटिंग्स के अनुसार होता है। **सेटिंग्स आगे लागू करें** क्रॉप और फ़िल्टर सेटिंग्स को Measure फ़ॉर्म में कॉपी करता है।"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Save measured fields"
