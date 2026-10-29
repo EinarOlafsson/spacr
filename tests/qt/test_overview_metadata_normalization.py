@@ -1748,3 +1748,136 @@ def test_filtered_database_annotations_and_completed_measurement_progress_keep_t
         for runner in runners:
             runner.shutdown(timeout_ms=3000)
         dialog.close()
+
+
+def test_invalid_channel_percentiles_follow_global_pixels_and_a_retained_reset_cannot_change_all_channels(
+        qtbot, qt_theme_applied, tmp_path):
+    import copy
+    import tifffile
+    from PySide6.QtGui import QImage
+
+    originals = {}
+    for channel, offset in [(1, 0), (2, 50)]:
+        path = tmp_path / f'p1_A01_F1_C{channel}.tif'
+        tifffile.imwrite(path, np.arange(64, dtype=np.uint16).reshape(8, 8) + offset)
+        originals[path] = path.read_bytes()
+    dialog = browser._FieldOverview(settings={
+        'source': str(tmp_path), 'source_scope': 'folder', 'channels': (1, 2),
+        'geometry': (2, 3), 'normalization_percentiles': (0., 100.)})
+    qtbot.addWidget(dialog)
+    runners = (dialog._index_jobs, dialog._image_jobs, dialog._export_jobs,
+               dialog._metadata_jobs, dialog._measurement_jobs, dialog._native_jobs,
+               dialog._thumbnail_jobs, dialog._montage_jobs, dialog._field_thumbnail_jobs)
+
+    def ready():
+        return (dialog.view._item is not None and not dialog._image_pending
+                and all(not runner.is_busy() for runner in runners))
+
+    def displayed():
+        image = dialog.view._item.pixmap().toImage().convertToFormat(QImage.Format_RGB888)
+        values = np.frombuffer(image.constBits(), dtype=np.uint8).reshape(image.height(), image.bytesPerLine())
+        return values[:, :image.width() * 3].reshape(image.height(), image.width(), 3).copy()
+
+    try:
+        dialog.resize(1280, 900)
+        dialog.show()
+        dialog._scan()
+        qtbot.waitUntil(lambda: len(dialog._fields) == 1 and not dialog._index_jobs.is_busy(), timeout=10000)
+        dialog._well(dialog.wells.item(*dialog._well_positions[(dialog.plates.currentData(), 'A01')]))
+        qtbot.waitUntil(lambda: dialog.fields.count() == 1, timeout=10000)
+        dialog.fields.setCurrentRow(0)
+        dialog._field(dialog.fields.item(0))
+        qtbot.waitUntil(ready, timeout=10000)
+        gray = np.uint8(np.arange(64, dtype=np.float32).reshape(8, 8) / np.float32(63.) * 255.)
+        expected = np.stack((gray, gray, np.zeros_like(gray)), axis=-1)
+        np.testing.assert_array_equal(displayed(), expected)
+        field = dialog.fields.currentItem().data(browser.Qt.UserRole)
+        dialog.norm_channel.setCurrentIndex(dialog.norm_channel.findData(1))
+        global_values = copy.deepcopy(dialog._global_display)
+        dialog.low.setValue(90.)
+        dialog.high.setValue(10.)
+        dialog._channel_override_buttons[0].click()
+        qtbot.waitUntil(ready, timeout=10000)
+        assert dialog._channel_overrides[1]['percentile_low'] == 90.
+        assert dialog._channel_overrides[1]['percentile_high'] == 10.
+        assert 'channel_percentiles' not in dialog._display_kwargs(view=True)
+        assert dialog._choices() == ((1, 2), (0., 100.))
+        assert dialog._global_display == global_values
+        np.testing.assert_array_equal(displayed(), expected)
+        retained_reset = dialog._reset_channel_override
+        assert dialog._reset_channel_button.isEnabled()
+        dialog._reset_channel_button.click()
+        qtbot.waitUntil(ready, timeout=10000)
+        assert dialog._channel_overrides == {}
+        dialog.norm_channel.setCurrentIndex(dialog.norm_channel.findData(None))
+        qtbot.waitUntil(ready, timeout=10000)
+        assert not dialog._reset_channel_button.isEnabled()
+        dialog.export_scope.setCurrentIndex(dialog.export_scope.findData('field'))
+        selected = tuple(item.identity for item in dialog._export_selection())
+        status = dialog.status.text()
+
+        retained_reset()
+
+        assert dialog._global_display == global_values and dialog._channel_overrides == {}
+        assert dialog.status.text() == status
+        assert dialog.fields.currentItem().data(browser.Qt.UserRole).identity == field.identity
+        assert tuple(item.identity for item in dialog._export_selection()) == selected
+        np.testing.assert_array_equal(displayed(), expected)
+        assert all(path.read_bytes() == original for path, original in originals.items())
+    finally:
+        dialog._cancel()
+        dialog._visual_timer.stop()
+        qtbot.waitUntil(lambda: all(runner.active_jobs() == 0 for runner in runners), timeout=10000)
+        for runner in runners:
+            runner.shutdown(timeout_ms=3000)
+        dialog.close()
+
+
+def test_header_read_recovers_a_real_writer_rename_gap_without_caching_an_unstamped_result(tmp_path, monkeypatch):
+    import tifffile
+
+    source = tmp_path / 'p1_A01_F1_C1.tif'
+    staged = tmp_path / 'writer-held.tif.pending'
+    pixels = np.arange(80, dtype=np.uint16).reshape(8, 10)
+    tifffile.imwrite(source, pixels, metadata={'axes': 'YX'})
+    original = source.read_bytes()
+    field, = browser._overview_index(str(tmp_path), source_scope='folder')
+    gone, allow_restore, restored = threading.Event(), threading.Event(), threading.Event()
+    calls = []
+    inspect = browser._overview_read_channel_info
+
+    def writer():
+        try:
+            source.rename(staged)
+            gone.set()
+            assert allow_restore.wait(10)
+        finally:
+            if staged.exists():
+                staged.rename(source)
+            restored.set()
+
+    def read_after_writer_returns(actual):
+        calls.append(actual.identity)
+        allow_restore.set()
+        assert restored.wait(10)
+        return inspect(actual)
+
+    monkeypatch.setattr(browser, '_overview_read_channel_info', read_after_writer_returns)
+    writer_thread = threading.Thread(target=writer, name='overview-source-writer', daemon=True)
+    writer_thread.start()
+    try:
+        assert gone.wait(10) and not source.exists() and staged.read_bytes() == original
+        first = browser._overview_channel_info(field)
+        assert first['channels'] == (1,) and first['files'][0]['shape'] == pixels.shape
+        assert len(calls) == 1
+        second = browser._overview_channel_info(field)
+        assert second == first and len(calls) == 2
+        assert browser._overview_channel_info(field) is second and len(calls) == 2
+        raw, = browser._overview_raw_planes(field, (1,), edge=None)
+        np.testing.assert_array_equal(raw[2], pixels)
+        assert source.read_bytes() == original and not staged.exists()
+    finally:
+        allow_restore.set()
+        writer_thread.join(timeout=10)
+        assert not writer_thread.is_alive()
+        assert source.read_bytes() == original
