@@ -1,6 +1,6 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "85f459a97b922e9fbe871f4ca1434f63cf0c353e5eebab45b8090db1e27748ba",
+  "english_sha256": "8399719463db95949977a15c100105c26124b6d9d1257437d09b220a92e8a01c",
   "review": {
     "kind": "AI technical editorial review (Codex), no native-speaker signoff",
     "translator": "No model translation; Root-approved timing-boast sentence deletion; other text retained",
@@ -29,7 +29,7 @@
   ],
   "prerequisite": "Hent og pak det linkede eksempel ud: seks træningsbilleder med masker samt tre separate billeder til Apply. Eller forbered dine egne billeder og tilsvarende masker med heltalslabels, og undersøg dem i Make Masks før træning.",
   "scenes": [
-    "Fra Home åbner du Tools og derefter Make Masks. Åbn Cellpose Workbench fra værktøjslinjen; den starter på fanen Train. Du træner ud fra billeder og deres objektlabelmasker og bruger derefter den gemte model i Apply.",
+    "Åbn Make Masks. Åbn Cellpose Workbench fra værktøjslinjen; den starter på fanen Train. Du træner ud fra billeder og deres objektlabelmasker og bruger derefter den gemte model i Apply.",
     "Pak det linkede eksempel ud. Mappen training indeholder seks billeder og en undermappe masks, og mappen apply indeholder tre separate billeder til senere. Klik på mappeknappen ved siden af Image source folder, og vælg training. Lad Mask source folder være tom for at bruge undermappen masks, eller vælg en anden maskemappe.",
     "Hvert billede skal have én maske med samme højde og bredde. 0 er baggrund, og hvert objekt har sit eget positive tal. Åbn træningsmappen i Make Masks for at undersøge labels og rette dem før træning. Dette billede har 95 labelede celler.",
     "Eksemplet er i gråtoner, så lad Channels være tom. For et flerkanalsbillede tilføjer du op til tre nulbaserede kanalnumre, fx 0 og 2 for første og tredje kanal. Angiv kun Channel axis, hvis den automatiske registrering ikke finder kanaldimensionen.",
@@ -40,7 +40,7 @@
     "Kontrollér mapper, modelnavn og outputplacering, og tryk derefter på Run. Panelet Figures viser træningsbillederne over deres masker, og konsollen følger fremdriften.",
     "Når træningen er færdig, angiver konsollen stien til checkpointet. Med standardplaceringen ligger det i kildemappen under models/cellpose_model/models. Filnavnet tilføjer arkitektur og antal epoker til modelnavnet. Behold det sammen med dine træningsindstillinger.",
     "Åbn fanen Apply. Custom model peger nu på det checkpoint, du har trænet. Sæt Source til eksemplets mappe apply, hvis billeder stammer fra brønde, der ikke blev brugt til træning. Sæt Channels til 0 og Percentiles til 2 og 99. Slå Fill in fra, så celler, der rører hinanden, holdes adskilt, og slå Save og Verbose til.",
-    "Åbn Live preview, vælg ét billede, og tryk på Run preview med samme kanal og percentiler. Billedet segmenteres med dit checkpoint, der her finder 78 celler. Justér indstillingerne her, før du kører hele mappen.",
-    "Tryk på Run. Apply skriver én maske pr. billede i en undermappe masks ved siden af billederne, og Verbose viser hvert resultat som en figur. Her indeholder de tre masker 79, 50 og 55 celler. Sammenlign en models masker med separat labelede synsfelter, før du bruger den på et helt forsøg."
+    "Åbn Live preview, vælg ét billede, og tryk på Run preview med samme kanal og percentiler. Billedet segmenteres med dit checkpoint. Undersøg maskerne, og justér indstillingerne her, før du kører hele mappen.",
+    "Tryk på Run. Apply skriver én maske pr. billede i en undermappe masks ved siden af billederne, og Verbose viser hvert resultat som en figur. Sammenlign en models masker med separat labelede synsfelter, før du bruger den på et helt forsøg."
   ]
 }

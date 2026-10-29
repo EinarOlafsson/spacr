@@ -57,10 +57,11 @@ def _require_visible_trellis(panel, panels=None):
                                          if panels is not None else None))
 
 
-def record_trellis(app, window, stage, captures, capture, settle, write_json, timeout):
+def record_trellis(app, window, stage, captures, capture, settle, write_json, timeout,
+                   *, stop_after_free_axes=False):
     from PySide6.QtCore import Qt, QTimer, QPoint
     from PySide6.QtTest import QTest
-    from PySide6.QtWidgets import (QAbstractButton, QFileDialog, QDialogButtonBox,
+    from PySide6.QtWidgets import (QFileDialog, QDialogButtonBox,
                                   QLineEdit, QPushButton, QScrollArea, QTabWidget)
     from spacr.qt.widgets.fold_strip import FoldButton
     from spacr.qt.screens.trellis import TrellisScreen
@@ -247,11 +248,8 @@ def record_trellis(app, window, stage, captures, capture, settle, write_json, ti
         idle()
 
     try:
-        tiles = [w for w in window.findChildren(QAbstractButton) if w.isVisible() and
-                 (w.property('moduleAppKey') == 'graph_builder' or w.property('navKey') == 'graph_builder')]
-        if not tiles: raise ValueError('No actual Home Graph Builder tile')
         with capture_ui.clip(capture, '01_graph_builder_host'):
-            click(max(tiles, key=lambda w: w.width()*w.height())); settle(.8)
+            capture_ui.open_module(capture, window, 'graph_builder', settle, prefer='sidebar'); settle(.8)
             host = window._screens['graph_builder']
             folds = [w for w in host.findChildren(FoldButton) if w.isVisible() and w.app_key == 'trellis']
             if len(folds) != 1: raise ValueError('No unique Graph Builder Small Multiples fold')
@@ -299,6 +297,14 @@ def record_trellis(app, window, stage, captures, capture, settle, write_json, ti
                 combo(panel._scale_x, mode, data=True, popup_open=True)
                 combo(panel._scale_y, mode, data=True)
             check(number+'_both_axes_'+mode, mode=mode, act=both)
+            if stop_after_free_axes and mode == 'free':
+                proof.update(diagnostic_only=True, stopped_after='06_both_axes_free',
+                             publication_eligible=False)
+                # An early return still executes source/worker checks in finally.
+                # The full-route private-DB check below finally would be skipped.
+                if _digest(work/'measurements.db') != original['database_sha256']:
+                    raise ValueError('Private measurement database changed')
+                return
         check('09_shared_restored', act=lambda: (combo(panel._scale_x, 'shared', data=True),
                                                  combo(panel._scale_y, 'shared', data=True)))
         def area_filter():

@@ -1,6 +1,6 @@
 {
   "lesson": "70_explain_cv",
-  "english_sha256": "7093bb0794d7d674bf79e62707b56be4c10e45d101b9bbbe000c6274aad6fd5d",
+  "english_sha256": "c76c8411151013477dff56dabb68432a26824cd4504c53e6e288afcccaee529c",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Annotate/Classify 예제의 같은 객체에 대한 measurements.db와 예측 CSV를 쓰세요. 목표로는 저장된 모델의 클래스 판정을 고르세요. 이 예제는 대리 모델의 충실도가 제한적이므로, 그 특징 기여도를 비전 모델 설명에 써서는 안 됩니다. 원래 분류기는 독립된 데이터로 따로 평가하세요.",
   "scenes": [
-    "Home에서 Classify를 연 뒤 오른쪽 위의 Explain CV Model을 고르세요. 같은 잘라 낸 객체에 대한 측정 데이터베이스와 저장된 예측을 준비하세요.",
+    "Classify를 연 뒤 오른쪽 위의 Explain CV Model을 고르세요. 같은 잘라 낸 객체에 대한 측정 데이터베이스와 저장된 예측을 준비하세요.",
     "measurements.db와 그에 맞는 예측 CSV를 고르세요. 계속하기 전에 파일 이름과 객체 대응을 확인하세요. 이 예제는 저장된 예측 234개를 씁니다.",
     "열 선택지가 갱신되지 않았다면 Enter로 예측 경로를 확정하세요. 잘라 낸 이미지 경로에는 filename, 모델의 클래스 판정에는 predicted_label을 고르세요. Random Forest, 웰 단위 그룹화, 새 출력 폴더를 고르세요.",
     "Explain model을 클릭하세요. 대리 모델은 측정 특징으로 저장된 클래스 판정을 재현합니다. 백엔드와 그룹화는 이 양식에서 고르고, 추가 적합 옵션은 Python API를 쓰세요.",

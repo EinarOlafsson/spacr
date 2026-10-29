@@ -9050,7 +9050,7 @@
       "scenes": [
         {
           "visual": "01_home_data",
-          "narration": "Dans la catégorie Data de Home, ouvrez Run Compare pour examiner les sorties enregistrées de deux exécutions.",
+          "narration": "Ouvrez Run Compare pour examiner les sorties enregistrées de deux exécutions.",
           "focus_modules": [
             "run_compare"
           ],
@@ -9059,7 +9059,7 @@
             "40_run_history"
           ],
           "hold_after": 0.7,
-          "speech_text": "Dans la catégorie Data de Home, ouvrez Run Compare pour examiner les sorties enregistrées de deux exécutions."
+          "speech_text": "Ouvrez Run Compare pour examiner les sorties enregistrées de deux exécutions."
         },
         {
           "visual": "02_actual_empty_compare",
@@ -9150,7 +9150,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -11561,7 +11584,7 @@
       "scenes": [
         {
           "visual": "01_classify_host",
-          "narration": "Depuis Home, ouvrez Classify, puis choisissez Explain CV Model en haut à droite. Préparez la base de mesures et les prédictions enregistrées pour les mêmes objets découpés.",
+          "narration": "Ouvrez Classify, puis choisissez Explain CV Model en haut à droite. Préparez la base de mesures et les prédictions enregistrées pour les mêmes objets découpés.",
           "focus": [
             3579,
             100,
@@ -11573,7 +11596,7 @@
             "39_classifier_evaluation"
           ],
           "hold_after": 0.7,
-          "speech_text": "Depuis Home, ouvrez Classify, puis choisissez Explain CV Model en haut à droite. Préparez la base de mesures et les prédictions enregistrées pour les mêmes objets découpés."
+          "speech_text": "Ouvrez Classify, puis choisissez Explain CV Model en haut à droite. Préparez la base de mesures et les prédictions enregistrées pour les mêmes objets découpés."
         },
         {
           "visual": "04_recorded_predictions_picker",
@@ -11690,7 +11713,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

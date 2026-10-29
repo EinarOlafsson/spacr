@@ -161,7 +161,7 @@ class HostSession:
         env['PATH'] = '/usr/bin:/bin'
         if diagnostics:
             env['GST_DEBUG'] = ('2,pipewiresrc:6,pipewirepool:6,videofilter:6,default:6,'
-                                'GST_BUFFER:6,GST_MEMORY:6,bufferpool:6')
+                                'GST_BUFFER:6,GST_MEMORY:6,bufferpool:6,videorate:6')
             env['GST_DEBUG_NO_COLOR'] = '1'
         self._log = output.with_suffix('.gst.log').open('wb')
         # Niced: when the machine is busy the compositor (which draws the

@@ -1,6 +1,6 @@
 {
   "lesson": "63_small_multiples",
-  "english_sha256": "d291d2bec588b4f07344f2b9022b60e6a1e298e17ef5e7f894531e132a71985f",
+  "english_sha256": "586d2d67d33c4930c7d2b53d353783771e9489693bd60f458bec775179752a20",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Annotate 튜토리얼에서 측정 예제를 내려받아 measurements.db 사본으로 작업하세요. 이 안내에서는 웰 4개에 걸친 객체 2,341개가 있는 cell 표를 씁니다. Small Multiples는 그래프를 표시하며, 그룹별 CSV 요약을 내보내려면 Tabulate를 쓰세요.",
   "scenes": [
-    "Home에서 Graph Builder를 연 뒤 Small Multiples를 여세요. 이 화면에서 같은 측정값을 그룹 간에 비교합니다. 이 예제는 연결된 Annotate 튜토리얼에서 받을 수 있는 측정 데이터베이스를 씁니다.",
+    "Graph Builder를 연 뒤 Small Multiples를 여세요. 이 화면에서 같은 측정값을 그룹 간에 비교합니다. 이 예제는 연결된 Annotate 튜토리얼에서 받을 수 있는 측정 데이터베이스를 씁니다.",
     "Small Multiples 제목 옆의 Load table을 클릭하세요. measurements.db 사본을 열고 cell을 고르세요. 그래프 채널을 지정하기 전에 표와 객체 2,341개를 확인하세요.",
     "cell_area를 X로, cell_channel_1_mean_intensity를 Y로 끌어다 놓고 Scatter를 고르세요. rowID를 Facet down에, columnID를 Facet across에 두세요. 검색으로 열 이름을 찾을 수 있으며, 각 점은 측정된 세포 하나입니다.",
     "두 척도 모두 shared를 고르면 네 패널이 같은 축 범위를 씁니다. 그룹 제목과 객체 개수를 읽으세요. 이 예제에서 패싯 라벨은 공간상의 행과 열을 나타냅니다.",

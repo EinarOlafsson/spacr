@@ -1,6 +1,6 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "85f459a97b922e9fbe871f4ca1434f63cf0c353e5eebab45b8090db1e27748ba",
+  "english_sha256": "8399719463db95949977a15c100105c26124b6d9d1257437d09b220a92e8a01c",
   "review": {
     "kind": "AI technical editorial review (Codex), no native-speaker signoff",
     "translator": "No model translation; Root-approved timing-boast sentence deletion; other text retained",
@@ -29,7 +29,7 @@
   ],
   "prerequisite": "Laden Sie das verlinkte Beispiel herunter und entpacken Sie es: sechs Trainingsbilder mit Masken sowie drei separate Bilder für Apply. Oder bereiten Sie eigene Bilder und passende Masken mit ganzzahligen Labels vor und prüfen Sie sie vor dem Training in Make Masks.",
   "scenes": [
-    "Öffnen Sie von Home aus Tools und dann Make Masks. Öffnen Sie über dessen Werkzeugleiste Cellpose Workbench; es startet auf dem Reiter Train. Sie trainieren mit Bildern und ihren Objektlabel-Masken und verwenden das gespeicherte Modell dann unter Apply.",
+    "Öffnen Sie Make Masks. Öffnen Sie über dessen Werkzeugleiste Cellpose Workbench; es startet auf dem Reiter Train. Sie trainieren mit Bildern und ihren Objektlabel-Masken und verwenden das gespeicherte Modell dann unter Apply.",
     "Entpacken Sie das verlinkte Beispiel. Sein Ordner training enthält sechs Bilder und einen Unterordner masks, sein Ordner apply drei separate Bilder für später. Klicken Sie auf die Ordnerschaltfläche neben Image source folder und wählen Sie training. Lassen Sie Mask source folder leer, um den Unterordner masks zu verwenden, oder wählen Sie einen anderen Maskenordner.",
     "Jedes Bild braucht eine Maske mit derselben Höhe und Breite. 0 ist Hintergrund, und jedes Objekt hat eine eigene positive Zahl. Öffnen Sie den Trainingsordner in Make Masks, um die Labels vor dem Training zu prüfen und zu korrigieren. Dieses Bild hat 95 gelabelte Zellen.",
     "Dieses Beispiel ist ein Graustufenbild, lassen Sie Channels also leer. Fügen Sie bei einem Mehrkanalbild bis zu drei nullbasierte Kanalnummern hinzu, etwa 0 und 2 für den ersten und dritten Kanal. Setzen Sie Channel axis nur, wenn die automatische Erkennung die Kanaldimension nicht findet.",
@@ -40,7 +40,7 @@
     "Prüfen Sie Ordner, Modellnamen und Ausgabeort und drücken Sie dann Run. Das Feld Figures zeigt die Trainingsbilder über ihren Masken, und die Konsole verfolgt den Fortschritt.",
     "Nach dem Training nennt die Konsole den Checkpoint-Pfad. Beim Standardort liegt er im Quellordner unter models/cellpose_model/models. Der Dateiname ergänzt Ihren Modellnamen um Architektur und Epochenzahl. Bewahren Sie ihn zusammen mit Ihren Trainingseinstellungen auf.",
     "Öffnen Sie den Reiter Apply. Custom model zeigt jetzt auf den trainierten Checkpoint. Setzen Sie Source auf den Ordner apply des Beispiels, dessen Bilder aus Wells stammen, die nicht zum Training verwendet wurden. Setzen Sie Channels auf 0 und Percentiles auf 2 und 99. Schalten Sie Fill in aus, damit sich berührende Zellen getrennt bleiben, und schalten Sie Save und Verbose ein.",
-    "Öffnen Sie Live preview, wählen Sie ein Bild und drücken Sie Run preview, mit demselben Kanal und denselben Perzentilen. Das Bild wird mit Ihrem Checkpoint segmentiert; hier werden 78 Zellen gefunden. Passen Sie hier die Einstellungen an, bevor Sie den ganzen Ordner verarbeiten.",
-    "Drücken Sie Run. Apply schreibt pro Bild eine Maske in einen Unterordner masks neben diesen Bildern, und Verbose zeigt jedes Ergebnis als Abbildung. Hier enthalten die drei Masken 79, 50 und 55 Zellen. Vergleichen Sie die Masken eines Modells mit separat gelabelten Bildfeldern, bevor Sie es für ein ganzes Experiment verwenden."
+    "Öffnen Sie Live preview, wählen Sie ein Bild und drücken Sie Run preview, mit demselben Kanal und denselben Perzentilen. Das Bild wird mit Ihrem Checkpoint segmentiert. Prüfen Sie die Masken und passen Sie hier die Einstellungen an, bevor Sie den ganzen Ordner verarbeiten.",
+    "Drücken Sie Run. Apply schreibt pro Bild eine Maske in einen Unterordner masks neben diesen Bildern, und Verbose zeigt jedes Ergebnis als Abbildung. Vergleichen Sie die Masken eines Modells mit separat gelabelten Bildfeldern, bevor Sie es für ein ganzes Experiment verwenden."
   ]
 }

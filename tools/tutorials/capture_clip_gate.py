@@ -6,7 +6,7 @@ A clip FAILS when any of these holds (thresholds are recorded in the result):
   30 fps, 56 at 60 fps) frames per second show new
   picture content while the field animates. A frame counts as new when at
   least ``change_pixels`` pixels differ from the previous frame by more than
-  ``change_level`` grey levels OUTSIDE a box around the pointer (so the
+  ``change_level`` levels in any 8-bit RGB channel OUTSIDE a box around the pointer (so the
   pointer moving over a frozen picture does not count as animation);
 * **pointer jump**: between two consecutive video frames the real cursor
   (found by masked template matching of the installed cursor theme, as in
@@ -89,26 +89,25 @@ def _box(mask, point, half):
 
 def picture_changes(video: Path, track, *, level: int, pixels: int, cursor_box: int,
                     top_bar_height: int, top_bar_every: int):
-    """Per frame: new picture outside the pointer?  Plus sampled top-bar checks."""
+    """Count pixels whose largest RGB-channel delta exceeds level, outside the pointer."""
     import cv2
     changed, counts, bars = [], [], []
     previous = None
     for i, frame in frames(video):
-        gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
         if i % top_bar_every == 0:
             bars.append({'frame': i, **top_bar_visible(frame, top_bar_height)})
         if previous is None:
             changed.append(True)
             counts.append(None)
         else:
-            mask = np.ones(gray.shape, bool)
+            mask = np.ones(frame.shape[:2], bool)
             for k in (i - 1, i):
                 if k < len(track) and track[k]['found']:
                     _box(mask, (track[k]['x'], track[k]['y']), cursor_box)
-            n = int(np.count_nonzero((cv2.absdiff(gray, previous) > level) & mask))
+            n = int(np.count_nonzero((cv2.absdiff(frame, previous).max(axis=2) > level) & mask))
             changed.append(n >= pixels)
             counts.append(n)
-        previous = gray
+        previous = frame
     return changed, counts, bars
 
 
@@ -422,6 +421,7 @@ def evaluate(video: Path, *, receipt: dict | None = None, fps: float | None = No
         'duration_s': round(seconds, 3), 'frames': n,
         'passed': not reasons, 'reasons': reasons, 'limits': limits,
         'field_window_s': list(field_window) if field_window else None,
+        'picture_change_metric': 'max_abs_rgb_channel_delta',
         'distinct_fps': round(distinct_fps, 2),
         'distinct_fraction': round(float(np.mean(changed[start:stop])), 4) if stop > start else None,
         'longest_unchanged_run_frames': longest_static,

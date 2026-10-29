@@ -409,3 +409,57 @@ def test_javascript_refresh_rejects_an_unknown_identity(sources):
     with pytest.raises(ValueError):
         append_javascript_catalog(english['lessons_en.json'], english['lessons_en.json'], 1,
                                    replacements=['99_missing'])
+
+
+def test_candidate_auto_stage_policy_preserves_unrelated_canonical_and_inherited(tmp_path, monkeypatch):
+    import build_appended_candidate as builder
+    from idle_tail_policy import bind_policy
+    monkeypatch.setattr(builder, 'REPO', tmp_path)
+    def entry(identity, master='a', timing='b'):
+        return dict(lesson=identity, master_sha256=master * 64, visual_timing_sha256=timing * 64,
+                    scenes=[dict(visual='result', source_start=0., source_end=10., idle_tail_start=4.)])
+    a, b, fresh = entry('01_keep'), entry('02_bound'), entry('03_refresh')
+    canonical = tmp_path / 'tools/tutorials/idle_tail_policy.json'
+    canonical.parent.mkdir(parents=True)
+    canonical.write_text(json.dumps(dict(schema=1, lessons=[a, entry('03_refresh', 'd')])))
+    stage = tmp_path / 'stage'
+    path = stage / 'production/03_refresh/edited-idle-tail-policy.json'
+    path.parent.mkdir(parents=True)
+    path.write_text(json.dumps(dict(schema=1, lessons=[fresh])))
+    lessons = [dict(id=x, silent=x + '/video/' + x + '_silent.mp4', visual_timings=x + '/clock.json')
+               for x in ('01_keep', '02_bound', '03_refresh')]
+    lessons[1]['native_idle_tails'] = dict(schema=1, **b)
+    records = [dict(path='media_host/' + lesson[key], sha256=value * 64)
+               for lesson in lessons for key, value in [('silent', 'a'), ('visual_timings', 'b')]]
+    runtime = builder.append_javascript_catalog({'lessons': lessons}, {'lessons': deepcopy(lessons)},
+                                                1, replacements=['03_refresh'])
+    policy = builder.candidate_idle_tail_policy(stage, ['03_refresh'])
+    bound = bind_policy(policy, records, runtime['lessons'])
+    assert [row['native_idle_tails'] for row in bound] == [dict(schema=1, **x) for x in (a, b, fresh)]
+    records[-1]['sha256'] = 'f' * 64
+    with pytest.raises(ValueError, match='source bytes changed'):
+        bind_policy(policy, records, lessons)
+    path.write_text(json.dumps(dict(schema=1, lessons=[b])))
+    with pytest.raises(ValueError, match='exactly its selected lesson'):
+        builder.candidate_idle_tail_policy(stage, ['03_refresh'])
+
+
+@pytest.mark.parametrize('custom', [False, True], ids=['empty', 'custom'])
+def test_candidate_explicit_policy_needs_no_canonical_and_preserves_baseline_binding(tmp_path, monkeypatch, custom):
+    import build_appended_candidate as builder
+    from idle_tail_policy import bind_policy
+    monkeypatch.setattr(builder, 'REPO', tmp_path)
+    inherited = dict(lesson='01_keep', master_sha256='a' * 64, visual_timing_sha256='b' * 64,
+                     scenes=[dict(visual='result', source_start=0., source_end=10., idle_tail_start=4.)])
+    lesson = dict(id='01_keep', silent='01_keep/master.mp4', visual_timings='01_keep/clock.json',
+                  native_idle_tails=dict(schema=1, **inherited))
+    records = [dict(path='media_host/01_keep/master.mp4', sha256='a' * 64),
+               dict(path='media_host/01_keep/clock.json', sha256='b' * 64)]
+    explicit = tmp_path / 'explicit.json'
+    override = deepcopy(inherited)
+    override['scenes'][0]['idle_tail_start'] = 3.
+    explicit.write_text(json.dumps(dict(schema=1, lessons=[override] if custom else [])))
+    assert not (tmp_path / 'tools/tutorials/idle_tail_policy.json').exists()
+    policy = builder.candidate_idle_tail_policy(tmp_path / 'stage', [], explicit)
+    bound, = bind_policy(policy, records, [lesson])
+    assert bound['native_idle_tails'] == dict(schema=1, **(override if custom else inherited))

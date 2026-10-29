@@ -1,6 +1,6 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "85f459a97b922e9fbe871f4ca1434f63cf0c353e5eebab45b8090db1e27748ba",
+  "english_sha256": "8399719463db95949977a15c100105c26124b6d9d1257437d09b220a92e8a01c",
   "review": {
     "kind": "AI technical editorial review (Codex), no native-speaker signoff",
     "translator": "No model translation; Root-approved timing-boast sentence deletion; other text retained",
@@ -29,7 +29,7 @@
   ],
   "prerequisite": "Scarica ed estrai l’esempio collegato: sei immagini di addestramento con le loro maschere, più tre immagini separate per Apply. Oppure prepara le tue immagini e le corrispondenti maschere di etichette intere, ed esaminale in Make Masks prima dell’addestramento.",
   "scenes": [
-    "Da Home, apri Tools e poi Make Masks. Apri Cellpose Workbench dalla sua barra degli strumenti; si apre sulla scheda Train. Addestrerai a partire dalle immagini e dalle loro maschere di etichette degli oggetti, poi userai il modello salvato in Apply.",
+    "Apri Make Masks. Apri Cellpose Workbench dalla sua barra degli strumenti; si apre sulla scheda Train. Addestrerai a partire dalle immagini e dalle loro maschere di etichette degli oggetti, poi userai il modello salvato in Apply.",
     "Estrai l’esempio collegato. La sua cartella training contiene sei immagini e una sottocartella masks, e la sua cartella apply contiene tre immagini separate per dopo. Fai clic sul pulsante della cartella accanto a Image source folder e scegli training. Lascia vuoto Mask source folder per usare la sottocartella masks, oppure scegli un’altra cartella di maschere.",
     "Ogni immagine ha bisogno di una maschera con la stessa altezza e larghezza. Zero è lo sfondo, e ogni oggetto ha il proprio numero positivo. Apri la cartella di addestramento in Make Masks per esaminare le etichette e correggerle prima dell’addestramento. Questa immagine ha novantacinque cellule etichettate.",
     "Questo esempio è in scala di grigi, quindi lascia vuoto Channels. Per un’immagine multicanale, aggiungi fino a tre numeri di canale che partono da zero, per esempio zero e due per il primo e il terzo canale. Imposta Channel axis solo se il rilevamento automatico non trova la dimensione dei canali.",
@@ -40,7 +40,7 @@
     "Controlla le cartelle, il nome del modello e la posizione di output, poi premi Run. Il pannello Figures mostra le immagini di addestramento sopra le loro maschere, e la console segue l’avanzamento.",
     "Al termine dell’addestramento, la console indica il percorso del checkpoint. Con la posizione predefinita si trova nella cartella di origine, in models, cellpose model, models. Il nome del file aggiunge al nome del modello l’architettura e il numero di epoche. Conservalo insieme alle impostazioni di addestramento.",
     "Apri la scheda Apply. Custom model ora punta al checkpoint che hai addestrato. Imposta Source sulla cartella apply dell’esempio, le cui immagini provengono da pozzetti non usati per l’addestramento. Imposta Channels su zero e Percentiles su due e novantanove. Disattiva Fill in perché le cellule che si toccano restino separate, e attiva Save e Verbose.",
-    "Apri Live preview, scegli un’immagine e premi Run preview, con lo stesso canale e gli stessi percentili. L’immagine viene segmentata con il tuo checkpoint, che qui trova settantotto cellule. Regola le impostazioni qui prima di elaborare tutta la cartella.",
-    "Premi Run. Apply scrive una maschera per immagine in una sottocartella masks accanto a quelle immagini, e Verbose mostra ogni risultato come figura. Qui le tre maschere contengono settantanove, cinquanta e cinquantacinque cellule. Prima di usare un modello su un intero esperimento, confronta le sue maschere con campi etichettati separatamente."
+    "Apri Live preview, scegli un’immagine e premi Run preview, con lo stesso canale e gli stessi percentili. L’immagine viene segmentata con il tuo checkpoint. Esamina le maschere e regola le impostazioni qui prima di elaborare tutta la cartella.",
+    "Premi Run. Apply scrive una maschera per immagine in una sottocartella masks accanto a quelle immagini, e Verbose mostra ogni risultato come figura. Prima di usare un modello su un intero esperimento, confronta le sue maschere con campi etichettati separatamente."
   ]
 }

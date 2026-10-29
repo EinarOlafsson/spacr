@@ -1,6 +1,6 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "85f459a97b922e9fbe871f4ca1434f63cf0c353e5eebab45b8090db1e27748ba",
+  "english_sha256": "8399719463db95949977a15c100105c26124b6d9d1257437d09b220a92e8a01c",
   "review": {
     "kind": "AI technical editorial review (Codex), no native-speaker signoff",
     "translator": "No model translation; Root-approved timing-boast sentence deletion; other text retained",
@@ -29,7 +29,7 @@
   ],
   "prerequisite": "Descarga y extrae el ejemplo enlazado: seis imágenes de entrenamiento con sus máscaras, más tres imágenes aparte para Apply. O prepara tus propias imágenes y máscaras de etiquetas enteras correspondientes, y revísalas en Make Masks antes de entrenar.",
   "scenes": [
-    "Desde Home, abre Tools y luego Make Masks. Abre Cellpose Workbench desde su barra de herramientas; se abre en la pestaña Train. Entrenarás a partir de imágenes y sus máscaras de etiquetas de objetos, y después usarás el modelo guardado en Apply.",
+    "Abre Make Masks. Abre Cellpose Workbench desde su barra de herramientas; se abre en la pestaña Train. Entrenarás a partir de imágenes y sus máscaras de etiquetas de objetos, y después usarás el modelo guardado en Apply.",
     "Extrae el ejemplo enlazado. Su carpeta training contiene seis imágenes y una subcarpeta masks, y su carpeta apply contiene tres imágenes aparte para más adelante. Haz clic en el botón de carpeta junto a Image source folder y elige training. Deja vacío Mask source folder para usar la subcarpeta masks, o elige otra carpeta de máscaras.",
     "Cada imagen necesita una máscara con la misma altura y anchura. El cero es el fondo, y cada objeto tiene su propio número positivo. Abre la carpeta de entrenamiento en Make Masks para revisar las etiquetas y corregirlas antes de entrenar. Esta imagen tiene noventa y cinco células etiquetadas.",
     "Este ejemplo está en escala de grises, así que deja vacío Channels. En una imagen multicanal, añade hasta tres números de canal que empiezan en cero, por ejemplo cero y dos para el primer y el tercer canal. Define Channel axis solo si la detección automática no encuentra la dimensión de canal.",
@@ -40,7 +40,7 @@
     "Revisa las carpetas, el nombre del modelo y la ubicación de salida, y luego pulsa Run. El panel Figures muestra las imágenes de entrenamiento sobre sus máscaras, y la consola sigue el progreso.",
     "Cuando termina el entrenamiento, la consola indica la ruta del punto de control. Con la ubicación predeterminada está en la carpeta de origen, en models, cellpose model, models. El nombre del archivo añade al nombre del modelo la arquitectura y el número de épocas. Guárdalo junto con tu configuración de entrenamiento.",
     "Abre la pestaña Apply. Custom model apunta ahora al punto de control que entrenaste. Pon Source en la carpeta apply del ejemplo, cuyas imágenes proceden de pozos que no se usaron para entrenar. Pon Channels en cero y Percentiles en dos y noventa y nueve. Desactiva Fill in para que las células que se tocan sigan separadas, y activa Save y Verbose.",
-    "Abre Live preview, elige una imagen y pulsa Run preview, con el mismo canal y los mismos percentiles. Segmenta esa imagen con tu punto de control; aquí encuentra setenta y ocho células. Ajusta la configuración aquí antes de procesar toda la carpeta.",
-    "Pulsa Run. Apply escribe una máscara por imagen en una subcarpeta masks junto a esas imágenes, y Verbose muestra cada resultado como una figura. Aquí las tres máscaras contienen setenta y nueve, cincuenta y cincuenta y cinco células. Antes de usar un modelo en todo un experimento, compara sus máscaras con campos etiquetados por separado."
+    "Abre Live preview, elige una imagen y pulsa Run preview, con el mismo canal y los mismos percentiles. Segmenta esa imagen con tu punto de control. Revisa las máscaras y ajusta la configuración aquí antes de procesar toda la carpeta.",
+    "Pulsa Run. Apply escribe una máscara por imagen en una subcarpeta masks junto a esas imágenes, y Verbose muestra cada resultado como una figura. Antes de usar un modelo en todo un experimento, compara sus máscaras con campos etiquetados por separado."
   ]
 }

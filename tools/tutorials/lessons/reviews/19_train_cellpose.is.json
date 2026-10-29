@@ -1,6 +1,6 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "85f459a97b922e9fbe871f4ca1434f63cf0c353e5eebab45b8090db1e27748ba",
+  "english_sha256": "8399719463db95949977a15c100105c26124b6d9d1257437d09b220a92e8a01c",
   "review": {
     "kind": "AI technical editorial review (Codex), no native-speaker signoff",
     "translator": "No model translation; Root-approved timing-boast sentence deletion; other text retained",
@@ -29,7 +29,7 @@
   ],
   "prerequisite": "Sæktu og afþjappaðu tengda dæmið: sex þjálfunarmyndir með grímum og þrjár aðskildar myndir fyrir Apply. Eða undirbúðu eigin myndir og samsvarandi grímur með heiltölumerkjum og skoðaðu þær í Make Masks fyrir þjálfun.",
   "scenes": [
-    "Frá Home opnarðu Tools og svo Make Masks. Opnaðu Cellpose Workbench af tækjastiku þess; það opnast á flipanum Train. Þú þjálfar út frá myndum og hlutamerkjagrímum þeirra og notar svo vistaða líkanið í Apply.",
+    "Opnaðu Make Masks. Opnaðu Cellpose Workbench af tækjastiku þess; það opnast á flipanum Train. Þú þjálfar út frá myndum og hlutamerkjagrímum þeirra og notar svo vistaða líkanið í Apply.",
     "Afþjappaðu tengda dæmið. Mappan training inniheldur sex myndir og undirmöppuna masks, og mappan apply inniheldur þrjár aðskildar myndir til síðari nota. Smelltu á möpphnappinn við hlið Image source folder og veldu training. Hafðu Mask source folder tómt til að nota undirmöppuna masks, eða veldu aðra grímumöppu.",
     "Hver mynd þarf grímu með sömu hæð og breidd. 0 er bakgrunnur og hver hlutur hefur sína eigin jákvæðu tölu. Opnaðu þjálfunarmöppuna í Make Masks til að skoða merkin og leiðrétta þau fyrir þjálfun. Þessi mynd hefur 95 merktar frumur.",
     "Dæmið er grátónamynd, svo hafðu Channels tómt. Fyrir fjölrása mynd bætirðu við allt að þremur rásanúmerum sem byrja á núlli, til dæmis 0 og 2 fyrir fyrstu og þriðju rás. Stilltu Channel axis aðeins ef sjálfvirk greining finnur ekki rásavíddina.",
@@ -40,7 +40,7 @@
     "Athugaðu möppur, heiti líkans og úttaksstað og ýttu svo á Run. Spjaldið Figures sýnir þjálfunarmyndirnar fyrir ofan grímur þeirra og stjórnborðið fylgir framvindunni.",
     "Þegar þjálfun lýkur gefur stjórnborðið upp slóð eftirlitspunktsins. Með sjálfgefnum stað er hann í upprunamöppunni undir models/cellpose_model/models. Skráarheitið bætir högun og fjölda umferða við heiti líkansins. Geymdu hann með þjálfunarstillingunum.",
     "Opnaðu flipann Apply. Custom model vísar nú á eftirlitspunktinn sem þú þjálfaðir. Stilltu Source á möppuna apply í dæminu, en myndir hennar koma úr brunnum sem ekki voru notaðir til þjálfunar. Stilltu Channels á 0 og Percentiles á 2 og 99. Slökktu á Fill in svo að frumur sem snertast haldist aðskildar, og kveiktu á Save og Verbose.",
-    "Opnaðu Live preview, veldu eina mynd og ýttu á Run preview með sömu rás og hundraðshlutum. Myndinni er skipt með eftirlitspunktinum þínum, sem hér finnur 78 frumur. Stilltu hér áður en þú keyrir alla möppuna.",
-    "Ýttu á Run. Apply skrifar eina grímu á hverja mynd í undirmöppuna masks við hlið myndanna og Verbose sýnir hverja niðurstöðu sem mynd. Hér innihalda grímurnar þrjár 79, 50 og 55 frumur. Berðu grímur líkans saman við sérstaklega merkt sjónsvið áður en þú notar það á heila tilraun."
+    "Opnaðu Live preview, veldu eina mynd og ýttu á Run preview með sömu rás og hundraðshlutum. Myndinni er skipt með eftirlitspunktinum þínum. Skoðaðu grímurnar og stilltu hér áður en þú keyrir alla möppuna.",
+    "Ýttu á Run. Apply skrifar eina grímu á hverja mynd í undirmöppuna masks við hlið myndanna og Verbose sýnir hverja niðurstöðu sem mynd. Berðu grímur líkans saman við sérstaklega merkt sjónsvið áður en þú notar það á heila tilraun."
   ]
 }

@@ -19,8 +19,8 @@ W, H, FPS = 640, 360, 30
 SPRITE, HOT = xcursor_image(Path('/usr/share/icons/Yaru/cursors/left_ptr').resolve(), 32)
 
 
-def _drag_frame():
-    path = Path('/usr/share/icons/Yaru/cursors/dnd-move')
+def _drag_frame(shape='dnd-move'):
+    path = Path('/usr/share/icons/Yaru/cursors') / shape
     if not path.exists():
         pytest.skip('needs the installed Yaru drag-and-drop cursor')
     sprite, hotspot = xcursor_image(path.resolve(), 32)
@@ -34,20 +34,22 @@ def _drag_frame():
     return frame, x, y
 
 
-def test_real_installed_drag_move_sprite_is_found_at_unchanged_threshold(monkeypatch):
-    frame, x, y = _drag_frame()
+@pytest.mark.parametrize('shape', ['dnd-move', 'dnd-no-drop', 'dnd-copy'], ids=['move', 'no_drop', 'copy'])
+def test_real_installed_drag_move_sprite_is_found_at_unchanged_threshold(monkeypatch, shape):
+    frame, x, y = _drag_frame(shape)
     monkeypatch.setattr(host_proof, 'frames', lambda _path: iter([(0, frame)]))
     row, = host_proof.track_cursor(Path('unused'), host_proof.cursor_templates('Yaru', 32))
-    assert row['found'] and row['shape'] == 'dnd-move@32'
+    assert row['found'] and row['shape'] == f'{shape}@32'
     assert (row['x'], row['y']) == (x, y)
     assert row['score'] <= .004
 
 
-def test_old_shapes_cannot_substitute_for_real_drag_move_sprite(monkeypatch):
-    frame, _, _ = _drag_frame()
+@pytest.mark.parametrize('shape', ['dnd-move', 'dnd-no-drop', 'dnd-copy'], ids=['move', 'no_drop', 'copy'])
+def test_old_shapes_cannot_substitute_for_real_drag_move_sprite(monkeypatch, shape):
+    frame, _, _ = _drag_frame(shape)
     monkeypatch.setattr(host_proof, 'frames', lambda _path: iter([(0, frame)]))
     templates = [t for t in host_proof.cursor_templates('Yaru', 32)
-                 if not t['name'].startswith('dnd-move@')]
+                 if not t['name'].startswith(shape + '@')]
     row, = host_proof.track_cursor(Path('unused'), templates)
     assert row['found'] is False and row['score'] > .004
 
@@ -107,6 +109,7 @@ def clip(tmp_path, name, *, n=45, path=None, animate_every=1, top_bar=False, fps
 def test_a_smooth_clip_with_a_gliding_pointer_passes(tmp_path):
     result = capture_clip_gate.evaluate(clip(tmp_path, 'smooth'))
     assert result['passed'], result['reasons']
+    assert result['picture_change_metric'] == 'max_abs_rgb_channel_delta'
     assert result['distinct_fps'] >= 28
     assert result['cursor']['found_fraction'] == 1.0
     assert 5 <= result['cursor']['max_step_px'] <= 7
@@ -256,3 +259,55 @@ def test_paced_hold_does_not_relabel_actual_capture_loss():
     caps=capture_clip_gate.sampled_hold_pacing_per_second(paced_hold_samples(),12,27.9,cadence=.1)
     freeze,loss,slow=capture_clip_gate.label_seconds([20]*12,[60]*12,27.9,held_pacing=caps)
     assert freeze==slow==[] and loss==list(range(12))
+
+
+def _picture_change_frames(monkeypatch, images, track=None):
+    monkeypatch.setattr(capture_clip_gate, 'frames', lambda _path: iter(enumerate(images)))
+    track = track or [dict(found=False) for _ in images]
+    return capture_clip_gate.picture_changes(Path('unit-pixels-only'), track,
+        level=10, pixels=4, cursor_box=72, top_bar_height=32, top_bar_every=10)
+
+
+def test_luminance_preserving_color_motion_counts_real_changed_pixels(monkeypatch):
+    import cv2
+    first = np.full((80, 120, 3), 40, dtype=np.uint8)
+    second = first.copy()
+    first[40:42, 60:62] = (120, 80, 80)
+    second[40:42, 60:62] = (80, 100, 80)
+    assert np.array_equal(cv2.cvtColor(first, cv2.COLOR_RGB2GRAY),
+                          cv2.cvtColor(second, cv2.COLOR_RGB2GRAY))
+    changed, counts, _ = _picture_change_frames(monkeypatch, [first, second, first])
+    assert changed == [True, True, True] and counts == [None, 4, 4]
+
+
+@pytest.mark.parametrize('kind', ['static', 'subthreshold_noise'])
+def test_static_or_subthreshold_rgb_noise_is_not_motion(monkeypatch, kind):
+    first = np.full((80, 120, 3), 80, dtype=np.uint8)
+    second = first.copy()
+    if kind == 'subthreshold_noise':
+        noise = np.random.default_rng(63).integers(-9, 10, first.shape)
+        second = (first.astype(np.int16) + noise).astype(np.uint8)
+    changed, counts, _ = _picture_change_frames(monkeypatch, [first, second])
+    assert changed == [True, False] and counts == [None, 0]
+
+
+@pytest.mark.parametrize('delta, pixels, expected', [(10, 4, False), (11, 3, False), (11, 4, True)])
+def test_rgb_level_and_pixel_count_boundaries_remain_exact(monkeypatch, delta, pixels, expected):
+    first = np.full((80, 120, 3), 80, dtype=np.uint8)
+    second = first.copy()
+    second[40, 60:60 + pixels, 0] += delta
+    changed, counts, _ = _picture_change_frames(monkeypatch, [first, second])
+    assert changed == [True, expected]
+    assert counts == [None, pixels if delta > 10 else 0]
+
+
+def test_rgb_cursor_only_motion_remains_excluded(monkeypatch):
+    images, track = [], []
+    for i in range(6):
+        frame = np.full((H, W, 3), (40, 60, 80), dtype=np.uint8)
+        x, y = 120 + 9 * i, 150
+        draw_cursor(frame, x, y)
+        images.append(frame)
+        track.append(dict(found=True, x=x, y=y))
+    changed, counts, _ = _picture_change_frames(monkeypatch, images, track)
+    assert changed == [True] + [False] * 5 and counts == [None] + [0] * 5

@@ -122,7 +122,7 @@ def xcursor_image(path: Path, size: int):
 
 
 CURSOR_SHAPES = ('left_ptr', 'xterm', 'hand2', 'sb_h_double_arrow', 'sb_v_double_arrow',
-                 'dnd-move')
+                 'dnd-move', 'dnd-no-drop', 'dnd-copy')
 
 
 def cursor_templates(theme: str, size: int):

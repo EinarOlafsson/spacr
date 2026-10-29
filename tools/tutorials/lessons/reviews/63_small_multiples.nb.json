@@ -1,6 +1,6 @@
 {
   "lesson": "63_small_multiples",
-  "english_sha256": "d291d2bec588b4f07344f2b9022b60e6a1e298e17ef5e7f894531e132a71985f",
+  "english_sha256": "586d2d67d33c4930c7d2b53d353783771e9489693bd60f458bec775179752a20",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Last ned måleeksemplet fra Annotate-veiledningen og arbeid med en kopi av measurements.db. Gjennomgangen bruker tabellen cell med 2 341 objekter fra fire brønner. Small Multiples viser diagrammer; bruk Tabulate til å eksportere grupperte CSV-oppsummeringer.",
   "scenes": [
-    "Fra Home åpner du Graph Builder og deretter Small Multiples. Bruk visningen til å sammenligne de samme målingene mellom grupper. Eksemplet bruker måledatabasen fra den lenkede Annotate-veiledningen.",
+    "Åpne Graph Builder og deretter Small Multiples. Bruk visningen til å sammenligne de samme målingene mellom grupper. Eksemplet bruker måledatabasen fra den lenkede Annotate-veiledningen.",
     "Klikk på Load table ved siden av overskriften Small Multiples. Åpne en kopi av measurements.db og velg cell. Kontroller tabellen og de 2 341 objektene før du tilordner diagramkanaler.",
     "Dra cell_area til X og cell_channel_1_mean_intensity til Y, og velg deretter Scatter. Legg rowID på Facet down og columnID på Facet across. Søket hjelper deg å finne kolonnenavn; hvert punkt er en målt celle.",
     "Velg shared for begge skalaene slik at alle fire paneler bruker samme aksegrenser. Les gruppetitlene og objektantallene. I eksemplet angir fasettetikettene romlige rader og kolonner.",

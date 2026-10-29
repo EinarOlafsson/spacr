@@ -1,6 +1,6 @@
 {
   "lesson": "63_small_multiples",
-  "english_sha256": "d291d2bec588b4f07344f2b9022b60e6a1e298e17ef5e7f894531e132a71985f",
+  "english_sha256": "586d2d67d33c4930c7d2b53d353783771e9489693bd60f458bec775179752a20",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Annotateのチュートリアルから測定値の例をダウンロードし、measurements.dbのコピーで作業します。このチュートリアルでは、四つのウェルにわたる2341個の物体を含むcellの表を使います。Small Multiplesはプロットを表示します。グループごとのCSVの要約を書き出すにはTabulateを使います。",
   "scenes": [
-    "HomeからGraph Builderを開き、Small Multiplesを選びます。この画面で、同じ測定値をグループ間で比べます。この例では、リンク先のAnnotateのチュートリアルで入手できる測定データベースを使います。",
+    "Graph Builderを開き、Small Multiplesを選びます。この画面で、同じ測定値をグループ間で比べます。この例では、リンク先のAnnotateのチュートリアルで入手できる測定データベースを使います。",
     "Small Multiplesの見出しの横にあるLoad tableをクリックします。measurements.dbのコピーを開き、cellを選びます。プロットのチャンネルを割り当てる前に、表と二千三百四十一個の物体を確認します。",
     "cell_areaをXに、cell_channel_1_mean_intensityをYにドラッグし、Scatterを選びます。rowIDをFacet downに、columnIDをFacet acrossに置きます。検索で列名を探せます。各点は測定された一つの細胞を表します。",
     "両方の尺度でsharedを選ぶと、四つのパネルが同じ軸範囲を使います。グループの見出しと物体の数を読みます。この例では、ファセットのラベルが空間上の行と列を示します。",

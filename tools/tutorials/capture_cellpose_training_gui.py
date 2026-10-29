@@ -38,11 +38,67 @@ def _inputs(example):
     return manifest, {str(path): digest for path, digest in files.items()}
 
 
+def _checkpoint_console_paths(checkpoint, text):
+    """Require the actual saved model path in the genuine training console."""
+    saved = re.findall(r'Model saved at: (\S+)', text)
+    if saved != [str(checkpoint)]:
+        raise ValueError(f'Training console must identify the actual saved checkpoint: {checkpoint}; found {saved}')
+    return saved
+
+
+def _tour_sections(capture, screen, keys, click, settle):
+    """Use reachable headers once, retaining ancestors of every required field."""
+    from spacr.qt.widgets.section import _logical_parent
+
+    def section_of(widget):
+        while widget is not None and not (hasattr(widget, 'is_expanded') and hasattr(widget, '_header')):
+            widget = _logical_parent(widget)
+        return widget
+
+    def ancestors(section):
+        chain = []
+        while section is not None:
+            chain.append(section)
+            section = section_of(_logical_parent(section))
+        return list(reversed(chain))
+
+    bar = screen._settings_search
+    wanted = {}
+    for key in keys:
+        section = section_of(bar.section_of(key))
+        if section is None:
+            raise ValueError(f'{key}: no reachable settings section')
+        for parent in ancestors(section):
+            wanted[id(parent)] = parent
+    sections = {}
+    for key in bar.indexed_keys():
+        section = section_of(bar.section_of(key))
+        if section is not None:
+            sections[id(section)] = section
+    # A collapsed ancestor makes an unused child header unreachable; leave
+    # that hidden child alone instead of trying to click it. Close visible
+    # children before their parents, then open required parents first.
+    for section in sorted(sections.values(), key=lambda s: len(ancestors(s)), reverse=True):
+        if id(section) not in wanted and section.is_expanded() and section._header.isVisible():
+            capture_ui.scroll_to(capture, screen._settings_scroll, section._header)
+            click(section._header); settle(.2)
+            if section.is_expanded():
+                raise ValueError('Unused settings section did not close: ' + section._header.text())
+    for section in wanted.values():
+        if not section._header.isVisible() or not section._header.isEnabled():
+            raise ValueError('Required settings section is unavailable: ' + section._header.text())
+        if not section.is_expanded():
+            capture_ui.scroll_to(capture, screen._settings_scroll, section._header)
+            click(section._header); settle(.2)
+            if not section.is_expanded():
+                raise ValueError('Required settings section did not open: ' + section._header.text())
+
+
 def record(app, window, stage, captures, capture, settle, write_json, timeout, *, dry_run=False):
     import tifffile
     from PySide6.QtCore import Qt, QTimer
     from PySide6.QtTest import QTest
-    from PySide6.QtWidgets import (QAbstractButton, QDialogButtonBox, QFileDialog, QLineEdit,
+    from PySide6.QtWidgets import (QDialogButtonBox, QFileDialog, QLineEdit,
                                    QMessageBox, QToolButton)
     from spacr.qt.widgets.fold_strip import FoldButton
     from spacr.qt.screens.train_cellpose import CellposeWorkbenchScreen
@@ -133,11 +189,6 @@ def record(app, window, stage, captures, capture, settle, write_json, timeout, *
                 return
         raise ValueError(f'The {name} fold did not open')
 
-    def foldable(widget):
-        while widget is not None and not (hasattr(widget, 'is_expanded') and hasattr(widget, '_header')):
-            widget = widget.parentWidget()
-        return widget
-
     def tour(screen, frame, query, keys, act=None, pre=None):
         bar = screen._settings_search
         with capture_ui.clip(capture, frame):
@@ -146,13 +197,7 @@ def record(app, window, stage, captures, capture, settle, write_json, timeout, *
             capture_ui.search_settings(capture, bar, query)
             settle(.4)
             if not query:
-                # An empty filter shows the category headings; open the ones that
-                # hold these settings with their own header clicks, shut the rest.
-                wanted = {id(foldable(bar.section_of(key))) for key in keys}
-                for key in bar.indexed_keys():
-                    section = foldable(bar.section_of(key))
-                    if section is not None and section.is_expanded() != (id(section) in wanted):
-                        click(section._header); settle(.2)
+                _tour_sections(capture, screen, keys, click, settle)
             settle(.3)
             if act is not None:
                 act()
@@ -175,22 +220,9 @@ def record(app, window, stage, captures, capture, settle, write_json, timeout, *
                 proof.setdefault('unexpected_prompts', []).append(box.text()); box.reject()
 
     try:
-        # Home -> Tools -> Make Masks.
-        home = window._startup
-        tabs = home._tabs
-        tools = [i for i in range(tabs.count()) if tabs.tabText(i).replace('&&', '&').split('  (')[0] == 'Tools']
-        if len(tools) != 1:
-            raise ValueError('Home has no unique Tools tab')
-        QTest.mouseClick(tabs.tabBar(), Qt.LeftButton, pos=tabs.tabBar().tabRect(tools[0]).center())
-        settle(.6); capture('home_tools')
-        tiles = [b for b in window.findChildren(QAbstractButton) if b.isVisible()
-                 and (b.property('moduleAppKey') == 'make_masks' or b.property('navKey') == 'make_masks')]
-        click(max(tiles, key=lambda b: b.width() * b.height()))
-        deadline = time.monotonic() + 60
-        while window._screens.get('make_masks') is None:
-            if time.monotonic() > deadline:
-                raise TimeoutError('Make Masks did not open')
-            settle(.1)
+        from capture_external_masks import _enable_console_information
+        _enable_console_information(app, window, capture)
+        capture_ui.open_module(capture, window, 'make_masks', settle, prefer='sidebar')
         settle(1.5)
         host = window._screens['make_masks']
         capture('make_masks_host')
@@ -295,7 +327,10 @@ def record(app, window, stage, captures, capture, settle, write_json, timeout, *
 
         QTimer.singleShot(1500, reject_prompts)
         outcome = dict(finished=False, ok=False, errors=[])
-        with capture_ui.clip(capture, 'train_run_started'):
+        with capture_ui.clip(capture, 'train_run_console'):
+            open_fold(screen, screen._console_folder, 'Console')
+            if not screen._console.isVisible() or screen._console.visibleRegion().isEmpty():
+                raise ValueError('The actual training console is not visible')
             started = time.monotonic(); click(screen._btn_run)
             # The run now starts in deferred parts, so the worker does not exist (the attribute is not
             # even set) at the moment of the click. Wait for it, with a bound that raises.
@@ -316,11 +351,10 @@ def record(app, window, stage, captures, capture, settle, write_json, timeout, *
                     settle(.3)
                     break
                 settle(.1)
-        if screen._worker_thread_is_running():
-            with capture_ui.clip(capture, 'train_run_console'):
-                open_fold(screen, screen._console_folder, 'Console')
-                capture_ui.console_to_end(capture, screen._console); settle(.3)
-                capture_ui.point_at(capture, screen._console, dwell=1.5)
+            if 'Training model on' not in console_text(screen):
+                raise ValueError('The actual training progress did not appear in the console')
+            capture_ui.console_to_end(capture, screen._console); settle(.3)
+            capture_ui.point_at(capture, screen._console, dwell=1.5)
         while not outcome['finished'] or screen._worker_thread_is_running():
             if time.monotonic() - started > timeout:
                 screen._request_cooperative_stop()
@@ -342,7 +376,7 @@ def record(app, window, stage, captures, capture, settle, write_json, timeout, *
         if len(checkpoints) != 1:
             raise ValueError(f'Expected one checkpoint, found {checkpoints}')
         checkpoint = checkpoints[0]
-        saved = re.findall(r'Model saved at: (\S+)', text)
+        saved = _checkpoint_console_paths(checkpoint, text)
         proof['checkpoint'] = dict(path=str(checkpoint), bytes=checkpoint.stat().st_size,
                                    sha256=sha(checkpoint), console_path=saved,
                                    console_matches=[str(checkpoint)] == saved)

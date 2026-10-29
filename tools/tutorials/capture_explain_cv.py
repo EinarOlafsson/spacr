@@ -16,7 +16,7 @@ from build_evaluation_example import sha
 def record_explain(app, window, stage, captures, capture, settle, write_json, timeout):
     from PySide6.QtCore import Qt, QTimer
     from PySide6.QtTest import QTest
-    from PySide6.QtWidgets import QAbstractButton, QFileDialog, QLineEdit, QDialogButtonBox
+    from PySide6.QtWidgets import QFileDialog, QLineEdit, QDialogButtonBox
     from spacr.qt.screens.model_explanation import ModelExplanationScreen
     from spacr.qt.widgets.fold_strip import FoldButton
     from tutorial_table_columns import resize_visible_columns
@@ -116,10 +116,9 @@ def record_explain(app, window, stage, captures, capture, settle, write_json, ti
 
     panel = None
     try:
-        buttons = [b for b in window.findChildren(QAbstractButton) if b.isVisible() and
-            (b.property('moduleAppKey') == 'classify_merged' or b.property('navKey') == 'classify_merged')]
         with capture_ui.clip(capture, '01_classify_host'):
-            click(max(buttons, key=lambda b:b.width()*b.height())); host = window._screens['classify_merged']
+            capture_ui.open_module(capture, window, 'classify_merged', settle, prefer='sidebar')
+            host = window._screens['classify_merged']
             folds = [b for b in host.findChildren(FoldButton) if b.isVisible() and b.app_key == 'explain_cv']
             if len(folds) != 1: raise ValueError('Actual Explain CV fold is not unique')
             capture_ui.point_at(capture, folds[0])

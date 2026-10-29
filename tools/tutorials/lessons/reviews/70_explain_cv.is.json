@@ -1,6 +1,6 @@
 {
   "lesson": "70_explain_cv",
-  "english_sha256": "7093bb0794d7d674bf79e62707b56be4c10e45d101b9bbbe000c6274aad6fd5d",
+  "english_sha256": "c76c8411151013477dff56dabb68432a26824cd4504c53e6e288afcccaee529c",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Notaðu measurements.db og spá-CSV-skrána fyrir sömu hluti úr Annotate/Classify-dæminu. Veldu flokkaákvarðanir vistaða líkansins sem markgildi. Tryggð staðgengilsins er takmörkuð í þessu dæmi, svo ekki ætti að nota eiginleikaeignanir þess til að skýra myndlíkanið. Mettu upprunalega flokkarann sérstaklega með óháðum gögnum.",
   "scenes": [
-    "Frá Home opnarðu Classify og velur svo Explain CV Model efst til hægri. Undirbúðu mælingagagnagrunninn og vistaðar spár fyrir sömu útklipptu hlutina.",
+    "Opnaðu Classify og veldu svo Explain CV Model efst til hægri. Undirbúðu mælingagagnagrunninn og vistaðar spár fyrir sömu útklipptu hlutina.",
     "Veldu measurements.db og samsvarandi spá-CSV. Athugaðu skráarheiti og auðkenni hluta áður en þú heldur áfram. Dæmið notar 234 vistaðar spár.",
     "Staðfestu slóð spánna með Enter ef dálkavalið hefur ekki uppfærst. Veldu filename fyrir slóð úrklippunnar og predicted_label fyrir flokkaákvarðanir líkansins. Veldu Random Forest, flokkun eftir brunni og nýja úttaksmöppu.",
     "Smelltu á Explain model. Staðgengillinn notar mælda eiginleika til að endurskapa vistuðu flokkaákvarðanirnar. Veldu reiknivél og flokkun á þessu eyðublaði; notaðu Python-API fyrir fleiri aðlögunarkosti.",

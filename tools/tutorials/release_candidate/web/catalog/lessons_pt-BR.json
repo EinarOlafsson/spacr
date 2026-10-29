@@ -10522,7 +10522,7 @@
       "scenes": [
         {
           "visual": "01_home_data",
-          "narration": "Na categoria Data da tela Home, abra Run Compare para inspecionar as saídas registradas de duas execuções.",
+          "narration": "Abra Run Compare para inspecionar as saídas registradas de duas execuções.",
           "focus_modules": [
             "run_compare"
           ],
@@ -10531,7 +10531,7 @@
             "40_run_history"
           ],
           "hold_after": 0.7,
-          "speech_text": "Na categoria Data da tela Home, abra Run Compare para inspecionar as saídas registradas de duas execuções."
+          "speech_text": "Abra Run Compare para inspecionar as saídas registradas de duas execuções."
         },
         {
           "visual": "02_actual_empty_compare",
@@ -10622,7 +10622,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -14811,7 +14834,7 @@
       "scenes": [
         {
           "visual": "01_classify_host",
-          "narration": "Na tela Home, abra Classify e escolha Explain CV Model no canto superior direito. Prepare o banco de dados de medições e as previsões salvas para os mesmos objetos recortados.",
+          "narration": "Abra Classify e escolha Explain CV Model no canto superior direito. Prepare o banco de dados de medições e as previsões salvas para os mesmos objetos recortados.",
           "focus": [
             3579,
             100,
@@ -14823,7 +14846,7 @@
             "39_classifier_evaluation"
           ],
           "hold_after": 0.7,
-          "speech_text": "Na tela Home, abra Classify e escolha Explain CV Model no canto superior direito. Prepare o banco de dados de medições e as previsões salvas para os mesmos objetos recortados."
+          "speech_text": "Abra Classify e escolha Explain CV Model no canto superior direito. Prepare o banco de dados de medições e as previsões salvas para os mesmos objetos recortados."
         },
         {
           "visual": "04_recorded_predictions_picker",
@@ -14940,7 +14963,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

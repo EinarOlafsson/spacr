@@ -1,6 +1,6 @@
 {
   "lesson": "63_small_multiples",
-  "english_sha256": "d291d2bec588b4f07344f2b9022b60e6a1e298e17ef5e7f894531e132a71985f",
+  "english_sha256": "586d2d67d33c4930c7d2b53d353783771e9489693bd60f458bec775179752a20",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "从Annotate教程下载测量示例，并在measurements.db的副本上操作。本演示使用其中的cell表，它包含四个孔中的2341个对象。Small Multiples用于显示图；如需导出分组的CSV汇总，请使用Tabulate。",
   "scenes": [
-    "从Home打开Graph Builder，然后选择Small Multiples。用这个视图在分组之间比较相同的测量值。本例使用链接中Annotate教程提供的测量数据库。",
+    "打开Graph Builder，然后选择Small Multiples。用这个视图在分组之间比较相同的测量值。本例使用链接中Annotate教程提供的测量数据库。",
     "点击Small Multiples标题旁的Load table。打开measurements.db的副本并选择cell。在分配绘图通道之前，检查表格及其两千三百四十一个对象。",
     "把cell_area拖到X，把cell_channel_1_mean_intensity拖到Y，然后选择Scatter。把rowID放到Facet down，把columnID放到Facet across。搜索可以帮您找到列名；每个点代表一个被测量的细胞。",
     "两个刻度都选择shared，让四个面板使用相同的坐标轴范围。阅读分组标题和对象计数。在本例中，分面标签表示空间上的行和列。",
