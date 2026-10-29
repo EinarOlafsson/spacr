@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 from spacr import plugins
+from tests.qt.test_startup_ai_reporting_choice import private_ai_profile as private_ai_profile
 
 
 @pytest.fixture
@@ -96,3 +97,68 @@ def test_plugin_pipeline_and_drop_handler_are_loaded_lazily(qapp, qt_plugin):
 
     handler = get_handler("qt_test_assay")
     assert type(handler).__name__ == "PluginDropHandler"
+
+
+def test_plugin_with_empty_artwork_keeps_native_navigator_card_and_explicit_open(
+        qtbot, qt_plugin, private_ai_profile, tmp_path):
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QWidget
+
+    from spacr.qt import app
+
+    preferences, _, _ = private_ai_profile
+    preferences.set_easy_mode(True)
+    preferences.set_reduce_motion(True)
+    preferences.set_show_alpha(True)
+    preferences._set_show_alpha_features(True)
+    artwork = tmp_path / 'plugin.png'
+    artwork.write_bytes(b'')
+    contribution = qt_plugin.plugin['apps'][0]
+    contribution['icon'] = str(artwork)
+    contribution['screen_factory'] = 'spacr_qt_test_plugin:screen'
+    opened, analyses = [], []
+
+    def run(settings):
+        analyses.append(settings)
+        return 0
+
+    def screen(*, app_key):
+        opened.append(app_key)
+        widget = QWidget()
+        widget.setObjectName('PluginNativeView')
+        return widget
+
+    qt_plugin.run = run
+    qt_plugin.screen = screen
+    plugins.reload_plugins()
+    record = plugins.get_app('qt_test_assay')
+    assert record is not None and record.icon == str(artwork)
+    registered = any(row[0] == record.key for row in app.APPS)
+    if not registered:
+        app.register_app(record.key, record.name, record.description,
+                         app._PLUGIN_SECTION_MAP[record.section], stage=record.stage)
+    window = app.MainWindow(initial_app='__home__')
+    qtbot.addWidget(window)
+    window._tour_timer.stop()
+    window._consent_timer.stop()
+    window.resize(1180, 850)
+    window.show()
+    try:
+        page = window._startup
+        page.path_edit.setText('Qt Test Assay')
+        qtbot.keyClick(page.path_edit, Qt.Key_Return)
+        qtbot.waitUntil(lambda: any(card._key == record.key for card in page.field.cards), timeout=5000)
+        card = next(card for card in page.field.cards if card._key == record.key)
+        assert not card._module_icon.isNull() and not card._module_icon.pixmap(64, 64).isNull()
+        assert opened == [] and window._stack.currentWidget() is page
+        qtbot.mouseClick(card, Qt.LeftButton)
+        assert page._workflow is not None and opened == []
+        qtbot.mouseClick(page._workflow.central, Qt.LeftButton)
+        qtbot.waitUntil(lambda: record.key in window._screens, timeout=5000)
+        assert opened == [record.key] and analyses == []
+        assert window._stack.currentWidget().objectName() == 'PluginNativeView'
+        assert artwork.read_bytes() == b''
+    finally:
+        window.close()
+        if not registered:
+            app.unregister_app(record.key)
