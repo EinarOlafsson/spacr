@@ -911,6 +911,7 @@ def bundled_icon_paths() -> Tuple[str, ...]:
 #: reproduce the CV model's decisions from measured features, so a tree of
 #: nodes is what this screen builds, not a metaphor for it.
 SHARED_ICON_ASSETS = {
+    "parascape": "parascape.svg",
     "toxoplasma": "replication.png",
     "plasmodium": "organism_plasmodium.svg",
     "candida": "organism_candida.svg",

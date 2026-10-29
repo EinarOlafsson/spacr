@@ -81,7 +81,7 @@ ORGANISMS = {
             ("BEI Resources", "https://www.beiresources.org/PathogensLinks.aspx"),
         ),
         "modules": (
-            ("parascape", "ParaScape", "Explore the Toxoplasma knowledge map in a separate alpha application.", "replication"),
+            ("parascape", "ParaScape", "Explore the Toxoplasma knowledge map in a separate alpha application.", "parascape"),
             ("analyze_plaques", "Plaque Assay", "Quantify plaque number and size.", "analyze_plaques"),
             ("recruitment", "Recruitment", "Measure host-protein enrichment at the vacuole.", "recruitment"),
             ('host_pathogen', 'Host–Pathogen', 'Combine vacuole marker recruitment, parasite counts and host infection denominators.', 'host_pathogen'),

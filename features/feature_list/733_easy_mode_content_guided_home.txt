@@ -6,6 +6,8 @@ DOCS/API DELIVERY — 2026-10-28
 
 Progress List name: N733 — Navigator (maintainer confirmed 2026-10-28).
 
+PARASCAPE ICON FOLLOW-UP — 2026-10-29: use ParaScape’s actual application artwork for its Navigator card instead of the generic fallback. Retained icon worker owns bundled canonical artwork, central resolution and package inclusion with focused native rendering checks; preserve the existing external-app route and other icons. Root integrates and publishes.
+
 Lifecycle: new
 Status:    DONE — Navigator, reviewed guides/API, the published tutorial and provider-None privacy follow-ups are delivered; release CI is tracked separately.
 
@@ -649,3 +651,5 @@ The tutorial owner resumes the entire campaign after this guarded nightly public
 2026-10-28 — Navigator now checks authoritative None before new dispatch, cancels stale owned work and unchecks AI without changing provider/report/terms preferences. The real enable/reply→Preferences None/Save/reopen→later Enter regression passes (1 case, 8.13 s); independent hunk peer accepted. Normal scoped output applicability and root publication remain; no immediate cancellation of an already-started request is claimed.
 
 2026-10-28 — Root extended None privacy to queued replies from a request already started. The real held-response case first showed stale text after None/Save, then passed (1 case, 8.05 s) with authoritative checks at chunk, timer-render and completion admission; accepted terms/report mode and the earlier dispatch pass are retained. Independent peer and final scoped closure pass: API72 and UI1737 remain unchanged, and no downstream artifacts need regeneration. Both privacy regressions are qualified for publication; existing network requests cannot be unsent.
+
+2026-10-29 — ParaScape Navigator and Toxoplasma-page cards now resolve its unchanged native constellation SVG from EinarOlafsson/parascape at e0d39463acd108a81beda97fc1524360d64e93ce, with the upstream MIT notice and explicit wheel resources. Three focused dark/light native-card and packaging controls pass without QtAwesome; external-app behavior is unchanged.
