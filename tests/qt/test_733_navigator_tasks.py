@@ -477,7 +477,6 @@ def test_overview_suggestion_binds_the_real_owner_source_and_respects_hidden_pre
     commands._startup = SimpleNamespace(_last_result={}, _workflow=SimpleNamespace(
         data={'modules': {'overview': {'route': 'overview', 'host_key': 'mask'}}}))
     opened, requests = [], []
-    monkeypatch.setattr(commands, '_open_easy_input', lambda *args: False)
     monkeypatch.setattr(commands, 'open_module', lambda key: opened.append(key) or owner, raising=False)
     monkeypatch.setattr(app, '_opened_module_screen', lambda *args: owner)
     monkeypatch.setattr(app, 'app_is_visible', lambda key: visible)
@@ -495,14 +494,15 @@ def test_overview_suggestion_binds_the_real_owner_source_and_respects_hidden_pre
 
 
 @pytest.mark.parametrize('accepts', [False, True])
-def test_workflow_native_route_delivers_only_schema_accepted_input(commands, monkeypatch, tmp_path, accepts):
+def test_workflow_native_route_delivers_only_schema_accepted_input(
+        commands, monkeypatch, tmp_path, accepts, overview_seed_route):
     from types import SimpleNamespace
     from spacr.qt import dnd_handlers
 
     source = tmp_path / 'source.db'
     source.write_bytes(b'original input')
     commands._startup = SimpleNamespace(_last_result={}, _workflow=SimpleNamespace(
-        data={'modules': {}}, native_routes={'graph_builder'}))
+        data={'modules': {}}, native_routes={overview_seed_route}))
     delivered = []
 
     class Handler:
@@ -513,12 +513,11 @@ def test_workflow_native_route_delivers_only_schema_accepted_input(commands, mon
         def apply(self, path, screen):
             delivered.append((path, screen))
 
-    monkeypatch.setattr(commands, '_open_easy_input', lambda *args: False)
     monkeypatch.setattr(commands, 'open_module', lambda key: commands.screen, raising=False)
     monkeypatch.setattr(app, '_opened_module_screen', lambda *args: commands.screen)
     monkeypatch.setattr(app, 'app_is_visible', lambda key: True)
     monkeypatch.setattr(dnd_handlers, 'get_handler', lambda key: Handler())
-    app.MainWindow._open_easy_suggestion(commands, 'graph_builder', str(source))
+    app.MainWindow._open_easy_suggestion(commands, overview_seed_route, str(source))
     assert delivered == ([(source, commands.screen)] if accepts else [])
     assert source.read_bytes() == b'original input'
 

@@ -544,10 +544,10 @@ def test_generated_measure_file_uses_native_project_source(
         assert MeasureDropHandler().can_accept(file)
     finally:
         commands._open_easy_named_module = original
-class _DeferredRoutingFold:
-    """Record an installed fold that has no page available yet."""
+class _DeferredSuccessorOpener:
+    """Record a deferred opener for a declared successor alias."""
 
-    key = 'graph_builder'
+    key = 'classify'
 
     def __init__(self):
         self.calls = []
@@ -599,23 +599,22 @@ def _routing_modules_hidden(key):
 
 
 @pytest.mark.parametrize('mode', ['host_opener', 'installed_opener', 'uninstalled'])
-def test_missing_fold_page_falls_back_to_existing_host_without_duplicate_open(
+def test_deferred_successor_openers_fall_back_to_the_declared_host_once(
         commands, monkeypatch, mode):
     host = _RoutingHost(commands) if mode == 'host_opener' else QWidget(commands)
-    installed = _DeferredRoutingFold()
-    host._fold_openers = {'graph_builder': installed} if mode == 'installed_opener' else {}
+    installed = _DeferredSuccessorOpener()
+    host._fold_openers = {'classify': installed} if mode == 'installed_opener' else {}
     switches = _RoutingCalls()
     commands._switch_a_fold_on = switches
-    commands._screens = {'mask': host}
+    commands._screens = {'classify_merged': host}
     commands.open_module = _ExistingRoutingScreens(commands)
-    monkeypatch.setattr(app, 'folded_children', dict(mask=['graph_builder']).copy)
     monkeypatch.setattr(app, 'app_is_visible', _routing_modules_visible)
-    result = app.MainWindow._open_easy_named_module(commands, 'graph_builder')
-    assert result is host and commands.opened == ['mask']
-    assert installed.calls == (['graph_builder'] if mode == 'installed_opener' else [])
-    assert switches.calls == ([('mask', 'graph_builder')] if mode == 'uninstalled' else [])
+    result = app.MainWindow._open_easy_named_module(commands, 'classify')
+    assert result is host and commands.opened == ['classify_merged']
+    assert installed.calls == (['classify'] if mode == 'installed_opener' else [])
+    assert switches.calls == ([('classify_merged', 'classify')] if mode == 'uninstalled' else [])
     if mode == 'host_opener':
-        assert host.requests == ['graph_builder']
+        assert host.requests == ['classify']
 
 
 @pytest.mark.parametrize('available', [False, True])
