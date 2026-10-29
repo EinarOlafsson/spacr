@@ -145,6 +145,7 @@ def test_a_heading_with_no_section_under_it_copies_nothing(panel, qtbot):
     assert QApplication.clipboard().text() == "untouched"
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_a_clipboard_that_refuses_the_text_is_not_a_crash(panel, monkeypatch):
     """A copy that did not happen may not say it did.
 
@@ -181,6 +182,7 @@ def test_an_empty_append_costs_nothing(qtbot):
     assert block.toPlainText() == before
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_long_output_uses_outer_scroll_and_reaches_both_document_ends(qtbot):
     """The read-only editor grows to its text so the outer console scrolls."""
     panel = ConsolePanel(follow_log=False, chat=False)
@@ -398,6 +400,7 @@ def test_a_dropped_file_is_never_read_into_the_chat_box(qtbot, tmp_path):
 # Building the panel when the surroundings are not there
 # ---------------------------------------------------------------------------
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_a_panel_builds_without_the_shared_log_handler(qtbot, monkeypatch):
     """The console is usable on its own, outside the application shell."""
     monkeypatch.setattr("spacr.qt.logging_util.get_signal_handler",
@@ -510,6 +513,7 @@ def test_a_warning_record_is_shown_as_an_error(panel):
 # Reading it back
 # ---------------------------------------------------------------------------
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_a_stretch_in_the_layout_is_not_a_line_of_text(panel):
     panel.append_stdout("a line\n")
     panel._entries.addStretch(1)            # an item with no widget
@@ -532,6 +536,7 @@ def test_a_heading_that_is_not_in_this_console_has_no_section(panel, qtbot):
     assert panel.section_text(stranger) == ""
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_the_last_section_runs_to_the_end_of_the_console(panel):
     panel.begin_topic("first")
     panel.append_stdout("under the first\n")
@@ -649,6 +654,7 @@ def test_a_section_torn_down_mid_click_is_not_a_crash(panel, qapp):
     assert panel._is_raised(bar) is False
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_copying_the_whole_console_returns_what_it_copied(panel):
     panel.begin_topic("a topic")
     panel.append_stdout("a line\n")
@@ -657,6 +663,7 @@ def test_copying_the_whole_console_returns_what_it_copied(panel):
     assert QApplication.clipboard().text() == copied
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_a_clipboard_that_is_not_there_still_returns_the_text(panel,
                                                               monkeypatch):
     panel.append_stdout("a line\n")
@@ -666,6 +673,7 @@ def test_a_clipboard_that_is_not_there_still_returns_the_text(panel,
     assert "a line" in panel.copy_all()
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_clearing_takes_the_entries_and_the_conversation_with_it(panel):
     panel.begin_topic("a topic")
     panel.append_stdout("a line\n")

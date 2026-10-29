@@ -389,14 +389,16 @@ def console(qapp, monkeypatch):
 
 class TestTheReplyKeepsItsHeading:
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_a_reply_after_the_run_s_last_lines_is_under_spacr_ai(
-            self, console):
+            self, console, qtbot):
         console.open_error_flow("Traceback\nValueError: x", active_app="mask",
                                 show_raw=False)
         console.append_stdout("run closed [failed]\n")
         console.append_notice("✗ Failed — see traceback above\n")
 
         console._on_chunk("The file is a macOS sidecar.\n")
+        qtbot.waitUntil(lambda: "The file is a macOS sidecar." in console.as_text())
 
         assert _heading_over(console, "macOS sidecar") == "spaCR AI"
         assert _heading_over(console, "run closed") != "spaCR AI"

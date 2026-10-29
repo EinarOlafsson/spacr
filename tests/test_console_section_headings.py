@@ -24,7 +24,7 @@ def _settle(ms: int = 120) -> None:
 
 
 @pytest.fixture
-def panel(qtbot):
+def panel(qtbot, console_info_enabled):
     from spacr.qt.widgets.console_panel import ConsolePanel
 
     widget = ConsolePanel()

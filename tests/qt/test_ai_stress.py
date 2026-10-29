@@ -404,6 +404,7 @@ def _last_user_bubble_text(panel) -> str:
     return ""
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_ai_reads_preexisting_console_at_ask_time_and_only_sends_new_text(
         qtbot, qt_theme_applied, monkeypatch):
     """The failure may precede enabling AI; toggle order must not matter."""
@@ -443,6 +444,7 @@ def test_ai_reads_preexisting_console_at_ask_time_and_only_sends_new_text(
     assert "RuntimeError: segmentation failed" not in second
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_console_aware_sends_the_console_whatever_the_question_looks_like(
         qtbot, qt_theme_applied):
     """Replaces test_console_context_auto_is_visible_and_overridable.

@@ -66,6 +66,7 @@ def _bars(panel):
             and isinstance(panel._entries.itemAt(i).widget(), cp._TopicBar)]
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_a_topic_bar_copies_its_section_only_while_it_still_has_a_panel(
         panel, qtbot):
     """``_copy_section``'s walk is the only thing that can find no panel.
@@ -101,6 +102,7 @@ def test_a_topic_bar_copies_its_section_only_while_it_still_has_a_panel(
     assert clipboard.text() == "untouched"
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_the_only_entry_that_is_not_a_widget_is_the_trailing_stretch(panel):
     """Why ``widget is not None`` cannot be false in ``section_body`` (1580)
     or in ``clear`` (1671).

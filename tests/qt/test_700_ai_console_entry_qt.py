@@ -134,6 +134,7 @@ def _refused_mask_run(qtbot, monkeypatch, relay, hold_ai=False, tier="best"):
     return screen, jobs
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_the_answer_is_its_own_teal_entry_after_the_error(
         qtbot, qt_theme_applied, relay, monkeypatch):
     from spacr.qt.theme import active_palette

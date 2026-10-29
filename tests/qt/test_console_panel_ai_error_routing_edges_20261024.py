@@ -114,6 +114,7 @@ def test_relay_retires_the_oldest_pending_owner_when_the_queue_overflows(
     other.shutdown()
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_stdout_is_still_shown_when_error_capture_raises(panel, monkeypatch):
     def boom(*args, **kwargs):
         raise ValueError("capture broke")
@@ -123,6 +124,7 @@ def test_stdout_is_still_shown_when_error_capture_raises(panel, monkeypatch):
     assert "plain pipeline line" in _text(panel)
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_stdout_already_captured_at_its_source_is_not_captured_twice(panel, monkeypatch):
     seen = []
     monkeypatch.setattr(cr, "_capture_error_line", lambda *a, **k: seen.append(a))

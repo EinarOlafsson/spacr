@@ -175,6 +175,7 @@ def test_a_console_with_nothing_new_attaches_nothing(panel):
     assert status == tr("Console context: no new output")
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_a_traceback_is_kept_whole_while_old_output_is_dropped(panel,
                                                                monkeypatch):
     """The error is the thing being asked about, so it never gets cut.
@@ -207,6 +208,7 @@ def test_a_traceback_is_kept_whole_while_old_output_is_dropped(panel,
     assert spent >= budget - 2       # and the tail fills what is left of it
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_output_that_fits_the_budget_is_sent_whole(panel):
     panel.append_stdout("a short run said this\n")
 
@@ -217,6 +219,7 @@ def test_output_that_fits_the_budget_is_sent_whole(panel):
     assert status
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_a_repeat_question_only_carries_what_arrived_since(panel):
     """Marking text sent is what stops a long run being re-uploaded per ask."""
     panel.append_stdout("the first thing\n")
@@ -276,6 +279,7 @@ def test_moving_the_handle_programmatically_lands_where_a_drag_would(qtbot):
     assert moved_console + moved_chat == total
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_a_zoom_change_is_applied_to_every_entry(panel, monkeypatch):
     """The console follows the global Zoom, so a save restyles what is there."""
     panel.append_stdout("a line of output\n")
@@ -336,6 +340,7 @@ def test_the_chevron_turns_when_a_section_folds(qtbot):
 
 # -- the plain-text export ----------------------------------------------------
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_an_empty_entry_contributes_no_line_to_the_export(panel, qtbot):
     """A blank block, a blank label and a bare widget are not blank lines.
 
@@ -404,6 +409,7 @@ def _fake_provider(monkeypatch, panel):
     return provider
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_a_question_carries_the_console_context_into_the_prompt(panel,
                                                                 monkeypatch):
     """The console the user is looking at is what the AI is asked about."""
@@ -526,6 +532,7 @@ def test_a_plain_output_block_is_opened_when_the_last_entry_was_not_one(panel):
     assert panel._current_stdout is first
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_a_block_with_nothing_new_is_skipped_while_a_fresh_one_goes(panel):
     """Only what arrived since the last question is attached to this one."""
     panel.append_stdout("the run said this\n")

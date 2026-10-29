@@ -6,6 +6,8 @@ pipeline stdout, tracebacks, paths and identifiers remain byte-for-byte intact.
 """
 from __future__ import annotations
 
+import pytest
+
 
 def _console_text(panel) -> str:
     from spacr.qt.widgets.console_panel import _StdoutBlock
@@ -70,6 +72,7 @@ def test_qtextedit_placeholder_translates_but_typed_text_does_not(
     assert editor.toPlainText() == "Run /data/Cell output — 用户输入"
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_console_chrome_localizes_while_raw_streams_stay_exact(
     qtbot, qt_theme_applied, monkeypatch,
 ):

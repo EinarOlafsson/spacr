@@ -159,6 +159,7 @@ def test_console_output_uses_open_sans_light_and_readable_leading(
     assert paragraph.lineHeight() == block.LINE_HEIGHT_PERCENT == 145
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_console_font_control_preserves_light_face_and_line_spacing(
         qtbot, qt_theme_applied):
     """Changing console size must not reset its family, weight, or leading."""
@@ -178,6 +179,7 @@ def test_console_font_control_preserves_light_face_and_line_spacing(
     assert block.document().firstBlock().blockFormat().lineHeight() == 145
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_console_sections_have_independent_resizable_height_handles(
         qtbot, qt_theme_applied):
     from spacr.qt.widgets.console_panel import ConsolePanel, _StdoutBlock

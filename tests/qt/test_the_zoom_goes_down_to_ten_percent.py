@@ -495,6 +495,7 @@ def test_a_main_window_survives_ten_percent_and_comes_back(
             if r.levelno >= logging.ERROR] == []
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_console_text_obeys_ten_percent_and_recovers(qtbot, qt_theme_applied):
     from spacr.qt.widgets.console_panel import ConsolePanel, _StdoutBlock
 
