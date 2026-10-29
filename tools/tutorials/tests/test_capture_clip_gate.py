@@ -34,7 +34,7 @@ def _drag_frame(shape='dnd-move'):
     return frame, x, y
 
 
-@pytest.mark.parametrize('shape', ['dnd-move', 'dnd-no-drop'], ids=['move', 'no_drop'])
+@pytest.mark.parametrize('shape', ['dnd-move', 'dnd-no-drop', 'dnd-copy'], ids=['move', 'no_drop', 'copy'])
 def test_real_installed_drag_move_sprite_is_found_at_unchanged_threshold(monkeypatch, shape):
     frame, x, y = _drag_frame(shape)
     monkeypatch.setattr(host_proof, 'frames', lambda _path: iter([(0, frame)]))
@@ -44,7 +44,7 @@ def test_real_installed_drag_move_sprite_is_found_at_unchanged_threshold(monkeyp
     assert row['score'] <= .004
 
 
-@pytest.mark.parametrize('shape', ['dnd-move', 'dnd-no-drop'], ids=['move', 'no_drop'])
+@pytest.mark.parametrize('shape', ['dnd-move', 'dnd-no-drop', 'dnd-copy'], ids=['move', 'no_drop', 'copy'])
 def test_old_shapes_cannot_substitute_for_real_drag_move_sprite(monkeypatch, shape):
     frame, _, _ = _drag_frame(shape)
     monkeypatch.setattr(host_proof, 'frames', lambda _path: iter([(0, frame)]))
