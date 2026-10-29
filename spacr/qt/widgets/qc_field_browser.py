@@ -1595,8 +1595,6 @@ def _overview_short_plate_names(names):
                for name in shortened]
     if len(set(clipped)) == len(clipped):
         shortened = clipped
-    if len(set(shortened)) != len(shortened):
-        shortened = list(names)
     return dict(zip(names, shortened))
 
 
