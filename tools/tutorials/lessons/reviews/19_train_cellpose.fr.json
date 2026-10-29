@@ -1,6 +1,6 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "85f459a97b922e9fbe871f4ca1434f63cf0c353e5eebab45b8090db1e27748ba",
+  "english_sha256": "d332ea32963bf6aefb93bd7a316f7ccbd8ce4ba6b0ed3d894c9141bcebb5c111",
   "review": {
     "kind": "AI technical editorial review (Codex), no native-speaker signoff",
     "translator": "No model translation; Root-approved timing-boast sentence deletion; other text retained",
@@ -29,7 +29,7 @@
   ],
   "prerequisite": "Téléchargez et extrayez l’exemple associé : six images d’entraînement avec leurs masques, plus trois images distinctes pour Apply. Ou préparez vos propres images et les masques d’étiquettes entières correspondants, et examinez-les dans Make Masks avant l’entraînement.",
   "scenes": [
-    "Depuis Home, ouvrez Tools, puis Make Masks. Ouvrez Cellpose Workbench depuis sa barre d’outils ; il s’ouvre sur l’onglet Train. Vous allez entraîner à partir d’images et de leurs masques d’étiquettes d’objets, puis utiliser le modèle enregistré dans Apply.",
+    "Ouvrez Make Masks. Ouvrez Cellpose Workbench depuis sa barre d’outils ; il s’ouvre sur l’onglet Train. Vous allez entraîner à partir d’images et de leurs masques d’étiquettes d’objets, puis utiliser le modèle enregistré dans Apply.",
     "Extrayez l’exemple associé. Son dossier training contient six images et un sous-dossier masks, et son dossier apply contient trois images distinctes pour plus tard. Cliquez sur le bouton de dossier à côté de Image source folder et choisissez training. Laissez Mask source folder vide pour utiliser le sous-dossier masks, ou choisissez un autre dossier de masques.",
     "Chaque image doit avoir un masque de même hauteur et de même largeur. Zéro correspond au fond, et chaque objet a son propre nombre positif. Ouvrez le dossier d’entraînement dans Make Masks pour examiner les étiquettes et les corriger avant l’entraînement. Cette image compte quatre-vingt-quinze cellules étiquetées.",
     "Cet exemple est en niveaux de gris : laissez Channels vide. Pour une image multicanal, ajoutez jusqu’à trois numéros de canal comptés à partir de zéro, par exemple zéro et deux pour le premier et le troisième canal. Ne réglez Channel axis que si la détection automatique ne trouve pas la dimension des canaux.",

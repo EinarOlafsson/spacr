@@ -1,6 +1,6 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "85f459a97b922e9fbe871f4ca1434f63cf0c353e5eebab45b8090db1e27748ba",
+  "english_sha256": "d332ea32963bf6aefb93bd7a316f7ccbd8ce4ba6b0ed3d894c9141bcebb5c111",
   "review": {
     "kind": "AI technical editorial review (Codex), no native-speaker signoff",
     "translator": "No model translation; Root-approved timing-boast sentence deletion; other text retained",
@@ -29,7 +29,7 @@
   ],
   "prerequisite": "연결된 예제를 내려받아 압축을 푸세요. 마스크가 있는 학습 이미지 6개와 Apply용 별도 이미지 3개가 들어 있습니다. 또는 자신의 이미지와 그에 맞는 정수 라벨 마스크를 준비하고, 학습 전에 Make Masks에서 확인하세요.",
   "scenes": [
-    "Home에서 Tools를 연 뒤 Make Masks를 여세요. 도구 모음에서 Cellpose Workbench를 열면 Train 탭에서 시작합니다. 이미지와 객체 라벨 마스크로 학습한 다음, 저장된 모델을 Apply에서 씁니다.",
+    "Make Masks를 여세요. 도구 모음에서 Cellpose Workbench를 열면 Train 탭에서 시작합니다. 이미지와 객체 라벨 마스크로 학습한 다음, 저장된 모델을 Apply에서 씁니다.",
     "연결된 예제의 압축을 푸세요. training 폴더에는 이미지 6개와 masks 하위 폴더가 있고, apply 폴더에는 나중에 쓸 별도 이미지 3개가 있습니다. Image source folder 옆의 폴더 버튼을 클릭하고 training을 고르세요. masks 하위 폴더를 쓰려면 Mask source folder를 비워 두고, 아니면 다른 마스크 폴더를 고르세요.",
     "각 이미지에는 높이와 너비가 같은 마스크가 하나 필요합니다. 0은 배경이고 각 객체는 고유한 양수 번호를 가집니다. 학습 전에 학습 폴더를 Make Masks에서 열어 라벨을 확인하고 수정하세요. 이 이미지에는 라벨이 붙은 세포가 95개 있습니다.",
     "이 예제는 회색조이므로 Channels를 비워 두세요. 다채널 이미지에서는 0부터 세는 채널 번호를 최대 3개까지 추가하세요. 예를 들어 첫째와 셋째 채널이면 0과 2입니다. 자동 감지가 채널 차원을 찾지 못할 때만 Channel axis를 설정하세요.",

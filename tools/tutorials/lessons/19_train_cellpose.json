@@ -20,7 +20,7 @@
   "scenes": [
     {
       "visual": "home_make_masks",
-      "narration": "From Home, open Tools, then Make Masks. Open Cellpose Workbench from its toolbar; it starts on the Train tab. You will train from images and their object-label masks, then use the saved model in Apply.",
+      "narration": "Open Make Masks. Open Cellpose Workbench from its toolbar; it starts on the Train tab. You will train from images and their object-label masks, then use the saved model in Apply.",
       "hold_after": 0.7,
       "related_lessons": [
         "14_make_masks"

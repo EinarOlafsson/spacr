@@ -1,6 +1,6 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "85f459a97b922e9fbe871f4ca1434f63cf0c353e5eebab45b8090db1e27748ba",
+  "english_sha256": "d332ea32963bf6aefb93bd7a316f7ccbd8ce4ba6b0ed3d894c9141bcebb5c111",
   "review": {
     "kind": "AI technical editorial review (Codex), no native-speaker signoff",
     "translator": "No model translation; Root-approved timing-boast sentence deletion; other text retained",
@@ -29,7 +29,7 @@
   ],
   "prerequisite": "Hent og pak det linkede eksempel ud: seks træningsbilleder med masker samt tre separate billeder til Apply. Eller forbered dine egne billeder og tilsvarende masker med heltalslabels, og undersøg dem i Make Masks før træning.",
   "scenes": [
-    "Fra Home åbner du Tools og derefter Make Masks. Åbn Cellpose Workbench fra værktøjslinjen; den starter på fanen Train. Du træner ud fra billeder og deres objektlabelmasker og bruger derefter den gemte model i Apply.",
+    "Åbn Make Masks. Åbn Cellpose Workbench fra værktøjslinjen; den starter på fanen Train. Du træner ud fra billeder og deres objektlabelmasker og bruger derefter den gemte model i Apply.",
     "Pak det linkede eksempel ud. Mappen training indeholder seks billeder og en undermappe masks, og mappen apply indeholder tre separate billeder til senere. Klik på mappeknappen ved siden af Image source folder, og vælg training. Lad Mask source folder være tom for at bruge undermappen masks, eller vælg en anden maskemappe.",
     "Hvert billede skal have én maske med samme højde og bredde. 0 er baggrund, og hvert objekt har sit eget positive tal. Åbn træningsmappen i Make Masks for at undersøge labels og rette dem før træning. Dette billede har 95 labelede celler.",
     "Eksemplet er i gråtoner, så lad Channels være tom. For et flerkanalsbillede tilføjer du op til tre nulbaserede kanalnumre, fx 0 og 2 for første og tredje kanal. Angiv kun Channel axis, hvis den automatiske registrering ikke finder kanaldimensionen.",

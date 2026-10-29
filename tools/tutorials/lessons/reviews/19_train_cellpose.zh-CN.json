@@ -1,6 +1,6 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "85f459a97b922e9fbe871f4ca1434f63cf0c353e5eebab45b8090db1e27748ba",
+  "english_sha256": "d332ea32963bf6aefb93bd7a316f7ccbd8ce4ba6b0ed3d894c9141bcebb5c111",
   "review": {
     "kind": "AI technical editorial review (Codex), no native-speaker signoff",
     "translator": "No model translation; Root-approved timing-boast sentence deletion; other text retained",
@@ -29,7 +29,7 @@
   ],
   "prerequisite": "下载并解压链接中的示例：六张带掩膜的训练图像，另有三张单独用于Apply的图像。或者准备您自己的图像及对应的整数标签掩膜，并在训练前于Make Masks中检查。",
   "scenes": [
-    "从Home打开Tools，然后选择Make Masks。从其工具栏打开Cellpose Workbench；它会打开在Train选项卡上。您将用图像及其对象标签掩膜进行训练，然后在Apply中使用保存的模型。",
+    "打开Make Masks。从其工具栏打开Cellpose Workbench；它会打开在Train选项卡上。您将用图像及其对象标签掩膜进行训练，然后在Apply中使用保存的模型。",
     "解压链接中的示例。其training文件夹包含六张图像和一个masks子文件夹，apply文件夹包含三张留待之后使用的单独图像。点击Image source folder旁的文件夹按钮并选择training。让Mask source folder保持为空即可使用masks子文件夹，也可以选择其他掩膜文件夹。",
     "每张图像都需要一个高度和宽度相同的掩膜。零表示背景，每个对象都有自己的正数编号。训练之前，请在Make Masks中打开训练文件夹，检查并修正标签。这张图像有九十五个已标注的细胞。",
     "本例是灰度图像，因此让Channels保持为空。对于多通道图像，最多添加三个从零开始编号的通道，例如用零和二表示第一和第三个通道。只有在自动检测找不到通道维度时，才设置Channel axis。",

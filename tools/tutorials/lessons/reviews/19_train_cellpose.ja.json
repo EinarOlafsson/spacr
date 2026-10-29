@@ -1,6 +1,6 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "85f459a97b922e9fbe871f4ca1434f63cf0c353e5eebab45b8090db1e27748ba",
+  "english_sha256": "d332ea32963bf6aefb93bd7a316f7ccbd8ce4ba6b0ed3d894c9141bcebb5c111",
   "review": {
     "kind": "AI technical editorial review (Codex), no native-speaker signoff",
     "translator": "No model translation; Root-approved timing-boast sentence deletion; other text retained",
@@ -29,7 +29,7 @@
   ],
   "prerequisite": "リンク先の例をダウンロードして展開します。マスク付きの学習用画像六枚と、Apply用の別の画像三枚が入っています。または、自分の画像と対応する整数ラベルのマスクを用意し、学習の前にMake Masksで確認します。",
   "scenes": [
-    "HomeからToolsを開き、Make Masksを選びます。そのツールバーからCellpose Workbenchを開くと、Trainタブが表示されます。画像とその物体ラベルのマスクから学習させ、保存したモデルをApplyで使います。",
+    "Make Masksを開きます。そのツールバーからCellpose Workbenchを開くと、Trainタブが表示されます。画像とその物体ラベルのマスクから学習させ、保存したモデルをApplyで使います。",
     "リンク先の例を展開します。trainingフォルダーには六枚の画像とmasksサブフォルダーがあり、applyフォルダーには後で使う別の画像が三枚あります。Image source folderの横のフォルダーボタンをクリックし、trainingを選びます。masksサブフォルダーを使うにはMask source folderを空のままにし、別の場所のマスクを使うならそのフォルダーを選びます。",
     "各画像には、高さと幅が同じマスクが一つ必要です。ゼロは背景で、各物体には固有の正の番号が付きます。学習の前に、学習用フォルダーをMake Masksで開いてラベルを確認し、修正します。この画像には、ラベル付きの細胞が九十五個あります。",
     "この例はグレースケールなので、Channelsは空のままにします。多チャンネルの画像では、ゼロから数えるチャンネル番号を最大三つまで追加します。たとえば一つ目と三つ目のチャンネルならゼロと二です。Channel axisは、自動検出でチャンネルの次元が見つからないときだけ設定します。",

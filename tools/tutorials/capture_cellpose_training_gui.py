@@ -42,7 +42,7 @@ def record(app, window, stage, captures, capture, settle, write_json, timeout, *
     import tifffile
     from PySide6.QtCore import Qt, QTimer
     from PySide6.QtTest import QTest
-    from PySide6.QtWidgets import (QAbstractButton, QDialogButtonBox, QFileDialog, QLineEdit,
+    from PySide6.QtWidgets import (QDialogButtonBox, QFileDialog, QLineEdit,
                                    QMessageBox, QToolButton)
     from spacr.qt.widgets.fold_strip import FoldButton
     from spacr.qt.screens.train_cellpose import CellposeWorkbenchScreen
@@ -175,22 +175,7 @@ def record(app, window, stage, captures, capture, settle, write_json, timeout, *
                 proof.setdefault('unexpected_prompts', []).append(box.text()); box.reject()
 
     try:
-        # Home -> Tools -> Make Masks.
-        home = window._startup
-        tabs = home._tabs
-        tools = [i for i in range(tabs.count()) if tabs.tabText(i).replace('&&', '&').split('  (')[0] == 'Tools']
-        if len(tools) != 1:
-            raise ValueError('Home has no unique Tools tab')
-        QTest.mouseClick(tabs.tabBar(), Qt.LeftButton, pos=tabs.tabBar().tabRect(tools[0]).center())
-        settle(.6); capture('home_tools')
-        tiles = [b for b in window.findChildren(QAbstractButton) if b.isVisible()
-                 and (b.property('moduleAppKey') == 'make_masks' or b.property('navKey') == 'make_masks')]
-        click(max(tiles, key=lambda b: b.width() * b.height()))
-        deadline = time.monotonic() + 60
-        while window._screens.get('make_masks') is None:
-            if time.monotonic() > deadline:
-                raise TimeoutError('Make Masks did not open')
-            settle(.1)
+        capture_ui.open_module(capture, window, 'make_masks', settle, prefer='sidebar')
         settle(1.5)
         host = window._screens['make_masks']
         capture('make_masks_host')

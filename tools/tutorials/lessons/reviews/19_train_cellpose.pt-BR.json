@@ -1,6 +1,6 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "85f459a97b922e9fbe871f4ca1434f63cf0c353e5eebab45b8090db1e27748ba",
+  "english_sha256": "d332ea32963bf6aefb93bd7a316f7ccbd8ce4ba6b0ed3d894c9141bcebb5c111",
   "review": {
     "kind": "AI technical editorial review (Codex), no native-speaker signoff",
     "translator": "No model translation; Root-approved timing-boast sentence deletion; other text retained",
@@ -29,7 +29,7 @@
   ],
   "prerequisite": "Baixe e extraia o exemplo indicado: seis imagens de treinamento com máscaras, mais três imagens separadas para o Apply. Ou prepare suas próprias imagens e as máscaras de rótulos inteiros correspondentes, e inspecione-as no Make Masks antes de treinar.",
   "scenes": [
-    "Na tela Home, abra Tools e depois Make Masks. Abra o Cellpose Workbench pela barra de ferramentas; ele abre na aba Train. Você vai treinar a partir de imagens e das máscaras de rótulos de objetos e depois usar o modelo salvo em Apply.",
+    "Abra Make Masks. Abra o Cellpose Workbench pela barra de ferramentas; ele abre na aba Train. Você vai treinar a partir de imagens e das máscaras de rótulos de objetos e depois usar o modelo salvo em Apply.",
     "Extraia o exemplo indicado. A pasta training dele tem seis imagens e uma subpasta masks, e a pasta apply tem três imagens separadas para depois. Clique no botão de pasta ao lado de Image source folder e escolha training. Deixe Mask source folder vazio para usar a subpasta masks, ou escolha outra pasta de máscaras.",
     "Cada imagem precisa de uma máscara com a mesma altura e largura. Zero é o fundo, e cada objeto tem seu próprio número positivo. Abra a pasta de treinamento no Make Masks para inspecionar os rótulos e corrigi-los antes de treinar. Esta imagem tem noventa e cinco células rotuladas.",
     "Este exemplo é em tons de cinza, então deixe Channels vazio. Em uma imagem multicanal, adicione até três números de canal contados a partir de zero, por exemplo zero e dois para o primeiro e o terceiro canais. Defina Channel axis somente se a detecção automática não encontrar a dimensão dos canais.",

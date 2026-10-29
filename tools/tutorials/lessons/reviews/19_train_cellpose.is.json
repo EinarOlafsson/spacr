@@ -1,6 +1,6 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "85f459a97b922e9fbe871f4ca1434f63cf0c353e5eebab45b8090db1e27748ba",
+  "english_sha256": "d332ea32963bf6aefb93bd7a316f7ccbd8ce4ba6b0ed3d894c9141bcebb5c111",
   "review": {
     "kind": "AI technical editorial review (Codex), no native-speaker signoff",
     "translator": "No model translation; Root-approved timing-boast sentence deletion; other text retained",
@@ -29,7 +29,7 @@
   ],
   "prerequisite": "Sæktu og afþjappaðu tengda dæmið: sex þjálfunarmyndir með grímum og þrjár aðskildar myndir fyrir Apply. Eða undirbúðu eigin myndir og samsvarandi grímur með heiltölumerkjum og skoðaðu þær í Make Masks fyrir þjálfun.",
   "scenes": [
-    "Frá Home opnarðu Tools og svo Make Masks. Opnaðu Cellpose Workbench af tækjastiku þess; það opnast á flipanum Train. Þú þjálfar út frá myndum og hlutamerkjagrímum þeirra og notar svo vistaða líkanið í Apply.",
+    "Opnaðu Make Masks. Opnaðu Cellpose Workbench af tækjastiku þess; það opnast á flipanum Train. Þú þjálfar út frá myndum og hlutamerkjagrímum þeirra og notar svo vistaða líkanið í Apply.",
     "Afþjappaðu tengda dæmið. Mappan training inniheldur sex myndir og undirmöppuna masks, og mappan apply inniheldur þrjár aðskildar myndir til síðari nota. Smelltu á möpphnappinn við hlið Image source folder og veldu training. Hafðu Mask source folder tómt til að nota undirmöppuna masks, eða veldu aðra grímumöppu.",
     "Hver mynd þarf grímu með sömu hæð og breidd. 0 er bakgrunnur og hver hlutur hefur sína eigin jákvæðu tölu. Opnaðu þjálfunarmöppuna í Make Masks til að skoða merkin og leiðrétta þau fyrir þjálfun. Þessi mynd hefur 95 merktar frumur.",
     "Dæmið er grátónamynd, svo hafðu Channels tómt. Fyrir fjölrása mynd bætirðu við allt að þremur rásanúmerum sem byrja á núlli, til dæmis 0 og 2 fyrir fyrstu og þriðju rás. Stilltu Channel axis aðeins ef sjálfvirk greining finnur ekki rásavíddina.",

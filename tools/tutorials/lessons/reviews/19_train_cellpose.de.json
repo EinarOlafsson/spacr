@@ -1,6 +1,6 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "85f459a97b922e9fbe871f4ca1434f63cf0c353e5eebab45b8090db1e27748ba",
+  "english_sha256": "d332ea32963bf6aefb93bd7a316f7ccbd8ce4ba6b0ed3d894c9141bcebb5c111",
   "review": {
     "kind": "AI technical editorial review (Codex), no native-speaker signoff",
     "translator": "No model translation; Root-approved timing-boast sentence deletion; other text retained",
@@ -29,7 +29,7 @@
   ],
   "prerequisite": "Laden Sie das verlinkte Beispiel herunter und entpacken Sie es: sechs Trainingsbilder mit Masken sowie drei separate Bilder für Apply. Oder bereiten Sie eigene Bilder und passende Masken mit ganzzahligen Labels vor und prüfen Sie sie vor dem Training in Make Masks.",
   "scenes": [
-    "Öffnen Sie von Home aus Tools und dann Make Masks. Öffnen Sie über dessen Werkzeugleiste Cellpose Workbench; es startet auf dem Reiter Train. Sie trainieren mit Bildern und ihren Objektlabel-Masken und verwenden das gespeicherte Modell dann unter Apply.",
+    "Öffnen Sie Make Masks. Öffnen Sie über dessen Werkzeugleiste Cellpose Workbench; es startet auf dem Reiter Train. Sie trainieren mit Bildern und ihren Objektlabel-Masken und verwenden das gespeicherte Modell dann unter Apply.",
     "Entpacken Sie das verlinkte Beispiel. Sein Ordner training enthält sechs Bilder und einen Unterordner masks, sein Ordner apply drei separate Bilder für später. Klicken Sie auf die Ordnerschaltfläche neben Image source folder und wählen Sie training. Lassen Sie Mask source folder leer, um den Unterordner masks zu verwenden, oder wählen Sie einen anderen Maskenordner.",
     "Jedes Bild braucht eine Maske mit derselben Höhe und Breite. 0 ist Hintergrund, und jedes Objekt hat eine eigene positive Zahl. Öffnen Sie den Trainingsordner in Make Masks, um die Labels vor dem Training zu prüfen und zu korrigieren. Dieses Bild hat 95 gelabelte Zellen.",
     "Dieses Beispiel ist ein Graustufenbild, lassen Sie Channels also leer. Fügen Sie bei einem Mehrkanalbild bis zu drei nullbasierte Kanalnummern hinzu, etwa 0 und 2 für den ersten und dritten Kanal. Setzen Sie Channel axis nur, wenn die automatische Erkennung die Kanaldimension nicht findet.",
