@@ -102,6 +102,12 @@ def test_changed_english_becomes_stale_and_is_not_published(tmp_path):
     applied, rejected = guide.import_worklist("sv", work, strings, locale_dir=locale)
     assert (applied, rejected) == (2, [])
     assert len(rows) == 2
+    target = locale / "sv/LC_MESSAGES/make_masks.po"
+    catalog = guide.read_catalog(target)
+    review = "AI technical review (Claude Opus 5.5), no native-speaker signoff."
+    catalog.get("Press **Save mask**.").user_comments = [review, "Keep the shortcut wording."]
+    catalog.get("Unchanged.").user_comments = [review]
+    guide.write_catalog(target, catalog)
 
     # English changes (the pending Make Masks re-layout is exactly this).
     _write_pot(pot, "make_masks", ["Press **Save mask** or Ctrl+S.", "Unchanged."])
@@ -114,7 +120,9 @@ def test_changed_english_becomes_stale_and_is_not_published(tmp_path):
     catalog = guide.read_catalog(locale / "sv/LC_MESSAGES/make_masks.po")
     changed = catalog.get("Press **Save mask** or Ctrl+S.")
     assert changed is not None and changed.fuzzy          # hint only
+    assert changed.user_comments == ["Keep the shortcut wording."]
     assert catalog.get("Unchanged.").string == "Oförändrad."
+    assert catalog.get("Unchanged.").user_comments == [review]
     guide.export_worklist("sv", work, locale_dir=locale)
     pending = json.loads(work.read_text(encoding="utf-8"))
     assert [row["msgid"] for row in pending] == ["Press **Save mask** or Ctrl+S."]

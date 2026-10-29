@@ -135,7 +135,9 @@ def test_ci_exercises_minimum_and_newest_dependency_profiles():
     )
     assert 'label: "Linux x86-64 / py3.14"' in compat
     assert 'python-version: "3.14"' in compat
-    assert "'3.15'" not in compat, "3.15 was dropped from the matrix on 2026-09-21"
+    assert "  python315-linux:" in compat
+    assert 'python-version: "3.15"' in compat
+    assert "conda install --override-channels -c conda-forge cvxopt tabmat h5py -y" in compat
     assert "minimum-dependencies:" in workflow
     assert "-c .github/constraints/minimum-py39.txt" in workflow
     assert "python -m pip check" in workflow

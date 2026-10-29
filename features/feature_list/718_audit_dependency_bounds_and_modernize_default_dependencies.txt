@@ -2,6 +2,16 @@
 AUDIT DEPENDENCY BOUNDS AND MODERNIZE DEFAULT DEPENDENCIES
 ================================================================================
 
+PYTHON 3.15 INSTALLATION AND COMPATIBILITY — 2026-10-28
+Priority: P1, maintainer-requested active follow-up. Owner: Workstation session 2.
+Port the current nightly to Python 3.15 in the dedicated spacr15 environment;
+investigate the Qt exclusion before admitting a release, optimize demonstrated
+dependency incompatibilities using interpreter markers where needed, and retain
+Python 3.14 compatibility. Acceptance requires an actual supported installation,
+pip check, real imports/offscreen GUI and bounded meaningful scientific tests;
+source-only tests or an installation without dependencies do not qualify. Keep
+scientific model acceptance separate; preserve existing data, priors and tests.
+
 FIXED-EFFECT DESIGN SCOPE — 2026-10-23
 The approved full-well LONG composition applies only to gene-level horseshoe fits. Restore the prior interaction design for other fixed-effect LONG estimators; preserve the horseshoe likelihood, priors, data, per-SD units and every scientific assertion. Retained scientific/API agents own the original beta regression check, no-fit branch controls and source-bound nine-language API correction; root owns publication.
 
@@ -9,7 +19,7 @@ OVERNIGHT LINUX ACCEPTANCE — 2026-10-23
 Home Linux coordinator owns remaining current-source CPU-only managed/pip/Conda installation and actual CLI/offscreen launch acceptance; retained Qt worker owns the disjoint fresh ordinary pip/source path. Coordinate cached dependency graphs, preserve accepted Python/ARM controls and use disposable environments only. No new scientific fits; the recorded divergence/convergence limitation remains open.
 
 Lifecycle: new
-Status: DONE — dependency modernization and the approved sampler correction are published and focused validation passes.
+Status: DONE — Linux x86_64 Python 3.15 installation and focused runtime qualification; earlier modernization and scientific-model limitations remain recorded.
 Requested: maintainer, 2026-10-21
 Priority:  P1
 Owner:     Workstation session 2 dependency agent — current optimization and end-to-end validation/publication; Home retains existing scientific-model ownership and release integration
@@ -203,3 +213,5 @@ The 2026-10-24 CI documentation follow-up is owned by widgets_g5 with independen
 2026-10-25 — Maintainer's rule: a horseshoe fit may have divergences up to 0.1 % of its post-warmup draws; hit tail < 0.01, every null tail > 0.1 and the >3 ratio are unchanged. spacr/ml.py now fits the horseshoe regression with target_accept 0.995, 4,000 warmup and 4,000 draws per chain on the diagonal mass matrix (_HORSESHOE_SAMPLER), and test_horseshoe_fits_through_power_model_and_finds_the_planted_gene asserts the 0.1 % rule for every sampled fit. Over 12 seeds every seed passes: hit tail at most 0.009, nulls at least 0.379, ratio at least 4.15, at most 1 divergence per fit (limit 16 of 16,000 draws); each regression's fits take at most 57 s on CPU (the test was about 28 s before), and the horseshoe test group runs in 111 s. Remaining: confirm on the next hosted CI run, then mark DONE.
 
 2026-10-28 — Dependency installations are accepted and the published 371390e0 sampler satisfies the maintainer diagnostic rule with all 12 recorded seeds passing. Broader hosted CI/release confirmation remains item 43; no hosted result is inferred from local validation.
+
+2026-10-28 — Qualified a full Python 3.15.2 Linux x86_64 installation with pip check, real installed Measure database/PNG outputs, morphology/intensity/texture controls, Cellpose CPU flows, Torch forward execution and a native Navigator/Measure/Home window. Scoped dependency guards prevent unsupported optional backends from driving old NumPy/Ninja builds; earlier Python bounds remain. The recipe supplies Conda native prerequisites, the non-ICU SQLite build and a PyPI SciPy wheel; both cold import orders/HDF5 round-trip pass. Added a blocking Linux 3.15 CI cell. Nine-language installation guidance and runtime notices pass their normal checks; the package and Python 3.15 compatibility badges are delivered together.

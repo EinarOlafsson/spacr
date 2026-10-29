@@ -600,6 +600,10 @@ def resolve_backend(backend: str = "auto") -> str:
             f"{list(BACKENDS)}."
         )
     if not _module_installed(choice):
+        from .regression_backends import _python315_backend_refusal
+        limitation = _python315_backend_refusal(choice)
+        if limitation:
+            raise PowerFitError(limitation)
         raise PowerFitError(
             f"backend={choice!r} was requested but {choice} is not installed. "
             "It is an optional dependency and is deliberately not in spaCR's "

@@ -1753,7 +1753,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "attribution_baseline",
-    "line": 3777,
+    "line": 3781,
     "module": "spacr.hyperparam",
     "nested": false,
     "qualname": "run_search_for_app"
@@ -1773,7 +1773,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "attribution_steps",
-    "line": 3776,
+    "line": 3780,
     "module": "spacr.hyperparam",
     "nested": false,
     "qualname": "run_search_for_app"
@@ -8845,7 +8845,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "classifier_family",
-    "line": 3782,
+    "line": 3786,
     "module": "spacr.hyperparam",
     "nested": false,
     "qualname": "run_search_for_app"
@@ -11665,7 +11665,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "cross_validation_folds",
-    "line": 3647,
+    "line": 3651,
     "module": "spacr.hyperparam",
     "nested": true,
     "qualname": "classify_cv_fit_fn._fit"
@@ -12273,7 +12273,7 @@
     "form": "get",
     "function_depth": 2,
     "key": "cv_group_by",
-    "line": 3648,
+    "line": 3652,
     "module": "spacr.hyperparam",
     "nested": true,
     "qualname": "classify_cv_fit_fn._fit"
@@ -12282,7 +12282,7 @@
     "form": "get",
     "function_depth": 2,
     "key": "cv_group_by",
-    "line": 3648,
+    "line": 3652,
     "module": "spacr.hyperparam",
     "nested": true,
     "qualname": "classify_cv_fit_fn._fit"
@@ -12291,7 +12291,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cv_group_by",
-    "line": 3790,
+    "line": 3794,
     "module": "spacr.hyperparam",
     "nested": false,
     "qualname": "run_search_for_app"
@@ -15716,7 +15716,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "feature_importance",
-    "line": 10611,
+    "line": 10615,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -15725,7 +15725,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "feature_importance",
-    "line": 10619,
+    "line": 10623,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -26866,7 +26866,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "model_type_ml",
-    "line": 3829,
+    "line": 3833,
     "module": "spacr.hyperparam",
     "nested": false,
     "qualname": "run_search_for_app"
@@ -26875,7 +26875,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "model_type_ml",
-    "line": 3831,
+    "line": 3835,
     "module": "spacr.hyperparam",
     "nested": false,
     "qualname": "run_search_for_app"
@@ -27525,7 +27525,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 3834,
+    "line": 3838,
     "module": "spacr.hyperparam",
     "nested": false,
     "qualname": "run_search_for_app"
@@ -27588,7 +27588,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 10612,
+    "line": 10616,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -27597,7 +27597,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 10612,
+    "line": 10616,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -27606,7 +27606,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 10635,
+    "line": 10639,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -27615,7 +27615,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 10635,
+    "line": 10639,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -27624,7 +27624,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 10658,
+    "line": 10662,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -27633,7 +27633,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 10658,
+    "line": 10662,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -29460,7 +29460,7 @@
     "form": "keyword",
     "function_depth": 2,
     "key": "nuclei_limit",
-    "line": 10530,
+    "line": 10534,
     "module": "spacr.ml",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -29469,7 +29469,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "nuclei_limit",
-    "line": 10534,
+    "line": 10538,
     "module": "spacr.ml",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -40226,7 +40226,7 @@
     "form": "keyword",
     "function_depth": 2,
     "key": "pathogen_limit",
-    "line": 10530,
+    "line": 10534,
     "module": "spacr.ml",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -40235,7 +40235,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "pathogen_limit",
-    "line": 10535,
+    "line": 10539,
     "module": "spacr.ml",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -41889,7 +41889,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "permutation_importance",
-    "line": 10611,
+    "line": 10615,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -41898,7 +41898,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "permutation_importance",
-    "line": 10633,
+    "line": 10637,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -48469,7 +48469,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "sanity_check",
-    "line": 3779,
+    "line": 3783,
     "module": "spacr.hyperparam",
     "nested": false,
     "qualname": "run_search_for_app"
@@ -48579,7 +48579,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "save",
-    "line": 10499,
+    "line": 10503,
     "module": "spacr.ml",
     "nested": true,
     "qualname": "interpret_vision_model.create_extended_radar_plot"
@@ -48588,7 +48588,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save",
-    "line": 10628,
+    "line": 10632,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -48597,7 +48597,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save",
-    "line": 10630,
+    "line": 10634,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -48606,7 +48606,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save",
-    "line": 10645,
+    "line": 10649,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -48615,7 +48615,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save",
-    "line": 10647,
+    "line": 10651,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -48624,7 +48624,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save",
-    "line": 10672,
+    "line": 10676,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -49591,7 +49591,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "score_column",
-    "line": 10578,
+    "line": 10582,
     "module": "spacr.ml",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -49600,7 +49600,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "score_column",
-    "line": 10603,
+    "line": 10607,
     "module": "spacr.ml",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -49609,7 +49609,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "score_column",
-    "line": 10605,
+    "line": 10609,
     "module": "spacr.ml",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -49786,7 +49786,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "scores",
-    "line": 10538,
+    "line": 10542,
     "module": "spacr.ml",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -49795,7 +49795,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "scores",
-    "line": 10566,
+    "line": 10570,
     "module": "spacr.ml",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -49804,7 +49804,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "scores",
-    "line": 10589,
+    "line": 10593,
     "module": "spacr.ml",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -50432,7 +50432,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "shap",
-    "line": 10611,
+    "line": 10615,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -50441,7 +50441,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "shap",
-    "line": 10650,
+    "line": 10654,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -50479,7 +50479,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "shap_sample",
-    "line": 10661,
+    "line": 10665,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -52873,7 +52873,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "src",
-    "line": 10499,
+    "line": 10503,
     "module": "spacr.ml",
     "nested": true,
     "qualname": "interpret_vision_model.create_extended_radar_plot"
@@ -52882,19 +52882,10 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "src",
-    "line": 10527,
+    "line": 10531,
     "module": "spacr.ml",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "src",
-    "line": 10627,
-    "module": "spacr.ml",
-    "nested": false,
-    "qualname": "interpret_vision_model"
    },
    {
     "form": "subscript",
@@ -52909,7 +52900,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 10644,
+    "line": 10635,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -52927,7 +52918,16 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 10671,
+    "line": 10652,
+    "module": "spacr.ml",
+    "nested": false,
+    "qualname": "interpret_vision_model"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "src",
+    "line": 10675,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -55813,7 +55813,7 @@
     "form": "keyword",
     "function_depth": 2,
     "key": "tables",
-    "line": 10530,
+    "line": 10534,
     "module": "spacr.ml",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -55822,7 +55822,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "tables",
-    "line": 10532,
+    "line": 10536,
     "module": "spacr.ml",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -59577,15 +59577,6 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "top_features",
-    "line": 10621,
-    "module": "spacr.ml",
-    "nested": false,
-    "qualname": "interpret_vision_model"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "top_features",
     "line": 10625,
     "module": "spacr.ml",
     "nested": false,
@@ -59595,7 +59586,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "top_features",
-    "line": 10628,
+    "line": 10629,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -59604,7 +59595,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "top_features",
-    "line": 10638,
+    "line": 10632,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -59622,7 +59613,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "top_features",
-    "line": 10645,
+    "line": 10646,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -59631,7 +59622,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "top_features",
-    "line": 10655,
+    "line": 10649,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -59640,7 +59631,16 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "top_features",
-    "line": 10672,
+    "line": 10659,
+    "module": "spacr.ml",
+    "nested": false,
+    "qualname": "interpret_vision_model"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "top_features",
+    "line": 10676,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"

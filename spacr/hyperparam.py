@@ -3524,6 +3524,10 @@ def build_sklearn_model(model_type: str, params: Mapping[str, Any],
         try:
             from catboost import CatBoostClassifier
         except ImportError as exc:
+            from .regression_backends import _python315_backend_refusal
+            limitation = _python315_backend_refusal('catboost')
+            if limitation:
+                raise ImportError(limitation) from exc
             raise ImportError(
                 "model_type_ml='catboost' needs the 'catboost' package: "
                 "pip install catboost") from exc

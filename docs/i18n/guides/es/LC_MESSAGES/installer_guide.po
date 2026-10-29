@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:05-0400\n"
+"POT-Creation-Date: 2026-10-28 22:18-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: es\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -74,6 +74,39 @@ msgstr "La selección automática del backend es el valor predeterminado en Linu
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "To leave out the wgpu 3D renderer, run the installer with ``--without-wgpu``, or tick **Install without wgpu (use OpenGL/CPU for 3D)** in the installer window; the box is unchecked by default. On a Linux system whose glibc is older than 2.28 the installer leaves wgpu out by itself and prints one line saying so, because wgpu publishes Linux wheels only for glibc 2.28 and newer. ``--dry-run`` shows the decision in its plan, as the ``wgpu 3D rendering`` line. See :ref:`wgpu-3d-rendering`."
 msgstr "Para omitir el renderizador 3D wgpu, ejecute el instalador con ``--without-wgpu`` o marque **Install without wgpu (use OpenGL/CPU for 3D)** en la ventana del instalador; la casilla está desmarcada de forma predeterminada. En un sistema Linux cuya glibc es anterior a la 2.28, el instalador omite wgpu por sí mismo e imprime una línea que lo indica, porque wgpu solo publica wheels para Linux con glibc 2.28 o posterior. ``--dry-run`` muestra la decisión en su plan, como la línea ``wgpu 3D rendering``. Consulte :ref:`wgpu-3d-rendering`."
+
+msgid "Linux ARM64 build requirements"
+msgstr ""
+
+msgid "Linux ARM64 environments build ModernGL's GLContext backend from source. This requires a C++ compiler and the X11 development headers. The Unix installer's normal system-dependency step installs these packages on ARM64:"
+msgstr ""
+
+msgid "Package manager"
+msgstr ""
+
+msgid "Build packages"
+msgstr ""
+
+msgid "APT"
+msgstr ""
+
+msgid "``build-essential libx11-dev``"
+msgstr "``build-essential libx11-dev``"
+
+msgid "DNF or Zypper"
+msgstr ""
+
+msgid "``gcc-c++ libX11-devel``"
+msgstr "``gcc-c++ libX11-devel``"
+
+msgid "Pacman"
+msgstr ""
+
+msgid "``base-devel libx11``"
+msgstr "``base-devel libx11``"
+
+msgid "When using ``--skip-system-deps`` or installing with ``pip`` directly, provide these build packages beforehand alongside the required desktop runtime libraries. The managed Python already includes its own Python headers; for a system Python, provide that interpreter's development headers as well."
+msgstr ""
 
 msgid "Updating"
 msgstr "Actualización"
@@ -213,7 +246,8 @@ msgstr "Alternativas nativas y de línea de comandos"
 msgid "**Windows:** open **Settings → Apps → Installed apps → spaCR → Uninstall**, or run ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe``."
 msgstr "**Windows:** abra **Configuración → Apps → Installed apps → spaCR → Desinstalar**, o ejecute ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe``."
 
-msgid "**macOS:** run ``/Library/Application Support/spaCR/uninstall-spacr.sh`` in Terminal. This removes the application, command launcher and system installer support. Remove ``~/Library/Application Support/spaCR`` separately to delete the per-user private runtime."
+#, fuzzy
+msgid "**macOS:** run ``/Library/Application Support/spaCR/uninstall-spacr.sh`` in Terminal. This removes the application, command launcher and system installer support. Add ``--dry-run`` to preview the software paths without removing anything. The command launcher is removed only if it is spaCR's exact installed symlink; unrelated files and links are kept. Remove ``~/Library/Application Support/spaCR`` separately to delete the per-user private runtime."
 msgstr "**macOS:** ejecute ``/Library/Application Support/spaCR/uninstall-spacr.sh`` en Terminal. Esto elimina la aplicación, el lanzador de comandos y el soporte del instalador del sistema. Elimine ``~/Library/Application Support/spaCR`` por separado para borrar el entorno de ejecución privado por usuario."
 
 msgid "**Linux:** run ``~/.local/share/spacr/uninstall-spacr.sh``. This removes the launcher, desktop entry and private environment."
@@ -238,8 +272,8 @@ msgstr "La purga debe solicitarse explícitamente. También elimina las cachés,
 msgid "**Windows:** run ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe /PURGE``."
 msgstr "**Windows:** ejecute ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe /PURGE``."
 
-msgid "**macOS:** run ``uninstall-spacr.sh --purge`` as above."
-msgstr "**macOS:** ejecute ``uninstall-spacr.sh --purge`` como se indica arriba."
+msgid "**macOS:** run ``uninstall-spacr.sh --purge`` as above. Add ``--dry-run`` to preview both software and data removal. A refused or failed purge stops the uninstall before the application is removed."
+msgstr ""
 
 msgid "**Linux:** run ``~/.local/share/spacr/uninstall-spacr.sh --purge``."
 msgstr "**Linux:** ejecute ``~/.local/share/spacr/uninstall-spacr.sh --purge``."
@@ -331,6 +365,22 @@ msgstr "Instalación con conda-forge"
 
 msgid "Install the official conda-forge package directly into an activated environment. It includes spaCR's desktop and core dependencies:"
 msgstr "Instale el paquete oficial de conda-forge directamente en un entorno activado. Incluye la interfaz de escritorio y las dependencias principales de spaCR:"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Python 3.15 on Linux"
+msgstr "Python 3.15 en Linux"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use the nightly source in a new Linux Conda environment for Python 3.15. The current PyPI release excludes this interpreter and pip can fall back to an older spaCR release. Install the Linux build packages listed above before running this recipe; some native dependencies still build from source."
+msgstr "Use el código fuente de la rama nightly en un entorno Conda nuevo de Linux para Python 3.15. La versión actual de PyPI excluye este intérprete y pip puede recurrir a una versión anterior de spaCR. Instale los paquetes de compilación de Linux indicados arriba antes de ejecutar esta receta; algunas dependencias nativas todavía se compilan desde el código fuente."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For a local source checkout, replace the Git URL with ``.``. The selected SQLite build and SciPy wheel reinstallation prevent a C++ runtime mismatch between Conda libraries and the PyPI Torch/Qt libraries; complete all Conda installations before these pip steps. The CPU Torch command does not install a CUDA runtime."
+msgstr "Para una copia local del código fuente, sustituya la URL de Git por ``.``. La compilación seleccionada de SQLite y la reinstalación del paquete wheel de SciPy evitan una incompatibilidad del entorno de ejecución de C++ entre las bibliotecas de Conda y las bibliotecas Torch/Qt de PyPI; complete todas las instalaciones de Conda antes de estos pasos de pip. El comando de Torch para CPU no instala un entorno de ejecución de CUDA."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Python 3.15 uses scikit-image 0.27.0rc1 (a release candidate) or newer below 0.28 because that line provides its image-processing wheels. The optional pyfixest, CatBoost, PyMC and Piper speech packages are not installed by default on this interpreter because compatible upstream binaries or dependencies are missing. Existing Python 3.14 requirements and scientific defaults are unchanged. This recipe is qualified on Linux x86_64; Windows is untested and macOS retains its older Qt requirement."
+msgstr "Python 3.15 usa scikit-image 0.27.0rc1 (una versión candidata) o una versión posterior inferior a 0.28, ya que esa serie proporciona sus paquetes wheel de procesamiento de imágenes. Los paquetes opcionales pyfixest, CatBoost, PyMC y Piper para voz no se instalan de forma predeterminada con este intérprete porque faltan binarios compatibles de los proyectos originales o dependencias. Los requisitos existentes de Python 3.14 y los valores científicos predeterminados no cambian. Esta receta está validada en Linux x86_64; Windows no se ha probado y macOS conserva su requisito de Qt anterior."
 
 msgid "PyPI installation and extras"
 msgstr "Instalación con PyPI y extras"
@@ -528,15 +578,15 @@ msgstr "Imagen"
 msgid "For"
 msgstr "Para"
 
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "``ghcr.io/einarolafsson/spacr:1.5.1.4``"
+#, fuzzy
+msgid "``ghcr.io/einarolafsson/spacr:1.5.1.6``"
 msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.4``"
 
 msgid "CPU only. Runs Linux x86-64 containers with Docker or Podman and needs no GPU driver."
 msgstr "Solo CPU. Ejecuta contenedores Linux x86-64 con Docker o Podman y no necesita controlador de GPU."
 
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "``ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4``"
+#, fuzzy
+msgid "``ghcr.io/einarolafsson/spacr:1.5.1.6-cuda12.4``"
 msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4``"
 
 msgid "CUDA 12.4. Needs an NVIDIA driver of **550 or newer on the host** and the NVIDIA Container Toolkit. Without ``--gpus`` it behaves as the CPU image."
@@ -621,6 +671,28 @@ msgstr "``packaging/apptainer/spacr_slurm.sh`` es un trabajo de matriz de Slurm 
 
 msgid "For a CPU partition, remove the ``--gres`` line, replace the ``GPU_FLAG`` line with ``GPU_FLAG=`` and point ``SIF`` at the CPU image."
 msgstr "Para una partición de CPU, elimine la línea ``--gres``, sustituya la línea ``GPU_FLAG`` por ``GPU_FLAG=`` y haga que ``SIF`` apunte a la imagen de CPU."
+
+#, fuzzy
+msgid "The desktop interface on a cluster node"
+msgstr "La interfaz de escritorio en un contenedor"
+
+msgid "The GUI needs a display. On a cluster, use one of these:"
+msgstr ""
+
+msgid "**X11 forwarding.** Connect with ``ssh -X user@login-node`` (or ``ssh -Y`` for trusted forwarding), start an interactive job with X11 forwarding (for example ``srun --x11 --pty bash`` on Slurm), then run ``spacr``. This works but is slow over long distances."
+msgstr ""
+
+msgid "**Open OnDemand desktop or VNC.** Start a remote desktop session from your cluster's Open OnDemand page, or a VNC server on the node, open a terminal inside it and run ``spacr``. This is much faster than forwarding."
+msgstr ""
+
+msgid "Qt's X11 plugin needs ``libxcb-cursor.so.0`` and a few related libraries that cluster nodes often lack. Without root, install them into your conda or mamba environment:"
+msgstr ""
+
+msgid "or create the environment from ``environment-linux.yaml``, which already lists them. ``spacr`` finds them in the active environment by itself, and names any that are still missing instead of crashing; ``spacr-doctor`` shows the same check as its ``X11 libraries`` row. With root, ``sudo apt install libxcb-cursor0`` (Debian/Ubuntu) or ``sudo dnf install xcb-util-cursor`` (RHEL/Rocky) installs them system-wide."
+msgstr ""
+
+msgid "A shared home directory is fine: spaCR keeps its single-window lock and its crash counter per host, so a session on one node never blocks or counts against another."
+msgstr ""
 
 msgid "Troubleshooting"
 msgstr "Solución de problemas"

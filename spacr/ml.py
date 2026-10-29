@@ -9701,6 +9701,10 @@ def ml_analysis(
         try:
             from catboost import CatBoostClassifier
         except ImportError:
+            from .regression_backends import _python315_backend_refusal
+            limitation = _python315_backend_refusal('catboost')
+            if limitation:
+                raise ImportError(limitation) from None
             raise ImportError("model_type='catboost' requires the 'catboost' package. Install it with: pip install catboost")
         model = CatBoostClassifier(iterations=n_estimators, learning_rate=learning_rate, l2_leaf_reg=reg_lambda, random_state=random_state, thread_count=n_jobs, verbose=False)
     elif model_type == 'svm':

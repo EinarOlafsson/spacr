@@ -522,6 +522,38 @@ environment. It includes spaCR's desktop and core dependencies:
    conda install conda-forge::spacr
    spacr
 
+Python 3.15 on Linux
+~~~~~~~~~~~~~~~~~~~~
+
+Use the nightly source in a new Linux Conda environment for Python 3.15.
+The current PyPI release excludes this interpreter and pip can fall back
+to an older spaCR release. Install the Linux build packages listed above
+before running this recipe; some native dependencies still build from source.
+
+.. code-block:: bash
+
+   conda create -n spacr15 --override-channels -c conda-forge python=3.15 pip cvxopt tabmat h5py "libsqlite=3.54.1=h0737f62_101" -y
+   conda activate spacr15
+   python -m pip install --upgrade pip
+   python -m pip install --index-url https://download.pytorch.org/whl/cpu torch torchvision
+   python -m pip install "git+https://github.com/EinarOlafsson/spacr.git@nightly"
+   python -m pip install --force-reinstall --only-binary=:all: "scipy>=1.18,<2"
+   python -m pip check
+   spacr
+
+For a local source checkout, replace the Git URL with ``.``. The selected SQLite build and SciPy wheel
+reinstallation prevent a C++ runtime mismatch between Conda libraries and the
+PyPI Torch/Qt libraries; complete all Conda installations before these pip
+steps. The CPU Torch command does not install a CUDA runtime.
+
+Python 3.15 uses scikit-image 0.27.0rc1 (a release candidate) or newer below
+0.28 because that line provides its image-processing wheels. The optional
+pyfixest, CatBoost, PyMC and Piper speech packages are not installed by default
+on this interpreter because compatible upstream binaries or dependencies are
+missing. Existing Python 3.14
+requirements and scientific defaults are unchanged. This recipe is qualified
+on Linux x86_64; Windows is untested and macOS retains its older Qt requirement.
+
 PyPI installation and extras
 ----------------------------
 

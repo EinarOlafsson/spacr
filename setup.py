@@ -253,12 +253,14 @@ dependencies = [
     # so an in-app `uv pip install --upgrade spacr` moved numpy to 2.x. Python
     # 3.13 on an Intel Mac gets no torch and no numpy 1.x wheel, so it is left
     # out. opencv 4.12 requires numpy 2 and follows the same split.
-    'numpy>=1.26.4,<3.0; sys_platform != "darwin" or platform_machine != "x86_64" or python_version >= "3.13"',
+    'numpy>=1.26.4,<3.0; python_version < "3.15" and (sys_platform != "darwin" or platform_machine != "x86_64" or python_version >= "3.13")',
+    'numpy>=2.5.2,<3.0; python_version >= "3.15"',
     'numpy>=1.26.4,<2.0; sys_platform == "darwin" and platform_machine == "x86_64" and python_version < "3.13"',
     'pandas>=2.2.1,<4.0',
     'scipy>=1.12.0,<2.0',
     'cellpose>=4.0.7,<5.0',
-    'scikit-image>=0.22.0,<0.28',
+    'scikit-image>=0.22.0,<0.28; python_version < "3.15"',
+    'scikit-image>=0.27.0rc1,<0.28; python_version >= "3.15"',
     # Measure's texture confluency calls skimage.restoration.estimate_sigma,
     # which imports PyWavelets internally even though spaCR never imports pywt.
     'PyWavelets>=1.4,<2',
@@ -269,7 +271,7 @@ dependencies = [
     'patsy>=0.5.6,<2.0',
     'shap>=0.47.0,<1.0',
     'torch>=2.0,<3.0; sys_platform != "darwin" or platform_machine != "x86_64" or python_version < "3.13"',
-    'pyfixest>=0.40.1,<1; python_version >= "3.10" and (sys_platform != "darwin" or python_version >= "3.11")',
+    'pyfixest>=0.40.1,<1; python_version >= "3.10" and python_version < "3.15" and (sys_platform != "darwin" or python_version >= "3.11")',
     'glum>=3.1.2,<4; python_version >= "3.10"',
     'gpytorch>=1.11,<2; python_version >= "3.10"',
     'tensorboard>=2.21,<3.0',
@@ -284,7 +286,9 @@ dependencies = [
     'matplotlib_venn>=1.1,<2.0',
     'pypdf>=6.16.1,<7.0',
     'cycler>=0.10,<1',
-    'PySide6>=6.6,!=6.12.0,<7; sys_platform != "darwin"', 'PySide6>=6.6,<6.11; sys_platform == "darwin"',
+    'PySide6>=6.6,!=6.12.0,<7; sys_platform != "darwin" and python_version < "3.15"',
+    'PySide6>=6.12,<7; sys_platform != "darwin" and python_version >= "3.15"',
+    'PySide6>=6.6,<6.11; sys_platform == "darwin"',
     'qtawesome>=1.3,<2',
     'pyqtgraph>=0.13.3,<1',
     'mpmath>=1.3,<2',
@@ -345,7 +349,7 @@ dependencies = [
     # for non-version Linux kernels instead of parsing them as version values.
     # Darwin releases still use the same numeric deployment boundaries.
     'btrack<1.0,>=0.7.0; python_version >= "3.10" and (sys_platform != "darwin" or python_version < "3.14" or "24" <= platform_release)',
-    'catboost<2.0,>=1.2; python_version >= "3.10"',
+    'catboost<2.0,>=1.2; python_version >= "3.10" and python_version < "3.15"',
     'duckdb<3,>=1.1; python_version >= "3.10"',
     'faiss-cpu<2,>=1.7.4; python_version >= "3.10" and (sys_platform != "darwin" or python_version < "3.14" or "23" <= platform_release)',
     'fsspec>=2023.1; python_version >= "3.10"',
@@ -365,11 +369,11 @@ dependencies = [
     'numcodecs<1,>=0.12; python_version >= "3.10"',
     'numpyro<1.0,>=0.13; python_version >= "3.10"',
     'pdfplumber<1,>=0.11; python_version >= "3.10"',
-    'piper-tts<2,>=1.2; (sys_platform != "darwin" or platform_machine != "x86_64" or python_version < "3.14") and python_version >= "3.10" and (sys_platform != "darwin" or python_version < "3.14" or "23" <= platform_release)',
+    'piper-tts<2,>=1.2; python_version < "3.15" and (sys_platform != "darwin" or platform_machine != "x86_64" or python_version < "3.14") and python_version >= "3.10" and (sys_platform != "darwin" or python_version < "3.14" or "23" <= platform_release)',
     'psycopg[binary]<4,>=3.1; python_version >= "3.10"',
     'pycromanager<2,>=0.28; python_version >= "3.10"',
     'pylibCZIrw<7.0,>=5.0.0; (python_version < "3.14") and python_version >= "3.10" and (sys_platform != "darwin" or platform_machine != "x86_64")',
-    'pymc<7,>=5.10; python_version >= "3.10"',
+    'pymc<7,>=5.10; python_version >= "3.10" and python_version < "3.15"',
     'rdkit>=2023.3; python_version >= "3.10"',
     's3fs>=2023.1; python_version >= "3.10"',
     'samcell<2.0,>=1.2; python_version >= "3.10"',
@@ -500,12 +504,18 @@ setup(
         'full': ['opencv-python'],
         'sweep': ['threadpoolctl>=3.0,<4'],
         'qt': [
-            'PySide6>=6.6,!=6.12.0,<7; sys_platform != "darwin"', 'PySide6>=6.6,<6.11; sys_platform == "darwin"',
+            'PySide6>=6.6,!=6.12.0,<7; sys_platform != "darwin" and python_version < "3.15"',
+            'PySide6>=6.12,<7; sys_platform != "darwin" and python_version >= "3.15"',
+            'PySide6>=6.6,<6.11; sys_platform == "darwin"',
             'qtawesome>=1.3,<2',
             'pyqtgraph>=0.13.3,<1',
             'win10toast>=0.9; platform_system == "Windows"',
         ],
-        'flowview': ['PySide6>=6.6,!=6.12.0,<7; sys_platform != "darwin"', 'PySide6>=6.6,<6.11; sys_platform == "darwin"'],
+        'flowview': [
+            'PySide6>=6.6,!=6.12.0,<7; sys_platform != "darwin" and python_version < "3.15"',
+            'PySide6>=6.12,<7; sys_platform != "darwin" and python_version >= "3.15"',
+            'PySide6>=6.6,<6.11; sys_platform == "darwin"',
+        ],
         'flow-gpu': [
             'moderngl>=5.12,<6; sys_platform != "darwin" or platform_machine != "x86_64"',
             'moderngl>=5.12,<5.13; sys_platform == "darwin" and platform_machine == "x86_64"',
@@ -513,10 +523,12 @@ setup(
         ],
         'fractal': ['vispy>=0.14,<1.0'],
         'tutorial': [
-            'PySide6>=6.6,!=6.12.0,<7; sys_platform != "darwin"', 'PySide6>=6.6,<6.11; sys_platform == "darwin"',
+            'PySide6>=6.6,!=6.12.0,<7; sys_platform != "darwin" and python_version < "3.15"',
+            'PySide6>=6.12,<7; sys_platform != "darwin" and python_version >= "3.15"',
+            'PySide6>=6.6,<6.11; sys_platform == "darwin"',
             'qtawesome>=1.3,<2',
             'win10toast>=0.9; platform_system == "Windows"',
-            'piper-tts>=1.2,<2; (sys_platform != "darwin" or '
+            'piper-tts>=1.2,<2; python_version < "3.15" and (sys_platform != "darwin" or '
             'platform_machine != "x86_64" or python_version < "3.14") and '
             '(sys_platform != "darwin" or python_version < "3.14" or '
             '"23" <= platform_release)',
@@ -552,12 +564,14 @@ setup(
         'microscope': ['pycromanager>=0.28,<2'],
 
         'all': [
-            'PySide6>=6.6,!=6.12.0,<7; sys_platform != "darwin"', 'PySide6>=6.6,<6.11; sys_platform == "darwin"',
+            'PySide6>=6.6,!=6.12.0,<7; sys_platform != "darwin" and python_version < "3.15"',
+            'PySide6>=6.12,<7; sys_platform != "darwin" and python_version >= "3.15"',
+            'PySide6>=6.6,<6.11; sys_platform == "darwin"',
             'qtawesome>=1.3,<2',
             'pyqtgraph>=0.13.3,<1',
             'vispy>=0.14,<1.0',
             'win10toast>=0.9; platform_system == "Windows"',
-            'piper-tts>=1.2,<2; (sys_platform != "darwin" or '
+            'piper-tts>=1.2,<2; python_version < "3.15" and (sys_platform != "darwin" or '
             'platform_machine != "x86_64" or python_version < "3.14") and '
             '(sys_platform != "darwin" or python_version < "3.14" or '
             '"23" <= platform_release)',
