@@ -156,6 +156,36 @@ def test_move_to_chan_folder(tmp_path, rng):
     assert any(any(d.glob("*.tif")) for d in chan_dirs)
 
 
+def test_indexed_scanr_requires_explicit_well_identity_before_sorting(tmp_path):
+    """A W index survives refusal, then maps to its reviewed physical well."""
+    from spacr.io import (_move_to_chan_folder,
+                          _rename_and_organize_image_files)
+    from spacr.utils import _get_regex
+
+    src = tmp_path / "plate1"
+    src.mkdir()
+    image = src / "--W00002--P00009--Z00000--T00000--DAPI.tif"
+    pixels = np.arange(48, dtype=np.uint16).reshape(6, 8)
+    tifffile.imwrite(image, pixels)
+    before = image.read_bytes()
+    regex = _get_regex("scanr_indexed", ".tif", None)
+    with pytest.raises(ValueError, match="CSV map.*plate, index and well"):
+        _move_to_chan_folder(str(src), regex, metadata_type="scanr_indexed")
+    assert list(src.iterdir()) == [image]
+    assert image.read_bytes() == before
+
+    mapping = tmp_path / "well-map.csv"
+    mapping.write_text("plate,index,well\nplate1,W00002,E01\n")
+    count = _rename_and_organize_image_files(
+        str(src), regex, metadata_type="scanr_indexed",
+        metadata_well_map=str(mapping), save_original_images=True)
+    assert count == 1
+    stacks = list((src / "stack").glob("*.npy"))
+    assert len(stacks) == 1 and stacks[0].name.startswith("plate1_E01_9_")
+    np.testing.assert_array_equal(np.load(stacks[0])[..., 0], pixels)
+    assert (src / "orig" / image.name).read_bytes() == before
+
+
 # ---------------------------------------------------------------------------
 # multi-dimensional / non-tif splitting
 # ---------------------------------------------------------------------------

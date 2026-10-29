@@ -346,6 +346,30 @@ def test_real_blosc_metadata_reopens_the_compressed_uint16_pixels(tmp_path):
     np.testing.assert_array_equal(data, before)
 
 
+
+def test_real_zstd_extra_reopens_pixels_without_standard_library_zstd(
+        tmp_path, monkeypatch):
+    """The optional codec preserves its requested level on older Pythons."""
+    import json
+
+    numcodecs = pytest.importorskip("numcodecs")
+
+    def unavailable():
+        raise ImportError("No compression.zstd", name="compression.zstd")
+
+    monkeypatch.setattr(oz, "_stdlib_zstd", unavailable)
+    data = np.arange(32 * 48, dtype=np.uint16).reshape(32, 48)
+    folder = tmp_path / "zstd.ome.zarr"
+    oz.write_ome_zarr(folder, data, compressor="zstd", compression_level=7,
+                      chunks=data.shape, dimension_separator=".")
+    metadata = json.loads((folder / "0" / ".zarray").read_text())
+    assert metadata["compressor"] == numcodecs.Zstd(level=7).get_config()
+    raw = numcodecs.get_codec(metadata["compressor"]).decode(
+        (folder / "0" / "0.0").read_bytes())
+    np.testing.assert_array_equal(np.frombuffer(raw, dtype=data.dtype).reshape(data.shape), data)
+    np.testing.assert_array_equal(oz.read_ome_zarr(folder).read(), data)
+
+
 def test_an_encoder_numcodecs_refuses_to_build_names_the_codec(monkeypatch):
     """A write must fail before it produces chunks nothing can read.
 

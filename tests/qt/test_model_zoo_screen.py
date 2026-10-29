@@ -797,7 +797,26 @@ def bioimage_collection(qtbot, monkeypatch, tmp_path):
 
     from PySide6.QtCore import QSettings, QThread
     from spacr.qt.widgets import model_zoo_picker
+    from spacr.qt.screens import model_zoo as screen_module
+    import sys
 
+    make_thread = screen_module.make_thread
+
+    def traced_thread(fn, *args, **kwargs):
+        def traced(payload):
+            previous = sys.gettrace()
+            inherited = threading.gettrace()
+            installed = previous is None and inherited is not None
+            if installed:
+                sys.settrace(inherited)
+            try:
+                return fn(payload)
+            finally:
+                if installed:
+                    sys.settrace(previous)
+        return make_thread(traced, *args, **kwargs)
+
+    monkeypatch.setattr(screen_module, 'make_thread', traced_thread)
     home = tmp_path / 'private-home'
     monkeypatch.setattr(zoo, '_spacr_home', lambda: home)
     monkeypatch.setattr(zoo, 'shared_catalogue', lambda **kwargs: [])
@@ -1017,10 +1036,12 @@ def test_closing_owned_bioimage_fetch_keeps_rows_without_late_delivery(
     monkeypatch.setenv('SPACR_NO_NETWORK', '0')
     assert screen.sources.set_on('bioimage.io', True)
     qtbot.waitUntil(state['entered'].is_set)
+    QTimer.singleShot(0, lambda: screen.sources.set_on('bioimage.io', False))
     QTimer.singleShot(0, state['release'].set)
     assert screen.close()
     qtbot.waitUntil(lambda: screen.active_jobs() == 0)
     assert not screen.isVisible()
+    assert not screen.sources.is_on('bioimage.io')
     assert screen.entries() == original_entries
     assert not deliveries
     assert (state['home'] / 'bioimageio_children.json').is_file()
@@ -1085,3 +1106,52 @@ def test_accepted_community_intent_survives_a_failed_owned_scan(
         assert state['local'].read_bytes() == state['original']
     finally:
         release.set()
+
+
+@pytest.mark.parametrize("interruption", ["permission-revoked", "provider-error"])
+def test_bioimage_scan_interruption_keeps_local_models_and_can_retry(
+        bioimage_collection, qtbot, monkeypatch, interruption):
+    """Permission at worker start and a broken provider cannot consume retry."""
+    from spacr import crashreport
+    from spacr.qt.screens import model_zoo as screen_module
+
+    state = bioimage_collection
+    screen = state['widget']
+    permission = {'allowed': True}
+    monkeypatch.setattr(crashreport, 'network_allowed', lambda: permission['allowed'])
+    real_thread = screen_module.make_thread
+    real_entries = zoo.bioimageio_entries
+    failed = []
+
+    def start_with_current_permission(fn, payload):
+        def run(value):
+            if interruption == 'permission-revoked':
+                permission['allowed'] = False
+            fn(value)
+        return real_thread(run, payload)
+
+    def provider(allow_network=False):
+        if allow_network and interruption == 'provider-error' and not failed:
+            failed.append(True)
+            raise ValueError('Controlled invalid provider collection')
+        return real_entries(allow_network=allow_network)
+
+    monkeypatch.setattr(screen_module, 'make_thread', start_with_current_permission)
+    monkeypatch.setattr(zoo, 'bioimageio_entries', provider)
+    deliveries = []
+    screen.models_listed.connect(deliveries.append)
+    assert screen.sources.set_on('bioimage.io', True)
+    qtbot.waitUntil(lambda: not screen.is_busy() and screen.active_jobs() == 0)
+    assert deliveries and not state['calls']
+    assert any(entry.path == str(state['local']) for entry in screen.entries())
+    assert state['local'].read_bytes() == state['original']
+    assert not screen.last_error
+
+    permission['allowed'] = True
+    monkeypatch.setattr(screen_module, 'make_thread', real_thread)
+    assert screen.scan()
+    qtbot.waitUntil(lambda: not screen.is_busy() and screen.active_jobs() == 0)
+    assert sum(url == zoo.BIOIMAGEIO_COLLECTION for url, _ in state['calls']) == 1
+    assert any(entry.key == 'bioimageio_controlled_cellpose_sam'
+               for entry in screen.entries())
+    assert state['local'].read_bytes() == state['original']
