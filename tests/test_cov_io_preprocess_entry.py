@@ -84,10 +84,12 @@ def _fake_rename(n_files=4, n_channels=2, shape=(8, 8)):
     rec = _Rec(ret=n_channels)
 
     def _f(src, regex, batch_size, metadata_type, img_format, timelapse=False,
-           save_original_images=True):
+           save_original_images=True, metadata_well_map=None, source_plate=None):
         rec.calls.append(((src, regex, batch_size, metadata_type, img_format),
                           {"timelapse": timelapse,
-                           "save_original_images": save_original_images}))
+                           "save_original_images": save_original_images,
+                           "metadata_well_map": metadata_well_map,
+                           "source_plate": source_plate}))
         stack = os.path.join(src, "stack")
         os.makedirs(stack, exist_ok=True)
         for i in range(n_files):
@@ -520,6 +522,8 @@ def test_channel_count_mismatch_rewrites_settings_channels(tmp_path, capsys, mon
     out_settings, _ = preprocess_img_data(settings)
 
     assert rename_rec.n == 1
+    assert rename_rec.calls[0][1]["metadata_well_map"] == ""
+    assert rename_rec.calls[0][1]["source_plate"] == "plate1"
     assert out_settings["channels"] == [0, 1, 2]
     out = capsys.readouterr().out
     assert "Number of channels does not match number of channel folders" in out
