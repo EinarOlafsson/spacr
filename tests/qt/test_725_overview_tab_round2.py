@@ -692,3 +692,102 @@ def test_well_mean_reference_canvas_pdf_keeps_its_original_pixels_after_live_set
     assert view._selected_wells == {("p1", "A02")}
     assert tab._settings_model._read_value("overview_color_mode") == "cmy"
     assert {path.name: path.read_bytes() for path in folder.glob("*.tif")} == original
+
+
+def test_cancelled_image_completion_cannot_change_a_reopened_source_bound_canvas(
+        private_ai_profile, qtbot, tmp_path, monkeypatch):
+    import threading
+
+    from PySide6.QtCore import QCoreApplication, QEvent
+    from PySide6.QtTest import QSignalSpy
+    from shiboken6 import isValid
+    from spacr.qt.screens.app_screen import AppScreen
+    from spacr.qt.bridge import prune_parked_threads
+
+    folder = tmp_path / "lifecycle-source"
+    folder.mkdir()
+    plane = np.arange(192, dtype=np.uint16).reshape(12, 16)
+    for well in WELLS:
+        for field in (1, 2):
+            tifffile.imwrite(folder / f"p1-{well}-f{field}-c1.tif", plane + field)
+    originals = {path.name: path.read_bytes() for path in folder.glob("*.tif")}
+    expected = np.repeat(np.uint8(plane.astype(np.float32) / 191. * 255.)[..., None], 3, axis=2)
+    first = AppScreen("mask")
+    first.resize(1400, 1000)
+    first.show()
+    release, entered, completed = (threading.Event() for _ in range(3))
+    try:
+        tab, view = _open(first, qtbot, folder)
+        page = tab._overview_page
+        model = tab._settings_model
+        for key, value in (("overview_color_mode", "greys"),
+                           ("overview_percentile_low", 0.), ("overview_percentile_high", 100.)):
+            model.set_value_for_key(key, value)
+        page._apply_bar.apply_button.click()
+        qtbot.waitUntil(lambda: view._normalization_ready and not view._index_jobs.is_busy(), timeout=15000)
+        item = view.wells.item(*view._well_positions[("p1", "A01")])
+        qtbot.mouseClick(view.wells.viewport(), Qt.LeftButton, Qt.ControlModifier,
+                        pos=view.wells.visualItemRect(item).center())
+        composer = view._open_custom_export()
+        next(button for button in composer.findChildren(QPushButton)
+             if button.text() == browser.tr("Add selected")).click()
+        qtbot.waitUntil(lambda: not composer._preview_jobs.is_busy()
+                        and len(composer.canvas.pages[0]) == 2, timeout=15000)
+        for box in composer.canvas.pages[0]:
+            np.testing.assert_array_equal(composer._reader()(box, None), expected)
+        saved = composer.save_layout(tmp_path / "before-close.json")
+        captured = composer.canvas.to_dict()
+        composer.close()
+        _open_well(view, qtbot, "A01")
+        qtbot.waitUntil(lambda: not view._image_jobs.is_busy(), timeout=15000)
+        real_submit = view._image_jobs.submit
+
+        def paused_submit(read, *args, **kwargs):
+            def actual_read():
+                entered.set()
+                if not release.wait(15):
+                    raise TimeoutError("the lifecycle test did not release the real image read")
+                try:
+                    return read()
+                finally:
+                    completed.set()
+            return real_submit(actual_read, *args, **kwargs)
+
+        monkeypatch.setattr(view._image_jobs, "submit", paused_submit)
+        field = view.fields.item(0)
+        qtbot.mouseDClick(view.fields.viewport(), Qt.LeftButton,
+                         pos=view.fields.visualItemRect(field).center())
+        qtbot.waitUntil(entered.is_set, timeout=15000)
+        cancelled = view._cancelled
+        destroyed = QSignalSpy(view.destroyed)
+        page.stop()
+        assert cancelled.is_set()
+        first.close()
+        first.deleteLater()
+        QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+        assert not isValid(first) and destroyed.count() == 1
+        release.set()
+        qtbot.waitUntil(completed.is_set, timeout=15000)
+        qtbot.waitUntil(lambda: prune_parked_threads() == 0, timeout=15000)
+        QCoreApplication.processEvents()
+        assert {path.name: path.read_bytes() for path in folder.glob("*.tif")} == originals
+
+        reopened = AppScreen("mask")
+        qtbot.addWidget(reopened, before_close_func=lambda widget: _close(widget, qtbot))
+        reopened.resize(1400, 1000)
+        reopened.show()
+        restored_tab, restored_view = _open(reopened, qtbot, folder)
+        assert restored_tab._settings_model._read_value("src") == str(folder)
+        assert len(restored_view._fields) == 6
+        restored = restored_view._open_custom_export()
+        assert restored.open_layout(saved)
+        assert restored.canvas.to_dict() == captured
+        for box in restored.canvas.pages[0]:
+            np.testing.assert_array_equal(restored._reader()(box, None), expected)
+        assert {path.name: path.read_bytes() for path in folder.glob("*.tif")} == originals
+        restored.close()
+    finally:
+        release.set()
+        if isValid(first):
+            _close(first, qtbot)
+            first.deleteLater()
