@@ -13229,13 +13229,13 @@
       "scenes": [
         {
           "visual": "01_graph_builder_host",
-          "narration": "Na tela Home, abra Graph Builder e depois Small Multiples. Use esta visualização para comparar as mesmas medições entre grupos. Este exemplo usa o banco de dados de medições disponível no tutorial do Annotate indicado.",
+          "narration": "Abra Graph Builder e depois Small Multiples. Use esta visualização para comparar as mesmas medições entre grupos. Este exemplo usa o banco de dados de medições disponível no tutorial do Annotate indicado.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "58_graph_builder"
           ],
-          "speech_text": "Na tela Home, abra Graph Builder e depois Small Multiples. Use esta visualização para comparar as mesmas medições entre grupos. Este exemplo usa o banco de dados de medições disponível no tutorial do Annotate indicado."
+          "speech_text": "Abra Graph Builder e depois Small Multiples. Use esta visualização para comparar as mesmas medições entre grupos. Este exemplo usa o banco de dados de medições disponível no tutorial do Annotate indicado."
         },
         {
           "visual": "03_choose_real_measurements",

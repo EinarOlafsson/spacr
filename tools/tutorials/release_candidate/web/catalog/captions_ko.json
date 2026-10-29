@@ -12359,7 +12359,7 @@
       "scenes": [
         {
           "visual": "01_graph_builder_host",
-          "narration": "Home에서 Graph Builder를 연 뒤 Small Multiples를 여세요. 이 화면에서 같은 측정값을 그룹 간에 비교합니다. 이 예제는 연결된 Annotate 튜토리얼에서 받을 수 있는 측정 데이터베이스를 씁니다.",
+          "narration": "Graph Builder를 연 뒤 Small Multiples를 여세요. 이 화면에서 같은 측정값을 그룹 간에 비교합니다. 이 예제는 연결된 Annotate 튜토리얼에서 받을 수 있는 측정 데이터베이스를 씁니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
