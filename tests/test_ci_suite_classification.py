@@ -278,6 +278,30 @@ def test_qt_measurement_suites_run_after_xdist_workers_exit():
     assert f"--exclude-file {structural}" not in coverage
 
 
+def test_fractal_cpu_budget_runs_strictly_without_coverage_tracing():
+    """Keep the strict CPU measurement in Qt's mandatory untraced tail."""
+    import yaml
+
+    filename = "tests/qt/test_spaceout_fractals_move_and_stay_in_budget.py"
+    node = f"{filename}::test_no_setting_can_ask_for_more_than_half_a_frame"
+    coverage = yaml.safe_load(WORKFLOW.read_text())["jobs"]["coverage-shards"]
+    steps = [step["run"] for step in coverage["steps"] if "run" in step]
+    assert sum(step.count(f"--deselect={node}") for step in steps) == 1
+    assert not any(f"--exclude-file {filename}" in step for step in steps)
+
+    reusable = REUSABLE.read_text()
+    tail = reusable.split('if [ "${{ inputs.run_serial_tail }}" = "true" ]; then', 1)[1].split("\n          fi", 1)[0]
+    assert tail.count(filename) == 1
+    assert "python -m pytest" in tail and "--cov" not in tail
+    assert "SPACR_PYTEST_FILE_SHARD_INDEX=0" in tail
+    assert "SPACR_PYTEST_FILE_SHARD_COUNT=1" in tail
+    assert "--deselect" not in tail and "--ignore" not in tail
+    qt = yaml.safe_load(WORKFLOW.read_text())["jobs"]["qt"]
+    assert qt["with"]["run_serial_tail"] == "${{ matrix.shard == 2 }}"
+    assert 2 in qt["strategy"]["matrix"]["shard"]
+    assert qt["with"]["marker_expression"] == "qt and not slow and not heavy and not gpu and not network and not nas and not gui"
+
+
 def _torch_routing_nodes(filename, node):
     tree = ast.parse((ROOT / filename).read_text(encoding="utf-8"))
     original_nodes = {
