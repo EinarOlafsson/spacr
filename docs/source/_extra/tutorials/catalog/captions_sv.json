@@ -10189,7 +10189,7 @@
       "scenes": [
         {
           "visual": "01_graph_builder_host",
-          "narration": "Från Home öppnar du Graph Builder och sedan Small Multiples. Använd vyn för att jämföra samma mätningar mellan grupper. Exemplet använder mätdatabasen från den länkade Annotate-handledningen.",
+          "narration": "Öppna Graph Builder och sedan Small Multiples. Använd vyn för att jämföra samma mätningar mellan grupper. Exemplet använder mätdatabasen från den länkade Annotate-handledningen.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",

@@ -12359,7 +12359,7 @@
       "scenes": [
         {
           "visual": "01_graph_builder_host",
-          "narration": "Frá Home opnarðu Graph Builder og svo Small Multiples. Notaðu þessa sýn til að bera saman sömu mælingar milli hópa. Dæmið notar mælingagagnagrunninn úr tengda Annotate-kennsluefninu.",
+          "narration": "Opnaðu Graph Builder og svo Small Multiples. Notaðu þessa sýn til að bera saman sömu mælingar milli hópa. Dæmið notar mælingagagnagrunninn úr tengda Annotate-kennsluefninu.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",

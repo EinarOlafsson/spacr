@@ -12359,7 +12359,7 @@
       "scenes": [
         {
           "visual": "01_graph_builder_host",
-          "narration": "Öffnen Sie von Home aus Graph Builder und dann Small Multiples. In dieser Ansicht vergleichen Sie dieselben Messwerte zwischen Gruppen. Dieses Beispiel verwendet die Messdatenbank aus dem verlinkten Annotate-Tutorial.",
+          "narration": "Öffnen Sie Graph Builder und dann Small Multiples. In dieser Ansicht vergleichen Sie dieselben Messwerte zwischen Gruppen. Dieses Beispiel verwendet die Messdatenbank aus dem verlinkten Annotate-Tutorial.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",

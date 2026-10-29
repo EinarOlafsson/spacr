@@ -10210,7 +10210,7 @@
       "scenes": [
         {
           "visual": "01_graph_builder_host",
-          "narration": "From Home, open Graph Builder, then Small Multiples. Use this view to compare the same measurements across groups. This example uses the measurements database available from the linked Annotate tutorial.",
+          "narration": "Open Graph Builder, then Small Multiples. Use this view to compare the same measurements across groups. This example uses the measurements database available from the linked Annotate tutorial.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
