@@ -200,3 +200,45 @@ def test_object_readout_averages_raw_rgb_channels_and_preserves_exact_ids():
     assert lookup.at(1, 0).intensity == 6
     assert lookup.measure(900) == (2, 9)
     np.testing.assert_array_equal(lookup.labels, mask)
+
+
+def test_unavailable_curation_drive_has_no_masks_or_persisted_choices(tmp_path):
+    root = tmp_path / 'disconnected-drive'
+    target = engine._default_curated_folder(str(root), today='20261029')
+    assert target == str(root / 'masks_curated_20261029')
+    assert not engine._layer_has_objects(str(root), 'field.tif')
+    assert engine._write_layer_settings(str(root), {'base': 'masks'}) is None
+    assert not root.exists()
+
+
+def test_disabled_cleanup_and_empty_filter_inputs_create_no_mask_edits():
+    labels = np.zeros((6, 8), np.uint16)
+    labels[2:4, 3:5] = 73
+    untouched = engine.remove_small_objects(labels, min_area=0)
+    np.testing.assert_array_equal(untouched, labels)
+    assert untouched is not labels
+    for empty in (None, np.empty((0, 8), np.uint16), np.zeros_like(labels)):
+        result, changes = engine.apply_filters(empty, None, [{'property': 'area', 'min': 100}])
+        assert result is empty and changes == []
+
+
+def test_collapsed_curation_view_draws_no_overlay_and_keeps_labels():
+    labels = np.zeros((6, 8), np.uint16)
+    labels[2:4, 3:5] = 73
+    before = labels.copy()
+    overlay = engine._layer_outline_view([(labels, '#22cc88', True)], labels, 0,
+                                         bounds=(0, 0, 8, 6), size=(0, 6), thickness=1)
+    assert overlay is None
+    np.testing.assert_array_equal(labels, before)
+
+
+def test_curation_without_a_base_keeps_prior_removals_and_drops_absent_merge_ids():
+    labels = np.zeros((6, 8), np.uint16)
+    labels[2:4, 3:5] = 73
+    log = engine._layer_decisions('field.tif', None, None, labels, {},
+                                  previous={'removed': [5, 73],
+                                            'merged': [{'layer': 'old', 'ids': [12], 'source_ids': [1]}]},
+                                  saved='2026-10-29T12:00:00')
+    assert log['removed'] == [5] and log['added'] == []
+    assert 'merged' not in log and log['base_layer'] is None
+    assert log['saved'] == '2026-10-29T12:00:00'

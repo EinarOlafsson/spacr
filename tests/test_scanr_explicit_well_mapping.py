@@ -220,3 +220,36 @@ def test_indexed_scanr_malformed_late_orig_name_refuses_before_any_mutation(tmp_
         preprocess_img_data({'src': str(source), 'metadata_type': 'scanr_indexed',
                              'metadata_well_map': mapping, 'test_mode': True})
     assert _snapshot(tmp_path) == before
+
+
+@pytest.mark.parametrize('problem', ['unmatched_index', 'unscoped_mapping', 'non_csv_file', 'wrong_columns'])
+def test_indexed_scanr_unusable_map_sources_refuse_before_any_output(tmp_path, problem):
+    """Only a reviewed local CSV or plate-scoped mapping may authorize ingestion."""
+    from dataclasses import replace
+    from spacr import convert
+
+    source = tmp_path / 'plate'
+    _images(source)
+    sources = convert.scan(str(source))
+    mapping = {('plate', 'W00002'): 'B07'}
+    if problem == 'unmatched_index':
+        sources = [replace(item, well=None) for item in sources]
+        expected = 'filename convention'
+    elif problem == 'unscoped_mapping':
+        mapping = {'W00002': 'B07'}
+        expected = 'both plate and W index'
+    elif problem == 'wrong_columns':
+        mapping = tmp_path / 'wells.csv'
+        mapping.write_text('index,well\nW00002,B07\n')
+        expected = 'exactly plate,index,well columns'
+    else:
+        mapping = tmp_path / 'wells.txt'
+        mapping.write_text('plate,index,well\nplate,W00002,B07\n')
+        expected = 'local well map CSV'
+    before = _snapshot(tmp_path)
+    planned = convert.plan(sources, well_map=mapping)
+    assert not planned.ok and not planned.mappings
+    assert any(expected in error for error in planned.errors)
+    with pytest.raises(convert.ConfigurationError):
+        convert.convert(planned, str(tmp_path / 'output'))
+    assert _snapshot(tmp_path) == before

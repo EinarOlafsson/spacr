@@ -611,3 +611,47 @@ def test_no_selected_plate_keeps_condition_instructions_and_reserved_numeric_ids
     assert [guided.measurement_list.item(index).data(Qt.UserRole)
             for index in range(guided.measurement_list.count())] == ['signal']
     assert guided.sides['measurements'].isEnabled()
+
+
+def test_not_loaded_well_pick_preserves_selection_and_saved_canvas_then_loaded_pick_exports(
+        view, qtbot, source, tmp_path):
+    import copy
+
+    original_bytes = {path.name: path.read_bytes() for path in source.iterdir()}
+    view._set_load_limits(1, None)
+    view.plates.setCurrentIndex(view.plates.findData("p1"))
+    composer = view._open_custom_export()
+    loaded = view.wells.item(*view._well_positions[("p1", "A01")])
+    loaded.setSelected(True)
+    composer.add_text(36, 36, 180, 36, text="Keep this caption")
+    before = copy.deepcopy(composer.canvas.pages)
+    selection = set(view._selected_wells)
+    not_loaded = next(view.wells.item(row, column)
+                      for row in range(view.wells.rowCount())
+                      for column in range(view.wells.columnCount())
+                      if view.wells.item(row, column) is not None
+                      and view.wells.item(row, column).data(browser._OVERVIEW_NOT_LOADED_ROLE))
+    assert not not_loaded.flags() & Qt.ItemIsEnabled
+    position = view.wells.visualItemRect(not_loaded).center()
+    assert view.wells.itemAt(position) is not_loaded
+
+    qtbot.mouseClick(view.wells.viewport(), Qt.LeftButton,
+                     Qt.ControlModifier | Qt.ShiftModifier, pos=position)
+
+    assert composer.canvas.pages == before
+    assert set(view._selected_wells) == selection
+    assert loaded.isSelected()
+    assert view._canvas_drags._press is None
+    path = composer.save_layout(tmp_path / "kept-layout.json")
+    assert composer.open_layout(path)
+    assert composer.canvas.pages == before
+    qtbot.mouseClick(view.wells.viewport(), Qt.LeftButton,
+                     Qt.ControlModifier | Qt.ShiftModifier,
+                     pos=view.wells.visualItemRect(loaded).center())
+    assert _wells_on(composer.canvas.pages[0]) == [("p1", "A01", str(field)) for field in (1, 2, 3)]
+    composer.export_pdf(str(tmp_path / "loaded-only.pdf"))
+    qtbot.waitUntil(lambda: composer.last_export is not None, timeout=60000)
+    reader = PdfReader(composer.last_export)
+    assert len(reader.pages) == 1 and len(reader.pages[0].images) == 3
+    assert "Keep this caption" in reader.pages[0].extract_text()
+    assert {path.name: path.read_bytes() for path in source.iterdir()} == original_bytes

@@ -3,6 +3,7 @@ import ast
 import copy
 import gzip
 import hashlib
+import importlib
 import json
 from pathlib import Path
 import sys
@@ -40,7 +41,7 @@ def test_actual_source_and_reviews_reproduce_original_catalog_pin(state):
     digest = hashlib.sha256('\0'.join(f'{table}\0{key}' for table,key in sorted(
         (table,key) for table,rows in pinned.items() for key in rows)).encode()).hexdigest()
     assert digest==declarations['EXTERNAL_SOURCE_KEY_SHA256']
-    from spacr.qt.i18n_catalogs import en
+    en = importlib.import_module('spacr.qt.i18n_catalogs.en')
     assert set(external['UI'])==set(en.UI_SOURCES)
     assert sum(map(len,external.values()))>sum(map(len,pinned.values()))
 

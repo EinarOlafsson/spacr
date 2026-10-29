@@ -187,3 +187,49 @@ def test_invalid_npy_folder_and_disappearing_folder_refuse_honestly(screen, tmp_
     assert not screen.open_paths([invalid])
     assert 'source disappeared' in screen.warnings[-1][1]
     assert screen._canvas.image is None
+
+
+@pytest.mark.parametrize('entry', ['picker', 'first-in-queue', 'later-in-queue'])
+def test_cancelled_numeric_channel_keeps_the_displayed_field_and_its_masks(
+        screen, qtbot, tmp_path, monkeypatch, entry):
+    from PIL import Image
+
+    raster = tmp_path / 'initial.png'
+    Image.fromarray(np.arange(24 * 32, dtype=np.uint8).reshape(24, 32)).save(raster)
+    selected = tmp_path / 'channels.npy'
+    np.save(selected, np.arange(24 * 32 * 2, dtype=np.uint16).reshape(24, 32, 2))
+    originals = {path: path.read_bytes() for path in (raster, selected)}
+    assert screen.open_paths([raster])
+    _settle(qtbot, screen)
+    displayed = screen._canvas.image.copy()
+    target = screen._masks_dir
+    previous_views = dict(engine._NPY_IMAGE_VIEWS)
+    prompts = []
+    monkeypatch.setattr(QInputDialog, 'getItem', lambda *args: ('YXC', True))
+
+    def cancel_channel(parent, title, prompt, current, minimum, maximum):
+        assert parent is screen and title == 'NPY image layout'
+        assert 'Label-mask planes are not imported automatically' in prompt
+        assert (current, minimum, maximum) == (0, 0, 1)
+        prompts.append('channel')
+        return 0, False
+
+    monkeypatch.setattr(QInputDialog, 'getInt', cancel_channel)
+    if entry == 'picker':
+        assert not screen._on_pick_file(str(selected))
+    elif entry == 'first-in-queue':
+        assert not screen._open_queue([str(selected), str(raster)])
+    else:
+        assert screen.open_paths([raster, selected])
+        _settle(qtbot, screen)
+        screen._go_to_index(1)
+        _settle(qtbot, screen)
+        assert screen._image_files == [raster.name, selected.name]
+    assert prompts == ['channel']
+    assert screen._current_index == 0 and screen._folder == str(tmp_path)
+    assert screen._masks_dir == target and not screen.warnings
+    np.testing.assert_array_equal(screen._canvas.image, displayed)
+    assert not screen._canvas.mask.any()
+    assert engine._NPY_IMAGE_VIEWS == previous_views
+    assert str(selected) not in screen._npy_queue_targets
+    assert all(path.read_bytes() == content for path, content in originals.items())
