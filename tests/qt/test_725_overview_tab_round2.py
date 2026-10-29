@@ -421,3 +421,88 @@ def test_missing_restoration_model_refuses_cleanly_and_still_shows_the_original(
                     timeout=30000)
     assert "Cellpose 3 is not installed" in view.status.text()
     qtbot.waitUntil(lambda: view.view._item is not None and view.view._item.pixmap().width() == 600, timeout=20000)
+
+
+def test_object_mask_picker_refuses_an_image_folder_before_next_without_changing_the_source(
+        mask, qtbot, source, tmp_path, monkeypatch):
+    from PySide6.QtWidgets import QFileDialog
+
+    mask._settings_model.set_value_for_key("src", str(source))
+    _icon(mask).trigger()
+    tab = mask._overview_tab
+    page = tab._overview_page
+    wizard = page.wizard
+    qtbot.waitUntil(lambda: not wizard._runner._jobs, timeout=15000)
+    assert page.browser is None and page.stack.currentWidget() is wizard
+    model = tab._settings_model
+    edit = model._widgets["overview_objects_path"]
+    original = edit.text()
+    images = tmp_path / "ordinary-images"
+    images.mkdir()
+    path = images / "labels.tif"
+    tifffile.imwrite(path, np.ones((12, 16), dtype=np.uint16))
+    original_bytes = path.read_bytes()
+    monkeypatch.setattr(QFileDialog, "getExistingDirectory", lambda *args: str(images))
+
+    assert browser._overview_choose_object_masks(edit, page) is None
+
+    assert edit.text() == original
+    assert path.read_bytes() == original_bytes
+    assert page.browser is None and page.stack.currentWidget() is wizard
+    assert wizard.source.text() == str(source)
+
+
+def test_module_export_action_restores_settings_and_reopens_a_source_bound_canvas(
+        mask, qtbot, source, tmp_path):
+    import copy
+
+    import spacr.plot  # noqa: F401 -- load plotting on the GUI thread before export
+    from pypdf import PdfReader
+
+    tab, view = _open(mask, qtbot, source)
+    original_bytes = {path.name: path.read_bytes() for path in source.glob("*.tif")}
+    body = tab._body_splitter
+    collapsed = body.is_collapsed("Settings")
+    item = view.wells.item(*view._well_positions[("p1", "A01")])
+    qtbot.mouseClick(view.wells.viewport(), Qt.LeftButton, Qt.ControlModifier,
+                     pos=view.wells.visualItemRect(item).center())
+    assert view._selected_wells == {("p1", "A01")}
+    assert view._scope[1] is None
+    tab._runtime_splitter.set_collapsed("Actions", False, by_user=True)
+    button = tab._btn_overview_pdfs
+    qtbot.waitUntil(button.isVisible, timeout=15000)
+    button.click()
+    menu = view._export_menu_shown
+    assert menu.isVisible()
+    menu.actions()[1].trigger()
+    menu.close()
+    composer = view._canvas_composer
+    assert body.is_collapsed("Settings")
+    add = next(button for button in composer.findChildren(QPushButton)
+               if button.text() == browser.tr("Add selected"))
+    add.click()
+    images = composer.canvas.pages[0]
+    assert [(box["source"]["plate"], box["source"]["well"], box["source"]["field"])
+            for box in images] == [("p1", "A01", "1"), ("p1", "A01", "2")]
+    path = composer.save_layout(tmp_path / "module-canvas.json")
+    saved = copy.deepcopy(composer.canvas.pages)
+    composer.close()
+    assert view._export_dock is None
+    assert body.is_collapsed("Settings") == collapsed
+    assert view._selected_wells == {("p1", "A01")}
+    assert tab._settings_model._read_value("src") == str(source)
+    button.click()
+    menu = view._export_menu_shown
+    menu.actions()[1].trigger()
+    menu.close()
+    restored = view._canvas_composer
+    assert restored is not composer and restored.open_layout(path)
+    assert restored.canvas.pages == saved
+    restored.export_pdf(str(tmp_path / "module-canvas.pdf"))
+    qtbot.waitUntil(lambda: restored.last_export is not None, timeout=60000)
+    reader = PdfReader(restored.last_export)
+    assert len(reader.pages) == 1 and len(reader.pages[0].images) == 2
+    assert {image.image.size for image in reader.pages[0].images} == {(600, 400)}
+    restored.close()
+    assert body.is_collapsed("Settings") == collapsed
+    assert {path.name: path.read_bytes() for path in source.glob("*.tif")} == original_bytes

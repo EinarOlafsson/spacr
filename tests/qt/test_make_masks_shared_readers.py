@@ -85,6 +85,41 @@ def test_real_tiff_series_time_z_and_channel_keep_separate_masks(screen, qtbot, 
     assert path.read_bytes() == original
 
 
+def test_native_tiff_reopen_replaces_pixels_shape_identity_and_json_calibration(screen, qtbot, tmp_path):
+    path = tmp_path / 'acquisition.tif'
+    first = np.arange(24 * 32, dtype=np.uint16).reshape(24, 32)
+    tifffile.imwrite(path, first, metadata={'axes': 'YX', 'pixel_size_nm': 17.25},
+                     resolution=(1e7 / 91, 1e7 / 91), resolutionunit='CENTIMETER')
+    original = path.read_bytes()
+    assert screen.open_paths([path])
+    _settle(qtbot, screen)
+    np.testing.assert_array_equal(screen._canvas.image, first)
+    first_header = engine._current_native_image_header(path)
+    assert first_header['series'][0]['shape'] == first.shape
+    assert first_header['series'][0]['pixel_size_nm'] == pytest.approx(17.25)
+    assert engine.pixel_size_nm(path) == pytest.approx(17.25)
+    assert path.read_bytes() == original
+
+    replacement = tmp_path / 'replacement.tif'
+    second = np.arange(28 * 36, dtype=np.uint16).reshape(28, 36)[::-1].copy()
+    tifffile.imwrite(replacement, second, metadata={'axes': 'YX', 'pixel_size_nm': 3.5},
+                     resolution=(1e7 / 203, 1e7 / 203), resolutionunit='CENTIMETER')
+    replacement.replace(path)
+    updated = path.read_bytes()
+    assert screen.open_paths([path])
+    _settle(qtbot, screen)
+    second_header = engine._current_native_image_header(path)
+    assert second_header['identity'] != first_header['identity']
+    assert second_header['identity'] == engine._source_identity(path)
+    assert second_header['series'][0]['shape'] == second.shape
+    assert second_header['series'][0]['pixel_size_nm'] == pytest.approx(3.5)
+    np.testing.assert_array_equal(engine.read_image(path), second)
+    np.testing.assert_array_equal(screen._canvas.image, second)
+    assert engine.pixel_size_nm(path) == pytest.approx(3.5)
+    assert screen._image_files == [path.name] and not screen.warnings
+    assert path.read_bytes() == updated
+
+
 @pytest.mark.parametrize('suffix', ['.gif', '.webp'])
 def test_installed_raster_reader_uses_real_bytes_and_explicit_frame_channel(screen, qtbot, tmp_path, monkeypatch, suffix):
     path = tmp_path / ('color' + suffix)
@@ -581,3 +616,53 @@ def test_uncalibrated_tiff_header_does_not_import_pipeline_libraries(tmp_path, m
     assert header['series'][0]['dtype'] == 'uint16'
     assert header['series'][0]['pixel_size_nm'] is None
     assert source.read_bytes() == before
+
+
+@pytest.mark.parametrize('decision', ['axes-cancel', 'plane-cancel', 'superseded', 'accept'])
+def test_unrecorded_tiff_axes_require_a_current_explicit_plane_choice(
+        screen, qtbot, tmp_path, monkeypatch, decision):
+    initial = tmp_path / 'initial.png'
+    Image.fromarray(np.arange(24 * 32, dtype=np.uint8).reshape(24, 32)).save(initial)
+    assert screen.open_paths([initial])
+    _settle(qtbot, screen)
+    displayed = screen._canvas.image.copy()
+    state = (list(screen._image_files), screen._folder, screen._current_index, screen._masks_dir)
+    selected = tmp_path / 'unrecorded-axes.tif'
+    pixels = np.arange(2 * 24 * 32, dtype=np.uint16).reshape(2, 24, 32)
+    tifffile.imwrite(selected, pixels, photometric='minisblack', metadata={'axes': 'RYX'})
+    original = selected.read_bytes()
+    prompts = []
+
+    def choose_axes(parent, title, prompt, choices, current, editable):
+        assert parent is screen and title == 'Image axes'
+        assert '(2, 24, 32)' in prompt
+        assert choices == ['ZYX', 'CYX', 'YXC', 'TYX']
+        assert current == 0 and editable is False
+        prompts.append('axes')
+        return 'CYX', decision != 'axes-cancel'
+
+    def choose_channel(parent, title, prompt, current, minimum, maximum):
+        assert parent is screen and title == 'Image plane'
+        assert 'Image channel' in prompt
+        assert (current, minimum, maximum) == (0, 0, 1)
+        prompts.append('channel')
+        if decision == 'superseded':
+            assert screen.open_paths([initial])
+        return 1, decision != 'plane-cancel'
+
+    monkeypatch.setattr(QInputDialog, 'getItem', choose_axes)
+    monkeypatch.setattr(QInputDialog, 'getInt', choose_channel)
+    assert screen.open_paths([selected])
+    _settle(qtbot, screen)
+    assert prompts == (['axes'] if decision == 'axes-cancel' else ['axes', 'channel'])
+    assert selected.read_bytes() == original and not screen.warnings
+    if decision == 'accept':
+        np.testing.assert_array_equal(screen._canvas.image, pixels[1])
+        view = engine._current_container_image_view(selected)
+        assert view['axes'] == 'CYX' and view['channel'] == 1
+        assert screen._image_files == [selected.name] and not screen._canvas.mask.any()
+    else:
+        np.testing.assert_array_equal(screen._canvas.image, displayed)
+        assert (screen._image_files, screen._folder, screen._current_index, screen._masks_dir) == state
+        assert engine._current_container_image_view(selected) is None
+        assert engine._current_native_image_header(selected) is None

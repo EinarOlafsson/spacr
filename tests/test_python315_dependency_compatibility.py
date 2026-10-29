@@ -106,3 +106,43 @@ def test_python315_retains_the_central_scientific_stack():
     assert {'numpy', 'pandas', 'scipy', 'scikit-image', 'scikit-learn',
             'torch', 'torchvision', 'cellpose', 'numba', 'llvmlite',
             'statsmodels', 'pywavelets', 'opencv-python-headless'} <= selected
+
+
+def test_modeled_new_interpreter_keeps_optional_backend_refusals_consistent(monkeypatch):
+    """The status, install offer and both classifier routes share one policy.
+
+    Model the policy input locally; actual-interpreter controls above remain
+    separate and are still required by the Python 3.15 compatibility job.
+    """
+    import sys
+    from collections import namedtuple
+    from types import SimpleNamespace
+
+    from spacr import hyperparam, ml, power_model, regression_backends as backends
+    from tests.test_cov_ml_ml_scores import COMMON, _feature_df
+
+    version = namedtuple('Version', 'major minor micro releaselevel serial')
+    monkeypatch.setattr(backends, 'sys', SimpleNamespace(
+        version_info=version(3, 15, 0, 'final', 0)))
+    monkeypatch.setattr(backends, 'package_installed', lambda name: False)
+    monkeypatch.setattr(power_model, '_module_installed', lambda name: False)
+    monkeypatch.setitem(sys.modules, 'catboost', None)
+    expected = 'Python 3.15.*Python 3.14'
+    for family in (None, 'ols'):
+        status = backends.backend_status('pyfixest', family)
+        assert not status['enabled'] and not status['pip']
+        assert 'Python 3.15' in status['reason'] and 'Python 3.14' in status['reason']
+        offer = backends.backend_install_offer('pyfixest', family)
+        assert offer.action == 'elsewhere'
+        assert 'Python 3.14' in offer.message
+    with pytest.raises(power_model.PowerFitError, match='pymc.*' + expected):
+        power_model.resolve_backend('pymc')
+    with pytest.raises(ImportError, match='catboost.*' + expected):
+        hyperparam.build_sklearn_model('catboost', {'n_estimators': 5}, n_jobs=1)
+    frame = _feature_df(per_class=20)
+    before = frame.copy(deep=True)
+    with pytest.raises(ImportError, match='catboost.*' + expected):
+        ml.ml_analysis(frame, positive_control='c2', negative_control='c1',
+                       model_type='catboost', n_estimators=5, verbose=False, **COMMON)
+    import pandas as pd
+    pd.testing.assert_frame_equal(frame, before)

@@ -240,3 +240,34 @@ def test_a_first_open_that_cannot_get_the_turn_still_opens(qapp, monkeypatch):
     assert opened == ["stuck"]
     assert window._opening_a_screen is False
     assert not appmod._A_FIRST_OPEN_WAITS.is_set()
+
+
+def test_quit_during_first_open_priority_releases_the_warm_without_taking_the_turn(monkeypatch):
+    waiting = threading.Event()
+    waiting.set()
+    stopping = threading.Event()
+    stopping.set()
+    turn = threading.Lock()
+    monkeypatch.setattr(appmod, '_A_FIRST_OPEN_WAITS', waiting)
+    monkeypatch.setattr(appmod, '_BACKGROUND_WARMS_STOPPING', stopping)
+    monkeypatch.setattr(appmod, '_DATA_LIBRARY_TURN', turn)
+    with appmod._the_data_library_turn() as acquired:
+        assert acquired is False
+        assert not turn.locked()
+    assert waiting.is_set()
+
+
+def test_abandoned_first_open_priority_expires_and_the_warm_can_finish(monkeypatch):
+    waiting = threading.Event()
+    waiting.set()
+    stopping = threading.Event()
+    turn = threading.Lock()
+    monkeypatch.setattr(appmod, '_A_FIRST_OPEN_WAITS', waiting)
+    monkeypatch.setattr(appmod, '_BACKGROUND_WARMS_STOPPING', stopping)
+    monkeypatch.setattr(appmod, '_DATA_LIBRARY_TURN', turn)
+    monkeypatch.setattr(appmod, '_DATA_LIBRARY_YIELD_S', 0)
+    with appmod._the_data_library_turn() as acquired:
+        assert acquired is True
+        assert turn.locked()
+        assert not waiting.is_set()
+    assert not turn.locked()

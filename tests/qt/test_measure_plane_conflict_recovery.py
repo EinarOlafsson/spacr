@@ -129,3 +129,29 @@ def test_mixed_sources_do_not_offer_one_layout_for_all(tmp_path, monkeypatch):
     screen = SimpleNamespace(apply_settings_dict=applied.append)
     assert not app_screen.AppScreen._confirm_measure_plane_layout(screen, settings)
     assert not applied and _Dialog.created[-1].button is None
+
+
+def test_run_keeps_conflicting_plane_settings_and_source_until_recovery_is_accepted(
+        qtbot, tmp_path, monkeypatch):
+    merged, manifest = _source(tmp_path)
+    before = manifest.read_bytes()
+    screen = app_screen.AppScreen('measure')
+    qtbot.addWidget(screen)
+    settings = _settings(merged)
+    monkeypatch.setattr(screen, '_wait_for_the_entry_import', lambda override: False)
+    monkeypatch.setattr(app_screen, 'resolve_pipeline_entry', lambda key: lambda value: None)
+    monkeypatch.setattr(screen, '_claim_the_project', lambda value: True)
+    monkeypatch.setattr(app_screen, 'QMessageBox', _Dialog)
+    monkeypatch.setattr(_Dialog, 'accept', False)
+    monkeypatch.setattr(app_screen, 'make_thread',
+                        lambda *args, **kwargs: pytest.fail('conflicting planes launched a worker'))
+    try:
+        screen._on_run(override=settings)
+        assert settings['pathogen_mask_dim'] == '3'
+        assert manifest.read_bytes() == before
+        assert screen._btn_run.isEnabled()
+        assert getattr(screen, '_worker', None) is None
+        assert 'pathogen_mask_dim' in _Dialog.created[-1].text
+        assert not (tmp_path / 'measurements').exists()
+    finally:
+        screen.close()

@@ -164,3 +164,53 @@ def test_missing_cli_or_unavailable_pty_never_launches_accounts(setup_dialog, mo
     assert 'terminal on this platform' in dialog._provider_rows['claude'][3].text()
     providers[1].installed = False
     assert dialog._provider_login_argv(providers[1]) == []
+
+
+def test_failed_native_signin_refreshes_actual_status_and_missing_cli_stays_disabled(
+        setup_dialog, qtbot, monkeypatch):
+    from spacr.qt.ai import pty_sign_in
+    dialog, providers = setup_dialog
+    provider = providers[0]
+    monkeypatch.setattr(pty_sign_in, 'pty_available', lambda: True)
+    def refuse(*args, **kwargs):
+        raise OSError('native terminal unavailable')
+    monkeypatch.setattr(pty_sign_in, 'SignInDialog', refuse)
+    dialog._sign_in_provider(provider)
+    qtbot.waitUntil(lambda: bool(provider.checked)
+                    and dialog._provider_rows[provider.name][3].text() == 'Not signed in.')
+    provider.installed = False
+    dialog._sign_in_provider(provider)
+    qtbot.waitUntil(lambda: dialog._provider_rows[provider.name][2].text() == 'missing')
+    assert not dialog._provider_rows[provider.name][4].isEnabled()
+    assert dialog._provider_login_argv(_Provider('unknown')) == []
+
+
+@pytest.mark.parametrize('failure', ['already_gone', 'kill_timeout', 'batch_login'])
+def test_owned_console_is_singleton_and_closure_releases_even_failed_native_cleanup(
+        setup_dialog, monkeypatch, failure):
+    dialog, providers = setup_dialog
+    launches = []
+    class Uncooperative(_Process):
+        def terminate(self):
+            self.stopped.append('terminate')
+            if failure == 'already_gone':
+                raise OSError('process disappeared')
+        def kill(self):
+            self.stopped.append('kill')
+    process = Uncooperative()
+    monkeypatch.setattr(subprocess, 'Popen', lambda *a, **k: launches.append(a) or process)
+    provider = providers[1]
+    argv = ['C:/codex.exe', 'login']
+    if failure == 'batch_login':
+        monkeypatch.setenv('COMSPEC', r'C:\Windows\System32\cmd.exe')
+        argv = ['C:/Program Files/codex.cmd', 'login']
+    dialog._start_windows_sign_in(provider, argv)
+    timer = dialog._provider_signins[provider.name][1]
+    dialog._start_windows_sign_in(provider, argv)
+    assert len(launches) == 1 and timer.isActive()
+    if failure == 'batch_login':
+        assert launches[0][0] == r'C:\Windows\System32\cmd.exe /d /s /c ""C:/Program Files/codex.cmd" login"'
+    dialog.reject()
+    assert not timer.isActive() and not dialog._provider_signins
+    assert process.stopped == (['terminate'] if failure == 'already_gone'
+                               else ['terminate', 0.1, 'kill', 0.1])
