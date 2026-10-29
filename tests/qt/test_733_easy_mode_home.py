@@ -1333,6 +1333,20 @@ def test_graph_keyboard_and_field_wheel_preserve_the_real_borrowed_anchor(
         rectangle = QRect(source.mapToGlobal(QPoint()), source.size())
         chosen = QSignalSpy(workflow.view.chosen)
         node = next(node for node in workflow.view.nodes.values() if node.isVisible())
+        workflow.view.ensureVisible(node)
+        visible = workflow.view.mapFromScene(node.sceneBoundingRect()).boundingRect().intersected(
+            workflow.view.viewport().rect())
+        assert not visible.isEmpty()
+        point = visible.center()
+        selected_before = workflow._chosen_key
+        opened = QSignalSpy(page.module_requested)
+        qtbot.mouseClick(workflow.view.viewport(), Qt.RightButton, pos=point)
+        assert chosen.count() == 0 and opened.count() == 0
+        qtbot.mousePress(workflow.view.viewport(), Qt.LeftButton, pos=point)
+        qtbot.mouseMove(workflow.view.viewport(), QPoint(-20, -20))
+        qtbot.mouseRelease(workflow.view.viewport(), Qt.LeftButton, pos=QPoint(-20, -20))
+        assert not node._pressed and chosen.count() == 0 and opened.count() == 0
+        assert workflow._chosen_key == selected_before and workflow.central is source
         for key in (Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space):
             workflow.view.scene().sendEvent(node, QKeyEvent(QEvent.KeyPress, key, Qt.NoModifier))
         assert chosen.count() == 3 and all(chosen.at(index) == [node.key] for index in range(3))
