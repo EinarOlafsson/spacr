@@ -279,3 +279,112 @@ def test_annotations_follow_a_plate_from_one_source_to_several(qtbot, plates):
     qtbot.waitUntil(lambda: both._annotation_snapshot().get(("plateA", "A01"), {}).get("cell") == "HeLa",
                     timeout=10000)
     assert ("plateB", "A01") not in both._annotation_snapshot()
+
+
+def _regex_wizard(qtbot, source, pattern):
+    wizard = browser._OverviewMetadataWizard(str(source), {"custom_regex": pattern})
+    wizard._startup_timer.stop()
+    qtbot.addWidget(wizard)
+    wizard.scope.setCurrentIndex(wizard.scope.findData("folder"))
+    wizard._scan()
+    qtbot.waitUntil(lambda: wizard.next.isEnabled() and not wizard._runner.is_busy(), timeout=15000)
+    return wizard
+
+
+def _plate_row(wizard, path):
+    return next(row for row in range(wizard.plate_table.rowCount())
+                if wizard.plate_table.item(row, 2).text() == str(path))
+
+
+def _parsed_identities(wizard):
+    return {(field.source, field.plate_id, field.well, field.field_id, field.files)
+            for field in wizard._fields}
+
+
+def _gate_real_wizard_scans(monkeypatch):
+    import threading
+
+    started, release = threading.Event(), threading.Event()
+    scan = browser._overview_wizard_scan
+
+    def gated(*args, **kwargs):
+        started.set()
+        if not release.wait(10):
+            raise TimeoutError("The test did not release the actual filename scan")
+        return scan(*args, **kwargs)
+
+    monkeypatch.setattr(browser, "_overview_wizard_scan", gated)
+    return started, release
+
+
+def test_applying_first_plate_settings_supersedes_an_inflight_table_regex(qtbot, plates, monkeypatch):
+    first, second = plates
+    source_bytes = {path: path.read_bytes() for folder in plates for path in folder.glob("*.tif")}
+    wizard = _regex_wizard(qtbot, f"{first}; {second}", PATTERN)
+    expected = _parsed_identities(wizard)
+    row = _plate_row(wizard, first)
+    name = wizard.plate_table.item(row, 0)
+    name.setText("Control plate")
+    assert wizard._plate_names == {"plateA": "Control plate"}
+    name.setText("plateA")
+    assert wizard._plate_names == {}
+    started, release = _gate_real_wizard_scans(monkeypatch)
+    try:
+        wizard.plate_table.item(row, 4).setText(PATTERN + "$")
+        qtbot.waitUntil(started.is_set, timeout=10000)
+        assert wizard._plate_regex == {str(first): PATTERN + "$"}
+        wizard.plate_table.cellWidget(row, 5).click()
+        assert wizard._plate_regex == {}
+        release.set()
+        qtbot.waitUntil(lambda: wizard.next.isEnabled() and not wizard._runner.is_busy(), timeout=15000)
+        assert _parsed_identities(wizard) == expected
+        configuration = wizard.configuration()
+        assert configuration["custom_regex"] == PATTERN
+        assert configuration["plate_regex"] == {}
+        assert configuration["plate_names"] == {}
+        assert {field.source for field in wizard._fields} == {str(first), str(second)}
+        assert all(path.read_bytes() == pixels for path, pixels in source_bytes.items())
+    finally:
+        release.set()
+        qtbot.waitUntil(lambda: wizard._runner.active_jobs() == 0, timeout=15000)
+        wizard.reject()
+
+
+def test_autodetection_finishes_while_editing_the_second_plate_then_applies_to_all(qtbot, tmp_path, monkeypatch):
+    from PySide6.QtWidgets import QPushButton
+    from spacr.qt.regex_detect import CANONICAL
+
+    plates = [tmp_path / name for name in ("plateA", "plateB")]
+    for index, folder in enumerate(plates):
+        folder.mkdir()
+        for channel in (1, 2):
+            tifffile.imwrite(folder / f"p{index + 1}_A01_F1_C{channel}.tif",
+                             np.full((24, 32), 100 + 10 * index + channel, dtype=np.uint16))
+    source_bytes = {path: path.read_bytes() for folder in plates for path in folder.glob("*.tif")}
+    wizard = _regex_wizard(qtbot, str(tmp_path), CANONICAL)
+    expected = _parsed_identities(wizard)
+    started, release = _gate_real_wizard_scans(monkeypatch)
+    try:
+        wizard.preset.setCurrentIndex(wizard.preset.findData("auto"))
+        qtbot.waitUntil(started.is_set, timeout=10000)
+        wizard.plate_table.setCurrentCell(_plate_row(wizard, plates[1]), 0)
+        assert wizard._edited_plate == str(plates[1])
+        assert wizard.regex.text() == ""
+        release.set()
+        qtbot.waitUntil(lambda: wizard.next.isEnabled() and not wizard._runner.is_busy(), timeout=15000)
+        assert wizard._default_regex == CANONICAL
+        assert wizard.regex.text() == ""
+        assert wizard._edited_plate == str(plates[1])
+        assert _parsed_identities(wizard) == expected
+        wizard.plate_table.setCurrentCell(_plate_row(wizard, plates[0]), 0)
+        assert wizard.regex.text() == CANONICAL
+        wizard.findChild(QPushButton, "OverviewWizardApplyAll").click()
+        qtbot.waitUntil(lambda: wizard.next.isEnabled() and not wizard._runner.is_busy(), timeout=15000)
+        assert wizard.configuration()["custom_regex"] == CANONICAL
+        assert wizard.configuration()["plate_regex"] == {}
+        assert _parsed_identities(wizard) == expected
+        assert all(path.read_bytes() == pixels for path, pixels in source_bytes.items())
+    finally:
+        release.set()
+        qtbot.waitUntil(lambda: wizard._runner.active_jobs() == 0, timeout=15000)
+        wizard.reject()
