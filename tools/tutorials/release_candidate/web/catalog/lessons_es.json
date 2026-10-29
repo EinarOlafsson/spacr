@@ -14834,7 +14834,7 @@
       "scenes": [
         {
           "visual": "01_classify_host",
-          "narration": "Desde Home, abre Classify y elige Explain CV Model arriba a la derecha. Prepara la base de datos de mediciones y las predicciones guardadas de los mismos objetos recortados.",
+          "narration": "Abre Classify y elige Explain CV Model arriba a la derecha. Prepara la base de datos de mediciones y las predicciones guardadas de los mismos objetos recortados.",
           "focus": [
             3579,
             100,
@@ -14846,7 +14846,7 @@
             "39_classifier_evaluation"
           ],
           "hold_after": 0.7,
-          "speech_text": "Desde Home, abre Classify y elige Explain CV Model arriba a la derecha. Prepara la base de datos de mediciones y las predicciones guardadas de los mismos objetos recortados."
+          "speech_text": "Abre Classify y elige Explain CV Model arriba a la derecha. Prepara la base de datos de mediciones y las predicciones guardadas de los mismos objetos recortados."
         },
         {
           "visual": "04_recorded_predictions_picker",
@@ -14963,7 +14963,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

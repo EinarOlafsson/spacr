@@ -14834,7 +14834,7 @@
       "scenes": [
         {
           "visual": "01_classify_host",
-          "narration": "HomeからClassifyを開き、右上のExplain CV Modelを選びます。同じ切り出し画像の物体について、測定データベースと保存した予測を用意します。",
+          "narration": "Classifyを開き、右上のExplain CV Modelを選びます。同じ切り出し画像の物体について、測定データベースと保存した予測を用意します。",
           "focus": [
             3579,
             100,
@@ -14846,7 +14846,7 @@
             "39_classifier_evaluation"
           ],
           "hold_after": 0.7,
-          "speech_text": "ホームからClassifyを開き、右上のExplain CV Modelを選びます。同じ切り出し画像の物体について、測定データベースと保存した予測を用意します。"
+          "speech_text": "Classifyを開き、右上のExplain CV Modelを選びます。同じ切り出し画像の物体について、測定データベースと保存した予測を用意します。"
         },
         {
           "visual": "04_recorded_predictions_picker",
@@ -14963,7 +14963,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
