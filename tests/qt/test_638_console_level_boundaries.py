@@ -130,3 +130,32 @@ def test_fragmented_worker_headers_keep_warning_error_and_traceback(console, qtb
     panel.append_stdout('[INF')
     qtbot.waitUntil(lambda: '[INF' in panel.as_text())
     assert not panel._stdout_prefix_fragment
+
+
+def test_filter_changes_preserve_chained_tracebacks_without_leaking_warnings(console):
+    panel, preferences = console
+    preferences._settings().setValue(preferences._KEY_LOG_CONSOLE_LEVELS, 'ERROR,CRITICAL')
+    panel._on_log_record('hidden warning\n', logging.WARNING)
+    panel.append_warning('another hidden warning\n')
+    panel.append_stdout('UserWarning: hidden raw warning\n')
+    panel.append_stdout('Traceback (most recent call last):\n  original frame\n'
+                        'ValueError: first failure\n\n'
+                        'During handling of the above exception, another exception occurred:\n'
+                        'Traceback (most recent call last):\n  second frame\n'
+                        'RuntimeError: final failure\n')
+    text = panel.as_text()
+    assert 'hidden' not in text
+    assert all(part in text for part in ('original frame', 'first failure',
+                                        'During handling', 'second frame', 'final failure'))
+    panel.append_stdout('[INF')
+    panel._flush_stdout_prefix()
+    panel._flush_stdout_prefix()
+    preferences._settings().setValue(preferences._KEY_LOG_CONSOLE_LEVELS, 'WARNING')
+    panel._display_error('hidden after error-level change')
+    assert 'hidden after' not in panel.as_text()
+    panel._on_log_records([('hidden queued info\n', logging.INFO)])
+    panel._flush_log_records()
+    assert 'hidden queued' not in panel.as_text()
+    current = panel.as_text()
+    panel._on_log_records([])
+    assert panel.as_text() == current

@@ -134,3 +134,94 @@ def test_navigator_lower_box_uses_actual_shared_reply_renderer(qtbot, private_ai
     assert page.field.details.isVisible()
     assert not page.field.details.grab().isNull()
     page.close()
+
+
+def test_legacy_answer_layout_preserves_heading_body_lists_and_inline_emphasis(qtbot):
+    from spacr.qt.widgets.console_panel import _StdoutBlock
+
+    block = _StdoutBlock()
+    qtbot.addWidget(block)
+    block.show_markdown('**Summary**: Review\n\nUse **masks** safely.\n'
+                        '- first\n* second\n\n# Details\n**Next steps**\nKeep originals.\n\n')
+    block.resize(440, 320)
+    block.show()
+    assert block.toPlainText() == ('Summary\nReview\n\nUse masks safely.\n'
+                                   '• first\n• second\n\nDetails\n\nNext steps\nKeep originals.')
+    assert block.document().find('masks').charFormat().fontWeight() >= QFont.Bold
+    assert block.document().find('Summary').charFormat().fontWeight() >= QFont.Bold
+    assert not block.grab().isNull()
+    block.set_user_height(180)
+    assert block.height() == 180
+    block.reset_user_height()
+    assert block.maximumHeight() > 180
+    block.show_markdown('**Use** caution. 1. Inspect masks. 2. Keep originals.')
+    assert block.toPlainText() == 'Use caution.\n1. Inspect masks.\n2. Keep originals.'
+    assert block.document().find('Use').charFormat().fontWeight() >= QFont.Bold
+
+
+def test_streamed_reply_cap_copy_passive_resources_and_close_form_one_lifecycle(qtbot):
+    from PySide6.QtCore import QPoint
+    from spacr.qt.widgets.console_panel import _AiReplyBlock
+
+    block = _AiReplyBlock()
+    qtbot.addWidget(block)
+    block.resize(440, 200)
+    block.show()
+    block.append('')
+    assert not block._reply_flush.isActive()
+    # Retain the real production cap: a long response must lose its oldest text.
+    block.append('discarded prefix\n' + ('older words ' * (block.MAX_CHARS // 12 + 1)))
+    block.append('\n**Final answer**\n- Keep `raw.npy`.\n- Inspect **masks**.')
+    qtbot.waitUntil(lambda: 'Inspect masks.' in block.toPlainText())
+    assert 'discarded prefix' not in block.toPlainText()
+    assert block._reply_chars <= block.MAX_CHARS
+    assert 'Keep raw.npy.' in block.toPlainText()
+    assert block._rich_view.loadResource(QTextDocument.ImageResource,
+                                         QUrl('file:///private/not-a-resource.png')) is None
+    assert block.link_at(QPoint(0, 0)) == ''
+    block.set_user_height(180)
+    assert block.sizeHint().height() == 180
+    block.reset_user_height()
+    assert block.sizeHint().height() >= 32
+    block.append('\nPending final chunk')
+    assert block._reply_flush.isActive()
+    block.close()
+    assert not block._reply_flush.isActive()
+
+
+def test_qt_child_observer_can_measure_and_show_a_reply_during_native_construction(qtbot, qapp):
+    from PySide6.QtCore import QEvent, QObject
+    from spacr.qt.widgets.console_panel import _AiReplyBlock
+
+    observations = []
+
+    class InitialLayout(QObject):
+        def eventFilter(self, watched, event):
+            if event.type() != QEvent.ChildAdded:
+                return False
+            parent = watched.parent()
+            if (isinstance(parent, _AiReplyBlock) and watched is parent.viewport()
+                    and hasattr(parent, '_reply_parts') and parent._rich_view is None):
+                observations.append((parent.toPlainText(), parent.sizeHint()))
+                parent.resize(480, 160)
+                parent.show()
+            return False
+
+    observer = InitialLayout()
+    qapp.installEventFilter(observer)
+    try:
+        block = _AiReplyBlock()
+        qtbot.addWidget(block)
+    finally:
+        qapp.removeEventFilter(observer)
+    assert len(observations) == 1
+    text, initial_size = observations[0]
+    assert text == '' and initial_size.width() > 0 and initial_size.height() >= 32
+    block.resize(500, 220)
+    block.show_markdown('**Completed answer**\n\n- Keep original images.\n- Inspect masks.')
+    assert 'Completed answer' in block.toPlainText()
+    assert 'Keep original images.' in block.toPlainText()
+    assert block._rich_view.geometry() == block.viewport().rect()
+    assert block.sizeHint().height() >= 32
+    assert not block.grab().isNull()
+    block.close()

@@ -171,3 +171,27 @@ def test_an_undeclared_plugin_count_remains_an_integer_editor(
     saved = model.collect()
     assert saved["plugin_iterations"] == 19
     assert type(saved["plugin_iterations"]) is int
+
+
+def test_retired_combo_wrapper_does_not_prevent_the_remaining_form_from_being_named(qtbot, monkeypatch):
+    from PySide6.QtWidgets import QComboBox
+    from shiboken6 import delete, isValid
+
+    monkeypatch.setenv(i18n.ENV_LANGUAGE, 'en')
+    form = QWidget()
+    qtbot.addWidget(form)
+    layout = QFormLayout(form)
+    retired, survivor = QComboBox(form), QComboBox(form)
+    retired.addItem('old option')
+    survivor.addItem('current option')
+    layout.addRow('Retired selector', retired)
+    layout.addRow('Current selector', survivor)
+    i18n.retranslate_widget_tree(form)
+    assert retired.accessibleName() == 'Retired selector'
+    assert survivor.accessibleName() == 'Current selector'
+    delete(retired)
+    assert not isValid(retired)
+    with pytest.raises(RuntimeError, match='deleted'):
+        i18n._a11y_effective_name(retired)
+    i18n.retranslate_widget_tree(form)
+    assert survivor.accessibleName() == 'Current selector'

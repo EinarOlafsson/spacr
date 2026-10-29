@@ -301,3 +301,27 @@ def test_frequency_apply_revert_keeps_preferences_open(private_preferences, qtbo
     question = _apply(dialog, qtbot)
     _answer(question, 'Keep', qtbot)
     assert prefs._field_popup_wave_frequency() == 12.3
+
+
+def test_navigator_search_only_mode_keeps_unrelated_controls_and_popups_still(qtbot, monkeypatch):
+    monkeypatch.setattr(ambient.AmbientWidget, '_start_producer', lambda self: None)
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    owner.setProperty('spacrEasySearchRippleOnly', True)
+    owner.resize(400, 300)
+    field = ambient.AmbientWidget(owner, theme='data_art_impulse_lens',
+                                  gravity_radius=0, popup_wave_frequency=30)
+    field.setGeometry(owner.rect())
+    ordinary = QDoubleSpinBox(owner)
+    ordinary.setObjectName('unrelated setting')
+    owner.show()
+    field._timer.stop()
+    before = ambient._CONTAINER_RIPPLES[0]
+    ambient._field_column_ripple_for_widget(ordinary)
+    assert ambient._CONTAINER_RIPPLES[0] == before
+    assert field._popup_wave_origin_for_tick() is None
+    assert not field.engine._popup_waves
+    owner.setProperty('spacrEasySearchRippleOnly', False)
+    ambient._field_column_ripple_for_widget(ordinary)
+    assert ambient._CONTAINER_RIPPLES[0] == before + 1
+    field.stop()

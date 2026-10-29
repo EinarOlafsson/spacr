@@ -69,3 +69,31 @@ def test_queued_burst_yields_and_preserves_warning_error_and_report_order(
         logger.handlers.clear()
         handler.close()
         panel.close()
+
+
+def test_coalesced_timer_and_a_retired_notification_never_duplicate_deliveries(qtbot):
+    from spacr.qt.logging_util import QtLogHandler
+
+    handler = QtLogHandler()
+    batches = []
+    handler.records_ready.connect(lambda records: batches.extend(records))
+    logger = logging.Logger('spacr.coalesced_delivery', logging.INFO)
+    logger.addHandler(handler)
+    worker = threading.Thread(target=lambda: logger.info('one queued ordinary record'))
+    worker.start()
+    worker.join(1)
+    assert not worker.is_alive()
+    try:
+        handler._drain_soon(False)
+        first_deadline = handler._drain_timer.remainingTime()
+        handler._drain_soon(False)
+        assert 0 <= handler._drain_timer.remainingTime() <= first_deadline
+        qtbot.waitUntil(lambda: len(batches) == 1)
+        # A queued notification may outlive the batch it announced.
+        handler._drain_waiting()
+        assert len(batches) == 1
+        assert 'one queued ordinary record' in batches[0][0]
+        assert not handler._waiting
+    finally:
+        logger.handlers.clear()
+        handler.close()
