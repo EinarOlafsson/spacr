@@ -470,3 +470,38 @@ def test_wizard_source_reset_default_regex_and_colliding_aliases_reach_the_brows
             _retire(view, qtbot)
         workspace._retire()
         owner.close()
+
+
+def test_saved_blank_plate_pattern_inherits_global_without_rewriting_the_saved_view(qtbot, plates):
+    from concurrent.futures import ThreadPoolExecutor
+
+    first, second = plates
+    source_bytes = {path: path.read_bytes() for folder in plates for path in folder.glob("*.tif")}
+    state = browser._overview_empty_view_state()
+    state["sources"] = [str(first), str(second)]
+    state["options"]["plate_regex"] = {str(second): ""}
+    with ThreadPoolExecutor(max_workers=1) as writer:
+        pending = writer.submit(browser._overview_save_view_state, str(first), state)
+        qtbot.waitUntil(pending.done, timeout=10000)
+        saved = pending.result()
+    saved_bytes = saved.read_bytes()
+    wizard = _regex_wizard(qtbot, first, PATTERN)
+    try:
+        assert {field.plate for field in wizard._fields} == {"plateA", "plateB"}
+        assert {field.plate_id for field in wizard._fields} == {"p1"}
+        assert len(wizard._fields) == 7
+        assert {field.source for field in wizard._fields} == {str(first), str(second)}
+        assert all({channel for channel, _path in field.files} == {"1", "2"} for field in wizard._fields)
+        configuration = wizard.configuration()
+        assert configuration["channels"] == (1, 2)
+        assert browser._overview_source_paths(configuration["source"]) == [str(first), str(second)]
+        assert configuration["custom_regex"] == PATTERN
+        assert configuration["plate_regex"] == {}
+        assert wizard.regex.text() == PATTERN
+        assert wizard._plate_regex == {}
+        assert wizard.plate_table.item(_plate_row(wizard, second), 4).text() == ""
+        assert saved.read_bytes() == saved_bytes
+        assert all(path.read_bytes() == pixels for path, pixels in source_bytes.items())
+    finally:
+        qtbot.waitUntil(lambda: wizard._runner.active_jobs() == 0, timeout=15000)
+        wizard.reject()
