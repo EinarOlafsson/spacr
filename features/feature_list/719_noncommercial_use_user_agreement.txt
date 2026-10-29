@@ -5,6 +5,9 @@ Status:    DONE — BSD 3-Clause display with additional terms; noncommercial sc
 Requested: maintainer — add an item to prohibit commercial use
 Owner:     Workstation session 2 / overview_normalization — implementation; root — accuracy peer/publication
 
+CURRENT MAINTAINER FOLLOW-UP — 2026-10-28
+The GitHub README licensing badge must display only "BSD 3-Clause" in every language. Shorten its badge URL label and accessible text through the canonical README sources and normal producer. Keep LICENSE, agreement, custom package identity and the explanatory licensing paragraphs unchanged. Retained licensing worker owns this badge-only change; root integrates and publishes.
+
 CURRENT FOLLOW-UP — 2026-10-23
 The maintainer requests a BSD 3-Clause display name instead of Noncommercial,
 while retaining noncommercial-use, no-warranty and no-liability clauses.
@@ -61,3 +64,5 @@ license compatibility limits and validation before nightly publication.
 
 2026-10-23 — Renamed current display to BSD 3-Clause with additional terms, added the three BSD notice conditions subject to the retained noncommercial scope, and identified the custom SPDX licence accurately. Agreement 4.5 requires re-consent and preserves 4.4 acceptance history; legacy BSD and third-party rights remain intact.
 2026-10-23 — Root reviewed source accuracy and all nine badge translations. Eighty-one focused checks pass; one existing installer-markup translation check remains report-only. Normal ten-language README outputs and instruction index are current; local wheel/sdist licence contents and strict Twine checks pass, without a release-provenance or compatibility-clearance claim.
+
+2026-10-28 — Shortened only the GitHub licensing badge label and accessible text to BSD 3-Clause in English and all nine translations. Canonical sources and normal README composition agree; all-language producer check passes. Licence agreements, custom package identity, explanatory licence paragraphs and deck artwork remain unchanged.

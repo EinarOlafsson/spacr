@@ -38,9 +38,9 @@
    :target: https://github.com/EinarOlafsson/spacr/issues
    :alt: GitHub समस्याएँ
 
-.. |License| image:: https://img.shields.io/badge/License-BSD_3--Clause_with_additional_terms-blue
+.. |License| image:: https://img.shields.io/badge/License-BSD_3--Clause-blue
    :target: https://github.com/EinarOlafsson/spacr/blob/nightly/LICENSE
-   :alt: अतिरिक्त शर्तों सहित BSD 3-Clause
+   :alt: BSD 3-Clause
 
 .. |Preprint| image:: https://img.shields.io/badge/bioRxiv-BF2636
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
