@@ -3,7 +3,9 @@ name: compat-matrix
 # ---------------------------------------------------------------------------
 # The compatibility grid.
 #
-# spaCR claims Python 3.9-3.14 on Linux, macOS and Windows. Before this
+# The general grid covers Python 3.9-3.14 on Linux, macOS and Windows.
+# Python 3.15 has a separate blocking Linux Conda install/runtime cell.
+# Before this
 # workflow existed, exactly one cell of that grid had ever been executed:
 # ubuntu-24.04 / CPython 3.10, in tests.yml. Every other claim in the
 # classifiers, the README and the install docs was inference from wheel
@@ -364,11 +366,11 @@ jobs:
       fail-fast: false
       matrix:
         # THE WHOLE CLAIMED RANGE, not just the top of it. pyproject says
-        # requires-python = ">=3.9,<3.16", and this job is the cheap check
+        # requires-python = ">=3.9,<3.16", and this job is the wheel check
         # that the claim is true -- it asks whether pip accepts spacr and
-        # resolves to wheels. Every cell is blocking. 3.15 was dropped from
-        # the matrix at the maintainer's request (2026-09-21): PySide6 does
-        # not admit it yet, so the cell could only ever fail.
+        # resolves to wheels. Every cell is blocking. Python 3.15 is covered
+        # by python315-linux below: some upstream native packages still need
+        # Conda builds rather than a compiler-free PyPI installation.
         #
         # It was ["3.13", "3.14"], which verified the two newest and left
         # 3.9 through 3.12 asserted by the metadata and tested by nothing.
@@ -1043,3 +1045,51 @@ jobs:
               print(f"| {pkg} | {ver} | " + " | ".join(cells) + " | "
                     + (", ".join(plats) or "none") + " |")
           PY
+
+  python315-linux:
+    name: Linux Python 3.15 installed science and native GUI
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: bash -el {0}
+    env:
+      CUDA_VISIBLE_DEVICES: ""
+      QT_QPA_PLATFORM: offscreen
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+      CMAKE_BUILD_PARALLEL_LEVEL: "4"
+      MAX_JOBS: "4"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: conda-incubator/setup-miniconda@v4
+        with:
+          miniforge-version: latest
+          activate-environment: spacr15
+          python-version: "3.15"
+          channels: conda-forge
+          channel-priority: strict
+      - name: Install native prerequisites with supported Python 3.15 builds
+        run: conda install --override-channels -c conda-forge cvxopt tabmat h5py "libsqlite=3.54.1=h0737f62_101" -y
+      - name: Install the complete package with CPU Torch
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu torch torchvision
+          SPACR315_CPUS="$(python -c 'import os; print(",".join(map(str, sorted(os.sched_getaffinity(0))[:4])))')"
+          tools/run_capped.sh 8G taskset -c "$SPACR315_CPUS" python -m pip install . pytest pytest-qt
+          python -m pip install --force-reinstall --only-binary=:all: 'scipy>=1.18,<2'
+          python -m pip check
+      - name: Check installed native imports in both cold-start orders
+        run: |
+          SPACR315_REPO="$PWD"
+          cd "$(mktemp -d)"
+          env -u PYTHONPATH "$SPACR315_REPO/tools/run_capped.sh" 8G python -c "import torch, cellpose.models, scipy.spatial, tabmat, glum, cvxopt, h5py, spacr; import sys; from pathlib import Path; assert Path(spacr.__file__).is_relative_to(sys.prefix); assert torch.version.cuda is None; print(spacr.__file__)"
+          env -u PYTHONPATH "$SPACR315_REPO/tools/run_capped.sh" 8G python -c "from PySide6.QtWidgets import QApplication; app = QApplication([]); import spacr.measure, cellpose.models, scipy.spatial, tabmat, glum, cvxopt, h5py; print('Qt-first science imports passed'); app.quit()"
+      - name: Exercise actual measurement outputs and the native window
+        run: |
+          SPACR315_CPUS="$(python -c 'import os; print(",".join(map(str, sorted(os.sched_getaffinity(0))[:4])))')"
+          tools/run_capped.sh 8G taskset -c "$SPACR315_CPUS" python -m pytest -q \
+            tests/test_python315_dependency_compatibility.py \
+            tests/test_measure_crop_core_synth.py::test_measure_crop_end_to_end_single_field \
+            tests/test_measure_crop_core_synth.py::test_measure_crop_core_organelle_summary \
+            tests/qt/test_733_navigator_reveal_and_home.py::test_returning_home_discards_graph_input_and_stale_results

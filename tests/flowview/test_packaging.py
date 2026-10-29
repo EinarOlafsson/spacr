@@ -26,7 +26,7 @@ def test_flowview_extra_is_valid_and_reuses_the_core_qt_binding():
 
     assert extras is not None
     requirements = [Requirement(value) for value in extras["flowview"]]
-    assert [requirement.name for requirement in requirements] == ["PySide6", "PySide6"]
+    assert [requirement.name for requirement in requirements] == ["PySide6", "PySide6", "PySide6"]
     core = next(ast.literal_eval(node.value) for node in tree.body
                 if isinstance(node, ast.Assign) and any(
                     isinstance(target, ast.Name) and target.id == "dependencies"
@@ -37,7 +37,7 @@ def test_flowview_extra_is_valid_and_reuses_the_core_qt_binding():
     for platform, allowed, refused in (
             ("linux", ("6.6.3.1", "6.11.2", "6.12.1"), ("6.5.3", "6.12.0", "7.0")),
             ("darwin", ("6.6.3.1", "6.10.3"), ("6.5.3", "6.11.0", "6.12.0", "7.0"))):
-        applying = [r for r in requirements if r.marker.evaluate({"sys_platform": platform})]
+        applying = [r for r in requirements if r.marker.evaluate({"sys_platform": platform, "python_version": "3.14"})]
         assert len(applying) == 1, (platform, applying)
         for version in allowed:
             assert version in applying[0].specifier, (platform, version)

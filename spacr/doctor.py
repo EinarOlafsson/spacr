@@ -510,7 +510,7 @@ def _nvidia_driver() -> Optional[str]:
 
 #: Used only when the installed metadata cannot be read (a source tree that was
 #: never installed). Kept in sync with pyproject.toml's ``requires-python``.
-FALLBACK_REQUIRES_PYTHON = ">=3.9,<3.15,!=3.14.1"
+FALLBACK_REQUIRES_PYTHON = ">=3.9,<3.16,!=3.14.1"
 
 
 @_register("python")

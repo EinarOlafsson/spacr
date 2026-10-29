@@ -4671,6 +4671,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "channel_sorting.py")
     paths.add(ROOT / "spacr" / "image_import.py")
     paths.add(ROOT / "spacr" / "convert.py")
+    paths.add(ROOT / "spacr" / "regression_backends.py")
     paths.add(ROOT / "spacr" / "object_classifier.py")
     paths.add(ROOT / "spacr" / "core.py")
     paths.add(ROOT / "spacr" / "psf_pipeline.py")

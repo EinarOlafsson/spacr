@@ -170,6 +170,14 @@ def package_installed(name) -> bool:
         return False
 
 
+def _python315_backend_refusal(name):
+    if sys.version_info[:2] < (3, 15) or name not in ('pyfixest', 'catboost', 'pymc'):
+        return ''
+    from .qt.i18n import tr
+    return tr('{backend} is unavailable on Python {version}. Use Python 3.14 for this optional backend.',
+              backend=name, version=f'{sys.version_info.major}.{sys.version_info.minor}')
+
+
 def cuda_present_without_importing_torch() -> bool:
     """Return whether a CUDA device is present, without importing torch.
 
@@ -245,6 +253,10 @@ def backend_status(name, regression_type=None) -> dict:
         if len(spec['types']) > 2:
             short_listed += '/…'
         installed = package_installed(spec['package'])
+        limitation = _python315_backend_refusal(key) if not installed else ''
+        if limitation:
+            status['pip'] = ''
+            return refuse(limitation, 'not installed')
         short_install = str(spec['pip']).split("  (", 1)[0]
 
         if not spec['implemented']:
@@ -291,6 +303,10 @@ def backend_status(name, regression_type=None) -> dict:
         return refuse(reason, short)
 
     if missing:
+        limitation = _python315_backend_refusal(key)
+        if limitation:
+            status['pip'] = ''
+            return refuse(limitation, 'not installed')
         return refuse(
             f"{spec['label']} needs a package that is not installed: "
             f"{spec['pip']}",
@@ -577,6 +593,10 @@ def backend_install_offer(name, regression_type=None):
     spec = REGRESSION_BACKENDS[key]
     label = str(spec['label'])
     recipe = INSTALL_RECIPES.get(key, "")
+    installed = package_installed(spec['package'])
+    limitation = _python315_backend_refusal(key) if not installed else ''
+    if limitation:
+        return offer_elsewhere(label, limitation, recipe)
 
     if regression_type is not None and not backend_supports(key,
                                                             regression_type):
@@ -602,8 +622,6 @@ def backend_install_offer(name, regression_type=None):
     if not package:
         return offer_ready(label, f"{label} is part of spaCR. Nothing to "
                                   f"install.")
-
-    installed = package_installed(package)
 
     if key == 'pymer4' and not installed:
         return offer_impossible(

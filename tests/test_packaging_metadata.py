@@ -178,19 +178,17 @@ def test_pyproject_declares_requires_python():
     assert spec.strip(), "requires-python is empty"
 
 
-def test_requires_python_admits_39_through_314_except_3141():
+def test_requires_python_admits_39_through_315_except_3141():
     """The supported range is evidence-bounded, in both directions.
 
     Floor 3.9: this is a supported interpreter in real use. Its resolver
     selects torch 2.8 and the last compatible PySide6, numba, llvmlite,
     pingouin and IPython lines; a blocking CI cell exercises that branch.
 
-    Ceiling <3.15: every admitted minor has a blocking CI cell. 3.15 had an
-    experimental forward cell until 2026-09-21, when the maintainer dropped it
-    from the matrix; PySide6 still declares its own <3.15 ceiling. Native dependencies without CPython
-    3.14 wheels are optional and lazily loaded. Python 3.14.1 is excluded
-    because torchvision excludes that exact patch release in its own package
-    metadata.
+    Ceiling <3.16: Python 3.15 has a dedicated installed-environment CI
+    cell and an interpreter-scoped Qt requirement. Older interpreters keep
+    their binding exclusion; macOS keeps its accessibility guard. Python
+    3.14.1 remains excluded by torchvision's package metadata.
 
     This test used to be called
     ``test_requires_python_admits_310_through_312_and_nothing_else`` and it
@@ -208,8 +206,8 @@ def test_requires_python_admits_39_through_314_except_3141():
     from packaging.version import Version
 
     spec = SpecifierSet(_requires_python())
-    supported = ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
-    unsupported = ["3.7", "3.8", "3.14.1", "3.15", "3.16"]
+    supported = ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "3.15"]
+    unsupported = ["3.7", "3.8", "3.14.1", "3.16"]
 
     for v in supported:
         version = Version(v if v.count(".") == 2 else v + ".0")
@@ -1548,7 +1546,7 @@ def test_no_console_script_name_is_declared_twice():
 
 
 @pytest.mark.parametrize("group", ["core", "qt", "flowview", "tutorial", "all"])
-def test_qt_requirements_exclude_only_the_broken_6120_release(group):
+def test_qt_requirements_keep_the_binding_exclusion_on_older_python(group):
     """A Qt binding reference-count regression must not ship in any Qt extra.
 
     Exactly one PySide6 requirement applies on each platform. macOS also
@@ -1566,7 +1564,7 @@ def test_qt_requirements_exclude_only_the_broken_6120_release(group):
             ("win32", ("6.6.3.1", "6.11.2", "6.12.1"), ("6.5.3", "6.12.0", "7.0")),
             ("darwin", ("6.6.3.1", "6.10.3"), ("6.5.3", "6.11.0", "6.11.2", "6.12.0", "6.12.1", "7.0"))):
         applying = [r for r in requirements
-                    if r.marker is None or r.marker.evaluate({"sys_platform": platform, "extra": group})]
+                    if r.marker is None or r.marker.evaluate({"sys_platform": platform, "python_version": "3.14", "extra": group})]
         assert len(applying) == 1, (group, platform, applying)
         specifier = applying[0].specifier
         for version in allowed:
