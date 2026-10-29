@@ -1075,7 +1075,7 @@ jobs:
             libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 \
             libgl1 libglib2.0-0t64 libnss3 libxcomposite1 libxcursor1 \
             libxdamage1 libxi6 libxtst6 libasound2t64 \
-            libsm6 libxext6 libxrender1 libopencc1.1 libopencc-data ffmpeg
+            libsm6 libxext6 libxrender1 libopencc1.1 libopencc-data ffmpeg python3-numpy
       - uses: conda-incubator/setup-miniconda@v4
         with:
           miniforge-version: latest
@@ -1090,7 +1090,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install --index-url https://download.pytorch.org/whl/cpu torch torchvision
           SPACR315_CPUS="$(python -c 'import os; print(",".join(map(str, sorted(os.sched_getaffinity(0))[:4])))')"
-          tools/run_capped.sh 8G taskset -c "$SPACR315_CPUS" python -m pip install . pytest pytest-qt
+          tools/run_capped.sh 8G taskset -c "$SPACR315_CPUS" python -m pip install --no-cache-dir --no-binary=numcodecs . pytest pytest-qt
           python -m pip install --force-reinstall --only-binary=:all: 'scipy>=1.18,<2'
           python -m pip check
       - name: Check installed native imports in both cold-start orders

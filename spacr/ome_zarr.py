@@ -433,7 +433,9 @@ def _encoder(codec_id: Optional[str], level: int
             codec=name, module=module,
             stdlib=", ".join(sorted(STDLIB_CODECS)))) from exc
     spec: Dict[str, Any] = {"id": name}
-    if name in ("blosc", "zstd", "lz4"):
+    if name == "blosc":
+        spec["clevel"] = int(level)
+    elif name == "zstd":
         spec["level"] = int(level)
     try:
         codec = numcodecs.get_codec(spec)

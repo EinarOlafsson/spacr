@@ -1235,3 +1235,17 @@ constant on the left, a non-version kernel instead produces an invalid
 specifier and safely takes the evaluator's fallback comparison; the surrounding
 OS condition includes Linux and Windows. Both old and current evaluators retain
 the Mac deployment boundaries. Package versions and Python support are unchanged.
+
+
+### Python 3.15 numcodecs source builds (2026-10-29)
+
+Python 3.15 selects `numcodecs>=0.16.6,<0.17` in both the default dependencies
+and the `zarr` extra. No published 0.16/0.17 wheel targets CPython 3.15.
+The 0.17 Meson build resolves NumPy through pkg-config and can pick Ubuntu's
+system NumPy 1.26 headers while Cython uses modern NumPy declarations, causing
+`vlen` compilation errors. The 0.17.1 source archive also reports version 0.0.0
+in a clean build. Version 0.16.6 uses setuptools and the isolated build's NumPy
+headers, retaining the native codecs without a manual Conda preinstall or
+changes to the user's pkg-config environment. Earlier Python requirements are
+unchanged. The blocking Python 3.15 install job includes system NumPy and
+forces an uncached numcodecs source build so a cached wheel cannot mask this.

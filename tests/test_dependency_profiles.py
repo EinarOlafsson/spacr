@@ -147,6 +147,10 @@ def test_ci_exercises_minimum_and_newest_dependency_profiles():
         "conda", "install", "--override-channels", "-c", "conda-forge",
         "cvxopt", "tabmat", "h5py", "libsqlite=3.54.1=h0737f62_101", "-y",
     ]
+    python315_steps = yaml.safe_load(compat)["jobs"]["python315-linux"]["steps"]
+    assert any('python3-numpy' in step.get('run', '') for step in python315_steps)
+    assert any('--no-cache-dir --no-binary=numcodecs' in step.get('run', '')
+               for step in python315_steps)
     assert "minimum-dependencies:" in workflow
     assert "-c .github/constraints/minimum-py39.txt" in workflow
     assert "python -m pip check" in workflow
