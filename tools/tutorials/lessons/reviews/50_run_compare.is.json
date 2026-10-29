@@ -1,6 +1,6 @@
 {
   "lesson": "50_run_compare",
-  "english_sha256": "60f9898197011e045f8be2667a3fa097b07841cc559845331e098f5e4de0a5cc",
+  "english_sha256": "65927e5e91a9de94bd46ee15b86920f28fba15be3eb1ff6fc238763abfb786ea",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Sæktu og afþjappaðu tengdu skyndimyndirnar. Fylgdu README-skránni til að keyra prepare_run_compare_download.py í spaCR-umhverfinu með nýja áfangamöppu. Fyrir eigin samanburð vistarðu úttak hverrar keyrslu áður en skrifað er yfir það.",
   "scenes": [
-    "Í flokknum Data á Home opnarðu Run Compare til að skoða skráð úttak tveggja keyrslna.",
+    "Opnaðu Run Compare til að skoða skráð úttak tveggja keyrslna.",
     "Sæktu og afþjappaðu skyndimyndadæmið. Fylgdu README-skránni til að keyra undirbúningsskriftuna með nýja áfangamöppu.",
     "Smelltu á Browse og veldu undirbúnu samanburðarmöppuna. Hafðu upprunalegu verkefnin og keyrsluskyndimyndir þeirra tiltæk fyrir eigin samanburð.",
     "Veldu grunnkeyrslu sem A og samanburðarkeyrsluna sem B og smelltu svo á Compare. Athugaðu heiti eininga þeirra og skráðar útgáfur.",

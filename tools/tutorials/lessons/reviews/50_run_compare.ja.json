@@ -1,6 +1,6 @@
 {
   "lesson": "50_run_compare",
-  "english_sha256": "60f9898197011e045f8be2667a3fa097b07841cc559845331e098f5e4de0a5cc",
+  "english_sha256": "65927e5e91a9de94bd46ee15b86920f28fba15be3eb1ff6fc238763abfb786ea",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "リンク先のスナップショットをダウンロードして展開します。付属のREADMEに従い、spaCRの環境で新しい出力先フォルダーを指定してprepare_run_compare_download.pyを実行します。自分で比較する場合は、各実行の出力が上書きされる前に保存しておきます。",
   "scenes": [
-    "HomeのDataカテゴリーからRun Compareを開き、二つの実行について記録された出力を確認します。",
+    "Run Compareを開き、二つの実行について記録された出力を確認します。",
     "スナップショットの例をダウンロードして展開します。READMEに従い、新しい出力先フォルダーを指定して準備用のスクリプトを実行します。",
     "Browseをクリックし、準備した比較用フォルダーを選びます。自分で比較するときのために、元のプロジェクトとその実行のスナップショットは使える状態にしておきます。",
     "基準となる実行をA、比較する実行をBとして選び、Compareをクリックします。それぞれのモジュール名と記録されたバージョンを確認します。",

@@ -15,7 +15,7 @@ import capture_ui_drv_d as drv
 def record(app,window,stage,captures,capture,settle,write_json,timeout):
     from PySide6.QtCore import Qt,QTimer
     from PySide6.QtTest import QTest
-    from PySide6.QtWidgets import QAbstractButton,QFileDialog,QLineEdit,QDialogButtonBox
+    from PySide6.QtWidgets import QFileDialog,QLineEdit,QDialogButtonBox
     root=Path(stage)/'run_compare_verified_snapshots_v1';prepared=read(root/'preparation.json')
     proof=dict(lesson='50_run_compare',accepted=False,preparation=prepared,
         synthetic_runs=False,new_analysis_started=False,app_source_modified=False,published=False)
@@ -28,18 +28,10 @@ def record(app,window,stage,captures,capture,settle,write_json,timeout):
     identities=[read_identity(root/'snapshots'/run/'measurements.db') for _,run in SOURCES]
     require_same_identity(*identities)
     before={str(root/'snapshots'/run/'measurements.db'):sha(root/'snapshots'/run/'measurements.db') for _,run in SOURCES}
-    tabs=window._startup._tabs
-    data=[i for i in range(tabs.count()) if tabs.tabText(i).split(' (',1)[0].strip().lower()=='data']
-    if len(data)!=1:raise ValueError('The real Home Data category is absent')
     with capture_ui.clip(capture,'01_home_data'):
-        capture_ui.select_tab(capture,tabs,data[0]);settle(.4)
-        capture_ui.point_at(capture,tabs.tabBar())
-    buttons=[b for b in window.findChildren(QAbstractButton) if b.isVisible() and
-        (b.property('moduleAppKey')=='run_compare' or b.property('navKey')=='run_compare')]
-    if not buttons:raise ValueError('The actual Run Compare Home tile is absent')
-    with capture_ui.clip(capture,'02_actual_empty_compare'):
-        click(max(buttons,key=lambda b:b.width()*b.height()))
+        capture_ui.open_module(capture,window,'run_compare',settle,prefer='sidebar')
         screen=window._screens['run_compare']
+    with capture_ui.clip(capture,'02_actual_empty_compare'):
         capture_ui.point_at(capture,screen._browse_button)
     accepted=[];errors=[]
     def pick():

@@ -19,7 +19,7 @@
   "scenes": [
     {
       "visual": "01_home_data",
-      "narration": "From Home’s Data category, open Run Compare to inspect outputs recorded for two runs.",
+      "narration": "Open Run Compare to inspect outputs recorded for two runs.",
       "focus_modules": [
         "run_compare"
       ],

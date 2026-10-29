@@ -1,6 +1,6 @@
 {
   "lesson": "50_run_compare",
-  "english_sha256": "60f9898197011e045f8be2667a3fa097b07841cc559845331e098f5e4de0a5cc",
+  "english_sha256": "65927e5e91a9de94bd46ee15b86920f28fba15be3eb1ff6fc238763abfb786ea",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Baixe e descompacte os snapshots indicados. Siga o README para executar prepare_run_compare_download.py no seu ambiente do spaCR com uma pasta de destino nova. Nas suas próprias comparações, preserve as saídas de cada execução antes que sejam sobrescritas.",
   "scenes": [
-    "Na categoria Data da tela Home, abra Run Compare para inspecionar as saídas registradas de duas execuções.",
+    "Abra Run Compare para inspecionar as saídas registradas de duas execuções.",
     "Baixe e descompacte o exemplo de snapshots. Siga o README para executar o script de preparação com uma pasta de destino nova.",
     "Clique em Browse e selecione a pasta de comparação preparada. Mantenha disponíveis os projetos originais e os snapshots de execução para as suas próprias comparações.",
     "Escolha uma execução de referência como A e a execução de comparação como B e clique em Compare. Confira os nomes dos módulos e as versões registradas.",
