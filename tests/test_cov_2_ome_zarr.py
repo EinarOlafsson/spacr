@@ -295,24 +295,55 @@ def test_zstd_uses_the_standard_library_when_the_interpreter_has_it(monkeypatch)
 
 
 def test_a_numcodecs_encoder_reports_its_own_config_as_the_block(monkeypatch):
-    """What goes in ``.zarray`` is the codec's config, not what we asked for.
+    """The canonical Blosc request and its resolved defaults describe the chunks."""
+    class ConfiguredBlosc(_ZlibCodec):
+        def __init__(self, spec):
+            assert spec == {"id": "blosc", "clevel": 4}
+            super().__init__(spec)
+            self.spec.update(cname="lz4", shuffle=1, blocksize=0)
 
-    numcodecs normalises and completes a spec, and a reader configures itself
-    from the block in the file. Writing the request rather than the resolved
-    config would produce a file whose header disagrees with its chunks.
-    """
-    monkeypatch.setitem(sys.modules, "numcodecs", _fake_numcodecs(_ZlibCodec))
+    def codec(spec):
+        return ConfiguredBlosc(spec) if spec["id"] == "blosc" else _ZlibCodec(spec)
+
+    monkeypatch.setitem(sys.modules, "numcodecs", _fake_numcodecs(codec))
 
     block, encode = oz._encoder("blosc", 4)
 
-    assert block == {"id": "blosc", "level": 4}
+    assert block == {"id": "blosc", "clevel": 4, "cname": "lz4",
+                     "shuffle": 1, "blocksize": 0}
     payload = encode(b"payload")
     assert type(payload) is bytes
     assert zlib.decompress(payload) == b"payload"
 
-    # A codec that takes no level is not given one.
     other_block, _ = oz._encoder("delta", 4)
     assert other_block == {"id": "delta"}
+
+
+def test_real_blosc_metadata_reopens_the_compressed_uint16_pixels(tmp_path):
+    """The installed codec must decode the exact block the writer records."""
+    import json
+
+    numcodecs = pytest.importorskip("numcodecs")
+    data = np.zeros((32, 48), dtype=np.uint16)
+    data[2:18, 4:27] = 4095
+    data[18:29, 27:45] = 65535
+    before = data.copy()
+    folder = tmp_path / "compressed.ome.zarr"
+    image = oz.write_ome_zarr(folder, data, compressor="blosc",
+                              compression_level=4, chunks=data.shape,
+                              dimension_separator=".")
+    metadata = json.loads((folder / "0" / ".zarray").read_text())
+    expected = numcodecs.Blosc(clevel=4).get_config()
+    assert metadata["compressor"] == expected
+    assert metadata["compressor"]["clevel"] == 4
+    assert "level" not in metadata["compressor"]
+    chunk = (folder / "0" / "0.0").read_bytes()
+    assert len(chunk) < data.nbytes
+    decoded = numcodecs.get_codec(metadata["compressor"]).decode(chunk)
+    np.testing.assert_array_equal(np.frombuffer(decoded, dtype=data.dtype).reshape(data.shape), data)
+    np.testing.assert_array_equal(image.read(), data)
+    np.testing.assert_array_equal(oz.read_ome_zarr(folder).read(), data)
+    np.testing.assert_array_equal(data, before)
 
 
 def test_an_encoder_numcodecs_refuses_to_build_names_the_codec(monkeypatch):
