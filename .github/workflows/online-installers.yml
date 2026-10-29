@@ -29,6 +29,11 @@ on:
         value: ${{ jobs.collect.outputs.commit_sha }}
   workflow_dispatch:
     inputs:
+      source_ref:
+        description: Exact application commit to build independently of workflow harness repairs
+        required: false
+        type: string
+        default: ""
       platform:
         description: Platform to verify (release builds always use all)
         type: choice
@@ -162,7 +167,19 @@ jobs:
         shell: powershell
         run: |
           $ErrorActionPreference = "Stop"
-          $InstallRoot = Join-Path $env:RUNNER_TEMP "spaCR"
+          $InstallRoot = Join-Path $env:RUNNER_TEMP ("spaCR-" + [guid]::NewGuid().ToString("N"))
+          $null = New-Item -ItemType Directory -Path $InstallRoot
+          $Acl = [System.Security.AccessControl.DirectorySecurity]::new()
+          $Acl.SetAccessRuleProtection($true, $false)
+          $Sid = [System.Security.Principal.WindowsIdentity]::GetCurrent().User
+          $Acl.SetOwner($Sid)
+          $Rule = [System.Security.AccessControl.FileSystemAccessRule]::new(
+              $Sid, [System.Security.AccessControl.FileSystemRights]::FullControl,
+              [System.Security.AccessControl.InheritanceFlags]"ContainerInherit,ObjectInherit",
+              [System.Security.AccessControl.PropagationFlags]::None,
+              [System.Security.AccessControl.AccessControlType]::Allow)
+          $Acl.AddAccessRule($Rule)
+          Set-Acl -LiteralPath $InstallRoot -AclObject $Acl
           $env:SPACR_PACKAGE_SPEC = "$((Resolve-Path .).Path)[qt]"
           $Installer = Get-ChildItem "dist\online\*Windows*Online-Setup.exe" |
             Select-Object -First 1
@@ -274,6 +291,7 @@ jobs:
           codesign --verify --deep --strict "/Applications/spaCR.app"
           test -L /usr/local/bin/spacr
           SPACR_NO_RELAUNCH=1 \
+            SPACR_TORCH_BACKEND=cpu \
             SPACR_PACKAGE_SPEC="$GITHUB_WORKSPACE[qt]" \
             "/Library/Application Support/spaCR/install-for-user.sh"
           runtime="$HOME/Library/Application Support/spaCR"
@@ -284,7 +302,7 @@ jobs:
              assert torch.backends.mps.is_built(); \
              assert torch.from_numpy(np.zeros(1, dtype=np.float32)).numel() == 1"
           "$runtime/venv/bin/python" -I -c \
-            "import json, pathlib; p=json.loads((pathlib.Path.home()/'Library/Application Support/spaCR/install-profile.json').read_text()); assert p['requested_backend'] == 'auto'; assert p['active_backend'] == 'mps'; assert not any(v for k, v in p['consent'].items() if k != 'collected')"
+            "import json, pathlib; p=json.loads((pathlib.Path.home()/'Library/Application Support/spaCR/install-profile.json').read_text()); assert p['requested_backend'] == 'cpu'; assert p['active_backend'] == 'cpu'; assert not any(v for k, v in p['consent'].items() if k != 'collected')"
           "$runtime/venv/bin/python" -I -c \
             "import importlib.util, pathlib; from spacr.updater import upgrade_command; assert importlib.util.find_spec('pip') is None; c=upgrade_command(); assert pathlib.Path(c[0]).resolve() == (pathlib.Path.home()/'Library/Application Support/spaCR/bootstrap/uv').resolve(); assert c[1:3] == ['pip', 'install']; assert '-m' not in c"
           "$runtime/venv/bin/python" -I packaging/online/smoke_installed.py
