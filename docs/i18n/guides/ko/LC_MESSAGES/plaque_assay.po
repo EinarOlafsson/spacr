@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-29 17:05-0400\n"
+"POT-Creation-Date: 2026-10-29 17:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -156,19 +156,23 @@ msgstr "흐름의 일치도는 병합되거나 잘못 나뉜 플라크를 표시
 msgid "Each generated mask also has a ``<image>.diagnostics.csv`` sidecar carrying the original per-plaque diagnostics and a mask fingerprint. A run with ``masks=False`` reuses it only when the saved mask still matches. Editing a mask invalidates these model diagnostics; regenerate masks to obtain fresh ones. Existing masks without a sidecar retain their measurements and have blank diagnostic columns. Figure workflows with a custom callback returning only labels also leave the diagnostic columns blank."
 msgstr "생성된 각 마스크에는 원래 플라크별 진단 지표와 마스크 지문을 담은 ``<image>.diagnostics.csv`` 보조 파일도 있습니다. ``masks=False`` 실행은 저장된 마스크가 여전히 일치할 때만 파일을 재사용합니다. 마스크를 편집하면 이 모델 진단 지표는 무효화되므로 새 지표를 얻으려면 마스크를 다시 생성하십시오. 보조 파일이 없는 기존 마스크는 측정값을 유지하고 진단 열은 비워 둡니다. 레이블만 반환하는 사용자 지정 콜백을 사용하는 그림 작업도 진단 열을 비워 둡니다."
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Well resize"
-msgstr ""
+msgstr "웰 크기 조정"
 
+# AI technical review (Codex), no native-speaker signoff.
 #, python-format
 msgid "A plaque model learns plaques at the pixel size it was trained on. Very small plaques are the hardest case: Cellpose needs an object roughly 15 pixels or more across to follow its flows reliably. In a perfect-flow reconstruction test on the curated plaque masks, only 54% of plaques smaller than 5 pixels could be recovered at their native size, against 99% after a 4x enlargement."
-msgstr ""
+msgstr "플라크 모델은 학습에 사용된 픽셀 크기의 플라크를 학습합니다. 매우 작은 플라크가 가장 어려운 경우입니다. Cellpose가 객체의 흐름을 안정적으로 따라가려면 객체의 가로 크기가 약 15 픽셀 이상이어야 합니다. 정리된 플라크 마스크에서 완벽한 흐름을 사용한 재구성 시험에서는 5 픽셀보다 작은 플라크의 54% 만 원래 크기에서 복원되었지만, 4x 확대 후에는 99% 가 복원되었습니다."
 
-msgid "**Well resize** (``plaque_well_resize``) segments each well at a fixed size. The wells are found with the zoo's well detector (``toxoplasma_well_detector_v2``); when none is found, the whole image is one well. Each well is resized so that its longest side is ``plaque_well_resize_side`` pixels (default 1500). Enlargement is capped at ``plaque_well_resize_max_factor`` (default 6), and shrinking a large well is never capped. Each resized well is scaled to its own 1st and 99th intensity percentiles and segmented at that scale, so the ``diameter`` setting is not used. Its plaques are then mapped back to the original pixels and given unique ids. ``minimum_object_size`` stays an area in original pixels. Plaque mode's preview and run read the image with the same loader (grey stays grey, 16-bit stays 16-bit, a Gel Doc ``.scn`` is rendered linearly from 0 to the scanner's ceiling) and make the same call, so they give the same masks. In Figure mode, each detected crop is resized whole."
-msgstr ""
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Well resize** (``plaque_well_resize``) segments each well at a fixed size. The wells are found with the zoo's well detector (``toxoplasma_well_detector_v2``); when none is found, the whole image is one well. Each well is resized so that its longest side is ``plaque_well_resize_side`` pixels (default 1500). Enlargement is capped at ``plaque_well_resize_max_factor`` (default 6), and shrinking a large well is never capped. Each resized well is scaled to its own 1st and 99th intensity percentiles and segmented at that scale. A requested ``diameter`` is scaled from original-image pixels to the resized well; zero or an omitted value uses the model's own scale. Its plaques are then mapped back to the original pixels and given unique ids. ``minimum_object_size`` stays an area in original pixels. Plaque mode's preview and run read the image with the same loader (grey stays grey, 16-bit stays 16-bit, a Gel Doc ``.scn`` is rendered linearly from 0 to the scanner's ceiling) and make the same call, so they give the same masks. In Figure mode, each detected crop is resized whole."
+msgstr "**웰 크기 조정** (``plaque_well_resize``) 기능은 각 웰을 고정된 크기에서 분할합니다. 모델 카탈로그의 웰 검출기 (``toxoplasma_well_detector_v2``) 로 웰을 찾으며, 찾지 못하면 전체 이미지를 하나의 웰로 취급합니다. 각 웰의 가장 긴 변이 ``plaque_well_resize_side`` 픽셀(기본값 1500)이 되도록 크기를 조정합니다. 확대는 ``plaque_well_resize_max_factor`` 설정(기본값 6)으로 제한되며, 큰 웰의 축소에는 이 제한이 없습니다. 크기를 조정한 각 웰은 자체 강도 분포의 1 백분위수와 99 백분위수로 스케일링되고 해당 크기에서 분할됩니다. 지정한 ``diameter`` 값은 원본 이미지 픽셀에서 크기를 조정한 웰의 픽셀로 환산됩니다. 값이 0이거나 생략되면 모델 자체의 크기 척도를 사용합니다. 이후 플라크를 원래 픽셀로 다시 매핑하고 고유 ID를 부여합니다. ``minimum_object_size`` 설정은 계속 원본 픽셀 기준 면적입니다. Plaque 모드의 미리보기와 실행은 같은 로더로 이미지를 읽고(회색은 회색으로, 16 비트는 16 비트로 유지하며 Gel Doc ``.scn`` 파일은 0부터 스캐너 상한까지 선형으로 표시) 같은 함수를 호출하므로 같은 마스크를 만듭니다. Figure 모드에서는 검출된 각 잘라낸 이미지 전체의 크기를 조정합니다."
 
+# AI technical review (Codex), no native-speaker signoff.
 #, python-brace-format
-msgid "The setting takes three values. ``auto``, the default, follows the selected model. A model whose zoo record declares ``preprocess: {\"well_resize\": {\"side\": 1500, \"max_factor\": 6}}`` turns well resize on with those values. A checkpoint can declare the same in a ``<checkpoint>.preprocess.json`` file beside it. ``toxoplasma_plaque_v6``, the default plaque model since 2026-10-25, was trained this way and declares it. The metadata may also carry the thresholds chosen on the model's validation fields, for example ``\"thresholds\": {\"cellprob\": -0.5, \"flow\": 0.4, \"min_size\": 0}`` for v6. In ``auto`` they replace ``CP_prob``, ``flow_threshold`` and ``minimum_object_size``. Models that declare nothing, including ``toxoplasma_plaque_v5``, are segmented as before. ``on`` uses the two size settings and your own thresholds with any model, and ``off`` turns well resize off."
-msgstr ""
+msgid "The setting takes three values. ``auto``, the default, follows the selected model. A model whose zoo record declares ``preprocess: {\"well_resize\": {\"side\": 1500, \"max_factor\": 6}}`` turns well resize on with those values. A checkpoint can declare the same in a ``<checkpoint>.preprocess.json`` file beside it. ``toxoplasma_plaque_v6``, the default plaque model since 2026-10-25, was trained this way and declares it. The metadata may also carry the thresholds chosen on the model's validation fields, for example ``\"thresholds\": {\"cellprob\": -0.5, \"flow\": 0.4, \"min_size\": 0}`` for v6. In ``auto`` they supply defaults for ``CP_prob``, ``flow_threshold`` and ``minimum_object_size``; explicitly supplied settings take precedence. Models that declare nothing, including ``toxoplasma_plaque_v5``, are segmented as before. ``on`` uses the two size settings and your own thresholds with any model, and ``off`` turns well resize off."
+msgstr "이 설정에는 세 가지 값이 있습니다. 기본값인 ``auto`` 모드는 선택한 모델을 따릅니다. 모델 카탈로그 기록에 ``preprocess: {\"well_resize\": {\"side\": 1500, \"max_factor\": 6}}`` 선언이 있으면 해당 값으로 웰 크기 조정을 켭니다. 체크포인트 옆의 ``<checkpoint>.preprocess.json`` 파일에서도 같은 내용을 선언할 수 있습니다. 2026-10-25부터 기본 플라크 모델인 ``toxoplasma_plaque_v6`` 모델은 이 방식으로 학습되었으며 이를 선언합니다. 메타데이터에는 모델의 검증 시야에서 선택한 임계값도 포함될 수 있습니다. 예를 들어 v6의 경우 ``\"thresholds\": {\"cellprob\": -0.5, \"flow\": 0.4, \"min_size\": 0}`` 입니다. ``auto`` 모드에서는 이 값이 ``CP_prob``, ``flow_threshold``, ``minimum_object_size`` 설정의 기본값을 제공하며, 명시적으로 제공한 설정이 우선합니다. ``toxoplasma_plaque_v5`` 모델을 포함하여 아무것도 선언하지 않은 모델은 이전과 같이 분할됩니다. ``on`` 모드는 어떤 모델에서든 두 가지 크기 설정과 사용자가 정한 임계값을 사용하고, ``off`` 모드는 웰 크기 조정을 끕니다."
 
 msgid "Contribute training data"
 msgstr "학습 데이터 기여"

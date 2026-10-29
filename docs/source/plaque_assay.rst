@@ -182,9 +182,10 @@ well. Each well is resized so that its longest side is
 ``plaque_well_resize_side`` pixels (default 1500). Enlargement is capped at
 ``plaque_well_resize_max_factor`` (default 6), and shrinking a large well is
 never capped. Each resized well is scaled to its own 1st and 99th intensity
-percentiles and segmented at that scale, so the ``diameter`` setting is not
-used. Its plaques are then mapped back to the original pixels and given
-unique ids. ``minimum_object_size`` stays an area in original pixels. Plaque
+percentiles and segmented at that scale. A requested ``diameter`` is scaled
+from original-image pixels to the resized well; zero or an omitted value uses
+the model's own scale. Its plaques are then mapped back to the original pixels
+and given unique ids. ``minimum_object_size`` stays an area in original pixels. Plaque
 mode's preview and run read the image with the same loader (grey stays grey,
 16-bit stays 16-bit, a Gel Doc ``.scn`` is rendered linearly from 0 to the
 scanner's ceiling) and make the same call, so they give the same masks. In
@@ -199,8 +200,9 @@ the default plaque model since 2026-10-25, was trained this way and declares
 it. The metadata may also carry the thresholds chosen on the model's
 validation fields, for example
 ``"thresholds": {"cellprob": -0.5, "flow": 0.4, "min_size": 0}`` for v6. In
-``auto`` they replace ``CP_prob``, ``flow_threshold`` and
-``minimum_object_size``. Models that declare nothing, including
+``auto`` they supply defaults for ``CP_prob``, ``flow_threshold`` and
+``minimum_object_size``; explicitly supplied settings take precedence. Models
+that declare nothing, including
 ``toxoplasma_plaque_v5``, are segmented as before. ``on`` uses the two size
 settings and your own thresholds with any model, and ``off`` turns well
 resize off.
