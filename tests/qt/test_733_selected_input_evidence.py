@@ -223,3 +223,82 @@ def test_paired_masks_do_not_make_partial_merged_outputs_scientific_evidence(
     assert paired['kind'] == 'spacr' and paired['pairs'] == expected_pair
     assert paired['project'] == str(root) and paired['filename_evidence']
     assert all(path.read_bytes() == content for path, content in before.items())
+
+
+def test_generic_saved_settings_require_an_owned_manifest_before_module_preview(tmp_path):
+    import json
+
+    folder = tmp_path / 'selected-settings'
+    folder.mkdir()
+    settings = folder / 'settings.json'
+    values = dict(src=str(tmp_path / 'unopened-input'), regression_type='ols')
+    settings.write_text(json.dumps(values))
+    original = settings.read_bytes()
+    manifest = folder / 'manifest.json'
+
+    missing = home._easy_inspect_path(str(settings))
+    assert 'saved_settings' not in missing['context']
+    assert not any(row[0] == 'regression' for row in missing['actions'])
+    assert list(folder.iterdir()) == [settings]
+    assert settings.read_bytes() == original
+
+    manifest.write_text(json.dumps(dict(schema_version=1, app_key='foreign-acquisition',
+                                        status='success')))
+    foreign_bytes = manifest.read_bytes()
+    foreign = home._easy_inspect_path(str(settings))
+    assert 'saved_settings' not in foreign['context']
+    assert not any(row[0] in ('regression', 'foreign-acquisition')
+                   for row in foreign['actions'])
+    assert manifest.read_bytes() == foreign_bytes
+    assert settings.read_bytes() == original
+
+    manifest.write_text(json.dumps(dict(schema_version=1, app_key='regression',
+                                        status='success')))
+    manifest_bytes = manifest.read_bytes()
+    owned = home._easy_inspect_path(str(settings))
+    assert owned['context']['saved_settings'] == dict(
+        path=str(settings), module='regression', settings=values)
+    assert owned['actions'][0][0] == 'regression'
+    assert owned['actions'][0][3] == str(settings)
+    assert settings.read_bytes() == original and manifest.read_bytes() == manifest_bytes
+    assert not (tmp_path / 'unopened-input').exists()
+    assert set(folder.iterdir()) == {settings, manifest}
+
+
+def test_finished_run_distinguishes_object_results_and_empty_diagnostics(tmp_path):
+    import json
+
+    folder = tmp_path / 'finished-regression'
+    folder.mkdir()
+    manifest = folder / 'manifest.json'
+    manifest.write_text(json.dumps(dict(schema_version=1, app_key='regression',
+                                        status='success')))
+    objects = folder / 'results.csv'
+    objects.write_text('label,cell_area\n1,12\n2,4\n')
+    coefficients = folder / 'results_gene.csv'
+    coefficients.write_text('feature,coefficient\ngene_a,0.5\ngene_b,-0.25\n')
+    diagnostics = folder / 'diagnostics'
+    diagnostics.mkdir()
+    originals = {path: path.read_bytes() for path in (manifest, objects, coefficients)}
+
+    for extra in (None, diagnostics / 'pending'):
+        if extra is not None:
+            extra.mkdir()
+        inspected = home._easy_inspect_path(str(folder))
+        assert inspected['context']['run_evidence'] == dict(
+            manifests=[], results=[dict(path=str(coefficients), folder=str(folder),
+                                       diagnostics=False, diagnostics_folder=None)])
+        assert 'regression_diagnostics' not in inspected['context']['analysis_inputs']
+        assert all(path.read_bytes() == content for path, content in originals.items())
+
+    output = diagnostics / 'fit_summary.csv'
+    output.write_text('metric,value\nresidual_scale,0.2\n')
+    output_bytes = output.read_bytes()
+    inspected = home._easy_inspect_path(str(folder))
+    assert inspected['context']['run_evidence']['results'] == [dict(
+        path=str(coefficients), folder=str(folder), diagnostics=True,
+        diagnostics_folder=str(diagnostics))]
+    assert inspected['context']['analysis_inputs']['regression_diagnostics'][
+        'diagnostics_folder'] == str(diagnostics)
+    assert all(path.read_bytes() == content for path, content in originals.items())
+    assert output.read_bytes() == output_bytes
