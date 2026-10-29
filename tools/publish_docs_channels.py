@@ -367,12 +367,29 @@ def assemble_nightly(nightly: Path, output: Path, main_url: str = MAIN_URL,
     return write_channel_receipt(output, receipt)
 
 
+def _nightly_remote_source(space: str, revision: str) -> str:
+    """Read a source identity from the receipt at an immutable Space revision."""
+    from huggingface_hub import hf_hub_download
+    path = hf_hub_download(repo_id=space, repo_type="space", filename="channels.json",
+                           revision=revision)
+    receipt = json.loads(Path(path).read_text(encoding="utf-8"))
+    record = receipt["channels"]["nightly"]
+    commit = record["commit"]
+    if (receipt["schema"] != 2 or record["branch"] != "nightly"
+            or not isinstance(commit, str) or not re.fullmatch(r"[0-9a-f]{40}", commit)):
+        raise ValueError("Malformed nightly source identity")
+    return commit
+
+
 def upload_nightly(site: Path, space: str = NIGHTLY_SPACE) -> str:
     """Replace the Space's files in one commit; removed pages are deleted.
 
     The token comes from ``HF_TOKEN`` (CI secret) or the local login.
     ``upload_folder`` may split uploads into commits in newer Hub clients,
     leaving a mixed site if a later batch reaches the repository quota.
+    A concurrently advanced parent gets at most two retries, each rebuilding
+    the complete snapshot against its refreshed file inventory, only while
+    the remote source is unchanged or already matches this local target.
     """
     from huggingface_hub import CommitOperationAdd, CommitOperationDelete, HfApi
     record = json.loads((site / "channels.json").read_text(encoding="utf-8"))["channels"]["nightly"]
@@ -380,17 +397,37 @@ def upload_nightly(site: Path, space: str = NIGHTLY_SPACE) -> str:
         raise ValueError("Expected an assembled nightly site")
     api = HfApi()
     parent = api.space_info(space).sha
-    remote = set(api.list_repo_files(space, repo_type="space", revision=parent))
+    initial_parent = parent
     local = {path.relative_to(site).as_posix(): path for path in site.rglob("*")
              if path.is_file() and not {".git", ".cache"}.intersection(path.relative_to(site).parts)}
-    operations = [CommitOperationDelete(path_in_repo=path)
-                  for path in sorted(remote - local.keys() - {".gitattributes"})]
-    operations.extend(CommitOperationAdd(path_in_repo=path, path_or_fileobj=local[path])
-                      for path in sorted(local))
-    info = api.create_commit(
-        repo_id=space, repo_type="space", operations=operations, parent_commit=parent,
-        commit_message=f"nightly docs {record['commit'][:12]}")
-    return info.oid
+    retries_left = 2
+    while True:
+        remote = set(api.list_repo_files(space, repo_type="space", revision=parent))
+        operations = [CommitOperationDelete(path_in_repo=path)
+                      for path in sorted(remote - local.keys() - {".gitattributes"})]
+        operations.extend(CommitOperationAdd(path_in_repo=path, path_or_fileobj=local[path])
+                          for path in sorted(local))
+        try:
+            info = api.create_commit(
+                repo_id=space, repo_type="space", operations=operations, parent_commit=parent,
+                commit_message=f"nightly docs {record['commit'][:12]}")
+            return info.oid
+        except Exception as error:
+            if (getattr(getattr(error, "response", None), "status_code", None) != 412
+                    or retries_left == 0):
+                raise
+            refreshed = api.space_info(space).sha
+            if refreshed == parent:
+                raise
+            try:
+                initial_source = _nightly_remote_source(space, initial_parent)
+                refreshed_source = _nightly_remote_source(space, refreshed)
+            except Exception:
+                raise error
+            if refreshed_source not in {initial_source, record["commit"]}:
+                raise
+            parent = refreshed
+            retries_left -= 1
 
 
 #: What a free Hugging Face Space may store, history included.

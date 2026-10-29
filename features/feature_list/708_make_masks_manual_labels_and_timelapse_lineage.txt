@@ -53,3 +53,5 @@ Regression: real T98G crop (tests/data/708_t98g_division_crop) built by tools/bu
 Only an exact continuation merges: a founder whose first frame directly follows the last frame of a childless selected cell, never two coexisting cells and never a real two-daughter division; a contradiction is refused with a status message. Every saved frame's TIFF is rewritten with the merged lineage (and again on Undo/Redo), and newer revisions win ancestry on reopen so all frames agree.
 
 2026-10-28 — Retain the published lineage/undo/save implementation, seven real classic/BigTIFF checks and the corrected T98G61 continuation/division regression. No new physical-input acceptance or inference run is claimed.
+
+2026-10-29 — CI43 owner coverage_remaining qualified the existing five-frame division/save/reopen workflow with labels70000/70001: source pixels/bytes stay exact, uint32 TIFFs embed frame UUIDs and later division ancestry, and TIFF-only reopening restores the merged graph (1PASS16.23s on5f9821929d after reader changes); prior low-label qualification retained.

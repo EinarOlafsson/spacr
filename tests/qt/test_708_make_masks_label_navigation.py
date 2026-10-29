@@ -939,9 +939,13 @@ def select(screen, identity):
     screen._select_lineage_cell(model.index(model.keys.index(identity), 0))
 
 
-def test_division_branches_trace_both_ways_and_reopen_from_tiffs_only(qtbot, dividing):
+@pytest.mark.parametrize("pixel_label", [1, 70000], ids=["ordinary-labels", "beyond-16-bit"])
+def test_division_branches_trace_both_ways_and_reopen_from_tiffs_only(qtbot, dividing, pixel_label):
     screen = dividing
+    sources = {path: path.read_bytes() for path in Path(screen._folder).glob("*.tif")}
+    source_pixels = {path: imageio.imread(path).copy() for path in sources}
     enable_time(screen)
+    screen._label_value.setText(str(pixel_label))
     screen._label_name.setText("1")
     screen._add_lineage_cell()
     mother = screen._selected_cell
@@ -974,6 +978,15 @@ def test_division_branches_trace_both_ways_and_reopen_from_tiffs_only(qtbot, div
         frame = str(Path(folder) / f"frame_{index}.tif")
         saved = imageio.imread(engine.mask_save_path(folder, f"frame_{index}.tif"))
         assert saved.dtype == np.uint32
+        assert np.count_nonzero(saved) == (300 if index < 2 else 200)
+        assert int(saved[10, 10]) >= pixel_label and int(saved[10, 30]) >= pixel_label
+        metadata = engine.load_mask_metadata(folder, f"frame_{index}.tif")
+        assert metadata["lineage"]["cells"][mother]["label"] == pixel_label
+        if index >= 2:
+            assert metadata["lineage"]["cells"][mother]["children"] == [first, second]
+        mapping = metadata["lineage"]["frames"][frame]
+        expected = (mother, mother) if index < 2 else (first, second)
+        assert (mapping[str(int(saved[10, 10]))], mapping[str(int(saved[10, 30]))]) == expected
         owners[index] = (int(saved[10, 10]), int(saved[10, 30]), frame)
     assert owners[0][0] == owners[0][1] and owners[1][0] == owners[1][1]
     assert all(owners[index][0] != owners[index][1] for index in (2, 3, 4))
@@ -992,6 +1005,10 @@ def test_division_branches_trace_both_ways_and_reopen_from_tiffs_only(qtbot, div
         expected = (mother, mother) if index < 2 else (first, second)
         assert (mapping[str(left)], mapping[str(right)]) == expected
     assert not fresh._time_label_enabled
+    np.testing.assert_array_equal(fresh._canvas.mask, imageio.imread(engine.mask_save_path(folder, "frame_0.tif")))
+    for path, original in sources.items():
+        assert path.read_bytes() == original
+        np.testing.assert_array_equal(imageio.imread(path), source_pixels[path])
     fresh.close()
 
 
