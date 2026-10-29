@@ -7,6 +7,12 @@ History: DONE 2026-10-02 — actual CPU fine-tune, checkpoint reload and held-ou
 inference passed. This is workflow acceptance, not a model-accuracy claim.
 Owner: implementation lane; API/translations/tutorials in Codex lane.
 
+CURRENT PREVIEW/APPLY PARAMETER PARITY — 2026-10-29
+Home owns matching Cellpose Apply preview preprocessing and eval normalization,
+resampling and rescaling to the selected batch settings. Preserve recipe,
+thresholds, source pixels and checkpoint identity; qualify a CPU boundary
+comparison with actual batch preprocessing, without claiming GPU mask parity.
+
 CURRENT MAINTAINER FOLLOW-UP — 2026-10-27
 
 Organize Cellpose Workbench Train/Apply and Cellpose All Settings around input,
@@ -75,3 +81,5 @@ features/data/498_real_cpu_workbench_acceptance_2026-10-02.json.
 VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_cellpose4_training_controls/inputs/refuses tests pass.
 
 2026-10-27 — 51 focused GUI/run handoff checks pass; 53 backend checks pass with one installed-version skip. A genuine CPU Cellpose-SAM run wrote a 64x64 integer-label mask with three objects and preserved its source. GUI Apply saves by default; Mask folder always saves, and unsupported or mixed input formats are refused before processing. Earlier real fine-tune acceptance remains valid.
+
+2026-10-29 — Cellpose Apply preview now uses selected percentile/inversion preprocessing and explicit matching normalize/resample/rescale parameters. Three real-file CPU comparisons against the actual batch path pass (7.50s), preserving checkpoint choice, fractional thresholds and source bytes; no training, GPU mask-parity acceptance or new tutorial take is claimed.
