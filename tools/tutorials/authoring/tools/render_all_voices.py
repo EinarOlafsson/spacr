@@ -402,6 +402,13 @@ def track_speech_text(lesson_id, language, voice, display_text, speech_text):
             raise ValueError("Unreviewed Latin text in PSF Japanese/Chinese narration")
         return speech_text
     if (lesson_id, language, voice, display_text) == (
+        "19_train_cellpose", "ja", "jf_tebukuro",
+        'Applyタブを開きます。Custom modelは、学習させたチェックポイントを指しています。Sourceを例のapplyフォルダーにします。その画像は、学習に使っていないウェルから撮ったものです。Channelsをゼロ、Percentilesを二と九十九にします。接している細胞が分かれたままになるようFill inをオフにし、SaveとVerboseをオンにします。',
+    ):
+        if not speech_text.startswith("Apply"):
+            raise ValueError("The Cellpose Apply pronunciation premise changed")
+        return "アプライ" + speech_text[len("Apply"):]
+    if (lesson_id, language, voice, display_text) == (
         "58_graph_builder", "ja", "jf_tebukuro",
         'replicateという出力列を追加します。rowIDの値r1、r4、r5、r6を、replicate 1というボックスで一致させます。同じ名前のボックスをもう一つ追加し、r7、r9、r10を指定します。同じラベルのボックスは和集合になります。一つの出力内で異なるラベルが衝突する場合は、Apply conditionsの前に解消する必要があります。例にはr5とr12が含まれるため、r5は一致し、r12は空のままです。これらの練習用ラベルは、生物学的な反復を示すものではありません。',
     ):
