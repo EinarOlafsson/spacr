@@ -1,6 +1,6 @@
 {
   "lesson": "63_small_multiples",
-  "english_sha256": "d291d2bec588b4f07344f2b9022b60e6a1e298e17ef5e7f894531e132a71985f",
+  "english_sha256": "586d2d67d33c4930c7d2b53d353783771e9489693bd60f458bec775179752a20",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Hämta mätexemplet från Annotate-handledningen och arbeta med en kopia av measurements.db. Genomgången använder tabellen cell med 2 341 objekt från fyra brunnar. Small Multiples visar diagram; använd Tabulate för att exportera grupperade CSV-sammanfattningar.",
   "scenes": [
-    "Från Home öppnar du Graph Builder och sedan Small Multiples. Använd vyn för att jämföra samma mätningar mellan grupper. Exemplet använder mätdatabasen från den länkade Annotate-handledningen.",
+    "Öppna Graph Builder och sedan Small Multiples. Använd vyn för att jämföra samma mätningar mellan grupper. Exemplet använder mätdatabasen från den länkade Annotate-handledningen.",
     "Klicka på Load table bredvid rubriken Small Multiples. Öppna en kopia av measurements.db och välj cell. Kontrollera tabellen och dess 2 341 objekt innan du tilldelar diagramkanaler.",
     "Dra cell_area till X och cell_channel_1_mean_intensity till Y och välj sedan Scatter. Lägg rowID på Facet down och columnID på Facet across. Sökningen hjälper dig att hitta kolumnnamn; varje punkt är en uppmätt cell.",
     "Välj shared för båda skalorna så att alla fyra paneler använder samma axelgränser. Läs grupprubrikerna och objektantalen. I exemplet anger facettetiketterna rumsliga rader och kolumner.",

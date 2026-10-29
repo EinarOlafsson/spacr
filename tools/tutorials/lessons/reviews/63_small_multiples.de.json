@@ -1,6 +1,6 @@
 {
   "lesson": "63_small_multiples",
-  "english_sha256": "d291d2bec588b4f07344f2b9022b60e6a1e298e17ef5e7f894531e132a71985f",
+  "english_sha256": "586d2d67d33c4930c7d2b53d353783771e9489693bd60f458bec775179752a20",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Laden Sie das Messbeispiel aus dem Annotate-Tutorial herunter und arbeiten Sie mit einer Kopie von measurements.db. Diese Anleitung verwendet die Tabelle cell mit 2.341 Objekten aus vier Wells. Small Multiples zeigt Diagramme an; verwenden Sie Tabulate, um gruppierte CSV-Übersichten zu exportieren.",
   "scenes": [
-    "Öffnen Sie von Home aus Graph Builder und dann Small Multiples. In dieser Ansicht vergleichen Sie dieselben Messwerte zwischen Gruppen. Dieses Beispiel verwendet die Messdatenbank aus dem verlinkten Annotate-Tutorial.",
+    "Öffnen Sie Graph Builder und dann Small Multiples. In dieser Ansicht vergleichen Sie dieselben Messwerte zwischen Gruppen. Dieses Beispiel verwendet die Messdatenbank aus dem verlinkten Annotate-Tutorial.",
     "Klicken Sie neben der Überschrift Small Multiples auf Load table. Öffnen Sie eine Kopie von measurements.db und wählen Sie cell. Prüfen Sie die Tabelle und ihre 2.341 Objekte, bevor Sie Diagrammkanäle zuweisen.",
     "Ziehen Sie cell_area auf X und cell_channel_1_mean_intensity auf Y und wählen Sie dann Scatter. Legen Sie rowID auf Facet down und columnID auf Facet across. Die Suche hilft beim Finden von Spaltennamen; jeder Punkt steht für eine gemessene Zelle.",
     "Wählen Sie shared für beide Skalen, damit alle vier Felder dieselben Achsengrenzen verwenden. Lesen Sie die Gruppentitel und Objektzahlen. In diesem Beispiel kennzeichnen die Facettenlabels räumliche Zeilen und Spalten.",

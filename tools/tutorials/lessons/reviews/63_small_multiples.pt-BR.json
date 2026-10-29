@@ -1,6 +1,6 @@
 {
   "lesson": "63_small_multiples",
-  "english_sha256": "d291d2bec588b4f07344f2b9022b60e6a1e298e17ef5e7f894531e132a71985f",
+  "english_sha256": "586d2d67d33c4930c7d2b53d353783771e9489693bd60f458bec775179752a20",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Baixe o exemplo de medições do tutorial do Annotate e trabalhe com uma cópia de measurements.db. Este passo a passo usa a tabela cell, com 2341 objetos em quatro poços. Small Multiples exibe gráficos; use o Tabulate para exportar resumos agrupados em CSV.",
   "scenes": [
-    "Na tela Home, abra Graph Builder e depois Small Multiples. Use esta visualização para comparar as mesmas medições entre grupos. Este exemplo usa o banco de dados de medições disponível no tutorial do Annotate indicado.",
+    "Abra Graph Builder e depois Small Multiples. Use esta visualização para comparar as mesmas medições entre grupos. Este exemplo usa o banco de dados de medições disponível no tutorial do Annotate indicado.",
     "Clique em Load table ao lado do título Small Multiples. Abra uma cópia de measurements.db e selecione cell. Confira a tabela e seus dois mil trezentos e quarenta e um objetos antes de atribuir os canais do gráfico.",
     "Arraste cell_area para X e cell_channel_1_mean_intensity para Y e escolha Scatter. Coloque rowID em Facet down e columnID em Facet across. A busca ajuda a encontrar nomes de colunas; cada ponto representa uma célula medida.",
     "Escolha shared nas duas escalas para que os quatro painéis usem os mesmos limites de eixo. Leia os títulos dos grupos e as contagens de objetos. Neste exemplo, os rótulos das facetas identificam linhas e colunas espaciais.",

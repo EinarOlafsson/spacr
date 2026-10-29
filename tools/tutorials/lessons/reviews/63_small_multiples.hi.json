@@ -1,6 +1,6 @@
 {
   "lesson": "63_small_multiples",
-  "english_sha256": "d291d2bec588b4f07344f2b9022b60e6a1e298e17ef5e7f894531e132a71985f",
+  "english_sha256": "586d2d67d33c4930c7d2b53d353783771e9489693bd60f458bec775179752a20",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Annotate ट्यूटोरियल से माप उदाहरण डाउनलोड करें और measurements.db की प्रति पर काम करें। यह वॉकथ्रू उसकी cell तालिका इस्तेमाल करता है, जिसमें चार वेल में 2341 वस्तुएँ हैं। Small Multiples प्लॉट दिखाता है; समूहित CSV सारांश निर्यात करने के लिए Tabulate इस्तेमाल करें।",
   "scenes": [
-    "Home से Graph Builder खोलें, फिर Small Multiples। इस दृश्य से एक ही माप की समूहों के बीच तुलना करें। यह उदाहरण जुड़े Annotate ट्यूटोरियल में उपलब्ध माप डेटाबेस इस्तेमाल करता है।",
+    "Graph Builder खोलें, फिर Small Multiples। इस दृश्य से एक ही माप की समूहों के बीच तुलना करें। यह उदाहरण जुड़े Annotate ट्यूटोरियल में उपलब्ध माप डेटाबेस इस्तेमाल करता है।",
     "Small Multiples शीर्षक के पास Load table पर क्लिक करें। measurements.db की एक प्रति खोलें और cell चुनें। प्लॉट चैनल तय करने से पहले तालिका और उसकी दो हज़ार तीन सौ इकतालीस वस्तुएँ जाँचें।",
     "cell_area को X पर और cell_channel_1_mean_intensity को Y पर खींचें, फिर Scatter चुनें। rowID को Facet down पर और columnID को Facet across पर रखें। खोज से कॉलम नाम ढूँढने में मदद मिलती है; हर बिंदु एक मापी गई कोशिका है।",
     "दोनों पैमानों के लिए shared चुनें, ताकि चारों पैनल एक जैसी अक्ष सीमाएँ इस्तेमाल करें। समूह शीर्षक और वस्तुओं की गिनती पढ़ें। इस उदाहरण में फ़ैसेट लेबल स्थानिक पंक्तियाँ और कॉलम बताते हैं।",

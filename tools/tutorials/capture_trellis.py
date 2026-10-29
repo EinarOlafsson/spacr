@@ -60,7 +60,7 @@ def _require_visible_trellis(panel, panels=None):
 def record_trellis(app, window, stage, captures, capture, settle, write_json, timeout):
     from PySide6.QtCore import Qt, QTimer, QPoint
     from PySide6.QtTest import QTest
-    from PySide6.QtWidgets import (QAbstractButton, QFileDialog, QDialogButtonBox,
+    from PySide6.QtWidgets import (QFileDialog, QDialogButtonBox,
                                   QLineEdit, QPushButton, QScrollArea, QTabWidget)
     from spacr.qt.widgets.fold_strip import FoldButton
     from spacr.qt.screens.trellis import TrellisScreen
@@ -247,11 +247,8 @@ def record_trellis(app, window, stage, captures, capture, settle, write_json, ti
         idle()
 
     try:
-        tiles = [w for w in window.findChildren(QAbstractButton) if w.isVisible() and
-                 (w.property('moduleAppKey') == 'graph_builder' or w.property('navKey') == 'graph_builder')]
-        if not tiles: raise ValueError('No actual Home Graph Builder tile')
         with capture_ui.clip(capture, '01_graph_builder_host'):
-            click(max(tiles, key=lambda w: w.width()*w.height())); settle(.8)
+            capture_ui.open_module(capture, window, 'graph_builder', settle, prefer='sidebar'); settle(.8)
             host = window._screens['graph_builder']
             folds = [w for w in host.findChildren(FoldButton) if w.isVisible() and w.app_key == 'trellis']
             if len(folds) != 1: raise ValueError('No unique Graph Builder Small Multiples fold')

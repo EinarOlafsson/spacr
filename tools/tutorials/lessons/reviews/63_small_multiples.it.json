@@ -1,6 +1,6 @@
 {
   "lesson": "63_small_multiples",
-  "english_sha256": "d291d2bec588b4f07344f2b9022b60e6a1e298e17ef5e7f894531e132a71985f",
+  "english_sha256": "586d2d67d33c4930c7d2b53d353783771e9489693bd60f458bec775179752a20",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Scarica l’esempio di misure del tutorial di Annotate e lavora su una copia di measurements.db. Questa guida usa la sua tabella cell, con 2341 oggetti in quattro pozzetti. Small Multiples mostra grafici; usa Tabulate per esportare riepiloghi raggruppati in CSV.",
   "scenes": [
-    "Da Home, apri Graph Builder e poi Small Multiples. Usa questa vista per confrontare le stesse misure tra gruppi. Questo esempio usa il database di misure disponibile nel tutorial di Annotate collegato.",
+    "Apri Graph Builder e poi Small Multiples. Usa questa vista per confrontare le stesse misure tra gruppi. Questo esempio usa il database di misure disponibile nel tutorial di Annotate collegato.",
     "Fai clic su Load table accanto al titolo Small Multiples. Apri una copia di measurements.db e seleziona cell. Controlla la tabella e i suoi duemilatrecentoquarantuno oggetti prima di assegnare i canali del grafico.",
     "Trascina cell_area su X e cell_channel_1_mean_intensity su Y, poi scegli Scatter. Metti rowID su Facet down e columnID su Facet across. La ricerca aiuta a trovare i nomi delle colonne; ogni punto rappresenta una cellula misurata.",
     "Scegli shared per entrambe le scale, così i quattro pannelli usano gli stessi limiti degli assi. Leggi i titoli dei gruppi e i conteggi degli oggetti. In questo esempio le etichette delle sfaccettature identificano righe e colonne spaziali.",

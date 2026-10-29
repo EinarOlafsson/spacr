@@ -1,6 +1,6 @@
 {
   "lesson": "63_small_multiples",
-  "english_sha256": "d291d2bec588b4f07344f2b9022b60e6a1e298e17ef5e7f894531e132a71985f",
+  "english_sha256": "586d2d67d33c4930c7d2b53d353783771e9489693bd60f458bec775179752a20",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Sæktu mælingadæmið úr Annotate-kennsluefninu og vinndu með afrit af measurements.db. Yfirferðin notar töfluna cell með 2.341 hlut úr fjórum brunnum. Small Multiples birtir gröf; notaðu Tabulate til að flytja út flokkaðar CSV-samantektir.",
   "scenes": [
-    "Frá Home opnarðu Graph Builder og svo Small Multiples. Notaðu þessa sýn til að bera saman sömu mælingar milli hópa. Dæmið notar mælingagagnagrunninn úr tengda Annotate-kennsluefninu.",
+    "Opnaðu Graph Builder og svo Small Multiples. Notaðu þessa sýn til að bera saman sömu mælingar milli hópa. Dæmið notar mælingagagnagrunninn úr tengda Annotate-kennsluefninu.",
     "Smelltu á Load table við hlið fyrirsagnarinnar Small Multiples. Opnaðu afrit af measurements.db og veldu cell. Athugaðu töfluna og 2.341 hlut hennar áður en þú úthlutar rásum grafsins.",
     "Dragðu cell_area á X og cell_channel_1_mean_intensity á Y og veldu svo Scatter. Settu rowID á Facet down og columnID á Facet across. Leitin hjálpar þér að finna dálkaheiti; hver punktur táknar mælda frumu.",
     "Veldu shared fyrir báða kvarðana svo að allir fjórir reitirnir noti sömu mörk ása. Lestu fyrirsagnir hópanna og fjölda hluta. Í þessu dæmi auðkenna hliðamerkin rúmfræðilegar raðir og dálka.",
