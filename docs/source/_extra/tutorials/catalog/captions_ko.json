@@ -10820,7 +10820,7 @@
       "scenes": [
         {
           "visual": "01_classify_host",
-          "narration": "Home에서 Classify를 연 뒤 오른쪽 위의 Explain CV Model을 고르세요. 같은 잘라 낸 객체에 대한 측정 데이터베이스와 저장된 예측을 준비하세요.",
+          "narration": "Classify를 연 뒤 오른쪽 위의 Explain CV Model을 고르세요. 같은 잘라 낸 객체에 대한 측정 데이터베이스와 저장된 예측을 준비하세요.",
           "focus": [
             3579,
             100,
@@ -10939,7 +10939,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
