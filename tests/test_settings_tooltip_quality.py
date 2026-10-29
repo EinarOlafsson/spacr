@@ -1204,6 +1204,19 @@ if app_key == "mask":
     for app, _key in calculate_arrivals:
         assert resolve_default_settings(app)["calculate_diameters"] is True
     recognized_arrivals |= calculate_arrivals
+    indexed_scanr_arrivals = {("mask", "metadata_well_map")}
+    assert {pair for pair in compared_pairs
+            if pair[1] == "metadata_well_map"} == indexed_scanr_arrivals
+    assert not indexed_scanr_arrivals & (recognized_arrivals | variants.keys())
+    assert expected_types["metadata_well_map"] is str
+    assert hashlib.sha256(tooltips["metadata_well_map"].encode()).hexdigest() == (
+        "1616b0c13c2a7376c9b3f05f36b696a2c2f8a14717c2a921587fd1326cb4e8b1")
+    well_map_claims = list(DEFAULT_LITERAL.finditer(tooltips["metadata_well_map"]))
+    assert len(well_map_claims) == 1
+    assert well_map_claims[0].group("value").lower() == "empty"
+    for app, key in indexed_scanr_arrivals:
+        assert resolve_default_settings(app)[key] == ""
+    recognized_arrivals |= indexed_scanr_arrivals
     assert comparisons - len(recognized_arrivals) == 931
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))
