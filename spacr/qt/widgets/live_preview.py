@@ -925,6 +925,7 @@ class PreviewRequest:
                                                   repr=False)
     source_path:        str = ""
     cell_mask: Optional[np.ndarray] = field(default=None, repr=False)
+    module: str = ""
 
 
 class _PreviewWorker(QThread):
@@ -1224,8 +1225,14 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
         ch_idx = ch_idx % req.image.shape[-1] if req.image.ndim == 3 else 0
         req.provenance['channels'][obj] = ch_idx
         image_2d = _prepared(ch_idx).copy()
+        if req.module == "cellpose_masks" and req.preprocess_settings.get("invert"):
+            from ...utils import invert_image
 
-        if req.preprocess_settings.get(_background_switch_of(obj)):
+            image_2d = invert_image(image_2d)
+
+        if (req.preprocess_settings.get(_background_switch_of(obj))
+                and (req.module != "cellpose_masks"
+                     or req.preprocess_settings.get("normalize", True))):
             bg = float(req.preprocess_settings.get(
                 f"{obj}_background",
                 req.preprocess_settings.get("background", 100.0)))
@@ -1277,14 +1284,35 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
         if model is None:
             model = preview_cellpose_model(req.model)
         _check_preview_cancel(req)
+        eval_options = ({"resample": req.preprocess_settings.get(
+            f"{obj}_resample", True)} if obj.startswith("organelle") else {})
+        if req.module == "cellpose_masks":
+            from skimage.exposure import rescale_intensity
+            from ...spacr_cellpose import _apply_input_settings, cellpose_rescale
+
+            settings = req.preprocess_settings
+            _channels, percentiles, own_normalization = _apply_input_settings(
+                settings.get("channels"), settings.get("percentiles"))
+            normalize = bool(settings.get("normalize", True))
+            if normalize and own_normalization:
+                low, high = (int(value) for value in percentiles)
+                image_2d = rescale_intensity(image_2d,
+                    in_range=(np.percentile(image_2d, low), np.percentile(image_2d, high)),
+                    out_range=(0, 1))
+            elif not normalize and image_2d.max() > 1:
+                image_2d = image_2d / image_2d.max()
+            eval_options.update(normalize=normalize and not own_normalization,
+                resample=settings.get("resample", False),
+                rescale=cellpose_rescale(settings.get("rescale")))
+            req.provenance["normalization"] = dict(
+                percentiles=percentiles, model_normalizes=eval_options["normalize"])
         result = model.eval(
             image_2d,
             channel_axis=None,
             diameter=float(req.diameter) or None,
             flow_threshold=float(req.flow_threshold),
             cellprob_threshold=float(req.cellprob),
-            **({"resample": req.preprocess_settings.get(
-                f"{obj}_resample", True)} if obj.startswith("organelle") else {}),
+            **eval_options,
         )
         mask = result[0]
         if isinstance(mask, list):
@@ -5323,6 +5351,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             postprocess_settings=post,
             source_path=self._path_full,
             cell_mask=deepcopy(self._masks.get("cell")),
+            module=self._module,
         )
 
     #: Fixed colours the outline-colour combo offers by name.
