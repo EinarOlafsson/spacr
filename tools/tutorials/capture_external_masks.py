@@ -588,7 +588,8 @@ def record_external_masks(app, window, screen, stage, captures, capture,
         available = max(1, max(sum(sizes), runtime.height()) - other)
         sizes[figure_slot] = available if for_figures else figures.title_label.sizeHint().height()
         sizes[console_slot] = screen._console_header.sizeHint().height() if for_figures else available
-        capture_ui_drv_b.splitter_to(capture, runtime, sizes)
+        if not host or runtime.handle(1).isVisible():
+            capture_ui.splitter_sizes(capture, runtime, sizes)
         settle(0.5)
 
     def retained_console_state():
