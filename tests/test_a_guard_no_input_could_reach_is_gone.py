@@ -784,9 +784,12 @@ def test_the_stack_builder_runs_whatever_extension_was_sniffed(tmp_path,
     seen = []
 
     def _organise(s, regex, batch_size, metadata_type, img_format,
-                  timelapse=False, save_original_images=True):
+                  timelapse=False, save_original_images=True,
+                  metadata_well_map=None, source_plate=None):
         seen.append({"img_format": img_format,
-                     "stack_existed": os.path.isdir(os.path.join(s, "stack"))})
+                     "stack_existed": os.path.isdir(os.path.join(s, "stack")),
+                     "metadata_well_map": metadata_well_map,
+                     "source_plate": source_plate})
         stack = os.path.join(s, "stack")
         os.makedirs(stack, exist_ok=True)
         for i in range(4):
@@ -818,6 +821,15 @@ def test_the_stack_builder_runs_whatever_extension_was_sniffed(tmp_path,
     assert seen[0]["img_format"] == ALL_IMG_FORMATS
     assert out_src == str(src)
     assert (src / "stack").is_dir()
+    assert seen[0]["metadata_well_map"] == ""
+    assert seen[0]["source_plate"] == "plate1"
+    stacks = sorted((src / "stack").glob("*.npy"))
+    assert [path.name for path in stacks] == [
+        f"plate1_A01_00{index}_T0001.npy" for index in range(4)]
+    for path in stacks:
+        stack = np.load(path, allow_pickle=False)
+        assert stack.dtype == np.uint16
+        np.testing.assert_array_equal(stack, np.zeros((8, 8, 2), np.uint16))
 
 
 # ===========================================================================
