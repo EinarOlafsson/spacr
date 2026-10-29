@@ -8452,7 +8452,7 @@
       "scenes": [
         {
           "visual": "01_home_data",
-          "narration": "Home의 Data 범주에서 Run Compare를 열어 두 실행에 기록된 출력을 확인하세요.",
+          "narration": "Run Compare를 열어 두 실행에 기록된 출력을 확인하세요.",
           "focus_modules": [
             "run_compare"
           ],
@@ -8543,7 +8543,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
