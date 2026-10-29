@@ -499,6 +499,21 @@ class ForeignScreen(QWidget):
         naming_row.addWidget(self._regex_edit, 1)
         form.addLayout(naming_row)
 
+        self._well_map_row = QWidget(self)
+        well_map_layout = QHBoxLayout(self._well_map_row)
+        well_map_layout.setContentsMargins(0, 0, 0, 0)
+        well_map_layout.setSpacing(SPACING["sm"])
+        self._well_map_edit = QLineEdit(self)
+        self._well_map_edit.setPlaceholderText(tr("CSV with plate, index and well columns"))
+        self._well_map_edit.setClearButtonEnabled(True)
+        self._well_map_edit.textChanged.connect(self._on_input_changed)
+        self._btn_pick_well_map = QPushButton(tr("Choose…"), self)
+        self._btn_pick_well_map.clicked.connect(self._pick_well_map)
+        well_map_layout.addWidget(QLabel(tr("Metadata well map")))
+        well_map_layout.addWidget(self._well_map_edit, 1)
+        well_map_layout.addWidget(self._btn_pick_well_map)
+        form.addWidget(self._well_map_row)
+
         mask_row = QHBoxLayout()
         mask_row.setSpacing(SPACING["sm"])
         self._object_box = QComboBox(self)
@@ -798,6 +813,18 @@ class ForeignScreen(QWidget):
         """The pattern typed for the Custom convention."""
         return self._regex_edit.text().strip()
 
+    def set_metadata_well_map(self, path: str) -> None:
+        """Set the explicit indexed ScanR well map.
+
+        :param path: local CSV with ``plate,index,well`` columns, or empty
+            to clear the choice. No plate geometry is inferred.
+        """
+        self._well_map_edit.setText(str(path or ""))
+
+    def metadata_well_map(self) -> str:
+        """Return the selected indexed ScanR CSV path, or an empty string."""
+        return self._well_map_edit.text().strip()
+
     def _on_naming_changed(self, *_args) -> None:
         """A new convention invalidates the plan, and may need a pattern."""
         self._on_input_changed()
@@ -920,6 +947,14 @@ class ForeignScreen(QWidget):
         if path:
             self.set_measurements(path)
 
+    def _pick_well_map(self) -> None:
+        """Choose the explicit plate-scoped indexed ScanR well map."""
+        path, _filter = QFileDialog.getOpenFileName(
+            self, tr("Choose a well map CSV"), self.metadata_well_map(),
+            tr("CSV files (*.csv)"))
+        if path:
+            self.set_metadata_well_map(path)
+
     def _pick_destination(self) -> None:
         """Ask where the imported project should be written."""
         path = QFileDialog.getExistingDirectory(self, "Choose destination")
@@ -986,6 +1021,7 @@ class ForeignScreen(QWidget):
         policy = self.on_conflict()
         naming = self.metadata_type()
         pattern = self.custom_regex()
+        well_map = self.metadata_well_map() if naming == "scanr_indexed" else None
         if naming == "custom" and not pattern:
             self._set_status(tr(
                 "The Custom naming needs a pattern: named groups wellID, "
@@ -998,7 +1034,8 @@ class ForeignScreen(QWidget):
             return fgn.plan_import(images, masks, table, um_per_px=scale,
                                    on_conflict=policy,
                                    metadata_type=naming,
-                                   custom_regex=pattern or None)
+                                   custom_regex=pattern or None,
+                                   metadata_well_map=well_map)
 
         self._set_status(f"Scanning {images} and reading the masks…")
         return self._run_job(_job, self._on_plan_ready)
@@ -1210,9 +1247,11 @@ class ForeignScreen(QWidget):
                        self._table_edit, self._dst_edit, self._scale_edit,
                        self._object_box, self._conflict_box, self._table,
                        self._mask_list, self._naming_box,
-                       self._btn_test_data):
+                       self._btn_test_data, self._well_map_edit,
+                       self._btn_pick_well_map):
             widget.setEnabled(idle)
         self._regex_edit.setEnabled(idle and self.metadata_type() == "custom")
+        self._well_map_row.setVisible(self.metadata_type() == "scanr_indexed")
         has_map = self._model.rowCount() > 0
         self._btn_save_map.setEnabled(idle and has_map)
         self._btn_load_map.setEnabled(idle)

@@ -211,3 +211,130 @@ def test_a_lif_is_described_series_by_series(tmp_path, monkeypatch):
     sources = cv.scan(str(tmp_path))
     assert [(s.n_channels, s.z) for s in sources] == [(2, 1), (1, 3)]
     assert cv._read_source(sources[1]).shape == (1, 3, 1, 4, 4)
+
+
+@pytest.fixture
+def added_variants(tmp_path):
+    fields = builder.synthetic_fields()
+    root = builder.build(fields, tmp_path / "added", keys=builder.ADDED_VARIANTS)
+    return root, fields
+
+
+@pytest.mark.parametrize("key", ["incell_full_form", "scanr_indexed"])
+def test_new_conventions_round_trip_real_synthetic_planes_masks_and_rows(added_variants, tmp_path, key):
+    root, fields = added_variants
+    rows = [row for row in ix.manifest_rows(root) if row["variant"] == key]
+    before = {path: path.read_bytes() for path in root.rglob("*") if path.is_file()}
+    assert builder._check_import(root, key, rows) == []
+    assert {row["path"] for row in rows} == {
+        path.relative_to(root).as_posix()
+        for path in (root / "variants" / key).rglob("*") if path.is_file()}
+    assert len([row for row in rows if row["kind"] == "image"]) == 12
+    inputs = ix.variant_inputs(root, key)
+    plan = fgn.plan_import(inputs["images"], inputs["masks"], inputs["measurements"],
+                           metadata_type=key, metadata_well_map=inputs["metadata_well_map"])
+    assert plan.ok, fgn.format_plan(plan)
+    assert sorted(plan.masks.fields) == ["plate1_E01_10", "plate1_E01_9",
+                                         "plate1_E02_10", "plate1_E02_9"]
+    assert plan.join.rows_matched == plan.join.rows_total == 12
+    if key == "scanr_indexed":
+        assert plan.images.well_map == {("plate1", "W00002"): "E01",
+                                        ("plate1", "W00007"): "E02"}
+    result = fgn.run_import(plan.with_column_maps(plan.column_maps), str(tmp_path / "imported"))
+    assert result.is_complete and len(result.merged) == 4
+    expected = {f"plate1_{field.well}_{field.field}": field for field in fields}
+    for path in result.merged:
+        field = expected[Path(path).stem]
+        merged = np.load(path, allow_pickle=False)
+        np.testing.assert_array_equal(merged[..., :3], np.stack(
+            [field.images[channel] for channel, _name in builder.CHANNELS], axis=-1))
+        np.testing.assert_array_equal(merged[..., 3:], np.stack(
+            [field.masks[role] for role in builder.MASK_ROLES], axis=-1))
+    assert before == {path: path.read_bytes() for path in root.rglob("*") if path.is_file()}
+
+
+@pytest.mark.parametrize("problem", ["missing", "incomplete", "conflicting", "foreign-mask-plate"])
+def test_indexed_example_refuses_unreviewed_or_foreign_plate_maps_before_writing(added_variants, tmp_path, monkeypatch, problem):
+    import pandas as pd
+    from spacr.tabular import write_table
+
+    root, _fields = added_variants
+    inputs = ix.variant_inputs(root, "scanr_indexed")
+    mapping = tmp_path / "selected-map.csv"
+    rows = [("plate1", "W00002", "E01"), ("plate1", "W00007", "E02")]
+    if problem == "incomplete":
+        rows.pop()
+    elif problem == "conflicting":
+        rows.append(("plate1", "W00002", "E03"))
+    elif problem == "foreign-mask-plate":
+        for folder in inputs["masks"].values():
+            (Path(folder) / "plate1").rename(Path(folder) / "plate2")
+        rows += [("plate2", "W00002", "E01"), ("plate2", "W00007", "E02")]
+    write_table(pd.DataFrame(rows, columns=["plate", "index", "well"]),
+                mapping, canonicalise=False)
+    before = {path: path.read_bytes() for path in root.rglob("*") if path.is_file()}
+    def no_mask_decode(*args, **kwargs):
+        pytest.fail("Refused indexed ownership must not decode mask labels")
+    monkeypatch.setattr(fgn, "_read_mask", no_mask_decode)
+    plan = fgn.plan_import(inputs["images"], inputs["masks"], inputs["measurements"],
+                           metadata_type="scanr_indexed",
+                           metadata_well_map=None if problem == "missing" else str(mapping))
+    assert not plan.ok
+    assert not plan.masks.fields
+    destination = tmp_path / "refused"
+    with pytest.raises(ConfigurationError, match="cannot run"):
+        fgn.run_import(plan, str(destination))
+    assert not destination.exists()
+    assert before == {path: path.read_bytes() for path in root.rglob("*") if path.is_file()}
+
+
+def test_augmentation_preserves_existing_archive_members_and_manifest_rows(tmp_path):
+    import csv
+    import io
+    import tarfile
+
+    fields = builder.synthetic_fields()
+    old = builder.build(fields, tmp_path / "original", keys=["incell"])
+    archive = tmp_path / "original.tar"
+    builder.pack(old, archive)
+    archive_bytes = archive.read_bytes()
+    output = tmp_path / "augmented.tar"
+    builder.augment(archive, tmp_path / "only-two", output)
+    with tarfile.open(archive) as original, tarfile.open(output) as augmented:
+        members = augmented.getmembers()
+        assert members[-1].name == "import_example/manifest.csv"
+        original_rows = list(csv.DictReader(io.TextIOWrapper(
+            original.extractfile("import_example/manifest.csv"), encoding="utf-8")))
+        new_rows = list(csv.DictReader(io.TextIOWrapper(
+            augmented.extractfile("import_example/manifest.csv"), encoding="utf-8")))
+        assert new_rows[:len(original_rows)] == original_rows
+        assert {row["variant"] for row in new_rows[len(original_rows):]} == set(builder.ADDED_VARIANTS)
+        assert len({member.name for member in members}) == len(members)
+        for member in original.getmembers():
+            if member.name.endswith("/manifest.csv"):
+                continue
+            copied = augmented.getmember(member.name)
+            assert copied.get_info() == member.get_info()
+            assert augmented.extractfile(copied).read() == original.extractfile(member).read()
+    assert archive.read_bytes() == archive_bytes
+    assert {path.name for path in (tmp_path / "only-two" / "variants").iterdir()} == set(builder.ADDED_VARIANTS)
+    with pytest.raises(ValueError, match="already contains"):
+        builder.augment(output, tmp_path / "duplicate-stage", tmp_path / "duplicate.tar")
+    assert not (tmp_path / "duplicate-stage").exists()
+    assert not (tmp_path / "duplicate.tar").exists()
+
+
+def test_augmentation_refuses_unsafe_archive_paths_before_creating_outputs(tmp_path):
+    import io
+    import tarfile
+
+    archive = tmp_path / "unsafe.tar"
+    with tarfile.open(archive, "w") as handle:
+        info = tarfile.TarInfo("import_example/../escape")
+        info.size = 1
+        handle.addfile(info, io.BytesIO(b"x"))
+    before = archive.read_bytes()
+    with pytest.raises(ValueError, match="unsafe"):
+        builder.augment(archive, tmp_path / "stage", tmp_path / "result.tar")
+    assert archive.read_bytes() == before
+    assert not (tmp_path / "stage").exists() and not (tmp_path / "result.tar").exists()

@@ -160,6 +160,17 @@ IMPORT_VARIANTS: Tuple[ImportVariant, ...] = (
         "Channels are named by filter, so their order is the order of the "
         "names."),
     ImportVariant(
+        "incell_full_form", "Test IN Cell Full Form import", "import",
+        "incell_full_form", "", "TIFF", "E_01_f9_c1_x405_mBlue_z1_t1.tif",
+        "Synthetic pixels and constructed names demonstrate the documented "
+        "Full Form convention; these are not acquired microscope images."),
+    ImportVariant(
+        "scanr_indexed", "Test indexed ScanR import", "import",
+        "scanr_indexed", "", "TIFF",
+        "data/--W00002--P00009--Z00000--T00000--DAPI.tif",
+        "Synthetic pixels use an explicit plate/index/well CSV: W00002 is "
+        "E01 and W00007 is E02. The indices do not imply plate geometry."),
+    ImportVariant(
         "scanr", "Test ScanR import", "import", "scanr", "", "TIFF",
         "data/E1--W00097--P00009--Z00000--T00000--DAPI.tif"),
     ImportVariant(
@@ -291,7 +302,8 @@ def variant_inputs(root, key: str) -> Dict[str, object]:
     :returns: ``images`` (the ``plate1`` folder), ``masks`` (``{object:
         folder}`` for the import route, empty for the converter),
         ``measurements`` (the table, or ``''``), ``metadata_type`` and
-        ``custom_regex``.
+        ``custom_regex`` and ``metadata_well_map`` (the explicit indexed
+        ScanR CSV, or an empty string).
     """
     variant = import_variant(key)
     folder = Path(root) / "variants" / key
@@ -311,4 +323,6 @@ def variant_inputs(root, key: str) -> Dict[str, object]:
         "metadata_type": variant.metadata_type,
         "custom_regex": variant.custom_regex,
         "route": variant.route,
+        "metadata_well_map": str(folder / "well_map.csv")
+        if key == "scanr_indexed" else "",
     }

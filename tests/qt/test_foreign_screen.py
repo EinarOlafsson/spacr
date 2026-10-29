@@ -909,3 +909,45 @@ def test_an_unknown_class_is_refused_in_the_names_it_offered(screen, tmp_path):
     assert screen.add_mask_folder(unknown, str(tmp_path)) is False
     assert "Organelle 1" in screen.status_text()
     assert "organelleb" not in screen.status_text()
+
+
+def test_indexed_example_uses_the_selected_csv_in_real_preview_and_refuses_its_removal(screen, qtbot, tmp_path, monkeypatch):
+    from pathlib import Path
+    from PySide6.QtWidgets import QFileDialog
+    from tests.test_import_example_round_trip import builder
+    from spacr import import_examples as ix
+    from spacr.qt import import_demo
+
+    root = builder.build(builder.synthetic_fields(), tmp_path / "example", keys=["scanr_indexed"])
+    inputs = ix.variant_inputs(root, "scanr_indexed")
+    before = {path: path.read_bytes() for path in root.rglob("*") if path.is_file()}
+    screen.show()
+    assert screen.set_metadata_type("scanr_indexed")
+    assert screen._well_map_row.isVisible()
+    choices = []
+    def choose(parent, title, previous, filters):
+        choices.append((parent, title, previous, filters))
+        return inputs["metadata_well_map"], "CSV files (*.csv)"
+    monkeypatch.setattr(QFileDialog, "getOpenFileName", choose)
+    qtbot.mouseClick(screen._btn_pick_well_map, Qt.LeftButton)
+    assert choices == [(screen, "Choose a well map CSV", "", "CSV files (*.csv)")]
+    assert screen.metadata_well_map() == inputs["metadata_well_map"]
+    assert import_demo.apply_variant(screen, root, "scanr_indexed")
+    assert screen.plan().ok and screen.can_import()
+    assert screen.plan().images.well_map == {("plate1", "W00002"): "E01",
+                                            ("plate1", "W00007"): "E02"}
+    assert screen.plan().join.rows_matched == 12
+    screen._well_map_edit.clear()
+    assert screen.plan() is None and not screen.can_import()
+    assert screen.preview()
+    assert not screen.plan().ok and not screen.can_import()
+    assert "requires a CSV map" in screen.report_text()
+    screen.set_metadata_well_map(inputs["metadata_well_map"])
+    monkeypatch.setattr(QFileDialog, "getOpenFileName", lambda *args: ("", ""))
+    qtbot.mouseClick(screen._btn_pick_well_map, Qt.LeftButton)
+    assert screen.metadata_well_map() == inputs["metadata_well_map"]
+    assert screen.preview() and screen.plan().ok
+    assert screen.set_metadata_type("auto")
+    assert screen._well_map_row.isHidden()
+    assert before == {path: path.read_bytes() for path in root.rglob("*") if path.is_file()}
+    assert not (Path(inputs["images"]).parent / "plate1_spacr").exists()

@@ -1693,7 +1693,8 @@ def plan_import(images: str,
                 prefix: str = FOREIGN_PREFIX,
                 verify_labels: bool = True,
                 metadata_type: Optional[str] = None,
-                custom_regex: Optional[str] = None) -> ImportPlan:
+                custom_regex: Optional[str] = None,
+                metadata_well_map: Optional[str] = None) -> ImportPlan:
     """Plan an import without writing anything.
 
     Five things happen here, in order, and every one of them can only
@@ -1741,6 +1742,9 @@ def plan_import(images: str,
         ``'auto'`` reads plate / well / field from the folders, as before. See
         :func:`spacr.convert.scan`.
     :param custom_regex: the pattern for ``metadata_type='custom'``.
+    :param metadata_well_map: indexed ScanR CSV with ``plate,index,well``
+        columns. Images and masks must retain the same explicit plate and
+        acquisition index; indices never imply physical well positions.
     :returns: an :class:`ImportPlan`.
     :raises ConfigurationError: for an unreadable input or an unknown
         option — a setup mistake, not a per-item failure.
@@ -1753,8 +1757,11 @@ def plan_import(images: str,
     image_sources = cv.scan(images, layout=layout,
                             metadata_type=metadata_type,
                             custom_regex=custom_regex)
+    indexed = any(source.meta.get('metadata_type') == 'scanr_indexed'
+                  for source in image_sources)
     image_plan = cv.plan(image_sources, z_handling=z_handling,
-                         plate_naming=plate_naming)
+                         plate_naming=plate_naming,
+                         well_map=metadata_well_map if indexed else None)
 
     errors: List[str] = []
     warnings: List[str] = []
@@ -1811,6 +1818,15 @@ def plan_import(images: str,
         mask_sources = cv.scan(folder, layout=mask_layout or layout,
                                metadata_type=metadata_type,
                                custom_regex=custom_regex)
+        if indexed:
+            required = {(source.plate, source.well) for source in mask_sources
+                        if source.readable}
+            try:
+                cv._indexed_well_map(metadata_well_map, required)
+            except (ValueError, OSError) as exc:
+                errors.append(str(exc))
+                per_type[object_type] = {}
+                continue
         matched: Dict[str, MaskMapping] = {}
         for source in mask_sources:
             if not source.readable:
@@ -1826,6 +1842,8 @@ def plan_import(images: str,
                 if candidate in stem_of_mapping:
                     hit = (candidate, how)
                     break
+                if indexed:
+                    continue
                 same_well = [k for k in stem_of_mapping
                              if k[1] == well_key and k[2] == field_key]
                 if len(same_well) == 1:

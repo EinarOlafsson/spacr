@@ -197,6 +197,7 @@ def apply_variant(screen, root, key: str) -> bool:
     screen.set_measurements(inputs["measurements"])
     screen.set_metadata_type(inputs["metadata_type"])
     screen.set_custom_regex(inputs["custom_regex"])
+    screen.set_metadata_well_map(inputs["metadata_well_map"])
     screen.set_destination(_fresh_destination(inputs["images"]))
     return bool(screen.preview())
 

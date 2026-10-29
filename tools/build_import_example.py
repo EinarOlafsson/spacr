@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import io
 import json
 import os
 import shutil
@@ -64,6 +65,9 @@ MASK_ROLES: Tuple[str, ...] = ("cell", "nucleus", "pathogen")
 #: The wells and fields taken from the plate.
 WELLS: Tuple[str, ...] = ("E01", "E02")
 FIELDS: Tuple[int, ...] = (9, 10)
+
+ADDED_VARIANTS = ("incell_full_form", "scanr_indexed")
+INDEXED_WELLS = {"E01": "W00002", "E02": "W00007"}
 
 #: Side of the square cut out of each 1994 px field. Chosen for size: twenty
 #: TIFF variants of twelve planes each is most of the download.
@@ -238,6 +242,11 @@ def plane_path(key: str, fd: FieldData, channel: int) -> Optional[str]:
         "arrayscan_kinetic": f"plate1i3t001{w}f{f - 1:02d}d{c - 1}.TIF",
         "evos": f"scan_R_p1_z1_0_{w}f{f:02d}d{c - 1}.tif",
         "incell": f"{w[0]} - {col:02d}(fld {f} wv {name} - {name}).tif",
+        "incell_full_form": f"{w[0]}_{col:02d}_f{f}_c{c}"
+                            f"_x{(405, 488, 561)[c - 1]}"
+                            f"_m{('Blue', 'Green', 'Orange')[c - 1]}_z1_t1.tif",
+        "scanr_indexed": f"data/--{INDEXED_WELLS.get(w, '')}--P{f:05d}"
+                         f"--Z00000--T00000--{name}.tif",
         "scanr": f"data/{short}--W{(r - 1) * 24 + col:05d}--P{f:05d}"
                  f"--Z00000--T00000--{name}.tif",
         "cytation": f"{short}_01_{c}_{f}_{name}_001.tif",
@@ -277,6 +286,8 @@ def mask_path(key: str, fd: FieldData) -> str:
     masks are TIFFs of the same name: nobody exports a label image as CZI.
     """
     path = plane_path(key, fd, 1) or field_path(key, fd)
+    if key == "scanr_indexed":
+        path = "plate1/" + path
     if path.endswith(".czi"):
         path = path[:-4] + ".tif"
     return path
@@ -335,6 +346,8 @@ def write_variant(out: Path, key: str, fields: Sequence[FieldData]
     import pandas as pd
 
     variant = ix.import_variant(key)
+    if key == "scanr_indexed" and any(fd.well not in INDEXED_WELLS for fd in fields):
+        raise ValueError("The synthetic indexed variant requires its explicit E01/E02 map")
     base = out / "variants" / key
     rows: List[Dict[str, str]] = []
     tables = []
@@ -390,6 +403,28 @@ def write_variant(out: Path, key: str, fields: Sequence[FieldData]
     rows.append({"variant": key, "route": variant.route,
                  "metadata_type": variant.metadata_type, "kind":
                  "measurements", "path": f"variants/{key}/measurements.db"})
+    if key in ADDED_VARIANTS:
+        provenance = ("Constructed synthetic pixels and filenames, not acquired "
+                      "microscope data or new vendor evidence.")
+        for row in rows:
+            row["provenance"] = provenance
+        readme = base / "README.md"
+        readme.write_text(variant.label + "\n\n" + provenance + "\n\n"
+                          + variant.note + "\n", encoding="utf-8")
+        rows.append(dict(variant=key, route=variant.route,
+                         metadata_type=variant.metadata_type, kind="readme",
+                         path=readme.relative_to(out).as_posix(), provenance=provenance))
+    if key == "scanr_indexed":
+        from spacr.tabular import write_table
+
+        well_map = base / "well_map.csv"
+        write_table(pd.DataFrame([("plate1", INDEXED_WELLS[well], well)
+                                  for well in sorted({fd.well for fd in fields})],
+                                 columns=["plate", "index", "well"]),
+                    well_map, canonicalise=False)
+        rows.append(dict(variant=key, route=variant.route,
+                         metadata_type=variant.metadata_type, kind="well_map",
+                         path=well_map.relative_to(out).as_posix(), provenance=provenance))
     return rows
 
 
@@ -506,7 +541,8 @@ def _check_import(root: Path, key: str, rows: List[Dict[str, str]]
     plan = fgn.plan_import(inputs["images"], inputs["masks"],
                            inputs["measurements"],
                            metadata_type=inputs["metadata_type"],
-                           custom_regex=inputs["custom_regex"] or None)
+                           custom_regex=inputs["custom_regex"] or None,
+                           metadata_well_map=inputs["metadata_well_map"] or None)
     problems: List[str] = []
     problems += [f"plan error: {e}" for e in plan.errors]
     problems += [f"image plan error: {e}" for e in plan.images.errors]
@@ -757,16 +793,92 @@ def pack(out: Path, tar_path: Path) -> int:
     return os.path.getsize(tar_path)
 
 
+def augment(archive: Path, out: Path, tar_path: Path) -> int:
+    """Append only the two synthetic naming variants to a retained archive.
+
+    Existing non-manifest members retain their payload and tar metadata.
+    Original manifest rows remain in order, followed by the new rows; the
+    replacement manifest is last. Nothing is extracted or rebuilt in place.
+    """
+    archive, out, tar_path = Path(archive), Path(out), Path(tar_path)
+    if out.exists() or tar_path.exists():
+        raise ValueError("Augmentation requires new staging and output paths")
+    if archive.resolve() == tar_path.resolve():
+        raise ValueError("The retained archive cannot be overwritten")
+    with tarfile.open(archive, "r:*") as original:
+        names = set()
+        original_rows = None
+        manifest_info = None
+        for member in original:
+            path = Path(member.name)
+            if (path.is_absolute() or ".." in path.parts
+                    or not path.parts or path.parts[0] != ix.IMPORT_EXAMPLE_FOLDER
+                    or not member.isfile() or member.name in names):
+                raise ValueError("The retained archive has unsafe or duplicate members")
+            names.add(member.name)
+            if len(path.parts) >= 3 and path.parts[1] == "variants" and path.parts[2] in ADDED_VARIANTS:
+                raise ValueError("The retained archive already contains an added variant")
+            if member.name == f"{ix.IMPORT_EXAMPLE_FOLDER}/{ix.MANIFEST_NAME}":
+                manifest_info = member
+                with original.extractfile(member) as handle:
+                    reader = csv.DictReader(io.StringIO(handle.read().decode("utf-8")))
+                    if reader.fieldnames != list(MANIFEST_COLUMNS):
+                        raise ValueError("The retained manifest has an unsupported schema")
+                    original_rows = list(reader)
+        if original_rows is None:
+            raise ValueError("The retained archive has no manifest")
+        for row in original_rows:
+            if (row.get("variant") in ADDED_VARIANTS
+                    or f"{ix.IMPORT_EXAMPLE_FOLDER}/{row['path']}" not in names):
+                raise ValueError("The retained manifest has conflicting or absent members")
+    out.mkdir(parents=True)
+    rows = []
+    fields = synthetic_fields()
+    for key in ADDED_VARIANTS:
+        rows.extend(write_variant(out, key, fields))
+    manifest = io.StringIO(newline="")
+    writer = csv.DictWriter(manifest, fieldnames=MANIFEST_COLUMNS)
+    writer.writeheader()
+    writer.writerows(original_rows)
+    writer.writerows({key: row.get(key, "") for key in MANIFEST_COLUMNS} for row in rows)
+    payload = manifest.getvalue().encode("utf-8")
+    with tarfile.open(archive, "r|*") as original, tarfile.open(tar_path, "x") as target:
+        for member in original:
+            if member.name != manifest_info.name:
+                with original.extractfile(member) as handle:
+                    target.addfile(member, handle)
+        for path in sorted(p for p in out.rglob("*") if p.is_file()):
+            name = f"{ix.IMPORT_EXAMPLE_FOLDER}/{path.relative_to(out).as_posix()}"
+            if name in names:
+                raise ValueError("An added member collides with the retained archive")
+            info = target.gettarinfo(str(path), arcname=name)
+            info.uid = info.gid = 0
+            info.uname = info.gname = ""
+            info.mtime = 0
+            with path.open("rb") as handle:
+                target.addfile(info, handle)
+        manifest_info.size = len(payload)
+        target.addfile(manifest_info, io.BytesIO(payload))
+    return tar_path.stat().st_size
+
+
 def main(argv: Optional[Sequence[str]] = None) -> int:
-    """Command line: ``build``, ``verify`` or ``pack``."""
+    """Command line: build, verify, pack or narrowly augment a retained set."""
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("command", choices=("build", "verify", "pack"))
+    parser.add_argument("command", choices=("build", "verify", "pack", "augment"))
     parser.add_argument("--plate", type=Path)
+    parser.add_argument("--archive", type=Path)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--samples", type=Path)
     parser.add_argument("--tar", type=Path)
     parser.add_argument("--crop", type=int, default=CROP)
     args = parser.parse_args(argv)
+    if args.command == "augment":
+        if args.archive is None or args.tar is None:
+            parser.error("augment requires --archive and --tar")
+        size = augment(args.archive, args.out, args.tar)
+        print(f"{args.tar}: {size} bytes; retained originals plus two synthetic variants")
+        return 0
     if args.command == "build":
         fields = load_toxo_fields(args.plate, crop=args.crop)
         for fd in fields:
