@@ -37,7 +37,7 @@ test("Gemma primary and official neuron rates agree with deployment while free l
   assert.equal(limits({ AI_DAILY_NEURON_CAP: "999999" }).neuronCap, FREE_NEURONS_PER_DAY);
 });
 
-test("Gemma completion content is returned without reasoning under the reserved 600-token cap", async () => {
+test("Gemma completion content is returned without reasoning under the reserved output-token cap", async () => {
   const { env, calls } = setup();
   const result = await ask(env);
   assert.equal(result.status, 200);

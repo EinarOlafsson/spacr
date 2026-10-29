@@ -37,7 +37,12 @@ def test_default_and_error_instructions_share_actionable_gui_context(monkeypatch
     context = prompts._navigation_context()
     for answer_prompt in (prompts.default_system_prompt(), prompts.error_explainer_prompt()):
         assert context in answer_prompt
-        assert 'spacr://module/key' in answer_prompt
+        assert '[Mask](spacr://module/mask)' in answer_prompt
+        assert 'Keep all links out of the main answer text' in answer_prompt
+        assert 'once in first-mention order' in answer_prompt
+        assert 'footer is required' in answer_prompt
+        assert '[API](exact API URL) | ' in answer_prompt
+        assert '[Tutorial](exact Tutorial URL)' in answer_prompt
         assert 'Navigator' in answer_prompt
         assert 'Actions > Run' in answer_prompt
         assert 'Propagate settings' in answer_prompt

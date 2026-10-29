@@ -51,7 +51,11 @@ test("question guidance gives grounded module navigation, preview and the correc
   assert.match(SYSTEM_PROMPT, /reply in the user's language/);
   assert.match(SYSTEM_PROMPT, /numbered GUI steps/);
   assert.match(SYSTEM_PROMPT, /Navigator keyword: type it and press Enter/);
-  assert.match(SYSTEM_PROMPT, /spacr:\/\/module\/key/);
+  assert.match(SYSTEM_PROMPT, /\[Mask\]\(spacr:\/\/module\/mask\)/);
+  assert.match(SYSTEM_PROMPT, /Keep all links\n.*out of the main answer text/);
+  assert.match(SYSTEM_PROMPT, /once in first-mention order/);
+  assert.match(SYSTEM_PROMPT, /Tools footer is required/);
+  assert.match(SYSTEM_PROMPT, /\[API\]\(exact API URL\) \| \[Tutorial\]/);
   assert.match(SYSTEM_PROMPT, /same catalog row supplies them; omit missing links/);
   assert.match(SYSTEM_PROMPT, /Propagate settings ON, then use Actions > Run/);
   assert.match(SYSTEM_PROMPT, /Run preview does not process the plate/);

@@ -2,7 +2,7 @@ import { MODEL_RATES } from "./config.js";
 import { SYSTEM_PROMPT } from "./prompts.js";
 import { MAX_BODY_BYTES } from "./util.js";
 
-export const MAX_OUTPUT_TOKENS = 600;
+export const MAX_OUTPUT_TOKENS = 1200;
 export const CHARS_PER_TOKEN_FLOOR = 2.5;
 export const TYPICAL_PROMPT_TOKENS = 1500;
 export const TYPICAL_INPUT_TOKENS = 1000;
