@@ -553,6 +553,7 @@ def update_language(language: str, pot_dir: Path,
         else:
             catalog = Catalog(locale=language, project="spaCR user guide",
                               fuzzy=False)
+        original_keys = {(message.id, message.context) for message in catalog}
         catalog.update(template, no_fuzzy_matching=False,
                        update_header_comment=False)
         catalog.language_team = "spaCR AI translation <noreply@spacr>"
@@ -560,6 +561,9 @@ def update_language(language: str, pot_dir: Path,
             catalog.last_translator = TRANSLATOR
         catalog.fuzzy = False
         for message in list(catalog):
+            if (message.id, message.context) not in original_keys:
+                message.user_comments = [comment for comment in message.user_comments
+                                         if not comment.startswith("AI technical review (")]
             message.locations = []
             if message.id and not message.string and not has_prose(message.id):
                 message.string = message.id     # literals, numbers, names only

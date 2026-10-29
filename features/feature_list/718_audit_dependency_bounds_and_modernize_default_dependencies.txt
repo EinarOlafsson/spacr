@@ -19,7 +19,7 @@ OVERNIGHT LINUX ACCEPTANCE — 2026-10-23
 Home Linux coordinator owns remaining current-source CPU-only managed/pip/Conda installation and actual CLI/offscreen launch acceptance; retained Qt worker owns the disjoint fresh ordinary pip/source path. Coordinate cached dependency graphs, preserve accepted Python/ARM controls and use disposable environments only. No new scientific fits; the recorded divergence/convergence limitation remains open.
 
 Lifecycle: new
-Status: REOPENED — Python 3.15 installation and dependency compatibility follow-up; earlier delivered modernization and scientific history remain recorded.
+Status: DONE — Linux x86_64 Python 3.15 installation and focused runtime qualification; earlier modernization and scientific-model limitations remain recorded.
 Requested: maintainer, 2026-10-21
 Priority:  P1
 Owner:     Workstation session 2 dependency agent — current optimization and end-to-end validation/publication; Home retains existing scientific-model ownership and release integration
@@ -214,4 +214,4 @@ The 2026-10-24 CI documentation follow-up is owned by widgets_g5 with independen
 
 2026-10-28 — Dependency installations are accepted and the published 371390e0 sampler satisfies the maintainer diagnostic rule with all 12 recorded seeds passing. Broader hosted CI/release confirmation remains item 43; no hosted result is inferred from local validation.
 
-2026-10-28 — Qualified a full Python 3.15.2 Linux x86_64 installation with pip check, real installed Measure database/PNG outputs, morphology/intensity/texture controls, Cellpose CPU flows, Torch forward execution and a native Navigator/Measure/Home window. Scoped dependency guards prevent unsupported optional backends from driving old NumPy/Ninja builds; earlier Python bounds remain. The recipe supplies Conda native prerequisites, the non-ICU SQLite build and a PyPI SciPy wheel; both cold import orders/HDF5 round-trip pass. Added a blocking Linux 3.15 CI cell; localization/publication are pending root integration.
+2026-10-28 — Qualified a full Python 3.15.2 Linux x86_64 installation with pip check, real installed Measure database/PNG outputs, morphology/intensity/texture controls, Cellpose CPU flows, Torch forward execution and a native Navigator/Measure/Home window. Scoped dependency guards prevent unsupported optional backends from driving old NumPy/Ninja builds; earlier Python bounds remain. The recipe supplies Conda native prerequisites, the non-ICU SQLite build and a PyPI SciPy wheel; both cold import orders/HDF5 round-trip pass. Added a blocking Linux 3.15 CI cell. Nine-language installation guidance and runtime notices pass their normal checks; the package and Python 3.15 compatibility badges are delivered together.

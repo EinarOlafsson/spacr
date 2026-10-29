@@ -523,7 +523,7 @@ environment. It includes spaCR's desktop and core dependencies:
    spacr
 
 Python 3.15 on Linux
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 Use the nightly source in a new Linux Conda environment for Python 3.15.
 The current PyPI release excludes this interpreter and pip can fall back

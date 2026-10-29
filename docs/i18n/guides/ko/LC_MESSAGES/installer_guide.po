@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:05-0400\n"
+"POT-Creation-Date: 2026-10-28 22:18-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -74,6 +74,39 @@ msgstr "Linux에서는 백엔드 자동 선택이 기본값입니다. 호환되�
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "To leave out the wgpu 3D renderer, run the installer with ``--without-wgpu``, or tick **Install without wgpu (use OpenGL/CPU for 3D)** in the installer window; the box is unchecked by default. On a Linux system whose glibc is older than 2.28 the installer leaves wgpu out by itself and prints one line saying so, because wgpu publishes Linux wheels only for glibc 2.28 and newer. ``--dry-run`` shows the decision in its plan, as the ``wgpu 3D rendering`` line. See :ref:`wgpu-3d-rendering`."
 msgstr "wgpu 3D 렌더러를 제외하려면 ``--without-wgpu`` 로 설치 프로그램을 실행하거나, 설치 프로그램 창에서 **Install without wgpu (use OpenGL/CPU for 3D)** 를 선택합니다. 이 상자는 기본적으로 선택되어 있지 않습니다. glibc가 2.28보다 오래된 Linux 시스템에서는 설치 프로그램이 wgpu를 자동으로 제외하고 그 사실을 한 줄로 출력합니다. wgpu는 glibc 2.28 이상용 Linux wheel만 게시하기 때문입니다. ``--dry-run`` 은 계획의 ``wgpu 3D rendering`` 줄에 이 결정을 표시합니다. :ref:`wgpu-3d-rendering` 를 참조하세요."
+
+msgid "Linux ARM64 build requirements"
+msgstr ""
+
+msgid "Linux ARM64 environments build ModernGL's GLContext backend from source. This requires a C++ compiler and the X11 development headers. The Unix installer's normal system-dependency step installs these packages on ARM64:"
+msgstr ""
+
+msgid "Package manager"
+msgstr ""
+
+msgid "Build packages"
+msgstr ""
+
+msgid "APT"
+msgstr ""
+
+msgid "``build-essential libx11-dev``"
+msgstr "``build-essential libx11-dev``"
+
+msgid "DNF or Zypper"
+msgstr ""
+
+msgid "``gcc-c++ libX11-devel``"
+msgstr "``gcc-c++ libX11-devel``"
+
+msgid "Pacman"
+msgstr ""
+
+msgid "``base-devel libx11``"
+msgstr "``base-devel libx11``"
+
+msgid "When using ``--skip-system-deps`` or installing with ``pip`` directly, provide these build packages beforehand alongside the required desktop runtime libraries. The managed Python already includes its own Python headers; for a system Python, provide that interpreter's development headers as well."
+msgstr ""
 
 msgid "Updating"
 msgstr "업데이트"
@@ -213,7 +246,8 @@ msgstr "네이티브 및 명령줄 대안"
 msgid "**Windows:** open **Settings → Apps → Installed apps → spaCR → Uninstall**, or run ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe``."
 msgstr "**Windows:** **설정 → 앱 → 설치된 앱 → spaCR → 제거** 를 열거나 ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe`` 를 실행합니다."
 
-msgid "**macOS:** run ``/Library/Application Support/spaCR/uninstall-spacr.sh`` in Terminal. This removes the application, command launcher and system installer support. Remove ``~/Library/Application Support/spaCR`` separately to delete the per-user private runtime."
+#, fuzzy
+msgid "**macOS:** run ``/Library/Application Support/spaCR/uninstall-spacr.sh`` in Terminal. This removes the application, command launcher and system installer support. Add ``--dry-run`` to preview the software paths without removing anything. The command launcher is removed only if it is spaCR's exact installed symlink; unrelated files and links are kept. Remove ``~/Library/Application Support/spaCR`` separately to delete the per-user private runtime."
 msgstr "**macOS:** 터미널에서 ``/Library/Application Support/spaCR/uninstall-spacr.sh`` 를 실행합니다. 애플리케이션, 명령 실행 도구, 시스템 설치 프로그램 지원 파일이 제거됩니다. 사용자별 전용 런타임을 삭제하려면 ``~/Library/Application Support/spaCR`` 를 따로 제거합니다."
 
 msgid "**Linux:** run ``~/.local/share/spacr/uninstall-spacr.sh``. This removes the launcher, desktop entry and private environment."
@@ -238,8 +272,8 @@ msgstr "완전 제거는 직접 선택해야 합니다. spaCR의 캐시, 백엔�
 msgid "**Windows:** run ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe /PURGE``."
 msgstr "**Windows:** ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe /PURGE`` 를 실행합니다."
 
-msgid "**macOS:** run ``uninstall-spacr.sh --purge`` as above."
-msgstr "**macOS:** 위와 같이 ``uninstall-spacr.sh --purge`` 를 실행합니다."
+msgid "**macOS:** run ``uninstall-spacr.sh --purge`` as above. Add ``--dry-run`` to preview both software and data removal. A refused or failed purge stops the uninstall before the application is removed."
+msgstr ""
 
 msgid "**Linux:** run ``~/.local/share/spacr/uninstall-spacr.sh --purge``."
 msgstr "**Linux:** ``~/.local/share/spacr/uninstall-spacr.sh --purge`` 를 실행합니다."
@@ -331,6 +365,22 @@ msgstr "conda-forge 설치"
 
 msgid "Install the official conda-forge package directly into an activated environment. It includes spaCR's desktop and core dependencies:"
 msgstr "활성화된 환경에 공식 conda-forge 패키지를 직접 설치합니다. 이 패키지에는 spaCR의 데스크톱 및 핵심 의존성이 포함됩니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Python 3.15 on Linux"
+msgstr "Linux에서 Python 3.15 사용"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use the nightly source in a new Linux Conda environment for Python 3.15. The current PyPI release excludes this interpreter and pip can fall back to an older spaCR release. Install the Linux build packages listed above before running this recipe; some native dependencies still build from source."
+msgstr "Python 3.15용 새 Linux Conda 환경에서 nightly 브랜치의 소스를 사용하세요. 현재 PyPI 릴리스는 이 인터프리터를 지원 대상에서 제외하므로 pip가 이전 spaCR 릴리스를 선택할 수 있습니다. 이 설치 절차를 실행하기 전에 위에 나열된 Linux 빌드 패키지를 설치하세요. 일부 네이티브 의존성은 여전히 소스에서 빌드됩니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For a local source checkout, replace the Git URL with ``.``. The selected SQLite build and SciPy wheel reinstallation prevent a C++ runtime mismatch between Conda libraries and the PyPI Torch/Qt libraries; complete all Conda installations before these pip steps. The CPU Torch command does not install a CUDA runtime."
+msgstr "로컬 소스 체크아웃을 사용하려면 Git URL을 ``.`` 으로 바꾸세요. 선택한 SQLite 빌드와 SciPy wheel 재설치는 Conda 라이브러리와 PyPI Torch/Qt 라이브러리 간의 C++ 런타임 불일치를 방지합니다. 이 pip 단계를 수행하기 전에 모든 Conda 설치를 완료하세요. CPU용 Torch 명령은 CUDA 런타임을 설치하지 않습니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Python 3.15 uses scikit-image 0.27.0rc1 (a release candidate) or newer below 0.28 because that line provides its image-processing wheels. The optional pyfixest, CatBoost, PyMC and Piper speech packages are not installed by default on this interpreter because compatible upstream binaries or dependencies are missing. Existing Python 3.14 requirements and scientific defaults are unchanged. This recipe is qualified on Linux x86_64; Windows is untested and macOS retains its older Qt requirement."
+msgstr "Python 3.15에서는 scikit-image 0.27.0rc1(릴리스 후보) 또는 그보다 새롭지만 0.28 미만인 버전을 사용합니다. 이 버전 계열이 필요한 이미지 처리 wheel 패키지를 제공하기 때문입니다. 호환되는 원본 프로젝트의 바이너리나 의존성이 없으므로 이 인터프리터에서는 선택적인 pyfixest, CatBoost, PyMC 및 Piper 음성 패키지를 기본으로 설치하지 않습니다. 기존 Python 3.14 요구 사항과 과학 분석 기본값은 변경되지 않습니다. 이 설치 절차는 Linux x86_64에서 검증되었습니다. Windows에서는 테스트하지 않았으며 macOS는 기존의 더 오래된 Qt 요구 사항을 유지합니다."
 
 msgid "PyPI installation and extras"
 msgstr "PyPI 설치와 추가 구성 요소"
@@ -528,15 +578,15 @@ msgstr "이미지"
 msgid "For"
 msgstr "용도"
 
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "``ghcr.io/einarolafsson/spacr:1.5.1.4``"
+#, fuzzy
+msgid "``ghcr.io/einarolafsson/spacr:1.5.1.6``"
 msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.4``"
 
 msgid "CPU only. Runs Linux x86-64 containers with Docker or Podman and needs no GPU driver."
 msgstr "CPU 전용. Docker나 Podman으로 Linux x86-64 컨테이너를 실행하며 GPU 드라이버가 필요 없습니다."
 
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "``ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4``"
+#, fuzzy
+msgid "``ghcr.io/einarolafsson/spacr:1.5.1.6-cuda12.4``"
 msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4``"
 
 msgid "CUDA 12.4. Needs an NVIDIA driver of **550 or newer on the host** and the NVIDIA Container Toolkit. Without ``--gpus`` it behaves as the CPU image."
@@ -621,6 +671,28 @@ msgstr "``packaging/apptainer/spacr_slurm.sh`` 는 설정 파일 한 쌍을 사�
 
 msgid "For a CPU partition, remove the ``--gres`` line, replace the ``GPU_FLAG`` line with ``GPU_FLAG=`` and point ``SIF`` at the CPU image."
 msgstr "CPU 파티션에서는 ``--gres`` 줄을 제거하고, ``GPU_FLAG`` 줄을 ``GPU_FLAG=`` 로 바꾸고, ``SIF`` 가 CPU 이미지를 가리키도록 합니다."
+
+#, fuzzy
+msgid "The desktop interface on a cluster node"
+msgstr "컨테이너 안의 데스크톱 인터페이스"
+
+msgid "The GUI needs a display. On a cluster, use one of these:"
+msgstr ""
+
+msgid "**X11 forwarding.** Connect with ``ssh -X user@login-node`` (or ``ssh -Y`` for trusted forwarding), start an interactive job with X11 forwarding (for example ``srun --x11 --pty bash`` on Slurm), then run ``spacr``. This works but is slow over long distances."
+msgstr ""
+
+msgid "**Open OnDemand desktop or VNC.** Start a remote desktop session from your cluster's Open OnDemand page, or a VNC server on the node, open a terminal inside it and run ``spacr``. This is much faster than forwarding."
+msgstr ""
+
+msgid "Qt's X11 plugin needs ``libxcb-cursor.so.0`` and a few related libraries that cluster nodes often lack. Without root, install them into your conda or mamba environment:"
+msgstr ""
+
+msgid "or create the environment from ``environment-linux.yaml``, which already lists them. ``spacr`` finds them in the active environment by itself, and names any that are still missing instead of crashing; ``spacr-doctor`` shows the same check as its ``X11 libraries`` row. With root, ``sudo apt install libxcb-cursor0`` (Debian/Ubuntu) or ``sudo dnf install xcb-util-cursor`` (RHEL/Rocky) installs them system-wide."
+msgstr ""
+
+msgid "A shared home directory is fine: spaCR keeps its single-window lock and its crash counter per host, so a session on one node never blocks or counts against another."
+msgstr ""
 
 msgid "Troubleshooting"
 msgstr "문제 해결"
