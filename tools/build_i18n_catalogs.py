@@ -1548,7 +1548,7 @@ _UI_SCREEN_SOURCE = (
     # were previously rendered as Portuguese ``triagem`` (scientific screen)
     # even though the source unambiguously means a GUI screen.
     r"\b(?:Annotate|Classify|Gate Editor|Image UMAP|Power|Report|Mask|"
-    r"Measure|Batch|Convert|Project Browser|DB Browser|Database Browser|"
+    r"Measure|Batch|Convert|Import|Project Browser|DB Browser|Database Browser|"
     r"Plate View|Home|Pipeline Graph|QC)\s+screens?\b|"
     r"\bscreens?\s+(?:itself|filter|dropdown|dialog|button|form|panel|picker|"
     r"view|GUI|route|module|navigation|sidebar|tab)\b|"
@@ -6001,8 +6001,9 @@ def _contextualize(value: str, language: str, source: str = "") -> str:
         language, ()
     ):
         if (source_pattern == r"\bscreens?\b"
-                and re.search(r"\bscreens?(?:['’]s)?\s+(?:edges?|pixel\s+budget)\b",
-                              str(source), re.I)):
+                and (_gui_screen_source(source)
+                     or re.search(r"\bscreens?(?:['’]s)?\s+(?:edges?|pixel\s+budget)\b",
+                                  str(source), re.I))):
             continue
         # Documentation guides are not molecular guides. In a paragraph that
         # names both, leave the choice of target occurrences to its reviewer.

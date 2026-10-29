@@ -147,3 +147,68 @@ def test_citation_nested_inside_rst_code_restores_every_literal(monkeypatch):
     source = f"Use {notice} and {title}, doi:10.1038/s41592-025-02662-x."
     target = f"Utilice {notice} y {title}, doi:10.1038/s41592-025-02662-x."
     assert builder._contextualize(target, "es", source) == target
+
+
+@pytest.mark.parametrize("language,source,screen_target,approved_target", [
+    ('fr', 'TIFF, named like E_01_f9_c1_x405_mBlue_z1_t1.tif. Naming: incell_full_form. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nSynthetic pixels and constructed names demonstrate the documented Full Form convention; these are not acquired microscope images.', 'TIFF, avec des noms comme E_01_f9_c1_x405_mBlue_z1_t1.tif. Convention de nommage : incell_full_form. Remplit l’écran d’importation avec les images, les masques de cellule / noyau / pathogène et une table de mesures, puis affiche un aperçu.\n\nLes pixels synthétiques et les noms construits illustrent la convention Full Form documentée ; il ne s’agit pas d’images acquises au microscope.', 'TIFF, avec des noms comme E_01_f9_c1_x405_mBlue_z1_t1.tif. Convention de nommage : incell_full_form. Remplit la fenêtre d’importation avec les images, les masques de cellule / noyau / pathogène et une table de mesures, puis affiche un aperçu.\n\nLes pixels synthétiques et les noms construits illustrent la convention Full Form documentée ; il ne s’agit pas d’images acquises au microscope.'),
+    ('fr', 'TIFF, named like data/--W00002--P00009--Z00000--T00000--DAPI.tif. Naming: scanr_indexed. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nSynthetic pixels use an explicit plate/index/well CSV: W00002 is E01 and W00007 is E02. The indices do not imply plate geometry.', 'TIFF, avec des noms comme data/--W00002--P00009--Z00000--T00000--DAPI.tif. Convention de nommage : scanr_indexed. Remplit l’écran d’importation avec les images, les masques de cellule / noyau / pathogène et une table de mesures, puis affiche un aperçu.\n\nLes pixels synthétiques utilisent un CSV explicite avec plate/index/well : W00002 correspond à E01 et W00007 à E02. Les indices n’impliquent aucune géométrie de plaque.', 'TIFF, avec des noms comme data/--W00002--P00009--Z00000--T00000--DAPI.tif. Convention de nommage : scanr_indexed. Remplit la fenêtre d’importation avec les images, les masques de cellule / noyau / pathogène et une table de mesures, puis affiche un aperçu.\n\nLes pixels synthétiques utilisent un CSV explicite avec plate/index/well : W00002 correspond à E01 et W00007 à E02. Les indices n’impliquent aucune géométrie de plaque.'),
+    ('hi', 'TIFF, named like E_01_f9_c1_x405_mBlue_z1_t1.tif. Naming: incell_full_form. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nSynthetic pixels and constructed names demonstrate the documented Full Form convention; these are not acquired microscope images.', 'TIFF, जिसका नाम E_01_f9_c1_x405_mBlue_z1_t1.tif जैसा है। नामकरण: incell_full_form। आयात स्क्रीन में छवियाँ, सेल / न्यूक्लियस / पैथोजन मास्क और मापन तालिका भरता है, फिर पूर्वावलोकन दिखाता है।\n\nकृत्रिम पिक्सेल और बनाए गए नाम प्रलेखित Full Form नामकरण परंपरा का उदाहरण देते हैं; ये माइक्रोस्कोप से ली गई छवियाँ नहीं हैं।', 'TIFF, जिसका नाम E_01_f9_c1_x405_mBlue_z1_t1.tif जैसा है। नामकरण: incell_full_form। आयात विंडो में छवियाँ, सेल / न्यूक्लियस / पैथोजन मास्क और मापन तालिका भरता है, फिर पूर्वावलोकन दिखाता है।\n\nकृत्रिम पिक्सेल और बनाए गए नाम प्रलेखित Full Form नामकरण परंपरा का उदाहरण देते हैं; ये माइक्रोस्कोप से ली गई छवियाँ नहीं हैं।'),
+    ('hi', 'TIFF, named like data/--W00002--P00009--Z00000--T00000--DAPI.tif. Naming: scanr_indexed. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nSynthetic pixels use an explicit plate/index/well CSV: W00002 is E01 and W00007 is E02. The indices do not imply plate geometry.', 'TIFF, जिसका नाम data/--W00002--P00009--Z00000--T00000--DAPI.tif जैसा है। नामकरण: scanr_indexed। आयात स्क्रीन में छवियाँ, सेल / न्यूक्लियस / पैथोजन मास्क और मापन तालिका भरता है, फिर पूर्वावलोकन दिखाता है।\n\nकृत्रिम पिक्सेल एक स्पष्ट plate/index/well CSV का उपयोग करते हैं: W00002 का वेल E01 है और W00007 का वेल E02 है। सूचकांक प्लेट की ज्यामिति नहीं दर्शाते।', 'TIFF, जिसका नाम data/--W00002--P00009--Z00000--T00000--DAPI.tif जैसा है। नामकरण: scanr_indexed। आयात विंडो में छवियाँ, सेल / न्यूक्लियस / पैथोजन मास्क और मापन तालिका भरता है, फिर पूर्वावलोकन दिखाता है।\n\nकृत्रिम पिक्सेल एक स्पष्ट plate/index/well CSV का उपयोग करते हैं: W00002 का वेल E01 है और W00007 का वेल E02 है। सूचकांक प्लेट की ज्यामिति नहीं दर्शाते।'),
+    ('es', 'TIFF, named like E_01_f9_c1_x405_mBlue_z1_t1.tif. Naming: incell_full_form. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nSynthetic pixels and constructed names demonstrate the documented Full Form convention; these are not acquired microscope images.', 'TIFF, con nombres como E_01_f9_c1_x405_mBlue_z1_t1.tif. Convención de nombres: incell_full_form. Rellena la pantalla de importación con imágenes, máscaras de célula / núcleo / patógeno y una tabla de mediciones; después muestra una vista previa.\n\nLos píxeles sintéticos y los nombres construidos demuestran la convención Full Form documentada; no son imágenes adquiridas con un microscopio.', 'TIFF, con nombres como E_01_f9_c1_x405_mBlue_z1_t1.tif. Convención de nombres: incell_full_form. Rellena la ventana de importación con imágenes, máscaras de célula / núcleo / patógeno y una tabla de mediciones; después muestra una vista previa.\n\nLos píxeles sintéticos y los nombres construidos demuestran la convención Full Form documentada; no son imágenes adquiridas con un microscopio.'),
+    ('es', 'TIFF, named like data/--W00002--P00009--Z00000--T00000--DAPI.tif. Naming: scanr_indexed. Fills the Import screen: images, cell / nucleus / pathogen masks and a measurements table, then previews.\n\nSynthetic pixels use an explicit plate/index/well CSV: W00002 is E01 and W00007 is E02. The indices do not imply plate geometry.', 'TIFF, con nombres como data/--W00002--P00009--Z00000--T00000--DAPI.tif. Convención de nombres: scanr_indexed. Rellena la pantalla de importación con imágenes, máscaras de célula / núcleo / patógeno y una tabla de mediciones; después muestra una vista previa.\n\nLos píxeles sintéticos utilizan un CSV explícito con plate/index/well: W00002 es E01 y W00007 es E02. Los índices no implican la geometría de la placa.', 'TIFF, con nombres como data/--W00002--P00009--Z00000--T00000--DAPI.tif. Convención de nombres: scanr_indexed. Rellena la ventana de importación con imágenes, máscaras de célula / núcleo / patógeno y una tabla de mediciones; después muestra una vista previa.\n\nLos píxeles sintéticos utilizan un CSV explícito con plate/index/well: W00002 es E01 y W00007 es E02. Los índices no implican la geometría de la placa.'),
+], ids=["fr-full-form", "fr-indexed-scanr", "hi-full-form", "hi-indexed-scanr",
+        "es-full-form", "es-indexed-scanr"])
+def test_import_screen_context_preserves_gui_meaning_and_protected_inputs(
+    language, source, screen_target, approved_target, monkeypatch,
+):
+    import build_i18n_catalogs as builder
+
+    monkeypatch.setattr(builder, "_reviewed_translation", lambda *_: None)
+    assert builder._gui_screen_source(source)
+    for target in (screen_target, approved_target):
+        assert builder._contextualize(target, language, source) == target
+        assert builder._contextualize(
+            builder._contextualize(target, language, source), language, source,
+        ) == target
+        assert builder._syntax_preserved(source, target)
+        assert not builder._semantic_false_friends(source, target, language)
+        assert not builder._syntax_preserved(source, target.replace(".tif", ".png"))
+        if "plate/index/well" in source:
+            csv_source = "CSV columns: ``plate,index,well``."
+            assert builder._syntax_preserved(csv_source, csv_source)
+            assert not builder._syntax_preserved(
+                csv_source, csv_source.replace("plate,index,well", "plate,row,well"),
+            )
+
+
+@pytest.mark.parametrize("language,ui_target,assay_target", [
+    ("fr", "L’écran Qt affiche les paramètres.", "Le criblage Qt affiche les paramètres."),
+    ("hi", "Qt स्क्रीन सेटिंग दिखाती है।", "Qt स्क्रीनिंग सेटिंग दिखाती है।"),
+    ("es", "La pantalla Qt muestra ajustes.", "El cribado Qt muestra ajustes."),
+])
+def test_ui_screen_preservation_keeps_scientific_correction_and_meaning_gate(
+    language, ui_target, assay_target, monkeypatch,
+):
+    import build_i18n_catalogs as builder
+
+    monkeypatch.setattr(builder, "_reviewed_translation", lambda *_: None)
+    source = "The Qt screen shows settings."
+    assert builder._contextualize(ui_target, language, source) == ui_target
+    if language != "es":
+        assert "gui-screen-as-scientific-screen" in builder._semantic_false_friends(
+            source, assay_target, language,
+        )
+    scientific = "A pooled CRISPR screen reports hits."
+    assert not builder._gui_screen_source(scientific)
+    expected = {"fr": "criblage", "hi": "स्क्रीनिंग", "es": "cribado"}[language]
+    noun = {"fr": "écran", "hi": "स्क्रीन", "es": "pantalla"}[language]
+    assert builder._contextualize(noun, language, scientific) == expected
+
+
+def test_mixed_gui_and_assay_screen_stays_outside_single_sense_classifier():
+    import build_i18n_catalogs as builder
+
+    source = "The GUI screen compares a pooled CRISPR screen."
+    target = "L’écran GUI compare un criblage CRISPR."
+    assert not builder._gui_screen_source(source)
+    assert not builder._semantic_false_friends(source, target, "fr")
