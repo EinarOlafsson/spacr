@@ -3384,8 +3384,6 @@ def _overview_pixels(field, channels=(0,), percentiles=(1., 99.), edge=1200, *,
             grey = np.repeat(planes[0][..., None], 3, axis=2)
             return grey if background == "black" else 255 - grey
         return _overview_saturated(_overview_composite(planes, colours, background, strengths), saturation)
-    if len(planes) == 1:
-        return np.repeat(planes[0][..., None], 3, axis=2)
     rows = math.ceil(len(planes) / columns)
     mosaic_image = Image.new("RGB", (columns * tile, rows * tile))
     draw = ImageDraw.Draw(mosaic_image)
@@ -5216,8 +5214,7 @@ def _overview_scheme_annotations(frame, fields):
 
     present = {}
     for field in fields:
-        if not field.unresolved:
-            present.setdefault((str(field.plate), _scheme_well(field.well)), (field.plate, field.well))
+        present.setdefault((str(field.plate), _scheme_well(field.well)), (field.plate, field.well))
     plates = sorted({plate for plate, _well in present})
     columns = {column: _image_annotation_column_name(column) for column in list(frame.columns)[2:]}
     result, unmatched = {}, 0
@@ -7026,8 +7023,6 @@ class _FieldOverview(QWidget):
         axis_key = tuple(sorted(axes.items()))
         members = {}
         for field in self._fields:
-            if field.unresolved or not field.well:
-                continue
             for channel, scope in scoped.items():
                 members.setdefault((channel, scope, _overview_scope_group(field, scope)), []).append(field)
         keys = {group: group + (own.get(group[0], percentiles), axis_key,
@@ -7053,8 +7048,6 @@ class _FieldOverview(QWidget):
         """Give every loaded image its channels' scope bounds; redraw only when they changed."""
         limits = {}
         for field in self._fields:
-            if field.unresolved or not field.well:
-                continue
             entry = {}
             for channel, scope in scoped.items():
                 bounds = self._scope_cache.get(keys.get((channel, scope, _overview_scope_group(field, scope))))
