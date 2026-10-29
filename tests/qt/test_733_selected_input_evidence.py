@@ -429,3 +429,291 @@ def test_master_regression_table_is_not_a_child_plate_generated_result(tmp_path)
     assert not any(row['kind'] == 'regression' for row in generated['artifacts'])
     assert result['context']['run_evidence']['results'][0]['path'] == str(coefficients)
     assert all(path.read_bytes() == content for path, content in originals.items())
+
+
+def _deny_selected_home_access(monkeypatch, *, scans=(), stats=()):
+    """Make only named metadata operations fail, including under root accounts."""
+    original = home.os
+    scans, stats = set(map(Path, scans)), set(map(Path, stats))
+
+    class SelectedAccess:
+        def __getattr__(self, name):
+            return getattr(original, name)
+
+        def scandir(self, path):
+            if Path(path) in scans:
+                raise PermissionError('selected directory cannot be listed')
+            return original.scandir(path)
+
+        def stat(self, path, *args, **kwargs):
+            if Path(path) in stats:
+                raise PermissionError('selected file metadata unavailable')
+            return original.stat(path, *args, **kwargs)
+
+    monkeypatch.setattr(home, 'os', SelectedAccess())
+
+
+def _ome_input(path):
+    """Write a real TIFF with bounded OME dimension metadata, not pixel stubs."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    Image.fromarray(np.arange(48, dtype=np.uint16).reshape(6, 8)).save(
+        path, tiffinfo={270: '<OME><Image><Pixels SizeT="1" SizeZ="1" SizeC="1"/></Image></OME>'})
+    return path
+
+
+@pytest.fixture
+def spatial_input_evidence(tmp_path):
+    import json
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+
+    root, project = tmp_path / 'acquisition', tmp_path / 'segmented'
+    image = _ome_input(root / 'morphology_focus' / 'field.ome.tif')
+    experiment = root / 'experiment.xenium'
+    experiment.write_text(json.dumps({'pixel_size': .2125}), encoding='utf-8')
+    transcripts = root / 'transcripts.parquet'
+    pq.write_table(pa.table({'x_location': [1.0], 'y_location': [2.0],
+                             'feature_name': ['gene_a']}), transcripts)
+    database = _database(project / 'measurements' / 'measurements.db')
+    with sqlite3.connect(database) as connection:
+        connection.execute('CREATE TABLE spatial_fields (source TEXT, channels INTEGER)')
+        connection.executemany('INSERT INTO spatial_fields VALUES (?, 3)', [(None,), (str(root),)])
+    merged = project / 'merged' / 'field.npy'
+    merged.parent.mkdir()
+    np.save(merged, np.zeros((6, 8, 3), dtype=np.uint16))
+    schema = dict(home._easy_database_evidence(database), path=str(database))
+    return dict(root=root, project=project, image=image, database=database, merged=merged,
+                schema=schema, files=[experiment, transcripts, image])
+
+
+def test_analysis_discovery_refuses_a_named_execute_only_directory(tmp_path, monkeypatch):
+    root = tmp_path / 'selected'
+    root.mkdir()
+    database = _database(root / 'measurements.db')
+    before = database.read_bytes()
+    details = {'unchanged': True}
+    root.chmod(0o111)
+    _deny_selected_home_access(monkeypatch, scans=[root])
+    try:
+        assert home._easy_analysis_inputs(root, details) == []
+        assert details == {'unchanged': True}
+        assert database.read_bytes() == before
+    finally:
+        root.chmod(0o700)
+
+
+def test_analysis_discovery_bounds_immediate_plate_candidates_and_databases(tmp_path):
+    root = tmp_path / 'selected'
+    root.mkdir()
+    known = {_database(root / 'measurements.db')}
+    for number in range(18):
+        plate = root / f'plate-{number:02d}'
+        plate.mkdir()
+        if number < 9:
+            known.add(_database(plate / 'measurements' / 'measurements.db'))
+    hidden = _database(root / '.private' / 'measurements.db')
+    outside = _database(tmp_path / 'other' / 'measurements.db')
+    details = {}
+    found = home._easy_analysis_inputs(root, details)
+    assert len(found) == 8 and len(set(found)) == 8
+    assert set(found) <= known
+    assert hidden not in found and outside not in found
+    assert details == {'sampled_plate_candidates': 17, 'truncated': True}
+
+
+@pytest.mark.parametrize('failure', ['invalid_text', 'no_library_columns', 'denied'])
+def test_ops_library_refusal_preserves_both_real_acquisition_sources(tmp_path, monkeypatch, failure):
+    root = tmp_path / 'screen'
+    cycled = _image(root / 'genotype' / '10X_c2_A1_CY3_Site-0.tif')
+    uncycled = _image(root / 'phenotype' / '20X_DAPI-GFP-A594-AF750_B1_DAPI-GFP_Site-0.tif')
+    library = root / 'library.csv'
+    library.write_bytes(b'\xff,barcode\nACGT,4\n' if failure == 'invalid_text' else
+                        b'gene,value\na,2\n' if failure == 'no_library_columns' else
+                        b'prefix,gene\nACGT,gene_a\n')
+    note = root / 'readme.txt'
+    note.write_text('acquisition notes')
+    deep_library = root / 'too' / 'deep' / 'library.csv'
+    deep_library.parent.mkdir(parents=True)
+    deep_library.write_text('prefix,gene\nACGT,gene_a\n')
+    before = {path: path.read_bytes() for path in (cycled, uncycled, library, deep_library, note)}
+    if failure == 'denied':
+        _deny_selected_home_access(monkeypatch, stats=[library])
+    hints = home._easy_specialized_inputs(root, [note, deep_library, library, cycled, uncycled],
+                                           [cycled, uncycled], [])
+    assert set(hints) == {'ops'}
+    assert hints['ops']['source'] == str(cycled.parent)
+    assert hints['ops']['settings'] == dict(genotype_source=str(cycled.parent),
+                                          phenotype_source=str(uncycled.parent))
+    assert all(path.read_bytes() == content for path, content in before.items())
+
+
+def test_xenium_focus_listing_denial_does_not_invent_an_image(spatial_input_evidence, monkeypatch):
+    case = spatial_input_evidence
+    focus = case['image'].parent
+    focus.chmod(0o111)
+    _deny_selected_home_access(monkeypatch, scans=[focus])
+    try:
+        hints = home._easy_specialized_inputs(case['root'], case['files'], [case['image']], [])
+        assert hints == {}
+    finally:
+        focus.chmod(0o700)
+
+
+def test_spatial_image_stat_failure_uses_only_a_readable_morphology_fallback(
+        spatial_input_evidence, monkeypatch):
+    case = spatial_input_evidence
+    preferred = _ome_input(case['root'] / 'morphology_focus.ome.tif')
+    fallback = _ome_input(case['root'] / 'morphology_mip.ome.tif')
+    _deny_selected_home_access(monkeypatch, stats=[preferred])
+    before = {path: path.read_bytes() for path in [preferred, fallback, *case['files']]}
+    hints = home._easy_specialized_inputs(case['root'], case['files'] + [preferred, fallback],
+                                           [preferred, fallback, case['image']], [])
+    assert set(hints) == {'spatial_masks'}
+    assert hints['spatial_masks']['image'] == str(fallback)
+    assert hints['spatial_masks']['settings'] == dict(spatial_source=str(case['root']),
+                                                     spatial_platform='xenium')
+    assert all(path.read_bytes() == content for path, content in before.items())
+
+
+def test_spatial_mapping_rechecks_the_actual_table_after_a_stale_schema_snapshot(spatial_input_evidence):
+    case = spatial_input_evidence
+    irrelevant = {'path': str(case['database']), 'tables': ['cell']}
+    schemas = [irrelevant, case['schema']]
+    before = {path: path.read_bytes() for path in [*case['files'], case['database'], case['merged']]}
+    hints = home._easy_specialized_inputs(case['root'], case['files'], [case['image']], schemas)
+    assert hints['spatial_map']['settings'] == dict(spatial_source=str(case['root']),
+        spatial_platform='xenium', spatial_masks_dir=str(case['project']))
+    assert all(path.read_bytes() == content for path, content in before.items())
+    with sqlite3.connect(case['database']) as connection:
+        connection.execute('DROP TABLE spatial_fields')
+    after_drop = case['database'].read_bytes()
+    refused = home._easy_specialized_inputs(case['root'], case['files'], [case['image']], schemas)
+    assert set(refused) == {'spatial_masks'}
+    assert refused['spatial_masks'] == hints['spatial_masks']
+    assert case['database'].read_bytes() == after_drop
+
+
+@pytest.mark.parametrize('missing', ['wrong_source', 'no_merged', 'one_channel', 'truncated', 'denied'])
+def test_spatial_map_refusals_keep_the_matching_masks_route(spatial_input_evidence, monkeypatch, missing):
+    case = spatial_input_evidence
+    if missing == 'wrong_source':
+        with sqlite3.connect(case['database']) as connection:
+            connection.execute('UPDATE spatial_fields SET source = ?', (str(case['root'].parent / 'other'),))
+    elif missing == 'no_merged':
+        case['merged'].unlink()
+    elif missing == 'one_channel':
+        np.save(case['merged'], np.zeros((6, 8, 1), dtype=np.uint16))
+    elif missing == 'truncated':
+        case['merged'].write_bytes(b'\x93NUMPY\x01\x00')
+    else:
+        _deny_selected_home_access(monkeypatch, scans=[case['merged'].parent])
+    before = {path: path.read_bytes() for path in case['files'] + [case['database']]}
+    hints = home._easy_specialized_inputs(case['root'], case['files'], [case['image']], [case['schema']])
+    assert set(hints) == {'spatial_masks'}
+    assert hints['spatial_masks']['source'] == str(case['root'])
+    assert hints['spatial_masks']['image'] == str(case['image'])
+    assert hints['spatial_masks']['settings'] == dict(spatial_source=str(case['root']),
+                                                     spatial_platform='xenium')
+    assert all(path.read_bytes() == content for path, content in before.items())
+
+
+@pytest.mark.parametrize('shape', [(6, 8), (6, 8, 3)])
+def test_paired_images_require_a_real_three_dimensional_merged_header(tmp_path, shape):
+    image, mask = _image(tmp_path / 'field.tif'), _image(tmp_path / 'masks' / 'field.tif')
+    ignored = _image(tmp_path / 'outside' / 'deeper' / 'not-local.tif')
+    merged = tmp_path / 'merged'
+    merged.mkdir()
+    (merged / 'notes.txt').write_text('not an array')
+    array = merged / 'field.npy'
+    np.save(array, np.zeros(shape, dtype=np.uint16))
+    before = {path: path.read_bytes() for path in (image, mask, ignored, array)}
+    evidence = home._easy_paired_layout([image, mask, ignored], tmp_path)
+    assert evidence == dict(kind='spacr' if len(shape) == 3 else 'unstructured',
+        pairs={str(image): str(mask)}, project=str(tmp_path), filename_evidence=True)
+    assert all(path.read_bytes() == content for path, content in before.items())
+
+
+def test_paired_images_survive_a_named_execute_only_merged_folder(tmp_path, monkeypatch):
+    image, mask = _image(tmp_path / 'field.tif'), _image(tmp_path / 'field_mask.tif')
+    merged = tmp_path / 'merged'
+    merged.mkdir()
+    np.save(merged / 'field.npy', np.zeros((6, 8, 3), dtype=np.uint16))
+    merged.chmod(0o111)
+    _deny_selected_home_access(monkeypatch, scans=[merged])
+    try:
+        assert home._easy_paired_layout([image, mask], tmp_path) == dict(kind='unstructured',
+            pairs={str(image): str(mask)}, project=str(tmp_path), filename_evidence=True)
+    finally:
+        merged.chmod(0o700)
+
+
+@pytest.mark.parametrize('state', ['matched', 'no_bins', 'denied_bins', 'invalid_scale',
+                                   'invalid_count_scale', 'missing_positions', 'denied_counts'])
+def test_visium_hd_routes_use_existing_calibrated_bins_and_readable_count_evidence(tmp_path, monkeypatch, state):
+    import json
+    import h5py
+
+    root = tmp_path / 'visium'
+    slide = _ome_input(root / 'slide.tif')
+    binned = root / 'binned_outputs'
+    binned.mkdir()
+    (binned / 'square_000um').mkdir()
+    (binned / 'square_004um').write_text('not a bin directory')
+    scales = root / 'spatial' / 'scalefactors_json.json'
+    scales.parent.mkdir()
+    scales.write_text(json.dumps({'microns_per_pixel': 'not numeric' if state == 'invalid_scale' else .5}))
+    known = [slide, scales]
+    count_folder = None
+    if state != 'no_bins':
+        for size in (16, 2):
+            folder = binned / f'square_{size:03d}um'
+            spatial = folder / 'spatial'
+            spatial.mkdir(parents=True)
+            scale = spatial / 'scalefactors_json.json'
+            scale.write_text(json.dumps({'microns_per_pixel': 'invalid' if state in
+                ('invalid_scale', 'invalid_count_scale') else .5}))
+            known.append(scale)
+            if size == 2:
+                count_folder = folder
+        if state != 'missing_positions':
+            positions = count_folder / 'spatial' / 'tissue_positions.csv'
+            positions.write_text('barcode,in_tissue,pxl_row_in_fullres,pxl_col_in_fullres\na,1,2,3\n')
+            known.append(positions)
+        counts = count_folder / 'filtered_feature_bc_matrix.h5'
+        with h5py.File(counts, 'w') as handle:
+            handle.create_dataset('matrix/data', data=np.array([1], dtype=np.int32))
+        known.append(counts)
+    project = tmp_path / 'segmented'
+    database = _database(project / 'measurements.db')
+    with sqlite3.connect(database) as connection:
+        connection.execute('CREATE TABLE spatial_fields (source TEXT)')
+        connection.execute('INSERT INTO spatial_fields VALUES (?)', (str(root),))
+    merged = project / 'merged' / 'field.npy'
+    merged.parent.mkdir()
+    np.save(merged, np.zeros((6, 8, 3), dtype=np.uint16))
+    schema = dict(home._easy_database_evidence(database), path=str(database))
+    known.extend([database, merged])
+    before = {path: path.read_bytes() for path in known}
+    denied = binned if state == 'denied_bins' else count_folder if state == 'denied_counts' else None
+    if denied is not None:
+        denied.chmod(0o111)
+        _deny_selected_home_access(monkeypatch, scans=[denied])
+    try:
+        hints = home._easy_specialized_inputs(root, [slide, scales], [slide], [schema])
+        if state == 'invalid_scale':
+            assert hints == {}
+        else:
+            expected = dict(spatial_source=str(root), spatial_platform='visium_hd')
+            if state not in ('no_bins', 'denied_bins'):
+                expected['spatial_bin_um'] = 2
+            assert hints['spatial_masks']['settings'] == expected
+            assert hints['spatial_masks']['image'] == str(slide)
+            if state == 'matched':
+                assert set(hints) == {'spatial_masks', 'spatial_map'}
+                assert hints['spatial_map']['settings'] == dict(expected, spatial_masks_dir=str(project))
+            else:
+                assert set(hints) == {'spatial_masks'}
+        assert all(path.read_bytes() == content for path, content in before.items())
+    finally:
+        if denied is not None:
+            denied.chmod(0o700)
