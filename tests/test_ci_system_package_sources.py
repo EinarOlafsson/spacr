@@ -130,4 +130,4 @@ def test_python315_installs_required_qt_libraries_before_native_controls():
                   if step.get("name") == "Check installed native imports in both cold-start orders")
     assert index < native
     shared = dict(STEPS)["_pytest-suite.yml:pytest"]
-    assert install["run"] == shared
+    assert install["run"] == shared.rstrip("\n") + " python3-numpy\n"
