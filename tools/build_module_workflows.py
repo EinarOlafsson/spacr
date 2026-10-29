@@ -9,11 +9,11 @@ from __future__ import annotations
 
 import argparse
 import ast
-from dataclasses import asdict
 import json
-from pathlib import Path
 import re
 import sys
+from dataclasses import asdict
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 MAP_PATH = Path("spacr/resources/module_workflows.json")
@@ -24,6 +24,89 @@ MODES = {"classify": "classify_merged", "ml_analyze": "classify_merged",
 def load(root=ROOT):
     """Read the editorial source for pathways, handoffs and lesson ownership."""
     return json.loads((root / MAP_PATH).read_text(encoding="utf-8"))
+
+
+def _validate_protocols(data):
+    """Validate optional decision-tree guides without treating navigation as execution."""
+    fields = {"protocols", "protocol_routes", "protocol_choices"}
+    if not fields.intersection(data):
+        return
+    if not fields <= data.keys():
+        raise ValueError("protocol catalog needs protocols, routes and choices")
+    protocols, routes, choices = (data[name] for name in
+                                  ("protocols", "protocol_routes", "protocol_choices"))
+    axes = ("data", "goal", "stage", "details")
+    if not isinstance(protocols, dict) or not protocols or not isinstance(choices, dict) or set(choices) != set(axes):
+        raise ValueError("invalid protocol catalog or choice axes")
+    def text(value):
+        """Require actual nonempty displayed text."""
+        return isinstance(value, str) and bool(value.strip())
+
+    def identity(value):
+        """Require an unambiguous machine token."""
+        return isinstance(value, str) and re.fullmatch(r"[a-z][a-z0-9_]*", value)
+
+    for axis in axes:
+        if not isinstance(choices[axis], dict) or not choices[axis]:
+            raise ValueError(f"empty protocol choices: {axis}")
+        if any(not identity(key) or not text(label) for key, label in choices[axis].items()):
+            raise ValueError(f"invalid protocol choice: {axis}")
+    for key, protocol in protocols.items():
+        if not identity(key) or not isinstance(protocol, dict):
+            raise ValueError(f"invalid protocol: {key}")
+        if any(not text(protocol.get(field)) for field in ("title", "summary")):
+            raise ValueError(f"{key}: missing protocol text")
+        if not isinstance(protocol.get("pathway"), str) or protocol["pathway"] not in data["pathways"]:
+            raise ValueError(f"{key}: unknown protocol pathway")
+        if "checkpoint" in protocol and not text(protocol["checkpoint"]):
+            raise ValueError(f"{key}: empty protocol checkpoint")
+        inputs = protocol.get("inputs")
+        if (not isinstance(inputs, list) or not inputs
+                or any(not isinstance(item, str) for item in inputs)
+                or len(inputs) != len(set(inputs)) or set(inputs) - data["artifacts"].keys()):
+            raise ValueError(f"{key}: invalid protocol inputs")
+        steps = protocol.get("steps")
+        if not isinstance(steps, list) or not steps:
+            raise ValueError(f"{key}: missing protocol steps")
+        dependencies = {}
+        for step in steps:
+            if not isinstance(step, dict):
+                raise ValueError(f"{key}: invalid protocol step")
+            module, after = step.get("module"), step.get("after")
+            if (not isinstance(module, str) or module not in data["modules"]
+                    or module in dependencies or not text(step.get("action"))
+                    or not isinstance(after, list) or any(not isinstance(item, str) for item in after)
+                    or len(after) != len(set(after))):
+                raise ValueError(f"{key}: invalid protocol step {module}")
+            dependencies[module] = after
+        if any(set(after) - dependencies.keys() for after in dependencies.values()):
+            raise ValueError(f"{key}: unknown protocol dependency")
+        previous = set()
+        for module, after in dependencies.items():
+            if set(after) - previous:
+                raise ValueError(f"{key}: protocol dependency precedes its input")
+            previous.add(module)
+    if not isinstance(routes, list) or not routes:
+        raise ValueError("empty protocol routes")
+    seen, used = set(), set()
+    for route in routes:
+        if not isinstance(route, dict) or set(route) - {*axes, "protocol", "start_module"}:
+            raise ValueError("invalid protocol route fields")
+        if any(not isinstance(route.get(axis), str) or route[axis] not in choices[axis] for axis in axes):
+            raise ValueError("unknown protocol route choice")
+        key = route.get("protocol")
+        if not isinstance(key, str) or key not in protocols:
+            raise ValueError("unknown protocol route destination")
+        modules = {step["module"] for step in protocols[key]["steps"]}
+        if "start_module" in route and (not isinstance(route["start_module"], str) or route["start_module"] not in modules):
+            raise ValueError("protocol route starts outside its steps")
+        full = tuple(route[axis] for axis in (*axes, "protocol"))
+        if full in seen:
+            raise ValueError("duplicate complete protocol route")
+        seen.add(full)
+        used.add(key)
+    if set(protocols) - used:
+        raise ValueError("protocols missing decision-tree routes")
 
 
 def validate(data, root=ROOT, *, live=True):
@@ -93,6 +176,7 @@ def validate(data, root=ROOT, *, live=True):
                     or set(source["targets"]) - previous):
                 raise ValueError(f"{key}: invalid external input {identity!r}")
             input_ids.add(identity)
+    _validate_protocols(data)
     for key, lesson in data["tutorials"].items():
         ownership = lesson.get("lesson_source", "workflow_map")
         if ownership not in {"workflow_map", "authored"}:
@@ -121,11 +205,11 @@ def validate(data, root=ROOT, *, live=True):
     import spacr.qt
     spacr.qt.register_self_registering_modules()
     from spacr import ports
-    from spacr.validate import APP_FUNCTIONS
     from spacr.qt import app
-    from spacr.qt.widgets.fold_strip import folded_modules
     from spacr.qt.screens.settings_model import _APP_API_MODULE
+    from spacr.qt.widgets.fold_strip import folded_modules
     from spacr.settings import _SPECIES_WITH_PUBLISHED_LESSONS, _alpha_names
+    from spacr.validate import APP_FUNCTIONS
     # Alpha-gated apps are hidden by default and documented nowhere yet;
     # alpha species with published lessons stay mapped until those retire.
     alpha = _alpha_names("apps") - _SPECIES_WITH_PUBLISHED_LESSONS

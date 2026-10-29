@@ -3435,5 +3435,2813 @@
       ],
       "handoff": "Keep uninfected cells in Measure. Supply whole-vacuole masks, host reference intensities and optional explicit parasite-to-vacuole links; host identity alone does not define a vacuole."
     }
-  ]
+  ],
+  "protocols": {
+    "pooled_crispr": {
+      "title": "Pooled image-based CRISPR screen",
+      "summary": "Combine image-derived phenotypes with guide abundance to rank perturbations. Segment and measure images, create reviewed labels with Annotate, Gate Editor or Image UMAP, and train and validate a classifier. Map the matching sequencing reads on an independent branch. Join compatible phenotype scores and guide counts by experimental identity for Regression. Annotation and segmentation routes are alternatives, not requirements to run every branch.",
+      "pathway": "pooled_screen",
+      "inputs": [
+        "raw_images",
+        "fastq"
+      ],
+      "steps": [
+        {
+          "module": "mask",
+          "action": "For raw images, check channels and segmentation in Mask. If matching masks already exist, import them through External Masks instead and inspect the resulting merged project before Measure.",
+          "after": []
+        },
+        {
+          "module": "external_masks",
+          "action": "If matching integer masks already exist, open External Masks with their source images, inspect the resulting merged project and skip new segmentation. Otherwise skip this import step.",
+          "after": []
+        },
+        {
+          "module": "map_barcodes",
+          "action": "Supply the references that encode your experiment. Inspect mapped counts and barcode QC before pairing well-level guide counts with phenotype scores.",
+          "after": []
+        },
+        {
+          "module": "measure",
+          "action": "Open Measure on the merged project produced by Mask OR External Masks; these are alternative preparation routes, not two required segmentation runs.",
+          "after": [
+            "mask",
+            "external_masks"
+          ]
+        },
+        {
+          "module": "annotate",
+          "action": "Label representative objects in png_list before supervised training. Use separate annotations for different questions and keep training and evaluation groups independent.",
+          "after": [
+            "measure"
+          ]
+        },
+        {
+          "module": "classify_merged",
+          "action": "Choose Computer Vision for crops or streamed object images, or Tabular Machine Learning for measured feature columns. The two families consume different inputs.",
+          "after": [
+            "annotate"
+          ]
+        },
+        {
+          "module": "regression",
+          "action": "Match plate and well identifiers across phenotype and guide-count inputs, select the response and controls, and inspect diagnostics before interpreting hits. Direct measured responses are also supported.",
+          "after": [
+            "classify_merged",
+            "map_barcodes"
+          ]
+        }
+      ],
+      "checkpoint": "Inspect held-out predictions, calibration and split/leakage evidence for the matching classifier."
+    },
+    "high_content": {
+      "title": "High-content imaging analysis",
+      "summary": "Quantify an imaging experiment without sequencing. Start with microscopy images or import existing masks with their source images, measure the objects, then explore embeddings, define gated populations or build figures. These downstream branches answer different questions and can be used independently.",
+      "pathway": "high_content",
+      "inputs": [
+        "raw_images"
+      ],
+      "steps": [
+        {
+          "module": "mask",
+          "action": "For raw images, inspect a representative field in Mask before running. For existing integer masks, use External Masks with their matching images and inspect the merged project instead.",
+          "after": []
+        },
+        {
+          "module": "external_masks",
+          "action": "If matching integer masks already exist, open External Masks with their source images, inspect the resulting merged project and skip new segmentation. Otherwise skip this import step.",
+          "after": []
+        },
+        {
+          "module": "measure",
+          "action": "Open Measure on the merged project produced by Mask OR External Masks; these are alternative preparation routes, not two required segmentation runs.",
+          "after": [
+            "mask",
+            "external_masks"
+          ]
+        },
+        {
+          "module": "umap",
+          "action": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype.",
+          "after": [
+            "measure"
+          ]
+        },
+        {
+          "module": "gate_editor",
+          "action": "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+          "after": [
+            "umap"
+          ]
+        },
+        {
+          "module": "graph_builder",
+          "action": "Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context.",
+          "after": [
+            "gate_editor"
+          ]
+        }
+      ]
+    },
+    "simple_imaging": {
+      "title": "Simple imaging analysis",
+      "summary": "Segment images or import matching masks, measure the objects and compare selected measurements in figures.",
+      "pathway": "high_content",
+      "inputs": [
+        "raw_images"
+      ],
+      "steps": [
+        {
+          "module": "mask",
+          "action": "For raw images, inspect a representative field in Mask before running. For existing integer masks, use External Masks with their matching images and inspect the merged project instead.",
+          "after": []
+        },
+        {
+          "module": "external_masks",
+          "action": "If matching integer masks already exist, open External Masks with their source images, inspect the resulting merged project and skip new segmentation. Otherwise skip this import step.",
+          "after": []
+        },
+        {
+          "module": "measure",
+          "action": "Open Measure on the merged project produced by Mask OR External Masks; these are alternative preparation routes, not two required segmentation runs.",
+          "after": [
+            "mask",
+            "external_masks"
+          ]
+        },
+        {
+          "module": "graph_builder",
+          "action": "Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context.",
+          "after": [
+            "measure"
+          ]
+        }
+      ]
+    },
+    "generate_masks": {
+      "title": "Generate masks with Cellpose",
+      "summary": "Select channels and models, inspect a preview, then run Mask. Measure consumes the merged arrays; the counts database is not yet a feature table.",
+      "pathway": "high_content",
+      "inputs": [
+        "raw_images"
+      ],
+      "steps": [
+        {
+          "module": "mask",
+          "action": "Select channels and models, inspect a preview, then run Mask. Measure consumes the merged arrays; the counts database is not yet a feature table.",
+          "after": []
+        }
+      ],
+      "checkpoint": "Compare model masks on identical fields. Without independent reference labels, agreement does not measure segmentation accuracy."
+    },
+    "curate_masks": {
+      "title": "Create and curate masks",
+      "summary": "Draw or correct integer object masks and save image/mask pairs for measurement or segmentation training.",
+      "pathway": "segmentation_training",
+      "inputs": [
+        "raw_images"
+      ],
+      "steps": [
+        {
+          "module": "make_masks",
+          "action": "Curate image/mask pairs for segmentation training, or use Organize for Measure to merge images and their masks into arrays Measure reads. Saving a mask does not train a classifier.",
+          "after": []
+        }
+      ],
+      "checkpoint": "Compare model masks on identical fields. Without independent reference labels, agreement does not measure segmentation accuracy."
+    },
+    "external_masks_measure": {
+      "title": "Import external masks and measure objects",
+      "summary": "Assign corresponding images and existing integer label masks, then create and measure a spaCR project without rerunning segmentation.",
+      "pathway": "import_images",
+      "inputs": [
+        "raw_images",
+        "masks"
+      ],
+      "steps": [
+        {
+          "module": "external_masks",
+          "action": "Assign corresponding images and existing integer label masks, then create and measure a spaCR project without rerunning segmentation.",
+          "after": []
+        },
+        {
+          "module": "measure",
+          "action": "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.",
+          "after": [
+            "external_masks"
+          ]
+        }
+      ]
+    },
+    "image_overview": {
+      "title": "Inspect plates, wells and fields",
+      "summary": "Review filename metadata, plate geometry, well thumbnails and original-resolution image fields.",
+      "pathway": "high_content",
+      "inputs": [
+        "raw_images"
+      ],
+      "steps": [
+        {
+          "module": "mask",
+          "action": "Open Mask, then Overview. Choose the source and filename metadata rule, review valid wells and plate geometry, then inspect well thumbnails and original-resolution fields with channel and normalization controls.",
+          "after": []
+        }
+      ]
+    },
+    "organize_images": {
+      "title": "Import and organize microscopy images",
+      "summary": "Review field identities, image channels and optional external masks before writing a separate project. Image-only imports still need segmentation before measurement.",
+      "pathway": "import_images",
+      "inputs": [
+        "raw_images"
+      ],
+      "steps": [
+        {
+          "module": "import_images",
+          "action": "Review field identities and channels in Import Images. Convert only formats that need conversion; already-readable images do not need Format Converter. Keep the original files and inspect the new project before segmentation.",
+          "after": []
+        }
+      ]
+    },
+    "convert_images": {
+      "title": "Convert microscopy image formats",
+      "summary": "Convert supported microscope formats to a configured TIFF layout while preserving source mappings. Conversion does not generate object measurements.",
+      "pathway": "import_images",
+      "inputs": [
+        "raw_images"
+      ],
+      "steps": [
+        {
+          "module": "convert",
+          "action": "Convert supported microscope formats to a configured TIFF layout while preserving source mappings. Conversion does not generate object measurements.",
+          "after": []
+        },
+        {
+          "module": "import_images",
+          "action": "Review field identities and channels in Import Images. Convert only formats that need conversion; already-readable images do not need Format Converter. Keep the original files and inspect the new project before segmentation.",
+          "after": [
+            "convert"
+          ]
+        }
+      ]
+    },
+    "illumination": {
+      "title": "Correct illumination before analysis",
+      "summary": "Estimate and apply flat-field correction at configured stages. Keep corrected display values distinct from raw measurements and record the applied policy.",
+      "pathway": "high_content",
+      "inputs": [
+        "raw_images"
+      ],
+      "steps": [
+        {
+          "module": "illumination",
+          "action": "Estimate and apply flat-field correction at configured stages. Keep corrected display values distinct from raw measurements and record the applied policy.",
+          "after": []
+        },
+        {
+          "module": "mask",
+          "action": "Select channels and models, inspect a preview, then run Mask. Measure consumes the merged arrays; the counts database is not yet a feature table.",
+          "after": [
+            "illumination"
+          ]
+        },
+        {
+          "module": "measure",
+          "action": "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.",
+          "after": [
+            "mask"
+          ]
+        }
+      ]
+    },
+    "align_stitch": {
+      "title": "Align and stitch images",
+      "summary": "Inspect tile geometry, overlap and channel mapping, then save the mosaic with coordinate records. OPS also needs the original cycle/site identities.",
+      "pathway": "import_images",
+      "inputs": [
+        "raw_images"
+      ],
+      "steps": [
+        {
+          "module": "align",
+          "action": "Inspect tile geometry, overlap and channel mapping, then save the mosaic with coordinate records. OPS also needs the original cycle/site identities.",
+          "after": []
+        },
+        {
+          "module": "layer_viewer",
+          "action": "Inspect aligned image, label and point/ROI layers for the selected field.",
+          "after": [
+            "align"
+          ]
+        }
+      ]
+    },
+    "volumetric": {
+      "title": "Segment and measure 3D images",
+      "summary": "Review and segment a 3D image, then measure its labeled volumes with reviewed voxel spacing.",
+      "pathway": "high_content",
+      "inputs": [
+        "raw_images"
+      ],
+      "steps": [
+        {
+          "module": "make_masks",
+          "action": "Open the volume in Make Masks and review spatial axes, image channel and voxel spacing. Segment it or load compatible 3D labels, then use Measure current 3D image to quantify the reviewed labels. Do not pass native time-volumes to ordinary 2D measurement or tracking.",
+          "after": []
+        }
+      ],
+      "checkpoint": "Review the Z/Y/X layout and physical voxel spacing; a 3D label volume is not a time series."
+    },
+    "tracking": {
+      "title": "Track objects through time",
+      "summary": "In Mask, press Time to show the time-axis and tracking settings, then segment and link objects across ordered frames; inspect links before downstream motility analysis.",
+      "pathway": "live_cell_tracking",
+      "inputs": [
+        "raw_images"
+      ],
+      "steps": [
+        {
+          "module": "external_masks",
+          "action": "For existing compatible 2D frame masks, import each mask with its matching source image and preserve field and time identities; skip this step for raw frames.",
+          "after": []
+        },
+        {
+          "module": "timelapse",
+          "action": "Use Mask Time with ordered 2D frames and explicit timing. For existing compatible frame masks, review the imported project and the available tracking route before linking; do not treat a native time-volume as a 2D frame sequence.",
+          "after": []
+        },
+        {
+          "module": "curate",
+          "action": "Correct labels and track assignments while retaining a record of the edits.",
+          "after": [
+            "timelapse"
+          ]
+        }
+      ],
+      "checkpoint": "Inspect the track preview and correct track assignments in Curate. For division trees, use the lineage-tree settings in Mask Time and supply calibrated frame timing; the separate Lineage screen shows object containment, not temporal ancestry."
+    },
+    "motility": {
+      "title": "Analyze object motility",
+      "summary": "Inspect track speed and infection-related measurements with an explicit frame interval and pixel calibration.",
+      "pathway": "live_cell_tracking",
+      "inputs": [
+        "tracks",
+        "measurements"
+      ],
+      "steps": [
+        {
+          "module": "motility",
+          "action": "Inspect track speed and infection-related measurements with an explicit frame interval and pixel calibration.",
+          "after": []
+        },
+        {
+          "module": "graph_builder",
+          "action": "Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context.",
+          "after": [
+            "motility"
+          ]
+        }
+      ],
+      "checkpoint": "Inspect track speed and infection-related measurements with an explicit frame interval and pixel calibration."
+    },
+    "track_review": {
+      "title": "Review tracks and lineages",
+      "summary": "Review saved tracks, correct assignments and inspect temporal division trees separately from object-containment links.",
+      "pathway": "live_cell_tracking",
+      "inputs": [
+        "tracks"
+      ],
+      "steps": [
+        {
+          "module": "curate",
+          "action": "Correct labels and track assignments while retaining a record of the edits.",
+          "after": []
+        },
+        {
+          "module": "timelapse",
+          "action": "Inspect the track preview and correct track assignments in Curate. For division trees, use the lineage-tree settings in Mask Time and supply calibrated frame timing; the separate Lineage screen shows object containment, not temporal ancestry.",
+          "after": [
+            "curate"
+          ]
+        }
+      ]
+    },
+    "optical_screen": {
+      "title": "Decode and analyze an optical pooled screen",
+      "summary": "Decode an optical pooled screen from the original sequencing cycles and corresponding phenotype images. Enter OPS through Mask, inspect cycle/site alignment and barcode decoding, then join decoded object identities with phenotype responses and aggregate compatible inputs for Regression. Align & Stitch is optional; a stitched image alone cannot replace sequencing cycles.",
+      "pathway": "optical_screen",
+      "inputs": [
+        "raw_images"
+      ],
+      "steps": [
+        {
+          "module": "mask",
+          "action": "Use the phenotype images for segmentation and measurement. Keep the original sequencing-cycle and site identities separate for decoding in OPS.",
+          "after": []
+        },
+        {
+          "module": "measure",
+          "action": "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.",
+          "after": [
+            "mask"
+          ]
+        },
+        {
+          "module": "ops",
+          "action": "Use sequencing-cycle images and phenotype alignment to decode barcodes per nucleus. Aggregate/join the decoded identities to compatible phenotype inputs before Regression; the OPS database is not a drop-in FASTQ count CSV.",
+          "after": []
+        },
+        {
+          "module": "regression",
+          "action": "Review the decoded object identities and join them explicitly to matching phenotype objects. Aggregate to the plate/well identities required by Regression; OPS tables are not FASTQ count CSVs.",
+          "after": [
+            "measure",
+            "ops"
+          ]
+        }
+      ],
+      "checkpoint": "Review the decoded object identities and join them explicitly to matching phenotype objects. Aggregate to the plate/well identities required by Regression; OPS tables are not FASTQ count CSVs."
+    },
+    "spatial_measure": {
+      "title": "Spatial image segmentation and measurement",
+      "summary": "Alpha. Segment a whole Xenium morphology or Visium HD H&E slide in overlapping windows; each window is written to merged/ with its masks, the layout Measure reads, and the windows' places on the slide go to measurements.db for Spatial Map Barcodes. In the GUI it is the Spatial switch in Mask Generation's actions row, shown only with Show alpha features on.",
+      "pathway": "optical_screen",
+      "inputs": [
+        "raw_images"
+      ],
+      "steps": [
+        {
+          "module": "spatial_masks",
+          "action": "Alpha. Segment a whole Xenium morphology or Visium HD H&E slide in overlapping windows; each window is written to merged/ with its masks, the layout Measure reads, and the windows' places on the slide go to measurements.db for Spatial Map Barcodes. In the GUI it is the Spatial switch in Mask Generation's actions row, shown only with Show alpha features on.",
+          "after": []
+        },
+        {
+          "module": "measure",
+          "action": "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.",
+          "after": [
+            "spatial_masks"
+          ]
+        }
+      ],
+      "checkpoint": "Alpha. Segment a whole Xenium morphology or Visium HD H&E slide in overlapping windows; each window is written to merged/ with its masks, the layout Measure reads, and the windows' places on the slide go to measurements.db for Spatial Map Barcodes. In the GUI it is the Spatial switch in Mask Generation's actions row, shown only with Show alpha features on."
+    },
+    "spatial_decode": {
+      "title": "Decode spatial image barcodes",
+      "summary": "Alpha. Count every Xenium transcript or Visium HD bin into the cell or nucleus it falls in, using the fields Spatial Mask Generation wrote; per-object expression tables and infection calls from pathogen genes go into measurements.db keyed like Measure's. In the GUI it is the Spatial switch in Map Barcodes' actions row, shown only with Show alpha features on.",
+      "pathway": "optical_screen",
+      "inputs": [
+        "raw_images",
+        "merged"
+      ],
+      "steps": [
+        {
+          "module": "spatial_map",
+          "action": "Alpha. Count every Xenium transcript or Visium HD bin into the cell or nucleus it falls in, using the fields Spatial Mask Generation wrote; per-object expression tables and infection calls from pathogen genes go into measurements.db keyed like Measure's. In the GUI it is the Spatial switch in Map Barcodes' actions row, shown only with Show alpha features on.",
+          "after": []
+        },
+        {
+          "module": "anndata_export",
+          "action": "Export an AnnData .h5ad file with object metadata and measured features for downstream single-cell analysis.",
+          "after": [
+            "spatial_map"
+          ]
+        }
+      ],
+      "checkpoint": "Alpha. Count every Xenium transcript or Visium HD bin into the cell or nucleus it falls in, using the fields Spatial Mask Generation wrote; per-object expression tables and infection calls from pathogen genes go into measurements.db keyed like Measure's. In the GUI it is the Spatial switch in Map Barcodes' actions row, shown only with Show alpha features on."
+    },
+    "spatial_phenotypes": {
+      "title": "Connect spatial identities to measured phenotypes",
+      "summary": "Join compatible spatial object identities to measured phenotypes, inspect grouped responses and export the matched data.",
+      "pathway": "optical_screen",
+      "inputs": [
+        "measurements"
+      ],
+      "steps": [
+        {
+          "module": "graph_builder",
+          "action": "Inspect the spatial expression and phenotype tables. Join only matching plate/field/object identities and select the response columns explicitly before comparing groups.",
+          "after": []
+        },
+        {
+          "module": "gate_editor",
+          "action": "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+          "after": [
+            "graph_builder"
+          ]
+        },
+        {
+          "module": "anndata_export",
+          "action": "Export an AnnData .h5ad file with object metadata and measured features for downstream single-cell analysis.",
+          "after": [
+            "gate_editor"
+          ]
+        }
+      ]
+    },
+    "plaques": {
+      "title": "Quantify plaque assays",
+      "summary": "Analyse plaque images or existing masks with the configured plaque model. This route need not pass through Measure; use the dedicated plaque example.",
+      "pathway": "parasite_assay",
+      "inputs": [
+        "raw_images",
+        "masks"
+      ],
+      "steps": [
+        {
+          "module": "analyze_plaques",
+          "action": "Open Plaque Assay in Plaque mode. Inspect representative images with the selected plaque model, review Diameter and thresholds and confirm any missing-model download. For existing masks, disable mask generation and inspect their correspondence before the run.",
+          "after": []
+        },
+        {
+          "module": "graph_builder",
+          "action": "Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context.",
+          "after": [
+            "analyze_plaques"
+          ]
+        }
+      ]
+    },
+    "plaque_figures": {
+      "title": "Analyze plaque assays from published figures",
+      "summary": "Extract plaque-well images from PDFs or supplied figures, review annotations and quantify plaques with the selected model.",
+      "pathway": "parasite_assay",
+      "inputs": [
+        "raw_images"
+      ],
+      "steps": [
+        {
+          "module": "analyze_plaques",
+          "action": "Open Plaque Assay in Figure mode with the PDF or extracted figure images. Inspect detected wells, review labels and annotations, tune segmentation on representative crops and confirm the selected model before running.",
+          "after": []
+        }
+      ]
+    },
+    "recruitment": {
+      "title": "Analyze recruitment",
+      "summary": "Use compartment intensity measurements and matching host/pathogen identities to compute recruitment ratios.",
+      "pathway": "parasite_assay",
+      "inputs": [
+        "raw_images",
+        "measurements"
+      ],
+      "steps": [
+        {
+          "module": "mask",
+          "action": "When starting from images, segment the compartments required by this assay and measure them. If the required measurements already exist, start at the assay module and inspect its identity and channel requirements instead.",
+          "after": []
+        },
+        {
+          "module": "measure",
+          "action": "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.",
+          "after": [
+            "mask"
+          ]
+        },
+        {
+          "module": "recruitment",
+          "action": "Use compartment intensity measurements and matching host/pathogen identities to compute recruitment ratios.",
+          "after": [
+            "measure"
+          ]
+        }
+      ],
+      "checkpoint": "Use compartment intensity measurements and matching host/pathogen identities to compute recruitment ratios."
+    },
+    "invasion": {
+      "title": "Analyze invasion",
+      "summary": "Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion.",
+      "pathway": "parasite_assay",
+      "inputs": [
+        "raw_images",
+        "measurements"
+      ],
+      "steps": [
+        {
+          "module": "mask",
+          "action": "When starting from images, segment the compartments required by this assay and measure them. If the required measurements already exist, start at the assay module and inspect its identity and channel requirements instead.",
+          "after": []
+        },
+        {
+          "module": "measure",
+          "action": "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.",
+          "after": [
+            "mask"
+          ]
+        },
+        {
+          "module": "invasion",
+          "action": "Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion.",
+          "after": [
+            "measure"
+          ]
+        }
+      ],
+      "checkpoint": "Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion."
+    },
+    "replication": {
+      "title": "Analyze replication",
+      "summary": "Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole.",
+      "pathway": "parasite_assay",
+      "inputs": [
+        "raw_images",
+        "measurements"
+      ],
+      "steps": [
+        {
+          "module": "mask",
+          "action": "When starting from images, segment the compartments required by this assay and measure them. If the required measurements already exist, start at the assay module and inspect its identity and channel requirements instead.",
+          "after": []
+        },
+        {
+          "module": "measure",
+          "action": "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.",
+          "after": [
+            "mask"
+          ]
+        },
+        {
+          "module": "replication",
+          "action": "Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole.",
+          "after": [
+            "measure"
+          ]
+        }
+      ],
+      "checkpoint": "Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole."
+    },
+    "host_pathogen": {
+      "title": "Analyze host–pathogen relationships",
+      "summary": "Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown.",
+      "pathway": "parasite_assay",
+      "inputs": [
+        "raw_images",
+        "measurements"
+      ],
+      "steps": [
+        {
+          "module": "mask",
+          "action": "When starting from images, segment the compartments required by this assay and measure them. If the required measurements already exist, start at the assay module and inspect its identity and channel requirements instead.",
+          "after": []
+        },
+        {
+          "module": "measure",
+          "action": "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.",
+          "after": [
+            "mask"
+          ]
+        },
+        {
+          "module": "host_pathogen",
+          "action": "Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown.",
+          "after": [
+            "measure"
+          ]
+        }
+      ],
+      "checkpoint": "Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown."
+    },
+    "colonies": {
+      "title": "Count colonies and summarize plates",
+      "summary": "Count colonies in plate photographs and summarize counts using the supplied dilution and plated-volume metadata.",
+      "pathway": "parasite_assay",
+      "inputs": [
+        "raw_images"
+      ],
+      "steps": [
+        {
+          "module": "analyze_plaques",
+          "action": "Open Plaque Assay in Plaque mode and enable colony counting. Review plate/well detection, colony polarity and size controls, dilution and plated-volume metadata; inspect counts before summarizing plates.",
+          "after": []
+        },
+        {
+          "module": "graph_builder",
+          "action": "Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context.",
+          "after": [
+            "analyze_plaques"
+          ]
+        }
+      ]
+    },
+    "dose_response": {
+      "title": "Analyze dose–response experiments",
+      "summary": "Supply dose and response columns, controls and units before curve fitting; this route does not require sequencing.",
+      "pathway": "high_content",
+      "inputs": [
+        "measurements",
+        "plate_map"
+      ],
+      "steps": [
+        {
+          "module": "mask",
+          "action": "For raw images, inspect a representative field in Mask before running. For existing integer masks, use External Masks with their matching images and inspect the merged project instead.",
+          "after": []
+        },
+        {
+          "module": "measure",
+          "action": "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.",
+          "after": [
+            "mask"
+          ]
+        },
+        {
+          "module": "dose_response",
+          "action": "Supply dose and response columns, controls and units before curve fitting; this route does not require sequencing.",
+          "after": [
+            "measure"
+          ]
+        },
+        {
+          "module": "graph_builder",
+          "action": "Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context.",
+          "after": [
+            "dose_response"
+          ]
+        }
+      ],
+      "checkpoint": "When the required measurement table already exists, skip image segmentation and measurement."
+    },
+    "feature_explore": {
+      "title": "Explore measured features",
+      "summary": "Inspect a measurement database and explore selected feature distributions and projections.",
+      "pathway": "phenotype_discovery",
+      "inputs": [
+        "measurements"
+      ],
+      "steps": [
+        {
+          "module": "db_browser",
+          "action": "Open the measurement database in Database Browser and inspect object identities, feature names and units before choosing columns for exploration.",
+          "after": []
+        },
+        {
+          "module": "pca",
+          "action": "Inspect principal components and feature loadings for the selected measured objects.",
+          "after": [
+            "db_browser"
+          ]
+        },
+        {
+          "module": "image_scatter",
+          "action": "Plot selected measurement columns with object-crop inspection.",
+          "after": [
+            "db_browser"
+          ]
+        }
+      ]
+    },
+    "external_features": {
+      "title": "Import and explore external feature tables",
+      "summary": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run. With matching source images and external integer masks, Import builds the merged project arrays used by Measure. Choose the route matching your files and inspect object identities before measuring; imported feature tables can be used directly when they already contain the required measurements.",
+      "pathway": "import_images",
+      "inputs": [
+        "foreign_tables"
+      ],
+      "steps": [
+        {
+          "module": "foreign",
+          "action": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run. With matching source images and external integer masks, Import builds the merged project arrays used by Measure. Choose the route matching your files and inspect object identities before measuring; imported feature tables can be used directly when they already contain the required measurements.",
+          "after": []
+        },
+        {
+          "module": "graph_builder",
+          "action": "Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context.",
+          "after": [
+            "foreign"
+          ]
+        },
+        {
+          "module": "umap",
+          "action": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype.",
+          "after": [
+            "graph_builder"
+          ]
+        }
+      ],
+      "checkpoint": "Map object identities and feature columns explicitly; importing a CSV does not create missing image measurements or compatible crops."
+    },
+    "measurement_figures": {
+      "title": "Create figures from measurements",
+      "summary": "Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context.",
+      "pathway": "high_content",
+      "inputs": [
+        "measurements"
+      ],
+      "steps": [
+        {
+          "module": "graph_builder",
+          "action": "Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context.",
+          "after": []
+        }
+      ]
+    },
+    "condition_compare": {
+      "title": "Compare experimental conditions",
+      "summary": "Compare groups in small-multiple plots with explicit shared or independent axes.",
+      "pathway": "high_content",
+      "inputs": [
+        "measurements",
+        "plate_map"
+      ],
+      "steps": [
+        {
+          "module": "graph_builder",
+          "action": "Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context.",
+          "after": []
+        },
+        {
+          "module": "tabulate",
+          "action": "Choose grouping variables and measurement columns, then inspect pivot tables and groupwise sample sizes.",
+          "after": []
+        },
+        {
+          "module": "trellis",
+          "action": "Compare groups in small-multiple plots with explicit shared or independent axes.",
+          "after": []
+        }
+      ]
+    },
+    "phenotype_discovery": {
+      "title": "Discover phenotypes without initial labels",
+      "summary": "Explore a measured, segmented experiment without initial phenotype labels. Compare measured features or encoded image features in Image UMAP, inspect representative crops and create reproducible selections in Gate Editor. Review candidate labels in Annotate before supervised training. A cluster or gate is a hypothesis about a phenotype, not its validation.",
+      "pathway": "phenotype_discovery",
+      "inputs": [
+        "measurements"
+      ],
+      "steps": [
+        {
+          "module": "umap",
+          "action": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype.",
+          "after": []
+        },
+        {
+          "module": "gate_editor",
+          "action": "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+          "after": [
+            "umap"
+          ]
+        },
+        {
+          "module": "annotate",
+          "action": "Label representative objects in png_list before supervised training. Use separate annotations for different questions and keep training and evaluation groups independent.",
+          "after": [
+            "gate_editor"
+          ]
+        }
+      ],
+      "checkpoint": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype."
+    },
+    "gated_populations": {
+      "title": "Define and review gated populations",
+      "summary": "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "pathway": "phenotype_discovery",
+      "inputs": [
+        "measurements"
+      ],
+      "steps": [
+        {
+          "module": "gate_editor",
+          "action": "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+          "after": []
+        },
+        {
+          "module": "annotate",
+          "action": "Label representative objects in png_list before supervised training. Use separate annotations for different questions and keep training and evaluation groups independent.",
+          "after": [
+            "gate_editor"
+          ]
+        }
+      ]
+    },
+    "outliers": {
+      "title": "Investigate outliers and unusual phenotypes",
+      "summary": "Review robust object/well outlier scores and the selected exclusion rule before carrying filtered data into analysis.",
+      "pathway": "phenotype_discovery",
+      "inputs": [
+        "measurements",
+        "crops"
+      ],
+      "steps": [
+        {
+          "module": "outliers",
+          "action": "Review robust object/well outlier scores and the selected exclusion rule before carrying filtered data into analysis.",
+          "after": []
+        },
+        {
+          "module": "image_scatter",
+          "action": "Plot selected measurement columns with object-crop inspection.",
+          "after": [
+            "outliers"
+          ]
+        },
+        {
+          "module": "annotate",
+          "action": "Label representative objects in png_list before supervised training. Use separate annotations for different questions and keep training and evaluation groups independent.",
+          "after": [
+            "image_scatter"
+          ]
+        }
+      ]
+    },
+    "analysis_qc": {
+      "title": "Check image-analysis quality",
+      "summary": "Inspect stored segmentation, unit, leakage and plate-effect checks. Open its nested viewers for detailed inspection.",
+      "pathway": "high_content",
+      "inputs": [
+        "measurements"
+      ],
+      "steps": [
+        {
+          "module": "qc_dashboard",
+          "action": "Inspect stored segmentation, unit, leakage and plate-effect checks. Open its nested viewers for detailed inspection.",
+          "after": []
+        },
+        {
+          "module": "plate_view",
+          "action": "Aggregate the selected measurement by well and inspect plate patterns and controls.",
+          "after": [
+            "qc_dashboard"
+          ]
+        },
+        {
+          "module": "layer_viewer",
+          "action": "Inspect aligned image, label and point/ROI layers for the selected field.",
+          "after": [
+            "plate_view"
+          ]
+        }
+      ]
+    },
+    "control_effects": {
+      "title": "Assess controls and plate effects",
+      "summary": "Compare designated controls across plates and inspect drift; the definition of a control comes from the experiment.",
+      "pathway": "high_content",
+      "inputs": [
+        "measurements",
+        "plate_map"
+      ],
+      "steps": [
+        {
+          "module": "control_chart",
+          "action": "Compare designated controls across plates and inspect drift; the definition of a control comes from the experiment.",
+          "after": []
+        },
+        {
+          "module": "plate_view",
+          "action": "Aggregate the selected measurement by well and inspect plate patterns and controls.",
+          "after": [
+            "control_chart"
+          ]
+        },
+        {
+          "module": "graph_builder",
+          "action": "Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context.",
+          "after": [
+            "plate_view"
+          ]
+        }
+      ]
+    },
+    "feature_classifier": {
+      "title": "Train and evaluate a feature-based classifier",
+      "summary": "Train a classifier from measured feature columns and reviewed labels, then evaluate independent grouped test data.",
+      "pathway": "phenotype_discovery",
+      "inputs": [
+        "measurements",
+        "labels"
+      ],
+      "steps": [
+        {
+          "module": "classify_merged",
+          "action": "Open Classify and choose Tabular Machine Learning. Select the measured feature columns, label column and grouped training/test split; inspect held-out predictions before applying the fitted model.",
+          "after": []
+        },
+        {
+          "module": "classifier_evaluation",
+          "action": "Inspect held-out predictions, calibration and split/leakage evidence for the matching classifier.",
+          "after": [
+            "classify_merged"
+          ]
+        }
+      ],
+      "checkpoint": "Inspect held-out predictions, calibration and split/leakage evidence for the matching classifier."
+    },
+    "label_feature_classifier": {
+      "title": "Label objects and train a feature-based classifier",
+      "summary": "Define and review object labels from measured data, train a feature classifier and inspect independent held-out performance.",
+      "pathway": "phenotype_discovery",
+      "inputs": [
+        "measurements"
+      ],
+      "steps": [
+        {
+          "module": "gate_editor",
+          "action": "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+          "after": []
+        },
+        {
+          "module": "annotate",
+          "action": "Label representative objects in png_list before supervised training. Use separate annotations for different questions and keep training and evaluation groups independent.",
+          "after": [
+            "gate_editor"
+          ]
+        },
+        {
+          "module": "classify_merged",
+          "action": "Open Classify and choose Tabular Machine Learning. Select the measured feature columns, label column and grouped training/test split; inspect held-out predictions before applying the fitted model.",
+          "after": [
+            "annotate"
+          ]
+        },
+        {
+          "module": "classifier_evaluation",
+          "action": "Inspect held-out predictions, calibration and split/leakage evidence for the matching classifier.",
+          "after": [
+            "classify_merged"
+          ]
+        }
+      ],
+      "checkpoint": "Inspect held-out predictions, calibration and split/leakage evidence for the matching classifier."
+    },
+    "anndata": {
+      "title": "Export measurements to AnnData",
+      "summary": "Export an AnnData .h5ad file with object metadata and measured features for downstream single-cell analysis.",
+      "pathway": "high_content",
+      "inputs": [
+        "measurements"
+      ],
+      "steps": [
+        {
+          "module": "anndata_export",
+          "action": "Export an AnnData .h5ad file with object metadata and measured features for downstream single-cell analysis.",
+          "after": []
+        }
+      ]
+    },
+    "annotate_images": {
+      "title": "Annotate object images",
+      "summary": "Label representative objects in png_list before supervised training. Use separate annotations for different questions and keep training and evaluation groups independent.",
+      "pathway": "phenotype_discovery",
+      "inputs": [
+        "crops"
+      ],
+      "steps": [
+        {
+          "module": "annotate",
+          "action": "Label representative objects in png_list before supervised training. Use separate annotations for different questions and keep training and evaluation groups independent.",
+          "after": []
+        }
+      ],
+      "checkpoint": "Label representative objects in png_list before supervised training. Use separate annotations for different questions and keep training and evaluation groups independent."
+    },
+    "vision_classifier": {
+      "title": "Train and evaluate a Torch image classifier",
+      "summary": "Train a Torch image classifier from reviewed object images and labels, then evaluate held-out groups with the same preprocessing.",
+      "pathway": "phenotype_discovery",
+      "inputs": [
+        "crops",
+        "labels"
+      ],
+      "steps": [
+        {
+          "module": "classify_merged",
+          "action": "Open Classify and choose Computer Vision. Select compatible object images, labels, channels and preprocessing; keep independent evaluation groups outside training.",
+          "after": []
+        },
+        {
+          "module": "classifier_evaluation",
+          "action": "Inspect held-out predictions, calibration and split/leakage evidence for the matching classifier.",
+          "after": [
+            "classify_merged"
+          ]
+        }
+      ],
+      "checkpoint": "Inspect held-out predictions, calibration and split/leakage evidence for the matching classifier."
+    },
+    "label_vision_classifier": {
+      "title": "Annotate objects and train a Torch classifier",
+      "summary": "Review object-image labels before training a Torch classifier and evaluating independent held-out groups.",
+      "pathway": "phenotype_discovery",
+      "inputs": [
+        "crops"
+      ],
+      "steps": [
+        {
+          "module": "annotate",
+          "action": "Label representative objects in png_list before supervised training. Use separate annotations for different questions and keep training and evaluation groups independent.",
+          "after": []
+        },
+        {
+          "module": "classify_merged",
+          "action": "Open Classify and choose Computer Vision. Select compatible object images, labels, channels and preprocessing; keep independent evaluation groups outside training.",
+          "after": [
+            "annotate"
+          ]
+        },
+        {
+          "module": "classifier_evaluation",
+          "action": "Inspect held-out predictions, calibration and split/leakage evidence for the matching classifier.",
+          "after": [
+            "classify_merged"
+          ]
+        }
+      ],
+      "checkpoint": "Inspect held-out predictions, calibration and split/leakage evidence for the matching classifier."
+    },
+    "raw_vision_classifier": {
+      "title": "From raw images to an image classifier",
+      "summary": "Segment images, measure objects and create reviewed image labels before training and evaluating a Torch classifier.",
+      "pathway": "high_content",
+      "inputs": [
+        "raw_images"
+      ],
+      "steps": [
+        {
+          "module": "mask",
+          "action": "Select channels and models, inspect a preview, then run Mask. Measure consumes the merged arrays; the counts database is not yet a feature table.",
+          "after": []
+        },
+        {
+          "module": "measure",
+          "action": "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.",
+          "after": [
+            "mask"
+          ]
+        },
+        {
+          "module": "annotate",
+          "action": "Label representative objects in png_list before supervised training. Use separate annotations for different questions and keep training and evaluation groups independent.",
+          "after": [
+            "measure"
+          ]
+        },
+        {
+          "module": "classify_merged",
+          "action": "Open Classify and choose Computer Vision. Select compatible object images, labels, channels and preprocessing; keep independent evaluation groups outside training.",
+          "after": [
+            "annotate"
+          ]
+        },
+        {
+          "module": "classifier_evaluation",
+          "action": "Inspect held-out predictions, calibration and split/leakage evidence for the matching classifier.",
+          "after": [
+            "classify_merged"
+          ]
+        }
+      ],
+      "checkpoint": "Inspect held-out predictions, calibration and split/leakage evidence for the matching classifier."
+    },
+    "apply_classifier": {
+      "title": "Apply a trained image classifier",
+      "summary": "Apply an existing image-classifier checkpoint to compatible object images and review its per-object scores.",
+      "pathway": "phenotype_discovery",
+      "inputs": [
+        "classifier",
+        "crops"
+      ],
+      "steps": [
+        {
+          "module": "classify_merged",
+          "action": "Open Classify, choose Computer Vision and apply the selected checkpoint to compatible object images with the training channel and preprocessing policy. Inspect the resulting object scores before downstream analysis.",
+          "after": []
+        },
+        {
+          "module": "graph_builder",
+          "action": "Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context.",
+          "after": [
+            "classify_merged"
+          ]
+        }
+      ]
+    },
+    "image_phenotypes": {
+      "title": "Explore image-based phenotypes",
+      "summary": "Explore object images with Image UMAP, inspect candidate groups and review labels before any supervised training.",
+      "pathway": "phenotype_discovery",
+      "inputs": [
+        "crops"
+      ],
+      "steps": [
+        {
+          "module": "embeddings",
+          "action": "Encode object images with a chosen model and channel policy. Retain object identities and encoder provenance when supplying the features to downstream exploration.",
+          "after": []
+        },
+        {
+          "module": "umap",
+          "action": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype.",
+          "after": [
+            "embeddings"
+          ]
+        },
+        {
+          "module": "annotate",
+          "action": "Label representative objects in png_list before supervised training. Use separate annotations for different questions and keep training and evaluation groups independent.",
+          "after": [
+            "umap"
+          ]
+        }
+      ],
+      "checkpoint": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Use the lasso and annotation controls to write reviewed selections to an annotation column in the matching measurement database. A geometric selection alone does not establish a biological phenotype."
+    },
+    "annotator_agreement": {
+      "title": "Compare annotators and review disagreements",
+      "summary": "Compare independent annotation columns and inspect discordant objects; agreement is separate from classification accuracy.",
+      "pathway": "phenotype_discovery",
+      "inputs": [
+        "labels",
+        "crops"
+      ],
+      "steps": [
+        {
+          "module": "agreement",
+          "action": "Compare independent annotation columns and inspect discordant objects; agreement is separate from classification accuracy.",
+          "after": []
+        },
+        {
+          "module": "annotate",
+          "action": "Label representative objects in png_list before supervised training. Use separate annotations for different questions and keep training and evaluation groups independent.",
+          "after": [
+            "agreement"
+          ]
+        }
+      ]
+    },
+    "explain_classifier": {
+      "title": "Explain classifier predictions",
+      "summary": "Inspect image-response maps with the matching image model, or fit a measured-feature surrogate to existing scores. These are alternative explanation routes, not independent causal validation.",
+      "pathway": "phenotype_discovery",
+      "inputs": [
+        "classifier",
+        "scores",
+        "measurements",
+        "crops"
+      ],
+      "steps": [
+        {
+          "module": "activation",
+          "action": "Apply the matching image classifier and preprocessing to inspect saliency/model-response maps.",
+          "after": []
+        },
+        {
+          "module": "explain_cv",
+          "action": "Fit a measured-feature surrogate to existing computer-vision scores, preserving identity joins. A surrogate explanation is not causality.",
+          "after": []
+        }
+      ],
+      "checkpoint": "Fit a measured-feature surrogate to existing computer-vision scores, preserving identity joins. A surrogate explanation is not causality."
+    },
+    "classification_evaluation": {
+      "title": "Evaluate classification performance",
+      "summary": "Inspect held-out predictions, calibration and split/leakage evidence for the matching classifier.",
+      "pathway": "phenotype_discovery",
+      "inputs": [
+        "evaluation"
+      ],
+      "steps": [
+        {
+          "module": "classifier_evaluation",
+          "action": "Inspect held-out predictions, calibration and split/leakage evidence for the matching classifier.",
+          "after": []
+        }
+      ],
+      "checkpoint": "Inspect held-out predictions, calibration and split/leakage evidence for the matching classifier."
+    },
+    "train_cellpose": {
+      "title": "Train and evaluate a Cellpose model",
+      "summary": "Open Cellpose Workbench inside Make Masks and train from verified image/mask pairs. Evaluate on separate fields before selecting the checkpoint in Mask.",
+      "pathway": "segmentation_training",
+      "inputs": [
+        "curated_pairs"
+      ],
+      "steps": [
+        {
+          "module": "train_cellpose",
+          "action": "Open Cellpose Workbench inside Make Masks and train from verified image/mask pairs. Evaluate on separate fields before selecting the checkpoint in Mask.",
+          "after": []
+        },
+        {
+          "module": "model_compare",
+          "action": "Compare model masks on identical fields. Without independent reference labels, agreement does not measure segmentation accuracy.",
+          "after": [
+            "train_cellpose"
+          ]
+        }
+      ],
+      "checkpoint": "Compare model masks on identical fields. Without independent reference labels, agreement does not measure segmentation accuracy."
+    },
+    "create_cellpose_training": {
+      "title": "Create training masks and train Cellpose",
+      "summary": "Create reviewed image/mask pairs, train a Cellpose checkpoint and compare it on separate reference fields.",
+      "pathway": "segmentation_training",
+      "inputs": [
+        "raw_images"
+      ],
+      "steps": [
+        {
+          "module": "make_masks",
+          "action": "Curate image/mask pairs for segmentation training, or use Organize for Measure to merge images and their masks into arrays Measure reads. Saving a mask does not train a classifier.",
+          "after": []
+        },
+        {
+          "module": "train_cellpose",
+          "action": "Open Cellpose Workbench inside Make Masks and train from verified image/mask pairs. Evaluate on separate fields before selecting the checkpoint in Mask.",
+          "after": [
+            "make_masks"
+          ]
+        },
+        {
+          "module": "model_compare",
+          "action": "Compare model masks on identical fields. Without independent reference labels, agreement does not measure segmentation accuracy.",
+          "after": [
+            "train_cellpose"
+          ]
+        }
+      ],
+      "checkpoint": "Compare model masks on identical fields. Without independent reference labels, agreement does not measure segmentation accuracy."
+    },
+    "refine_cellpose": {
+      "title": "Refine an existing Cellpose model",
+      "summary": "Fine-tune an existing segmentation checkpoint on reviewed image/mask pairs and evaluate separate reference fields.",
+      "pathway": "segmentation_training",
+      "inputs": [
+        "curated_pairs",
+        "segmentation_model"
+      ],
+      "steps": [
+        {
+          "module": "train_cellpose",
+          "action": "Open Cellpose Workbench in Make Masks, choose Train and select the existing checkpoint as the training base. Use verified image/mask pairs and evaluate separate fields before replacing the model used for analysis.",
+          "after": []
+        },
+        {
+          "module": "model_compare",
+          "action": "Compare model masks on identical fields. Without independent reference labels, agreement does not measure segmentation accuracy.",
+          "after": [
+            "train_cellpose"
+          ]
+        }
+      ],
+      "checkpoint": "Compare model masks on identical fields. Without independent reference labels, agreement does not measure segmentation accuracy."
+    },
+    "compare_segmentation": {
+      "title": "Compare segmentation models",
+      "summary": "Compare model masks on identical fields. Without independent reference labels, agreement does not measure segmentation accuracy.",
+      "pathway": "segmentation_training",
+      "inputs": [
+        "raw_images",
+        "masks",
+        "segmentation_model"
+      ],
+      "steps": [
+        {
+          "module": "model_compare",
+          "action": "Compare model masks on identical fields. Without independent reference labels, agreement does not measure segmentation accuracy.",
+          "after": []
+        }
+      ],
+      "checkpoint": "Compare model masks on identical fields. Without independent reference labels, agreement does not measure segmentation accuracy."
+    },
+    "evaluate_segmentation": {
+      "title": "Evaluate a segmentation model",
+      "summary": "Compare model masks on identical fields. Without independent reference labels, agreement does not measure segmentation accuracy.",
+      "pathway": "segmentation_training",
+      "inputs": [
+        "raw_images",
+        "masks",
+        "segmentation_model"
+      ],
+      "steps": [
+        {
+          "module": "model_compare",
+          "action": "Compare model masks on identical fields. Without independent reference labels, agreement does not measure segmentation accuracy.",
+          "after": []
+        }
+      ],
+      "checkpoint": "Compare model masks on identical fields. Without independent reference labels, agreement does not measure segmentation accuracy."
+    },
+    "apply_segmentation": {
+      "title": "Apply a trained segmentation model",
+      "summary": "Select channels and models, inspect a preview, then run Mask. Measure consumes the merged arrays; the counts database is not yet a feature table.",
+      "pathway": "segmentation_training",
+      "inputs": [
+        "raw_images",
+        "segmentation_model"
+      ],
+      "steps": [
+        {
+          "module": "mask",
+          "action": "Return Home, open Mask and select the trained checkpoint; verify separate fields before a full run.",
+          "after": []
+        },
+        {
+          "module": "measure",
+          "action": "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.",
+          "after": [
+            "mask"
+          ]
+        }
+      ],
+      "checkpoint": "Compare model masks on identical fields. Without independent reference labels, agreement does not measure segmentation accuracy."
+    },
+    "compare_training": {
+      "title": "Compare model-training runs",
+      "summary": "Compare saved training histories, metrics and settings from compatible model runs.",
+      "pathway": "segmentation_training",
+      "inputs": [
+        "run_records"
+      ],
+      "steps": [
+        {
+          "module": "train_compare",
+          "action": "Compare saved training histories, metrics and settings from compatible model runs.",
+          "after": []
+        }
+      ]
+    },
+    "choose_model": {
+      "title": "Choose and download a segmentation model",
+      "summary": "Inspect model provenance and download/install compatible checkpoints or backends. A listed backend is not itself a checkpoint file.",
+      "pathway": "segmentation_training",
+      "inputs": [
+        "segmentation_model"
+      ],
+      "steps": [
+        {
+          "module": "model_zoo",
+          "action": "Inspect model provenance and download/install compatible checkpoints or backends. A listed backend is not itself a checkpoint file.",
+          "after": []
+        }
+      ]
+    },
+    "map_barcodes": {
+      "title": "Map sequencing barcodes",
+      "summary": "Supply the references that encode your experiment. Inspect mapped counts and barcode QC before pairing well-level guide counts with phenotype scores.",
+      "pathway": "pooled_screen",
+      "inputs": [
+        "fastq"
+      ],
+      "steps": [
+        {
+          "module": "map_barcodes",
+          "action": "Supply gzipped FASTQ files and the barcode reference CSVs. Use paired mode for R1/R2. For single-end reads, choose single mode and set single_direction to R1 or R2 to match the files and extraction orientation.",
+          "after": []
+        },
+        {
+          "module": "barcode_qc",
+          "action": "Inspect mapping depth, coverage, collisions and positional effects before guide-count filtering.",
+          "after": [
+            "map_barcodes"
+          ]
+        }
+      ]
+    },
+    "barcode_qc": {
+      "title": "Check barcode-mapping quality",
+      "summary": "Inspect mapping depth, coverage, collisions and positional effects before guide-count filtering.",
+      "pathway": "pooled_screen",
+      "inputs": [
+        "barcode_counts"
+      ],
+      "steps": [
+        {
+          "module": "barcode_qc",
+          "action": "Inspect mapping depth, coverage, collisions and positional effects before guide-count filtering.",
+          "after": []
+        }
+      ]
+    },
+    "regression": {
+      "title": "Run screening regression",
+      "summary": "Match plate and well identifiers across phenotype and guide-count inputs, select the response and controls, and inspect diagnostics before interpreting hits. Direct measured responses are also supported.",
+      "pathway": "pooled_screen",
+      "inputs": [
+        "barcode_counts",
+        "scores"
+      ],
+      "steps": [
+        {
+          "module": "regression",
+          "action": "Match plate and well identifiers across phenotype and guide-count inputs, select the response and controls, and inspect diagnostics before interpreting hits. Direct measured responses are also supported.",
+          "after": []
+        },
+        {
+          "module": "regression_diagnostics",
+          "action": "Inspect the diagnostic panels saved by the chosen regression run; distinguish missing diagnostics from passed assumptions.",
+          "after": [
+            "regression"
+          ]
+        }
+      ],
+      "checkpoint": "Review the decoded object identities and join them explicitly to matching phenotype objects. Aggregate to the plate/well identities required by Regression; OPS tables are not FASTQ count CSVs."
+    },
+    "regression_diagnostics": {
+      "title": "Review regression diagnostics",
+      "summary": "Inspect the diagnostic panels saved by the chosen regression run; distinguish missing diagnostics from passed assumptions.",
+      "pathway": "pooled_screen",
+      "inputs": [
+        "regression"
+      ],
+      "steps": [
+        {
+          "module": "regression_diagnostics",
+          "action": "Inspect the diagnostic panels saved by the chosen regression run; distinguish missing diagnostics from passed assumptions.",
+          "after": []
+        }
+      ]
+    },
+    "screen_hits": {
+      "title": "Explore and prioritize screen hits",
+      "summary": "Filter and rank saved hits with their effects, FDR and guide agreement.",
+      "pathway": "pooled_screen",
+      "inputs": [
+        "regression"
+      ],
+      "steps": [
+        {
+          "module": "volcano_explorer",
+          "action": "Open a saved regression result and inspect effect sizes, adjusted significance and individual hit records.",
+          "after": []
+        },
+        {
+          "module": "hit_list",
+          "action": "Filter and rank saved hits with their effects, FDR and guide agreement.",
+          "after": [
+            "volcano_explorer"
+          ]
+        }
+      ]
+    },
+    "investigate_hit": {
+      "title": "Investigate a screen hit",
+      "summary": "Link a regression hit to candidate objects and quantitative well-level evidence. This does not independently validate the hit.",
+      "pathway": "pooled_screen",
+      "inputs": [
+        "regression",
+        "measurements",
+        "crops"
+      ],
+      "steps": [
+        {
+          "module": "investigate_hit",
+          "action": "Link a regression hit to candidate objects and quantitative well-level evidence. This does not independently validate the hit.",
+          "after": []
+        },
+        {
+          "module": "image_scatter",
+          "action": "Plot selected measurement columns with object-crop inspection.",
+          "after": [
+            "investigate_hit"
+          ]
+        }
+      ]
+    },
+    "compare_runs": {
+      "title": "Compare analysis runs",
+      "summary": "Compare compatible saved settings, counts and hit lists without treating changed input data as a controlled model comparison.",
+      "pathway": "pooled_screen",
+      "inputs": [
+        "run_records",
+        "regression"
+      ],
+      "steps": [
+        {
+          "module": "run_compare",
+          "action": "Compare compatible saved settings, counts and hit lists without treating changed input data as a controlled model comparison.",
+          "after": []
+        }
+      ]
+    },
+    "experiment_design": {
+      "title": "Design an imaging experiment",
+      "summary": "Enter conditions, controls, replicates and plate constraints, then export the experimental layout before acquisition.",
+      "pathway": "screen_planning",
+      "inputs": [
+        "design"
+      ],
+      "steps": [
+        {
+          "module": "experiment_design",
+          "action": "Enter conditions, controls, replicates and plate constraints, then export the experimental layout before acquisition.",
+          "after": []
+        },
+        {
+          "module": "power",
+          "action": "Estimate sampling needs from chosen effect sizes and variability; pilot measurements are optional evidence for assumptions.",
+          "after": [
+            "experiment_design"
+          ]
+        }
+      ]
+    },
+    "pooled_design": {
+      "title": "Design a pooled imaging screen",
+      "summary": "Enter conditions, controls, replicates and plate constraints, then export the experimental layout before acquisition.",
+      "pathway": "screen_planning",
+      "inputs": [
+        "design"
+      ],
+      "steps": [
+        {
+          "module": "experiment_design",
+          "action": "Enter conditions, controls, replicates and plate constraints, then export the experimental layout before acquisition.",
+          "after": []
+        },
+        {
+          "module": "power",
+          "action": "Estimate sampling needs from chosen effect sizes and variability; pilot measurements are optional evidence for assumptions.",
+          "after": [
+            "experiment_design"
+          ]
+        }
+      ],
+      "checkpoint": "Record image-to-well and barcode-reference identities in the exported design. Planning does not generate experimental measurements, phenotype scores or guide counts."
+    },
+    "power": {
+      "title": "Estimate power and sampling needs",
+      "summary": "Estimate sampling needs from chosen effect sizes and variability; pilot measurements are optional evidence for assumptions.",
+      "pathway": "screen_planning",
+      "inputs": [
+        "design"
+      ],
+      "steps": [
+        {
+          "module": "power",
+          "action": "Estimate sampling needs from chosen effect sizes and variability; pilot measurements are optional evidence for assumptions.",
+          "after": []
+        }
+      ]
+    },
+    "multi_plate": {
+      "title": "Run a multi-plate analysis",
+      "summary": "Run the chosen pipeline across plates. Outputs are those of each queued module; retain each plate and its settings separately.",
+      "pathway": "high_content",
+      "inputs": [
+        "jobs"
+      ],
+      "steps": [
+        {
+          "module": "queue",
+          "action": "Run the chosen pipeline across plates. Outputs are those of each queued module; retain each plate and its settings separately.",
+          "after": []
+        },
+        {
+          "module": "batch",
+          "action": "Validate and execute module jobs in dependency order. Each job writes its own module outputs and log.",
+          "after": []
+        },
+        {
+          "module": "run_history",
+          "action": "Review recorded run status, settings and outputs from Queue OR Batch; these are alternative execution entries, not two required runs.",
+          "after": [
+            "queue",
+            "batch"
+          ]
+        }
+      ],
+      "checkpoint": "Run the chosen pipeline across plates. Outputs are those of each queued module; retain each plate and its settings separately."
+    },
+    "remote_analysis": {
+      "title": "Submit and monitor remote analysis",
+      "summary": "Submit a configured run to a remote execution target and inspect its status and logs. Retrieve the actual module artifacts before downstream analysis.",
+      "pathway": "high_content",
+      "inputs": [
+        "jobs"
+      ],
+      "steps": [
+        {
+          "module": "distributed_jobs",
+          "action": "Submit a configured run to a remote execution target and inspect its status and logs. Retrieve the actual module artifacts before downstream analysis.",
+          "after": []
+        },
+        {
+          "module": "run_history",
+          "action": "Inspect saved run status, settings, outputs and logs; a completed run does not establish biological validity.",
+          "after": [
+            "distributed_jobs"
+          ]
+        }
+      ],
+      "checkpoint": "Submit a configured run to a remote execution target and inspect its status and logs. Retrieve the actual module artifacts before downstream analysis."
+    },
+    "resume_project": {
+      "title": "Resume and inspect an existing project",
+      "summary": "Locate an existing project and inspect its recorded runs, outputs and missing dependencies before explicitly launching further work.",
+      "pathway": "high_content",
+      "inputs": [
+        "run_records"
+      ],
+      "steps": [
+        {
+          "module": "project_browser",
+          "action": "Locate projects and inspect their stage, last run, disk use and stale outputs.",
+          "after": []
+        },
+        {
+          "module": "run_history",
+          "action": "Inspect saved run status, settings, outputs and logs; a completed run does not establish biological validity.",
+          "after": [
+            "project_browser"
+          ]
+        },
+        {
+          "module": "pipeline_graph",
+          "action": "Read recorded artifact dependencies and stale/missing status. The graph describes provenance and does not regenerate missing artifacts.",
+          "after": [
+            "run_history"
+          ]
+        }
+      ],
+      "checkpoint": "Inspect the saved source, settings and missing artifacts before explicitly launching work. Opening a project or a recorded run does not automatically resume an analysis."
+    },
+    "export_reports": {
+      "title": "Export analysis figures and reports",
+      "summary": "Package recorded results, settings and QC into a shareable report without silently rerunning the analysis.",
+      "pathway": "high_content",
+      "inputs": [
+        "run_records",
+        "figures",
+        "qc"
+      ],
+      "steps": [
+        {
+          "module": "graph_builder",
+          "action": "Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context.",
+          "after": []
+        },
+        {
+          "module": "report",
+          "action": "Package recorded results, settings and QC into a shareable report without silently rerunning the analysis.",
+          "after": [
+            "graph_builder"
+          ]
+        }
+      ]
+    },
+    "export_methods": {
+      "title": "Export computational methods and results",
+      "summary": "Draft methods/results text from recorded settings and results; review every claim before publication.",
+      "pathway": "pooled_screen",
+      "inputs": [
+        "run_records",
+        "regression"
+      ],
+      "steps": [
+        {
+          "module": "methods_export",
+          "action": "Draft methods/results text from recorded settings and results; review every claim before publication.",
+          "after": []
+        }
+      ]
+    }
+  },
+  "protocol_routes": [
+    {
+      "data": "images",
+      "goal": "screening",
+      "stage": "start",
+      "details": "raw_images",
+      "protocol": "pooled_crispr",
+      "start_module": "mask"
+    },
+    {
+      "data": "images_masks",
+      "goal": "screening",
+      "stage": "prepared",
+      "details": "existing_masks",
+      "protocol": "pooled_crispr",
+      "start_module": "external_masks"
+    },
+    {
+      "data": "fastq",
+      "goal": "screening",
+      "stage": "prepared",
+      "details": "scores",
+      "protocol": "pooled_crispr",
+      "start_module": "map_barcodes"
+    },
+    {
+      "data": "images",
+      "goal": "quantification",
+      "stage": "start",
+      "details": "raw_images",
+      "protocol": "high_content",
+      "start_module": "mask"
+    },
+    {
+      "data": "images",
+      "goal": "quantification",
+      "stage": "start",
+      "details": "yokogawa",
+      "protocol": "high_content",
+      "start_module": "mask"
+    },
+    {
+      "data": "images",
+      "goal": "quantification",
+      "stage": "start",
+      "details": "zeiss",
+      "protocol": "high_content",
+      "start_module": "mask"
+    },
+    {
+      "data": "images",
+      "goal": "quantification",
+      "stage": "start",
+      "details": "nikon",
+      "protocol": "high_content",
+      "start_module": "mask"
+    },
+    {
+      "data": "images",
+      "goal": "quantification",
+      "stage": "start",
+      "details": "leica",
+      "protocol": "high_content",
+      "start_module": "mask"
+    },
+    {
+      "data": "images",
+      "goal": "quantification",
+      "stage": "start",
+      "details": "other_microscope",
+      "protocol": "high_content",
+      "start_module": "mask"
+    },
+    {
+      "data": "images_masks",
+      "goal": "quantification",
+      "stage": "prepared",
+      "details": "existing_masks",
+      "protocol": "high_content",
+      "start_module": "external_masks"
+    },
+    {
+      "data": "images",
+      "goal": "quantification",
+      "stage": "start",
+      "details": "standard",
+      "protocol": "simple_imaging",
+      "start_module": "mask"
+    },
+    {
+      "data": "images_masks",
+      "goal": "quantification",
+      "stage": "prepared",
+      "details": "standard",
+      "protocol": "simple_imaging",
+      "start_module": "external_masks"
+    },
+    {
+      "data": "images",
+      "goal": "segmentation",
+      "stage": "start",
+      "details": "existing_model",
+      "protocol": "generate_masks",
+      "start_module": "mask"
+    },
+    {
+      "data": "images",
+      "goal": "segmentation",
+      "stage": "start",
+      "details": "download_model",
+      "protocol": "generate_masks",
+      "start_module": "mask"
+    },
+    {
+      "data": "images",
+      "goal": "segmentation",
+      "stage": "start",
+      "details": "own_checkpoint",
+      "protocol": "generate_masks",
+      "start_module": "mask"
+    },
+    {
+      "data": "images",
+      "goal": "segmentation",
+      "stage": "prepared",
+      "details": "draw_masks",
+      "protocol": "curate_masks",
+      "start_module": "make_masks"
+    },
+    {
+      "data": "images_masks",
+      "goal": "segmentation",
+      "stage": "prepared",
+      "details": "correct_masks",
+      "protocol": "curate_masks",
+      "start_module": "make_masks"
+    },
+    {
+      "data": "images_masks",
+      "goal": "quantification",
+      "stage": "prepared",
+      "details": "existing_masks",
+      "protocol": "external_masks_measure",
+      "start_module": "external_masks"
+    },
+    {
+      "data": "images",
+      "goal": "inspection",
+      "stage": "review",
+      "details": "organized",
+      "protocol": "image_overview",
+      "start_module": "mask"
+    },
+    {
+      "data": "images",
+      "goal": "inspection",
+      "stage": "review",
+      "details": "unorganized",
+      "protocol": "image_overview",
+      "start_module": "mask"
+    },
+    {
+      "data": "images",
+      "goal": "organization",
+      "stage": "start",
+      "details": "organized",
+      "protocol": "organize_images",
+      "start_module": "import_images"
+    },
+    {
+      "data": "images",
+      "goal": "organization",
+      "stage": "start",
+      "details": "yokogawa",
+      "protocol": "organize_images",
+      "start_module": "import_images"
+    },
+    {
+      "data": "images",
+      "goal": "organization",
+      "stage": "start",
+      "details": "zeiss",
+      "protocol": "organize_images",
+      "start_module": "import_images"
+    },
+    {
+      "data": "images",
+      "goal": "organization",
+      "stage": "start",
+      "details": "nikon",
+      "protocol": "organize_images",
+      "start_module": "import_images"
+    },
+    {
+      "data": "images",
+      "goal": "organization",
+      "stage": "start",
+      "details": "leica",
+      "protocol": "organize_images",
+      "start_module": "import_images"
+    },
+    {
+      "data": "images",
+      "goal": "organization",
+      "stage": "start",
+      "details": "other_microscope",
+      "protocol": "organize_images",
+      "start_module": "import_images"
+    },
+    {
+      "data": "images",
+      "goal": "organization",
+      "stage": "start",
+      "details": "standard",
+      "protocol": "convert_images",
+      "start_module": "convert"
+    },
+    {
+      "data": "images",
+      "goal": "quality",
+      "stage": "start",
+      "details": "raw_images",
+      "protocol": "illumination",
+      "start_module": "illumination"
+    },
+    {
+      "data": "images",
+      "goal": "organization",
+      "stage": "prepared",
+      "details": "standard",
+      "protocol": "align_stitch",
+      "start_module": "align"
+    },
+    {
+      "data": "images",
+      "goal": "quantification",
+      "stage": "start",
+      "details": "z_stack",
+      "protocol": "volumetric",
+      "start_module": "make_masks"
+    },
+    {
+      "data": "images_masks",
+      "goal": "quantification",
+      "stage": "prepared",
+      "details": "z_stack",
+      "protocol": "volumetric",
+      "start_module": "make_masks"
+    },
+    {
+      "data": "images",
+      "goal": "tracking",
+      "stage": "start",
+      "details": "ordered_frames",
+      "protocol": "tracking",
+      "start_module": "timelapse"
+    },
+    {
+      "data": "images_masks",
+      "goal": "tracking",
+      "stage": "prepared",
+      "details": "ordered_frames",
+      "protocol": "tracking",
+      "start_module": "external_masks"
+    },
+    {
+      "data": "features",
+      "goal": "tracking",
+      "stage": "results",
+      "details": "tracked",
+      "protocol": "motility",
+      "start_module": "motility"
+    },
+    {
+      "data": "run_records",
+      "goal": "tracking",
+      "stage": "results",
+      "details": "tracked",
+      "protocol": "motility",
+      "start_module": "motility"
+    },
+    {
+      "data": "run_records",
+      "goal": "tracking",
+      "stage": "review",
+      "details": "tracked",
+      "protocol": "track_review",
+      "start_module": "curate"
+    },
+    {
+      "data": "images",
+      "goal": "screening",
+      "stage": "start",
+      "details": "cycle_images",
+      "protocol": "optical_screen",
+      "start_module": "mask"
+    },
+    {
+      "data": "images",
+      "goal": "spatial",
+      "stage": "start",
+      "details": "spatial_slide",
+      "protocol": "spatial_measure",
+      "start_module": "spatial_masks"
+    },
+    {
+      "data": "images",
+      "goal": "spatial",
+      "stage": "prepared",
+      "details": "spatial_slide",
+      "protocol": "spatial_decode",
+      "start_module": "spatial_map"
+    },
+    {
+      "data": "features",
+      "goal": "spatial",
+      "stage": "prepared",
+      "details": "spatial_identities",
+      "protocol": "spatial_phenotypes",
+      "start_module": "graph_builder"
+    },
+    {
+      "data": "images",
+      "goal": "assays",
+      "stage": "start",
+      "details": "raw_images",
+      "protocol": "plaques",
+      "start_module": "analyze_plaques"
+    },
+    {
+      "data": "images_masks",
+      "goal": "assays",
+      "stage": "prepared",
+      "details": "existing_masks",
+      "protocol": "plaques",
+      "start_module": "analyze_plaques"
+    },
+    {
+      "data": "images",
+      "goal": "assays",
+      "stage": "start",
+      "details": "pdf",
+      "protocol": "plaque_figures",
+      "start_module": "analyze_plaques"
+    },
+    {
+      "data": "images",
+      "goal": "assays",
+      "stage": "start",
+      "details": "figure_images",
+      "protocol": "plaque_figures",
+      "start_module": "analyze_plaques"
+    },
+    {
+      "data": "images",
+      "goal": "assays",
+      "stage": "start",
+      "details": "raw_images",
+      "protocol": "recruitment",
+      "start_module": "mask"
+    },
+    {
+      "data": "features",
+      "goal": "assays",
+      "stage": "prepared",
+      "details": "database",
+      "protocol": "recruitment",
+      "start_module": "recruitment"
+    },
+    {
+      "data": "images",
+      "goal": "assays",
+      "stage": "start",
+      "details": "raw_images",
+      "protocol": "invasion",
+      "start_module": "mask"
+    },
+    {
+      "data": "features",
+      "goal": "assays",
+      "stage": "prepared",
+      "details": "database",
+      "protocol": "invasion",
+      "start_module": "invasion"
+    },
+    {
+      "data": "images",
+      "goal": "assays",
+      "stage": "start",
+      "details": "raw_images",
+      "protocol": "replication",
+      "start_module": "mask"
+    },
+    {
+      "data": "features",
+      "goal": "assays",
+      "stage": "prepared",
+      "details": "database",
+      "protocol": "replication",
+      "start_module": "replication"
+    },
+    {
+      "data": "images",
+      "goal": "assays",
+      "stage": "start",
+      "details": "raw_images",
+      "protocol": "host_pathogen",
+      "start_module": "mask"
+    },
+    {
+      "data": "features",
+      "goal": "assays",
+      "stage": "prepared",
+      "details": "database",
+      "protocol": "host_pathogen",
+      "start_module": "host_pathogen"
+    },
+    {
+      "data": "images",
+      "goal": "assays",
+      "stage": "start",
+      "details": "standard",
+      "protocol": "colonies",
+      "start_module": "analyze_plaques"
+    },
+    {
+      "data": "images",
+      "goal": "assays",
+      "stage": "prepared",
+      "details": "concentrations",
+      "protocol": "dose_response",
+      "start_module": "mask"
+    },
+    {
+      "data": "features",
+      "goal": "assays",
+      "stage": "prepared",
+      "details": "concentrations",
+      "protocol": "dose_response",
+      "start_module": "dose_response"
+    },
+    {
+      "data": "features",
+      "goal": "exploration",
+      "stage": "prepared",
+      "details": "database",
+      "protocol": "feature_explore",
+      "start_module": "db_browser"
+    },
+    {
+      "data": "features",
+      "goal": "organization",
+      "stage": "start",
+      "details": "external_csv",
+      "protocol": "external_features",
+      "start_module": "foreign"
+    },
+    {
+      "data": "features",
+      "goal": "exports",
+      "stage": "results",
+      "details": "database",
+      "protocol": "measurement_figures",
+      "start_module": "graph_builder"
+    },
+    {
+      "data": "features",
+      "goal": "exports",
+      "stage": "results",
+      "details": "external_csv",
+      "protocol": "measurement_figures",
+      "start_module": "graph_builder"
+    },
+    {
+      "data": "features",
+      "goal": "exploration",
+      "stage": "results",
+      "details": "conditions",
+      "protocol": "condition_compare",
+      "start_module": "graph_builder"
+    },
+    {
+      "data": "features",
+      "goal": "exploration",
+      "stage": "prepared",
+      "details": "database",
+      "protocol": "phenotype_discovery",
+      "start_module": "umap"
+    },
+    {
+      "data": "features",
+      "goal": "exploration",
+      "stage": "prepared",
+      "details": "with_crops",
+      "protocol": "phenotype_discovery",
+      "start_module": "umap"
+    },
+    {
+      "data": "features",
+      "goal": "annotation",
+      "stage": "prepared",
+      "details": "database",
+      "protocol": "gated_populations",
+      "start_module": "gate_editor"
+    },
+    {
+      "data": "features",
+      "goal": "annotation",
+      "stage": "prepared",
+      "details": "external_csv",
+      "protocol": "gated_populations",
+      "start_module": "gate_editor"
+    },
+    {
+      "data": "features",
+      "goal": "quality",
+      "stage": "review",
+      "details": "with_crops",
+      "protocol": "outliers",
+      "start_module": "outliers"
+    },
+    {
+      "data": "features",
+      "goal": "quality",
+      "stage": "review",
+      "details": "database",
+      "protocol": "analysis_qc",
+      "start_module": "qc_dashboard"
+    },
+    {
+      "data": "features",
+      "goal": "quality",
+      "stage": "review",
+      "details": "multiple_plates",
+      "protocol": "analysis_qc",
+      "start_module": "qc_dashboard"
+    },
+    {
+      "data": "features",
+      "goal": "quality",
+      "stage": "review",
+      "details": "conditions",
+      "protocol": "control_effects",
+      "start_module": "control_chart"
+    },
+    {
+      "data": "features",
+      "goal": "classification",
+      "stage": "train",
+      "details": "reviewed_labels",
+      "protocol": "feature_classifier",
+      "start_module": "classify_merged"
+    },
+    {
+      "data": "features",
+      "goal": "classification",
+      "stage": "train",
+      "details": "no_labels",
+      "protocol": "label_feature_classifier",
+      "start_module": "gate_editor"
+    },
+    {
+      "data": "features",
+      "goal": "exports",
+      "stage": "results",
+      "details": "database",
+      "protocol": "anndata",
+      "start_module": "anndata_export"
+    },
+    {
+      "data": "crops",
+      "goal": "annotation",
+      "stage": "prepared",
+      "details": "standard",
+      "protocol": "annotate_images",
+      "start_module": "annotate"
+    },
+    {
+      "data": "crops",
+      "goal": "annotation",
+      "stage": "prepared",
+      "details": "with_crops",
+      "protocol": "annotate_images",
+      "start_module": "annotate"
+    },
+    {
+      "data": "features",
+      "goal": "annotation",
+      "stage": "prepared",
+      "details": "with_crops",
+      "protocol": "annotate_images",
+      "start_module": "annotate"
+    },
+    {
+      "data": "crops",
+      "goal": "classification",
+      "stage": "train",
+      "details": "reviewed_labels",
+      "protocol": "vision_classifier",
+      "start_module": "classify_merged"
+    },
+    {
+      "data": "crops",
+      "goal": "classification",
+      "stage": "train",
+      "details": "no_labels",
+      "protocol": "label_vision_classifier",
+      "start_module": "annotate"
+    },
+    {
+      "data": "images",
+      "goal": "classification",
+      "stage": "start",
+      "details": "raw_images",
+      "protocol": "raw_vision_classifier",
+      "start_module": "mask"
+    },
+    {
+      "data": "classifier",
+      "goal": "classification",
+      "stage": "apply",
+      "details": "standard",
+      "protocol": "apply_classifier",
+      "start_module": "classify_merged"
+    },
+    {
+      "data": "classifier",
+      "goal": "classification",
+      "stage": "apply",
+      "details": "with_crops",
+      "protocol": "apply_classifier",
+      "start_module": "classify_merged"
+    },
+    {
+      "data": "crops",
+      "goal": "classification",
+      "stage": "apply",
+      "details": "existing_model",
+      "protocol": "apply_classifier",
+      "start_module": "classify_merged"
+    },
+    {
+      "data": "crops",
+      "goal": "exploration",
+      "stage": "prepared",
+      "details": "no_labels",
+      "protocol": "image_phenotypes",
+      "start_module": "embeddings"
+    },
+    {
+      "data": "crops",
+      "goal": "quality",
+      "stage": "review",
+      "details": "reviewed_labels",
+      "protocol": "annotator_agreement",
+      "start_module": "agreement"
+    },
+    {
+      "data": "classifier",
+      "goal": "classification",
+      "stage": "review",
+      "details": "scores",
+      "protocol": "explain_classifier",
+      "start_module": "activation"
+    },
+    {
+      "data": "classifier",
+      "goal": "classification",
+      "stage": "review",
+      "details": "held_out",
+      "protocol": "classification_evaluation",
+      "start_module": "classifier_evaluation"
+    },
+    {
+      "data": "features",
+      "goal": "classification",
+      "stage": "review",
+      "details": "held_out",
+      "protocol": "classification_evaluation",
+      "start_module": "classifier_evaluation"
+    },
+    {
+      "data": "images_masks",
+      "goal": "segmentation_training",
+      "stage": "train",
+      "details": "curated_pairs",
+      "protocol": "train_cellpose",
+      "start_module": "train_cellpose"
+    },
+    {
+      "data": "images",
+      "goal": "segmentation_training",
+      "stage": "train",
+      "details": "draw_masks",
+      "protocol": "create_cellpose_training",
+      "start_module": "make_masks"
+    },
+    {
+      "data": "segmentation_model",
+      "goal": "segmentation_training",
+      "stage": "train",
+      "details": "curated_pairs",
+      "protocol": "refine_cellpose",
+      "start_module": "train_cellpose"
+    },
+    {
+      "data": "segmentation_model",
+      "goal": "segmentation_training",
+      "stage": "review",
+      "details": "existing_masks",
+      "protocol": "compare_segmentation",
+      "start_module": "model_compare"
+    },
+    {
+      "data": "segmentation_model",
+      "goal": "segmentation_training",
+      "stage": "review",
+      "details": "held_out",
+      "protocol": "evaluate_segmentation",
+      "start_module": "model_compare"
+    },
+    {
+      "data": "segmentation_model",
+      "goal": "segmentation",
+      "stage": "apply",
+      "details": "raw_images",
+      "protocol": "apply_segmentation",
+      "start_module": "mask"
+    },
+    {
+      "data": "run_records",
+      "goal": "segmentation_training",
+      "stage": "review",
+      "details": "standard",
+      "protocol": "compare_training",
+      "start_module": "train_compare"
+    },
+    {
+      "data": "segmentation_model",
+      "goal": "segmentation",
+      "stage": "prepared",
+      "details": "download_model",
+      "protocol": "choose_model",
+      "start_module": "model_zoo"
+    },
+    {
+      "data": "images",
+      "goal": "segmentation",
+      "stage": "prepared",
+      "details": "download_model",
+      "protocol": "choose_model",
+      "start_module": "model_zoo"
+    },
+    {
+      "data": "fastq",
+      "goal": "sequencing",
+      "stage": "start",
+      "details": "paired_reads",
+      "protocol": "map_barcodes",
+      "start_module": "map_barcodes"
+    },
+    {
+      "data": "fastq",
+      "goal": "sequencing",
+      "stage": "start",
+      "details": "single_reads",
+      "protocol": "map_barcodes",
+      "start_module": "map_barcodes"
+    },
+    {
+      "data": "barcode_counts",
+      "goal": "quality",
+      "stage": "review",
+      "details": "standard",
+      "protocol": "barcode_qc",
+      "start_module": "barcode_qc"
+    },
+    {
+      "data": "barcode_counts",
+      "goal": "regression",
+      "stage": "prepared",
+      "details": "scores",
+      "protocol": "regression",
+      "start_module": "regression"
+    },
+    {
+      "data": "barcode_counts",
+      "goal": "regression",
+      "stage": "prepared",
+      "details": "direct_features",
+      "protocol": "regression",
+      "start_module": "regression"
+    },
+    {
+      "data": "features",
+      "goal": "regression",
+      "stage": "prepared",
+      "details": "ops_aggregates",
+      "protocol": "regression",
+      "start_module": "regression"
+    },
+    {
+      "data": "features",
+      "goal": "regression",
+      "stage": "prepared",
+      "details": "direct_features",
+      "protocol": "regression",
+      "start_module": "regression"
+    },
+    {
+      "data": "regression",
+      "goal": "regression",
+      "stage": "review",
+      "details": "standard",
+      "protocol": "regression_diagnostics",
+      "start_module": "regression_diagnostics"
+    },
+    {
+      "data": "regression",
+      "goal": "regression",
+      "stage": "results",
+      "details": "standard",
+      "protocol": "screen_hits",
+      "start_module": "volcano_explorer"
+    },
+    {
+      "data": "regression",
+      "goal": "regression",
+      "stage": "review",
+      "details": "with_crops",
+      "protocol": "investigate_hit",
+      "start_module": "investigate_hit"
+    },
+    {
+      "data": "run_records",
+      "goal": "operations",
+      "stage": "review",
+      "details": "standard",
+      "protocol": "compare_runs",
+      "start_module": "run_compare"
+    },
+    {
+      "data": "regression",
+      "goal": "regression",
+      "stage": "results",
+      "details": "standard",
+      "protocol": "compare_runs",
+      "start_module": "run_compare"
+    },
+    {
+      "data": "planning",
+      "goal": "planning",
+      "stage": "start",
+      "details": "standard",
+      "protocol": "experiment_design",
+      "start_module": "experiment_design"
+    },
+    {
+      "data": "planning",
+      "goal": "screening",
+      "stage": "start",
+      "details": "standard",
+      "protocol": "pooled_design",
+      "start_module": "experiment_design"
+    },
+    {
+      "data": "planning",
+      "goal": "planning",
+      "stage": "prepared",
+      "details": "assumptions",
+      "protocol": "power",
+      "start_module": "power"
+    },
+    {
+      "data": "planning",
+      "goal": "planning",
+      "stage": "prepared",
+      "details": "pilot",
+      "protocol": "power",
+      "start_module": "power"
+    },
+    {
+      "data": "features",
+      "goal": "planning",
+      "stage": "prepared",
+      "details": "pilot",
+      "protocol": "power",
+      "start_module": "power"
+    },
+    {
+      "data": "run_records",
+      "goal": "operations",
+      "stage": "start",
+      "details": "multiple_plates",
+      "protocol": "multi_plate",
+      "start_module": "queue"
+    },
+    {
+      "data": "images",
+      "goal": "operations",
+      "stage": "start",
+      "details": "multiple_plates",
+      "protocol": "multi_plate",
+      "start_module": "queue"
+    },
+    {
+      "data": "run_records",
+      "goal": "operations",
+      "stage": "start",
+      "details": "remote",
+      "protocol": "remote_analysis",
+      "start_module": "distributed_jobs"
+    },
+    {
+      "data": "run_records",
+      "goal": "operations",
+      "stage": "prepared",
+      "details": "organized",
+      "protocol": "resume_project",
+      "start_module": "project_browser"
+    },
+    {
+      "data": "run_records",
+      "goal": "exports",
+      "stage": "results",
+      "details": "standard",
+      "protocol": "export_reports",
+      "start_module": "graph_builder"
+    },
+    {
+      "data": "features",
+      "goal": "exports",
+      "stage": "results",
+      "details": "standard",
+      "protocol": "export_reports",
+      "start_module": "graph_builder"
+    },
+    {
+      "data": "run_records",
+      "goal": "exports",
+      "stage": "results",
+      "details": "organized",
+      "protocol": "export_methods",
+      "start_module": "methods_export"
+    },
+    {
+      "data": "regression",
+      "goal": "exports",
+      "stage": "results",
+      "details": "standard",
+      "protocol": "export_methods",
+      "start_module": "methods_export"
+    },
+    {
+      "data": "images_masks",
+      "goal": "quantification",
+      "stage": "prepared",
+      "details": "merged_project",
+      "protocol": "simple_imaging",
+      "start_module": "measure"
+    }
+  ],
+  "protocol_choices": {
+    "data": {
+      "images": "Images",
+      "images_masks": "Images and masks",
+      "fastq": "FASTQ reads",
+      "barcode_counts": "Barcode counts",
+      "features": "Measured features",
+      "crops": "Object images",
+      "segmentation_model": "Segmentation model",
+      "classifier": "Classifier",
+      "regression": "Regression results",
+      "run_records": "Projects and recorded runs",
+      "planning": "Planning"
+    },
+    "goal": {
+      "organization": "Import and organize",
+      "inspection": "Inspect images",
+      "segmentation": "Segment images",
+      "quantification": "Measure objects",
+      "screening": "Analyze a pooled screen",
+      "tracking": "Track objects",
+      "spatial": "Analyze spatial images",
+      "assays": "Analyze an assay",
+      "exploration": "Explore measurements",
+      "classification": "Classify objects",
+      "annotation": "Annotate objects",
+      "segmentation_training": "Train or evaluate segmentation",
+      "quality": "Check quality",
+      "sequencing": "Map sequencing barcodes",
+      "regression": "Analyze screen results",
+      "planning": "Plan an experiment",
+      "operations": "Run and inspect projects",
+      "exports": "Export results"
+    },
+    "stage": {
+      "start": "Start from images or reads",
+      "prepared": "Use prepared data",
+      "train": "Train a model",
+      "apply": "Apply an existing model",
+      "review": "Inspect and review",
+      "results": "Analyze results"
+    },
+    "details": {
+      "standard": "Standard",
+      "raw_images": "Raw images",
+      "existing_masks": "Existing masks",
+      "organized": "spaCR-organized project",
+      "unorganized": "Files with metadata in their names",
+      "existing_model": "Existing model",
+      "download_model": "Downloadable model",
+      "own_checkpoint": "Own checkpoint",
+      "draw_masks": "Draw masks from scratch",
+      "correct_masks": "Correct existing masks",
+      "z_stack": "3D Z stack",
+      "ordered_frames": "Ordered time frames",
+      "tracked": "Tracked project",
+      "cycle_images": "Sequencing cycles and phenotype images",
+      "spatial_slide": "Spatial slide images",
+      "spatial_identities": "Spatial identities and measurements",
+      "pdf": "PDF",
+      "figure_images": "Extracted figure images",
+      "concentrations": "Concentration metadata",
+      "external_csv": "External feature table",
+      "database": "spaCR measurement database",
+      "conditions": "Condition metadata",
+      "with_crops": "Features and matching object images",
+      "reviewed_labels": "Reviewed labels",
+      "no_labels": "No labels yet",
+      "held_out": "Independent held-out examples",
+      "curated_pairs": "Curated image and mask pairs",
+      "scores": "Phenotype scores",
+      "direct_features": "Direct measured responses",
+      "ops_aggregates": "Joined OPS aggregates",
+      "paired_reads": "Paired-end reads",
+      "single_reads": "Single-end reads",
+      "multiple_plates": "Multiple plates",
+      "assumptions": "Stated assumptions",
+      "pilot": "Pilot measurements",
+      "remote": "Remote execution",
+      "yokogawa": "Yokogawa / CellVoyager",
+      "zeiss": "Zeiss",
+      "nikon": "Nikon",
+      "leica": "Leica",
+      "other_microscope": "Other or unknown microscope",
+      "merged_project": "Existing spaCR merged project"
+    }
+  }
 }

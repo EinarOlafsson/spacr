@@ -5528,6 +5528,25 @@ class _EasyPathEdit(QLineEdit):
 _EASY_WORKFLOW_PORT_RADIUS = 4
 
 
+def _navigator_learning_links(key=None):
+    """Use published module lessons and the local software-protocol browser."""
+    from ..app import APPS
+    from ..i18n import tr
+    from ..tutorials import tutorial_url
+
+    names = {row[0]: row[1] for row in APPS}
+    selected = (key,) if key else ('mask', 'measure', 'annotate', 'classify_merged',
+                                  'map_barcodes', 'regression', 'make_masks')
+    links = []
+    for module in selected:
+        url = tutorial_url(module)
+        if url:
+            label = tr('Tutorial') if key else tr(names.get(module, module))
+            links.append('<a href="' + escape(url, quote=True) + '">' + escape(label) + '</a>')
+    links.append('<a href="spacr://protocols">' + escape(tr('Protocols')) + '</a>')
+    return '<p>' + ' | '.join(links) + '</p>'
+
+
 class _EasySuggestionCard(QPushButton):
     """A growing local next-step card with an explicit module handoff."""
 
@@ -5937,6 +5956,12 @@ class _NavigatorDetailsBrowser(QTextBrowser):
         """Navigate an explicitly clicked assistant or documentation link."""
         from .ai_chat_panel import _activate_ai_link
 
+        if url.toString() == 'spacr://protocols':
+            owner = self.window()
+            opener = getattr(owner, '_open_navigator_protocols', None)
+            if callable(opener):
+                opener()
+            return
         _activate_ai_link(self, url)
 
     def _arrow_icon(self, direction, color='white'):
@@ -6330,7 +6355,7 @@ class _EasyHomeField(QWidget):
 
     def explain_card(self, card):
         """Display the focused module's explanation below the fixed suggestion row."""
-        self.details.setHtml(card._explanation)
+        self.details.setHtml(card._explanation + _navigator_learning_links(card._key))
 
     def _scroll_cards(self, value):
         """Move only the horizontal choice row, preserving input and description anchors."""
@@ -6722,7 +6747,7 @@ class _EasyWorkflowView(_WorkflowView):
             note = self.data['modules'][key].get('documentation_note')
             if note:
                 text += '<p>' + escape(tr(note)) + '</p>'
-            cache[key] = text
+            cache[key] = text + _navigator_learning_links(key)
         self._explanation_key = key
         self.explanation.emit(cache[key])
 
@@ -7284,6 +7309,7 @@ class _EasyHomePage(QWidget):
             text = ('<b>' + escape(parts[0]) + ':</b>' + escape(parts[1])
                     if len(parts) == 2 else escape(line))
             paragraphs.append('<p>' + text + '</p>')
+        paragraphs.append(_navigator_learning_links())
         self._guide_writing = True
         self.field.details.setHtml('<div style="color:#808080;">' + ''.join(paragraphs) + '</div>')
         self._guide_writing = False
