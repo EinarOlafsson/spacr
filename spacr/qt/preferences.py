@@ -8245,6 +8245,7 @@ def apply_preferences_to_app(app=None, *, in_slices: bool = False) -> None:
         apply_stylesheet_per_window,
         clear_widget_qss_overlays,
         set_widget_qss_context,
+        spaceout_enabled,
         stylesheet,
         widget_qss_names,
         window_stylesheet,
@@ -8292,6 +8293,7 @@ def apply_preferences_to_app(app=None, *, in_slices: bool = False) -> None:
         str(background or ""),
         bool(get_field_fade_enabled()),
         bool(get_strong_focus()),
+        bool(spaceout_enabled()),
         widget_qss_names(),
     )
     previous_signature = getattr(app, "_spacr_preferences_style_signature",

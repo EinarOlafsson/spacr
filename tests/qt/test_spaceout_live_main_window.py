@@ -1,4 +1,5 @@
 """Navigator Spaceout actions and Preferences change the actual shared backdrop."""
+import pytest
 from PySide6.QtWidgets import QComboBox, QDialogButtonBox
 
 from spacr.qt import preferences, theme
@@ -27,12 +28,17 @@ def test_navigator_toggle_and_live_preferences_select_actual_main_window_engines
     try:
         qtbot.waitUntil(lambda: window.window_backdrop() is not None, timeout=5000)
         assert window.window_backdrop().engine.name == 'blobs'
+        preferences.apply_preferences_to_app()
+        normal_palette = qapp.palette()
+        normal_sheet = theme.window_stylesheet(qapp)
         window._open_easy_command('__easy_command__:Spaceout')
         assert theme.spaceout_enabled()
+        assert theme.window_stylesheet(qapp) != normal_sheet
+        assert qapp.palette() != normal_palette
         assert window.window_backdrop().theme() == ambient.DEFAULT_SPACEOUT_THEME
         assert isinstance(window.window_backdrop().engine, ambient._SpaceoutFieldEngine)
         for selected, engine_type in (
-                ('data_art_spaceout_vortex', ambient._SpaceoutVortexEngine),
+                ('aurora', ambient.AuroraEngine),
                 ('data_art_spaceout_field', ambient._SpaceoutFieldEngine)):
             dialog = preferences.PreferencesDialog(window)
             qtbot.addWidget(dialog)
@@ -44,15 +50,33 @@ def test_navigator_toggle_and_live_preferences_select_actual_main_window_engines
             assert not window.window_backdrop().grab().isNull()
         window._open_easy_command('__easy_command__:Spaceout')
         assert not theme.spaceout_enabled()
+        assert theme.window_stylesheet(qapp) == normal_sheet
+        assert qapp.palette() == normal_palette
+        assert not preferences.sound_is_offered()
+        restored = preferences.PreferencesDialog(window)
+        qtbot.addWidget(restored)
+        assert restored.findChild(QComboBox, 'AmbientTheme').findData('aurora') == -1
+        assert restored.findChild(QComboBox, 'AmbientTheme').currentData() == 'blobs'
         assert window.window_backdrop().engine.name == 'blobs'
         assert window.window_backdrop().palette_name() == 'ember'
+        for _ in range(2):
+            window._open_easy_command('__easy_command__:Spaceout')
+            assert theme.spaceout_enabled()
+            window._open_easy_command('__easy_command__:Spaceout')
+            assert not theme.spaceout_enabled()
+            assert theme.spaceout_drift_seconds() == 0
+            assert theme.window_stylesheet(qapp) == normal_sheet
+            assert qapp.palette() == normal_palette
+            assert window.window_backdrop().engine.name == 'blobs'
+            assert window.window_backdrop().palette_name() == 'ember'
     finally:
         window.close()
         theme.enable_spaceout() if previous else theme.disable_spaceout()
 
 
+@pytest.mark.parametrize("normal_animation", [True, False])
 def test_actual_cpu_fractal_backend_switch_and_mode_off_survive_module_home_navigation(
-        qtbot, private_ai_profile, monkeypatch):
+        qtbot, private_ai_profile, monkeypatch, normal_animation):
     from spacr.qt.app import MainWindow
 
     monkeypatch.setenv('SPACR_NO_GL', '1')
@@ -62,7 +86,7 @@ def test_actual_cpu_fractal_backend_switch_and_mode_off_survive_module_home_navi
     preferences.set_show_alpha(True)
     preferences.set_ambient_animation('blobs')
     preferences.set_ambient_palette('ember')
-    preferences.set_ambient_enabled(True)
+    preferences.set_ambient_enabled(normal_animation)
     preferences.set_reduce_motion(True)
     preferences.set_fractal_settings(backend='cpu', quality='balanced', scale=.05,
                                      pattern='orbit', supersampling=1)
@@ -73,7 +97,8 @@ def test_actual_cpu_fractal_backend_switch_and_mode_off_survive_module_home_navi
     window.resize(1000, 760)
     window.show()
     try:
-        qtbot.waitUntil(lambda: window.window_backdrop() is not None, timeout=5000)
+        if normal_animation:
+            qtbot.waitUntil(lambda: window.window_backdrop() is not None, timeout=5000)
         window._open_easy_command('__easy_command__:Spaceout')
         preferences.set_ambient_animation(ambient.SPACEOUT_THEME)
         preferences.apply_preferences_to_app()
@@ -90,8 +115,11 @@ def test_actual_cpu_fractal_backend_switch_and_mode_off_survive_module_home_navi
         window._open_easy_command('__easy_command__:Spaceout')
         assert not theme.spaceout_enabled()
         normal = window.window_backdrop()
-        assert isinstance(normal, ambient.AmbientWidget)
-        assert normal.engine.name == 'blobs' and normal.palette_name() == 'ember'
+        if normal_animation:
+            assert isinstance(normal, ambient.AmbientWidget)
+            assert normal.engine.name == 'blobs' and normal.palette_name() == 'ember'
+        else:
+            assert normal is None
         assert fractal._stopped
     finally:
         live = window.window_backdrop()
