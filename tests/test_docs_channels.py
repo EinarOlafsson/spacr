@@ -344,6 +344,156 @@ def test_failed_nightly_commit_is_not_retried_in_smaller_batches(tmp_path, monke
     assert len(calls) == 1
 
 
+def pinned_nightly_receipts(tmp_path, receipts):
+    """Mock immutable Hub receipt reads, recording the requested revisions."""
+    revisions = []
+
+    def download(**kwargs):
+        assert kwargs['repo_type'] == 'space' and kwargs['filename'] == 'channels.json'
+        revision = kwargs['revision']
+        revisions.append(revision)
+        path = tmp_path / (revision + '.json')
+        path.write_text(json.dumps(receipts[revision]), encoding="utf-8")
+        return str(path)
+
+    return download, revisions
+
+
+def nightly_source_receipt(commit):
+    return {'schema': 2, 'channels': {'nightly': {'branch': 'nightly', 'commit': commit}}}
+
+
+@pytest.mark.parametrize('refreshed_source', ['a' * 40, 'c' * 40])
+def test_advanced_nightly_head_rebuilds_one_atomic_snapshot(tmp_path, monkeypatch,
+                                                         refreshed_source):
+    import types
+    import publish_docs_channels as publisher
+
+    space = tmp_path / 'space'
+    assemble_nightly(site(tmp_path, 'nightly'), space)
+    receipt = json.loads((space / 'channels.json').read_text(encoding='utf-8'))
+    receipt['channels']['nightly']['commit'] = 'c' * 40
+    (space / 'channels.json').write_text(json.dumps(receipt), encoding='utf-8')
+    download, reads = pinned_nightly_receipts(tmp_path, {
+        'old-head': nightly_source_receipt('a' * 40),
+        'advanced-head': nightly_source_receipt(refreshed_source)})
+    calls, revisions = [], []
+    heads = iter(('old-head', 'advanced-head'))
+    failure = RuntimeError('branch was updated')
+    failure.response = types.SimpleNamespace(status_code=412)
+
+    class Api:
+        def space_info(self, repo_id):
+            return types.SimpleNamespace(sha=next(heads))
+
+        def list_repo_files(self, repo_id, **kwargs):
+            revisions.append(kwargs['revision'])
+            return (['obsolete.html', '.gitattributes'] if kwargs['revision'] == 'old-head'
+                    else ['obsolete.html', 'concurrent.html', '.gitattributes'])
+
+        def create_commit(self, **kwargs):
+            calls.append(kwargs)
+            if len(calls) == 1:
+                raise failure
+            return types.SimpleNamespace(oid='completed')
+
+    monkeypatch.setitem(sys.modules, 'huggingface_hub', types.SimpleNamespace(
+        HfApi=Api, hf_hub_download=download, CommitOperationAdd=lambda **kw: ('add', kw),
+        CommitOperationDelete=lambda **kw: ('delete', kw)))
+    assert publisher.upload_nightly(space) == 'completed'
+    assert reads == ['old-head', 'advanced-head']
+    assert revisions == ['old-head', 'advanced-head']
+    assert [call['parent_commit'] for call in calls] == revisions
+    assert [{op[1]['path_in_repo'] for op in call['operations'] if op[0] == 'delete'}
+            for call in calls] == [{'obsolete.html'}, {'obsolete.html', 'concurrent.html'}]
+    local = {p.relative_to(space).as_posix() for p in space.rglob('*') if p.is_file()}
+    additions = [[op for op in call['operations'] if op[0] == 'add'] for call in calls]
+    assert all({op[1]['path_in_repo'] for op in batch} == local for batch in additions)
+    assert all(old is not new for old, new in zip(*additions))
+
+
+@pytest.mark.parametrize('status,advances,attempts', [(403, True, 1),
+                                                   (412, False, 1),
+                                                   (412, True, 3)])
+def test_nightly_parent_conflict_retry_stays_bounded(tmp_path, monkeypatch,
+                                                    status, advances, attempts):
+    import types
+    import publish_docs_channels as publisher
+
+    space = tmp_path / 'space'
+    assemble_nightly(site(tmp_path, 'nightly'), space)
+    download, _ = pinned_nightly_receipts(tmp_path, {
+        f'head-{i}': nightly_source_receipt('a' * 40) for i in range(3)})
+    calls, parents = [], []
+    failure = RuntimeError('upload refused')
+    failure.response = types.SimpleNamespace(status_code=status)
+
+    class Api:
+        def space_info(self, repo_id):
+            parent = f'head-{len(parents)}' if advances else 'fixed-head'
+            parents.append(parent)
+            return types.SimpleNamespace(sha=parent)
+
+        def list_repo_files(self, *args, **kwargs):
+            return []
+
+        def create_commit(self, **kwargs):
+            calls.append(kwargs)
+            raise failure
+
+    monkeypatch.setitem(sys.modules, 'huggingface_hub', types.SimpleNamespace(
+        HfApi=Api, hf_hub_download=download,
+        CommitOperationAdd=lambda **kw: kw, CommitOperationDelete=lambda **kw: kw))
+    with pytest.raises(RuntimeError) as caught:
+        publisher.upload_nightly(space)
+    assert caught.value is failure
+    assert len(calls) == attempts
+    assert len(parents) == (2 if status == 412 and not advances else attempts)
+    local = {p.relative_to(space).as_posix() for p in space.rglob('*') if p.is_file()}
+    assert all({op['path_in_repo'] for op in call['operations']} == local for call in calls)
+
+
+@pytest.mark.parametrize('competing_receipt', [
+    nightly_source_receipt('b' * 40),
+    {'schema': 2, 'channels': {'nightly': {'branch': 'nightly'}}},
+    nightly_source_receipt('not-a-source-sha'),
+])
+def test_nightly_conflict_preserves_competing_or_malformed_source(tmp_path, monkeypatch,
+                                                                competing_receipt):
+    import types
+    import publish_docs_channels as publisher
+
+    space = tmp_path / 'space'
+    assemble_nightly(site(tmp_path, 'nightly'), space)
+    download, reads = pinned_nightly_receipts(tmp_path, {
+        'old-head': nightly_source_receipt('a' * 40),
+        'new-head': competing_receipt})
+    heads = iter(('old-head', 'new-head'))
+    calls = []
+    failure = RuntimeError('branch was updated')
+    failure.response = types.SimpleNamespace(status_code=412)
+
+    class Api:
+        def space_info(self, repo_id):
+            return types.SimpleNamespace(sha=next(heads))
+
+        def list_repo_files(self, *args, **kwargs):
+            return ['channels.json']
+
+        def create_commit(self, **kwargs):
+            calls.append(kwargs)
+            raise failure
+
+    monkeypatch.setitem(sys.modules, 'huggingface_hub', types.SimpleNamespace(
+        HfApi=Api, hf_hub_download=download,
+        CommitOperationAdd=lambda **kw: kw, CommitOperationDelete=lambda **kw: kw))
+    with pytest.raises(RuntimeError) as caught:
+        publisher.upload_nightly(space)
+    assert caught.value is failure
+    assert reads == ['old-head', 'new-head']
+    assert len(calls) == 1 and calls[0]['parent_commit'] == 'old-head'
+
+
 @pytest.mark.parametrize('wrong_receipt', ['source', 'size', 'publication'])
 def test_nightly_verification_rejects_stale_public_receipts(tmp_path, monkeypatch, wrong_receipt):
     import io
