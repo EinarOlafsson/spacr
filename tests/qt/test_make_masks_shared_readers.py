@@ -734,8 +734,9 @@ def test_scientific_multichannel_field_preserves_paired_mask_and_saved_channel_e
 
 
 
+@pytest.mark.parametrize("stored_shape", ["YX", "YX1"])
 def test_multichannel_paired_mask_keep_saves_exact_ids_and_reopens_the_curated_channel(
-        screen, qtbot, tmp_path, monkeypatch):
+        screen, qtbot, tmp_path, monkeypatch, stored_shape):
     images, masks = tmp_path / 'images', tmp_path / 'paired'
     images.mkdir()
     masks.mkdir()
@@ -749,7 +750,8 @@ def test_multichannel_paired_mask_keep_saves_exact_ids_and_reopens_the_curated_c
     labels[2:6, 3:7] = labels[10:14, 3:7] = 70001
     labels[3:7, 20:24] = 17
     paired = masks / source.name
-    tifffile.imwrite(paired, labels, metadata={'spacr_mask': {
+    tifffile.imwrite(paired, labels if stored_shape == 'YX' else labels[..., None],
+                     photometric='minisblack', metadata={'spacr_mask': {
         'schema': 'spacr.mask/v1', 'preserve_ids': True,
         'reviewer_label': 'paired reference'}})
     originals = source.read_bytes(), paired.read_bytes(), following.read_bytes()
