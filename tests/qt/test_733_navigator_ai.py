@@ -636,3 +636,43 @@ def test_pending_advice_and_repeat_enter_respect_a_revoked_provider(ai_page, qtb
     assert work.cancelled and drained and drained[0][2]['timeout_ms'] == 0
     assert not page.path_edit.ai.isChecked() and not page.path_edit.ai._busy
     assert 'Queued private advice' not in page.field.details.toPlainText()
+
+
+def test_removed_provider_and_missing_cli_keep_submitted_help_local(ai_page, qtbot, private_ai_profile, monkeypatch):
+    from spacr.qt.ai import providers
+
+    page, calls, _ = ai_page
+    preferences, _, _ = private_ai_profile
+    _enable(page)
+    preferences.set_preferred_provider('none')
+    page.path_edit.setText('Explain why this unfamiliar image looks different')
+    qtbot.keyClick(page.path_edit, Qt.Key_Return)
+    assert not calls and not page.path_edit.ai.isChecked()
+    assert 'No provider configured' in page.field.details.toPlainText()
+    preferences.set_preferred_provider('spacr_hosted')
+    _enable(page)
+    monkeypatch.setattr(providers, 'get_provider', lambda name: None)
+    page.path_edit.setText('Explain a second unfamiliar image')
+    qtbot.keyClick(page.path_edit, Qt.Key_Return)
+    assert not calls and page._ai_thread is None
+    assert 'No provider configured' in page.field.details.toPlainText()
+
+
+@pytest.mark.parametrize('still_running', [False, True])
+def test_next_answer_retains_only_a_still_running_previous_worker(ai_page, qtbot, still_running):
+    page, calls, _ = ai_page
+    _enable(page)
+    page.path_edit.setText('Explain an unfamiliar first image')
+    qtbot.keyClick(page.path_edit, Qt.Key_Return)
+    first_thread, first_worker = calls[0][1:]
+    first_worker.finished.emit(True, 'First complete answer')
+    qtbot.waitUntil(lambda: page._ai_thread is None, timeout=5000)
+    first_thread.started = still_running
+    page.path_edit.setText('Explain an unfamiliar second image')
+    qtbot.keyClick(page.path_edit, Qt.Key_Return)
+    assert len(calls) == 2
+    assert len(page._ai_retired) == int(still_running)
+    assert page.path_edit.ai.isChecked()
+    calls[1][2].finished.emit(True, 'Second complete answer')
+    qtbot.waitUntil(lambda: page._ai_thread is None, timeout=5000)
+    assert page.field.details.toPlainText() == 'Second complete answer'
