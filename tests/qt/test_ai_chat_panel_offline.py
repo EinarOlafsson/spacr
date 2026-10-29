@@ -1386,3 +1386,18 @@ def test_a_released_python_chat_owner_does_not_receive_its_delayed_explanation(
     QCoreApplication.processEvents()
     assert owner() is None
     assert len(provider.seen) == 1
+
+
+def test_provider_without_bundled_vendor_docs_keeps_a_copyable_hint_and_no_invented_signin(ai_env, qtbot):
+    from spacr.qt.widgets.ai_chat_panel import _ProvidersDialog
+
+    provider = _ScriptedProvider('local_cli', 'Local CLI')
+    ai_env['providers'] = [provider]
+    dialog = _ProvidersDialog()
+    qtbot.addWidget(dialog)
+    assert dialog.findChild(QLabel, 'ProviderInstallLink_local_cli') is None
+    assert not dialog._provider_rows['local_cli'][4].isEnabled()
+    commands = [edit.text() for edit in dialog.findChildren(QLineEdit) if edit.isReadOnly()]
+    assert provider.install_hint in commands and provider.login_command in commands
+    assert provider.seen == [] and provider.cancelled == 0
+    dialog.reject()

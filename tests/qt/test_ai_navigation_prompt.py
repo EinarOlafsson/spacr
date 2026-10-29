@@ -66,3 +66,53 @@ def test_catalog_context_stays_bounded_and_has_no_synthetic_command_routes():
                for _key, _name, _description, api, _tutorial in rows)
     assert all(not tutorial or tutorial.startswith('https://einarolafsson.github.io/spacr/tutorials/')
                for _key, _name, _description, _api, tutorial in rows)
+
+
+def test_catalog_reads_only_literal_current_page_folds_without_importing_hosts(tmp_path, monkeypatch):
+    from spacr.qt import app
+    from spacr.qt.widgets import fold_strip
+
+    sources = {
+        'retired_catalog_host': "APP_KEY = 'retired'\nPAGE_FOLDS = ('ops',)\n",
+        'dynamic_catalog_host': "APP_KEY = 'measure'\nPAGE_FOLDS = tuple(['ops'])\n",
+        'literal_catalog_host': "APP_KEY = 'measure'\nPAGE_FOLDS = ('ops', 'not_a_tool', 42)\n",
+    }
+    for name, source in sources.items():
+        (tmp_path / (name + '.py')).write_text(source + "raise RuntimeError('catalog must not import host')\n")
+    monkeypatch.syspath_prepend(str(tmp_path))
+    monkeypatch.setenv('SPACR_HOME', str(tmp_path / 'profile'))
+    monkeypatch.setattr(app, '_TOP_LEVEL_CACHE', {})
+    monkeypatch.setattr(app, 'APPS', [('measure', 'Measure', 'Measure images', 'Analysis')])
+    monkeypatch.setattr(app, 'folded_children', lambda: {})
+    monkeypatch.setattr(app, '_easy_native_extra_rows', lambda: {})
+    monkeypatch.setattr(app, 'app_is_visible', lambda key: key in ('measure', 'ops'))
+    monkeypatch.setattr(fold_strip, 'FOLD_HOST_MODULES', tuple(sources))
+    rows = {row[0]: row for row in prompts._navigation_modules()}
+    assert set(rows) == {'measure', 'ops'}
+    assert rows['measure'][1] == 'Measure' and rows['ops'][1] == 'OPS'
+    assert rows['measure'][3].endswith('/spacr/measure/index.html')
+    assert rows['ops'][3].startswith('https://einarolafsson.github.io/spacr/api/')
+    context = prompts._navigation_context()
+    assert 'measure: Measure' in context and 'ops: OPS' in context
+    assert 'retired' not in context and 'not_a_tool' not in context
+
+
+def test_error_message_keeps_the_active_tool_and_traceback_as_data():
+    message = prompts.wrap_error_for_prompt('  ValueError: missing image\n', active_app='measure')
+    assert message.startswith('Active app: measure\n\nTraceback:\n```\nValueError: missing image\n```')
+    assert message.endswith('Summarise the cause and give a step-by-step fix (<=6 steps).')
+
+
+import pytest
+
+
+@pytest.mark.parametrize('provider', ['claude', 'codex'])
+def test_tool_approval_instructions_match_the_provider_capability(provider):
+    note = prompts.tool_approval_note(provider)
+    assert 'non-interactively inside spaCR' in note
+    assert 'do not ask the user to approve a prompt' in note
+    if provider == 'claude':
+        assert 'approval dialog after your reply' in note and 'resumes' in note
+    else:
+        assert 'no approval prompt can be shown' in note
+        assert 'exact command to run in their own terminal' in note

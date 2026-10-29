@@ -613,3 +613,26 @@ def test_preferences_none_discards_a_reply_already_in_flight(
             monkeypatch.delenv('SPACR_NO_NETWORK', raising=False)
         else:
             monkeypatch.setenv('SPACR_NO_NETWORK', network_before)
+
+
+@pytest.mark.parametrize('delivery', ['render', 'finished'])
+def test_pending_advice_and_repeat_enter_respect_a_revoked_provider(ai_page, qtbot, private_ai_profile, delivery):
+    page, calls, drained = ai_page
+    preferences, _, _ = private_ai_profile
+    _enable(page)
+    page.path_edit.setText('Explain an unfamiliar experimental workflow')
+    qtbot.keyClick(page.path_edit, Qt.Key_Return)
+    assert len(calls) == 1
+    qtbot.keyClick(page.path_edit, Qt.Key_Return)
+    assert len(calls) == 1 and 'Turn AI off to cancel' in page.field.details.toPlainText()
+    work = calls[0][2]
+    preferences.set_preferred_provider('none')
+    if delivery == 'render':
+        page._ai_text = 'Queued private advice'
+        page._ai_reply_timer.start(0)
+    else:
+        work.finished.emit(True, 'Queued private advice')
+    qtbot.waitUntil(lambda: page._ai_thread is None, timeout=5000)
+    assert work.cancelled and drained and drained[0][2]['timeout_ms'] == 0
+    assert not page.path_edit.ai.isChecked() and not page.path_edit.ai._busy
+    assert 'Queued private advice' not in page.field.details.toPlainText()

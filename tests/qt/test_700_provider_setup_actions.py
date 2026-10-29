@@ -38,6 +38,29 @@ def setup_dialog(qtbot, private_ai_profile, monkeypatch):
     monkeypatch.setattr(ai, 'list_providers', lambda: providers)
     monkeypatch.setattr(cli_install, 'locate', lambda tool: '/installed/' + tool.cli_name if tool.installed else '')
     monkeypatch.setattr(cli_install, 'put_on_path', lambda path: True)
+    from spacr.qt.job_runner import JobRunner
+    import sys
+    import threading
+
+    real_submit = JobRunner.submit
+
+    def traced_submit(runner, fn, *args, **kwargs):
+        if getattr(fn, 'func', None) is not _ProvidersDialog._read_provider_status:
+            return real_submit(runner, fn, *args, **kwargs)
+        def traced():
+            previous = sys.gettrace()
+            inherited = threading.gettrace()
+            installed = previous is None and inherited is not None
+            if installed:
+                sys.settrace(inherited)
+            try:
+                return fn()
+            finally:
+                if installed:
+                    sys.settrace(previous)
+        return real_submit(runner, traced, *args, **kwargs)
+
+    monkeypatch.setattr(JobRunner, 'submit', traced_submit)
     dialog = _ProvidersDialog()
     qtbot.addWidget(dialog)
     yield dialog, providers
@@ -214,3 +237,38 @@ def test_owned_console_is_singleton_and_closure_releases_even_failed_native_clea
     assert not timer.isActive() and not dialog._provider_signins
     assert process.stopped == (['terminate'] if failure == 'already_gone'
                                else ['terminate', 0.1, 'kill', 0.1])
+
+
+def test_windows_signin_button_keeps_finished_and_running_console_cleanup_distinct(
+        setup_dialog, monkeypatch):
+    import builtins
+    import os
+    from types import SimpleNamespace
+
+    dialog, providers = setup_dialog
+    finished, running = _Process(), _Process()
+    finished.code = 0
+    processes = iter((finished, running))
+    launched = []
+    original_import = builtins.__import__
+
+    def platform_import(name, globals=None, locals=None, fromlist=(), level=0):
+        if name == 'os' and (globals or {}).get('__name__') == 'spacr.qt.widgets.ai_chat_panel':
+            return SimpleNamespace(name='nt', environ=os.environ, path=os.path)
+        return original_import(name, globals, locals, fromlist, level)
+
+    monkeypatch.setattr(builtins, '__import__', platform_import)
+    monkeypatch.setattr(subprocess, 'Popen', lambda command, **kwargs: (
+        launched.append((command, kwargs)) or next(processes)))
+    for provider in providers[:2]:
+        dialog.findChild(QPushButton, 'ProviderSignIn_' + provider.name).click()
+    assert [command for command, _ in launched] == [
+        ['/installed/claude', 'auth', 'login'], ['/installed/codex', 'login']]
+    assert all(options == {'shell': False, 'creationflags': getattr(subprocess, 'CREATE_NEW_CONSOLE', 0x10)}
+               for _, options in launched)
+    assert len(dialog._provider_signins) == 2
+    assert not any(provider.checked for provider in providers)
+    dialog.reject()
+    assert not finished.stopped
+    assert running.stopped == ['terminate', 0.1, 'kill', 0.1]
+    assert not dialog._provider_signins

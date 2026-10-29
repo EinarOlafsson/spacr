@@ -1,6 +1,6 @@
 """Assistant links open only catalogued modules after an explicit user action."""
 import pytest
-from PySide6.QtCore import QUrl
+from PySide6.QtCore import QUrl, Qt
 from PySide6.QtGui import QDesktopServices, QTextDocument
 from PySide6.QtWidgets import QWidget
 
@@ -105,3 +105,27 @@ def test_floating_chat_dock_routes_only_to_its_owning_main_window(
     assert opened == unrelated == external == []
     bubble._text.linkActivated.emit('spacr://module/measure')
     assert opened == ['measure'] and not unrelated and not external
+
+
+def test_answer_detached_from_its_window_cannot_navigate_until_it_has_a_native_owner(qtbot, navigation_catalog):
+    orphan = QWidget()
+    qtbot.addWidget(orphan)
+    bubble = panel._MessageBubble('assistant', '[Measure](spacr://module/measure)', orphan)
+    assert panel._activate_ai_link(bubble, 'spacr://module/measure') is False
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    opened = []
+    owner._open_easy_named_module = opened.append
+    bubble.setParent(owner)
+    bubble._text.linkActivated.emit('spacr://module/measure')
+    assert opened == ['measure']
+    assert bubble._text.textInteractionFlags() & Qt.TextSelectableByMouse
+
+
+def test_malformed_external_authority_remains_readable_without_an_active_link(qapp, navigation_catalog):
+    html = panel._ai_reply_html('[Read the guide](https://[invalid])')
+    document = QTextDocument()
+    document.setHtml(html)
+    assert document.toPlainText().strip() == 'Read the guide'
+    assert 'href=' not in html
+    assert '<img' not in html.lower()

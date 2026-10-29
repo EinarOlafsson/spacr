@@ -108,3 +108,23 @@ def test_collapsed_text_overflow_cannot_cover_expand_button(page, qtbot):
     assert not details._minimized
     qtbot.waitUntil(lambda: details.verticalScrollBar().isVisible())
     assert details.verticalScrollBarPolicy() == Qt.ScrollBarAsNeeded
+
+
+def test_history_budget_reclaims_old_answers_and_duplicate_clear_keeps_navigation(page, qtbot):
+    details = page.field.details
+    for index in range(45):
+        details.setPlainText(f'Answer {index}')
+    assert len(details._entries) == 40
+    assert details._entries[0][1] == 'Answer 5'
+    assert details.toPlainText() == 'Answer 44'
+    count = len(details._entries)
+    details.setPlainText('Answer 44')
+    assert len(details._entries) == count and details.toPlainText() == 'Answer 44'
+    details.setPlainText(' ')
+    assert not details.toPlainText() and len(details._entries) == count
+    qtbot.mouseClick(details._back, Qt.LeftButton)
+    assert details.toPlainText() == 'Answer 43'
+    details.setPlainText('Replacement answer')
+    assert not details._forward.isEnabled()
+    assert details.toPlainText() == 'Replacement answer'
+    assert len(details._entries) == count
