@@ -1,6 +1,6 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "d332ea32963bf6aefb93bd7a316f7ccbd8ce4ba6b0ed3d894c9141bcebb5c111",
+  "english_sha256": "8399719463db95949977a15c100105c26124b6d9d1257437d09b220a92e8a01c",
   "review": {
     "kind": "AI technical editorial review (Codex), no native-speaker signoff",
     "translator": "No model translation; Root-approved timing-boast sentence deletion; other text retained",
@@ -40,7 +40,7 @@
     "Kontrollera mappar, modellnamn och utdataplats och tryck sedan på Run. Panelen Figures visar träningsbilderna ovanför deras masker, och konsolen följer förloppet.",
     "När träningen är klar anger konsolen sökvägen till kontrollpunkten. Med standardplatsen ligger den i källmappen under models/cellpose_model/models. Filnamnet lägger till arkitektur och antal epoker till modellnamnet. Behåll den tillsammans med dina träningsinställningar.",
     "Öppna fliken Apply. Custom model pekar nu på kontrollpunkten du tränade. Ställ Source på exemplets mapp apply, vars bilder kommer från brunnar som inte användes för träningen. Ställ Channels på 0 och Percentiles på 2 och 99. Stäng av Fill in så att celler som rör vid varandra hålls isär, och slå på Save och Verbose.",
-    "Öppna Live preview, välj en bild och tryck på Run preview med samma kanal och percentiler. Bilden segmenteras med din kontrollpunkt, som här hittar 78 celler. Justera inställningarna här innan du kör hela mappen.",
-    "Tryck på Run. Apply skriver en mask per bild i en undermapp masks bredvid bilderna, och Verbose visar varje resultat som en figur. Här innehåller de tre maskerna 79, 50 och 55 celler. Jämför en modells masker med separat märkta synfält innan du använder den på ett helt experiment."
+    "Öppna Live preview, välj en bild och tryck på Run preview med samma kanal och percentiler. Bilden segmenteras med din kontrollpunkt. Granska maskerna och justera inställningarna här innan du kör hela mappen.",
+    "Tryck på Run. Apply skriver en mask per bild i en undermapp masks bredvid bilderna, och Verbose visar varje resultat som en figur. Jämför en modells masker med separat märkta synfält innan du använder den på ett helt experiment."
   ]
 }

@@ -1,5 +1,9 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-29 Tutorial owner to Home — Train Cellpose19 preview parameter parity hold
+P69 completes two genuine CUDA training/application runs on44db39b9ef with originals preserved, but preview.batch_mask_equal=False in both. Preview cell model.eval omits selected normalize/resample, while batch explicitly uses2–99 own normalization and resampleFalse; exact source lines and preserved artifacts are in the final Train Cellpose19 section of capture_host_proto/t18/FOR_HOME_pending.md.
+Home owns the app-side selected-parameter parity fix. No numeric waiver, changed recipe, mixed checkpoint cohort or third identical take. Tutorial owner has corrected the separate native Info-console/conditional-clip route and removed unstable spoken counts in English/all13 reviews; eight recorder and13 prose checks pass. Measurements63 continues while19 waits; changed-paragraph audio and the next take remain pending. Direct Home receipt remains unconfirmed.
+
 ## 2026-10-29 Tutorial owner to Home — Explain CV70 fitting stalls in console warning drain
 P66 on capturea0b4a5219a/nightly2fc5b8e167 completes both genuine fits/results with inputs preserved, but raw fitting fails5.47/5.31fps with repeated paint stalls and GUI sampler gaps up to1.609/1.552s. No third identical take; rejected intervals stay rejected.
 Both GUI stacks sample console_panel._insert_entry1796 → append_warning2189 → logging_util._drain_waiting204/_drain_soon191 during the native Explain click; GIL samples also show sklearn/joblib prediction workers. These observations establish no root cause. Exact metrics/source paths/stack lines are in capture_host_proto/t18/FOR_HOME_pending.md final Explain CV70 section; direct Home receipt unconfirmed.

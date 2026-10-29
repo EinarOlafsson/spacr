@@ -1,6 +1,6 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "d332ea32963bf6aefb93bd7a316f7ccbd8ce4ba6b0ed3d894c9141bcebb5c111",
+  "english_sha256": "8399719463db95949977a15c100105c26124b6d9d1257437d09b220a92e8a01c",
   "review": {
     "kind": "AI technical editorial review (Codex), no native-speaker signoff",
     "translator": "No model translation; Root-approved timing-boast sentence deletion; other text retained",
@@ -40,7 +40,7 @@
     "Revisa las carpetas, el nombre del modelo y la ubicación de salida, y luego pulsa Run. El panel Figures muestra las imágenes de entrenamiento sobre sus máscaras, y la consola sigue el progreso.",
     "Cuando termina el entrenamiento, la consola indica la ruta del punto de control. Con la ubicación predeterminada está en la carpeta de origen, en models, cellpose model, models. El nombre del archivo añade al nombre del modelo la arquitectura y el número de épocas. Guárdalo junto con tu configuración de entrenamiento.",
     "Abre la pestaña Apply. Custom model apunta ahora al punto de control que entrenaste. Pon Source en la carpeta apply del ejemplo, cuyas imágenes proceden de pozos que no se usaron para entrenar. Pon Channels en cero y Percentiles en dos y noventa y nueve. Desactiva Fill in para que las células que se tocan sigan separadas, y activa Save y Verbose.",
-    "Abre Live preview, elige una imagen y pulsa Run preview, con el mismo canal y los mismos percentiles. Segmenta esa imagen con tu punto de control; aquí encuentra setenta y ocho células. Ajusta la configuración aquí antes de procesar toda la carpeta.",
-    "Pulsa Run. Apply escribe una máscara por imagen en una subcarpeta masks junto a esas imágenes, y Verbose muestra cada resultado como una figura. Aquí las tres máscaras contienen setenta y nueve, cincuenta y cincuenta y cinco células. Antes de usar un modelo en todo un experimento, compara sus máscaras con campos etiquetados por separado."
+    "Abre Live preview, elige una imagen y pulsa Run preview, con el mismo canal y los mismos percentiles. Segmenta esa imagen con tu punto de control. Revisa las máscaras y ajusta la configuración aquí antes de procesar toda la carpeta.",
+    "Pulsa Run. Apply escribe una máscara por imagen en una subcarpeta masks junto a esas imágenes, y Verbose muestra cada resultado como una figura. Antes de usar un modelo en todo un experimento, compara sus máscaras con campos etiquetados por separado."
   ]
 }

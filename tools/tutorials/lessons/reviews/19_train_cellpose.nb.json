@@ -1,6 +1,6 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "d332ea32963bf6aefb93bd7a316f7ccbd8ce4ba6b0ed3d894c9141bcebb5c111",
+  "english_sha256": "8399719463db95949977a15c100105c26124b6d9d1257437d09b220a92e8a01c",
   "review": {
     "kind": "AI technical editorial review (Codex), no native-speaker signoff",
     "translator": "No model translation; Root-approved timing-boast sentence deletion; other text retained",
@@ -40,7 +40,7 @@
     "Kontroller mapper, modellnavn og utdataplassering, og trykk deretter på Run. Panelet Figures viser treningsbildene over maskene, og konsollen følger fremdriften.",
     "Når treningen er ferdig, oppgir konsollen banen til sjekkpunktet. Med standardplasseringen ligger det i kildemappen under models/cellpose_model/models. Filnavnet legger arkitektur og antall epoker til modellnavnet. Behold det sammen med treningsinnstillingene.",
     "Åpne fanen Apply. Custom model peker nå på sjekkpunktet du trente. Sett Source til eksemplets mappe apply, der bildene kommer fra brønner som ikke ble brukt til trening. Sett Channels til 0 og Percentiles til 2 og 99. Slå av Fill in slik at celler som berører hverandre, holdes atskilt, og slå på Save og Verbose.",
-    "Åpne Live preview, velg ett bilde og trykk på Run preview med samme kanal og persentiler. Bildet segmenteres med sjekkpunktet ditt, som her finner 78 celler. Juster innstillingene her før du kjører hele mappen.",
-    "Trykk på Run. Apply skriver én maske per bilde i en undermappe masks ved siden av bildene, og Verbose viser hvert resultat som en figur. Her inneholder de tre maskene 79, 50 og 55 celler. Sammenlign en modells masker med separat merkede synsfelt før du bruker den på et helt eksperiment."
+    "Åpne Live preview, velg ett bilde og trykk på Run preview med samme kanal og persentiler. Bildet segmenteres med sjekkpunktet ditt. Se gjennom maskene og juster innstillingene her før du kjører hele mappen.",
+    "Trykk på Run. Apply skriver én maske per bilde i en undermappe masks ved siden av bildene, og Verbose viser hvert resultat som en figur. Sammenlign en modells masker med separat merkede synsfelt før du bruker den på et helt eksperiment."
   ]
 }

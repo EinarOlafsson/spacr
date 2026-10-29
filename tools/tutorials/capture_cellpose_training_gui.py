@@ -38,6 +38,14 @@ def _inputs(example):
     return manifest, {str(path): digest for path, digest in files.items()}
 
 
+def _checkpoint_console_paths(checkpoint, text):
+    """Require the actual saved model path in the genuine training console."""
+    saved = re.findall(r'Model saved at: (\S+)', text)
+    if saved != [str(checkpoint)]:
+        raise ValueError(f'Training console must identify the actual saved checkpoint: {checkpoint}; found {saved}')
+    return saved
+
+
 def _tour_sections(capture, screen, keys, click, settle):
     """Use reachable headers once, retaining ancestors of every required field."""
     from spacr.qt.widgets.section import _logical_parent
@@ -212,6 +220,8 @@ def record(app, window, stage, captures, capture, settle, write_json, timeout, *
                 proof.setdefault('unexpected_prompts', []).append(box.text()); box.reject()
 
     try:
+        from capture_external_masks import _enable_console_information
+        _enable_console_information(app, window, capture)
         capture_ui.open_module(capture, window, 'make_masks', settle, prefer='sidebar')
         settle(1.5)
         host = window._screens['make_masks']
@@ -317,7 +327,10 @@ def record(app, window, stage, captures, capture, settle, write_json, timeout, *
 
         QTimer.singleShot(1500, reject_prompts)
         outcome = dict(finished=False, ok=False, errors=[])
-        with capture_ui.clip(capture, 'train_run_started'):
+        with capture_ui.clip(capture, 'train_run_console'):
+            open_fold(screen, screen._console_folder, 'Console')
+            if not screen._console.isVisible() or screen._console.visibleRegion().isEmpty():
+                raise ValueError('The actual training console is not visible')
             started = time.monotonic(); click(screen._btn_run)
             # The run now starts in deferred parts, so the worker does not exist (the attribute is not
             # even set) at the moment of the click. Wait for it, with a bound that raises.
@@ -338,11 +351,10 @@ def record(app, window, stage, captures, capture, settle, write_json, timeout, *
                     settle(.3)
                     break
                 settle(.1)
-        if screen._worker_thread_is_running():
-            with capture_ui.clip(capture, 'train_run_console'):
-                open_fold(screen, screen._console_folder, 'Console')
-                capture_ui.console_to_end(capture, screen._console); settle(.3)
-                capture_ui.point_at(capture, screen._console, dwell=1.5)
+            if 'Training model on' not in console_text(screen):
+                raise ValueError('The actual training progress did not appear in the console')
+            capture_ui.console_to_end(capture, screen._console); settle(.3)
+            capture_ui.point_at(capture, screen._console, dwell=1.5)
         while not outcome['finished'] or screen._worker_thread_is_running():
             if time.monotonic() - started > timeout:
                 screen._request_cooperative_stop()
@@ -364,7 +376,7 @@ def record(app, window, stage, captures, capture, settle, write_json, timeout, *
         if len(checkpoints) != 1:
             raise ValueError(f'Expected one checkpoint, found {checkpoints}')
         checkpoint = checkpoints[0]
-        saved = re.findall(r'Model saved at: (\S+)', text)
+        saved = _checkpoint_console_paths(checkpoint, text)
         proof['checkpoint'] = dict(path=str(checkpoint), bytes=checkpoint.stat().st_size,
                                    sha256=sha(checkpoint), console_path=saved,
                                    console_matches=[str(checkpoint)] == saved)

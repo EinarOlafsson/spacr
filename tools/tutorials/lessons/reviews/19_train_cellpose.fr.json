@@ -1,6 +1,6 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "d332ea32963bf6aefb93bd7a316f7ccbd8ce4ba6b0ed3d894c9141bcebb5c111",
+  "english_sha256": "8399719463db95949977a15c100105c26124b6d9d1257437d09b220a92e8a01c",
   "review": {
     "kind": "AI technical editorial review (Codex), no native-speaker signoff",
     "translator": "No model translation; Root-approved timing-boast sentence deletion; other text retained",
@@ -40,7 +40,7 @@
     "Vérifiez les dossiers, le nom du modèle et l’emplacement de sortie, puis appuyez sur Run. Le panneau Figures montre les images d’entraînement au-dessus de leurs masques, et la console suit la progression.",
     "À la fin de l’entraînement, la console indique le chemin du point de contrôle. Avec l’emplacement par défaut, il se trouve dans le dossier source, sous models, cellpose model, models. Le nom du fichier ajoute l’architecture et le nombre d’époques au nom du modèle. Conservez-le avec vos réglages d’entraînement.",
     "Ouvrez l’onglet Apply. Custom model pointe maintenant vers le point de contrôle que vous avez entraîné. Réglez Source sur le dossier apply de l’exemple, dont les images proviennent de puits non utilisés pour l’entraînement. Réglez Channels sur zéro et Percentiles sur deux et quatre-vingt-dix-neuf. Désactivez Fill in pour que les cellules qui se touchent restent séparées, et activez Save et Verbose.",
-    "Ouvrez Live preview, choisissez une image et appuyez sur Run preview, avec le même canal et les mêmes percentiles. L’image est segmentée avec votre point de contrôle, qui trouve ici soixante-dix-huit cellules. Ajustez les réglages ici avant de traiter tout le dossier.",
-    "Appuyez sur Run. Apply écrit un masque par image dans un sous-dossier masks à côté de ces images, et Verbose affiche chaque résultat sous forme de figure. Ici, les trois masques contiennent soixante-dix-neuf, cinquante et cinquante-cinq cellules. Avant d’utiliser un modèle sur toute une expérience, comparez ses masques à des champs étiquetés séparément."
+    "Ouvrez Live preview, choisissez une image et appuyez sur Run preview, avec le même canal et les mêmes percentiles. L’image est segmentée avec votre point de contrôle. Examinez les masques et ajustez les réglages ici avant de traiter tout le dossier.",
+    "Appuyez sur Run. Apply écrit un masque par image dans un sous-dossier masks à côté de ces images, et Verbose affiche chaque résultat sous forme de figure. Avant d’utiliser un modèle sur toute une expérience, comparez ses masques à des champs étiquetés séparément."
   ]
 }

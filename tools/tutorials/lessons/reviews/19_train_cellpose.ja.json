@@ -1,6 +1,6 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "d332ea32963bf6aefb93bd7a316f7ccbd8ce4ba6b0ed3d894c9141bcebb5c111",
+  "english_sha256": "8399719463db95949977a15c100105c26124b6d9d1257437d09b220a92e8a01c",
   "review": {
     "kind": "AI technical editorial review (Codex), no native-speaker signoff",
     "translator": "No model translation; Root-approved timing-boast sentence deletion; other text retained",
@@ -40,7 +40,7 @@
     "フォルダー、モデル名、出力先を確認してから、Runを押します。Figuresパネルには学習用の画像がマスクの上に並び、コンソールで進み具合がわかります。",
     "学習が終わると、コンソールにチェックポイントのパスが表示されます。既定の場所では、元のフォルダーの中のmodels、cellpose model、modelsにあります。ファイル名は、モデル名にアーキテクチャーとエポック数を加えたものです。学習の設定と一緒に保管します。",
     "Applyタブを開きます。Custom modelは、学習させたチェックポイントを指しています。Sourceを例のapplyフォルダーにします。その画像は、学習に使っていないウェルから撮ったものです。Channelsをゼロ、Percentilesを二と九十九にします。接している細胞が分かれたままになるようFill inをオフにし、SaveとVerboseをオンにします。",
-    "Live previewを開いて画像を一枚選び、同じチャンネルとパーセンタイルでRun previewを押します。チェックポイントでその画像がセグメンテーションされ、ここでは細胞が七十八個見つかります。フォルダー全体を処理する前に、ここで設定を調整します。",
-    "Runを押します。Applyは、画像ごとに一つのマスクを、それらの画像の横のmasksサブフォルダーに書き出します。Verboseでは、各結果が図として表示されます。ここでは、三つのマスクに七十九個、五十個、五十五個の細胞があります。モデルを実験全体に使う前に、そのマスクを別にラベル付けした視野と比べます。"
+    "Live previewを開いて画像を一枚選び、同じチャンネルとパーセンタイルでRun previewを押します。チェックポイントでその画像がセグメンテーションされます。フォルダー全体を処理する前に、ここでマスクを確認し、設定を調整します。",
+    "Runを押します。Applyは、画像ごとに一つのマスクを、それらの画像の横のmasksサブフォルダーに書き出します。Verboseでは、各結果が図として表示されます。モデルを実験全体に使う前に、そのマスクを別にラベル付けした視野と比べます。"
   ]
 }
