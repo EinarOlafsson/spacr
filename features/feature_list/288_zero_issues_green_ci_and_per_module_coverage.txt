@@ -1,6 +1,4 @@
-================================================================================
 ZERO ACTIONABLE ISSUES, GREEN GITHUB CI, AND 90% PER-MODULE COVERAGE
-================================================================================
 
 NOT BLOCKING. Since 2026-09-12 spaCR keeps two lists -- what it has
 gained and what it might gain next -- and neither gates a release.
@@ -2769,18 +2767,14 @@ another is invisible to both, and the difference between the machines is
 the thing the test is sensitive to.
 
 
-================================================================================
 MERGED IN FROM 352 ON 2026-09-12, AT THE MAINTAINER'S INSTRUCTION
-================================================================================
 
 352 asked for the same thing in softer words -- every module at the highest
 REASONABLE coverage, then green Actions -- and carrying two items for one
 goal meant two places to record the same measurement. Its text follows
 unedited so nothing it argued is lost.
 
-================================================================================
 EVERY MODULE AT THE HIGHEST REASONABLE COVERAGE, THEN GREEN GITHUB ACTIONS
-================================================================================
 
 Status:    not started, filed 2026-09-02. THE STANDING GOAL AFTER THE LIST.
 Requested: 2026-09-02, verbatim -- "When you are done with all the items on
@@ -5513,7 +5507,6 @@ releases request on a fresh runner; 2dc355d93 makes that safe, not absent.
 --------------------------------------------------------------------------------
 
 288 CI triage, 2026-09-25
-=========================
 
 Run: 36020180024 (tests, nightly, 2026-09-24 15:26, head 27d524689), the
 newest completed nightly run that was not cancelled; the ten newest
@@ -5904,3 +5897,5 @@ The failing be67895b19 aggregate and current Main/Night share the exact owning s
 2026-10-29 — Own the exact f86 backend ratchet boundaries on unchanged a34 source: indexed ScanR well ownership, optional zstd compression and Model Zoo provider/permission/close recovery. Keep meaningful real-data workflows, unchanged ratchets and local measured union; Main remains frozen pending exact-source CI.
 
 2026-10-29 — Five real-data/threaded cases pass24.34s; after adding scoped public-trace inheritance to the existing bioimage fixture, only its three affected cases rerun and pass18.13s. Actual executed-set union with byte-identical f86 aggregate reduces io gaps3/3→1/2, OME-Zarr1/1→0/0 and Model Zoo7/4→0/0, within unchanged ceilings; indexed TIFF bytes/physical wells, zstd level/pixels and provider/permission/close recovery are asserted. Local evidence only, no runtime change, full-CI verdict, generator, push or release.
+2026-10-29 — Repair only the actual f86 aggregate dialogs coverage regression against byte-identical a34 source with a small behavior-focused Qt placement/layout cohort; preserve baseline 100% and existing oracles, prove recovery by measured raw-artifact union, and hold qualified changes locally without runtime edits or CI dispatch.
+2026-10-29 — Added three real-dialog behavior contracts for active owner fallback, moved-dialog reparenting with geometry/modality retained, absent application and unavailable-screen placement without a later jump. Focused cohort passes 3/3; byte-identical f86/a34 source bound to artifact12932248460 plus local raw measurements closes all four missing statements and five missing branches (360/360 statements, 110/110 branches). Local only; aggregate/hosted verdict and other modules remain owned by root.
