@@ -100,3 +100,41 @@ def test_pipeline_append_and_traceback_document_remain_plain(qtbot):
     while current.isValid():
         assert current.textList() is None
         current = current.next()
+
+
+def test_compact_legacy_advice_keeps_native_lists_and_literal_inline_code(panel):
+    source = ('**What happened** The output contains `1. **literal**` data. '
+              '**How to fix it** 1. Review `cell_channel`. 2. Keep the input.')
+    block = panel.fill_ai_entry(panel.begin_ai_entry(False), source)
+    document = block.document()
+    plain = block.toPlainText().splitlines()
+    assert plain[0] == 'What happened'
+    assert 'How to fix it' in plain
+    assert '1. Review cell_channel.' in plain
+    assert '2. Keep the input.' in plain
+    assert document.firstBlock().begin().fragment().charFormat().fontWeight() == QFont.Bold
+    literal = document.find('1. **literal**')
+    assert not literal.isNull()
+    assert literal.charFormat().fontWeight() != QFont.Bold
+    assert any('mono' in family.casefold() or 'courier' in family.casefold()
+               for family in literal.charFormat().fontFamilies())
+    items = []
+    current = document.begin()
+    while current.isValid():
+        if current.textList() is not None:
+            items.append(current.text())
+        current = current.next()
+    assert items == ['Review cell_channel.', 'Keep the input.']
+    panel.fill_ai_entry(block, '3. Third\n   1. Nested\n4. Fourth')
+    assert [line.rstrip() for line in block.toPlainText().splitlines()] == [
+        '3. Third', '  1. Nested', '4. Fourth']
+    panel.fill_ai_entry(block,
+                       '**What happened** Keep `1. **literal**` and ``2. `quoted` **code**`` intact.')
+    assert block.toPlainText().splitlines() == [
+        'What happened', 'Keep 1. **literal** and 2. `quoted` **code** intact.']
+    for text in ('1. **literal**', '2. `quoted` **code**'):
+        literal = document.find(text)
+        assert not literal.isNull()
+        assert literal.charFormat().fontWeight() != QFont.Bold
+        assert any('mono' in family.casefold() or 'courier' in family.casefold()
+                   for family in literal.charFormat().fontFamilies())

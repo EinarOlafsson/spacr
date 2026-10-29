@@ -958,7 +958,16 @@ class _AiReplyBlock(_StdoutBlock):
     def toPlainText(self):
         """Keep copying and contextual export free of Markdown syntax and HTML."""
         if self._rich_view is not None:
-            return self._rich_view.toPlainText()
+            lines = []
+            block = self._rich_view.document().begin()
+            while block.isValid():
+                listing = block.textList()
+                marker = listing.itemText(block) if listing is not None else ''
+                text = block.text().replace('\u2028', '\n').replace('\u00a0', ' ')
+                indent = '  ' * max(0, listing.format().indent() - 1) if listing is not None else ''
+                lines.append(indent + (marker + ' ' if marker else '') + text)
+                block = block.next()
+            return '\n'.join(lines)
         return super().toPlainText()
 
     def _refresh_style(self):
@@ -997,7 +1006,20 @@ class _AiReplyBlock(_StdoutBlock):
         """Render only the assistant body; stdout and tracebacks stay literal."""
         from .ai_chat_panel import _ai_reply_html
 
-        self._rich_view.setHtml(_ai_reply_html(''.join(self._reply_parts)))
+        source = ''.join(self._reply_parts)
+        heading = _MD_HEADING_RE.match(source)
+        if '\n' not in source and heading is not None and _is_a_heading(heading, source):
+            source = '**' + heading.group('head').strip() + '**\n' + heading.group('rest')
+            parts = []
+            start = 0
+            for code in re.finditer(r'(?<!`)(`+)(?!`).*?(?<!`)\1(?!`)', source):
+                parts.extend((_MD_BREAK_RE.sub('\n', source[start:code.start()]), code.group()))
+                start = code.end()
+            parts.append(_MD_BREAK_RE.sub('\n', source[start:]))
+            source = ''.join(parts)
+            source = '\n\n'.join('**' + line + '**' if strong else line
+                                   for line, strong in markdown_lines(source))
+        self._rich_view.setHtml(_ai_reply_html(source))
         self._chars = self.document().characterCount()
         self._height_key = ()
         self.updateGeometry()

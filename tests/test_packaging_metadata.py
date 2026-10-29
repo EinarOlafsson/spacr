@@ -1547,7 +1547,7 @@ def test_no_console_script_name_is_declared_twice():
 
 @pytest.mark.parametrize("group", ["core", "qt", "flowview", "tutorial", "all"])
 def test_qt_requirements_keep_the_binding_exclusion_on_older_python(group):
-    """A Qt binding reference-count regression must not ship in any Qt extra.
+    """Retain the Qt binding exclusion on interpreters before Python 3.15.
 
     Exactly one PySide6 requirement applies on each platform. macOS also
     stops below 6.11: Qt 6.11.0-6.12.0 segfault in the Cocoa accessibility
