@@ -1058,6 +1058,11 @@ def test_network_emerges_around_the_same_card_and_live_reduce_motion_finishes_it
         assert workflow._progress == 1.0
         assert workflow._transition.state() == QAbstractAnimation.Stopped
         assert QRect(source.mapToGlobal(QPoint()), source.size()) == rectangle
+        preferences.set_reduce_motion(False)
+        preferences._hold_the_backdrops_still(qapp)
+        assert workflow._progress == 1.0
+        assert workflow._transition.state() == QAbstractAnimation.Stopped and chosen == []
+        assert QRect(source.mapToGlobal(QPoint()), source.size()) == rectangle
         qtbot.keyClick(source, Qt.Key_Escape)
         assert page._workflow is None and source.parentWidget() is parent and source.isVisible()
         assert source.geometry() == source._final_rect and not source._workflow_ports

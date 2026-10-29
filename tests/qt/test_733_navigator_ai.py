@@ -308,6 +308,11 @@ def test_real_stream_thread_delivers_on_gui_and_retires_cleanly(
         assert 'Do not invoke tools, run commands or analyses' in prompts[0][1]
         thread = created[0][0]
         qtbot.waitUntil(lambda: not isValid(thread) or not thread.isRunning())
+        completed_answer = page.field.details.toPlainText()
+        qtbot.mouseClick(page.path_edit.ai, Qt.LeftButton)
+        assert not page.path_edit.ai.isChecked() and not page.path_edit.ai._busy
+        assert page.field.details.toPlainText() == completed_answer
+        assert len(prompts) == 1 and not page._ai_retired and page._ai_worker is None
         page._cancel_navigator_ai()
         assert not page._ai_retired and page._ai_worker is None
         page.close()
