@@ -10,6 +10,7 @@ from run_compare_example import SOURCES,read_identity,require_same_identity
 from stage_lesson import read
 import capture_ui
 import capture_ui_drv_d as drv
+from capture_ui_drv_a import watchdog_ms
 
 
 def record(app,window,stage,captures,capture,settle,write_json,timeout):
@@ -50,7 +51,7 @@ def record(app,window,stage,captures,capture,settle,write_json,timeout):
     timer=QTimer(window);timer.setSingleShot(True)
     timer.timeout.connect(lambda:app.activeModalWidget().reject() if app.activeModalWidget() else None)
     picker_clip=drv.begin(capture,settle,'03_actual_snapshot_project_picker')
-    capture_ui.when_modal(capture,300,pick);timer.start(15000);click(screen._browse_button);timer.stop()
+    capture_ui.when_modal(capture,300,pick);timer.start(watchdog_ms(capture, 15000));click(screen._browse_button);timer.stop()
     drv.finish(capture,picker_clip)
     if errors or not accepted or screen._project_edit.text()!=str(root):
         raise ValueError('Native project selection failed: '+str(errors))
