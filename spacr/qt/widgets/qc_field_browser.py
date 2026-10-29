@@ -9126,8 +9126,6 @@ class _FieldOverview(QWidget):
             override = self._channel_overrides.get(int(channel), {})
             values.update({name: value for name, value in override.items() if name in values})
         self._display_draft = {}
-        if not values:
-            return
         self._loading_controls = True
         try:
             self.low.setValue(values["percentile_low"])
@@ -9210,9 +9208,8 @@ class _FieldOverview(QWidget):
                     if int(channel) in self._channel_overrides else str(channel))
             if self.norm_channel.itemText(index) != text:
                 self.norm_channel.setItemText(index, text)
-        if hasattr(self, "_reset_channel_button"):
-            channel = self.norm_channel.currentData()
-            self._reset_channel_button.setEnabled(channel is not None and int(channel) in self._channel_overrides)
+        channel = self.norm_channel.currentData()
+        self._reset_channel_button.setEnabled(channel is not None and int(channel) in self._channel_overrides)
 
     def _channel_display_changed(self):
         """Redraw every view after a per-channel display value changed."""
