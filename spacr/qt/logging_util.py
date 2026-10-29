@@ -20,6 +20,7 @@ Public API:
 """
 from __future__ import annotations
 
+from collections import deque
 import logging
 import threading
 from pathlib import Path
@@ -91,6 +92,7 @@ class QtLogHandler(QObject, logging.Handler):
         QObject.__init__(self)
         logging.Handler.__init__(self, level=level)
         self._record_relay = _RecordRelay(self)
+        self._drain_timer = QTimer(self)
         try:
             from PySide6.QtCore import QCoreApplication
 
@@ -103,8 +105,11 @@ class QtLogHandler(QObject, logging.Handler):
         self.record_ready = self._record_relay.record_ready
         self.records_ready = self._record_relay.records_ready
         self._waiting_lock = threading.Lock()
-        self._waiting: list = []
+        self._waiting = deque()
         self._drain_asked = False
+        self._loud_asked = False
+        self._drain_timer.setSingleShot(True)
+        self._drain_timer.timeout.connect(self._drain_waiting)
         self._home_ident = None
         self._record_relay._records_waiting.connect(
             self._drain_soon, Qt.QueuedConnection)
@@ -146,20 +151,24 @@ class QtLogHandler(QObject, logging.Handler):
         except Exception:
             self.handleError(record)
             return
-        if self._on_home_thread():
-            self._drain_waiting()
-            self.record_ready.emit(text + "\n", record.levelno)
-            self.records_ready.emit([(text + "\n", record.levelno)])
-            return
+        home = self._on_home_thread()
         loud = record.levelno >= logging.WARNING
         with self._waiting_lock:
-            self._waiting.append((text + "\n", record.levelno))
-            if self._drain_asked and not loud:
-                return
-            self._drain_asked = True
-        self._record_relay._records_waiting.emit(loud)
+            immediate = home and not self._drain_asked and not self._waiting
+            if not immediate:
+                self._waiting.append((text + "\n", record.levelno))
+                if self._drain_asked and (not loud or self._loud_asked):
+                    return
+                self._drain_asked = True
+                self._loud_asked = self._loud_asked or loud
+        if immediate:
+            self.record_ready.emit(text + "\n", record.levelno)
+            self.records_ready.emit([(text + "\n", record.levelno)])
+        else:
+            self._record_relay._records_waiting.emit(loud)
 
     _DRAIN_INTERVAL_MS = 50
+    _DRAIN_RECORD_LIMIT = 32
 
     def _on_home_thread(self) -> bool:
         """Whether the caller runs on the thread this handler lives in.
@@ -178,30 +187,37 @@ class QtLogHandler(QObject, logging.Handler):
         return False
 
     def _drain_soon(self, loud: bool) -> None:
-        """Send the records other threads logged, now or one interval on.
-
-        Records from a worker thread are held and sent together, so a run
-        logging thousands of records a second posts twenty events a second
-        to the interface rather than one per record. A warning or an error
-        is sent at once, after the records logged before it.
+        """Coalesce worker notifications while letting a warning advance the timer.
 
         :param loud: whether a warning or worse is waiting.
         """
-        if loud:
-            self._drain_waiting()
-        else:
-            QTimer.singleShot(self._DRAIN_INTERVAL_MS, self._drain_waiting)
+        if loud or not self._drain_timer.isActive():
+            self._drain_timer.start(0 if loud else self._DRAIN_INTERVAL_MS)
 
     def _drain_waiting(self) -> None:
-        """Emit every held record, in the order it was logged."""
+        """Deliver a bounded batch in order, retaining the rest for another GUI turn.
+
+        Warning widgets are built synchronously by the receivers. Emptying an
+        arbitrary backlog here prevented painting and input until every widget
+        was built, so even urgent records share the same finite batch limit.
+        """
         with self._waiting_lock:
-            waiting, self._waiting = self._waiting, []
-            self._drain_asked = False
+            waiting = [self._waiting.popleft() for _ in range(
+                min(len(self._waiting), self._DRAIN_RECORD_LIMIT))]
+            self._drain_asked = bool(waiting)
         if not waiting:
             return
-        for text, level in waiting:
-            self.record_ready.emit(text, level)
-        self.records_ready.emit(waiting)
+        try:
+            for text, level in waiting:
+                self.record_ready.emit(text, level)
+            self.records_ready.emit(waiting)
+        finally:
+            with self._waiting_lock:
+                more = bool(self._waiting)
+                self._drain_asked = more
+                self._loud_asked = False
+        if more:
+            self._drain_timer.start(1)
 
 
 _SIGNAL_HANDLER: Optional[QtLogHandler] = None

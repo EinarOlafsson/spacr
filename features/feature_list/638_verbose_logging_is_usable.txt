@@ -62,3 +62,6 @@ Tests:
 - tests/qt/test_verbose_logging_is_usable_on_screen.py (Measure screen runs
   a 1500-line noisy job with verbose and console DEBUG on; console block
   height kept without a per-line walk, also after head trimming).
+
+2026-10-29 — Home owns the Explain CV70 warning-drain follow-up: prove whether queued warnings monopolize a GUI turn, bound each drain if so, and retain every record in order plus automatic error-report delivery. Validate one queued burst against a real console with an interleaved GUI callback; capture stacks alone do not establish the tutorial stall cause.
+2026-10-29 — Confirmed one unbounded drain consumed all98 queued warnings/errors before another GUI callback. Delivery now yields after32 records, coalesces warning wakeups and retains later GUI records behind the backlog; eight focused controls pass, including ordered full delivery and both automatic error reports. No tutorial retake or measured stall-cause claim.
