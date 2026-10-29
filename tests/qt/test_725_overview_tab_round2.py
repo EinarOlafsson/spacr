@@ -619,3 +619,76 @@ def test_missing_canvas_source_is_reported_without_losing_workspace_and_atomic_r
     assert composer.canvas.to_dict() == layout
     assert view._annotations == annotations and view._selected_wells == {("p1", "A01")}
     assert {path.name: path.read_bytes() for path in source.glob("*.tif")} == original_bytes
+
+
+def test_well_mean_reference_canvas_pdf_keeps_its_original_pixels_after_live_settings_change(
+        private_ai_profile, mask, qtbot, tmp_path):
+    import copy
+
+    import spacr.plot  # noqa: F401 -- load plotting before the export worker
+    from pypdf import PdfReader
+
+    folder = tmp_path / "mean-source"
+    folder.mkdir()
+    reference = np.arange(1, 193, dtype=np.uint16).reshape(12, 16)
+    for well, gain in (("A01", 1), ("A02", 2)):
+        tifffile.imwrite(folder / f"p1-{well}-f1-c1.tif", reference * gain)
+    original = {path.name: path.read_bytes() for path in folder.glob("*.tif")}
+    mask._settings_model.set_value_for_key("src", str(folder))
+    _icon(mask).trigger()
+    tab = mask._overview_tab
+    wizard = tab._overview_page.wizard
+    wizard.preset.setCurrentIndex(wizard.preset.count() - 1)
+    wizard.regex.setText(PATTERN)
+    wizard._scan()
+    qtbot.waitUntil(wizard.next.isEnabled, timeout=15000)
+    wizard.mode.setCurrentIndex(wizard.mode.findData("reference_average"))
+    wizard.reference_kind.setCurrentIndex(wizard.reference_kind.findData("reference_well"))
+    reference_index = next(index for index in range(wizard.reference.count())
+                           if tuple(wizard.reference.itemData(index)) == ("p1", "A01"))
+    wizard.reference.setCurrentIndex(reference_index)
+    wizard.low.setValue(0.)
+    wizard.high.setValue(100.)
+    qtbot.mouseClick(wizard.next, Qt.LeftButton)
+    page = tab._overview_page
+    qtbot.waitUntil(lambda: page.browser is not None
+                    and page.browser._normalization_ready
+                    and page.browser._normalization_context is not None, timeout=15000)
+    view = page.browser
+    item = view.wells.item(*view._well_positions[("p1", "A02")])
+    qtbot.mouseClick(view.wells.viewport(), Qt.LeftButton, Qt.ControlModifier,
+                     pos=view.wells.visualItemRect(item).center())
+    composer = view._open_custom_export()
+    add = next(button for button in composer.findChildren(QPushButton)
+               if button.text() == browser.tr("Add selected"))
+    add.click()
+    qtbot.waitUntil(lambda: not composer._preview_jobs.is_busy()
+                    and composer.canvas.pages[0][0].get("aspect") == 16 / 12, timeout=15000)
+    box = composer.canvas.pages[0][0]
+    assert box["source"]["well"] == "A02"
+    captured = browser._overview_canvas_unpack(box["overview_display"])
+    assert captured["context"]["options"]["reference"] == ("p1", "A01")
+    grey = np.uint8(np.clip((reference.astype(np.float32) - 1.) / 191., 0., 1.) * 255.)
+    expected = np.repeat(grey[..., None], 3, axis=2)
+    np.testing.assert_array_equal(composer._reader()(box, None), expected)
+    saved = composer.save_layout(tmp_path / "reference-canvas.json")
+    layout = copy.deepcopy(composer.canvas.to_dict())
+    tab._settings_model.set_value_for_key("overview_color_mode", "cmy")
+    page._apply_bar.apply_button.click()
+    qtbot.waitUntil(lambda: view._normalization_ready and not view._index_jobs.is_busy(), timeout=15000)
+    current = composer._reader()(dict(box, overview_display=None), None)
+    assert not np.array_equal(current, expected)
+
+    assert composer.open_layout(saved)
+    restored = composer.canvas.pages[0][0]
+    np.testing.assert_array_equal(composer._reader()(restored, None), expected)
+    assert composer.canvas.to_dict() == layout
+    output = tmp_path / "reference-canvas.pdf"
+    assert composer.export_pdf(str(output))
+    qtbot.waitUntil(lambda: composer.last_export == str(output), timeout=60000)
+    reader = PdfReader(str(output))
+    assert len(reader.pages) == 1 and len(reader.pages[0].images) == 1
+    np.testing.assert_array_equal(np.asarray(reader.pages[0].images[0].image.convert("RGB"))[::-1], expected)
+    assert view._selected_wells == {("p1", "A02")}
+    assert tab._settings_model._read_value("overview_color_mode") == "cmy"
+    assert {path.name: path.read_bytes() for path in folder.glob("*.tif")} == original
