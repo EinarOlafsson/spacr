@@ -717,3 +717,39 @@ def test_visium_hd_routes_use_existing_calibrated_bins_and_readable_count_eviden
     finally:
         if denied is not None:
             denied.chmod(0o700)
+
+
+def test_selected_tiff_replaced_during_sampling_cannot_borrow_sibling_sources(
+        tmp_path, monkeypatch):
+    selected = _image(tmp_path / 'selected.tif')
+    sibling = _image(tmp_path / 'sibling.tiff')
+    array = tmp_path / 'sibling.npy'
+    np.save(array, np.ones((6, 8, 2), dtype=np.uint16))
+    table = tmp_path / 'objects.csv'
+    table.write_text('label,area\n1,12\n2,4\n')
+    archive = tmp_path / 'archive' / selected.name
+    archive.parent.mkdir()
+    before = {path: path.read_bytes() for path in (selected, sibling, array, table)}
+    scan = home._easy_local_sample
+    replaced = []
+
+    def replace_after_real_scan(path, *args, **kwargs):
+        sampled = scan(path, *args, **kwargs)
+        if not replaced:
+            assert path == selected and path.is_file()
+            selected.rename(archive)
+            selected.mkdir()
+            replaced.append(True)
+        return sampled
+
+    monkeypatch.setattr(home, '_easy_local_sample', replace_after_real_scan)
+    result = home._easy_inspect_path(str(selected))
+    assert replaced and selected.is_dir()
+    assert archive.read_bytes() == before[selected]
+    assert all(path.read_bytes() == before[path] for path in (sibling, array, table))
+    foreign = [row for row in result['actions']
+               if not Path(row[3]).is_relative_to(selected)]
+    assert not foreign, ('Replaced selection borrowed sibling sources', foreign)
+    assert result['actions'] == []
+    assert result['message']
+    assert 'context' not in result and 'settings_overrides' not in result

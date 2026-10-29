@@ -4824,6 +4824,7 @@ def _easy_inspect_path_impl(value):
     from pathlib import Path
     from importlib.util import find_spec
     import sqlite3
+    import stat
 
     from ..i18n import tr
 
@@ -4846,6 +4847,12 @@ def _easy_inspect_path_impl(value):
                         context=dict(unsupported_external=external, source=value), confidence='external_reference')
     if not value.strip() or not exists:
         return {'path': value, 'message': tr('Choose an existing local file or folder.'), 'actions': []}
+    def input_identity():
+        """Identify the selected object without treating content growth as replacement."""
+        info = path.lstat()
+        return info.st_dev, info.st_ino, stat.S_IFMT(info.st_mode)
+
+    initial_identity = input_identity()
     if any(part.is_symlink() for part in (path, *path.parents)):
         return {'path': str(path), 'message': tr('Choose the original local file or folder rather than a symbolic link.'), 'actions': []}
     path = Path(os.path.normpath(path))
@@ -4861,11 +4868,15 @@ def _easy_inspect_path_impl(value):
     image_extensions = _image_extensions()
     sample_limit = 100
     files, folders, unreadable, limited = _easy_local_sample(path, sample_limit)
+    if input_identity() != initial_identity:
+        raise ValueError
     names = [candidate for candidate in files if candidate.suffix.lower() in image_extensions]
     hints = _easy_filename_hints(names)
     if limited and not any(hint['matched'] == hint['sampled'] and hint['sampled'] for hint in hints):
         sample_limit = 1000
         files, folders, unreadable, limited = _easy_local_sample(path, sample_limit)
+        if input_identity() != initial_identity:
+            raise ValueError
         names = [candidate for candidate in files if candidate.suffix.lower() in image_extensions]
         hints = _easy_filename_hints(names)
     kinds = {}
@@ -5252,6 +5263,8 @@ def _easy_inspect_path_impl(value):
             if preset:
                 result['metadata_preset'] = preset
                 result['settings_overrides'] = {'mask': dict(metadata_type=preset)}
+    if input_identity() != initial_identity:
+        raise ValueError
     return result
 
 
