@@ -2005,7 +2005,9 @@ class PlaqueDropHandler(DropHandler):
 
         first = pdfs[0]
         source = first.parent / paper_folder_name(first) if len(pdfs) == 1 else first.parent
+        remember_the_input(screen, first)
         remember_the_input(screen, source)
+        _set_src_on(screen, str(first) if len(pdfs) == 1 else str(first.parent))
         for name in ("_live_src_timer", "_plaque_src_mode_timer"):
             timer = getattr(screen, name, None)
             if timer is not None:

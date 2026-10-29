@@ -52,7 +52,7 @@ def test_child_exploration_keeps_root_and_old_edges_and_second_click_opens(
         graph.view.ensureVisible(node)
         qtbot.mouseClick(graph.view.viewport(), Qt.LeftButton,
                          pos=graph.view.mapFromScene(node.sceneBoundingRect().center()))
-        assert opened == [('measure', '')]
+        assert opened == [('measure', str(tmp_path))]
     finally:
         page.close()
 

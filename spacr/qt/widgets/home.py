@@ -5285,6 +5285,10 @@ class _EasyDropWatcher(QObject):
             return False
         if not get_easy_mode() or not isinstance(watched, QWidget) or watched.window() is not self._window:
             return False
+        stack = getattr(self._window, '_stack', None)
+        home = getattr(self._window, '_startup', None)
+        if stack is None or stack.currentWidget() is not home or not isinstance(home, _EasyHomePage):
+            return False
         mime = event.mimeData()
         if not mime.hasUrls():
             return False
@@ -6867,6 +6871,7 @@ class _EasyWorkflowPage(QWidget):
         self.central = None
         self._chosen_key = None
         self._source_card = source_card
+        self._source_path = source_card._path
         self._source_parent = source_card.parentWidget()
         self._anchor = QRect(anchor)
         self._progress = 0.0
@@ -6976,7 +6981,8 @@ class _EasyWorkflowPage(QWidget):
             return
         if key == self._chosen_key:
             action = self.routes.get(key)
-            self.open_requested.emit(key, action[3] if action else '')
+            source = action[3] if action and action[3] else self._source_path
+            self.open_requested.emit(key, '' if key in self.data.get('easy_helpers', ()) else source)
             return
         self._chosen_key = key
         if self.central is None:

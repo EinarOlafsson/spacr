@@ -10414,11 +10414,11 @@ class MainWindow(QMainWindow):
         self._drop_a_redundant_screen_backdrop(self._startup)
 
     def _easy_mode_drop(self, paths):
-        """Bring the local Easy Home forward for a whole-window file or folder drop."""
+        """Inspect local drops only while Navigator Home is current."""
         from .widgets.home import _EasyHomePage
 
-        if isinstance(self._startup, _EasyHomePage):
-            self._on_nav_selected("__home__")
+        if (isinstance(self._startup, _EasyHomePage)
+                and self._stack.currentWidget() is self._startup):
             self._startup.accept_paths(paths)
 
     def _set_easy_mode_from_help(self, enabled=True):
@@ -10456,9 +10456,10 @@ class MainWindow(QMainWindow):
             key, dimension = 'mask', 't'
         else:
             dimension = None
-        host = page_fold_host(key) or next(
+        native = screen_for_module(key)
+        host = page_fold_host(key) or (native if any(row[0] == native for row in APPS) else next(
             (parent for parent, children in folded_children().items() if key in children),
-            screen_for_module(key))
+            native))
         if not app_is_visible(key) or not app_is_visible(host):
             self.statusBar().showMessage(tr("This module is hidden by the current application preferences."), 5000)
             return None
@@ -10736,10 +10737,7 @@ class MainWindow(QMainWindow):
             if folder and Path(folder).is_dir():
                 QDesktopServices.openUrl(QUrl.fromLocalFile(folder))
             return True
-        if (key not in context.get('analysis_inputs', {})
-                and key not in ('foreign', 'analyze_plaques', 'graph_builder', 'gate_editor', 'dose_response', 'umap',
-                                'run_compare', 'qc_dashboard', 'run_history', 'map_barcodes',
-                                'hit_list', 'profiler', 'regression_diagnostics')):
+        if not path or key == 'overview':
             return False
         handler = get_handler(key)
         paths = self._easy_input_paths(key, path, context, handler)
@@ -10754,9 +10752,17 @@ class MainWindow(QMainWindow):
                 if handler.can_accept(source):
                     handler.apply(source, screen)
                 else:
+                    model = getattr(screen, '_settings_model', None)
+                    setter = getattr(model, 'set_value_for_key', None)
+                    if callable(setter):
+                        setter('src', str(source))
                     self.statusBar().showMessage(handler.error_message(source), 6000)
             except (OSError, ValueError) as exc:
                 self.statusBar().showMessage(str(exc), 6000)
+        overrides = getattr(getattr(self, '_startup', None), '_settings_overrides', {}).get(key, {})
+        apply = getattr(screen, 'apply_settings_dict', None)
+        if overrides and callable(apply):
+            apply(dict(overrides))
         return True
 
     def _open_easy_suggestion(self, key, path):
