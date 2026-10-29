@@ -805,6 +805,13 @@ def test_release_workflow_builds_all_platforms_with_node24_actions():
     assert workflow.count("timeout-minutes: 50") == 1
     assert workflow.count("assert torch.version.cuda is None") == 2
     assert "assert torch.backends.mps.is_built()" in workflow
+    assert 'SPACR_TORCH_BACKEND=cpu' in workflow
+    assert "assert p['requested_backend'] == 'cpu'; assert p['active_backend'] == 'cpu'" in workflow
+    windows_smoke = workflow.split('      - name: Install and import the checked-out Windows application', 1)[1].split('      - uses: actions/upload-artifact', 1)[0]
+    assert windows_smoke.index('SetAccessRuleProtection($true, $false)') < windows_smoke.index('Start-Process')
+    assert '$Acl.SetOwner($Sid)' in windows_smoke
+    assert 'Set-Acl -LiteralPath $InstallRoot -AclObject $Acl' in windows_smoke
+    assert 'ContainerInherit,ObjectInherit' in windows_smoke
     assert workflow.count("smoke_installed.py") == 3
     assert workflow.count("from spacr.updater import upgrade_command") == 3
     assert workflow.count("find_spec('pip') is None") == 3
@@ -826,6 +833,17 @@ def test_release_workflow_builds_all_platforms_with_node24_actions():
     assert "needs.windows.result == 'success' && needs.macos.result == 'success'" in collect_job
     assert "github.event_name == 'workflow_call'" not in collect_job
     assert "github.event_name == 'workflow_dispatch' ||" not in collect_job
+
+
+def test_installer_only_dispatch_can_pin_the_already_published_application_source():
+    import yaml
+    workflow = yaml.safe_load(_text(WORKFLOW))
+    events = workflow.get('on', workflow.get(True))
+    source = events['workflow_dispatch']['inputs']['source_ref']
+    assert source['type'] == 'string' and source['default'] == ''
+    for platform in ('linux', 'windows', 'macos'):
+        checkout = workflow['jobs'][platform]['steps'][0]
+        assert checkout['with']['ref'] == '${{ inputs.source_ref || github.sha }}'
 
 
 def test_one_click_release_orders_version_pypi_installers_and_github():

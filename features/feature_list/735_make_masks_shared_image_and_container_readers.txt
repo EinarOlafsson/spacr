@@ -1,8 +1,11 @@
 MAKE MASKS OPENS IMAGES AND CONTAINERS THROUGH SHARED READER CAPABILITIES
 
+CURRENT MULTICHANNEL MASK-PRESERVATION FOLLOW-UP — 2026-10-29
+Priority: P1, maintainer-reported Malnio plaque dataset regression. Owner: Workstation session 2; retained engine agent handles reader/mask binding and root handles native review/UI integration.
+Ordinary RGB/RGBA fields must load directly and retain their paired labels when converted to the editor's grayscale display. Scientific multichannel images must remain loadable through explicit channel review, preserving valid paired single-field masks without mixing time, Z, series or independently saved channel annotations. Acceptance requires native loading, label/metadata preservation, correct selected-channel pixels, save/reopen isolation, unchanged original bytes and focused regression checks before nightly publication.
+
 Lifecycle: new
-Status:    DONE 2026-10-28 — shared-reader implementation, focused validation
-           and normal translated artifacts are delivered in this Nightly publication.
+Status:    DONE 2026-10-29 — multichannel mask preservation and prior shared-reader delivery are implemented, tested and published on Nightly.
 Requested: maintainer, 2026-10-27, while correcting Easy-mode image routing.
 Owner:     Codex G4 implementation and closure; G2 independent source peer; root publishes.
 Related:   733 Easy routing; 363 Import; 462 vendor fixtures; 600 drops;
@@ -119,3 +122,7 @@ required to record this queued item.
 2026-10-28: G2 independently accepted source and controls. Parent/root own final normal translated catalogs, Help/API/flow/index binding and ordinary Nightly publication; no promotion of this feature into frozen Main.
 
 2026-10-28: Final source-bound runtime/API/Help/flow outputs pass; reviewed sources are pinned at 9abdd419 and nine API catalogs at 493e2207 with fresh byte-exact readback. This Nightly delivery completes the reader item; release CI remains item 43.
+
+2026-10-29 — Native RGB/RGBA TIFFs, including planar samples, now retain paired labels during grayscale display; ordinary Malnio fields no longer switch to empty channel-specific mask folders.
+Explicit scientific-channel views inherit valid labels/metadata only for one series and a single time/Z plane; saved per-channel masks remain independent, and source revisions/shapes are checked.
+Sixty focused reader/GUI controls pass. The cached Malnio example retains all 59 labels/17,675 labeled pixels with original bytes unchanged; two legacy fixtures now declare their intended grayscale/channel axes explicitly, with assertions unchanged. No new captions or public documentation sources require regeneration.

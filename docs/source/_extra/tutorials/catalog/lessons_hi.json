@@ -10897,13 +10897,13 @@
       "scenes": [
         {
           "visual": "01_graph_builder_host",
-          "narration": "Home से Graph Builder खोलें, फिर Small Multiples। इस दृश्य से एक ही माप की समूहों के बीच तुलना करें। यह उदाहरण जुड़े Annotate ट्यूटोरियल में उपलब्ध माप डेटाबेस इस्तेमाल करता है।",
+          "narration": "Graph Builder खोलें, फिर Small Multiples। इस दृश्य से एक ही माप की समूहों के बीच तुलना करें। यह उदाहरण जुड़े Annotate ट्यूटोरियल में उपलब्ध माप डेटाबेस इस्तेमाल करता है।",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "58_graph_builder"
           ],
-          "speech_text": "Home से Graph Builder खोलें, फिर Small Multiples। इस दृश्य से एक ही माप की समूहों के बीच तुलना करें। यह उदाहरण जुड़े Annotate ट्यूटोरियल में उपलब्ध माप डेटाबेस इस्तेमाल करता है।"
+          "speech_text": "Graph Builder खोलें, फिर Small Multiples। इस दृश्य से एक ही माप की समूहों के बीच तुलना करें। यह उदाहरण जुड़े Annotate ट्यूटोरियल में उपलब्ध माप डेटाबेस इस्तेमाल करता है।"
         },
         {
           "visual": "03_choose_real_measurements",

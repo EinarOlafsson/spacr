@@ -65,15 +65,25 @@ HARDWARE_END = ".. spacr-hardware-end"
 INSTALLER_BEGIN = ".. spacr-installer-links-begin"
 INSTALLER_END = ".. spacr-installer-links-end"
 INSTALLER_SUBSTITUTIONS = (
-    "InstallerWindows", "InstallerMacOS", "InstallerLinux",
+    "InstallerWindows", "InstallerMacOS", "InstallerLinux", "InstallerSpaCR",
 )
 DATA_SUBSTITUTIONS = (
     "DataBioStudies", "DataHuggingFace", "DataNCBI", "DataSpaCRPower",
     "DataBioRxiv",
 )
 INSTALLER_ROW = (
-    "|InstallerLinux| |InstallerMacOS| |InstallerWindows|"
+    "|InstallerLinux| |InstallerMacOS| |InstallerWindows| |InstallerSpaCR|"
 )
+INSTALLER_ALL_TARGET = (
+    "https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installers.rst"
+)
+INSTALLER_ALL_LABELS = {
+    "en": "All spaCR installers", "de": "Alle spaCR-Installationsprogramme",
+    "es": "Todos los instaladores de spaCR", "fr": "Tous les installateurs spaCR",
+    "hi": "सभी spaCR इंस्टॉलर", "is": "Öll spaCR uppsetningarforrit",
+    "ko": "모든 spaCR 설치 프로그램", "pt": "Todos os instaladores do spaCR",
+    "sv": "Alla installationsprogram för spaCR", "zh_CN": "所有 spaCR 安装程序",
+}
 DATA_ROW = (
     "|DataBioStudies| |DataHuggingFace| |DataNCBI| |DataSpaCRPower| "
     "|DataBioRxiv|"
@@ -1617,6 +1627,14 @@ def _normalize_linked_resource_blocks(path: Path) -> None:
         if name in definitions:
             raise ValueError(f"{path} defines |{name}| more than once")
         definitions[name] = match.group(0).rstrip()
+    prefix = ("../../../spacr/resources/icons" if path.parent.name == "readme"
+              else "spacr/resources/icons")
+    label = INSTALLER_ALL_LABELS[_readme_language(path)]
+    definitions["InstallerSpaCR"] = (
+        f".. |InstallerSpaCR| image:: {prefix}/app_icon.png\n"
+        f"   :target: {INSTALLER_ALL_TARGET}\n"
+        f"   :alt: {label}"
+    )
     missing = sorted(wanted - set(definitions))
     if missing:
         raise ValueError(f"{path} is missing linked image definitions: {missing}")

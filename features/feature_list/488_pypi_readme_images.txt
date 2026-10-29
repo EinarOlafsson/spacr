@@ -1,7 +1,7 @@
 488 — PYPI README IMAGES WITHOUT LOSING THE GITHUB PAGE
 =====================================================
 Lifecycle: new
-Status: REOPENED 2026-10-21 — PyPI layout acceptance required for1.5.1.6.
+Status: COMPLETE 2026-10-29 — Published 1.5.1.6 PyPI README accepted by the maintainer.
 
 User request2026-09-23: keep every GitHub image and all content, making PyPI
 compatible or providing a PyPI-specific equivalent instead of broken images.
@@ -63,3 +63,4 @@ VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_pypi_readme_image
 
 2026-10-28 — Restore the Warehouse mailto-glyph repair solely in build-time PyPI URL adaptation:21617d433d was incidentally removed by the subsequent plaque-default commit a116d69490, whose message records no rejection of the layout fix. Preserve the recipient, GitHub README, all ten language sources/artifacts, responsive rows and immutable source pins; validate the existing actual metadata renderer and necessarily affected URL contracts. Root owns publication; public1.5.1.6 page verification remains open.
 2026-10-28 — Existing setup-metadata/readme_renderer contact-row, full image/content and URL/idempotence contracts pass3/3 in3.31s using the existing packaging Python; the first Qt-only attempt exited4 because readme_renderer was absent (no pass claimed). Only mailto scheme casing changes in PyPI output; recipient, GitHub/ten-language README sources/artifacts, images, responsive classes and source-pin handling are unchanged. No rebuild, screenshot or public-upload verification claimed.
+2026-10-29 — COMPLETE: the maintainer accepts the actual published 1.5.1.6 PyPI README: "the pypi readme looks good". The public desktop/phone check reports all 143 visible images loaded without horizontal overflow; published wheel/sdist hashes and immutable c528221cf1 description source are verified. GitHub and all language README outputs are preserved; no additional build or acceptance gate remains.

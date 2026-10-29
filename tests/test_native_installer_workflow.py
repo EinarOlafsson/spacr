@@ -18,6 +18,10 @@ def test_native_smoke_jobs_cannot_borrow_the_build_checkout():
     events = workflow.get('on', workflow.get(True))
     assert 'push' in events and events['push']['branches'] == ['nightly']
     assert 'workflow_dispatch' in events
+    dispatch = events['workflow_dispatch']['inputs']
+    for name in ('source_ref', 'release_version'):
+        assert dispatch[name]['required'] is True
+        assert dispatch[name]['type'] == 'string'
     assert 'spacr/run_journal.py' in events['push']['paths']
     assert workflow['permissions'] == {'contents': 'read'}
     for key in ('smoke-frozen', 'smoke-debian'):

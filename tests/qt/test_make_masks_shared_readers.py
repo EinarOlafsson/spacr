@@ -666,3 +666,68 @@ def test_unrecorded_tiff_axes_require_a_current_explicit_plane_choice(
         assert (screen._image_files, screen._folder, screen._current_index, screen._masks_dir) == state
         assert engine._current_container_image_view(selected) is None
         assert engine._current_native_image_header(selected) is None
+
+@pytest.mark.parametrize('axes,samples', [('YXS', 3), ('YXS', 4), ('SYX', 3), ('SYX', 4)])
+def test_native_rgb_field_keeps_paired_labels_when_flattened(
+        screen, qtbot, tmp_path, monkeypatch, axes, samples):
+    images, masks = tmp_path / 'images', tmp_path / 'masks'
+    images.mkdir()
+    masks.mkdir()
+    color = np.zeros((24, 32, samples), np.uint8)
+    color[..., 0] = np.arange(32, dtype=np.uint8)
+    color[..., 1] = 50
+    color[..., 2] = 130
+    if samples == 4:
+        color[..., 3] = 0
+    stored = np.moveaxis(color, -1, 0) if axes == 'SYX' else color
+    path = images / 'malnio-style.tif'
+    tifffile.imwrite(path, stored, photometric='rgb', metadata={'axes': axes},
+                     planarconfig='separate' if axes == 'SYX' else 'contig')
+    labels = np.zeros((24, 32), np.uint32)
+    labels[2:9, 5:13] = 70001
+    labels[14:19, 20:27] = 89
+    mask_path = masks / path.name
+    tifffile.imwrite(mask_path, labels)
+    original, original_mask = path.read_bytes(), mask_path.read_bytes()
+    monkeypatch.setattr(QInputDialog, 'getInt',
+                        lambda *args: pytest.fail('RGB fields must not ask for one sample'))
+    monkeypatch.setattr(QInputDialog, 'getItem',
+                        lambda *args: pytest.fail('Recorded RGB axes are already unambiguous'))
+    assert screen._open_folder(str(images), masks_dir=str(masks))
+    _settle(qtbot, screen)
+    np.testing.assert_array_equal(screen._canvas.image, engine._as_field_image(color, str(path)))
+    np.testing.assert_array_equal(screen._canvas.mask, labels)
+    assert Path(screen._masks_dir) == masks
+    assert path.read_bytes() == original and mask_path.read_bytes() == original_mask
+    assert not screen.warnings
+
+
+def test_scientific_multichannel_field_preserves_paired_mask_and_saved_channel_edits(
+        screen, qtbot, tmp_path, monkeypatch):
+    images, masks = tmp_path / 'images', tmp_path / 'masks'
+    images.mkdir()
+    masks.mkdir()
+    pixels = np.stack([np.full((24, 32), 73 + channel * 101, np.uint16)
+                       for channel in range(5)])
+    path = images / 'channels.ome.tif'
+    tifffile.imwrite(path, pixels, photometric='minisblack', metadata={'axes': 'CYX'})
+    labels = np.zeros((24, 32), np.uint32)
+    labels[5:10, 6:14] = 70002
+    mask_path = masks / path.name
+    tifffile.imwrite(mask_path, labels, metadata={'curation_note': 'paired labels'})
+    original, original_mask = path.read_bytes(), mask_path.read_bytes()
+    monkeypatch.setattr(QInputDialog, 'getInt', lambda *args: (3, True))
+    assert screen._open_folder(str(images), masks_dir=str(masks))
+    _settle(qtbot, screen)
+    np.testing.assert_array_equal(screen._canvas.image, pixels[3])
+    np.testing.assert_array_equal(screen._canvas.mask, labels)
+    target = screen._masks_dir
+    edited = labels.copy()
+    edited[16:20, 20:25] = 70003
+    engine.save_mask(str(images), path.name, edited, masks_dir=target, preserve_ids=True)
+    screen._load_current()
+    _settle(qtbot, screen)
+    np.testing.assert_array_equal(screen._canvas.mask, edited)
+    assert screen._masks_dir == target
+    assert path.read_bytes() == original and mask_path.read_bytes() == original_mask
+    assert not screen.warnings

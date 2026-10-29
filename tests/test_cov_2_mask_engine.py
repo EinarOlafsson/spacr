@@ -26,8 +26,8 @@ def folder(tmp_path):
     return tmp_path
 
 
-def _write(folder, name, array, *, mask=None):
-    tifffile.imwrite(folder / name, array)
+def _write(folder, name, array, *, mask=None, **tiff_options):
+    tifffile.imwrite(folder / name, array, **tiff_options)
     if mask is not None:
         tifffile.imwrite(folder / "masks" / name, mask)
     return str(folder), name
@@ -84,7 +84,8 @@ def test_colour_images_are_collapsed_to_one_grey_field(folder):
 
     stack = np.zeros((4, 4, 1), dtype=np.uint16)
     stack[1, 1, 0] = 7
-    squeezed, _ = me.load_image_and_mask(*_write(folder, "one.tif", stack))
+    squeezed, _ = me.load_image_and_mask(*_write(
+        folder, "one.tif", stack, photometric="minisblack", metadata={"axes": "YXC"}))
     assert squeezed.shape == (4, 4)
     assert squeezed[1, 1] == 7, "already uint16, so the values are not rescaled"
 
@@ -97,7 +98,8 @@ def test_an_image_with_too_many_channels_is_refused_by_name(folder):
     """
     with pytest.raises(ValueError) as excinfo:
         me.load_image_and_mask(*_write(folder, "five.tif",
-                                       np.zeros((4, 4, 5), dtype=np.uint8)))
+                                       np.zeros((4, 4, 5), dtype=np.uint8),
+                                       photometric="minisblack", metadata={"axes": "YXC"}))
     assert "Unsupported channel count 5" in str(excinfo.value)
     assert "five.tif" in str(excinfo.value)
 

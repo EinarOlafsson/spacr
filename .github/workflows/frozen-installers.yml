@@ -9,6 +9,15 @@ on:
         required: true
         type: string
   workflow_dispatch:
+    inputs:
+      source_ref:
+        description: Exact application commit to build and verify
+        required: true
+        type: string
+      release_version:
+        description: Immutable release version expected in every native payload
+        required: true
+        type: string
   push:
     branches: [nightly]
     paths:

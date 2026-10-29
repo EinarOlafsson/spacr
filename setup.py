@@ -366,7 +366,10 @@ dependencies = [
     'mrcfile<2,>=1.5; python_version >= "3.10"',
     'napari<1.0,>=0.5; python_version >= "3.10"',
     'nd2<1,>=0.10; python_version >= "3.10"',
-    'numcodecs<1,>=0.12; python_version >= "3.10"',
+    # The 0.17 Meson build discovers system NumPy headers through pkg-config;
+    # 0.16.6 uses the isolated build's NumPy and builds correctly on 3.15.
+    'numcodecs<1,>=0.12; python_version >= "3.10" and python_version < "3.15"',
+    'numcodecs>=0.16.6,<0.17; python_version >= "3.15"',
     'numpyro<1.0,>=0.13; python_version >= "3.10"',
     'pdfplumber<1,>=0.11; python_version >= "3.10"',
     'piper-tts<2,>=1.2; python_version < "3.15" and (sys_platform != "darwin" or platform_machine != "x86_64" or python_version < "3.14") and python_version >= "3.10" and (sys_platform != "darwin" or python_version < "3.14" or "23" <= platform_release)',
@@ -403,7 +406,7 @@ setup(
     packages=find_packages(exclude=["tests.*", "tests"]),
     include_package_data=True,
     exclude_package_data={'spacr': ['resources/AI/*', 'resources/AI/**/*']},
-    package_data={'spacr': ['resources/release_notes.json', 'resources/layout_policy.json', 'resources/tutorial_index.json', 'resources/module_workflows.json', 'resources/data/*', 'resources/model_cards/*.json', 'resources/models/cp', 'resources/icons/*.png', 'resources/icons/organism_*.svg', 'resources/icons/loading_spinner.gif', 'resources/icons/spaceout.gif', 'resources/font/**/*', 'resources/images/*', 'resources/themes/*.jpg', 'resources/splash/*.jpg', 'resources/splash/*.json', 'resources/setting_animations/*.json', 'resources/plate_templates/*.json', 'resources/setting_animations/gifs/*.gif'],},
+    package_data={'spacr': ['resources/release_notes.json', 'resources/layout_policy.json', 'resources/tutorial_index.json', 'resources/module_workflows.json', 'resources/data/*', 'resources/model_cards/*.json', 'resources/models/cp', 'resources/icons/*.png', 'resources/icons/organism_*.svg', 'resources/icons/parascape.svg', 'resources/icons/parascape-LICENSE.txt', 'resources/icons/loading_spinner.gif', 'resources/icons/spaceout.gif', 'resources/font/**/*', 'resources/images/*', 'resources/themes/*.jpg', 'resources/splash/*.jpg', 'resources/splash/*.json', 'resources/setting_animations/*.json', 'resources/plate_templates/*.json', 'resources/setting_animations/gifs/*.gif'],},
     data_files=(
         [
             ('share/applications', [
@@ -551,7 +554,9 @@ setup(
         'glum': ['glum>=3.1.2,<4; python_version >= "3.10"'],
         'gpytorch': ['gpytorch>=1.11,<2; python_version >= "3.10"'],
 
-        'zarr': ['zarr>=2.16,<4', 'numcodecs>=0.12,<1'],
+        'zarr': ['zarr>=2.16,<4',
+                 'numcodecs>=0.12,<1; python_version < "3.15"',
+                 'numcodecs>=0.16.6,<0.17; python_version >= "3.15"'],
         'omero': ['omero-py>=5.17,<6'],
         'cloud': ['fsspec>=2023.1', 's3fs>=2023.1', 'gcsfs>=2023.1',
                   'adlfs>=2023.1', 'aiohttp>=3.8,<4', 'botocore>=1.29,<2'],

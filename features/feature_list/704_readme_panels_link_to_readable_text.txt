@@ -16,6 +16,8 @@ Related:   tools/build_readme_images.py, packaging/generate_readme_visuals.py,
 REQUIREMENTS
 --------------------------------------------------------------------------------
 
+2026-10-29 — Maintainer requests the current spaCR icon immediately right of Linux/macOS/Windows, linking to the existing all-installers page on both Main and Nightly. Home owns canonical generator/order/link and all ten localized README outputs; preserve accepted PyPI 1.5.1.6 completion and current release source.
+
 1. Give every prose, table and list-row text panel a clickable, readable text
    destination. Cover English and all nine README translations. Preserve the
    text's structure, facts, table values and useful continuation links.
@@ -167,3 +169,5 @@ reports nightly8508e99220 and mainf0efcc75c6; Original has not substituted that
 notice for independent whole-item hosted acceptance. Original stops N704
 README/panel/site/item edits here. General CI owner requests remain published
 without changing the claimed renderer or weakening image-only/link gates.
+
+2026-10-29 — Restored the current spaCR icon as the fourth installer-row link, immediately after Linux/macOS/Windows, pointing to the existing complete installer archive. The canonical generator supplies all ten localized labels and regenerates the shared current-icon cell; accepted PyPI 1.5.1.6 remains unchanged.

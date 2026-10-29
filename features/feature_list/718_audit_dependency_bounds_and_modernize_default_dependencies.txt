@@ -2,6 +2,10 @@
 AUDIT DEPENDENCY BOUNDS AND MODERNIZE DEFAULT DEPENDENCIES
 ================================================================================
 
+PYTHON 3.15 HOME INSTALLER FOLLOW-UP — 2026-10-29
+Priority: P1. Owner: Workstation session 2; retained dependency agent investigates upstream builds.
+Handle the reported numcodecs source-build failure through setup.py dependency selection, without requiring users to repair NumPy headers or preinstall a Conda codec manually. Preserve compressed-image functionality and earlier interpreter compatibility. Acceptance requires an uncached Python 3.15 build/install of the selected codec with conflicting system NumPy discovery present, meaningful codec round-trips, focused packaging checks and nightly publication; a previously cached local wheel is insufficient.
+
 PYTHON 3.15 INSTALLATION AND COMPATIBILITY — 2026-10-28
 Priority: P1, maintainer-requested active follow-up. Owner: Workstation session 2.
 Port the current nightly to Python 3.15 in the dedicated spacr15 environment;
@@ -19,7 +23,7 @@ OVERNIGHT LINUX ACCEPTANCE — 2026-10-23
 Home Linux coordinator owns remaining current-source CPU-only managed/pip/Conda installation and actual CLI/offscreen launch acceptance; retained Qt worker owns the disjoint fresh ordinary pip/source path. Coordinate cached dependency graphs, preserve accepted Python/ARM controls and use disposable environments only. No new scientific fits; the recorded divergence/convergence limitation remains open.
 
 Lifecycle: new
-Status: DONE — Linux x86_64 Python 3.15 installation and focused runtime qualification; earlier modernization and scientific-model limitations remain recorded.
+Status: DONE — Python 3.15 setup.py codec selection and installed runtime qualification; earlier modernization and scientific-model limitations remain recorded.
 Requested: maintainer, 2026-10-21
 Priority:  P1
 Owner:     Workstation session 2 dependency agent — current optimization and end-to-end validation/publication; Home retains existing scientific-model ownership and release integration
@@ -215,3 +219,7 @@ The 2026-10-24 CI documentation follow-up is owned by widgets_g5 with independen
 2026-10-28 — Dependency installations are accepted and the published 371390e0 sampler satisfies the maintainer diagnostic rule with all 12 recorded seeds passing. Broader hosted CI/release confirmation remains item 43; no hosted result is inferred from local validation.
 
 2026-10-28 — Qualified a full Python 3.15.2 Linux x86_64 installation with pip check, real installed Measure database/PNG outputs, morphology/intensity/texture controls, Cellpose CPU flows, Torch forward execution and a native Navigator/Measure/Home window. Scoped dependency guards prevent unsupported optional backends from driving old NumPy/Ninja builds; earlier Python bounds remain. The recipe supplies Conda native prerequisites, the non-ICU SQLite build and a PyPI SciPy wheel; both cold import orders/HDF5 round-trip pass. Added a blocking Linux 3.15 CI cell. Nine-language installation guidance and runtime notices pass their normal checks; the package and Python 3.15 compatibility badges are delivered together.
+
+2026-10-29 — setup.py now selects numcodecs>=0.16.6,<0.17 on Python 3.15 in default and Zarr installs, avoiding the Home build's system NumPy-header conflict; earlier bounds stay unchanged.
+The uncached source build passes with conflicting NumPy pkg-config metadata. Real Blosc/LZ4 OME-Zarr and Unicode metadata round-trips pass; corrected the writer's Blosc/LZ4 argument names uncovered by those checks.
+All 45 focused controls, full-dependency package installation and installed pip check pass. Linux 3.15 CI now installs system NumPy and forces an uncached codec source build; Home's native libraries remain a separate environment prerequisite.

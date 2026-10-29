@@ -13229,13 +13229,13 @@
       "scenes": [
         {
           "visual": "01_graph_builder_host",
-          "narration": "从Home打开Graph Builder，然后选择Small Multiples。用这个视图在分组之间比较相同的测量值。本例使用链接中Annotate教程提供的测量数据库。",
+          "narration": "打开Graph Builder，然后选择Small Multiples。用这个视图在分组之间比较相同的测量值。本例使用链接中Annotate教程提供的测量数据库。",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "58_graph_builder"
           ],
-          "speech_text": "从主页打开Graph Builder，然后选择Small Multiples。用这个视图在分组之间比较相同的测量值。本例使用链接中Annotate教程提供的测量数据库。"
+          "speech_text": "打开Graph Builder，然后选择Small Multiples。用这个视图在分组之间比较相同的测量值。本例使用链接中Annotate教程提供的测量数据库。"
         },
         {
           "visual": "03_choose_real_measurements",

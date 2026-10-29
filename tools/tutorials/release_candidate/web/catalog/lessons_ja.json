@@ -13229,13 +13229,13 @@
       "scenes": [
         {
           "visual": "01_graph_builder_host",
-          "narration": "HomeからGraph Builderを開き、Small Multiplesを選びます。この画面で、同じ測定値をグループ間で比べます。この例では、リンク先のAnnotateのチュートリアルで入手できる測定データベースを使います。",
+          "narration": "Graph Builderを開き、Small Multiplesを選びます。この画面で、同じ測定値をグループ間で比べます。この例では、リンク先のAnnotateのチュートリアルで入手できる測定データベースを使います。",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "58_graph_builder"
           ],
-          "speech_text": "ホームからGraph Builderを開き、Small Multiplesを選びます。この画面で、同じ測定値をグループ間で比べます。この例では、リンク先のAnnotateのチュートリアルで入手できる測定データベースを使います。"
+          "speech_text": "Graph Builderを開き、Small Multiplesを選びます。この画面で、同じ測定値をグループ間で比べます。この例では、リンク先のAnnotateのチュートリアルで入手できる測定データベースを使います。"
         },
         {
           "visual": "03_choose_real_measurements",

@@ -140,7 +140,7 @@
 
 .. spacr-installer-links-begin
 
-| |InstallerLinux|\ |InstallerMacOS|\ |InstallerWindows|
+| |InstallerLinux|\ |InstallerMacOS|\ |InstallerWindows|\ |InstallerSpaCR|
 
 .. |InstallerWindows| raw:: html
 
@@ -151,6 +151,9 @@
 .. |InstallerLinux| raw:: html
 
    <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.6/spaCR-1.5.1.6-Linux-x86_64-Online.run"><img src="../../readme_assets/cells/platforms/linux.png" width="14.14%" align="middle" alt="64비트 Linux용 spaCR 1.5.1.6 다운로드"></a>
+.. |InstallerSpaCR| raw:: html
+
+   <a href="https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installers.rst"><img src="../../readme_assets/cells/app_icon.png" width="14.14%" align="middle" alt="모든 spaCR 설치 프로그램"></a>
 
 .. spacr-installer-links-end
 

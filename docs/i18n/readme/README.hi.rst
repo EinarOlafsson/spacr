@@ -140,7 +140,7 @@
 
 .. spacr-installer-links-begin
 
-| |InstallerLinux|\ |InstallerMacOS|\ |InstallerWindows|
+| |InstallerLinux|\ |InstallerMacOS|\ |InstallerWindows|\ |InstallerSpaCR|
 
 .. |InstallerWindows| raw:: html
 
@@ -151,6 +151,9 @@
 .. |InstallerLinux| raw:: html
 
    <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.6/spaCR-1.5.1.6-Linux-x86_64-Online.run"><img src="../../readme_assets/cells/platforms/linux.png" width="14.14%" align="middle" alt="64-बिट Linux के लिए spaCR 1.5.1.6 डाउनलोड करें"></a>
+.. |InstallerSpaCR| raw:: html
+
+   <a href="https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installers.rst"><img src="../../readme_assets/cells/app_icon.png" width="14.14%" align="middle" alt="सभी spaCR इंस्टॉलर"></a>
 
 .. spacr-installer-links-end
 

@@ -24287,7 +24287,8 @@ class MakeMasksScreen(QWidget):
                 native_volume = (len(entry['shape']) == len(axes)
                                  and len(entry['shape']) in (3, 4)
                                  and sorted(axes.replace('C', '', 1)) == ['X', 'Y', 'Z'])
-                if (entry['axes'] == 'YX' and len(entry['shape']) == 2) or native_volume:
+                if ((entry['axes'] == 'YX' and len(entry['shape']) == 2)
+                        or engine._native_rgb_field(header) or native_volume):
                     engine._retain_native_image_header(dict(header, native_volume=native_volume))
                     applied = True
                     if worker.paths is not None:
@@ -24331,7 +24332,11 @@ class MakeMasksScreen(QWidget):
                 selected.append(value)
             if worker.token != self._load_token:
                 return
-            engine._set_container_image_view(header, series, *selected, axes=axes)
+            paired_masks = (getattr(worker, 'masks_dir', None)
+                            if worker.paths is not None else self._queue_masks_dir)
+            engine._set_container_image_view(
+                header, series, *selected, axes=axes,
+                source_masks_dir=engine.masks_folder(os.path.dirname(header['path']), paired_masks))
             applied = True
             if worker.paths is not None:
                 self._open_queue(worker.paths, masks_dir=getattr(worker, 'masks_dir', None))

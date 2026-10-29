@@ -1,4 +1,6 @@
 """New interpreter requirements retain the established older environments."""
+import sys
+
 import pytest
 from packaging.requirements import Requirement
 
@@ -53,6 +55,21 @@ def test_python315_uses_the_numpy_wheel_era_without_changing_python314():
         assert len(applicable) == 1
         assert accepted in applicable[0].specifier
         assert refused not in applicable[0].specifier
+
+
+@pytest.mark.parametrize('group', ['core', 'zarr'])
+@pytest.mark.parametrize('python', ['3.10', '3.14', '3.15'])
+def test_numcodecs_selection_avoids_system_numpy_discovery_on_python315(group, python):
+    values = _core_dependencies() if group == 'core' else _extras()[group]
+    codecs = [Requirement(value) for value in values
+              if Requirement(value).name == 'numcodecs']
+    selected = [requirement for requirement in codecs
+                if requirement.marker is None or requirement.marker.evaluate(
+                    {'python_version': python})]
+    assert len(selected) == 1
+    assert '0.16.6' in selected[0].specifier
+    assert ('0.17.1' in selected[0].specifier) == (python != '3.15')
+    assert ('0.12.0' in selected[0].specifier) == (python != '3.15')
 
 
 @pytest.mark.parametrize('family', [None, 'ols'])
@@ -146,3 +163,29 @@ def test_modeled_new_interpreter_keeps_optional_backend_refusals_consistent(monk
                        model_type='catboost', n_estimators=5, verbose=False, **COMMON)
     import pandas as pd
     pd.testing.assert_frame_equal(frame, before)
+
+@pytest.mark.skipif(sys.version_info[:2] != (3, 15), reason='Python 3.15 codec installation')
+@pytest.mark.parametrize('compressor', ['blosc', 'lz4'])
+def test_python315_compressed_ome_zarr_roundtrip(tmp_path, compressor):
+    import numpy as np
+
+    from spacr.ome_zarr import read_ome_zarr_array, write_ome_zarr
+
+    image = (np.arange(35 * 47, dtype=np.uint16).reshape(35, 47) * 31)
+    path = tmp_path / 'image.zarr'
+    write_ome_zarr(path, image, axes=('y', 'x'), chunks=(16, 16),
+                   compressor=compressor)
+    for prefer_zarr in (False, True):
+        decoded = read_ome_zarr_array(path, prefer_zarr=prefer_zarr)
+        np.testing.assert_array_equal(decoded, image)
+        assert decoded.dtype == image.dtype
+
+
+@pytest.mark.skipif(sys.version_info[:2] != (3, 15), reason='Python 3.15 codec installation')
+def test_python315_variable_length_metadata_codec_roundtrip():
+    import numcodecs
+    import numpy as np
+
+    labels = np.array(['', 'plate A', 'µm', '细胞'], dtype=object)
+    codec = numcodecs.VLenUTF8()
+    np.testing.assert_array_equal(codec.decode(codec.encode(labels)), labels)

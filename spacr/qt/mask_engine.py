@@ -578,12 +578,8 @@ def load_mask_metadata(folder: str, filename: str,
     import tifffile
     from .i18n import tr
 
-    path = mask_save_path(folder, filename, masks_dir)
-    if not os.path.isfile(path) and not is_seg_bundle(filename):
-        stem = os.path.splitext(filename)[0]
-        candidates = [os.path.join(masks_folder(folder, masks_dir), filename),
-                      os.path.join(masks_folder(folder, masks_dir), stem + ".tiff")]
-        path = next((candidate for candidate in candidates if os.path.isfile(candidate)), path)
+    path = (mask_save_path(folder, filename, masks_dir) if is_seg_bundle(filename)
+            else _field_mask_path(folder, filename, masks_dir))
     if not os.path.isfile(path):
         return {}
     if is_seg_bundle(filename):
@@ -833,6 +829,7 @@ def _container_image_header(path):
             if len(handle.series) > 512:
                 raise ValueError(tr('This container has too many series to review safely. Use Import.'))
             series = [dict(shape=tuple(image.shape), axes=str(image.axes),
+                           photometric=str(image.pages[0].photometric.name),
                            dtype=str(image.dtype), reader='tifffile',
                            pixel_size_nm=_tiff_series_pixel_size(handle, image))
                       for image in handle.series]
@@ -890,7 +887,52 @@ def _container_image_header(path):
     return dict(path=path, identity=before, ext=ext, series=series)
 
 
-def _set_container_image_view(header, series=0, time=0, z=0, channel=0, axes=None):
+def _native_rgb_field(header):
+    """Recognize explicit spatial color samples without guessing scientific channels."""
+    if header.get('ext') not in ('.tif', '.tiff') or len(header.get('series', ())) != 1:
+        return False
+    entry = header['series'][0]
+    axes, shape = entry.get('axes', ''), entry.get('shape', ())
+    return (entry.get('photometric') == 'RGB' and axes in ('YXS', 'SYX')
+            and len(shape) == 3 and shape[axes.index('S')] in (3, 4))
+
+
+def _existing_field_mask_path(folder, filename, masks_dir):
+    stem = os.path.splitext(filename)[0]
+    target = masks_folder(folder, masks_dir)
+    return next((path for path in (os.path.join(target, stem + '.tif'),
+                                   os.path.join(target, filename),
+                                   os.path.join(target, stem + '.tiff'))
+                 if os.path.isfile(path)), '')
+
+
+def _field_mask_path(folder, filename, masks_dir):
+    path = _existing_field_mask_path(folder, filename, masks_dir)
+    if path or masks_dir is None:
+        return path
+    view = _CONTAINER_IMAGE_VIEWS.get((os.path.abspath(os.path.join(folder, filename)),
+                                       os.path.abspath(masks_dir)))
+    if view is None or not view.get('source_mask_path'):
+        return ''
+    if (_source_identity(view['header']['path']) != view['header']['identity']
+            or _source_identity(view['source_mask_path']) != view['source_mask_identity']):
+        from .i18n import tr
+
+        raise ValueError(tr('The source changed after its image layout was reviewed. Open it again.'))
+    from imageio.v3 import improps
+
+    shape = tuple(improps(view['source_mask_path']).shape)
+    if len(shape) == 3 and shape[-1] == 1:
+        shape = shape[:-1]
+    if shape != tuple(view['shape']):
+        raise ValueError(
+            f"Mask shape {shape} does not match image shape "
+            f"{tuple(view['shape'])} for {filename}.")
+    return view['source_mask_path']
+
+
+def _set_container_image_view(header, series=0, time=0, z=0, channel=0, axes=None,
+                              source_masks_dir=None):
     """Validate and retain one explicitly selected image plane and mask identity."""
     from .i18n import tr
 
@@ -924,6 +966,12 @@ def _set_container_image_view(header, series=0, time=0, z=0, channel=0, axes=Non
     view = dict(header=header, series=int(series), time=int(time), z=int(z),
                 channel=int(channel), axes=stored, entry=entry, masks_dir=target,
                 shape=(int(height), int(width)))
+    if (source_masks_dir is not None and len(header['series']) == 1
+            and entry.get('n_t', 1) == 1 and entry.get('n_z', 1) == 1):
+        paired = _existing_field_mask_path(os.path.dirname(path), os.path.basename(path),
+                                           source_masks_dir)
+        if paired:
+            view.update(source_mask_path=paired, source_mask_identity=_source_identity(paired))
     if len(_CONTAINER_IMAGE_VIEWS) >= 128 and (path, os.path.abspath(target)) not in _CONTAINER_IMAGE_VIEWS:
         _CONTAINER_IMAGE_VIEWS.pop(next(iter(_CONTAINER_IMAGE_VIEWS)))
     _CONTAINER_IMAGE_VIEWS[(path, os.path.abspath(target))] = view
@@ -1083,6 +1131,17 @@ def read_image(path: str) -> np.ndarray:
     lower = str(path).lower()
     if os.path.abspath(os.fspath(path)) in _CONTAINER_CURRENT_VIEWS:
         return _read_container_image_view(path)
+    if lower.endswith(('.tif', '.tiff')):
+        import tifffile
+
+        with tifffile.TiffFile(path) as handle:
+            if len(handle.series) == 1:
+                series = handle.series[0]
+                header = dict(ext=Path(path).suffix.lower(), series=[dict(
+                    axes=series.axes, shape=series.shape,
+                    photometric=series.pages[0].photometric.name)])
+                if _native_rgb_field(header):
+                    return np.moveaxis(series.asarray(), series.axes.index('S'), -1)
     if lower.endswith(".map"):
         from ..io import read_mrc
 
@@ -1914,14 +1973,7 @@ def load_image_and_mask(folder: str, filename: str,
                   if filename.lower().endswith('.npy') else read_image(image_path))
     image = _as_field_image(pixels, image_path)
 
-    mask_dir = masks_folder(folder, masks_dir)
-    stem = os.path.splitext(filename)[0]
-    candidates = [
-        os.path.join(mask_dir, stem + ".tif"),
-        os.path.join(mask_dir, filename),
-        os.path.join(mask_dir, stem + ".tiff"),
-    ]
-    mask_path = next((path for path in candidates if os.path.isfile(path)), "")
+    mask_path = _field_mask_path(folder, filename, masks_dir)
     if mask_path:
         mask = _as_field_mask(imageio.imread(mask_path), image.shape,
                               mask_path, filename)
