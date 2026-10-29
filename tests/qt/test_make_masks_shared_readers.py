@@ -731,3 +731,68 @@ def test_scientific_multichannel_field_preserves_paired_mask_and_saved_channel_e
     assert screen._masks_dir == target
     assert path.read_bytes() == original and mask_path.read_bytes() == original_mask
     assert not screen.warnings
+
+
+
+def test_multichannel_paired_mask_keep_saves_exact_ids_and_reopens_the_curated_channel(
+        screen, qtbot, tmp_path, monkeypatch):
+    images, masks = tmp_path / 'images', tmp_path / 'paired'
+    images.mkdir()
+    masks.mkdir()
+    pixels = np.arange(4 * 24 * 32, dtype=np.uint16).reshape(4, 24, 32)
+    source = images / 'a-channels.tif'
+    tifffile.imwrite(source, pixels, photometric='minisblack',
+                     metadata={'axes': 'CYX', 'pixel_size_nm': 17.25})
+    following = images / 'z-next.png'
+    Image.fromarray(np.arange(24 * 32, dtype=np.uint8).reshape(24, 32)).save(following)
+    labels = np.zeros((24, 32), np.uint32)
+    labels[2:6, 3:7] = labels[10:14, 3:7] = 70001
+    labels[3:7, 20:24] = 17
+    paired = masks / source.name
+    tifffile.imwrite(paired, labels, metadata={'spacr_mask': {
+        'schema': 'spacr.mask/v1', 'preserve_ids': True,
+        'reviewer_label': 'paired reference'}})
+    originals = source.read_bytes(), paired.read_bytes(), following.read_bytes()
+    monkeypatch.setattr(QInputDialog, 'getInt', lambda *args: (2, True))
+    assert screen._open_folder(str(images), masks_dir=str(masks))
+    _settle(qtbot, screen)
+    assert screen._image_files == [source.name, following.name]
+    np.testing.assert_array_equal(screen._canvas.image, pixels[2])
+    np.testing.assert_array_equal(screen._canvas.mask, labels)
+    assert screen._canvas.retain_label_ids()
+    target = screen._masks_dir
+    destination = Path(engine.mask_save_path(str(images), source.name, target))
+    assert destination.parent != masks and not destination.exists()
+    edited = labels.copy()
+    edited[16:20, 20:24] = 70003
+    screen._canvas.mask[16:20, 20:24] = 70003
+    screen._btn_save_on_navigation.setChecked(True)
+    screen._btn_hide_judged.setChecked(False)
+
+    screen._btn_keep.click()
+    _settle(qtbot, screen)
+    qtbot.waitUntil(lambda: not screen._mask_write_requests, timeout=20000)
+
+    assert screen._image_files[screen._current_index] == following.name
+    np.testing.assert_array_equal(tifffile.imread(destination), edited)
+    assert tifffile.imread(destination).dtype == np.uint32
+    metadata = engine.load_mask_metadata(str(images), source.name, target)
+    assert metadata['preserve_ids'] and metadata['reviewer_label'] == 'paired reference'
+    reviewed = metadata['image_view']
+    assert (reviewed['axes'], reviewed['channel']) == ('CYX', 2)
+    assert reviewed['source'] == str(source)
+    assert reviewed['source_identity'] == list(engine._source_identity(source))
+    assert reviewed['pixel_size_nm'] == pytest.approx(17.25)
+    from spacr.io import tiff_pixel_size_nm
+    assert tiff_pixel_size_nm(destination) == pytest.approx(17.25)
+    verdict = engine.read_curation(str(images))[str(source)]
+    assert verdict['mask path'] == str(destination)
+    assert verdict['object count'] == '3' and verdict['keep'] == 'true'
+
+    screen._btn_prev.click()
+    _settle(qtbot, screen)
+    assert screen._masks_dir == target
+    np.testing.assert_array_equal(screen._canvas.image, pixels[2])
+    np.testing.assert_array_equal(screen._canvas.mask, edited)
+    assert screen._canvas.retain_label_ids() and not screen.warnings
+    assert (source.read_bytes(), paired.read_bytes(), following.read_bytes()) == originals
