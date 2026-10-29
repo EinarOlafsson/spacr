@@ -143,3 +143,58 @@ def test_immediate_back_before_first_animation_tick_restores_search(
                    for card in page.field.cards)
     finally:
         page.close()
+
+
+def test_packaged_helper_root_rejects_return_edges_and_revisits_shared_children(
+        qtbot, private_ai_profile):
+    from spacr.qt.widgets.home import _EasyHomePage
+
+    preferences, _, _ = private_ai_profile
+    preferences.set_easy_mode(True)
+    preferences.set_reduce_motion(True)
+    preferences.set_ambient_enabled(False)
+    page = _EasyHomePage()
+    qtbot.addWidget(page)
+    page.resize(1280, 900)
+    page.show()
+    opened = []
+    page.module_requested.connect(lambda *args: opened.append(args))
+    try:
+        page.path_edit.setText('Run History')
+        qtbot.keyClick(page.path_edit, Qt.Key_Return)
+        qtbot.waitUntil(lambda: bool(page.field.cards), timeout=5000)
+        card = next(card for card in page.field.cards if card._key == 'run_history')
+        card.click()
+        graph = page._workflow
+        assert graph.view._root_key == 'run_history'
+
+        def choose(key):
+            index = graph.tools.findData(key)
+            assert index >= 0
+            graph.tools.showPopup()
+            view = graph.tools.view()
+            item = graph.tools.model().index(index, 0)
+            view.scrollTo(item)
+            qtbot.waitUntil(lambda: view.viewport().rect().contains(view.visualRect(item).center()))
+            qtbot.mouseClick(view.viewport(), Qt.LeftButton, pos=view.visualRect(item).center())
+            qtbot.waitUntil(lambda: graph._chosen_key == key)
+            pairs = [(record['from'], record['to']) for record in graph.view._visible_records]
+            assert len(pairs) == len(set(pairs))
+            assert all(source != target and target != 'run_history' for source, target in pairs)
+            assert len(graph.view._node_order) == len(set(graph.view._node_order))
+            assert not opened
+            return pairs
+
+        choose('graph_builder')
+        assert any(record['to'] == 'run_history' for record in graph.view.branch_records)
+        choose('measure')
+        shared = graph.view.nodes['classify_merged']
+        pairs = choose('annotate')
+        assert ('measure', 'classify_merged') in pairs and ('annotate', 'classify_merged') in pairs
+        assert graph.view.nodes['classify_merged'] is shared
+        assert choose('measure') == pairs
+        assert choose('run_history') == pairs
+        assert choose('measure') == pairs
+        assert graph.central is card and card._key == 'run_history'
+    finally:
+        page.close()

@@ -6760,14 +6760,10 @@ class _EasyWorkflowView(_WorkflowView):
             self._node_order.append(key)
         if key not in self._expanded_keys:
             self._expanded_keys.append(key)
-            known = {(record['from'], record['to']) for record in self._visible_records}
             for record in self.branch_records:
                 if record['to'] == self._root_key:
                     continue
-                pair = (record['from'], record['to'])
-                if pair not in known:
-                    self._visible_records.append(record)
-                    known.add(pair)
+                self._visible_records.append(record)
                 if record['to'] not in self._node_order:
                     self._node_order.append(record['to'])
         self._arrange_branches()
