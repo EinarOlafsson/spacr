@@ -535,6 +535,7 @@ def record_external_masks(app, window, screen, stage, captures, capture,
         raise RuntimeError('The actual System header did not collapse its body')
     runtime = screen._runtime_splitter
     console = screen._console
+    queue = screen._figure_queue
 
     def runtime_slots():
         # System and Actions now share this real splitter. Native folding
