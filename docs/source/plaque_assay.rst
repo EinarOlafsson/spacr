@@ -45,7 +45,9 @@ Read a published figure
    pass does not segment the plaques.
 #. Click a well in the image or a table row. **Plaque preview** segments that
    well with the plaque settings. **Find plaques in all wells** processes
-   the detected wells in sequence; Cancel stops after the current well.
+   the detected wells in sequence. Cancel clears the remaining queue and
+   discards the current well's pending result; an already running model call
+   finishes in the background.
 #. Compare the proposed condition with the nearby label and the relevant
    legend passage. Correct the condition, mark reviewed entries **OK**, and
    save the annotations. With **Confirm annotations** enabled, the run

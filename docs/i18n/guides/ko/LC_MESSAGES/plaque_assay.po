@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:05-0400\n"
+"POT-Creation-Date: 2026-10-29 17:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -59,8 +59,9 @@ msgstr "그림 판독기가 없으면 패널의 **설치** 작업을 사용합�
 msgid "In **Settings… → Figure**, choose the well detector, inference sizes and confidence cutoff; the text-reading settings are on the **Text detection** tab. **Run preview** finds wells and reads the figure text; this first pass does not segment the plaques."
 msgstr "**설정… → 그림** 에서 웰 검출기, 추론 크기, 신뢰도 기준값을 선택합니다. 텍스트 판독 설정은 **텍스트 검출** 탭에 있습니다. **미리보기 실행** 은 웰을 찾고 그림의 텍스트를 읽으며, 이 첫 단계에서는 플라크를 분할하지 않습니다."
 
-msgid "Click a well in the image or a table row. **Plaque preview** segments that well with the plaque settings. **Find plaques in all wells** processes the detected wells in sequence; Cancel stops after the current well."
-msgstr "이미지에서 웰을 클릭하거나 표에서 행을 클릭합니다. **플라크 미리보기** 는 플라크 설정으로 해당 웰을 분할합니다. **모든 웰에서 플라크 찾기** 는 검출된 웰을 차례로 처리하며, Cancel을 누르면 현재 웰을 마친 뒤 멈춥니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Click a well in the image or a table row. **Plaque preview** segments that well with the plaque settings. **Find plaques in all wells** processes the detected wells in sequence. Cancel clears the remaining queue and discards the current well's pending result; an already running model call finishes in the background."
+msgstr "이미지에서 웰을 클릭하거나 표에서 행을 클릭합니다. **플라크 미리보기** 는 플라크 설정으로 해당 웰을 분할합니다. **모든 웰에서 플라크 찾기** 는 검출된 웰을 차례로 처리합니다. Cancel을 누르면 남은 대기열이 비워지고 현재 웰의 대기 중인 결과가 폐기됩니다. 이미 실행 중인 모델 호출은 백그라운드에서 완료됩니다."
 
 msgid "Compare the proposed condition with the nearby label and the relevant legend passage. Correct the condition, mark reviewed entries **OK**, and save the annotations. With **Confirm annotations** enabled, the run measures only the saved approved entries."
 msgstr "제안된 조건을 근처의 레이블 및 관련 범례 구절과 비교합니다. 조건을 수정하고, 검토한 항목을 **OK** 로 표시한 뒤 주석을 저장합니다. **주석 확인** 을 켜면 실행은 저장되고 승인된 항목만 측정합니다."
@@ -154,6 +155,20 @@ msgstr "흐름의 일치도는 병합되거나 잘못 나뉜 플라크를 표시
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Each generated mask also has a ``<image>.diagnostics.csv`` sidecar carrying the original per-plaque diagnostics and a mask fingerprint. A run with ``masks=False`` reuses it only when the saved mask still matches. Editing a mask invalidates these model diagnostics; regenerate masks to obtain fresh ones. Existing masks without a sidecar retain their measurements and have blank diagnostic columns. Figure workflows with a custom callback returning only labels also leave the diagnostic columns blank."
 msgstr "생성된 각 마스크에는 원래 플라크별 진단 지표와 마스크 지문을 담은 ``<image>.diagnostics.csv`` 보조 파일도 있습니다. ``masks=False`` 실행은 저장된 마스크가 여전히 일치할 때만 파일을 재사용합니다. 마스크를 편집하면 이 모델 진단 지표는 무효화되므로 새 지표를 얻으려면 마스크를 다시 생성하십시오. 보조 파일이 없는 기존 마스크는 측정값을 유지하고 진단 열은 비워 둡니다. 레이블만 반환하는 사용자 지정 콜백을 사용하는 그림 작업도 진단 열을 비워 둡니다."
+
+msgid "Well resize"
+msgstr ""
+
+#, python-format
+msgid "A plaque model learns plaques at the pixel size it was trained on. Very small plaques are the hardest case: Cellpose needs an object roughly 15 pixels or more across to follow its flows reliably. In a perfect-flow reconstruction test on the curated plaque masks, only 54% of plaques smaller than 5 pixels could be recovered at their native size, against 99% after a 4x enlargement."
+msgstr ""
+
+msgid "**Well resize** (``plaque_well_resize``) segments each well at a fixed size. The wells are found with the zoo's well detector (``toxoplasma_well_detector_v2``); when none is found, the whole image is one well. Each well is resized so that its longest side is ``plaque_well_resize_side`` pixels (default 1500). Enlargement is capped at ``plaque_well_resize_max_factor`` (default 6), and shrinking a large well is never capped. Each resized well is scaled to its own 1st and 99th intensity percentiles and segmented at that scale, so the ``diameter`` setting is not used. Its plaques are then mapped back to the original pixels and given unique ids. ``minimum_object_size`` stays an area in original pixels. Plaque mode's preview and run read the image with the same loader (grey stays grey, 16-bit stays 16-bit, a Gel Doc ``.scn`` is rendered linearly from 0 to the scanner's ceiling) and make the same call, so they give the same masks. In Figure mode, each detected crop is resized whole."
+msgstr ""
+
+#, python-brace-format
+msgid "The setting takes three values. ``auto``, the default, follows the selected model. A model whose zoo record declares ``preprocess: {\"well_resize\": {\"side\": 1500, \"max_factor\": 6}}`` turns well resize on with those values. A checkpoint can declare the same in a ``<checkpoint>.preprocess.json`` file beside it. ``toxoplasma_plaque_v6``, the default plaque model since 2026-10-25, was trained this way and declares it. The metadata may also carry the thresholds chosen on the model's validation fields, for example ``\"thresholds\": {\"cellprob\": -0.5, \"flow\": 0.4, \"min_size\": 0}`` for v6. In ``auto`` they replace ``CP_prob``, ``flow_threshold`` and ``minimum_object_size``. Models that declare nothing, including ``toxoplasma_plaque_v5``, are segmented as before. ``on`` uses the two size settings and your own thresholds with any model, and ``off`` turns well resize off."
+msgstr ""
 
 msgid "Contribute training data"
 msgstr "학습 데이터 기여"

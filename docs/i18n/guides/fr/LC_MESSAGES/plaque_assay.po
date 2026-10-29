@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:05-0400\n"
+"POT-Creation-Date: 2026-10-29 17:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: fr\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -59,8 +59,9 @@ msgstr "Si le lecteur de figures est absent, utilisez l’action **Installer** d
 msgid "In **Settings… → Figure**, choose the well detector, inference sizes and confidence cutoff; the text-reading settings are on the **Text detection** tab. **Run preview** finds wells and reads the figure text; this first pass does not segment the plaques."
 msgstr "Dans **Paramètres… → Figure**, choisissez le détecteur de puits, les tailles d’inférence et le seuil de confiance ; les paramètres de lecture du texte se trouvent dans l’onglet **Détection de texte**. **Exécuter l'aperçu** trouve les puits et lit le texte de la figure ; ce premier passage ne segmente pas les plages de lyse."
 
-msgid "Click a well in the image or a table row. **Plaque preview** segments that well with the plaque settings. **Find plaques in all wells** processes the detected wells in sequence; Cancel stops after the current well."
-msgstr "Cliquez sur un puits dans l’image ou sur une ligne du tableau. **Aperçu des plages de lyse** segmente ce puits avec les paramètres des plages. **Rechercher les plages de lyse dans tous les puits** traite les puits détectés l’un après l’autre ; Annuler s’arrête après le puits en cours."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Click a well in the image or a table row. **Plaque preview** segments that well with the plaque settings. **Find plaques in all wells** processes the detected wells in sequence. Cancel clears the remaining queue and discards the current well's pending result; an already running model call finishes in the background."
+msgstr "Cliquez sur un puits dans l’image ou sur une ligne du tableau. **Aperçu des plages de lyse** segmente ce puits avec les paramètres des plages. **Rechercher les plages de lyse dans tous les puits** traite les puits détectés l’un après l’autre. Annuler vide la file d’attente restante et écarte le résultat en attente du puits en cours ; un appel au modèle déjà lancé se termine en arrière-plan."
 
 msgid "Compare the proposed condition with the nearby label and the relevant legend passage. Correct the condition, mark reviewed entries **OK**, and save the annotations. With **Confirm annotations** enabled, the run measures only the saved approved entries."
 msgstr "Comparez la condition proposée avec l’étiquette voisine et le passage pertinent de la légende. Corrigez la condition, marquez les entrées vérifiées **OK** et enregistrez les annotations. Lorsque **Confirmer les annotations** est activé, l’exécution ne mesure que les entrées approuvées enregistrées."
@@ -154,6 +155,20 @@ msgstr "La concordance des flux peut aider à repérer des plaques fusionnées o
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Each generated mask also has a ``<image>.diagnostics.csv`` sidecar carrying the original per-plaque diagnostics and a mask fingerprint. A run with ``masks=False`` reuses it only when the saved mask still matches. Editing a mask invalidates these model diagnostics; regenerate masks to obtain fresh ones. Existing masks without a sidecar retain their measurements and have blank diagnostic columns. Figure workflows with a custom callback returning only labels also leave the diagnostic columns blank."
 msgstr "Chaque masque généré possède aussi un fichier associé ``<image>.diagnostics.csv`` contenant les diagnostics d'origine par plaque et une empreinte du masque. Une exécution avec ``masks=False`` ne le réutilise que si le masque enregistré correspond toujours. Modifier un masque invalide ces diagnostics du modèle ; régénérez les masques pour obtenir de nouvelles valeurs. Les masques existants sans fichier associé conservent leurs mesures et ont des colonnes de diagnostic vides. Les traitements de figures avec une fonction callback personnalisée qui renvoie uniquement les étiquettes laissent également les colonnes de diagnostic vides."
+
+msgid "Well resize"
+msgstr ""
+
+#, python-format
+msgid "A plaque model learns plaques at the pixel size it was trained on. Very small plaques are the hardest case: Cellpose needs an object roughly 15 pixels or more across to follow its flows reliably. In a perfect-flow reconstruction test on the curated plaque masks, only 54% of plaques smaller than 5 pixels could be recovered at their native size, against 99% after a 4x enlargement."
+msgstr ""
+
+msgid "**Well resize** (``plaque_well_resize``) segments each well at a fixed size. The wells are found with the zoo's well detector (``toxoplasma_well_detector_v2``); when none is found, the whole image is one well. Each well is resized so that its longest side is ``plaque_well_resize_side`` pixels (default 1500). Enlargement is capped at ``plaque_well_resize_max_factor`` (default 6), and shrinking a large well is never capped. Each resized well is scaled to its own 1st and 99th intensity percentiles and segmented at that scale, so the ``diameter`` setting is not used. Its plaques are then mapped back to the original pixels and given unique ids. ``minimum_object_size`` stays an area in original pixels. Plaque mode's preview and run read the image with the same loader (grey stays grey, 16-bit stays 16-bit, a Gel Doc ``.scn`` is rendered linearly from 0 to the scanner's ceiling) and make the same call, so they give the same masks. In Figure mode, each detected crop is resized whole."
+msgstr ""
+
+#, python-brace-format
+msgid "The setting takes three values. ``auto``, the default, follows the selected model. A model whose zoo record declares ``preprocess: {\"well_resize\": {\"side\": 1500, \"max_factor\": 6}}`` turns well resize on with those values. A checkpoint can declare the same in a ``<checkpoint>.preprocess.json`` file beside it. ``toxoplasma_plaque_v6``, the default plaque model since 2026-10-25, was trained this way and declares it. The metadata may also carry the thresholds chosen on the model's validation fields, for example ``\"thresholds\": {\"cellprob\": -0.5, \"flow\": 0.4, \"min_size\": 0}`` for v6. In ``auto`` they replace ``CP_prob``, ``flow_threshold`` and ``minimum_object_size``. Models that declare nothing, including ``toxoplasma_plaque_v5``, are segmented as before. ``on`` uses the two size settings and your own thresholds with any model, and ``off`` turns well resize off."
+msgstr ""
 
 msgid "Contribute training data"
 msgstr "Contribuer des données d’entraînement"
