@@ -15012,8 +15012,6 @@ class _OverviewMetadataWizard(QWidget):
         if item.column() == 4:
             self._plate_regex_changed(item)
             return
-        if item.column() != 0:
-            return
         default = item.data(Qt.UserRole)
         text = item.text().strip()
         if default:
