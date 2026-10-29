@@ -13535,11 +13535,15 @@ class _OverviewModulePage(QWidget):
 
     def _wizard_closed(self, wizard):
         """Return to the previous browser, or the empty page, after Cancel."""
+        if wizard is not self.wizard:
+            return
         self._drop_wizard(wizard)
         self.stack.setCurrentWidget(self.browser or self.placeholder)
 
     def _show_browser(self, wizard):
         """Replace the metadata step with the plate browser it configured."""
+        if wizard is not self.wizard:
+            return
         config = wizard.configuration()
         fields = tuple(wizard._fields)
         self._retire_browser()
