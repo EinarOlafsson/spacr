@@ -412,3 +412,92 @@ def test_main_passes_the_batch_timeout_through(tmp_path, monkeypatch):
                           "--batch-timeout", "12"])
     assert seen == [12.0]
     assert status == runner.BATCH_TIMED_OUT
+
+
+@pytest.mark.parametrize('outcome', ['pass', 'failure', 'empty', 'collection-error'])
+def test_serial_selection_recycles_selected_files_without_counting_collection(tmp_path, outcome):
+    import json
+    import os
+    import subprocess
+    import sys
+    from tools.test_count_badge import endpoint
+
+    root = Path(__file__).resolve().parents[1]
+    tests = tmp_path / 'tests'
+    tests.mkdir()
+    (tmp_path / 'pytest.ini').write_text(
+        '[pytest]\nmarkers =\n    slow: slow tests\n    heavy: heavy tests\n    network: network tests\n')
+    (tests / 'conftest.py').write_text('''import json
+import os
+from pathlib import Path
+
+def pytest_collection_finish(session):
+    with Path('collections.jsonl').open('a') as stream:
+        stream.write(json.dumps({'pid': os.getpid(), 'worker': getattr(session.config, 'workerinput', None), 'workers': session.config.getoption('numprocesses'), 'files': sorted({item.path.name for item in session.items}), 'shard': [os.environ.get('SPACR_PYTEST_FILE_SHARD_INDEX'), os.environ.get('SPACR_PYTEST_FILE_SHARD_COUNT')]}) + '\\n')
+
+def pytest_runtest_logreport(report):
+    if report.when == 'call':
+        with Path('executed.txt').open('a') as stream:
+            stream.write(report.nodeid + '\\n')
+''')
+    for name, marker in [('a', 'slow'), ('b', 'heavy'), ('e', 'heavy')]:
+        body = 'assert False' if outcome == 'failure' and name == 'b' else 'pass'
+        (tests / f'test_{name}.py').write_text(
+            f'import pytest\n@pytest.mark.{marker}\ndef test_selected(): {body}\n')
+    (tests / 'test_c.py').write_text(
+        'import pytest\n@pytest.mark.slow\n@pytest.mark.network\ndef test_excluded(): assert False\n')
+    (tests / 'test_d.py').write_text('def test_not_selected(): assert False\n')
+    ignored = tests / 'ignored'
+    ignored.mkdir()
+    (ignored / 'test_error.py').write_text("raise RuntimeError('ignored input')\n")
+    if outcome == 'collection-error':
+        (tests / 'test_fault.py').write_text("raise RuntimeError('collection stays a failure')\n")
+    counts = tmp_path / 'counts'
+    env = dict(os.environ, PYTEST_DISABLE_PLUGIN_AUTOLOAD='1',
+               PYTHONPATH=str(root), SPACR_TEST_COUNT_DIR=str(counts),
+               PYTEST_ADDOPTS='-p xdist.plugin -p tools.test_count_badge -n 2',
+               SPACR_PYTEST_FILE_SHARD_INDEX='2', SPACR_PYTEST_FILE_SHARD_COUNT='7')
+    env.pop('SPACR_TEST_COUNT_OWNER_PID', None)
+    env.pop('SPACR_TEST_COUNT_SESSION', None)
+    marker = 'slow and heavy' if outcome == 'empty' else '(slow or heavy) and not network'
+    result = subprocess.run([
+        sys.executable, str(Path(runner.__file__).resolve()), 'tests',
+        '--marker', marker, '--collect-selected-files', '--batch-size', '1',
+        '--workers', '1', '--batch-timeout', '30', '--ignore', str(ignored),
+    ], cwd=tmp_path, env=env, capture_output=True, text=True, timeout=60)
+    assert result.returncode == {'pass': 0, 'failure': 1, 'empty': 0, 'collection-error': 2}[outcome], result.stdout + result.stderr
+    records = [json.loads(line) for line in (tmp_path / 'collections.jsonl').read_text().splitlines()]
+    assert all(record['worker'] is None and record['workers'] == 0 for record in records)
+    assert all(record['shard'] == ['2', '7'] for record in records)
+    if outcome in ('empty', 'collection-error'):
+        assert len(records) == 1
+        assert not (tmp_path / 'executed.txt').exists()
+        assert not list(counts.glob('*.jsonl'))
+        return
+    expected = {f'tests/test_{name}.py::test_selected' for name in ('a', 'b', 'e')}
+    assert (tmp_path / 'executed.txt').read_text().splitlines() == sorted(expected)
+    assert len(records) == 4 and len({record['pid'] for record in records}) == 4
+    assert records[0]['files'] == ['test_a.py', 'test_b.py', 'test_e.py']
+    assert [record['files'] for record in records[1:]] == [['test_a.py'], ['test_b.py'], ['test_e.py']]
+    assert '1 of 3 batches failed' in result.stdout if outcome == 'failure' else 'failed' not in result.stdout
+    reported = endpoint(counts)
+    assert reported['total'] == 3
+    assert reported['passed'] == (2 if outcome == 'failure' else 3)
+
+
+def test_only_slow_opts_into_serial_selected_file_batches():
+    import yaml
+
+    root = Path(__file__).resolve().parents[1]
+    jobs = yaml.safe_load((root / '.github/workflows/tests.yml').read_text())['jobs']
+    slow = jobs['slow']['with']
+    assert slow['batch_size'] == 8 and slow['collect_selected_files'] is True
+    assert slow.get('xdist_workers', 0) == 0
+    assert slow['marker_expression'] == '(slow or heavy) and not gpu and not network and not nas and not gui'
+    assert slow['timeout_minutes'] == 90
+    assert all(not job.get('with', {}).get('collect_selected_files', False)
+               for name, job in jobs.items() if name != 'slow')
+    reusable = yaml.safe_load((root / '.github/workflows/_pytest-suite.yml').read_text())
+    inputs = reusable.get('on', reusable.get(True))['workflow_call']['inputs']
+    assert inputs['collect_selected_files']['default'] is False
+    assert inputs['xdist_workers']['default'] == 0

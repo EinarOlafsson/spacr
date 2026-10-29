@@ -11,10 +11,12 @@ from __future__ import annotations
 
 import argparse
 import importlib.util
+import json
 import os
 import re
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 from typing import Sequence
 
@@ -137,6 +139,39 @@ def _contains_automatically_qt_files(batch: Sequence[str]) -> bool:
     return any(_only_automatically_qt_files([path]) for path in batch)
 
 
+def pytest_collection_finish(session):
+    """Return the final marker-selected files to the optional collection pass."""
+    output = os.environ.get("SPACR_PYTEST_SELECTED_FILES")
+    if output:
+        paths = sorted({str(item.path.resolve()) for item in session.items})
+        Path(output).write_text(json.dumps(paths), encoding="utf-8")
+
+
+def _collect_selected_files(files, marker, *, timeout=0, faulthandler_timeout=0):
+    """Collect once in a separate serial process before forming file batches."""
+    with tempfile.TemporaryDirectory(prefix="spacr-pytest-selection-") as directory:
+        output = Path(directory) / "files.json"
+        env = dict(os.environ)
+        env["SPACR_PYTEST_SELECTED_FILES"] = str(output)
+        env["PYTHONPATH"] = os.pathsep.join(filter(None, (
+            str(Path(__file__).resolve().parent.parent), env.get("PYTHONPATH"),
+        )))
+        env.pop("SPACR_TEST_COUNT_DIR", None)
+        command = [sys.executable, "-m", "pytest", *files, "-m", marker,
+                   "--collect-only", "-q", "-n", "0", "--tb=short",
+                   "-p", "tools.run_pytest_batches"]
+        if faulthandler_timeout > 0:
+            command.extend(["-o", f"faulthandler_timeout={faulthandler_timeout}"])
+        result = _run_bounded(command, env=env, timeout=timeout)
+        if result.returncode not in (0, NO_TESTS_COLLECTED):
+            return result.returncode, []
+        selected = json.loads(output.read_text(encoding="utf-8"))
+        allowed = {str(Path(path).resolve()): path for path in files}
+        if not isinstance(selected, list) or any(path not in allowed for path in selected):
+            raise ValueError("pytest selected files outside the requested inputs")
+        return 0, [allowed[path] for path in sorted(set(selected))]
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Build the command-line parser."""
     parser = argparse.ArgumentParser(description=__doc__)
@@ -178,6 +213,10 @@ def build_parser() -> argparse.ArgumentParser:
             f"than SECONDS and report exit {BATCH_TIMED_OUT} (default: 0, "
             "no ceiling)."
         ),
+    )
+    parser.add_argument(
+        "--collect-selected-files", action="store_true",
+        help="collect the marker-selected files once before forming fresh batches",
     )
     parser.add_argument(
         "--skip-qt-only-batches", action="store_true",
@@ -226,9 +265,21 @@ def main(argv: Sequence[str] | None = None) -> int:
              if not any(Path(path).resolve() == excluded
                         or excluded in Path(path).resolve().parents
                         for excluded in ignored)]
-    batches = _batches(files, args.batch_size)
-    if not batches:
+    if not files:
         raise FileNotFoundError("no test_*.py files found")
+    if args.batch_size < 1:
+        raise ValueError("batch size must be at least 1")
+    if args.collect_selected_files:
+        status, files = _collect_selected_files(
+            files, args.marker, timeout=args.batch_timeout,
+            faulthandler_timeout=args.faulthandler_timeout,
+        )
+        if status:
+            return status
+        if not files:
+            print("pytest collection selected no files; no batches started", flush=True)
+            return 0
+    batches = _batches(files, args.batch_size)
 
     failed: list = []
     for number, batch in enumerate(batches, start=1):
@@ -251,6 +302,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             command.extend([
                 "-n", str(args.workers), "--dist", "loadfile",
             ])
+        elif args.collect_selected_files:
+            command.extend(["-n", "0"])
         if args.per_test_timeout > 0 and not _timeout_plugin_available():
             # SAY IT ONCE, LOUDLY, AND STILL RUN. `--timeout` is pytest-timeout's
             # option, not pytest's, so passing it without the plugin makes

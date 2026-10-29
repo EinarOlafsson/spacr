@@ -269,6 +269,8 @@ jobs:
       extras: "qt,dev,zernike,attribution,btrack,czi"
       marker_expression: "(slow or heavy) and not gpu and not network and not nas and not gui"
       timeout_minutes: 90
+      batch_size: 8
+      collect_selected_files: true
 
   qt:
     name: Qt

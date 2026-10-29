@@ -34,6 +34,11 @@ on:
         required: false
         default: 0
         type: number
+      collect_selected_files:
+        description: Collect the selected files once before bounded batches
+        required: false
+        default: false
+        type: boolean
       file_shard_index:
         description: Zero-based deterministic test-file shard
         required: false
@@ -254,7 +259,9 @@ jobs:
               batch_workers=1
             fi
             batch_collection_args=()
-            if [ -n "$SPACR_QT_NATIVE_EVIDENCE_DIR" ]; then
+            if [ "${{ inputs.collect_selected_files }}" = "true" ]; then
+              batch_collection_args=(--collect-selected-files)
+            elif [ -n "$SPACR_QT_NATIVE_EVIDENCE_DIR" ]; then
               batch_collection_args=(--precollect-nonqt-batches)
             fi
             python tools/run_pytest_batches.py tests/ \
