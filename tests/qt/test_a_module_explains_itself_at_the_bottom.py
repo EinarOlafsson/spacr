@@ -307,7 +307,21 @@ def test_default_module_prompt_refits_without_holding_or_reviving_modules(qtbot,
 
 
 @pytest.fixture(scope="module")
-def window(qapp, qt_theme_applied):
+def window(qapp, qt_theme_applied, tmp_path_factory, request):
+    from PySide6.QtCore import QSettings
+    from spacr.qt import preferences
+
+    source = preferences._settings()
+    path = str(tmp_path_factory.mktemp("normal-home-hints") / "preferences.ini")
+    private = QSettings(path, QSettings.IniFormat)
+    for key in source.allKeys():
+        private.setValue(key, source.value(key))
+    private.sync()
+    patch = pytest.MonkeyPatch()
+    request.addfinalizer(patch.undo)
+    patch.setattr(preferences, "_settings",
+                  lambda: QSettings(path, QSettings.IniFormat))
+    preferences.set_easy_mode(False)
     win = MainWindow()
     win.resize(1440, 900)
     win.show()

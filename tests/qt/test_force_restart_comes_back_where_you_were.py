@@ -190,15 +190,22 @@ def test_nothing_is_killed_when_the_state_cannot_be_saved(monkeypatch):
 
 
 def test_nothing_is_killed_when_the_new_process_will_not_start():
-    """The state is LEFT on disk: the user will start spaCR themselves."""
+    """A failed launch leaves this process open without a pending restart."""
+    verified_records = []
+
     def refuses(_command):
+        state = restart_state.peek()
+        assert state["module"] == "regression"
+        assert state["settings"] == {"a": 1}
+        verified_records.append(state)
         raise OSError("no such file")
 
     exited = []
     assert restart_spacr("regression", {"a": 1}, launcher=refuses,
                          exiter=exited.append) is False
+    assert len(verified_records) == 1
     assert exited == []
-    assert restart_state.peek()["module"] == "regression"
+    assert restart_state.peek() is None
 
 
 def test_a_successful_restart_saves_then_launches_then_leaves():

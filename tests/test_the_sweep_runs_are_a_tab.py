@@ -222,7 +222,8 @@ def test_selecting_a_run_does_not_load_it(qtbot, tmp_path, trials):
     assert not seen, f"selecting loaded a run: {seen}"
 
 
-def test_a_failed_trial_says_why_instead_of_doing_nothing(screen, trials):
+def test_a_failed_trial_says_why_instead_of_doing_nothing(
+        screen, trials, console_info_enabled):
     """A click that produces no visible change reads as a broken table."""
     record = trials.iloc[2].to_dict()
     screen._show_trial(record)
@@ -232,7 +233,8 @@ def test_a_failed_trial_says_why_instead_of_doing_nothing(screen, trials):
     assert "singular design" in text or "LinAlgError" in text
 
 
-def test_a_trial_with_no_saved_output_says_so(screen, trials):
+def test_a_trial_with_no_saved_output_says_so(
+        screen, trials, console_info_enabled):
     record = trials.iloc[0].to_dict()
     record["folder"] = "/nope/not/a/folder"
     screen._show_trial(record)

@@ -24291,7 +24291,7 @@ class MakeMasksScreen(QWidget):
                     engine._retain_native_image_header(dict(header, native_volume=native_volume))
                     applied = True
                     if worker.paths is not None:
-                        self._open_queue(worker.paths)
+                        self._open_queue(worker.paths, masks_dir=getattr(worker, 'masks_dir', None))
                     else:
                         self._load_current()
                     return
@@ -24334,7 +24334,7 @@ class MakeMasksScreen(QWidget):
             engine._set_container_image_view(header, series, *selected, axes=axes)
             applied = True
             if worker.paths is not None:
-                self._open_queue(worker.paths)
+                self._open_queue(worker.paths, masks_dir=getattr(worker, 'masks_dir', None))
             else:
                 self._load_current()
         except (ValueError, OSError) as exc:
@@ -24359,7 +24359,7 @@ class MakeMasksScreen(QWidget):
                 self._sync_queue_tally()
                 return
 
-    def _start_container_review(self, path, token, paths=None):
+    def _start_container_review(self, path, token, paths=None, *, masks_dir=None):
         """Read metadata off the GUI thread and discard superseded requests."""
         from ..i18n import tr
 
@@ -24368,6 +24368,7 @@ class MakeMasksScreen(QWidget):
             previous.requestInterruption()
         worker = _MaskReaderMetadataWorker(path, token, self)
         worker.paths = paths
+        worker.masks_dir = masks_dir
         self._reader_worker = worker
         self._reader_workers.append(worker)
         self._loading = True
@@ -24634,7 +24635,7 @@ class MakeMasksScreen(QWidget):
             post(tr("Copied {n} mask(s) beside their images.", n=copied))
         return self._open_queue(images)
 
-    def _open_queue(self, paths) -> bool:
+    def _open_queue(self, paths, *, masks_dir=None) -> bool:
         """Open image files and folders as one queue, in the order given.
 
         One folder alone opens as a folder; anything else becomes a queue of
@@ -24642,6 +24643,7 @@ class MakeMasksScreen(QWidget):
         edited where it lies. Nothing is copied.
 
         :param paths: absolute image files and folders.
+        :param masks_dir: explicit mask folder retained through metadata review.
         :returns: whether a queue was opened.
         """
         from ..i18n import tr
@@ -24673,12 +24675,13 @@ class MakeMasksScreen(QWidget):
                 self._npy_queue_targets[source] = target
             if engine._requires_container_review(source) and not engine._container_reviewed(source):
                 self._load_token += 1
-                self._start_container_review(source, self._load_token, paths=list(paths))
+                self._start_container_review(source, self._load_token, paths=list(paths), masks_dir=masks_dir)
                 return True
         folders = [folder for folder, _name in fields]
         spans = list(dict.fromkeys(folders))
         if not self._open_folder(
                 folders[0], files=[name for _folder, name in fields],
+                masks_dir=masks_dir,
                 field_folders=folders if len(spans) > 1 else None):
             return False
         if len(spans) > 1:
@@ -24713,7 +24716,7 @@ class MakeMasksScreen(QWidget):
                                  or (engine._requires_container_review(os.path.join(folder, name))
                                      and not engine._container_reviewed(os.path.join(folder, name)))
                                  for name in engine.list_images(folder)):
-            return self._open_queue([os.path.abspath(folder)])
+            return self._open_queue([os.path.abspath(folder)], masks_dir=masks_dir)
         files = list(files) if files is not None else engine.list_images(folder)
         if not files:
             self._warn("No images", f"Found no image files in: {folder}")

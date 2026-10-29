@@ -43,6 +43,9 @@ def screen(qtbot, qt_theme_applied, tmp_path):
     widget = MakeMasksScreen()
     qtbot.addWidget(widget)
     widget._open_folder(str(folder), masks_dir=str(folder / "cell_mask_stack"))
+    qtbot.waitUntil(lambda: not widget._loading and widget._reader_worker is None
+                    and widget._load_worker is None)
+    assert widget._masks_dir == str(folder / "cell_mask_stack")
     widget._canvas.mask = _mask(0)
     return widget
 

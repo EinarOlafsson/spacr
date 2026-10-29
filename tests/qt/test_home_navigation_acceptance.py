@@ -7,8 +7,26 @@ from spacr.qt.app import MainWindow
 from spacr.qt.widgets.home import AppTile
 
 
+@pytest.fixture
+def _normal_home_preferences(tmp_path, monkeypatch):
+    """Select ordinary Home in a private copy of current preferences."""
+    from PySide6.QtCore import QSettings
+    from spacr.qt import preferences
+
+    source = preferences._settings()
+    path = str(tmp_path / "normal-home.ini")
+    private = QSettings(path, QSettings.IniFormat)
+    for key in source.allKeys():
+        private.setValue(key, source.value(key))
+    private.sync()
+    monkeypatch.setattr(preferences, "_settings",
+                        lambda: QSettings(path, QSettings.IniFormat))
+    preferences.set_easy_mode(False)
+
+
 @pytest.mark.parametrize('key', ['mask', 'measure', 'annotate', 'classify_merged', 'toxoplasma'])
-def test_visible_home_tile_opens_real_screen(qtbot, qt_theme_applied, key):
+def test_visible_home_tile_opens_real_screen(
+        qtbot, qt_theme_applied, key, _normal_home_preferences):
     from spacr.qt.walkthrough import mark_seen
 
     mark_seen(key)

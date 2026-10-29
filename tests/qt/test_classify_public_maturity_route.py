@@ -31,6 +31,7 @@ def test_actual_home_classify_tile_emits_public_route(qtbot, qt_theme_applied, p
     from spacr.qt.app import make_home_page
     from spacr.qt.widgets.home import AppTile
 
+    public_preferences.set_easy_mode(False)
     page = make_home_page()
     qtbot.addWidget(page)
     tiles = [tile for tile in page.findChildren(AppTile)

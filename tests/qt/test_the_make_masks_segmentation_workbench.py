@@ -305,6 +305,8 @@ def test_a_folded_module_is_pointed_at_the_open_folder(
         qtbot, screen, field_folder: Path):
     """The folder is already chosen here; a fold must not ask for it again."""
     screen._open_folder(str(field_folder))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen.seed_folded("model_compare") == {"folder": str(field_folder)}
     compare = screen.folded_screen("model_compare")
     qtbot.waitUntil(lambda: compare.source_folder() == str(field_folder),
@@ -318,9 +320,11 @@ def test_a_fold_opened_with_no_folder_seeds_nothing(screen):
 
 
 def test_the_mask_editors_are_handed_the_field_on_screen(
-        screen, field_folder: Path):
+        qtbot, screen, field_folder: Path):
     """Curate gets the mask, the napari bridge gets the mask and the image."""
     screen._open_folder(str(field_folder))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     mask_path = str(field_folder / "masks" / "f_00.tif")
 
     curate = screen.seed_folded("curate")
@@ -335,7 +339,7 @@ def test_the_mask_editors_are_handed_the_field_on_screen(
 
 
 def test_a_module_with_no_screen_of_its_own_gets_its_settings_page(
-        screen, field_folder: Path, monkeypatch):
+        qtbot, screen, field_folder: Path, monkeypatch):
     """A settings-only fold arrives as the page its tile opened, src filled.
 
     Driven through a monkeypatched fold list because every module this
@@ -346,6 +350,8 @@ def test_a_module_with_no_screen_of_its_own_gets_its_settings_page(
     monkeypatch.setattr(mm, "FOLD_ORDER",
                         tuple(FOLD_ORDER) + ("cellpose_masks",))
     screen._open_folder(str(field_folder))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen.seed_folded("cellpose_masks") == {"src": str(field_folder)}
     page = screen.folded_screen("cellpose_masks")
     assert page.app_key == "cellpose_masks"
@@ -394,13 +400,15 @@ def test_the_zoo_hands_its_comparison_to_the_folded_model_compare(
 # ---------------------------------------------------------------------------
 
 def test_masking_the_whole_folder_runs_the_applying_half_on_that_folder(
-        screen, field_folder: Path, monkeypatch):
+        qtbot, screen, field_folder: Path, monkeypatch):
     """The button starts a real run, on the folder already open here."""
     started = []
     monkeypatch.setattr(MakeMasksScreen, "_start_folded_run",
                         staticmethod(lambda page: started.append(page.app_key)))
     monkeypatch.setattr(screen, "_confirm", lambda *args: True)
     screen._open_folder(str(field_folder))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
 
     assert screen.mask_whole_folder() is True
 
@@ -454,7 +462,7 @@ def test_a_declined_confirmation_masks_nothing(
 # Curate writes a mask
 # ---------------------------------------------------------------------------
 
-def test_curate_writes_the_mask_it_painted(screen, field_folder: Path):
+def test_curate_writes_the_mask_it_painted(qtbot, screen, field_folder: Path):
     """The corrections reach the pixels, and the ledger goes with them.
 
     On its own Curate wrote the ledger and nothing else, so
@@ -463,6 +471,8 @@ def test_curate_writes_the_mask_it_painted(screen, field_folder: Path):
     screen that writes masks.
     """
     screen._open_folder(str(field_folder))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     dialog = screen.open_folded("curate")
     assert "Save mask" in dialog.actions
 
@@ -492,9 +502,11 @@ def test_saving_from_curate_with_no_mask_open_says_so(screen):
 
 
 def test_a_curate_save_that_fails_is_reported_not_swallowed(
-        screen, field_folder: Path, monkeypatch):
+        qtbot, screen, field_folder: Path, monkeypatch):
     """A read-only masks folder must not look like a successful save."""
     screen._open_folder(str(field_folder))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     dialog = screen.open_folded("curate")
     panel = dialog.screen.open_mask()
     panel.session.label = 7

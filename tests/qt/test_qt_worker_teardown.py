@@ -648,7 +648,8 @@ def _restore_console_target():
 
 
 def test_a_record_logged_while_writing_the_console_is_dropped(
-        qtbot, qt_theme_applied, _restore_console_target):
+        qtbot, qt_theme_applied, _restore_console_target,
+        _isolated_qsettings_store):
     """The loop that segfaulted the Qt shard, reduced to its mechanism.
 
     Writing a line into the console runs Python inside a QWidget. Any log
@@ -662,6 +663,10 @@ def test_a_record_logged_while_writing_the_console_is_dropped(
 
     from spacr.qt.widgets.console_panel import ConsolePanel, _StdoutBlock
 
+    from spacr.qt import preferences
+
+    files = preferences.get_log_file_levels()
+    console = preferences.get_log_console_levels()
     vl = _restore_console_target
     panel = ConsolePanel()
     qtbot.addWidget(panel)
@@ -690,14 +695,16 @@ def test_a_record_logged_while_writing_the_console_is_dropped(
             depth["now"] -= 1
 
     _StdoutBlock.append = _loud_append
-    vl.apply_verbose_logging(True)
     try:
+        preferences.set_log_levels(files | {logging.DEBUG}, console | {logging.DEBUG})
+        vl.apply_verbose_logging(True)
         logging.getLogger("spacr.trace").debug("first line")
         for _ in range(3):
             qtbot.wait(10)
     finally:
         vl.apply_verbose_logging(False)
         _StdoutBlock.append = original
+        preferences.set_log_levels(files, console)
 
     assert seen, "the console target received nothing at all"
     assert depth["max"] == 1, (

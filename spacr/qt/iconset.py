@@ -928,6 +928,7 @@ SHARED_ICON_ASSETS = {
     "ops": "sequencing.png",
     "spatial_masks": "mask.png",
     "spatial_map": "map_barcodes.png",
+    "host_pathogen": "organism_phagocytosis.svg",
 }
 
 

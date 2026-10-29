@@ -88,12 +88,15 @@ def _refuse_a_mask_run(qtbot, relay, monkeypatch, mode, report_answer,
 
 
 def test_the_refused_run_shows_the_ai_explanation(qtbot, qt_theme_applied,
-                                                  relay, monkeypatch):
+                                                  relay, monkeypatch,
+                                                  console_info_enabled):
     screen = _refuse_a_mask_run(qtbot, relay, monkeypatch, "all", {
         "issue_number": 149, "issue_url": "u", "deduplicated": False,
         "ai_summary_source": "client"})
     text = _console_text(screen)
-    assert _ai_text(screen) == ADVICE.replace("**", "")
+    assert _ai_text(screen) == (
+        "Set cell_channel to the channel {index} of your cells, "
+        "then run Mask again.")
     assert "Reported as issue #149 (with AI summary)" in text
     assert relay.calls_to("/report")[0]["body"]["ai_summary"] == ADVICE
 

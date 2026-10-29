@@ -135,6 +135,8 @@ def test_a_new_tool_is_enabled_with_the_rest_when_a_folder_opens(
     screen = MakeMasksScreen()
     qtbot.addWidget(screen)
     screen._open_folder(str(folder_2))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._mode_buttons["lasso"].isEnabled()
     assert screen._mode_buttons[MODE_BRUSH].isEnabled()
 
@@ -173,6 +175,8 @@ def test_the_row_is_hidden_until_there_is_something_to_edit(
     assert not screen._tool_row.isVisibleTo(screen)
 
     screen._open_folder(str(folder_2))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._body_stack.currentWidget() is screen._image_page
     assert screen._tool_row.isVisibleTo(screen)
 
@@ -301,6 +305,8 @@ def test_hiding_the_settings_leaves_every_tool_reachable(
     screen = MakeMasksScreen()
     qtbot.addWidget(screen)
     screen._open_folder(str(folder_2))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     screen._set_settings_shown(False)
     assert not screen._mode_buttons[mm.MODE_LABEL_TIME].isEnabled()
     monkeypatch.setattr(screen, "_confirm", lambda *args: True)
@@ -321,6 +327,8 @@ def test_the_tools_still_drive_the_canvas_from_the_row(
     screen = MakeMasksScreen()
     qtbot.addWidget(screen)
     screen._open_folder(str(folder_2))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
 
     screen._mode_buttons[MODE_ZOOM].click()
     assert screen._canvas.mode == MODE_ZOOM

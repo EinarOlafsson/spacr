@@ -35,6 +35,23 @@ def test_sidebar_emits_nav_selected(qtbot, qt_theme_applied):
     assert isinstance(blocker.args[0], str)
 
 
+@pytest.fixture
+def _normal_home_preferences(tmp_path, monkeypatch):
+    """Select ordinary Home in a private copy of current preferences."""
+    from PySide6.QtCore import QSettings
+    from spacr.qt import preferences
+
+    source = preferences._settings()
+    path = str(tmp_path / "normal-home.ini")
+    private = QSettings(path, QSettings.IniFormat)
+    for key in source.allKeys():
+        private.setValue(key, source.value(key))
+    private.sync()
+    monkeypatch.setattr(preferences, "_settings",
+                        lambda: QSettings(path, QSettings.IniFormat))
+    preferences.set_easy_mode(False)
+
+
 def test_main_window_constructs_and_switches(qtbot, qt_theme_applied):
     win = MainWindow(initial_app="__home__")
     qtbot.addWidget(win)
@@ -49,7 +66,7 @@ def test_main_window_constructs_and_switches(qtbot, qt_theme_applied):
     assert win._stack.currentWidget() is win._startup
 
 
-def test_home_page_emits_tile_clicked(qtbot, qt_theme_applied):
+def test_home_page_emits_tile_clicked(qtbot, qt_theme_applied, _normal_home_preferences):
     from spacr.qt.widgets.home import AppTile
     page = make_home_page()  # the page MainWindow ships
     qtbot.addWidget(page)
