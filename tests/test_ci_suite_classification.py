@@ -291,28 +291,36 @@ def test_fractal_cpu_budget_runs_strictly_without_coverage_tracing():
 
 
 
-@pytest.mark.parametrize("batch_exit", [0, 7])
-def test_console_timing_keeps_the_required_serial_untraced_slow_gate(tmp_path, batch_exit):
-    import yaml
+def _assert_console_timing_coverage_route(jobs, filename, node):
+    commands = "\n".join(step.get("run", "") for step in jobs["coverage-shards"]["steps"])
+    assert commands.count(f"--deselect={node}") == 1
+    assert f"--exclude-file {filename}" not in commands
+
+
+def _console_timing_markers(filename) -> set[str]:
+    tree = ast.parse((ROOT / filename).read_text())
+    marked = next(item for item in tree.body if isinstance(item, ast.Assign)
+                  and ast.unparse(item.targets[0]) == "pytestmark")
+    value = marked.value
+    assert isinstance(value, (ast.List, ast.Tuple))
+    assert all(isinstance(item, ast.Attribute) for item in value.elts)
+    return {item.attr for item in value.elts if isinstance(item, ast.Attribute)}
+
+
+def _console_timing_slow_marker(slow, filename):
     from _pytest.mark.expression import Expression
 
-    filename = "tests/qt/test_perf_guard_qt.py"
-    node = f"{filename}::test_appending_one_console_line_costs_a_fraction_of_a_millisecond"
-    jobs = yaml.safe_load(WORKFLOW.read_text())["jobs"]
-    coverage = [step["run"] for step in jobs["coverage-shards"]["steps"] if "run" in step]
-    assert sum(step.count(f"--deselect={node}") for step in coverage) == 1
-    assert not any(f"--exclude-file {filename}" in step for step in coverage)
-    slow = jobs["slow"]
     assert not slow.get("continue-on-error", False)
     marker = slow["with"]["marker_expression"]
     assert marker == "(slow or heavy) and not gpu and not network and not nas and not gui"
-    tree = ast.parse((ROOT / filename).read_text())
-    marked = next(item for item in tree.body if isinstance(item, ast.Assign)
-                  and any(isinstance(target, ast.Name) and target.id == "pytestmark"
-                          for target in item.targets))
-    markers = {item.attr for item in marked.value.elts}
+    markers = _console_timing_markers(filename)
     assert markers == {"qt", "heavy"}
     assert Expression.compile(marker).evaluate(lambda name: name in markers)
+    return marker
+
+
+def _console_timing_slow_script(slow, node):
+    import yaml
 
     reusable = yaml.safe_load(REUSABLE.read_text())
     inputs = reusable.get("on", reusable.get(True))["workflow_call"]["inputs"]
@@ -321,7 +329,13 @@ def test_console_timing_keeps_the_required_serial_untraced_slow_gate(tmp_path, b
         value = slow["with"].get(name, definition.get("default", ""))
         rendered = str(value).lower() if isinstance(value, bool) else str(value)
         script = script.replace("${{ inputs." + name + " }}", rendered)
-    assert "${{" not in script and node not in REUSABLE.read_text()
+    assert "${{" not in script
+    assert node not in REUSABLE.read_text()
+    return script
+
+
+def _run_console_timing_slow_route(tmp_path, slow, node, batch_exit):
+    script = _console_timing_slow_script(slow, node)
     _write_torch_routing_shim(tmp_path)
     log = tmp_path / "slow-routing.jsonl"
     env = dict(os.environ, PATH=f"{tmp_path}{os.pathsep}{os.environ['PATH']}",
@@ -334,13 +348,31 @@ def test_console_timing_keeps_the_required_serial_untraced_slow_gate(tmp_path, b
     assert result.returncode == batch_exit, result.stderr
     commands = [json.loads(line) for line in log.read_text().splitlines()]
     assert len(commands) == 1
-    command = commands[0]
+    return commands[0]
+
+
+def _assert_console_timing_serial_batch(command, marker):
     argv = command["argv"]
     assert argv[:2] == ["tools/run_pytest_batches.py", "tests/"]
     assert argv[argv.index("--marker") + 1] == marker
     assert argv[argv.index("--batch-size") + 1] == "8"
     assert argv[argv.index("--workers") + 1] == "1"
     assert "--collect-selected-files" in argv and "--skip-qt-only-batches" not in argv
+
+
+@pytest.mark.parametrize("batch_exit", [0, 7])
+def test_console_timing_keeps_the_required_serial_untraced_slow_gate(tmp_path, batch_exit):
+    import yaml
+
+    filename = "tests/qt/test_perf_guard_qt.py"
+    node = f"{filename}::test_appending_one_console_line_costs_a_fraction_of_a_millisecond"
+    jobs = yaml.safe_load(WORKFLOW.read_text())["jobs"]
+    _assert_console_timing_coverage_route(jobs, filename, node)
+    slow = jobs["slow"]
+    marker = _console_timing_slow_marker(slow, filename)
+    command = _run_console_timing_slow_route(tmp_path, slow, node, batch_exit)
+    _assert_console_timing_serial_batch(command, marker)
+    argv = command["argv"]
     assert f"--ignore={filename}" not in argv
     assert f"--deselect={node}" not in command["addopts"]
     assert not any(arg.startswith("--cov") for arg in argv)
