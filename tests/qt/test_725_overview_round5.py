@@ -503,3 +503,54 @@ def test_the_normalization_scope_is_one_choice_per_channel_in_the_tab(mask, qtbo
     assert first.currentData() == "well" and second.currentData() == "well"
     tab._overview_page._apply_settings()
     assert view._normalization_scopes == {"*": "well"}
+
+
+def test_uncalibrated_guided_canvas_and_header_whitespace_preserve_the_loaded_plate(view, qtbot, source, tmp_path):
+    import copy
+    from pypdf import PdfReader
+
+    original = {path.name: path.read_bytes() for path in source.iterdir() if path.suffix == ".tif"}
+    _item(view, "A01").setSelected(True)
+    selected = set(view._selected_wells)
+    fields = tuple(field.identity for field in view._fields)
+    header = view.wells.horizontalHeader()
+    position = QPoint(header.viewport().width() - 1, 2)
+    assert header.logicalIndexAt(position) == -1
+    menu = view._header_menu("column", position)
+    texts = [action.text() for action in menu.actions()]
+    assert "Show all rows and columns" in texts and "Navigation" in texts
+    assert not any(text.startswith(("Collapse column", "Show column")) for text in texts)
+    menu.close()
+    assert view._collapsed_lines() == (set(), set())
+
+    assert not view._overview_options.get("pixel_size_um")
+    guided = view._open_guided_export()
+    assert not guided.scale_bars.isEnabled()
+    assert guided.choose_wells("one", ("p1", "A01")) == [("p1", "A01")]
+    assert guided.next()
+    guided.set_fields("first", 1)
+    assert guided.next()
+    guided.display_note.setChecked(True)
+    assert guided.next()
+    composer = guided.composer
+    before = copy.deepcopy(composer.canvas.to_dict())
+    images = [box for page in composer.canvas.pages for box in page if box["kind"] == "image"]
+    assert len(images) == 1 and images[0]["source"]["well"] == "A01"
+    assert images[0]["pixel_size_um"] is None and not images[0]["scale_bar"]
+    notes = [box["text"] for page in composer.canvas.pages for box in page if box.get("role") == "note"]
+    assert len(notes) == 1 and notes[0].startswith(browser.tr("Display settings"))
+    assert "Pixel size:" not in notes[0]
+    layout = composer.save_layout(tmp_path / "uncalibrated.json")
+    assert json.loads(__import__("pathlib").Path(layout).read_text()) == json.loads(json.dumps(before))
+    assert composer.open_layout(layout)
+    output = tmp_path / "uncalibrated.pdf"
+    composer.export_pdf(str(output))
+    qtbot.waitUntil(lambda: composer.last_export is not None, timeout=60000)
+    reader = PdfReader(str(output))
+    assert len(reader.pages) == 2 and sum(len(page.images) for page in reader.pages) == 1
+    assert "Display settings" in reader.pages[1].extract_text()
+    assert "Pixel size:" not in reader.pages[1].extract_text()
+    assert set(view._selected_wells) == selected
+    assert tuple(field.identity for field in view._fields) == fields
+    assert composer.canvas.to_dict() == before
+    assert {path.name: path.read_bytes() for path in source.iterdir() if path.suffix == ".tif"} == original
