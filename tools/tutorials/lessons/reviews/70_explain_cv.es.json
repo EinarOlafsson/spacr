@@ -1,6 +1,6 @@
 {
   "lesson": "70_explain_cv",
-  "english_sha256": "7093bb0794d7d674bf79e62707b56be4c10e45d101b9bbbe000c6274aad6fd5d",
+  "english_sha256": "c76c8411151013477dff56dabb68432a26824cd4504c53e6e288afcccaee529c",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Usa measurements.db y el CSV de predicciones de los mismos objetos del ejemplo de Annotate y Classify. Selecciona como objetivo las clases asignadas por el modelo guardado. Este ejemplo tiene una fidelidad limitada del sustituto, así que sus atribuciones por característica no deben usarse para explicar el modelo de visión. Evalúa el clasificador original por separado con datos independientes.",
   "scenes": [
-    "Desde Home, abre Classify y elige Explain CV Model arriba a la derecha. Prepara la base de datos de mediciones y las predicciones guardadas de los mismos objetos recortados.",
+    "Abre Classify y elige Explain CV Model arriba a la derecha. Prepara la base de datos de mediciones y las predicciones guardadas de los mismos objetos recortados.",
     "Selecciona measurements.db y el CSV de predicciones correspondiente. Comprueba los nombres de archivo y la identidad de los objetos antes de continuar. Este ejemplo usa doscientas treinta y cuatro predicciones guardadas.",
     "Confirma la ruta de las predicciones con Enter si las opciones de columna no se han actualizado. Elige filename para la ruta del recorte y predicted_label para las clases asignadas por el modelo. Selecciona Random Forest, la agrupación por pozo y una carpeta de salida nueva.",
     "Haz clic en Explain model. El sustituto usa las características medidas para reproducir las clases guardadas. Elige el motor y la agrupación en este formulario; usa la API de Python para más opciones de ajuste.",

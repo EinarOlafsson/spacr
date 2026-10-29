@@ -1,6 +1,6 @@
 {
   "lesson": "70_explain_cv",
-  "english_sha256": "7093bb0794d7d674bf79e62707b56be4c10e45d101b9bbbe000c6274aad6fd5d",
+  "english_sha256": "c76c8411151013477dff56dabb68432a26824cd4504c53e6e288afcccaee529c",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "AnnotateとClassifyの例の同じ物体について、measurements.dbと予測のCSVを使います。目的変数には、保存したモデルのクラス判定を選びます。この例では代理モデルの忠実度が限られているので、その特徴量の寄与を画像モデルの説明に使うべきではありません。元の分類器は、独立したデータで別に評価します。",
   "scenes": [
-    "HomeからClassifyを開き、右上のExplain CV Modelを選びます。同じ切り出し画像の物体について、測定データベースと保存した予測を用意します。",
+    "Classifyを開き、右上のExplain CV Modelを選びます。同じ切り出し画像の物体について、測定データベースと保存した予測を用意します。",
     "measurements.dbと、対応する予測のCSVを選びます。続ける前に、ファイル名と物体の対応を確認します。この例では、保存した予測を二百三十四個使います。",
     "列の選択肢が更新されないときは、Enterキーで予測のパスを確定します。切り出し画像のパスにはfilename、モデルのクラス判定にはpredicted_labelを選びます。Random Forest、ウェルごとのグループ化、新しい出力フォルダーを選びます。",
     "Explain modelをクリックします。代理モデルは、測定した特徴量から保存したクラス判定を再現しようとします。計算の方式とグループ化はこの画面で選びます。ほかの当てはめのオプションにはPythonのAPIを使います。",

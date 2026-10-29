@@ -1,6 +1,6 @@
 {
   "lesson": "70_explain_cv",
-  "english_sha256": "7093bb0794d7d674bf79e62707b56be4c10e45d101b9bbbe000c6274aad6fd5d",
+  "english_sha256": "c76c8411151013477dff56dabb68432a26824cd4504c53e6e288afcccaee529c",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Använd measurements.db och prediktions-CSV-filen för samma objekt från Annotate/Classify-exemplet. Välj den sparade modellens klassbeslut som mål. I exemplet har surrogatet begränsad fidelitet, så dess egenskapsattributioner bör inte användas för att förklara bildmodellen. Utvärdera den ursprungliga klassificeraren separat med oberoende data.",
   "scenes": [
-    "Från Home öppnar du Classify och väljer sedan Explain CV Model uppe till höger. Förbered mätdatabasen och de sparade prediktionerna för samma utklippta objekt.",
+    "Öppna Classify och välj sedan Explain CV Model uppe till höger. Förbered mätdatabasen och de sparade prediktionerna för samma utklippta objekt.",
     "Välj measurements.db och motsvarande prediktions-CSV. Kontrollera filnamn och objektidentiteter innan du fortsätter. Exemplet använder 234 sparade prediktioner.",
     "Bekräfta prediktionssökvägen med Enter om kolumnvalen inte har uppdaterats. Välj filename för utklippets sökväg och predicted_label för modellens klassbeslut. Välj Random Forest, gruppering per brunn och en ny utdatamapp.",
     "Klicka på Explain model. Surrogatet använder uppmätta egenskaper för att återskapa de sparade klassbesluten. Välj beräkningsmotor och gruppering i formuläret; använd Python-API:t för fler anpassningsalternativ.",

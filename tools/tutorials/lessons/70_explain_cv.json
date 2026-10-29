@@ -17,7 +17,7 @@
   "scenes": [
     {
       "visual": "01_classify_host",
-      "narration": "From Home, open Classify, then choose Explain CV Model at the upper right. Prepare the measurement database and saved predictions for the same cropped objects.",
+      "narration": "Open Classify, then choose Explain CV Model at the upper right. Prepare the measurement database and saved predictions for the same cropped objects.",
       "focus": [
         3579,
         100,

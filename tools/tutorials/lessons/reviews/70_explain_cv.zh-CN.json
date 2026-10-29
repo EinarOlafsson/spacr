@@ -1,6 +1,6 @@
 {
   "lesson": "70_explain_cv",
-  "english_sha256": "7093bb0794d7d674bf79e62707b56be4c10e45d101b9bbbe000c6274aad6fd5d",
+  "english_sha256": "c76c8411151013477dff56dabb68432a26824cd4504c53e6e288afcccaee529c",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "使用Annotate和Classify示例中同一批对象的measurements.db和预测CSV。选择保存模型的类别判定作为目标。本例中替代模型的保真度有限，因此其特征归因不应用于解释视觉模型。请用独立数据另行评估原始分类器。",
   "scenes": [
-    "从Home打开Classify，然后在右上角选择Explain CV Model。为同一批裁剪对象准备测量数据库和保存的预测。",
+    "打开Classify，然后在右上角选择Explain CV Model。为同一批裁剪对象准备测量数据库和保存的预测。",
     "选择measurements.db和对应的预测CSV。继续之前，请检查文件名和对象身份。本例使用两百三十四条保存的预测。",
     "如果列选项没有刷新，请按Enter确认预测路径。裁剪路径选择filename，模型的类别判定选择predicted_label。选择Random Forest、按孔分组以及一个新的输出文件夹。",
     "点击Explain model。替代模型用测量的特征来重现保存的类别判定。在此表单中选择后端和分组；如需更多拟合选项，请使用Python API。",

@@ -1,6 +1,6 @@
 {
   "lesson": "70_explain_cv",
-  "english_sha256": "7093bb0794d7d674bf79e62707b56be4c10e45d101b9bbbe000c6274aad6fd5d",
+  "english_sha256": "c76c8411151013477dff56dabb68432a26824cd4504c53e6e288afcccaee529c",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Verwenden Sie measurements.db und die Vorhersage-CSV derselben Objekte aus dem Annotate/Classify-Beispiel. Wählen Sie die gespeicherten Klassenzuordnungen des Modells als Ziel. Die Surrogat-Fidelity ist in diesem Beispiel begrenzt, daher sollten seine Merkmalsattributionen nicht zur Erklärung des Bildmodells dienen. Bewerten Sie den ursprünglichen Klassifikator separat mit unabhängigen Daten.",
   "scenes": [
-    "Öffnen Sie von Home aus Classify und wählen Sie dann oben rechts Explain CV Model. Bereiten Sie Messdatenbank und gespeicherte Vorhersagen für dieselben ausgeschnittenen Objekte vor.",
+    "Öffnen Sie Classify und wählen Sie dann oben rechts Explain CV Model. Bereiten Sie Messdatenbank und gespeicherte Vorhersagen für dieselben ausgeschnittenen Objekte vor.",
     "Wählen Sie measurements.db und die passende Vorhersage-CSV. Prüfen Sie Dateinamen und Objektidentitäten, bevor Sie fortfahren. Dieses Beispiel verwendet 234 gespeicherte Vorhersagen.",
     "Bestätigen Sie den Vorhersagepfad mit Enter, falls sich die Spaltenauswahl nicht aktualisiert hat. Wählen Sie filename für den Ausschnittpfad und predicted_label für die Klassenzuordnungen des Modells. Wählen Sie Random Forest, Gruppierung nach Well und einen neuen Ausgabeordner.",
     "Klicken Sie auf Explain model. Das Surrogat nutzt gemessene Merkmale, um die gespeicherten Klassenzuordnungen nachzubilden. Wählen Sie Backend und Gruppierung in diesem Formular; nutzen Sie die Python-API für weitere Anpassungsoptionen.",

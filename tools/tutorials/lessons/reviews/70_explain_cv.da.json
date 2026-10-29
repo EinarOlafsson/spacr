@@ -1,6 +1,6 @@
 {
   "lesson": "70_explain_cv",
-  "english_sha256": "7093bb0794d7d674bf79e62707b56be4c10e45d101b9bbbe000c6274aad6fd5d",
+  "english_sha256": "c76c8411151013477dff56dabb68432a26824cd4504c53e6e288afcccaee529c",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Brug measurements.db og forudsigelses-CSV-filen for de samme objekter fra Annotate/Classify-eksemplet. Vælg den gemte models klassebeslutninger som mål. Surrogatet har begrænset fidelitet i dette eksempel, så dets egenskabsattributioner bør ikke bruges til at forklare billedmodellen. Evaluer den oprindelige klassifikator separat med uafhængige data.",
   "scenes": [
-    "Fra Home åbner du Classify og vælger derefter Explain CV Model øverst til højre. Forbered måledatabasen og de gemte forudsigelser for de samme udklippede objekter.",
+    "Åbn Classify, og vælg derefter Explain CV Model øverst til højre. Forbered måledatabasen og de gemte forudsigelser for de samme udklippede objekter.",
     "Vælg measurements.db og den tilsvarende forudsigelses-CSV. Kontrollér filnavne og objektidentiteter, før du fortsætter. Eksemplet bruger 234 gemte forudsigelser.",
     "Bekræft forudsigelsesstien med Enter, hvis kolonnevalgene ikke er opdateret. Vælg filename til udklippets sti og predicted_label til modellens klassebeslutninger. Vælg Random Forest, gruppering pr. brønd og en ny outputmappe.",
     "Klik på Explain model. Surrogatet bruger målte egenskaber til at genskabe de gemte klassebeslutninger. Vælg beregningsmotor og gruppering i denne formular; brug Python-API'et til flere tilpasningsmuligheder.",
