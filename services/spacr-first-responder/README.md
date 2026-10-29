@@ -183,7 +183,7 @@ All limits are `[vars]` in `wrangler.toml`; counters reset at 00:00 UTC.
 | --- | --- | --- |
 | AI neuron pool, shared by all installs | 9,000 of the free 10,000 neurons a day | `AI_DAILY_NEURON_CAP` (clamped to 10,000) |
 | AI share per install | `floor(cap / (N + 1))`, at least 300, at most the cap | `AI_MIN_SHARE_NEURONS` |
-| BEST model `@cf/qwen/qwen2.5-coder-32b-instruct` | while at least 40% of the pool is left and the share covers this call's worst case | `AI_MODEL_BEST`, `AI_LIGHT_THRESHOLD` |
+| BEST model `@cf/google/gemma-4-26b-a4b-it` | while at least 40% of the pool is left and the share covers this call's worst case | `AI_MODEL_BEST`, `AI_LIGHT_THRESHOLD` |
 | LIGHT model `@cf/meta/llama-3.1-8b-instruct-fp8` (diagnoses and summaries) | otherwise, while the share and the pool cover this call's worst case | `AI_MODEL_LIGHT` |
 | Optional hard caps on BEST / LIGHT calls per install | 0 = off (default) | `AI_BEST_PER_INSTALL`, `AI_LIGHT_PER_INSTALL` |
 | Error reports | 5 per install, 200 in total (issues and comments) | `REPORTS_PER_INSTALL`, `DAILY_REPORT_LIMIT` |
@@ -232,23 +232,21 @@ a share or the pool over its limit.
 
 ### Neuron math
 
-Prices in neurons per million tokens, from Cloudflare's pricing page (2026-10-14):
+Prices in neurons per million tokens, checked against Cloudflare on 2026-10-29:
 
 | Model | Input | Output | Worst case per diagnosis* | Typical (1,000 in, 400 out) |
 | --- | --- | --- | --- | --- |
-| `@cf/qwen/qwen2.5-coder-32b-instruct` (BEST) | 60,000 | 90,909 | 483 | 97 |
-| `@cf/meta/llama-3.1-8b-instruct-fp8` (LIGHT) | 13,778 | 26,128 | 114 | 25 |
+| `@cf/google/gemma-4-26b-a4b-it` (BEST) | 9,091 | 27,273 | 185 | 21 |
+| `@cf/meta/llama-3.1-8b-instruct-fp8` (LIGHT) | 13,778 | 26,128 | 270 | 25 |
 
-\* 16 KB body plus the system prompt counted at 2.5 characters per token (about
-7,100 tokens) and the full 600 output tokens. A relay summary is at most about 108
-neurons (350 output tokens). The reservation for a real call uses that call's own
-prompt, so a typical report reserves about 95 (BEST) or 25 (LIGHT) neurons, and the
-300-neuron floor always covers at least one BEST answer.
-
-With the defaults, BEST is served while the pool spends its first 5,400 neurons
-(about 55 typical BEST answers), then LIGHT until fewer than 114 neurons remain
-(about 140 typical LIGHT answers). The 1,000-neuron margin under the free 10,000
-covers estimation error; the relay never reserves past `AI_DAILY_NEURON_CAP`.
+\* The 16 KB request body plus the current grounded system prompt is counted at
+2.5 characters per token, with the full 600 completion tokens. `MAX_PROMPT_TOKENS`
+is computed from the actual prompt length, so later catalog changes also change
+these worst-case reservations. Actual calls settle against reported usage, or a
+conservative text estimate when usage is absent. The 300-neuron share floor covers
+one worst-case call with either current model. LIGHT is the retained fallback tier;
+its name does not imply it is cheaper than Gemma. The 1,000-neuron margin under the
+free 10,000 remains, and no reservation can exceed `AI_DAILY_NEURON_CAP`.
 
 ### Zero cost
 
@@ -261,27 +259,25 @@ its terms. Other free allowances: Workers 100,000 requests/day; D1 5 M rows read
 
 Model choice:
 
-- BEST `@cf/qwen/qwen2.5-coder-32b-instruct`: 32k context, tuned for code and
-  tracebacks.
-- LIGHT `@cf/meta/llama-3.1-8b-instruct-fp8`: the cheapest capable plain instruct
-  model in the catalog (4.4 times cheaper input and 3.5 times cheaper output than
-  BEST). `@cf/meta/llama-3.1-8b-instruct` no longer has a catalog page (404 on
-  2026-10-14), and there is no `-fast` 8B page. `@cf/google/gemma-4-26b-a4b-it`
-  (9,091 / 27,273) is cheaper still and named free by Cloudflare, but it is a
-  reasoning model with an OpenAI-style response; evaluate it on real reports before
-  switching.
-- Neither model is on Cloudflare's list of models that need Workers Paid, which on
-  2026-10-14 names kimi-k2.6, kimi-k2.7-code, glm-5.2, glm-5.3, glm-5.3-flash,
-  deepseek-v4-flash-0731 and deepseek-v4-pro-0813.
+- BEST `@cf/google/gemma-4-26b-a4b-it`: Google Gemma4 26B A4B, with a
+  256k-token context. Its OpenAI-style `choices[0].message.content` response is
+  supported; separate reasoning content is not displayed. Requests use the
+  documented `max_completion_tokens` bound of 600 and
+  `chat_template_kwargs: {enable_thinking: false}` to keep that budget for the answer.
+- LIGHT `@cf/meta/llama-3.1-8b-instruct-fp8`: retained fallback for the existing
+  low-pool policy, using the original Workers AI `response` format.
+- Cloudflare's 2026-07-28 access notice explicitly lists Gemma4 as available on
+  Workers Free. Both selected models remain subject to the shared free allowance.
 
 The Worker only calls models on a built-in allowlist with known prices
 (`MODEL_RATES` in `src/config.js`): the two defaults,
+`@cf/qwen/qwen2.5-coder-32b-instruct`,
 `@cf/meta/llama-3.3-70b-instruct-fp8-fast` and `@cf/meta/llama-3.2-3b-instruct`.
 Any other `AI_MODEL_BEST`/`AI_MODEL_LIGHT` answers 503. Sources:
 
 - <https://developers.cloudflare.com/workers-ai/platform/pricing/>
 - <https://developers.cloudflare.com/changelog/post/2026-07-28-models-require-workers-paid/>
-- <https://developers.cloudflare.com/workers-ai/models/qwen2.5-coder-32b-instruct/>
+- <https://developers.cloudflare.com/workers-ai/models/gemma-4-26b-a4b-it/>
 - <https://developers.cloudflare.com/workers-ai/models/llama-3.1-8b-instruct-fp8/>
 
 Before the first deployment, check on the dashboard that **Workers & Pages -> Plans**
@@ -410,7 +406,7 @@ object with `tier_now: "best"`, 5 reports left and `pool: "best"`; the dry run r
 it *would* file, with an "AI summary" section and `ai_summary_source: "relay"`,
 without touching GitHub (it does spend a few neurons of the share and one dry-run
 report);
-`/diagnose` returns `{"advice": "...", "model": "@cf/qwen/qwen2.5-coder-32b-instruct",
+`/diagnose` returns `{"advice": "...", "model": "@cf/google/gemma-4-26b-a4b-it",
 "tier": "best", "allowance": {...}}`.
 
 Dropping `"dry_run": true` files a real public issue. Do that once, deliberately, to

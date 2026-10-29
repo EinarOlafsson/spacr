@@ -1356,6 +1356,8 @@ _EXCEPTION_RAISE_SOURCE = (
 _DOCUMENTATION_GUIDE_SOURCE = (
     r"\b(?:organism|user|installation|setup|tutorial|reference|"
     r"troubleshooting|getting[- ]started)\s+guides?\b"
+    r"|\A42 — the answer to life, the universe and everything\. — "
+    r"The Hitchhiker’s Guide to the Galaxy\Z"
 )
 
 SOURCE_CONTEXT_REPLACEMENTS: Mapping[

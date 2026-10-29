@@ -11,6 +11,8 @@ import { resetTokenCache } from "../src/github.js";
 import { handle } from "../src/index.js";
 import { signatureOf } from "../src/report.js";
 import { validatePayload } from "../src/validate.js";
+import { sha256Hex } from "../src/util.js";
+import { SYSTEM_PROMPT } from "../src/prompts.js";
 import { FakeD1, FakeGitHub, generateTestKeyPem, makeRequest, sampleReport } from "./helpers.mjs";
 
 const { pem } = await generateTestKeyPem();
@@ -136,6 +138,28 @@ test("a chat question is cached by its normalised text, screen, module and spaCR
   assert.equal(aiCalls.length, 3, "another screen or minor asks again");
   const rows = [...env.DB.cache.values()];
   assert.ok(rows.every((r) => r.kind === "question" && r.key.startsWith("q:")));
+});
+
+test("question cache identity includes the current prompt and ignores a fresh legacy answer", async () => {
+  const question = "How do I generate object masks?";
+  const report = validatePayload(sampleReport({ question, screen: "Mask", frames: [], message: "", spacr_version: "1.5.1.7" }), "diagnose");
+  const legacyInput = `${normaliseQuestion(question)}\nMask|${report.module}\n1.5`;
+  const legacyKey = "q:" + await sha256Hex(legacyInput);
+  await store(env, legacyKey, "question", report, DAY1,
+    { text: "Old generic advice without module links", model: BEST, tier: "best" });
+  const currentKey = await questionKey(report);
+  assert.equal(currentKey, "q:" + await sha256Hex(`${legacyInput}\n${SYSTEM_PROMPT}`));
+  assert.notEqual(currentKey, legacyKey);
+  const first = await call("/diagnose", report);
+  assert.equal(first.status, 200);
+  assert.equal(first.body.cached, false);
+  assert.equal(aiCalls.length, 1);
+  assert.notEqual(first.body.advice, "Old generic advice without module links");
+  const second = await call("/diagnose", { ...report, question: "HOW do I generate OBJECT masks!" });
+  assert.equal(second.body.cached, true);
+  assert.equal(second.body.advice, first.body.advice);
+  assert.equal(aiCalls.length, 1);
+  assert.ok(env.DB.cache.has(legacyKey), "legacy entry is left for ordinary TTL cleanup");
 });
 
 test("question normalisation folds case, whitespace and punctuation", async () => {

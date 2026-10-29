@@ -10441,6 +10441,15 @@ class MainWindow(QMainWindow):
         from .chaining import screen_for_module
         from .screens.map_barcodes import page_fold_host
 
+        if key == 'parascape':
+            return self._open_easy_suggestion(key, '')
+        if key == 'overview':
+            from .widgets.qc_field_browser import _open_overview_module
+
+            owner = self._open_easy_named_module('mask')
+            if owner is not None:
+                return _open_overview_module(owner, owner._settings_model.collect())
+            return None
         if key == '3d':
             key, dimension = 'mask', 'z'
         elif key == 'timelapse':

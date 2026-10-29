@@ -49,11 +49,55 @@ from ..i18n import retranslate_widget_tree, set_translatable_text, tr
 
 def _current_system_prompt() -> str:
     """Delegate to ``ai_settings`` so a user override kicks in when set."""
-    return ai_settings.get_system_prompt()
+    prompt = ai_settings.get_system_prompt()
+    if ai_settings.is_system_prompt_overridden():
+        from ..ai.prompts import _navigation_context
+
+        prompt += '\n\n' + _navigation_context()
+    return prompt
 from ..theme import SPACING, active_palette, make_transparent
 from .divider import Divider
 from .empty_state import EmptyState
 
+
+
+def _ai_module_key(url, module_keys=None):
+    """Return only a currently registered module from a canonical internal link."""
+    import re
+
+    from PySide6.QtCore import QUrl
+
+    value = url.toString(QUrl.FullyEncoded) if isinstance(url, QUrl) else str(url)
+    match = re.fullmatch(r'spacr://module/([a-z0-9_]+)', value)
+    if match is None:
+        return None
+    key = match.group(1)
+    if module_keys is None:
+        from ..ai.prompts import _navigation_modules
+
+        module_keys = {row[0] for row in _navigation_modules()}
+    return key if key in module_keys else None
+
+
+def _activate_ai_link(owner, url):
+    """Dispatch explicitly activated module or external links without executing work."""
+    from PySide6.QtCore import QUrl
+    from PySide6.QtGui import QDesktopServices
+
+    key = _ai_module_key(url)
+    if key is not None:
+        window = owner.window()
+        while window is not None:
+            opener = getattr(window, '_open_easy_named_module', None)
+            if callable(opener):
+                opener(key)
+                return True
+            window = window.parentWidget()
+        return False
+    target = url if isinstance(url, QUrl) else QUrl(str(url))
+    if target.isValid() and target.scheme().lower() in ('http', 'https', 'mailto'):
+        return QDesktopServices.openUrl(target)
+    return False
 
 
 def _ai_reply_html(text):
@@ -88,6 +132,7 @@ def _ai_reply_html(text):
             super().__init__(convert_charrefs=True)
             self.parts = []
             self.head = False
+            self.module_keys = None
 
         def handle_starttag(self, tag, attrs):
             """Keep permitted tags and safe links, substituting image alternative text.
@@ -109,7 +154,14 @@ def _ai_reply_html(text):
                         kept.append((name, value))
                     elif tag == 'a' and name == 'href':
                         try:
-                            safe = urlsplit(value).scheme.lower() in ('http', 'https', 'mailto')
+                            scheme = urlsplit(value).scheme.lower()
+                            safe = scheme in ('http', 'https', 'mailto')
+                            if scheme == 'spacr':
+                                if self.module_keys is None:
+                                    from ..ai.prompts import _navigation_modules
+
+                                    self.module_keys = {row[0] for row in _navigation_modules()}
+                                safe = _ai_module_key(value, self.module_keys) is not None
                         except ValueError:
                             safe = False
                         if safe:
@@ -184,7 +236,8 @@ class _MessageBubble(QWidget):
         self._text.setTextInteractionFlags(
             Qt.TextSelectableByMouse | Qt.LinksAccessibleByMouse
         )
-        self._text.setOpenExternalLinks(True)
+        self._text.setOpenExternalLinks(False)
+        self._text.linkActivated.connect(lambda url: _activate_ai_link(self, url))
         self._text.setObjectName(
             "ChatBubbleUser" if role == "user" else "ChatBubbleAssistant"
         )

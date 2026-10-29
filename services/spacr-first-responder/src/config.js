@@ -1,6 +1,7 @@
 export const FREE_NEURONS_PER_DAY = 10000;
 
 export const MODEL_RATES = Object.freeze({
+  "@cf/google/gemma-4-26b-a4b-it": { input: 9091, output: 27273 },
   "@cf/qwen/qwen2.5-coder-32b-instruct": { input: 60000, output: 90909 },
   "@cf/meta/llama-3.3-70b-instruct-fp8-fast": { input: 26668, output: 204805 },
   "@cf/meta/llama-3.1-8b-instruct-fp8": { input: 13778, output: 26128 },
@@ -8,7 +9,7 @@ export const MODEL_RATES = Object.freeze({
 });
 
 export const DEFAULTS = Object.freeze({
-  AI_MODEL_BEST: "@cf/qwen/qwen2.5-coder-32b-instruct",
+  AI_MODEL_BEST: "@cf/google/gemma-4-26b-a4b-it",
   AI_MODEL_LIGHT: "@cf/meta/llama-3.1-8b-instruct-fp8",
   AI_BEST_PER_INSTALL: 0,
   AI_LIGHT_PER_INSTALL: 0,

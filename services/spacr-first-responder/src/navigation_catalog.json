@@ -1,0 +1,1084 @@
+{
+  "modules": [
+    {
+      "api": "",
+      "inputs": [],
+      "key": "3d",
+      "name": "3D",
+      "outputs": [],
+      "preview": "",
+      "tutorial": ""
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html",
+      "inputs": [
+        "classifier",
+        "crops"
+      ],
+      "key": "activation",
+      "name": "Activation",
+      "outputs": [
+        "activation_maps"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=16_activation"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/agreement/index.html",
+      "inputs": [
+        "labels",
+        "crops"
+      ],
+      "key": "agreement",
+      "name": "Annotator Agreement",
+      "outputs": [
+        "qc",
+        "figures"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=23_agreement"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/align/index.html",
+      "inputs": [
+        "raw_images"
+      ],
+      "key": "align",
+      "name": "Align & Stitch",
+      "outputs": [
+        "mosaic"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=32_align_stitch"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html",
+      "inputs": [
+        "raw_images",
+        "masks"
+      ],
+      "key": "analyze_plaques",
+      "name": "Plaque Assay",
+      "outputs": [
+        "assay_results",
+        "masks"
+      ],
+      "preview": "Live preview",
+      "tutorial": ""
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/anndata_export/index.html",
+      "inputs": [
+        "measurements"
+      ],
+      "key": "anndata_export",
+      "name": "AnnData Export",
+      "outputs": [
+        "anndata"
+      ],
+      "preview": "",
+      "tutorial": ""
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/screens/annotate/index.html",
+      "inputs": [
+        "measurements",
+        "crops",
+        "gates"
+      ],
+      "key": "annotate",
+      "name": "Annotate",
+      "outputs": [
+        "labels"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=09_annotate"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/sequencing_qc/index.html",
+      "inputs": [
+        "barcode_counts"
+      ],
+      "key": "barcode_qc",
+      "name": "Barcode QC",
+      "outputs": [
+        "qc",
+        "figures"
+      ],
+      "preview": "",
+      "tutorial": ""
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/batch/index.html",
+      "inputs": [
+        "jobs"
+      ],
+      "key": "batch",
+      "name": "Batch Runner",
+      "outputs": [
+        "run_records"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=37_batch"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html",
+      "inputs": [],
+      "key": "candida",
+      "name": "Candida spp.",
+      "outputs": [],
+      "preview": "",
+      "tutorial": ""
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/spacr_cellpose/index.html",
+      "inputs": [
+        "raw_images",
+        "segmentation_model"
+      ],
+      "key": "cellpose_all",
+      "name": "Mask folder",
+      "outputs": [
+        "masks"
+      ],
+      "preview": "",
+      "tutorial": ""
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/classifier_evaluation/index.html",
+      "inputs": [
+        "evaluation"
+      ],
+      "key": "classifier_evaluation",
+      "name": "Classifier Evaluation",
+      "outputs": [
+        "qc",
+        "figures"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=39_classifier_evaluation"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/classify/index.html",
+      "inputs": [
+        "measurements",
+        "crops",
+        "labels"
+      ],
+      "key": "classify_merged",
+      "name": "Classify",
+      "outputs": [
+        "scores",
+        "classifier",
+        "feature_model",
+        "evaluation"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=41_classify"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/screens/control_chart/index.html",
+      "inputs": [
+        "measurements",
+        "plate_map"
+      ],
+      "key": "control_chart",
+      "name": "Control Charts",
+      "outputs": [
+        "qc",
+        "figures"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=51_control_charts"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/convert/index.html",
+      "inputs": [
+        "raw_images"
+      ],
+      "key": "convert",
+      "name": "Format Converter",
+      "outputs": [
+        "raw_images"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=35_converter"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/screens/curate/index.html",
+      "inputs": [
+        "raw_images",
+        "masks",
+        "tracks"
+      ],
+      "key": "curate",
+      "name": "Curate",
+      "outputs": [
+        "masks",
+        "tracks"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=42_curate"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/data_manager/index.html",
+      "inputs": [
+        "run_records"
+      ],
+      "key": "data_manager",
+      "name": "Data Manager",
+      "outputs": [
+        "run_records"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=44_data_manager"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/screens/db_browser/index.html",
+      "inputs": [
+        "measurements"
+      ],
+      "key": "db_browser",
+      "name": "Database Browser",
+      "outputs": [
+        "figures"
+      ],
+      "preview": "",
+      "tutorial": ""
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/remote_execution/index.html",
+      "inputs": [
+        "jobs"
+      ],
+      "key": "distributed_jobs",
+      "name": "Distributed Jobs",
+      "outputs": [
+        "run_records"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=38_distributed_jobs"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/screens/dose_response/index.html",
+      "inputs": [
+        "measurements",
+        "plate_map"
+      ],
+      "key": "dose_response",
+      "name": "Dose–Response",
+      "outputs": [
+        "assay_results",
+        "figures"
+      ],
+      "preview": "",
+      "tutorial": ""
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/screens/experiment_design/index.html",
+      "inputs": [
+        "design"
+      ],
+      "key": "experiment_design",
+      "name": "Experiment Design",
+      "outputs": [
+        "plate_map"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=67_experiment_design"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/surrogate/index.html",
+      "inputs": [
+        "measurements",
+        "scores"
+      ],
+      "key": "explain_cv",
+      "name": "Explain CV Model",
+      "outputs": [
+        "feature_model",
+        "figures"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=70_explain_cv"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/external_masks/index.html",
+      "inputs": [
+        "raw_images",
+        "masks"
+      ],
+      "key": "external_masks",
+      "name": "External Masks",
+      "outputs": [
+        "merged",
+        "measurements",
+        "crops"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=31_external_masks"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/screens/feature_explorer/index.html",
+      "inputs": [
+        "measurements",
+        "labels"
+      ],
+      "key": "feature_explorer",
+      "name": "Feature Explorer",
+      "outputs": [
+        "figures"
+      ],
+      "preview": "",
+      "tutorial": ""
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/foreign/index.html",
+      "inputs": [
+        "raw_images",
+        "masks",
+        "foreign_tables"
+      ],
+      "key": "foreign",
+      "name": "Import",
+      "outputs": [
+        "measurements",
+        "crops",
+        "merged",
+        "masks"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=36_import"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/screens/gate_editor/index.html",
+      "inputs": [
+        "measurements",
+        "projection"
+      ],
+      "key": "gate_editor",
+      "name": "Gate Editor",
+      "outputs": [
+        "gates",
+        "labels"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=64_gate_editor"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html",
+      "inputs": [],
+      "key": "giardia",
+      "name": "Giardia duodenalis",
+      "outputs": [],
+      "preview": "",
+      "tutorial": ""
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html",
+      "inputs": [
+        "measurements"
+      ],
+      "key": "graph_builder",
+      "name": "Graph Builder",
+      "outputs": [
+        "figures"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=58_graph_builder"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/screens/hit_list/index.html",
+      "inputs": [
+        "regression"
+      ],
+      "key": "hit_list",
+      "name": "Hit List",
+      "outputs": [
+        "figures"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=48_hit_list"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/host_pathogen/index.html",
+      "inputs": [
+        "measurements"
+      ],
+      "key": "host_pathogen",
+      "name": "Host–Pathogen Analysis",
+      "outputs": [
+        "assay_results"
+      ],
+      "preview": "Live preview",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=85_host_pathogen"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/illumination/index.html",
+      "inputs": [
+        "raw_images"
+      ],
+      "key": "illumination",
+      "name": "Illumination",
+      "outputs": [
+        "raw_images"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=43_illumination"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/screens/image_scatter/index.html",
+      "inputs": [
+        "measurements",
+        "crops"
+      ],
+      "key": "image_scatter",
+      "name": "Image Scatter",
+      "outputs": [
+        "projection",
+        "figures"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=55_image_scatter"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/image_import/index.html",
+      "inputs": [
+        "raw_images"
+      ],
+      "key": "import_images",
+      "name": "Import Images",
+      "outputs": [
+        "raw_images",
+        "merged",
+        "masks"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=74_import_images"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html",
+      "inputs": [
+        "measurements"
+      ],
+      "key": "invasion",
+      "name": "Invasion Assay",
+      "outputs": [
+        "assay_results"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=26_invasion"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/hit_investigation/index.html",
+      "inputs": [
+        "regression",
+        "scores",
+        "measurements"
+      ],
+      "key": "investigate_hit",
+      "name": "Investigate Hit",
+      "outputs": [
+        "figures"
+      ],
+      "preview": "",
+      "tutorial": ""
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/layer_viewer/index.html",
+      "inputs": [
+        "raw_images",
+        "masks"
+      ],
+      "key": "layer_viewer",
+      "name": "Layer Viewer",
+      "outputs": [
+        "figures"
+      ],
+      "preview": "",
+      "tutorial": ""
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html",
+      "inputs": [],
+      "key": "leishmania",
+      "name": "Leishmania spp.",
+      "outputs": [],
+      "preview": "",
+      "tutorial": ""
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/screens/lineage/index.html",
+      "inputs": [
+        "measurements"
+      ],
+      "key": "lineage",
+      "name": "Lineage",
+      "outputs": [
+        "figures"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=56_lineage"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/screens/make_masks/index.html",
+      "inputs": [
+        "raw_images",
+        "masks"
+      ],
+      "key": "make_masks",
+      "name": "Make Masks",
+      "outputs": [
+        "curated_pairs",
+        "masks"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=14_make_masks"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html",
+      "inputs": [],
+      "key": "mammalian",
+      "name": "Mammalian cells",
+      "outputs": [],
+      "preview": "",
+      "tutorial": ""
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html",
+      "inputs": [
+        "fastq"
+      ],
+      "key": "map_barcodes",
+      "name": "Map Barcodes",
+      "outputs": [
+        "barcode_counts"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=12_map_barcodes"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/core/index.html",
+      "inputs": [
+        "raw_images",
+        "segmentation_model"
+      ],
+      "key": "mask",
+      "name": "Mask",
+      "outputs": [
+        "merged",
+        "masks",
+        "counts"
+      ],
+      "preview": "Live preview",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=07_mask"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/measure/index.html",
+      "inputs": [
+        "merged",
+        "masks"
+      ],
+      "key": "measure",
+      "name": "Measure",
+      "outputs": [
+        "measurements",
+        "crops"
+      ],
+      "preview": "Crop preview",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=08_measure"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/methods_export/index.html",
+      "inputs": [
+        "run_records",
+        "regression"
+      ],
+      "key": "methods_export",
+      "name": "Methods & Results",
+      "outputs": [
+        "reports"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=49_methods_results"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/model_compare/index.html",
+      "inputs": [
+        "raw_images",
+        "masks",
+        "segmentation_model"
+      ],
+      "key": "model_compare",
+      "name": "Model Compare",
+      "outputs": [
+        "comparison"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=21_model_compare"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/model_zoo/index.html",
+      "inputs": [
+        "segmentation_model"
+      ],
+      "key": "model_zoo",
+      "name": "Model Zoo",
+      "outputs": [
+        "segmentation_model"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=22_model_zoo"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html",
+      "inputs": [
+        "tracks",
+        "measurements"
+      ],
+      "key": "motility",
+      "name": "Motility Assay",
+      "outputs": [
+        "assay_results",
+        "figures"
+      ],
+      "preview": "Track preview",
+      "tutorial": ""
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/napari_bridge/index.html",
+      "inputs": [
+        "raw_images",
+        "masks"
+      ],
+      "key": "napari_bridge",
+      "name": "Napari Bridge",
+      "outputs": [
+        "masks"
+      ],
+      "preview": "",
+      "tutorial": ""
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/ops_engine/index.html",
+      "inputs": [
+        "raw_images",
+        "mosaic"
+      ],
+      "key": "ops",
+      "name": "OPS",
+      "outputs": [
+        "ops_tables"
+      ],
+      "preview": "",
+      "tutorial": ""
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/screens/outliers/index.html",
+      "inputs": [
+        "measurements"
+      ],
+      "key": "outliers",
+      "name": "Outliers",
+      "outputs": [
+        "qc",
+        "figures"
+      ],
+      "preview": "",
+      "tutorial": ""
+    },
+    {
+      "api": "",
+      "inputs": [],
+      "key": "overview",
+      "name": "Overview",
+      "outputs": [],
+      "preview": "",
+      "tutorial": ""
+    },
+    {
+      "api": "",
+      "inputs": [],
+      "key": "parascape",
+      "name": "ParaScape",
+      "outputs": [],
+      "preview": "",
+      "tutorial": ""
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/screens/pca/index.html",
+      "inputs": [
+        "measurements"
+      ],
+      "key": "pca",
+      "name": "PCA",
+      "outputs": [
+        "projection",
+        "figures"
+      ],
+      "preview": "",
+      "tutorial": ""
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/screens/pipeline_graph/index.html",
+      "inputs": [
+        "run_records"
+      ],
+      "key": "pipeline_graph",
+      "name": "Pipeline Graph",
+      "outputs": [
+        "figures"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=52_pipeline_graph"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html",
+      "inputs": [],
+      "key": "plasmodium",
+      "name": "Plasmodium spp.",
+      "outputs": [],
+      "preview": "",
+      "tutorial": ""
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/plate_qc/index.html",
+      "inputs": [
+        "measurements",
+        "plate_map"
+      ],
+      "key": "plate_view",
+      "name": "Plate Viewer",
+      "outputs": [
+        "figures"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=33_plate_viewer"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/screens/power/index.html",
+      "inputs": [
+        "design",
+        "measurements",
+        "plate_map"
+      ],
+      "key": "power",
+      "name": "Power / Design",
+      "outputs": [
+        "design"
+      ],
+      "preview": "",
+      "tutorial": ""
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/screens/profiler/index.html",
+      "inputs": [
+        "feature_model"
+      ],
+      "key": "profiler",
+      "name": "Prediction Profiler",
+      "outputs": [
+        "figures"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=53_prediction_profiler"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/screens/project_browser/index.html",
+      "inputs": [
+        "run_records"
+      ],
+      "key": "project_browser",
+      "name": "Project Browser",
+      "outputs": [
+        "run_records"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=45_project_browser"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/screens/qc_dashboard/index.html",
+      "inputs": [
+        "measurements",
+        "qc"
+      ],
+      "key": "qc_dashboard",
+      "name": "QC",
+      "outputs": [
+        "qc",
+        "figures"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=54_qc_dashboard"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/plate_queue/index.html",
+      "inputs": [
+        "jobs"
+      ],
+      "key": "queue",
+      "name": "Plate Queue",
+      "outputs": [
+        "run_records"
+      ],
+      "preview": "",
+      "tutorial": ""
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html",
+      "inputs": [
+        "measurements"
+      ],
+      "key": "recruitment",
+      "name": "Recruitment",
+      "outputs": [
+        "assay_results"
+      ],
+      "preview": "",
+      "tutorial": ""
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/ml/index.html",
+      "inputs": [
+        "scores",
+        "barcode_counts",
+        "ops_tables",
+        "measurements"
+      ],
+      "key": "regression",
+      "name": "Regression",
+      "outputs": [
+        "regression"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=13_regression"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/screens/regression/index.html",
+      "inputs": [
+        "regression"
+      ],
+      "key": "regression_diagnostics",
+      "name": "Diagnostics",
+      "outputs": [
+        "qc",
+        "figures"
+      ],
+      "preview": "",
+      "tutorial": ""
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html",
+      "inputs": [
+        "measurements"
+      ],
+      "key": "replication",
+      "name": "Replication Assay",
+      "outputs": [
+        "assay_results"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=27_replication"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/report/index.html",
+      "inputs": [
+        "run_records",
+        "qc",
+        "figures"
+      ],
+      "key": "report",
+      "name": "Report",
+      "outputs": [
+        "reports"
+      ],
+      "preview": "",
+      "tutorial": ""
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/screens/run_compare/index.html",
+      "inputs": [
+        "run_records",
+        "regression"
+      ],
+      "key": "run_compare",
+      "name": "Run Compare",
+      "outputs": [
+        "comparison"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=50_run_compare"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/run_journal/index.html",
+      "inputs": [
+        "run_records"
+      ],
+      "key": "run_history",
+      "name": "Run History",
+      "outputs": [
+        "run_records"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=40_run_history"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/ops_engine/index.html",
+      "inputs": [
+        "raw_images",
+        "merged"
+      ],
+      "key": "spatial_map",
+      "name": "Spatial Map Barcodes",
+      "outputs": [
+        "measurements",
+        "anndata"
+      ],
+      "preview": "",
+      "tutorial": ""
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/ops_engine/index.html",
+      "inputs": [
+        "raw_images",
+        "segmentation_model"
+      ],
+      "key": "spatial_masks",
+      "name": "Spatial Mask Generation",
+      "outputs": [
+        "merged",
+        "measurements"
+      ],
+      "preview": "",
+      "tutorial": ""
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/screens/tabulate/index.html",
+      "inputs": [
+        "measurements"
+      ],
+      "key": "tabulate",
+      "name": "Tabulate",
+      "outputs": [
+        "figures"
+      ],
+      "preview": "",
+      "tutorial": ""
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/core/index.html",
+      "inputs": [
+        "raw_images"
+      ],
+      "key": "timelapse",
+      "name": "Timelapse",
+      "outputs": [
+        "merged",
+        "masks",
+        "tracks"
+      ],
+      "preview": "Track preview",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=17_timelapse"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html",
+      "inputs": [
+        "organism_reference"
+      ],
+      "key": "toxoplasma",
+      "name": "Toxoplasma gondii",
+      "outputs": [
+        "organism_navigation"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=82_toxoplasma"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html",
+      "inputs": [
+        "curated_pairs"
+      ],
+      "key": "train_cellpose",
+      "name": "Cellpose Workbench",
+      "outputs": [
+        "segmentation_model"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=19_train_cellpose"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/train_compare/index.html",
+      "inputs": [
+        "run_records"
+      ],
+      "key": "train_compare",
+      "name": "Training Runs",
+      "outputs": [
+        "comparison"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=28_training_runs"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/screens/trellis/index.html",
+      "inputs": [
+        "measurements"
+      ],
+      "key": "trellis",
+      "name": "Small Multiples",
+      "outputs": [
+        "figures"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=63_small_multiples"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html",
+      "inputs": [],
+      "key": "trypanosoma",
+      "name": "Trypanosoma spp.",
+      "outputs": [],
+      "preview": "",
+      "tutorial": ""
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/core/index.html",
+      "inputs": [
+        "measurements",
+        "crops",
+        "embedding_features"
+      ],
+      "key": "umap",
+      "name": "Image UMAP",
+      "outputs": [
+        "projection",
+        "labels"
+      ],
+      "preview": "",
+      "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=15_image_umap"
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html",
+      "inputs": [],
+      "key": "virus",
+      "name": "Virus infection",
+      "outputs": [],
+      "preview": "",
+      "tutorial": ""
+    },
+    {
+      "api": "https://einarolafsson.github.io/spacr/api/spacr/volcano_style/index.html",
+      "inputs": [
+        "regression"
+      ],
+      "key": "volcano_explorer",
+      "name": "Volcano Explorer",
+      "outputs": [
+        "figures"
+      ],
+      "preview": "",
+      "tutorial": ""
+    }
+  ],
+  "schema": 1
+}

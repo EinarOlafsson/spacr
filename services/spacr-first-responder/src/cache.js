@@ -1,4 +1,6 @@
 import { SQL } from "./sql.js";
+import { MODEL_RATES, limits } from "./config.js";
+import { SYSTEM_PROMPT } from "./prompts.js";
 import { GLOBAL, ROUTE } from "./quota.js";
 import { sha256Hex, utcDay } from "./util.js";
 
@@ -51,7 +53,7 @@ export async function questionKey(report) {
   const norm = normaliseQuestion(report.question);
   if (!norm) return null;
   const place = `${report.screen || ""}|${report.module || ""}`;
-  return QUESTION_PREFIX + (await sha256Hex(`${norm}\n${place}\n${spacrMinor(report.spacr_version)}`));
+  return QUESTION_PREFIX + (await sha256Hex(`${norm}\n${place}\n${spacrMinor(report.spacr_version)}\n${SYSTEM_PROMPT}`));
 }
 
 export function isFresh(row, report, now, ttlDays = CACHE_DEFAULTS.ttlDays) {
@@ -74,7 +76,9 @@ export async function cached(env, key, report, now) {
   const db = env.DB;
   try {
     const row = await db.prepare(SQL.cacheGet).bind(key).first();
-    if (!isFresh(row, report, now, cacheLimits(env).ttlDays)) {
+    const cfg = limits(env);
+    const modelAllowed = row && MODEL_RATES[row.model] && [cfg.bestModel, cfg.lightModel].includes(row.model);
+    if (!isFresh(row, report, now, cacheLimits(env).ttlDays) || !modelAllowed) {
       await countToday(db, now, ROUTE.cacheMiss);
       return null;
     }

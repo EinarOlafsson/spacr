@@ -137,7 +137,11 @@ def test_current_system_prompt_follows_the_user_override(ai_env):
 
     assert _current_system_prompt() == default_system_prompt()
     ai_env["settings"].set_system_prompt("Reply in exactly one sentence.")
-    assert _current_system_prompt() == "Reply in exactly one sentence."
+    from spacr.qt.ai.prompts import _navigation_context
+
+    assert _current_system_prompt().startswith("Reply in exactly one sentence.\n\n")
+    assert _navigation_context() in _current_system_prompt()
+    assert ai_env["settings"].get_system_prompt() == "Reply in exactly one sentence."
 
 
 # ---------------------------------------------------------------------------

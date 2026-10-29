@@ -5900,6 +5900,9 @@ class _NavigatorDetailsBrowser(QTextBrowser):
         from ..preferences import _set_scaled_icon_size
 
         super().__init__(field)
+        self.setOpenExternalLinks(False)
+        self.setOpenLinks(False)
+        self.anchorClicked.connect(self._open_link)
         self._field = field
         self._entries = []
         self._entry = -1
@@ -5925,6 +5928,12 @@ class _NavigatorDetailsBrowser(QTextBrowser):
         self._forward.clicked.connect(lambda: self._navigate(1))
         self._collapse.clicked.connect(self._toggle_minimized)
         self._update_controls()
+
+    def _open_link(self, url):
+        """Navigate an explicitly clicked assistant or documentation link."""
+        from .ai_chat_panel import _activate_ai_link
+
+        _activate_ai_link(self, url)
 
     def _arrow_icon(self, direction, color='white'):
         """Draw the requested arrow with normal and disabled device-scale variants.
@@ -6178,7 +6187,8 @@ class _EasyHomeField(QWidget):
         self.details.setObjectName('EasyWorkflowDetails')
         self.details.setProperty('spacrAmbientPassiveOverlay', True)
         self.details.setAccessibleName(tr('Module description'))
-        self.details.setOpenExternalLinks(True)
+        self.details.setOpenExternalLinks(False)
+        self.details.setOpenLinks(False)
         self.details.setProperty(OPT_OUT_PROPERTY, True)
         from ..preferences import _settings
 
@@ -6915,8 +6925,8 @@ class _EasyWorkflowPage(QWidget):
         self.more.setAccessibleName(tr('More next steps'))
         self.more.activated.connect(self._choose_next)
         self.details = parent.field.details
-        self.details.setOpenExternalLinks(True)
-        self.details.setOpenLinks(True)
+        self.details.setOpenExternalLinks(False)
+        self.details.setOpenLinks(False)
         self.details.setAccessibleName(tr('Module description'))
         self.view.explanation.connect(self.details.setHtml)
         self.empty = QLabel(tr('No suggested next steps.'), self)
@@ -7377,13 +7387,44 @@ class _EasyHomePage(QWidget):
             or (not re.search(r'\s', value) and (
                 '/' in value or '\\' in value or re.search(r'\.[A-Za-z0-9]{1,10}$', value)))))
 
+    @staticmethod
+    def _navigator_local_reply(value):
+        from ..app import _easy_command_text
+        from ..i18n import tr
+
+        if not _EasyHomePage._navigator_ai_can_answer(value):
+            return ''
+        phrases = (
+            '42', 'the answer to life', 'meaning of life', 'what is the meaning of life',
+            'what is the meaning of 42', 'what does 42 mean', 'life the universe and everything',
+            'svaret på livet', 'meningen med livet', 'vad är meningen med 42',
+            'vad betyder 42', 'livet universum och allting',
+            'die antwort auf das leben', 'der sinn des lebens', 'was ist die bedeutung von 42',
+            'was bedeutet 42', 'das leben das universum und der ganze rest',
+            'la respuesta a la vida', 'el sentido de la vida', 'cuál es el significado de 42',
+            'qué significa 42', 'la vida el universo y todo lo demás',
+            'a resposta para a vida', 'o sentido da vida', 'qual é o significado de 42',
+            'o que significa 42', 'a vida o universo e tudo mais',
+            'la réponse à la vie', 'le sens de la vie', 'quelle est la signification de 42',
+            'que signifie 42', "la vie l'univers et le reste",
+            '生命的答案', '生命的意义', '42的意义是什么', '42是什么意思', '生命宇宙以及一切',
+            'जीवन का उत्तर', 'जीवन का अर्थ', '42 का अर्थ क्या है',
+            '42 का क्या मतलब है', 'जीवन ब्रह्मांड और सब कुछ',
+            '삶의 답', '삶의 의미', '42의 의미는 무엇인가요', '42는 무슨 뜻인가요',
+            '삶 우주 그리고 모든 것', 'svarið við lífinu', 'tilgangur lífsins',
+            'hver er merking 42', 'hvað þýðir 42', 'lífið alheimurinn og allt',
+        )
+        if _easy_command_text(value) not in {_easy_command_text(phrase) for phrase in phrases}:
+            return ''
+        return tr('42 — the answer to life, the universe and everything. — The Hitchhiker’s Guide to the Galaxy')
+
     def _ask_navigator_ai(self, value):
         """Stream one unmatched submission through the existing guarded transport."""
-        from ..ai import settings as ai_settings
         from ..ai.providers import get_provider
         from ..ai.worker import make_stream_thread
         from ..i18n import tr
         from ..preferences import get_preferred_provider
+        from .ai_chat_panel import _current_system_prompt
 
         if get_preferred_provider() == 'none':
             self._cancel_navigator_ai()
@@ -7418,7 +7459,7 @@ class _EasyHomePage(QWidget):
                 pass
             relay.deleteLater()
         self._ai_retired = alive
-        system = ai_settings.get_system_prompt() + (
+        system = _current_system_prompt() + (
             '\n\nNavigator is an advice interface. Answer the submitted task in text. '
             'Do not invoke tools, run commands or analyses, or change files from this interface.')
         thread, worker = make_stream_thread(provider, [{'role': 'user', 'content': value}],
@@ -7643,6 +7684,9 @@ class _EasyHomePage(QWidget):
 
         value = self.path_edit.text().strip()
         self._show_suggestions()
+        if self._navigator_local_reply(value):
+            self._inspect()
+            return
         shortcut = _easy_shortcut_match(value)
         if shortcut and shortcut not in ('spaceout', 'running'):
             self._cancel_navigator_ai()
@@ -7659,7 +7703,7 @@ class _EasyHomePage(QWidget):
             self._inspect()
             return
         suggest = getattr(self.window(), '_easy_navigation_suggestions', _easy_module_search)
-        if self.path_edit.ai.isChecked() and not suggest(value):
+        if self._navigator_ai_can_answer(value) and not suggest(value):
             self._inspect()
             return
         self._debounce.stop()
@@ -7696,6 +7740,20 @@ class _EasyHomePage(QWidget):
                       for key, _title, description, _path in actions}
             self._show_result(self._input_generation, dict(path=value, actions=actions, message='',
                                                          context=dict(action_groups=groups)))
+            return
+        local_reply = self._navigator_local_reply(value)
+        if local_reply or (not self.path_edit.ai.isChecked()
+                           and self._navigator_ai_can_answer(value)
+                           and not _easy_external_reference(value)):
+            self._cancel_navigator_ai()
+            self._runner.cancel()
+            self._input_generation += 1
+            self._requested = value
+            self._last_result = None
+            self._settings_overrides = {}
+            self.field.set_cards([])
+            self._feedback(local_reply or tr(
+                'No matching tool found.\n\nRight-click ◯ to choose spaCR AI (free, hosted by Cloudflare), Claude, Codex or Gemini. Left-click ◯ to turn AI on, then ask your question.\n\nTry a task such as “segment images”, a module name such as “Measure”, or a file type such as “tif”, then press Enter. You can also drop a file/folder or paste a path.'))
             return
         if self.path_edit.ai.isChecked() and self._navigator_ai_can_answer(value):
             self._ask_navigator_ai(value)

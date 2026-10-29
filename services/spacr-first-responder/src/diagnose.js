@@ -99,7 +99,10 @@ export async function handleDiagnose(report, request, env, now) {
 
   let result;
   try {
-    result = await env.AI.run(grant.model, { messages, max_tokens: MAX_OUTPUT_TOKENS, temperature: 0.3 });
+    result = await env.AI.run(grant.model, { messages,
+      ...(grant.model === "@cf/google/gemma-4-26b-a4b-it"
+        ? { max_completion_tokens: MAX_OUTPUT_TOKENS, chat_template_kwargs: { enable_thinking: false } } : { max_tokens: MAX_OUTPUT_TOKENS }),
+      temperature: 0.3 });
   } catch (err) {
     await refundUser(db, day, grant);
     if (isAllocationError(err)) {
@@ -155,7 +158,10 @@ export async function summarizeWithRelay(env, report, now, timeoutMs = SUMMARY_T
     let result;
     try {
       result = await withTimeout(
-        env.AI.run(grant.model, { messages, max_tokens: SUMMARY_MAX_TOKENS, temperature: 0.2 }),
+        env.AI.run(grant.model, { messages,
+          ...(grant.model === "@cf/google/gemma-4-26b-a4b-it"
+            ? { max_completion_tokens: SUMMARY_MAX_TOKENS, chat_template_kwargs: { enable_thinking: false } } : { max_tokens: SUMMARY_MAX_TOKENS }),
+          temperature: 0.2 }),
         timeoutMs,
       );
     } catch (err) {

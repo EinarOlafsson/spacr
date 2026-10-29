@@ -189,7 +189,9 @@ test("the floor keeps a minimum share when many users are active", async () => {
 
 test("a nearly used share falls from best to light, then is refused", async () => {
   const { env, calls } = makeEnv();
-  env.DB.counters.set(mineKey(), 4500 - 60);
+  const remaining = worstCaseCost(LIGHT);
+  assert.ok(remaining < worstCaseCost(BEST));
+  env.DB.counters.set(mineKey(), 4500 - remaining);
   const first = await post(env, sampleReport());
   assert.equal(first.status, 200);
   assert.equal(first.body.tier, "light");

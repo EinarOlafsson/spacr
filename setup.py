@@ -393,7 +393,7 @@ dependencies = [
     'zarr<4,>=2.16; python_version >= "3.10"',
 ]
 
-VERSION = "1.5.1.6"
+VERSION = "1.5.1.7"
 name = "spacr"
 
 setup(

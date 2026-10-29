@@ -11,6 +11,100 @@ Two shapes:
 from __future__ import annotations
 
 
+def _navigation_modules():
+    """Read openable GUI tools and their existing documentation destinations lazily."""
+    import ast
+    import json
+    from pathlib import Path
+
+    from .. import app
+    from ..help_search import api_url
+    from ..tutorials import tutorial_url
+    from ..widgets.fold_strip import FOLD_HOST_MODULES, fold_label
+
+    workflows = json.loads((Path(__file__).resolve().parents[2]
+                            / 'resources/module_workflows.json').read_text(encoding='utf-8'))['modules']
+    rows = {key: (name, description) for key, name, description, _section in app.APPS}
+    hosts = {}
+    for host, children in app.folded_children().items():
+        for key in children:
+            rows.setdefault(key, fold_label(key)[:2])
+            hosts[key] = host
+    for module in FOLD_HOST_MODULES:
+        host = app._declared_constant(module, 'HOST_KEY') or app._declared_constant(module, 'APP_KEY')
+        if not host or host not in rows:
+            continue
+        for node in app._top_level_nodes(module) or ():
+            targets = [node.target] if isinstance(node, ast.AnnAssign) else node.targets if isinstance(node, ast.Assign) else ()
+            if not any(isinstance(target, ast.Name) and target.id == 'PAGE_FOLDS' for target in targets):
+                continue
+            if not isinstance(node.value, (ast.Tuple, ast.List)):
+                continue
+            for item in node.value.elts:
+                if isinstance(item, ast.Constant) and isinstance(item.value, str) and item.value in workflows:
+                    key = item.value
+                    rows.setdefault(key, (workflows[key]['name'], workflows[key].get('guidance', '')))
+                    hosts[key] = host
+    rows.update(app._easy_native_extra_rows())
+    if 'mask' in rows:
+        rows.setdefault('3d', ('3D', rows['mask'][1]))
+        hosts['3d'] = 'mask'
+    api_modules = app.registered_metadata('api_module')
+    result = []
+    for key, (name, description) in sorted(rows.items()):
+        if not app.app_is_visible(key) or not app.app_is_visible(hosts.get(key, key)):
+            continue
+        metadata = workflows.get(key, {})
+        module = metadata.get('api_module') or api_modules.get(key, '')
+        symbol = module.replace('/', '.')
+        if symbol and not symbol.startswith('spacr.'):
+            symbol = 'spacr.' + symbol
+        result.append((key, name, description, api_url(symbol, language='en') if symbol else '',
+                       tutorial_url(key)))
+    return tuple(result)
+
+
+def _navigation_context() -> str:
+    """Ground actionable answers in current native tools and their published help."""
+    rows = _navigation_modules()
+    from ..tutorials import TUTORIALS_URL
+    from ..screens.settings_model import DOCS_API_BASE
+
+    catalog = '\n'.join(
+        f"{key}: {name}"
+        + (f"; API={api.removeprefix(DOCS_API_BASE + '/')}" if api else '')
+        + (f"; Tutorial={tutorial.removeprefix(TUTORIALS_URL)}" if tutorial else '')
+        for key, name, _description, api, tutorial in rows)
+    return (
+        'spaCR navigation and answer guidance:\n'
+        'Reply in the user\'s language. For a how-to question, start with the goal, then give '
+        'short numbered GUI steps with the relevant [module name](spacr://module/key) links '
+        'from the catalog below. These links only open tools after the user clicks; they '
+        'never run analysis or change settings. Offer the exact module name as a Navigator '
+        'keyword the user can type and submit with Enter. Do not invent module IDs, controls, '
+        'settings, file compatibility or workflow handoffs. Respect hidden/alpha tools. '
+        'Identify the required input and the output used by the next module. Ask a focused '
+        'question when necessary information is missing.\n'
+        'For segmentation in Mask: select the source, channels and model; use Live preview '
+        '(Live view) and Run preview to inspect and tune one field; turn on Propagate settings '
+        'to copy the preview settings into the main form, then use Actions > Run for the full '
+        'analysis. Preview and propagation do not process the full dataset. Next open Measure '
+        'on the project containing the generated merged arrays to produce '
+        'measurements/measurements.db. Make Masks edits masks; it is a different tool. '
+        'Other modules have their own controls; do not claim all have this preview flow.\n'
+        'For other tasks, choose the appropriate available tool: Import/Format Converter or '
+        'External Masks for data preparation; Make Masks for curation; Measure for features; '
+        'Annotate/Classify for labels and classifiers; Graph Builder, Gate Editor, Image UMAP, '
+        'Regression or assay-specific tools for compatible outputs. Describe only supported '
+        'handoffs. When useful, finish with the relevant API and Tutorial links from the same '
+        'catalog row; omit a missing link and avoid unrelated documentation lists.\n'
+        'Build module links only as spacr://module/ followed by an exact catalog key. '
+        f'API destinations are relative to {DOCS_API_BASE}/; Tutorial destinations '
+        f'are relative to {TUTORIALS_URL}. Join the exact supplied suffix to its '
+        'base; do not invent pages, lessons or anchors.\n'
+        'Current openable tool catalog (module-name Navigator keywords):\n' + catalog)
+
+
 def _spacr_context() -> str:
     """Return the system prompt describing spaCR to the assistant.
 
@@ -25,22 +119,23 @@ def _spacr_context() -> str:
         "spatial phenotype analysis of CRISPR-Cas9 imaging screens. It "
         "runs on top of PyTorch, Cellpose, scikit-image, and scipy, "
         "with a Qt (PySide6) GUI. Users typically:\n"
-        "  1. Preprocess microscopy images (Yokogawa / Cellvoyager) into "
-        "single-object crops using Cellpose masks.\n"
-        "  2. Measure features per object into a SQLite database "
-        "(`measurements/measurements.db`, table `png_list` + measurement "
-        "tables like `cell`, `nucleus`, `pathogen`, `cytoplasm`).\n"
-        "  3. Annotate crops on a grid (left-click = class 1, right = 2).\n"
-        "  4. Train a Torch CNN (\"Train CV\") or XGBoost model "
-        "(\"Train XG\") from the annotations and apply it to the full "
-        "dataset.\n"
-        "  5. Analyse with UMAP, regression, or recruitment / plaque "
-        "modules.\n"
+        "  1. Prepare microscopy images in Import/Format Converter and "
+        "generate segmentation masks and merged arrays in Mask.\n"
+        "  2. Measure per-object features and create image crops in Measure, "
+        "saving measurements in SQLite (`measurements/measurements.db`, "
+        "table `png_list` plus tables such as `cell`, `nucleus`, `pathogen`, "
+        "and `cytoplasm`).\n"
+        "  3. Assign training labels to crops in Annotate.\n"
+        "  4. Use Classify's Computer Vision or Tabular Machine Learning "
+        "tools to train and apply compatible classifiers.\n"
+        "  5. Explore compatible outputs in Image UMAP, Graph Builder, "
+        "Gate Editor, Regression, or assay-specific modules.\n"
         "Documentation lives at https://einarolafsson.github.io/spacr/.\n"
         "Prefer concrete, spacr-specific answers over generic Python "
         "advice. When suggesting code, favour the existing spacr "
         "module APIs (e.g. `spacr.core.preprocess_generate_masks`, "
         "`spacr.deep_spacr.train_test_model`, `spacr.ml.generate_ml_scores`)."
+        f"\n\n{_navigation_context()}"
     )
 
 

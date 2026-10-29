@@ -1629,3 +1629,15 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
             "fr",
             force=_looks_translatable(source),
         )
+
+
+def test_hitchhiker_title_preserves_guide_without_changing_molecular_guides(monkeypatch):
+    import build_i18n_catalogs as builder
+
+    monkeypatch.setattr(builder, "_reviewed_translation", lambda *_: None)
+    source = "42 — the answer to life, the universe and everything. — The Hitchhiker’s Guide to the Galaxy"
+    target = "42 — 生命、宇宙以及一切的答案。—《银河系漫游指南》"
+    assert builder._contextualize(target, "zh_CN", source) == target
+    assert not builder._translation_rejection_reasons(source, target, "zh_CN", force=True)
+    assert builder._contextualize("每个基因的指南数量。", "zh_CN",
+                                  "Count guides per gene.") == "每个基因的引导 RNA数量。"

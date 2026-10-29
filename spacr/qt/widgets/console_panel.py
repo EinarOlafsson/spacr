@@ -1025,11 +1025,10 @@ class _AiReplyBlock(_StdoutBlock):
         self.updateGeometry()
 
     def _open_reply_link(self, url):
-        """Open only explicit clicks on sanitized web or mail links."""
-        from PySide6.QtGui import QDesktopServices
+        """Open explicitly clicked module and documentation links."""
+        from .ai_chat_panel import _activate_ai_link
 
-        if url.scheme().lower() in ('http', 'https', 'mailto'):
-            QDesktopServices.openUrl(url)
+        _activate_ai_link(self, url)
 
     def link_at(self, pos):
         """Resolve sanitized rich anchors rather than matching visible label text."""
