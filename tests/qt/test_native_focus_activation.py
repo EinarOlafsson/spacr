@@ -100,6 +100,7 @@ def test_all_control_navigation_is_test_local_and_restores_the_real_tab_route(qt
     qtbot.addWidget(host)
     layout = QVBoxLayout(host)
     before, button, after = QLineEdit(), QPushButton("Native button"), QLineEdit()
+    button.setFocusPolicy(Qt.TabFocus)
     for widget in (before, button, after):
         layout.addWidget(widget)
     host.show()
