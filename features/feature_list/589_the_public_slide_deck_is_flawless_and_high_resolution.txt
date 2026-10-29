@@ -5,6 +5,8 @@ Status: DONE 2026-09-26 (evidence 428272de8) — all nine translated README Back
 updated to slide 55. Integration verified 2026-09-27; see the closing note.
 Owner: Claude agent (worktree agent-af1616c9b018f601c).
 
+CURRENT MAINTAINER FOLLOW-UP — 2026-10-28: replace the README slide-deck cover logo with the clean photomosaic without images outside the logo. Retained Home worker owns canonical cover asset/source, affected deck/README outputs and focused validation in an isolated worktree; coordinator integrates and publishes. Preserve internal microscopy tiles, deck layout and unrelated slides.
+
 THE REQUEST (the maintainer, 2026-09-26, verbatim)
   "in the slide deck, the slide with the organells (slide 10) has poor object
   detection and that needs to change, the nuclei are also poorly detected in
@@ -237,3 +239,5 @@ pass 60, one optional python-pptx import skip. Native capture pixels and
 original external PPTX remain unchanged. Actual GIF preservation is verified
 independently of that optional test. Receipt: 615_deck_current_refresh_2026-10-05.
 Local artifact refresh is complete; deployed readback remains item 615 work.
+
+2026-10-28 — Deck cover clipped to the filled canonical logo silhouette, removing detached and attached exterior images while keeping its microscopy interior. Normal cover-only refresh preserves the other 56 slides, thumbnails and PDF page contents; shared phone/desktop README covers rebuilt. Two focused controls pass; hosted PDF published and pinned with normal media verification.
