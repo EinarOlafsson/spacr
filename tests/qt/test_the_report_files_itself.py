@@ -758,6 +758,7 @@ def _send_approved_issue(qtbot, screen, monkeypatch):
 
 class TestAFailedRunFilesItself:
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_the_report_is_filed_with_no_preview(
             self, qtbot, monkeypatch, automatic_mask_screen, machine):
         screen = automatic_mask_screen
@@ -775,6 +776,7 @@ class TestAFailedRunFilesItself:
         assert "ValueError" in posted
         assert screen.relay.calls_to("/diagnose") == []
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_the_same_crash_is_not_filed_twice(
             self, qtbot, automatic_mask_screen):
         screen = automatic_mask_screen
@@ -792,6 +794,7 @@ class TestAFailedRunFilesItself:
         assert FILED_URL in screen._console.as_text()
         assert screen.previews == [] and screen.opened == []
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_an_open_issue_gets_this_occurrence(self, qtbot, automatic_mask_screen):
         screen = automatic_mask_screen
         screen.relay.routes["/report"] = [(200, {
@@ -802,6 +805,7 @@ class TestAFailedRunFilesItself:
         assert len(screen.relay.calls_to("/report")) == 1
         assert screen.previews == [] and screen.opened == []
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_signed_out_approved_report_uses_browser_fallback_without_api_request(
             self, qtbot, monkeypatch, mask_screen, machine, manual_error_batches):
         github = FakeGitHub()
@@ -820,6 +824,7 @@ class TestAFailedRunFilesItself:
         assert len(github.posted("/repos/EinarOlafsson/spacr/issues")) == 1
         assert FILED_URL in text
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_an_approved_api_failure_falls_back_and_can_be_retried(
             self, qtbot, monkeypatch, signed_in, mask_screen, machine, manual_error_batches):
         github = FakeGitHub(create_fails=True)
@@ -840,6 +845,7 @@ class TestAFailedRunFilesItself:
         assert len(github.posted("/repos/EinarOlafsson/spacr/issues")) == 2
         assert FILED_URL in second
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_ask_files_nothing(self, qtbot, monkeypatch, signed_in,
                                mask_screen):
         from spacr.qt import preferences
@@ -855,6 +861,7 @@ class TestAFailedRunFilesItself:
         assert "[issue] Filing" not in text
 
     @pytest.mark.parametrize("accepted", ["", "4.1"])
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_nothing_is_filed_before_the_terms_are_accepted(
             self, qtbot, monkeypatch, signed_in, mask_screen, accepted):
         """Consent is Section 5.6. A profile launched with --no-setup, on a
@@ -877,6 +884,7 @@ class TestAFailedRunFilesItself:
         assert "Set spaCR up again" in text[said:]
         assert mask_screen._btn_file_issue.isEnabled()
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_reporting_switched_off_files_nothing(
             self, qtbot, monkeypatch, signed_in, mask_screen):
         from spacr.qt.ai import settings as ai_settings
@@ -890,6 +898,7 @@ class TestAFailedRunFilesItself:
         assert github.requests == []
         assert "[issue]" not in text
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_a_run_on_a_folder_with_spaces_publishes_none_of_it(
             self, qtbot, monkeypatch, automatic_mask_screen):
         from spacr.qt.screens import app_screen
@@ -909,6 +918,7 @@ class TestAFailedRunFilesItself:
             assert leak not in posted, f"{leak!r} was published: {posted!r}"
         assert created["body"]["exception_type"] == "FileNotFoundError"
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_a_report_that_never_came_back_does_not_block_the_next_one(
             self, qtbot, automatic_mask_screen):
         from spacr import crashreport
@@ -1196,6 +1206,7 @@ class TestTheReportWaitsForTheAI:
         assert ANALYSIS in created["body"]["ai_summary"]
         assert ANALYSIS in screen._console.as_text()
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_an_ai_that_never_answers_does_not_hold_the_report(
             self, qtbot, automatic_mask_screen, machine):
         from spacr import crashreport

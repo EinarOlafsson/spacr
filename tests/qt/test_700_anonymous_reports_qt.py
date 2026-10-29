@@ -1061,6 +1061,7 @@ class TestTheReportLineAfterTheAiEntry:
                            else w.text())
         return "\n".join(out)
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_the_issue_line_and_link_follow_the_ai_entry(
             self, qtbot, qt_theme_applied, monkeypatch, relay):
         url = "https://github.com/olafsson-lab/spacr/issues/151"
@@ -1073,6 +1074,7 @@ class TestTheReportLineAfterTheAiEntry:
         assert text.index("Set cell_channel") < text.index(
             "Reported as issue #151")
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_the_line_follows_a_saved_answer_too(
             self, qtbot, qt_theme_applied, monkeypatch, relay):
         url = "https://github.com/olafsson-lab/spacr/issues/152"
@@ -1085,6 +1087,7 @@ class TestTheReportLineAfterTheAiEntry:
         assert "Reported as issue #152 (with AI summary)" in text
         assert url in text
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_the_line_is_shown_below_the_entry(
             self, qtbot, qt_theme_applied, monkeypatch, relay):
         from PySide6.QtWidgets import QPlainTextEdit
@@ -1105,6 +1108,7 @@ class TestTheReportLineAfterTheAiEntry:
         assert ai and line and line[0] > ai[0]
         assert not order[line[0]][1]
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_the_link_is_clickable_and_survives_a_failed_ai_fill(
             self, qtbot, qt_theme_applied, monkeypatch, relay):
         from PySide6.QtCore import QPoint

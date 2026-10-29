@@ -76,6 +76,7 @@ def test_a_second_run_opens_beside_the_first(qtbot, tmp_path):
         os.path.abspath(one)
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_the_third_run_is_refused_and_the_bound_is_stated(qtbot, tmp_path):
     """A bound discovered by a refusal with no reason is indistinguishable
     from a broken button."""
@@ -103,6 +104,7 @@ def test_a_run_is_not_opened_beside_itself(qtbot, tmp_path):
     assert screen.live_run_count() == 1
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_a_folder_with_no_results_says_so(qtbot, tmp_path):
     screen = _screen(qtbot)
     empty = str(tmp_path / "nothing")

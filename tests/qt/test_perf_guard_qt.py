@@ -340,6 +340,7 @@ def append_batch(panel: ConsolePanel, first: int, count: int) -> float:
     return (time.perf_counter() - start) / count * 1000.0
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_appending_one_console_line_costs_a_fraction_of_a_millisecond(qtbot):
     """Measured 0.036 ms/line quiet, 0.054 loaded (documented 0.05); ceiling
     0.25 ms.
@@ -365,6 +366,7 @@ def test_appending_one_console_line_costs_a_fraction_of_a_millisecond(qtbot):
         "and this tree measured 0.036 ms (3000 lines per run)")
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_console_append_does_not_get_slower_as_the_console_fills(qtbot):
     """The complexity assertion, and the valuable one: appending is FLAT.
 
@@ -405,6 +407,7 @@ def test_console_append_does_not_get_slower_as_the_console_fills(qtbot):
         "already holds")
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_three_thousand_console_lines_stay_under_a_second_and_a_half(qtbot):
     """The reported bug, reproduced as a stopwatch: 9.56 s -> 0.11 s.
 

@@ -47,20 +47,38 @@ def _catalog(prefix: str, locale: str) -> dict:
     return full_file(f"catalog/{prefix}_{locale}.json")
 
 
+def _before_navigator_arrival(lessons):
+    """Validate lesson 88 separately and retain the historical 84-lesson contract."""
+    arrivals = [lesson for lesson in lessons if lesson["id"] == "88_navigator"]
+    assert len(arrivals) == 1
+    arrival = arrivals[0]
+    assert lessons[-1] is arrival
+    assert arrival["id"] not in ARCHIVED_IDS
+    assert arrival["number"] == 88
+    assert arrival["slug"] == "navigator"
+    assert arrival["series"] == 1
+    assert arrival["section"] == "spaCR"
+    assert arrival["app_key"] is None
+    assert arrival.get("host_app_key") is None
+    assert len(arrival["scenes"]) == 18
+    return lessons[:-1]
+
+
 def test_deployed_catalogs_hide_exactly_the_archived_lessons():
     for prefix, locales in (("lessons", FULL_LOCALES), ("captions", CAPTION_LOCALES)):
         for locale in locales:
             path = CATALOG_DIR / f"{prefix}_{locale}.json"
             deployed = [lesson["id"] for lesson in
                         json.loads(path.read_text(encoding="utf-8"))["lessons"]]
-            published = [lesson["id"] for lesson in _catalog(prefix, locale)["lessons"]]
+            lessons = _catalog(prefix, locale)["lessons"]
+            published = [lesson["id"] for lesson in lessons]
             assert deployed == [i for i in published if i not in ARCHIVED_IDS], path.name
-            assert len(published) == 84
+            assert len(_before_navigator_arrival(lessons)) == 84
 
 
 def test_all_authored_catalogs_match_the_84_lesson_inventory_and_routes():
     """Every locale must carry the complete lesson and folded-host topology."""
-    english = _catalog("lessons", "en")["lessons"]
+    english = _before_navigator_arrival(_catalog("lessons", "en")["lessons"])
     ids = [lesson["id"] for lesson in english]
     scene_counts = [len(lesson["scenes"]) for lesson in english]
     expected_routes = {
@@ -98,7 +116,7 @@ def test_all_authored_catalogs_match_the_84_lesson_inventory_and_routes():
     assert expected_routes['63_small_multiples'] == 'graph_builder'
 
     for locale in FULL_LOCALES:
-        lessons = _catalog("lessons", locale)["lessons"]
+        lessons = _before_navigator_arrival(_catalog("lessons", locale)["lessons"])
         assert [lesson["id"] for lesson in lessons] == ids, locale
         assert [len(lesson["scenes"]) for lesson in lessons] == scene_counts, locale
         routes = {
@@ -109,7 +127,7 @@ def test_all_authored_catalogs_match_the_84_lesson_inventory_and_routes():
         assert routes == expected_routes, locale
 
     for locale in CAPTION_LOCALES:
-        lessons = _catalog("captions", locale)["lessons"]
+        lessons = _before_navigator_arrival(_catalog("captions", locale)["lessons"])
         assert [lesson["id"] for lesson in lessons] == ids, locale
         assert [len(lesson["scenes"]) for lesson in lessons] == scene_counts, locale
 

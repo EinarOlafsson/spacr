@@ -1360,6 +1360,21 @@ def _isolated_qsettings_store(request):
                 "is writing them.", RuntimeWarning, stacklevel=1)
 
 
+@pytest.fixture
+def console_info_enabled(_isolated_qsettings_store):
+    """Enable INFO explicitly for tests that inspect routine console output."""
+    import logging
+    from spacr.qt import preferences
+
+    files = preferences.get_log_file_levels()
+    console = preferences.get_log_console_levels()
+    preferences.set_log_levels(files | {logging.INFO}, console | {logging.INFO})
+    try:
+        yield
+    finally:
+        preferences.set_log_levels(files, console)
+
+
 # ---------------------------------------------------------------------------
 # CI suite classification
 # ---------------------------------------------------------------------------

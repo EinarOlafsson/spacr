@@ -57,6 +57,7 @@ def test_a_heading_that_is_not_in_this_console_spans_nothing(panel, qtbot):
     assert panel.section_body(stray) == []
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_a_module_banner_spans_past_the_output_banner_under_it(panel):
     """``append_stdout`` inserts its own "spaCR output" bar, so a module
     banner is followed immediately by another banner. Stopping at the first
@@ -80,6 +81,7 @@ def test_a_module_banner_spans_past_the_output_banner_under_it(panel):
         "the output banner under the module banner is part of its section"
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_the_last_section_runs_to_the_end_of_the_transcript(panel):
     panel.begin_topic("Mask")
     panel.append_stdout("only output\n")
@@ -92,6 +94,7 @@ def test_the_last_section_runs_to_the_end_of_the_transcript(panel):
     assert "only output" in panel.section_text(last)
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_copying_a_section_puts_exactly_that_section_on_the_clipboard(panel):
     panel.begin_topic("Mask")
     panel.append_stdout("one\ntwo\n")
@@ -110,6 +113,7 @@ def test_copying_a_section_puts_exactly_that_section_on_the_clipboard(panel):
 # Folding and raising
 # ---------------------------------------------------------------------------
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_raising_a_section_leaves_a_nested_heading_the_user_folded_alone(
         panel, qtbot):
     """Expanding the section above a folded heading is not a request to
@@ -245,6 +249,7 @@ def test_a_provider_that_raises_on_cancel_does_not_stop_the_shutdown(
 # What the AI is shown of the console
 # ---------------------------------------------------------------------------
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_output_is_offered_to_the_ai_once_and_only_once(panel):
     """The console context is what has NOT been sent yet.
 

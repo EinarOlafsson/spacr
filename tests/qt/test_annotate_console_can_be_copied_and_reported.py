@@ -87,6 +87,7 @@ def test_the_hook_does_not_swallow_the_console_output(screen):
     assert "a distinctive failure string" in text
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_pressing_file_as_issue_sends_the_console(screen, qtbot, monkeypatch):
     """PRESS IT. The handler called
     ``file_issue(self, {"screen": "annotate"}, body)`` -- the screen where
@@ -124,6 +125,7 @@ def test_pressing_file_as_issue_sends_the_console(screen, qtbot, monkeypatch):
     assert "https://x/1" in text
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_file_as_issue_refuses_when_reporting_is_set_to_never(
         screen, qtbot, monkeypatch):
     """'never' is a refusal to send, and the button must honour it."""

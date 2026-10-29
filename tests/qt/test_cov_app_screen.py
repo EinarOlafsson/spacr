@@ -694,6 +694,7 @@ class TestRoundTrip:
 
 class TestImportSettings:
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_import_key_value_csv_applies_values(self, qtbot, monkeypatch,
                                                  tmp_path):
         """The header spacr.utils.save_settings writes."""
@@ -757,6 +758,7 @@ class TestImportSettings:
         assert len(seen) == 1 and seen[0][1] == "Import failed"
         assert scr._settings_model.collect() == before
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_moved_settings_are_called_out_on_import(self, qtbot, monkeypatch,
                                                      tmp_path, no_modals):
         """Tracking lands in Mask even without optional mounted categories.
@@ -1052,6 +1054,7 @@ class TestRunStopStateMachine:
             "spacr.qt.screens.app_screen.resolve_pipeline_entry",
             lambda key: fn)
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_run_then_finish_walks_the_full_button_state_machine(
             self, qtbot, monkeypatch, no_modals):
         # `_on_stop` asks how to quit before it stops anything. `no_modals`
@@ -1110,6 +1113,7 @@ class TestRunStopStateMachine:
         qtbot.waitUntil(lambda: scr._thread is None, timeout=5000)
         assert scr._worker is None
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_a_failing_pipeline_reaches_the_failed_arm(self, qtbot,
                                                        monkeypatch, no_modals):
         def _fn(settings):
@@ -1177,6 +1181,7 @@ class TestRunStopStateMachine:
         scr._on_stop()
         assert _console_text(scr._console) == console_before
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_stop_survives_a_thread_that_refuses_to_be_interrupted(
             self, qtbot, monkeypatch):
         """Stop must survive a thread whose requestInterruption throws.
@@ -1207,6 +1212,7 @@ class TestRunStopStateMachine:
         assert "Requesting stop" in _console_text(scr._console)
         scr._thread = None
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_run_context_failure_does_not_block_the_run(self, qtbot,
                                                         monkeypatch,
                                                         no_modals):
@@ -1223,6 +1229,7 @@ class TestRunStopStateMachine:
         qtbot.wait(50)
         assert "ran-anyway" in _console_text(scr._console)
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_on_finished_reports_elapsed_even_without_a_start_stamp(
             self, qtbot):
         """_on_finished is also reachable straight from a signal replay."""
@@ -1236,6 +1243,7 @@ class TestRunStopStateMachine:
         assert not scr._progress.isVisibleTo(scr)
         assert "✗ Failed" in _console_text(scr._console)
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_a_broken_desktop_notifier_does_not_break_the_finish(
             self, qtbot, monkeypatch):
         monkeypatch.setattr(
@@ -1270,6 +1278,7 @@ class TestRunStopStateMachine:
         scr._clear_thread_refs()
         assert scr._thread is None and scr._worker is None
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_clear_console_button(self, qtbot):
         scr = _make_screen(qtbot, "mask")
         scr._console.append_stdout("noise\n")
@@ -1397,6 +1406,7 @@ class TestErrorRouting:
         assert scr._btn_file_issue.isEnabled()
         assert submitted == []
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_approved_report_failure_is_reported_not_swallowed(
             self, qtbot, monkeypatch):
         monkeypatch.setattr("spacr.qt.ai.settings.get_auto_file_issues",
@@ -1431,6 +1441,7 @@ class TestErrorRouting:
         assert "TB-VISIBLE" in _console_text(scr._console)
         assert not scr._btn_file_issue.isEnabled()
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_file_issue_snapshot_failure_still_files_the_issue(self, qtbot,
                                                                monkeypatch):
         seen = {}
@@ -1611,6 +1622,7 @@ class TestAiControls:
         # NOT overwritten with providers[0].
         assert scr._console._current_provider_name == "codex"
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_ai_switch_refuses_to_stay_on_without_a_provider(self, qtbot,
                                                              monkeypatch):
         monkeypatch.setattr("spacr.qt.ai.configured_providers", lambda: [])

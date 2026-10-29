@@ -351,6 +351,7 @@ def test_a_settings_backend_that_raises_does_not_break_the_console(
 # The restructure must not have cost the console anything
 # ---------------------------------------------------------------------------
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_zoom_still_reaches_both_the_console_and_the_chat(qtbot,
                                                           qt_theme_applied):
     """Font scale is applied through the holder, which moved inside the
@@ -403,6 +404,7 @@ def test_appscreen_sweep_still_tags_the_console_splitter(qtbot,
     assert panel._split.property(TRANSPARENT_PROPERTY) is True
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_console_output_is_unaffected_by_the_split(qtbot, qt_theme_applied):
     """Appending still works, still coalesces into one block, still scrolls."""
     panel = _panel(qtbot)

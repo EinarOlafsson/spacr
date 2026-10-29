@@ -281,6 +281,7 @@ def test_an_empty_outline_or_one_the_overlap_rule_refuses_adds_nothing(
     assert prompter.pending is None, "an answer to a discarded prompt is dropped"
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_prompting_asks_the_backend_and_offers_to_install_it(
         screen, monkeypatch):
     from spacr.qt.widgets import model_zoo_picker

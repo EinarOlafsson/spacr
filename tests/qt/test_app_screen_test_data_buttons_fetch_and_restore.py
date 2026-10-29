@@ -81,6 +81,7 @@ class TestTheScreenData:
         assert asked == []
         assert plate.is_dir()
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_a_failed_fetch_restores_the_button_and_says_why(
             self, screen, plate):
         button = QPushButton("Measurements (.db)", screen)
@@ -104,6 +105,7 @@ class TestTheScreenData:
         assert button.text() == "Feature"
         assert "no route to huggingface.co" in _console_text(screen._console)
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_a_cancelled_fetch_says_cancelled(self, screen, plate):
         button = QPushButton("Image crops", screen)
         screen._screen_crops_button = button
@@ -115,6 +117,7 @@ class TestTheScreenData:
         assert button.text() == "Image crops"
         assert "cancelled" in _console_text(screen._console)
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_a_finished_fetch_names_the_folder(self, screen, plate):
         screen.__dict__.pop("_screen_data_button", None)
         placed = screen.load_the_screen_data(
@@ -161,6 +164,7 @@ class TestTheScreenData:
 
 class TestTheMeasurePlate:
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_a_failed_download_leaves_src_and_restores_the_button(
             self, screen, plate):
         button = QPushButton("Load test data…", screen)
@@ -197,6 +201,7 @@ class TestTheMeasurePlate:
         assert screen.load_the_measure_example() == {}
         assert called == [plate]
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_the_example_goes_in_even_where_src_cannot_be_written(
             self, screen, plate):
         plate.mkdir(parents=True)
@@ -252,6 +257,7 @@ class TestPointingSrcAtAFolder:
 
 class TestTheSequencingReads:
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_the_real_picker_is_opened_and_its_files_are_used(
             self, screen, plate, monkeypatch):
         from spacr.qt.widgets import sra_picker
@@ -284,6 +290,7 @@ class TestTheSequencingReads:
             picker=types.SimpleNamespace(written=[])) == {}
         assert _src(screen) == before
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_reads_arrive_on_a_screen_without_src(self, screen, plate):
         was = screen._settings_model
         screen._settings_model = types.SimpleNamespace(_widgets={})
@@ -302,6 +309,7 @@ class TestTheSequencingReads:
 
 class TestTheAnnotationPlate:
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_a_failed_download_restores_the_button_and_says_why(
             self, screen, plate):
         button = QPushButton("Load test data…", screen)
