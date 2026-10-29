@@ -291,6 +291,62 @@ def test_fractal_cpu_budget_runs_strictly_without_coverage_tracing():
 
 
 
+@pytest.mark.parametrize("batch_exit", [0, 7])
+def test_console_timing_keeps_the_required_serial_untraced_slow_gate(tmp_path, batch_exit):
+    import yaml
+    from _pytest.mark.expression import Expression
+
+    filename = "tests/qt/test_perf_guard_qt.py"
+    node = f"{filename}::test_appending_one_console_line_costs_a_fraction_of_a_millisecond"
+    jobs = yaml.safe_load(WORKFLOW.read_text())["jobs"]
+    coverage = [step["run"] for step in jobs["coverage-shards"]["steps"] if "run" in step]
+    assert sum(step.count(f"--deselect={node}") for step in coverage) == 1
+    assert not any(f"--exclude-file {filename}" in step for step in coverage)
+    slow = jobs["slow"]
+    assert not slow.get("continue-on-error", False)
+    marker = slow["with"]["marker_expression"]
+    assert marker == "(slow or heavy) and not gpu and not network and not nas and not gui"
+    tree = ast.parse((ROOT / filename).read_text())
+    marked = next(item for item in tree.body if isinstance(item, ast.Assign)
+                  and any(isinstance(target, ast.Name) and target.id == "pytestmark"
+                          for target in item.targets))
+    markers = {item.attr for item in marked.value.elts}
+    assert markers == {"qt", "heavy"}
+    assert Expression.compile(marker).evaluate(lambda name: name in markers)
+
+    reusable = yaml.safe_load(REUSABLE.read_text())
+    inputs = reusable.get("on", reusable.get(True))["workflow_call"]["inputs"]
+    script = _torch_routing_step()["run"]
+    for name, definition in inputs.items():
+        value = slow["with"].get(name, definition.get("default", ""))
+        rendered = str(value).lower() if isinstance(value, bool) else str(value)
+        script = script.replace("${{ inputs." + name + " }}", rendered)
+    assert "${{" not in script and node not in REUSABLE.read_text()
+    _write_torch_routing_shim(tmp_path)
+    log = tmp_path / "slow-routing.jsonl"
+    env = dict(os.environ, PATH=f"{tmp_path}{os.pathsep}{os.environ['PATH']}",
+               PYTEST_ADDOPTS="", SPACR_QT_NATIVE_EVIDENCE_DIR="",
+               ROUTING_LOG=str(log), ROUTING_NODE="tools/run_pytest_batches.py",
+               ROUTING_FAIL_TAIL="1" if batch_exit else "0")
+    result = subprocess.run(
+        ["bash", "--noprofile", "--norc", "-e", "-o", "pipefail", "-c", script],
+        cwd=ROOT, env=env, capture_output=True, text=True, timeout=10)
+    assert result.returncode == batch_exit, result.stderr
+    commands = [json.loads(line) for line in log.read_text().splitlines()]
+    assert len(commands) == 1
+    command = commands[0]
+    argv = command["argv"]
+    assert argv[:2] == ["tools/run_pytest_batches.py", "tests/"]
+    assert argv[argv.index("--marker") + 1] == marker
+    assert argv[argv.index("--batch-size") + 1] == "8"
+    assert argv[argv.index("--workers") + 1] == "1"
+    assert "--collect-selected-files" in argv and "--skip-qt-only-batches" not in argv
+    assert f"--ignore={filename}" not in argv
+    assert f"--deselect={node}" not in command["addopts"]
+    assert not any(arg.startswith("--cov") for arg in argv)
+    assert "--cov" not in command["addopts"]
+
+
 def test_fractal_cpu_budget_stays_in_the_mandatory_untraced_qt_tail():
     """Retain the strict measurement and its complete Qt routing contract."""
     import yaml

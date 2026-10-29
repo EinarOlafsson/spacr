@@ -492,6 +492,7 @@ jobs:
             --evidence-dir "$SPACR_QT_NATIVE_EVIDENCE_DIR"
           export PYTEST_ADDOPTS="${PYTEST_ADDOPTS:-} -p tools.pytest_plugins.qt_serial_rss_journal --deselect=tests/qt/test_torch_libraries_map_without_the_interpreter_lock_20261013.py::test_importing_torch_after_the_map_blocks_other_threads_far_less"
           export PYTEST_ADDOPTS="$PYTEST_ADDOPTS --deselect=tests/qt/test_spaceout_fractals_move_and_stay_in_budget.py::test_no_setting_can_ask_for_more_than_half_a_frame"
+          export PYTEST_ADDOPTS="$PYTEST_ADDOPTS --deselect=tests/qt/test_perf_guard_qt.py::test_appending_one_console_line_costs_a_fraction_of_a_millisecond"
           python tools/run_coverage_batches.py tests \
             --marker "not gui" \
             --shard-index "$SPACR_COVERAGE_SHARD" \
