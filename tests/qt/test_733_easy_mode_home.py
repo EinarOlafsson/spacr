@@ -1447,3 +1447,58 @@ def test_compact_workflow_uses_real_space_below_its_unchanged_anchor(
         assert source.geometry() == source._final_rect
     finally:
         page.close()
+
+
+def test_nested_regex_preview_keeps_one_filename_and_escaped_headers_are_plain(
+        qtbot, qapp, private_ai_profile, tmp_path):
+    from PySide6.QtGui import QTextDocument
+    from spacr.qt.widgets.home import _EasyHomePage, _EasyRegexCard
+
+    preferences, _, _ = private_ai_profile
+    preferences.set_easy_mode(True)
+    preferences.set_reduce_motion(True)
+    images = [tmp_path / name for name in ('scan_101_C1.tif', 'scan_101_C2.tif')]
+    for image in images:
+        _image(image)
+    original = _bytes(images)
+    page = _EasyHomePage()
+    qtbot.addWidget(page)
+    page.resize(1280, 850)
+    page.show()
+    requested = []
+    page.module_requested.connect(lambda *args: requested.append(args))
+    try:
+        page.accept_paths([str(images[0])])
+        qtbot.waitUntil(lambda: bool(page.field.cards)
+                       and isinstance(page.field.cards[0], _EasyRegexCard), timeout=5000)
+        card = page.field.cards[0]
+        pattern = r'scan_(?P<wellID>(?P<fieldID>[0-9]+))_C(?P<chanID>[12])\.tif$'
+        card.pattern_edit.setPlainText(pattern)
+        assert not page._settings_overrides
+        qtbot.mouseClick(card, Qt.LeftButton, pos=QPoint(card.width() // 2, card.height() - 6))
+        qtbot.waitUntil(lambda: not page._runner.is_busy(), timeout=5000)
+        confirmed = page.field.cards[0]
+        assert isinstance(confirmed, _EasyRegexCard)
+        assert not confirmed._proposal['required']
+        assert {group['name'] for group in confirmed._proposal['groups']} == {
+            'wellID', 'fieldID', 'chanID'}
+        rendered = QTextDocument()
+        rendered.setHtml(confirmed.description.text())
+        assert rendered.toPlainText() == str(images[0])
+        assert confirmed.description.text().count('>101</span>') == 1
+        assert confirmed.description.text().count('<span') == 2
+        applied = dict(page._settings_overrides['mask'])
+        escaped = r'\(?P<fieldID>' + pattern
+        confirmed.pattern_edit.setPlainText(escaped)
+        qapp.processEvents()
+        formats = confirmed.pattern_edit.document().firstBlock().layout().formats()
+        assert sorted(item.start for item in formats) == sorted(
+            escaped.index('(?P<' + name + '>', len(r'\(?P<fieldID>'))
+            for name in ('wellID', 'fieldID', 'chanID'))
+        assert not confirmed.error.text()
+        assert '<span' not in confirmed.description.text()
+        assert page._settings_overrides == {'mask': applied}
+        assert requested == []
+        assert _bytes(images) == original
+    finally:
+        page.close()
