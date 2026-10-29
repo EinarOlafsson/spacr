@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 13:35-0400\n"
+"POT-Creation-Date: 2026-10-29 17:02-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -38,8 +38,9 @@ msgstr "클래스 수에 관계없는 원시 개수 혼동 행렬과 행 정규�
 msgid "the same metrics separately for every plate;"
 msgstr "모든 플레이트에 대해 따로 계산한 같은 지표;"
 
-msgid "cross-fitted calibration curves and per-class reliability bins;"
-msgstr "교차 적합 보정 곡선과 클래스별 신뢰도 구간;"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "per-class reliability-bin statistics;"
+msgstr "클래스별 신뢰도 구간 통계;"
 
 msgid "searchable held-out predictions with plate, well, field, object, confidence, and raw/calibrated class probabilities; and"
 msgstr "플레이트, 웰, 시야, 객체, 신뢰도, 원시/보정된 클래스 확률을 포함한 검색 가능한 홀드아웃 예측;"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 13:35-0400\n"
+"POT-Creation-Date: 2026-10-29 17:02-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
@@ -38,8 +38,9 @@ msgstr "råa antal och radnormaliserade förväxlingsmatriser för valfritt anta
 msgid "the same metrics separately for every plate;"
 msgstr "samma mått separat för varje platta;"
 
-msgid "cross-fitted calibration curves and per-class reliability bins;"
-msgstr "korsanpassade kalibreringskurvor och tillförlitlighetsintervall per klass;"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "per-class reliability-bin statistics;"
+msgstr "tillförlitlighetsstatistik per sannolikhetsintervall och klass;"
 
 msgid "searchable held-out predictions with plate, well, field, object, confidence, and raw/calibrated class probabilities; and"
 msgstr "sökbara prediktioner på utelämnade data med platta, brunn, fält, objekt, konfidens och råa/kalibrerade klassannolikheter; och"

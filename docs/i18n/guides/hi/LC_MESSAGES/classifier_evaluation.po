@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 13:35-0400\n"
+"POT-Creation-Date: 2026-10-29 17:02-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -38,8 +38,9 @@ msgstr "किसी भी संख्या के वर्गों के 
 msgid "the same metrics separately for every plate;"
 msgstr "हर प्लेट के लिए अलग से वही मेट्रिक्स;"
 
-msgid "cross-fitted calibration curves and per-class reliability bins;"
-msgstr "क्रॉस-फ़िट अंशांकन वक्र और प्रति-वर्ग विश्वसनीयता बिन;"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "per-class reliability-bin statistics;"
+msgstr "प्रत्येक वर्ग के विश्वसनीयता बिन के आँकड़े;"
 
 msgid "searchable held-out predictions with plate, well, field, object, confidence, and raw/calibrated class probabilities; and"
 msgstr "प्लेट, कूप, फ़ील्ड, ऑब्जेक्ट, विश्वास और कच्ची/अंशांकित वर्ग संभावनाओं के साथ खोजने योग्य अलग रखे गए पूर्वानुमान; और"

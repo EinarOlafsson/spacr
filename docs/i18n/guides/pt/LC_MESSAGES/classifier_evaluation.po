@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 13:35-0400\n"
+"POT-Creation-Date: 2026-10-29 17:02-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: pt\n"
@@ -38,8 +38,9 @@ msgstr "contagens brutas e matrizes de confusão normalizadas por linha para qua
 msgid "the same metrics separately for every plate;"
 msgstr "as mesmas métricas separadamente para cada placa;"
 
-msgid "cross-fitted calibration curves and per-class reliability bins;"
-msgstr "curvas de calibração obtidas por ajuste cruzado e intervalos de confiabilidade por classe;"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "per-class reliability-bin statistics;"
+msgstr "estatísticas de confiabilidade por faixa de probabilidade e por classe;"
 
 msgid "searchable held-out predictions with plate, well, field, object, confidence, and raw/calibrated class probabilities; and"
 msgstr "previsões pesquisáveis em dados reservados, com placa, poço, campo, objeto, confiança e probabilidades de classe brutas e calibradas; e"

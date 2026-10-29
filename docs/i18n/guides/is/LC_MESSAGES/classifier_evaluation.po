@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 13:35-0400\n"
+"POT-Creation-Date: 2026-10-29 17:02-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -38,8 +38,9 @@ msgstr "hráar talningar og raðstöðluð ruglingsfylki fyrir hvaða fjölda fl
 msgid "the same metrics separately for every plate;"
 msgstr "sömu mælikvarða sérstaklega fyrir hverja plötu;"
 
-msgid "cross-fitted calibration curves and per-class reliability bins;"
-msgstr "víxlmátaða kvörðunarferla og áreiðanleikabil fyrir hvern flokk;"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "per-class reliability-bin statistics;"
+msgstr "tölfræði um áreiðanleika fyrir hvert líkindabil í hverjum flokki;"
 
 msgid "searchable held-out predictions with plate, well, field, object, confidence, and raw/calibrated class probabilities; and"
 msgstr "leitanlegar spár á geymdum gögnum með plötu, brunni, sjónsviði, hlut, öryggi og hráum/kvörðuðum flokkalíkum; og"

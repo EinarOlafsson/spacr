@@ -13,7 +13,7 @@ The workbench shows:
   and expected calibration error;
 * raw counts and row-normalized confusion matrices for any number of classes;
 * the same metrics separately for every plate;
-* cross-fitted calibration curves and per-class reliability bins;
+* per-class reliability-bin statistics;
 * searchable held-out predictions with plate, well, field, object, confidence,
   and raw/calibrated class probabilities; and
 * an explicit leakage report for every outer and inner split.

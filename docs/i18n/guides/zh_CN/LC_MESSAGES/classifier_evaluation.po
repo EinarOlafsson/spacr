@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 13:35-0400\n"
+"POT-Creation-Date: 2026-10-29 17:02-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -38,8 +38,9 @@ msgstr "任意类别数的原始计数混淆矩阵和按行归一化的混淆矩
 msgid "the same metrics separately for every plate;"
 msgstr "按每块孔板分别计算的相同指标；"
 
-msgid "cross-fitted calibration curves and per-class reliability bins;"
-msgstr "交叉拟合的校准曲线和逐类别的可靠性分箱；"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "per-class reliability-bin statistics;"
+msgstr "各类别的可靠性分箱统计；"
 
 msgid "searchable held-out predictions with plate, well, field, object, confidence, and raw/calibrated class probabilities; and"
 msgstr "可搜索的留出预测，包括孔板、孔、视野、对象、置信度以及原始/校准后的类别概率；以及"
