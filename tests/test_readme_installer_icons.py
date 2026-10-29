@@ -159,32 +159,40 @@ def test_the_icons_are_committed_here_and_not_hotlinked():
     """Every image in the block is served from this repository."""
     block = _block()
     urls = re.findall(r'<img src="([^"]+)"', block)
-    assert len(urls) == len(PLATFORM_ASSETS)
+    assert len(urls) == len(PLATFORM_ASSETS) + 1
     # 2026-10-13: each icon is shown as its cell of an equal-cell row
     # (tools/build_readme_images.py icon_cell), drawn from the artwork.
     prefix = "docs/readme_assets/cells/platforms/"
     for url in urls:
+        if url.endswith("/cells/app_icon.png"):
+            assert (ROOT / url).is_file()
+            assert (ROOT / "spacr/resources/icons/app_icon.png").is_file()
+            continue
         assert url.startswith(prefix), f"{url} is hotlinked from elsewhere"
         assert (ROOT / url).is_file(), f"{url} is not committed"
         committed = ICON_DIR / url[len(prefix):]
         assert committed.is_file(), f"{url} has no committed artwork"
 
 
-def test_the_row_is_the_three_platform_downloads_only():
-    """Linux, macOS and Windows, and no fourth archive link.
-
-    2026-10-12: the maintainer removed the "Earlier spaCR installers" button
-    from the README. The archive page, docs/source/installers.rst, stays in
-    the documentation but is no longer linked from the README.
-    """
-    html, _messages = _render_readme(README.read_text(encoding="utf-8"))
-    links = _linked_images(html)
-    assert not any(src.endswith("/legacy.png") for src in links)
-    assert "installers.rst" not in _block()
-    row = re.search(r"(?m)^\| \|Installer.+\|$", _block()).group(0)
-    assert re.findall(r"\|Installer\w+\|", row) == [
-        "|InstallerLinux|", "|InstallerMacOS|", "|InstallerWindows|",
-    ]
+def test_the_current_spacr_icon_follows_platforms_and_opens_all_installers():
+    """Every localized README keeps the all-installers icon at the right."""
+    paths = [README, *sorted((ROOT / "docs/i18n/readme").glob("README.*.rst"))]
+    assert len(paths) == 10
+    for path in paths:
+        text = path.read_text(encoding="utf-8")
+        block = text.split(BEGIN, 1)[1].split(END, 1)[0]
+        row = re.search(r"(?m)^\| \|Installer.+\|$", block).group(0)
+        assert re.findall(r"\|Installer\w+\|", row) == [
+            "|InstallerLinux|", "|InstallerMacOS|", "|InstallerWindows|", "|InstallerSpaCR|",
+        ]
+        rendered, messages = _render_readme(block)
+        assert "system-message" not in rendered, messages
+        links = _linked_images(rendered)
+        current = [src for src in links if src.endswith("/cells/app_icon.png")]
+        assert len(current) == 1
+        assert links[current[0]] == (
+            "https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installers.rst")
+        assert not any(src.endswith("/legacy.png") for src in links)
 
 
 def test_no_platform_is_left_as_a_bare_text_link():
