@@ -20,7 +20,8 @@ SPEC.loader.exec_module(CI)
 SHA = "a" * 40
 COMPATIBILITY = CI.compatibility_jobs(ROOT / ".github/workflows/compat-matrix.yml")
 EXPECTED = {
-    "tests.yml": {"Release gate / zero unexpected failures": True},
+    "tests.yml": {"Release gate / zero unexpected failures": True,
+                  "Coverage / every module at 90% and none loses coverage": True},
     "docs.yml": {"Pin the documentation branch": True,
                  "Build main documentation": True,
                  "Publish main documentation to GitHub Pages": True},
@@ -117,26 +118,49 @@ def test_running_source_run_is_awaited_without_duplicate(github):
     assert github.dispatches == []
 
 
-@pytest.mark.parametrize('coverage_status,coverage_conclusion', [
-    ('in_progress', None), ('completed', 'failure'),
-])
-def test_successful_functional_gate_does_not_wait_for_advisory_coverage(
-        github, coverage_status, coverage_conclusion):
+@pytest.mark.parametrize('coverage_conclusion', ['failure', 'cancelled', 'timed_out'])
+def test_successful_functional_gate_cannot_waive_failed_coverage(github, coverage_conclusion):
     run = github.records['tests.yml'][0]
-    run.update(status=coverage_status, conclusion=coverage_conclusion)
-    jobs = github.jobs(run)
-    for name in ('Coverage shard 0 of 12',
-                 'Coverage / every module at 90% and none loses coverage'):
-        jobs.append(dict(name=name, status=coverage_status,
-                         conclusion=coverage_conclusion))
-    clock = Clock()
-    require(github, clock)
-    assert clock.now == 0
+    run.update(conclusion=coverage_conclusion)
+    github.jobs(run)[1]['conclusion'] = coverage_conclusion
+    with pytest.raises(RuntimeError, match='tests.yml.*finished with'):
+        require(github)
     assert not github.dispatches
 
 
+def test_successful_functional_gate_waits_for_full_tests_and_coverage(github):
+    run = github.records['tests.yml'][0]
+    run.update(status='in_progress', conclusion=None)
+    coverage = github.jobs(run)[1]
+    coverage.update(status='in_progress', conclusion=None)
+    clock = Clock()
+
+    def complete():
+        run.update(status='completed', conclusion='success')
+        coverage.update(status='completed', conclusion='success')
+
+    clock.after_sleep = complete
+    require(github, clock)
+    assert clock.now == 60
+    assert not github.dispatches
+
+
+@pytest.mark.parametrize('change', ['missing', 'failure', 'unfinished'])
+def test_green_tests_run_requires_its_completed_successful_coverage_job(github, change):
+    jobs = github.jobs(github.records['tests.yml'][0])
+    coverage = jobs[1]
+    if change == 'missing':
+        jobs.remove(coverage)
+    elif change == 'failure':
+        coverage['conclusion'] = 'failure'
+    else:
+        coverage['status'] = 'in_progress'
+    with pytest.raises(RuntimeError, match='lacks completed successful job Coverage'):
+        require(github)
+
+
 @pytest.mark.parametrize('change', ['missing', 'skipped', 'unfinished'])
-def test_advisory_policy_cannot_hide_an_unsuccessful_functional_gate(github, change):
+def test_coverage_success_cannot_hide_an_unsuccessful_functional_gate(github, change):
     run = github.records['tests.yml'][0]
     jobs = github.jobs(run)
     if change == 'missing':
@@ -196,7 +220,7 @@ def test_dispatch_branch_race_cannot_accept_another_heads_green_run(github):
 def test_newer_failed_run_blocks_an_older_success_without_retry(github, conclusion):
     _, jobs = github.add("tests.yml", conclusion=conclusion)
     jobs[0]["conclusion"] = conclusion
-    with pytest.raises(RuntimeError, match="lacks completed successful job"):
+    with pytest.raises(RuntimeError, match=f"tests.yml.*finished with {conclusion}"):
         require(github)
     assert github.dispatches == []
 
@@ -280,7 +304,7 @@ def test_a_new_failure_invalidates_an_earlier_acceptance_while_other_ci_is_live(
         jobs[0]["conclusion"] = "failure"
 
     clock.after_sleep = advance
-    with pytest.raises(RuntimeError, match="tests.yml.*lacks completed successful job"):
+    with pytest.raises(RuntimeError, match="tests.yml.*finished with failure"):
         require(github, clock)
 
 

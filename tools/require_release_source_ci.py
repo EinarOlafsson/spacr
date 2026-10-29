@@ -142,7 +142,8 @@ def require_source_ci(api, sha, branch, compatibility, *, timeout=19800,
     dispatched = {}
     reported = set()
     expected = {
-        "tests.yml": {"Release gate / zero unexpected failures": True},
+        "tests.yml": {"Release gate / zero unexpected failures": True,
+                      "Coverage / every module at 90% and none loses coverage": True},
         "docs.yml": {"Build main documentation": True,
                      "Publish main documentation to GitHub Pages": True},
         "compat-matrix.yml": compatibility,
@@ -167,14 +168,9 @@ def require_source_ci(api, sha, branch, compatibility, *, timeout=19800,
                     continue
             run, jobs = candidate
             by_name = {job["name"]: job for job in jobs}
-            # spaCR 1.5.1.6: the functional gate suffices while advisory
-            # coverage is still running or has made the workflow red.
-            functional_gate = by_name.get("Release gate / zero unexpected failures")
-            tests_ready = (workflow == "tests.yml" and functional_gate is not None
-                           and functional_gate["status"] == "completed")
-            if run["status"] != "completed" and not tests_ready:
+            if run["status"] != "completed":
                 continue
-            if run["conclusion"] != "success" and not tests_ready:
+            if run["conclusion"] != "success":
                 raise RuntimeError(f"{workflow} exact-source run {run['id']} "
                                    f"finished with {run['conclusion']}")
             for name, blocking in expected[workflow].items():

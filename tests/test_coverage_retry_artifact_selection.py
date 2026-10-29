@@ -177,6 +177,6 @@ def test_workflow_binds_each_upload_and_selects_only_this_run():
     assert "--head-sha \"$SPACR_HEAD_SHA\"" in select["run"]
     assert select["env"]["SPACR_COVERAGE_SHARD_COUNT"] == "12"
     assert combine["needs"] == "coverage-shards"
-    assert shards["continue-on-error"] is True
-    assert combine["continue-on-error"] is True
-    assert "coverage-combine" not in workflow["jobs"]["release-gate"]["needs"]
+    assert not shards.get("continue-on-error", False)
+    assert not combine.get("continue-on-error", False)
+    assert "coverage-combine" in workflow["jobs"]["release-gate"]["needs"]
