@@ -8498,8 +8498,6 @@ class _FieldOverview(QWidget):
                     return _overview_pixels(field, channels, limits, edge=edge, **plain_options), "", note
                 except Exception as exc:
                     return None, str(exc), ""
-            except Exception as exc:
-                return None, str(exc), ""
         if heavy is not None:
             self.status.setText(tr("Applying {steps} to the original image…",
                                    steps=_overview_heavy_steps(heavy)))
