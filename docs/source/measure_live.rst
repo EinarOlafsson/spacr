@@ -10,9 +10,13 @@ view loads a field and shows crops from its configured object mask. Use
 **Crop settings…** to choose the object, mask planes, image channels, crop
 size and filters before measuring the whole experiment.
 
-With **Show alpha features** enabled, intensity calibration accepts an optional
-named reference plate in ``intensity_calibration_reference_plate``; leave it
-blank to use the first plate by name.
+With **Show alpha features** enabled, the default plate-based intensity
+calibration accepts an optional named reference plate in
+``intensity_calibration_reference_plate``; leave it blank to use the first
+plate by name. With acquisition-session mappings or external references,
+``intensity_calibration_reference_session`` selects the reference session.
+If both reference settings are blank in that mode, the first available
+session by name is used.
 
 Compare objects from several fields
 -----------------------------------
@@ -36,10 +40,12 @@ it if there are more checked fields than available slots. Additional fields
 are read one at a time. A load failure names the field and leaves valid
 fields available for inspection.
 
-Checking images changes the preview only. It does not select the fields
-that Measure processes or change saved measurements or exports.
-**Propagate settings** retains its existing purpose: copying crop and
-filter settings into the Measure form.
+Checking images changes the preview selection. It does not select the fields
+that Measure processes or alter existing measurements or files.
+**Export displayed crops…** explicitly saves the completed preview crops as
+PNGs with provenance in a new folder; that export follows the checked fields
+and current display settings. **Propagate settings** copies crop and filter
+settings into the Measure form.
 
 Save measured fields
 --------------------
