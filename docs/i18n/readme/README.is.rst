@@ -18,9 +18,9 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
    :target: https://pypi.org/project/spacr/
    :alt: PyPI-útgáfa
 
-.. |Python| image:: https://img.shields.io/badge/Python-3.9%E2%80%933.14-3776AB?logo=python&logoColor=white
+.. |Python| image:: https://img.shields.io/badge/Python-3.9%E2%80%933.15-3776AB?logo=python&logoColor=white
    :target: https://pypi.org/project/spacr/
-   :alt: Python 3.9 til 3.14
+   :alt: Python 3.9 til 3.15
 
 .. |Coverage| image:: https://img.shields.io/codecov/c/github/EinarOlafsson/spacr/main?logo=codecov&logoColor=white
    :target: https://app.codecov.io/github/EinarOlafsson/spacr
