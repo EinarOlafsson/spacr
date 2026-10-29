@@ -1881,3 +1881,100 @@ def test_header_read_recovers_a_real_writer_rename_gap_without_caching_an_unstam
         writer_thread.join(timeout=10)
         assert not writer_thread.is_alive()
         assert source.read_bytes() == original
+
+
+def test_source_growth_beyond_a_capped_plate_skips_outside_placeholders_and_recovers_the_loaded_well(
+        qtbot, qt_theme_applied, tmp_path):
+    import tifffile
+    from spacr.measure import _set_image_annotations, _well_image_annotations
+    from spacr.qt.screens.app_screen import AppScreen
+
+    source = tmp_path / 'images'
+    source.mkdir()
+    first = source / 'p1_A01_F1_C1.tif'
+    pixels = np.arange(64, dtype=np.uint16).reshape(8, 8)
+    tifffile.imwrite(first, pixels)
+    first_field, = browser._overview_index(str(source), source_scope='folder')
+    database = source / 'measurements' / 'measurements.db'
+    _set_image_annotations(database, (first_field,), 'condition', 'original control', source=source)
+    annotations = _well_image_annotations(database)
+    originals = {first: first.read_bytes()}
+    screen = AppScreen('overview')
+    qtbot.addWidget(screen)
+    page, view = screen._overview_page, None
+
+    def runners():
+        return (view._index_jobs, view._image_jobs, view._export_jobs,
+                view._metadata_jobs, view._measurement_jobs, view._native_jobs,
+                view._thumbnail_jobs, view._montage_jobs, view._field_thumbnail_jobs)
+
+    def loaded():
+        return (view._geometry_valid and len(view._fields) == 1
+                and all(not runner.is_busy() for runner in runners()))
+
+    def open_image():
+        item = view.wells.item(*view._well_positions[(view.plates.currentData(), 'A01')])
+        view._well(item)
+        qtbot.waitUntil(lambda: view.fields.count() == 1, timeout=10000)
+        view.fields.setCurrentRow(0)
+        view._field(view.fields.item(0))
+        qtbot.waitUntil(lambda: view.view._item is not None and not view._image_pending
+                        and all(not runner.is_busy() for runner in runners()), timeout=10000)
+        return view.view._item.pixmap().toImage().copy()
+
+    try:
+        screen.resize(1400, 1000)
+        screen.show()
+        model = screen._settings_model
+        assert model.set_value_for_key('overview_max_wells', '1')
+        assert model.set_value_for_key('overview_max_fields', 'all')
+        wizard = page.run({'src': str(source), 'overview_channels': '1', 'overview_normalize': False})
+        qtbot.waitUntil(wizard.next.isEnabled, timeout=10000)
+        index = next(i for i in range(wizard.plate_geometry.count())
+                     if tuple(wizard.plate_geometry.itemData(i)) == (1, 1))
+        wizard.plate_geometry.setCurrentIndex(index)
+        qtbot.mouseClick(wizard.next, browser.Qt.LeftButton)
+        qtbot.waitUntil(lambda: page.browser is not None, timeout=10000)
+        view = page.browser
+        qtbot.waitUntil(loaded, timeout=10000)
+        assert view._load_limits == (1, None)
+        assert view._overview_options['geometry'] == (1, 1)
+        assert view._annotation_snapshot() == annotations
+        initial_image = open_image()
+        for well, offset in [('B02', 1000), ('C03', 2000)]:
+            path = source / f'p1_{well}_F1_C1.tif'
+            tifffile.imwrite(path, pixels + offset)
+            originals[path] = path.read_bytes()
+
+        view._scan()
+
+        qtbot.waitUntil(lambda: len(view._all_fields) == 3 and loaded(), timeout=10000)
+        assert {field.well for field in view._all_fields} == {'A01', 'B02', 'C03'}
+        assert tuple(field.identity for field in view._fields) == (first_field.identity,)
+        assert view.wells.rowCount() == view.wells.columnCount() == 1
+        assert view.wells.item(0, 0).data(browser.Qt.UserRole) == 'A01'
+        assert not view.wells.item(0, 0).data(browser._OVERVIEW_NOT_LOADED_ROLE)
+        assert set(view._well_positions) == {(view.plates.currentData(), 'A01')}
+        assert view._annotation_snapshot() == annotations
+        assert open_image() == initial_image
+        plane, = browser._overview_raw_planes(view._fields[0], (1,), edge=None)
+        np.testing.assert_array_equal(plane[2], pixels)
+        assert model.set_value_for_key('overview_max_wells', 'all')
+        qtbot.waitUntil(lambda: not view._geometry_valid, timeout=10000)
+        assert 'does not contain the indexed wells' in view.status.text()
+        assert view.wells.rowCount() == view.wells.columnCount() == 0
+        assert model.set_value_for_key('overview_max_wells', '1')
+        qtbot.waitUntil(loaded, timeout=10000)
+        assert open_image() == initial_image
+        assert view._annotation_snapshot() == annotations
+        assert _well_image_annotations(database) == annotations
+        assert all(path.read_bytes() == original for path, original in originals.items())
+    finally:
+        if view is not None:
+            view._cancel()
+            view._visual_timer.stop()
+            qtbot.waitUntil(lambda: all(runner.active_jobs() == 0 for runner in runners()), timeout=10000)
+            for runner in runners():
+                runner.shutdown(timeout_ms=3000)
+        page.retire()
+        screen.close()
