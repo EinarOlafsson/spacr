@@ -63,6 +63,17 @@ def test_module_drop_reaches_native_widget_and_home_still_receives_global_drop(
         assert routed == [[str(path)]]
         qtbot.waitUntil(lambda: home._last_result is not None and not home._runner.is_busy(), timeout=5000)
         assert home.path_edit.text() == str(path)
+        inspected = home._last_result
+        detached = _NativeDrop(None)
+        qtbot.addWidget(detached)
+        detached.resize(200, 100)
+        detached.show()
+        _drop(detached, path)
+        assert detached.received == [[str(path)]]
+        assert routed == [[str(path)]]
+        assert window._stack.currentWidget() is home
+        assert home._last_result is inspected and home.path_edit.text() == str(path)
+        detached.close()
         window._on_nav_selected('measure')
         module = window._screens['measure']
         assert window._stack.currentWidget() is module
@@ -82,6 +93,20 @@ def test_module_drop_reaches_native_widget_and_home_still_receives_global_drop(
         _drop(window.centralWidget(), path)
         assert routed == [[str(path)], [str(path)]]
         assert window._stack.currentWidget() is home
+        qtbot.waitUntil(lambda: home._last_result is not None and not home._runner.is_busy(), timeout=5000)
+        remote = QUrl('https://example.invalid/unconsented-image.tif')
+        mime = QMimeData()
+        mime.setUrls([QUrl.fromLocalFile(str(path)), remote])
+        target = window.centralWidget()
+        enter = QDragEnterEvent(QPoint(4, 4), Qt.CopyAction, mime, Qt.LeftButton, Qt.NoModifier)
+        QApplication.sendEvent(target, enter)
+        assert enter.isAccepted()
+        drop = QDropEvent(QPointF(4, 4), Qt.CopyAction, mime, Qt.LeftButton, Qt.NoModifier)
+        QApplication.sendEvent(target, drop)
+        assert drop.isAccepted() and routed == [[str(path)], [str(path)], []]
+        assert window._stack.currentWidget() is home and home.path_edit.text() == str(path)
+        assert home._last_result is None and not home.field.cards and not home._runner.is_busy()
+        assert home.field.details.toPlainText() and remote.toString() not in home.field.details.toPlainText()
         assert path.read_bytes() == original
     finally:
         window.close()

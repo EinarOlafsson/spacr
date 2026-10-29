@@ -608,3 +608,7 @@ def test_failed_native_screen_construction_does_not_return_a_phantom_module(comm
     monkeypatch.setattr(app, 'app_is_visible', lambda key: True)
     assert app.MainWindow._open_easy_named_module(commands, 'mask') is None
     assert requested == ['mask'] and commands._screens == {}
+    route = app.MainWindow._open_easy_named_module.__get__(commands)
+    monkeypatch.setattr(commands, '_open_easy_named_module', route)
+    assert commands._open_easy_named_module('overview') is None
+    assert requested == ['mask', 'mask'] and commands._screens == {}
