@@ -74,6 +74,50 @@ def private_input_records(manifest, stage, input_root):
     return records
 
 
+
+def _enable_console_information(app, window, capture):
+    """Use real Preferences controls to show the preview's INFO output."""
+    import logging
+    from PySide6.QtWidgets import QAbstractButton, QScrollArea, QTabWidget
+    from spacr.qt import preferences
+    human = capture_ui._h()
+    before_file = preferences.get_log_file_levels()
+    before_console = preferences.get_log_console_levels()
+    if logging.INFO in before_console:
+        return False
+    if logging.INFO not in before_file:
+        raise RuntimeError('The preview requires the existing INFO log file level')
+
+    def configure(dialog):
+        tabs = dialog.findChild(QTabWidget, 'PreferencesTabs')
+        choices = [] if tabs is None else [i for i in range(tabs.count())
+            if tabs.tabText(i).replace('&', '') == 'Logging']
+        if len(choices) != 1:
+            raise RuntimeError('The actual Preferences Logging tab is not unique')
+        index = choices[0]
+        human.click(tabs.tabBar(), tabs.tabBar().tabRect(index).center())
+        human.wait_until(capture, lambda: tabs.currentIndex() == index, 5,
+                         'The actual Preferences Logging page did not open')
+        page = tabs.widget(index)
+        toggle = human.wait_until(capture,
+            lambda: dialog.findChild(QAbstractButton, 'LogConsoleLevelInfo'), 10,
+            'The actual Info Console switch was not built')
+        if not isinstance(page, QScrollArea) or not toggle.isEnabled() or toggle.isChecked():
+            raise RuntimeError('The actual Info Console switch is not usable as expected')
+        capture_ui.scroll_to(capture, page, toggle)
+        if not toggle.isVisible() or not toggle.visibleRegion().contains(toggle.rect().center()):
+            raise RuntimeError('The actual Info Console switch is outside its viewport')
+        human.click(toggle)
+        human.wait_until(capture, toggle.isChecked, 5, 'The Info Console switch did not turn on')
+        human.close_preferences(dialog, 'save')
+
+    human.open_preferences(app, window, capture, configure)
+    if (preferences.get_log_file_levels() != before_file
+            or preferences.get_log_console_levels() != before_console | {logging.INFO}):
+        raise RuntimeError('Native Preferences must add only Info to the console levels')
+    return True
+
+
 def record_external_masks(app, window, screen, stage, captures, capture,
                           settle, write_json, timeout, *, input_root=None,
                           stop_after_preview=False):
@@ -838,6 +882,26 @@ def record_external_masks(app, window, screen, stage, captures, capture,
             })
             write_json(captures / 'readable_tour.json', readable_tour)
 
+    # Preview summaries are ordinary INFO output, hidden by the fresh
+    # default console policy. Change only that visible logging preference.
+    if host:
+        before_logging_settings = deepcopy(model.collect())
+        before_logging_figures = queue.count()
+        if _enable_console_information(app, window, capture):
+            settle(1)
+            children = [child for child in window.findChildren(AppScreen)
+                        if child.app_key == 'external_masks' and child.isVisible()]
+            if len(children) != 1:
+                raise RuntimeError('Native logging Preferences lost the External Masks page')
+            screen = children[0]
+            model = screen._settings_model
+            usage = screen._usage_card
+            runtime = screen._runtime_splitter
+            console = screen._console
+            queue = screen._figure_queue
+            runtime_slots()
+            if model.collect() != before_logging_settings or queue.count() != before_logging_figures:
+                raise RuntimeError('Native logging Preferences changed measurement settings or figures')
     readable_console()
     preview_outcome, preview_lines, preview_figures = run_job('06_preview', False)
     # The worker prints the plan while the live pointer click is still returning, before this driver connects
