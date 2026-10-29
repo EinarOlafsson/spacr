@@ -32,7 +32,7 @@ from . import _after
 from .bridge import drain_thread
 from ..example_archives import (                              # noqa: F401
     ANNOTATE_EXAMPLE_REPO, DATASET_PLACEHOLDER, DATASET_REPO, DATASET_SUB,
-    EXAMPLE_ARCHIVES, MEASURE_EXAMPLE_REPO, SETTINGS_REPO, _content_length,
+    EXAMPLE_ARCHIVES, EXAMPLE_ARCHIVE_REVISIONS, MEASURE_EXAMPLE_REPO, SETTINGS_REPO, _content_length,
     _download_one, _list_files, check_archive_sha256, example_plate_folder,
     expand_measure_arrays,
     explain_download_failure, extract_example_archive,
@@ -700,7 +700,8 @@ class _TarExampleWorker(QObject):
 
             archive_name = self.archive or EXAMPLE_ARCHIVES[self.repo]
             self.info.emit("Downloading the example dataset…")
-            url = (f"https://huggingface.co/datasets/{self.repo}/resolve/main/"
+            revision = EXAMPLE_ARCHIVE_REVISIONS.get(archive_name, 'main')
+            url = (f"https://huggingface.co/datasets/{self.repo}/resolve/{revision}/"
                    f"{archive_name}?download=true")
             target = self._dest / archive_name
             self._dest.mkdir(parents=True, exist_ok=True)
@@ -811,10 +812,12 @@ class _ChosenArchivesWorker(_TarExampleWorker):
 
     def _fetch_one(self, archive: str) -> bool:
         """Stream and unpack one archive. False when it ended the run."""
+        import hashlib
         import requests
         import tempfile
 
-        url = (f"https://huggingface.co/datasets/{self.repo}/resolve/main/"
+        revision = EXAMPLE_ARCHIVE_REVISIONS.get(archive, 'main')
+        url = (f"https://huggingface.co/datasets/{self.repo}/resolve/{revision}/"
                f"{archive}?download=true")
         target = self._dest / archive
         self._dest.mkdir(parents=True, exist_ok=True)
@@ -822,6 +825,7 @@ class _ChosenArchivesWorker(_TarExampleWorker):
         response.raise_for_status()
         expected = _content_length(response)
         written = 0
+        digest = hashlib.sha256()
         with tempfile.TemporaryDirectory(prefix=".spacr-archive-",
                                          dir=target.parent) as staging:
             part = Path(staging) / (target.name + ".part")
@@ -833,6 +837,7 @@ class _ChosenArchivesWorker(_TarExampleWorker):
                     if not chunk:
                         continue
                     handle.write(chunk)
+                    digest.update(chunk)
                     written += len(chunk)
                     if expected:
                         self.progress.emit(archive, written // (1 << 20),
@@ -841,6 +846,7 @@ class _ChosenArchivesWorker(_TarExampleWorker):
                 raise IOError(
                     f"{archive} stopped early: {written} bytes of {expected}. "
                     f"Nothing was unpacked.")
+            check_archive_sha256(archive, digest.hexdigest())
             part.replace(target)
         extract_example_archive(target, self._dest)
         target.unlink(missing_ok=True)

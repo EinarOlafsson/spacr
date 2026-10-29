@@ -255,9 +255,15 @@ EXAMPLE_ARCHIVES: Dict[str, str] = {
 #: one the tests and the dataset cards describe. Archives absent here are
 #: checked for length only, as they always were.
 EXAMPLE_ARCHIVE_SHA256: Dict[str, str] = {
+    "spacr-example-import.tar": "c303c6fe432ccf30486e0643e7d4e0dff74cd659ef87bda7dcbdc6b9774185e9",
     "spacr-example-timelapse-yeast.tar": "4dd911e6d075e7cf7e2f7d750374aa9543c906119fe6f06cbcdf195afaef6de0",
     "spacr-example-timelapse-bacteria.tar": "39072dce56dff12ef73cac13700f25a32f36a9c67fa590a6079d90e53e2cc928",
     "spacr-example-timelapse-mammalian.tar": "2261aa6f2e0877fec3fab51ab9a9c075a61fe34844106a547005ef154fad7bb5",
+}
+
+
+EXAMPLE_ARCHIVE_REVISIONS: Dict[str, str] = {
+    "spacr-example-import.tar": "15a1a32fe7b001eea62304fce34619eb45a6afea",
 }
 
 
@@ -690,7 +696,8 @@ def download_archive(repo_id: str, file_name: str, dest_dir: Path, *,
     """
     import requests
     import tempfile
-    url = (f"https://huggingface.co/datasets/{repo_id}/resolve/main/"
+    revision = EXAMPLE_ARCHIVE_REVISIONS.get(Path(file_name).name, 'main')
+    url = (f"https://huggingface.co/datasets/{repo_id}/resolve/{revision}/"
              f"{file_name}?download=true")
     dst = Path(dest_dir) / Path(file_name).name
     part = None

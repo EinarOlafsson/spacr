@@ -455,3 +455,36 @@ def test_the_deprecated_array_shim_still_calls_the_module_function(
     hf._MeasureExampleWorker(tmp_path)._expand_arrays(tmp_path / "merged")
 
     assert called == [tmp_path / "merged"]
+
+
+@pytest.mark.parametrize('route', ['headless', 'single', 'chosen'])
+def test_import_archive_uses_its_published_revision_and_rejects_changed_bytes(qapp, tmp_path, serve, monkeypatch, route):
+    from spacr import example_archives
+
+    archive = 'spacr-example-import.tar'
+    repo = 'einarolafsson/spacr-example-import'
+    revision = '15a1a32fe7b001eea62304fce34619eb45a6afea'
+    assert example_archives.EXAMPLE_ARCHIVE_REVISIONS[archive] == revision
+    assert example_archives.EXAMPLE_ARCHIVE_SHA256[archive] == 'c303c6fe432ccf30486e0643e7d4e0dff74cd659ef87bda7dcbdc6b9774185e9'
+    destination = tmp_path / 'dest'
+    destination.mkdir()
+    previous = destination / archive
+    previous.write_bytes(b'previous complete archive')
+    asked = serve(_tar_bytes({'unexpected.txt': 'not the published archive'}))
+    def no_extract(*args, **kwargs):
+        pytest.fail('A changed published archive must not be unpacked')
+    monkeypatch.setattr(hf, 'extract_example_archive', no_extract)
+    if route == 'headless':
+        with pytest.raises(IOError, match='does not match its published checksum'):
+            example_archives.download_archive(repo, archive, destination)
+    else:
+        worker = (_worker(tmp_path, repo, archive) if route == 'single'
+                  else _chosen(tmp_path, [archive], repo))
+        seen = _record(worker)
+        worker.run()
+        assert len(seen['finished']) == 1
+        assert seen['finished'][0][0] is False
+        assert 'does not match its published checksum' in seen['finished'][0][3]
+    assert asked == [f'https://huggingface.co/datasets/{repo}/resolve/{revision}/{archive}?download=true']
+    assert previous.read_bytes() == b'previous complete archive'
+    assert list(destination.iterdir()) == [previous]
