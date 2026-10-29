@@ -250,7 +250,7 @@ def test_a_raw_rebuild_that_fails_is_reported_and_the_resume_goes_on(
         tmp_path, monkeypatch, capsys):
     plate = _plate_with_masks(tmp_path, np.array(["f0.npy", "f1.npy"]))
 
-    def broken(settings, src):
+    def broken(settings, src, metadata_well_map=None):
         raise RuntimeError("raw images unreadable")
 
     monkeypatch.setattr(sio, "_rebuild_stacks_from_raw", broken)
