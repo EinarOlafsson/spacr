@@ -88,7 +88,18 @@ def _titles(panel) -> list:
     return [lbl.text() for lbl in panel.findChildren(QLabel)]
 
 
-def test_news_title_words_fit_the_real_notes_viewport(qtbot, qapp, monkeypatch):
+@pytest.fixture
+def bundled_release_tags():
+    """Read the published input independently of NewsPanel's loader and widgets."""
+    from importlib.resources import files
+
+    index = json.loads((files("spacr") / "resources" / "release_notes.json").read_text(encoding="utf-8"))
+    tags = [entry["tag"] for entry in index["releases"]]
+    assert tags and len(tags) == len(set(tags))
+    return tags
+
+
+def test_news_title_words_fit_the_real_notes_viewport(qtbot, qapp, monkeypatch, bundled_release_tags):
     import shiboken6
     from PySide6.QtCore import QCoreApplication, QEvent, QPoint, Qt
     from PySide6.QtGui import QFontInfo, QRegion, QTextDocument, QTextOption
@@ -129,7 +140,8 @@ def test_news_title_words_fit_the_real_notes_viewport(qtbot, qapp, monkeypatch):
         qtbot.waitUntil(lambda: not panel._pending_releases)
         blocks = [panel._notes_column.itemAt(i).widget() for i in range(panel._notes_column.count())
                   if panel._notes_column.itemAt(i).widget() not in (None, panel._placeholder)]
-        assert len(blocks) == len(panel._releases) == 17
+        assert len(blocks) == len(panel._releases) == len(bundled_release_tags)
+        assert [entry["tag"] for entry in panel._releases] == bundled_release_tags
         title = blocks[0].layout().itemAt(0).widget()
         qtbot.waitUntil(lambda: title.font().pixelSize() == gui_scale.scale_int(theme.font_px(12, 2.), 2.))
         previous = [None]
@@ -229,7 +241,7 @@ def test_news_title_words_fit_the_real_notes_viewport(qtbot, qapp, monkeypatch):
         title = panel._notes_column.itemAt(1).widget().layout().itemAt(0).widget()
         previous[0] = None
         qtbot.waitUntil(settled)
-        assert len(panel._headline_labels) == 34 and not set(old_headlines).intersection(panel._headline_labels)
+        assert len(panel._headline_labels) == 2 * len(bundled_release_tags) and not set(old_headlines).intersection(panel._headline_labels)
         assert all(w.property('maximumSize').width() <= scroll.viewport().property('size').width()
                    for w in panel._headline_labels if w.wordWrap())
         timer = panel._news_title_fit._timer
@@ -255,7 +267,7 @@ def test_news_title_words_fit_the_real_notes_viewport(qtbot, qapp, monkeypatch):
 
 
 def test_news_headings_follow_normal_mainwindow_live_scale_rebuilds(
-        qtbot, qapp, monkeypatch, _normal_home_preferences):
+        qtbot, qapp, monkeypatch, _normal_home_preferences, bundled_release_tags):
     """Measure normal Home rebuilds, not a surrogate font or retained old panel."""
     from math import ceil
     import shiboken6
@@ -362,9 +374,10 @@ def test_news_headings_follow_normal_mainwindow_live_scale_rebuilds(
             qtbot.waitUntil(lambda: not panel._pending_releases)
             blocks = [panel._notes_column.itemAt(i).widget() for i in range(panel._notes_column.count())
                 if panel._notes_column.itemAt(i).widget() not in (None, panel._placeholder)]
-            assert len(blocks) == len(panel._releases) == 17
+            assert len(blocks) == len(panel._releases) == len(bundled_release_tags)
+            assert [entry["tag"] for entry in panel._releases] == bundled_release_tags
             headings = [block.layout().itemAt(index).widget() for block in blocks for index in (0, 1)]
-            assert len(headings) == 34
+            assert len(headings) == 2 * len(bundled_release_tags)
             wait_idle(page, panel, headings)
             actual_sources = []
             expected_fonts = (gui_scale.scale_int(theme.font_px(12, scale), scale),
