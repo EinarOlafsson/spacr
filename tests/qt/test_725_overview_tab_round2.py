@@ -791,3 +791,100 @@ def test_cancelled_image_completion_cannot_change_a_reopened_source_bound_canvas
         if isValid(first):
             _close(first, qtbot)
             first.deleteLater()
+
+
+def test_retired_mounted_callbacks_cannot_change_the_replacement_browser_or_canvas(
+        private_ai_profile, mask, qtbot, source, tmp_path, monkeypatch):
+    import copy
+
+    from PySide6.QtCore import QCoreApplication, QEvent
+    from shiboken6 import isValid
+
+    controls, rows, displays = [], [], []
+    connect = browser._overview_control_changed
+    listen = browser._OverviewSettingsBridge._listen
+    write_display = browser._OverviewSettingsBridge._write_display_rows
+
+    def record_control(control, handler):
+        def delivered(*args):
+            controls.append((control, handler, args))
+            return handler(*args)
+        return connect(control, delivered)
+
+    def record_row(bridge, row, handler):
+        def delivered(*args):
+            rows.append((bridge, handler, args))
+            return handler(*args)
+        return listen(bridge, row, delivered)
+
+    def record_display(bridge, values):
+        displays.append((bridge, copy.deepcopy(values)))
+        return write_display(bridge, values)
+
+    monkeypatch.setattr(browser, "_overview_control_changed", record_control)
+    monkeypatch.setattr(browser._OverviewSettingsBridge, "_listen", record_row)
+    monkeypatch.setattr(browser._OverviewSettingsBridge, "_write_display_rows", record_display)
+    original_bytes = {path.name: path.read_bytes() for path in source.glob("*.tif")}
+    tab, old = _open(mask, qtbot, source)
+    old_bridge = tab._overview_page._bridge
+    tab._settings_model.set_value_for_key("overview_percentile_low", 5.)
+    tab._settings_model.set_value_for_key("overview_color_mode", "cmy")
+    tab._overview_page._apply_bar.apply_button.click()
+    qtbot.waitUntil(lambda: old._normalization_ready and not old._index_jobs.is_busy(), timeout=15000)
+    assert old.norm_channel.count() >= 2
+    old.norm_channel.setCurrentIndex(1)
+    late_controls = [(handler, args) for control, handler, args in controls if control is old.low]
+    late_rows = [(handler, args) for bridge, handler, args in rows
+                 if bridge is old_bridge and getattr(getattr(handler, "func", None), "__name__", "")
+                 == "_image_row_changed" and handler.args[0] == "overview_color_mode"]
+    late_display = [values for bridge, values in displays if bridge is old_bridge]
+    assert late_controls and late_rows and late_display
+
+    same_tab, current = _open(mask, qtbot, source)
+    assert same_tab is tab and current is not old
+    QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+    assert not isValid(old) and old_bridge._detached
+    item = current.wells.item(*current._well_positions[("p1", "A02")])
+    qtbot.mouseClick(current.wells.viewport(), Qt.LeftButton, Qt.ControlModifier,
+                    pos=current.wells.visualItemRect(item).center())
+    composer = current._open_custom_export()
+    next(button for button in composer.findChildren(QPushButton)
+         if button.text() == browser.tr("Add selected")).click()
+    qtbot.waitUntil(lambda: not composer._preview_jobs.is_busy()
+                    and len(composer.canvas.pages[0]) == 2, timeout=15000)
+    layout = copy.deepcopy(composer.canvas.to_dict())
+    pixels = [composer._reader()(box, None).copy() for box in composer.canvas.pages[0]]
+    settings = copy.deepcopy(tab._settings_model.collect())
+    selected = set(current._selected_wells)
+    assert selected == {("p1", "A02")}
+    pending = tab._overview_page._bridge.pending()
+
+    for handler, args in late_controls:
+        handler(*args)
+    for handler, args in late_rows:
+        handler(*args)
+    write_display(old_bridge, late_display[-1])
+    QCoreApplication.processEvents()
+    assert tab._overview_page.browser is current
+    assert current._selected_wells == selected
+    assert tab._settings_model.collect() == settings
+    assert tab._overview_page._bridge.pending() == pending
+    assert composer.canvas.to_dict() == layout
+    for before, box in zip(pixels, composer.canvas.pages[0]):
+        np.testing.assert_array_equal(composer._reader()(box, None), before)
+    assert {path.name: path.read_bytes() for path in source.glob("*.tif")} == original_bytes
+
+    composer.close()
+    tab._settings_model.set_value_for_key("overview_percentile_low", 7.)
+    assert tab._settings_model._read_value("overview_percentile_low") == 7.
+    assert "overview_percentile_low" in tab._overview_page._bridge.pending()
+    tab._overview_page._apply_bar.apply_button.click()
+    qtbot.waitUntil(lambda: current._normalization_ready and not current._index_jobs.is_busy(), timeout=15000)
+    assert not tab._overview_page._bridge.pending()
+    assert current.low.value() == 7.
+    fresh = current._canvas_snapshot()
+    box = dict(composer.canvas.pages[0][0], overview_display=None)
+    assert not np.array_equal(fresh(box, None), pixels[0])
+    for before, saved_box in zip(pixels, composer.canvas.pages[0]):
+        np.testing.assert_array_equal(composer._reader()(saved_box, None), before)
+    assert {path.name: path.read_bytes() for path in source.glob("*.tif")} == original_bytes
