@@ -492,6 +492,70 @@ def exclude_release_history(window):
     return len(panels)
 
 
+def _historical_run_label(widget, text, prepared_root, index=None):
+    """Recognize only source-bound Run Compare dropdown provenance, never chrome."""
+    import json
+    from PySide6.QtWidgets import QComboBox
+    from spacr.qt.screens.run_compare import RunCompareScreen
+    from spacr.run_compare import RunRef
+
+    parent = widget
+    while parent is not None and not isinstance(parent, RunCompareScreen):
+        parent = parent.parentWidget()
+    if parent is None:
+        return False
+    screen = parent
+    for combo in (screen._a_combo, screen._b_combo):
+        if widget is combo and isinstance(widget, QComboBox) and index is None:
+            row = combo.currentIndex()
+        elif widget is combo.view() and index is not None and index.model() is combo.model():
+            row = index.row()
+        else:
+            continue
+        if row < 0 or text != combo.itemText(row):
+            return False
+        run_id = combo.itemData(row)
+        matches = [run for run in screen.runs()
+                   if isinstance(run, RunRef) and run.run_id == run_id and run.label == text]
+        if len(matches) != 1:
+            return False
+        run = matches[0]
+        project = Path(prepared_root).absolute() / 'run_compare_verified_snapshots_v1'
+        if (Path(screen._project_edit.text()).absolute() != project
+                or Path(run.project).absolute() != project):
+            return False
+        try:
+            preparation = json.loads((project / 'preparation.json').read_text())
+            if (preparation.get('accepted') is not True
+                    or preparation.get('original_sources_unchanged') is not True
+                    or preparation.get('synthetic_runs') is not False):
+                return False
+            originals = [row['original'] for row in preparation['records']
+                         if row['original']['run_id'] == run_id]
+            if len(originals) != 1:
+                return False
+            original = originals[0]
+            if (run.spacr_version != original['spacr_version']
+                    or run.created_ns != original['created_ns']
+                    or run.created_utc != original['created_utc']
+                    or run.settings_hash != original['settings_hash']
+                    or run.settings != json.loads(original['settings_json'])
+                    or run.status != original['status']
+                    or run.modules != (original['module'],)
+                    or run.kinds != (original['kind'],)
+                    or len(run.artifacts) != 1):
+                return False
+            artifact = run.artifacts[0]
+            return (artifact.artifact_id == original['artifact_id']
+                    and artifact.fingerprint_method == original['fingerprint_method'] == 'sha256'
+                    and artifact.fingerprint == original['fingerprint']
+                    and artifact.size_bytes == original['size_bytes']
+                    and Path(artifact.path).absolute() == project / 'snapshots' / run_id / 'measurements.db')
+        except (OSError, ValueError, KeyError, TypeError):
+            return False
+    return False
+
+
 def verify_visible_paths(windows, prepared_root):
     """Refuse visible personal/mounted paths before saving a tutorial frame.
 
@@ -518,13 +582,14 @@ def verify_visible_paths(windows, prepared_root):
         for widget in [window, *window.findChildren(QWidget)]:
             if not widget.isVisible():
                 continue
-            texts = [widget.windowTitle()]
+            texts = [(widget.windowTitle(), False)]
             if isinstance(widget, (QLabel, QLineEdit)):
-                texts.append(widget.text())
+                texts.append((widget.text(), False))
             elif isinstance(widget, (QTextEdit, QPlainTextEdit)):
-                texts.append(widget.toPlainText())
+                texts.append((widget.toPlainText(), False))
             elif isinstance(widget, QComboBox):
-                texts.append(widget.currentText())
+                text = widget.currentText()
+                texts.append((text, _historical_run_label(widget, text, prepared_root)))
             if isinstance(widget, QAbstractItemView) and widget.model() is not None:
                 model = widget.model()
                 index = widget.indexAt(widget.viewport().rect().topLeft())
@@ -538,14 +603,15 @@ def verify_visible_paths(windows, prepared_root):
                         cell = model.index(row, column, widget.rootIndex())
                         if widget.visualRect(cell).intersects(widget.viewport().rect()):
                             row_visible = True
-                            texts.append(str(model.data(cell, Qt.DisplayRole) or ""))
+                            text = str(model.data(cell, Qt.DisplayRole) or "")
+                            texts.append((text, _historical_run_label(widget, text, prepared_root, cell)))
                     if not row_visible and row > first_row:
                         break
-            for text in texts:
+            for text, historical_run in texts:
                 plain_text = re.sub(r"<[^>]+>", "", text)
                 releases = re.findall(
                     r"\bspaCR[\s-]+(\d+\.\d+\.\d+(?:\.\d+)?)", plain_text, re.I)
-                if any(version != __version__ for version in releases):
+                if any(version != __version__ for version in releases) and not historical_run:
                     raise RuntimeError(
                         "Capture refused: visible text references another spaCR release")
                 for match in _PRIVATE_PATH.finditer(text):
