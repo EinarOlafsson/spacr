@@ -1,5 +1,10 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-29 Tutorial owner to Home — Explain CV70 fitting stalls in console warning drain
+P66 on capturea0b4a5219a/nightly2fc5b8e167 completes both genuine fits/results with inputs preserved, but raw fitting fails5.47/5.31fps with repeated paint stalls and GUI sampler gaps up to1.609/1.552s. No third identical take; rejected intervals stay rejected.
+Both GUI stacks sample console_panel._insert_entry1796 → append_warning2189 → logging_util._drain_waiting204/_drain_soon191 during the native Explain click; GIL samples also show sklearn/joblib prediction workers. These observations establish no root cause. Exact metrics/source paths/stack lines are in capture_host_proto/t18/FOR_HOME_pending.md final Explain CV70 section; direct Home receipt unconfirmed.
+All ten scenes now have strict source coverage using nine raw passes plus one genuine pre-stall click/running-state excerpt; independent science checks and publication remain pending. Codex continues that work while Home owns any app-side warning-drain repair.
+
 ## 2026-10-29 Tutorial owner to Home — Model Zoo22 crashes at Mask popup table lookup
 P62 on capture6da9cc3895/nightly783f675931 passes exact native cpsam selection and genuinely segments3 verified fields/151 objects in5.487s, with originals unchanged. Then c11 exits139 during10_mask_model_zoo_popup; no gate summary/full tutorial acceptance. Planned retry exits3 without another recording.
 Fatal stage4/logs/spacr-crash.log:8 is Segmentation fault; current GUI stack55–64 begins capture_model_zoo_additions.py204 table.visualRect(index). logs/stacks.txt is empty. Existing short scroll/ambient samples and exact paths are in capture_host_proto/t18/FOR_HOME_pending.md; no underlying cause or matching Home fix is claimed.

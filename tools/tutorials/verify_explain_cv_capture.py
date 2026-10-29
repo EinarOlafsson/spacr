@@ -111,6 +111,25 @@ def verify(capture):
         saved_artifacts={f.name:sha(f) for f in output.iterdir() if f.is_file()})
 
 
+def main(argv=None):
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('capture',type=Path,nargs='?')
+    parser.add_argument('--stage',type=Path)
+    parser.add_argument('--queue',type=Path)
+    parser.add_argument('--job-stem',choices=('c09','d09'))
+    parser.add_argument('--allow-terminal-gate-partial',action='store_true')
+    args=parser.parse_args(argv)
+    scoped=args.stage is not None or args.queue is not None or args.job_stem is not None or args.allow_terminal_gate_partial
+    if scoped:
+        if args.capture is not None or args.stage is None or args.queue is None or args.job_stem is None or not args.allow_terminal_gate_partial:
+            parser.error('Scoped verification requires --stage, --queue, --job-stem and --allow-terminal-gate-partial, without positional capture')
+        from verify_explain_cv_scoped import verify as verify_scoped
+        result=verify_scoped(args.stage,args.queue,True,args.job_stem)
+    else:
+        if args.capture is None:parser.error('capture is required')
+        result=verify(args.capture)
+    print(json.dumps(result,indent=2))
+
+
 if __name__=='__main__':
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('capture',type=Path)
-    args=parser.parse_args();print(json.dumps(verify(args.capture),indent=2))
+    main()
