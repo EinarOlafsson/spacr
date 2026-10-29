@@ -534,6 +534,35 @@ def require_terminal_selection(identities, refresh_ids, retained, retained_visua
         raise ValueError('Terminal removal requires only the explicit Home refresh')
 
 
+def candidate_idle_tail_policy(stage, identities, explicit=None):
+    """Merge source-bound stage fences without discarding unchanged product bindings."""
+    from idle_tail_policy import load_policy
+
+    def entries(policy):
+        if (not isinstance(policy, dict) or set(policy) != {'schema', 'lessons'}
+                or policy['schema'] != 1 or not isinstance(policy['lessons'], list)):
+            raise ValueError('Invalid candidate idle-tail policy schema')
+        rows = policy['lessons']
+        names = [row.get('lesson') if isinstance(row, dict) else None for row in rows]
+        if any(not isinstance(name, str) or not name for name in names) or len(names) != len(set(names)):
+            raise ValueError('Invalid or duplicate candidate idle-tail lesson')
+        return rows
+
+    requested = entries(load_policy(REPO, explicit))
+    merged = {row['lesson']: row for row in requested}
+    for identity in identities:
+        path = Path(stage) / 'production' / identity / 'edited-idle-tail-policy.json'
+        if path.exists():
+            rows = entries(load_policy(REPO, path))
+            if len(rows) != 1 or rows[0]['lesson'] != identity:
+                raise ValueError('Staged idle-tail policy must bind exactly its selected lesson')
+            merged[identity] = rows[0]
+    if explicit is not None:
+        for row in requested:
+            merged[row['lesson']] = row
+    return {'schema': 1, 'lessons': list(merged.values())}
+
+
 def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_ids=(), metadata_ids=(),
           host_web=False, migrate_web=(), retain_narration=(), retain_visual_timing=(), withdraw=(), candidate_root=None,
           hardlink_preserved=False, idle_tail_policy=None, terminal_scene_removal=False):
@@ -744,8 +773,9 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
             for key in METADATA_FIELDS:
                 matches[0][key] = deepcopy(reviewed[key])
     js_catalog = mark_hosted_web(js_catalog, [*(identities if host_web else ()), *migrate_web])
-    from idle_tail_policy import bind_policy, load_policy
-    js_catalog['lessons'] = bind_policy(load_policy(REPO, idle_tail_policy), records, js_catalog['lessons'],
+    from idle_tail_policy import bind_policy
+    policy = candidate_idle_tail_policy(stage, identities, idle_tail_policy)
+    js_catalog['lessons'] = bind_policy(policy, records, js_catalog['lessons'],
                                        lambda path: read(root / path))
     nav = navigation(catalogs['lessons_en.json'])
     for lesson in lessons:
@@ -846,7 +876,7 @@ def main(argv=None):
     parser.add_argument('--refresh-metadata', action='append', default=[],
                         help='Update reviewed description/objectives/prerequisite only; preserve all scenes and media')
     parser.add_argument('--idle-tail-policy', type=Path,
-                        help='Explicit source-bound idle-tail policy (default: canonical idle_tail_policy.json)')
+                        help='Explicit source-bound policy base (default: canonical); selected edited-stage fences are discovered automatically')
     parser.add_argument('--withdraw', action='append', default=[],
                         help='Unlist a published lesson from the catalogs, player and candidate media')
     args = parser.parse_args(argv)
