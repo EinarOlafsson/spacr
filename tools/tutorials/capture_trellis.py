@@ -57,7 +57,8 @@ def _require_visible_trellis(panel, panels=None):
                                          if panels is not None else None))
 
 
-def record_trellis(app, window, stage, captures, capture, settle, write_json, timeout):
+def record_trellis(app, window, stage, captures, capture, settle, write_json, timeout,
+                   *, stop_after_free_axes=False):
     from PySide6.QtCore import Qt, QTimer, QPoint
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import (QFileDialog, QDialogButtonBox,
@@ -296,6 +297,14 @@ def record_trellis(app, window, stage, captures, capture, settle, write_json, ti
                 combo(panel._scale_x, mode, data=True, popup_open=True)
                 combo(panel._scale_y, mode, data=True)
             check(number+'_both_axes_'+mode, mode=mode, act=both)
+            if stop_after_free_axes and mode == 'free':
+                proof.update(diagnostic_only=True, stopped_after='06_both_axes_free',
+                             publication_eligible=False)
+                # An early return still executes source/worker checks in finally.
+                # The full-route private-DB check below finally would be skipped.
+                if _digest(work/'measurements.db') != original['database_sha256']:
+                    raise ValueError('Private measurement database changed')
+                return
         check('09_shared_restored', act=lambda: (combo(panel._scale_x, 'shared', data=True),
                                                  combo(panel._scale_y, 'shared', data=True)))
         def area_filter():

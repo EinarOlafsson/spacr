@@ -19,8 +19,8 @@ W, H, FPS = 640, 360, 30
 SPRITE, HOT = xcursor_image(Path('/usr/share/icons/Yaru/cursors/left_ptr').resolve(), 32)
 
 
-def _drag_frame():
-    path = Path('/usr/share/icons/Yaru/cursors/dnd-move')
+def _drag_frame(shape='dnd-move'):
+    path = Path('/usr/share/icons/Yaru/cursors') / shape
     if not path.exists():
         pytest.skip('needs the installed Yaru drag-and-drop cursor')
     sprite, hotspot = xcursor_image(path.resolve(), 32)
@@ -34,20 +34,22 @@ def _drag_frame():
     return frame, x, y
 
 
-def test_real_installed_drag_move_sprite_is_found_at_unchanged_threshold(monkeypatch):
-    frame, x, y = _drag_frame()
+@pytest.mark.parametrize('shape', ['dnd-move', 'dnd-no-drop'], ids=['move', 'no_drop'])
+def test_real_installed_drag_move_sprite_is_found_at_unchanged_threshold(monkeypatch, shape):
+    frame, x, y = _drag_frame(shape)
     monkeypatch.setattr(host_proof, 'frames', lambda _path: iter([(0, frame)]))
     row, = host_proof.track_cursor(Path('unused'), host_proof.cursor_templates('Yaru', 32))
-    assert row['found'] and row['shape'] == 'dnd-move@32'
+    assert row['found'] and row['shape'] == f'{shape}@32'
     assert (row['x'], row['y']) == (x, y)
     assert row['score'] <= .004
 
 
-def test_old_shapes_cannot_substitute_for_real_drag_move_sprite(monkeypatch):
-    frame, _, _ = _drag_frame()
+@pytest.mark.parametrize('shape', ['dnd-move', 'dnd-no-drop'], ids=['move', 'no_drop'])
+def test_old_shapes_cannot_substitute_for_real_drag_move_sprite(monkeypatch, shape):
+    frame, _, _ = _drag_frame(shape)
     monkeypatch.setattr(host_proof, 'frames', lambda _path: iter([(0, frame)]))
     templates = [t for t in host_proof.cursor_templates('Yaru', 32)
-                 if not t['name'].startswith('dnd-move@')]
+                 if not t['name'].startswith(shape + '@')]
     row, = host_proof.track_cursor(Path('unused'), templates)
     assert row['found'] is False and row['score'] > .004
 

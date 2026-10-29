@@ -356,7 +356,7 @@ def test_recorder_diagnostics_are_fixed_and_explicit(tmp_path, monkeypatch, diag
         assert 'GST_DEBUG_FILE' not in seen['env']
         if diagnostics:
             assert seen['env']['GST_DEBUG'] == ('2,pipewiresrc:6,pipewirepool:6,videofilter:6,default:6,'
-                                                'GST_BUFFER:6,GST_MEMORY:6,bufferpool:6')
+                                                'GST_BUFFER:6,GST_MEMORY:6,bufferpool:6,videorate:6')
             assert seen['env']['GST_DEBUG_NO_COLOR'] == '1'
         else:
             assert not any(key.startswith('GST_') for key in seen['env'])

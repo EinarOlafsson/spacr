@@ -217,6 +217,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument('--mask-saved-plots', action='store_true', help='Show verified per-file API overlays in the external image viewer; no model rerun')
     parser.add_argument('--cellpose-training-gui', action='store_true', help='Train on the extracted six-pair example through the Workbench, then apply the checkpoint to its apply folder')
     parser.add_argument('--stop-before-training', action='store_true', help='With --cellpose-training-gui, record the form and stop before Run (no GPU)')
+    parser.add_argument('--trellis-stop-after-free-axes', action='store_true', help='Trellis diagnostic only: stop after genuine free-axis controls and checks; never accept the full lesson')
     parser.add_argument('--cellpose-training-review', action='store_true', help='Show the native source-import defect and a separately verified API training figure; never start GUI training')
     parser.add_argument('--plaque-zoo-model', action='store_true', help='Try the actual plaque Model Zoo download and preview in private staging')
     parser.add_argument('--motility-screen-export-probe', action='store_true', help='Diagnose the real Screen PDF export preference; not a production tutorial workaround')
@@ -394,6 +395,8 @@ def main() -> int:
         parser.error('--cellpose-training-review requires train_cellpose without a new run, download or preview')
     if (args.cellpose_training_gui or args.stop_before_training) and (args.module != 'train_cellpose' or args.run or args.download or args.cellpose_training_review or not args.cellpose_training_gui):
         parser.error('--cellpose-training-gui requires train_cellpose alone; --stop-before-training requires it')
+    if args.trellis_stop_after_free_axes and (args.module != 'trellis' or args.run or args.download or args.preview):
+        parser.error('--trellis-stop-after-free-axes requires trellis without run/download/preview')
     if args.measure_full_example and (args.module != 'measure' or not args.run):
         parser.error('--measure-full-example requires --module measure --run')
     if args.measure_preview_controls and (args.module != 'measure' or not args.download or args.preview or args.run):
@@ -1045,7 +1048,8 @@ def main() -> int:
     elif args.module == 'trellis':
         from capture_trellis import record_trellis
         record_trellis(app, window, stage, captures, capture,
-                       settle, write_json, args.timeout)
+                       settle, write_json, args.timeout,
+                       stop_after_free_axes=args.trellis_stop_after_free_axes)
     elif args.module == 'tabulate':
         from capture_tabulate import record_tabulate
         record_tabulate(app, window, stage, captures, capture,
