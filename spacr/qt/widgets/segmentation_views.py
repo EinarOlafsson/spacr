@@ -405,7 +405,7 @@ class SegmentationViews(QWidget):
 
     def views(self) -> Tuple[str, ...]:
         """The view names, in the order they are offered."""
-        return VIEWS
+        return VIEWS + tuple(getattr(self, "_extra_views", ()))
 
     def view(self) -> str:
         """The view being shown, one of :data:`VIEWS`."""
@@ -420,7 +420,7 @@ class SegmentationViews(QWidget):
         :raises ValueError: for a name that is not a view.
         """
         name = str(name or "")
-        if name not in VIEWS:
+        if name not in self.views():
             raise ValueError(f"{name!r} is not one of {VIEWS}")
         changed = name != self._view
         self._view = name
@@ -446,7 +446,7 @@ class SegmentationViews(QWidget):
         :param parent: the dropdown's parent; this widget by default.
         """
         combo = QComboBox(parent if parent is not None else self)
-        set_translatable_items(combo, VIEWS)
+        set_translatable_items(combo, self.views())
         combo.setToolTip(tr(SELECTOR_HINT))
         combo.setCurrentIndex(combo.findData(self._view))
         combo.currentIndexChanged.connect(
@@ -463,7 +463,7 @@ class SegmentationViews(QWidget):
             instead, or ``None`` for the waiting sentence. ``None`` here
             restores the default renderer.
         """
-        if view not in VIEWS:
+        if view not in self.views():
             raise ValueError(f"{view!r} is not one of {VIEWS}")
         if renderer is None:
             self._renderers.pop(view, None)

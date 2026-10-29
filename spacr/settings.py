@@ -4951,7 +4951,7 @@ tooltips = {
     "plaque_pixels_per_um": "(float, int or None) - Known pixels per micrometer in the analyzed image. Positive values override detected rulers. Leave blank for automatic scale-bar or well-diameter calibration. Per-well values entered in Figure preview take precedence. Default None.",
     "plaque_formation_hours": "(float, int or None) - Elapsed plaque formation time in hours, recorded as experimental metadata. Zero is permitted; blank means unknown. Figure preview allows per-well overrides. Default None.",
     "minimum_object_size": "(float or int) - Minimum plaque area in square pixels of the input image or detected well crop. Objects smaller than this value are discarded. 0 keeps small objects; other segmentation filters still apply. Fractional values are accepted. Default 0.",
-    "plaque_well_resize": "(str) - Resize each detected well before segmentation so plaques reach the size the plaque model was trained at. 'auto' follows the selected model: a model that declares well resize turns it on with its own values, and other models leave it off. 'on' uses the side and enlargement settings below; 'off' segments the image as it is. When on, the diameter setting is not used. Default 'auto'.",
+    "plaque_well_resize": "(str) - Resize each detected well before segmentation so plaques reach the size the plaque model was trained at. 'auto' follows the selected model: a model that declares well resize turns it on with its own values, and other models leave it off. 'on' uses the side and enlargement settings below; 'off' segments the image as it is. Diameter is measured in original input-image pixels and adjusted for the resize; 0 uses the model's own scale. Default 'auto'.",
     "plaque_well_resize_side": "(int) - Longest side in pixels that each detected well is resized to before segmentation when plaque well resize is on. Larger values make small plaques bigger for the model and cost more time and memory; masks are mapped back to the original pixels. Default 1500.",
     "plaque_well_resize_max_factor": "(float or int) - Largest enlargement plaque well resize applies to a small well or a low-resolution image; shrinking a large well is never limited. It stops a tiny image from being magnified far beyond what its pixels can show. Default 6.",
     "colony_counting": "(bool) - Count bacterial or fungal colonies on plate or dish photos instead of segmenting plaques. Each image is one plate, or one well per detected well when well_detection is on; the dish is found by its outline otherwise. Colonies are thresholded against the agar, touching ones are split, and the count, CFU/mL, colony areas and diameters go to colonies/colonies.db in src. No plaque model is loaded. Plaque mode only: Figure mode ignores it. Default False.",
@@ -7146,7 +7146,7 @@ def get_analyze_plaque_settings(settings):
     settings.setdefault('background', 200)
     settings.setdefault('Signal_to_noise', 10)
     settings.setdefault('CP_prob', 0)
-    settings.setdefault('diameter', 30)
+    settings.setdefault('diameter', 0)
     settings.setdefault('batch_size', 50)
     settings.setdefault('flow_threshold', 0.4)
     settings.setdefault('save', True)

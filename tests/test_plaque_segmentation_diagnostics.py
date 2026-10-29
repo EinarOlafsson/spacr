@@ -213,7 +213,9 @@ def test_figure_workflow_saves_metrics_and_upgrades_old_database(tmp_path, monke
             return output
 
     monkeypatch.setattr(cellpose.models, 'CellposeModel', Model)
-    segment = plaque_papers._cellpose_segmenter('model', return_metrics=True)
+    checkpoint = tmp_path / 'model.CP_model'
+    checkpoint.write_bytes(b'checkpoint')
+    segment = plaque_papers._cellpose_segmenter(str(checkpoint), return_metrics=True)
     result = plaque_papers.measure_figure_folder(
         tmp_path, tmp_path / 'out', detector='unused', segmenter='unused',
         detect=lambda *args, **kwargs: [plaque.Well(0, 0, 28, 20)],

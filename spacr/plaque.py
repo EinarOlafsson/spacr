@@ -980,8 +980,8 @@ def _segment_resized_wells(model: Any, image: np.ndarray,
 
     Each well (:func:`_well_resize_boxes`, or the whole image with
     ``whole_frame``) is resized (:func:`_well_resize_forward`), scaled to its
-    percentiles, segmented by Cellpose at its own scale (no diameter), and
-    its plaques mapped back and pasted into original pixels.
+    percentiles, segmented by Cellpose with the requested input-pixel diameter
+    scaled to the resized crop, and mapped back into original pixels.
 
     :param model: a Cellpose model.
     :param image: the field.
@@ -1015,7 +1015,10 @@ def _segment_resized_wells(model: Any, image: np.ndarray,
         crop, meta = _well_resize_forward(image, record["box"], plan["side"],
                                           plan["max_factor"])
         options = dict(eval_options or {})
-        options.update(channel_axis=0, normalize=False, diameter=None,
+        diameter = options.get("diameter")
+        diameter = (float(diameter) * math.sqrt(meta["scale_x"] * meta["scale_y"])
+                    if diameter else None)
+        options.update(channel_axis=0, normalize=False, diameter=diameter,
                        niter=max(int(plan.get("niter", 200)),
                                  int(math.ceil(plan.get("niter", 200) * meta["ratio"]))),
                        max_size_fraction=plan.get("max_size_fraction", 0.4))
@@ -1080,10 +1083,13 @@ def segment_plaque_image(model: Any, image: np.ndarray,
         without downloading the well detector. When on, each detected well
         is resized so its longest side is ``side`` pixels (enlargement capped
         at ``max_factor``), scaled to its 1st/99th percentiles and segmented
-        at that scale with no diameter, the way plaque model v6 was trained;
-        the plaques are mapped back to original pixels and given unique ids.
-        Thresholds the plan carries from the model replace ``CP_prob``,
-        ``flow_threshold`` and ``minimum_object_size``.
+        using the requested diameter in input-image pixels, scaled by the
+        geometric mean of the actual X/Y resize factors. A zero or omitted
+        diameter uses the model's own scale. The plaques are mapped back to
+        original pixels and given unique ids.
+        Model-declared thresholds supply defaults only when ``CP_prob``,
+        ``flow_threshold`` or ``minimum_object_size`` are absent from settings;
+        explicitly supplied values take precedence.
     :param whole_frame: with well resize on, treat the image as one well
         instead of detecting wells (a Figure mode crop already is one).
     :returns: the label image; with ``return_flows``, ``(labels, flows)``
@@ -1097,10 +1103,11 @@ def segment_plaque_image(model: Any, image: np.ndarray,
         well_resize = _well_resize_plan(settings, fetch=False)
     if well_resize:
         declared = dict(well_resize.get("thresholds") or {})
-        min_size = declared.pop("min_size", _number(settings, "minimum_object_size", 0.0))
-        options = {"flow_threshold": _number(settings, "flow_threshold", 0.4),
-                   "cellprob_threshold": _number(settings, "CP_prob", 0.0)}
-        options.update(declared)
+        min_size = _number(settings, "minimum_object_size", declared.pop("min_size", 0.0))
+        options = dict(declared)
+        options.update(flow_threshold=_number(settings, "flow_threshold", declared.get("flow_threshold", 0.4)),
+                       cellprob_threshold=_number(settings, "CP_prob", declared.get("cellprob_threshold", 0.0)))
+        options['diameter'] = _number(settings, "diameter", None)
         result = _segment_resized_wells(
             model, np.asarray(image), well_resize, eval_options=options,
             min_size=min_size,

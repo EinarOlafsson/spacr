@@ -246,6 +246,22 @@
       "source_sha256": "b3f24b5a17a04921acec1b62476d23f5f94ca9170f08353c45d24227457fb5ce",
       "text": "Walk ``src`` and describe every image it holds. Writes nothing.\n\nThis is the read-only half of the converter: it opens headers, not\npixels, and produces the :class:`SourceImage` list that :func:`plan`\nturns into a preview.\n\nLayouts:\n\n``'plate_well'``\n    ``src/<plate>/<well>/…`` — the user's ``run1/wt/`` case.\n``'well'``\n    ``src/<well>/…``, with ``src``'s own name as the plate.\n``'flat'``\n    images directly in ``src``; one plate, one well (``A01``), one\n    field per file.\n``'auto'`` (default)\n    chooses from how deep the images actually sit.\n\nA file whose reader is not installed, or that will not open, comes\nback as a ``SourceImage`` with ``meta['error']`` set rather than\nraising — the plan shows it, the ledger counts it and the summary\nnames it.\n\n:param src: folder to scan.\n:param layout: one of :data:`LAYOUTS`.\n:param extensions: override the scanned extensions.\n:param metadata_type: a filename convention from Mask's ``metadata_type``\n    list (``'opera_phenix'``, ``'cq1'``, ``'zeiss_zen_split_tiles'``, ...).\n    When given, plate, well, field, channel, z and t are READ FROM EACH\n    NAME by that convention's pattern, and the folders only supply what\n    the name does not carry -- the plate for a convention with no plate\n    group, the well for one whose \"well\" is a scene index or a literal\n    word. A file whose name does not follow the convention is reported\n    unreadable, with the reason, rather than guessed at. ``None``,\n    ``''`` and ``'auto'`` keep the folder-and-token inference.\n:param custom_regex: the pattern for ``metadata_type='custom'``, with\n    named groups ``wellID``, ``fieldID`` and ``chanID`` (and optionally\n    ``plateID``, ``timeID``, ``sliceID``).\n:returns: one :class:`SourceImage` per file (or per series in a file).\n:raises ConfigurationError: when ``src`` is not a directory,\n    ``layout`` is not recognised, or ``metadata_type`` names no\n    convention."
     },
+    "c5f1b39a25030613819b91a1d14e94922cdd0f751242ec1e3f29e59c0f7891aa": {
+      "source_blocks_sha256": [
+        "3f3c16f278e7348ccad383b17e8ce06d1112dec5461f68b48fbe2390973c2b42",
+        "ca6eada0130eb1e01dc1e997ac43d0af16178050d814a37e4d14c11bf9418eb8",
+        "c3fef7ac42e98cb547c2f5f524229e6f748f404850a72522d289e8a8d6b6abb4",
+        "0f380eb11d06c4e96ddb9501c06b1f9448907c5b918f90b5eebf952eaa42085b",
+        "852d560ee67ef74854b36f99108076d7912a7056b6c00bbb599fd8dc41c4e936",
+        "9f364a4ce8a85d0ebbf9eb1e40525c6fea103df12d16f13e1dc19b66e654af2b",
+        "ed9a19f6e2e24f930bbc7c643838609eb452252e5638256dde0e94386ec7cb1b",
+        "0fd9d5321938331e5972bbbcb5e211bc1825998317a968f3cd45e23f6fa8093b",
+        "6f91757c4bf1b5c0b03b9b53dde0b76090815949563e81475c61448e99967ab0",
+        "04887c85893e6dc2a04a61ab6e38cde76b46e7af3bc371ae82a581cdca9ab92e"
+      ],
+      "source_sha256": "c5f1b39a25030613819b91a1d14e94922cdd0f751242ec1e3f29e59c0f7891aa",
+      "text": "Segment one plaque image the way both Plaque mode's preview and run do.\n\nThe image goes to Cellpose as it is, RGB or grey, and Cellpose normalises\nit. It is not sent through the run's historical loader\n(``_load_normalized_images_and_labels`` with ``background=200``): on an\n8-bit crop that loader saturated every pixel to 1.0 -- measured on\n``malnio__2.tif``, min = max = 1.0 in every channel -- so the run found\nno plaques while the preview, reading the image as it is, found 67. One\nfunction for both is what keeps them from disagreeing again.\n\n:param model: a Cellpose model.\n:param image: ``H x W`` or ``H x W x 3``.\n:param settings: ``diameter``, ``flow_threshold``, ``CP_prob`` and\n    ``minimum_object_size``. The minimum is an unrounded pixel area in\n    the input image; 0 disables small-object removal.\n:param return_flows: also hand back what the live preview's Flows and\n    Cell probability tabs show, from the same call.\n:param return_metrics: Return ``(labels, per_label_metrics)`` for saved\n    assay tables. Mutually exclusive with ``return_flows``.\n:param well_resize: the well-resize plan (:func:`_well_resize_plan`),\n    ``None`` for off, or ``\"settings\"`` to read it from ``settings``\n    without downloading the well detector. When on, each detected well\n    is resized so its longest side is ``side`` pixels (enlargement capped\n    at ``max_factor``), scaled to its 1st/99th percentiles and segmented\n    at that scale with no diameter, the way plaque model v6 was trained;\n    the plaques are mapped back to original pixels and given unique ids.\n    Thresholds the plan carries from the model replace ``CP_prob``,\n    ``flow_threshold`` and ``minimum_object_size``.\n:param whole_frame: with well resize on, treat the image as one well\n    instead of detecting wells (a Figure mode crop already is one).\n:returns: the label image; with ``return_flows``, ``(labels, flows)``\n    where ``flows`` is :func:`plaque_flow_outputs`."
+    },
     "d0b2ea494b969706ef8f01c1e0fcb10e712a32e4bb2a8fafc5ab81db8a891f3c": {
       "source_blocks_sha256": [
         "e9d3d71ad2216117c17be922f2da6ff58250802af6d2e6ee6ba70a18e1844410",
@@ -300,6 +316,19 @@
       ],
       "source_sha256": "e1725a4733a53223934a46acff9941a053040a4809a3f9d94c5885ecb6aa0874",
       "text": "The settings :meth:`spawn_organelle_slots` would build, unbuilt.\n\nAsked first so the screen can check it has a heading for every one\nof them before anything is built.\n\n:param count: the new ``number_of_organelles``.\n:returns: the keys of the slots past those already built, in the\n    order the defaults declare them; empty when there are none."
+    },
+    "eb527f56c10a936e631bc5c0903772273e38098929cb110bf7eaeb83bd7beee8": {
+      "source_blocks_sha256": [
+        "17e37585db5e1862ef508b116ade6368b7a1e8f3489eb428e4151008b64a0356",
+        "a017c77627795cf426f2bdd28f9a5e2f7f6abf60e7765cca89da86c369f83ce9",
+        "de399e3c680160a59f770499912ff97729a27b0580b3ecef923566e39cf07c47",
+        "7f5b1720eed11bcdd9a71ad2ec8eb42311c4f628422ee8bfc889cf91cd3994a2",
+        "317a5bf2f6d2a4a5ac54a3d1d7df2619e8c344836414177224c42e3cee8b03fc",
+        "f877590d4a010a977e5493fe2b359dbbc412254185df27d89d076ba60519f50d",
+        "8cc30ed632e804abcf9bd5cc19aabf60240c119222f30a80a068ed797bbcfc21"
+      ],
+      "source_sha256": "eb527f56c10a936e631bc5c0903772273e38098929cb110bf7eaeb83bd7beee8",
+      "text": "Find the plaques in one detected well of a figure.\n\nRuns on a worker thread; touches no widget. The model and its thresholds\nare the Plaque settings, through the same\n:func:`spacr.plaque.segment_plaque_image` Plaque mode uses, except the\ndiameter: the crop is segmented at the model's own scale\n(:func:`_at_figure_scale`).\n\n:param image: the figure, ``H x W x 3``.\n:param region: the well's box.\n:param settings: the module's settings.\n:param segment: ``fn(crop) -> labels`` or ``fn(crop) -> (labels,\n    flows)`` with ``flows`` as :func:`spacr.plaque.plaque_flow_outputs`\n    gives it; the plaque model, with its flows, when None.\n:returns: ``{'labels', 'flow_rgb', 'cellprob', 'rows', 'count',\n    'mean_area', 'note'}``, or ``{'error', 'entry'}``. ``flow_rgb`` and\n    ``cellprob`` are None when the segmenter gave no flows."
     },
     "ed4ec5c5cfce5bb0a3a7196bc0e1fbede6ed1b8ca23e52eefab5d33d6c06fe2e": {
       "source_blocks_sha256": [

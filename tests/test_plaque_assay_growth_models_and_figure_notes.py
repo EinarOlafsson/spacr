@@ -43,7 +43,9 @@ def test_the_growth_estimate_reaches_every_row(tmp_path, plaque_env):
 
 
 def test_the_plaque_model_loads_on_the_cpu_when_the_accelerator_is_silent(
-        monkeypatch):
+        monkeypatch, tmp_path):
+    checkpoint = tmp_path / "plaque.CP_model"
+    checkpoint.write_bytes(b"checkpoint")
     import spacr.accelerator as accelerator
 
     def silent():
@@ -53,8 +55,8 @@ def test_the_plaque_model_loads_on_the_cpu_when_the_accelerator_is_silent(
     monkeypatch.setattr(accelerator, "cellpose_kwargs", silent)
     monkeypatch.setattr(SUB.cp_models, "CellposeModel",
                         lambda **kw: built.append(kw) or "model")
-    assert SUB._plaque_cellpose_model("/m/plaque.CP_model") == "model"
-    assert built == [{"pretrained_model": "/m/plaque.CP_model",
+    assert SUB._plaque_cellpose_model(str(checkpoint)) == "model"
+    assert built == [{"pretrained_model": str(checkpoint),
                       "device": None, "gpu": False}]
 
 
@@ -64,7 +66,9 @@ class _Explained(Exception):
 
 @pytest.mark.parametrize("explains", [True, False])
 def test_a_load_error_is_explained_only_when_there_is_an_explanation(
-        monkeypatch, explains):
+        monkeypatch, explains, tmp_path):
+    checkpoint = tmp_path / "old.pth"
+    checkpoint.write_bytes(b"checkpoint")
     failure = ValueError("state dict mismatch")
 
     def refuse(**kw):
@@ -75,7 +79,7 @@ def test_a_load_error_is_explained_only_when_there_is_an_explanation(
                         _Explained("a Cellpose 3 model") if explains else exc)
     expected = _Explained if explains else ValueError
     with pytest.raises(expected) as excinfo:
-        SUB._plaque_cellpose_model("/m/old.pth")
+        SUB._plaque_cellpose_model(str(checkpoint))
     if explains:
         assert excinfo.value.__cause__ is failure
     else:

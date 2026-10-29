@@ -128,10 +128,7 @@ def test_all_default_segmenters_forward_the_same_settings(tmp_path, monkeypatch,
     seen = []
 
     def evaluate(crop, **kwargs):
-        # Figure wells are segmented at the model's own scale (635,
-        # 27b0fd1a9); only the Plaque pass forwards the diameter.
-        expected = 37 if entry_point == "plaque" else None
-        assert kwargs.get("diameter") == expected
+        assert kwargs.get("diameter") == 37
         assert kwargs["flow_threshold"] == 0.27
         assert kwargs["cellprob_threshold"] == -2.5
         assert "channel_axis" in kwargs

@@ -55,7 +55,7 @@ from PySide6.QtWidgets import (
     QSpinBox, QTableWidgetItem, QTabWidget, QToolButton, QVBoxLayout, QWidget,
 )
 
-from ..i18n import tr
+from ..i18n import set_translatable_items, tr
 from ..job_runner import JobRunner
 from .sortable_table import (
     install_sorting, table_item, _retire_table_cells, _spare_items,
@@ -1113,18 +1113,8 @@ def _colony_preview_pass(path, settings):
 
 
 def _at_figure_scale(settings: Dict[str, Any]) -> Dict[str, Any]:
-    """The settings a well cropped from a figure is segmented with.
-
-    The diameter is left out, so Cellpose segments the crop at the model's
-    own scale, as the run's Figure mode does. The diameter is in the
-    pixels of Plaque mode's images, a whole well a thousand or more pixels
-    across; a well on a figure is a hundred or two, so a diameter set for
-    those images shrank each crop to a few pixels and found no plaques.
-
-    :param settings: the module's settings.
-    :returns: a copy without ``diameter``.
-    """
-    return {k: v for k, v in settings.items() if k != "diameter"}
+    """Retain the requested settings in pixels of the original figure crop."""
+    return dict(settings)
 
 
 @_serialized_inference
@@ -1410,9 +1400,9 @@ def segment_well(image: np.ndarray, region: Any, settings: Dict[str, Any], *,
 
     Runs on a worker thread; touches no widget. The model and its thresholds
     are the Plaque settings, through the same
-    :func:`spacr.plaque.segment_plaque_image` Plaque mode uses, except the
-    diameter: the crop is segmented at the model's own scale
-    (:func:`_at_figure_scale`).
+    :func:`spacr.plaque.segment_plaque_image` Plaque mode uses. Diameter is
+    interpreted in pixels of the original well crop and adjusted for any
+    model-input resizing; zero requests the model's own scale.
 
     :param image: the figure, ``H x W x 3``.
     :param region: the well's box.
@@ -3400,7 +3390,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._model_zoo_btn = self._zoo_button(
             self._model_row, "cellpose", lambda: self._model_box)
         model_row.addWidget(self._model_zoo_btn)
-        self._diameter = self._spin(0, 2000, 1, 30, 1)
+        self._diameter = self._spin(0, 2000, 1, 0, 1)
         self._flow = self._spin(0, 3, 2, 0.4, 0.05)
         self._cellprob = self._spin(-8, 8, 2, 0, 0.25)
         from ..screens.settings_model import _minimum_object_size_editor
@@ -3528,10 +3518,14 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._overlay_source: Dict[str, Any] = {"rgb": None}
         self._views = SegmentationViews(self, canvas=self._view)
         self._views.setObjectName("PlaqueImageViews")
+        self._views._extra_views = ("None",)
+        self._views.set_renderer("None", lambda arrays: arrays.get("image"))
         self._views.set_renderer(OVERLAY, self._render_overlay_view)
         self._views.set_renderer(MASKS, self._render_masks_view)
         self._view_selector = self._views.make_selector(self)
         self._view_selector.setObjectName("PlaqueViewSelector")
+        set_translatable_items(self._view_selector, (*VIEWS, "none"),
+                               values=self._views.views())
         self._view_selector.setToolTip(" ".join(
             [tr("The image with the plaques drawn over it. Right-click "
                 "for outlines or a filled overlay, colour, thickness and "
@@ -3556,6 +3550,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._well_overlay: Optional[np.ndarray] = None
         self._well_views = SegmentationViews(self._well_side, canvas=self._well_view)
         self._well_views.setObjectName("PlaqueWellViews")
+        self._well_views._extra_views = ("None",)
+        self._well_views.set_renderer("None", lambda arrays: arrays.get("image"))
         self._well_views.set_renderer(OVERLAY, lambda _arrays: self._well_overlay)
         self._well_views.set_renderer(MASKS, self._render_masks_view)
         self._views.view_changed.connect(self._well_views.set_view)
@@ -4009,6 +4005,10 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         if not text:
             return False
         self.cancel_preview()
+        if text != self._src:
+            blocked = self._picker.blockSignals(True)
+            self._picker.clear()
+            self._picker.blockSignals(blocked)
         self._src = text
         self._load_token += 1
         token = self._load_token
@@ -4100,6 +4100,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             self._plaque_result = None
             self._show_plaque_tabs()
         self._settings = dict(settings or {})
+        self._form_settings_baseline = dict(self._settings)
         s = self._settings
         self._growth_btn.setChecked(bool(s.get("plaque_estimate_growth", False)))
         if MODE_KEY in s:
@@ -4225,10 +4226,61 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._download_btn.hide()
         self._missing_entry = None
 
+    def _sync_form_settings(self):
+        provider = getattr(self, '_form_settings_provider', None)
+        if not callable(provider) or getattr(self, '_syncing_form_settings', False):
+            return
+        self._syncing_form_settings = True
+        try:
+            current = dict(provider())
+            previous = getattr(self, '_form_settings_baseline', {})
+            changed = {key: value for key, value in current.items()
+                       if key not in previous or value != previous[key]}
+            self._form_settings_baseline = dict(current)
+            if not changed:
+                return
+            merged = self.current_settings()
+            merged.update(changed)
+            self._settings.update(changed)
+            if 'src' in changed and str(changed['src'] or '').strip() != self._src:
+                source = str(changed['src'] or '').strip()
+                if source:
+                    self.load_source_async(source)
+            for key, spin in (("diameter", self._diameter),
+                              ("flow_threshold", self._flow),
+                              ("CP_prob", self._cellprob),
+                              ("figure_confidence", self._confidence)):
+                if key in changed and changed[key] is not None:
+                    spin.setValue(float(changed[key]))
+            if 'minimum_object_size' in changed:
+                self._minimum_object_size.set_value(changed['minimum_object_size'])
+            if 'plaque_model' in changed:
+                self._fill_model_box(str(changed['plaque_model'] or DEFAULT_PLAQUE_MODEL))
+                self._seeded_model = self._model_box.currentText()
+                self._describe_model()
+            if 'figure_detector' in changed:
+                self._fill_detector_box(str(changed['figure_detector'] or DEFAULT_DETECTOR))
+                self._seeded_detector = self._detector_box.currentText()
+            if 'figure_imgsz' in changed:
+                self._sizes.setText(','.join(str(value) for value in parse_sizes(changed['figure_imgsz'])))
+            for key, control in (('figure_read_text', self._read_text),
+                                 ('confirm_annotations', self._confirm),
+                                 ('plaque_estimate_growth', self._growth_btn)):
+                if key in changed:
+                    control.setChecked(bool(changed[key]))
+            if set(changed).intersection(TEXT_KEYS):
+                self._seed_text(merged)
+            if MODE_KEY in changed and normalise_mode(changed[MODE_KEY]) != self.mode():
+                self.set_mode(changed[MODE_KEY])
+            self._refresh_ruler_spacing()
+        finally:
+            self._syncing_form_settings = False
+
     def current_settings(self) -> Dict[str, Any]:
         """The module's settings with this panel's values over them."""
         from ..screens.settings_model import SettingsWidgets
 
+        self._sync_form_settings()
         out = dict(self._settings)
         out.update({
             MODE_KEY: self.mode(),
@@ -4295,6 +4347,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
 
     def _preview_blocked_reason(self) -> str:
         """Why a pass cannot start, or ``''``."""
+        if self._load_jobs.is_busy() or self._load_jobs.active_jobs():
+            return tr(self.PREVIEW_SOURCE_HINT)
         if not self._jobs.is_busy() and self._jobs.active_jobs():
             return tr("The previous preview is still finishing. Run preview will be available when it exits.")
         if self.current_path() is None:
@@ -4354,6 +4408,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             Figure mode segments per well.
         :returns: True when a pass was started.
         """
+        self._sync_form_settings()
         if not self.begin_preview():
             return False
         self._run_token += 1
@@ -4665,7 +4720,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             dialog.deleteLater()
 
     def _offer_download(self, entry: Any) -> None:
-        """Show the Download button for a zoo model that is not here."""
+        """Ask before downloading a missing model and retain the explicit retry button."""
         self._missing_entry = entry
         if entry is None:
             self._download_btn.hide()
@@ -4673,6 +4728,10 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._download_btn.setText(tr("Download {name}", name=getattr(
             entry, "key", "") or getattr(entry, "name", "")))
         self._download_btn.show()
+        from ..model_install import _confirm_checkpoint_download
+
+        if _confirm_checkpoint_download(self, getattr(entry, "key", "") or getattr(entry, "name", "")):
+            self._start_download()
 
     def _start_download(self) -> None:
         """Download the missing zoo model into the active shared model cache."""
@@ -5931,6 +5990,7 @@ def build_plaque_preview_card(host: Any):
     scroll.setFrameShape(QFrame.NoFrame)
     scroll.viewport().setAutoFillBackground(False)
     panel = PlaquePreviewPanel()
+    panel._form_settings_provider = lambda: host._settings_model.collect()
     scroll.setWidget(panel)
     card.body_layout.addWidget(scroll)
     card.setMinimumHeight(360)
@@ -5992,6 +6052,9 @@ def install_plaque_mode(screen: Any) -> Optional[PlaqueModeSwitch]:
         if isinstance(panel, PlaquePreviewPanel) and panel.mode() != mode:
             panel.set_mode(mode)
         hide = set(keys_hidden_in(mode)) | {MODE_KEY}
+        colony = model._read_value('colony_counting') if 'colony_counting' in widgets else False
+        if not colony or mode != PLAQUE_MODE:
+            hide.update(('save', 'verbose'))
         hider = getattr(model, "hide_the_rows_the_mode_leaves_out", None)
         if callable(hider):
             try:
@@ -6031,6 +6094,11 @@ def install_plaque_mode(screen: Any) -> Optional[PlaqueModeSwitch]:
             except Exception:
                 continue
             break
+    colony = widgets.get('colony_counting')
+    if colony is not None:
+        from ..screens.settings_model import _connect_value_changed
+
+        _connect_value_changed(colony, lambda *_args: show(state['mode']))
     show(state["mode"])
     _follow_the_src(screen, widgets.get("src"))
     return switch

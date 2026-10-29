@@ -195,7 +195,7 @@ SETTING_API_TARGETS = {
     'dependent_variable': ('spacr.ml', 'minimum_cell_simulation', True),
     'dialate_png_ratios': ('spacr.crops', 'crop_spec_from_settings', True),
     'dialate_pngs': ('spacr.crops', 'crop_spec_from_settings', True),
-    'diameter': ('spacr.spacr_cellpose', 'identify_masks_finetune', True),
+    'diameter': ('spacr.plaque', 'segment_plaque_image', True),
     'distance_gaussian_sigma': ('spacr.measure', '', False),
     'dot_size': ('spacr.core', 'generate_image_umap', True),
     'drop_straight_tracks': ('spacr.timelapse', '', False),

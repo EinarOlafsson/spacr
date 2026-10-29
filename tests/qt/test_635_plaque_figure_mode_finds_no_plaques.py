@@ -1,15 +1,4 @@
-"""Figure mode segments a well crop at the model's own scale.
-
-    "in Plaque's Figure mode the default model finds 0 plaques on
-     open-access paper figures, although well finding and label reading
-     work" -- spacr-d7, 2026-10-03 (PLoS Biol pbio.3002110 Fig 8)
-
-The diameter spin box is shared with Plaque mode, where it is in the pixels
-of a whole-well image. A well on a paper figure is a hundred or two pixels
-across, so a Plaque-mode diameter (180 px on the synthetic plates) made
-Cellpose shrink each crop to a few pixels: 0 plaques in all 8 wells, against
-66 at the model's own scale. The run's Figure mode never passed a diameter.
-"""
+"""Figure diameter is explicit in original crop pixels, with zero retaining auto scale."""
 from __future__ import annotations
 
 import numpy as np
@@ -73,17 +62,19 @@ def model(monkeypatch):
     return fake
 
 
-def test_a_plaque_mode_diameter_does_not_empty_a_figure_well(model):
+@pytest.mark.parametrize('diameter,count,forwarded', [(0, 5, None), (None, 5, None),
+                                                      (16, 5, 16), (180, 0, 180)])
+def test_figure_diameter_uses_original_crop_pixels(model, diameter, count, forwarded):
     image = _well()
-    settings = {"plaque_model": "toxoplasma_plaque_v2", "diameter": 180.0,
+    settings = {"plaque_model": "toxoplasma_plaque_v2", "diameter": diameter,
                 "flow_threshold": 0.4, "CP_prob": 0.0}
     result = ppv.segment_well(image, _Region(), settings)
-    assert result["count"] == 5
-    assert model.diameters == [None]
-    assert settings["diameter"] == 180.0, "the caller's settings are kept"
+    assert result["count"] == count
+    assert model.diameters == [forwarded]
+    assert settings["diameter"] == diameter
 
 
-def test_figure_scale_drops_only_the_diameter():
+def test_figure_settings_preserve_diameter_and_other_tuned_values():
     settings = {"diameter": 30, "CP_prob": 1.5, "flow_threshold": 0.2}
-    assert ppv._at_figure_scale(settings) == {"CP_prob": 1.5,
-                                              "flow_threshold": 0.2}
+    assert ppv._at_figure_scale(settings) == settings
+    assert ppv._at_figure_scale(settings) is not settings

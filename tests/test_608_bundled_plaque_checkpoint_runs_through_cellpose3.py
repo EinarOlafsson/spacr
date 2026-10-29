@@ -48,9 +48,13 @@ class _Backend:
 
 
 @pytest.fixture
-def cellpose3(monkeypatch):
+def cellpose3(monkeypatch, tmp_path):
     """The Cellpose 3 backend, installed or not, as the test says."""
-    state = {"ready": True}
+    old = tmp_path / "old.CP_model"
+    other = tmp_path / "other.pth"
+    old.write_bytes(b"old checkpoint")
+    other.write_bytes(b"other checkpoint")
+    state = {"ready": True, "old_checkpoint": str(old), "other_checkpoint": str(other)}
     monkeypatch.setattr(SB, "_backend_state", lambda name, root=None:
                         SimpleNamespace(ready=state["ready"],
                                         in_process=False))
@@ -75,11 +79,11 @@ def test_the_default_is_a_cellpose_sam_zoo_model_not_the_bundled_one():
 
 def test_the_bundled_checkpoint_segments_through_the_cellpose3_backend(
         cellpose3):
-    model = SUB._plaque_cellpose_model("/m/old.CP_model")
+    model = SUB._plaque_cellpose_model(cellpose3["old_checkpoint"])
     assert isinstance(model, SUB._Cellpose3PlaqueModel)
     backend = model._backend
     assert backend.name == SB._CELLPOSE3
-    assert backend.model == os.path.abspath("/m/old.CP_model")
+    assert backend.model == os.path.abspath(cellpose3["old_checkpoint"])
     rgb = np.zeros((20, 30, 3), np.uint8)
     rgb[..., 0] = 30
     labels, flows, styles = model.eval(rgb, channel_axis=-1, diameter=40,
@@ -97,7 +101,7 @@ def test_the_bundled_checkpoint_segments_through_the_cellpose3_backend(
 def test_the_run_reads_masks_and_flows_from_the_backend(cellpose3):
     from spacr.plaque import segment_plaque_image
 
-    model = SUB._plaque_cellpose_model("/m/old.CP_model")
+    model = SUB._plaque_cellpose_model(cellpose3["old_checkpoint"])
     labels, flows = segment_plaque_image(
         model, np.zeros((16, 16, 3), np.uint8), {"diameter": 0},
         return_flows=True)
@@ -110,7 +114,7 @@ def test_the_run_reads_masks_and_flows_from_the_backend(cellpose3):
 def test_without_the_backend_the_refusal_says_what_to_do(cellpose3):
     cellpose3["ready"] = False
     with pytest.raises(SUB.Cellpose3Checkpoint) as excinfo:
-        SUB._plaque_cellpose_model("/m/old.CP_model")
+        SUB._plaque_cellpose_model(cellpose3["old_checkpoint"])
     text = str(excinfo.value)
     assert "toxoplasma_plaque_v6" in text
     assert "Cellpose 3 backend" in text
@@ -122,11 +126,11 @@ def test_figure_mode_segments_the_old_checkpoint_the_same_way(cellpose3,
     import cellpose.models
 
     monkeypatch.setattr(cellpose.models, "CellposeModel", _refuse)
-    segment = PP._cellpose_segmenter("/m/old.CP_model")
+    segment = PP._cellpose_segmenter(cellpose3["old_checkpoint"])
     assert segment(np.zeros((12, 14, 3), np.uint8)).shape == (12, 14)
     cellpose3["ready"] = False
     with pytest.raises(SUB.Cellpose3Checkpoint):
-        PP._cellpose_segmenter("/m/old.CP_model")
+        PP._cellpose_segmenter(cellpose3["old_checkpoint"])
 
 
 def test_another_load_error_is_not_mistaken_for_cellpose3(cellpose3,
@@ -136,4 +140,4 @@ def test_another_load_error_is_not_mistaken_for_cellpose3(cellpose3,
 
     monkeypatch.setattr(SUB.cp_models, "CellposeModel", broken)
     with pytest.raises(ValueError, match="state dict mismatch"):
-        SUB._plaque_cellpose_model("/m/other.pth")
+        SUB._plaque_cellpose_model(cellpose3["other_checkpoint"])

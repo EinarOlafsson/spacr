@@ -255,7 +255,9 @@ def test_multi_well_image_pastes_and_relabels_each_well(monkeypatch):
     for (shape, kwargs), record in zip(model.calls, boxes):
         x0, y0, x1, y1 = record["box"]
         assert shape[0] == 3 and max(shape[1:]) == 1500
-        assert kwargs["normalize"] is False and kwargs["diameter"] is None
+        assert kwargs["normalize"] is False
+        assert kwargs["diameter"] == pytest.approx(
+            30 * np.sqrt(shape[2] / (x1 - x0) * shape[1] / (y1 - y0)))
         assert kwargs["channel_axis"] == 0
         assert kwargs["min_size"] == pytest.approx(
             4 * shape[2] / (x1 - x0) * shape[1] / (y1 - y0))
@@ -338,7 +340,7 @@ def test_v5_is_segmented_exactly_as_before_when_off():
         assert len(model.calls) == 1
         shape, kwargs = model.calls[0]
         assert shape == image.shape
-        expected = {"channel_axis": -1, "diameter": 30.0, "flow_threshold": 0.4,
+        expected = {"channel_axis": -1, "diameter": None, "flow_threshold": 0.4,
                     "cellprob_threshold": 0.0, "min_size": 0.0}
         assert {name: kwargs[name] for name in expected} == expected
         declared = inspect.signature(_DiskModel.eval).parameters
@@ -372,7 +374,7 @@ def test_settings_declare_and_persist_well_resize(tmp_path):
     assert float(loaded["plaque_well_resize_max_factor"]) == 6.0
 
 
-def test_model_thresholds_are_used_in_auto_only(monkeypatch):
+def test_model_thresholds_do_not_override_explicit_settings(monkeypatch):
     record = dict(V6_RECORD, preprocess={
         "well_resize": {"side": 1500, "max_factor": 6},
         "thresholds": {"cellprob": -0.5, "flow": 0.4, "min_size": 0}})
@@ -388,8 +390,9 @@ def test_model_thresholds_are_used_in_auto_only(monkeypatch):
     model = _DiskModel()
     plaque.segment_plaque_image(model, _field((300, 300), np.uint8), settings)
     kwargs = model.calls[0][1]
-    assert kwargs["cellprob_threshold"] == -0.5 and kwargs["flow_threshold"] == 0.4
-    assert kwargs["min_size"] == 0.0
+    assert kwargs["cellprob_threshold"] == settings["CP_prob"]
+    assert kwargs["flow_threshold"] == settings["flow_threshold"]
+    assert kwargs["min_size"] == 50 * 5 * 5
     forced = plaque._well_resize_plan(dict(settings, plaque_well_resize="on"))
     assert forced["thresholds"] is None
     model = _DiskModel()
@@ -439,7 +442,8 @@ def test_the_default_plaque_model_is_v6_with_resize_and_thresholds(monkeypatch):
     plaque.segment_plaque_image(model, _field((300, 400, 3), np.uint8), settings)
     kwargs = model.calls[0][1]
     assert kwargs["normalize"] is False and kwargs["diameter"] is None
-    assert kwargs["cellprob_threshold"] == -0.5 and kwargs["flow_threshold"] == 0.4
+    assert kwargs["cellprob_threshold"] == settings["CP_prob"]
+    assert kwargs["flow_threshold"] == settings["flow_threshold"]
     assert kwargs["min_size"] == 0.0
     assert plaque._well_resize_plan({"plaque_model": "toxoplasma_plaque_v5"}) is None
 

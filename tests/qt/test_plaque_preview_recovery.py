@@ -140,6 +140,7 @@ def test_model_download_failure_can_be_retried_without_automatic_inference(panel
             self.started = True
 
     monkeypatch.setattr(model_install, "CheckpointDownload", Download)
+    monkeypatch.setattr(model_install, "_confirm_checkpoint_download", lambda *_args: False)
     ready = []
     panel.preview_ready.connect(ready.append)
     panel._offer_download(None)

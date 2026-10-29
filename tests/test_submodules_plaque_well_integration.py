@@ -308,6 +308,7 @@ def test_a_plaque_model_zoo_key_is_fetched(tmp_path, monkeypatch):
 
     def fetch(chosen, destination):
         calls.append((chosen, Path(destination)))
+        fetched.write_bytes(b"verified checkpoint")
         return fetched
 
     monkeypatch.setattr(model_zoo, "fetch", fetch)
@@ -352,3 +353,40 @@ def test_analyze_plaques_hands_detected_well_crops_to_the_analysis(
     assert seen == [str(source)]
     assert settings["src"] == str(split)
     assert (masks / "plaques_analysis.db").is_file()
+
+
+def test_missing_fetched_plaque_checkpoint_never_reaches_cellpose(tmp_path, monkeypatch):
+    from spacr import model_zoo
+
+    missing = tmp_path / 'missing-v6.CP_model'
+    monkeypatch.setattr(model_zoo, '_ensure_model_file', lambda *args, **kwargs: missing)
+    with pytest.raises(sm.ModelZooMissing, match='missing-v6'):
+        sm._resolve_plaque_model({'plaque_model': 'toxoplasma_plaque_v6'}, fetch=True)
+    monkeypatch.setattr(sm.cp_models, 'CellposeModel', lambda **kwargs: pytest.fail('stock substitution reached Cellpose'))
+    with pytest.raises(sm.ModelZooMissing, match='missing-v6'):
+        sm._plaque_cellpose_model(missing)
+    with pytest.raises(sm.ModelZooMissing, match='missing-v6'):
+        sm._cellpose3_plaque_backend(missing)
+    from spacr import plaque_papers
+    with pytest.raises(sm.ModelZooMissing, match='missing-v6'):
+        plaque_papers._cellpose_segmenter(str(missing))
+
+
+def test_custom_plaque_architecture_failure_does_not_choose_stock(tmp_path, monkeypatch):
+    from spacr import accelerator, model_zoo
+
+    checkpoint = tmp_path / 'unsupported.CP_model'
+    checkpoint.write_bytes(b'custom model')
+    monkeypatch.setattr(accelerator, 'cellpose_kwargs', lambda: {'gpu': False})
+    monkeypatch.setattr(model_zoo, '_model_precision_kwargs', lambda path, kwargs: kwargs)
+    seen = []
+
+    def unsupported(**kwargs):
+        seen.append(kwargs['pretrained_model'])
+        raise ValueError('unsupported custom architecture')
+
+    monkeypatch.setattr(sm.cp_models, 'CellposeModel', unsupported)
+    monkeypatch.setattr(sm, '_cellpose3_plaque_backend', lambda path: pytest.fail('unsupported model selected another backend'))
+    with pytest.raises(ValueError, match='unsupported custom architecture'):
+        sm._plaque_cellpose_model(checkpoint)
+    assert seen == [checkpoint]

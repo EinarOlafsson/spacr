@@ -279,6 +279,10 @@ def resolve_default_settings(app_key: str) -> Dict[str, Any]:
 #: the layouts exist to keep empty. This is the mechanism that actually
 #: hides one.
 _APP_HIDDEN_KEYS: Dict[str, set] = {
+    "analyze_plaques": {"normalize", "channels", "invert", "resample", "rescale",
+                        "resize", "target_height", "target_width", "remove_background",
+                        "background", "Signal_to_noise", "fill_in", "batch_size",
+                        "grayscale", "percentiles", "model_name"},
     "train_cellpose": {"model_type", "from_scratch", "Signal_to_noise", "background",
                        "remove_background", "diameter", "resize", "width_height",
                        "target_size", "augment", "verbose"},
@@ -1100,6 +1104,9 @@ _TRAIN_CELLPOSE_TOOLTIPS = {
 }
 
 _APP_TOOLTIP_OVERRIDES = {
+    "analyze_plaques": {
+        "diameter": "Expected plaque diameter in original input-image or detected well-crop pixels. Positive values control model scale and are adjusted for well resizing. Use 0 for the model’s own scale. Default 0.",
+    },
     "measure": {
         "psf_source": "gaussian constructs an explicitly sampled Gaussian approximation from the supplied FWHM and image sampling. measured captures a calibrated TIFF or NPY kernel. The same kernel applies independently to every selected measurement intensity channel, so its calibration must suit all selected channels. Neither choice estimates microscope optics.",
         "psf_operation": "With processed measurement intensities selected, convolve adds calibrated blur and deconvolve performs Richardson–Lucy restoration. Select original to keep normal Measure intensities without PSF processing. Stored images and exported crops are unchanged; the database records the intensity source and full PSF provenance. Configure a kernel appropriate to every selected intensity channel.",
@@ -3758,10 +3765,9 @@ CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
             "determine both. Estimates are approximate and require validation "
             "for the parasite strain, host cells and imaging conditions.",
         "MODEL":
-            "The expected plaque diameter, and whether previously written "
-            "masks are reused instead of segmenting again. Plaques are far "
-            "larger than cells, so the default cell-sized expectation is "
-            "almost never right here.",
+            "Choose the plaque model and expected plaque diameter in original "
+            "input-image or well-crop pixels. Use 0 for the model’s own scale. "
+            "Choose whether to generate new masks or reuse existing masks.",
         "OUTPUT & RUNTIME":
             "Whether masks and results are written, the GPU batch size, and "
             "how much the run prints. Leave saving off for the first pass "

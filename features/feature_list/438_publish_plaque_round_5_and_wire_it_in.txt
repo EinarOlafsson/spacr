@@ -2,9 +2,11 @@
 PLAQUE MODEL PUBLICATION AND V6 INTEGRATION
 ================================================================================
 
+MISSING CHECKPOINT FOLLOW-UP — 2026-10-29: default Toxoplasma_plaque_v6 must prompt for download when the user requests preview or use and it is absent. Never silently run a stock model or pass a missing custom checkpoint to Cellpose. Retained model peer owns resolution, UI consent, focused regressions and missing/cancel controls; root integrates and publishes.
+
 CURRENT PLAQUE V6 HANDOFF — 2026-10-23
 Lifecycle: new
-Status: DONE — published plaque v6 is integrated and selected by default; the awaiting-handoff header was stale.
+Status: DONE 2026-10-29 — v6 remains selected by default; missing-model consent and strict checkpoint handling are implemented, tested and published on nightly.
 Owner:     plaque model session; easy_n79 integration watch; root publication.
 The maintainer requests integration when v6 arrives. Keep the existing v5 default until checkpoint/architecture, channels, immutable checksums and scorecard are verified; then integrate the registry and required published assets with CPU-only load/sample checks and normal generated documentation. Do not touch the other session’s training or use the Home GPU.
 
@@ -256,3 +258,5 @@ of v3) is the same physical plate as ReimagedPlate1 (training data of v4).
 2026-10-19: browser ONNX toxoplasma_plaque_v5-a03c569178f1.onnx exported (torch vs onnxruntime check passed) and uploaded with browser-manifest.json to dataset einarolafsson/models web-onnx/ (commit 52aa66e6). Nothing remains for 438.
 
 2026-10-28 — Published a116d694903 integrates the epoch-100 v6 checkpoint, matching card/160-field scorecard, defaults, generated documentation and nine-language records on Main and Nightly. This reconciles existing delivery; no new weight-loading or inference run is claimed.
+
+2026-10-29 — Missing selected checkpoints prompt before Preview download or batch Run, with No as default; refusal starts no download or job. Strict existing-file checks prevent missing paths reaching Plaque, Figure and isolated Cellpose3 constructors, and incompatible custom models fail without stock substitution. Focused consent/backend controls pass; required normal artifacts and nightly publication are delivered.

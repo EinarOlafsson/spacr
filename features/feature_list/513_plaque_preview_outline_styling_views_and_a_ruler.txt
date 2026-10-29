@@ -1,8 +1,9 @@
 PLAQUE PREVIEW: OUTLINE AND BOX STYLING, THE FOUR VIEWS, AND A RULER
 
+MAINTAINER FOLLOW-UP — 2026-10-29: add a None view showing original pixels without masks/outlines in full-image and selected-well views. Audit all main settings → preview → batch propagation, preserving preview tuning and respecting explicit diameter in both Plaque/Figure modes including model-resized wells. Root owns views/integration; retained diameter peer owns parameter plumbing and controls; normal affected artifacts and focused regression required.
+
 Lifecycle: new
-Status: DONE 2026-09-25 — (line weights, ruler, and the four views through
-505's shared widget). Filed 2026-09-24.
+Status: DONE 2026-10-29 — no-overlay view, active settings handoff, diameter/threshold controls and preview synchronization delivered on nightly. Original line weights, ruler and shared views delivered 2026-09-25; filed 2026-09-24.
 Owner: unassigned. Related: 505 (the same views in Mask generation's live
 preview), and the plaque preview's existing overlay settings.
 
@@ -138,3 +139,5 @@ FOR THE DOCS LANE
     and lacks boxed_picture and the _ImageView canvas methods.
 
 VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_513_plaque_line_weights_persist_and_a_ruler_measures.py, test_513_plaque_preview_shares_the_four_views.py pass.
+
+2026-10-29 — Added a no-overlay view for both full images and selected wells, preserving labels/counts. Explicit Diameter, thresholds and minimum size reach shared preview/batch segmentation; diameter uses original pixels and actual resize factors, with 0 retaining automatic scale. Main-form changes synchronize while preserving preview-only tuning, including immediate source changes. Inactive legacy controls are hidden; Colony mode retains Save/Verbose. Focused pixel/parameter/interaction checks pass; required normal artifacts and nightly publication are delivered.

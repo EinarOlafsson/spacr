@@ -9459,6 +9459,10 @@ class AppScreen(QWidget):
             QMessageBox.warning(self, tr("Bad settings"), str(e))
             return
 
+        if (self.app_key == "analyze_plaques"
+                and not self._confirm_plaque_model_download(settings)):
+            return
+
         if not self._claim_the_project(settings):
             log_button_press(f"{self.app_key}.Run",
                              {"result": "project_locked"})
@@ -10964,6 +10968,22 @@ class AppScreen(QWidget):
                 "stores; streaming from the arrays uses the object masks, so "
                 "it can cut to the object itself.")
         return notes
+
+    def _confirm_plaque_model_download(self, settings) -> bool:
+        """Ask before a Plaque run can fetch its missing selected checkpoint."""
+        if settings.get("colony_counting") and str(settings.get("plaque_mode") or "plaque") != "figure":
+            return True
+        from ...submodules import ModelZooMissing, _requested_plaque_model, _resolve_plaque_model
+        from ..model_install import _confirm_checkpoint_download
+
+        try:
+            _resolve_plaque_model(settings, fetch=False)
+        except ModelZooMissing:
+            return _confirm_checkpoint_download(self, _requested_plaque_model(settings))
+        except Exception as exc:
+            QMessageBox.warning(self, tr("Bad settings"), str(exc))
+            return False
+        return True
 
     def _confirm_measure_rerun(self, settings) -> bool:
         """Confirm the read-only archive preview before a fresh Measure launch."""

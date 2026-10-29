@@ -1501,6 +1501,8 @@ def _cellpose3_plaque_backend(model_path):
     :param model_path: a Cellpose 3 checkpoint.
     :returns: a :class:`_Cellpose3PlaqueModel`, or None.
     """
+    if not os.path.isfile(model_path):
+        raise ModelZooMissing(str(model_path))
     from ._segmentation_backends import (_CELLPOSE3, _RemoteBackend,
                                          _backend_state)
 
@@ -1602,7 +1604,7 @@ def _resolve_plaque_model(settings, fetch=True):
     resolved = model_zoo._ensure_model_file(
         requested, kinds=('cellpose',), download=fetch, setting='plaque_model')
     if resolved is not None:
-        if fetch or os.path.isfile(resolved):
+        if os.path.isfile(resolved):
             return str(resolved)
         raise ModelZooMissing(str(resolved))
     raise model_zoo.ModelZooError(model_zoo._model_resolution_context(
@@ -1822,6 +1824,8 @@ def _plaque_cellpose_model(model_path):
     :raises Cellpose3Checkpoint: when the checkpoint is a Cellpose 3 model
         and the Cellpose 3 backend is not installed.
     """
+    if not os.path.isfile(model_path):
+        raise ModelZooMissing(str(model_path))
     try:
         from .accelerator import cellpose_kwargs
 
@@ -2015,6 +2019,17 @@ def _add_figure_summaries(total, part):
     return total
 
 
+def _segment_figure_crop(crop, *, settings, model_path, cache):
+    from . import plaque_papers
+
+    if 'segmenter' not in cache:
+        cache['segmenter'] = plaque_papers._cellpose_segmenter(
+            model_path, return_metrics=True,
+            min_size=float(settings.get('minimum_object_size') or 0),
+            well_resize=_figure_well_resize(settings), settings=settings)
+    return cache['segmenter'](crop)
+
+
 def _analyze_plaque_figures(settings, model_path):
     """Plaque Assay's Figure mode: published figures in, annotated plaques out.
 
@@ -2041,12 +2056,17 @@ def _analyze_plaque_figures(settings, model_path):
                   if part.strip())
     read_text = None if settings.get('figure_read_text', True) else (
         lambda _path: [])
+    from functools import partial
+
+    segment = partial(_segment_figure_crop, settings=settings, model_path=model_path, cache={})
+
     summary = None
     for folder in plaque_papers.figure_folders(settings['src']):
         part = plaque_papers.measure_figure_folder(
             folder, os.path.join(settings['src'], 'plaque_figures'),
             detector=detector,
-            segmenter=model_path, imgsz=sizes or plaque_papers.DEFAULT_IMGSZ,
+            segmenter=model_path, segment=segment,
+            imgsz=sizes or plaque_papers.DEFAULT_IMGSZ,
             min_size=float(settings.get('minimum_object_size') or 0),
             well_resize=_figure_well_resize(settings),
             confidence=float(settings.get('figure_confidence', 0.25)),

@@ -402,12 +402,18 @@ def test_a_model_that_is_not_here_is_stated_not_fetched(panel, tmp_path,
         assert fetch is False, "the preview must never download"
         raise sm.ModelZooMissing("not here")
 
+    from spacr.qt import model_install
+
+    prompted = []
+    monkeypatch.setattr(model_install, "_confirm_checkpoint_download",
+                        lambda parent, name: prompted.append(name) or False)
     monkeypatch.setattr(sm, "_resolve_plaque_model", missing)
     _png(tmp_path / "a.png")
     panel.apply_settings({"plaque_model": "toxoplasma_plaque_v2"})
     panel.load_source_async(str(tmp_path))
     panel.run_preview()
     assert "not on this machine" in panel.preview_status()
+    assert prompted == ["toxoplasma_plaque_v2"]
 
 
 def test_sizes_and_modes_parse():

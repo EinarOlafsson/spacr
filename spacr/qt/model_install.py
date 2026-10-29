@@ -44,6 +44,15 @@ FAILURE_TAIL_LINES = 8
 _RUNNING: set = set()
 
 
+def _confirm_checkpoint_download(parent, name):
+    """Ask before a missing selected checkpoint can start network acquisition."""
+    from .i18n import tr
+
+    return QMessageBox.question(
+        parent, tr("Model Zoo"), tr("Download {name}", name=name),
+        QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.Yes
+
+
 def backend_rows() -> List[Tuple[str, str, str, str]]:
     """Every installable segmentation backend, as the model zoo lists it.
 

@@ -115,7 +115,9 @@ def test_a_cellpose3_plaque_model_given_a_flat_image_reads_it_as_is():
     assert seen == [(4, 4)] and flows == []
 
 
-def test_a_cellpose3_backend_that_cannot_start_is_none(monkeypatch):
+def test_a_cellpose3_backend_that_cannot_start_is_none(monkeypatch, tmp_path):
+    checkpoint = tmp_path / "x.pth"
+    checkpoint.write_bytes(b"checkpoint")
     from spacr import _segmentation_backends as sb
     from spacr import submodules
 
@@ -126,4 +128,4 @@ def test_a_cellpose3_backend_that_cannot_start_is_none(monkeypatch):
         raise RuntimeError("no worker")
 
     monkeypatch.setattr(sb, "_RemoteBackend", refuse)
-    assert submodules._cellpose3_plaque_backend("/models/x.pth") is None
+    assert submodules._cellpose3_plaque_backend(str(checkpoint)) is None

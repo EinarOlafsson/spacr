@@ -2348,7 +2348,8 @@ def _zoo_path(key: str, cache: Path, *, kind=None, setting=None) -> Tuple[str, s
 
 def _cellpose_segmenter(path: str, *, return_metrics: bool = False,
                         min_size: Optional[float] = None,
-                        well_resize: Optional[Dict[str, Any]] = None) -> Callable:
+                        well_resize: Optional[Dict[str, Any]] = None,
+                        settings: Optional[Dict[str, Any]] = None) -> Callable:
     """A plaque segmenter from a Cellpose checkpoint.
 
     A Cellpose 3 checkpoint, which Cellpose 4 refuses, segments through the
@@ -2365,6 +2366,10 @@ def _cellpose_segmenter(path: str, *, return_metrics: bool = False,
         back to the crop's pixels.
     :returns: ``fn(crop) -> labels`` or, with metrics, ``(labels, metrics)``.
     """
+    if not Path(path).is_file():
+        from .submodules import ModelZooMissing
+
+        raise ModelZooMissing(str(path))
     from cellpose import models
     from .plaque import _segment_resized_wells
 
@@ -2397,6 +2402,14 @@ def _cellpose_segmenter(path: str, *, return_metrics: bool = False,
     def segment(crop: np.ndarray) -> Any:
         """The Cellpose label mask of one plaque image crop."""
         from .plaque import _plaque_segmentation_metrics, _host_array
+        if settings is not None:
+            from .plaque import segment_plaque_image
+
+            selected = dict(settings)
+            if min_size is not None:
+                selected['minimum_object_size'] = min_size
+            return segment_plaque_image(model, crop, selected, well_resize=well_resize,
+                                        whole_frame=True, return_metrics=return_metrics)
         if well_resize:
             declared = dict(well_resize.get("thresholds") or {})
             least = declared.pop("min_size", min_size)

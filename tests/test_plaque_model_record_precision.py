@@ -22,7 +22,9 @@ def test_undeclared_models_keep_the_accelerator_precision():
 
 
 @pytest.mark.parametrize("factory", ["assay", "figure"])
-def test_assay_and_figure_constructors_honor_the_same_record(monkeypatch, factory):
+def test_assay_and_figure_constructors_honor_the_same_record(monkeypatch, factory, tmp_path):
+    checkpoint = tmp_path / "weights"
+    checkpoint.write_bytes(b"checkpoint")
     from spacr import accelerator
     monkeypatch.setattr(accelerator, "cellpose_kwargs", lambda: {"gpu": True, "device": "cuda:0"})
     monkeypatch.setattr(model_zoo, "_model_preprocess", lambda *a, **k: {"use_bfloat16": False})
@@ -31,11 +33,12 @@ def test_assay_and_figure_constructors_honor_the_same_record(monkeypatch, factor
     if factory == "assay":
         from spacr import submodules
         monkeypatch.setattr(submodules.cp_models, "CellposeModel", lambda **kw: calls.append(kw) or marker)
-        assert submodules._plaque_cellpose_model("/models/weights") is marker
+        assert submodules._plaque_cellpose_model(str(checkpoint)) is marker
     else:
         from cellpose import models
+
         from spacr import plaque_papers
         monkeypatch.setattr(models, "CellposeModel", lambda **kw: calls.append(kw) or marker)
-        assert callable(plaque_papers._cellpose_segmenter("/models/weights"))
-    assert calls == [{"pretrained_model": "/models/weights", "device": None,
+        assert callable(plaque_papers._cellpose_segmenter(str(checkpoint)))
+    assert calls == [{"pretrained_model": str(checkpoint), "device": None,
                       "gpu": True, "use_bfloat16": False}]

@@ -16,6 +16,12 @@ CP_prob
 
 (float) - Cellpose cellprob_threshold: the cell-probability cut-off applied to the network output when deciding which pixels belong to an object. Lower it (typically toward -6) to recover dim or partly detected objects and grow existing masks; raise it (toward 6) to drop faint false positives and shrink masks. Default 0.
 
+| ``_cellpose_segmenter``
+|     :py:func:`~spacr.plaque.segment_plaque_image` **-- reads it**
+|     ``CellposeModel(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.plaque_papers.segment`
+|     :py:func:`~spacr.plaque.segment_plaque_image` **-- reads it**
 | :py:func:`~spacr.qt.widgets.plaque_preview.run_preview`
 |     :py:func:`~spacr.qt.widgets.plaque_preview.plaque_pass`
 |         :py:func:`~spacr.plaque.segment_plaque_image` **-- reads it**
@@ -3104,6 +3110,7 @@ channels
 | ``_plan_gains``
 |     :py:func:`~spacr.settings.get_measure_crop_settings` **-- reads it**
 |     ``deepcopy(...)  [UNRESOLVED]``
+| ``_segment_multi`` **-- reads it**
 | ``_compute_checked_crops`` **-- reads it**
 | ``_compute_confluency_preview``
 |     ``_measure_field_confluency`` **-- reads it**
@@ -3135,7 +3142,7 @@ channels
 |     ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.timelapse.automated_motility_assay` **-- reads it**
 
-Read by ``v2_channels_from_settings``, ``_cf_load_checkpoint``, ``_watch_measure_settings``, ``_watch_source_channels``, ``_watch_validate_map_channels``, ``_watch_vendor_channels``, ``preprocess_generate_masks``, ``apply_model_to_tar``, ``generate_activation_map``, ``run_import``, ``load_activation_data``, ``illumination_settings``, ``prepare_illumination_model``, ``_preprocess_mapped_volume_series``, ``_preprocess_volume_tiffs``, ``preprocess_img_data``, ``_cell_cycle_channel``, ``_classify_viability``, ``_confluency_channel``, ``_measure_crop_core``, ``_measure_field_confluency``, ``_measured_channel_column``, ``_morphological_measurements``, ``_with_distances``, ``_wound_plane``, ``measure_crop``, ``_preflight_plate_partitions``, ``_run_partitioned_v2``, ``plot_region``, ``_prepare_measure_unmixing``, ``_compute_checked_crops``, ``_confluency_preview_settings``, ``_unmixed_crop_source``, ``_wound_preview_settings``, ``apply_settings``, ``set_import``, ``__init__``, ``get_analyze_plaque_settings``, ``get_default_generate_activation_map_settings``, ``get_measure_crop_settings``, ``set_annotate_default_settings``, ``check_cellpose_models``, ``identify_masks_finetune``, ``_cellpose_training_arrays``, ``interpret_vision_model``, ``automated_motility_assay``, ``_check_app_specific``, ``_check_channels``, ``describe_plan``.
+Read by ``v2_channels_from_settings``, ``_cf_load_checkpoint``, ``_watch_measure_settings``, ``_watch_source_channels``, ``_watch_validate_map_channels``, ``_watch_vendor_channels``, ``preprocess_generate_masks``, ``apply_model_to_tar``, ``generate_activation_map``, ``run_import``, ``load_activation_data``, ``illumination_settings``, ``prepare_illumination_model``, ``_preprocess_mapped_volume_series``, ``_preprocess_volume_tiffs``, ``preprocess_img_data``, ``_cell_cycle_channel``, ``_classify_viability``, ``_confluency_channel``, ``_measure_crop_core``, ``_measure_field_confluency``, ``_measured_channel_column``, ``_morphological_measurements``, ``_with_distances``, ``_wound_plane``, ``measure_crop``, ``_preflight_plate_partitions``, ``_run_partitioned_v2``, ``plot_region``, ``_prepare_measure_unmixing``, ``_segment_multi``, ``_compute_checked_crops``, ``_confluency_preview_settings``, ``_unmixed_crop_source``, ``_wound_preview_settings``, ``apply_settings``, ``set_import``, ``__init__``, ``get_analyze_plaque_settings``, ``get_default_generate_activation_map_settings``, ``get_measure_crop_settings``, ``set_annotate_default_settings``, ``check_cellpose_models``, ``identify_masks_finetune``, ``_cellpose_training_arrays``, ``interpret_vision_model``, ``automated_motility_assay``, ``_check_app_specific``, ``_check_channels``, ``describe_plan``.
 
 .. _setting-flow-channels_for_cellpose:
 
@@ -3785,13 +3792,14 @@ colony_counting
 
 (bool) - Count bacterial or fungal colonies on plate or dish photos instead of segmenting plaques. Each image is one plate, or one well per detected well when well_detection is on; the dish is found by its outline otherwise. Colonies are thresholded against the agar, touching ones are split, and the count, CFU/mL, colony areas and diameters go to colonies/colonies.db in src. No plaque model is loaded. Plaque mode only: Figure mode ignores it. Default False.
 
+| ``_confirm_plaque_model_download`` **-- reads it**
 | :py:func:`~spacr.qt.widgets.plaque_preview.apply_settings` **-- reads it**
 | :py:func:`~spacr.qt.widgets.plaque_preview.run_preview` **-- reads it**
 |     ``deepcopy(...)  [UNRESOLVED]``
 | :py:func:`~spacr.submodules.analyze_plaques` **-- reads it**
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by ``apply_settings``, ``run_preview``, ``get_analyze_plaque_settings``, ``analyze_plaques``.
+Read by ``_confirm_plaque_model_download``, ``apply_settings``, ``run_preview``, ``get_analyze_plaque_settings``, ``analyze_plaques``.
 
 .. _setting-flow-colony_detector:
 
@@ -4107,8 +4115,8 @@ confirm_annotations
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 |     ``_analyze_plaque_figures`` **-- reads it**
+|         ``partial(...)  [UNRESOLVED]``
 |         ``measure_figure_folder(...)  [UNRESOLVED]``
-|         ``text_options_from_settings(...)  [UNRESOLVED]``
 
 Read by ``prepare_figure_review``, ``get_analyze_plaque_settings``, ``_analyze_plaque_figures``.
 
@@ -6204,6 +6212,13 @@ diameter
 |     ``_describe_cellpose_training`` **-- reads it**
 | ``_run_partitioned_v2`` **-- reads it**
 |     ``deepcopy(...)  [UNRESOLVED]``
+| ``_segment_resized_wells`` **-- reads it**
+| ``_cellpose_segmenter``
+|     :py:func:`~spacr.plaque.segment_plaque_image` **-- reads it**
+|     ``CellposeModel(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.plaque_papers.segment`
+|     :py:func:`~spacr.plaque.segment_plaque_image` **-- reads it**
 | ``_on_detect_cellpose`` **-- reads it**
 | ``_seed_the_diameter`` **-- reads it**
 | :py:func:`~spacr.qt.widgets.plaque_preview.run_preview`
@@ -6221,7 +6236,7 @@ diameter
 |     ``_segment_plaque_folder``
 |         :py:func:`~spacr.plaque.segment_plaque_image` **-- reads it**
 
-Read by ``_stardist_volume_batch``, ``_describe_cellpose_training``, ``_run_partitioned_v2``, ``segment_plaque_image``, ``_on_detect_cellpose``, ``_seed_the_diameter``, ``segment_frame``, ``get_analyze_plaque_settings``, ``check_cellpose_models``, ``identify_masks_finetune``.
+Read by ``_stardist_volume_batch``, ``_describe_cellpose_training``, ``_run_partitioned_v2``, ``_segment_resized_wells``, ``segment_plaque_image``, ``_on_detect_cellpose``, ``_seed_the_diameter``, ``segment_frame``, ``get_analyze_plaque_settings``, ``check_cellpose_models``, ``identify_masks_finetune``.
 
 .. _setting-flow-diameter_estimate_n_fields:
 
@@ -8661,8 +8676,8 @@ figure_confidence
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 |     ``_analyze_plaque_figures`` **-- reads it**
+|         ``partial(...)  [UNRESOLVED]``
 |         ``measure_figure_folder(...)  [UNRESOLVED]``
-|         ``text_options_from_settings(...)  [UNRESOLVED]``
 
 Read by ``detect_figure``, ``figure_pass``, ``seed_well_boxes``, ``get_analyze_plaque_settings``, ``_analyze_plaque_figures``.
 
@@ -8681,8 +8696,8 @@ figure_detector
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 |     ``_analyze_plaque_figures`` **-- reads it**
+|         ``partial(...)  [UNRESOLVED]``
 |         ``measure_figure_folder(...)  [UNRESOLVED]``
-|         ``text_options_from_settings(...)  [UNRESOLVED]``
 
 Read by ``detect_figure``, ``figure_pass``, ``seed_well_boxes``, ``get_analyze_plaque_settings``, ``_analyze_plaque_figures``.
 
@@ -8701,8 +8716,8 @@ figure_imgsz
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 |     ``_analyze_plaque_figures`` **-- reads it**
+|         ``partial(...)  [UNRESOLVED]``
 |         ``measure_figure_folder(...)  [UNRESOLVED]``
-|         ``text_options_from_settings(...)  [UNRESOLVED]``
 
 Read by ``detect_figure``, ``figure_pass``, ``seed_well_boxes``, ``get_analyze_plaque_settings``, ``_analyze_plaque_figures``.
 
@@ -8720,8 +8735,8 @@ figure_read_text
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 |     ``_analyze_plaque_figures`` **-- reads it**
+|         ``partial(...)  [UNRESOLVED]``
 |         ``measure_figure_folder(...)  [UNRESOLVED]``
-|         ``text_options_from_settings(...)  [UNRESOLVED]``
 
 Read by ``detect_figure``, ``figure_pass``, ``get_analyze_plaque_settings``, ``_analyze_plaque_figures``.
 
@@ -8904,6 +8919,12 @@ flow_threshold
 
 | ``_run_partitioned_v2`` **-- reads it**
 |     ``deepcopy(...)  [UNRESOLVED]``
+| ``_cellpose_segmenter``
+|     :py:func:`~spacr.plaque.segment_plaque_image` **-- reads it**
+|     ``CellposeModel(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.plaque_papers.segment`
+|     :py:func:`~spacr.plaque.segment_plaque_image` **-- reads it**
 | :py:func:`~spacr.qt.widgets.plaque_preview.run_preview`
 |     :py:func:`~spacr.qt.widgets.plaque_preview.plaque_pass`
 |         :py:func:`~spacr.plaque.segment_plaque_image` **-- reads it**
@@ -13747,19 +13768,27 @@ minimum_object_size
 
 (float or int) - Minimum plaque area in square pixels of the input image or detected well crop. Objects smaller than this value are discarded. 0 keeps small objects; other segmentation filters still apply. Fractional values are accepted. Default 0.
 
+| ``_cellpose_segmenter`` **-- reads it**
+|     :py:func:`~spacr.plaque.segment_plaque_image` **-- reads it**
+|     ``CellposeModel(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.plaque_papers.segment` **-- reads it**
+|     :py:func:`~spacr.plaque.segment_plaque_image` **-- reads it**
 | :py:func:`~spacr.qt.widgets.plaque_preview.run_preview`
 |     :py:func:`~spacr.qt.widgets.plaque_preview.plaque_pass`
 |         :py:func:`~spacr.plaque.segment_plaque_image` **-- reads it**
 |     ``deepcopy(...)  [UNRESOLVED]``
+| ``_segment_figure_crop`` **-- reads it**
+|     ``_cellpose_segmenter(...)  [UNRESOLVED]``
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 |     ``_analyze_plaque_figures`` **-- reads it**
+|         ``partial(...)  [UNRESOLVED]``
 |         ``measure_figure_folder(...)  [UNRESOLVED]``
-|         ``text_options_from_settings(...)  [UNRESOLVED]``
 |     ``_segment_plaque_folder``
 |         :py:func:`~spacr.plaque.segment_plaque_image` **-- reads it**
 
-Read by ``segment_plaque_image``, ``get_analyze_plaque_settings``, ``_analyze_plaque_figures``.
+Read by ``segment_plaque_image``, ``_cellpose_segmenter``, ``segment``, ``get_analyze_plaque_settings``, ``_analyze_plaque_figures``, ``_segment_figure_crop``.
 
 .. _setting-flow-mix:
 
@@ -14063,6 +14092,12 @@ model_metadata
 |         ``_validate_model_metadata``
 |             ``_validate_model_metadata_structure`` **-- reads it**
 |                 ``isinstance(...)  [UNRESOLVED]``
+| ``_confirm_plaque_model_download``
+|     ``_resolve_plaque_model``
+|         ``_resolve_pinned_model_file``
+|             ``_validate_model_metadata``
+|                 ``_validate_model_metadata_structure`` **-- reads it**
+|                     ``isinstance(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.screens.app_screen.apply_settings_dict` **-- reads it**
 |     ``_invalidate_model_metadata`` **-- reads it**
 |         ``_validate_model_metadata``
@@ -14156,8 +14191,8 @@ model_metadata
 |             ``_validate_model_metadata``
 |                 ``_validate_model_metadata_structure`` **-- reads it**
 |                     ``isinstance(...)  [UNRESOLVED]``
+|         ``partial(...)  [UNRESOLVED]``
 |         ``measure_figure_folder(...)  [UNRESOLVED]``
-|         ``text_options_from_settings(...)  [UNRESOLVED]``
 |     ``_resolve_plaque_model``
 |         ``_resolve_pinned_model_file``
 |             ``_validate_model_metadata``
@@ -15088,6 +15123,7 @@ normalize
 | ``_plan_gains``
 |     :py:func:`~spacr.settings.get_measure_crop_settings` **-- reads it**
 |     ``deepcopy(...)  [UNRESOLVED]``
+| ``_segment_multi`` **-- reads it**
 | :py:func:`~spacr.qt.widgets.live_preview.apply_settings` **-- reads it**
 |     ``_seed_the_diameter(...)  [UNRESOLVED]``
 |     ``_seed_organelle_column(...)  [UNRESOLVED]``
@@ -15107,7 +15143,7 @@ normalize
 | :py:func:`~spacr.submodules.train_cellpose` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_stardist_volume_batch``, ``preprocess_generate_masks``, ``crop_spec_from_settings``, ``_cross_validate_model``, ``_fit_one``, ``apply_model_to_tar``, ``generate_activation_map``, ``train_test_model``, ``_crop_shape_overrides``, ``preprocess_img_data``, ``_measure_crop_core``, ``measure_crop``, ``segment_with_cellpose``, ``plot_merged``, ``_crop_choice_warnings``, ``apply_settings``, ``apply_settings``, ``__init__``, ``get_analyze_plaque_settings``, ``get_default_apply_cellpose_model_settings``, ``get_default_generate_activation_map_settings``, ``get_default_test_cellpose_model_settings``, ``get_measure_crop_settings``, ``get_train_test_model_settings``, ``check_cellpose_models``, ``identify_masks_finetune``, ``__init__``, ``train_cellpose``, ``_check_app_specific``.
+Read by ``_stardist_volume_batch``, ``preprocess_generate_masks``, ``crop_spec_from_settings``, ``_cross_validate_model``, ``_fit_one``, ``apply_model_to_tar``, ``generate_activation_map``, ``train_test_model``, ``_crop_shape_overrides``, ``preprocess_img_data``, ``_measure_crop_core``, ``measure_crop``, ``segment_with_cellpose``, ``plot_merged``, ``_crop_choice_warnings``, ``_segment_multi``, ``apply_settings``, ``apply_settings``, ``__init__``, ``get_analyze_plaque_settings``, ``get_default_apply_cellpose_model_settings``, ``get_default_generate_activation_map_settings``, ``get_default_test_cellpose_model_settings``, ``get_measure_crop_settings``, ``get_train_test_model_settings``, ``check_cellpose_models``, ``identify_masks_finetune``, ``__init__``, ``train_cellpose``, ``_check_app_specific``.
 
 .. _setting-flow-normalize_by:
 
@@ -19550,6 +19586,7 @@ percentiles
 (list) - Two percentiles [low, high] used to rescale each channel of each image to 0-1 before segmentation, e.g. [2, 98]. Narrowing the window boosts contrast on dim objects but clips bright ones. Set None to derive them automatically: low fixed at 2, high the first of 98/99/99.9/99.99/99.999 exceeding background \* Signal_to_noise. In Cellpose Masks (Apply), None instead lets Cellpose normalise each image itself, as the live preview does. Default None in the Cellpose steps.
 
 | :py:func:`~spacr.plot.plot_region` **-- reads it**
+| ``_segment_multi`` **-- reads it**
 | ``__init__`` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 |     ``deepcopy(...)  [UNRESOLVED]``
@@ -19569,7 +19606,7 @@ percentiles
 | :py:func:`~spacr.submodules.train_cellpose` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``plot_region``, ``__init__``, ``_overview_normalization_plan``, ``_prepare_display``, ``get_analyze_plaque_settings``, ``get_default_apply_cellpose_model_settings``, ``get_default_test_cellpose_model_settings``, ``set_annotate_default_settings``, ``check_cellpose_models``, ``identify_masks_finetune``, ``__init__``, ``train_cellpose``.
+Read by ``plot_region``, ``_segment_multi``, ``__init__``, ``_overview_normalization_plan``, ``_prepare_display``, ``get_analyze_plaque_settings``, ``get_default_apply_cellpose_model_settings``, ``get_default_test_cellpose_model_settings``, ``set_annotate_default_settings``, ``check_cellpose_models``, ``identify_masks_finetune``, ``__init__``, ``train_cellpose``.
 
 .. _setting-flow-permutation_importance:
 
@@ -19717,8 +19754,8 @@ plaque_formation_hours
 | :py:func:`~spacr.submodules.analyze_plaques` **-- reads it**
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 |     ``_analyze_plaque_figures`` **-- reads it**
+|         ``partial(...)  [UNRESOLVED]``
 |         ``measure_figure_folder(...)  [UNRESOLVED]``
-|         ``text_options_from_settings(...)  [UNRESOLVED]``
 
 Read by ``_growth_values``, ``get_analyze_plaque_settings``, ``_analyze_plaque_figures``, ``analyze_plaques``.
 
@@ -19755,10 +19792,11 @@ plaque_mode
 
 (str) - What Plaque Assay reads. 'plaque' takes images that each show one plaque field (a well or a cropped plaque image), segments the plaques and writes per_image and per_plaque tables. 'figure' takes published figures: the YOLO detector finds the plaque images in each figure, the text around them is read (panel letter, column and row labels) and keyed to the figure legend, each image is annotated with its condition and its plaques are segmented, into plaque_figures/plaque_figures.db. Default 'plaque'.
 
+| ``_confirm_plaque_model_download`` **-- reads it**
 | :py:func:`~spacr.submodules.analyze_plaques` **-- reads it**
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by ``get_analyze_plaque_settings``, ``analyze_plaques``.
+Read by ``_confirm_plaque_model_download``, ``get_analyze_plaque_settings``, ``analyze_plaques``.
 
 .. _setting-flow-plaque_model:
 
@@ -19767,6 +19805,18 @@ plaque_model
 
 (str) - Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v6' was trained on resized wells and turns plaque well resize on; 'toxoplasma_plaque_v5', the previous default, segments images as they are; 'toxoplasma_plaque_v3' scores higher on Gel Doc wells), a filesystem path selects a custom checkpoint, and 'bundled' is a Cellpose 3 checkpoint that needs Cellpose 3. Changing it changes plaque counts, so recorded runs should keep their value. Default 'toxoplasma_plaque_v6'.
 
+| ``_cellpose_segmenter``
+|     :py:func:`~spacr.plaque.segment_plaque_image`
+|         ``_well_resize_plan`` **-- reads it**
+|     ``CellposeModel(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.plaque_papers.segment`
+|     :py:func:`~spacr.plaque.segment_plaque_image`
+|         ``_well_resize_plan`` **-- reads it**
+| ``_confirm_plaque_model_download``
+|     ``_requested_plaque_model`` **-- reads it**
+|     ``_resolve_plaque_model``
+|         ``_requested_plaque_model`` **-- reads it**
 | ``_seed_the_model``
 |     ``_model_the_run_would_use``
 |         ``_plaque_model_the_run_would_use``
@@ -19788,13 +19838,17 @@ plaque_model
 |     ``_well_resize_plan`` **-- reads it**
 |     :py:func:`~spacr.qt.widgets.plaque_preview.resolve_plaque_model` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
+| ``_segment_figure_crop``
+|     ``_figure_well_resize``
+|         ``_well_resize_plan`` **-- reads it**
+|     ``_cellpose_segmenter(...)  [UNRESOLVED]``
 | :py:func:`~spacr.submodules.analyze_plaques` **-- reads it**
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 |     ``_analyze_plaque_figures``
 |         ``_figure_well_resize``
 |             ``_well_resize_plan`` **-- reads it**
+|         ``partial(...)  [UNRESOLVED]``
 |         ``measure_figure_folder(...)  [UNRESOLVED]``
-|         ``text_options_from_settings(...)  [UNRESOLVED]``
 |     ``_resolve_plaque_model``
 |         ``_requested_plaque_model`` **-- reads it**
 |     ``_segment_plaque_folder``
@@ -19822,8 +19876,8 @@ plaque_pixels_per_um
 |         ``_count_colony_plate`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 |     ``_analyze_plaque_figures`` **-- reads it**
+|         ``partial(...)  [UNRESOLVED]``
 |         ``measure_figure_folder(...)  [UNRESOLVED]``
-|         ``text_options_from_settings(...)  [UNRESOLVED]``
 |     ``_plaque_scale_for`` **-- reads it**
 
 Read by ``_count_colony_plate``, ``get_analyze_plaque_settings``, ``_analyze_plaque_figures``, ``_plaque_scale_for``.
@@ -19833,8 +19887,16 @@ Read by ``_count_colony_plate``, ``get_analyze_plaque_settings``, ``_analyze_pla
 plaque_well_resize
 ------------------
 
-(str) - Resize each detected well before segmentation so plaques reach the size the plaque model was trained at. 'auto' follows the selected model: a model that declares well resize turns it on with its own values, and other models leave it off. 'on' uses the side and enlargement settings below; 'off' segments the image as it is. When on, the diameter setting is not used. Default 'auto'.
+(str) - Resize each detected well before segmentation so plaques reach the size the plaque model was trained at. 'auto' follows the selected model: a model that declares well resize turns it on with its own values, and other models leave it off. 'on' uses the side and enlargement settings below; 'off' segments the image as it is. Diameter is measured in original input-image pixels and adjusted for the resize; 0 uses the model's own scale. Default 'auto'.
 
+| ``_cellpose_segmenter``
+|     :py:func:`~spacr.plaque.segment_plaque_image`
+|         ``_well_resize_plan`` **-- reads it**
+|     ``CellposeModel(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.plaque_papers.segment`
+|     :py:func:`~spacr.plaque.segment_plaque_image`
+|         ``_well_resize_plan`` **-- reads it**
 | :py:func:`~spacr.qt.widgets.plaque_preview.figure_pass`
 |     ``_well_resize_plan`` **-- reads it**
 | :py:func:`~spacr.qt.widgets.plaque_preview.run_preview`
@@ -19844,13 +19906,17 @@ plaque_well_resize
 |     ``deepcopy(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.widgets.plaque_preview.segment_well`
 |     ``_well_resize_plan`` **-- reads it**
+| ``_segment_figure_crop``
+|     ``_figure_well_resize``
+|         ``_well_resize_plan`` **-- reads it**
+|     ``_cellpose_segmenter(...)  [UNRESOLVED]``
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 |     ``_analyze_plaque_figures``
 |         ``_figure_well_resize``
 |             ``_well_resize_plan`` **-- reads it**
+|         ``partial(...)  [UNRESOLVED]``
 |         ``measure_figure_folder(...)  [UNRESOLVED]``
-|         ``text_options_from_settings(...)  [UNRESOLVED]``
 |     ``_segment_plaque_folder``
 |         ``_well_resize_plan`` **-- reads it**
 |         :py:func:`~spacr.plaque.segment_plaque_image`
@@ -19865,6 +19931,14 @@ plaque_well_resize_max_factor
 
 (float or int) - Largest enlargement plaque well resize applies to a small well or a low-resolution image; shrinking a large well is never limited. It stops a tiny image from being magnified far beyond what its pixels can show. Default 6.
 
+| ``_cellpose_segmenter``
+|     :py:func:`~spacr.plaque.segment_plaque_image`
+|         ``_well_resize_plan`` **-- reads it**
+|     ``CellposeModel(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.plaque_papers.segment`
+|     :py:func:`~spacr.plaque.segment_plaque_image`
+|         ``_well_resize_plan`` **-- reads it**
 | :py:func:`~spacr.qt.widgets.plaque_preview.figure_pass`
 |     ``_well_resize_plan`` **-- reads it**
 | :py:func:`~spacr.qt.widgets.plaque_preview.run_preview`
@@ -19874,13 +19948,17 @@ plaque_well_resize_max_factor
 |     ``deepcopy(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.widgets.plaque_preview.segment_well`
 |     ``_well_resize_plan`` **-- reads it**
+| ``_segment_figure_crop``
+|     ``_figure_well_resize``
+|         ``_well_resize_plan`` **-- reads it**
+|     ``_cellpose_segmenter(...)  [UNRESOLVED]``
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 |     ``_analyze_plaque_figures``
 |         ``_figure_well_resize``
 |             ``_well_resize_plan`` **-- reads it**
+|         ``partial(...)  [UNRESOLVED]``
 |         ``measure_figure_folder(...)  [UNRESOLVED]``
-|         ``text_options_from_settings(...)  [UNRESOLVED]``
 |     ``_segment_plaque_folder``
 |         ``_well_resize_plan`` **-- reads it**
 |         :py:func:`~spacr.plaque.segment_plaque_image`
@@ -19895,6 +19973,14 @@ plaque_well_resize_side
 
 (int) - Longest side in pixels that each detected well is resized to before segmentation when plaque well resize is on. Larger values make small plaques bigger for the model and cost more time and memory; masks are mapped back to the original pixels. Default 1500.
 
+| ``_cellpose_segmenter``
+|     :py:func:`~spacr.plaque.segment_plaque_image`
+|         ``_well_resize_plan`` **-- reads it**
+|     ``CellposeModel(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.plaque_papers.segment`
+|     :py:func:`~spacr.plaque.segment_plaque_image`
+|         ``_well_resize_plan`` **-- reads it**
 | :py:func:`~spacr.qt.widgets.plaque_preview.figure_pass`
 |     ``_well_resize_plan`` **-- reads it**
 | :py:func:`~spacr.qt.widgets.plaque_preview.run_preview`
@@ -19904,13 +19990,17 @@ plaque_well_resize_side
 |     ``deepcopy(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.widgets.plaque_preview.segment_well`
 |     ``_well_resize_plan`` **-- reads it**
+| ``_segment_figure_crop``
+|     ``_figure_well_resize``
+|         ``_well_resize_plan`` **-- reads it**
+|     ``_cellpose_segmenter(...)  [UNRESOLVED]``
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 |     ``_analyze_plaque_figures``
 |         ``_figure_well_resize``
 |             ``_well_resize_plan`` **-- reads it**
+|         ``partial(...)  [UNRESOLVED]``
 |         ``measure_figure_folder(...)  [UNRESOLVED]``
-|         ``text_options_from_settings(...)  [UNRESOLVED]``
 |     ``_segment_plaque_folder``
 |         ``_well_resize_plan`` **-- reads it**
 |         :py:func:`~spacr.plaque.segment_plaque_image`
@@ -20035,8 +20125,8 @@ plate_format
 |         ``_count_colony_plate`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 |     ``_analyze_plaque_figures`` **-- reads it**
+|         ``partial(...)  [UNRESOLVED]``
 |         ``measure_figure_folder(...)  [UNRESOLVED]``
-|         ``text_options_from_settings(...)  [UNRESOLVED]``
 |     ``_plaque_scale_for`` **-- reads it**
 
 Read by ``_count_colony_plate``, ``prepare_figure_review``, ``get_analyze_plaque_settings``, ``_analyze_plaque_figures``, ``_plaque_scale_for``.
@@ -22354,11 +22444,12 @@ resample
 
 | ``_run_partitioned_v2`` **-- reads it**
 |     ``deepcopy(...)  [UNRESOLVED]``
+| ``_segment_multi`` **-- reads it**
 | :py:func:`~spacr.spacr_cellpose.identify_masks_finetune` **-- reads it**
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by ``_run_partitioned_v2``, ``get_analyze_plaque_settings``, ``identify_masks_finetune``.
+Read by ``_run_partitioned_v2``, ``_segment_multi``, ``get_analyze_plaque_settings``, ``identify_masks_finetune``.
 
 .. _setting-flow-rescale:
 
@@ -22367,11 +22458,12 @@ rescale
 
 (bool) - Let Cellpose rescale each image by 30/diameter before segmenting, so objects arrive at the size the model expects. Turn off only when the diameter is already correct for the model. Default False.
 
+| ``_segment_multi`` **-- reads it**
 | :py:func:`~spacr.spacr_cellpose.identify_masks_finetune` **-- reads it**
 | :py:func:`~spacr.submodules.analyze_plaques`
 |     :py:func:`~spacr.settings.get_analyze_plaque_settings` **-- reads it**
 
-Read by ``get_analyze_plaque_settings``, ``identify_masks_finetune``.
+Read by ``_segment_multi``, ``get_analyze_plaque_settings``, ``identify_masks_finetune``.
 
 .. _setting-flow-resize:
 
@@ -24696,8 +24788,8 @@ src
 |     ``_analyze_colony_plates`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 |     ``_analyze_plaque_figures`` **-- reads it**
+|         ``partial(...)  [UNRESOLVED]``
 |         ``measure_figure_folder(...)  [UNRESOLVED]``
-|         ``text_options_from_settings(...)  [UNRESOLVED]``
 |     ``_segment_plaque_folder`` **-- reads it**
 |     :py:func:`~spacr.submodules.split_wells` **-- reads it**
 |     :py:func:`~spacr.utils.save_settings` **-- reads it**
@@ -28229,6 +28321,7 @@ use_bfloat16
 |     ``_model_precision_kwargs`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 |     ``CellposeModel(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.qt.screens.make_masks.load_cellpose_model` **-- reads it**
 | :py:func:`~spacr.qt.widgets.preview_contract.preview_cellpose_model` **-- reads it**
 | ``_make_segmenter`` **-- reads it**
