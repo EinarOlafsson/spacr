@@ -1,5 +1,21 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-29 Tutorial owner to Home — Model Zoo22 crashes at Mask popup table lookup
+P62 on capture6da9cc3895/nightly783f675931 passes exact native cpsam selection and genuinely segments3 verified fields/151 objects in5.487s, with originals unchanged. Then c11 exits139 during10_mask_model_zoo_popup; no gate summary/full tutorial acceptance. Planned retry exits3 without another recording.
+Fatal stage4/logs/spacr-crash.log:8 is Segmentation fault; current GUI stack55–64 begins capture_model_zoo_additions.py204 table.visualRect(index). logs/stacks.txt is empty. Existing short scroll/ambient samples and exact paths are in capture_host_proto/t18/FOR_HOME_pending.md; no underlying cause or matching Home fix is claimed.
+Source: /media/carruthers/mnt1/t18-captures/t18-22-mz60-4/. Preserve all files; no identical22 take. Codex checks the narrow driver-index lifetime contract while continuing ready50 prep; Home owns an app-side fix if required. Connected-session lookup found none, so direct Home receipt remains unconfirmed.
+
+## 2026-10-28 Tutorial owner to Home — Docs deployment fails on stale Swedish API review
+Docs run40806617109 at53b61d8515 fails in Assemble the API catalogs from the pinned translation memory: `ValueError: stale reviewed API context 'spacr.qt.import_demo#1': docs/i18n/reviewed/api/sv/2026-09-25-api-debt-003.json` (builder5831→6183→6107/7244). Run: https://github.com/EinarOlafsson/spacr/actions/runs/40806617109 ; exact log: n676_stages/logs/docs-40806617109-failed.log and shared capture_host_proto/t18/FOR_HOME_pending.md.
+Home owns the source-bound API review/deployment fix. Later nightly b0e1fc28a6 is untested here; no claim it fixes or reproduces this error. Connected-session lookup found none, so direct Home receipt remains unconfirmed. No duplicate CI was dispatched, and live-site delivery is not claimed.
+
+
+## 2026-10-28 Tutorial owner to Home — External Masks31 raw paint-admission failures
+P59 full take and one retry on capture3750195ed1/nightly1941b4de83 independently measure2 fields/103 cell objects with source pixels/hashes unchanged. Raw paint-admission failures remain rejected: first-take picker/settings/preview samples and retry summary buckets3/4/5 have saved short GUI stacks, not evidence of a sustained hang.
+Exact gates,0.12–0.17s stacks and native splitter/theme/ambient call paths are in capture_host_proto/t18/FOR_HOME_pending.md final External Masks31 section. Retry summary27.94fps also loses the pointer; its sampler gaps are empty, maximum interval0.228s. Preserve all originals; no app fix, gate waiver or causal conclusion is claimed. Direct Home receipt remains unconfirmed.
+Six genuine lossless excerpts pass the unchanged gate; all50 original tracks and the15-scene edited master/web pass normal finish. All50 strict browser checks now pass:750 sound gaps0.800014–1.044765s and50 EOF gaps1.022142–1.044765s, all full speech observed; normal matrix reconciliation passes. Codex resumes the existing publisher after preserving/restoring the newer nightly review pin. Model Zoo22 is now unblocked by Home4c49eaeeb5 and is next after31 publication;64/01 remain held.
+
+
 ## 2026-10-28 Tutorial owner to Home — Model Zoo22 fresh-profile bioimage.io load missing
 Capture891d55dafa (nightly62fbc8958f) exits1 at03c after three clips: `RuntimeError: bioimage.io listed no models: on=('cellposeSAM', 'spaCR', 'bioimage.io') rows=60 visible=26 before=26 sources=['Third-party', 'cellpose3', 'cellposeSAM', 'spaCR'] home=/tmp/spacr-tutorial-current/profile`. Planned retry exits3 for absent summary, no new take; no benchmark or scientific acceptance.
 The real ModelZooScreen Source toggle only filters existing rows; catalogue reads cache-only bioimageio_entries(), and the fresh app-state has no provider cache. Unlike ModelZooPicker._warm_bioimageio, this screen never fetches the provider collection. Home owns genuine off-thread loading plus row refresh; no driver cache injection or identical retake. Exact source chain/trace and retained stage are in capture_host_proto/t18/FOR_HOME_pending.md final Model Zoo section; direct Home receipt unavailable.

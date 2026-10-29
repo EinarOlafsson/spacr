@@ -38,6 +38,34 @@ PAIRS = (
 )
 
 
+def _table_cell_into_view(capture, table, row, column=0):
+    """Expose a model-table cell with native horizontal and vertical scrolling."""
+    if capture_ui.live(capture):
+        from PySide6.QtWidgets import QStyle, QStyleOptionSlider
+
+        index = table.model().index(row, column)
+        rect, port = table.visualRect(index), table.viewport().rect()
+        if not port.left() <= rect.center().x() <= port.right():
+            bar = table.horizontalScrollBar()
+            if not bar.isVisible() or not bar.isEnabled() or bar.maximum() <= bar.minimum():
+                raise RuntimeError('The requested model column has no usable horizontal scrollbar')
+            option = QStyleOptionSlider()
+            bar.initStyleOption(option)
+            handle = bar.style().subControlRect(QStyle.CC_ScrollBar, option, QStyle.SC_ScrollBarSlider, bar)
+            groove = bar.style().subControlRect(QStyle.CC_ScrollBar, option, QStyle.SC_ScrollBarGroove, bar)
+            travel = groove.width() - handle.width()
+            if travel <= 0 or handle.isEmpty() or not bar.visibleRegion().contains(handle.center()):
+                raise RuntimeError('The actual horizontal scrollbar handle is not reachable')
+            target = max(bar.minimum(), min(bar.maximum(),
+                         bar.value() + rect.center().x() - port.center().x()))
+            dx = round((target - bar.value()) * travel / (bar.maximum() - bar.minimum()))
+            capture_ui._h().drag(capture, bar, handle.center(), (dx, 0), duration=0.9)
+            rect = table.visualRect(index)
+            if not port.left() <= rect.center().x() <= port.right():
+                raise RuntimeError(f'Native horizontal scrolling did not expose model column {column}')
+    table_into_view(capture, table, row, column)
+
+
 def _existing_picker_index(index):
     """Describe an existing view index without requesting new filesystem nodes."""
     from PySide6.QtCore import QAbstractProxyModel
@@ -350,7 +378,7 @@ def record_model_zoo(app, window, screen, stage, captures, capture, settle,
                 click(heading)
             row = zoo._row_of_group(group)
             combo = zoo._table.cellWidget(row, 4)
-            table_into_view(capture, zoo._table, row, 4)
+            _table_cell_into_view(capture, zoo._table, row, 4)
             expose(combo)
             capture_ui.select_combo(capture, combo, version)
             settle(.3)
@@ -360,7 +388,7 @@ def record_model_zoo(app, window, screen, stage, captures, capture, settle,
 
         def select_model(path, add=False):
             item = model_item(path)
-            table_into_view(capture, zoo._table, item.row(), 0)
+            _table_cell_into_view(capture, zoo._table, item.row(), 0)
             expose(zoo._table)
             rect = zoo._table.visualItemRect(item)
             if not zoo._table.viewport().rect().contains(rect.center()):

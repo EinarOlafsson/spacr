@@ -1,6 +1,6 @@
 {
   "lesson": "50_run_compare",
-  "english_sha256": "60f9898197011e045f8be2667a3fa097b07841cc559845331e098f5e4de0a5cc",
+  "english_sha256": "65927e5e91a9de94bd46ee15b86920f28fba15be3eb1ff6fc238763abfb786ea",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Last ned og pakk ut de lenkede øyeblikksbildene. Følg README-filen for å kjøre prepare_run_compare_download.py i spaCR-miljøet ditt med en ny målmappe. For egne sammenligninger tar du vare på utdataene fra hver kjøring før de overskrives.",
   "scenes": [
-    "I kategorien Data på Home åpner du Run Compare for å undersøke utdata som er registrert for to kjøringer.",
+    "Åpne Run Compare for å undersøke utdata som er registrert for to kjøringer.",
     "Last ned og pakk ut eksemplet med øyeblikksbilder. Følg README-filen for å kjøre forberedelsesskriptet med en ny målmappe.",
     "Klikk på Browse og velg den forberedte sammenligningsmappen. Hold de opprinnelige prosjektene og kjøreøyeblikksbildene tilgjengelige for dine egne sammenligninger.",
     "Velg en grunnlinjekjøring som A og sammenligningskjøringen som B, og klikk deretter på Compare. Kontroller modulnavnene og de registrerte versjonene.",
