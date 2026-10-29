@@ -17,7 +17,10 @@ def _what_the_worker_sees(_):
     """Report the thread settings inside a pool worker."""
     import numpy  # noqa: F401
     from threadpoolctl import threadpool_info
+    import sys
 
+    qt_widgets = sys.modules.get("PySide6.QtWidgets")
+    assert qt_widgets is None or qt_widgets.QApplication.instance() is None
     env = {name: os.environ.get(name)
            for name in measure._WORKER_THREAD_VARIABLES}
     pools = sorted({int(p["num_threads"]) for p in threadpool_info()})
@@ -32,7 +35,12 @@ def test_a_spawned_measure_worker_sees_one_thread_everywhere():
     with measure._single_threaded_children():
         with ctx.Pool(2, initializer=measure._initialize_measure_worker,
                       initargs=()) as pool:
+            workers = tuple(pool._pool)
             seen = pool.map(_what_the_worker_sees, range(2))
+            pool.close()
+            pool.join()
+    assert len(workers) == 2 and len({worker.pid for worker in workers}) == 2
+    assert all(worker.exitcode == 0 and not worker.is_alive() for worker in workers)
     for env, pools in seen:
         assert env == {name: "1" for name in measure._WORKER_THREAD_VARIABLES}
         assert all(n == 1 for n in pools), pools
