@@ -7,6 +7,8 @@ the views; Original loads full resolution; the size slider sizes the tiles;
 several fields open as stacked images; and layered condition groups run
 through the image-comparison data layer.
 """
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -16,6 +18,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QLabel, QLineEdit, QPushButton, QWidget
 
 from spacr.qt.widgets import qc_field_browser as browser
+from tests.qt.test_startup_ai_reporting_choice import private_ai_profile
 
 
 PATTERN = r"(?P<plateID>p\d+)-(?P<wellID>[A-Z]\d+)-f(?P<fieldID>\d+)-c(?P<chanID>\d+)\.tif"
@@ -505,4 +508,114 @@ def test_module_export_action_restores_settings_and_reopens_a_source_bound_canva
     assert {image.image.size for image in reader.pages[0].images} == {(600, 400)}
     restored.close()
     assert body.is_collapsed("Settings") == collapsed
+    assert {path.name: path.read_bytes() for path in source.glob("*.tif")} == original_bytes
+
+
+@pytest.fixture
+def recovery_canvas(private_ai_profile, mask, qtbot, source):
+    tab, view = _open(mask, qtbot, source)
+    view._apply_annotation({("p1", "A01")}, "condition", "Control")
+    qtbot.waitUntil(lambda: not view._metadata_jobs.is_busy()
+                    and not view._measurement_jobs.is_busy(), timeout=15000)
+    model = tab._settings_model
+    model.set_value_for_key("enhance_gamma", .55)
+    tab._overview_page._apply_bar.apply_button.click()
+    assert view._enhancement.gamma == .55
+    item = view.wells.item(*view._well_positions[("p1", "A01")])
+    qtbot.mouseClick(view.wells.viewport(), Qt.LeftButton, Qt.ControlModifier,
+                     pos=view.wells.visualItemRect(item).center())
+    assert view._selected_wells == {("p1", "A01")}
+    composer = view._open_custom_export()
+    add = next(button for button in composer.findChildren(QPushButton)
+               if button.text() == browser.tr("Add selected"))
+    add.click()
+    composer.add_text(36, 36, 180, 36, text="Control well — preserve this caption")
+    assert [(box["source"]["well"], box["source"]["field"])
+            for box in composer.canvas.pages[0] if box["kind"] == "image"] == [("A01", "1"), ("A01", "2")]
+    return tab, view, composer
+
+
+def test_saved_canvas_recovers_captured_pixels_and_corrupt_json_preserves_the_live_workspace(
+        recovery_canvas, qtbot, source, tmp_path):
+    import copy
+
+    tab, view, composer = recovery_canvas
+    original_bytes = {path.name: path.read_bytes() for path in source.glob("*.tif")}
+    annotations = copy.deepcopy(view._annotations)
+    layout = copy.deepcopy(composer.canvas.to_dict())
+    box = next(box for box in composer.canvas.pages[0] if box["kind"] == "image")
+    captured_pixels = composer._reader()(box, None).copy()
+    saved = composer.save_layout(tmp_path / "saved-workspace.json")
+    assert not (tmp_path / "saved-workspace.json.partial").exists()
+    tab._settings_model.set_value_for_key("enhance_gamma", 1.8)
+    tab._overview_page._apply_bar.apply_button.click()
+    composer.add_text(36, 120, 180, 36, text="Unsaved change")
+    current_pixels = composer._reader()(dict(box, overview_display=None), None)
+    assert not np.array_equal(current_pixels, captured_pixels)
+
+    assert composer.open_layout(saved)
+
+    assert composer.canvas.to_dict() == layout
+    restored = next(box for box in composer.canvas.pages[0] if box["kind"] == "image")
+    np.testing.assert_array_equal(composer._reader()(restored, None), captured_pixels)
+    assert tab._settings_model._read_value("enhance_gamma") == 1.8
+    assert view._selected_wells == {("p1", "A01")}
+    assert view._annotations == annotations
+    selected = tuple(composer.selected_ids())
+    settings = copy.deepcopy(tab._settings_model.collect())
+    corrupt = tmp_path / "corrupt-workspace.json"
+    corrupt.write_text('{"schema": ', encoding="utf-8")
+
+    assert not composer.open_layout(corrupt)
+
+    assert composer.canvas.to_dict() == layout
+    assert tuple(composer.selected_ids()) == selected
+    assert tab._settings_model.collect() == settings
+    assert view._selected_wells == {("p1", "A01")} and view._annotations == annotations
+    np.testing.assert_array_equal(composer._reader()(restored, None), captured_pixels)
+    assert composer.status.text().startswith(browser.tr("Could not open the layout: {error}", error=""))
+    assert {path.name: path.read_bytes() for path in source.glob("*.tif")} == original_bytes
+
+
+def test_missing_canvas_source_is_reported_without_losing_workspace_and_atomic_restore_recovers_pixels(
+        recovery_canvas, qtbot, source, tmp_path):
+    import copy
+
+    import spacr.plot  # noqa: F401 -- load plotting before the export worker
+    from pypdf import PdfReader
+
+    tab, view, composer = recovery_canvas
+    qtbot.waitUntil(lambda: not composer._preview_jobs.is_busy()
+                    and all(box.get("aspect") == 1.5 for box in composer.canvas.pages[0]
+                            if box["kind"] == "image"), timeout=15000)
+    original_bytes = {path.name: path.read_bytes() for path in source.glob("*.tif")}
+    annotations = copy.deepcopy(view._annotations)
+    layout = copy.deepcopy(composer.canvas.to_dict())
+    saved = composer.save_layout(tmp_path / "recoverable-workspace.json")
+    assert composer.open_layout(saved)
+    box = next(box for box in composer.canvas.pages[0] if box["kind"] == "image")
+    expected_pixels = composer._reader()(box, None).copy()
+    field = next(field for field in view._fields if field.well == "A01" and field.field_id == "1")
+    missing = Path(field.files[0][1])
+    displaced = tmp_path / "displaced-original.tif"
+    missing.replace(displaced)
+    output = tmp_path / "missing-source.pdf"
+    assert composer.export_pdf(str(output))
+    qtbot.waitUntil(lambda: composer.last_export == str(output), timeout=60000)
+    assert "1 images could not be read" in composer.status.text()
+    assert len(PdfReader(str(output)).pages[0].images) == 1
+    assert composer.canvas.to_dict() == layout
+    assert view._annotations == annotations and view._selected_wells == {("p1", "A01")}
+    assert tab._settings_model._read_value("src") == str(source)
+    assert displaced.read_bytes() == original_bytes[missing.name]
+    displaced.replace(missing)
+
+    np.testing.assert_array_equal(composer._reader()(box, None), expected_pixels)
+    recovered = tmp_path / "recovered-source.pdf"
+    assert composer.export_pdf(str(recovered))
+    qtbot.waitUntil(lambda: composer.last_export == str(recovered), timeout=60000)
+    assert "could not be read" not in composer.status.text()
+    assert len(PdfReader(str(recovered)).pages[0].images) == 2
+    assert composer.canvas.to_dict() == layout
+    assert view._annotations == annotations and view._selected_wells == {("p1", "A01")}
     assert {path.name: path.read_bytes() for path in source.glob("*.tif")} == original_bytes
