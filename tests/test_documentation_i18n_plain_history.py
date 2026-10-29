@@ -189,7 +189,7 @@ def test_source_refresh_retains_proven_paragraphs_after_commit(plain_build):
     assert build.texts("de")[key] == (
         "Gibt den Verarbeitungsstatus zurück.\n\nBehält das gespeicherte Bild.")
     assert build.decode_calls[1]["blocks"] == [build.context(NEW_BLOCK)]
-    assert build.builder._archived_english_api_records() == {}
+    assert build.builder._archived_english_api_records() == archive
 
 
 def test_archived_source_rejects_mismatched_translation_layout(plain_build):
@@ -214,9 +214,11 @@ def test_corrupt_source_archive_fails_before_overwriting_manifest(plain_build):
     next(iter(archive["sources"].values()))["text"] = "Wrong source."
     path.write_text(json.dumps(archive), encoding="utf-8")
     before = (build.api_dir / "en.json").read_bytes()
+    history_before = path.read_bytes()
     with pytest.raises(ValueError, match="hash mismatch"):
         build.builder._write_english_api_manifest({"spacr.changed": "Changed."})
     assert (build.api_dir / "en.json").read_bytes() == before
+    assert path.read_bytes() == history_before
 
 
 @pytest.mark.parametrize("history_location", ["working_manifest", "head_fallback"])
@@ -377,10 +379,9 @@ def test_english_refresh_preserves_unrelated_records_only_when_scoped(plain_buil
     assert current["symbols"][key] == builder._english_manifest(build.docs)["symbols"][key]
     archive = builder._archived_english_api_records()
     assert archive[builder._source_hash(OLD_SOURCE)]["text"] == OLD_SOURCE
+    assert archive[digest] == record
     if scoped:
         assert current["symbols"]["spacr.unrelated"] == sentinel["symbols"]["spacr.unrelated"]
         assert current["retained_metadata"] == manifest["retained_metadata"]
-        assert archive[digest] == record
     else:
         assert current == builder._english_manifest(build.docs)
-        assert digest not in archive

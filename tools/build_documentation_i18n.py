@@ -6385,10 +6385,11 @@ def _write_english_api_manifest(
     """Advance English without losing the sources of unfinished locales.
 
     HEAD ceases to be a useful fallback as soon as a source-only refresh is
-    committed. Retain only old English records still referenced by a locale
-    and absent from the new manifest. Archive before publishing the manifest;
-    never infer an old source from the current paragraph positions. Scoped
-    updates preserve unrelated manifest records and all existing history.
+    committed. Archive old English records still referenced by a locale and
+    absent from the new manifest, and retain all validated historical sources
+    across later refreshes. Archive before publishing the manifest; never infer
+    an old source from the current paragraph positions. Scoped updates also
+    preserve unrelated live manifest records.
     """
     manifest = _english_manifest(docs)
     old_path = API_DIR / "en.json"
@@ -6418,8 +6419,7 @@ def _write_english_api_manifest(
                     field: record[field]
                     for field in ("source_sha256", "source_blocks_sha256", "text")
                 }
-    retained_hashes = archived.keys() if preserve_other_symbols else needed & archived.keys()
-    retained = {digest: archived[digest] for digest in sorted(retained_hashes)}
+    retained = {digest: archived[digest] for digest in sorted(archived)}
     history_path = Path(ROOT) / "docs/i18n/api_source_history.json"
     if retained or history_path.exists():
         _write_json(history_path, {"schema": 1, "sources": retained})
