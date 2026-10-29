@@ -1,0 +1,4 @@
+{
+  "spacr.qt.screens.foreign.ForeignScreen.metadata_well_map": "Return the selected indexed ScanR CSV path, or an empty string.",
+  "spacr.qt.screens.foreign.ForeignScreen.set_metadata_well_map": "Set the explicit indexed ScanR well map.\n\n:param path: local CSV with ``plate,index,well`` columns, or empty\n    to clear the choice. No plate geometry is inferred."
+}

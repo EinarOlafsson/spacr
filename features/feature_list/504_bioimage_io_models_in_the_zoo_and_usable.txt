@@ -1,7 +1,7 @@
 THE BIOIMAGE.IO CATEGORY CARRIES REAL MODELS, AND THEY RUN
 
 Lifecycle: new
-Status: IN PROGRESS — fresh-profile ModelZooScreen loading is qualified; normal API/output closure and root publication remain. Filed 2026-09-24.
+Status: DONE — fresh-profile catalogue loading, focused controls and normal localized API/output publication are complete. Filed 2026-09-24.
 Owner: Claude session (worktree agent-aa57f62da94d0c63b). Related: 503 (the Cellpose 3 route it reuses), 423.
 
 REQUEST (the maintainer, 2026-09-24, verbatim)
@@ -185,4 +185,6 @@ VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_bioimageio_models
 
 2026-10-28 — Retained Model Zoo owner and independent peer own the tutorial-reported empty fresh-profile screen: reuse the existing off-thread collection/cache contract, refresh rows on completion, and avoid repeated toggle loads. Preserve consent, network-off, error/cancel and existing model/backend behavior; qualify the minimal real fresh-profile regression without weights downloads/training/GPU. Root owns normal-output closure and publication.
 
-2026-10-28 — ModelZooScreen now warms enabled bioimage.io rows on its owned threaded scan, deduplicates automatic intent and permits explicit retry; offline caches and deferred consented community intent remain usable, and closing suppresses late row delivery. Fresh-profile regression first failed with no collection request, then all five focused CPU/offscreen controls passed (12.22 s); independent source/test peer accepted. Range-only size metadata/refusal behavior is retained without weight-body reads; normal API/output closure and root publication remain.
+2026-10-28 — ModelZooScreen now warms enabled bioimage.io rows on its owned threaded scan, deduplicates automatic intent and permits explicit retry; offline caches and deferred consented community intent remain usable, and closing suppresses late row delivery. Fresh-profile regression first failed with no collection request, then all five focused CPU/offscreen controls passed (12.22 s); independent source/test peer accepted. Range-only size metadata/refusal behavior is retained without weight-body reads; existing model-run evidence and unsupported-model limitations above remain unchanged.
+
+2026-10-28 — Software delivery complete: nine-language reviewed API publication b4e308bc passed fresh byte-exact readback; normal consumer/flow/Help outputs and the four affected API contracts are qualified. Existing CPU model-run evidence is retained; this follow-up makes no new GPU or native-model validation claim.

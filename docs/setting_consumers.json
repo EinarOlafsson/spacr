@@ -7565,7 +7565,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "channels",
-    "line": 3327,
+    "line": 3345,
     "module": "spacr.foreign",
     "nested": false,
     "qualname": "run_import"
@@ -11960,6 +11960,24 @@
     "qualname": "_watch_folder_and_analyse"
    },
    {
+    "form": "keyword",
+    "function_depth": 1,
+    "key": "custom_regex",
+    "line": 3434,
+    "module": "spacr.foreign",
+    "nested": false,
+    "qualname": "import_project"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "custom_regex",
+    "line": 3448,
+    "module": "spacr.foreign",
+    "nested": false,
+    "qualname": "import_project"
+   },
+   {
     "form": "get",
     "function_depth": 1,
     "key": "custom_regex",
@@ -13942,7 +13960,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "dst",
-    "line": 3409,
+    "line": 3427,
     "module": "spacr.foreign",
     "nested": false,
     "qualname": "import_project"
@@ -15312,7 +15330,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "experiment",
-    "line": 3326,
+    "line": 3344,
     "module": "spacr.foreign",
     "nested": false,
     "qualname": "run_import"
@@ -22702,7 +22720,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "layout",
-    "line": 3418,
+    "line": 3436,
     "module": "spacr.foreign",
     "nested": false,
     "qualname": "import_project"
@@ -23971,7 +23989,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "masks",
-    "line": 3417,
+    "line": 3435,
     "module": "spacr.foreign",
     "nested": false,
     "qualname": "import_project"
@@ -24293,7 +24311,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "measure",
-    "line": 3439,
+    "line": 3460,
     "module": "spacr.foreign",
     "nested": false,
     "qualname": "import_project"
@@ -24302,7 +24320,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "measure",
-    "line": 3449,
+    "line": 3470,
     "module": "spacr.foreign",
     "nested": false,
     "qualname": "import_project"
@@ -24692,6 +24710,24 @@
     "qualname": "_watch_folder_and_analyse"
    },
    {
+    "form": "keyword",
+    "function_depth": 1,
+    "key": "metadata_type",
+    "line": 3434,
+    "module": "spacr.foreign",
+    "nested": false,
+    "qualname": "import_project"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "metadata_type",
+    "line": 3447,
+    "module": "spacr.foreign",
+    "nested": false,
+    "qualname": "import_project"
+   },
+   {
     "form": "get",
     "function_depth": 1,
     "key": "metadata_type",
@@ -24917,6 +24953,24 @@
     "module": "spacr.convert",
     "nested": false,
     "qualname": "convert_folder"
+   },
+   {
+    "form": "keyword",
+    "function_depth": 1,
+    "key": "metadata_well_map",
+    "line": 3434,
+    "module": "spacr.foreign",
+    "nested": false,
+    "qualname": "import_project"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "metadata_well_map",
+    "line": 3449,
+    "module": "spacr.foreign",
+    "nested": false,
+    "qualname": "import_project"
    },
    {
     "form": "get",
@@ -38981,7 +39035,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "overwrite",
-    "line": 3448,
+    "line": 3469,
     "module": "spacr.foreign",
     "nested": false,
     "qualname": "import_project"
@@ -42752,7 +42806,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plate_naming",
-    "line": 3420,
+    "line": 3438,
     "module": "spacr.foreign",
     "nested": false,
     "qualname": "import_project"
@@ -44635,7 +44689,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "preview_only",
-    "line": 3442,
+    "line": 3463,
     "module": "spacr.foreign",
     "nested": false,
     "qualname": "import_project"
@@ -49237,7 +49291,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "save_measurements",
-    "line": 3334,
+    "line": 3352,
     "module": "spacr.foreign",
     "nested": false,
     "qualname": "run_import"
@@ -52099,7 +52153,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 3325,
+    "line": 3343,
     "module": "spacr.foreign",
     "nested": false,
     "qualname": "run_import"
@@ -61175,7 +61229,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "um_per_px",
-    "line": 3416,
+    "line": 3434,
     "module": "spacr.foreign",
     "nested": false,
     "qualname": "import_project"
@@ -61184,7 +61238,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "um_per_px",
-    "line": 3426,
+    "line": 3444,
     "module": "spacr.foreign",
     "nested": false,
     "qualname": "import_project"
@@ -65384,7 +65438,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "z_handling",
-    "line": 3419,
+    "line": 3437,
     "module": "spacr.foreign",
     "nested": false,
     "qualname": "import_project"

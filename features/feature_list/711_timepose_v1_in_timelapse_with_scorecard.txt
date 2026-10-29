@@ -3,8 +3,9 @@ TIMEPOSE v1 IN TIMELAPSE, ON HUGGING FACE (PRIVATE), WITH A SCORECARD
 ================================================================================
 
 Lifecycle: future
-Status:    open — 2026-10-18; v1 not shipped (maintainer). Waits for Timepose
-           v2: one network, final-epoch checkpoint, scored end to end.
+Status:    open — deferred beyond 1.5.1.6 by the maintainer (2026-10-28).
+           The Timepose v2 checkpoint is not ready and is excluded from 1.5.1.6.
+           Retain one network, a final-epoch checkpoint and end-to-end scoring.
 Requested: maintainer, 2026-10-18: "make sure trackstera and timepose v1 are
            included in timelapse and timepose needs to be uploaded to
            huggingface and it needs a scorecard". Visibility (maintainer,
@@ -39,3 +40,5 @@ NOTES
 2026-10-18 The private Hugging Face repo einarolafsson/timepose-v1 was deleted; the v1 choice, settings, alpha entry, zoo record and captions were removed (reviewed records archived).
 2026-10-18 Kept, unused: the version-agnostic loader (zoo kind 'timepose', contract spacr.timepose/1, pinned-sha256 download with the user's HF token, segment_track_movie -> masks/edges -> tracks), tested with mocks.
 2026-10-18 Remaining: Timepose v2 (one network, final epoch: e100 or v2's final), scored end to end on its own masks, then a zoo record, timelapse_mode choice and alpha entry; scorecard on the model page.
+
+2026-10-28 — Maintainer: "it is not ready. it will not be included in1.5.1.6". Defer F711 beyond this release; retain spacr-c7 checkpoint/metrics/inference-contract ownership and the pending private integration/scorecard requirements.

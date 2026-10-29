@@ -2009,6 +2009,18 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         | home_ui_arrivals.keys() | volume_arrivals.keys()
     )
     zoo_arrivals = {**zoo_arrivals, **navigator_ai_arrivals}
+    indexed_scanr_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "441_indexed_scanr_import_api_arrivals_2026-10-28.json").read_text(encoding="utf-8"))
+    assert set(indexed_scanr_arrivals) == {
+        "spacr.qt.screens.foreign.ForeignScreen.metadata_well_map",
+        "spacr.qt.screens.foreign.ForeignScreen.set_metadata_well_map",
+    }
+    assert {key: docs[key] for key in indexed_scanr_arrivals} == indexed_scanr_arrivals
+    assert not indexed_scanr_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **indexed_scanr_arrivals}
     help_escape_arrivals = {
         'spacr.qt.help_search.HelpSearchField.event': 'Keep Escape in this field before window shortcuts handle it.\n\n:param event: the incoming Qt event.\n:returns: Whether the event was handled.',
     }

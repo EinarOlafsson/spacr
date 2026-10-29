@@ -2863,6 +2863,75 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         ":returns: Whether the event was handled."
     )
     callables = [item for item in callables if item.symbol != help_event_symbol]
+    import json
+    indexed_sources = json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "441_indexed_scanr_import_api_arrivals_2026-10-28.json").read_text(encoding="utf-8"))
+    indexed_parameters = {
+        "spacr.qt.screens.foreign.ForeignScreen.metadata_well_map": set(),
+        "spacr.qt.screens.foreign.ForeignScreen.set_metadata_well_map": {"path"},
+    }
+    assert indexed_sources.keys() == indexed_parameters.keys()
+    indexed_signatures = {
+        "metadata_well_map": ("self", "str"),
+        "set_metadata_well_map": ("self, path: str", "None"),
+    }
+    foreign_tree = ast.parse((pathlib.Path(__file__).resolve().parents[1]
+        / "spacr/qt/screens/foreign.py").read_text(encoding="utf-8"))
+    foreign_class = next(node for node in foreign_tree.body
+                         if isinstance(node, ast.ClassDef) and node.name == "ForeignScreen")
+    for name, (arguments, result) in indexed_signatures.items():
+        declaration = next(node for node in foreign_class.body
+                           if isinstance(node, ast.FunctionDef) and node.name == name)
+        assert ast.unparse(declaration.args) == arguments
+        assert ast.unparse(declaration.returns) == result
+    indexed_callables = [item for item in callables if item.symbol in indexed_sources]
+    assert len(indexed_callables) == 2
+    for item in indexed_callables:
+        assert item.category == "method" and item.exposure == "autoapi"
+        assert item.parameters == item.required_parameters == indexed_parameters[item.symbol]
+        assert item.accepted_documented_parameters == indexed_parameters[item.symbol]
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert not item.accepts_arbitrary_keywords
+        assert item.docstring == indexed_sources[item.symbol]
+    callables = [item for item in callables if item.symbol not in indexed_sources]
+    indexed_optional_parameters = {
+        'spacr.qt.screens.model_zoo.ModelZooScreen.scan': (
+            'spacr/qt/screens/model_zoo.py', 'scan', 'refresh_bioimageio', 'method',
+            {'refresh_bioimageio', 'folder', 'include_catalogue'}, set(),
+            {'refresh_bioimageio', 'folder', 'include_catalogue'},
+            'self, folder: Optional[str]=None, include_catalogue: bool=True, *, refresh_bioimageio: bool=True',
+            '7eeec53472e638e48c34500510ed929a8fd067e9b453795b794c0e438c0acee7'),
+        'spacr.foreign.plan_import': (
+            'spacr/foreign.py', 'plan_import', 'metadata_well_map', 'function',
+            {'custom_regex', 'mask_suffixes', 'measurements', 'metadata_type', 'um_per_px', 'measurement_object', 'on_conflict', 'label_key', 'measurement_table', 'z_handling', 'layout', 'column_maps', 'plate_naming', 'verify_labels', 'image_key', 'allow_spacr_targets', 'metadata_well_map', 'mask_layout', 'masks', 'prefix', 'images'}, {'measurements', 'masks', 'images'},
+            {'custom_regex', 'z_handling', 'layout', 'column_maps', 'mask_suffixes', 'measurements', 'metadata_type', 'um_per_px', 'measurement_object', 'image_key', 'allow_spacr_targets', 'on_conflict', 'verify_labels', 'metadata_well_map', 'mask_layout', 'masks', 'images', 'label_key', 'plate_naming', 'measurement_table', 'prefix'},
+            "images: str, masks: Union[str, TMapping[str, str], Sequence[Any], None], measurements: Union[str, 'pd.DataFrame'], *, layout: str='auto', z_handling: str=cv.Z_MAX, plate_naming: str='index', mask_layout: Optional[str]=None, mask_suffixes: Optional[Sequence[str]]=None, measurement_table: Optional[str]=None, measurement_object: Optional[str]=None, image_key: Optional[str]=None, label_key: Optional[str]=None, column_maps: Optional[Sequence[ColumnMap]]=None, um_per_px: Optional[float]=None, on_conflict: str='refuse', allow_spacr_targets: bool=False, prefix: str=FOREIGN_PREFIX, verify_labels: bool=True, metadata_type: Optional[str]=None, custom_regex: Optional[str]=None, metadata_well_map: Optional[str]=None",
+            '44f6022eba12fbdee6e93288ef2e4a7601389478cb75ea8804c0234b71dd0a83'),
+    }
+    optional_callables = [item for item in callables
+                          if item.symbol in indexed_optional_parameters]
+    assert len(optional_callables) == 2
+    for item in optional_callables:
+        relative, name, added, category, parameters, required, documented, signature, digest = (
+            indexed_optional_parameters[item.symbol])
+        assert item.category == category and item.exposure == "autoapi"
+        assert item.parameters == parameters and item.required_parameters == required
+        assert item.accepted_documented_parameters == documented
+        assert added in parameters & documented and added not in required
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert not item.accepts_arbitrary_keywords
+        assert hashlib.sha256(item.docstring.encode()).hexdigest() == digest
+        tree = ast.parse((pathlib.Path(__file__).resolve().parents[1] / relative).read_text(encoding="utf-8"))
+        declarations = [node for node in ast.walk(tree)
+                        if isinstance(node, ast.FunctionDef) and node.name == name]
+        assert len(declarations) == 1
+        assert ast.unparse(declarations[0].args) == signature
+    callables = [replace(item,
+                         parameters=item.parameters - {indexed_optional_parameters[item.symbol][2]},
+                         accepted_documented_parameters=(item.accepted_documented_parameters
+                             - {indexed_optional_parameters[item.symbol][2]}))
+                 if item.symbol in indexed_optional_parameters else item for item in callables]
     imported_package_modules = {
         name for name in set(sys.modules) - before_modules
         if name == "spacr" or name.startswith("spacr.")
@@ -3297,7 +3366,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "707_api_help_label_size_hint_api_arrival_2026-10-24.json",
                      "707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json",
                      "733_easy_mode_api_arrivals_2026_10_26.json",
-                     "733_navigator_ai_provider_api_arrival_2026-10-28.json"):
+                     "733_navigator_ai_provider_api_arrival_2026-10-28.json",
+                     "441_indexed_scanr_import_api_arrivals_2026-10-28.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -5283,6 +5353,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json", 5),
         ("733_easy_mode_api_arrivals_2026_10_26.json", 4),
         ("733_navigator_ai_provider_api_arrival_2026-10-28.json", 1),
+        ("441_indexed_scanr_import_api_arrivals_2026-10-28.json", 2),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -5829,7 +5900,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "707_api_help_label_size_hint_api_arrival_2026-10-24.json",
                      "707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json",
                      "733_easy_mode_api_arrivals_2026_10_26.json",
-                     "733_navigator_ai_provider_api_arrival_2026-10-28.json"):
+                     "733_navigator_ai_provider_api_arrival_2026-10-28.json",
+                     "441_indexed_scanr_import_api_arrivals_2026-10-28.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -5921,7 +5993,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "707_api_help_label_size_hint_api_arrival_2026-10-24.json",
                      "707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json",
                      "733_easy_mode_api_arrivals_2026_10_26.json",
-                     "733_navigator_ai_provider_api_arrival_2026-10-28.json"):
+                     "733_navigator_ai_provider_api_arrival_2026-10-28.json",
+                     "441_indexed_scanr_import_api_arrivals_2026-10-28.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

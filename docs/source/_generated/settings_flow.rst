@@ -5005,6 +5005,7 @@ custom_regex
 |                 ``isinstance(...)  [UNRESOLVED]``
 |                 ``dict(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.foreign.import_project` **-- reads it**
 | :py:func:`~spacr.measure.measure_crop`
 |     :py:func:`~spacr.validate.run_preflight`
 |         :py:func:`~spacr.validate.describe_plan`
@@ -5039,7 +5040,7 @@ custom_regex
 |                 ``_candidate_patterns`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``_watch_folder_and_analyse``, ``_watch_pattern``, ``_watch_source_channels``, ``preprocess_generate_masks``, ``_preprocess_mapped_volume_series``, ``_preprocess_volume_tiffs``, ``_rebuild_stacks_from_raw``, ``preprocess_img_data``, ``_run_partitioned_v2``, ``_on_measure_clicked``, ``__init__``, ``run``, ``_candidate_patterns``.
+Read by ``_watch_folder_and_analyse``, ``_watch_pattern``, ``_watch_source_channels``, ``preprocess_generate_masks``, ``import_project``, ``_preprocess_mapped_volume_series``, ``_preprocess_volume_tiffs``, ``_rebuild_stacks_from_raw``, ``preprocess_img_data``, ``_run_partitioned_v2``, ``_on_measure_clicked``, ``__init__``, ``run``, ``_candidate_patterns``.
 
 .. _setting-flow-cv_best_model_path:
 
@@ -13222,6 +13223,7 @@ metadata_type
 |                 ``isinstance(...)  [UNRESOLVED]``
 |                 ``dict(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.foreign.import_project` **-- reads it**
 | :py:func:`~spacr.measure.measure_crop`
 |     ``_run_with_cloud_sources``
 |         ``_localize_cloud_source`` **-- reads it**
@@ -13262,7 +13264,7 @@ metadata_type
 |         ``isinstance(...)  [UNRESOLVED]``
 | :py:func:`~spacr.settings.get_setting_dependencies` **-- reads it**
 
-Read by ``_watch_closed_pool_spec``, ``_watch_folder_and_analyse``, ``_watch_pattern``, ``_watch_source_channels``, ``preprocess_generate_masks``, ``_preprocess_mapped_volume_series``, ``_preprocess_volume_tiffs``, ``_rebuild_stacks_from_raw``, ``preprocess_img_data``, ``_localize_cloud_source``, ``_run_partitioned_v2``, ``_on_measure_clicked``, ``__init__``, ``get_setting_dependencies``, ``_candidate_patterns``, ``_check_src``.
+Read by ``_watch_closed_pool_spec``, ``_watch_folder_and_analyse``, ``_watch_pattern``, ``_watch_source_channels``, ``preprocess_generate_masks``, ``import_project``, ``_preprocess_mapped_volume_series``, ``_preprocess_volume_tiffs``, ``_rebuild_stacks_from_raw``, ``preprocess_img_data``, ``_localize_cloud_source``, ``_run_partitioned_v2``, ``_on_measure_clicked``, ``__init__``, ``get_setting_dependencies``, ``_candidate_patterns``, ``_check_src``.
 
 .. _setting-flow-metadata_type_by:
 
@@ -13292,8 +13294,9 @@ metadata_well_map
 |                 ``_rebuild_stacks_from_raw`` **-- reads it**
 |                 ``dict(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.foreign.import_project` **-- reads it**
 
-Read by ``convert_folder``, ``_preprocess_volume_tiffs``, ``_rebuild_stacks_from_raw``, ``preprocess_img_data``.
+Read by ``convert_folder``, ``import_project``, ``_preprocess_volume_tiffs``, ``_rebuild_stacks_from_raw``, ``preprocess_img_data``.
 
 .. _setting-flow-method:
 
