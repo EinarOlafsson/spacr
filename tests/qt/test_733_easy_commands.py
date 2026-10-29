@@ -61,6 +61,17 @@ def commands(qtbot, private_ai_profile):
     return window
 
 
+@pytest.fixture
+def overview_seed_route(commands):
+    """Own a registered generic port whose input is handled by the seed fallback."""
+    app.register_app('overview', 'Overview', 'Inspect fields', app.SECTION_TOOLS,
+                     factory=lambda: commands.screen)
+    try:
+        yield 'overview'
+    finally:
+        app.unregister_app('overview')
+
+
 @pytest.mark.parametrize('query,key', [('mAkE mAsKs', 'make_masks'), ('Measure', 'measure'),
                                      ('Regression diagnostics', 'regression_diagnostics')])
 def test_exact_module_enter_shows_card_and_click_opens_native(qtbot, commands, monkeypatch, query, key):
@@ -686,12 +697,13 @@ def test_overview_suggestion_preserves_owner_settings_and_local_source_identity(
 
 
 @pytest.mark.parametrize('mode', ['hidden', 'no_path', 'apply_override', 'fallback_override', 'plain_seed'])
-def test_suggestion_visibility_and_seed_handoff_keep_inputs_unchanged(commands, monkeypatch, tmp_path, mode):
+def test_suggestion_visibility_and_seed_handoff_keep_inputs_unchanged(commands, monkeypatch, tmp_path, mode, overview_seed_route):
+    route = overview_seed_route
     path = '' if mode == 'no_path' else str(tmp_path)
-    overrides = {'mask': {'diameter': 37, 'timelapse': False}} if mode.endswith('override') else {}
+    overrides = {route: {'diameter': 37, 'timelapse': False}} if mode.endswith('override') else {}
     commands._startup._settings_overrides = overrides
     before = json.loads(json.dumps(overrides))
-    commands._screens = {'mask': commands.screen}
+    commands._screens = {route: commands.screen}
     commands.open_module = _ExistingRoutingScreens(commands)
     training = _RoutingCalls()
     commands._on_train_requested = training
@@ -700,17 +712,17 @@ def test_suggestion_visibility_and_seed_handoff_keep_inputs_unchanged(commands, 
         commands.screen.apply_settings_dict = applied.append
     monkeypatch.setattr(app, 'app_is_visible',
                         _routing_modules_hidden if mode == 'hidden' else _routing_modules_visible)
-    app.MainWindow._open_easy_suggestion(commands, 'mask', path)
-    seed = {'src': path, **overrides.get('mask', {})}
+    app.MainWindow._open_easy_suggestion(commands, route, path)
+    seed = {'src': path, **overrides.get(route, {})}
     if mode == 'hidden':
         assert commands.opened == [] and training.calls == [] and applied == []
         assert 'hidden' in commands.statusBar().currentMessage()
     elif mode == 'no_path':
-        assert commands.opened == ['mask'] and training.calls == [] and applied == []
+        assert commands.opened == [route] and training.calls == [] and applied == []
     elif mode == 'apply_override':
-        assert commands.opened == ['mask'] and applied == [seed] and training.calls == []
-        assert applied[0] is not overrides['mask']
+        assert commands.opened == [route] and applied == [seed] and training.calls == []
+        assert applied[0] is not overrides[route]
     else:
-        assert commands.opened == (['mask'] if mode == 'fallback_override' else [])
-        assert training.calls == [('mask', seed)] and applied == []
+        assert commands.opened == ([route] if mode == 'fallback_override' else [])
+        assert training.calls == [(route, seed)] and applied == []
     assert overrides == before and commands.inspections == [] and commands.urls == []

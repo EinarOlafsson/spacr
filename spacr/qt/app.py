@@ -10812,42 +10812,19 @@ class MainWindow(QMainWindow):
             if widget is not None and handler.can_accept(source):
                 handler.apply(source, widget)
             return
-        if key in ("make_masks", "db_browser", "foreign", "convert"):
+        seed = {"src": path}
+        overrides = getattr(self._startup, '_settings_overrides', {}).get(key, {})
+        if overrides:
+            seed.update(overrides)
             target = self.open_module(key)
             widget = _opened_module_screen(self, key, target)
-            if widget is not None:
-                if key == "make_masks":
-                    widget.open_paths([path])
-                elif key == "db_browser":
-                    widget.set_database(path)
-                elif key == "convert":
-                    widget.set_source(path)
-                else:
-                    widget.set_measurements(path)
-        else:
-            native_container = getattr(self._startup, '_last_result', None) or {}
-            if key == 'mask' and native_container.get('context', {}).get('native_mask_container') == path:
-                from pathlib import Path
-                from .dnd_handlers import MaskDropHandler
-
-                target = self.open_module(key)
-                widget = _opened_module_screen(self, key, target)
-                if widget is not None:
-                    MaskDropHandler().apply(Path(path), widget)
-                return
-            seed = {"src": path}
-            overrides = getattr(self._startup, '_settings_overrides', {}).get(key, {})
-            if overrides:
-                seed.update(overrides)
-                target = self.open_module(key)
-                widget = _opened_module_screen(self, key, target)
-                apply = getattr(widget, 'apply_settings_dict', None)
-                if callable(apply):
-                    apply(seed)
-                else:
-                    self._on_train_requested(key, seed)
+            apply = getattr(widget, 'apply_settings_dict', None)
+            if callable(apply):
+                apply(seed)
             else:
                 self._on_train_requested(key, seed)
+        else:
+            self._on_train_requested(key, seed)
 
     def _show_the_screensaver(self) -> bool:
         """Open the backdrop full screen, with nothing else on it.

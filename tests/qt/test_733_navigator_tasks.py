@@ -7,7 +7,7 @@ from PySide6.QtCore import Qt
 
 from spacr.qt import app
 from spacr.qt.widgets.home import _EasyHomePage
-from tests.qt.test_733_easy_commands import commands
+from tests.qt.test_733_easy_commands import commands, overview_seed_route
 from tests.qt.test_startup_ai_reporting_choice import private_ai_profile
 
 
@@ -252,47 +252,88 @@ def test_ambiguous_real_help_actions_require_an_explicit_choice(commands, monkey
 
 @pytest.mark.parametrize('route', ['make_masks', 'db_browser', 'foreign', 'convert'])
 def test_native_suggestion_delivers_the_exact_path_to_its_existing_screen_adapter(
-        commands, monkeypatch, tmp_path, route):
+        commands, qtbot, monkeypatch, tmp_path, route):
+    import sqlite3
     from types import SimpleNamespace
+    import numpy as np
+    import tifffile
+    from spacr.qt.screens.convert import ConvertScreen
+    from spacr.qt.screens.db_browser import DbBrowserScreen
+    from spacr.qt.screens.foreign import ForeignScreen
+    from spacr.qt.screens.make_masks import MakeMasksScreen
+    from tests.test_scn_reader import write_scn
 
-    path = tmp_path / ('source.csv' if route == 'foreign' else 'source.tif')
-    path.write_bytes(b'read-only input')
-    original = path.read_bytes()
+    pixels = np.arange(8 * 9, dtype=np.uint16).reshape(8, 9)
+    if route == 'db_browser':
+        source = tmp_path / 'measurements.db'
+        with sqlite3.connect(source) as connection:
+            connection.execute('CREATE TABLE cells (area REAL)')
+            connection.execute('INSERT INTO cells VALUES (12)')
+        screen = DbBrowserScreen(threaded=False)
+    elif route == 'foreign':
+        source = tmp_path / 'source.csv'
+        source.write_text('area,intensity\n12,34\n')
+        screen = ForeignScreen(threaded=False)
+    elif route == 'convert':
+        source = tmp_path / 'source.scn'
+        write_scn(source, [pixels])
+        screen = ConvertScreen(threaded=False)
+    else:
+        source = tmp_path / 'source.tif'
+        tifffile.imwrite(source, pixels)
+        screen = MakeMasksScreen()
+    path = source.parent if route == 'convert' else source
+    original = source.read_bytes()
+    qtbot.addWidget(screen)
+    commands.screen = screen
     received = []
     names = {'make_masks': 'open_paths', 'db_browser': 'set_database',
              'foreign': 'set_measurements', 'convert': 'set_source'}
-    setattr(commands.screen, names[route], received.append)
+    native = getattr(screen, names[route])
+    def receive(value):
+        received.append(value)
+        return native(value)
+    monkeypatch.setattr(screen, names[route], receive)
     commands._startup = SimpleNamespace(_last_result={})
-    monkeypatch.setattr(commands, '_open_easy_input', lambda *args: False)
-    monkeypatch.setattr(commands, 'open_module', lambda key: commands.screen, raising=False)
-    monkeypatch.setattr(app, '_opened_module_screen', lambda *args: commands.screen)
-    monkeypatch.setattr(app, 'app_is_visible', lambda key: True)
-    app.MainWindow._open_easy_suggestion(commands, route, str(path))
-    assert received == ([[str(path)]] if route == 'make_masks' else [str(path)])
-    assert path.read_bytes() == original
+    try:
+        app.MainWindow._open_easy_suggestion(commands, route, str(path))
+        assert received == ([[str(path)]] if route == 'make_masks' else [str(path)])
+        assert commands.opened == [route]
+        if route == 'make_masks':
+            qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                            and screen._load_worker is None, timeout=20000)
+            np.testing.assert_array_equal(screen._canvas.image, pixels)
+        elif route == 'db_browser':
+            assert screen.tables() == ['cells'] and screen._db.path == str(source)
+        elif route == 'foreign':
+            assert screen.measurements_path() == str(source)
+        else:
+            assert screen.source_path() == str(source.parent)
+        assert source.read_bytes() == original
+    finally:
+        screen.close()
 
 
 @pytest.mark.parametrize('apply_available', [False, True])
 def test_inspected_settings_overrides_keep_the_source_and_use_native_apply_when_available(
-        commands, monkeypatch, tmp_path, apply_available):
+        commands, monkeypatch, tmp_path, apply_available, overview_seed_route):
     from types import SimpleNamespace
 
     folder = str(tmp_path)
-    overrides = {'mask': {'diameter': 19, 'channels': [0]}}
+    overrides = {overview_seed_route: {'diameter': 19, 'channels': [0]}}
     commands._startup = SimpleNamespace(_last_result={}, _settings_overrides=overrides)
     received, trained = [], []
     if apply_available:
         commands.screen.apply_settings_dict = received.append
-    monkeypatch.setattr(commands, '_open_easy_input', lambda *args: False)
     monkeypatch.setattr(commands, 'open_module', lambda key: commands.screen, raising=False)
     monkeypatch.setattr(commands, '_on_train_requested', lambda key, values: trained.append((key, values)), raising=False)
     monkeypatch.setattr(app, '_opened_module_screen', lambda *args: commands.screen)
     monkeypatch.setattr(app, 'app_is_visible', lambda key: True)
-    app.MainWindow._open_easy_suggestion(commands, 'mask', folder)
+    app.MainWindow._open_easy_suggestion(commands, overview_seed_route, folder)
     expected = {'src': folder, 'diameter': 19, 'channels': [0]}
     assert received == ([expected] if apply_available else [])
-    assert trained == ([] if apply_available else [('mask', expected)])
-    assert overrides == {'mask': {'diameter': 19, 'channels': [0]}}
+    assert trained == ([] if apply_available else [(overview_seed_route, expected)])
+    assert overrides == {overview_seed_route: {'diameter': 19, 'channels': [0]}}
 
 
 @pytest.mark.parametrize('failure', ['refused', 'io-error', 'value-error', 'accepted'])

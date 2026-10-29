@@ -692,6 +692,7 @@ def test_confirmed_regex_card_handoff_seeds_native_mask_without_reconfiguration(
         container_bytes = container.read_bytes()
         source_entries = set(tmp_path.iterdir())
         delegated = []
+        explicit_choice = [False]
         loads = []
         native_apply = MaskDropHandler.apply
         native_load = np.load
@@ -699,13 +700,13 @@ def test_confirmed_regex_card_handoff_seeds_native_mask_without_reconfiguration(
 
         def load_container(path, *args, **kwargs):
             if str(path) == str(container):
-                assert delegated, 'Easy inspection decoded the archive before an explicit choice'
+                assert explicit_choice[0], 'Easy inspection decoded the archive before an explicit choice'
                 loads.append(path)
             return native_load(path, *args, **kwargs)
 
         def describe_container(path):
             if str(path) == str(container):
-                assert delegated, 'Easy inspection invoked the native container reader'
+                assert explicit_choice[0], 'Easy inspection invoked the native container reader before an explicit choice'
             return native_describe(path)
 
         def apply_container(handler, path, screen):
@@ -715,6 +716,8 @@ def test_confirmed_regex_card_handoff_seeds_native_mask_without_reconfiguration(
         monkeypatch.setattr(MaskDropHandler, 'apply', apply_container)
         monkeypatch.setattr(np, 'load', load_container)
         monkeypatch.setattr(multi_format, 'describe_file', describe_container)
+        window._on_nav_selected('__home__')
+        assert window._stack.currentWidget() is page
         window._easy_mode_drop([str(container)])
         qtbot.waitUntil(lambda: not page._runner.is_busy()
                        and page._last_result['path'] == str(container), timeout=5000)
@@ -726,6 +729,7 @@ def test_confirmed_regex_card_handoff_seeds_native_mask_without_reconfiguration(
         card.click()
         assert not delegated
         assert window._stack.currentWidget() is page
+        explicit_choice[0] = True
         page._workflow.central.click()
         qtbot.waitUntil(lambda: bool(delegated), timeout=5000)
         target = window._screens['mask']
