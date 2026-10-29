@@ -302,3 +302,130 @@ def test_finished_run_distinguishes_object_results_and_empty_diagnostics(tmp_pat
         'diagnostics_folder'] == str(diagnostics)
     assert all(path.read_bytes() == content for path, content in originals.items())
     assert output.read_bytes() == output_bytes
+
+
+def test_ops_sidecars_do_not_turn_an_unrelated_numeric_table_into_a_library(tmp_path):
+    import json
+
+    root = tmp_path / 'screen'
+    genotype = root / 'genotype'
+    for cycle in (1, 2):
+        _image(genotype / f'10X_c{cycle}_A1_CY3_Site-0.tif')
+    unrelated = root / 'object-counts.csv'
+    unrelated.write_text('well,count\nA01,12\nA02,8\n')
+    metadata = root / 'metadata.json'
+    metadata.write_text(json.dumps([dict(channel='DAPI'), dict(channel='GFP')]))
+    originals = {path: path.read_bytes() for path in root.rglob('*') if path.is_file()}
+    result = home._easy_inspect_path(str(root))
+    assert result['context']['submodule_settings']['ops']['settings'] == dict(
+        genotype_source=str(genotype))
+    assert result['context']['metadata_files'] == [dict(
+        name='metadata.json', folder=str(root), fields=[], truncated=False)]
+    assert all(path.read_bytes() == content for path, content in originals.items())
+
+    library = root / 'library.csv'
+    library.write_text('prefix,sequence,gene\nACGT,ACGT,gene_a\n')
+    result = home._easy_inspect_path(str(root))
+    assert result['context']['submodule_settings']['ops']['settings'] == dict(
+        genotype_source=str(genotype), ops_library=str(library))
+    assert all(path.read_bytes() == content for path, content in originals.items())
+
+
+def test_selected_plain_tiff_does_not_borrow_sibling_filename_or_dimensions(tmp_path):
+    import tifffile
+
+    selected = tmp_path / 'overview.tif'
+    tifffile.imwrite(selected, np.arange(48, dtype=np.uint16).reshape(6, 8),
+                     metadata=dict(axes='YX'))
+    sibling = _image(tmp_path / 'plate1_A01_T0001F001L01A01Z01C01.tif')
+    originals = {path: path.read_bytes() for path in (selected, sibling)}
+    result = home._easy_inspect_path(str(selected))
+    proposal = result['regex']
+    assert proposal['example_path'] == str(selected)
+    assert proposal['required'] and proposal['groups'] == []
+    assert proposal['pattern']
+    assert 'metadata_preset' not in result
+    assert not result['context']['dimension_routes']
+    dimensions = next(row for row in result['context']['image_dimensions']
+                      if row['path'] == str(selected))
+    assert dimensions['axes'] == 'YX' and dimensions['z'] == dimensions['t'] == 1
+    assert all(path.read_bytes() == content for path, content in originals.items())
+
+
+def test_generated_crop_depth_and_model_notes_keep_header_evidence_bounded(tmp_path):
+    import zipfile
+
+    project = tmp_path / 'plate'
+    crops = project / 'data' / 'run' / 'cells' / 'plate_png'
+    supported = _image(crops / 'cell.png')
+    beyond_budget = _image(crops / 'extra' / 'deep_png' / 'ignored.png')
+    model = project / 'model'
+    model.mkdir()
+    notes = model / 'training-notes.txt'
+    notes.write_text('Review this checkpoint before applying it.')
+    checkpoint = model / 'classifier.pth'
+    with zipfile.ZipFile(checkpoint, 'w') as archive:
+        archive.writestr('archive/data.pkl', b'header-only fixture; never deserialized')
+    originals = {path: path.read_bytes() for path in project.rglob('*') if path.is_file()}
+    result = home._easy_inspect_path(str(project))
+    artifacts = result['context']['generated_outputs']['artifacts']
+    assert dict(kind='crops', path=str(supported), producer='measure') in artifacts
+    assert dict(kind='classifier', path=str(checkpoint), producer='classify_merged') in artifacts
+    assert not any(row['path'] in (str(notes), str(beyond_budget)) for row in artifacts)
+    assert all(path.read_bytes() == content for path, content in originals.items())
+
+
+def test_generated_merge_bounds_partial_headers_then_verifies_selected_completion(tmp_path):
+    merged = tmp_path / 'plate' / 'merged'
+    merged.mkdir(parents=True)
+    partials = []
+    for index in range(5):
+        partial = merged / f'partial-{index}.npy'
+        np.save(partial, np.full((6, 8, 1), index, dtype=np.uint16))
+        partials.append(partial)
+    originals = {path: path.read_bytes() for path in merged.iterdir()}
+    result = home._easy_inspect_path(str(merged))
+    assert not result['context']['generated_outputs']['artifacts']
+    assert 'measure' not in {row[0] for row in result['actions']}
+    assert all(path.read_bytes() == content for path, content in originals.items())
+
+    complete = partials.pop()
+    np.save(complete, np.stack((np.ones((6, 8), dtype=np.uint16),
+                               np.full((6, 8), 500, dtype=np.uint16)), axis=-1))
+    completed_bytes = complete.read_bytes()
+    result = home._easy_inspect_path(str(complete))
+    assert result['context']['generated_outputs']['artifacts'] == [dict(
+        kind='merged', path=str(complete), producer='mask')]
+    assert result['context']['generated_outputs']['routes']['measure']['ready']
+    assert all(path.read_bytes() == originals[path] for path in partials)
+    assert complete.read_bytes() == completed_bytes
+
+
+def test_calibrated_marker_without_completed_data_gives_guidance_only(tmp_path):
+    marker = tmp_path / 'plate_batch.json'
+    marker.write_text('{}')
+    before = marker.read_bytes()
+    result = home._easy_inspect_path(str(tmp_path))
+    assert not result['actions']
+    assert not result['context']['generated_outputs']['artifacts']
+    assert 'calibrated-workflow marker' in result['message']
+    assert 'completed child dataset' in result['message']
+    assert marker.read_bytes() == before
+    assert list(tmp_path.iterdir()) == [marker]
+
+
+def test_master_regression_table_is_not_a_child_plate_generated_result(tmp_path):
+    master = tmp_path / 'master'
+    plate = master / 'plate1'
+    database = _database(plate / 'measurements' / 'measurements.db')
+    coefficients = master / 'results.csv'
+    coefficients.write_text('feature,coefficient\ngene_a,0.5\ngene_b,-0.25\n')
+    originals = {path: path.read_bytes() for path in (database, coefficients)}
+    result = home._easy_inspect_path(str(master))
+    generated = result['context']['generated_outputs']
+    assert generated['project'] == str(plate)
+    assert any(row['kind'] == 'measurements' and row['path'] == str(database)
+               for row in generated['artifacts'])
+    assert not any(row['kind'] == 'regression' for row in generated['artifacts'])
+    assert result['context']['run_evidence']['results'][0]['path'] == str(coefficients)
+    assert all(path.read_bytes() == content for path, content in originals.items())
