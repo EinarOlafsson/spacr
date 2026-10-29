@@ -3443,7 +3443,10 @@ def import_project(settings: Optional[TMapping[str, Any]] = None,
         column_maps=column_maps,
         um_per_px=resolved.get('um_per_px'),
         on_conflict=str(resolved.get('on_conflict') or 'refuse'),
-        allow_spacr_targets=bool(resolved.get('allow_spacr_targets')))
+        allow_spacr_targets=bool(resolved.get('allow_spacr_targets')),
+        metadata_type=resolved.get('metadata_type'),
+        custom_regex=resolved.get('custom_regex'),
+        metadata_well_map=resolved.get('metadata_well_map'))
 
     print(format_plan(plan))
     if not plan.ok:

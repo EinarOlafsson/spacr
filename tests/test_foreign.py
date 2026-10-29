@@ -1081,6 +1081,44 @@ def test_import_project_previews_before_it_writes(theirs, tmp_path, capsys):
     assert os.path.isfile(result.db_path)
 
 
+def test_import_project_keeps_explicit_naming_and_indexed_well_settings(tmp_path, monkeypatch, capsys):
+    from tests.test_import_example_round_trip import builder
+    from spacr import import_examples
+
+    root = builder.build(builder.synthetic_fields(), tmp_path / "example",
+                         keys=["scanr_indexed"])
+    inputs = import_examples.variant_inputs(root, "scanr_indexed")
+    destination = tmp_path / "preview-only"
+    pattern = r"(?P<wellID>[A-Z]\d{2})_f(?P<fieldID>\d+)_c(?P<chanID>\d+)"
+    before = {path: path.read_bytes() for path in root.rglob("*") if path.is_file()}
+    original = fg.plan_import
+    received = []
+
+    def observe(*args, **kwargs):
+        received.append({key: kwargs.get(key) for key in
+                         ("metadata_type", "custom_regex", "metadata_well_map")})
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(fg, "plan_import", observe)
+    result = fg.import_project({
+        "images": inputs["images"], "masks": inputs["masks"],
+        "measurements": inputs["measurements"], "metadata_type": "scanr_indexed",
+        "custom_regex": pattern, "metadata_well_map": inputs["metadata_well_map"],
+        "dst": str(destination), "preview_only": True,
+    })
+    assert received == [{"metadata_type": "scanr_indexed", "custom_regex": pattern,
+                         "metadata_well_map": inputs["metadata_well_map"]}]
+    assert result.plan.ok
+    assert result.plan.images.well_map == {("plate1", "W00002"): "E01",
+                                          ("plate1", "W00007"): "E02"}
+    assert sorted(result.plan.masks.fields) == ["plate1_E01_10", "plate1_E01_9",
+                                                "plate1_E02_10", "plate1_E02_9"]
+    assert result.plan.join.rows_matched == result.plan.join.rows_total == 12
+    assert result.merged == [] and not destination.exists()
+    assert "preview_only is set — nothing was written" in capsys.readouterr().out
+    assert before == {path: path.read_bytes() for path in root.rglob("*") if path.is_file()}
+
+
 def test_import_project_needs_all_three_inputs(theirs):
     for missing in ("images", "masks", "measurements"):
         settings = {"images": theirs.images, "masks": theirs.masks(),
