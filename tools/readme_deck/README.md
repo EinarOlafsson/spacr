@@ -29,5 +29,6 @@ pictures. Publishing needs a Hugging Face token with write access to that datase
 `--pres DIR` selects other sources. `--out` must be a new folder. Choose the pages that
 changed by comparing the rendered slides with the published ones.
 
-The cover mosaic is generated from the packaged startup mosaic and its occupied-cell map.
-The deck builder refreshes this clipped asset before building; background tiles stay transparent.
+The cover mosaic is generated from the packaged startup mosaic and its occupied-cell map,
+clipped to the filled outer silhouette of the canonical `logo_spacr.png`.
+The deck builder refreshes this clipped asset before building; background tiles and all images outside the logo stay transparent.

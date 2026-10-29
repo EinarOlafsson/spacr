@@ -21,6 +21,7 @@ from pathlib import Path
 
 import numpy as np
 from PIL import Image, ImageFilter
+from scipy.ndimage import binary_fill_holes
 
 Image.MAX_IMAGE_PIXELS = None
 P = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '/'
@@ -54,6 +55,10 @@ image = _black_to_alpha(image)
 pixels = np.frombuffer(image.bits(), dtype=np.uint32).reshape(
     side, image.bytesPerLine() // 4)[:, :side]
 pixels.reshape(grid, tile, grid, tile)[:] *= occupied[:, None, :, None]
+silhouette = Image.open(args.icons / 'logo_spacr.png').convert('RGBA')
+silhouette = silhouette.resize((side, side), Image.Resampling.LANCZOS)
+inside = binary_fill_holes(np.asarray(silhouette)[..., 3] > 128)
+pixels[~inside] = 0
 if not image.save(P + 'images/icons/spacr_logo_color.png'):
     raise OSError('The clipped deck mosaic could not be saved')
 if args.mosaic_only:
