@@ -676,3 +676,24 @@ def test_next_answer_retains_only_a_still_running_previous_worker(ai_page, qtbot
     calls[1][2].finished.emit(True, 'Second complete answer')
     qtbot.waitUntil(lambda: page._ai_thread is None, timeout=5000)
     assert page.field.details.toPlainText() == 'Second complete answer'
+
+
+@pytest.mark.parametrize('value, expected', [
+    ('make mask', {'make_masks'}),
+    ('SCN', {'make_masks', 'convert'}),
+])
+def test_native_tool_alias_and_scientific_format_remain_click_only_with_ai_on(
+        ai_page, commands, qtbot, value, expected):
+    page, calls, _ = ai_page
+    commands._startup = page
+    commands.setCentralWidget(page)
+    commands.show()
+    page.command_requested.connect(commands._open_easy_command)
+    _enable(page)
+    page.path_edit.setText(value)
+    qtbot.keyClick(page.path_edit, Qt.Key_Return)
+    qtbot.waitUntil(lambda: bool(page.field.cards), timeout=5000)
+    assert {card._key for card in page.field.cards} == expected
+    assert not calls and not commands.opened
+    if value == 'SCN':
+        assert 'mask' not in {card._key for card in page.field.cards}
