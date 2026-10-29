@@ -2403,13 +2403,33 @@ def test_a_wide_screen_keeps_the_side_column_open(
 
 def test_a_folded_side_column_does_not_hold_the_screen_tall(
         qtbot, qt_theme_applied, folder):
+    from PySide6.QtWidgets import QSizePolicy
+
     window, screen = _open_make_masks(qtbot, folder, (1280, 680))
-    folded = screen.minimumSizeHint().height()
-    screen._view_pane.toggle_pane("Shortcuts", by_user=True)
-    qtbot.waitUntil(lambda: screen.minimumSizeHint().height() > folded,
-                    timeout=2000)
-    assert window.minimumSize().height() <= 640
-    _close(screen)
+    pane, column = screen._view_pane, screen._shortcut_panel
+    try:
+        assert pane.is_collapsed("Shortcuts")
+        assert column.sizePolicy().verticalPolicy() == QSizePolicy.Ignored
+        assert column.width() == 0 and column.visibleRegion().isEmpty()
+        assert screen.minimumSizeHint().height() <= screen.height()
+        pane.toggle_pane("Shortcuts", by_user=True)
+        qtbot.waitUntil(lambda: not column.visibleRegion().isEmpty(), timeout=2000)
+        assert not pane.is_collapsed("Shortcuts")
+        assert column.sizePolicy().verticalPolicy() == QSizePolicy.Preferred
+        column.set_collapsed("Console", False, by_user=True)
+        qtbot.waitUntil(lambda: screen._masks_console.isVisible()
+                        and screen._console_section.height() >= 120, timeout=2000)
+        assert _whole(window, screen._console_section)
+        assert _whole(window, screen._masks_console)
+        assert (window.width(), window.height()) == (1280, 680)
+        assert window.minimumSize().height() <= 640
+        pane.toggle_pane("Shortcuts", by_user=True)
+        qtbot.waitUntil(lambda: column.width() == 0 and column.visibleRegion().isEmpty(), timeout=2000)
+        assert column.sizePolicy().verticalPolicy() == QSizePolicy.Ignored
+        assert screen.minimumSizeHint().height() <= screen.height()
+        assert window.minimumSize().height() <= 640
+    finally:
+        _close(screen)
 
 
 @pytest.mark.parametrize("work", [QRect(0, 0, 1280, 680),
