@@ -361,13 +361,24 @@ def test_incomplete_api_listing_cannot_be_mistaken_for_no_existing_run(monkeypat
 
 
 def test_release_publication_edges_require_the_exact_source_gate():
-    jobs = yaml.safe_load((ROOT / ".github/workflows/release.yml").read_text())["jobs"]
+    workflow = yaml.safe_load((ROOT / ".github/workflows/release.yml").read_text())
+    events = workflow.get('on', workflow.get(True))
+    override = events['workflow_dispatch']['inputs']['allow_unfinished_ci']
+    assert override['type'] == 'boolean'
+    assert override['default'] is False and override['required'] is False
+    jobs = workflow["jobs"]
     gate = jobs["source-ci"]
     assert gate["needs"] == "bump"
     assert gate["permissions"] == {"contents": "read", "actions": "write"}
     assert gate["timeout-minutes"] == 360
     assert gate["steps"][0]["with"]["ref"] == "${{ needs.bump.outputs.commit_sha }}"
     command = gate["steps"][-1]
+    assert command['if'] == (
+        "github.event_name != 'workflow_dispatch' || inputs.allow_unfinished_ci != true")
+    notice = gate['steps'][-2]
+    assert notice['if'] == (
+        "github.event_name == 'workflow_dispatch' && inputs.allow_unfinished_ci == true")
+    assert 'not green CI acceptance' in notice['run']
     assert command["env"]["RELEASE_SHA"] == "${{ needs.bump.outputs.commit_sha }}"
     assert command["env"]["RELEASE_BRANCH"] == "${{ needs.bump.outputs.branch }}"
     assert '--sha "$RELEASE_SHA" --branch "$RELEASE_BRANCH"' in command["run"]
@@ -376,6 +387,19 @@ def test_release_publication_edges_require_the_exact_source_gate():
         assert "continue-on-error" not in jobs[name]
     for name in ("publish-pypi", "installers", "github-release"):
         assert "needs.source-ci.result == 'success'" in jobs[name]["if"]
+
+
+def test_authorized_immediate_release_discloses_deferred_work_in_public_notes():
+    jobs = yaml.safe_load((ROOT / '.github/workflows/release.yml').read_text())['jobs']
+    publish = next(step for step in jobs['github-release']['steps']
+                   if step.get('name') == 'Publish release notes and downloadable installers')
+    assert publish['env']['ALLOW_UNFINISHED_CI'] == (
+        "${{ github.event_name == 'workflow_dispatch' && inputs.allow_unfinished_ci == true }}")
+    script = publish['run']
+    assert 'if [ "$ALLOW_UNFINISHED_CI" = "true" ]' in script
+    assert 'does not claim green CI' in script
+    assert 'deferred to spaCR 1.5.1.7' in script
+    assert '"${release_note_args[@]}"' in script and '--generate-notes' in script
 
 
 def test_every_release_payload_and_tag_uses_the_ci_accepted_bump_commit():

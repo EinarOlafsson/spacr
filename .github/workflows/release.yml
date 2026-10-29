@@ -9,6 +9,11 @@ on:
         description: New 3- or 4-component numeric version (for example 1.4.9.9)
         required: true
         type: string
+      allow_unfinished_ci:
+        description: Publish now under explicit maintainer authorization despite unfinished CI
+        required: false
+        type: boolean
+        default: false
       target_branch:
         description: Branch to release
         required: true
@@ -179,7 +184,11 @@ jobs:
         with:
           python-version: "3.12"
       - run: python -m pip install pyyaml
+      - name: Record the explicitly authorized unfinished-CI release
+        if: github.event_name == 'workflow_dispatch' && inputs.allow_unfinished_ci == true
+        run: echo "::warning::Maintainer-authorized immediate release; unfinished CI and remaining work are deferred to 1.5.1.7. This is not green CI acceptance."
       - name: Reuse or dispatch exact-source Tests, Docs and Compatibility
+        if: github.event_name != 'workflow_dispatch' || inputs.allow_unfinished_ci != true
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_SHA: ${{ needs.bump.outputs.commit_sha }}
@@ -509,13 +518,19 @@ jobs:
           RELEASE_TAG: ${{ needs.bump.outputs.tag }}
           RELEASE_SHA: ${{ needs.bump.outputs.commit_sha }}
           VERSION: ${{ needs.bump.outputs.version }}
+          ALLOW_UNFINISHED_CI: ${{ github.event_name == 'workflow_dispatch' && inputs.allow_unfinished_ci == true }}
         run: |
+          release_note_args=()
+          if [ "$ALLOW_UNFINISHED_CI" = "true" ]; then
+            release_note_args=(--notes "Published now at the maintainer's explicit request. Remaining CI, coverage, wound-segmentation accuracy and other unfinished work are deferred to spaCR 1.5.1.7. This release does not claim green CI.")
+          fi
           if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
             gh release upload "$RELEASE_TAG" release-assets/* --clobber
           else
             gh release create "$RELEASE_TAG" release-assets/* \
               --target "$RELEASE_SHA" \
               --title "spaCR $VERSION" \
+              "${release_note_args[@]}" \
               --generate-notes \
               --verify-tag
           fi
