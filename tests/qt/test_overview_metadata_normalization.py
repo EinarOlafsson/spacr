@@ -1641,3 +1641,110 @@ def test_invalid_custom_colors_are_ignored_without_changing_valid_channel_choice
                 if palette in browser._OVERVIEW_INK_SETS)
     maximum = len(browser._OVERVIEW_INK_SETS[browser._OVERVIEW_COLOR_MODES[mode][0]])
     assert browser._overview_color_plan(tuple(range(maximum + 1)), None, mode) is None
+
+
+def test_filtered_database_annotations_and_completed_measurement_progress_keep_the_current_field(
+        qtbot, qt_theme_applied, tmp_path, monkeypatch):
+    import sqlite3
+    import tifffile
+    from spacr.measure import _set_image_annotations, _well_image_annotations
+
+    originals = {}
+    for well, number, offset in [('A01', 1, 100), ('A01', 2, 200), ('B02', 1, 1000)]:
+        path = tmp_path / f'p1_{well}_F{number}_C1.tif'
+        tifffile.imwrite(path, np.arange(64, dtype=np.uint16).reshape(8, 8) + offset)
+        originals[path] = path.read_bytes()
+    indexed = browser._overview_index(str(tmp_path), source_scope='folder')
+    assert {(field.plate, field.well) for field in indexed} == {('p1', 'A01'), ('p1', 'B02')}
+    database = tmp_path / 'measurements' / 'measurements.db'
+    for well, condition in [('A01', 'loaded control'), ('B02', 'excluded well')]:
+        _set_image_annotations(database, indexed, 'condition', condition, source=tmp_path,
+                               wells=[('p1', well)])
+    annotations = _well_image_annotations(database)
+    assert annotations == {('p1', 'A01'): {'condition': 'loaded control'},
+                           ('p1', 'B02'): {'condition': 'excluded well'}}
+    pattern = r'(?P<plateID>p1)_(?P<wellID>A01)_F(?P<fieldID>\d+)_C(?P<chanID>\d+)\.tif'
+    dialog = browser._FieldOverview(settings={
+        'source': str(tmp_path), 'source_scope': 'folder', 'custom_regex': pattern,
+        'channels': (1,), 'geometry': (2, 3), 'representatives': 2})
+    qtbot.addWidget(dialog)
+    entered, release = threading.Event(), threading.Event()
+    deliveries = []
+    export = browser._overview_measurements_export
+
+    def record_export(*args, **kwargs):
+        actual_progress = args[6]
+
+        def progress(completed, total):
+            deliveries.append((actual_progress, completed, total))
+            actual_progress(completed, total)
+            if completed == 1:
+                entered.set()
+                assert release.wait(10)
+
+        forwarded = list(args)
+        forwarded[6] = progress
+        return export(*forwarded, **kwargs)
+
+    monkeypatch.setattr(browser, '_overview_measurements_export', record_export)
+    runners = (dialog._index_jobs, dialog._image_jobs, dialog._export_jobs,
+               dialog._metadata_jobs, dialog._measurement_jobs, dialog._native_jobs,
+               dialog._thumbnail_jobs, dialog._montage_jobs, dialog._field_thumbnail_jobs)
+    try:
+        dialog.resize(1280, 900)
+        dialog.show()
+        dialog._scan()
+        qtbot.waitUntil(lambda: len(dialog._fields) == 2 and not dialog._metadata_jobs.is_busy()
+                        and not dialog._index_jobs.is_busy(), timeout=10000)
+        assert dialog._annotation_snapshot() == {('p1', 'A01'): {'condition': 'loaded control'}}
+        assert all(field.well == 'A01' for field in dialog._fields)
+        dialog.workers.setValue(1)
+        dialog.export_scope.setCurrentIndex(dialog.export_scope.findData('plate'))
+        dialog.use_selection.setChecked(False)
+        button = dialog._module_action_buttons[0]
+        assert button.text() == browser.tr('Export image-level measurements')
+        qtbot.mouseClick(button, browser.Qt.LeftButton)
+        qtbot.waitUntil(lambda: entered.is_set() and dialog.status.text()
+                        == browser.tr('Measured {completed} of {total} images…', completed=1, total=2),
+                        timeout=10000)
+        assert dialog._measurement_jobs.is_busy()
+        release.set()
+        qtbot.waitUntil(lambda: not dialog._measurement_jobs.is_busy()
+                        and dialog.status.text().startswith(browser.tr('Saved {count} image measurements', count=2)),
+                        timeout=20000)
+        with sqlite3.connect(database) as connection:
+            rows = connection.execute('SELECT well, channel_1_intensity_mean FROM fov ORDER BY field').fetchall()
+        assert rows == [('A01', 131.5), ('A01', 231.5)]
+        assert _well_image_annotations(database) == annotations
+        item = dialog.wells.item(*dialog._well_positions[(dialog.plates.currentData(), 'A01')])
+        dialog._well(item)
+        qtbot.waitUntil(lambda: dialog.fields.count() == 2, timeout=10000)
+        dialog.fields.setCurrentRow(1)
+        dialog._field(dialog.fields.item(1))
+        qtbot.waitUntil(lambda: dialog.view._item is not None
+                        and all(not runner.is_busy() for runner in runners), timeout=10000)
+        dialog.export_scope.setCurrentIndex(dialog.export_scope.findData('field'))
+        current = dialog.fields.currentItem().data(browser.Qt.UserRole)
+        assert current.field_id == '2'
+        image = dialog.view._item.pixmap().toImage().copy()
+        status = dialog.status.text()
+        selected = tuple(field.identity for field in dialog._export_selection())
+        progress, completed, total = deliveries[-1]
+        assert (completed, total) == (2, 2)
+
+        progress(completed, total)
+
+        assert dialog.status.text() == status
+        assert dialog.fields.currentItem().data(browser.Qt.UserRole).identity == current.identity
+        assert tuple(field.identity for field in dialog._export_selection()) == selected
+        assert dialog.view._item.pixmap().toImage() == image
+        assert _well_image_annotations(database) == annotations
+        assert all(path.read_bytes() == original for path, original in originals.items())
+    finally:
+        release.set()
+        dialog._cancel()
+        dialog._visual_timer.stop()
+        qtbot.waitUntil(lambda: all(runner.active_jobs() == 0 for runner in runners), timeout=10000)
+        for runner in runners:
+            runner.shutdown(timeout_ms=3000)
+        dialog.close()
