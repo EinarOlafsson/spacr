@@ -5892,7 +5892,12 @@ class _NavigatorDetailsBrowser(QTextBrowser):
     """Keep bounded description history and controls on the shared native surface."""
 
     def __init__(self, field):
+        """Build bounded history and navigation controls owned by the Navigator field.
+
+        :param field: owning field that arranges the shared description surface.
+        """
         from ..i18n import tr
+        from ..preferences import _set_scaled_icon_size
 
         super().__init__(field)
         self._field = field
@@ -5913,7 +5918,7 @@ class _NavigatorDetailsBrowser(QTextBrowser):
             button.setAccessibleName(name)
             button.setToolTip(name)
             button.setIcon(self._arrow_icon(direction))
-            button.setIconSize(QSize(20, 20))
+            _set_scaled_icon_size(button, 20)
             button.setFixedSize(28, 28)
             button.setCursor(Qt.PointingHandCursor)
         self._back.clicked.connect(lambda: self._navigate(-1))
@@ -5922,6 +5927,12 @@ class _NavigatorDetailsBrowser(QTextBrowser):
         self._update_controls()
 
     def _arrow_icon(self, direction, color='white'):
+        """Draw the requested arrow with normal and disabled device-scale variants.
+
+        :param direction: back, forward, up or down arrow.
+        :param color: arrow stroke color.
+        :returns: the native icon containing both button-state variants.
+        """
         from PySide6.QtCore import QPointF
         from PySide6.QtGui import QPen, QPolygonF
 
@@ -5948,10 +5959,12 @@ class _NavigatorDetailsBrowser(QTextBrowser):
         return icon
 
     def _save_scroll(self):
+        """Remember the visible vertical scroll position for the current history entry."""
         if 0 <= self._entry < len(self._entries):
             self._entries[self._entry][2] = self.verticalScrollBar().value()
 
     def _display_entry(self):
+        """Replay the selected HTML or plain entry and restore its scroll position."""
         kind, text, scroll = self._entries[self._entry]
         if kind == 'html':
             super().setHtml(text)
@@ -5960,6 +5973,12 @@ class _NavigatorDetailsBrowser(QTextBrowser):
         self.verticalScrollBar().setValue(scroll)
 
     def _record(self, kind, text, stream=None):
+        """Record bounded content history or update the active streamed entry.
+
+        :param kind: HTML or plain content representation.
+        :param text: content to display; blank text clears only the visible document.
+        :param stream: optional reply identity that updates its existing history entry.
+        """
         if not text.strip():
             super().clear()
             self._update_controls()
@@ -5989,15 +6008,32 @@ class _NavigatorDetailsBrowser(QTextBrowser):
         self._update_controls()
 
     def setHtml(self, text, *, stream=None):
+        """Display HTML through the bounded history, optionally updating one reply.
+
+        :param text: HTML content converted to a string for storage.
+        :param stream: optional active reply identity for replacing its history entry.
+        """
         self._record('html', str(text), stream)
 
     def setPlainText(self, text):
+        """Display plain text through the same bounded back-and-forward history.
+
+        :param text: plain content converted to a string for storage.
+        """
         self._record('plain', str(text))
 
     def _start_reply(self, token):
+        """Associate streaming updates with the currently selected history entry.
+
+        :param token: identity supplied by the new asynchronous reply.
+        """
         self._stream_token, self._stream_entry = token, self._entry
 
     def _navigate(self, direction):
+        """Move within available history while preserving each entry's scroll offset.
+
+        :param direction: signed relative history offset.
+        """
         target = self._entry + direction
         if 0 <= target < len(self._entries):
             self._save_scroll()
@@ -6006,6 +6042,7 @@ class _NavigatorDetailsBrowser(QTextBrowser):
             self._update_controls()
 
     def _update_controls(self):
+        """Synchronize history actions, collapse appearance and viewport scroll policies."""
         self._back.setEnabled(self._entry > 0)
         self._forward.setEnabled(self._entry + 1 < len(self._entries))
         self._back.setVisible(not self._minimized)
@@ -6020,17 +6057,20 @@ class _NavigatorDetailsBrowser(QTextBrowser):
         self._place_controls()
 
     def _place_controls(self):
+        """Place navigation controls on the shared surface and clear stale clipping."""
         for offset, button in enumerate((self._collapse, self._forward, self._back)):
             button.move(max(0, self.width() - 34 - offset * 30), 4)
             button.raise_()
         self.clearMask()
 
     def _toggle_minimized(self):
+        """Toggle the description viewport and ask its owning field to arrange it."""
         self._minimized = not self._minimized
         self._update_controls()
         self._field._arrange()
 
     def _reset_history(self):
+        """Clear reply history, restore the expanded viewport and arrange its field."""
         self._entries.clear()
         self._entry = self._stream_entry = -1
         self._stream_token = None
@@ -6040,6 +6080,10 @@ class _NavigatorDetailsBrowser(QTextBrowser):
         self._field._arrange()
 
     def resizeEvent(self, event):
+        """Forward native resizing before repositioning the history controls.
+
+        :param event: Qt resize event received by this browser.
+        """
         super().resizeEvent(event)
         self._place_controls()
 

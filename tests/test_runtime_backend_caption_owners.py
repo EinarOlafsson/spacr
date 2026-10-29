@@ -22,7 +22,7 @@ def extract_backend_sources(tmp_path, monkeypatch):
         "psf_pipeline.py", "pipeline_v2.py", "convert.py",
         "_lineage_trees.py",
         "utils.py", "channel_sorting.py", "image_import.py", "run_journal.py", "ml.py",
-        "regression_layout.py", "regression_failure.py", "power_model.py",
+        "regression_layout.py", "regression_failure.py", "regression_backends.py", "power_model.py",
     ):
         (source_root / filename).write_text("", encoding="utf-8")
     monkeypatch.setattr(builder, "ROOT", tmp_path)

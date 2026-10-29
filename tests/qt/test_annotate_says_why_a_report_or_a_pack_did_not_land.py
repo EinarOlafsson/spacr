@@ -52,6 +52,7 @@ def _with_error(screen):
     screen._console.append_error("ValueError: a distinctive failure\n")
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_a_console_that_cannot_be_read_has_nothing_to_report(
         screen, sent, monkeypatch):
     def unreadable():
@@ -63,6 +64,7 @@ def test_a_console_that_cannot_be_read_has_nothing_to_report(
     assert sent == []
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_an_empty_console_has_nothing_to_report(screen, sent, monkeypatch):
     monkeypatch.setattr(screen._console, "copy_all", lambda: "   \n")
     screen._on_file_issue()
@@ -70,6 +72,7 @@ def test_an_empty_console_has_nothing_to_report(screen, sent, monkeypatch):
     assert sent == []
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_a_reporter_that_will_not_import_says_so(screen, sent, monkeypatch):
     import sys
 
@@ -80,6 +83,7 @@ def test_a_reporter_that_will_not_import_says_so(screen, sent, monkeypatch):
     assert sent == []
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_closing_the_preview_sends_nothing(screen, sent, monkeypatch):
     from spacr.qt.ai.issue_preview import IssuePreviewDialog
 
@@ -91,6 +95,7 @@ def test_closing_the_preview_sends_nothing(screen, sent, monkeypatch):
     assert sent == []
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_a_report_that_cannot_be_built_says_why(screen, sent, monkeypatch):
     def unbuildable(*_a, **_k):
         raise ValueError("no fingerprint")
@@ -103,6 +108,7 @@ def test_a_report_that_cannot_be_built_says_why(screen, sent, monkeypatch):
     assert sent == []
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_a_refused_submission_is_reported_with_its_reason(screen,
                                                          monkeypatch):
     from spacr.qt.ai.issue_preview import IssuePreviewDialog
@@ -120,6 +126,7 @@ def test_a_refused_submission_is_reported_with_its_reason(screen,
     assert "The report was sent" not in text
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_a_reporter_that_will_not_start_says_so(screen, sent, monkeypatch):
     from spacr.qt.ai.issue_preview import IssuePreviewDialog
 

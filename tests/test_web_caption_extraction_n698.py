@@ -105,7 +105,7 @@ def test_web_sources_join_production_inventory_before_compact_filtering(web_sour
         "object_classifier.py", "core.py", "pipeline_v2.py",
         "psf_pipeline.py", "image_import.py",
         "_lineage_trees.py", "run_journal.py", "ml.py",
-        "regression_layout.py", "regression_failure.py", "power_model.py",
+        "regression_layout.py", "regression_failure.py", "regression_backends.py", "power_model.py",
     ):
         (source_root / filename).write_text("", encoding="utf-8")
     monkeypatch.setattr(builder, "_indirect_runtime_ui_sources", set)

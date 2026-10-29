@@ -63,14 +63,22 @@ def screen(qtbot, qt_theme_applied, folder):
     widget = MakeMasksScreen()
     qtbot.addWidget(widget)
     assert widget._open_folder(str(folder))
+    _ready(qtbot, widget)
     return widget
 
 
-def _walk(screen) -> list:
+def _ready(qtbot, screen):
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
+
+
+def _walk(screen, qtbot) -> list:
+    _ready(qtbot, screen)
     visited = [screen._current_index]
     for _ in range(20):
         before = screen._current_index
         screen._on_next()
+        _ready(qtbot, screen)
         if screen._current_index == before:
             break
         visited.append(screen._current_index)
@@ -86,57 +94,68 @@ def test_the_switch_sits_beside_first_unreviewed(screen):
     assert "csv/keep_discard.csv" in screen._btn_hide_judged.toolTip()
 
 
-def test_off_next_visits_all_ten(screen):
-    assert _walk(screen) == list(range(10))
+def test_off_next_visits_all_ten(screen, qtbot):
+    assert _walk(screen, qtbot) == list(range(10))
     assert screen._tally_total.text() == "/10"
 
 
-def test_on_next_visits_exactly_the_unjudged_five(screen):
+def test_on_next_visits_exactly_the_unjudged_five(screen, qtbot):
     screen._btn_hide_judged.setChecked(True)
+    _ready(qtbot, screen)
     assert screen._tally_total.text() == "/5"
     assert screen._current_index == 1
     assert screen._tally_index.text() == "1"
-    assert _walk(screen) == UNJUDGED
+    assert _walk(screen, qtbot) == UNJUDGED
     assert screen._tally_index.text() == "5"
     screen._on_prev()
+    _ready(qtbot, screen)
     assert screen._current_index == 7
     assert screen._tally_index.text() == "4"
     screen._tally_index.setText("2")
     screen._on_tally_entered()
+    _ready(qtbot, screen)
     assert screen._current_index == 4
 
 
-def test_switching_off_restores_every_field_and_counter(screen):
+def test_switching_off_restores_every_field_and_counter(screen, qtbot):
     screen._btn_hide_judged.setChecked(True)
+    _ready(qtbot, screen)
     assert screen._current_index == 1
     screen._btn_hide_judged.setChecked(False)
+    _ready(qtbot, screen)
     assert screen._tally_total.text() == "/10"
     assert screen._tally_index.text() == "2"
     screen._on_prev()
+    _ready(qtbot, screen)
     assert screen._current_index == 0
 
 
-def test_hiding_cannot_leave_a_field_after_a_failed_save(screen, monkeypatch):
+def test_hiding_cannot_leave_a_field_after_a_failed_save(screen, monkeypatch, qtbot):
     monkeypatch.setattr(screen, "_save_mask_if_needed", lambda: False)
     screen._btn_hide_judged.setChecked(True)
+    _ready(qtbot, screen)
     assert not screen._btn_hide_judged.isChecked()
     assert not screen._hide_judged
     assert screen._current_index == 0
     assert screen._tally_total.text() == "/10"
 
 
-def test_hiding_and_navigation_leave_verdict_bytes_unchanged(screen, folder):
+def test_hiding_and_navigation_leave_verdict_bytes_unchanged(screen, folder, qtbot):
     verdicts = folder / "csv" / "keep_discard.csv"
     before = verdicts.read_bytes()
     screen._btn_hide_judged.setChecked(True)
-    assert _walk(screen) == UNJUDGED
+    _ready(qtbot, screen)
+    assert _walk(screen, qtbot) == UNJUDGED
     screen._on_prev()
+    _ready(qtbot, screen)
     screen._btn_hide_judged.setChecked(False)
+    _ready(qtbot, screen)
     assert verdicts.read_bytes() == before
 
 
-def test_uncertainty_reorder_keeps_a_judged_first_field_hidden(screen):
+def test_uncertainty_reorder_keeps_a_judged_first_field_hidden(screen, qtbot):
     screen._btn_hide_judged.setChecked(True)
+    _ready(qtbot, screen)
     pairs = screen._field_pairs()
     scores = {pair: {"field": 1.0 - index / 10,
                      "n_objects": 0, "n_passes": 1}
@@ -147,45 +166,59 @@ def test_uncertainty_reorder_keeps_a_judged_first_field_hidden(screen):
     assert screen._tally_total.text() == "/5"
 
 
-def test_a_verdict_with_the_switch_on_moves_to_the_next_unjudged(screen):
+def test_a_verdict_with_the_switch_on_moves_to_the_next_unjudged(screen, qtbot):
     screen._btn_hide_judged.setChecked(True)
+    _ready(qtbot, screen)
     screen._go_to_index(1)
+    _ready(qtbot, screen)
     screen._on_curate(True)
+    _ready(qtbot, screen)
     assert screen._current_index == 4
     assert screen._tally_total.text() == "/4"
 
 
-def test_every_field_judged_says_so_and_does_not_loop(screen):
+def test_every_field_judged_says_so_and_does_not_loop(screen, qtbot):
     screen._btn_hide_judged.setChecked(True)
+    _ready(qtbot, screen)
     for index in UNJUDGED[:-1]:
         _judge(Path(screen._folder), index, True)
     screen._go_to_index(9)
+    _ready(qtbot, screen)
     screen._on_curate(False)
+    _ready(qtbot, screen)
     assert screen._current_index == 9
     assert "no unjudged" in screen._status_label.text()
     assert screen._tally_total.text() == "/0"
     screen._on_next()
+    _ready(qtbot, screen)
     screen._on_prev()
+    _ready(qtbot, screen)
     assert screen._current_index == 9
 
 
-def test_last_field_does_not_claim_earlier_unjudged_fields_are_done(screen):
+def test_last_field_does_not_claim_earlier_unjudged_fields_are_done(screen, qtbot):
     screen._btn_hide_judged.setChecked(True)
+    _ready(qtbot, screen)
     screen._go_to_index(9)
+    _ready(qtbot, screen)
     screen._on_curate(False)
+    _ready(qtbot, screen)
     assert screen._current_index == 9
     assert screen._tally_total.text() == "/4"
     assert "no unjudged" not in screen._status_label.text().lower()
     assert "every field" not in screen._status_label.text().lower()
     screen._on_prev()
+    _ready(qtbot, screen)
     assert screen._current_index == 7
 
 
 def test_the_choice_is_remembered_per_folder(screen, qtbot, folder, tmp_path):
     screen._btn_hide_judged.setChecked(True)
+    _ready(qtbot, screen)
     again = MakeMasksScreen()
     qtbot.addWidget(again)
     assert again._open_folder(str(folder))
+    _ready(qtbot, again)
     assert again._btn_hide_judged.isChecked()
     assert again._tally_total.text() == "/5"
     assert again._current_index == 1
@@ -194,6 +227,7 @@ def test_the_choice_is_remembered_per_folder(screen, qtbot, folder, tmp_path):
     other.mkdir()
     imageio.imwrite(other / "a.tif", np.zeros((8, 8), dtype=np.uint16))
     assert again._open_folder(str(other))
+    _ready(qtbot, again)
     assert not again._btn_hide_judged.isChecked()
 
 
@@ -277,23 +311,29 @@ def test_mixed_folder_choice_uses_first_folder_after_navigating_into_second(
     qtbot.addWidget(widget)
     paths = [str(first), str(second)]
     assert widget._open_queue(paths)
+    _ready(qtbot, widget)
     widget._on_next()
+    _ready(qtbot, widget)
     assert widget._folder == str(second)
     widget._btn_hide_judged.setChecked(True)
+    _ready(qtbot, widget)
     assert widget._current_index == 1
     again = MakeMasksScreen()
     qtbot.addWidget(again)
     assert again._open_queue(paths)
+    _ready(qtbot, again)
     assert again._btn_hide_judged.isChecked()
     assert again._current_index == 1
     assert again._tally_total.text() == "/1"
     assert again._open_folder(str(second))
+    _ready(qtbot, again)
     assert not again._btn_hide_judged.isChecked()
 
 
 def test_verdict_cache_reuses_unchanged_rows_and_notices_external_rewrite(
-        screen, folder, monkeypatch):
+        screen, folder, monkeypatch, qtbot):
     screen._btn_hide_judged.setChecked(True)
+    _ready(qtbot, screen)
     read_curation = engine.read_curation
     reads = []
 

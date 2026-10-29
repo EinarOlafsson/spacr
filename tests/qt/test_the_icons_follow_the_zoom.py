@@ -632,3 +632,30 @@ def test_nothing_spacr_draws_an_icon_on_is_left_behind(qtbot, qt_theme_applied):
     assert not left_behind, (
         "these widgets draw an icon that the interface scale cannot "
         "reach:\n  " + "\n  ".join(sorted(left_behind)))
+
+
+def test_navigator_history_icons_follow_the_settled_zoom_and_return_exactly(
+        qtbot, zoom, settle_without_restyling):
+    from spacr.qt.widgets.home import _EasyHomeField
+
+    field = _EasyHomeField()
+    qtbot.addWidget(field)
+    field.show()
+    buttons = (field.details._back, field.details._forward, field.details._collapse)
+    assert all(not button.icon().isNull() for button in buttons)
+    assert all(button.property(prefs._KEY_ICON_BASE_W) == 20 for button in buttons)
+    before = {button: button.iconSize() for button in buttons}
+
+    _hold(zoom, field)
+    _turn(zoom, field, +4)
+    zoom.settle()
+    QApplication.processEvents()
+    assert settle_without_restyling
+    assert all(button.iconSize().width() > before[button].width() for button in buttons)
+
+    _hold(zoom, field)
+    _turn(zoom, field, -4)
+    zoom.settle()
+    QApplication.processEvents()
+    assert prefs.get_font_scale() == pytest.approx(1.0)
+    assert all(button.iconSize() == before[button] for button in buttons)

@@ -508,6 +508,30 @@ def _published_panel_retirements(language, filename):
     return sources
 
 
+
+def _returned_provider_sign_in_source(language, retired, reviewed):
+    """Bind the new provider action without reactivating retired panel records."""
+    import ast
+
+    source = "Sign in"
+    assert source in retired
+    path = ROOT / "docs/i18n/reviewed/runtime" / language / "2026-10-28-provider-install-sign-in.json"
+    rows = [row for row in json.loads(path.read_text(encoding="utf-8"))["records"]
+            if row["source"] == source]
+    assert len(rows) == 1
+    assert rows[0]["table"] == "ui" and rows[0]["key"] == source
+    assert rows[0]["source_sha256"] == hashlib.sha256(source.encode()).hexdigest()
+    assert reviewed[source] == rows[0]["translation"]
+    tree = ast.parse((ROOT / "spacr/qt/widgets/ai_chat_panel.py").read_text(encoding="utf-8"))
+    owner = next(node for node in ast.walk(tree)
+                 if isinstance(node, ast.FunctionDef) and node.name == "_make_provider_row")
+    argument = ast.dump(ast.parse("tr('Sign in')", mode="eval").body)
+    assert any(isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+               and node.func.id == "QPushButton" and len(node.args) == 1
+               and ast.dump(node.args[0]) == argument for node in ast.walk(owner))
+    return {source}
+
+
 def _automatic_report_retirements(language, filename, original):
     """Bind the replaced report captions to their exact preserved records."""
     import ast
@@ -1058,7 +1082,8 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     reviewed = reviewed_runtime_translations("sv")
     published_retired = _published_panel_retirements("sv", "2026-09-21-runtime-ui-refresh.json")
     assert len(published_retired) == 15
-    assert not published_retired & reviewed.keys()
+    returned = _returned_provider_sign_in_source("sv", published_retired, reviewed)
+    assert published_retired & reviewed.keys() == returned
     base_retired = _theme_cohort_retirements("sv", "2026-09-15-integration-review.json")
     refresh_retired = _theme_cohort_retirements("sv", "2026-09-21-runtime-ui-refresh.json")
     cohort_retired = base_retired | refresh_retired
@@ -1306,7 +1331,7 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # and exact set difference are checked by _new_download_sources above.
     assert len(all_reviewed.keys() - subsequent_sources - debt_sources - inherited_sources) + len(cohort_retired) + len(published_retired) + len(compact_retired) == 609  # 618 -> 617 on 2026-10-17 (N703: a retired per-adapter update prompt was archived).  # 600b (2026-09-29): -1, the Features tooltip retired.  # 625 -> 619 on 2026-10-11 (N678 retirements)  # 707 (2026-10-16): 619 -> 618, Make Masks layout captions retired and added.  # 617 -> 609 on 2026-10-17 (item 678 Home app-text retirements)
     assert len((all_reviewed.keys() | _superseded_enhancement_sources("sv", all_reviewed)) - debt_sources - inherited_sources) + len(cohort_retired) + len(published_retired) + len(_requested_detection_retirements('sv', '2026-09-22-detection-panel.json')) + len(_later_cohort_retirements('sv', all_reviewed)) + len(compact_retired) == 1661  # 2026-10-24: -1, the old Timelapse workflow-map guidance retired when Timelapse moved under Mask's Time control.  # 1671 -> 1670 on 2026-10-17 (N703: a retired per-adapter update prompt was archived).  # 2026-10-10: -1, the plaque_model tooltip retired when toxoplasma_plaque_v3 became the default.  # 2026-10-04: -2, the withdrawn Plasmodium/Candida guide notes.  # 2026-10-02 (item 43): -2, 603423d0a retired the two later-cohort workflow phrases (778 -> 776 above).  # 2026-10-01: -2, the two FEATURES workflow-map phrases retired.  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.  # 1678 -> 1672 on 2026-10-11 (N678 retirements)  # 707 (2026-10-16): 1672 -> 1671, Make Masks layout captions retired and added.  # 1670 -> 1662 on 2026-10-17 (item 678 Home app-text retirements)
-    assert not published_retired & current_values
+    assert published_retired & current_values == returned
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -1332,7 +1357,8 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
         "second": 2, "third": 8, "fourth": 5}
     published_retired = set().union(*published_slices.values())
     assert len(published_retired) == 15
-    assert not published_retired & all_reviewed.keys()
+    returned = _returned_provider_sign_in_source("fr", published_retired, all_reviewed)
+    assert published_retired & all_reviewed.keys() == returned
     base_retired = _theme_cohort_retirements("fr", "2026-09-15-integration-review.json")
     refresh_retired = _theme_cohort_retirements("fr", "2026-09-21-runtime-third-slice.json")
     refresh_retired |= _theme_cohort_retirements("fr", "2026-09-21-runtime-fourth-slice.json")
@@ -1594,7 +1620,7 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # 316 (71071b6c6) retired 17 setup and sign-in captions from the four slices to _ROWS.
     assert len(all_reviewed.keys() - subsequent_sources - debt_sources - inherited_sources) + len(cohort_retired) + len(published_retired) + len(compact_retired) == 603  # 612 -> 611 on 2026-10-17 (N703: a retired per-adapter update prompt was archived).  # 600b (2026-09-29): -1, the Features tooltip retired.  # 619 -> 613 on 2026-10-11 (N678 retirements)  # 611 -> 603 on 2026-10-17 (item 678 Home app-text retirements)
     assert len((all_reviewed.keys() | _superseded_enhancement_sources("fr", all_reviewed)) - debt_sources - inherited_sources) + len(cohort_retired) + len(published_retired) + len(_requested_detection_retirements('fr', '2026-09-22-detection-panel.json')) + len(_later_cohort_retirements('fr', all_reviewed)) + len(compact_retired) == 1654  # 2026-10-24: -1, the old Timelapse workflow-map guidance retired when Timelapse moved under Mask's Time control.  # 1664 -> 1663 on 2026-10-17 (N703: a retired per-adapter update prompt was archived).  # 2026-10-10: -1, the plaque_model tooltip retired when toxoplasma_plaque_v3 became the default.  # 2026-10-04: -2, the withdrawn Plasmodium/Candida guide notes.  # 2026-10-02 (item 43): -2, 603423d0a retired the two later-cohort workflow phrases (778 -> 776 above).  # 2026-10-01: -2, the two FEATURES workflow-map phrases retired.  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.  # 1671 -> 1665 on 2026-10-11 (N678 retirements)  # 707 (2026-10-16): 1665 -> 1664, Make Masks layout captions retired and added.  # 1663 -> 1655 on 2026-10-17 (item 678 Home app-text retirements)
-    assert not published_retired & current_values
+    assert published_retired & current_values == returned
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

@@ -462,6 +462,7 @@ class TestTheReplyKeepsItsHeading:
         assert dots.parentWidget() is surviving[0]
         assert dots._timer.isActive()
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_a_reply_that_never_comes_leaves_no_empty_heading(self, console):
         """A provider that fails before printing anything wrote nothing under
         the heading, and the heading stayed on the page saying nothing."""
@@ -596,6 +597,7 @@ def _run_until_everything_has_answered(qtbot, screen):
     return screen._console.as_text()
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 class TestIssue117EndToEnd:
 
     def test_the_ai_failure_is_reported_with_the_way_to_sign_in(
@@ -608,7 +610,10 @@ class TestIssue117EndToEnd:
             "the class name is in front of a sentence written to be read")
         assert re.match(r"\S+ stopped with exit status 1",
                         text.split("[AI error] ", 1)[1])
-        assert "`claude auth login`" in text
+        diagnostics = [outcome.get("explanation", {}).get("diagnostic", "")
+                       for outcome in mask_screen.outcomes]
+        assert any("`claude auth login`" in diagnostic for diagnostic in diagnostics)
+        assert "claude auth login" in text
         assert _heading_over(mask_screen._console, AUTH_LINE) == "spaCR AI"
         headings = [heading for kind, heading in _entries(mask_screen._console)
                     if kind == "heading"]
@@ -703,6 +708,7 @@ class TestTheLineIsSaidOnlyWhenItIsTrue:
         self._fail(screen, monkeypatch, reporting=True, mode="never")
         assert not self._said(screen)
 
+    @pytest.mark.usefixtures("console_info_enabled")
     def test_once_per_failure(self, screen, monkeypatch):
         self._fail(screen, monkeypatch, reporting=True, mode="ask")
         screen._on_finished(False)

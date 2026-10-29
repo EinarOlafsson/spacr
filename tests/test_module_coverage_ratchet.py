@@ -838,7 +838,7 @@ def test_sigterm_during_the_exit_save_leaves_a_final_named_unreadable_file(
     )
 
 
-def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
+def test_coverage_workflow_is_sharded_artifact_safe_and_informational():
     workflow_path = ROOT / ".github" / "workflows" / "tests.yml"
     workflow = yaml.safe_load(workflow_path.read_text(encoding="utf-8"))
     jobs = workflow["jobs"]
@@ -894,7 +894,9 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script
-    assert "coverage-combine" in jobs["release-gate"]["needs"]
+    assert shards["continue-on-error"] is True
+    assert combine["continue-on-error"] is True
+    assert "coverage-combine" not in jobs["release-gate"]["needs"]
 
 
 def test_coverage_config_has_branch_and_subprocess_data_without_exclusions():

@@ -52,6 +52,8 @@ def _open_make_masks(qtbot, folder, size):
     window._on_nav_selected("make_masks")
     screen = window._stack.currentWidget()
     assert screen._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     qtbot.waitUntil(lambda: screen._image_container.isVisible())
     qtbot.waitUntil(lambda: (window.width(), window.height()) == size)
     qtbot.waitUntil(lambda: not _loading(window), timeout=30_000)

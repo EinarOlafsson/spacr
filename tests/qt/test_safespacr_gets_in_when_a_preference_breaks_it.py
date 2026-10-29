@@ -359,7 +359,7 @@ WIDGETS = re.compile(r"Ambient|Fractal|OpenGL|GLWidget|Canvas|Tour|Consent")
 def _snapshot(app):
     recording["on"] = False
     report["startup"] = {
-        "modules": sorted(m for m in sys.modules if MODULES.search(m)),
+        "modules": sorted(m for m in sys.modules.copy() if MODULES.search(m)),
         "widgets": sorted({type(w).__name__ for w in app.allWidgets()
                            if WIDGETS.search(type(w).__name__)}),
         "threads": list(report["threads"]),

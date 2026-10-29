@@ -188,6 +188,7 @@ def _console_text(screen) -> str:
     return screen._console._current_stdout.toPlainText()
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_the_run_names_the_design_and_its_cost_before_it_blocks(
         qtbot, qt_theme_applied, tmp_path):
     """Driven on the real screen, through the real JobRunner and console.
@@ -218,6 +219,7 @@ def test_the_run_names_the_design_and_its_cost_before_it_blocks(
     assert "BEFORE the merge with the scores" in text
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_a_fast_model_is_not_warned_about(qtbot, qt_theme_applied, tmp_path):
     path = _count_csv(tmp_path / "counts.csv", genes=2, guides=2, wells=2)
     screen = AppScreen("regression")
@@ -251,6 +253,7 @@ def test_a_module_that_is_not_the_regression_says_nothing(
     assert screen._heartbeat is None
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_a_design_that_cannot_be_read_says_so_rather_than_nothing(
         qtbot, qt_theme_applied, tmp_path):
     screen = AppScreen("regression")
@@ -304,6 +307,7 @@ def test_the_heartbeat_keeps_going_past_the_last_scheduled_mark(
     assert screen._due_heartbeat(last + 2 * screen.HEARTBEAT_INTERVAL) is True
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_the_heartbeat_says_where_it_has_got_to_and_why_one_core(
         qtbot, qt_theme_applied):
     import time

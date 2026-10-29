@@ -58,11 +58,13 @@ def test_toggle_is_in_save_masks_menu_and_default_off_without_changing_manual_na
     assert not os.path.exists(_saved_mask(folder, 0))
 
 
-def test_enabled_next_saves_only_an_edited_mask(opened):
+def test_enabled_next_saves_only_an_edited_mask(opened, qtbot):
     screen, folder, _settings_path = opened
     screen._btn_save_on_navigation.trigger()
 
     screen._btn_next.click()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._current_index == 1
     assert not os.path.exists(_saved_mask(folder, 0))
 
@@ -100,10 +102,12 @@ def test_curating_saves_the_edited_mask_before_its_verdict(
 
 @pytest.mark.parametrize("action", ["next", "previous", "keep", "discard"])
 def test_failed_mask_save_keeps_the_field_and_verdict_unchanged(
-        opened, monkeypatch, action):
+        opened, monkeypatch, action, qtbot):
     screen, folder, _settings_path = opened
     if action == "previous":
         screen._on_next()
+        qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                        and screen._load_worker is None)
     index = screen._current_index
     image = screen._canvas.image.copy()
     _edit_mask(screen)

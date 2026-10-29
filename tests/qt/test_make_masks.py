@@ -218,6 +218,8 @@ def test_make_masks_open_folder_loads_first_image(qtbot, qt_theme_applied,
     screen = MakeMasksScreen()
     qtbot.addWidget(screen)
     screen._open_folder(str(synth_mask_folder))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._current_index == 0
     assert len(screen._image_files) == 3
     assert screen._canvas.image is not None
@@ -267,15 +269,23 @@ def test_make_masks_navigation(qtbot, qt_theme_applied, synth_mask_folder: Path)
     screen = MakeMasksScreen()
     qtbot.addWidget(screen)
     screen._open_folder(str(synth_mask_folder))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._current_index == 0
     screen._on_next()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._current_index == 1
     screen._on_next()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._current_index == 2
     # Next at last is a no-op
     screen._on_next()
     assert screen._current_index == 2
     screen._on_prev()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._current_index == 1
 
 
@@ -285,6 +295,8 @@ def test_make_masks_save_creates_file(qtbot, qt_theme_applied,
     screen = MakeMasksScreen()
     qtbot.addWidget(screen)
     screen._open_folder(str(synth_mask_folder))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     # Force something into the mask, then save
     screen._canvas.mask[10:20, 10:20] = 255
     screen._on_save()
@@ -297,6 +309,8 @@ def test_make_masks_object_ops(qtbot, qt_theme_applied, synth_mask_folder: Path)
     screen = MakeMasksScreen()
     qtbot.addWidget(screen)
     screen._open_folder(str(synth_mask_folder))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     # Paint a rough blob
     screen._canvas.mask[10:20, 10:20] = 255
     screen._canvas.mask[5:7, 5:7] = 255

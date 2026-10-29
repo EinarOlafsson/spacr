@@ -325,6 +325,8 @@ def _torch_routing_step():
 
     workflow = yaml.safe_load(REUSABLE.read_text(encoding="utf-8"))
     job = workflow["jobs"]["pytest"]
+    collection_input = workflow.get("on", workflow.get(True))["workflow_call"]["inputs"]["collect_selected_files"]
+    assert collection_input["type"] == "boolean" and collection_input["default"] is False
     assert not job.get("continue-on-error", False)
     step = next(
         step for step in job["steps"]
@@ -358,6 +360,7 @@ def _torch_routing_script(step, batched, serial_tail):
         "batch_size": "32" if batched else "0",
         "marker_expression": "qt and not slow and not heavy and not gpu",
         "run_serial_tail": "true" if serial_tail else "false",
+        "collect_selected_files": "false",
     }
     script = step["run"]
     for name, value in inputs.items():

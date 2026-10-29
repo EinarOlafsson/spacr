@@ -1015,7 +1015,8 @@ def test_the_coverage_job_gates_on_the_committed_baseline_and_says_so():
     assert f"--baseline {relative}" in script
     exemptions = EXEMPTIONS.relative_to(ROOT).as_posix()
     assert f"--floor-exemptions {exemptions}" in script
-    assert "coverage-combine" in jobs["release-gate"]["needs"]
+    assert combine["continue-on-error"] is True
+    assert "coverage-combine" not in jobs["release-gate"]["needs"]
 
 
 def test_the_shard_count_has_one_value_in_four_places():

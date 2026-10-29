@@ -30,7 +30,7 @@ def slides(qtbot):
 
 
 def _rows(slides, index):
-    slides._pages.setCurrentIndex(index)
+    slides._show_slide(index)
     page = slides._pages.widget(index)
     form = page.layout()
     if not isinstance(form, QFormLayout):

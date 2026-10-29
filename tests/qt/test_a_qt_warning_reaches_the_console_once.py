@@ -128,7 +128,7 @@ def test_verbose_only_detail_below_the_root_sink_still_arrives(sinks):
         f"below the root sink's level only verbose should render: {out}")
 
 
-def test_a_warning_is_not_classified_as_an_error(qapp):
+def test_a_warning_is_not_classified_as_an_error(qapp, console_info_enabled):
     """320 (2): a QtWarningMsg must not land in the ERROR pane.
 
     The Qt message handler maps QtWarningMsg to logging.WARNING correctly, so
@@ -142,9 +142,20 @@ def test_a_warning_is_not_classified_as_an_error(qapp):
 
     panel = ConsolePanel()
     routed = []
-    panel._display_error = lambda text: routed.append(("error", text))
+    error_levels = []
+    stdout_filtered = []
+
+    def record_error(text, *, _level=None):
+        error_levels.append(_level)
+        routed.append(("error", text))
+
+    def record_stdout(text, *, _filtered=False):
+        stdout_filtered.append(_filtered)
+        routed.append(("stdout", text))
+
+    panel._display_error = record_error
     panel.append_warning = lambda text: routed.append(("warning", text))
-    panel._display_stdout = lambda text: routed.append(("stdout", text))
+    panel._display_stdout = record_stdout
 
     panel._on_log_record("chatter", logging.INFO)
     panel._on_log_record("Qt warning: something routine", logging.WARNING)
@@ -154,3 +165,5 @@ def test_a_warning_is_not_classified_as_an_error(qapp):
     assert [kind for kind, _ in routed] == [
         "stdout", "warning", "error", "error"], (
         f"each level must reach its own band, not two: {routed}")
+    assert error_levels == [logging.ERROR, logging.CRITICAL]
+    assert stdout_filtered == [True]

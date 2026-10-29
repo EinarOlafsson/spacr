@@ -9,6 +9,7 @@ one field's correction onto another field's mask.
 from __future__ import annotations
 
 from pathlib import Path
+import threading
 
 import imageio.v2 as imageio
 import numpy as np
@@ -400,7 +401,7 @@ def test_a_big_field_is_loaded_off_the_gui_thread(tmp_path):
 
 
 def test_a_second_field_asked_for_while_one_is_loading_waits_its_turn(
-        screen, monkeypatch):
+        screen, monkeypatch, qtbot):
     """A request arriving mid-load is remembered, and the user is told.
 
     Clicking through a folder faster than it decodes must not start a worker
@@ -410,22 +411,46 @@ def test_a_second_field_asked_for_while_one_is_loading_waits_its_turn(
     monkeypatch.setattr(MakeMasksScreen, "_should_background_load",
                         staticmethod(lambda path: True))
     started = []
-    monkeypatch.setattr(type(screen), "_start_background_load",
-                        lambda self, *request: started.append(request))
+    real_start = MakeMasksScreen._start_background_load
+    real_decode = engine.load_image_and_mask
+    entered, release = threading.Event(), threading.Event()
 
-    screen._current_index = 0
-    screen._load_current()
-    assert len(started) == 1
+    def start(self, *request):
+        started.append(request)
+        return real_start(self, *request)
 
-    screen._load_worker = object()          # one already in flight
-    screen._current_index = 1
-    screen._load_current()
+    def decode(folder, filename, **kwargs):
+        if filename == "img_00.tif":
+            entered.set()
+            assert release.wait(5), "the test did not release its image decoder"
+        return real_decode(folder, filename, **kwargs)
 
-    assert len(started) == 1                # no second worker
-    assert screen._pending_load is not None
-    assert "Waiting to load" in screen._status_label.text()
-    screen._load_worker = None
-    screen._pending_load = None
+    monkeypatch.setattr(MakeMasksScreen, "_start_background_load", start)
+    monkeypatch.setattr(engine, "load_image_and_mask", decode)
+    try:
+        screen._current_index = 0
+        screen._load_current()
+        qtbot.waitUntil(entered.is_set)
+        assert len(started) == 1
+        first = screen._load_worker
+        assert isinstance(first, _MaskLoadWorker) and first.isRunning()
+
+        screen._current_index = 1
+        screen._load_current()
+        qtbot.waitUntil(lambda: screen._pending_load is not None)
+        assert len(started) == 1
+        assert screen._load_worker is first and first.isRunning()
+        assert screen._pending_load[1] == "img_01.tif"
+        assert "Waiting to load" in screen._status_label.text()
+    finally:
+        release.set()
+        qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                        and screen._load_worker is None)
+
+    assert screen._pending_load is None
+    assert [request[1] for request in started] == ["img_00.tif", "img_01.tif"]
+    np.testing.assert_array_equal(
+        screen._canvas.image, imageio.imread(Path(screen._folder) / "img_01.tif"))
 
 
 def test_a_finished_load_with_no_worker_left_is_ignored(screen):

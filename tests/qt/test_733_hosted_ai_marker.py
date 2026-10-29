@@ -33,19 +33,22 @@ def hosted(qtbot, private_ai_profile):
 def _frame(button, now):
     button._clock.now = now
     button._tick()
-    return button.grab().toImage().convertToFormat(QImage.Format_RGBA8888)
+    frame = button.grab().toImage().convertToFormat(QImage.Format_RGBA8888)
+    assert frame.devicePixelRatio() == 1
+    return frame
 
 
 def _marker(frame, radius=8.1):
-    center = 17
+    center_x = (frame.width() - 1) // 2
+    center_y = (frame.height() - 1) // 2
     samples = []
-    for y in range(7, 28):
-        for x in range(7, 28):
-            if math.hypot(x + .5 - center, y + .5 - center) >= radius - .6:
+    for y in range(center_y - 10, center_y + 11):
+        for x in range(center_x - 10, center_x + 11):
+            if math.hypot(x + .5 - center_x, y + .5 - center_y) >= radius - .6:
                 continue
             weight = 255 - frame.pixelColor(x, y).red()
             if weight > 2:
-                samples.append((x + .5 - center, y + .5 - center, weight))
+                samples.append((x + .5 - center_x, y + .5 - center_y, weight))
     total = sum(sample[2] for sample in samples)
     if not total:
         return None
@@ -66,7 +69,10 @@ def test_actual_hosted_marker_enters_orbits_returns_and_blends_to_white(hosted):
     orbit_frame = _frame(button, 700)
     orbit = _marker(orbit_frame)
     assert orbit and abs(orbit[0]) < .5 and 3.5 < orbit[1] < 4.6
-    assert initial.pixelColor(17, 3) == orbit_frame.pixelColor(17, 3)
+    center = initial.rect().center()
+    assert initial.pixelColor(center.x(), center.y() - 14) == orbit_frame.pixelColor(
+        center.x(), center.y() - 14
+    )
     assert button._motion.isActive()
     button._busy = False
     _frame(button, 700)
@@ -74,7 +80,7 @@ def test_actual_hosted_marker_enters_orbits_returns_and_blends_to_white(hosted):
     assert returning and 1.2 < math.hypot(*returning[:2]) < 2.8
     assert returning[2] < orbit[2]
     done = _frame(button, 1000)
-    assert done.pixelColor(24, 17).red() > 240
+    assert done.pixelColor(center.x() + 7, center.y()).red() > 240
     assert _marker(done) is None
     assert button._marker_phase is None and not button._motion.isActive()
 

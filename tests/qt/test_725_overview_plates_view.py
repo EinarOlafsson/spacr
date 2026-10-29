@@ -361,9 +361,10 @@ def test_container_wheel_zoom_tracks_one_actual_well_and_keeps_all_plate_identit
     assert set(view._plate_tables) == set(PLATES)
 
 
-def _settle_plate_auxiliary_jobs(view, qtbot):
+def _settle_plate_auxiliary_jobs(view, qtbot, ready=None):
     runners = (*_runners(view), view._readout_jobs, view._levels_jobs)
-    qtbot.waitUntil(lambda: all(runner.active_jobs() == 0 for runner in runners), timeout=15000)
+    qtbot.waitUntil(lambda: all(runner.active_jobs() == 0 for runner in runners)
+                    and (ready is None or ready()), timeout=15000)
 
 
 def _stacked_plate_image(view, qtbot, plate='plateC'):
@@ -389,8 +390,10 @@ def test_incomplete_well_decoration_never_invents_a_pixel_readout(view, qtbot, d
 
     view._set_plates_view('side')
     assert view._open_wells([('plateB', 'A01')]) == (('plateB', 'A01'),)
-    _settle_plate_auxiliary_jobs(view, qtbot)
     fields = view._well_panels[0].field_list
+    _settle_plate_auxiliary_jobs(view, qtbot, lambda: fields.count() > 0
+                                 and not fields.item(0).icon().isNull()
+                                 and bool(fields.item(0).data(Qt.UserRole + 3)))
     fields.doItemsLayout()
     item = fields.item(0)
     assert item is not None and not item.icon().isNull()

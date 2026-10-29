@@ -94,6 +94,7 @@ def test_log_records_emit_qt_signal(qtbot, qt_theme_applied):
     assert level == logging.INFO
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_console_panel_receives_log_records(qtbot, qt_theme_applied):
     """A ConsolePanel wired to the QtLogHandler must render records
     into its stdout stream (INFO) or its error stream (WARNING+)."""

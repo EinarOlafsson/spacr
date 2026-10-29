@@ -28,6 +28,7 @@ def _console_text(console) -> str:
 # T1/T2 — stubbed pipeline through the real worker path (fast, no GPU)
 # ---------------------------------------------------------------------------
 
+@pytest.mark.usefixtures("console_info_enabled")
 class TestRunFinishesAndPrints:
     """Completion is observed via the Run button re-enabling (which the
     real _on_finished does), NOT by monkeypatching _on_finished — doing

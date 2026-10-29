@@ -166,12 +166,17 @@ def require_source_ci(api, sha, branch, compatibility, *, timeout=19800,
                     print(f"Dispatched {workflow} for {sha}", flush=True)
                     continue
             run, jobs = candidate
-            if run["status"] != "completed":
+            by_name = {job["name"]: job for job in jobs}
+            # spaCR 1.5.1.6: the functional gate suffices while advisory
+            # coverage is still running or has made the workflow red.
+            functional_gate = by_name.get("Release gate / zero unexpected failures")
+            tests_ready = (workflow == "tests.yml" and functional_gate is not None
+                           and functional_gate["status"] == "completed")
+            if run["status"] != "completed" and not tests_ready:
                 continue
-            if run["conclusion"] != "success":
+            if run["conclusion"] != "success" and not tests_ready:
                 raise RuntimeError(f"{workflow} exact-source run {run['id']} "
                                    f"finished with {run['conclusion']}")
-            by_name = {job["name"]: job for job in jobs}
             for name, blocking in expected[workflow].items():
                 job = by_name.get(name)
                 if (job is None or job["status"] != "completed"

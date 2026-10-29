@@ -159,6 +159,7 @@ def test_a_new_source_ends_a_blinded_session_without_unblinding(
     assert rj._unblinding_times(plate) == []
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_blinding_hides_settings_and_console_history_then_restores_them(
         annotate, plate, qtbot, monkeypatch):
     from PySide6.QtCore import QTimer
@@ -268,10 +269,14 @@ def test_make_masks_names_fields_by_code_while_blinded(masks, qtbot):
     assert screen.recrop(0, 0, 10, 10) is None
     assert "blinded" in screen._status_label.text()
     screen._on_next()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert "plate7" not in screen._status_label.text()
     on_screen = screen._image_files[screen._current_index]
 
     assert screen._end_blind(ask=lambda: True)
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._blind is None and not screen._btn_blind.isChecked()
     assert screen._image_files == listed
     assert screen._image_files[screen._current_index] == on_screen
@@ -281,6 +286,7 @@ def test_make_masks_names_fields_by_code_while_blinded(masks, qtbot):
         "blinded", "unblinded"]
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_make_masks_blinds_raw_status_failures_and_actual_folder_confirmation(
         masks, qtbot, monkeypatch):
     from PySide6.QtCore import QTimer

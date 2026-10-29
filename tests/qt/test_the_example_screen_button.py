@@ -116,7 +116,7 @@ class TestItFillsTheRightSlots:
 
         assert collected.get("paired_data")
 
-    def test_it_says_where_everything_went(self, screen, cached):
+    def test_it_says_where_everything_went(self, screen, cached, console_info_enabled):
         screen.load_the_example_screen(download=False)
         said = screen._console.as_text()
 
@@ -134,7 +134,7 @@ class TestItFillsTheRightSlots:
 class TestItFailsOutLoud:
 
     def test_no_cache_and_no_network_says_so_and_changes_nothing(
-            self, screen, tmp_path, monkeypatch):
+            self, screen, tmp_path, monkeypatch, console_info_enabled):
         monkeypatch.setenv("SPACR_EXAMPLE_DATA", str(tmp_path / "empty"))
 
         out = screen.load_the_example_screen(download=False)

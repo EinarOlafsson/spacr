@@ -132,8 +132,8 @@ def _assert_tile_is_what_the_generator_draws(committed, rendered, what: str):
 
 def test_readme_uses_an_explicit_supported_python_badge():
     text = _words()
-    assert "Python-3.9%E2%80%933.14" in text
-    assert ":alt: Python 3.9 through 3.14" in text
+    assert "Python-3.9%E2%80%933.15" in text
+    assert ":alt: Python 3.9 through 3.15" in text
 
 
 def test_readme_keeps_the_feature_catalog_curated_and_points_to_detail():

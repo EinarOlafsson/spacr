@@ -46,6 +46,7 @@ def test_actual_verdict_status_is_complete_and_preserves_navigation(
     calls = []
     subject = SimpleNamespace(
         _current_index=0, _folder=str(tmp_path), _image_files=files,
+        _loading=False,
         _hide_judged=state == 'empty', _status_label=status,
         _blind_label=lambda path: Path(path).name, _visible_indices=lambda: [],
         _sync_queue_tally=lambda: calls.append('tally'))

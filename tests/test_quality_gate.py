@@ -2,6 +2,8 @@
 
 from pathlib import Path
 
+import yaml
+
 
 ROOT = Path(__file__).resolve().parents[1]
 TARGETS = ROOT / ".github" / "quality-targets.txt"
@@ -87,3 +89,9 @@ def test_release_gate_requires_every_blocking_job():
     for job in expected:
         assert f"      - {job}" in gate
     assert 'details["result"] != "success"' in gate
+    jobs = yaml.safe_load(workflow)["jobs"]
+    assert jobs["release-gate"]["needs"] == list(expected)
+    for job in (*expected, "release-gate"):
+        assert not jobs[job].get("continue-on-error", False)
+    for job in ("coverage-shards", "coverage-combine"):
+        assert jobs[job]["continue-on-error"] is True

@@ -66,21 +66,35 @@ def _ai_reply_html(text):
     from PySide6.QtGui import QTextDocument
 
     class PassiveDocument(QTextDocument):
+        """Reject resource requests so rendered assistant replies remain passive."""
         def loadResource(self, kind, url):
+            """Refuse image and other resource requests from the rendered document.
+
+            :param kind: Qt resource type, deliberately not loaded.
+            :param url: requested resource location, deliberately not opened.
+            :returns: None so the document cannot fetch a resource.
+            """
             return None
 
     class Markup(HTMLParser):
+        """Retain passive document tags, escaped text and approved link schemes."""
         allowed = {'p', 'span', 'b', 'strong', 'i', 'em', 'u', 's', 'ul', 'ol',
                    'li', 'pre', 'code', 'blockquote', 'h1', 'h2', 'h3', 'h4',
                    'h5', 'h6', 'table', 'thead', 'tbody', 'tr', 'td', 'th',
                    'a', 'br', 'hr'}
 
         def __init__(self):
+            """Initialize collected markup and the ignored document-head state."""
             super().__init__(convert_charrefs=True)
             self.parts = []
             self.head = False
 
         def handle_starttag(self, tag, attrs):
+            """Keep permitted tags and safe links, substituting image alternative text.
+
+            :param tag: parsed HTML element name.
+            :param attrs: parsed attribute pairs to filter before serialization.
+            """
             if tag == 'head':
                 self.head = True
             if self.head:
@@ -105,12 +119,20 @@ def _ai_reply_html(text):
                 self.parts.append('<' + tag + attributes + '>')
 
         def handle_endtag(self, tag):
+            """Close allowed non-void tags outside the ignored document head.
+
+            :param tag: parsed closing element name.
+            """
             if tag == 'head':
                 self.head = False
             elif not self.head and tag in self.allowed and tag not in ('br', 'hr'):
                 self.parts.append('</' + tag + '>')
 
         def handle_data(self, data):
+            """Escape visible text while discarding document-head contents.
+
+            :param data: parsed text to include when it belongs to visible content.
+            """
             if not self.head:
                 self.parts.append(escape(data))
 

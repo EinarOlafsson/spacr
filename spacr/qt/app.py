@@ -12082,10 +12082,12 @@ class MainWindow(QMainWindow):
                 doomed.setProperty("spacrRetiringBackdrop", True)
             except (RuntimeError, AttributeError):
                 pass
-            for step in ("set_animating", "setParent", "deleteLater"):
+            for step in ("set_animating", "shutdown", "setParent", "deleteLater"):
                 try:
                     if step == "set_animating":
                         doomed.set_animating(False)
+                    elif step == "shutdown":
+                        doomed.shutdown()
                     elif step == "setParent":
                         doomed.setParent(None)
                     else:

@@ -433,6 +433,7 @@ def test_a_job_queue_that_refuses_clears_the_in_flight_mark(filing,
     assert "fp4" not in aps._REPORTS_BEING_FILED
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_a_filed_report_that_cannot_be_remembered_is_still_announced(
         filing, monkeypatch):
     from spacr.qt.ai import issue_report

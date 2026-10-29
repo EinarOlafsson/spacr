@@ -9,6 +9,7 @@ from pathlib import Path
 import pytest
 import yaml
 from packaging.requirements import Requirement
+from packaging.specifiers import SpecifierSet
 
 ROOT = Path(__file__).resolve().parents[1]
 RECIPE = ROOT / "conda-forge" / "recipe" / "recipe.yaml"
@@ -226,8 +227,15 @@ FLOOR_TRANSLATIONS = {
 }
 
 
-def _core_dependency_specifiers() -> dict[str, str]:
-    """{conda name: setup.py specifier} for every core dependency."""
+def _core_dependency_specifiers(python_specifier):
+    """Collect every dependency range active on a recipe-supported environment."""
+    versions = {env["python_version"] for env in _ENVIRONMENTS} | {"3.15"}
+    environments = [
+        dict(env, python_version=version, python_full_version=version + ".0")
+        for env in _ENVIRONMENTS if env["python_version"] == "3.9"
+        for version in versions if version + ".0" in python_specifier
+    ]
+    assert environments, "the recipe must admit a supported Python environment"
     tree = ast.parse(SETUP.read_text(encoding="utf-8"))
     for node in tree.body:
         if isinstance(node, ast.Assign) and any(
@@ -237,8 +245,10 @@ def _core_dependency_specifiers() -> dict[str, str]:
             out = {}
             for requirement in ast.literal_eval(node.value):
                 req = Requirement(requirement)
+                if req.marker and not any(req.marker.evaluate(env) for env in environments):
+                    continue
                 name = _normalise(req.name)
-                out[_normalise(CONDA_NAMES.get(name, name))] = req.specifier
+                out.setdefault(_normalise(CONDA_NAMES.get(name, name)), []).append(req.specifier)
             return out
     raise AssertionError("setup.py has no literal dependencies assignment")
 
@@ -253,7 +263,10 @@ def _lower_bound(specifier) -> str | None:
 def _assert_no_conda_recipe_floor_is_below_declared(run) -> None:
     from packaging.version import Version
 
-    declared = _core_dependency_specifiers()
+    python_rows = [str(entry).split(None, 1)[1] for entry in run
+                   if str(entry).split()[0] == "python"]
+    assert len(python_rows) == 1
+    declared = _core_dependency_specifiers(SpecifierSet(python_rows[0]))
 
     too_low = []
     for entry in run:
@@ -261,10 +274,10 @@ def _assert_no_conda_recipe_floor_is_below_declared(run) -> None:
         name = _normalise(parts[0])
         if name == "python":
             continue
-        specifier = declared.get(name)
-        if specifier is None:
-            continue
-        wanted = _lower_bound(specifier)
+        specifiers = declared.get(name, ())
+        bounds = [_lower_bound(specifier) for specifier in specifiers]
+        wanted = max((bound for bound in bounds if bound is not None),
+                     key=Version, default=None)
         if wanted is None:
             continue
         wanted = FLOOR_TRANSLATIONS.get(name, {}).get(wanted, wanted)

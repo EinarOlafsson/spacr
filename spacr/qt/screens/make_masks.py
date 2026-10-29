@@ -24716,6 +24716,8 @@ class MakeMasksScreen(QWidget):
                                  or (engine._requires_container_review(os.path.join(folder, name))
                                      and not engine._container_reviewed(os.path.join(folder, name)))
                                  for name in engine.list_images(folder)):
+            if not self._save_boxes_if_needed():
+                return False
             return self._open_queue([os.path.abspath(folder)], masks_dir=masks_dir)
         files = list(files) if files is not None else engine.list_images(folder)
         if not files:

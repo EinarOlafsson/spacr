@@ -210,6 +210,8 @@ def test_next_in_a_sibling_session_loads_the_next_draft_from_beside(
     screen = handed_screen(qtbot, sibling)
 
     screen._btn_next.click()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
 
     assert screen._image_files[screen._current_index] == "s_1.tif"
     assert np.array_equal(screen._canvas.mask, labels)

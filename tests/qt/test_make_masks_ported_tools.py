@@ -165,6 +165,8 @@ def screen(qtbot, qt_theme_applied, folder: Path) -> MakeMasksScreen:
     qtbot.addWidget(s)
     s._canvas.resize(CANVAS_W, CANVAS_H)
     s._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not s._loading and s._reader_worker is None
+                    and s._load_worker is None)
     assert s._canvas.pixmap().deviceIndependentSize().width() == PIXMAP_N, "geometry assumption broke"
     return s
 
@@ -358,6 +360,8 @@ def test_the_filter_runs_on_load_and_drops_the_object_below_min_area(
     qtbot.addWidget(s)
     s._filter_list.set_filter("area", 50)
     s._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not s._loading and s._reader_worker is None
+                    and s._load_worker is None)
     assert sorted(int(v) for v in np.unique(s._canvas.mask) if v) == [3, 11], \
         "the 16-pixel object should have been filtered out on load"
     assert "removed 1 object" in s._status_label.text()
@@ -876,6 +880,8 @@ def test_a_second_session_appends_to_the_first_ones_ledger(qtbot,
         qtbot.addWidget(s)
         s._canvas.resize(CANVAS_W, CANVAS_H)
         s._open_folder(str(folder))
+        qtbot.waitUntil(lambda: not s._loading and s._reader_worker is None
+                        and s._load_worker is None)
         c = s._canvas
         target = 10 if (c.mask[10, 10] > 0) else 47
         c.mousePressEvent(right_press(c, target, target))
@@ -889,12 +895,14 @@ def test_a_second_session_appends_to_the_first_ones_ledger(qtbot,
         "the second session overwrote the first session's record"
 
 
-def test_the_ledger_belongs_to_the_field_on_screen(screen, folder: Path):
+def test_the_ledger_belongs_to_the_field_on_screen(screen, qtbot, folder: Path):
     c = screen._canvas
     c.mousePressEvent(right_press(c, 10, 10))
     c.mouseReleaseEvent(right_release(c, 10, 10))
     screen._on_save()
     screen._on_next()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert len(screen._log) == 0, "a new field starts its own record"
     screen._on_save()
     assert not os.path.exists(
@@ -914,6 +922,8 @@ def test_an_unreadable_ledger_does_not_cost_the_next_edit(qtbot,
     qtbot.addWidget(s)
     s._canvas.resize(CANVAS_W, CANVAS_H)
     s._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not s._loading and s._reader_worker is None
+                    and s._load_worker is None)
     assert s._log is not None and len(s._log) == 0
     c = s._canvas
     c.mousePressEvent(right_press(c, 10, 10))
@@ -924,12 +934,14 @@ def test_an_unreadable_ledger_does_not_cost_the_next_edit(qtbot,
 
 
 def test_a_load_failure_drops_the_ledger_with_the_canvas(screen, headless,
-                                                          monkeypatch):
+                                                          monkeypatch, qtbot):
     """The ledger names one artefact; keeping a stale one open would file the
     next edit against the field that failed to load."""
     def boom(*_a, **_k):
         raise OSError("unreadable field")
     monkeypatch.setattr(engine, "load_image_and_mask", boom)
     screen._on_next()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._canvas.mask is None
     assert screen._log is None

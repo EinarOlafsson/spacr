@@ -46,7 +46,10 @@ def test_timed_out_decoder_drops_pending_load_and_cannot_publish_after_close(
     try:
         screen._current_index = 1
         screen._load_current()
-        assert screen._pending_load is not None
+        qtbot.waitUntil(lambda: screen._pending_load is not None)
+        assert screen._load_worker is worker and worker.isRunning()
+        assert screen._reader_worker is None
+        assert screen._pending_load[1] == "two.tif"
         screen.close()
         assert worker.isRunning() and worker.parent() is None
         assert screen._load_worker is None and screen._pending_load is None

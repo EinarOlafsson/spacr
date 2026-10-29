@@ -381,7 +381,7 @@ def test_a_declined_cancellation_leaves_the_job_running(screen, tmp_path,
     assert screen._table.item(0, 1).text() == "queued"
 
 
-def test_the_log_needs_a_job_and_lands_in_the_console(screen, tmp_path):
+def test_the_log_needs_a_job_and_lands_in_the_console(screen, tmp_path, console_info_enabled):
     screen.refresh_log()
     assert "Select a job first" in screen._status.text()
 

@@ -97,18 +97,56 @@ def require(api, clock=None, timeout=600):
 def test_green_exact_source_runs_are_reused_without_dispatch(github):
     require(github)
     assert github.dispatches == []
-    assert len(COMPATIBILITY) == 18
-    assert sum(COMPATIBILITY.values()) == 15
+    assert len(COMPATIBILITY) == 19
+    assert sum(COMPATIBILITY.values()) == 16
+    assert COMPATIBILITY["Linux Python 3.15 installed science and native GUI"] is True
 
 
 def test_running_source_run_is_awaited_without_duplicate(github):
     run = github.records["tests.yml"][0]
     run.update(status="in_progress", conclusion=None)
+    gate = github.jobs(run)[0]
+    gate.update(status="in_progress", conclusion=None)
     clock = Clock()
-    clock.after_sleep = lambda: run.update(status="completed", conclusion="success")
+    def complete():
+        run.update(status="completed", conclusion="success")
+        gate.update(status="completed", conclusion="success")
+    clock.after_sleep = complete
     require(github, clock)
     assert clock.now == 60
     assert github.dispatches == []
+
+
+@pytest.mark.parametrize('coverage_status,coverage_conclusion', [
+    ('in_progress', None), ('completed', 'failure'),
+])
+def test_successful_functional_gate_does_not_wait_for_advisory_coverage(
+        github, coverage_status, coverage_conclusion):
+    run = github.records['tests.yml'][0]
+    run.update(status=coverage_status, conclusion=coverage_conclusion)
+    jobs = github.jobs(run)
+    for name in ('Coverage shard 0 of 12',
+                 'Coverage / every module at 90% and none loses coverage'):
+        jobs.append(dict(name=name, status=coverage_status,
+                         conclusion=coverage_conclusion))
+    clock = Clock()
+    require(github, clock)
+    assert clock.now == 0
+    assert not github.dispatches
+
+
+@pytest.mark.parametrize('change', ['missing', 'skipped', 'unfinished'])
+def test_advisory_policy_cannot_hide_an_unsuccessful_functional_gate(github, change):
+    run = github.records['tests.yml'][0]
+    jobs = github.jobs(run)
+    if change == 'missing':
+        jobs.clear()
+    elif change == 'skipped':
+        jobs[0]['conclusion'] = 'skipped'
+    else:
+        jobs[0]['status'] = 'in_progress'
+    with pytest.raises(RuntimeError, match='lacks completed successful job'):
+        require(github)
 
 
 def test_missing_workflows_are_dispatched_once_and_must_finish():
@@ -156,8 +194,9 @@ def test_dispatch_branch_race_cannot_accept_another_heads_green_run(github):
 
 @pytest.mark.parametrize("conclusion", ["failure", "cancelled", "timed_out"])
 def test_newer_failed_run_blocks_an_older_success_without_retry(github, conclusion):
-    github.add("tests.yml", conclusion=conclusion)
-    with pytest.raises(RuntimeError, match=conclusion):
+    _, jobs = github.add("tests.yml", conclusion=conclusion)
+    jobs[0]["conclusion"] = conclusion
+    with pytest.raises(RuntimeError, match="lacks completed successful job"):
         require(github)
     assert github.dispatches == []
 
@@ -237,10 +276,11 @@ def test_a_new_failure_invalidates_an_earlier_acceptance_while_other_ci_is_live(
 
     def advance():
         docs.update(status="completed", conclusion="success")
-        github.add("tests.yml", conclusion="failure")
+        _, jobs = github.add("tests.yml", conclusion="failure")
+        jobs[0]["conclusion"] = "failure"
 
     clock.after_sleep = advance
-    with pytest.raises(RuntimeError, match="tests.yml.*failure"):
+    with pytest.raises(RuntimeError, match="tests.yml.*lacks completed successful job"):
         require(github, clock)
 
 
@@ -544,6 +584,7 @@ def test_actual_nightly_compatibility_cells_keep_their_blocking_policies():
         "Packaging metadata": True,
         "PowerShell scripts parse (5.1 and 7)": True,
         "Fractal extra constructs the default renderer": True,
+        "Linux Python 3.15 installed science and native GUI": True,
         "Linux x86-64 / py3.12 (control)": True,
         "Linux x86-64 / py3.9 (floor)": True,
         "Linux x86-64 / py3.10": True,
@@ -599,6 +640,7 @@ def test_green_runs_for_a_superseded_head_cannot_qualify(github):
 def test_main_advancing_during_ci_wait_stops_acceptance(github):
     run = github.records["tests.yml"][0]
     run.update(status="in_progress", conclusion=None)
+    github.jobs(run)[0].update(status="in_progress", conclusion=None)
     clock = Clock()
 
     def advance():

@@ -496,6 +496,7 @@ def test_it_draws_the_sheet_into_the_ordinary_queue(screen):
     assert screen._figures_stack.currentWidget() is screen._figure_detail
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_with_no_table_it_says_so_instead_of_drawing_nothing(screen):
     screen._show_publication_sheet()
 
@@ -505,6 +506,7 @@ def test_with_no_table_it_says_so_instead_of_drawing_nothing(screen):
     assert screen._figure_queue.count() == 0
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_the_legend_reaches_the_console(screen):
     """A journal figure without its legend is half a figure, and the legend
     is generated from the panels so it cannot describe a different one."""

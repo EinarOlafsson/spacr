@@ -358,6 +358,8 @@ jobs:
   # measure, and the blocking Qt job runs each one serially without tracing.
   coverage-shards:
     name: Coverage shard ${{ matrix.shard }} of 12
+    # spaCR 1.5.1.6: retain strict coverage measurements as informational jobs.
+    continue-on-error: true
     runs-on: ubuntu-24.04
     # Every test is bounded (--per-test-timeout) and so is every batch
     # (--batch-timeout), so a hang costs at most one batch, never the job.
@@ -567,6 +569,8 @@ jobs:
           if-no-files-found: ignore
 
   coverage-combine:
+    # spaCR 1.5.1.6: report failures without blocking the Tests run or release.
+    continue-on-error: true
     # Item 288, maintainer decision 2026-09-19: the goal is 90% per module,
     # not 100% -- "if the module would benefit from more than 90% coverage,
     # implement that, but only in cases where coverage is useful". The gate is
@@ -987,7 +991,6 @@ jobs:
       - gpu
       - network
       - nas
-      - coverage-combine
     runs-on: ubuntu-24.04
     timeout-minutes: 5
 

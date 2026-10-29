@@ -270,6 +270,7 @@ def test_the_export_runs_with_spacr_run(qtbot, monkeypatch, tmp_path,
     assert "nothing was executed" in capsys.readouterr().out
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_export_offers_the_module_name_in_the_source_folder(
         qtbot, monkeypatch, tmp_path):
     """The dialog offers ``<module>_settings.csv`` in the src folder."""

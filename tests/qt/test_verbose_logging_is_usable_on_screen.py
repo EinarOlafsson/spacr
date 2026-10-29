@@ -26,7 +26,7 @@ ALL_LEVELS = (logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR,
 
 
 @pytest.fixture
-def verbose_on(tmp_path, monkeypatch):
+def verbose_on(tmp_path, monkeypatch, _isolated_qsettings_store):
     """Verbose logging and console DEBUG on; logger state put back after."""
     from spacr.qt import verbose_logger as vl
     from spacr.qt import preferences as prefs
@@ -39,12 +39,17 @@ def verbose_on(tmp_path, monkeypatch):
               "_verbose")}
     handlers = {name: list(logging.getLogger(name).handlers)
                 for name in vl._ATTACHED_LOGGERS}
-    prefs.set_verbose_logging(True)
-    vl.apply_verbose_logging(True)
-    vl.apply_console_levels(ALL_LEVELS)
+    prior_file_levels = prefs.get_log_file_levels()
+    prior_console_levels = prefs.get_log_console_levels()
+    prior_verbose = prefs.get_verbose_logging()
     try:
+        prefs.set_verbose_logging(True)
+        vl.apply_verbose_logging(True)
+        prefs.set_log_levels(ALL_LEVELS, ALL_LEVELS)
         yield vl
     finally:
+        prefs.set_verbose_logging(prior_verbose)
+        prefs.set_log_levels(prior_file_levels, prior_console_levels)
         for name, value in saved.items():
             setattr(vl, name, value)
         for name, kept in handlers.items():

@@ -92,7 +92,8 @@ def test_jobs_sit_in_a_glass_card_and_the_console_replaces_the_details_pane(qtbo
                 if w.accessibleName() == "Distributed job details and log"]
 
 
-def test_a_submission_prints_the_event_and_script_then_follows_the_log(qtbot, qt_theme_applied, state, tmp_path):
+def test_a_submission_prints_the_event_and_script_then_follows_the_log(
+        qtbot, qt_theme_applied, state, tmp_path, console_info_enabled):
     settings = tmp_path / "s.json"
     settings.write_text('{"src": "/projects/ada_fake/plate"}')
     runner = Runner(CommandResult(0), CommandResult(0, "4242\n"))
@@ -131,7 +132,7 @@ def test_a_submission_prints_the_event_and_script_then_follows_the_log(qtbot, qt
 
 
 def test_a_terminal_log_retries_a_failed_fetch_and_drains_every_chunk_before_retiring(
-        qtbot, qt_theme_applied, state, monkeypatch):
+        qtbot, qt_theme_applied, state, monkeypatch, console_info_enabled):
     runner = Runner(CommandResult(0), CommandResult(0, "4243\n"))
     screen = _screen(qtbot, state, runner)
     screen.configure_submission("mask", {"src": "/invented/plate"})
@@ -399,7 +400,8 @@ def _raise_owned_remote_error(error, *args, **kwargs):
     raise error
 
 
-def test_editor_presets_and_readonly_preview_preserve_real_script_text(qtbot, qt_theme_applied, state):
+def test_editor_presets_and_readonly_preview_preserve_real_script_text(
+        qtbot, qt_theme_applied, state, console_info_enabled):
     from PySide6.QtWidgets import QDialogButtonBox
     from PySide6.QtGui import QTextCursor
 

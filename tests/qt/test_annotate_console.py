@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
+import pytest
+
 from PySide6.QtCore import Qt
 
 
@@ -35,6 +37,7 @@ def test_annotate_has_collapsible_console_and_bottom_ai_controls(
     assert screen._console_wrap.isHidden()
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_ai_button_expands_console_and_explains_missing_provider(
         qtbot, monkeypatch):
     from spacr.qt import ai as ai_module

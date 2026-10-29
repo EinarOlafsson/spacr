@@ -449,6 +449,8 @@ def test_gapped_detections_extend_the_first_object_and_persist(
     np.testing.assert_array_equal(screen._canvas.mask, expected)
     screen._on_save()
     screen._on_next()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._current_index == 1
     assert not screen._canvas.manual_ids
     screen.close()

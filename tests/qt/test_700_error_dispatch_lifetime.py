@@ -13,15 +13,18 @@ _ORIGINAL_DELIVERY = cr._deliver_error_result
 
 
 @pytest.mark.parametrize("owner_state", ["visible", "closed", "destroyed", "two-visible", "all-hidden"])
+@pytest.mark.usefixtures("console_info_enabled")
 def test_report_finishes_without_resurrecting_its_owner(configured, qtbot, tmp_path, monkeypatch, owner_state):
     from spacr.qt import preferences
     from spacr.qt.ai import settings
     from spacr.qt.terms import record_agreement
     from spacr.qt.widgets.console_panel import ConsolePanel
 
+    levels = (preferences.get_log_file_levels(), preferences.get_log_console_levels())
     store = QSettings(str(tmp_path / "prefs.ini"), QSettings.IniFormat)
     monkeypatch.setattr(preferences, "_settings", lambda: store)
     monkeypatch.setattr(settings, "_settings", lambda: store)
+    preferences.set_log_levels(*levels)
     record_agreement()
     monkeypatch.setattr(cr, "_deliver_error_result", _ORIGINAL_DELIVERY)
     terminal = []
@@ -136,15 +139,18 @@ def test_formatted_qt_log_display_does_not_report_a_plain_error_twice(configured
     assert len(relay.calls_to("/diagnose")) == len(relay.calls_to("/report")) == 1
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_none_blocks_stale_manual_chat_and_explain_provider(configured, qtbot, tmp_path, monkeypatch):
     from spacr.qt import preferences
     from spacr.qt.ai import settings, providers
     from spacr.qt.terms import record_agreement
     from spacr.qt.widgets.console_panel import ConsolePanel
 
+    levels = (preferences.get_log_file_levels(), preferences.get_log_console_levels())
     store = QSettings(str(tmp_path / "prefs.ini"), QSettings.IniFormat)
     monkeypatch.setattr(preferences, "_settings", lambda: store)
     monkeypatch.setattr(settings, "_settings", lambda: store)
+    preferences.set_log_levels(*levels)
     record_agreement()
     panel = ConsolePanel(follow_log=False)
     qtbot.addWidget(panel)
@@ -389,9 +395,11 @@ def live_reporting_console(configured, qtbot, tmp_path, monkeypatch):
     from spacr.qt.terms import record_agreement
     from spacr.qt.widgets.console_panel import ConsolePanel
 
+    levels = (preferences.get_log_file_levels(), preferences.get_log_console_levels())
     store = QSettings(str(tmp_path / "live-console.ini"), QSettings.IniFormat)
     monkeypatch.setattr(preferences, "_settings", lambda: store)
     monkeypatch.setattr(settings, "_settings", lambda: store)
+    preferences.set_log_levels(*levels)
     record_agreement()
     monkeypatch.setattr(cr, "_deliver_error_result", _ORIGINAL_DELIVERY)
     owner = QWidget()
@@ -415,6 +423,7 @@ def live_reporting_console(configured, qtbot, tmp_path, monkeypatch):
 
 
 @pytest.mark.parametrize("reason", ["rate", "cooldown"])
+@pytest.mark.usefixtures("console_info_enabled")
 def test_actual_hosted_admission_refusal_is_readable_and_still_reports(
         live_reporting_console, configured, qtbot, monkeypatch, reason):
     """Actual hosted request history reaches the native refusal renderer."""
@@ -458,6 +467,7 @@ def test_actual_hosted_admission_refusal_is_readable_and_still_reports(
 
 
 @pytest.mark.parametrize("choice", ["cancel", "restart", "quit"])
+@pytest.mark.usefixtures("console_info_enabled")
 def test_real_error_storm_offers_one_explicit_native_action(
         live_reporting_console, configured, qtbot, monkeypatch, choice):
     """A continuous real dispatch burst opens one Cancel-default native prompt."""
@@ -527,6 +537,7 @@ def test_real_error_storm_offers_one_explicit_native_action(
 
 
 @pytest.mark.parametrize("owner_state", ["deleted", "hidden"])
+@pytest.mark.usefixtures("console_info_enabled")
 def test_a_pending_native_owner_can_be_deleted_before_another_console_receives_the_answer(
         live_reporting_console, configured, qtbot, monkeypatch, owner_state):
     """A shown pending entry never keeps its deleted QObject owner alive."""

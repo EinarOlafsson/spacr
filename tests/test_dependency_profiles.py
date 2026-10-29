@@ -7,6 +7,9 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import shlex
+
+import yaml
 
 from packaging.markers import default_environment
 from packaging.requirements import Requirement
@@ -137,7 +140,13 @@ def test_ci_exercises_minimum_and_newest_dependency_profiles():
     assert 'python-version: "3.14"' in compat
     assert "  python315-linux:" in compat
     assert 'python-version: "3.15"' in compat
-    assert "conda install --override-channels -c conda-forge cvxopt tabmat h5py -y" in compat
+    native_steps = [step for step in yaml.safe_load(compat)["jobs"]["python315-linux"]["steps"]
+                    if step.get("name") == "Install native prerequisites with supported Python 3.15 builds"]
+    assert len(native_steps) == 1
+    assert shlex.split(native_steps[0]["run"]) == [
+        "conda", "install", "--override-channels", "-c", "conda-forge",
+        "cvxopt", "tabmat", "h5py", "libsqlite=3.54.1=h0737f62_101", "-y",
+    ]
     assert "minimum-dependencies:" in workflow
     assert "-c .github/constraints/minimum-py39.txt" in workflow
     assert "python -m pip check" in workflow

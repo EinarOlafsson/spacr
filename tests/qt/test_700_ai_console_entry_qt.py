@@ -177,6 +177,7 @@ def test_the_answer_is_its_own_teal_entry_after_the_error(
     assert _entries(screen).index(block) == at
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_every_settings_problem_is_listed_and_sent(qtbot, qt_theme_applied,
                                                    relay, monkeypatch):
     screen, _jobs = _refused_mask_run(qtbot, monkeypatch, relay)

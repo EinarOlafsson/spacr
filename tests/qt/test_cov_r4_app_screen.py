@@ -1044,7 +1044,7 @@ class TestFoldingTheConsole:
 class TestPickingWellsFromTheMap:
 
     def test_a_field_with_no_setText_still_reports_what_was_chosen(
-            self, screen, monkeypatch):
+            self, screen, monkeypatch, console_info_enabled):
         """The picker's answer is returned even when nothing can hold it.
 
         A field that CAN take it is written, which is what makes the pair a
@@ -1176,7 +1176,7 @@ class TestLoadingTheExampleImages:
         assert placed["settings"] == ""
 
     def test_a_download_that_fails_says_so_and_restores_the_button(
-            self, screen, monkeypatch, tmp_path):
+            self, screen, monkeypatch, tmp_path, console_info_enabled):
         from PySide6.QtWidgets import QPushButton
 
         self._point_at(screen, monkeypatch, tmp_path)
@@ -1203,7 +1203,7 @@ class TestLoadingTheExampleImages:
         assert "no route to huggingface.co" in _console_text(screen._console)
 
     def test_a_finished_download_fills_src_and_names_the_settings(
-            self, screen, monkeypatch, tmp_path):
+            self, screen, monkeypatch, tmp_path, console_info_enabled):
         """Both halves of the answer: the folder AND the settings beside it."""
         self._point_at(screen, monkeypatch, tmp_path)
         screen._example_images_button = None
@@ -1249,7 +1249,7 @@ class TestLoadingTheExampleImages:
             "the mask demo must ask for the archive, not fetch 212 files")
 
     def test_a_screen_with_no_src_control_still_reports_the_folder(
-            self, screen, tmp_path):
+            self, screen, tmp_path, console_info_enabled):
         """A module without ``src`` is told where the images went anyway."""
         screen._settings_model = types.SimpleNamespace(_widgets={})
 
@@ -1330,7 +1330,7 @@ class TestTheUsagePollFollowsTheScreen:
 class TestAnnouncingTheFit:
 
     def test_a_permutation_run_gets_its_own_banner_and_is_never_slow(
-            self, screen):
+            self, screen, console_info_enabled):
         """It fits no model, so the model/level/backend sentence is wrong.
 
         The ordinary settings below print that sentence, which is what makes
@@ -1623,7 +1623,7 @@ class TestTheEffectsGrid:
 class TestOpeningATrial:
 
     def test_a_runs_tab_with_no_undo_to_spend_is_simply_not_told(
-            self, screen, monkeypatch, tmp_path):
+            self, screen, monkeypatch, tmp_path, console_info_enabled):
         """An older Runs tab has no ``the_load_succeeded``; the figures and
         the sentence still have to arrive."""
         monkeypatch.setattr(screen, "_load_trial_figures", lambda _f: 0)
@@ -1685,7 +1685,7 @@ class TestThePublicationSheet:
         return shown, figure
 
     def test_the_sheet_goes_into_the_ordinary_figure_queue(self, screen,
-                                                            monkeypatch):
+                                                            monkeypatch, console_info_enabled):
         """A bespoke viewer for one figure is a second set of the same bugs."""
         shown, figure = self._ready(screen, monkeypatch, skipped=())
         screen._figures_stack = None
@@ -1696,7 +1696,7 @@ class TestThePublicationSheet:
         assert "Panels a-c" in _console_text(screen._console)
 
     def test_a_panel_the_sheet_could_not_draw_is_named(self, screen,
-                                                        monkeypatch):
+                                                        monkeypatch, console_info_enabled):
         """A missing panel is a fact worth reading, not a silent gap."""
         shown, _figure = self._ready(screen, monkeypatch, skipped=(
             types.SimpleNamespace(title="QQ", reason="no residuals"),))

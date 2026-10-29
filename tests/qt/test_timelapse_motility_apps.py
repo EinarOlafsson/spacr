@@ -479,6 +479,7 @@ def test_mask_screen_still_offers_the_rest_of_its_settings(qtbot, qt_theme_appli
         assert key in collected
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_importing_a_legacy_mask_csv_reports_what_it_did_with_the_flags(
         qtbot, qt_theme_applied):
     """Non-modal console note, so the import is never silent (and never hangs).

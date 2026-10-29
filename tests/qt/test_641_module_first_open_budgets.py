@@ -52,23 +52,33 @@ def test_a_fresh_module_open_selects_its_new_screen(window, qapp, key):
 
 def test_a_benchmark_window_does_not_resume_another_modules_saved_session(qapp, qtbot, monkeypatch):
     from spacr import restart_state
-    from spacr.qt import preferences
+    from spacr.qt import app, preferences
     from spacr.qt.app import MainWindow
 
     monkeypatch.setattr(preferences, "_get_restore_session", lambda: True)
-    monkeypatch.setattr(restart_state, "_last_session", lambda: {
-        "module": "replication", "settings": {},
-    })
+    monkeypatch.setattr(app, "_RESUME_RESTART", [True])
+    taken = []
+
+    def take_saved_restart():
+        taken.append("replication")
+        return {"module": "replication", "settings": {}}
+
+    monkeypatch.setattr(restart_state, "take", take_saved_restart)
     monkeypatch.setattr(restart_state, "_save_session", lambda *_a, **_kw: None)
 
     restoring = MainWindow()
     qtbot.addWidget(restoring)
     assert "replication" in restoring._screens
+    assert taken == ["replication"]
+    assert app._RESUME_RESTART == [False]
 
+    app._RESUME_RESTART[0] = True
     fixture = window.__wrapped__(qapp)
     fresh = next(fixture)
     try:
         assert "replication" not in fresh._screens
+        assert taken == ["replication"]
+        assert app._RESUME_RESTART == [False]
         fresh._on_nav_selected("replication")
         assert fresh._stack.currentWidget() is fresh._screens["replication"]
     finally:

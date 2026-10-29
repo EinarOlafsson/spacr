@@ -607,15 +607,17 @@ def test_an_empty_message_is_not_sent(panel):
         "the box was cleared as though something had been sent"
 
 
-def test_a_streamed_chunk_opens_a_block_in_the_providers_colour(panel):
+def test_a_streamed_chunk_opens_a_block_in_the_providers_colour(panel, qtbot):
     panel._current_provider_name = "Claude"
     panel._on_stage("thinking")             # quiet by design
     panel._on_chunk("the first half ")
     panel._on_chunk("and the second\n")
     assert panel._last_entry_kind == "ai"
+    qtbot.waitUntil(lambda: "the first half and the second" in panel.as_text())
     assert "the first half and the second" in panel.as_text()
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_a_stream_that_returned_nothing_says_so(panel):
     panel._ai_buf = []
     panel._on_stream_finished(True, "")
@@ -623,11 +625,13 @@ def test_a_stream_that_returned_nothing_says_so(panel):
     assert panel._ai_messages[-1] == {"role": "assistant", "content": ""}
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_a_failed_stream_reports_the_provider_error(panel):
     panel._on_stream_finished(False, "rate limited")
     assert "[AI error] rate limited" in panel.as_text()
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_the_error_flow_needs_a_provider_before_it_can_explain(panel):
     panel.open_error_flow("Traceback (most recent call last): …")
     assert "Enable AI in the actions row" in panel.as_text()

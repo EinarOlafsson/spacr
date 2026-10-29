@@ -590,11 +590,13 @@ def test_the_parent_ledger_records_every_cut(screen, folder):
 
 
 def test_moving_on_retires_the_parent_and_opens_the_first_child(screen,
-                                                                folder):
+                                                                folder, qtbot):
     box_drag(screen._canvas, *BOX_A)
     box_drag(screen._canvas, *BOX_B)
 
     screen._on_next()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
 
     assert screen._image_files == ["field_a__r00.tif", "field_a__r01.tif",
                                    "field_b.tif"]

@@ -361,8 +361,10 @@ def test_the_relay_swallows_an_exploding_console(qtbot, forwarder_route):
     ("append_error", "Traceback from a worker"),
 ])
 def test_the_panel_reposts_an_off_thread_append(qtbot, widget_threads,
-                                                method, probe):
+                                                method, probe, request):
     """Any caller, not just the logging one, is bounced to the GUI thread."""
+    if method == "append_stdout":
+        request.getfixturevalue("console_info_enabled")
     gui_thread = threading.get_ident()
     panel = cp.ConsolePanel()
     qtbot.addWidget(panel)

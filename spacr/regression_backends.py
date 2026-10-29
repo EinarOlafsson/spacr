@@ -171,6 +171,12 @@ def package_installed(name) -> bool:
 
 
 def _python315_backend_refusal(name):
+    """Explain unsupported optional backends on Python 3.15 or newer.
+
+    :param name: canonical optional backend name to inspect.
+    :returns: translated refusal for pyfixest, catboost or pymc on Python
+        3.15 or newer; otherwise an empty string.
+    """
     if sys.version_info[:2] < (3, 15) or name not in ('pyfixest', 'catboost', 'pymc'):
         return ''
     from .qt.i18n import tr

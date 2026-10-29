@@ -359,6 +359,7 @@ def test_turning_prompting_on_offers_the_install_when_micro_sam_is_missing(
     assert not screen._prompter.enabled
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_a_click_gives_an_object_that_is_one_undoable_edit_save_writes(
         screen, qtbot, monkeypatch):
     from spacr.qt import mask_engine as engine
@@ -424,6 +425,7 @@ def test_points_off_the_object_and_a_box_refine_it_and_escape_discards(
     assert prompter.box is None and not prompter.wants_key(Qt.Key_Escape)
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_a_point_off_the_object_alone_asks_for_one_on_it(screen,
                                                         monkeypatch):
     monkeypatch.setattr(type(screen), "_prompt_ready", lambda self: True)
@@ -442,6 +444,9 @@ def test_moving_to_another_field_discards_the_prompt(screen, qtbot,
                     timeout=5000)
     generation = screen._prompter.generation
     screen._on_next()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
+    assert screen._image_files[screen._current_index] == "img_01.tif"
     assert screen._prompter.pending is None and not screen._prompter.points
     assert screen._prompter.generation > generation
     assert screen._prompter.enabled

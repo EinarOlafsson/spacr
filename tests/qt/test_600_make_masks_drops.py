@@ -201,6 +201,7 @@ def test_a_png_mask_is_written_as_a_tiff(qtbot, screen, tmp_path, monkeypatch):
     assert written.max() == 7
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_a_sorted_channels_folder_opens_its_first_channel(qtbot, screen, tmp_path):
     dest = tmp_path / "sorted_channels"
     _tif(dest / "C01" / "plate1_A01_T0001F001L01A01Z01C01.tif")
@@ -212,6 +213,7 @@ def test_a_sorted_channels_folder_opens_its_first_channel(qtbot, screen, tmp_pat
     assert "sorted by spaCR" in screen._masks_console.text()
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_merged_arrays_alone_open_nothing_and_say_why(screen, tmp_path):
     (tmp_path / "plate" / "merged").mkdir(parents=True)
     np.save(tmp_path / "plate" / "merged" / "f.npy", np.zeros((4, 4, 2)))

@@ -79,6 +79,7 @@ def _run(target):
 # The console
 # ---------------------------------------------------------------------------
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_a_line_posted_from_a_worker_thread_reaches_the_scrollback(qtbot):
     console = mm._MasksConsole()
     qtbot.addWidget(console)
@@ -97,6 +98,7 @@ def test_a_blank_line_is_not_written(qtbot):
     assert console.text() == before
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_a_finished_bar_is_written_before_the_line_that_interrupts_it(qtbot):
     console = mm._MasksConsole()
     qtbot.addWidget(console)

@@ -918,6 +918,8 @@ def dividing(qtbot, qt_theme_applied, tmp_path, monkeypatch):
     qtbot.addWidget(widget)
     widget._set_mode(mm.MODE_EDIT_LABEL)
     assert widget._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not widget._loading and widget._reader_worker is None
+                    and widget._load_worker is None)
     widget._canvas.resize(400, 400)
     widget._canvas.refresh()
     widget._btn_save_on_navigation.setChecked(False)
@@ -978,6 +980,8 @@ def test_division_branches_trace_both_ways_and_reopen_from_tiffs_only(qtbot, div
     fresh = mm.MakeMasksScreen()
     qtbot.addWidget(fresh)
     assert fresh._open_folder(folder)
+    qtbot.waitUntil(lambda: not fresh._loading and fresh._reader_worker is None
+                    and fresh._load_worker is None)
     graph = fresh._lineage
     assert graph["cells"][mother]["children"] == [first, second]
     assert [graph["cells"][key]["name"] for key in (mother, first, second)] == ["1", "1", "1a"]
@@ -1018,6 +1022,8 @@ def relabelled(qtbot, qt_theme_applied, tmp_path, monkeypatch):
     qtbot.addWidget(widget)
     widget._set_mode(mm.MODE_EDIT_LABEL)
     assert widget._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not widget._loading and widget._reader_worker is None
+                    and widget._load_worker is None)
     widget._canvas.resize(400, 400)
     widget._canvas.refresh()
     widget._btn_save_on_navigation.setChecked(False)
@@ -1034,6 +1040,8 @@ def _graph(lineage):
 def test_selected_mother_continues_through_its_daughter_with_undo_and_reopen(qtbot, relabelled):
     screen, (early, mother, kept, sister) = relabelled
     screen._on_next()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     screen._on_next()
     qtbot.waitUntil(lambda: not screen._loading and screen._current_index == 2, timeout=10000)
     enable_time(screen)
@@ -1072,6 +1080,8 @@ def test_selected_mother_continues_through_its_daughter_with_undo_and_reopen(qtb
     fresh = mm.MakeMasksScreen()
     qtbot.addWidget(fresh)
     assert fresh._open_folder(screen._folder)
+    qtbot.waitUntil(lambda: not fresh._loading and fresh._reader_worker is None
+                    and fresh._load_worker is None)
     cells, frames = _graph(fresh._lineage)
     assert early not in cells
     assert cells[mother][:2] == ("61", 61) and cells[mother][3] == [kept, sister]

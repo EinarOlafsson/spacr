@@ -36,6 +36,7 @@ def screen(qtbot):
 # 1. The console: lines in the scrollback, one progress line rewritten
 # ---------------------------------------------------------------------------
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_the_console_keeps_lines_and_rewrites_one_progress_line(qtbot):
     console = mm._MasksConsole()
     qtbot.addWidget(console)
@@ -85,6 +86,7 @@ def test_the_console_sits_right_of_the_image_under_the_shortcuts(screen, qtbot):
     qtbot.waitUntil(lambda: not column.is_collapsed("Console"))
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_the_corner_shows_one_line_and_the_console_gets_all_of_it(screen):
     label = screen._status_label
     stacked = "Magnifier could not segment this region: boom\n" + "\n".join(
@@ -332,6 +334,7 @@ def _assert_throttled(console, drawn, took):
     assert min(gaps) >= console.STREAM_MS / 1000.0 * 0.8, gaps
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_a_workers_tqdm_bar_streams_into_the_progress_line(qtbot):
     import subprocess
     import sys
@@ -376,6 +379,7 @@ def test_a_workers_tqdm_bar_streams_into_the_progress_line(qtbot):
     assert worker._stderr[-1] == "100%|##########| 200/200"
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_an_install_streams_pip_lines_and_ends_with_one_line(qtbot):
     import time
 

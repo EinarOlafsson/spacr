@@ -321,6 +321,7 @@ def _pin_stop_answer(monkeypatch, choice):
     return asked
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_app_screen_stop_asks_then_cooperates_and_stays_live_to_escalate(
         qtbot, qt_theme_applied, monkeypatch):
     """A cooperative Stop cancels the run, says so, and does NOT disable Stop.
@@ -417,6 +418,7 @@ def test_app_screen_stop_cancelled_at_the_prompt_leaves_a_real_run_alone(
         qtbot.waitUntil(lambda: screen._thread is None, timeout=5000)
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_screen_close_refuses_to_drop_a_live_stubborn_worker(
         qtbot, qt_theme_applied):
     from spacr.qt.screens.app_screen import AppScreen

@@ -301,7 +301,7 @@ def test_verdict_saves_box_project_before_recording_and_advancing(
     assert widget._current_index == 1
 
 
-def test_queue_skip_saves_box_project_before_marking_field(opened, monkeypatch):
+def test_queue_skip_saves_box_project_before_marking_field(opened, monkeypatch, qtbot):
     """Skip can advance only after the Box annotation for that field exists."""
     from spacr import curation_queue
 
@@ -317,6 +317,8 @@ def test_queue_skip_saves_box_project_before_marking_field(opened, monkeypatch):
     monkeypatch.setattr(curation_queue, "mark_state", mark)
     widget._queue = SimpleNamespace(folder=str(folder))
     widget._on_skip()
+    qtbot.waitUntil(lambda: not widget._loading and widget._reader_worker is None
+                    and widget._load_worker is None)
 
     assert marked == [(str(folder), "field_0", "skip")]
     assert widget._current_index == 1
@@ -361,6 +363,8 @@ def test_failed_box_save_refuses_opening_another_folder(opened, monkeypatch,
 
     monkeypatch.setattr(engine, "save_yolo_boxes", fail_save)
     assert not widget._open_folder(str(other))
+    assert widget._reader_worker is None and widget._load_worker is None
+    assert not widget._loading
     assert widget._folder == str(folder)
     assert widget._box_field == (str(folder), "field_0.tif")
     assert widget._canvas.boxes == [(0, 12, 12, 32, 32)]

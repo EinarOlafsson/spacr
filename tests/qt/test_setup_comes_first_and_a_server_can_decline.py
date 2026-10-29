@@ -17,6 +17,7 @@ killed it, and the only symptom would be a run that never started.
 """
 from __future__ import annotations
 
+import ast
 import inspect
 
 import pytest
@@ -99,10 +100,40 @@ class TestDeclining:
         assert take_the_setup_flags([]) == ([], False)
         assert take_the_setup_flags(None) == ([], False)
 
-    def test_launch_takes_the_flags_before_it_reads_the_module_name(self):
-        source = _launch_source()
-        assert source.index("take_the_setup_flags(") < source.index(
-            "initial_app = argv[0]")
+    def test_launch_takes_the_flags_before_it_reads_the_module_name(self, monkeypatch):
+        from spacr.qt import app
+        from spacr.qt.setup_screen import take_the_setup_flags
+
+        body = ast.parse(_launch_source()).body[0].body
+        setup = [i for i, node in enumerate(body)
+                 if isinstance(node, ast.Assign)
+                 and isinstance(node.value, ast.Call)
+                 and isinstance(node.value.func, ast.Name)
+                 and node.value.func.id == "take_the_setup_flags"]
+        target = [i for i, node in enumerate(body)
+                  if isinstance(node, ast.Assign)
+                  and any(isinstance(value, ast.Name) and value.id == "initial_app"
+                          for value in node.targets)]
+        assert len(setup) == 1
+        assert target
+        assert setup[0] < target[0]
+        assert ast.unparse(body[setup[0]].targets[0]) == "(argv, told_to_skip_setup)"
+        assert ast.unparse(body[setup[0]].value) == "take_the_setup_flags(argv)"
+        assert ast.unparse(body[target[0]].value) == "_startup_target(argv)"
+        prefix = compile(ast.Module(body=body[setup[0]:target[0] + 1],
+                                    type_ignores=[]), "<launch argument selection>", "exec")
+        monkeypatch.setattr(app, "_OPEN_FRESH", [False])
+        monkeypatch.setattr(app, "_RESUME_RESTART", [False])
+        for flag in ("--no-setup", "--skip-setup", "--headless-setup"):
+            for arguments, expected in (([flag, "classify"], "classify"),
+                                        ([flag], None),
+                                        ([flag, "--resume-restart", "classify"], "classify")):
+                namespace = {"argv": arguments, "take_the_setup_flags": take_the_setup_flags,
+                             "_startup_target": app._startup_target}
+                exec(prefix, namespace)
+                assert namespace["told_to_skip_setup"] is True
+                assert namespace["initial_app"] == expected
+                assert flag not in namespace["argv"]
 
     @pytest.mark.parametrize("said", ["1", "true", "TRUE", "yes", "on"])
     def test_the_environment_variable_says_yes(self, said):
