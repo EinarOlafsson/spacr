@@ -6668,7 +6668,6 @@ class _EasyWorkflowView(_WorkflowView):
 
     def __init__(self, data, parent=None):
         """Retain existing nodes and descriptions, excluding the global edge network."""
-        from shiboken6 import delete
         from PySide6.QtCore import QVariantAnimation, QEasingCurve
 
         self._selected_key = None
@@ -6698,10 +6697,6 @@ class _EasyWorkflowView(_WorkflowView):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         self.verticalScrollBar().valueChanged.connect(self._position_connections)
-        for edge in self.edges:
-            self.scene().removeItem(edge)
-            delete(edge)
-        self.edges = []
         for key in self.keys:
             node = _EasyWorkflowNode(self, key)
             self.scene().addItem(node)
