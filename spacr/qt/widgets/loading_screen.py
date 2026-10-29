@@ -1006,19 +1006,6 @@ class LoadingScreen(QWidget):
         painter.drawPixmap(target, picture, QRectF(picture.rect()))
         return True
 
-    def _paint_strap_under(self, painter: QPainter, target: QRectF) -> None:
-        """Draw the strap line centred under the logo at ``target``.
-
-        :param painter: an active painter on this widget; its opacity is
-            the strap line's.
-        :param target: where the logo is drawn, in logical pixels.
-        """
-        strap = self._strap_metrics(painter)
-        metrics = painter.fontMetrics()
-        baseline = target.bottom() + scaled_px(28) + metrics.ascent()
-        self._paint_strap(painter, (self.width() - strap[3]) / 2.0,
-                          baseline, strap)
-
     def blow_away(self, on_finished: Optional[Callable[[], None]] = None,
                   *, force: bool = False, plain: bool = False) -> bool:
         """End the cover by blowing the mosaic's tiles off the window.
