@@ -2660,13 +2660,13 @@ def _validated_prior_weighted_preview_callables(callables):
             "7c61b5379ae1ef8d5b2b285132093cf3e90789df881d8d23d1cc5b5fd0d9319c"),
         "spacr.qt.widgets.live_preview.PreviewRequest": (
             "spacr/qt/widgets/live_preview.py", "dataclass_constructor",
-            {"cell_mask"}, {"image"},
+            {"cell_mask", "module"}, {"image"},
             {"image", "model", "diameter", "flow_threshold", "cellprob", "channels",
              "object_types", "preprocess_settings", "postprocess_settings",
              "model_note", "cancel", "provenance", "cellprob_maps", "source_path",
-             "cell_mask"},
-            "52ac326570a01a5db4af593ee1ef314cd7e57c2b08d071885dc6034d4cb03643",
-            "9d76c91c3380bbe571f3bbb3073659d41113721c6fd4990e583d9fcb79963c6b"),
+             "cell_mask", "module"},
+            "9848309f54d38432aaec68dd49cb09f30219ce80f16d8b4dfa8e19809662cc1e",
+            "4b32b423fecf0f60adce8ac0b0b05822b30558329f5da200ec59f21a6308ed63"),
     }
     by_symbol = {item.symbol: item for item in callables}
     root = pathlib.Path(__file__).resolve().parents[1]
@@ -2698,7 +2698,11 @@ def _validated_prior_weighted_preview_callables(callables):
                         assert ast.unparse(default.func) == "field"
                         default = next(value.value for value in default.keywords
                                        if value.arg == "default")
-                    assert ast.literal_eval(default) is None
+                    expected_default = ("" if symbol == "spacr.qt.widgets.live_preview.PreviewRequest"
+                                        and field.target.id == "module" else None)
+                    assert ast.literal_eval(default) == expected_default
+                    if field.target.id == "module":
+                        assert ast.unparse(field.annotation) == "str"
         assert hashlib.sha256(_portable_boundary_ast_dump(signature).encode()).hexdigest() == signature_sha
     return [replace(item, parameters=item.parameters - contracts[item.symbol][2],
                     accepted_documented_parameters=(

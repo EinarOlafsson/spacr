@@ -7395,6 +7395,11 @@ class _EasyHomePage(QWidget):
 
     @staticmethod
     def _navigator_local_reply(value):
+        """Answer recognized literary prompts locally while leaving paths untouched.
+
+        :param value: the submitted Navigator text.
+        :returns: a translated reply for a recognized prompt, else an empty string.
+        """
         from ..app import _easy_command_text
         from ..i18n import tr
 

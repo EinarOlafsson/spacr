@@ -898,6 +898,13 @@ def _native_rgb_field(header):
 
 
 def _existing_field_mask_path(folder, filename, masks_dir):
+    """Find an existing TIFF or same-name mask in the field's masks folder.
+
+    :param folder: the directory containing the displayed image.
+    :param filename: the image filename whose stem identifies its mask.
+    :param masks_dir: an explicit masks directory, or None for the default.
+    :returns: the first existing supported mask path, or an empty string.
+    """
     stem = os.path.splitext(filename)[0]
     target = masks_folder(folder, masks_dir)
     return next((path for path in (os.path.join(target, stem + '.tif'),
@@ -907,6 +914,15 @@ def _existing_field_mask_path(folder, filename, masks_dir):
 
 
 def _field_mask_path(folder, filename, masks_dir):
+    """Resolve a field mask, validating a retained container view when needed.
+
+    :param folder: the directory containing the displayed image.
+    :param filename: the image filename whose mask is requested.
+    :param masks_dir: an explicit masks directory, or None for the default.
+    :returns: an existing local mask or the reviewed container-view mask path;
+        an empty string when neither exists.
+    :raises ValueError: when a reviewed source changed or its mask shape differs.
+    """
     path = _existing_field_mask_path(folder, filename, masks_dir)
     if path or masks_dir is None:
         return path

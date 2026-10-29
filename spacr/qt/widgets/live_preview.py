@@ -908,6 +908,9 @@ class PreviewRequest:
         empty falls back to the settings' ``src`` and then to the defaults.
     :param cell_mask: optional labels for the same preview field, used for
         organelle restriction when cell labels are not generated in the same pass.
+    :param module: originating application key; ``cellpose_masks`` follows that
+        application's preprocessing, normalization and resampling settings.
+        Empty keeps the generic preview behavior.
     """
     image:               np.ndarray
     model:               str = "cpsam"
