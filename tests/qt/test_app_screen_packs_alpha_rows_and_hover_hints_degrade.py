@@ -155,7 +155,7 @@ class TestTheExampleScreen:
         assert button.text() == "Load test data…"
 
     def test_without_a_paired_table_the_tables_go_in_as_settings(
-            self, screen, monkeypatch, fetched):
+            self, screen, monkeypatch, fetched, console_info_enabled):
         from spacr import example_data
 
         monkeypatch.setattr(example_data, "fetch", lambda **_k: fetched)

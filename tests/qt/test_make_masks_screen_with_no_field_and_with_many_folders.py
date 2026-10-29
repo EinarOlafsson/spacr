@@ -67,6 +67,8 @@ def opened(qtbot, qt_theme_applied, tmp_path):
     made = mm.MakeMasksScreen()
     qtbot.addWidget(made)
     assert made._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not made._loading and made._reader_worker is None
+                    and made._load_worker is None)
     yield made, folder
     made._magnifier.close()
     made.close_folded()
@@ -165,6 +167,8 @@ def spread(qtbot, qt_theme_applied, tmp_path):
     qtbot.addWidget(made)
     assert made.open_paths([first / "a.tif", tmp_path / "notes.txt",
                             second / "b.tif", first / "a.tif"])
+    qtbot.waitUntil(lambda: not made._loading and made._reader_worker is None
+                    and made._load_worker is None)
     yield made, first, second
     made._magnifier.close()
     made.close_folded()
@@ -186,10 +190,15 @@ def test_a_drop_with_no_image_says_so(blank, tmp_path):
 
 
 def test_a_drop_whose_folder_will_not_open_is_not_a_queue(
-        blank, tmp_path, monkeypatch):
+        blank, tmp_path, monkeypatch, qtbot):
     first = _folder(tmp_path, "first", ("a.tif",))
+    assert blank._open_folder(str(first))
+    qtbot.waitUntil(lambda: not blank._loading and blank._reader_worker is None
+                    and blank._load_worker is None)
+    original = list(blank._image_files)
     monkeypatch.setattr(blank, "_open_folder", lambda *a, **k: False)
     assert blank.open_paths([first / "a.tif"]) is False
+    assert blank._image_files == original
 
 
 def test_the_folder_mask_button_refuses_a_queue_spanning_folders(spread):

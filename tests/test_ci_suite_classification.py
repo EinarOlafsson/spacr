@@ -289,6 +289,13 @@ def test_fractal_cpu_budget_runs_strictly_without_coverage_tracing():
     assert sum(step.count(f"--deselect={node}") for step in steps) == 1
     assert not any(f"--exclude-file {filename}" in step for step in steps)
 
+
+
+def test_fractal_cpu_budget_stays_in_the_mandatory_untraced_qt_tail():
+    """Retain the strict measurement and its complete Qt routing contract."""
+    import yaml
+
+    filename = "tests/qt/test_spaceout_fractals_move_and_stay_in_budget.py"
     reusable = REUSABLE.read_text()
     tail = reusable.split('if [ "${{ inputs.run_serial_tail }}" = "true" ]; then', 1)[1].split("\n          fi", 1)[0]
     assert tail.count(filename) == 1

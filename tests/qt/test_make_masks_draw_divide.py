@@ -497,6 +497,8 @@ def screen(qtbot, qt_theme_applied, tmp_path: Path):
     widget = MakeMasksScreen()
     qtbot.addWidget(widget)
     widget._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not widget._loading and widget._reader_worker is None
+                    and widget._load_worker is None)
     widget._canvas.set_image_and_mask(field_image(), merged_mask())
     widget._history.clear()
     widget._history.push(widget._canvas.mask)
@@ -602,12 +604,16 @@ def test_right_line_merges_divided_objects_and_survives_save_next_reopen(screen,
     screen._on_save()
     folder = screen._folder
     screen._on_next()
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._current_index == 1
     assert not screen._canvas.manual_ids
     screen.close()
     reopened = MakeMasksScreen()
     qtbot.addWidget(reopened)
     assert reopened._open_folder(folder)
+    qtbot.waitUntil(lambda: not reopened._loading and reopened._reader_worker is None
+                    and reopened._load_worker is None)
     np.testing.assert_array_equal(reopened._canvas.mask, expected)
     assert reopened._canvas.manual_ids
     assert source.read_bytes() == original_image

@@ -126,6 +126,8 @@ def screen(qtbot, qt_theme_applied, tmp_path):
     widget = MakeMasksScreen()
     qtbot.addWidget(widget)
     assert widget._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not widget._loading and widget._reader_worker is None
+                    and widget._load_worker is None)
     widget._canvas.resize(*CANVAS_SIZE)
     widget._canvas.set_image_and_mask(_image(), _mask())
     assert widget._canvas.pixmap().width() == PICTURE_SIZE
@@ -359,6 +361,8 @@ def test_saved_boxes_and_classes_follow_their_field_on_reopen(screen, qtbot):
     widget._btn_save.click()
 
     widget._on_next()
+    qtbot.waitUntil(lambda: not widget._loading and widget._reader_worker is None
+                    and widget._load_worker is None)
     assert widget._current_index == 1
     assert widget._canvas.boxes == []
     widget._box_class_combo.setCurrentIndex(
@@ -368,16 +372,24 @@ def test_saved_boxes_and_classes_follow_their_field_on_reopen(screen, qtbot):
     assert second_path is not None and second_path.is_file()
 
     widget._on_prev()
+    qtbot.waitUntil(lambda: not widget._loading and widget._reader_worker is None
+                    and widget._load_worker is None)
     assert widget._canvas.boxes == [(1, 12, 44, 25, 57)]
     widget._on_next()
+    qtbot.waitUntil(lambda: not widget._loading and widget._reader_worker is None
+                    and widget._load_worker is None)
     assert widget._canvas.boxes == [(0, 4, 4, 13, 13)]
 
     reopened = MakeMasksScreen()
     qtbot.addWidget(reopened)
     assert reopened._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not reopened._loading and reopened._reader_worker is None
+                    and reopened._load_worker is None)
     assert reopened._box_classes == ["object", "infected"]
     assert reopened._canvas.boxes == [(1, 12, 44, 25, 57)]
     reopened._on_next()
+    qtbot.waitUntil(lambda: not reopened._loading and reopened._reader_worker is None
+                    and reopened._load_worker is None)
     assert reopened._canvas.boxes == [(0, 4, 4, 13, 13)]
 
 

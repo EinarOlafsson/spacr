@@ -239,6 +239,7 @@ def test_submit_without_ai_creates_user_banner_and_green_text(qtbot, qt_theme_ap
     assert any(COLOR_USER in (b.styleSheet() or "") for b in blocks)
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_submit_with_ai_but_no_provider_shows_hint(qtbot, qt_theme_applied,
                                                     monkeypatch):
     """When AI is on but no provider is selected, we shouldn't crash —

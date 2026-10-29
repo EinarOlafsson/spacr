@@ -519,6 +519,7 @@ def test_real_mouse_clicks_reach_the_annotation_write_path(qtbot, tile_screen):
     assert screen._page_paths[2][1] is None
 
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_mouse_click_logs_path_and_annotation_as_one_line(qtbot, tile_screen):
     """Each click leaves one searchable path/annotation console record."""
     from PySide6.QtCore import Qt as _Qt

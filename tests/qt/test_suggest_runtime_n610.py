@@ -7,6 +7,7 @@ import pytest
 
 
 @pytest.mark.parametrize('language', ['sv', 'de', 'es', 'pt', 'fr', 'zh_CN', 'hi', 'ko', 'is'])
+@pytest.mark.usefixtures("console_info_enabled")
 def test_actual_suggest_controls_and_console_use_reviewed_language(qtbot, monkeypatch, language):
     from spacr.qt import i18n
     from spacr.qt.screens.annotate import AnnotateScreen

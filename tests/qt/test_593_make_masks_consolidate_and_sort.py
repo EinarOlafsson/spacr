@@ -67,11 +67,14 @@ def test_the_organize_button_is_on_the_screen(screen):
 
 
 def test_a_headless_drop_opens_the_folder_as_it_is(screen, tmp_path,
-                                                  monkeypatch):
+                                                  monkeypatch, qtbot):
     """Nobody can answer the question, so nothing is copied."""
     monkeypatch.setattr(mm, "is_headless", lambda: True)
     src = _nested(tmp_path)
     assert screen.open_paths([str(src)])
+    qtbot.waitUntil(lambda: not screen._loading
+                    and screen._reader_worker is None
+                    and screen._load_worker is None)
     assert screen._folder == str(src)
     assert not (tmp_path / "exp_renamed").exists()
 
