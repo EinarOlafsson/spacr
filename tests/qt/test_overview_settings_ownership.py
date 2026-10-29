@@ -303,3 +303,64 @@ def test_retained_apply_and_layout_receivers_leave_the_replacement_browser_owned
     tab._overview_page._apply_bar.apply_button.click()
     assert view.low.value() == 7
     assert {path.name: path.read_bytes() for path in source.glob('*.tif')} == source_bytes
+
+
+def test_retained_image_menu_request_cannot_retarget_a_closed_stacked_image(
+        overview_preferences, mask, source, qtbot, monkeypatch):
+    from PySide6.QtCore import QPoint
+    from PySide6.QtGui import QContextMenuEvent
+    from PySide6.QtWidgets import QApplication
+    from spacr.qt.widgets import qc_field_browser as browser
+
+    received = []
+    original_menu = browser._FieldOverview._image_menu
+
+    def observe(owner, image_view, position):
+        received.append((owner, image_view, QPoint(position)))
+        return original_menu(owner, image_view, position)
+
+    monkeypatch.setattr(browser._FieldOverview, '_image_menu', observe)
+    tab, view = _open(mask, qtbot, source)
+    _open_well(view, qtbot, 'A01')
+    view.fields.item(0).setSelected(True)
+    view.fields.item(1).setSelected(True)
+    assert len(view._selected_fields) == 2
+    view._open_selected_images()
+    old, current = view._image_views
+    qtbot.waitUntil(lambda: all(panel.view._item is not None for panel in (old, current)),
+                    timeout=15000)
+
+    def request_menu(image_view):
+        viewport = image_view.viewport()
+        point = viewport.rect().center()
+        event = QContextMenuEvent(QContextMenuEvent.Mouse, point, viewport.mapToGlobal(point))
+        QApplication.sendEvent(viewport, event)
+        return view._image_menu_shown
+
+    old_menu = request_menu(old.view)
+    assert received[-1][1] is old.view
+    assert old_menu is not None and old_menu.isVisible()
+    assert any(action.text() == 'Image settings…' for action in old_menu.actions())
+    old_owner, old_view, old_position = received[-1]
+    old_menu.close()
+    image = current.view._item.pixmap().toImage().copy()
+    selected = copy.deepcopy((view._selected_wells, view._selected_fields))
+    settings = copy.deepcopy(tab._settings_model.collect())
+    original_bytes = {path.name: path.read_bytes() for path in source.glob('*.tif')}
+    old.close_button.click()
+    assert view._image_views == [current] and isValid(old_view)
+    assert view._image_stack.indexOf(current) >= 0
+    original_menu(old_owner, old_view, old_position)
+    assert view._image_menu_shown is old_menu
+    assert view._image_views == [current]
+    assert current.view._item.pixmap().toImage() == image
+    assert (view._selected_wells, view._selected_fields) == selected
+    assert tab._settings_model.collect() == settings
+    current_menu = request_menu(current.view)
+    assert received[-1][1] is current.view
+    assert current_menu is not old_menu and current_menu.isVisible()
+    assert any(action.text() == 'Image settings…' for action in current_menu.actions())
+    assert any(action.objectName() == 'OverviewImage_link_zoom'
+               for action in current_menu.actions())
+    current_menu.close()
+    assert {path.name: path.read_bytes() for path in source.glob('*.tif')} == original_bytes
