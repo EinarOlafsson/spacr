@@ -15070,8 +15070,7 @@ class _OverviewMetadataWizard(QWidget):
         self._excluded_plates.update(path for path in folders if path not in given)
         kept = [path for path in given if path not in folders]
         self.source.setText("; ".join(kept))
-        if kept:
-            self._scan()
+        self._scan()
 
     def _preset_changed(self):
         """Use the exact filename patterns offered by the Generate Masks editor."""
