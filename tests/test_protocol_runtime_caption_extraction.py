@@ -33,6 +33,16 @@ def test_protocol_caption_sources_include_display_prose_without_machine_ids(tmp_
                          "stage": {"stage_id": "Ready to measure"},
                          "details": {"detail_id": "One plate"},
                          "internal": {"ignore_key": "Do not expose machine metadata"}},
+        protocol_tree={"id": "Hidden tree identity", "title": "Choose your starting material",
+                       "description": "Select data that you already have.",
+                       "children": [{"id": "Hidden branch identity",
+                                     "title": "Microscopy images",
+                                     "description": "Browse image analysis routes.",
+                                     "children": [{"id": "Hidden leaf identity",
+                                                   "title": "Review a measured field",
+                                                   "description": "Inspect the measurement table.",
+                                                   "protocol": "Hidden protocol identity",
+                                                   "start_module": "Hidden module identity"}]}]},
         protocol_routes=[{"data": "data_id", "goal": "goal_id", "stage": "stage_id",
                           "details": "detail_id", "protocol": "protocol_id"}])
     path.write_text(json.dumps(workflow))
@@ -41,4 +51,7 @@ def test_protocol_caption_sources_include_display_prose_without_machine_ids(tmp_
         "Confirm that cell borders match the image.", "Open a representative field.",
         "Inspect a second field", "Keep the original image unchanged.",
         "Images and masks", "Measure cell features", "Ready to measure", "One plate",
+        "Choose your starting material", "Select data that you already have.",
+        "Microscopy images", "Browse image analysis routes.",
+        "Review a measured field", "Inspect the measurement table.",
     }

@@ -422,3 +422,70 @@ def test_console_script_takes_the_interpreter_suffix(tmp_path, monkeypatch):
     monkeypatch.setattr(service.environments, '_env_python',
                         lambda env: str(Path(env) / 'Scripts' / 'python.exe'))
     assert service.gui_command(tmp_path) == tmp_path / 'Scripts' / 'parascape.exe'
+
+
+@pytest.mark.parametrize('bootstrap', ['callable', 'missing', 'broken', 'noncallable'])
+def test_missing_data_requires_working_native_bootstrap_without_starting_download(
+        monkeypatch, capsys, bootstrap):
+    import importlib.metadata
+    from types import ModuleType
+
+    package = ModuleType('parascape')
+    paths = ModuleType('parascape.paths')
+    paths.check = lambda: (False, 'cache incomplete: missing nodes.parquet')
+    package.paths = paths
+    app = ModuleType('parascape.app')
+    app.main = lambda: None
+    qt = ModuleType('PyQt6')
+    qt.QtWidgets = ModuleType('PyQt6.QtWidgets')
+    setup = ModuleType('parascape.data_download_dialog')
+    if bootstrap == 'callable':
+        setup.ensure_data = lambda: pytest.fail('data setup requires native user consent')
+    elif bootstrap == 'noncallable':
+        setup.ensure_data = None
+    for name, module in {'parascape': package, 'parascape.paths': paths,
+                         'parascape.app': app, 'PyQt6': qt}.items():
+        monkeypatch.setitem(sys.modules, name, module)
+    monkeypatch.setitem(sys.modules, 'parascape.data_download_dialog',
+                        None if bootstrap == 'missing' else setup)
+    monkeypatch.setattr(importlib.metadata, 'version', lambda _: '0.0.3.0')
+    if bootstrap == 'callable':
+        exec(service._SELFTEST, {})
+        lines = capsys.readouterr().out.splitlines()
+        assert lines[0] == 'cache incomplete: missing nodes.parquet'
+        assert json.loads(lines[-1]) == {'ok': True, 'version': '0.0.3.0'}
+    else:
+        with pytest.raises((ImportError, AssertionError)):
+            exec(service._SELFTEST, {})
+
+
+@pytest.mark.parametrize('operation', ['install', 'upgrade'])
+def test_first_run_data_bootstrap_marks_package_ready_and_launches_native_entry(
+        tmp_path, operation):
+    calls = []
+    if operation == 'upgrade':
+        env = ready(tmp_path)
+        (env / 'keep').write_text('preserve', encoding='utf-8')
+    else:
+        env = tmp_path / 'parascape'
+
+    def runner(argv, **kwargs):
+        calls.append(argv)
+        if 'venv' in argv:
+            python = Path(service.environments._env_python(str(env)))
+            python.parent.mkdir(exist_ok=True)
+            python.touch()
+        return 0, ['cache incomplete: missing nodes.parquet',
+                   '{"ok":true,"version":"0.0.3.0"}']
+
+    if operation == 'upgrade':
+        service.upgrade_parascape(root=tmp_path, runner=runner)
+        assert (env / 'keep').read_text(encoding='utf-8') == 'preserve'
+    else:
+        service.install_parascape(root=tmp_path, runner=runner, preflight=preflight)
+    assert service.is_installed(tmp_path)
+    assert service._record(env)['version'] == '0.0.3.0'
+    assert not any('--download' in argv for argv in calls)
+    launched = []
+    service.launch_parascape(root=tmp_path, popen=lambda argv, **kw: launched.append(argv))
+    assert launched == [[str(service.gui_command(env))]]

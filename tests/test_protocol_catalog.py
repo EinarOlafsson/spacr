@@ -66,9 +66,61 @@ def test_invalid_protocol_catalog_is_rejected_before_browser_use(mutation):
 
 def test_legacy_maps_without_optional_protocol_catalog_remain_valid():
     data = workflows.load()
-    for field in ('protocols', 'protocol_routes', 'protocol_choices'):
+    for field in ('protocols', 'protocol_routes', 'protocol_choices', 'protocol_tree'):
         del data[field]
     workflows._validate_protocols(data)
     data['protocols'] = {}
+    with pytest.raises(ValueError):
+        workflows._validate_protocols(data)
+
+
+def _tree_nodes(node):
+    yield node
+    for child in node.get('children', []):
+        yield from _tree_nodes(child)
+
+
+def test_hierarchical_choices_are_context_specific_and_reach_every_guide():
+    data = workflows.load()
+    workflows._validate_protocols(data)
+    tree = data['protocol_tree']
+    assert {node['id'] for node in tree['children']} == set(data['protocol_choices']['data'])
+    nodes = list(_tree_nodes(tree))
+    assert {node['protocol'] for node in nodes if 'protocol' in node} == set(data['protocols'])
+    images = next(node for node in tree['children'] if node['id'] == 'images')
+    segmentation = next(node for node in images['children'] if node['title'] == 'Segment images')
+    high, low = segmentation['children']
+    assert (high['title'], high['protocol'], high['start_module']) == ('High content', 'generate_masks', 'mask')
+    assert (low['title'], low['protocol'], low['start_module']) == ('Low content', 'curate_masks', 'make_masks')
+    assert not any(node['title'] in {'FASTQ reads', 'Paired-end reads', 'Single-end reads',
+                                     'Start from images or reads', 'Starting point'}
+                   for node in _tree_nodes(images))
+    merged = next(node for node in nodes if node['title'] == 'Existing spaCR merged project')
+    assert merged['protocol'] == 'simple_imaging' and merged['start_module'] == 'measure'
+    # Broader choices explain the concept; no extra page offers just one final guide.
+    assert all(node['description'] != node['title'] for node in nodes if 'children' in node)
+    assert not any(len(node['children']) == 1 and 'protocol' in node['children'][0]
+                   for node in nodes if 'children' in node)
+    assert 'batch' in high['description'] and 'interactively' in low['description']
+    prepared_dose = next(node for node in nodes if node['id'] == 'features_figures_dose_response')
+    assert prepared_dose['start_module'] == 'dose_response'
+
+
+@pytest.mark.parametrize('mutation', [
+    lambda tree: tree.update(description=''),
+    lambda tree: tree['children'].append(deepcopy(tree['children'][0])),
+    lambda tree: tree['children'][0].update(protocol='generate_masks'),
+    lambda tree: tree['children'][0].update(children=[]),
+    lambda tree: tree['children'][0].update(children=[{'id': 'broken', 'title': 'Broken',
+                                                     'description': 'Broken', 'protocol': 'missing'}]),
+    lambda tree: tree['children'][0].update(children=[{'id': 'broken', 'title': 'Broken',
+                                                     'description': 'Broken', 'protocol': 'generate_masks',
+                                                     'start_module': 'run_history'}]),
+    lambda tree: tree.update(children=tree['children'][:-1]),
+    lambda tree: tree['children'][-1].update(children=tree['children'][-1]['children'][1:]),
+])
+def test_invalid_hierarchical_choices_are_rejected(mutation):
+    data = deepcopy(workflows.load())
+    mutation(data['protocol_tree'])
     with pytest.raises(ValueError):
         workflows._validate_protocols(data)

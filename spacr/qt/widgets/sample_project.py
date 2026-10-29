@@ -429,8 +429,7 @@ class _ProtocolDocument(QTextDocument):
 
 class _ProtocolBrowserDialog(QDialog):
     def __init__(self, parent=None, source_path='', context=None, *, data=None):
-        from functools import partial
-        from PySide6.QtWidgets import QComboBox, QFormLayout, QHBoxLayout, QTextBrowser
+        from PySide6.QtWidgets import QListWidget, QPushButton, QTextBrowser
 
         super().__init__(parent)
         self.setObjectName('ProtocolBrowser')
@@ -440,49 +439,27 @@ class _ProtocolBrowserDialog(QDialog):
         self.setMinimumSize(640, 480)
         self._data = data if data is not None else workflow_map()
         self._protocols = self._data.get('protocols', {})
-        self._routes = [row for row in self._data.get('protocol_routes', ())
-                        if row.get('protocol') in self._protocols]
+        self._tree = self._data.get('protocol_tree', {})
         self._source_path = ''
         self._context = {}
-        self._preferred = {}
         self._diagram = None
         self._selected_protocol = None
+        self._active_route = {}
+        self._trail = []
+        self._choices = {}
         layout = QVBoxLayout(self)
         self._source_label = QLabel(self)
         self._source_label.setWordWrap(True)
         self._source_label.setTextFormat(Qt.PlainText)
         layout.addWidget(self._source_label)
-        self._form = QFormLayout()
-        layout.addLayout(self._form)
-        self._selectors = {}
-        self._selector_rows = {}
-        self._help_buttons = {}
-        self._levels = ('data', 'goal', 'stage', 'details', 'protocol')
-        labels = (tr('Data'), tr('Goal'), tr('Starting point'), tr('Details'), tr('Protocol'))
-        self._level_labels = dict(zip(self._levels, labels))
-        for index, (key, label) in enumerate(zip(self._levels, labels)):
-            control = QComboBox(self)
-            control.setObjectName('ProtocolChoice_' + key)
-            control.setMinimumContentsLength(18)
-            control.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
-            control.currentIndexChanged.connect(partial(self._cascade, index))
-            self._selectors[key] = control
-            row = QWidget(self)
-            row_layout = QHBoxLayout(row)
-            row_layout.setContentsMargins(0, 0, 0, 0)
-            row_layout.addWidget(control, 1)
-            help_button = QToolButton(row)
-            help_button.setText(tr('Help me choose'))
-            help_button.setAccessibleName(label + ': ' + tr('Help me choose'))
-            help_button.setObjectName('ProtocolHelp_' + key)
-            help_button.setCheckable(True)
-            help_button.clicked.connect(partial(self._show_choice_help, index))
-            row_layout.addWidget(help_button)
-            self._help_buttons[key] = help_button
-            self._selector_rows[key] = row
-            heading = QLabel(label, self)
-            heading.setBuddy(control)
-            self._form.addRow(heading, row)
+        self._heading = QLabel(self)
+        self._heading.setTextFormat(Qt.PlainText)
+        self._heading.setWordWrap(True)
+        layout.addWidget(self._heading)
+        self._choice_list = QListWidget(self)
+        self._choice_list.setObjectName('ProtocolChoices')
+        self._choice_list.currentRowChanged.connect(self._choice_changed)
+        layout.addWidget(self._choice_list, 1)
         self._splitter = diagram_splitter(self)
         self._diagram_host = QWidget(self)
         self._diagram_layout = QVBoxLayout(self._diagram_host)
@@ -498,8 +475,16 @@ class _ProtocolBrowserDialog(QDialog):
         self._text.setMinimumHeight(170)
         self._splitter.addWidget(self._text)
         self._splitter.setSizes([270, 350])
-        layout.addWidget(self._splitter, 1)
+        layout.addWidget(self._splitter, 2)
         buttons = QDialogButtonBox(QDialogButtonBox.Close, self)
+        self._previous = QPushButton(tr('Previous'), self)
+        self._previous.setObjectName('ProtocolPrevious')
+        self._previous.clicked.connect(self._previous_level)
+        buttons.addButton(self._previous, QDialogButtonBox.ActionRole)
+        self._next = QPushButton(tr('Next'), self)
+        self._next.setObjectName('ProtocolNext')
+        self._next.clicked.connect(self._next_level)
+        buttons.addButton(self._next, QDialogButtonBox.ActionRole)
         buttons.rejected.connect(self.close)
         layout.addWidget(buttons)
         self._set_input(source_path, context)
@@ -510,10 +495,6 @@ class _ProtocolBrowserDialog(QDialog):
         self._source_label.setText(tr('Input: {path}', path=self._source_path))
         self._source_label.setVisible(bool(self._source_path))
         metadata = self._context.get('context', self._context)
-        choices = self._data.get('protocol_choices', {})
-        self._preferred = {key: metadata['protocol_' + key]
-                           for key in ('data', 'goal', 'stage', 'details')
-                           if metadata.get('protocol_' + key) in choices.get(key, {})}
         artifacts = {item.get('kind') for item in metadata.get('generated_outputs', {}).get('artifacts', ())
                      if isinstance(item, dict)}
         analyzed = any(item.get('objects') and item.get('numeric')
@@ -522,82 +503,72 @@ class _ProtocolBrowserDialog(QDialog):
         fastq = analysis.get('map_barcodes', {}).get('fastq')
         counts = any(item.get('count_data') for item in analysis.values() if isinstance(item, dict))
         tables = any(item.get('table') for item in analysis.values() if isinstance(item, dict))
-        if 'data' not in self._preferred:
-            kind = ('fastq' if fastq else 'barcode_counts' if counts else
-                    'regression' if 'regression' in artifacts else
-                    'classifier' if 'classifier' in artifacts else
-                    'features' if 'measurements' in artifacts or analyzed or tables else
-                    'crops' if 'crops' in artifacts else
-                    'images_masks' if artifacts.intersection(('merged', 'masks')) or metadata.get('paired_layout') else
-                    'images' if metadata.get('image_folders') or metadata.get('image_dimensions') else
-                    'fastq' if fastq or self._source_path.lower().endswith(('.fastq', '.fq', '.fastq.gz', '.fq.gz')) else
-                    'barcode_counts' if counts else
-                    'run_records' if metadata.get('run_evidence', {}).get('manifests') else '')
-            if kind in choices.get('data', {}):
-                self._preferred['data'] = kind
-                stage = 'results' if kind == 'regression' else 'start' if kind in ('images', 'fastq') else 'prepared'
-                if stage in choices.get('stage', {}):
-                    self._preferred.setdefault('stage', stage)
         source = self._source_path.lower()
-        hint = (dict(data='images', goal='assays', stage='start', details='pdf')
-                if source.endswith('.pdf') else
-                dict(data='features', goal='exploration', stage='prepared', details='database')
-                if source.endswith(('.db', '.sqlite', '.sqlite3')) and analyzed else
-                dict(data='images_masks', goal='quantification', stage='prepared', details='merged_project')
-                if 'merged' in artifacts else
-                dict(data='fastq', goal='sequencing', stage='start')
-                if fastq or source.endswith(('.fastq', '.fq', '.fastq.gz', '.fq.gz')) else {})
-        for key, value in hint.items():
-            if value in choices.get(key, {}):
-                self._preferred.setdefault(key, value)
-        self._cascade(-1)
+        kind = metadata.get('protocol_data') or (
+            'images' if source.endswith('.pdf') else
+            'fastq' if fastq or source.endswith(('.fastq', '.fq', '.fastq.gz', '.fq.gz')) else
+            'barcode_counts' if counts else
+            'regression' if 'regression' in artifacts else
+            'classifier' if 'classifier' in artifacts else
+            'features' if 'measurements' in artifacts or analyzed or tables else
+            'crops' if 'crops' in artifacts else
+            'images_masks' if artifacts.intersection(('merged', 'masks')) or metadata.get('paired_layout') else
+            'images' if metadata.get('image_folders') or metadata.get('image_dimensions') else
+            'run_records' if metadata.get('run_evidence', {}).get('manifests') else '')
+        self._choices = {}
+        for child in self._tree.get('children', ()):
+            if child.get('data', child.get('id')) == kind:
+                self._choices[self._tree.get('id', '')] = child['id']
+                break
+        self._trail = [self._tree]
+        self._show_level()
 
-    def _cascade(self, changed, *_args):
-        if changed == 0:
-            for key in self._levels[1:]:
-                self._preferred.pop(key, None)
-        rows = list(self._routes)
-        choices = self._data.get('protocol_choices', {})
-        for index, key in enumerate(self._levels):
-            control = self._selectors[key]
-            if index > changed:
-                blocked = control.blockSignals(True)
-                control.clear()
-                control.addItem(tr('Choose…'), None)
-                values = list(dict.fromkeys(row.get(key, '') for row in rows))
-                for value in values:
-                    label = (self._protocols[value]['title'] if key == 'protocol'
-                             else choices.get(key, {}).get(value, value))
-                    control.addItem(tr(label), value)
-                wanted = self._preferred.get(key)
-                selected = control.findData(wanted) if wanted is not None else -1
-                if values:
-                    self._preferred.pop(key, None)
-                if selected < 1 and len(values) == 1:
-                    selected = 1
-                control.setCurrentIndex(max(0, selected))
-                control.setEnabled(bool(rows))
-                self._help_buttons[key].setEnabled(bool(rows))
-                control.blockSignals(blocked)
-                if key == 'details':
-                    self._form.setRowVisible(self._selector_rows[key], len(values) > 1)
-            selected = control.currentData()
-            if selected is None:
-                rows = []
-            else:
-                rows = [row for row in rows if row.get(key, '') == selected]
-        self._active_route = rows[0] if rows else {}
-        self._display_protocol(self._selectors['protocol'].currentData())
-        if self._selected_protocol is None:
-            for index, key in enumerate(self._levels):
-                if self._selectors[key].isEnabled() and self._selectors[key].currentData() is None:
-                    self._help_buttons[key].setChecked(True)
-                    self._show_choice_help(index)
-                    break
+    def _show_level(self):
+        node = self._trail[-1]
+        self._heading.setText(tr(node.get('title', 'Protocols')))
+        self._previous.setEnabled(len(self._trail) > 1)
+        children = node.get('children', ())
+        self._choice_list.setVisible(bool(children))
+        blocked = self._choice_list.blockSignals(True)
+        self._choice_list.clear()
+        for child in children:
+            self._choice_list.addItem(tr(child['title']))
+        wanted = self._choices.get(node.get('id', ''))
+        selected = next((i for i, child in enumerate(children) if child['id'] == wanted), -1)
+        self._choice_list.setCurrentRow(selected)
+        self._choice_list.blockSignals(blocked)
+        self._active_route = node
+        self._display_protocol(node.get('protocol') if not children else None)
+        self._next.setVisible(bool(children))
+        self._next.setEnabled(selected >= 0)
+        if children:
+            self._choice_changed(selected)
+        elif self._selected_protocol is None:
+            self._text.setPlainText(tr(node.get('description', '')))
+
+    def _choice_changed(self, row):
+        node = self._trail[-1]
+        children = node.get('children', ())
+        self._next.setEnabled(0 <= row < len(children))
+        selected = children[row] if 0 <= row < len(children) else None
+        if selected is not None:
+            self._choices[node.get('id', '')] = selected['id']
+        self._text.setPlainText(tr((selected or node).get('description', '')))
+        self._text.verticalScrollBar().setValue(0)
+
+    def _next_level(self):
+        children = self._trail[-1].get('children', ())
+        row = self._choice_list.currentRow()
+        if 0 <= row < len(children):
+            self._trail.append(children[row])
+            self._show_level()
+
+    def _previous_level(self):
+        if len(self._trail) > 1:
+            self._trail.pop()
+            self._show_level()
 
     def _display_protocol(self, key):
-        for button in self._help_buttons.values():
-            button.setChecked(False)
         while self._diagram_layout.count():
             item = self._diagram_layout.takeAt(0)
             widget = item.widget()
@@ -629,44 +600,6 @@ class _ProtocolBrowserDialog(QDialog):
         start = self._active_route.get('start_module')
         if start in self._diagram.nodes:
             self._diagram.describe_node(start)
-
-    def _show_choice_help(self, level, *_args):
-        from html import escape
-
-        key = self._levels[level]
-        button = self._help_buttons[key]
-        if not button.isChecked():
-            self._display_protocol(self._selected_protocol)
-            return
-        for other, item in self._help_buttons.items():
-            if other != key:
-                item.setChecked(False)
-        rows = list(self._routes)
-        for parent_key in self._levels[:level]:
-            selected = self._selectors[parent_key].currentData()
-            rows = [row for row in rows if row.get(parent_key, '') == selected]
-        choices = self._data.get('protocol_choices', {})
-        parts = ['<h2>' + escape(self._level_labels[key]) + '</h2><ul>']
-        for value in dict.fromkeys(row.get(key, '') for row in rows):
-            matching = [row for row in rows if row.get(key, '') == value]
-            label = self._protocols[value]['title'] if key == 'protocol' else choices.get(key, {}).get(value, value)
-            parts.append('<li><b>' + escape(tr(label)) + '</b><ul>')
-            if key == 'data':
-                parts.extend('<li>' + escape(tr(choices.get('goal', {}).get(goal, goal))) + '</li>'
-                             for goal in dict.fromkeys(row['goal'] for row in matching))
-            else:
-                for protocol_key in dict.fromkeys(row['protocol'] for row in matching):
-                    protocol = self._protocols[protocol_key]
-                    parts.append('<li>' + escape(tr(protocol['title'])) + ': ' +
-                                 escape(tr(protocol.get('summary', ''))) + '</li>')
-                if key == 'stage':
-                    for start in dict.fromkeys(row.get('start_module') for row in matching):
-                        if start in self._data['modules']:
-                            parts.append('<li>' + escape(tr(self._data['modules'][start]['name'])) + '</li>')
-            parts.append('</ul></li>')
-        parts.append('</ul>')
-        self._text.setHtml(''.join(parts))
-        self._text.verticalScrollBar().setValue(0)
 
     def _protocol_html(self, protocol, steps):
         from html import escape

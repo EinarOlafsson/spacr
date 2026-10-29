@@ -4277,6 +4277,11 @@ def _workflow_ui_sources() -> set[str]:
         found.update(step["action"] for step in protocol["steps"])
     for key in ("data", "goal", "stage", "details"):
         found.update(workflow.get("protocol_choices", {}).get(key, {}).values())
+    pending = [workflow["protocol_tree"]] if workflow.get("protocol_tree") else []
+    while pending:
+        node = pending.pop()
+        found.update(node[key] for key in ("title", "description") if node.get(key))
+        pending.extend(node.get("children", []))
     return found
 
 

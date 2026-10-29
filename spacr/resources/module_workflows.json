@@ -6243,5 +6243,978 @@
       "other_microscope": "Other or unknown microscope",
       "merged_project": "Existing spaCR merged project"
     }
+  },
+  "protocol_tree": {
+    "id": "protocols",
+    "title": "Protocols",
+    "description": "Choose the data you have, then narrow down the task to find a software protocol.",
+    "children": [
+      {
+        "id": "images",
+        "title": "Images",
+        "description": "Start with microscopy images, photographs or figure images that need organization, segmentation or analysis.",
+        "children": [
+          {
+            "id": "images_segment",
+            "title": "Segment images",
+            "description": "Create object masks by applying a segmentation model or working interactively on individual images.",
+            "children": [
+              {
+                "id": "images_segment_high",
+                "title": "High content",
+                "description": "Process many microscope images, fields or wells with consistent batch segmentation settings.",
+                "protocol": "generate_masks",
+                "start_module": "mask"
+              },
+              {
+                "id": "images_segment_low",
+                "title": "Low content",
+                "description": "Work with a smaller image set to create, correct and review masks interactively.",
+                "protocol": "curate_masks",
+                "start_module": "make_masks"
+              }
+            ]
+          },
+          {
+            "id": "images_quantify",
+            "title": "Measure objects",
+            "description": "Segment images and measure objects, then compare measurements or explore broader imaging phenotypes.",
+            "children": [
+              {
+                "id": "images_quantify_high_content",
+                "title": "High-content imaging analysis",
+                "description": "Quantify an imaging experiment without sequencing. Start with microscopy images or import existing masks with their source images, measure the objects, then explore embeddings, define gated populations or build figures. These downstream branches answer different questions and can be used independently.",
+                "protocol": "high_content",
+                "start_module": "mask"
+              },
+              {
+                "id": "images_quantify_simple_imaging",
+                "title": "Simple imaging analysis",
+                "description": "Segment images or import matching masks, measure the objects and compare selected measurements in figures.",
+                "protocol": "simple_imaging",
+                "start_module": "mask"
+              }
+            ]
+          },
+          {
+            "id": "images_organize",
+            "title": "Import and organize",
+            "description": "Prepare image files by importing, converting, correcting illumination or aligning tiles before analysis.",
+            "children": [
+              {
+                "id": "images_organize_microscope",
+                "title": "Import and organize microscopy images",
+                "description": "Choose the microscope export or existing project layout so its image and field metadata can be reviewed.",
+                "children": [
+                  {
+                    "id": "images_organize_yokogawa",
+                    "title": "Yokogawa / CellVoyager",
+                    "description": "Review field identities, image channels and optional external masks before writing a separate project. Image-only imports still need segmentation before measurement.",
+                    "protocol": "organize_images",
+                    "start_module": "import_images"
+                  },
+                  {
+                    "id": "images_organize_zeiss",
+                    "title": "Zeiss",
+                    "description": "Review field identities, image channels and optional external masks before writing a separate project. Image-only imports still need segmentation before measurement.",
+                    "protocol": "organize_images",
+                    "start_module": "import_images"
+                  },
+                  {
+                    "id": "images_organize_nikon",
+                    "title": "Nikon",
+                    "description": "Review field identities, image channels and optional external masks before writing a separate project. Image-only imports still need segmentation before measurement.",
+                    "protocol": "organize_images",
+                    "start_module": "import_images"
+                  },
+                  {
+                    "id": "images_organize_leica",
+                    "title": "Leica",
+                    "description": "Review field identities, image channels and optional external masks before writing a separate project. Image-only imports still need segmentation before measurement.",
+                    "protocol": "organize_images",
+                    "start_module": "import_images"
+                  },
+                  {
+                    "id": "images_organize_other_microscope",
+                    "title": "Other or unknown microscope",
+                    "description": "Review field identities, image channels and optional external masks before writing a separate project. Image-only imports still need segmentation before measurement.",
+                    "protocol": "organize_images",
+                    "start_module": "import_images"
+                  },
+                  {
+                    "id": "images_organize_organized",
+                    "title": "spaCR-organized project",
+                    "description": "Review field identities, image channels and optional external masks before writing a separate project. Image-only imports still need segmentation before measurement.",
+                    "protocol": "organize_images",
+                    "start_module": "import_images"
+                  }
+                ]
+              },
+              {
+                "id": "images_organize_convert_images",
+                "title": "Convert microscopy image formats",
+                "description": "Convert supported microscope formats to a configured TIFF layout while preserving source mappings. Conversion does not generate object measurements.",
+                "protocol": "convert_images",
+                "start_module": "convert"
+              },
+              {
+                "id": "images_organize_illumination",
+                "title": "Correct illumination before analysis",
+                "description": "Estimate and apply flat-field correction at configured stages. Keep corrected display values distinct from raw measurements and record the applied policy.",
+                "protocol": "illumination",
+                "start_module": "illumination"
+              },
+              {
+                "id": "images_organize_align_stitch",
+                "title": "Align and stitch images",
+                "description": "Inspect tile geometry, overlap and channel mapping, then save the mosaic with coordinate records. OPS also needs the original cycle/site identities.",
+                "protocol": "align_stitch",
+                "start_module": "align"
+              }
+            ]
+          },
+          {
+            "id": "images_inspect",
+            "title": "Inspect images",
+            "description": "Review how image files map to plates, wells and fields before processing them.",
+            "protocol": "image_overview",
+            "start_module": "mask"
+          },
+          {
+            "id": "images_dimensions",
+            "title": "3D",
+            "description": "Review spatial axes and voxel spacing before segmenting and measuring a three-dimensional image.",
+            "protocol": "volumetric",
+            "start_module": "make_masks"
+          },
+          {
+            "id": "images_time",
+            "title": "Track objects",
+            "description": "Follow objects across ordered two-dimensional frames with explicit frame timing and reviewed track links.",
+            "protocol": "tracking",
+            "start_module": "timelapse"
+          },
+          {
+            "id": "images_spatial",
+            "title": "Analyze spatial images",
+            "description": "Segment spatial slides, decode image-based spatial identities or connect those identities to measured phenotypes.",
+            "children": [
+              {
+                "id": "images_spatial_spatial_measure",
+                "title": "Spatial image segmentation and measurement",
+                "description": "Alpha. Segment a whole Xenium morphology or Visium HD H&E slide in overlapping windows; each window is written to merged/ with its masks, the layout Measure reads, and the windows' places on the slide go to measurements.db for Spatial Map Barcodes. In the GUI it is the Spatial switch in Mask Generation's actions row, shown only with Show alpha features on.",
+                "protocol": "spatial_measure",
+                "start_module": "spatial_masks"
+              },
+              {
+                "id": "images_spatial_spatial_decode",
+                "title": "Decode spatial image barcodes",
+                "description": "Alpha. Count every Xenium transcript or Visium HD bin into the cell or nucleus it falls in, using the fields Spatial Mask Generation wrote; per-object expression tables and infection calls from pathogen genes go into measurements.db keyed like Measure's. In the GUI it is the Spatial switch in Map Barcodes' actions row, shown only with Show alpha features on.",
+                "protocol": "spatial_decode",
+                "start_module": "spatial_map"
+              },
+              {
+                "id": "images_spatial_spatial_phenotypes",
+                "title": "Connect spatial identities to measured phenotypes",
+                "description": "Join compatible spatial object identities to measured phenotypes, inspect grouped responses and export the matched data.",
+                "protocol": "spatial_phenotypes",
+                "start_module": "graph_builder"
+              }
+            ]
+          },
+          {
+            "id": "images_assays",
+            "title": "Analyze an assay",
+            "description": "Choose the assay question to identify its image inputs, required measurements and dedicated analysis route.",
+            "children": [
+              {
+                "id": "images_assays_plaques",
+                "title": "Quantify plaque assays",
+                "description": "Analyse plaque images or existing masks with the configured plaque model. This route need not pass through Measure; use the dedicated plaque example.",
+                "protocol": "plaques",
+                "start_module": "analyze_plaques"
+              },
+              {
+                "id": "images_assays_plaque_figures",
+                "title": "Analyze plaque assays from published figures",
+                "description": "Extract plaque-well images from PDFs or supplied figures, review annotations and quantify plaques with the selected model.",
+                "protocol": "plaque_figures",
+                "start_module": "analyze_plaques"
+              },
+              {
+                "id": "images_assays_recruitment",
+                "title": "Analyze recruitment",
+                "description": "Use compartment intensity measurements and matching host/pathogen identities to compute recruitment ratios.",
+                "protocol": "recruitment",
+                "start_module": "mask"
+              },
+              {
+                "id": "images_assays_invasion",
+                "title": "Analyze invasion",
+                "description": "Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion.",
+                "protocol": "invasion",
+                "start_module": "mask"
+              },
+              {
+                "id": "images_assays_replication",
+                "title": "Analyze replication",
+                "description": "Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole.",
+                "protocol": "replication",
+                "start_module": "mask"
+              },
+              {
+                "id": "images_assays_host_pathogen",
+                "title": "Analyze host–pathogen relationships",
+                "description": "Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown.",
+                "protocol": "host_pathogen",
+                "start_module": "mask"
+              },
+              {
+                "id": "images_assays_colonies",
+                "title": "Count colonies and summarize plates",
+                "description": "Count colonies in plate photographs and summarize counts using the supplied dilution and plated-volume metadata.",
+                "protocol": "colonies",
+                "start_module": "analyze_plaques"
+              },
+              {
+                "id": "images_assays_dose_response",
+                "title": "Analyze dose–response experiments",
+                "description": "Supply dose and response columns, controls and units before curve fitting; this route does not require sequencing.",
+                "protocol": "dose_response",
+                "start_module": "mask"
+              }
+            ]
+          },
+          {
+            "id": "images_screen",
+            "title": "Analyze a pooled screen",
+            "description": "Combine imaging phenotypes with sequencing barcodes or optical barcode identities using the appropriate screening workflow.",
+            "children": [
+              {
+                "id": "images_screen_pooled_crispr",
+                "title": "Pooled image-based CRISPR screen",
+                "description": "Combine image-derived phenotypes with guide abundance to rank perturbations. Segment and measure images, create reviewed labels with Annotate, Gate Editor or Image UMAP, and train and validate a classifier. Map the matching sequencing reads on an independent branch. Join compatible phenotype scores and guide counts by experimental identity for Regression. Annotation and segmentation routes are alternatives, not requirements to run every branch.",
+                "protocol": "pooled_crispr",
+                "start_module": "mask"
+              },
+              {
+                "id": "images_screen_optical_screen",
+                "title": "Decode and analyze an optical pooled screen",
+                "description": "Decode an optical pooled screen from the original sequencing cycles and corresponding phenotype images. Enter OPS through Mask, inspect cycle/site alignment and barcode decoding, then join decoded object identities with phenotype responses and aggregate compatible inputs for Regression. Align & Stitch is optional; a stitched image alone cannot replace sequencing cycles.",
+                "protocol": "optical_screen",
+                "start_module": "mask"
+              }
+            ]
+          },
+          {
+            "id": "images_classify",
+            "title": "Classify objects",
+            "description": "Prepare object images and reviewed labels from raw images before training and evaluating an image classifier.",
+            "protocol": "raw_vision_classifier",
+            "start_module": "mask"
+          },
+          {
+            "id": "images_training",
+            "title": "Train or evaluate segmentation",
+            "description": "Create and review image-mask pairs before training a segmentation model and testing separate fields.",
+            "protocol": "create_cellpose_training",
+            "start_module": "make_masks"
+          }
+        ]
+      },
+      {
+        "id": "images_masks",
+        "title": "Images and masks",
+        "description": "Use matching source images and integer object masks, or an existing merged spaCR project.",
+        "children": [
+          {
+            "id": "images_masks_measure",
+            "title": "Measure objects",
+            "description": "Import external masks or use an existing merged project, then measure objects without unnecessary new segmentation.",
+            "children": [
+              {
+                "id": "images_masks_measure_simple_imaging",
+                "title": "Existing spaCR merged project",
+                "description": "Segment images or import matching masks, measure the objects and compare selected measurements in figures.",
+                "protocol": "simple_imaging",
+                "start_module": "measure"
+              },
+              {
+                "id": "images_masks_measure_external_masks_measure",
+                "title": "Existing masks",
+                "description": "Assign corresponding images and existing integer label masks, then create and measure a spaCR project without rerunning segmentation.",
+                "protocol": "external_masks_measure",
+                "start_module": "external_masks"
+              },
+              {
+                "id": "images_masks_measure_high_content",
+                "title": "High-content imaging analysis",
+                "description": "Quantify an imaging experiment without sequencing. Start with microscopy images or import existing masks with their source images, measure the objects, then explore embeddings, define gated populations or build figures. These downstream branches answer different questions and can be used independently.",
+                "protocol": "high_content",
+                "start_module": "external_masks"
+              }
+            ]
+          },
+          {
+            "id": "images_masks_review",
+            "title": "Inspect images",
+            "description": "Inspect image organization or correct existing masks interactively before further analysis.",
+            "children": [
+              {
+                "id": "images_masks_review_curate_masks",
+                "title": "Create and curate masks",
+                "description": "Draw or correct integer object masks and save image/mask pairs for measurement or segmentation training.",
+                "protocol": "curate_masks",
+                "start_module": "make_masks"
+              },
+              {
+                "id": "images_masks_review_image_overview",
+                "title": "Inspect plates, wells and fields",
+                "description": "Review filename metadata, plate geometry, well thumbnails and original-resolution image fields.",
+                "protocol": "image_overview",
+                "start_module": "mask"
+              }
+            ]
+          },
+          {
+            "id": "images_masks_three_d",
+            "title": "3D",
+            "description": "Review a three-dimensional image and compatible label volume before measuring with the correct voxel spacing.",
+            "protocol": "volumetric",
+            "start_module": "make_masks"
+          },
+          {
+            "id": "images_masks_time",
+            "title": "Track objects",
+            "description": "Review matching frame images and masks before choosing a supported tracking route and calibrated timing.",
+            "protocol": "tracking",
+            "start_module": "external_masks"
+          },
+          {
+            "id": "images_masks_assays",
+            "title": "Analyze an assay",
+            "description": "Analyze plaque images with existing matching masks instead of generating new plaque masks.",
+            "protocol": "plaques",
+            "start_module": "analyze_plaques"
+          },
+          {
+            "id": "images_masks_train",
+            "title": "Train or evaluate segmentation",
+            "description": "Use reviewed image-mask pairs to train, refine or independently evaluate segmentation models.",
+            "children": [
+              {
+                "id": "images_masks_train_train_cellpose",
+                "title": "Train and evaluate a Cellpose model",
+                "description": "Open Cellpose Workbench inside Make Masks and train from verified image/mask pairs. Evaluate on separate fields before selecting the checkpoint in Mask.",
+                "protocol": "train_cellpose",
+                "start_module": "train_cellpose"
+              },
+              {
+                "id": "images_masks_train_refine_cellpose",
+                "title": "Refine an existing Cellpose model",
+                "description": "Fine-tune an existing segmentation checkpoint on reviewed image/mask pairs and evaluate separate reference fields.",
+                "protocol": "refine_cellpose",
+                "start_module": "train_cellpose"
+              },
+              {
+                "id": "images_masks_train_compare_segmentation",
+                "title": "Compare segmentation models",
+                "description": "Compare model masks on identical fields. Without independent reference labels, agreement does not measure segmentation accuracy.",
+                "protocol": "compare_segmentation",
+                "start_module": "model_compare"
+              },
+              {
+                "id": "images_masks_train_evaluate_segmentation",
+                "title": "Evaluate a segmentation model",
+                "description": "Compare model masks on identical fields. Without independent reference labels, agreement does not measure segmentation accuracy.",
+                "protocol": "evaluate_segmentation",
+                "start_module": "model_compare"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "fastq",
+        "title": "FASTQ reads",
+        "description": "Start with sequencing reads to map experimental barcodes and review mapping quality.",
+        "children": [
+          {
+            "id": "fastq_map",
+            "title": "Map sequencing barcodes",
+            "description": "Choose the sequencing-read layout and supply the matching experimental barcode references.",
+            "children": [
+              {
+                "id": "fastq_map_paired_reads",
+                "title": "Paired-end reads",
+                "description": "Supply the references that encode your experiment. Inspect mapped counts and barcode QC before pairing well-level guide counts with phenotype scores.",
+                "protocol": "map_barcodes",
+                "start_module": "map_barcodes"
+              },
+              {
+                "id": "fastq_map_single_reads",
+                "title": "Single-end reads",
+                "description": "Supply the references that encode your experiment. Inspect mapped counts and barcode QC before pairing well-level guide counts with phenotype scores.",
+                "protocol": "map_barcodes",
+                "start_module": "map_barcodes"
+              }
+            ]
+          },
+          {
+            "id": "fastq_barcode_qc",
+            "title": "Check barcode-mapping quality",
+            "description": "Inspect mapping depth, coverage, collisions and positional effects before guide-count filtering.",
+            "protocol": "barcode_qc",
+            "start_module": "barcode_qc"
+          },
+          {
+            "id": "fastq_pooled_crispr",
+            "title": "Pooled image-based CRISPR screen",
+            "description": "Combine image-derived phenotypes with guide abundance to rank perturbations. Segment and measure images, create reviewed labels with Annotate, Gate Editor or Image UMAP, and train and validate a classifier. Map the matching sequencing reads on an independent branch. Join compatible phenotype scores and guide counts by experimental identity for Regression. Annotation and segmentation routes are alternatives, not requirements to run every branch.",
+            "protocol": "pooled_crispr",
+            "start_module": "map_barcodes"
+          }
+        ]
+      },
+      {
+        "id": "barcode_counts",
+        "title": "Barcode counts",
+        "description": "Use mapped barcode counts with experimental identities for quality checks or screening regression.",
+        "children": [
+          {
+            "id": "barcode_counts_regression",
+            "title": "Run screening regression",
+            "description": "Match barcode counts to phenotype scores or direct measured responses before screening regression.",
+            "children": [
+              {
+                "id": "barcode_counts_regression_scores",
+                "title": "Phenotype scores",
+                "description": "Match plate and well identifiers across phenotype and guide-count inputs, select the response and controls, and inspect diagnostics before interpreting hits. Direct measured responses are also supported.",
+                "protocol": "regression",
+                "start_module": "regression"
+              },
+              {
+                "id": "barcode_counts_regression_direct_features",
+                "title": "Direct measured responses",
+                "description": "Match plate and well identifiers across phenotype and guide-count inputs, select the response and controls, and inspect diagnostics before interpreting hits. Direct measured responses are also supported.",
+                "protocol": "regression",
+                "start_module": "regression"
+              }
+            ]
+          },
+          {
+            "id": "barcode_counts_barcode_qc",
+            "title": "Check barcode-mapping quality",
+            "description": "Inspect mapping depth, coverage, collisions and positional effects before guide-count filtering.",
+            "protocol": "barcode_qc",
+            "start_module": "barcode_qc"
+          },
+          {
+            "id": "barcode_counts_regression_diagnostics",
+            "title": "Review regression diagnostics",
+            "description": "Inspect the diagnostic panels saved by the chosen regression run; distinguish missing diagnostics from passed assumptions.",
+            "protocol": "regression_diagnostics",
+            "start_module": "regression_diagnostics"
+          }
+        ]
+      },
+      {
+        "id": "features",
+        "title": "Measured features",
+        "description": "Start with measurements in a spaCR database or an external table to explore, compare or classify objects.",
+        "children": [
+          {
+            "id": "features_explore",
+            "title": "Explore measurements",
+            "description": "Inspect feature tables, discover candidate phenotypes, define gated populations or investigate unusual objects.",
+            "children": [
+              {
+                "id": "features_explore_feature_explore",
+                "title": "Explore measured features",
+                "description": "Inspect a measurement database and explore selected feature distributions and projections.",
+                "protocol": "feature_explore",
+                "start_module": "db_browser"
+              },
+              {
+                "id": "features_explore_external_features",
+                "title": "Import and explore external feature tables",
+                "description": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run. With matching source images and external integer masks, Import builds the merged project arrays used by Measure. Choose the route matching your files and inspect object identities before measuring; imported feature tables can be used directly when they already contain the required measurements.",
+                "protocol": "external_features",
+                "start_module": "foreign"
+              },
+              {
+                "id": "features_explore_phenotype_discovery",
+                "title": "Discover phenotypes without initial labels",
+                "description": "Explore a measured, segmented experiment without initial phenotype labels. Compare measured features or encoded image features in Image UMAP, inspect representative crops and create reproducible selections in Gate Editor. Review candidate labels in Annotate before supervised training. A cluster or gate is a hypothesis about a phenotype, not its validation.",
+                "protocol": "phenotype_discovery",
+                "start_module": "umap"
+              },
+              {
+                "id": "features_explore_gated_populations",
+                "title": "Define and review gated populations",
+                "description": "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+                "protocol": "gated_populations",
+                "start_module": "gate_editor"
+              },
+              {
+                "id": "features_explore_outliers",
+                "title": "Investigate outliers and unusual phenotypes",
+                "description": "Review robust object/well outlier scores and the selected exclusion rule before carrying filtered data into analysis.",
+                "protocol": "outliers",
+                "start_module": "outliers"
+              }
+            ]
+          },
+          {
+            "id": "features_figures",
+            "title": "Create figures from measurements",
+            "description": "Plot measurements, compare experimental conditions or fit dose-response relationships with explicit metadata.",
+            "children": [
+              {
+                "id": "features_figures_measurement_figures",
+                "title": "Create figures from measurements",
+                "description": "Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context.",
+                "protocol": "measurement_figures",
+                "start_module": "graph_builder"
+              },
+              {
+                "id": "features_figures_condition_compare",
+                "title": "Compare experimental conditions",
+                "description": "Compare groups in small-multiple plots with explicit shared or independent axes.",
+                "protocol": "condition_compare",
+                "start_module": "graph_builder"
+              },
+              {
+                "id": "features_figures_dose_response",
+                "title": "Analyze dose–response experiments",
+                "description": "Supply dose and response columns, controls and units before curve fitting; this route does not require sequencing.",
+                "protocol": "dose_response",
+                "start_module": "dose_response"
+              }
+            ]
+          },
+          {
+            "id": "features_quality",
+            "title": "Check quality",
+            "description": "Review image-analysis quality, control behavior and plate effects before interpreting measured differences.",
+            "children": [
+              {
+                "id": "features_quality_analysis_qc",
+                "title": "Check image-analysis quality",
+                "description": "Inspect stored segmentation, unit, leakage and plate-effect checks. Open its nested viewers for detailed inspection.",
+                "protocol": "analysis_qc",
+                "start_module": "qc_dashboard"
+              },
+              {
+                "id": "features_quality_control_effects",
+                "title": "Assess controls and plate effects",
+                "description": "Compare designated controls across plates and inspect drift; the definition of a control comes from the experiment.",
+                "protocol": "control_effects",
+                "start_module": "control_chart"
+              }
+            ]
+          },
+          {
+            "id": "features_classify",
+            "title": "Classify objects",
+            "description": "Choose whether object labels are already reviewed or must be defined before training a feature-based classifier.",
+            "children": [
+              {
+                "id": "features_classify_feature_classifier",
+                "title": "Reviewed labels",
+                "description": "Train a classifier from measured feature columns and reviewed labels, then evaluate independent grouped test data.",
+                "protocol": "feature_classifier",
+                "start_module": "classify_merged"
+              },
+              {
+                "id": "features_classify_label_feature_classifier",
+                "title": "No labels yet",
+                "description": "Define and review object labels from measured data, train a feature classifier and inspect independent held-out performance.",
+                "protocol": "label_feature_classifier",
+                "start_module": "gate_editor"
+              }
+            ]
+          },
+          {
+            "id": "features_assays",
+            "title": "Analyze an assay",
+            "description": "Use existing measurements for a dedicated assay after checking its compartment, identity and channel requirements.",
+            "children": [
+              {
+                "id": "features_assays_recruitment",
+                "title": "Analyze recruitment",
+                "description": "Use compartment intensity measurements and matching host/pathogen identities to compute recruitment ratios.",
+                "protocol": "recruitment",
+                "start_module": "recruitment"
+              },
+              {
+                "id": "features_assays_invasion",
+                "title": "Analyze invasion",
+                "description": "Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion.",
+                "protocol": "invasion",
+                "start_module": "invasion"
+              },
+              {
+                "id": "features_assays_replication",
+                "title": "Analyze replication",
+                "description": "Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole.",
+                "protocol": "replication",
+                "start_module": "replication"
+              },
+              {
+                "id": "features_assays_host_pathogen",
+                "title": "Analyze host–pathogen relationships",
+                "description": "Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown.",
+                "protocol": "host_pathogen",
+                "start_module": "host_pathogen"
+              }
+            ]
+          },
+          {
+            "id": "features_spatial",
+            "title": "Analyze spatial images",
+            "description": "Connect matching spatial identities and measured phenotypes before comparing groups or exporting data.",
+            "protocol": "spatial_phenotypes",
+            "start_module": "graph_builder"
+          },
+          {
+            "id": "features_screen",
+            "title": "Analyze screen results",
+            "description": "Use explicitly joined screening inputs for regression or connect saved hits to object-level measurements.",
+            "children": [
+              {
+                "id": "features_screen_regression",
+                "title": "Joined OPS aggregates",
+                "description": "Match plate and well identifiers across phenotype and guide-count inputs, select the response and controls, and inspect diagnostics before interpreting hits. Direct measured responses are also supported.",
+                "protocol": "regression",
+                "start_module": "regression"
+              },
+              {
+                "id": "features_screen_investigate_hit",
+                "title": "Investigate a screen hit",
+                "description": "Link a regression hit to candidate objects and quantitative well-level evidence. This does not independently validate the hit.",
+                "protocol": "investigate_hit",
+                "start_module": "investigate_hit"
+              }
+            ]
+          },
+          {
+            "id": "features_anndata",
+            "title": "Export measurements to AnnData",
+            "description": "Export an AnnData .h5ad file with object metadata and measured features for downstream single-cell analysis.",
+            "protocol": "anndata",
+            "start_module": "anndata_export"
+          },
+          {
+            "id": "features_power",
+            "title": "Estimate power and sampling needs",
+            "description": "Estimate sampling needs from chosen effect sizes and variability; pilot measurements are optional evidence for assumptions.",
+            "protocol": "power",
+            "start_module": "power"
+          }
+        ]
+      },
+      {
+        "id": "crops",
+        "title": "Object images",
+        "description": "Use per-object image crops for labeling, image-based phenotype exploration or image classification.",
+        "children": [
+          {
+            "id": "crops_annotate",
+            "title": "Annotate objects",
+            "description": "Create object-image labels or compare independent annotations and review disagreements.",
+            "children": [
+              {
+                "id": "crops_annotate_annotate_images",
+                "title": "Annotate object images",
+                "description": "Label representative objects in png_list before supervised training. Use separate annotations for different questions and keep training and evaluation groups independent.",
+                "protocol": "annotate_images",
+                "start_module": "annotate"
+              },
+              {
+                "id": "crops_annotate_annotator_agreement",
+                "title": "Compare annotators and review disagreements",
+                "description": "Compare independent annotation columns and inspect discordant objects; agreement is separate from classification accuracy.",
+                "protocol": "annotator_agreement",
+                "start_module": "agreement"
+              }
+            ]
+          },
+          {
+            "id": "crops_classify",
+            "title": "Classify objects",
+            "description": "Train from reviewed image labels, create labels first or apply an existing image-classifier checkpoint.",
+            "children": [
+              {
+                "id": "crops_classify_vision_classifier",
+                "title": "Reviewed labels",
+                "description": "Train a Torch image classifier from reviewed object images and labels, then evaluate held-out groups with the same preprocessing.",
+                "protocol": "vision_classifier",
+                "start_module": "classify_merged"
+              },
+              {
+                "id": "crops_classify_label_vision_classifier",
+                "title": "No labels yet",
+                "description": "Review object-image labels before training a Torch classifier and evaluating independent held-out groups.",
+                "protocol": "label_vision_classifier",
+                "start_module": "annotate"
+              },
+              {
+                "id": "crops_classify_apply_classifier",
+                "title": "Apply an existing model",
+                "description": "Apply an existing image-classifier checkpoint to compatible object images and review its per-object scores.",
+                "protocol": "apply_classifier",
+                "start_module": "classify_merged"
+              }
+            ]
+          },
+          {
+            "id": "crops_image_phenotypes",
+            "title": "Explore image-based phenotypes",
+            "description": "Explore object images with Image UMAP, inspect candidate groups and review labels before any supervised training.",
+            "protocol": "image_phenotypes",
+            "start_module": "embeddings"
+          },
+          {
+            "id": "crops_classification_evaluation",
+            "title": "Evaluate classification performance",
+            "description": "Inspect held-out predictions, calibration and split/leakage evidence for the matching classifier.",
+            "protocol": "classification_evaluation",
+            "start_module": "classifier_evaluation"
+          },
+          {
+            "id": "crops_explain_classifier",
+            "title": "Explain classifier predictions",
+            "description": "Inspect image-response maps with the matching image model, or fit a measured-feature surrogate to existing scores. These are alternative explanation routes, not independent causal validation.",
+            "protocol": "explain_classifier",
+            "start_module": "activation"
+          }
+        ]
+      },
+      {
+        "id": "segmentation_model",
+        "title": "Segmentation model",
+        "description": "Use or choose a segmentation checkpoint to generate masks, train or compare models.",
+        "children": [
+          {
+            "id": "segmentation_model_choose_model",
+            "title": "Choose and download a segmentation model",
+            "description": "Inspect model provenance and download/install compatible checkpoints or backends. A listed backend is not itself a checkpoint file.",
+            "protocol": "choose_model",
+            "start_module": "model_zoo"
+          },
+          {
+            "id": "segmentation_model_apply",
+            "title": "Apply an existing model",
+            "description": "Apply a selected segmentation checkpoint to new images and inspect masks before measuring objects.",
+            "protocol": "apply_segmentation",
+            "start_module": "mask"
+          },
+          {
+            "id": "segmentation_model_train",
+            "title": "Train a model",
+            "description": "Train from reviewed image-mask pairs or refine an existing segmentation checkpoint.",
+            "children": [
+              {
+                "id": "segmentation_model_train_train_cellpose",
+                "title": "Train and evaluate a Cellpose model",
+                "description": "Open Cellpose Workbench inside Make Masks and train from verified image/mask pairs. Evaluate on separate fields before selecting the checkpoint in Mask.",
+                "protocol": "train_cellpose",
+                "start_module": "train_cellpose"
+              },
+              {
+                "id": "segmentation_model_train_refine_cellpose",
+                "title": "Refine an existing Cellpose model",
+                "description": "Fine-tune an existing segmentation checkpoint on reviewed image/mask pairs and evaluate separate reference fields.",
+                "protocol": "refine_cellpose",
+                "start_module": "train_cellpose"
+              }
+            ]
+          },
+          {
+            "id": "segmentation_model_evaluate",
+            "title": "Inspect and review",
+            "description": "Compare segmentation predictions, evaluate independent reference masks or inspect saved training runs.",
+            "children": [
+              {
+                "id": "segmentation_model_evaluate_compare_segmentation",
+                "title": "Compare segmentation models",
+                "description": "Compare model masks on identical fields. Without independent reference labels, agreement does not measure segmentation accuracy.",
+                "protocol": "compare_segmentation",
+                "start_module": "model_compare"
+              },
+              {
+                "id": "segmentation_model_evaluate_evaluate_segmentation",
+                "title": "Evaluate a segmentation model",
+                "description": "Compare model masks on identical fields. Without independent reference labels, agreement does not measure segmentation accuracy.",
+                "protocol": "evaluate_segmentation",
+                "start_module": "model_compare"
+              },
+              {
+                "id": "segmentation_model_evaluate_compare_training",
+                "title": "Compare model-training runs",
+                "description": "Compare saved training histories, metrics and settings from compatible model runs.",
+                "protocol": "compare_training",
+                "start_module": "train_compare"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "classifier",
+        "title": "Classifier",
+        "description": "Use an existing classifier and compatible inputs to predict object classes, evaluate results or explain scores.",
+        "children": [
+          {
+            "id": "classifier_apply_classifier",
+            "title": "Apply a trained image classifier",
+            "description": "Apply an existing image-classifier checkpoint to compatible object images and review its per-object scores.",
+            "protocol": "apply_classifier",
+            "start_module": "classify_merged"
+          },
+          {
+            "id": "classifier_classification_evaluation",
+            "title": "Evaluate classification performance",
+            "description": "Inspect held-out predictions, calibration and split/leakage evidence for the matching classifier.",
+            "protocol": "classification_evaluation",
+            "start_module": "classifier_evaluation"
+          },
+          {
+            "id": "classifier_explain_classifier",
+            "title": "Explain classifier predictions",
+            "description": "Inspect image-response maps with the matching image model, or fit a measured-feature surrogate to existing scores. These are alternative explanation routes, not independent causal validation.",
+            "protocol": "explain_classifier",
+            "start_module": "activation"
+          }
+        ]
+      },
+      {
+        "id": "regression",
+        "title": "Regression results",
+        "description": "Use saved screening-regression outputs to inspect diagnostics, prioritize hits or compare analyses.",
+        "children": [
+          {
+            "id": "regression_regression_diagnostics",
+            "title": "Review regression diagnostics",
+            "description": "Inspect the diagnostic panels saved by the chosen regression run; distinguish missing diagnostics from passed assumptions.",
+            "protocol": "regression_diagnostics",
+            "start_module": "regression_diagnostics"
+          },
+          {
+            "id": "regression_screen_hits",
+            "title": "Explore and prioritize screen hits",
+            "description": "Filter and rank saved hits with their effects, FDR and guide agreement.",
+            "protocol": "screen_hits",
+            "start_module": "volcano_explorer"
+          },
+          {
+            "id": "regression_investigate_hit",
+            "title": "Investigate a screen hit",
+            "description": "Link a regression hit to candidate objects and quantitative well-level evidence. This does not independently validate the hit.",
+            "protocol": "investigate_hit",
+            "start_module": "investigate_hit"
+          },
+          {
+            "id": "regression_compare_runs",
+            "title": "Compare analysis runs",
+            "description": "Compare compatible saved settings, counts and hit lists without treating changed input data as a controlled model comparison.",
+            "protocol": "compare_runs",
+            "start_module": "run_compare"
+          }
+        ]
+      },
+      {
+        "id": "run_records",
+        "title": "Projects and recorded runs",
+        "description": "Inspect existing projects and recorded runs, manage execution or export documented results.",
+        "children": [
+          {
+            "id": "run_records_resume_project",
+            "title": "Resume and inspect an existing project",
+            "description": "Locate an existing project and inspect its recorded runs, outputs and missing dependencies before explicitly launching further work.",
+            "protocol": "resume_project",
+            "start_module": "project_browser"
+          },
+          {
+            "id": "run_records_multi_plate",
+            "title": "Run a multi-plate analysis",
+            "description": "Run the chosen pipeline across plates. Outputs are those of each queued module; retain each plate and its settings separately.",
+            "protocol": "multi_plate",
+            "start_module": "queue"
+          },
+          {
+            "id": "run_records_remote_analysis",
+            "title": "Submit and monitor remote analysis",
+            "description": "Submit a configured run to a remote execution target and inspect its status and logs. Retrieve the actual module artifacts before downstream analysis.",
+            "protocol": "remote_analysis",
+            "start_module": "distributed_jobs"
+          },
+          {
+            "id": "run_records_compare_runs",
+            "title": "Compare analysis runs",
+            "description": "Compare compatible saved settings, counts and hit lists without treating changed input data as a controlled model comparison.",
+            "protocol": "compare_runs",
+            "start_module": "run_compare"
+          },
+          {
+            "id": "run_records_export_reports",
+            "title": "Export analysis figures and reports",
+            "description": "Package recorded results, settings and QC into a shareable report without silently rerunning the analysis.",
+            "protocol": "export_reports",
+            "start_module": "graph_builder"
+          },
+          {
+            "id": "run_records_export_methods",
+            "title": "Export computational methods and results",
+            "description": "Draft methods/results text from recorded settings and results; review every claim before publication.",
+            "protocol": "export_methods",
+            "start_module": "methods_export"
+          },
+          {
+            "id": "run_records_motility",
+            "title": "Analyze object motility",
+            "description": "Inspect track speed and infection-related measurements with an explicit frame interval and pixel calibration.",
+            "protocol": "motility",
+            "start_module": "motility"
+          },
+          {
+            "id": "run_records_track_review",
+            "title": "Review tracks and lineages",
+            "description": "Review saved tracks, correct assignments and inspect temporal division trees separately from object-containment links.",
+            "protocol": "track_review",
+            "start_module": "curate"
+          }
+        ]
+      },
+      {
+        "id": "planning",
+        "title": "Planning",
+        "description": "Plan conditions, controls and sample sizes using stated assumptions or pilot measurements.",
+        "children": [
+          {
+            "id": "planning_experiment_design",
+            "title": "Design an imaging experiment",
+            "description": "Enter conditions, controls, replicates and plate constraints, then export the experimental layout before acquisition.",
+            "protocol": "experiment_design",
+            "start_module": "experiment_design"
+          },
+          {
+            "id": "planning_pooled_design",
+            "title": "Design a pooled imaging screen",
+            "description": "Enter conditions, controls, replicates and plate constraints, then export the experimental layout before acquisition.",
+            "protocol": "pooled_design",
+            "start_module": "experiment_design"
+          },
+          {
+            "id": "planning_power",
+            "title": "Estimate power and sampling needs",
+            "description": "Estimate sampling needs from chosen effect sizes and variability; pilot measurements are optional evidence for assumptions.",
+            "protocol": "power",
+            "start_module": "power"
+          }
+        ]
+      }
+    ]
   }
 }

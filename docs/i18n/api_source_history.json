@@ -40,6 +40,23 @@
       "source_sha256": "1ee8e54062d50296fc1ca82d63baff6818eea4f12f6419ac5ea0c7cfe00d3b70",
       "text": "Infer which axes the filenames under ``root`` encode.\n\n:param root: the folder to inspect.\n:param sample: how many files to read before deciding. Only this many\n    files are read, in sorted order, not the whole tree: a naming\n    convention is visible in a few hundred names, so inspecting a\n    400-plate archive takes about as long as inspecting one plate.\n:param extensions: which files count as images.\n:returns: an :class:`InferredLayout`. Does not raise for an\n    unrecognised tree; the result then has an empty ``per_file`` and a\n    populated ``unplaced``, which the caller is expected to show."
     },
+    "224dbb79c59c5efc29766e230abf199c581ab03af5fa43a1705a8d5ac9e6ad87": {
+      "source_blocks_sha256": [
+        "fe178d66eb65ca8fe74a8e397a241c81c4afca71aee4fbf10f6f0b08e8c2be90",
+        "ec538fe26c07a86412d6a6d60eecc2194d57cef7a6533808b3cc4811bc25bf6d",
+        "ba804868c40c314aa56be73c88caae908ab8ada0c3a5636b024d36d2515ded79",
+        "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
+        "4ed654a860401b9f0f255e1a9edab3bd66fad6e0194be8158d2e153ba8cffe5b",
+        "2656552f1501ed970e8f3d8d43ff3a67e28942c3018e63135a4c2cc11d68cc2b",
+        "8c32584c49804739701472222d5ecccdbc69a70e830b09b7e17d7ee45bc869b5",
+        "56f398d58ca99b46ffd4d711f59a28fe105ee9db6bf6969f0f30e4ab579bba39",
+        "272271344d5d07fd2f98d441ed19f9cb9191d23a55d701634cad63981a806311",
+        "b0fa1aa89eefda622a27e3d6cdbe1a7cb14107177559b0e11e6a4a7c75fbe60e",
+        "1cd328cac94b83da34716fd85839249408b78b0541b7f7113c03b1056b789890"
+      ],
+      "source_sha256": "224dbb79c59c5efc29766e230abf199c581ab03af5fa43a1705a8d5ac9e6ad87",
+      "text": "Build an isolated environment, install ParaScape and check its bundled data.\n\nLocal Git sources are archived from committed HEAD into temporary storage;\npip never writes build files into the original checkout. A failed install\nremoves only the environment created here, and retains ``parascape-install.log``.\n\n:param source: parascape on PyPI, or an explicit local Git checkout or\n    repository URL; default_source otherwise. PyPI resolves the latest\n    compatible stable release at installation time, without a version pin.\n:param root: external-application folder.\n:param progress: callback ``(step, steps, text)``; called off the GUI thread.\n:param cancel: threading.Event; cancels commands and their descendants.\n:param runner: optional subprocess-runner substitute for focused tests.\n:param preflight: optional interpreter-preflight substitute for focused tests.\n:returns: completed environment path.\n:raises RuntimeError: installation failed, was cancelled, or folder is unowned.\n:raises ValueError: the selected source is neither a suitable local Git\n    checkout, the PyPI package, nor an allowed official repository URL."
+    },
     "22b3c9931ffd0eb23f80752788aee849607b02852c90402361b331fc5be27288": {
       "source_blocks_sha256": [
         "f01ad320744c6c2472e19e4e7b852a3115aead2d81a89521387852db8fb690b7",
@@ -85,6 +102,15 @@
       ],
       "source_sha256": "4231a5b9cfc0826b7af583fddd62438a5394e588cdbcac9e2a22c1bb293c4077",
       "text": "Open a drop the way its contents say, asking where there is a choice.\n\n:func:`spacr.drop_classification.classify_drop` says what\nwas dropped, and:\n\n* image files (with or without folders) open as one queue, in drop\n  order, each field edited where it lies with its mask in its own\n  ``<folder>/masks`` -- :meth:`_open_queue`;\n* one folder of images opens as it is;\n* one folder whose subfolders look like channels (DAPI/, GFP/..., or\n  the same fields in each) opens \"Organize for Measure\" with a\n  channel column per subfolder; any other folder whose images sit in\n  subfolders is offered for consolidation;\n* several folders of images open \"Organize for Measure\" with a\n  channel column per folder;\n* when that popup is cancelled (or nobody can see it), the drop\n  opens as it always did: the folder as it is, or a queue;\n* images dropped with their masks open with those masks\n  (:meth:`_open_with_masks`);\n* a folder spaCR wrote is named in the console and its images, if\n  any, open -- a ``.npy`` is never opened as an image.\n\nEverything the drop held that is used for nothing is listed in the\nconsole.\n\n:param paths: the dropped files and folders, in the order dropped.\n:returns: whether something was opened or a job started."
+    },
+    "435cd6f8565b591b393d54b14394ae4e8f51fda8b6cdd3720d0a9380a2166383": {
+      "source_blocks_sha256": [
+        "4bd420acbea20227f4dc92b044695602fe67703a36a05d39f425bea1b9d6b0d9",
+        "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
+        "7ccf055f3d9f37a5995150edfd23e82d1fd7de6aec0de590a338e541ca1955d0"
+      ],
+      "source_sha256": "435cd6f8565b591b393d54b14394ae4e8f51fda8b6cdd3720d0a9380a2166383",
+      "text": "Whether an owned environment has passed the import and bundled-data checks.\n\n:param root: external-application folder.\n:returns: true only with a completed record and environment interpreter."
     },
     "4b72b2b038a95576baee27ca722de94a123b2d12adb7e5982a20cc73b33f3eca": {
       "source_blocks_sha256": [
@@ -206,6 +232,17 @@
       "source_sha256": "91aa9327ad66e9d70ba841db392dfca063d1e8d7665d4a46f8113aefe0055220",
       "text": "Put keyboard focus on the app dock. The menu and Ctrl+Shift+A path.\n\nThe dock does not slide, so there is nothing to open: it is a\npermanent column when the preference is ``locked``. The action moves\nkeyboard focus to its first row, so a keyboard user does not have to\ntab through the page to reach it.\n\nA no-op when the dock is hidden, so the shortcut does not override\nthe preference. The action is also disabled in that mode; this check\nis a second guard."
     },
+    "9d76c91c3380bbe571f3bbb3073659d41113721c6fd4990e583d9fcb79963c6b": {
+      "source_blocks_sha256": [
+        "0bfde660022edfe08a3227ec55a559e8a7764659f307793f6723121aca4c1f17",
+        "3427fb2c03c52368df57a4c81152bbb4ac92d01bdde57806fa29539edac9bba6",
+        "a43b07291bf97f3bbdf76d42ae6dcf658bba75708bc465b5a09fd8f69d907ec0",
+        "0b1ed04d62b9723e810a8fc73ac0def86f409d53fa31342c52dffde652d1cf44",
+        "872fc9942c34ced69d5c7164a77de6a5c5e21375cc4dbfcf8c6722701c9c7988"
+      ],
+      "source_sha256": "9d76c91c3380bbe571f3bbb3073659d41113721c6fd4990e583d9fcb79963c6b",
+      "text": "Everything the worker needs to run one segmentation pass.\n\nKept as a plain dataclass so tests can construct it directly; the\npanel builds one from its widget state on each Run.\n\n:param image: the field to segment, an array of shape (H, W) or\n    (H, W, C); each object type's channel index selects its plane.\n:param source_path: the file the field was loaded from, read for pixel\n    size and objective metadata when the PSF calibration is left unset;\n    empty falls back to the settings' ``src`` and then to the defaults.\n:param cell_mask: optional labels for the same preview field, used for\n    organelle restriction when cell labels are not generated in the same pass."
+    },
     "aa49b5e0d3a00c2689a5e0e6b720a2ae6b7fe28aa540028d47575b69d4acac30": {
       "source_blocks_sha256": [
         "8bf660eef232326a06dfeb5e2e920309d9894bd392f55ceeec6e747f32b7d420",
@@ -245,6 +282,20 @@
       ],
       "source_sha256": "b3f24b5a17a04921acec1b62476d23f5f94ca9170f08353c45d24227457fb5ce",
       "text": "Walk ``src`` and describe every image it holds. Writes nothing.\n\nThis is the read-only half of the converter: it opens headers, not\npixels, and produces the :class:`SourceImage` list that :func:`plan`\nturns into a preview.\n\nLayouts:\n\n``'plate_well'``\n    ``src/<plate>/<well>/…`` — the user's ``run1/wt/`` case.\n``'well'``\n    ``src/<well>/…``, with ``src``'s own name as the plate.\n``'flat'``\n    images directly in ``src``; one plate, one well (``A01``), one\n    field per file.\n``'auto'`` (default)\n    chooses from how deep the images actually sit.\n\nA file whose reader is not installed, or that will not open, comes\nback as a ``SourceImage`` with ``meta['error']`` set rather than\nraising — the plan shows it, the ledger counts it and the summary\nnames it.\n\n:param src: folder to scan.\n:param layout: one of :data:`LAYOUTS`.\n:param extensions: override the scanned extensions.\n:param metadata_type: a filename convention from Mask's ``metadata_type``\n    list (``'opera_phenix'``, ``'cq1'``, ``'zeiss_zen_split_tiles'``, ...).\n    When given, plate, well, field, channel, z and t are READ FROM EACH\n    NAME by that convention's pattern, and the folders only supply what\n    the name does not carry -- the plate for a convention with no plate\n    group, the well for one whose \"well\" is a scene index or a literal\n    word. A file whose name does not follow the convention is reported\n    unreadable, with the reason, rather than guessed at. ``None``,\n    ``''`` and ``'auto'`` keep the folder-and-token inference.\n:param custom_regex: the pattern for ``metadata_type='custom'``, with\n    named groups ``wellID``, ``fieldID`` and ``chanID`` (and optionally\n    ``plateID``, ``timeID``, ``sliceID``).\n:returns: one :class:`SourceImage` per file (or per series in a file).\n:raises ConfigurationError: when ``src`` is not a directory,\n    ``layout`` is not recognised, or ``metadata_type`` names no\n    convention."
+    },
+    "b4ee388c09fe5f5636b51409fa92ce792a99be065c024b9bfcf3c38b0eab0ef6": {
+      "source_blocks_sha256": [
+        "ebff26c8b458079570815e35318891db3647d276ae314b6c4f128699cbf4b9b3",
+        "0689f9793c64792f0eaa5b3bfed07fdbd1698533cbc5d5fab647e812d65433c2",
+        "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
+        "c8e11f066eaa06173ba973c531735a8a9eeca096c70ae447a172ca9ac233f1be",
+        "e54aecea5b4d06972d3ce00c359fa613130de9f95bf38c9c6fc61a0d9a6e636c",
+        "e3f674322e836851cad0fca4abaeda3f0ca4e1510108fd7bc75f2d46605dbf17",
+        "19691b329b7e74e50f4e192cb57fc51c47afd7a7f33a69212ec001efbd6f85cb",
+        "3836df398c12ee6f660411d3764bcc71a8d34b321aed0b9bdeeffd17ab03907c"
+      ],
+      "source_sha256": "b4ee388c09fe5f5636b51409fa92ce792a99be065c024b9bfcf3c38b0eab0ef6",
+      "text": "Upgrade the owned environment using pip and PyPI, then verify its data.\n\n:param source: ignored; upgrades always use the PyPI ParaScape package.\n:param root: external-application folder.\n:param progress: optional ``(step, total, text)`` callback.\n:param cancel: optional subprocess cancellation event.\n:param runner: optional command runner for tests.\n:returns: verified environment path.\n:raises RuntimeError: upgrade failed or was cancelled. Files and logs remain\n    for diagnosis; an interrupted environment must be repaired before launch."
     },
     "c5f1b39a25030613819b91a1d14e94922cdd0f751242ec1e3f29e59c0f7891aa": {
       "source_blocks_sha256": [

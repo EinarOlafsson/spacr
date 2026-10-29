@@ -42,6 +42,8 @@ def test_dialog_warns_before_work_and_remains_responsive_while_cancelling(qtbot,
     assert 'alpha' in dialog.explanation.text()
     assert '12 GB' in dialog.explanation.text()
     assert 'PyPI' in dialog.explanation.text()
+    assert 'asks before downloading it on first open' in dialog.explanation.text()
+    assert 'package includes its gene data' not in dialog.explanation.text()
     assert dialog.source.text() == 'parascape'
     assert str(tmp_path/'parascape') in dialog.explanation.text()
     assert not calls
@@ -289,3 +291,96 @@ def test_offline_update_check_reports_and_opens_installed_app(qtbot, monkeypatch
     monkeypatch.setattr(parascape.service, 'launch_parascape', lambda **kwargs: child)
     assert parascape.open_parascape(root=tmp_path) is child
     assert 'offline' in messages[0][-1]
+
+
+@pytest.mark.parametrize('state', ['established', 'fresh', 'invalid_owner', 'missing_python', 'symlink'])
+def test_unready_environment_offers_upgrade_only_for_owned_previous_install(
+        qtbot, monkeypatch, tmp_path, state):
+    import json
+    from pathlib import Path
+
+    root = tmp_path / 'apps'
+    env = root / 'parascape'
+    interpreter = Path(parascape.service.environments._env_python(str(env)))
+    interpreter.parent.mkdir(parents=True)
+    interpreter.touch()
+    record = {'app': 'parascape', 'ready': False, 'version': '0.0.1.0'}
+    if state == 'fresh':
+        record.pop('version')
+    if state == 'invalid_owner':
+        record['app'] = 'not-parascape'
+    if state == 'missing_python':
+        interpreter.unlink()
+    (env / parascape.service._OWNER).write_text(json.dumps(record))
+    keep = env / 'preserve'
+    keep.write_text('original environment')
+    if state == 'symlink':
+        actual = root / 'actual'
+        env.rename(actual)
+        env.symlink_to(actual, target_is_directory=True)
+    selected = []
+
+    def cancel(dialog):
+        qtbot.addWidget(dialog)
+        selected.append(dialog.job)
+        return QDialog.Rejected
+
+    monkeypatch.setattr(parascape.ParaScapeInstallDialog, 'exec', cancel)
+    assert parascape.open_parascape(root=root) is None
+    expected = (parascape.service.upgrade_parascape if state == 'established'
+                else parascape.service.install_parascape)
+    assert selected == [expected]
+    assert keep.read_text() == 'original environment'
+
+
+def test_failed_upgrade_retry_repairs_existing_environment_without_recreation(
+        qtbot, monkeypatch, tmp_path):
+    import json
+    from pathlib import Path
+
+    env = tmp_path / 'parascape'
+    interpreter = Path(parascape.service.environments._env_python(str(env)))
+    interpreter.parent.mkdir(parents=True)
+    interpreter.touch()
+    (env / parascape.service._OWNER).write_text(json.dumps(
+        {'app': 'parascape', 'ready': False, 'version': '0.0.1.0'}))
+    keep = env / 'existing-file'
+    keep.write_text('preserve this environment')
+    commands = []
+
+    def runner(argv, **kwargs):
+        commands.append(argv)
+        return 0, ['cache incomplete', '{"ok":true,"version":"0.0.3.0"}']
+
+    def repair(dialog):
+        qtbot.addWidget(dialog)
+        assert dialog.job is parascape.service.upgrade_parascape
+        dialog.job(root=dialog.root, runner=runner)
+        dialog.installed = True
+        return QDialog.Accepted
+
+    class SkipCheck:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def exec(self):
+            return QDialog.Rejected
+
+    class Child:
+        polled = False
+
+        def poll(self):
+            self.polled = True
+            return 0
+
+    child = Child()
+    monkeypatch.setattr(parascape.ParaScapeInstallDialog, 'exec', repair)
+    monkeypatch.setattr(parascape, 'ParaScapeUpdateCheckDialog', SkipCheck)
+    monkeypatch.setattr(parascape.service, 'launch_parascape', lambda **kwargs: child)
+    assert parascape.open_parascape(root=tmp_path) is child
+    qtbot.waitUntil(lambda: child.polled)
+    assert keep.read_text() == 'preserve this environment'
+    assert parascape.service.is_installed(tmp_path)
+    assert parascape.service._record(env)['version'] == '0.0.3.0'
+    assert len(commands) == 2
+    assert '--upgrade' in commands[0] and all('venv' not in argv for argv in commands)

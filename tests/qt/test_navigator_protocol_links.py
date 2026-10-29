@@ -91,7 +91,23 @@ def test_actual_help_and_navigator_share_browser_and_native_measure_input(qtbot,
         dialog = window._protocol_browser_dialog
         qtbot.addWidget(dialog)
         assert dialog._source_path == str(plate)
-        assert dialog._selectors['data'].currentData() == 'images_masks'
+        root_children = dialog._trail[-1]['children']
+        assert root_children[dialog._choice_list.currentRow()]['id'] == 'images_masks'
+        assert dialog._selected_protocol is None
+        def find_measure_path(node):
+            if node.get('protocol') == 'simple_imaging' and node.get('start_module') == 'measure':
+                return []
+            for child in node.get('children', ()):
+                path = find_measure_path(child)
+                if path is not None:
+                    return [child['id'], *path]
+            return None
+        path = find_measure_path(dialog._tree)
+        assert path
+        for node_id in path:
+            children = dialog._trail[-1]['children']
+            dialog._choice_list.setCurrentRow(next(i for i, child in enumerate(children) if child['id'] == node_id))
+            dialog._next.click()
         assert dialog._active_route['start_module'] == 'measure'
         assert window._stack.currentWidget() is window._startup
         window._open_easy_command('Protocols')

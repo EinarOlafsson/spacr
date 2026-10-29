@@ -107,6 +107,41 @@ def _validate_protocols(data):
         used.add(key)
     if set(protocols) - used:
         raise ValueError("protocols missing decision-tree routes")
+    if "protocol_tree" in data:
+        node_ids, destinations = set(), set()
+
+        def visit(node):
+            """Check each context-specific choice and its real guide destination."""
+            if (not isinstance(node, dict)
+                    or set(node) - {"id", "title", "description", "children", "protocol", "start_module"}
+                    or not identity(node.get("id")) or node["id"] in node_ids
+                    or not text(node.get("title")) or not text(node.get("description"))):
+                raise ValueError("invalid or duplicate protocol tree node")
+            node_ids.add(node["id"])
+            if "children" in node:
+                children = node["children"]
+                if ("protocol" in node or "start_module" in node
+                        or not isinstance(children, list) or not children):
+                    raise ValueError("protocol tree branch needs choices, not a destination")
+                for child in children:
+                    visit(child)
+            else:
+                key = node.get("protocol")
+                if not isinstance(key, str) or key not in protocols:
+                    raise ValueError("unknown protocol tree destination")
+                modules = {step["module"] for step in protocols[key]["steps"]}
+                if "start_module" in node and (not isinstance(node["start_module"], str)
+                                               or node["start_module"] not in modules):
+                    raise ValueError("protocol tree starts outside its guide")
+                destinations.add(key)
+
+        tree = data["protocol_tree"]
+        visit(tree)
+        if (tree["id"] != "protocols" or "children" not in tree
+                or {node["id"] for node in tree["children"]} != set(choices["data"])):
+            raise ValueError("protocol tree must start with the available data types")
+        if destinations != set(protocols):
+            raise ValueError("protocols missing hierarchical choices")
 
 
 def validate(data, root=ROOT, *, live=True):
