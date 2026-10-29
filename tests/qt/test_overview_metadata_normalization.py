@@ -1978,3 +1978,108 @@ def test_source_growth_beyond_a_capped_plate_skips_outside_placeholders_and_reco
                 runner.shutdown(timeout_ms=3000)
         page.retire()
         screen.close()
+
+
+def test_recorded_wide_acquisition_geometry_refuses_bounded_tables_and_recovers_with_a_valid_user_format(
+        qtbot, qt_theme_applied, tmp_path):
+    import tifffile
+    from spacr.qt.screens.app_screen import AppScreen
+
+    source = tmp_path / 'acquisition'
+    source.mkdir()
+    metadata = source / 'MeasurementDetail.mrf'
+    metadata.write_text('<MeasurementDetail RowCount="1" ColumnCount="513"/>', encoding='utf-8')
+    originals = {metadata: metadata.read_bytes()}
+    expected = {}
+    for number in (1, 2):
+        folder = source / f'p{number}'
+        folder.mkdir()
+        path = folder / f'p{number}_A01_F1_C1.tif'
+        pixels = np.arange(64, dtype=np.uint16).reshape(8, 8)
+        if number == 2:
+            pixels = np.flipud(pixels) + 100
+        tifffile.imwrite(path, pixels)
+        expected[str(path)] = pixels
+        originals[path] = path.read_bytes()
+    screen = AppScreen('overview')
+    qtbot.addWidget(screen)
+    page, view = screen._overview_page, None
+
+    def runners():
+        return (view._index_jobs, view._image_jobs, view._export_jobs,
+                view._metadata_jobs, view._measurement_jobs, view._native_jobs,
+                view._thumbnail_jobs, view._montage_jobs, view._field_thumbnail_jobs)
+
+    def quiet():
+        return all(not runner.is_busy() for runner in runners())
+
+    try:
+        screen.resize(1400, 1000)
+        screen.show()
+        settings = {'src': str(source), 'overview_channels': '1', 'overview_normalize': False}
+        wizard = page.run(settings)
+        qtbot.waitUntil(wizard.next.isEnabled, timeout=10000)
+        assert len(wizard._fields) == 2
+        assert wizard._info['acquisition']['columns'] == 513
+        assert tuple(wizard.plate_geometry.currentData()) == (1, 513)
+        assert wizard.configuration()['geometry'] == (1, 513)
+        qtbot.mouseClick(wizard.next, browser.Qt.LeftButton)
+        qtbot.waitUntil(lambda: page.browser is not None, timeout=10000)
+        view = page.browser
+        qtbot.waitUntil(lambda: len(view._fields) == 2 and quiet(), timeout=10000)
+        identities = {field.identity for field in view._fields}
+        assert view._overview_options['geometry'] == (1, 513)
+        assert view.plates.count() == 2
+        view.plates.setCurrentIndex(1)
+        view.plates_view.setCurrentIndex(view.plates_view.findData('side'))
+        assert view._plates_view == 'side' and len(view._plate_tables) == 2
+        assert all(table.rowCount() == table.columnCount() == 0 for table in view._plate_tables.values())
+        assert view.status.text() == browser.tr('Plate coordinates exceed the overview grid limit.')
+        assert view.view._item is None
+        for field in view._fields:
+            plane, = browser._overview_raw_planes(field, (1,), edge=None)
+            np.testing.assert_array_equal(plane[2], expected[field.files[0][1]])
+        assert all(path.read_bytes() == original for path, original in originals.items())
+        qtbot.waitUntil(quiet, timeout=10000)
+
+        wizard = page.run(settings)
+        qtbot.waitUntil(wizard.next.isEnabled, timeout=10000)
+        assert tuple(wizard.plate_geometry.currentData()) == (1, 513)
+        index = next(i for i in range(wizard.plate_geometry.count())
+                     if tuple(wizard.plate_geometry.itemData(i)) == (1, 1))
+        wizard.plate_geometry.setCurrentIndex(index)
+        assert wizard.configuration()['geometry'] == (1, 1)
+        old = view
+        qtbot.mouseClick(wizard.next, browser.Qt.LeftButton)
+        qtbot.waitUntil(lambda: page.browser is not old, timeout=10000)
+        view = page.browser
+        qtbot.waitUntil(lambda: view._geometry_valid and quiet(), timeout=10000)
+        assert {field.identity for field in view._fields} == identities
+        assert view._overview_options['geometry'] == (1, 1)
+        view.plates_view.setCurrentIndex(view.plates_view.findData('side'))
+        assert all(table.rowCount() == table.columnCount() == 1 for table in view._plate_tables.values())
+        pictures = []
+        for index in range(view.plates.count()):
+            view.plates.setCurrentIndex(index)
+            address = view.plates.currentData(), 'A01'
+            view._well(view._plate_tables[address[0]].item(*view._well_positions[address]))
+            qtbot.waitUntil(lambda: view.fields.count() == 1, timeout=10000)
+            view.fields.setCurrentRow(0)
+            view._field(view.fields.item(0))
+            qtbot.waitUntil(lambda: view.view._item is not None and not view._image_pending and quiet(), timeout=10000)
+            field = view.fields.currentItem().data(browser.Qt.UserRole)
+            plane, = browser._overview_raw_planes(field, (1,), edge=None)
+            np.testing.assert_array_equal(plane[2], expected[field.files[0][1]])
+            pictures.append(view.view._item.pixmap().toImage().copy())
+            view._back()
+        assert pictures[0] != pictures[1]
+        assert all(path.read_bytes() == original for path, original in originals.items())
+    finally:
+        if view is not None:
+            view._cancel()
+            view._visual_timer.stop()
+            qtbot.waitUntil(lambda: all(runner.active_jobs() == 0 for runner in runners()), timeout=10000)
+            for runner in runners():
+                runner.shutdown(timeout_ms=3000)
+        page.retire()
+        screen.close()
