@@ -10189,7 +10189,7 @@
       "scenes": [
         {
           "visual": "01_graph_builder_host",
-          "narration": "Fra Home åbner du Graph Builder og derefter Small Multiples. Brug visningen til at sammenligne de samme målinger mellem grupper. Eksemplet bruger måledatabasen fra den linkede Annotate-vejledning.",
+          "narration": "Åbn Graph Builder og derefter Small Multiples. Brug visningen til at sammenligne de samme målinger mellem grupper. Eksemplet bruger måledatabasen fra den linkede Annotate-vejledning.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",

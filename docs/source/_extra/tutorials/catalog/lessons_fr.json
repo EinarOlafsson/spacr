@@ -10897,13 +10897,13 @@
       "scenes": [
         {
           "visual": "01_graph_builder_host",
-          "narration": "Depuis Home, ouvrez Graph Builder, puis Small Multiples. Cette vue permet de comparer les mêmes mesures entre groupes. Cet exemple utilise la base de données de mesures disponible dans le tutoriel Annotate associé.",
+          "narration": "Ouvrez Graph Builder, puis Small Multiples. Cette vue permet de comparer les mêmes mesures entre groupes. Cet exemple utilise la base de données de mesures disponible dans le tutoriel Annotate associé.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "58_graph_builder"
           ],
-          "speech_text": "Depuis Home, ouvrez Graph Builder, puis Small Multiples. Cette vue permet de comparer les mêmes mesures entre groupes. Cet exemple utilise la base de données de mesures disponible dans le tutoriel Annotate associé."
+          "speech_text": "Ouvrez Graph Builder, puis Small Multiples. Cette vue permet de comparer les mêmes mesures entre groupes. Cet exemple utilise la base de données de mesures disponible dans le tutoriel Annotate associé."
         },
         {
           "visual": "03_choose_real_measurements",
