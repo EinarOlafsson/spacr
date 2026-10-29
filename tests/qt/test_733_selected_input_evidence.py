@@ -138,3 +138,88 @@ def test_selected_table_and_image_do_not_inherit_each_others_actions(tmp_path, m
     assert selected_image['context']['database_schemas'] == []
     assert selected_image['context']['run_evidence'] == dict(manifests=[], results=[])
     assert all(path.read_bytes() == content for path, content in originals.items())
+
+
+@pytest.mark.parametrize('bigtiff,extra_tags', [(False, 0), (True, 350)])
+def test_tiff_headers_keep_unreviewed_acquisition_axes_unresolved(
+        tmp_path, monkeypatch, bigtiff, extra_tags):
+    import tifffile
+
+    path = tmp_path / 'acquisition.tif'
+    pixels = np.arange(48, dtype=np.uint16).reshape(6, 8)
+    description = 'Acquisition notebook: ' + 'unreviewed dimensions; ' * 60
+    tifffile.imwrite(
+        path, pixels, bigtiff=bigtiff, metadata=None,
+        description=description,
+        extratags=[(65000 + index, 'B', 1, 1, False)
+                   for index in range(extra_tags)])
+    before = path.read_bytes()
+    read_header = home._easy_read_header
+    reads = []
+
+    def bounded_header(selected, limit, offset=0):
+        reads.append((limit, offset))
+        return read_header(selected, limit, offset)
+
+    def no_pixels(*args, **kwargs):
+        pytest.fail('Navigator provenance must use headers, not decode TIFF pixels')
+
+    monkeypatch.setattr(home, '_easy_read_header', bounded_header)
+    monkeypatch.setattr(tifffile, 'imread', no_pixels)
+    assert home._easy_file_kind(path) == 'image'
+    assert sum(limit for limit, _ in reads) <= home._EASY_HEADER_LIMIT
+    reads.clear()
+    metadata = {}
+    assert home._easy_file_kind(path, metadata) == 'image'
+    assert metadata == dict(shape=[6, 8], axes='YX', axes_unresolved=True)
+    assert sum(limit for limit, _ in reads) <= home._EASY_HEADER_LIMIT
+    assert path.read_bytes() == before
+
+
+def test_paired_masks_do_not_make_partial_merged_outputs_scientific_evidence(
+        tmp_path, monkeypatch):
+    import tifffile
+
+    root = tmp_path / 'selected-plate'
+    image = _image(root / 'field.tif')
+    mask = root / 'field_masks.tif'
+    labels = np.zeros((6, 8), dtype=np.uint32)
+    labels[1:5, 2:6] = 70000
+    tifffile.imwrite(mask, labels)
+    before = {path: path.read_bytes() for path in (image, mask)}
+    merged = root / 'merged'
+    merged.mkdir()
+    images = [image, mask]
+    expected_pair = {str(image): str(mask)}
+
+    def no_pixels(*args, **kwargs):
+        pytest.fail('Header evidence must not load image arrays or label pixels')
+
+    monkeypatch.setattr(np, 'load', no_pixels)
+    monkeypatch.setattr(tifffile, 'imread', no_pixels)
+    assert home._easy_paired_layout(images, root) == dict(
+        kind='unstructured', pairs=expected_pair, project=str(root),
+        filename_evidence=True)
+    assert not home._easy_merged_evidence(root)
+
+    (merged / 'notes.txt').write_text('Merge is still being prepared.')
+    (merged / 'pending').mkdir()
+    plane = merged / 'unmerged-plane.npy'
+    np.save(plane, np.arange(48, dtype=np.uint16).reshape(6, 8))
+    assert home._easy_paired_layout(images, root)['kind'] == 'unstructured'
+    assert not home._easy_merged_evidence(root)
+
+    single = merged / 'single-channel.npy'
+    np.save(single, np.zeros((6, 8, 1), dtype=np.uint16))
+    assert home._easy_paired_layout(images, root)['kind'] == 'spacr'
+    assert not home._easy_merged_evidence(root)
+
+    channels = merged / 'merged-channels.npy'
+    np.save(channels, np.stack((np.full((6, 8), 400, dtype=np.uint32),
+                               labels), axis=-1))
+    single.unlink()
+    assert home._easy_merged_evidence(root)
+    paired = home._easy_paired_layout(images, root)
+    assert paired['kind'] == 'spacr' and paired['pairs'] == expected_pair
+    assert paired['project'] == str(root) and paired['filename_evidence']
+    assert all(path.read_bytes() == content for path, content in before.items())
