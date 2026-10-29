@@ -38,6 +38,54 @@ def _inputs(example):
     return manifest, {str(path): digest for path, digest in files.items()}
 
 
+def _tour_sections(capture, screen, keys, click, settle):
+    """Use reachable headers once, retaining ancestors of every required field."""
+    from spacr.qt.widgets.section import _logical_parent
+
+    def section_of(widget):
+        while widget is not None and not (hasattr(widget, 'is_expanded') and hasattr(widget, '_header')):
+            widget = _logical_parent(widget)
+        return widget
+
+    def ancestors(section):
+        chain = []
+        while section is not None:
+            chain.append(section)
+            section = section_of(_logical_parent(section))
+        return list(reversed(chain))
+
+    bar = screen._settings_search
+    wanted = {}
+    for key in keys:
+        section = section_of(bar.section_of(key))
+        if section is None:
+            raise ValueError(f'{key}: no reachable settings section')
+        for parent in ancestors(section):
+            wanted[id(parent)] = parent
+    sections = {}
+    for key in bar.indexed_keys():
+        section = section_of(bar.section_of(key))
+        if section is not None:
+            sections[id(section)] = section
+    # A collapsed ancestor makes an unused child header unreachable; leave
+    # that hidden child alone instead of trying to click it. Close visible
+    # children before their parents, then open required parents first.
+    for section in sorted(sections.values(), key=lambda s: len(ancestors(s)), reverse=True):
+        if id(section) not in wanted and section.is_expanded() and section._header.isVisible():
+            capture_ui.scroll_to(capture, screen._settings_scroll, section._header)
+            click(section._header); settle(.2)
+            if section.is_expanded():
+                raise ValueError('Unused settings section did not close: ' + section._header.text())
+    for section in wanted.values():
+        if not section._header.isVisible() or not section._header.isEnabled():
+            raise ValueError('Required settings section is unavailable: ' + section._header.text())
+        if not section.is_expanded():
+            capture_ui.scroll_to(capture, screen._settings_scroll, section._header)
+            click(section._header); settle(.2)
+            if not section.is_expanded():
+                raise ValueError('Required settings section did not open: ' + section._header.text())
+
+
 def record(app, window, stage, captures, capture, settle, write_json, timeout, *, dry_run=False):
     import tifffile
     from PySide6.QtCore import Qt, QTimer
@@ -133,11 +181,6 @@ def record(app, window, stage, captures, capture, settle, write_json, timeout, *
                 return
         raise ValueError(f'The {name} fold did not open')
 
-    def foldable(widget):
-        while widget is not None and not (hasattr(widget, 'is_expanded') and hasattr(widget, '_header')):
-            widget = widget.parentWidget()
-        return widget
-
     def tour(screen, frame, query, keys, act=None, pre=None):
         bar = screen._settings_search
         with capture_ui.clip(capture, frame):
@@ -146,13 +189,7 @@ def record(app, window, stage, captures, capture, settle, write_json, timeout, *
             capture_ui.search_settings(capture, bar, query)
             settle(.4)
             if not query:
-                # An empty filter shows the category headings; open the ones that
-                # hold these settings with their own header clicks, shut the rest.
-                wanted = {id(foldable(bar.section_of(key))) for key in keys}
-                for key in bar.indexed_keys():
-                    section = foldable(bar.section_of(key))
-                    if section is not None and section.is_expanded() != (id(section) in wanted):
-                        click(section._header); settle(.2)
+                _tour_sections(capture, screen, keys, click, settle)
             settle(.3)
             if act is not None:
                 act()
