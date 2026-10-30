@@ -243,6 +243,48 @@ def _easy_mode_733_api_arrivals(docs):
     return _current_733_easy_mode_api(entries, docs)
 
 
+
+def _navigator_input_identity_arrival(docs):
+    """Bind the single reviewed filesystem identity helper to its exact source."""
+    entries = json.loads((ROOT / "tests/data/release_contracts"
+        / "733_navigator_input_identity_api_arrival_2026-10-29.json").read_text(encoding="utf-8"))
+    owner = "spacr.qt.widgets.home._easy_inspect_path_impl._input_identity"
+    source = "Identify the selected object without treating content growth as replacement."
+    assert entries == {owner: source}
+    assert hashlib.sha256(source.encode()).hexdigest() == (
+        "ce6d6844b49e8441887b5e3346a3c614f7cd99f68ce2e5167c96e0db761c3487")
+    assert {key: docs[key] for key in entries} == entries
+    return entries
+
+
+def test_navigator_input_identity_arrival_has_nine_reviewed_catalog_bindings(
+        current_documentation_api_contracts, api_catalogs):
+    """Keep the new owner bound to its reviewed targets in every shipped locale."""
+    import build_documentation_i18n as builder
+
+    docs, _ = current_documentation_api_contracts
+    arrivals = _navigator_input_identity_arrival(docs)
+    owner, source = next(iter(arrivals.items()))
+    for language in ("de", "es", "fr", "hi", "is", "ko", "pt", "sv", "zh_CN"):
+        review = json.loads((ROOT / "docs/i18n/reviewed/api" / language
+            / "2026-10-29-navigator-input-identity.json").read_text(encoding="utf-8"))
+        assert review["language"] == language
+        assert len(review["records"]) == 1
+        record = review["records"][0]
+        assert record["label"] == owner + "#0"
+        assert record["source"] == record["context"] == source
+        assert record["source_sha256"] == hashlib.sha256(source.encode()).hexdigest()
+        assert builder.reviewed_api_block_translations(arrivals, language) == {
+            source: record["translation"]}
+        catalog = json.loads((api_catalogs / f"{language}.json").read_text(encoding="utf-8"))
+        translated = catalog["symbols"][owner]
+        assert translated["source_sha256"] == record["source_sha256"]
+        assert translated["source_blocks_sha256"] == builder._source_block_hashes(source)
+        assert translated["translation_source_blocks_sha256"] == (
+            builder._translation_source_block_hashes(source))
+        assert translated["text"] == record["translation"]
+
+
 def test_startup_mosaic_review_rejects_the_old_strap_description(tmp_path, monkeypatch):
     import ast
 
@@ -3817,6 +3859,12 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         | home_ui_arrivals.keys() | volume_arrivals.keys()
     )
     zoo_arrivals = {**zoo_arrivals, **navigator_help_arrivals}
+    input_identity_arrival = _navigator_input_identity_arrival(docs)
+    assert not input_identity_arrival.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **input_identity_arrival}
     retirement = json.loads((ROOT / "tests/data/release_contracts"
         / "700_retired_setup_api_inverse_2026-10-15.json").read_text(encoding="utf-8"))
     assert retirement["source_commit"] == "0881044e8b310515e2434b1046fe94a02d769b47"

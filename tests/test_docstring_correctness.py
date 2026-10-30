@@ -4837,6 +4837,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     """Require the extractor's keys and content to equal rendered source."""
     before_modules = set(sys.modules)
     docs = _documentation_public_docstrings()
+    from tests.test_documentation_i18n import _navigator_input_identity_arrival
+    _navigator_input_identity_arrival(docs)
     from tests.test_documentation_i18n import _retired_732_remote_api
     historical_docs = docs | _retired_732_remote_api(docs)
     imported_package_modules = {
@@ -5358,6 +5360,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("733_easy_mode_api_arrivals_2026_10_26.json", 4),
         ("733_navigator_ai_provider_api_arrival_2026-10-28.json", 1),
         ("441_indexed_scanr_import_api_arrivals_2026-10-28.json", 2),
+        ("733_navigator_input_identity_api_arrival_2026-10-29.json", 1),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -5905,7 +5908,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json",
                      "733_easy_mode_api_arrivals_2026_10_26.json",
                      "733_navigator_ai_provider_api_arrival_2026-10-28.json",
-                     "441_indexed_scanr_import_api_arrivals_2026-10-28.json"):
+                     "441_indexed_scanr_import_api_arrivals_2026-10-28.json",
+                     "733_navigator_input_identity_api_arrival_2026-10-29.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -5998,7 +6002,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json",
                      "733_easy_mode_api_arrivals_2026_10_26.json",
                      "733_navigator_ai_provider_api_arrival_2026-10-28.json",
-                     "441_indexed_scanr_import_api_arrivals_2026-10-28.json"):
+                     "441_indexed_scanr_import_api_arrivals_2026-10-28.json",
+                     "733_navigator_input_identity_api_arrival_2026-10-29.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
