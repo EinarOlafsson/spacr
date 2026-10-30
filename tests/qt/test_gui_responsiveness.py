@@ -447,6 +447,7 @@ class _BusyWatcher(QObject):
 
 # -- 1. the worst one: network I/O in a click handler ----------------------
 
+@pytest.mark.usefixtures("console_info_enabled")
 def test_filing_an_issue_does_not_freeze_the_window_for_half_a_minute(
         qtbot, monkeypatch):
     """``gh auth token`` + ``urlopen`` used to run in the click handler.
@@ -458,6 +459,10 @@ def test_filing_an_issue_does_not_freeze_the_window_for_half_a_minute(
     several times over while keeping the test quick.
     """
     from spacr.qt.screens.app_screen import AppScreen
+    from spacr.qt import preferences
+
+    preferences.set_reduce_motion(True)
+    preferences.set_ambient_enabled(False)
 
     def slow_submit_report(report):
         time.sleep(1.2)          # the network, in one lump
@@ -510,6 +515,26 @@ def test_a_failed_issue_report_still_reaches_the_console(qtbot, monkeypatch):
     one that fails loudly.
     """
     from spacr.qt.screens.app_screen import AppScreen
+    from spacr.qt import preferences
+
+    preferences.set_reduce_motion(True)
+    preferences.set_ambient_enabled(False)
+
+    import logging
+    preferences.set_log_levels(
+        {logging.INFO, logging.WARNING, logging.ERROR, logging.CRITICAL},
+        {logging.WARNING, logging.ERROR, logging.CRITICAL})
+    assert logging.INFO not in preferences.get_log_console_levels()
+
+    from spacr import crashreport
+    dispatched = []
+    dispatch_error = crashreport._dispatch_error
+
+    def observe_dispatch(*args, **kwargs):
+        dispatched.append((args, kwargs))
+        return dispatch_error(*args, **kwargs)
+
+    monkeypatch.setattr(crashreport, '_dispatch_error', observe_dispatch)
 
     def boom(*_a, **_k):
         raise RuntimeError("github is down")
@@ -525,8 +550,12 @@ def test_a_failed_issue_report_still_reaches_the_console(qtbot, monkeypatch):
     qtbot.waitUntil(lambda: screen.active_jobs() == 0, timeout=20000)
 
     screen._on_file_issue()
-    qtbot.waitUntil(lambda: not screen.is_busy(), timeout=20000)
+    qtbot.waitUntil(lambda: not screen.is_busy() and screen.active_jobs() == 0,
+                    timeout=20000)
+    qtbot.waitUntil(lambda: "github is down" in _console_text(screen._console))
     assert "github is down" in _console_text(screen._console)
+    assert "spaCR ERROR" in screen._console.as_text()
+    assert not any("github is down" in str(call) for call in dispatched)
 
 
 def test_the_usage_poll_does_not_shell_out_on_the_gui_thread(qtbot):

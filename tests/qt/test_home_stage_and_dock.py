@@ -39,6 +39,16 @@ from spacr.qt.widgets.home import AppTile, Panel, StageLegend
 
 THEMES = ("dark", "light")
 
+
+@pytest.fixture(autouse=True)
+def classic_home_preferences(tmp_settings):
+    """Exercise Classic tiles and dock through the supported Home factory."""
+    from spacr.qt import preferences
+
+    preferences.set_easy_mode(False)
+    preferences.set_reduce_motion(True)
+
+
 def _themed_page(qtbot, monkeypatch, theme_name: str):
     """A real Home page rendered under ``theme_name``.
 

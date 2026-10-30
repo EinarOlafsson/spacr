@@ -32,10 +32,12 @@ def test_guidance_links_use_all_seven_published_lessons():
     assert Links(home._navigator_learning_links('mask')).urls == [tutorial_url('mask'), 'spacr://protocols']
 
 
-@pytest.mark.parametrize('phrase', ['Protocols', 'PROTOCOL', 'walkthroughs', 'protokoll', 'Protokolle',
+@pytest.mark.parametrize('phrase', ['Protocols', 'PROTOCOL', 'walkthroughs', 'protokoll', 'Analyseanleitungen',
                                   'protocolos', 'protocoles', '操作流程', 'प्रोटोकॉल', '프로토콜', 'verkferlar'])
 def test_protocol_search_uses_command_card_not_direct_module(phrase):
     assert app._easy_shortcut_match(phrase) == 'protocols'
+    if phrase == 'Analyseanleitungen':
+        assert app._easy_shortcut_match('Protokolle') == 'logs'
     host = SimpleNamespace()
     rows = app.MainWindow._easy_navigation_suggestions(host, phrase)
     assert len(rows) == 1 and rows[0][0] == '__easy_command__:Protocols'

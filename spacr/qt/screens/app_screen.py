@@ -10923,8 +10923,8 @@ class AppScreen(QWidget):
         """Say where the report went, or why it did not. GUI thread only."""
         error = (outcome or {}).get("error")
         if error is not None:
-            self._console.append_notice(
-                "[issue] auto-file failed: {detail}\n", detail=error)
+            self._console._display_error(tr(
+                "[issue] auto-file failed: {detail}", detail=error) + "\n")
             return
         self._console.append_notice(
             "[issue] report handoff completed.\n{url}...\n",
