@@ -134,18 +134,31 @@ class TestFillingInTheDenseChannelPositions:
 
         settings["cellpose_cell_channel"] = 9
         O._fill_cellpose_channel_positions(settings)
-        assert settings["cellpose_cell_channel"] == 9
+        assert settings["cellpose_cell_channel"] == dense[int(settings["cell_channel"])]
+
+    def test_disabled_stale_roles_clear_and_numbered_organelle_slots_refresh(self):
+        from spacr import object as O
+
+        settings = {'nucleus_channel': 3, 'cell_channel': 3, 'pathogen_channel': None,
+                    'organelle_channel': 'invalid', 'organelleb_channel': 2,
+                    'cellpose_pathogen_channel': 9, 'cellpose_organelle_channel': 7,
+                    'cellpose_organelleb_channel': 99}
+        O._fill_cellpose_channel_positions(settings)
+        assert settings['cellpose_nucleus_channel'] == settings['cellpose_cell_channel'] == 0
+        assert settings['cellpose_organelleb_channel'] == 1
+        assert 'cellpose_pathogen_channel' not in settings
+        assert 'cellpose_organelle_channel' not in settings
 
     def test_a_channel_that_is_not_a_number_is_skipped_before_the_lookup(self):
         """The guard above it: ``int('rgb')`` raises, and a settings file
         can hold anything a user typed."""
         from spacr import object as O
 
-        source = inspect.getsource(O._fill_cellpose_channel_positions)
-        first = source.index("= dense[raw]")
-        window = source[max(0, first - 500):first]
-        assert "except (TypeError, ValueError):" in window
-        assert "continue" in window
+        settings = {"cell_channel": "rgb", "cellpose_cell_channel": 5,
+                    "nucleus_channel": 2}
+        O._fill_cellpose_channel_positions(settings)
+        assert "cellpose_cell_channel" not in settings
+        assert settings["cellpose_nucleus_channel"] == 0
 
 
 # ---------------------------------------------------------------------------

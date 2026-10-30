@@ -1112,25 +1112,21 @@ def _raw_filter_images(src, filenames, model_inputs, masks, channel, *,
 
 
 def _fill_cellpose_channel_positions(settings):
-    """Record each role's dense archive channel as ``cellpose_<role>_channel``.
-
-    Explicit values are kept. Shared by both Cellpose generators and the
-    parallel coordinator, so a run records the same settings on every path.
-    """
-    from .utils import dense_mask_channel_positions
+    """Recompute derived archive positions from the current raw-channel settings."""
+    from .utils import MASK_CHANNEL_ROLE_ORDER, dense_mask_channel_positions
 
     dense = dense_mask_channel_positions(settings)
-    for role in ('nucleus', 'cell', 'pathogen', 'organelle'):
-        if settings.get(f'cellpose_{role}_channel') is not None:
-            continue
-        raw = settings.get(f'{role}_channel')
-        if raw is None:
-            continue
+    for key in MASK_CHANNEL_ROLE_ORDER:
+        derived = f'cellpose_{key}'
+        raw = settings.get(key)
         try:
-            raw = int(raw)
-        except (TypeError, ValueError):
-            continue
-        settings[f'cellpose_{role}_channel'] = dense[raw]
+            position = dense[int(raw)] if raw is not None else None
+        except (TypeError, ValueError, KeyError):
+            position = None
+        if position is None:
+            settings.pop(derived, None)
+        else:
+            settings[derived] = position
     return settings
 
 
@@ -1446,6 +1442,11 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
         beta_mode = None
 
     _fill_cellpose_channel_positions(settings)
+    from .io import _validate_normalized_source_channels
+    from .utils import dense_mask_channel_positions
+    expected_channels = list(dense_mask_channel_positions(settings))
+    for path in paths:
+        _validate_normalized_source_channels(path, expected_channels, required=False)
 
     channels_to_extract, cellpose_channels = _get_cellpose_channels(settings)
     channels = cellpose_channels.get(object_type, [])
@@ -1927,7 +1928,13 @@ def generate_cellpose_masks(src, settings, object_type):
     
     model_name = object_settings['model_name']
     
+    paths = [os.path.join(src, file) for file in _listdir_visible(src) if file.endswith('.npz')]
     _fill_cellpose_channel_positions(settings)
+    from .io import _validate_normalized_source_channels
+    from .utils import dense_mask_channel_positions
+    expected_channels = list(dense_mask_channel_positions(settings))
+    for path in paths:
+        _validate_normalized_source_channels(path, expected_channels, required=False)
 
     channels_to_extract, cellpose_channels = _get_cellpose_channels(settings)
 
@@ -1948,7 +1955,6 @@ def generate_cellpose_masks(src, settings, object_type):
     model = _choose_model(model_name, device, object_type=object_type, restore_type=None, object_settings=object_settings)
 
     
-    paths = [os.path.join(src, file) for file in _listdir_visible(src) if file.endswith('.npz')]    
     
     count_loc = os.path.join(os.path.dirname(src), 'measurements', 'measurements.db')
     os.makedirs(os.path.dirname(src)+'/measurements', exist_ok=True)

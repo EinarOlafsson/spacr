@@ -112,7 +112,8 @@ def test_native_three_time_three_z_archive_matches_scalar_stack(
     assert actual.tobytes() == expected.tobytes()
     reference = tmp_path / 'reference.npz'
     io._save_npz_atomic(reference, data=expected,
-                        filenames=[path.name for path in staged])
+                        filenames=[path.name for path in staged],
+                        source_channels=np.asarray(selected, dtype=np.int64))
     assert _digest(archive) == _digest(reference)
 
 

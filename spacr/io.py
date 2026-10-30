@@ -2261,6 +2261,48 @@ def _invalidate_v1_segmentation_outputs(src):
     return removed_masks, removed_merged
 
 
+def _preserve_v1_segmentation_outputs(src):
+    """Move superseded channel-order evidence outside the active output paths."""
+    masks_dir = os.path.join(src, 'masks')
+    paths = [os.path.join(masks_dir, name) for name in sorted(os.listdir(masks_dir))
+             if name.endswith('_mask_stack') and os.path.isdir(os.path.join(masks_dir, name))]
+    merged_dir = os.path.join(src, 'merged')
+    if os.path.isdir(merged_dir):
+        paths.append(merged_dir)
+    if not paths:
+        return None
+    backup = tempfile.mkdtemp(prefix='previous_segmentation_channel_order_', dir=src)
+    moved = []
+    try:
+        for path in paths:
+            relative = os.path.relpath(path, src)
+            destination = os.path.join(backup, relative)
+            os.makedirs(os.path.dirname(destination), exist_ok=True)
+            os.replace(path, destination)
+            moved.append((path, destination))
+    except BaseException:
+        for path, destination in reversed(moved):
+            os.replace(destination, path)
+        shutil.rmtree(backup)
+        raise
+    print(f'Previous segmentation outputs preserved in: {backup}')
+    return backup
+
+
+def _restore_v1_segmentation_outputs(src, backup):
+    """Restore evidence when replacement archives could not be published."""
+    if backup is None:
+        return
+    saved_masks = os.path.join(backup, 'masks')
+    if os.path.isdir(saved_masks):
+        for name in sorted(os.listdir(saved_masks)):
+            os.replace(os.path.join(saved_masks, name), os.path.join(src, 'masks', name))
+    saved_merged = os.path.join(backup, 'merged')
+    if os.path.isdir(saved_merged):
+        os.replace(saved_merged, os.path.join(src, 'merged'))
+    shutil.rmtree(backup)
+
+
 def _correct_v1_segmentation_batch(
         stack, filenames, channels, settings, illumination_session, psf_session=None):
     """Correct selected V1 channels on a private batch copy.
@@ -2298,7 +2340,8 @@ def _correct_v1_segmentation_batch(
 def _concatenate_and_normalize_impl(
         src, channels, save_dtype=np.float32, settings=None,
         illumination_session=None, archive_output_fldr=None,
-        only_fields=None, first_batch_index=0, psf_session=None):
+        only_fields=None, first_batch_index=0, psf_session=None,
+        preserve_previous_segmentation=False):
     """Concatenate per-file channel arrays and normalise them into a single stack.
 
     :param src: Directory containing per-FOV ``.npy`` channel arrays.
@@ -2421,7 +2464,8 @@ def _concatenate_and_normalize_impl(
                 save_loc = os.path.join(
                     archive_output_fldr, f'{name}_norm_timelapse.npz')
                 arrays = dict(data=normalized_stack,
-                              filenames=filenames_region)
+                              filenames=filenames_region,
+                              source_channels=np.asarray(channels, dtype=np.int64))
                 _save_npz_atomic(save_loc, **arrays)
                 
                 if i == 0 and settings.get('plot'):
@@ -2503,7 +2547,8 @@ def _concatenate_and_normalize_impl(
                 save_loc = os.path.join(
                     archive_output_fldr, f'stack_{batch_index}_norm.npz')
                 arrays = dict(data=normalized_stack,
-                              filenames=filenames_batch)
+                              filenames=filenames_batch,
+                              source_channels=np.asarray(channels, dtype=np.int64))
                 _save_npz_atomic(save_loc, **arrays)
                 if batch_index == 0 and settings.get('plot'):
                     print(f"plotting: {save_loc}")
@@ -2515,7 +2560,7 @@ def _concatenate_and_normalize_impl(
                 filenames_batch = []
                 padded_stack_ls = []
 
-    if illumination_session is not None or psf_session is not None:
+    if archive_output_fldr != output_fldr:
         staged_fields = _normalized_npz_field_ids(archive_output_fldr)
         if set(staged_fields) != set(intended_fields):
             missing = sorted(set(intended_fields) - set(staged_fields))
@@ -2526,9 +2571,17 @@ def _concatenate_and_normalize_impl(
         if psf_session is not None:
             from .cancellation import checkpoint
             checkpoint()
-        _publish_v1_normalized_archives(
-            archive_output_fldr, output_fldr)
-        _invalidate_v1_segmentation_outputs(os.path.dirname(src))
+        previous_outputs = None
+        if preserve_previous_segmentation:
+            previous_outputs = _preserve_v1_segmentation_outputs(os.path.dirname(src))
+        try:
+            _publish_v1_normalized_archives(
+                archive_output_fldr, output_fldr)
+        except BaseException:
+            _restore_v1_segmentation_outputs(os.path.dirname(src), previous_outputs)
+            raise
+        if not preserve_previous_segmentation:
+            _invalidate_v1_segmentation_outputs(os.path.dirname(src))
         settings['resume'] = False
         for session in (illumination_session, psf_session):
             if session is not None:
@@ -2557,11 +2610,22 @@ def concatenate_and_normalize(
         provenance incomplete and prevents reuse of partially processed data.
     :returns: the ``masks/`` directory containing normalised NPZ archives.
     """
-    if illumination_session is None and psf_session is None:
+    output_fldr = os.path.join(os.path.dirname(src), 'masks')
+    replacing_archives = (os.path.isdir(output_fldr) and
+                          any(name.endswith('.npz') for name in _listdir_visible(output_fldr)))
+    incompatible_provenance = False
+    if replacing_archives:
+        for name in _listdir_visible(output_fldr):
+            if name.endswith('.npz'):
+                try:
+                    _validate_normalized_source_channels(os.path.join(output_fldr, name), channels)
+                except ValueError:
+                    incompatible_provenance = True
+                    break
+    if illumination_session is None and psf_session is None and not replacing_archives:
         return _concatenate_and_normalize_impl(
             src, channels, save_dtype=save_dtype, settings=settings)
 
-    output_fldr = os.path.join(os.path.dirname(src), 'masks')
     os.makedirs(output_fldr, exist_ok=True)
     with tempfile.TemporaryDirectory(
             prefix='.spacr_v1_npz_', dir=os.path.dirname(output_fldr)
@@ -2569,7 +2633,8 @@ def concatenate_and_normalize(
         return _concatenate_and_normalize_impl(
             src, channels, save_dtype=save_dtype, settings=settings,
             illumination_session=illumination_session,
-            archive_output_fldr=staging_dir, psf_session=psf_session)
+            archive_output_fldr=staging_dir, psf_session=psf_session,
+            preserve_previous_segmentation=incompatible_provenance)
 
 
 def _get_lists_for_normalization(settings):
@@ -3214,7 +3279,50 @@ def _check_normalized_archives(masks_path):
             'unlisted': unlisted, 'covered': covered, 'planes': plane_counts}
 
 
-def _check_archives_without_preprocessing(src):
+def _validate_normalized_source_channels(path, expected, *, required=True):
+    """Check ordered raw-channel provenance without inflating the image payload."""
+    import zipfile
+    from numpy.lib import format as npy_format
+    from .qt.i18n import tr
+
+    try:
+        with zipfile.ZipFile(path) as archive:
+            if 'source_channels.npy' not in archive.namelist():
+                if not required:
+                    return None
+                raise ValueError('missing channel provenance')
+            if archive.getinfo('source_channels.npy').file_size > 65536:
+                raise ValueError('channel provenance is too large')
+            with archive.open('source_channels.npy') as member:
+                if npy_format.read_magic(member) == (1, 0):
+                    channel_shape, _, channel_dtype = npy_format.read_array_header_1_0(member)
+                else:
+                    channel_shape, _, channel_dtype = npy_format.read_array_header_2_0(member)
+                if (len(channel_shape) != 1 or channel_dtype.kind != 'i' or channel_dtype.itemsize != 8
+                        or not 0 < channel_shape[0] <= 8192):
+                    raise ValueError('invalid channel provenance shape or dtype')
+                size = channel_shape[0] * channel_dtype.itemsize
+                payload = member.read(size + 1)
+                if len(payload) != size:
+                    raise ValueError('invalid channel provenance payload')
+                channels = np.frombuffer(payload, dtype=channel_dtype)
+            with archive.open('data.npy') as member:
+                if npy_format.read_magic(member) == (1, 0):
+                    shape, _, dtype = npy_format.read_array_header_1_0(member)
+                else:
+                    shape, _, dtype = npy_format.read_array_header_2_0(member)
+            expected = [int(value) for value in expected]
+            if (not shape or dtype.hasobject or channels.ndim != 1
+                    or channels.dtype.kind not in 'iu' or len(channels) != shape[-1]
+                    or np.any(channels < 0) or len(set(channels.tolist())) != len(channels)
+                    or channels.tolist() != expected):
+                raise ValueError('channel provenance differs from requested channels')
+            return channels.tolist()
+    except (OSError, ValueError, TypeError, KeyError, EOFError, zipfile.BadZipFile):
+        raise ValueError(tr('Normalized image channels do not match the requested settings, or their channel order is unknown. Turn preprocessing on to rebuild them from the original image stacks.')) from None
+
+
+def _check_archives_without_preprocessing(src, settings=None):
     """Check ``masks/*.npz`` before a run with ``preprocess`` off segments them.
 
     With ``preprocess`` off nothing normalises the plate again, so an
@@ -3273,6 +3381,11 @@ def _check_archives_without_preprocessing(src):
                   f'{masks_path}: {_name_list(sorted(missing))}. preprocess '
                   f'is off, so they are not normalised and get no masks; '
                   f'turn preprocess on to add them.')
+    if settings is not None:
+        from .utils import dense_mask_channel_positions
+        expected = list(dense_mask_channel_positions(settings))
+        for name in checked['archives']:
+            _validate_normalized_source_channels(os.path.join(masks_path, name), expected)
     return checked['archives']
 
 
@@ -3379,6 +3492,32 @@ def _resume_normalized_archives(settings, src, mask_channels, metadata_well_map=
     unlisted, covered = checked['unlisted'], checked['covered']
     plane_counts = checked['planes']
     stack_fields = _stack_field_stems(stack_path)
+    incompatible = False
+    for name in checked['archives']:
+        if name in {item[0] for item in checked['damaged']}:
+            continue
+        try:
+            _validate_normalized_source_channels(os.path.join(masks_path, name), mask_channels)
+        except ValueError:
+            incompatible = True
+            break
+    if incompatible:
+        from .resume import read_npy_header
+        recoverable = bool(stack_fields) and not checked['unlisted'] and covered <= stack_fields
+        if recoverable:
+            for field in stack_fields:
+                try:
+                    shape = read_npy_header(os.path.join(stack_path, field + '.npy'))['shape']
+                    if not shape or any(not 0 <= channel < shape[-1] for channel in mask_channels):
+                        recoverable = False
+                        break
+                except (OSError, ValueError):
+                    recoverable = False
+                    break
+        if not recoverable:
+            from .qt.i18n import tr
+            raise ValueError(tr('Normalized image channels cannot be verified and the original image stacks are unavailable. Restore the original images and run preprocessing again.'))
+        return False
     if set_aside and not stack_fields:
         raise FileNotFoundError(
             f'{len(set_aside)} normalised archive(s) in {masks_path} were '
@@ -4034,7 +4173,8 @@ def _preprocess_mapped_volume_series(settings):
                         archive_name = _escaped_field_stem(*field, '') + 'norm_timelapse.npz'
                         archive = os.path.join(stage_masks, archive_name)
                         _save_npz_atomic(archive, data=normalized,
-                                         filenames=filenames)
+                                         filenames=filenames,
+                                         source_channels=np.asarray(selected, dtype=np.int64))
                         archives[archive_name] = _volume_file_hash(archive)
                     finally:
                         try:

@@ -1,0 +1,79 @@
+MASK ROLES KEEP THEIR MODELS AND RAW CHANNEL IDENTITY
+===================================================
+
+Lifecycle: new
+Status: in progress — indexing safeguards validated; original cluster cause unconfirmed.
+Requested: maintainer, 2026-10-30.
+Owner: Workstation 2 and retained batch/channel peers.
+
+REQUEST
+A normal Generate Masks cluster run used raw channel 3 for cell and nucleus,
+and raw channel 2 for pathogen. Subsequent masks appeared to use the nuclear
+model. Determine whether checkpoints, normalized NPZ channel identity or the
+Cellpose input mapping are crossed; fix the defect and explain the evidence.
+The supplied cluster log and one merged output are available; exact cluster
+revision and environment remain unconfirmed. Do not claim its cause is verified.
+
+REQUIREMENTS
+1. Reproduce the full batch path with distinct role checkpoints and distinctive
+   raw planes, shared and distinct channels, JSON-loaded settings and sequential
+   cell/nucleus/pathogen passes. Assert both checkpoint and actual input pixels.
+2. Recompute internal cellpose_<role>_channel positions from the same first-seen,
+   deduplicated raw-channel order used by preprocessing. Previously recorded
+   internal indices must not override current raw channel choices.
+3. Preserve independent object models and settings when roles share a channel.
+   Multiple roles may legitimately read the same plane without changing the
+   input or weights of later roles, including organelle slots and parallel jobs.
+4. Bind newly normalized NPZ archives to their ordered raw-channel identities.
+   Validate reuse; rebuild incompatible/unknown archives from retained source
+   stacks when preprocessing is enabled, or give an actionable refusal when
+   preprocessing is explicitly disabled and channel identity cannot be verified.
+   Preserve source images and already completed outputs; no silent data overwrite.
+5. Keep model/channel diagnostics precise and distinguish reproduced defects
+   from the supplied cluster job. Validate on CPU with controlled model stubs;
+   do not claim a real cluster/GPU rerun or scientific accuracy acceptance.
+
+2026-10-30 — Recorded before implementation. Real normalized NPZ + three distinct checkpoint stubs reproduce wrong input pixels with stale derived indices; fresh shared/nonascending channel mappings pass. Existing archive reuse also lacks raw-channel order provenance.
+
+2026-10-30 — Supplied log records a fresh preprocess, raw cell/nucleus/pathogen
+channels 0/0/1 and derived positions 0/0/1, with the intended separate model
+paths. This does not reproduce the stale-position failure. A private replay
+on unchanged nightly code uses the supplied four raw planes, logged settings
+with scratch-local paths, real CPU checkpoint construction/loading, and an
+intercept at inference. It verifies unchanged raw planes after metadata import,
+normalized NPZ pixel identity, and exact per-role input planes through Cellpose
+image conversion. No channel/model crossover has been observed in this replay.
+The original 50-field normalization batch, cluster code/dependency revision and
+actual network prediction remain outside this replay; do not label the original
+defective masks explained or fixed. Private user data stays outside the repo.
+
+IMPLEMENTED SCOPE
+Derived indices are recomputed for every enabled role, including organelle
+slots; stale disabled aliases are removed. New archives record ordered raw
+source_channels, checked before model loading. Unverifiable reused archives
+require rebuild from original images; incompatible masks and merged outputs
+are preserved in a named backup before regeneration. Controlled CPU tests cover
+shared/nonascending channels, stale settings, per-role checkpoints, remote JSON
+settings, archive provenance and interrupted replacement. Original cluster
+investigation remains open.
+
+VALIDATION
+Four real-writer/three-pass controls reproduce the stale-index error before
+the fix and pass afterward. Four derived-position controls cover shared,
+disabled, invalid and higher organelle slots. Eight actual Cellpose-constructor
+controls retain independent checkpoint resolution across local, pinned, remote
+and override routes. The fresh CellVoyager 0/0/1 control includes real cell-mask
+adjustment and merged-plane checks. Two swapped-archive guards refuse input
+before either Cellpose generator resolves a model. Focused provenance/recovery
+checks cover writers, time/native-TZ, legacy refusal and transactional rollback
+on publication failure or interruption. The two actionable messages have normal
+independently reviewed nine-language catalogs.
+
+A further private unchanged-source replay with the supplied image verifies
+raw import, normalized NPZ and per-role pixels through actual Cellpose image
+conversion with both local Cellpose 4.0.9 and 4.2.1.1; actual model weights load
+on CPU, inference is intercepted. Diameter resizing is accounted for; this
+is routing validation, not prediction of the original masks. No new crossover
+is reproduced. The exact cluster revision/environment and original NPZ batch
+remain required to explain a discrepancy specific to that job. Do not close
+this item or report its scientific outcome fixed from these controls alone.

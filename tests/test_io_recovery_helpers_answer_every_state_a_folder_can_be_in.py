@@ -213,10 +213,11 @@ def test_the_next_archive_number_ignores_other_files(tmp_path):
     assert sio._next_archive_index(str(tmp_path)) == 3
 
 
-def _archive(path, names, n_fields=None):
+def _archive(path, names, n_fields=None, source_channels=None):
     count = len(names) if n_fields is None else n_fields
+    metadata = {} if source_channels is None else {'source_channels': np.asarray(source_channels, dtype=np.int64)}
     np.savez(path, data=np.zeros((count, 4, 4, 2), np.float32),
-             filenames=names)
+             filenames=names, **metadata)
 
 
 def test_a_batch_whose_names_are_bytes_is_not_dispatched(tmp_path):
@@ -242,7 +243,7 @@ def _plate_with_masks(tmp_path, names):
     for name in ("f0", "f1"):
         np.save(plate / "stack" / f"{name}.npy", np.zeros((4, 4, 2),
                                                           np.uint16))
-    _archive(plate / "masks" / "stack_0_norm.npz", names)
+    _archive(plate / "masks" / "stack_0_norm.npz", names, source_channels=[0, 1])
     return plate
 
 

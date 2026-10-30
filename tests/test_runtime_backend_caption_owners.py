@@ -22,7 +22,7 @@ def extract_backend_sources(tmp_path, monkeypatch):
         "psf_pipeline.py", "pipeline_v2.py", "convert.py",
         "_lineage_trees.py",
         "utils.py", "channel_sorting.py", "image_import.py", "run_journal.py", "ml.py",
-        "regression_layout.py", "regression_failure.py", "regression_backends.py", "power_model.py",
+        "regression_layout.py", "regression_failure.py", "regression_backends.py", "power_model.py", "io.py",
     ):
         (source_root / filename).write_text("", encoding="utf-8")
     monkeypatch.setattr(builder, "ROOT", tmp_path)
@@ -735,3 +735,24 @@ def is_prunable(path, registry):
     return "An internal unwrapped reason."
 '''
     assert extract_backend_sources("data_manager.py", source) == set()
+
+
+def test_channel_provenance_refusals_have_only_two_declared_io_owners(extract_backend_sources):
+    source = '\n'.join((
+        'METADATA = tr("Unrelated I/O metadata.")',
+        'def _validate_normalized_source_channels(path, expected):',
+        '    raise ValueError(tr("The normalized channel order cannot be verified."))',
+        'def _resume_normalized_archives(src, settings=None):',
+        '    raise ValueError(tr("Restore the original image stacks."))',
+        'def unrelated():',
+        '    def _validate_normalized_source_channels():',
+        '        return tr("A nested same-name helper is not an owner.")',
+        '    return tr("An unrelated I/O caption.")',
+        'class Unrelated:',
+        '    def _resume_normalized_archives(self):',
+        '        return tr("A same-name method is not an owner.")',
+    ))
+    assert extract_backend_sources('io.py', source) == {
+        'The normalized channel order cannot be verified.',
+        'Restore the original image stacks.',
+    }

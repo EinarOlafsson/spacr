@@ -565,8 +565,8 @@ def preprocess_generate_masks(settings):
                         mask_src = os.path.join(src, 'masks')
                         os.makedirs(mask_src, exist_ok=True)
 
+                        _check_archives_without_preprocessing(src, settings=settings)
                         if not settings['preprocess']:
-                            _check_archives_without_preprocessing(src)
                             from .psf_pipeline import (
                                 validate_psf_resume, _record_path,
                                 processing_requested)

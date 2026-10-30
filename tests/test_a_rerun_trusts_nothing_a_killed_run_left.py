@@ -359,14 +359,17 @@ def test_no_archive_is_added_to_a_set_made_with_other_channels(plate, capsys):
     """Channels changed between the runs: an archive normalised with the new
     ones beside the old would give the segmenter a set it cannot index."""
     masks = _killed_during_normalisation(plate)
+    originals = {path.name: path.read_bytes() for path in (plate / 'stack').glob('*.npy')}
     capsys.readouterr()
 
     _preprocess(plate, nucleus_channel=0, cell_channel=0)
 
-    assert sorted(p.name for p in masks.glob("*.npz")) == [
-        "stack_0_norm.npz", "stack_1_norm.npz"]
-    assert ("hold 2 channel(s) and these settings select 1"
-            in capsys.readouterr().out)
+    assert _archive_fields(masks) == _stack_names(plate / 'stack')
+    for path in masks.glob('*.npz'):
+        with np.load(path, allow_pickle=False) as archive:
+            assert archive['source_channels'].tolist() == [0]
+            assert archive['data'].shape[-1] == 1
+    assert {path.name: path.read_bytes() for path in (plate / 'stack').glob('*.npy')} == originals
 
 
 def test_an_illumination_corrected_set_is_rebuilt_whole(plate):

@@ -4684,6 +4684,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "utils.py")
     paths.add(ROOT / "spacr" / "attribution.py")
     paths.add(ROOT / "spacr" / "measure.py")
+    paths.add(ROOT / "spacr" / "io.py")
     paths.add(ROOT / "spacr" / "channel_sorting.py")
     paths.add(ROOT / "spacr" / "image_import.py")
     paths.add(ROOT / "spacr" / "convert.py")
@@ -4714,6 +4715,11 @@ def extract_static_ui_sources() -> tuple[str, ...]:
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
                          and node.name in diagnostic_owners]
+        if path == source_root / "io.py":
+            tree.body = [node for node in tree.body
+                         if isinstance(node, ast.FunctionDef)
+                         and node.name in {"_validate_normalized_source_channels",
+                                           "_resume_normalized_archives"}]
         if path == source_root / "data_manager.py":
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
