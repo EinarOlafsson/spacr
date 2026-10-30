@@ -708,7 +708,8 @@ def test_sparse_tiff_fallback_reads_exact_samples_and_closes_short_rows(tmp_path
         closed.append(descriptor)
         os.close(descriptor)
 
-    portable = SimpleNamespace(**{key: value for key, value in vars(os).items() if key != 'pread'})
+    portable = SimpleNamespace(**{key: value for key, value in vars(os).items()
+                                  if key not in {'pread', 'posix_fadvise'}})
     portable.close = close
     monkeypatch.setattr(module, 'os', portable)
     with tifffile.TiffFile(path) as image:
