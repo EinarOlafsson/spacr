@@ -874,3 +874,104 @@ def test_selected_tiff_replaced_after_real_header_classification_cannot_publish_
     assert replaced == [(selected, 'image')]
     _assert_identity_checkpoint_refusal(result, selected, archive, before)
     assert decodes == []
+
+
+def test_canonical_child_replaced_by_a_foreign_symlink_cannot_supply_home_provenance(tmp_path, monkeypatch):
+    from collections.abc import Mapping
+    import stat
+
+    root = tmp_path / 'project' / 'data'
+    child = root / 'plate_png'
+    foreign = tmp_path / 'foreign'
+    archive = tmp_path / 'archive' / child.name
+    archive.parent.mkdir()
+    own_files, foreign_files = [], []
+    for folder, output in ((child, own_files), (foreign, foreign_files)):
+        output.extend((_image(folder / 'cell.png'), _ome_input(folder / 'morphology_focus.ome.tif')))
+        array = folder / 'field.npy'
+        np.save(array, np.ones((6, 8, 2), dtype=np.uint16))
+        table = folder / 'transcripts.csv'
+        table.write_text('feature_name,x_location,y_location\nG1,1,2\n')
+        experiment = folder / 'experiment.xenium'
+        experiment.write_text('{"pixel_size": 0.5}')
+        output.extend((array, table, experiment))
+    before = {path: path.read_bytes() for path in (*own_files, *foreign_files)}
+    identity = root.lstat()
+    initial_identity = identity.st_dev, identity.st_ino, stat.S_IFMT(identity.st_mode)
+    decodes = _observe_identity_checkpoint_decoders(monkeypatch)
+    from io import BytesIO
+    from PIL import ImageFile
+    original_load = ImageFile.ImageFile.load
+
+    def observe_image_load(image, *args, **kwargs):
+        name = getattr(image, 'filename', '')
+        stream = getattr(image, 'fp', None)
+        owned_path = bool(name) and (Path(name).absolute().is_relative_to(root)
+                                    or Path(name).absolute().is_relative_to(foreign))
+        owned_buffer = isinstance(stream, BytesIO) and stream.getvalue() in before.values()
+        if (owned_path or owned_buffer) and getattr(image, 'tile', None):
+            decodes.append('input ImageFile.load')
+        return original_load(image, *args, **kwargs)
+
+    monkeypatch.setattr(ImageFile.ImageFile, 'load', observe_image_load)
+    sample = home._easy_generated_sample
+    scan = home.os.scandir
+    active, sampled_roots, replaced = [], [], []
+
+    def observed_generated_sample(folder, depth=4):
+        active.append(folder)
+        sampled_roots.append(folder)
+        try:
+            return sample(folder, depth)
+        finally:
+            active.pop()
+
+    class ScannedDirectory:
+        def __init__(self, path):
+            self.path = path
+            self.iterator = scan(path)
+
+        def __iter__(self):
+            return self
+
+        def __next__(self):
+            return next(self.iterator)
+
+        def __enter__(self):
+            self.iterator.__enter__()
+            return self
+
+        def __exit__(self, *args):
+            outcome = self.iterator.__exit__(*args)
+            if active and active[-1] == root and self.path == root and not replaced:
+                child.rename(archive)
+                child.symlink_to(foreign, target_is_directory=True)
+                replaced.append(child)
+            return outcome
+
+        def close(self):
+            self.iterator.close()
+
+    monkeypatch.setattr(home, '_easy_generated_sample', observed_generated_sample)
+    monkeypatch.setattr(home.os, 'scandir', ScannedDirectory)
+    result = home._easy_inspect_path(str(root))
+    assert root in sampled_roots and replaced == [child] and child.is_symlink()
+    identity = root.lstat()
+    assert (identity.st_dev, identity.st_ino, stat.S_IFMT(identity.st_mode)) == initial_identity
+    assert all((archive / path.relative_to(child) if path in own_files else path).read_bytes() == content
+               for path, content in before.items())
+    assert decodes == []
+    context = result.get('context', {})
+    assert context.get('generated_outputs', {}).get('artifacts', []) == []
+    assert not {'spatial_masks', 'spatial_map'} & {row[0] for row in result['actions']}
+
+    def foreign_sources(value):
+        if isinstance(value, Mapping):
+            return [source for item in value.values() for source in foreign_sources(item)]
+        if isinstance(value, (list, tuple)):
+            return [source for item in value for source in foreign_sources(item)]
+        if isinstance(value, str) and value.startswith(str(root)) and Path(value).resolve().is_relative_to(foreign):
+            return [value]
+        return []
+
+    assert not foreign_sources(result), ('Replaced child supplied foreign scientific provenance', result)
