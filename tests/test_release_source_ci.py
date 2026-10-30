@@ -384,6 +384,107 @@ def test_incomplete_api_listing_cannot_be_mistaken_for_no_existing_run(monkeypat
     assert len(calls) == 10
 
 
+@pytest.mark.parametrize("failure", ["transport", "http502", "timeout"])
+def test_paginated_jobs_survive_one_transient_read_without_losing_any_jobs(monkeypatch, failure):
+    clock = Clock()
+    api = CI.GitHub("EinarOlafsson/spacr", sleep=clock.sleep)
+    calls = []
+    first = [{"name": f"cell-{i}", "head_sha": SHA} for i in range(100)]
+    last = {"name": "last-required-cell", "head_sha": SHA}
+
+    def request(command, **kwargs):
+        calls.append(command)
+        assert "--method" not in command
+        assert kwargs["check"] and kwargs["timeout"] == 60
+        page = parse_qs(urlsplit(command[2]).query)["page"][0]
+        if page == "2" and len(calls) == 2:
+            if failure == "timeout":
+                raise subprocess.TimeoutExpired(command, 60)
+            detail = "error connecting to api.github.com" if failure == "transport" else "gh: Bad Gateway (HTTP 502)"
+            raise subprocess.CalledProcessError(1, command, stderr=detail)
+        return subprocess.CompletedProcess(command, 0, json.dumps({"jobs": first if page == "1" else [last]}))
+
+    monkeypatch.setattr(CI.subprocess, "run", request)
+    run = {"id": 41, "head_sha": SHA, "run_attempt": 1, "status": "completed"}
+    jobs = api.jobs(run)
+    assert jobs == [*first, last]
+    assert clock.now == 1 and len(calls) == 3
+    assert calls[1] == calls[2]
+    assert api.jobs(run) == jobs and len(calls) == 3
+
+
+@pytest.mark.parametrize("detail", ["gh: Service Unavailable (HTTP 503)", "error connecting to api.github.com"])
+def test_exhausted_transient_job_reads_never_cache_partial_success(monkeypatch, detail, capsys):
+    clock = Clock()
+    api = CI.GitHub("EinarOlafsson/spacr", sleep=clock.sleep)
+    calls = []
+
+    def request(command, **kwargs):
+        calls.append(command)
+        page = parse_qs(urlsplit(command[2]).query)["page"][0]
+        if page == "1":
+            return subprocess.CompletedProcess(command, 0, json.dumps({"jobs": [
+                {"name": str(i), "head_sha": SHA} for i in range(100)]}))
+        raise subprocess.CalledProcessError(1, command, stderr=detail)
+
+    monkeypatch.setattr(CI.subprocess, "run", request)
+    with pytest.raises(subprocess.CalledProcessError):
+        api.jobs({"id": 41, "head_sha": SHA, "run_attempt": 1, "status": "completed"})
+    assert clock.now == 3 and len(calls) == 4
+    assert api.attempt_cache == {}
+    assert detail in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("status", [401, 403, 404, 422])
+def test_permanent_api_read_denials_are_not_retried(monkeypatch, status):
+    clock = Clock()
+    api = CI.GitHub("EinarOlafsson/spacr", sleep=clock.sleep)
+    calls = []
+
+    def request(command, **kwargs):
+        calls.append(command)
+        raise subprocess.CalledProcessError(1, command, stderr=f"gh: denied (HTTP {status})")
+
+    monkeypatch.setattr(CI.subprocess, "run", request)
+    with pytest.raises(subprocess.CalledProcessError):
+        api.branch_sha("main")
+    assert len(calls) == 1 and clock.now == 0
+
+
+@pytest.mark.parametrize("failure", ["http502", "timeout"])
+def test_an_ambiguous_dispatch_is_never_retried(monkeypatch, failure):
+    clock = Clock()
+    api = CI.GitHub("EinarOlafsson/spacr", sleep=clock.sleep)
+    calls = []
+
+    def request(command, **kwargs):
+        calls.append(command)
+        assert command[-4:] == ["--method", "POST", "--input", "-"]
+        if failure == "timeout":
+            raise subprocess.TimeoutExpired(command, 60)
+        raise subprocess.CalledProcessError(1, command, stderr="gh: Bad Gateway (HTTP 502)")
+
+    monkeypatch.setattr(CI.subprocess, "run", request)
+    with pytest.raises((subprocess.CalledProcessError, subprocess.TimeoutExpired)):
+        api.dispatch("tests.yml", "main")
+    assert len(calls) == 1 and clock.now == 0
+
+
+def test_malformed_success_payload_is_not_retried_or_accepted(monkeypatch):
+    clock = Clock()
+    api = CI.GitHub("EinarOlafsson/spacr", sleep=clock.sleep)
+    calls = []
+
+    def request(command, **kwargs):
+        calls.append(command)
+        return subprocess.CompletedProcess(command, 0, "not valid JSON")
+
+    monkeypatch.setattr(CI.subprocess, "run", request)
+    with pytest.raises(json.JSONDecodeError):
+        api.jobs({"id": 41, "head_sha": SHA, "run_attempt": 1, "status": "completed"})
+    assert len(calls) == 1 and clock.now == 0 and api.attempt_cache == {}
+
+
 def test_release_publication_edges_require_the_exact_source_gate():
     workflow = yaml.safe_load((ROOT / ".github/workflows/release.yml").read_text())
     events = workflow.get('on', workflow.get(True))
