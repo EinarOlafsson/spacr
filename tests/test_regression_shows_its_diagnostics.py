@@ -292,3 +292,31 @@ def test_an_unwritable_residual_note_does_not_erase_other_diagnostics(
 
     assert written == {"design": "design.json"}
     assert "Residual diagnostics were not computed" in capsys.readouterr().out
+
+
+def test_block_metadata_keeps_positional_arrays_and_refuses_ambiguous_wells():
+    """Block labels must describe exactly one plate assignment per design row."""
+    fractions = pd.DataFrame({"g1": [0., 1., 0., 1., 0., 1., 0., 1.],
+                              "g2": [0., 0., 1., 1., 0., 0., 1., 1.]},
+                             index=[f"w{index}" for index in range(8)])
+    blocks = pd.Series(["p1"] * 4 + ["p2"] * 4, index=fractions.index)
+    before, blocks_before = fractions.copy(deep=True), blocks.copy(deep=True)
+    expected = rd.design_report(fractions, block=blocks)
+
+    positional = rd.design_report(fractions.to_numpy(), block=blocks.reset_index(drop=True))
+
+    assert positional == expected
+    assert positional["wells"] == 8 and positional["block_levels"] == 2
+    assert positional["block_terms"] == 1
+    duplicate = blocks.copy()
+    duplicate.index = ["w0", "w0", *list(fractions.index[2:])]
+    with pytest.raises(ValueError, match="unique well index"):
+        rd.design_report(fractions, block=duplicate)
+    with pytest.raises(ValueError, match="block has 7 rows for a 8-well design"):
+        rd.design_report(fractions, block=blocks.iloc[:-1].reset_index(drop=True))
+    missing = blocks.copy()
+    missing.iloc[3] = None
+    with pytest.raises(ValueError, match="block labels are missing for one or more wells"):
+        rd.design_report(fractions, block=missing)
+    pd.testing.assert_frame_equal(fractions, before)
+    pd.testing.assert_series_equal(blocks, blocks_before)
