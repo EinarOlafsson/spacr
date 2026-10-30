@@ -6095,11 +6095,10 @@ class _NavigatorDetailsBrowser(QTextBrowser):
         :param direction: signed relative history offset.
         """
         target = self._entry + direction
-        if 0 <= target < len(self._entries):
-            self._save_scroll()
-            self._entry = target
-            self._display_entry()
-            self._update_controls()
+        self._save_scroll()
+        self._entry = target
+        self._display_entry()
+        self._update_controls()
 
     def _update_controls(self):
         """Synchronize history actions, collapse appearance and viewport scroll policies."""
