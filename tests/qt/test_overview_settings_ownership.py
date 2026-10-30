@@ -364,3 +364,75 @@ def test_retained_image_menu_request_cannot_retarget_a_closed_stacked_image(
                for action in current_menu.actions())
     current_menu.close()
     assert {path.name: path.read_bytes() for path in source.glob('*.tif')} == original_bytes
+
+
+def test_adding_then_removing_a_plate_preserves_pending_source_and_loaded_export_root(
+        overview_preferences, mask, tmp_path, qtbot):
+    import sqlite3
+    import numpy as np
+    import tifffile
+    from PySide6.QtWidgets import QLineEdit
+    from spacr.qt.widgets import qc_field_browser as browser
+
+    original, added, pending = [tmp_path / name for name in ('original', 'added', 'pending')]
+    for folder in (original, added, pending):
+        folder.mkdir()
+    for well in ('A01', 'A02', 'B01'):
+        for field in (1, 2):
+            tifffile.imwrite(original / f'p1-{well}-f{field}-c1.tif',
+                             np.arange(64, dtype=np.uint16).reshape(8, 8) + 100)
+    tifffile.imwrite(added / 'p2-A01-f1-c1.tif',
+                     np.arange(64, dtype=np.uint16).reshape(8, 8) + 200)
+    tifffile.imwrite(pending / 'p9-A01-f1-c1.tif',
+                     np.arange(64, dtype=np.uint16).reshape(8, 8) + 1000)
+    before = {path: path.read_bytes() for folder in (original, added, pending)
+              for path in folder.glob('*.tif')}
+    tab, view = _open(mask, qtbot, original)
+    original_identities = {field.identity for field in view._fields}
+    editor = tab._settings_model._widgets['src']
+    assert isinstance(editor, QLineEdit)
+
+    def edit_source(text):
+        tab._settings_scroll.ensureWidgetVisible(editor)
+        editor.setFocus()
+        qtbot.keyClick(editor, Qt.Key_A, modifier=Qt.ControlModifier)
+        qtbot.keyClicks(editor, text)
+        assert editor.text() == view.source.text() == text
+
+    edit_source(str(pending))
+    view._add_sources([str(added)])
+    qtbot.waitUntil(lambda: len(view._fields) == 7 and view._normalization_ready
+                    and not view._index_jobs.is_busy(), timeout=15000)
+    assert editor.text() == view.source.text() == str(pending)
+    assert view._source_paths == [str(original), str(added)]
+    assert view._metadata_source == str(original)
+    assert original_identities <= {field.identity for field in view._fields}
+    assert {field.plate for field in view._fields} == {'p1', added.name}
+    view.plates.setCurrentIndex(view.plates.findData(added.name))
+    view.export_scope.setCurrentIndex(view.export_scope.findData('plate'))
+    view.use_selection.setChecked(False)
+    tab._settings_model.set_value_for_key('overview_measure_n_jobs', 1)
+    workers = view._measurement_settings()['overview_measure_n_jobs']
+    assert type(workers) is int and workers == 1
+    tab._btn_overview_measure.click()
+    database = original / 'measurements' / 'measurements.db'
+    qtbot.waitUntil(lambda: database.exists() and not view._measurement_jobs.is_busy(), timeout=20000)
+    with sqlite3.connect(database) as connection:
+        assert connection.execute('SELECT plate, channel_1_intensity_mean FROM fov').fetchall() == [(added.name, 231.5)]
+    assert not (added / 'measurements' / 'measurements.db').exists()
+    assert not (pending / 'measurements' / 'measurements.db').exists()
+
+    edit_source('; '.join(view._source_paths))
+    item = view.wells.item(*view._well_positions[(added.name, 'A01')])
+    menu = view._well_menu(view.wells.visualItemRect(item).center())
+    remove = next(action for action in menu.actions() if action.text() == browser.tr('Remove plate'))
+    assert remove.isEnabled()
+    menu.close()
+    remove.trigger()
+    qtbot.waitUntil(lambda: len(view._fields) == 6 and view._normalization_ready,
+                    timeout=15000)
+    assert editor.text() == view.source.text() == str(original)
+    assert view._source_paths == [str(original)]
+    assert view._metadata_source == str(original)
+    assert {field.identity for field in view._fields} == original_identities
+    assert all(path.read_bytes() == content for path, content in before.items())

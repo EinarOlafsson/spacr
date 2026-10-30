@@ -12703,6 +12703,7 @@ class _OverviewSettingsBridge:
                 self._to_control(key, control)
             self._listen(row, functools.partial(self._row_changed, key, control))
             _overview_control_changed(control, functools.partial(self._to_setting, key, control))
+        browser.source.textChanged.connect(lambda _text: self._to_setting("src", browser.source))
         from spacr.settings import _enhancement_keys
 
         self._image_keys = (*_OVERVIEW_IMAGE_SETTINGS, *_enhancement_keys())
@@ -12717,7 +12718,7 @@ class _OverviewSettingsBridge:
 
         measurement_keys = tuple(_overview_measurement_declarations()["defaults"])
         browser._measurement_settings = lambda: {
-            key: self._value(key) for key in measurement_keys}
+            key: self._model._setting_value(key) for key in measurement_keys}
         self.apply_image_settings()
 
     def _listen(self, row, slot):
