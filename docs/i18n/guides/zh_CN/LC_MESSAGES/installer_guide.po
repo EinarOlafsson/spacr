@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 19:43-0400\n"
+"POT-Creation-Date: 2026-10-30 19:52-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -75,38 +75,46 @@ msgstr "自动选择后端是 Linux 上的默认设置。当有兼容的 NVIDIA 
 msgid "To leave out the wgpu 3D renderer, run the installer with ``--without-wgpu``, or tick **Install without wgpu (use OpenGL/CPU for 3D)** in the installer window; the box is unchecked by default. On a Linux system whose glibc is older than 2.28 the installer leaves wgpu out by itself and prints one line saying so, because wgpu publishes Linux wheels only for glibc 2.28 and newer. ``--dry-run`` shows the decision in its plan, as the ``wgpu 3D rendering`` line. See :ref:`wgpu-3d-rendering`."
 msgstr "要省略 wgpu 3D 渲染器，请使用 ``--without-wgpu`` 运行安装程序，或在安装程序窗口中勾选 **Install without wgpu (use OpenGL/CPU for 3D)**；该复选框默认未勾选。在 glibc 早于 2.28 的 Linux 系统上，安装程序会自动省略 wgpu，并打印一行相关说明，因为 wgpu 仅为 glibc 2.28 及更新版本发布 Linux wheel。``--dry-run`` 会在其计划中以 ``wgpu 3D rendering`` 行显示这一决定。参见 :ref:`wgpu-3d-rendering`。"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Linux ARM64 build requirements"
-msgstr ""
+msgstr "Linux ARM64 构建要求"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Linux ARM64 environments build ModernGL's GLContext backend from source. This requires a C++ compiler and the X11 development headers. The Unix installer's normal system-dependency step installs these packages on ARM64:"
-msgstr ""
+msgstr "Linux ARM64 环境会从源代码构建 ModernGL 的 GLContext 后端。这需要 C++ 编译器和 X11 开发头文件。Unix 安装程序的常规系统依赖步骤会在 ARM64 上安装以下软件包："
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Package manager"
-msgstr ""
+msgstr "软件包管理器"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Build packages"
-msgstr ""
+msgstr "构建软件包"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "APT"
-msgstr ""
+msgstr "APT"
 
 msgid "``build-essential libx11-dev``"
 msgstr "``build-essential libx11-dev``"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "DNF or Zypper"
-msgstr ""
+msgstr "DNF 或 Zypper"
 
 msgid "``gcc-c++ libX11-devel``"
 msgstr "``gcc-c++ libX11-devel``"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Pacman"
-msgstr ""
+msgstr "Pacman"
 
 msgid "``base-devel libx11``"
 msgstr "``base-devel libx11``"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "When using ``--skip-system-deps`` or installing with ``pip`` directly, provide these build packages beforehand alongside the required desktop runtime libraries. The managed Python already includes its own Python headers; for a system Python, provide that interpreter's development headers as well."
-msgstr ""
+msgstr "使用 ``--skip-system-deps`` 或直接通过 ``pip`` 安装时，请事先准备这些构建软件包以及桌面运行所需的库。托管的 Python 已包含自身的 Python 头文件；如果使用系统 Python，还需要提供该解释器的开发头文件。"
 
 msgid "Updating"
 msgstr "更新"
@@ -250,9 +258,9 @@ msgstr "原生和命令行替代方式"
 msgid "**Windows:** open **Settings → Apps → Installed apps → spaCR → Uninstall**, or run ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe``."
 msgstr "**Windows：** 打开 **设置 → 应用 → 已安装的应用 → spaCR → 卸载**，或运行 ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe``。"
 
-#, fuzzy
+# AI technical review (Codex), no native-speaker signoff.
 msgid "**macOS:** run ``/Library/Application Support/spaCR/uninstall-spacr.sh`` in Terminal. This removes the application, command launcher and system installer support. Add ``--dry-run`` to preview the software paths without removing anything. The command launcher is removed only if it is spaCR's exact installed symlink; unrelated files and links are kept. Remove ``~/Library/Application Support/spaCR`` separately to delete the per-user private runtime."
-msgstr "**macOS：** 在终端中运行 ``/Library/Application Support/spaCR/uninstall-spacr.sh``。这会移除应用程序、命令启动器和系统安装程序支持文件。如需删除每用户的私有运行时，请另外移除 ``~/Library/Application Support/spaCR``。"
+msgstr "**macOS:** 在 Terminal 中运行 ``/Library/Application Support/spaCR/uninstall-spacr.sh``。这会删除应用程序、命令启动器和系统安装程序支持文件。添加 ``--dry-run`` 可预览软件路径，而不删除任何内容。只有当命令启动器恰好是 spaCR 安装的符号链接时，才会删除它；无关文件和链接会保留。请单独删除 ``~/Library/Application Support/spaCR`` 以移除用户私有的运行环境。"
 
 msgid "**Linux:** run ``~/.local/share/spacr/uninstall-spacr.sh``. This removes the launcher, desktop entry and private environment."
 msgstr "**Linux：** 运行 ``~/.local/share/spacr/uninstall-spacr.sh``。这会移除启动器、桌面条目和私有环境。"
@@ -276,8 +284,9 @@ msgstr "清除需要主动选择。它还会删除 spaCR 的缓存、后端环�
 msgid "**Windows:** run ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe /PURGE``."
 msgstr "**Windows：** 运行 ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe /PURGE``。"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "**macOS:** run ``uninstall-spacr.sh --purge`` as above. Add ``--dry-run`` to preview both software and data removal. A refused or failed purge stops the uninstall before the application is removed."
-msgstr ""
+msgstr "**macOS:** 按上述方式运行 ``uninstall-spacr.sh --purge``。添加 ``--dry-run`` 可预览软件和数据的删除范围。清理被拒绝或失败时，卸载会在删除应用程序之前停止。"
 
 msgid "**Linux:** run ``~/.local/share/spacr/uninstall-spacr.sh --purge``."
 msgstr "**Linux：** 运行 ``~/.local/share/spacr/uninstall-spacr.sh --purge``。"
@@ -582,16 +591,16 @@ msgstr "图像"
 msgid "For"
 msgstr "用途"
 
-#, fuzzy
+# AI technical review (Codex), no native-speaker signoff.
 msgid "``ghcr.io/einarolafsson/spacr:1.5.1.7``"
-msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.4``"
+msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.7``"
 
 msgid "CPU only. Runs Linux x86-64 containers with Docker or Podman and needs no GPU driver."
 msgstr "仅 CPU。使用 Docker 或 Podman 运行 Linux x86-64 容器，不需要 GPU 驱动程序。"
 
-#, fuzzy
+# AI technical review (Codex), no native-speaker signoff.
 msgid "``ghcr.io/einarolafsson/spacr:1.5.1.7-cuda12.4``"
-msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4``"
+msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.7-cuda12.4``"
 
 msgid "CUDA 12.4. Needs an NVIDIA driver of **550 or newer on the host** and the NVIDIA Container Toolkit. Without ``--gpus`` it behaves as the CPU image."
 msgstr "CUDA 12.4。需要 **主机上 550 或更新版本** 的 NVIDIA 驱动程序以及 NVIDIA Container Toolkit。不使用 ``--gpus`` 时，其行为与 CPU 镜像相同。"
@@ -676,27 +685,33 @@ msgstr "``packaging/apptainer/spacr_slurm.sh`` 是一个 Slurm 数组作业，�
 msgid "For a CPU partition, remove the ``--gres`` line, replace the ``GPU_FLAG`` line with ``GPU_FLAG=`` and point ``SIF`` at the CPU image."
 msgstr "对于 CPU 分区，请删除 ``--gres`` 行，将 ``GPU_FLAG`` 行替换为 ``GPU_FLAG=``，并让 ``SIF`` 指向 CPU 镜像。"
 
-#, fuzzy
+# AI technical review (Codex), no native-speaker signoff.
 msgid "The desktop interface on a cluster node"
-msgstr "容器中的桌面界面"
+msgstr "在集群节点上使用桌面界面"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "The GUI needs a display. On a cluster, use one of these:"
-msgstr ""
+msgstr "图形界面需要显示环境。在集群上，请使用以下方式之一："
 
-msgid "**X11 forwarding.** Connect with ``ssh -X user@login-node`` (or ``ssh -Y`` for trusted forwarding), start an interactive job with X11 forwarding (for example ``srun --x11 --pty bash`` on Slurm), then run ``spacr``. This works but is slow over long distances."
-msgstr ""
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**X11 forwarding.** If your cluster supports X11 forwarding, connect with ``ssh -X user@login-node`` (or ``ssh -Y`` for trusted forwarding), start an interactive job with X11 forwarding (for example ``srun --x11 --pty bash`` on Slurm), then run ``spacr``. Slurm's ``--x11`` option requires X11 support to be compiled in and ``PrologFlags=x11`` in the cluster configuration. Network latency can reduce responsiveness."
+msgstr "**X11 转发。** 如果集群支持 X11 转发，请使用 ``ssh -X user@login-node`` 连接（或使用 ``ssh -Y`` 进行受信任的转发），启动启用 X11 转发的交互式作业（例如在 Slurm 上使用 ``srun --x11 --pty bash``），然后运行 ``spacr``。Slurm 的 ``--x11`` 选项要求编译时包含 X11 支持，并且集群配置中设置了 ``PrologFlags=x11``。网络延迟可能降低响应速度。"
 
-msgid "**Open OnDemand desktop or VNC.** Start a remote desktop session from your cluster's Open OnDemand page, or a VNC server on the node, open a terminal inside it and run ``spacr``. This is much faster than forwarding."
-msgstr ""
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Open OnDemand desktop or VNC.** Start a remote desktop session from your cluster's Open OnDemand page, or a VNC server on the node, open a terminal inside it and run ``spacr``. Rendering stays on the remote system; responsiveness depends on the connection and the remote desktop service."
+msgstr "**Open OnDemand 桌面或 VNC。** 从集群的 Open OnDemand 页面启动远程桌面会话，或在节点上启动 VNC 服务器，在会话中打开终端并运行 ``spacr``。渲染在远程系统上进行；响应速度取决于连接和远程桌面服务。"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Qt's X11 plugin needs ``libxcb-cursor.so.0`` and a few related libraries that cluster nodes often lack. Without root, install them into your conda or mamba environment:"
-msgstr ""
+msgstr "Qt 的 X11 插件需要 ``libxcb-cursor.so.0`` 和几个相关库，而集群节点经常缺少这些库。如果没有 root 权限，请将它们安装到 conda 或 mamba 环境中："
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "or create the environment from ``environment-linux.yaml``, which already lists them. ``spacr`` finds them in the active environment by itself, and names any that are still missing instead of crashing; ``spacr-doctor`` shows the same check as its ``X11 libraries`` row. With root, ``sudo apt install libxcb-cursor0`` (Debian/Ubuntu) or ``sudo dnf install xcb-util-cursor`` (RHEL/Rocky) installs them system-wide."
-msgstr ""
+msgstr "或通过 ``environment-linux.yaml`` 创建环境，其中已列出这些库。``spacr`` 会自行在当前环境中找到它们，并指出仍然缺少的库，而不是崩溃；``spacr-doctor`` 的 ``X11 libraries`` 一行也会进行同样的检查。有 root 权限时，``sudo apt install libxcb-cursor0`` （Debian/Ubuntu）或 ``sudo dnf install xcb-util-cursor`` （RHEL/Rocky）会在系统范围内安装这些库。"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "A shared home directory is fine: spaCR keeps its single-window lock and its crash counter per host, so a session on one node never blocks or counts against another."
-msgstr ""
+msgstr "可以使用共享的主目录：spaCR 按主机分别保存单窗口锁和崩溃计数，因此一个节点上的会话不会阻止另一个节点上的会话，也不会计入另一个节点的崩溃次数。"
 
 msgid "Troubleshooting"
 msgstr "故障排除"

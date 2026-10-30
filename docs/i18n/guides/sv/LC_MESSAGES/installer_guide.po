@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 19:43-0400\n"
+"POT-Creation-Date: 2026-10-30 19:52-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
@@ -75,38 +75,46 @@ msgstr "Automatiskt val av bakände är standard på Linux. Det installerar CUDA
 msgid "To leave out the wgpu 3D renderer, run the installer with ``--without-wgpu``, or tick **Install without wgpu (use OpenGL/CPU for 3D)** in the installer window; the box is unchecked by default. On a Linux system whose glibc is older than 2.28 the installer leaves wgpu out by itself and prints one line saying so, because wgpu publishes Linux wheels only for glibc 2.28 and newer. ``--dry-run`` shows the decision in its plan, as the ``wgpu 3D rendering`` line. See :ref:`wgpu-3d-rendering`."
 msgstr "Om du vill utelämna wgpu-renderaren för 3D kör du installationsprogrammet med ``--without-wgpu`` eller markerar **Install without wgpu (use OpenGL/CPU for 3D)** i installationsfönstret; rutan är omarkerad som standard. På ett Linux-system vars glibc är äldre än 2.28 utelämnar installationsprogrammet wgpu automatiskt och skriver ut en rad om det, eftersom wgpu bara publicerar Linux-wheels för glibc 2.28 och nyare. ``--dry-run`` visar beslutet i sin plan, som raden ``wgpu 3D rendering``. Se :ref:`wgpu-3d-rendering`."
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Linux ARM64 build requirements"
-msgstr ""
+msgstr "Byggkrav för Linux ARM64"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Linux ARM64 environments build ModernGL's GLContext backend from source. This requires a C++ compiler and the X11 development headers. The Unix installer's normal system-dependency step installs these packages on ARM64:"
-msgstr ""
+msgstr "Linux ARM64-miljöer bygger ModernGL:s GLContext-bakände från källkod. Det kräver en C++-kompilator och X11:s utvecklingshuvudfiler. Unix-installationsprogrammets vanliga steg för systemberoenden installerar dessa paket på ARM64:"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Package manager"
-msgstr ""
+msgstr "Pakethanterare"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Build packages"
-msgstr ""
+msgstr "Byggpaket"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "APT"
-msgstr ""
+msgstr "APT"
 
 msgid "``build-essential libx11-dev``"
 msgstr "``build-essential libx11-dev``"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "DNF or Zypper"
-msgstr ""
+msgstr "DNF eller Zypper"
 
 msgid "``gcc-c++ libX11-devel``"
 msgstr "``gcc-c++ libX11-devel``"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Pacman"
-msgstr ""
+msgstr "Pacman"
 
 msgid "``base-devel libx11``"
 msgstr "``base-devel libx11``"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "When using ``--skip-system-deps`` or installing with ``pip`` directly, provide these build packages beforehand alongside the required desktop runtime libraries. The managed Python already includes its own Python headers; for a system Python, provide that interpreter's development headers as well."
-msgstr ""
+msgstr "När du använder ``--skip-system-deps`` eller installerar direkt med ``pip`` behöver du ordna dessa byggpaket i förväg tillsammans med de bibliotek som skrivbordsmiljön behöver vid körning. Den hanterade Python-installationen innehåller redan sina egna Python-huvudfiler; för systemets Python behöver du också ordna utvecklingshuvudfilerna för den tolken."
 
 msgid "Updating"
 msgstr "Uppdatera"
@@ -250,9 +258,9 @@ msgstr "Inbyggda alternativ och kommandoradsalternativ"
 msgid "**Windows:** open **Settings → Apps → Installed apps → spaCR → Uninstall**, or run ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe``."
 msgstr "**Windows:** öppna **Inställningar → Appar → Installerade appar → spaCR → Avinstallera**, eller kör ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe``."
 
-#, fuzzy
+# AI technical review (Codex), no native-speaker signoff.
 msgid "**macOS:** run ``/Library/Application Support/spaCR/uninstall-spacr.sh`` in Terminal. This removes the application, command launcher and system installer support. Add ``--dry-run`` to preview the software paths without removing anything. The command launcher is removed only if it is spaCR's exact installed symlink; unrelated files and links are kept. Remove ``~/Library/Application Support/spaCR`` separately to delete the per-user private runtime."
-msgstr "**macOS:** kör ``/Library/Application Support/spaCR/uninstall-spacr.sh`` i Terminal. Det tar bort programmet, kommandostartaren och stödet för systeminstallationsprogrammet. Ta bort ``~/Library/Application Support/spaCR`` separat för att radera den privata körmiljön per användare."
+msgstr "**macOS:** kör ``/Library/Application Support/spaCR/uninstall-spacr.sh`` i Terminal. Det tar bort programmet, kommandostartaren och stödet för systemets installationsprogram. Lägg till ``--dry-run`` för att förhandsgranska programvarans sökvägar utan att ta bort något. Kommandostartaren tas bara bort om den är exakt den symboliska länk som spaCR installerade; andra filer och länkar behålls. Ta bort ``~/Library/Application Support/spaCR`` separat för att radera användarens privata körmiljö."
 
 msgid "**Linux:** run ``~/.local/share/spacr/uninstall-spacr.sh``. This removes the launcher, desktop entry and private environment."
 msgstr "**Linux:** kör ``~/.local/share/spacr/uninstall-spacr.sh``. Det tar bort programstartaren, skrivbordsposten och den privata miljön."
@@ -276,8 +284,9 @@ msgstr "En purge är frivillig. Den raderar också spaCR:s cachar, bakändemilj�
 msgid "**Windows:** run ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe /PURGE``."
 msgstr "**Windows:** kör ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe /PURGE``."
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "**macOS:** run ``uninstall-spacr.sh --purge`` as above. Add ``--dry-run`` to preview both software and data removal. A refused or failed purge stops the uninstall before the application is removed."
-msgstr ""
+msgstr "**macOS:** kör ``uninstall-spacr.sh --purge`` enligt ovan. Lägg till ``--dry-run`` för att förhandsgranska borttagning av både programvara och data. En nekad eller misslyckad rensning stoppar avinstallationen innan programmet tas bort."
 
 msgid "**Linux:** run ``~/.local/share/spacr/uninstall-spacr.sh --purge``."
 msgstr "**Linux:** kör ``~/.local/share/spacr/uninstall-spacr.sh --purge``."
@@ -582,16 +591,16 @@ msgstr "Bild"
 msgid "For"
 msgstr "För"
 
-#, fuzzy
+# AI technical review (Codex), no native-speaker signoff.
 msgid "``ghcr.io/einarolafsson/spacr:1.5.1.7``"
-msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.4``"
+msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.7``"
 
 msgid "CPU only. Runs Linux x86-64 containers with Docker or Podman and needs no GPU driver."
 msgstr "Enbart CPU. Kör Linux x86-64-containrar med Docker eller Podman och behöver ingen GPU-drivrutin."
 
-#, fuzzy
+# AI technical review (Codex), no native-speaker signoff.
 msgid "``ghcr.io/einarolafsson/spacr:1.5.1.7-cuda12.4``"
-msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4``"
+msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.7-cuda12.4``"
 
 msgid "CUDA 12.4. Needs an NVIDIA driver of **550 or newer on the host** and the NVIDIA Container Toolkit. Without ``--gpus`` it behaves as the CPU image."
 msgstr "CUDA 12.4. Kräver en NVIDIA-drivrutin av version **550 eller nyare på värden** och NVIDIA Container Toolkit. Utan ``--gpus`` beter den sig som CPU-avbilden."
@@ -676,27 +685,33 @@ msgstr "``packaging/apptainer/spacr_slurm.sh`` är ett Slurm-arrayjobb som kör 
 msgid "For a CPU partition, remove the ``--gres`` line, replace the ``GPU_FLAG`` line with ``GPU_FLAG=`` and point ``SIF`` at the CPU image."
 msgstr "För en CPU-partition tar du bort raden ``--gres``, ersätter raden ``GPU_FLAG`` med ``GPU_FLAG=`` och låter ``SIF`` peka på CPU-avbilden."
 
-#, fuzzy
+# AI technical review (Codex), no native-speaker signoff.
 msgid "The desktop interface on a cluster node"
-msgstr "Skrivbordsgränssnittet i en container"
+msgstr "Skrivbordsgränssnittet på en klusternod"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "The GUI needs a display. On a cluster, use one of these:"
-msgstr ""
+msgstr "Det grafiska gränssnittet behöver en bildskärm. Använd något av följande på ett kluster:"
 
-msgid "**X11 forwarding.** Connect with ``ssh -X user@login-node`` (or ``ssh -Y`` for trusted forwarding), start an interactive job with X11 forwarding (for example ``srun --x11 --pty bash`` on Slurm), then run ``spacr``. This works but is slow over long distances."
-msgstr ""
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**X11 forwarding.** If your cluster supports X11 forwarding, connect with ``ssh -X user@login-node`` (or ``ssh -Y`` for trusted forwarding), start an interactive job with X11 forwarding (for example ``srun --x11 --pty bash`` on Slurm), then run ``spacr``. Slurm's ``--x11`` option requires X11 support to be compiled in and ``PrologFlags=x11`` in the cluster configuration. Network latency can reduce responsiveness."
+msgstr "**X11-vidarebefordran.** Om klustret stöder X11-vidarebefordran ansluter du med ``ssh -X user@login-node`` (eller ``ssh -Y`` för betrodd vidarebefordran), startar ett interaktivt jobb med X11-vidarebefordran (till exempel ``srun --x11 --pty bash`` på Slurm) och kör sedan ``spacr``. Slurms alternativ ``--x11`` kräver att X11-stöd har kompilerats in och att ``PrologFlags=x11`` finns i klusterkonfigurationen. Nätverksfördröjning kan göra gränssnittet mindre responsivt."
 
-msgid "**Open OnDemand desktop or VNC.** Start a remote desktop session from your cluster's Open OnDemand page, or a VNC server on the node, open a terminal inside it and run ``spacr``. This is much faster than forwarding."
-msgstr ""
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Open OnDemand desktop or VNC.** Start a remote desktop session from your cluster's Open OnDemand page, or a VNC server on the node, open a terminal inside it and run ``spacr``. Rendering stays on the remote system; responsiveness depends on the connection and the remote desktop service."
+msgstr "**Open OnDemand-skrivbord eller VNC.** Starta en fjärrskrivbordssession från klustrets Open OnDemand-sida, eller en VNC-server på noden, öppna en terminal i sessionen och kör ``spacr``. Renderingen stannar på fjärrsystemet; svarstiderna beror på anslutningen och fjärrskrivbordstjänsten."
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Qt's X11 plugin needs ``libxcb-cursor.so.0`` and a few related libraries that cluster nodes often lack. Without root, install them into your conda or mamba environment:"
-msgstr ""
+msgstr "Qt:s X11-insticksmodul behöver ``libxcb-cursor.so.0`` och några närliggande bibliotek som ofta saknas på klusternoder. Utan root-behörighet installerar du dem i din conda- eller mamba-miljö:"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "or create the environment from ``environment-linux.yaml``, which already lists them. ``spacr`` finds them in the active environment by itself, and names any that are still missing instead of crashing; ``spacr-doctor`` shows the same check as its ``X11 libraries`` row. With root, ``sudo apt install libxcb-cursor0`` (Debian/Ubuntu) or ``sudo dnf install xcb-util-cursor`` (RHEL/Rocky) installs them system-wide."
-msgstr ""
+msgstr "eller skapa miljön från ``environment-linux.yaml``, där de redan finns med. ``spacr`` hittar dem själv i den aktiva miljön och namnger dem som fortfarande saknas i stället för att krascha; ``spacr-doctor`` visar samma kontroll på raden ``X11 libraries``. Med root-behörighet installerar ``sudo apt install libxcb-cursor0`` (Debian/Ubuntu) eller ``sudo dnf install xcb-util-cursor`` (RHEL/Rocky) dem för hela systemet."
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "A shared home directory is fine: spaCR keeps its single-window lock and its crash counter per host, so a session on one node never blocks or counts against another."
-msgstr ""
+msgstr "En delad hemkatalog fungerar: spaCR lagrar sitt lås för ett enda fönster och sin kraschräknare per värddator, så en session på en nod varken blockerar eller räknas som en krasch för en annan."
 
 msgid "Troubleshooting"
 msgstr "Felsökning"

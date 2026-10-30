@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 19:43-0400\n"
+"POT-Creation-Date: 2026-10-30 19:52-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: fr\n"
@@ -75,38 +75,46 @@ msgstr "La sélection automatique du backend est la valeur par défaut sous Linu
 msgid "To leave out the wgpu 3D renderer, run the installer with ``--without-wgpu``, or tick **Install without wgpu (use OpenGL/CPU for 3D)** in the installer window; the box is unchecked by default. On a Linux system whose glibc is older than 2.28 the installer leaves wgpu out by itself and prints one line saying so, because wgpu publishes Linux wheels only for glibc 2.28 and newer. ``--dry-run`` shows the decision in its plan, as the ``wgpu 3D rendering`` line. See :ref:`wgpu-3d-rendering`."
 msgstr "Pour omettre le moteur de rendu 3D wgpu, exécutez le programme d’installation avec ``--without-wgpu`` ou cochez **Install without wgpu (use OpenGL/CPU for 3D)** dans la fenêtre d’installation ; la case est décochée par défaut. Sur un système Linux dont la glibc est antérieure à 2.28, le programme d’installation omet wgpu de lui-même et affiche une ligne l’indiquant, car wgpu ne publie de wheels Linux que pour glibc 2.28 et versions ultérieures. ``--dry-run`` montre la décision dans son plan, sous la forme de la ligne ``wgpu 3D rendering``. Voir :ref:`wgpu-3d-rendering`."
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Linux ARM64 build requirements"
-msgstr ""
+msgstr "Prérequis de compilation pour Linux ARM64"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Linux ARM64 environments build ModernGL's GLContext backend from source. This requires a C++ compiler and the X11 development headers. The Unix installer's normal system-dependency step installs these packages on ARM64:"
-msgstr ""
+msgstr "Les environnements Linux ARM64 compilent le backend GLContext de ModernGL à partir des sources. Cela nécessite un compilateur C++ et les en-têtes de développement X11. L’étape habituelle des dépendances système de l’installateur Unix installe ces paquets sur ARM64 :"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Package manager"
-msgstr ""
+msgstr "Gestionnaire de paquets"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Build packages"
-msgstr ""
+msgstr "Paquets de compilation"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "APT"
-msgstr ""
+msgstr "APT"
 
 msgid "``build-essential libx11-dev``"
 msgstr "``build-essential libx11-dev``"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "DNF or Zypper"
-msgstr ""
+msgstr "DNF ou Zypper"
 
 msgid "``gcc-c++ libX11-devel``"
 msgstr "``gcc-c++ libX11-devel``"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Pacman"
-msgstr ""
+msgstr "Pacman"
 
 msgid "``base-devel libx11``"
 msgstr "``base-devel libx11``"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "When using ``--skip-system-deps`` or installing with ``pip`` directly, provide these build packages beforehand alongside the required desktop runtime libraries. The managed Python already includes its own Python headers; for a system Python, provide that interpreter's development headers as well."
-msgstr ""
+msgstr "Lorsque vous utilisez ``--skip-system-deps`` ou installez directement avec ``pip``, fournissez au préalable ces paquets de compilation ainsi que les bibliothèques nécessaires à l’exécution de l’interface de bureau. Le Python géré contient déjà ses propres en-têtes Python ; avec un Python système, fournissez aussi les en-têtes de développement de cet interpréteur."
 
 msgid "Updating"
 msgstr "Mise à jour"
@@ -250,9 +258,9 @@ msgstr "Alternatives natives et en ligne de commande"
 msgid "**Windows:** open **Settings → Apps → Installed apps → spaCR → Uninstall**, or run ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe``."
 msgstr "**Windows :** ouvrez **Paramètres → Apps → Installed apps → spaCR → Désinstaller**, ou exécutez ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe``."
 
-#, fuzzy
+# AI technical review (Codex), no native-speaker signoff.
 msgid "**macOS:** run ``/Library/Application Support/spaCR/uninstall-spacr.sh`` in Terminal. This removes the application, command launcher and system installer support. Add ``--dry-run`` to preview the software paths without removing anything. The command launcher is removed only if it is spaCR's exact installed symlink; unrelated files and links are kept. Remove ``~/Library/Application Support/spaCR`` separately to delete the per-user private runtime."
-msgstr "**macOS :** exécutez ``/Library/Application Support/spaCR/uninstall-spacr.sh`` dans le Terminal. Cela supprime l’application, le lanceur en ligne de commande et la prise en charge du programme d’installation système. Supprimez ``~/Library/Application Support/spaCR`` séparément pour effacer l’environnement d’exécution privé propre à l’utilisateur."
+msgstr "**macOS:** exécutez ``/Library/Application Support/spaCR/uninstall-spacr.sh`` dans Terminal. Cela supprime l’application, le lanceur de commande et le support de l’installateur système. Ajoutez ``--dry-run`` pour afficher les chemins du logiciel sans rien supprimer. Le lanceur de commande n’est supprimé que s’il s’agit exactement du lien symbolique installé par spaCR ; les autres fichiers et liens sont conservés. Supprimez séparément ``~/Library/Application Support/spaCR`` pour effacer l’environnement d’exécution privé de l’utilisateur."
 
 msgid "**Linux:** run ``~/.local/share/spacr/uninstall-spacr.sh``. This removes the launcher, desktop entry and private environment."
 msgstr "**Linux :** exécutez ``~/.local/share/spacr/uninstall-spacr.sh``. Cela supprime le lanceur, l’entrée de bureau et l’environnement privé."
@@ -276,8 +284,9 @@ msgstr "Une purge doit être demandée explicitement. Elle supprime aussi les ca
 msgid "**Windows:** run ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe /PURGE``."
 msgstr "**Windows :** exécutez ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe /PURGE``."
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "**macOS:** run ``uninstall-spacr.sh --purge`` as above. Add ``--dry-run`` to preview both software and data removal. A refused or failed purge stops the uninstall before the application is removed."
-msgstr ""
+msgstr "**macOS:** exécutez ``uninstall-spacr.sh --purge`` comme indiqué ci-dessus. Ajoutez ``--dry-run`` pour prévisualiser la suppression du logiciel et des données. Une purge refusée ou échouée arrête la désinstallation avant la suppression de l’application."
 
 msgid "**Linux:** run ``~/.local/share/spacr/uninstall-spacr.sh --purge``."
 msgstr "**Linux :** exécutez ``~/.local/share/spacr/uninstall-spacr.sh --purge``."
@@ -582,16 +591,16 @@ msgstr "Image"
 msgid "For"
 msgstr "Pour"
 
-#, fuzzy
+# AI technical review (Codex), no native-speaker signoff.
 msgid "``ghcr.io/einarolafsson/spacr:1.5.1.7``"
-msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.4``"
+msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.7``"
 
 msgid "CPU only. Runs Linux x86-64 containers with Docker or Podman and needs no GPU driver."
 msgstr "CPU uniquement. Fonctionne dans des conteneurs Linux x86-64 avec Docker ou Podman et ne nécessite aucun pilote GPU."
 
-#, fuzzy
+# AI technical review (Codex), no native-speaker signoff.
 msgid "``ghcr.io/einarolafsson/spacr:1.5.1.7-cuda12.4``"
-msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4``"
+msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.7-cuda12.4``"
 
 msgid "CUDA 12.4. Needs an NVIDIA driver of **550 or newer on the host** and the NVIDIA Container Toolkit. Without ``--gpus`` it behaves as the CPU image."
 msgstr "CUDA 12.4. Nécessite un pilote NVIDIA **550 ou plus récent sur l’hôte** et le NVIDIA Container Toolkit. Sans ``--gpus``, elle se comporte comme l’image CPU."
@@ -676,27 +685,33 @@ msgstr "``packaging/apptainer/spacr_slurm.sh`` est une tâche Slurm en tableau q
 msgid "For a CPU partition, remove the ``--gres`` line, replace the ``GPU_FLAG`` line with ``GPU_FLAG=`` and point ``SIF`` at the CPU image."
 msgstr "Pour une partition CPU, supprimez la ligne ``--gres``, remplacez la ligne ``GPU_FLAG`` par ``GPU_FLAG=`` et faites pointer ``SIF`` vers l’image CPU."
 
-#, fuzzy
+# AI technical review (Codex), no native-speaker signoff.
 msgid "The desktop interface on a cluster node"
-msgstr "L’interface de bureau dans un conteneur"
+msgstr "L’interface de bureau sur un nœud de cluster"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "The GUI needs a display. On a cluster, use one of these:"
-msgstr ""
+msgstr "L’interface graphique nécessite un affichage. Sur un cluster, utilisez l’une des possibilités suivantes :"
 
-msgid "**X11 forwarding.** Connect with ``ssh -X user@login-node`` (or ``ssh -Y`` for trusted forwarding), start an interactive job with X11 forwarding (for example ``srun --x11 --pty bash`` on Slurm), then run ``spacr``. This works but is slow over long distances."
-msgstr ""
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**X11 forwarding.** If your cluster supports X11 forwarding, connect with ``ssh -X user@login-node`` (or ``ssh -Y`` for trusted forwarding), start an interactive job with X11 forwarding (for example ``srun --x11 --pty bash`` on Slurm), then run ``spacr``. Slurm's ``--x11`` option requires X11 support to be compiled in and ``PrologFlags=x11`` in the cluster configuration. Network latency can reduce responsiveness."
+msgstr "**Transfert X11.** Si votre cluster prend en charge le transfert X11, connectez-vous avec ``ssh -X user@login-node`` (ou ``ssh -Y`` pour le transfert de confiance), lancez une tâche interactive avec transfert X11 (par exemple ``srun --x11 --pty bash`` avec Slurm), puis exécutez ``spacr``. L’option ``--x11`` de Slurm exige une compilation avec la prise en charge de X11 et ``PrologFlags=x11`` dans la configuration du cluster. La latence réseau peut réduire la réactivité."
 
-msgid "**Open OnDemand desktop or VNC.** Start a remote desktop session from your cluster's Open OnDemand page, or a VNC server on the node, open a terminal inside it and run ``spacr``. This is much faster than forwarding."
-msgstr ""
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Open OnDemand desktop or VNC.** Start a remote desktop session from your cluster's Open OnDemand page, or a VNC server on the node, open a terminal inside it and run ``spacr``. Rendering stays on the remote system; responsiveness depends on the connection and the remote desktop service."
+msgstr "**Bureau Open OnDemand ou VNC.** Démarrez une session de bureau distant depuis la page Open OnDemand de votre cluster, ou un serveur VNC sur le nœud, ouvrez-y un terminal et exécutez ``spacr``. Le rendu reste sur le système distant ; la réactivité dépend de la connexion et du service de bureau distant."
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Qt's X11 plugin needs ``libxcb-cursor.so.0`` and a few related libraries that cluster nodes often lack. Without root, install them into your conda or mamba environment:"
-msgstr ""
+msgstr "Le plugin X11 de Qt nécessite ``libxcb-cursor.so.0`` et quelques bibliothèques associées qui manquent souvent sur les nœuds de cluster. Sans droits root, installez-les dans votre environnement conda ou mamba :"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "or create the environment from ``environment-linux.yaml``, which already lists them. ``spacr`` finds them in the active environment by itself, and names any that are still missing instead of crashing; ``spacr-doctor`` shows the same check as its ``X11 libraries`` row. With root, ``sudo apt install libxcb-cursor0`` (Debian/Ubuntu) or ``sudo dnf install xcb-util-cursor`` (RHEL/Rocky) installs them system-wide."
-msgstr ""
+msgstr "ou créez l’environnement à partir de ``environment-linux.yaml``, qui les répertorie déjà. ``spacr`` les trouve lui-même dans l’environnement actif et indique celles qui manquent encore au lieu de planter ; ``spacr-doctor`` effectue la même vérification dans sa ligne ``X11 libraries``. Avec les droits root, ``sudo apt install libxcb-cursor0`` (Debian/Ubuntu) ou ``sudo dnf install xcb-util-cursor`` (RHEL/Rocky) les installe à l’échelle du système."
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "A shared home directory is fine: spaCR keeps its single-window lock and its crash counter per host, so a session on one node never blocks or counts against another."
-msgstr ""
+msgstr "Un répertoire personnel partagé convient : spaCR conserve son verrou de fenêtre unique et son compteur de plantages par hôte, de sorte qu’une session sur un nœud ne bloque pas une session sur un autre et n’augmente pas son compteur."
 
 msgid "Troubleshooting"
 msgstr "Dépannage"

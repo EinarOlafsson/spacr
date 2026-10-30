@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 19:43-0400\n"
+"POT-Creation-Date: 2026-10-30 19:52-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -75,38 +75,46 @@ msgstr "Sjálfvirkt val bakenda er sjálfgildið á Linux. Það setur upp CUDA-
 msgid "To leave out the wgpu 3D renderer, run the installer with ``--without-wgpu``, or tick **Install without wgpu (use OpenGL/CPU for 3D)** in the installer window; the box is unchecked by default. On a Linux system whose glibc is older than 2.28 the installer leaves wgpu out by itself and prints one line saying so, because wgpu publishes Linux wheels only for glibc 2.28 and newer. ``--dry-run`` shows the decision in its plan, as the ``wgpu 3D rendering`` line. See :ref:`wgpu-3d-rendering`."
 msgstr "Til að sleppa wgpu-þrívíddarteiknaranum skaltu keyra uppsetningarforritið með ``--without-wgpu``, eða haka við **Install without wgpu (use OpenGL/CPU for 3D)** í glugga uppsetningarforritsins; reiturinn er sjálfgefið ekki hakaður við. Á Linux-kerfi þar sem glibc er eldra en 2.28 sleppir uppsetningarforritið wgpu sjálfkrafa og prentar eina línu um það, því wgpu gefur aðeins út Linux-wheel-pakka fyrir glibc 2.28 og nýrra. ``--dry-run`` sýnir ákvörðunina í áætlun sinni, sem línuna ``wgpu 3D rendering``. Sjá :ref:`wgpu-3d-rendering`."
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Linux ARM64 build requirements"
-msgstr ""
+msgstr "Byggingarkröfur fyrir Linux ARM64"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Linux ARM64 environments build ModernGL's GLContext backend from source. This requires a C++ compiler and the X11 development headers. The Unix installer's normal system-dependency step installs these packages on ARM64:"
-msgstr ""
+msgstr "Linux ARM64-umhverfi byggja GLContext-bakenda ModernGL úr frumkóða. Til þess þarf C++-þýðanda og X11-þróunarhausaskrár. Venjulega kerfisháðaskrefið í Unix-uppsetningarforritinu setur þessa pakka upp á ARM64:"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Package manager"
-msgstr ""
+msgstr "Pakkastjóri"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Build packages"
-msgstr ""
+msgstr "Byggingarpakkar"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "APT"
-msgstr ""
+msgstr "APT"
 
 msgid "``build-essential libx11-dev``"
 msgstr "``build-essential libx11-dev``"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "DNF or Zypper"
-msgstr ""
+msgstr "DNF eða Zypper"
 
 msgid "``gcc-c++ libX11-devel``"
 msgstr "``gcc-c++ libX11-devel``"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Pacman"
-msgstr ""
+msgstr "Pacman"
 
 msgid "``base-devel libx11``"
 msgstr "``base-devel libx11``"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "When using ``--skip-system-deps`` or installing with ``pip`` directly, provide these build packages beforehand alongside the required desktop runtime libraries. The managed Python already includes its own Python headers; for a system Python, provide that interpreter's development headers as well."
-msgstr ""
+msgstr "Þegar ``--skip-system-deps`` er notað eða sett er upp beint með ``pip`` þarf að útvega þessa byggingarpakka fyrirfram ásamt nauðsynlegum keyrslusöfnum fyrir skjáborðsviðmótið. Stýrða Python-uppsetningin inniheldur þegar eigin Python-hausaskrár; fyrir Python frá stýrikerfinu þarf einnig að útvega þróunarhausaskrár þess túlks."
 
 msgid "Updating"
 msgstr "Uppfærsla"
@@ -250,9 +258,9 @@ msgstr "Innbyggðir valkostir og skipanalínuvalkostir"
 msgid "**Windows:** open **Settings → Apps → Installed apps → spaCR → Uninstall**, or run ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe``."
 msgstr "**Windows:** opnaðu **Stillingar → Forrit → Uppsett forrit → spaCR → Fjarlægja** eða keyrðu ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe``."
 
-#, fuzzy
+# AI technical review (Codex), no native-speaker signoff.
 msgid "**macOS:** run ``/Library/Application Support/spaCR/uninstall-spacr.sh`` in Terminal. This removes the application, command launcher and system installer support. Add ``--dry-run`` to preview the software paths without removing anything. The command launcher is removed only if it is spaCR's exact installed symlink; unrelated files and links are kept. Remove ``~/Library/Application Support/spaCR`` separately to delete the per-user private runtime."
-msgstr "**macOS:** keyrðu ``/Library/Application Support/spaCR/uninstall-spacr.sh`` í Terminal. Þetta fjarlægir forritið, skipanaræsinn og stuðning kerfisuppsetningarforritsins. Fjarlægðu ``~/Library/Application Support/spaCR`` sérstaklega til að eyða einkakeyrsluumhverfinu fyrir hvern notanda."
+msgstr "**macOS:** keyrðu ``/Library/Application Support/spaCR/uninstall-spacr.sh`` í Terminal. Þetta fjarlægir forritið, skipanaræsinn og stuðning kerfisuppsetningarforritsins. Bættu við ``--dry-run`` til að forskoða hugbúnaðarslóðirnar án þess að fjarlægja neitt. Skipanaræsirinn er aðeins fjarlægður ef hann er nákvæmlega tákntengillinn sem spaCR setti upp; ótengdar skrár og tenglar eru varðveitt. Fjarlægðu ``~/Library/Application Support/spaCR`` sérstaklega til að eyða einkakeyrsluumhverfi notandans."
 
 msgid "**Linux:** run ``~/.local/share/spacr/uninstall-spacr.sh``. This removes the launcher, desktop entry and private environment."
 msgstr "**Linux:** keyrðu ``~/.local/share/spacr/uninstall-spacr.sh``. Þetta fjarlægir ræsinn, skjáborðsfærsluna og einkaumhverfið."
@@ -276,8 +284,9 @@ msgstr "Hreinsun er valkvæð. Hún eyðir einnig skyndiminnum spaCR, bakendaumh
 msgid "**Windows:** run ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe /PURGE``."
 msgstr "**Windows:** keyrðu ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe /PURGE``."
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "**macOS:** run ``uninstall-spacr.sh --purge`` as above. Add ``--dry-run`` to preview both software and data removal. A refused or failed purge stops the uninstall before the application is removed."
-msgstr ""
+msgstr "**macOS:** keyrðu ``uninstall-spacr.sh --purge`` eins og lýst er að ofan. Bættu við ``--dry-run`` til að forskoða bæði fjarlægingu hugbúnaðar og gagna. Hreinsun sem er hafnað eða mistekst stöðvar fjarlæginguna áður en forritið er fjarlægt."
 
 msgid "**Linux:** run ``~/.local/share/spacr/uninstall-spacr.sh --purge``."
 msgstr "**Linux:** keyrðu ``~/.local/share/spacr/uninstall-spacr.sh --purge``."
@@ -582,16 +591,16 @@ msgstr "Mynd"
 msgid "For"
 msgstr "Fyrir"
 
-#, fuzzy
+# AI technical review (Codex), no native-speaker signoff.
 msgid "``ghcr.io/einarolafsson/spacr:1.5.1.7``"
-msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.4``"
+msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.7``"
 
 msgid "CPU only. Runs Linux x86-64 containers with Docker or Podman and needs no GPU driver."
 msgstr "Eingöngu örgjörvi. Keyrir Linux x86-64-gáma með Docker eða Podman og þarf engan skjákortsrekil."
 
-#, fuzzy
+# AI technical review (Codex), no native-speaker signoff.
 msgid "``ghcr.io/einarolafsson/spacr:1.5.1.7-cuda12.4``"
-msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4``"
+msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.7-cuda12.4``"
 
 msgid "CUDA 12.4. Needs an NVIDIA driver of **550 or newer on the host** and the NVIDIA Container Toolkit. Without ``--gpus`` it behaves as the CPU image."
 msgstr "CUDA 12.4. Þarf NVIDIA-rekil **550 eða nýrri á hýslinum** og NVIDIA Container Toolkit. Án ``--gpus`` hegðar hún sér eins og örgjörvamyndin."
@@ -676,27 +685,33 @@ msgstr "``packaging/apptainer/spacr_slurm.sh`` er Slurm-fylkisverk sem keyrir Gr
 msgid "For a CPU partition, remove the ``--gres`` line, replace the ``GPU_FLAG`` line with ``GPU_FLAG=`` and point ``SIF`` at the CPU image."
 msgstr "Fyrir örgjörvahluta skaltu fjarlægja ``--gres``-línuna, skipta ``GPU_FLAG``-línunni út fyrir ``GPU_FLAG=`` og láta ``SIF`` vísa á örgjörvamyndina."
 
-#, fuzzy
+# AI technical review (Codex), no native-speaker signoff.
 msgid "The desktop interface on a cluster node"
-msgstr "Skjáborðsviðmótið í gámi"
+msgstr "Skjáborðsviðmótið á klasa-hnút"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "The GUI needs a display. On a cluster, use one of these:"
-msgstr ""
+msgstr "Grafíska viðmótið þarf skjá. Notaðu einn af þessum kostum á klasa:"
 
-msgid "**X11 forwarding.** Connect with ``ssh -X user@login-node`` (or ``ssh -Y`` for trusted forwarding), start an interactive job with X11 forwarding (for example ``srun --x11 --pty bash`` on Slurm), then run ``spacr``. This works but is slow over long distances."
-msgstr ""
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**X11 forwarding.** If your cluster supports X11 forwarding, connect with ``ssh -X user@login-node`` (or ``ssh -Y`` for trusted forwarding), start an interactive job with X11 forwarding (for example ``srun --x11 --pty bash`` on Slurm), then run ``spacr``. Slurm's ``--x11`` option requires X11 support to be compiled in and ``PrologFlags=x11`` in the cluster configuration. Network latency can reduce responsiveness."
+msgstr "**X11-framsending.** Ef klasinn styður X11-framsendingu skaltu tengjast með ``ssh -X user@login-node`` (eða ``ssh -Y`` fyrir trausta framsendingu), ræsa gagnvirkt verk með X11-framsendingu (til dæmis ``srun --x11 --pty bash`` á Slurm) og keyra síðan ``spacr``. Valkosturinn ``--x11`` í Slurm krefst þess að X11-stuðningur sé innbyggður við þýðingu og að ``PrologFlags=x11`` sé í klasastillingunum. Netseinkun getur dregið úr viðbragðshraða."
 
-msgid "**Open OnDemand desktop or VNC.** Start a remote desktop session from your cluster's Open OnDemand page, or a VNC server on the node, open a terminal inside it and run ``spacr``. This is much faster than forwarding."
-msgstr ""
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Open OnDemand desktop or VNC.** Start a remote desktop session from your cluster's Open OnDemand page, or a VNC server on the node, open a terminal inside it and run ``spacr``. Rendering stays on the remote system; responsiveness depends on the connection and the remote desktop service."
+msgstr "**Open OnDemand-skjáborð eða VNC.** Ræstu fjarskjáborðslotu af Open OnDemand-síðu klasans eða VNC-þjón á hnútnum, opnaðu skipanaglugga innan hennar og keyrðu ``spacr``. Teikningin fer fram á fjarkerfinu; viðbragðshraðinn fer eftir tengingunni og fjarskjáborðsþjónustunni."
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Qt's X11 plugin needs ``libxcb-cursor.so.0`` and a few related libraries that cluster nodes often lack. Without root, install them into your conda or mamba environment:"
-msgstr ""
+msgstr "X11-viðbót Qt þarf ``libxcb-cursor.so.0`` og nokkur tengd söfn sem oft vantar á klasahnúta. Án root-réttinda skaltu setja þau upp í conda- eða mamba-umhverfinu þínu:"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "or create the environment from ``environment-linux.yaml``, which already lists them. ``spacr`` finds them in the active environment by itself, and names any that are still missing instead of crashing; ``spacr-doctor`` shows the same check as its ``X11 libraries`` row. With root, ``sudo apt install libxcb-cursor0`` (Debian/Ubuntu) or ``sudo dnf install xcb-util-cursor`` (RHEL/Rocky) installs them system-wide."
-msgstr ""
+msgstr "eða búa til umhverfið úr ``environment-linux.yaml``, sem skráir þau þegar. ``spacr`` finnur þau sjálft í virka umhverfinu og tilgreinir þau sem enn vantar í stað þess að hrynja; ``spacr-doctor`` sýnir sömu athugun í línunni ``X11 libraries``. Með root-réttindum setur ``sudo apt install libxcb-cursor0`` (Debian/Ubuntu) eða ``sudo dnf install xcb-util-cursor`` (RHEL/Rocky) þau upp fyrir allt kerfið."
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "A shared home directory is fine: spaCR keeps its single-window lock and its crash counter per host, so a session on one node never blocks or counts against another."
-msgstr ""
+msgstr "Sameiginleg heimamappa er í lagi: spaCR heldur læsingu fyrir einn glugga og hrunateljara fyrir hverja vél, svo lota á einum hnúti hvorki hindrar lotu á öðrum né telst með í hrunateljara hans."
 
 msgid "Troubleshooting"
 msgstr "Úrræðaleit"

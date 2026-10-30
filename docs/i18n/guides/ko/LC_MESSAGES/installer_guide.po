@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 19:43-0400\n"
+"POT-Creation-Date: 2026-10-30 19:52-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -75,38 +75,46 @@ msgstr "Linux에서는 백엔드 자동 선택이 기본값입니다. 호환되�
 msgid "To leave out the wgpu 3D renderer, run the installer with ``--without-wgpu``, or tick **Install without wgpu (use OpenGL/CPU for 3D)** in the installer window; the box is unchecked by default. On a Linux system whose glibc is older than 2.28 the installer leaves wgpu out by itself and prints one line saying so, because wgpu publishes Linux wheels only for glibc 2.28 and newer. ``--dry-run`` shows the decision in its plan, as the ``wgpu 3D rendering`` line. See :ref:`wgpu-3d-rendering`."
 msgstr "wgpu 3D 렌더러를 제외하려면 ``--without-wgpu`` 로 설치 프로그램을 실행하거나, 설치 프로그램 창에서 **Install without wgpu (use OpenGL/CPU for 3D)** 를 선택합니다. 이 상자는 기본적으로 선택되어 있지 않습니다. glibc가 2.28보다 오래된 Linux 시스템에서는 설치 프로그램이 wgpu를 자동으로 제외하고 그 사실을 한 줄로 출력합니다. wgpu는 glibc 2.28 이상용 Linux wheel만 게시하기 때문입니다. ``--dry-run`` 은 계획의 ``wgpu 3D rendering`` 줄에 이 결정을 표시합니다. :ref:`wgpu-3d-rendering` 를 참조하세요."
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Linux ARM64 build requirements"
-msgstr ""
+msgstr "Linux ARM64 빌드 요구 사항"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Linux ARM64 environments build ModernGL's GLContext backend from source. This requires a C++ compiler and the X11 development headers. The Unix installer's normal system-dependency step installs these packages on ARM64:"
-msgstr ""
+msgstr "Linux ARM64 환경은 ModernGL의 GLContext 백엔드를 소스에서 빌드합니다. 이를 위해 C++ 컴파일러와 X11 개발 헤더가 필요합니다. Unix 설치 프로그램의 일반 시스템 의존성 설치 단계는 ARM64에 다음 패키지를 설치합니다:"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Package manager"
-msgstr ""
+msgstr "패키지 관리자"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Build packages"
-msgstr ""
+msgstr "빌드 패키지"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "APT"
-msgstr ""
+msgstr "APT"
 
 msgid "``build-essential libx11-dev``"
 msgstr "``build-essential libx11-dev``"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "DNF or Zypper"
-msgstr ""
+msgstr "DNF 또는 Zypper"
 
 msgid "``gcc-c++ libX11-devel``"
 msgstr "``gcc-c++ libX11-devel``"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Pacman"
-msgstr ""
+msgstr "Pacman"
 
 msgid "``base-devel libx11``"
 msgstr "``base-devel libx11``"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "When using ``--skip-system-deps`` or installing with ``pip`` directly, provide these build packages beforehand alongside the required desktop runtime libraries. The managed Python already includes its own Python headers; for a system Python, provide that interpreter's development headers as well."
-msgstr ""
+msgstr "``--skip-system-deps`` 를 사용하거나 ``pip`` 로 직접 설치할 때는 필요한 데스크톱 런타임 라이브러리와 함께 이 빌드 패키지를 미리 준비하세요. 관리형 Python에는 자체 Python 헤더가 이미 포함되어 있습니다. 시스템 Python을 사용한다면 해당 인터프리터의 개발 헤더도 준비하세요."
 
 msgid "Updating"
 msgstr "업데이트"
@@ -250,9 +258,9 @@ msgstr "네이티브 및 명령줄 대안"
 msgid "**Windows:** open **Settings → Apps → Installed apps → spaCR → Uninstall**, or run ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe``."
 msgstr "**Windows:** **설정 → 앱 → 설치된 앱 → spaCR → 제거** 를 열거나 ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe`` 를 실행합니다."
 
-#, fuzzy
+# AI technical review (Codex), no native-speaker signoff.
 msgid "**macOS:** run ``/Library/Application Support/spaCR/uninstall-spacr.sh`` in Terminal. This removes the application, command launcher and system installer support. Add ``--dry-run`` to preview the software paths without removing anything. The command launcher is removed only if it is spaCR's exact installed symlink; unrelated files and links are kept. Remove ``~/Library/Application Support/spaCR`` separately to delete the per-user private runtime."
-msgstr "**macOS:** 터미널에서 ``/Library/Application Support/spaCR/uninstall-spacr.sh`` 를 실행합니다. 애플리케이션, 명령 실행 도구, 시스템 설치 프로그램 지원 파일이 제거됩니다. 사용자별 전용 런타임을 삭제하려면 ``~/Library/Application Support/spaCR`` 를 따로 제거합니다."
+msgstr "**macOS:** Terminal에서 ``/Library/Application Support/spaCR/uninstall-spacr.sh`` 를 실행하세요. 애플리케이션, 명령 실행기 및 시스템 설치 프로그램 지원 파일이 제거됩니다. ``--dry-run`` 을 추가하면 아무것도 제거하지 않고 소프트웨어 경로를 미리 볼 수 있습니다. 명령 실행기는 spaCR가 설치한 정확한 심볼릭 링크일 때만 제거되며, 관련 없는 파일과 링크는 유지됩니다. 사용자별 개인 런타임을 삭제하려면 ``~/Library/Application Support/spaCR`` 를 별도로 제거하세요."
 
 msgid "**Linux:** run ``~/.local/share/spacr/uninstall-spacr.sh``. This removes the launcher, desktop entry and private environment."
 msgstr "**Linux:** ``~/.local/share/spacr/uninstall-spacr.sh`` 를 실행합니다. 실행 도구, 데스크톱 항목, 전용 환경이 제거됩니다."
@@ -276,8 +284,9 @@ msgstr "완전 제거는 직접 선택해야 합니다. spaCR의 캐시, 백엔�
 msgid "**Windows:** run ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe /PURGE``."
 msgstr "**Windows:** ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe /PURGE`` 를 실행합니다."
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "**macOS:** run ``uninstall-spacr.sh --purge`` as above. Add ``--dry-run`` to preview both software and data removal. A refused or failed purge stops the uninstall before the application is removed."
-msgstr ""
+msgstr "**macOS:** 위에서 설명한 대로 ``uninstall-spacr.sh --purge`` 를 실행하세요. ``--dry-run`` 을 추가하면 소프트웨어와 데이터 제거를 모두 미리 볼 수 있습니다. 정리가 거부되거나 실패하면 애플리케이션을 제거하기 전에 제거 절차가 중단됩니다."
 
 msgid "**Linux:** run ``~/.local/share/spacr/uninstall-spacr.sh --purge``."
 msgstr "**Linux:** ``~/.local/share/spacr/uninstall-spacr.sh --purge`` 를 실행합니다."
@@ -582,16 +591,16 @@ msgstr "이미지"
 msgid "For"
 msgstr "용도"
 
-#, fuzzy
+# AI technical review (Codex), no native-speaker signoff.
 msgid "``ghcr.io/einarolafsson/spacr:1.5.1.7``"
-msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.4``"
+msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.7``"
 
 msgid "CPU only. Runs Linux x86-64 containers with Docker or Podman and needs no GPU driver."
 msgstr "CPU 전용. Docker나 Podman으로 Linux x86-64 컨테이너를 실행하며 GPU 드라이버가 필요 없습니다."
 
-#, fuzzy
+# AI technical review (Codex), no native-speaker signoff.
 msgid "``ghcr.io/einarolafsson/spacr:1.5.1.7-cuda12.4``"
-msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4``"
+msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.7-cuda12.4``"
 
 msgid "CUDA 12.4. Needs an NVIDIA driver of **550 or newer on the host** and the NVIDIA Container Toolkit. Without ``--gpus`` it behaves as the CPU image."
 msgstr "CUDA 12.4. **호스트의 550 이상** NVIDIA 드라이버와 NVIDIA Container Toolkit이 필요합니다. ``--gpus`` 없이 실행하면 CPU 이미지처럼 동작합니다."
@@ -676,27 +685,33 @@ msgstr "``packaging/apptainer/spacr_slurm.sh`` 는 설정 파일 한 쌍을 사�
 msgid "For a CPU partition, remove the ``--gres`` line, replace the ``GPU_FLAG`` line with ``GPU_FLAG=`` and point ``SIF`` at the CPU image."
 msgstr "CPU 파티션에서는 ``--gres`` 줄을 제거하고, ``GPU_FLAG`` 줄을 ``GPU_FLAG=`` 로 바꾸고, ``SIF`` 가 CPU 이미지를 가리키도록 합니다."
 
-#, fuzzy
+# AI technical review (Codex), no native-speaker signoff.
 msgid "The desktop interface on a cluster node"
-msgstr "컨테이너 안의 데스크톱 인터페이스"
+msgstr "클러스터 노드에서 데스크톱 인터페이스 사용"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "The GUI needs a display. On a cluster, use one of these:"
-msgstr ""
+msgstr "GUI에는 디스플레이가 필요합니다. 클러스터에서는 다음 방법 중 하나를 사용하세요:"
 
-msgid "**X11 forwarding.** Connect with ``ssh -X user@login-node`` (or ``ssh -Y`` for trusted forwarding), start an interactive job with X11 forwarding (for example ``srun --x11 --pty bash`` on Slurm), then run ``spacr``. This works but is slow over long distances."
-msgstr ""
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**X11 forwarding.** If your cluster supports X11 forwarding, connect with ``ssh -X user@login-node`` (or ``ssh -Y`` for trusted forwarding), start an interactive job with X11 forwarding (for example ``srun --x11 --pty bash`` on Slurm), then run ``spacr``. Slurm's ``--x11`` option requires X11 support to be compiled in and ``PrologFlags=x11`` in the cluster configuration. Network latency can reduce responsiveness."
+msgstr "**X11 포워딩.** 클러스터가 X11 포워딩을 지원한다면 ``ssh -X user@login-node`` 로 연결하고(신뢰할 수 있는 포워딩에는 ``ssh -Y`` 사용), X11 포워딩을 사용하는 대화형 작업을 시작한 다음(Slurm에서는 예를 들어 ``srun --x11 --pty bash``) ``spacr`` 를 실행하세요. Slurm의 ``--x11`` 옵션은 컴파일 시 X11 지원이 포함되어 있고 클러스터 설정에 ``PrologFlags=x11`` 이 있어야 사용할 수 있습니다. 네트워크 지연은 응답성을 낮출 수 있습니다."
 
-msgid "**Open OnDemand desktop or VNC.** Start a remote desktop session from your cluster's Open OnDemand page, or a VNC server on the node, open a terminal inside it and run ``spacr``. This is much faster than forwarding."
-msgstr ""
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Open OnDemand desktop or VNC.** Start a remote desktop session from your cluster's Open OnDemand page, or a VNC server on the node, open a terminal inside it and run ``spacr``. Rendering stays on the remote system; responsiveness depends on the connection and the remote desktop service."
+msgstr "**Open OnDemand 데스크톱 또는 VNC.** 클러스터의 Open OnDemand 페이지에서 원격 데스크톱 세션을 시작하거나 노드에서 VNC 서버를 시작하고, 그 안에서 터미널을 열어 ``spacr`` 를 실행하세요. 렌더링은 원격 시스템에서 수행되며, 응답성은 연결 및 원격 데스크톱 서비스에 따라 달라집니다."
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Qt's X11 plugin needs ``libxcb-cursor.so.0`` and a few related libraries that cluster nodes often lack. Without root, install them into your conda or mamba environment:"
-msgstr ""
+msgstr "Qt의 X11 플러그인에는 ``libxcb-cursor.so.0`` 과 몇 가지 관련 라이브러리가 필요하지만 클러스터 노드에는 이러한 라이브러리가 없는 경우가 많습니다. root 권한이 없다면 conda 또는 mamba 환경에 설치하세요:"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "or create the environment from ``environment-linux.yaml``, which already lists them. ``spacr`` finds them in the active environment by itself, and names any that are still missing instead of crashing; ``spacr-doctor`` shows the same check as its ``X11 libraries`` row. With root, ``sudo apt install libxcb-cursor0`` (Debian/Ubuntu) or ``sudo dnf install xcb-util-cursor`` (RHEL/Rocky) installs them system-wide."
-msgstr ""
+msgstr "또는 해당 라이브러리가 이미 나열된 ``environment-linux.yaml`` 로 환경을 만드세요. ``spacr`` 는 활성 환경에서 이 라이브러리를 자동으로 찾고, 충돌하는 대신 아직 없는 라이브러리의 이름을 알려 줍니다. ``spacr-doctor`` 의 ``X11 libraries`` 행에서도 같은 검사를 보여 줍니다. root 권한이 있으면 ``sudo apt install libxcb-cursor0`` (Debian/Ubuntu) 또는 ``sudo dnf install xcb-util-cursor`` (RHEL/Rocky)로 시스템 전체에 설치할 수 있습니다."
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "A shared home directory is fine: spaCR keeps its single-window lock and its crash counter per host, so a session on one node never blocks or counts against another."
-msgstr ""
+msgstr "공유 홈 디렉터리를 사용해도 됩니다. spaCR는 단일 창 잠금과 충돌 횟수를 호스트별로 관리하므로 한 노드의 세션이 다른 노드의 세션을 막거나 다른 노드의 충돌 횟수에 포함되지 않습니다."
 
 msgid "Troubleshooting"
 msgstr "문제 해결"
