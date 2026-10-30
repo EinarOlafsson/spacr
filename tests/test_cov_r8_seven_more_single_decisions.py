@@ -1,7 +1,7 @@
 """Seven more single decisions, six driven and one pin.
 
 Each is a value that arrives in a shape the happy path does not produce:
-a facet with no rows in it, a tab page that is not there, a browser with
+a facet with no rows in it, empty and rebuilt Home tabs, a browser with
 no field selected, a class nobody was assigned to, a failure record that
 will not serialise, and a manifest whose warnings are a bare string.
 """
@@ -13,6 +13,8 @@ import json
 import numpy as np
 import pandas as pd
 import pytest
+
+from tests.qt.test_startup_ai_reporting_choice import private_ai_profile  # noqa: F401
 
 
 # ---------------------------------------------------------------------------
@@ -52,7 +54,7 @@ class TestTheTallestBarInAFacet:
 
 
 # ---------------------------------------------------------------------------
-# home -- a tab index with no page behind it
+# home -- transparency after a real tab widget is cleared and rebuilt
 # ---------------------------------------------------------------------------
 
 class TestMakingTheHomeTabsTransparent:
@@ -70,31 +72,43 @@ class TestMakingTheHomeTabsTransparent:
         assert len(pages) == 2
         assert all(page is not None for page in pages)
 
-    def test_an_index_with_no_page_is_skipped(self, qtbot):
-        """THE UNCOVERED ARC.
+    def test_empty_and_rebuilt_tabs_keep_real_pages_transparent(self, qtbot, private_ai_profile):
+        """A native clear/rebuild preserves tab content and surface transparency."""
+        from PySide6.QtWidgets import QLabel, QTabWidget, QVBoxLayout, QWidget
+        from spacr.qt.theme import TRANSPARENT_PROPERTY
+        from spacr.qt.widgets.home import HomePage
 
-        ``QTabWidget.widget`` answers None for an index it does not
-        hold, and the count and the pages can disagree for a frame while
-        tabs are being rebuilt -- which is exactly when this runs, since
-        it re-inks the tabs after a theme change. ``make_transparent(None)``
-        is an AttributeError raised mid-restyle.
-        """
-        pytest.importorskip("PySide6")
-        from PySide6.QtWidgets import QTabWidget, QWidget
+        preferences, _terms, _settings = private_ai_profile
+        preferences.set_reduce_motion(True)
+        preferences.set_ambient_enabled(False)
+        home = HomePage([("mask", "Mask", "Segment cells", "Core")], lambda key: None)
+        qtbot.addWidget(home)
+        tabs = home.findChild(QTabWidget)
+        assert tabs is not None and tabs.count() > 0
 
-        tabs = QTabWidget()
-        qtbot.addWidget(tabs)
-        tabs.addTab(QWidget(), "only")
+        tabs.clear()
+        home._clear_page_surfaces()
+        assert tabs.count() == 0 and tabs.currentIndex() == -1
 
-        assert tabs.widget(0) is not None
-        assert tabs.widget(5) is None, (
-            "an out-of-range tab index no longer answers None")
+        pages, labels = [], []
+        for name in ("first", "second"):
+            page = QWidget()
+            page.setObjectName("RebuiltHomePage_" + name)
+            label = QLabel(name + " content", page)
+            QVBoxLayout(page).addWidget(label)
+            assert page.property(TRANSPARENT_PROPERTY) is None
+            tabs.addTab(page, name)
+            pages.append(page)
+            labels.append(label)
+        tabs.setCurrentIndex(1)
+        home._clear_page_surfaces()
+        home._clear_page_surfaces()
 
-        from spacr.qt.widgets import home
-
-        source = inspect.getsource(home)
-        assert "page = tabs.widget(i)" in source
-        assert "if page is not None:" in source
+        assert tabs.count() == 2 and tabs.currentWidget() is pages[1]
+        assert [tabs.widget(i) for i in range(tabs.count())] == pages
+        assert [tabs.tabText(i) for i in range(tabs.count())] == ["first", "second"]
+        assert [label.text() for label in labels] == ["first content", "second content"]
+        assert all(page.property(TRANSPARENT_PROPERTY) is True for page in pages)
 
 
 # ---------------------------------------------------------------------------
