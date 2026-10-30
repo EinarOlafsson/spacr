@@ -5694,7 +5694,7 @@ UI = {
     'Exported {count} crops to {path}.': '{count} myndútsnið flutt út í {path}.',
     'Exported: {files}': 'Flutt út: {files}',
     'Exporting displayed crops…': 'Flyt út sýnd myndútsnið…',
-    'Export…': 'Afleiðingar...',
+    'Export…': 'Flytja út…',
     'External feature table': 'Ytri eiginleikatafla',
     'External measurements': 'Ytri mælingar',
     'External measurements and object mappings': 'Ytri mælingar og vörpun hluta',

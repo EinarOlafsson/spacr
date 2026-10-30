@@ -57,7 +57,7 @@ msgstr "설정에서 표시 채널, 색상 및 정규화를 선택합니다. **�
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Use **Export…** for **Guided export**, **Custom export** or **Contact sheet PDFs**. Guided export walks through wells, fields, placement and preview. Custom export lets you drag images onto a page grid and arrange text and images. Captured image display settings belong to each placed image."
-msgstr "**수출...** 에서 **안내형 내보내기**, **사용자 지정 내보내기** 또는 **밀착 인화 PDFs** 를 사용합니다. 안내 내보내기는 웰, 시야, 배치 및 미리보기를 차례로 진행합니다. 사용자 지정 내보내기에서는 이미지를 페이지 격자로 끌어 놓고 텍스트와 이미지를 배치할 수 있습니다. 캡처된 이미지 표시 설정은 배치된 각 이미지에 속합니다."
+msgstr "**내보내기…** 에서 **안내형 내보내기**, **사용자 지정 내보내기** 또는 **밀착 인화 PDFs** 를 사용합니다. 안내 내보내기는 웰, 시야, 배치 및 미리보기를 차례로 진행합니다. 사용자 지정 내보내기에서는 이미지를 페이지 격자로 끌어 놓고 텍스트와 이미지를 배치할 수 있습니다. 캡처된 이미지 표시 설정은 배치된 각 이미지에 속합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "In the canvas, **Save layout…** writes editable JSON; **Open layout…** reopens it. Keep the image files available: a layout is not an archive of their pixels. A saved layout whose captured display cannot be unpacked or lacks required channel, limit or display entries is refused before replacing the current canvas. Missing image files can leave a partially recoverable layout; restore the files and reload their source as needed to recover those images."

@@ -57,7 +57,7 @@ msgstr "在设置中选择显示通道、颜色和归一化。**要编辑的通�
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Use **Export…** for **Guided export**, **Custom export** or **Contact sheet PDFs**. Guided export walks through wells, fields, placement and preview. Custom export lets you drag images onto a page grid and arrange text and images. Captured image display settings belong to each placed image."
-msgstr "使用 **出口...** 进入 **引导式导出**、**自定义导出** 或 **缩略图总览 PDFs**。引导导出依次处理孔位、视野、布局和预览。自定义导出可将图像拖到页面网格中，并排列文字与图像。捕获的图像显示设置分别属于每张已放置图像。"
+msgstr "使用 **导出…** 进入 **引导式导出**、**自定义导出** 或 **缩略图总览 PDFs**。引导导出依次处理孔位、视野、布局和预览。自定义导出可将图像拖到页面网格中，并排列文字与图像。捕获的图像显示设置分别属于每张已放置图像。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "In the canvas, **Save layout…** writes editable JSON; **Open layout…** reopens it. Keep the image files available: a layout is not an archive of their pixels. A saved layout whose captured display cannot be unpacked or lacks required channel, limit or display entries is refused before replacing the current canvas. Missing image files can leave a partially recoverable layout; restore the files and reload their source as needed to recover those images."

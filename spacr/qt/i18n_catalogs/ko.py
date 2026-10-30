@@ -5694,7 +5694,7 @@ UI = {
     'Exported {count} crops to {path}.': '자르기 이미지 {count}개를 {path}에 내보냈습니다.',
     'Exported: {files}': '내보냄: {files}',
     'Exporting displayed crops…': '표시된 자르기 이미지를 내보내는 중…',
-    'Export…': '수출...',
+    'Export…': '내보내기…',
     'External feature table': '외부 특징 테이블',
     'External measurements': '외부 측정값',
     'External measurements and object mappings': '외부 측정값 및 객체 매핑',

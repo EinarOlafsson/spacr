@@ -5695,7 +5695,7 @@ UI = {
     'Exported {count} crops to {path}.': '已将 {count} 张裁剪图导出至 {path}。',
     'Exported: {files}': '已导出：{files}',
     'Exporting displayed crops…': '正在导出显示的裁剪图…',
-    'Export…': '出口...',
+    'Export…': '导出…',
     'External feature table': '外部特征表',
     'External measurements': '外部测量数据',
     'External measurements and object mappings': '外部测量数据和对象映射',
