@@ -592,3 +592,93 @@ def test_header_whitespace_double_click_keeps_the_open_image_and_real_columns_st
     assert view._collapsed_lines() == (set(), set())
     assert view._main_view_field is field and view.view._item.pixmap().toImage() == pixels
     assert {path.name: path.read_bytes() for path in source.glob("*.tif")} == source_bytes
+
+
+def test_cancelled_reference_context_cannot_erase_an_image_while_reopening_prepares_a_new_generation(
+        qtbot, source, monkeypatch):
+    import threading
+
+    original_bytes = {path.name: path.read_bytes() for path in source.glob("*.tif")}
+    dialog = browser._FieldOverview(settings={
+        "source": str(source), "source_scope": "folder", "custom_regex": PATTERN,
+        "channels": (1, 2), "geometry": (2, 3), "representatives": 2,
+        "normalization": {"mode": "reference_average", "reference_kind": "reference_well",
+                          "reference": ("p1", "A01"), "percentiles": (0., 100.)}})
+    qtbot.addWidget(dialog, before_close_func=lambda widget: _retire(widget, qtbot))
+    dialog.resize(1300, 950)
+    dialog.show()
+    dialog._scan()
+    qtbot.waitUntil(lambda: dialog._normalization_ready and not dialog._index_jobs.is_busy(), timeout=15000)
+    dialog.fov_axis.setCurrentIndex(dialog.fov_axis.findData(None))
+    dialog._well(_item(dialog, "A01"))
+    qtbot.waitUntil(lambda: dialog.fields.count() == 2)
+    qtbot.mouseClick(dialog.fields.viewport(), Qt.LeftButton,
+                     pos=dialog.fields.visualItemRect(dialog.fields.item(0)).center())
+    for index in range(dialog.fields.count()):
+        dialog.fields.item(index).setSelected(True)
+    qtbot.waitUntil(lambda: dialog.view._item is not None and not dialog._image_jobs.is_busy()
+                   and not dialog._montage_jobs.is_busy(), timeout=15000)
+    selected = dict(dialog._selected_fields)
+    assert len(selected) == 2
+    pixels = dialog.view._item.pixmap().toImage().copy()
+    old_context, old_cancelled = dialog._normalization_context, dialog._cancelled
+    entered, release = threading.Event(), threading.Event()
+    actual_submit = dialog._index_jobs.submit
+
+    def hold_replacement_prepare(read, done, *args, **kwargs):
+        def actual_prepare():
+            entered.set()
+            if not release.wait(15):
+                raise TimeoutError("the test did not release the real replacement preparation")
+            return read()
+        return actual_submit(actual_prepare, done, *args, **kwargs)
+
+    results = []
+    actual_montage_submit = dialog._montage_jobs.submit
+
+    def record_actual_montage(read, done, *args, **kwargs):
+        def delivered(result):
+            results.append(result)
+            return done(result)
+        return actual_montage_submit(read, delivered, *args, **kwargs)
+
+    monkeypatch.setattr(dialog._index_jobs, "submit", hold_replacement_prepare)
+    monkeypatch.setattr(dialog._montage_jobs, "submit", record_actual_montage)
+    try:
+        next(button for button in dialog._module_action_buttons
+             if button.text() == "Cancel loading or export").click()
+        assert old_cancelled.is_set()
+        dialog.hide()
+        dialog.show()
+        qtbot.waitUntil(entered.is_set, timeout=15000)
+        assert dialog._cancelled is not old_cancelled and not dialog._cancelled.is_set()
+        assert dialog._normalization_context is old_context and old_context._cancelled.is_set()
+
+        def compare_selected():
+            dialog._field_menu(dialog.fields, dialog.fields.visualItemRect(dialog.fields.item(0)).center())
+            menu = dialog._image_menu_shown
+            action = next(action for action in menu.actions()
+                          if action.text() == "Compare selected fields")
+            assert action.isEnabled()
+            action.trigger()
+            menu.close()
+
+        compare_selected()
+        qtbot.waitUntil(lambda: bool(results) and not dialog._montage_jobs.is_busy(), timeout=15000)
+        assert results[0][0] is None and results[0][1] == ()
+        assert not dialog._cancelled.is_set()
+        assert dialog.view._item.pixmap().toImage() == pixels
+        assert dialog._selected_fields == selected
+        release.set()
+        qtbot.waitUntil(lambda: dialog._normalization_ready and not dialog._index_jobs.is_busy(), timeout=15000)
+        assert dialog._normalization_context is not old_context
+        compare_selected()
+        qtbot.waitUntil(lambda: any(result[0] is not None for result in results)
+                        and not dialog._montage_jobs.is_busy(), timeout=15000)
+        assert dialog.view._item.pixmap().width() == 512
+        assert dialog.view._item.pixmap().height() == 280
+        assert dialog.status.text() == browser.tr("{count} fields; {errors} unreadable previews.", count=2, errors=0)
+        assert dialog._selected_fields == selected
+        assert {path.name: path.read_bytes() for path in source.glob("*.tif")} == original_bytes
+    finally:
+        release.set()
