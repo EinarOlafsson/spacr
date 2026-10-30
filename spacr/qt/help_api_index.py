@@ -10069,6 +10069,7 @@ API_ENTRIES = (
     ('spacr.qt.widgets.home.TotalsPanel.reset_counts', 'Count from now on, by moving the watermark.'),
     ('spacr.qt.widgets.home._EasyHomePage._choose_navigator_ai.configure', 'Reuse the existing install and sign-in dialog without sending a task.'),
     ('spacr.qt.widgets.home._HeroTextFit._fit.fits', 'Return whether this font pixel size fits the label content rectangle.'),
+    ('spacr.qt.widgets.home._easy_inspect_path_impl._input_identity', 'Identify the selected object without treating content growth as replacement.'),
     ('spacr.qt.widgets.home._scale_text_under.scaled', '``sheet`` with every font-size in it multiplied by ``ratio``.'),
     ('spacr.qt.widgets.home._scale_text_under.scaled.one', 'One ``font-size`` declaration, scaled and floored.'),
     ('spacr.qt.widgets.home.active_palette', 'The palette for the theme that is on screen *right now*.'),
