@@ -223,3 +223,43 @@ def test_measure_retains_only_successful_image_channel_provenance(tmp_path):
         assert row["cell_area"] == np.count_nonzero(image[..., 2] == row["object_label"])
     assert image_path.read_bytes() == image_before
     assert manifest.read_bytes() == manifest_before
+
+
+@pytest.mark.parametrize("with_source_fields", [False, True])
+def test_measure_reads_shared_legacy_originals_without_changing_stacks(
+        tmp_path, with_source_fields):
+    """Legacy multi-file acquisitions remain shared across measured fields."""
+    merged = _write_plate(tmp_path, FIELDS[:2])
+    stacks = {path: path.read_bytes() for path in merged.glob("*.npy")}
+    rows = [{"Renamed TIFF": f"plate1_A01_T0001F{field:03d}L01C01.tif",
+             "Original File(s)": "/raw/acquisition.nd2; /raw/reference.tif"}
+            for field in (1, 2)]
+    rows.append({"Renamed TIFF": "plate1_A01_T0001F003L01C01.tif",
+                 "Original File(s)": " ; ; "})
+    if with_source_fields:
+        for row in rows:
+            row["source_plate"] = "legacy-experiment"
+    manifest = tmp_path / "rename_log.csv"
+    pd.DataFrame(rows).to_csv(manifest, index=False)
+    before = manifest.read_bytes()
+
+    measure.measure_crop(_settings(merged))
+
+    cells = _tables(tmp_path)["cell"]
+    assert len(cells) == 8
+    assert set(cells.prcf) == {"plate1_r1_c1_f1", "plate1_r1_c1_f2"}
+    assert cells.original_filename.tolist() == ["acquisition.nd2; reference.tif"] * 8
+    assert cells.original_path.tolist() == ["/raw/acquisition.nd2; /raw/reference.tif"] * 8
+    if with_source_fields:
+        assert cells.original_plate.tolist() == ["legacy-experiment"] * 8
+    else:
+        assert "original_plate" not in cells
+    for path, payload in stacks.items():
+        assert path.read_bytes() == payload
+        labels = np.load(path)[..., 2]
+        field = int(path.stem.rsplit("_", 1)[1])
+        measured = cells[cells.prcf == f"plate1_r1_c1_f{field}"]
+        assert sorted(measured.object_label.tolist()) == [1, 2, 3, 4]
+        for _, row in measured.iterrows():
+            assert row.cell_area == np.count_nonzero(labels == row.object_label)
+    assert manifest.read_bytes() == before

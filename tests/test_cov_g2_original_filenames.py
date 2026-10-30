@@ -117,3 +117,32 @@ def test_a_filename_and_prcf_that_disagree_are_refused(tmp_path):
                           "filename": ["plate1_A01_T0001F002L01A01Z01C01.tif"]})
     with pytest.raises(ValueError, match="Conflicting filename"):
         of.enrich(frame, path)
+
+
+def test_statusless_conversion_preserves_sparse_rows_and_bounds_unmatched_reports(tmp_path):
+    """Legacy maps enrich identifiable rows without inventing missing identities."""
+    mapping = csv_map(tmp_path, [{key: value for key, value in modern().items()
+                                 if key != "status"}])
+    mapping_before = mapping.read_bytes()
+    names = [modern()["target"]] * 3 + [f"unknown-{index}.tif" for index in range(12)]
+    frame = pd.DataFrame({"filename": names, "prcf": [""] * 15,
+                          "prcfo": [""] * 15, "plateID": ["plate1"] * 15,
+                          "area": [index + 0.5 for index in range(15)]},
+                         index=list(range(30, 45)))
+    before = frame.copy(deep=True)
+
+    result, report = of.enrich(frame, mapping)
+
+    pd.testing.assert_frame_equal(result[frame.columns], before)
+    assert result.original_filename.iloc[:3].tolist() == ["sample.tif"] * 3
+    assert result.original_filename.iloc[3:].isna().all()
+    assert result.original_path.iloc[3:].isna().all()
+    assert report["matched_rows"] == 3 and report["unmatched_rows"] == 12
+    assert len(report["unmatched_examples"]) == 10
+    assert [row["filename"] for row in report["unmatched_examples"]] == names[3:13]
+    unrelated = pd.DataFrame({"area": [1.5], "count": [2]})
+    unrelated_before = unrelated.copy(deep=True)
+    with pytest.raises(ValueError, match="No measurement filenames"):
+        of.enrich(unrelated, mapping)
+    pd.testing.assert_frame_equal(unrelated, unrelated_before)
+    assert mapping.read_bytes() == mapping_before
