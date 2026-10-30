@@ -12271,8 +12271,7 @@ class _OverviewWorkspace(QWidget):
             splitter = getattr(owner, name, None)
             if splitter is not None:
                 for pane in panels:
-                    if splitter.pane(pane) is not None:
-                        self._module_panes.append((splitter, pane, splitter.is_collapsed(pane)))
+                    self._module_panes.append((splitter, pane, splitter.is_collapsed(pane)))
         if figures is not None:
             pane = owner._runtime_splitter.pane("Figures")
             self._module_figures = figures, figures.isHidden(), figures.minimumHeight(), pane.minimum, pane.extent
