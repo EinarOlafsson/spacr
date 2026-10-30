@@ -77,3 +77,9 @@ is routing validation, not prediction of the original masks. No new crossover
 is reproduced. The exact cluster revision/environment and original NPZ batch
 remain required to explain a discrepancy specific to that job. Do not close
 this item or report its scientific outcome fixed from these controls alone.
+
+2026-10-30 — Requested broader routing check: all64 four-channel assignments, stale settings and uneven archives; 65 cases/2,922 controlled image-role checks pass.
+Role-specific saved mask IDs and offsets50/100 pass; no source archive mutation or checkpoint crossover was detected.
+Real CPU inference on unchanged pre-fix code: 103 crops per run, separate versus shared cell/nucleus, batches50/50/3, Cellpose4.2.1.1; 618 segmentations.
+All103 pathogen input/mask pairs are pixel-identical before/after filtering; sampled checkpoint tensors stay correct; all206 merged files retain correct raw and role planes.
+This validates the tested fresh serial 2D route, not every backend/runtime or the exact original cluster execution; no universal absence-of-bugs claim or original-case closure.

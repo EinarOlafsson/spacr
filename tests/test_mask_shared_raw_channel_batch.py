@@ -1,6 +1,7 @@
 """Real normalized archives feed each role's checkpoint its own raw channel."""
 import copy
 import json
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -194,3 +195,117 @@ def test_swapped_archive_channels_fail_before_loading_any_role_model(
                         lambda *args, **kwargs: pytest.fail('model resolved before channel validation'))
     with pytest.raises(ValueError, match='Normalized image channels do not match'):
         generator(str(root), settings, 'cell')
+
+
+@pytest.mark.parametrize('raw_channels', [(cell, nucleus, pathogen)
+    for cell in range(4) for nucleus in range(4) for pathogen in range(4)])
+def test_exhaustive_four_channel_role_routing_across_uneven_archives(
+        tmp_path, monkeypatch, raw_channels, archive_counts=(2, 3, 1), batch_size=2, save=False):
+    import types
+
+    from spacr import io
+
+    roles = ('cell', 'nucleus', 'pathogen')
+    folder = tmp_path / 'masks'
+    folder.mkdir()
+    checkpoints = {}
+    for role in roles:
+        path = tmp_path / (role + '.pth')
+        path.write_bytes(('controlled-' + role).encode())
+        checkpoints[role] = str(path)
+    settings = set_default_settings_preprocess_generate_masks(dict(
+        src=str(tmp_path), cell_channel=raw_channels[0], nucleus_channel=raw_channels[1],
+        pathogen_channel=raw_channels[2], organelle_channel=None, number_of_organelles=0,
+        batch_size=batch_size, randomize=False, timelapse=False, plot=False, save=save,
+        verbose=False, n_jobs=1, resume=False, seg_qc=False,
+        **{role + '_model_name': checkpoints[role] for role in roles}))
+    selected = list(dict.fromkeys(settings[key] for key in MASK_CHANNEL_ROLE_ORDER
+                                  if settings.get(key) is not None))
+    rows, cols = np.indices((8, 9))
+    raw_fields = {f'plate1_A01_{field + 1}.npy': np.stack([
+        .0005 * (field + 1) + .1 * channel + .001 * (rows * (channel + 1) + cols)
+        for channel in range(4)], axis=-1).astype(np.float32) for field in range(sum(archive_counts))}
+    filenames = list(raw_fields)
+    archives = []
+    start = 0
+    for archive, count in enumerate(archive_counts):
+        names = filenames[start:start + count]
+        path = folder / f'stack_{archive}_norm.npz'
+        np.savez(path, data=np.stack([raw_fields[name][..., selected] for name in names]),
+                 filenames=np.asarray(names), source_channels=np.asarray(selected, dtype=np.int64))
+        archives.append(str(path))
+        start += count
+    original = {path: Path(path).read_bytes() for path in archives}
+    active, seen = {}, {}
+
+    class Model:
+        def __init__(self, pretrained_model, **kwargs):
+            self.role = next(role for role in roles if checkpoints[role] == pretrained_model)
+            assert self.role == active['role']
+            active['constructed'].append(pretrained_model)
+        def eval(self, x, **kwargs):
+            offset = active['evaluated']
+            expected_names = filenames[offset:offset + len(x)]
+            for image, name in zip(x, expected_names):
+                raw = raw_fields[name]
+                channels = [settings[self.role + '_channel']]
+                if self.role == 'cell' and len(selected) > 1:
+                    channels.append(settings['nucleus_channel'])
+                np.testing.assert_array_equal(image, raw[..., channels])
+                seen.setdefault((active['stale'], self.role), []).append(name)
+            active['eval_lengths'].append(len(x))
+            active['evaluated'] += len(x)
+            masks = [np.zeros(image.shape[:2], np.uint16) for image in x]
+            for mask, name in zip(masks, expected_names):
+                mask[2:5, 2:5] = 1000 * (roles.index(self.role) + 1) + filenames.index(name) + 1
+            return masks, [np.zeros(image.shape[:2]) for image in x], None
+
+    def check_before_filters(masks, intensity_images, settings, object_type, batch_filenames):
+        assert object_type == active['role']
+        for image, name, mask in zip(intensity_images, batch_filenames, masks):
+            channels = [settings[object_type + '_channel']]
+            if object_type == 'cell' and len(selected) > 1:
+                channels.append(settings['nucleus_channel'])
+            np.testing.assert_array_equal(image, raw_fields[name][..., channels])
+            assert mask[2, 2] == 1000 * (roles.index(object_type) + 1) + filenames.index(name) + 1
+            active['filtered'].append(name)
+        return masks
+
+    monkeypatch.setattr(objects, 'cp_models', types.SimpleNamespace(CellposeModel=Model))
+    monkeypatch.setattr(objects, 'merge_split_filter_masks', check_before_filters)
+    monkeypatch.setattr(objects.accelerator, 'is_gpu', lambda: False)
+    monkeypatch.setattr(objects.accelerator, 'cellpose_kwargs', lambda: {'gpu': False})
+    monkeypatch.setattr(objects.gc, 'collect', lambda: 0)
+    monkeypatch.setattr(io, '_create_database', lambda *args, **kwargs: None)
+    monkeypatch.setattr(io, '_save_object_counts_to_database', lambda *args, **kwargs: None)
+    for stale in (False, True):
+        if save and stale:
+            for role in roles:
+                for output in (folder / (role + '_mask_stack')).glob('*.npy'):
+                    output.unlink()
+        for role in roles:
+            worker = copy.deepcopy(settings)
+            if stale:
+                for changed in roles:
+                    worker['cellpose_' + changed + '_channel'] = (worker[changed + '_channel'] + 1) % 4
+            active.update(role=role, stale=stale, evaluated=0, filtered=[], constructed=[], eval_lengths=[])
+            objects.generate_cellpose_masks_sam(str(folder), json.loads(json.dumps(worker)), role,
+                                               batch_paths=archives, run_qc=False)
+            assert active['constructed'] == [checkpoints[role]]
+            assert active['evaluated'] == len(filenames)
+            assert active['filtered'] == filenames
+            assert seen[(stale, role)] == filenames
+            assert active['eval_lengths'] == [min(batch_size, count - offset)
+                for count in archive_counts for offset in range(0, count, batch_size)]
+            if save:
+                for index, name in enumerate(filenames):
+                    mask = np.load(folder / (role + '_mask_stack') / name, allow_pickle=False)
+                    label = 1000 * (roles.index(role) + 1) + index + 1
+                    assert mask[2, 2] == label
+                    np.testing.assert_array_equal(np.unique(mask[mask > 0]), [label])
+    assert all(Path(path).read_bytes() == contents for path, contents in original.items())
+
+
+def test_single_archive_103_fields_keeps_mask_names_across_50_image_offsets(tmp_path, monkeypatch):
+    test_exhaustive_four_channel_role_routing_across_uneven_archives(
+        tmp_path, monkeypatch, (0, 0, 1), archive_counts=(103,), batch_size=50, save=True)
