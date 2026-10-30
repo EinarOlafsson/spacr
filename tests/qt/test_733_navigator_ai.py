@@ -313,6 +313,15 @@ def test_real_stream_thread_delivers_on_gui_and_retires_cleanly(
         assert not page.path_edit.ai.isChecked() and not page.path_edit.ai._busy
         assert page.field.details.toPlainText() == completed_answer
         assert len(prompts) == 1 and not page._ai_retired and page._ai_worker is None
+        details = page.field.details
+        qtbot.mouseClick(details._back, Qt.LeftButton)
+        assert details._forward.isEnabled()
+        page.path_edit.setText('Measure')
+        qtbot.keyClick(page.path_edit, Qt.Key_Return)
+        qtbot.waitUntil(lambda: any(card._key == 'measure' for card in page.field.cards))
+        assert not details._forward.isEnabled()
+        assert details._stream_entry == -1 and len(prompts) == 1
+        assert completed_answer not in details.toPlainText()
         page._cancel_navigator_ai()
         assert not page._ai_retired and page._ai_worker is None
         page.close()

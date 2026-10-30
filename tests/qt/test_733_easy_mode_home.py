@@ -319,6 +319,11 @@ def test_latest_typed_path_wins_after_real_worker_and_gui_stays_responsive(
     try:
         page.accept_paths([str(first)])
         qtbot.waitUntil(entered.is_set, timeout=3000)
+        generation = page._input_generation
+        jobs = page._runner.active_jobs()
+        qtbot.keyClick(page.path_edit, Qt.Key_Return)
+        assert page._input_generation == generation and not page._queued_inspection
+        assert page._runner.active_jobs() == jobs
         page.path_edit.setText(str(second))
         page._schedule_inspection(str(second))
         assert page._requested == str(first) and not page._queued_inspection
@@ -1550,5 +1555,44 @@ def test_nested_regex_preview_keeps_one_filename_and_escaped_headers_are_plain(
         assert page._settings_overrides == {'mask': applied}
         assert requested == []
         assert _bytes(images) == original
+    finally:
+        page.close()
+
+
+def test_spaceout_card_keeps_explicit_keyboard_activation_through_native_resizing(
+        qtbot, qapp, private_ai_profile):
+    from PySide6.QtGui import QMovie
+    from PySide6.QtTest import QSignalSpy
+    from spacr.qt.widgets.home import _EasyHomePage
+
+    preferences, _, _ = private_ai_profile
+    preferences.set_reduce_motion(True)
+    page = _EasyHomePage()
+    qtbot.addWidget(page)
+    page.resize(1000, 800)
+    page.show()
+    commands = QSignalSpy(page.command_requested)
+    modules = QSignalSpy(page.module_requested)
+    try:
+        page.path_edit.setText('Spaceout')
+        qtbot.keyClick(page.path_edit, Qt.Key_Return)
+        qtbot.waitUntil(lambda: bool(page.field.cards))
+        card, = page.field.cards
+        assert card._key == '__easy_command__:Spaceout'
+        assert not card.content.isVisible() and not card.alpha.isVisible()
+        assert card._spaceout_movie.state() == QMovie.NotRunning
+        for width, height in ((340, 650), (1000, 800)):
+            page.resize(width, height)
+            card.setFocus(Qt.TabFocusReason)
+            qapp.processEvents()
+            assert card.hasFocus() and card.geometry() == card._final_rect
+            assert not card.grab().isNull() and not card._spaceout_display.isNull()
+            assert max(card._spaceout_movie.scaledSize().toTuple()) <= 500
+            assert commands.count() == modules.count() == 0
+        qtbot.keyClick(card, Qt.Key_Return)
+        assert commands.count() == 1 and commands.at(0) == ['__easy_command__:Spaceout']
+        assert modules.count() == 0 and page._workflow is None
+        page.hide()
+        assert card._spaceout_movie.state() == QMovie.NotRunning
     finally:
         page.close()
