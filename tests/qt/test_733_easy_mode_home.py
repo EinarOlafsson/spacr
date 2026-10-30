@@ -24,6 +24,37 @@ def _bytes(paths):
     return {str(path): hashlib.sha256(path.read_bytes()).hexdigest() for path in paths}
 
 
+@pytest.fixture(autouse=True)
+def trace_navigator_native_input_jobs(qapp, monkeypatch):
+    """Inherit the public thread trace only inside this module's native input jobs."""
+    import sys
+
+    from spacr.qt.job_runner import JobRunner
+    from spacr.qt.widgets import home
+
+    real_submit = JobRunner.submit
+
+    def traced_submit(runner, fn, *args, **kwargs):
+        if getattr(fn, 'func', None) not in (home._easy_inspect_path, home._easy_validate_regex):
+            return real_submit(runner, fn, *args, **kwargs)
+
+        def traced():
+            previous = sys.gettrace()
+            inherited = threading.gettrace()
+            installed = previous is None and inherited is not None
+            if installed:
+                sys.settrace(inherited)
+            try:
+                return fn()
+            finally:
+                if installed:
+                    sys.settrace(previous)
+
+        return real_submit(runner, traced, *args, **kwargs)
+
+    monkeypatch.setattr(JobRunner, 'submit', traced_submit)
+
+
 @pytest.fixture
 def isolated_input_root(tmp_path):
     root = tmp_path / 'input'
