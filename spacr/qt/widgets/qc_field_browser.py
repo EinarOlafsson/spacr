@@ -7471,8 +7471,7 @@ class _FieldOverview(QWidget):
             hint = block.bar.sizeHint()
             _set_actual_dim(block, "maxh", hint.height() if folded and not side else 16777215)
             _set_actual_dim(block, "maxw", hint.width() if folded and side else 16777215)
-            if self._plates_layout.indexOf(block) >= 0:
-                self._plates_layout.setStretchFactor(block, 0 if folded else 1)
+            self._plates_layout.setStretchFactor(block, 0 if folded else 1)
 
     def _size_plate_container(self):
         """Size the shown plates for their container.
@@ -8201,8 +8200,7 @@ class _FieldOverview(QWidget):
         if panel is not self._well_panel:
             for controls, control in ((self._tile_sliders, panel.tile_slider),
                                       (self._tile_spacing_boxes, panel.tile_spacing)):
-                if control in controls:
-                    controls.remove(control)
+                controls.remove(control)
             panel.setParent(None)
             panel.deleteLater()
         if panel.field_list is not self.fields or not refresh:
@@ -9898,8 +9896,6 @@ class _FieldOverview(QWidget):
         """The header name of plate row or column ``index``, such as ``B`` or ``3``."""
         item = (self.wells.verticalHeaderItem(index) if axis == "row"
                 else self.wells.horizontalHeaderItem(index))
-        if item is None:
-            return str(index + 1)
         name = item.data(Qt.UserRole)
         return str(item.text() if name is None else name)
 
@@ -11580,8 +11576,7 @@ class _FieldOverview(QWidget):
                 while len(self._thumbnail_cache) > _OVERVIEW_THUMBNAIL_CACHE:
                     self._thumbnail_cache.popitem(last=False)
                 self._thumbnail_installs.append((well, key, field, pixels, error, context, ratio))
-            if self._thumbnail_installs:
-                self._install_timer.start(0)
+            self._install_timer.start(0)
         self._thumbnail_jobs.submit(read_thumbnails, done)
 
     def _install_pending_thumbnails(self):
@@ -16587,8 +16582,7 @@ class _OverviewCanvasDrags(_QObject):
         self._armed = True
         self._press[0].setCursor(Qt.DragCopyCursor)
         composer = getattr(self._browser, "_canvas_composer", None)
-        if composer is not None:
-            composer.status.setText(tr("Move the pointer to drag the image onto the canvas."))
+        composer.status.setText(tr("Move the pointer to drag the image onto the canvas."))
 
     def _disarm(self):
         """Forget the press and restore the cursor."""
@@ -17298,8 +17292,7 @@ class _OverviewGuidedExport(QDialog):
         if mode == "condition":
             for row in range(self.conditions.count()):
                 item = self.conditions.item(row)
-                if item.flags() & Qt.ItemIsUserCheckable:
-                    item.setCheckState(Qt.Checked if item.data(Qt.UserRole) in wanted else Qt.Unchecked)
+                item.setCheckState(Qt.Checked if item.data(Qt.UserRole) in wanted else Qt.Unchecked)
         elif mode == "wells":
             for row in range(self.well_list.count()):
                 item = self.well_list.item(row)
