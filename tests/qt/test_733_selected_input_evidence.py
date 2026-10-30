@@ -876,7 +876,9 @@ def test_selected_tiff_replaced_after_real_header_classification_cannot_publish_
     assert decodes == []
 
 
-def test_canonical_child_replaced_by_a_foreign_symlink_cannot_supply_home_provenance(tmp_path, monkeypatch):
+@pytest.mark.parametrize('mutation_stage', ['after-real-scandir', 'after-real-regex-evidence'])
+def test_canonical_child_replaced_by_a_foreign_symlink_cannot_supply_home_provenance(
+        tmp_path, monkeypatch, mutation_stage):
     from collections.abc import Mapping
     import stat
 
@@ -943,7 +945,8 @@ def test_canonical_child_replaced_by_a_foreign_symlink_cannot_supply_home_proven
 
         def __exit__(self, *args):
             outcome = self.iterator.__exit__(*args)
-            if active and active[-1] == root and self.path == root and not replaced:
+            if (mutation_stage == 'after-real-scandir' and active and active[-1] == root
+                    and self.path == root and not replaced):
                 child.rename(archive)
                 child.symlink_to(foreign, target_is_directory=True)
                 replaced.append(child)
@@ -952,9 +955,27 @@ def test_canonical_child_replaced_by_a_foreign_symlink_cannot_supply_home_proven
         def close(self):
             self.iterator.close()
 
+    regex_evidence = home._easy_regex_evidence
+    late_discovery = []
+
+    def replace_after_real_discovery(*args, **kwargs):
+        actual = regex_evidence(*args, **kwargs)
+        late_discovery.append(True)
+        if mutation_stage == 'after-real-regex-evidence':
+            assert child.is_dir() and not child.is_symlink() and not replaced
+            child.rename(archive)
+            child.symlink_to(foreign, target_is_directory=True)
+            replaced.append(child)
+        return actual
+
     monkeypatch.setattr(home, '_easy_generated_sample', observed_generated_sample)
     monkeypatch.setattr(home.os, 'scandir', ScannedDirectory)
+    monkeypatch.setattr(home, '_easy_regex_evidence', replace_after_real_discovery)
     result = home._easy_inspect_path(str(root))
+    assert bool(late_discovery) == (mutation_stage == 'after-real-regex-evidence')
+    if mutation_stage == 'after-real-regex-evidence':
+        assert result['actions'] == []
+        assert 'context' not in result and 'settings_overrides' not in result
     assert root in sampled_roots and replaced == [child] and child.is_symlink()
     identity = root.lstat()
     assert (identity.st_dev, identity.st_ino, stat.S_IFMT(identity.st_mode)) == initial_identity
