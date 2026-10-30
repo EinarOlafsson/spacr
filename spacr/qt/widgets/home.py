@@ -2824,8 +2824,7 @@ class HomePage(QWidget):
             make_transparent(*tabs.findChildren(QStackedWidget))
             for i in range(tabs.count()):
                 page = tabs.widget(i)
-                if page is not None:
-                    make_transparent(page)
+                make_transparent(page)
         layout = self.layout()
         if layout is not None and layout.count():
             item = layout.itemAt(0)
@@ -4378,9 +4377,6 @@ def _easy_local_sample(path, sample_limit=100):
                     queue.append((candidate, False))
         except OSError:
             unreadable += 1
-        if not entries_left:
-            limited = True
-            break
     return files, tuple(sorted(seen_dirs)), unreadable, limited or bool(queue)
 
 
