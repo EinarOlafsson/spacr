@@ -196,6 +196,7 @@ def test_detector_boxes_on_a_gpu_are_copied_to_the_host(monkeypatch):
 def test_figure_crops_reuse_one_segmenter_without_reusing_predictions(tmp_path, monkeypatch):
     """Two paper crops share model setup while retaining their own pixels and masks."""
     from copy import deepcopy
+    import inspect
 
     import cellpose.models
     from spacr import plaque_papers
@@ -205,7 +206,9 @@ def test_figure_crops_reuse_one_segmenter_without_reusing_predictions(tmp_path, 
 
     checkpoint = tmp_path / 'chosen.CP_model'
     checkpoint.write_bytes(b'model-construction boundary')
-    constructed, received, factories = [], [], []
+    constructed, received, factories, installed_calls = [], [], [], []
+    declared_parameters = inspect.signature(_DiskModel.eval).parameters
+    installed_signature = inspect.signature(cellpose.models.CellposeModel.eval)
 
     class Model(_DiskModel):
         """Use the existing CPU eval contract behind a recorded model constructor."""
@@ -225,8 +228,12 @@ def test_figure_crops_reuse_one_segmenter_without_reusing_predictions(tmp_path, 
             options = eval_arguments(locals(), image_parameter='image')
             check_cellpose_eval_call(image, channel_axis)
             received.append(np.asarray(image).copy())
-            return super().eval(image, **{name: options[name]
-                                          for name in CELLPOSE_EVAL_PARAMETERS})
+            named = {name: options[name] for name in declared_parameters
+                     if name not in {'self', 'x'}}
+            bound = installed_signature.bind(self, image, **named)
+            bound.apply_defaults()
+            installed_calls.append(bound.arguments.copy())
+            return super().eval(image, **named)
 
     monkeypatch.setattr(cellpose.models, 'CellposeModel', Model)
     real_factory = plaque_papers._cellpose_segmenter
@@ -272,5 +279,11 @@ def test_figure_crops_reuse_one_segmenter_without_reusing_predictions(tmp_path, 
         assert set(metrics) == {3} and metrics[3]['cell_probability_mean'] == 2
     assert first[0].shape != second[0].shape
     assert not np.shares_memory(first[0], second[0])
+    assert len(installed_calls) == 2
+    for arguments in installed_calls:
+        assert {name: arguments[name] for name in CELLPOSE_EVAL_PARAMETERS
+                if name not in declared_parameters} == {
+                    name: default for name, default in CELLPOSE_EVAL_PARAMETERS.items()
+                    if name not in declared_parameters}
     assert settings == original_settings
     assert checkpoint.read_bytes() == b'model-construction boundary'
