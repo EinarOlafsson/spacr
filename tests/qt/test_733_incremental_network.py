@@ -147,6 +147,7 @@ def test_immediate_back_before_first_animation_tick_restores_search(
 
 def test_packaged_helper_root_rejects_return_edges_and_revisits_shared_children(
         qtbot, private_ai_profile):
+    from PySide6.QtWidgets import QAbstractItemView
     from spacr.qt.widgets.home import _EasyHomePage
 
     preferences, _, _ = private_ai_profile
@@ -174,10 +175,12 @@ def test_packaged_helper_root_rejects_return_edges_and_revisits_shared_children(
             graph.tools.showPopup()
             view = graph.tools.view()
             item = graph.tools.model().index(index, 0)
-            view.scrollTo(item)
+            qtbot.waitUntil(view.isVisible)
+            view.doItemsLayout()
+            view.scrollTo(item, QAbstractItemView.PositionAtCenter)
             qtbot.waitUntil(lambda: view.viewport().rect().contains(view.visualRect(item).center()))
             qtbot.mouseClick(view.viewport(), Qt.LeftButton, pos=view.visualRect(item).center())
-            qtbot.waitUntil(lambda: graph._chosen_key == key)
+            qtbot.waitUntil(lambda: not view.isVisible() and graph._chosen_key == key)
             pairs = [(record['from'], record['to']) for record in graph.view._visible_records]
             assert len(pairs) == len(set(pairs))
             assert all(source != target and target != 'run_history' for source, target in pairs)

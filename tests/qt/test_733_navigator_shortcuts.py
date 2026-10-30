@@ -61,6 +61,11 @@ def test_all_localized_shortcut_nouns_and_actions_keep_the_same_targets(monkeypa
         for phrase in phrases:
             assert app._easy_shortcut_match(phrase) == command, (locale, command, phrase)
             assert app._easy_shortcut_match(phrase.upper() + '!') == command
+    if locale == 'de':
+        assert app._easy_shortcut_match('Protokolle') == 'logs'
+        assert app._easy_shortcut_match('Analyseanleitung') == 'protocols'
+        assert app._easy_shortcut_match('Analyseanleitungen') == 'protocols'
+        assert app._easy_shortcut_match('Protocols', explicit=True) == 'protocols'
 
 
 @pytest.mark.parametrize('key,phrase', [('__easy_command__:Spaceout', 'Spaceout'), ('parascape', 'ParaScape')])

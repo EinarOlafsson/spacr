@@ -2726,7 +2726,7 @@ _EASY_SHORTCUT_LOCALIZED = {'sv': {'updater': ('uppdateringar', 'sök efter uppd
 _EASY_SHORTCUT_ENGLISH['protocols'] = ('protocol', 'protocols', 'walkthrough', 'walkthroughs', 'software protocol', 'software protocols')
 for _protocol_language, _protocol_phrases in {
     'sv': ('protokoll', 'arbetsgångar'),
-    'de': ('Protokoll', 'Protokolle'),
+    'de': ('Analyseanleitung', 'Analyseanleitungen'),
     'es': ('protocolo', 'protocolos'),
     'pt': ('protocolo', 'protocolos'),
     'fr': ('protocole', 'protocoles'),
@@ -2773,6 +2773,7 @@ def _easy_shortcut_titles():
 def _easy_shortcut_match(value, explicit=False):
     """Resolve bounded command input independently of real filesystem names."""
     import re
+    from operator import itemgetter
 
     text = str(value).strip()
     wanted = _easy_command_text(text)
@@ -2785,7 +2786,7 @@ def _easy_shortcut_match(value, explicit=False):
     matches = [(len(phrase.replace(' ', '')), command)
                for command, phrase in _easy_shortcut_aliases(current_language())
                if _easy_phrase_matches(wanted, phrase)]
-    return max(matches)[1] if matches else None
+    return max(matches, key=itemgetter(0))[1] if matches else None
 
 
 @functools.lru_cache(maxsize=16)

@@ -207,11 +207,12 @@ def test_segmentation_aliases_preserve_existing_visibility_gates(qtbot, commands
 
 
 def test_named_fold_uses_actual_list_opener_and_returns_child(commands, monkeypatch):
-    from spacr.qt.screens.map_barcodes import FoldOpener
+    from spacr.qt.screens.map_barcodes import FoldOpener, page_fold_host
 
     child = QWidget(commands)
     host = QWidget(commands)
-    opener = FoldOpener(host, "graph_builder", lambda parent: child)
+    assert page_fold_host('ops') == 'mask'
+    opener = FoldOpener(host, "ops", lambda parent: child)
     opened = []
     monkeypatch.setattr(opener, "open", lambda: opened.append(True) or child)
     host._fold_openers = [opener]
@@ -219,10 +220,14 @@ def test_named_fold_uses_actual_list_opener_and_returns_child(commands, monkeypa
     monkeypatch.setattr(app, "app_is_visible", lambda key: True)
     commands._screens = {"mask": host}
     commands.open_module = commands.opened.append
-    result = app.MainWindow._open_easy_named_module(commands, "graph_builder")
+    result = app.MainWindow._open_easy_named_module(commands, "ops")
     assert commands.opened == ["mask"]
     assert opened == [True]
     assert result is child
+    standalone = QWidget(commands)
+    commands._screens['graph_builder'] = standalone
+    assert app.MainWindow._open_easy_named_module(commands, 'graph_builder') is standalone
+    assert commands.opened == ['mask', 'graph_builder'] and opened == [True]
 
 
 @pytest.mark.parametrize("key,dimension", [("timelapse", "t"), ("3d", "z")])
