@@ -19,7 +19,8 @@ def locale(request, monkeypatch):
     targets = {}
     for filename in ("2026-09-22-lock-levels-parascape-controls.json",
                      "2026-09-22-shared-ruler.json",
-                     "2026-09-24-release-captions.json"):
+                     "2026-09-24-release-captions.json",
+                     "2026-10-29-protocol-tree-parascape.json"):
         payload = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
                               filename).read_text(encoding="utf-8"))
         targets.update({row["source"]: row["translation"] for row in payload["records"]})
@@ -37,8 +38,10 @@ def test_installer_controls_and_callback_prefixes_are_localized(qtbot, tmp_path,
     assert dialog.browse.text() == targets["Choose checkout…"]
     assert dialog.status.text() == targets["Ready to install when you choose Install and open."]
     assert str(tmp_path / "parascape") in dialog.explanation.text()
-    explanation = next(source for source in targets
-                       if source.startswith('ParaScape is an alpha application'))
+    explanations = [source for source in targets
+                    if source.startswith('ParaScape is an alpha application')]
+    assert len(explanations) == 1
+    explanation, = explanations
     assert dialog.explanation.text() == targets[explanation].format(path=str(tmp_path / 'parascape'))
     assert '12 GB' in dialog.explanation.text()
     assert '4 GB' not in dialog.explanation.text() and '7 GB' not in dialog.explanation.text()
