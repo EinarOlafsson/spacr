@@ -77,24 +77,48 @@ def test_sheeting_a_window_reads_the_font_scale_once(qtbot, monkeypatch, parked_
 
 
 def test_the_pinned_scale_makes_sheeting_cheaper(qtbot, monkeypatch, parked_sheet):
-    """Compare warmed restyles in both orders on the same window.
+    """Compare real warmed restyles, not identical-QSS setter no-ops.
 
-    Measuring every pinned restyle before every unpinned one couples the
-    mode to changes in Qt caches and host load. Both modes get a warm-up,
-    then alternate which goes first; the fastest complete restyle still
-    has to be cheaper with the pin.
+    Clear the local sheet outside each measured interval so Qt must deliver
+    the next style change. Both modes warm up and alternate their order;
+    preference-read counts prove the measured work and the pin's effect.
     """
     app = parked_sheet
     window = _window_of_close_marks(qtbot, 300)
+    reads = []
+    real_scale = preferences.get_font_scale
+
+    def read_scale():
+        """Observe the real preference access without adding artificial cost."""
+        reads.append(1)
+        return real_scale()
+
+    monkeypatch.setattr(preferences, "get_font_scale", read_scale)
+
+    def restyle():
+        """Time one actual application of the parked sheet from a clean state."""
+        window.setStyleSheet("")
+        QApplication.processEvents()
+        assert window.styleSheet() == ""
+        reads.clear()
+        elapsed = _sheet(app, window)
+        assert window.styleSheet()
+        return elapsed, len(reads)
+
     modes = (theme._font_scale_pinned, contextlib.nullcontext)
     for mode in modes:
         monkeypatch.setattr(theme, "_font_scale_pinned", mode)
-        _sheet(app, window)
+        restyle()
     samples = ([], [])
     for order in ((0, 1), (1, 0)) * 3:
         for index in order:
             monkeypatch.setattr(theme, "_font_scale_pinned", modes[index])
-            samples[index].append(_sheet(app, window))
+            elapsed, count = restyle()
+            if index == 0:
+                assert 1 <= count <= 2, count
+            else:
+                assert count >= 300, count
+            samples[index].append(elapsed)
     pinned, unpinned = (min(values) for values in samples)
     assert pinned < unpinned, (pinned, unpinned)
 

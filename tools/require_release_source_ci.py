@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import re
 import subprocess
+import sys
 import time
 from urllib.parse import quote, urlencode
 
@@ -15,14 +16,31 @@ from urllib.parse import quote, urlencode
 WORKFLOWS = ("tests.yml", "docs.yml", "compat-matrix.yml")
 
 
+def transient_read_failure(error):
+    """Recognize transient GET failures without retrying denied or invalid reads."""
+    if isinstance(error, subprocess.TimeoutExpired):
+        return True
+    detail = error.stderr or error.stdout or ""
+    if isinstance(detail, bytes):
+        detail = detail.decode("utf-8", errors="replace")
+    status = re.search(r"\bHTTP(?:/\S+)?\s+(\d{3})\b", detail)
+    if status:
+        return int(status[1]) in {408, 429, 500, 502, 503, 504}
+    return any(message in detail.lower() for message in (
+        "error connecting to api.github.com", "connection reset by peer",
+        "tls handshake timeout", "i/o timeout", "unexpected eof",
+        "temporary failure in name resolution", "connection timed out"))
+
+
 class GitHub:
     """Bounded GitHub requests; a failed dispatch is never retried."""
 
-    def __init__(self, repository):
+    def __init__(self, repository, *, sleep=time.sleep):
         if not re.fullmatch(r"[\w.-]+/[\w.-]+", repository):
             raise ValueError("Expected an owner/repository")
         self.prefix = f"repos/{repository}"
         self.attempt_cache = {}
+        self.sleep = sleep
 
     def request(self, path, payload=None):
         command = ["gh", "api", self.prefix + path]
@@ -30,9 +48,21 @@ class GitHub:
         if payload is not None:
             command += ["--method", "POST", "--input", "-"]
             data = json.dumps(payload)
-        result = subprocess.run(command, input=data, capture_output=True,
-                                text=True, check=True, timeout=60)
-        return json.loads(result.stdout) if result.stdout.strip() else None
+        for attempt in range(3):
+            try:
+                result = subprocess.run(command, input=data, capture_output=True,
+                                        text=True, check=True, timeout=60)
+            except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as error:
+                if payload is not None or attempt == 2 or not transient_read_failure(error):
+                    detail = getattr(error, "stderr", None) or str(error)
+                    print(f"GitHub request failed for {path}: {detail}", file=sys.stderr, flush=True)
+                    raise
+                delay = 2 ** attempt
+                print(f"Transient GitHub read failure for {path}; retrying in {delay}s",
+                      file=sys.stderr, flush=True)
+                self.sleep(delay)
+                continue
+            return json.loads(result.stdout) if result.stdout.strip() else None
 
     def pages(self, path, key, query=None):
         values = []

@@ -654,8 +654,16 @@ class TestFilingAnIssueAboutTheLastError:
         from spacr.qt.ai import issue_report
 
         said = []
+        failures = []
+
+        def display_failure(text):
+            failures.append(text)
+            said.append((text, {}))
+
         screen._console = types.SimpleNamespace(
-            append_notice=lambda text, **kwargs: said.append((text, kwargs)))
+            append_notice=lambda text, **kwargs: said.append((text, kwargs)),
+            _display_error=display_failure,
+            append_error=lambda text: pytest.fail('report failure was captured again'))
         screen._last_error_text = "Traceback: cellpose exploded"
         monkeypatch.setattr(preferences, "get_issue_prompt_mode",
                             lambda: "ask")
@@ -669,6 +677,7 @@ class TestFilingAnIssueAboutTheLastError:
         screen._on_file_issue()
 
         assert any("auto-file failed" in text for text, _ in said)
+        assert failures == ['[issue] auto-file failed: the panel is half built\n']
 
 
 class TestBuildingTheResultsSideOfTheScreen:

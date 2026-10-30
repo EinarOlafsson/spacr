@@ -852,7 +852,11 @@ def test_retired_mounted_callbacks_cannot_change_the_replacement_browser_or_canv
     next(button for button in composer.findChildren(QPushButton)
          if button.text() == browser.tr("Add selected")).click()
     qtbot.waitUntil(lambda: not composer._preview_jobs.is_busy()
-                    and len(composer.canvas.pages[0]) == 2, timeout=15000)
+                    and len(composer.canvas.pages[0]) == 2
+                    and all(box.get("aspect") == 600 / 400 for box in composer.canvas.pages[0]),
+                    timeout=15000)
+    assert all(box["h"] == pytest.approx(box["w"] * 400 / 600)
+               for box in composer.canvas.pages[0])
     layout = copy.deepcopy(composer.canvas.to_dict())
     pixels = [composer._reader()(box, None).copy() for box in composer.canvas.pages[0]]
     settings = copy.deepcopy(tab._settings_model.collect())

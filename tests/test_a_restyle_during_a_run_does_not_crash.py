@@ -143,21 +143,51 @@ class _FigureThatRecordsItsDraws:
         raise RuntimeError("far enough: the draw was allowed to begin")
 
 
-def test_the_preview_draw_holds_the_lock_too():
-    """The style dialog DRAWS while a control moves, not only recolours.
-
-    `_render_preview` rasterises the figure and `_render_preview_async`
-    pickles it, both on the GUI thread and both over the same Figure a run's
-    worker may be rendering — `bridge._capture_show` re-renders any figure
-    marked `_spacr_live_update` for as long as the fit lasts. A draw racing a
-    draw is the same C-layer race as a draw racing a recolour.
-    """
-    import inspect
-
+@pytest.fixture
+def native_preview(qtbot):
+    """A real raster-backed queue with one editable, named Figure."""
+    from matplotlib.figure import Figure
     from spacr.qt.widgets.figure_queue import FigureQueue
 
-    for fn in (FigureQueue._render_preview, FigureQueue._render_preview_async):
-        assert "with FIGURE_LOCK" in inspect.getsource(fn), fn.__name__
+    queue = FigureQueue()
+    qtbot.addWidget(queue)
+    queue.set_live_canvas_enabled(False)
+    figure = Figure(figsize=(2, 2), label="locked-preview")
+    queue.add_figure(figure)
+    live = queue.figure_for(0)
+    return queue, live
+
+
+@pytest.mark.qt
+def test_the_preview_draw_holds_the_lock_too(qtbot, native_preview, monkeypatch):
+    """A real snapshot excludes competing workers throughout serialization."""
+    import pickle
+
+    queue, live = native_preview
+    live.set_facecolor("#345678")
+    competing_acquisitions = []
+    original_dumps = pickle.dumps
+
+    def observe_copy(value, *args, **kwargs):
+        if value is live:
+            def compete():
+                acquired = FIGURE_LOCK.acquire(blocking=False)
+                competing_acquisitions.append(acquired)
+                if acquired:
+                    FIGURE_LOCK.release()
+            contender = threading.Thread(target=compete)
+            contender.start()
+            contender.join(2)
+        return original_dumps(value, *args, **kwargs)
+
+    monkeypatch.setattr(pickle, "dumps", observe_copy)
+    assert queue.refresh_current_figure(preview=True)
+    qtbot.waitUntil(lambda: not queue._preview_busy, timeout=10000)
+    assert competing_acquisitions == [False]
+    assert queue._preview_seq == 1
+    picture = queue._view.picture()
+    assert picture is not None and not picture.isNull()
+    assert picture.toImage().pixelColor(0, 0).name() == "#345678"
 
 
 def test_a_preview_render_waits_for_a_worker_render(tmp_path):
@@ -181,36 +211,51 @@ def test_a_preview_render_waits_for_a_worker_render(tmp_path):
     assert fig.drawn.is_set(), "the preview never drew after the lock was free"
 
 
-def test_copying_a_figure_for_the_preview_worker_waits_too(tmp_path):
-    """`pickle.dumps` walks the whole Figure, so it is a draw-shaped read."""
-    from spacr.qt.widgets.figure_queue import FigureQueue
+@pytest.mark.qt
+def test_copying_a_figure_for_the_preview_worker_waits_too(
+        qtbot, native_preview, monkeypatch):
+    """Snapshotting waits for ownership while Qt events and later requests proceed."""
+    import pickle
+    from matplotlib.backends.backend_agg import FigureCanvasAgg
+    from PySide6.QtCore import QTimer
 
-    submitted = threading.Event()
-    queue = types.SimpleNamespace(
-        PREVIEW_MAX_PX=FigureQueue.PREVIEW_MAX_PX,
-        _preview_busy=False,
-        _preview_pending=False,
-        _preview_seq=0,
-        _current=0,
-        _preview_target_px=lambda: 800.0,
-        _on_preview_rendered=lambda payload: None,
-        _jobs=types.SimpleNamespace(
-            submit=lambda work, done: submitted.set()),
-    )
-    start = FigureQueue._render_preview_async.__get__(queue, FigureQueue)
+    queue, live = native_preview
+    gui_thread = threading.get_ident()
+    copied, drawn, pulses = [], [], []
+    original_dumps, original_draw = pickle.dumps, FigureCanvasAgg.draw
 
-    fig = plt.figure()
-    fig.add_subplot(111).plot([0, 1], [0, 1])
+    def observe_copy(value, *args, **kwargs):
+        if value is live:
+            copied.append(threading.get_ident())
+        return original_dumps(value, *args, **kwargs)
+
+    def observe_draw(canvas, *args, **kwargs):
+        if canvas.figure.get_label() == "locked-preview":
+            drawn.append(threading.get_ident())
+        return original_draw(canvas, *args, **kwargs)
+
+    monkeypatch.setattr(pickle, "dumps", observe_copy)
+    monkeypatch.setattr(FigureCanvasAgg, "draw", observe_draw)
+    release = _hold_the_lock()
     try:
-        release = _hold_the_lock()
-        caller = threading.Thread(target=start, args=(fig,))
-        caller.start()
-        try:
-            assert not submitted.wait(0.4), (
-                "the figure was copied while another thread held it")
-        finally:
-            release()
-        caller.join(10)
-        assert submitted.is_set(), "the copy never happened once the lock was free"
+        live.set_facecolor("#123456")
+        assert queue.refresh_current_figure(preview=True)
+        live.set_facecolor("#2468ac")
+        assert queue.refresh_current_figure(preview=True)
+        QTimer.singleShot(0, lambda: pulses.append(threading.get_ident()))
+        qtbot.waitUntil(lambda: bool(pulses), timeout=1000)
+        assert pulses == [gui_thread]
+        assert copied == [] and drawn == []
+        assert queue._preview_seq == 0
     finally:
-        plt.close(fig)
+        release()
+    qtbot.waitUntil(lambda: not queue._preview_busy, timeout=10000)
+    assert copied == [gui_thread]
+    assert drawn and all(thread != gui_thread for thread in drawn)
+    assert queue._preview_seq == 1
+    picture = queue._view.picture()
+    assert picture is not None and not picture.isNull()
+    assert picture.toImage().pixelColor(0, 0).name() == "#2468ac"
+    queue.close()
+    assert not queue._preview_busy and not queue._preview_pending
+    assert not queue._jobs.is_busy()

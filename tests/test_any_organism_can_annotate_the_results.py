@@ -14,13 +14,16 @@ the other parasites that come up beside them.
 
 THE DEFAULT MUST NOT REACH THE NETWORK. Everything about the bundled path
 is unchanged, and the tests that need UniProt say so and are skipped
-without it. The two things that had to be right are checked offline:
-resolution, and the promise that the default is still the bundled tables.
+without it. Resolution, the bundled default and a representative accession
+TSV through the real query/parser/cache path are checked offline.
 """
 from __future__ import annotations
 
 import os
 import socket
+from functools import lru_cache
+from io import BytesIO
+from urllib.parse import parse_qs, urlsplit
 
 import pandas as pd
 import pytest
@@ -29,6 +32,7 @@ from spacr.uniprot import (ACCESSION, BUNDLED_NAMES, ORGANISMS, Resolution,
                            near_misses, resolve)
 
 
+@lru_cache(maxsize=1)
 def _has_network() -> bool:
     """UniProt answers a one-entry search, not merely accepts a socket.
 
@@ -48,7 +52,7 @@ def _has_network() -> bool:
 
 
 needs_uniprot = pytest.mark.skipif(
-    not _has_network(), reason="UniProt is not reachable from here")
+    "not _has_network()", reason="UniProt is not reachable from here")
 
 
 # ---------------------------------------------------------------------------
@@ -183,15 +187,42 @@ def test_a_real_organism_comes_back_with_entries(tmp_path, name):
     assert "Entry" in frame.columns
 
 
-@needs_uniprot
-def test_a_real_accession_comes_back_as_one_entry(tmp_path):
-    from spacr.uniprot import annotation_for
+def test_a_real_accession_comes_back_as_one_entry(tmp_path, monkeypatch):
+    """Replay representative UniProt P04637 content through the real transport/parser/cache.
 
-    frame, _note = annotation_for("P04637", cache_dir=str(tmp_path))
+    The record is a TSV excerpt, not a recorded HTTP response or an
+    availability test: https://www.uniprot.org/uniprotkb/P04637/entry.
+    """
+    import spacr.uniprot as U
+
+    payload = ("Entry\tEntry Name\tProtein names\tGene Names\tOrganism\tLength\n"
+               "P04637\tP53_HUMAN\tCellular tumor antigen p53\tTP53\tHomo sapiens (Human)\t393\n")
+    requests = []
+
+    def accession_response(request, timeout):
+        url = urlsplit(request.full_url)
+        assert url.scheme == "https" and url.netloc == "rest.uniprot.org"
+        assert url.path == "/uniprotkb/search"
+        assert parse_qs(url.query) == {
+            "query": ["accession:P04637"], "size": ["1"],
+            "format": ["tsv"], "fields": [",".join(U.FIELDS)],
+        }
+        assert timeout == U.TIMEOUT
+        requests.append(request.full_url)
+        response = BytesIO(payload.encode("utf-8"))
+        response.headers = {}
+        return response
+
+    monkeypatch.setattr(U.urllib.request, "urlopen", accession_response)
+    frame, _note = U.annotation_for("P04637", cache_dir=str(tmp_path))
 
     assert frame is not None and len(frame) == 1
     assert frame.iloc[0]["Entry"] == "P04637"
     assert "p53" in str(frame.iloc[0]["Protein names"]).lower()
+    again, note = U.annotation_for("P04637", cache_dir=str(tmp_path))
+    pd.testing.assert_frame_equal(again, frame)
+    assert not note
+    assert len(requests) == 1, "the second lookup must use the published cache"
 
 
 @needs_uniprot
