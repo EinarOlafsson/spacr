@@ -876,7 +876,8 @@ def test_selected_tiff_replaced_after_real_header_classification_cannot_publish_
     assert decodes == []
 
 
-@pytest.mark.parametrize('mutation_stage', ['after-real-scandir', 'after-real-regex-evidence'])
+@pytest.mark.parametrize('mutation_stage', [
+    'after-real-local-sample', 'after-real-scandir', 'after-real-regex-evidence'])
 def test_canonical_child_replaced_by_a_foreign_symlink_cannot_supply_home_provenance(
         tmp_path, monkeypatch, mutation_stage):
     from collections.abc import Mapping
@@ -955,6 +956,20 @@ def test_canonical_child_replaced_by_a_foreign_symlink_cannot_supply_home_proven
         def close(self):
             self.iterator.close()
 
+    local_sample = home._easy_local_sample
+
+    def replace_after_real_local_sample(*args, **kwargs):
+        actual = local_sample(*args, **kwargs)
+        assert child in actual[1]
+        assert child.is_dir() and not child.is_symlink() and not replaced
+        child.rename(archive)
+        child.symlink_to(foreign, target_is_directory=True)
+        replaced.append(child)
+        return actual
+
+    if mutation_stage == 'after-real-local-sample':
+        monkeypatch.setattr(home, '_easy_local_sample', replace_after_real_local_sample)
+
     regex_evidence = home._easy_regex_evidence
     late_discovery = []
 
@@ -973,10 +988,14 @@ def test_canonical_child_replaced_by_a_foreign_symlink_cannot_supply_home_proven
     monkeypatch.setattr(home, '_easy_regex_evidence', replace_after_real_discovery)
     result = home._easy_inspect_path(str(root))
     assert bool(late_discovery) == (mutation_stage == 'after-real-regex-evidence')
-    if mutation_stage == 'after-real-regex-evidence':
+    if mutation_stage != 'after-real-scandir':
         assert result['actions'] == []
         assert 'context' not in result and 'settings_overrides' not in result
-    assert root in sampled_roots and replaced == [child] and child.is_symlink()
+    if mutation_stage == 'after-real-local-sample':
+        assert sampled_roots == []
+    else:
+        assert root in sampled_roots
+    assert replaced == [child] and child.is_symlink()
     identity = root.lstat()
     assert (identity.st_dev, identity.st_ino, stat.S_IFMT(identity.st_mode)) == initial_identity
     assert all((archive / path.relative_to(child) if path in own_files else path).read_bytes() == content
