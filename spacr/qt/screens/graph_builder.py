@@ -67,6 +67,7 @@ import pandas as pd
 if TYPE_CHECKING:
     from ..widgets.fold_strip import FoldStrip
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QAction
 from PySide6.QtWidgets import (
     QComboBox,
     QDialog,
@@ -75,6 +76,8 @@ from PySide6.QtWidgets import (
     QInputDialog,
     QLabel,
     QPushButton,
+    QSlider,
+    QMessageBox,
     QVBoxLayout,
     QWidget,
 )
@@ -304,35 +307,46 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
         load_graph = QPushButton("Load chart…", self)
         load_graph.clicked.connect(self.choose_load_chart)
         head.addWidget(load_graph)
-        self._conditions_button = QPushButton(tr("Annotate conditions"), self)
+        self._conditions_button = QAction(tr("Annotate conditions"), self)
         self._conditions_button.setEnabled(False)
-        self._conditions_button.clicked.connect(self.open_condition_dialog)
-        head.addWidget(self._conditions_button)
+        self._conditions_button.triggered.connect(self.open_condition_dialog)
         self._export_table_button = QPushButton(tr("Export table…"), self)
         self._export_table_button.setEnabled(False)
         self._export_table_button.clicked.connect(self.choose_export_table)
         head.addWidget(self._export_table_button)
-        self._save_annotated_button = QPushButton(tr("Save annotated table…"), self)
+        self._save_annotated_button = QAction(tr("Save annotated table…"), self)
         self._save_annotated_button.setEnabled(False)
-        self._save_annotated_button.clicked.connect(self.choose_save_annotated_table)
-        head.addWidget(self._save_annotated_button)
+        self._save_annotated_button.triggered.connect(self.choose_save_annotated_table)
         install_test_data_button(
             self, head, lambda _folder, db: self.load_path(
                 str(db), table=EXAMPLE_TABLE),
             say=self._source.setText)
 
-        self._to_annotate = QPushButton("Open selection in Annotate", self)
+        self._to_annotate = QAction(tr("Open selection in Annotate"), self)
         self._to_annotate.setToolTip(
             "Show the brushed objects as image crops")
-        self._to_annotate.clicked.connect(self._open_selection)
+        self._to_annotate.triggered.connect(self._open_selection)
         self._to_annotate.setEnabled(False)
-        head.addWidget(self._to_annotate)
         outer.addLayout(head)
 
         body = CollapsibleSplitter(Qt.Horizontal, self,
                                    persist_key=f"{APP_KEY}::body")
         self.builder = GraphBuilderPanel(self, link=link, fold_key=APP_KEY)
         body.add_pane(self.builder, "Graph builder", stretch=1)
+        self.builder.canvas._point_limit = self.builder.spec.point_budget
+        self.builder.canvas._canvas._spacr_context_actions = self._selection_menu
+        points = QHBoxLayout()
+        points.addWidget(QLabel(tr("Max points"), self))
+        self._point_limit = QSlider(Qt.Horizontal, self)
+        self._point_limit.setObjectName("GraphMaxPoints")
+        self._point_limit.setRange(1, 1_000_000)
+        self._point_limit.setValue(self.builder.spec.point_budget)
+        self._point_limit.setTracking(False)
+        self._point_limit.valueChanged.connect(self._points_changed)
+        points.addWidget(self._point_limit, 1)
+        self._point_count = QLabel(self)
+        points.addWidget(self._point_count)
+        outer.addLayout(points)
 
         self.filters = DataFilterPanel(self, link=link)
         from ..preferences import scaled_px
@@ -375,6 +389,7 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
             except ValueError as exc:
                 annotation_problem = tr("Saved conditions were not applied: {error}", error=str(exc))
         self._frame = frame
+        self._point_limit.setMaximum(max(1, min(len(frame), 2_147_483_647)))
         self._conditions_button.setEnabled(True)
         self._export_table_button.setEnabled(True)
         self._update_save_annotated_button()
@@ -525,6 +540,50 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
         """
         self._to_annotate.setEnabled(self._has_merge_image_provenance() and
                                      self.builder.canvas.selected_count() > 0)
+        data = self.builder.canvas.render_data
+        if data is not None:
+            blocked = self._point_limit.blockSignals(True)
+            self._point_limit.setValue(self.builder.canvas._point_limit)
+            self._point_limit.blockSignals(blocked)
+            self._point_count.setText(tr("Displayed {shown} of {total} points (maximum {limit}).",
+                                         shown=data.n_shown, total=data.n_total,
+                                         limit=self._point_limit.value()))
+
+    def _points_changed(self, value):
+        """Schedule one redraw with the requested display cap."""
+        from dataclasses import replace
+        canvas = self.builder.canvas
+        canvas._point_limit = value
+        canvas.set_spec(replace(canvas.spec, point_budget=value), immediate=False)
+
+    def _selection_menu(self, menu):
+        """Extend the existing plot menu with source-safe annotation actions."""
+        menu.addSeparator()
+        action = menu.addAction(tr("Annotate selection"))
+        canvas = self.builder.canvas
+        action.setEnabled(canvas._local_selection is not None and canvas.selected_count() > 0)
+        action.triggered.connect(self._annotate_selected)
+        menu.addAction(self._conditions_button)
+        menu.addAction(self._save_annotated_button)
+        menu.addAction(self._to_annotate)
+
+    def _annotate_selected(self):
+        """Label selected displayed rows through the existing annotation recipe."""
+        from ..widgets.condition_annotation_dialog import _annotate_selection
+        canvas = self.builder.canvas
+        positions = canvas._local_selection
+        if positions is not None and canvas.render_data is not None:
+            positions = positions[pd.Index(positions).isin(canvas.render_data.frame.index)]
+        if self._annotation_base_frame is None or positions is None or not len(positions):
+            return
+        base = self._annotation_base_frame
+        source = copy.deepcopy(self._condition_source)
+        definition = _annotate_selection(self, base, source, self._condition_definition, positions)
+        if definition is not None and base is self._annotation_base_frame and source == self._condition_source:
+            try:
+                self.apply_condition_definition(definition)
+            except ValueError as exc:
+                QMessageBox.warning(self, tr("Annotate conditions"), str(exc))
 
     def _open_selection(self) -> None:
         """Send the brushed objects to whatever shows crops.

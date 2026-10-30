@@ -59,6 +59,7 @@ from PySide6.QtWidgets import (
 )
 
 from ...selection import Selection, object_keys
+from ..i18n import tr
 from ..linked_selection import LinkedView
 from ..theme import (RADIUS, SPACING, active_palette, apply_close_mark,
                      font_px, make_transparent, paint_panel,
@@ -707,6 +708,9 @@ class GraphCanvas(LinkedView, QWidget):
         self._kinds: Dict[str, str] = {}
         self._keyed = False
         self._filter_note = ""
+        self._point_limit = None
+        self._point_order = None
+        self._local_selection = None
 
         self._visible: Optional[pd.DataFrame] = None
         self._render_data: Optional[RenderData] = None
@@ -771,7 +775,11 @@ class GraphCanvas(LinkedView, QWidget):
         drawn once, under the spec it is meant for, rather than once under
         the old spec and again under the new one.
         """
+        if self._point_limit is not None and frame is not None:
+            frame = frame.reset_index(drop=True)
         self._frame = frame
+        self._point_order = None
+        self._local_selection = None
         self._kinds = self._spec.kinds_for(frame) if frame is not None else {}
         self._keyed = False
         if frame is not None:
@@ -821,6 +829,10 @@ class GraphCanvas(LinkedView, QWidget):
         :param spec: the chart specification to draw; column kinds are
             recomputed from it for the current table.
         """
+        if self._point_limit is not None:
+            self._point_limit = spec.point_budget
+            if spec.seed != self._spec.seed:
+                self._point_order = None
         self._spec = spec
         if self._frame is not None:
             self._kinds = spec.kinds_for(self._frame)
@@ -904,6 +916,18 @@ class GraphCanvas(LinkedView, QWidget):
             return
 
         self._visible, self._filter_note = self._apply_filter(self._frame)
+        total = len(self._visible)
+        if self._point_limit is not None:
+            if self._spec.resolved_kind(self._kinds) in (SCATTER, LINE):
+                for column in (self._spec.x, self._spec.y):
+                    if column and self._kinds.get(column) == "continuous":
+                        valid = np.isfinite(pd.to_numeric(self._visible[column], errors="coerce"))
+                        self._visible = self._visible.loc[valid]
+            if self._point_order is None or len(self._point_order) != len(self._frame):
+                self._point_order = np.random.default_rng(self._spec.seed).permutation(len(self._frame))
+            order = (self._point_order if len(self._visible) == len(self._frame) else
+                     self._point_order[np.isin(self._point_order, self._visible.index)])
+            self._visible = self._frame.iloc[order[:self._point_limit]]
         spec = self._spec
         kinds = self._kinds
         kind = spec.resolved_kind(kinds)
@@ -920,6 +944,11 @@ class GraphCanvas(LinkedView, QWidget):
             return
 
         data = prepare_data(self._visible, spec, kinds)
+        if self._point_limit is not None:
+            data = RenderData(frame=data.frame, strategy=("sampled" if len(data.frame) < total else "full"),
+                              n_total=total, n_shown=len(data.frame),
+                              notice=tr("Displayed {shown} of {total} points (maximum {limit}).",
+                                        shown=len(data.frame), total=total, limit=self._point_limit))
         grid = facet_grid(data.frame, spec, levels_source=self._visible)
         self._brush_grid = (grid if data.frame is self._visible
                             else facet_grid(self._visible, spec,
@@ -1011,6 +1040,8 @@ class GraphCanvas(LinkedView, QWidget):
         having selected anything, the second is a brush that caught nothing.
         Only the second dims the rest of the chart.
         """
+        if self._point_limit is not None and self._local_selection is not None:
+            return np.asarray(frame.index.isin(self._local_selection))
         selection = self.link.selection
         if not selection.is_active or not self._keyed or frame.empty:
             return None
@@ -1603,6 +1634,20 @@ class GraphCanvas(LinkedView, QWidget):
         """
         self._debounce.start()
 
+    def _redraw_selection(self):
+        """Retain the current view while rebuilding selection highlight artists."""
+        limits = {key: (ax.get_xlim(), ax.get_ylim(), ax.get_xscale(), ax.get_yscale())
+                  for key, ax in self._axes.items()}
+        self.render_now()
+        for key, (xlim, ylim, xscale, yscale) in limits.items():
+            ax = self._axes.get(key)
+            if ax is not None:
+                ax.set_xscale(xscale)
+                ax.set_yscale(yscale)
+                ax.set_xlim(xlim)
+                ax.set_ylim(ylim)
+        self._canvas.draw_idle()
+
     def on_linked_selection_changed(self, selection: Selection) -> None:
         """A selection only highlights — never a row fewer on screen.
 
@@ -1610,10 +1655,11 @@ class GraphCanvas(LinkedView, QWidget):
             directly, and the highlight is recomputed from the current linked
             selection.
         """
+        self._local_selection = None
         if self._render_data is None:
             return
         if not self._live_highlight:
-            self.render_now()
+            self._redraw_selection()
             return
         self._selected_mask = self._selection_mask(self._render_data.frame)
         for (row, col), overlay in self._overlays.items():
@@ -1647,7 +1693,7 @@ class GraphCanvas(LinkedView, QWidget):
             ``None`` when this table carries no object keys to name rows with.
         """
         if (self._visible is None or self._brush_grid is None
-                or not self._keyed):
+                or (not self._keyed and self._point_limit is None)):
             return None
         try:
             panel = self._brush_grid.panel(row, col)
@@ -1657,10 +1703,16 @@ class GraphCanvas(LinkedView, QWidget):
         keep = brush_mask(rows, self._spec, self._kinds,
                           x0, y0, x1, y1, self._scales)
         picked = rows.loc[keep]
+        if self._point_limit is not None and publish:
+            self._local_selection = picked.index.to_numpy(copy=True)
+        if not self._keyed:
+            if publish:
+                self._redraw_selection()
+            return None
         if not publish:
             return Selection.from_frame(picked, source=self.link_source)
         selection = self.publish_selection(picked)
-        self.render_now()
+        self._redraw_selection()
         return selection
 
     def _on_press(self, event) -> None:
@@ -1668,7 +1720,7 @@ class GraphCanvas(LinkedView, QWidget):
 
         :param event: the matplotlib press event.
         """
-        if event.inaxes is None or event.xdata is None:
+        if event.button != 1 or event.inaxes is None or event.xdata is None:
             return
         self._drag_origin = (event.inaxes, float(event.xdata),
                              float(event.ydata))
@@ -1738,7 +1790,9 @@ class GraphCanvas(LinkedView, QWidget):
         width = abs(np.diff(ax.get_xlim())[0]) or 1.0
         height = abs(np.diff(ax.get_ylim())[0]) or 1.0
         if span_x < width * 0.01 and span_y < height * 0.01:
+            self._local_selection = None
             self.clear_linked_selection()
+            self._redraw_selection()
             return
         self.brush(x0, y0, float(event.xdata), float(event.ydata),
                    row=where[0], col=where[1])

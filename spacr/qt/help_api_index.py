@@ -6507,7 +6507,7 @@ API_ENTRIES = (
     ('spacr.qt.screens.gate_editor.GateEditorScreen.active_jobs', 'How many background jobs this screen is running.'),
     ('spacr.qt.screens.gate_editor.GateEditorScreen.align_side_panel', 'Line the Filter / Search page up with the graph and gate table.'),
     ('spacr.qt.screens.gate_editor.GateEditorScreen.annotate_from_gates', 'Label every object from the gates currently shown.'),
-    ('spacr.qt.screens.gate_editor.GateEditorScreen.apply_settings', 'Take new settings, re-reading the table only if one of them needs it.'),
+    ('spacr.qt.screens.gate_editor.GateEditorScreen.apply_settings', 'Apply drawing settings without re-reading the backing table.'),
     ('spacr.qt.screens.gate_editor.GateEditorScreen.ask_axis_cutoffs', 'Ask for the lowest and highest value ``axis`` should show.'),
     ('spacr.qt.screens.gate_editor.GateEditorScreen.axis_column', 'The measurement drawn on ``"x"`` or ``"y"``, or ``""``.'),
     ('spacr.qt.screens.gate_editor.GateEditorScreen.axis_menu_items', 'The axis menu as data, so its CONTENTS can be tested offscreen.'),

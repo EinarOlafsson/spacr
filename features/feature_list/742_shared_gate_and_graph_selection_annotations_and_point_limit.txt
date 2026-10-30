@@ -2,9 +2,9 @@ SHARED GATE AND GRAPH SELECTION ANNOTATIONS AND POINT LIMIT
 =========================================================
 
 Lifecycle: new
-Status: not started — requirements recorded only; implementation not authorized.
+Status: DONE — implemented and validated; this record accompanies nightly publication.
 Requested: maintainer, 2026-10-30.
-Owner: unassigned.
+Owner: Workstation 2 implementation coordinator and retained Gate/localization peers.
 Related: 620 (Graph Builder condition annotations), 39 (Gate Editor annotations).
 
 REQUEST
@@ -31,8 +31,10 @@ REQUIREMENTS
    whether the action applies to displayed selected rows or all underlying
    rows satisfying the gate, and report how many rows will receive the label.
    Do not silently label unselected or hidden rows.
+6. Selection/highlight changes retain user zoom, pan and manual axis limits
+   in Graph Builder (GitHub issue 179); data or axis changes may still rescale.
 
-ACCEPTANCE FOR LATER IMPLEMENTATION
+ACCEPTANCE
 Equivalent Graph Builder selections and Gate Editor gates can be annotated from
 right-click menus; labels persist through the existing save/load/export routes.
 Neither module exposes the replaced annotation button. Slider changes respect
@@ -40,3 +42,9 @@ the cap, use random sampling without duplicate displayed rows, preserve row
 identity and existing data, and remain usable with a large input table.
 
 2026-10-30 — Recorded at the maintainer's request only. Do not implement this item until separately instructed; publish the feature record and normal indexes to nightly.
+
+2026-10-30 — Implementation authorized. Graph and Gate owners implement the shared menu and point-cap behaviour; localization owns only required source-bound runtime captions and normal artifacts. Earlier recording-only hold is superseded.
+
+2026-10-30 — Related GitHub issue 179 added before its fix: selection redraws must retain user axis limits and scale.
+
+2026-10-30 — Shared right-click label assignment, original-row-safe persistence and random-prefix display sliders implemented; Graph selection retains axis limits (issue 179). Thirty-five distinct focused checks pass; normal translation/API artifacts accompany this delivery.

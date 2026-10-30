@@ -2318,6 +2318,9 @@ def _show_canvas_menu(canvas, position):
         open_settings=partial(
             _open_editor, figure, canvas,
             lambda **_k: canvas.draw_idle()))
+    extra = getattr(canvas, "_spacr_context_actions", None)
+    if extra is not None:
+        extra(menu)
     _exec_menu(menu, position)
     return menu
 

@@ -208,3 +208,5 @@ screenshot taken in this pass.
 VERIFIED 2026-10-04: 2 referenced test files pass on nightly (test_gates.py, test_filters.py).
 
 2026-10-30 — New requirements are tracked in item 742: shared Graph/Gate selected-point annotation through the right-click menu, replacing annotation buttons, plus a random-sampled maximum-points slider in both modules. Requirements only; no implementation authorized.
+
+2026-10-30 — Item 742 supersedes the earlier recording-only hold: Graph/Gate selection labeling now shares a plot-context-menu dialog, annotations preserve row identity, and sliders cap randomly sampled displayed points. Existing annotation capabilities remain in the plot menu.

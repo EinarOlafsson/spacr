@@ -14,9 +14,9 @@ object count and its percentage of both its parent gate and the whole table.
 **What it needs.** A measurement table: one table of a ``measurements.db``,
 where the object tables are offered first, or a CSV or TSV file. Several
 databases can be loaded as one table; plate identifiers that collide between
-them are reported rather than silently pooled. Database tables are read as a
-sample set by ``sample_fraction`` and capped by ``max_points``, both in the
-Gate Editor settings. **Merge tables** beside the table picker opens the same
+them are reported rather than silently pooled. The full backing table is retained;
+``sample_fraction`` and ``max_points`` limit only the randomly displayed rows.
+Increasing the point limit retains the existing random subset. **Merge tables** beside the table picker opens the same
 validated default/custom merge workflow as Graph Builder. Name the result,
 inspect row counts, unmatched records and the aggregation preview, then create
 it. Multiple child tables are aggregated independently onto composite image,
@@ -60,6 +60,7 @@ Assembles:
 """
 from __future__ import annotations
 
+import copy
 import json
 import logging
 import os
@@ -67,6 +68,7 @@ from pathlib import Path
 from typing import List, Optional, Tuple
 from .. import _after
 
+import numpy as np
 import pandas as pd
 from PySide6.QtCore import QEvent, Qt, QTimer
 from PySide6.QtWidgets import (
@@ -80,6 +82,7 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QPushButton,
     QScrollArea,
+    QSlider,
     QSizePolicy,
     QTabWidget,
     QVBoxLayout,
@@ -317,6 +320,12 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         super().__init__(parent)
         self.setObjectName("GateEditorScreen")
         self._frame: Optional[pd.DataFrame] = None
+        self._annotation_base_frame = None
+        self._condition_source = None
+        self._condition_definition = None
+        self._condition_definitions = {}
+        self._display_order = np.array([], dtype=int)
+        self._display_positions = np.array([], dtype=int)
         self._path: Optional[str] = None
         self._table: Optional[str] = None
         #: The plan for a multi-database load, or None for a single file.
@@ -413,14 +422,6 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         self._load_filters.clicked.connect(self.choose_load_filters)
         head.addWidget(self._load_filters)
 
-        self._annotate = QPushButton("Annotate…", self)
-        self._annotate.setToolTip(
-            "Write the displayed gates to one annotation column. Binary mode "
-            "marks objects inside all gates; multi-class mode assigns a "
-            "separate class to each observed gate combination.")
-        self._annotate.clicked.connect(self.annotate_from_gates)
-        head.addWidget(self._annotate)
-
         self._export = QPushButton("Export gates…", self)
         self._export.setToolTip(
             "Write every gate to the database as a column of the `filters` "
@@ -441,6 +442,18 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         head.addWidget(self._save_graph)
 
         outer.addLayout(head)
+        point_bar = QHBoxLayout()
+        point_bar.addWidget(QLabel(tr('Max points'), self))
+        self._point_limit = QSlider(Qt.Horizontal, self)
+        self._point_limit.setObjectName('GatePointLimit')
+        self._point_limit.setRange(1, 10000)
+        self._point_limit.setValue(self._settings.max_points or 10000)
+        self._point_limit.setTracking(False)
+        self._point_limit.valueChanged.connect(self._point_limit_changed)
+        point_bar.addWidget(self._point_limit, 1)
+        self._point_count = QLabel(self)
+        point_bar.addWidget(self._point_count)
+        outer.addLayout(point_bar)
 
         self._db_chips = QHBoxLayout()
         self._db_chips.setContentsMargins(0, 0, 0, 0)
@@ -616,7 +629,28 @@ class GateEditorScreen(DerivedTableSource, QWidget):
 
         :param frame: the rows, or None to clear.
         """
+        from ...condition_annotations import annotation_columns, apply_conditions, source_context
+
+        saved = frame.attrs.get('saved_condition_definition')
+        if saved:
+            frame = frame.drop(columns=annotation_columns(saved))
+            self._condition_definitions.setdefault(json.dumps(saved['source'], sort_keys=True), copy.deepcopy(saved))
+        self._annotation_base_frame = frame
+        self._condition_source = source_context(self._path, self._table, frame.attrs.get('merge_definition'))
+        self._condition_definition = None
+        definition = self._condition_definitions.get(json.dumps(self._condition_source, sort_keys=True))
+        if definition:
+            try:
+                frame = apply_conditions(frame, definition, self._condition_source)
+                self._condition_definition = copy.deepcopy(definition)
+            except ValueError as exc:
+                LOG.info('saved conditions not applied: %s', exc)
         self._frame = frame
+        self._display_order = np.random.default_rng().permutation(len(frame))
+        blocked = self._point_limit.blockSignals(True)
+        self._point_limit.setMaximum(max(1, len(frame)))
+        self._point_limit.setValue(min(max(1, self._settings.max_points or len(frame)), max(1, len(frame))))
+        self._point_limit.blockSignals(blocked)
         self._derived_frame_loaded(frame)
         self.formulas.set_frame(frame)
         self._push_frame()
@@ -628,10 +662,105 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         frame = self.formulas.computed_frame()
         if frame is None:
             return
-        self.gates.set_frame(frame)
+        total = len(frame)
+        if len(self._display_order) != total:
+            self._display_order = np.random.default_rng().permutation(total)
+        cap = min(self._point_limit.value(), max(1, int(total * self._settings.sample_fraction)))
+        self._display_positions = self._display_order[:cap]
+        displayed = frame.iloc[self._display_positions].copy()
+        displayed.index = pd.Index(self._display_positions)
+        from dataclasses import replace
+        self.gates.set_spec(replace(self.gates.canvas.spec, point_budget=max(1, len(displayed))))
+        self.gates.set_frame(displayed)
+        self._point_count.setText(tr('Displayed {shown} of {total} points (maximum {limit}).',
+                                    shown=f'{len(displayed):,}', total=f'{total:,}', limit=f'{self._point_limit.value():,}'))
         self.console.set_frame(frame)
         self.filters.set_frame(frame)
         self._refill_axis_pickers(frame)
+
+    def _point_limit_changed(self, value):
+        self._settings = self._settings.replaced(max_points=int(value))
+        self._push_frame()
+
+    def _displayed_population(self):
+        frame = self.gates.canvas.population()
+        if frame is None:
+            return None
+        axes = [('x', self._x.currentText()), ('y', self._y.currentText())]
+        if self.gates.canvas._mode in ('3D', 'xD'):
+            axes.append(('z', self._z.currentText()))
+        for axis, column in axes:
+            if not column or column not in frame:
+                continue
+            values = pd.to_numeric(frame[column], errors='coerce')
+            visible = np.isfinite(values)
+            cutoff = self._cutoffs.get(column)
+            if cutoff.low is not None:
+                visible &= values >= cutoff.low
+            if cutoff.high is not None:
+                visible &= values <= cutoff.high
+            if axis in ('x', 'y') and self._settings.scale_for(axis) == 'log':
+                visible &= values > 0
+            frame = frame.loc[visible]
+        return frame
+
+    def _update_displayed_count(self):
+        frame = self._displayed_population()
+        total = len(self._frame) if self._frame is not None else 0
+        self._point_count.setText(tr('Displayed {shown} of {total} points (maximum {limit}).',
+                                    shown=f'{len(frame) if frame is not None else 0:,}',
+                                    total=f'{total:,}', limit=f'{self._point_limit.value():,}'))
+
+    def _annotate_selection(self):
+        from ...condition_annotations import apply_conditions
+        from ..widgets.condition_annotation_dialog import _annotate_selection
+
+        frame = self._displayed_population()
+        name = self.gates.tree.active_gate()
+        if frame is None or not name or self._annotation_base_frame is None:
+            self._source.setText(tr('Select a gate in the hierarchy first.'))
+            return
+        try:
+            selected = frame.loc[self.gates.gates.mask(frame, name)]
+            positions = selected.index.to_numpy(dtype=int)
+            definition = _annotate_selection(self, self._annotation_base_frame, self._condition_source,
+                                             self._condition_definition, positions)
+            if definition is not None:
+                result = apply_conditions(self._annotation_base_frame, definition, self._condition_source)
+                self._condition_definition = copy.deepcopy(definition)
+                self._condition_definitions[json.dumps(self._condition_source, sort_keys=True)] = copy.deepcopy(definition)
+                self._frame = result
+                self.formulas.set_frame(result)
+                self._push_frame()
+        except (ValueError, GateError) as exc:
+            self._source.setText(str(exc))
+
+    def _save_selected_annotation(self):
+        from PySide6.QtWidgets import QInputDialog
+        from ...condition_annotations import save_annotated_table
+
+        if not self._condition_definition or not self._condition_source.get('path'):
+            return
+        path = self._condition_source['path']
+        if path.lower().endswith(('.csv', '.tsv', '.txt')):
+            return
+        name, accepted = QInputDialog.getText(self, tr('Save annotated table'),
+            tr('New table name (existing tables are preserved)'), text=(self._table or 'table') + '_annotated')
+        if accepted and name.strip():
+            frame, definition, source = self._frame, copy.deepcopy(self._condition_definition), copy.deepcopy(self._condition_source)
+            merge = copy.deepcopy(self._merge_definition)
+            self._jobs.submit(lambda: save_annotated_table(path, name.strip(), frame, definition, source,
+                                                         merge_definition=merge),
+                              lambda saved: self.load_path(path, table=saved))
+
+    def _export_selected_annotation(self):
+        path, _ = QFileDialog.getSaveFileName(self, tr('Export table'), 'annotated-table.csv', tr('Tables (*.csv)'))
+        if path and self._frame is not None:
+            from .graph_builder import GraphBuilderScreen
+            try:
+                GraphBuilderScreen.export_table(self, path)
+            except (OSError, ValueError) as exc:
+                self._source.setText(str(exc))
 
     def _refill_axis_pickers(self, frame: pd.DataFrame) -> None:
         """Repopulate X, Y and Z from a frame's plottable columns.
@@ -674,7 +803,8 @@ class GateEditorScreen(DerivedTableSource, QWidget):
             boxes are re-read either way.
         """
         self.gates.set_spec(GraphSpec(x=self._x.currentText() or None,
-                                      y=self._y.currentText() or None))
+                                      y=self._y.currentText() or None,
+                                      point_budget=max(1, len(self._display_positions))))
 
     def _on_axes_requested(self, x_column: str, y_column: str) -> None:
         """Show the measurements a newly selected gate was drawn on.
@@ -883,8 +1013,8 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         if chosen and (chosen not in self._tables or derived):
             self._tables = [chosen]
             self._rebuild_chips()
-        fraction = self._settings.sample_fraction
-        cap = self._settings.max_points or None
+        fraction = 1.0
+        cap = None
         self._jobs.submit(
             lambda p=path, t=chosen, f=fraction, c=cap: (t, self._read(p, t, f, c)),
             self._on_frame_loaded)
@@ -898,7 +1028,7 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         whole file only to throw four rows in five away would cost more than
         it saves. The row cap still applies to both.
         """
-        if str(path).lower().endswith((".csv", ".tsv", ".txt")) or not table:
+        if (fraction == 1.0 and cap is None) or str(path).lower().endswith((".csv", ".tsv", ".txt")) or not table:
             return read_table(path, table, limit=cap)
         from ...derived_tables import load_definitions
         if table in load_definitions(path):
@@ -932,7 +1062,7 @@ class GateEditorScreen(DerivedTableSource, QWidget):
             tables, paths = list(self._tables), list(self._paths)
             policy = self._merge_policy()
             path = self._path
-            fraction, cap = self._settings.sample_fraction, self._settings.max_points or None
+            fraction, cap = 1.0, None
             labels = self.database_labels() if len(paths) > 1 else []
 
             def work():
@@ -1012,7 +1142,25 @@ class GateEditorScreen(DerivedTableSource, QWidget):
             (None, True, None, ""),
             ("Export gates to the database\u2026", True, self.export_gates, ""),
         ]
+        items.extend(self._annotation_menu_items())
         return items
+
+    def _annotation_menu_items(self):
+        return [
+            (tr('Annotate selection'), self._frame is not None, self._annotate_selection, ''),
+            (tr('Annotate conditions'), self._frame is not None, self.annotate_from_gates, ''),
+            (tr('Save annotated table'), bool(self._condition_definition and self._condition_source and
+                self._condition_source.get('path') and not self._condition_source['path'].lower().endswith(('.csv', '.tsv', '.txt'))),
+                self._save_selected_annotation, ''),
+            (tr('Export table'), self._frame is not None, self._export_selected_annotation, ''),
+        ]
+
+    def _append_annotation_actions(self, menu):
+        menu.addSeparator()
+        for label, enabled, callback, _why in self._annotation_menu_items():
+            action = menu.addAction(label)
+            action.setEnabled(enabled)
+            action.triggered.connect(callback)
 
     def axis_column(self, axis: str) -> str:
         """The measurement drawn on ``"x"`` or ``"y"``, or ``""``.
@@ -1209,6 +1357,9 @@ class GateEditorScreen(DerivedTableSource, QWidget):
     def _narrow_to_cutoffs(self, *_args) -> None:
         """Apply the cutoffs to every panel the canvas has just drawn."""
         canvas = getattr(self.gates, "canvas", None)
+        if canvas is not None:
+            canvas.figure().canvas._spacr_context_actions = self._append_annotation_actions
+            self._update_displayed_count()
         if canvas is None or not self._cutoffs:
             return
         columns = (self.axis_column("x"), self.axis_column("y"))
@@ -1389,18 +1540,17 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         self.apply_settings(self._settings.replaced(**changed))
 
     def apply_settings(self, settings: GateEditorSettings) -> None:
-        """Take new settings, re-reading the table only if one of them needs it.
+        """Apply drawing settings without re-reading the backing table.
 
-        Two settings cost a read -- the sample fraction and the row cap. The
-        rest are drawing, and re-reading a large table because the user
-        nudged a colour map is the lag this dialog exists to remove.
+        Sample fraction and point limit change only the displayed random subset.
+        Increasing its limit retains existing points and adds remaining rows.
 
         :param settings: the complete new
             :class:`~spacr.qt.widgets.gate_settings.GateEditorSettings`; it
             replaces the current settings and is passed to the gate canvas and
             the search panel.
         """
-        previous, self._settings = self._settings, settings
+        self._settings = settings
         if self._settings_dialog is not None:
             self._settings_dialog._settings = settings
             for control, value, setter in ((self._settings_dialog._anchor_density, settings.anchor_density, 'setValue'), (self._settings_dialog._show_anchors, settings.show_anchors, 'setChecked')):
@@ -1411,11 +1561,10 @@ class GateEditorScreen(DerivedTableSource, QWidget):
                     control.blockSignals(blocked)
         self.gates.apply_settings(settings)
         self.search.apply_settings(settings)
-        if previous.costs_a_reload(settings) and self._path:
-            if len(self._tables) > 1:
-                self._reload_working_set()
-            else:
-                self.load_path(self._path, self._table)
+        blocked = self._point_limit.blockSignals(True)
+        self._point_limit.setValue(max(1, settings.max_points or self._point_limit.maximum()))
+        self._point_limit.blockSignals(blocked)
+        self._push_frame()
 
     def reduce_to_components(self) -> Optional[str]:
         """Project every measurement onto components, and gate on those.
@@ -2007,8 +2156,8 @@ class GateEditorScreen(DerivedTableSource, QWidget):
             "merging " + ", ".join(self._tables) + "…"
             if len(self._tables) > 1 else f"loading {self._tables[0]}…")
         tables = list(self._tables)
-        fraction = self._settings.sample_fraction
-        cap = self._settings.max_points or None
+        fraction = 1.0
+        cap = None
         policy = self._merge_policy()
         if len(self._paths) > 1:
             paths = list(self._paths)

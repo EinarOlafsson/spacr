@@ -6,6 +6,7 @@ import csv
 import io
 import json
 import re
+from numbers import Integral
 
 import pandas as pd
 from PySide6.QtCore import (
@@ -43,7 +44,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ...condition_annotations import new_definition, preview, table_identity
+from ...condition_annotations import AnnotationError, new_definition, preview, table_identity
 from ..i18n import tr
 from ..job_runner import JobRunner
 from ..theme import RADIUS, SPACING, register_widget_qss
@@ -66,6 +67,132 @@ register_widget_qss("ConditionAnnotations", _condition_qss, replace=True)
 ROWS_MIME = "application/x-spacr-condition-rows"
 _COLUMN_MIME = "application/x-spacr-annotation-column"
 _PART_MIME = "application/x-spacr-annotation-part"
+
+
+class _SelectionAnnotationDialog(QDialog):
+    """Assign original-frame row tokens without replacing existing annotation rules."""
+
+    def __init__(self, parent, frame, source, definition, positions):
+        super().__init__(parent)
+        self.setWindowTitle(tr("Annotate conditions"))
+        self._frame, self._source = frame, source
+        self._definition = copy.deepcopy(definition)
+        tokens = table_identity(frame)[2]
+        self._tokens = [tokens[position] for position in positions]
+        self.definition = None
+        layout = QVBoxLayout(self)
+        scope = QLabel(tr("Assign a label to {count:,} selected displayed rows only.", count=len(positions)), self)
+        scope.setWordWrap(True)
+        layout.addWidget(scope)
+        self.output_column = QComboBox(self)
+        self.output_column.setEditable(True)
+        columns = (definition.get("columns", []) if definition.get("version") != 1 else
+                   [{"column": definition["column"], "kind": "rules", "conditions": definition["conditions"]}])
+        self.output_column.addItems([entry["column"] for entry in columns if entry.get("kind", "rules") == "rules"])
+        if not self.output_column.count():
+            name, number = "condition", 1
+            occupied = set(frame.columns) | {entry["column"] for entry in columns}
+            while name in occupied:
+                number += 1
+                name = f"condition_{number}"
+            self.output_column.setEditText(name)
+        self.label = QComboBox(self)
+        self.label.setEditable(True)
+        for caption, widget in ((tr("Output column"), self.output_column), (tr("Label"), self.label)):
+            row = QHBoxLayout()
+            row.addWidget(QLabel(caption, self))
+            row.addWidget(widget, 1)
+            layout.addLayout(row)
+        self.status = QLabel(self)
+        self.status.setWordWrap(True)
+        layout.addWidget(self.status)
+        buttons = QHBoxLayout()
+        self.apply_button = QPushButton(tr("Apply conditions"), self)
+        self.apply_button.clicked.connect(self._apply)
+        buttons.addWidget(self.apply_button)
+        cancel = QPushButton(tr("Cancel"), self)
+        cancel.clicked.connect(self.reject)
+        buttons.addWidget(cancel)
+        layout.addLayout(buttons)
+        self.output_column.currentTextChanged.connect(self._labels)
+        self._labels()
+
+    def _labels(self, *_args):
+        """Offer labels already present in the chosen assignment column."""
+        current = self.label.currentText()
+        definition = self._definition
+        columns = (definition.get("columns", []) if definition.get("version") != 1 else
+                   [{"column": definition["column"], "conditions": definition["conditions"]}])
+        names = dict.fromkeys(rule["name"] for entry in columns
+                              if entry["column"] == self.output_column.currentText()
+                              for rule in entry.get("conditions", []))
+        self.label.clear()
+        self.label.addItems(list(names))
+        self.label.setEditText(current)
+
+    def _apply(self):
+        """Validate a private draft before accepting any selected-row assignment."""
+        definition = copy.deepcopy(self._definition)
+        legacy = definition["version"] == 1
+        columns = ([{"column": definition["column"], "kind": "rules", "conditions": definition["conditions"]}]
+                   if legacy else definition["columns"])
+        name, label = self.output_column.currentText().strip(), self.label.currentText().strip()
+        entry = next((entry for entry in columns if entry["column"] == name
+                      and entry.get("kind", "rules") == "rules"), None)
+        if entry is None:
+            entry = {"column": name, "kind": "rules", "conditions": []}
+            columns.append(entry)
+        selected = set(self._tokens)
+        for rule in entry["conditions"]:
+            if "manual_rows" in rule:
+                rule["manual_rows"] = [token for token in rule["manual_rows"] if token not in selected]
+        target = next((rule for rule in entry["conditions"] if rule.get("name") == label
+                       and not any(rule.get(key) for key in ("include", "exclude", "criteria"))
+                       and rule.get("match_mode", "regex") == "regex"), None)
+        if target is None:
+            target = {"name": label, "metadata_column": self._frame.columns[0],
+                      "include": "", "exclude": "", "manual_rows": []}
+            entry["conditions"].append(target)
+        target.setdefault("manual_rows", []).extend(self._tokens)
+        if legacy and len(columns) == 1 and len({rule["name"] for rule in entry["conditions"]}) == len(entry["conditions"]):
+            definition.update(column=columns[0]["column"], conditions=columns[0]["conditions"])
+        else:
+            definition.pop("column", None)
+            definition.pop("conditions", None)
+            definition.update(version=max(2, definition["version"]), columns=columns)
+        try:
+            report = preview(self._frame, definition, self._source)
+            if len(report.overlaps):
+                raise AnnotationError(tr("Resolve overlaps before applying."))
+        except (ValueError, TypeError) as exc:
+            self.status.setText(str(exc))
+            return
+        self.definition = definition
+        self.accept()
+
+
+def _annotate_selection(parent, frame, source, definition, positions):
+    """Return a validated label recipe for original source positions, or cancel."""
+    positions = list(positions)
+    if not positions:
+        return None
+    if any(isinstance(position, bool) or not isinstance(position, Integral)
+           or position < 0 or position >= len(frame) for position in positions):
+        raise AnnotationError("Selected row positions do not belong to the original source table.")
+    if definition is None:
+        column, number = "condition", 1
+        while column in frame.columns:
+            number += 1
+            column = f"condition_{number}"
+        definition = new_definition(frame, source, column=column)
+    else:
+        definition = copy.deepcopy(definition)
+    preview(frame, definition, source)
+    dialog = _SelectionAnnotationDialog(parent, frame, source, definition, sorted(set(positions)))
+    try:
+        return dialog.definition if dialog.exec() == QDialog.Accepted else None
+    finally:
+        dialog.deleteLater()
 
 
 class _CriterionRow(QWidget):

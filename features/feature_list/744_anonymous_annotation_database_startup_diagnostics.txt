@@ -1,0 +1,36 @@
+ANONYMOUS ANNOTATION DATABASE STARTUP DIAGNOSTICS
+==============================================
+Lifecycle: new
+Status: source and seven focused checks complete; publication pending.
+        Diagnostic follow-up, not a confirmed root-cause fix.
+Requested: maintainer, 2026-10-30.
+Owner: Workstation 2.
+Related: GitHub #178; 487 issue audit; AGENTS rule 39.
+
+REQUIREMENTS
+The anonymous macOS report in #178 establishes that SQLite could not open the
+annotation writer database. Its redacted traceback does not identify why.
+Do not claim an unverified stale path, permissions or volume problem was fixed.
+On writer startup failure, retain existing unsaved-edit protection and collect
+only bounded path-shape/file-type/parent-type and advisory access facts, SQLite
+numeric result code, and pending batch count. Never collect paths, filenames,
+user names, hostnames, addresses, database contents or annotation values.
+Reconstruct the diagnostic from an explicit allowlist before it enters the
+existing error-report path; preserve provider None, reporting Off and consent
+revocation. Do not create directories, replace databases, change permissions or
+retry writes merely to diagnose the failure.
+
+ACCEPTANCE
+A real failed worker connection produces useful anonymous filesystem/SQLite
+facts in the ordinary report. Malformed or planted private diagnostic values
+cannot reach the payload. Reporting Off prevents sends; provider None prevents AI requests while
+separately consented plain reports remain allowed.
+Queued annotations survive failure. Targeted tests cover these cases. Publish
+normal feature indexes, then explain the missing original evidence and newly
+collected facts on #178 before closing it; do not claim native macOS validation.
+
+2026-10-30 — Added anonymous startup facts and strict reporter reconstruction.
+Seven focused checks pass, including actual SQLite failures, retained queued
+labels, private-value rejection, original stack, consent Off and provider None.
+No original-cause fix or native macOS acceptance is claimed. Issue comment and
+closure await the published nightly commit.

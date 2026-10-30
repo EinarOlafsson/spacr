@@ -1,0 +1,37 @@
+SHUTDOWN WORKER LIFETIME AND ANONYMOUS DIAGNOSTICS
+================================================
+
+Lifecycle: new
+Status: in progress — investigation and bounded fixes authorized on 2026-10-30.
+Requested: maintainer, 2026-10-30.
+Owner: Home coordinator and retained bridge/crash-report peer.
+Related: 709 (open GitHub issues), 731 (native teardown context), 647 (restart).
+
+REQUEST
+Resolve GitHub reports #175, #176 and #177 as one shutdown-lifetime family.
+#175 reports live parked QThreads after the exit wait; #176 aborts after GUI
+teardown while Graph, Gate and Database workers remain inside native database
+work; #177 interrupts the parked-thread exit wait with KeyboardInterrupt.
+The native-only crashing frame in #176 does not establish a SQLite cause.
+
+REQUIREMENTS
+1. Reproduce bounded shutdown behavior with real worker lifetimes before changing
+   ownership, cancellation or finalization policy. Preserve cooperative stop,
+   bounded waiting, write safety and explicit consent for force quit.
+2. Never terminate Python QThreads or introduce an implicit hard process exit.
+   Fix proven lifetime or interruption defects with focused regression controls.
+3. If the reports cannot establish the underlying native cause, enhance the
+   existing anonymous reporter so future reports identify the shutdown phase,
+   remaining worker kinds and public code locations without data, paths, user
+   names, hosts, addresses or request content. Honor existing reporting consent.
+4. Keep issue explanations precise: distinguish confirmed shutdown observations
+   from native-cause hypotheses, name the published diagnostic version and close
+   insufficient reports through the established issue-reporting workflow.
+
+ACCEPTANCE
+Focused subprocess/Qt checks verify the confirmed fixes or diagnostic behavior,
+shared wait budgets and anonymity. Known live-worker limitations are reported
+rather than hidden, and no unverified database or GPU cause is claimed.
+
+2026-10-30 — Recorded before implementation. Read-only source review confirms the reported exit-wait path; native cause remains unproven. Bounded reproduction and anonymous diagnostic closure are authorized.
+2026-10-30 — A real parked-worker subprocess reproduced Qt's native abort after the wait; ordinary window close now retires all worker kinds first and defers destruction while any remain. One shared exit hook prevents duplicate waits. Native reports record bounded public-code worker state and interrupted/expired wait phases without payloads; focused lifetime/privacy controls and existing cached-screen write/close checks pass. KeyboardInterrupt still reaches stderr but actual interrupts and parsed interrupt tracebacks no longer trigger AI or bug reports. Direct script exits with uncooperative native work remain unsafe; no SQLite cause or force-quit consent is inferred.
