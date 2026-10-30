@@ -84,19 +84,68 @@ def _flush_deletes():
     gc.collect()
 
 
-def test_a_refresh_after_a_mounted_combo_is_deleted_reads_no_deleted_control(mask, qtbot, source):
-    _tab, view = _browse(mask, qtbot, source)
+def test_a_refresh_after_a_mounted_combo_is_deleted_reads_no_deleted_control(mask, qtbot, source, caplog):
+    import logging
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QDoubleSpinBox
+
+    caplog.set_level(logging.ERROR, logger="spacr")
+    tab, view = _browse(mask, qtbot, source)
+    originals = {path: path.read_bytes() for path in source.glob("*.tif")}
+    identities = tuple(field.identity for field in view._fields)
     view._open_image_views([view._fields[0]])
+    panel, = view._image_views
+    qtbot.waitUntil(lambda: panel.view._item is not None and not view._image_stack_jobs.is_busy(),
+                    timeout=15000)
+    pixels = panel.view._item.pixmap().toImage().copy()
+    section = next(section for section in tab.rendered_settings_sections()
+                   if section.property("settingsCategorySource") == "Enhancement")
+    section.set_expanded(True)
+    gamma = tab._settings_model._widgets["enhance_gamma"]
+    assert isinstance(gamma, QDoubleSpinBox)
+    tab._settings_scroll.ensureWidgetVisible(gamma)
+    assert gamma.isVisibleTo(tab)
+    gamma.setFocus()
+    qtbot.keyClick(gamma, Qt.Key_A, modifier=Qt.ControlModifier)
+    qtbot.keyClicks(gamma, "0.75")
+    qtbot.keyClick(gamma, Qt.Key_Tab)
+    assert gamma.value() == .75
+    page = tab._overview_page
+    assert "enhance_gamma" in page._bridge.pending()
+    assert view._enhancement is None
+    apply = page._apply_bar.apply_button
+    assert apply.isVisibleTo(tab) and apply.isEnabled()
     combo = view.time_axis
     combo.deleteLater()
     _flush_deletes()
     assert not isValid(combo)
     assert view._controls_lost
+    assert isValid(apply) and apply.isVisibleTo(tab) and apply.isEnabled()
+    qtbot.mouseClick(apply, Qt.LeftButton)
+    assert page._bridge.pending() == ()
+    assert view._enhancement.gamma == .75
+    assert panel.view._item.pixmap().toImage() == pixels
+    assert tuple(field.identity for field in view._fields) == identities
+    assert view._metadata_source == str(source)
+    assert all(path.read_bytes() == contents for path, contents in originals.items())
     view.normalise.toggle()
     view._refresh_image()
     view._reload_image_views()
     view._request_visuals()
     assert not view._visual_timer.isActive()
+    fresh_tab, fresh = _browse(mask, qtbot, source)
+    assert fresh_tab is tab and fresh is not view and not fresh._controls_lost
+    assert isValid(fresh.time_axis) and fresh._metadata_source == str(source)
+    assert tuple(field.identity for field in fresh._fields) == identities
+    assert fresh._enhancement.gamma == .75
+    fresh._open_image_views([fresh._fields[0]])
+    fresh_panel, = fresh._image_views
+    qtbot.waitUntil(lambda: fresh_panel.view._item is not None and not fresh._image_stack_jobs.is_busy(),
+                    timeout=15000)
+    assert fresh_panel.field.files == panel.field.files
+    assert all(path.read_bytes() == contents for path, contents in originals.items())
+    assert not [record for record in caplog.records
+                if record.name.startswith("spacr") and record.levelno >= logging.ERROR]
 
 
 def test_a_setting_edited_after_its_browser_was_replaced_reaches_no_deleted_control(mask, qtbot, source):
