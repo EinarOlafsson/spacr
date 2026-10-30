@@ -131,3 +131,106 @@ def test_sqlite_annotations_rebind_nullable_dates_and_preserve_source_and_views(
         save_annotated_table(path, "changed", changed, definition, source)
     assert path.read_bytes() == before_refusal
     pd.testing.assert_frame_equal(working, working_before)
+
+
+def test_annotation_save_requires_applied_outputs_and_the_original_project(tmp_path):
+    """The save workflow cannot invent labels or send them to a different database."""
+    import sqlite3
+    from spacr.condition_annotations import save_annotated_table
+
+    frame = pd.DataFrame({"wellID": ["A1", "B1"], "value": [2.5, 8.0]})
+    original, other = tmp_path / "original.db", tmp_path / "other.db"
+    for path in (original, other):
+        with sqlite3.connect(path) as connection:
+            frame.to_sql("input", connection, index=False)
+    snapshots = {path: path.read_bytes() for path in (original, other)}
+    source = source_context(original, "input")
+    with pytest.raises(AnnotationError, match="Apply conditions before saving"):
+        save_annotated_table(original, "reviewed", frame, {}, source)
+    definition = new_definition(frame, source, column="treatment")
+    definition["conditions"] = [rule(include="^A")]
+    with pytest.raises(AnnotationError, match="Apply every annotation output"):
+        save_annotated_table(original, "reviewed", frame, definition, source)
+    working = apply_conditions(frame, definition, source)
+    with pytest.raises(AnnotationError, match="current source database"):
+        save_annotated_table(other, "reviewed", working, definition, source)
+    assert all(path.read_bytes() == payload for path, payload in snapshots.items())
+    assert save_annotated_table(original, "reviewed", working, definition, source) == "reviewed"
+    with sqlite3.connect(original) as connection:
+        result = pd.read_sql_query("SELECT * FROM reviewed", connection)
+        pd.testing.assert_frame_equal(pd.read_sql_query("SELECT * FROM input", connection), frame)
+    assert result.treatment.fillna("").tolist() == ["treated", ""]
+    assert other.read_bytes() == snapshots[other]
+    assert "treatment" not in frame
+
+
+def test_unrelated_annotation_metadata_is_not_repurposed_or_restored(tmp_path):
+    """An incompatible existing metadata table remains owned by its creator."""
+    import sqlite3
+    from spacr.condition_annotations import save_annotated_table, saved_table_annotation
+
+    path = tmp_path / "measurements.db"
+    frame = pd.DataFrame({"wellID": ["A1", "B1"], "value": [1, 2]})
+    with sqlite3.connect(path) as connection:
+        frame.to_sql("input", connection, index=False)
+        connection.execute('CREATE TABLE _spacr_condition_annotations (notes TEXT)')
+        connection.execute('INSERT INTO _spacr_condition_annotations VALUES (?)', ("keep this metadata",))
+    before = path.read_bytes()
+    source = source_context(path, "input")
+    definition = new_definition(frame, source)
+    definition["conditions"] = [rule(include="^A")]
+    working = apply_conditions(frame, definition, source)
+
+    assert saved_table_annotation(path, "input", frame) is None
+    with pytest.raises(AnnotationError, match="provenance table has an incompatible schema"):
+        save_annotated_table(path, "reviewed", working, definition, source)
+
+    assert path.read_bytes() == before
+    with sqlite3.connect(path) as connection:
+        assert connection.execute('SELECT notes FROM _spacr_condition_annotations').fetchall() == [("keep this metadata",)]
+        assert connection.execute("SELECT name FROM sqlite_master WHERE name='reviewed'").fetchall() == []
+        pd.testing.assert_frame_equal(pd.read_sql_query("SELECT * FROM input", connection), frame)
+
+
+def test_storage_normalization_cannot_silently_change_rule_membership(tmp_path):
+    """A Boolean-to-SQL integer conversion must not relabel the saved observations."""
+    import sqlite3
+    from spacr.condition_annotations import save_annotated_table
+
+    path = tmp_path / "measurements.db"
+    frame = pd.DataFrame({"exposed": [True, False], "value": [4.5, 9.0]})
+    with sqlite3.connect(path) as connection:
+        frame.to_sql("input", connection, index=False)
+    before = path.read_bytes()
+    source = source_context(path, "input")
+    definition = new_definition(frame, source)
+    definition["conditions"] = [rule(column="exposed", include="^True$")]
+    working = apply_conditions(frame, definition, source)
+    assert working.condition.fillna("").tolist() == ["treated", ""]
+
+    with pytest.raises(AnnotationError, match="SQLite storage changed a rule's matches"):
+        save_annotated_table(path, "reviewed", working, definition, source)
+
+    assert path.read_bytes() == before
+    with sqlite3.connect(path) as connection:
+        assert connection.execute("SELECT name FROM sqlite_master ORDER BY name").fetchall() == [("input",)]
+        assert connection.execute("SELECT exposed, value FROM input").fetchall() == [(1, 4.5), (0, 9.0)]
+    assert working.condition.fillna("").tolist() == ["treated", ""]
+    assert frame.exposed.tolist() == [True, False]
+
+
+def test_ambiguous_sql_column_labels_cannot_be_bound_to_row_conditions(tmp_path):
+    """A real duplicate-column query must be renamed before annotation binds it."""
+    import sqlite3
+
+    path = tmp_path / "measurements.db"
+    with sqlite3.connect(path) as connection:
+        connection.execute("CREATE TABLE input (wellID TEXT, value REAL)")
+        connection.execute("INSERT INTO input VALUES ('A1', 2.5)")
+        frame = pd.read_sql_query("SELECT wellID, wellID, value FROM input", connection)
+    before, raw = frame.copy(deep=True), path.read_bytes()
+    assert frame.columns.tolist() == ["wellID", "wellID", "value"]
+    with pytest.raises(AnnotationError, match="duplicate column names"):
+        new_definition(frame, source_context(path, "input"))
+    pd.testing.assert_frame_equal(frame, before)
+    assert path.read_bytes() == raw

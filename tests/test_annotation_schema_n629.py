@@ -275,3 +275,144 @@ def test_failed_atomic_replace_preserves_existing_schema(tmp_path, monkeypatch):
         annotations._save_schema(path, frame, definition, source)
     assert path.read_text(encoding="utf-8") == "previous schema"
     assert sorted(p.name for p in tmp_path.iterdir()) == ["schema.json"]
+
+
+@pytest.mark.parametrize("change, reason", [
+    ({"version": 0}, "Unsupported annotation version"),
+    ({"columns": {}}, "at least one annotation output"),
+    ({"columns": [None]}, "Each annotation output"),
+    ({"conditions": {}}, "Conditions must be a list"),
+    ({"conditions": [None]}, "Each condition needs a rule"),
+    ({"rule": {"metadata_column": "absent"}}, "available metadata column"),
+    ({"rule": {"match_mode": "unknown"}}, "supported matching mode"),
+    ({"rule": {"criteria": [None]}}, "each criterion needs"),
+    ({"rule": {"criteria": {}}}, "criteria must be a list"),
+    ({"combine": {"separator": None}}, "separator must be text"),
+    ({"template": {"parts": [None]}}, "Each composition part"),
+])
+def test_user_recipe_file_rejects_structural_errors_without_changing_source(
+        tmp_path, change, reason):
+    frame, source, _ = fixture_recipe(tmp_path)
+    definition = annotations.new_definition(frame, source)
+    definition.pop("column")
+    definition.pop("conditions")
+    definition.update(version=3, columns=[{"column": "condition", "kind": "rules",
+        "conditions": [{"name": "picked", "metadata_column": "filename", "include": "HeLa"}]}])
+    correct = copy.deepcopy(definition)
+    if "version" in change or "columns" in change:
+        definition.update(change)
+    elif "conditions" in change:
+        definition["columns"][0]["conditions"] = change["conditions"]
+    elif "rule" in change:
+        definition["columns"][0]["conditions"][0].update(change["rule"])
+    elif "combine" in change:
+        definition["columns"][0] = dict(column="condition", kind="combine",
+                                         columns=["filename"], **change["combine"])
+    else:
+        definition["columns"][0] = dict(column="condition", kind="template", **change["template"])
+    path = tmp_path / "edited-recipe.json"
+    path.write_text(json.dumps(definition), encoding="utf-8")
+    before, raw = frame.copy(deep=True), path.read_bytes()
+    loaded = json.loads(raw)
+
+    with pytest.raises(annotations.AnnotationError, match=reason):
+        annotations.apply_conditions(frame, loaded, source)
+
+    pd.testing.assert_frame_equal(frame, before)
+    assert path.read_bytes() == raw
+    assert annotations.apply_conditions(frame, correct, source).condition.fillna("").tolist() == ["picked", ""]
+
+
+@pytest.mark.parametrize("change, reason", [
+    (lambda p: p.update(columns=[None]), "column definition"),
+    (lambda p: p["columns"][0].update(column=3), "column names must be text"),
+    (lambda p: p["columns"][1].update(conditions={}), "conditions must be a list"),
+    (lambda p: p["columns"][1]["conditions"][0].update(unrecognized=True), "unsupported rule fields"),
+    (lambda p: p["columns"][1]["conditions"][0].update(name=False), "labels must be text"),
+    (lambda p: p["columns"][1]["conditions"][0]["criteria"][0].update(extra="ignored?"), "Schema criteria need"),
+])
+def test_edited_portable_schema_refuses_malformed_records_without_reinterpreting_them(
+        tmp_path, change, reason):
+    frame, source, definition = fixture_recipe(tmp_path)
+    path = tmp_path / "edited-schema.json"
+    annotations._save_schema(path, frame, definition, source)
+    correct = path.read_bytes()
+    payload = json.loads(correct)
+    change(payload)
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    raw, before = path.read_bytes(), frame.copy(deep=True)
+
+    with pytest.raises(annotations.AnnotationError, match=reason):
+        annotations._load_schema(path, frame, source)
+
+    assert path.read_bytes() == raw
+    pd.testing.assert_frame_equal(frame, before)
+    path.write_bytes(correct)
+    _, report = annotations._load_schema(path, frame, source)
+    assert report.values.fillna("").tolist() == ["HeLa / {literal}_control α", ""]
+
+
+@pytest.mark.parametrize("failure", ["nonfinite", "version", "overlap"])
+def test_failed_schema_export_keeps_the_previously_usable_file(tmp_path, failure):
+    frame, source, definition = fixture_recipe(tmp_path)
+    path = tmp_path / "retained.json"
+    annotations._save_schema(path, frame, definition, source)
+    before, original = path.read_bytes(), frame.copy(deep=True)
+    if failure == "nonfinite":
+        definition["columns"][1]["conditions"][0]["name"] = float("nan")
+        reason = "finite JSON values"
+    elif failure == "version":
+        definition["version"] = 0
+        reason = "Unsupported annotation recipe version"
+    else:
+        definition["columns"][1]["conditions"].append({"name": "different", "criteria": [
+            {"metadata_column": "cell_type", "operator": "equals", "value": "HeLa"}]})
+        reason = "Resolve overlapping labels"
+
+    with pytest.raises(annotations.AnnotationError, match=reason):
+        annotations._save_schema(path, frame, definition, source)
+
+    assert path.read_bytes() == before
+    pd.testing.assert_frame_equal(frame, original)
+    _, report = annotations._load_schema(path, frame, source)
+    assert report.values.fillna("").tolist() == ["HeLa / {literal}_control α", ""]
+
+
+@pytest.mark.parametrize("version", [1, 2])
+def test_legacy_schema_version_cannot_silently_change_the_output_contract(tmp_path, version):
+    frame, source, definition = fixture_recipe(tmp_path)
+    path = tmp_path / "legacy-mismatch.json"
+    annotations._save_schema(path, frame, definition, source)
+    payload = json.loads(path.read_bytes())
+    payload["recipe_version"] = version
+    if version == 1:
+        payload["columns"] = [dict(column=name, kind="rules", conditions=[])
+                              for name in ("first", "second")]
+        reason = "legacy annotation schema must contain one rules column"
+    else:
+        payload["columns"] = [payload["columns"][0]]
+        reason = "needs recipe version 3"
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    before, raw = frame.copy(deep=True), path.read_bytes()
+    with pytest.raises(annotations.AnnotationError, match=reason):
+        annotations._load_schema(path, frame, source)
+    pd.testing.assert_frame_equal(frame, before)
+    assert path.read_bytes() == raw
+
+
+def test_existing_criteria_remain_authoritative_when_shorthand_fields_are_retained(tmp_path):
+    frame, source, definition = fixture_recipe(tmp_path)
+    definition["columns"] = [{"column": "condition", "kind": "rules", "conditions": [
+        {"name": "picked", "metadata_column": "filename", "match_mode": "contains",
+         "match_text": "HeLa", "criteria": [
+             {"metadata_column": "filename", "operator": "equals", "value": "U2OS_rep3.tif"}],
+         "match": "all"}]}]
+    before, original = frame.copy(deep=True), copy.deepcopy(definition)
+    assert annotations.apply_conditions(frame, definition, source).condition.fillna("").tolist() == ["", "picked"]
+    path = tmp_path / "existing-criteria.json"
+    annotations._save_schema(path, frame, definition, source)
+    loaded, report = annotations._load_schema(path, frame, source)
+    assert report.values.fillna("").tolist() == ["", "picked"]
+    assert loaded["columns"][0]["conditions"][0]["criteria"] == original["columns"][0]["conditions"][0]["criteria"]
+    assert definition == original
+    pd.testing.assert_frame_equal(frame, before)
