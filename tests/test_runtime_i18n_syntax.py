@@ -232,6 +232,35 @@ def _new_download_sources(language: str, reviewed: dict[str, str]) -> set[str]:
     return sources
 
 
+def _parascape_data_setup_retired_records(language, filename, reviewed):
+    """Bind the renamed ParaScape captions to their published original rows."""
+    hashes = {
+        "2026-09-22-lock-levels-parascape-controls.json":
+            "e64ba9b806211339ee2e09f6db4e31e16948ea4762bc3ce16bbe696960520249",
+        "2026-09-25-runtime-debt-messages.json":
+            "ec2ce02efb53ca414003af40ffc41d8edd734e24f7baccf140040b879c9dc92a",
+        "2026-09-24-release-captions.json":
+            "7c39c80c25d0658f78f9b484097af3f462d01480ed76bbb902b63c8834ad5097",
+    }
+    if filename not in hashes:
+        return []
+    archive = ROOT / "docs/i18n/retired/runtime/2026-10-29-protocol-tree-parascape.json"
+    assert hashlib.sha256(archive.read_bytes()).hexdigest() == (
+        "e39352044aba6060052c9d85a6104c4c2968ffa5e7a4d593bdc1f7b7356ab1de")
+    entries = [entry for entry in json.loads(archive.read_text(encoding="utf-8"))["records"]
+               if entry["path"] == f"docs/i18n/reviewed/runtime/{language}/{filename}"]
+    assert len(entries) == 1
+    records = entries[0]["records"]
+    assert len(records) == 1
+    row = records[0]
+    assert set(row) == {"key", "source", "source_sha256", "table", "translation"}
+    assert row["table"] == "ui" and row["key"] == row["source"]
+    assert row["source_sha256"] == hashes[filename]
+    assert hashlib.sha256(row["source"].encode()).hexdigest() == row["source_sha256"]
+    assert row["source"] not in reviewed
+    return records
+
+
 def _later_cohort_records(path, expected, language, reviewed):
     """Bind frozen cohorts to their exact archived captions and active bytes."""
     if path.name == "2026-09-22-section-headings.json":
@@ -255,6 +284,16 @@ def _later_cohort_records(path, expected, language, reviewed):
         assert document["records"].pop(34) == row
         assert path.read_bytes() == (json.dumps(document, ensure_ascii=False, indent=2) + "\n").encode()
         return document["records"], {row["source"]}
+    if path.name == "2026-09-24-release-captions.json":
+        document = json.loads(path.read_text(encoding="utf-8"))
+        retired = _parascape_data_setup_retired_records(language, path.name, reviewed)
+        assert len(document["records"]) == 4
+        document["records"].insert(4, retired[0])
+        original_bytes = (json.dumps(document, ensure_ascii=False, indent=2) + "\n").encode()
+        assert hashlib.sha256(original_bytes).hexdigest() == expected["sha256"]
+        assert document["records"].pop(4) == retired[0]
+        assert path.read_bytes() == (json.dumps(document, ensure_ascii=False, indent=2) + "\n").encode()
+        return document["records"], {retired[0]["source"]}
     if path.name != "2026-09-22-lock-levels-parascape-controls.json":
         assert hashlib.sha256(path.read_bytes()).hexdigest() == expected["sha256"]
         return json.loads(path.read_text(encoding="utf-8"))["records"], set()
@@ -271,6 +310,11 @@ def _later_cohort_records(path, expected, language, reviewed):
     retired = [row for row in document["records"] if row["source_sha256"] in hashes]
     assert len(retired) == len(hashes) == 2
     assert {row["source_sha256"] for row in retired} == hashes
+    parascape = _parascape_data_setup_retired_records(language, path.name, reviewed)
+    assert parascape == [row for row in document["records"]
+                         if row["source"] == "Check ParaScape and bundled data"]
+    retired += parascape
+    assert len(retired) == 3
     for row in retired:
         assert hashlib.sha256(row["source"].encode()).hexdigest() == row["source_sha256"]
     document["records"] = [row for row in document["records"] if row not in retired]
@@ -285,7 +329,7 @@ def _later_cohort_retirements(language: str, reviewed: dict[str, str]) -> set[st
     report = json.loads((ROOT / "tests/data/release_contracts/411_runtime_review_cohorts_2026-09-23.json").read_text(encoding="utf-8"))["languages"][language]
     sources = set()
     for name in ("2026-09-22-lock-levels-parascape-controls.json",
-                 "2026-09-22-section-headings.json"):
+                 "2026-09-22-section-headings.json", "2026-09-24-release-captions.json"):
         expected = [row for row in report["files"] if row["name"] == name]
         assert len(expected) == 1
         path = ROOT / "docs/i18n/reviewed/runtime" / language / name
@@ -293,7 +337,7 @@ def _later_cohort_retirements(language: str, reviewed: dict[str, str]) -> set[st
         assert len(records) + len(retired) == expected[0]["records"]
         assert not sources & retired
         sources.update(retired)
-    assert len(sources) == 3
+    assert len(sources) == 5
     return sources
 
 
@@ -683,14 +727,19 @@ def _requested_detection_retirements(language, filename):
     published = _published_panel_retirements(language, filename)
     automatic_reports = _automatic_report_retirements(language, filename, original)
     compact_rows = _compact_install_consent_retirements(language, filename)
+    parascape = _parascape_data_setup_retired_records(
+        language, filename, reviewed_runtime_translations(language))
+    assert all(row in original for row in parascape)
+    parascape_sources = {row['source'] for row in parascape}
     assert current['records'] == [row for row in original if row not in retired
                                   and row['source'] not in (later_sources | n678 | published
-                                                            | automatic_reports | compact_rows)]
+                                                            | automatic_reports | compact_rows
+                                                            | parascape_sources)]
     assert all(any(item.get('date') == '2026-10-07' and item.get('record') == row
                    for item in current.get('retired_records', [])) for row in retired)
     values = {row['source'] for row in retired}
     assert not values & reviewed_runtime_translations(language).keys()
-    return values | later_sources | automatic_reports
+    return values | later_sources | automatic_reports | parascape_sources
 
 
 def _figure_export_retirements(language, filename):
