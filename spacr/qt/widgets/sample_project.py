@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Callable, Dict, List, Optional
 
 from PySide6.QtCore import QEvent, QSize, Qt, QTimer, Signal
-from PySide6.QtGui import QColor, QPainter, QPen
+from PySide6.QtGui import QColor, QPainter, QPen, QTextDocument
 from PySide6.QtWidgets import (
     QDialog, QDialogButtonBox, QLabel, QListWidget, QListWidgetItem,
     QAbstractItemView, QStyledItemDelegate, QStyle, QToolButton, QVBoxLayout, QWidget,
@@ -420,3 +420,272 @@ def offer_a_sample_project(window, opener: Callable[[str], object],
         _offer_pathway_walkthrough(window, entry)
         start_example(screen)
     return key
+
+
+class _ProtocolDocument(QTextDocument):
+    def loadResource(self, kind, url):
+        return None
+
+
+class _ProtocolBrowserDialog(QDialog):
+    def __init__(self, parent=None, source_path='', context=None, *, data=None):
+        from PySide6.QtWidgets import QListWidget, QPushButton, QTextBrowser
+
+        super().__init__(parent)
+        self.setObjectName('ProtocolBrowser')
+        self.setWindowTitle(tr('Protocols'))
+        self.setModal(False)
+        self.resize(1080, 820)
+        self.setMinimumSize(640, 480)
+        self._data = data if data is not None else workflow_map()
+        self._protocols = self._data.get('protocols', {})
+        self._tree = self._data.get('protocol_tree', {})
+        self._source_path = ''
+        self._context = {}
+        self._diagram = None
+        self._selected_protocol = None
+        self._active_route = {}
+        self._trail = []
+        self._choices = {}
+        layout = QVBoxLayout(self)
+        self._source_label = QLabel(self)
+        self._source_label.setWordWrap(True)
+        self._source_label.setTextFormat(Qt.PlainText)
+        layout.addWidget(self._source_label)
+        self._heading = QLabel(self)
+        self._heading.setTextFormat(Qt.PlainText)
+        self._heading.setWordWrap(True)
+        layout.addWidget(self._heading)
+        self._choice_list = QListWidget(self)
+        self._choice_list.setObjectName('ProtocolChoices')
+        self._choice_list.currentRowChanged.connect(self._choice_changed)
+        layout.addWidget(self._choice_list, 1)
+        self._splitter = diagram_splitter(self)
+        self._diagram_host = QWidget(self)
+        self._diagram_layout = QVBoxLayout(self._diagram_host)
+        self._diagram_layout.setContentsMargins(0, 0, 0, 0)
+        self._diagram_host.setMinimumHeight(130)
+        self._splitter.addWidget(self._diagram_host)
+        self._text = QTextBrowser(self)
+        self._text.setObjectName('ProtocolInstructions')
+        self._text.setDocument(_ProtocolDocument(self._text))
+        self._text.setOpenLinks(False)
+        self._text.setOpenExternalLinks(False)
+        self._text.anchorClicked.connect(self._activate_link)
+        self._text.setMinimumHeight(170)
+        self._splitter.addWidget(self._text)
+        self._splitter.setSizes([270, 350])
+        layout.addWidget(self._splitter, 2)
+        buttons = QDialogButtonBox(QDialogButtonBox.Close, self)
+        self._previous = QPushButton(tr('Previous'), self)
+        self._previous.setObjectName('ProtocolPrevious')
+        self._previous.clicked.connect(self._previous_level)
+        buttons.addButton(self._previous, QDialogButtonBox.ActionRole)
+        self._next = QPushButton(tr('Next'), self)
+        self._next.setObjectName('ProtocolNext')
+        self._next.clicked.connect(self._next_level)
+        buttons.addButton(self._next, QDialogButtonBox.ActionRole)
+        buttons.rejected.connect(self.close)
+        layout.addWidget(buttons)
+        self._set_input(source_path, context)
+
+    def _set_input(self, source_path='', context=None):
+        self._source_path = str(source_path or '')
+        self._context = deepcopy(context or {})
+        self._source_label.setText(tr('Input: {path}', path=self._source_path))
+        self._source_label.setVisible(bool(self._source_path))
+        metadata = self._context.get('context', self._context)
+        artifacts = {item.get('kind') for item in metadata.get('generated_outputs', {}).get('artifacts', ())
+                     if isinstance(item, dict)}
+        analyzed = any(item.get('objects') and item.get('numeric')
+                       for item in metadata.get('database_schemas', ()) if isinstance(item, dict))
+        analysis = metadata.get('analysis_inputs', {})
+        fastq = analysis.get('map_barcodes', {}).get('fastq')
+        counts = any(item.get('count_data') for item in analysis.values() if isinstance(item, dict))
+        tables = any(item.get('table') for item in analysis.values() if isinstance(item, dict))
+        source = self._source_path.lower()
+        kind = metadata.get('protocol_data') or (
+            'images' if source.endswith('.pdf') else
+            'fastq' if fastq or source.endswith(('.fastq', '.fq', '.fastq.gz', '.fq.gz')) else
+            'barcode_counts' if counts else
+            'regression' if 'regression' in artifacts else
+            'classifier' if 'classifier' in artifacts else
+            'features' if 'measurements' in artifacts or analyzed or tables else
+            'crops' if 'crops' in artifacts else
+            'images_masks' if artifacts.intersection(('merged', 'masks')) or metadata.get('paired_layout') else
+            'images' if metadata.get('image_folders') or metadata.get('image_dimensions') else
+            'run_records' if metadata.get('run_evidence', {}).get('manifests') else '')
+        self._choices = {}
+        for child in self._tree.get('children', ()):
+            if child.get('data', child.get('id')) == kind:
+                self._choices[self._tree.get('id', '')] = child['id']
+                break
+        self._trail = [self._tree]
+        self._show_level()
+
+    def _show_level(self):
+        node = self._trail[-1]
+        self._heading.setText(tr(node.get('title', 'Protocols')))
+        self._previous.setEnabled(len(self._trail) > 1)
+        children = node.get('children', ())
+        self._choice_list.setVisible(bool(children))
+        blocked = self._choice_list.blockSignals(True)
+        self._choice_list.clear()
+        for child in children:
+            self._choice_list.addItem(tr(child['title']))
+        wanted = self._choices.get(node.get('id', ''))
+        selected = next((i for i, child in enumerate(children) if child['id'] == wanted), -1)
+        self._choice_list.setCurrentRow(selected)
+        self._choice_list.blockSignals(blocked)
+        self._active_route = node
+        self._display_protocol(node.get('protocol') if not children else None)
+        self._next.setVisible(bool(children))
+        self._next.setEnabled(selected >= 0)
+        if children:
+            self._choice_changed(selected)
+        elif self._selected_protocol is None:
+            self._text.setPlainText(tr(node.get('description', '')))
+
+    def _choice_changed(self, row):
+        node = self._trail[-1]
+        children = node.get('children', ())
+        self._next.setEnabled(0 <= row < len(children))
+        selected = children[row] if 0 <= row < len(children) else None
+        if selected is not None:
+            self._choices[node.get('id', '')] = selected['id']
+        self._text.setPlainText(tr((selected or node).get('description', '')))
+        self._text.verticalScrollBar().setValue(0)
+
+    def _next_level(self):
+        children = self._trail[-1].get('children', ())
+        row = self._choice_list.currentRow()
+        if 0 <= row < len(children):
+            self._trail.append(children[row])
+            self._show_level()
+
+    def _previous_level(self):
+        if len(self._trail) > 1:
+            self._trail.pop()
+            self._show_level()
+
+    def _display_protocol(self, key):
+        while self._diagram_layout.count():
+            item = self._diagram_layout.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.hide()
+                widget.deleteLater()
+        self._diagram = None
+        self._selected_protocol = key if key in self._protocols else None
+        self._diagram_host.setVisible(self._selected_protocol is not None)
+        if self._selected_protocol is None:
+            self._text.setPlainText(tr('No matching protocol.'))
+            return
+        protocol = self._protocols[key]
+        steps = [step for step in protocol.get('steps', ()) if step.get('module') in self._data['modules']]
+        keys = list(dict.fromkeys(step['module'] for step in steps))
+        inputs = []
+        for artifact in protocol.get('inputs', ()):
+            info = self._data.get('artifacts', {}).get(artifact, {})
+            inputs.append(dict(id=artifact, title=info.get('title', artifact), artifacts=[artifact],
+                               description=info.get('location', ''), targets=[step['module'] for step in steps
+                               if artifact in self._data['modules'][step['module']].get('inputs', ())]))
+        entry = dict(modules=keys, inputs=inputs)
+        display, keys, graph_steps = pathway_graph(entry, self._data, steps)
+        self._diagram = WorkflowView(display, keys, graph_steps, self._diagram_host, compact=True)
+        self._diagram.selection_changed.connect(self._select_step)
+        self._diagram_layout.addWidget(self._diagram)
+        self._text.setHtml(self._protocol_html(protocol, steps))
+        self._text.verticalScrollBar().setValue(0)
+        start = self._active_route.get('start_module')
+        if start in self._diagram.nodes:
+            self._diagram.describe_node(start)
+
+    def _protocol_html(self, protocol, steps):
+        from html import escape
+        from ..ai.prompts import _navigation_modules
+        from ..help_search import api_url
+        from ..tutorials import tutorial_url
+
+        available = {row[0] for row in _navigation_modules()}
+        parts = ['<h2>' + escape(tr(protocol['title'])) + '</h2>',
+                 '<p>' + escape(tr(protocol.get('summary', ''))) + '</p>']
+        if protocol.get('inputs'):
+            parts.append('<p><b>' + escape(tr('Inputs')) + ':</b> ' +
+                         self._artifacts_html(protocol['inputs']) + '</p>')
+        parts.append('<ol>')
+        for step in steps:
+            key = step['module']
+            module = self._data['modules'][key]
+            title = escape(tr(module.get('name', key)))
+            if key in available:
+                title = '<a href="spacr://module/' + escape(key, quote=True) + '">' + title + '</a>'
+            parts.append('<li><a name="step-' + escape(key, quote=True) + '"></a><b>' + title + '</b><p>' +
+                         escape(tr(step.get('action', ''))) + '</p>')
+            if key not in available:
+                parts.append('<p>' + escape(tr('This module is hidden by the current application preferences.')) + '</p>')
+            for field, label in (('inputs', tr('Inputs')), ('outputs', tr('Outputs'))):
+                if module.get(field):
+                    parts.append('<p><b>' + escape(label) + ':</b> ' + self._artifacts_html(module[field]) + '</p>')
+            links = []
+            if module.get('api_module'):
+                links.append('<a href="' + escape(api_url(module['api_module']), quote=True) + '">' + escape(tr('API')) + '</a>')
+            tutorial = tutorial_url(key)
+            if tutorial:
+                links.append('<a href="' + escape(tutorial, quote=True) + '">' + escape(tr('Tutorial')) + '</a>')
+            parts.append('<p>' + ' · '.join(links) + '</p></li>')
+        parts.append('</ol>')
+        if protocol.get('checkpoint'):
+            parts.append('<p><b>' + escape(tr('Checkpoint')) + ':</b> ' + escape(tr(protocol['checkpoint'])) + '</p>')
+        return ''.join(parts)
+
+    def _artifacts_html(self, keys):
+        from html import escape
+
+        records = []
+        for key in keys:
+            artifact = self._data.get('artifacts', {}).get(key, {})
+            text = escape(tr(artifact.get('title', key)))
+            if artifact.get('location'):
+                text += ' (' + escape(tr(artifact['location'])) + ')'
+            records.append(text)
+        return '; '.join(records)
+
+    def _select_step(self, key):
+        self._text.scrollToAnchor('step-' + key)
+
+    def _activate_link(self, url):
+        from .ai_chat_panel import _activate_ai_link, _ai_module_key
+
+        key = _ai_module_key(url)
+        if key is not None and self._source_path:
+            owner = self.parentWidget()
+            while owner is not None:
+                opener = getattr(owner, '_open_easy_input', None)
+                if callable(opener) and key != 'overview':
+                    return bool(opener(key, self._source_path,
+                                       self._context.get('context', self._context)))
+                opener = getattr(owner, '_open_easy_suggestion', None)
+                if callable(opener):
+                    opener(key, self._source_path)
+                    return True
+                owner = owner.parentWidget()
+        return _activate_ai_link(self, url)
+
+
+def _show_protocols(parent, source_path='', context=None):
+    dialog = getattr(parent, '_protocol_browser_dialog', None)
+    try:
+        reusable = dialog is not None and dialog.objectName() == 'ProtocolBrowser'
+    except RuntimeError:
+        reusable = False
+    if not reusable:
+        dialog = _ProtocolBrowserDialog(parent, source_path, context)
+        if parent is not None:
+            parent._protocol_browser_dialog = dialog
+    elif str(source_path or '') != dialog._source_path or dict(context or {}) != dialog._context:
+        dialog._set_input(source_path, context)
+    dialog.show()
+    dialog.raise_()
+    dialog.activateWindow()
+    return dialog

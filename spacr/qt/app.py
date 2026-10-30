@@ -2723,6 +2723,19 @@ _EASY_SHORTCUT_LOCALIZED = {'sv': {'updater': ('uppdateringar', 'sök efter uppd
         'docker': ('Docker', 'opna Docker')}}
 
 
+_EASY_SHORTCUT_ENGLISH['protocols'] = ('protocol', 'protocols', 'walkthrough', 'walkthroughs', 'software protocol', 'software protocols')
+for _protocol_language, _protocol_phrases in {
+    'sv': ('protokoll', 'arbetsgångar'),
+    'de': ('Protokoll', 'Protokolle'),
+    'es': ('protocolo', 'protocolos'),
+    'pt': ('protocolo', 'protocolos'),
+    'fr': ('protocole', 'protocoles'),
+    'zh_CN': ('操作流程', '软件操作指南'),
+    'hi': ('प्रोटोकॉल', 'कार्यप्रवाह'),
+    'ko': ('프로토콜', '소프트웨어 안내'),
+    'is': ('verkferill', 'verkferlar'),
+}.items():
+    _EASY_SHORTCUT_LOCALIZED[_protocol_language]['protocols'] = _protocol_phrases
 _EASY_SHORTCUT_ENGLISH['running'] = ('current runs', 'running runs', 'running jobs', 'show running runs')
 for _easy_running_locale, _easy_running_phrases in {
     'sv': ('pågående körningar', 'visa pågående körningar'),
@@ -2753,7 +2766,8 @@ def _easy_shortcut_titles():
             'cache': ('Cache', tr('Cache')), 'models': ('Models', tr('Models')),
             'docker': ('Docker', tr('Docker')), 'tutorials': ('Tutorial', tr('Tutorial')),
             'nightly': ('Nightly build', tr('Nightly build')),
-            'running': ('Running', tr('Running'))}
+            'running': ('Running', tr('Running')),
+            'protocols': ('Protocols', tr('Protocols'))}
 
 
 def _easy_shortcut_match(value, explicit=False):
@@ -7845,6 +7859,10 @@ class MainWindow(QMainWindow):
         act_tutorial.triggered.connect(
             lambda: self._open_url(TUTORIALS_URL))
         help_menu.addAction(act_tutorial)
+        act_protocols = QAction(tr("Protocols"), self)
+        act_protocols.setObjectName("ProtocolsAction")
+        act_protocols.triggered.connect(self._open_navigator_protocols)
+        help_menu.addAction(act_protocols)
         act_docs = QAction("Documentation", self)
         act_docs.setStatusTip(
             "Open the spaCR documentation in a browser.")
@@ -10522,6 +10540,18 @@ class MainWindow(QMainWindow):
                 rows.append(('__easy_command__:' + label, tr(label), tr(label), ''))
         return rows
 
+    def _open_navigator_protocols(self):
+        """Open software guidance while preserving the inspected input context."""
+        from .widgets.sample_project import _show_protocols
+
+        result = getattr(self._startup, '_last_result', None) or {}
+        context = result.get('context', {})
+        groups = context.get('action_groups', {})
+        source = result.get('path', '')
+        if groups and all(group.get('kind') == 'navigation' for group in groups.values()):
+            source = ''
+        return _show_protocols(self, source_path=source, context=context)
+
     def _open_easy_command(self, value):
         """Route an explicit Enter through existing menus and module navigation."""
         from PySide6.QtWidgets import QInputDialog, QMenu
@@ -10542,6 +10572,8 @@ class MainWindow(QMainWindow):
                 self.refresh_after_preferences({'spaceout'})
             elif shortcut == 'running':
                 self._startup._show_running_runs()
+            elif shortcut == 'protocols':
+                self._open_navigator_protocols()
             elif shortcut == 'updater':
                 self._check_for_updates()
             else:

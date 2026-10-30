@@ -12,6 +12,33 @@ if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
 
+def test_protocol_microscope_brands_preserve_their_exact_names():
+    import build_i18n_catalogs as builder
+
+    for source in ('Leica', 'Nikon', 'Zeiss', 'Yokogawa / CellVoyager'):
+        for language in ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'):
+            assert builder._reviewed_translation(source, language) == source
+            assert not builder._translation_rejection_reasons(source, source, language, force=True)
+
+
+def test_standard_is_a_reviewed_same_spelling_word_in_swedish_german_and_french():
+    import build_i18n_catalogs as builder
+
+    for language in ('sv', 'de', 'fr'):
+        assert builder._reviewed_translation('Standard', language) == 'Standard'
+        assert not builder._translation_rejection_reasons('Standard', 'Standard', language, force=True)
+
+
+def test_pdf_plural_preserves_format_identity_without_forcing_english_grammar():
+    import build_i18n_catalogs as builder
+
+    source = 'Extract plaque-well images from PDFs or supplied figures, review annotations and quantify plaques with the selected model.'
+    target = 'Extrayez les images de puits d’essais de plaques à partir de fichiers PDF ou de figures fournies, vérifiez les annotations et quantifiez les plaques avec le modèle sélectionné.'
+    assert builder._syntax_preserved(source, target)
+    assert not builder._syntax_preserved(source, target.replace('PDF', 'PNG'))
+    assert not builder._syntax_preserved(source, target.replace('PDF', ''))
+
+
 def test_physical_screen_pixel_budget_preserves_display_sense(monkeypatch):
     import build_i18n_catalogs as builder
 

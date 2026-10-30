@@ -946,6 +946,7 @@ _APP_COMMAND_ICONS = {
     "Update": "download", "Check for updates…": "download",
     "API": "methods_export", "Paper": "report",
     "Pipeline overviews": "pipeline_graph", "Overview": "overview",
+    "Protocols": "pipeline_graph",
     "Navigator": "pipeline_graph", "spaCR flowchart": "pipeline_graph",
     "Keyboard shortcuts": "settings", "Set spaCR up again…": "settings",
     "Tutorial": "report", "Documentation": "report",

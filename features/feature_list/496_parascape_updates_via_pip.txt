@@ -4,6 +4,8 @@ Lifecycle: new
 Status: DONE 2026-09-25 — (implemented 2026-09-23; re-checked against live PyPI 2026-09-25).
 Owner: implementation lane; API/translations/tutorials in documentation lane.
 
+2026-10-29 follow-up: ParaScape 0.0.3.0 upgrades through pip successfully but spaCR's post-install assertion rejects its new empty versioned data cache. Update install/upgrade/launch handling for ParaScape's supported data bootstrap, preserving real dependency failures, isolated environment, cancellation and useful recovery. Owner: Workstation session 2 / retained integration peer. Acceptance: missing versioned data does not misreport a successful package upgrade as failed; first-run data setup is explicit and usable, genuine broken imports still fail, and established failed upgrades retry within their existing environment.
+
 Every ParaScape open now checks the actual distribution version in its separate
 environment and asks pip for compatible stable PyPI releases. Checks run off the
 GUI thread and can be cancelled. An unavailable check is reported, then the
@@ -42,3 +44,5 @@ The launcher installs and upgrades parascape>=0.0.1.0 (four-part versions,
 compared with packaging.version.Version) and opens it with the environment's
 parascape console script. The three new callables are registered in
 tests/data/release_contracts/parascape_launcher_api_arrivals_2026-10-12.json.
+
+2026-10-29 — Missing release data now accepts only a working native first-run setup entry point; genuine import failures still fail. Install/upgrade explanations describe the separate consent-based download. Established failed upgrades retry in place; incomplete fresh installs use ordinary installation. Focused backend/launcher checks: 67 passed; actual isolated 0.0.3.0 self-test passed without fetching data.

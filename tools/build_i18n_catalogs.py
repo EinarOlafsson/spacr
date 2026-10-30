@@ -303,6 +303,7 @@ _INPUT_DIALOG_METHODS = {"getText", "getInt", "getDouble", "getItem"}
 
 _IDENTITY_TEXT = {
     "Navigator", "Spaceout", "Docker", "PyPI", "conda-forge",
+    "Leica", "Nikon", "Zeiss", "Yokogawa / CellVoyager",
     # The maintainer's exact branded theme titles retain their spelling.
     "spaCR field", "spaCR advection", "spaCR growth", "spaCR Thore", "spaCR waves",
     "spaCR blobs", "spaCR aurora", "spaCR stratified", "spaCR spinn",
@@ -3341,6 +3342,7 @@ MANUAL_UI: dict[str, dict[str, str]] = {
     # 316, 2026-09-30: the Organize for Measure table's Text view option
     # is the same word in Swedish and German.
     "Text": {"sv": "Text", "de": "Text"},
+    "Standard": {"sv": "Standard", "de": "Standard", "fr": "Standard"},
     # These scientific labels are also correctly spelt English words in
     # the listed languages. Keep the actual terminology rather than adding
     # artificial qualifiers solely to make an exact-copy audit pass.
@@ -4268,6 +4270,18 @@ def _workflow_ui_sources() -> set[str]:
     for artifact in workflow["artifacts"].values():
         found.update((artifact["title"], artifact["location"]))
     found.update(edge["handoff"] for edge in workflow["connections"])
+    for protocol in workflow.get("protocols", {}).values():
+        for key in ("title", "summary", "checkpoint"):
+            if protocol.get(key):
+                found.add(protocol[key])
+        found.update(step["action"] for step in protocol["steps"])
+    for key in ("data", "goal", "stage", "details"):
+        found.update(workflow.get("protocol_choices", {}).get(key, {}).values())
+    pending = [workflow["protocol_tree"]] if workflow.get("protocol_tree") else []
+    while pending:
+        node = pending.pop()
+        found.update(node[key] for key in ("title", "description") if node.get(key))
+        pending.extend(node.get("children", []))
     return found
 
 
@@ -6217,7 +6231,7 @@ def _syntax_preserved(
         # ``CSVs`` -> ``CSV-filer``).  Preserve the acronym itself exactly and
         # normalize only this explicit reviewed set; product names in general
         # retain the strict byte-for-byte contract.
-        for plural, singular in (("CSVs", "CSV"), ("PNGs", "PNG"),
+        for plural, singular in (("CSVs", "CSV"), ("PNGs", "PNG"), ("PDFs", "PDF"),
                                  ("TIFFs", "TIFF"), ("UMAPs", "UMAP")):
             count = products.pop(plural, 0)
             if count:

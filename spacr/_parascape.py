@@ -31,7 +31,11 @@ _OWNER = ".spacr-parascape.json"
 _SELFTEST = (
     "import json, importlib.metadata; from PyQt6 import QtWidgets; "
     "from parascape import paths; from parascape.app import main; "
-    "ok, message = paths.check(); assert ok, message; "
+    "ok, message = paths.check()\n"
+    "if not ok:\n"
+    " from parascape.data_download_dialog import ensure_data\n"
+    " assert callable(ensure_data), message\n"
+    " print(message)\n"
     "print(json.dumps({'ok': True, 'version': importlib.metadata.version('parascape')}))"
 )
 
@@ -85,13 +89,22 @@ def _record(env: Path) -> dict:
 
 
 def is_installed(root=None) -> bool:
-    """Whether an owned environment has passed the import and bundled-data checks.
+    """Whether an owned environment passed imports and can open or set up its data.
 
     :param root: external-application folder.
     :returns: true only with a completed record and environment interpreter.
     """
     env = apps_root(root) / "parascape"
     return (not env.is_symlink() and _record(env).get("ready") is True
+            and Path(environments._env_python(str(env))).is_file())
+
+
+def _can_repair(root) -> bool:
+    env = apps_root(root) / "parascape"
+    if env.is_symlink():
+        return False
+    version = _record(env).get("version")
+    return (isinstance(version, str) and bool(version.strip())
             and Path(environments._env_python(str(env))).is_file())
 
 
@@ -138,7 +151,7 @@ def _claim(root: Path) -> None:
 
 def install_parascape(source=None, *, root=None, progress=None, cancel=None,
                      runner=None, preflight=None) -> Path:
-    """Build an isolated environment, install ParaScape and check its bundled data.
+    """Build an isolated environment and verify ParaScape and its data setup entry point.
 
     Local Git sources are archived from committed HEAD into temporary storage;
     pip never writes build files into the original checkout. A failed install
@@ -202,7 +215,7 @@ def install_parascape(source=None, *, root=None, progress=None, cancel=None,
                 ("Create ParaScape environment", list(interpreter) + ["-m", "venv", str(env)]),
                 ("Install pip", [python, "-I", "-m", "pip", "install", "--index-url", "https://pypi.org/simple", "--upgrade", "pip"]),
                 ("Install ParaScape and dependencies", [python, "-I", "-m", "pip", "install", "--index-url", "https://pypi.org/simple", "--upgrade", "--no-cache-dir", requirement]),
-                ("Check ParaScape and bundled data", [python, "-I", "-c", _SELFTEST]),
+                ("Check ParaScape and data setup", [python, "-I", "-c", _SELFTEST]),
             ])
             with (root / "parascape-install.log").open("w", encoding="utf-8") as log:
                 for number, (label, argv) in enumerate(steps):
@@ -224,7 +237,7 @@ def install_parascape(source=None, *, root=None, progress=None, cancel=None,
                 if result.get("ok") is not True:
                     raise ValueError("self-test did not succeed")
             except (IndexError, ValueError, AttributeError) as exc:
-                raise environments._InstallFailed("ParaScape did not confirm that its imports and bundled data are ready.") from exc
+                raise environments._InstallFailed("ParaScape did not confirm that its imports and data setup are ready.") from exc
         record = {"app": "parascape", "ready": True, "source": source, "version": result.get("version", "")}
         temporary = env / (_OWNER + ".tmp")
         temporary.write_text(json.dumps(record, indent=2), encoding="utf-8")
@@ -278,7 +291,7 @@ def check_parascape_update(*, root=None, cancel=None, runner=None) -> dict:
 
 def upgrade_parascape(source=None, *, root=None, progress=None, cancel=None,
                      runner=None) -> Path:
-    """Upgrade the owned environment using pip and PyPI, then verify its data.
+    """Upgrade through pip and PyPI, verifying imports and the data setup entry point.
 
     :param source: ignored; upgrades always use the PyPI ParaScape package.
     :param root: external-application folder.
@@ -306,7 +319,7 @@ def upgrade_parascape(source=None, *, root=None, progress=None, cancel=None,
         steps = [
             ("Upgrade ParaScape from PyPI", [python, "-I", "-m", "pip", "install",
              "--index-url", "https://pypi.org/simple", "--upgrade", "--no-cache-dir", pypi_requirement()]),
-            ("Check ParaScape and bundled data", [python, "-I", "-c", _SELFTEST]),
+            ("Check ParaScape and data setup", [python, "-I", "-c", _SELFTEST]),
         ]
         with (root / "parascape-upgrade.log").open("w", encoding="utf-8") as log:
             for number, (label, command) in enumerate(steps):
@@ -329,7 +342,7 @@ def upgrade_parascape(source=None, *, root=None, progress=None, cancel=None,
             if result.get("ok") is not True:
                 raise ValueError("self-test did not succeed")
         except (IndexError, ValueError, AttributeError) as exc:
-            raise environments._InstallFailed("ParaScape did not confirm that its imports and bundled data are ready.") from exc
+            raise environments._InstallFailed("ParaScape did not confirm that its imports and data setup are ready.") from exc
         record.update(ready=True, source=PYPI_PACKAGE, version=result.get("version", ""))
         temporary = env / (_OWNER + ".tmp")
         temporary.write_text(json.dumps(record, indent=2), encoding="utf-8")

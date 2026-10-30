@@ -64,7 +64,8 @@ class ParaScapeInstallDialog(QDialog):
             "ParaScape is an alpha application for exploring the Toxoplasma knowledge map. "
             "Features and results may change. It opens in a separate window.\n\n"
             "The latest compatible stable ParaScape release is installed from PyPI. "
-            "The package includes its gene data; dependencies add to the download and disk usage. "
+            "When gene data is missing, ParaScape asks before downloading it on first open. "
+            "Dependencies and gene data add to the download and disk usage. "
             "Requirements vary with the version and platform. "
             "Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\n"
             "ParaScape gets its own environment at {path}; spaCR's packages are not changed. "
@@ -112,7 +113,8 @@ class ParaScapeInstallDialog(QDialog):
             self.explanation.setText(tr(
                 "Upgrade ParaScape through pip from PyPI in its separate environment at {path}. "
                 "Close any running ParaScape windows before upgrading. ParaScape is in alpha; "
-                "downloads and disk usage depend on the release. spaCR's packages are not changed.",
+                "downloads and disk usage depend on the release. When the new release needs gene data, "
+                "ParaScape asks before downloading it on first open. spaCR's packages are not changed.",
                 path=str(self.root / "parascape")))
             self.source.setText(service.PYPI_PACKAGE)
             self.source.hide()
@@ -275,7 +277,7 @@ def open_parascape(parent=None, *, root=None):
     """
     root = service.apps_root(root)
     if not service.is_installed(root):
-        dialog = ParaScapeInstallDialog(parent, root=root)
+        dialog = ParaScapeInstallDialog(parent, root=root, upgrade=service._can_repair(root))
         if dialog.exec() != QDialog.Accepted or not dialog.installed:
             return None
     check = ParaScapeUpdateCheckDialog(parent, root=root)

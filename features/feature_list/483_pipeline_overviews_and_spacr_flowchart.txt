@@ -6,6 +6,12 @@ Status: DONE 2026-09-25 — Implementation complete; the translation and docs
         handoff has landed (checked 2026-09-25). Only native compositor
         movement is unverified (needs a real desktop).
 
+PROTOCOL BROWSER FOLLOW-UP — 2026-10-29
+2026-10-29 revision: replace the overwhelming simultaneous selectors with a one-level-at-a-time wizard. Each selected choice has an explanation in a lower text box; Previous and Next navigate to a final protocol with its flowchart above linked instructions. Rebuild the hierarchy from broader intent to specific task, keeping every branch specific to its parent: Images → Segment images → High content → Generate Masks, or Low content → Make Masks. Never show sequencing reads beneath Images. Preserve input handoff, all supported guides, translations and explicit user navigation. Owner: Workstation session 2 and retained browser/content/localization peers; supersedes the fixed five-axis chooser.
+Priority: P1. Owner: Workstation session 2; retained content, browser and localization peers own disjoint implementation/artifacts, root integrates Navigator and publishes.
+Maintainer approves the proposed Data → Goal → Starting point → relevant Details → Protocol tree and the catalog of alternate input routes. Add a nonmodal protocol browser with end-to-end software walkthroughs illustrated using the existing Pipeline overviews shared graph. Several input paths reach the same protocol and the starting point identifies completed work. Cover imaging, sequencing, features/tables, crops, segmentation/classifier models, assays, planning, execution and reporting. Conditional microscope origin/dimensions must guide import without duplicating every protocol. Include actual module, verified Tutorial and API links; preserve supported inputs, alpha visibility and explicit manual joins. No wet-lab instructions beyond obtaining images or data. Navigator exposes Protocols and tutorial links for Mask, Measure, Annotate, Classify, Map Barcodes, Regression and Make Masks.
+Acceptance: all proposed entry paths resolve deterministically; branch choices stay consistent; original input context is retained for opened modules; native module navigation occurs only on user click; protocol diagrams do not start jobs; walkthroughs name actual controls and compatibility checks; links are registry-backed; normal nine-language artifacts, focused GUI/catalog tests and nightly publication.
+
 Requirements
 - Rename Home's Start a sample project button to Pipeline overviews.
 - The overview window has an80percent opaque background, with opaque text.
@@ -160,3 +166,13 @@ is not verified here: the window's movement under a native compositor,
 which needs a real desktop; offscreen tests cover the fallback dragging.
 
 VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_pipeline_overviews_and_flowchart.py pass.
+
+2026-10-29 — PROTOCOL BROWSER FOLLOW-UP
+Added 71 software protocols and 120 Data → Goal → Starting point → Details → Protocol routes, illustrated with the shared pipeline graphs; each selector offers local choice guidance.
+Navigator and Help open the nonmodal browser; published module tutorials, API links, input snapshots and native source adapters preserve the selected input without starting analysis.
+Validation: all 120 real-dialog routes and 175 native links pass offscreen; focused catalog, source extraction, browser, Navigator handoff and terminology checks pass. Public API prose and signatures are unchanged.
+
+2026-10-29 — SIMPLIFIED PROTOCOL WIZARD
+Replaced the simultaneous axes with one choice level, a lower explanation box and Previous/Next; the final guide shows its flowchart above linked instructions. Images → Segment images → High content opens Generate Masks; Low content opens Make Masks directly.
+The context-specific hierarchy has 105 entry paths covering all 71 guides, with broader choices explaining their children and no sequencing-read choices under Images. Input snapshots and native source adapters remain intact.
+Validation: 25 catalog checks, 10 browser checks including every leaf, the real MainWindow/Measure handoff, and visual inspection pass; retained safety/availability checks and normal reviewed translations cover the revised UI.
