@@ -1625,6 +1625,22 @@ def test_native_navigator_revisit_keeps_source_anchor_and_explicit_receiver(
     page = window._startup
     selected = QSignalSpy(page.module_requested)
     try:
+        text = QMimeData()
+        text.setText(str(image))
+        target = window.centralWidget()
+        enter = QDragEnterEvent(QPoint(4, 4), Qt.CopyAction, text, Qt.LeftButton, Qt.NoModifier)
+        QApplication.sendEvent(target, enter)
+        assert not enter.isAccepted() and not page._runner.active_jobs()
+        assert page._last_result is None and selected.count() == 0
+        page.path_edit.setText('Protocols')
+        qtbot.keyClick(page.path_edit, Qt.Key_Return)
+        qtbot.waitUntil(lambda: getattr(window, '_protocol_browser_dialog', None) is not None)
+        dialog = window._protocol_browser_dialog
+        assert dialog.isVisible() and dialog._source_path == ''
+        assert selected.count() == 0 and window._stack.currentWidget() is page
+        dialog.close()
+        window.activateWindow()
+        qtbot.waitUntil(window.isActiveWindow, timeout=2000)
         page.accept_paths([str(image)])
         qtbot.waitUntil(lambda: not page._runner.is_busy() and any(
             card._key == 'make_masks' for card in page.field.cards), timeout=5000)
@@ -1649,6 +1665,19 @@ def test_native_navigator_revisit_keeps_source_anchor_and_explicit_receiver(
                        timeout=5000)
         assert page._settings_overrides['mask']['metadata_type'] == 'custom'
         assert selected.count() == 0 and image.read_bytes() == before
+        details = field.details
+        link = details.document().find('Protocols')
+        assert not link.isNull()
+        link.setPosition(link.selectionStart() + 2)
+        details.setTextCursor(link)
+        details.ensureCursorVisible()
+        qtbot.mouseClick(details.viewport(), Qt.LeftButton, pos=details.cursorRect(link).center())
+        assert window._protocol_browser_dialog is dialog and dialog.isVisible()
+        assert dialog._source_path == str(image) and dialog._context == page._last_result['context']
+        assert selected.count() == 0 and window._stack.currentWidget() is page
+        dialog.close()
+        window.activateWindow()
+        qtbot.waitUntil(window.isActiveWindow, timeout=2000)
         source = next(card for card in field.cards if card._key == 'make_masks')
         source.click()
         first = page._workflow
@@ -1692,5 +1721,15 @@ def test_native_navigator_revisit_keeps_source_anchor_and_explicit_receiver(
         assert (Path(receiver._folder) / receiver._image_files[0]).resolve() == image
         assert image.read_bytes() == before and set(isolated_input_root.iterdir()) == entries
         assert np.array_equal(np.asarray(Image.open(image)), pixels)
+        generation, result = page._input_generation, page._last_result
+        urls = QMimeData()
+        urls.setUrls([QUrl.fromLocalFile(str(image))])
+        enter = QDragEnterEvent(QPoint(4, 4), Qt.CopyAction, urls, Qt.LeftButton, Qt.NoModifier)
+        QApplication.sendEvent(receiver, enter)
+        drop = QDropEvent(QPointF(4, 4), Qt.CopyAction, urls, Qt.LeftButton, Qt.NoModifier)
+        QApplication.sendEvent(receiver, drop)
+        assert window._stack.currentWidget() is receiver and selected.count() == 1
+        assert page._input_generation == generation and page._last_result is result
+        assert image.read_bytes() == before and set(isolated_input_root.iterdir()) == entries
     finally:
         window.close()
