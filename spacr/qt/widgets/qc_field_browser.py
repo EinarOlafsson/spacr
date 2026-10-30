@@ -12792,13 +12792,6 @@ class _OverviewSettingsBridge:
 
     def _show_pending(self):
         """Show on the Apply button whether changes wait, and whether they can be applied."""
-        if self.apply_bar is None:
-            return
-        from shiboken6 import isValid
-
-        if not isValid(self.apply_bar):
-            self.apply_bar = None
-            return
         error = _overview_channel_list_error(self._value("overview_normalize_channels"),
                                              tuple(self._browser._channel_buttons))
         self.apply_bar.show_state(bool(self._staged), error)
