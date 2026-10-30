@@ -17612,8 +17612,7 @@ class _OverviewGuidedExport(QDialog):
         source = self._browser._metadata_source
         self.sides["measurements"].setEnabled(False)
         self.sides["measurements"].setToolTip(tr("Export image-level measurements first to print them here."))
-        if source:
-            self._jobs.submit(functools.partial(_overview_guided_frame, source), self._measurements_loaded)
+        self._jobs.submit(functools.partial(_overview_guided_frame, source), self._measurements_loaded)
 
     def _measurements_loaded(self, frame):
         """Offer the numeric measurement columns."""
