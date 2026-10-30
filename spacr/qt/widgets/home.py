@@ -7855,8 +7855,7 @@ class _EasyHomePage(QWidget):
                                  and actions[0][3] == result['path']))
         self.field.set_cards(actions, leading, leading_index,
                              groups=result.get('context', {}).get('action_groups'))
-        if self.field.cards:
-            self.field.explain_card(self.field.cards[0])
+        self.field.explain_card(self.field.cards[0])
         for card in self.field.cards:
             if not isinstance(card, _EasyRegexCard):
                 card.activated.connect(self._select_suggestion)
