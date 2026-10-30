@@ -82,6 +82,7 @@ def test_release_gate_requires_every_blocking_job():
         "gpu",
         "network",
         "nas",
+        "coverage-combine",
     )
 
     assert "\n  release-gate:" in workflow
@@ -93,5 +94,6 @@ def test_release_gate_requires_every_blocking_job():
     assert jobs["release-gate"]["needs"] == list(expected)
     for job in (*expected, "release-gate"):
         assert not jobs[job].get("continue-on-error", False)
+    assert jobs["coverage-combine"]["needs"] == "coverage-shards"
     for job in ("coverage-shards", "coverage-combine"):
-        assert jobs[job]["continue-on-error"] is True
+        assert not jobs[job].get("continue-on-error", False)
