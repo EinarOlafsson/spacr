@@ -228,3 +228,44 @@ def test_a_row_count_that_does_not_match_the_objects_is_refused():
     with pytest.raises(SampleError, match="join key"):
         reads_rows(_objects([(1, 1)]), _planted("GT", n_objects=3),
                    channels=CHANNELS)
+
+
+def test_raw_sample_rows_preserve_object_cycle_channels_through_sqlite(tmp_path):
+    """Raw read export keeps every cycle and rejects collapsed or mislabeled axes."""
+    import sqlite3
+    import pandas as pd
+
+    points = [(3, 3), (7, 7)]
+    objects = _objects(points)
+    per_cycle = []
+    for cycle in range(2):
+        channels = []
+        for channel in range(4):
+            image = _image((12, 12), points,
+                           [(cycle + 1) * 100 + (channel + 1) * 10 + i for i in (1, 2)],
+                           radius=0)
+            channels.append(sample_objects(objects, image, radius=0))
+        per_cycle.append(channels)
+    values = decode_input(per_cycle)
+    before = values.copy()
+
+    rows = reads_rows(objects, values, channels=CHANNELS)
+
+    assert [(row["object_id"], row["cycle"]) for row in rows] == [(1, 1), (1, 2), (2, 1), (2, 2)]
+    assert all(set(row) == {"object_id", "cycle", *CHANNELS} for row in rows)
+    for row in rows:
+        for channel, name in enumerate(CHANNELS):
+            assert row[name] == row["cycle"] * 100 + (channel + 1) * 10 + row["object_id"]
+    database = tmp_path / "raw-reads.db"
+    with sqlite3.connect(database) as connection:
+        pd.DataFrame(rows).to_sql("ops_reads", connection, index=False)
+        reopened = pd.read_sql_query("SELECT * FROM ops_reads ORDER BY object_id, cycle", connection)
+    pd.testing.assert_frame_equal(reopened, pd.DataFrame(rows))
+    collapsed = values.mean(axis=1)
+    with pytest.raises(SampleError, match="objects, cycles, channels"):
+        reads_rows(objects, collapsed, channels=CHANNELS)
+    with pytest.raises(SampleError, match="objects, cycles, channels"):
+        barcode_rows(objects, collapsed)
+    with pytest.raises(SampleError, match="4 channels sampled but 3 names"):
+        reads_rows(objects, values, channels=CHANNELS[:3])
+    np.testing.assert_array_equal(values, before)
