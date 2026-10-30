@@ -11960,8 +11960,7 @@ class _FieldOverview(QWidget):
             drags = getattr(self, "_canvas_drags", None)
             if drags is not None and content is getattr(self, "_canvas_composer", None):
                 drags.unwatch()
-            if isValid(content):
-                content.close()
+            content.close()
             dock.hide()
             dock.setParent(None)
             dock.deleteLater()
@@ -11970,8 +11969,6 @@ class _FieldOverview(QWidget):
         collapsed, sizes = self._export_settings_state
         self._export_settings_state = None
         body = self._export_settings_body()
-        if body is None:
-            return
         body.set_collapsed("Settings", collapsed, by_user=True)
         if not collapsed and len(sizes) == len(body.sizes()):
             body.setSizes(sizes)
@@ -12086,10 +12083,7 @@ class _FieldOverview(QWidget):
                        self._image_stack_jobs, self._group_jobs, self._readout_jobs, self._levels_jobs):
             runner.shutdown(timeout_ms=0)
         if self._image_settings is not None:
-            from shiboken6 import isValid
-
-            if isValid(self._image_settings):
-                self._image_settings.close()
+            self._image_settings.close()
             self._image_settings = None
         self._clear_pixel_readout()
 
