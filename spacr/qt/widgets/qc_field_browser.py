@@ -13732,15 +13732,14 @@ class _OverviewModulePage(QWidget):
                 row = section._form.getWidgetPosition(field)[0] if isValid(field) else -1
             except RuntimeError:
                 row = -1
-            if browser is not None and isValid(browser):
-                for widget in widgets:
-                    if isValid(widget):
-                        try:
-                            widget.destroyed.disconnect(browser._mounted_control_lost)
-                        except (RuntimeError, TypeError):
-                            pass
-                        widget.hide()
-                        widget.setParent(browser)
+            for widget in widgets:
+                if isValid(widget):
+                    try:
+                        widget.destroyed.disconnect(browser._mounted_control_lost)
+                    except (RuntimeError, TypeError):
+                        pass
+                    widget.hide()
+                    widget.setParent(browser)
             if row >= 0:
                 try:
                     section._form.removeRow(row)
