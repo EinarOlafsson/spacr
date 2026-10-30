@@ -436,3 +436,81 @@ def test_adding_then_removing_a_plate_preserves_pending_source_and_loaded_export
     assert view._metadata_source == str(original)
     assert {field.identity for field in view._fields} == original_identities
     assert all(path.read_bytes() == content for path, content in before.items())
+
+
+def test_a_saved_boolean_channel_setting_is_refused_without_losing_the_loaded_images(
+        overview_preferences, source, qtbot):
+    import spacr.qt
+    from PySide6.QtWidgets import QCheckBox, QLineEdit
+    from spacr.qt.app import MainWindow
+    from tests.qt.test_725_overview_tab_round2 import _runners
+
+    overview_preferences.set_easy_mode(False)
+    spacr.qt.register_self_registering_modules()
+    window = MainWindow(initial_app='__home__')
+
+    def drain_current(_window):
+        screen = window._screens.get('overview')
+        page = getattr(screen, '_overview_page', None)
+        if page is not None and page.browser is not None:
+            view = page.browser
+            view._cancel()
+            qtbot.waitUntil(lambda: all(runner.active_jobs() == 0 for runner in _runners(view)),
+                            timeout=15000)
+            for runner in _runners(view):
+                runner.shutdown(timeout_ms=3000)
+            page.retire()
+
+    qtbot.addWidget(window, before_close_func=drain_current)
+    window.show()
+    original_bytes = {path.name: path.read_bytes() for path in source.glob('*.tif')}
+    window.rebuild_app_screen('overview', {
+        'src': str(source), 'overview_normalize_channels': False,
+    })
+    screen = window._screens['overview']
+    row = screen._settings_model._widgets['overview_normalize_channels']
+    assert isinstance(row, QCheckBox) and not row.findChildren(QLineEdit)
+    assert screen._settings_model.collect()['overview_normalize_channels'] is False
+
+    def load_images(current):
+        current._btn_run.click()
+        wizard = current._overview_page.wizard
+        wizard.preset.setCurrentIndex(wizard.preset.count() - 1)
+        wizard.regex.setText(PATTERN)
+        wizard._scan()
+        qtbot.waitUntil(wizard.next.isEnabled, timeout=15000)
+        wizard.next.click()
+        current._settings_model.set_value_for_key('overview_max_fields', 'all')
+        qtbot.waitUntil(lambda: current._overview_page.browser is not None
+                        and len(current._overview_page.browser._fields) == 6
+                        and current._overview_page.browser._normalization_ready, timeout=15000)
+        view = current._overview_page.browser
+        _open_well(view, qtbot, 'A01')
+        qtbot.waitUntil(lambda: not view.fields.item(0).icon().isNull(), timeout=15000)
+        return view
+
+    view = load_images(screen)
+    page = screen._overview_page
+    assert page._channel_list_edit is None
+    assert not page._apply_bar.apply_button.isEnabled()
+    assert 'channel' in page._apply_bar.state.text().lower()
+    assert screen._settings_model.collect()['overview_normalize_channels'] is False
+    assert view._source_paths == [str(source)]
+    assert view._normalize_channels is None
+    assert {path.name: path.read_bytes() for path in source.glob('*.tif')} == original_bytes
+    drain_current(window)
+
+    window.rebuild_app_screen('overview', {
+        'src': str(source), 'overview_normalize_channels': 'all',
+    })
+    repaired = window._screens['overview']
+    assert repaired is not screen
+    assert isinstance(repaired._settings_model._widgets['overview_normalize_channels'], QLineEdit)
+    fresh = load_images(repaired)
+    bar = repaired._overview_page._apply_bar
+    assert bar.apply_button.isEnabled()
+    repaired._settings_model.set_value_for_key('overview_percentile_low', 7)
+    bar.apply_button.click()
+    assert fresh.low.value() == 7
+    assert fresh._source_paths == [str(source)]
+    assert {path.name: path.read_bytes() for path in source.glob('*.tif')} == original_bytes
