@@ -599,6 +599,7 @@ def test_missing_canvas_source_is_reported_without_losing_workspace_and_atomic_r
     missing = Path(field.files[0][1])
     displaced = tmp_path / "displaced-original.tif"
     missing.replace(displaced)
+    assert composer.open_layout(saved)
     output = tmp_path / "missing-source.pdf"
     assert composer.export_pdf(str(output))
     qtbot.waitUntil(lambda: composer.last_export == str(output), timeout=60000)
@@ -887,4 +888,65 @@ def test_retired_mounted_callbacks_cannot_change_the_replacement_browser_or_canv
     assert not np.array_equal(fresh(box, None), pixels[0])
     for before, saved_box in zip(pixels, composer.canvas.pages[0]):
         np.testing.assert_array_equal(composer._reader()(saved_box, None), before)
+    assert {path.name: path.read_bytes() for path in source.glob("*.tif")} == original_bytes
+
+
+def test_corrupt_saved_display_snapshot_is_refused_without_replacing_the_live_canvas(
+        recovery_canvas, qtbot, source, tmp_path, caplog):
+    import copy
+    import json
+
+    tab, view, composer = recovery_canvas
+    qtbot.waitUntil(lambda: not composer._preview_jobs.is_busy()
+                    and all(box.get("aspect") for box in composer.canvas.pages[0]
+                            if box["kind"] == "image"), timeout=15000)
+    original_bytes = {path.name: path.read_bytes() for path in source.glob("*.tif")}
+    layout = copy.deepcopy(composer.canvas.to_dict())
+    settings = copy.deepcopy(tab._settings_model.collect())
+    selected_wells = set(view._selected_wells)
+    selected_boxes = tuple(composer.selected_ids())
+    box = next(box for box in composer.canvas.pages[0] if box["kind"] == "image")
+    captured_pixels = composer._reader()(box, None).copy()
+    saved = Path(composer.save_layout(tmp_path / "valid-display-layout.json"))
+    saved_bytes = saved.read_bytes()
+    damaged = json.loads(saved_bytes)
+    image = next(box for page in damaged["pages"] for box in page if box["kind"] == "image")
+    snapshot = image["overview_display"]
+    assert set(snapshot) == {"mapping"}
+    snapshot["mappin"] = snapshot.pop("mapping")
+    corrupt = tmp_path / "damaged-display-layout.json"
+    corrupt.write_text(json.dumps(damaged), encoding="utf-8")
+
+    assert not composer.open_layout(corrupt)
+
+    assert composer.canvas.to_dict() == layout
+    assert tuple(composer.selected_ids()) == selected_boxes
+    assert tab._settings_model.collect() == settings
+    assert view._selected_wells == selected_wells
+    assert composer.status.text().startswith(browser.tr("Could not open the layout: {error}", error=""))
+    current = next(candidate for candidate in composer.canvas.pages[0]
+                   if candidate["id"] == box["id"])
+    np.testing.assert_array_equal(composer._reader()(current, None), captured_pixels)
+    assert not any(record.levelno >= 40 for record in caplog.records)
+    assert composer.open_layout(saved)
+    assert composer.canvas.to_dict() == layout
+    restored = next(candidate for candidate in composer.canvas.pages[0]
+                    if candidate["id"] == box["id"])
+    np.testing.assert_array_equal(composer._reader()(restored, None), captured_pixels)
+    legacy = json.loads(saved_bytes)
+    for page in legacy["pages"]:
+        for candidate in page:
+            if candidate["kind"] == "image":
+                candidate.pop("overview_display", None)
+    legacy_path = tmp_path / "legacy-missing-display.json"
+    legacy_path.write_text(json.dumps(legacy), encoding="utf-8")
+    legacy_bytes = legacy_path.read_bytes()
+    assert composer.open_layout(legacy_path)
+    assert all(candidate.get("overview_display") for page in composer.canvas.pages
+               for candidate in page if candidate["kind"] == "image")
+    legacy_image = next(candidate for candidate in composer.canvas.pages[0]
+                        if candidate["id"] == box["id"])
+    np.testing.assert_array_equal(composer._reader()(legacy_image, None), captured_pixels)
+    assert legacy_path.read_bytes() == legacy_bytes
+    assert saved.read_bytes() == saved_bytes
     assert {path.name: path.read_bytes() for path in source.glob("*.tif")} == original_bytes
