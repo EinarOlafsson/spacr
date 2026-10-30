@@ -2330,8 +2330,7 @@ def _overview_folders_dialog(parent, title):
     for view in dialog.findChildren(QListView) + dialog.findChildren(QTreeView):
         view.setSelectionMode(QAbstractItemView.ExtendedSelection)
     margin = RESIZE_BAND + 4
-    if dialog.layout() is not None:
-        dialog.layout().setContentsMargins(margin, margin, margin, margin)
+    dialog.layout().setContentsMargins(margin, margin, margin, margin)
     screen = (parent.screen() if parent is not None else None) or QApplication.primaryScreen()
     wanted = QSize(960, 640)
     if screen is not None:
