@@ -137,3 +137,5 @@ HOW TO KNOW IT WORKED
   cancelled.
 * A healthy screen produces no object_label disagreement warning.
 * Every organism named above resolves; Toxoplasma still works offline.
+
+2026-10-30 — Keep the accession-content/query/parser/cache contract reproducible with a representative real P04637 TSV transport fixture; leave upstream availability to the existing live UniProt cases, deferring their probe until execution. No live-service outage may replace the accession assertions with a skip.
