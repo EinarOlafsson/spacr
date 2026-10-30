@@ -105,3 +105,5 @@ targeted follow-up. Ruff and git diff checks pass. Translations, generated API
 and tutorial publication remain coordinated in N615.
 
 VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).
+
+2026-10-30: Reuse column classification before the canvas resets row indices, preserving the worker-warmed result rather than reclassifying a wide merged table on the GUI thread. The unchanged real 2,400-row, >900-column merge and 500 ms heartbeat regression passes (1 test, 7.26 s); source/index semantics and merge metadata are retained. Owner: Home.

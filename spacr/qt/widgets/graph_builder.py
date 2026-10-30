@@ -775,12 +775,12 @@ class GraphCanvas(LinkedView, QWidget):
         drawn once, under the spec it is meant for, rather than once under
         the old spec and again under the new one.
         """
+        self._kinds = self._spec.kinds_for(frame) if frame is not None else {}
         if self._point_limit is not None and frame is not None:
             frame = frame.reset_index(drop=True)
         self._frame = frame
         self._point_order = None
         self._local_selection = None
-        self._kinds = self._spec.kinds_for(frame) if frame is not None else {}
         self._keyed = False
         if frame is not None:
             try:
