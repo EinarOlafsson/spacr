@@ -9397,11 +9397,12 @@ class MainWindow(QMainWindow):
         iconset._retire_prefetch_pool()
         from ..crashreport import _note_native_context
         _note_native_context(action="close stops running jobs")
-        from .bridge import registry
-        remaining = registry().cancel_all(
-            timeout_ms=5000, reason="application shutdown")
-        if remaining:
-            names = ", ".join(handle.app_key for handle in remaining[:5])
+        from .bridge import registry, retire_live_work
+        parked = retire_live_work(timeout_ms=5000)
+        running = [handle for handle in registry().active() if handle.is_running()]
+        remaining = [handle for handle in running if handle.blocks_shutdown]
+        if parked or remaining:
+            names = ", ".join(handle.app_key for handle in (remaining or running)[:5]) or tr("Workers")
             LOG.warning(
                 "Shutdown deferred; workers did not reach a safe boundary: %s",
                 names,

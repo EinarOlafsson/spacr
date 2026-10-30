@@ -1044,13 +1044,54 @@ def wait_for_parked_threads(timeout_ms: int = PARKED_EXIT_WAIT_MS) -> int:
 
 def _drain_parked_threads_at_exit() -> None:
     """``atexit`` hook: give parked threads their last chance to finish."""
-    still_running = wait_for_parked_threads()
+    try:
+        still_running = wait_for_parked_threads()
+    except KeyboardInterrupt:
+        _record_shutdown_workers("wait interrupted")
+        raise
     if still_running:
+        detail = _record_shutdown_workers("wait expired")
         LOG.error(
             "%d worker thread(s) are still running as the process exits. "
             "Their QThread wrappers are about to be destroyed, which Qt "
             "treats as fatal. Whatever they are inside did not answer a "
-            "stop request.", still_running)
+            "stop request. %s", still_running, detail)
+
+
+def _record_shutdown_workers(phase):
+    """Record only worker state and installed public source locations, never payloads."""
+    from ..crashreport import _native_context_values, _note_native_context
+
+    with _PARKED_LOCK:
+        pairs = list(_PARKED_THREADS)
+    _note_native_context(action="exit waits for parked workers", shutdown_phase=phase,
+                         shutdown_workers=len(pairs), shutdown_wait_ms=PARKED_EXIT_WAIT_MS)
+    frames = sys._current_frames()
+    package = os.path.realpath(os.path.join(os.path.dirname(__file__), "..")) + os.sep
+    summaries = []
+    for number, (thread, worker) in enumerate(pairs[:8], 1):
+        values = {"shutdown_worker": number}
+        try:
+            values["shutdown_interruption"] = thread.isInterruptionRequested()
+        except (AttributeError, RuntimeError):
+            pass
+        token = getattr(worker, "cancel_token", None)
+        if token is not None:
+            values["shutdown_cancelled"] = bool(token.cancelled)
+        frame = frames.get(getattr(worker, "_shutdown_thread_id", None))
+        while frame is not None:
+            code = frame.f_code
+            module = frame.f_globals.get("__name__", "")
+            if (os.path.realpath(code.co_filename).startswith(package)
+                    and isinstance(module, str) and module.startswith("spacr.")):
+                values.update(shutdown_module=module, shutdown_function="function " + code.co_name,
+                              shutdown_line=frame.f_lineno)
+                break
+            frame = frame.f_back
+        clean = _native_context_values(values)
+        _note_native_context(**clean)
+        summaries.append(" ".join(f"{key}={value}" for key, value in clean.items()))
+    return "Shutdown phase: " + phase + ". Public worker state: " + "; ".join(summaries)
 
 
 #: The total budget for asking in-flight work to stop when the process ends,
@@ -1203,12 +1244,12 @@ def _retire_live_work_at_exit() -> None:
 
 
 def _install_parked_exit_hook() -> None:
-    """Register the exit hook once, and only if something has been parked."""
+    """Register one retirement hook, including any later parked-thread drain."""
     global _PARKED_EXIT_HOOK_INSTALLED
     if _PARKED_EXIT_HOOK_INSTALLED:
         return
     _PARKED_EXIT_HOOK_INSTALLED = True
-    atexit.register(_drain_parked_threads_at_exit)
+    atexit.register(_retire_live_work_at_exit)
 
 
 def prune_parked_threads() -> int:
@@ -1599,6 +1640,7 @@ class PipelineWorker(QObject):
 
     def run(self) -> None:
         """Invoked by QThread.started; runs the pipeline function to completion."""
+        self._shutdown_thread_id = threading.get_ident()
         if self.cancel_token.cancelled:
             self.was_cancelled = True
             self._say(
@@ -2729,4 +2771,4 @@ def make_thread(
     return thread, worker
 
 
-atexit.register(_retire_live_work_at_exit)
+_install_parked_exit_hook()

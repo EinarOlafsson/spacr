@@ -478,7 +478,7 @@ def test_the_exit_hook_is_registered_once_however_many_threads_are_parked(
     finally:
         B._PARKED_EXIT_HOOK_INSTALLED = was_installed
 
-    assert registered == [B._drain_parked_threads_at_exit]
+    assert registered == [B._retire_live_work_at_exit]
 
 
 # ---------------------------------------------------------------------------

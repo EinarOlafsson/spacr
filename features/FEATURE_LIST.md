@@ -12,7 +12,7 @@ Repeated IDs retain their separate full filenames and histories; none were merge
 
 This is a declaration-based navigation list, not a verified unfinished count. Headers can be stale. Conversely, recorded-Done items 641 and 673 contain later Mac follow-ups; item 729 separates native checks from deferred implementation. Read their linked notes before assigning work.
 
-24 records have no recorded complete declaration; 704 have a recorded complete declaration. Neither is a verification result.
+22 records have no recorded complete declaration; 706 have a recorded complete declaration. Neither is a verification result.
 
 | ID | Lifecycle | Item (full filename) | Recorded status |
 |---|---|---|---|
@@ -38,8 +38,6 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 739 | New | [NAVIGATOR PROTOCOLS: GUIDED INPUT CHOICES AND EXPANDABLE ANALYSIS RECIPES — 739_navigator_protocols_guided_workflows_and_expandable_recipes.txt](feature_list/739_navigator_protocols_guided_workflows_and_expandable_recipes.txt) | PLANNED — record only; do not implement in this session. |
 | 740 | New | [MAP BARCODES: SEQUENCER, READ FORMAT AND PAIRING SUPPORT — 740_map_barcodes_sequencer_formats_and_read_pairing.txt](feature_list/740_map_barcodes_sequencer_formats_and_read_pairing.txt) | PLANNED — record only; no implementation in this session. |
 | 741 | New | [REGRESSION: COMPATIBLE DRUG-SCREEN INPUTS AND PROTOCOL HANDOFF — 741_regression_drug_screen_compatibility.txt](feature_list/741_regression_drug_screen_compatibility.txt) | PLANNED — record only; no implementation in this session. |
-| 743 | New | [SHUTDOWN WORKER LIFETIME AND ANONYMOUS DIAGNOSTICS — 743_shutdown_worker_lifetime_and_anonymous_diagnostics.txt](feature_list/743_shutdown_worker_lifetime_and_anonymous_diagnostics.txt) | in progress — investigation and bounded fixes authorized on 2026-10-30. |
-| 744 | New | [ANONYMOUS ANNOTATION DATABASE STARTUP DIAGNOSTICS — 744_anonymous_annotation_database_startup_diagnostics.txt](feature_list/744_anonymous_annotation_database_startup_diagnostics.txt) | source and seven focused checks complete; publication pending. |
 
 ## All feature items
 
@@ -771,8 +769,8 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 740 | New | [MAP BARCODES: SEQUENCER, READ FORMAT AND PAIRING SUPPORT — 740_map_barcodes_sequencer_formats_and_read_pairing.txt](feature_list/740_map_barcodes_sequencer_formats_and_read_pairing.txt) | PLANNED — record only; no implementation in this session. |
 | 741 | New | [REGRESSION: COMPATIBLE DRUG-SCREEN INPUTS AND PROTOCOL HANDOFF — 741_regression_drug_screen_compatibility.txt](feature_list/741_regression_drug_screen_compatibility.txt) | PLANNED — record only; no implementation in this session. |
 | 742 | New | [SHARED GATE AND GRAPH SELECTION ANNOTATIONS AND POINT LIMIT — 742_shared_gate_and_graph_selection_annotations_and_point_limit.txt](feature_list/742_shared_gate_and_graph_selection_annotations_and_point_limit.txt) | DONE — implemented and validated; this record accompanies nightly publication. |
-| 743 | New | [SHUTDOWN WORKER LIFETIME AND ANONYMOUS DIAGNOSTICS — 743_shutdown_worker_lifetime_and_anonymous_diagnostics.txt](feature_list/743_shutdown_worker_lifetime_and_anonymous_diagnostics.txt) | in progress — investigation and bounded fixes authorized on 2026-10-30. |
-| 744 | New | [ANONYMOUS ANNOTATION DATABASE STARTUP DIAGNOSTICS — 744_anonymous_annotation_database_startup_diagnostics.txt](feature_list/744_anonymous_annotation_database_startup_diagnostics.txt) | source and seven focused checks complete; publication pending. |
+| 743 | New | [SHUTDOWN WORKER LIFETIME AND ANONYMOUS DIAGNOSTICS — 743_shutdown_worker_lifetime_and_anonymous_diagnostics.txt](feature_list/743_shutdown_worker_lifetime_and_anonymous_diagnostics.txt) | DONE — bounded shutdown fixes and anonymous diagnostics delivered on nightly. |
+| 744 | New | [ANONYMOUS ANNOTATION DATABASE STARTUP DIAGNOSTICS — 744_anonymous_annotation_database_startup_diagnostics.txt](feature_list/744_anonymous_annotation_database_startup_diagnostics.txt) | DONE — anonymous diagnostics and seven focused checks delivered on nightly. |
 
 ## Unnumbered feature documents
 

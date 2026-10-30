@@ -2248,6 +2248,25 @@ def _merge_structure_message(exception):
     return "Merge validation: " + json.dumps(result, sort_keys=True, separators=(",", ":"))
 
 
+def _annotation_database_message(exception):
+    raw = getattr(exception, '_spacr_annotation_database', None)
+    if not isinstance(raw, dict):
+        return ''
+    result = {}
+    for key, allowed in (('path', ('empty', 'relative', 'absolute', 'unknown')),
+                         ('target', ('file', 'directory', 'missing', 'other', 'unknown')),
+                         ('parent', ('file', 'directory', 'missing', 'other', 'unknown'))):
+        value = raw.get(key)
+        result[key] = value if type(value) is str and value in allowed else 'unknown'
+    for key in ('read', 'write', 'parent_read', 'parent_write'):
+        value = raw.get(key)
+        result[key] = value if type(value) is bool else None
+    for key, maximum in (('code', 65535), ('queued', 1000000000)):
+        value = raw.get(key)
+        result[key] = value if type(value) is int and 0 <= value <= maximum else None
+    return 'Annotation database startup: ' + json.dumps(result, sort_keys=True, separators=(',', ':'))
+
+
 def public_summary(exception: Optional[BaseException] = None, *,
                    traceback_text: str = "", module: str = "",
                    user_note: str = "", dry_run: bool = False,
@@ -2312,7 +2331,8 @@ def public_summary(exception: Optional[BaseException] = None, *,
         if not code_context:
             for frame in frames:
                 frame.pop("code", None)
-    merge_message = _merge_structure_message(exception)
+    merge_message = (_merge_structure_message(exception) or
+                     _annotation_database_message(exception))
     if merge_message:
         override = merge_message
         error_text = merge_message
@@ -3568,6 +3588,13 @@ def _validation_error_context(app_key, problems):
 def _dispatch_error(text="", *, exception=None, module="", traceback_text="",
                     summary=None, event_id="", origin="direct", context=None):
     """Batch error arrivals without retaining exception objects or traceback frames."""
+    if isinstance(exception, KeyboardInterrupt):
+        return None
+    if exception is None:
+        terminal = str(traceback_text or text)
+        if (re.search(r"(?m)^Traceback \(most recent call last\):[ \t]*$", terminal)
+                and _parse_traceback_text(terminal)[0] == "KeyboardInterrupt"):
+            return None
     if getattr(_ERROR_DISPATCH_LOCAL, "active", False):
         return None
     event_id, (captured, explain, send) = _error_occurrence(
@@ -3582,6 +3609,12 @@ def _dispatch_error(text="", *, exception=None, module="", traceback_text="",
     if merge_message:
         raw = "MergeError: " + merge_message
         summary = None
+        context = {}
+    annotation_message = _annotation_database_message(exception)
+    if annotation_message:
+        summary = public_summary(exception, module=module,
+                                 code_context=mode_code_context(captured.get('_mode', 'off')))
+        raw = type(exception).__name__ + ': ' + annotation_message
         context = {}
 
     def eligible():
@@ -3837,6 +3870,9 @@ _NATIVE_CONTEXT_KEYS = {
     "os": 12, "os_release": 40, "machine": 16, "pyside6": 24, "qt": 24,
     "qt_platform": 24, "accessibility": 4, "gpu": 16, "screen": MAX_SCREEN_CHARS,
     "action": 48,
+    "shutdown_phase": 24, "shutdown_workers": 8, "shutdown_wait_ms": 8,
+    "shutdown_worker": 8, "shutdown_module": 96, "shutdown_function": 96,
+    "shutdown_line": 8, "shutdown_cancelled": 4, "shutdown_interruption": 4,
 }
 
 _MAX_NATIVE_SCREENS = 4
@@ -4015,6 +4051,22 @@ def _native_crash_note(session, contexts, threads):
         parts.append("Screens before the crash: " + " > ".join(screens[-_MAX_NATIVE_SCREENS:]) + ".")
     if contexts and contexts[-1].get("action"):
         parts.append("Last step recorded before the crash: " + contexts[-1]["action"] + ".")
+    if merged.get("shutdown_phase"):
+        parts.append("Parked-worker shutdown: " + merged["shutdown_phase"]
+                     + "; workers " + merged.get("shutdown_workers", "unknown")
+                     + "; shared wait budget ms " + merged.get("shutdown_wait_ms", "unknown") + ".")
+        workers = []
+        for values in contexts:
+            if not values.get("shutdown_worker"):
+                continue
+            record = ", ".join(key.removeprefix("shutdown_") + " " + values[key]
+                               for key in ("shutdown_worker", "shutdown_module", "shutdown_function",
+                                           "shutdown_line", "shutdown_cancelled", "shutdown_interruption")
+                               if values.get(key))
+            if record not in workers:
+                workers.append(record)
+        if workers:
+            parts.append("Remaining workers (public source only): " + "; ".join(workers[-8:]) + ".")
     crashed = [frames for is_current, frames in threads if is_current]
     if crashed:
         if crashed[0]:

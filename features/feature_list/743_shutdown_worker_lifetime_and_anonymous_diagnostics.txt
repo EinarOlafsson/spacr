@@ -2,9 +2,9 @@ SHUTDOWN WORKER LIFETIME AND ANONYMOUS DIAGNOSTICS
 ================================================
 
 Lifecycle: new
-Status: in progress — investigation and bounded fixes authorized on 2026-10-30.
+Status: DONE — bounded shutdown fixes and anonymous diagnostics delivered on nightly.
 Requested: maintainer, 2026-10-30.
-Owner: Home coordinator and retained bridge/crash-report peer.
+Owner: Workstation 2 and retained bridge/crash-report peer.
 Related: 709 (open GitHub issues), 731 (native teardown context), 647 (restart).
 
 REQUEST
@@ -35,3 +35,5 @@ rather than hidden, and no unverified database or GPU cause is claimed.
 
 2026-10-30 — Recorded before implementation. Read-only source review confirms the reported exit-wait path; native cause remains unproven. Bounded reproduction and anonymous diagnostic closure are authorized.
 2026-10-30 — A real parked-worker subprocess reproduced Qt's native abort after the wait; ordinary window close now retires all worker kinds first and defers destruction while any remain. One shared exit hook prevents duplicate waits. Native reports record bounded public-code worker state and interrupted/expired wait phases without payloads; focused lifetime/privacy controls and existing cached-screen write/close checks pass. KeyboardInterrupt still reaches stderr but actual interrupts and parsed interrupt tracebacks no longer trigger AI or bug reports. Direct script exits with uncooperative native work remain unsafe; no SQLite cause or force-quit consent is inferred.
+
+2026-10-30 — Actual interrupts and parsed terminal interrupt tracebacks now remain on stderr without AI/bug reports; ordinary errors mentioning the word still report. Eighteen focused shutdown/reporting controls pass; nightly delivery includes explanatory issue replies.

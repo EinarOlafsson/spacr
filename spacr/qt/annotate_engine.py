@@ -1415,6 +1415,37 @@ def find_last_annotated_offset(
 
 
 
+def _annotation_database_diagnostics(path, exception, pending):
+    import stat
+
+    facts = {'path': 'unknown', 'target': 'unknown', 'parent': 'unknown',
+             'read': None, 'write': None, 'parent_read': None, 'parent_write': None,
+             'code': None, 'queued': min(max(0, int(pending)), 1000000000)}
+    code = getattr(exception, 'sqlite_errorcode', None)
+    if type(code) is int and 0 <= code <= 65535:
+        facts['code'] = code
+    try:
+        raw = os.fspath(path)
+        facts['path'] = 'empty' if not raw else 'absolute' if os.path.isabs(raw) else 'relative'
+        if not raw:
+            return facts
+        target = os.path.abspath(os.path.expanduser(raw))
+        for key, candidate in (('target', target), ('parent', os.path.dirname(target))):
+            try:
+                mode = os.stat(candidate).st_mode
+                facts[key] = 'file' if stat.S_ISREG(mode) else 'directory' if stat.S_ISDIR(mode) else 'other'
+                prefix = '' if key == 'target' else 'parent_'
+                facts[prefix + 'read'] = os.access(candidate, os.R_OK)
+                facts[prefix + 'write'] = os.access(candidate, os.W_OK)
+            except FileNotFoundError:
+                facts[key] = 'missing'
+            except (OSError, ValueError):
+                pass
+    except (OSError, ValueError, TypeError):
+        pass
+    return facts
+
+
 class SaveWorker:
     """Runs in a daemon thread; consumes {png_path: annotation} batches
     from a Queue and commits them to the DB in coalesced transactions.
@@ -1651,6 +1682,9 @@ class SaveWorker:
                     self._busy = False
                     self._q.task_done()
         except BaseException as exc:
+            if conn is None:
+                exc._spacr_annotation_database = _annotation_database_diagnostics(
+                    self.db_path, exc, self.pending_batches)
             with self._lock:
                 if self._last_error is None:
                     self._last_error = (

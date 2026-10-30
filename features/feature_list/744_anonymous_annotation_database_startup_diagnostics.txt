@@ -1,7 +1,7 @@
 ANONYMOUS ANNOTATION DATABASE STARTUP DIAGNOSTICS
 ==============================================
 Lifecycle: new
-Status: source and seven focused checks complete; publication pending.
+Status: DONE — anonymous diagnostics and seven focused checks delivered on nightly.
         Diagnostic follow-up, not a confirmed root-cause fix.
 Requested: maintainer, 2026-10-30.
 Owner: Workstation 2.
@@ -32,5 +32,5 @@ collected facts on #178 before closing it; do not claim native macOS validation.
 2026-10-30 — Added anonymous startup facts and strict reporter reconstruction.
 Seven focused checks pass, including actual SQLite failures, retained queued
 labels, private-value rejection, original stack, consent Off and provider None.
-No original-cause fix or native macOS acceptance is claimed. Issue comment and
-closure await the published nightly commit.
+No original-cause fix or native macOS acceptance is claimed. Nightly publication
+is accompanied by the missing-evidence explanation and closure of report #178.
