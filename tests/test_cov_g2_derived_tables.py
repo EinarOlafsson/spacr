@@ -253,3 +253,27 @@ def test_a_named_acquisition_column_preserves_existing_filename_metadata(tmp_pat
     pd.testing.assert_frame_equal(reopened, result)
     assert reopened_report == report
     assert (Path(path).read_bytes(), mapping.read_bytes()) == before
+
+
+def test_a_conflicting_primary_policy_cannot_expand_the_named_base(tmp_path):
+    """A recipe cannot replace cell observations with its more numerous children."""
+    from spacr.merge_tables import MergePolicy
+
+    identity = {"plateID": "p1", "rowID": "r1", "columnID": "c1", "fieldID": "f1"}
+    frames = {
+        "cell": pd.DataFrame([{**identity, "object_label": 1, "area": 100.0}]),
+        "pathogen": pd.DataFrame([{**identity, "object_label": label,
+                                   "cell_id": 1, "area": float(label)}
+                                  for label in (1, 2, 3)])}
+    path = database(tmp_path, frames)
+    before = Path(path).read_bytes()
+    recipe = dt.default_definition(path, ["cell", "pathogen"], base="cell",
+                                   policy=MergePolicy(primary="pathogen"))
+    assert recipe["base"] == "cell"
+    assert recipe["policy"]["primary"] == "pathogen"
+
+    with pytest.raises(MergeError, match="increased the base observation count"):
+        dt.execute(path, recipe)
+
+    assert Path(path).read_bytes() == before
+    assert not dt.sidecar_path(path).exists()
