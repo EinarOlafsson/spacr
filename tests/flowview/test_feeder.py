@@ -265,3 +265,26 @@ def test_importing_feeder_does_not_import_qt_in_a_fresh_process():
     completed = subprocess.run(command, capture_output=True, text=True)
     assert completed.returncode == 0, completed.stderr
     assert completed.stdout == ""
+
+
+def test_malformed_duration_does_not_consume_events_and_valid_feeder_still_delivers():
+    """Reject bad configuration before touching the queue, then deliver normally."""
+    source, collector = queue.Queue(), _collector()
+    event = NodeAdded(Node("retained", "Retained input", NodeKind.INPUT))
+    source.put_nowait(event)
+    with pytest.raises(ValueError, match="poll_interval must be a finite number of seconds"):
+        MultiprocessingFeeder(source, collector, poll_interval="later")
+    assert collector.pending == 0
+    assert source.get_nowait() is event
+    source.put_nowait(event)
+    feeder = MultiprocessingFeeder(source, collector, poll_interval=0.005)
+    with pytest.raises(ValueError, match="timeout must be a finite number of seconds"):
+        feeder.stop("later")
+    assert feeder.running is False and collector.pending == 0
+    try:
+        feeder.start()
+        assert _wait_for(lambda: collector.pending == 1)
+        assert feeder.stop() is True
+        assert source.empty()
+    finally:
+        feeder.stop()
