@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 14:05-0400\n"
+"POT-Creation-Date: 2026-10-30 19:56-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -42,6 +42,10 @@ msgstr "Í sama hluta skaltu velja **Mældur kjarni (TIFF/NPY)** og hlaða kvör
 
 msgid "Wait for the kernel to load, then use **Compare** to inspect its effect. Set **Deconvolution iterations** when using Richardson–Lucy and choose **Apply** to use the result for detection. Start with a modest iteration count and inspect noise as well as object boundaries. **Reload** rereads a kernel file after you change it. **Off** disables PSF processing."
 msgstr "Bíddu eftir að kjarninn hlaðist og notaðu síðan **Bera saman** til að skoða áhrif hans. Stilltu **Ítranir afföldunar** þegar Richardson–Lucy er notað og veldu **Beita** til að nota niðurstöðuna við greiningu. Byrjaðu með hóflegan fjölda ítrana og skoðaðu suð jafnt sem hlutamörk. **Hlaða aftur** les kjarnaskrá aftur eftir að þú breytir henni. **Slökkt** gerir PSF-vinnslu óvirka."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In Generate Masks, PSF and enhancement preprocessing is recorded in ``psf/segmentation_application.json``. If processing is requested or a prior record exists, reuse of normalized V1 archives checks the requested processing configuration, ordered source channels, exact field set and archive hashes against the completed record. Switching processing off does not bypass a record from an earlier run. If validation fails, enable preprocessing to rebuild the complete archive set from ``stack/``; restore the original images first if the stacks are unavailable. Changing ``resume`` alone does not make incompatible inputs reusable. See :doc:`checkpoint_resume`."
+msgstr "Í Generate Masks er PSF- og myndbætandi forvinnsla skráð í ``psf/segmentation_application.json``. Ef óskað er eftir vinnslu eða fyrri skráning er til staðar er umbeðin vinnslustilling, röð upprunarása, nákvæmt sjónsviðasafn og tætigildi safnskráa borið saman við fullgerðu skráninguna áður en staðlaðar V1-safnskrár eru endurnýttar. Að slökkva á vinnslu sniðgengur ekki skráningu úr fyrri keyrslu. Ef sannprófun mistekst skaltu virkja forvinnslu til að endurbyggja allt safnskrársafnið úr ``stack/``; endurheimtu fyrst upprunalegu myndirnar ef staflarnir eru ekki tiltækir. Að breyta aðeins ``resume`` gerir ósamrýmanleg inntök ekki endurnýtanleg. Sjá :doc:`checkpoint_resume`."
 
 msgid "A wider Gaussian PSF spreads two fixed intensity peaks while preserving total intensity."
 msgstr "Breiðara Gauss-PSF dreifir tveimur föstum styrkleikatoppum en varðveitir heildarstyrk."

@@ -66,14 +66,25 @@ declared pixel bytes for the shape and dtype, and one filename per batch
 field. This structural check does not inflate every pixel array or perform
 a full pixel CRC scan.
 
+New normalized V1 Mask archives record the ordered original channel IDs in ``source_channels``.
+Reuse checks this order against the current object-role channel choices; saved
+``cellpose_<role>_channel`` values are derived positions, not overrides.
+Missing or incompatible channel provenance stops segmentation with preprocessing
+off. Enable preprocessing to rebuild from the original ``stack/`` fields; if
+those fields are unavailable, restore the original images before retrying.
+When rebuilding archives with incompatible channel provenance, prior mask stacks
+and ``merged/`` outputs are moved to ``previous_segmentation_channel_order_*``
+for safekeeping rather than reused with the new channel order.
+
 Damaged archives are set aside as ``<name>.damaged``. With preprocessing
 disabled, the run stops and explains how to recover them. The same quarantine
 still prevents a later run from silently omitting those fields. It is resolved
 by a valid same-name replacement, or by readable archives covering every
 existing field in ``stack/``. Archives that store filenames as object-valued
 arrays cannot prove that coverage. Enabling preprocessing lets recoverable fields be rebuilt
-from the available source data; valid archives and quarantined evidence are
-preserved.
+from the available source data. Quarantined evidence is preserved. Compatible
+whole archives can be retained; corrected or channel-incompatible archive sets
+may need to be rebuilt completely.
 
 Safety rules
 ------------

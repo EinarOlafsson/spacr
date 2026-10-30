@@ -44,6 +44,17 @@ Set **Deconvolution iterations** when using Richardson–Lucy and choose
 count and inspect noise as well as object boundaries. **Reload** rereads a
 kernel file after you change it. **Off** disables PSF processing.
 
+In Generate Masks, PSF and enhancement preprocessing is recorded in
+``psf/segmentation_application.json``. If processing is requested or a prior
+record exists, reuse of normalized V1 archives checks the requested processing
+configuration, ordered source channels, exact field set and archive hashes
+against the completed record. Switching
+processing off does not bypass a record from an earlier run. If validation
+fails, enable preprocessing to rebuild the complete archive set from ``stack/``;
+restore the original images first if the stacks are unavailable. Changing
+``resume`` alone does not make incompatible inputs reusable. See
+:doc:`checkpoint_resume`.
+
 .. image:: ../../spacr/resources/setting_animations/gifs/psf_fwhm_um.gif
    :alt: A wider Gaussian PSF spreads two fixed intensity peaks while preserving total intensity.
    :width: 300px

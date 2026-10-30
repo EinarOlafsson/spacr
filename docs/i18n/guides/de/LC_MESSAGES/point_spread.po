@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 14:05-0400\n"
+"POT-Creation-Date: 2026-10-30 19:56-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: de\n"
@@ -42,6 +42,10 @@ msgstr "Wählen Sie im selben Ausklappbereich **Gemessener Kernel (TIFF/NPY)** u
 
 msgid "Wait for the kernel to load, then use **Compare** to inspect its effect. Set **Deconvolution iterations** when using Richardson–Lucy and choose **Apply** to use the result for detection. Start with a modest iteration count and inspect noise as well as object boundaries. **Reload** rereads a kernel file after you change it. **Off** disables PSF processing."
 msgstr "Warten Sie, bis der Kernel geladen ist, und prüfen Sie dann mit **Vergleichen** seine Wirkung. Legen Sie bei Richardson–Lucy die **Dekonvolutionsiterationen** fest und wählen Sie **Anwenden**, um das Ergebnis für die Erkennung zu verwenden. Beginnen Sie mit einer moderaten Anzahl von Iterationen und prüfen Sie sowohl das Rauschen als auch die Objektgrenzen. **Neu laden** liest eine Kerneldatei erneut ein, nachdem Sie sie geändert haben. **Aus** deaktiviert die PSF-Verarbeitung."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In Generate Masks, PSF and enhancement preprocessing is recorded in ``psf/segmentation_application.json``. If processing is requested or a prior record exists, reuse of normalized V1 archives checks the requested processing configuration, ordered source channels, exact field set and archive hashes against the completed record. Switching processing off does not bypass a record from an earlier run. If validation fails, enable preprocessing to rebuild the complete archive set from ``stack/``; restore the original images first if the stacks are unavailable. Changing ``resume`` alone does not make incompatible inputs reusable. See :doc:`checkpoint_resume`."
+msgstr "In Generate Masks wird die PSF- und Bildverbesserungsvorverarbeitung in ``psf/segmentation_application.json`` aufgezeichnet. Wenn eine Verarbeitung angefordert wird oder ein früherer Datensatz vorliegt, werden vor der Wiederverwendung normalisierter V1-Archive die angeforderte Verarbeitungskonfiguration, die geordneten Quellkanäle, die genaue Bildfeldmenge und die Archiv-Hashes mit dem abgeschlossenen Datensatz abgeglichen. Das Ausschalten der Verarbeitung umgeht keinen Datensatz eines früheren Laufs. Schlägt die Validierung fehl, aktivieren Sie die Vorverarbeitung, um den vollständigen Archivsatz aus ``stack/`` neu aufzubauen; stellen Sie zunächst die Originalbilder wieder her, falls die Stapel nicht verfügbar sind. Eine Änderung von ``resume`` allein macht inkompatible Eingaben nicht wiederverwendbar. Siehe :doc:`checkpoint_resume`."
 
 msgid "A wider Gaussian PSF spreads two fixed intensity peaks while preserving total intensity."
 msgstr "Eine breitere Gauß-PSF verbreitert zwei feste Intensitätsspitzen, während die Gesamtintensität erhalten bleibt."
