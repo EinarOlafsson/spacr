@@ -86,3 +86,48 @@ def test_many_arbitrary_condition_names_and_metadata_columns():
     assert apply_conditions(frame, definition, source).condition.tolist() == [f'dose {i}' for i in range(75)]
     with pytest.raises(AnnotationError, match='another source'):
         apply_conditions(frame, definition, source_context(merge_definition={'tables': ['other']}))
+
+
+def test_sqlite_annotations_rebind_nullable_dates_and_preserve_source_and_views(tmp_path):
+    """Saving normalized SQLite values keeps editable rules and existing tables safe."""
+    import sqlite3
+    import numpy as np
+    from spacr.condition_annotations import save_annotated_table, saved_table_annotation
+
+    path = tmp_path / "measurements.db"
+    source_frame = pd.DataFrame({"wellID": ["A1", "A2", "B1"],
+                                 "acquired": pd.to_datetime(["2026-01-02", None, "2026-01-04"]),
+                                 "count": pd.Series([1, pd.NA, 3], dtype="Int64"),
+                                 "value": [1.0, np.nan, 2.5]})
+    with sqlite3.connect(path) as connection:
+        source_frame.to_sql("input", connection, index=False)
+        connection.execute('CREATE VIEW existing_view AS SELECT * FROM input')
+        source_before = pd.read_sql_query('SELECT * FROM input', connection)
+    source = source_context(path, "input")
+    definition = new_definition(source_frame, source, column="treatment")
+    definition["conditions"] = [rule(name="treated", include="^A")]
+    working = apply_conditions(source_frame, definition, source)
+    working_before = working.copy(deep=True)
+
+    assert save_annotated_table(path, "reviewed", working, definition, source) == "reviewed"
+
+    with sqlite3.connect(path) as connection:
+        stored = pd.read_sql_query('SELECT * FROM reviewed', connection)
+        pd.testing.assert_frame_equal(pd.read_sql_query('SELECT * FROM input', connection), source_before)
+        assert pd.read_sql_query('SELECT * FROM existing_view', connection).shape == source_before.shape
+    assert stored.treatment.fillna("").tolist() == ["treated", "treated", ""]
+    assert stored.acquired.iloc[0] == "2026-01-02T00:00:00"
+    assert pd.isna(stored.acquired.iloc[1]) and pd.isna(stored["count"].iloc[1])
+    rebound = saved_table_annotation(path, "reviewed", stored)
+    restored = apply_conditions(stored.drop(columns="treatment"), rebound, source_context(path, "reviewed"))
+    assert restored.treatment.fillna("").tolist() == stored.treatment.fillna("").tolist()
+    before_refusal = path.read_bytes()
+    with pytest.raises(AnnotationError, match="table or view already exists"):
+        save_annotated_table(path, "existing_view", working, definition, source)
+    assert path.read_bytes() == before_refusal
+    changed = working.copy(deep=True)
+    changed.loc[0, "treatment"] = "different"
+    with pytest.raises(AnnotationError, match="working annotations changed"):
+        save_annotated_table(path, "changed", changed, definition, source)
+    assert path.read_bytes() == before_refusal
+    pd.testing.assert_frame_equal(working, working_before)
