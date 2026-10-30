@@ -1,0 +1,26 @@
+MAP BARCODES: SEQUENCER, READ FORMAT AND PAIRING SUPPORT
+
+Lifecycle: new
+Status:    PLANNED — record only; no implementation in this session.
+Requested: 2026-10-30, maintainer, within N739 Protocols brief
+Owner:     Next session; present the supported-format/design proposal first.
+Related:   N739 Navigator Protocols; existing Map Barcodes readers and settings.
+Release:   Not a blocker or implementation addition for 1.5.1.7.
+
+The maintainer explicitly requests this as a separate item. In the sequencing
+branch, ask which sequencing machine produced the reads, accommodate different
+sequencing file formats in Map Barcodes, and offer paired, unpaired or both
+(mixed inputs). Carry the selected compatible options from Navigator Protocols
+into Map Barcodes.
+
+Before coding, inventory actual current readers/formats and propose supported
+sequencers, format detection/conversion, machine-specific settings, read/index
+roles, paired-file matching and mixed-input validation. Retain an unknown/other
+route; infer a machine only when evidence is reliable. Do not advertise formats
+that current readers cannot handle. Preserve existing barcode-mapping behavior,
+quality/identity checks, data provenance and output contracts. Explain failures
+and missing conversion requirements clearly rather than silently coercing data.
+
+Design and implementation must be coordinated with N739's complete path catalog.
+The original request is preserved verbatim in N739. No implementation is authorized
+by this recording-only session; the next session first presents its plan.

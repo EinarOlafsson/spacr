@@ -1,0 +1,26 @@
+REGRESSION: COMPATIBLE DRUG-SCREEN INPUTS AND PROTOCOL HANDOFF
+
+Lifecycle: new
+Status:    PLANNED — record only; no implementation in this session.
+Requested: 2026-10-30, maintainer, within N739 Protocols brief
+Owner:     Next session; present the data/model compatibility proposal first.
+Related:   N739 Navigator Protocols; Regression; Dose–Response; QC and databases.
+Release:   Not a blocker or implementation addition for 1.5.1.7.
+
+The maintainer explicitly requests a separate item making Regression compatible
+with drug screens. In the Protocols feature-set branch, choosing 'Drug screen'
+should offer Dose–Response and Regression, with compatible input/context carried
+forward. This must work with spaCR-generated/compatible databases, with or without
+image crops when the selected operation permits it.
+
+Before coding, compare the current Regression/Dose–Response input contracts and
+propose explicit drug, concentration/unit, treatment, control, replicate and
+plate/batch metadata mappings; distinguish required from optional fields and
+state which existing analyses are valid for each supported input. Do not require
+CRISPR guide/barcode columns for drug screens or silently invent scientific model
+semantics. Preserve current CRISPR/regression behavior and scientific assertions.
+Propose relevant validation data, outputs, figures and documentation alongside
+the N739 routing plan; obtain design approval before implementation.
+
+The original request and feature-set branching requirements are preserved in
+N739. This session only records the work for the next session.

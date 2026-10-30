@@ -1,0 +1,135 @@
+NAVIGATOR PROTOCOLS: GUIDED INPUT CHOICES AND EXPANDABLE ANALYSIS RECIPES
+
+Lifecycle: new
+Status:    PLANNED — record only; do not implement in this session.
+Requested: 2026-10-30, maintainer
+Owner:     Next session, after presenting the design for maintainer review.
+Related:   N733 Navigator; N740 sequencing inputs; N741 drug-screen Regression;
+           N676 tutorials; N678 factual documentation and localization.
+Release:   Not a blocker or implementation addition for 1.5.1.7.
+
+DELIVERY BOUNDARY
+
+This records the maintainer's request. No UI, protocol engine, scientific
+method or runtime behavior is to be implemented now. The next session must
+first present a complete proposed path catalog and implementation plan for
+the maintainer to correct and approve before implementation. Do not treat
+the rough path examples below as a complete or already-approved design.
+Keep existing protocol navigation working until an approved replacement lands.
+
+REQUIRED PLANNING OUTPUT
+
+Use the complete current module, organism and submodule registries rather
+than guessing names or hard-coding only the approximately fifteen examples.
+List each input/format/metadata/experiment branch, its explanatory text,
+compatible starting modules, settings carried forward, protocol contents and
+valid downstream choices. Every module/submodule must be represented where
+its actual input/output contracts permit it, with multiple starting routes
+where useful. Preserve alpha/availability rules; do not promise unsupported
+formats or silently start analysis. Include Overview/QC, OPS, time-lapse, 3D,
+concatenation, organism-specific tools and other currently registered routes
+where applicable; identify any missing capability separately.
+
+The plan must cover the P-ring/search-bar layout, three-step selection state,
+Back/Next validation and retained choices, source/settings handoff, the shared
+explanation box, module cards above the search field, and the Markdown
+protocol popup with PDF export/Close. Explain how optional checkboxes, module,
+API, documentation/tutorial links, and nested expandable settings explanations
+would work both interactively and in exported PDFs. Links must use verified
+current destinations and module activation remains an explicit user action.
+Plan normal localization and generated artifacts using the existing tools.
+
+Keep these rough-brief inconsistencies visible for design review: step 1 says
+'Sequencing data' while later paths say FASTQ; step 2 lists PDF only for low
+content while path 10 also requests high-content PDF; the image counts are
+approximate and handling fewer than ten images must be specified. Explain
+how crop-dependent routes differ between databases with/without crops and
+how additional image-format/metadata choices are shared without losing the
+chosen settings. Do not resolve scientific/design choices by assumption.
+
+The separate sequencer/file-format task is N740. Drug-screen Regression
+compatibility is N741. Their protocol branches belong here, while their
+runtime/data-model work belongs in those separate items.
+
+ORIGINAL MAINTAINER REQUEST — VERBATIM
+
+add to new features list and push to git, dont implement now, the next session will. 
+
+Protocols
+
+in the navigator there should be a white P to the left of the AI button, if the user presses this then under the search field should open a drop down menu rectangle with rounded edges in the same style as the search bar, that should say Experiment/Input ... in gray text. when the user clicks an alternative the alternative is explained in the text  box below (same one the search uses). to the far right of the drop down should be a forward and a back arrows in the same style as the arrows in the same style as the arrows in the text box below. they are grayed out to start with. the alternatives in step 1 are:
+
+Some images, Low-content (~10-50)
+Many images, High-content (>50)
+Sequensing data
+Feature set
+
+the user picks one of these and then the text box below has a short explanation of what they chose, and they pres the right arrow (which is now blue and not grayed out indicating it can be pressed)
+
+Step 2: The same thing just different options, now the gray text before choosing an option is Data format ... . the options are depending on what the user chose in step 1:
+
+if the user chose: Some images (~10-50):
+tif with Yokogawa metadata
+tif with other metadata
+other with Yokogawa metadata
+other with other metadata
+images on a PDF
+
+if the user chose: Many images (>50):
+tif with Yokogawa metadata
+tif with other metadata
+other with Yokogawa metadata
+other with other metadata
+
+if the user chose: FASTQ files:
+##here i think it would be good if we asked the user which sequensing machine the reads are from and acomodate different sequensing file formats and bake that into map barcodes (that is an item in and of itself.)
+
+if the user chose: Feature set:
+spaCR generate Database
+spaCR generate Database with crops
+other Database
+other csv
+
+Step 3: In this step the starting modules that can be used for that data pop up above the search field and a protocol window pops up. The protocol pop up window is a markdown with steps on how to analyze the data with spaCR. it has a save PDF button at the bottom and a close button.
+
+
+1. Some images (~10-50): tif with Yokogawa metadata: Starting moduals: Mask generation, Make Masks
+2. Some images (~10-50): tif with other metadata: Here the drop down should provide the other metadata types that are in mask generation and if the user picks one then presses mask generation as the starting module that metadata is automatically chosen.Starting moduals: Import, Maks generation, Make masks, Allign and stitch,   
+3. Some images (~10-50): other with Yokogawa metadata: Here the drop down should provide the other image format options. starting module: Import and Make Masks
+4. Some images (~10-50): other with other metadata: Here the drop down should provide the other image format options, and then a drop down with the other metadata options. the user chosen option should be imported into the subseqiuent moduals if compatible. Import and Make Masks (if step 3.9 and step 3.10 have the same modual endpoints they can be combined and the Yokabowa metadata option should be available.)
+
+5. Some images (~10-50): images on a PDF: Starting modual: Plaque assay
+
+6. Many images, High-content (>50): tif with Yokogawa metadata: tif with Yokogawa metadata: Starting moduals: Mask generation, Make Masks
+7. Many images, High-content (>50): tif with other metadata: tif with other metadata: Here the drop down should provide the other metadata types that are in mask generation and if the user picks one then presses mask generation as the starting module that metadata is automatically chosen.Starting moduals: Import, Maks generation, Make masks, Allign and stitch,   
+8. Many images, High-content (>50): other with Yokogawa metadata: other with Yokogawa metadata: Here the drop down should provide the other image format options. starting module: Import and Make Masks
+9. Many images, High-content (>50): other with other metadata: other with other metadata: Here the drop down should provide the other image format options, and then a drop down with the other metadata options. the user chosen option should be imported into the subseqiuent moduals if compatible. Import and Make Masks (if step 3.9 and step 3.10 have the same modual endpoints they can be combined and the Yokabowa metadata option should be available.)
+10. Many images, High-content (>50): images on a PDF: Starting modual: Plaque assay
+
+11. FASTQ files: the options of sequensing : drop down menue with Sequensing machines: then a drop down with paired and unpaired or both: then starting modual Map barecodes with the chosen options carried allong
+
+12. Feature set: spaCR generated/compatible Database with crops: here the options in the next drop down menu should include spaCR screen, Drug screen, other. If you can come up with any other options here that you think fit add them. Starting Moduals: Annotate, Classify, Regression, Gate Editor, Graph Builder, Organisms, Image UMAP
+13. Feature set: spaCR generated/compatible Database: here the options in the next drop down menu should include spaCR screen, Drug screen, other. If you can come up with any other options here that you think fit add them. Starting Moduals: Annotate, Classify, Regression, Gate Editor, Graph Builder, Organisms, Image UMAP
+There should be other drop downs after spaCR screen, Drug screen, other. after spacr screen: Mapped Barecodes, Barecodes not mapped. then starting modual Regression for mapped barcodes and starting modual Map barcpodes for Barecodes Not Mapped. after drug screen show dose response and regression (we should also make the regression modual compatible with graug screens this should be another item). 
+
+For other in 12 and 13 the next level is basically what experiment the user did so the options should be: all the Organisms followed by their specific moduals together with Import, Graph bulider, Gate Editor, Database Browser and all the image crop related moduals for step 3 12.
+for 12 and 13 QC, Database Browser should be an option for both. 
+14. Feature set: other Database: Starting modual: Import, Graph bulider, Gate Editor, Database Browser
+15. Feature set: other csv: Starting modual: Import, Graph bulider, Gate Editor
+
+
+this is a rough overview of what i want for the layout of the new protocols feature. All moduals and submoduals should be mentioned somewhere, potentially but not necessarily in multiple places. please fill in whatever you think i forgot. All moduals and submoduals should be represented. if i already used a modual somewhere but you think that modual fitts as a starting modual somewhere else.
+
+now for the protocols each path, here there are ~15 discribed paths but you will add many more. each path should have a markdown protocol, that guides the user through exactly what they need to do. with the different paths you have knowledge of what the user has and dosnt have, and what they want to do. so all of that knowledge should be used to generate the markdown protocols.
+a bonus would be if you provided boxes the user could tick and links to modules and API and Documentation and Tutorials and have expandable reagions in the protocol that have explanations for all settings the user can choose to expand. the protocol should be easy to read and at first glance high level, then the user can go deeper and deeper with more and more detail by expanding regions in expanded regions and so on. please provide me with all of the paths you can think of and a plan for how you would implement these changes. then ill correct that and you can go ahead and implement the changes. 
+
+also remove the protocols link at the bottom of the text box on startup and add a line for Protocols referencing the new P in the search bar. the P should be in a ring the same size as the AI ring and should have a capital P in the middle in white. When activated and the drop down appears (like the moduals appear) the P should turn Black and the color should turn a pleasent Blue like the spacr theme spacr field dot blue color.
+the protocol drop down should be centered on the search bar and 75% of its length.
+
+at the botom of the text box the modual links look ugly ,  instead have one link that activates the side bar to open. also add a into line to the side bar that ends in the link (not blue and underlined though just blue)
+
+also in the text box the order of the origional instructions should be :
+
+spaCR AI:
+Protocols:
+then the rest

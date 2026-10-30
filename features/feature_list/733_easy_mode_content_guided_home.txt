@@ -677,3 +677,5 @@ The tutorial owner resumes the entire campaign after this guarded nightly public
 2026-10-29 — Hosted questions now always consult the relay’s prompt-aware cache; local-provider answers are scoped to system prompt, provider and selected model. Both actual saved-file regressions pass. Removed 16 obsolete local question answers on this workstation while preserving its two error explanations.
 
 2026-10-29 — Navigator network choices retain the original input unless a destination-specific path is available; native assay forms take precedence over organism grouping, and PDFs keep their source while extraction starts. Only visible Navigator Home intercepts global drops; active modules receive native drops. Source/network/drop regressions and 302 existing routing/PDF controls pass.
+
+2026-10-30 — Record the new Protocols wizard/startup guidance redesign in N739, with sequencing-format/read-pairing support in N740 and drug-screen Regression in N741. These are planning-only requests for the next session: first present the full path catalog and design for maintainer review; no implementation or current protocol-link removal is authorized in this session.
