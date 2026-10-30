@@ -186,3 +186,40 @@ def test_merge_recomputes_names_measure_already_added(tmp_path):
     result, _ = _restore_original_filenames(
         frame, {"original_filenames": {"map_path": str(manifest)}})
     assert result["original_filename"].tolist() == ["well_A1_pos3.nd2"]
+
+
+def test_measure_retains_only_successful_image_channel_provenance(tmp_path):
+    """Channel-sort metadata enriches measured cells without admitting masks or failures."""
+    merged = _write_plate(tmp_path, FIELDS[:1])
+    image_path = merged / (FIELDS[0] + ".npy")
+    image_before = image_path.read_bytes()
+    image = np.load(image_path)
+    base = {"kind": "image", "new_path": "plate1_A01_T0001F001L01C01.tif",
+            "plate": "plate1", "well": "A01", "field": 1, "time": 1,
+            "source_plate": "experiment-7", "source_well": "B03"}
+    rows = [
+        dict(base, status="moved", original_path="/raw/blue.tif", source_channel="blue"),
+        dict(base, status="converted uint16", original_path="/raw/green.tif",
+             new_path="plate1_A01_T0001F001L01C02.tif", source_channel=""),
+        dict(base, kind="mask", status="moved", original_path="/raw/mask.tif",
+             source_channel="mask-channel"),
+        dict(base, status="error", original_path="/raw/failed.tif",
+             source_channel="failed-channel")]
+    manifest = tmp_path / "channel_sorting_manifest.csv"
+    pd.DataFrame(rows).to_csv(manifest, index=False)
+    manifest_before = manifest.read_bytes()
+
+    measure.measure_crop(_settings(merged))
+
+    cells = _tables(tmp_path)["cell"]
+    assert len(cells) == 4
+    assert sorted(cells["object_label"].tolist()) == [1, 2, 3, 4]
+    assert cells["original_filename"].tolist() == ["blue.tif; green.tif"] * 4
+    assert cells["original_path"].tolist() == ["/raw/blue.tif; /raw/green.tif"] * 4
+    assert cells["original_plate"].tolist() == ["experiment-7"] * 4
+    assert cells["original_well"].tolist() == ["B03"] * 4
+    assert cells["original_channel"].tolist() == ["blue"] * 4
+    for _, row in cells.iterrows():
+        assert row["cell_area"] == np.count_nonzero(image[..., 2] == row["object_label"])
+    assert image_path.read_bytes() == image_before
+    assert manifest.read_bytes() == manifest_before
