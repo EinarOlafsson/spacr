@@ -554,3 +554,41 @@ def test_uncalibrated_guided_canvas_and_header_whitespace_preserve_the_loaded_pl
     assert tuple(field.identity for field in view._fields) == fields
     assert composer.canvas.to_dict() == before
     assert {path.name: path.read_bytes() for path in source.iterdir() if path.suffix == ".tif"} == original
+
+
+def test_header_whitespace_double_click_keeps_the_open_image_and_real_columns_still_collapse(
+        view, qtbot, source):
+    source_bytes = {path.name: path.read_bytes() for path in source.glob("*.tif")}
+    view._well(_item(view, "A01"))
+    qtbot.waitUntil(lambda: view.fields.count() == 2)
+    qtbot.mouseClick(view.fields.viewport(), Qt.LeftButton,
+                     pos=view.fields.visualItemRect(view.fields.item(0)).center())
+    qtbot.waitUntil(lambda: view._main_view_field is not None and view.view._item is not None
+                   and not view.view._item.pixmap().isNull())
+    field = view._main_view_field
+    pixels = view.view._item.pixmap().toImage().copy()
+    selected = set(view._selected_wells)
+    header = view.wells.horizontalHeader()
+    next(action for action in view._plate_zoom_actions if action.text() == "Zoom out").trigger()
+    qtbot.waitUntil(lambda: header.length() < header.viewport().width())
+    empty = QPoint(header.viewport().width() - 1, header.height() // 2)
+    assert header.logicalIndexAt(empty) == -1
+    received = []
+    header.sectionDoubleClicked.connect(received.append)
+    qtbot.mouseDClick(header.viewport(), Qt.LeftButton, pos=empty)
+    assert received == [-1]
+    assert view._collapsed_lines() == (set(), set())
+    assert view._main_view_field is field and view.view._item.pixmap().toImage() == pixels
+    assert set(view._selected_wells) == selected
+    section = QPoint(header.sectionViewportPosition(0) + header.sectionSize(0) // 2, header.height() // 2)
+    assert header.logicalIndexAt(section) == 0
+    qtbot.mouseDClick(header.viewport(), Qt.LeftButton, pos=section)
+    assert received[-1] == 0 and view._collapsed_lines()[1] == {0}
+    menu = view._header_menu("column", empty)
+    restore = next(action for action in menu.actions() if action.text() == "Show all rows and columns")
+    assert restore.isEnabled()
+    restore.trigger()
+    menu.close()
+    assert view._collapsed_lines() == (set(), set())
+    assert view._main_view_field is field and view.view._item.pixmap().toImage() == pixels
+    assert {path.name: path.read_bytes() for path in source.glob("*.tif")} == source_bytes
