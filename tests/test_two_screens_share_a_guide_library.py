@@ -394,3 +394,30 @@ def test_union_drops_nothing_and_says_so(two_screens):
     assert "cell_perimeter" in merged.columns
     assert merged.attrs["dropped_columns"] == ()
     assert not told
+
+
+def test_sql_null_screen_ids_keep_existing_experiments_and_observations_separate(tmp_path):
+    """Nullable database records can be filled without pooling another screen's well."""
+    path = tmp_path / "nullable-screens.db"
+    with sqlite3.connect(path) as connection:
+        connection.execute('CREATE TABLE observations (screenID TEXT, plateID TEXT, rowID TEXT, columnID TEXT, objectID INTEGER, value REAL)')
+        connection.executemany('INSERT INTO observations VALUES (?, ?, ?, ?, ?, ?)', [
+            ("screen-A", "plate1", "r1", "c1", 1, 10.0),
+            (None, "plate1", "r1", "c1", 1, 20.0),
+            ("", "plate1", "r1", "c1", 2, 30.0)])
+        cursor = connection.execute('SELECT * FROM observations ORDER BY rowid')
+        frame = pd.DataFrame(cursor.fetchall(), columns=[column[0] for column in cursor.description], dtype=object)
+    connection.close()
+    assert frame.screenID.iloc[1] is None
+    before, source_bytes = frame.copy(deep=True), path.read_bytes()
+
+    filled = schema.add_screen_column(frame, screen=" screen-B ")
+
+    assert filled.screenID.tolist() == ["screen-A", "screen-B", "screen-B"]
+    pd.testing.assert_frame_equal(filled.drop(columns="screenID"), before.drop(columns="screenID"))
+    identity = list(schema.SCREENED_WELL_KEY_COLUMNS) + ["objectID"]
+    assert not filled.duplicated(identity).any()
+    assert filled.groupby("screenID").value.sum().to_dict() == {"screen-A": 10.0, "screen-B": 50.0}
+    pd.testing.assert_frame_equal(schema.add_screen_column(filled), filled)
+    pd.testing.assert_frame_equal(frame, before)
+    assert path.read_bytes() == source_bytes
