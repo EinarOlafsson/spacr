@@ -78,12 +78,12 @@ def test_interrupted_exit_wait_records_phase_before_propagating_user_interrupt(m
     assert recorded == ['wait interrupted']
 
 
-def test_shutdown_native_context_rejects_paths_and_personal_identifiers(monkeypatch):
+def test_shutdown_native_context_rejects_paths_and_personal_identifiers(monkeypatch, tmp_path):
     from spacr import crashreport
 
     monkeypatch.setattr(crashreport, '_identity_scrub', lambda value: value.replace('privateperson', '<USER>'))
     values = crashreport._native_context_values({
-        'shutdown_module': '/home/privateperson/private experiment',
+        'shutdown_module': str(tmp_path / 'privateperson' / 'private experiment'),
         'shutdown_function': 'privateperson', 'shutdown_worker': 1,
         'shutdown_phase': 'wait interrupted', 'shutdown_line': 12,
         'shutdown_cancelled': True, 'shutdown_interruption': False,

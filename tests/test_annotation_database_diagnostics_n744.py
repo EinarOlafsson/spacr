@@ -26,7 +26,10 @@ def test_failed_connection_collects_facts_without_losing_queued_labels(tmp_path,
     worker, exc = _failure(target, monkeypatch)
     facts = exc._spacr_annotation_database
     assert facts['target'] == facts['parent'] == 'missing'
-    assert facts['path'] == 'absolute' and facts['code'] == sqlite3.SQLITE_CANTOPEN
+    assert facts['path'] == 'absolute'
+    assert facts['code'] == getattr(exc, 'sqlite_errorcode', None)
+    if facts['code'] is not None:
+        assert facts['code'] == getattr(sqlite3, 'SQLITE_CANTOPEN', 14)
     assert facts['queued'] == 2 and facts['read'] is None
     assert worker.pending_batches == 2 and 'could not start' in worker.last_error
     assert worker._q.get_nowait() == {'/private/patient/image.png': 1}

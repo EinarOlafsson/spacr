@@ -1416,6 +1416,13 @@ def find_last_annotated_offset(
 
 
 def _annotation_database_diagnostics(path, exception, pending):
+    """Describe database startup without retaining paths, names or file contents.
+
+    :param path: database target used only for local filesystem checks.
+    :param exception: original failure whose SQLite code may be available.
+    :param pending: queued annotation batches retained after startup failure.
+    :returns: bounded allowlisted status, access and queue facts.
+    """
     import stat
 
     facts = {'path': 'unknown', 'target': 'unknown', 'parent': 'unknown',

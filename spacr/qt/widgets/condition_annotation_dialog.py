@@ -73,6 +73,14 @@ class _SelectionAnnotationDialog(QDialog):
     """Assign original-frame row tokens without replacing existing annotation rules."""
 
     def __init__(self, parent, frame, source, definition, positions):
+        """Build labels for selected original-frame row tokens using copied annotation rules.
+
+        :param parent: owning table or gate editor.
+        :param frame: original table whose row identities are annotated.
+        :param source: source identity retained with the annotation definition.
+        :param definition: existing annotation rules, copied before editing.
+        :param positions: original-frame row positions selected for labeling.
+        """
         super().__init__(parent)
         self.setWindowTitle(tr("Annotate conditions"))
         self._frame, self._source = frame, source

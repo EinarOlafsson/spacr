@@ -679,10 +679,15 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         self._refill_axis_pickers(frame)
 
     def _point_limit_changed(self, value):
+        """Store the selected sampling limit and redraw the current frame.
+
+        :param value: maximum number of points to display.
+        """
         self._settings = self._settings.replaced(max_points=int(value))
         self._push_frame()
 
     def _displayed_population(self):
+        """Return canvas rows surviving axis, cutoff and logarithmic-domain filters."""
         frame = self.gates.canvas.population()
         if frame is None:
             return None
@@ -705,6 +710,7 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         return frame
 
     def _update_displayed_count(self):
+        """Show the visible row count, source total and current point limit."""
         frame = self._displayed_population()
         total = len(self._frame) if self._frame is not None else 0
         self._point_count.setText(tr('Displayed {shown} of {total} points (maximum {limit}).',
@@ -712,6 +718,7 @@ class GateEditorScreen(DerivedTableSource, QWidget):
                                     total=f'{total:,}', limit=f'{self._point_limit.value():,}'))
 
     def _annotate_selection(self):
+        """Annotate the active gate's displayed rows using original-table identities."""
         from ...condition_annotations import apply_conditions
         from ..widgets.condition_annotation_dialog import _annotate_selection
 
@@ -736,6 +743,7 @@ class GateEditorScreen(DerivedTableSource, QWidget):
             self._source.setText(str(exc))
 
     def _save_selected_annotation(self):
+        """Offer a new database table for the annotated frame and its rule provenance."""
         from PySide6.QtWidgets import QInputDialog
         from ...condition_annotations import save_annotated_table
 
@@ -754,6 +762,7 @@ class GateEditorScreen(DerivedTableSource, QWidget):
                               lambda saved: self.load_path(path, table=saved))
 
     def _export_selected_annotation(self):
+        """Export the annotated frame through the graph table exporter."""
         path, _ = QFileDialog.getSaveFileName(self, tr('Export table'), 'annotated-table.csv', tr('Tables (*.csv)'))
         if path and self._frame is not None:
             from .graph_builder import GraphBuilderScreen
@@ -1146,6 +1155,7 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         return items
 
     def _annotation_menu_items(self):
+        """Return annotation actions with availability derived from the loaded table."""
         return [
             (tr('Annotate selection'), self._frame is not None, self._annotate_selection, ''),
             (tr('Annotate conditions'), self._frame is not None, self.annotate_from_gates, ''),
@@ -1156,6 +1166,10 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         ]
 
     def _append_annotation_actions(self, menu):
+        """Append the current annotation actions and enabled states to a menu.
+
+        :param menu: menu receiving the actions and their callbacks.
+        """
         menu.addSeparator()
         for label, enabled, callback, _why in self._annotation_menu_items():
             action = menu.addAction(label)

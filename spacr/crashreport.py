@@ -2249,6 +2249,11 @@ def _merge_structure_message(exception):
 
 
 def _annotation_database_message(exception):
+    """Rebuild a bounded annotation-startup summary from allowlisted facts only.
+
+    :param exception: failure carrying optional anonymous database diagnostics.
+    :returns: the sanitized summary, or an empty string without diagnostics.
+    """
     raw = getattr(exception, '_spacr_annotation_database', None)
     if not isinstance(raw, dict):
         return ''
