@@ -4875,6 +4875,12 @@ def _easy_inspect_path_impl(value):
             raise ValueError
         names = [candidate for candidate in files if candidate.suffix.lower() in image_extensions]
         hints = _easy_filename_hints(names)
+    sampled_directory_identities = {}
+    for folder in folders:
+        info = folder.lstat()
+        if not stat.S_ISDIR(info.st_mode):
+            raise ValueError
+        sampled_directory_identities[folder] = info.st_dev, info.st_ino, stat.S_IFMT(info.st_mode)
     kinds = {}
     representatives = [] if path.is_dir() else [path]
     seen = {(item.parent, item.suffix.lower()) for item in representatives}
@@ -5145,6 +5151,10 @@ def _easy_inspect_path_impl(value):
             else:
                 input_map.pop(key, None)
         actions = generated_actions + actions
+    for folder, identity in sampled_directory_identities.items():
+        info = folder.lstat()
+        if (info.st_dev, info.st_ino, stat.S_IFMT(info.st_mode)) != identity:
+            raise ValueError
     submodule_settings = _easy_specialized_inputs(root, files, images, schemas) if path.is_dir() else {}
     for key, title in (('ops', tr('OPS')), ('spatial_masks', tr('Spatial Mask Generation')),
                        ('spatial_map', tr('Spatial Map'))):
@@ -5259,6 +5269,10 @@ def _easy_inspect_path_impl(value):
             if preset:
                 result['metadata_preset'] = preset
                 result['settings_overrides'] = {'mask': dict(metadata_type=preset)}
+    for folder, identity in sampled_directory_identities.items():
+        info = folder.lstat()
+        if (info.st_dev, info.st_ino, stat.S_IFMT(info.st_mode)) != identity:
+            raise ValueError
     if _input_identity() != initial_identity:
         raise ValueError
     return result
