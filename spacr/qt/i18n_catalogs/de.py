@@ -5694,7 +5694,7 @@ UI = {
     'Exported {count} crops to {path}.': '{count} Bildausschnitte nach {path} exportiert.',
     'Exported: {files}': 'Exportiert: {files}',
     'Exporting displayed crops…': 'Angezeigte Bildausschnitte werden exportiert…',
-    'Export…': 'Exportieren...',
+    'Export…': 'Exportieren…',
     'External feature table': 'Externe Merkmalstabelle',
     'External measurements': 'Externe Messungen',
     'External measurements and object mappings': 'Externe Messwerte und Objektzuordnungen',

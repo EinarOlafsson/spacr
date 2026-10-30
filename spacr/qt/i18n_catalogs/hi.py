@@ -5694,7 +5694,7 @@ UI = {
     'Exported {count} crops to {path}.': '{count} क्रॉप छवियाँ {path} में निर्यात की गईं।',
     'Exported: {files}': 'निर्यात किया गया: {files}',
     'Exporting displayed crops…': 'दिखाई गई क्रॉप छवियाँ निर्यात की जा रही हैं…',
-    'Export…': 'निर्यात...',
+    'Export…': 'निर्यात…',
     'External feature table': 'बाहरी फ़ीचर तालिका',
     'External measurements': 'बाहरी मापन',
     'External measurements and object mappings': 'बाहरी मापन और ऑब्जेक्ट मैपिंग',

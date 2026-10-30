@@ -5694,7 +5694,7 @@ UI = {
     'Exported {count} crops to {path}.': '{count} bildutsnitt exporterades till {path}.',
     'Exported: {files}': 'Exporterade: {files}',
     'Exporting displayed crops…': 'Exporterar visade bildutsnitt…',
-    'Export…': 'Exportera...',
+    'Export…': 'Exportera…',
     'External feature table': 'Extern egenskapstabell',
     'External measurements': 'Externa mätningar',
     'External measurements and object mappings': 'Externa mätningar och objektkopplingar',

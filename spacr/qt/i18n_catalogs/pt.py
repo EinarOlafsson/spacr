@@ -5694,7 +5694,7 @@ UI = {
     'Exported {count} crops to {path}.': '{count} recortes exportados para {path}.',
     'Exported: {files}': 'Exportado: {files}',
     'Exporting displayed crops…': 'A exportar os recortes apresentados…',
-    'Export…': 'Exportar...',
+    'Export…': 'Exportar…',
     'External feature table': 'Tabela externa de características',
     'External measurements': 'Medições externas',
     'External measurements and object mappings': 'Medições externas e mapeamentos de objetos',

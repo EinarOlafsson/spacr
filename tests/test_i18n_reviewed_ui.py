@@ -25,14 +25,21 @@ from i18n_reviewed_ui import LANGUAGES, REVIEWED_UI_TRANSLATIONS  # noqa: E402
 REVIEWED_UI_ADDED_SINCE_87 = {
     "Biofilm", "Cytosol", "Filamentation", "Golgi", "None declared",
     "Rhoptries", "Vacuole", "cytosol", "rhoptries 1", "rhoptries 2",
-    "Fit", "Save template",
+    "Fit", "Save template", "Export…",
     "Hold {key} and scroll the mouse wheel to zoom. Drag empty space to move around. Fit shows the whole map.",
     "Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks.",
 }
 REVIEWED_UI_REMOVED_SINCE_87 = {"Plates", "Save recipe"}
-REVIEWED_UI_SOURCE_COUNT = 99
-REVIEWED_UI_SOURCE_SHA256 = "2297822cfe2c67022c3897dfb0d26790b5f4651b69278e6c6b02b2faf6b29036"
-REVIEWED_UI_CONTENT_SHA256 = "e10495ddb859192ac68deda6c017eaa06e0ff3a58fd8587437ab017e4d631c65"
+REVIEWED_UI_SOURCE_COUNT = 100
+REVIEWED_UI_SOURCE_SHA256 = "f8d531d92d420467fe5a60e835f3eb2ab510bee142a5827a9585bb73f7cfeb3d"
+REVIEWED_UI_CONTENT_SHA256 = "336695bfc199d6b968bd940ea738173b12463291d470f20cb051bb7cc424e868"
+PRE_EXPORT_SOURCE_SHA256 = "2297822cfe2c67022c3897dfb0d26790b5f4651b69278e6c6b02b2faf6b29036"
+PRE_EXPORT_CONTENT_SHA256 = "e10495ddb859192ac68deda6c017eaa06e0ff3a58fd8587437ab017e4d631c65"
+EXPORT_ROW = {
+    "sv": "Exportera…", "de": "Exportieren…", "es": "Exportar…",
+    "zh_CN": "导出…", "pt": "Exportar…", "hi": "निर्यात…",
+    "ko": "내보내기…", "is": "Flytja út…", "fr": "Exporter…",
+}
 
 
 def test_reviewed_ui_vocabulary_is_complete_and_pinned():
@@ -75,6 +82,12 @@ def test_reviewed_ui_vocabulary_is_complete_and_pinned():
         ).encode("utf-8")
     ).hexdigest()
     assert content_digest == REVIEWED_UI_CONTENT_SHA256
+    assert historical["Export…"] == EXPORT_ROW
+    previous = {source: row for source, row in historical.items() if source != "Export…"}
+    assert len(previous) == 99
+    assert hashlib.sha256("\0".join(sorted(previous)).encode()).hexdigest() == PRE_EXPORT_SOURCE_SHA256
+    assert hashlib.sha256(json.dumps(previous, ensure_ascii=False, sort_keys=True,
+                                    separators=(",", ":")).encode()).hexdigest() == PRE_EXPORT_CONTENT_SHA256
     expected = set(LANGUAGES)
     assert len(expected) == 9
     for source, row in REVIEWED_UI_TRANSLATIONS.items():

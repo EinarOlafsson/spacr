@@ -57,7 +57,7 @@ msgstr "Escolha os canais de exibição, as cores e a normalização nas configu
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Use **Export…** for **Guided export**, **Custom export** or **Contact sheet PDFs**. Guided export walks through wells, fields, placement and preview. Custom export lets you drag images onto a page grid and arrange text and images. Captured image display settings belong to each placed image."
-msgstr "Use **Exportar...** para **Exportação guiada**, **Exportação personalizada** ou **PDFs de folha de contatos**. A exportação guiada percorre poços, campos, posicionamento e pré-visualização. A exportação personalizada permite arrastar imagens para uma grade de página e organizar texto e imagens. As configurações de exibição capturadas pertencem a cada imagem posicionada."
+msgstr "Use **Exportar…** para **Exportação guiada**, **Exportação personalizada** ou **PDFs de folha de contatos**. A exportação guiada percorre poços, campos, posicionamento e pré-visualização. A exportação personalizada permite arrastar imagens para uma grade de página e organizar texto e imagens. As configurações de exibição capturadas pertencem a cada imagem posicionada."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "In the canvas, **Save layout…** writes editable JSON; **Open layout…** reopens it. Keep the image files available: a layout is not an archive of their pixels. A saved layout whose captured display cannot be unpacked or lacks required channel, limit or display entries is refused before replacing the current canvas. Missing image files can leave a partially recoverable layout; restore the files and reload their source as needed to recover those images."

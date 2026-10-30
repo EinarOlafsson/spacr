@@ -49,15 +49,15 @@ def _row(
 
 REVIEWED_UI_TRANSLATIONS: Final[dict[str, dict[str, str]]] = {
     'Export…': _row(
-        'Exportera...',
-        'Exportieren...',
-        'Exportar...',
+        'Exportera…',
+        'Exportieren…',
+        'Exportar…',
         '导出…',
-        'Exportar...',
-        'निर्यात...',
+        'Exportar…',
+        'निर्यात…',
         '내보내기…',
         'Flytja út…',
-        'Exporter...'),
+        'Exporter…'),
     'This installation could not be locked for removal. Nothing was removed.': _row(
         'Den här installationen kunde inte låsas för borttagning. Ingenting togs bort.',
         'Diese Installation konnte nicht zum Entfernen gesperrt werden. Es wurde nichts entfernt.',
