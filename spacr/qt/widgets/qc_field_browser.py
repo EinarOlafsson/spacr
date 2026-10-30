@@ -5703,6 +5703,7 @@ class _FieldOverview(QWidget):
 
     measurement_progress = Signal(int, int)
     _channels_found = Signal(object)
+    _navigation_changed = Signal()
 
     def __init__(self, parent=None, settings=None):
         """Create controls without opening a directory or decoding an image.
@@ -10972,6 +10973,7 @@ class _FieldOverview(QWidget):
                 and self._normalization_plate != plate):
             self._prepare_display()
         self._request_visuals()
+        self._navigation_changed.emit()
 
     def _keep_shown_well_views(self, plate):
         """Close the pooled well views of plates no longer shown; another open well, or the plate, takes over.
@@ -11169,6 +11171,7 @@ class _FieldOverview(QWidget):
         self._show_image_panel()
         self._individual = True
         self._main_view_field = field
+        self._navigation_changed.emit()
         self._refresh_adjusted_badges()
         self._update_image_metadata(field)
         self._comparison_signature = None
@@ -13531,6 +13534,7 @@ class _OverviewModulePage(QWidget):
         self.browser = browser
         browser._original_steps = self._full_resolution_fields
         self._screen._field_overview = browser
+        browser._navigation_changed.connect(self._sync_back)
         self.stack.addWidget(browser)
         self.stack.setCurrentWidget(browser)
         browser._mount_navigation_bar()

@@ -6,6 +6,10 @@ import numpy as np
 import pytest
 
 from spacr.qt.widgets import qc_field_browser as browser
+from tests.qt.test_725_overview_tab_round2 import (
+    mask as native_overview_host, source as native_overview_source,
+)
+from tests.qt.test_startup_ai_reporting_choice import private_ai_profile as private_ai_profile
 
 
 def _field(plate="p", well="A01", row="A", column=1, number=0):
@@ -2271,3 +2275,69 @@ def test_removing_a_plate_after_editing_source_keeps_surviving_measurements_in_t
         for runner in runners:
             runner.shutdown(timeout_ms=3000)
         dialog.close()
+
+
+@pytest.fixture
+def native_overview_preferences(private_ai_profile):
+    preferences, _, _ = private_ai_profile
+    preferences.set_reduce_motion(True)
+    return preferences
+
+
+def test_native_overview_back_is_visible_after_a_real_well_is_opened(
+        native_overview_preferences, native_overview_host, native_overview_source, qtbot):
+    from tests.qt.test_725_overview_tab_round2 import _open
+
+    tab, view = _open(native_overview_host, qtbot, native_overview_source)
+    page = tab._overview_page
+    before = {path: path.read_bytes() for path in native_overview_source.glob('*.tif')}
+    source = tab._settings_model._read_value('src')
+    fields = tuple(field.identity for field in view._fields)
+    plate = view.plates.currentData()
+    assert page.back_button.isHidden() and view._scope == (plate, None)
+    item = view.wells.item(*view._well_positions[(plate, 'A01')])
+    view.wells.scrollToItem(item)
+    qtbot.mouseClick(view.wells.viewport(), browser.Qt.LeftButton,
+                    pos=view.wells.visualItemRect(item).center())
+    qtbot.keyClick(view.wells, browser.Qt.Key_Return)
+    qtbot.waitUntil(lambda: view._scope == (plate, 'A01') and view.fields.count() == 2,
+                    timeout=15000)
+    assert page.back_button.isVisibleTo(page), 'Opening a real well must reveal the host Back button'
+    field_item = view.fields.item(0)
+    field = field_item.data(browser.Qt.UserRole)
+    view.fields.scrollToItem(field_item)
+    qtbot.mouseClick(view.fields.viewport(), browser.Qt.LeftButton,
+                    pos=view.fields.visualItemRect(field_item).center())
+    qtbot.waitUntil(lambda: view._individual and view.view._item is not None
+                    and not view._image_pending and not view._image_jobs.is_busy(), timeout=15000)
+    image = view.view._item.pixmap().toImage().copy()
+    selection = (set(view._selected_wells), dict(view._selected_fields))
+    assert view._main_view_field.identity == field.identity
+    assert page.back_button.isVisibleTo(page)
+    qtbot.mouseClick(page.back_button, browser.Qt.LeftButton)
+    qtbot.waitUntil(lambda: not view._individual, timeout=15000)
+    assert view._scope == (plate, 'A01') and page.back_button.isVisibleTo(page)
+    qtbot.mouseClick(page.back_button, browser.Qt.LeftButton)
+    qtbot.waitUntil(lambda: view._scope == (plate, None), timeout=15000)
+    assert not view._individual and page.back_button.isHidden()
+    assert (view._selected_wells, view._selected_fields) == selection
+    item = view.wells.item(*view._well_positions[(plate, 'A01')])
+    view.wells.scrollToItem(item)
+    qtbot.mouseClick(view.wells.viewport(), browser.Qt.LeftButton,
+                    pos=view.wells.visualItemRect(item).center())
+    qtbot.keyClick(view.wells, browser.Qt.Key_Return)
+    qtbot.waitUntil(lambda: view._scope == (plate, 'A01') and view.fields.count() == 2, timeout=15000)
+    assert page.back_button.isVisibleTo(page)
+    field_item = next(view.fields.item(index) for index in range(view.fields.count())
+                      if view.fields.item(index).data(browser.Qt.UserRole).identity == field.identity)
+    view.fields.scrollToItem(field_item)
+    qtbot.mouseClick(view.fields.viewport(), browser.Qt.LeftButton,
+                    pos=view.fields.visualItemRect(field_item).center())
+    qtbot.waitUntil(lambda: view._individual and view.view._item is not None
+                    and not view._image_pending and not view._image_jobs.is_busy(), timeout=15000)
+    assert view._main_view_field.identity == field.identity
+    assert view.view._item.pixmap().toImage() == image
+    assert view.plates.currentData() == plate
+    assert tuple(field.identity for field in view._fields) == fields
+    assert tab._settings_model._read_value('src') == source
+    assert all(path.read_bytes() == contents for path, contents in before.items())
