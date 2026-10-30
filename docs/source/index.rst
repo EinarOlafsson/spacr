@@ -146,6 +146,7 @@ Contents
    features
    shortcuts_and_templates
    make_masks
+   overview
    measure_live
    cellpose_training
    point_spread
