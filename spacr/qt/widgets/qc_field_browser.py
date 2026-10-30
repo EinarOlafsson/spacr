@@ -10783,7 +10783,14 @@ class _FieldOverview(QWidget):
             if any(not field.well or field.unresolved for field in fields):
                 raise _OverviewValidationError(tr("The filename regex must include a valid wellID for every image."))
             return fields
-        self._index_jobs.submit(read, self._indexed)
+        source_paths = _overview_source_paths(source)
+        def indexed(fields):
+            """Accept indexed records only while their source still owns the editor."""
+            if _overview_source_paths(self.source.text()) != source_paths:
+                self.status.clear()
+                return
+            self._indexed(fields)
+        self._index_jobs.submit(read, indexed)
 
     def _indexed(self, fields):
         """Show actual plate identities and explicitly retained unresolved fields.
