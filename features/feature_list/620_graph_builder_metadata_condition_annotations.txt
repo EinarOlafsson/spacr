@@ -49,3 +49,5 @@ all tables for name-collision validation. Eighteen focused discovery,
 SQLite, Graph and Gate checks passed. Multi-column recipes are tracked in625.
 
 VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).
+
+2026-10-30 — New requirements are tracked in item 742: shared Graph/Gate selected-point annotation through the right-click menu, replacing annotation buttons, plus a random-sampled maximum-points slider in both modules. Requirements only; no implementation authorized.

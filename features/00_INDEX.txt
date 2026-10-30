@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-649 Lifecycle: new, 76 Lifecycle: future in features/feature_list/.
+650 Lifecycle: new, 76 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -1576,3 +1576,5 @@ NEW FEATURES
        740_map_barcodes_sequencer_formats_and_read_pairing.txt
   741  REGRESSION: COMPATIBLE DRUG-SCREEN INPUTS AND PROTOCOL HANDOFF
        741_regression_drug_screen_compatibility.txt
+  742  SHARED GATE AND GRAPH SELECTION ANNOTATIONS AND POINT LIMIT
+       742_shared_gate_and_graph_selection_annotations_and_point_limit.txt

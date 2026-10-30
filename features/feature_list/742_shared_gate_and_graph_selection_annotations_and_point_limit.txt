@@ -1,0 +1,42 @@
+SHARED GATE AND GRAPH SELECTION ANNOTATIONS AND POINT LIMIT
+=========================================================
+
+Lifecycle: new
+Status: not started — requirements recorded only; implementation not authorized.
+Requested: maintainer, 2026-10-30.
+Owner: unassigned.
+Related: 620 (Graph Builder condition annotations), 39 (Gate Editor annotations).
+
+REQUEST
+Give Gate Editor and Graph Builder the same selected-point annotation behaviour.
+Expose annotations through the plot right-click menu instead of an annotation
+button. Let users limit displayed points with a slider in both modules, adding
+randomly selected points as the limit increases so weaker computers remain usable.
+
+REQUIREMENTS
+1. In Graph Builder, select points; in Gate Editor, use a gate to select points.
+   Right-click the plot to annotate the selection with a user-chosen label or
+   category. Both modules use matching behaviour and preserve source-row identity.
+2. Remove the dedicated annotation button from both modules; annotation actions
+   belong in the right-click context menu. Preserve existing annotation capabilities
+   and persistence while exposing them through this menu.
+3. Add a maximum displayed data-points slider to both modules, with the chosen
+   limit and actual displayed count visible. The cap limits plotted points,
+   not stored data; it must not delete rows or change existing annotations.
+4. Choose displayed rows randomly rather than taking the first N rows or a
+   systematic row-order sample. Increasing the cap adds random remaining points
+   without duplication; retain existing visible points where possible. Reducing
+   the cap respects the new maximum. Keep the UI responsive during updates.
+5. Make the annotation scope explicit when the display is sampled: explain
+   whether the action applies to displayed selected rows or all underlying
+   rows satisfying the gate, and report how many rows will receive the label.
+   Do not silently label unselected or hidden rows.
+
+ACCEPTANCE FOR LATER IMPLEMENTATION
+Equivalent Graph Builder selections and Gate Editor gates can be annotated from
+right-click menus; labels persist through the existing save/load/export routes.
+Neither module exposes the replaced annotation button. Slider changes respect
+the cap, use random sampling without duplicate displayed rows, preserve row
+identity and existing data, and remain usable with a large input table.
+
+2026-10-30 — Recorded at the maintainer's request only. Do not implement this item until separately instructed; publish the feature record and normal indexes to nightly.

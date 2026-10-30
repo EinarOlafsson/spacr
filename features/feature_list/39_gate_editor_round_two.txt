@@ -206,3 +206,5 @@ column cut off at startup -- rest on the suites above rather than on a
 screenshot taken in this pass.
 
 VERIFIED 2026-10-04: 2 referenced test files pass on nightly (test_gates.py, test_filters.py).
+
+2026-10-30 — New requirements are tracked in item 742: shared Graph/Gate selected-point annotation through the right-click menu, replacing annotation buttons, plus a random-sampled maximum-points slider in both modules. Requirements only; no implementation authorized.
