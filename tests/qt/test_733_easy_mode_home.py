@@ -1596,3 +1596,87 @@ def test_spaceout_card_keeps_explicit_keyboard_activation_through_native_resizin
         assert card._spaceout_movie.state() == QMovie.NotRunning
     finally:
         page.close()
+
+
+def test_native_navigator_revisit_keeps_source_anchor_and_explicit_receiver(
+        qtbot, qapp, private_ai_profile, isolated_input_root):
+    from PySide6.QtCore import QEvent
+    from PySide6.QtGui import QMouseEvent
+    from PySide6.QtTest import QSignalSpy
+    from spacr.qt.app import MainWindow
+    from spacr.qt.walkthrough import mark_seen
+
+    preferences, _, _ = private_ai_profile
+    preferences.set_easy_mode(True)
+    preferences.set_ambient_enabled(False)
+    preferences.set_reduce_motion(True)
+    mark_seen('make_masks')
+    image = isolated_input_root / 'W0025F0001T0001Z000C1.tif'
+    pixels = _image(image)
+    before = image.read_bytes()
+    entries = set(isolated_input_root.iterdir())
+    window = MainWindow(initial_app='__home__')
+    qtbot.addWidget(window)
+    window._tour_timer.stop()
+    window._consent_timer.stop()
+    window.resize(1100, 850)
+    window.show()
+    page = window._startup
+    selected = QSignalSpy(page.module_requested)
+    try:
+        page.accept_paths([str(image)])
+        qtbot.waitUntil(lambda: not page._runner.is_busy() and any(
+            card._key == 'make_masks' for card in page.field.cards), timeout=5000)
+        field = page.field
+        grip = field._details_grip
+        fixed = (QRect(field.details.geometry()), QRect(field.panel.geometry()),
+                 [QRect(card.geometry()) for card in field.cards])
+        start = grip.rect().center()
+        destination = grip.mapToGlobal(start) - QPoint(0, 40)
+        qtbot.mousePress(grip, Qt.RightButton, pos=start)
+        QApplication.sendEvent(grip, QMouseEvent(
+            QEvent.MouseMove, QPointF(grip.mapFromGlobal(destination)), QPointF(destination),
+            Qt.NoButton, Qt.RightButton, Qt.NoModifier))
+        qtbot.mouseRelease(grip, Qt.RightButton, pos=grip.rect().center())
+        assert (field.details.geometry(), field.panel.geometry(),
+                [card.geometry() for card in field.cards]) == fixed
+        source = next(card for card in field.cards if card._key == 'make_masks')
+        source.click()
+        first = page._workflow
+        assert first.central is source and selected.count() == 0
+        node = next(node for node in first.view.nodes.values() if node.isVisible())
+        first.view.ensureVisible(node)
+        qtbot.mouseMove(first.view.viewport(), first.view.mapFromScene(node.sceneBoundingRect().center()))
+        qtbot.mouseMove(first.back, first.back.rect().center())
+        assert first._chosen_key == 'make_masks' and selected.count() == 0
+        first.tools.setFocus()
+        qtbot.keyClick(first.tools, Qt.Key_Home)
+        qtbot.keyClick(first.tools, Qt.Key_Return)
+        assert first._chosen_key in first.data['modules'] and selected.count() == 0
+        qtbot.mouseClick(first.back, Qt.LeftButton)
+        assert page._workflow is None and source.parentWidget() is field
+        assert source.isEnabled() and source._content_opacity.opacity() == 1.0
+        assert page.path_edit.text() == str(image)
+        source.click()
+        second = page._workflow
+        assert second is not first and second.central is source and selected.count() == 0
+        qtbot.mouseClick(field.details._collapse, Qt.LeftButton)
+        window.resize(500, 600)
+        qapp.processEvents()
+        assert second.central is source and second.view.width() > 0 and second.view.height() > 0
+        assert page.path_edit.text() == str(image) and field.details.isVisible()
+        assert selected.count() == 0
+        qtbot.keyClick(source, Qt.Key_Escape)
+        assert page._workflow is None and source.parentWidget() is field
+        source.click()
+        page._workflow.central.click()
+        qtbot.waitUntil(lambda: 'make_masks' in window._screens, timeout=5000)
+        receiver = window._screens['make_masks']
+        assert selected.count() == 1 and selected.at(0) == ['make_masks', str(image)]
+        assert window._stack.currentWidget() is receiver
+        qtbot.waitUntil(lambda: bool(receiver._image_files), timeout=5000)
+        assert (Path(receiver._folder) / receiver._image_files[0]).resolve() == image
+        assert image.read_bytes() == before and set(isolated_input_root.iterdir()) == entries
+        assert np.array_equal(np.asarray(Image.open(image)), pixels)
+    finally:
+        window.close()
