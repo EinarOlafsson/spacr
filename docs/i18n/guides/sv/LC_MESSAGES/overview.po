@@ -1,0 +1,85 @@
+# spaCR user guide translation (sv).
+# AI technical review (Codex), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-30 00:25-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Codex (AI technical translation)\n"
+"Language: sv\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Overview: inspect plate images and export figures"
+msgstr "Overview: granska plattbilder och exportera figurer"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Set the image-folder source, then use the **Field-of-view overview** icon beside the source in Generate Masks, or the matching icon in Make Masks. The icon opens the metadata step before the plate browser. This workflow inspects images; it does not segment objects."
+msgstr "Ange bildmappen som källa och använd sedan ikonen **Synfältsöversikt** bredvid källan i Generate Masks, eller motsvarande ikon i Make Masks. Ikonen öppnar metadatasteget före plattbläddraren. Arbetsflödet granskar bilder; det segmenterar inte objekt."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Check metadata before proceeding"
+msgstr "Kontrollera metadata innan du fortsätter"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Start with **Automatic filename metadata** under **Microscope preset**, then press **Preview metadata**. Check each plate's parsed wells, fields and channel IDs. Use a microscope preset or **Custom filename regex** if automatic detection does not describe your filenames. A custom pattern must include a named ``wellID`` group; select only channel IDs reported by the images."
+msgstr "Börja med **Automatiska metadata från filnamn** under **Mikroskopförinställning** och tryck sedan på **Förhandsgranska metadata**. Kontrollera de tolkade brunnarna, bildfälten och kanal-ID:na för varje platta. Använd en mikroskopförinställning eller **Eget reguljärt uttryck för filnamn** om den automatiska identifieringen inte motsvarar filnamnen. Ett eget mönster måste innehålla en namngiven grupp ``wellID``; välj endast kanal-ID:n som rapporteras av bilderna."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Select a plate to edit its filename pattern; **Apply to all plates** shares that pattern with the others. Confirm **Plate geometry**, time and Z choices, and pixel size when known, then press **Next**. The default source scope reads this folder only; including subfolders can also admit derived images. Removing every source disables continuation until a valid source is restored."
+msgstr "Välj en platta för att redigera dess filnamnsmönster; **Verkställ för alla plattor** delar mönstret med de andra. Bekräfta **Plattgeometri**, tids- och Z-val samt pixelstorlek om den är känd och tryck sedan på **Nästa**. Som standard läses endast denna mapp; om undermappar inkluderas kan även härledda bilder komma med. Om alla källor tas bort kan du inte fortsätta förrän en giltig källa har återställts."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Navigate plates, wells and images"
+msgstr "Navigera mellan plattor, brunnar och bilder"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use **Plate**, **Row**, **Column**, **Field**, **Time** and **Z** to choose the acquisition context. Click a well to see its fields, then open a field image. **Back** returns from an image to its well, then from the well to the plate. Ctrl/Shift selection retains fields or wells for an explicit export selection."
+msgstr "Använd **Platta**, **Rad**, **Kolumn**, **Bildfält**, **Tid** och **Z** för att välja förvärvskontext. Klicka på en brunn för att se dess bildfält och öppna sedan en bild från ett bildfält. **Tillbaka** går från bilden till dess brunn och sedan från brunnen till plattan. Markering med Ctrl/Shift behåller bildfält eller brunnar för ett uttryckligt exporturval."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Display and canvas"
+msgstr "Visning och arbetsyta"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose display channels, colours and normalization in the settings. **Channel to edit** selects shared or channel-specific values; **Apply settings to channel** stores that channel's own values. Display normalization changes the rendering, not the stored source pixels."
+msgstr "Välj visningskanaler, färger och normalisering i inställningarna. **Kanal att redigera** väljer gemensamma eller kanalspecifika värden; **Tillämpa inställningar på kanalen** lagrar kanalens egna värden. Visningsnormalisering ändrar återgivningen, inte de lagrade källpixlarna."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use **Export…** for **Guided export**, **Custom export** or **Contact sheet PDFs**. Guided export walks through wells, fields, placement and preview. Custom export lets you drag images onto a page grid and arrange text and images. Captured image display settings belong to each placed image."
+msgstr "Använd **Exportera...** för **Guidad export**, **Anpassad export** eller **Kontaktark som PDFs**. Guidad export leder dig genom brunnar, bildfält, placering och förhandsvisning. Anpassad export låter dig dra bilder till ett sidrutnät och ordna text och bilder. De fångade visningsinställningarna hör till varje placerad bild."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In the canvas, **Save layout…** writes editable JSON; **Open layout…** reopens it. Keep the image files available: a layout is not an archive of their pixels. A saved layout whose captured display cannot be unpacked or lacks required channel, limit or display entries is refused before replacing the current canvas. Missing image files can leave a partially recoverable layout; restore the files and reload their source as needed to recover those images."
+msgstr "På arbetsytan skriver **Spara layout…** redigerbar JSON; **Öppna layout…** öppnar den igen. Behåll bildfilerna tillgängliga: en layout är inget arkiv över deras pixlar. En sparad layout vars fångade visning inte kan packas upp eller saknar obligatoriska kanal-, gräns- eller visningsposter avvisas innan den aktuella arbetsytan ersätts. Saknade bildfiler kan lämna en delvis återställbar layout; återställ filerna och läs vid behov in källan igen för att återfå bilderna."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Preview quality and PDF resolution"
+msgstr "Förhandsvisningskvalitet och PDF-upplösning"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Preview resolution** limits the maximum preview edge; smaller previews load faster. This thumbnail choice is separate from PDF export quality. Contact sheets offer full source resolution or a 1600/3200-pixel field limit plus DPI. In the custom canvas, **Settings…** controls export DPI; **Every source pixel** keeps all source pixels. DPI limits embedded image density; it cannot add detail absent from the source."
+msgstr "**Förhandsvisningens upplösning** begränsar förhandsvisningens längsta kant; mindre förhandsvisningar laddas snabbare. Detta miniatyrval är separat från PDF-exportens kvalitet. Kontaktark erbjuder full källupplösning eller en gräns på 1600/3200 pixlar per bildfält samt DPI. På den anpassade arbetsytan styr **Inställningar…** exportens DPI; **Varje källpixel** behåller alla källpixlar. DPI begränsar den inbäddade bildens pixeltäthet; det kan inte tillföra detaljer som saknas i källan."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Image measurements and source ownership"
+msgstr "Bildmätningar och källtillhörighet"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Export image-level measurements** writes one row per selected image to the ``fov`` table in ``measurements/measurements.db``. By default, features describe whole images. Whole-image intensity statistics use finite stored pixels without display normalization; some texture features use reduced copies. Under **Objects**, supplying existing Mask generation masks adds per-image object summaries without segmenting new objects. CSV export is on by default and writes ``image_measurements.csv`` beside the database; the output status lists written paths."
+msgstr "**Exportera mätningar på bildnivå** skriver en rad per vald bild till tabellen ``fov`` i ``measurements/measurements.db``. Som standard beskriver egenskaperna hela bilder. Intensitetsstatistik för hela bilder använder ändliga lagrade pixelvärden utan visningsnormalisering; vissa texturegenskaper använder förminskade kopior. Under **Objekt** ger befintliga masker från Mask generation objektsammanfattningar per bild utan att nya objekt segmenteras. CSV-export är aktiverad som standard och skriver ``image_measurements.csv`` bredvid databasen; utdatastatusen listar de skrivna sökvägarna."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The measurements database is written under the first path in the current loaded-source list. Editing Source alone does not change ownership of retained images or measurements. Load and validate the intended source before measuring it. Adding or removing plates updates the loaded source set; check the current plate and output status before export. For individual-object rows, use the separate Measure workflow in :doc:`workflows`."
+msgstr "Mätdatabasen skrivs under den första sökvägen i den aktuella listan över inlästa källor. Att enbart redigera Source ändrar inte tillhörigheten för kvarvarande bilder eller mätningar. Läs in och validera den avsedda källan innan du mäter den. Att lägga till eller ta bort plattor uppdaterar de inlästa källorna; kontrollera aktuell platta och utdatastatus före export. För rader per enskilt objekt använder du det separata Measure-arbetsflödet i :doc:`workflows`."
+

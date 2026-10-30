@@ -1,0 +1,85 @@
+# spaCR user guide translation (ko).
+# AI technical review (Codex), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-30 00:25-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Codex (AI technical translation)\n"
+"Language: ko\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Overview: inspect plate images and export figures"
+msgstr "Overview: 플레이트 이미지 검사와 그림 내보내기"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Set the image-folder source, then use the **Field-of-view overview** icon beside the source in Generate Masks, or the matching icon in Make Masks. The icon opens the metadata step before the plate browser. This workflow inspects images; it does not segment objects."
+msgstr "이미지 폴더를 소스로 설정한 다음 Generate Masks의 소스 옆 **시야 전체 보기** 아이콘이나 Make Masks의 해당 아이콘을 사용합니다. 이 아이콘은 플레이트 브라우저에 앞서 메타데이터 단계를 엽니다. 이 워크플로는 이미지를 검사하며 객체를 분할하지 않습니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Check metadata before proceeding"
+msgstr "계속하기 전에 메타데이터 확인"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Start with **Automatic filename metadata** under **Microscope preset**, then press **Preview metadata**. Check each plate's parsed wells, fields and channel IDs. Use a microscope preset or **Custom filename regex** if automatic detection does not describe your filenames. A custom pattern must include a named ``wellID`` group; select only channel IDs reported by the images."
+msgstr "**현미경 사전 설정** 아래의 **파일 이름의 자동 메타데이터** 로 시작한 다음 **메타데이터 미리보기** 를 누릅니다. 각 플레이트에서 해석된 웰, 시야 및 채널 ID를 확인합니다. 자동 감지가 파일 이름을 제대로 설명하지 못하면 현미경 프리셋이나 **사용자 지정 파일 이름 정규식** 을 사용합니다. 사용자 지정 패턴에는 이름이 ``wellID`` 인 그룹이 있어야 합니다. 이미지에서 보고하는 채널 ID만 선택합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Select a plate to edit its filename pattern; **Apply to all plates** shares that pattern with the others. Confirm **Plate geometry**, time and Z choices, and pixel size when known, then press **Next**. The default source scope reads this folder only; including subfolders can also admit derived images. Removing every source disables continuation until a valid source is restored."
+msgstr "플레이트를 선택하여 해당 파일 이름 패턴을 편집합니다. **모든 플레이트에 적용** 은 그 패턴을 다른 플레이트에도 적용합니다. **플레이트 기하 구조**, 시간 및 Z 선택과 알고 있는 경우 픽셀 크기를 확인한 다음 **다음** 을 누릅니다. 기본 소스 범위는 이 폴더만 읽으며, 하위 폴더를 포함하면 파생 이미지도 들어올 수 있습니다. 모든 소스를 제거하면 유효한 소스를 복원할 때까지 계속할 수 없습니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Navigate plates, wells and images"
+msgstr "플레이트, 웰 및 이미지 탐색"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use **Plate**, **Row**, **Column**, **Field**, **Time** and **Z** to choose the acquisition context. Click a well to see its fields, then open a field image. **Back** returns from an image to its well, then from the well to the plate. Ctrl/Shift selection retains fields or wells for an explicit export selection."
+msgstr "**플레이트**, **행**, **열**, **시야**, **시간** 및 **Z** 를 사용하여 획득 컨텍스트를 선택합니다. 웰을 클릭하여 시야를 확인한 다음 시야 이미지를 엽니다. **돌아오는** 버튼은 이미지에서 해당 웰로, 웰에서 플레이트로 돌아갑니다. Ctrl/Shift 선택은 명시적인 내보내기 선택을 위해 시야나 웰을 유지합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Display and canvas"
+msgstr "표시와 캔버스"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose display channels, colours and normalization in the settings. **Channel to edit** selects shared or channel-specific values; **Apply settings to channel** stores that channel's own values. Display normalization changes the rendering, not the stored source pixels."
+msgstr "설정에서 표시 채널, 색상 및 정규화를 선택합니다. **편집할 채널** 은 공통 값이나 채널별 값을 선택하고, **채널에 설정 적용** 은 해당 채널의 개별 값을 저장합니다. 표시 정규화는 렌더링을 바꾸며 저장된 소스 픽셀을 바꾸지 않습니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use **Export…** for **Guided export**, **Custom export** or **Contact sheet PDFs**. Guided export walks through wells, fields, placement and preview. Custom export lets you drag images onto a page grid and arrange text and images. Captured image display settings belong to each placed image."
+msgstr "**수출...** 에서 **안내형 내보내기**, **사용자 지정 내보내기** 또는 **밀착 인화 PDFs** 를 사용합니다. 안내 내보내기는 웰, 시야, 배치 및 미리보기를 차례로 진행합니다. 사용자 지정 내보내기에서는 이미지를 페이지 격자로 끌어 놓고 텍스트와 이미지를 배치할 수 있습니다. 캡처된 이미지 표시 설정은 배치된 각 이미지에 속합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In the canvas, **Save layout…** writes editable JSON; **Open layout…** reopens it. Keep the image files available: a layout is not an archive of their pixels. A saved layout whose captured display cannot be unpacked or lacks required channel, limit or display entries is refused before replacing the current canvas. Missing image files can leave a partially recoverable layout; restore the files and reload their source as needed to recover those images."
+msgstr "캔버스에서 **배치 저장…** 은 편집 가능한 JSON을 쓰고 **배치 열기…** 는 이를 다시 엽니다. 이미지 파일을 사용할 수 있도록 유지합니다. 레이아웃은 이미지 픽셀의 보관 파일이 아닙니다. 저장된 레이아웃의 캡처된 표시를 풀 수 없거나 필수 채널, 한계 또는 표시 항목이 없으면 현재 캔버스를 교체하기 전에 거부합니다. 이미지 파일이 없으면 레이아웃을 일부만 복구할 수 있습니다. 파일을 복원하고 필요하면 해당 소스를 다시 로드하여 이미지를 복구합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Preview quality and PDF resolution"
+msgstr "미리보기 품질과 PDF 해상도"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Preview resolution** limits the maximum preview edge; smaller previews load faster. This thumbnail choice is separate from PDF export quality. Contact sheets offer full source resolution or a 1600/3200-pixel field limit plus DPI. In the custom canvas, **Settings…** controls export DPI; **Every source pixel** keeps all source pixels. DPI limits embedded image density; it cannot add detail absent from the source."
+msgstr "**미리보기 해상도** 는 미리보기의 가장 긴 변을 제한합니다. 작은 미리보기는 더 빠르게 로드됩니다. 이 썸네일 선택은 PDF 내보내기 품질과 별개입니다. 콘택트 시트는 전체 소스 해상도 또는 시야당 1600/3200픽셀 제한과 DPI를 제공합니다. 사용자 지정 캔버스에서 **설정…** 은 내보내기 DPI를 제어하고 **원본 픽셀 전체** 는 모든 소스 픽셀을 유지합니다. DPI는 삽입된 이미지의 픽셀 밀도를 제한하며 소스에 없는 세부 사항을 추가할 수 없습니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Image measurements and source ownership"
+msgstr "이미지 측정과 소스 귀속"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Export image-level measurements** writes one row per selected image to the ``fov`` table in ``measurements/measurements.db``. By default, features describe whole images. Whole-image intensity statistics use finite stored pixels without display normalization; some texture features use reduced copies. Under **Objects**, supplying existing Mask generation masks adds per-image object summaries without segmenting new objects. CSV export is on by default and writes ``image_measurements.csv`` beside the database; the output status lists written paths."
+msgstr "**이미지 수준 측정값 내보내기** 는 선택한 이미지마다 한 행을 ``measurements/measurements.db`` 의 ``fov`` 테이블에 씁니다. 기본적으로 특징은 전체 이미지를 설명합니다. 전체 이미지의 강도 통계는 표시 정규화 없이 저장된 유한한 픽셀 값을 사용하며, 일부 텍스처 특징은 축소된 사본을 사용합니다. **객체** 아래에 기존 Mask generation 마스크를 제공하면 새 객체를 분할하지 않고 이미지별 객체 요약을 추가합니다. CSV 내보내기는 기본적으로 켜져 있으며 데이터베이스 옆에 ``image_measurements.csv`` 를 씁니다. 출력 상태에는 기록된 경로가 나열됩니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The measurements database is written under the first path in the current loaded-source list. Editing Source alone does not change ownership of retained images or measurements. Load and validate the intended source before measuring it. Adding or removing plates updates the loaded source set; check the current plate and output status before export. For individual-object rows, use the separate Measure workflow in :doc:`workflows`."
+msgstr "측정 데이터베이스는 현재 로드된 소스 목록의 첫 번째 경로 아래에 기록됩니다. Source만 편집해도 유지된 이미지나 측정의 귀속은 바뀌지 않습니다. 측정하기 전에 원하는 소스를 로드하고 검증합니다. 플레이트를 추가하거나 제거하면 로드된 소스 집합이 갱신됩니다. 내보내기 전에 현재 플레이트와 출력 상태를 확인합니다. 개별 객체별 행이 필요하면 :doc:`workflows` 의 별도 Measure 워크플로를 사용합니다."
+

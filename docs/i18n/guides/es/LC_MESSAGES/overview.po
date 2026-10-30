@@ -1,0 +1,85 @@
+# spaCR user guide translation (es).
+# AI technical review (Codex), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-30 00:25-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Codex (AI technical translation)\n"
+"Language: es\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Overview: inspect plate images and export figures"
+msgstr "Overview: inspeccionar imágenes de placas y exportar figuras"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Set the image-folder source, then use the **Field-of-view overview** icon beside the source in Generate Masks, or the matching icon in Make Masks. The icon opens the metadata step before the plate browser. This workflow inspects images; it does not segment objects."
+msgstr "Indique la carpeta de origen de las imágenes y use el icono **Vista general de los campos de visión** junto a la fuente en Generate Masks, o el icono equivalente en Make Masks. El icono abre el paso de metadatos antes del explorador de placas. Este flujo permite inspeccionar imágenes; no segmenta objetos."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Check metadata before proceeding"
+msgstr "Comprobar los metadatos antes de continuar"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Start with **Automatic filename metadata** under **Microscope preset**, then press **Preview metadata**. Check each plate's parsed wells, fields and channel IDs. Use a microscope preset or **Custom filename regex** if automatic detection does not describe your filenames. A custom pattern must include a named ``wellID`` group; select only channel IDs reported by the images."
+msgstr "Empiece con **Metadatos automáticos del nombre de archivo** en **Preajuste del microscopio** y pulse **Previsualizar metadatos**. Compruebe los pocillos, campos e identificadores de canal interpretados para cada placa. Use un ajuste predefinido de microscopio o **Expresión regular personalizada del nombre de archivo** si la detección automática no describe sus nombres de archivo. Un patrón personalizado debe incluir un grupo con el nombre ``wellID``; seleccione solo los identificadores de canal indicados por las imágenes."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Select a plate to edit its filename pattern; **Apply to all plates** shares that pattern with the others. Confirm **Plate geometry**, time and Z choices, and pixel size when known, then press **Next**. The default source scope reads this folder only; including subfolders can also admit derived images. Removing every source disables continuation until a valid source is restored."
+msgstr "Seleccione una placa para editar su patrón de nombres de archivo; **Aplicar a todas las placas** aplica ese patrón a las demás. Confirme **Geometría de la placa**, las opciones de tiempo y Z y el tamaño de píxel, si se conoce, y pulse **Siguiente**. De forma predeterminada, solo se lee esta carpeta de origen; incluir subcarpetas también puede incorporar imágenes derivadas. Si se eliminan todas las fuentes, no se puede continuar hasta restablecer una fuente válida."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Navigate plates, wells and images"
+msgstr "Navegar por placas, pocillos e imágenes"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use **Plate**, **Row**, **Column**, **Field**, **Time** and **Z** to choose the acquisition context. Click a well to see its fields, then open a field image. **Back** returns from an image to its well, then from the well to the plate. Ctrl/Shift selection retains fields or wells for an explicit export selection."
+msgstr "Use **Placa**, **Fila**, **Columna**, **Campo de imagen**, **Tiempo** y **Z** para elegir el contexto de adquisición. Haga clic en un pocillo para ver sus campos y abra después una imagen de campo. **Atrás** vuelve de la imagen a su pocillo y del pocillo a la placa. La selección con Ctrl/Shift mantiene campos o pocillos seleccionados para una selección explícita de exportación."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Display and canvas"
+msgstr "Visualización y lienzo"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose display channels, colours and normalization in the settings. **Channel to edit** selects shared or channel-specific values; **Apply settings to channel** stores that channel's own values. Display normalization changes the rendering, not the stored source pixels."
+msgstr "Elija los canales de visualización, los colores y la normalización en los ajustes. **Canal que editar** selecciona valores compartidos o específicos de un canal; **Aplicar ajustes al canal** guarda los valores propios de ese canal. La normalización de visualización cambia la representación, no los píxeles de origen almacenados."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use **Export…** for **Guided export**, **Custom export** or **Contact sheet PDFs**. Guided export walks through wells, fields, placement and preview. Custom export lets you drag images onto a page grid and arrange text and images. Captured image display settings belong to each placed image."
+msgstr "Use **Exportar...** para **Exportación guiada**, **Exportación personalizada** o **PDFs de hojas de contactos**. La exportación guiada recorre los pocillos, los campos, la colocación y la vista previa. La exportación personalizada permite arrastrar imágenes a una cuadrícula de página y organizar texto e imágenes. Los ajustes de visualización capturados pertenecen a cada imagen colocada."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In the canvas, **Save layout…** writes editable JSON; **Open layout…** reopens it. Keep the image files available: a layout is not an archive of their pixels. A saved layout whose captured display cannot be unpacked or lacks required channel, limit or display entries is refused before replacing the current canvas. Missing image files can leave a partially recoverable layout; restore the files and reload their source as needed to recover those images."
+msgstr "En el lienzo, **Guardar disposición…** escribe JSON editable; **Abrir disposición…** lo vuelve a abrir. Mantenga disponibles los archivos de imagen: un diseño no es un archivo de sus píxeles. Un diseño guardado cuya visualización capturada no pueda desempaquetarse, o al que le falten entradas obligatorias de canales, límites o visualización, se rechaza antes de sustituir el lienzo actual. Si faltan archivos de imagen, el diseño puede ser parcialmente recuperable; restaure los archivos y vuelva a cargar su fuente cuando sea necesario para recuperar esas imágenes."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Preview quality and PDF resolution"
+msgstr "Calidad de vista previa y resolución del PDF"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Preview resolution** limits the maximum preview edge; smaller previews load faster. This thumbnail choice is separate from PDF export quality. Contact sheets offer full source resolution or a 1600/3200-pixel field limit plus DPI. In the custom canvas, **Settings…** controls export DPI; **Every source pixel** keeps all source pixels. DPI limits embedded image density; it cannot add detail absent from the source."
+msgstr "**Resolución de vista previa** limita la longitud máxima del lado de la vista previa; las vistas previas más pequeñas se cargan más rápido. Esta elección de miniatura es independiente de la calidad de exportación a PDF. Las hojas de contacto ofrecen la resolución de origen completa o un límite de campo de 1600/3200 píxeles, además de DPI. En el lienzo personalizado, **Configuración…** controla los DPI de exportación; **Cada píxel de origen** conserva todos los píxeles de origen. Los DPI limitan la densidad de las imágenes incrustadas; no pueden añadir detalles ausentes en la fuente."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Image measurements and source ownership"
+msgstr "Mediciones de imágenes y pertenencia a la fuente"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Export image-level measurements** writes one row per selected image to the ``fov`` table in ``measurements/measurements.db``. By default, features describe whole images. Whole-image intensity statistics use finite stored pixels without display normalization; some texture features use reduced copies. Under **Objects**, supplying existing Mask generation masks adds per-image object summaries without segmenting new objects. CSV export is on by default and writes ``image_measurements.csv`` beside the database; the output status lists written paths."
+msgstr "**Exportar mediciones por imagen** escribe una fila por imagen seleccionada en la tabla ``fov`` de ``measurements/measurements.db``. De forma predeterminada, las características describen imágenes completas. Las estadísticas de intensidad de imágenes completas usan píxeles almacenados con valores finitos, sin normalización de visualización; algunas características de textura usan copias reducidas. En **Objetos**, proporcionar máscaras existentes de Mask generation añade resúmenes de objetos por imagen sin segmentar nuevos objetos. La exportación CSV está activada de forma predeterminada y escribe ``image_measurements.csv`` junto a la base de datos; el estado de salida enumera las rutas escritas."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The measurements database is written under the first path in the current loaded-source list. Editing Source alone does not change ownership of retained images or measurements. Load and validate the intended source before measuring it. Adding or removing plates updates the loaded source set; check the current plate and output status before export. For individual-object rows, use the separate Measure workflow in :doc:`workflows`."
+msgstr "La base de datos de mediciones se escribe bajo la primera ruta de la lista actual de fuentes cargadas. Editar Source por sí solo no cambia a qué fuente pertenecen las imágenes o mediciones conservadas. Cargue y valide la fuente deseada antes de medirla. Añadir o eliminar placas actualiza el conjunto de fuentes cargadas; compruebe la placa actual y el estado de salida antes de exportar. Para filas de objetos individuales, use el flujo independiente Measure en :doc:`workflows`."
+

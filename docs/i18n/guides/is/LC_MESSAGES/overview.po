@@ -1,0 +1,85 @@
+# spaCR user guide translation (is).
+# AI technical review (Codex), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-30 00:25-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Codex (AI technical translation)\n"
+"Language: is\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
+"X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Overview: inspect plate images and export figures"
+msgstr "Overview: skoða plötumyndir og flytja út myndrit"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Set the image-folder source, then use the **Field-of-view overview** icon beside the source in Generate Masks, or the matching icon in Make Masks. The icon opens the metadata step before the plate browser. This workflow inspects images; it does not segment objects."
+msgstr "Veldu myndamöppuna sem uppsprettu og notaðu síðan táknið **Yfirlit yfir sjónsvið** við hlið uppsprettunnar í Generate Masks eða samsvarandi tákn í Make Masks. Táknið opnar lýsigagnaskrefið á undan plötuvafranum. Verkferlið skoðar myndir; það hlutgreinir ekki fyrirbæri."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Check metadata before proceeding"
+msgstr "Athugaðu lýsigögn áður en haldið er áfram"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Start with **Automatic filename metadata** under **Microscope preset**, then press **Preview metadata**. Check each plate's parsed wells, fields and channel IDs. Use a microscope preset or **Custom filename regex** if automatic detection does not describe your filenames. A custom pattern must include a named ``wellID`` group; select only channel IDs reported by the images."
+msgstr "Byrjaðu á **Sjálfvirk lýsigögn úr skráarnöfnum** undir **Forstilling smásjár** og ýttu síðan á **Forskoða lýsigögn**. Athugaðu holur, sjónsvið og rásaauðkenni sem lesin eru úr hverri plötu. Notaðu forstillingu smásjár eða **Sérsniðin regluleg segð fyrir skráarnöfn** ef sjálfvirk greining lýsir ekki skráarheitunum þínum. Sérsniðið mynstur verður að innihalda nafngreindan hóp ``wellID``; veldu aðeins rásaauðkenni sem myndirnar tilgreina."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Select a plate to edit its filename pattern; **Apply to all plates** shares that pattern with the others. Confirm **Plate geometry**, time and Z choices, and pixel size when known, then press **Next**. The default source scope reads this folder only; including subfolders can also admit derived images. Removing every source disables continuation until a valid source is restored."
+msgstr "Veldu plötu til að breyta skráarheitamynstri hennar; **Beita á allar plötur** deilir mynstrinu með hinum. Staðfestu **Rúmfræði plötu**, tíma- og Z-val og pixlastærð þegar hún er þekkt og ýttu síðan á **Áfram**. Sjálfgefið er aðeins lesið úr þessari möppu; ef undirmöppur eru teknar með geta afleiddar myndir einnig fylgt. Ef allar uppsprettur eru fjarlægðar er ekki hægt að halda áfram fyrr en gild uppspretta er endurheimt."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Navigate plates, wells and images"
+msgstr "Fara milli platna, hola og mynda"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use **Plate**, **Row**, **Column**, **Field**, **Time** and **Z** to choose the acquisition context. Click a well to see its fields, then open a field image. **Back** returns from an image to its well, then from the well to the plate. Ctrl/Shift selection retains fields or wells for an explicit export selection."
+msgstr "Notaðu **Plata**, **Röð**, **Dálkur**, **myndsvið**, **Tími** og **Z** til að velja samhengi myndatökunnar. Smelltu á holu til að sjá sjónsvið hennar og opnaðu síðan mynd úr sjónsviði. **Til baka** fer frá mynd að holu og síðan frá holu að plötu. Val með Ctrl/Shift varðveitir sjónsvið eða holur fyrir sérstaklega valið útflutningssafn."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Display and canvas"
+msgstr "Birting og vinnuflötur"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose display channels, colours and normalization in the settings. **Channel to edit** selects shared or channel-specific values; **Apply settings to channel** stores that channel's own values. Display normalization changes the rendering, not the stored source pixels."
+msgstr "Veldu birtingarrásir, liti og stöðlun í stillingunum. **Rás til að breyta** velur sameiginleg eða rásarsértæk gildi; **Nota stillingar á rás** vistar eigin gildi rásarinnar. Birtingarstöðlun breytir birtingunni, ekki vistuðum upprunapixlum."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use **Export…** for **Guided export**, **Custom export** or **Contact sheet PDFs**. Guided export walks through wells, fields, placement and preview. Custom export lets you drag images onto a page grid and arrange text and images. Captured image display settings belong to each placed image."
+msgstr "Notaðu **Afleiðingar...** fyrir **Leiddur útflutningur**, **Sérsniðinn útflutningur** eða **PDFs með yfirlitsblöðum**. Leiðbeindur útflutningur fer í gegnum holur, sjónsvið, staðsetningu og forskoðun. Sérsniðinn útflutningur leyfir þér að draga myndir á síðugrind og raða texta og myndum. Fangaðar birtingarstillingar tilheyra hverri staðsettri mynd."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In the canvas, **Save layout…** writes editable JSON; **Open layout…** reopens it. Keep the image files available: a layout is not an archive of their pixels. A saved layout whose captured display cannot be unpacked or lacks required channel, limit or display entries is refused before replacing the current canvas. Missing image files can leave a partially recoverable layout; restore the files and reload their source as needed to recover those images."
+msgstr "Á vinnufletinum skrifar **Vista uppsetningu…** breytanlegt JSON; **Opna uppsetningu…** opnar það aftur. Hafðu myndaskrárnar tiltækar: útlitsskrá geymir ekki safn pixla þeirra. Vistuðu útliti er hafnað áður en núverandi vinnufleti er skipt út ef ekki er hægt að taka fangaða birtingu þess í sundur eða ef nauðsynlegar færslur um rásir, mörk eða birtingu vantar. Ef myndaskrár vantar getur útlitið verið endurheimtanlegt að hluta; endurheimtu skrárnar og hlóðu uppsprettu þeirra aftur eftir þörfum til að endurheimta myndirnar."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Preview quality and PDF resolution"
+msgstr "Gæði forskoðunar og upplausn PDF"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Preview resolution** limits the maximum preview edge; smaller previews load faster. This thumbnail choice is separate from PDF export quality. Contact sheets offer full source resolution or a 1600/3200-pixel field limit plus DPI. In the custom canvas, **Settings…** controls export DPI; **Every source pixel** keeps all source pixels. DPI limits embedded image density; it cannot add detail absent from the source."
+msgstr "**Upplausn forskoðunar** takmarkar lengstu hlið forskoðunar; minni forskoðanir hlaðast hraðar. Þetta smámyndaval er aðskilið frá gæðum PDF-útflutnings. Yfirlitsblöð bjóða fulla upprunaupplausn eða 1600/3200 pixla mörk fyrir sjónsvið ásamt DPI. Á sérsniðna vinnufletinum stýrir **Stillingar…** DPI við útflutning; **Hver upprunapixill** varðveitir alla upprunapixla. DPI takmarkar pixlaþéttleika innfelldra mynda; það getur ekki bætt við smáatriðum sem vantar í uppsprettuna."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Image measurements and source ownership"
+msgstr "Myndmælingar og tengsl við uppsprettu"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Export image-level measurements** writes one row per selected image to the ``fov`` table in ``measurements/measurements.db``. By default, features describe whole images. Whole-image intensity statistics use finite stored pixels without display normalization; some texture features use reduced copies. Under **Objects**, supplying existing Mask generation masks adds per-image object summaries without segmenting new objects. CSV export is on by default and writes ``image_measurements.csv`` beside the database; the output status lists written paths."
+msgstr "**Flytja út mælingar fyrir heilar myndir** skrifar eina röð fyrir hverja valda mynd í töfluna ``fov`` í ``measurements/measurements.db``. Sjálfgefið lýsa eiginleikarnir heilum myndum. Styrkleikatölfræði heilla mynda notar endanleg vistuð pixlagildi án birtingarstöðlunar; sumir áferðareiginleikar nota minnkuð afrit. Undir **Hlutir** bæta fyrirliggjandi grímur úr Mask generation við samantektum um fyrirbæri fyrir hverja mynd án þess að hlutgreina ný fyrirbæri. CSV-útflutningur er sjálfgefið virkur og skrifar ``image_measurements.csv`` við hlið gagnagrunnsins; úttaksstaðan sýnir skrifaðar slóðir."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The measurements database is written under the first path in the current loaded-source list. Editing Source alone does not change ownership of retained images or measurements. Load and validate the intended source before measuring it. Adding or removing plates updates the loaded source set; check the current plate and output status before export. For individual-object rows, use the separate Measure workflow in :doc:`workflows`."
+msgstr "Mæligagnagrunnurinn er skrifaður undir fyrstu slóðinni í núverandi lista innhlaðinna uppspretta. Að breyta aðeins Source breytir ekki tengslum varðveittra mynda eða mælinga við uppsprettu. Hladdu inn og staðfestu ætlaða uppsprettu áður en hún er mæld. Að bæta við eða fjarlægja plötur uppfærir safn innhlaðinna uppspretta; athugaðu núverandi plötu og úttaksstöðu fyrir útflutning. Fyrir raðir fyrir einstök fyrirbæri skaltu nota aðskilda Measure-verkferlið í :doc:`workflows`."
+
