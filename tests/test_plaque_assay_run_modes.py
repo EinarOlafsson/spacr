@@ -196,11 +196,12 @@ def test_detector_boxes_on_a_gpu_are_copied_to_the_host(monkeypatch):
 def test_figure_crops_reuse_one_segmenter_without_reusing_predictions(tmp_path, monkeypatch):
     """Two paper crops share model setup while retaining their own pixels and masks."""
     from copy import deepcopy
-    from functools import wraps
 
     import cellpose.models
     from spacr import plaque_papers
     from tests.test_plaque_well_resize import _DiskModel
+    from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
+    from tests.cellpose_api_contract import CELLPOSE_EVAL_PARAMETERS, eval_arguments
 
     checkpoint = tmp_path / 'chosen.CP_model'
     checkpoint.write_bytes(b'model-construction boundary')
@@ -214,10 +215,18 @@ def test_figure_crops_reuse_one_segmenter_without_reusing_predictions(tmp_path, 
             super().__init__()
             constructed.append((self, options))
 
-        @wraps(_DiskModel.eval)
-        def eval(self, image, **options):
+        def eval(self, image, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+                 rescale=None, diameter=None, flow_threshold=0.4,
+                 cellprob_threshold=0.0, do_3D=False, anisotropy=None,
+                 flow3D_smooth=0, stitch_threshold=0.0, min_size=15,
+                 max_size_fraction=0.4, niter=None, augment=False,
+                 tile_overlap=0.1, bsize=None, compute_masks=True, progress=None):
+            options = eval_arguments(locals(), image_parameter='image')
+            check_cellpose_eval_call(image, channel_axis)
             received.append(np.asarray(image).copy())
-            return super().eval(image, **options)
+            return super().eval(image, **{name: options[name]
+                                          for name in CELLPOSE_EVAL_PARAMETERS})
 
     monkeypatch.setattr(cellpose.models, 'CellposeModel', Model)
     real_factory = plaque_papers._cellpose_segmenter
