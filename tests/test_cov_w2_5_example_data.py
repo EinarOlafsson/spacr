@@ -344,3 +344,24 @@ def test_a_fully_downloaded_result_does_not_mention_the_cache():
 
     assert "downloaded 1" in note
     assert "already cached" not in note
+
+
+def test_a_misspelled_dataset_kind_cannot_report_an_empty_success_or_touch_cache(
+        tmp_path, monkeypatch):
+    """Reject an unknown selection before disturbing a partial example download."""
+    import urllib.request
+
+    partial = tmp_path / (ed.FILES[0]["name"] + ".part")
+    partial.write_bytes(b"retained interrupted download")
+    cached = tmp_path / "user-notes.csv"
+    cached.write_bytes(b"reviewed,keep\n1,yes\n")
+    before = {path.name: path.read_bytes() for path in tmp_path.iterdir()}
+    network = []
+    monkeypatch.setattr(urllib.request, "urlopen", lambda *args, **kwargs: network.append(args))
+
+    with pytest.raises(ValueError, match="no example files of kind 'count'") as error:
+        ed.fetch(tmp_path, kind="count")
+
+    assert "counts" in str(error.value) and "scores" in str(error.value)
+    assert network == []
+    assert {path.name: path.read_bytes() for path in tmp_path.iterdir()} == before
