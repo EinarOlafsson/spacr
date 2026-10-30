@@ -514,8 +514,14 @@ def test_uncalibrated_guided_canvas_and_header_whitespace_preserve_the_loaded_pl
     selected = set(view._selected_wells)
     fields = tuple(field.identity for field in view._fields)
     header = view.wells.horizontalHeader()
-    position = QPoint(header.viewport().width() - 1, 2)
+    next(action for action in view._plate_zoom_actions if action.text() == "Zoom out").trigger()
+    qtbot.waitUntil(lambda: header.length() < header.viewport().width())
+    position = QPoint(header.viewport().width() - 1, header.height() // 2)
     assert header.logicalIndexAt(position) == -1
+    received = []
+    header.sectionDoubleClicked.connect(received.append)
+    qtbot.mouseDClick(header.viewport(), Qt.LeftButton, pos=position)
+    assert received == [-1]
     menu = view._header_menu("column", position)
     texts = [action.text() for action in menu.actions()]
     assert "Show all rows and columns" in texts and "Navigation" in texts
