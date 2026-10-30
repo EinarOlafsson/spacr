@@ -2057,3 +2057,35 @@ def test_the_family_on_the_report_is_the_family_that_was_fitted(regression_type)
     ctx = rq.build_context(model, X, y, weights=weights,
                            regression_type=regression_type)
     assert ctx.family == expected
+
+
+def test_wide_predictor_report_discloses_and_draws_its_actual_top_forty():
+    """A bounded heatmap uses the largest spreads and names its truncation."""
+    from matplotlib.backends.backend_agg import FigureCanvasAgg
+
+    raw = _stream(20261030, 1).normal(size=(96, 42))
+    raw -= raw.mean(axis=0)
+    raw /= raw.std(axis=0, ddof=1)
+    raw[:, 41] = raw[:, 40]
+    X = pd.DataFrame({f"predictor_{index + 1:02d}": raw[:, index] * (index + 1)
+                      for index in range(42)})
+    X.insert(0, "Intercept", 1.0)
+    y = X["predictor_01"] + _stream(20261030, 2).normal(size=len(X))
+    before = X.copy(deep=True)
+    model = sm.OLS(y, X).fit()
+    context = rq.build_context(model, X, y, regression_type="ols")
+    figure, axes = _axes()
+
+    stats = rq.draw_panel("predictor_correlation", context, axes)
+
+    kept = X.drop(columns="Intercept").std(ddof=1).sort_values(ascending=False).head(40).index
+    expected = X[kept].corr().to_numpy()
+    assert len(axes.images) == 1
+    np.testing.assert_allclose(np.asarray(axes.images[0].get_array()), expected, atol=1e-12)
+    assert stats["n_predictors"] == 40
+    assert set(stats["max_pair"]) == {"predictor_41", "predictor_42"}
+    assert stats["max_abs_offdiagonal"] == pytest.approx(1.0)
+    assert any("top 40 of 43 predictors by spread" in text.get_text() for text in axes.texts)
+    assert axes.get_xticks().size == axes.get_yticks().size == 0
+    FigureCanvasAgg(figure).draw()
+    pd.testing.assert_frame_equal(X, before)
