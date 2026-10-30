@@ -16469,8 +16469,7 @@ class _OverviewCanvasDrags(_QObject):
         from shiboken6 import isValid
 
         for watched in self._watched:
-            if isValid(watched):
-                watched.removeEventFilter(self)
+            watched.removeEventFilter(self)
         self._watched = []
         self._hold.stop()
         self._press = None
