@@ -1661,8 +1661,10 @@ cell_channel
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
 |         ``_generate_masks_in_parallel``
-|             ``_fill_cellpose_channel_positions`` **-- reads it**
+|             ``_fill_cellpose_channel_positions``
 |                 :py:func:`~spacr.utils.dense_mask_channel_positions` **-- reads it**
+|         ``_check_archives_without_preprocessing``
+|             :py:func:`~spacr.utils.dense_mask_channel_positions` **-- reads it**
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_mapped_volume_series``
 |                 ``_normalize_img_channels`` **-- reads it**
@@ -1674,11 +1676,12 @@ cell_channel
 |                         ``_normalize_img_channels`` **-- reads it**
 |         ``_run_robustness_report``
 |             ``_robustness_sample``
-|                 ``_fill_cellpose_channel_positions`` **-- reads it**
+|                 ``_fill_cellpose_channel_positions``
 |                     :py:func:`~spacr.utils.dense_mask_channel_positions` **-- reads it**
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam` **-- reads it**
-|             ``_fill_cellpose_channel_positions`` **-- reads it**
+|             ``_fill_cellpose_channel_positions``
 |                 :py:func:`~spacr.utils.dense_mask_channel_positions` **-- reads it**
+|             :py:func:`~spacr.utils.dense_mask_channel_positions` **-- reads it**
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.object.generate_organelle_masks_sam`
 |             ``_segment_cellpose_sam`` **-- reads it**
@@ -1704,8 +1707,9 @@ cell_channel
 |     ``register_outputs(...)  [UNRESOLVED]``
 | ``_segment_cellpose`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks`
-|     ``_fill_cellpose_channel_positions`` **-- reads it**
+|     ``_fill_cellpose_channel_positions``
 |         :py:func:`~spacr.utils.dense_mask_channel_positions` **-- reads it**
+|     :py:func:`~spacr.utils.dense_mask_channel_positions` **-- reads it**
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
 | :py:func:`~spacr.plot.plot_region` **-- reads it**
 | ``_channels``
@@ -1726,7 +1730,7 @@ cell_channel
 |         ``isinstance(...)  [UNRESOLVED]``
 | :py:func:`~spacr.timelapse.automated_motility_assay` **-- reads it**
 
-Read by ``preprocess_generate_masks``, ``channels_from_settings``, ``_get_lists_for_normalization``, ``_normalize_img_channels``, ``_fill_cellpose_channel_positions``, ``_segment_cellpose``, ``_segment_cellpose_sam``, ``generate_cellpose_masks_sam``, ``_drop_unreal_objects``, ``plot_region``, ``apply_settings``, ``apply_settings``, ``organelle_measurement_caveats``, ``automated_motility_assay``, ``dense_mask_channel_positions``, ``_describe_objects``.
+Read by ``preprocess_generate_masks``, ``channels_from_settings``, ``_get_lists_for_normalization``, ``_normalize_img_channels``, ``_segment_cellpose``, ``_segment_cellpose_sam``, ``generate_cellpose_masks_sam``, ``_drop_unreal_objects``, ``plot_region``, ``apply_settings``, ``apply_settings``, ``organelle_measurement_caveats``, ``automated_motility_assay``, ``dense_mask_channel_positions``, ``_describe_objects``.
 
 .. _setting-flow-cell_csv:
 
@@ -2576,25 +2580,20 @@ cellcellpose__channel
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_generate_masks_in_parallel``
-|             ``_fill_cellpose_channel_positions`` **-- reads it**
 |         ``_run_robustness_report``
 |             ``_robustness_sample``
-|                 ``_fill_cellpose_channel_positions`` **-- reads it**
 |                 ``_get_cellpose_channels`` **-- reads it**
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam`
-|             ``_fill_cellpose_channel_positions`` **-- reads it**
 |             ``_get_cellpose_channels`` **-- reads it**
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.object.generate_cellpose_masks`
-|     ``_fill_cellpose_channel_positions`` **-- reads it**
 |     ``_get_cellpose_channels`` **-- reads it**
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
 | :py:func:`~spacr.object_roles.organelle_settings_view` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_fill_cellpose_channel_positions``, ``organelle_settings_view``, ``_get_cellpose_channels``.
+Read by ``organelle_settings_view``, ``_get_cellpose_channels``.
 
 .. _setting-flow-cellorganelle_:
 
@@ -5245,8 +5244,6 @@ cytoplasm_channel
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
-|         ``_generate_masks_in_parallel``
-|             ``_fill_cellpose_channel_positions`` **-- reads it**
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_mapped_volume_series``
 |                 ``_normalize_img_channels`` **-- reads it**
@@ -5256,11 +5253,7 @@ cytoplasm_channel
 |                 ``_concatenate_and_normalize_impl``
 |                     ``_normalize_img_batch``
 |                         ``_normalize_img_channels`` **-- reads it**
-|         ``_run_robustness_report``
-|             ``_robustness_sample``
-|                 ``_fill_cellpose_channel_positions`` **-- reads it**
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam` **-- reads it**
-|             ``_fill_cellpose_channel_positions`` **-- reads it**
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         ``_drop_unreal_objects`` **-- reads it**
 |         :py:func:`~spacr.validate.run_preflight`
@@ -5280,9 +5273,6 @@ cytoplasm_channel
 |             ``isinstance(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
-| :py:func:`~spacr.object.generate_cellpose_masks`
-|     ``_fill_cellpose_channel_positions`` **-- reads it**
-|     ``_run_lineage_step(...)  [UNRESOLVED]``
 | ``_channels``
 |     :py:func:`~spacr.diameter.channels_from_settings` **-- reads it**
 | ``_plan_gains``
@@ -5300,7 +5290,7 @@ cytoplasm_channel
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``preprocess_generate_masks``, ``channels_from_settings``, ``_normalize_img_channels``, ``_fill_cellpose_channel_positions``, ``generate_cellpose_masks_sam``, ``_drop_unreal_objects``, ``apply_settings``, ``apply_settings``, ``organelle_measurement_caveats``, ``_describe_objects``.
+Read by ``preprocess_generate_masks``, ``channels_from_settings``, ``_normalize_img_channels``, ``generate_cellpose_masks_sam``, ``_drop_unreal_objects``, ``apply_settings``, ``apply_settings``, ``organelle_measurement_caveats``, ``_describe_objects``.
 
 .. _setting-flow-cytoplasm_csv:
 
@@ -5782,25 +5772,20 @@ cytoplasmcellpose__channel
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_generate_masks_in_parallel``
-|             ``_fill_cellpose_channel_positions`` **-- reads it**
 |         ``_run_robustness_report``
 |             ``_robustness_sample``
-|                 ``_fill_cellpose_channel_positions`` **-- reads it**
 |                 ``_get_cellpose_channels`` **-- reads it**
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam`
-|             ``_fill_cellpose_channel_positions`` **-- reads it**
 |             ``_get_cellpose_channels`` **-- reads it**
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.object.generate_cellpose_masks`
-|     ``_fill_cellpose_channel_positions`` **-- reads it**
 |     ``_get_cellpose_channels`` **-- reads it**
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
 | :py:func:`~spacr.object_roles.organelle_settings_view` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_fill_cellpose_channel_positions``, ``organelle_settings_view``, ``_get_cellpose_channels``.
+Read by ``organelle_settings_view``, ``_get_cellpose_channels``.
 
 .. _setting-flow-cytoplasmorganelle_:
 
@@ -15405,8 +15390,10 @@ nucleus_channel
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
 |         ``_generate_masks_in_parallel``
-|             ``_fill_cellpose_channel_positions`` **-- reads it**
+|             ``_fill_cellpose_channel_positions``
 |                 :py:func:`~spacr.utils.dense_mask_channel_positions` **-- reads it**
+|         ``_check_archives_without_preprocessing``
+|             :py:func:`~spacr.utils.dense_mask_channel_positions` **-- reads it**
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_mapped_volume_series``
 |                 ``_normalize_img_channels`` **-- reads it**
@@ -15418,11 +15405,12 @@ nucleus_channel
 |                         ``_normalize_img_channels`` **-- reads it**
 |         ``_run_robustness_report``
 |             ``_robustness_sample``
-|                 ``_fill_cellpose_channel_positions`` **-- reads it**
+|                 ``_fill_cellpose_channel_positions``
 |                     :py:func:`~spacr.utils.dense_mask_channel_positions` **-- reads it**
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam` **-- reads it**
-|             ``_fill_cellpose_channel_positions`` **-- reads it**
+|             ``_fill_cellpose_channel_positions``
 |                 :py:func:`~spacr.utils.dense_mask_channel_positions` **-- reads it**
+|             :py:func:`~spacr.utils.dense_mask_channel_positions` **-- reads it**
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.object.generate_organelle_masks_sam`
 |             ``_segment_cellpose_sam`` **-- reads it**
@@ -15450,8 +15438,9 @@ nucleus_channel
 |     ``register_outputs(...)  [UNRESOLVED]``
 | ``_segment_cellpose`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks`
-|     ``_fill_cellpose_channel_positions`` **-- reads it**
+|     ``_fill_cellpose_channel_positions``
 |         :py:func:`~spacr.utils.dense_mask_channel_positions` **-- reads it**
+|     :py:func:`~spacr.utils.dense_mask_channel_positions` **-- reads it**
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
 | :py:func:`~spacr.plot.plot_region` **-- reads it**
 | ``_channels``
@@ -15472,7 +15461,7 @@ nucleus_channel
 |         ``isinstance(...)  [UNRESOLVED]``
 | :py:func:`~spacr.timelapse.automated_motility_assay` **-- reads it**
 
-Read by ``preprocess_generate_masks``, ``channels_from_settings``, ``_get_lists_for_normalization``, ``_normalize_img_channels``, ``_classify_viability``, ``_fill_cellpose_channel_positions``, ``_segment_cellpose``, ``_segment_cellpose_sam``, ``generate_cellpose_masks_sam``, ``_drop_unreal_objects``, ``plot_region``, ``apply_settings``, ``apply_settings``, ``organelle_measurement_caveats``, ``automated_motility_assay``, ``dense_mask_channel_positions``, ``_describe_objects``.
+Read by ``preprocess_generate_masks``, ``channels_from_settings``, ``_get_lists_for_normalization``, ``_normalize_img_channels``, ``_classify_viability``, ``_segment_cellpose``, ``_segment_cellpose_sam``, ``generate_cellpose_masks_sam``, ``_drop_unreal_objects``, ``plot_region``, ``apply_settings``, ``apply_settings``, ``organelle_measurement_caveats``, ``automated_motility_assay``, ``dense_mask_channel_positions``, ``_describe_objects``.
 
 .. _setting-flow-nucleus_csv:
 
@@ -16047,25 +16036,20 @@ nucleuscellpose__channel
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_generate_masks_in_parallel``
-|             ``_fill_cellpose_channel_positions`` **-- reads it**
 |         ``_run_robustness_report``
 |             ``_robustness_sample``
-|                 ``_fill_cellpose_channel_positions`` **-- reads it**
 |                 ``_get_cellpose_channels`` **-- reads it**
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam`
-|             ``_fill_cellpose_channel_positions`` **-- reads it**
 |             ``_get_cellpose_channels`` **-- reads it**
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.object.generate_cellpose_masks`
-|     ``_fill_cellpose_channel_positions`` **-- reads it**
 |     ``_get_cellpose_channels`` **-- reads it**
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
 | :py:func:`~spacr.object_roles.organelle_settings_view` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_fill_cellpose_channel_positions``, ``organelle_settings_view``, ``_get_cellpose_channels``.
+Read by ``organelle_settings_view``, ``_get_cellpose_channels``.
 
 .. _setting-flow-nucleusorganelle_:
 
@@ -16848,8 +16832,6 @@ organelle_channel
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
-|         ``_generate_masks_in_parallel``
-|             ``_fill_cellpose_channel_positions`` **-- reads it**
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_mapped_volume_series``
 |                 ``_normalize_img_channels`` **-- reads it**
@@ -16859,11 +16841,7 @@ organelle_channel
 |                 ``_concatenate_and_normalize_impl``
 |                     ``_normalize_img_batch``
 |                         ``_normalize_img_channels`` **-- reads it**
-|         ``_run_robustness_report``
-|             ``_robustness_sample``
-|                 ``_fill_cellpose_channel_positions`` **-- reads it**
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam` **-- reads it**
-|             ``_fill_cellpose_channel_positions`` **-- reads it**
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.object.generate_organelle_masks_sam` **-- reads it**
 |             ``_segment_cellpose_sam`` **-- reads it**
@@ -16886,9 +16864,6 @@ organelle_channel
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 | ``_segment_cellpose`` **-- reads it**
-| :py:func:`~spacr.object.generate_cellpose_masks`
-|     ``_fill_cellpose_channel_positions`` **-- reads it**
-|     ``_run_lineage_step(...)  [UNRESOLVED]``
 | ``_channels``
 |     :py:func:`~spacr.diameter.channels_from_settings` **-- reads it**
 | ``_plan_gains``
@@ -16906,7 +16881,7 @@ organelle_channel
 |         ``_describe_objects`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``preprocess_generate_masks``, ``channels_from_settings``, ``_normalize_img_channels``, ``_fill_cellpose_channel_positions``, ``_segment_cellpose``, ``_segment_cellpose_sam``, ``generate_cellpose_masks_sam``, ``generate_organelle_masks_sam``, ``_drop_unreal_objects``, ``apply_settings``, ``apply_settings``, ``organelle_measurement_caveats``, ``_describe_objects``.
+Read by ``preprocess_generate_masks``, ``channels_from_settings``, ``_normalize_img_channels``, ``_segment_cellpose``, ``_segment_cellpose_sam``, ``generate_cellpose_masks_sam``, ``generate_organelle_masks_sam``, ``_drop_unreal_objects``, ``apply_settings``, ``apply_settings``, ``organelle_measurement_caveats``, ``_describe_objects``.
 
 .. _setting-flow-organelle_clahe:
 
@@ -18023,25 +17998,20 @@ organellecellpose__channel
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_generate_masks_in_parallel``
-|             ``_fill_cellpose_channel_positions`` **-- reads it**
 |         ``_run_robustness_report``
 |             ``_robustness_sample``
-|                 ``_fill_cellpose_channel_positions`` **-- reads it**
 |                 ``_get_cellpose_channels`` **-- reads it**
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam`
-|             ``_fill_cellpose_channel_positions`` **-- reads it**
 |             ``_get_cellpose_channels`` **-- reads it**
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.object.generate_cellpose_masks`
-|     ``_fill_cellpose_channel_positions`` **-- reads it**
 |     ``_get_cellpose_channels`` **-- reads it**
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
 | :py:func:`~spacr.object_roles.organelle_settings_view` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_fill_cellpose_channel_positions``, ``organelle_settings_view``, ``_get_cellpose_channels``.
+Read by ``organelle_settings_view``, ``_get_cellpose_channels``.
 
 .. _setting-flow-organelleorganelle_:
 
@@ -18691,8 +18661,10 @@ pathogen_channel
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
 |         ``_generate_masks_in_parallel``
-|             ``_fill_cellpose_channel_positions`` **-- reads it**
+|             ``_fill_cellpose_channel_positions``
 |                 :py:func:`~spacr.utils.dense_mask_channel_positions` **-- reads it**
+|         ``_check_archives_without_preprocessing``
+|             :py:func:`~spacr.utils.dense_mask_channel_positions` **-- reads it**
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_mapped_volume_series``
 |                 ``_normalize_img_channels`` **-- reads it**
@@ -18704,11 +18676,12 @@ pathogen_channel
 |                         ``_normalize_img_channels`` **-- reads it**
 |         ``_run_robustness_report``
 |             ``_robustness_sample``
-|                 ``_fill_cellpose_channel_positions`` **-- reads it**
+|                 ``_fill_cellpose_channel_positions``
 |                     :py:func:`~spacr.utils.dense_mask_channel_positions` **-- reads it**
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam` **-- reads it**
-|             ``_fill_cellpose_channel_positions`` **-- reads it**
+|             ``_fill_cellpose_channel_positions``
 |                 :py:func:`~spacr.utils.dense_mask_channel_positions` **-- reads it**
+|             :py:func:`~spacr.utils.dense_mask_channel_positions` **-- reads it**
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.object.generate_organelle_masks_sam`
 |             ``_segment_cellpose_sam`` **-- reads it**
@@ -18744,8 +18717,9 @@ pathogen_channel
 |     ``register_outputs(...)  [UNRESOLVED]``
 | ``_segment_cellpose`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks`
-|     ``_fill_cellpose_channel_positions`` **-- reads it**
+|     ``_fill_cellpose_channel_positions``
 |         :py:func:`~spacr.utils.dense_mask_channel_positions` **-- reads it**
+|     :py:func:`~spacr.utils.dense_mask_channel_positions` **-- reads it**
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
 | :py:func:`~spacr.plot.plot_region` **-- reads it**
 | ``_channels``
@@ -18767,7 +18741,7 @@ pathogen_channel
 | :py:func:`~spacr.timelapse.automated_motility_assay` **-- reads it**
 |     ``_make_intensity_motility_panel`` **-- reads it**
 
-Read by ``preprocess_generate_masks``, ``channels_from_settings``, ``_get_lists_for_normalization``, ``_normalize_img_channels``, ``_fill_cellpose_channel_positions``, ``_segment_cellpose``, ``_segment_cellpose_sam``, ``generate_cellpose_masks_sam``, ``_drop_unreal_objects``, ``plot_region``, ``apply_settings``, ``apply_settings``, ``organelle_measurement_caveats``, ``_make_intensity_motility_panel``, ``automated_motility_assay``, ``dense_mask_channel_positions``, ``_check_app_specific``, ``_describe_objects``.
+Read by ``preprocess_generate_masks``, ``channels_from_settings``, ``_get_lists_for_normalization``, ``_normalize_img_channels``, ``_segment_cellpose``, ``_segment_cellpose_sam``, ``generate_cellpose_masks_sam``, ``_drop_unreal_objects``, ``plot_region``, ``apply_settings``, ``apply_settings``, ``organelle_measurement_caveats``, ``_make_intensity_motility_panel``, ``automated_motility_assay``, ``dense_mask_channel_positions``, ``_check_app_specific``, ``_describe_objects``.
 
 .. _setting-flow-pathogen_csv:
 
@@ -19466,25 +19440,20 @@ pathogencellpose__channel
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_generate_masks_in_parallel``
-|             ``_fill_cellpose_channel_positions`` **-- reads it**
 |         ``_run_robustness_report``
 |             ``_robustness_sample``
-|                 ``_fill_cellpose_channel_positions`` **-- reads it**
 |                 ``_get_cellpose_channels`` **-- reads it**
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam`
-|             ``_fill_cellpose_channel_positions`` **-- reads it**
 |             ``_get_cellpose_channels`` **-- reads it**
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.object.generate_cellpose_masks`
-|     ``_fill_cellpose_channel_positions`` **-- reads it**
 |     ``_get_cellpose_channels`` **-- reads it**
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
 | :py:func:`~spacr.object_roles.organelle_settings_view` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_fill_cellpose_channel_positions``, ``organelle_settings_view``, ``_get_cellpose_channels``.
+Read by ``organelle_settings_view``, ``_get_cellpose_channels``.
 
 .. _setting-flow-pathogenorganelle_:
 
