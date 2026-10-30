@@ -420,3 +420,37 @@ def test_regex_process_start_failure_returns_guidance_without_joining_unstarted_
     result = home._easy_validate_regex(original, r'scan_(?P<fieldID>\d+)_C(?P<chanID>\d+)\.tif$')
     assert result['regex']['required'] and result['regex']['validation_error']
     assert result['actions'] == original['actions'] and 'settings_overrides' not in result
+
+
+@pytest.fixture(autouse=True)
+def trace_native_explicit_regex_jobs(qapp, monkeypatch, request):
+    """Inherit the public thread trace only inside real explicit-regex jobs."""
+    import sys
+    import threading
+
+    from spacr.qt.job_runner import JobRunner
+
+    real_submit = JobRunner.submit
+
+    def traced_submit(runner, fn, *args, **kwargs):
+        if getattr(fn, 'func', None) is not home._easy_validate_regex:
+            return real_submit(runner, fn, *args, **kwargs)
+
+        def traced():
+            previous = sys.gettrace()
+            inherited = threading.gettrace()
+            installed = previous is None and inherited is not None
+            request.node.user_properties.extend((('native_regex_previous_trace', previous is not None),
+                                                 ('native_regex_inherited_trace', inherited is not None),
+                                                 ('native_regex_trace_installed', installed)))
+            if installed:
+                sys.settrace(inherited)
+            try:
+                return fn()
+            finally:
+                if installed:
+                    sys.settrace(previous)
+
+        return real_submit(runner, traced, *args, **kwargs)
+
+    monkeypatch.setattr(JobRunner, 'submit', traced_submit)
