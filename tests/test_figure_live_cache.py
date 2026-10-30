@@ -973,3 +973,88 @@ def test_the_raster_path_is_still_reachable(qtbot, queue):
 
     assert queue._canvas is None
     assert queue._stack.currentIndex() == 0
+
+
+def test_restyle_waits_off_the_gui_for_a_real_render_and_cancels_its_retry(
+        qtbot, queue, monkeypatch, tmp_path):
+    """A busy renderer defers one consistent snapshot without delaying Qt events."""
+    import threading
+    from matplotlib.artist import Artist
+    from matplotlib.backends.backend_agg import FigureCanvasAgg
+    from matplotlib.figure import Figure
+    from PySide6.QtCore import QTimer
+    from spacr.qt.widgets import figure_queue
+
+    gui_thread = threading.get_ident()
+    target = Figure(figsize=(2, 2), label="contention-preview-target")
+    queue.set_live_canvas_enabled(False)
+    queue.add_figure(target)
+    live = queue.figure_for(0)
+    draws = []
+    original_draw = FigureCanvasAgg.draw
+
+    def record_draw(canvas, *args, **kwargs):
+        if canvas.figure.get_label() == "contention-preview-target":
+            draws.append(threading.get_ident())
+        return original_draw(canvas, *args, **kwargs)
+
+    monkeypatch.setattr(FigureCanvasAgg, "draw", record_draw)
+    for closing in (False, True):
+        entered, release, expired, finished = (threading.Event() for _ in range(4))
+        outcomes = []
+
+        class RenderGate(Artist):
+            """Hold a real draw until the GUI's next event has run."""
+
+            def draw(self, renderer):
+                entered.set()
+                if not release.wait(2):
+                    expired.set()
+                self.stale = False
+
+        producer = Figure(figsize=(2, 2))
+        producer.add_subplot(111).plot([0, 1], [1, 0])
+        producer.add_artist(RenderGate())
+        path = tmp_path / ("closing.png" if closing else "rendering.png")
+
+        def render():
+            try:
+                outcomes.append(figure_queue.render_figure_to_png(producer, str(path), write_pdf=False))
+            finally:
+                finished.set()
+
+        worker = threading.Thread(target=render)
+        worker.start()
+        try:
+            qtbot.waitUntil(entered.is_set, timeout=5000)
+            assert not release.is_set()
+            sequence = queue._preview_seq
+            live.set_facecolor("#642414")
+            if not closing:
+                QTimer.singleShot(0, release.set)
+            assert queue.refresh_current_figure(preview=True)
+            live.set_facecolor("#13579b")
+            assert queue.refresh_current_figure(preview=True)
+            assert not expired.is_set(), "the GUI waited for the render instead of returning to Qt"
+            assert queue._preview_retry.isActive()
+            assert queue._preview_seq == sequence
+            if closing:
+                release.set()
+                queue.close()
+                assert not queue._preview_retry.isActive()
+            qtbot.waitUntil(lambda: finished.is_set() and not queue._preview_busy, timeout=10000)
+            assert not expired.is_set()
+            assert outcomes == [True] and path.is_file()
+            if closing:
+                assert queue._preview_seq == sequence
+                assert not queue._preview_pending and not queue._jobs.is_busy()
+            else:
+                assert queue._preview_seq == sequence + 1
+                picture = queue._view.picture()
+                assert picture is not None and not picture.isNull()
+                assert picture.toImage().pixelColor(0, 0).name() == "#13579b"
+                assert draws and all(thread != gui_thread for thread in draws)
+        finally:
+            release.set()
+            worker.join(timeout=5)
+            assert not worker.is_alive()

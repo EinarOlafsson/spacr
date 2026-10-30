@@ -969,10 +969,13 @@ class FigureQueue(QWidget):
         self._pdf_render_px: Dict[int, int] = {}
         #: Newest live-preview render; older results are dropped on arrival.
         self._preview_seq = 0
-        #: A preview draw is on a worker right now.
+        #: A preview is waiting for its snapshot or drawing on a worker.
         self._preview_busy = False
         #: A change landed mid-draw and still needs to reach the picture.
         self._preview_pending = False
+        self._preview_retry = QTimer(self)
+        self._preview_retry.setSingleShot(True)
+        self._preview_retry.timeout.connect(lambda: self._on_preview_rendered(None))
         #: Set by the owning screen; see :meth:`set_propagate_callback`.
         self._propagate_cb = None
         _LIVE_QUEUES.add(self)
@@ -2284,6 +2287,11 @@ class FigureQueue(QWidget):
         mutating a figure mid-draw is a crash rather than a glitch; the copy
         costs ~14 ms, which is inside a frame.
 
+        A render already holding the drawing lock defers the snapshot to
+        one owner-bound retry. Changes coalesce while it waits, so the GUI
+        never waits for that render and the eventual copy uses the latest
+        figure state under the same lock.
+
         :returns: False if the figure could not be copied, in which case the
             caller should fall back to rendering synchronously.
         """
@@ -2293,12 +2301,18 @@ class FigureQueue(QWidget):
             self._preview_pending = True
             return True
 
+        if not FIGURE_LOCK.acquire(blocking=False):
+            self._preview_busy = True
+            self._preview_pending = True
+            self._preview_retry.start(16)
+            return True
         try:
-            with FIGURE_LOCK:
-                blob = pickle.dumps(fig)
+            blob = pickle.dumps(fig)
         except Exception as error:  # noqa: BLE001 - artists may not pickle
             LOG.debug("figure will not copy, rendering inline: %s", error)
             return False
+        finally:
+            FIGURE_LOCK.release()
 
         self._preview_busy = True
         self._preview_seq += 1
@@ -2818,6 +2832,11 @@ class FigureQueue(QWidget):
         by :func:`spacr.qt.bridge.drain_thread` rather than terminated, so
         closing cannot hang.
         """
+        retry = getattr(self, "_preview_retry", None)
+        if retry is not None:
+            retry.stop()
+            self._preview_busy = False
+            self._preview_pending = False
         jobs = getattr(self, "_jobs", None)
         if jobs is None:
             return
