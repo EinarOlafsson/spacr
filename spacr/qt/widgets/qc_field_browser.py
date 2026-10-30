@@ -16290,6 +16290,22 @@ class _OverviewCanvasSnapshot:
 
         box["overview_display"] = copy.deepcopy(self._settings)
 
+    def validate_snapshot(self, box):
+        """Check required captured display metadata without reading image pixels.
+
+        :param box: canvas image whose saved display is checked, when present.
+        :returns: required decoded values, or None for a legacy missing display.
+        :raises ValueError: a saved snapshot lacks required display metadata.
+        """
+        settings = box.get("overview_display")
+        if not settings:
+            return None
+        try:
+            values = _overview_canvas_unpack(settings)
+            return values["channels"], values["limits"], values["display"]
+        except (KeyError, TypeError) as error:
+            raise ValueError(str(error)) from error
+
     def field_of(self, box):
         """The field an image box shows, or ``None``."""
         source = box.get("source") or {}

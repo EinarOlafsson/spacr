@@ -2434,6 +2434,12 @@ class _CanvasComposer(QDialog):
         """Open a layout saved as JSON; returns whether it could be read."""
         try:
             layout = _CanvasLayout.load(path)
+            validate = getattr(self._reader(), "validate_snapshot", None)
+            if validate is not None:
+                for page in layout.pages:
+                    for box in page:
+                        if box["kind"] == "image":
+                            validate(box)
         except (OSError, ValueError) as exc:
             self.status.setText(tr("Could not open the layout: {error}", error=str(exc)))
             return False
