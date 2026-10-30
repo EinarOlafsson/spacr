@@ -190,6 +190,7 @@ class _Event:
         self.xdata = x
         self.ydata = y
         self.inaxes = object() if inaxes else None
+        self.button = 1
 
 
 @pytest.fixture

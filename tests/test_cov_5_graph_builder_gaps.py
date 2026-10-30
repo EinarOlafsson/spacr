@@ -142,7 +142,7 @@ def test_a_drag_off_the_data_area_previews_nothing(canvas):
                     immediate=True)
     ax = canvas._axes_at and next(iter(canvas._axes_at.values())) is not None
     axes = canvas._figure.axes[0]
-    canvas._on_press(types.SimpleNamespace(inaxes=axes, xdata=90.0, ydata=0.0))
+    canvas._on_press(types.SimpleNamespace(inaxes=axes, xdata=90.0, ydata=0.0, button=1))
 
     canvas._on_motion(types.SimpleNamespace(inaxes=axes, xdata=None,
                                             ydata=None))
@@ -154,7 +154,7 @@ def test_a_release_off_the_data_area_publishes_nothing(canvas):
     canvas.set_spec(GraphSpec(x="area", y="intensity", kind=SCATTER),
                     immediate=True)
     axes = canvas._figure.axes[0]
-    canvas._on_press(types.SimpleNamespace(inaxes=axes, xdata=90.0, ydata=0.0))
+    canvas._on_press(types.SimpleNamespace(inaxes=axes, xdata=90.0, ydata=0.0, button=1))
     before = canvas.link.selection.keys
 
     canvas._on_release(types.SimpleNamespace(inaxes=axes, xdata=None,

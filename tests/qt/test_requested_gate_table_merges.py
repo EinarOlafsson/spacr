@@ -73,7 +73,10 @@ def test_external_data_without_image_provenance_still_plots_and_gates(qtbot, tmp
         screen.builder.set_spec(GraphSpec(kind="scatter", x="samples_reading", y="events_value"))
         assert screen.builder.canvas.figure().axes
     else:
-        assert not screen._annotate.isEnabled()
+        actions = {label: (enabled, callback) for label, enabled, callback, _why
+                   in screen._annotation_menu_items()}
+        assert actions["Annotate…"] == (True, screen._annotate_selection)
+        assert actions["Save annotated table"] == (False, screen._save_selected_annotation)
         assert not screen._export.isEnabled()
         gate = ThresholdGate(name="larger", column="events_value", low=3)
         assert gate.mask(screen._frame).tolist() == [False, True]

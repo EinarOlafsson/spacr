@@ -1157,7 +1157,7 @@ class GateEditorScreen(DerivedTableSource, QWidget):
     def _annotation_menu_items(self):
         """Return annotation actions with availability derived from the loaded table."""
         return [
-            (tr('Annotate selection'), self._frame is not None, self._annotate_selection, ''),
+            (tr('Annotate…'), self._frame is not None, self._annotate_selection, ''),
             (tr('Annotate conditions'), self._frame is not None, self.annotate_from_gates, ''),
             (tr('Save annotated table'), bool(self._condition_definition and self._condition_source and
                 self._condition_source.get('path') and not self._condition_source['path'].lower().endswith(('.csv', '.tsv', '.txt'))),
@@ -1372,7 +1372,10 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         """Apply the cutoffs to every panel the canvas has just drawn."""
         canvas = getattr(self.gates, "canvas", None)
         if canvas is not None:
-            canvas.figure().canvas._spacr_context_actions = self._append_annotation_actions
+            try:
+                canvas.figure().canvas._spacr_context_actions = self._append_annotation_actions
+            except Exception:
+                LOG.debug("annotation actions skipped for unavailable figure", exc_info=True)
             self._update_displayed_count()
         if canvas is None or not self._cutoffs:
             return

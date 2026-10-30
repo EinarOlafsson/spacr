@@ -643,12 +643,17 @@ def test_the_plot_menu_is_every_action_that_is_already_on_the_screen(loaded):
     labels = [label for label, _on, _cb, _why in loaded.graph_menu_items()]
     assert labels == [
         "Save graph…", "Copy image to clipboard", None, "Reset view",
-        "Graph settings…", None, "Export gates to the database…"]
+        "Graph settings…", None, "Export gates to the database…",
+        "Annotate…", "Annotate conditions", "Save annotated table", "Export table"]
     by_label = {label: callback
                 for label, _on, callback, _why in loaded.graph_menu_items()
                 if label}
     assert by_label["Export gates to the database…"] == loaded.export_gates
     assert by_label["Graph settings…"] == loaded.open_settings
+    assert by_label["Annotate…"] == loaded._annotate_selection
+    assert by_label["Annotate conditions"] == loaded.annotate_from_gates
+    assert by_label["Save annotated table"] == loaded._save_selected_annotation
+    assert by_label["Export table"] == loaded._export_selected_annotation
 
 
 def test_a_greyed_row_says_why_it_is_greyed(screen):
@@ -744,11 +749,14 @@ def test_the_menu_pops_up_where_the_user_right_clicked(loaded, monkeypatch):
     labels = [row.label if row is not None else None for row in menu.rows]
     assert labels == [
         "Save graph…", "Copy image to clipboard", None, "Reset view",
-        "Graph settings…", None, "Export gates to the database…", None]
+        "Graph settings…", None, "Export gates to the database…",
+        "Annotate…", "Annotate conditions", "Save annotated table", "Export table", None]
     assert menu.at == loaded.gates.canvas.mapToGlobal(QPoint(4, 5))
     assert figures == [loaded.gates.canvas.figure()]
-    assert all(row.calls for row in menu.rows if row is not None), (
-        "an action was built with nothing behind it")
+    assert all(row.calls for row in menu.rows if row is not None and row.enabled), (
+        "an enabled action was built with nothing behind it")
+    assert {row.label for row in menu.rows if row is not None and not row.enabled} == {"Save annotated table"}
+    assert all(not row.calls for row in menu.rows if row is not None and not row.enabled)
 
 
 def test_a_greyed_row_carries_its_reason_into_the_menu(screen, monkeypatch):
@@ -857,19 +865,26 @@ def test_the_mode_buttons_and_the_settings_window_cannot_disagree(loaded):
     loaded._settings_dialog.close()
 
 
-def test_a_setting_that_costs_a_read_re_reads_the_table(loaded, monkeypatch):
-    """Two settings cost a read -- the sample fraction and the row cap. The
-    rest are drawing, and re-reading a large table because a colour map moved
-    is the lag the dialog exists to remove."""
+def test_display_sampling_reuses_the_loaded_table(loaded, monkeypatch):
+    """Drawing controls change the displayed subset while retaining every source row."""
     reloaded = []
     monkeypatch.setattr(loaded, "load_path",
                         lambda p, t=None: reloaded.append((p, t)))
-
+    original = loaded._frame.copy(deep=True)
     loaded.apply_settings(loaded._settings.replaced(colour_map="magma"))
     assert reloaded == []
 
     loaded.apply_settings(loaded._settings.replaced(sample_fraction=0.25))
-    assert reloaded == [(loaded._path, "cell")]
+    assert reloaded == []
+    shown = loaded.gates.canvas.population()
+    assert len(shown) == 2
+    pd.testing.assert_frame_equal(shown, original.loc[shown.index])
+    first = shown.index.tolist()
+    loaded.apply_settings(loaded._settings.replaced(sample_fraction=1., max_points=4))
+    assert loaded.gates.canvas.population().index.tolist()[:2] == first
+    assert len(loaded.gates.canvas.population()) == 4
+    pd.testing.assert_frame_equal(loaded._frame, original)
+    assert reloaded == []
 
 
 # ---------------------------------------------------------------------------

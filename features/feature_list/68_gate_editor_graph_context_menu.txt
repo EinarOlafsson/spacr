@@ -96,3 +96,7 @@ existing `_ZoomView` click/drag boundary was left untouched, so panning
 still works.
 
 VERIFIED 2026-10-04: test_gate_graph_menu.py passes.
+
+2026-10-30 — Reconcile actual Gate/Graph CI failures against incoming shared selection annotations and random display limits, preserving strong selection, refresh, geometry and closed-figure behavior. Diagnose current menu/action and mouse-event contracts before changing fixtures or proven runtime defects; coordinate runtime edits, run only affected failures and retain prior Overview qualification. No source push or work on record-only Navigator proposals.
+
+2026-10-30 — Eight affected Gate/Graph cases pass (6.89 s): menus retain all four shared annotation actions and correctly wire only enabled entries; cached display sampling preserves full rows and retains existing random points without rereads; off-data mouse fixtures declare their real primary button. Closed-figure annotation hookup now fails safely while valid axis cutoffs still apply. The real Gate context action reuses reviewed Annotate… with its unchanged selected-row dialog, without restoring a toolbar. Geometry qualification is retained separately; no source push.
