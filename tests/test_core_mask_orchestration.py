@@ -185,8 +185,9 @@ def test_preprocess_false_validates_exact_illumination_fields_before_cellpose(
     masks.mkdir()
     np.savez_compressed(
         masks / "stack_0_norm.npz",
-        data=np.zeros((3, 8, 8, 2), dtype=np.float32),
+        data=np.zeros((3, 8, 8, 1), dtype=np.float32),
         filenames=np.asarray(["f0.npy", "f1.npy", "f2.npy"]),
+        source_channels=np.asarray([1], dtype=np.int64),
     )
     events = []
 
@@ -236,8 +237,9 @@ def test_preprocess_false_stops_before_cellpose_when_provenance_is_invalid(
     masks.mkdir()
     np.savez_compressed(
         masks / "stack_0_norm.npz",
-        data=np.zeros((3, 8, 8, 2), dtype=np.float32),
+        data=np.zeros((3, 8, 8, 1), dtype=np.float32),
         filenames=np.asarray(["f0.npy", "f1.npy", "f2.npy"]),
+        source_channels=np.asarray([1], dtype=np.int64),
     )
 
     def refuse(*args, **kwargs):

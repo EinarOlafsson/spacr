@@ -4,7 +4,7 @@ Three things happen here that a first, fully-specified run never sees:
 
 * an older scikit-image without ``max_size`` -- spaCR's own size thresholds
   have to keep their ``<`` boundary through the fallback call;
-* settings that already carry a recorded ``cellpose_<role>_channel``, or a
+* settings that already carry a stale recorded ``cellpose_<role>_channel``, or a
   ``<role>_channel`` that is not a number at all, which is what a settings CSV
   edited by hand hands the mask generators;
 * the 4-D (Beta) path's per-frame notes, which are the only report the user
@@ -38,7 +38,8 @@ from tests.test_cov_object_cellpose_masks import fake_cellpose  # noqa: F401
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _write_npz(src: Path, n=2, h=32, w=32, c=3, name="batch1.npz"):
+def _write_npz(src: Path, n=2, h=32, w=32, c=3, name="batch1.npz",
+               source_channels=None):
     """Write a pre-batched .npz whose channels are told apart by their content.
 
     Channel ``k`` is dominated by a bright band on row block ``k``, so the
@@ -50,7 +51,9 @@ def _write_npz(src: Path, n=2, h=32, w=32, c=3, name="batch1.npz"):
     for k in range(c):
         data[:, 4 * k:4 * k + 3, :, k] = 4000
     filenames = np.array([f"plate1_A01_{i + 1}.npy" for i in range(n)])
-    np.savez(src / name, data=data, filenames=filenames)
+    provenance = ({} if source_channels is None else
+                  {"source_channels": np.asarray(source_channels, dtype=np.int64)})
+    np.savez(src / name, data=data, filenames=filenames, **provenance)
     return data, [str(f) for f in filenames]
 
 
@@ -162,21 +165,17 @@ def test_the_old_skimage_hole_call_keeps_the_same_area_boundary(monkeypatch):
 
 
 # ---------------------------------------------------------------------------
-# The recorded-channel fallback in both Cellpose generators
+# Stale recorded channels cannot override raw-channel choices
 # ---------------------------------------------------------------------------
 
-def test_sam_keeps_a_recorded_channel_position(tmp_path, fake_model):
-    """The recorded ``cellpose_<role>_channel`` positions are used as written.
+def test_sam_recomputes_a_stale_recorded_channel_position(tmp_path, fake_model):
+    """Raw channels 1/0 occupy archive positions 0/1 in role order.
 
-    They are the positions ``io.preprocess_img_data`` actually gave each role
-    on the merged stack. The fallback below them only guesses those positions
-    for a resumed run that has none; when they ARE present, recomputing them
-    would segment a different plane than the one the stack was built for. The
-    pair recorded here is deliberately not the one role order would produce,
-    so a recomputation is visible.
+    Stale aliases claiming the reverse must not override the raw settings or
+    the archive's ordered provenance. Distinctive pixels identify both inputs.
     """
     src = tmp_path / "stack"
-    data, _ = _write_npz(src, c=2)
+    data, _ = _write_npz(src, c=2, source_channels=[1, 0])
 
     settings = _sam_settings(src, cellpose_cell_channel=0,
                              cellpose_nucleus_channel=1)
@@ -186,9 +185,11 @@ def test_sam_keeps_a_recorded_channel_position(tmp_path, fake_model):
     image = model.eval_inputs[0][0]
     first, scores = _which_channel(image[..., 0], data[0])
     second, _ = _which_channel(image[..., 1], data[0])
-    assert (first, second) == (0, 1), (
+    assert (first, second) == (1, 0), (
         f"cellpose was handed stack planes {(first, second)} instead of the "
-        f"recorded (0, 1) (correlations for plane 0: {scores})")
+        f"raw-channel-derived (1, 0) (correlations for plane 0: {scores})")
+    assert settings["cellpose_cell_channel"] == 1
+    assert settings["cellpose_nucleus_channel"] == 0
 
 
 def test_sam_survives_a_channel_that_is_not_a_number(tmp_path, fake_model):
@@ -208,16 +209,16 @@ def test_sam_survives_a_channel_that_is_not_a_number(tmp_path, fake_model):
     assert "organelle" not in fake_model["model"].eval_kwargs[0]
 
 
-def test_the_chosen_model_generator_keeps_a_recorded_channel_position(
+def test_the_chosen_model_generator_recomputes_a_stale_recorded_channel_position(
         tmp_path, fake_cellpose):
     """``generate_cellpose_masks`` resolves channels exactly like its SAM sibling.
 
-    The two generators read the same settings; if only one honoured the
+    The two generators read the same settings; if only one recomputed stale
     recorded positions, the same run would segment different planes depending
     on which model the user picked.
     """
     src = tmp_path / "stack"
-    data, _ = _write_npz(src, c=2)
+    data, _ = _write_npz(src, c=2, source_channels=[1, 0])
 
     settings = _sam_settings(src, cellpose_nucleus_channel=1,
                              cellpose_cell_channel=0, filter=False,
@@ -226,9 +227,11 @@ def test_the_chosen_model_generator_keeps_a_recorded_channel_position(
 
     model = fake_cellpose["model"]
     index, scores = _which_channel(model.eval_inputs[0][0][..., 0], data[0])
-    assert index == 1, (
-        f"the nucleus plane came from stack channel {index}, not the recorded "
-        f"position 1 (correlations {scores})")
+    assert index == 0, (
+        f"the nucleus plane came from stack channel {index}, not the raw-channel-derived "
+        f"position 0 (correlations {scores})")
+    assert settings["cellpose_nucleus_channel"] == 0
+    assert settings["cellpose_cell_channel"] == 1
 
 
 def test_the_chosen_model_generator_survives_a_text_channel(tmp_path,

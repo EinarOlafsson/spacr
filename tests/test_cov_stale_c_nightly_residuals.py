@@ -31,7 +31,7 @@ def test_both_object_generators_trust_the_dense_map_once():
     helper = inspect.getsource(
         objects._fill_cellpose_channel_positions)
     assert "if raw in dense:" not in helper
-    assert helper.count("settings[f'cellpose_{role}_channel'] = dense[raw]") == 1
+    assert helper.count("settings[derived] = position") == 1
 
 
 def test_core_uses_the_normalized_source_list_without_a_silent_skip():

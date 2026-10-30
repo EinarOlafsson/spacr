@@ -469,8 +469,9 @@ def test_quality_excluding_every_v1_field_never_calls_segmenter(run_dir, stubs):
     folder.mkdir()
     for index in range(3):
         np.save(run_dir / 'stack' / f'f{index}.npy', np.zeros((8, 8, 4), np.uint16))
-    np.savez(folder / 'normalized.npz', data=np.zeros((3, 8, 8, 4), np.float32),
-             filenames=np.array(['f0.npy', 'f1.npy', 'f2.npy']))
+    np.savez(folder / 'normalized.npz', data=np.zeros((3, 8, 8, 3), np.float32),
+             filenames=np.array(['f0.npy', 'f1.npy', 'f2.npy']),
+             source_channels=np.array([0, 1, 2], dtype=np.int64))
     preprocess_generate_masks(_mask_settings(run_dir, image_qc_mode='exclude',
                                               image_qc_min_focus={0: 1.}))
     assert excluded_fields(run_dir) == {'f0.npy', 'f1.npy', 'f2.npy'}

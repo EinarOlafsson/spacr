@@ -6,6 +6,9 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from tests.cellpose_api_contract import MISSING_CHANNEL_AXIS
+from tests.conftest import check_cellpose_eval_call
+
 import spacr.object as objects
 from spacr.io import _normalize_img_batch, concatenate_and_normalize
 from spacr.settings import set_default_settings_preprocess_generate_masks
@@ -136,7 +139,15 @@ def test_exact_cluster_raw_cellvoyager_shared_channel_outputs_keep_all_role_asso
         def __init__(self, pretrained_model, **kwargs):
             self.role = next(role for role in roles if checkpoints[role] == pretrained_model)
             constructed.append((self.role, pretrained_model))
-        def eval(self, x, **kwargs):
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None,
+                 normalize=True, invert=False, rescale=None, diameter=None,
+                 flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False,
+                 anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0,
+                 min_size=15, max_size_fraction=0.4, niter=None,
+                 augment=False, tile_overlap=0.1, bsize=256,
+                 compute_masks=True, progress=None):
+            check_cellpose_eval_call(x, channel_axis)
             received[self.role] = [np.asarray(image).copy() for image in x]
             return ([masks[self.role].copy() for _image in x],
                     [np.zeros(field.shape[:2]) for _image in x], None)
@@ -243,7 +254,15 @@ def test_exhaustive_four_channel_role_routing_across_uneven_archives(
             self.role = next(role for role in roles if checkpoints[role] == pretrained_model)
             assert self.role == active['role']
             active['constructed'].append(pretrained_model)
-        def eval(self, x, **kwargs):
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None,
+                 normalize=True, invert=False, rescale=None, diameter=None,
+                 flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False,
+                 anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0,
+                 min_size=15, max_size_fraction=0.4, niter=None,
+                 augment=False, tile_overlap=0.1, bsize=256,
+                 compute_masks=True, progress=None):
+            check_cellpose_eval_call(x, channel_axis)
             offset = active['evaluated']
             expected_names = filenames[offset:offset + len(x)]
             for image, name in zip(x, expected_names):

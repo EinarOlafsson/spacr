@@ -71,8 +71,9 @@ def plate(tmp_path):
     for name in ("f0", "f1"):
         np.save(src / "stack" / f"{name}.npy", np.zeros((3, 8, 8), np.uint16))
     np.savez(src / "masks" / "batch_0.npz",
-             data=np.zeros((2, 8, 8, 3), np.float32),
-             filenames=np.array(["f0.npy", "f1.npy"]))
+             data=np.zeros((2, 8, 8, 2), np.float32),
+             filenames=np.array(["f0.npy", "f1.npy"]),
+             source_channels=np.array([0, 1], dtype=np.int64))
     (src / "psf").mkdir()
     (src / "psf" / "segmentation_application.json").write_text(
         json.dumps({"configuration": {"version": 0}, "complete": True,

@@ -83,3 +83,5 @@ Role-specific saved mask IDs and offsets50/100 pass; no source archive mutation 
 Real CPU inference on unchanged pre-fix code: 103 crops per run, separate versus shared cell/nucleus, batches50/50/3, Cellpose4.2.1.1; 618 segmentations.
 All103 pathogen input/mask pairs are pixel-identical before/after filtering; sampled checkpoint tensors stay correct; all206 merged files retain correct raw and role planes.
 This validates the tested fresh serial 2D route, not every backend/runtime or the exact original cluster execution; no universal absence-of-bugs claim or original-case closure.
+
+2026-10-30 — Follow up actual b338 CI failures: this lane owns channel/provenance fixtures and new Cellpose-double contracts on d118. Preserve original raw-plane identity, fail-closed archive/PSF/illumination checks, exact channel-axis signatures and existing mask/data oracles. All15 affected failure/signature-owning controls pass once in52.87s on CPU8G; fatal static/diff checks pass. No runtime/default/ratchet change; original cluster cause remains unconfirmed.

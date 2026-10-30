@@ -203,8 +203,9 @@ def test_existing_masks_with_illumination_require_exact_resume_provenance(
     masks.mkdir(parents=True)
     np.savez_compressed(
         masks / "stack_0_norm.npz",
-        data=np.zeros((2, 4, 4, 1), dtype=np.float32),
+        data=np.zeros((2, 4, 4, 2), dtype=np.float32),
         filenames=np.asarray(["f0.npy", "f1.npy"]),
+        source_channels=np.asarray([0, 1], dtype=np.int64),
     )
     seen = []
 

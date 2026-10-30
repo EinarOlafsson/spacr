@@ -59,10 +59,10 @@ class TestTheDenseChannelMap:
         """The map construction is the guard; membership re-checks are dead.
 
         Both object generators ask ``dense_mask_channel_positions`` to walk
-        these same four role keys, then apply the same ``int`` coercion before
-        indexing.  A numeric value that reaches the lookup is therefore in the
-        map.  Direct indexing is intentional: if either contract ever drifts,
-        the run fails loudly instead of silently leaving an alias unset.
+        these same configured role keys, then apply the same ``int`` coercion before
+        indexing. A numeric value that reaches the lookup is therefore in the
+        map; the shared helper stores its derived position rather than
+        retaining an alias from an earlier raw-channel choice.
 
         The source assertion makes the old ``if _raw in _dense`` shape a red
         mutation, while the value assertion pins the premise that makes its
@@ -96,7 +96,7 @@ class TestTheDenseChannelMap:
         helper = inspect.getsource(
             OBJ._fill_cellpose_channel_positions)
         assert "if raw in dense:" not in helper
-        assert helper.count("settings[f'cellpose_{role}_channel'] = dense[raw]") == 1
+        assert helper.count("settings[derived] = position") == 1
 
 
 # ---------------------------------------------------------------------------
