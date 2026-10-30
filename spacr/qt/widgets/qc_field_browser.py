@@ -6291,8 +6291,6 @@ class _FieldOverview(QWidget):
     def _clear_pixel_readout(self):
         """Empty the readout strip; its height stays, so nothing moves."""
         self._readout_pending = None
-        if getattr(self, "_pixel_readout", None) is None:
-            return
         self._readout_timer.stop()
         self._pixel_readout.clear()
 
@@ -7471,8 +7469,7 @@ class _FieldOverview(QWidget):
             hint = block.bar.sizeHint()
             _set_actual_dim(block, "maxh", hint.height() if folded and not side else 16777215)
             _set_actual_dim(block, "maxw", hint.width() if folded and side else 16777215)
-            if self._plates_layout.indexOf(block) >= 0:
-                self._plates_layout.setStretchFactor(block, 0 if folded else 1)
+            self._plates_layout.setStretchFactor(block, 0 if folded else 1)
 
     def _size_plate_container(self):
         """Size the shown plates for their container.
@@ -8201,8 +8198,7 @@ class _FieldOverview(QWidget):
         if panel is not self._well_panel:
             for controls, control in ((self._tile_sliders, panel.tile_slider),
                                       (self._tile_spacing_boxes, panel.tile_spacing)):
-                if control in controls:
-                    controls.remove(control)
+                controls.remove(control)
             panel.setParent(None)
             panel.deleteLater()
         if panel.field_list is not self.fields or not refresh:
@@ -9128,8 +9124,6 @@ class _FieldOverview(QWidget):
             override = self._channel_overrides.get(int(channel), {})
             values.update({name: value for name, value in override.items() if name in values})
         self._display_draft = {}
-        if not values:
-            return
         self._loading_controls = True
         try:
             self.low.setValue(values["percentile_low"])
@@ -9212,9 +9206,8 @@ class _FieldOverview(QWidget):
                     if int(channel) in self._channel_overrides else str(channel))
             if self.norm_channel.itemText(index) != text:
                 self.norm_channel.setItemText(index, text)
-        if hasattr(self, "_reset_channel_button"):
-            channel = self.norm_channel.currentData()
-            self._reset_channel_button.setEnabled(channel is not None and int(channel) in self._channel_overrides)
+        channel = self.norm_channel.currentData()
+        self._reset_channel_button.setEnabled(channel is not None and int(channel) in self._channel_overrides)
 
     def _channel_display_changed(self):
         """Redraw every view after a per-channel display value changed."""
@@ -9898,8 +9891,6 @@ class _FieldOverview(QWidget):
         """The header name of plate row or column ``index``, such as ``B`` or ``3``."""
         item = (self.wells.verticalHeaderItem(index) if axis == "row"
                 else self.wells.horizontalHeaderItem(index))
-        if item is None:
-            return str(index + 1)
         name = item.data(Qt.UserRole)
         return str(item.text() if name is None else name)
 
@@ -10790,7 +10781,14 @@ class _FieldOverview(QWidget):
             if any(not field.well or field.unresolved for field in fields):
                 raise _OverviewValidationError(tr("The filename regex must include a valid wellID for every image."))
             return fields
-        self._index_jobs.submit(read, self._indexed)
+        source_paths = _overview_source_paths(source)
+        def indexed(fields):
+            """Accept indexed records only while their source still owns the editor."""
+            if _overview_source_paths(self.source.text()) != source_paths:
+                self.status.clear()
+                return
+            self._indexed(fields)
+        self._index_jobs.submit(read, indexed)
 
     def _indexed(self, fields):
         """Show actual plate identities and explicitly retained unresolved fields.
@@ -11580,8 +11578,7 @@ class _FieldOverview(QWidget):
                 while len(self._thumbnail_cache) > _OVERVIEW_THUMBNAIL_CACHE:
                     self._thumbnail_cache.popitem(last=False)
                 self._thumbnail_installs.append((well, key, field, pixels, error, context, ratio))
-            if self._thumbnail_installs:
-                self._install_timer.start(0)
+            self._install_timer.start(0)
         self._thumbnail_jobs.submit(read_thumbnails, done)
 
     def _install_pending_thumbnails(self):
@@ -12256,10 +12253,8 @@ class _OverviewWorkspace(QWidget):
         if pages is not None:
             pages.setCurrentIndex(0)
         self._previous_module_image = target.currentWidget()
-        self._previous_module_image_policy = (self._previous_module_image.sizePolicy()
-                                               if self._previous_module_image is not None else None)
-        if self._previous_module_image is not None:
-            self._previous_module_image.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+        self._previous_module_image_policy = self._previous_module_image.sizePolicy()
+        self._previous_module_image.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
         self._saved_settings = settings.takeWidget()
         self._saved_settings.setParent(owner)
         self._saved_settings.hide()
@@ -12300,9 +12295,8 @@ class _OverviewWorkspace(QWidget):
             child._options_closed()
         settings = self._owner._settings_scroll
         content = settings.takeWidget()
-        if content is not None:
-            scroll = child._controls_scroll if isinstance(child, _FieldOverview) else child._settings_scroll
-            scroll.setWidget(content)
+        scroll = child._controls_scroll if isinstance(child, _FieldOverview) else child._settings_scroll
+        scroll.setWidget(content)
         if isinstance(child, _FieldOverview):
             child._settings_host = None
         if self._active_actions is not None:
@@ -12323,8 +12317,6 @@ class _OverviewWorkspace(QWidget):
             previous = self._active_child
             self._inactive_page_policies[previous] = previous.sizePolicy()
             previous.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
-        if current in self._inactive_page_policies:
-            current.setSizePolicy(self._inactive_page_policies.pop(current))
         self._return_child_settings()
         scroll = current._controls_scroll if isinstance(current, _FieldOverview) else current._settings_scroll
         content = scroll.takeWidget()
@@ -12360,8 +12352,7 @@ class _OverviewWorkspace(QWidget):
             self._return_child_settings()
             self._owner._settings_scroll.setWidget(self._saved_settings)
             self._saved_settings = None
-            if self._previous_module_image_policy is not None:
-                self._previous_module_image.setSizePolicy(self._previous_module_image_policy)
+            self._previous_module_image.setSizePolicy(self._previous_module_image_policy)
             self._module_stack.setCurrentWidget(self._previous_module_image)
             self._module_stack.removeWidget(self)
             self._module_mounted = False
@@ -12874,8 +12865,7 @@ class _OverviewSettingsBridge:
         if not self._live(control):
             return
         value = _overview_control_value(control)
-        if value is not None:
-            self._write(key, value)
+        self._write(key, value)
 
     def _write_display_rows(self, values):
         """Show a channel's (or the global) ink intensity and enhancement values in their rows.
@@ -12913,10 +12903,8 @@ class _OverviewSettingsBridge:
         else:
             browser._set_channel_display_globals(values.get("overview_ink_intensity"), enhance_values)
         try:
-            if values.get("overview_tile_spacing") is not None:
-                browser._set_tile_spacing(int(values["overview_tile_spacing"]))
-            if values.get("overview_tile_size") is not None:
-                browser._set_tile_size(int(values["overview_tile_size"]))
+            browser._set_tile_spacing(int(values["overview_tile_spacing"]))
+            browser._set_tile_size(int(values["overview_tile_size"]))
         except (TypeError, ValueError):
             pass
         browser._set_color_mode(values.get("overview_color_mode"),
@@ -13168,10 +13156,9 @@ class _OverviewCustomColors(QWidget):
     def _row_changed(self, *_):
         """Show each channel's colour on its button."""
         for channel, colour in self.colours().items():
-            button = self._buttons.get(channel)
-            if button is not None:
-                button.setText(colour)
-                button.setStyleSheet(f"QPushButton#OverviewCustomColour {{ border-left: 18px solid {colour}; }}")
+            button = self._buttons[channel]
+            button.setText(colour)
+            button.setStyleSheet(f"QPushButton#OverviewCustomColour {{ border-left: 18px solid {colour}; }}")
 
     def _mode_changed(self, *_):
         """Grey the buttons out unless the colour mode is custom."""
@@ -13455,9 +13442,8 @@ class _OverviewModulePage(QWidget):
         self.restoration_controls = _RestorationControls()
         self.psf_controls.changed.connect(self._full_resolution_changed)
         self.restoration_controls.changed.connect(self._full_resolution_changed)
-        console = getattr(self._screen, "_console", None)
-        if console is not None:
-            self.restoration_controls.said.connect(lambda text, _kind: console.append_stdout(text + "\n"))
+        console = self._screen._console
+        self.restoration_controls.said.connect(lambda text, _kind: console.append_stdout(text + "\n"))
         section = _overview_section(self._screen, "Enhancement")
         note = QLabel(tr("PSF deconvolution and Cellpose 3 restoration apply only to images opened "
                          "with Original, never to previews or thumbnails."))
@@ -13525,8 +13511,7 @@ class _OverviewModulePage(QWidget):
 
     def _drop_wizard(self, wizard):
         """Retire a metadata step that is no longer shown."""
-        if wizard is self.wizard:
-            self.wizard = None
+        self.wizard = None
         if not wizard._finished:
             wizard.blockSignals(True)
             wizard.reject()
@@ -13535,11 +13520,15 @@ class _OverviewModulePage(QWidget):
 
     def _wizard_closed(self, wizard):
         """Return to the previous browser, or the empty page, after Cancel."""
+        if wizard is not self.wizard:
+            return
         self._drop_wizard(wizard)
         self.stack.setCurrentWidget(self.browser or self.placeholder)
 
     def _show_browser(self, wizard):
         """Replace the metadata step with the plate browser it configured."""
+        if wizard is not self.wizard:
+            return
         config = wizard.configuration()
         fields = tuple(wizard._fields)
         self._retire_browser()
@@ -13592,8 +13581,6 @@ class _OverviewModulePage(QWidget):
             toggles.setProperty("settingKey", _overview_row_key(caption))
             toggles.setProperty("apiTooltipDescriptionSource", tooltip)
             browser._channels_found.connect(toggles.set_channels)
-            if browser._channel_buttons:
-                toggles.set_channels(tuple(browser._channel_buttons))
             section.add_prose_row(_overview_row_label(caption, tooltip), toggles)
             keys[toggles] = _overview_row_key(caption)
             self._rows.append((section, toggles, ()))
@@ -13604,8 +13591,6 @@ class _OverviewModulePage(QWidget):
         scopes.setProperty("settingKey", _overview_row_key(caption))
         scopes.setProperty("apiTooltipDescriptionSource", tooltip)
         browser._channels_found.connect(scopes.set_channels)
-        if browser._channel_buttons:
-            scopes.set_channels(tuple(browser._channel_buttons))
         section.add_prose_row(_overview_row_label(caption, tooltip), scopes)
         keys[scopes] = _overview_row_key(caption)
         self._rows.append((section, scopes, ()))
@@ -13616,8 +13601,6 @@ class _OverviewModulePage(QWidget):
         colours.setProperty("settingKey", _overview_row_key(caption))
         colours.setProperty("apiTooltipDescriptionSource", tooltip)
         browser._channels_found.connect(colours.set_channels)
-        if browser._channel_buttons:
-            colours.set_channels(tuple(browser._channel_buttons))
         section.add_prose_row(_overview_row_label(caption, tooltip), colours)
         keys[colours] = _overview_row_key(caption)
         self._rows.append((section, colours, ()))
@@ -13701,9 +13684,7 @@ class _OverviewModulePage(QWidget):
 
     def _mount_apply_bar(self):
         """Pin the Apply button to the bottom of the settings column while the browser is shown."""
-        scroll = getattr(self._screen, "_settings_scroll", None)
-        if scroll is None or self._bridge is None:
-            return
+        scroll = self._screen._settings_scroll
         bar = _OverviewApplyBar(scroll)
         bar.apply_button.clicked.connect(self._apply_settings)
         self._bridge.apply_bar = bar
@@ -13726,9 +13707,8 @@ class _OverviewModulePage(QWidget):
         if bar is None or not isValid(bar):
             return
         scroll = bar.parentWidget()
-        if scroll is not None:
-            scroll.removeEventFilter(bar)
-            scroll.setViewportMargins(0, 0, 0, 0)
+        scroll.removeEventFilter(bar)
+        scroll.setViewportMargins(0, 0, 0, 0)
         bar.hide()
         bar.deleteLater()
 
@@ -13801,9 +13781,7 @@ class _OverviewModulePage(QWidget):
 
     def _sync_categories(self, *_):
         """Show the categories and the settings column only once the browser is shown."""
-        refresh = getattr(self._screen, "refresh_maturity_visibility", None)
-        if callable(refresh):
-            refresh()
+        self._screen.refresh_maturity_visibility()
         _overview_open_settings(self._screen)
 
     def _sync_back(self, *_):
@@ -14032,11 +14010,7 @@ def _overview_open_settings(screen):
 
     :param screen: the Overview module screen.
     """
-    from .collapsible_splitter import CollapsibleSplitter
-
-    body = getattr(screen, "_body_splitter", None)
-    if not isinstance(body, CollapsibleSplitter) or body.pane("Settings") is None:
-        return
+    body = screen._body_splitter
     page = getattr(screen, "_overview_page", None)
     if page is not None and page._metadata_step_shown():
         body.set_collapsed("Settings", True)
@@ -15013,8 +14987,6 @@ class _OverviewMetadataWizard(QWidget):
         if item.column() == 4:
             self._plate_regex_changed(item)
             return
-        if item.column() != 0:
-            return
         default = item.data(Qt.UserRole)
         text = item.text().strip()
         if default:
@@ -15066,8 +15038,7 @@ class _OverviewMetadataWizard(QWidget):
         self._excluded_plates.update(path for path in folders if path not in given)
         kept = [path for path in given if path not in folders]
         self.source.setText("; ".join(kept))
-        if kept:
-            self._scan()
+        self._scan()
 
     def _preset_changed(self):
         """Use the exact filename patterns offered by the Generate Masks editor."""
@@ -16584,8 +16555,7 @@ class _OverviewCanvasDrags(_QObject):
         self._armed = True
         self._press[0].setCursor(Qt.DragCopyCursor)
         composer = getattr(self._browser, "_canvas_composer", None)
-        if composer is not None:
-            composer.status.setText(tr("Move the pointer to drag the image onto the canvas."))
+        composer.status.setText(tr("Move the pointer to drag the image onto the canvas."))
 
     def _disarm(self):
         """Forget the press and restore the cursor."""
@@ -17295,8 +17265,7 @@ class _OverviewGuidedExport(QDialog):
         if mode == "condition":
             for row in range(self.conditions.count()):
                 item = self.conditions.item(row)
-                if item.flags() & Qt.ItemIsUserCheckable:
-                    item.setCheckState(Qt.Checked if item.data(Qt.UserRole) in wanted else Qt.Unchecked)
+                item.setCheckState(Qt.Checked if item.data(Qt.UserRole) in wanted else Qt.Unchecked)
         elif mode == "wells":
             for row in range(self.well_list.count()):
                 item = self.well_list.item(row)

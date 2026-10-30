@@ -330,3 +330,97 @@ def test_empty_field_browser_has_no_file_state_or_triage_action(qtbot):
     assert not dialog._quarantine.isEnabled()
     assert dialog._jobs.active_jobs() == 0
     dialog.close()
+
+
+def test_an_older_real_move_completion_preserves_the_newer_pending_field(
+        qtbot, tmp_path, monkeypatch, qapp):
+    import threading
+
+    plate = tmp_path / "plate1"
+    names = ("plate1_A01_1", "plate1_A02_1")
+    for offset, name in enumerate(names):
+        _write_field(plate, name, shift=50 * offset)
+    targets = tuple(QCFieldTarget(field=name, plate_root=str(plate),
+                    merged_dir=str(plate / "merged"), verdicts=()) for name in names)
+    originals = {name: (plate / "merged" / f"{name}.npy").read_bytes() for name in names}
+    masks = {path: path.read_bytes() for path in (plate / "norm_channel_stack").rglob("*.npy")}
+    dialog = QCFieldBrowser(targets, threaded=True, run_active=lambda: False)
+    qtbot.addWidget(dialog)
+    dialog.show()
+    qtbot.waitUntil(lambda: not dialog._jobs.is_busy() and not dialog._render_jobs.is_busy()
+                    and dialog._quarantine.isEnabled(), timeout=15000)
+    real_submit = dialog._move_jobs.submit
+    completions = []
+    entered, release = threading.Event(), threading.Event()
+    submitted = 0
+
+    def hold_delivery(read, receiver, *args, **kwargs):
+        nonlocal submitted
+        submitted += 1
+        number = submitted
+        def actual_move():
+            if number == 2:
+                entered.set()
+                if not release.wait(15):
+                    raise TimeoutError("the triage test did not release the real second move")
+            return read()
+        def completed(value):
+            completions.append((receiver, value))
+        return real_submit(actual_move, completed, *args, **kwargs)
+
+    monkeypatch.setattr(dialog._move_jobs, "submit", hold_delivery)
+    changes = []
+    dialog.quarantineChanged.connect(lambda field, state: changes.append((field, state)))
+    try:
+        qtbot.keyClick(dialog._view, Qt.Key_Q)
+        qtbot.waitUntil(lambda: len(completions) == 1 and not dialog._move_jobs.is_busy(), timeout=15000)
+        first_sink = dialog._pending_move
+        first_away = plate / "merged_quarantined" / f"{names[0]}.npy"
+        assert first_away.read_bytes() == originals[names[0]]
+        assert json.loads(Path(str(first_away) + ".quarantine.json").read_text())["field"] == names[0]
+        assert not (plate / "merged" / f"{names[0]}.npy").exists()
+        qtbot.keyClick(dialog._view, Qt.Key_Right)
+        qtbot.waitUntil(lambda: dialog.current_target is targets[1] and not dialog._jobs.is_busy()
+                        and not dialog._render_jobs.is_busy() and dialog._quarantine.isEnabled(), timeout=15000)
+        payload = dialog._payload
+        image = dialog._view._item.pixmap().cacheKey()
+        qtbot.keyClick(dialog._view, Qt.Key_Q)
+        qtbot.waitUntil(entered.is_set, timeout=15000)
+        pending = dialog._pending_move
+        assert pending is not first_sink and dialog._move_jobs.is_busy()
+        receiver, value = completions[0]
+        receiver(value)
+        assert dialog._pending_move is pending
+        assert dialog.current_target is targets[1] and dialog._payload is payload
+        assert dialog._view._item.pixmap().cacheKey() == image
+        assert changes == [(names[0], True)]
+        assert (plate / "merged" / f"{names[1]}.npy").read_bytes() == originals[names[1]]
+        release.set()
+        qtbot.waitUntil(lambda: len(completions) == 2 and not dialog._move_jobs.is_busy(), timeout=15000)
+        receiver, value = completions[1]
+        receiver(value)
+        qtbot.waitUntil(lambda: not dialog._jobs.is_busy() and not dialog._render_jobs.is_busy()
+                        and dialog._quarantine.isEnabled(), timeout=15000)
+        assert dialog._pending_move is None and changes == [(name, True) for name in names]
+        second_away = plate / "merged_quarantined" / f"{names[1]}.npy"
+        assert second_away.read_bytes() == originals[names[1]]
+        assert json.loads(Path(str(second_away) + ".quarantine.json").read_text())["field"] == names[1]
+        for expected_count, name, direction in ((3, names[1], None), (4, names[0], Qt.Key_Left)):
+            if direction is not None:
+                qtbot.keyClick(dialog._view, direction)
+                qtbot.waitUntil(lambda: dialog.current_field == name and not dialog._jobs.is_busy()
+                                and not dialog._render_jobs.is_busy() and dialog._quarantine.isEnabled(), timeout=15000)
+            qtbot.keyClick(dialog._view, Qt.Key_Q)
+            qtbot.waitUntil(lambda: len(completions) == expected_count and not dialog._move_jobs.is_busy(), timeout=15000)
+            receiver, value = completions[-1]
+            receiver(value)
+            qtbot.waitUntil(lambda: not dialog._jobs.is_busy() and not dialog._render_jobs.is_busy()
+                            and dialog._quarantine.isEnabled(), timeout=15000)
+            assert dialog._pending_move is None
+            assert (plate / "merged" / f"{name}.npy").read_bytes() == originals[name]
+        assert changes == [(names[0], True), (names[1], True), (names[1], False), (names[0], False)]
+        assert all(not (plate / "merged_quarantined" / f"{name}.npy").exists() for name in names)
+        assert {path: path.read_bytes() for path in masks} == masks
+    finally:
+        release.set()
+        qtbot.waitUntil(lambda: not dialog._move_jobs.is_busy(), timeout=15000)

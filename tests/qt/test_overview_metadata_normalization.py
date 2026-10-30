@@ -1641,3 +1641,543 @@ def test_invalid_custom_colors_are_ignored_without_changing_valid_channel_choice
                 if palette in browser._OVERVIEW_INK_SETS)
     maximum = len(browser._OVERVIEW_INK_SETS[browser._OVERVIEW_COLOR_MODES[mode][0]])
     assert browser._overview_color_plan(tuple(range(maximum + 1)), None, mode) is None
+
+
+def test_filtered_database_annotations_and_completed_measurement_progress_keep_the_current_field(
+        qtbot, qt_theme_applied, tmp_path, monkeypatch):
+    import sqlite3
+    import tifffile
+    from spacr.measure import _set_image_annotations, _well_image_annotations
+
+    originals = {}
+    for well, number, offset in [('A01', 1, 100), ('A01', 2, 200), ('B02', 1, 1000)]:
+        path = tmp_path / f'p1_{well}_F{number}_C1.tif'
+        tifffile.imwrite(path, np.arange(64, dtype=np.uint16).reshape(8, 8) + offset)
+        originals[path] = path.read_bytes()
+    indexed = browser._overview_index(str(tmp_path), source_scope='folder')
+    assert {(field.plate, field.well) for field in indexed} == {('p1', 'A01'), ('p1', 'B02')}
+    database = tmp_path / 'measurements' / 'measurements.db'
+    for well, condition in [('A01', 'loaded control'), ('B02', 'excluded well')]:
+        _set_image_annotations(database, indexed, 'condition', condition, source=tmp_path,
+                               wells=[('p1', well)])
+    annotations = _well_image_annotations(database)
+    assert annotations == {('p1', 'A01'): {'condition': 'loaded control'},
+                           ('p1', 'B02'): {'condition': 'excluded well'}}
+    pattern = r'(?P<plateID>p1)_(?P<wellID>A01)_F(?P<fieldID>\d+)_C(?P<chanID>\d+)\.tif'
+    dialog = browser._FieldOverview(settings={
+        'source': str(tmp_path), 'source_scope': 'folder', 'custom_regex': pattern,
+        'channels': (1,), 'geometry': (2, 3), 'representatives': 2})
+    qtbot.addWidget(dialog)
+    entered, release = threading.Event(), threading.Event()
+    deliveries = []
+    export = browser._overview_measurements_export
+
+    def record_export(*args, **kwargs):
+        actual_progress = args[6]
+
+        def progress(completed, total):
+            deliveries.append((actual_progress, completed, total))
+            actual_progress(completed, total)
+            if completed == 1:
+                entered.set()
+                assert release.wait(10)
+
+        forwarded = list(args)
+        forwarded[6] = progress
+        return export(*forwarded, **kwargs)
+
+    monkeypatch.setattr(browser, '_overview_measurements_export', record_export)
+    runners = (dialog._index_jobs, dialog._image_jobs, dialog._export_jobs,
+               dialog._metadata_jobs, dialog._measurement_jobs, dialog._native_jobs,
+               dialog._thumbnail_jobs, dialog._montage_jobs, dialog._field_thumbnail_jobs)
+    try:
+        dialog.resize(1280, 900)
+        dialog.show()
+        dialog._scan()
+        qtbot.waitUntil(lambda: len(dialog._fields) == 2 and not dialog._metadata_jobs.is_busy()
+                        and not dialog._index_jobs.is_busy(), timeout=10000)
+        assert dialog._annotation_snapshot() == {('p1', 'A01'): {'condition': 'loaded control'}}
+        assert all(field.well == 'A01' for field in dialog._fields)
+        dialog.workers.setValue(1)
+        dialog.export_scope.setCurrentIndex(dialog.export_scope.findData('plate'))
+        dialog.use_selection.setChecked(False)
+        button = dialog._module_action_buttons[0]
+        assert button.text() == browser.tr('Export image-level measurements')
+        qtbot.mouseClick(button, browser.Qt.LeftButton)
+        qtbot.waitUntil(lambda: entered.is_set() and dialog.status.text()
+                        == browser.tr('Measured {completed} of {total} images…', completed=1, total=2),
+                        timeout=10000)
+        assert dialog._measurement_jobs.is_busy()
+        release.set()
+        qtbot.waitUntil(lambda: not dialog._measurement_jobs.is_busy()
+                        and dialog.status.text().startswith(browser.tr('Saved {count} image measurements', count=2)),
+                        timeout=20000)
+        with sqlite3.connect(database) as connection:
+            rows = connection.execute('SELECT well, channel_1_intensity_mean FROM fov ORDER BY field').fetchall()
+        assert rows == [('A01', 131.5), ('A01', 231.5)]
+        assert _well_image_annotations(database) == annotations
+        item = dialog.wells.item(*dialog._well_positions[(dialog.plates.currentData(), 'A01')])
+        dialog._well(item)
+        qtbot.waitUntil(lambda: dialog.fields.count() == 2, timeout=10000)
+        dialog.fields.setCurrentRow(1)
+        dialog._field(dialog.fields.item(1))
+        qtbot.waitUntil(lambda: dialog.view._item is not None
+                        and all(not runner.is_busy() for runner in runners), timeout=10000)
+        dialog.export_scope.setCurrentIndex(dialog.export_scope.findData('field'))
+        current = dialog.fields.currentItem().data(browser.Qt.UserRole)
+        assert current.field_id == '2'
+        image = dialog.view._item.pixmap().toImage().copy()
+        status = dialog.status.text()
+        selected = tuple(field.identity for field in dialog._export_selection())
+        progress, completed, total = deliveries[-1]
+        assert (completed, total) == (2, 2)
+
+        progress(completed, total)
+
+        assert dialog.status.text() == status
+        assert dialog.fields.currentItem().data(browser.Qt.UserRole).identity == current.identity
+        assert tuple(field.identity for field in dialog._export_selection()) == selected
+        assert dialog.view._item.pixmap().toImage() == image
+        assert _well_image_annotations(database) == annotations
+        assert all(path.read_bytes() == original for path, original in originals.items())
+    finally:
+        release.set()
+        dialog._cancel()
+        dialog._visual_timer.stop()
+        qtbot.waitUntil(lambda: all(runner.active_jobs() == 0 for runner in runners), timeout=10000)
+        for runner in runners:
+            runner.shutdown(timeout_ms=3000)
+        dialog.close()
+
+
+def test_invalid_channel_percentiles_follow_global_pixels_and_a_retained_reset_cannot_change_all_channels(
+        qtbot, qt_theme_applied, tmp_path):
+    import copy
+    import tifffile
+    from PySide6.QtGui import QImage
+
+    originals = {}
+    for channel, offset in [(1, 0), (2, 50)]:
+        path = tmp_path / f'p1_A01_F1_C{channel}.tif'
+        tifffile.imwrite(path, np.arange(64, dtype=np.uint16).reshape(8, 8) + offset)
+        originals[path] = path.read_bytes()
+    dialog = browser._FieldOverview(settings={
+        'source': str(tmp_path), 'source_scope': 'folder', 'channels': (1, 2),
+        'geometry': (2, 3), 'normalization_percentiles': (0., 100.)})
+    qtbot.addWidget(dialog)
+    runners = (dialog._index_jobs, dialog._image_jobs, dialog._export_jobs,
+               dialog._metadata_jobs, dialog._measurement_jobs, dialog._native_jobs,
+               dialog._thumbnail_jobs, dialog._montage_jobs, dialog._field_thumbnail_jobs)
+
+    def ready():
+        return (dialog.view._item is not None and not dialog._image_pending
+                and all(not runner.is_busy() for runner in runners))
+
+    def displayed():
+        image = dialog.view._item.pixmap().toImage().convertToFormat(QImage.Format_RGB888)
+        values = np.frombuffer(image.constBits(), dtype=np.uint8).reshape(image.height(), image.bytesPerLine())
+        return values[:, :image.width() * 3].reshape(image.height(), image.width(), 3).copy()
+
+    try:
+        dialog.resize(1280, 900)
+        dialog.show()
+        dialog._scan()
+        qtbot.waitUntil(lambda: len(dialog._fields) == 1 and not dialog._index_jobs.is_busy(), timeout=10000)
+        dialog._well(dialog.wells.item(*dialog._well_positions[(dialog.plates.currentData(), 'A01')]))
+        qtbot.waitUntil(lambda: dialog.fields.count() == 1, timeout=10000)
+        dialog.fields.setCurrentRow(0)
+        dialog._field(dialog.fields.item(0))
+        qtbot.waitUntil(ready, timeout=10000)
+        gray = np.uint8(np.arange(64, dtype=np.float32).reshape(8, 8) / np.float32(63.) * 255.)
+        expected = np.stack((gray, gray, np.zeros_like(gray)), axis=-1)
+        np.testing.assert_array_equal(displayed(), expected)
+        field = dialog.fields.currentItem().data(browser.Qt.UserRole)
+        dialog.norm_channel.setCurrentIndex(dialog.norm_channel.findData(1))
+        global_values = copy.deepcopy(dialog._global_display)
+        dialog.low.setValue(90.)
+        dialog.high.setValue(10.)
+        dialog._channel_override_buttons[0].click()
+        qtbot.waitUntil(ready, timeout=10000)
+        assert dialog._channel_overrides[1]['percentile_low'] == 90.
+        assert dialog._channel_overrides[1]['percentile_high'] == 10.
+        assert 'channel_percentiles' not in dialog._display_kwargs(view=True)
+        assert dialog._choices() == ((1, 2), (0., 100.))
+        assert dialog._global_display == global_values
+        np.testing.assert_array_equal(displayed(), expected)
+        retained_reset = dialog._reset_channel_override
+        assert dialog._reset_channel_button.isEnabled()
+        dialog._reset_channel_button.click()
+        qtbot.waitUntil(ready, timeout=10000)
+        assert dialog._channel_overrides == {}
+        dialog.norm_channel.setCurrentIndex(dialog.norm_channel.findData(None))
+        qtbot.waitUntil(ready, timeout=10000)
+        assert not dialog._reset_channel_button.isEnabled()
+        dialog.export_scope.setCurrentIndex(dialog.export_scope.findData('field'))
+        selected = tuple(item.identity for item in dialog._export_selection())
+        status = dialog.status.text()
+
+        retained_reset()
+
+        assert dialog._global_display == global_values and dialog._channel_overrides == {}
+        assert dialog.status.text() == status
+        assert dialog.fields.currentItem().data(browser.Qt.UserRole).identity == field.identity
+        assert tuple(item.identity for item in dialog._export_selection()) == selected
+        np.testing.assert_array_equal(displayed(), expected)
+        assert all(path.read_bytes() == original for path, original in originals.items())
+    finally:
+        dialog._cancel()
+        dialog._visual_timer.stop()
+        qtbot.waitUntil(lambda: all(runner.active_jobs() == 0 for runner in runners), timeout=10000)
+        for runner in runners:
+            runner.shutdown(timeout_ms=3000)
+        dialog.close()
+
+
+def test_header_read_recovers_a_real_writer_rename_gap_without_caching_an_unstamped_result(tmp_path, monkeypatch):
+    import tifffile
+
+    source = tmp_path / 'p1_A01_F1_C1.tif'
+    staged = tmp_path / 'writer-held.tif.pending'
+    pixels = np.arange(80, dtype=np.uint16).reshape(8, 10)
+    tifffile.imwrite(source, pixels, metadata={'axes': 'YX'})
+    original = source.read_bytes()
+    field, = browser._overview_index(str(tmp_path), source_scope='folder')
+    gone, allow_restore, restored = threading.Event(), threading.Event(), threading.Event()
+    calls = []
+    inspect = browser._overview_read_channel_info
+
+    def writer():
+        try:
+            source.rename(staged)
+            gone.set()
+            assert allow_restore.wait(10)
+        finally:
+            if staged.exists():
+                staged.rename(source)
+            restored.set()
+
+    def read_after_writer_returns(actual):
+        calls.append(actual.identity)
+        allow_restore.set()
+        assert restored.wait(10)
+        return inspect(actual)
+
+    monkeypatch.setattr(browser, '_overview_read_channel_info', read_after_writer_returns)
+    writer_thread = threading.Thread(target=writer, name='overview-source-writer', daemon=True)
+    writer_thread.start()
+    try:
+        assert gone.wait(10) and not source.exists() and staged.read_bytes() == original
+        first = browser._overview_channel_info(field)
+        assert first['channels'] == (1,) and first['files'][0]['shape'] == pixels.shape
+        assert len(calls) == 1
+        second = browser._overview_channel_info(field)
+        assert second == first and len(calls) == 2
+        assert browser._overview_channel_info(field) is second and len(calls) == 2
+        raw, = browser._overview_raw_planes(field, (1,), edge=None)
+        np.testing.assert_array_equal(raw[2], pixels)
+        assert source.read_bytes() == original and not staged.exists()
+    finally:
+        allow_restore.set()
+        writer_thread.join(timeout=10)
+        assert not writer_thread.is_alive()
+        assert source.read_bytes() == original
+
+
+def test_source_growth_beyond_a_capped_plate_skips_outside_placeholders_and_recovers_the_loaded_well(
+        qtbot, qt_theme_applied, tmp_path):
+    import tifffile
+    from spacr.measure import _set_image_annotations, _well_image_annotations
+    from spacr.qt.screens.app_screen import AppScreen
+
+    source = tmp_path / 'images'
+    source.mkdir()
+    first = source / 'p1_A01_F1_C1.tif'
+    pixels = np.arange(64, dtype=np.uint16).reshape(8, 8)
+    tifffile.imwrite(first, pixels)
+    first_field, = browser._overview_index(str(source), source_scope='folder')
+    database = source / 'measurements' / 'measurements.db'
+    _set_image_annotations(database, (first_field,), 'condition', 'original control', source=source)
+    annotations = _well_image_annotations(database)
+    originals = {first: first.read_bytes()}
+    screen = AppScreen('overview')
+    qtbot.addWidget(screen)
+    page, view = screen._overview_page, None
+
+    def runners():
+        return (view._index_jobs, view._image_jobs, view._export_jobs,
+                view._metadata_jobs, view._measurement_jobs, view._native_jobs,
+                view._thumbnail_jobs, view._montage_jobs, view._field_thumbnail_jobs)
+
+    def loaded():
+        return (view._geometry_valid and len(view._fields) == 1
+                and all(not runner.is_busy() for runner in runners()))
+
+    def open_image():
+        item = view.wells.item(*view._well_positions[(view.plates.currentData(), 'A01')])
+        view._well(item)
+        qtbot.waitUntil(lambda: view.fields.count() == 1, timeout=10000)
+        view.fields.setCurrentRow(0)
+        view._field(view.fields.item(0))
+        qtbot.waitUntil(lambda: view.view._item is not None and not view._image_pending
+                        and all(not runner.is_busy() for runner in runners()), timeout=10000)
+        return view.view._item.pixmap().toImage().copy()
+
+    try:
+        screen.resize(1400, 1000)
+        screen.show()
+        model = screen._settings_model
+        assert model.set_value_for_key('overview_max_wells', '1')
+        assert model.set_value_for_key('overview_max_fields', 'all')
+        wizard = page.run({'src': str(source), 'overview_channels': '1', 'overview_normalize': False})
+        qtbot.waitUntil(wizard.next.isEnabled, timeout=10000)
+        index = next(i for i in range(wizard.plate_geometry.count())
+                     if tuple(wizard.plate_geometry.itemData(i)) == (1, 1))
+        wizard.plate_geometry.setCurrentIndex(index)
+        qtbot.mouseClick(wizard.next, browser.Qt.LeftButton)
+        qtbot.waitUntil(lambda: page.browser is not None, timeout=10000)
+        view = page.browser
+        qtbot.waitUntil(loaded, timeout=10000)
+        assert view._load_limits == (1, None)
+        assert view._overview_options['geometry'] == (1, 1)
+        assert view._annotation_snapshot() == annotations
+        initial_image = open_image()
+        for well, offset in [('B02', 1000), ('C03', 2000)]:
+            path = source / f'p1_{well}_F1_C1.tif'
+            tifffile.imwrite(path, pixels + offset)
+            originals[path] = path.read_bytes()
+
+        view._scan()
+
+        qtbot.waitUntil(lambda: len(view._all_fields) == 3 and loaded(), timeout=10000)
+        assert {field.well for field in view._all_fields} == {'A01', 'B02', 'C03'}
+        assert tuple(field.identity for field in view._fields) == (first_field.identity,)
+        assert view.wells.rowCount() == view.wells.columnCount() == 1
+        assert view.wells.item(0, 0).data(browser.Qt.UserRole) == 'A01'
+        assert not view.wells.item(0, 0).data(browser._OVERVIEW_NOT_LOADED_ROLE)
+        assert set(view._well_positions) == {(view.plates.currentData(), 'A01')}
+        assert view._annotation_snapshot() == annotations
+        assert open_image() == initial_image
+        plane, = browser._overview_raw_planes(view._fields[0], (1,), edge=None)
+        np.testing.assert_array_equal(plane[2], pixels)
+        assert model.set_value_for_key('overview_max_wells', 'all')
+        qtbot.waitUntil(lambda: not view._geometry_valid, timeout=10000)
+        assert 'does not contain the indexed wells' in view.status.text()
+        assert view.wells.rowCount() == view.wells.columnCount() == 0
+        assert model.set_value_for_key('overview_max_wells', '1')
+        qtbot.waitUntil(loaded, timeout=10000)
+        assert open_image() == initial_image
+        assert view._annotation_snapshot() == annotations
+        assert _well_image_annotations(database) == annotations
+        assert all(path.read_bytes() == original for path, original in originals.items())
+    finally:
+        if view is not None:
+            view._cancel()
+            view._visual_timer.stop()
+            qtbot.waitUntil(lambda: all(runner.active_jobs() == 0 for runner in runners()), timeout=10000)
+            for runner in runners():
+                runner.shutdown(timeout_ms=3000)
+        page.retire()
+        screen.close()
+
+
+def test_recorded_wide_acquisition_geometry_refuses_bounded_tables_and_recovers_with_a_valid_user_format(
+        qtbot, qt_theme_applied, tmp_path):
+    import tifffile
+    from spacr.qt.screens.app_screen import AppScreen
+
+    source = tmp_path / 'acquisition'
+    source.mkdir()
+    metadata = source / 'MeasurementDetail.mrf'
+    metadata.write_text('<MeasurementDetail RowCount="1" ColumnCount="513"/>', encoding='utf-8')
+    originals = {metadata: metadata.read_bytes()}
+    expected = {}
+    for number in (1, 2):
+        folder = source / f'p{number}'
+        folder.mkdir()
+        path = folder / f'p{number}_A01_F1_C1.tif'
+        pixels = np.arange(64, dtype=np.uint16).reshape(8, 8)
+        if number == 2:
+            pixels = np.flipud(pixels) + 100
+        tifffile.imwrite(path, pixels)
+        expected[str(path)] = pixels
+        originals[path] = path.read_bytes()
+    screen = AppScreen('overview')
+    qtbot.addWidget(screen)
+    page, view = screen._overview_page, None
+
+    def runners():
+        return (view._index_jobs, view._image_jobs, view._export_jobs,
+                view._metadata_jobs, view._measurement_jobs, view._native_jobs,
+                view._thumbnail_jobs, view._montage_jobs, view._field_thumbnail_jobs)
+
+    def quiet():
+        return all(not runner.is_busy() for runner in runners())
+
+    try:
+        screen.resize(1400, 1000)
+        screen.show()
+        settings = {'src': str(source), 'overview_channels': '1', 'overview_normalize': False}
+        wizard = page.run(settings)
+        qtbot.waitUntil(wizard.next.isEnabled, timeout=10000)
+        assert len(wizard._fields) == 2
+        assert wizard._info['acquisition']['columns'] == 513
+        assert tuple(wizard.plate_geometry.currentData()) == (1, 513)
+        assert wizard.configuration()['geometry'] == (1, 513)
+        qtbot.mouseClick(wizard.next, browser.Qt.LeftButton)
+        qtbot.waitUntil(lambda: page.browser is not None, timeout=10000)
+        view = page.browser
+        qtbot.waitUntil(lambda: len(view._fields) == 2 and quiet(), timeout=10000)
+        identities = {field.identity for field in view._fields}
+        assert view._overview_options['geometry'] == (1, 513)
+        assert view.plates.count() == 2
+        view.plates.setCurrentIndex(1)
+        view.plates_view.setCurrentIndex(view.plates_view.findData('side'))
+        assert view._plates_view == 'side' and len(view._plate_tables) == 2
+        assert all(table.rowCount() == table.columnCount() == 0 for table in view._plate_tables.values())
+        assert view.status.text() == browser.tr('Plate coordinates exceed the overview grid limit.')
+        assert view.view._item is None
+        for field in view._fields:
+            plane, = browser._overview_raw_planes(field, (1,), edge=None)
+            np.testing.assert_array_equal(plane[2], expected[field.files[0][1]])
+        assert all(path.read_bytes() == original for path, original in originals.items())
+        qtbot.waitUntil(quiet, timeout=10000)
+
+        wizard = page.run(settings)
+        qtbot.waitUntil(wizard.next.isEnabled, timeout=10000)
+        assert tuple(wizard.plate_geometry.currentData()) == (1, 513)
+        index = next(i for i in range(wizard.plate_geometry.count())
+                     if tuple(wizard.plate_geometry.itemData(i)) == (1, 1))
+        wizard.plate_geometry.setCurrentIndex(index)
+        assert wizard.configuration()['geometry'] == (1, 1)
+        old = view
+        qtbot.mouseClick(wizard.next, browser.Qt.LeftButton)
+        qtbot.waitUntil(lambda: page.browser is not old, timeout=10000)
+        view = page.browser
+        qtbot.waitUntil(lambda: view._geometry_valid and quiet(), timeout=10000)
+        assert {field.identity for field in view._fields} == identities
+        assert view._overview_options['geometry'] == (1, 1)
+        view.plates_view.setCurrentIndex(view.plates_view.findData('side'))
+        assert all(table.rowCount() == table.columnCount() == 1 for table in view._plate_tables.values())
+        pictures = []
+        for index in range(view.plates.count()):
+            view.plates.setCurrentIndex(index)
+            address = view.plates.currentData(), 'A01'
+            view._well(view._plate_tables[address[0]].item(*view._well_positions[address]))
+            qtbot.waitUntil(lambda: view.fields.count() == 1, timeout=10000)
+            view.fields.setCurrentRow(0)
+            view._field(view.fields.item(0))
+            qtbot.waitUntil(lambda: view.view._item is not None and not view._image_pending and quiet(), timeout=10000)
+            field = view.fields.currentItem().data(browser.Qt.UserRole)
+            plane, = browser._overview_raw_planes(field, (1,), edge=None)
+            np.testing.assert_array_equal(plane[2], expected[field.files[0][1]])
+            pictures.append(view.view._item.pixmap().toImage().copy())
+            view._back()
+        assert pictures[0] != pictures[1]
+        assert all(path.read_bytes() == original for path, original in originals.items())
+    finally:
+        if view is not None:
+            view._cancel()
+            view._visual_timer.stop()
+            qtbot.waitUntil(lambda: all(runner.active_jobs() == 0 for runner in runners()), timeout=10000)
+            for runner in runners():
+                runner.shutdown(timeout_ms=3000)
+        page.retire()
+        screen.close()
+
+
+@pytest.mark.parametrize('replace_source', [False, True], ids=['clear-source', 'replace-source'])
+def test_editing_source_during_real_index_cannot_rebind_loaded_measurement_data(
+        qtbot, qt_theme_applied, tmp_path, monkeypatch, replace_source):
+    import sqlite3
+    import tifffile
+
+    original, replacement = tmp_path / 'original', tmp_path / 'replacement'
+    originals = {}
+    for folder, offset in [(original, 100), (replacement, 1000)]:
+        folder.mkdir()
+        path = folder / 'p1_A01_F1_C1.tif'
+        tifffile.imwrite(path, np.arange(64, dtype=np.uint16).reshape(8, 8) + offset)
+        originals[path] = path.read_bytes()
+    entered, release = threading.Event(), threading.Event()
+    index = browser._overview_index_sources
+    deliveries = []
+
+    def held_index(*args, **kwargs):
+        actual = index(*args, **kwargs)
+        deliveries.append(actual)
+        if len(deliveries) == 1:
+            entered.set()
+            assert release.wait(10)
+        return actual
+
+    monkeypatch.setattr(browser, '_overview_index_sources', held_index)
+    dialog = browser._FieldOverview(settings={
+        'source': str(original), 'source_scope': 'folder',
+        'channels': (1,), 'geometry': (1, 1)})
+    qtbot.addWidget(dialog)
+    runners = (dialog._index_jobs, dialog._image_jobs, dialog._export_jobs,
+               dialog._metadata_jobs, dialog._measurement_jobs, dialog._native_jobs,
+               dialog._thumbnail_jobs, dialog._montage_jobs, dialog._field_thumbnail_jobs)
+    try:
+        dialog.resize(1280, 900)
+        dialog.show()
+        qtbot.mouseClick(dialog.options_button, browser.Qt.LeftButton)
+        dialog._controls_scroll.ensureWidgetVisible(dialog.source)
+        dialog._scan()
+        qtbot.waitUntil(entered.is_set, timeout=10000)
+        dialog.source.setFocus()
+        qtbot.keyClick(dialog.source, browser.Qt.Key_A, modifier=browser.Qt.ControlModifier)
+        qtbot.keyClick(dialog.source, browser.Qt.Key_Backspace)
+        if replace_source:
+            qtbot.keyClicks(dialog.source, str(replacement))
+        assert dialog.source.text() == (str(replacement) if replace_source else '')
+        release.set()
+        qtbot.waitUntil(lambda: all(not runner.is_busy() for runner in runners), timeout=10000)
+        assert len(deliveries[0][0]) == 1
+        if dialog._fields:
+            assert all(str(original) in str(path) for field in dialog._fields for _, path in field.files)
+            dialog.workers.setValue(1)
+            dialog.export_scope.setCurrentIndex(dialog.export_scope.findData('plate'))
+            dialog.use_selection.setChecked(False)
+            qtbot.mouseClick(dialog._module_action_buttons[0], browser.Qt.LeftButton)
+            qtbot.waitUntil(lambda: not dialog._measurement_jobs.is_busy(), timeout=20000)
+        wrong_database = replacement / 'measurements' / 'measurements.db'
+        wrong_rows = []
+        if wrong_database.exists():
+            with sqlite3.connect(wrong_database) as connection:
+                wrong_rows = connection.execute('SELECT channel_1_intensity_mean FROM fov').fetchall()
+        assert all(path.read_bytes() == contents for path, contents in originals.items())
+        assert not wrong_rows, f'Original-source measurements published under edited source: {wrong_rows}'
+        assert not dialog._fields
+        assert not (original / 'measurements' / 'measurements.db').exists()
+        dialog._controls_scroll.ensureWidgetVisible(dialog.source)
+        dialog.source.setFocus()
+        qtbot.keyClick(dialog.source, browser.Qt.Key_A, modifier=browser.Qt.ControlModifier)
+        qtbot.keyClicks(dialog.source, str(replacement))
+        load = next(button for button in dialog.findChildren(browser.QPushButton)
+                    if button.text() == browser.tr('Load overview'))
+        dialog._controls_scroll.ensureWidgetVisible(load)
+        qtbot.mouseClick(load, browser.Qt.LeftButton)
+        qtbot.waitUntil(lambda: len(deliveries) == 2 and len(dialog._fields) == 1
+                        and all(not runner.is_busy() for runner in runners), timeout=10000)
+        assert dialog._metadata_source == str(replacement)
+        assert all(str(replacement) in str(path) for field in dialog._fields for _, path in field.files)
+        dialog.workers.setValue(1)
+        dialog.export_scope.setCurrentIndex(dialog.export_scope.findData('plate'))
+        dialog.use_selection.setChecked(False)
+        qtbot.mouseClick(dialog._module_action_buttons[0], browser.Qt.LeftButton)
+        qtbot.waitUntil(lambda: not dialog._measurement_jobs.is_busy()
+                        and wrong_database.exists(), timeout=20000)
+        with sqlite3.connect(wrong_database) as connection:
+            rows = connection.execute('SELECT channel_1_intensity_mean FROM fov').fetchall()
+        assert rows == [(1031.5,)]
+        assert not (original / 'measurements' / 'measurements.db').exists()
+        assert all(path.read_bytes() == contents for path, contents in originals.items())
+    finally:
+        release.set()
+        dialog._cancel()
+        dialog._visual_timer.stop()
+        qtbot.waitUntil(lambda: all(runner.active_jobs() == 0 for runner in runners), timeout=10000)
+        for runner in runners:
+            runner.shutdown(timeout_ms=3000)
+        dialog.close()

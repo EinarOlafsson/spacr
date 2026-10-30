@@ -408,3 +408,63 @@ def test_visibility_and_folds_survive_saving_and_reopening(view, qtbot, plates):
     again = _open(qtbot, "; ".join(str(path) for path in plates))
     qtbot.waitUntil(lambda: again._plates_view == "stacked" and again._plates_subset == (), timeout=10000)
     assert again._plate_tables == {} and again._plates_empty.isVisible()
+
+
+def test_hidden_pooled_plate_receipts_cannot_redirect_the_current_image(qtbot, tmp_path, monkeypatch):
+    folders = (_plate(tmp_path / "first", ("A01",), 0),
+               _plate(tmp_path / "second", ("A01",), 1000),
+               _plate(tmp_path / "current", ("B02",), 2000))
+    source_bytes = {str(path): path.read_bytes() for folder in folders for path in folder.glob("*.tif")}
+    receipts = []
+    original = browser._FieldOverview._plate_arrow_toggled
+
+    def arrow_received(owner, table, collapsed):
+        receipts.append((table, collapsed))
+        return original(owner, table, collapsed)
+
+    monkeypatch.setattr(browser._FieldOverview, "_plate_arrow_toggled", arrow_received)
+    view = _open(qtbot, "; ".join(map(str, folders)), geometry=(2, 2))
+    view._set_plates_view("stacked")
+    table = view._plate_tables["first"]
+    arrow = view._plate_blocks[table][0].arrow
+    qtbot.mouseClick(arrow, Qt.LeftButton)
+    assert receipts and receipts[-1][0] is table and receipts[-1][1] is True
+    receipt = receipts[-1]
+    qtbot.mouseClick(arrow, Qt.LeftButton)
+    menu = _plate_menu(view, "first")
+    compare = next(action for action in menu.actions() if action.text() == "Show A01 from every plate")
+    assert compare.isEnabled()
+    menu.close()
+    for name in ("first", "second"):
+        actions = _menu_actions(view, "current", "B02")
+        actions["Shown plates… > " + name].trigger()
+    assert tuple(view._plate_tables) == ("current",)
+    assert table._overview_plate is None
+    view._well(_item(view, "current", "B02"))
+    qtbot.waitUntil(lambda: view.fields.count() == 1)
+    qtbot.mouseClick(view.fields.viewport(), Qt.LeftButton,
+                     pos=view.fields.visualItemRect(view.fields.item(0)).center())
+    qtbot.waitUntil(lambda: view._main_view_field is not None and view.view._item is not None
+                   and not view.view._item.pixmap().isNull())
+    field = view._main_view_field
+    selected = set(view._selected_wells)
+    image = view.view._item.pixmap().toImage().copy()
+    collapsed = set(view._collapsed_plates)
+    original(view, *receipt)
+    compare.trigger()
+    assert view.status.text() == browser.tr("These wells have no image at the selected acquisition axes.")
+    assert view._main_view_field is field and field.plate == "current" and field.well == "B02"
+    assert view.view._item.pixmap().toImage() == image
+    assert set(view._selected_wells) == selected and view._collapsed_plates == collapsed
+    for name in ("first", "second"):
+        _menu_actions(view, "current", "B02")["Shown plates… > " + name].trigger()
+    fresh = view._plate_blocks[view._plate_tables["first"]][0].arrow
+    qtbot.mouseClick(fresh, Qt.LeftButton)
+    assert "first" in view._collapsed_plates
+    qtbot.mouseClick(fresh, Qt.LeftButton)
+    fresh_menu = _plate_menu(view, "first")
+    fresh_compare = next(action for action in fresh_menu.actions() if action.text() == "Show A01 from every plate")
+    fresh_compare.trigger()
+    fresh_menu.close()
+    qtbot.waitUntil(lambda: {panel.field.plate for panel in view._image_views} == {"first", "second"})
+    assert {str(path): path.read_bytes() for folder in folders for path in folder.glob("*.tif")} == source_bytes

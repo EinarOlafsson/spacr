@@ -388,3 +388,120 @@ def test_autodetection_finishes_while_editing_the_second_plate_then_applies_to_a
         release.set()
         qtbot.waitUntil(lambda: wizard._runner.active_jobs() == 0, timeout=15000)
         wizard.reject()
+
+
+def test_wizard_source_reset_default_regex_and_colliding_aliases_reach_the_browser(qtbot, plates, caplog):
+    from PySide6.QtWidgets import QAbstractItemView, QPushButton, QWidget
+
+    first, second = plates
+    source = f"{first}; {second}"
+    source_bytes = {path: path.read_bytes() for folder in plates for path in folder.glob("*.tif")}
+    aliases = {"plateA": "A" * 30 + "One" + "Z" * 30,
+               "plateB": "A" * 30 + "Two" + "Z" * 30}
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    owner.resize(1400, 1000)
+    owner.show()
+    wizard = browser._open_field_overview(owner, {
+        "source": source, "source_scope": "folder", "custom_regex": PATTERN,
+        "plate_regex": {str(second): PATTERN + "$"}, "channels": (1, 2)})
+    workspace = owner._field_overview_workspace
+    try:
+        qtbot.waitUntil(lambda: wizard.next.isEnabled() and not wizard._runner.is_busy(), timeout=15000)
+        expected = _parsed_identities(wizard)
+        wizard.plate_table.selectAll()
+        wizard.findChild(QPushButton, "OverviewWizardRemovePlates").click()
+        assert wizard.source.text() == ""
+        assert not wizard.next.isEnabled()
+        qtbot.waitUntil(lambda: not wizard._fields and wizard._info is None
+                        and not wizard._runner.is_busy(), timeout=15000)
+        assert "Choose an existing image folder" in wizard.status.text()
+        assert not any(record.levelno >= 40 for record in caplog.records)
+        assert all(path.read_bytes() == pixels for path, pixels in source_bytes.items())
+        with pytest.raises(browser._OverviewValidationError, match="Preview the current source"):
+            wizard.configuration()
+        wizard.source.setFocus()
+        qtbot.keyClicks(wizard.source, source)
+        qtbot.waitUntil(lambda: wizard.next.isEnabled() and not wizard._runner.is_busy(), timeout=15000)
+        assert _parsed_identities(wizard) == expected
+        row = _plate_row(wizard, second)
+        wizard.plate_table.setCurrentCell(row, 0)
+        assert wizard.regex.text() == PATTERN + "$"
+        item = wizard.plate_table.item(row, 4)
+        qtbot.mouseClick(wizard.plate_table.viewport(), Qt.LeftButton,
+                         pos=wizard.plate_table.visualItemRect(item).center())
+        wizard.regex.setFocus()
+        wizard.regex.selectAll()
+        qtbot.keyClicks(wizard.regex, PATTERN)
+        wizard.plate_table.cellWidget(row, 5).click()
+        qtbot.waitUntil(lambda: wizard.next.isEnabled() and not wizard._runner.is_busy(), timeout=15000)
+        assert wizard.configuration()["plate_regex"] == {}
+        assert _parsed_identities(wizard) == expected
+        channel = wizard.channel_table.item(0, 0)
+        assert not channel.flags() & Qt.ItemIsEditable
+        channels_before = wizard.configuration()["channels"]
+        wizard.channel_table.scrollToItem(channel)
+        position = wizard.channel_table.visualItemRect(channel).center()
+        qtbot.mouseClick(wizard.channel_table.viewport(), Qt.LeftButton, pos=position)
+        qtbot.mouseDClick(wizard.channel_table.viewport(), Qt.LeftButton, pos=position)
+        assert wizard.channel_table.state() != QAbstractItemView.EditingState
+        assert wizard.configuration()["channels"] == channels_before
+        for path, key in ((first, "plateA"), (second, "plateB")):
+            wizard.plate_table.item(_plate_row(wizard, path), 0).setText(aliases[key])
+        assert wizard.configuration()["plate_names"] == aliases
+        wizard.next.click()
+        qtbot.waitUntil(lambda: getattr(owner, "_field_overview", None) is not None, timeout=15000)
+        view = owner._field_overview
+        qtbot.waitUntil(lambda: view._normalization_ready and not view._index_jobs.is_busy(), timeout=15000)
+        assert workspace.stack.currentWidget() is view
+        assert {field.identity for field in view._fields} == {field.identity for field in wizard._fields}
+        assert {view.plates.itemText(index) for index in range(view.plates.count())} == set(aliases.values())
+        for key in ("plateA", "plateB"):
+            _show(view, key)
+            row, column = view._well_positions[(key, "A01")]
+            view.wells.setCurrentCell(row, column)
+            view._open_well_button.click()
+            panel = next(panel for panel in view._well_panels if panel.field_list._overview_plate == key)
+            assert panel.title.text() == f"Well {aliases[key]} · A01"
+        assert all(path.read_bytes() == pixels for path, pixels in source_bytes.items())
+    finally:
+        view = getattr(owner, "_field_overview", None)
+        if view is not None:
+            _retire(view, qtbot)
+        workspace._retire()
+        owner.close()
+
+
+def test_saved_blank_plate_pattern_inherits_global_without_rewriting_the_saved_view(qtbot, plates):
+    from concurrent.futures import ThreadPoolExecutor
+
+    first, second = plates
+    source_bytes = {path: path.read_bytes() for folder in plates for path in folder.glob("*.tif")}
+    state = browser._overview_empty_view_state()
+    state["sources"] = [str(first), str(second)]
+    state["options"]["plate_regex"] = {str(second): ""}
+    with ThreadPoolExecutor(max_workers=1) as writer:
+        pending = writer.submit(browser._overview_save_view_state, str(first), state)
+        qtbot.waitUntil(pending.done, timeout=10000)
+        saved = pending.result()
+    saved_bytes = saved.read_bytes()
+    wizard = _regex_wizard(qtbot, first, PATTERN)
+    try:
+        assert {field.plate for field in wizard._fields} == {"plateA", "plateB"}
+        assert {field.plate_id for field in wizard._fields} == {"p1"}
+        assert len(wizard._fields) == 7
+        assert {field.source for field in wizard._fields} == {str(first), str(second)}
+        assert all({channel for channel, _path in field.files} == {"1", "2"} for field in wizard._fields)
+        configuration = wizard.configuration()
+        assert configuration["channels"] == (1, 2)
+        assert browser._overview_source_paths(configuration["source"]) == [str(first), str(second)]
+        assert configuration["custom_regex"] == PATTERN
+        assert configuration["plate_regex"] == {}
+        assert wizard.regex.text() == PATTERN
+        assert wizard._plate_regex == {}
+        assert wizard.plate_table.item(_plate_row(wizard, second), 4).text() == ""
+        assert saved.read_bytes() == saved_bytes
+        assert all(path.read_bytes() == pixels for path, pixels in source_bytes.items())
+    finally:
+        qtbot.waitUntil(lambda: wizard._runner.active_jobs() == 0, timeout=15000)
+        wizard.reject()
