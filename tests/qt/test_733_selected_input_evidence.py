@@ -877,7 +877,8 @@ def test_selected_tiff_replaced_after_real_header_classification_cannot_publish_
 
 
 @pytest.mark.parametrize('mutation_stage', [
-    'after-real-local-sample', 'after-real-scandir', 'after-real-regex-evidence'])
+    'after-real-local-sample', 'after-real-scandir', 'after-real-regex-evidence',
+    'before-real-specialized-inputs'])
 def test_canonical_child_replaced_by_a_foreign_symlink_cannot_supply_home_provenance(
         tmp_path, monkeypatch, mutation_stage):
     from collections.abc import Mapping
@@ -970,6 +971,20 @@ def test_canonical_child_replaced_by_a_foreign_symlink_cannot_supply_home_proven
     if mutation_stage == 'after-real-local-sample':
         monkeypatch.setattr(home, '_easy_local_sample', replace_after_real_local_sample)
 
+    specialized_inputs = home._easy_specialized_inputs
+
+    def replace_before_real_specialized_inputs(*args, **kwargs):
+        assert args[0] == root and child.is_dir() and not child.is_symlink() and not replaced
+        child.rename(archive)
+        child.symlink_to(foreign, target_is_directory=True)
+        replaced.append(child)
+        actual = specialized_inputs(*args, **kwargs)
+        assert not {'spatial_masks', 'spatial_map'} & actual.keys()
+        return actual
+
+    if mutation_stage == 'before-real-specialized-inputs':
+        monkeypatch.setattr(home, '_easy_specialized_inputs', replace_before_real_specialized_inputs)
+
     regex_evidence = home._easy_regex_evidence
     late_discovery = []
 
@@ -987,7 +1002,8 @@ def test_canonical_child_replaced_by_a_foreign_symlink_cannot_supply_home_proven
     monkeypatch.setattr(home.os, 'scandir', ScannedDirectory)
     monkeypatch.setattr(home, '_easy_regex_evidence', replace_after_real_discovery)
     result = home._easy_inspect_path(str(root))
-    assert bool(late_discovery) == (mutation_stage == 'after-real-regex-evidence')
+    assert bool(late_discovery) == (mutation_stage in {
+        'after-real-regex-evidence', 'before-real-specialized-inputs'})
     if mutation_stage != 'after-real-scandir':
         assert result['actions'] == []
         assert 'context' not in result and 'settings_overrides' not in result
