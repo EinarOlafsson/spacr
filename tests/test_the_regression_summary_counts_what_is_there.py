@@ -228,3 +228,38 @@ def test_no_coefficient_table_reports_why_rather_than_a_count():
 
     assert mask is None
     assert "no coefficient table" in note
+
+
+def test_reopened_legacy_run_does_not_claim_requested_guides_were_excluded(tmp_path):
+    """A saved exclusion request without its old audit remains unverifiable."""
+    import copy
+    from pathlib import Path
+
+    from spacr.regression_summary import build_run_summary, write_run_summary
+
+    prepared = pd.DataFrame({"prc": ["001", "001", "002"],
+                             "grna": ["guide-A", "guide-B", "guide-A"],
+                             "gene": ["A", "B", "A"]})
+    source = tmp_path / "regression_data.csv"
+    prepared.to_csv(source, index=False)
+    before = source.read_bytes()
+    settings = {"regression_type": "ridge", "exclude_grnas": ["guide-A"]}
+    settings_before = copy.deepcopy(settings)
+
+    summary = build_run_summary(res_folder=tmp_path, settings=settings)
+
+    exclusion = summary.field("exclude_grnas")
+    assert "guide-A" in exclusion.value
+    assert "predates the raw-count exclusion audit" in exclusion.value
+    assert "cannot be verified" in exclusion.value
+    assert "were removed" not in exclusion.value
+    assert summary.field("n_rows_prepared").value.startswith("3 rows")
+    assert summary.field("n_guides").value.startswith("2 distinct")
+    assert summary.missing() == []
+    written = write_run_summary(tmp_path, settings=settings)
+    written_text = "".join(Path(written).read_text(encoding="utf-8").split())
+    assert "".join(exclusion.value.split()) in written_text
+    reopened = build_run_summary(res_folder=tmp_path, settings=settings)
+    assert reopened.field("exclude_grnas").value == exclusion.value
+    assert source.read_bytes() == before
+    assert settings == settings_before
