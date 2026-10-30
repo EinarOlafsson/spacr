@@ -222,3 +222,34 @@ def test_time_resolved_filename_enrichment_survives_a_saved_recipe(tmp_path):
     with sqlite3.connect(path) as connection:
         pd.testing.assert_frame_equal(pd.read_sql_query("SELECT * FROM cell", connection), frame)
     assert (Path(path).read_bytes(), mapping.read_bytes()) == source_bytes
+
+
+def test_a_named_acquisition_column_preserves_existing_filename_metadata(tmp_path):
+    """A saved custom output name adds metadata without replacing source names."""
+    from tests.test_original_filenames import csv_map, modern
+
+    frame = pd.DataFrame({"file_name": ["plate1_A01_1_1.npy"],
+                          "original_filename": ["reviewed-acquisition-label"],
+                          "area": [42.5]})
+    path = database(tmp_path, {"readings": frame})
+    mapping = csv_map(tmp_path, [modern(source="/raw/acquisition.tif")])
+    before = Path(path).read_bytes(), mapping.read_bytes()
+    recipe = dt.default_definition(path, ["readings"], base="readings",
+                                   name="Named acquisition metadata")
+    recipe.update(mode="metadata", original_filenames={
+        "map_path": str(mapping), "output_column": "acquisition_name"})
+
+    result, report = dt.execute(path, recipe)
+
+    pd.testing.assert_frame_equal(result[frame.columns], frame)
+    assert result.acquisition_name.tolist() == ["acquisition.tif"]
+    assert result.original_path.tolist() == ["/raw/acquisition.tif"]
+    assert report["base_rows"] == report["output_rows"] == 1
+    assert report["image_provenance"] is False
+    assert report["original_filenames"]["output_column"] == "acquisition_name"
+    bound = result.attrs["merge_definition"]
+    dt.save_definition(path, bound)
+    reopened, reopened_report = dt.execute(path, dt.load_definitions(path)[bound["name"]])
+    pd.testing.assert_frame_equal(reopened, result)
+    assert reopened_report == report
+    assert (Path(path).read_bytes(), mapping.read_bytes()) == before
