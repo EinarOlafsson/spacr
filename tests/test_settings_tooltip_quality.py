@@ -103,6 +103,11 @@ DEFAULT_VARIANT_EXPECTATIONS = {
         "than a second directory called experiment; the shared tooltip is "
         "correct for every other module that offers the key.",
     ),
+    ("analyze_plaques", "diameter"): DefaultVariant(
+        "30", "0", ACCURATE_SHARED,
+        "Plaque Assay defaults to the model's own scale at 0, while the "
+        "legacy Cellpose tools retain 30; the tooltip explicitly names both.",
+    ),
     ("analyze_plaques", "background"): DefaultVariant(
         "100", "200", ACCURATE_SHARED,
         "The tooltip explicitly names 200 for plaque analysis.",
@@ -601,7 +606,7 @@ def test_unit_named_settings_keep_their_units_in_the_tooltip():
 def test_real_default_claims_have_no_unrecorded_drift():
     """Compare parseable tooltip claims with every registered app default.
 
-    Most comparisons are exact.  The 52 variants are compared with an
+    Most comparisons are exact.  Intentional variants are compared with an
     explicit app/setting/value contract above, including a reasoned
     classification, so a same-size substitution cannot hide behind a digest.
     """
@@ -1176,10 +1181,15 @@ if app_key == "mask":
                             "plaque_well_resize_side": 1500,
                             "plaque_well_resize_max_factor": 6.0}
     well_resize_hashes = {
-        "plaque_well_resize": "b168a55e4b736e3fdec73a30aa4db872bda292679e154486f56a09893e47c6ba",
+        "plaque_well_resize": "9f12a4bb3a078b12749ae70808579b3b3ce0713e0b66d38bb2ba974130e0e58f",
         "plaque_well_resize_side": "33a208e9012bcf3bad3b9d3a038696f032ec7d61cdf372169cb08a1aa6221630",
         "plaque_well_resize_max_factor": "f471e2da16e90f3f5410cd033e9b3340bc59f5aac284b0472426264dbd96b8e7",
     }
+    assert "Diameter is measured in original input-image pixels and adjusted for the resize" in tooltips["plaque_well_resize"]
+    assert "0 uses the model's own scale" in tooltips["plaque_well_resize"]
+    assert "Plaque Assay starts at 0" in tooltips["diameter"]
+    assert "original input-image pixels" in tooltips["diameter"]
+    assert "Default 30 in the legacy tools" in tooltips["diameter"]
     well_resize_arrivals = {("analyze_plaques", key) for key in well_resize_defaults}
     assert well_resize_arrivals <= compared_pairs
     assert not well_resize_arrivals & (recognized_arrivals | variants.keys())
@@ -1323,7 +1333,9 @@ if app_key == "mask":
     # no hit). The tooltip now says "Default True in Cellpose Masks", which
     # matches both modules' True, so there is no variant left to record and
     # no plaque fact to keep.
-    assert len(variants) == 46
+    # Plaque Assay now defaults to model scale (0), while legacy tools keep
+    # 30; its explicit shared-tooltip exception is recorded by exact value.
+    assert len(variants) == 47
     assert variants == expected
     assert {
         classification: sum(
@@ -1337,7 +1349,8 @@ if app_key == "mask":
         # ACCURATE_SHARED because its tooltip was right and only the parser
         # was confused by the neighbouring percentile. Instruction 391
         # removed the setting and the neighbour both.
-        ACCURATE_SHARED: 25,
+        # Plaque's explicit model-scale default adds one named exception.
+        ACCURATE_SHARED: 26,
         # 23 -> 22 on 2026-09-09, and it is the same one variant: the
         # `control_wells` split (357-Q6) took its repaired-tooltip entry
         # with it, because the tooltip it repaired documented two meanings

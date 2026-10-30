@@ -1,4 +1,4 @@
-"""Item 524: Figure mode offers the four views, Plaque mode keeps them.
+"""The four segmentation views and the unmodified image remain available in both modes.
 
     "i cannot see the cell probability, flows, and masks tabs in the figure
      mode for the plaque assay, please add these, and also for plaque mode
@@ -88,15 +88,34 @@ def test_plaque_mode_offers_the_four_views(panel):
     panel.set_mode("plaque")
     selector = panel._view_selector
     assert selector.isVisibleTo(panel)
-    assert [selector.itemData(i) for i in range(selector.count())] == [
-        sv.OVERLAY, sv.MASKS, sv.FLOWS, sv.CELLPROB]
+    expected = (*sv.VIEWS, "None")
+    assert tuple(selector.itemData(i) for i in range(selector.count())) == expected
+    assert selector.currentData() == sv.OVERLAY and panel.views().view() == sv.OVERLAY
+    for index, view in enumerate(expected):
+        selector.setCurrentIndex(index)
+        assert selector.currentData() == view and panel.views().view() == view
+    selector.setCurrentIndex(selector.findData(sv.OVERLAY))
+    assert panel.views().view() == sv.OVERLAY
 
 
 def test_figure_mode_offers_the_four_views(figure):
     selector = figure._view_selector
     assert figure.mode() == ppv.FIGURE_MODE
     assert selector.isVisibleTo(figure)
-    assert selector.count() == 4
+    expected = (*sv.VIEWS, "None")
+    assert tuple(selector.itemData(i) for i in range(selector.count())) == expected
+    assert selector.currentData() == sv.OVERLAY and figure.views().view() == sv.OVERLAY
+    original = figure.views().arrays()["image"].copy()
+    selected = figure.selected_well()
+    for index, view in enumerate(expected):
+        selector.setCurrentIndex(index)
+        assert selector.currentData() == view and figure.views().view() == view
+    assert not figure.views().is_showing_message()
+    assert np.array_equal(figure.views().rendered(), sv.to_rgb8(original))
+    assert np.array_equal(figure.views().arrays()["image"], original)
+    assert figure.selected_well() == selected
+    selector.setCurrentIndex(selector.findData(sv.OVERLAY))
+    assert figure.views().view() == sv.OVERLAY
 
 
 def test_before_a_well_is_segmented_the_views_say_so(figure):
