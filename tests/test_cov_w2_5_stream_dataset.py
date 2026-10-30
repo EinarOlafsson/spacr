@@ -414,3 +414,34 @@ def test_an_object_table_is_preferred_over_scanning_the_arrays(merged,
     assert len(table) == 4
     assert set(table["source"]) == {"object table"}
     assert os.path.exists(path)
+
+
+def test_an_exact_high_row_identifier_streams_without_guessing_a_letter_well(tmp_path):
+    """Rows beyond Z still use their exact recorded source and never a nearby well."""
+    folder = tmp_path / "merged"
+    folder.mkdir()
+    stack = np.zeros((8, 9, 3), dtype=np.uint16)
+    stack[..., 0] = np.arange(72).reshape(8, 9)
+    stack[..., 1] = 500 + np.arange(72).reshape(8, 9)
+    stack[2:5, 3:7, 2] = 1
+    source = folder / "plate1_r27_c1_f1.npy"
+    np.save(source, stack)
+    neighbor = folder / "plate1_A01_f1.npy"
+    np.save(neighbor, np.full_like(stack, 999))
+    before = {path.name: path.read_bytes() for path in folder.iterdir()}
+    selection = pd.DataFrame({"source": ["npy: plate1_r27_c1_f1.npy"],
+                              "objectID": [1], "split": ["train"]})
+    selection_before = selection.copy(deep=True)
+    destination = tmp_path / "crops"
+
+    report = sd.stream(selection, str(folder), str(destination), channel_arrays=[0, 1])
+
+    assert report["written"] == report["fields"] == 1
+    assert report["missing"] == 0 and report["trouble"] == []
+    outputs = list((destination / "train").glob("*.npy"))
+    assert len(outputs) == 1 and "r27" in outputs[0].name
+    crop = np.load(outputs[0])
+    assert crop.dtype == np.float32
+    np.testing.assert_array_equal(crop, stack[2:5, 3:7, :2].astype(np.float32))
+    pd.testing.assert_frame_equal(selection, selection_before)
+    assert {path.name: path.read_bytes() for path in folder.iterdir()} == before
