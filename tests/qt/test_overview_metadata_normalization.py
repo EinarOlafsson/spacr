@@ -2341,3 +2341,80 @@ def test_native_overview_back_is_visible_after_a_real_well_is_opened(
     assert tuple(field.identity for field in view._fields) == fields
     assert tab._settings_model._read_value('src') == source
     assert all(path.read_bytes() == contents for path, contents in before.items())
+
+
+def test_retained_real_back_receipt_cannot_change_the_current_plate_and_fresh_navigation_works(
+        native_overview_preferences, native_overview_host, native_overview_source, qtbot, monkeypatch):
+    import copy
+    from tests.qt.test_725_overview_tab_round2 import _open
+
+    original_back = browser._OverviewModulePage._back
+    deliveries = []
+
+    def observe_back(page):
+        deliveries.append(lambda: original_back(page))
+        return original_back(page)
+
+    monkeypatch.setattr(browser._OverviewModulePage, '_back', observe_back)
+    tab, view = _open(native_overview_host, qtbot, native_overview_source)
+    page = tab._overview_page
+    originals = {path: path.read_bytes() for path in native_overview_source.glob('*.tif')}
+    plate = view.plates.currentData()
+    runners = (view._index_jobs, view._image_jobs, view._thumbnail_jobs, view._field_thumbnail_jobs,
+               view._montage_jobs, view._export_jobs, view._metadata_jobs, view._measurement_jobs,
+               view._native_jobs, view._image_stack_jobs, view._group_jobs, view._levels_jobs)
+
+    def open_real_image():
+        item = view.wells.item(*view._well_positions[(plate, 'A01')])
+        view.wells.scrollToItem(item)
+        qtbot.mouseClick(view.wells.viewport(), browser.Qt.LeftButton,
+                        pos=view.wells.visualItemRect(item).center())
+        qtbot.keyClick(view.wells, browser.Qt.Key_Return)
+        qtbot.waitUntil(lambda: view._scope == (plate, 'A01') and view.fields.count() == 2, timeout=15000)
+        assert page.back_button.isVisibleTo(page)
+        item = view.fields.item(0)
+        field = item.data(browser.Qt.UserRole)
+        view.fields.scrollToItem(item)
+        qtbot.mouseClick(view.fields.viewport(), browser.Qt.LeftButton,
+                        pos=view.fields.visualItemRect(item).center())
+        qtbot.waitUntil(lambda: view._individual and view.view._item is not None
+                        and not view._image_pending and all(not runner.is_busy() for runner in runners),
+                        timeout=15000)
+        return field.identity, view.view._item.pixmap().toImage().copy()
+
+    identity, pixels = open_real_image()
+    qtbot.mouseClick(page.back_button, browser.Qt.LeftButton)
+    assert not view._individual and view._scope == (plate, 'A01')
+    assert len(deliveries) == 1
+    retained = deliveries[0]
+    assert page.back_button.isVisibleTo(page)
+    qtbot.mouseClick(page.back_button, browser.Qt.LeftButton)
+    qtbot.waitUntil(lambda: all(not runner.is_busy() for runner in runners), timeout=15000)
+    assert view._scope == (plate, None) and page.back_button.isHidden()
+    assert len(deliveries) == 2
+    selected = copy.deepcopy((view._selected_wells, view._selected_fields))
+    settings = copy.deepcopy(tab._settings_model.collect())
+    fields = tuple(field.identity for field in view._fields)
+    roots = tuple(view._source_paths)
+    status = view.status.text()
+    item = view.wells.item(*view._well_positions[(plate, 'A01')])
+    thumbnail = item.icon().pixmap(96, 96).toImage().copy()
+
+    retained()
+
+    assert len(deliveries) == 2
+    assert page.browser is view and page.stack.currentWidget() is view
+    assert view._scope == (plate, None) and not view._individual and page.back_button.isHidden()
+    assert view.plates.currentData() == plate and view.status.text() == status
+    assert (view._selected_wells, view._selected_fields) == selected
+    assert tuple(field.identity for field in view._fields) == fields
+    assert tab._settings_model.collect() == settings and tuple(view._source_paths) == roots
+    assert item.icon().pixmap(96, 96).toImage() == thumbnail
+    assert all(path.read_bytes() == contents for path, contents in originals.items())
+    fresh_identity, fresh_pixels = open_real_image()
+    assert fresh_identity == identity and fresh_pixels == pixels
+    qtbot.mouseClick(page.back_button, browser.Qt.LeftButton)
+    assert not view._individual and view._scope == (plate, 'A01')
+    qtbot.mouseClick(page.back_button, browser.Qt.LeftButton)
+    assert view._scope == (plate, None) and page.back_button.isHidden()
+    assert all(path.read_bytes() == contents for path, contents in originals.items())
