@@ -5974,6 +5974,16 @@ class _NavigatorDetailsBrowser(QTextBrowser):
         self._collapse.clicked.connect(self._toggle_minimized)
         self._update_controls()
 
+    def focusNextPrevChild(self, forward):
+        """Keep hyperlink traversal separate from the browser's child controls.
+
+        :param forward: whether to move to the next focus position.
+        :returns: whether a widget or link accepted the focus move.
+        """
+        if self.hasFocus() or self.viewport().hasFocus():
+            return super().focusNextPrevChild(forward)
+        return QWidget.focusNextPrevChild(self, forward)
+
     def _open_link(self, url):
         """Navigate an explicitly clicked assistant or documentation link."""
         from .ai_chat_panel import _activate_ai_link

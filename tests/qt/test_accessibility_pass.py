@@ -28,6 +28,7 @@ from PySide6.QtWidgets import (
     QPlainTextEdit,
     QScrollBar,
     QTableWidget,
+    QTextBrowser,
     QToolButton,
     QWidget,
 )
@@ -229,7 +230,7 @@ def _focusable_unnamed(host):
 def _tab_walk(host):
     """Tab round ``host``; return the widgets that held focus against Tab.
 
-    A label with links keeps the focus while Tab steps through its links, and
+    A rich text widget keeps focus while Tab steps through its links, and
     Qt spends one press wrapping from the last control round to the first, so
     a widget counts as holding focus only past one press per link plus two.
     """
@@ -251,8 +252,8 @@ def _tab_walk(host):
         QApplication.processEvents()
         if QApplication.focusWidget() is before:
             run += 1
-            links = (before.text().count("<a ")
-                     if isinstance(before, QLabel) else 0)
+            links = (before.text().count("<a ") if isinstance(before, QLabel) else
+                     before.toHtml().count("<a ") if isinstance(before, QTextBrowser) else 0)
             if run > links + 2:
                 stuck.add(f"{type(before).__name__}#{before.objectName()}")
         else:
