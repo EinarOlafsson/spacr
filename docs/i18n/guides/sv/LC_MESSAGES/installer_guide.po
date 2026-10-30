@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 22:18-0400\n"
+"POT-Creation-Date: 2026-10-30 19:43-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
@@ -126,6 +126,10 @@ msgstr "Du kan också ladda ner och köra installationsprogrammet för den önsk
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Installation is staged and validated before replacement. An unsuccessful preparation keeps the previous application; activation failures retain or restore the previous runtime and report any recovery needed. Ordinary updates keep models, caches, preferences, run history and project outputs. Optional update cache cleanup starts unselected and requires a separate confirmation."
 msgstr "Installationen förbereds och valideras före ersättningen. En misslyckad förberedelse behåller det tidigare programmet; vid fel under aktiveringen behålls eller återställs den tidigare körmiljön och eventuell återställning som behövs rapporteras. Vanliga uppdateringar behåller modeller, cacheminnen, inställningar, körningshistorik och projektutdata. Den valfria rensningen av uppdateringscachen är avmarkerad från början och kräver en separat bekräftelse."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Save unsaved work before choosing **Restart**. If a screen refuses closure or a worker is still stopping, spaCR keeps the window open and does not authorize the replacement. Resolve the unsaved changes or wait for the worker to finish, then choose **Help → Check for updates** again to retry the update. A refused restart cancels that update handoff."
+msgstr "Spara osparat arbete innan du väljer **Starta om**. Om en skärm vägrar stängas eller en arbetsprocess fortfarande håller på att stoppas, håller spaCR fönstret öppet och godkänner inte ersättningen. Hantera de osparade ändringarna eller vänta tills arbetsprocessen är klar och välj sedan **Hjälp → Check for updates** igen för att försöka uppdatera på nytt. En nekad omstart avbryter den överlämningen av uppdateringen."
 
 msgid "Update channel and What's new"
 msgstr "Uppdateringskanal och nyheter"
@@ -579,14 +583,14 @@ msgid "For"
 msgstr "För"
 
 #, fuzzy
-msgid "``ghcr.io/einarolafsson/spacr:1.5.1.6``"
+msgid "``ghcr.io/einarolafsson/spacr:1.5.1.7``"
 msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.4``"
 
 msgid "CPU only. Runs Linux x86-64 containers with Docker or Podman and needs no GPU driver."
 msgstr "Enbart CPU. Kör Linux x86-64-containrar med Docker eller Podman och behöver ingen GPU-drivrutin."
 
 #, fuzzy
-msgid "``ghcr.io/einarolafsson/spacr:1.5.1.6-cuda12.4``"
+msgid "``ghcr.io/einarolafsson/spacr:1.5.1.7-cuda12.4``"
 msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4``"
 
 msgid "CUDA 12.4. Needs an NVIDIA driver of **550 or newer on the host** and the NVIDIA Container Toolkit. Without ``--gpus`` it behaves as the CPU image."

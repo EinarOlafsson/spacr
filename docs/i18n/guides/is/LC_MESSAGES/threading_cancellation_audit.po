@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-30 19:43-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
@@ -56,8 +56,9 @@ msgstr "**Force stop** skilar stjórninni strax til gluggans. Vinnsluþráður s
 msgid "Shutdown behavior"
 msgstr "Hegðun við lokun"
 
-msgid "The process-wide :class:`spacr.qt.bridge.RunRegistry` owns strong references to every active worker and thread. On application shutdown it requests cancellation for all jobs and waits against one bounded deadline. If any job that writes results has not reached a safe boundary, the close event is refused and the live references are retained. Read-only housekeeping jobs, such as a Run History refresh, are cancelled the same way but never block closing. The user can close again after the current unit finishes. The same rule applies when an individual module screen is closed."
-msgstr "Ferlisvíða :class:`spacr.qt.bridge.RunRegistry` á sterkar tilvísanir í hvern virkan vinnsluþráð og þráð. Við lokun forritsins biður hún um afturköllun allra verka og bíður gegn einum takmörkuðum fresti. Ef eitthvert verk sem skrifar niðurstöður hefur ekki náð öruggum mörkum er lokunaratburðinum hafnað og lifandi tilvísunum haldið. Tiltektarverkum sem aðeins lesa, svo sem endurnýjun á Keyrslusögu, er hætt á sama hátt en þau hindra aldrei lokun. Notandinn getur lokað aftur eftir að núverandi eining klárast. Sama regla gildir þegar einstökum einingaskjá er lokað."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Application shutdown requests cancellation of registered runs, background job runners and standalone Qt workers within one shared wait budget. If any worker remains running, the window stays open and its live references are retained; workers that outlast the wait are parked rather than terminated. This also applies to read-only work such as a Run History refresh or release-news fetch. Wait for the worker to finish, then close the window again. An individual module screen may also refuse closure while its analysis is still running."
+msgstr "Þegar forritinu er lokað er óskað eftir að skráðar keyrslur, bakgrunnsverk og sjálfstæðir Qt-vinnsluþræðir verði stöðvuð innan sameiginlegs biðtíma. Ef einhver vinnsluþráður er enn í gangi helst glugginn opinn og tilvísunum í hann er haldið; þræðir sem ljúka ekki innan biðtímans eru settir til hliðar í stað þess að vera stöðvaðir með valdi. Þetta gildir einnig um lesaðgerðir, svo sem að endurnýja keyrslusögu eða sækja útgáfufréttir. Bíddu þar til vinnsluþráðurinn hefur lokið sér og lokaðu síðan glugganum aftur. Einstakur einingaskjár getur einnig hafnað lokun á meðan greining hans er enn í gangi."
 
 msgid "``PipelineWorker.finished`` invokes ``QThread.quit`` directly because that Qt method is thread-safe. This avoids a shutdown deadlock in which the GUI thread waits for a worker while the worker's queued quit request waits for the GUI event loop."
 msgstr "``PipelineWorker.finished`` kallar beint á ``QThread.quit`` vegna þess að sú Qt-aðferð er þráðörugg. Þetta kemur í veg fyrir sjálfheldu við lokun þar sem GUI-þráðurinn bíður eftir vinnsluþræði á meðan hætta-beiðni vinnsluþráðarins í biðröð bíður eftir atburðalykkju GUI."

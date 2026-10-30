@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-30 19:43-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -56,8 +56,9 @@ msgstr "**Force stop** ger omedelbart tillbaka kontrollen till fönstret. En arb
 msgid "Shutdown behavior"
 msgstr "Beteende vid avstängning"
 
-msgid "The process-wide :class:`spacr.qt.bridge.RunRegistry` owns strong references to every active worker and thread. On application shutdown it requests cancellation for all jobs and waits against one bounded deadline. If any job that writes results has not reached a safe boundary, the close event is refused and the live references are retained. Read-only housekeeping jobs, such as a Run History refresh, are cancelled the same way but never block closing. The user can close again after the current unit finishes. The same rule applies when an individual module screen is closed."
-msgstr "Det processövergripande :class:`spacr.qt.bridge.RunRegistry` äger starka referenser till varje aktiv arbetsprocess och tråd. När programmet stängs begär det avbrytning för alla jobb och väntar mot en enda begränsad tidsgräns. Om något jobb som skriver resultat inte har nått en säker gräns vägras stängningshändelsen och de levande referenserna behålls. Skrivskyddade underhållsjobb, som en uppdatering av Körningshistorik, avbryts på samma sätt men blockerar aldrig stängning. Användaren kan stänga igen när den aktuella enheten är klar. Samma regel gäller när en enskild modulskärm stängs."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Application shutdown requests cancellation of registered runs, background job runners and standalone Qt workers within one shared wait budget. If any worker remains running, the window stays open and its live references are retained; workers that outlast the wait are parked rather than terminated. This also applies to read-only work such as a Run History refresh or release-news fetch. Wait for the worker to finish, then close the window again. An individual module screen may also refuse closure while its analysis is still running."
+msgstr "När programmet avslutas begärs avbrytning av registrerade körningar, bakgrundsjobb och fristående Qt-arbetsprocesser inom en gemensam väntetid. Om någon arbetsprocess fortfarande körs hålls fönstret öppet och referenserna till den behålls; arbetsprocesser som inte är klara när väntetiden tar slut parkeras i stället för att tvångsavslutas. Detta gäller även skrivskyddat arbete, till exempel uppdatering av körhistoriken eller hämtning av versionsnyheter. Vänta tills arbetsprocessen är klar och stäng sedan fönstret igen. En enskild modulskärm kan också vägra att stängas medan dess analys fortfarande körs."
 
 msgid "``PipelineWorker.finished`` invokes ``QThread.quit`` directly because that Qt method is thread-safe. This avoids a shutdown deadlock in which the GUI thread waits for a worker while the worker's queued quit request waits for the GUI event loop."
 msgstr "``PipelineWorker.finished`` anropar ``QThread.quit`` direkt eftersom den Qt-metoden är trådsäker. Det undviker ett dödläge vid avstängning där GUI-tråden väntar på en arbetsprocess medan arbetsprocessens köade begäran om att avsluta väntar på GUI:ts händelseloop."

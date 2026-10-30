@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 22:18-0400\n"
+"POT-Creation-Date: 2026-10-30 19:43-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -126,6 +126,10 @@ msgstr "वैकल्पिक रूप से, `GitHub releases <https://git
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Installation is staged and validated before replacement. An unsuccessful preparation keeps the previous application; activation failures retain or restore the previous runtime and report any recovery needed. Ordinary updates keep models, caches, preferences, run history and project outputs. Optional update cache cleanup starts unselected and requires a separate confirmation."
 msgstr "प्रतिस्थापन से पहले स्थापना को तैयार और सत्यापित किया जाता है। असफल तैयारी पिछला एप्लिकेशन बनाए रखती है; सक्रियण विफल होने पर पिछला रनटाइम बनाए रखा या पुनर्स्थापित किया जाता है और आवश्यक किसी भी पुनर्प्राप्ति की सूचना दी जाती है। सामान्य अपडेट मॉडल, कैश, प्राथमिकताएँ, रन इतिहास और परियोजना आउटपुट बनाए रखते हैं। वैकल्पिक अपडेट कैश सफ़ाई शुरू में अचयनित रहती है और इसके लिए अलग पुष्टि आवश्यक है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Save unsaved work before choosing **Restart**. If a screen refuses closure or a worker is still stopping, spaCR keeps the window open and does not authorize the replacement. Resolve the unsaved changes or wait for the worker to finish, then choose **Help → Check for updates** again to retry the update. A refused restart cancels that update handoff."
+msgstr "**पुनः प्रारंभ करें** चुनने से पहले सहेजा न गया काम सहेजें। यदि कोई स्क्रीन बंद होने से इनकार करती है या कोई वर्कर अभी रुक रहा है, तो spaCR विंडो खुली रखता है और प्रतिस्थापन को अधिकृत नहीं करता। न सहेजे गए बदलावों का निपटारा करें या वर्कर के समाप्त होने की प्रतीक्षा करें, फिर अपडेट दोबारा आज़माने के लिए **सहायता → Check for updates** फिर से चुनें। पुनः प्रारंभ करने से इनकार होने पर उस अपडेट का हस्तांतरण रद्द हो जाता है।"
 
 msgid "Update channel and What's new"
 msgstr "अद्यतन चैनल और नया क्या है"
@@ -579,14 +583,14 @@ msgid "For"
 msgstr "किसके लिए"
 
 #, fuzzy
-msgid "``ghcr.io/einarolafsson/spacr:1.5.1.6``"
+msgid "``ghcr.io/einarolafsson/spacr:1.5.1.7``"
 msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.4``"
 
 msgid "CPU only. Runs Linux x86-64 containers with Docker or Podman and needs no GPU driver."
 msgstr "केवल CPU। Docker या Podman के साथ Linux x86-64 कंटेनर चलाता है और किसी GPU ड्राइवर की आवश्यकता नहीं है।"
 
 #, fuzzy
-msgid "``ghcr.io/einarolafsson/spacr:1.5.1.6-cuda12.4``"
+msgid "``ghcr.io/einarolafsson/spacr:1.5.1.7-cuda12.4``"
 msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4``"
 
 msgid "CUDA 12.4. Needs an NVIDIA driver of **550 or newer on the host** and the NVIDIA Container Toolkit. Without ``--gpus`` it behaves as the CPU image."

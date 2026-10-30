@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 22:18-0400\n"
+"POT-Creation-Date: 2026-10-30 19:43-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -126,6 +126,10 @@ msgstr "Einnig má sækja og keyra uppsetningarforritið fyrir umbeðna útgáfu
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Installation is staged and validated before replacement. An unsuccessful preparation keeps the previous application; activation failures retain or restore the previous runtime and report any recovery needed. Ordinary updates keep models, caches, preferences, run history and project outputs. Optional update cache cleanup starts unselected and requires a separate confirmation."
 msgstr "Uppsetningin er sviðsett og staðfest áður en skipt er út. Misheppnaður undirbúningur heldur fyrra forritinu; ef virkjun mistekst er fyrra keyrsluumhverfi haldið eða það endurheimt og greint frá allri endurheimt sem þörf er á. Venjulegar uppfærslur halda líkönum, skyndiminnum, kjörstillingum, keyrsluferli og úttaki verkefna. Valfrjáls hreinsun uppfærsluskyndiminnis er sjálfgefið ekki valin og krefst sérstakrar staðfestingar."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Save unsaved work before choosing **Restart**. If a screen refuses closure or a worker is still stopping, spaCR keeps the window open and does not authorize the replacement. Resolve the unsaved changes or wait for the worker to finish, then choose **Help → Check for updates** again to retry the update. A refused restart cancels that update handoff."
+msgstr "Vistaðu óvistaða vinnu áður en þú velur **Endurræsa**. Ef skjár hafnar lokun eða vinnsluþráður er enn að stöðvast heldur spaCR glugganum opnum og heimilar ekki útskiptin. Gakktu frá óvistuðum breytingum eða bíddu þar til vinnsluþráðurinn hefur lokið sér og veldu síðan **Hjálp → Check for updates** aftur til að reyna uppfærsluna á ný. Höfnuð endurræsing hættir við þessa afhendingu uppfærslunnar."
 
 msgid "Update channel and What's new"
 msgstr "Uppfærslurás og Hvað er nýtt"
@@ -579,14 +583,14 @@ msgid "For"
 msgstr "Fyrir"
 
 #, fuzzy
-msgid "``ghcr.io/einarolafsson/spacr:1.5.1.6``"
+msgid "``ghcr.io/einarolafsson/spacr:1.5.1.7``"
 msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.4``"
 
 msgid "CPU only. Runs Linux x86-64 containers with Docker or Podman and needs no GPU driver."
 msgstr "Eingöngu örgjörvi. Keyrir Linux x86-64-gáma með Docker eða Podman og þarf engan skjákortsrekil."
 
 #, fuzzy
-msgid "``ghcr.io/einarolafsson/spacr:1.5.1.6-cuda12.4``"
+msgid "``ghcr.io/einarolafsson/spacr:1.5.1.7-cuda12.4``"
 msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4``"
 
 msgid "CUDA 12.4. Needs an NVIDIA driver of **550 or newer on the host** and the NVIDIA Container Toolkit. Without ``--gpus`` it behaves as the CPU image."

@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-30 19:43-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: fr\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -56,8 +56,9 @@ msgstr "**Force stop** rend immédiatement la main à la fenêtre. Un worker qui
 msgid "Shutdown behavior"
 msgstr "Comportement à la fermeture"
 
-msgid "The process-wide :class:`spacr.qt.bridge.RunRegistry` owns strong references to every active worker and thread. On application shutdown it requests cancellation for all jobs and waits against one bounded deadline. If any job that writes results has not reached a safe boundary, the close event is refused and the live references are retained. Read-only housekeeping jobs, such as a Run History refresh, are cancelled the same way but never block closing. The user can close again after the current unit finishes. The same rule applies when an individual module screen is closed."
-msgstr "Le :class:`spacr.qt.bridge.RunRegistry` à l’échelle du processus détient des références fortes vers chaque worker et thread actif. À la fermeture de l’application, il demande l’annulation de toutes les tâches et attend jusqu’à une échéance commune bornée. Si une tâche qui écrit des résultats n’a pas atteint de limite sûre, l’événement de fermeture est refusé et les références actives sont conservées. Les tâches de maintenance en lecture seule, comme l’actualisation de l’historique des exécutions, sont annulées de la même façon mais ne bloquent jamais la fermeture. L’utilisateur peut refermer une fois l’unité en cours terminée. La même règle s’applique lorsqu’un écran de module individuel est fermé."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Application shutdown requests cancellation of registered runs, background job runners and standalone Qt workers within one shared wait budget. If any worker remains running, the window stays open and its live references are retained; workers that outlast the wait are parked rather than terminated. This also applies to read-only work such as a Run History refresh or release-news fetch. Wait for the worker to finish, then close the window again. An individual module screen may also refuse closure while its analysis is still running."
+msgstr "À la fermeture de l’application, l’annulation des exécutions enregistrées, des tâches en arrière-plan et des workers Qt autonomes est demandée dans un délai d’attente commun. Si un worker fonctionne encore, la fenêtre reste ouverte et ses références sont conservées ; les workers qui dépassent le délai sont mis en attente plutôt que terminés de force. Cela s’applique aussi au travail en lecture seule, comme l’actualisation de l’historique des exécutions ou la récupération des nouveautés des versions. Attendez la fin du worker, puis fermez de nouveau la fenêtre. Un écran de module peut également refuser de se fermer tant que son analyse est en cours."
 
 msgid "``PipelineWorker.finished`` invokes ``QThread.quit`` directly because that Qt method is thread-safe. This avoids a shutdown deadlock in which the GUI thread waits for a worker while the worker's queued quit request waits for the GUI event loop."
 msgstr "``PipelineWorker.finished`` appelle directement ``QThread.quit`` car cette méthode Qt est thread-safe. Cela évite un interblocage à la fermeture, dans lequel le thread GUI attend un worker tandis que la demande de fin mise en file du worker attend la boucle d’événements de l’interface."

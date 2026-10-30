@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 22:18-0400\n"
+"POT-Creation-Date: 2026-10-30 19:43-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -126,6 +126,10 @@ msgstr "또는 `GitHub releases <https://github.com/EinarOlafsson/spacr/releases
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Installation is staged and validated before replacement. An unsuccessful preparation keeps the previous application; activation failures retain or restore the previous runtime and report any recovery needed. Ordinary updates keep models, caches, preferences, run history and project outputs. Optional update cache cleanup starts unselected and requires a separate confirmation."
 msgstr "설치는 교체 전에 스테이징되고 검증됩니다. 준비에 실패하면 이전 애플리케이션이 유지되며, 활성화에 실패하면 이전 런타임을 유지하거나 복원하고 필요한 복구 작업을 보고합니다. 일반 업데이트는 모델, 캐시, 환경설정, 실행 기록 및 프로젝트 출력을 유지합니다. 선택 사항인 업데이트 캐시 정리는 처음에는 선택되어 있지 않으며 별도의 확인이 필요합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Save unsaved work before choosing **Restart**. If a screen refuses closure or a worker is still stopping, spaCR keeps the window open and does not authorize the replacement. Resolve the unsaved changes or wait for the worker to finish, then choose **Help → Check for updates** again to retry the update. A refused restart cancels that update handoff."
+msgstr "**다시 시작** 을 선택하기 전에 저장하지 않은 작업을 저장하세요. 화면이 닫기를 거부하거나 작업 스레드가 아직 중지 중이면 spaCR는 창을 열린 상태로 유지하고 교체를 승인하지 않습니다. 저장하지 않은 변경 사항을 처리하거나 작업 스레드가 끝날 때까지 기다린 다음 **도움말 → Check for updates** 를 다시 선택하여 업데이트를 재시도하세요. 다시 시작이 거부되면 해당 업데이트 인계가 취소됩니다."
 
 msgid "Update channel and What's new"
 msgstr "업데이트 채널과 새로운 기능"
@@ -579,14 +583,14 @@ msgid "For"
 msgstr "용도"
 
 #, fuzzy
-msgid "``ghcr.io/einarolafsson/spacr:1.5.1.6``"
+msgid "``ghcr.io/einarolafsson/spacr:1.5.1.7``"
 msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.4``"
 
 msgid "CPU only. Runs Linux x86-64 containers with Docker or Podman and needs no GPU driver."
 msgstr "CPU 전용. Docker나 Podman으로 Linux x86-64 컨테이너를 실행하며 GPU 드라이버가 필요 없습니다."
 
 #, fuzzy
-msgid "``ghcr.io/einarolafsson/spacr:1.5.1.6-cuda12.4``"
+msgid "``ghcr.io/einarolafsson/spacr:1.5.1.7-cuda12.4``"
 msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4``"
 
 msgid "CUDA 12.4. Needs an NVIDIA driver of **550 or newer on the host** and the NVIDIA Container Toolkit. Without ``--gpus`` it behaves as the CPU image."

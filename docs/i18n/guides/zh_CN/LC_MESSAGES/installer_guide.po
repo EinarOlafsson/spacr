@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 22:18-0400\n"
+"POT-Creation-Date: 2026-10-30 19:43-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -126,6 +126,10 @@ msgstr "或者，从 `GitHub releases <https://github.com/EinarOlafsson/spacr/re
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Installation is staged and validated before replacement. An unsuccessful preparation keeps the previous application; activation failures retain or restore the previous runtime and report any recovery needed. Ordinary updates keep models, caches, preferences, run history and project outputs. Optional update cache cleanup starts unselected and requires a separate confirmation."
 msgstr "安装会在替换前进行暂存和验证。准备失败时会保留先前的应用程序；激活失败时会保留或恢复先前的运行时，并报告所需的任何恢复操作。普通更新会保留模型、缓存、偏好设置、运行历史和项目输出。可选的更新缓存清理默认不选中，并且需要单独确认。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Save unsaved work before choosing **Restart**. If a screen refuses closure or a worker is still stopping, spaCR keeps the window open and does not authorize the replacement. Resolve the unsaved changes or wait for the worker to finish, then choose **Help → Check for updates** again to retry the update. A refused restart cancels that update handoff."
+msgstr "选择 **重新启动** 前，请保存尚未保存的工作。如果某个界面拒绝关闭，或工作线程仍在停止过程中，spaCR 会保持窗口打开，并且不会授权替换。处理未保存的更改或等待工作线程结束，然后再次选择 **帮助 → Check for updates** 以重试更新。重新启动被拒绝后，本次更新交接会被取消。"
 
 msgid "Update channel and What's new"
 msgstr "更新通道与新功能"
@@ -579,14 +583,14 @@ msgid "For"
 msgstr "用途"
 
 #, fuzzy
-msgid "``ghcr.io/einarolafsson/spacr:1.5.1.6``"
+msgid "``ghcr.io/einarolafsson/spacr:1.5.1.7``"
 msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.4``"
 
 msgid "CPU only. Runs Linux x86-64 containers with Docker or Podman and needs no GPU driver."
 msgstr "仅 CPU。使用 Docker 或 Podman 运行 Linux x86-64 容器，不需要 GPU 驱动程序。"
 
 #, fuzzy
-msgid "``ghcr.io/einarolafsson/spacr:1.5.1.6-cuda12.4``"
+msgid "``ghcr.io/einarolafsson/spacr:1.5.1.7-cuda12.4``"
 msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4``"
 
 msgid "CUDA 12.4. Needs an NVIDIA driver of **550 or newer on the host** and the NVIDIA Container Toolkit. Without ``--gpus`` it behaves as the CPU image."

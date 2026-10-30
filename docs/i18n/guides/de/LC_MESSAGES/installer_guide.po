@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 22:18-0400\n"
+"POT-Creation-Date: 2026-10-30 19:43-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: de\n"
@@ -126,6 +126,10 @@ msgstr "Alternativ können Sie den Installer für die gewünschte Version von de
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Installation is staged and validated before replacement. An unsuccessful preparation keeps the previous application; activation failures retain or restore the previous runtime and report any recovery needed. Ordinary updates keep models, caches, preferences, run history and project outputs. Optional update cache cleanup starts unselected and requires a separate confirmation."
 msgstr "Die Installation wird vor dem Ersatz bereitgestellt und validiert. Eine fehlgeschlagene Vorbereitung behält die bisherige Anwendung; bei Fehlern während der Aktivierung wird die bisherige Laufzeitumgebung beibehalten oder wiederhergestellt, und eine nötige Wiederherstellung wird gemeldet. Gewöhnliche Updates behalten Modelle, Zwischenspeicher, Einstellungen, Laufverlauf und Projektausgaben. Die optionale Bereinigung des Update-Zwischenspeichers ist anfangs nicht ausgewählt und erfordert eine gesonderte Bestätigung."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Save unsaved work before choosing **Restart**. If a screen refuses closure or a worker is still stopping, spaCR keeps the window open and does not authorize the replacement. Resolve the unsaved changes or wait for the worker to finish, then choose **Help → Check for updates** again to retry the update. A refused restart cancels that update handoff."
+msgstr "Speichern Sie ungespeicherte Arbeit, bevor Sie **Neu starten** wählen. Wenn eine Ansicht das Schließen verweigert oder ein Worker noch angehalten wird, lässt spaCR das Fenster offen und autorisiert den Austausch nicht. Klären Sie die ungespeicherten Änderungen oder warten Sie, bis der Worker fertig ist, und wählen Sie dann erneut **Hilfe → Check for updates**, um das Update nochmals zu versuchen. Ein verweigerter Neustart bricht diese Update-Übergabe ab."
 
 msgid "Update channel and What's new"
 msgstr "Update-Kanal und Neuigkeiten"
@@ -579,14 +583,14 @@ msgid "For"
 msgstr "Für"
 
 #, fuzzy
-msgid "``ghcr.io/einarolafsson/spacr:1.5.1.6``"
+msgid "``ghcr.io/einarolafsson/spacr:1.5.1.7``"
 msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.4``"
 
 msgid "CPU only. Runs Linux x86-64 containers with Docker or Podman and needs no GPU driver."
 msgstr "Nur CPU. Läuft in Linux-x86-64-Containern mit Docker oder Podman und benötigt keinen GPU-Treiber."
 
 #, fuzzy
-msgid "``ghcr.io/einarolafsson/spacr:1.5.1.6-cuda12.4``"
+msgid "``ghcr.io/einarolafsson/spacr:1.5.1.7-cuda12.4``"
 msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4``"
 
 msgid "CUDA 12.4. Needs an NVIDIA driver of **550 or newer on the host** and the NVIDIA Container Toolkit. Without ``--gpus`` it behaves as the CPU image."

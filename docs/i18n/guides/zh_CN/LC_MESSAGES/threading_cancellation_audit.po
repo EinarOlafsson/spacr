@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-30 19:43-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -56,8 +56,9 @@ msgstr "**Force stop** 会立即交还窗口控制权。无响应的工作线程
 msgid "Shutdown behavior"
 msgstr "关闭时的行为"
 
-msgid "The process-wide :class:`spacr.qt.bridge.RunRegistry` owns strong references to every active worker and thread. On application shutdown it requests cancellation for all jobs and waits against one bounded deadline. If any job that writes results has not reached a safe boundary, the close event is refused and the live references are retained. Read-only housekeeping jobs, such as a Run History refresh, are cancelled the same way but never block closing. The user can close again after the current unit finishes. The same rule applies when an individual module screen is closed."
-msgstr "进程级的 :class:`spacr.qt.bridge.RunRegistry` 持有每个活动工作线程和线程的强引用。应用程序关闭时，它会请求取消所有作业，并在一个有限的截止时间内等待。如果任何写入结果的作业尚未到达安全边界，关闭事件会被拒绝，活动引用会被保留。只读的维护作业（例如运行历史刷新）会以同样方式取消，但绝不会阻止关闭。当前单元完成后，用户可以再次关闭。关闭单个模块屏幕时也适用同样的规则。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Application shutdown requests cancellation of registered runs, background job runners and standalone Qt workers within one shared wait budget. If any worker remains running, the window stays open and its live references are retained; workers that outlast the wait are parked rather than terminated. This also applies to read-only work such as a Run History refresh or release-news fetch. Wait for the worker to finish, then close the window again. An individual module screen may also refuse closure while its analysis is still running."
+msgstr "退出应用程序时，spaCR 会在统一的等待时限内请求取消已注册的运行、后台任务和独立的 Qt 工作线程。如果仍有工作线程在运行，窗口会保持打开，并保留对这些线程的引用；超过等待时限的线程会被保留等待完成，而不是被强制终止。这也适用于只读工作，例如刷新运行历史或获取版本新闻。请等待工作线程结束，然后再次关闭窗口。某个模块界面也可能在其分析仍在运行时拒绝关闭。"
 
 msgid "``PipelineWorker.finished`` invokes ``QThread.quit`` directly because that Qt method is thread-safe. This avoids a shutdown deadlock in which the GUI thread waits for a worker while the worker's queued quit request waits for the GUI event loop."
 msgstr "``PipelineWorker.finished`` 直接调用 ``QThread.quit``，因为该 Qt 方法是线程安全的。这样可避免关闭时出现死锁：即 GUI 线程在等待工作线程，而工作线程排队的退出请求又在等待 GUI 事件循环。"

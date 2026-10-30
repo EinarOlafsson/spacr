@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-30 19:43-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -56,8 +56,9 @@ msgstr "**Force stop**\\ 은 창의 제어권을 즉시 돌려줍니다. 응답�
 msgid "Shutdown behavior"
 msgstr "종료 시 동작"
 
-msgid "The process-wide :class:`spacr.qt.bridge.RunRegistry` owns strong references to every active worker and thread. On application shutdown it requests cancellation for all jobs and waits against one bounded deadline. If any job that writes results has not reached a safe boundary, the close event is refused and the live references are retained. Read-only housekeeping jobs, such as a Run History refresh, are cancelled the same way but never block closing. The user can close again after the current unit finishes. The same rule applies when an individual module screen is closed."
-msgstr "프로세스 전역 :class:`spacr.qt.bridge.RunRegistry` 는 모든 활성 작업자와 스레드에 대한 강한 참조를 보유합니다. 애플리케이션이 종료될 때 모든 작업에 취소를 요청하고 하나의 제한된 마감 시간 동안 기다립니다. 결과를 쓰는 작업 중 하나라도 안전한 경계에 도달하지 않았으면 닫기 이벤트가 거부되고 활성 참조가 유지됩니다. 실행 기록 새로 고침 같은 읽기 전용 관리 작업은 같은 방식으로 취소되지만 닫기를 막지는 않습니다. 현재 단위가 끝나면 사용자가 다시 닫을 수 있습니다. 개별 모듈 화면을 닫을 때도 같은 규칙이 적용됩니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Application shutdown requests cancellation of registered runs, background job runners and standalone Qt workers within one shared wait budget. If any worker remains running, the window stays open and its live references are retained; workers that outlast the wait are parked rather than terminated. This also applies to read-only work such as a Run History refresh or release-news fetch. Wait for the worker to finish, then close the window again. An individual module screen may also refuse closure while its analysis is still running."
+msgstr "애플리케이션을 종료하면 등록된 실행, 백그라운드 작업 및 독립 Qt 작업 스레드에 대해 하나의 공통 대기 시간 내에서 취소를 요청합니다. 작업 스레드가 계속 실행 중이면 창은 열린 상태로 유지되고 해당 참조도 보존됩니다. 대기 시간을 넘긴 스레드는 강제 종료하지 않고 완료될 때까지 보관합니다. 실행 기록 새로 고침이나 릴리스 소식 가져오기와 같은 읽기 전용 작업에도 이 규칙이 적용됩니다. 작업 스레드가 끝날 때까지 기다린 다음 창을 다시 닫으세요. 개별 모듈 화면도 분석이 계속 실행 중이면 닫기를 거부할 수 있습니다."
 
 msgid "``PipelineWorker.finished`` invokes ``QThread.quit`` directly because that Qt method is thread-safe. This avoids a shutdown deadlock in which the GUI thread waits for a worker while the worker's queued quit request waits for the GUI event loop."
 msgstr "``PipelineWorker.finished`` 는 ``QThread.quit`` 을 직접 호출합니다. 이 Qt 메서드는 스레드 안전하기 때문입니다. 이렇게 하면 GUI 스레드는 작업자를 기다리고, 작업자의 대기 중인 종료 요청은 GUI 이벤트 루프를 기다리는 종료 교착 상태를 피할 수 있습니다."
