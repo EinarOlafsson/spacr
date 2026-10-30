@@ -7805,8 +7805,6 @@ class _FieldOverview(QWidget):
         self.plates.setCurrentIndex(self.plates.findData(plate))
         self.plates.blockSignals(False)
         if self._scope[0] != plate and (self._plates_view == "single" or self._scope[1] is None):
-            for panel in tuple(self._well_panels):
-                self._close_well_panel(panel, refresh=False)
             self.fields = self._well_panel.field_list
             self._scope = (plate, None)
             self._visible = tuple(self._plate_available.get(plate, ()))
