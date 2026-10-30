@@ -1429,8 +1429,10 @@ def test_workflow_without_a_valid_selection_can_arrange_then_recover_its_real_ca
 
     preferences, _, _ = private_ai_profile
     preferences.set_reduce_motion(True)
+    preferences.set_ambient_enabled(False)
     path = isolated_input_root / 'objects.csv'
     path.write_text('label,area\n1,12\n')
+    before = path.read_bytes()
     page = _EasyHomePage()
     qtbot.addWidget(page)
     page.resize(640, 650)
@@ -1455,6 +1457,17 @@ def test_workflow_without_a_valid_selection_can_arrange_then_recover_its_real_ca
         assert source.geometry() == rectangle and opened.count() == 0
         workflow.select('missing-tool')
         assert workflow.central is None and opened.count() == 0
+        workflow.show()
+        workflow.resize(page.width() - 40, page.height() - 32)
+        QCoreApplication.processEvents()
+        assert not workflow.grab().isNull()
+        assert workflow.central is None and workflow._chosen_key is None
+        assert source.geometry() == rectangle and source.parentWidget() is workflow
+        assert opened.count() == 0 and page.path_edit.text() == str(path)
+        assert path.read_bytes() == before
+        workflow.resize(page.size())
+        QCoreApplication.processEvents()
+        assert workflow.central is None and source.geometry() == rectangle
         workflow.select(source._key)
         assert workflow.central is source and workflow._chosen_key == source._key
         assert source.geometry() == anchor and opened.count() == 0
@@ -1463,6 +1476,7 @@ def test_workflow_without_a_valid_selection_can_arrange_then_recover_its_real_ca
         page._show_suggestions()
         assert page._workflow is None and source.parentWidget() is page.field
         assert source.geometry() == source._final_rect and page.path_edit.text() == str(path)
+        assert path.read_bytes() == before
     finally:
         page.close()
 
