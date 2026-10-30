@@ -897,14 +897,21 @@ def test_restyling_a_live_figure_costs_the_gui_thread_nothing(qtbot, queue):
     :meth:`FigureQueue._render_preview_async`: the GUI thread pickles a copy
     once, the worker draws it, and requests made while it draws coalesce
     into one pending flag. The inline preview render, which a restyle paid
-    on every change before, is measured beside it on the same machine, so
-    a loaded runner slows both alike. Measured 2026-10-13 on the
+    on every change before, is measured beside it on the same machine.
+    Automatic cyclic GC is
+    disabled symmetrically for both measurement windows and its prior state
+    is restored even on failure. A full collection scans the process heap
+    inherited from earlier tests: locally it added 23 ms to an otherwise
+    6 ms snapshot. That process-history cost is separate from the work being
+    compared and is not a proven cause of the hosted timing failures.
+    Measured 2026-10-13 on the
     workstation: the worst of 40 requests 6.1-7.5 ms against 104-113 ms
     inline (0.06-0.07 of it); traced by coverage on two cores shared with
     two busy loops, 12-16 ms against 150-208 ms (0.06-0.11). The bound was an absolute 20 ms, which a CI
     coverage shard missed at 21.2 ms, and the docstring said the figure was
     on the live canvas, which a figure this slow never is.
     """
+    import gc
     import time
     from pathlib import Path
 
@@ -922,20 +929,28 @@ def test_restyling_a_live_figure_costs_the_gui_thread_nothing(qtbot, queue):
     live = queue._figures[0]
     assert figure_queue._too_slow_for_the_live_canvas(live)
 
-    worst = 0.0
-    for step in range(40):
-        for collection in live.axes[0].collections:
-            collection.set_alpha(0.3 + 0.01 * step)
-        start = time.perf_counter()
-        queue.refresh_current_figure(preview=True)
-        worst = max(worst, (time.perf_counter() - start) * 1000)
-    qtbot.waitUntil(lambda: not queue._preview_busy, timeout=30000)
+    gc_was_enabled = gc.isenabled()
+    gc.disable()
+    try:
+        worst = 0.0
+        for step in range(40):
+            for collection in live.axes[0].collections:
+                collection.set_alpha(0.3 + 0.01 * step)
+            start = time.perf_counter()
+            queue.refresh_current_figure(preview=True)
+            worst = max(worst, (time.perf_counter() - start) * 1000)
+        qtbot.waitUntil(lambda: not queue._preview_busy, timeout=30000)
 
-    inline = []
-    for _attempt in range(2):
-        start = time.perf_counter()
-        assert queue._render_preview(live, Path(queue._png_paths[0])) is not None
-        inline.append((time.perf_counter() - start) * 1000)
+        inline = []
+        for _attempt in range(2):
+            start = time.perf_counter()
+            assert queue._render_preview(live, Path(queue._png_paths[0])) is not None
+            inline.append((time.perf_counter() - start) * 1000)
+    finally:
+        if gc_was_enabled:
+            gc.enable()
+        else:
+            gc.disable()
     assert worst < 0.25 * min(inline), (
         f"a restyle request cost {worst:.1f} ms against "
         f"{min(inline):.1f} ms for the inline render it replaces")
