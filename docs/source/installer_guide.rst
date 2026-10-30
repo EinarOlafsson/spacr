@@ -147,6 +147,12 @@ restore the previous runtime and report any recovery needed. Ordinary updates
 keep models, caches, preferences, run history and project outputs. Optional
 update cache cleanup starts unselected and requires a separate confirmation.
 
+Save unsaved work before choosing **Restart**. If a screen refuses closure or
+a worker is still stopping, spaCR keeps the window open and does not authorize
+the replacement. Resolve the unsaved changes or wait for the worker to finish,
+then choose **Help → Check for updates** again to retry the update. A refused
+restart cancels that update handoff.
+
 Update channel and What's new
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -41,13 +41,13 @@ module and its settings, then starts spaCR again and reopens that module.
 Shutdown behavior
 -----------------
 
-The process-wide :class:`spacr.qt.bridge.RunRegistry` owns strong references to
-every active worker and thread. On application shutdown it requests
-cancellation for all jobs and waits against one bounded deadline. If any job
-that writes results has not reached a safe boundary, the close event is refused
-and the live references are retained. Read-only housekeeping jobs, such as a
-Run History refresh, are cancelled the same way but never block closing. The user can close again after the current unit
-finishes. The same rule applies when an individual module screen is closed.
+Application shutdown requests cancellation of registered runs, background job
+runners and standalone Qt workers within one shared wait budget. If any worker
+remains running, the window stays open and its live references are retained;
+workers that outlast the wait are parked rather than terminated. This also
+applies to read-only work such as a Run History refresh or release-news fetch.
+Wait for the worker to finish, then close the window again. An individual
+module screen may also refuse closure while its analysis is still running.
 
 ``PipelineWorker.finished`` invokes ``QThread.quit`` directly because that Qt
 method is thread-safe. This avoids a shutdown deadlock in which the GUI thread
