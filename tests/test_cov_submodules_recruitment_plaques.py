@@ -620,10 +620,10 @@ def test_analyze_plaques_masks_true_runs_segmentation_first(tmp_path,
 
     monkeypatch.setattr(SUB, "_segment_plaque_folder", fake_segment)
 
-    analyze_plaques({"src": str(src), "masks": True})
+    analyze_plaques({"src": str(src), "masks": True, "diameter": 30})
 
     assert seen["dst"] == str(src / "masks")
-    assert seen["diameter"] == 30          # get_analyze_plaque_settings default
+    assert seen["diameter"] == 30          # Explicit user diameter survives defaults.
     assert seen["model_path"] == seen["custom_model"]
 
     with sqlite3.connect(src / "masks" / "plaques_analysis.db") as con:
