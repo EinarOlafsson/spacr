@@ -147,7 +147,7 @@ def test_a_clicked_polygon_selects_the_population_it_surrounds(screen):
     canvas._on_release(_Mouse(ax, *corners[0]))
     gate = canvas.gates.get("g1")
     assert isinstance(gate, ViewGate)
-    inside = canvas.gates.mask(canvas.population(), "g1")
+    inside = canvas.gates.mask(screen._frame, "g1")
     assert inside[300:].mean() > 0.9
     assert not inside[:300].any()
 
@@ -161,7 +161,7 @@ def test_a_double_click_also_closes_the_polygon(screen):
     canvas._on_press(_Mouse(ax, corners[-1][0] + 1, corners[-1][1],
                             dblclick=True))
     assert "g1" in canvas.gates.names
-    inside = canvas.gates.mask(canvas.population(), "g1")
+    inside = canvas.gates.mask(screen._frame, "g1")
     assert inside[:300].mean() > 0.9 and not inside[300:].any()
 
 
@@ -189,7 +189,7 @@ def test_a_framed_population_becomes_a_fitted_solid(screen, shape, kind):
           (centre[0] + 70, centre[1] + 70))
     gate = canvas.gates.get("g1")
     assert isinstance(gate, kind)
-    inside = canvas.gates.mask(canvas.population(), "g1")
+    inside = canvas.gates.mask(screen._frame, "g1")
     assert inside[:300].mean() > 0.6 and not inside[300:].any()
 
 

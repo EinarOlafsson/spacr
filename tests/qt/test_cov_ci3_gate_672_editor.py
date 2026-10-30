@@ -88,7 +88,7 @@ def test_a_self_crossing_view_lasso_offers_no_editable_surfaces(screen):
     assert canvas._editable_boundary(gate) is None
     handles = canvas._volume_handles(gate)
     assert [role for role, _point in handles] == ['centre']
-    kept = canvas._volume_xyz()[gate.mask(screen._frame)]
+    kept = canvas._volume_xyz()[gate.mask(canvas.population())]
     assert handles[0][1] == pytest.approx(kept.mean(axis=0))
     centre = _screen_points(canvas.axes_at(0, 0), [[0, 0, 0]])[0]
     assert canvas.volume_surface_at(_event(canvas, centre)) is None

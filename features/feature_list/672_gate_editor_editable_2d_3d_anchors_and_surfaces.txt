@@ -80,3 +80,5 @@ with AI-reviewed translations in nine locales, no native-speaker signoff.
 Tests: tests/qt/test_gate_editor_mode_keys_and_overlap_picker.py.
 
 2026-10-15: maintainer accepted (visual check passed).
+
+2026-10-30: Gate geometry worker owns bounded terminal-CI geometry repairs in test_cov_ci3_gate_672_editor.py and test_gate_editor_3d_mode_is_usable.py; preserve random display limits and exact geometric/fraction assertions. Fixed test oracles to follow matching displayed rows or original source populations after intentional random reordering; unchanged precision and fraction thresholds pass all five affected CPU/offscreen cases. Parent retains remaining Gate/Graph failures and publication.
