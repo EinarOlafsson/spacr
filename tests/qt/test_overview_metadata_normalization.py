@@ -2181,3 +2181,93 @@ def test_editing_source_during_real_index_cannot_rebind_loaded_measurement_data(
         for runner in runners:
             runner.shutdown(timeout_ms=3000)
         dialog.close()
+
+
+def test_removing_a_plate_after_editing_source_keeps_surviving_measurements_in_the_loaded_root(
+        qtbot, qt_theme_applied, tmp_path):
+    import sqlite3
+    import tifffile
+
+    original, replacement = tmp_path / 'original', tmp_path / 'replacement'
+    original.mkdir()
+    replacement.mkdir()
+    originals = {}
+    for folder, plate, offset in [(original, 'p1', 100), (original, 'p2', 200),
+                                  (replacement, 'p2', 1000)]:
+        path = folder / f'{plate}_A01_F1_C1.tif'
+        tifffile.imwrite(path, np.arange(64, dtype=np.uint16).reshape(8, 8) + offset)
+        originals[path] = path.read_bytes()
+    dialog = browser._FieldOverview(settings={
+        'source': str(original), 'source_scope': 'folder', 'channels': (1,),
+        'geometry': (1, 1), 'normalize': False})
+    qtbot.addWidget(dialog)
+    runners = (dialog._index_jobs, dialog._image_jobs, dialog._export_jobs,
+               dialog._metadata_jobs, dialog._measurement_jobs, dialog._native_jobs,
+               dialog._thumbnail_jobs, dialog._montage_jobs, dialog._field_thumbnail_jobs,
+               dialog._image_stack_jobs, dialog._group_jobs, dialog._readout_jobs, dialog._levels_jobs)
+    try:
+        dialog.resize(1400, 1000)
+        dialog.show()
+        dialog._scan()
+        qtbot.waitUntil(lambda: len(dialog._fields) == 2
+                        and all(not runner.is_busy() for runner in runners), timeout=10000)
+        assert dialog.plates.currentData() == 'p1'
+        assert dialog._metadata_source == str(original)
+        qtbot.mouseClick(dialog.options_button, browser.Qt.LeftButton)
+        dialog._controls_scroll.ensureWidgetVisible(dialog.source)
+        dialog.source.setFocus()
+        qtbot.keyClick(dialog.source, browser.Qt.Key_A, modifier=browser.Qt.ControlModifier)
+        qtbot.keyClicks(dialog.source, str(replacement))
+        item = dialog.wells.item(*dialog._well_positions[('p1', 'A01')])
+        menu = dialog._well_menu(dialog.wells.visualItemRect(item).center())
+        remove = next(action for action in menu.actions() if action.text() == browser.tr('Remove plate'))
+        assert remove.isEnabled()
+        menu.close()
+        remove.trigger()
+        qtbot.waitUntil(lambda: len(dialog._fields) == 1
+                        and all(not runner.is_busy() for runner in runners), timeout=10000)
+        remaining, = dialog._fields
+        assert remaining.plate == 'p2'
+        assert str(original) in remaining.files[0][1]
+        dialog.workers.setValue(1)
+        dialog.export_scope.setCurrentIndex(dialog.export_scope.findData('plate'))
+        dialog.use_selection.setChecked(False)
+        qtbot.mouseClick(dialog._module_action_buttons[0], browser.Qt.LeftButton)
+        qtbot.waitUntil(lambda: not dialog._measurement_jobs.is_busy(), timeout=20000)
+        wrong_database = replacement / 'measurements' / 'measurements.db'
+        wrong_rows = []
+        if wrong_database.exists():
+            with sqlite3.connect(wrong_database) as connection:
+                wrong_rows = connection.execute('SELECT channel_1_intensity_mean FROM fov').fetchall()
+        assert all(path.read_bytes() == contents for path, contents in originals.items())
+        assert not wrong_rows, f'Retained old-plate measurements published under edited source: {wrong_rows}'
+        assert dialog._metadata_source == str(original)
+        with sqlite3.connect(original / 'measurements' / 'measurements.db') as connection:
+            rows = connection.execute('SELECT plate, channel_1_intensity_mean FROM fov').fetchall()
+        assert rows == [('p2', 231.5)]
+        assert dialog.source.text() == str(replacement)
+        assert dialog._source_paths == [str(original)]
+        load = next(button for button in dialog.findChildren(browser.QPushButton)
+                    if button.text() == browser.tr('Load overview'))
+        dialog._controls_scroll.ensureWidgetVisible(load)
+        qtbot.mouseClick(load, browser.Qt.LeftButton)
+        qtbot.waitUntil(lambda: len(dialog._fields) == 1 and dialog._metadata_source == str(replacement)
+                        and all(not runner.is_busy() for runner in runners), timeout=10000)
+        fresh, = dialog._fields
+        assert fresh.files == (('1', str(replacement / 'p2_A01_F1_C1.tif')),)
+        qtbot.mouseClick(dialog._module_action_buttons[0], browser.Qt.LeftButton)
+        qtbot.waitUntil(lambda: not dialog._measurement_jobs.is_busy()
+                        and wrong_database.exists(), timeout=20000)
+        with sqlite3.connect(wrong_database) as connection:
+            fresh_rows = connection.execute('SELECT plate, channel_1_intensity_mean FROM fov').fetchall()
+        assert fresh_rows == [('p2', 1031.5)]
+        with sqlite3.connect(original / 'measurements' / 'measurements.db') as connection:
+            assert connection.execute('SELECT plate, channel_1_intensity_mean FROM fov').fetchall() == rows
+        assert all(path.read_bytes() == contents for path, contents in originals.items())
+    finally:
+        dialog._cancel()
+        dialog._visual_timer.stop()
+        qtbot.waitUntil(lambda: all(runner.active_jobs() == 0 for runner in runners), timeout=10000)
+        for runner in runners:
+            runner.shutdown(timeout_ms=3000)
+        dialog.close()

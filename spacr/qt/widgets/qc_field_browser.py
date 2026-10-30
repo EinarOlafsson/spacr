@@ -7939,7 +7939,7 @@ class _FieldOverview(QWidget):
 
         :param paths: the folders to add.
         """
-        known = set(_overview_source_paths(self.source.text()))
+        known = set(self._source_paths)
         paths = [path for path in _overview_source_paths(paths) if path not in known]
         if not paths:
             return
@@ -7972,8 +7972,10 @@ class _FieldOverview(QWidget):
             taken.add(name)
             renamed[plate] = name
         added = tuple(dataclasses.replace(field, plate=renamed[field.plate]) for field in added)
-        self.source.setText("; ".join(_overview_source_paths(self.source.text()) + list(paths)))
-        self._indexed(tuple(self._all_fields) + added)
+        source_paths = _overview_source_paths(self._source_paths + list(paths))
+        if _overview_source_paths(self.source.text()) == self._source_paths:
+            self.source.setText("; ".join(source_paths))
+        self._indexed(tuple(self._all_fields) + added, source_paths=source_paths)
         self._persist_view_state()
 
     def _remove_shown_plate(self, *_):
@@ -8007,17 +8009,19 @@ class _FieldOverview(QWidget):
         self._collapsed_plates.discard(plate)
         if self._plates_subset is not None:
             self._plates_subset = tuple(name for name in self._plates_subset if name != plate) or None
-        folders = {os.path.realpath(field.source) for field in removed if field.source}
-        given = _overview_source_paths(self.source.text())
+        remaining = tuple(field for field in self._all_fields if field.plate != plate)
+        retained_folders = {os.path.realpath(field.source) for field in remaining if field.source}
+        folders = {os.path.realpath(field.source) for field in removed if field.source} - retained_folders
+        given = self._source_paths
         kept = [path for path in given if os.path.realpath(path) not in folders]
         excluded = [path for path in folders if path not in {os.path.realpath(path) for path in given}]
         options = dict(self._overview_options)
         options["excluded_plates"] = tuple(dict.fromkeys(
             tuple(options.get("excluded_plates") or ()) + tuple(excluded)))
         self._overview_options = options
-        if kept != given:
+        if kept != given and _overview_source_paths(self.source.text()) == given:
             self.source.setText("; ".join(kept))
-        self._indexed(tuple(field for field in self._all_fields if field.plate != plate))
+        self._indexed(remaining, source_paths=kept)
         self._persist_view_state()
 
     def _drop_cached(self, identities):
@@ -8049,7 +8053,7 @@ class _FieldOverview(QWidget):
         for identity in [identity for identity in self._selected_fields if identity not in kept]:
             self._selected_fields.pop(identity, None)
             self._selected_field_options.pop(identity, None)
-        self._indexed(self._all_fields)
+        self._indexed(self._all_fields, source_paths=self._source_paths)
 
     def _plate_key(self, plate=None):
         """The stable key (:func:`_overview_plate_key`) of a plate shown in this session.
@@ -10787,18 +10791,20 @@ class _FieldOverview(QWidget):
             if _overview_source_paths(self.source.text()) != source_paths:
                 self.status.clear()
                 return
-            self._indexed(fields)
+            self._indexed(fields, source_paths=source_paths)
         self._index_jobs.submit(read, indexed)
 
-    def _indexed(self, fields):
+    def _indexed(self, fields, source_paths=None):
         """Show actual plate identities and explicitly retained unresolved fields.
 
         :param fields: immutable source records returned by the metadata indexer.
+        :param source_paths: validated loaded paths for a retained-field reindex;
+            ``None`` uses the source editor accepted by the initial metadata step.
         """
         self._all_fields = tuple(fields)
         fields = _overview_limited_fields(fields, *self._load_limits)
         self._fields = fields
-        self._source_paths = _overview_source_paths(self.source.text())
+        self._source_paths = _overview_source_paths(self.source.text() if source_paths is None else source_paths)
         self._metadata_source = self._source_paths[0] if self._source_paths else ""
         self._restore_metadata()
         self._restore_view_state()
