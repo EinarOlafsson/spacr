@@ -191,3 +191,77 @@ def test_detector_boxes_on_a_gpu_are_copied_to_the_host(monkeypatch):
                                 min_axis_ratio=0)
     assert [(w.x0, w.y0, w.x1, w.y1) for w in wells] == [(1, 2, 41, 42)]
     assert wells[0].confidence == pytest.approx(0.9)
+
+
+def test_figure_crops_reuse_one_segmenter_without_reusing_predictions(tmp_path, monkeypatch):
+    """Two paper crops share model setup while retaining their own pixels and masks."""
+    from copy import deepcopy
+    from functools import wraps
+
+    import cellpose.models
+    from spacr import plaque_papers
+    from tests.test_plaque_well_resize import _DiskModel
+
+    checkpoint = tmp_path / 'chosen.CP_model'
+    checkpoint.write_bytes(b'model-construction boundary')
+    constructed, received, factories = [], [], []
+
+    class Model(_DiskModel):
+        """Use the existing CPU eval contract behind a recorded model constructor."""
+
+        def __init__(self, **options):
+            """Record the selected checkpoint without loading model weights."""
+            super().__init__()
+            constructed.append((self, options))
+
+        @wraps(_DiskModel.eval)
+        def eval(self, image, **options):
+            received.append(np.asarray(image).copy())
+            return super().eval(image, **options)
+
+    monkeypatch.setattr(cellpose.models, 'CellposeModel', Model)
+    real_factory = plaque_papers._cellpose_segmenter
+
+    def factory(path, **options):
+        """Observe initialization and delegate to the real segmenter factory."""
+        factories.append((path, options))
+        return real_factory(path, **options)
+
+    monkeypatch.setattr(plaque_papers, '_cellpose_segmenter', factory)
+    settings = dict(diameter=19, flow_threshold=0.2, CP_prob=1.5,
+                    minimum_object_size=1.0000001, plaque_well_resize='off')
+    original_settings = deepcopy(settings)
+    crops = [np.arange(31 * 41 * 3, dtype=np.uint16).reshape(31, 41, 3),
+             np.arange(45 * 59 * 3, dtype=np.uint16).reshape(45, 59, 3)[::-1].copy()]
+    original_crops = [crop.copy() for crop in crops]
+    cache = {}
+    first = sm._segment_figure_crop(crops[0], settings=settings,
+                                    model_path=str(checkpoint), cache=cache)
+    initialized_segmenter = cache['segmenter']
+    second = sm._segment_figure_crop(crops[1], settings=settings,
+                                     model_path=str(checkpoint), cache=cache)
+
+    assert len(factories) == len(constructed) == 1
+    assert factories[0] == (str(checkpoint), dict(return_metrics=True,
+        min_size=1.0000001, well_resize=None, settings=settings))
+    assert factories[0][1]['settings'] is settings
+    assert constructed[0][1]['pretrained_model'] == str(checkpoint)
+    assert constructed[0][1]['gpu'] is False
+    assert cache['segmenter'] is initialized_segmenter
+    model = constructed[0][0]
+    assert len(model.calls) == len(received) == 2
+    for crop, original, actual, result, (shape, options) in zip(
+            crops, original_crops, received, (first, second), model.calls):
+        np.testing.assert_array_equal(crop, original)
+        np.testing.assert_array_equal(actual, original)
+        assert actual.dtype == original.dtype and shape == original.shape
+        assert options['diameter'] == 19
+        assert options['flow_threshold'] == 0.2 and options['cellprob_threshold'] == 1.5
+        assert options['min_size'] == 1.0000001
+        labels, metrics = result
+        assert labels.shape == crop.shape[:2] and set(np.unique(labels)) == {0, 3}
+        assert set(metrics) == {3} and metrics[3]['cell_probability_mean'] == 2
+    assert first[0].shape != second[0].shape
+    assert not np.shares_memory(first[0], second[0])
+    assert settings == original_settings
+    assert checkpoint.read_bytes() == b'model-construction boundary'
