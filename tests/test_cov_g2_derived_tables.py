@@ -1,6 +1,7 @@
 """Every refusal a named derived-table merge can give, and why it gives it."""
 import copy
 import json
+from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -182,3 +183,42 @@ def test_a_time_id_column_is_also_offered_as_time_id_for_gates(tmp_path):
         "particles": {"scene": ["a"], "parent": [1], "value": [2.0]}})
     result, _report = dt.execute(path, custom_definition(path))
     assert result["timeID"].tolist() == result["time_id"].tolist() == [1, 2]
+
+
+def test_time_resolved_filename_enrichment_survives_a_saved_recipe(tmp_path):
+    """Restoring acquisition names preserves time identity and source data."""
+    import hashlib
+    import sqlite3
+
+    from tests.test_original_filenames import csv_map, modern
+
+    frame = pd.DataFrame({
+        "plateID": ["plate1", "plate1"], "rowID": ["r1", "r1"],
+        "columnID": ["c1", "c1"], "fieldID": ["f1", "f1"],
+        "object_label": [1, 1], "time_id": [1, 2], "area": [12.5, 27.0]})
+    path = database(tmp_path, {"cell": frame})
+    mapping = csv_map(tmp_path, [modern(time=1, source="/raw/before.tif"),
+                                 modern(time=2, source="/raw/after.tif")])
+    source_bytes = Path(path).read_bytes(), mapping.read_bytes()
+    recipe = dt.default_definition(path, ["cell"], name="Acquisition names")
+    recipe.update(mode="metadata", original_filenames={"map_path": str(mapping)})
+
+    result, report = dt.execute(path, recipe)
+
+    pd.testing.assert_frame_equal(result[frame.columns], frame)
+    assert result.timeID.tolist() == result.time_id.tolist() == [1, 2]
+    assert result.original_filename.tolist() == ["before.tif", "after.tif"]
+    assert result.original_path.tolist() == ["/raw/before.tif", "/raw/after.tif"]
+    assert report["base_rows"] == report["output_rows"] == 2
+    assert report["image_provenance"] is True
+    assert report["original_filenames"]["matched_rows"] == 2
+    bound = result.attrs["merge_definition"]
+    assert bound["original_filenames"]["sha256"] == hashlib.sha256(source_bytes[1]).hexdigest()
+    assert "sha256" not in recipe["original_filenames"]
+    assert dt.save_definition(path, bound) == "Acquisition names"
+    reopened, reopened_report = dt.execute(path, dt.load_definitions(path)["Acquisition names"])
+    pd.testing.assert_frame_equal(reopened, result)
+    assert reopened_report == report
+    with sqlite3.connect(path) as connection:
+        pd.testing.assert_frame_equal(pd.read_sql_query("SELECT * FROM cell", connection), frame)
+    assert (Path(path).read_bytes(), mapping.read_bytes()) == source_bytes
