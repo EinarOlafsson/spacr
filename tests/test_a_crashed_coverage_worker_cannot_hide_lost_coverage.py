@@ -606,3 +606,143 @@ def test_a_healthy_xdist_batch_reports_every_worker_returned_and_re_runs_nothing
         "tests/test_0_crash.py", "tests/test_1_beta.py",
     ]
     assert BODY <= _lines(data_dir, project, "alpha")
+
+
+def test_serial_recovery_waits_for_its_live_writer_to_finalize_owned_data(tmp_path, monkeypatch):
+    import threading
+    import coverage
+
+    runner = _load_coverage_runner()
+    data_file = tmp_path / 'data' / '.coverage.shard-09.batch-012-recovery-032'
+    data_file.parent.mkdir()
+    template = coverage.CoverageData(basename=str(tmp_path / 'valid-template'))
+    template.add_arcs({str(tmp_path / 'measured.py'): [(1, 2)]})
+    template.write()
+    valid = (tmp_path / 'valid-template').read_bytes()
+    partial = Path(f'{data_file}.host.pid{os.getpid()}.Xpending')
+    final = Path(str(partial) + '.Hfinalh')
+    opened, finish, closed = threading.Event(), threading.Event(), threading.Event()
+    threads = []
+    observed_writers = []
+    actual_writers = runner._active_coverage_writers
+
+    def writer():
+        with partial.open('w+b') as stream:
+            stream.write(b'incomplete coverage save')
+            stream.flush()
+            opened.set()
+            assert finish.wait(3)
+            stream.seek(0)
+            stream.write(valid)
+            stream.truncate()
+            stream.flush()
+            os.fsync(stream.fileno())
+            partial.rename(final)
+        closed.set()
+
+    def run(command, **kwargs):
+        thread = threading.Thread(target=writer)
+        threads.append(thread)
+        thread.start()
+        assert opened.wait(3)
+        return subprocess.CompletedProcess(command, 0)
+
+    def writers(path, candidates):
+        found = actual_writers(path, candidates)
+        observed_writers.extend(found)
+        if found:
+            finish.set()
+        return found
+
+    actual_read = runner._unreadable
+    validated = []
+
+    def read(path):
+        assert closed.is_set(), 'must not open a database while its writer is active'
+        validated.append(path)
+        return actual_read(path)
+
+    monkeypatch.setattr(runner.subprocess, 'run', run)
+    monkeypatch.setattr(runner, '_active_coverage_writers', writers)
+    monkeypatch.setattr(runner, '_unreadable', read)
+    try:
+        outcome = runner.recover_file('tests/test_owned.py', data_file, marker='not qt',
+                                      source='spacr', attempts=1, timeout=30)
+    finally:
+        finish.set()
+        for thread in threads:
+            thread.join(3)
+    assert outcome['recovered'] is True
+    assert observed_writers and set(observed_writers) == {os.getpid()}
+    assert validated == [final] and not partial.exists()
+    assert final.read_bytes() == valid
+    assert outcome['attempts'][0]['data_saved'] is True
+
+
+def test_exit_zero_with_a_permanently_invalid_final_database_still_fails(tmp_path, monkeypatch, capsys):
+    import sqlite3
+    from types import SimpleNamespace
+
+    runner = _load_coverage_runner()
+    monkeypatch.setenv('RUNNER_TEMP', str(tmp_path / 'runner-temp'))
+    data_file = tmp_path / 'data' / '.coverage.shard-09.batch-012-recovery-032'
+    data_file.parent.mkdir()
+    final = Path(f'{data_file}.host.pid{os.getpid()}.Xbroken.Hfinalh')
+    raw = []
+
+    def run(command, **kwargs):
+        with sqlite3.connect(final) as database:
+            database.execute('create table coverage_schema (version integer)')
+        database.close()
+        raw.append(final.read_bytes())
+        return subprocess.CompletedProcess(command, 0)
+
+    def no_wait(_seconds):
+        pytest.fail('a closed invalid final DB must fail without waiting or retrying it')
+
+    monkeypatch.setattr(runner.subprocess, 'run', run)
+    monkeypatch.setattr(runner, 'time', SimpleNamespace(monotonic=__import__('time').monotonic, sleep=no_wait))
+    result = runner.recover_file('tests/test_owned.py', data_file, marker='not qt',
+                                 source='spacr', attempts=1, timeout=30)
+    assert result['recovered'] is False
+    attempt = result['attempts'][0]
+    assert attempt['exit_code'] == 0 and attempt['data_saved'] is False
+    assert attempt['unreadable_data'] == [final.name]
+    assert "isn't a coverage data file" in attempt['unreadable_data_errors'][final.name]
+    retained = tmp_path / 'runner-temp' / 'spacr-scientific-diagnostics' / 'rejected-coverage' / ('rejected-' + final.name)
+    assert retained.read_bytes() == raw[0]
+    assert str(retained) in capsys.readouterr().out
+
+
+def test_a_writer_that_never_finishes_is_bounded_without_deleting_its_data(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+
+    runner = _load_coverage_runner()
+    data_file = tmp_path / '.coverage.shard-09.batch-012-recovery-032'
+    partial = Path(f'{data_file}.host.pid{os.getpid()}.Xpending')
+    handles, calls = [], []
+    clock = [0.0]
+
+    def run(command, **kwargs):
+        calls.append(command)
+        stream = partial.open('w+b')
+        stream.write(b'writer still owns this data')
+        stream.flush()
+        handles.append(stream)
+        return subprocess.CompletedProcess(command, 0)
+
+    def sleep(seconds):
+        clock[0] += seconds
+
+    monkeypatch.setattr(runner.subprocess, 'run', run)
+    monkeypatch.setattr(runner, 'time', SimpleNamespace(monotonic=lambda: clock[0], sleep=sleep))
+    try:
+        result = runner.recover_file('tests/test_owned.py', data_file, marker='not qt',
+                                     source='spacr', attempts=2, timeout=30)
+    finally:
+        for handle in handles:
+            handle.close()
+    assert result['recovered'] is False and len(calls) == 1
+    assert clock[0] == 2.0
+    assert result['attempts'][0]['active_coverage_writers'] == [os.getpid()]
+    assert partial.read_bytes() == b'writer still owns this data'

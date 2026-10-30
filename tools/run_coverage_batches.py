@@ -37,9 +37,12 @@ import argparse
 import hashlib
 import json
 import os
+import re
+import shutil
 import signal
 import subprocess
 import sys
+import time
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
@@ -173,6 +176,7 @@ def _discard_unreadable_process_data(
                 f"{problem}",
                 flush=True,
             )
+            _preserve_rejected_data(path, problem)
             path.unlink()
             discarded.append(path)
     return discarded
@@ -358,6 +362,75 @@ def _data_files(data_file: Path) -> list[Path]:
     )
 
 
+def _active_coverage_writers(data_file: Path, paths: Sequence[Path]) -> list[int]:
+    """Identify owned child processes that still hold a coverage file for writing."""
+    import psutil
+
+    pids = {int(match[1]) for path in paths
+            if (match := re.search(r"\.pid(\d+)\.", path.name))}
+    writers = []
+    parent = data_file.parent.resolve()
+    for pid in sorted(pids):
+        try:
+            files = psutil.Process(pid).open_files()
+        except (psutil.Error, OSError):
+            continue
+        if any(Path(item.path).parent == parent
+               and Path(item.path).name.startswith(data_file.name)
+               and getattr(item, "mode", "") in {"w", "a", "r+", "w+", "a+"}
+               for item in files):
+            writers.append(pid)
+    return writers
+
+
+def _ready_coverage_data(data_file: Path) -> tuple[dict[str, str], list[int]]:
+    """Wait at most two seconds for observed writers or owned filename transitions.
+
+    A closed, permanently invalid final database is rejected immediately.
+    No data is removed, renamed or accepted without normal validation.
+    """
+    deadline = time.monotonic() + 2.0
+    while True:
+        paths = _data_files(data_file)
+        writers = _active_coverage_writers(data_file, paths)
+        if writers:
+            if time.monotonic() >= deadline:
+                return ({path.name: "coverage writer is still active after 2 seconds"
+                         for path in paths}, writers)
+            time.sleep(min(0.05, max(0, deadline - time.monotonic())))
+            continue
+        errors = {}
+        disappeared = False
+        for path in paths:
+            if not path.exists():
+                disappeared = True
+                continue
+            problem = _unreadable(path)
+            if problem is not None:
+                errors[path.name] = problem
+        current = _data_files(data_file)
+        if disappeared or current != paths:
+            if time.monotonic() >= deadline:
+                return ({path.name: "coverage filenames did not settle after 2 seconds"
+                         for path in current or paths}, [])
+            continue
+        return errors, []
+
+
+def _preserve_rejected_data(path: Path, reason: str) -> None:
+    """Retain raw rejected process data in the existing scientific diagnostics area."""
+    temporary = Path(os.environ.get("RUNNER_TEMP", str(path.parent.parent)))
+    directory = temporary / "spacr-scientific-diagnostics" / "rejected-coverage"
+    target = directory / ("rejected-" + path.name)
+    number = 0
+    while target.exists():
+        number += 1
+        target = directory / str(number) / ("rejected-" + path.name)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(path, target)
+    print(f"preserved coverage data {path.name}: {reason}; raw file: {target}", flush=True)
+
+
 def recover_file(
     test_file: str,
     data_file: Path,
@@ -378,10 +451,12 @@ def recover_file(
         *_coverage_options(source), *_timeout_options(per_test_timeout),
         "--cov-append", "-v", "--tb=short",
     ]
+    errors: dict[str, str] = {}
     for attempt in range(1, attempts + 1):
         # A failed attempt may leave a shell behind; the next one starts
         # from nothing so --cov-append can never fold that shell in.
         for stale in _data_files(data_file):
+            _preserve_rejected_data(stale, "previous recovery attempt data before fresh measurement")
             stale.unlink()
         print(
             f"coverage recovery: {test_file} (attempt {attempt}/{attempts}) "
@@ -394,11 +469,11 @@ def recover_file(
             ).returncode)
         except subprocess.TimeoutExpired:
             status = None
-        unreadable = [
-            path.name for path in _data_files(data_file)
-            if _unreadable(path) is not None
-        ]
-        saved = status in DATA_SAVED_STATUSES and not unreadable
+        errors, active_writers = _ready_coverage_data(data_file)
+        unreadable = sorted(errors)
+        for name, problem in errors.items():
+            print(f"coverage recovery data not ready: {name}: {problem}", flush=True)
+        saved = status in DATA_SAVED_STATUSES and not errors and not active_writers
         tries.append({
             "attempt": attempt,
             "exit_code": status,
@@ -409,11 +484,16 @@ def recover_file(
             ),
             "timed_out": status is None,
             "unreadable_data": unreadable,
+            "unreadable_data_errors": errors,
+            "active_coverage_writers": active_writers,
             "data_saved": saved,
         })
         if saved:
             return {"file": test_file, "recovered": True, "attempts": tries}
+        if active_writers:
+            return {"file": test_file, "recovered": False, "attempts": tries}
     for stale in _data_files(data_file):
+        _preserve_rejected_data(stale, errors.get(stale.name, "unrecovered process data"))
         stale.unlink()
     return {"file": test_file, "recovered": False, "attempts": tries}
 
