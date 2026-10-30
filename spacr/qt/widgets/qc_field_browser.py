@@ -12625,7 +12625,7 @@ def _overview_set_control(control, value):
     :param control: a line edit, check box, spin box or combo box.
     :param value: the setting's value.
     """
-    from PySide6.QtWidgets import QAbstractSpinBox, QLineEdit
+    from PySide6.QtWidgets import QLineEdit
 
     if isinstance(control, QLineEdit):
         text = "" if value is None else (",".join(str(v) for v in value)
@@ -12641,7 +12641,7 @@ def _overview_set_control(control, value):
             if data == value or str("full" if data is None else data) == str(value):
                 control.setCurrentIndex(index)
                 return
-    elif isinstance(control, QAbstractSpinBox):
+    else:
         try:
             control.setValue(type(control.value())(value))
         except (TypeError, ValueError):
@@ -12654,7 +12654,7 @@ def _overview_control_changed(control, handler):
     :param control: the browser control.
     :param handler: called without arguments after each change.
     """
-    from PySide6.QtWidgets import QDoubleSpinBox, QLineEdit, QSpinBox
+    from PySide6.QtWidgets import QLineEdit
 
     if isinstance(control, QLineEdit):
         control.editingFinished.connect(handler)
@@ -12662,7 +12662,7 @@ def _overview_control_changed(control, handler):
         control.toggled.connect(lambda *_: handler())
     elif isinstance(control, QComboBox):
         control.currentIndexChanged.connect(lambda *_: handler())
-    elif isinstance(control, (QSpinBox, QDoubleSpinBox)):
+    else:
         control.valueChanged.connect(lambda *_: handler())
 
 
