@@ -5906,8 +5906,7 @@ class _EasyRegexCard(_EasySuggestionCard):
 
     def _activate(self):
         """Validate only when the user explicitly chooses this regex card."""
-        if not self._growing:
-            self.regex_requested.emit(self.pattern_edit.toPlainText())
+        self.regex_requested.emit(self.pattern_edit.toPlainText())
 
 
 class _EasyGuidanceCard(_EasySuggestionCard):
@@ -6531,8 +6530,7 @@ class _EasyWorkflowNode(_WorkflowNode):
         """Return candidate connections to the selected neighborhood after hovering."""
         self._hovered = False
         self.update()
-        if self.view._selected_key is not None:
-            self.view.explain_node(self.view._selected_key)
+        self.view.explain_node(self.view._selected_key)
         event.accept()
 
     def mousePressEvent(self, event):
@@ -6993,14 +6991,12 @@ class _EasyWorkflowPage(QWidget):
     def _choose_tool(self, index):
         """Select an available tool without inventing an input or starting a run."""
         key = self.tools.itemData(index)
-        if key:
-            self.select(key)
+        self.select(key)
 
     def _choose_next(self, index):
         """Disclose an additional real downstream option from the current module."""
         key = self.more.itemData(index)
-        if key:
-            self.select(key)
+        self.select(key)
 
     def select(self, key):
         """Explore a child's branches first and open only on a repeated explicit choice."""

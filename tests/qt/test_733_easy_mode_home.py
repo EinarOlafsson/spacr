@@ -1605,13 +1605,14 @@ def test_native_navigator_revisit_keeps_source_anchor_and_explicit_receiver(
     from PySide6.QtTest import QSignalSpy
     from spacr.qt.app import MainWindow
     from spacr.qt.walkthrough import mark_seen
+    from spacr.qt.widgets.home import _EasyRegexCard
 
     preferences, _, _ = private_ai_profile
     preferences.set_easy_mode(True)
     preferences.set_ambient_enabled(False)
     preferences.set_reduce_motion(True)
     mark_seen('make_masks')
-    image = isolated_input_root / 'W0025F0001T0001Z000C1.tif'
+    image = isolated_input_root / 'scan_101_C1.tif'
     pixels = _image(image)
     before = image.read_bytes()
     entries = set(isolated_input_root.iterdir())
@@ -1640,6 +1641,14 @@ def test_native_navigator_revisit_keeps_source_anchor_and_explicit_receiver(
         qtbot.mouseRelease(grip, Qt.RightButton, pos=grip.rect().center())
         assert (field.details.geometry(), field.panel.geometry(),
                 [card.geometry() for card in field.cards]) == fixed
+        regex = next(card for card in field.cards if isinstance(card, _EasyRegexCard))
+        pattern = r'scan_(?P<fieldID>\d+)_C(?P<chanID>\d+)\.tif$'
+        regex.pattern_edit.setPlainText(pattern)
+        qtbot.mouseClick(regex, Qt.LeftButton, pos=QPoint(regex.width() // 2, regex.height() - 6))
+        qtbot.waitUntil(lambda: not page._runner.is_busy() and not field.cards[0]._proposal['required'],
+                       timeout=5000)
+        assert page._settings_overrides['mask']['metadata_type'] == 'custom'
+        assert selected.count() == 0 and image.read_bytes() == before
         source = next(card for card in field.cards if card._key == 'make_masks')
         source.click()
         first = page._workflow
@@ -1649,6 +1658,11 @@ def test_native_navigator_revisit_keeps_source_anchor_and_explicit_receiver(
         qtbot.mouseMove(first.view.viewport(), first.view.mapFromScene(node.sceneBoundingRect().center()))
         qtbot.mouseMove(first.back, first.back.rect().center())
         assert first._chosen_key == 'make_masks' and selected.count() == 0
+        if first.more.count():
+            first.more.setFocus()
+            qtbot.keyClick(first.more, Qt.Key_Home)
+            qtbot.keyClick(first.more, Qt.Key_Return)
+            assert first._chosen_key in first.data['modules'] and selected.count() == 0
         first.tools.setFocus()
         qtbot.keyClick(first.tools, Qt.Key_Home)
         qtbot.keyClick(first.tools, Qt.Key_Return)
