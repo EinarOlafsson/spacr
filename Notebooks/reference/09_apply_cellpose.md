@@ -48,7 +48,7 @@ This linked reference contains the full generated setting descriptions. Return t
 
 #### Model
 
-- **`diameter`** *(optional)* — (float) - Deprecated expected object diameter in pixels, passed to model.eval(diameter=...) by the mask-finetune tool and check_cellpose_models. Cellpose rescales each image by 30/diameter to match its approximately 30-pixel working size; a value below the true diameter upscales the image, whereas a larger value downscales it. Prefer the per-object diameter settings. Default 30. Default: `30`.
+- **`diameter`** *(optional)* — (float) - Expected object diameter in pixels. Plaque Assay starts at 0, which uses the model's own scale; positive values are measured in original input-image pixels and adjusted when wells are resized. Legacy mask-finetune and check_cellpose_models pass it to model.eval(diameter=...). Prefer per-object diameter settings in other modules. Default 30 for mask-finetune; check_cellpose_models starts at 40. Default: `30`.
 
 </details>
 

@@ -93,69 +93,47 @@ This linked reference contains the full generated setting descriptions. Return t
 
 #### Model
 
-- **`diameter`** *(optional)* — (float) - Deprecated expected object diameter in pixels, passed to model.eval(diameter=...) by the mask-finetune tool and check_cellpose_models. Cellpose rescales each image by 30/diameter to match its approximately 30-pixel working size; a value below the true diameter upscales the image, whereas a larger value downscales it. Prefer the per-object diameter settings. Default 30. Default: `30`.
+- **`diameter`** *(optional)* — (float) - Expected object diameter in pixels. Plaque Assay starts at 0, which uses the model's own scale; positive values are measured in original input-image pixels and adjusted when wells are resized. Legacy mask-finetune and check_cellpose_models pass it to model.eval(diameter=...). Prefer per-object diameter settings in other modules. Default 30 for mask-finetune; check_cellpose_models starts at 40. Default: `0`.
 
 </details>
 
 <details>
-<summary>Detection Thresholds (6 settings)</summary>
+<summary>Detection Thresholds (3 settings)</summary>
 
 #### Detection Thresholds
 
 - **`CP_prob`** *(optional)* — (float) - Cellpose cellprob_threshold: the cell-probability cut-off applied to the network output when deciding which pixels belong to an object. Lower it (typically toward -6) to recover dim or partly detected objects and grow existing masks; raise it (toward 6) to drop faint false positives and shrink masks. Default 0. Default: `0`.
 - **`flow_threshold`** *(optional)* — (float) - Cellpose flow_threshold: the maximum allowed error between the predicted flow field and the flows recomputed from each candidate mask; masks above it are discarded. Raise it to keep more objects, including irregularly shaped ones; lower it to reject poorly formed masks and reduce false positives. Default 0.4. Default: `0.4`.
 - **`minimum_object_size`** *(optional)* — (float or int) - Minimum plaque area in square pixels of the input image or detected well crop. Objects smaller than this value are discarded. 0 keeps small objects; other segmentation filters still apply. Fractional values are accepted. Default 0. Default: `0.0`.
-- **`rescale`** *(optional)* — (bool) - Let Cellpose rescale each image by 30/diameter before segmenting, so objects arrive at the size the model expects. Turn off only when the diameter is already correct for the model. Default False. Default: `False`.
-- **`resample`** *(optional)* — (bool) - Passed to Cellpose model.eval: run the mask-tracking dynamics at full image resolution instead of on the downsampled network grid. Enabling it gives smoother, better-fitting object outlines at the cost of time and memory, and helps most when objects differ a lot from the model's training diameter. Default False; the object pipeline sets True for cell/nucleus and False for pathogen. Default: `False`.
-- **`fill_in`** *(optional)* — (bool) - Fill the holes inside each object of every mask Cellpose Masks (Apply) writes. Each object is filled on its own and keeps its id, so touching objects stay separate and a hole never takes pixels from a neighbour. Default True in Cellpose Masks. Default: `True`.
 
 </details>
 
 <details>
-<summary>Image Geometry (6 settings)</summary>
+<summary>Image Geometry (3 settings)</summary>
 
 #### Image Geometry
 
-- **`plaque_well_resize`** *(optional)* — (str) - Resize each detected well before segmentation so plaques reach the size the plaque model was trained at. 'auto' follows the selected model: a model that declares well resize turns it on with its own values, and other models leave it off. 'on' uses the side and enlargement settings below; 'off' segments the image as it is. When on, the diameter setting is not used. Default 'auto'. Default: `'auto'`.
+- **`plaque_well_resize`** *(optional)* — (str) - Resize each detected well before segmentation so plaques reach the size the plaque model was trained at. 'auto' follows the selected model: a model that declares well resize turns it on with its own values, and other models leave it off. 'on' uses the side and enlargement settings below; 'off' segments the image as it is. Diameter is measured in original input-image pixels and adjusted for the resize; 0 uses the model's own scale. Default 'auto'. Default: `'auto'`.
 - **`plaque_well_resize_side`** *(optional)* — (int) - Longest side in pixels that each detected well is resized to before segmentation when plaque well resize is on. Larger values make small plaques bigger for the model and cost more time and memory; masks are mapped back to the original pixels. Default 1500. Default: `1500`.
 - **`plaque_well_resize_max_factor`** *(optional)* — (float or int) - Largest enlargement plaque well resize applies to a small well or a low-resolution image; shrinking a large well is never limited. It stops a tiny image from being magnified far beyond what its pixels can show. Default 6. Default: `6.0`.
-- **`resize`** *(optional)* — (bool or float) - Resize every image to target_height x target_width before running Cellpose, then scale the returned mask back to the original dimensions with nearest-neighbour interpolation so measurements remain in original pixels. Enable this setting to match oversized fields to the model's training scale or reduce GPU memory use. Requires target_height and target_width. Default False (True for plaque analysis). Default: `True`.
-- **`target_height`** *(optional)* — (int) - Height in pixels that images are resized to before segmentation; masks are scaled back to the original dimensions afterwards. Only applied when both target_height and target_width are set (and, on the non-normalized path, when resize is True). Use it to match the field size the model was trained at. Default None, which disables resizing; 1120 for plaque analysis. Default: `1120`.
-- **`target_width`** *(optional)* — (int) - Width in pixels that images are resized to before segmentation; masks are scaled back to the original dimensions afterwards. Only applied when both target_width and target_height are set (and, on the non-normalized path, when resize is True). Use it to match the field size the model was trained at. Default None, which disables resizing; 1120 for plaque analysis. Default: `1120`.
 
 </details>
 
 <details>
-<summary>Background &amp; Denoising (3 settings)</summary>
-
-#### Background & Denoising
-
-- **`remove_background`** *(optional)* — (bool) - Hard-clip every pixel below the 'background' value to zero before normalization and segmentation. Use it when a channel carries a bright, even haze that inflates the normalization floor; leave it off for dim or already flat-fielded data, since the clip silently deletes faint real signal. Default False. Default: `False`.
-- **`background`** *(optional)* — (float) - Per-channel background level in raw intensity units. Pixels below it are zeroed when remove_background is on, and it is multiplied by Signal_to_noise to set the upper anchor for normalization. Raise it if faint haze survives; set it too high and dim real objects vanish. Default 100 (200 for Cellpose training and plaque analysis). Default: `200`.
-- **`Signal_to_noise`** *(optional)* — (int) - Background multiplier used as the Cellpose normalization threshold (background * Signal_to_noise). Per channel, spaCR selects the first of the 98th, 99th, 99.9th, 99.99th and 99.999th percentiles above it and rescales to that value. Higher values reduce clipping and make output dimmer; lower values reveal faint signal but can saturate bright objects. If no percentile qualifies, the range collapses to the 2nd percentile, indicating that this value is too high. Ignored when percentiles is set. Default 10 (5 in check_cellpose_models). Default: `10`.
-
-</details>
-
-<details>
-<summary>Output &amp; Runtime (3 settings)</summary>
+<summary>Output &amp; Runtime (2 settings)</summary>
 
 #### Output & Runtime
 
 - **`save`** *(optional)* — (bool or list of bool) - Controls whether the current module writes its optional disk artifacts, such as masks, figures or result tables. Mask accepts a three-item list for [cell, nucleus, pathogen] independently; other modules use one boolean. Default varies by module. Default: `True`.
-- **`batch_size`** *(optional)* — (int) - How many images are held and processed together in one pass: field stacks during normalization and Cellpose segmentation, crops per step during classifier training and activation maps. Raising it speeds runs up but increases RAM/VRAM roughly linearly; lower it on out-of-memory errors. Defaults: 50 for mask generation, 64 for training. Default: `50`.
 - **`verbose`** *(optional)* — (bool) - Print the resolved settings table, channel and model choices per object type, row counts per table, and object counts after each filter. It only adds console output; enable it to identify which stage produced an unexpected object count. The default is True for mask, UMAP, screen analysis, barcode mapping and Cellpose training, and False for measure, plotting helpers and regression. Invasion and Replication also start with console detail disabled. Default: `True`.
 
 </details>
 
 <details>
-<summary>Additional Settings (28 settings)</summary>
+<summary>Additional Settings (23 settings)</summary>
 
 #### Additional Settings
 
-- **`normalize`** *(optional)* — (bool or list) - Control percentile normalization before display, model input, or crop export. Display and activation-map tools use True for a 2nd-to-98th-percentile stretch. Measure and External Masks start at False; Measure accepts False or a two-number [low, high] percentile pair and refuses bare True because it supplies no bounds. It affects display and exported-crop scaling, not measured source intensities. Default True in the display-oriented tools. Default: `True`.
-- **`percentiles`** *(optional)* — (list) - Two percentiles [low, high] used to rescale each channel of each image to 0-1 before segmentation, e.g. [2, 98]. Narrowing the window boosts contrast on dim objects but clips bright ones. Set None to derive them automatically: low fixed at 2, high the first of 98/99/99.9/99.99/99.999 exceeding background * Signal_to_noise. In Cellpose Masks (Apply), None instead lets Cellpose normalise each image itself, as the live preview does. Default None in the Cellpose steps. Default: `None`.
-- **`invert`** *(optional)* — (bool) - Invert intensities as each image is loaded, pixel -&gt; dtype_max - pixel (255 - x for uint8). Switch it on for brightfield or phase-contrast data where objects are darker than the background, since Cellpose expects bright objects on a dark field; leave it off for fluorescence. Default False. Default: `False`.
-- **`grayscale`** *(optional)* — (bool) - Force the Cellpose channel pair to [0, 0] so the network treats the input as a single combined channel, overriding the [cytoplasm, nucleus] pair otherwise inferred from model_name (cyto -&gt; [1,0], cyto2 -&gt; [2,1], nucleus -&gt; [0,0]). Leave it on for single-channel inputs; switch it off only when feeding a genuine two-channel stack. Default True. Default: `True`.
 - **`plaque_model`** *(optional)* — (str) - Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v6' was trained on resized wells and turns plaque well resize on; 'toxoplasma_plaque_v5', the previous default, segments images as they are; 'toxoplasma_plaque_v3' scores higher on Gel Doc wells), a filesystem path selects a custom checkpoint, and 'bundled' is a Cellpose 3 checkpoint that needs Cellpose 3. Changing it changes plaque counts, so recorded runs should keep their value. Default 'toxoplasma_plaque_v6'. Default: `'toxoplasma_plaque_v6'`.
 - **`plaque_mode`** *(optional)* — (str) - What Plaque Assay reads. 'plaque' takes images that each show one plaque field (a well or a cropped plaque image), segments the plaques and writes per_image and per_plaque tables. 'figure' takes published figures: the YOLO detector finds the plaque images in each figure, the text around them is read (panel letter, column and row labels) and keyed to the figure legend, each image is annotated with its condition and its plaques are segmented, into plaque_figures/plaque_figures.db. Default 'plaque'. Default: `'plaque'`.
 - **`figure_detector`** *(optional)* — (str) - Figure mode: model-zoo key or checkpoint path of the YOLO detector that finds plaque images inside a figure. Default 'toxoplasma_well_detector_v2', which was measured to find cropped plaque panels in published figures. Default: `'toxoplasma_well_detector_v2'`.
@@ -179,7 +157,29 @@ This linked reference contains the full generated setting descriptions. Return t
 - **`well_detection`** *(optional)* — (str or bool) - Split a plate image into detected wells before plaque segmentation. False passes each source image through whole; True selects the default YOLO detector, while a model-zoo key or checkpoint path selects another detector. Enabling it changes result rows from one per image to one per detected well. Default False. Default: `False`.
 - **`well_confidence`** *(optional)* — (float) - Minimum YOLO confidence, from 0 to 1, for keeping a detected well when well_detection is enabled. Raising it removes uncertain boxes but can lose an entire condition; lowering it retains more candidates and can create spurious well crops. Default 0.25. Default: `0.25`.
 - **`well_pad`** *(optional)* — (int) - Extra image pixels retained on every side of a detected well crop, clipped at the source-image boundary. Increase it when the detector box trims the well edge; excessive padding can include neighbouring wells or background. Default 0. Default: `0`.
+
+</details>
+
+<details>
+<summary>Additional settings (15 settings)</summary>
+
+#### Additional settings
+
+- **`Signal_to_noise`** *(optional)* — (int) - Background multiplier used as the Cellpose normalization threshold (background * Signal_to_noise). Per channel, spaCR selects the first of the 98th, 99th, 99.9th, 99.99th and 99.999th percentiles above it and rescales to that value. Higher values reduce clipping and make output dimmer; lower values reveal faint signal but can saturate bright objects. If no percentile qualifies, the range collapses to the 2nd percentile, indicating that this value is too high. Ignored when percentiles is set. Default 10 (5 in check_cellpose_models). Default: `10`.
+- **`background`** *(optional)* — (float) - Per-channel background level in raw intensity units. Pixels below it are zeroed when remove_background is on, and it is multiplied by Signal_to_noise to set the upper anchor for normalization. Raise it if faint haze survives; set it too high and dim real objects vanish. Default 100 (200 for Cellpose training and plaque analysis). Default: `200`.
+- **`batch_size`** *(optional)* — (int) - How many images are held and processed together in one pass: field stacks during normalization and Cellpose segmentation, crops per step during classifier training and activation maps. Raising it speeds runs up but increases RAM/VRAM roughly linearly; lower it on out-of-memory errors. Defaults: 50 for mask generation, 64 for training. Default: `50`.
+- **`fill_in`** *(optional)* — (bool) - Fill the holes inside each object of every mask Cellpose Masks (Apply) writes. Each object is filled on its own and keeps its id, so touching objects stay separate and a hole never takes pixels from a neighbour. Default True in Cellpose Masks. Default: `True`.
+- **`grayscale`** *(optional)* — (bool) - Force the Cellpose channel pair to [0, 0] so the network treats the input as a single combined channel, overriding the [cytoplasm, nucleus] pair otherwise inferred from model_name (cyto -&gt; [1,0], cyto2 -&gt; [2,1], nucleus -&gt; [0,0]). Leave it on for single-channel inputs; switch it off only when feeding a genuine two-channel stack. Default True. Default: `True`.
+- **`invert`** *(optional)* — (bool) - Invert intensities as each image is loaded, pixel -&gt; dtype_max - pixel (255 - x for uint8). Switch it on for brightfield or phase-contrast data where objects are darker than the background, since Cellpose expects bright objects on a dark field; leave it off for fluorescence. Default False. Default: `False`.
 - **`model_name`** *(optional)* — (str) - Cellpose model used for segmentation. Cellpose 4 provides one stock model, 'cpsam'. Pre-SAM names ('cyto', 'cyto2', 'cyto3', 'nuclei') remain accepted for compatibility with older settings, but they are mapped to 'cpsam' and reported. Of the three parameters that previously distinguished models, only diameter remains operational in Cellpose 4 (eval rescales the image by 30/diameter); model_type and diam_mean are logged as 'not used in v4.0.1+' and omitted. Use 'cpsam' unless loading a custom CPSAM checkpoint. Default 'cpsam'. Default: `'cpsam'`.
+- **`normalize`** *(optional)* — (bool or list) - Control percentile normalization before display, model input, or crop export. Display and activation-map tools use True for a 2nd-to-98th-percentile stretch. Measure and External Masks start at False; Measure accepts False or a two-number [low, high] percentile pair and refuses bare True because it supplies no bounds. It affects display and exported-crop scaling, not measured source intensities. Default True in the display-oriented tools. Default: `True`.
+- **`percentiles`** *(optional)* — (list) - Two percentiles [low, high] used to rescale each channel of each image to 0-1 before segmentation, e.g. [2, 98]. Narrowing the window boosts contrast on dim objects but clips bright ones. Set None to derive them automatically: low fixed at 2, high the first of 98/99/99.9/99.99/99.999 exceeding background * Signal_to_noise. In Cellpose Masks (Apply), None instead lets Cellpose normalise each image itself, as the live preview does. Default None in the Cellpose steps. Default: `None`.
+- **`remove_background`** *(optional)* — (bool) - Hard-clip every pixel below the 'background' value to zero before normalization and segmentation. Use it when a channel carries a bright, even haze that inflates the normalization floor; leave it off for dim or already flat-fielded data, since the clip silently deletes faint real signal. Default False. Default: `False`.
+- **`resample`** *(optional)* — (bool) - Passed to Cellpose model.eval: run the mask-tracking dynamics at full image resolution instead of on the downsampled network grid. Enabling it gives smoother, better-fitting object outlines at the cost of time and memory, and helps most when objects differ a lot from the model's training diameter. Default False; the object pipeline sets True for cell/nucleus and False for pathogen. Default: `False`.
+- **`rescale`** *(optional)* — (bool) - Let Cellpose rescale each image by 30/diameter before segmenting, so objects arrive at the size the model expects. Turn off only when the diameter is already correct for the model. Default False. Default: `False`.
+- **`resize`** *(optional)* — (bool or float) - Resize every image to target_height x target_width before running Cellpose, then scale the returned mask back to the original dimensions with nearest-neighbour interpolation so measurements remain in original pixels. Enable this setting to match oversized fields to the model's training scale or reduce GPU memory use. Requires target_height and target_width. Default False (True for plaque analysis). Default: `True`.
+- **`target_height`** *(optional)* — (int) - Height in pixels that images are resized to before segmentation; masks are scaled back to the original dimensions afterwards. Only applied when both target_height and target_width are set (and, on the non-normalized path, when resize is True). Use it to match the field size the model was trained at. Default None, which disables resizing; 1120 for plaque analysis. Default: `1120`.
+- **`target_width`** *(optional)* — (int) - Width in pixels that images are resized to before segmentation; masks are scaled back to the original dimensions afterwards. Only applied when both target_width and target_height are set (and, on the non-normalized path, when resize is True). Use it to match the field size the model was trained at. Default None, which disables resizing; 1120 for plaque analysis. Default: `1120`.
 
 </details>
 
