@@ -753,3 +753,124 @@ def test_selected_tiff_replaced_during_sampling_cannot_borrow_sibling_sources(
     assert result['actions'] == []
     assert result['message']
     assert 'context' not in result and 'settings_overrides' not in result
+
+
+def _identity_checkpoint_files(tmp_path, image_count, auxiliary_in_input=True):
+    root = tmp_path / 'input'
+    selected = _image(root / 'selected.tif')
+    images = [selected] + [_image(root / f'unstructured-{index:03}.tif')
+                           for index in range(image_count - 1)]
+    auxiliary = root if auxiliary_in_input else tmp_path / 'unrelated'
+    auxiliary.mkdir(exist_ok=True)
+    array = auxiliary / 'sibling.npy'
+    np.save(array, np.ones((6, 8, 2), dtype=np.uint16))
+    table = auxiliary / 'objects.csv'
+    table.write_text('label,area\n1,12\n2,4\n')
+    database = _database(auxiliary / 'measurements.db')
+    archive = tmp_path / 'archive' / 'selected.tif'
+    archive.parent.mkdir()
+    before = {path: path.read_bytes() for path in (*images, array, table, database)}
+    return root, selected, archive, before
+
+
+def _observe_identity_checkpoint_decoders(monkeypatch):
+    from PIL import TiffImagePlugin
+    import tifffile
+
+    calls = []
+    for owner, name in ((TiffImagePlugin.TiffImageFile, 'load'),
+                        (tifffile, 'imread'), (np, 'load')):
+        read = getattr(owner, name)
+
+        def observe(*args, _read=read, _name=name, **kwargs):
+            calls.append(_name)
+            return _read(*args, **kwargs)
+
+        monkeypatch.setattr(owner, name, observe)
+    return calls
+
+
+def _assert_identity_checkpoint_refusal(result, selected, archive, before):
+    from spacr.qt.i18n import tr
+
+    assert selected.is_dir()
+    assert result == {'path': str(selected), 'actions': [], 'message': tr(
+        'This input could not be inspected. Check permissions and choose another path.')}
+    assert 'context' not in result and 'settings_overrides' not in result
+    assert all((archive if path == selected else path).read_bytes() == content
+               for path, content in before.items())
+
+
+def test_stable_unstructured_image_folder_uses_the_real_expanded_filename_sample(tmp_path, monkeypatch):
+    root, selected, archive, before = _identity_checkpoint_files(tmp_path, 101, auxiliary_in_input=False)
+    entries = set(root.rglob('*'))
+    decodes = _observe_identity_checkpoint_decoders(monkeypatch)
+    scan = home._easy_local_sample
+    samples = []
+
+    def observe_scan(path, sample_limit=100):
+        sampled = scan(path, sample_limit)
+        samples.append((path, sample_limit, sampled))
+        return sampled
+
+    monkeypatch.setattr(home, '_easy_local_sample', observe_scan)
+    result = home._easy_inspect_path(str(root))
+    assert [(path, limit, len(sampled[0]), sampled[3]) for path, limit, sampled in samples] == [
+        (root, 100, 100, True), (root, 1000, 101, False)]
+    hints = home._easy_filename_hints(samples[0][2][0])
+    assert not any(hint['matched'] == hint['sampled'] and hint['sampled'] for hint in hints)
+    assert [row[0] for row in result['actions']] == ['make_masks', 'mask']
+    assert all(row[3] == str(root) for row in result['actions'])
+    assert result['context']['filename_sample_limit'] == 1000
+    assert result['context']['sampled_files'] == 101
+    assert result['context']['sampled_image_filenames'] == 101
+    assert result['context']['image_folders'] == [str(root)]
+    assert result['context']['analysis_inputs'] == {}
+    assert not result['context']['truncated']
+    assert set(root.rglob('*')) == entries
+    assert all(path.read_bytes() == content for path, content in before.items())
+    assert not archive.exists() and selected.is_file() and decodes == []
+
+
+def test_selected_tiff_replaced_after_the_real_expanded_scan_cannot_publish_context(tmp_path, monkeypatch):
+    root, selected, archive, before = _identity_checkpoint_files(tmp_path, 101)
+    decodes = _observe_identity_checkpoint_decoders(monkeypatch)
+    scan = home._easy_local_sample
+    samples = []
+
+    def replace_after_expanded_scan(path, sample_limit=100):
+        sampled = scan(path, sample_limit)
+        samples.append((path, sample_limit, len(sampled[0]), sampled[3]))
+        if len(samples) == 2:
+            assert path == selected and sample_limit == 1000 and selected.is_file()
+            selected.rename(archive)
+            selected.mkdir()
+        return sampled
+
+    monkeypatch.setattr(home, '_easy_local_sample', replace_after_expanded_scan)
+    result = home._easy_inspect_path(str(selected))
+    assert samples == [(selected, 100, 100, True), (selected, 1000, 104, False)]
+    _assert_identity_checkpoint_refusal(result, selected, archive, before)
+    assert decodes == []
+
+
+def test_selected_tiff_replaced_after_real_header_classification_cannot_publish_context(tmp_path, monkeypatch):
+    root, selected, archive, before = _identity_checkpoint_files(tmp_path, 2)
+    decodes = _observe_identity_checkpoint_decoders(monkeypatch)
+    classify = home._easy_file_kind
+    replaced = []
+
+    def replace_after_selected_kind(path, metadata=None):
+        kind = classify(path, metadata)
+        if path == selected and not replaced:
+            assert kind == 'image' and metadata['shape'] == [6, 8]
+            selected.rename(archive)
+            selected.mkdir()
+            replaced.append((path, kind))
+        return kind
+
+    monkeypatch.setattr(home, '_easy_file_kind', replace_after_selected_kind)
+    result = home._easy_inspect_path(str(selected))
+    assert replaced == [(selected, 'image')]
+    _assert_identity_checkpoint_refusal(result, selected, archive, before)
+    assert decodes == []
