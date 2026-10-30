@@ -7711,6 +7711,9 @@ class _EasyHomePage(QWidget):
         self._last_result = None
         self._settings_overrides = {}
         self.field.set_cards([])
+        self.status.clear()
+        self.path_edit.setAccessibleDescription('')
+        self.path_edit.setToolTip('')
         if not self._details_has_content:
             self._feedback('')
         self._show_suggestions()

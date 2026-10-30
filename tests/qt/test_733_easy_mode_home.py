@@ -1251,8 +1251,13 @@ def test_owned_inspection_failure_retires_stale_actions_without_reviving_blank_i
         qtbot, private_ai_profile, isolated_input_root, blank):
     from spacr.qt.widgets.home import _EasyHomePage
 
+    preferences, _, _ = private_ai_profile
+    preferences.set_reduce_motion(True)
+    preferences.set_ambient_enabled(False)
+    preferences._set_flow_graphics_backend('cpu')
     path = isolated_input_root / 'field.tif'
     _image(path)
+    original = path.read_bytes()
     page = _EasyHomePage()
     qtbot.addWidget(page)
     if not blank:
@@ -1263,14 +1268,22 @@ def test_owned_inspection_failure_retires_stale_actions_without_reviving_blank_i
         qtbot.waitUntil(lambda: page._last_result is not None and not page._runner.is_busy(), timeout=5000)
         assert any(card._key == 'mask' for card in page.field.cards)
         if blank:
+            retained = page.field.details.toPlainText()
+            assert retained and page.status.text()
             page.path_edit.clear()
             page._clear_empty_input()
+            assert page.status.text() == ''
+            assert page.path_edit.accessibleDescription() == page.path_edit.toolTip() == ''
+            assert page.field.details.toPlainText() == retained
         with qtbot.waitSignal(page._runner.job_finished, timeout=5000):
             page._runner.submit(_fail_owned_home_inspection)
         qtbot.waitUntil(lambda: not page._runner.active_jobs(), timeout=5000)
         if blank:
             assert not page.field.cards and page.path_edit.text() == ''
             assert not page.status.text()
+            assert page.path_edit.accessibleDescription() == page.path_edit.toolTip() == ''
+            assert page.field.details.toPlainText() == retained
+            assert page._last_result is None and page._settings_overrides == {}
         else:
             assert not page.field.cards
             assert 'Check permissions' in page.status.text()
@@ -1279,7 +1292,7 @@ def test_owned_inspection_failure_retires_stale_actions_without_reviving_blank_i
             assert not page.field.details.visibleRegion().isEmpty()
             assert page.path_edit.accessibleDescription() == page.status.text()
             assert page.path_edit.toolTip() == page.status.text()
-        assert path.exists()
+        assert path.exists() and path.read_bytes() == original
     finally:
         page.close()
 
