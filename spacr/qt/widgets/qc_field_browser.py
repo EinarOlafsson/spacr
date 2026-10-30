@@ -6291,8 +6291,6 @@ class _FieldOverview(QWidget):
     def _clear_pixel_readout(self):
         """Empty the readout strip; its height stays, so nothing moves."""
         self._readout_pending = None
-        if getattr(self, "_pixel_readout", None) is None:
-            return
         self._readout_timer.stop()
         self._pixel_readout.clear()
 
@@ -13709,9 +13707,8 @@ class _OverviewModulePage(QWidget):
         if bar is None or not isValid(bar):
             return
         scroll = bar.parentWidget()
-        if scroll is not None:
-            scroll.removeEventFilter(bar)
-            scroll.setViewportMargins(0, 0, 0, 0)
+        scroll.removeEventFilter(bar)
+        scroll.setViewportMargins(0, 0, 0, 0)
         bar.hide()
         bar.deleteLater()
 
