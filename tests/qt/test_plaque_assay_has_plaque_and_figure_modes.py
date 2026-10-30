@@ -920,12 +920,24 @@ def _shown(panel, view):
     return panel._view.array()
 
 
-def test_the_image_offers_the_four_views_of_mask_generation(panel):
+def test_the_image_offers_the_four_views_of_mask_generation(panel, tmp_path):
     from spacr.qt.widgets import segmentation_views as sv
 
     selector = panel._view_selector
-    assert [selector.itemData(i) for i in range(selector.count())] == [
-        "Overlay", "Masks", "Flows", "Cell probability"]
+    expected = (*sv.VIEWS, "None")
+    assert tuple(selector.itemData(i) for i in range(selector.count())) == expected
+    assert selector.currentData() == sv.OVERLAY and panel.views().view() == sv.OVERLAY
+    _flat_png(tmp_path / "source.png")
+    panel.load_source_async(str(tmp_path))
+    assert panel.run_preview(segment=_with_flows)
+    original = panel.views().arrays()["image"].copy()
+    for index, view in enumerate(expected):
+        selector.setCurrentIndex(index)
+        assert selector.currentData() == view and panel.views().view() == view
+    assert not panel.views().is_showing_message()
+    assert np.array_equal(panel.views().rendered(), original)
+    assert np.array_equal(panel.views().arrays()["image"], original)
+    selector.setCurrentIndex(selector.findData(sv.OVERLAY))
     assert list(ppv.IMAGE_TABS) == list(sv.VIEWS)
     assert isinstance(panel.views(), sv.SegmentationViews)
     assert panel.views().view() == "Overlay"

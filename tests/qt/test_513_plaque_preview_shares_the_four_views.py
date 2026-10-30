@@ -76,12 +76,25 @@ def _show(panel, view):
     return panel._view.array()
 
 
-def test_the_views_are_mask_generations_views(panel):
+def test_the_views_are_mask_generations_views(panel, tmp_path):
     from spacr.qt.widgets.live_preview import VIEW_MODES
 
     selector = panel._view_selector
     offered = [selector.itemData(i) for i in range(selector.count())]
-    assert offered == list(VIEW_MODES) == list(sv.VIEWS)
+    assert offered == [*sv.VIEWS, "None"]
+    assert offered[:len(sv.VIEWS)] == list(VIEW_MODES) == list(sv.VIEWS)
+    assert selector.currentData() == sv.OVERLAY and panel.views().view() == sv.OVERLAY
+    _flat_png(tmp_path / "source.png")
+    panel.load_source_async(str(tmp_path))
+    assert panel.run_preview(segment=lambda path: (_labels(), _flows()))
+    original = panel.views().arrays()["image"].copy()
+    for index, view in enumerate(offered):
+        selector.setCurrentIndex(index)
+        assert selector.currentData() == view and panel.views().view() == view
+    assert not panel.views().is_showing_message()
+    assert np.array_equal(panel.views().rendered(), original)
+    assert np.array_equal(original, np.full((60, 60, 3), GREY, dtype=np.uint8))
+    selector.setCurrentIndex(selector.findData(sv.OVERLAY))
     assert isinstance(panel.views(), sv.SegmentationViews)
     assert panel.views().canvas is panel._view, "one canvas, one ruler"
     assert ppv.render_cellprob is sv.render_cellprob, "no second renderer"

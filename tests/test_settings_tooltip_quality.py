@@ -105,8 +105,8 @@ DEFAULT_VARIANT_EXPECTATIONS = {
     ),
     ("analyze_plaques", "diameter"): DefaultVariant(
         "30", "0", ACCURATE_SHARED,
-        "Plaque Assay defaults to the model's own scale at 0, while the "
-        "legacy Cellpose tools retain 30; the tooltip explicitly names both.",
+        "Plaque Assay defaults to model scale at 0; the shared tooltip "
+        "separately names mask-finetune's 30 and check_cellpose_models' 40.",
     ),
     ("analyze_plaques", "background"): DefaultVariant(
         "100", "200", ACCURATE_SHARED,
@@ -1189,7 +1189,12 @@ if app_key == "mask":
     assert "0 uses the model's own scale" in tooltips["plaque_well_resize"]
     assert "Plaque Assay starts at 0" in tooltips["diameter"]
     assert "original input-image pixels" in tooltips["diameter"]
-    assert "Default 30 in the legacy tools" in tooltips["diameter"]
+    assert "Default 30 for mask-finetune" in tooltips["diameter"]
+    assert "check_cellpose_models starts at 40" in tooltips["diameter"]
+    from spacr.settings import (get_check_cellpose_models_default_settings,
+                                get_identify_masks_finetune_default_settings)
+    assert get_check_cellpose_models_default_settings({})["diameter"] == 40
+    assert get_identify_masks_finetune_default_settings({})["diameter"] == 30
     well_resize_arrivals = {("analyze_plaques", key) for key in well_resize_defaults}
     assert well_resize_arrivals <= compared_pairs
     assert not well_resize_arrivals & (recognized_arrivals | variants.keys())
@@ -1333,8 +1338,8 @@ if app_key == "mask":
     # no hit). The tooltip now says "Default True in Cellpose Masks", which
     # matches both modules' True, so there is no variant left to record and
     # no plaque fact to keep.
-    # Plaque Assay now defaults to model scale (0), while legacy tools keep
-    # 30; its explicit shared-tooltip exception is recorded by exact value.
+    # Plaque Assay uses model scale (0); fine-tuning's 30 and model checks'
+    # 40 are named separately, with this exception recorded by exact value.
     assert len(variants) == 47
     assert variants == expected
     assert {

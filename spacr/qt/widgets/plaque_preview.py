@@ -4314,7 +4314,12 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
 
         :returns: setting name -> value.
         """
-        s = self.current_settings()
+        syncing = getattr(self, '_syncing_form_settings', False)
+        self._syncing_form_settings = True
+        try:
+            s = self.current_settings()
+        finally:
+            self._syncing_form_settings = syncing
         out = {MODE_KEY: s[MODE_KEY], "diameter": s["diameter"],
                "flow_threshold": s["flow_threshold"], "CP_prob": s["CP_prob"],
                "minimum_object_size": s["minimum_object_size"]}
