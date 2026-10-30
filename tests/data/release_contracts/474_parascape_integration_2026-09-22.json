@@ -159,7 +159,7 @@
     "Create ParaScape environment",
     "Install pip",
     "Install ParaScape and dependencies",
-    "Check ParaScape and bundled data",
+    "Check ParaScape and data setup",
     "ParaScape is installed"
   ],
   "new_tile_description": "Explore the Toxoplasma knowledge map in a separate alpha application.",

@@ -557,7 +557,7 @@ def test_mosaic_hold_and_initial_departure_have_no_text_or_rules(host_cover, mon
     def unexpected_strap(*args):
         raise AssertionError('Mosaic rendering must not draw the plain-fallback strap.')
 
-    monkeypatch.setattr(cover, '_paint_strap_under', unexpected_strap)
+    monkeypatch.setattr(cover, '_paint_strap', unexpected_strap)
     assert_clear_below_logo(cover.grab())
     assert cover.blow_away(force=True, plain=plain)
     clock.now += ls._MOSAIC_MIN_HOLD_S
