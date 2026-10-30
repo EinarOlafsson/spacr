@@ -2020,6 +2020,14 @@ def _add_figure_summaries(total, part):
 
 
 def _segment_figure_crop(crop, *, settings, model_path, cache):
+    """Segment a figure crop with a lazily cached Cellpose segmenter.
+
+    :param crop: image crop to segment.
+    :param settings: plaque segmentation settings used when the cache is initialized.
+    :param model_path: plaque Cellpose checkpoint used to build the segmenter.
+    :param cache: mutable segmenter cache for the current figure-analysis run.
+    :returns: the instance-label mask and segmentation diagnostics.
+    """
     from . import plaque_papers
 
     if 'segmenter' not in cache:

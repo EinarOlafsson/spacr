@@ -4227,6 +4227,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._missing_entry = None
 
     def _sync_form_settings(self):
+        """Merge changed host-form settings into the preview without recursive updates."""
         provider = getattr(self, '_form_settings_provider', None)
         if not callable(provider) or getattr(self, '_syncing_form_settings', False):
             return

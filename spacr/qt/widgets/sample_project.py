@@ -423,12 +423,27 @@ def offer_a_sample_project(window, opener: Callable[[str], object],
 
 
 class _ProtocolDocument(QTextDocument):
+    """Keep protocol instructions passive by refusing document resource loads."""
     def loadResource(self, kind, url):
+        """Refuse resource loading while the protocol instructions are rendered.
+
+        :param kind: requested document resource category.
+        :param url: requested resource URL.
+        :returns: ``None`` instead of resource data.
+        """
         return None
 
 
 class _ProtocolBrowserDialog(QDialog):
+    """Browse source-aware protocol choices, workflow diagrams and linked instructions."""
     def __init__(self, parent=None, source_path='', context=None, *, data=None):
+        """Initialize the browser choices and views from the supplied input context.
+
+        :param parent: owner widget, or ``None``.
+        :param source_path: input path retained for explicit module links.
+        :param context: input metadata copied to choose the initial protocol branch.
+        :param data: optional workflow map; the shared map is used when omitted.
+        """
         from PySide6.QtWidgets import QListWidget, QPushButton, QTextBrowser
 
         super().__init__(parent)
@@ -490,6 +505,11 @@ class _ProtocolBrowserDialog(QDialog):
         self._set_input(source_path, context)
 
     def _set_input(self, source_path='', context=None):
+        """Choose the initial protocol branch from the source path and copied metadata.
+
+        :param source_path: input path retained for explicit module links.
+        :param context: input metadata copied before selecting a branch.
+        """
         self._source_path = str(source_path or '')
         self._context = deepcopy(context or {})
         self._source_label.setText(tr('Input: {path}', path=self._source_path))
@@ -524,6 +544,7 @@ class _ProtocolBrowserDialog(QDialog):
         self._show_level()
 
     def _show_level(self):
+        """Render the current choice level and its selected protocol, if any."""
         node = self._trail[-1]
         self._heading.setText(tr(node.get('title', 'Protocols')))
         self._previous.setEnabled(len(self._trail) > 1)
@@ -547,6 +568,10 @@ class _ProtocolBrowserDialog(QDialog):
             self._text.setPlainText(tr(node.get('description', '')))
 
     def _choice_changed(self, row):
+        """Remember the chosen child and show its description.
+
+        :param row: choice-list row; an invalid row shows the current level's description.
+        """
         node = self._trail[-1]
         children = node.get('children', ())
         self._next.setEnabled(0 <= row < len(children))
@@ -557,6 +582,7 @@ class _ProtocolBrowserDialog(QDialog):
         self._text.verticalScrollBar().setValue(0)
 
     def _next_level(self):
+        """Enter the currently selected child when its row is valid."""
         children = self._trail[-1].get('children', ())
         row = self._choice_list.currentRow()
         if 0 <= row < len(children):
@@ -564,11 +590,16 @@ class _ProtocolBrowserDialog(QDialog):
             self._show_level()
 
     def _previous_level(self):
+        """Return to the parent choice level without leaving the root."""
         if len(self._trail) > 1:
             self._trail.pop()
             self._show_level()
 
     def _display_protocol(self, key):
+        """Show the selected protocol workflow and its linked step instructions.
+
+        :param key: protocol identifier; an unknown key displays the no-match message.
+        """
         while self._diagram_layout.count():
             item = self._diagram_layout.takeAt(0)
             widget = item.widget()
@@ -602,6 +633,12 @@ class _ProtocolBrowserDialog(QDialog):
             self._diagram.describe_node(start)
 
     def _protocol_html(self, protocol, steps):
+        """Render escaped protocol steps, artifacts and explicit module, API and tutorial links.
+
+        :param protocol: protocol record containing its title, summary and checkpoint.
+        :param steps: ordered steps whose modules are present in the workflow map.
+        :returns: the protocol instructions as HTML.
+        """
         from html import escape
         from ..ai.prompts import _navigation_modules
         from ..help_search import api_url
@@ -640,6 +677,11 @@ class _ProtocolBrowserDialog(QDialog):
         return ''.join(parts)
 
     def _artifacts_html(self, keys):
+        """Render escaped artifact titles and locations for the protocol instructions.
+
+        :param keys: artifact identifiers in display order.
+        :returns: semicolon-separated HTML text for their titles and locations.
+        """
         from html import escape
 
         records = []
@@ -652,9 +694,18 @@ class _ProtocolBrowserDialog(QDialog):
         return '; '.join(records)
 
     def _select_step(self, key):
+        """Scroll the rendered instructions to the selected module step.
+
+        :param key: module key used by the step's HTML anchor.
+        """
         self._text.scrollToAnchor('step-' + key)
 
     def _activate_link(self, url):
+        """Open explicitly selected links, passing the retained input to available module routes.
+
+        :param url: explicitly activated module or external link.
+        :returns: whether the module or external link was handled.
+        """
         from .ai_chat_panel import _activate_ai_link, _ai_module_key
 
         key = _ai_module_key(url)
@@ -674,6 +725,13 @@ class _ProtocolBrowserDialog(QDialog):
 
 
 def _show_protocols(parent, source_path='', context=None):
+    """Show or reuse a protocol browser for the supplied source context.
+
+    :param parent: owner widget, or ``None``.
+    :param source_path: input path retained for explicit module links.
+    :param context: input metadata used to choose protocol branches.
+    :returns: the reused or newly created protocol browser dialog.
+    """
     dialog = getattr(parent, '_protocol_browser_dialog', None)
     try:
         reusable = dialog is not None and dialog.objectName() == 'ProtocolBrowser'

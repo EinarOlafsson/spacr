@@ -100,6 +100,11 @@ def is_installed(root=None) -> bool:
 
 
 def _can_repair(root) -> bool:
+    """Whether a non-symlink ParaScape environment has the files needed for repair.
+
+    :param root: external-application folder.
+    :returns: true with a nonempty recorded version and an interpreter file.
+    """
     env = apps_root(root) / "parascape"
     if env.is_symlink():
         return False
