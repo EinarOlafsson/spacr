@@ -140,8 +140,9 @@ def frozen_window(qtbot, monkeypatch, tmp_path, request):
                           "expires": install_cleanup.time.time() + 3600}}
     events = []
     messages = _Messages(monkeypatch)
-    monkeypatch.setattr(bridge, "registry", lambda: SimpleNamespace(
-        cancel_all=lambda **kwargs: events.append("veto checks") or []))
+    monkeypatch.setattr(bridge, "retire_live_work",
+                        lambda **kwargs: events.append("veto checks") or 0)
+    monkeypatch.setattr(bridge, "registry", lambda: SimpleNamespace(active=lambda: []))
     monkeypatch.setattr(qt_app, "QApplication", SimpleNamespace(
         instance=lambda: SimpleNamespace(quit=lambda: events.append("quit"))))
     monkeypatch.setattr(install_cleanup, "start_update_helper", lambda *args, **kwargs: plan)
@@ -283,7 +284,7 @@ def test_frozen_close_veto_or_approval_failure_preserves_the_gui(
             monkeypatch.setattr(install_cleanup.time, "time", lambda: deadline + 1)
         return []
 
-    monkeypatch.setattr(bridge, "registry", lambda: SimpleNamespace(cancel_all=drain))
+    monkeypatch.setattr(bridge, "retire_live_work", lambda **kwargs: len(drain(**kwargs)))
     write = state.handshake._write
 
     def publish(name, *args, **kwargs):

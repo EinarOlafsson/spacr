@@ -1974,6 +1974,8 @@ def test_a_news_fetch_that_outlasts_the_close_is_detached_not_destroyed(
     deferred-delete flush destroyed the window with the fetch still running.
     The socket timeout does not bound name resolution, so the close wait can
     run out; what outlives it has to leave the window before the window goes.
+    Shutdown now also refuses destruction until that parked fetch finishes,
+    since detaching it alone does not make interpreter exit safe.
     """
     import threading
 
@@ -1992,26 +1994,36 @@ def test_a_news_fetch_that_outlasts_the_close_is_detached_not_destroyed(
     monkeypatch.delenv("SPACR_NO_NETWORK", raising=False)
     monkeypatch.setattr(updater, "fetch_release_notes", _unanswered_fetch)
     monkeypatch.setattr(MainWindow, "_UPDATE_WORKER_WAIT_MS", 50)
+    retire = bridge.retire_live_work
+    monkeypatch.setattr(bridge, 'retire_live_work',
+                        lambda timeout_ms: retire(min(timeout_ms, 50)))
+    warnings = []
+    monkeypatch.setattr(QMessageBox, 'warning', lambda *args: warnings.append(args[2]))
     win._refresh_news()
     worker = win._news_worker
     assert worker.isRunning(), "the fetch should still be in flight"
 
     try:
-        win.close()
+        assert win.close() is False
+        assert not win._closing
+        assert warnings and 'No worker was force-terminated' in warnings[0]
         assert worker.parent() is None, (
             "a fetch still running at close stayed a child of the window, "
             "so deleting the window destroys a running QThread")
         assert any(thread is worker
                    for thread, _ in list(bridge._PARKED_THREADS))
-        win.deleteLater()
         QApplication.sendPostedEvents(None, QEvent.DeferredDelete)
-        assert worker.isRunning(), "the fetch survives its window"
+        assert worker.isRunning(), "the fetch survives the refused close"
     finally:
         release.set()
     assert worker.wait(10_000)
     bridge.prune_parked_threads()
     assert not any(thread is worker
                    for thread, _ in list(bridge._PARKED_THREADS))
+    assert win.close() is True
+    assert win._closing
+    win.deleteLater()
+    QApplication.sendPostedEvents(None, QEvent.DeferredDelete)
 
 
 def test_a_news_refresh_asked_for_after_close_starts_no_thread(

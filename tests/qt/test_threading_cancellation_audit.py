@@ -465,6 +465,10 @@ def test_main_window_refuses_shutdown_while_analysis_is_live(
 
     class LiveHandle:
         app_key = "measure"
+        blocks_shutdown = True
+
+        def is_running(self):
+            return True
 
     warnings = []
     monkeypatch.setattr(
@@ -478,6 +482,7 @@ def test_main_window_refuses_shutdown_while_analysis_is_live(
     )
     window = MainWindow()
     qtbot.addWidget(window)
+    monkeypatch.setattr(bridge.registry(), 'active', lambda: [LiveHandle()])
     event = QCloseEvent()
 
     window.closeEvent(event)
