@@ -1096,12 +1096,25 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
         # 2026-10-25 (item 725): the Overview tile-size slider binds the reviewed
         # image_size setting label as a plain ui caption with the same wording.
         "Image size": "80bb38dca36b0439367670908cfe04711b4e9d5dfabc789bf4dd8f21935cd4f9",
+        # 2026-10-31 (item 741): the drug-screen Regression settings bind the
+        # reviewed "Replicate column" and "Screen type" captions as setting
+        # labels, with the same reviewed wording.
+        "Replicate column": "f34875e29c6aee0c3a97ea7386c6e70f072f9fcb0c34cc79ef096eaefeb0ebe8",
+        "Screen type": "01df74b6c3482a5f04b587ba4f0b488a0fe209ef9dd46739eeca36cb17d16262",
     }
     assert latest_batches & sources == repeated_sources.keys()
     current_files = {
         "Object type": "2026-10-16-705-ui-arrival-bindings.json",
         "Save measurements": "2026-10-16-705-ui-arrival-bindings.json",
         "Image size": "2026-10-25-overview-round-two-cq1-psf-and-measurements.json",
+        "Replicate column": "2026-10-31-factual-map-barcodes-pipeline-ai-review.json",
+        "Screen type": "2026-10-31-factual-map-barcodes-pipeline-ai-review.json",
+    }
+    current_identities = {"Replicate column": ("setting_labels", "replicate_column"),
+                          "Screen type": ("setting_labels", "screen_type")}
+    previous_identities = {
+        "Replicate column": ("2026-09-27-runtime-debt-sixth-pass-captions.json", "ui", "Replicate column"),
+        "Screen type": ("2026-09-27-runtime-debt-sixth-pass-captions.json", "ui", "Screen type"),
     }
     previous_keys = {"Batch size": "batch_size", "Learning rate": "learning_rate", "Train": "train",
                      "Object type": "object_type", "Save measurements": "save_measurements",
@@ -1112,20 +1125,20 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
                    if row["source"] == source]
         assert len(current) == 1
         current = current[0]
-        assert current["table"] == "ui" and current["key"] == source
+        assert (current["table"], current["key"]) == current_identities.get(source, ("ui", source))
         assert current["source_sha256"] == source_hash
         assert hashlib.sha256(source.encode()).hexdigest() == source_hash
-        previous_file = (
+        previous_file, previous_table, previous_key = previous_identities.get(source, (
             "2026-09-30-runtime-meaning-fixes-eleventh-pass.json"
             if source == "Train" or (language == "sv" and source == "Batch size")
-            else "2026-10-01-runtime-review-twelfth-pass-labels.json"
-        )
+            else "2026-10-01-runtime-review-twelfth-pass-labels.json",
+            "setting_labels", previous_keys.get(source)))
         previous = [row for row in json.loads((folder / previous_file).read_text(encoding="utf-8"))["records"]
                     if row["source"] == source]
         assert len(previous) == 1
         previous = previous[0]
-        assert previous["table"] == "setting_labels"
-        assert previous["key"] == previous_keys[source]
+        assert previous["table"] == previous_table
+        assert previous["key"] == previous_key
         assert previous["source_sha256"] == source_hash
         assert previous["translation"] == current["translation"] == reviewed[source]
         assert [row for row in batches if row["source"] == source] == [current]
