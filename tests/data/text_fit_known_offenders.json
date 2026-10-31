@@ -1,6 +1,7 @@
 {
  "de-1.0|header|QHeaderView|Platte / Vorschlag": "regression",
  "de-1.0|header|QHeaderView|Quelle der Zähldaten": "regression",
+ "de-1.0|header|QHeaderView|Zwischenspeicher": "__preferences__:7",
  "de-1.0|label-height|CategoryHintStrip|MODELL & INFERENZ — Two questions, asked in order. WHAT IS E": "regression",
  "de-1.0|label-height|DisplayHeading|Masken erstellen": "make_masks",
  "de-1.0|label-height|Muted|Open a folder of Bilder, correct each mask, and save it back": "make_masks",
@@ -10,6 +11,7 @@
  "de-1.0|placeholder-width|SettingsSearchInput|Sucheinstellungen...": "mask",
  "de-2.0|button-height|QPushButton|Weiter": "__tour__",
  "de-2.0|button-width|PlateTemplateButton|Vorlage laden…": "experiment_design",
+ "de-2.0|button-width|PreferencesReset|Zurücksetzen auf Standardwerte": "__preferences__:0",
  "de-2.0|button-width|PrimaryButton|Einstellungen im Modul laden": "run_history",
  "de-2.0|button-width|Primary|Vorhaben": "align",
  "de-2.0|button-width|QPushButton|Abgeschlossene entfernen": "queue",

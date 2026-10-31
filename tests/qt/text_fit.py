@@ -267,7 +267,8 @@ def sweep(scale: float, language: str, shots: str = "") -> list:
     Visible dialogs (the first-run notices) are measured with the screen
     in front. The first-run tour, which otherwise appears after a delay
     that depends on load, is marked seen and measured once, on purpose,
-    over the home screen.
+    over the home screen, and so are the anonymised-report notice and each
+    page of Preferences.
 
     :param scale: the Zoom factor.
     :param language: the interface language code.
@@ -346,6 +347,25 @@ def sweep(scale: float, language: str, shots: str = "") -> list:
         measure("__tour__")
         tour.close()
         tour.deleteLater()
+    from spacr.qt.install_consent import AnonymousReportNotice
+
+    notice = AnonymousReportNotice(window)
+    notice.show()
+    measure("__report_notice__")
+    notice.close()
+    notice.deleteLater()
+
+    from PySide6.QtWidgets import QTabWidget
+
+    dialog = preferences.PreferencesDialog(window)
+    dialog.show()
+    tabs = dialog.findChild(QTabWidget, "PreferencesTabs")
+    for index in range(tabs.count() if tabs is not None else 0):
+        tabs.setCurrentIndex(index)
+        measure(f"__preferences__:{index}")
+    dialog.close()
+    dialog.deleteLater()
+
     for key, *_rest in app_mod.APPS:
         window._on_nav_selected(key)
         measure(key)
