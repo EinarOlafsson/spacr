@@ -30,6 +30,7 @@ shown before the first unvetted community row -- see
 from __future__ import annotations
 
 import contextlib
+from functools import partial
 import os
 import threading
 from types import SimpleNamespace
@@ -1567,26 +1568,33 @@ class ModelZooPicker(QDialog):
         self._draw_generation += 1
         generation = self._draw_generation
         self._begin_rebuild(entries)
-        state = {"row": 0}
+        QTimer.singleShot(0, partial(self._draw_a_slice, generation, 0))
 
-        def step() -> None:
-            import time
+    def _draw_a_slice(self, generation: int, first: int) -> None:
+        """Draw rows from ``first`` until the slice budget is spent.
 
-            if generation != self._draw_generation:
-                return
-            started = time.perf_counter()
-            rows = len(self._groups)
-            while state["row"] < rows:
-                self._draw_row(state["row"])
-                state["row"] += 1
-                if time.perf_counter() - started >= self._STEP_BUDGET_S:
-                    break
-            if state["row"] < rows:
-                QTimer.singleShot(0, step)
-            else:
-                self._end_rebuild()
+        :param generation: the draw this slice belongs to; a newer draw
+            makes it do nothing.
+        :param first: the first row of this slice.
+        """
+        import time
 
-        QTimer.singleShot(0, step)
+        from PySide6.QtCore import QTimer
+
+        if generation != self._draw_generation:
+            return
+        started = time.perf_counter()
+        rows = len(self._groups)
+        row = first
+        while row < rows:
+            self._draw_row(row)
+            row += 1
+            if time.perf_counter() - started >= self._STEP_BUDGET_S:
+                break
+        if row < rows:
+            QTimer.singleShot(0, partial(self._draw_a_slice, generation, row))
+        else:
+            self._end_rebuild()
 
     def _rebuild(self, entries) -> None:
         """Redraw the table from this list of entries.
