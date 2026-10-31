@@ -432,7 +432,10 @@ def _ensure_pages_qss(screen: QWidget) -> None:
         from ..theme import ensure_widget_qss_applied, register_widget_qss
 
         register_widget_qss(PAGES_NAME, _pages_qss, replace=True)
-        strip = _start_pages(screen) if _page_body(screen) is not None else None
+        strip = getattr(screen, "_fold_pages", None)
+        if not (isinstance(strip, QTabWidget) and isValid(strip)):
+            strip = (_start_pages(screen)
+                     if _page_body(screen) is not None else None)
         ensure_widget_qss_applied(PAGES_NAME,
                                   root=strip if strip is not None else screen)
     except Exception:

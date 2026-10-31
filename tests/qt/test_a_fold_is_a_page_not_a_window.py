@@ -89,10 +89,12 @@ def test_a_later_fold_refreshes_the_existing_hosts_qss_scope(
     folded = QWidget()
     qtbot.addWidget(folded)
     try:
-        assert name not in screen.styleSheet()
+        assert name not in pages.styleSheet()
+        host_sheet = screen.styleSheet()
         assert map_barcodes.show_as_page(folded, screen, "Second") is folded
         assert screen._fold_pages is pages
-        assert f"registered widget QSS: {name}" in screen.styleSheet()
+        assert f"registered widget QSS: {name}" in pages.styleSheet()
+        assert screen.styleSheet() == host_sheet
         assert qt_theme_applied.styleSheet() == live_sheet
     finally:
         unregister_widget_qss(name)
@@ -205,8 +207,9 @@ def test_the_page_strip_is_styled_by_the_time_it_exists(
     """An unstyled tab strip is a black rectangle, not a slightly-off one.
 
     A fold is opened long after the application stylesheet was composed.
-    Its rule is installed on the host screen before the tab strip is made,
-    without rebuilding the application sheet around every cached screen.
+    Its rule is installed on the tab strip itself, before it is shown and
+    without restyling the host screen or rebuilding the application sheet
+    around every cached screen.
     """
     from PySide6.QtWidgets import QApplication
 
@@ -228,7 +231,8 @@ def test_the_page_strip_is_styled_by_the_time_it_exists(
 
         assert map_barcodes.PAGES_NAME in widget_qss_names()
         assert app.styleSheet() == live_sheet
-        assert f"QTabWidget#{map_barcodes.PAGES_NAME}" in screen.styleSheet()
+        assert f"QTabWidget#{map_barcodes.PAGES_NAME}" in screen._fold_pages.styleSheet()
+        assert f"QTabWidget#{map_barcodes.PAGES_NAME}" not in screen.styleSheet()
     finally:
         # The themed application is a session fixture; leaving it holding
         # this test's sheet would follow every test after it.
