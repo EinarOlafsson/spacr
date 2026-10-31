@@ -4795,9 +4795,12 @@ def get_tooltips_enabled() -> bool:
 
     The master switch read by :mod:`spacr.qt.tooltip_policy`, the one event
     filter on ``QApplication`` that decides when every tooltip appears and
-    goes. Cleared, no tooltip is shown at all; the two settings surfaces --
-    :func:`get_tooltips_box_enabled` and
-    :func:`get_tooltips_bottom_enabled` -- are separate and unaffected.
+    goes. Cleared, no tooltip is shown at all, and hover help waits on
+    :class:`spacr.qt.tooltip_policy.HoverDelay`, which then never fires:
+    the settings box (:func:`get_tooltips_box_enabled`) and the setting
+    help written into the bottom strip (:func:`get_tooltips_bottom_enabled`)
+    do not appear either. Their own switches keep their stored values.
+    Accessible names and descriptions are left on the widgets.
     """
     return _as_bool(_settings().value(_KEY_TOOLTIPS_ENABLED,
                                       DEFAULT_TOOLTIPS_ENABLED),
