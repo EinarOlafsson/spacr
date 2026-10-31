@@ -356,11 +356,11 @@ def check_design(design: PlateDesign,
                 f"{int(block['column_index'].iloc[0])}. Any column-wise "
                 "gradient is now indistinguishable from the control."))
 
-    if design.layout == "block" and len(design.conditions) > 1:
+    if design.layout != "random" and len(design.conditions) > 1:
         findings.append(DesignFinding(
             "block_layout_confounds_position", "warn",
-            "A block layout puts each condition's replicates next to each "
-            "other, so condition and plate position vary together and no "
+            f"A {design.layout} layout puts each condition's replicates next "
+            "to each other, so condition and plate position vary together and no "
             "analysis can separate them. Use the random layout unless the "
             "pipetting cost is genuinely prohibitive."))
 

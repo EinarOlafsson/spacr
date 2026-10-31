@@ -212,11 +212,23 @@ def test_a_control_confined_to_one_row_is_warned_about():
     assert "negative_control_in_one_row" in _keys(findings)
 
 
-def test_a_block_layout_is_told_it_confounds_position():
-    findings = check_design(_design(layout="block"))
+@pytest.mark.parametrize("layout", ["row", "column", "block"])
+def test_every_plate_order_layout_is_told_it_confounds_position(layout):
+    findings = check_design(_design(layout=layout))
     assert "block_layout_confounds_position" in _keys(findings)
+    message = next(f.message for f in findings
+                   if f.key == "block_layout_confounds_position")
+    assert message.startswith(f"A {layout} layout")
+
+
+def test_a_random_layout_is_not_told_it_confounds_position():
     assert "block_layout_confounds_position" not in _keys(
         check_design(_design(layout="random")))
+
+
+def test_one_condition_cannot_be_confounded_with_position():
+    design = _design(layout="row", conditions=(Condition("only", 12),))
+    assert "block_layout_confounds_position" not in _keys(check_design(design))
 
 
 # -- the other findings -----------------------------------------------------
