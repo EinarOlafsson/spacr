@@ -173,6 +173,10 @@ def _validate_protocol_wizard(data):
     for family in ('small_images', 'plate_images'):
         if 'pdf' not in families[family]['formats']:
             raise ValueError('both image families require the PDF route')
+    for group, recipes in wizard.get('recipe_defaults', {}).items():
+        if group not in {*families, 'modules'} or any(key not in allowed or name not in data['protocols']
+                                                    for key, name in recipes.items()):
+            raise ValueError(f'invalid curated protocol defaults: {group}')
     for source in ('image_formats', 'experiments', 'read_modes', 'sequencers', 'barcodes'):
         if not wizard.get(source) or any(not row.get('label') or not row.get('explanation')
                                           for row in wizard[source].values()):

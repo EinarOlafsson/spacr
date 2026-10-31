@@ -540,6 +540,66 @@ def _protocol_catalog(data=None):
     return catalog
 
 
+def _protocol_steps(start, family, data, catalog, *, volume=False):
+    """Resolve a curated ordered recipe and explicitly conditional continuations.
+
+    :param start: explicitly available entry module, or an empty string.
+    :param family: selected input family, used to avoid feature/image recipe mixing.
+    :param data: canonical workflow and curated protocol records.
+    :param catalog: registry-backed module contracts.
+    :param volume: a resolved static Z volume needs the existing volume recipe.
+    :returns: recipe title, summary and ordered steps with prerequisite semantics.
+    """
+    if not start:
+        return '', '', []
+    if start == '3d':
+        module = catalog[start]
+        return module['name'], module['guidance'], [dict(module=start, action=module['guidance'], after=[], optional=False, phase='start')]
+    preferences = data['protocol_wizard'].get('recipe_defaults', {})
+    wanted = preferences.get(family, {}).get(start) or preferences.get('modules', {}).get(start)
+    recipes = data.get('protocols', {})
+    recipe = recipes.get('volumetric' if volume and start == 'make_masks' else wanted)
+    alias = 'mask' if start == '3d' else start
+    if recipe is None and not (start == 'foreign' and family != 'features'):
+        candidates = [record for record in recipes.values()
+                      if record['steps'][0]['module'] == alias]
+        if not candidates:
+            candidates = [record for record in recipes.values()
+                          if any(step['module'] == alias for step in record['steps'])]
+        recipe = min(candidates, key=lambda record: len(record['steps'])) if candidates else None
+    steps = []
+    if recipe is not None:
+        entered = False
+        for original in recipe['steps']:
+            if original['module'] == alias:
+                entered = True
+            if not entered or (not original['after'] and original['module'] != alias):
+                continue
+            step = deepcopy(original)
+            step['module'] = start if original['module'] == alias else original['module']
+            step['after'] = [start if name == alias else name for name in original['after']]
+            step['optional'] = bool(original.get('optional', False))
+            step['phase'] = 'start' if step['module'] == start else 'downstream'
+            steps.append(step)
+        included = {step['module'] for step in steps}
+        for step in steps:
+            step['after'] = [name for name in step['after']
+                             if name in included or name != 'external_masks']
+    if not steps:
+        steps = [dict(module=start, action=catalog[start]['guidance'], after=[],
+                      optional=False, phase='start')]
+    included = {step['module'] for step in steps}
+    for edge in (() if volume else data['connections']):
+        if (edge['from'] != start or edge['to'] in included
+                or not set(edge['artifacts']).intersection(catalog[start]['outputs'])):
+            continue
+        steps.append(dict(module=edge['to'], action=edge['handoff'], after=[start],
+                          optional=True, phase='downstream'))
+        included.add(edge['to'])
+    return (recipe['title'] if recipe else catalog[start]['name'],
+            recipe['summary'] if recipe else catalog[start]['guidance'], steps)
+
+
 def _protocol_result(family, format, choices=None, source_path='', context=None, *, data=None):
     """Resolve a fully chosen current-capability route without running analysis.
 
@@ -598,6 +658,11 @@ def _protocol_result(family, format, choices=None, source_path='', context=None,
                        'foreign', 'graph_builder', 'gate_editor', 'db_browser', 'qc_dashboard']
             if format == 'database_crops':
                 starts.extend(['annotate', 'classify_merged', 'umap'])
+    native_time_volume = any(item.get('z', 1) > 1 and item.get('t', 1) > 1
+                             and not item.get('axes_unresolved', True)
+                             for item in (context or {}).get('image_dimensions', ()))
+    if native_time_volume and family in ('small_images', 'plate_images'):
+        starts = ['mask']
     starts = list(dict.fromkeys(k for k in starts if k in catalog and catalog[k]['available']))
     source_path = str(source_path or '')
     selection = dict(family=family, format=format, choices=choices)
@@ -615,15 +680,15 @@ def _protocol_result(family, format, choices=None, source_path='', context=None,
             if choices['read_mode'] == 'single':
                 values['single_direction'] = choices['single_direction']
         overrides[key] = values
-    steps = []
-    for key in starts:
-        module = catalog[key]
-        steps.append(dict(module=key, action=module['guidance'], after=[], optional=True))
-    reachable = set(starts)
-    for edge in data['connections']:
-        if edge['from'] in starts and edge['to'] not in reachable:
-            reachable.add(edge['to'])
-            steps.append(dict(module=edge['to'], action=edge['handoff'], after=[edge['from']], optional=True))
+    active = starts[0] if starts else ''
+    static_volume = any(item.get('z', 1) > 1 and item.get('t', 1) <= 1
+                        and not item.get('axes_unresolved', True)
+                        for item in (context or {}).get('image_dimensions', ()))
+    recipe_title, recipe_summary, steps = _protocol_steps(active, family, data, catalog, volume=static_volume)
+    if native_time_volume and active:
+        note = data['modules']['mask']['documentation_note'].split('\n\n')[-1]
+        recipe_title, recipe_summary = catalog['mask']['name'], note
+        steps = [dict(module='mask', action=note, after=[], optional=False, phase='start')]
     selected_options = []
     for field in _protocol_options(family, format, choices, data=data):
         selected = next((row for row in field['options'] if row['key'] == choices.get(field['name'])), None)
@@ -631,7 +696,10 @@ def _protocol_result(family, format, choices=None, source_path='', context=None,
             selected_options.append(dict(label=field['label'], value=selected['label']))
     protocol = dict(title=tr('Protocol: {family}', family=tr(wizard['families'][family]['label'])),
                     summary=tr(record['explanation']), inputs=sorted({a for k in starts for a in catalog[k]['inputs']}),
-                    steps=steps, catalog=catalog, selection=selection, selected_options=selected_options, requirements=requirements)
+                    steps=steps, active_start=active, static_volume=static_volume, native_time_volume=native_time_volume,
+                    recipe_title=recipe_title, recipe_summary=recipe_summary,
+                    catalog=catalog, artifacts=deepcopy(data['artifacts']), selection=selection,
+                    selected_options=selected_options, requirements=requirements)
     artifacts = ({'raw_images', 'cellpose_tiffs'} if family in ('small_images', 'plate_images') else
                  {'fastq'} if family == 'sequencing' else
                  {'measurements', 'foreign_tables', 'crops'} if format == 'database_crops' else
@@ -650,30 +718,41 @@ def _protocol_result(family, format, choices=None, source_path='', context=None,
 
 
 def _protocol_handoff(result, key):
-    """Copy one available explicit card's context and compatible settings.
+    """Copy a starter or ordered downstream handoff without cached-source fallback.
 
     :param result: a resolved protocol result.
-    :param key: an available starting card's module key.
-    :returns: a detached payload; this function neither opens nor runs a module.
-    :raises ValueError: if the requested module is not one of the resolved cards.
+    :param key: an available starter or selected recipe step.
+    :returns: a detached payload; downstream inputs are authoritatively blank
+        until the required artifacts are chosen. No module is opened or run.
+    :raises ValueError: if the requested module is not a current starter or recipe step.
     """
     from ..ai.prompts import _navigation_modules
 
-    if key not in {row[0] for row in result['actions']} or key not in {row[0] for row in _navigation_modules()}:
+    starters = {row[0] for row in result['actions']}
+    steps = {step['module'] for step in result['protocol']['steps']}
+    if key not in starters | steps or key not in {row[0] for row in _navigation_modules()}:
         raise ValueError(tr('This module is not available for the selected protocol.'))
     from ..screens.settings_model import resolve_default_settings
 
-    context = deepcopy(result['context'])
+    downstream = key not in starters
+    context = ({'protocol_selection': deepcopy(result['protocol']['selection'])}
+               if downstream else deepcopy(result['context']))
     defaults = resolve_default_settings(key)
     settings = {name: deepcopy(value) for name, value in result['action_settings'].get(key, {}).items()
                 if name in defaults}
-    path = result['action_sources'][key]
+    path = '' if downstream else result['action_sources'][key]
+    if downstream and 'src' in defaults:
+        settings['src'] = ''
     if path and 'src' in defaults:
         settings['src'] = path
+    clear_source = downstream or bool(result['source_path'] and not path)
+    if clear_source and 'src' in defaults:
+        settings['src'] = ''
+    context['protocol_selection']['start_module'] = key
     if settings:
         inferred = context.setdefault('submodule_settings', {}).setdefault(key, {})
         inferred.setdefault('settings', {}).update(deepcopy(settings))
-    return dict(module=key, source_path=path, settings=settings, context=context)
+    return dict(module=key, source_path=path, settings=settings, context=context, clear_source=clear_source)
 
 
 def _protocol_setting_help(key):
@@ -707,14 +786,26 @@ def _protocol_markdown(result, checked=(), *, settings_help=None):
              tr('Starting modules are alternatives. Open a module explicitly; no analysis starts from this recipe.'), '']
     lines.extend(protocol['requirements'])
     lines.extend(['', tr('Selected options'), *[row['label'] + ': ' + row['value'] for row in protocol['selected_options']]])
-    for step in protocol['steps']:
+    lines.extend(['', '## ' + tr('Starting alternatives')])
+    for key, title, description, source in result['actions']:
+        lines.extend(['- [' + tr('View route: {module}', module=title) + '](spacr://protocol/route/' + key + ')', description])
+    lines.extend(['', '## ' + tr('Selected workflow'), tr(protocol['recipe_title']), tr(protocol['recipe_summary'])])
+    for index, step in enumerate(protocol['steps'], 1):
         key = step['module']
         module = protocol['catalog'][key]
-        lines.extend(['', '- [' + ('x' if key in checked else ' ') + '] [' + tr(module['name']) +
-                      '](spacr://module/' + key + ')', '', tr(step['action']), '',
+        lines.extend(['', str(index) + '. [' + ('x' if key in checked else ' ') + '] [' + tr(module['name']) +
+                      '](spacr://module/' + key + ')', '', tr(step['action']), ''])
+        if step['optional']:
+            lines.append(tr('Optional downstream step'))
+        if step['after']:
+            lines.append(tr('After: {modules}', modules=', '.join(tr(protocol['catalog'][name]['name']) for name in step['after'])))
+        lines.append(tr('Required artifacts: {artifacts}', artifacts=', '.join(tr(protocol['artifacts'][name]['title']) for name in module['inputs'])))
+        if step['phase'] == 'downstream':
+            lines.append(tr('Choose or produce these inputs before opening this step.'))
+        lines.extend(['',
                       '<details><summary>' + tr('Inputs, outputs and settings') + '</summary>', '',
-                      tr('Inputs') + ': ' + ', '.join(module['inputs']), '',
-                      tr('Outputs') + ': ' + ', '.join(module['outputs']), '',
+                      tr('Inputs') + ': ' + ', '.join(tr(protocol['artifacts'][name]['title']) for name in module['inputs']), '',
+                      tr('Outputs') + ': ' + ', '.join(tr(protocol['artifacts'][name]['title']) for name in module['outputs']), '',
                       *[tr(text) for text in module['preconditions']], '',
                       '<details><summary>' + tr('Setting explanations') + '</summary>', ''])
         for name, default, help_text in (settings_help or {}).get(key, ()):
@@ -737,8 +828,8 @@ def _protocol_markdown(result, checked=(), *, settings_help=None):
     lines.extend(['', '<details><summary>' + tr('All registered routes and prerequisites') + '</summary>', ''])
     for key, module in protocol['catalog'].items():
         lines.extend(['<details><summary>' + tr(module['name']) + '</summary>',
-                      tr(module['guidance']), tr('Inputs') + ': ' + ', '.join(module['inputs']),
-                      tr('Outputs') + ': ' + ', '.join(module['outputs']),
+                      tr(module['guidance']), tr('Inputs') + ': ' + ', '.join(tr(protocol['artifacts'][name]['title']) for name in module['inputs']),
+                      tr('Outputs') + ': ' + ', '.join(tr(protocol['artifacts'][name]['title']) for name in module['outputs']),
                       *[tr(text) for text in module['preconditions']], '</details>', ''])
     lines.append('</details>')
     return '\n'.join(lines)
@@ -888,12 +979,27 @@ class _ProtocolBrowserDialog(QDialog):
             parts.append('<h3>' + escape(tr('Selected options')) + '</h3><ul>')
             parts.extend('<li>' + escape(row['label'] + ': ' + row['value']) + '</li>' for row in protocol['selected_options'])
             parts.append('</ul>')
-        for step in protocol['steps']:
+        parts.append('<h2>' + escape(tr('Starting alternatives')) + '</h2><ul>')
+        for key, title, description, source in result['actions']:
+            label = escape(tr('View route: {module}', module=title))
+            parts.append('<li>' + (label if expand_all else '<a href="spacr://protocol/route/' + key + '">' + label + '</a>') + ': ' + escape(description) + '</li>')
+        parts.extend(['</ul><h2>' + escape(tr('Selected workflow')) + '</h2>',
+                      '<h3>' + escape(tr(protocol['recipe_title'])) + '</h3>',
+                      '<p>' + escape(tr(protocol['recipe_summary'])) + '</p>'])
+        for index, step in enumerate(protocol['steps'], 1):
             key = step['module']
             module = protocol['catalog'][key]
             mark = '[x]' if key in self._checked else '[ ]'
             check = mark if expand_all else '<a href="spacr://protocol/check/' + key + '">' + mark + '</a>'
-            parts.append('<h2>' + check + ' ' + escape(tr(module['name'])) + '</h2><p>' + escape(tr(step['action'])) + '</p>')
+            parts.append('<h2>' + str(index) + '. ' + check + ' ' + escape(tr(module['name'])) + '</h2>')
+            if step['optional']:
+                parts.append('<p><b>' + escape(tr('Optional downstream step')) + '</b></p>')
+            if step['after']:
+                parts.append('<p>' + escape(tr('After: {modules}', modules=', '.join(tr(protocol['catalog'][name]['name']) for name in step['after']))) + '</p>')
+            parts.append('<p>' + escape(tr('Required artifacts: {artifacts}', artifacts=', '.join(tr(protocol['artifacts'][name]['title']) for name in module['inputs']))) + '</p>')
+            if step['phase'] == 'downstream':
+                parts.append('<p>' + escape(tr('Choose or produce these inputs before opening this step.')) + '</p>')
+            parts.append('<p>' + escape(tr(step['action'])) + '</p>')
             links = []
             if module['available']:
                 if expand_all:
@@ -1190,6 +1296,20 @@ class _ProtocolBrowserDialog(QDialog):
 
         if self._recipe_result is not None and url.scheme() == 'spacr' and url.host() == 'protocol':
             kind, _, key = url.path().lstrip('/').partition('/')
+            if kind == 'route':
+                if key not in {row[0] for row in self._recipe_result['actions']}:
+                    return False
+                result = deepcopy(self._recipe_result)
+                protocol = result['protocol']
+                family = protocol['selection']['family']
+                title, summary, steps = _protocol_steps(key, family, self._data, protocol['catalog'], volume=protocol['static_volume'])
+                if protocol['native_time_volume']:
+                    summary = self._data['modules']['mask']['documentation_note'].split('\n\n')[-1]
+                    title = protocol['catalog']['mask']['name']
+                    steps = [dict(module='mask', action=summary, after=[], optional=False, phase='start')]
+                protocol.update(active_start=key, recipe_title=title, recipe_summary=summary, steps=steps)
+                self._set_result(result)
+                return True
             selected = self._checked if kind == 'check' else self._expanded
             if key in selected:
                 selected.remove(key)
@@ -1198,8 +1318,6 @@ class _ProtocolBrowserDialog(QDialog):
             self._render_recipe()
             return True
         key = _ai_module_key(url)
-        if key is not None and self._recipe_result is not None and key not in {row[0] for row in self._recipe_result['actions']}:
-            return _activate_ai_link(self, url)
         if key is not None and self._recipe_result is not None:
             owner = self.parentWidget()
             while owner is not None:
@@ -1207,8 +1325,7 @@ class _ProtocolBrowserDialog(QDialog):
                 if callable(opener):
                     return bool(opener(self._recipe_result, key))
                 owner = owner.parentWidget()
-            handoff = _protocol_handoff(self._recipe_result, key)
-            self._context = handoff['context']
+            return False
         if key is not None and self._source_path:
             owner = self.parentWidget()
             while owner is not None:

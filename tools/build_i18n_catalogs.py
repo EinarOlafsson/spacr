@@ -4291,6 +4291,8 @@ def _workflow_ui_sources() -> set[str]:
             elif isinstance(value, dict):
                 pending.append(value)
     found.update(workflow.get("protocol_wizard", {}).get("requirements", {}).values())
+    if workflow.get("protocol_wizard"):
+        found.add(workflow["modules"]["mask"]["documentation_note"].split("\n\n")[-1])
     return found
 
 

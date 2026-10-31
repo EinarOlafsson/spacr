@@ -248,7 +248,8 @@ def test_protocol_wizard_current_capabilities_and_registry_contracts(tmp_path):
     raw = database.read_bytes()
     result = sample._protocol_result('features', 'database', dict(experiment='screen', barcodes='unmapped'), str(database))
     handoff = sample._protocol_handoff(result, 'map_barcodes')
-    assert handoff['source_path'] == '' and 'src' not in handoff['settings']
+    assert handoff['source_path'] == '' and handoff['settings']['src'] == ''
+    assert handoff['clear_source']
     assert result['source_path'] == str(database) and database.read_bytes() == raw
     with pytest.raises(ValueError, match='required'):
         sample._protocol_result('sequencing', 'fastq_gz', dict(sequencer='other', read_mode='single'))
@@ -318,3 +319,30 @@ def test_protocol_recipe_nested_controls_pdf_and_legacy_reopen(qtbot, tmp_path):
     dialog._set_input()
     assert dialog._recipe_result is None
     assert dialog._choice_list.isVisible() and not dialog._save_pdf.isVisible()
+
+
+def test_protocol_procedure_preserves_order_optional_training_and_dimensional_limits():
+    """Curated steps distinguish required outputs from optional incompatible branches."""
+    image = sample._protocol_result('small_images', 'tiff_yokogawa', source_path='/selected/images',
+                                    context={'saved_settings': {'module': 'measure', 'settings': {'src': '/unrelated'}}})
+    steps = image['protocol']['steps']
+    assert [step['module'] for step in steps[:3]] == ['mask', 'measure', 'graph_builder']
+    assert steps[1]['after'] == ['mask'] and not steps[1]['optional']
+    handoff = sample._protocol_handoff(image, 'measure')
+    assert handoff['source_path'] == '' and handoff['settings']['src'] == '' and handoff['clear_source']
+    assert 'saved_settings' not in handoff['context'] and 'protocol_native_sources' not in handoff['context']
+    manual = sample._protocol_result('small_images', 'tiff_yokogawa', dict(goal='make_masks'))
+    training = next(step for step in manual['protocol']['steps'] if step['module'] == 'train_cellpose')
+    assert training['optional'] and training['after'] == ['make_masks']
+    markdown = manual['protocol']['markdown']
+    assert 'Starting alternatives' in markdown and 'Optional downstream step' in markdown
+    assert 'After: Make Masks' in markdown and 'Required artifacts:' in markdown
+    native = sample._protocol_result('small_images', 'tiff_yokogawa', context={
+        'image_dimensions': [{'z': 2, 't': 3, 'axes_unresolved': False}]})
+    assert [row[0] for row in native['actions']] == ['mask']
+    assert [step['module'] for step in native['protocol']['steps']] == ['mask']
+    assert 'does not enable Measure, tracking or Classify' in native['protocol']['markdown']
+    with pytest.raises(ValueError):
+        sample._protocol_handoff(native, 'measure')
+    viewer = sample._protocol_result('small_images', 'tiff_yokogawa', dict(goal='3d'))
+    assert [step['module'] for step in viewer['protocol']['steps']] == ['3d']

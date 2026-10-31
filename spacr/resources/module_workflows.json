@@ -7524,6 +7524,22 @@
         "guidance": "Explore the installed Toxoplasma knowledge map in its separate alpha application. Availability follows the normal alpha preferences; reference locations are not measured protein abundances.",
         "name": "ParaScape"
       }
+    },
+    "recipe_defaults": {
+      "small_images": {
+        "mask": "simple_imaging"
+      },
+      "plate_images": {
+        "mask": "high_content"
+      },
+      "modules": {
+        "make_masks": "curate_masks",
+        "map_barcodes": "map_barcodes",
+        "regression": "regression",
+        "analyze_plaques": "plaques",
+        "align": "align_stitch",
+        "ops": "optical_screen"
+      }
     }
   }
 }
