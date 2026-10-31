@@ -479,6 +479,19 @@ _KEYMAP_KEY = "shortcuts/keymap"
 
 
 _SCREEN_KEYMAP_KEY = "shortcuts/screens"
+_KEYMAP_VERSION_KEY = "shortcuts/keymap_version"
+_KEYMAP_VERSION = 2
+_MOVED_DEFAULTS = {
+    "Ctrl+0": "Alt+Home",
+    "Ctrl+P": "Ctrl+,",
+    "Ctrl+T": "Ctrl+Shift+T",
+    "Ctrl+B": "Ctrl+Shift+B",
+}
+_RETIRED_DEFAULTS = frozenset({"Ctrl+R"})
+_NEW_DEFAULTS = frozenset({
+    "Alt+Home", "Ctrl+,", "Ctrl+Shift+T", "Ctrl+Shift+B",
+    "Ctrl+=", "Ctrl++", "Ctrl+-", "Ctrl+0",
+})
 _SCREEN_SCOPES = {
     "Annotate": "the Annotate screen",
     "Make Masks": "the Make Masks screen",
@@ -764,8 +777,70 @@ def _load_keymap() -> dict:
         return {}
     if not isinstance(data, dict):
         return {}
+    data = {str(k): str(v) for k, v in data.items()}
+    if _stored_keymap_version() < _KEYMAP_VERSION:
+        data = _migrate_keymap(data)
+        _store_migrated_keymap(data)
     known = {spec.keys for spec in _rebindable()}
-    return {str(k): str(v) for k, v in data.items() if k in known}
+    return {k: v for k, v in data.items() if k in known}
+
+
+def _stored_keymap_version() -> int:
+    """Return the shortcut-defaults version the saved keymap was written for.
+
+    A keymap saved before the version was recorded is version 1, the
+    defaults in force until 2026-10-31.
+    """
+    try:
+        from .preferences import _settings
+        return int(_settings().value(_KEYMAP_VERSION_KEY, 1) or 1)
+    except (TypeError, ValueError):
+        return 1
+    except Exception:                                    # noqa: BLE001
+        LOG.debug("could not read the keymap version", exc_info=True)
+        return _KEYMAP_VERSION
+
+
+def _migrate_keymap(data: dict) -> dict:
+    """Carry a version-1 keymap over to the current defaults (item 749).
+
+    Overrides are stored under the action's default key, and four defaults
+    moved: an override saved under ``Ctrl+0`` was the user's key for Home,
+    not for Reset zoom, which took ``Ctrl+0`` afterwards. Each such entry
+    moves to the action's new default, and the override for Restart the
+    background, which no longer has a key, is dropped. When the user's own
+    key for some action is one of the newly introduced defaults, the action
+    that newly took that key is left without one, so the user's choice keeps
+    working and no key is shared.
+
+    :param data: default key to chosen key, as stored by version 1.
+    :returns: default key to chosen key under the current defaults.
+    """
+    out = {}
+    for default, chosen in data.items():
+        if default in _RETIRED_DEFAULTS:
+            continue
+        out[_MOVED_DEFAULTS.get(default, default)] = chosen
+    taken = {_portable(chosen) for chosen in out.values() if chosen}
+    for default in _NEW_DEFAULTS:
+        if default not in out and _portable(default) in taken:
+            out[default] = ""
+    return out
+
+
+def _store_migrated_keymap(data: dict) -> None:
+    """Save a migrated keymap and mark it as written for the current defaults.
+
+    :param data: default key to chosen key under the current defaults.
+    """
+    import json
+    try:
+        from .preferences import _settings
+        store = _settings()
+        store.setValue(_KEYMAP_KEY, json.dumps(data, sort_keys=True))
+        store.setValue(_KEYMAP_VERSION_KEY, _KEYMAP_VERSION)
+    except Exception:                                    # noqa: BLE001
+        LOG.debug("could not save the migrated keymap", exc_info=True)
 
 
 def _save_keymap(keymap: dict, screen_keymap: Optional[dict] = None) -> None:
@@ -804,6 +879,7 @@ def _save_keymap(keymap: dict, screen_keymap: Optional[dict] = None) -> None:
     from .preferences import _settings
     store = _settings()
     store.setValue(_KEYMAP_KEY, json.dumps(clean, sort_keys=True))
+    store.setValue(_KEYMAP_VERSION_KEY, _KEYMAP_VERSION)
     store.setValue(_SCREEN_KEYMAP_KEY, json.dumps(local, sort_keys=True))
 
 

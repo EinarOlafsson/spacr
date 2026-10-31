@@ -218,3 +218,112 @@ def test_inputs_draw_their_edge_in_the_border_role(theme):
     start = qss.index("QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox, QPlainTextEdit, QTextEdit {")
     rule = qss[start:qss.index("}", start)]
     assert f"border: 1px solid {palette_for(theme)['border']}" in rule
+
+
+class _Store:
+    """A preferences store holding only what a test puts in it."""
+
+    def __init__(self, data):
+        self.data = dict(data)
+
+    def value(self, key, default=""):
+        return self.data.get(key, default)
+
+    def setValue(self, key, value):  # noqa: N802 (Qt naming)
+        self.data[key] = value
+
+
+def _keymap_saved_before_the_change():
+    """A keymap exactly as spaCR wrote it before 2026-10-31: no version key."""
+    import json
+
+    from spacr.qt import shortcuts as S
+
+    return {S._KEYMAP_KEY: json.dumps({
+        "Ctrl+0": "Ctrl+Alt+H",
+        "Ctrl+P": "F2",
+        "Ctrl+B": "",
+        "Ctrl+R": "Ctrl+Alt+R",
+        "Ctrl+F": "Ctrl+Shift+T",
+        "Ctrl+K": "Ctrl+Shift+K",
+    })}
+
+
+def test_a_keymap_saved_before_the_change_keeps_every_custom_key_on_its_action(monkeypatch):
+    """Home, Preferences and Blank keep the user's keys under their new defaults."""
+    import json
+
+    from spacr.qt import shortcuts as S
+
+    store = _Store(_keymap_saved_before_the_change())
+    monkeypatch.setattr("spacr.qt.preferences._settings", lambda: store)
+    keymap = S._load_keymap()
+    assert keymap == {
+        "Alt+Home": "Ctrl+Alt+H",
+        "Ctrl+,": "F2",
+        "Ctrl+Shift+T": "",
+        "Ctrl+Shift+B": "",
+        "Ctrl+F": "Ctrl+Shift+T",
+        "Ctrl+K": "Ctrl+Shift+K",
+    }
+    assert S._effective("Ctrl+0", keymap) == "Ctrl+0", "Reset zoom did not inherit Home's key"
+    assert "Ctrl+R" not in keymap
+    assert not S._conflicts(keymap, {})
+    assert store.data[S._KEYMAP_VERSION_KEY] == S._KEYMAP_VERSION
+    assert "Ctrl+0" not in json.loads(store.data[S._KEYMAP_KEY])
+    assert S._load_keymap() == keymap, "the migration runs once"
+
+
+def test_a_user_key_that_became_a_new_default_stays_the_users(monkeypatch):
+    """Search was on Ctrl+Shift+T before the backdrop toggle took that default.
+
+    The backdrop toggle was never rebound, so it is the action left without a
+    key rather than the user's Search.
+    """
+    from spacr.qt import shortcuts as S
+
+    store = _Store(_keymap_saved_before_the_change())
+    monkeypatch.setattr("spacr.qt.preferences._settings", lambda: store)
+    keymap = S._load_keymap()
+    assert S._effective("Ctrl+F", keymap) == "Ctrl+Shift+T"
+    assert S._effective("Ctrl+Shift+T", keymap) == ""
+
+
+def test_a_keymap_saved_after_the_change_is_read_as_it_is(monkeypatch):
+    import json
+
+    from spacr.qt import shortcuts as S
+
+    store = _Store({S._KEYMAP_KEY: json.dumps({"Ctrl+0": "Ctrl+Alt+Z"}),
+                    S._KEYMAP_VERSION_KEY: S._KEYMAP_VERSION})
+    monkeypatch.setattr("spacr.qt.preferences._settings", lambda: store)
+    assert S._load_keymap() == {"Ctrl+0": "Ctrl+Alt+Z"}
+
+
+def test_saving_marks_the_keymap_as_current(monkeypatch):
+    from spacr.qt import shortcuts as S
+
+    store = _Store({})
+    monkeypatch.setattr("spacr.qt.preferences._settings", lambda: store)
+    S._save_keymap({"Ctrl+0": "Ctrl+Alt+Z"}, {})
+    assert store.data[S._KEYMAP_VERSION_KEY] == S._KEYMAP_VERSION
+    assert S._load_keymap() == {"Ctrl+0": "Ctrl+Alt+Z"}
+
+
+def test_the_migrated_keymap_reaches_the_right_holders(qtbot, monkeypatch):
+    from PySide6.QtGui import QAction, QShortcut
+    from PySide6.QtWidgets import QMainWindow
+
+    from spacr.qt import shortcuts as S
+
+    store = _Store(_keymap_saved_before_the_change())
+    monkeypatch.setattr("spacr.qt.preferences._settings", lambda: store)
+    window = QMainWindow()
+    qtbot.addWidget(window)
+    home = QAction("Home", window)
+    home.setShortcut(QKeySequence("Alt+Home"))
+    window.addAction(home)
+    zoom = QShortcut(QKeySequence("Ctrl+0"), window)
+    S._apply_keymap(window)
+    assert home.shortcut() == QKeySequence("Ctrl+Alt+H")
+    assert zoom.key() == QKeySequence("Ctrl+0")
