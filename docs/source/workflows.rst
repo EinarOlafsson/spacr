@@ -244,7 +244,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 Measure
 ~~~~~~~
 
-Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.
+Measure reads images and label planes together. PNG crops are written while save_png is on (default True); turn it off to compute measurements only. Keep the database and source project together for streamed crops.
 
 **Open:** Home → Measure.
 
@@ -406,7 +406,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 **Outputs**
 
-* **Guide counts per well** — Map Barcodes run folder: unique_combinations.csv and annotated_reads.h5. Well identity requires the corresponding barcode references.
+* **Guide counts per well** — Map Barcodes per-sample output folder: unique_combinations.csv and qc.csv, plus annotated_reads.h5 when save_h5 is True (the default). Well identity requires the corresponding barcode references.
   Relevant columns, depending on the route: ``count``.
 
 **After this module**
@@ -434,7 +434,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 * **Object classification scores** — Saved score CSVs and, when merged, measurements/measurements.db, table png_list.
   Relevant tables, depending on the route: ``png_list``.
   Relevant columns, depending on the route: ``pred``, ``cv_predictions``, ``ml_pred``, ``predictions``.
-* **Guide counts per well** — Map Barcodes run folder: unique_combinations.csv and annotated_reads.h5. Well identity requires the corresponding barcode references.
+* **Guide counts per well** — Map Barcodes per-sample output folder: unique_combinations.csv and qc.csv, plus annotated_reads.h5 when save_h5 is True (the default). Well identity requires the corresponding barcode references.
   Relevant columns, depending on the route: ``count``.
 * **Optical barcode assignments** — OPS destination measurements.db: per-well geometry, phenotype alignment, nuclei and barcode tables; optional per-cycle reads.
   Relevant tables, depending on the route: ``ops_geometry``, ``ops_phenotype``, ``ops_objects``, ``ops_barcodes``, ``ops_reads``.
@@ -512,7 +512,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 **Outputs**
 
-* **Microscope images** — Source image folder; original files, supported vendor files or imported TIFFs.
+* **Converted TIFFs and conversion map** — Format Converter destination folder: Yokogawa-named TIFFs (for example plate1_A01_T0001F001L01A01Z01C01.tif) and conversion_map.csv, which maps each output name back to its source file.
 
 **After this module**
 
@@ -854,15 +854,14 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 **Inputs**
 
-* **Screen design and power estimates** — Saved planning tables or figures based on explicitly chosen effect sizes, variability and sampling assumptions.
+* **Plate design entries** — Entered in Experiment Design: plate identifier, plate format (6 to 1536 wells), conditions with replicate counts and roles (treatment, positive control, negative control, blank), layout, edge use and seed. Load template… fills in a bundled design; no input file is required.
 
 **Outputs**
 
-* **Experimental layout** — Exported plate/condition/control/replicate map. Keep its plate and well identifiers consistent with the acquired data.
+* **Experimental layout** — Export plate map... writes plate_map.csv (one row per well keyed by plateID, rowID and columnID), plate_map.json and plate_map_settings.json to the chosen folder. Keep its plate and well identifiers consistent with the acquired data.
 
 **After this module**
 
-* :ref:`Power / Design <workflow-module-power>`: Use the experimental layout to define sampling assumptions, then revise the design.
 * :ref:`Dose–Response <workflow-module-dose_response>`: Acquire and measure the experiment first, preserving dose/condition identities.
 
 :doc:`API reference </api/spacr/qt/screens/experiment_design/index>`.
@@ -908,15 +907,10 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 * **Measured objects** — measurements/measurements.db; object tables depend on the enabled cell, nucleus, pathogen and organelle masks.
   Relevant tables, depending on the route: ``cell``, ``nucleus``, ``pathogen``, ``cytoplasm``.
   Relevant columns, depending on the route: ``plateID``, ``rowID``, ``columnID``, ``fieldID``.
-* **Experimental layout** — Exported plate/condition/control/replicate map. Keep its plate and well identifiers consistent with the acquired data.
 
 **Outputs**
 
 * **Screen design and power estimates** — Saved planning tables or figures based on explicitly chosen effect sizes, variability and sampling assumptions.
-
-**Before this module**
-
-* :ref:`Experiment Design <workflow-module-experiment_design>`: Use the experimental layout to define sampling assumptions, then revise the design.
 
 :doc:`API reference </api/spacr/qt/screens/power/index>`.
 
@@ -987,7 +981,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 * **Measured objects** — measurements/measurements.db; object tables depend on the enabled cell, nucleus, pathogen and organelle masks.
   Relevant tables, depending on the route: ``cell``, ``nucleus``, ``pathogen``, ``cytoplasm``.
   Relevant columns, depending on the route: ``plateID``, ``rowID``, ``columnID``, ``fieldID``.
-* **Experimental layout** — Exported plate/condition/control/replicate map. Keep its plate and well identifiers consistent with the acquired data.
+* **Experimental layout** — Export plate map... writes plate_map.csv (one row per well keyed by plateID, rowID and columnID), plate_map.json and plate_map_settings.json to the chosen folder. Keep its plate and well identifiers consistent with the acquired data.
 
 **Outputs**
 
@@ -1100,7 +1094,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 * **Measured objects** — measurements/measurements.db; object tables depend on the enabled cell, nucleus, pathogen and organelle masks.
   Relevant tables, depending on the route: ``cell``, ``nucleus``, ``pathogen``, ``cytoplasm``.
   Relevant columns, depending on the route: ``plateID``, ``rowID``, ``columnID``, ``fieldID``.
-* **Experimental layout** — Exported plate/condition/control/replicate map. Keep its plate and well identifiers consistent with the acquired data.
+* **Experimental layout** — Export plate map... writes plate_map.csv (one row per well keyed by plateID, rowID and columnID), plate_map.json and plate_map_settings.json to the chosen folder. Keep its plate and well identifiers consistent with the acquired data.
 
 **Outputs**
 
@@ -1139,7 +1133,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 Align & Stitch
 ~~~~~~~~~~~~~~
 
-Inspect tile geometry, overlap and channel mapping, then save the mosaic with coordinate records. OPS also needs the original cycle/site identities.
+Press Plan to compute the tile layout and list tiles that fell back to their stage positions; Plan writes nothing. Write stack then writes the stitched stack to the Write to folder or .npy file and records tile coordinates in measurements.db when the Database field is set. Every channel uses the registration measured on Ref. channel. OPS also needs the original cycle/site identities.
 
 **Open:** Home → Align & Stitch.
 
@@ -1151,7 +1145,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 **Outputs**
 
-* **Aligned mosaic and coordinates** — Align & Stitch destination: composed image and the tile-coordinate/layout records needed to interpret it.
+* **Aligned mosaic and coordinates** — The Write to folder or .npy file: the stitched stack. Tile coordinates are saved to the measurements.db named in Database only when that field is set.
 
 **After this module**
 
@@ -1208,7 +1202,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 * **Measured objects** — measurements/measurements.db; object tables depend on the enabled cell, nucleus, pathogen and organelle masks.
   Relevant tables, depending on the route: ``cell``, ``nucleus``, ``pathogen``, ``cytoplasm``.
   Relevant columns, depending on the route: ``plateID``, ``rowID``, ``columnID``, ``fieldID``.
-* **Experimental layout** — Exported plate/condition/control/replicate map. Keep its plate and well identifiers consistent with the acquired data.
+* **Experimental layout** — Export plate map... writes plate_map.csv (one row per well keyed by plateID, rowID and columnID), plate_map.json and plate_map_settings.json to the chosen folder. Keep its plate and well identifiers consistent with the acquired data.
 
 **Outputs**
 
@@ -1734,7 +1728,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 **Inputs**
 
-* **Guide counts per well** — Map Barcodes run folder: unique_combinations.csv and annotated_reads.h5. Well identity requires the corresponding barcode references.
+* **Guide counts per well** — Map Barcodes per-sample output folder: unique_combinations.csv and qc.csv, plus annotated_reads.h5 when save_h5 is True (the default). Well identity requires the corresponding barcode references.
   Relevant columns, depending on the route: ``count``.
 
 **Outputs**
@@ -2037,7 +2031,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 **Inputs**
 
 * **Microscope images** — Source image folder; original files, supported vendor files or imported TIFFs.
-* **Aligned mosaic and coordinates** — Align & Stitch destination: composed image and the tile-coordinate/layout records needed to interpret it.
+* **Aligned mosaic and coordinates** — The Write to folder or .npy file: the stitched stack. Tile coordinates are saved to the measurements.db named in Database only when that field is set.
 
 **Outputs**
 
@@ -2261,7 +2255,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 * **Object classification scores** — Saved score CSVs and, when merged, measurements/measurements.db, table png_list.
   Relevant tables, depending on the route: ``png_list``.
   Relevant columns, depending on the route: ``pred``, ``cv_predictions``, ``ml_pred``, ``predictions``.
-* **Guide counts per well** — Map Barcodes run folder: unique_combinations.csv and annotated_reads.h5. Well identity requires the corresponding barcode references.
+* **Guide counts per well** — Map Barcodes per-sample output folder: unique_combinations.csv and qc.csv, plus annotated_reads.h5 when save_h5 is True (the default). Well identity requires the corresponding barcode references.
   Relevant columns, depending on the route: ``count``.
 
 **Outputs**
@@ -2276,7 +2270,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 Toxoplasma
 ~~~~~~~~~~
 
-Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Invasion Assay or Replication Assay. The four Coming soon tiles describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table.
+Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay; Gliding motility opens Motility Assay with infection QC off. The three Coming soon tiles (Egress, Bradyzoite conversion, Host cell damage) describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table.
 
 **Open:** Home → Toxoplasma.
 

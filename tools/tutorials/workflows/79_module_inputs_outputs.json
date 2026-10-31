@@ -206,7 +206,7 @@
         "measurements",
         "crops"
       ],
-      "guidance": "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.",
+      "guidance": "Measure reads images and label planes together. PNG crops are written while save_png is on (default True); turn it off to compute measurements only. Keep the database and source project together for streamed crops.",
       "declared_ports": {
         "key": "measure",
         "consumes": [
@@ -479,7 +479,7 @@
         "raw_images"
       ],
       "outputs": [
-        "raw_images"
+        "converted_images"
       ],
       "guidance": "Convert supported microscope formats to a configured TIFF layout while preserving source mappings. Conversion does not generate object measurements."
     },
@@ -670,7 +670,7 @@
       "api_module": "spacr.qt.screens.experiment_design",
       "lesson": "67_experiment_design",
       "inputs": [
-        "design"
+        "plate_design_entries"
       ],
       "outputs": [
         "plate_map"
@@ -700,8 +700,7 @@
       "lesson": "68_power_design",
       "inputs": [
         "design",
-        "measurements",
-        "plate_map"
+        "measurements"
       ],
       "outputs": [
         "design"
@@ -840,7 +839,7 @@
       "outputs": [
         "mosaic"
       ],
-      "guidance": "Inspect tile geometry, overlap and channel mapping, then save the mosaic with coordinate records. OPS also needs the original cycle/site identities."
+      "guidance": "Press Plan to compute the tile layout and list tiles that fell back to their stage positions; Plan writes nothing. Write stack then writes the stitched stack to the Write to folder or .npy file and records tile coordinates in measurements.db when the Database field is set. Every channel uses the registration measured on Ref. channel. OPS also needs the original cycle/site identities."
     },
     "make_masks": {
       "name": "Make Masks",
@@ -1776,7 +1775,7 @@
       "outputs": [
         "organism_navigation"
       ],
-      "guidance": "Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Invasion Assay or Replication Assay. The four Coming soon tiles describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table."
+      "guidance": "Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay; Gliding motility opens Motility Assay with infection QC off. The three Coming soon tiles (Egress, Bradyzoite conversion, Host cell damage) describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table."
     },
     "endodyogeny": {
       "name": "Endodyogeny size proxy",
@@ -2365,7 +2364,7 @@
           "id": "design",
           "title": "Conditions, controls and design assumptions",
           "artifacts": [
-            "design"
+            "plate_design_entries"
           ],
           "targets": [
             "experiment_design"
@@ -2573,7 +2572,7 @@
       "from": "convert",
       "to": "mask",
       "artifacts": [
-        "raw_images"
+        "converted_images"
       ],
       "handoff": "Use the converted layout and preserve source identity mappings."
     },
@@ -2690,14 +2689,6 @@
         "ops_tables"
       ],
       "handoff": "Join/aggregate decoded objects to phenotype and guide inputs explicitly before Regression; this is not a direct CSV handoff."
-    },
-    {
-      "from": "experiment_design",
-      "to": "power",
-      "artifacts": [
-        "plate_map"
-      ],
-      "handoff": "Use the experimental layout to define sampling assumptions, then revise the design."
     },
     {
       "from": "experiment_design",

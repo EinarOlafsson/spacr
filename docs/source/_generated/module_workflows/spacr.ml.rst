@@ -15,7 +15,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 * **Object classification scores** — Saved score CSVs and, when merged, measurements/measurements.db, table png_list.
   Relevant tables, depending on the route: ``png_list``.
   Relevant columns, depending on the route: ``pred``, ``cv_predictions``, ``ml_pred``, ``predictions``.
-* **Guide counts per well** — Map Barcodes run folder: unique_combinations.csv and annotated_reads.h5. Well identity requires the corresponding barcode references.
+* **Guide counts per well** — Map Barcodes per-sample output folder: unique_combinations.csv and qc.csv, plus annotated_reads.h5 when save_h5 is True (the default). Well identity requires the corresponding barcode references.
   Relevant columns, depending on the route: ``count``.
 * **Optical barcode assignments** — OPS destination measurements.db: per-well geometry, phenotype alignment, nuclei and barcode tables; optional per-cycle reads.
   Relevant tables, depending on the route: ``ops_geometry``, ``ops_phenotype``, ``ops_objects``, ``ops_barcodes``, ``ops_reads``.

@@ -12,7 +12,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 **Inputs**
 
-* **Guide counts per well** — Map Barcodes run folder: unique_combinations.csv and annotated_reads.h5. Well identity requires the corresponding barcode references.
+* **Guide counts per well** — Map Barcodes per-sample output folder: unique_combinations.csv and qc.csv, plus annotated_reads.h5 when save_h5 is True (the default). Well identity requires the corresponding barcode references.
   Relevant columns, depending on the route: ``count``.
 
 **Outputs**

@@ -15,7 +15,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 * **Measured objects** — measurements/measurements.db; object tables depend on the enabled cell, nucleus, pathogen and organelle masks.
   Relevant tables, depending on the route: ``cell``, ``nucleus``, ``pathogen``, ``cytoplasm``.
   Relevant columns, depending on the route: ``plateID``, ``rowID``, ``columnID``, ``fieldID``.
-* **Experimental layout** — Exported plate/condition/control/replicate map. Keep its plate and well identifiers consistent with the acquired data.
+* **Experimental layout** — Export plate map... writes plate_map.csv (one row per well keyed by plateID, rowID and columnID), plate_map.json and plate_map_settings.json to the chosen folder. Keep its plate and well identifiers consistent with the acquired data.
 
 **Outputs**
 

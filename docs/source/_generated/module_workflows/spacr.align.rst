@@ -4,7 +4,7 @@ Workflow inputs and outputs
 Align & Stitch
 ~~~~~~~~~~~~~~
 
-Inspect tile geometry, overlap and channel mapping, then save the mosaic with coordinate records. OPS also needs the original cycle/site identities.
+Press Plan to compute the tile layout and list tiles that fell back to their stage positions; Plan writes nothing. Write stack then writes the stitched stack to the Write to folder or .npy file and records tile coordinates in measurements.db when the Database field is set. Every channel uses the registration measured on Ref. channel. OPS also needs the original cycle/site identities.
 
 **Open:** Home → Align & Stitch.
 
@@ -16,7 +16,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 **Outputs**
 
-* **Aligned mosaic and coordinates** — Align & Stitch destination: composed image and the tile-coordinate/layout records needed to interpret it.
+* **Aligned mosaic and coordinates** — The Write to folder or .npy file: the stitched stack. Tile coordinates are saved to the measurements.db named in Database only when that field is set.
 
 **After this module**
 

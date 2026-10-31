@@ -4,7 +4,7 @@ Workflow inputs and outputs
 Toxoplasma
 ~~~~~~~~~~
 
-Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Invasion Assay or Replication Assay. The four Coming soon tiles describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table.
+Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay; Gliding motility opens Motility Assay with infection QC off. The three Coming soon tiles (Egress, Bradyzoite conversion, Host cell damage) describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table.
 
 **Open:** Home → Toxoplasma.
 

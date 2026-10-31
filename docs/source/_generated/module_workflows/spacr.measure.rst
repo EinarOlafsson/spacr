@@ -4,7 +4,7 @@ Workflow inputs and outputs
 Measure
 ~~~~~~~
 
-Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.
+Measure reads images and label planes together. PNG crops are written while save_png is on (default True); turn it off to compute measurements only. Keep the database and source project together for streamed crops.
 
 **Open:** Home → Measure.
 

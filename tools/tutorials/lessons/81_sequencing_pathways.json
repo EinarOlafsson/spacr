@@ -24,7 +24,7 @@
     },
     {
       "visual": "module_map_barcodes",
-      "narration": "Start with the sequencing reads. Open Map Barcodes from Home and give it your FASTQ files, single-end or paired, with the barcode reference tables that encode your experiment. Map Barcodes matches each read to its barcodes and counts the guides in every well, saving unique_combinations.csv and annotated_reads.h5 in its run folder. Before you trust those counts, open them in Barcode QC. Once they pass, they are the guide counts Regression pairs with phenotype scores, on the same plate and well keys.",
+      "narration": "Start with the sequencing reads. Open Map Barcodes from Home and give it your FASTQ files, single-end or paired, with the barcode reference tables that encode your experiment. Map Barcodes matches each read to its barcodes and counts the guides in every well, saving unique_combinations.csv and qc.csv, and by default annotated_reads.h5, in each sample's output folder. Before you trust those counts, open them in Barcode QC. Once they pass, they are the guide counts Regression pairs with phenotype scores, on the same plate and well keys.",
       "hold_after": 0.7,
       "related_lessons": [
         "12_map_barcodes",
@@ -64,20 +64,18 @@
     },
     {
       "visual": "module_power",
-      "narration": "Now step back to before the experiment. Open Power / Design from Home to estimate how much sampling you need to see an effect, based on the effect sizes and variability you choose. Pilot measurements can support those assumptions, but they are optional. The layout from Experiment Design feeds these estimates, and the estimates in turn may send you back to revise that design.",
+      "narration": "Now step back to before the experiment. Open Power / Design from Home to estimate how much sampling you need to see an effect, based on the effect sizes and variability you choose. Pilot measurements can support those assumptions, but they are optional. Power / Design does not read the plate map from Experiment Design, so enter the plate count, wells per plate and replicates by hand. The estimates may send you back to revise that design.",
       "hold_after": 0.7,
       "related_lessons": [
-        "67_experiment_design",
         "68_power_design"
       ]
     },
     {
       "visual": "module_experiment_design",
-      "narration": "Open Experiment Design from Home to lay out the plates before you acquire anything. Enter the conditions, controls, replicates and plate constraints, with your power estimates in mind, and export the experimental layout. That layout travels far. Power / Design uses it to set sampling assumptions, and later, once the experiment is acquired and measured, Dose–Response uses its dose and condition identities, so keep them unchanged all the way through.",
+      "narration": "Open Experiment Design from Home to lay out the plates before you acquire anything. Enter the conditions, controls, replicates and plate constraints, and export the plate map. Power / Design does not read that file, so carry its plate and replicate numbers over by hand. Later, once the experiment is acquired and measured, Dose–Response uses its dose and condition identities, so keep them unchanged all the way through.",
       "hold_after": 0.7,
       "related_lessons": [
         "67_experiment_design",
-        "68_power_design",
         "69_dose_response"
       ]
     },

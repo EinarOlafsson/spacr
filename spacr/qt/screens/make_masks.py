@@ -23182,7 +23182,8 @@ class MakeMasksScreen(QWidget):
         self._mag_auto_accept.setToolTip(tr(
             "Accept proposals without clicking. Region mode follows Objects added; "
             "Whole image accepts only the object under the pointer. Undo is "
-            "available; Save or Save & Next writes the masks."))
+            "available; Save mask, or moving to another image with Save on "
+            "navigation on, writes the masks."))
         self._mag_auto_accept.toggled.connect(magnifier.set_auto_accept)
         form.addRow(self._mag_auto_accept)
 

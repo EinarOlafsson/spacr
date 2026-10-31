@@ -112,7 +112,7 @@
         "measurements",
         "crops"
       ],
-      "guidance": "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.",
+      "guidance": "Measure reads images and label planes together. PNG crops are written while save_png is on (default True); turn it off to compute measurements only. Keep the database and source project together for streamed crops.",
       "declared_ports": {
         "key": "measure",
         "consumes": [
@@ -385,7 +385,7 @@
         "raw_images"
       ],
       "outputs": [
-        "raw_images"
+        "converted_images"
       ],
       "guidance": "Convert supported microscope formats to a configured TIFF layout while preserving source mappings. Conversion does not generate object measurements."
     },
@@ -576,7 +576,7 @@
       "api_module": "spacr.qt.screens.experiment_design",
       "lesson": "67_experiment_design",
       "inputs": [
-        "design"
+        "plate_design_entries"
       ],
       "outputs": [
         "plate_map"
@@ -606,8 +606,7 @@
       "lesson": "68_power_design",
       "inputs": [
         "design",
-        "measurements",
-        "plate_map"
+        "measurements"
       ],
       "outputs": [
         "design"
@@ -746,7 +745,7 @@
       "outputs": [
         "mosaic"
       ],
-      "guidance": "Inspect tile geometry, overlap and channel mapping, then save the mosaic with coordinate records. OPS also needs the original cycle/site identities."
+      "guidance": "Press Plan to compute the tile layout and list tiles that fell back to their stage positions; Plan writes nothing. Write stack then writes the stitched stack to the Write to folder or .npy file and records tile coordinates in measurements.db when the Database field is set. Every channel uses the registration measured on Ref. channel. OPS also needs the original cycle/site identities."
     },
     "make_masks": {
       "name": "Make Masks",
@@ -1649,7 +1648,7 @@
       "outputs": [
         "organism_navigation"
       ],
-      "guidance": "Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Invasion Assay or Replication Assay. The four Coming soon tiles describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table."
+      "guidance": "Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay; Gliding motility opens Motility Assay with infection QC off. The three Coming soon tiles (Egress, Bradyzoite conversion, Host cell damage) describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table."
     },
     "endodyogeny": {
       "name": "Endodyogeny size proxy",
@@ -1791,6 +1790,12 @@
       "tables": [],
       "columns": []
     },
+    "converted_images": {
+      "title": "Converted TIFFs and conversion map",
+      "location": "Format Converter destination folder: Yokogawa-named TIFFs (for example plate1_A01_T0001F001L01A01Z01C01.tif) and conversion_map.csv, which maps each output name back to its source file.",
+      "tables": [],
+      "columns": []
+    },
     "merged": {
       "title": "Images and label masks",
       "location": "merged/*.npy in the project; channels and integer label planes share each field array.",
@@ -1879,7 +1884,7 @@
     },
     "barcode_counts": {
       "title": "Guide counts per well",
-      "location": "Map Barcodes run folder: unique_combinations.csv and annotated_reads.h5. Well identity requires the corresponding barcode references.",
+      "location": "Map Barcodes per-sample output folder: unique_combinations.csv and qc.csv, plus annotated_reads.h5 when save_h5 is True (the default). Well identity requires the corresponding barcode references.",
       "tables": [],
       "columns": [
         "count"
@@ -1947,7 +1952,7 @@
     },
     "mosaic": {
       "title": "Aligned mosaic and coordinates",
-      "location": "Align & Stitch destination: composed image and the tile-coordinate/layout records needed to interpret it.",
+      "location": "The Write to folder or .npy file: the stitched stack. Tile coordinates are saved to the measurements.db named in Database only when that field is set.",
       "tables": [],
       "columns": []
     },
@@ -1963,9 +1968,15 @@
       ],
       "columns": []
     },
+    "plate_design_entries": {
+      "title": "Plate design entries",
+      "location": "Entered in Experiment Design: plate identifier, plate format (6 to 1536 wells), conditions with replicate counts and roles (treatment, positive control, negative control, blank), layout, edge use and seed. Load template… fills in a bundled design; no input file is required.",
+      "tables": [],
+      "columns": []
+    },
     "plate_map": {
       "title": "Experimental layout",
-      "location": "Exported plate/condition/control/replicate map. Keep its plate and well identifiers consistent with the acquired data.",
+      "location": "Export plate map... writes plate_map.csv (one row per well keyed by plateID, rowID and columnID), plate_map.json and plate_map_settings.json to the chosen folder. Keep its plate and well identifiers consistent with the acquired data.",
       "tables": [],
       "columns": []
     },
@@ -2635,7 +2646,7 @@
           "id": "design",
           "title": "Conditions, controls and design assumptions",
           "artifacts": [
-            "design"
+            "plate_design_entries"
           ],
           "targets": [
             "experiment_design"
@@ -2741,7 +2752,7 @@
       ],
       "scenes": {
         "mask": "Everything starts with your microscope images. Open Mask from Home, choose the channels and a segmentation model, and check the preview before you run it. Mask finds the objects in every field and saves each field as a merged array, the image channels stacked with their label masks. Those merged arrays are what Measure opens next. The small counts database Mask leaves behind is only a tally, not yet a feature table.",
-        "measure": "Next, open Measure from Home and point it at the same project, with the image and mask channel indices set correctly. Measure reads each merged array, images and label planes together, and writes every cell, nucleus or parasite as a row in measurements.db. Turn on crop saving and it also cuts a small PNG around each object, indexed in png_list. From here the story forks. Annotate shows those crops so you can label examples, and Classify learns from either the crops or the measured features, so keep object identities stable.",
+        "measure": "Next, open Measure from Home and point it at the same project, with the image and mask channel indices set correctly. Measure reads each merged array, images and label planes together, and writes every cell, nucleus or parasite as a row in measurements.db. With crop saving on, the default, it also cuts a small PNG around each object, indexed in png_list. From here the story forks. Annotate shows those crops so you can label examples, and Classify learns from either the crops or the measured features, so keep object identities stable.",
         "annotate": "Before a classifier can learn anything, it needs examples. Open Annotate from Home and it shows you the object crops Measure saved or streams. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",
         "classify_merged": "Open Classify from Home, and here your labels become scores. Classify has two families, and your data picks between them. Computer Vision learns from the object crops themselves, while Tabular Machine Learning learns from the measured feature columns. Either way, it trains on the labels you made in Annotate, checks itself on the objects you held out, and saves the trained model, an evaluation bundle and the scores, as CSV files and, when merged, in png_list. Pick the CV or ML score column you mean to test, keep plate and well identity intact, and carry it into Regression.",
         "map_barcodes": "While the images go one way, the sequencing reads go another. Open Map Barcodes from Home, give it your FASTQ files and the barcode references that encode your screen, and it counts which guides turned up in each well. Check the mapped counts and barcode QC before you trust them. The unique_combinations.csv it writes is the guide-count table Regression pairs with your phenotype scores, well by well.",
@@ -2878,12 +2889,12 @@
       "scenes": {
         "mask": "Raw microscope images begin in Mask. Open it from Home, choose the channels and segmentation models, and check the preview before you run. Mask writes each field as a merged array, the image channels and their integer label planes together, and that merged array is what Measure reads next. Mask also keeps a small counts database, but that is a tally, not a feature table.",
         "make_masks": "Sometimes masks need a human hand. Open Make Masks from Home to correct them field by field. What you save here can go two ways. To train segmentation, curate image and mask pairs and keep them side by side as training fields. To measure, use Organize for Measure, which moves each image and its masks into channel folders and merges them into the arrays Measure reads; a standalone mask is not a merged array. Plaque masks drawn here can also feed the Plaque Assay with their matching source images. Saving a mask does not train a classifier.",
-        "measure": "Measure is the hub of this whole map. Open it from Home and point it at the project Mask built, with the image and mask channel indices set correctly; masks paired in Make Masks arrive here too. Measure reads the images and label planes together and writes every cell, nucleus or parasite as a row in measurements.db. Turn on crop saving if you want a PNG of each object, and keep the database with its source project if you stream crops instead. Almost everything else starts from these rows. Annotate and Classify use the measurements and crops to learn phenotypes. Image UMAP projects them so you can look for groupings, and Embeddings encodes the crops with a model, recording the encoder and channel policy. Gate Editor sets thresholds on the real measured features, in their real units, and QC shows which checks exist and which are missing. The Toxoplasma assays pick up here as well: Recruitment needs the right compartment intensities, the Invasion Assay needs two-colour stain measurements with baseline controls, and the Replication Assay needs explicit parasite-to-vacuole links. Host–Pathogen Analysis wants whole-vacuole masks and host reference intensities, with the uninfected cells kept in. And the Endodyogeny size proxy reads the measured project from Python, once you have checked host-cell aggregation and area units; the Mask counts database alone is not enough.",
+        "measure": "Measure is the hub of this whole map. Open it from Home and point it at the project Mask built, with the image and mask channel indices set correctly; masks paired in Make Masks arrive here too. Measure reads the images and label planes together and writes every cell, nucleus or parasite as a row in measurements.db. Crop saving is on by default and writes a PNG of each object; keep the database with its source project if you stream crops instead. Almost everything else starts from these rows. Annotate and Classify use the measurements and crops to learn phenotypes. Image UMAP projects them so you can look for groupings, and Embeddings encodes the crops with a model, recording the encoder and channel policy. Gate Editor sets thresholds on the real measured features, in their real units, and QC shows which checks exist and which are missing. The Toxoplasma assays pick up here as well: Recruitment needs the right compartment intensities, the Invasion Assay needs two-colour stain measurements with baseline controls, and the Replication Assay needs explicit parasite-to-vacuole links. Host–Pathogen Analysis wants whole-vacuole masks and host reference intensities, with the uninfected cells kept in. And the Endodyogeny size proxy reads the measured project from Python, once you have checked host-cell aggregation and area units; the Mask counts database alone is not enough.",
         "annotate": "With measurements in hand, Annotate is where you teach by example. Open it from Home and it shows the object crops Measure saved or streams from the project. Label representative objects; each label goes into an annotation column of the png_list table, tied to that object's identity. You don't have to start from nothing: gates saved in Gate Editor can propose candidate labels for you to review. Use a separate column for each question, keep training and evaluation objects apart, and that column is what Classify trains on next.",
         "classify_merged": "Open Classify from Home to turn labels into predictions. It has two families, and your data decides between them. Computer Vision learns from object crops, saved or streamed by Measure; Tabular Machine Learning learns from the measured feature columns. The labels can come from three places. Most often they come from Annotate. Gate Editor can write reviewed gate selections to an annotation column, and Image UMAP can do the same with reviewed lasso selections; either way, select that same column and object population here. An embedding cluster is not ground truth, so inspect the crops, validate the labels and keep validation objects apart from training. Classify then saves its scores, the trained model and an evaluation bundle of held-out predictions. In a screen, pick the CV or ML score column you mean and carry it, plate and well identity intact, into Regression.",
         "umap": "Image UMAP is for looking before you label. Open it from Home and it projects the measured features from Measure, or encoder features from Embeddings with matching object IDs, into a map where similar objects sit close together. Open representative crops to see what a region really holds. A cluster is only a candidate grouping, not a validated phenotype. When a region does look meaningful, draw a lasso around it, review what you caught, and write the selection to an annotation column in the matching measurement database. Classify can then train on that column. The projection can also go to Gate Editor, if you would rather define the selection there with the matching coordinate and feature columns. Not every GUI route saves encoder features for you, and a shape on a plot alone does not establish a biological phenotype.",
         "gate_editor": "Gate Editor lets you choose objects by rule rather than by eye. Open it from Home and draw threshold or polygon gates on real columns: measured features from Measure, in their actual units, or the coordinates of an Image UMAP projection. Save a gate and you can apply it again to any compatible objects. Its Annotate button writes the displayed gates to an annotation column, once you have reviewed the selected objects and chosen binary or multiclass labels. Saved gates can also propose candidate labels inside Annotate. Then select that same column and object population in Classify, keeping validation objects separate from the training labels.",
-        "align": "Some analyses need tiles stitched into one picture first. Open Align & Stitch from Home, check the tile geometry, overlap and channel mapping, and save the mosaic with its coordinate records. For OPS, keep the original cycle and site identities as well.",
+        "align": "Some analyses need tiles stitched into one picture first. Open Align & Stitch from Home, press Plan to see the tile layout and any tiles that fell back to their stage positions, then press Write stack to save the stitched stack. Fill in Database to also record the tile coordinates. For OPS, keep the original cycle and site identities as well.",
         "analyze_plaques": "Now the Toxoplasma assays. Open Toxoplasma from Home and choose Plaque Assay. This one skips Measure: it reads plaque images, or masks you already have, and runs the configured plaque model. Masks from Make Masks work here if they are plaque masks with matching source images; cell masks are not plaque labels. It saves plaque results and masks, and the plaque example lesson shows a full run.",
         "recruitment": "Recruitment asks how much of a marker gathers at the parasite. Open Toxoplasma from Home, then choose Recruitment. It reads compartment intensities from Measure, with matching host and pathogen identities, and computes recruitment ratios that keep each well and condition.",
         "host_pathogen": "Host–Pathogen Analysis looks at infection from both sides. Open Toxoplasma from Home, then choose it. It reads measurements from Measure that include whole vacuoles, host reference compartments and the uninfected host cells, which form the infection denominator. Select the marker channels and set ratio thresholds calibrated on your controls. If you segmented individual parasites, it can count them per vacuole from explicit links or a measured count column. You then get vacuole, host and well tables, joint marker states, replication distributions and any parasite links it could not match. Unknown measurements stay unknown, and host identity alone never defines a vacuole.",
@@ -2918,12 +2929,12 @@
         "simulation"
       ],
       "scenes": {
-        "map_barcodes": "Start with the sequencing reads. Open Map Barcodes from Home and give it your FASTQ files, single-end or paired, with the barcode reference tables that encode your experiment. Map Barcodes matches each read to its barcodes and counts the guides in every well, saving unique_combinations.csv and annotated_reads.h5 in its run folder. Before you trust those counts, open them in Barcode QC. Once they pass, they are the guide counts Regression pairs with phenotype scores, on the same plate and well keys.",
+        "map_barcodes": "Start with the sequencing reads. Open Map Barcodes from Home and give it your FASTQ files, single-end or paired, with the barcode reference tables that encode your experiment. Map Barcodes matches each read to its barcodes and counts the guides in every well, saving unique_combinations.csv and qc.csv, and by default annotated_reads.h5, in each sample's output folder. Before you trust those counts, open them in Barcode QC. Once they pass, they are the guide counts Regression pairs with phenotype scores, on the same plate and well keys.",
         "barcode_qc": "Barcode QC lives inside Map Barcodes, so open Map Barcodes from Home and choose it there. It reads the guide counts you just made and shows mapping depth, coverage, barcode collisions and positional effects. It saves the QC results with exportable figures and tables, so you can decide which guides to filter before going further.",
         "ops": "Optical screens take a different road. Open Mask from Home, then choose OPS. Instead of reads, OPS takes the images from each sequencing cycle, aligns them to the phenotype images and decodes a barcode for every nucleus. The results land in the OPS measurements.db, with tables for geometry, phenotype alignment, nuclei and barcodes. That database is not a FASTQ count table, though. To use it in Regression, first join and aggregate the decoded identities with your phenotype data, so each object or well carries both.",
         "regression": "Whichever way you sequenced, barcodes meet phenotypes in Regression. Open it from Home. For a pooled screen, it takes phenotype scores from Classify and guide counts from Map Barcodes. For an optical screen, it takes the decoded OPS objects once you have joined and aggregated them yourself; that is not a direct file handoff. It can also model a directly measured response. In every case, plate and well identifiers must agree across the inputs. Choose the response and the controls, run the fit, and read the diagnostics before you call anything a hit. The results folder it writes, with coefficients, hit tables, settings and figures, is what Run Compare opens when you want to line this run up against another.",
-        "power": "Now step back to before the experiment. Open Power / Design from Home to estimate how much sampling you need to see an effect, based on the effect sizes and variability you choose. Pilot measurements can support those assumptions, but they are optional. The layout from Experiment Design feeds these estimates, and the estimates in turn may send you back to revise that design.",
-        "experiment_design": "Open Experiment Design from Home to lay out the plates before you acquire anything. Enter the conditions, controls, replicates and plate constraints, with your power estimates in mind, and export the experimental layout. That layout travels far. Power / Design uses it to set sampling assumptions, and later, once the experiment is acquired and measured, Dose–Response uses its dose and condition identities, so keep them unchanged all the way through.",
+        "power": "Now step back to before the experiment. Open Power / Design from Home to estimate how much sampling you need to see an effect, based on the effect sizes and variability you choose. Pilot measurements can support those assumptions, but they are optional. Power / Design does not read the plate map from Experiment Design, so enter the plate count, wells per plate and replicates by hand. The estimates may send you back to revise that design.",
+        "experiment_design": "Open Experiment Design from Home to lay out the plates before you acquire anything. Enter the conditions, controls, replicates and plate constraints, and export the plate map. Power / Design does not read that file, so carry its plate and replicate numbers over by hand. Later, once the experiment is acquired and measured, Dose–Response uses its dose and condition identities, so keep them unchanged all the way through.",
         "dose_response": "Dose–Response answers how much, not which guide, so it needs no sequencing at all. Open it from Home and bring your measured responses with the dose and condition identities from Experiment Design. Set the dose and response columns, controls and units, then fit the curves. It saves assay results with figures and tables to export.",
         "run_compare": "Once you have more than one analysis, open Run Compare from Home. It reads your saved run records and Regression results and sets their settings, counts and hit lists side by side. If the input data changed between runs, the differences are not a controlled model comparison, so read them with that in mind.",
         "simulation": "One more planning tool lives only in Python: the pooled-screen simulation sweep, spacr.sim.run_multiple_simulations, with no Home tile or menu entry. You give it a settings dictionary of assumptions, such as screen size, occupancy, classifier accuracy and sequencing. It expands every combination, simulates each in a process pool and appends synthetic summary rows to simulations.db; the call itself returns None. Keep the parameter grid small and set max_workers explicitly before you run it. What comes out is planning evidence, not data, and it cannot stand in for measurements or barcode counts in Regression. Read the summaries, record your assumptions, and carry them by hand into Power / Design or Experiment Design, since neither tool imports the simulation database."
@@ -3112,7 +3123,7 @@
       "from": "convert",
       "to": "mask",
       "artifacts": [
-        "raw_images"
+        "converted_images"
       ],
       "handoff": "Use the converted layout and preserve source identity mappings."
     },
@@ -3229,14 +3240,6 @@
         "ops_tables"
       ],
       "handoff": "Join/aggregate decoded objects to phenotype and guide inputs explicitly before Regression; this is not a direct CSV handoff."
-    },
-    {
-      "from": "experiment_design",
-      "to": "power",
-      "artifacts": [
-        "plate_map"
-      ],
-      "handoff": "Use the experimental layout to define sampling assumptions, then revise the design."
     },
     {
       "from": "experiment_design",
@@ -5037,7 +5040,7 @@
       "summary": "Enter conditions, controls, replicates and plate constraints, then export the experimental layout before acquisition.",
       "pathway": "screen_planning",
       "inputs": [
-        "design"
+        "plate_design_entries"
       ],
       "steps": [
         {
@@ -5059,7 +5062,7 @@
       "summary": "Enter conditions, controls, replicates and plate constraints, then export the experimental layout before acquisition.",
       "pathway": "screen_planning",
       "inputs": [
-        "design"
+        "plate_design_entries"
       ],
       "steps": [
         {

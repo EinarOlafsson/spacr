@@ -13,7 +13,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 **Inputs**
 
 * **Microscope images** — Source image folder; original files, supported vendor files or imported TIFFs.
-* **Aligned mosaic and coordinates** — Align & Stitch destination: composed image and the tile-coordinate/layout records needed to interpret it.
+* **Aligned mosaic and coordinates** — The Write to folder or .npy file: the stitched stack. Tile coordinates are saved to the measurements.db named in Database only when that field is set.
 
 **Outputs**
 

@@ -16,7 +16,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 **Outputs**
 
-* **Microscope images** — Source image folder; original files, supported vendor files or imported TIFFs.
+* **Converted TIFFs and conversion map** — Format Converter destination folder: Yokogawa-named TIFFs (for example plate1_A01_T0001F001L01A01Z01C01.tif) and conversion_map.csv, which maps each output name back to its source file.
 
 **After this module**
 

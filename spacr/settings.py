@@ -5513,7 +5513,7 @@ tooltips = {
     "infection_pca_min_gt_separation": "(float) - Alert level for the ground-truth separation score - the absolute difference, between the two clusters, in the fraction of intensity-extreme cells that are infected (0-1). Dropping below it only prints a warning; the cluster labels are still applied. Raise it to be told sooner that the embedding is not separating infection. Default 0.2.",
     "infection_pca_max_cells": "(int) - Maximum number of cells included in the embedding. When more cells are available, a random subsample of this size is drawn with a fixed seed of 0, independently of infection_pca_random_state. Decrease the value to reduce UMAP or t-SNE runtime and memory use; increase it to improve representation of rare subpopulations. Applied after removal of non-finite rows. Default 50000.",
     'number_of_organelles': "(int) - How many organelle slots this run has, "
-        "from 0 to 26. Each slot is an independent object with its own "
+        "from 0 to 702. Each slot is an independent object with its own "
         "channel, its own type preset and its own copy of every detection "
         "setting, matching the pattern organelle(?:[b-z]|[a-z]{2})?_.*; "
         "raising the number generates another slot's settings and lowering "
