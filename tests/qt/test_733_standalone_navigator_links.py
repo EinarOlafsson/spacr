@@ -39,7 +39,9 @@ def test_standalone_learning_links_preserve_input_until_explicit_module_choice(
     page = _EasyHomePage()
     qtbot.addWidget(page)
     page.resize(1000, 800)
+    page.move(40, 40)
     page.show()
+    qtbot.waitExposed(page)
     chosen = QSignalSpy(page.module_requested)
     try:
         assert page.window() is page and not callable(getattr(page, '_open_navigator_protocols', None))
@@ -50,8 +52,11 @@ def test_standalone_learning_links_preserve_input_until_explicit_module_choice(
         qtbot.mouseMove(card, card.rect().center())
         details = page.field.details
         expected = tutorial_url('make_masks')
-        qtbot.waitUntil(lambda: 'spacr://sidebar' in details.toHtml() and 'spacr://protocols' not in details.toHtml(),
-                        timeout=5000)
+        from PySide6.QtGui import QTextDocumentFragment
+
+        described = QTextDocumentFragment.fromHtml(card._explanation).toPlainText()
+        qtbot.waitUntil(lambda: 'spacr://sidebar' in details.toHtml() and 'spacr://protocols' not in details.toHtml()
+                        and described in details.toPlainText(), timeout=5000)
         result = copy.deepcopy(page._last_result)
         anchors = QSignalSpy(details.anchorClicked)
         assert opened_urls == [] and chosen.count() == 0

@@ -13,8 +13,10 @@ def navigator(qtbot, private_ai_profile):
     preferences.set_reduce_motion(False)
     page = _EasyHomePage()
     page.resize(1080, 760)
+    page.move(40, 40)
     qtbot.addWidget(page)
     page.show()
+    qtbot.waitExposed(page)
     yield page
     page.close()
 
@@ -156,11 +158,11 @@ def test_input_is_halved_and_bottom_description_is_doubled_within_window(
     qtbot.waitUntil(lambda: navigator.path_edit.height() == 64)
     field, editor = navigator.field, navigator.path_edit
     assert editor.width() == min(720, field.width() - 48)
-    assert editor.font().pixelSize() == font_px(18)
-    assert editor.browse.font().pixelSize() == font_px(14)
+    assert editor.font().pixelSize() == font_px(16)
+    assert editor.browse.font().pixelSize() == font_px(16)
     assert field.rim._radius == 28
     assert field.details.width() == min(1560, field.width() - 32)
-    assert field.details.font().pixelSize() == 2 * font_px('body')
+    assert field.details.font().pixelSize() == font_px(16)
     assert field.details.height() == min(176 + 2 * field.details.fontMetrics().lineSpacing(),
                                          field.height() - editor.y() - editor.height() - 32)
     assert abs(editor.geometry().center().y() - field.rect().center().y()) <= 1

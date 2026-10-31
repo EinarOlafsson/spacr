@@ -6399,6 +6399,7 @@ class _NavigatorDetailsBrowser(QTextBrowser):
             self.setCurrentCharFormat(current)
             super().setPlainText(text)
         self.verticalScrollBar().setValue(scroll)
+        self._displayed = (self._entry, kind, text, self.document().revision())
 
     def _record(self, kind, text, stream=None):
         """Record bounded content history or update the active streamed entry.
@@ -6406,6 +6407,11 @@ class _NavigatorDetailsBrowser(QTextBrowser):
         :param kind: HTML or plain content representation.
         :param text: content to display; blank text clears only the visible document.
         :param stream: optional reply identity that updates its existing history entry.
+
+        The same content already on screen and unedited is left as it is. A
+        pointer that re-enters the card being described asks for its text
+        again, and replacing the document would drop the reader's caret,
+        selection and the link under the pointer.
         """
         if not text.strip():
             super().clear()
@@ -6418,7 +6424,9 @@ class _NavigatorDetailsBrowser(QTextBrowser):
             if self._entry == index:
                 self._display_entry()
         elif (self._entry >= 0 and self._entries[self._entry][:2] == [kind, text]):
-            self._display_entry()
+            if getattr(self, '_displayed', None) != (self._entry, kind, text,
+                                                     self.document().revision()):
+                self._display_entry()
         else:
             del self._entries[self._entry + 1:]
             if self._stream_entry > self._entry:
