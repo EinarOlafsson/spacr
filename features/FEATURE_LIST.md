@@ -12,7 +12,7 @@ Repeated IDs retain their separate full filenames and histories; none were merge
 
 This is a declaration-based navigation list, not a verified unfinished count. Headers can be stale. Conversely, recorded-Done items 641 and 673 contain later Mac follow-ups; item 729 separates native checks from deferred implementation. Read their linked notes before assigning work.
 
-21 records have no recorded complete declaration; 710 have a recorded complete declaration. Neither is a verification result.
+20 records have no recorded complete declaration; 711 have a recorded complete declaration. Neither is a verification result.
 
 | ID | Lifecycle | Item (full filename) | Recorded status |
 |---|---|---|---|
@@ -36,7 +36,6 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 729 | New | [THE MAC AND APPLE SILICON CHECKS STILL TO RUN ON A REAL MACOS DISPLAY — 729_mac_apple_silicon_native_checks_remaining.txt](feature_list/729_mac_apple_silicon_native_checks_remaining.txt) | IN PROGRESS — Apple Silicon Mac required for remaining checks |
 | 745 | New | [MASK ROLES KEEP THEIR MODELS AND RAW CHANNEL IDENTITY — 745_mask_roles_keep_their_models_and_raw_channel_identity.txt](feature_list/745_mask_roles_keep_their_models_and_raw_channel_identity.txt) | in progress — indexing safeguards validated; original cluster cause unconfirmed. |
 | 746 | New | [HOVER TOOLTIPS ARE NEVER CUT OFF AND CAN BE TURNED OFF — 746_hover_tooltips_are_never_cut_off_and_can_be_turned_off.txt](feature_list/746_hover_tooltips_are_never_cut_off_and_can_be_turned_off.txt) | IN PROGRESS |
-| 747 | New | [ONE AMBIENT GPU FRAME NEVER FREEZES THE APP — 747_one_ambient_gpu_frame_never_freezes_the_app.txt](feature_list/747_one_ambient_gpu_frame_never_freezes_the_app.txt) | in progress — bounded GPU frames on nightly; real-GPU check pending on the workstation. |
 
 ## All feature items
 
@@ -772,7 +771,7 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 744 | New | [ANONYMOUS ANNOTATION DATABASE STARTUP DIAGNOSTICS — 744_anonymous_annotation_database_startup_diagnostics.txt](feature_list/744_anonymous_annotation_database_startup_diagnostics.txt) | DONE — anonymous diagnostics and seven focused checks delivered on nightly. |
 | 745 | New | [MASK ROLES KEEP THEIR MODELS AND RAW CHANNEL IDENTITY — 745_mask_roles_keep_their_models_and_raw_channel_identity.txt](feature_list/745_mask_roles_keep_their_models_and_raw_channel_identity.txt) | in progress — indexing safeguards validated; original cluster cause unconfirmed. |
 | 746 | New | [HOVER TOOLTIPS ARE NEVER CUT OFF AND CAN BE TURNED OFF — 746_hover_tooltips_are_never_cut_off_and_can_be_turned_off.txt](feature_list/746_hover_tooltips_are_never_cut_off_and_can_be_turned_off.txt) | IN PROGRESS |
-| 747 | New | [ONE AMBIENT GPU FRAME NEVER FREEZES THE APP — 747_one_ambient_gpu_frame_never_freezes_the_app.txt](feature_list/747_one_ambient_gpu_frame_never_freezes_the_app.txt) | in progress — bounded GPU frames on nightly; real-GPU check pending on the workstation. |
+| 747 | New | [ONE AMBIENT GPU FRAME NEVER FREEZES THE APP — 747_one_ambient_gpu_frame_never_freezes_the_app.txt](feature_list/747_one_ambient_gpu_frame_never_freezes_the_app.txt) | DONE 2026-10-31 — bounded GPU frames verified on the RTX 3090 Ti (lesson 19 retake); |
 
 ## Unnumbered feature documents
 
