@@ -761,12 +761,15 @@ def _protocol_setting_help(key):
     :param key: registered module key.
     :returns: setting-name, default and authored-help tuples.
     """
-    from ..screens.settings_model import resolve_default_settings
-    from ... import settings
+    from ..screens.settings_model import (
+        _APP_TOOLTIP_OVERRIDES, _translated_body, get_tooltips, resolve_default_settings,
+    )
 
     defaults = resolve_default_settings(key)
-    tips = getattr(settings, 'tooltips', {})
-    return tuple((name, value, tips.get(name, '')) for name, value in defaults.items())
+    tips = get_tooltips()
+    tips.update(_APP_TOOLTIP_OVERRIDES.get(key, {}))
+    return tuple((name, value, _translated_body(tips.get(name, ''), setting_key=name, app_key=key))
+                 for name, value in defaults.items())
 
 
 def _protocol_markdown(result, checked=(), *, settings_help=None):
@@ -813,7 +816,7 @@ def _protocol_markdown(result, checked=(), *, settings_help=None):
             if result['action_sources'].get(key):
                 configured['src'] = result['action_sources'][key]
             label = tr('Selected: {value}', value=repr(configured[name])) if name in configured else tr('Factory default: {value}', value=repr(default))
-            lines.extend(['### ' + name, label, tr(help_text), ''])
+            lines.extend(['### ' + name, label, help_text, ''])
         if key not in (settings_help or {}):
             lines.append(tr('Open this step to inspect its current settings and authored help.'))
         lines.extend(['', '</details>', '', '</details>'])
@@ -1035,7 +1038,7 @@ class _ProtocolBrowserDialog(QDialog):
                         label = tr('Selected: {value}', value=repr(configured[name])) if name in configured else tr('Factory default: {value}', value=repr(default))
                         parts.append('<h4>' + escape(name) + '</h4><p>' +
                                      escape(label) + '</p><p>' +
-                                     escape(tr(help_text)) + '</p>')
+                                     escape(help_text) + '</p>')
         if not expand_all or 'catalog' in self._expanded:
             title = escape(tr('All registered routes and prerequisites'))
             parts.append('<h2>' + title + '</h2>' if expand_all else '<h2><a href="spacr://protocol/expand/catalog">' + title + '</a></h2>')

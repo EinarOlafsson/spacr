@@ -346,3 +346,15 @@ def test_protocol_procedure_preserves_order_optional_training_and_dimensional_li
         sample._protocol_handoff(native, 'measure')
     viewer = sample._protocol_result('small_images', 'tiff_yokogawa', dict(goal='3d'))
     assert [step['module'] for step in viewer['protocol']['steps']] == ['3d']
+
+
+def test_protocol_settings_help_uses_the_existing_source_bound_locale_body(monkeypatch):
+    """Scientific help reuses the exact catalog paragraph instead of partial UI terms."""
+    import importlib
+    monkeypatch.setenv('SPACR_LANGUAGE', 'zh_CN')
+    english = importlib.import_module('spacr.qt.i18n_catalogs.en')
+    chinese = importlib.import_module('spacr.qt.i18n_catalogs.zh_CN')
+    help_ = {name: text for name, value, text in sample._protocol_setting_help('map_barcodes')}
+    assert help_['target_sequence'] == chinese.SETTING_TOOLTIPS['target_sequence']
+    assert help_['target_sequence'] != english.SETTING_TOOLTIPS['target_sequence']
+    assert any('\u3400' <= char <= '\u9fff' for char in help_['target_sequence'])
