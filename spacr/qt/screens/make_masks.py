@@ -15247,6 +15247,7 @@ class MakeMasksScreen(QWidget):
         pending = []
 
         def measure():
+            """Measure once the layout has placed the labels."""
             if pending:
                 return
             pending.append(True)
@@ -15255,6 +15256,7 @@ class MakeMasksScreen(QWidget):
         last_width = []
 
         def measure_now():
+            """Raise the bar by what its labels lack; restart on a new width."""
             pending.clear()
             if not isValid(bar) or bar.width() <= 0:
                 return
