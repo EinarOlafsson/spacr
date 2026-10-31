@@ -328,3 +328,79 @@ def test_exhaustive_four_channel_role_routing_across_uneven_archives(
 def test_single_archive_103_fields_keeps_mask_names_across_50_image_offsets(tmp_path, monkeypatch):
     test_exhaustive_four_channel_role_routing_across_uneven_archives(
         tmp_path, monkeypatch, (0, 0, 1), archive_counts=(103,), batch_size=50, save=True)
+
+
+def test_rerun_with_new_channels_never_segments_planes_archived_for_an_earlier_run(
+        tmp_path, monkeypatch):
+    import types
+
+    import tifffile
+
+    from spacr.core import preprocess_generate_masks
+
+    root = tmp_path / 'plate1'
+    root.mkdir()
+    rng = np.random.default_rng(745)
+    raw_planes = [(1000 + 300 * index + rng.normal(0, 50, (32, 36))).clip(0).astype(np.uint16)
+                  for index in range(4)]
+    for field in (1, 2):
+        for index, plane in enumerate(raw_planes, 1):
+            tifffile.imwrite(root / f'plate1_A01_T0001F00{field}L01A01Z01C0{index}.tif',
+                             np.roll(plane, field, axis=0))
+    roles = ('cell', 'nucleus', 'pathogen')
+    checkpoints = {}
+    for role in roles:
+        path = tmp_path / (role + '.pth')
+        path.write_bytes(('rerun-' + role).encode())
+        checkpoints[role] = str(path)
+    received = []
+
+    class Model:
+        def __init__(self, pretrained_model, **kwargs):
+            self.pretrained = str(pretrained_model)
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None,
+                 normalize=True, invert=False, rescale=None, diameter=None,
+                 flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False,
+                 anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0,
+                 min_size=15, max_size_fraction=0.4, niter=None,
+                 augment=False, tile_overlap=0.1, bsize=256,
+                 compute_masks=True, progress=None):
+            check_cellpose_eval_call(x, channel_axis)
+            received.extend((self.pretrained, np.asarray(image).copy()) for image in x)
+            masks = [np.zeros(np.asarray(image).shape[:2], np.uint16) for image in x]
+            for mask in masks:
+                mask[4:12, 4:12] = 1
+            return masks, [np.zeros(mask.shape) for mask in masks], None
+
+    monkeypatch.setattr(objects, 'cp_models', types.SimpleNamespace(CellposeModel=Model))
+    monkeypatch.setattr(objects.accelerator, 'is_gpu', lambda: False)
+    monkeypatch.setattr(objects.accelerator, 'cellpose_kwargs', lambda: {'gpu': False})
+
+    def run(channels, **updates):
+        settings = set_default_settings_preprocess_generate_masks(dict(
+            src=str(root), metadata_type='cellvoyager', cell_channel=channels[0],
+            nucleus_channel=channels[1], pathogen_channel=channels[2],
+            organelle_channel=None, number_of_organelles=0, channels=[0, 1, 2, 3],
+            randomize=False, timelapse=False, plot=False, save=True, verbose=False,
+            n_jobs=1, batch_size=2, resume=False, preprocess=True, seg_qc=False,
+            adjust_cells=False, merge_pathogens=False, test_mode=False,
+            **{role + '_model_name': checkpoints[role] for role in roles}, **updates))
+        preprocess_generate_masks(json.loads(json.dumps(settings, default=str)))
+
+    run((0, 0, 1), masks=False)
+    assert list((root / 'masks').glob('*.npz')) and not received
+    run((3, 3, 2), masks=True)
+
+    def raw_plane(image):
+        scores = [max(abs(np.corrcoef(image.ravel(), np.roll(plane, field, axis=0).ravel())[0, 1])
+                      for field in (1, 2)) for plane in raw_planes]
+        assert max(scores) > .99
+        return int(np.argmax(scores))
+
+    routed = {}
+    for pretrained, image in received:
+        role = next(role for role in roles if checkpoints[role] == pretrained)
+        image = image[..., None] if image.ndim == 2 else image
+        routed.setdefault(role, []).append([raw_plane(image[..., c]) for c in range(image.shape[-1])])
+    assert routed == {'cell': [[3, 3]] * 2, 'nucleus': [[3]] * 2, 'pathogen': [[2]] * 2}

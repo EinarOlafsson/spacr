@@ -85,3 +85,9 @@ All103 pathogen input/mask pairs are pixel-identical before/after filtering; sam
 This validates the tested fresh serial 2D route, not every backend/runtime or the exact original cluster execution; no universal absence-of-bugs claim or original-case closure.
 
 2026-10-30 — Follow up actual b338 CI failures: this lane owns channel/provenance fixtures and new Cellpose-double contracts on d118. Preserve original raw-plane identity, fail-closed archive/PSF/illumination checks, exact channel-axis signatures and existing mask/data oracles. All15 affected failure/signature-owning controls pass once in52.87s on CPU8G; fatal static/diff checks pass. No runtime/default/ratchet change; original cluster cause remains unconfirmed.
+
+2026-10-31 — Supplied cluster log/merged output are not on Home (private Workstation 2 scratch); original job cause stays unconfirmed.
+Fresh preprocess routes 3/3/2 correctly on pre-fix 2b636df1ae^ and v1.5.1.6. One reproduced route matches the symptom: a rerun reusing
+masks/ archives from an earlier/interrupted 0/0/1 run fed cell+nucleus raw plane 0 and pathogen plane 1 ("Skipping preprocessing").
+Existing source_channels safeguards already rebuild it; new end-to-end orchestrator test fails on pre-fix code and passes on nightly.
+Remaining: compare the supplied log for "Found existing masks folder. Skipping preprocessing" to confirm or rule out this route.
