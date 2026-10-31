@@ -279,3 +279,80 @@ def test_a_path_that_is_not_one_is_not_an_offer():
     """`held` is asked about whatever a pair row carries, which need not be a
     path at all; the answer is the same as for a path nobody offered."""
     assert frame_handoff.held(object()) is None
+
+
+@pytest.mark.parametrize("failure", ["temporary-file", "write-and-cleanup"])
+def test_stage_io_failures_preserve_the_original_error_offer_and_durable_data(
+        tmp_path, monkeypatch, failure):
+    """Allocation and secondary cleanup errors cannot publish an incomplete replacement."""
+    import errno
+    from pathlib import Path
+
+    previous = pd.DataFrame({"cell_area": [3.0], "cell_count": [4]})
+    replacement = pd.DataFrame({"cell_area": [20.0, 30.0], "cell_count": [5, 6],
+                                "batch": ["new", "newer"]})
+    path = Path(frame_handoff.stage(previous, tmp_path, "restaged", columnar=False, report=None))
+    prior_bytes, prior_description = path.read_bytes(), frame_handoff.describe(path)
+    primary = OSError(errno.ENOSPC, "storage exhausted while staging")
+    secondary = PermissionError(errno.EACCES, "cannot remove interrupted staging file")
+    temporary_paths, cleanup_attempts, reports = [], [], []
+    real_mkstemp = frame_handoff.tempfile.mkstemp
+    real_write = tabular.write_table
+    real_unlink = os.unlink
+
+    def fail_create(*args, **kwargs):
+        if kwargs.get("dir") == str(tmp_path) and kwargs.get("prefix") == ".restaged.staging-":
+            assert frame_handoff.held(path) is replacement
+            assert "2 rows x 3 columns" in frame_handoff.describe(path)
+            assert path.read_bytes() == prior_bytes
+            raise primary
+        return real_mkstemp(*args, **kwargs)
+
+    def fail_write(frame, temporary_path):
+        temporary = Path(temporary_path)
+        temporary_paths.append(temporary)
+        assert frame is replacement
+        assert temporary != path
+        assert frame_handoff.held(path) is replacement
+        real_write(frame.iloc[:1], temporary)
+        assert temporary.is_file() and temporary.stat().st_size > 0
+        assert frame_handoff.held(temporary) is None
+        assert path.read_bytes() == prior_bytes
+        raise primary
+
+    def fail_cleanup(candidate, *args, **kwargs):
+        if Path(candidate) in temporary_paths:
+            cleanup_attempts.append(Path(candidate))
+            raise secondary
+        return real_unlink(candidate, *args, **kwargs)
+
+    try:
+        with monkeypatch.context() as faults:
+            if failure == "temporary-file":
+                faults.setattr(frame_handoff.tempfile, "mkstemp", fail_create)
+            else:
+                faults.setattr(tabular, "write_table", fail_write)
+                faults.setattr(os, "unlink", fail_cleanup)
+            with pytest.raises(OSError) as raised:
+                frame_handoff.stage(replacement, tmp_path, "restaged", columnar=False,
+                                    report=reports.append)
+        assert raised.value is primary
+        assert raised.value.errno == errno.ENOSPC
+        assert frame_handoff.held(path) is previous
+        assert frame_handoff.describe(path) == prior_description
+        assert path.read_bytes() == prior_bytes
+        pd.testing.assert_frame_equal(pd.read_csv(path), previous)
+        assert reports == []
+        if failure == "temporary-file":
+            assert list(tmp_path.iterdir()) == [path]
+            assert temporary_paths == cleanup_attempts == []
+        else:
+            assert cleanup_attempts == temporary_paths and len(temporary_paths) == 1
+            assert set(tmp_path.iterdir()) == {path, temporary_paths[0]}
+            assert frame_handoff.held(temporary_paths[0]) is None
+            assert frame_handoff.describe(temporary_paths[0]) == ""
+    finally:
+        frame_handoff.release(path)
+        for temporary in temporary_paths:
+            if temporary.exists():
+                real_unlink(temporary)

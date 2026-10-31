@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 14:05-0400\n"
+"POT-Creation-Date: 2026-10-30 19:56-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
@@ -42,6 +42,10 @@ msgstr "I samma utfällbara avsnitt väljer du **Uppmätt kärna (TIFF/NPY)** oc
 
 msgid "Wait for the kernel to load, then use **Compare** to inspect its effect. Set **Deconvolution iterations** when using Richardson–Lucy and choose **Apply** to use the result for detection. Start with a modest iteration count and inspect noise as well as object boundaries. **Reload** rereads a kernel file after you change it. **Off** disables PSF processing."
 msgstr "Vänta tills kärnan har lästs in och använd sedan **Jämför** för att granska dess effekt. Ange **Dekonvolutionsiterationer** när du använder Richardson–Lucy och välj **Verkställ** för att använda resultatet vid detektionen. Börja med ett måttligt antal iterationer och granska bruset såväl som objektgränserna. **Läs in igen** läser om en kärnfil efter att du har ändrat den. **Av** stänger av PSF-bearbetningen."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In Generate Masks, PSF and enhancement preprocessing is recorded in ``psf/segmentation_application.json``. If processing is requested or a prior record exists, reuse of normalized V1 archives checks the requested processing configuration, ordered source channels, exact field set and archive hashes against the completed record. Switching processing off does not bypass a record from an earlier run. If validation fails, enable preprocessing to rebuild the complete archive set from ``stack/``; restore the original images first if the stacks are unavailable. Changing ``resume`` alone does not make incompatible inputs reusable. See :doc:`checkpoint_resume`."
+msgstr "I Generate Masks registreras PSF- och förbättringsförbehandling i ``psf/segmentation_application.json``. Om bearbetning begärs eller en tidigare post finns, kontrolleras den begärda bearbetningskonfigurationen, källkanalerna i ordning, den exakta fältuppsättningen och arkivens hashvärden mot den slutförda posten innan normaliserade V1-arkiv återanvänds. Att stänga av bearbetningen kringgår inte en post från en tidigare körning. Om valideringen misslyckas, aktivera förbehandling för att bygga om hela arkivuppsättningen från ``stack/``; återställ först originalbilderna om stackarna saknas. Att enbart ändra ``resume`` gör inte oförenliga indata återanvändbara. Se :doc:`checkpoint_resume`."
 
 msgid "A wider Gaussian PSF spreads two fixed intensity peaks while preserving total intensity."
 msgstr "En bredare Gaussisk PSF sprider ut två fasta intensitetstoppar och bevarar den totala intensiteten."

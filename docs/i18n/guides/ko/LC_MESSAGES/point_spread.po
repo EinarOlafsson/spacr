@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 14:05-0400\n"
+"POT-Creation-Date: 2026-10-30 19:56-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -42,6 +42,10 @@ msgstr "같은 접힌 영역에서 **측정된 커널 (TIFF/NPY)** 을 선택하
 
 msgid "Wait for the kernel to load, then use **Compare** to inspect its effect. Set **Deconvolution iterations** when using Richardson–Lucy and choose **Apply** to use the result for detection. Start with a modest iteration count and inspect noise as well as object boundaries. **Reload** rereads a kernel file after you change it. **Off** disables PSF processing."
 msgstr "커널이 로드될 때까지 기다린 다음 **비교하기** 로 효과를 검사합니다. Richardson–Lucy를 사용할 때는 **디컨볼루션 반복 횟수** 를 설정하고, 결과를 검출에 사용하려면 **적용** 을 선택합니다. 적당한 반복 횟수로 시작하고 객체 경계뿐 아니라 잡음도 검사합니다. **다시 불러오기** 는 커널 파일을 변경한 후 다시 읽습니다. **꺼짐** 은 PSF 처리를 끕니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In Generate Masks, PSF and enhancement preprocessing is recorded in ``psf/segmentation_application.json``. If processing is requested or a prior record exists, reuse of normalized V1 archives checks the requested processing configuration, ordered source channels, exact field set and archive hashes against the completed record. Switching processing off does not bypass a record from an earlier run. If validation fails, enable preprocessing to rebuild the complete archive set from ``stack/``; restore the original images first if the stacks are unavailable. Changing ``resume`` alone does not make incompatible inputs reusable. See :doc:`checkpoint_resume`."
+msgstr "Generate Masks에서는 PSF 및 향상 전처리가 ``psf/segmentation_application.json`` 에 기록됩니다. 처리를 요청했거나 이전 기록이 있으면 정규화 V1 아카이브를 재사용하기 전에 요청된 처리 구성, 순서가 있는 소스 채널, 정확한 시야 집합 및 아카이브 해시를 완료된 기록과 비교합니다. 처리를 꺼도 이전 실행의 기록을 건너뛰지 않습니다. 검증이 실패하면 전처리를 켜서 ``stack/`` 에서 전체 아카이브 세트를 다시 만드세요. 스택을 사용할 수 없다면 먼저 원본 이미지를 복원하세요. ``resume`` 만 변경해도 호환되지 않는 입력을 재사용할 수 있게 되지는 않습니다. :doc:`checkpoint_resume` 를 참조하세요."
 
 msgid "A wider Gaussian PSF spreads two fixed intensity peaks while preserving total intensity."
 msgstr "더 넓은 가우스 PSF는 총 강도를 유지하면서 두 개의 고정된 강도 봉우리를 퍼뜨립니다."

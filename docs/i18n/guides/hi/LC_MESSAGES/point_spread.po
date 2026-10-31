@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 14:05-0400\n"
+"POT-Creation-Date: 2026-10-30 19:56-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -42,6 +42,10 @@ msgstr "उसी फ़ोल्ड में **मापा गया कर�
 
 msgid "Wait for the kernel to load, then use **Compare** to inspect its effect. Set **Deconvolution iterations** when using Richardson–Lucy and choose **Apply** to use the result for detection. Start with a modest iteration count and inspect noise as well as object boundaries. **Reload** rereads a kernel file after you change it. **Off** disables PSF processing."
 msgstr "कर्नेल लोड होने की प्रतीक्षा करें, फिर उसका प्रभाव देखने के लिए **तुलना करें** का उपयोग करें। Richardson–Lucy का उपयोग करते समय **डीकन्वोल्यूशन पुनरावृत्तियाँ** सेट करें और परिणाम को पहचान के लिए उपयोग करने हेतु **लागू करें** चुनें। मध्यम पुनरावृत्ति संख्या से शुरू करें और ऑब्जेक्ट सीमाओं के साथ-साथ शोर की भी जाँच करें। कर्नेल फ़ाइल बदलने के बाद **फिर से लोड करें** उसे दोबारा पढ़ता है। **बंद** PSF प्रसंस्करण को निष्क्रिय करता है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In Generate Masks, PSF and enhancement preprocessing is recorded in ``psf/segmentation_application.json``. If processing is requested or a prior record exists, reuse of normalized V1 archives checks the requested processing configuration, ordered source channels, exact field set and archive hashes against the completed record. Switching processing off does not bypass a record from an earlier run. If validation fails, enable preprocessing to rebuild the complete archive set from ``stack/``; restore the original images first if the stacks are unavailable. Changing ``resume`` alone does not make incompatible inputs reusable. See :doc:`checkpoint_resume`."
+msgstr "Generate Masks में PSF और संवर्धन पूर्वप्रसंस्करण का रिकॉर्ड ``psf/segmentation_application.json`` में रखा जाता है। यदि प्रसंस्करण का अनुरोध किया गया है या पिछला रिकॉर्ड मौजूद है, तो सामान्यीकृत V1 संग्रहों के पुनः उपयोग से पहले अनुरोधित प्रसंस्करण कॉन्फ़िगरेशन, क्रमबद्ध स्रोत चैनल, फ़ील्ड का सटीक समूह और संग्रह हैश की जाँच पूर्ण रिकॉर्ड से की जाती है। प्रसंस्करण बंद करने से पिछले रन का रिकॉर्ड दरकिनार नहीं होता। यदि सत्यापन विफल हो, तो ``stack/`` से पूरा संग्रह-समूह दोबारा बनाने के लिए पूर्वप्रसंस्करण सक्षम करें; स्टैक उपलब्ध न हों तो पहले मूल छवियाँ पुनर्स्थापित करें। केवल ``resume`` बदलने से असंगत इनपुट पुनः उपयोग योग्य नहीं होते। :doc:`checkpoint_resume` देखें।"
 
 msgid "A wider Gaussian PSF spreads two fixed intensity peaks while preserving total intensity."
 msgstr "अधिक चौड़ा गॉसियन PSF कुल तीव्रता बनाए रखते हुए दो स्थिर तीव्रता शिखरों को फैला देता है।"

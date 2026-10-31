@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 12:46-0400\n"
+"POT-Creation-Date: 2026-10-30 19:56-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -66,9 +66,13 @@ msgstr "中断的归一化存档"
 msgid "Mask also checks the normalized ``masks/*.npz`` archives before segmentation. It checks ZIP member extents, a readable numeric ``data.npy`` header, enough declared pixel bytes for the shape and dtype, and one filename per batch field. This structural check does not inflate every pixel array or perform a full pixel CRC scan."
 msgstr "掩膜模块还会在分割前检查归一化后的 ``masks/*.npz`` 存档。它检查 ZIP 成员范围、可读的数值型 ``data.npy`` 头、与形状和 dtype 相符的声明像素字节数，以及每个批次视野对应一个文件名。这种结构检查不会展开每个像素数组，也不会执行完整的像素 CRC 扫描。"
 
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Damaged archives are set aside as ``<name>.damaged``. With preprocessing disabled, the run stops and explains how to recover them. The same quarantine still prevents a later run from silently omitting those fields. It is resolved by a valid same-name replacement, or by readable archives covering every existing field in ``stack/``. Archives that store filenames as object-valued arrays cannot prove that coverage. Enabling preprocessing lets recoverable fields be rebuilt from the available source data; valid archives and quarantined evidence are preserved."
-msgstr "损坏的存档会被移到一旁，命名为 ``<name>.damaged``。如果禁用了预处理，运行会停止并说明如何恢复。同样的隔离机制仍会阻止之后的运行悄然遗漏这些视野。通过有效的同名替换文件，或通过覆盖 ``stack/`` 中每个现有视野的可读存档，即可解除隔离。以对象型数组存储文件名的存档无法证明这种覆盖。启用预处理后，可根据可用的源数据重建可恢复的视野；有效存档和被隔离的证据都会保留。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "New normalized V1 Mask archives record the ordered original channel IDs in ``source_channels``. Reuse checks this order against the current object-role channel choices; saved ``cellpose_<role>_channel`` values are derived positions, not overrides. Missing or incompatible channel provenance stops segmentation with preprocessing off. Enable preprocessing to rebuild from the original ``stack/`` fields; if those fields are unavailable, restore the original images before retrying. When rebuilding archives with incompatible channel provenance, prior mask stacks and ``merged/`` outputs are moved to ``previous_segmentation_channel_order_*`` for safekeeping rather than reused with the new channel order."
+msgstr "新的归一化 V1 Mask 存档会在 ``source_channels`` 中按顺序记录原始通道 ID。复用时，会将该顺序与当前对象角色的通道选择进行核对；已保存的 ``cellpose_<role>_channel`` 值是派生位置，不能覆盖通道选择。关闭预处理时，缺失或不兼容的通道来源记录会使分割停止。启用预处理可从 ``stack/`` 中的原始视野重建；如果这些视野不可用，请先恢复原始图像，再重试。重建通道来源记录不兼容的存档时，先前的掩膜堆栈和 ``merged/`` 输出会移到 ``previous_segmentation_channel_order_*`` 中保留，而不会按新的通道顺序复用。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Damaged archives are set aside as ``<name>.damaged``. With preprocessing disabled, the run stops and explains how to recover them. The same quarantine still prevents a later run from silently omitting those fields. It is resolved by a valid same-name replacement, or by readable archives covering every existing field in ``stack/``. Archives that store filenames as object-valued arrays cannot prove that coverage. Enabling preprocessing lets recoverable fields be rebuilt from the available source data. Quarantined evidence is preserved. Compatible whole archives can be retained; corrected or channel-incompatible archive sets may need to be rebuilt completely."
+msgstr "损坏的存档会被移到一旁，命名为 ``<name>.damaged``。如果禁用了预处理，运行会停止并说明如何恢复。同样的隔离机制仍会阻止之后的运行悄然遗漏这些视野。通过有效的同名替换文件，或通过覆盖 ``stack/`` 中每个现有视野的可读存档，即可解除隔离。以对象型数组存储文件名的存档无法证明这种覆盖。启用预处理后，可根据可用的源数据重建可恢复的视野。被隔离的证据会保留。兼容且完整的存档可以保留；经过校正或通道不兼容的存档集可能需要完整重建。"
 
 msgid "Safety rules"
 msgstr "安全规则"

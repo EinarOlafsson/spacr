@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 14:05-0400\n"
+"POT-Creation-Date: 2026-10-30 19:56-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -42,6 +42,10 @@ msgstr "在同一折叠区中，选择 **实测核（TIFF/NPY）** 并加载经�
 
 msgid "Wait for the kernel to load, then use **Compare** to inspect its effect. Set **Deconvolution iterations** when using Richardson–Lucy and choose **Apply** to use the result for detection. Start with a modest iteration count and inspect noise as well as object boundaries. **Reload** rereads a kernel file after you change it. **Off** disables PSF processing."
 msgstr "等待卷积核加载完成，然后使用 **比较** 查看其效果。使用 Richardson–Lucy 时设置 **反卷积迭代次数**，并选择 **应用** 将结果用于检测。先从适中的迭代次数开始，同时检查噪声和对象边界。更改卷积核文件后，**重新加载** 会重新读取该文件。**关闭** 会禁用 PSF 处理。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In Generate Masks, PSF and enhancement preprocessing is recorded in ``psf/segmentation_application.json``. If processing is requested or a prior record exists, reuse of normalized V1 archives checks the requested processing configuration, ordered source channels, exact field set and archive hashes against the completed record. Switching processing off does not bypass a record from an earlier run. If validation fails, enable preprocessing to rebuild the complete archive set from ``stack/``; restore the original images first if the stacks are unavailable. Changing ``resume`` alone does not make incompatible inputs reusable. See :doc:`checkpoint_resume`."
+msgstr "在 Generate Masks 中，PSF 和增强预处理会记录在 ``psf/segmentation_application.json`` 中。如果请求了处理，或存在先前的记录，复用归一化 V1 存档时会将请求的处理配置、有序源通道、确切的视野集合及存档哈希值与已完成的记录进行核对。关闭处理不会绕过先前运行的记录。如果验证失败，请启用预处理，从 ``stack/`` 重建整个存档集；如果堆栈不可用，请先恢复原始图像。仅更改 ``resume`` 并不能让不兼容的输入变得可复用。参见 :doc:`checkpoint_resume`。"
 
 msgid "A wider Gaussian PSF spreads two fixed intensity peaks while preserving total intensity."
 msgstr "更宽的高斯 PSF 会使两个固定的强度峰展开，同时保持总强度不变。"
