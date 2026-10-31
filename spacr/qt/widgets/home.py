@@ -5514,6 +5514,41 @@ class _NavigatorAiButton(QPushButton):
         painter.end()
 
 
+class _NavigatorProtocolsButton(QPushButton):
+    """A static, keyboard-accessible Protocols ring beside the AI control."""
+
+    def __init__(self, parent=None):
+        """Keep the Protocols affordance the same native size as the AI ring."""
+        from ..i18n import tr
+
+        super().__init__(parent)
+        self.setObjectName('NavigatorProtocolsButton')
+        self.setAccessibleName(tr('Protocols'))
+        self.setToolTip(tr('Protocols: choose your input and follow a guided workflow.'))
+        self.setCheckable(True)
+        self.setFixedSize(36, 36)
+        self.setCursor(Qt.PointingHandCursor)
+
+    def paintEvent(self, event):
+        """Paint a white P, or a black P on the active theme-blue field."""
+        from PySide6.QtGui import QPen
+        from ..theme import active_palette
+
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        painter.setPen(QPen(QColor('white'), 2.5 if self.hasFocus() else 1.5))
+        painter.setBrush(QColor(active_palette()['accent']) if self.isChecked() else Qt.NoBrush)
+        painter.drawEllipse(QRectF(self.rect().center().x() - 14,
+                                  self.rect().center().y() - 14, 28, 28))
+        painter.setPen(QColor('black' if self.isChecked() else 'white'))
+        font = QFont(self.font())
+        font.setBold(True)
+        font.setPixelSize(18)
+        painter.setFont(font)
+        painter.drawText(self.rect(), Qt.AlignCenter, 'P')
+        painter.end()
+
+
 class _EasyPathEdit(QLineEdit):
     """One rounded path field with an inset text-only native Browse control."""
 
@@ -5534,6 +5569,7 @@ class _EasyPathEdit(QLineEdit):
         self.browse.setObjectName('EasyModeBrowse')
         self.browse.setCursor(Qt.PointingHandCursor)
         self.ai = _NavigatorAiButton(self)
+        self.protocols = _NavigatorProtocolsButton(self)
         self.textEdited.connect(self.ai._typing)
 
     def resizeEvent(self, event):
@@ -5542,9 +5578,10 @@ class _EasyPathEdit(QLineEdit):
         if not hasattr(self, 'browse'):
             return
         width = self.browse.fontMetrics().horizontalAdvance(self.browse.text()) + 24
-        self.browse.setGeometry(self.width() - width - 60, 6, width, self.height() - 12)
+        self.browse.setGeometry(self.width() - width - 100, 6, width, self.height() - 12)
         self.ai.move(self.width() - 48, (self.height() - self.ai.height()) // 2)
-        self.setTextMargins(18, 0, width + 68, 0)
+        self.protocols.move(self.width() - 88, (self.height() - self.protocols.height()) // 2)
+        self.setTextMargins(18, 0, width + 108, 0)
 
 
 
@@ -5552,22 +5589,12 @@ _EASY_WORKFLOW_PORT_RADIUS = 4
 
 
 def _navigator_learning_links(key=None):
-    """Use published module lessons and the local software-protocol browser."""
-    from ..app import APPS
+    """Offer one explicit sidebar action instead of a footer of module links."""
     from ..i18n import tr
-    from ..tutorials import tutorial_url
 
-    names = {row[0]: row[1] for row in APPS}
-    selected = (key,) if key else ('mask', 'measure', 'annotate', 'classify_merged',
-                                  'map_barcodes', 'regression', 'make_masks')
-    links = []
-    for module in selected:
-        url = tutorial_url(module)
-        if url:
-            label = tr('Tutorial') if key else tr(names.get(module, module))
-            links.append('<a href="' + escape(url, quote=True) + '">' + escape(label) + '</a>')
-    links.append('<a href="spacr://protocols">' + escape(tr('Protocols')) + '</a>')
-    return '<p>' + ' | '.join(links) + '</p>'
+    return ('<p>' + escape(tr('Sidebar: open running jobs, history and the Home panels.'))
+            + ' <a href="spacr://sidebar" style="text-decoration:none;">'
+            + escape(tr('Open sidebar')) + '</a></p>')
 
 
 class _EasySuggestionCard(QPushButton):
@@ -5988,6 +6015,12 @@ class _NavigatorDetailsBrowser(QTextBrowser):
         """Navigate an explicitly clicked assistant or documentation link."""
         from .ai_chat_panel import _activate_ai_link
 
+        if url.toString() == 'spacr://sidebar':
+            page = getattr(self.window(), '_startup', None)
+            opener = getattr(page, '_show_navigator_sidebar', None)
+            if callable(opener):
+                opener()
+            return
         if url.toString() == 'spacr://protocols':
             owner = self.window()
             opener = getattr(owner, '_open_navigator_protocols', None)
@@ -6411,7 +6444,9 @@ class _EasyHomeField(QWidget):
         width, height = self.width(), self.height()
         panel_width = min(720, max(180, width - 48))
         panel_height = self.panel.height()
-        panel_y = max(16, (height - panel_height) // 2)
+        protocols = getattr(self, 'protocol_controls', None)
+        controls_height = protocols.sizeHint().height() if protocols is not None and not protocols.isHidden() else 0
+        panel_y = max(16, (height - panel_height - controls_height) // 2)
         self._place_fixed(self.panel, QRect((width - panel_width) // 2, panel_y, panel_width, panel_height))
         self._place_fixed(self.rim, QRect((width - panel_width) // 2, panel_y, panel_width, panel_height))
         self.rim.raise_()
@@ -6419,7 +6454,13 @@ class _EasyHomeField(QWidget):
         from ..preferences import scaled_px
 
         default_height = 176 + 2 * self.details.fontMetrics().lineSpacing()
-        maximum_height = max(1, height - panel_y - panel_height - 32)
+        maximum_height = max(1, height - panel_y - panel_height - 32
+                             - (controls_height + 12 if controls_height else 0))
+        if controls_height:
+            controls_width = max(1, round(panel_width * 0.75))
+            protocols.setGeometry((width - controls_width) // 2, panel_y + panel_height + 8,
+                                  controls_width, controls_height)
+            protocols.raise_()
         wanted_height = (default_height if self._details_height_base is None
                          else scaled_px(self._details_height_base))
         details_height = (36 if self.details._minimized else
@@ -7026,6 +7067,7 @@ class _EasyWorkflowPage(QWidget):
         if key == self._chosen_key:
             action = self.routes.get(key)
             source = action[3] if action and action[3] else self._source_path
+            source = self.data.get('protocol_action_sources', {}).get(key, source)
             self.open_requested.emit(key, '' if key in self.data.get('easy_helpers', ()) else source)
             return
         self._chosen_key = key
@@ -7239,7 +7281,7 @@ class _EasyHomePage(QWidget):
         self._suggestions_scroll = scroll
         self._workflow = None
         self._workflow_escape = QShortcut(QKeySequence(Qt.Key_Escape), self)
-        self._workflow_escape.activated.connect(self._show_suggestions)
+        self._workflow_escape.activated.connect(self._navigator_escape)
         self.path_edit = self.field.panel
         self.path_edit.browse.clicked.connect(self._browse)
         self._ai_provider = ''
@@ -7282,10 +7324,295 @@ class _EasyHomePage(QWidget):
         self._guide_visible = False
         self._guide_writing = False
         self._details_has_content = False
+        self._protocol_step = 0
+        self._protocol_family = ''
+        self._protocol_format = ''
+        self._protocol_choices = {}
+        self._protocol_result = None
+        self._inspected_text = None
+        self._inspected_generation = None
+        self._build_protocol_controls()
+        self.path_edit.protocols.toggled.connect(self._toggle_protocols)
+        self.path_edit.textChanged.connect(self._protocol_input_changed)
         self.field.details.textChanged.connect(self._guide_details_changed)
         self.path_edit.textChanged.connect(self._guide_input_changed)
         self.refresh()
         self._show_empty_guide()
+
+    def _navigator_escape(self):
+        """Return from a workflow first, otherwise close the retained chooser."""
+        if self._workflow is not None:
+            self._show_suggestions()
+        elif self.path_edit.protocols.isChecked():
+            self.path_edit.protocols.setChecked(False)
+        else:
+            self._show_suggestions()
+
+    def _build_protocol_controls(self):
+        """Build the retained three-step chooser without another renderer or timer."""
+        from ..i18n import tr
+
+        controls = QFrame(self.field)
+        controls.setObjectName('NavigatorProtocolSelector')
+        controls.setAccessibleName(tr('Protocols input choices'))
+        colors = palette_for('dark')
+        controls.setStyleSheet(
+            f'QFrame#NavigatorProtocolSelector {{ border: 1px solid {colors["border"]}; border-radius: 18px; background: rgb(25,25,25); }} '
+            f'QFrame#NavigatorProtocolSelector QLabel, QFrame#NavigatorProtocolSelector QComboBox {{ color: {colors["fg"]}; font-size: {font_px(14)}px; }} '
+            'QFrame#NavigatorProtocolSelector QComboBox { background: transparent; padding: 2px 4px; } '
+            'QFrame#NavigatorProtocolSelector QToolButton { background: transparent; border: none; }')
+        column = QVBoxLayout(controls)
+        column.setContentsMargins(12, 8, 12, 8)
+        row = QHBoxLayout()
+        self._protocol_select = QComboBox(controls)
+        self._protocol_select.setObjectName('NavigatorProtocolChoice')
+        self._protocol_select.setMinimumHeight(28)
+        self._protocol_select.activated.connect(self._protocol_selected)
+        self._protocol_back_button = QToolButton(controls)
+        self._protocol_back_button.setAccessibleName(tr('Previous protocol step'))
+        self._protocol_back_button.setToolTip(tr('Back'))
+        self._protocol_back_button.setFixedSize(28, 28)
+        self._protocol_back_button.setIconSize(QSize(18, 18))
+        self._protocol_back_button.setIcon(self.field.details._arrow_icon('back'))
+        self._protocol_back_button.clicked.connect(self._protocol_back)
+        self._protocol_next_button = QToolButton(controls)
+        self._protocol_next_button.setAccessibleName(tr('Next protocol step'))
+        self._protocol_next_button.setToolTip(tr('Next'))
+        self._protocol_next_button.setFixedSize(28, 28)
+        self._protocol_next_button.setIconSize(QSize(18, 18))
+        self._protocol_next_button.setIcon(self.field.details._arrow_icon('forward'))
+        self._protocol_next_button.clicked.connect(self._protocol_next)
+        row.addWidget(self._protocol_select, 1)
+        row.addWidget(self._protocol_back_button)
+        row.addWidget(self._protocol_next_button)
+        column.addLayout(row)
+        self._protocol_details_layout = QVBoxLayout()
+        column.addLayout(self._protocol_details_layout)
+        self._protocol_detail_combos = {}
+        self.field.protocol_controls = controls
+        controls.hide()
+
+    def open_protocols(self):
+        """Open the retained local Protocols chooser through an explicit user action."""
+        self.path_edit.protocols.setChecked(True)
+        self._protocol_select.setFocus()
+
+    def _toggle_protocols(self, enabled):
+        """Show or hide Protocols while preserving its valid selection state."""
+        self._show_suggestions()
+        self.field.protocol_controls.setVisible(enabled)
+        if enabled:
+            self._cancel_navigator_ai()
+            self._cancel_regex_validation()
+            self._protocol_render()
+        else:
+            self._protocol_result = None
+            self.field.set_cards([])
+            if self._last_result is not None and self._inspected_text == self.path_edit.text():
+                self._show_result(self._input_generation, self._last_result)
+            else:
+                self._details_has_content = False
+                self.field.details.clear()
+                self._show_empty_guide()
+        self.field._arrange()
+
+    def _protocol_input_changed(self, text):
+        """Invalidate only the protocol handoff when the native input changes."""
+        self._protocol_result = None
+        if self.path_edit.protocols.isChecked():
+            self._show_suggestions()
+            self.field.set_cards([])
+            if self._protocol_step == 2:
+                if not text.strip():
+                    self._protocol_present()
+                else:
+                    from ..i18n import tr
+
+                    self.field.details.setPlainText(tr('Input changed. Inspect it before carrying it into a protocol.'))
+
+    def _protocol_fields(self):
+        """Read dependent selectors from the shared current-capability catalog."""
+        from .sample_project import _protocol_options
+
+        if not self._protocol_family or not self._protocol_format:
+            return ()
+        return _protocol_options(self._protocol_family, self._protocol_format,
+                                 self._protocol_choices)
+
+    def _protocol_ready(self):
+        """Require explicit valid values for every currently required selector."""
+        from .sample_project import _protocol_options
+
+        if self._protocol_step == 0:
+            return any(row['key'] == self._protocol_family for row in _protocol_options())
+        if not any(row['key'] == self._protocol_format
+                   for row in _protocol_options(self._protocol_family)):
+            return False
+        return all(not field.get('required', True) or any(
+            row['key'] == self._protocol_choices.get(field['name'])
+            for row in field['options']) for field in self._protocol_fields())
+
+    def _protocol_render(self):
+        """Rebuild only native choice widgets and retain still-compatible values."""
+        from functools import partial
+        from .sample_project import _protocol_options
+        from ..i18n import tr
+
+        while self._protocol_details_layout.count():
+            item = self._protocol_details_layout.takeAt(0)
+            item.widget().hide()
+            item.widget().deleteLater()
+        self._protocol_detail_combos = {}
+        options = (_protocol_options() if self._protocol_step == 0
+                   else _protocol_options(self._protocol_family))
+        selected = self._protocol_family if self._protocol_step == 0 else self._protocol_format
+        combo = self._protocol_select
+        combo.clear()
+        combo.setPlaceholderText(tr('Experiment/Input…') if self._protocol_step == 0 else tr('Data format…'))
+        combo.setAccessibleName(combo.placeholderText())
+        for option in options:
+            combo.addItem(option['label'], option['key'])
+        combo.setCurrentIndex(combo.findData(selected))
+        combo.setEnabled(self._protocol_step != 2)
+        explanations = [row['explanation'] for row in options if row['key'] == selected]
+        if self._protocol_step == 1 and self._protocol_format:
+            fields = self._protocol_fields()
+            active_names = {field['name'] for field in fields}
+            self._protocol_choices = {name: value for name, value in self._protocol_choices.items()
+                                      if name in active_names}
+            for field in fields:
+                holder = QWidget(self.field.protocol_controls)
+                row = QHBoxLayout(holder)
+                row.setContentsMargins(0, 0, 0, 0)
+                label = QLabel(field['label'], holder)
+                label.setWordWrap(True)
+                detail = QComboBox(holder)
+                detail.setMinimumHeight(28)
+                detail.setAccessibleName(field['label'])
+                detail.setObjectName('NavigatorProtocol_' + field['name'])
+                detail.setPlaceholderText(tr('Choose…'))
+                for option in field['options']:
+                    detail.addItem(option['label'], option['key'])
+                chosen = self._protocol_choices.get(field['name'])
+                index = detail.findData(chosen)
+                detail.setCurrentIndex(index)
+                if index < 0:
+                    self._protocol_choices.pop(field['name'], None)
+                explanations.extend(option['explanation'] for option in field['options']
+                                    if option['key'] == chosen)
+                detail.activated.connect(partial(self._protocol_detail_selected, field['name']))
+                label.setBuddy(detail)
+                row.addWidget(label)
+                row.addWidget(detail, 1)
+                self._protocol_detail_combos[field['name']] = detail
+                self._protocol_details_layout.addWidget(holder)
+                holder.show()
+        self._protocol_back_button.setEnabled(self._protocol_step > 0)
+        self._protocol_next_button.setEnabled(self._protocol_step < 2 and self._protocol_ready())
+        from ..theme import active_palette
+
+        color = active_palette()['accent']
+        self._protocol_back_button.setIcon(self.field.details._arrow_icon('back', color))
+        self._protocol_next_button.setIcon(self.field.details._arrow_icon('forward', color))
+        self.field.set_cards([])
+        if self._protocol_step == 2:
+            self._protocol_present()
+        else:
+            explanation = '\n\n'.join(explanations) or tr('Choose your experiment or input to see a compatible workflow. Nothing starts automatically.')
+            self.field.details.setPlainText(explanation)
+        self.field.protocol_controls.layout().activate()
+        self.field.protocol_controls.adjustSize()
+        self.field._arrange()
+
+    def _protocol_selected(self, index):
+        """Store a genuine family or format selection and explain it below."""
+        value = self._protocol_select.itemData(index)
+        if not value:
+            return
+        if self._protocol_step == 0:
+            if value != self._protocol_family:
+                self._protocol_format = ''
+                self._protocol_choices = {}
+            self._protocol_family = value
+        elif value != self._protocol_format:
+            self._protocol_format = value
+            self._protocol_choices = {}
+        self._protocol_result = None
+        self._protocol_render()
+
+    def _protocol_detail_selected(self, name, index):
+        """Retain an explicit dependent choice while dropping invalid descendants."""
+        self._protocol_choices[name] = self._protocol_detail_combos[name].itemData(index)
+        self._protocol_result = None
+        self._protocol_render()
+
+    def _protocol_back(self):
+        """Return one step while retaining valid family, format and detail choices."""
+        if self._protocol_step:
+            self._protocol_step -= 1
+            self._protocol_result = None
+            self._protocol_render()
+
+    def _protocol_next(self):
+        """Advance a valid selection and open guidance only at the final step."""
+        if self._protocol_step >= 2 or not self._protocol_ready():
+            return
+        self._protocol_step += 1
+        self._protocol_render()
+        if self._protocol_step == 2:
+            from .sample_project import _show_protocols
+
+            _show_protocols(self.window(), result=self._protocol_result)
+
+    def _protocol_present(self):
+        """Publish compatible starting cards without replacing inspected evidence."""
+        from .sample_project import _protocol_result
+
+        inspected = self._last_result or {}
+        context = inspected.get('context', {})
+        groups = context.get('action_groups', {})
+        current = (self._inspected_text == self.path_edit.text()
+                   and self._inspected_generation == self._input_generation)
+        source = inspected.get('path', '') if current else ''
+        if groups and all(group.get('kind') == 'navigation' for group in groups.values()):
+            source, context = '', {}
+        if not source:
+            context = {}
+        else:
+            from copy import deepcopy
+
+            context = deepcopy(context)
+            native_sources = {}
+            for key, title, description, path in inspected.get('actions', ()):
+                if path:
+                    native_sources.setdefault(key, path)
+            context['protocol_native_sources'] = native_sources
+        result = _protocol_result(self._protocol_family, self._protocol_format,
+                                  self._protocol_choices, source, context)
+        if source:
+            result['_navigator_inspection'] = (self._inspected_generation, self._inspected_text)
+        self._protocol_result = result
+        self.field.set_cards(result['actions'])
+        message = '\n\n'.join((result['message'], *result.get('requirements', ())))
+        self.field.details.setPlainText(message)
+        for card in self.field.cards:
+            card.activated.connect(self._select_suggestion)
+
+    def protocol_handoff(self, key, path):
+        """Return a current protocol handoff only for an explicitly offered card."""
+        from .sample_project import _protocol_handoff
+
+        result = self._protocol_result
+        if not self.path_edit.protocols.isChecked() or result is None:
+            return None
+        if not any(action[0] == key and action[3] == path for action in result['actions']):
+            return None
+        if result.get('source_path') and result.get('_navigator_inspection') != (
+                self._input_generation, self.path_edit.text()):
+            from ..i18n import tr
+
+            raise ValueError(tr('The inspected input changed. Inspect it again before opening this protocol.'))
+        return _protocol_handoff(result, key)
 
     def _guide_details_changed(self):
         """Distinguish real descriptions and answers from the guide's own writes."""
@@ -7314,13 +7641,14 @@ class _EasyHomePage(QWidget):
         folder = 'C:/Data/experiment/plate1' if os.name == 'nt' else '/data/experiment/plate1'
         image = folder + '/image.tif'
         lines = (
+            tr('spaCR AI: Ask for help using spaCR, e.g., ‘How do I generate object masks?’ or ‘How do i train a Cellpose or Torch model?’'),
+            tr('Protocols: Click P to choose your input and follow a guided workflow.'),
             tr('File/folder: Drop an image or a folder of images to see image based modules.'),
             tr('Path: Paste {folder} or {image} to see compatible modules. You can also type a file type, such as tif.',
                folder=folder, image=image),
             tr('Question: Try “segment images” to find segmentation tools.'),
             tr('Module: Type “Measure” to find the measurement module.'),
             tr('Explore: Click once to open the module network. Click twice to open the module.'),
-            tr('spaCR AI: Ask for help using spaCR, e.g., ‘How do I generate object masks?’ or ‘How do i train a Cellpose or Torch model?’'),
         )
         paragraphs = []
         for line in lines:
@@ -7847,6 +8175,12 @@ class _EasyHomePage(QWidget):
         actions = [action for action in result['actions'] if app_is_visible(action[0])]
         visible_count = len(actions)
         self._last_result = result
+        self._inspected_text = self.path_edit.text()
+        self._inspected_generation = generation
+        if self.path_edit.protocols.isChecked():
+            self._settings_overrides = dict(result.get('settings_overrides', {}))
+            self._protocol_render()
+            return
         self._settings_overrides = dict(result.get('settings_overrides', {}))
         proposal = result.get('regex')
         leading = None
@@ -7915,7 +8249,10 @@ class _EasyHomePage(QWidget):
                                      if candidate in data['modules'])
         if key not in data['modules']:
             return
-        actions = list((self._last_result or {}).get('actions', ()))
+        protocol = self._protocol_result if self.path_edit.protocols.isChecked() else None
+        if protocol is not None:
+            data['protocol_action_sources'] = {action[0]: action[3] for action in protocol['actions']}
+        actions = list((protocol or self._last_result or {}).get('actions', ()))
         actions = [action for action in actions if action[0] != key]
         actions.insert(0, (key, data['modules'][key]['name'], data['modules'][key].get('guidance', ''), path))
         source_card = next((card for card in self.field.cards

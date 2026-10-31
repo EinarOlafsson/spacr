@@ -23,13 +23,11 @@ class Links(HTMLParser):
             self.urls.append(dict(attrs).get('href'))
 
 
-def test_guidance_links_use_all_seven_published_lessons():
-    from spacr.qt.tutorials import tutorial_url
-    keys = ('mask', 'measure', 'annotate', 'classify_merged', 'map_barcodes', 'regression', 'make_masks')
+def test_guidance_footer_has_one_explicit_sidebar_link():
     urls = Links(home._navigator_learning_links()).urls
-    assert urls == [*(tutorial_url(key) for key in keys), 'spacr://protocols']
-    assert all(url and '#lesson=' in url for url in urls[:-1])
-    assert Links(home._navigator_learning_links('mask')).urls == [tutorial_url('mask'), 'spacr://protocols']
+    assert urls == ['spacr://sidebar']
+    assert Links(home._navigator_learning_links('mask')).urls == urls
+    assert 'text-decoration:none' in home._navigator_learning_links()
 
 
 @pytest.mark.parametrize('phrase', ['Protocols', 'PROTOCOL', 'walkthroughs', 'protokoll', 'Analyseanleitungen',
@@ -74,10 +72,11 @@ def test_navigator_protocol_link_requires_explicit_valid_activation(qtbot, priva
     assert opened == [True] and rejected == ['spacr://protocols?run=true']
 
 
-def test_actual_help_and_navigator_share_browser_and_native_measure_input(qtbot, private_ai_profile, tmp_path):
+def test_classic_help_and_protocol_command_share_legacy_browser_and_native_measure_input(qtbot, private_ai_profile, tmp_path):
     preferences, _, _ = private_ai_profile
-    preferences.set_easy_mode(True)
+    preferences.set_easy_mode(False)
     preferences.set_reduce_motion(True)
+    preferences.set_ambient_enabled(False)
     plate = tmp_path / 'plate1'
     (plate / 'merged').mkdir(parents=True)
     context = {'generated_outputs': {'artifacts': [{'kind': 'merged'}]}}
