@@ -52819,7 +52819,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 10821,
+    "line": 10916,
     "module": "spacr.qt.app",
     "nested": false,
     "qualname": "MainWindow._open_easy_suggestion"
@@ -53183,6 +53183,33 @@
     "module": "spacr.qt.widgets.qc_field_browser",
     "nested": false,
     "qualname": "_open_overview_module"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "src",
+    "line": 745,
+    "module": "spacr.qt.widgets.sample_project",
+    "nested": false,
+    "qualname": "_protocol_handoff"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "src",
+    "line": 747,
+    "module": "spacr.qt.widgets.sample_project",
+    "nested": false,
+    "qualname": "_protocol_handoff"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "src",
+    "line": 750,
+    "module": "spacr.qt.widgets.sample_project",
+    "nested": false,
+    "qualname": "_protocol_handoff"
    },
    {
     "form": "get",
