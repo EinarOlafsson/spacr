@@ -7244,8 +7244,19 @@ class MainWindow(QMainWindow):
         that, so those marks are hidden and the bar no longer drags or
         resizes; the full-screen mark stays. The window keeps its state.
 
+        Changing the frame hides and shows the window. Hiding makes Qt
+        Widgets drop it as the active window, but the platform focus window
+        stays the same through a quick hide and show, so Qt reports no focus
+        change that would give the activation back. While this window is
+        still the platform focus window, the widgets are told so again, as
+        Qt itself does on a focus change.
+
         :param on: ``True`` for borderless.
         """
+        import warnings
+
+        from PySide6.QtGui import QGuiApplication
+
         from .preferences import set_borderless_window
 
         on = bool(on)
@@ -7257,6 +7268,7 @@ class MainWindow(QMainWindow):
             return
         state = self.windowState()
         shown = self.isVisible()
+        active = QApplication.activeWindow() is self
         geometry = self.geometry()
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint, on)
         if not state & (Qt.WindowMaximized | Qt.WindowFullScreen
@@ -7268,6 +7280,13 @@ class MainWindow(QMainWindow):
             if not state & Qt.WindowMinimized:
                 self.raise_()
                 self.activateWindow()
+                handle = self.windowHandle()
+                if (active and handle is not None
+                        and QGuiApplication.focusWindow() is handle
+                        and QApplication.activeWindow() is not self):
+                    with warnings.catch_warnings():
+                        warnings.simplefilter("ignore", DeprecationWarning)
+                        QApplication.setActiveWindow(self)
 
     @staticmethod
     def _fullscreen_icon(size: int = CHROME_ICON_PX, colour=None):
