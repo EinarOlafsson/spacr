@@ -768,6 +768,35 @@ class ImportResult:
         return "\n".join(lines)
 
 
+def _prepare_import_target(target: Path, *, source: Optional[Path] = None,
+                           unlink: bool = False) -> None:
+    """Detach an output alias without writing through it into another image.
+
+    :param target: canonical output directory entry.
+    :param source: copy source; its existing same-file no-op stays intact.
+    :param unlink: remove every existing entry for a link replacement.
+    :raises OSError: when an existing output cannot be safely prepared.
+    """
+    import os
+    import stat
+
+    try:
+        target_info = target.lstat()
+    except FileNotFoundError:
+        return
+    if source is not None:
+        source_info = source.stat()
+        try:
+            current_info = target.stat()
+        except FileNotFoundError:
+            pass
+        else:
+            if os.path.samestat(source_info, current_info):
+                return
+    if unlink or stat.S_ISLNK(target_info.st_mode) or target_info.st_nlink > 1:
+        target.unlink()
+
+
 def _stitch_fields(plan: "ImportPlan", entries: Dict[str, Dict[str, object]],
                    destination: Path, plate: str):
     """Write one image per field from the tiles of that field.
@@ -809,7 +838,9 @@ def _stitch_fields(plan: "ImportPlan", entries: Dict[str, Dict[str, object]],
         try:
             from .tiff_io import write_tiff
 
-            write_tiff(str(destination / name), array)
+            target = Path(_long_path(destination / name))
+            _prepare_import_target(target)
+            write_tiff(str(target), array)
         except Exception as exc:                         # noqa: BLE001
             for _tile, rel in members:
                 skipped[rel] = f"could not write the stitched {name}: {exc}"
@@ -859,7 +890,8 @@ def apply_import(plan: "ImportPlan", destination, *, link: bool = True,
         With both off, the first tile written under a field's name is kept
         and every later tile with the same name is skipped with a reason,
         rather than written over it.
-    :raises ValueError: when the plan still has problems.
+    :raises ValueError: when the plan still has problems or a canonical
+        output would replace an input file.
     """
     import os
     import shutil
@@ -870,23 +902,52 @@ def apply_import(plan: "ImportPlan", destination, *, link: bool = True,
             "this plan is not ready to import:\n  " + "\n  ".join(problems))
 
     destination = Path(destination)
-    Path(_long_path(destination)).mkdir(parents=True, exist_ok=True)
-    result = ImportResult(destination=destination)
-    written = linked = saved = 0
-    skipped: Dict[str, str] = {}
-    used: Dict[str, str] = {}
-
+    entries = dict(plan.files)
     tile_fields: Dict[Tuple[object, object, object], int] = {}
     if tiles_as_fields:
         pairs = sorted({(e.get("well"), e.get("field"), e.get("tile"))
-                        for e in plan.files.values() if "tile" in e},
+                        for e in entries.values() if "tile" in e},
                        key=lambda p: (str(p[0]), str(p[1]), str(p[2])))
         by_well: Dict[object, int] = {}
         for well, fld, tile in pairs:
             by_well[well] = by_well.get(well, 0) + 1
             tile_fields[(well, fld, tile)] = by_well[well]
 
-    entries = dict(plan.files)
+    inputs = [plan.root / rel for rel in entries]
+    input_entries = {
+        os.path.normcase(str(path.parent.resolve() / path.name))
+        for path in inputs
+    }
+    input_entries.update(os.path.normcase(str(path.resolve())) for path in inputs)
+    planned_names = {}
+    for rel, entry in sorted(entries.items()):
+        if tiles_as_fields and "tile" in entry:
+            entry = dict(entry)
+            entry["field"] = tile_fields[
+                (entry.get("well"), entry.get("field"), entry.get("tile"))]
+        name = canonical_name(entry, plate=plate)
+        target = destination / name
+        target_entry = os.path.normcase(str(target.parent.resolve() / target.name))
+        conflict = target_entry in input_entries
+        stitched = stitch_tiles and not tiles_as_fields and "tile" in entry
+        if conflict and not link and not stitched:
+            try:
+                conflict = not os.path.samefile(plan.root / rel, target)
+            except OSError:
+                pass
+        if conflict:
+            from .qt.i18n import tr
+
+            raise ValueError(tr(
+                "Import would overwrite input image {path}. Choose a folder beside it instead."
+            ).format(path=target))
+        planned_names[rel] = name
+
+    Path(_long_path(destination)).mkdir(parents=True, exist_ok=True)
+    result = ImportResult(destination=destination)
+    written = linked = saved = 0
+    skipped: Dict[str, str] = {}
+    used: Dict[str, str] = {}
     stitched_count = 0
     unverified: Dict[str, str] = {}
     if stitch_tiles and not tiles_as_fields:
@@ -897,13 +958,9 @@ def apply_import(plan: "ImportPlan", destination, *, link: bool = True,
         stitched_count = len(made)
         written += stitched_count
 
-    for rel, entry in sorted(entries.items()):
+    for rel in sorted(entries):
         source = (plan.root / rel).resolve()
-        if tiles_as_fields and "tile" in entry:
-            entry = dict(entry)
-            entry["field"] = tile_fields[
-                (entry.get("well"), entry.get("field"), entry.get("tile"))]
-        name = canonical_name(entry, plate=plate)
+        name = planned_names[rel]
         if name in used:
             skipped[rel] = (f"would overwrite {name}, already written from "
                             f"{used[name]}; an axis is missing")
@@ -911,9 +968,14 @@ def apply_import(plan: "ImportPlan", destination, *, link: bool = True,
         target = destination / name
         source_io, target_io = Path(_long_path(source)), Path(_long_path(target))
         try:
+            _prepare_import_target(target_io,
+                                   source=None if link else source_io,
+                                   unlink=link)
+        except (OSError, NotImplementedError) as exc:
+            skipped[rel] = f"could not write {name}: {exc}"
+            continue
+        try:
             if link:
-                if target_io.exists() or target_io.is_symlink():
-                    target_io.unlink()
                 try:
                     os.symlink(source_io, target_io)
                 except (OSError, NotImplementedError):
