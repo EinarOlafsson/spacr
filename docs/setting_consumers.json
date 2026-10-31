@@ -3001,7 +3001,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "batch_size",
-    "line": 2353,
+    "line": 2398,
     "module": "spacr.resource_log",
     "nested": false,
     "qualname": "_app_unit_bytes"
@@ -8001,7 +8001,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "chunk_size",
-    "line": 2339,
+    "line": 2384,
     "module": "spacr.resource_log",
     "nested": false,
     "qualname": "_app_unit_bytes"
@@ -53233,7 +53233,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 2345,
+    "line": 2390,
     "module": "spacr.resource_log",
     "nested": false,
     "qualname": "_app_unit_bytes"
@@ -53242,7 +53242,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 2347,
+    "line": 2392,
     "module": "spacr.resource_log",
     "nested": false,
     "qualname": "_app_unit_bytes"
