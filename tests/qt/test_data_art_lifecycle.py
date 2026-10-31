@@ -156,10 +156,22 @@ def test_data_art_quiets_when_minimized_and_runs_behind_a_dialog(qtbot):
 
 
 def _delayed_failed_probe(monkeypatch, tmp_path):
-    """Route only the real graphics probe to one observable CPU-only child."""
+    """Route only the real graphics probe to one observable CPU-only child.
+
+    The capability cache is per process and an earlier backdrop in this run
+    may already have filled it, so it starts empty here. moderngl is an
+    optional dependency: it is reported present for the probe's own lookup
+    only, so the real child is started (and the child never imports it).
+    """
+    import importlib.util
     import subprocess
     import sys
 
+    monkeypatch.setattr(ambient, '_FLOW_GRAPHICS_PROBE', None)
+    real_find_spec = importlib.util.find_spec
+    monkeypatch.setattr(importlib.util, 'find_spec',
+                        lambda name, *args, **kwargs: object() if name == 'moderngl'
+                        else real_find_spec(name, *args, **kwargs))
     assert ambient._FLOW_GRAPHICS_PROBE is None
     command = (
         "import moderngl; "

@@ -67,6 +67,10 @@ def _mask_window(qtbot):
     window.resize(1600, 1000)
     window.show()
     qtbot.waitExposed(window)
+    from spacr.qt.widgets.loading_screen import LoadingScreen
+
+    qtbot.waitUntil(lambda: not window.findChildren(LoadingScreen),
+                    timeout=20000)
     qtbot.waitUntil(lambda: window.window_backdrop() is not None,
                     timeout=20000)
     backdrop = window.window_backdrop()
