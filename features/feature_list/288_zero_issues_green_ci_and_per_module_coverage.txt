@@ -5927,3 +5927,5 @@ The failing be67895b19 aggregate and current Main/Night share the exact owning s
 Qualified passing cohorts exercise the nine reported Main coverage regressions within unchanged limits; source-bound predictions await full CI. Product guards and coverage limits are unchanged.
 
 2026-10-31 — Check the Darwin-only loader policy in an isolated local platform scope with real Unicode crop paths, CPU array transport and unchanged pixel/label identities; no host-platform or native Mac/APFS claim. Retain the empty-instruction guard as unsupported by the documented nonempty-pair producer; no forced case or source/cap change.
+
+2026-10-31 — Exact b338 badge reconstruction distinguishes142 failed-category,786 skipped-category and2393 unrun-session nodes; collection-only receipt isolation must not change denominator/rules or conceal genuine execution outcomes. Full current-source hosted acceptance remains open.

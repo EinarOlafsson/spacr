@@ -363,7 +363,9 @@ def main(argv: Sequence[str] | None = None) -> int:
                 collection.extend([
                     "-o", f"faulthandler_timeout={args.faulthandler_timeout}",
                 ])
-            collected = _run_bounded(collection, timeout=args.batch_timeout)
+            collection_env = dict(os.environ)
+            collection_env.pop("SPACR_TEST_COUNT_DIR", None)
+            collected = _run_bounded(collection, env=collection_env, timeout=args.batch_timeout)
             if collected.returncode == NO_TESTS_COLLECTED:
                 print(f"pytest batch {number}/{len(batches)}: collection "
                       "selected no tests; no worker pool started", flush=True)

@@ -17,15 +17,21 @@ def test_qt_precollection_preserves_execution_failures_and_later_batches(
         (tmp_path / f"test_{index}.py").write_text("", encoding="utf-8")
     calls = []
     statuses = iter((5, 0, 1, 2, runner.BATCH_TIMED_OUT))
+    monkeypatch.setenv("SPACR_TEST_COUNT_DIR", str(tmp_path / "counts"))
     monkeypatch.setenv("SPACR_PYTEST_FILE_SHARD_INDEX", "1")
     monkeypatch.setenv("SPACR_PYTEST_FILE_SHARD_COUNT", "3")
     monkeypatch.setattr(runner, "_timeout_plugin_available", lambda: True)
 
-    def run(command, *, timeout):
+    def run(command, *, timeout, env=None):
         import os
         assert os.environ["SPACR_PYTEST_FILE_SHARD_INDEX"] == "1"
         assert os.environ["SPACR_PYTEST_FILE_SHARD_COUNT"] == "3"
         assert timeout == 2700
+        if "--collect-only" in command:
+            assert "SPACR_TEST_COUNT_DIR" not in env
+            assert env["SPACR_PYTEST_FILE_SHARD_INDEX"] == "1"
+        else:
+            assert env is None and os.environ["SPACR_TEST_COUNT_DIR"]
         calls.append(command)
         return SimpleNamespace(returncode=next(statuses))
 
@@ -93,8 +99,13 @@ def pytest_runtest_logreport(report):
     if collection_error:
         (tests / "test_0_fault.py").write_text(
             "raise RuntimeError('collection remains a failure')\n")
+    counts = tmp_path / "counts"
+    root = Path(runner.__file__).resolve().parents[1]
     env = dict(os.environ, PYTEST_DISABLE_PLUGIN_AUTOLOAD="1",
-               PYTEST_ADDOPTS="-p xdist.plugin -n 2")
+               PYTEST_ADDOPTS="-p xdist.plugin -p tools.test_count_badge -n 2",
+               PYTHONPATH=str(root), SPACR_TEST_COUNT_DIR=str(counts))
+    env.pop("SPACR_TEST_COUNT_OWNER_PID", None)
+    env.pop("SPACR_TEST_COUNT_SESSION", None)
     script = Path(runner.__file__).resolve()
     result = subprocess.run([
         sys.executable, str(script), "tests", "--marker", "qt and not slow",
@@ -115,6 +126,14 @@ def pytest_runtest_logreport(report):
     assert {tuple(record["files"]) for record in serial} == expected
     assert all(record["n"] == 0 for record in serial)
     assert "collection selected no tests; no worker pool started" in result.stdout
+    from tools.test_count_badge import endpoint
+    assert endpoint(counts)["message"] == "2/2"
+    outcomes = {}
+    for path in counts.glob("*.jsonl"):
+        for line in path.read_text().splitlines():
+            row = json.loads(line)
+            outcomes.setdefault((row["session"], row["nodeid"]), set()).add(row["outcome"])
+    assert outcomes and all("passed" in values for values in outcomes.values())
 
 
 def test_test_files_are_recursive_sorted_and_deduplicated(tmp_path):
