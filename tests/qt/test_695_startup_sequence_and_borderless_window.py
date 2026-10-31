@@ -63,6 +63,31 @@ def window(qtbot, qt_theme_applied):
     win.close()
 
 
+
+@pytest.fixture()
+def startup_finished(window, qtbot):
+    """Let the real initial cover retire before asking the window to replay it."""
+    from spacr.qt import app as app_mod
+
+    app_mod._show_at_launch(window)
+    qtbot.waitExposed(window)
+    qtbot.waitUntil(lambda: not window.findChildren(ls.LoadingScreen),
+                    timeout=10000)
+
+
+
+@pytest.fixture()
+def paused_ambient(startup_finished, window):
+    """Pause unrelated real backdrops before simulating an unreadable preference."""
+    from spacr.qt import preferences
+    from spacr.qt.widgets.ambient import AmbientWidget
+
+    preferences.set_ambient_animation("none")
+    for backdrop in window.findChildren(AmbientWidget):
+        backdrop.set_animating(False)
+        assert not backdrop.is_running()
+
+
 def _menu(window, title):
     for menu in window.menuBar().findChildren(QMenu):
         if menu.title().replace("&", "") == title:
@@ -271,6 +296,7 @@ def test_a_cover_without_a_screen_sizes_the_logo_by_itself(host_cover):
 
 # --- Help > Show startup animation ----------------------------------------
 
+@pytest.mark.usefixtures("startup_finished")
 def test_help_replays_the_sequence_and_leaves_the_window_as_it_was(
         window, qtbot):
     from spacr.qt import app as app_mod
@@ -311,6 +337,7 @@ def test_help_replays_the_sequence_and_leaves_the_window_as_it_was(
     assert QApplication.focusWidget() is focus
 
 
+@pytest.mark.usefixtures("startup_finished")
 def test_the_replay_plays_with_the_startup_switch_off(window):
     from spacr.qt import preferences
 
@@ -320,6 +347,7 @@ def test_the_replay_plays_with_the_startup_switch_off(window):
     cover._finish()
 
 
+@pytest.mark.usefixtures("startup_finished")
 def test_reduce_motion_holds_then_cross_fades(window, qtbot):
     from spacr.qt import preferences
 
@@ -343,6 +371,7 @@ def test_reduce_motion_holds_then_cross_fades(window, qtbot):
     assert cover._state == "done"
 
 
+@pytest.mark.usefixtures("paused_ambient")
 def test_an_unreadable_reduce_motion_counts_as_on(window, monkeypatch):
     from spacr.qt import preferences
 
@@ -360,6 +389,7 @@ def test_no_replay_without_the_logo(window, monkeypatch):
     assert ls.replay_startup_animation(window) is None
 
 
+@pytest.mark.usefixtures("startup_finished")
 def test_a_hidden_plain_cover_does_not_block_the_replay(window):
     plain = ls.LoadingScreen(parent=window)
     plain.hide()
