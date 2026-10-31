@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 15:12-0400\n"
+"POT-Creation-Date: 2026-10-31 06:44-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -808,6 +808,10 @@ msgstr "Skoðaðu skráð tengsl um innihald frumna/kjarna/sýkla/frumulíffæra
 
 msgid "**Open:** Help search → Database Browser → Lineage."
 msgstr "**Opna:** Hjálparleit → Gagnagrunnsvafri → Lineage."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Linked object selection** — In memory only: selected object identities shared with compatible open views; matching crops can be opened for inspection. No figures, tables or other files are written."
+msgstr "**Tengt hlutaval** — Aðeins í minni: auðkennum valinna hluta er deilt með samhæfum opnum sýnum; hægt er að opna samsvarandi myndútskurði til skoðunar. Engar myndir, töflur eða aðrar skrár eru skrifaðar."
 
 msgid ":doc:`API reference </api/spacr/qt/screens/lineage/index>`."
 msgstr ":doc:`API-tilvísun </api/spacr/qt/screens/lineage/index>`."

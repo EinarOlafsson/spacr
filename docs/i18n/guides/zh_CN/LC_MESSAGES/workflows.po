@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 15:12-0400\n"
+"POT-Creation-Date: 2026-10-31 06:44-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -808,6 +808,10 @@ msgstr "检查记录的细胞、细胞核、病原体和细胞器包含关系；
 
 msgid "**Open:** Help search → Database Browser → Lineage."
 msgstr "**打开：** 帮助搜索 → 数据库浏览器 → Lineage。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Linked object selection** — In memory only: selected object identities shared with compatible open views; matching crops can be opened for inspection. No figures, tables or other files are written."
+msgstr "**联动对象选择** — 仅保存在内存中：所选对象的标识与兼容的已打开视图共享；可以打开匹配的裁剪图像进行检查。不会写入图表、表格或其他文件。"
 
 msgid ":doc:`API reference </api/spacr/qt/screens/lineage/index>`."
 msgstr ":doc:`API 参考 </api/spacr/qt/screens/lineage/index>`。"

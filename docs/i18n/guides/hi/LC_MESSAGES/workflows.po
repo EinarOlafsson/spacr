@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 15:12-0400\n"
+"POT-Creation-Date: 2026-10-31 06:44-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -808,6 +808,10 @@ msgstr "दर्ज कोशिका, केंद्रक, रोगजन�
 
 msgid "**Open:** Help search → Database Browser → Lineage."
 msgstr "**खोलें:** सहायता खोज → डेटाबेस ब्राउज़र → Lineage।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Linked object selection** — In memory only: selected object identities shared with compatible open views; matching crops can be opened for inspection. No figures, tables or other files are written."
+msgstr "**लिंक किया गया ऑब्जेक्ट चयन** — केवल मेमोरी में: चुने गए ऑब्जेक्ट की पहचान संगत खुले दृश्यों के साथ साझा की जाती है; संबंधित क्रॉप निरीक्षण के लिए खोले जा सकते हैं। कोई चित्र, तालिका या अन्य फ़ाइल नहीं लिखी जाती।"
 
 msgid ":doc:`API reference </api/spacr/qt/screens/lineage/index>`."
 msgstr ":doc:`API संदर्भ </api/spacr/qt/screens/lineage/index>`।"

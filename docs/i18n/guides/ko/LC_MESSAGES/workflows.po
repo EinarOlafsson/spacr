@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 15:12-0400\n"
+"POT-Creation-Date: 2026-10-31 06:44-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -808,6 +808,10 @@ msgstr "기록된 세포/핵/병원체/세포소기관 포함 관계 링크를 �
 
 msgid "**Open:** Help search → Database Browser → Lineage."
 msgstr "**열기:** 도움말 검색 → 데이터베이스 브라우저 → Lineage."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Linked object selection** — In memory only: selected object identities shared with compatible open views; matching crops can be opened for inspection. No figures, tables or other files are written."
+msgstr "**연동된 객체 선택** — 메모리에만 유지됩니다. 선택한 객체의 식별자를 호환되는 열린 뷰와 공유하며, 일치하는 크롭 이미지를 열어 확인할 수 있습니다. 그림, 표 또는 다른 파일은 기록하지 않습니다."
 
 msgid ":doc:`API reference </api/spacr/qt/screens/lineage/index>`."
 msgstr ":doc:`API 참조 </api/spacr/qt/screens/lineage/index>`."

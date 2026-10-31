@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 15:12-0400\n"
+"POT-Creation-Date: 2026-10-31 06:44-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
@@ -808,6 +808,10 @@ msgstr "Inspektera registrerade relationer där celler, kärnor, patogener och o
 
 msgid "**Open:** Help search → Database Browser → Lineage."
 msgstr "**Öppna:** Help search → Databasutforskare → Lineage."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Linked object selection** — In memory only: selected object identities shared with compatible open views; matching crops can be opened for inspection. No figures, tables or other files are written."
+msgstr "**Länkat objekturval** — Endast i minnet: valda objekts identiteter delas med kompatibla öppna vyer; motsvarande bildutsnitt kan öppnas för granskning. Inga figurer, tabeller eller andra filer skrivs."
 
 msgid ":doc:`API reference </api/spacr/qt/screens/lineage/index>`."
 msgstr ":doc:`API-referens </api/spacr/qt/screens/lineage/index>`."

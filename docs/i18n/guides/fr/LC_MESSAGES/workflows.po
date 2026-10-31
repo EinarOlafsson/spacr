@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 15:12-0400\n"
+"POT-Creation-Date: 2026-10-31 06:44-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: fr\n"
@@ -808,6 +808,10 @@ msgstr "Examinez les relations d’inclusion enregistrées entre cellules, noyau
 
 msgid "**Open:** Help search → Database Browser → Lineage."
 msgstr "**Ouvrir :** Recherche de l’aide → Explorateur de base de données → Lineage."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Linked object selection** — In memory only: selected object identities shared with compatible open views; matching crops can be opened for inspection. No figures, tables or other files are written."
+msgstr "**Sélection d’objets liée** — En mémoire uniquement : les identités des objets sélectionnés sont partagées avec les vues ouvertes compatibles ; les recadrages correspondants peuvent être ouverts pour inspection. Aucune figure, table ni aucun autre fichier n’est écrit."
 
 msgid ":doc:`API reference </api/spacr/qt/screens/lineage/index>`."
 msgstr ":doc:`Référence de l’API </api/spacr/qt/screens/lineage/index>`."
