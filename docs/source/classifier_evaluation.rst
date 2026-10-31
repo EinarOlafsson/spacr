@@ -54,9 +54,14 @@ When constructing loaders through the API, pass the checkpoint policy to
 Grouped and nested cross-validation
 -----------------------------------
 
-``cross_validation_folds`` controls the outer folds and ``cv_group_by`` keeps
-related fields, wells, or plates together. The default is well-grouped CV.
-Set ``nested_cv_inner_folds`` to two or more to enable true nested CV.
+For image-classifier training in **Classify**, use ``classifier_family=cv``.
+Set ``cross_validation_folds`` to two or more to enable CV; alternatively,
+``cross_validation_enabled=True`` uses five folds when the count is below two.
+The defaults ``cross_validation_enabled=False`` and ``cross_validation_folds=0``
+use a single train/validation split. A count of one also falls back to that
+split if the flag is false. ``cv_group_by`` keeps related fields, wells or
+plates together; its default is ``well``. Set ``nested_cv_inner_folds`` to two
+or more for true nested CV.
 
 In ordinary CV, the outer validation fold is used for checkpoint selection and
 reported performance. This requires fewer training runs than nested CV, but
@@ -83,19 +88,26 @@ splitting so transformed copies cannot enter a held-out fold.
 Temperature calibration
 -----------------------
 
-``evaluation_calibration=temperature`` requires predictions from at least two
-folds. For each held-out outer fold, it fits a scalar temperature only from
-the other folds. If that fit fails, for example because the other folds lack
-two classes, that fold retains its raw probabilities with temperature 1.
-The warning is printed and saved in ``calibration_warnings``; check it before
-interpreting the calibrated results. Set the option to ``none`` to retain raw
-model probabilities. ``evaluation_bins`` controls the reliability table and
-expected calibration error resolution.
+During CV training, ``evaluation_calibration=temperature`` needs at least two
+successful outer folds. When reporting is enabled and only one outer fold
+yields results, training prints a console warning and disables temperature
+calibration, retaining raw probabilities for the evaluation bundle. No fold
+results means no bundle. Otherwise, each held-out outer fold fits a scalar
+temperature only from the other folds. If that per-fold fit fails, for example
+because those folds lack two classes, that fold retains raw probabilities
+with temperature 1. This per-fold warning is printed and saved in
+``calibration_warnings``; check it before interpreting calibrated results.
+Set the option to ``none`` to retain raw model probabilities.
+``evaluation_bins`` controls the reliability table and expected calibration
+error resolution.
 
 Evaluation bundle
 -----------------
 
-The ``evaluation`` folder contains:
+With ``classifier_evaluation=True`` (the default), CV training with fold
+results writes the ``evaluation`` folder described below. This reporting
+toggle does not enable CV; the default single train/validation split does not
+produce this out-of-fold bundle. The folder contains:
 
 ``oof_predictions.csv``
    One held-out row per crop, including identities and class probabilities.

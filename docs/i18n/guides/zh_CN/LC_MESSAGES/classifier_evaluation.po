@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-29 17:02-0400\n"
+"POT-Creation-Date: 2026-10-31 00:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -66,8 +66,9 @@ msgstr "通过 API 构建数据加载器时，请将检查点策略传给 :func:
 msgid "Grouped and nested cross-validation"
 msgstr "分组交叉验证与嵌套交叉验证"
 
-msgid "``cross_validation_folds`` controls the outer folds and ``cv_group_by`` keeps related fields, wells, or plates together. The default is well-grouped CV. Set ``nested_cv_inner_folds`` to two or more to enable true nested CV."
-msgstr "``cross_validation_folds`` 控制外层折数，``cv_group_by`` 使相关的视野、孔或孔板保持在一起。默认按孔分组进行交叉验证。将 ``nested_cv_inner_folds`` 设为 2 或更大即可启用真正的嵌套交叉验证。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For image-classifier training in **Classify**, use ``classifier_family=cv``. Set ``cross_validation_folds`` to two or more to enable CV; alternatively, ``cross_validation_enabled=True`` uses five folds when the count is below two. The defaults ``cross_validation_enabled=False`` and ``cross_validation_folds=0`` use a single train/validation split. A count of one also falls back to that split if the flag is false. ``cv_group_by`` keeps related fields, wells or plates together; its default is ``well``. Set ``nested_cv_inner_folds`` to two or more for true nested CV."
+msgstr "在 **分类** 中训练图像分类器时，使用 ``classifier_family=cv``。将 ``cross_validation_folds`` 设为二或以上即可启用交叉验证（CV）；也可以使用 ``cross_validation_enabled=True``，当折数小于二时会采用五折。默认值 ``cross_validation_enabled=False`` 和 ``cross_validation_folds=0`` 使用一次训练/验证划分。如果开关为假，折数为一时也会回退到这种划分。``cv_group_by`` 将相关视野、孔或板保持在同一组中，默认值为 ``well``。将 ``nested_cv_inner_folds`` 设为二或以上，可启用真正的嵌套 CV。"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "In ordinary CV, the outer validation fold is used for checkpoint selection and reported performance. This requires fewer training runs than nested CV, but the estimate can be optimistically biased when many choices are made against that fold."
@@ -87,14 +88,15 @@ msgid "Temperature calibration"
 msgstr "温度校准"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "``evaluation_calibration=temperature`` requires predictions from at least two folds. For each held-out outer fold, it fits a scalar temperature only from the other folds. If that fit fails, for example because the other folds lack two classes, that fold retains its raw probabilities with temperature 1. The warning is printed and saved in ``calibration_warnings``; check it before interpreting the calibrated results. Set the option to ``none`` to retain raw model probabilities. ``evaluation_bins`` controls the reliability table and expected calibration error resolution."
-msgstr "``evaluation_calibration=temperature`` 要求至少两个折的预测。对于每个留出的外层折，仅使用其他折拟合一个标量温度。如果拟合失败，例如其他折不足两个类别，该折会以温度 1 保留原始概率。警告会打印并保存在 ``calibration_warnings`` 中；解读校准结果前请检查警告。将选项设为 ``none`` 可保留模型原始概率。``evaluation_bins`` 控制可靠性表和期望校准误差的分辨率。"
+msgid "During CV training, ``evaluation_calibration=temperature`` needs at least two successful outer folds. When reporting is enabled and only one outer fold yields results, training prints a console warning and disables temperature calibration, retaining raw probabilities for the evaluation bundle. No fold results means no bundle. Otherwise, each held-out outer fold fits a scalar temperature only from the other folds. If that per-fold fit fails, for example because those folds lack two classes, that fold retains raw probabilities with temperature 1. This per-fold warning is printed and saved in ``calibration_warnings``; check it before interpreting calibrated results. Set the option to ``none`` to retain raw model probabilities. ``evaluation_bins`` controls the reliability table and expected calibration error resolution."
+msgstr "在 CV 训练中，``evaluation_calibration=temperature`` 至少需要两个成功的外层折。启用报告且只有一个外层折产生结果时，训练会在控制台打印警告并禁用温度校准，在评估数据包中保留原始概率。没有任何折结果时，不会生成数据包。否则，对于每个留出的外层折，仅使用其他折来拟合一个标量温度。如果某一折的拟合失败，例如其他折不足两个类别，该折会保留原始概率，温度为 1。此类逐折警告会打印并保存到 ``calibration_warnings``；解释校准结果前请先检查。将该选项设为 ``none`` 可保留模型原始概率。``evaluation_bins`` 控制可靠性表和预期校准误差的分辨率。"
 
 msgid "Evaluation bundle"
 msgstr "评估文件集"
 
-msgid "The ``evaluation`` folder contains:"
-msgstr "``evaluation`` 文件夹包含："
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With ``classifier_evaluation=True`` (the default), CV training with fold results writes the ``evaluation`` folder described below. This reporting toggle does not enable CV; the default single train/validation split does not produce this out-of-fold bundle. The folder contains:"
+msgstr "当 ``classifier_evaluation=True`` （默认值）时，有折结果的 CV 训练会写入下述 ``evaluation`` 文件夹。此报告开关不会启用 CV；默认的一次训练/验证划分不会生成此折外预测数据包。文件夹包含："
 
 msgid "``oof_predictions.csv``"
 msgstr "``oof_predictions.csv``"

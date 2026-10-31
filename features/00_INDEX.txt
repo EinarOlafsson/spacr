@@ -3,7 +3,7 @@ spaCR FEATURES -- NEW, AND FUTURE
 Canonical discovery: features/FEATURE_LIST.md
 ================================================================================
 
-Regenerated 2026-10-30 by `tools/build_instruction_index.py`, from the files in
+Regenerated 2026-10-31 by `tools/build_instruction_index.py`, from the files in
 these globs and nothing else:
 
   features/feature_list/*.txt

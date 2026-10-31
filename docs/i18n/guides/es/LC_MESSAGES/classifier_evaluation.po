@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-29 17:02-0400\n"
+"POT-Creation-Date: 2026-10-31 00:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: es\n"
@@ -66,8 +66,9 @@ msgstr "Al construir cargadores mediante la API, pase la política del punto de 
 msgid "Grouped and nested cross-validation"
 msgstr "Validación cruzada agrupada y anidada"
 
-msgid "``cross_validation_folds`` controls the outer folds and ``cv_group_by`` keeps related fields, wells, or plates together. The default is well-grouped CV. Set ``nested_cv_inner_folds`` to two or more to enable true nested CV."
-msgstr "``cross_validation_folds`` controla los pliegues externos y ``cv_group_by`` mantiene juntos los campos, pocillos o placas relacionados. El valor predeterminado es la validación cruzada agrupada por pocillo. Establezca ``nested_cv_inner_folds`` en dos o más para activar una validación cruzada anidada real."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For image-classifier training in **Classify**, use ``classifier_family=cv``. Set ``cross_validation_folds`` to two or more to enable CV; alternatively, ``cross_validation_enabled=True`` uses five folds when the count is below two. The defaults ``cross_validation_enabled=False`` and ``cross_validation_folds=0`` use a single train/validation split. A count of one also falls back to that split if the flag is false. ``cv_group_by`` keeps related fields, wells or plates together; its default is ``well``. Set ``nested_cv_inner_folds`` to two or more for true nested CV."
+msgstr "Para entrenar clasificadores de imágenes en **Clasificar**, use ``classifier_family=cv``. Establezca ``cross_validation_folds`` en dos o más para habilitar CV; alternativamente, ``cross_validation_enabled=True`` usa cinco pliegues cuando el número es inferior a dos. Los valores predeterminados ``cross_validation_enabled=False`` y ``cross_validation_folds=0`` usan una sola partición de entrenamiento y validación. Un número de uno también vuelve a esa partición si el indicador es falso. ``cv_group_by`` mantiene juntos campos, pocillos o placas relacionados; su valor predeterminado es ``well``. Establezca ``nested_cv_inner_folds`` en dos o más para CV anidada real."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "In ordinary CV, the outer validation fold is used for checkpoint selection and reported performance. This requires fewer training runs than nested CV, but the estimate can be optimistically biased when many choices are made against that fold."
@@ -87,14 +88,15 @@ msgid "Temperature calibration"
 msgstr "Calibración por temperatura"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "``evaluation_calibration=temperature`` requires predictions from at least two folds. For each held-out outer fold, it fits a scalar temperature only from the other folds. If that fit fails, for example because the other folds lack two classes, that fold retains its raw probabilities with temperature 1. The warning is printed and saved in ``calibration_warnings``; check it before interpreting the calibrated results. Set the option to ``none`` to retain raw model probabilities. ``evaluation_bins`` controls the reliability table and expected calibration error resolution."
-msgstr "``evaluation_calibration=temperature`` requiere predicciones de al menos dos particiones. Para cada partición externa reservada, ajusta una temperatura escalar solo a partir de las otras particiones. Si ese ajuste falla, por ejemplo porque las otras particiones no contienen dos clases, esa partición conserva sus probabilidades originales con temperatura 1. La advertencia se imprime y se guarda en ``calibration_warnings``; revísela antes de interpretar los resultados calibrados. Establezca la opción en ``none`` para conservar las probabilidades originales del modelo. ``evaluation_bins`` controla la resolución de la tabla de fiabilidad y del error de calibración esperado."
+msgid "During CV training, ``evaluation_calibration=temperature`` needs at least two successful outer folds. When reporting is enabled and only one outer fold yields results, training prints a console warning and disables temperature calibration, retaining raw probabilities for the evaluation bundle. No fold results means no bundle. Otherwise, each held-out outer fold fits a scalar temperature only from the other folds. If that per-fold fit fails, for example because those folds lack two classes, that fold retains raw probabilities with temperature 1. This per-fold warning is printed and saved in ``calibration_warnings``; check it before interpreting calibrated results. Set the option to ``none`` to retain raw model probabilities. ``evaluation_bins`` controls the reliability table and expected calibration error resolution."
+msgstr "Durante el entrenamiento con CV, ``evaluation_calibration=temperature`` necesita al menos dos pliegues externos exitosos. Cuando los informes están habilitados y solo un pliegue externo produce resultados, el entrenamiento imprime una advertencia en consola y desactiva la calibración de temperatura, conservando las probabilidades sin calibrar para el paquete de evaluación. Sin resultados de pliegues no hay paquete. En los demás casos, para cada pliegue externo reservado se ajusta una temperatura escalar usando únicamente los otros pliegues. Si ese ajuste por pliegue falla, por ejemplo porque los otros pliegues no contienen dos clases, ese pliegue conserva las probabilidades sin calibrar con temperatura 1. Esta advertencia específica del pliegue se imprime y se guarda en ``calibration_warnings``; revísela antes de interpretar resultados calibrados. Establezca la opción en ``none`` para conservar las probabilidades sin calibrar del modelo. ``evaluation_bins`` controla la tabla de fiabilidad y la resolución del error de calibración esperado."
 
 msgid "Evaluation bundle"
 msgstr "Conjunto de evaluación"
 
-msgid "The ``evaluation`` folder contains:"
-msgstr "La carpeta ``evaluation`` contiene:"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With ``classifier_evaluation=True`` (the default), CV training with fold results writes the ``evaluation`` folder described below. This reporting toggle does not enable CV; the default single train/validation split does not produce this out-of-fold bundle. The folder contains:"
+msgstr "Con ``classifier_evaluation=True`` (el valor predeterminado), el entrenamiento con CV que obtiene resultados de pliegues escribe la carpeta ``evaluation`` descrita a continuación. Este interruptor de informes no habilita CV; la partición única de entrenamiento y validación predeterminada no produce este paquete de predicciones fuera de pliegue. La carpeta contiene:"
 
 msgid "``oof_predictions.csv``"
 msgstr "``oof_predictions.csv``"

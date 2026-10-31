@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-29 17:02-0400\n"
+"POT-Creation-Date: 2026-10-31 00:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -66,8 +66,9 @@ msgstr "Þegar hleðslutæki eru smíðuð í gegnum API skaltu senda stefnu vis
 msgid "Grouped and nested cross-validation"
 msgstr "Hópuð og hreiðruð víxlsannprófun"
 
-msgid "``cross_validation_folds`` controls the outer folds and ``cv_group_by`` keeps related fields, wells, or plates together. The default is well-grouped CV. Set ``nested_cv_inner_folds`` to two or more to enable true nested CV."
-msgstr "``cross_validation_folds`` stjórnar ytri hlutunum og ``cv_group_by`` heldur tengdum sjónsviðum, brunnum eða plötum saman. Sjálfgildið er víxlsannprófun hópuð eftir brunnum. Stilltu ``nested_cv_inner_folds`` á tvo eða fleiri til að virkja raunverulega hreiðraða víxlsannprófun."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For image-classifier training in **Classify**, use ``classifier_family=cv``. Set ``cross_validation_folds`` to two or more to enable CV; alternatively, ``cross_validation_enabled=True`` uses five folds when the count is below two. The defaults ``cross_validation_enabled=False`` and ``cross_validation_folds=0`` use a single train/validation split. A count of one also falls back to that split if the flag is false. ``cv_group_by`` keeps related fields, wells or plates together; its default is ``well``. Set ``nested_cv_inner_folds`` to two or more for true nested CV."
+msgstr "Fyrir þjálfun myndflokkara í **Flokkun** skaltu nota ``classifier_family=cv``. Stilltu ``cross_validation_folds`` á tvo eða fleiri til að virkja krossprófun (CV); að öðrum kosti notar ``cross_validation_enabled=True`` fimm hluta þegar fjöldinn er minni en tveir. Sjálfgefnu gildin ``cross_validation_enabled=False`` og ``cross_validation_folds=0`` nota eina skiptingu í þjálfunar- og staðfestingargögn. Fjöldinn einn fellur einnig aftur á þá skiptingu ef flaggið er ósatt. ``cv_group_by`` heldur tengdum myndsviðum, brunnum eða plötum saman; sjálfgefið gildi er ``well``. Stilltu ``nested_cv_inner_folds`` á tvo eða fleiri fyrir raunverulega hreiðraða CV."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "In ordinary CV, the outer validation fold is used for checkpoint selection and reported performance. This requires fewer training runs than nested CV, but the estimate can be optimistically biased when many choices are made against that fold."
@@ -87,14 +88,15 @@ msgid "Temperature calibration"
 msgstr "Hitastigskvörðun"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "``evaluation_calibration=temperature`` requires predictions from at least two folds. For each held-out outer fold, it fits a scalar temperature only from the other folds. If that fit fails, for example because the other folds lack two classes, that fold retains its raw probabilities with temperature 1. The warning is printed and saved in ``calibration_warnings``; check it before interpreting the calibrated results. Set the option to ``none`` to retain raw model probabilities. ``evaluation_bins`` controls the reliability table and expected calibration error resolution."
-msgstr "``evaluation_calibration=temperature`` krefst spáa úr að minnsta kosti tveimur brotum. Fyrir hvert frátekið ytra brot er ein hitastærð aðlöguð eingöngu út frá hinum brotunum. Ef aðlögunin mistekst, til dæmis vegna þess að hin brotin hafa ekki tvo flokka, heldur það brot hráum líkum sínum með hitastærð 1. Viðvörunin er prentuð og vistuð í ``calibration_warnings``; skoðaðu hana áður en þú túlkar kvörðuðu niðurstöðurnar. Stilltu valkostinn á ``none`` til að halda hráum líkum líkansins. ``evaluation_bins`` stýrir upplausn áreiðanleikatöflunnar og væntrar kvörðunarvillu."
+msgid "During CV training, ``evaluation_calibration=temperature`` needs at least two successful outer folds. When reporting is enabled and only one outer fold yields results, training prints a console warning and disables temperature calibration, retaining raw probabilities for the evaluation bundle. No fold results means no bundle. Otherwise, each held-out outer fold fits a scalar temperature only from the other folds. If that per-fold fit fails, for example because those folds lack two classes, that fold retains raw probabilities with temperature 1. This per-fold warning is printed and saved in ``calibration_warnings``; check it before interpreting calibrated results. Set the option to ``none`` to retain raw model probabilities. ``evaluation_bins`` controls the reliability table and expected calibration error resolution."
+msgstr "Í CV-þjálfun þarf ``evaluation_calibration=temperature`` að minnsta kosti tvo ytri hluta sem skila árangri. Þegar skýrslugerð er virk og aðeins einn ytri hluti skilar niðurstöðum birtir þjálfunin viðvörun í stjórnborði og slekkur á hitastigskvörðun; ókvarðaðar líkur haldast í matsgagnapakkanum. Ef engar niðurstöður fást úr hlutunum verður enginn pakki til. Annars er einn hitastigsstuðull metinn fyrir hvern ytri hluta sem er haldið utan þjálfunar, eingöngu út frá hinum hlutunum. Ef sú aðlögun fyrir einstakan hluta mistekst, til dæmis vegna þess að hina hlutana vantar tvo flokka, heldur sá hluti ókvarðuðum líkum með hitastig 1. Þessi viðvörun fyrir einstakan hluta er birt og vistuð í ``calibration_warnings``; skoðaðu hana áður en kvarðaðar niðurstöður eru túlkaðar. Stilltu valkostinn á ``none`` til að halda ókvarðuðum líkum líkansins. ``evaluation_bins`` stýrir upplausn áreiðanleikatöflunnar og væntrar kvörðunarvillu."
 
 msgid "Evaluation bundle"
 msgstr "Matspakki"
 
-msgid "The ``evaluation`` folder contains:"
-msgstr "Mappan ``evaluation`` inniheldur:"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With ``classifier_evaluation=True`` (the default), CV training with fold results writes the ``evaluation`` folder described below. This reporting toggle does not enable CV; the default single train/validation split does not produce this out-of-fold bundle. The folder contains:"
+msgstr "Með ``classifier_evaluation=True`` (sjálfgefið) skrifar CV-þjálfun sem hefur niðurstöður úr hlutum möppuna ``evaluation`` sem lýst er hér að neðan. Þessi skýrsluvalkostur virkjar ekki CV; sjálfgefna eina skiptingin í þjálfunar- og staðfestingargögn býr ekki til þennan pakka með spám fyrir gögn sem voru utan þjálfunarhluta. Mappan inniheldur:"
 
 msgid "``oof_predictions.csv``"
 msgstr "``oof_predictions.csv``"
