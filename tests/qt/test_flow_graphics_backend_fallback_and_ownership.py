@@ -357,13 +357,23 @@ def test_failed_isolated_probe_is_cached_without_constructing_in_parent(monkeypa
 
 
 def test_probe_deadline_reaps_a_real_cpu_child_and_caches_its_refusal(monkeypatch):
-    """A probe that cannot finish within its existing deadline owns no orphan."""
+    """A probe that cannot finish within its existing deadline owns no orphan.
+
+    moderngl is an optional dependency; without it the probe correctly never
+    starts a child. Report it present, so the deadline path runs whether or not
+    the test machine has it installed. The child never imports it.
+    """
+    import importlib.util
     import subprocess
     import sys
 
     monkeypatch.setattr(ambient.sys, 'platform', 'linux')
     monkeypatch.delenv('SPACR_NO_GL', raising=False)
     monkeypatch.setattr(ambient, '_FLOW_GRAPHICS_PROBE', None)
+    real_find_spec = importlib.util.find_spec
+    monkeypatch.setattr(importlib.util, 'find_spec',
+                        lambda name, *args, **kwargs: object() if name == 'moderngl'
+                        else real_find_spec(name, *args, **kwargs))
     real_popen = subprocess.Popen
     children = []
 
