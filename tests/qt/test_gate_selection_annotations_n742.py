@@ -41,7 +41,7 @@ def test_slider_random_prefix_preserves_identity_and_backing_rows(qtbot):
     assert screen.gates.canvas.spec.point_budget == 3
     assert '3' in screen._point_count.text() and '100' in screen._point_count.text()
     assert not any(button.text() == 'Annotate…' for button in screen.findChildren(QPushButton))
-    assert 'Annotate selection' in [row[0] for row in screen.graph_menu_items()]
+    assert 'Annotate…' in [row[0] for row in screen.graph_menu_items()]
 
 
 def test_database_load_preserves_all_rows_above_display_cap(qtbot, tmp_path):
