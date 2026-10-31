@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 13:49-0400\n"
+"POT-Creation-Date: 2026-10-30 20:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -35,8 +35,8 @@ msgid "exact resolved settings;"
 msgstr "确切的解析后设置；"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "available input, output and model hash records; input/output hashing is optional and ``hash_inputs`` is off by default;"
-msgstr "可用的输入、输出和模型哈希记录；输入/输出哈希计算是可选的，``hash_inputs`` 默认关闭；"
+msgid "available input, output and model hash records; input/output hashing follows ``hash_inputs``. The GUI preference is enabled by default; a run without ``hash_inputs`` enabled does not record input/output hashes;"
+msgstr "可用的输入、输出和模型哈希记录；输入和输出的哈希计算由 ``hash_inputs`` 控制。图形界面中的这项偏好设置默认启用；未启用 ``hash_inputs`` 的运行不会记录输入和输出哈希；"
 
 msgid "structured warnings, provenance warnings and failure tracebacks;"
 msgstr "结构化警告、来源警告和失败回溯；"
@@ -52,8 +52,9 @@ msgstr "声明的随机种子和运行时随机状态标识。"
 msgid "Search terms are combined: ``adamw plate_03 warning`` shows only records containing all three terms anywhere in settings, paths, warnings, failures or environment data. Module and status filters can be applied at the same time. A stored ``running`` record is displayed as ``interrupted`` only when its recorded owner is provably gone; this does not change the stored status. Unverifiable owners, including records from other hosts, remain ``running``. Corrupt run folders remain listed with ``corrupt`` status and diagnostic warnings."
 msgstr "搜索词会组合使用：``adamw plate_03 warning`` 只显示设置、路径、警告、失败或环境数据中包含全部三个词的记录。模块和状态筛选可以同时使用。只有在能够证实记录的所有者已不存在时，存储为 ``running`` 的记录才会显示为 ``interrupted``；这不会更改存储的状态。无法验证的所有者（包括其他主机的记录）仍显示为 ``running``。损坏的运行文件夹仍会列出，状态为 ``corrupt``，并附有诊断警告。"
 
-msgid "Select a row to inspect its details. **Load settings in module** opens the original module and propagates the exact recorded settings into its controls; it does not start a run. **Open run folder** and **Copy path** expose the underlying ``~/.spacr/runs/...`` folder."
-msgstr "选择一行即可查看其详细信息。**在模块中加载设置** 会打开原始模块，并将记录的确切设置填入其控件；它不会启动运行。**打开运行文件夹** 和 **复制路径** 可访问底层的 ``~/.spacr/runs/...`` 文件夹。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Select a row to inspect its details. **Load settings in module** opens the module, or its current host if the recorded module has been folded into another screen, and applies the recorded settings accepted by its current controls. It does not start a run. **Open run folder** and **Copy path** expose the underlying ``~/.spacr/runs/...`` folder."
+msgstr "选择一行即可查看其详细信息。**在模块中加载设置** 会打开该模块；如果记录中的模块已并入其他界面，则打开其当前所属界面，并应用当前控件接受的记录设置。它不会启动运行。**打开运行文件夹** 和 **复制路径** 可访问底层的 ``~/.spacr/runs/...`` 文件夹。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Right-click selected rows to open their folders or delete them. **Clear all** requests deletion of every loaded run, including rows hidden by the current filters; it does not include runs created since the last refresh. Deleting asks first and removes only journal folders, not outputs in your projects. The result reports any folders that could not be deleted, including active runs protected by this spaCR process."
@@ -66,8 +67,9 @@ msgstr "存储：清理与缓存"
 msgid "**Preferences → Storage** sets the limits used when pruning the spaCR home folder. For daily logs, run logs (``~/.spacr/logs/runs``) and run folders (``~/.spacr/runs``) it holds two caps: **Keep**, an age in days within which nothing is ever deleted, and **Cap**, a size above which the oldest older entries are deleted (**no cap** deletes every older entry). The run in progress and open log files are never deleted. **Prune now…** lists what the caps would delete and asks before deleting; nothing is pruned automatically."
 msgstr "**偏好 → 存储** 设置清理 spaCR 主文件夹时使用的限制。对于每日日志、运行日志（``~/.spacr/logs/runs``）和运行文件夹（``~/.spacr/runs``），它设有两个限制：**保留**，即以天为单位的期限，期限内的内容绝不删除；以及 **上限**，即大小上限，超过时会删除较早条目中最旧的部分（**无上限** 会删除所有较早条目）。正在进行的运行和打开的日志文件绝不会被删除。**立即清理…** 会列出这些限制将删除的内容，并在删除前询问；不会自动清理任何内容。"
 
-msgid "The cache table lists the spaCR model, Cellpose, Hugging Face, Torch, backend environment and news caches. **Measure** reads their sizes, **Clear…** empties the selected cache after asking, and **Move…** moves it into ``<folder>/spacr-<cache>`` on another drive. The new place is recorded in ``~/.spacr/cache_locations.json`` and used at every start; a cache whose variable (for example ``HF_HOME``) is set outside spaCR is not moved. Clearing and moving wait until no run is in progress."
-msgstr "缓存表列出 spaCR 模型、Cellpose、Hugging Face、Torch、后端环境和新闻缓存。**测量** 读取它们的大小，**清空…** 在询问后清空所选缓存，**移动…** 将其移动到另一个驱动器上的 ``<folder>/spacr-<cache>``。新位置记录在 ``~/.spacr/cache_locations.json`` 中，并在每次启动时使用；其变量（例如 ``HF_HOME``）已在 spaCR 外部设置的缓存不会被移动。清除和移动会等到没有运行在进行时才执行。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The cache table lists the spaCR model, Cellpose, Hugging Face, Torch, backend environment and news caches. **Measure** reads their sizes, **Clear…** empties the selected cache after asking, and **Move…** moves it into ``<folder>/spacr-<cache>`` on another drive. The new place is recorded in ``~/.spacr/cache_locations.json`` and used at every start; a cache whose variable (for example ``HF_HOME``) is set outside spaCR is not moved. Clearing and moving are refused while a run is in progress. Try the action again after the run finishes."
+msgstr "缓存表列出 spaCR 模型、Cellpose、Hugging Face、Torch、后端环境和新闻缓存。**测量** 读取它们的大小，**清空…** 在询问后清空所选缓存，**移动…** 将其移动到另一个驱动器上的 ``<folder>/spacr-<cache>``。新位置记录在 ``~/.spacr/cache_locations.json`` 中，并在每次启动时使用；其变量（例如 ``HF_HOME``）已在 spaCR 外部设置的缓存不会被移动。有运行正在进行时，清除和移动会被拒绝。请在运行结束后重试该操作。"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The spaCR model cache uses ``SPACR_MODEL_CACHE``. When it is unset or blank, models use the ``models`` folder inside the spaCR home returned by ``_spacr_home()`` (normally ``~/.spacr/models``). An explicit environment override takes precedence. Moving this cache through **Storage → Move…** persists its new location in ``cache_locations.json`` and reapplies it on startup. Newly opened Model Zoo screens and plaque previews use that location. The model picker follows the move when its remembered folder matched the old cache; a separately chosen custom model folder is preserved."

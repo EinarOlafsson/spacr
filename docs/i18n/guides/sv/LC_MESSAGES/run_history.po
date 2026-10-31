@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 13:49-0400\n"
+"POT-Creation-Date: 2026-10-30 20:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
@@ -35,8 +35,8 @@ msgid "exact resolved settings;"
 msgstr "exakta upplösta inställningar;"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "available input, output and model hash records; input/output hashing is optional and ``hash_inputs`` is off by default;"
-msgstr "tillgängliga hashposter för indata, utdata och modeller; hashning av in- och utdata är valfri och ``hash_inputs`` är avstängt som standard;"
+msgid "available input, output and model hash records; input/output hashing follows ``hash_inputs``. The GUI preference is enabled by default; a run without ``hash_inputs`` enabled does not record input/output hashes;"
+msgstr "tillgängliga hashposter för indata, utdata och modeller; hashning av in- och utdata följer ``hash_inputs``. Inställningen i det grafiska gränssnittet är på som standard; en körning utan aktiverat ``hash_inputs`` registrerar inga hashvärden för in- eller utdata;"
 
 msgid "structured warnings, provenance warnings and failure tracebacks;"
 msgstr "strukturerade varningar, härkomstvarningar och felspårningar (tracebacks);"
@@ -52,8 +52,9 @@ msgstr "deklarerade slumpfrön och identifierare för slumptillstånd under kör
 msgid "Search terms are combined: ``adamw plate_03 warning`` shows only records containing all three terms anywhere in settings, paths, warnings, failures or environment data. Module and status filters can be applied at the same time. A stored ``running`` record is displayed as ``interrupted`` only when its recorded owner is provably gone; this does not change the stored status. Unverifiable owners, including records from other hosts, remain ``running``. Corrupt run folders remain listed with ``corrupt`` status and diagnostic warnings."
 msgstr "Söktermer kombineras: ``adamw plate_03 warning`` visar bara poster som innehåller alla tre termerna någonstans i inställningar, sökvägar, varningar, fel eller miljödata. Modul- och statusfilter kan användas samtidigt. En lagrad ``running``-post visas som ``interrupted`` endast när dess registrerade ägare bevisligen är borta; detta ändrar inte den lagrade statusen. Ägare som inte kan verifieras, inklusive poster från andra värdar, förblir ``running``. Skadade körmappar finns kvar i listan med status ``corrupt`` och diagnostiska varningar."
 
-msgid "Select a row to inspect its details. **Load settings in module** opens the original module and propagates the exact recorded settings into its controls; it does not start a run. **Open run folder** and **Copy path** expose the underlying ``~/.spacr/runs/...`` folder."
-msgstr "Markera en rad för att granska detaljerna. **Läs in inställningar i modulen** öppnar den ursprungliga modulen och för över de exakt registrerade inställningarna till dess kontroller; ingen körning startas. **Öppna körningsmapp** och **Kopiera sökväg** ger åtkomst till den underliggande mappen ``~/.spacr/runs/...``."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Select a row to inspect its details. **Load settings in module** opens the module, or its current host if the recorded module has been folded into another screen, and applies the recorded settings accepted by its current controls. It does not start a run. **Open run folder** and **Copy path** expose the underlying ``~/.spacr/runs/...`` folder."
+msgstr "Välj en rad för att granska detaljerna. **Läs in inställningar i modulen** öppnar modulen, eller dess nuvarande värd om den registrerade modulen har flyttats in i en annan skärm, och tillämpar de registrerade inställningar som dess nuvarande kontroller accepterar. Det startar ingen körning. **Öppna körningsmapp** och **Kopiera sökväg** ger tillgång till den underliggande mappen ``~/.spacr/runs/...``."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Right-click selected rows to open their folders or delete them. **Clear all** requests deletion of every loaded run, including rows hidden by the current filters; it does not include runs created since the last refresh. Deleting asks first and removes only journal folders, not outputs in your projects. The result reports any folders that could not be deleted, including active runs protected by this spaCR process."
@@ -66,8 +67,9 @@ msgstr "Lagring: rensning och cachar"
 msgid "**Preferences → Storage** sets the limits used when pruning the spaCR home folder. For daily logs, run logs (``~/.spacr/logs/runs``) and run folders (``~/.spacr/runs``) it holds two caps: **Keep**, an age in days within which nothing is ever deleted, and **Cap**, a size above which the oldest older entries are deleted (**no cap** deletes every older entry). The run in progress and open log files are never deleted. **Prune now…** lists what the caps would delete and asks before deleting; nothing is pruned automatically."
 msgstr "**Inställningar → Lagring** anger de gränser som används när spaCR:s hemmapp rensas. För dagliga loggar, körningsloggar (``~/.spacr/logs/runs``) och körningsmappar (``~/.spacr/runs``) finns två gränser: **Behåll**, en ålder i dagar inom vilken ingenting någonsin raderas, och **Övre gräns**, en storlek över vilken de äldsta av de äldre posterna raderas (**inget tak** raderar varje äldre post). Den pågående körningen och öppna loggfiler raderas aldrig. **Rensa nu…** listar vad gränserna skulle radera och frågar innan något raderas; ingenting rensas automatiskt."
 
-msgid "The cache table lists the spaCR model, Cellpose, Hugging Face, Torch, backend environment and news caches. **Measure** reads their sizes, **Clear…** empties the selected cache after asking, and **Move…** moves it into ``<folder>/spacr-<cache>`` on another drive. The new place is recorded in ``~/.spacr/cache_locations.json`` and used at every start; a cache whose variable (for example ``HF_HOME``) is set outside spaCR is not moved. Clearing and moving wait until no run is in progress."
-msgstr "Cachetabellen listar cacharna för spaCR-modeller, Cellpose, Hugging Face, Torch, bakändemiljöer och nyheter. **Mätning** läser deras storlekar, **Töm…** tömmer den valda cachen efter en fråga, och **Flytta…** flyttar den till ``<folder>/spacr-<cache>`` på en annan enhet. Den nya platsen registreras i ``~/.spacr/cache_locations.json`` och används vid varje start; en cache vars variabel (till exempel ``HF_HOME``) är satt utanför spaCR flyttas inte. Rensning och flytt väntar tills ingen körning pågår."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The cache table lists the spaCR model, Cellpose, Hugging Face, Torch, backend environment and news caches. **Measure** reads their sizes, **Clear…** empties the selected cache after asking, and **Move…** moves it into ``<folder>/spacr-<cache>`` on another drive. The new place is recorded in ``~/.spacr/cache_locations.json`` and used at every start; a cache whose variable (for example ``HF_HOME``) is set outside spaCR is not moved. Clearing and moving are refused while a run is in progress. Try the action again after the run finishes."
+msgstr "Cachetabellen listar cacharna för spaCR-modeller, Cellpose, Hugging Face, Torch, bakändemiljöer och nyheter. **Mätning** läser deras storlekar, **Töm…** tömmer den valda cachen efter en fråga, och **Flytta…** flyttar den till ``<folder>/spacr-<cache>`` på en annan enhet. Den nya platsen registreras i ``~/.spacr/cache_locations.json`` och används vid varje start; en cache vars variabel (till exempel ``HF_HOME``) är satt utanför spaCR flyttas inte. Rensning och flytt avvisas medan en körning pågår. Försök med åtgärden igen när körningen är klar."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The spaCR model cache uses ``SPACR_MODEL_CACHE``. When it is unset or blank, models use the ``models`` folder inside the spaCR home returned by ``_spacr_home()`` (normally ``~/.spacr/models``). An explicit environment override takes precedence. Moving this cache through **Storage → Move…** persists its new location in ``cache_locations.json`` and reapplies it on startup. Newly opened Model Zoo screens and plaque previews use that location. The model picker follows the move when its remembered folder matched the old cache; a separately chosen custom model folder is preserved."

@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:22-0400\n"
+"POT-Creation-Date: 2026-10-30 20:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -25,8 +25,9 @@ msgstr "키보드 단축키와 설정 템플릿"
 msgid "Keyboard shortcuts"
 msgstr "키보드 단축"
 
-msgid "Press **F1** or **?** to open the shortcut cheat sheet. It lists the keys that work anywhere in the window, such as **Ctrl+K** for the command palette, **Ctrl+P** for Preferences, **Ctrl+F** to search the current module's settings and **F11** for full screen, followed by the keys of the screen you are on."
-msgstr "**F1** 또는 **?** 를 누르면 단축키 요약표가 열립니다. 명령 팔레트를 여는 **Ctrl+K**, 환경설정을 여는 **Ctrl+P**, 현재 모듈의 설정을 검색하는 **Ctrl+F**, 전체 화면을 위한 **F11** 처럼 창 어디서나 동작하는 키를 먼저 나열하고, 이어서 현재 화면의 키를 나열합니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With the default bindings, press **F1** to open the shortcut cheat sheet. **?** opens it when the current screen does not handle that key itself; Annotate uses **?** for its inline key legend. The cheat sheet lists the keys that work anywhere in the window, such as **Ctrl+K** for the command palette, **Ctrl+P** for Preferences, **Ctrl+F** to search the current module's settings and **F11** for full screen, followed by the keys of the screen you are on."
+msgstr "기본 키 바인딩에서는 **F1** 을 눌러 단축키 요약표를 엽니다. 현재 화면이 해당 키를 직접 처리하지 않을 때는 **?** 도 요약표를 엽니다. Annotate는 **?** 를 화면 내 키 범례에 사용합니다. 단축키 요약표는 명령 팔레트를 여는 **Ctrl+K**, 환경설정을 여는 **Ctrl+P**, 현재 모듈의 설정을 검색하는 **Ctrl+F**, 전체 화면을 위한 **F11** 처럼 창 어디서나 동작하는 키를 먼저 나열하고, 이어서 현재 화면의 키를 나열합니다."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "To change a key, choose **Change shortcuts…** in the cheat sheet. The **Change shortcuts** window has one row per action, with its **Default** key and the **Shortcut** in use. Click a shortcut and press the new key, or clear it to leave the action without a key. **Restore defaults** puts every row back to its default key."
@@ -47,17 +48,19 @@ msgid "A settings template is one module's settings saved under a name you choos
 msgstr "설정 템플릿은 한 모듈의 설정을 사용자가 정한 이름(예: ``Toxo PVM, 40x``)으로 저장한 것입니다. 설정 패널이 있는 모듈을 열고 **Ctrl+Shift+R** 을 누르면 그 모듈의 **설정 템플릿** 이 열립니다."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Save current settings…** stores the form as a new template, selects it in the list and shows its full saved path as text you can select and copy."
-msgstr "**현재 설정 저장…** 는 양식을 새 템플릿으로 저장하고 목록에서 선택하며 저장된 전체 경로를 선택하고 복사할 수 있는 텍스트로 표시합니다."
+msgid "**Save current settings…** stores the form as a named template, selects it in the list and shows its full saved path as text you can select and copy. Saving with an existing template name replaces that module's saved template."
+msgstr "**현재 설정 저장…** 은 폼을 이름이 있는 템플릿으로 저장하고 목록에서 선택하며, 전체 저장 경로를 선택하고 복사할 수 있는 텍스트로 표시합니다. 기존 템플릿 이름으로 저장하면 해당 모듈의 저장된 템플릿을 대체합니다."
 
-msgid "**Apply** fills the form from the selected template. A template saved with another spaCR version lists the settings that no longer exist and the ones added since. A template for a different module is refused."
-msgstr "**적용** 은 선택한 템플릿으로 양식을 채웁니다. 다른 spaCR 버전에서 저장한 템플릿은 더 이상 없는 설정과 그 후 추가된 설정을 나열합니다. 다른 모듈용 템플릿은 거부됩니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Apply** fills the form from the selected template. A template saved with another spaCR version requires confirmation. The compatibility message lists saved settings that the current module no longer accepts and will ignore; it does not list settings added since the template was saved. A template for a different module is refused."
+msgstr "**적용** 은 선택한 템플릿으로 폼을 채웁니다. 다른 spaCR 버전에서 저장한 템플릿은 확인이 필요합니다. 호환성 메시지는 현재 모듈이 더 이상 허용하지 않아 무시할 저장된 설정을 나열하며, 템플릿 저장 이후 추가된 설정은 나열하지 않습니다. 다른 모듈용 템플릿은 거부됩니다."
 
 msgid "**Share…** writes the template to a JSON file you can send to someone else."
 msgstr "**공유...** 는 템플릿을 다른 사람에게 보낼 수 있는 JSON 파일로 씁니다."
 
-msgid "**Import…** reads a shared template file, or a settings CSV such as the one every run writes beside its results. A CSV becomes a template named after the file. A file for another module, or one without settings, is refused."
-msgstr "**가져오기…** 는 공유된 템플릿 파일이나, 모든 실행이 결과 옆에 쓰는 것과 같은 설정 CSV를 읽습니다. CSV는 파일 이름을 딴 템플릿이 됩니다. 다른 모듈용 파일이나 설정이 없는 파일은 거부됩니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Import…** reads a shared template file, or a settings CSV such as the one every run writes beside its results. A CSV becomes a template named after the file and is associated with the current module, so open the matching module before importing it. A JSON template naming another module, or a file without settings, is refused."
+msgstr "**가져오기…** 는 공유 템플릿 파일이나 매 실행에서 결과 옆에 쓰는 것과 같은 설정 CSV를 읽습니다. CSV는 파일 이름을 가진 템플릿이 되어 현재 모듈과 연결되므로 가져오기 전에 해당 모듈을 여세요. 다른 모듈을 지정한 JSON 템플릿이나 설정이 없는 파일은 거부됩니다."
 
 msgid "**Rename…** gives the selected template a new name. A name that another template of the module already uses is refused."
 msgstr "**이름 바꾸기…** 은 선택한 템플릿에 새 이름을 붙입니다. 모듈의 다른 템플릿이 이미 사용하는 이름은 거부됩니다."

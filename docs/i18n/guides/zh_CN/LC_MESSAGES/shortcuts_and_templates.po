@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:22-0400\n"
+"POT-Creation-Date: 2026-10-30 20:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -25,8 +25,9 @@ msgstr "键盘快捷键与设置模板"
 msgid "Keyboard shortcuts"
 msgstr "键盘短片"
 
-msgid "Press **F1** or **?** to open the shortcut cheat sheet. It lists the keys that work anywhere in the window, such as **Ctrl+K** for the command palette, **Ctrl+P** for Preferences, **Ctrl+F** to search the current module's settings and **F11** for full screen, followed by the keys of the screen you are on."
-msgstr "按 **F1** 或 **?** 打开快捷键速查表。它列出在窗口任何位置都有效的按键，例如 **Ctrl+K** 打开命令面板、**Ctrl+P** 打开偏好设置、**Ctrl+F** 搜索当前模块的设置、**F11** 切换全屏，随后列出您所在屏幕的按键。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With the default bindings, press **F1** to open the shortcut cheat sheet. **?** opens it when the current screen does not handle that key itself; Annotate uses **?** for its inline key legend. The cheat sheet lists the keys that work anywhere in the window, such as **Ctrl+K** for the command palette, **Ctrl+P** for Preferences, **Ctrl+F** to search the current module's settings and **F11** for full screen, followed by the keys of the screen you are on."
+msgstr "使用默认按键绑定时，按 **F1** 打开快捷键速查表。如果当前界面不自行处理该按键，**?** 也会打开速查表；Annotate 使用 **?** 显示其内嵌按键图例。 速查表列出在窗口任何位置都有效的按键，例如 **Ctrl+K** 打开命令面板、**Ctrl+P** 打开偏好设置、**Ctrl+F** 搜索当前模块的设置、**F11** 切换全屏，随后列出您所在屏幕的按键。"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "To change a key, choose **Change shortcuts…** in the cheat sheet. The **Change shortcuts** window has one row per action, with its **Default** key and the **Shortcut** in use. Click a shortcut and press the new key, or clear it to leave the action without a key. **Restore defaults** puts every row back to its default key."
@@ -47,17 +48,19 @@ msgid "A settings template is one module's settings saved under a name you choos
 msgstr "设置模板是以您选择的名称保存的单个模块设置，例如 ``Toxo PVM, 40x``。打开带有设置面板的模块，按 **Ctrl+Shift+R** 即可打开该模块的 **设置模板**。"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Save current settings…** stores the form as a new template, selects it in the list and shows its full saved path as text you can select and copy."
-msgstr "**保存当前设置…** 将表单保存为新模板，在列表中选中它，并以可选择和复制的文本显示保存文件的完整路径。"
+msgid "**Save current settings…** stores the form as a named template, selects it in the list and shows its full saved path as text you can select and copy. Saving with an existing template name replaces that module's saved template."
+msgstr "**保存当前设置…** 将表单保存为命名模板，在列表中选中它，并将完整保存路径显示为可选择和复制的文本。使用现有模板名称保存时，会替换该模块已保存的同名模板。"
 
-msgid "**Apply** fills the form from the selected template. A template saved with another spaCR version lists the settings that no longer exist and the ones added since. A template for a different module is refused."
-msgstr "**应用** 根据所选模板填写表单。用其他 spaCR 版本保存的模板会列出已不存在的设置以及之后新增的设置。针对其他模块的模板会被拒绝。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Apply** fills the form from the selected template. A template saved with another spaCR version requires confirmation. The compatibility message lists saved settings that the current module no longer accepts and will ignore; it does not list settings added since the template was saved. A template for a different module is refused."
+msgstr "**应用** 根据所选模板填充表单。使用其他 spaCR 版本保存的模板需要确认。兼容性消息会列出当前模块不再接受、将被忽略的已保存设置；它不会列出自模板保存以来新增的设置。其他模块的模板会被拒绝。"
 
 msgid "**Share…** writes the template to a JSON file you can send to someone else."
 msgstr "**分享...** 将模板写入一个 JSON 文件，您可以把它发送给其他人。"
 
-msgid "**Import…** reads a shared template file, or a settings CSV such as the one every run writes beside its results. A CSV becomes a template named after the file. A file for another module, or one without settings, is refused."
-msgstr "**导入…** 读取共享的模板文件，或设置 CSV（例如每次运行在其结果旁写入的那种）。CSV 会成为以该文件命名的模板。针对其他模块的文件或不含设置的文件会被拒绝。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Import…** reads a shared template file, or a settings CSV such as the one every run writes beside its results. A CSV becomes a template named after the file and is associated with the current module, so open the matching module before importing it. A JSON template naming another module, or a file without settings, is refused."
+msgstr "**导入…** 读取共享模板文件，或设置 CSV，例如每次运行写在结果旁的设置文件。CSV 会成为以文件名命名的模板，并与当前模块关联，因此请先打开匹配的模块再导入。指定其他模块的 JSON 模板或没有设置的文件会被拒绝。"
 
 msgid "**Rename…** gives the selected template a new name. A name that another template of the module already uses is refused."
 msgstr "**重命名…** 为所选模板指定新名称。该模块另一个模板已使用的名称会被拒绝。"

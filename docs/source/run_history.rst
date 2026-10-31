@@ -9,8 +9,9 @@ The dashboard combines:
 
 * module, status, start/end time, wall time and process CPU time;
 * exact resolved settings;
-* available input, output and model hash records; input/output hashing is
-  optional and ``hash_inputs`` is off by default;
+* available input, output and model hash records; input/output hashing follows
+  ``hash_inputs``. The GUI preference is enabled by default; a run without
+  ``hash_inputs`` enabled does not record input/output hashes;
 * structured warnings, provenance warnings and failure tracebacks;
 * package, spaCR, Git and platform versions;
 * declared seeds and runtime random-state identifiers.
@@ -24,8 +25,9 @@ Unverifiable owners, including records from other hosts, remain ``running``.
 Corrupt run folders remain listed with ``corrupt`` status and diagnostic warnings.
 
 Select a row to inspect its details. **Load settings in module** opens the
-original module and propagates the exact recorded settings into its controls;
-it does not start a run. **Open run folder** and **Copy path** expose the
+module, or its current host if the recorded module has been folded into
+another screen, and applies the recorded settings accepted by its current
+controls. It does not start a run. **Open run folder** and **Copy path** expose the
 underlying ``~/.spacr/runs/...`` folder.
 
 Right-click selected rows to open their folders or delete them. **Clear all**
@@ -52,7 +54,8 @@ the selected cache after asking, and **Move…** moves it into
 ``<folder>/spacr-<cache>`` on another drive. The new place is recorded in
 ``~/.spacr/cache_locations.json`` and used at every start; a cache whose
 variable (for example ``HF_HOME``) is set outside spaCR is not moved.
-Clearing and moving wait until no run is in progress.
+Clearing and moving are refused while a run is in progress. Try the action
+again after the run finishes.
 
 The spaCR model cache uses ``SPACR_MODEL_CACHE``. When it is unset or blank,
 models use the ``models`` folder inside the spaCR home returned by

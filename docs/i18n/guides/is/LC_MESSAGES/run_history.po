@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 13:49-0400\n"
+"POT-Creation-Date: 2026-10-30 20:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -35,8 +35,8 @@ msgid "exact resolved settings;"
 msgstr "nákvæmar útleystar stillingar;"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "available input, output and model hash records; input/output hashing is optional and ``hash_inputs`` is off by default;"
-msgstr "tiltækar tætuskrár fyrir inntak, úttak og líkön; tætureikningur inntaks og úttaks er valfrjáls og ``hash_inputs`` er sjálfgefið óvirkt;"
+msgid "available input, output and model hash records; input/output hashing follows ``hash_inputs``. The GUI preference is enabled by default; a run without ``hash_inputs`` enabled does not record input/output hashes;"
+msgstr "tiltækar tætigildafærslur fyrir inntak, úttak og líkön; tætigildareikningur inntaks og úttaks fer eftir ``hash_inputs``. Kjörstillingin í grafíska viðmótinu er sjálfgefið virk; keyrsla án virks ``hash_inputs`` skráir ekki tætigildi inntaks eða úttaks;"
 
 msgid "structured warnings, provenance warnings and failure tracebacks;"
 msgstr "skipulagðar viðvaranir, viðvaranir um uppruna og rakningar villna;"
@@ -52,8 +52,9 @@ msgstr "uppgefin fræ og auðkenni slembistöðu við keyrslu."
 msgid "Search terms are combined: ``adamw plate_03 warning`` shows only records containing all three terms anywhere in settings, paths, warnings, failures or environment data. Module and status filters can be applied at the same time. A stored ``running`` record is displayed as ``interrupted`` only when its recorded owner is provably gone; this does not change the stored status. Unverifiable owners, including records from other hosts, remain ``running``. Corrupt run folders remain listed with ``corrupt`` status and diagnostic warnings."
 msgstr "Leitarorð eru sameinuð: ``adamw plate_03 warning`` sýnir aðeins færslur sem innihalda öll þrjú orðin einhvers staðar í stillingum, slóðum, viðvörunum, villum eða umhverfisgögnum. Hægt er að nota einingar- og stöðusíur samtímis. Færsla sem er geymd sem ``running`` birtist sem ``interrupted`` aðeins ef sannað er að skráður eigandi hennar sé horfinn; það breytir ekki geymdri stöðu. Eigendur sem ekki er hægt að staðfesta, þar á meðal færslur frá öðrum vélum, haldast ``running``. Skemmdar keyrslumöppur eru áfram á listanum með stöðuna ``corrupt`` og greiningarviðvaranir."
 
-msgid "Select a row to inspect its details. **Load settings in module** opens the original module and propagates the exact recorded settings into its controls; it does not start a run. **Open run folder** and **Copy path** expose the underlying ``~/.spacr/runs/...`` folder."
-msgstr "Veldu röð til að skoða upplýsingar hennar. **Hlaða stillingum í einingu** opnar upphaflegu eininguna og færir nákvæmu skráðu stillingarnar inn í stýringar hennar; það ræsir ekki keyrslu. **Opna keyrslumöppu** og **Afrita slóð** sýna undirliggjandi möppu ``~/.spacr/runs/...``."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Select a row to inspect its details. **Load settings in module** opens the module, or its current host if the recorded module has been folded into another screen, and applies the recorded settings accepted by its current controls. It does not start a run. **Open run folder** and **Copy path** expose the underlying ``~/.spacr/runs/...`` folder."
+msgstr "Veldu röð til að skoða upplýsingar hennar. **Hlaða stillingum í einingu** opnar eininguna, eða núverandi hýsil hennar ef skráða einingin hefur verið felld inn í annan skjá, og beitir skráðum stillingum sem núverandi stýringar hennar taka við. Það ræsir ekki keyrslu. **Opna keyrslumöppu** og **Afrita slóð** veita aðgang að undirliggjandi möppu ``~/.spacr/runs/...``."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Right-click selected rows to open their folders or delete them. **Clear all** requests deletion of every loaded run, including rows hidden by the current filters; it does not include runs created since the last refresh. Deleting asks first and removes only journal folders, not outputs in your projects. The result reports any folders that could not be deleted, including active runs protected by this spaCR process."
@@ -66,8 +67,9 @@ msgstr "Geymsla: grisjun og skyndiminni"
 msgid "**Preferences → Storage** sets the limits used when pruning the spaCR home folder. For daily logs, run logs (``~/.spacr/logs/runs``) and run folders (``~/.spacr/runs``) it holds two caps: **Keep**, an age in days within which nothing is ever deleted, and **Cap**, a size above which the oldest older entries are deleted (**no cap** deletes every older entry). The run in progress and open log files are never deleted. **Prune now…** lists what the caps would delete and asks before deleting; nothing is pruned automatically."
 msgstr "**Kjörstillingar → Geymsla** stillir mörkin sem notuð eru þegar heimamappa spaCR er grisjuð. Fyrir daglega annála, keyrsluannála (``~/.spacr/logs/runs``) og keyrslumöppur (``~/.spacr/runs``) heldur hún tvenn mörk: **Halda**, aldur í dögum þar sem engu er nokkru sinni eytt, og **Hámark**, stærð þar yfir sem elstu eldri færslum er eytt (**ekkert hámark** eyðir öllum eldri færslum). Keyrslunni sem er í gangi og opnum annálaskrám er aldrei eytt. **Grisja núna…** telur upp það sem mörkin myndu eyða og spyr áður en eytt er; ekkert er grisjað sjálfkrafa."
 
-msgid "The cache table lists the spaCR model, Cellpose, Hugging Face, Torch, backend environment and news caches. **Measure** reads their sizes, **Clear…** empties the selected cache after asking, and **Move…** moves it into ``<folder>/spacr-<cache>`` on another drive. The new place is recorded in ``~/.spacr/cache_locations.json`` and used at every start; a cache whose variable (for example ``HF_HOME``) is set outside spaCR is not moved. Clearing and moving wait until no run is in progress."
-msgstr "Skyndiminnistaflan sýnir skyndiminni spaCR-líkana, Cellpose, Hugging Face, Torch, bakendaumhverfa og frétta. **Mæling** les stærð þeirra, **Hreinsa…** tæmir valið skyndiminni eftir að hafa spurt og **Færa…** færir það í ``<folder>/spacr-<cache>`` á öðru drifi. Nýi staðurinn er skráður í ``~/.spacr/cache_locations.json`` og notaður við hverja ræsingu; skyndiminni sem hefur breytu sína (til dæmis ``HF_HOME``) stillta utan spaCR er ekki fært. Hreinsun og færsla bíða þar til engin keyrsla er í gangi."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The cache table lists the spaCR model, Cellpose, Hugging Face, Torch, backend environment and news caches. **Measure** reads their sizes, **Clear…** empties the selected cache after asking, and **Move…** moves it into ``<folder>/spacr-<cache>`` on another drive. The new place is recorded in ``~/.spacr/cache_locations.json`` and used at every start; a cache whose variable (for example ``HF_HOME``) is set outside spaCR is not moved. Clearing and moving are refused while a run is in progress. Try the action again after the run finishes."
+msgstr "Skyndiminnistaflan sýnir skyndiminni spaCR-líkana, Cellpose, Hugging Face, Torch, bakendaumhverfa og frétta. **Mæling** les stærð þeirra, **Hreinsa…** tæmir valið skyndiminni eftir að hafa spurt og **Færa…** færir það í ``<folder>/spacr-<cache>`` á öðru drifi. Nýi staðurinn er skráður í ``~/.spacr/cache_locations.json`` og notaður við hverja ræsingu; skyndiminni sem hefur breytu sína (til dæmis ``HF_HOME``) stillta utan spaCR er ekki fært. Hreinsun og færslu er hafnað á meðan keyrsla er í gangi. Reyndu aðgerðina aftur þegar keyrslunni er lokið."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The spaCR model cache uses ``SPACR_MODEL_CACHE``. When it is unset or blank, models use the ``models`` folder inside the spaCR home returned by ``_spacr_home()`` (normally ``~/.spacr/models``). An explicit environment override takes precedence. Moving this cache through **Storage → Move…** persists its new location in ``cache_locations.json`` and reapplies it on startup. Newly opened Model Zoo screens and plaque previews use that location. The model picker follows the move when its remembered folder matched the old cache; a separately chosen custom model folder is preserved."

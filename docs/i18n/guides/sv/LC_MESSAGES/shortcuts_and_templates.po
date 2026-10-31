@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:22-0400\n"
+"POT-Creation-Date: 2026-10-30 20:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -25,8 +25,9 @@ msgstr "Kortkommandon och inställningsmallar"
 msgid "Keyboard shortcuts"
 msgstr "Tangentbordsgenvägar"
 
-msgid "Press **F1** or **?** to open the shortcut cheat sheet. It lists the keys that work anywhere in the window, such as **Ctrl+K** for the command palette, **Ctrl+P** for Preferences, **Ctrl+F** to search the current module's settings and **F11** for full screen, followed by the keys of the screen you are on."
-msgstr "Tryck på **F1** eller **?** för att öppna översikten över kortkommandon. Den listar tangenterna som fungerar var som helst i fönstret, till exempel **Ctrl+K** för kommandopaletten, **Ctrl+P** för Inställningar, **Ctrl+F** för att söka i den aktuella modulens inställningar och **F11** för helskärm, följt av tangenterna för den skärm du befinner dig på."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With the default bindings, press **F1** to open the shortcut cheat sheet. **?** opens it when the current screen does not handle that key itself; Annotate uses **?** for its inline key legend. The cheat sheet lists the keys that work anywhere in the window, such as **Ctrl+K** for the command palette, **Ctrl+P** for Preferences, **Ctrl+F** to search the current module's settings and **F11** for full screen, followed by the keys of the screen you are on."
+msgstr "Med standardbindningarna öppnar du översikten över kortkommandon med **F1**. **?** öppnar den när den aktuella skärmen inte hanterar tangenten själv; Annotate använder **?** för sin inbyggda tangentförklaring. Översikten listar tangenterna som fungerar var som helst i fönstret, till exempel **Ctrl+K** för kommandopaletten, **Ctrl+P** för Inställningar, **Ctrl+F** för att söka i den aktuella modulens inställningar och **F11** för helskärm, följt av tangenterna för den skärm du befinner dig på."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "To change a key, choose **Change shortcuts…** in the cheat sheet. The **Change shortcuts** window has one row per action, with its **Default** key and the **Shortcut** in use. Click a shortcut and press the new key, or clear it to leave the action without a key. **Restore defaults** puts every row back to its default key."
@@ -47,17 +48,19 @@ msgid "A settings template is one module's settings saved under a name you choos
 msgstr "En inställningsmall är en moduls inställningar sparade under ett namn som du väljer, till exempel ``Toxo PVM, 40x``. Öppna en modul med en inställningspanel och tryck på **Ctrl+Shift+R** för att öppna **Inställningsmallar** för den modulen."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Save current settings…** stores the form as a new template, selects it in the list and shows its full saved path as text you can select and copy."
-msgstr "**Spara aktuella inställningar…** sparar formuläret som en ny mall, väljer den i listan och visar hela sökvägen till den sparade filen som text du kan markera och kopiera."
+msgid "**Save current settings…** stores the form as a named template, selects it in the list and shows its full saved path as text you can select and copy. Saving with an existing template name replaces that module's saved template."
+msgstr "**Spara aktuella inställningar…** lagrar formuläret som en namngiven mall, väljer den i listan och visar hela dess sparade sökväg som text du kan markera och kopiera. Om du sparar med ett befintligt mallnamn ersätts den sparade mallen för den modulen."
 
-msgid "**Apply** fills the form from the selected template. A template saved with another spaCR version lists the settings that no longer exist and the ones added since. A template for a different module is refused."
-msgstr "**Verkställ** fyller i formuläret från den valda mallen. En mall som sparats med en annan spaCR-version listar de inställningar som inte längre finns och de som har lagts till sedan dess. En mall för en annan modul avvisas."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Apply** fills the form from the selected template. A template saved with another spaCR version requires confirmation. The compatibility message lists saved settings that the current module no longer accepts and will ignore; it does not list settings added since the template was saved. A template for a different module is refused."
+msgstr "**Verkställ** fyller formuläret från den valda mallen. En mall som sparats med en annan spaCR-version kräver bekräftelse. Kompatibilitetsmeddelandet listar sparade inställningar som den aktuella modulen inte längre accepterar och kommer att ignorera; det listar inte inställningar som tillkommit sedan mallen sparades. En mall för en annan modul avvisas."
 
 msgid "**Share…** writes the template to a JSON file you can send to someone else."
 msgstr "**Dela...** skriver mallen till en JSON-fil som du kan skicka till någon annan."
 
-msgid "**Import…** reads a shared template file, or a settings CSV such as the one every run writes beside its results. A CSV becomes a template named after the file. A file for another module, or one without settings, is refused."
-msgstr "**Importera...** läser en delad mallfil, eller en inställnings-CSV som den som varje körning skriver bredvid sina resultat. En CSV blir en mall med filens namn. En fil för en annan modul, eller en utan inställningar, avvisas."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Import…** reads a shared template file, or a settings CSV such as the one every run writes beside its results. A CSV becomes a template named after the file and is associated with the current module, so open the matching module before importing it. A JSON template naming another module, or a file without settings, is refused."
+msgstr "**Importera...** läser en delad mallfil eller en CSV med inställningar, till exempel den som varje körning skriver bredvid sina resultat. En CSV blir en mall med filens namn och kopplas till den aktuella modulen, så öppna den matchande modulen innan du importerar den. En JSON-mall som anger en annan modul, eller en fil utan inställningar, avvisas."
 
 msgid "**Rename…** gives the selected template a new name. A name that another template of the module already uses is refused."
 msgstr "**Byt namn…** ger den valda mallen ett nytt namn. Ett namn som en annan mall för modulen redan använder avvisas."

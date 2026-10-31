@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:22-0400\n"
+"POT-Creation-Date: 2026-10-30 20:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: fr\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -25,8 +25,9 @@ msgstr "Raccourcis clavier et modèles de paramètres"
 msgid "Keyboard shortcuts"
 msgstr "Raccourcis clavier"
 
-msgid "Press **F1** or **?** to open the shortcut cheat sheet. It lists the keys that work anywhere in the window, such as **Ctrl+K** for the command palette, **Ctrl+P** for Preferences, **Ctrl+F** to search the current module's settings and **F11** for full screen, followed by the keys of the screen you are on."
-msgstr "Appuyez sur **F1** ou **?** pour ouvrir l’aide-mémoire des raccourcis. Il liste les touches qui fonctionnent partout dans la fenêtre, comme **Ctrl+K** pour la palette de commandes, **Ctrl+P** pour les Préférences, **Ctrl+F** pour rechercher dans les paramètres du module courant et **F11** pour le plein écran, suivies des touches de l’écran affiché."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With the default bindings, press **F1** to open the shortcut cheat sheet. **?** opens it when the current screen does not handle that key itself; Annotate uses **?** for its inline key legend. The cheat sheet lists the keys that work anywhere in the window, such as **Ctrl+K** for the command palette, **Ctrl+P** for Preferences, **Ctrl+F** to search the current module's settings and **F11** for full screen, followed by the keys of the screen you are on."
+msgstr "Avec les raccourcis par défaut, appuyez sur **F1** pour ouvrir l’aide-mémoire des raccourcis. **?** l’ouvre lorsque l’écran actuel ne traite pas lui-même cette touche ; Annotate utilise **?** pour sa légende de touches intégrée. L’aide-mémoire liste les touches qui fonctionnent partout dans la fenêtre, comme **Ctrl+K** pour la palette de commandes, **Ctrl+P** pour les Préférences, **Ctrl+F** pour rechercher dans les paramètres du module courant et **F11** pour le plein écran, suivies des touches de l’écran affiché."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "To change a key, choose **Change shortcuts…** in the cheat sheet. The **Change shortcuts** window has one row per action, with its **Default** key and the **Shortcut** in use. Click a shortcut and press the new key, or clear it to leave the action without a key. **Restore defaults** puts every row back to its default key."
@@ -47,17 +48,19 @@ msgid "A settings template is one module's settings saved under a name you choos
 msgstr "Un modèle de paramètres correspond aux paramètres d’un module enregistrés sous le nom de votre choix, par exemple ``Toxo PVM, 40x``. Ouvrez un module doté d’un panneau de paramètres et appuyez sur **Ctrl+Shift+R** pour ouvrir les **Modèles de paramètres** de ce module."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Save current settings…** stores the form as a new template, selects it in the list and shows its full saved path as text you can select and copy."
-msgstr "**Enregistrer les paramètres actuels…** enregistre le formulaire comme nouveau modèle de paramètres, le sélectionne dans la liste et affiche son chemin complet comme texte sélectionnable et copiable."
+msgid "**Save current settings…** stores the form as a named template, selects it in the list and shows its full saved path as text you can select and copy. Saving with an existing template name replaces that module's saved template."
+msgstr "**Enregistrer les paramètres actuels…** enregistre le formulaire comme modèle nommé, le sélectionne dans la liste et affiche son chemin complet sous forme de texte sélectionnable et copiable. Enregistrer sous un nom de modèle existant remplace le modèle enregistré de ce module."
 
-msgid "**Apply** fills the form from the selected template. A template saved with another spaCR version lists the settings that no longer exist and the ones added since. A template for a different module is refused."
-msgstr "**Appliquer** remplit le formulaire à partir du modèle sélectionné. Un modèle enregistré avec une autre version de spaCR liste les paramètres qui n’existent plus et ceux ajoutés depuis. Un modèle destiné à un autre module est refusé."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Apply** fills the form from the selected template. A template saved with another spaCR version requires confirmation. The compatibility message lists saved settings that the current module no longer accepts and will ignore; it does not list settings added since the template was saved. A template for a different module is refused."
+msgstr "**Appliquer** remplit le formulaire à partir du modèle sélectionné. Un modèle enregistré avec une autre version de spaCR nécessite une confirmation. Le message de compatibilité liste les paramètres enregistrés que le module actuel n’accepte plus et ignorera ; il ne liste pas les paramètres ajoutés depuis l’enregistrement du modèle. Un modèle destiné à un autre module est refusé."
 
 msgid "**Share…** writes the template to a JSON file you can send to someone else."
 msgstr "**Partager...** écrit le modèle dans un fichier JSON que vous pouvez envoyer à quelqu’un d’autre."
 
-msgid "**Import…** reads a shared template file, or a settings CSV such as the one every run writes beside its results. A CSV becomes a template named after the file. A file for another module, or one without settings, is refused."
-msgstr "**Importer...** lit un fichier de modèle partagé, ou un CSV de paramètres tel que celui que chaque exécution écrit à côté de ses résultats. Un CSV devient un modèle nommé d’après le fichier. Un fichier destiné à un autre module, ou sans paramètres, est refusé."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Import…** reads a shared template file, or a settings CSV such as the one every run writes beside its results. A CSV becomes a template named after the file and is associated with the current module, so open the matching module before importing it. A JSON template naming another module, or a file without settings, is refused."
+msgstr "**Importer...** lit un fichier de modèle partagé ou un CSV de paramètres, comme celui que chaque exécution écrit à côté de ses résultats. Le CSV devient un modèle nommé d’après le fichier et associé au module actuel ; ouvrez donc le module correspondant avant de l’importer. Un modèle JSON désignant un autre module, ou un fichier sans paramètres, est refusé."
 
 msgid "**Rename…** gives the selected template a new name. A name that another template of the module already uses is refused."
 msgstr "**Renommer…** donne un nouveau nom au modèle sélectionné. Un nom déjà utilisé par un autre modèle du module est refusé."

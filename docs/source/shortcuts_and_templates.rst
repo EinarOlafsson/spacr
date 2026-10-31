@@ -4,7 +4,9 @@ Keyboard shortcuts and settings templates
 Keyboard shortcuts
 ------------------
 
-Press **F1** or **?** to open the shortcut cheat sheet. It lists the keys
+With the default bindings, press **F1** to open the shortcut cheat sheet.
+**?** opens it when the current screen does not handle that key itself;
+Annotate uses **?** for its inline key legend. The cheat sheet lists the keys
 that work anywhere in the window, such as **Ctrl+K** for the command palette,
 **Ctrl+P** for Preferences, **Ctrl+F** to search the current module's
 settings and **F11** for full screen, followed by the keys of the screen you
@@ -37,15 +39,20 @@ A settings template is one module's settings saved under a name you choose,
 for example ``Toxo PVM, 40x``. Open a module with a settings panel and press
 **Ctrl+Shift+R** to open **Settings templates** for that module.
 
-* **Save current settings…** stores the form as a new template, selects it
+* **Save current settings…** stores the form as a named template, selects it
   in the list and shows its full saved path as text you can select and copy.
+  Saving with an existing template name replaces that module's saved template.
 * **Apply** fills the form from the selected template. A template saved with
-  another spaCR version lists the settings that no longer exist and the ones
-  added since. A template for a different module is refused.
+  another spaCR version requires confirmation. The compatibility message lists
+  saved settings that the current module no longer accepts and will ignore;
+  it does not list settings added since the template was saved. A template
+  for a different module is refused.
 * **Share…** writes the template to a JSON file you can send to someone else.
 * **Import…** reads a shared template file, or a settings CSV such as the one
   every run writes beside its results. A CSV becomes a template named after
-  the file. A file for another module, or one without settings, is refused.
+  the file and is associated with the current module, so open the matching
+  module before importing it. A JSON template naming another module, or a
+  file without settings, is refused.
 * **Rename…** gives the selected template a new name. A name that another
   template of the module already uses is refused.
 * **Delete** removes the selected template.

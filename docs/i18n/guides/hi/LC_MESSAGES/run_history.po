@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 13:49-0400\n"
+"POT-Creation-Date: 2026-10-30 20:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -35,8 +35,8 @@ msgid "exact resolved settings;"
 msgstr "सटीक निर्धारित सेटिंग्स;"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "available input, output and model hash records; input/output hashing is optional and ``hash_inputs`` is off by default;"
-msgstr "इनपुट, आउटपुट और मॉडल के उपलब्ध हैश रिकॉर्ड; इनपुट/आउटपुट हैशिंग वैकल्पिक है और ``hash_inputs`` डिफ़ॉल्ट रूप से बंद है;"
+msgid "available input, output and model hash records; input/output hashing follows ``hash_inputs``. The GUI preference is enabled by default; a run without ``hash_inputs`` enabled does not record input/output hashes;"
+msgstr "उपलब्ध इनपुट, आउटपुट और मॉडल हैश रिकॉर्ड; इनपुट/आउटपुट हैशिंग ``hash_inputs`` का पालन करती है। GUI की प्राथमिकता डिफ़ॉल्ट रूप से चालू है; ``hash_inputs`` चालू किए बिना चलाया गया रन इनपुट/आउटपुट हैश रिकॉर्ड नहीं करता;"
 
 msgid "structured warnings, provenance warnings and failure tracebacks;"
 msgstr "संरचित चेतावनियाँ, उद्गम चेतावनियाँ और विफलता ट्रेसबैक;"
@@ -52,8 +52,9 @@ msgstr "घोषित सीड और रनटाइम रैंडम-अ�
 msgid "Search terms are combined: ``adamw plate_03 warning`` shows only records containing all three terms anywhere in settings, paths, warnings, failures or environment data. Module and status filters can be applied at the same time. A stored ``running`` record is displayed as ``interrupted`` only when its recorded owner is provably gone; this does not change the stored status. Unverifiable owners, including records from other hosts, remain ``running``. Corrupt run folders remain listed with ``corrupt`` status and diagnostic warnings."
 msgstr "खोज शब्द संयुक्त होते हैं: ``adamw plate_03 warning`` केवल वे रिकॉर्ड दिखाता है जिनमें सेटिंग, पथ, चेतावनी, विफलता या परिवेश डेटा में कहीं भी तीनों शब्द हों। मॉड्यूल और स्थिति फ़िल्टर साथ लगाए जा सकते हैं। सहेजा गया ``running`` रिकॉर्ड तभी ``interrupted`` के रूप में दिखता है जब दर्ज स्वामी के समाप्त होने का प्रमाण हो; इससे सहेजी गई स्थिति नहीं बदलती। अप्रमाणित स्वामी, जिनमें दूसरे होस्ट के रिकॉर्ड शामिल हैं, ``running`` बने रहते हैं। दूषित रन फ़ोल्डर ``corrupt`` स्थिति और निदान चेतावनियों के साथ सूची में बने रहते हैं।"
 
-msgid "Select a row to inspect its details. **Load settings in module** opens the original module and propagates the exact recorded settings into its controls; it does not start a run. **Open run folder** and **Copy path** expose the underlying ``~/.spacr/runs/...`` folder."
-msgstr "विवरण देखने के लिए कोई पंक्ति चुनें। **मॉड्यूल में सेटिंग लोड करें** मूल मॉड्यूल खोलता है और सटीक दर्ज सेटिंग्स उसके नियंत्रणों में भर देता है; यह रन शुरू नहीं करता। **रन फ़ोल्डर खोलें** और **पथ कॉपी करें** अंतर्निहित ``~/.spacr/runs/...`` फ़ोल्डर तक पहुँच देते हैं।"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Select a row to inspect its details. **Load settings in module** opens the module, or its current host if the recorded module has been folded into another screen, and applies the recorded settings accepted by its current controls. It does not start a run. **Open run folder** and **Copy path** expose the underlying ``~/.spacr/runs/...`` folder."
+msgstr "विवरण देखने के लिए कोई पंक्ति चुनें। **मॉड्यूल में सेटिंग लोड करें** मॉड्यूल खोलता है, या यदि दर्ज मॉड्यूल किसी दूसरी स्क्रीन में मिला दिया गया है तो उसका वर्तमान होस्ट खोलता है, और उसके वर्तमान नियंत्रण जिन दर्ज सेटिंग्स को स्वीकार करते हैं उन्हें लागू करता है। यह रन शुरू नहीं करता। **रन फ़ोल्डर खोलें** और **पथ कॉपी करें** अंतर्निहित ``~/.spacr/runs/...`` फ़ोल्डर तक पहुँच देते हैं।"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Right-click selected rows to open their folders or delete them. **Clear all** requests deletion of every loaded run, including rows hidden by the current filters; it does not include runs created since the last refresh. Deleting asks first and removes only journal folders, not outputs in your projects. The result reports any folders that could not be deleted, including active runs protected by this spaCR process."
@@ -66,8 +67,9 @@ msgstr "भंडारण: छँटाई और कैश"
 msgid "**Preferences → Storage** sets the limits used when pruning the spaCR home folder. For daily logs, run logs (``~/.spacr/logs/runs``) and run folders (``~/.spacr/runs``) it holds two caps: **Keep**, an age in days within which nothing is ever deleted, and **Cap**, a size above which the oldest older entries are deleted (**no cap** deletes every older entry). The run in progress and open log files are never deleted. **Prune now…** lists what the caps would delete and asks before deleting; nothing is pruned automatically."
 msgstr "**प्राथमिकताएं → भंडारण** spaCR होम फ़ोल्डर की छँटाई में उपयोग होने वाली सीमाएँ निर्धारित करता है। दैनिक लॉग, रन लॉग (``~/.spacr/logs/runs``) और रन फ़ोल्डरों (``~/.spacr/runs``) के लिए यह दो सीमाएँ रखता है: **रखें**, दिनों में एक आयु जिसके भीतर कुछ भी कभी नहीं हटाया जाता, और **ऊपरी सीमा**, एक आकार जिसके ऊपर पुरानी प्रविष्टियों में सबसे पुरानी हटाई जाती हैं (**कोई सीमा नहीं** हर पुरानी प्रविष्टि हटा देता है)। चल रहा रन और खुली लॉग फ़ाइलें कभी नहीं हटाई जातीं। **अभी छाँटें…** बताता है कि सीमाएँ क्या हटाएँगी और हटाने से पहले पूछता है; कुछ भी स्वचालित रूप से नहीं छाँटा जाता।"
 
-msgid "The cache table lists the spaCR model, Cellpose, Hugging Face, Torch, backend environment and news caches. **Measure** reads their sizes, **Clear…** empties the selected cache after asking, and **Move…** moves it into ``<folder>/spacr-<cache>`` on another drive. The new place is recorded in ``~/.spacr/cache_locations.json`` and used at every start; a cache whose variable (for example ``HF_HOME``) is set outside spaCR is not moved. Clearing and moving wait until no run is in progress."
-msgstr "कैश तालिका spaCR मॉडल, Cellpose, Hugging Face, Torch, बैकएंड परिवेश और समाचार कैश सूचीबद्ध करती है। **मापन** उनका आकार पढ़ता है, **साफ़ करें…** पूछने के बाद चुने गए कैश को खाली करता है, और **स्थानांतरित करें…** उसे किसी दूसरी ड्राइव पर ``<folder>/spacr-<cache>`` में ले जाता है। नया स्थान ``~/.spacr/cache_locations.json`` में दर्ज होता है और हर शुरुआत में उपयोग होता है; जिस कैश का चर (उदाहरण के लिए ``HF_HOME``) spaCR के बाहर सेट हो उसे स्थानांतरित नहीं किया जाता। साफ़ करना और स्थानांतरित करना तब तक प्रतीक्षा करते हैं जब तक कोई रन न चल रहा हो।"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The cache table lists the spaCR model, Cellpose, Hugging Face, Torch, backend environment and news caches. **Measure** reads their sizes, **Clear…** empties the selected cache after asking, and **Move…** moves it into ``<folder>/spacr-<cache>`` on another drive. The new place is recorded in ``~/.spacr/cache_locations.json`` and used at every start; a cache whose variable (for example ``HF_HOME``) is set outside spaCR is not moved. Clearing and moving are refused while a run is in progress. Try the action again after the run finishes."
+msgstr "कैश तालिका spaCR मॉडल, Cellpose, Hugging Face, Torch, बैकएंड परिवेश और समाचार कैश सूचीबद्ध करती है। **मापन** उनका आकार पढ़ता है, **साफ़ करें…** पूछने के बाद चुने गए कैश को खाली करता है, और **स्थानांतरित करें…** उसे किसी दूसरी ड्राइव पर ``<folder>/spacr-<cache>`` में ले जाता है। नया स्थान ``~/.spacr/cache_locations.json`` में दर्ज होता है और हर शुरुआत में उपयोग होता है; जिस कैश का चर (उदाहरण के लिए ``HF_HOME``) spaCR के बाहर सेट हो उसे स्थानांतरित नहीं किया जाता। रन चलने के दौरान साफ़ करने और स्थानांतरित करने से इनकार किया जाता है। रन समाप्त होने पर यह कार्रवाई दोबारा आज़माएँ।"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The spaCR model cache uses ``SPACR_MODEL_CACHE``. When it is unset or blank, models use the ``models`` folder inside the spaCR home returned by ``_spacr_home()`` (normally ``~/.spacr/models``). An explicit environment override takes precedence. Moving this cache through **Storage → Move…** persists its new location in ``cache_locations.json`` and reapplies it on startup. Newly opened Model Zoo screens and plaque previews use that location. The model picker follows the move when its remembered folder matched the old cache; a separately chosen custom model folder is preserved."

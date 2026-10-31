@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:22-0400\n"
+"POT-Creation-Date: 2026-10-30 20:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
@@ -25,8 +25,9 @@ msgstr "Flýtilyklar og stillingasniðmát"
 msgid "Keyboard shortcuts"
 msgstr "Skráningar á keyboard"
 
-msgid "Press **F1** or **?** to open the shortcut cheat sheet. It lists the keys that work anywhere in the window, such as **Ctrl+K** for the command palette, **Ctrl+P** for Preferences, **Ctrl+F** to search the current module's settings and **F11** for full screen, followed by the keys of the screen you are on."
-msgstr "Ýttu á **F1** eða **?** til að opna yfirlit flýtilykla. Það sýnir lyklana sem virka hvar sem er í glugganum, svo sem **Ctrl+K** fyrir skipanaspjaldið, **Ctrl+P** fyrir kjörstillingar, **Ctrl+F** til að leita í stillingum núverandi einingar og **F11** fyrir allan skjáinn, og síðan lykla skjásins sem þú ert á."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With the default bindings, press **F1** to open the shortcut cheat sheet. **?** opens it when the current screen does not handle that key itself; Annotate uses **?** for its inline key legend. The cheat sheet lists the keys that work anywhere in the window, such as **Ctrl+K** for the command palette, **Ctrl+P** for Preferences, **Ctrl+F** to search the current module's settings and **F11** for full screen, followed by the keys of the screen you are on."
+msgstr "Með sjálfgefnum lyklabindingum opnar **F1** yfirlit flýtilykla. **?** opnar það þegar núverandi skjár meðhöndlar lykilinn ekki sjálfur; Annotate notar **?** fyrir innbyggða lyklaskýringu sína. Yfirlitið sýnir lyklana sem virka hvar sem er í glugganum, svo sem **Ctrl+K** fyrir skipanaspjaldið, **Ctrl+P** fyrir kjörstillingar, **Ctrl+F** til að leita í stillingum núverandi einingar og **F11** fyrir allan skjáinn, og síðan lykla skjásins sem þú ert á."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "To change a key, choose **Change shortcuts…** in the cheat sheet. The **Change shortcuts** window has one row per action, with its **Default** key and the **Shortcut** in use. Click a shortcut and press the new key, or clear it to leave the action without a key. **Restore defaults** puts every row back to its default key."
@@ -47,17 +48,19 @@ msgid "A settings template is one module's settings saved under a name you choos
 msgstr "Stillingasniðmát er stillingar einnar einingar vistaðar undir heiti sem þú velur, til dæmis ``Toxo PVM, 40x``. Opnaðu einingu með stillingaspjaldi og ýttu á **Ctrl+Shift+R** til að opna **Stillingasniðmát** fyrir þá einingu."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Save current settings…** stores the form as a new template, selects it in the list and shows its full saved path as text you can select and copy."
-msgstr "**Vista núverandi stillingar…** vistar eyðublaðið sem nýtt sniðmát, velur það í listanum og sýnir alla slóð vistuðu skrárinnar sem texta sem þú getur valið og afritað."
+msgid "**Save current settings…** stores the form as a named template, selects it in the list and shows its full saved path as text you can select and copy. Saving with an existing template name replaces that module's saved template."
+msgstr "**Vista núverandi stillingar…** geymir eyðublaðið sem nafngreint sniðmát, velur það í listanum og sýnir alla vistuðu slóðina sem texta sem hægt er að velja og afrita. Ef vistað er með nafni sniðmáts sem er þegar til kemur það í stað vistaða sniðmáts þeirrar einingar."
 
-msgid "**Apply** fills the form from the selected template. A template saved with another spaCR version lists the settings that no longer exist and the ones added since. A template for a different module is refused."
-msgstr "**Beita** fyllir eyðublaðið út frá völdu sniðmáti. Sniðmát sem vistað var með annarri spaCR-útgáfu telur upp stillingarnar sem eru ekki lengur til og þær sem hefur verið bætt við síðan. Sniðmáti fyrir aðra einingu er hafnað."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Apply** fills the form from the selected template. A template saved with another spaCR version requires confirmation. The compatibility message lists saved settings that the current module no longer accepts and will ignore; it does not list settings added since the template was saved. A template for a different module is refused."
+msgstr "**Beita** fyllir eyðublaðið úr völdu sniðmáti. Sniðmát sem er vistað með annarri spaCR-útgáfu krefst staðfestingar. Samhæfisskilaboðin telja upp vistaðar stillingar sem núverandi eining tekur ekki lengur við og mun hunsa; þau telja ekki upp stillingar sem hafa bæst við síðan sniðmátið var vistað. Sniðmáti fyrir aðra einingu er hafnað."
 
 msgid "**Share…** writes the template to a JSON file you can send to someone else."
 msgstr "**Deila…** skrifar sniðmátið í JSON-skrá sem þú getur sent öðrum."
 
-msgid "**Import…** reads a shared template file, or a settings CSV such as the one every run writes beside its results. A CSV becomes a template named after the file. A file for another module, or one without settings, is refused."
-msgstr "**Flytja inn…** les deilda sniðmátsskrá, eða stillinga-CSV eins og þá sem hver keyrsla skrifar við hlið niðurstaðna sinna. CSV-skrá verður að sniðmáti sem nefnt er eftir skránni. Skrá fyrir aðra einingu, eða skrá án stillinga, er hafnað."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Import…** reads a shared template file, or a settings CSV such as the one every run writes beside its results. A CSV becomes a template named after the file and is associated with the current module, so open the matching module before importing it. A JSON template naming another module, or a file without settings, is refused."
+msgstr "**Flytja inn…** les sameiginlega sniðmátsskrá eða CSV-stillingaskrá eins og þá sem hver keyrsla skrifar við hlið niðurstaðna sinna. CSV-skrá verður að sniðmáti með nafni skrárinnar og tengist núverandi einingu, svo opnaðu réttu eininguna áður en þú flytur hana inn. JSON-sniðmáti sem tilgreinir aðra einingu, eða skrá án stillinga, er hafnað."
 
 msgid "**Rename…** gives the selected template a new name. A name that another template of the module already uses is refused."
 msgstr "**Endurnefna…** gefur völdu sniðmáti nýtt heiti. Heiti sem annað sniðmát einingarinnar notar þegar er hafnað."
