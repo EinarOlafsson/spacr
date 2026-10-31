@@ -58,6 +58,7 @@ from PySide6.QtWidgets import (
     QScrollArea,
     QSlider,
     QSpinBox,
+    QHeaderView,
     QTreeWidget,
     QTreeWidgetItem,
     QVBoxLayout,
@@ -397,6 +398,8 @@ class ProfilerScreen(QWidget):
         install_sorting(self._inputs)
         self._inputs.setHeaderLabels(["Input", "Coef.", "Moves by"])
         self._inputs.setRootIsDecorated(False)
+        self._inputs.header().setStretchLastSection(False)
+        self._inputs.header().setSectionResizeMode(QHeaderView.ResizeToContents)
         self._inputs.setMinimumWidth(260)
         self._inputs.currentItemChanged.connect(self._on_input_selected)
         mark_surface(self._inputs)

@@ -397,8 +397,6 @@ class ConvertScreen(QWidget):
         src_row.addWidget(example)
         outer.addLayout(src_row)
 
-        opt_row = QHBoxLayout()
-        opt_row.setSpacing(SPACING["sm"])
         self._layout_box = QComboBox(self)
         for label, value in LAYOUT_CHOICES:
             self._layout_box.addItem(label, value)
@@ -416,14 +414,21 @@ class ConvertScreen(QWidget):
             "spacr.convert.convert(..., resume=True).")
         for box in (self._layout_box, self._z_box, self._plate_box):
             box.currentIndexChanged.connect(self._on_option_changed)
-        opt_row.addWidget(QLabel("Layout"))
-        opt_row.addWidget(self._layout_box, 1)
-        opt_row.addWidget(QLabel("Z"))
-        opt_row.addWidget(self._z_box, 1)
-        opt_row.addWidget(QLabel("Plate names"))
-        opt_row.addWidget(self._plate_box, 1)
-        opt_row.addWidget(self._resume)
-        outer.addLayout(opt_row)
+        from ..widgets.flow import FlowHost, FlowLayout
+
+        opt_host = FlowHost(self)
+        opt_flow = FlowLayout(opt_host, spacing=SPACING["sm"])
+        for caption, box in (("Layout", self._layout_box), ("Z", self._z_box),
+                             ("Plate names", self._plate_box)):
+            pair = QWidget(opt_host)
+            pair_row = QHBoxLayout(pair)
+            pair_row.setContentsMargins(0, 0, 0, 0)
+            pair_row.setSpacing(SPACING["sm"])
+            pair_row.addWidget(QLabel(caption))
+            pair_row.addWidget(box)
+            opt_flow.addWidget(pair)
+        opt_flow.addWidget(self._resume)
+        outer.addWidget(opt_host)
 
         map_row = QHBoxLayout()
         self._metadata_well_map = QLineEdit(self)

@@ -1714,11 +1714,16 @@ class DbBrowserScreen(LinkedView, QWidget):
         filt_row.addWidget(self._filter_op, 1)
         filt_row.addWidget(self._filter_value, 2)
         filt_row.addWidget(self._raw_edit, 4)
-        filt_row.addWidget(self._raw_toggle)
-        filt_row.addWidget(self._btn_apply)
-        filt_row.addWidget(self._btn_clear)
-        filt_row.addWidget(self._btn_export)
         outer.addLayout(filt_row)
+
+        from ..widgets.flow import FlowHost, FlowLayout
+
+        action_host = FlowHost(self)
+        action_row = FlowLayout(action_host, spacing=SPACING["sm"])
+        for w in (self._raw_toggle, self._btn_apply, self._btn_clear,
+                  self._btn_export):
+            action_row.addWidget(w)
+        outer.addWidget(action_host)
 
         self._sql_label = QLabel("", self)
         self._sql_label.setObjectName("Muted")

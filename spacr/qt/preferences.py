@@ -7213,7 +7213,7 @@ class _StoragePage:
     def __init__(self, form, dialog) -> None:
         """Build the caps, the prune button and the cache table."""
         from PySide6.QtWidgets import (
-            QAbstractItemView, QHBoxLayout, QLabel, QPushButton, QSpinBox,
+            QAbstractItemView, QHBoxLayout, QHeaderView, QLabel, QPushButton, QSpinBox,
             QTableWidget, QWidget,
         )
         from .i18n import tr
@@ -7279,6 +7279,9 @@ class _StoragePage:
         self.table.setSelectionMode(QAbstractItemView.SingleSelection)
         self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.table.horizontalHeader().setStretchLastSection(True)
+        for section in range(len(columns) - 1):
+            self.table.horizontalHeader().setSectionResizeMode(
+                section, QHeaderView.ResizeToContents)
         self.table.itemSelectionChanged.connect(self._sync_buttons)
         self.table.setToolTip(tr(
             "spaCR's model, Hugging Face, Torch, backend and news caches "

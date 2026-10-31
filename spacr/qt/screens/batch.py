@@ -331,6 +331,8 @@ class BatchScreen(QWidget):
         self._table.setSelectionMode(QAbstractItemView.SingleSelection)
         self._table.horizontalHeader().setStretchLastSection(True)
         self._table.horizontalHeader().setSectionResizeMode(
+            QHeaderView.ResizeToContents)
+        self._table.horizontalHeader().setSectionResizeMode(
             COLUMNS.index("Label"), QHeaderView.Stretch)
         self._table.itemSelectionChanged.connect(self._on_selection_changed)
         split.add_section(self._table, "Job queue",

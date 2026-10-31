@@ -256,7 +256,7 @@ class RunHistoryScreen(QWidget):
         self._table.verticalHeader().setVisible(False)
         header = self._table.horizontalHeader()
         header.setSectionResizeMode(QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(0, QHeaderView.Stretch)
+        header.setStretchLastSection(True)
         self._table.itemSelectionChanged.connect(self._show_selection)
         splitter.add_section(self._table, "Runs",
                              persist_key="run_history/Runs", stretch=3)
@@ -265,7 +265,10 @@ class RunHistoryScreen(QWidget):
         detail_layout = QVBoxLayout(detail)
         detail_layout.setContentsMargins(0, 0, 0, 0)
         detail_layout.setSpacing(SPACING["sm"])
-        action_row = QHBoxLayout()
+        from ..widgets.flow import FlowHost, FlowLayout
+
+        action_host = FlowHost(detail)
+        action_row = FlowLayout(action_host, spacing=SPACING["sm"])
         self._selection_label = QLabel("Select a run to inspect it.", detail)
         self._selection_label.setObjectName("Muted")
         self._open_folder = QPushButton("Open run folder", detail)
@@ -290,12 +293,12 @@ class RunHistoryScreen(QWidget):
                 lambda _checked=False, e=engine:
                 self._export_selected_workflow(e))
         self._export_workflow.setMenu(workflow_menu)
-        action_row.addWidget(self._selection_label, 1)
+        detail_layout.addWidget(self._selection_label)
         action_row.addWidget(self._open_folder)
         action_row.addWidget(self._copy_path)
         action_row.addWidget(self._load_settings)
         action_row.addWidget(self._export_workflow)
-        detail_layout.addLayout(action_row)
+        detail_layout.addWidget(action_host)
         self._analysis_lock_summary = QLabel(detail)
         self._analysis_lock_summary.setObjectName("RunHistoryAnalysisLockSummary")
         self._analysis_lock_summary.setTextFormat(Qt.PlainText)

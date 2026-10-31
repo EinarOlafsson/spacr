@@ -24,7 +24,7 @@ from typing import Optional
 
 from PySide6.QtCore import Qt, QThread, QTimer, Signal
 from PySide6.QtWidgets import (
-    QAbstractItemView, QFileDialog, QHBoxLayout, QHeaderView, QLabel,
+    QAbstractItemView, QFileDialog, QHeaderView, QLabel,
     QMessageBox, QPushButton, QTableWidget, QTableWidgetItem,
     QVBoxLayout, QWidget,
 )
@@ -198,7 +198,10 @@ class QueueScreen(QWidget):
         subtitle.setObjectName("Muted")
         outer.addWidget(subtitle)
 
-        bar = QHBoxLayout()
+        from ..widgets.flow import FlowHost, FlowLayout
+
+        bar_host = FlowHost(self)
+        bar = FlowLayout(bar_host, spacing=8)
         self._btn_add     = QPushButton("Add current plate", self)
         self._btn_import  = QPushButton("Import CSV…", self)
         self._btn_clear   = QPushButton("Clear finished", self)
@@ -208,8 +211,7 @@ class QueueScreen(QWidget):
         for b in (self._btn_add, self._btn_import, self._btn_clear,
                     self._btn_run, self._btn_stop):
             bar.addWidget(b)
-        bar.addStretch(1)
-        outer.addLayout(bar)
+        outer.addWidget(bar_host)
 
         self._btn_import.clicked.connect(self._on_import)
         self._btn_clear.clicked.connect(self._on_clear_finished)
@@ -221,6 +223,8 @@ class QueueScreen(QWidget):
         self._table.setColumnCount(len(_COLUMNS))
         self._table.setHorizontalHeaderLabels(_COLUMNS)
         self._table.horizontalHeader().setStretchLastSection(True)
+        self._table.horizontalHeader().setSectionResizeMode(
+            QHeaderView.ResizeToContents)
         self._table.horizontalHeader().setSectionResizeMode(
             2, QHeaderView.Stretch)
         self._table.verticalHeader().setVisible(False)
