@@ -196,6 +196,7 @@ class QueueScreen(QWidget):
             "The runner processes one plate at a time and picks up "
             "where it left off if you close the app.")
         subtitle.setObjectName("Muted")
+        subtitle.setWordWrap(True)
         outer.addWidget(subtitle)
 
         from ..widgets.flow import FlowHost, FlowLayout

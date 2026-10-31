@@ -349,7 +349,13 @@ class _TourOverlay(QWidget):
         self._update_card_position()
 
     def _update_card_position(self) -> None:
-        """Fit text and actions within the visible part of the application."""
+        """Fit text and actions within the visible part of the application.
+
+        The card is the text's height plus what its own layout needs around
+        it -- margins, the step line and the buttons, measured in the
+        current font -- rather than a fixed allowance that was too small at
+        200 % and cut the Skip and Next buttons.
+        """
         if not hasattr(self, '_text_scroll'):
             return
         from .hidpi import screen_for_widget
@@ -362,10 +368,14 @@ class _TourOverlay(QWidget):
             return
         width = min(scaled_px(480), area.width())
         text_width = max(1, width - 60)
-        layout = self._text_scroll.widget().layout()
+        content = self._text_scroll.widget()
+        for widget in (content, self._title_lbl, self._body_lbl):
+            widget.ensurePolished()
+        layout = content.layout()
         text_height = layout.totalHeightForWidth(text_width)
-        footer = self._next_btn.sizeHint().height()
-        height = min(area.height(), max(160, text_height + footer + 90))
+        self._card.ensurePolished()
+        chrome = self._card.layout().totalMinimumSize().height()
+        height = min(area.height(), max(160, text_height + chrome))
         self._card.setGeometry(area.center().x() - width // 2,
                                area.bottom() - height + 1, width, height)
 
@@ -527,4 +537,7 @@ def maybe_show_tour(window: QMainWindow,
     overlay.show()
     overlay.raise_()
     overlay.setFocus()
+    from PySide6.QtCore import QTimer
+
+    QTimer.singleShot(0, overlay, overlay._update_card_position)
     return overlay

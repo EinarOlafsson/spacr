@@ -294,6 +294,42 @@ DIMENSION_TOGGLE_APPS = frozenset({"mask", "measure"})
 DIMENSION_TOGGLE_MIN_PX = 24
 
 
+class _RemeasureOnResize(QObject):
+    """Call ``measure`` when ``widget`` changes width or font.
+
+    Owned by the widget, so it goes with it. Used where a fixed height is
+    computed from wrapped text, which depends on the width it wraps at.
+    """
+
+    def __init__(self, widget, measure, *, every_resize: bool = False):
+        """Watch ``widget``.
+
+        :param widget: the widget whose height follows its text.
+        :param measure: zero-argument callable that sets the height again.
+        :param every_resize: measure on a change of height too, for a
+            container whose height is raised until its text fits.
+        """
+        super().__init__(widget)
+        self._measure = measure
+        self._width = -1
+        self._every_resize = bool(every_resize)
+
+    def eventFilter(self, watched, event):
+        """Measure again on a width or font change; never consume the event.
+
+        :param watched: the widget.
+        :param event: a resize or font change.
+        :returns: False.
+        """
+        kind = event.type()
+        if kind == QEvent.FontChange or (
+                kind == QEvent.Resize and (self._every_resize
+                                           or watched.width() != self._width)):
+            self._width = watched.width()
+            self._measure()
+        return False
+
+
 class _ActionWordFit(QObject):
     """Reserve complete selected short action words instead of the old cap.
 
@@ -8744,6 +8780,11 @@ class AppScreen(QWidget):
         self._category_hint.setTextFormat(Qt.RichText)
         self._category_hint.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         self._sync_category_hint_height()
+        from ..gil_priority import _watch_object_events
+
+        _watch_object_events(self._category_hint, _RemeasureOnResize(
+            self._category_hint, self._sync_category_hint_height),
+            (QEvent.Resize, QEvent.FontChange))
         body_col.addWidget(self._category_hint)
 
         self._hint_strip = QLabel(self._default_hint())
@@ -9176,14 +9217,51 @@ class AppScreen(QWidget):
             progress.sizeHint().height(),
             self._btn_run.fontMetrics().lineSpacing() + 8))
 
+    def _category_hint_html(self, title: str) -> str:
+        """The strip's rich text for one category, as it is shown.
+
+        :param title: the category heading as built.
+        :returns: the heading in capitals and the blurb, escaped.
+        """
+        text = (getattr(self, "_category_blurbs", None) or {}).get(
+            str(title)) or category_tooltip(self.app_key, title)
+        heading = tr(str(title or "")).upper().strip()
+        return (f"<b>{escape(heading)}</b> — {escape(text)}"
+                if heading else escape(text))
+
     def _sync_category_hint_height(self) -> None:
-        """Reserve three lines for the category strip, in the painted font."""
+        """Reserve the height of the longest blurb the strip can show.
+
+        The height is fixed so the Run and Stop row never moves while the
+        pointer crosses category headers. It was three lines, which cut
+        long blurbs in half (Regression's MODEL & INFERENCE needs six at
+        100 %). It is now the tallest of every blurb this screen can show,
+        and the prompt, at the strip's current width and font, and never
+        less than three lines; a change of width or font measures again.
+        """
         strip = getattr(self, "_category_hint", None)
         if strip is None:
             return
         strip.ensurePolished()
-        strip.setFixedHeight(
-            _height_of_lines(strip.fontMetrics(), CATEGORY_STRIP_LINES))
+        height = _height_of_lines(strip.fontMetrics(), CATEGORY_STRIP_LINES)
+        margins = strip.contentsMargins()
+        width = strip.width() - margins.left() - margins.right()
+        if width > 0:
+            from PySide6.QtGui import QTextDocument
+
+            document = QTextDocument()
+            document.setDefaultFont(strip.font())
+            document.setDocumentMargin(0)
+            document.setTextWidth(width)
+            texts = [escape(self._default_category_hint())]
+            texts += [self._category_hint_html(title) for title in
+                      (getattr(self, "_category_blurbs", None) or {})]
+            for text in texts:
+                document.setHtml(text)
+                height = max(height, int(document.size().height() + 0.999)
+                             + margins.top() + margins.bottom())
+        if strip.height() != height or strip.minimumHeight() != height:
+            strip.setFixedHeight(height)
 
     def _watch_for_late_captions(self) -> None:
         """Translate any subtree parented into this screen after it was built.
@@ -9284,10 +9362,7 @@ class AppScreen(QWidget):
         text = (getattr(self, "_category_blurbs", None) or {}).get(
             str(title)) or category_tooltip(self.app_key, title)
         heading = tr(str(title or "")).upper().strip()
-        strip.setText(
-            f"<b>{escape(heading)}</b> — {escape(text)}"
-            if heading else escape(text)
-        )
+        strip.setText(self._category_hint_html(title))
         strip.setAccessibleDescription(f"{heading}. {text}".strip())
 
     def clear_category_hint(self) -> None:

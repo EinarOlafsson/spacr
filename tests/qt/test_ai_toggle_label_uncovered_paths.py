@@ -237,13 +237,12 @@ def test_a_slot_too_narrow_for_an_ellipsis_keeps_the_whole_caption(qapp,
     assert toggle.displayed_text() == "Hyperparameter search"
 
 
-def test_a_toggle_with_no_width_yet_is_not_elided(qapp, qtbot):
-    """With no width granted there is nothing to measure, so nothing is written.
+def test_a_toggle_with_no_width_yet_keeps_its_caption(qapp, qtbot):
+    """With no width granted there is nothing to measure, so nothing changes.
 
-    A width of nothing is not a width of everything: a toggle that is
-    showing an elided caption when its slot collapses -- a hidden page, a
-    splitter closed to the handle -- keeps what it was showing, rather than
-    being repainted with the full caption it has no room for.
+    A squeezed toggle wraps its whole caption (item 746: text is never cut
+    off). When its slot collapses to nothing -- a hidden page, a splitter
+    closed to the handle -- it keeps the caption and the wrapping it had.
     """
     toggle = AiToggleLabel(text="Hyperparameter search")
     qtbot.addWidget(toggle)
@@ -251,14 +250,14 @@ def test_a_toggle_with_no_width_yet_is_not_elided(qapp, qtbot):
     qapp.processEvents()
     toggle.resize(130, 20)
     qapp.processEvents()
-    elided = toggle.displayed_text()
-    assert elided.endswith("\u2026")
+    assert toggle.wordWrap()
+    assert toggle.displayed_text() == "Hyperparameter search"
 
     toggle.resize(0, 0)
     toggle._apply_elision()
 
-    assert toggle.displayed_text() == elided
-    assert toggle.text() == "Hyperparameter search"
+    assert toggle.wordWrap()
+    assert toggle.displayed_text() == "Hyperparameter search"
 
 
 def test_a_caption_that_already_fits_is_not_rewritten(qapp, qtbot):
@@ -285,11 +284,13 @@ def test_a_short_caption_keeps_its_full_minimum_width(qapp):
     assert short.minimumSizeHint().width() <= ELIDE_ABOVE_PX
 
 
-def test_a_long_caption_is_capped_at_the_elide_width(qapp):
+def test_a_long_caption_is_capped_but_never_below_its_longest_word(qapp):
     long_one = AiToggleLabel(text="Hyperparameter search")
+    word = long_one.fontMetrics().horizontalAdvance("Hyperparameter")
 
     assert long_one.sizeHint().width() > ELIDE_ABOVE_PX
-    assert long_one.minimumSizeHint().width() == ELIDE_ABOVE_PX
+    assert long_one.minimumSizeHint().width() < long_one.sizeHint().width()
+    assert long_one.minimumSizeHint().width() >= max(ELIDE_ABOVE_PX, word)
     assert long_one.minimumSizeHint().height() > 0
 
 

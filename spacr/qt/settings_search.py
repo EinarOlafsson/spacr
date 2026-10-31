@@ -41,7 +41,7 @@ from __future__ import annotations
 import logging
 from typing import Dict, List, Optional, Tuple
 
-from PySide6.QtCore import QObject, QSize, Qt, QTimer
+from PySide6.QtCore import QEvent, QObject, QSize, Qt, QTimer
 from PySide6.QtWidgets import (
     QFormLayout,
     QHBoxLayout,
@@ -552,15 +552,33 @@ class SettingsSearchBar(QWidget):
     def _one_line_width(self) -> int:
         """The width the box and every control need side by side.
 
-        The box is counted at its minimum, so the strip keeps the one line
-        it always had for as long as that line fits.
+        The box is counted at the width its placeholder needs, so the
+        controls move under the box before they squeeze its placeholder:
+        at 100 % "Sucheinstellungen..." was cut to "Sucheinstellun".
         """
         spacing = self._controls_row.spacing()
         margins = self.layout().contentsMargins()
         shown = [w for w in self._controls if not w.isHidden()]
-        return (self._input.minimumSizeHint().width()
+        return (self._placeholder_width()
                 + sum(w.sizeHint().width() + spacing for w in shown)
                 + margins.left() + margins.right())
+
+    def _placeholder_width(self) -> int:
+        """The box's width with its whole placeholder showing.
+
+        The placeholder's advance, plus what the box keeps around its text:
+        its frame, padding and text margins, read from the box as it is,
+        and Qt's two-pixel inner margin on each side.
+        """
+        box = self._input
+        text = box.placeholderText()
+        if not text:
+            return box.minimumSizeHint().width()
+        margins = box.textMargins()
+        around = (box.width() - box.contentsRect().width()
+                  + margins.left() + margins.right() + 4)
+        return max(box.minimumSizeHint().width(),
+                   box.fontMetrics().horizontalAdvance(text) + around)
 
     def _fit(self, width: int) -> None:
         """Put the controls beside the box, or under it when they do not fit.
@@ -601,7 +619,7 @@ class SettingsSearchBar(QWidget):
         pair = (self._modified_label.sizeHint().width()
                 + self._modified.sizeHint().width()
                 + self._controls_row.spacing())
-        widest = max([self._input.minimumSizeHint().width(), pair]
+        widest = max([self._placeholder_width(), pair]
                      + [w.sizeHint().width() for w in self._controls
                         if not w.isHidden()])
         return QSize(widest + margins.left() + margins.right(),
@@ -619,6 +637,22 @@ class SettingsSearchBar(QWidget):
         if self._compact and self.width() > 0 and layout.hasHeightForWidth():
             hint.setHeight(layout.totalHeightForWidth(self.width()))
         return hint
+
+    def event(self, event) -> bool:
+        """Re-decide where the controls go when their sizes may have changed.
+
+        A caption or the placeholder can change after the strip was laid
+        out (a translation, a disclosure label, a font change) without the
+        strip being resized, and the one-line width changes with it.
+
+        :param event: any event; it is handled by the base class first.
+        :returns: what the base class returns.
+        """
+        handled = super().event(event)
+        if event.type() in (QEvent.LayoutRequest, QEvent.Show,
+                            QEvent.FontChange, QEvent.StyleChange):
+            self._fit(self.width())
+        return handled
 
     def resizeEvent(self, event) -> None:
         """Re-decide where the controls go for the new width.

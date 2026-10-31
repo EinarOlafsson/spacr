@@ -322,6 +322,9 @@ class PairedFileTableWidget(QWidget):
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table.itemChanged.connect(lambda *_: self.value_changed.emit())
         self._fit_columns_to_their_headers()
+        self.table.horizontalHeader().model().headerDataChanged.connect(
+            lambda *_: self._fit_columns_to_their_headers())
+        self.table.horizontalHeader().installEventFilter(self)
         layout.addWidget(self.table)
         self.status = QLabel(self._EMPTY_STATUS, self)
         self.status.setWordWrap(True)
@@ -410,6 +413,10 @@ class PairedFileTableWidget(QWidget):
         A MINIMUM AND NOT A FIXED WIDTH. The section stays interactively
         resizable, because a user who wants a narrow column is allowed to
         have one; this only moves the width it STARTS at.
+
+        Run again when a heading changes (a translation: "Quelle der
+        Zähldaten" is longer than "Count source") and when the table is
+        shown, by which time the header has its styled font.
         """
         header = self.table.horizontalHeader()
         metrics = QFontMetrics(header.font())
@@ -469,6 +476,21 @@ class PairedFileTableWidget(QWidget):
             elif ours is self._NEVER_SET:
                 applied[column] = current
 
+    def eventFilter(self, watched, event):                    # noqa: N802
+        """Fit the columns again when the header's font or style changes.
+
+        :param watched: the table's horizontal header.
+        :param event: any event; never consumed.
+        :returns: False.
+        """
+        from PySide6.QtCore import QEvent
+
+        if (watched is getattr(getattr(self, "table", None),
+                               "horizontalHeader", lambda: None)()
+                and event.type() in (QEvent.FontChange, QEvent.StyleChange)):
+            self._fit_columns_to_their_headers()
+        return super().eventFilter(watched, event)
+
     def showEvent(self, event):                               # noqa: N802
         """Take the Download row above over this table's columns.
 
@@ -489,6 +511,7 @@ class PairedFileTableWidget(QWidget):
         :param event: the show event; it is not inspected, only passed on to
             the base class first.
         """
+        self._fit_columns_to_their_headers()
         super().showEvent(event)
         self._refresh_alpha_visibility()
         try:

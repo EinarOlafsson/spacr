@@ -44,8 +44,9 @@ from ..theme import active_palette, button_accent_text, font_px
 #: card inside a 50px viewport, with the labels hanging out of the right
 #: of it.
 #:
-#: Only the MINIMUM is capped. `sizeHint` still asks for the full text, so
-#: a layout with room to spare shows all of it; a squeezed one elides
+#: Only the MINIMUM is capped, and never below the caption's longest word.
+#: `sizeHint` still asks for the full text, so a layout with room to spare
+#: shows it on one line; a squeezed one wraps it onto a second line
 #: instead of forcing the window wider. A secondary control must not be
 #: able to starve the primary one -- see INVARIANTS 10.
 ELIDE_ABOVE_PX = 120
@@ -213,10 +214,20 @@ class AiToggleLabel(QLabel):
         :data:`ELIDE_ABOVE_PX` for what that cost.
         """
         hint = super().minimumSizeHint()
-        cap = _elide_above_px()
-        if hint.width() <= cap:
-            return hint
-        return QSize(cap, hint.height())
+        full = getattr(self, "_full_text", "") or QLabel.text(self)
+        metrics = self.fontMetrics()
+        margins = self.contentsMargins()
+        word = max((metrics.horizontalAdvance(part)
+                    for part in full.split()), default=0)
+        cap = max(_elide_above_px(),
+                  word + margins.left() + margins.right())
+        if not self.wordWrap():
+            self._caption_chrome = max(
+                0, hint.width() - metrics.horizontalAdvance(QLabel.text(self)))
+        chrome = getattr(self, "_caption_chrome", margins.left()
+                         + margins.right())
+        one_line = metrics.horizontalAdvance(full) + chrome
+        return QSize(min(one_line, max(cap, word + chrome)), hint.height())
 
     def setText(self, text) -> None:         # noqa: N802 (Qt naming)
         """Remember the full text, then show as much of it as fits.
@@ -258,23 +269,28 @@ class AiToggleLabel(QLabel):
             _show_focus_ring(self)
 
     def _apply_elision(self) -> None:
-        """Show the full text when it fits, an elided one when it does not."""
+        """Show the whole caption: on one line when it fits, wrapped when not.
+
+        The caption used to be elided with "…" when the row squeezed the
+        toggle below its text; at 200 % that left "Para…". Text is never
+        cut off (item 746), so a squeezed toggle wraps its caption onto a
+        second line instead and the row grows to hold it. The minimum width
+        is never below the caption's longest word (:meth:`minimumSizeHint`).
+        """
         full = getattr(self, "_full_text", "")
         if not full:
             return
         inner = self.contentsRect().width()
         if inner <= 0:
             return
-        metrics = self.fontMetrics()
-        shown = (full if metrics.horizontalAdvance(full) <= inner
-                 else metrics.elidedText(full, Qt.ElideRight, inner))
-        if not shown.strip("…. \t"):
-            shown = full
-        if shown == QLabel.text(self):
+        wrap = self.fontMetrics().horizontalAdvance(full) > inner
+        if wrap != self.wordWrap():
+            self.setWordWrap(wrap)
+        if full == QLabel.text(self):
             return
         self._eliding = True
         try:
-            QLabel.setText(self, shown)
+            QLabel.setText(self, full)
         finally:
             self._eliding = False
 

@@ -88,7 +88,7 @@ def _label_need(label: QLabel):
         return None
     rich = (label.textFormat() == Qt.RichText
             or (label.textFormat() == Qt.AutoText and _GuiQt.mightBeRichText(text)))
-    if label.wordWrap():
+    if label.wordWrap() or label.hasHeightForWidth():
         needed = label.heightForWidth(label.width())
         if needed > label.height() + SLACK:
             return ("height", needed, label.height())

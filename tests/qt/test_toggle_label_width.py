@@ -47,7 +47,9 @@ class TestMinimumWidth:
         long = toggle("Hyperparameter search")
         assert long.sizeHint().width() > ELIDE_ABOVE_PX, (
             "the premise of this test is that the text is wider than the cap")
-        assert long.minimumSizeHint().width() == ELIDE_ABOVE_PX
+        word = long.fontMetrics().horizontalAdvance("Hyperparameter")
+        assert long.minimumSizeHint().width() < long.sizeHint().width()
+        assert long.minimumSizeHint().width() >= max(ELIDE_ABOVE_PX, word)
 
     def test_a_short_toggle_is_left_alone(self, toggle):
         """"Live" and "AI" were never the problem; capping them would
@@ -87,13 +89,16 @@ class TestElision:
         _squeeze(long, long.sizeHint().width(), qt_theme_applied)
         assert long.displayed_text() == "Hyperparameter search"
 
-    def test_it_elides_when_squeezed_instead_of_clipping(self, toggle,
-                                                         qt_theme_applied):
-        """Clipping is QLabel's default and cuts a word mid-glyph. An
-        ellipsis at least says that something was left out."""
+    def test_it_wraps_when_squeezed_instead_of_clipping(self, toggle,
+                                                        qt_theme_applied):
+        """Clipping is QLabel's default and cuts a word mid-glyph, and an
+        ellipsis still leaves words out. Squeezed, the whole caption wraps
+        onto a second line (item 746: text is never cut off)."""
         long = toggle("Hyperparameter search")
-        _squeeze(long, ELIDE_ABOVE_PX, qt_theme_applied)
-        assert "…" in long.displayed_text()
+        _squeeze(long, long.minimumSizeHint().width(), qt_theme_applied)
+        assert long.displayed_text() == "Hyperparameter search"
+        assert long.wordWrap()
+        assert long.heightForWidth(long.width()) > long.fontMetrics().height()
 
     def test_text_returns_the_logical_label_not_what_fits(self, toggle,
                                                           qt_theme_applied):

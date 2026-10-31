@@ -86,9 +86,9 @@ def test_accessible_name_follows_language_and_preserves_explicit_name(toggle):
         i18n.retranslate_widget_tree(toggle.parentWidget(), language)
         assert interface.text(QAccessible.Name) == toggle.text()
     toggle.setAccessibleName("Caller supplied context")
-    toggle.setText("A long logical toggle label that will be elided")
+    toggle.setText("A long logical toggle label that will wrap")
     toggle.setFixedWidth(65)
-    assert toggle.displayed_text() != toggle.text()
+    assert toggle.wordWrap() and toggle.displayed_text() == toggle.text()
     assert interface.text(QAccessible.Name) == "Caller supplied context"
     toggle.setAccessibleName("")
     assert interface.text(QAccessible.Name) == toggle.text()

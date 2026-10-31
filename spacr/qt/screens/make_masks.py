@@ -1389,10 +1389,13 @@ class _SourceLabel(QLabel):
     could not fit and the tools beside the image were cut; shorter paths gave
     895-1255 px, which is why it came and went.
 
-    ``text()`` still returns the full text -- callers, retranslation and the
-    accessibility tree read it -- while the painted copy is elided in the
-    middle, which keeps the start of the path and the "N images" count at its
-    end. The minimum is the first dozen characters plus the ellipsis, measured
+    ``text()`` returns the full text. A sentence (the prompt to open a
+    folder) wraps when it does not fit and the masthead grows to hold it
+    (item 746: text is never cut off). A path stays on one line, elided in
+    the middle so the start of the path and the "N images" count at its end
+    show; the whole path is the label's tooltip. Wrapping a path at a
+    720p window made the masthead several lines tall and the screen too
+    tall for the display. The minimum is the first dozen characters plus the ellipsis, measured
     in the label's own font: a path has no spaces, so the first-word floor of
     :class:`spacr.qt.widgets.ApiHelpLabel` would be the whole path again.
     """
@@ -1411,11 +1414,60 @@ class _SourceLabel(QLabel):
                  + margins.left() + margins.right())
         return QSize(max(1, min(base.width(), floor)), base.height())
 
-    def paintEvent(self, event):                   # noqa: N802 (Qt naming)
-        """Paint the text elided to the width the layout granted.
+    def _document(self, width: int):
+        """The text laid out at ``width``: at word boundaries, or anywhere
+        inside a word too long for the line, such as a path."""
+        from PySide6.QtGui import QTextDocument, QTextOption
 
-        :param event: the paint event; the full text is painted by the base
-            class when it fits.
+        document = QTextDocument()
+        document.setDefaultFont(self.font())
+        document.setDocumentMargin(0)
+        option = QTextOption(self.alignment())
+        option.setWrapMode(QTextOption.WrapAtWordBoundaryOrAnywhere)
+        document.setDefaultTextOption(option)
+        document.setPlainText(self.text())
+        document.setTextWidth(max(1, width))
+        return document
+
+    def _is_a_path(self) -> bool:
+        """Whether the line shows an opened folder or file."""
+        import re as _re
+
+        return _re.search(r"[^\s][/\\][^\s]|^[/\\~]", self.text()) is not None
+
+    def setText(self, text) -> None:               # noqa: N802 (Qt casing)
+        """Show ``text``; a path also goes whole into the tooltip.
+
+        :param text: the folder or file, or the prompt to open one.
+        """
+        super().setText(text)
+        path = self._is_a_path()
+        self.setProperty("spacrElidesByDesign", path)
+        self.setToolTip(str(text) if path else "")
+        self.updateGeometry()
+
+    def hasHeightForWidth(self) -> bool:           # noqa: N802 (Qt casing)
+        """A sentence wraps, so its height depends on its width; a path
+        stays on one line."""
+        return bool(self.text().strip()) and not self._is_a_path()
+
+    def heightForWidth(self, width: int) -> int:   # noqa: N802 (Qt casing)
+        """The height of the whole text wrapped at ``width``.
+
+        :param width: the label's width in pixels.
+        """
+        margins = self.contentsMargins()
+        inner = width - margins.left() - margins.right()
+        return (int(self._document(inner).size().height() + 0.999)
+                + margins.top() + margins.bottom())
+
+    def paintEvent(self, event):                   # noqa: N802 (Qt naming)
+        """Paint the text: a sentence wrapped, a path elided in the middle.
+
+        The masthead grows to the height a wrapped sentence needs (see
+        ``_hold_the_title_bar_to_its_text``).
+
+        :param event: the paint event; the base class paints a line that fits.
         """
         rect = self.contentsRect()
         metrics = QFontMetrics(self.font())
@@ -1423,9 +1475,19 @@ class _SourceLabel(QLabel):
             super().paintEvent(event)
             return
         painter = QPainter(self)
-        shown = metrics.elidedText(self.text(), Qt.ElideMiddle, rect.width())
-        self.style().drawItemText(painter, rect, int(self.alignment()), self.palette(),
-                                  self.isEnabled(), shown, self.foregroundRole())
+        try:
+            if self._is_a_path():
+                shown = metrics.elidedText(self.text(), Qt.ElideMiddle,
+                                           rect.width())
+                self.style().drawItemText(
+                    painter, rect, int(self.alignment()), self.palette(),
+                    self.isEnabled(), shown, self.foregroundRole())
+                return
+            painter.setPen(self.palette().color(self.foregroundRole()))
+            painter.translate(rect.topLeft())
+            self._document(rect.width()).drawContents(painter)
+        finally:
+            painter.end()
 
 
 class _ImageViewTabBar(QTabBar):
@@ -14739,6 +14801,7 @@ class MakeMasksScreen(QWidget):
         title_col.addWidget(Divider())
         self._title_bar.setSizePolicy(QSizePolicy.Preferred,
                                       QSizePolicy.Maximum)
+        self._hold_the_title_bar_to_its_text()
 
         self._tool_row = self._build_tool_row()
         _screens_package._breathe_while_a_window_opens()
@@ -15157,6 +15220,65 @@ class MakeMasksScreen(QWidget):
         self._virtual_stain.button.setObjectName("MakeMasksVirtualStainApply")
         ops.addWidget(self._virtual_stain)
         _apply_alpha_widgets(self._settings_scroll.widget())
+
+    def _hold_the_title_bar_to_its_text(self) -> None:
+        """Keep the title bar as tall as its wrapped instruction needs.
+
+        The bar is an edge pane of a splitter, and a splitter gives a pane
+        its minimum size hint, which counts the instruction as one line. At
+        the bar's real width the instruction wraps to two, so the heading
+        and the instruction were cut off at 100 % and 200 %. Each time the
+        bar is resized, and once its layout has placed the labels, its
+        minimum height is raised by what its short labels still lack, until
+        every label holds its text; a new width starts again from no
+        minimum, so a wider bar gives the height back.
+        """
+        from shiboken6 import isValid
+        from PySide6.QtWidgets import QWidget as _QWidget
+
+        from ..gil_priority import _watch_object_events
+        from ..gui_scale import _ORIGINAL, _actual_minimum_height
+        from .app_screen import _RemeasureOnResize
+
+        bar = self._title_bar
+        setter = _ORIGINAL.get((_QWidget, "setMinimumHeight"),
+                               _QWidget.setMinimumHeight)
+
+        pending = []
+
+        def measure():
+            if pending:
+                return
+            pending.append(True)
+            QTimer.singleShot(0, bar, measure_now)
+
+        last_width = []
+
+        def measure_now():
+            pending.clear()
+            if not isValid(bar) or bar.width() <= 0:
+                return
+            if last_width != [bar.width()]:
+                last_width[:] = [bar.width()]
+                if _actual_minimum_height(bar) > 0:
+                    setter(bar, 0)
+                    measure()
+                    return
+            deficit = 0
+            for label in bar.findChildren(QLabel):
+                if not label.isVisibleTo(bar) or label.height() <= 0:
+                    continue
+                needed = (label.heightForWidth(label.width())
+                          if label.hasHeightForWidth()
+                          else label.sizeHint().height())
+                deficit += max(0, needed - label.height())
+            granted = bar.height() >= _actual_minimum_height(bar)
+            if deficit > 0 and granted:
+                setter(bar, bar.height() + deficit)
+
+        _watch_object_events(bar, _RemeasureOnResize(bar, measure,
+                                                     every_resize=True),
+                             (QEvent.Resize, QEvent.FontChange))
 
     def _build_fold_strip(self) -> FoldStrip:
         """The masthead's strip of folded modules.
