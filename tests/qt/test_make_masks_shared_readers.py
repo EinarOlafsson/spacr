@@ -41,14 +41,32 @@ def test_exact_picker_does_not_substitute_a_supported_sibling(screen, qtbot, tmp
     assert not screen.warnings
 
 
+
+def _exact_resolution(nm):
+    """A pixels-per-centimetre pair stored as exact rationals.
+
+    The TIFF resolution tags are rationals. Given floats, older tifffile
+    versions round them to a precision of about 2e-5 and newer ones keep
+    them, so a test of the pixel size read back must not depend on which
+    tifffile wrote the file.
+
+    :param nm: the pixel size in nanometres, as exact decimal text.
+    """
+    from fractions import Fraction
+
+    value = Fraction(10 ** 7) / Fraction(nm)
+    pair = (value.numerator, value.denominator)
+    return (pair, pair)
+
+
 def test_real_tiff_series_time_z_and_channel_keep_separate_masks(screen, qtbot, tmp_path, monkeypatch):
     path = tmp_path / 'acquired.ome.tif'
     pixels = np.arange(2 * 2 * 3 * 24 * 32, dtype=np.uint16).reshape(2, 2, 3, 24, 32)
     with tifffile.TiffWriter(path) as writer:
         writer.write(np.zeros((24, 32), np.uint16), metadata={'axes': 'YX'},
-                     resolution=(1e7 / 3.5, 1e7 / 3.5), resolutionunit='CENTIMETER')
+                     resolution=_exact_resolution('3.5'), resolutionunit='CENTIMETER')
         writer.write(pixels, metadata={'axes': 'TCZYX'},
-                     resolution=(1e7 / 17.25, 1e7 / 17.25), resolutionunit='CENTIMETER')
+                     resolution=_exact_resolution('17.25'), resolutionunit='CENTIMETER')
     original = path.read_bytes()
     monkeypatch.setattr(QInputDialog, 'getItem', lambda *args: (args[3][1], True))
     choices = iter((1, 2, 1))
@@ -80,7 +98,7 @@ def test_real_tiff_series_time_z_and_channel_keep_separate_masks(screen, qtbot, 
     engine._set_container_image_view(engine._container_image_header(changed), series=1)
     assert engine.pixel_size_nm(changed) == pytest.approx(17.25, rel=1e-8)
     tifffile.imwrite(changed, np.ones((24, 32), np.uint16),
-                     resolution=(1e7 / 3.5, 1e7 / 3.5), resolutionunit='CENTIMETER')
+                     resolution=_exact_resolution('3.5'), resolutionunit='CENTIMETER')
     assert engine.pixel_size_nm(changed) == pytest.approx(3.5, rel=1e-8)
     assert path.read_bytes() == original
 

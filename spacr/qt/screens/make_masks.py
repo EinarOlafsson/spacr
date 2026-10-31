@@ -6698,7 +6698,7 @@ def _rewrite_lineage_request(request):
             engine.save_mask(request["folder"], name, tifffile.imread(path),
                              preserve_ids=True, lineage=request["lineage"],
                              **request["layout"])
-        except (OSError, ValueError):
+        except (OSError, ValueError, tifffile.TiffFileError):
             failed += 1
     return failed
 
