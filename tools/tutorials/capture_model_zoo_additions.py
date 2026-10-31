@@ -11,6 +11,8 @@ from __future__ import annotations
 import time
 from pathlib import Path
 
+import shiboken6
+
 import capture_ui
 from capture_ui_drv_a import Rec, modal_wait, table_into_view, type_text
 
@@ -201,6 +203,17 @@ def record_measure_diameters(app, window, stage, capture, settle, write_json, ca
             capture_ui.reject_dialog(capture, picker)
 
     modal_wait(capture, 300, in_picker)
+    # The picker refreshes the per-object grid, so an index taken before it opened
+    # may point into a reset model or a deleted table (exit 139 on 2026-10-29).
+    grid = next(g for g in mask.findChildren(ObjectSettingsGrid) if shiboken6.isValid(g))
+    table = grid._table
+    row = next(r for r in range(grid._model.rowCount()) if grid._model.question_at(r) == MODEL_QUESTION)
+    index = grid._model.index(row, grid._model.objects().index('cell'))
+    mapper = getattr(table.model(), 'mapFromSource', None)
+    if mapper is not None:
+        index = mapper(index)
+    if not index.isValid():
+        raise RuntimeError('The model cell is not in the refreshed per-object table')
     rect = table.visualRect(index)
     QTest.mouseClick(table.viewport(), Qt.LeftButton, pos=rect.center())
     settle(1.0)
