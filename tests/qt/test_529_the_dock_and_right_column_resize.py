@@ -178,7 +178,7 @@ class TestTheDockWidth:
         assert dock.width() == dock.fitting_width()
         assert prefs_file.get_dock_width() == 0
 
-    def test_ctrl_0_resets_the_column_text_before_it_goes_home(
+    def test_ctrl_0_resets_the_column_text_before_alt_home_goes_home(
             self, window, prefs_file):
         window.open_module("measure")
         _pump(20)
@@ -197,7 +197,7 @@ class TestTheDockWidth:
         _pump()
         assert column.scale() == 1.0
         assert window._stack.currentWidget() is screen
-        QTest.keyClick(target, Qt.Key_0, Qt.ControlModifier)
+        QTest.keyClick(target, Qt.Key_Home, Qt.AltModifier)
         _pump()
         assert window._stack.currentWidget() is not screen
 

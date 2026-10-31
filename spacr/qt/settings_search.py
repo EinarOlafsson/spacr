@@ -619,7 +619,7 @@ class SettingsSearchBar(QWidget):
         pair = (self._modified_label.sizeHint().width()
                 + self._modified.sizeHint().width()
                 + self._controls_row.spacing())
-        widest = max([self._placeholder_width(), pair]
+        widest = max([self._input.minimumSizeHint().width(), pair]
                      + [w.sizeHint().width() for w in self._controls
                         if not w.isHidden()])
         return QSize(widest + margins.left() + margins.right(),
