@@ -165,7 +165,6 @@ def test_a_menu_that_is_shown_without_about_to_show_is_sheeted_anyway(
     menu.ensurePolished()
     assert not _wears_the_sheet(menu)
     menu.show()
-    qtbot.waitExposed(menu)
     assert _wears_the_sheet(menu)
     menu.hide()
 

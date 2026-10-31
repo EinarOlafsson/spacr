@@ -706,6 +706,62 @@ def _guard_pytest_logging_capture(config):
     config.add_cleanup(patch.undo)
 
 
+class _ExposedAlready:
+    """What ``qtbot.waitExposed`` returns for a widget that is already shown.
+
+    The wait has already happened by the time this exists, so leaving it
+    unused (a bare call) and entering it (a ``with`` block) both mean the
+    window was exposed.
+    """
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        return None
+
+
+def _make_bare_wait_exposed_wait(config):
+    """Make ``qtbot.waitExposed(widget)`` after ``show()`` really wait.
+
+    pytest-qt returns a context manager that waits only when its ``with``
+    block exits, so the bare ``widget.show(); qtbot.waitExposed(widget)``
+    calls in this suite -- over five hundred -- waited for nothing.
+    Offscreen exposes a window the moment it is shown and hid that; on an X
+    display with a window manager the tests went on to repaint or drag a
+    window that was not yet mapped (native serial run 41211648688).
+
+    For a widget that is already visible the wait now happens at the call,
+    with the same timeout and the same ``TimeoutError`` pytest-qt raises,
+    and what is returned is a harmless context manager. A widget that is not
+    shown yet gets pytest-qt's own context manager unchanged, so
+    ``with qtbot.waitExposed(w): w.show()`` keeps its meaning.
+    """
+    import functools
+
+    try:
+        from pytestqt.qtbot import QtBot
+    except ImportError:
+        return
+    original = QtBot.waitExposed
+    if getattr(original, "_spacr_waits_when_shown", False):
+        return
+
+    @functools.wraps(original)
+    def wait_exposed(self, widget, *, timeout=5000):
+        __tracebackhide__ = True
+        waiting = original(self, widget, timeout=timeout)
+        if not widget.isVisible():
+            return waiting
+        waiting.__exit__(None, None, None)
+        return _ExposedAlready()
+
+    wait_exposed._spacr_waits_when_shown = True
+    patch = pytest.MonkeyPatch()
+    patch.setattr(QtBot, "waitExposed", wait_exposed)
+    config.add_cleanup(patch.undo)
+
+
 def pytest_configure(config):
     """Sandbox QSettings, and pin one collection node per directory.
 
@@ -718,6 +774,7 @@ def pytest_configure(config):
     """
     global _CAPTURE
     _guard_pytest_logging_capture(config)
+    _make_bare_wait_exposed_wait(config)
     _CAPTURE = config.pluginmanager.getplugin("capturemanager")
     # SettingWithCopyWarning, ONLY WHERE IT STILL EXISTS. Writing through a
     # slice is a real bug and this suite promotes it to an error -- but

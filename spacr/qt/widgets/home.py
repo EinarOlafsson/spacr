@@ -5641,6 +5641,21 @@ class _NavigatorProtocolOptions(QListView):
         self.clicked.connect(owner._accept_inline)
         self.hide()
 
+    def event(self, event):
+        """Claim Escape ahead of the page's Escape shortcut while the list is open.
+
+        In an active window the page shortcut would otherwise take Escape
+        first and close the whole chooser instead of only this list.
+
+        :param event: event delivered to the inline choice list.
+        :returns: whether the event was handled.
+        """
+        if (event.type() == QEvent.ShortcutOverride and self.isVisible()
+                and event.key() == Qt.Key_Escape):
+            event.accept()
+            return True
+        return super().event(event)
+
     def keyPressEvent(self, event):
         """Retain native arrows, explicit acceptance, cancellation and Tab traversal.
 

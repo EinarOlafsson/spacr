@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import pytest
 from PySide6.QtCore import QPoint, Qt
-from PySide6.QtGui import QColor
+from PySide6.QtGui import QColor, QCursor
 from PySide6.QtWidgets import QWidget
 
 from spacr.qt import preferences
@@ -25,6 +25,7 @@ def button(qtbot, qt_theme_applied):
     host.resize(240, 120)
     widget = _NavigatorProtocolsButton(host)
     widget.move(180, 60)
+    QCursor.setPos(QPoint(0, 0))
     host.show()
     qtbot.waitExposed(host)
     qtbot.mouseMove(host, QPoint(10, 10))

@@ -17,6 +17,8 @@ import importlib.util
 from pathlib import Path
 
 import numpy as np
+from PySide6.QtCore import QPoint
+from PySide6.QtGui import QCursor
 from PySide6.QtWidgets import QFormLayout, QLabel, QSpinBox, QWidget
 
 from spacr.qt.screens.settings_model import (
@@ -91,8 +93,10 @@ def test_no_purple_ink_is_rendered_beside_an_animated_setting(qtbot):
         accessible_description="a purple dot, on purpose",
     )
     qtbot.addWidget(control)
+    QCursor.setPos(control.screen().availableGeometry().bottomRight() - QPoint(4, 4))
     control.show()
     qtbot.waitExposed(control)
+    assert not control.underMouse()
     assert _purple_pixels(control) > 5, (
         "the purple probe cannot see a purple dot it was pointed at")
 
