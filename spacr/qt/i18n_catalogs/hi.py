@@ -8477,7 +8477,7 @@ UI = {
     'Place every remaining well the same way, in the next free cells, with the same information around it.': 'हर शेष वेल को उसी तरह, अगले खाली कक्षों में, उसके चारों ओर उसी जानकारी के साथ रखें।',
     'Place the selected fields, or the fields of the selected wells, on this page.': 'चुने गए छवि क्षेत्र, या चुने गए वेलों के छवि क्षेत्र, इस पृष्ठ पर रखें।',
     'Plain ssh script (no scheduler)': 'सादी ssh स्क्रिप्ट (शेड्यूलर के बिना)',
-    'Plan': 'योजना',
+    'Plan': 'योजना बनाएँ',
     'Plan a screen': 'स्क्रीनिंग की योजना बनाएँ',
     'Plan an experiment': 'प्रयोग की योजना बनाएँ',
     'Plan conditions, controls and sample sizes using stated assumptions or pilot measurements.': 'स्पष्ट मान्यताओं या प्रारंभिक मापों के आधार पर स्थितियों, नियंत्रणों और नमूना आकारों की योजना बनाएँ।',

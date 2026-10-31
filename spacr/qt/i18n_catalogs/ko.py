@@ -8477,7 +8477,7 @@ UI = {
     'Place every remaining well the same way, in the next free cells, with the same information around it.': '나머지 모든 웰을 같은 방식으로, 다음 빈 칸에, 주위에 같은 정보를 두어 배치합니다.',
     'Place the selected fields, or the fields of the selected wells, on this page.': '선택한 시야 또는 선택한 웰의 시야를 이 페이지에 배치합니다.',
     'Plain ssh script (no scheduler)': '일반 ssh 스크립트(스케줄러 없음)',
-    'Plan': '계획',
+    'Plan': '계획 세우기',
     'Plan a screen': '스크리닝 계획',
     'Plan an experiment': '실험 계획',
     'Plan conditions, controls and sample sizes using stated assumptions or pilot measurements.': '명시된 가정이나 예비 측정값을 사용하여 조건, 대조군 및 표본 크기를 계획하세요.',

@@ -8477,7 +8477,7 @@ UI = {
     'Place every remaining well the same way, in the next free cells, with the same information around it.': 'Posicionar todos os poços restantes da mesma forma, nas próximas células livres da grade, com as mesmas informações ao redor.',
     'Place the selected fields, or the fields of the selected wells, on this page.': 'Posicionar nesta página os campos selecionados, ou os campos dos poços selecionados.',
     'Plain ssh script (no scheduler)': 'Script ssh simples (sem agendador)',
-    'Plan': 'Plano',
+    'Plan': 'Planejar',
     'Plan a screen': 'Planejar uma triagem',
     'Plan an experiment': 'Planejar um experimento',
     'Plan conditions, controls and sample sizes using stated assumptions or pilot measurements.': 'Planeje condições, controles e tamanhos de amostra usando premissas explícitas ou medições piloto.',

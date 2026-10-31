@@ -6007,7 +6007,7 @@ UI = {
     'Foreground inset (px)': 'Förgrundens indrag (px)',
     'Forget saved secrets': 'Glöm sparade hemligheter',
     'Format': 'Filformat',
-    'Format:': 'Formulär:',
+    'Format:': 'Plattformat:',
     'Found': 'Hittade',
     'Foundation model:': 'Grundmodell:',
     'Four mapped planes (one pass)': 'Fyra mappade bildplan (en körning)',

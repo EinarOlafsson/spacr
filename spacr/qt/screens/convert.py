@@ -418,13 +418,14 @@ class ConvertScreen(QWidget):
 
         opt_host = FlowHost(self)
         opt_flow = FlowLayout(opt_host, spacing=SPACING["sm"])
-        for caption, box in (("Layout", self._layout_box), ("Z", self._z_box),
-                             ("Plate names", self._plate_box)):
+        for caption, box in ((QLabel("Layout"), self._layout_box),
+                             (QLabel("Z"), self._z_box),
+                             (QLabel("Plate names"), self._plate_box)):
             pair = QWidget(opt_host)
             pair_row = QHBoxLayout(pair)
             pair_row.setContentsMargins(0, 0, 0, 0)
             pair_row.setSpacing(SPACING["sm"])
-            pair_row.addWidget(QLabel(caption))
+            pair_row.addWidget(caption)
             pair_row.addWidget(box)
             opt_flow.addWidget(pair)
         opt_flow.addWidget(self._resume)
