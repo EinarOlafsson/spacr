@@ -236,6 +236,10 @@ def test_protocol_wizard_current_capabilities_and_registry_contracts(tmp_path):
     assert 'regression' not in {row[0] for row in result['actions']}
     assert any('N741' in text for text in result['requirements'])
     assert not {'annotate', 'classify_merged', 'umap'}.intersection(row[0] for row in result['actions'])
+    generic = sample._protocol_result('features', 'database', dict(experiment='other', organism='other'))
+    assert {'graph_builder', 'gate_editor', 'db_browser'} <= {row[0] for row in generic['actions']}
+    assert not {'regression', 'dose_response'}.intersection(row[0] for row in generic['actions'])
+    assert generic['protocol']['selection']['choices']['organism'] == 'other'
     database = tmp_path / 'measurements.db'
     import sqlite3
     with sqlite3.connect(database) as connection:
