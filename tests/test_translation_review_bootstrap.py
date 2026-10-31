@@ -506,3 +506,23 @@ def test_archive_logical_eof_drains_the_real_producer_and_preserves_exit_errors(
         assert result.stdout.strip() == f'PADDED_ARCHIVE_FINISHED {status}'.encode()
         for relative, raw in payloads.items():
             assert (destination / relative).read_bytes() == raw
+
+
+def test_review_writer_resolves_labels_from_the_live_public_docstrings(monkeypatch):
+    spec = importlib.util.spec_from_file_location("review_writer_live", ROOT / "tools/write_reviewed_api_record.py")
+    writer = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(writer)
+    builder = writer._builder()
+    text = "First paragraph.\n\nSecond paragraph.\n\ny ~ a:b + c"
+    monkeypatch.setattr(builder, "public_docstrings", lambda: {"pkg.symbol": text})
+    blocks, _ = builder.translatable_blocks(text)
+    assert not (writer.REPO / "docs/source/_static/i18n/api/en.json").exists()
+    for position, block in enumerate(blocks):
+        assert writer.resolve(f"pkg.symbol#{position}") == block
+    with pytest.raises(SystemExit, match="does not exist"):
+        writer.resolve(f"pkg.symbol#{len(blocks)}")
+    with pytest.raises(SystemExit, match="no public docstring"):
+        writer.resolve("pkg.missing#0")
+    entry = writer.record("pkg.symbol#0", "Premier paragraphe.")
+    assert entry["source"] == blocks[0]
+    assert entry["label"] == "pkg.symbol#0"

@@ -50,7 +50,6 @@ from pathlib import Path
 from typing import Optional, Sequence
 
 REPO = Path(__file__).resolve().parent.parent
-CATALOGS = REPO / "docs" / "source" / "_static" / "i18n" / "api"
 REVIEWED = REPO / "docs" / "i18n" / "reviewed" / "api"
 REVIEWED_RUNTIME = REPO / "docs" / "i18n" / "reviewed" / "runtime"
 RUNTIME_CATALOG = REPO / "spacr" / "qt" / "i18n_catalogs" / "en.py"
@@ -86,6 +85,15 @@ def _runtime_builder():
         sys.path.remove(tools)
 
 
+def _live_docstrings(builder) -> dict:
+    """The public docstrings of the working tree, as the builder reads them.
+
+    The generated English catalog is no longer tracked, so a label is
+    resolved from the same source the builder itself splits.
+    """
+    return builder.public_docstrings()
+
+
 def resolve(label: str) -> str:
     """The English source block a label names, split the builder's way.
 
@@ -98,11 +106,11 @@ def resolve(label: str) -> str:
     symbol, _, index = label.rpartition("#")
     if not symbol or not index.isdigit():
         raise SystemExit(f"label {label!r} is not <symbol>#<n>")
-    english = json.loads((CATALOGS / "en.json").read_text(encoding="utf-8"))
-    entry = english["symbols"].get(symbol)
-    if entry is None:
-        raise SystemExit(f"no symbol {symbol!r} in en.json")
-    blocks, _ = builder.translatable_blocks(entry["text"])
+    docs = _live_docstrings(builder)
+    text = docs.get(symbol)
+    if text is None:
+        raise SystemExit(f"no public docstring for symbol {symbol!r}")
+    blocks, _ = builder.translatable_blocks(text)
     position = int(index)
     if position >= len(blocks):
         raise SystemExit(
