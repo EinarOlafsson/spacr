@@ -5374,7 +5374,14 @@ class _NavigatorAiButton(QPushButton):
                'codex': '#A8E6CF', 'gemini': '#4285F4'}
 
     def __init__(self, parent=None):
-        """Keep a matte provider fill inside a native, keyboard-accessible toggle."""
+        """Keep a matte provider fill inside a native, keyboard-accessible toggle.
+
+        The button paints itself, so it opts out of the theme's blanket push
+        button padding and minimum height, as the Protocols control beside
+        it does. Without that the inherited 22 px minimum plus padding made
+        it 40 px tall despite its fixed 36 px square, and the Protocols
+        control, which takes the AI control's size, grew with it.
+        """
         from PySide6.QtCore import QElapsedTimer
 
         from ..i18n import tr
@@ -5384,6 +5391,7 @@ class _NavigatorAiButton(QPushButton):
         self.setAccessibleName(tr('Navigator AI'))
         self.setCheckable(True)
         self.setCursor(Qt.PointingHandCursor)
+        self.setStyleSheet('background: transparent; border: none; padding: 0; min-width: 0; min-height: 0;')
         self.setFixedSize(36, 36)
         self._provider = 'spacr_hosted'
         self._busy = False

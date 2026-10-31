@@ -91,17 +91,26 @@ def test_animated_tiff_protocol_cards_remain_whole_and_reachable_before_native_h
                         continue
                     points = (QPoint(5, 5), QPoint(card.width() - 6, 5),
                               QPoint(5, card.height() - 6), QPoint(card.width() - 6, card.height() - 6))
-                    hits = [QApplication.widgetAt(card.mapToGlobal(point)) for point in points]
+                    hits = [window.childAt(card.mapTo(window, point)) for point in points]
                     if all(hit is card or (hit is not None and card.isAncestorOf(hit)) for hit in hits):
                         reached.add(card._key)
             assert reached == {card._key for card in field.cards}
             button = page.path_edit.protocols
             assert button.width() == button.height()
-            for hover, colour in ((False, '#303030'), (True, '#363636')):
-                qtbot.mouseMove(button if hover else window,
-                                button.rect().center() if hover else QPoint(4, 4))
+            qtbot.mouseMove(window, QPoint(4, 4))
+            qapp.processEvents()
+            rendered = button.grab().toImage()
+            assert not any(rendered.pixelColor(x, y).rgb() in (QColor('#303030').rgb(), QColor('#363636').rgb())
+                           for y in range(rendered.height()) for x in range(rendered.width())), (
+                'the selected control shows a circle at rest; it is a hover and press affordance only')
+            for state, colour in (('pressed', '#303030'), ('hover', '#363636')):
+                if state == 'pressed':
+                    button.setDown(True)
+                else:
+                    qtbot.mouseMove(button, button.rect().center())
                 qapp.processEvents()
                 rendered = button.grab().toImage()
+                button.setDown(False)
                 matches = [(x, y) for y in range(rendered.height()) for x in range(rendered.width())
                            if rendered.pixelColor(x, y).rgb() == QColor(colour).rgb()]
                 assert matches
@@ -111,7 +120,7 @@ def test_animated_tiff_protocol_cards_remain_whole_and_reachable_before_native_h
                 assert abs(left + right - (rendered.width() - 1)) <= 1
                 assert abs(top + bottom - (rendered.height() - 1)) <= 1
                 assert rendered.pixelColor(0, 0).rgb() != QColor(colour).rgb()
-                assert rendered.save(str(tmp_path / f'protocol-p-{width}-{hover}.png'))
+                assert rendered.save(str(tmp_path / f'protocol-dot-{width}-{state}.png'))
             assert window.grab().save(str(tmp_path / f'protocol-cards-{width}.png'))
             record_property(f'capture_{width}', str(tmp_path / f'protocol-cards-{width}.png'))
             assert selected.count() == 0 and page._last_result == inspected
