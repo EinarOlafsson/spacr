@@ -7784,6 +7784,15 @@ ALPHA_FEATURES = {
     372: {
         'widgets': ('MaskOpsSwitch',),
     },
+    752: {
+        'settings': ('ops_ph_channels', 'ops_ph_cell_channel',
+                     'ops_ph_nucleus_model', 'ops_ph_cell_model',
+                     'ops_ph_nucleus_diameter', 'ops_ph_cell_diameter',
+                     'ops_ph_downsample', 'ops_ph_batch_size',
+                     'ops_ph_sites', 'ops_ph_texture', 'ops_merge_threshold',
+                     'ops_design', 'ops_control_prefix', 'ops_bootstrap',
+                     'ops_mitotic_dna_z'),
+    },
     691: {
         'models': ('mitonet_mini_v1',),
         'widgets': ('MakeMasksMitoNetSettings', 'ModelZooSourceThirdParty'),

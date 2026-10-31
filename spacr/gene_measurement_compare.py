@@ -1221,3 +1221,182 @@ def render_comparison(comparison: Comparison, style: "ComparisonStyle" = None,
     if save_path:
         write(figure, save_path, style)
     return figure, axes
+
+
+#: The constant that makes a median absolute deviation estimate a normal
+#: standard deviation, so a robust z of 1 means what a z of 1 means.
+MAD_TO_SD: float = 1.4826
+
+
+def robust_z_to_controls(cells: pd.DataFrame, features: Sequence[str], *,
+                         control: pd.Series, group: str = "well"
+                         ) -> pd.DataFrame:
+    """Each feature as a robust z against the control cells of its own group.
+
+    :param cells: one row per cell.
+    :param features: the numeric columns to normalise.
+    :param control: a boolean Series over ``cells``; True marks a control
+        (non-targeting) cell.
+    :param group: the column whose groups are normalised separately, the
+        well in an optical pooled screen.
+    :returns: a frame of the same index and ``features`` columns:
+        ``(x - median_control) / (1.4826 * MAD_control)`` within the group.
+
+    THE CONTROLS SET THE SCALE, as in Funk et al. 2022: each well's
+    non-targeting cells are that well's reference, so a well-to-well shift
+    in staining moves the reference with it rather than reading as a
+    phenotype. A group whose controls have zero spread, or no controls at
+    all, is NaN rather than infinite.
+    """
+    control = pd.Series(control, index=cells.index).fillna(False).astype(bool)
+    values = cells.loc[:, list(features)].apply(pd.to_numeric, errors="coerce")
+    out = pd.DataFrame(np.nan, index=cells.index, columns=list(features))
+    for _key, rows in cells.groupby(group, sort=False).groups.items():
+        rows = pd.Index(rows)
+        reference = values.loc[rows[control.loc[rows].to_numpy()]]
+        if reference.empty:
+            continue
+        centre = reference.median()
+        spread = (reference - centre).abs().median() * MAD_TO_SD
+        spread = spread.where(spread > 0)
+        out.loc[rows] = ((values.loc[rows] - centre) / spread).to_numpy()
+    return out
+
+
+def mitotic_calls(cells: pd.DataFrame, *, dna: str, area: str,
+                  group: str = "well", dna_z: float = 3.0,
+                  area_z: float = 0.0) -> pd.Series:
+    """Mitotic cells, called from nuclear DNA intensity and nuclear area.
+
+    :param cells: one row per cell.
+    :param dna: the nuclear mean DNA (DAPI) intensity column.
+    :param area: the nuclear area column.
+    :param group: normalise within this column's groups.
+    :param dna_z: the robust z above which the DNA mean must sit.
+    :param area_z: the robust z the nuclear area must not exceed.
+    :returns: a boolean Series over ``cells``.
+
+    A mitotic nucleus is condensed chromatin: its DNA is packed into a
+    smaller area, so its MEAN DNA intensity is far above an interphase
+    nucleus's while its area is at or below the median. Both are robust z
+    scores against every cell of the group, so the rule needs no absolute
+    intensity and travels between plates. It is a deliberately simple rule:
+    Funk et al. 2022 trained a classifier on DNA and tubulin features, which
+    this does not reproduce, and a cell in early prophase or in telophase
+    is missed.
+    """
+    every = pd.Series(True, index=cells.index)
+    z = robust_z_to_controls(cells, [dna, area], control=every, group=group)
+    return (z[dna] > float(dna_z)) & (z[area] <= float(area_z))
+
+
+def aggregate_guides(cells: pd.DataFrame, features: Sequence[str], *,
+                     guide: str = "guide", gene: str = "gene",
+                     mitotic: Optional[str] = None) -> pd.DataFrame:
+    """One row per guide: its gene, cell count and per-feature medians.
+
+    :param cells: one row per cell, already normalised if wanted.
+    :param features: the columns to summarise.
+    :param guide: the guide column.
+    :param gene: the gene column.
+    :param mitotic: an optional boolean column; its mean becomes
+        ``mitotic_fraction`` and its sum ``mitotic_cells``.
+    :returns: ``guide, gene, n_cells, [mitotic_cells, mitotic_fraction,]
+        <features>``.
+    """
+    grouped = cells.groupby([guide, gene], sort=True, observed=True)
+    out = grouped[list(features)].median()
+    out.insert(0, "n_cells", grouped.size())
+    if mitotic is not None:
+        flags = cells[mitotic].astype(bool)
+        out.insert(1, "mitotic_cells",
+                   flags.groupby([cells[guide], cells[gene]]).sum())
+        out.insert(2, "mitotic_fraction",
+                   out["mitotic_cells"] / out["n_cells"])
+    return out.reset_index().rename(columns={guide: "guide", gene: "gene"})
+
+
+def aggregate_genes(guides: pd.DataFrame, features: Sequence[str]
+                    ) -> pd.DataFrame:
+    """One row per gene: the median of its guides' medians.
+
+    :param guides: the table :func:`aggregate_guides` returns.
+    :param features: the feature columns to reduce.
+    :returns: ``gene, n_guides, n_cells, [mitotic_cells, mitotic_index,]
+        <features>``. The mitotic index pools the gene's cells -- mitotic
+        cells over all cells -- which is how the published per-gene
+        ``mitotic_index`` is defined.
+    """
+    grouped = guides.groupby("gene", sort=True)
+    out = grouped[list(features)].median()
+    out.insert(0, "n_guides", grouped.size())
+    out.insert(1, "n_cells", grouped["n_cells"].sum())
+    if "mitotic_cells" in guides:
+        out.insert(2, "mitotic_cells", grouped["mitotic_cells"].sum())
+        out.insert(3, "mitotic_index", out["mitotic_cells"] / out["n_cells"])
+    return out.reset_index()
+
+
+def bootstrap_gene_pvalues(control_values: pd.DataFrame,
+                           guides: pd.DataFrame, features: Sequence[str], *,
+                           n_boot: int = 1000, seed: int = 0,
+                           max_cells: int = 2000) -> pd.DataFrame:
+    """Two-sided bootstrap P values per gene against non-targeting cells.
+
+    :param control_values: one row per non-targeting cell, ``features``
+        columns, on the same scale as the guide medians.
+    :param guides: :func:`aggregate_guides` output.
+    :param features: the features to test.
+    :param n_boot: bootstrap replicates; P values resolve to
+        ``1 / (n_boot + 1)``.
+    :param seed: the random seed, so a rerun gives the same table.
+    :param max_cells: a guide's draw is capped at this many cells; the
+        median of a larger draw barely moves and the cost is linear in it.
+    :returns: ``gene`` plus ``<feature>_pvalue`` and ``<feature>_fdr``
+        (Benjamini-Hochberg across genes) per feature.
+
+    THE NULL REPEATS THE GENE'S OWN SAMPLING, which is Funk et al.'s
+    construction: for each of the gene's guides, as many non-targeting cells
+    as that guide has are drawn and their median taken; the gene statistic
+    is the median of those guide medians. A gene with two thin guides is
+    therefore compared with what two thin non-targeting guides do, not with
+    a null that assumes thousands of cells.
+    """
+    from .multiple_testing import _multipletests
+
+    rng = np.random.default_rng(int(seed))
+    pool = {feature: pd.to_numeric(control_values[feature], errors="coerce")
+            .dropna().to_numpy() for feature in features}
+    rows = []
+    for gene, members in guides.groupby("gene", sort=True):
+        sizes = np.minimum(members["n_cells"].to_numpy(int), int(max_cells))
+        row: Dict[str, Any] = {"gene": gene}
+        for feature in features:
+            values = pool[feature]
+            observed = float(np.nanmedian(members[feature]))
+            if values.size == 0 or not np.isfinite(observed):
+                row[f"{feature}_pvalue"] = np.nan
+                continue
+            centre = float(np.median(values))
+            null = np.empty(int(n_boot))
+            per_guide = np.empty((int(n_boot), sizes.size))
+            for index, size in enumerate(sizes):
+                draws = rng.choice(values, size=(int(n_boot), max(1, size)))
+                per_guide[:, index] = np.median(draws, axis=1)
+            null[:] = np.median(per_guide, axis=1)
+            extreme = np.abs(null - centre) >= abs(observed - centre)
+            row[f"{feature}_pvalue"] = float(
+                (extreme.sum() + 1) / (int(n_boot) + 1))
+        rows.append(row)
+    out = pd.DataFrame(rows)
+    for feature in features:
+        column = f"{feature}_pvalue"
+        if column not in out:
+            continue
+        fdr = pd.Series(np.nan, index=out.index)
+        finite = out[column].notna()
+        if finite.any():
+            fdr[finite] = _multipletests(out.loc[finite, column].to_numpy(),
+                                         "fdr_bh")[1]
+        out[f"{feature}_fdr"] = fdr
+    return out

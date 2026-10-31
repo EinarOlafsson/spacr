@@ -40,6 +40,21 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_footprint": 10.0,
     "ops_store_reads": False,
     "ops_spot_detector": "native",
+    "ops_ph_channels": "DAPI,GFP,A594,AF750",
+    "ops_ph_cell_channel": "AF750",
+    "ops_ph_nucleus_model": "cpsam",
+    "ops_ph_cell_model": "cpsam",
+    "ops_ph_nucleus_diameter": None,
+    "ops_ph_cell_diameter": None,
+    "ops_ph_downsample": 2,
+    "ops_ph_batch_size": 8,
+    "ops_ph_sites": None,
+    "ops_ph_texture": True,
+    "ops_merge_threshold": 4.0,
+    "ops_design": None,
+    "ops_control_prefix": "nontargeting",
+    "ops_bootstrap": 0,
+    "ops_mitotic_dna_z": 3.0,
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -63,6 +78,21 @@ OPS_TYPES: Dict[str, object] = {
     "ops_footprint": (float, int),
     "ops_store_reads": bool,
     "ops_spot_detector": str,
+    "ops_ph_channels": str,
+    "ops_ph_cell_channel": str,
+    "ops_ph_nucleus_model": str,
+    "ops_ph_cell_model": str,
+    "ops_ph_nucleus_diameter": (float, int, type(None)),
+    "ops_ph_cell_diameter": (float, int, type(None)),
+    "ops_ph_downsample": int,
+    "ops_ph_batch_size": int,
+    "ops_ph_sites": (str, type(None)),
+    "ops_ph_texture": bool,
+    "ops_merge_threshold": (float, int),
+    "ops_design": (str, type(None)),
+    "ops_control_prefix": str,
+    "ops_bootstrap": int,
+    "ops_mitotic_dna_z": (float, int),
 }
 
 #: Which panel section each setting appears under.
@@ -87,6 +117,14 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     ],
     "OPS performance": [
         "ops_gpu", "n_workers",
+    ],
+    "OPS phenotype": [
+        "ops_ph_channels", "ops_ph_cell_channel", "ops_ph_nucleus_model",
+        "ops_ph_cell_model", "ops_ph_nucleus_diameter",
+        "ops_ph_cell_diameter", "ops_ph_downsample", "ops_ph_batch_size",
+        "ops_ph_sites", "ops_ph_texture", "ops_merge_threshold",
+        "ops_design", "ops_control_prefix", "ops_bootstrap",
+        "ops_mitotic_dna_z",
     ],
 }
 
@@ -191,6 +229,76 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "job -- a shared GPU is the common case, and an out-of-memory in the "
         "middle of a plate costs more than the time the GPU saves. "
         "Default True.",
+    "ops_ph_channels":
+        "(str) - The phenotype channels in the order the cell table names "
+        "them, separated by commas, matched against the channel tokens of the "
+        "phenotype file names. Each becomes the channel part of its intensity "
+        "columns, so nucleus_dapi_mean_intensity is DAPI. On the reference "
+        "plate GFP is tubulin, A594 is gamma-H2AX and AF750 is phalloidin. "
+        "Default 'DAPI,GFP,A594,AF750'. Alpha.",
+    "ops_ph_cell_channel":
+        "(str) - Which phenotype channel outlines the cells; DAPI is added as "
+        "the second channel. A cytoskeletal stain that fills the cell gives "
+        "whole cells, a membrane-only stain gives rims. Default 'AF750', "
+        "phalloidin on the reference plate. Alpha.",
+    "ops_ph_nucleus_model":
+        "(str) - The Cellpose model that segments phenotype nuclei on DAPI. "
+        "'cpsam' runs the installed Cellpose's default model; any other name "
+        "is loaded as that model. Default 'cpsam'. Alpha.",
+    "ops_ph_cell_model":
+        "(str) - The Cellpose model that segments phenotype cells on the cell "
+        "channel plus DAPI. The same name as the nucleus model loads the "
+        "model once. Default 'cpsam'. Alpha.",
+    "ops_ph_nucleus_diameter":
+        "(float or None) - Expected nucleus diameter in full-resolution "
+        "phenotype pixels. Set, the field is rescaled so it becomes the size "
+        "the model expects; empty lets the model decide. Default None. Alpha.",
+    "ops_ph_cell_diameter":
+        "(float or None) - Expected cell diameter in full-resolution "
+        "phenotype pixels, as for the nucleus diameter. Default None. Alpha.",
+    "ops_ph_downsample":
+        "(int) - Segment each phenotype field block-averaged by this factor "
+        "and scale the masks back up. 2 keeps a 20X nucleus about 20 pixels "
+        "across and costs a quarter of full resolution; 1 is full resolution; "
+        "4 is about the sequencing resolution and blockier outlines. "
+        "Measurement always uses the full-resolution pixels. Default 2. Alpha.",
+    "ops_ph_batch_size":
+        "(int) - How many image tiles Cellpose evaluates at once. Larger is "
+        "faster on a graphics card until its memory runs out; on the CPU it "
+        "changes little. Default 8. Alpha.",
+    "ops_ph_sites":
+        "(str or None) - Restrict the phenotype phases to these sites, as "
+        "'520-525,555'. Used for a pilot on part of a well; empty runs every "
+        "placed field. Default None. Alpha.",
+    "ops_ph_texture":
+        "(bool) - Add the GLCM homogeneity texture block to every channel of "
+        "every compartment. It adds about ten percent to measurement time. "
+        "Default True. Alpha.",
+    "ops_merge_threshold":
+        "(float) - How far, in sequencing pixels, a phenotype nucleus may "
+        "land from a sequencing nucleus after alignment and still be called "
+        "the same cell. Wider merges more cells and more wrong ones, which "
+        "give a phenotype the wrong guide. Default 4, under half a 10X "
+        "nucleus diameter. Alpha.",
+    "ops_design":
+        "(str or None) - The guide design table, with sgRNA and gene_symbol "
+        "columns. The aggregate phase matches each decoded barcode prefix to "
+        "its guide and gene through it; prefixes two genes share are "
+        "dropped and counted. Default None. Alpha.",
+    "ops_control_prefix":
+        "(str) - Genes whose name starts with this are the non-targeting "
+        "controls every feature is normalised against, well by well. "
+        "Default 'nontargeting'. Alpha.",
+    "ops_bootstrap":
+        "(int) - Bootstrap replicates for each gene's P value against "
+        "non-targeting guides of the same sizes, with Benjamini-Hochberg "
+        "FDR. 0 skips the test; 1000 resolves P values to about 0.001 and "
+        "costs minutes per plate. Default 0. Alpha.",
+    "ops_mitotic_dna_z":
+        "(float) - A cell is called mitotic when its nuclear mean DAPI "
+        "intensity is this many robust standard deviations above its well's "
+        "median and its nucleus is no larger than the median: condensed "
+        "chromatin. Lower calls more cells mitotic. Default 3. Alpha.",
 }
 
 #: The blurb the module shows above its settings.

@@ -232,3 +232,141 @@ def match_cells(source: np.ndarray, target: np.ndarray, *,
             continue
         pairs.append((i, j))
     return np.asarray(pairs, dtype=np.int64).reshape(-1, 2)
+
+
+def field_transform(scale: float, degrees: float, centre, field_shape
+                    ) -> Tuple[float, np.ndarray, np.ndarray]:
+    """The similarity taking a phenotype field's pixels onto the well frame.
+
+    :param scale: well-frame pixels per field pixel; 0.25 on the reference
+        plate, where a 2,960 px 20X field lands on 1,480 px 10X tiles.
+    :param degrees: the field's rotation in the well frame.
+    :param centre: ``(y, x)`` of the field's centre in the well frame, as
+        ``ops_phenotype.centre_y/centre_x`` stores it.
+    :param field_shape: ``(height, width)`` of the field in its own pixels.
+    :returns: ``(scale, rotation, translation)``, the form
+        :func:`match_cells` takes, mapping ``(row, column)`` field points to
+        ``(y, x)`` well points.
+
+    The centre is what the phenotype phase predicted for the field's middle
+    pixel, so the translation is whatever puts ``field_shape / 2`` there
+    once the field is scaled and rotated.
+    """
+    angle = np.radians(float(degrees))
+    rotation = np.array([[np.cos(angle), -np.sin(angle)],
+                         [np.sin(angle), np.cos(angle)]])
+    middle = np.array([float(field_shape[0]) / 2.0,
+                       float(field_shape[1]) / 2.0])
+    translation = (np.asarray(centre, float)
+                   - float(scale) * rotation @ middle)
+    return float(scale), rotation, translation
+
+
+def field_to_well(points, transform) -> np.ndarray:
+    """Field ``(row, column)`` points moved into the well frame.
+
+    :param points: ``(N, 2)`` points in field pixels.
+    :param transform: ``(scale, rotation, translation)``.
+    :returns: ``(N, 2)`` well-frame ``(y, x)``.
+    """
+    scale, rotation, translation = transform
+    src = np.asarray(points, float).reshape(-1, 2)
+    return float(scale) * (np.asarray(rotation, float) @ src.T).T + np.asarray(
+        translation, float)
+
+
+def refine_field_transform(points, targets, seed, *, radius: float = 3.0,
+                           min_inliers: int = 20,
+                           min_fraction: float = 0.2,
+                           max_scale_change: float = 0.02,
+                           max_degrees_change: float = 1.0):
+    """Re-solve one field's transform on its own nuclei, or keep the seed.
+
+    :param points: ``(N, 2)`` nucleus centroids of the field, field pixels.
+    :param targets: ``(M, 2)`` sequencing-nucleus centroids near the field,
+        well pixels.
+    :param seed: the stored ``(scale, rotation, translation)``.
+    :param radius: how close a moved nucleus must land to agree, well px.
+    :param min_inliers: the fewest agreeing nuclei to accept a re-solve.
+    :param min_fraction: the smallest share of ``points`` that must agree.
+    :param max_scale_change: how far the re-solved scale may move from the
+        seed's, as a fraction.
+    :param max_degrees_change: how far its rotation may move, in degrees.
+    :returns: ``(transform, inliers, residual_px, refined)``; ``refined`` is
+        False when the seed was kept.
+
+    THE SEED IS A RASTER PREDICTION for every field that was not an anchor,
+    and a few well pixels of error in it is a few nuclear radii at 10X.
+    Re-solving on the field's own segmented nuclei removes that error; the
+    bounds stop a crowded field from pulling the answer into a wrong basin,
+    which is the failure :func:`spacr.ops_phenotype.align_phenotype_to_sbs`
+    records for unconstrained scores.
+    """
+    from .ops_phenotype import refine_similarity
+
+    src = np.asarray(points, float).reshape(-1, 2)
+    dst = np.asarray(targets, float).reshape(-1, 2)
+    seed = (float(seed[0]), np.asarray(seed[1], float),
+            np.asarray(seed[2], float))
+    if src.shape[0] < 3 or dst.shape[0] < 3:
+        return seed, 0, float("nan"), False
+    found = refine_similarity(src, dst, seed, radius=float(radius))
+    if found is None:
+        return seed, 0, float("nan"), False
+    scale, rotation, translation, src_in, _dst_in, distance = found
+    seed_degrees = np.degrees(np.arctan2(seed[1][1, 0], seed[1][0, 0]))
+    degrees = np.degrees(np.arctan2(rotation[1, 0], rotation[0, 0]))
+    agree = int(src_in.shape[0])
+    if (agree < int(min_inliers) or agree < float(min_fraction) * src.shape[0]
+            or abs(scale - seed[0]) > abs(seed[0]) * float(max_scale_change)
+            or abs(degrees - seed_degrees) > float(max_degrees_change)):
+        return seed, agree, float("nan"), False
+    residual = float(np.median(distance)) if distance.size else float("nan")
+    return (float(scale), np.asarray(rotation, float),
+            np.asarray(translation, float)), agree, residual, True
+
+
+def merge_field(points, targets, transform, *, threshold: float = 4.0,
+                gpu: bool = False) -> np.ndarray:
+    """Pair one field's nuclei with sequencing nuclei, one to one.
+
+    :param points: ``(N, 2)`` field nucleus centroids, field pixels.
+    :param targets: ``(M, 2)`` sequencing nucleus centroids, well pixels.
+    :param transform: the field's ``(scale, rotation, translation)``.
+    :param threshold: the largest distance still called the same nucleus,
+        in well pixels.
+    :param gpu: passed to :func:`match_cells`.
+    :returns: ``(K, 3)`` float rows of ``(point_index, target_index,
+        distance)``.
+    """
+    src = np.asarray(points, float).reshape(-1, 2)
+    dst = np.asarray(targets, float).reshape(-1, 2)
+    pairs = match_cells(src, dst, transform=transform,
+                        threshold=float(threshold), gpu=gpu)
+    if pairs.size == 0:
+        return np.empty((0, 3), float)
+    moved = field_to_well(src[pairs[:, 0]], transform)
+    distance = np.linalg.norm(moved - dst[pairs[:, 1]], axis=1)
+    return np.column_stack([pairs.astype(float), distance])
+
+
+def deduplicate_matches(frame, *, key: str = "object_id",
+                        by: str = "distance"):
+    """One observation per sequencing nucleus where fields overlap.
+
+    :param frame: merge rows with ``key`` and ``by`` columns.
+    :param key: the column that must be unique afterwards.
+    :param by: the column whose smallest value wins.
+    :returns: ``(kept, dropped)`` -- the frame with one row per ``key``,
+        and how many rows were dropped.
+
+    A nucleus imaged in two overlapping phenotype fields is two
+    observations of one cell. Counting both would weight that cell twice in
+    its guide's median, so the closer match is kept; ties go to the first
+    row, which keeps the result independent of nothing but the input order.
+    """
+    if frame is None or len(frame) == 0:
+        return frame, 0
+    ordered = frame.sort_values([by], kind="mergesort")
+    kept = ordered.drop_duplicates(subset=[key], keep="first")
+    return kept.sort_index(), int(len(frame) - len(kept))

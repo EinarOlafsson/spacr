@@ -267,6 +267,56 @@ def format_table(rows: Dict[str, Dict[str, Any]], totals: Dict[str, Any]) -> str
     return "\n".join(out)
 
 
+PHENOTYPE_PHASES = ("ph_segment", "ph_measure", "merge")
+
+
+def phenotype_path(base_settings: Dict[str, Any], wells: List[str],
+                   args: argparse.Namespace, results: Path) -> None:
+    """Run the alpha phenotype path per well, then aggregate the plate.
+
+    Resumable twice over: run_ops skips every field whose masks or cell
+    table exist, and a well whose ``<well>.phenotype.json`` says complete is
+    not rerun unless ``--force``. A well that raises is recorded and the
+    plate goes on; the aggregate pools whichever wells merged.
+    """
+    from spacr.ops_engine import run_ops
+
+    settings = dict(base_settings, ops_design=str(args.design),
+                    ops_ph_downsample=args.ph_downsample,
+                    ops_ph_sites=args.ph_sites or None,
+                    ops_bootstrap=args.bootstrap)
+    merged = []
+    for well in wells:
+        target = results / f"{well}.phenotype.json"
+        if target.exists() and not args.force:
+            try:
+                if json.loads(target.read_text(encoding="utf-8")).get("complete"):
+                    merged.append(well)
+                    print(f"{well}: phenotype path complete, skipped", flush=True)
+                    continue
+            except (OSError, ValueError):
+                pass
+        started = time.perf_counter()
+        record: Dict[str, Any] = {"well": well, "phases": list(PHENOTYPE_PHASES)}
+        try:
+            report = run_ops(settings, wells=[well],
+                             phases=PHENOTYPE_PHASES)["wells"][well]
+            record.update(complete="merge" in report,
+                          merge=report.get("merge"),
+                          fields=report.get("ph_fields"))
+            merged.append(well)
+        except Exception as error:
+            record.update(complete=False, error=f"{type(error).__name__}: {error}",
+                          traceback=traceback.format_exc())
+            print(f"{well}: phenotype path FAILED {record['error']}", flush=True)
+        record["wall_seconds"] = round(time.perf_counter() - started, 1)
+        target.write_text(json.dumps(record, indent=1, default=str), encoding="utf-8")
+    if merged:
+        report = run_ops(settings, wells=merged, phases=("aggregate",))
+        print(json.dumps(report.get("aggregate"), indent=1, default=str)[:3000],
+              flush=True)
+
+
 def main(argv: Optional[List[str]] = None) -> int:
     """Run the plate, one well at a time, and write the summary."""
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
@@ -288,6 +338,16 @@ def main(argv: Optional[List[str]] = None) -> int:
                         help="wells to write ops_reads for")
     parser.add_argument("--force", action="store_true",
                         help="run wells that are already complete again")
+    parser.add_argument("--phenotype-path", action="store_true",
+                        help="after the sequencing phases, run the alpha "
+                             "phenotype path (ph_segment, ph_measure, merge) "
+                             "per well and aggregate the plate")
+    parser.add_argument("--ph-downsample", type=int, default=2,
+                        help="segment phenotype fields block-averaged by this")
+    parser.add_argument("--ph-sites", default="",
+                        help="restrict the phenotype path to these sites")
+    parser.add_argument("--bootstrap", type=int, default=0,
+                        help="bootstrap replicates for per-gene P values")
     args = parser.parse_args(argv)
 
     from spacr.ops_engine import _index_tiles, run_ops
@@ -353,6 +413,9 @@ def main(argv: Optional[List[str]] = None) -> int:
         target.write_text(json.dumps(record, indent=1, default=str), encoding="utf-8")
         print(f"{well}: {'complete' if record['complete'] else 'INCOMPLETE'} "
               f"in {record['wall_seconds']} s", flush=True)
+
+    if args.phenotype_path:
+        phenotype_path(base_settings, wells, args, results)
 
     rows: Dict[str, Dict[str, Any]] = {}
     failed: Dict[str, str] = {}

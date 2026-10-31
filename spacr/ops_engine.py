@@ -216,6 +216,21 @@ _DECODE_WORKERS_CAP = 8
 #: else, so a run that only wants the placement stops after two phases.
 _PHASES = ("stitch", "phenotype", "objects", "decode")
 
+#: The phenotype path (item 752, alpha): segment and measure every placed
+#: phenotype field, merge its cells onto the sequencing nuclei, and reduce
+#: cells to guides and genes. Not in the default run, because each needs the
+#: four above and a design table; asked for by name.
+_PH_PHASES = ("ph_segment", "ph_measure", "merge", "aggregate")
+
+#: Every phase :func:`run_ops` accepts, in the order they run.
+_ALL_PHASES = _PHASES + _PH_PHASES
+
+#: The columns of ``ops_phenotype`` that hold each field's similarity
+#: transform into the well frame: ``well = scale * R(rotation_deg) @
+#: (row, col) + (offset_y, offset_x)``.
+_PH_TRANSFORM_COLUMNS = ("scale", "rotation_deg", "offset_y", "offset_x",
+                         "field_height", "field_width", "transform_source")
+
 #: The guide library a decode worker compares calls against, set once per
 #: process by :func:`_init_decode_worker` rather than shipped with every
 #: field.
@@ -939,6 +954,7 @@ def _phenotype(db: str, plate: str, well: str, cycle_files, reference: int,
 
     anchors: Dict[int, Tuple[float, float]] = {}
     records: List[Dict[str, Any]] = []
+    field_shape: Optional[Tuple[int, int]] = None
     tried = 0
     for site in _anchor_candidates(layout, _PHENOTYPE_ANCHORS,
                                    _PHENOTYPE_CANDIDATES):
@@ -948,6 +964,7 @@ def _phenotype(db: str, plate: str, well: str, cycle_files, reference: int,
         if plane is None:
             continue
         tried += 1
+        field_shape = field_shape or (int(plane.shape[0]), int(plane.shape[1]))
         if scale is None and sbs_magnification and phenotype_magnification:
             scale = float(shape[1] * sbs_magnification) / float(
                 plane.shape[1] * phenotype_magnification)
@@ -1014,6 +1031,9 @@ def _phenotype(db: str, plate: str, well: str, cycle_files, reference: int,
         columns=["plate", "well", "site", "centre_y", "centre_x", "sbs_site",
                  "is_anchor", "inliers", "alignment_residual_px",
                  "raster_residual_px"])
+    frame = _ph_transform_columns(
+        frame, float(np.median([r["scale"] for r in records])),
+        float(np.median([r["degrees"] for r in records])), field_shape)
     _replace_well_rows(db, "ops_phenotype", frame, plate, well)
 
     residuals = [record["raster_residual_px"] for record in records]
@@ -1044,14 +1064,17 @@ def _phenotype(db: str, plate: str, well: str, cycle_files, reference: int,
     return report
 
 
-def _cellpose_model(settings: Mapping[str, Any], gpu: bool):
+def _cellpose_model(settings: Mapping[str, Any], gpu: bool,
+                    key: str = "cellpose_model"):
     """The Cellpose model the objects are segmented with.
 
-    :param settings: read for ``cellpose_model``. Empty or ``cpsam`` builds
+    :param settings: read for ``key``. Empty or ``cpsam`` builds
         the library's own default model, which is how the well was validated;
         any other name is passed to Cellpose as the model to load.
     :param gpu: put it on this machine's card through
         :func:`spacr.accelerator.cellpose_kwargs`, or keep it on the CPU.
+    :param key: the setting naming the model; the phenotype phases pass
+        ``ops_ph_nucleus_model`` and ``ops_ph_cell_model``.
     :returns: a ``cellpose.models.CellposeModel``.
     """
     from cellpose import models
@@ -1063,9 +1086,9 @@ def _cellpose_model(settings: Mapping[str, Any], gpu: bool):
         kwargs = cellpose_kwargs()
     from .model_zoo import _resolve_pinned_model_file
 
-    pinned = _resolve_pinned_model_file(settings, "cellpose_model", kinds=("cellpose",))
+    pinned = _resolve_pinned_model_file(settings, key, kinds=("cellpose",))
     name = (str(pinned) if pinned is not None
-            else str(settings.get("cellpose_model") or "").strip())
+            else str(settings.get(key) or "").strip())
     if name in ("", "cpsam"):
         return models.CellposeModel(**kwargs)
     return models.CellposeModel(pretrained_model=name, **kwargs)
@@ -1782,6 +1805,746 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
     return report
 
 
+def _ph_transform_columns(frame, scale: float, degrees: float,
+                          field_shape: Optional[Tuple[int, int]]):
+    """``ops_phenotype`` rows with each field's similarity transform added.
+
+    :param frame: one well's ``ops_phenotype`` rows.
+    :param scale: well pixels per field pixel.
+    :param degrees: the fields' rotation in the well frame.
+    :param field_shape: ``(height, width)`` of a field in its own pixels.
+    :returns: the frame with :data:`_PH_TRANSFORM_COLUMNS` filled.
+
+    ONE SCALE AND ONE ROTATION PER WELL. Every field is the same camera on
+    the same objective, so the anchors' median is every field's; what
+    differs per field is where its centre lands, which is the raster fit
+    the phase already stores. The merge phase re-solves each field on its
+    own nuclei and records that separately (``refined_*``).
+    """
+    from .ops_merge import field_transform
+
+    out = frame.copy()
+    height, width = field_shape if field_shape else (np.nan, np.nan)
+    offsets = [field_transform(scale, degrees, (cy, cx), (height, width))[2]
+               if field_shape else (np.nan, np.nan)
+               for cy, cx in zip(out["centre_y"], out["centre_x"])]
+    out["scale"] = float(scale)
+    out["rotation_deg"] = float(degrees)
+    out["offset_y"] = [float(o[0]) for o in offsets]
+    out["offset_x"] = [float(o[1]) for o in offsets]
+    out["field_height"] = height
+    out["field_width"] = width
+    out["transform_source"] = np.where(out["is_anchor"].astype(int) > 0,
+                                       "anchor", "raster")
+    return out
+
+
+def _ph_transforms(db: str, plate: str, well: str, destination: str,
+                   field_shape: Optional[Tuple[int, int]] = None):
+    """One well's ``ops_phenotype`` rows with their transforms, migrated.
+
+    :param db: the measurements database.
+    :param plate: the plate name.
+    :param well: the well name.
+    :param destination: the run folder holding ``<well>/ops_report.json``.
+    :param field_shape: the field size, needed only when the rows predate
+        the transform columns.
+    :returns: the rows, with :data:`_PH_TRANSFORM_COLUMNS`.
+    :raises ValueError: when the well was never placed, or an old database
+        cannot be migrated because neither its report nor the call gives a
+        scale or a field size.
+
+    A DATABASE WRITTEN BEFORE THE COLUMNS EXISTED STAYS READABLE: its rows
+    are completed from the anchors its own ``ops_report.json`` recorded --
+    the median anchor scale and rotation, or the report's
+    ``expected_scale`` and no rotation -- and written back, so the
+    migration runs once per well.
+    """
+    from .qt.i18n import tr
+
+    frame = _well_rows(db, "ops_phenotype", plate, well)
+    if frame is None or frame.empty:
+        raise ValueError(tr(
+            "well {well} has no ops_phenotype rows in {db}; run the "
+            "phenotype phase first", well=well, db=db))
+    have = set(frame.columns)
+    if set(_PH_TRANSFORM_COLUMNS) <= have and frame["scale"].notna().all() \
+            and frame["offset_y"].notna().all():
+        return frame
+    report_path = os.path.join(destination, well, "ops_report.json")
+    placed: Dict[str, Any] = {}
+    if os.path.isfile(report_path):
+        with open(report_path, encoding="utf-8") as handle:
+            placed = (json.load(handle) or {}).get("phenotype") or {}
+    anchors = [a for a in placed.get("anchors") or [] if "scale" in a]
+    if anchors:
+        scale = float(np.median([float(a["scale"]) for a in anchors]))
+        degrees = float(np.median([float(a.get("degrees", 0.0))
+                                   for a in anchors]))
+    elif placed.get("expected_scale"):
+        scale, degrees = float(placed["expected_scale"]), 0.0
+    elif "scale" in have and frame["scale"].notna().any():
+        scale = float(frame["scale"].dropna().median())
+        degrees = float(frame.get("rotation_deg", 0.0).fillna(0.0).median())
+    else:
+        raise ValueError(tr(
+            "well {well}'s ops_phenotype rows carry no transform and "
+            "{report} records no scale; rerun the phenotype phase",
+            well=well, report=report_path))
+    if field_shape is None and "field_height" in have \
+            and frame["field_height"].notna().any():
+        field_shape = (int(frame["field_height"].dropna().iloc[0]),
+                       int(frame["field_width"].dropna().iloc[0]))
+    if field_shape is None:
+        raise ValueError(tr(
+            "well {well}'s ops_phenotype rows carry no field size; read one "
+            "phenotype field first", well=well))
+    base = frame.drop(columns=[c for c in _PH_TRANSFORM_COLUMNS if c in have])
+    migrated = _ph_transform_columns(base, scale, degrees, field_shape)
+    _replace_well_rows(db, "ops_phenotype", migrated, plate, well)
+    return migrated
+
+
+def _ph_sites(value) -> Optional[set]:
+    """The phenotype sites a setting names, or None for all of them.
+
+    :param value: None, an empty string, or ``"520-525,555"``.
+    :returns: the set of sites.
+    """
+    if value in (None, ""):
+        return None
+    if isinstance(value, (list, tuple, set)):
+        return {int(v) for v in value}
+    sites: set = set()
+    for part in str(value).replace(" ", "").split(","):
+        if not part:
+            continue
+        if "-" in part:
+            low, high = part.split("-", 1)
+            sites.update(range(int(low), int(high) + 1))
+        else:
+            sites.add(int(part))
+    return sites
+
+
+def _ph_channels(settings: Mapping[str, Any]) -> Tuple[str, ...]:
+    """The phenotype channels, in the order the cell table names them."""
+    raw = settings.get("ops_ph_channels") or "DAPI,GFP,A594,AF750"
+    return tuple(c.strip() for c in str(raw).split(",") if c.strip())
+
+
+def _ph_read_field(files: Mapping[str, str], channels: Sequence[str],
+                   unreadable: list) -> Optional[np.ndarray]:
+    """One phenotype field as ``(H, W, C)`` float32, focal planes maxed.
+
+    :param files: ``channel token -> path`` for the site.
+    :param channels: which channels, in order.
+    :param unreadable: ``(path, reason)`` is appended for a file that fails.
+    :returns: the stack, or None when any channel is missing or unreadable.
+
+    THE FOCAL PLANES ARE MAXIMUM-PROJECTED, which is what Funk et al.'s
+    ``apply_illumination_correction(zproject=True)`` does before their
+    segmentation: the reference plate's phenotype files hold four.
+    """
+    import tifffile
+
+    sources = _plane_sources(files)
+    cache: Dict[str, Tuple[np.ndarray, str]] = {}
+    planes = []
+    for channel in channels:
+        source = sources.get(channel)
+        if source is None:
+            unreadable.append((str(files), f"no {channel} plane"))
+            return None
+        path, plane = source
+        if path not in cache:
+            try:
+                with tifffile.TiffFile(path) as handle:
+                    series = handle.series[0]
+                    cache[path] = (np.asarray(series.asarray()),
+                                   str(getattr(series, "axes", "") or ""))
+            except (OSError, ValueError, IndexError,
+                    getattr(tifffile, "TiffFileError", ValueError)) as failure:
+                unreadable.append((path, f"{type(failure).__name__}: "
+                                         f"{failure}"[:200]))
+                return None
+        array, axes = cache[path]
+        if plane is not None:
+            axis = _channel_axis(array, axes) if array.ndim >= 3 else -1
+            if axis < 0 or array.shape[axis] <= plane:
+                unreadable.append((path, f"has no plane {plane}"))
+                return None
+            array = np.take(array, plane, axis=axis)
+        while array.ndim > 2:
+            array = array.max(axis=0)
+        planes.append(array.astype(np.float32))
+    return np.stack(planes, axis=-1)
+
+
+def _ph_downscale(plane: np.ndarray, factor: int) -> np.ndarray:
+    """``plane`` block-averaged by ``factor``, edges padded by reflection."""
+    if factor <= 1:
+        return plane
+    height = -(-plane.shape[0] // factor) * factor
+    width = -(-plane.shape[1] // factor) * factor
+    padded = np.pad(plane, ((0, height - plane.shape[0]),
+                            (0, width - plane.shape[1])), mode="reflect")
+    return padded.reshape(height // factor, factor, width // factor,
+                          factor).mean(axis=(1, 3))
+
+
+def _ph_upscale(mask: np.ndarray, factor: int, shape) -> np.ndarray:
+    """A label mask repeated back up to ``shape``."""
+    mask = np.asarray(mask)
+    if factor > 1:
+        mask = mask.repeat(factor, axis=0).repeat(factor, axis=1)
+    return np.ascontiguousarray(mask[:shape[0], :shape[1]]).astype(np.int32)
+
+
+def _ph_segment_field(stack: np.ndarray, channels: Sequence[str], models,
+                      settings: Mapping[str, Any]):
+    """Nuclei and cells of one field, paired so nucleus k is in cell k.
+
+    :param stack: the ``(H, W, C)`` field.
+    :param channels: the stack's channel names.
+    :param models: ``(nucleus_model, cell_model)``.
+    :param settings: read for ``ops_ph_cell_channel``, ``ops_ph_downsample``,
+        ``ops_ph_batch_size`` and the two diameters.
+    :returns: ``(nuclei, cells, counts)``.
+
+    NUCLEI ON DAPI, CELLS ON THE CELL STAIN WITH DAPI AS THE SECOND
+    CHANNEL, as the Cellpose cytoplasm models are trained and as Funk et
+    al. segment cells on phalloidin around their nuclei. Both run on the
+    field block-averaged by ``ops_ph_downsample`` and the masks are
+    repeated back up: at 2 a nucleus is still about 20 px across, which is
+    what the models are trained on, and the cost falls fourfold.
+    """
+    from .ops_sample import pair_nuclei_with_cells
+    from .qt.i18n import tr
+
+    factor = max(1, int(_setting_number(settings.get("ops_ph_downsample"),
+                                        "ops_ph_downsample", 2)))
+    batch = max(1, int(_setting_number(settings.get("ops_ph_batch_size"),
+                                       "ops_ph_batch_size", 8)))
+    cell_channel = str(settings.get("ops_ph_cell_channel") or "AF750")
+    if _NUCLEAR not in channels or cell_channel not in channels:
+        raise ValueError(tr(
+            "ops_ph_channels {channels} must name {nuclear} and the cell "
+            "channel {cell}", channels=list(channels), nuclear=_NUCLEAR,
+            cell=cell_channel))
+    dna = _ph_downscale(stack[..., channels.index(_NUCLEAR)], factor)
+    body = _ph_downscale(stack[..., channels.index(cell_channel)], factor)
+    extra = {}
+    for key, name in (("ops_ph_nucleus_diameter", "nucleus"),
+                      ("ops_ph_cell_diameter", "cell")):
+        value = settings.get(key)
+        extra[name] = {"diameter": float(value) / factor} if value else {}
+    nucleus_model, cell_model = models
+    nuclei = nucleus_model.eval(dna, batch_size=batch, **extra["nucleus"])[0]
+    cells = cell_model.eval(np.stack([body, dna], axis=-1), batch_size=batch,
+                            channel_axis=-1, **extra["cell"])[0]
+    shape = stack.shape[:2]
+    return pair_nuclei_with_cells(_ph_upscale(nuclei, factor, shape),
+                                  _ph_upscale(cells, factor, shape))
+
+
+def _ph_cells_path(destination: str, well: str) -> str:
+    """Where one well's per-cell phenotype table is written."""
+    return os.path.join(destination, f"ops_phenotype_cells_{well}.parquet")
+
+
+def _ph_measure_field(task: Mapping[str, Any]) -> Dict[str, Any]:
+    """Measure one segmented phenotype field; the ``ph_measure`` worker.
+
+    :param task: ``site``, ``files``, ``channels``, ``mask_path``,
+        ``cell_path`` and ``texture``.
+    :returns: ``site``, ``cells``, ``seconds`` and ``unreadable``.
+
+    Module level so a spawned process can run it. It reads its own field
+    and masks and writes its own Parquet part, so nothing large crosses the
+    process boundary.
+    """
+    from .ops_sample import measure_phenotype_field
+
+    tick = time.perf_counter()
+    unreadable: list = []
+    stack = _ph_read_field(task["files"], task["channels"], unreadable)
+    if stack is None:
+        return {"site": task["site"], "cells": None, "seconds": 0.0,
+                "unreadable": unreadable}
+    with np.load(task["mask_path"]) as saved:
+        nuclei = saved["nuclei"].astype(np.int32)
+        cells = saved["cells"].astype(np.int32)
+    table = measure_phenotype_field(nuclei, cells, stack, task["channels"],
+                                    texture=bool(task["texture"]))
+    table.insert(0, "site", int(task["site"]))
+    table.to_parquet(task["cell_path"] + ".part", index=False)
+    os.replace(task["cell_path"] + ".part", task["cell_path"])
+    return {"site": task["site"], "cells": int(len(table)),
+            "seconds": time.perf_counter() - tick, "unreadable": unreadable,
+            "shape": tuple(int(v) for v in stack.shape[:2])}
+
+
+def _ph_fields(db: str, plate: str, well: str, phenotype_files,
+               settings: Mapping[str, Any], gpu: bool, destination: str, *,
+               segment: bool, measure: bool) -> Dict[str, Any]:
+    """Segment and/or measure every placed phenotype field of one well.
+
+    :param db: the measurements database.
+    :param plate: the plate name.
+    :param well: the well name.
+    :param phenotype_files: the phenotype index for this well.
+    :param settings: the OPS settings; ``n_workers`` sets how many fields
+        are measured at once.
+    :param gpu: segment on the card.
+    :param destination: the run folder.
+    :param segment: run ``ph_segment``.
+    :param measure: run ``ph_measure``.
+    :returns: the report.
+
+    RESUMABLE PER FIELD. Each field's masks go to
+    ``<well>/phenotype_masks/site-<n>.npz`` and its cells to
+    ``<well>/phenotype_cells/site-<n>.parquet``; a field whose file exists
+    is not redone, so a run stopped at field 900 resumes at 901. The well's
+    table, ``ops_phenotype_cells_<well>.parquet``, is the concatenation and
+    is rewritten at the end.
+
+    SEGMENTATION RUNS IN THIS PROCESS AND MEASUREMENT IN WORKERS: Cellpose
+    already uses every core (or the card), while spaCR's measurement of a
+    field is one core for a few minutes on the reference plate's 2,960 px
+    fields, so measuring fields side by side is what keeps the machine busy.
+    """
+    import multiprocessing
+
+    import pandas as pd
+
+    from .qt.i18n import tr
+    from .resource_log import _parallel_process_executor as ProcessPoolExecutor
+
+    started = time.perf_counter()
+    channels = _ph_channels(settings)
+    rows = _well_rows(db, "ops_phenotype", plate, well)
+    if rows is None or rows.empty:
+        raise ValueError(tr(
+            "well {well} has no ops_phenotype rows in {db}; run the "
+            "phenotype phase first", well=well, db=db))
+    wanted = _ph_sites(settings.get("ops_ph_sites"))
+    files = phenotype_files.get(min(phenotype_files), {}) if phenotype_files else {}
+    sites = [int(s) for s in sorted(rows["site"])
+             if (wanted is None or int(s) in wanted) and int(s) in files]
+    mask_dir = os.path.join(destination, well, "phenotype_masks")
+    cell_dir = os.path.join(destination, well, "phenotype_cells")
+    os.makedirs(mask_dir, exist_ok=True)
+    os.makedirs(cell_dir, exist_ok=True)
+
+    def mask_path(site: int) -> str:
+        """Where one field's masks are kept."""
+        return os.path.join(mask_dir, f"site-{site}.npz")
+
+    def cell_path(site: int) -> str:
+        """Where one field's cell table is kept."""
+        return os.path.join(cell_dir, f"site-{site}.parquet")
+
+    unreadable: list = []
+    report: Dict[str, Any] = {"fields": len(sites)}
+    field_shape = None
+    if segment:
+        models = None
+        seconds = Counter()
+        counts = Counter()
+        todo = [s for s in sites if not os.path.isfile(mask_path(s))]
+        for count, site in enumerate(todo, start=1):
+            tick = time.perf_counter()
+            stack = _ph_read_field(files[site], channels, unreadable)
+            seconds["read"] += time.perf_counter() - tick
+            if stack is None:
+                continue
+            field_shape = field_shape or stack.shape[:2]
+            if models is None:
+                nucleus_model = _cellpose_model(settings, gpu,
+                                                "ops_ph_nucleus_model")
+                same = (str(settings.get("ops_ph_cell_model") or "cpsam")
+                        == str(settings.get("ops_ph_nucleus_model") or "cpsam"))
+                models = (nucleus_model, nucleus_model if same else
+                          _cellpose_model(settings, gpu, "ops_ph_cell_model"))
+            tick = time.perf_counter()
+            nuclei, cells, paired = _ph_segment_field(stack, channels, models,
+                                                      settings)
+            seconds["segment"] += time.perf_counter() - tick
+            counts.update(paired)
+            np.savez_compressed(mask_path(site) + ".part.npz",
+                                nuclei=nuclei.astype(np.uint32),
+                                cells=cells.astype(np.uint32))
+            os.replace(mask_path(site) + ".part.npz", mask_path(site))
+            _say(tr("{well} ph_segment: site {site}, {cells} cells, "
+                    "{count} of {total}", well=well, site=site,
+                    cells=paired["paired"], count=count, total=len(todo)))
+        fresh = sum(1 for s in todo if os.path.isfile(mask_path(s)))
+        report["ph_segment"] = {
+            "segmented": fresh, "resumed": len(sites) - len(todo),
+            "objects": dict(counts),
+            "seconds": {k: round(v, 1) for k, v in seconds.items()},
+            "segment_seconds_per_field": (round(seconds["segment"] / fresh, 2)
+                                          if fresh else None),
+            "read_seconds_per_field": (round(seconds["read"] / fresh, 2)
+                                       if fresh else None),
+        }
+    if measure:
+        tick = time.perf_counter()
+        tasks = [{"site": s, "files": files[s], "channels": channels,
+                  "mask_path": mask_path(s), "cell_path": cell_path(s),
+                  "texture": bool(settings.get("ops_ph_texture", True))}
+                 for s in sites if os.path.isfile(mask_path(s))
+                 and not os.path.isfile(cell_path(s))]
+        workers = max(1, min(int(settings.get("n_workers") or 1),
+                             len(tasks) or 1))
+        results = []
+        if workers == 1:
+            results = [_ph_measure_field(task) for task in tasks]
+        else:
+            context = multiprocessing.get_context("spawn")
+            with ProcessPoolExecutor(workers, mp_context=context) as pool:
+                for count, result in enumerate(
+                        pool.map(_ph_measure_field, tasks), start=1):
+                    results.append(result)
+                    if count % 10 == 0:
+                        _say(tr("{well} ph_measure: {count} of {total} "
+                                "fields", well=well, count=count,
+                                total=len(tasks)))
+        for result in results:
+            unreadable.extend(result["unreadable"])
+            field_shape = field_shape or result.get("shape")
+        parts = [cell_path(s) for s in sites if os.path.isfile(cell_path(s))]
+        frames = [f for f in (pd.read_parquet(p) for p in parts) if len(f)]
+        cells_table = (pd.concat(frames, ignore_index=True) if frames
+                       else pd.DataFrame(columns=["site", "label"]))
+        cells_table.insert(0, "well", well)
+        cells_table.insert(0, "plate", plate)
+        from .tabular import write_table
+
+        write_table(cells_table, _ph_cells_path(destination, well),
+                    canonicalise=False)
+        measured = [r for r in results if r["cells"] is not None]
+        report["ph_measure"] = {
+            "measured": len(measured), "resumed": len(parts) - len(measured),
+            "workers": workers, "cells": int(len(cells_table)),
+            "features": len(_ph_feature_columns(cells_table.columns)),
+            "measure_seconds_per_field": (
+                round(float(np.mean([r["seconds"] for r in measured])), 2)
+                if measured else None),
+            "wall_seconds": round(time.perf_counter() - tick, 1),
+            "table": _ph_cells_path(destination, well),
+        }
+    if field_shape is not None:
+        _ph_transforms(db, plate, well, destination, tuple(field_shape))
+    report["unreadable"] = unreadable
+    report["total_seconds"] = round(time.perf_counter() - started, 1)
+    _say(tr("{well} phenotype fields: {fields} in {seconds} s", well=well,
+            fields=len(sites), seconds=report["total_seconds"]))
+    return report
+
+
+def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
+              destination: str, gpu: bool) -> Dict[str, Any]:
+    """Pair each phenotype cell with its sequencing nucleus; store ``ops_merge``.
+
+    :param db: the measurements database.
+    :param plate: the plate name.
+    :param well: the well name.
+    :param settings: read for ``ops_merge_threshold``.
+    :param destination: the run folder.
+    :param gpu: let the nearest-neighbour search use the card.
+    :returns: the merge report.
+
+    Per field: the nucleus centroids are moved into the well frame with the
+    stored transform, the transform is re-solved on the field's own nuclei
+    against the sequencing nuclei under it
+    (:func:`spacr.ops_merge.refine_field_transform`), and the cells are
+    paired one to one (:func:`spacr.ops_merge.merge_field`). A sequencing
+    nucleus claimed by two fields -- an overlap -- keeps the closer match.
+    """
+    import pandas as pd
+
+    from .ops_merge import (deduplicate_matches, field_to_well,
+                            merge_field, refine_field_transform)
+    from .qt.i18n import tr
+
+    started = time.perf_counter()
+    path = _ph_cells_path(destination, well)
+    if not os.path.isfile(path):
+        raise ValueError(tr(
+            "well {well} has no phenotype cell table at {path}; run the "
+            "ph_measure phase first", well=well, path=path))
+    cells = pd.read_parquet(path, columns=["site", "label", "centroid_row",
+                                           "centroid_col"])
+    placed = _ph_transforms(db, plate, well, destination)
+    objects = _well_rows(db, "ops_objects", plate, well)
+    if objects is None or objects.empty:
+        raise ValueError(tr(
+            "well {well} has no ops_objects rows; run the objects phase "
+            "first", well=well))
+    target = objects[["centroid_y", "centroid_x"]].to_numpy(float)
+    object_ids = objects["object_id"].to_numpy(np.int64)
+    threshold = float(_setting_number(settings.get("ops_merge_threshold"),
+                                      "ops_merge_threshold", 4.0))
+    rows = []
+    refined_rows = []
+    by_site = {int(r.site): r for r in placed.itertuples()}
+    for site, group in cells.groupby("site", sort=True):
+        record = by_site.get(int(site))
+        if record is None:
+            continue
+        seed = (float(record.scale), np.array(
+            [[np.cos(np.radians(record.rotation_deg)),
+              -np.sin(np.radians(record.rotation_deg))],
+             [np.sin(np.radians(record.rotation_deg)),
+              np.cos(np.radians(record.rotation_deg))]]),
+            np.array([float(record.offset_y), float(record.offset_x)]))
+        points = group[["centroid_row", "centroid_col"]].to_numpy(float)
+        corners = field_to_well(np.array(
+            [[0, 0], [0, record.field_width], [record.field_height, 0],
+             [record.field_height, record.field_width]], float), seed)
+        pad = 4.0 * threshold + 20.0
+        low, high = corners.min(axis=0) - pad, corners.max(axis=0) + pad
+        near = np.flatnonzero((target[:, 0] >= low[0]) & (target[:, 0] <= high[0])
+                              & (target[:, 1] >= low[1]) & (target[:, 1] <= high[1]))
+        transform, inliers, residual, refined = refine_field_transform(
+            points, target[near], seed, radius=min(3.0, threshold))
+        refined_rows.append({
+            "site": int(site), "refined": int(refined),
+            "refined_inliers": int(inliers),
+            "refined_residual_px": residual,
+            "refined_scale": float(transform[0]),
+            "refined_rotation_deg": float(np.degrees(np.arctan2(
+                transform[1][1, 0], transform[1][0, 0]))),
+            "refined_offset_y": float(transform[2][0]),
+            "refined_offset_x": float(transform[2][1]),
+            "refined_shift_px": float(np.hypot(
+                *(field_to_well(np.array([[record.field_height / 2.0,
+                                          record.field_width / 2.0]]),
+                                transform)
+                  - field_to_well(np.array([[record.field_height / 2.0,
+                                             record.field_width / 2.0]]),
+                                  seed))[0])),
+        })
+        pairs = merge_field(points, target[near], transform,
+                            threshold=threshold, gpu=gpu)
+        labels = group["label"].to_numpy(np.int64)
+        for i, j, distance in pairs:
+            rows.append((plate, well, int(site), int(labels[int(i)]),
+                         int(object_ids[near[int(j)]]), float(distance),
+                         int(refined)))
+    frame = pd.DataFrame(rows, columns=["plate", "well", "site", "label",
+                                        "object_id", "distance", "refined"])
+    frame, duplicates = deduplicate_matches(frame)
+    _replace_well_rows(db, "ops_merge", frame, plate, well)
+    refinements = pd.DataFrame(refined_rows)
+    if len(refinements):
+        keep = placed.drop(columns=[c for c in refinements.columns
+                                    if c != "site" and c in placed.columns])
+        _replace_well_rows(db, "ops_phenotype",
+                           keep.merge(refinements, on="site", how="left"),
+                           plate, well)
+    report = {
+        "cells": int(len(cells)), "merged": int(len(frame)),
+        "match_rate": round(len(frame) / max(1, len(cells)), 4),
+        "duplicates_dropped": duplicates,
+        "fields": int(cells["site"].nunique()),
+        "fields_refined": int(refinements["refined"].sum()) if len(refinements) else 0,
+        "refined_shift_px_median": (
+            round(float(refinements.loc[refinements["refined"] > 0,
+                                        "refined_shift_px"].median()), 3)
+            if len(refinements) and refinements["refined"].any() else None),
+        "distance_median_px": (round(float(frame["distance"].median()), 3)
+                               if len(frame) else None),
+        "threshold_px": threshold,
+        "seconds": round(time.perf_counter() - started, 1),
+    }
+    _say(tr("{well} merge: {merged} of {cells} cells matched to a sequencing "
+            "nucleus", well=well, merged=report["merged"],
+            cells=report["cells"]))
+    return report
+
+
+def _ph_design(path: str, prefix_length: int):
+    """``prefix -> (guide, gene)`` from a guide design table.
+
+    :param path: a CSV/TSV/XLSX with ``sgRNA`` and ``gene_symbol`` (or
+        ``gene``) columns.
+    :param prefix_length: how many leading bases the decoded barcodes keep.
+    :returns: ``(frame, ambiguous)``: one row per unambiguous prefix with
+        ``prefix``, ``sgRNA`` and ``gene``, and how many prefixes were
+        dropped because two genes share them.
+    """
+    from .qt.i18n import tr
+    from .tabular import read_table
+
+    design = read_table(path, canonicalise=False, report=None)
+    guide = next((c for c in ("sgRNA", "sgrna", "guide", "sequence")
+                  if c in design.columns), None)
+    gene = next((c for c in ("gene_symbol", "gene", "Gene")
+                 if c in design.columns), None)
+    if guide is None or gene is None:
+        raise ValueError(tr(
+            "the design table {path} needs an sgRNA and a gene_symbol "
+            "column; it has {columns}", path=path,
+            columns=list(design.columns)[:20]))
+    table = design[[guide, gene]].dropna().astype(str)
+    table.columns = ["sgRNA", "gene"]
+    table["prefix"] = table["sgRNA"].str.upper().str[:int(prefix_length)]
+    genes = table.groupby("prefix")["gene"].nunique()
+    ambiguous = set(genes[genes > 1].index)
+    table = table[~table["prefix"].isin(ambiguous)].drop_duplicates("prefix")
+    return table.reset_index(drop=True), len(ambiguous)
+
+
+def _ph_feature_columns(columns) -> List[str]:
+    """The per-cell feature columns: compartment-prefixed, not positions."""
+    skip = ("centroid", "bbox", "coords", "orientation", "label")
+    return [c for c in columns
+            if str(c).startswith(("nucleus_", "cell_", "cytoplasm_"))
+            and not any(s in str(c) for s in skip)]
+
+
+def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
+                  settings: Mapping[str, Any], destination: str
+                  ) -> Dict[str, Any]:
+    """Reduce merged, guide-called cells to per-guide and per-gene tables.
+
+    :param db: the measurements database.
+    :param plate: the plate name.
+    :param wells: the wells to pool.
+    :param settings: read for ``ops_design``, ``ops_control_prefix``,
+        ``ops_bootstrap`` and ``ops_mitotic_dna_z``.
+    :param destination: where ``ops_guides_<plate>`` and
+        ``ops_genes_<plate>`` (CSV and Parquet) are written.
+    :returns: the aggregate report.
+
+    FUNK ET AL. 2022's REDUCTION: every feature is a robust z against the
+    same well's non-targeting cells
+    (:func:`spacr.gene_measurement_compare.robust_z_to_controls`); a guide
+    is the median of its cells; a gene is the median of its guides; and,
+    when ``ops_bootstrap`` is above zero, each gene is tested against a null
+    of non-targeting guides of the same sizes. The mitotic index is the
+    share of a gene's cells :func:`~spacr.gene_measurement_compare.
+    mitotic_calls` calls mitotic.
+    """
+    import pandas as pd
+
+    from .gene_measurement_compare import (aggregate_genes, aggregate_guides,
+                                           bootstrap_gene_pvalues,
+                                           mitotic_calls, robust_z_to_controls)
+    from .qt.i18n import tr
+    from .tabular import write_table
+
+    started = time.perf_counter()
+    design_path = settings.get("ops_design")
+    if not design_path or not os.path.isfile(str(design_path)):
+        raise ValueError(tr(
+            "ops_design must be the guide design table with sgRNA and "
+            "gene_symbol columns; got {path}", path=design_path))
+    control_prefix = str(settings.get("ops_control_prefix") or "nontargeting")
+    merged_rows = _rows_for_wells(db, "ops_merge", plate, wells)
+    barcodes = _rows_for_wells(db, "ops_barcodes", plate, wells)
+    if merged_rows is None or barcodes is None:
+        raise ValueError(tr(
+            "aggregate needs ops_merge and ops_barcodes; run the merge and "
+            "decode phases first"))
+    called = barcodes.loc[barcodes["mapped_guide"].fillna("").astype(str) != "",
+                          ["well", "object_id", "mapped_guide"]]
+    length = int(called["mapped_guide"].str.len().mode().iloc[0]) if len(called) else 11
+    design, ambiguous = _ph_design(str(design_path), length)
+    frames = []
+    for well in wells:
+        path = _ph_cells_path(destination, well)
+        if os.path.isfile(path):
+            frames.append(pd.read_parquet(path))
+    if not frames:
+        raise ValueError(tr("no phenotype cell table for wells {wells}",
+                            wells=list(wells)))
+    cells = pd.concat(frames, ignore_index=True)
+    features = _ph_feature_columns(cells.columns)
+    cells = cells.merge(merged_rows[["well", "site", "label", "object_id"]],
+                        on=["well", "site", "label"], how="inner")
+    cells = cells.merge(called, on=["well", "object_id"], how="left")
+    with_guide = cells["mapped_guide"].notna()
+    cells = cells[with_guide].merge(
+        design.rename(columns={"prefix": "mapped_guide"}),
+        on="mapped_guide", how="inner")
+    control = cells["gene"].str.lower().str.startswith(control_prefix.lower())
+    channels = [c.lower() for c in _ph_channels(settings)]
+    dna_column = f"nucleus_{channels[0]}_mean_intensity" if channels else ""
+    if dna_column not in cells or "nucleus_area" not in cells:
+        dna_column = next((c for c in features if c.startswith("nucleus_")
+                           and c.endswith("mean_intensity")), "")
+    mitotic_z = float(_setting_number(settings.get("ops_mitotic_dna_z"),
+                                      "ops_mitotic_dna_z", 3.0))
+    if dna_column and "nucleus_area" in cells:
+        cells["mitotic"] = mitotic_calls(cells, dna=dna_column,
+                                         area="nucleus_area", dna_z=mitotic_z)
+    else:
+        cells["mitotic"] = False
+    normalised = robust_z_to_controls(cells, features, control=control)
+    scored = pd.concat([cells[["well", "sgRNA", "gene", "mitotic"]],
+                        normalised], axis=1)
+    guides = aggregate_guides(scored, features, guide="sgRNA", gene="gene",
+                              mitotic="mitotic")
+    genes = aggregate_genes(guides, features)
+    boot = int(_setting_number(settings.get("ops_bootstrap"),
+                               "ops_bootstrap", 0))
+    tested: List[str] = []
+    if boot > 0 and control.any():
+        tested = [c for c in (
+            "nucleus_area", dna_column,
+            f"nucleus_{channels[0]}_integrated_intensity" if channels else "",
+            *(f"cell_{c}_mean_intensity" for c in channels[1:]))
+            if c in features]
+        targeting = guides[~guides["gene"].str.lower().str.startswith(
+            control_prefix.lower())]
+        pvalues = bootstrap_gene_pvalues(normalised.loc[control.to_numpy()],
+                                         targeting, tested, n_boot=boot)
+        genes = genes.merge(pvalues, on="gene", how="left")
+    outputs = {}
+    for name, table in (("guides", guides), ("genes", genes)):
+        for suffix in ("csv", "parquet"):
+            target = os.path.join(destination, f"ops_{name}_{plate}.{suffix}")
+            write_table(table, target, canonicalise=False)
+            outputs[f"{name}_{suffix}"] = target
+    report = {
+        "wells": list(wells), "cells_merged": int(len(with_guide)),
+        "cells_with_guide": int(with_guide.sum()),
+        "cells_in_design": int(len(cells)),
+        "control_cells": int(control.sum()),
+        "guides": int(len(guides)), "genes": int(len(genes)),
+        "ambiguous_prefixes": ambiguous, "features": len(features),
+        "mitotic_rule": {"dna": dna_column, "dna_z": mitotic_z,
+                         "area": "nucleus_area", "area_z": 0.0},
+        "mitotic_fraction_all": round(float(cells["mitotic"].mean()), 4)
+        if len(cells) else None,
+        "mitotic_fraction_controls": round(float(
+            cells.loc[control, "mitotic"].mean()), 4) if control.any() else None,
+        "bootstrap": boot, "bootstrap_features": tested,
+        "outputs": outputs,
+        "seconds": round(time.perf_counter() - started, 1),
+    }
+    _say(tr("{plate} aggregate: {guides} guides, {genes} genes from {cells} "
+            "cells", plate=plate, guides=report["guides"],
+            genes=report["genes"], cells=report["cells_in_design"]))
+    return report
+
+
+def _rows_for_wells(db: str, table: str, plate: str, wells: Sequence[str]):
+    """Rows of ``table`` for ``plate`` and any of ``wells``, or None."""
+    from .ops_store import read_table, row_count
+
+    if row_count(db, table) is None:
+        return None
+    frame = read_table(db, table)
+    keep = (frame["plate"].astype(str) == str(plate)) & frame["well"].astype(
+        str).isin([str(w) for w in wells])
+    return frame[keep].reset_index(drop=True)
+
+
 def run_ops(settings: Mapping[str, Any], *,
             wells: Optional[Sequence[str]] = None,
             phases: Sequence[str] = _PHASES,
@@ -1814,6 +2577,13 @@ def run_ops(settings: Mapping[str, Any], *,
     :param phases: any of ``"stitch"``, ``"phenotype"``, ``"objects"`` and
         ``"decode"``, run in that order. A phase left out reads what it needs
         from the database, so a well can be stitched once and decoded again.
+        The alpha phenotype path (item 752) adds ``"ph_segment"``,
+        ``"ph_measure"``, ``"merge"`` and ``"aggregate"``, asked for by name
+        and run after those four; a run of only these needs ``dst_root``
+        and ``plate`` but no ``genotype_source``, takes its wells from
+        ``ops_phenotype``, and adds to each well's ``ops_report.json``
+        rather than replacing it. ``aggregate`` pools the wells run and
+        writes ``ops_guides_<plate>`` and ``ops_genes_<plate>``.
     :param library: the guide barcodes, as a sequence or the path of a CSV
         with a ``prefix``, ``barcode`` or ``sequence`` column. When given,
         each barcode is also mapped to its closest guide. Overrides the
@@ -1823,38 +2593,63 @@ def run_ops(settings: Mapping[str, Any], *,
         unknown phase or well is asked for, or a phase's input is missing.
     """
     settings = dict(settings or {})
+    unknown = [phase for phase in phases if phase not in _ALL_PHASES]
+    if unknown:
+        raise ValueError(
+            f"unknown phases {unknown}; choose from {list(_ALL_PHASES)}")
+    sequencing = any(phase in _PHASES for phase in phases)
     root = settings.get("genotype_source")
-    if not isinstance(root, (str, os.PathLike)) or not os.path.isdir(str(root)):
+    if sequencing and (not isinstance(root, (str, os.PathLike))
+                       or not os.path.isdir(str(root))):
         raise ValueError(
             f"genotype_source must be the folder of sequencing tiles; got {root!r}")
-    root = str(root)
-    unknown = [phase for phase in phases if phase not in _PHASES]
-    if unknown:
-        raise ValueError(f"unknown phases {unknown}; choose from {list(_PHASES)}")
+    root = str(root) if root else ""
     destination = str(settings.get("dst_root") or root)
+    if not destination:
+        from .qt.i18n import tr
+
+        raise ValueError(tr(
+            "the phenotype phases need dst_root, the folder holding "
+            "measurements.db"))
     os.makedirs(destination, exist_ok=True)
     db = os.path.join(destination, "measurements.db")
-    plate = str(settings.get("plate") or os.path.basename(os.path.normpath(root)))
+    plate = str(settings.get("plate")
+                or (os.path.basename(os.path.normpath(root)) if root else ""))
     gpu = bool(settings.get("ops_gpu", True))
     if "decode" in phases:
         _spot_detector(settings)
     barcodes = _load_library(library if library is not None
                              else settings.get("ops_library") or None)
 
-    index = _index_tiles(root, "cycled")
-    if not index:
-        raise ValueError(
-            f"no tile under {root} is named like 10X_c1_A1_DAPI-CY3-A594-CY5-"
-            "CY7_Site-0.tif: magnification, cycle, well, channels, site")
-    _one_acquisition(index, "genotype_source", root)
-    chosen = [str(w).upper() for w in wells] if wells else sorted(index)
-    missing = [well for well in chosen if well not in index]
-    if missing:
-        raise ValueError(f"no tiles for wells {missing}; found {sorted(index)}")
+    index: Dict[str, Any] = {}
+    if sequencing:
+        index = _index_tiles(root, "cycled")
+        if not index:
+            raise ValueError(
+                f"no tile under {root} is named like 10X_c1_A1_DAPI-CY3-A594-CY5-"
+                "CY7_Site-0.tif: magnification, cycle, well, channels, site")
+        _one_acquisition(index, "genotype_source", root)
+        chosen = [str(w).upper() for w in wells] if wells else sorted(index)
+        missing = [well for well in chosen if well not in index]
+        if missing:
+            raise ValueError(f"no tiles for wells {missing}; found {sorted(index)}")
+    else:
+        placed = _rows_for_wells(db, "ops_phenotype", plate,
+                                 [str(w).upper() for w in wells] if wells
+                                 else _placed_wells(db, plate))
+        if placed is None or placed.empty:
+            from .qt.i18n import tr
+
+            raise ValueError(tr(
+                "no ops_phenotype rows for plate {plate} in {db}; run the "
+                "phenotype phase first", plate=plate, db=db))
+        chosen = sorted(set(placed["well"].astype(str)))
 
     phenotype_root = settings.get("phenotype_source")
     phenotype_index: Dict[str, Any] = {}
-    if "phenotype" in phases and phenotype_root:
+    wants_tiles = any(p in phases for p in ("phenotype", "ph_segment",
+                                            "ph_measure"))
+    if wants_tiles and phenotype_root:
         if not os.path.isdir(str(phenotype_root)):
             raise ValueError(
                 f"phenotype_source must be the folder of phenotype tiles; "
@@ -1872,16 +2667,23 @@ def run_ops(settings: Mapping[str, Any], *,
 
     out: Dict[str, Any] = {"db": db, "plate": plate, "wells": {}}
     for well in chosen:
-        cycle_files = index[well]
-        nuclear = [cycle for cycle in sorted(cycle_files)
-                   if any(_NUCLEAR in _plane_sources(files)
-                          for files in cycle_files[cycle].values())]
-        if not nuclear:
-            raise ValueError(f"well {well} has no {_NUCLEAR} plane in any cycle")
-        reference = nuclear[0]
-        report: Dict[str, Any] = {"reference_cycle": reference,
-                                  "cycles": sorted(cycle_files)}
+        folder = os.path.join(destination, well)
+        report_path = os.path.join(folder, "ops_report.json")
+        report: Dict[str, Any] = {}
+        if not sequencing and os.path.isfile(report_path):
+            with open(report_path, encoding="utf-8") as handle:
+                report = json.load(handle) or {}
         started = time.perf_counter()
+        if sequencing:
+            cycle_files = index[well]
+            nuclear = [cycle for cycle in sorted(cycle_files)
+                       if any(_NUCLEAR in _plane_sources(files)
+                              for files in cycle_files[cycle].values())]
+            if not nuclear:
+                raise ValueError(f"well {well} has no {_NUCLEAR} plane in any cycle")
+            reference = nuclear[0]
+            report.update({"reference_cycle": reference,
+                           "cycles": sorted(cycle_files)})
         if "stitch" in phases:
             report["stitch"] = _stitch(db, plate, well, cycle_files,
                                        reference, settings, gpu)
@@ -1906,14 +2708,48 @@ def run_ops(settings: Mapping[str, Any], *,
         if "decode" in phases:
             report["decode"] = _decode(db, plate, well, cycle_files, reference,
                                        settings, gpu, barcodes)
+        segment, measure = "ph_segment" in phases, "ph_measure" in phases
+        if segment or measure:
+            if well not in phenotype_index:
+                report["ph_fields"] = {
+                    "skipped": f"no phenotype tiles for well {well} under "
+                               f"phenotype_source {phenotype_root!r}"}
+            else:
+                os.makedirs(folder, exist_ok=True)
+                if not os.path.isfile(report_path) and "phenotype" in report:
+                    with open(report_path, "w", encoding="utf-8") as handle:
+                        json.dump(report, handle, indent=1, default=str)
+                report["ph_fields"] = _ph_fields(
+                    db, plate, well, phenotype_index[well], settings, gpu,
+                    destination, segment=segment, measure=measure)
+        if "merge" in phases:
+            report["merge"] = _ph_merge(db, plate, well, settings,
+                                        destination, gpu)
         report["seconds"] = round(time.perf_counter() - started, 1)
         report["peak_rss_gb"] = _peak_rss_gb()
-        folder = os.path.join(destination, well)
         os.makedirs(folder, exist_ok=True)
-        with open(os.path.join(folder, "ops_report.json"), "w", encoding="utf-8") as handle:
+        with open(report_path, "w", encoding="utf-8") as handle:
             json.dump(report, handle, indent=1, default=str)
         out["wells"][well] = report
+    if "aggregate" in phases:
+        out["aggregate"] = _ph_aggregate(db, plate, chosen, settings,
+                                         destination)
+        out["aggregate"]["peak_rss_gb"] = _peak_rss_gb()
+        with open(os.path.join(destination, f"ops_aggregate_{plate}.json"),
+                  "w", encoding="utf-8") as handle:
+            json.dump(out["aggregate"], handle, indent=1, default=str)
     return out
+
+
+def _placed_wells(db: str, plate: str) -> List[str]:
+    """The wells of ``plate`` that ``ops_phenotype`` has rows for."""
+    from .ops_store import read_table, row_count
+
+    if row_count(db, "ops_phenotype") is None:
+        return []
+    frame = read_table(db, "ops_phenotype")
+    return sorted(set(frame.loc[frame["plate"].astype(str) == str(plate),
+                                "well"].astype(str)))
 
 
 _ST_CONTROL_PREFIXES = ("NegControl", "BLANK", "Blank", "Unassigned",

@@ -43,6 +43,7 @@ __all__ = [
     "SampleError",
     "sample_objects", "decode_input", "average_over_cycles",
     "reads_rows", "barcode_rows",
+    "pair_nuclei_with_cells", "measure_phenotype_field",
 ]
 
 
@@ -261,3 +262,170 @@ def barcode_rows(objects: Sequence, values: np.ndarray, *,
             row["mapped_guide"] = "" if entry is None else str(entry)
         rows.append(row)
     return rows
+
+
+def pair_nuclei_with_cells(nuclei: np.ndarray, cells: np.ndarray
+                           ) -> Tuple[np.ndarray, np.ndarray, Dict[str, int]]:
+    """One nucleus per cell, both carrying the same label.
+
+    :param nuclei: a 2-D nucleus label mask.
+    :param cells: a 2-D cell label mask of the same field.
+    :returns: ``(nuclei, cells, counts)``: both relabelled ``1..K`` so that
+        nucleus ``k`` lies inside cell ``k``, and how many objects were
+        dropped and why.
+
+    Two independent segmentations of one field disagree at the edges: a
+    nucleus straddles two cells, a cell holds two nuclei, a nucleus has no
+    cell at all. spaCR's measurement joins a nucleus to one parent cell and
+    refuses a field where that is ambiguous, so the ambiguity is resolved
+    here: each nucleus goes to the cell it overlaps most and is clipped to
+    that cell; a cell keeps its largest such nucleus; cells without a
+    nucleus and nuclei without a cell are dropped and counted.
+    """
+    nuclei = np.asarray(nuclei)
+    cells = np.asarray(cells)
+    if nuclei.shape != cells.shape:
+        raise SampleError(
+            f"nucleus and cell masks differ in shape: {nuclei.shape} and "
+            f"{cells.shape}")
+    n_flat = nuclei.ravel().astype(np.int64)
+    c_flat = cells.ravel().astype(np.int64)
+    both = (n_flat > 0) & (c_flat > 0)
+    n_total = int(np.unique(n_flat[n_flat > 0]).size)
+    c_total = int(np.unique(c_flat[c_flat > 0]).size)
+    if not both.any():
+        return (np.zeros(nuclei.shape, np.int32),
+                np.zeros(cells.shape, np.int32),
+                {"nuclei": n_total, "cells": c_total, "paired": 0,
+                 "nuclei_without_cell": n_total,
+                 "cells_without_nucleus": c_total,
+                 "extra_nuclei_in_cell": 0})
+    width = int(c_flat.max()) + 1
+    pair, overlap = np.unique(n_flat[both] * width + c_flat[both],
+                              return_counts=True)
+    pair_n, pair_c = pair // width, pair % width
+    order = np.lexsort((-overlap, pair_n))
+    pair_n, pair_c, overlap = pair_n[order], pair_c[order], overlap[order]
+    first = np.r_[True, pair_n[1:] != pair_n[:-1]]
+    best_n, best_c, best_o = pair_n[first], pair_c[first], overlap[first]
+    order = np.lexsort((-best_o, best_c))
+    best_n, best_c = best_n[order], best_c[order]
+    first = np.r_[True, best_c[1:] != best_c[:-1]]
+    keep_n, keep_c = best_n[first], best_c[first]
+    labels = np.arange(1, keep_n.size + 1, dtype=np.int32)
+    n_lut = np.zeros(int(n_flat.max()) + 1, np.int32)
+    c_lut = np.zeros(width, np.int32)
+    n_lut[keep_n] = labels
+    c_lut[keep_c] = labels
+    new_cells = c_lut[cells.astype(np.int64)]
+    new_nuclei = n_lut[nuclei.astype(np.int64)]
+    new_nuclei[new_nuclei != new_cells] = 0
+    counts = {
+        "nuclei": n_total, "cells": c_total, "paired": int(keep_n.size),
+        "nuclei_without_cell": int(n_total - np.unique(pair_n).size),
+        "cells_without_nucleus": int(c_total - np.unique(pair_c).size),
+        "extra_nuclei_in_cell": int(best_n.size - keep_n.size),
+    }
+    return new_nuclei, new_cells, counts
+
+
+def _measurement_settings(channels: int, texture: bool) -> Dict[str, object]:
+    """The measure settings one phenotype field is measured with.
+
+    :param channels: how many channels the image holds.
+    :param texture: compute the GLCM homogeneity texture block.
+    :returns: the dict :func:`spacr.measure._morphological_measurements` and
+        :func:`spacr.measure._intensity_measurements` read.
+    """
+    return {
+        "cell_mask_dim": channels, "nucleus_mask_dim": channels + 1,
+        "pathogen_mask_dim": None, "cytoplasm": True,
+        "radial_dist": False, "calculate_correlation": False,
+        "homogeneity": bool(texture), "homogeneity_distances": [2, 4, 8],
+        "distance_gaussian_sigma": 10, "spatial_measurements": False,
+        "channels": list(range(channels)), "verbose": False,
+    }
+
+
+def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
+                            image: np.ndarray, channel_names: Sequence[str],
+                            *, texture: bool = True):
+    """Per-cell features of one phenotype field, with spaCR's own measurement.
+
+    :param nuclei: nucleus labels, paired with ``cells`` by
+        :func:`pair_nuclei_with_cells`, so nucleus ``k`` is in cell ``k``.
+    :param cells: cell labels.
+    :param image: ``(H, W, C)`` intensities.
+    :param channel_names: one short name per channel, used in the column
+        names in place of spaCR's ``channel_<i>``.
+    :param texture: include the GLCM homogeneity block.
+    :returns: one row per cell, keyed by ``label``, with ``nucleus_``,
+        ``cell_`` and ``cytoplasm_`` columns and the nucleus centroid as
+        ``centroid_row``/``centroid_col`` in field pixels.
+
+    The features are the ones spaCR's measure writes -- morphology from
+    :func:`spacr.measure._morphological_measurements`, intensity and texture
+    from :func:`spacr.measure._intensity_measurements` -- so an OPS cell and
+    a measured well's cell carry the same columns and nothing is
+    re-derived. The cytoplasm is the cell minus its nucleus, under the
+    cell's label.
+    """
+    import pandas as pd
+    from scipy import ndimage
+
+    from .measure import _intensity_measurements, _morphological_measurements
+
+    image = np.asarray(image, np.float32)
+    nuclei = np.asarray(nuclei, np.int32)
+    cells = np.asarray(cells, np.int32)
+    if image.ndim != 3 or image.shape[:2] != cells.shape:
+        raise SampleError(
+            f"the image must be (H, W, C) over the masks' {cells.shape}; "
+            f"got {image.shape}")
+    if len(channel_names) != image.shape[2]:
+        raise SampleError(
+            f"{len(channel_names)} channel names for {image.shape[2]} channels")
+    if not nuclei.any():
+        return pd.DataFrame(columns=["label", "centroid_row", "centroid_col"])
+    cytoplasm = np.where(nuclei > 0, 0, cells).astype(np.int32)
+    blank = np.zeros_like(cells)
+    settings = _measurement_settings(image.shape[2], texture)
+    morphology = _morphological_measurements(
+        cells, nuclei, blank, blank, cytoplasm, settings, zernike=False)
+    intensity = _intensity_measurements(
+        cells, nuclei, blank, blank, cytoplasm, image, settings,
+        sizes=[1, 2, 3, 4, 5], periphery=False, outside=False)
+    names = {f"channel_{index}": str(name).lower()
+             for index, name in enumerate(channel_names)}
+    labels = np.unique(nuclei[nuclei > 0])
+    centres = np.asarray(ndimage.center_of_mass(
+        np.ones_like(nuclei), nuclei, labels), float).reshape(-1, 2)
+    out = pd.DataFrame({"label": labels.astype(np.int64),
+                        "centroid_row": centres[:, 0],
+                        "centroid_col": centres[:, 1]})
+    for slot, prefix in ((0, "cell"), (1, "nucleus"), (4, "cytoplasm")):
+        for frame in (morphology[slot], intensity[slot]):
+            if frame is None or not len(frame) or "label" not in frame:
+                continue
+            frame = frame.loc[:, ~frame.columns.duplicated()]
+            renamed = {}
+            for column in frame.columns:
+                if column == "label":
+                    continue
+                text = str(column)
+                for old, new in names.items():
+                    text = text.replace(old, new)
+                if not text.startswith(f"{prefix}_"):
+                    text = f"{prefix}_{text}"
+                renamed[column] = text
+            frame = frame.rename(columns=renamed)
+            frame = frame.loc[:, [c for c in frame.columns
+                                  if "pathogen" not in str(c)
+                                  and not str(c).endswith("_cell_id")]]
+            frame = frame.loc[:, [c for c in frame.columns
+                                  if c == "label" or c not in out.columns]]
+            frame = frame.assign(label=frame["label"].astype(np.int64))
+            frame = frame.drop_duplicates(subset=["label"])
+            out = out.merge(frame, on="label", how="left")
+    keep = [c for c in out.columns if pd.api.types.is_numeric_dtype(out[c])]
+    return out.loc[:, keep].reset_index(drop=True)
