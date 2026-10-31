@@ -11,7 +11,7 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Finden Sie die offiziellen Quellen für Paket und Installer, vergleichen Sie die auf jedem Kanal verfügbare Version und wählen Sie das passende Installations-Tutorial.",
+      "description": "Finden Sie die offiziellen Quellen für Paket, Container-Image und Installer, vergleichen Sie die auf jedem Kanal verfügbare Version und wählen Sie das passende Installations-Tutorial.",
       "objectives": [
         "Die offiziellen Download-Seiten finden.",
         "Den Installationsweg für Ihren Computer wählen.",
@@ -21,13 +21,16 @@
       "scenes": [
         {
           "visual": "01_pypi_current_release",
-          "narration": "Entscheiden Sie, wie Sie spaCR installieren möchten. Verwenden Sie einen Desktop-Installer für eine startbereite Anwendung, pip für eine virtuelle Python-Umgebung oder conda-forge für eine Conda-Umgebung. Beginnen Sie mit den hier gezeigten offiziellen spaCR-Links.",
+          "narration": "Entscheiden Sie, wie Sie spaCR installieren möchten. Ein Desktop-Installer liefert eine startbereite Anwendung. Pip installiert in eine virtuelle Python-Umgebung, conda-forge in eine Conda-Umgebung, und Docker führt die Befehlszeilen-Pipelines in einem Container aus. Beginnen Sie mit den hier gezeigten offiziellen spaCR-Links.",
           "hold_after": 0.7
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "Suchen Sie auf PyPI nach spaCR und lesen Sie den Installationsbefehl neben der aktuellen Version. Kopieren Sie diesen Befehl, wenn Sie bereit sind, in Ihre Python-Umgebung zu installieren. Das pip-Tutorial zeigt, wie Sie diese Umgebung zuerst erstellen und aktivieren.",
-          "hold_after": 0.7
+          "narration": "Suchen Sie auf PyPI nach spaCR und lesen Sie den Installationsbefehl neben der aktuellen Version. Kopieren Sie diesen Befehl, wenn Sie bereit sind, in Ihre Python-Umgebung zu installieren. Install spaCR zeigt, wie Sie diese Umgebung zuerst erstellen und aktivieren.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "02_install_spacr"
+          ]
         },
         {
           "visual": "02_pypi_project_links",
@@ -48,6 +51,14 @@
           ]
         },
         {
+          "visual": "06_github_container_package",
+          "narration": "Für Container öffnen Sie im spaCR-Repository Packages und wählen das spaCR-Containerpaket. Zu jedem Release-Tag gibt es ein CPU-Image und ein passendes CUDA-Image. Install spaCR erklärt, wie Sie genau das gewählte Tag herunterladen, prüfen und ausführen.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "02_install_spacr"
+          ]
+        },
+        {
           "visual": "05_conda_current_package",
           "narration": "Öffnen Sie auf conda-forge die Paketseite von spaCR und prüfen Sie die verfügbare Version. Paketkanäle werden zu unterschiedlichen Zeiten aktualisiert; wählen Sie daher die Version, die über Ihren gewählten Weg verfügbar ist.",
           "hold_after": 0.7
@@ -62,7 +73,7 @@
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "Fahren Sie mit Install spaCR für pip oder conda-forge fort, oder mit Platform installers für ein Desktop-Installationsprogramm. Beide Lektionen enthalten Anleitungen zur Deinstallation. Wechseln Sie nach dem Öffnen von spaCR zu Home und anschließend zu den Pipeline-Übersichten, um einen Arbeitsablauf für Ihre Daten auszuwählen.",
+          "narration": "Fahren Sie mit Install spaCR für pip, conda-forge oder Docker fort, oder mit Platform installers für ein Desktop-Installationsprogramm. Beide Lektionen enthalten Anleitungen zur Deinstallation. Wechseln Sie nach dem Öffnen von spaCR zu Home und anschließend zu den Pipeline-Übersichten, um einen Arbeitsablauf für Ihre Daten auszuwählen.",
           "hold_after": 0.7,
           "related_lessons": [
             "02_install_spacr",

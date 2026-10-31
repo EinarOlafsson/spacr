@@ -32,7 +32,7 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Trouvez les sources officielles du paquet et des installateurs, comparez la version disponible sur chaque canal et choisissez le tutoriel d’installation correspondant.",
+      "description": "Trouvez les sources officielles du paquet, de l’image de conteneur et des installateurs, comparez la version disponible sur chaque canal et choisissez le tutoriel d’installation correspondant.",
       "objectives": [
         "Trouver les pages officielles de téléchargement.",
         "Choisir la méthode d’installation adaptée à votre ordinateur.",
@@ -42,15 +42,18 @@
       "scenes": [
         {
           "visual": "01_pypi_current_release",
-          "narration": "Choisissez comment installer spaCR. Utilisez un installateur de bureau pour une application prête à lancer, pip pour un environnement virtuel Python, ou conda-forge pour un environnement Conda. Partez des liens officiels de spaCR affichés ici.",
+          "narration": "Choisissez comment installer spaCR. Un installateur de bureau fournit une application prête à lancer. Pip installe dans un environnement virtuel Python, conda-forge installe dans un environnement Conda, et Docker exécute les chaînes de traitement en ligne de commande dans un conteneur. Partez des liens officiels de spaCR affichés ici.",
           "hold_after": 0.7,
-          "speech_text": "Choisissez comment installer spakeur. Utilisez un installateur de bureau pour une application prête à lancer, pip pour un environnement virtuel Python, ou Conda Forge pour un environnement Conda. Partez des liens officiels de spakeur affichés ici."
+          "speech_text": "Choisissez comment installer spakeur. Un installateur de bureau fournit une application prête à lancer. Pip installe dans un environnement virtuel Python, Conda Forge installe dans un environnement Conda, et Docker exécute les chaînes de traitement en ligne de commande dans un conteneur. Partez des liens officiels de spakeur affichés ici."
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "Sur PyPI, trouvez spaCR et lisez la commande d’installation à côté de la version actuelle. Copiez cette commande lorsque vous êtes prêt à installer dans votre environnement Python. Le tutoriel pip montre d’abord comment créer et activer cet environnement.",
+          "narration": "Sur PyPI, trouvez spaCR et lisez la commande d’installation à côté de la version actuelle. Copiez cette commande lorsque vous êtes prêt à installer dans votre environnement Python. Install spaCR montre d’abord comment créer et activer cet environnement.",
           "hold_after": 0.7,
-          "speech_text": "Sur païpe, trouvez spakeur et lisez la commande d’installation à côté de la version actuelle. Copiez cette commande lorsque vous êtes prêt à installer dans votre environnement Python. Le tutoriel pip montre d’abord comment créer et activer cet environnement."
+          "related_lessons": [
+            "02_install_spacr"
+          ],
+          "speech_text": "Sur païpe, trouvez spakeur et lisez la commande d’installation à côté de la version actuelle. Copiez cette commande lorsque vous êtes prêt à installer dans votre environnement Python. Install spakeur montre d’abord comment créer et activer cet environnement."
         },
         {
           "visual": "02_pypi_project_links",
@@ -74,6 +77,15 @@
           "speech_text": "Développez Assets et téléchargez l’installateur pour Windows, macOS ou Linux. La leçon Platform installers explique l’installation, le lancement de spakeur et sa désinstallation sur chaque système d’exploitation."
         },
         {
+          "visual": "06_github_container_package",
+          "narration": "Pour les conteneurs, ouvrez Packages depuis le dépôt spaCR et sélectionnez le paquet de conteneur spaCR. Chaque étiquette de version comporte une image CPU et une image CUDA correspondante. Install spaCR explique comment télécharger, vérifier et exécuter exactement l’étiquette choisie.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "02_install_spacr"
+          ],
+          "speech_text": "Pour les conteneurs, ouvrez Packages depuis le dépôt spakeur et sélectionnez le paquet de conteneur spakeur. Chaque étiquette de version comporte une image CPU et une image CUDA correspondante. Install spakeur explique comment télécharger, vérifier et exécuter exactement l’étiquette choisie."
+        },
+        {
           "visual": "05_conda_current_package",
           "narration": "Sur conda-forge, ouvrez la page du paquet spaCR et vérifiez la version disponible. Les canaux de paquets peuvent être mis à jour à des moments différents ; choisissez donc la version disponible par la méthode retenue.",
           "hold_after": 0.7,
@@ -90,13 +102,13 @@
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "Poursuivez avec Install spaCR pour pip ou conda-forge, ou avec Platform installers pour un installateur de bureau. Les deux leçons incluent les instructions de désinstallation. Une fois spaCR ouvert, passez à Home, puis aux vues d’ensemble des chaînes de traitement pour choisir un flux de travail adapté à vos données.",
+          "narration": "Poursuivez avec Install spaCR pour pip, conda-forge ou Docker, ou avec Platform installers pour un installateur de bureau. Les deux leçons incluent les instructions de désinstallation. Une fois spaCR ouvert, passez à Home, puis aux vues d’ensemble des chaînes de traitement pour choisir un flux de travail adapté à vos données.",
           "hold_after": 0.7,
           "related_lessons": [
             "02_install_spacr",
             "04_platform_installers"
           ],
-          "speech_text": "Poursuivez avec Install spakeur pour pip ou Conda Forge, ou avec Platform installers pour un installateur de bureau. Les deux leçons incluent les instructions de désinstallation. Une fois spakeur ouvert, passez à Home, puis aux vues d’ensemble des chaînes de traitement pour choisir un flux de travail adapté à vos données."
+          "speech_text": "Poursuivez avec Install spakeur pour pip, Conda Forge ou Docker, ou avec Platform installers pour un installateur de bureau. Les deux leçons incluent les instructions de désinstallation. Une fois spakeur ouvert, passez à Home, puis aux vues d’ensemble des chaînes de traitement pour choisir un flux de travail adapté à vos données."
         }
       ],
       "narration_voices": {

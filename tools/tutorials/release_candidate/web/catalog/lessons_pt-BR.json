@@ -32,7 +32,7 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Encontre as fontes oficiais do pacote e dos instaladores, compare a versão disponível em cada canal e escolha o tutorial de instalação correspondente.",
+      "description": "Encontre as fontes oficiais do pacote, da imagem de contêiner e dos instaladores, compare a versão disponível em cada canal e escolha o tutorial de instalação correspondente.",
       "objectives": [
         "Encontrar as páginas oficiais de download.",
         "Escolher a forma de instalação para o seu computador.",
@@ -42,15 +42,18 @@
       "scenes": [
         {
           "visual": "01_pypi_current_release",
-          "narration": "Escolha como você quer instalar o spaCR. Use um instalador de desktop para um aplicativo pronto para abrir, o pip para um ambiente virtual Python ou o conda-forge para um ambiente Conda. Comece pelos links oficiais do spaCR mostrados aqui.",
+          "narration": "Escolha como você quer instalar o spaCR. Um instalador de desktop oferece um aplicativo pronto para abrir. O pip instala em um ambiente virtual Python, o conda-forge instala em um ambiente Conda e o Docker executa os pipelines de linha de comando em um contêiner. Comece pelos links oficiais do spaCR mostrados aqui.",
           "hold_after": 0.7,
-          "speech_text": "Escolha como você quer instalar o espáquer. Use um instalador de desktop para um aplicativo pronto para abrir, o pip para um ambiente virtual Python ou o Conda Forge para um ambiente Conda. Comece pelos links oficiais do espáquer mostrados aqui."
+          "speech_text": "Escolha como você quer instalar o espáquer. Um instalador de desktop oferece um aplicativo pronto para abrir. O pip instala em um ambiente virtual Python, o Conda Forge instala em um ambiente Conda e o Docker executa os pipelines de linha de comando em um contêiner. Comece pelos links oficiais do espáquer mostrados aqui."
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "No PyPI, encontre o spaCR e leia o comando de instalação ao lado da versão atual. Copie esse comando quando estiver pronto para instalar no seu ambiente Python. O tutorial de pip mostra como criar e ativar esse ambiente antes.",
+          "narration": "No PyPI, encontre o spaCR e leia o comando de instalação ao lado da versão atual. Copie esse comando quando estiver pronto para instalar no seu ambiente Python. Install spaCR mostra como criar e ativar esse ambiente antes.",
           "hold_after": 0.7,
-          "speech_text": "No paip, encontre o espáquer e leia o comando de instalação ao lado da versão atual. Copie esse comando quando estiver pronto para instalar no seu ambiente Python. O tutorial de pip mostra como criar e ativar esse ambiente antes."
+          "related_lessons": [
+            "02_install_spacr"
+          ],
+          "speech_text": "No paip, encontre o espáquer e leia o comando de instalação ao lado da versão atual. Copie esse comando quando estiver pronto para instalar no seu ambiente Python. Install espáquer mostra como criar e ativar esse ambiente antes."
         },
         {
           "visual": "02_pypi_project_links",
@@ -74,6 +77,15 @@
           "speech_text": "Expanda Assets e baixe o instalador para Windows, macOS ou Linux. A lição Platform installers explica a instalação, como iniciar espáquer e como desinstalá-lo em cada sistema operacional."
         },
         {
+          "visual": "06_github_container_package",
+          "narration": "Para contêineres, abra Packages a partir do repositório do spaCR e selecione o pacote de contêiner do spaCR. Cada tag de versão tem uma imagem para CPU e uma imagem CUDA correspondente. Install spaCR explica como baixar, verificar e executar exatamente a tag que você escolher.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "02_install_spacr"
+          ],
+          "speech_text": "Para contêineres, abra Packages a partir do repositório do espáquer e selecione o pacote de contêiner do espáquer. Cada tag de versão tem uma imagem para CPU e uma imagem CUDA correspondente. Install espáquer explica como baixar, verificar e executar exatamente a tag que você escolher."
+        },
+        {
           "visual": "05_conda_current_package",
           "narration": "No conda-forge, abra a página do pacote spaCR e confira a versão disponível. Os canais de pacotes podem ser atualizados em momentos diferentes, então escolha a versão disponível pela forma que você escolher.",
           "hold_after": 0.7,
@@ -90,13 +102,13 @@
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "Continue com Install spaCR para pip ou conda-forge, ou com Platform installers para um instalador de desktop. Ambas as lições incluem orientações de desinstalação. Quando spaCR abrir, vá para Home e depois para as visões gerais dos pipelines para escolher um fluxo de trabalho para seus dados.",
+          "narration": "Continue com Install spaCR para pip, conda-forge ou Docker, ou com Platform installers para um instalador de desktop. Ambas as lições incluem orientações de desinstalação. Quando spaCR abrir, vá para Home e depois para as visões gerais dos pipelines para escolher um fluxo de trabalho para seus dados.",
           "hold_after": 0.7,
           "related_lessons": [
             "02_install_spacr",
             "04_platform_installers"
           ],
-          "speech_text": "Continue com Install espáquer para pip ou Conda Forge, ou com Platform installers para um instalador de desktop. Ambas as lições incluem orientações de desinstalação. Quando espáquer abrir, vá para Home e depois para as visões gerais dos pipelines para escolher um fluxo de trabalho para seus dados."
+          "speech_text": "Continue com Install espáquer para pip, Conda Forge ou Docker, ou com Platform installers para um instalador de desktop. Ambas as lições incluem orientações de desinstalação. Quando espáquer abrir, vá para Home e depois para as visões gerais dos pipelines para escolher um fluxo de trabalho para seus dados."
         }
       ],
       "narration_voices": {

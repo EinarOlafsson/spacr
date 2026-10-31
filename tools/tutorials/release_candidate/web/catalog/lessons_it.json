@@ -32,7 +32,7 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Trova le fonti ufficiali del pacchetto e degli installer, confronta la versione disponibile su ciascun canale e scegli il tutorial di installazione corrispondente.",
+      "description": "Trova le fonti ufficiali del pacchetto, dell’immagine container e degli installer, confronta la versione disponibile su ciascun canale e scegli il tutorial di installazione corrispondente.",
       "objectives": [
         "Trovare le pagine ufficiali di download.",
         "Scegliere il metodo di installazione per il tuo computer.",
@@ -42,15 +42,18 @@
       "scenes": [
         {
           "visual": "01_pypi_current_release",
-          "narration": "Scegli come vuoi installare spaCR. Usa un installer desktop per un’applicazione pronta da avviare, pip per un ambiente virtuale Python o conda-forge per un ambiente Conda. Parti dai collegamenti ufficiali di spaCR mostrati qui.",
+          "narration": "Scegli come vuoi installare spaCR. Un installer desktop fornisce un’applicazione pronta da avviare. Pip installa in un ambiente virtuale Python, conda-forge installa in un ambiente Conda e Docker esegue le pipeline da riga di comando in un container. Parti dai collegamenti ufficiali di spaCR mostrati qui.",
           "hold_after": 0.7,
-          "speech_text": "Scegli come vuoi installare spàker. Usa un installer desktop per un’applicazione pronta da avviare, pip per un ambiente virtuale Python o Conda Forge per un ambiente Conda. Parti dai collegamenti ufficiali di spàker mostrati qui."
+          "speech_text": "Scegli come vuoi installare spàker. Un installer desktop fornisce un’applicazione pronta da avviare. Pip installa in un ambiente virtuale Python, Conda Forge installa in un ambiente Conda e Docker esegue le pipeline da riga di comando in un container. Parti dai collegamenti ufficiali di spàker mostrati qui."
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "Su PyPI, trova spaCR e leggi il comando di installazione accanto alla versione attuale. Copia quel comando quando sei pronto a installare nel tuo ambiente Python. Il tutorial di pip mostra come creare e attivare prima quell’ambiente.",
+          "narration": "Su PyPI, trova spaCR e leggi il comando di installazione accanto alla versione attuale. Copia quel comando quando sei pronto a installare nel tuo ambiente Python. Install spaCR mostra come creare e attivare prima quell’ambiente.",
           "hold_after": 0.7,
-          "speech_text": "Su paip, trova spàker e leggi il comando di installazione accanto alla versione attuale. Copia quel comando quando sei pronto a installare nel tuo ambiente Python. Il tutorial di pip mostra come creare e attivare prima quell’ambiente."
+          "related_lessons": [
+            "02_install_spacr"
+          ],
+          "speech_text": "Su paip, trova spàker e leggi il comando di installazione accanto alla versione attuale. Copia quel comando quando sei pronto a installare nel tuo ambiente Python. Install spàker mostra come creare e attivare prima quell’ambiente."
         },
         {
           "visual": "02_pypi_project_links",
@@ -74,6 +77,15 @@
           "speech_text": "Espandi Assets e scarica il programma di installazione per Windows, macOS o Linux. La lezione Platform installers spiega l’installazione, l’avvio di spàker e la disinstallazione su ogni sistema operativo."
         },
         {
+          "visual": "06_github_container_package",
+          "narration": "Per i container, apri Packages dal repository di spaCR e seleziona il pacchetto container di spaCR. Ogni tag di release ha un’immagine per CPU e un’immagine CUDA corrispondente. Install spaCR spiega come scaricare, verificare ed eseguire esattamente il tag che scegli.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "02_install_spacr"
+          ],
+          "speech_text": "Per i container, apri Packages dal repository di spàker e seleziona il pacchetto container di spàker. Ogni tag di release ha un’immagine per CPU e un’immagine CUDA corrispondente. Install spàker spiega come scaricare, verificare ed eseguire esattamente il tag che scegli."
+        },
+        {
           "visual": "05_conda_current_package",
           "narration": "Su conda-forge, apri la pagina del pacchetto spaCR e controlla la versione disponibile. I canali dei pacchetti possono aggiornarsi in momenti diversi, quindi scegli la versione disponibile tramite il metodo che preferisci.",
           "hold_after": 0.7,
@@ -90,13 +102,13 @@
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "Continua con Install spaCR per pip o conda-forge, oppure con Platform installers per un programma di installazione desktop. Entrambe le lezioni includono istruzioni di disinstallazione. Una volta aperto spaCR, passa a Home e poi alle panoramiche delle pipeline per scegliere un flusso di lavoro per i tuoi dati.",
+          "narration": "Continua con Install spaCR per pip, conda-forge o Docker, oppure con Platform installers per un programma di installazione desktop. Entrambe le lezioni includono istruzioni di disinstallazione. Una volta aperto spaCR, passa a Home e poi alle panoramiche delle pipeline per scegliere un flusso di lavoro per i tuoi dati.",
           "hold_after": 0.7,
           "related_lessons": [
             "02_install_spacr",
             "04_platform_installers"
           ],
-          "speech_text": "Continua con Install spàker per pip o Conda Forge, oppure con Platform installers per un programma di installazione desktop. Entrambe le lezioni includono istruzioni di disinstallazione. Una volta aperto spàker, passa a Home e poi alle panoramiche delle pipeline per scegliere un flusso di lavoro per i tuoi dati."
+          "speech_text": "Continua con Install spàker per pip, Conda Forge o Docker, oppure con Platform installers per un programma di installazione desktop. Entrambe le lezioni includono istruzioni di disinstallazione. Una volta aperto spàker, passa a Home e poi alle panoramiche delle pipeline per scegliere un flusso di lavoro per i tuoi dati."
         }
       ],
       "narration_voices": {

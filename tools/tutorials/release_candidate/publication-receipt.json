@@ -1,19 +1,19 @@
 {
   "repository": "datasets/einarolafsson/spacr-tutorials",
-  "branch": "n676-ws-63-small-multiples-g60-20261029",
-  "base_commit": "cc4a83fb2a26fbb8ad8bce9edf750ab2b75ee4ec",
-  "commit": "5b8ac9ab471e081cf57de58e69d246b8367b9e02",
-  "tag": "n676-ws-63-small-multiples-g60-20261029-verified",
-  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/5b8ac9ab471e081cf57de58e69d246b8367b9e02",
-  "manifest_sha256": "ab8267d3ca3952b868f34e9231a01d4023afe2684a158605f046ab3fd939f535",
+  "branch": "n676-ws-01-pypi-github-20261031",
+  "base_commit": "e88983a2fcf0de26c4badc9b1febc67a5f10f973",
+  "commit": "d3794aea1b872e1b56de435bf8b5c3c46f768887",
+  "tag": "n676-ws-01-pypi-github-20261031-verified",
+  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/d3794aea1b872e1b56de435bf8b5c3c46f768887",
+  "manifest_sha256": "5e4e4638c9bbe64acce09c4485b3cdaa423e0d9afb2d336ccd54ac187fada616",
   "media_files": 7443,
-  "media_bytes": 15526663715,
+  "media_bytes": 15537927289,
   "readback": {
-    "commit": "5b8ac9ab471e081cf57de58e69d246b8367b9e02",
+    "commit": "d3794aea1b872e1b56de435bf8b5c3c46f768887",
     "files_expected": 7443,
     "metadata_matched": 7443,
     "metadata_failures": [],
-    "bytes_read_back": 15526663715,
+    "bytes_read_back": 15537927289,
     "downloaded_sha256_matched": 7443,
     "download_failures": [],
     "files_on_revision_not_in_candidate": [
@@ -3524,16 +3524,16 @@
       "i18n/api/sv.json",
       "i18n/api/zh_CN.json"
     ],
-    "seconds": 563.4,
+    "seconds": 853.8,
     "passed": true
   },
   "pages": {
     "destination": "docs/source/_extra/tutorials",
     "files_from_candidate": 118,
     "bundled_tutorial_index_sha256": "9a2837697ebac2fe00a11f164c9dd262d0c6f89767cd3c21507ee370d96d718d",
-    "index_sha256": "d376bfab255f0c77e4e0d2114b1f8a185795a865db4a902dbca75fc065087f26",
-    "candidate_index_sha256": "4ea1753feba278ac73a76898f157d563714b3818a9b3288113a08021051b380b",
-    "cache_key": "n676-ws-63-small-multiples-g60-20261029-verified",
+    "index_sha256": "b10a78b9b6eb637fb7480804c95007f789dd8149bfad7fda26b3c44e21bec5b7",
+    "candidate_index_sha256": "d73fd3ea7063401270e4bf8fba6402dd2da72ebb63c0b1f5e69550174859137b",
+    "cache_key": "n676-ws-01-pypi-github-20261031-verified",
     "unchanged_versioned_assets": [
       "app_v2.js",
       "styles.css",
@@ -3542,14 +3542,14 @@
     "versioned_assets": {
       "app_v2.js": "n676-prose-78-reviewed-screen-features-20261024-verified",
       "styles.css": "20261002-home-landscape",
-      "lesson_catalog.js": "n676-ws-63-small-multiples-g60-20261029-verified",
-      "module_navigation.js": "n676-ws-63-small-multiples-g60-20261029-verified",
+      "lesson_catalog.js": "n676-ws-01-pypi-github-20261031-verified",
+      "module_navigation.js": "n676-ws-01-pypi-github-20261031-verified",
       "voice_catalog.js": "20260811-50-voices"
     },
     "hosted_web_copies": 60,
     "removed_local_web_copies": [],
     "withdrawn_pages_archive": {
-      "directory": "/media/carruthers/mnt1/spacr-tutorial-candidates-t18/release-candidate-append-zrm8och5/retired-pages",
+      "directory": "/media/carruthers/mnt1/spacr-tutorial-candidates-t18/release-candidate-append-ikyi2zjf/retired-pages",
       "files": []
     },
     "ready": 60,

@@ -104,7 +104,7 @@ def test_release_audit_parsers_pin_the_current_inventory():
         "03_pip_install": "02_install_spacr",
     }
     refreshed_scenes = {
-        "01_pypi_github": 8, "02_install_spacr": 21,
+        "01_pypi_github": 9, "02_install_spacr": 21,
         "04_platform_installers": 14, "05_home": 38,
         "80_image_analysis_pathways": 12, "82_toxoplasma": 7,
         "88_navigator": 18,
@@ -144,8 +144,8 @@ def test_release_audit_parsers_pin_the_current_inventory():
     # Scene totals count the whole published inventory, archived lessons
     # included, so archiving or restoring a lesson leaves them unchanged.
     published = full_file("lesson_catalog.js", tutorial_root)
-    assert sum(len(lesson["scenes"]) for lesson in published["lessons"] if lesson["id"] != "14_make_masks") == 1187
-    assert sum(len(lesson["scenes"]) for lesson in published["lessons"]) == 1248
+    assert sum(len(lesson["scenes"]) for lesson in published["lessons"] if lesson["id"] != "14_make_masks") == 1188
+    assert sum(len(lesson["scenes"]) for lesson in published["lessons"]) == 1249
     assert len(languages) == 8
     assert len(voices) == 50
     assert not (live.RETIRED_VOICES & set(voices))
