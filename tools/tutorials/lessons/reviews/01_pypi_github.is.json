@@ -1,20 +1,20 @@
 {
   "lesson": "01_pypi_github",
-  "english_sha256": "228d77a708c56d0e439c4fa0c94429809c503904e012110e09ad6e36c6ac7f67",
+  "english_sha256": "46dfaec8077e01c39c84c8945e03867a74ea68e71893a57c25870e4e82d3a55c",
   "review": {
-    "kind": "Technical source-bound editorial review; no native-speaker signoff",
-    "date": "2026-10-08",
-    "translator": "Desktop download hash instruction removed; merged installation and uninstall references updated.",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "date": "2026-10-31",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "Three adjacent installer-reference paragraphs revised;five scene paragraphs and all metadata retained.",
-    "previous_review_sha256": "16b0eb170c3b7acf00e3bb5183ce3951a7dc4bcc955a83b3abdd17dc22ad0194",
-    "previous_english_sha256": "c7bf7fb1b1c8f7140d6044945bf7c1ede771dd4e7ef22503d932931f68b28153",
+    "scope": "Description and scenes 0, 1 and 8 revised; new Docker container scene 5 added; six scene paragraphs and remaining metadata retained.",
+    "previous_review_sha256": "ad4dcd9cf8bc9254a040d69be5640d01e1d9dd049220b0f0efa06bc6ad25c280",
+    "previous_english_sha256": "228d77a708c56d0e439c4fa0c94429809c503904e012110e09ad6e36c6ac7f67",
     "previous_review": {
-      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-      "date": "2026-09-25",
+      "kind": "Technical source-bound editorial review; no native-speaker signoff",
+      "translator": "Desktop download hash instruction removed; merged installation and uninstall references updated.",
+      "date": "2026-10-08",
       "independent_peer_review": false,
       "native_speaker_signoff": false,
       "listening_review": false
@@ -22,7 +22,7 @@
   },
   "language": "is",
   "title": "Finndu spaCR á GitHub, PyPI og conda-forge",
-  "description": "Finndu opinberar uppsprettur pakkans og uppsetningarforritanna, berðu saman útgáfuna sem er í boði á hverri rás og veldu samsvarandi uppsetningarkennslu.",
+  "description": "Finndu opinberar uppsprettur pakkans, gámamyndarinnar og uppsetningarforritanna, berðu saman útgáfuna sem er í boði á hverri rás og veldu samsvarandi uppsetningarkennslu.",
   "objectives": [
     "Finna opinberu niðurhalssíðurnar.",
     "Velja uppsetningarleið fyrir tölvuna þína.",
@@ -30,13 +30,14 @@
   ],
   "prerequisite": "Opnaðu vafra og ákveddu hvort þú vilt uppsetningarforrit fyrir skjáborð eða Python-umhverfi.",
   "scenes": [
-    "Veldu hvernig þú vilt setja upp spaCR. Notaðu uppsetningarforrit fyrir skjáborð til að fá forrit sem er tilbúið til ræsingar, pip fyrir Python-sýndarumhverfi eða conda-forge fyrir Conda-umhverfi. Byrjaðu á opinberu spaCR-tenglunum sem sjást hér.",
-    "Á PyPI finnurðu spaCR og lest uppsetningarskipunina við hlið núverandi útgáfu. Afritaðu skipunina þegar þú ert tilbúinn að setja upp í Python-umhverfið þitt. Kennslan um pip sýnir hvernig þú býrð fyrst til og virkjar það umhverfi.",
+    "Veldu hvernig þú vilt setja upp spaCR. Uppsetningarforrit fyrir skjáborð gefur forrit sem er tilbúið til ræsingar. Pip setur upp í Python-sýndarumhverfi, conda-forge setur upp í Conda-umhverfi og Docker keyrir skipanalínuvinnsluferlin í gámi. Byrjaðu á opinberu spaCR-tenglunum sem sjást hér.",
+    "Á PyPI finnurðu spaCR og lest uppsetningarskipunina við hlið núverandi útgáfu. Afritaðu skipunina þegar þú ert tilbúinn að setja upp í Python-umhverfið þitt. Install spaCR sýnir hvernig þú býrð fyrst til og virkjar það umhverfi.",
     "Notaðu Project links til að opna skjölunina, frumkóðageymsluna eða villuskráninguna. Settu bókamerki á skjölunina svo þú getir farið aftur í yfirferðir eininganna meðan þú vinnur í spaCR.",
     "Á GitHub opnarðu spaCR-geymsluna. main inniheldur frumkóða útgáfunnar og nightly nýjustu þróunarvinnuna. Fyrir pakkaða skjáborðsuppsetningu opnarðu Releases og velur útgáfu.",
     "Opnaðu Assets og sæktu uppsetningarforritið fyrir Windows, macOS eða Linux. Kennsluefnið Platform installers útskýrir uppsetningu, ræsingu spaCR og hvernig því er eytt af hverju stýrikerfi.",
+    "Fyrir gáma opnarðu Packages í spaCR-geymslunni og velur spaCR-gámapakkann. Hvert útgáfumerki hefur CPU-mynd og samsvarandi CUDA-mynd. Install spaCR útskýrir hvernig þú sækir, athugar og keyrir nákvæmlega merkið sem þú velur.",
     "Á conda-forge opnarðu pakkasíðu spaCR og athugar hvaða útgáfa er í boði. Pakkarásir geta uppfærst á ólíkum tímum, svo veldu útgáfuna sem er í boði eftir leiðinni sem þú velur.",
     "Skipunin frá conda-forge setur spaCR upp í virka Conda-umhverfinu þínu. Fylgdu Install spaCR til að búa til umhverfið, setja pakkann upp og ræsa forritið. Þar er einnig útskýrt hvernig pakkinn og umhverfið eru fjarlægð.",
-    "Haltu áfram í Install spaCR fyrir pip eða conda-forge, eða í Platform installers fyrir uppsetningarforrit fyrir skjáborð. Bæði kennsluefnin útskýra hvernig uppsetningin er fjarlægð. Þegar spaCR hefur opnast skaltu fara á Home og síðan í yfirlit vinnsluferla til að velja vinnuflæði fyrir gögnin þín."
+    "Haltu áfram í Install spaCR fyrir pip, conda-forge eða Docker, eða í Platform installers fyrir uppsetningarforrit fyrir skjáborð. Bæði kennsluefnin útskýra hvernig uppsetningin er fjarlægð. Þegar spaCR hefur opnast skaltu fara á Home og síðan í yfirlit vinnsluferla til að velja vinnuflæði fyrir gögnin þín."
   ]
 }

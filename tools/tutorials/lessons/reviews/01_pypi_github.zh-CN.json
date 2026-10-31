@@ -1,20 +1,20 @@
 {
   "lesson": "01_pypi_github",
-  "english_sha256": "228d77a708c56d0e439c4fa0c94429809c503904e012110e09ad6e36c6ac7f67",
+  "english_sha256": "46dfaec8077e01c39c84c8945e03867a74ea68e71893a57c25870e4e82d3a55c",
   "review": {
-    "kind": "Technical source-bound editorial review; no native-speaker signoff",
-    "date": "2026-10-08",
-    "translator": "Desktop download hash instruction removed; merged installation and uninstall references updated.",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "date": "2026-10-31",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "Three adjacent installer-reference paragraphs revised;five scene paragraphs and all metadata retained.",
-    "previous_review_sha256": "f464db1356cb9c90a9e0d6326935f97e2e03a09e374f9aee8a3d1e81058c3891",
-    "previous_english_sha256": "c7bf7fb1b1c8f7140d6044945bf7c1ede771dd4e7ef22503d932931f68b28153",
+    "scope": "Description and scenes 0, 1 and 8 revised; new Docker container scene 5 added; six scene paragraphs and remaining metadata retained.",
+    "previous_review_sha256": "9f4d9292f091b64115003e90b55d05db932424d957ebdb6680dcddf82d4fa641",
+    "previous_english_sha256": "228d77a708c56d0e439c4fa0c94429809c503904e012110e09ad6e36c6ac7f67",
     "previous_review": {
-      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-      "date": "2026-09-25",
+      "kind": "Technical source-bound editorial review; no native-speaker signoff",
+      "translator": "Desktop download hash instruction removed; merged installation and uninstall references updated.",
+      "date": "2026-10-08",
       "independent_peer_review": false,
       "native_speaker_signoff": false,
       "listening_review": false
@@ -22,7 +22,7 @@
   },
   "language": "zh-CN",
   "title": "在GitHub、PyPI和conda-forge上找到spaCR",
-  "description": "找到官方软件包和安装程序的来源，比较各渠道提供的版本，并选择对应的安装教程。",
+  "description": "找到官方软件包、容器镜像和安装程序的来源，比较各渠道提供的版本，并选择对应的安装教程。",
   "objectives": [
     "找到官方下载页面。",
     "为您的电脑选择安装方式。",
@@ -30,13 +30,14 @@
   ],
   "prerequisite": "打开网页浏览器，决定要使用桌面安装程序还是Python环境。",
   "scenes": [
-    "选择安装spaCR的方式。想要可以直接启动的应用程序，请使用桌面安装程序；需要Python虚拟环境，请使用pip；需要Conda环境，请使用conda-forge。请从这里显示的spaCR官方链接开始。",
-    "在PyPI上找到spaCR，阅读当前版本旁边的安装命令。准备好安装到您的Python环境时，复制该命令。pip教程介绍了如何先创建并激活这个环境。",
+    "选择安装spaCR的方式。桌面安装程序提供可以直接启动的应用程序。pip安装到Python虚拟环境，conda-forge安装到Conda环境，Docker则在容器中运行命令行流程。请从这里显示的spaCR官方链接开始。",
+    "在PyPI上找到spaCR，阅读当前版本旁边的安装命令。准备好安装到您的Python环境时，复制该命令。Install spaCR介绍了如何先创建并激活这个环境。",
     "使用Project links打开文档、源代码仓库或问题跟踪器。把文档加入书签，这样在使用spaCR时可以随时回到各模块的演示。",
     "在GitHub上打开spaCR仓库。main包含发布版本的源代码，nightly包含最新的开发工作。如需打包好的桌面安装，请打开Releases并选择一个版本。",
     "展开 Assets，下载适用于 Windows、macOS 或 Linux 的安装程序。Platform installers 教程说明每种操作系统上的安装、启动 spaCR 和卸载步骤。",
+    "如需使用容器，请从spaCR仓库打开Packages，并选择spaCR容器软件包。每个发布标签都有一个CPU镜像和一个对应的CUDA镜像。Install spaCR说明了如何拉取、检查并运行您选择的确切标签。",
     "在conda-forge上打开spaCR软件包页面，查看可用的版本。不同的软件包渠道可能在不同时间更新，所以请选择您所用方式中可用的版本。",
     "conda-forge 命令将 spaCR 安装到当前激活的 Conda 环境中。按照 Install spaCR 教程创建环境、安装软件包并启动应用。该教程也说明如何移除软件包和环境。",
-    "使用 pip 或 conda-forge 时继续查看 Install spaCR，使用桌面安装程序时查看 Platform installers。两个教程都包含卸载说明。打开 spaCR 后进入 Home，再查看流程概览，为数据选择工作流程。"
+    "使用 pip、conda-forge 或 Docker 时继续查看 Install spaCR，使用桌面安装程序时查看 Platform installers。两个教程都包含卸载说明。打开 spaCR 后进入 Home，再查看流程概览，为数据选择工作流程。"
   ]
 }

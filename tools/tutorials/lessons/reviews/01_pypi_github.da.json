@@ -1,20 +1,20 @@
 {
   "lesson": "01_pypi_github",
-  "english_sha256": "228d77a708c56d0e439c4fa0c94429809c503904e012110e09ad6e36c6ac7f67",
+  "english_sha256": "46dfaec8077e01c39c84c8945e03867a74ea68e71893a57c25870e4e82d3a55c",
   "review": {
-    "kind": "Technical source-bound editorial review; no native-speaker signoff",
-    "date": "2026-10-08",
-    "translator": "Desktop download hash instruction removed; merged installation and uninstall references updated.",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "date": "2026-10-31",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "Three adjacent installer-reference paragraphs revised;five scene paragraphs and all metadata retained.",
-    "previous_review_sha256": "3570e2e41e868783342b7dc585381a4379c2b61a1dbc725e42df1ba80ed74275",
-    "previous_english_sha256": "c7bf7fb1b1c8f7140d6044945bf7c1ede771dd4e7ef22503d932931f68b28153",
+    "scope": "Description and scenes 0, 1 and 8 revised; new Docker container scene 5 added; six scene paragraphs and remaining metadata retained.",
+    "previous_review_sha256": "de1781cbc101a2698a5bc98d04380f373e1da7731cdc9d6e55fcb9ad81c39c73",
+    "previous_english_sha256": "228d77a708c56d0e439c4fa0c94429809c503904e012110e09ad6e36c6ac7f67",
     "previous_review": {
-      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-      "date": "2026-09-25",
+      "kind": "Technical source-bound editorial review; no native-speaker signoff",
+      "translator": "Desktop download hash instruction removed; merged installation and uninstall references updated.",
+      "date": "2026-10-08",
       "independent_peer_review": false,
       "native_speaker_signoff": false,
       "listening_review": false
@@ -22,7 +22,7 @@
   },
   "language": "da",
   "title": "Find spaCR på GitHub, PyPI og conda-forge",
-  "description": "Find de officielle kilder til pakken og installationsprogrammerne, sammenlign den version, der findes på hver kanal, og vælg den tilsvarende installationsvejledning.",
+  "description": "Find de officielle kilder til pakken, containerbilledet og installationsprogrammerne, sammenlign den version, der findes på hver kanal, og vælg den tilsvarende installationsvejledning.",
   "objectives": [
     "Finde de officielle downloadsider.",
     "Vælge installationsvej til din computer.",
@@ -30,13 +30,14 @@
   ],
   "prerequisite": "Åbn en webbrowser, og beslut, om du vil have et installationsprogram til skrivebordet eller et Python-miljø.",
   "scenes": [
-    "Vælg, hvordan du vil installere spaCR. Brug et installationsprogram til et program, der er klar til at starte, pip til et virtuelt Python-miljø eller conda-forge til et Conda-miljø. Tag udgangspunkt i de officielle spaCR-links, der vises her.",
-    "På PyPI finder du spaCR og læser installationskommandoen ved siden af den aktuelle version. Kopiér kommandoen, når du er klar til at installere i dit Python-miljø. Vejledningen til pip viser, hvordan du først opretter og aktiverer miljøet.",
+    "Vælg, hvordan du vil installere spaCR. Et installationsprogram til skrivebordet giver et program, der er klar til at starte. Pip installerer i et virtuelt Python-miljø, conda-forge installerer i et Conda-miljø, og Docker kører kommandolinjepipelines i en container. Tag udgangspunkt i de officielle spaCR-links, der vises her.",
+    "På PyPI finder du spaCR og læser installationskommandoen ved siden af den aktuelle version. Kopiér kommandoen, når du er klar til at installere i dit Python-miljø. Install spaCR viser, hvordan du først opretter og aktiverer miljøet.",
     "Brug Project links til at åbne dokumentationen, kildekodearkivet eller fejlsporingen. Bogmærk dokumentationen, så du kan vende tilbage til modulgennemgangene, mens du arbejder i spaCR.",
     "På GitHub åbner du spaCR-arkivet. main indeholder kildekoden til udgivelsen, og nightly indeholder det nyeste udviklingsarbejde. Til en pakket skrivebordsinstallation åbner du Releases og vælger en udgivelse.",
     "Udvid Assets, og hent installationsprogrammet til Windows, macOS eller Linux. Lektionen Platform installers forklarer installationen, hvordan spaCR startes, og hvordan det afinstalleres på hvert operativsystem.",
+    "Til containere åbner du Packages fra spaCR-arkivet og vælger spaCR-containerpakken. Hvert udgivelsesmærke har et CPU-billede og et tilsvarende CUDA-billede. Install spaCR forklarer, hvordan du henter, kontrollerer og kører præcis det mærke, du vælger.",
     "På conda-forge åbner du pakkesiden for spaCR og kontrollerer, hvilken version der findes. Pakkekanaler kan opdateres på forskellige tidspunkter, så vælg den version, der findes via den vej, du vælger.",
     "Kommandoen fra conda-forge installerer spaCR i dit aktive Conda-miljø. Følg Install spaCR for at oprette miljøet, installere pakken og starte programmet. Lektionen forklarer også, hvordan pakken og miljøet fjernes.",
-    "Fortsæt med Install spaCR for pip eller conda-forge, eller med Platform installers for et installationsprogram til skrivebordet. Begge lektioner beskriver afinstallation. Når spaCR er åbnet, skal du gå til Home og derefter til pipelineoversigterne for at vælge en arbejdsgang til dine data."
+    "Fortsæt med Install spaCR for pip, conda-forge eller Docker, eller med Platform installers for et installationsprogram til skrivebordet. Begge lektioner beskriver afinstallation. Når spaCR er åbnet, skal du gå til Home og derefter til pipelineoversigterne for at vælge en arbejdsgang til dine data."
   ]
 }

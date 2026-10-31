@@ -1,20 +1,20 @@
 {
   "lesson": "01_pypi_github",
-  "english_sha256": "228d77a708c56d0e439c4fa0c94429809c503904e012110e09ad6e36c6ac7f67",
+  "english_sha256": "46dfaec8077e01c39c84c8945e03867a74ea68e71893a57c25870e4e82d3a55c",
   "review": {
-    "kind": "Technical source-bound editorial review; no native-speaker signoff",
-    "date": "2026-10-08",
-    "translator": "Desktop download hash instruction removed; merged installation and uninstall references updated.",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "date": "2026-10-31",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "Three adjacent installer-reference paragraphs revised;five scene paragraphs and all metadata retained.",
-    "previous_review_sha256": "f2362b6e9d4546a123206f59bf62ccf0f21d589a1688f413dc119db60ac1e122",
-    "previous_english_sha256": "c7bf7fb1b1c8f7140d6044945bf7c1ede771dd4e7ef22503d932931f68b28153",
+    "scope": "Description and scenes 0, 1 and 8 revised; new Docker container scene 5 added; six scene paragraphs and remaining metadata retained.",
+    "previous_review_sha256": "6b0ed938049a5c479af3f99df21a577fdf80a33af1f43b5cc17020deddaa6bfe",
+    "previous_english_sha256": "228d77a708c56d0e439c4fa0c94429809c503904e012110e09ad6e36c6ac7f67",
     "previous_review": {
-      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-      "date": "2026-09-25",
+      "kind": "Technical source-bound editorial review; no native-speaker signoff",
+      "translator": "Desktop download hash instruction removed; merged installation and uninstall references updated.",
+      "date": "2026-10-08",
       "independent_peer_review": false,
       "native_speaker_signoff": false,
       "listening_review": false
@@ -22,7 +22,7 @@
   },
   "language": "ja",
   "title": "GitHub、PyPI、conda-forgeでspaCRを見つける",
-  "description": "公式のパッケージとインストーラーの入手先を見つけ、各チャネルで入手できるリリースを比べて、対応するインストールのチュートリアルを選びます。",
+  "description": "公式のパッケージ、コンテナイメージ、インストーラーの入手先を見つけ、各チャネルで入手できるリリースを比べて、対応するインストールのチュートリアルを選びます。",
   "objectives": [
     "公式のダウンロードページを見つける。",
     "お使いのコンピューターに合ったインストール方法を選ぶ。",
@@ -30,13 +30,14 @@
   ],
   "prerequisite": "ウェブブラウザーを開き、デスクトップインストーラーとPython環境のどちらを使うかを決めてください。",
   "scenes": [
-    "spaCRのインストール方法を選びます。すぐに起動できるアプリケーションにはデスクトップインストーラーを、Pythonの仮想環境にはpipを、Conda環境にはconda-forgeを使います。ここに表示されているspaCRの公式リンクから始めましょう。",
-    "PyPIでspaCRを探し、現在のリリースの横にあるインストールコマンドを読みます。Python環境にインストールする準備ができたら、そのコマンドをコピーします。pipのチュートリアルでは、先にその環境を作成して有効にする方法を説明しています。",
+    "spaCRのインストール方法を選びます。デスクトップインストーラーを使うと、すぐに起動できるアプリケーションが手に入ります。pipはPythonの仮想環境に、conda-forgeはConda環境にインストールし、Dockerはコマンドラインのパイプラインをコンテナ内で実行します。ここに表示されているspaCRの公式リンクから始めましょう。",
+    "PyPIでspaCRを探し、現在のリリースの横にあるインストールコマンドを読みます。Python環境にインストールする準備ができたら、そのコマンドをコピーします。Install spaCRでは、先にその環境を作成して有効にする方法を説明しています。",
     "Project linksを使うと、ドキュメント、ソースリポジトリ、課題トラッカーを開けます。spaCRで作業しながらモジュールの手順に戻れるよう、ドキュメントをブックマークしておきましょう。",
     "GitHubでspaCRのリポジトリを開きます。mainにはリリースのソースが、nightlyには最新の開発作業が入っています。パッケージ化されたデスクトップ版をインストールするには、Releasesを開いてリリースを選びます。",
     "Assets を展開し、Windows、macOS、Linux 用のインストーラーをダウンロードします。Platform installers のレッスンでは、各オペレーティングシステムでのインストール、spaCR の起動、アンインストールを説明します。",
+    "コンテナを使う場合は、spaCRのリポジトリからPackagesを開き、spaCRのコンテナパッケージを選びます。各リリースのタグには、CPU用イメージと対応するCUDA用イメージがあります。Install spaCRでは、選んだタグを正確に取得し、確認して実行する方法を説明しています。",
     "conda-forgeでspaCRのパッケージページを開き、入手できるバージョンを確認します。パッケージのチャネルは更新の時期が異なることがあるので、選んだ方法で入手できるバージョンを選んでください。",
     "conda-forge のコマンドは、現在有効な Conda 環境に spaCR をインストールします。Install spaCR のレッスンで、環境の作成、パッケージのインストール、アプリケーションの起動を確認してください。パッケージと環境の削除方法も説明しています。",
-    "pip または conda-forge を使う場合は Install spaCR、デスクトップインストーラーを使う場合は Platform installers に進みます。どちらもアンインストールの手順を説明しています。spaCR が開いたら Home に進み、パイプラインの概要からデータに合ったワークフローを選びます。"
+    "pip、conda-forge、Docker を使う場合は Install spaCR、デスクトップインストーラーを使う場合は Platform installers に進みます。どちらもアンインストールの手順を説明しています。spaCR が開いたら Home に進み、パイプラインの概要からデータに合ったワークフローを選びます。"
   ]
 }
