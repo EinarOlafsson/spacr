@@ -623,7 +623,9 @@ def _protocol_result(family, format, choices=None, source_path='', context=None,
                  {'fastq'} if family == 'sequencing' else
                  {'measurements', 'foreign_tables', 'crops'} if format == 'database_crops' else
                  {'measurements', 'foreign_tables'})
-    action_sources = {key: source_path if set(catalog[key]['inputs']).intersection(artifacts) else ''
+    native_sources = carried.get('protocol_native_sources', {})
+    action_sources = {key: str(native_sources.get(key) or source_path)
+                      if set(catalog[key]['inputs']).intersection(artifacts) else ''
                       for key in starts}
     result = dict(actions=tuple((k, tr(catalog[k]['name']), tr(catalog[k]['guidance']), action_sources[k])
                                 for k in starts), action_sources=action_sources, action_settings=overrides,
