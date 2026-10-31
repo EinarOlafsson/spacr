@@ -907,16 +907,19 @@ def test_reporting_failures_preserve_pipeline_output_error_and_failed_manifest(
         qapp, qtbot, monkeypatch, _isolated_worker_journal):
     """Unavailable diagnostics cannot discard the run's visible failure or history."""
     import json
-    from spacr import crashreport
+    from spacr import crashreport, logging_util
 
     captured, reports, lines, errors, completed = [], [], [], [], []
+    logger = logging.Logger("spacr.test.reporting.pipeline", level=logging.ERROR)
+    logger.addHandler(logging_util._AutomaticErrorHandler(logging.ERROR))
+    monkeypatch.setattr(B, "LOG", logger)
 
     def capture_unavailable(text, *, origin):
         captured.append((text, origin))
         raise OSError("reporting capture unavailable")
 
     def dispatch_unavailable(text, **kwargs):
-        reports.append(text)
+        reports.append((text, kwargs))
         raise OSError("reporting dispatch unavailable")
 
     def failed_pipeline(_settings):
@@ -934,7 +937,13 @@ def test_reporting_failures_preserve_pipeline_output_error_and_failed_manifest(
         worker.run()
         assert completed == [False]
         assert len(errors) == 1 and "ValueError: the input measurement is invalid" in errors[0]
-        assert reports == errors
+        assert [text for text, _context in reports] == ["Pipeline worker failed", errors[0]]
+        logged, forwarded = [context for _text, context in reports]
+        assert logged["origin"] == "log"
+        assert logged["exception"] is forwarded["exception"]
+        assert str(forwarded["exception"]) == "the input measurement is invalid"
+        assert logged["event_id"] == forwarded["event_id"]
+        assert forwarded["traceback_text"] == errors[0]
         output = "".join(lines)
         assert "direct progress before failure\n" in output
         assert "captured progress before failure\n" in output

@@ -610,6 +610,9 @@ def test_canvas_text_double_click_edits_saves_and_exports(qtbot, tmp_path):
     composer.resize(1000, 750)
     composer.show()
     box = composer.add_text(40, 40, 240, 100, text="Before", font_size=18)
+    qtbot.waitExposed(composer)
+    composer.activateWindow()
+    qtbot.waitUntil(composer.isActiveWindow)
     qtbot.waitUntil(lambda: composer.view.isVisible())
     item = composer._items[box["id"]]
     point = composer.view.mapFromScene(item.mapToScene(QPointF(30, 25)))

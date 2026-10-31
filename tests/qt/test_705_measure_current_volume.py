@@ -7,16 +7,40 @@ import pytest
 import tifffile
 from PySide6.QtCore import QMimeData, QPointF, Qt, QTimer, QUrl
 from PySide6.QtGui import QDropEvent
-from PySide6.QtWidgets import QApplication, QDialog, QDialogButtonBox, QLabel
+from PySide6.QtWidgets import QApplication, QDialog, QDialogButtonBox, QLabel, QMessageBox
 
 from spacr.qt.screens.make_masks import MakeMasksScreen
 from spacr.qt.widgets.organize_for_measure import MeasureVolumeDialog
+
+_NATIVE_WARNING = QMessageBox.warning
 
 
 def _volume(path):
     tifffile.imwrite(path, np.arange(5 * 12 * 14, dtype=np.uint16).reshape(5, 12, 14),
                      metadata={"axes": "ZYX"}, photometric="minisblack")
     return str(path)
+
+
+
+def _answer_native_warnings(screen, monkeypatch):
+    """Record real warning dialogs and click their actual OK button."""
+    warnings = []
+    monkeypatch.setattr(QMessageBox, "warning", staticmethod(_NATIVE_WARNING))
+    timer = QTimer(screen)
+
+    def answer():
+        """Respond only after Qt has opened a real modal warning."""
+        box = QApplication.activeModalWidget()
+        if not isinstance(box, QMessageBox):
+            return
+        warnings.append((box.parentWidget() is screen, box.windowTitle(), box.text()))
+        button = box.button(QMessageBox.StandardButton.Ok)
+        assert button is not None
+        button.click()
+
+    timer.timeout.connect(answer)
+    timer.start(1)
+    return timer, warnings
 
 
 def test_dialog_accepts_dropped_channels_and_pasted_image_sets(qtbot, tmp_path):
@@ -98,6 +122,7 @@ def test_measure_button_routes_volume_and_preserves_the_2d_menu(screen, monkeypa
 def test_measurement_snapshots_labels_and_keeps_qt_responsive(screen, qtbot, monkeypatch):
     import spacr.measure as measure
 
+    warning_timer, warnings = _answer_native_warnings(screen, monkeypatch)
     started, release = threading.Event(), threading.Event()
     received = {}
     main_thread = threading.get_ident()
@@ -128,10 +153,16 @@ def test_measurement_snapshots_labels_and_keeps_qt_responsive(screen, qtbot, mon
         assert np.count_nonzero(snapshot["mask"]) == 48
         assert not screen._act_measure_volume.isEnabled()
         assert not screen._start_volume_measurement(rows)
+        from spacr.qt.screens.make_masks import is_headless
+        from spacr.qt.i18n import tr
+        expected_warning = (tr("Busy"), tr("Wait for the current 3D operation to finish."))
+        assert screen._status_label.text() == ": ".join(expected_warning)
+        assert warnings == ([] if is_headless() else [(True, *expected_warning)])
         assert not screen.close()
     finally:
         release.set()
         timer.stop()
+        warning_timer.stop()
     qtbot.waitUntil(lambda: not screen._volume_measure_running)
     assert screen._act_measure_volume.isEnabled()
     assert "Measured 1 object(s) in 1" in screen._status_label.text()
@@ -139,6 +170,8 @@ def test_measurement_snapshots_labels_and_keeps_qt_responsive(screen, qtbot, mon
 
 def test_measurement_failure_is_visible_and_can_be_retried(screen, qtbot, monkeypatch):
     import spacr.measure as measure
+
+    warning_timer, warnings = _answer_native_warnings(screen, monkeypatch)
 
     def fail(*args, **kwargs):
         raise ValueError("Channel dimensions do not match")
@@ -148,12 +181,17 @@ def test_measurement_failure_is_visible_and_can_be_retried(screen, qtbot, monkey
     assert screen._start_volume_measurement(rows)
     qtbot.waitUntil(lambda: not screen._volume_measure_running)
     assert "Channel dimensions do not match" in screen._status_label.text()
+    from spacr.qt.screens.make_masks import is_headless
+    from spacr.qt.i18n import tr
+    assert warnings == ([] if is_headless() else [
+        (True, tr("3D measurement failed"), "Channel dimensions do not match")])
     assert screen._act_measure_volume.isEnabled()
     monkeypatch.setattr(measure, "measure_volume_rows", lambda *a, **kw: {
         "db_paths": (), "images": 1, "objects": 1})
     assert screen._start_volume_measurement(rows)
     qtbot.waitUntil(lambda: not screen._volume_measure_running)
     assert "Measured 1 object(s)" in screen._status_label.text()
+    warning_timer.stop()
 
 
 def test_measure_popup_writes_current_and_added_images_to_the_real_database(
