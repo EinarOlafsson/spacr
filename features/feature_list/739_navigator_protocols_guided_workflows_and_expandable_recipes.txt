@@ -1,7 +1,7 @@
 NAVIGATOR PROTOCOLS: GUIDED INPUT CHOICES AND EXPANDABLE ANALYSIS RECIPES
 
 Lifecycle: new
-Status:    DONE — guided Protocols, appearance refinement and source-bound CI follow-up are delivered on nightly.
+Status:    IN PROGRESS — reopened for the maintainer-reported clipped terminal Protocols cards; prior delivery remains preserved.
 Requested: 2026-10-30, maintainer
 Owner:     App/Navigator UI owner and retained Protocols workflow peer; root integrates.
 Related:   N733 Navigator; N740 sequencing inputs; N741 drug-screen Regression;
@@ -173,3 +173,9 @@ A narrow pre-publication lifetime correction now closes and clears an active inl
 2026-10-31 — App/Navigator owner with retained geometry/source peers repairs the actual 0fbc CI failures still applicable to Nightly: source-preserving revisit, Details keyboard and tutorial links, Protocol context state, scaling and stationary sidebar geometry, plus the module-reference lesson contract. Distinguish stale pre-Protocols expectations from runtime defects, preserve input/receiver and accessibility oracles, run only affected failed selectors, and refresh only genuinely changed normal artifacts. Ten affected selectors are qualified (three retained passes plus corrected context 1/4.72 s, overlays 3/7.13 s, lesson 1/1.12 s and PDF/route 2/5.84 s); source/guard peers and static checks pass. Normal consumer locations and flow projections are unchanged, so no artifact build is needed. Root owns publication; Main, source pins and independent worker/timing failures stay separate.
 
 2026-10-31 — Published the qualified CI follow-up: P-step icon scaling and current chooser, focus, geometry, learning-link and reference-lesson checks; ten affected selectors pass with existing runtime/source oracles retained. No public API, translation or generated source-map changes.
+
+2026-10-31 — Maintainer reports the TIFF → other metadata terminal Protocols cards show Import, part of Mask and only corners of other modules. App owns actual 1366×768/1920×1080 CPU/offscreen reproduction and a layout/scroll fix with independent geometry peer; all offered cards must be fully visible or genuinely scroll reachable. Preserve the fixed search header, opaque integrated composer, explicit native handoff, input ownership and drop behavior; qualify the smallest meaningful regression cohort before normal artifacts and root Nightly publication, with Main’s live release guard unchanged.
+
+2026-10-31 — Additional maintainer appearance requirement: the P hover and selected affordance must remain a true circle with a square footprint at 100% and 150% interface scale. App owns the P paint/geometry change alongside the animated card-mask repair; the geometry peer owns disjoint app.py Dock routing, with one final affected qualification phase and prior passes retained.
+
+2026-10-31 — The maintainer also reports intermittent repeated QItemSelectionModel selection without a model. The actual Qt 6.11.3 animated route reproduced the warning twice; the source peer is tracing that same workflow without suppression. The five-card animated 1366/1920, P 100%/150% and native TIFF handoff case passes in 10.82 s, and the affected normal row case passes in 4.29 s; App remains the sole home.py writer, with warning diagnosis and normal artifacts still pending.

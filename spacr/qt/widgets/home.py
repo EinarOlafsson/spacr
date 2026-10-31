@@ -5531,6 +5531,7 @@ class _NavigatorProtocolsButton(QPushButton):
         self.setToolTip(tr('Protocols: choose your input and follow a guided workflow.'))
         self.setCheckable(True)
         self.setFixedSize(36, 36)
+        self.setStyleSheet('background: transparent; border: none; padding: 0; min-width: 0; min-height: 0;')
         self.setCursor(Qt.PointingHandCursor)
 
     def enterEvent(self, event):
@@ -5563,7 +5564,10 @@ class _NavigatorProtocolsButton(QPushButton):
         if active or self.underMouse():
             painter.setPen(Qt.NoPen)
             painter.setBrush(QColor('#363636' if self.underMouse() else '#303030'))
-            painter.drawEllipse(QRectF(self.rect()).adjusted(3, 3, -3, -3))
+            diameter = max(0, min(self.width(), self.height()) - 6)
+            circle = QRectF(0, 0, diameter, diameter)
+            circle.moveCenter(QRectF(self.rect()).center())
+            painter.drawEllipse(circle)
         font = QFont('Open Sans')
         font.setStyleName('Light')
         font.setWeight(QFont.Light)
@@ -5776,12 +5780,12 @@ _EASY_WORKFLOW_PORT_RADIUS = 4
 
 
 def _navigator_learning_links(key=None):
-    """Offer one explicit sidebar action instead of a footer of module links."""
+    """Offer one explicit module Dock action instead of a footer of module links."""
     from ..i18n import tr
 
-    return ('<p>' + escape(tr('Sidebar: open running jobs, history and the Home panels.'))
+    return ('<p>' + escape(tr('Dock: open modules and tools.'))
             + ' <a href="spacr://sidebar" style="text-decoration:none;">'
-            + escape(tr('Open sidebar')) + '</a></p>')
+            + escape(tr('Open Dock')) + '</a></p>')
 
 
 class _EasySuggestionCard(QPushButton):
@@ -6495,6 +6499,26 @@ class _EasyHomeField(QWidget):
 
     def _publish_growth(self, *, invalidate=False):
         """Track card animation locally without altering the shared field."""
+        from PySide6.QtGui import QBrush, QLinearGradient, QRegion
+
+        maximum = self._scrollbar.maximum()
+        for card in self.cards:
+            if card.parentWidget() is not self or not self._suggestions_active:
+                continue
+            local = self._row_rect.translated(-card.x(), -card.y()).intersected(card.rect())
+            if local.isEmpty():
+                card.hide()
+            else:
+                card.show()
+                card.setMask(QRegion(local))
+            gradient = QLinearGradient(self._row_rect.left() - card.x(), 0,
+                                       self._row_rect.right() - card.x(), 0)
+            fade = min(0.15, 44 / max(1, self._row_rect.width()))
+            gradient.setColorAt(0, QColor(0, 0, 0, 0 if self._scrollbar.value() else 255))
+            gradient.setColorAt(fade, QColor(0, 0, 0, 255))
+            gradient.setColorAt(1 - fade, QColor(0, 0, 0, 255))
+            gradient.setColorAt(1, QColor(0, 0, 0, 0 if self._scrollbar.value() < maximum else 255))
+            card._content_opacity.setOpacityMask(QBrush(gradient))
         state = tuple((id(card), card._growing, card.isVisible())
                       for card in self.cards if card.parentWidget() is self)
         changed = state != getattr(self, '_growth_state', ())
@@ -6635,7 +6659,7 @@ class _EasyHomeField(QWidget):
 
     def _arrange(self):
         """Keep input and description fixed around one horizontally scrollable row."""
-        from PySide6.QtGui import QBrush, QLinearGradient, QRegion
+        from PySide6.QtGui import QRegion
 
         width, height = self.width(), self.height()
         panel_width = min(720, max(180, width - 48))
@@ -6710,42 +6734,27 @@ class _EasyHomeField(QWidget):
         card_height = max([side] + [min(available, max(card.sizeHint().height(), side))
                                   for card in self.cards if isinstance(card, _EasyRegexCard)])
         top = max(16, panel_y - card_height - 24)
-        self._row_rect = QRect(16, top, max(1, width - 32), card_height)
+        row_right = min(width - 16, right - 16) if right is not None else width - 16
+        self._row_rect = QRect(16, top, max(1, row_right - 16), card_height)
         gap = 20
         total = len(self.cards) * side + max(0, len(self.cards) - 1) * gap
-        maximum = max(0, total - self._row_rect.width())
+        start = self._row_rect.left() + max(0, (max(1, width - 32) - total) // 2)
+        maximum = max(0, start + total - self._row_rect.right() - 1) if self.cards else 0
         self._scrollbar.blockSignals(True)
         self._scrollbar.setRange(0, maximum)
         self._scrollbar.setPageStep(self._row_rect.width())
         self._scrollbar.setSingleStep(side + gap)
         self._scrollbar.blockSignals(False)
-        self._scrollbar.setGeometry(24, self._row_rect.bottom() + 5, max(1, width - 48), 12)
+        self._scrollbar.setGeometry(self._row_rect.left() + 8, self._row_rect.bottom() + 5,
+                                    max(1, self._row_rect.width() - 16), 12)
         self._scrollbar.setVisible(self._suggestions_active and bool(maximum))
-        start = self._row_rect.left() + max(0, (self._row_rect.width() - total) // 2)
         start -= self._scrollbar.value()
         for index, card in enumerate(self.cards):
             card._final_rect = QRect(start + index * (side + gap), top, side,
                                      card_height if isinstance(card, _EasyRegexCard) else side)
             if card.parentWidget() is self and not card._growing:
                 card.setGeometry(card._final_rect)
-            if card.parentWidget() is not self:
-                continue
-            if not self._suggestions_active:
-                continue
-            local = self._row_rect.translated(-card.x(), -card.y()).intersected(card.rect())
-            if local.isEmpty():
-                card.hide()
-            else:
-                card.show()
-                card.setMask(QRegion(local))
-            gradient = QLinearGradient(self._row_rect.left() - card.x(), 0,
-                                       self._row_rect.right() - card.x(), 0)
-            fade = min(0.15, 44 / max(1, self._row_rect.width()))
-            gradient.setColorAt(0, QColor(0, 0, 0, 0 if self._scrollbar.value() else 255))
-            gradient.setColorAt(fade, QColor(0, 0, 0, 255))
-            gradient.setColorAt(1 - fade, QColor(0, 0, 0, 255))
-            gradient.setColorAt(1, QColor(0, 0, 0, 0 if self._scrollbar.value() < maximum else 255))
-            card._content_opacity.setOpacityMask(QBrush(gradient))
+        self._publish_growth()
         self.details.raise_()
 
 
