@@ -422,6 +422,303 @@ def offer_a_sample_project(window, opener: Callable[[str], object],
     return key
 
 
+def _protocol_options(family='', format='', choices=None, *, data=None):
+    """Return family/format records, or the flat dependent detail fields.
+
+    :param family: empty for input families, otherwise a canonical family key.
+    :param format: empty for formats, otherwise a canonical format key.
+    :param choices: retained selections; no caller values are modified.
+    :param data: optional bundled workflow map for an isolated caller.
+    :returns: immutable tuples of fresh choice or detail-field dictionaries.
+    """
+    from ...regex_infer import _metadata_convention_menu
+    from ..organisms import ORGANISMS
+
+    data = workflow_map() if data is None else data
+    wizard = data['protocol_wizard']
+    choices = dict(choices or {})
+    records = wizard['families'] if not family else wizard['families'][family]['formats']
+    if not format:
+        return tuple(dict(key=key, label=tr(row['label']), explanation=tr(row['explanation']))
+                     for key, row in records.items())
+    if format not in records:
+        raise ValueError(tr('Choose a supported data format.'))
+    fields = []
+    if family in ('small_images', 'plate_images') and format != 'pdf':
+        if format.startswith('other_'):
+            fields.append(dict(name='image_format', label=tr('Image format'), required=True,
+                               options=tuple(dict(key=key, label=tr(row['label']),
+                                                  explanation=tr(row['explanation']))
+                                             for key, row in wizard['image_formats'].items())))
+        if format.endswith(('other', 'metadata')):
+            options = tuple(dict(key=key, label=tr(label), explanation=tr(status))
+                            for vendor, rows in _metadata_convention_menu()
+                            for key, label, status in rows)
+            fields.append(dict(name='metadata_type', label=tr('Filename metadata'),
+                               required=True, options=options))
+    elif family == 'sequencing' and format == 'fastq_gz':
+        for name, label, source in (('sequencer', tr('Sequencer'), 'sequencers'),
+                                    ('read_mode', tr('Read pairing'), 'read_modes')):
+            fields.append(dict(name=name, label=label, required=True,
+                               options=tuple(dict(key=k, label=tr(v['label']),
+                                                  explanation=tr(v['explanation']))
+                                             for k, v in wizard[source].items())))
+        if choices.get('read_mode') == 'single':
+            fields.append(dict(name='single_direction', label=tr('Read orientation'), required=True,
+                               options=tuple(dict(key=mate, label=mate,
+                                                  explanation=tr('Match the barcode pattern and reference to this mate orientation.'))
+                                             for mate in ('R1', 'R2'))))
+    elif family == 'features' and format in ('database', 'database_crops'):
+        fields.append(dict(name='experiment', label=tr('Experiment'), required=True,
+                           options=tuple(dict(key=k, label=tr(v['label']),
+                                              explanation=tr(v['explanation']))
+                                         for k, v in wizard['experiments'].items())))
+        if choices.get('experiment') == 'screen':
+            fields.append(dict(name='barcodes', label=tr('Barcode mapping'), required=True,
+                               options=tuple(dict(key=k, label=tr(v['label']),
+                                                  explanation=tr(v['explanation']))
+                                             for k, v in wizard['barcodes'].items())))
+        if choices.get('experiment') == 'other':
+            fields.append(dict(name='organism', label=tr('Organism'), required=True,
+                               options=tuple(dict(key=k, label=tr(v['name']),
+                                                  explanation=tr(v['description']))
+                                             for k, v in ORGANISMS.items())))
+    if family in ('small_images', 'plate_images') and format != 'pdf':
+        catalog = _protocol_catalog(data)
+        candidates = [(key, row) for key, row in catalog.items()
+                      if row['available'] and set(row['inputs']).intersection(('raw_images', 'cellpose_tiffs'))]
+        fields.append(dict(name='goal', label=tr('Analysis route (optional)'), required=False,
+                           options=(dict(key='recommended', label=tr('Recommended starting modules'),
+                                         explanation=tr('Choose a starting module after checking its prerequisites.')),)
+                           + tuple(dict(key=key, label=tr(row['name']), explanation=tr(row['guidance']))
+                                   for key, row in candidates)))
+    return tuple(fields)
+
+
+def _protocol_catalog(data=None):
+    """Join every editorial module and registered navigation/organism route.
+
+    :param data: optional workflow map.
+    :returns: fresh records with actual I/O, prerequisites and visibility.
+    """
+    from ..ai.prompts import _navigation_modules
+    from ..organisms import ORGANISMS
+
+    data = workflow_map() if data is None else data
+    available = {row[0]: row for row in _navigation_modules()}
+    catalog = deepcopy(data['modules'])
+    for key, organism in ORGANISMS.items():
+        catalog.setdefault(key, dict(name=organism['name'], guidance=organism['description'],
+                                     inputs=['organism_reference'], outputs=['organism_navigation'],
+                                     api_module='spacr.qt.organisms', parent=None))
+    for key, row in available.items():
+        if key not in catalog:
+            inputs = ['raw_images'] if key in ('overview', '3d') else ['organism_reference']
+            contract = data['protocol_wizard'].get('navigation_contracts', {}).get(key, {})
+            catalog[key] = dict(name=row[1], guidance=contract.get('guidance', row[2]),
+                                inputs=contract.get('inputs', inputs),
+                                outputs=contract.get('outputs', ['organism_navigation']),
+                                api_module='', parent=None)
+    for key, module in catalog.items():
+        module['available'] = key in available
+        module['recipes'] = [name for name, recipe in data.get('protocols', {}).items()
+                             if any(step['module'] == key for step in recipe['steps'])]
+        module['organisms'] = [name for name, organism in ORGANISMS.items()
+                               if key == name or any(route[0] == key
+                                                     for route in organism.get('workflows', {}).values())]
+        module['preconditions'] = [data['artifacts'][artifact]['location']
+                                   for artifact in module['inputs']]
+    return catalog
+
+
+def _protocol_result(family, format, choices=None, source_path='', context=None, *, data=None):
+    """Resolve a fully chosen current-capability route without running analysis.
+
+    :param family: one of the four canonical input families.
+    :param format: an actual format in that family.
+    :param choices: retained required detail selections.
+    :param source_path: the original user-selected input, never synthesized.
+    :param context: copied schema/provenance/settings inspection context.
+    :param data: optional workflow map.
+    :returns: cards, compatible per-module settings and an editable recipe model.
+    :raises ValueError: if any current required selection is absent or invalid.
+    """
+    from ..organisms import ORGANISMS
+
+    data = workflow_map() if data is None else data
+    choices = deepcopy(choices or {})
+    wizard = data['protocol_wizard']
+    if family not in wizard['families'] or format not in wizard['families'][family]['formats']:
+        raise ValueError(tr('Choose a supported input family and format.'))
+    for field in _protocol_options(family, format, choices, data=data):
+        if field.get('required') or choices.get(field['name']):
+            valid = choices.get(field['name']) in {row['key'] for row in field['options']}
+        else:
+            valid = True
+        if not valid:
+            raise ValueError(tr('Complete the required protocol choices.'))
+    record = wizard['families'][family]['formats'][format]
+    catalog = _protocol_catalog(data)
+    starts = list(record['starts'])
+    if family in ('small_images', 'plate_images') and choices.get('goal', 'recommended') != 'recommended':
+        starts = [choices['goal']]
+    requirements = []
+    if choices.get('metadata_type') == 'custom' and not (context or {}).get('custom_regex'):
+        requirements.append(tr('Custom filename metadata requires a tested named-group expression before running. Configure custom_regex in the selected module.'))
+    if family == 'sequencing':
+        if format == 'other' or choices.get('read_mode') == 'mixed':
+            starts = []
+            requirements.append(tr(wizard['requirements']['sequencing']))
+    elif family == 'features':
+        if choices.get('experiment') == 'drug':
+            starts = ['dose_response', 'graph_builder', 'gate_editor', 'qc_dashboard', 'db_browser']
+            requirements.append(tr(wizard['requirements']['drug']))
+        elif choices.get('experiment') == 'screen':
+            starts = (['map_barcodes'] if choices.get('barcodes') == 'unmapped' else
+                      ['regression', 'graph_builder', 'gate_editor', 'qc_dashboard', 'db_browser'])
+            if format == 'database_crops':
+                starts.extend(['annotate', 'classify_merged', 'umap'])
+        elif choices.get('organism') in ORGANISMS:
+            organism = ORGANISMS[choices['organism']]
+            starts = [choices['organism'], *dict.fromkeys(route[0]
+                       for route in organism.get('workflows', {}).values()),
+                       'foreign', 'graph_builder', 'gate_editor', 'db_browser', 'qc_dashboard']
+            if format == 'database_crops':
+                starts.extend(['annotate', 'classify_merged', 'umap'])
+    starts = list(dict.fromkeys(k for k in starts if k in catalog and catalog[k]['available']))
+    source_path = str(source_path or '')
+    selection = dict(family=family, format=format, choices=choices)
+    carried = deepcopy(context or {})
+    carried['protocol_selection'] = deepcopy(selection)
+    overrides = {}
+    for key in starts:
+        values = {}
+        if key in ('mask', 'import_images', 'foreign', '3d', 'timelapse') and family in ('small_images', 'plate_images'):
+            values['metadata_type'] = ('cellvoyager' if format.endswith('yokogawa') else choices.get('metadata_type', 'cellvoyager'))
+            if values['metadata_type'] == 'custom' and carried.get('custom_regex'):
+                values['custom_regex'] = carried['custom_regex']
+        if key == 'map_barcodes' and family == 'sequencing' and format == 'fastq_gz':
+            values['mode'] = choices['read_mode']
+            if choices['read_mode'] == 'single':
+                values['single_direction'] = choices['single_direction']
+        overrides[key] = values
+    steps = []
+    for key in starts:
+        module = catalog[key]
+        steps.append(dict(module=key, action=module['guidance'], after=[], optional=True))
+    reachable = set(starts)
+    for edge in data['connections']:
+        if edge['from'] in starts and edge['to'] not in reachable:
+            reachable.add(edge['to'])
+            steps.append(dict(module=edge['to'], action=edge['handoff'], after=[edge['from']], optional=True))
+    protocol = dict(title=tr('Protocol: {family}', family=tr(wizard['families'][family]['label'])),
+                    summary=tr(record['explanation']), inputs=sorted({a for k in starts for a in catalog[k]['inputs']}),
+                    steps=steps, catalog=catalog, selection=selection, requirements=requirements)
+    artifacts = ({'raw_images', 'cellpose_tiffs'} if family in ('small_images', 'plate_images') else
+                 {'fastq'} if family == 'sequencing' else
+                 {'measurements', 'foreign_tables', 'crops'} if format == 'database_crops' else
+                 {'measurements', 'foreign_tables'})
+    action_sources = {key: source_path if set(catalog[key]['inputs']).intersection(artifacts) else ''
+                      for key in starts}
+    result = dict(actions=tuple((k, tr(catalog[k]['name']), tr(catalog[k]['guidance']), action_sources[k])
+                                for k in starts), action_sources=action_sources, action_settings=overrides,
+                  settings_overrides=deepcopy(overrides), message=tr(record['explanation']),
+                  protocol=protocol, path=source_path, source_path=source_path, context=carried,
+                  requirements=tuple(requirements))
+    protocol['markdown'] = _protocol_markdown(result)
+    return result
+
+
+def _protocol_handoff(result, key):
+    """Copy one available explicit card's context and compatible settings.
+
+    :param result: a resolved protocol result.
+    :param key: an available starting card's module key.
+    :returns: a detached payload; this function neither opens nor runs a module.
+    :raises ValueError: if the requested module is not one of the resolved cards.
+    """
+    from ..ai.prompts import _navigation_modules
+
+    if key not in {row[0] for row in result['actions']} or key not in {row[0] for row in _navigation_modules()}:
+        raise ValueError(tr('This module is not available for the selected protocol.'))
+    from ..screens.settings_model import resolve_default_settings
+
+    context = deepcopy(result['context'])
+    defaults = resolve_default_settings(key)
+    settings = {name: deepcopy(value) for name, value in result['action_settings'].get(key, {}).items()
+                if name in defaults}
+    path = result['action_sources'][key]
+    if path and 'src' in defaults:
+        settings['src'] = path
+    if settings:
+        inferred = context.setdefault('submodule_settings', {}).setdefault(key, {})
+        inferred.setdefault('settings', {}).update(deepcopy(settings))
+    return dict(module=key, source_path=path, settings=settings, context=context)
+
+
+def _protocol_setting_help(key):
+    """Read current settings/default explanations only for an explicitly opened step.
+
+    :param key: registered module key.
+    :returns: setting-name, default and authored-help tuples.
+    """
+    from ..screens.settings_model import resolve_default_settings
+    from ... import settings
+
+    defaults = resolve_default_settings(key)
+    tips = getattr(settings, 'tooltips', {})
+    return tuple((name, value, tips.get(name, '')) for name, value in defaults.items())
+
+
+def _protocol_markdown(result, checked=(), *, settings_help=None):
+    """Produce a passive Markdown recipe with nested expandable explanations.
+
+    :param result: resolved protocol result with actual module/artifact contracts.
+    :param checked: completed step keys, copied by the caller.
+    :param settings_help: lazily resolved authored settings, indexed by module key.
+    :returns: Markdown containing explicit links and nested details, never runnable code.
+    """
+    from ..help_search import api_url
+    from ..tutorials import tutorial_url
+    from ..screens.settings_model import DOCS_SITE_BASE
+
+    protocol = result['protocol']
+    lines = ['# ' + protocol['title'], '', protocol['summary'], '',
+             tr('Starting modules are alternatives. Open a module explicitly; no analysis starts from this recipe.'), '']
+    lines.extend(protocol['requirements'])
+    for step in protocol['steps']:
+        key = step['module']
+        module = protocol['catalog'][key]
+        lines.extend(['', '- [' + ('x' if key in checked else ' ') + '] [' + tr(module['name']) +
+                      '](spacr://module/' + key + ')', '', tr(step['action']), '',
+                      '<details><summary>' + tr('Inputs, outputs and settings') + '</summary>', '',
+                      tr('Inputs') + ': ' + ', '.join(module['inputs']), '',
+                      tr('Outputs') + ': ' + ', '.join(module['outputs']), '',
+                      *[tr(text) for text in module['preconditions']], '',
+                      '<details><summary>' + tr('Setting explanations') + '</summary>', ''])
+        for name, default, help_text in (settings_help or {}).get(key, ()):
+            lines.extend(['### ' + name, tr('Default: {value}', value=repr(default)), tr(help_text), ''])
+        if key not in (settings_help or {}):
+            lines.append(tr('Open this step to inspect its current settings and authored help.'))
+        lines.extend(['', '</details>', '', '</details>'])
+        links = []
+        if module.get('api_module'):
+            links.append('[' + tr('API') + '](' + api_url(module['api_module']) + ')')
+        links.append('[' + tr('Documentation') + '](' + DOCS_SITE_BASE + '/workflows.html)')
+        tutorial = tutorial_url(key)
+        if tutorial:
+            links.append('[' + tr('Tutorial') + '](' + tutorial + ')')
+        lines.extend(['', ' · '.join(links)])
+    lines.extend(['', '<details><summary>' + tr('All registered routes and prerequisites') + '</summary>', ''])
+    for key, module in protocol['catalog'].items():
+        lines.extend(['<details><summary>' + tr(module['name']) + '</summary>',
+                      tr(module['guidance']), tr('Inputs') + ': ' + ', '.join(module['inputs']),
+                      tr('Outputs') + ': ' + ', '.join(module['outputs']),
+                      *[tr(text) for text in module['preconditions']], '</details>', ''])
+    lines.append('</details>')
+    return '\n'.join(lines)
+
+
 class _ProtocolDocument(QTextDocument):
     """Keep protocol instructions passive by refusing document resource loads."""
     def loadResource(self, kind, url):
@@ -436,13 +733,14 @@ class _ProtocolDocument(QTextDocument):
 
 class _ProtocolBrowserDialog(QDialog):
     """Browse source-aware protocol choices, workflow diagrams and linked instructions."""
-    def __init__(self, parent=None, source_path='', context=None, *, data=None):
+    def __init__(self, parent=None, source_path='', context=None, *, data=None, result=None):
         """Initialize the browser choices and views from the supplied input context.
 
         :param parent: owner widget, or ``None``.
         :param source_path: input path retained for explicit module links.
         :param context: input metadata copied to choose the initial protocol branch.
         :param data: optional workflow map; the shared map is used when omitted.
+        :param result: resolved three-step recipe, or None for legacy navigation.
         """
         from PySide6.QtWidgets import QListWidget, QPushButton, QTextBrowser
 
@@ -462,6 +760,10 @@ class _ProtocolBrowserDialog(QDialog):
         self._active_route = {}
         self._trail = []
         self._choices = {}
+        self._recipe_result = None
+        self._expanded = set()
+        self._checked = set()
+        self._settings_help = {}
         layout = QVBoxLayout(self)
         self._source_label = QLabel(self)
         self._source_label.setWordWrap(True)
@@ -500,9 +802,140 @@ class _ProtocolBrowserDialog(QDialog):
         self._next.setObjectName('ProtocolNext')
         self._next.clicked.connect(self._next_level)
         buttons.addButton(self._next, QDialogButtonBox.ActionRole)
+        self._save_pdf = QPushButton(tr('Save PDF…'), self)
+        self._save_pdf.setObjectName('ProtocolSavePdf')
+        self._save_pdf.clicked.connect(self._save_recipe_pdf)
+        buttons.addButton(self._save_pdf, QDialogButtonBox.ActionRole)
         buttons.rejected.connect(self.close)
         layout.addWidget(buttons)
-        self._set_input(source_path, context)
+        self._save_pdf.hide()
+        if result is None:
+            self._set_input(source_path, context)
+        else:
+            self._set_result(result)
+
+    def _set_result(self, result):
+        """Mount a detached wizard recipe without changing legacy navigation data.
+
+        :param result: complete current-capability result from the wizard resolver.
+        """
+        self._recipe_result = deepcopy(result)
+        self._source_path = result['source_path']
+        self._context = deepcopy(result['context'])
+        self._checked.clear()
+        self._expanded.clear()
+        self._settings_help.clear()
+        self._source_label.setText(tr('Input: {path}', path=self._source_path))
+        self._source_label.setVisible(bool(self._source_path))
+        self._heading.setText(result['protocol']['title'])
+        self._choice_list.hide()
+        self._diagram_host.hide()
+        self._previous.hide()
+        self._next.hide()
+        self._save_pdf.show()
+        self._render_recipe()
+
+    def _recipe_html(self, expand_all=False):
+        """Render nested recipe sections with real check states and authored settings.
+
+        :param expand_all: include every explanation for a self-contained PDF.
+        :returns: escaped rich text; resource loading remains disabled.
+        """
+        from html import escape
+        from ..help_search import api_url
+        from ..tutorials import tutorial_url
+        from ..screens.settings_model import DOCS_SITE_BASE
+
+        result = self._recipe_result
+        protocol = result['protocol']
+        parts = ['<h1>' + escape(protocol['title']) + '</h1>',
+                 '<p>' + escape(protocol['summary']) + '</p>',
+                 '<p>' + escape(tr('Starting modules are alternatives. Open a module explicitly; no analysis starts from this recipe.')) + '</p>']
+        if self._source_path:
+            parts.append('<p>' + escape(tr('Input: {path}', path=self._source_path)) + '</p>')
+        for requirement in protocol['requirements']:
+            parts.append('<p><b>' + escape(requirement) + '</b></p>')
+        for step in protocol['steps']:
+            key = step['module']
+            module = protocol['catalog'][key]
+            mark = '[x]' if key in self._checked else '[ ]'
+            parts.append('<h2><a href="spacr://protocol/check/' + key + '">' + mark + '</a> ' +
+                         escape(tr(module['name'])) + '</h2><p>' + escape(tr(step['action'])) + '</p>')
+            links = []
+            if module['available']:
+                links.append('<a href="spacr://module/' + key + '">' + escape(tr('Open module')) + '</a>')
+            if module.get('api_module'):
+                links.append('<a href="' + escape(api_url(module['api_module']), quote=True) + '">' + tr('API') + '</a>')
+            links.append('<a href="' + DOCS_SITE_BASE + '/workflows.html">' + escape(tr('Documentation')) + '</a>')
+            tutorial = tutorial_url(key)
+            if tutorial:
+                links.append('<a href="' + escape(tutorial, quote=True) + '">' + escape(tr('Tutorial')) + '</a>')
+            parts.append('<p>' + ' | '.join(links) + '</p>')
+            parts.append('<p><a href="spacr://protocol/expand/' + key + '">' + escape(tr('Inputs, outputs and settings')) + '</a></p>')
+            if expand_all or key in self._expanded:
+                for name, label in (('inputs', tr('Inputs')), ('outputs', tr('Outputs'))):
+                    parts.append('<h3>' + escape(label) + '</h3><ul>')
+                    for artifact in module[name]:
+                        record = self._data['artifacts'][artifact]
+                        parts.append('<li>' + escape(tr(record['title'])) + ': ' + escape(tr(record['location'])) + '</li>')
+                    parts.append('</ul>')
+                inner = key + ':settings'
+                parts.append('<p><a href="spacr://protocol/expand/' + inner + '">' + escape(tr('Setting explanations')) + '</a></p>')
+                if expand_all or inner in self._expanded:
+                    if key not in self._settings_help:
+                        self._settings_help[key] = _protocol_setting_help(key)
+                    for name, default, help_text in self._settings_help[key]:
+                        parts.append('<h4>' + escape(name) + '</h4><p>' +
+                                     escape(tr('Default: {value}', value=repr(default))) + '</p><p>' +
+                                     escape(tr(help_text)) + '</p>')
+        if not expand_all or 'catalog' in self._expanded:
+            parts.append('<h2><a href="spacr://protocol/expand/catalog">' + escape(tr('All registered routes and prerequisites')) + '</a></h2>')
+        if 'catalog' in self._expanded:
+            for key, module in protocol['catalog'].items():
+                parts.append('<h3>' + escape(tr(module['name'])) + '</h3><p>' + escape(tr(module['guidance'])) + '</p>')
+                if not module['available']:
+                    parts.append('<p>' + escape(tr('This module is hidden by the current application preferences or is an API-only entry.')) + '</p>')
+                parts.append('<p>' + escape(tr('Inputs')) + ': ' + escape(', '.join(tr(self._data['artifacts'][item]['title']) for item in module['inputs'])) + '</p>')
+                parts.extend('<p>' + escape(tr(text)) + '</p>' for text in module['preconditions'])
+                parts.append('<p>' + escape(tr('Outputs')) + ': ' + escape(', '.join(tr(self._data['artifacts'][item]['title']) for item in module['outputs'])) + '</p>')
+        return ''.join(parts)
+
+    def _render_recipe(self):
+        """Refresh the current recipe while retaining its scroll position."""
+        position = self._text.verticalScrollBar().value()
+        self._text.setHtml(self._recipe_html())
+        self._recipe_result['protocol']['markdown'] = _protocol_markdown(self._recipe_result, self._checked, settings_help=self._settings_help)
+        self._text.verticalScrollBar().setValue(position)
+
+    def _export_recipe_pdf(self, path):
+        """Write a readable, expanded recipe PDF with current checkbox states.
+
+        :param path: user-chosen destination; existing files follow Qt's save dialog policy.
+        :returns: the destination path after the PDF writer completes.
+        """
+        from PySide6.QtCore import QMarginsF
+        from PySide6.QtGui import QFont, QPageLayout, QPageSize, QPdfWriter
+
+        writer = QPdfWriter(str(path))
+        writer.setPageSize(QPageSize(QPageSize.A4))
+        writer.setPageMargins(QMarginsF(16, 18, 16, 18), QPageLayout.Millimeter)
+        writer.setResolution(144)
+        writer.setTitle(self._recipe_result['protocol']['title'])
+        document = _ProtocolDocument()
+        document.setDefaultFont(QFont('DejaVu Sans', 10))
+        document.setDefaultStyleSheet('h1 {font-size: 18pt;} h2 {font-size: 13pt; margin-top: 16px;} h3 {font-size: 11pt;} h4 {font-size: 10pt;} p {line-height: 120%;} a {color: #176a98;}')
+        document.setHtml(self._recipe_html(expand_all=True))
+        self._recipe_result['protocol']['markdown'] = _protocol_markdown(self._recipe_result, self._checked, settings_help=self._settings_help)
+        document.print_(writer)
+        return str(path)
+
+    def _save_recipe_pdf(self):
+        """Ask for a PDF destination and export the expanded current recipe."""
+        from PySide6.QtWidgets import QFileDialog
+
+        path, _ = QFileDialog.getSaveFileName(self, tr('Save protocol PDF'), '', tr('PDF files (*.pdf)'))
+        if path:
+            self._export_recipe_pdf(path if path.lower().endswith('.pdf') else path + '.pdf')
 
     def _set_input(self, source_path='', context=None):
         """Choose the initial protocol branch from the source path and copied metadata.
@@ -510,6 +943,10 @@ class _ProtocolBrowserDialog(QDialog):
         :param source_path: input path retained for explicit module links.
         :param context: input metadata copied before selecting a branch.
         """
+        self._recipe_result = None
+        self._save_pdf.hide()
+        self._previous.show()
+        self._next.show()
         self._source_path = str(source_path or '')
         self._context = deepcopy(context or {})
         self._source_label.setText(tr('Input: {path}', path=self._source_path))
@@ -708,7 +1145,27 @@ class _ProtocolBrowserDialog(QDialog):
         """
         from .ai_chat_panel import _activate_ai_link, _ai_module_key
 
+        if self._recipe_result is not None and url.scheme() == 'spacr' and url.host() == 'protocol':
+            kind, _, key = url.path().lstrip('/').partition('/')
+            selected = self._checked if kind == 'check' else self._expanded
+            if key in selected:
+                selected.remove(key)
+            else:
+                selected.add(key)
+            self._render_recipe()
+            return True
         key = _ai_module_key(url)
+        if key is not None and self._recipe_result is not None and key not in {row[0] for row in self._recipe_result['actions']}:
+            return _activate_ai_link(self, url)
+        if key is not None and self._recipe_result is not None:
+            owner = self.parentWidget()
+            while owner is not None:
+                opener = getattr(owner, '_open_protocol_module', None)
+                if callable(opener):
+                    return bool(opener(self._recipe_result, key))
+                owner = owner.parentWidget()
+            handoff = _protocol_handoff(self._recipe_result, key)
+            self._context = handoff['context']
         if key is not None and self._source_path:
             owner = self.parentWidget()
             while owner is not None:
@@ -724,12 +1181,13 @@ class _ProtocolBrowserDialog(QDialog):
         return _activate_ai_link(self, url)
 
 
-def _show_protocols(parent, source_path='', context=None):
+def _show_protocols(parent, source_path='', context=None, *, result=None):
     """Show or reuse a protocol browser for the supplied source context.
 
     :param parent: owner widget, or ``None``.
     :param source_path: input path retained for explicit module links.
     :param context: input metadata used to choose protocol branches.
+    :param result: optional resolved wizard recipe; legacy navigation is otherwise retained.
     :returns: the reused or newly created protocol browser dialog.
     """
     dialog = getattr(parent, '_protocol_browser_dialog', None)
@@ -738,10 +1196,12 @@ def _show_protocols(parent, source_path='', context=None):
     except RuntimeError:
         reusable = False
     if not reusable:
-        dialog = _ProtocolBrowserDialog(parent, source_path, context)
+        dialog = _ProtocolBrowserDialog(parent, source_path, context, result=result)
         if parent is not None:
             parent._protocol_browser_dialog = dialog
-    elif str(source_path or '') != dialog._source_path or dict(context or {}) != dialog._context:
+    elif result is not None:
+        dialog._set_result(result)
+    elif dialog._recipe_result is not None or str(source_path or '') != dialog._source_path or dict(context or {}) != dialog._context:
         dialog._set_input(source_path, context)
     dialog.show()
     dialog.raise_()

@@ -55,3 +55,15 @@ def test_protocol_caption_sources_include_display_prose_without_machine_ids(tmp_
         "Microscopy images", "Browse image analysis routes.",
         "Review a measured field", "Inspect the measurement table.",
     }
+
+
+def test_four_family_editorial_wizard_is_available_to_runtime_translation():
+    """Actual selectable wizard explanations enter localization without machine IDs."""
+    workflow = json.loads((builder.ROOT / "spacr/resources/module_workflows.json").read_text())
+    found = builder._workflow_ui_sources()
+    for row in workflow['protocol_wizard']['families'].values():
+        assert row['label'] in found and row['explanation'] in found
+        for format_ in row['formats'].values():
+            assert format_['label'] in found and format_['explanation'] in found
+    assert set(workflow['protocol_wizard']['requirements'].values()) <= found
+    assert not set(workflow['protocol_wizard']['families']).intersection(found)

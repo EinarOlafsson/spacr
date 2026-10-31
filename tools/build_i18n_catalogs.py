@@ -4282,6 +4282,15 @@ def _workflow_ui_sources() -> set[str]:
         node = pending.pop()
         found.update(node[key] for key in ("title", "description") if node.get(key))
         pending.extend(node.get("children", []))
+    pending = [workflow.get("protocol_wizard", {})]
+    while pending:
+        node = pending.pop()
+        for key, value in node.items():
+            if key in {"label", "explanation", "guidance"} and isinstance(value, str):
+                found.add(value)
+            elif isinstance(value, dict):
+                pending.append(value)
+    found.update(workflow.get("protocol_wizard", {}).get("requirements", {}).values())
     return found
 
 

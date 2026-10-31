@@ -207,3 +207,104 @@ def test_every_shipped_protocol_is_reachable_and_native_links_stay_allowlisted(q
         for href in re.findall(r'href="([^"]+)"', dialog._text.toHtml()):
             if href.startswith('spacr:'):
                 assert _ai_module_key(QUrl(href)) in visible
+
+
+def test_protocol_wizard_current_capabilities_and_registry_contracts(tmp_path):
+    """Four input families retain real reader and crop/provenance boundaries."""
+    from spacr.qt.organisms import ORGANISMS
+    from spacr.qt.ai.prompts import _navigation_modules
+
+    data = sample.workflow_map()
+    assert [row['key'] for row in sample._protocol_options()] == [
+        'small_images', 'plate_images', 'sequencing', 'features']
+    for family in ('small_images', 'plate_images'):
+        result = sample._protocol_result(family, 'pdf')
+        assert [row[0] for row in result['actions']] == ['analyze_plaques']
+        assert result['source_path'] == ''
+        assert set(data['modules']) <= result['protocol']['catalog'].keys()
+        assert {row[0] for row in _navigation_modules()} <= result['protocol']['catalog'].keys()
+        assert set(ORGANISMS) <= result['protocol']['catalog'].keys()
+        assert '<details><summary>' in result['protocol']['markdown']
+    modes = dict(sequencer='other', read_mode='mixed')
+    result = sample._protocol_result('sequencing', 'fastq_gz', modes)
+    assert not result['actions'] and any('N740' in text for text in result['requirements'])
+    assert modes == dict(sequencer='other', read_mode='mixed')
+    with pytest.raises(ValueError, match='required'):
+        sample._protocol_result('sequencing', 'fastq_gz', dict(sequencer='other'))
+    result = sample._protocol_result('features', 'database', dict(experiment='drug'))
+    assert 'dose_response' in {row[0] for row in result['actions']}
+    assert 'regression' not in {row[0] for row in result['actions']}
+    assert any('N741' in text for text in result['requirements'])
+    assert not {'annotate', 'classify_merged', 'umap'}.intersection(row[0] for row in result['actions'])
+    database = tmp_path / 'measurements.db'
+    import sqlite3
+    with sqlite3.connect(database) as connection:
+        connection.execute('CREATE TABLE fov (fieldID INTEGER, intensity REAL)')
+        connection.execute('INSERT INTO fov VALUES (1, 7.5)')
+    raw = database.read_bytes()
+    result = sample._protocol_result('features', 'database', dict(experiment='screen', barcodes='unmapped'), str(database))
+    handoff = sample._protocol_handoff(result, 'map_barcodes')
+    assert handoff['source_path'] == '' and 'src' not in handoff['settings']
+    assert result['source_path'] == str(database) and database.read_bytes() == raw
+    with pytest.raises(ValueError, match='required'):
+        sample._protocol_result('sequencing', 'fastq_gz', dict(sequencer='other', read_mode='single'))
+
+
+def test_protocol_wizard_handoff_uses_real_metadata_and_copies_source_context(tmp_path):
+    """Selections become compatible settings only after an explicit card handoff."""
+    from spacr.regex_infer import _metadata_convention_keys
+
+    source = tmp_path / 'images'
+    source.mkdir()
+    raw = source / 'plate_A01_F001_C1.tif'
+    import numpy as np
+    import tifffile
+    tifffile.imwrite(raw, np.arange(64, dtype=np.uint16).reshape(8, 8))
+    original = raw.read_bytes()
+    fields = sample._protocol_options('small_images', 'tiff_other')
+    metadata = next(field for field in fields if field['name'] == 'metadata_type')
+    assert {row['key'] for row in metadata['options']} == set(_metadata_convention_keys())
+    choices = dict(metadata_type='custom', goal='mask')
+    context = dict(custom_regex=r'(?P<plateID>.+)_(?P<wellID>A01)_F(?P<fieldID>\d+)_C(?P<chanID>\d+)')
+    context['submodule_settings'] = {'mask': {'settings': {'cell_channel': 2}, 'reason': 'verified channels'}}
+    result = sample._protocol_result('small_images', 'tiff_other', choices, str(source), context)
+    handoff = sample._protocol_handoff(result, 'mask')
+    assert handoff['settings']['src'] == str(source)
+    assert handoff['settings']['metadata_type'] == 'custom'
+    assert handoff['settings']['custom_regex'] == context['custom_regex']
+    assert 'img_format' not in handoff['settings']
+    assert handoff['context']['submodule_settings']['mask']['settings']['cell_channel'] == 2
+    assert handoff['context']['submodule_settings']['mask']['reason'] == 'verified channels'
+    handoff['context']['protocol_selection']['choices']['metadata_type'] = 'auto'
+    assert result['context']['protocol_selection']['choices'] == choices
+    with pytest.raises(ValueError):
+        sample._protocol_handoff(result, 'regression')
+    assert raw.read_bytes() == original
+    assert not (source / 'measurements').exists()
+
+
+def test_protocol_recipe_nested_controls_pdf_and_legacy_reopen(qtbot, tmp_path):
+    """Real popup links update check/details; expanded PDF retains their content."""
+    result = sample._protocol_result('sequencing', 'fastq_gz', dict(sequencer='other', read_mode='single', single_direction='R2'))
+    dialog = sample._ProtocolBrowserDialog(result=result)
+    qtbot.addWidget(dialog)
+    dialog.show()
+    assert dialog._save_pdf.isVisible()
+    assert not dialog._choice_list.isVisible()
+    dialog._activate_link(QUrl('spacr://protocol/check/map_barcodes'))
+    dialog._activate_link(QUrl('spacr://protocol/expand/map_barcodes'))
+    assert 'map_barcodes' in dialog._checked
+    assert 'Setting explanations' in dialog._text.toPlainText()
+    dialog._activate_link(QUrl('spacr://protocol/expand/map_barcodes:settings'))
+    assert 'target_sequence' in dialog._text.toPlainText()
+    assert '[x]' in dialog._recipe_result['protocol']['markdown']
+    assert '### target_sequence' in dialog._recipe_result['protocol']['markdown']
+    path = tmp_path / 'protocol.pdf'
+    assert dialog._export_recipe_pdf(path) == str(path)
+    assert path.read_bytes().startswith(b'%PDF-')
+    assert 'All registered routes and prerequisites' not in dialog._recipe_html(expand_all=True)
+    dialog._activate_link(QUrl('spacr://protocol/expand/catalog'))
+    assert 'All registered routes and prerequisites' in dialog._recipe_html(expand_all=True)
+    dialog._set_input()
+    assert dialog._recipe_result is None
+    assert dialog._choice_list.isVisible() and not dialog._save_pdf.isVisible()
