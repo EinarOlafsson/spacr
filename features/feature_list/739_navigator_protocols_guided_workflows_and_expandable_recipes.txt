@@ -157,3 +157,5 @@ also in the text box the order of the origional instructions should be :
 spaCR AI:
 Protocols:
 then the rest
+
+2026-10-31 — The isolated Navigator UI now has the P ring, retained three-step catalog selectors, shared explanations, starting cards, explicit typed native handoffs, stale-inspection refusal and actual sidebar activation; Classic Help/command routes remain. Thirteen focused native interaction checks pass with retained unaffected cases; the compressed dependent-row layout was corrected and qualified by five affected cases plus the requested CPU/offscreen captures. Normal runtime localization/artifacts and root layout review remain in progress; no Main/source-candidate or remote change.

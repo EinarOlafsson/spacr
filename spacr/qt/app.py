@@ -5425,6 +5425,11 @@ class _NavigatorHomePage(_NavigatorPageBase):
         self._fit_navigator_aside()
         _watch_object_events(self._suggestions_scroll, self, (QEvent.Resize, QEvent.Move))
 
+    def _show_navigator_sidebar(self):
+        """Expand the real Navigator side panel without changing Classic mode."""
+        self._navigator_aside_split.set_collapsed('Widgets', False, by_user=False)
+        self._navigator_aside.setFocus()
+
     def _show_running_runs(self):
         """Expand the Navigator side panel and reveal its current running jobs."""
         self._navigator_aside_split.set_collapsed('Widgets', False, by_user=False)
@@ -10546,6 +10551,11 @@ class MainWindow(QMainWindow):
         """Open software guidance while preserving the inspected input context."""
         from .widgets.sample_project import _show_protocols
 
+        chooser = getattr(self._startup, 'open_protocols', None)
+        if callable(chooser):
+            self._on_nav_selected('__home__')
+            chooser()
+            return
         result = getattr(self._startup, '_last_result', None) or {}
         context = result.get('context', {})
         groups = context.get('action_groups', {})
@@ -10791,8 +10801,83 @@ class MainWindow(QMainWindow):
             apply(dict(overrides))
         return True
 
+    def _open_protocol_module(self, result, key):
+        """Carry an explicit protocol action through the existing typed input route.
+
+        :param result: current protocol result produced by the shared catalog.
+        :param key: explicitly selected compatible module or submodule key.
+        """
+        from .widgets.sample_project import _protocol_handoff
+
+        inspection = result.get('_navigator_inspection')
+        if inspection is not None and inspection != (
+                getattr(self._startup, '_input_generation', None),
+                self._startup.path_edit.text()):
+            self.statusBar().showMessage(tr('The inspected input changed. Inspect it again before opening this protocol.'), 6000)
+            return
+        try:
+            handoff = _protocol_handoff(result, key)
+        except ValueError as error:
+            self.statusBar().showMessage(str(error), 6000)
+            return
+        self._open_protocol_suggestion(handoff)
+
+    def _open_protocol_suggestion(self, handoff):
+        """Apply compatible choices without consuming the Navigator's inspection.
+
+        :param handoff: copied source, module, context and settings from Protocols.
+        """
+        from copy import deepcopy
+
+        key = handoff['module']
+        if not app_is_visible(key):
+            self.statusBar().showMessage(tr('This module is hidden by the current application preferences.'), 5000)
+            return
+        overrides = dict(handoff.get('settings', {}))
+        path = handoff.get('source_path', '')
+        if path:
+            overrides.pop('src', None)
+        if overrides and not self._preview_easy_settings(key, overrides, inferred=True):
+            return
+        if not path:
+            screen = self._open_easy_named_module(key)
+            apply = getattr(screen, 'apply_settings_dict', None)
+            if overrides and callable(apply):
+                apply(overrides)
+            return
+        startup = self._startup
+        previous_result = getattr(startup, '_last_result', None)
+        previous_overrides = getattr(startup, '_settings_overrides', {})
+        context = deepcopy(handoff.get('context', {}))
+        original = (previous_result or {}).get('context', {}).get('submodule_settings', {})
+        inferred = context.setdefault('submodule_settings', {})
+        if key in original:
+            inferred[key] = deepcopy(original[key])
+        else:
+            inferred.pop(key, None)
+        startup._last_result = {'path': path, 'context': context}
+        startup._settings_overrides = {**previous_overrides,
+                                       key: {**previous_overrides.get(key, {}), **overrides}}
+        self._protocol_opening = True
+        try:
+            self._open_easy_suggestion(key, path)
+        finally:
+            startup._last_result = previous_result
+            startup._settings_overrides = previous_overrides
+            self._protocol_opening = False
+
     def _open_easy_suggestion(self, key, path):
         """Open an inspected input through the destination's existing native input route."""
+        chooser = getattr(self._startup, 'protocol_handoff', None)
+        if not getattr(self, '_protocol_opening', False) and callable(chooser):
+            try:
+                handoff = chooser(key, path)
+            except ValueError as error:
+                self.statusBar().showMessage(str(error), 6000)
+                return
+            if handoff is not None:
+                self._open_protocol_suggestion(handoff)
+                return
         if key == 'parascape':
             from .preferences import maturity_is_visible
 

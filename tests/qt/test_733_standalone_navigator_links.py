@@ -20,6 +20,7 @@ def test_standalone_learning_links_preserve_input_until_explicit_module_choice(
     from spacr.qt.i18n import tr
     from spacr.qt.tutorials import tutorial_url
     from spacr.qt.widgets.home import _EasyHomePage
+    from tests.qt.test_739_navigator_protocols import _choose, _click_url
 
     preferences, _, _ = private_ai_profile
     preferences.set_ambient_enabled(False)
@@ -49,7 +50,7 @@ def test_standalone_learning_links_preserve_input_until_explicit_module_choice(
         qtbot.mouseMove(card, card.rect().center())
         details = page.field.details
         expected = tutorial_url('make_masks')
-        qtbot.waitUntil(lambda: expected in details.toHtml() and 'spacr://protocols' in details.toHtml(),
+        qtbot.waitUntil(lambda: 'spacr://sidebar' in details.toHtml() and 'spacr://protocols' not in details.toHtml(),
                         timeout=5000)
         result = copy.deepcopy(page._last_result)
         anchors = QSignalSpy(details.anchorClicked)
@@ -66,18 +67,27 @@ def test_standalone_learning_links_preserve_input_until_explicit_module_choice(
             assert details.anchorAt(point) == url
             qtbot.mouseClick(details.viewport(), Qt.LeftButton, pos=point)
 
-        click_link('Protocols', 'spacr://protocols')
-        assert anchors.count() == 1 and anchors.at(0)[0].toString() == 'spacr://protocols'
+        click_link('Open sidebar', 'spacr://sidebar')
+        assert anchors.count() == 1 and anchors.at(0)[0].toString() == 'spacr://sidebar'
         assert opened_urls == [] and chosen.count() == 0
         assert page.path_edit.text() == str(image) and page._last_result == result
         assert _bytes([image]) == before
-        click_link('Tutorial', expected)
-        assert anchors.count() == 2
+        qtbot.mouseClick(page.path_edit.protocols, Qt.LeftButton)
+        _choose(qtbot, page._protocol_select, 'small_images')
+        qtbot.mouseClick(page._protocol_next_button, Qt.LeftButton)
+        _choose(qtbot, page._protocol_select, 'tiff_yokogawa')
+        qtbot.mouseClick(page._protocol_next_button, Qt.LeftButton)
+        dialog = page._protocol_browser_dialog
+        qtbot.waitUntil(dialog.isVisible)
+        _click_url(qtbot, dialog._text, expected)
+        assert anchors.count() == 1
         assert [url.toString() for url in opened_urls] == [expected]
         assert opened_urls[0].scheme() == 'https' and not opened_urls[0].isLocalFile()
         assert str(image) not in expected
         assert chosen.count() == 0 and page._last_result == result
         assert page.path_edit.text() == str(image) and _bytes([image]) == before
+        dialog.close()
+        card = next(card for card in page.field.cards if card._key == 'make_masks')
         card.click()
         assert page._workflow is not None and chosen.count() == 0
         page._workflow.central.click()
