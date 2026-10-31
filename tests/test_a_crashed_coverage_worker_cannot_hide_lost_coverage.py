@@ -610,9 +610,9 @@ def test_a_healthy_xdist_batch_reports_every_worker_returned_and_re_runs_nothing
 
 def test_serial_recovery_waits_for_its_live_writer_to_finalize_owned_data(tmp_path, monkeypatch):
     import threading
-    import coverage
 
     runner = _load_coverage_runner()
+    import coverage
     data_file = tmp_path / 'data' / '.coverage.shard-09.batch-012-recovery-032'
     data_file.parent.mkdir()
     template = coverage.CoverageData(basename=str(tmp_path / 'valid-template'))
