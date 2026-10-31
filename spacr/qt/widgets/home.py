@@ -6913,11 +6913,16 @@ class _EasyHomeField(QWidget):
             self._place_fixed(self.rim, self.panel.geometry())
             self.rim.raise_()
         self.rim.update()
-        details_width = min(1560, max(180, width - 32))
+        left_edge = getattr(self, '_navigator_content_left', None)
+        lowest = 16 if left_edge is None else max(16, left_edge + 16)
+        highest = width - 16 if right is None else min(width - 16, right - 16)
+        details_width = min(1560, max(180, width - 32), max(180, highest - lowest))
         usable = getattr(self, '_protocol_details_width', None)
         if usable is not None:
-            details_width = min(details_width, usable)
-        details_left = 16 if usable is not None else (width - details_width) // 2
+            details_width = min(details_width, usable, max(180, highest - lowest))
+            details_left = lowest
+        else:
+            details_left = max(lowest, min((width - details_width) // 2, highest - details_width))
         from ..preferences import scaled_px
 
         default_height = 176 + 2 * self.details.fontMetrics().lineSpacing()

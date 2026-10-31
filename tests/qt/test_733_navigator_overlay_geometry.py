@@ -78,11 +78,24 @@ def _composer_anchor(rect):
     return rect.x() * 2 + rect.width(), rect.y(), rect.height()
 
 
+def _free_area(window, page):
+    """The central area left of the Widgets panel and right of the Dock, when open."""
+    left = window.centralWidget().mapToGlobal(QPoint()).x()
+    if not window._dock_edge.is_collapsed():
+        left = window._dock_edge.mapToGlobal(QPoint(window._dock_edge.width(), 0)).x()
+    right = page.field.mapToGlobal(QPoint(page.field.width(), 0)).x()
+    if not page._navigator_aside_split.is_collapsed('Widgets'):
+        right = page._navigator_aside.mapToGlobal(QPoint()).x()
+    return left, right
+
+
 def _toggle_sides(window, qtbot, tracked, trace):
     page = window._startup
     split = page._navigator_aside_split
     baseline = _rects(tracked)
     panel_index = tracked.index(page.field.panel)
+    details_index = tracked.index(page.field.details)
+    moving = {panel_index, details_index}
     assert baseline[panel_index] == _composer_rect(page)
     for control in (window._dock_edge, split.handle(1)):
         for _ in range(2):
@@ -91,10 +104,13 @@ def _toggle_sides(window, qtbot, tracked, trace):
             qtbot.wait(40)
             expected = list(baseline)
             expected[panel_index] = _composer_rect(page)
-            assert _rects(tracked) == tuple(expected)
+            now = _rects(tracked)
+            expected[details_index] = now[details_index]
+            assert now == tuple(expected)
+            left, right = _free_area(window, page)
+            assert left <= now[details_index].left() and now[details_index].right() < right
             for frame in trace.frames:
-                assert frame[:panel_index] == baseline[:panel_index]
-                assert frame[panel_index + 1:] == baseline[panel_index + 1:]
+                assert all(frame[i] == baseline[i] for i in range(len(frame)) if i not in moving)
                 assert _composer_anchor(frame[panel_index]) == _composer_anchor(baseline[panel_index])
                 assert frame[panel_index].width() in {before.width(), expected[panel_index].width()}
             if not split.is_collapsed('Widgets'):

@@ -2360,7 +2360,9 @@ class AppScreen(QWidget):
         body.setStretchFactor(0, 1)
         body.setStretchFactor(1, 2)
         body.setSizes([400, 800])
-        body.installEventFilter(self)
+        from ..gil_priority import _watch_object_events
+
+        _watch_object_events(body, self, (QEvent.Resize,))
         outer.addWidget(body, 1)
         self._shell_focus.target(body, "Settings")
         try:

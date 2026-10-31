@@ -6857,6 +6857,9 @@ class MainWindow(QMainWindow):
         _watch_object_events(self._sidebar, self, (QEvent.Resize,))
         self._stack.currentChanged.connect(lambda _index: self._sync_navigator_dock_overlay())
         self._dock_edge.collapsedChanged.connect(lambda _collapsed: self._sync_navigator_dock_overlay())
+        self._dock_edge.collapsedChanged.connect(
+            lambda _collapsed: None if getattr(self, '_dock_room_change', False)
+            else setattr(self, '_dock_folded_for_room', False))
         self.apply_dock_mode()
         self._backdrop_the_dock_column()
 
@@ -7385,6 +7388,26 @@ class MainWindow(QMainWindow):
         if event.type() in (QEvent.Resize, QEvent.LayoutRequest):
             if watched is self.centralWidget() or watched is getattr(self, '_sidebar', None):
                 self._sync_navigator_dock_overlay()
+            edge = getattr(self, '_dock_edge', None)
+            sidebar = getattr(self, '_sidebar', None)
+            if (event.type() == QEvent.Resize and watched is self.centralWidget()
+                    and edge is not None and sidebar is not None and self.isVisible()):
+                from .preferences import scaled_px
+
+                dock = sidebar.column_width()
+                fits = (dock <= 0.25 * watched.width()
+                        or watched.width() - dock >= scaled_px(720))
+                if fits != getattr(self, '_dock_fits', None):
+                    self._dock_fits = fits
+                    folding = not fits and not edge.is_collapsed()
+                    opening = fits and getattr(self, '_dock_folded_for_room', False)
+                    if folding or opening:
+                        self._dock_folded_for_room = folding
+                        self._dock_room_change = self._setting_navigator_dock = True
+                        try:
+                            edge.set_collapsed(folding)
+                        finally:
+                            self._dock_room_change = self._setting_navigator_dock = False
         try:
             bar = (self.menuBar() if not self.isFullScreen()
                    and getattr(self, "_borderless", True) else None)
@@ -9933,6 +9956,15 @@ class MainWindow(QMainWindow):
                 edge.setGeometry(width, 0, edge.width(), central.height())
                 slot.raise_()
                 edge.raise_()
+                field = stack.currentWidget().field
+                left = None
+                if width:
+                    from PySide6.QtCore import QPoint
+
+                    left = field.mapFrom(central, QPoint(width + edge.width(), 0)).x()
+                if getattr(field, '_navigator_content_left', None) != left:
+                    field._navigator_content_left = left
+                    field._arrange()
             elif previous:
                 row.insertWidget(0, slot)
                 row.insertWidget(1, edge)

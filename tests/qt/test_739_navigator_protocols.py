@@ -517,4 +517,9 @@ def test_downstream_recipe_clears_cached_raw_source_and_fits_visible_sidebar(
     window.open_module('__home__')
     qtbot.mouseClick(page.path_edit.protocols, Qt.LeftButton)
     qtbot.waitUntil(lambda: page.field._protocol_details_width is None)
-    assert page.field.details.width() == min(1560, max(180, page.field.width() - 32))
+    free_right = page.field.width()
+    if not page._navigator_aside_split.is_collapsed('Widgets'):
+        free_right = page.field.mapFromGlobal(page._navigator_aside.mapToGlobal(QPoint(0, 0))).x()
+    assert page.field.details.width() == min(1560, max(180, page.field.width() - 32),
+                                             max(180, free_right - 32))
+    assert page.field.details.geometry().right() < free_right

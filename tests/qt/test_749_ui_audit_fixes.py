@@ -310,3 +310,59 @@ def test_a_long_empty_state_title_wraps_instead_of_widening_the_form(qtbot):
     label = next(lbl for lbl in card.findChildren(QLabel) if lbl.text() == title)
     assert label.wordWrap()
     assert label.minimumSizeHint().width() < QFontMetrics(label.font()).horizontalAdvance(title)
+
+
+def test_the_description_panel_stays_between_the_dock_and_the_widgets_panel(
+        navigator_window, qtbot):
+    from PySide6.QtCore import QPoint
+
+    window = navigator_window(size=(1600, 1000))
+    page = window._startup
+    field = page.field
+    split = page._navigator_aside_split
+    assert not split.is_collapsed('Widgets')
+    aside_left = field.mapFromGlobal(page._navigator_aside.mapToGlobal(QPoint(0, 0))).x()
+    qtbot.waitUntil(lambda: field.details.geometry().right() < aside_left, timeout=3000)
+    window._dock_edge.set_collapsed(False)
+    edge = window._dock_edge
+    dock_right = field.mapFromGlobal(edge.mapToGlobal(QPoint(edge.width(), 0))).x()
+    qtbot.waitUntil(lambda: field.details.geometry().left() >= dock_right, timeout=3000)
+    assert field.details.geometry().right() < aside_left
+    window._dock_edge.set_collapsed(True)
+    qtbot.waitUntil(lambda: field.details.geometry().left() < dock_right, timeout=3000)
+    split.set_collapsed('Widgets', True, by_user=True)
+    qtbot.waitUntil(lambda: field.details.geometry().right() > aside_left, timeout=3000)
+
+
+def test_the_dock_folds_when_the_content_has_no_room_and_returns(
+        qtbot, private_ai_profile):
+    from spacr.qt.app import MainWindow
+
+    preferences, _, _ = private_ai_profile
+    preferences.set_easy_mode(False)
+    preferences.set_reduce_motion(True)
+    preferences.set_font_scale(2.0)
+    window = MainWindow(initial_app='__home__')
+    qtbot.addWidget(window)
+    window._tour_timer.stop()
+    window._consent_timer.stop()
+    window.resize(2600, 1400)
+    window.show()
+    qtbot.waitExposed(window)
+    edge = window._dock_edge
+    edge.set_collapsed(False)
+    window.resize(1366, 768)
+    qtbot.waitUntil(edge.is_collapsed, timeout=3000)
+    window.resize(2600, 1400)
+    qtbot.waitUntil(lambda: not edge.is_collapsed(), timeout=3000)
+    window.resize(1366, 768)
+    qtbot.waitUntil(edge.is_collapsed, timeout=3000)
+    edge.set_collapsed(False)
+    window.resize(1370, 770)
+    qtbot.wait(200)
+    assert not edge.is_collapsed()
+    edge.set_collapsed(True)
+    window.resize(2600, 1400)
+    qtbot.wait(200)
+    assert edge.is_collapsed()
+    window.close()
