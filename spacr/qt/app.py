@@ -5420,6 +5420,7 @@ class _NavigatorHomePage(_NavigatorPageBase):
         self._navigator_aside_split = split
         split.splitterMoved.connect(lambda *_: self._fit_navigator_aside())
         split.pane_toggled.connect(lambda *_: self._fit_navigator_aside())
+        self.path_edit.protocols.toggled.connect(self._fit_navigator_aside)
         _watch_object_events(aside, self, (QEvent.Resize, QEvent.Move))
         _watch_object_events(split.handle(1), self, (QEvent.Resize, QEvent.Move))
         self._fit_navigator_aside()
@@ -5480,6 +5481,15 @@ class _NavigatorHomePage(_NavigatorPageBase):
             region |= QRegion(self._navigator_aside.geometry())
         split.setMask(region)
         split.raise_()
+        usable = None
+        if self.path_edit.protocols.isChecked() and not split.is_collapsed('Widgets'):
+            from PySide6.QtCore import QPoint
+
+            edge = self.field.mapFromGlobal(self._navigator_aside.mapToGlobal(QPoint(0, 0))).x()
+            usable = max(180, min(self.field.width() - 32, edge - 32))
+        if getattr(self.field, '_protocol_details_width', None) != usable:
+            self.field._protocol_details_width = usable
+            self.field._arrange()
 
     def _fit_navigator_workflow(self):
         """Match an existing workflow overlay to the current suggestions scroll area."""

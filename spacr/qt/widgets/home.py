@@ -6451,6 +6451,10 @@ class _EasyHomeField(QWidget):
         self._place_fixed(self.rim, QRect((width - panel_width) // 2, panel_y, panel_width, panel_height))
         self.rim.raise_()
         details_width = min(1560, max(180, width - 32))
+        usable = getattr(self, '_protocol_details_width', None)
+        if usable is not None:
+            details_width = min(details_width, usable)
+        details_left = 16 if usable is not None else (width - details_width) // 2
         from ..preferences import scaled_px
 
         default_height = 176 + 2 * self.details.fontMetrics().lineSpacing()
@@ -6465,7 +6469,7 @@ class _EasyHomeField(QWidget):
                          else scaled_px(self._details_height_base))
         details_height = (36 if self.details._minimized else
                           min(maximum_height, max(min(scaled_px(96), maximum_height), wanted_height)))
-        self._place_fixed(self.details, QRect((width - details_width) // 2, height - details_height - 16,
+        self._place_fixed(self.details, QRect(details_left, height - details_height - 16,
                                               details_width, details_height))
         self._details_grip._min = min(scaled_px(96), maximum_height)
         self._details_grip._max = maximum_height
@@ -7428,7 +7432,7 @@ class _EasyHomePage(QWidget):
                 else:
                     from ..i18n import tr
 
-                    self.field.details.setPlainText(tr('Input changed. Inspect it before carrying it into a protocol.'))
+                    self.field.details.setPlainText(tr('Input changed. Press Enter to inspect it before carrying it into a protocol.'))
 
     def _protocol_fields(self):
         """Read dependent selectors from the shared current-capability catalog."""
@@ -7518,7 +7522,7 @@ class _EasyHomePage(QWidget):
         if self._protocol_step == 2:
             self._protocol_present()
         else:
-            explanation = '\n\n'.join(explanations) or tr('Choose your experiment or input to see a compatible workflow. Nothing starts automatically.')
+            explanation = '\n\n'.join(dict.fromkeys(explanations)) or tr('Choose your experiment or input to see a compatible workflow. Nothing starts automatically.')
             self.field.details.setPlainText(explanation)
         self.field.protocol_controls.layout().activate()
         self.field.protocol_controls.adjustSize()
@@ -7593,7 +7597,7 @@ class _EasyHomePage(QWidget):
             result['_navigator_inspection'] = (self._inspected_generation, self._inspected_text)
         self._protocol_result = result
         self.field.set_cards(result['actions'])
-        message = '\n\n'.join((result['message'], *result.get('requirements', ())))
+        message = '\n\n'.join(dict.fromkeys((result['message'], *result.get('requirements', ()))))
         self.field.details.setPlainText(message)
         for card in self.field.cards:
             card.activated.connect(self._select_suggestion)

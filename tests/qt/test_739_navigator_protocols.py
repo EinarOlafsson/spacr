@@ -327,3 +327,81 @@ def test_protocols_retires_a_real_native_ai_stream_before_showing_local_choices(
                 work.cancel()
                 thread.quit()
                 assert thread.wait(3000)
+
+
+def test_downstream_recipe_clears_cached_raw_source_and_fits_visible_sidebar(
+        qtbot, protocol_profile, monkeypatch, tmp_path):
+    """An explicit later step awaits its own outputs instead of reusing raw input."""
+    image = tmp_path / 'userW0025F0001T0001Z000C1.tif'
+    pixels = np.arange(24 * 24, dtype=np.uint16).reshape(24, 24)
+    tifffile.imwrite(image, pixels)
+    before = image.read_bytes()
+    unrelated = tmp_path / 'previous_measurement_source'
+    unrelated.mkdir()
+    window = app.MainWindow(initial_app='__home__')
+    qtbot.addWidget(window)
+    window._tour_timer.stop()
+    window._consent_timer.stop()
+    window.resize(1366, 768)
+    window.show()
+    window.open_module('measure')
+    screen = window._screens['measure']
+    screen.apply_settings_dict({'src': str(unrelated)})
+    assert screen._settings_model.collect()['src'] == str(unrelated)
+    window.open_module('__home__')
+    page = window._startup
+    page.accept_paths([str(image)])
+    qtbot.waitUntil(lambda: not page._runner.is_busy() and page._last_result is not None,
+                    timeout=10000)
+    inspected = deepcopy(page._last_result)
+    overrides = deepcopy(page._settings_overrides)
+    qtbot.mouseClick(page.path_edit.protocols, Qt.LeftButton)
+    _choose(qtbot, page._protocol_select, 'small_images')
+    qtbot.mouseClick(page._protocol_next_button, Qt.LeftButton)
+    _choose(qtbot, page._protocol_select, 'other_metadata')
+    _choose(qtbot, page._protocol_detail_combos['image_format'], 'png')
+    from spacr.qt.i18n import tr
+
+    explanation = tr('Inspect a representative file and verify reader availability and axes before conversion.')
+    assert page.field.details.toPlainText().count(explanation) == 1
+    _choose(qtbot, page._protocol_select, 'tiff_yokogawa')
+    _details(qtbot, page)
+    qtbot.mouseClick(page._protocol_next_button, Qt.LeftButton)
+    dialog = window._protocol_browser_dialog
+    qtbot.waitUntil(dialog.isVisible)
+    assert 'measure' not in {row[0] for row in page._protocol_result['actions']}
+    assert any(step['module'] == 'measure' for step in page._protocol_result['protocol']['steps'])
+    page._show_navigator_sidebar()
+    qtbot.waitUntil(lambda: not page._navigator_aside_split.is_collapsed('Widgets'))
+    qtbot.waitUntil(lambda: page.field._protocol_details_width is not None)
+    details_right = page.field.details.mapToGlobal(page.field.details.rect().topRight()).x()
+    sidebar_left = page._navigator_aside.mapToGlobal(QPoint(0, 0)).x()
+    assert details_right < sidebar_left
+    seen = []
+
+    def preview(widget):
+        widget.show()
+        qtbot.waitExposed(widget)
+        text = widget.findChild(QPlainTextEdit, 'EasySettingsPreview')
+        assert text is not None and text.isReadOnly()
+        seen.append(text.toPlainText())
+        assert str(image) not in seen[-1] and str(unrelated) not in seen[-1]
+        buttons = widget.findChild(QDialogButtonBox)
+        qtbot.mouseClick(buttons.button(QDialogButtonBox.Open), Qt.LeftButton)
+        return widget.result()
+
+    monkeypatch.setattr(QDialog, 'exec', preview)
+    _click_url(qtbot, dialog._text, 'spacr://module/measure')
+    assert seen
+    assert window._stack.currentWidget() is screen
+    assert screen._settings_model.collect()['src'] is None
+    assert screen._thread is None
+    assert page._last_result == inspected and page._settings_overrides == overrides
+    assert page.path_edit.text() == str(image)
+    assert image.read_bytes() == before
+    np.testing.assert_array_equal(tifffile.imread(image), pixels)
+    dialog.close()
+    window.open_module('__home__')
+    qtbot.mouseClick(page.path_edit.protocols, Qt.LeftButton)
+    qtbot.waitUntil(lambda: page.field._protocol_details_width is None)
+    assert page.field.details.width() == min(1560, max(180, page.field.width() - 32))
