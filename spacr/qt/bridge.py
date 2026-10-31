@@ -2454,11 +2454,14 @@ def _import_the_entry_module(name: str) -> None:
     driver, and the run's start asks it on the GUI thread (the animation
     policy's GPU check); every later call answers at once.
 
-    The cyclic collector is off for the import and what it built is frozen
+    The cyclic collector is off for the import, and what it built is frozen
     after it, as :func:`spacr.qt.app._freeze_what_survived` does after the
     other background imports: a full collection over the 2,900 modules torch
     and the rest bring in otherwise lands on whichever thread allocates next,
-    and that was the GUI thread starting the run, 100-150 ms.
+    and that was the GUI thread starting the run, 100-150 ms. The freeze is
+    made by the GUI-thread collector after one collection of what is not yet
+    frozen, deferred while a worker is busy
+    (:func:`spacr.qt.gc_policy._freeze_survivors`).
 
     PyTorch's libraries are mapped first with the interpreter lock released
     (:func:`spacr.qt.gil_priority._open_torch_libraries`), whether or not
@@ -2466,7 +2469,7 @@ def _import_the_entry_module(name: str) -> None:
     """
     app_module = sys.modules.get("spacr.qt.app")
     lock = getattr(app_module, "HEAVY_IMPORT_LOCK", None)
-    from .gc_policy import _automatic_collection_paused
+    from .gc_policy import _automatic_collection_paused, _freeze_survivors
 
     with responsive_gui(), _automatic_collection_paused():
         if lock is not None:
@@ -2482,7 +2485,7 @@ def _import_the_entry_module(name: str) -> None:
             LOG.debug("could not import %s off the GUI thread", name,
                       exc_info=True)
         finally:
-            gc.freeze()
+            _freeze_survivors()
             if lock is not None:
                 lock.release()
 

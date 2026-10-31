@@ -13044,11 +13044,15 @@ def _freeze_what_survived() -> None:
     after a launch, a screen build or a background import keeps the
     collections to what was made since. Objects freed by reference count
     are still freed, and :meth:`MainWindow.rebuild_app_screen` unfreezes
-    first, so a replaced screen's cycles are collected.
+    first, so a replaced screen's cycles are collected. The freeze itself
+    is made on the GUI-thread collector's next tick, after it has collected
+    what is not frozen yet, and a window that was alive at a freeze and is
+    deleted later has the frozen objects given back to the collector
+    (:func:`spacr.qt.gc_policy._freeze_survivors`).
     """
-    import gc
+    from .gc_policy import _freeze_survivors
 
-    gc.freeze()
+    _freeze_survivors()
 
 
 def _register_the_glyph_font() -> None:

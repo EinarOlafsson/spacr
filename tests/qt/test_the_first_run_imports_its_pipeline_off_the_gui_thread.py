@@ -45,11 +45,19 @@ IMPORT_S = 0.3
 
 @pytest.fixture(autouse=True)
 def fresh_imports(monkeypatch):
-    """A private module table and import record; no real freeze of the GC."""
+    """A private module table and import record; no real freeze of the GC.
+
+    The import asks the GUI-thread collector for its freeze
+    (:func:`spacr.qt.gc_policy._freeze_survivors`); neither that request nor
+    a direct ``gc.freeze`` reaches the real collector here.
+    """
+    from spacr.qt import gc_policy
+
     frozen = []
     monkeypatch.setattr(bridge, "_ENTRY_MODULES", {})
     monkeypatch.setattr(bridge, "_ENTRY_IMPORTS", {})
-    monkeypatch.setattr(gc, "freeze", lambda: frozen.append(True))
+    monkeypatch.setattr(gc, "freeze", lambda: frozen.append("direct"))
+    monkeypatch.setattr(gc_policy, "_freeze_survivors", lambda: frozen.append(True))
     return frozen
 
 

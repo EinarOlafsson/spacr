@@ -126,6 +126,93 @@ def _defer_for_busy_workers() -> bool:
 _PAUSE_LOCK = threading.RLock()
 _PAUSE = {"depth": 0, "resume": False}
 
+_FROZEN_WINDOWS: list = []
+_FREEZE_DUE = threading.Event()
+
+
+def _freeze_survivors() -> None:
+    """Have the GUI-thread collector collect, then freeze what survives.
+
+    ``gc.freeze()`` moves every tracked object into the permanent
+    generation, which the collector never examines again. That is right
+    for imported modules and for the screens the main window keeps, and it
+    keeps later sweeps to what was made since. It is wrong for anything
+    else caught by it: a dialog closed just before the freeze, whose cycles
+    no tick had collected yet, or one that was open and is closed after it.
+    Either kept its wrapper and every object in its reference cycles for
+    the rest of the session. Measured with the main window and six module
+    screens open, all fifteen Preferences dialogs opened and closed between
+    two freezes stayed alive, about 1.7 MB each.
+
+    Callable from any thread: it only marks a freeze as due. The next
+    GUI-thread tick of :func:`collect_once` collects the generations not yet
+    frozen -- what was made since the last freeze, not the whole heap -- then
+    freezes and records the top-level windows alive at that moment. Once one
+    of those windows has been deleted, a later tick returns the permanent
+    generation to the collector (:func:`_reclaim_frozen`). Reclaiming the
+    whole heap at every freeze instead cost a full sweep per first module
+    open: offscreen, opening every module in turn took 36.2 s instead of
+    25.6 s, with 39 instead of 13 event-loop stalls over 250 ms.
+    """
+    _FREEZE_DUE.set()
+
+
+def _remember_frozen_windows() -> None:
+    """Keep weak references to the top-level windows alive at a freeze.
+
+    Popups and tooltips are left out: a menu or tooltip opened for one
+    gesture would otherwise make every deletion of one a full sweep.
+
+    Runs on the GUI thread only, from :func:`collect_once`.
+    """
+    import weakref
+
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QApplication
+
+    app = QApplication.instance()
+    windows = app.topLevelWidgets() if app is not None else []
+    _FROZEN_WINDOWS[:] = [weakref.ref(window) for window in windows
+                          if window.windowType() not in (Qt.Popup, Qt.ToolTip)]
+
+
+def _a_frozen_window_was_deleted() -> bool:
+    """Whether a window that was alive at the last freeze has been deleted since.
+
+    A deleted window's wrapper, and everything in its reference cycles, is
+    frozen garbage that only :func:`_reclaim_frozen` can free. A window
+    that is merely hidden is still alive and needs nothing.
+    """
+    if not _FROZEN_WINDOWS:
+        return False
+    from shiboken6 import isValid
+
+    for reference in _FROZEN_WINDOWS:
+        window = reference()
+        if window is None or not isValid(window):
+            return True
+    return False
+
+
+def _collect_and_freeze() -> None:
+    """Collect the unfrozen generations, then freeze the survivors.
+
+    Runs on the GUI thread only, from :func:`collect_once`.
+    """
+    _FREEZE_DUE.clear()
+    gc.collect()
+    gc.freeze()
+    _remember_frozen_windows()
+
+
+def _reclaim_frozen() -> None:
+    """Collect what earlier freezes kept, then freeze the survivors again.
+
+    Runs on the GUI thread only, from :func:`collect_once`.
+    """
+    gc.unfreeze()
+    _collect_and_freeze()
+
 
 @contextlib.contextmanager
 def _automatic_collection_paused():
@@ -166,17 +253,32 @@ def collect_once() -> int:
     none was saved). No collection is requested when none is due.
 
     Explicit worker cleanup requests take precedence and collect all
-    generations, even below their normal thresholds.
+    generations, even below their normal thresholds. Next, once nothing
+    defers them, come the freezes :func:`_freeze_survivors` asked for:
+    if a window frozen alive has been deleted since, the frozen objects are
+    returned to the collector first; then the unfrozen generations are
+    collected and the survivors frozen.
 
     :returns: the generation collected, or ``-1`` when none is due or ordinary
         collection is deferred.
     """
     if _requested.is_set():
         _requested.clear()
-        gc.collect()
+        if _a_frozen_window_was_deleted():
+            _reclaim_frozen()
+        elif _FREEZE_DUE.is_set():
+            _collect_and_freeze()
+        else:
+            gc.collect()
         return 2
     if _a_heavy_import_is_running() or _defer_for_busy_workers():
         return -1
+    if _a_frozen_window_was_deleted():
+        _reclaim_frozen()
+        return 2
+    if _FREEZE_DUE.is_set():
+        _collect_and_freeze()
+        return 2
     thresholds = _saved_thresholds or gc.get_threshold()
     counts = gc.get_count()
     for generation in (2, 1, 0):
