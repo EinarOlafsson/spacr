@@ -322,7 +322,7 @@ ask_yes_no() {
 if [[ "$CONSENT_COLLECTED" == "0" && -t 0 && "$DRY_RUN" != "1" && "$GUI_REQUEST" != "1" ]]; then
     printf '\nspaCR privacy choices\n'
     printf '%s\n' \
-        'Anonymised error reports are on by default. They are filed as public GitHub issues by spaCR'"'"'s relay, with no account needed, and never include paths, names, IP addresses, emails, tokens, logs, images or your content.' \
+        'Anonymised error reports are on by default. They are filed as public GitHub issues by spaCR'"'"'s relay, with no account needed. The error message is scrubbed of paths, file names, user and host names, e-mail and IP addresses and tokens; logs and images are not sent.' \
         'spaCR AI (free) is also on by default. Turn reports off in Preferences > AI > AI Error report. The terms of use, Sections 5.6-5.7 and 6, give the details.'
     ask_yes_no 'Include redacted diagnostic logs in report previews?' && SHARE_DIAGNOSTICS=1
     ask_yes_no 'Enable the public GitHub issue-report action?' && REPORT_ISSUES=1

@@ -50,7 +50,7 @@ def main() -> int:
         "Anonymised error reports are on by default",
         "public GitHub issues by spaCR's relay",
         "with no account needed",
-        "never include paths, names, IP addresses, emails, tokens, logs, images or your content",
+        "The error message is scrubbed of paths, file names, user and host names, e-mail and IP addresses and tokens; logs and images are not sent",
         "Turn reports off in Preferences → AI → AI Error report",
     )
     automatic_reports = next(clause for clause in TERMS if clause.startswith("5.6 "))
