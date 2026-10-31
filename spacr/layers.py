@@ -525,14 +525,19 @@ class Blending:
             alpha = cov * float(opacity)
         a = alpha[..., None]
         if mode == Blending.ADDITIVE:
-            out = np.clip(dst + src * a, 0.0, 1.0)
+            out = src * a
+            np.add(dst, out, out=out)
+            np.clip(out, 0.0, 1.0, out=out)
         elif mode == Blending.MULTIPLY:
             out = dst * (1.0 - a) + dst * src * a
         elif mode == Blending.MINIMUM:
             out = dst * (1.0 - a) + np.minimum(dst, src) * a
         else:
-            out = dst * (1.0 - a) + src * a
-        return out.astype(np.float32), alpha
+            out = dst * (1.0 - a)
+            out += src * a
+        if out.dtype != np.float32:
+            out = out.astype(np.float32)
+        return out, alpha
 
 
 
@@ -2391,12 +2396,42 @@ class ImageLayer(Layer):
             if not self._channel_visible[c]:
                 continue
             lo, hi = self.contrast_limits(c)
+            table = self._lookup_table(c, lo, hi)
+            if table is not None:
+                rgb += table[plane[index]]
+                continue
             values = np.asarray(plane[index], dtype=np.float64)
             t = np.clip((values - lo) / max(hi - lo, _EPS), 0.0, 1.0)
             rgb += self._colormaps[c].map(t)
         np.clip(rgb, 0.0, 1.0, out=rgb)
         rgb[~valid] = 0.0
         return rgb, valid.astype(np.float32)
+
+    def _lookup_table(self, channel: int, low: float, high: float
+                      ) -> Optional[np.ndarray]:
+        """Every value of an 8- or 16-bit channel as the colour it draws as.
+
+        Made by the same arithmetic :meth:`_draw_sampled` applies per pixel,
+        over every value the dtype has, so a look-up gives the same floats
+        while a 4-channel 2048 px field is coloured in tens of milliseconds
+        instead of most of a second. Kept until the colormap, the limits or
+        the dtype change.
+
+        :returns: ``(n_values, 3)`` float32, or None for another dtype.
+        """
+        dtype = self._planes[channel].dtype
+        if dtype.kind != "u" or dtype.itemsize > 2:
+            return None
+        key = (self._colormaps[channel], float(low), float(high), dtype.str)
+        tables = self.__dict__.setdefault("_lookup_tables", {})
+        kept = tables.get(channel)
+        if kept is not None and kept[0] == key:
+            return kept[1]
+        values = np.arange(np.iinfo(dtype).max + 1, dtype=np.float64)
+        t = np.clip((values - low) / max(high - low, _EPS), 0.0, 1.0)
+        table = self._colormaps[channel].map(t)
+        tables[channel] = (key, table)
+        return table
 
 
 class LabelsLayer(Layer):
@@ -3553,6 +3588,27 @@ LayerLike = Union[Layer, str, int]
 Listener = Callable[[LayerEvent], None]
 
 
+def _as_span(values: Optional[np.ndarray]) -> Optional[slice]:
+    """Sorted, evenly spaced indices as the slice that reads the same elements.
+
+    A slice reads a view where an index array gathers a copy, which is most
+    of the cost of drawing a large field at a regular stride.
+
+    :param values: increasing indices, or None.
+    :returns: the slice, or None when they are not evenly spaced.
+    """
+    if values is None or not len(values):
+        return None
+    first = int(values[0])
+    if len(values) == 1:
+        return slice(first, first + 1)
+    step = int(values[1]) - first
+    if step <= 0 or not np.array_equal(
+            values, np.arange(first, first + step * len(values), step)):
+        return None
+    return slice(first, int(values[-1]) + 1, step)
+
+
 class LayerStack:
     """An ordered list of layers sharing one world.
 
@@ -4012,9 +4068,14 @@ class LayerStack:
             col_inv = np.zeros(w, dtype=np.intp)
         n_rows = 1 if rows is None else len(rows)
         n_cols = 1 if cols is None else len(cols)
-        index = tuple(rows[:, None] if role == 0 else
-                      cols[None, :] if role == 1 else idx
-                      for role, idx, _ in vectors)
+        spans = (_as_span(rows), _as_span(cols))
+        if None in spans:
+            index = tuple(rows[:, None] if role == 0 else
+                          cols[None, :] if role == 1 else idx
+                          for role, idx, _ in vectors)
+        else:
+            index = tuple(spans[0] if role == 0 else spans[1] if role == 1
+                          else idx for role, idx, _ in vectors)
         valid = np.ones((n_rows, n_cols), dtype=bool)
         rgb = np.zeros((n_rows, n_cols, 3), dtype=np.float32)
         for layer in drawn:

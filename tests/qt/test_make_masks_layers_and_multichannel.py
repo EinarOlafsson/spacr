@@ -254,6 +254,30 @@ def test_a_stroke_redraws_only_its_box_and_matches_a_full_composite(qtbot, tmp_p
     np.testing.assert_array_equal(partial, _picture(screen))
 
 
+def test_a_large_view_is_composited_off_the_gui_thread(qtbot, tmp_path, monkeypatch):
+    from spacr.qt.screens import make_masks
+
+    _imagej(tmp_path, _planes(2, shape=(160, 200)))
+    monkeypatch.setattr(make_masks, 'LAYERS_SYNC_PIXELS', 100)
+    threads = []
+    original = make_masks._layers_picture_for
+
+    def record(request):
+        threads.append(threading.current_thread())
+        return original(request)
+
+    monkeypatch.setattr(make_masks, '_layers_picture_for', record)
+    screen = _open(qtbot, tmp_path)
+    canvas = screen._canvas
+    qtbot.waitUntil(lambda: canvas._composed is not None and bool(threads))
+    assert all(thread is not threading.main_thread() for thread in threads)
+    screen._field_stack['Channel 1'].visible = False
+    qtbot.waitUntil(lambda: canvas._composed is not None
+                    and canvas._composed[0][3][-1] == canvas.layers_version)
+    assert len(threads) >= 2
+    assert canvas.close_layers()
+
+
 def test_channel_planes_are_read_off_the_gui_thread(qtbot, tmp_path, monkeypatch):
     from spacr.qt.screens import make_masks as engine
     from spacr.qt.screens.make_masks import MakeMasksScreen

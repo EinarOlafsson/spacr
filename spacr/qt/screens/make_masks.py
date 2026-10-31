@@ -2139,6 +2139,62 @@ def _enhanced_picture_for(request: _EnhanceRequest) -> Optional[_EnhancedImage]:
     return _EnhancedImage(out, np.clip(scaled, 0, top).astype(dtype))
 
 
+#: The largest view, in drawn pixels, whose layers are composited on the
+#: GUI thread. A larger one (a field shown near its full size on a large or
+#: high-density screen) is composited on a worker, which takes a few hundred
+#: milliseconds for four channels at two megapixels.
+LAYERS_SYNC_PIXELS = 512 * 512
+
+
+class _LayersRequest(NamedTuple):
+    """One layered composite for the worker: a private copy of the stack."""
+
+    key: int
+    composed: tuple
+    stack: Any
+    canvas: Any
+    shown: np.ndarray
+    size: tuple
+
+
+def _layer_snapshot(stack, mask_layer, labels):
+    """A private copy of ``stack``'s visible layers, safe to draw on a worker.
+
+    Image planes are shared (nothing edits them) together with their colour
+    tables; the edited mask is ``labels``, a copy, so a brush stroke made
+    while the worker draws cannot tear it.
+    """
+    from ...layers import ImageLayer, LabelsLayer, LayerStack
+
+    copy = LayerStack()
+    for layer in stack:
+        if not layer.visible or layer.opacity <= 0.0:
+            continue
+        common = dict(name=layer.name, opacity=layer.opacity,
+                      blending=layer.blending, spacing=layer.spacing)
+        if isinstance(layer, ImageLayer):
+            clone = ImageLayer(
+                layer.channel_data(0), colormaps=[layer.colormap],
+                contrast_limits=[layer.contrast_limits(0)], **common)
+            clone.__dict__["_lookup_tables"] = layer.__dict__.setdefault(
+                "_lookup_tables", {})
+        elif isinstance(layer, LabelsLayer):
+            clone = LabelsLayer(labels if layer is mask_layer else layer.data,
+                                color=layer.color, contour=layer.contour, **common)
+        else:
+            continue
+        copy.append(clone)
+    return copy
+
+
+def _layers_picture_for(request: _LayersRequest) -> np.ndarray:
+    """Composite a request's private stack as Qt's RGB32, on the worker."""
+    rgb = request.stack._render_uint8_gathered(request.canvas)
+    if rgb is None:
+        rgb = request.stack.render_uint8(request.canvas)
+    return np.ascontiguousarray(_rgb32(rgb))
+
+
 class _MaskCanvas(QLabel):
     """QLabel that displays the composited image+mask (optionally zoomed
     into a sub-region) and captures mouse events for brush / erase /
@@ -2179,6 +2235,7 @@ class _MaskCanvas(QLabel):
     #: Connected to :meth:`_take_enhanced` in ``__init__``, which is what
     #: carries it from the worker thread to this one.
     enhanced_ready = Signal(object)
+    layers_ready = Signal(object)
     wand_ready = Signal(object)
     lookup_ready = Signal(object)
     boxes_changed = Signal()
@@ -2291,6 +2348,9 @@ class _MaskCanvas(QLabel):
         self._enhance_timer.timeout.connect(self._submit_pending_enhance)
         self._enhance_asked: Optional[tuple] = None
         self.enhanced_ready.connect(self._take_enhanced)
+        self._layers_worker = None
+        self._layers_serial = 0
+        self.layers_ready.connect(self._take_layers)
         self._wand_worker = None
         self._wand_request: Optional[_WandRequest] = None
         self._wand_cursor = None
@@ -2791,6 +2851,9 @@ class _MaskCanvas(QLabel):
         canvas = self._layered_canvas((x0, y0, x1, y1), step, view.shape)
         if canvas is not None:
             reused = self._recompose_layered(kept, key, canvas, labels)
+            if reused is None and canvas.shape[0] * canvas.shape[1] > LAYERS_SYNC_PIXELS:
+                self._ask_for_layers(key, canvas, labels, (avail_w, avail_h))
+                return
             if reused is None:
                 picture = self._layered_picture(canvas)
                 shown = np.array(labels, copy=True)
@@ -2931,6 +2994,65 @@ class _MaskCanvas(QLabel):
         picture[r0:r1, c0:c1] = piece[r0 - R0:r1 - R0, c0 - C0:c1 - C0]
         shown[r0:r1, c0:c1] = labels[r0:r1, c0:c1]
         return picture, shown
+
+    def _ask_for_layers(self, key: tuple, canvas, labels: np.ndarray, size) -> None:
+        """Composite the layers of a large view on the worker thread.
+
+        The worker gets a copy of the stack's look and of the mask, so an
+        edit or a restyle made while it runs cannot tear what it reads; the
+        newest request replaces any still waiting, and the picture already
+        on screen stays up while the new one is made.
+        """
+        self._layers_serial += 1
+        if self._layers_worker is None:
+            self._layers_worker = _NewestRequestWorker(
+                _layers_picture_for, self._layers_done, name="spacr-layers")
+        snapshot = _layer_snapshot(self.field_layers, self.mask_layer,
+                                   np.array(self.mask_layer.data, copy=True))
+        self._layers_worker.submit(_LayersRequest(
+            key=self._layers_serial, composed=key, stack=snapshot,
+            canvas=canvas, shown=np.array(labels, copy=True), size=tuple(size)))
+
+    def _layers_done(self, request, result, error) -> None:
+        """Hand a finished layer picture to the GUI thread."""
+        if error is not None:
+            LOG.warning("the layers could not be composited", exc_info=error)
+            return
+        try:
+            self.layers_ready.emit((request, result))
+        except RuntimeError:
+            pass
+
+    def _take_layers(self, payload) -> None:
+        """Show a finished layer picture if it still is the view on screen."""
+        request, picture = payload
+        if (request.key != self._layers_serial or self.image is None
+                or self.mask is None):
+            return
+        source = (self.enhanced_picture() if self.enhance_display
+                  else self.displayed_source())
+        x0, y0, x1, y1 = self._viewport_bounds()
+        ratio = device_ratio(self)
+        step = engine._display_step(x1 - x0, y1 - y0, request.size[0] * ratio,
+                                   request.size[1] * ratio)
+        now = self._composed_key(source, step)
+        if not self._same_composition(request.composed, now):
+            return
+        h, w = picture.shape[:2]
+        qimg = QImage(picture.data, w, h, 4 * w, QImage.Format_RGB32).copy()
+        self._composed = (now, qimg, picture, request.shown, (0, 0))
+        self._show_composed(qimg, *request.size)
+        current = self.mask[y0:y1:step, x0:x1:step]
+        if self.display_ids is not None:
+            current = current * np.isin(current, self.display_ids)
+        if not np.array_equal(current, request.shown):
+            self.refresh()
+
+    def close_layers(self) -> bool:
+        """Stop the layer worker; True when none is left running."""
+        worker, self._layers_worker = self._layers_worker, None
+        self._layers_serial += 1
+        return True if worker is None else worker.close()
 
     def _composed_key(self, source: np.ndarray, step: int) -> tuple:
         """What a composed picture depends on besides the canvas size.
@@ -25856,6 +25978,7 @@ class MakeMasksScreen(QWidget):
         self._psf_controls._shutdown()
         self._restoration_controls._shutdown()
         self._canvas.close_enhancer()
+        self._canvas.close_layers()
         self._canvas.close_wand()
         self._canvas.close_lookup()
         self._cancel_comparison()
