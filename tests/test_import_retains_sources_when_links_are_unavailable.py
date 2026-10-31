@@ -365,3 +365,92 @@ def test_copy_reimport_detaches_links_to_an_older_acquisition(
         assert not os.path.samefile(destination / name, older / name)
         assert not os.path.samefile(destination / name, source / name)
         np.testing.assert_array_equal(tifffile.imread(destination / name), pixels)
+
+
+@pytest.mark.parametrize("filesystem", ["case_insensitive", "case_sensitive_hardlink"])
+def test_case_alias_lookup_protects_entries_without_conflating_distinct_hardlinks(
+        acquisition, tmp_path, monkeypatch, filesystem):
+    """Real directory names distinguish spelling aliases from separate hardlinks."""
+    from pathlib import Path
+    import stat
+
+    source, _plan, arrays, original, _parser = acquisition
+    for name in arrays:
+        (source / name).rename(source / name.replace(".tif", ".TIF"))
+    plan = plan_import(source)
+    assert not plan.problems()
+    destination = source
+    if filesystem == "case_sensitive_hardlink":
+        for name in arrays:
+            os.link(source / name.replace(".tif", ".TIF"), source / name)
+    else:
+        destination = source.with_name(source.name.upper())
+    real_stat, real_lstat = Path.stat, Path.lstat
+    real_resolve, real_scandir = Path.resolve, os.scandir
+
+    def actual_path(path):
+        """Delegate case-insensitive lookup to existing real Linux entries only."""
+        path = Path(path)
+        try:
+            parts = path.relative_to(tmp_path).parts
+        except ValueError:
+            return path
+        actual = tmp_path
+        for part in parts:
+            try:
+                is_directory = stat.S_ISDIR(real_stat(actual).st_mode)
+            except FileNotFoundError:
+                is_directory = False
+            if is_directory:
+                with real_scandir(actual) as entries:
+                    names = [entry.name for entry in entries]
+                part = next((name for name in names if name == part),
+                            next((name for name in names if name.casefold() == part.casefold()), part))
+            actual = actual / part
+        return actual
+
+    def lookup_stat(path, *args, **kwargs):
+        """Use actual inode metadata for the simulated filesystem lookup."""
+        return real_stat(actual_path(path), *args, **kwargs)
+
+    def lookup_lstat(path, *args, **kwargs):
+        """Keep symlink entry identity while emulating case-insensitive lookup."""
+        return real_lstat(actual_path(path), *args, **kwargs)
+
+    def lookup_resolve(path, *args, **kwargs):
+        """Resolve real parent aliases without inventing metadata or input bytes."""
+        return real_resolve(actual_path(path), *args, **kwargs)
+
+    with monkeypatch.context() as patch:
+        if filesystem == "case_insensitive":
+            patch.setattr(Path, "stat", lookup_stat)
+            patch.setattr(Path, "lstat", lookup_lstat)
+            patch.setattr(Path, "resolve", lookup_resolve)
+            patch.setattr(os, "scandir", lambda path: real_scandir(actual_path(path)))
+            with pytest.raises(ValueError, match="Import would overwrite input image"):
+                apply_import(plan, destination)
+        else:
+            result = apply_import(plan, destination)
+            assert result.written == len(arrays) and not result.skipped
+    for name, pixels in arrays.items():
+        raw = source / name.replace(".tif", ".TIF")
+        assert not raw.is_symlink() and raw.read_bytes() == original[name]
+        np.testing.assert_array_equal(tifffile.imread(raw), pixels)
+    if filesystem == "case_insensitive":
+        assert {path.name for path in source.iterdir()} == {
+            name.replace(".tif", ".TIF") for name in arrays}
+        assert not destination.exists()
+
+
+def test_entry_identity_preflight_retains_missing_source_field_recovery(acquisition, tmp_path):
+    """A disappeared planned input keeps its existing per-field skip contract."""
+    source, plan, arrays, original, _parser = acquisition
+    missing, remaining = sorted(arrays)
+    (source / missing).unlink()
+    destination = tmp_path / "project_after_acquisition_change"
+    result = apply_import(plan, destination)
+    assert result.written == 1 and set(result.skipped) == {missing}
+    assert "could not write" in result.skipped[missing]
+    assert not (destination / missing).exists()
+    assert (source / remaining).read_bytes() == original[remaining]
+    assert (destination / remaining).read_bytes() == original[remaining]
