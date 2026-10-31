@@ -67,7 +67,7 @@ def test_standalone_learning_links_preserve_input_until_explicit_module_choice(
             assert details.anchorAt(point) == url
             qtbot.mouseClick(details.viewport(), Qt.LeftButton, pos=point)
 
-        click_link('Open sidebar', 'spacr://sidebar')
+        click_link('Open Dock', 'spacr://sidebar')
         assert anchors.count() == 1 and anchors.at(0)[0].toString() == 'spacr://sidebar'
         assert opened_urls == [] and chosen.count() == 0
         assert page.path_edit.text() == str(image) and page._last_result == result

@@ -4,8 +4,9 @@ from copy import deepcopy
 import numpy as np
 import pytest
 import tifffile
-from PySide6.QtCore import QPoint, Qt
+from PySide6.QtCore import QPoint, QRect, Qt
 from PySide6.QtGui import QTextCursor
+from PySide6.QtTest import QSignalSpy
 from PySide6.QtWidgets import QDialog, QDialogButtonBox, QPlainTextEdit
 from shiboken6 import isValid
 
@@ -280,20 +281,56 @@ def test_open_recipe_cannot_carry_an_earlier_inspection_into_a_replacement_path(
     dialog.close()
 
 
-def test_single_sidebar_link_opens_real_navigator_panel_without_changing_mode(
-        qtbot, protocol_profile):
-    """The remaining footer opens the actual panel through native anchor delivery."""
-    window = app.MainWindow(initial_app='__home__')
+def test_single_dock_link_opens_real_modules_without_changing_mode(qtbot, protocol_profile):
+    from spacr.qt.app import MainWindow
+    from tests.qt.test_739_navigator_protocols import _click_url
+
+    preferences = protocol_profile
+    preferences.set_easy_mode(True)
+    preferences.set_reduce_motion(True)
+    preferences.set_ambient_enabled(False)
+    preferences._settings().setValue('prefs/navigator_dock_collapsed', True)
+    window = MainWindow(initial_app='__home__')
     qtbot.addWidget(window)
     window._tour_timer.stop()
     window._consent_timer.stop()
+    window.resize(1366, 768)
     window.show()
     page = window._startup
-    _click_url(qtbot, page.field.details, 'spacr://sidebar')
-    assert not page._navigator_aside_split.is_collapsed('Widgets')
-    assert protocol_profile.get_easy_mode()
-    assert window._stack.currentWidget() is page
-    assert page._last_result is None
+    split = page._navigator_aside_split
+    split.set_collapsed('Widgets', True, by_user=False)
+    qtbot.waitUntil(lambda: page.field.width() > 1000)
+    assert window._dock_edge.is_collapsed()
+    assert not window._dock_slot.isVisible()
+    from spacr.qt.i18n import tr
+
+    assert tr('Open Dock') in page.field.details.toPlainText()
+    assert 'spacr://sidebar' in page.field.details.toHtml()
+    anchor = QRect(page.path_edit.mapToGlobal(QPoint()), page.path_edit.size())
+    aside_state = (QRect(page._navigator_aside.geometry()), split.mask())
+    text = page.path_edit.text()
+    result = page._last_result
+    opened = QSignalSpy(page.module_requested)
+    toggles = QSignalSpy(window._dock_edge.collapsedChanged)
+    try:
+        for _ in range(2):
+            _click_url(qtbot, page.field.details, 'spacr://sidebar')
+            qtbot.waitUntil(lambda: window._dock_slot.isVisible())
+            assert not window._dock_edge.is_collapsed()
+            assert window._sidebar.isVisible()
+            assert window._dock_slot.width() >= window._sidebar.width() > 0
+            assert split.is_collapsed('Widgets')
+            assert (QRect(page._navigator_aside.geometry()), split.mask()) == aside_state
+            assert QRect(page.path_edit.mapToGlobal(QPoint()), page.path_edit.size()) == anchor
+            assert window._stack.geometry() == window.centralWidget().rect()
+            assert page.path_edit.text() == text and page._last_result is result
+            assert opened.count() == 0
+        assert toggles.count() == 1 and toggles.at(0) == [False]
+        assert protocol_profile.get_easy_mode()
+        assert window._stack.currentWidget() is page
+        assert page._last_result is None
+    finally:
+        window.close()
 
 
 def test_protocols_retires_a_real_native_ai_stream_before_showing_local_choices(
