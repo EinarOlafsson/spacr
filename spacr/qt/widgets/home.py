@@ -5391,7 +5391,7 @@ class _NavigatorAiButton(QPushButton):
         self.setAccessibleName(tr('Navigator AI'))
         self.setCheckable(True)
         self.setCursor(Qt.PointingHandCursor)
-        self.setStyleSheet('background: transparent; border: none; padding: 0; min-width: 0; min-height: 0;')
+        self.setStyleSheet('background: transparent; border: none; padding: 0; min-width: 36px; min-height: 36px;')
         self.setFixedSize(36, 36)
         self._provider = 'spacr_hosted'
         self._busy = False
@@ -5539,7 +5539,7 @@ class _NavigatorProtocolsButton(QPushButton):
         self.setToolTip(tr('Protocols: choose your input and follow a guided workflow.'))
         self.setCheckable(True)
         self.setFixedSize(36, 36)
-        self.setStyleSheet('background: transparent; border: none; padding: 0; min-width: 0; min-height: 0;')
+        self.setStyleSheet('background: transparent; border: none; padding: 0; min-width: 36px; min-height: 36px;')
         self.setCursor(Qt.PointingHandCursor)
 
     def enterEvent(self, event):
