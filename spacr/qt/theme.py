@@ -4017,22 +4017,26 @@ def _fit_a_dialog_to_its_wrapped_text(window) -> bool:
         height-for-width layout is changed.
     :returns: ``True`` when the dialog was made taller.
     """
-    from PySide6.QtWidgets import QDialog
+    from PySide6.QtWidgets import QDialog, QWidget
 
     if not isinstance(window, QDialog):
         return False
-    layout = window.layout()
+    layout = QWidget.layout(window)
     if layout is None or not layout.hasHeightForWidth():
         return False
-    needed = layout.totalHeightForWidth(window.width())
-    if needed <= window.height():
+    width, height = QWidget.width(window), QWidget.height(window)
+    needed = layout.totalHeightForWidth(width)
+    if needed <= height:
         return False
-    screen = window.screen()
+    screen = QWidget.screen(window)
     if screen is not None:
-        needed = min(needed, screen.availableGeometry().height())
-    if needed <= window.height():
+        from .dialogs import SMALLEST
+
+        needed = min(needed, max(SMALLEST, int(
+            screen.availableGeometry().height() * 0.9)))
+    if needed <= height:
         return False
-    window.resize(window.width(), needed)
+    QWidget.resize(window, width, needed)
     return True
 
 
