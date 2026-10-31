@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 10:47-0400\n"
+"POT-Creation-Date: 2026-10-30 22:40-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -62,6 +62,34 @@ msgstr "本地发现使用有界的文件名、文件头和项目元数据采样
 # AI technical review (Codex), no native-speaker signoff.
 msgid "An offered filename-pattern editor requires explicit validation before its pattern is passed onward. Navigator does not silently convert data, run models or complete scientific prerequisite review. Optional AI assistance sends explicitly submitted unmatched questions only when enabled with a chosen provider; local tool and path matches retain their normal routes."
 msgstr "如果提供文件名模式编辑器，必须显式验证后才能传递模式。Navigator 不会悄然转换数据、运行模型或完成科学前提审查。可选 AI 辅助仅在选择提供商并启用后发送显式提交的未匹配问题；本地工具和路径匹配保留正常路由。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Protocols: plan a workflow from the input"
+msgstr "操作流程：根据输入规划工作流"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Click **P**, to the left of the AI control, to open **Protocols** below the search field. Choose an input family, then its format and required details. **Next** becomes available when the current choices are valid; **Back** retains compatible choices. The image-count labels are descriptive: fewer than ten images are supported. PDF is offered for both image families for scanned monolayers, not as a general microscopy container. Unsupported sequencing and drug-screen Regression requirements remain separate work in N740 and N741."
+msgstr "点击 AI 控件左侧的 **P**，在搜索框下方打开 **操作流程**。先选择输入类别，再选择格式并填写必需的详细选项。当前选择有效时，**下一步** 才可用；**返回** 会保留兼容的选择。图像数量标签只是描述：也支持少于十张图像。两类图像输入均提供 PDF 选项，用于扫描的单层样本，而不是通用的显微图像容器。尚不支持的测序要求和药物筛选 Regression 要求仍分别属于 N740 和 N741 的独立工作。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "To carry a local input into a module, inspect its file or folder first by dropping it, browsing to it, or typing its path and pressing Enter. After changing the path, press Enter to inspect the replacement before opening its protocol. With no inspected source, Protocols can still show a plan and open a module for explicit input selection. The final step shows starting cards above the search field and opens the recipe; it does not start analysis."
+msgstr "要将本地输入传入模块，请先通过拖放、浏览，或输入路径并按 Enter 来检查文件或文件夹。更改路径后，应先按 Enter 检查替换后的输入，再打开其操作流程。没有已检查的来源时，操作流程仍可显示规划，并打开模块供你明确选择输入。最后一步会在搜索框上方显示起始卡片并打开操作方案；不会启动分析。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Starting alternatives** are different entry points, not a list to run in sequence. Use the route link beside an alternative to select the ordered workflow. Follow its prerequisites and required artifacts; optional downstream steps are marked separately. Opening a downstream module clears its source rather than reusing cached raw images or a database: choose or produce that step's required input. A starting-module action carries compatible inspected input and settings into its native workflow; review any settings preview and the native form before pressing Run."
+msgstr "**起始备选方案** 是不同的入口，不是需要按顺序运行的列表。使用某个备选项旁的流程链接来选择有序工作流。遵循其中的先决条件和必需数据产物；可选的后续步骤会单独标记。打开后续模块时会清空其来源，而不是复用缓存的原始图像或数据库：请选择或生成该步骤所需的输入。起始模块操作会将兼容的已检查输入和设置传入模块原生工作流；按 Run 前，请检查可能出现的设置预览及原生表单。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Recipe checkboxes are manual progress marks, not execution or validation. Expand **Inputs, outputs and settings** and **Setting explanations** to inspect artifact requirements and scientific setting help. Selected values and factory defaults are labelled separately. Opening a newly resolved recipe resets its check marks."
+msgstr "操作方案中的复选框只是手动进度标记，不代表执行或验证。展开 **输入、输出和设置** 和 **设置说明**，可查看数据产物要求及科学设置帮助。所选值与出厂默认值会分别标注。打开新解析出的操作方案会重置其勾选标记。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Save PDF…** exports the selected options, current check marks and expanded relevant setting explanations as a static recipe. It does not export live application controls or run modules. Application actions become text; web API, documentation and tutorial links remain available. The complete registered catalog is an appendix only when explicitly expanded in the popup."
+msgstr "**保存 PDF…** 将所选选项、当前勾选标记和展开的相关设置说明导出为静态操作方案。它不会导出实时应用控件或运行模块。应用操作会变为文本；API、文档和教程的网页链接仍然可用。只有在弹窗中明确展开完整的已注册目录时，才会将其作为附录。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The **Open sidebar** link in the introduction and description footer opens the running-job, history and Home panels. It does not open a scientific module or change the input."
+msgstr "简介和说明页脚中的 **打开侧边栏** 链接会打开正在运行的任务、历史记录和 Home 面板。它不会打开科学分析模块，也不会更改输入。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Desktop entry points and API reference"

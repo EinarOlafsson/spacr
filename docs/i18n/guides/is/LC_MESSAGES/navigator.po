@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 10:47-0400\n"
+"POT-Creation-Date: 2026-10-30 22:40-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -62,6 +62,34 @@ msgstr "Staðbundin leit notar takmarkað úrtak skráarnafna, skráarhausa og l
 # AI technical review (Codex), no native-speaker signoff.
 msgid "An offered filename-pattern editor requires explicit validation before its pattern is passed onward. Navigator does not silently convert data, run models or complete scientific prerequisite review. Optional AI assistance sends explicitly submitted unmatched questions only when enabled with a chosen provider; local tool and path matches retain their normal routes."
 msgstr "Ef ritill fyrir skráarnafnamynstur er boðinn þarf skýra staðfestingu áður en mynstrið er sent áfram. Navigator umbreytir ekki gögnum í kyrrþey, keyrir ekki líkön og kemur ekki í stað vísindalegrar yfirferðar forsendna. Valfrjáls aðstoð gervigreindar sendir aðeins sérstaklega innsendar spurningar án samsvörunar þegar hún er virk með völdum þjónustuaðila; staðbundnar verkfæra- og slóðarsamsvaranir halda sínum venjulegu leiðum."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Protocols: plan a workflow from the input"
+msgstr "Verkferlar: skipuleggðu vinnuferli út frá inntaki"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Click **P**, to the left of the AI control, to open **Protocols** below the search field. Choose an input family, then its format and required details. **Next** becomes available when the current choices are valid; **Back** retains compatible choices. The image-count labels are descriptive: fewer than ten images are supported. PDF is offered for both image families for scanned monolayers, not as a general microscopy container. Unsupported sequencing and drug-screen Regression requirements remain separate work in N740 and N741."
+msgstr "Smelltu á **P**, vinstra megin við AI-stýringuna, til að opna **Verkferlar** fyrir neðan leitarreitinn. Veldu inntaksflokk, síðan snið hans og nauðsynlegar upplýsingar. **Áfram** verður tiltækt þegar núverandi val er gilt; **Til baka** heldur samhæfu vali. Merkingar um fjölda mynda eru lýsandi: færri en tíu myndir eru studdar. PDF er í boði fyrir báða myndaflokkana fyrir skönnuð einlög, ekki sem almennt geymslusnið fyrir smásjármyndir. Kröfur um óstudda raðgreiningu og Regression fyrir lyfjaskimun eru áfram sérstök verkefni í N740 og N741."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "To carry a local input into a module, inspect its file or folder first by dropping it, browsing to it, or typing its path and pressing Enter. After changing the path, press Enter to inspect the replacement before opening its protocol. With no inspected source, Protocols can still show a plan and open a module for explicit input selection. The final step shows starting cards above the search field and opens the recipe; it does not start analysis."
+msgstr "Til að flytja staðbundið inntak í einingu skaltu fyrst skoða skrána eða möppuna með því að sleppa henni, fletta að henni eða slá inn slóðina og ýta á Enter. Eftir að slóðinni hefur verið breytt skaltu ýta á Enter til að skoða nýja inntakið áður en verkferill þess er opnaður. Án skoðaðrar upprunaslóðar geta Verkferlar samt sýnt áætlun og opnað einingu þar sem inntak er valið sérstaklega. Lokaskrefið sýnir upphafsspjöld fyrir ofan leitarreitinn og opnar uppskriftina; það ræsir ekki greiningu."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Starting alternatives** are different entry points, not a list to run in sequence. Use the route link beside an alternative to select the ordered workflow. Follow its prerequisites and required artifacts; optional downstream steps are marked separately. Opening a downstream module clears its source rather than reusing cached raw images or a database: choose or produce that step's required input. A starting-module action carries compatible inspected input and settings into its native workflow; review any settings preview and the native form before pressing Run."
+msgstr "**Valkostir við upphaf** eru mismunandi upphafsleiðir, ekki listi sem á að keyra í röð. Notaðu leiðartengilinn við hlið valkosts til að velja raðað vinnuferli. Fylgdu forsendum þess og kröfum um gagnaskrár; valfrjáls síðari skref eru merkt sérstaklega. Þegar síðari eining er opnuð er upprunaslóð hennar hreinsuð í stað þess að endurnýta hrámyndir úr skyndiminni eða gagnagrunn: veldu eða búðu til nauðsynlegt inntak skrefsins. Aðgerð fyrir upphafseiningu flytur samhæft skoðað inntak og stillingar inn í venjulegt vinnuferli hennar; skoðaðu hugsanlega forskoðun stillinga og venjulega eyðublaðið áður en ýtt er á Run."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Recipe checkboxes are manual progress marks, not execution or validation. Expand **Inputs, outputs and settings** and **Setting explanations** to inspect artifact requirements and scientific setting help. Selected values and factory defaults are labelled separately. Opening a newly resolved recipe resets its check marks."
+msgstr "Gátreitir uppskriftarinnar eru handvirkar framvindumerkingar, ekki keyrsla eða staðfesting. Opnaðu **Inntak, úttak og stillingar** og **Skýringar stillinga** til að skoða kröfur um gagnaskrár og vísindalegar skýringar stillinga. Valin gildi og sjálfgefin verksmiðjugildi eru merkt sérstaklega. Þegar nýlega samsett uppskrift er opnuð endurstillast gátmerki hennar."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Save PDF…** exports the selected options, current check marks and expanded relevant setting explanations as a static recipe. It does not export live application controls or run modules. Application actions become text; web API, documentation and tutorial links remain available. The complete registered catalog is an appendix only when explicitly expanded in the popup."
+msgstr "**Vista PDF…** flytur út valda valkosti, núverandi gátmerki og útvíkkaðar viðeigandi stillingaskýringar sem kyrrstæða uppskrift. Það flytur ekki út virkar stýringar forritsins og keyrir ekki einingar. Aðgerðir forritsins verða að texta; veftenglar á API, skjöl og kennsluefni haldast tiltækir. Allur skráði listinn verður aðeins viðauki þegar hann er sérstaklega opnaður í sprettiglugganum."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The **Open sidebar** link in the introduction and description footer opens the running-job, history and Home panels. It does not open a scientific module or change the input."
+msgstr "Tengillinn **Opna hliðarstiku** í innganginum og fæti lýsingarinnar opnar spjöld fyrir keyrandi verk, feril og Home. Hann opnar ekki vísindalega einingu og breytir ekki inntakinu."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Desktop entry points and API reference"

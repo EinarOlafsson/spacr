@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 10:47-0400\n"
+"POT-Creation-Date: 2026-10-30 22:40-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: pt\n"
@@ -62,6 +62,34 @@ msgstr "A descoberta local usa amostras limitadas de nomes de arquivos, cabeçal
 # AI technical review (Codex), no native-speaker signoff.
 msgid "An offered filename-pattern editor requires explicit validation before its pattern is passed onward. Navigator does not silently convert data, run models or complete scientific prerequisite review. Optional AI assistance sends explicitly submitted unmatched questions only when enabled with a chosen provider; local tool and path matches retain their normal routes."
 msgstr "Um editor oferecido de padrões de nomes de arquivos exige validação explícita antes de transferir o padrão. Navigator não converte dados silenciosamente, não executa modelos nem substitui a revisão científica dos pré-requisitos. A assistência opcional de IA envia perguntas sem correspondência submetidas explicitamente apenas quando ativada com um provedor escolhido; correspondências locais de ferramentas e caminhos mantêm suas rotas habituais."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Protocols: plan a workflow from the input"
+msgstr "Protocolos: planejar um fluxo de trabalho a partir da entrada"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Click **P**, to the left of the AI control, to open **Protocols** below the search field. Choose an input family, then its format and required details. **Next** becomes available when the current choices are valid; **Back** retains compatible choices. The image-count labels are descriptive: fewer than ten images are supported. PDF is offered for both image families for scanned monolayers, not as a general microscopy container. Unsupported sequencing and drug-screen Regression requirements remain separate work in N740 and N741."
+msgstr "Clique em **P**, à esquerda do controle de IA, para abrir **Protocolos** abaixo do campo de pesquisa. Escolha uma família de entradas, depois seu formato e os detalhes obrigatórios. **Seguinte** fica disponível quando as escolhas atuais são válidas; **Voltar** mantém as escolhas compatíveis. Os números de imagens são descritivos: menos de dez imagens também são aceitas. PDF é oferecido nas duas famílias de imagens para monocamadas digitalizadas, não como contêiner geral de microscopia. Os requisitos de sequenciamento não suportados e de Regressão para triagem de fármacos continuam sendo trabalhos separados em N740 e N741."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "To carry a local input into a module, inspect its file or folder first by dropping it, browsing to it, or typing its path and pressing Enter. After changing the path, press Enter to inspect the replacement before opening its protocol. With no inspected source, Protocols can still show a plan and open a module for explicit input selection. The final step shows starting cards above the search field and opens the recipe; it does not start analysis."
+msgstr "Para levar uma entrada local a um módulo, inspecione primeiro seu arquivo ou pasta, arrastando, usando o navegador de arquivos ou digitando o caminho e pressionando Enter. Após alterar o caminho, pressione Enter para inspecionar a nova entrada antes de abrir seu protocolo. Sem uma fonte inspecionada, Protocolos ainda pode mostrar um plano e abrir um módulo para seleção explícita da entrada. A última etapa mostra os cartões iniciais acima do campo de pesquisa e abre a receita; ela não inicia uma análise."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Starting alternatives** are different entry points, not a list to run in sequence. Use the route link beside an alternative to select the ordered workflow. Follow its prerequisites and required artifacts; optional downstream steps are marked separately. Opening a downstream module clears its source rather than reusing cached raw images or a database: choose or produce that step's required input. A starting-module action carries compatible inspected input and settings into its native workflow; review any settings preview and the native form before pressing Run."
+msgstr "**Módulos iniciais alternativos** são pontos de entrada diferentes, não uma lista a executar em sequência. Use o link de rota ao lado de uma alternativa para selecionar o fluxo de trabalho ordenado. Siga seus pré-requisitos e os artefatos necessários; as etapas posteriores opcionais são indicadas separadamente. Abrir um módulo posterior limpa sua fonte em vez de reutilizar imagens brutas ou um banco de dados em cache: escolha ou produza a entrada exigida por essa etapa. A ação de um módulo inicial leva a entrada inspecionada e as configurações compatíveis ao fluxo nativo; revise qualquer prévia de configurações e o formulário nativo antes de pressionar Run."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Recipe checkboxes are manual progress marks, not execution or validation. Expand **Inputs, outputs and settings** and **Setting explanations** to inspect artifact requirements and scientific setting help. Selected values and factory defaults are labelled separately. Opening a newly resolved recipe resets its check marks."
+msgstr "As caixas de seleção da receita são marcas manuais de progresso, não executam nem validam nada. Expanda **Entradas, saídas e configurações** e **Explicações das configurações** para inspecionar os requisitos de artefatos e a ajuda científica das configurações. Os valores selecionados e os padrões de fábrica são identificados separadamente. Abrir uma receita recém-resolvida redefine suas marcas."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Save PDF…** exports the selected options, current check marks and expanded relevant setting explanations as a static recipe. It does not export live application controls or run modules. Application actions become text; web API, documentation and tutorial links remain available. The complete registered catalog is an appendix only when explicitly expanded in the popup."
+msgstr "**Salvar PDF…** exporta as opções selecionadas, as marcas atuais e as explicações relevantes de configurações expandidas como uma receita estática. Não exporta controles ativos do aplicativo nem executa módulos. As ações do aplicativo viram texto; os links web de API, documentação e tutoriais continuam disponíveis. O catálogo completo registrado só aparece como apêndice quando é expandido explicitamente na janela."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The **Open sidebar** link in the introduction and description footer opens the running-job, history and Home panels. It does not open a scientific module or change the input."
+msgstr "O link **Abrir barra lateral** na introdução e no rodapé da descrição abre os painéis de trabalhos em execução, histórico e Início. Ele não abre um módulo científico nem altera a entrada."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Desktop entry points and API reference"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 10:47-0400\n"
+"POT-Creation-Date: 2026-10-30 22:40-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -62,6 +62,34 @@ msgstr "로컬 탐색은 제한된 파일명, 헤더, 프로젝트 메타데이�
 # AI technical review (Codex), no native-speaker signoff.
 msgid "An offered filename-pattern editor requires explicit validation before its pattern is passed onward. Navigator does not silently convert data, run models or complete scientific prerequisite review. Optional AI assistance sends explicitly submitted unmatched questions only when enabled with a chosen provider; local tool and path matches retain their normal routes."
 msgstr "파일명 패턴 편집기가 제공되면 패턴을 전달하기 전에 명시적 검증이 필요합니다. Navigator는 데이터를 조용히 변환하거나 모델을 실행하거나 과학적 사전 조건 검토를 대신 완료하지 않습니다. 선택적 AI 지원은 제공자를 선택해 켠 경우에만 명시적으로 제출한 미일치 질문을 전송하며, 로컬 도구 및 경로 일치는 정상 경로를 유지합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Protocols: plan a workflow from the input"
+msgstr "프로토콜: 입력을 바탕으로 워크플로 계획하기"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Click **P**, to the left of the AI control, to open **Protocols** below the search field. Choose an input family, then its format and required details. **Next** becomes available when the current choices are valid; **Back** retains compatible choices. The image-count labels are descriptive: fewer than ten images are supported. PDF is offered for both image families for scanned monolayers, not as a general microscopy container. Unsupported sequencing and drug-screen Regression requirements remain separate work in N740 and N741."
+msgstr "AI 컨트롤 왼쪽의 **P** 를 클릭하면 검색 필드 아래에 **프로토콜** 이 열립니다. 입력 범주를 선택한 다음 형식과 필수 세부 항목을 선택하세요. 현재 선택이 유효하면 **다음** 을 사용할 수 있고, **돌아오는** 버튼은 호환되는 선택을 유지합니다. 이미지 수 표시는 설명을 위한 것으로, 10개 미만의 이미지도 지원합니다. 두 이미지 범주 모두 스캔한 단층 시료용 PDF를 제공하며, 일반적인 현미경 이미지 컨테이너를 뜻하지는 않습니다. 지원되지 않는 시퀀싱 요구 사항과 약물 스크리닝 Regression 요구 사항은 N740 및 N741의 별도 작업으로 남아 있습니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "To carry a local input into a module, inspect its file or folder first by dropping it, browsing to it, or typing its path and pressing Enter. After changing the path, press Enter to inspect the replacement before opening its protocol. With no inspected source, Protocols can still show a plan and open a module for explicit input selection. The final step shows starting cards above the search field and opens the recipe; it does not start analysis."
+msgstr "로컬 입력을 모듈로 전달하려면 파일이나 폴더를 끌어 놓거나, 찾아보거나, 경로를 입력하고 Enter를 눌러 먼저 검사하세요. 경로를 변경한 후에는 해당 프로토콜을 열기 전에 Enter를 눌러 새 입력을 검사하세요. 검사된 소스가 없어도 프로토콜에서 계획을 표시하고 입력을 직접 선택하도록 모듈을 열 수 있습니다. 마지막 단계에서는 검색 필드 위에 시작 카드가 표시되고 절차가 열리며, 분석은 시작하지 않습니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Starting alternatives** are different entry points, not a list to run in sequence. Use the route link beside an alternative to select the ordered workflow. Follow its prerequisites and required artifacts; optional downstream steps are marked separately. Opening a downstream module clears its source rather than reusing cached raw images or a database: choose or produce that step's required input. A starting-module action carries compatible inspected input and settings into its native workflow; review any settings preview and the native form before pressing Run."
+msgstr "**시작 대안** 은 순서대로 실행할 목록이 아니라 서로 다른 시작점입니다. 대안 옆의 경로 링크를 사용하여 순서가 있는 워크플로를 선택하세요. 선행 조건과 필수 데이터 산출물을 따르세요. 선택적인 후속 단계는 별도로 표시됩니다. 후속 모듈을 열면 캐시된 원본 이미지나 데이터베이스를 재사용하지 않고 소스를 비웁니다. 해당 단계에 필요한 입력을 선택하거나 생성하세요. 시작 모듈 동작은 호환되는 검사된 입력과 설정을 해당 모듈의 기본 워크플로로 전달합니다. Run을 누르기 전에 표시되는 설정 미리보기와 기본 폼을 검토하세요."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Recipe checkboxes are manual progress marks, not execution or validation. Expand **Inputs, outputs and settings** and **Setting explanations** to inspect artifact requirements and scientific setting help. Selected values and factory defaults are labelled separately. Opening a newly resolved recipe resets its check marks."
+msgstr "절차의 체크박스는 수동 진행 표시이며 실행이나 검증을 의미하지 않습니다. **입력, 출력 및 설정** 및 **설정 설명** 을 펼쳐 데이터 산출물 요구 사항과 과학적 설정 도움말을 확인하세요. 선택한 값과 출하 기본값은 별도로 표시됩니다. 새로 구성된 절차를 열면 체크 표시가 초기화됩니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Save PDF…** exports the selected options, current check marks and expanded relevant setting explanations as a static recipe. It does not export live application controls or run modules. Application actions become text; web API, documentation and tutorial links remain available. The complete registered catalog is an appendix only when explicitly expanded in the popup."
+msgstr "**PDF 저장…** 은 선택한 옵션, 현재 체크 표시 및 펼쳐진 관련 설정 설명을 정적 절차로 내보냅니다. 실행 중인 앱 컨트롤을 내보내거나 모듈을 실행하지 않습니다. 앱 동작은 텍스트로 바뀌며 API, 문서 및 튜토리얼 웹 링크는 계속 사용할 수 있습니다. 등록된 전체 카탈로그는 팝업에서 명시적으로 펼쳤을 때만 부록에 포함됩니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The **Open sidebar** link in the introduction and description footer opens the running-job, history and Home panels. It does not open a scientific module or change the input."
+msgstr "소개와 설명 하단의 **사이드바 열기** 링크는 실행 중인 작업, 기록 및 Home 패널을 엽니다. 과학 분석 모듈을 열거나 입력을 변경하지 않습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Desktop entry points and API reference"
