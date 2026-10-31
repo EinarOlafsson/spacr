@@ -861,7 +861,7 @@ class _ProtocolBrowserDialog(QDialog):
         :param data: optional workflow map; the shared map is used when omitted.
         :param result: resolved three-step recipe, or None for legacy navigation.
         """
-        from PySide6.QtWidgets import QListWidget, QPushButton, QTextBrowser
+        from PySide6.QtWidgets import QComboBox, QHBoxLayout, QListWidget, QPushButton, QTextBrowser
 
         super().__init__(parent)
         self.setObjectName('ProtocolBrowser')
@@ -880,6 +880,7 @@ class _ProtocolBrowserDialog(QDialog):
         self._trail = []
         self._choices = {}
         self._recipe_result = None
+        self._reader_colors = {}
         self._expanded = set()
         self._checked = set()
         self._settings_help = {}
@@ -892,6 +893,19 @@ class _ProtocolBrowserDialog(QDialog):
         self._heading.setTextFormat(Qt.PlainText)
         self._heading.setWordWrap(True)
         layout.addWidget(self._heading)
+        appearance = QHBoxLayout()
+        appearance.addStretch(1)
+        background_label = QLabel(tr('Background'), self)
+        self._reader_background = QComboBox(self)
+        self._reader_background.setObjectName('ProtocolBackground')
+        self._reader_background.setAccessibleName(tr('Background'))
+        for key, label in (('black', tr('Black')), ('white', tr('White')),
+                           ('transparent', tr('Transparent'))):
+            self._reader_background.addItem(label, key)
+        background_label.setBuddy(self._reader_background)
+        appearance.addWidget(background_label)
+        appearance.addWidget(self._reader_background)
+        layout.addLayout(appearance)
         self._choice_list = QListWidget(self)
         self._choice_list.setObjectName('ProtocolChoices')
         self._choice_list.currentRowChanged.connect(self._choice_changed)
@@ -928,6 +942,8 @@ class _ProtocolBrowserDialog(QDialog):
         buttons.rejected.connect(self.close)
         layout.addWidget(buttons)
         self._save_pdf.hide()
+        self._reader_background.currentIndexChanged.connect(self._set_reader_background)
+        self._set_reader_background(0)
         if result is None:
             self._set_input(source_path, context)
         else:
@@ -936,6 +952,58 @@ class _ProtocolBrowserDialog(QDialog):
 
         self.setProperty(OPENS_AT, QSize(1080, 820))
         open_at_its_natural_size(self)
+
+    def _set_reader_background(self, index):
+        """Apply readable content colors and regular text without resetting a recipe.
+
+        :param index: selected native background-choice index.
+        """
+        from PySide6.QtGui import QFont, QPalette
+
+        mode = self._reader_background.itemData(index) or 'black'
+        colors = active_palette()
+        dark = QColor(colors['fg']).lightness() > 128
+        self._reader_colors = {
+            'mode': mode,
+            'background': {'black': '#000000', 'white': '#ffffff'}.get(mode),
+            'foreground': '#f2f2f2' if mode == 'black' or (mode == 'transparent' and dark) else '#202020',
+            'link': '#79c8ff' if mode == 'black' or (mode == 'transparent' and dark) else '#155f91',
+        }
+        background = self._reader_colors['background'] or 'transparent'
+        foreground, link = self._reader_colors['foreground'], self._reader_colors['link']
+        self._text.setStyleSheet(f'QTextBrowser {{ background: {background}; color: {foreground}; font-family: "Open Sans"; font-size: {font_px(16)}px; font-weight: 400; border: none; padding: 12px; }}')
+        self._text.viewport().setAutoFillBackground(mode != 'transparent')
+        palette = self._text.palette()
+        palette.setColor(QPalette.Text, QColor(foreground))
+        palette.setColor(QPalette.Link, QColor(link))
+        if self._reader_colors['background']:
+            palette.setColor(QPalette.Base, QColor(background))
+        self._text.setPalette(palette)
+        font = QFont('Open Sans')
+        font.setStyleName('Regular')
+        font.setWeight(QFont.Normal)
+        font.setPixelSize(font_px(16))
+        self._text.setFont(font)
+        self._text.document().setDefaultFont(font)
+        self._text.document().setDefaultStyleSheet(
+            f'body {{ font-family: "Open Sans"; font-weight: 400; color: {foreground}; }} '
+            f'h1 {{ font-size: {font_px(25)}px; font-weight: 400; margin-bottom: 14px; }} '
+            f'h2 {{ font-size: {font_px(20)}px; font-weight: 400; margin-top: 22px; margin-bottom: 8px; }} '
+            f'h3 {{ font-size: {font_px(17)}px; font-weight: 400; margin-top: 16px; margin-bottom: 6px; }} '
+            f'h4 {{ font-size: {font_px(15)}px; font-weight: 400; margin-top: 14px; }} '
+            'p, li { line-height: 140%; margin-top: 5px; margin-bottom: 7px; } '
+            'ul { margin-top: 6px; margin-bottom: 12px; margin-left: 22px; } '
+            f'a {{ color: {link}; text-decoration: none; }}')
+        position = self._text.verticalScrollBar().value()
+        if self._recipe_result is not None:
+            self._render_recipe()
+        elif self._selected_protocol is not None:
+            protocol = self._protocols[self._selected_protocol]
+            steps = [step for step in protocol.get('steps', ()) if step.get('module') in self._data['modules']]
+            self._text.setHtml(self._protocol_html(protocol, steps))
+        else:
+            self._text.setPlainText(self._text.toPlainText())
+        self._text.verticalScrollBar().setValue(position)
 
     def _set_result(self, result):
         """Mount a detached wizard recipe without changing legacy navigation data.
@@ -976,8 +1044,10 @@ class _ProtocolBrowserDialog(QDialog):
                  '<p>' + escape(tr('Starting modules are alternatives. Open a module explicitly; no analysis starts from this recipe.')) + '</p>']
         if self._source_path:
             parts.append('<p>' + escape(tr('Input: {path}', path=self._source_path)) + '</p>')
-        for requirement in protocol['requirements']:
-            parts.append('<p><b>' + escape(requirement) + '</b></p>')
+        if protocol['requirements']:
+            parts.append('<ul>')
+            parts.extend('<li>' + escape(requirement) + '</li>' for requirement in protocol['requirements'])
+            parts.append('</ul>')
         if protocol['selected_options']:
             parts.append('<h3>' + escape(tr('Selected options')) + '</h3><ul>')
             parts.extend('<li>' + escape(row['label'] + ': ' + row['value']) + '</li>' for row in protocol['selected_options'])
@@ -992,17 +1062,18 @@ class _ProtocolBrowserDialog(QDialog):
         for index, step in enumerate(protocol['steps'], 1):
             key = step['module']
             module = protocol['catalog'][key]
-            mark = '[x]' if key in self._checked else '[ ]'
-            check = mark if expand_all else '<a href="spacr://protocol/check/' + key + '">' + mark + '</a>'
+            mark = '&#x2611;' if key in self._checked else '&#x2610;'
+            check = mark if expand_all else '<a href="spacr://protocol/check/' + key + '" style="text-decoration:none;">' + mark + '</a>'
             parts.append('<h2>' + str(index) + '. ' + check + ' ' + escape(tr(module['name'])) + '</h2>')
             if step['optional']:
                 parts.append('<p><b>' + escape(tr('Optional downstream step')) + '</b></p>')
+            parts.append('<ul>')
             if step['after']:
-                parts.append('<p>' + escape(tr('After: {modules}', modules=', '.join(tr(protocol['catalog'][name]['name']) for name in step['after']))) + '</p>')
-            parts.append('<p>' + escape(tr('Required artifacts: {artifacts}', artifacts=', '.join(tr(protocol['artifacts'][name]['title']) for name in module['inputs']))) + '</p>')
+                parts.append('<li>' + escape(tr('After: {modules}', modules=', '.join(tr(protocol['catalog'][name]['name']) for name in step['after']))) + '</li>')
+            parts.append('<li>' + escape(tr('Required artifacts: {artifacts}', artifacts=', '.join(tr(protocol['artifacts'][name]['title']) for name in module['inputs']))) + '</li>')
             if step['phase'] == 'downstream':
-                parts.append('<p>' + escape(tr('Choose or produce these inputs before opening this step.')) + '</p>')
-            parts.append('<p>' + escape(tr(step['action'])) + '</p>')
+                parts.append('<li>' + escape(tr('Choose or produce these inputs before opening this step.')) + '</li>')
+            parts.append('<li>' + escape(tr(step['action'])) + '</li></ul>')
             links = []
             if module['available']:
                 if expand_all:
@@ -1036,9 +1107,9 @@ class _ProtocolBrowserDialog(QDialog):
                         if result['action_sources'].get(key):
                             configured['src'] = result['action_sources'][key]
                         label = tr('Selected: {value}', value=repr(configured[name])) if name in configured else tr('Factory default: {value}', value=repr(default))
-                        parts.append('<h4>' + escape(name) + '</h4><p>' +
-                                     escape(label) + '</p><p>' +
-                                     escape(help_text) + '</p>')
+                        parts.append('<h4>' + escape(name) + '</h4><ul><li>' +
+                                     escape(label) + '</li><li>' +
+                                     escape(help_text).replace('\n', '<br>') + '</li></ul>')
         if not expand_all or 'catalog' in self._expanded:
             title = escape(tr('All registered routes and prerequisites'))
             parts.append('<h2>' + title + '</h2>' if expand_all else '<h2><a href="spacr://protocol/expand/catalog">' + title + '</a></h2>')
@@ -1055,7 +1126,9 @@ class _ProtocolBrowserDialog(QDialog):
     def _render_recipe(self):
         """Refresh the current recipe while retaining its scroll position."""
         position = self._text.verticalScrollBar().value()
-        self._text.setHtml(self._recipe_html())
+        foreground = self._reader_colors['foreground']
+        self._text.setHtml(f'<html><body style="font-family: Open Sans; font-size: {font_px(16)}px; font-weight: 400; color: {foreground};">' +
+                           self._recipe_html() + '</body></html>')
         self._recipe_result['protocol']['markdown'] = _protocol_markdown(self._recipe_result, self._checked, settings_help=self._settings_help)
         self._text.verticalScrollBar().setValue(position)
 
@@ -1074,9 +1147,19 @@ class _ProtocolBrowserDialog(QDialog):
         writer.setResolution(144)
         writer.setTitle(self._recipe_result['protocol']['title'])
         document = _ProtocolDocument()
-        document.setDefaultFont(QFont('DejaVu Sans', 10))
-        document.setDefaultStyleSheet('h1 {font-size: 18pt;} h2 {font-size: 13pt; margin-top: 16px;} h3 {font-size: 11pt;} h4 {font-size: 10pt;} p {line-height: 120%;} a {color: #176a98;}')
-        document.setHtml(self._recipe_html(expand_all=True))
+        font = QFont('Open Sans', 10)
+        font.setStyleName('Regular')
+        font.setWeight(QFont.Normal)
+        document.setDefaultFont(font)
+        document.setDefaultStyleSheet('body {font-family: "Open Sans"; font-weight: 400;} h1 {font-size: 18pt; font-weight: 400;} h2 {font-size: 13pt; font-weight: 400; margin-top: 16px;} h3 {font-size: 11pt; font-weight: 400;} h4 {font-size: 10pt; font-weight: 400;} p, li {line-height: 140%;} ul {margin-left: 16px;}')
+        mode = self._reader_colors['mode']
+        foreground = '#f2f2f2' if mode == 'black' else '#202020'
+        link = '#79c8ff' if mode == 'black' else '#155f91'
+        document.setDefaultStyleSheet(document.defaultStyleSheet() + f'body {{color: {foreground};}} a {{color: {link};}}')
+        background = self._reader_colors['background']
+        fill = f' background-color: {background};' if background else ''
+        document.setHtml(f'<html><body style="color: {foreground};{fill}">' +
+                         self._recipe_html(expand_all=True) + '</body></html>')
         self._recipe_result['protocol']['markdown'] = _protocol_markdown(self._recipe_result, self._checked, settings_help=self._settings_help)
         document.print_(writer)
         return str(path)

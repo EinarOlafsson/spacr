@@ -59,7 +59,7 @@ def test_single_level_choices_explain_selection_and_advance_only_on_next(qtbot, 
     qtbot.addWidget(dialog)
     dialog.show()
     assert not dialog.isModal()
-    assert not dialog.findChildren(QComboBox)
+    assert dialog.findChildren(QComboBox) == [dialog._reader_background]
     assert dialog._choice_list.count() == 2
     assert not dialog._previous.isEnabled() and not dialog._next.isEnabled()
     _choose(dialog, 'images')
@@ -297,7 +297,19 @@ def test_protocol_recipe_nested_controls_pdf_and_legacy_reopen(qtbot, tmp_path):
     assert dialog._save_pdf.isVisible()
     assert 'Read orientation: R2' in dialog._text.toPlainText()
     assert not dialog._choice_list.isVisible()
-    dialog._activate_link(QUrl('spacr://protocol/check/map_barcodes'))
+    from PySide6.QtCore import Qt
+    from PySide6.QtGui import QFontMetrics
+    from PySide6.QtTest import QTest
+
+    cursor = dialog._text.document().find('☐')
+    assert not cursor.isNull()
+    cursor.setPosition(cursor.selectionStart())
+    dialog._text.setTextCursor(cursor)
+    dialog._text.ensureCursorVisible()
+    point = dialog._text.cursorRect(cursor).center()
+    point.setX(point.x() + QFontMetrics(dialog._text.font()).horizontalAdvance('☐') // 2)
+    assert dialog._text.anchorAt(point) == 'spacr://protocol/check/map_barcodes'
+    QTest.mouseClick(dialog._text.viewport(), Qt.LeftButton, pos=point)
     dialog._activate_link(QUrl('spacr://protocol/expand/map_barcodes'))
     assert 'map_barcodes' in dialog._checked
     assert 'Setting explanations' in dialog._text.toPlainText()
@@ -306,6 +318,20 @@ def test_protocol_recipe_nested_controls_pdf_and_legacy_reopen(qtbot, tmp_path):
     assert "Selected: 'R2'" in dialog._text.toPlainText()
     assert '[x]' in dialog._recipe_result['protocol']['markdown']
     assert '### target_sequence' in dialog._recipe_result['protocol']['markdown']
+    original = dialog._recipe_result['protocol']['markdown']
+    from PySide6.QtGui import QFont
+
+    for mode in ('white', 'transparent', 'black'):
+        dialog._reader_background.setCurrentIndex(dialog._reader_background.findData(mode))
+        assert dialog._reader_background.currentData() == mode
+        assert dialog._reader_colors['background'] == {'black': '#000000', 'white': '#ffffff'}.get(mode)
+        assert dialog._text.font().family() == 'Open Sans'
+        assert dialog._text.font().weight() == QFont.Normal
+        assert dialog._text.document().defaultFont().weight() == QFont.Normal
+        assert dialog._text.viewport().autoFillBackground() is (mode != 'transparent')
+        assert dialog._checked == {'map_barcodes'}
+        assert dialog._recipe_result['protocol']['markdown'] == original
+        assert '&#x2611;' in dialog._recipe_html() and '<li>' in dialog._recipe_html()
     path = tmp_path / 'protocol.pdf'
     assert dialog._export_recipe_pdf(path) == str(path)
     assert path.read_bytes().startswith(b'%PDF-')
