@@ -37,7 +37,7 @@ def gpu(monkeypatch):
     monkeypatch.setitem(sys.modules, "moderngl", module)
     monkeypatch.setattr(ambient, "_RESOURCE_POLICY", None)
     monkeypatch.setattr(ambient, "_flow_compute_idle", lambda: True)
-    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda: True)
+    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda stop_event=None: True)
     return module
 
 

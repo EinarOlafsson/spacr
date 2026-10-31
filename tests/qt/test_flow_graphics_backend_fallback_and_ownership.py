@@ -57,7 +57,7 @@ def test_busy_or_unavailable_graphics_preserves_actual_cpu_pixels(
     expected = candidate.shade(320, 200).copy()
     candidate._graphics_backend = 'gpu'
     monkeypatch.setattr(ambient, '_flow_compute_idle', lambda: idle)
-    monkeypatch.setattr(ambient, '_flow_graphics_preflight', lambda: probe)
+    monkeypatch.setattr(ambient, '_flow_graphics_preflight', lambda stop_event=None: probe)
 
     def forbidden():
         pytest.fail('refused graphics must not construct a context')
@@ -79,7 +79,7 @@ def test_context_constructor_failure_preserves_cpu_animation(monkeypatch, qapp):
     expected = candidate.shade(320, 200).copy()
     candidate._graphics_backend = 'gpu'
     monkeypatch.setattr(ambient, '_flow_compute_idle', lambda: True)
-    monkeypatch.setattr(ambient, '_flow_graphics_preflight', lambda: True)
+    monkeypatch.setattr(ambient, '_flow_graphics_preflight', lambda stop_event=None: True)
     attempts = []
 
     def broken():
@@ -120,7 +120,7 @@ def test_renderer_construction_draw_and_release_share_producer_thread(monkeypatc
             events.append(('close', threading.get_ident()))
 
     monkeypatch.setattr(ambient, '_flow_compute_idle', lambda: True)
-    monkeypatch.setattr(ambient, '_flow_graphics_preflight', lambda: True)
+    monkeypatch.setattr(ambient, '_flow_graphics_preflight', lambda stop_event=None: True)
     monkeypatch.setattr(ambient, '_FlowPointGraphics', Renderer)
     candidate = engine()
     candidate._graphics_backend = 'gpu'
@@ -238,7 +238,7 @@ def test_missing_moderngl_refuses_without_a_child_process(monkeypatch):
 
     monkeypatch.setattr(ambient, '_FLOW_GRAPHICS_PROBE', None)
     monkeypatch.setattr(importlib.util, 'find_spec', lambda name: None)
-    monkeypatch.setattr(subprocess, 'run', lambda *a, **k: pytest.fail('no child'))
+    monkeypatch.setattr(subprocess, 'Popen', lambda *a, **k: pytest.fail('no child'))
     assert ambient._flow_graphics_preflight() is False
 
 
@@ -259,7 +259,7 @@ def test_policy_block_releases_and_refuses_graphics(monkeypatch, qapp):
     candidate._graphics_backend = 'gpu'
     monkeypatch.setattr(ambient, '_decorative_gpu_blocked', lambda: True)
     monkeypatch.setattr(ambient, '_flow_graphics_preflight',
-                        lambda: pytest.fail('blocked graphics must not probe'))
+                        lambda stop_event=None: pytest.fail('blocked graphics must not probe'))
     released = []
     candidate._point_graphics = SimpleNamespace(
         _owner=threading.get_ident(), _close=lambda: released.append(True))
@@ -274,7 +274,7 @@ def test_dynamic_off_skips_the_external_process_check(monkeypatch, qapp):
     candidate._graphics_backend = 'gpu'
     monkeypatch.setattr(ambient, '_dynamic_animation_on', lambda: False)
     monkeypatch.setattr(ambient, '_flow_compute_idle', lambda: pytest.fail('policy off'))
-    monkeypatch.setattr(ambient, '_flow_graphics_preflight', lambda: True)
+    monkeypatch.setattr(ambient, '_flow_graphics_preflight', lambda stop_event=None: True)
     made = []
 
     class Renderer:
@@ -297,7 +297,7 @@ def test_dynamic_off_skips_the_external_process_check(monkeypatch, qapp):
 
 def test_automatic_follows_the_measured_cost_per_theme_and_size(monkeypatch, qapp):
     """N684: Automatic picks the GPU only where the workstation audit measured it faster."""
-    monkeypatch.setattr(ambient, '_flow_graphics_preflight', lambda: False)
+    monkeypatch.setattr(ambient, '_flow_graphics_preflight', lambda stop_event=None: False)
     monkeypatch.setattr(threading, 'current_thread',
                         lambda: SimpleNamespace(name='spacr-ambient-shade'))
 
@@ -333,24 +333,60 @@ def test_unmeasured_themes_keep_their_documented_automatic_rule(monkeypatch, qap
 
 def test_failed_isolated_probe_is_cached_without_constructing_in_parent(monkeypatch):
     import subprocess
+    import sys
 
     monkeypatch.setattr(ambient.sys, "platform", "linux")
-
+    monkeypatch.delenv('SPACR_NO_GL', raising=False)
     calls = []
+    real_popen = subprocess.Popen
 
     def failed(command, **kwargs):
+        """Return a real CPU child's failed probe result without creating GL."""
         calls.append((command, kwargs))
-        return SimpleNamespace(returncode=-11, stdout='')
+        return real_popen([sys.executable, '-c', 'raise SystemExit(11)'], **kwargs)
 
     import importlib.util
 
     monkeypatch.setattr(ambient, '_FLOW_GRAPHICS_PROBE', None)
     monkeypatch.setattr(importlib.util, 'find_spec', lambda name: object())
-    monkeypatch.setattr(subprocess, 'run', failed)
+    monkeypatch.setattr(subprocess, 'Popen', failed)
     assert ambient._flow_graphics_preflight() is False
     assert ambient._flow_graphics_preflight() is False
     assert len(calls) == 1
-    assert calls[0][1]['timeout'] == 5
+    assert calls[0][1] == {'stdout': subprocess.PIPE, 'stderr': subprocess.PIPE, 'text': True}
+
+
+def test_probe_deadline_reaps_a_real_cpu_child_and_caches_its_refusal(monkeypatch):
+    """A probe that cannot finish within its existing deadline owns no orphan."""
+    import subprocess
+    import sys
+
+    monkeypatch.setattr(ambient.sys, 'platform', 'linux')
+    monkeypatch.delenv('SPACR_NO_GL', raising=False)
+    monkeypatch.setattr(ambient, '_FLOW_GRAPHICS_PROBE', None)
+    real_popen = subprocess.Popen
+    children = []
+
+    def stalled_probe(command, **kwargs):
+        """Exercise the timeout with Python sleeping, without invoking GL."""
+        assert command[0] == sys.executable and 'import moderngl;' in command[-1]
+        child = real_popen([sys.executable, '-c', 'import time; time.sleep(30)'], **kwargs)
+        children.append(child)
+        return child
+
+    monkeypatch.setattr(subprocess, 'Popen', stalled_probe)
+    try:
+        assert ambient._flow_graphics_preflight() is False
+        assert len(children) == 1 and children[0].poll() is not None
+        assert children[0].returncode != 0
+        assert ambient._FLOW_GRAPHICS_PROBE is False
+        assert ambient._flow_graphics_preflight() is False
+        assert len(children) == 1
+    finally:
+        for child in children:
+            if child.poll() is None:
+                child.kill()
+            child.wait()
 
 
 def test_flow_renderer_preference_has_explicit_cpu_and_validates_storage(
@@ -376,7 +412,7 @@ def test_macos_never_creates_a_gl_context_to_probe(monkeypatch):
     monkeypatch.setattr(ambient.sys, "platform", "darwin")
     monkeypatch.setattr(ambient, "_FLOW_GRAPHICS_PROBE", None)
     monkeypatch.delenv("SPACR_NO_GL", raising=False)
-    monkeypatch.setattr(subprocess, "run", lambda *a, **k: pytest.fail("the GL probe child was started"))
+    monkeypatch.setattr(subprocess, "Popen", lambda *a, **k: pytest.fail("the GL probe child was started"))
     assert ambient._flow_graphics_preflight() is False
 
 

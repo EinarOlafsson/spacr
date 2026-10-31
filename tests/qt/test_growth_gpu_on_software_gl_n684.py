@@ -88,7 +88,7 @@ def test_a_draw_error_is_recorded_and_logged_once(producer_thread, monkeypatch, 
         def _close(self):
             pass
 
-    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda: True)
+    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda stop_event=None: True)
     monkeypatch.setattr(ambient, "_flow_compute_idle", lambda: True)
     monkeypatch.setattr(ambient, "_FlowPointGraphics", Broken)
     monkeypatch.setattr(ambient, "_GRAPHICS_REFUSALS_LOGGED", set())
@@ -105,8 +105,8 @@ def test_a_draw_error_is_recorded_and_logged_once(producer_thread, monkeypatch, 
 
 
 @pytest.mark.parametrize("reason,patch", [
-    ("probe failed", {"_flow_graphics_preflight": lambda: False}),
-    ("another process", {"_flow_graphics_preflight": lambda: True,
+    ("probe failed", {"_flow_graphics_preflight": lambda stop_event=None: False}),
+    ("another process", {"_flow_graphics_preflight": lambda stop_event=None: True,
                          "_flow_compute_idle": lambda: False}),
     ("Dynamic animation", {"_decorative_gpu_blocked": lambda: True}),
 ])
@@ -159,7 +159,7 @@ CHILD = textwrap.dedent("""
     options = ambient._graphics_context_options()
     options['device_index'] = {device}
     ambient._graphics_context_options = lambda: dict(options)
-    ambient._flow_graphics_preflight = lambda: True
+    ambient._flow_graphics_preflight = lambda stop_event=None: True
     ambient._flow_compute_idle = lambda: True
     ambient._RESOURCE_POLICY = None
     tool._on_producer = tool._Producer()

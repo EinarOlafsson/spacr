@@ -82,7 +82,7 @@ class Recorder:
 def recorder(monkeypatch):
     Recorder.made = []
     monkeypatch.setattr(ambient, "_flow_compute_idle", lambda: True)
-    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda: True)
+    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda stop_event=None: True)
     monkeypatch.setattr(ambient, "_FlowPointGraphics", Recorder)
     return Recorder
 
@@ -125,7 +125,7 @@ def test_a_failing_draw_falls_back_to_identical_cpu_pixels(theme, monkeypatch, q
     engine = make(theme)
     engine._graphics_backend = "gpu"
     monkeypatch.setattr(ambient, "_flow_compute_idle", lambda: True)
-    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda: True)
+    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda stop_event=None: True)
 
     class Broken(Recorder):
         def __getattr__(self, name):
@@ -211,7 +211,7 @@ def test_spinn_layout_advances_once_per_frame_even_after_refusal(monkeypatch, qa
         return original(width, height)
 
     monkeypatch.setattr(engine, "_tissue_layout", counted)
-    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda: False)
+    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda stop_event=None: False)
     on_producer(lambda: engine.shade(320, 200))
     assert len(calls) == 1 and engine._graphics_failed
 
@@ -277,7 +277,7 @@ def _stratified(qtbot, backend, possible, monkeypatch):
     from PySide6.QtWidgets import QWidget
 
     monkeypatch.setattr(ambient, "_flow_graphics_possible", lambda: possible)
-    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda: False)
+    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda stop_event=None: False)
     preferences._set_flow_graphics_backend(backend)
     host = QWidget()
     qtbot.addWidget(host)

@@ -1,6 +1,6 @@
 ABSTRACT DATA FLOW THEMES AND BACKDROP PERFORMANCE
 Lifecycle: new
-Status:    COMPLETE 100% 2026-10-12 — accepted by the maintainer on the desktop (see the trailing note)
+Status:    IN PROGRESS 2026-10-31 — narrow probe/worker-retirement defect; earlier 2026-10-12 maintainer visual acceptance remains recorded below.
 spin, native aurora and popup integration are implemented and locally checked.
 Biological growth paths implement the latest maintainer direction;
 native hard24FPS, installed Save crash and final aesthetic acceptance remain open.
@@ -1460,3 +1460,6 @@ N663: maintainer visual approval 2026-10-12: "N663 is done and you have my visua
 
 2026-10-31 — Add failure-only live-worker stack and retirement-state diagnostics to the unchanged hide/pause/close assertions and fixed two-second budget; no runtime behavior change.
 Local observational case: 1 PASS in 2.79 s with SPACR_NO_GL=1 and no packed kernel. Hosted graphics/compiler state is unknown; this local branch is not proven representative and the hosted failure cause remains unproven.
+2026-10-31 — A real CPU failed-probe child delayed three seconds left the hidden worker alive after the unchanged two-second join, with stop requested and its stack waiting in subprocess communication (1 expected failure, 6.12 s); no GL command ran. Make probe-lock admission and child execution cancel with their owning worker, reap the child and preserve the five-second deadline without caching cancellation as capability failure. Hosted cause remains unproven.
+
+2026-10-31 — Qualified local repair: shared stop/deadline policy cancels lock admission and kills/reaps the owned probe child without caching cancellation; OS process errors retain normal CPU refusal. Final 15 targeted cases pass in 8.65 s with normal 7.17 branch tracing, all new policy statements/arcs measured; source-bound ambient forecast is 0/0 within unchanged 1/0 caps, not fresh CI. The actual normal 13,641-owner API manifest is unchanged; earlier maintainer visual acceptance remains intact and hosted failure causation remains unproven.
