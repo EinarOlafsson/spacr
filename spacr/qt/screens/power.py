@@ -113,6 +113,7 @@ from ..widgets.power_design import (
     wells_grid,
 )
 from ..widgets.collapsible_splitter import CollapsibleSplitter, FoldSection
+from ..widgets.flow import keep_wrapped_height
 from ..widgets.sortable_table import (_retire_table_cells, _spare_table_item,
                                       install_sorting, table_item)
 from .app_screen import ModuleHeader
@@ -603,6 +604,7 @@ class CaveatPanel(QWidget):
         """
         label = QLabel(f"! {caveat.headline}")
         label.setWordWrap(True)
+        keep_wrapped_height(label)
         label.setToolTip(caveat.detail)
         label.setProperty("spacrCaveatSeverity", severity)
         label.setProperty("caveatKey", caveat.key)

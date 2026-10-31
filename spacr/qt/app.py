@@ -3190,9 +3190,10 @@ def _fit_to_the_work_area(window, screen=None, lower_minimum=True) -> bool:
 _ROOMY_SCREEN = (1500, 900)
 
 _CRAMPED_SCREENS = frozenset({
-    "batch", "data_manager", "distributed_jobs", "dose_response", "foreign",
-    "gate_editor", "graph_builder", "investigate_hit", "plate_view", "power",
-    "profiler", "tabulate", "train_compare",
+    "align", "batch", "data_manager", "distributed_jobs", "dose_response",
+    "experiment_design", "foreign", "gate_editor", "graph_builder",
+    "investigate_hit", "plate_view", "power", "profiler", "tabulate",
+    "train_compare",
 })
 
 
@@ -3241,7 +3242,10 @@ class _CrampedScroll(QScrollArea):
         """Fill the screen, or keep the content's minimum and scroll.
 
         Every size here is measured from the laid-out screen, so the content
-        is resized in those pixels, not scaled again by the GUI scale.
+        is resized in those pixels, not scaled again by the GUI scale. The
+        minimum height is read at the width the content gets, so word-wrapped
+        text counts with every line it wraps onto: a one-line minimum let
+        the screen squeeze it and cut its last lines off (item 746).
         """
         from .gui_scale import _resize_actual
 
@@ -3261,11 +3265,22 @@ class _CrampedScroll(QScrollArea):
         need = content.minimumSizeHint().expandedTo(content.minimumSize())
         bar = self.verticalScrollBar().sizeHint().width()
         width, height = size.width(), size.height()
-        tall = need.height() > height
+        layout = content.layout()
+        wraps = layout is not None and layout.hasHeightForWidth()
+
+        def tallest(room: int) -> int:
+            """The minimum height at ``room`` wide, wrapped text included."""
+            if not wraps:
+                return need.height()
+            return max(need.height(),
+                       layout.totalMinimumHeightForWidth(max(room, need.width())))
+
+        tall = tallest(width) > height
         wide = need.width() > width - (bar if tall else 0)
-        tall = tall or need.height() > height - (bar if wide else 0)
+        tall = tall or tallest(width - (bar if tall else 0)) > height - (bar if wide else 0)
         room_w = width - (bar if tall else 0)
         room_h = height - (bar if wide else 0)
+        need = QSize(need.width(), tallest(room_w))
         as_needed = Qt.ScrollBarPolicy.ScrollBarAsNeeded
         off = Qt.ScrollBarPolicy.ScrollBarAlwaysOff
         self.setHorizontalScrollBarPolicy(as_needed if wide else off)

@@ -71,6 +71,7 @@ from ..widgets.plate_layout import (
 )
 from ..widgets.plate_map_picker import _Header, _locked_square, well_side
 from ..widgets.collapsible_splitter import CollapsibleSplitter, FoldSection
+from ..widgets.flow import FlowHost, FlowLayout, keep_wrapped_height, labelled
 from ..widgets.sortable_table import (
     _retire_table_cells, _spare_items, _spare_table_item, install_sorting,
     table_item,
@@ -417,17 +418,17 @@ class ExperimentDesignScreen(QWidget):
 
         intro = QLabel(APP_INTRO)
         intro.setWordWrap(True)
+        keep_wrapped_height(intro)
         outer.addWidget(intro)
 
-        form = QHBoxLayout()
-        form.setSpacing(SPACING["sm"])
+        form_host = FlowHost(self)
+        form = FlowLayout(form_host, spacing=SPACING["sm"])
         self._plate_id = QLineEdit("plate1")
         self._plate_id.setToolTip(
             "Must match the plate name the image file names will carry, or "
             "the exported map will not join to the measurements.")
         self._plate_id.textChanged.connect(self._on_changed)
-        form.addWidget(QLabel("Plate:"))
-        form.addWidget(self._plate_id)
+        form.addWidget(labelled(QLabel("Plate:"), self._plate_id))
 
         self._format = QComboBox()
         for well_count in sorted(PLATE_FORMATS):
@@ -437,8 +438,7 @@ class ExperimentDesignScreen(QWidget):
         self._format.setCurrentIndex(
             self._format.findData(96))
         self._format.currentIndexChanged.connect(self._on_changed)
-        form.addWidget(QLabel("Format:"))
-        form.addWidget(self._format)
+        form.addWidget(labelled(QLabel("Format:"), self._format))
 
         self._layout_box = QComboBox()
         self._layout_box.addItems(LAYOUTS)
@@ -450,15 +450,13 @@ class ExperimentDesignScreen(QWidget):
             "order), which is easier to pipette but makes condition vary "
             "with plate position.")
         self._layout_box.currentIndexChanged.connect(self._on_changed)
-        form.addWidget(QLabel("Layout:"))
-        form.addWidget(self._layout_box)
+        form.addWidget(labelled(QLabel("Layout:"), self._layout_box))
 
         self._edge = QComboBox()
         self._edge.addItem("use edge wells", EDGE_USE)
         self._edge.addItem("leave edge empty", EDGE_LEAVE_EMPTY)
         self._edge.currentIndexChanged.connect(self._on_changed)
-        form.addWidget(QLabel("Edge:"))
-        form.addWidget(self._edge)
+        form.addWidget(labelled(QLabel("Edge:"), self._edge))
 
         self._seed = QSpinBox()
         self._seed.setRange(0, 999999)
@@ -466,11 +464,9 @@ class ExperimentDesignScreen(QWidget):
             "Seed for the random layout. The same seed regenerates the same "
             "layout, so it can be checked later.")
         self._seed.valueChanged.connect(self._on_changed)
-        form.addWidget(QLabel("Seed:"))
-        form.addWidget(self._seed)
+        form.addWidget(labelled(QLabel("Seed:"), self._seed))
         form.addWidget(self._build_template_button())
-        form.addStretch(1)
-        outer.addLayout(form)
+        outer.addWidget(form_host)
 
         self._table = QTableWidget(0, 3)
         install_sorting(self._table)
@@ -896,6 +892,7 @@ class ExperimentDesignScreen(QWidget):
         for finding in findings:
             label = QLabel(f"{marks[finding.severity]} {finding.message}")
             label.setWordWrap(True)
+            keep_wrapped_height(label)
             label.setProperty("spacrFindingSeverity", finding.severity)
             label.setProperty("findingKey", finding.key)
             self._findings_layout.addWidget(label)

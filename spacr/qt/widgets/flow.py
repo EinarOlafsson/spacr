@@ -12,9 +12,9 @@ from __future__ import annotations
 
 from typing import Any, List
 
-from PySide6.QtCore import QPoint, QRect, QSize, Qt
+from PySide6.QtCore import QEvent, QObject, QPoint, QRect, QSize, Qt
 from shiboken6 import isValid
-from PySide6.QtWidgets import QLayout, QSizePolicy, QWidget
+from PySide6.QtWidgets import QHBoxLayout, QLayout, QSizePolicy, QWidget
 
 
 def _alive(layout) -> bool:
@@ -209,3 +209,59 @@ class FlowHost(QWidget):
             return super().sizeHint()
         width = max(self.width(), layout.minimumSize().width())
         return QSize(width, layout.heightForWidth(width))
+
+
+def labelled(label: QWidget, field: QWidget, parent=None, spacing: int = 6) -> QWidget:
+    """A label and its field as one item, so a wrapping row never parts them.
+
+    Each is given the width its own size hint asks for: a combo box keeps
+    room for its longest entry and the label for its whole text, at every
+    Zoom and in every language, and the row wraps instead of squeezing them.
+
+    :param label: the caption widget, usually a :class:`QLabel`.
+    :param field: the control it names.
+    :param parent: parent widget, or ``None``.
+    :param spacing: pixels between the two.
+    :returns: the widget holding both.
+    """
+    pair = QWidget(parent)
+    row = QHBoxLayout(pair)
+    row.setContentsMargins(0, 0, 0, 0)
+    row.setSpacing(spacing)
+    row.addWidget(label)
+    row.addWidget(field)
+    return pair
+
+
+class _WrappedHeight(QObject):
+    """Keeps a word-wrapped label at least as tall as its text at its width."""
+
+    _EVENTS = (QEvent.Type.Resize, QEvent.Type.Show, QEvent.Type.FontChange)
+
+    def eventFilter(self, watched, event):            # noqa: N802 (Qt override)
+        """Raise or lower the minimum height when the width or font changes."""
+        if event.type() in self._EVENTS:
+            try:
+                needed = watched.heightForWidth(max(1, watched.width()))
+                if needed > 0 and watched.minimumHeight() != needed:
+                    watched.setMinimumHeight(needed)
+            except RuntimeError:
+                pass
+        return False
+
+
+def keep_wrapped_height(label) -> None:
+    """Never give a word-wrapped label less height than its wrapped text.
+
+    A box layout reads a label's one-line minimum, so where height is short
+    -- a fold under a chart at 200 % Zoom -- it squeezes the label and its
+    last lines are cut off. The label's minimum height follows its text at
+    the width it has, so the layout takes the room from a stretchable
+    neighbour, or the screen scrolls, instead.
+
+    :param label: a :class:`QLabel` with word wrap on.
+    """
+    if getattr(label, "_spacr_wrapped_height", None) is None:
+        watcher = _WrappedHeight(label)
+        label._spacr_wrapped_height = watcher
+        label.installEventFilter(watcher)

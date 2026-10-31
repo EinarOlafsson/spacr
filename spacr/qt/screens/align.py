@@ -50,6 +50,7 @@ from ..bridge import make_thread
 from ..theme import SPACING, active_palette, make_transparent, paint_panel
 from ..widgets import Divider
 from ..widgets.collapsible_splitter import CollapsibleSplitter
+from ..widgets.flow import FlowHost, FlowLayout, labelled
 
 __all__ = [
     "AlignScreen",
@@ -296,25 +297,25 @@ class AlignScreen(QWidget):
         src_row.addWidget(install_align_button(self))
         outer.addLayout(src_row)
 
-        grid_row = QHBoxLayout()
-        grid_row.setSpacing(SPACING["sm"])
-        grid_row.addWidget(QLabel("Grid", self))
+        grid_host = FlowHost(self)
+        grid_row = FlowLayout(grid_host, spacing=SPACING["sm"])
+        grid_label = QLabel("Grid", self)
         self._rows_box = QSpinBox(self)
         self._rows_box.setRange(0, 200)
         self._rows_box.setSpecialValueText("auto")
         self._rows_box.setToolTip(
             "(int) Rows in the acquisition grid. 0 infers it from the tile "
             "count.")
-        grid_row.addWidget(self._rows_box)
-        grid_row.addWidget(QLabel("x", self))
         self._cols_box = QSpinBox(self)
         self._cols_box.setRange(0, 200)
         self._cols_box.setSpecialValueText("auto")
         self._cols_box.setToolTip("(int) Columns in the acquisition grid.")
-        grid_row.addWidget(self._cols_box)
+        grid_pair = labelled(grid_label, self._rows_box, self)
+        grid_pair.layout().addWidget(QLabel("x", self))
+        grid_pair.layout().addWidget(self._cols_box)
+        grid_row.addWidget(grid_pair)
 
         self._overlap_label = QLabel("Overlap", self)
-        grid_row.addWidget(self._overlap_label)
         self._overlap_box = QDoubleSpinBox(self)
         self._overlap_box.setRange(0.0, 0.95)
         self._overlap_box.setSingleStep(0.05)
@@ -324,30 +325,29 @@ class AlignScreen(QWidget):
             "(float) Nominal overlap between neighbours, as a fraction of "
             "the tile. Only seeds the search — registration corrects it.")
         self._overlap_box._spacr_setting_label = self._overlap_label
-        grid_row.addWidget(self._overlap_box)
+        grid_row.addWidget(labelled(self._overlap_label, self._overlap_box, self))
 
-        grid_row.addWidget(QLabel("Order", self))
+        order_label = QLabel("Order", self)
         self._order_combo = QComboBox(self)
         self._order_combo.addItems(list(align_mod.ORDERS))
         self._order_combo.setToolTip(
             "(str) How the field sequence maps onto the grid. A serpentine "
             "acquisition needs snake-row.")
-        grid_row.addWidget(self._order_combo)
+        grid_row.addWidget(labelled(order_label, self._order_combo, self))
 
-        grid_row.addWidget(QLabel("Ref. channel", self))
+        ref_label = QLabel("Ref. channel", self)
         self._ref_box = QSpinBox(self)
         self._ref_box.setRange(0, 32)
         self._ref_box.setToolTip(
             "(int) The channel registration is measured on. Every channel "
             "then shares that one solution — aligning channels "
             "independently would shear the composite.")
-        grid_row.addWidget(self._ref_box)
-        grid_row.addStretch(1)
-        outer.addLayout(grid_row)
+        grid_row.addWidget(labelled(ref_label, self._ref_box, self))
+        outer.addWidget(grid_host)
 
-        qual_row = QHBoxLayout()
-        qual_row.setSpacing(SPACING["sm"])
-        qual_row.addWidget(QLabel("Min confidence", self))
+        qual_host = FlowHost(self)
+        qual_row = FlowLayout(qual_host, spacing=SPACING["sm"])
+        conf_label = QLabel("Min confidence", self)
         self._conf_box = QDoubleSpinBox(self)
         self._conf_box.setRange(0.0, 1.0)
         self._conf_box.setSingleStep(0.05)
@@ -356,9 +356,9 @@ class AlignScreen(QWidget):
         self._conf_box.setToolTip(
             "(float) Cross-correlation below which a pair is rejected "
             "and the tile keeps its stage position.")
-        qual_row.addWidget(self._conf_box)
+        qual_row.addWidget(labelled(conf_label, self._conf_box, self))
 
-        qual_row.addWidget(QLabel("Neighbour radius", self))
+        radius_label = QLabel("Neighbour radius", self)
         self._radius_box = QSpinBox(self)
         self._radius_box.setRange(1, 6)
         self._radius_box.setValue(1)
@@ -366,33 +366,31 @@ class AlignScreen(QWidget):
             "(int) Grid distance to register over. Raise it above 50% "
             "overlap so the extra pairs become real redundancy in the "
             "global solve.")
-        qual_row.addWidget(self._radius_box)
+        qual_row.addWidget(labelled(radius_label, self._radius_box, self))
 
         self._blend_label = QLabel("Blend", self)
-        qual_row.addWidget(self._blend_label)
         self._blend_combo = QComboBox(self)
         self._blend_combo.addItems(list(align_mod.BLEND_MODES))
         self._blend_combo.setToolTip(
             "(str) feather ramps each tile's weight across the overlap; "
             "none is a hard cut and leaves a visible seam.")
         self._blend_combo._spacr_setting_label = self._blend_label
-        qual_row.addWidget(self._blend_combo)
+        qual_row.addWidget(labelled(self._blend_label, self._blend_combo, self))
 
-        qual_row.addWidget(QLabel("RAM budget (MB)", self))
+        budget_label = QLabel("RAM budget (MB)", self)
         self._budget_box = QSpinBox(self)
         self._budget_box.setRange(1, 8192)
         self._budget_box.setValue(align_mod.DEFAULT_MAX_BUFFER_BYTES >> 20)
         self._budget_box.setToolTip(
             "(int) Ceiling on the band buffer the write allocates. This "
             "buffer, not the canvas size, sets the RAM the stitch uses.")
-        qual_row.addWidget(self._budget_box)
-        qual_row.addStretch(1)
+        qual_row.addWidget(labelled(budget_label, self._budget_box, self))
 
         self._btn_plan = QPushButton("Plan", self)
         self._btn_plan.setObjectName("Primary")
         self._btn_plan.clicked.connect(self.build_plan)
         qual_row.addWidget(self._btn_plan)
-        outer.addLayout(qual_row)
+        outer.addWidget(qual_host)
 
         split = CollapsibleSplitter(Qt.Horizontal, self,
                                     persist_key="align::body")
@@ -432,25 +430,28 @@ class AlignScreen(QWidget):
         self._btn_pick_dst = QPushButton("Choose…", self)
         self._btn_pick_dst.clicked.connect(self._pick_destination)
         out_row.addWidget(self._btn_pick_dst)
+        outer.addLayout(out_row)
 
-        out_row.addWidget(QLabel("Database", self))
+        db_row = QHBoxLayout()
+        db_row.setSpacing(SPACING["sm"])
+        db_row.addWidget(QLabel("Database", self))
         self._db_edit = QLineEdit(self)
         self._db_edit.setPlaceholderText(
             "optional …/measurements/measurements.db")
         self._db_edit.setClearButtonEnabled(True)
-        out_row.addWidget(self._db_edit, 1)
+        db_row.addWidget(self._db_edit, 1)
 
         self._overwrite_box = Toggle("Overwrite", self)
         self._overwrite_box.setToolTip(
             "(bool) Replace an existing output. Off, an existing file is "
             "refused rather than clobbered.")
-        out_row.addWidget(self._overwrite_box)
+        db_row.addWidget(self._overwrite_box)
 
         self._btn_write = QPushButton("Write stack", self)
         self._btn_write.setObjectName("Primary")
         self._btn_write.clicked.connect(self.write_stack)
-        out_row.addWidget(self._btn_write)
-        outer.addLayout(out_row)
+        db_row.addWidget(self._btn_write)
+        outer.addLayout(db_row)
 
         self._status = QLabel("", self)
         self._status.setObjectName("Muted")
