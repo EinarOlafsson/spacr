@@ -108,7 +108,7 @@ ROOT = Path(__file__).resolve().parents[2]
 # and the retired caption keeps its `_ROWS` row.
 COMPACT_CAPTION_COUNT = 287
 COMPACT_CAPTION_SHA256 = (
-    "852e6bf65d0ff47544e1015f1f458221c3d39d5195bd7e889add0d2ab2981b7a"
+    "5df803b240e3b622a9529bc51fc04b17684f391309b8039034f5dda3ada89beb"
 )
 
 # The complementary source-bound layer is pinned separately.  Keys are

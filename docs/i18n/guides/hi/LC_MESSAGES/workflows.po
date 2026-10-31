@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 06:44-0400\n"
+"POT-Creation-Date: 2026-10-31 11:39-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -775,6 +775,10 @@ msgstr "Pipeline Graph"
 
 msgid "Read recorded artifact dependencies and stale/missing status. The graph describes provenance and does not regenerate missing artifacts."
 msgstr "दर्ज फ़ाइल निर्भरताएँ और पुराने या अनुपस्थित होने की स्थिति पढ़ें। ग्राफ़ उत्पत्ति बताता है और अनुपस्थित फ़ाइलें दोबारा नहीं बनाता।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Graphviz DOT on the clipboard** — Copy Graphviz copies the current graph as DOT text to the system clipboard; it does not write a file."
+msgstr "**क्लिपबोर्ड पर Graphviz DOT** — प्रतिलिपि Graphviz चुनने पर वर्तमान ग्राफ़ DOT पाठ के रूप में सिस्टम क्लिपबोर्ड पर कॉपी होता है; कोई फ़ाइल नहीं लिखी जाती।"
 
 msgid ":doc:`API reference </api/spacr/qt/screens/pipeline_graph/index>`."
 msgstr ":doc:`API संदर्भ </api/spacr/qt/screens/pipeline_graph/index>`।"
