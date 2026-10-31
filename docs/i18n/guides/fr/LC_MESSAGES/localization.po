@@ -1,5 +1,5 @@
 # spaCR user guide translation (fr).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-30 20:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: fr\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -109,17 +109,35 @@ msgstr "La variable d’environnement ``SPACR_LANGUAGE`` peut remplacer temporai
 msgid "Contributing translations"
 msgstr "Contribuer aux traductions"
 
-msgid "Compact, manually reviewed chrome remains in :mod:`spacr.qt.i18n`. The full runtime catalogs live in ``spacr/qt/i18n_catalogs`` with English strings as stable source keys. Each language file contains the exact current key set for setting names, tooltips, category help, module summaries and extracted Qt text. Tests require every locale to be non-empty and structurally complete. New interface text always has a safe English fallback while a translation is being reviewed."
-msgstr "Les éléments d’interface compacts et relus manuellement restent dans :mod:`spacr.qt.i18n`. Les catalogues d’exécution complets se trouvent dans ``spacr/qt/i18n_catalogs``, avec les chaînes anglaises comme clés sources stables. Chaque fichier de langue contient exactement le jeu de clés actuel pour les noms de paramètres, les infobulles, l’aide des catégories, les résumés de modules et le texte Qt extrait. Les tests exigent que chaque locale soit non vide et structurellement complète. Un nouveau texte d’interface dispose toujours d’un repli anglais sûr pendant la relecture d’une traduction."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Compact reviewed chrome remains in :mod:`spacr.qt.i18n`. The full runtime catalogs live in ``spacr/qt/i18n_catalogs``. Their setting and interface records are bound to canonical English text by source hashes; setting records use setting identifiers rather than English sentences as keys. Each language file contains the exact current key set for setting names, tooltips, category help, module summaries and extracted Qt text. Tests require every locale to be non-empty and structurally complete. New interface text always has a safe English fallback while a translation is being reviewed."
+msgstr "Les éléments compacts et révisés de l’interface restent dans :mod:`spacr.qt.i18n`. Les catalogues d’exécution complets se trouvent dans ``spacr/qt/i18n_catalogs``. Leurs entrées de paramètres et d’interface sont liées au texte anglais canonique par des empreintes de la source ; les entrées de paramètres utilisent des identifiants de paramètres comme clés, plutôt que des phrases anglaises. Chaque fichier de langue contient exactement l’ensemble actuel des clés pour les noms de paramètres, les infobulles, l’aide des catégories, les résumés de modules et les textes extraits de Qt. Les tests exigent que chaque version linguistique soit non vide et structurellement complète. Les nouveaux textes de l’interface disposent toujours d’un repli sûr en anglais pendant la révision de leur traduction."
 
 msgid "The generator in ``tools/build_i18n_catalogs.py`` protects runtime fields and applies the reviewed terminology table after translation. False friends such as *screen*, *run*, *crop*, *mask*, *flow*, *plate* and *gate* are reviewed in their software and microscopy context rather than as isolated words. Plugins can provide exact translations through their translation metadata."
 msgstr "Le générateur ``tools/build_i18n_catalogs.py`` protège les champs d’exécution et applique la table terminologique relue après la traduction. Les faux amis tels que *screen*, *run*, *crop*, *mask*, *flow*, *plate* et *gate* sont relus dans leur contexte logiciel et microscopique plutôt que comme des mots isolés. Les plugins peuvent fournir des traductions exactes via leurs métadonnées de traduction."
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Review inputs and translated guides"
+msgstr "Sources de révision et guides traduits"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Runtime and API review records are restored from the immutable revision in ``docs/translation_reviews_revision.json``. Run ``python tools/bootstrap_translation_reviews.py fetch`` to restore that revision; ``python tools/bootstrap_translation_reviews.py check`` verifies it using the existing cache without fetching. The bootstrap refuses to overwrite locally modified or unpinned review records. Review metadata identifies the recorded reviewer; AI technical review does not establish native-speaker signoff."
+msgstr "Les enregistrements de révision de l’exécution et de l’API sont restaurés depuis la révision immuable indiquée dans ``docs/translation_reviews_revision.json``. Exécutez ``python tools/bootstrap_translation_reviews.py fetch`` pour restaurer cette révision ; ``python tools/bootstrap_translation_reviews.py check`` la vérifie à partir du cache existant, sans téléchargement. L’outil d’amorçage refuse d’écraser les enregistrements de révision modifiés localement ou non fixés à une révision. Les métadonnées de révision identifient le réviseur enregistré ; une révision technique par IA ne vaut pas approbation par un locuteur natif."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Translated user guides use Sphinx gettext catalogs under ``docs/i18n/guides``. The guide-page language picker opens the corresponding language tree; API translations instead load into the current page. Guide paragraphs without a current, non-fuzzy translation remain in English. ``tools/build_guide_i18n.py`` extracts English templates, updates catalogs, exports and imports translation worklists, and audits translations and review labels. These guide catalogs are separate from the runtime and API catalogs."
+msgstr "Les guides utilisateur traduits utilisent les catalogues gettext de Sphinx sous ``docs/i18n/guides``. Le sélecteur de langue d’une page de guide ouvre l’arborescence linguistique correspondante ; les traductions de l’API sont, quant à elles, chargées dans la page actuelle. Les paragraphes de guide qui ne disposent pas d’une traduction à jour non marquée « fuzzy » restent en anglais. ``tools/build_guide_i18n.py`` extrait les modèles anglais, met à jour les catalogues, exporte et importe les listes de travail de traduction, et audite les traductions ainsi que les mentions de révision. Ces catalogues de guides sont distincts des catalogues d’exécution et de l’API."
+
 msgid "API documentation and the project page"
 msgstr "Documentation de l’API et page du projet"
 
-msgid "English docstrings remain beside their Python functions. Translated API text is stored separately under ``docs/source/_static/i18n/api`` and keyed by the fully qualified Python symbol plus a SHA-256 hash of the English source. The documentation language picker loads these files on demand; a changed English docstring makes the corresponding translation fail the freshness audit instead of silently displaying obsolete text."
-msgstr "Les docstrings anglaises restent à côté de leurs fonctions Python. Le texte d’API traduit est stocké séparément sous ``docs/source/_static/i18n/api``, indexé par le symbole Python pleinement qualifié et une empreinte SHA-256 de la source anglaise. Le sélecteur de langue de la documentation charge ces fichiers à la demande ; une docstring anglaise modifiée fait échouer la traduction correspondante à l’audit de fraîcheur au lieu d’afficher silencieusement un texte obsolète."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "English docstrings remain beside their Python functions. Translated API text is stored separately under ``docs/source/_static/i18n/api`` and keyed by the fully qualified Python symbol plus a SHA-256 hash of the English source. The documentation language picker loads these files on demand and checks them against the English catalog. A failed load or freshness check restores the English view. API language selection uses the page's ``lang`` query, a saved browser choice, then a supported browser language; it is separate from the Qt application's saved language. A changed English docstring also makes the corresponding translation fail the freshness audit."
+msgstr "Les docstrings en anglais restent à côté de leurs fonctions Python. Les textes traduits de l’API sont stockés séparément sous ``docs/source/_static/i18n/api`` et ont pour clé le symbole Python pleinement qualifié associé à une empreinte SHA-256 de la source anglaise. Le sélecteur de langue de la documentation charge ces fichiers à la demande et les vérifie par rapport au catalogue anglais. Si le chargement ou le contrôle d’actualité échoue, la vue anglaise est rétablie. La sélection de la langue de l’API utilise, dans cet ordre, le paramètre de requête ``lang`` de la page, un choix enregistré dans le navigateur, puis une langue prise en charge du navigateur ; elle est indépendante de la langue enregistrée dans l’application Qt. La modification d’une docstring anglaise fait également échouer la traduction correspondante à l’audit d’actualité."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For a local API documentation build, ``python tools/build_documentation_i18n.py --assemble`` restores the separately pinned ``api_memory`` catalogs from ``docs/media_revision.json``, applies the source-bound review records and writes the English manifest. This assembles existing translation memory without running a translation model."
+msgstr "Pour une compilation locale de la documentation de l’API, ``python tools/build_documentation_i18n.py --assemble`` restaure les catalogues ``api_memory`` fixés séparément dans ``docs/media_revision.json``, applique les enregistrements de révision liés à la source et écrit le manifeste anglais. Cette opération assemble la mémoire de traduction existante sans exécuter de modèle de traduction."
 
 msgid "Translated GitHub project pages live under ``docs/i18n/readme``. Their code, commands, URLs, badges and language navigation are preserved exactly, while the explanatory prose is localized. Model and license attribution is recorded in ``docs/i18n/TRANSLATION_MODELS.md``."
 msgstr "Les pages de projet GitHub traduites se trouvent sous ``docs/i18n/readme``. Leur code, leurs commandes, leurs URL, leurs badges et leur navigation linguistique sont préservés à l’identique, tandis que la prose explicative est localisée. L’attribution des modèles et des licences est consignée dans ``docs/i18n/TRANSLATION_MODELS.md``."

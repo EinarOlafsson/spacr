@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-30 20:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -110,17 +110,35 @@ msgstr "Umhverfisbreytan ``SPACR_LANGUAGE`` getur tímabundið hnekkt vistuðu k
 msgid "Contributing translations"
 msgstr "Leggja til þýðingar"
 
-msgid "Compact, manually reviewed chrome remains in :mod:`spacr.qt.i18n`. The full runtime catalogs live in ``spacr/qt/i18n_catalogs`` with English strings as stable source keys. Each language file contains the exact current key set for setting names, tooltips, category help, module summaries and extracted Qt text. Tests require every locale to be non-empty and structurally complete. New interface text always has a safe English fallback while a translation is being reviewed."
-msgstr "Þétt, handyfirfarið viðmótsefni er áfram í :mod:`spacr.qt.i18n`. Fullar keyrsluþýðingarskrár eru í ``spacr/qt/i18n_catalogs`` með enskum strengjum sem stöðugum upprunalyklum. Hver tungumálaskrá inniheldur nákvæmt núverandi lyklasafn fyrir heiti stillinga, skjábendingar, hjálp flokka, samantektir eininga og útdreginn Qt-texta. Prófanir krefjast þess að hvert tungumál sé ekki tómt og byggingarlega heilt. Nýr viðmótstexti hefur alltaf öruggt enskt varaúrræði á meðan þýðing er yfirfarin."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Compact reviewed chrome remains in :mod:`spacr.qt.i18n`. The full runtime catalogs live in ``spacr/qt/i18n_catalogs``. Their setting and interface records are bound to canonical English text by source hashes; setting records use setting identifiers rather than English sentences as keys. Each language file contains the exact current key set for setting names, tooltips, category help, module summaries and extracted Qt text. Tests require every locale to be non-empty and structurally complete. New interface text always has a safe English fallback while a translation is being reviewed."
+msgstr "Yfirfarinn, afmarkaður viðmótstexti er áfram í :mod:`spacr.qt.i18n`. Heildarþýðingarskrár keyrsluviðmótsins eru í ``spacr/qt/i18n_catalogs``. Stillinga- og viðmótsfærslur þeirra eru bundnar við viðmiðunartexta á ensku með hakkgildum frumtextans; stillingafærslur nota stillingaauðkenni sem lykla í stað enskra setninga. Hver tungumálsskrá inniheldur nákvæmlega núverandi lyklasafn fyrir stillinganöfn, vísbendingar, flokkahjálp, einingayfirlit og útdreginn Qt-texta. Prófanir krefjast þess að hver tungumálsútgáfa sé ekki tóm og hafi fullgerða uppbyggingu. Nýr viðmótstexti hefur alltaf öruggan enskan varatexta meðan þýðing er yfirfarin."
 
 msgid "The generator in ``tools/build_i18n_catalogs.py`` protects runtime fields and applies the reviewed terminology table after translation. False friends such as *screen*, *run*, *crop*, *mask*, *flow*, *plate* and *gate* are reviewed in their software and microscopy context rather than as isolated words. Plugins can provide exact translations through their translation metadata."
 msgstr "Rafallinn í ``tools/build_i18n_catalogs.py`` verndar keyrslureiti og beitir yfirfarinni hugtakatöflu eftir þýðingu. Falskir vinir eins og *screen*, *run*, *crop*, *mask*, *flow*, *plate* og *gate* eru yfirfarnir í samhengi hugbúnaðar og smásjárskoðunar frekar en sem einstök orð. Viðbætur geta lagt til nákvæmar þýðingar í gegnum þýðingarlýsigögn sín."
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Review inputs and translated guides"
+msgstr "Yfirferðargögn og þýddar leiðbeiningar"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Runtime and API review records are restored from the immutable revision in ``docs/translation_reviews_revision.json``. Run ``python tools/bootstrap_translation_reviews.py fetch`` to restore that revision; ``python tools/bootstrap_translation_reviews.py check`` verifies it using the existing cache without fetching. The bootstrap refuses to overwrite locally modified or unpinned review records. Review metadata identifies the recorded reviewer; AI technical review does not establish native-speaker signoff."
+msgstr "Yfirferðarfærslur fyrir keyrsluviðmótið og API eru endurheimtar úr óbreytanlegu útgáfunni í ``docs/translation_reviews_revision.json``. Keyrðu ``python tools/bootstrap_translation_reviews.py fetch`` til að endurheimta þá útgáfu; ``python tools/bootstrap_translation_reviews.py check`` sannreynir hana með fyrirliggjandi skyndiminni án niðurhals. Uppsetningarverkfærið neitar að skrifa yfir yfirferðarfærslur sem hafa verið breytt staðbundið eða eru ekki festar við útgáfu. Lýsigögn yfirferðar tilgreina skráðan yfirlesara; tæknileg yfirferð gervigreindar felur ekki í sér samþykki móðurmálshafa."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Translated user guides use Sphinx gettext catalogs under ``docs/i18n/guides``. The guide-page language picker opens the corresponding language tree; API translations instead load into the current page. Guide paragraphs without a current, non-fuzzy translation remain in English. ``tools/build_guide_i18n.py`` extracts English templates, updates catalogs, exports and imports translation worklists, and audits translations and review labels. These guide catalogs are separate from the runtime and API catalogs."
+msgstr "Þýddar notendaleiðbeiningar nota Sphinx gettext-skrár undir ``docs/i18n/guides``. Tungumálaval leiðbeiningasíðunnar opnar samsvarandi tungumálstré; API-þýðingar hlaðast hins vegar inn á núverandi síðu. Málsgreinar leiðbeininga án gildrar þýðingar sem er ekki merkt fuzzy eru áfram á ensku. ``tools/build_guide_i18n.py`` dregur út ensk sniðmát, uppfærir þýðingarskrár, flytur út og inn þýðingarvinnulista og yfirfer þýðingar og merkingar yfirferðar. Þessar leiðbeiningaskrár eru aðskildar frá þýðingarskrám keyrsluviðmóts og API."
+
 msgid "API documentation and the project page"
 msgstr "API-skjölun og verkefnissíðan"
 
-msgid "English docstrings remain beside their Python functions. Translated API text is stored separately under ``docs/source/_static/i18n/api`` and keyed by the fully qualified Python symbol plus a SHA-256 hash of the English source. The documentation language picker loads these files on demand; a changed English docstring makes the corresponding translation fail the freshness audit instead of silently displaying obsolete text."
-msgstr "Enskir docstrings eru áfram við hlið Python-falla sinna. Þýddur API-texti er geymdur sérstaklega undir ``docs/source/_static/i18n/api`` og lyklaður með fullgildu Python-tákni ásamt SHA-256-tætigildi enska upprunans. Tungumálaval skjölunarinnar hleður þessum skrám eftir þörfum; breyttur enskur docstring veldur því að samsvarandi þýðing fellur á ferskleikaúttektinni í stað þess að úreltur texti birtist án þess að láta vita."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "English docstrings remain beside their Python functions. Translated API text is stored separately under ``docs/source/_static/i18n/api`` and keyed by the fully qualified Python symbol plus a SHA-256 hash of the English source. The documentation language picker loads these files on demand and checks them against the English catalog. A failed load or freshness check restores the English view. API language selection uses the page's ``lang`` query, a saved browser choice, then a supported browser language; it is separate from the Qt application's saved language. A changed English docstring also makes the corresponding translation fail the freshness audit."
+msgstr "Enskir docstrings eru áfram við hlið Python-fallanna. Þýddur API-texti er vistaður sérstaklega undir ``docs/source/_static/i18n/api`` og notar Python-tákn með fullu heiti ásamt SHA-256-hakkgildi enska frumtextans sem lykil. Tungumálaval skjala hleður þessum skrám eftir þörfum og ber þær saman við ensku skrána. Ef hleðsla eða athugun á því hvort textinn sé uppfærður mistekst er enska sýnin endurheimt. Tungumál API er valið eftir ``lang``-fyrirspurn síðu, vistuðu vali í vafra og síðan studdu tungumáli vafrans; það er aðskilið frá vistuðu tungumáli Qt-forritsins. Breyttur enskur docstring veldur einnig því að samsvarandi þýðing stenst ekki athugun á því hvort hún sé uppfærð."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For a local API documentation build, ``python tools/build_documentation_i18n.py --assemble`` restores the separately pinned ``api_memory`` catalogs from ``docs/media_revision.json``, applies the source-bound review records and writes the English manifest. This assembles existing translation memory without running a translation model."
+msgstr "Við staðbundna smíði API-skjala endurheimtir ``python tools/build_documentation_i18n.py --assemble`` sérstaklega útgáfufestu ``api_memory``-skrárnar úr ``docs/media_revision.json``, beitir yfirferðarfærslunum sem eru bundnar við frumtextann og skrifar enska skráayfirlitið. Þetta setur saman fyrirliggjandi þýðingarminni án þess að keyra þýðingarlíkan."
 
 msgid "Translated GitHub project pages live under ``docs/i18n/readme``. Their code, commands, URLs, badges and language navigation are preserved exactly, while the explanatory prose is localized. Model and license attribution is recorded in ``docs/i18n/TRANSLATION_MODELS.md``."
 msgstr "Þýddar GitHub-verkefnissíður eru undir ``docs/i18n/readme``. Kóði þeirra, skipanir, vefslóðir, merki og tungumálaleiðsögn varðveitast nákvæmlega, en skýringartextinn er staðfærður. Tilvísanir í líkön og leyfi eru skráðar í ``docs/i18n/TRANSLATION_MODELS.md``."

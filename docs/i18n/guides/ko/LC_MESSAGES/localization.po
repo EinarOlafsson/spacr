@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-30 20:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -110,17 +110,35 @@ msgstr "환경 변수 ``SPACR_LANGUAGE`` 로 저장된 환경설정을 일시적
 msgid "Contributing translations"
 msgstr "번역 기여"
 
-msgid "Compact, manually reviewed chrome remains in :mod:`spacr.qt.i18n`. The full runtime catalogs live in ``spacr/qt/i18n_catalogs`` with English strings as stable source keys. Each language file contains the exact current key set for setting names, tooltips, category help, module summaries and extracted Qt text. Tests require every locale to be non-empty and structurally complete. New interface text always has a safe English fallback while a translation is being reviewed."
-msgstr "간결하고 수동으로 검토된 UI 문구는 :mod:`spacr.qt.i18n` 에 있습니다. 전체 런타임 카탈로그는 영어 문자열을 안정적인 원본 키로 사용하여 ``spacr/qt/i18n_catalogs`` 에 있습니다. 각 언어 파일에는 설정 이름, 툴팁, 범주 도움말, 모듈 요약, 추출된 Qt 텍스트에 대한 현재의 정확한 키 집합이 들어 있습니다. 테스트는 모든 언어가 비어 있지 않고 구조적으로 완전할 것을 요구합니다. 새 인터페이스 텍스트는 번역을 검토하는 동안 항상 안전한 영어 대체 텍스트를 갖습니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Compact reviewed chrome remains in :mod:`spacr.qt.i18n`. The full runtime catalogs live in ``spacr/qt/i18n_catalogs``. Their setting and interface records are bound to canonical English text by source hashes; setting records use setting identifiers rather than English sentences as keys. Each language file contains the exact current key set for setting names, tooltips, category help, module summaries and extracted Qt text. Tests require every locale to be non-empty and structurally complete. New interface text always has a safe English fallback while a translation is being reviewed."
+msgstr "검토된 간결한 인터페이스 문구는 :mod:`spacr.qt.i18n` 에 남아 있습니다. 전체 런타임 카탈로그는 ``spacr/qt/i18n_catalogs`` 에 있습니다. 설정 및 인터페이스 레코드는 소스 해시로 기준 영어 텍스트에 연결되며, 설정 레코드는 영어 문장이 아닌 설정 식별자를 키로 사용합니다. 각 언어 파일에는 설정 이름, 도구 설명, 범주 도움말, 모듈 요약 및 추출된 Qt 텍스트의 정확한 현재 키 집합이 포함됩니다. 테스트는 모든 로캘이 비어 있지 않고 구조적으로 완전할 것을 요구합니다. 새 인터페이스 텍스트는 번역이 검토되는 동안 항상 안전하게 영어로 대체됩니다."
 
 msgid "The generator in ``tools/build_i18n_catalogs.py`` protects runtime fields and applies the reviewed terminology table after translation. False friends such as *screen*, *run*, *crop*, *mask*, *flow*, *plate* and *gate* are reviewed in their software and microscopy context rather than as isolated words. Plugins can provide exact translations through their translation metadata."
 msgstr "``tools/build_i18n_catalogs.py`` 의 생성기는 런타임 필드를 보호하고 번역 후 검토된 용어 표를 적용합니다. *screen*, *run*, *crop*, *mask*, *flow*, *plate*, *gate* 와 같은 거짓 짝(false friend)은 고립된 단어가 아니라 소프트웨어와 현미경 분야의 맥락에서 검토됩니다. 플러그인은 번역 메타데이터를 통해 정확한 번역을 제공할 수 있습니다."
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Review inputs and translated guides"
+msgstr "검토 입력과 번역된 가이드"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Runtime and API review records are restored from the immutable revision in ``docs/translation_reviews_revision.json``. Run ``python tools/bootstrap_translation_reviews.py fetch`` to restore that revision; ``python tools/bootstrap_translation_reviews.py check`` verifies it using the existing cache without fetching. The bootstrap refuses to overwrite locally modified or unpinned review records. Review metadata identifies the recorded reviewer; AI technical review does not establish native-speaker signoff."
+msgstr "런타임 및 API 검토 레코드는 ``docs/translation_reviews_revision.json`` 의 변경 불가능한 리비전에서 복원됩니다. 해당 리비전을 복원하려면 ``python tools/bootstrap_translation_reviews.py fetch`` 를 실행합니다. ``python tools/bootstrap_translation_reviews.py check`` 는 가져오기 없이 기존 캐시를 사용하여 이를 검증합니다. 부트스트랩은 로컬에서 수정되었거나 리비전에 고정되지 않은 검토 레코드를 덮어쓰지 않습니다. 검토 메타데이터는 기록된 검토자를 명시하며, AI 기술 검토가 원어민의 승인을 뜻하지는 않습니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Translated user guides use Sphinx gettext catalogs under ``docs/i18n/guides``. The guide-page language picker opens the corresponding language tree; API translations instead load into the current page. Guide paragraphs without a current, non-fuzzy translation remain in English. ``tools/build_guide_i18n.py`` extracts English templates, updates catalogs, exports and imports translation worklists, and audits translations and review labels. These guide catalogs are separate from the runtime and API catalogs."
+msgstr "번역된 사용자 가이드는 ``docs/i18n/guides`` 아래의 Sphinx gettext 카탈로그를 사용합니다. 가이드 페이지의 언어 선택기는 해당 언어 트리를 열지만 API 번역은 현재 페이지에 로드됩니다. 현재 유효하며 fuzzy 표시가 없는 번역이 없는 가이드 문단은 영어로 남습니다. ``tools/build_guide_i18n.py`` 는 영어 템플릿을 추출하고 카탈로그를 갱신하며 번역 작업 목록을 내보내고 가져오고 번역 및 검토 레이블을 검사합니다. 이 가이드 카탈로그는 런타임 및 API 카탈로그와 별개입니다."
+
 msgid "API documentation and the project page"
 msgstr "API 문서와 프로젝트 페이지"
 
-msgid "English docstrings remain beside their Python functions. Translated API text is stored separately under ``docs/source/_static/i18n/api`` and keyed by the fully qualified Python symbol plus a SHA-256 hash of the English source. The documentation language picker loads these files on demand; a changed English docstring makes the corresponding translation fail the freshness audit instead of silently displaying obsolete text."
-msgstr "영어 docstring은 해당 Python 함수 옆에 그대로 남아 있습니다. 번역된 API 텍스트는 ``docs/source/_static/i18n/api`` 아래에 따로 저장되며, 정규화된 Python 기호와 영어 원문의 SHA-256 해시를 키로 사용합니다. 문서 언어 선택기는 이 파일을 필요할 때 불러옵니다. 영어 docstring이 바뀌면 해당 번역은 오래된 텍스트를 조용히 표시하는 대신 최신성 감사에서 실패합니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "English docstrings remain beside their Python functions. Translated API text is stored separately under ``docs/source/_static/i18n/api`` and keyed by the fully qualified Python symbol plus a SHA-256 hash of the English source. The documentation language picker loads these files on demand and checks them against the English catalog. A failed load or freshness check restores the English view. API language selection uses the page's ``lang`` query, a saved browser choice, then a supported browser language; it is separate from the Qt application's saved language. A changed English docstring also makes the corresponding translation fail the freshness audit."
+msgstr "영어 독스트링은 해당 Python 함수 옆에 유지됩니다. 번역된 API 텍스트는 ``docs/source/_static/i18n/api`` 아래에 별도로 저장되며 완전한 이름의 Python 심볼과 영어 소스의 SHA-256 해시를 키로 사용합니다. 문서 언어 선택기는 필요할 때 이 파일을 로드하고 영어 카탈로그와 대조합니다. 로드 또는 최신성 검사에 실패하면 영어 보기로 복원합니다. API 언어는 페이지의 ``lang`` 쿼리, 저장된 브라우저 선택, 지원되는 브라우저 언어 순으로 선택되며 Qt 애플리케이션에 저장된 언어와 별개입니다. 영어 독스트링이 바뀌면 해당 번역은 최신성 감사에서도 실패합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For a local API documentation build, ``python tools/build_documentation_i18n.py --assemble`` restores the separately pinned ``api_memory`` catalogs from ``docs/media_revision.json``, applies the source-bound review records and writes the English manifest. This assembles existing translation memory without running a translation model."
+msgstr "로컬 API 문서를 빌드할 때 ``python tools/build_documentation_i18n.py --assemble`` 는 ``docs/media_revision.json`` 에서 별도로 버전이 고정된 ``api_memory`` 카탈로그를 복원하고 소스에 연결된 검토 레코드를 적용한 뒤 영어 매니페스트를 기록합니다. 이 작업은 번역 모델을 실행하지 않고 기존 번역 메모리를 조립합니다."
 
 msgid "Translated GitHub project pages live under ``docs/i18n/readme``. Their code, commands, URLs, badges and language navigation are preserved exactly, while the explanatory prose is localized. Model and license attribution is recorded in ``docs/i18n/TRANSLATION_MODELS.md``."
 msgstr "번역된 GitHub 프로젝트 페이지는 ``docs/i18n/readme`` 아래에 있습니다. 코드, 명령, URL, 배지, 언어 탐색은 정확히 보존되고 설명 문장은 현지화됩니다. 모델과 라이선스 출처는 ``docs/i18n/TRANSLATION_MODELS.md`` 에 기록되어 있습니다."

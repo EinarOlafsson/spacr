@@ -1,5 +1,5 @@
 # spaCR user guide translation (sv).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-30 20:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -109,17 +109,35 @@ msgstr "Miljövariabeln ``SPACR_LANGUAGE`` kan tillfälligt åsidosätta den spa
 msgid "Contributing translations"
 msgstr "Bidra med översättningar"
 
-msgid "Compact, manually reviewed chrome remains in :mod:`spacr.qt.i18n`. The full runtime catalogs live in ``spacr/qt/i18n_catalogs`` with English strings as stable source keys. Each language file contains the exact current key set for setting names, tooltips, category help, module summaries and extracted Qt text. Tests require every locale to be non-empty and structurally complete. New interface text always has a safe English fallback while a translation is being reviewed."
-msgstr "Kompakt, manuellt granskad gränssnittsinramning finns kvar i :mod:`spacr.qt.i18n`. De fullständiga körtidskatalogerna finns i ``spacr/qt/i18n_catalogs`` med engelska strängar som stabila källnycklar. Varje språkfil innehåller exakt den aktuella nyckeluppsättningen för inställningsnamn, verktygstips, kategorihjälp, modulsammanfattningar och extraherad Qt-text. Testerna kräver att varje språk är icke-tomt och strukturellt komplett. Ny gränssnittstext har alltid en säker engelsk reserv medan en översättning granskas."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Compact reviewed chrome remains in :mod:`spacr.qt.i18n`. The full runtime catalogs live in ``spacr/qt/i18n_catalogs``. Their setting and interface records are bound to canonical English text by source hashes; setting records use setting identifiers rather than English sentences as keys. Each language file contains the exact current key set for setting names, tooltips, category help, module summaries and extracted Qt text. Tests require every locale to be non-empty and structurally complete. New interface text always has a safe English fallback while a translation is being reviewed."
+msgstr "Kompakt granskad gränssnittstext finns kvar i :mod:`spacr.qt.i18n`. De fullständiga körtidskatalogerna finns i ``spacr/qt/i18n_catalogs``. Deras inställnings- och gränssnittsposter är bundna till kanonisk engelsk text med källhashar; inställningsposter använder inställningsidentifierare, inte engelska meningar, som nycklar. Varje språkfil innehåller exakt den aktuella nyckeluppsättningen för inställningsnamn, verktygstips, kategorihjälp, modulsammanfattningar och extraherad Qt-text. Testerna kräver att varje språk är icke-tomt och strukturellt komplett. Ny gränssnittstext har alltid en säker engelsk reserv medan en översättning granskas."
 
 msgid "The generator in ``tools/build_i18n_catalogs.py`` protects runtime fields and applies the reviewed terminology table after translation. False friends such as *screen*, *run*, *crop*, *mask*, *flow*, *plate* and *gate* are reviewed in their software and microscopy context rather than as isolated words. Plugins can provide exact translations through their translation metadata."
 msgstr "Generatorn i ``tools/build_i18n_catalogs.py`` skyddar körtidsfält och tillämpar den granskade terminologitabellen efter översättningen. Falska vänner som *screen*, *run*, *crop*, *mask*, *flow*, *plate* och *gate* granskas i sitt program- och mikroskopisammanhang i stället för som isolerade ord. Tillägg kan tillhandahålla exakta översättningar via sina översättningsmetadata."
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Review inputs and translated guides"
+msgstr "Granskningsunderlag och översatta handledningar"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Runtime and API review records are restored from the immutable revision in ``docs/translation_reviews_revision.json``. Run ``python tools/bootstrap_translation_reviews.py fetch`` to restore that revision; ``python tools/bootstrap_translation_reviews.py check`` verifies it using the existing cache without fetching. The bootstrap refuses to overwrite locally modified or unpinned review records. Review metadata identifies the recorded reviewer; AI technical review does not establish native-speaker signoff."
+msgstr "Granskningsposter för körtid och API återställs från den oföränderliga revisionen i ``docs/translation_reviews_revision.json``. Kör ``python tools/bootstrap_translation_reviews.py fetch`` för att återställa den revisionen; ``python tools/bootstrap_translation_reviews.py check`` verifierar den med befintlig cache utan hämtning. Bootstrap-verktyget vägrar att skriva över lokalt ändrade eller ej pinnade granskningsposter. Granskningsmetadata identifierar den registrerade granskaren; teknisk AI-granskning innebär inte godkännande av en modersmålstalare."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Translated user guides use Sphinx gettext catalogs under ``docs/i18n/guides``. The guide-page language picker opens the corresponding language tree; API translations instead load into the current page. Guide paragraphs without a current, non-fuzzy translation remain in English. ``tools/build_guide_i18n.py`` extracts English templates, updates catalogs, exports and imports translation worklists, and audits translations and review labels. These guide catalogs are separate from the runtime and API catalogs."
+msgstr "Översatta användarhandledningar använder Sphinx gettext-kataloger under ``docs/i18n/guides``. Språkväljaren på en handledningssida öppnar motsvarande språkträd; API-översättningar läses i stället in på den aktuella sidan. Handledningsstycken utan en aktuell, icke-fuzzy översättning förblir på engelska. ``tools/build_guide_i18n.py`` extraherar engelska mallar, uppdaterar kataloger, exporterar och importerar översättningsarbetslistor samt granskar översättningar och granskningsetiketter. Dessa handledningskataloger är separata från körtids- och API-katalogerna."
+
 msgid "API documentation and the project page"
 msgstr "API-dokumentationen och projektsidan"
 
-msgid "English docstrings remain beside their Python functions. Translated API text is stored separately under ``docs/source/_static/i18n/api`` and keyed by the fully qualified Python symbol plus a SHA-256 hash of the English source. The documentation language picker loads these files on demand; a changed English docstring makes the corresponding translation fail the freshness audit instead of silently displaying obsolete text."
-msgstr "Engelska docstrings finns kvar bredvid sina Python-funktioner. Översatt API-text lagras separat under ``docs/source/_static/i18n/api`` och nycklas med den fullständigt kvalificerade Python-symbolen plus en SHA-256-hash av den engelska källan. Dokumentationens språkväljare läser in dessa filer vid behov; en ändrad engelsk docstring gör att motsvarande översättning underkänns i färskhetsgranskningen i stället för att föråldrad text visas i tysthet."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "English docstrings remain beside their Python functions. Translated API text is stored separately under ``docs/source/_static/i18n/api`` and keyed by the fully qualified Python symbol plus a SHA-256 hash of the English source. The documentation language picker loads these files on demand and checks them against the English catalog. A failed load or freshness check restores the English view. API language selection uses the page's ``lang`` query, a saved browser choice, then a supported browser language; it is separate from the Qt application's saved language. A changed English docstring also makes the corresponding translation fail the freshness audit."
+msgstr "Engelska docstrings finns kvar bredvid sina Python-funktioner. Översatt API-text lagras separat under ``docs/source/_static/i18n/api`` och nycklas med den fullständigt kvalificerade Python-symbolen plus en SHA-256-hash av den engelska källan. Dokumentationens språkväljare läser in dessa filer vid behov och kontrollerar dem mot den engelska katalogen. Misslyckad inläsning eller färskhetskontroll återställer den engelska vyn. API-språket väljs utifrån sidans ``lang``-frågeparameter, ett sparat webbläsarval och därefter ett webbläsarspråk som stöds; detta är separat från Qt-applikationens sparade språk. En ändrad engelsk docstring gör också att motsvarande översättning underkänns i färskhetsgranskningen."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For a local API documentation build, ``python tools/build_documentation_i18n.py --assemble`` restores the separately pinned ``api_memory`` catalogs from ``docs/media_revision.json``, applies the source-bound review records and writes the English manifest. This assembles existing translation memory without running a translation model."
+msgstr "För ett lokalt API-dokumentationsbygge återställer ``python tools/build_documentation_i18n.py --assemble`` de separat pinnade ``api_memory``-katalogerna från ``docs/media_revision.json``, tillämpar de källbundna granskningsposterna och skriver det engelska manifestet. Detta sammanställer befintligt översättningsminne utan att köra en översättningsmodell."
 
 msgid "Translated GitHub project pages live under ``docs/i18n/readme``. Their code, commands, URLs, badges and language navigation are preserved exactly, while the explanatory prose is localized. Model and license attribution is recorded in ``docs/i18n/TRANSLATION_MODELS.md``."
 msgstr "Översatta GitHub-projektsidor finns under ``docs/i18n/readme``. Deras kod, kommandon, URL:er, märken och språknavigering bevaras exakt, medan den förklarande texten lokaliseras. Tillskrivning av modeller och licenser registreras i ``docs/i18n/TRANSLATION_MODELS.md``."

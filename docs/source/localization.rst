@@ -85,9 +85,11 @@ saved preference, which is useful for screenshots and automated testing:
 Contributing translations
 -------------------------
 
-Compact, manually reviewed chrome remains in :mod:`spacr.qt.i18n`. The full
-runtime catalogs live in ``spacr/qt/i18n_catalogs`` with English strings as
-stable source keys. Each language file contains the exact current key set for
+Compact reviewed chrome remains in :mod:`spacr.qt.i18n`. The full runtime
+catalogs live in ``spacr/qt/i18n_catalogs``. Their setting and interface
+records are bound to canonical English text by source hashes; setting records
+use setting identifiers rather than English sentences as keys. Each language
+file contains the exact current key set for
 setting names, tooltips, category help, module summaries and extracted Qt
 text. Tests require every locale to be non-empty and structurally complete.
 New interface text always has a safe English fallback while a translation is
@@ -99,15 +101,44 @@ as *screen*, *run*, *crop*, *mask*, *flow*, *plate* and *gate* are reviewed in
 their software and microscopy context rather than as isolated words. Plugins
 can provide exact translations through their translation metadata.
 
+Review inputs and translated guides
+-----------------------------------
+
+Runtime and API review records are restored from the immutable revision in
+``docs/translation_reviews_revision.json``. Run
+``python tools/bootstrap_translation_reviews.py fetch`` to restore that
+revision; ``python tools/bootstrap_translation_reviews.py check`` verifies
+it using the existing cache without fetching. The bootstrap refuses to
+overwrite locally modified or unpinned review records. Review metadata
+identifies the recorded reviewer; AI technical review does not establish
+native-speaker signoff.
+
+Translated user guides use Sphinx gettext catalogs under
+``docs/i18n/guides``. The guide-page language picker opens the corresponding
+language tree; API translations instead load into the current page. Guide
+paragraphs without a current, non-fuzzy translation remain in English.
+``tools/build_guide_i18n.py`` extracts English templates, updates catalogs,
+exports and imports translation worklists, and audits translations and review
+labels. These guide catalogs are separate from the runtime and API catalogs.
+
 API documentation and the project page
 --------------------------------------
 
 English docstrings remain beside their Python functions. Translated API text
 is stored separately under ``docs/source/_static/i18n/api`` and keyed by the
 fully qualified Python symbol plus a SHA-256 hash of the English source. The
-documentation language picker loads these files on demand; a changed English
-docstring makes the corresponding translation fail the freshness audit
-instead of silently displaying obsolete text.
+documentation language picker loads these files on demand and checks them
+against the English catalog. A failed load or freshness check restores the
+English view. API language selection uses the page's ``lang`` query, a saved
+browser choice, then a supported browser language; it is separate from the
+Qt application's saved language. A changed English docstring also makes the
+corresponding translation fail the freshness audit.
+
+For a local API documentation build,
+``python tools/build_documentation_i18n.py --assemble`` restores the separately
+pinned ``api_memory`` catalogs from ``docs/media_revision.json``, applies the
+source-bound review records and writes the English manifest. This assembles
+existing translation memory without running a translation model.
 
 Translated GitHub project pages live under ``docs/i18n/readme``. Their code,
 commands, URLs, badges and language navigation are preserved exactly, while
