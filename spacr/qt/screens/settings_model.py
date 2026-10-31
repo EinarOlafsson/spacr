@@ -944,6 +944,12 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
              "guide permutation — test each guide on its own, wells "
              "reshuffled within each plate"),
         ],
+        "screen_type": [
+            ("pooled",
+             "pooled screen — phenotype against mapped guide counts"),
+            ("drug_screen",
+             "drug screen — each drug and dose against the vehicle wells"),
+        ],
         "analysis_unit": ["well", "cell"],
         "agg_type": ["mean", "median", "quantile", None],
         "transform": [None, "log", "sqrt", "square", "beta"],
@@ -1534,10 +1540,14 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Runtime & Reliability", ("n_jobs", "ram_guard")),
     ),
     "regression": (
-        ("Input Tables", ("paired_data", "metadata_files",
+        ("Input Tables", ("screen_type", "paired_data", "metadata_files",
                           "count_grna_column", "count_value_column",
                           "independent_variable_layout",
-                          "wide_predictor_columns", "src")),
+                          "wide_predictor_columns", "src",
+                          "drug_data", "drug_table", "treatment_map",
+                          "drug_column", "concentration_column",
+                          "concentration_unit", "vehicle_control",
+                          "replicate_column")),
         ("Controls & Filters", (
             "positive_control_id", "negative_control_id",
             "positive_control_wells", "negative_control_wells",

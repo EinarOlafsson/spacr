@@ -7457,7 +7457,7 @@
       },
       "drug": {
         "label": "Drug screen",
-        "explanation": "Dose–Response needs explicit concentration, treatment, control and replicate metadata. Drug-screen Regression compatibility remains separate work in N741."
+        "explanation": "Dose–Response fits a curve per compound; Regression in drug-screen mode compares each drug-at-concentration level with the vehicle wells, without pooling doses. Both need each well's drug and concentration, the concentration unit and the vehicle; neither needs guide or barcode columns or image crops."
       },
       "other": {
         "label": "Other experiment / organism",
@@ -7520,7 +7520,7 @@
     },
     "requirements": {
       "sequencing": "Map Barcodes reads FASTQ only; convert these reads to .fastq.gz or .fastq before starting it.",
-      "drug": "Drug-screen Regression compatibility requires N741; no drug model or guide/barcode semantics are invented here.",
+      "drug": "Regression starts in drug-screen mode: name the vehicle (vehicle_control) and the concentration unit, and the drug and concentration columns or a plate map, before running it.",
       "single_read_platform": "Ultima, Oxford Nanopore and PacBio runs produce single reads, not mate pairs. Choose single-end pairing to start Map Barcodes."
     },
     "navigation_contracts": {

@@ -7238,6 +7238,331 @@ def _write_regression_panel_packages(outcome, settings):
     )
 
 
+_DRUG_SCREEN_MODE = 'drug_screen'
+
+
+def _drug_screen_well_keys(frame, source):
+    """Return the ``prc`` well key of every row of a drug-screen table.
+
+    :param frame: a response or treatment table.
+    :param source: how the table is named in messages.
+    :returns: a string Series aligned to ``frame``.
+    :raises ValueError: when the table names no plate and well.
+    """
+    if schema.PRC_KEY in frame.columns:
+        return frame[schema.PRC_KEY].astype(str)
+    if set(schema.WELL_KEY_COLUMNS) <= set(frame.columns):
+        return schema.compose_prc_column(frame)
+    well = next((c for c in ('wellID', 'well', 'Well') if c in frame.columns), None)
+    if well is not None:
+        plates = (frame[schema.PLATE_KEY] if schema.PLATE_KEY in frame.columns
+                  else pd.Series('plate1', index=frame.index))
+        parts = [schema.parse_well(value, strict=True) for value in frame[well]]
+        return pd.Series([schema.compose_prc(plate, row, column)
+                          for plate, (row, column) in zip(plates, parts)],
+                         index=frame.index)
+    raise ValueError(
+        f"{source} names no well: it needs a prc column, plateID with rowID "
+        f"and columnID, or a well name such as A01 (with plateID when there "
+        f"are several plates). It has {list(frame.columns)[:15]}.")
+
+
+def _drug_screen_wells(settings):
+    """Read a drug screen and return one row per well with its treatment.
+
+    :param settings: canonical regression settings in ``drug_screen`` mode.
+    :returns: ``(wells, excluded)`` -- a frame with ``prc``, ``plateID``,
+        ``drug``, ``concentration``, ``vehicle``, ``treatment``, ``n_objects``,
+        ``response`` and an optional ``replicate``, and a dict counting the
+        rows left out and why.
+    :raises ValueError: for a missing input, column, vehicle or unit, a well
+        given two treatments, or a non-vehicle well without a positive
+        concentration.
+    """
+    from .tabular import read_table
+
+    source = str(settings.get('drug_data') or '').strip()
+    if not source or not os.path.exists(source):
+        raise ValueError(
+            f"drug_data={source!r} is not a file. Name the measurements "
+            f"database or the per-object or per-well table holding the "
+            f"response.")
+    response = settings.get('dependent_variable')
+    if not isinstance(response, str) or not response:
+        raise ValueError(
+            "A drug screen fits one response at a time: set "
+            "dependent_variable to one column name.")
+    vehicles = settings.get('vehicle_control')
+    vehicles = [vehicles] if isinstance(vehicles, str) else list(vehicles or [])
+    vehicles = [str(v).strip() for v in vehicles if str(v).strip()]
+    if not vehicles:
+        raise ValueError(
+            "vehicle_control is empty. Name the drug-column value of the "
+            "vehicle wells (for example DMSO); every effect is measured "
+            "against them.")
+    unit = str(settings.get('concentration_unit') or '').strip()
+    if not unit:
+        raise ValueError(
+            "concentration_unit is empty. State the unit of the "
+            "concentration column (for example uM); it is kept as part of "
+            "every drug-at-concentration level.")
+    agg = settings.get('agg_type')
+    if agg not in ('mean', 'median'):
+        raise ValueError(
+            f"A drug screen compares wells, so agg_type must be 'mean' or "
+            f"'median' and analysis_unit 'well'; got agg_type={agg!r}.")
+    drug_column = str(settings.get('drug_column') or 'drug')
+    dose_column = str(settings.get('concentration_column') or 'concentration')
+    replicate_column = settings.get('replicate_column') or None
+    lowered = source.lower()
+    table = (settings.get('drug_table') or 'cell') if lowered.endswith(
+        ('.db', '.sqlite', '.sqlite3', '.duckdb')) else None
+    objects = read_table(source, table=table, report=None)
+    if response not in objects.columns:
+        raise ValueError(
+            f"dependent_variable={response!r} is not a column of "
+            f"{os.path.basename(source)}{f' table {table}' if table else ''}.")
+    objects = objects.copy()
+    objects['prc'] = _drug_screen_well_keys(objects, os.path.basename(source))
+    excluded = {}
+    values = pd.to_numeric(objects[response], errors='coerce')
+    missing = int(values.isna().sum())
+    if missing:
+        excluded['response_missing'] = missing
+    objects = objects.assign(_response=values)[values.notna()]
+    grouped = objects.groupby('prc', sort=True)['_response']
+    wells = pd.DataFrame({'response': grouped.agg(agg), 'n_objects': grouped.size()})
+    wells.index.name = 'prc'
+    wells = wells.reset_index()
+
+    treatment_source = settings.get('treatment_map') or None
+    if treatment_source:
+        treatments = read_table(str(treatment_source), report=None)
+        label = os.path.basename(str(treatment_source))
+    else:
+        treatments, label = objects, os.path.basename(source)
+    wanted = [drug_column, dose_column] + ([replicate_column] if replicate_column else [])
+    absent = [c for c in wanted if c not in treatments.columns]
+    if absent:
+        raise ValueError(
+            f"{label} has no {', '.join(absent)} column. Set drug_column, "
+            f"concentration_column and replicate_column to its columns, or "
+            f"name a plate map with treatment_map.")
+    treatments = treatments.copy()
+    treatments['prc'] = _drug_screen_well_keys(treatments, label)
+    treatments = treatments[['prc'] + wanted].drop_duplicates()
+    clash = treatments['prc'][treatments['prc'].duplicated()].unique()
+    if len(clash):
+        raise ValueError(
+            f"{len(clash)} well(s) carry more than one treatment in {label}, "
+            f"for example {', '.join(map(str, clash[:3]))}. Each well needs "
+            f"exactly one drug and concentration.")
+    wells = wells.merge(treatments, on='prc', how='left', validate='one_to_one')
+    untreated = wells[drug_column].isna()
+    if untreated.any():
+        excluded['wells_without_treatment'] = int(untreated.sum())
+        wells = wells[~untreated]
+    wells = wells.rename(columns={drug_column: 'drug', dose_column: 'concentration'})
+    if replicate_column:
+        wells = wells.rename(columns={replicate_column: 'replicate'})
+    wells['drug'] = wells['drug'].astype(str).str.strip()
+    wells['vehicle'] = wells['drug'].isin(vehicles)
+    wells['concentration'] = pd.to_numeric(wells['concentration'], errors='coerce')
+    bad = wells[~wells['vehicle'] & ~(wells['concentration'] > 0)]
+    if len(bad):
+        raise ValueError(
+            f"{len(bad)} treated well(s) have no positive concentration, for "
+            f"example {', '.join(bad['prc'].head(3))}. Give every non-vehicle "
+            f"well its concentration in {unit}, or add its drug value to "
+            f"vehicle_control.")
+    wells['plateID'] = [_split_prc(key)[0] for key in wells['prc']]
+    wells['treatment'] = [
+        'vehicle' if vehicle else f"{drug} {dose:g} {unit}"
+        for drug, dose, vehicle in zip(wells['drug'], wells['concentration'], wells['vehicle'])]
+    if int(wells['vehicle'].sum()) < 2:
+        raise ValueError(
+            f"Found {int(wells['vehicle'].sum())} vehicle well(s) "
+            f"({', '.join(vehicles)}); at least two are needed to estimate "
+            f"the reference the effects are measured against.")
+    without = sorted(set(wells.loc[~wells['vehicle'], 'plateID'])
+                     - set(wells.loc[wells['vehicle'], 'plateID']))
+    if without:
+        raise ValueError(
+            f"Plate(s) {', '.join(map(str, without))} hold treated wells but "
+            f"no vehicle wells, so their plate effect cannot be separated "
+            f"from the treatment. Add vehicle wells or leave those plates out.")
+    return wells.reset_index(drop=True), excluded
+
+
+def _drug_screen_fit(y, design, names):
+    """Fit ordinary least squares and return the rows for ``names``.
+
+    :param y: response vector.
+    :param design: design frame including a constant.
+    :param names: design columns whose coefficients are reported.
+    :returns: ``{name: (estimate, standard_error, ci_low, ci_high, p_value)}``
+        with ordinary OLS standard errors, or None when the design is rank
+        deficient or leaves no residual degree of freedom.
+    """
+    import statsmodels.api as sm
+
+    matrix = design.to_numpy(dtype=float)
+    if (np.linalg.matrix_rank(matrix) < matrix.shape[1]
+            or matrix.shape[0] <= matrix.shape[1]):
+        return None
+    fit = sm.OLS(np.asarray(y, dtype=float), matrix).fit()
+    interval = np.asarray(fit.conf_int())
+    columns = list(design.columns)
+    return {name: (float(fit.params[columns.index(name)]),
+                   float(fit.bse[columns.index(name)]),
+                   float(interval[columns.index(name), 0]),
+                   float(interval[columns.index(name), 1]),
+                   float(fit.pvalues[columns.index(name)]))
+            for name in names}
+
+
+def _drug_screen_design(frame, terms):
+    """Return a constant, the given indicator terms and plate indicators.
+
+    The plate fixed effect is added only when the wells span more than one
+    plate.
+
+    :param frame: wells to model.
+    :param terms: ``{column name: boolean Series}`` of the reported terms.
+    :returns: the design frame.
+    """
+    design = pd.DataFrame({'const': 1.0}, index=frame.index)
+    for name, column in terms.items():
+        design[name] = np.asarray(column, dtype=float)
+    plates = sorted(frame['plateID'].astype(str).unique())
+    for plate in plates[1:]:
+        design[f'plate[{plate}]'] = (frame['plateID'].astype(str) == plate).astype(float)
+    return design
+
+
+def _drug_screen_bh(p_values):
+    """Benjamini-Hochberg q-values, NaN where the p-value is NaN."""
+    from statsmodels.stats.multitest import multipletests
+
+    p = np.asarray(p_values, dtype=float)
+    q = np.full(p.shape, np.nan)
+    ok = ~np.isnan(p)
+    if ok.any():
+        q[ok] = multipletests(p[ok], method='fdr_bh')[1]
+    return q
+
+
+def _perform_drug_screen_regression(settings):
+    """Compare every drug-at-concentration level with the vehicle wells of a drug screen.
+
+    The response is collapsed to one value per well (``agg_type``). One
+    ordinary least-squares model is fitted over all wells, with an
+    indicator for each drug-at-concentration level and, when the wells span
+    several plates, a fixed effect per plate; the vehicle wells are the
+    reference, so each coefficient is the difference from vehicle. Each
+    level reports its effect, ordinary OLS standard error, 95% interval, p
+    and a Benjamini-Hochberg q across levels. Doses are never pooled into
+    one drug effect and no dose trend is fitted; dose curves belong to
+    Dose-Response. A level seen in one well only is reported but not tested.
+    No guide or barcode column is read.
+
+    :param settings: canonical regression settings with
+        ``screen_type='drug_screen'``.
+    :returns: a dict with ``res_folder``, ``paths``, ``effects``,
+        ``well_data`` and ``excluded``.
+    """
+    from .plot import save_figure
+    from .tabular import write_table
+    import matplotlib.pyplot as plt
+
+    settings['_regression_stage'] = 'reading the drug screen'
+    wells, excluded = _drug_screen_wells(settings)
+    unit = str(settings['concentration_unit']).strip()
+    alpha = float(settings.get('fdr_alpha', 0.05))
+    base, where = resolve_regression_src(
+        settings.get('src'), os.path.dirname(os.path.abspath(str(settings['drug_data']))))
+    if where != 'automatic':
+        print(where)
+    res_folder = os.path.join(base, 'results', _DRUG_SCREEN_MODE,
+                              str(settings['dependent_variable']))
+    os.makedirs(res_folder, exist_ok=True)
+    settings['_regression_folder'] = res_folder
+
+    settings['_regression_stage'] = 'fitting the drug effects'
+    vehicle_mean = float(wells.loc[wells['vehicle'], 'response'].mean())
+    summary = []
+    for treatment, rows in wells[~wells['vehicle']].groupby('treatment', sort=False):
+        summary.append(dict(
+            drug=rows['drug'].iloc[0], concentration=float(rows['concentration'].iloc[0]),
+            concentration_unit=unit, treatment=treatment, n_wells=len(rows),
+            n_plates=rows['plateID'].nunique(),
+            n_replicates=(rows['replicate'].nunique() if 'replicate' in rows else np.nan),
+            mean_response=float(rows['response'].mean())))
+    effects = pd.DataFrame(summary, columns=[
+        'drug', 'concentration', 'concentration_unit', 'treatment', 'n_wells',
+        'n_plates', 'n_replicates', 'mean_response'])
+    tested = effects.loc[effects['n_wells'] >= 2, 'treatment'].tolist()
+    model_wells = wells[wells['vehicle'] | wells['treatment'].isin(tested)]
+    names = [f'treatment[{t}]' for t in tested]
+    design = _drug_screen_design(model_wells, {
+        name: model_wells['treatment'] == t for name, t in zip(names, tested)})
+    fitted = _drug_screen_fit(model_wells['response'], design, names) if tested else None
+    if tested and fitted is None:
+        raise ValueError(
+            "The treatments cannot be separated from the plates: every "
+            "treatment and plate combination would need its own well. Put "
+            "each tested treatment on a plate with vehicle wells, or in "
+            "more than one well.")
+    rows = []
+    for treatment in effects['treatment']:
+        name = f'treatment[{treatment}]'
+        if fitted and name in fitted:
+            estimate, error, low, high, p = fitted[name]
+            rows.append(dict(effect=estimate, standard_error=error, ci_low=low,
+                             ci_high=high, p_value=p, status='tested'))
+        else:
+            rows.append(dict(effect=np.nan, standard_error=np.nan, ci_low=np.nan,
+                             ci_high=np.nan, p_value=np.nan,
+                             status='single well, not tested'))
+    effects = pd.concat([effects, pd.DataFrame(rows, index=effects.index)], axis=1)
+    effects.insert(effects.columns.get_loc('mean_response'), 'vehicle_mean', vehicle_mean)
+    effects['percent_of_vehicle'] = (
+        100.0 * (vehicle_mean + effects['effect']) / vehicle_mean
+        if vehicle_mean else np.nan)
+    effects['q_value'] = _drug_screen_bh(effects['p_value'])
+    effects['significant'] = effects['q_value'] < alpha
+    effects['plate_effect'] = wells['plateID'].nunique() > 1
+    effects = effects.sort_values(['drug', 'concentration']).reset_index(drop=True)
+
+    settings['_regression_stage'] = 'writing the drug-screen results'
+    paths = dict(
+        well_data=write_table(wells, os.path.join(res_folder, 'well_data.csv')),
+        drug_effects=write_table(effects, os.path.join(res_folder, 'drug_effects.csv')))
+    shown = effects[effects['status'] == 'tested']
+    if len(shown):
+        figure, axes = plt.subplots(figsize=(6, 4))
+        for drug, group in shown.groupby('drug', sort=True):
+            axes.errorbar(group['concentration'], group['effect'],
+                          yerr=[group['effect'] - group['ci_low'],
+                                group['ci_high'] - group['effect']],
+                          marker='o', linestyle='none', capsize=3, label=str(drug))
+        axes.axhline(0.0, color='0.5', linewidth=0.8)
+        axes.set_xscale('log')
+        axes.set_xlabel(f'Concentration ({unit})')
+        axes.set_ylabel(f"{settings['dependent_variable']} minus vehicle")
+        axes.legend(frameon=False, fontsize='small')
+        paths['figure'] = save_figure(figure, os.path.join(res_folder, 'drug_effects.pdf'),
+                                      close=True)
+    print(f"Drug screen: {len(wells)} wells, {int(wells['vehicle'].sum())} "
+          f"vehicle; {int((effects['status'] == 'tested').sum())} of "
+          f"{len(effects)} drug-at-concentration levels tested, "
+          f"{int(effects['significant'].sum())} at q < {alpha:g}. "
+          f"Results in {res_folder}")
+    settings['_regression_stage'] = 'the drug screen has returned'
+    return dict(res_folder=res_folder, paths=paths, effects=effects,
+                well_data=wells, excluded=excluded, screen_type=_DRUG_SCREEN_MODE)
+
+
 def perform_regression(settings):
     """Run the regression and report actionable details if it fails.
 
@@ -7247,6 +7572,8 @@ def perform_regression(settings):
     dimensions, and a remedy for recognized failures.
 
     :param settings: Regression settings consumed by the fitting pipeline.
+        ``screen_type='drug_screen'`` compares drugs and concentrations
+        with vehicle wells instead of regressing guide counts.
     :returns: Regression output mapping. ``model_data`` is the prepared input
         table, not coefficient results; ``fit_designs`` records measured design
         counts separately for each parametric fit level. Unrecorded counts are
@@ -7372,6 +7699,13 @@ def _perform_regression(settings):
           marginal guide associations with empirical P values and apply
           ``multiple_testing_method`` (Benjamini--Hochberg by default) within
           each requested ``guide_min_wells`` family.
+        - ``screen_type='drug_screen'`` — read no guide counts: compare
+          each drug and concentration in ``drug_data`` (or ``treatment_map``)
+          with the ``vehicle_control`` wells in one linear model, with a
+          plate fixed effect when there are several plates; doses are not
+          pooled. ``concentration_unit`` and ``vehicle_control`` are
+          required. Writes ``well_data.csv``, ``drug_effects.csv`` and a
+          figure under ``results/drug_screen/<dependent_variable>/``.
         - the per-model settings each backend reads — ``alpha``,
           ``l1_ratio``, ``cov_type``, ``quantile``, ``hinge_threshold``,
           ``hinge_n_boot``, ``huber_t``, ``random_row_column_effects``.
@@ -7691,6 +8025,8 @@ def _perform_regression(settings):
         })
 
     settings = get_perform_regression_default_settings(settings)
+    if str(settings.get('screen_type') or '').strip().lower() == _DRUG_SCREEN_MODE:
+        return _perform_drug_screen_regression(settings)
     count_data_df, score_data_df = _perform_regression_read_data(settings)
 
     from .regression_layout import normalise_count_table_layout

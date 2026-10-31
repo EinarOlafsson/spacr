@@ -351,6 +351,10 @@ KEYS_RETIRED = frozenset({
 KEYS_ADDED_BY_REGROUP = frozenset({
     # Map Barcodes: the sequencer the reads came from, checked against headers.
     "sequencer",
+    # Regression drug-screen mode: response source, plate map and treatment columns.
+    "screen_type", "drug_data", "drug_table", "treatment_map", "drug_column",
+    "concentration_column", "concentration_unit", "vehicle_control",
+    "replicate_column",
     # item 441: explicit plate-scoped well mapping for indexed ScanR filenames.
     "metadata_well_map",
     # item 631: the Measure RAM guard switch

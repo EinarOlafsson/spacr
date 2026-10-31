@@ -1,7 +1,7 @@
 REGRESSION: COMPATIBLE DRUG-SCREEN INPUTS AND PROTOCOL HANDOFF
 
 Lifecycle: new
-Status:    PLANNED — record only; no implementation in this session.
+Status:    IN PROGRESS — maintainer approved implementation 2026-10-31.
 Requested: 2026-10-30, maintainer, within N739 Protocols brief
 Owner:     Next session; present the data/model compatibility proposal first.
 Related:   N739 Navigator Protocols; Regression; Dose–Response; QC and databases.
@@ -26,3 +26,7 @@ The original request and feature-set branching requirements are preserved in
 N739. This session only records the work for the next session.
 
 2026-10-31 — Maintainer approved implementing N741 now; the record-only hold is lifted. As this item requires, the data/model compatibility proposal (drug, concentration/unit, treatment, control, replicate and plate/batch mappings; required vs optional fields; valid analyses per input) goes to design approval first. Regression code changes begin only after the proposed scientific model is approved; current CRISPR regression behaviour stays unchanged.
+2026-10-31 — Maintainer approved implementing this item now (it was record only); Claude agent 8 owns it.
+2026-10-31 maintainer chose model A (per dose level vs vehicle, optional plate fixed effect, OLS SE, BH q); no dose trend in Regression.
+2026-10-31 — Implemented on branch claude-drugscreen-regression-wip: Regression screen_type='drug_screen' (no guide/barcode columns, crops optional) reads per-object or per-well responses from a measurements database or table plus treatment columns or a plate map; one OLS model, each drug-at-concentration level against the vehicle wells, plate fixed effect when several plates, ordinary OLS SE, BH q per level, no dose pooling or trend; writes well_data/drug_effects CSVs and a figure. Required: vehicle_control, concentration_unit; one treatment per well, positive doses, vehicle wells on every treated plate, well-level analysis only. Protocols' Drug screen now offers Dose–Response and Regression (drug-screen mode, database carried as drug_data). Existing CRISPR regression unchanged.
+2026-10-31 — Focused tests pass (tests/test_regression_drug_screen.py, tests/qt/test_protocol_drug_screen_regression.py: 14). Waiting for generator closure (nine new settings, wizard captions, changed docstrings) before nightly.

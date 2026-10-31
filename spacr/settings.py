@@ -3017,6 +3017,8 @@ def _resolve_regression_analysis_choices(settings):
     * ``inference`` selects ``analysis_mode``. ``'auto'`` is left for
       :func:`spacr.ml.resolve_auto_inference`, which can count the guides and
       wells that this function cannot see.
+    * ``screen_type='drug_screen'`` is refused with ``analysis_unit='cell'``,
+      because a drug screen compares wells.
     * ``analysis_unit='cell'`` sets ``agg_type=None``, which is how spaCR has
       always meant "fit per object instead of per well". Spelling it out stops
       a user clearing a dropdown and silently changing the unit of analysis.
@@ -3047,6 +3049,12 @@ def _resolve_regression_analysis_choices(settings):
             f"or 'cell'. 'well' collapses each well's objects with agg_type "
             f"first; 'cell' regresses the individual objects.")
     settings['analysis_unit'] = unit
+    if unit == 'cell' and str(settings.get('screen_type') or '').strip().lower() == 'drug_screen':
+        raise ValueError(
+            "screen_type='drug_screen' compares wells: set "
+            "analysis_unit='well' with agg_type 'mean' or 'median'. Fitting "
+            "individual cells would treat the cells of one well as independent "
+            "replicates of its treatment.")
     if unit == 'cell':
         settings['agg_type'] = None
 
@@ -3202,6 +3210,15 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('regression_panel_manifest', None)
     settings.setdefault('analysis_mode', 'regression')
     settings.setdefault('inference', 'nonparametric')
+    settings.setdefault('screen_type', 'pooled')
+    settings.setdefault('drug_data', '')
+    settings.setdefault('drug_table', 'cell')
+    settings.setdefault('treatment_map', None)
+    settings.setdefault('drug_column', 'drug')
+    settings.setdefault('concentration_column', 'concentration')
+    settings.setdefault('concentration_unit', None)
+    settings.setdefault('vehicle_control', None)
+    settings.setdefault('replicate_column', None)
     if 'analysis_unit' not in settings:
         settings['analysis_unit'] = (
             'cell' if 'agg_type' in settings and settings['agg_type'] is None
@@ -3998,6 +4015,15 @@ expected_types = {
     "dependent_variable": (str, list),
     "regression_panel_manifest": (dict, str, type(None)),
     "analysis_mode": str,
+    "screen_type": str,
+    "drug_data": str,
+    "drug_table": str,
+    "treatment_map": (str, type(None)),
+    "drug_column": str,
+    "concentration_column": str,
+    "concentration_unit": (str, type(None)),
+    "vehicle_control": (str, list, type(None)),
+    "replicate_column": (str, type(None)),
     "inference": str,
     "analysis_unit": str,
     "guide_min_wells": (int, list),
@@ -5076,6 +5102,15 @@ tooltips = {
     "dependent_variable": "(str) - Name of the column in score_data that is modelled as the response, e.g. 'pred'/'predictions' from the ML scoring step or a measured feature such as 'pathogen_nucleus_shortest_distance'. It is aggregated per well by agg_type and then optionally transformed. The run aborts if the column is absent from the score CSV. Default 'pred'.",
     "score_column": "(str) - Which column of the prediction CSV holds the CNN score that Explain CV and the hit-investigation montages read. The regression module no longer has this setting: it fits dependent_variable and simulates the minimum cell count on that same column, so one measurement cannot be named two ways there. Default 'cv_predictions'. Investigate Hit starts blank because no score field can be inferred universally; select the prediction column before building its montages.",
     "analysis_mode": "(str) - 'regression' fits the selected simultaneous model. 'guide_permutation' tests each guide as a plate-adjusted marginal association using blocked Freedman--Lane permutations and then corrects the requested support family. This setting is normally derived from inference; set it directly only to override that choice. Default 'regression'. The Regression module starts with inference='nonparametric', so its resolved initial mode is 'guide_permutation'.",
+    "screen_type": "(str) - What the Regression module analyses. 'pooled' (default) regresses phenotype scores on the mapped guide or barcode counts of a pooled screen. 'drug_screen' reads no guides or barcodes: it compares each drug and concentration with the vehicle wells named by vehicle_control, using the response in drug_data and each well's drug and concentration. Each drug-at-concentration is its own level in one linear model, with a plate fixed effect when the wells span several plates; doses are never pooled, and dose curves belong to Dose-Response. Default 'pooled'.",
+    "drug_data": "(str) - Drug-screen mode only: the spaCR measurements database, or a CSV/Parquet/Excel table, holding the response named by dependent_variable, one row per object or per well. Each row needs its well: a prc column, plateID with rowID and columnID, or a well name such as A01 (with plateID when there are several plates). Image crops are not needed. Default ''.",
+    "drug_table": "(str) - Drug-screen mode only: the table of drug_data to read when it is a database, for example cell, nucleus or a per-well table. Ignored for a file table. Default 'cell'.",
+    "treatment_map": "(str or None) - Drug-screen mode only: a plate map naming each well's drug and concentration, with the same well columns as drug_data. Leave empty when drug_data itself carries drug_column and concentration_column. A well given two treatments is refused. Default None.",
+    "drug_column": "(str) - Drug-screen mode only: the column naming the compound in each well; the vehicle wells carry the value set in vehicle_control. Default 'drug'.",
+    "concentration_column": "(str) - Drug-screen mode only: the column holding each well's concentration, a number in concentration_unit. Every non-vehicle well needs a positive concentration; the vehicle wells' value is not read. Default 'concentration'.",
+    "concentration_unit": "(str or None) - Drug-screen mode only, required: the unit of concentration_column, for example uM or nM. It is kept as part of every drug-at-concentration level and on the figure axis; spaCR does not convert units. Default None.",
+    "vehicle_control": "(str, list or None) - Drug-screen mode only, required: the drug_column value or values of the vehicle wells, for example DMSO. Every effect is the difference from these wells, plate-adjusted when there are several plates, and each plate with treated wells needs vehicle wells of its own. Default None.",
+    "replicate_column": "(str or None) - Drug-screen mode only, optional: a column naming the biological replicate of each well. It is counted per level in drug_effects.csv and not modelled. Default None.",
     "inference": "(str) - How effects are tested; the readable front end for analysis_mode. Default 'nonparametric': each guide is a plate-blocked Freedman-Lane permutation with an empirical P, valid however many guides there are, but no P can be below 1/(guide_permutations + 1). 'parametric' fits every guide at once in the chosen regression_type, so it needs more wells than guides or no coefficient is identifiable. 'auto' counts guides and wells and takes the simultaneous fit only when the design supports it.",
     "analysis_unit": "(str) - What one row of the model is. 'well' collapses each well's objects into a single value with agg_type first, so the well is the independent unit and the number of cells behind it only affects precision. 'cell' regresses the individual objects instead, which keeps power but treats cells from one well as independent when they are not, so standard errors are optimistic unless the model accounts for the clustering (regression_type='mixed'). This is the explicit spelling of agg_type=None, which used to change the unit of analysis silently. Default 'well'.",
     "guide_min_wells": "(int or list) - Minimum numbers of independent wells containing a guide. A list such as [1, 2, 3, 4] writes one sensitivity-analysis table and volcano plot per threshold; P values are computed once and the multiple-testing correction is repeated within each eligible family. Default [1, 2, 3, 4].",
@@ -5892,6 +5927,9 @@ categories = {
     "Embedding & Clustering": ["reduction_method", "n_neighbors", "min_dist", "metric", "tsne_perplexity", "tsne_learning_rate", "tsne_early_exaggeration", "tsne_max_iter", "pca_whiten", "pca_svd_solver", "isomap_n_neighbors", "isomap_path_method", "spectral_affinity", "spectral_n_neighbors", "log_data", "embedding_by_controls", "col_to_compare", "resnet_features", "clustering", "eps", "min_samples", "remove_cluster_noise", "analyze_clusters"],
 
     "Regression: Response": [
+        "screen_type", "drug_data", "drug_table", "treatment_map",
+        "drug_column", "concentration_column", "concentration_unit",
+        "vehicle_control", "replicate_column",
         "dependent_variable", "invert_dependent_variable",
         "count_grna_column", "count_value_column",
         "independent_variable_layout", "wide_predictor_columns",
@@ -6481,6 +6519,19 @@ def get_setting_dependencies():
             f"Choose inference='auto' to pick the mode by hand. The value is "
             f"kept and saved."),
     )
+
+    for key in ('drug_data', 'drug_table', 'treatment_map', 'drug_column',
+                'concentration_column', 'concentration_unit', 'vehicle_control',
+                'replicate_column'):
+        setting_dependencies[key] = rule(
+            ('screen_type',),
+            lambda settings, context: str(
+                settings.get('screen_type') or '').lower() == 'drug_screen',
+            lambda settings, context, setting=key: (
+                f"{setting} is read only when screen_type is 'drug_screen' "
+                f"(currently {settings.get('screen_type')!r}). The value is "
+                f"kept and saved."),
+        )
 
     def _is_nonparametric(settings):
         """Whether inference is the nonparametric permutation test."""

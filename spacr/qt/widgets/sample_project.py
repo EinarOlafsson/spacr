@@ -644,7 +644,7 @@ def _protocol_result(family, format, choices=None, source_path='', context=None,
             requirements.append(tr(wizard['requirements']['single_read_platform']))
     elif family == 'features':
         if choices.get('experiment') == 'drug':
-            starts = ['dose_response', 'graph_builder', 'gate_editor', 'qc_dashboard', 'db_browser']
+            starts = ['dose_response', 'regression', 'graph_builder', 'gate_editor', 'qc_dashboard', 'db_browser']
             requirements.append(tr(wizard['requirements']['drug']))
         elif choices.get('experiment') == 'screen':
             starts = (['map_barcodes'] if choices.get('barcodes') == 'unmapped' else
@@ -679,6 +679,10 @@ def _protocol_result(family, format, choices=None, source_path='', context=None,
             values['metadata_type'] = ('cellvoyager' if format.endswith('yokogawa') else choices.get('metadata_type', 'cellvoyager'))
             if values['metadata_type'] == 'custom' and carried.get('custom_regex'):
                 values['custom_regex'] = carried['custom_regex']
+        if key == 'regression' and choices.get('experiment') == 'drug':
+            values['screen_type'] = 'drug_screen'
+            if source_path:
+                values['drug_data'] = str(source_path)
         if key == 'map_barcodes' and family == 'sequencing' and format == 'fastq_gz':
             values['mode'] = choices['read_mode']
             values['sequencer'] = ('auto' if choices['sequencer'] == 'other'
@@ -714,6 +718,8 @@ def _protocol_result(family, format, choices=None, source_path='', context=None,
     action_sources = {key: str(native_sources.get(key) or source_path)
                       if set(catalog[key]['inputs']).intersection(artifacts) else ''
                       for key in starts}
+    if 'drug_data' in overrides.get('regression', {}):
+        action_sources['regression'] = ''
     result = dict(actions=tuple((k, tr(catalog[k]['name']), tr(catalog[k]['guidance']), action_sources[k])
                                 for k in starts), action_sources=action_sources, action_settings=overrides,
                   settings_overrides=deepcopy(overrides), message=tr(record['explanation']),

@@ -1232,6 +1232,23 @@ if app_key == "mask":
     for app, key in indexed_scanr_arrivals:
         assert resolve_default_settings(app)[key] == ""
     recognized_arrivals |= indexed_scanr_arrivals
+    # Regression's drug-screen mode adds nine settings, each with one
+    # parseable default claim that equals the value Regression resolves.
+    drug_screen_defaults = {
+        "screen_type": "pooled", "drug_data": "", "drug_table": "cell",
+        "treatment_map": None, "drug_column": "drug",
+        "concentration_column": "concentration", "concentration_unit": None,
+        "vehicle_control": None, "replicate_column": None}
+    drug_screen_arrivals = {("regression", key) for key in drug_screen_defaults}
+    assert {pair for pair in compared_pairs
+            if pair[1] in drug_screen_defaults} == drug_screen_arrivals
+    assert not drug_screen_arrivals & (recognized_arrivals | variants.keys())
+    for key, value in drug_screen_defaults.items():
+        claims = list(DEFAULT_LITERAL.finditer(tooltips[key]))
+        assert len(claims) == 1
+        assert ast.literal_eval(claims[0].group("value")) == value
+        assert resolve_default_settings("regression")[key] == value
+    recognized_arrivals |= drug_screen_arrivals
     assert comparisons - len(recognized_arrivals) == 931
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))
@@ -1454,13 +1471,19 @@ def test_inapplicable_real_defaults_always_explain_which_setting_gated_them():
     # greyed unless illumination correction is on, a vendor profile is
     # chosen and no saved illumination model overrides it, in Make Masks,
     # Measure and External Masks, and every reason names its sources.
-    assert len(witnessed) == 79
+    # 79 -> 87 on 2026-10-31: Regression's eight drug-screen inputs
+    # (drug_data, drug_table, treatment_map, drug_column,
+    # concentration_column, concentration_unit, vehicle_control,
+    # replicate_column) are greyed unless screen_type is 'drug_screen',
+    # and every reason names screen_type.
+    assert len(witnessed) == 87
     # 35 -> 34 with it: `load_path_regex` was witnessed in exactly one app,
     # so the pair count and the distinct-key count fall by one together.
     # 34 -> 35 with it: bleach_correction is one new distinct key.
     # 35 -> 48 with item 595: thirteen new distinct keys.
     # 48 -> 49 with item 583: one new distinct key.
-    assert len({key for _app, key in witnessed}) == 49
+    # 49 -> 57 with them: eight new distinct keys, one app.
+    assert len({key for _app, key in witnessed}) == 57
     assert not failures
 
 
