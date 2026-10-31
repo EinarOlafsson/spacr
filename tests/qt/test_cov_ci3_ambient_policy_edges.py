@@ -911,10 +911,21 @@ def test_parentless_field_and_zero_sized_background_have_no_covered_area(qtbot):
     backdrop.stop()
 
 
-def test_held_classic_field_updates_only_live_area_and_can_be_fully_covered(qtbot, monkeypatch):
-    """Real settling and explicit occluded-field capture drive exact tick dispatch regions."""
-    from PySide6.QtWidgets import QWidget
+def test_held_classic_field_updates_only_live_area_and_can_be_fully_covered(qtbot, monkeypatch, request):
+    """Real settling and explicit occluded-field capture drive exact tick dispatch regions.
 
+    The card paints through ``autoFillBackground``, which Qt switches off under
+    a style sheet with a background. The session ``qt_theme_applied`` fixture
+    leaves spaCR's sheet on the shared QApplication for every later test in
+    the worker, where this card would rightly cover nothing; the case runs
+    without an application sheet and puts back the one it found.
+    """
+    from PySide6.QtWidgets import QApplication, QWidget
+
+    app = QApplication.instance()
+    found_sheet = app.styleSheet()
+    request.addfinalizer(lambda: app.setStyleSheet(found_sheet))
+    app.setStyleSheet('')
     prefs.set_ambient_enabled(True)
     prefs.set_reduce_motion(False)
     host = QWidget()
