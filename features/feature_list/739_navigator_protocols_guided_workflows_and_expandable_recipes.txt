@@ -1,21 +1,21 @@
 NAVIGATOR PROTOCOLS: GUIDED INPUT CHOICES AND EXPANDABLE ANALYSIS RECIPES
 
 Lifecycle: new
-Status:    PLANNED — record only; do not implement in this session.
+Status:    IN PROGRESS — maintainer authorized implementation on 2026-10-31.
 Requested: 2026-10-30, maintainer
-Owner:     Next session, after presenting the design for maintainer review.
+Owner:     App/Navigator UI owner and retained Protocols workflow peer; root integrates.
 Related:   N733 Navigator; N740 sequencing inputs; N741 drug-screen Regression;
            N676 tutorials; N678 factual documentation and localization.
 Release:   Not a blocker or implementation addition for 1.5.1.7.
 
 DELIVERY BOUNDARY
 
-This records the maintainer's request. No UI, protocol engine, scientific
-method or runtime behavior is to be implemented now. The next session must
-first present a complete proposed path catalog and implementation plan for
-the maintainer to correct and approve before implementation. Do not treat
-the rough path examples below as a complete or already-approved design.
-Keep existing protocol navigation working until an approved replacement lands.
+The maintainer authorized implementation on 2026-10-31 ("feel free to implement
+the protocols feature"), superseding the recording-only hold and an additional
+approval wait. Present the expanded registry-backed path catalog and concrete
+design, then implement the complete current-capability wizard and protocols.
+Keep existing protocol navigation working until its replacement is ready.
+Work in an isolated lane so the queued 1.5.1.7 candidate is unchanged.
 
 REQUIRED PLANNING OUTPUT
 
@@ -50,6 +50,28 @@ chosen settings. Do not resolve scientific/design choices by assumption.
 The separate sequencer/file-format task is N740. Drug-screen Regression
 compatibility is N741. Their protocol branches belong here, while their
 runtime/data-model work belongs in those separate items.
+
+CURRENT IMPLEMENTATION DECISIONS
+
+The four families are small image collections, plate/high-content collections,
+sequencing reads and feature tables. Image counts are guidance, so fewer than
+ten images remain valid; PDF is available in both image families as explicitly
+requested in path 10. Sequence formats are described by actual reader support,
+with unknown/unsupported formats and N740 requirements shown honestly. Crop-
+dependent routes are conditional on actual image provenance. Drug-screen
+Regression requiring new scientific semantics remains N741, not an invented
+analysis here. All real modules/submodules, including alpha-gated tools, must
+be represented through their actual registries and prerequisites.
+
+Deliver the P-ring state and three-step, retained-choice wizard; source/settings
+handoff; registered starting cards; nested editable/checkable Markdown guidance
+with verified module/API/docs/tutorial links; readable PDF export; and the
+requested introductory/sidebar-link cleanup. Do not start analyses implicitly.
+Use existing modules and normal localization/artifact tools; qualify a coherent
+source with focused route/handoff/UI/PDF checks, then publish normally to Nightly
+when coordinated with the release lane. N740/N741 remain separate work items.
+
+2026-10-31 — Implementation authorized; the recording-only hold is superseded. App/Navigator UI and Protocols workflow peers retain ownership through implementation, necessary focused checks, normal artifacts and Nightly delivery; the queued 1.5.1.7 source remains isolated.
 
 ORIGINAL MAINTAINER REQUEST — VERBATIM
 
