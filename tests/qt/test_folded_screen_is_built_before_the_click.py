@@ -175,3 +175,87 @@ def test_the_built_screen_is_laid_out_while_idle_too(window, qapp, qtbot):
     built = screen._fold_screens["train_cellpose"]
     assert built.size() == screen.size()
     assert built.layout() is not None and built.layout().isEmpty() is False
+
+
+def test_a_late_registered_style_block_does_not_restyle_the_whole_screen(
+        window, qapp, qtbot, monkeypatch):
+    from spacr.qt import gui_scale
+    from spacr.qt.theme import register_widget_qss
+
+    window._on_nav_selected("make_masks")
+    screen = window._screens["make_masks"]
+    qtbot.waitUntil(lambda: "train_cellpose" in screen._fold_screens,
+                    timeout=60000)
+    qtbot.waitUntil(
+        lambda: "train_cellpose" in getattr(screen, "_laid_out_folds", ()),
+        timeout=60000)
+    register_widget_qss("ProbeLateBlock",
+                        lambda palette, opacity: "QLabel#NoSuchProbe { color: red; }",
+                        replace=True)
+    from spacr.qt import theme
+
+    restyled, roots = [], []
+    original = gui_scale._apply_now
+    original_ensure = theme.ensure_widget_qss_applied
+
+    def watching(obj, text, raw_set):
+        restyled.append(type(obj).__name__)
+        return original(obj, text, raw_set)
+
+    def ensuring(*names, root=None):
+        roots.append(root)
+        return original_ensure(*names, root=root)
+
+    monkeypatch.setattr(gui_scale, "_apply_now", watching)
+    monkeypatch.setattr(theme, "ensure_widget_qss_applied", ensuring)
+    screen.open_folded("train_cellpose")
+    qapp.processEvents()
+    assert "MakeMasksScreen" not in restyled
+    assert roots and all(root is not screen for root in roots)
+    assert any(root is screen._fold_pages for root in roots)
+
+
+#: The longest gap between two paints of the animated field while the fold
+#: opens, measured offscreen and native (0.12-0.14 s); the body moving onto
+#: the page strip is one Qt call. It may be lowered, never raised.
+FIELD_PAINT_GAP_BUDGET_S = 0.45
+
+
+def test_the_animated_field_keeps_painting_while_a_fold_opens(
+        window, qapp, qtbot, monkeypatch):
+    import time
+
+    from spacr.qt.widgets import ambient
+
+    window._on_nav_selected("make_masks")
+    screen = window._screens["make_masks"]
+    qtbot.waitUntil(lambda: "train_cellpose" in screen._fold_screens,
+                    timeout=60000)
+    qtbot.waitUntil(
+        lambda: "train_cellpose" in getattr(screen, "_laid_out_folds", ()),
+        timeout=60000)
+    stamps = []
+    original = ambient.AmbientWidget.paintEvent
+
+    def counting(self, event):
+        stamps.append(time.perf_counter())
+        return original(self, event)
+
+    monkeypatch.setattr(ambient.AmbientWidget, "paintEvent", counting)
+    if not any(w.isVisible() for w in window.findChildren(ambient.AmbientWidget)):
+        pytest.skip("no animated field is showing in this configuration")
+    end = time.time() + 1.0
+    while time.time() < end:
+        qapp.processEvents()
+    started = time.perf_counter()
+    screen.open_folded("train_cellpose")
+    finished = time.perf_counter()
+    end = time.time() + 1.0
+    while time.time() < end:
+        qapp.processEvents()
+        time.sleep(0.004)
+    during = [t for t in stamps if started - 0.5 <= t <= finished + 1.0]
+    assert len(during) >= 3
+    gaps = [b - a for a, b in zip(during, during[1:])
+            if a >= started - 0.5 and b <= finished + 0.5]
+    assert max(gaps or [0.0]) < FIELD_PAINT_GAP_BUDGET_S

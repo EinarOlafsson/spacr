@@ -432,7 +432,9 @@ def _ensure_pages_qss(screen: QWidget) -> None:
         from ..theme import ensure_widget_qss_applied, register_widget_qss
 
         register_widget_qss(PAGES_NAME, _pages_qss, replace=True)
-        ensure_widget_qss_applied(PAGES_NAME, root=screen)
+        strip = _start_pages(screen) if _page_body(screen) is not None else None
+        ensure_widget_qss_applied(PAGES_NAME,
+                                  root=strip if strip is not None else screen)
     except Exception:
         LOG.debug("Could not register the fold page QSS", exc_info=True)
 
