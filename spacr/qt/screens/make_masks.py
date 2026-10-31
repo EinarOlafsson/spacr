@@ -15321,6 +15321,59 @@ class MakeMasksScreen(QWidget):
             button.style().unpolish(button)
             button.style().polish(button)
 
+    _PREBUILD_FOLDED = ("train_cellpose",)
+    _PREBUILD_FIRST_S = 2.0
+    _PREBUILD_RETRY_S = 1.0
+
+    def showEvent(self, event) -> None:                      # noqa: N802
+        """Schedule the idle build of the folded module a lesson opens next."""
+        super().showEvent(event)
+        if not getattr(self, "_prebuild_scheduled", False):
+            self._prebuild_scheduled = True
+            QTimer.singleShot(int(self._PREBUILD_FIRST_S * 1000),
+                              self._prebuild_a_folded_screen)
+
+    def _prebuild_a_folded_screen(self) -> None:
+        """Build the next folded module's screen while nobody is waiting.
+
+        Opening a fold built its whole screen inside the click: about two
+        seconds of stalls. The build is one block, so it is done here, while
+        this screen sits idle on show, and the click only joins the finished
+        screen to the page strip. It waits for an idle stretch (no popup,
+        modal dialog, held mouse button or screen opening) and never runs
+        when screen prewarm is off or free memory is short.
+        """
+        try:
+            if not self.isVisible():
+                return
+            from ..app import _prewarm_memory_is_short
+            from ..preferences import _screen_prewarm_allowed
+
+            allowed, _why = _screen_prewarm_allowed()
+            if not allowed or _prewarm_memory_is_short():
+                return
+            app = QApplication.instance()
+            window = self.window()
+            busy = (app is None
+                    or app.mouseButtons() != Qt.MouseButton.NoButton
+                    or app.activePopupWidget() is not None
+                    or app.activeModalWidget() is not None
+                    or bool(getattr(window, "_opening_a_screen", False)))
+            if busy:
+                QTimer.singleShot(int(self._PREBUILD_RETRY_S * 1000),
+                                  self._prebuild_a_folded_screen)
+                return
+            for key in self._PREBUILD_FOLDED:
+                if key not in self._fold_screens:
+                    self.folded_screen(key)
+                    break
+            if any(key not in self._fold_screens
+                   for key in self._PREBUILD_FOLDED):
+                QTimer.singleShot(int(self._PREBUILD_RETRY_S * 1000),
+                                  self._prebuild_a_folded_screen)
+        except RuntimeError:
+            LOG.debug("could not prebuild a folded screen", exc_info=True)
+
     def folded_screen(self, key: str) -> Optional[QWidget]:
         """The folded module's own screen, built on first use and kept.
 

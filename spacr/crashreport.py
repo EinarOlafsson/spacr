@@ -1190,8 +1190,12 @@ def _update_state(**values: Any) -> None:
     """Merge ``values`` into the saved state."""
     with _STATE_LOCK:
         state = _read_state()
-        state.update(values)
-        _write_state(state)
+        merged = dict(state)
+        merged.update(values)
+        if merged == state and state:
+            globals()["_ERROR_POLICY_CACHE"] = dict(state)
+            return
+        _write_state(merged)
 
 
 def error_report_mode() -> str:
