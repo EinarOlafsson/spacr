@@ -2360,6 +2360,7 @@ class AppScreen(QWidget):
         body.setStretchFactor(0, 1)
         body.setStretchFactor(1, 2)
         body.setSizes([400, 800])
+        body.installEventFilter(self)
         outer.addWidget(body, 1)
         self._shell_focus.target(body, "Settings")
         try:
@@ -7501,6 +7502,17 @@ class AppScreen(QWidget):
             global delay and ``Leave`` cancels pending help, and every event is otherwise passed to the base class.
         """
         event_type = event.type()
+        if (event_type == QEvent.Resize
+                and obj is getattr(self, "_body_splitter", None)):
+            from ..preferences import scaled_px
+
+            QTimer.singleShot(0, obj, lambda body=obj: (
+                lambda target, sizes: body.setSizes([target, sum(sizes) - target])
+                if (not body.is_collapsed("Settings") and len(sizes) == 2
+                    and sizes[0] < target <= sum(sizes) - scaled_px(160))
+                else None)(min(scaled_px(360), int(body.width() * 0.55)),
+                           body.sizes()))
+            return super().eventFilter(obj, event)
         if event_type == QEvent.ToolTip:
             if hasattr(self, "_hint_strip") and (
                     obj in self._action_hints or obj in self._hint_map

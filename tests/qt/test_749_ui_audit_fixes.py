@@ -200,3 +200,113 @@ def test_the_live_preview_toggle_wears_the_disclosure_surface(qtbot, theme_name)
                        for y in range(image.height())).most_common(1)[0][0]
 
     assert surface(toggle) == surface(bar._disclosure)
+
+
+@pytest.fixture
+def navigator_window(qtbot, private_ai_profile):
+    from spacr.qt.app import MainWindow
+
+    preferences, _, _ = private_ai_profile
+    preferences.set_easy_mode(True)
+    preferences.set_reduce_motion(True)
+    preferences.set_ambient_enabled(False)
+    windows = []
+
+    def build(scale=1.0, size=(1600, 1000), dock_collapsed=True):
+        preferences.set_font_scale(scale)
+        preferences._settings().setValue('prefs/navigator_dock_collapsed', dock_collapsed)
+        window = MainWindow(initial_app='__home__')
+        qtbot.addWidget(window)
+        windows.append(window)
+        window._tour_timer.stop()
+        window._consent_timer.stop()
+        window.resize(*size)
+        window.show()
+        qtbot.waitUntil(lambda: window._startup.field.width() > 600)
+        return window
+
+    yield build
+    for window in windows:
+        window.close()
+
+
+def test_the_protocols_selector_is_left_out_of_the_field_fade(navigator_window):
+    from spacr.qt.widgets.field_fade import fades
+    from spacr.qt.widgets.home import _NavigatorProtocolChoice
+
+    window = navigator_window()
+    page = window._startup
+    page.path_edit.protocols.setChecked(True)
+    selectors = page.findChildren(_NavigatorProtocolChoice)
+    assert selectors
+    assert not any(fades(selector) for selector in selectors)
+
+
+def test_the_widgets_panel_folds_when_the_composer_has_no_room_and_returns(
+        navigator_window, qtbot):
+    window = navigator_window(scale=2.0, size=(2400, 1300))
+    page = window._startup
+    split = page._navigator_aside_split
+    qtbot.waitUntil(lambda: not split.is_collapsed('Widgets'), timeout=3000)
+    window.resize(1366, 768)
+    qtbot.waitUntil(lambda: split.is_collapsed('Widgets'), timeout=3000)
+    panel = page.path_edit
+    assert panel.width() >= 600
+    window.resize(2400, 1300)
+    qtbot.waitUntil(lambda: not split.is_collapsed('Widgets'), timeout=3000)
+
+
+def test_a_fold_the_person_undoes_stays_undone_at_the_same_width(navigator_window, qtbot):
+    window = navigator_window(scale=2.0, size=(1366, 768))
+    split = window._startup._navigator_aside_split
+    qtbot.waitUntil(lambda: split.is_collapsed('Widgets'), timeout=3000)
+    split.set_collapsed('Widgets', False, by_user=True)
+    window.resize(1370, 770)
+    qtbot.wait(200)
+    assert not split.is_collapsed('Widgets')
+
+
+def test_a_module_card_explanation_is_headed_by_its_module(navigator_window, qtbot):
+    window = navigator_window()
+    page = window._startup
+    page.path_edit.setText('segment images')
+    qtbot.keyClick(page.path_edit, Qt.Key_Return)
+    qtbot.waitUntil(lambda: bool(page.field.cards), timeout=3000)
+    rows = {key: title for key, title, _d, _p in app.MainWindow._easy_navigation_suggestions(
+        window, 'segment images')}
+    for card in page.field.cards:
+        if card._key in rows:
+            assert card._explanation.startswith('<b>' + rows[card._key] + '</b>')
+
+
+@pytest.mark.parametrize('width', [800, 1800])
+def test_the_settings_column_keeps_a_working_width(qtbot, width):
+    from spacr.qt.screens.app_screen import AppScreen
+
+    screen = AppScreen('mask')
+    qtbot.addWidget(screen)
+    screen.resize(width, 800)
+    screen.show()
+    qtbot.waitExposed(screen)
+    body = screen._body_splitter
+    from spacr.qt.preferences import scaled_px
+
+    qtbot.waitUntil(lambda: body.sizes()[0] >= min(scaled_px(360), int(body.width() * 0.55)) - 8,
+                    timeout=3000)
+    settings, runtime = body.sizes()
+    if width >= 1800:
+        assert runtime > settings
+
+
+def test_a_long_empty_state_title_wraps_instead_of_widening_the_form(qtbot):
+    from PySide6.QtGui import QFontMetrics
+    from PySide6.QtWidgets import QLabel
+
+    from spacr.qt.widgets.empty_state import EmptyState
+
+    title = 'Point a module with a very long name indeed at some data'
+    card = EmptyState(title=title, subtitle='Drop a folder of images here.')
+    qtbot.addWidget(card)
+    label = next(lbl for lbl in card.findChildren(QLabel) if lbl.text() == title)
+    assert label.wordWrap()
+    assert label.minimumSizeHint().width() < QFontMetrics(label.font()).horizontalAdvance(title)

@@ -389,9 +389,8 @@ class Dock(QWidget):
 
         :param watched: the object the event is for; only a
             :class:`SectionHeader` is handled here.
-        :param event: the event; Enter, Leave and keyboard focus set the
-            header's ``hovered`` property, and a left-button release or
-            Space/Enter on a focused heading toggles its section.
+        :param event: the event; Enter and Leave set the header's ``hovered``
+            property, and a left-button release toggles its section.
         """
 
         if isinstance(watched, SectionHeader):

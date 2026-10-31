@@ -5696,7 +5696,10 @@ class _NavigatorProtocolChoice(QComboBox):
 
         :param parent: holder inside the integrated composer.
         """
+        from .field_fade import OPT_OUT_PROPERTY
+
         super().__init__(parent)
+        self.setProperty(OPT_OUT_PROPERTY, True)
         self.setFrame(False)
         make_transparent(self)
         self.setStyleSheet('QComboBox { background: transparent; border: none; padding: 2px 20px 2px 4px; } '
@@ -8582,9 +8585,8 @@ class _EasyHomePage(QWidget):
             self._input_generation += 1
             self._last_result = None
             self._settings_overrides = {}
-            groups = {key: dict(group=tr('Help') if key.startswith('__easy_command__:') else tr('Tools'),
-                                reason=description, kind='navigation')
-                      for key, _title, description, _path in actions}
+            groups = {key: dict(group=title, reason=description, kind='navigation')
+                      for key, title, description, _path in actions}
             self._show_result(self._input_generation, dict(path=value, actions=actions, message='',
                                                          context=dict(action_groups=groups)))
             return

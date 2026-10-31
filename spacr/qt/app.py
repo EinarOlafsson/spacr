@@ -5501,6 +5501,19 @@ class _NavigatorHomePage(_NavigatorPageBase):
         if split is None:
             return
         split.setGeometry(self.rect())
+        from .preferences import scaled_px
+
+        aside_width = scaled_px(_HomePageBase.ASIDE_W) + split.handle(1).width()
+        room = 2 * (self.field.width() - aside_width - 16) - self.field.width()
+        fits = room >= scaled_px(300)
+        if self.isVisible() and fits != getattr(self, '_navigator_aside_fits', None):
+            self._navigator_aside_fits = fits
+            if not fits and not split.is_collapsed('Widgets'):
+                self._navigator_aside_folded_for_room = True
+                split.set_collapsed('Widgets', True, by_user=False)
+            elif fits and getattr(self, '_navigator_aside_folded_for_room', False):
+                self._navigator_aside_folded_for_room = False
+                split.set_collapsed('Widgets', False, by_user=False)
         region = QRegion(split.handle(1).geometry())
         if not split.is_collapsed('Widgets'):
             region |= QRegion(self._navigator_aside.geometry())

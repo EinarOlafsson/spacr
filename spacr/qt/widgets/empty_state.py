@@ -153,7 +153,8 @@ class EmptyState(QWidget):
             title_lbl = QLabel(title)
             title_lbl.setObjectName("TitleHeading")
             title_lbl.setAlignment(Qt.AlignCenter)
-            outer.addWidget(title_lbl, alignment=Qt.AlignCenter)
+            title_lbl.setWordWrap(True)
+            outer.addWidget(title_lbl)
 
         if subtitle:
             sub_lbl = _WrappedLabel(subtitle, wrap_width=560)
