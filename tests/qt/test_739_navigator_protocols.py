@@ -281,7 +281,7 @@ def test_open_recipe_cannot_carry_an_earlier_inspection_into_a_replacement_path(
     dialog.close()
 
 
-def test_single_dock_link_opens_real_modules_without_changing_mode(qtbot, protocol_profile):
+def test_single_dock_link_opens_real_modules_without_changing_mode(qtbot, protocol_profile, tmp_path):
     from spacr.qt.app import MainWindow
     from tests.qt.test_739_navigator_protocols import _click_url
 
@@ -329,6 +329,52 @@ def test_single_dock_link_opens_real_modules_without_changing_mode(qtbot, protoc
         assert protocol_profile.get_easy_mode()
         assert window._stack.currentWidget() is page
         assert page._last_result is None
+        from PySide6.QtGui import QColor
+        from spacr.qt.theme import font_px, palette_for
+
+        for scale in (1.0, 1.5):
+            preferences.set_font_scale(scale)
+            preferences.apply_preferences_to_app()
+            page.refresh()
+            from PySide6.QtWidgets import QApplication
+
+            QApplication.processEvents()
+            qtbot.waitUntil(lambda: page.path_edit.font().pixelSize() == font_px(16))
+            qtbot.waitUntil(lambda: page.path_edit.protocols.size() == page.path_edit.ai.size())
+            button = page.path_edit.protocols
+            assert button.geometry().center().y() == page.path_edit.ai.geometry().center().y()
+            assert button.geometry().center().y() == page.path_edit.rect().center().y()
+            assert page._protocol_select.font().pixelSize() == font_px(16)
+            assert page.field.details.font().pixelSize() == font_px(16)
+            qtbot.mouseMove(button, button.rect().center())
+            assert window.grab().save(str(tmp_path / f'{scale}-p-hover.png'))
+            current_anchor = QRect(page.path_edit.mapToGlobal(QPoint()), page.path_edit.size())
+            qtbot.mouseClick(button, Qt.LeftButton)
+            qtbot.mouseMove(window, QPoint(2, 2))
+            qtbot.waitUntil(page.field.protocol_controls.isVisible)
+            assert QRect(page.path_edit.mapToGlobal(QPoint()), page.path_edit.size()) == current_anchor
+            fragment = page.field.details.document().begin().begin().fragment()
+            assert fragment.charFormat().foreground().color() == QColor(palette_for('dark')['fg'])
+            assert not fragment.charFormat().isAnchor()
+            assert window.grab().save(str(tmp_path / f'{scale}-protocols.png'))
+            qtbot.mouseClick(button, Qt.LeftButton)
+            cursor = page.field.details.document().find(tr('Open Dock'))
+            assert not cursor.isNull()
+            cursor.setPosition(cursor.selectionStart() + 1)
+            page.field.details.setTextCursor(cursor)
+            page.field.details.ensureCursorVisible()
+            point = page.field.details.cursorRect(cursor).center() + QPoint(1, 0)
+            assert page.field.details.anchorAt(point) == 'spacr://sidebar'
+            assert cursor.charFormat().foreground().color() == QColor(palette_for('dark')['fg'])
+            qtbot.mouseMove(page.field.details.viewport(), QPoint(2, 2))
+            qtbot.mouseMove(page.field.details.viewport(), point)
+            qtbot.waitUntil(lambda: len(page.field.details.extraSelections()) == 1)
+            assert page.field.details.extraSelections()[0].cursor.selectedText() == tr('Open Dock')
+            assert window.grab().save(str(tmp_path / f'{scale}-dock-hover.png'))
+            qtbot.mouseClick(page.field.details.viewport(), Qt.LeftButton, pos=point)
+            assert not window._dock_edge.is_collapsed()
+            assert QRect(page.path_edit.mapToGlobal(QPoint()), page.path_edit.size()) == current_anchor
+            assert opened.count() == 0 and page._last_result is None
     finally:
         window.close()
 

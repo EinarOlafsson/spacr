@@ -5561,7 +5561,7 @@ class _NavigatorProtocolsButton(QPushButton):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
         active = self.isChecked() or self.isDown()
-        if active or self.underMouse():
+        if self.isDown() or self.underMouse():
             painter.setPen(Qt.NoPen)
             painter.setBrush(QColor('#363636' if self.underMouse() else '#303030'))
             diameter = max(0, min(self.width(), self.height()) - 6)
@@ -5571,7 +5571,7 @@ class _NavigatorProtocolsButton(QPushButton):
         font = QFont('Open Sans')
         font.setStyleName('Light')
         font.setWeight(QFont.Light)
-        font.setPixelSize(16)
+        font.setPixelSize(font_px(22))
         glyph = QPainterPath()
         glyph.addText(0, 0, font, 'P')
         bounds = glyph.boundingRect()
@@ -5662,7 +5662,7 @@ class _NavigatorProtocolChoice(QComboBox):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
         font = self.font()
-        font.setPixelSize(font_px(14))
+        font.setPixelSize(font_px(16))
         painter.setFont(font)
         text = self.currentText() if self.currentIndex() >= 0 else self.placeholderText()
         colors = palette_for('dark')
@@ -5766,11 +5766,30 @@ class _EasyPathEdit(QLineEdit):
     def resizeEvent(self, event):
         """Reserve native editor space for Browse without covering editable text."""
         super().resizeEvent(event)
-        if not hasattr(self, 'browse'):
+        self._arrange_actions()
+
+    def event(self, event):
+        """Realign action targets after native style and font geometry changes.
+
+        :param event: native event, including child layout requests after scaling.
+        :returns: whether the native line editor handled this event.
+        """
+        from PySide6.QtCore import QEvent
+
+        handled = super().event(event)
+        if event.type() in (QEvent.LayoutRequest, QEvent.StyleChange, QEvent.FontChange):
+            self._arrange_actions()
+        return handled
+
+    def _arrange_actions(self):
+        """Center equal action targets and reserve Browse space at the current font."""
+        if not hasattr(self, 'protocols'):
             return
         width = self.browse.fontMetrics().horizontalAdvance(self.browse.text()) + 12
         self.browse.setGeometry(self.width() - width - 92, 6, width, self.height() - 12)
         self.ai.move(self.width() - 48, (self.height() - self.ai.height()) // 2)
+        if self.protocols.size() != self.ai.size():
+            self.protocols.setFixedSize(self.ai.size())
         self.protocols.move(self.width() - 88, (self.height() - self.protocols.height()) // 2)
         self.setTextMargins(18, 0, width + 100, 0)
 
@@ -6167,6 +6186,7 @@ class _NavigatorDetailsBrowser(QTextBrowser):
         self.setOpenLinks(False)
         self.anchorClicked.connect(self._open_link)
         self._field = field
+        self.viewport().setMouseTracking(True)
         self._entries = []
         self._entry = -1
         self._stream_token = None
@@ -6252,6 +6272,42 @@ class _NavigatorDetailsBrowser(QTextBrowser):
             icon.addPixmap(image, mode)
         return icon
 
+    def mouseMoveEvent(self, event):
+        """Highlight the actual hovered link without changing its document or dispatch.
+
+        :param event: native pointer movement within the text viewport.
+        """
+        from PySide6.QtGui import QTextCursor
+        from PySide6.QtWidgets import QTextEdit
+
+        super().mouseMoveEvent(event)
+        href = self.anchorAt(event.position().toPoint())
+        selections = []
+        if href:
+            cursor = self.cursorForPosition(event.position().toPoint())
+            iterator = cursor.block().begin()
+            while not iterator.atEnd():
+                fragment = iterator.fragment()
+                if (fragment.isValid() and fragment.charFormat().anchorHref() == href
+                        and fragment.position() <= cursor.position() <= fragment.position() + fragment.length()):
+                    highlight = QTextEdit.ExtraSelection()
+                    highlight.cursor = QTextCursor(self.document())
+                    highlight.cursor.setPosition(fragment.position())
+                    highlight.cursor.setPosition(fragment.position() + fragment.length(), QTextCursor.KeepAnchor)
+                    highlight.format.setBackground(QColor('#363636'))
+                    selections.append(highlight)
+                    break
+                iterator += 1
+        self.setExtraSelections(selections)
+
+    def leaveEvent(self, event):
+        """Clear only the transient link hover surface on pointer exit.
+
+        :param event: native pointer-exit event.
+        """
+        self.setExtraSelections([])
+        super().leaveEvent(event)
+
     def _save_scroll(self):
         """Remember the visible vertical scroll position for the current history entry."""
         if 0 <= self._entry < len(self._entries):
@@ -6260,9 +6316,16 @@ class _NavigatorDetailsBrowser(QTextBrowser):
     def _display_entry(self):
         """Replay the selected HTML or plain entry and restore its scroll position."""
         kind, text, scroll = self._entries[self._entry]
+        self.setExtraSelections([])
         if kind == 'html':
             super().setHtml(text)
         else:
+            from PySide6.QtGui import QTextCharFormat
+
+            current = QTextCharFormat()
+            current.setFont(self.font())
+            current.setForeground(QColor(palette_for('dark')['fg']))
+            self.setCurrentCharFormat(current)
             super().setPlainText(text)
         self.verticalScrollBar().setValue(scroll)
 
@@ -7600,18 +7663,6 @@ class _EasyHomePage(QWidget):
         from PySide6.QtCore import QEasingCurve, QVariantAnimation
         from PySide6.QtWidgets import QLayout
 
-        colors = palette_for('dark')
-        controls.setStyleSheet(
-            'QFrame#NavigatorProtocolSelector { border: none; background: transparent; } '
-            f'QFrame#NavigatorProtocolSelector QLabel, QFrame#NavigatorProtocolSelector QComboBox {{ color: {colors["fg"]}; font-size: {font_px(14)}px; }} '
-            'QFrame#NavigatorProtocolSelector QLabel { background: transparent; border: none; } '
-            'QFrame#NavigatorProtocolSelector QComboBox { background: transparent; border: none; padding: 2px 4px; } '
-            'QFrame#NavigatorProtocolSelector QComboBox::drop-down { border: none; width: 18px; } '
-            'QFrame#NavigatorProtocolSelector QToolButton { background: transparent; border: none; } '
-            f'QListView#NavigatorProtocolOptions {{ background: rgb(25,25,25); color: {colors["fg"]}; border: none; outline: none; font-size: {font_px(14)}px; }} '
-            'QListView#NavigatorProtocolOptions::item { padding: 7px 10px; border-bottom: 1px solid rgb(54,54,54); } '
-            'QListView#NavigatorProtocolOptions::item:hover { background: rgb(58,58,58); } '
-            f'QListView#NavigatorProtocolOptions::item:selected {{ background: rgb(48,48,48); color: {colors["accent"]}; }}')
         controls._progress = 1.0
         controls._inline_choice = None
         controls._arrival = QVariantAnimation(controls)
@@ -7764,7 +7815,7 @@ class _EasyHomePage(QWidget):
                 label = QLabel(field['label'], holder)
                 label.setWordWrap(True)
                 label.setFixedWidth(116)
-                label.setStyleSheet(f'color: {palette_for("dark")["fg_muted"]}; font-size: {font_px(12)}px; background: transparent;')
+                label.setStyleSheet(f'color: {palette_for("dark")["fg_muted"]}; background: transparent;')
                 detail = _NavigatorProtocolChoice(holder)
                 detail.setMinimumHeight(28)
                 detail.setAccessibleName(field['label'])
@@ -8239,16 +8290,16 @@ class _EasyHomePage(QWidget):
             resolve_effective_theme(), 'surface_alt', get_pane_opacity()))
         sheet = (
             f'QWidget#EasyHomePage, QWidget#EasyHomePage QWidget {{ font-family: "Open Sans"; font-weight: 300; }} '
-            f'QLineEdit#EasyModePath {{ background: {background}; color: {foreground}; border: none; border-radius: 28px; font-size: {font_px(18)}px; padding: 0px; placeholder-text-color: {muted}; }} '
+            f'QLineEdit#EasyModePath {{ background: {background}; color: {foreground}; border: none; border-radius: 28px; font-size: {font_px(16)}px; padding: 0px; placeholder-text-color: {muted}; }} '
             'QLineEdit#EasyModePath[protocolOpen="true"] { background: transparent; } '
-            f'QPushButton#EasyModeBrowse {{ color: {foreground}; background: transparent; border: none; padding: 0px; font-size: {font_px(14)}px; }} '
+            f'QPushButton#EasyModeBrowse {{ color: {foreground}; background: transparent; border: none; padding: 0px; font-size: {font_px(16)}px; }} '
             f'QPushButton#EasySuggestionCard {{ background: {background}; color: {foreground}; border: 1px solid {border}; border-radius: 16px; padding: 12px; min-width: 0px; min-height: 0px; text-align: left; }} '
             f'QPushButton#EasySuggestionCard QLabel {{ color: {foreground}; background: transparent; border: none; font-weight: 300; }} '
             f'QPlainTextEdit#EasyRegexPattern {{ color: {foreground}; background: transparent; border: 1px solid {border}; border-radius: 6px; font-weight: 300; }} '
             f'QPushButton#EasyWorkflowBack {{ color: {foreground}; background: transparent; border: none; padding: 0px; }} '
             f'QComboBox#EasyWorkflowTools, QComboBox#EasyWorkflowNextTools {{ color: {foreground}; background: {background}; placeholder-text-color: {muted}; border: 1px solid {border}; border-radius: 10px; }} '
             f'QComboBox#EasyWorkflowTools QAbstractItemView, QComboBox#EasyWorkflowNextTools QAbstractItemView {{ color: {foreground}; background: {palette["surface"]}; selection-background-color: {palette["accent"]}; selection-color: {palette["bg"]}; }} '
-            f'QTextBrowser#EasyWorkflowDetails {{ color: {foreground}; background: {details_background}; border: 1px solid {border}; border-radius: 10px; padding: 8px; font-size: {2 * font_px("body")}px; }} '
+            f'QTextBrowser#EasyWorkflowDetails {{ color: {foreground}; background: {details_background}; border: 1px solid {border}; border-radius: 10px; padding: 8px; font-size: {font_px(16)}px; }} '
             f'QTextBrowser#EasyWorkflowDetails[protocolOpen="true"] {{ font-size: {font_px(16)}px; }} '
             f'QLabel#EasyInputFeedback {{ color: {muted}; background: transparent; }}')
         from ..theme import _stage_button_rules
@@ -8257,6 +8308,20 @@ class _EasyHomePage(QWidget):
                   'QPushButton#EasySuggestionCard[spaceout="true"]:hover, '
                   'QPushButton#EasySuggestionCard[spaceout="true"]:pressed '
                   '{ background-color: rgb(32, 32, 32); }')
+        colors = palette
+        self.field.protocol_controls.setStyleSheet(
+            'QFrame#NavigatorProtocolSelector { border: none; background: transparent; } '
+            f'QFrame#NavigatorProtocolSelector QLabel, QFrame#NavigatorProtocolSelector QComboBox {{ color: {colors["fg"]}; font-size: {font_px(16)}px; }} '
+            'QFrame#NavigatorProtocolSelector QLabel { background: transparent; border: none; } '
+            'QFrame#NavigatorProtocolSelector QComboBox { background: transparent; border: none; padding: 2px 4px; } '
+            'QFrame#NavigatorProtocolSelector QComboBox::drop-down { border: none; width: 18px; } '
+            'QFrame#NavigatorProtocolSelector QToolButton { background: transparent; border: none; } '
+            f'QListView#NavigatorProtocolOptions {{ background: rgb(25,25,25); color: {colors["fg"]}; border: none; outline: none; font-size: {font_px(16)}px; }} '
+            'QListView#NavigatorProtocolOptions::item { padding: 7px 10px; border-bottom: 1px solid rgb(54,54,54); } '
+            'QListView#NavigatorProtocolOptions::item:hover { background: rgb(58,58,58); } '
+            f'QListView#NavigatorProtocolOptions::item:selected {{ background: rgb(48,48,48); color: {colors["accent"]}; }}')
+        self.field.details.document().setDefaultStyleSheet(
+            f'a {{ color: {foreground}; text-decoration: none; }}')
         if getattr(self, '_easy_stylesheet', None) != sheet:
             self._easy_stylesheet = sheet
             self.setStyleSheet(sheet)
