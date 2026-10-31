@@ -328,6 +328,75 @@ def _map_torch_libraries() -> bool:
         return False
 
 
+def _cuda_may_be_used(nodes=("/dev/nvidiactl",)) -> bool:
+    """Whether this process may use an NVIDIA GPU, judged without importing torch.
+
+    :param nodes: the device files whose presence means a driver is loaded.
+    :returns: False on a machine with no NVIDIA device node, with
+        ``CUDA_VISIBLE_DEVICES`` set empty, or with the device forced to the
+        CPU; True otherwise.
+    """
+    import os
+
+    visible = os.environ.get("CUDA_VISIBLE_DEVICES")
+    if visible is not None and visible.strip() in ("", "-1"):
+        return False
+    forced = os.environ.get("SPACR_DEVICE", "").strip().lower()
+    if forced in ("cpu", "none", "0", "off"):
+        return False
+    return any(os.path.exists(node) for node in nodes)
+
+
+def _initialise_the_cuda_driver(library=None) -> bool:
+    """Start the CUDA driver and create device 0's primary context, lock released.
+
+    THE FIRST RUN FROZE THE WINDOW FOR A SECOND AND A HALF AT "accelerator
+    resolved". ``torch.cuda`` creates the driver's context from a Python
+    call that keeps the interpreter lock for the whole of it (``cuInit`` and
+    the context together take 1-2 s on a workstation), so the worker that
+    resolves the accelerator starved the GUI thread. The same two driver
+    calls made through ctypes release the lock, so the window keeps painting
+    while they run, and the later ``torch.cuda`` initialisation finds the
+    driver started and the primary context made, because the runtime shares
+    the driver's primary context. Nothing is allocated beyond the context
+    itself.
+
+    Linux only, once per process, and only where :func:`_cuda_may_be_used`.
+    Any failure stops it and leaves everything to ``torch.cuda``. Call it
+    on a worker thread.
+
+    :param library: the driver's ctypes library, for a test; ``None`` loads
+        ``libcuda.so.1``.
+    :returns: True when the driver started and the context was made.
+    """
+    global _CUDA_DRIVER_TRIED
+    with _LOCK:
+        if _CUDA_DRIVER_TRIED:
+            return False
+        _CUDA_DRIVER_TRIED = True
+    try:
+        import ctypes
+
+        if library is None:
+            if not sys.platform.startswith("linux") or not _cuda_may_be_used():
+                return False
+            library = ctypes.CDLL("libcuda.so.1")
+        if library.cuInit(0) != 0:
+            return False
+        device = ctypes.c_int()
+        if library.cuDeviceGet(ctypes.byref(device), 0) != 0:
+            return False
+        context = ctypes.c_void_p()
+        return library.cuDevicePrimaryCtxRetain(
+            ctypes.byref(context), device) == 0
+    except Exception:                                    # noqa: BLE001
+        LOG.debug("could not start the CUDA driver early", exc_info=True)
+        return False
+
+
+_CUDA_DRIVER_TRIED = False
+
+
 def _hub_geometry_kinds() -> frozenset:
     """The event types that make a watch a geometry watch."""
     from PySide6.QtCore import QEvent

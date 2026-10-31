@@ -3712,12 +3712,14 @@ def _warm_the_run_environment_when_idle(window) -> Optional[threading.Thread]:
 def _map_the_torch_libraries() -> None:
     """Map PyTorch's libraries under the heavy-import lock, logging any failure."""
     from .bridge import _importing_in_the_background
-    from .gil_priority import _open_torch_libraries
+    from .gil_priority import _initialise_the_cuda_driver, _open_torch_libraries
 
     try:
         with HEAVY_IMPORT_LOCK, _importing_in_the_background():
             with _timing.span("background warm", "torch libraries"):
                 _open_torch_libraries()
+        with _timing.span("background warm", "cuda driver"):
+            _initialise_the_cuda_driver()
     except Exception:                                        # noqa: BLE001
         LOG.debug("could not map the torch libraries early", exc_info=True)
 
