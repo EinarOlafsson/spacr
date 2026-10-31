@@ -224,8 +224,15 @@ def test_reference_lesson_explains_every_artifact_location():
     data = workflow.load()
     script = workflow.lesson_document(data, "79_module_inputs_outputs")
     narration = " ".join(scene["narration"] for scene in script["scenes"])
-    for artifact in data["artifacts"].values():
-        assert artifact["location"] in narration
+    # The reference lesson narrates its module routes. Independent Protocols
+    # navigation contracts can describe additional nested actions and artifacts.
+    modules = data["tutorials"]["79_module_inputs_outputs"]["modules"]
+    assert modules
+    artifacts = {artifact for key in modules for direction in ("inputs", "outputs")
+                 for artifact in data["modules"][key][direction]}
+    assert artifacts
+    for key in artifacts:
+        assert data["artifacts"][key]["location"] in narration
 
 
 def test_both_screen_branches_feed_regression_and_labels_feed_classification():
