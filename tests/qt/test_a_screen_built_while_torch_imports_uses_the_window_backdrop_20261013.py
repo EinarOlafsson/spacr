@@ -43,13 +43,16 @@ def lock_held_while_mask_opens(monkeypatch):
 def test_the_screen_defers_to_the_window_field_once_the_lock_is_free(
         qtbot, monkeypatch, lock_held_while_mask_opens):
     from spacr.qt import preferences
-    from spacr.qt.app import MainWindow
+    from spacr.qt.app import MainWindow, _show_at_launch
+    from spacr.qt.widgets.loading_screen import LoadingScreen
 
     window = MainWindow()
     qtbot.addWidget(window)
     window.resize(1280, 800)
-    window.show()
+    _show_at_launch(window)
     qtbot.waitExposed(window)
+    # Measure the screen field after the independent startup cover has retired.
+    qtbot.waitUntil(lambda: not window.findChildren(LoadingScreen), timeout=10000)
     qtbot.waitUntil(lambda: window.window_backdrop() is not None,
                     timeout=20000)
     backdrop = window.window_backdrop()
@@ -96,13 +99,16 @@ def test_a_screen_that_paints_its_own_page_reads_no_store_per_frame(
     :func:`spacr.qt.theme._painting_theme`, as every other paint hook's.
     """
     from spacr.qt import preferences
-    from spacr.qt.app import MainWindow
+    from spacr.qt.app import MainWindow, _show_at_launch
+    from spacr.qt.widgets.loading_screen import LoadingScreen
 
     window = MainWindow()
     qtbot.addWidget(window)
     window.resize(1280, 800)
-    window.show()
+    _show_at_launch(window)
     qtbot.waitExposed(window)
+    # Measure the screen field after the independent startup cover has retired.
+    qtbot.waitUntil(lambda: not window.findChildren(LoadingScreen), timeout=10000)
     qtbot.waitUntil(lambda: window.window_backdrop() is not None,
                     timeout=20000)
     backdrop = window.window_backdrop()
