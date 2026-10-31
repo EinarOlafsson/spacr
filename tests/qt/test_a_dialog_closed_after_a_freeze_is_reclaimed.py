@@ -144,3 +144,44 @@ def test_a_dialog_closed_just_before_a_freeze_is_collected_not_frozen(qapp):
         assert gc.get_freeze_count() > 0
     finally:
         gc.unfreeze()
+
+
+def test_a_freeze_requested_during_a_drag_waits_for_the_hand_to_rest(qapp, qtbot):
+    """No full sweep while a button is held or the pointer has just moved; it runs once input rests.
+
+    Lesson 19 showed a 0.33 s paint freeze: the reclaim's full sweep ran on
+    the GUI thread in the middle of a click and drag.
+    """
+    import time
+
+    from PySide6.QtCore import QPoint, Qt
+    from PySide6.QtGui import QCursor
+    from PySide6.QtWidgets import QWidget
+
+    from spacr.qt import gc_policy
+    from spacr.qt.app import _freeze_what_survived
+
+    surface = QWidget()
+    qtbot.addWidget(surface)
+    surface.resize(200, 200)
+    surface.show()
+    qtbot.waitExposed(surface)
+    gc.unfreeze()
+    try:
+        qtbot.mousePress(surface, Qt.LeftButton, pos=QPoint(50, 50))
+        assert qapp.mouseButtons() != Qt.NoButton
+        _freeze_what_survived()
+        started = time.perf_counter()
+        assert gc_policy.collect_once() in (-1, 0, 1)
+        held_ms = (time.perf_counter() - started) * 1000
+        assert gc.get_freeze_count() == 0
+        assert held_ms < 50, held_ms
+        qtbot.mouseRelease(surface, Qt.LeftButton, pos=QPoint(60, 60))
+        QCursor.setPos(surface.mapToGlobal(QPoint(70, 70)))
+        gc_policy.collect_once()
+        QCursor.setPos(surface.mapToGlobal(QPoint(80, 80)))
+        assert gc_policy.collect_once() in (-1, 0, 1)
+        assert gc.get_freeze_count() == 0
+        qtbot.waitUntil(lambda: gc.get_freeze_count() > 0, timeout=5000)
+    finally:
+        gc.unfreeze()

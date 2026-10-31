@@ -129,6 +129,9 @@ _PAUSE = {"depth": 0, "resume": False}
 _FROZEN_WINDOWS: list = []
 _FREEZE_DUE = threading.Event()
 
+_INPUT_QUIET_S = 0.5
+_INPUT = {"where": None, "moved_at": 0.0, "retry_armed": False}
+
 
 def _freeze_survivors() -> None:
     """Have the GUI-thread collector collect, then freeze what survives.
@@ -262,6 +265,35 @@ def collect_once() -> int:
     :returns: the generation collected, or ``-1`` when none is due or ordinary
         collection is deferred.
     """
+    hands = False
+    widgets = sys.modules.get("PySide6.QtWidgets")
+    app = widgets.QApplication.instance() if widgets is not None else None
+    if app is not None:
+        from PySide6.QtCore import Qt
+        from PySide6.QtGui import QCursor
+
+        now = time.monotonic()
+        where = QCursor.pos()
+        if _INPUT["where"] is not None and where != _INPUT["where"]:
+            _INPUT["moved_at"] = now
+        _INPUT["where"] = where
+        hands = (app.mouseButtons() != Qt.NoButton
+                 or now - _INPUT["moved_at"] < _INPUT_QUIET_S)
+    if hands:
+        owed = _requested.is_set() or _FREEZE_DUE.is_set() or _a_frozen_window_was_deleted()
+        if owed and not _INPUT["retry_armed"]:
+            from PySide6.QtCore import QTimer
+
+            _INPUT["retry_armed"] = True
+            QTimer.singleShot(int(_INPUT_QUIET_S * 1000),
+                              lambda: (_INPUT.update(retry_armed=False), collect_once()))
+        thresholds = _saved_thresholds or gc.get_threshold()
+        counts = gc.get_count()
+        for generation in (1, 0):
+            if counts[generation] > thresholds[generation]:
+                gc.collect(generation)
+                return generation
+        return -1
     if _requested.is_set():
         _requested.clear()
         if _a_frozen_window_was_deleted():
