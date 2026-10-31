@@ -350,11 +350,45 @@ def test_comparison_category_offers_every_annotation_dimension_and_value(source,
         browser._overview_comparison_frame(str(source))
 
 
+
+def _comparison_failure_context(dialog, database, measurement_status, job_errors):
+    """Read only structural publication evidence after the comparison oracle fails."""
+    import json
+    import re
+    import sqlite3
+
+    def sanitized(text):
+        return re.sub(r"(?:[A-Za-z]:[\\/]|/)[^\s,;)\]}]+", "<path>", str(text))[:2000]
+
+    publication = {"database_exists": database.is_file(), "fov_rows": None, "fov_columns": []}
+    if publication["database_exists"]:
+        try:
+            with sqlite3.connect(database.as_uri() + "?mode=ro", uri=True) as connection:
+                publication["fov_columns"] = [row[1] for row in connection.execute("PRAGMA table_info(fov)")]
+                if publication["fov_columns"]:
+                    publication["fov_rows"] = connection.execute("SELECT COUNT(*) FROM fov").fetchone()[0]
+        except sqlite3.Error as error:
+            publication["read_error"] = sanitized(error)
+    return json.dumps({
+        "measurement_status": sanitized(measurement_status),
+        "comparison_status": sanitized(dialog.status.text()),
+        "publication": publication,
+        "job_errors": [[stage, sanitized(message)] for stage, message in job_errors],
+        "comparison_request": dialog._comparison_requests,
+        "measurement_generation": dialog._measurement_jobs._generation,
+        "export_generation": dialog._export_jobs._generation,
+        "comparison_signature_present": dialog._comparison_signature is not None,
+    }, sort_keys=True)
+
+
 def test_annotations_reach_the_image_table_and_drive_comparisons_and_representatives(source, qtbot):
     from spacr.measure import (_image_annotation_database, _read_image_annotations,
                                _well_image_annotations)
 
     dialog = _overview(qtbot, source)
+    job_errors = []
+    dialog._measurement_jobs.job_failed.connect(lambda text: job_errors.append(("measurement", text)))
+    dialog._export_jobs.job_failed.connect(lambda text: job_errors.append(("comparison", text)))
     database = _image_annotation_database(str(source))
     for wells, key, value in ((("A01", "A02"), "cell_type", "HeLa"), (("B01", "B03"), "cell_type", "HFF"),
                               (("A01", "B01"), "replicate", "1"), (("A02", "B03"), "replicate", "2")):
@@ -391,10 +425,12 @@ def test_annotations_reach_the_image_table_and_drive_comparisons_and_representat
     dialog.workers.setValue(2)
     dialog._measure()
     qtbot.waitUntil(lambda: not dialog._measurement_jobs.is_busy(), timeout=60000)
+    measurement_status = dialog.status.text()
     dialog.comparison_within.setCurrentIndex(dialog.comparison_within.findData("replicate"))
     dialog._compare_groups()
     qtbot.waitUntil(lambda: not dialog._export_jobs.is_busy(), timeout=60000)
-    assert dialog._comparison_signature is not None, dialog.status.text()
+    assert dialog._comparison_signature is not None, _comparison_failure_context(
+        dialog, database, measurement_status, job_errors)
     assert dialog._comparison_signature[0] == "groups", dialog.status.text()
     assert dialog._image_panel.isVisible() and not dialog.view._item.pixmap().isNull()
     assert dialog.comparison_measurement.count() > 1

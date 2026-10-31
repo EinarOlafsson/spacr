@@ -5403,3 +5403,5 @@ Isolated Home candidate now uses existing item reuse across refill, rescan and i
 
 2026-10-31 — The exhaustive API browser passes across nine Main-pinned catalogs (54.98 s), binding explicit reviewed revisions, historical hashes, retirements and helper arrivals while preserving every rendering assertion, the original 16-owner pin and 13,131 baseline. No catalog, review or runtime content changes.
 2026-10-31 — README accessibility passes (7.81 s): require real alt attributes on four raw installer images, retain five resource directives and the original 48 non-gallery images, and independently bind eight scorecards to their producer. All nine-language module/installer checks remain; gallery English is not claimed localized.
+
+2026-10-31 — Overview annotation/comparison regression preserves failure-only measurement publication, sanitized worker errors and request state diagnostics. All scientific assertions/waits remain; one exact owning node passes12.62s under xcb/Openbox. The historical serial failure is unexplained, not fixed.
