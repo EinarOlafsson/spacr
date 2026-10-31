@@ -219,7 +219,7 @@
     },
     {
       "visual": "module_pipeline_graph",
-      "narration": "Find Pipeline Graph in the application's Help or tools menus. Read recorded artifact dependencies and stale/missing status. The graph describes provenance and does not regenerate missing artifacts. Pipeline Graph reads the run history and artifacts. From those, Pipeline Graph produces the figures and table exports.",
+      "narration": "Find Pipeline Graph in the application's Help or tools menus. Read recorded artifact dependencies and stale/missing status. The graph describes provenance and does not regenerate missing artifacts. Pipeline Graph reads the run history and artifacts. From those, Pipeline Graph produces the graphviz DOT on the clipboard. You'll find the graphviz DOT on the clipboard here: Copy Graphviz copies the current graph as DOT text to the system clipboard; it does not write a file.",
       "hold_after": 0.7,
       "related_lessons": [
         "52_pipeline_graph"

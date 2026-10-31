@@ -779,7 +779,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 **Outputs**
 
-* **Figures and table exports** — The output location chosen by the tool; exports describe the selected data and filters.
+* **Graphviz DOT on the clipboard** — Copy Graphviz copies the current graph as DOT text to the system clipboard; it does not write a file.
 
 :doc:`API reference </api/spacr/qt/screens/pipeline_graph/index>`.
 

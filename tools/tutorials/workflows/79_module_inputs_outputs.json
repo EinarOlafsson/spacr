@@ -629,7 +629,7 @@
         "run_records"
       ],
       "outputs": [
-        "figures"
+        "graphviz_dot"
       ],
       "guidance": "Read recorded artifact dependencies and stale/missing status. The graph describes provenance and does not regenerate missing artifacts."
     },
