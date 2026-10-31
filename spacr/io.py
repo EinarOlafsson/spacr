@@ -54,7 +54,7 @@ pyczi = None
 from .errors import RunLedger
 from .image_colors import read_image_rgb
 from .classification_pixels import DECLARED_UINT8, read_classification_image, validate_policy
-from .tiff_io import write_tiff
+from .tiff_io import write_tiff, _raster_with_axes, _yokogawa_planes
 from .portable_paths import _long_path
 
 LOG = logging.getLogger(__name__)
@@ -9878,63 +9878,24 @@ def convert_to_yokogawa(folder):
                                 write_tiff(filepath, mip_image.astype(dtype))
                                 rename_log.append({"Original File": file, "Renamed TIFF": filename})
 
+        elif ext == 'zarr' and os.path.isdir(path):
+            with ledger.item(file, stage='ome_zarr',
+                             echo=f"Error processing OME-Zarr image {file}"):
+                from .ome_zarr import _field_planes, read_ome_zarr
+
+                for t, c, plane, _projected in _field_planes(read_ome_zarr(path), 0):
+                    filename = f"{well}_T{t+1:04d}F001L01C{c+1:02d}.tif"
+                    write_tiff(os.path.join(folder, filename), plane)
+                    rename_log.append({"Original File": file, "Renamed TIFF": filename})
+
         elif ext in ['tif', 'tiff', 'png', 'jpg', 'jpeg', 'bmp'] and not file.startswith("plate"):
             with ledger.item(file, stage='tiff',
                              echo=f"Error processing standard image file {file}"):
-                with tifffile.TiffFile(path) as tif:
-                    images = tif.asarray()
-                    ndim = images.ndim
-
-                    t_dim = c_dim = 1
-
-                    if ndim == 2:
-                        mip_image = images
-                        filename = f"{well}_T0001F001L01C01.tif"
-                        write_tiff(os.path.join(folder, filename), mip_image)
-                        rename_log.append({"Original File": file, "Renamed TIFF": filename})
-                        continue
-
-                    elif ndim == 3:
-                        if images.shape[0] <= 4:
-                            c_dim = images.shape[0]
-                            for c in range(c_dim):
-                                mip_image = images[c, :, :]
-                                filename = f"{well}_T0001F001L01C{c+1:02d}.tif"
-                                write_tiff(
-                                    os.path.join(folder, filename), mip_image)
-                                rename_log.append({"Original File": file, "Renamed TIFF": filename})
-                        else:
-                            mip_image = np.max(images, axis=0)
-                            filename = f"{well}_T0001F001L01C01.tif"
-                            write_tiff(
-                                os.path.join(folder, filename), mip_image)
-                            rename_log.append({"Original File": file, "Renamed TIFF": filename})
-
-                    elif ndim == 4:
-                        try:
-                            axes = (tif.series[0].axes or '').upper()
-                        except Exception:
-                            axes = ''
-                        t_axis = 0
-                        if axes[:2] == 'ZT':
-                            t_axis = 1
-                        elif axes[:2] != 'TZ':
-                            print(f"WARNING: {file} is 4-D but declares axes "
-                                  f"{axes or '(none)'}; reading it as "
-                                  f"(T, Z, Y, X). If it is really (Z, T, Y, X), "
-                                  f"every timepoint written below is a z-plane "
-                                  f"and every projection is over time.")
-                        t_dim = images.shape[t_axis]
-                        for t in range(t_dim):
-                            plane_stack = images[t] if t_axis == 0 else images[:, t]
-                            mip_image = np.max(plane_stack, axis=0)
-                            filename = f"{well}_T{t+1:04d}F001L01C01.tif"
-                            write_tiff(
-                                os.path.join(folder, filename), mip_image)
-                            rename_log.append({"Original File": file, "Renamed TIFF": filename})
-
-                    else:
-                        raise ValueError(f"Unsupported TIFF dimensions: {images.shape}")
+                images, axes = _raster_with_axes(path, ext)
+                for t, c, plane in _yokogawa_planes(images, axes, file):
+                    filename = f"{well}_T{t+1:04d}F001L01C{c+1:02d}.tif"
+                    write_tiff(os.path.join(folder, filename), plane)
+                    rename_log.append({"Original File": file, "Renamed TIFF": filename})
 
     pd.DataFrame(rename_log).to_csv(csv_path, index=False)
     print(f"Processing complete. Files saved in {folder} and rename log saved as {csv_path}.")

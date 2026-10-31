@@ -47,3 +47,6 @@ ACCEPTANCE
 
 NOTES
 2026-10-31 Item recorded from the maintainer's request; release scope for 1.5.1.7 to be decided by the maintainer.
+2026-10-31 Design: Make Masks keeps its editing canvas and composes the field through spacr.layers: one LayerStack per field with an image layer per raw channel and labels layers for the edited mask (role colour, filled or outlines) and each loaded mask layer, listed in a Layers settings category (LayerListWidget plus opacity, blending, colormap, contrast limits, order, active layer).
+2026-10-31 Channel mapping: spacr.tiff_io._yokogawa_planes splits ImageJ/OME-TIFF C, RGB/channel-last S, ZCYX (max projection) and OME-Zarr c into raw planes in file order for both the batch conversion and Make Masks; plane c equals the separate C(c+1) file, and the mask channel goes through the same uint16 conversion a separate file gets.
+2026-10-31 Stage 1: convert_to_yokogawa honours declared channel axes, RGB PNG and local OME-Zarr images; tests/test_multichannel_files_mask_like_separate_channel_files.py proves byte-identical role masks, stacks and model inputs for six multichannel layouts.
