@@ -90,7 +90,9 @@ DARK_PALETTE = {
     "surface":     "#0d0e10",
     "surface_alt": "#161719",
     "surface_hi":  "#1f2124",
-    "border":      "#2a2d33",
+    #: At least 3:1 against every page surface (WCAG 1.4.11, item 749), so a
+    #: field or panel edge is visible without relying on its fill.
+    "border":      "#707276",
     "border_soft": "#1c1e22",
     "fg":          "#ffffff",
     "fg_muted":    "#a1a6ad",
@@ -114,7 +116,8 @@ LIGHT_PALETTE = {
     "surface":     "#ffffff",
     "surface_alt": "#f2f4f7",
     "surface_hi":  "#e6e9ee",
-    "border":      "#d5d9df",
+    #: At least 3:1 against every page surface (WCAG 1.4.11, item 749).
+    "border":      "#7c7e81",
     "border_soft": "#e5e8ec",
     "fg":          "#0d0e10",
     "fg_muted":    "#4b5460",
