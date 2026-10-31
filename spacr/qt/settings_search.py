@@ -1296,14 +1296,14 @@ QLabel#{COUNT_NAME} {{
     color: {palette["fg_dim"]};
     font-size: {font_px(11)}px;
 }}
-QToolButton#{DISCLOSURE_NAME} {{
+QToolButton#{DISCLOSURE_NAME}, QToolButton#SettingsPreviewToggle {{
     background: transparent;
     color: {palette["fg_dim"]};
     border: 1px solid {palette["border_soft"]};
     border-radius: 6px;
     padding: 3px 10px;
 }}
-QToolButton#{DISCLOSURE_NAME}:checked {{
+QToolButton#{DISCLOSURE_NAME}:checked, QToolButton#SettingsPreviewToggle:checked {{
     color: {palette["fg"]};
     border-color: {palette["accent"]};
 }}

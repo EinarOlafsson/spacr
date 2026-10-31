@@ -164,3 +164,39 @@ def test_the_empty_state_headline_keeps_the_module_name_as_written(qtbot, key, t
     card = screen._empty_state_card
     assert card is not None
     assert title in [label.text() for label in card.findChildren(QLabel)]
+
+
+@pytest.mark.parametrize('theme_name', ['light', 'dark'])
+def test_the_live_preview_toggle_wears_the_disclosure_surface(qtbot, theme_name):
+    from collections import Counter
+
+    from PySide6.QtGui import QColor
+    from PySide6.QtWidgets import QToolButton
+
+    from spacr.qt import theme
+    from spacr.qt.screens.app_screen import AppScreen
+
+    screen = AppScreen('mask')
+    qtbot.addWidget(screen)
+    screen.setStyleSheet(theme.stylesheet(theme_name))
+    from spacr.qt import settings_search
+
+    bar = getattr(screen, '_settings_search', None) or settings_search.install(screen)
+    assert bar is not None
+    toggle = QToolButton()
+    toggle.setObjectName('SettingsPreviewToggle')
+    toggle.setText('Live preview')
+    toggle.setCheckable(True)
+    bar.add_trailing_widget(toggle)
+    screen.resize(1600, 900)
+    screen.show()
+    qtbot.waitExposed(screen)
+    qtbot.wait(100)
+
+    def surface(widget):
+        rect = widget.rect().adjusted(3, 3, -3, -3)
+        image = screen.grab(rect.translated(widget.mapTo(screen, rect.topLeft()) - rect.topLeft())).toImage()
+        return Counter(QColor(image.pixel(x, y)).name() for x in range(image.width())
+                       for y in range(image.height())).most_common(1)[0][0]
+
+    assert surface(toggle) == surface(bar._disclosure)
