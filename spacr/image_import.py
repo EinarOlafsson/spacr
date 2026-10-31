@@ -768,6 +768,45 @@ class ImportResult:
         return "\n".join(lines)
 
 
+def _import_target_is_input_entry(target: Path, input_identities, directory_names) -> bool:
+    """Identify a case-aliased input entry without conflating separate hardlinks.
+
+    :param target: existing output entry to identify before mutation.
+    :param input_identities: original and resolved entry names by parent and inode.
+    :param directory_names: per-parent cache used only for inode-alias candidates.
+    :returns: whether filesystem lookup reaches an input directory entry.
+    """
+    import os
+    import unicodedata
+
+    try:
+        target_info = target.lstat()
+        parent_info = target.parent.stat()
+    except FileNotFoundError:
+        return False
+    parent_id = (parent_info.st_dev, parent_info.st_ino)
+    candidates = input_identities.get(
+        (*parent_id, target_info.st_dev, target_info.st_ino), set())
+    if not candidates:
+        return False
+    if parent_id not in directory_names:
+        with os.scandir(target.parent) as entries:
+            directory_names[parent_id] = {entry.name for entry in entries}
+    names = directory_names[parent_id]
+    target_names = {target.name} if target.name in names else {
+        name for name in names if unicodedata.normalize("NFD", name).casefold() ==
+        unicodedata.normalize("NFD", target.name).casefold()}
+    protected_names = set()
+    for candidate in candidates:
+        if candidate in names:
+            protected_names.add(candidate)
+        else:
+            protected_names.update(
+                name for name in names if unicodedata.normalize("NFD", name).casefold() ==
+                unicodedata.normalize("NFD", candidate).casefold())
+    return bool(target_names & protected_names)
+
+
 def _prepare_import_target(target: Path, *, source: Optional[Path] = None,
                            unlink: bool = False) -> None:
     """Detach an output alias without writing through it into another image.
@@ -919,6 +958,17 @@ def apply_import(plan: "ImportPlan", destination, *, link: bool = True,
         for path in inputs
     }
     input_entries.update(os.path.normcase(str(path.resolve())) for path in inputs)
+    input_paths = set(inputs) | {path.resolve() for path in inputs}
+    input_identities = {}
+    for path in input_paths:
+        try:
+            parent_info = path.parent.stat()
+            info = path.lstat()
+        except FileNotFoundError:
+            continue
+        identity = (parent_info.st_dev, parent_info.st_ino, info.st_dev, info.st_ino)
+        input_identities.setdefault(identity, set()).add(path.name)
+    directory_names = {}
     planned_names = {}
     for rel, entry in sorted(entries.items()):
         if tiles_as_fields and "tile" in entry:
@@ -928,7 +978,8 @@ def apply_import(plan: "ImportPlan", destination, *, link: bool = True,
         name = canonical_name(entry, plate=plate)
         target = destination / name
         target_entry = os.path.normcase(str(target.parent.resolve() / target.name))
-        conflict = target_entry in input_entries
+        conflict = (target_entry in input_entries or
+                    _import_target_is_input_entry(target, input_identities, directory_names))
         stitched = stitch_tiles and not tiles_as_fields and "tile" in entry
         if conflict and not link and not stitched:
             try:
