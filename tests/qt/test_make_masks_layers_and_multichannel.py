@@ -328,9 +328,8 @@ def test_reset_buttons_are_neutral_and_label_steps_are_named(qtbot, tmp_path):
     screen = _open(qtbot, tmp_path)
     from spacr.qt.button_roles import action_role
 
-    assert action_role('Reset zoom') == 'negative'
     for button in (screen._btn_reset_zoom, screen._reset_layers_button):
-        assert button.property('buttonActionNeutral') is True
+        assert action_role(button.text()) is None
         assert button.property('buttonActionRole') is None
     from PySide6.QtWidgets import QToolButton
 

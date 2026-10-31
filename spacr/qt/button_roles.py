@@ -26,11 +26,6 @@ NEGATIVE_PREFIXES = (
     "stop", "abort", "delete", "remove", "discard", "terminate",
 )
 
-#: A button with this property set true keeps the neutral style whatever its
-#: label says: "Reset zoom" changes the view, not data, and is not a
-#: destructive action.
-NEUTRAL_PROPERTY = "buttonActionNeutral"
-
 _FILTER_ATTRIBUTE = "_spacr_semantic_button_filter"
 _WIRED_PROPERTY = "_spacrButtonRoleWired"
 #: Latch so :func:`_adopt_activity_spinner` walks a button's parents once.
@@ -206,8 +201,6 @@ class _SemanticButtonFilter(QObject):
                 and not button.icon().isNull()):
             button.setIcon(QIcon())
 
-        if button.property(NEUTRAL_PROPERTY):
-            return
         role = action_role(button.text())
         if role is None:
             if button.objectName() == "PrimaryButton":

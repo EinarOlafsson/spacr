@@ -14700,7 +14700,6 @@ class MakeMasksScreen(QWidget):
         body.addWidget(self._layer_panel)
         self._reset_layers_button = QPushButton(tr("Reset layers"), section)
         self._reset_layers_button.setObjectName("MakeMasksResetLayers")
-        self._reset_layers_button.setProperty("buttonActionNeutral", True)
         self._reset_layers_button.setToolTip(tr(
             "Return every layer to its default look."))
         self._reset_layers_button.clicked.connect(self._reset_field_layers)
@@ -17847,7 +17846,6 @@ class MakeMasksScreen(QWidget):
 
         self._btn_reset_zoom = QPushButton(tr("Reset zoom"))
         self._btn_reset_zoom.setObjectName("MakeMasksResetZoom")
-        self._btn_reset_zoom.setProperty("buttonActionNeutral", True)
         self._btn_reset_zoom.setMinimumHeight(32)
         self._btn_reset_zoom.setIcon(iconset.icon("zoom_reset"))
         self._btn_reset_zoom.setCursor(Qt.PointingHandCursor)
