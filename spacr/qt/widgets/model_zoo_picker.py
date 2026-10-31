@@ -1222,14 +1222,22 @@ class ModelZooPicker(QDialog):
     #: queued onto the GUI thread, where it redraws the table.
     _bioimageio_warmed = Signal()
 
-    def __init__(self, kinds: Optional[tuple] = None, parent: Optional[QWidget] = None):
+    def __init__(self, kinds: Optional[tuple] = None,
+                 parent: Optional[QWidget] = None, *, stepwise: bool = False):
         """Build the model zoo dialog.
 
         :param kinds: restrict the listing to these model kinds; ``None`` lists
             everything spaCR knows about.
         :param parent: parent widget, or ``None``.
+        :param stepwise: draw the table a few rows at a time, after the dialog
+            is up, instead of all at once while it is built. A row's version
+            box costs a stylesheet polish each, so a long list drawn at once
+            held the window for most of a second.
         """
         super().__init__(parent)
+        self._stepwise = bool(stepwise)
+        self._draw_generation = 0
+        self._drawn_signature = None
         self.setWindowTitle("Model zoo")
         from ..preferences import scaled_px
         
@@ -1514,7 +1522,48 @@ class ModelZooPicker(QDialog):
         entries = [e for e in entries if not _model_is_alpha_hidden(e)]
         self._entries = entries
 
+        if self._stepwise:
+            signature = [(entry, self._local_path(entry)) for entry in entries]
+            if signature == self._drawn_signature:
+                return
+            self._drawn_signature = signature
+            self._rebuild_in_steps(entries)
+            return
         self._rebuild(entries)
+
+    _STEP_BUDGET_S = 0.025
+
+    def _rebuild_in_steps(self, entries) -> None:
+        """Draw the table in time slices, each handing the event loop back.
+
+        A newer call cancels the draw in progress. The table ends exactly as
+        :meth:`_rebuild` leaves it.
+        """
+        from PySide6.QtCore import QTimer
+
+        self._draw_generation += 1
+        generation = self._draw_generation
+        self._begin_rebuild(entries)
+        state = {"row": 0}
+
+        def step() -> None:
+            import time
+
+            if generation != self._draw_generation:
+                return
+            started = time.perf_counter()
+            rows = len(self._groups)
+            while state["row"] < rows:
+                self._draw_row(state["row"])
+                state["row"] += 1
+                if time.perf_counter() - started >= self._STEP_BUDGET_S:
+                    break
+            if state["row"] < rows:
+                QTimer.singleShot(0, step)
+            else:
+                self._end_rebuild()
+
+        QTimer.singleShot(0, step)
 
     def _rebuild(self, entries) -> None:
         """Redraw the table from this list of entries.
@@ -1522,7 +1571,16 @@ class ModelZooPicker(QDialog):
         Split out of :meth:`refresh` so a caller -- a test, mainly -- can list
         entries of its own choosing without going through the catalogue.
         """
-        from ..screens.model_zoo import _mark_alternatives, group_entries
+        self._draw_generation += 1
+        self._drawn_signature = None
+        self._begin_rebuild(entries)
+        for row in range(len(self._groups)):
+            self._draw_row(row)
+        self._end_rebuild()
+
+    def _begin_rebuild(self, entries) -> None:
+        """Group the entries and size the table; the rows are drawn next."""
+        from ..screens.model_zoo import group_entries
 
         self._entries = list(entries)
 
@@ -1534,19 +1592,27 @@ class ModelZooPicker(QDialog):
         self._chosen = {stem: _zoo.default_version_index(pairs)
                         for stem, pairs in self._groups}
 
-        sorting = self.table.isSortingEnabled()
+        self._sorting_before_rebuild = self.table.isSortingEnabled()
         self.table.setSortingEnabled(False)
         self.table.setRowCount(len(self._groups))
-        for row, (stem, pairs) in enumerate(self._groups):
-            combo = QComboBox(self.table)
-            combo.addItems([label for label, _ in pairs])
-            _mark_alternatives(combo, pairs)
-            combo.setCurrentIndex(self._chosen[stem])
-            combo.currentIndexChanged.connect(
-                lambda index, g=row: self._version_picked(g, index))
-            self.table.setCellWidget(row, 4, combo)
-            self._fill_row(row, at=row)
-        self.table.setSortingEnabled(sorting)
+
+    def _draw_row(self, row: int) -> None:
+        """Draw one model group's row: its version box and its cells."""
+        from ..screens.model_zoo import _mark_alternatives
+
+        stem, pairs = self._groups[row]
+        combo = QComboBox(self.table)
+        combo.addItems([label for label, _ in pairs])
+        _mark_alternatives(combo, pairs)
+        combo.setCurrentIndex(self._chosen[stem])
+        combo.currentIndexChanged.connect(
+            lambda index, g=row: self._version_picked(g, index))
+        self.table.setCellWidget(row, 4, combo)
+        self._fill_row(row, at=row)
+
+    def _end_rebuild(self) -> None:
+        """Restore sorting and finish a redraw once every row is drawn."""
+        self.table.setSortingEnabled(self._sorting_before_rebuild)
         self._rebuilding = False
         self._apply_source_filter()
         self.table.resizeColumnsToContents()

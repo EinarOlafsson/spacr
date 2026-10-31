@@ -5362,7 +5362,7 @@ class AppScreen(QWidget):
         from ..widgets.model_zoo_picker import ModelZooPicker
         from ... import model_zoo
 
-        dialog = ModelZooPicker(self._model_kinds_for(key), self)
+        dialog = ModelZooPicker(self._model_kinds_for(key), self, stepwise=True)
         if dialog.exec() != QDialog.Accepted:
             return
         path = dialog.chosen_path()
