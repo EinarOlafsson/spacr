@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-29 16:50-0400\n"
+"POT-Creation-Date: 2026-10-31 00:24-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -48,8 +48,8 @@ msgid "The image list uses the existing bounded random sample. Already checked f
 msgstr "图像列表使用现有的有数量上限的随机样本。样本变化时，已勾选视野仍然可用。**最大预览裁剪图数** 限制合并网格的大小，可用位置分配给各个已勾选视野。若勾选视野数多于可用位置，请提高此限制。额外视野每次只读取一个。加载失败时会指出视野名称，并保留可供检查的有效视野。"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Checking images changes the preview selection. It does not select the fields that Measure processes or alter existing measurements or files. **Export displayed crops…** explicitly saves the completed preview crops as PNGs with provenance in a new folder; that export follows the checked fields and current display settings. **Propagate settings** copies crop and filter settings into the Measure form."
-msgstr "勾选图像会改变预览选择，不会选择 Measure 要处理的视野，也不会更改已有测量结果或文件。**导出显示的裁剪图…** 会将已完成预览的裁剪图连同来源信息明确保存为新文件夹中的 PNG 文件；该导出遵循勾选的视野和当前显示设置。**传递设置** 将裁剪和筛选设置复制到 Measure 表单。"
+msgid "Checking images changes the preview selection. It does not select the fields that Measure processes or alter existing measurements or files. **Export displayed crops…** explicitly saves the completed preview crops as PNGs with provenance in a new folder; that export follows the checked fields and current display settings. **Propagate settings** copies the current crop and filter settings into the Measure form when switched on; further changes are copied while it remains on."
+msgstr "勾选图像会改变预览选择，不会选择 Measure 要处理的视野，也不会更改已有测量结果或文件。**导出显示的裁剪图…** 会将已完成预览的裁剪图连同来源信息明确保存为新文件夹中的 PNG 文件；该导出遵循勾选的视野和当前显示设置。**传递设置** 开启时会将当前裁剪和筛选设置复制到 Measure 表单；保持开启期间，后续更改也会被复制。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Save measured fields"
@@ -60,8 +60,8 @@ msgid "Measure's SQLite workers send their completed data to one database writer
 msgstr "Measure 的 SQLite 工作进程将已完成的数据发送给一个数据库写入器。一个图像视野的对象行、裁剪索引、重新缩放溯源和融合度一起提交。运行仅在提交完成后记录该视野已保存。"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Preferences → Performance → Database write queue RAM** sets the amount of serialized queued data held in RAM. The default is 1 GiB and zero selects disk-only buffering. Overflow lives beneath ``measurements/.write_queue``; failed or interrupted packets remain there with their error reports. An explicit Python setting ``database_write_queue_gib`` overrides the preference for that run. See :doc:`database_concurrency_audit` for the queue, retry, journal and optional-backend boundaries."
-msgstr "**偏好 → 性能 → 数据库写入队列 RAM** 设置 RAM 中保留的序列化排队数据量。默认值为 1 GiB，零表示仅使用磁盘缓冲。超出预算的数据存放在 ``measurements/.write_queue`` 下；失败或中断的数据包及其错误报告保留在那里。显式 Python 设置 ``database_write_queue_gib`` 会在该次运行中覆盖偏好设置。有关队列、重试、日志以及可选后端的适用范围，请参阅 :doc:`database_concurrency_audit`。"
+msgid "**Preferences → Performance → Database write queue RAM** sets the amount of serialized queued data held in RAM. The default is 1 GiB and zero selects disk-only buffering. Overflow lives beneath ``measurements/.write_queue``; accepted, uncommitted packets are retained, but an abrupt interruption or full disk can leave them without an error report. An explicit Python setting ``database_write_queue_gib`` overrides the preference for that run. See :doc:`database_concurrency_audit` for the queue, retry, journal and optional-backend boundaries."
+msgstr "**偏好 → 性能 → 数据库写入队列 RAM** 设置 RAM 中保留的序列化排队数据量。默认值为 1 GiB，零表示仅使用磁盘缓冲。超出预算的数据存放在 ``measurements/.write_queue`` 下；已接收但未提交的数据包会保留，但突然中断或磁盘已满可能使其没有错误报告。显式 Python 设置 ``database_write_queue_gib`` 会在该次运行中覆盖偏好设置。有关队列、重试、日志以及可选后端的适用范围，请参阅 :doc:`database_concurrency_audit`。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Resolve a stored plane-layout conflict"

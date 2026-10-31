@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-31 00:24-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -56,8 +56,8 @@ msgid "In **Preferences → Performance**, **Database write queue RAM** controls
 msgstr "**환경설정 → 성능** 에서 **데이터베이스 쓰기 대기열 RAM** 은 SQLite 쓰기 담당자를 기다리는 직렬화된 데이터량을 제어합니다. 기본값은 1 GiB이며, 0은 디스크 버퍼링만 사용합니다. Python 또는 GUI 없는 호출은 Measure 설정의 ``database_write_queue_gib`` 값으로 저장된 환경 설정을 덮어쓸 수 있으며 범위는 0부터 64까지입니다. 이 예산은 대기 중 실제 데이터와 전송 복사본을 포함하며, 작업자 배열, 진행 중 쓰기 또는 프로세스 총 메모리를 제한하지 않습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Overflow is stored in a private run folder beneath ``measurements/.write_queue``. The transport holds a bounded number of entries, and overflow descriptors refer to disk data. Packets also retain a durable copy until commit, so cancellation, disk exhaustion or a failed writer cannot silently discard accepted data. Successfully committed packets are removed. Uncommitted packets and their error reports remain on disk after failure; do not delete them before investigating the failed field."
-msgstr "초과 데이터는 ``measurements/.write_queue`` 아래의 비공개 실행 폴더에 저장됩니다. 전송 경로의 항목 수는 제한되며, 초과 항목의 설명 정보는 디스크 데이터를 가리킵니다. 패킷은 커밋 전까지 영속 복사본도 유지하므로 취소, 디스크 공간 부족 또는 쓰기 담당자 실패가 이미 수락된 데이터를 알리지 않고 버릴 수 없습니다. 성공적으로 커밋된 패킷은 삭제됩니다. 실패 후 미커밋 패킷과 오류 보고서는 디스크에 남으며, 실패한 시야를 조사하기 전에 삭제하지 마세요."
+msgid "Overflow is stored in a private run folder beneath ``measurements/.write_queue``. The transport holds a bounded number of entries, and overflow descriptors refer to disk data. Once accepted, each packet has a durable disk copy until commit. Successfully committed packets are removed during queue cleanup. Uncommitted packets remain after a handled failure; error reports are written when possible. Abrupt termination or disk errors can leave retained packets without reports. Do not delete retained packets before investigating the failed field."
+msgstr "초과 데이터는 ``measurements/.write_queue`` 아래의 비공개 실행 폴더에 저장됩니다. 전송 경로의 항목 수는 제한되며, 초과 항목의 설명 정보는 디스크 데이터를 가리킵니다. 수락된 각 패킷은 커밋될 때까지 영속 디스크 복사본을 유지합니다. 성공적으로 커밋된 패킷은 대기열 정리 시 삭제됩니다. 처리된 실패 후에도 미커밋 패킷은 남으며, 가능할 때 오류 보고서가 작성됩니다. 갑작스러운 종료나 디스크 오류로 보관된 패킷에 보고서가 없을 수 있습니다. 실패한 시야를 조사하기 전에 보관된 패킷을 삭제하지 마세요."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Each field has a commit ticket written atomically with its rows. Replaying that ticket does not append the rows again. Exhausted SQL busy/lock failures enter a distinct serial retry pass after the primary producers finish. This pass gives each affected field one additional attempt. Invalid inputs and cancellation do not enter it. Readers retain their ordinary read-only connections and the existing filesystem-dependent journal policy."

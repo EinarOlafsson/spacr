@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-29 16:50-0400\n"
+"POT-Creation-Date: 2026-10-31 00:24-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: es\n"
@@ -48,8 +48,8 @@ msgid "The image list uses the existing bounded random sample. Already checked f
 msgstr "La lista de imágenes utiliza la muestra aleatoria limitada existente. Los campos ya marcados siguen disponibles cuando cambia la muestra. **Máx. de recortes de vista previa** limita la cuadrícula combinada, repartiendo sus plazas entre los campos marcados. Auméntelo si hay más campos marcados que plazas disponibles. Los campos adicionales se leen de uno en uno. Un fallo de carga identifica el campo y mantiene disponibles los campos válidos para su inspección."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Checking images changes the preview selection. It does not select the fields that Measure processes or alter existing measurements or files. **Export displayed crops…** explicitly saves the completed preview crops as PNGs with provenance in a new folder; that export follows the checked fields and current display settings. **Propagate settings** copies crop and filter settings into the Measure form."
-msgstr "Marcar imágenes cambia la selección de la vista previa. No selecciona los campos que procesa Measure ni modifica mediciones o archivos existentes. **Exportar recortes mostrados…** guarda explícitamente los recortes de la vista previa completada como PNG con su procedencia en una carpeta nueva; esa exportación sigue los campos marcados y los ajustes de visualización actuales. **Propagar ajustes** copia los ajustes de recorte y filtrado al formulario de Measure."
+msgid "Checking images changes the preview selection. It does not select the fields that Measure processes or alter existing measurements or files. **Export displayed crops…** explicitly saves the completed preview crops as PNGs with provenance in a new folder; that export follows the checked fields and current display settings. **Propagate settings** copies the current crop and filter settings into the Measure form when switched on; further changes are copied while it remains on."
+msgstr "Marcar imágenes cambia la selección de la vista previa. No selecciona los campos que procesa Measure ni modifica mediciones o archivos existentes. **Exportar recortes mostrados…** guarda explícitamente los recortes de la vista previa completada como PNG con su procedencia en una carpeta nueva; esa exportación sigue los campos marcados y los ajustes de visualización actuales. **Propagar ajustes** copia los ajustes actuales de recorte y filtrado al formulario de Measure al activarse; los cambios posteriores se copian mientras permanezca activado."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Save measured fields"
@@ -60,8 +60,8 @@ msgid "Measure's SQLite workers send their completed data to one database writer
 msgstr "Los trabajadores SQLite de Measure envían sus datos completados a un único escritor de base de datos. Las filas de objetos, los índices de recortes, la procedencia del reescalado y la confluencia de un campo se confirman juntos. La ejecución registra un campo guardado solo después de su confirmación."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Preferences → Performance → Database write queue RAM** sets the amount of serialized queued data held in RAM. The default is 1 GiB and zero selects disk-only buffering. Overflow lives beneath ``measurements/.write_queue``; failed or interrupted packets remain there with their error reports. An explicit Python setting ``database_write_queue_gib`` overrides the preference for that run. See :doc:`database_concurrency_audit` for the queue, retry, journal and optional-backend boundaries."
-msgstr "**Preferencias → Rendimiento → RAM de la cola de escritura en base de datos** establece la cantidad de datos serializados en cola que se mantienen en RAM. El valor predeterminado es 1 GiB y cero selecciona almacenamiento intermedio solo en disco. El exceso se guarda bajo ``measurements/.write_queue``; los paquetes fallidos o interrumpidos permanecen allí con sus informes de error. Un ajuste explícito de Python, ``database_write_queue_gib``, sustituye la preferencia para esa ejecución. Consulte :doc:`database_concurrency_audit` para conocer los límites de la cola, los reintentos, el registro y los motores opcionales."
+msgid "**Preferences → Performance → Database write queue RAM** sets the amount of serialized queued data held in RAM. The default is 1 GiB and zero selects disk-only buffering. Overflow lives beneath ``measurements/.write_queue``; accepted, uncommitted packets are retained, but an abrupt interruption or full disk can leave them without an error report. An explicit Python setting ``database_write_queue_gib`` overrides the preference for that run. See :doc:`database_concurrency_audit` for the queue, retry, journal and optional-backend boundaries."
+msgstr "**Preferencias → Rendimiento → RAM de la cola de escritura en base de datos** establece la cantidad de datos serializados en cola que se mantienen en RAM. El valor predeterminado es 1 GiB y cero selecciona almacenamiento intermedio solo en disco. El exceso se guarda bajo ``measurements/.write_queue``; los paquetes aceptados y aún no confirmados se conservan, pero una interrupción abrupta o un disco lleno pueden dejarlos sin informe de error. Un ajuste explícito de Python, ``database_write_queue_gib``, sustituye la preferencia para esa ejecución. Consulte :doc:`database_concurrency_audit` para conocer los límites de la cola, los reintentos, el registro y los motores opcionales."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Resolve a stored plane-layout conflict"

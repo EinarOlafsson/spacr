@@ -44,8 +44,9 @@ Checking images changes the preview selection. It does not select the fields
 that Measure processes or alter existing measurements or files.
 **Export displayed crops…** explicitly saves the completed preview crops as
 PNGs with provenance in a new folder; that export follows the checked fields
-and current display settings. **Propagate settings** copies crop and filter
-settings into the Measure form.
+and current display settings. **Propagate settings** copies the current crop and filter settings into
+the Measure form when switched on; further changes are copied while it
+remains on.
 
 Save measured fields
 --------------------
@@ -57,7 +58,8 @@ commit together. The run records a saved field only after its commit.
 **Preferences → Performance → Database write queue RAM** sets the amount of
 serialized queued data held in RAM. The default is 1 GiB and zero selects
 disk-only buffering. Overflow lives beneath ``measurements/.write_queue``;
-failed or interrupted packets remain there with their error reports.
+accepted, uncommitted packets are retained, but an abrupt interruption or
+full disk can leave them without an error report.
 An explicit Python setting ``database_write_queue_gib`` overrides the
 preference for that run. See :doc:`database_concurrency_audit` for the queue,
 retry, journal and optional-backend boundaries.

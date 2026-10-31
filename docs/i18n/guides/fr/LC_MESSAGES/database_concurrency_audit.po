@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-31 00:24-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: fr\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -56,8 +56,8 @@ msgid "In **Preferences → Performance**, **Database write queue RAM** controls
 msgstr "Dans **Préférences → Performances**, **RAM de la file d'écriture en base** contrôle les données sérialisées en attente du processus d'écriture SQLite. La valeur par défaut est 1 GiB ; zéro utilise uniquement un tampon sur disque. Un appel Python ou sans GUI peut remplacer la préférence enregistrée avec ``database_write_queue_gib`` dans les paramètres de Measure, de zéro à 64. Le budget tient compte des données en attente et des copies de transport ; il ne limite ni les tableaux des travailleurs, ni l'écriture active, ni la mémoire totale du processus."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Overflow is stored in a private run folder beneath ``measurements/.write_queue``. The transport holds a bounded number of entries, and overflow descriptors refer to disk data. Packets also retain a durable copy until commit, so cancellation, disk exhaustion or a failed writer cannot silently discard accepted data. Successfully committed packets are removed. Uncommitted packets and their error reports remain on disk after failure; do not delete them before investigating the failed field."
-msgstr "Les données excédentaires sont stockées dans un dossier privé de l'exécution sous ``measurements/.write_queue``. Le transport contient un nombre borné d'entrées et les descripteurs du dépassement renvoient aux données sur disque. Les paquets conservent aussi une copie durable jusqu'à la validation, pour qu'une annulation, un disque plein ou un processus d'écriture en échec ne puisse pas supprimer silencieusement des données acceptées. Les paquets validés sont supprimés. Les paquets non validés et leurs rapports d'erreur restent sur disque après un échec ; ne les supprimez pas avant d'avoir examiné le champ en échec."
+msgid "Overflow is stored in a private run folder beneath ``measurements/.write_queue``. The transport holds a bounded number of entries, and overflow descriptors refer to disk data. Once accepted, each packet has a durable disk copy until commit. Successfully committed packets are removed during queue cleanup. Uncommitted packets remain after a handled failure; error reports are written when possible. Abrupt termination or disk errors can leave retained packets without reports. Do not delete retained packets before investigating the failed field."
+msgstr "Les données excédentaires sont stockées dans un dossier privé de l'exécution sous ``measurements/.write_queue``. Le transport contient un nombre borné d'entrées et les descripteurs du dépassement renvoient aux données sur disque. Une fois accepté, chaque paquet dispose d’une copie durable sur disque jusqu’à sa validation. Les paquets validés sont supprimés lors du nettoyage de la file. Les paquets non validés sont conservés après un échec géré ; les rapports d’erreur sont écrits lorsque cela est possible. Un arrêt brutal ou des erreurs de disque peuvent laisser des paquets conservés sans rapport. Ne supprimez pas les paquets conservés avant d’avoir examiné le champ en échec."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Each field has a commit ticket written atomically with its rows. Replaying that ticket does not append the rows again. Exhausted SQL busy/lock failures enter a distinct serial retry pass after the primary producers finish. This pass gives each affected field one additional attempt. Invalid inputs and cancellation do not enter it. Readers retain their ordinary read-only connections and the existing filesystem-dependent journal policy."

@@ -42,11 +42,12 @@ it does not cap worker arrays, the active write, or total process memory.
 
 Overflow is stored in a private run folder beneath
 ``measurements/.write_queue``. The transport holds a bounded number of
-entries, and overflow descriptors refer to disk data. Packets also retain a
-durable copy until commit, so cancellation, disk exhaustion or a failed writer
-cannot silently discard accepted data. Successfully committed packets are
-removed. Uncommitted packets and their error reports remain on disk after
-failure; do not delete them before investigating the failed field.
+entries, and overflow descriptors refer to disk data. Once accepted, each
+packet has a durable disk copy until commit. Successfully committed packets
+are removed during queue cleanup. Uncommitted packets remain after a handled
+failure; error reports are written when possible. Abrupt termination or disk
+errors can leave retained packets without reports. Do not delete retained
+packets before investigating the failed field.
 
 Each field has a commit ticket written atomically with its rows. Replaying
 that ticket does not append the rows again. Exhausted SQL busy/lock failures

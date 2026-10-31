@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-29 16:50-0400\n"
+"POT-Creation-Date: 2026-10-31 00:24-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -48,8 +48,8 @@ msgid "The image list uses the existing bounded random sample. Already checked f
 msgstr "이미지 목록은 기존의 크기가 제한된 무작위 표본을 사용합니다. 표본이 변경되어도 이미 선택된 시야는 계속 사용할 수 있습니다. **최대 미리보기 크롭 수**\\ 는 전체 격자에 표시할 잘라낸 이미지 수를 제한하고 표시 슬롯을 선택된 시야에 나누어 배정합니다. 선택된 시야가 슬롯보다 많으면 이 값을 늘리세요. 추가 시야는 한 번에 하나씩 읽습니다. 로드에 실패하면 해당 시야 이름이 표시되며 정상적인 시야는 계속 확인할 수 있습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Checking images changes the preview selection. It does not select the fields that Measure processes or alter existing measurements or files. **Export displayed crops…** explicitly saves the completed preview crops as PNGs with provenance in a new folder; that export follows the checked fields and current display settings. **Propagate settings** copies crop and filter settings into the Measure form."
-msgstr "이미지에 체크하면 미리보기 선택이 바뀝니다. Measure가 처리할 시야를 선택하거나 기존 측정값 또는 파일을 변경하지는 않습니다. **표시된 자르기 이미지 내보내기…** 기능은 완료된 미리보기의 자르기 이미지를 출처 정보와 함께 PNG로 새 폴더에 명시적으로 저장합니다. 이 내보내기는 체크한 시야와 현재 표시 설정을 따릅니다. **설정 복사** 기능은 자르기 및 필터 설정을 Measure 양식으로 복사합니다."
+msgid "Checking images changes the preview selection. It does not select the fields that Measure processes or alter existing measurements or files. **Export displayed crops…** explicitly saves the completed preview crops as PNGs with provenance in a new folder; that export follows the checked fields and current display settings. **Propagate settings** copies the current crop and filter settings into the Measure form when switched on; further changes are copied while it remains on."
+msgstr "이미지에 체크하면 미리보기 선택이 바뀝니다. Measure가 처리할 시야를 선택하거나 기존 측정값 또는 파일을 변경하지는 않습니다. **표시된 자르기 이미지 내보내기…** 기능은 완료된 미리보기의 자르기 이미지를 출처 정보와 함께 PNG로 새 폴더에 명시적으로 저장합니다. 이 내보내기는 체크한 시야와 현재 표시 설정을 따릅니다. **설정 복사** 기능을 켜면 현재 자르기 및 필터 설정이 Measure 양식으로 복사되며, 켜져 있는 동안 이후 변경 사항도 복사됩니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Save measured fields"
@@ -60,8 +60,8 @@ msgid "Measure's SQLite workers send their completed data to one database writer
 msgstr "Measure의 SQLite 작업자는 완료된 데이터를 단일 데이터베이스 쓰기 담당자에게 보냅니다. 한 이미지 시야의 객체 행, 자르기 인덱스, 재조정 출처 및 융합도는 함께 커밋됩니다. 실행은 커밋 후에만 저장된 시야를 기록합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Preferences → Performance → Database write queue RAM** sets the amount of serialized queued data held in RAM. The default is 1 GiB and zero selects disk-only buffering. Overflow lives beneath ``measurements/.write_queue``; failed or interrupted packets remain there with their error reports. An explicit Python setting ``database_write_queue_gib`` overrides the preference for that run. See :doc:`database_concurrency_audit` for the queue, retry, journal and optional-backend boundaries."
-msgstr "**환경설정 → 성능 → 데이터베이스 쓰기 대기열 RAM** 은 RAM에 보관되는 직렬화된 대기 데이터량을 설정합니다. 기본값은 1 GiB이며, 0을 선택하면 디스크 버퍼링만 사용합니다. 초과 데이터는 ``measurements/.write_queue`` 아래에 저장되며, 실패하거나 중단된 패킷과 오류 보고서는 그곳에 남습니다. 명시적 Python 설정 ``database_write_queue_gib`` 는 해당 실행에서 환경 설정을 덮어씁니다. 대기열, 재시도, 저널 및 선택적 백엔드의 적용 범위는 :doc:`database_concurrency_audit` 를 참조하세요."
+msgid "**Preferences → Performance → Database write queue RAM** sets the amount of serialized queued data held in RAM. The default is 1 GiB and zero selects disk-only buffering. Overflow lives beneath ``measurements/.write_queue``; accepted, uncommitted packets are retained, but an abrupt interruption or full disk can leave them without an error report. An explicit Python setting ``database_write_queue_gib`` overrides the preference for that run. See :doc:`database_concurrency_audit` for the queue, retry, journal and optional-backend boundaries."
+msgstr "**환경설정 → 성능 → 데이터베이스 쓰기 대기열 RAM** 은 RAM에 보관되는 직렬화된 대기 데이터량을 설정합니다. 기본값은 1 GiB이며, 0을 선택하면 디스크 버퍼링만 사용합니다. 초과 데이터는 ``measurements/.write_queue`` 아래에 저장되며, 수락되었지만 커밋되지 않은 패킷은 보관되지만, 갑작스러운 중단이나 디스크 공간 부족으로 오류 보고서가 없을 수 있습니다. 명시적 Python 설정 ``database_write_queue_gib`` 는 해당 실행에서 환경 설정을 덮어씁니다. 대기열, 재시도, 저널 및 선택적 백엔드의 적용 범위는 :doc:`database_concurrency_audit` 를 참조하세요."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Resolve a stored plane-layout conflict"

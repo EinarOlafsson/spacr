@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-31 00:24-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
@@ -56,8 +56,8 @@ msgid "In **Preferences → Performance**, **Database write queue RAM** controls
 msgstr "Í **Kjörstillingar → Afköst** stjórnar **RAM fyrir skrifbiðröð gagnagrunns** raðvædda gagnamagninu sem bíður eftir SQLite-skrifaranum. Sjálfgefið gildi er 1 GiB; núll notar aðeins biðminni á diski. Python-kall eða keyrsla án GUI getur yfirskrifað vistaða kjörstillingu með ``database_write_queue_gib`` í Measure-stillingunum, frá núlli til 64. Heimildin telur biðraðargögn og flutningsafrit; hún takmarkar ekki fylki verkferla, virk skrif eða heildarminni ferlisins."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Overflow is stored in a private run folder beneath ``measurements/.write_queue``. The transport holds a bounded number of entries, and overflow descriptors refer to disk data. Packets also retain a durable copy until commit, so cancellation, disk exhaustion or a failed writer cannot silently discard accepted data. Successfully committed packets are removed. Uncommitted packets and their error reports remain on disk after failure; do not delete them before investigating the failed field."
-msgstr "Umframgögn eru geymd í einkamöppu keyrslunnar undir ``measurements/.write_queue``. Flutningsleiðin heldur takmörkuðum fjölda færslna og lýsingar umframfærslna vísa í gögn á diski. Pakkar halda einnig varanlegu afriti þar til staðfesting hefur farið fram, svo afturköllun, fullur diskur eða bilaður skrifari geta ekki hent mótteknum gögnum án tilkynningar. Pakkar sem hafa verið staðfestir eru fjarlægðir. Óstaðfestir pakkar og villuskýrslur þeirra eru áfram á diski eftir bilun; ekki eyða þeim fyrr en bilaða myndsviðið hefur verið rannsakað."
+msgid "Overflow is stored in a private run folder beneath ``measurements/.write_queue``. The transport holds a bounded number of entries, and overflow descriptors refer to disk data. Once accepted, each packet has a durable disk copy until commit. Successfully committed packets are removed during queue cleanup. Uncommitted packets remain after a handled failure; error reports are written when possible. Abrupt termination or disk errors can leave retained packets without reports. Do not delete retained packets before investigating the failed field."
+msgstr "Umframgögn eru geymd í einkamöppu keyrslunnar undir ``measurements/.write_queue``. Flutningsleiðin heldur takmörkuðum fjölda færslna og lýsingar umframfærslna vísa í gögn á diski. Eftir móttöku hefur hver pakki varanlegt afrit á diski þar til staðfesting fer fram. Staðfestir pakkar eru fjarlægðir við hreinsun biðraðarinnar. Óstaðfestir pakkar haldast eftir villu sem hefur verið meðhöndluð; villuskýrslur eru skrifaðar þegar það er hægt. Skyndileg stöðvun eða diskvillur geta skilið varðveitta pakka eftir án skýrslna. Ekki eyða varðveittum pökkum fyrr en bilaða myndsviðið hefur verið rannsakað."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Each field has a commit ticket written atomically with its rows. Replaying that ticket does not append the rows again. Exhausted SQL busy/lock failures enter a distinct serial retry pass after the primary producers finish. This pass gives each affected field one additional attempt. Invalid inputs and cancellation do not enter it. Readers retain their ordinary read-only connections and the existing filesystem-dependent journal policy."
