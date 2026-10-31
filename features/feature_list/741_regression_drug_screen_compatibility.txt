@@ -24,3 +24,5 @@ the N739 routing plan; obtain design approval before implementation.
 
 The original request and feature-set branching requirements are preserved in
 N739. This session only records the work for the next session.
+
+2026-10-31 — Maintainer approved implementing N741 now; the record-only hold is lifted. As this item requires, the data/model compatibility proposal (drug, concentration/unit, treatment, control, replicate and plate/batch mappings; required vs optional fields; valid analyses per input) goes to design approval first. Regression code changes begin only after the proposed scientific model is approved; current CRISPR regression behaviour stays unchanged.
