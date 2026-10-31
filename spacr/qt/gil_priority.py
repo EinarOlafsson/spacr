@@ -348,18 +348,17 @@ def _cuda_may_be_used(nodes=("/dev/nvidiactl",)) -> bool:
 
 
 def _initialise_the_cuda_driver(library=None) -> bool:
-    """Start the CUDA driver and create device 0's primary context, lock released.
+    """Start the CUDA driver and look up device 0, with the interpreter lock released.
 
-    THE FIRST RUN FROZE THE WINDOW FOR A SECOND AND A HALF AT "accelerator
-    resolved". ``torch.cuda`` creates the driver's context from a Python
-    call that keeps the interpreter lock for the whole of it (``cuInit`` and
-    the context together take 1-2 s on a workstation), so the worker that
-    resolves the accelerator starved the GUI thread. The same two driver
-    calls made through ctypes release the lock, so the window keeps painting
-    while they run, and the later ``torch.cuda`` initialisation finds the
-    driver started and the primary context made, because the runtime shares
-    the driver's primary context. Nothing is allocated beyond the context
-    itself.
+    THE FIRST RUN FROZE THE WINDOW AT "accelerator resolved". The first
+    ``torch.cuda`` call loads the driver and enumerates its devices from a
+    Python call that keeps the interpreter lock for the whole of it, so the
+    worker that resolves the accelerator starved the GUI thread. ``cuInit``
+    and ``cuDeviceGet`` made through ctypes release the lock, so the window
+    keeps painting while they run, and the later ``torch.cuda`` call finds
+    the driver started. No context is created: nothing is allocated on the
+    GPU and the process does not show up as a compute process until a run
+    uses the device.
 
     Linux only, once per process, and only where :func:`_cuda_may_be_used`.
     Any failure stops it and leaves everything to ``torch.cuda``. Call it
@@ -367,7 +366,7 @@ def _initialise_the_cuda_driver(library=None) -> bool:
 
     :param library: the driver's ctypes library, for a test; ``None`` loads
         ``libcuda.so.1``.
-    :returns: True when the driver started and the context was made.
+    :returns: True when the driver started and device 0 was found.
     """
     global _CUDA_DRIVER_TRIED
     with _LOCK:
@@ -384,11 +383,7 @@ def _initialise_the_cuda_driver(library=None) -> bool:
         if library.cuInit(0) != 0:
             return False
         device = ctypes.c_int()
-        if library.cuDeviceGet(ctypes.byref(device), 0) != 0:
-            return False
-        context = ctypes.c_void_p()
-        return library.cuDevicePrimaryCtxRetain(
-            ctypes.byref(context), device) == 0
+        return library.cuDeviceGet(ctypes.byref(device), 0) == 0
     except Exception:                                    # noqa: BLE001
         LOG.debug("could not start the CUDA driver early", exc_info=True)
         return False

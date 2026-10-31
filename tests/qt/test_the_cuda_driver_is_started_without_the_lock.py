@@ -1,10 +1,11 @@
-"""The CUDA driver and its context are started by calls that release the lock.
+"""The CUDA driver is started by calls that release the lock; no context is made.
 
 Lesson 22's first run froze the window between "run opened" and the model
-loading: ``torch.cuda`` makes the driver's context from a Python call that
-holds the interpreter lock for 1-2 s. The same driver calls through ctypes
-release it, so the early warm (after the torch libraries are mapped) starts
-them while the window keeps painting. These tests use a stand-in library;
+loading: the first ``torch.cuda`` call loads the driver and enumerates its
+devices from a Python call that holds the interpreter lock. The same driver
+calls through ctypes release it, so the early warm (after the torch libraries
+are mapped) starts them while the window keeps painting. It never creates a
+context: that would cost VRAM and show the window as a compute process. These tests use a stand-in library;
 whether the real driver then makes ``torch.cuda`` initialise faster is
 checked on a machine with a GPU.
 """
@@ -37,16 +38,19 @@ class _Driver:
     def cuDevicePrimaryCtxRetain(self, context, device):
         return self._answer("cuDevicePrimaryCtxRetain")
 
+    def cuCtxCreate_v2(self, *args):
+        return self._answer("cuCtxCreate_v2")
+
 
 @pytest.fixture(autouse=True)
 def _fresh_attempt(monkeypatch):
     monkeypatch.setattr(gil_priority, "_CUDA_DRIVER_TRIED", False)
 
 
-def test_the_driver_starts_then_makes_device_zero_s_primary_context():
+def test_the_driver_starts_and_finds_device_zero_and_makes_no_context():
     driver = _Driver()
     assert gil_priority._initialise_the_cuda_driver(driver) is True
-    assert driver.calls == ["cuInit", "cuDeviceGet", "cuDevicePrimaryCtxRetain"]
+    assert driver.calls == ["cuInit", "cuDeviceGet"]
 
 
 def test_a_driver_that_will_not_start_stops_the_warm_there():
@@ -55,9 +59,10 @@ def test_a_driver_that_will_not_start_stops_the_warm_there():
     assert driver.calls == ["cuInit"]
 
 
-def test_a_failed_context_is_reported_false_and_never_raises():
-    driver = _Driver(fail_on="cuDevicePrimaryCtxRetain")
+def test_a_missing_device_is_reported_false_and_never_raises():
+    driver = _Driver(fail_on="cuDeviceGet")
     assert gil_priority._initialise_the_cuda_driver(driver) is False
+    assert driver.calls == ["cuInit", "cuDeviceGet"]
 
 
 def test_it_is_tried_once_per_process():
