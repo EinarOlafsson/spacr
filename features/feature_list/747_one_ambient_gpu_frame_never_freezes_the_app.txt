@@ -1,0 +1,46 @@
+ONE AMBIENT GPU FRAME NEVER FREEZES THE APP
+==========================================
+Lifecycle: new
+Status: in progress — recorded before implementation.
+Requested: coordinator for the tutorial lane, 2026-10-31 (blocks lesson 19's
+        smoothness gates).
+Owner: Home (Claude agent 6); real-GPU check by the workstation.
+Related: 728 (GPU frames hold the interpreter lock), 679/684 (animation GPU
+        renderer and audit), N676 tutorials.
+
+EVIDENCE (workstation, nightly 16caad0af3, PySide6 6.11.1, Python 3.13,
+RTX 3090 Ti, xcb, box load 25-29, no other GPU compute process reported)
+- spacr.log 12:17:04 "data_art_impulse_lens: a GPU frame held the interpreter
+  lock 1065 ms; shading on the CPU for 30 s"; 12:18:16 the same with 8883 ms.
+- 12:22:28 WARNING "animation stays on the CPU: Dynamic animation holds the
+  GPU for analysis" (the Train Cellpose run had started).
+- The capture showed the field frozen from second 3 to 30 while painted at
+  9.8 fps; the GUI thread never stalled more than 0.25 s. The CPU fallback
+  then ran at a few fps for 30 s. Make Masks -> Cellpose Workbench was open.
+- Code: spacr/qt/widgets/ambient.py _GraphicsBackend._graphics_renderer and
+  _graphics_frame. A GPU frame runs synchronously on the shading thread, from
+  submission to readback; only a frame that already finished is judged, the
+  first frame of each renderer is never judged, and the shading thread holds
+  the engine lock throughout, so a frame that waits seconds behind other GPU
+  work stops the field for that long.
+
+QUESTIONS
+1. Why can one field frame take 1-9 s: a readback queued behind other work on
+   the same card (training, screen-recorder encoding), a context or shader
+   compile under contention, or a Python-side synchronisation?
+2. Can a GPU frame avoid holding the interpreter lock or the shading thread?
+3. Should the backdrop stay on the GPU while analysis or training holds it?
+
+REQUIREMENTS
+1. No single GPU frame may stop the field: the shading thread waits for a GPU
+   frame at most a frame budget, then shades that frame on the CPU and keeps
+   the CPU path for the backoff; a late GPU frame is discarded. The renderer
+   is created, used and released on one thread that owns its context.
+2. A first (compiling) frame is bounded too, with a longer allowance.
+3. Registered GPU analysis or training switches decoration to the CPU at its
+   start, as before; record whether other processes can be observed at all.
+4. The CPU fallback keeps a usable frame rate; measure it and say what keeps
+   it from the CPU table's cost.
+5. Tests with a fake slow GPU frame; measure frames and stalls before/after.
+   No GPU at Home: stubs and the CPU path only, and list exactly what needs a
+   real-GPU check on the workstation.
