@@ -3331,6 +3331,19 @@ MANUAL_UI: dict[str, dict[str, str]] = {
     # identically. These are review decisions, not inventory exclusions.
     "F1 @ IoU 0.5": {code: "F1 @ IoU 0.5" for code in MODEL_SPECS},
     "Dice": {code: "Dice" for code in MODEL_SPECS},
+    # The Protocols sequencer choices are vendor and instrument names, the
+    # same in every language; a translated gloss would add words the English
+    # choice does not have.
+    "Element Biosciences AVITI": {
+        code: "Element Biosciences AVITI" for code in MODEL_SPECS},
+    "Illumina (MiSeq, NextSeq, NovaSeq, iSeq)": {
+        code: "Illumina (MiSeq, NextSeq, NovaSeq, iSeq)" for code in MODEL_SPECS},
+    "MGI / Complete Genomics DNBSEQ": {
+        code: "MGI / Complete Genomics DNBSEQ" for code in MODEL_SPECS},
+    "Oxford Nanopore": {code: "Oxford Nanopore" for code in MODEL_SPECS},
+    "PacBio (HiFi / CCS)": {code: "PacBio (HiFi / CCS)" for code in MODEL_SPECS},
+    "Ultima Genomics UG 100": {
+        code: "Ultima Genomics UG 100" for code in MODEL_SPECS},
     "{metric}: {value:.4f}": {
         code: "{metric}: {value:.4f}" for code in MODEL_SPECS
     },
