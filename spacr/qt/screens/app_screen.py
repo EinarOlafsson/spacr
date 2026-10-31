@@ -5666,7 +5666,8 @@ class AppScreen(QWidget):
         button.setToolTip(
             "Fetch the four-plate example screen and put its count tables "
             "and score tables into the two slots below. About 35 MB the "
-            "first time; cached afterwards, so pressing it again is instant.")
+            "first time; later presses reuse the cached files instead of "
+            "downloading them again.")
         button.clicked.connect(
             lambda: self.load_the_example_screen(in_background=True))
         self._example_data_button = button
@@ -6021,8 +6022,8 @@ class AppScreen(QWidget):
         button.setToolTip(tr(
             "Download about 370 MB of example data for Measure: sixteen "
             "fields across four wells, already segmented, so Measure can be "
-            "run without generating masks first. Cached afterwards, so "
-            "pressing it again is instant."))
+            "run without generating masks first. Later presses reuse the "
+            "downloaded copy instead of downloading it again."))
         button.clicked.connect(lambda: self.load_the_measure_example())
         self._measure_example_button = button
         section.add_prose(button, at_top=True)

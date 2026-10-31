@@ -74,9 +74,10 @@ class InstallerConsentDialog(QDialog):
         layout = QVBoxLayout(self)
         explanation = QLabel(tr(
             "Anonymised error reports are on by default. They are filed as "
-            "public GitHub issues by spaCR's relay, with no account needed, "
-            "and never include paths, names, IP addresses, emails, tokens, "
-            "logs, images or your content. spaCR AI (free) is also on by "
+            "public GitHub issues by spaCR's relay, with no account needed. "
+            "The error message is scrubbed of paths, file names, user and "
+            "host names, e-mail and IP addresses and tokens; logs and images "
+            "are not sent. spaCR AI (free) is also on by "
             "default. Turn reports off in Preferences \u2192 AI \u2192 AI "
             "Error report. The terms of use, Sections 5.6\u20135.7 and 6, "
             "give the details."
@@ -246,8 +247,9 @@ class AnonymousReportNotice(QDialog):
         layout = QVBoxLayout(self)
         explanation = QLabel(tr(
             "spaCR sends an anonymised summary when a run fails, is refused "
-            "for its settings, or spaCR crashes, so problems get fixed without you having to report "
-            "them. This is on by default. The summary holds versions, the "
+            "for its settings, or spaCR crashes, so the maintainers receive "
+            "the error without a manual report. This is on by default. The "
+            "summary holds versions, the "
             "operating system, the GPU type, the module, the error type, a "
             "scrubbed message and the call stack without paths. It goes "
             "through spaCR's relay to a public GitHub issue on "

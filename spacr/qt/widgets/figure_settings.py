@@ -1623,10 +1623,9 @@ def _add_bundle_save(menu, figure, parent) -> None:
     action = menu.addAction(tr("Save"))
     action.setToolTip(tr(
         "Writes a FOLDER: the figure as pdf and png, the rows it was drawn "
-        "from, and the test that was run on them with its assumptions. A pdf "
-        "on its own cannot be checked -- six months later the question is "
-        "what the numbers were and whether the difference was tested, and a "
-        "figure file answers neither."))
+        "from (data.csv), the group comparison with its assumption checks "
+        "(statistics.csv) and the plot settings (settings.json). With fewer "
+        "than two groups, statistics.csv records that no test was run."))
 
     def _save() -> None:
         """Ask for a folder and write the whole bundle into it."""

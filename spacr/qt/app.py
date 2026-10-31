@@ -8466,12 +8466,12 @@ class MainWindow(QMainWindow):
               13, muted=True, gap=10)
         _line(f"Version {version}", 12, muted=True)
         _line(build, 11, muted=True, gap=16) if build else col.addSpacing(16)
-        license_link = (
-            '<a href="https://opensource.org/licenses/BSD-3-Clause">'
-            'BSD 3-Clause License</a>')
+        from .terms import LICENSE_NAME, LICENSE_URL
+        license_link = f'<a href="{LICENSE_URL}">{LICENSE_NAME}</a>'
         _line(
             tr("Licensed under the {name}.", name=license_link) + "<br>"
-            + tr("Open source. Free for any use, including commercial."),
+            + tr("Source-available. Noncommercial use is permitted; "
+                 "commercial use requires separate written permission."),
             11, muted=True, gap=10)
         _line("© Olafsson Lab", 11, muted=True)
         from ..logging_util import _portable_root

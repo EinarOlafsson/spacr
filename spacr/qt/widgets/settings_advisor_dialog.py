@@ -36,8 +36,9 @@ _ADVISOR_SUMMARY_CAPPED_SOURCE = (
     "{row_cap}-row sample this reads."
 )
 _ADVISOR_CHROME_SOURCES = (
-    "These are the only questions your tables cannot answer. Everything "
-    "else on the next page was measured.",
+    "The tables cannot answer these questions. The next page proposes "
+    "settings from these answers and from what was measured in the "
+    "tables, and lists any setting left undecided.",
     "in 1,000",
     _ADVISOR_SUMMARY_SOURCE,
     _ADVISOR_SUMMARY_CAPPED_SOURCE,
@@ -95,8 +96,10 @@ class QuestionsPage(QWidget):
         self._fields: Dict[str, Any] = {}
         outer = QVBoxLayout(self)
         outer.addWidget(_muted(
-            "These are the only questions your tables cannot answer. "
-            "Everything else on the next page was measured.", self))
+            "The tables cannot answer these questions. The next page "
+            "proposes settings from these answers and from what was "
+            "measured in the tables, and lists any setting left "
+            "undecided.", self))
         form = QFormLayout()
         form.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
         for question in questions_for(reading):

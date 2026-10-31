@@ -6111,7 +6111,8 @@ class AnnotateScreen(QWidget):
             "selected crop, the one with the ring, most similar first, so a "
             "rare class found once can be labelled many times. The first "
             "search on a source reads its measurements and takes a few "
-            "seconds; later ones are instant. Back to all crops by opening "
+            "seconds; later searches reuse them until the source, image type "
+            "or feature type changes. Back to all crops by opening "
             "the source again. Default not run."))
         button.clicked.connect(self._on_find_similar)
         _apply_alpha_widgets(button)

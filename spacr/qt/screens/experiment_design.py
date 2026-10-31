@@ -443,9 +443,12 @@ class ExperimentDesignScreen(QWidget):
         self._layout_box = QComboBox()
         self._layout_box.addItems(LAYOUTS)
         self._layout_box.setToolTip(
-            "random is the only layout that cannot be confounded with a "
-            "position gradient. block is the easiest to pipette and is "
-            "guaranteed to confound condition with position.")
+            "random shuffles the usable wells with the seed before placing "
+            "conditions, so conditions do not follow plate order; a draw can "
+            "still cluster a condition, so check the findings. row, column "
+            "and block fill consecutive wells in plate order (block uses row "
+            "order), which is easier to pipette but makes condition vary "
+            "with plate position.")
         self._layout_box.currentIndexChanged.connect(self._on_changed)
         form.addWidget(QLabel("Layout:"))
         form.addWidget(self._layout_box)
