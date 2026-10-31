@@ -306,3 +306,175 @@ def test_wait_turn_gives_up_when_asked_and_waits_otherwise():
     started = time.monotonic()
     assert gate.wait_turn(lambda: False)
     assert time.monotonic() - started >= 0.25
+
+
+@pytest.mark.skipif('forkserver' not in multiprocessing.get_all_start_methods(),
+                    reason='forkserver is not provided on this platform')
+def test_forkserver_wrapped_and_stock_cleanup_observers_share_the_real_exit_status(monkeypatch):
+    """A completed real worker must keep status zero for both parent readers."""
+    import itertools
+    import json
+    import multiprocessing.forkserver as server
+    from multiprocessing.connection import wait
+
+    context = R._StaggeredContext(multiprocessing.get_context('forkserver'), _WorkerStartGate(0))
+    worker = context.Process(target=_hold, args=(0,))
+    worker.start()
+    threads = []
+    statuses = {}
+    reads = []
+    start = threading.Barrier(3)
+    actual_read = server.read_signed
+    calls = itertools.count()
+    try:
+        sentinel = worker.sentinel
+        assert wait([sentinel], timeout=10) == [sentinel]
+
+        def delayed_first_real_status_read(fd):
+            """Delay only the first read of this real status pipe, without changing bytes."""
+            if fd != sentinel:
+                return actual_read(fd)
+            number = next(calls)
+            observation = {'call': number, 'fd': fd, 'thread': threading.current_thread().name,
+                           'entered': time.monotonic()}
+            reads.append(observation)
+            if number == 0:
+                time.sleep(0.05)
+            try:
+                value = actual_read(fd)
+            except BaseException as error:
+                observation.update(error=type(error).__name__, message=str(error),
+                                   returned=time.monotonic())
+                raise
+            observation.update(value=value, returned=time.monotonic())
+            return value
+
+        def observe_wrapped_status():
+            """Use the paced wrapper's real public process-status accessor."""
+            start.wait(timeout=5)
+            statuses['wrapped'] = worker.exitcode
+
+        def observe_stock_cleanup_status():
+            """Exercise the standard parent cleanup reader before inspecting its real process."""
+            start.wait(timeout=5)
+            multiprocessing.active_children()
+            statuses['stock_cleanup'] = worker._process.exitcode
+
+        monkeypatch.setattr(server, 'read_signed', delayed_first_real_status_read)
+        threads = [threading.Thread(target=observe_wrapped_status, name='status-wrapped'),
+                   threading.Thread(target=observe_stock_cleanup_status, name='status-stock-cleanup')]
+        for thread in threads:
+            thread.start()
+        start.wait(timeout=5)
+        for thread in threads:
+            thread.join(timeout=5)
+        assert all(not thread.is_alive() for thread in threads)
+        assert any(read.get('value') == 0 for read in reads), reads
+        assert statuses == {'wrapped': 0, 'stock_cleanup': 0}, json.dumps({
+            'pid': worker.pid, 'statuses': statuses, 'real_status_reads': reads}, sort_keys=True)
+    finally:
+        start.abort()
+        for thread in threads:
+            thread.join(timeout=5)
+        worker.join(timeout=5)
+        worker.close()
+
+
+
+def _hold_until_parent_release(entered, release):
+    """Keep a real child live on its context event until its parent releases it."""
+    entered.set()
+    if not release.wait(15):
+        raise RuntimeError('parent did not release the real lifecycle worker')
+
+
+@pytest.mark.skipif('forkserver' not in multiprocessing.get_all_start_methods(),
+                    reason='forkserver is not provided on this platform')
+def test_blocking_join_keeps_live_worker_status_independently_observable(monkeypatch):
+    """A blocking join must not monopolize the real process's status reader."""
+    import multiprocessing.connection as connection
+
+    context = R._StaggeredContext(multiprocessing.get_context('forkserver'), _WorkerStartGate(0))
+    entered, release = context.Event(), context.Event()
+    worker = context.Process(target=_hold_until_parent_release, args=(entered, release))
+    worker.start()
+    joining, joined, observed = threading.Event(), threading.Event(), threading.Event()
+    status = {}
+    real_wait = connection.wait
+    sentinel = worker.sentinel
+
+    def join_child():
+        """Use an actual unbounded join while the child waits for its release event."""
+        worker.join()
+        joined.set()
+
+    joiner = threading.Thread(target=join_child, name='real-blocking-join')
+
+    def observe_join_wait(objects, *args, **kwargs):
+        """Signal entry to the joiner's actual sentinel wait, then delegate unchanged."""
+        if threading.current_thread() is joiner and sentinel in objects:
+            joining.set()
+        return real_wait(objects, *args, **kwargs)
+
+    def observe_live_child():
+        """Read real exit status and liveness while the independent join is blocked."""
+        try:
+            status['exitcode'] = worker.exitcode
+            status['alive'] = worker.is_alive()
+        finally:
+            observed.set()
+
+    observer = threading.Thread(target=observe_live_child, name='real-live-status-observer')
+    try:
+        assert entered.wait(5)
+        monkeypatch.setattr(connection, 'wait', observe_join_wait)
+        joiner.start()
+        assert joining.wait(5), 'joiner never entered its real sentinel wait'
+        assert not release.is_set() and not joined.is_set()
+        observer.start()
+        assert observed.wait(2), 'a blocked join prevented an independent live-status read'
+        assert status == {'exitcode': None, 'alive': True}
+        assert not release.is_set() and not joined.is_set()
+    finally:
+        release.set()
+        if joiner.ident is not None:
+            joiner.join(timeout=5)
+        if observer.ident is not None:
+            observer.join(timeout=5)
+        worker.join(timeout=5)
+        assert not joiner.is_alive() and not observer.is_alive()
+        assert worker.exitcode == 0
+        worker.close()
+
+
+def _exit_worker_after_durable_invocation(arguments):
+    """Record one actual child invocation durably, then exit with its requested code."""
+    import json
+
+    code, marker = arguments
+    with open(marker, 'a', encoding='utf-8') as handle:
+        handle.write(json.dumps({'pid': os.getpid(), 'code': code}) + '\n')
+        handle.flush()
+        os.fsync(handle.fileno())
+    raise SystemExit(code)
+
+
+@pytest.mark.skipif('forkserver' not in multiprocessing.get_all_start_methods(),
+                    reason='forkserver is not provided on this platform')
+@pytest.mark.parametrize('code', [7, 255])
+def test_real_forkserver_worker_loss_is_fatal_and_never_retried(tmp_path, code):
+    """Serialization must preserve genuine nonzero exits and the no-overload boundary."""
+    import json
+
+    marker = tmp_path / 'actual-worker-invocations.jsonl'
+    with _parallel_pool(1, context=multiprocessing.get_context('forkserver'),
+                        gate=_WorkerStartGate(0)) as pool:
+        outcome = pool.map_async(_exit_worker_after_durable_invocation, [(code, str(marker))], chunksize=1)
+        with pytest.raises(RuntimeError, match=f'exited with code {code}; no explicit overload result was received') as failure:
+            outcome.get(timeout=20)
+    rows = [json.loads(line) for line in marker.read_text(encoding='utf-8').splitlines()]
+    assert len(rows) == 1, 'a genuine worker exit must not enter the final retry pass'
+    assert rows[0]['code'] == code and rows[0]['pid'] != os.getpid()
+    assert str(failure.value) == (
+        f"Processing worker {rows[0]['pid']} exited with code {code}; no explicit overload result was received")
+    _assert_cleanly_stopped(pool)
