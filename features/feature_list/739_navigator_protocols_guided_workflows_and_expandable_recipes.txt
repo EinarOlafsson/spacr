@@ -1,7 +1,7 @@
 NAVIGATOR PROTOCOLS: GUIDED INPUT CHOICES AND EXPANDABLE ANALYSIS RECIPES
 
 Lifecycle: new
-Status:    IN PROGRESS — reopened for the maintainer-reported clipped terminal Protocols cards; prior delivery remains preserved.
+Status:    IN PROGRESS — reopened for user-selectable protocol reader backgrounds, regular typography and readable checklists; prior qualified fixes remain preserved.
 Requested: 2026-10-30, maintainer
 Owner:     App/Navigator UI owner and retained Protocols workflow peer; root integrates.
 Related:   N733 Navigator; N740 sequencing inputs; N741 drug-screen Regression;
@@ -179,3 +179,5 @@ A narrow pre-publication lifetime correction now closes and clears an active inl
 2026-10-31 — Additional maintainer appearance requirement: the P hover and selected affordance must remain a true circle with a square footprint at 100% and 150% interface scale. App owns the P paint/geometry change alongside the animated card-mask repair; the geometry peer owns disjoint app.py Dock routing, with one final affected qualification phase and prior passes retained.
 
 2026-10-31 — The maintainer also reports intermittent repeated QItemSelectionModel selection without a model. The actual Qt 6.11.3 animated route reproduced the warning twice: a retired detail model died before its separately parented inline view. Queueing the view’s deferred deletion first preserves native callbacks and model identity. The permanent five-card animated 1366/1920, P 100%/150%, native TIFF handoff and unsuppressed target-warning regression passes in 9.68 s; the affected normal row pass in 4.29 s is retained. Normal nine-locale Dock caption generation and audit pass; all unrelated catalog records remain exact, and the sole source-consumer offset is refreshed. The normal source-bound caption-arrival proof passes: only two reviewed replacements, with prior target/record bindings retained and affected review-file hashes refreshed from actual bytes. Root publication remains pending.
+
+2026-10-31 — Maintainer reopens reader appearance: choose Black, White or Transparent content background with coherent browser/export contrast, Open Sans Regular (400) protocol text, readable bullet hierarchy and genuine clickable checklist states. App owns sample_project.py and the retained visual/PDF peer; preserve all recipe alternatives, prerequisites, nesting, selections, source/native handoff and no-network/static PDF behavior. Review three CPU prototypes and representative rendered PDF first/last/dense pages before final English freeze and scoped nine-language closure; transparent means no content fill, not promised PDF viewer page alpha. The qualified f57 urgent fixes publish independently, with Main’s release guard unchanged.
