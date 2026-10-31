@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 13:35-0400\n"
+"POT-Creation-Date: 2026-10-30 20:09-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -70,6 +70,14 @@ msgstr "Yfirfarðu úttakið"
 
 msgid "``X`` contains the object-by-feature matrix, ``obs`` contains object metadata, and ``var`` describes the features. Keep the source images and their paths: image pixels are not embedded in the export. With the Annotate example, a cell-only export using ``keep`` has 2,341 objects, 261 features and 28 missing feature values."
 msgstr "``X`` inniheldur fylki hluta og eiginleika, ``obs`` inniheldur lýsigögn hluta og ``var`` lýsir eiginleikunum. Haltu upprunamyndunum og slóðum þeirra: myndpixlar eru ekki felldir inn í útflutninginn. Með merkingardæminu hefur útflutningur eingöngu á frumum með ``keep`` 2.341 hlut, 261 eiginleika og 28 eiginleikagildi sem vantar."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``obs_names`` retains spaCR's object keys. Duplicate keys are refused rather than renumbered. For time-lapse data with repeated object labels across frames, use the direct Python API, for example :func:`spacr.anndata_export.export_anndata` with ``timelapse=True``, so each frame has a distinct key."
+msgstr "``obs_names`` heldur hlutalyklum spaCR. Tvíteknum lyklum er hafnað í stað þess að endurnúmera þá. Fyrir tímaraðagögn þar sem hlutamerkingar endurtaka sig milli ramma skaltu nota beina Python-API-ið, til dæmis :func:`spacr.anndata_export.export_anndata` með ``timelapse=True``, svo hver rammi fái sérstakan lykil."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Inspect ``uns['spacr']`` for source tables, the run identifier, the settings hash, filters and missing-value handling. Joined child measurements are aggregated onto cells; ``uns['spacr']['relationships']`` and ``var['is_aggregated']`` describe those links. A single-table child export retains its parent ``cell_id`` when available."
+msgstr "Skoðaðu ``uns['spacr']`` til að sjá upprunatöflur, auðkenni keyrslu, tætigildi stillinga, síur og meðhöndlun gilda sem vantar. Mælingar tengdra undirhluta eru teknar saman á frumustigi; ``uns['spacr']['relationships']`` og ``var['is_aggregated']`` lýsa þessum tengslum. Útflutningur einnar töflu með undirhlutum heldur ``cell_id`` frumunnar sem undirhluturinn tilheyrir þegar það er tiltækt."
 
 msgid "Export from Python"
 msgstr "Útflutningur úr Python"

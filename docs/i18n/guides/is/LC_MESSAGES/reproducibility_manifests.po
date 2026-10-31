@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 12:46-0400\n"
+"POT-Creation-Date: 2026-10-30 20:09-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -92,4 +92,8 @@ msgstr "Notaðu :func:`spacr.run_journal.open_run` utan um eigin vinnslu. Innan 
 
 msgid "``spacr-repro <run-folder>`` replays supported modules with the recorded settings. The complete API is generated under :mod:`spacr.run_journal`."
 msgstr "``spacr-repro <run-folder>`` endurspilar studdar einingar með skráðu stillingunum. Heildar-API-ið er búið til undir :mod:`spacr.run_journal`."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Before replaying, use ``spacr-repro <run-folder> --dry`` to inspect the recorded paths. Replay creates a new journal but reuses recorded output destinations, so keep a copy of earlier results if needed. Successful completion does not automatically verify that the new results match the original run."
+msgstr "Áður en keyrsla er endurtekin skaltu nota ``spacr-repro <run-folder> --dry`` til að skoða skráðar slóðir. Endurkeyrsla býr til nýjan annál en notar aftur skráða úttaksstaði, svo geymdu afrit af eldri niðurstöðum eftir þörfum. Að keyrslu ljúki án villu staðfestir ekki sjálfkrafa að nýju niðurstöðurnar samsvari upphaflegu keyrslunni."
 

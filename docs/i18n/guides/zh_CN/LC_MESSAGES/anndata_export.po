@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 13:35-0400\n"
+"POT-Creation-Date: 2026-10-30 20:09-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -70,6 +70,14 @@ msgstr "检查输出"
 
 msgid "``X`` contains the object-by-feature matrix, ``obs`` contains object metadata, and ``var`` describes the features. Keep the source images and their paths: image pixels are not embedded in the export. With the Annotate example, a cell-only export using ``keep`` has 2,341 objects, 261 features and 28 missing feature values."
 msgstr "``X`` 包含对象 × 特征矩阵，``obs`` 包含对象元数据，``var`` 描述各特征。请保留源图像及其路径：导出文件中不嵌入图像像素。以标注示例为例，使用 ``keep`` 的仅细胞导出包含 2,341 个对象、261 个特征和 28 个缺失特征值。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``obs_names`` retains spaCR's object keys. Duplicate keys are refused rather than renumbered. For time-lapse data with repeated object labels across frames, use the direct Python API, for example :func:`spacr.anndata_export.export_anndata` with ``timelapse=True``, so each frame has a distinct key."
+msgstr "``obs_names`` 保留 spaCR 的对象键。重复键会被拒绝，而不会被重新编号。对于不同帧中对象标签重复的时间序列数据，请直接使用 Python API，例如调用 :func:`spacr.anndata_export.export_anndata` 并设置 ``timelapse=True``，使每一帧具有不同的键。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Inspect ``uns['spacr']`` for source tables, the run identifier, the settings hash, filters and missing-value handling. Joined child measurements are aggregated onto cells; ``uns['spacr']['relationships']`` and ``var['is_aggregated']`` describe those links. A single-table child export retains its parent ``cell_id`` when available."
+msgstr "查看 ``uns['spacr']``，了解源表、运行标识符、设置的哈希值、筛选条件和缺失值处理方式。联接后的子对象测量值会聚合到细胞上；``uns['spacr']['relationships']`` 和 ``var['is_aggregated']`` 描述这些关联。导出单个子对象表时，会保留所属细胞的 ``cell_id`` （如果可用）。"
 
 msgid "Export from Python"
 msgstr "从 Python 导出"

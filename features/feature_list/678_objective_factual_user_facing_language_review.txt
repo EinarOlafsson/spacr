@@ -3,7 +3,7 @@ OBJECTIVE, FACTUAL LANGUAGE THROUGHOUT SPACR
 ================================================================================
 
 Lifecycle: new
-Status:    IN PROGRESS — bounded factual-guide corrections ready; broader surface review and publication remain open.
+Status:    IN PROGRESS — completed bounded factual-guide corrections are published; broader app/API/docs/tutorial review remains open.
 Requested: 2026-10-08
 Owner:     Workstation root; API/docs, runtime translation and tutorial lanes
            support their surfaces. Home receives this item through the repo.
@@ -415,3 +415,5 @@ Native review, fifth batch:
 2026-10-30 — Correct normalized V1 Mask channel/PSF archive validation and recovery guidance; independent AI review accepts three English corrections and27 targets. Normal nine-language import records Codex review; the scoped two-page audit passes45/45 per language with zero stale/invalid/missing labels and378 unchanged translations exact. No native-speaker, runtime/API, Main or whole-item completion claim.
 
 2026-10-30 — Review only delivered Gate/Graph guide passages for plot-context annotation actions, random display caps and original-row-safe label persistence. Correct demonstrated missing selection scope in the handwritten table guide; keep the normally generated workflows and verified API descriptions untouched. Coordinate disjoint guide writers and preserve Main, runtime qualification, incoming histories and unrelated translations; normal affected guide closure/publication remains owned by Overview. The bounded guide corrections and all 45 affected targets are independently AI-reviewed; normal one-page gettext/import/audit passes 139/139 in each of nine languages with zero stale/invalid/missing labels, preserving 1206 unchanged translations exactly. Generated workflows, runtime/API, pins, Main and tutorials remain untouched; no native-speaker or whole-item completion claim.
+
+2026-10-30 — Data/provenance scope: checked AnnData object identities, settings hashes, aggregated relationships and replay destinations against current public entry points. Added three missing user instructions with independent AI source/meaning review and 27 nine-language translations through normal guide tools; scoped audit is current and valid (46/46 messages per locale), preserving all 387 earlier translations. These bounded corrections join the published guide work; broader app/API/docs/tutorial review remains open. No runtime/API rebuild, replay or native-speaker claim.

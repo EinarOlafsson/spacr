@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 13:35-0400\n"
+"POT-Creation-Date: 2026-10-30 20:09-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -70,6 +70,14 @@ msgstr "आउटपुट की जाँच करें"
 
 msgid "``X`` contains the object-by-feature matrix, ``obs`` contains object metadata, and ``var`` describes the features. Keep the source images and their paths: image pixels are not embedded in the export. With the Annotate example, a cell-only export using ``keep`` has 2,341 objects, 261 features and 28 missing feature values."
 msgstr "``X`` में ऑब्जेक्ट-बनाम-विशेषता मैट्रिक्स, ``obs`` में ऑब्जेक्ट मेटाडेटा होता है, और ``var`` विशेषताओं का वर्णन करता है। स्रोत छवियाँ और उनके पथ सुरक्षित रखें: छवि पिक्सेल निर्यात में शामिल नहीं किए जाते। एनोटेशन उदाहरण में ``keep`` के साथ केवल-कोशिका निर्यात में 2,341 ऑब्जेक्ट, 261 विशेषताएँ और 28 अनुपस्थित विशेषता मान होते हैं।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``obs_names`` retains spaCR's object keys. Duplicate keys are refused rather than renumbered. For time-lapse data with repeated object labels across frames, use the direct Python API, for example :func:`spacr.anndata_export.export_anndata` with ``timelapse=True``, so each frame has a distinct key."
+msgstr "``obs_names`` spaCR की ऑब्जेक्ट कुंजियाँ बनाए रखता है। डुप्लिकेट कुंजियों को दोबारा क्रमांकित करने के बजाय अस्वीकार किया जाता है। समय-श्रृंखला डेटा में अलग-अलग फ़्रेमों में ऑब्जेक्ट लेबल दोहराए जाते हों, तो सीधे Python API का उपयोग करें, उदाहरण के लिए :func:`spacr.anndata_export.export_anndata` के साथ ``timelapse=True`` दें, ताकि हर फ़्रेम की अलग कुंजी हो।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Inspect ``uns['spacr']`` for source tables, the run identifier, the settings hash, filters and missing-value handling. Joined child measurements are aggregated onto cells; ``uns['spacr']['relationships']`` and ``var['is_aggregated']`` describe those links. A single-table child export retains its parent ``cell_id`` when available."
+msgstr "स्रोत तालिकाएँ, रन पहचानकर्ता, सेटिंग का हैश, फ़िल्टर और अनुपलब्ध मानों के प्रबंधन की जानकारी के लिए ``uns['spacr']`` देखें। जॉइन किए गए चाइल्ड ऑब्जेक्ट के माप कोशिकाओं के स्तर पर समेकित किए जाते हैं; ``uns['spacr']['relationships']`` और ``var['is_aggregated']`` इन संबंधों का वर्णन करते हैं। किसी एक चाइल्ड ऑब्जेक्ट तालिका के निर्यात में, उपलब्ध होने पर उसकी पैरेंट कोशिका का ``cell_id`` बनाए रखा जाता है।"
 
 msgid "Export from Python"
 msgstr "Python से निर्यात करें"

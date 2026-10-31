@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 13:35-0400\n"
+"POT-Creation-Date: 2026-10-30 20:09-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
@@ -70,6 +70,14 @@ msgstr "Granska utdata"
 
 msgid "``X`` contains the object-by-feature matrix, ``obs`` contains object metadata, and ``var`` describes the features. Keep the source images and their paths: image pixels are not embedded in the export. With the Annotate example, a cell-only export using ``keep`` has 2,341 objects, 261 features and 28 missing feature values."
 msgstr "``X`` innehåller matrisen med objekt och egenskaper, ``obs`` innehåller objektmetadata och ``var`` beskriver egenskaperna. Behåll källbilderna och deras sökvägar: bildpixlar bäddas inte in i exporten. Med Annotering-exemplet har en export av enbart celler med ``keep`` 2 341 objekt, 261 egenskaper och 28 saknade egenskapsvärden."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``obs_names`` retains spaCR's object keys. Duplicate keys are refused rather than renumbered. For time-lapse data with repeated object labels across frames, use the direct Python API, for example :func:`spacr.anndata_export.export_anndata` with ``timelapse=True``, so each frame has a distinct key."
+msgstr "``obs_names`` behåller spaCR:s objektnycklar. Dubblettnycklar avvisas i stället för att numreras om. För tidsseriedata där objektetiketter upprepas mellan bildrutor använder du det direkta Python-API:et, till exempel :func:`spacr.anndata_export.export_anndata` med ``timelapse=True``, så att varje bildruta får en egen nyckel."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Inspect ``uns['spacr']`` for source tables, the run identifier, the settings hash, filters and missing-value handling. Joined child measurements are aggregated onto cells; ``uns['spacr']['relationships']`` and ``var['is_aggregated']`` describe those links. A single-table child export retains its parent ``cell_id`` when available."
+msgstr "Granska ``uns['spacr']`` för källtabeller, körningsidentifierare, inställningarnas hashvärde, filter och hantering av saknade värden. Sammanfogade mätningar av underordnade objekt aggregeras på cellnivå; ``uns['spacr']['relationships']`` och ``var['is_aggregated']`` beskriver dessa kopplingar. En export av en enda tabell med underordnade objekt behåller den överordnade cellens ``cell_id`` när det finns."
 
 msgid "Export from Python"
 msgstr "Exportera från Python"

@@ -49,6 +49,18 @@ image pixels are not embedded in the export. With the Annotate example, a
 cell-only export using ``keep`` has 2,341 objects, 261 features and 28 missing
 feature values.
 
+``obs_names`` retains spaCR's object keys. Duplicate keys are refused rather
+than renumbered. For time-lapse data with repeated object labels across
+frames, use the direct Python API, for example
+:func:`spacr.anndata_export.export_anndata` with ``timelapse=True``, so each
+frame has a distinct key.
+
+Inspect ``uns['spacr']`` for source tables, the run identifier, the settings
+hash, filters and missing-value handling. Joined child measurements are
+aggregated onto cells; ``uns['spacr']['relationships']`` and
+``var['is_aggregated']`` describe those links. A single-table child export
+retains its parent ``cell_id`` when available.
+
 Export from Python
 ------------------
 

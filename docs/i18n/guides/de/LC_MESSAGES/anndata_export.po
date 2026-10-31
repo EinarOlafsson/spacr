@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 13:35-0400\n"
+"POT-Creation-Date: 2026-10-30 20:09-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: de\n"
@@ -70,6 +70,14 @@ msgstr "Die Ausgabe prüfen"
 
 msgid "``X`` contains the object-by-feature matrix, ``obs`` contains object metadata, and ``var`` describes the features. Keep the source images and their paths: image pixels are not embedded in the export. With the Annotate example, a cell-only export using ``keep`` has 2,341 objects, 261 features and 28 missing feature values."
 msgstr "``X`` enthält die Objekt-mal-Merkmal-Matrix, ``obs`` enthält die Objektmetadaten und ``var`` beschreibt die Merkmale. Bewahren Sie die Quellbilder und ihre Pfade auf: Bildpixel werden nicht in den Export eingebettet. Mit dem Beispiel aus Annotieren hat ein reiner Zellexport mit ``keep`` 2.341 Objekte, 261 Merkmale und 28 fehlende Merkmalswerte."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``obs_names`` retains spaCR's object keys. Duplicate keys are refused rather than renumbered. For time-lapse data with repeated object labels across frames, use the direct Python API, for example :func:`spacr.anndata_export.export_anndata` with ``timelapse=True``, so each frame has a distinct key."
+msgstr "``obs_names`` behält die Objektschlüssel von spaCR bei. Doppelte Schlüssel werden abgelehnt, statt neu nummeriert zu werden. Verwenden Sie für Zeitseriendaten mit wiederholten Objektlabels über mehrere Frames die direkte Python-API, beispielsweise :func:`spacr.anndata_export.export_anndata` mit ``timelapse=True``, damit jeder Frame einen eigenen Schlüssel erhält."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Inspect ``uns['spacr']`` for source tables, the run identifier, the settings hash, filters and missing-value handling. Joined child measurements are aggregated onto cells; ``uns['spacr']['relationships']`` and ``var['is_aggregated']`` describe those links. A single-table child export retains its parent ``cell_id`` when available."
+msgstr "Prüfen Sie ``uns['spacr']`` auf Quelltabellen, Laufkennung, Hash der Einstellungen, Filter und den Umgang mit fehlenden Werten. Messwerte verknüpfter untergeordneter Objekte werden auf Zellebene aggregiert; ``uns['spacr']['relationships']`` und ``var['is_aggregated']`` beschreiben diese Verknüpfungen. Beim Export einer einzelnen Tabelle untergeordneter Objekte bleibt die ``cell_id`` der übergeordneten Zelle erhalten, sofern sie verfügbar ist."
 
 msgid "Export from Python"
 msgstr "Aus Python exportieren"

@@ -92,3 +92,9 @@ when ``hash_inputs=True``. Those two methods are no-ops when hashing is off.
 
 ``spacr-repro <run-folder>`` replays supported modules with the recorded
 settings. The complete API is generated under :mod:`spacr.run_journal`.
+
+Before replaying, use ``spacr-repro <run-folder> --dry`` to inspect the
+recorded paths. Replay creates a new journal but reuses recorded output
+destinations, so keep a copy of earlier results if needed. Successful
+completion does not automatically verify that the new results match the
+original run.

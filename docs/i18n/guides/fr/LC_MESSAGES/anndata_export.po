@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 13:35-0400\n"
+"POT-Creation-Date: 2026-10-30 20:09-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: fr\n"
@@ -70,6 +70,14 @@ msgstr "Inspecter la sortie"
 
 msgid "``X`` contains the object-by-feature matrix, ``obs`` contains object metadata, and ``var`` describes the features. Keep the source images and their paths: image pixels are not embedded in the export. With the Annotate example, a cell-only export using ``keep`` has 2,341 objects, 261 features and 28 missing feature values."
 msgstr "``X`` contient la matrice objets × caractéristiques, ``obs`` les métadonnées des objets et ``var`` décrit les caractéristiques. Conservez les images sources et leurs chemins : les pixels des images ne sont pas intégrés à l’export. Avec l’exemple d’Annotation, un export limité aux cellules avec ``keep`` comprend 2 341 objets, 261 caractéristiques et 28 valeurs de caractéristiques manquantes."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``obs_names`` retains spaCR's object keys. Duplicate keys are refused rather than renumbered. For time-lapse data with repeated object labels across frames, use the direct Python API, for example :func:`spacr.anndata_export.export_anndata` with ``timelapse=True``, so each frame has a distinct key."
+msgstr "``obs_names`` conserve les clés d’objet de spaCR. Les clés en double sont refusées au lieu d’être renumérotées. Pour les séries temporelles dont les étiquettes d’objet se répètent entre images, utilisez l’API Python directe, par exemple :func:`spacr.anndata_export.export_anndata` avec ``timelapse=True``, afin que chaque image ait une clé distincte."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Inspect ``uns['spacr']`` for source tables, the run identifier, the settings hash, filters and missing-value handling. Joined child measurements are aggregated onto cells; ``uns['spacr']['relationships']`` and ``var['is_aggregated']`` describe those links. A single-table child export retains its parent ``cell_id`` when available."
+msgstr "Consultez ``uns['spacr']`` pour connaître les tables source, l’identifiant d’exécution, l’empreinte de hachage des paramètres, les filtres et le traitement des valeurs manquantes. Les mesures d’objets enfants issues de la jointure sont agrégées au niveau des cellules ; ``uns['spacr']['relationships']`` et ``var['is_aggregated']`` décrivent ces liens. L’export d’une seule table d’objets enfants conserve le ``cell_id`` de la cellule parente lorsqu’il est disponible."
 
 msgid "Export from Python"
 msgstr "Exporter depuis Python"

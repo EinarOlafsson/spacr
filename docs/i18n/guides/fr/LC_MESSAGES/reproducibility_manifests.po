@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 12:46-0400\n"
+"POT-Creation-Date: 2026-10-30 20:09-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: fr\n"
@@ -92,4 +92,8 @@ msgstr "Utilisez :func:`spacr.run_journal.open_run` autour d’un pipeline perso
 
 msgid "``spacr-repro <run-folder>`` replays supported modules with the recorded settings. The complete API is generated under :mod:`spacr.run_journal`."
 msgstr "``spacr-repro <run-folder>`` rejoue les modules pris en charge avec les paramètres enregistrés. L’API complète est générée sous :mod:`spacr.run_journal`."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Before replaying, use ``spacr-repro <run-folder> --dry`` to inspect the recorded paths. Replay creates a new journal but reuses recorded output destinations, so keep a copy of earlier results if needed. Successful completion does not automatically verify that the new results match the original run."
+msgstr "Avant de rejouer une exécution, utilisez ``spacr-repro <run-folder> --dry`` pour examiner les chemins enregistrés. La répétition crée un nouveau journal, mais réutilise les destinations de sortie enregistrées ; conservez donc une copie des résultats précédents si nécessaire. Une exécution terminée avec succès ne vérifie pas automatiquement que les nouveaux résultats correspondent à ceux de l’exécution d’origine."
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 12:46-0400\n"
+"POT-Creation-Date: 2026-10-30 20:09-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -92,4 +92,8 @@ msgstr "कस्टम पाइपलाइन के चारों ओर :
 
 msgid "``spacr-repro <run-folder>`` replays supported modules with the recorded settings. The complete API is generated under :mod:`spacr.run_journal`."
 msgstr "``spacr-repro <run-folder>`` दर्ज सेटिंग्स के साथ समर्थित मॉड्यूल फिर से चलाता है। पूरा API :mod:`spacr.run_journal` के अंतर्गत तैयार किया जाता है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Before replaying, use ``spacr-repro <run-folder> --dry`` to inspect the recorded paths. Replay creates a new journal but reuses recorded output destinations, so keep a copy of earlier results if needed. Successful completion does not automatically verify that the new results match the original run."
+msgstr "रन दोबारा चलाने से पहले रिकॉर्ड किए गए पथों की जाँच के लिए ``spacr-repro <run-folder> --dry`` का उपयोग करें। दोबारा चलाने से नया जर्नल बनता है, लेकिन रिकॉर्ड किए गए आउटपुट स्थान फिर इस्तेमाल होते हैं, इसलिए ज़रूरत होने पर पिछले परिणामों की प्रति सुरक्षित रखें। रन सफलतापूर्वक पूरा होने पर अपने-आप यह सत्यापित नहीं होता कि नए परिणाम मूल रन के परिणामों से मेल खाते हैं।"
 

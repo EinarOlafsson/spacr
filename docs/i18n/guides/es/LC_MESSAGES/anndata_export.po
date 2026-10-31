@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 13:35-0400\n"
+"POT-Creation-Date: 2026-10-30 20:09-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: es\n"
@@ -70,6 +70,14 @@ msgstr "Inspeccionar la salida"
 
 msgid "``X`` contains the object-by-feature matrix, ``obs`` contains object metadata, and ``var`` describes the features. Keep the source images and their paths: image pixels are not embedded in the export. With the Annotate example, a cell-only export using ``keep`` has 2,341 objects, 261 features and 28 missing feature values."
 msgstr "``X`` contiene la matriz de objetos por características, ``obs`` contiene los metadatos de los objetos y ``var`` describe las características. Conserve las imágenes de origen y sus rutas: los píxeles de las imágenes no se incrustan en la exportación. Con el ejemplo de Anotación, una exportación solo de células con ``keep`` tiene 2341 objetos, 261 características y 28 valores de características ausentes."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``obs_names`` retains spaCR's object keys. Duplicate keys are refused rather than renumbered. For time-lapse data with repeated object labels across frames, use the direct Python API, for example :func:`spacr.anndata_export.export_anndata` with ``timelapse=True``, so each frame has a distinct key."
+msgstr "``obs_names`` conserva las claves de objeto de spaCR. Las claves duplicadas se rechazan en lugar de renumerarse. Para datos de series temporales con etiquetas de objeto repetidas entre fotogramas, use la API directa de Python, por ejemplo :func:`spacr.anndata_export.export_anndata` con ``timelapse=True``, de modo que cada fotograma tenga una clave distinta."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Inspect ``uns['spacr']`` for source tables, the run identifier, the settings hash, filters and missing-value handling. Joined child measurements are aggregated onto cells; ``uns['spacr']['relationships']`` and ``var['is_aggregated']`` describe those links. A single-table child export retains its parent ``cell_id`` when available."
+msgstr "Consulte ``uns['spacr']`` para ver las tablas de origen, el identificador de ejecución, el hash de los ajustes, los filtros y el tratamiento de valores ausentes. Las mediciones de objetos secundarios combinadas mediante la unión se agregan a las células; ``uns['spacr']['relationships']`` y ``var['is_aggregated']`` describen esas relaciones. La exportación de una sola tabla de objetos secundarios conserva el ``cell_id`` de la célula principal cuando está disponible."
 
 msgid "Export from Python"
 msgstr "Exportar desde Python"

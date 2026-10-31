@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 12:46-0400\n"
+"POT-Creation-Date: 2026-10-30 20:09-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -92,4 +92,8 @@ msgstr "使用 :func:`spacr.run_journal.open_run` 包裹自定义管线。在上
 
 msgid "``spacr-repro <run-folder>`` replays supported modules with the recorded settings. The complete API is generated under :mod:`spacr.run_journal`."
 msgstr "``spacr-repro <run-folder>`` 使用记录的设置重放受支持的模块。完整的 API 文档生成在 :mod:`spacr.run_journal` 下。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Before replaying, use ``spacr-repro <run-folder> --dry`` to inspect the recorded paths. Replay creates a new journal but reuses recorded output destinations, so keep a copy of earlier results if needed. Successful completion does not automatically verify that the new results match the original run."
+msgstr "重放运行之前，请使用 ``spacr-repro <run-folder> --dry`` 检查记录的路径。重放会创建新的运行日志，但会复用记录的输出位置，因此请按需保存早期结果的副本。成功完成运行并不会自动验证新结果是否与原始运行一致。"
 

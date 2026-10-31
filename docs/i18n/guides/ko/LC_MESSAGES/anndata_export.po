@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 13:35-0400\n"
+"POT-Creation-Date: 2026-10-30 20:09-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -70,6 +70,14 @@ msgstr "출력 검토"
 
 msgid "``X`` contains the object-by-feature matrix, ``obs`` contains object metadata, and ``var`` describes the features. Keep the source images and their paths: image pixels are not embedded in the export. With the Annotate example, a cell-only export using ``keep`` has 2,341 objects, 261 features and 28 missing feature values."
 msgstr "``X`` 에는 객체×특징 행렬이, ``obs`` 에는 객체 메타데이터가 들어 있으며, ``var`` 는 특징을 설명합니다. 원본 이미지와 그 경로를 보관합니다. 이미지 픽셀은 내보낸 파일에 포함되지 않습니다. 어노테이션 예제에서 ``keep`` 옵션을 사용한 세포 전용 내보내기에는 객체 2,341개, 특징 261개, 누락된 특징값 28개가 있습니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``obs_names`` retains spaCR's object keys. Duplicate keys are refused rather than renumbered. For time-lapse data with repeated object labels across frames, use the direct Python API, for example :func:`spacr.anndata_export.export_anndata` with ``timelapse=True``, so each frame has a distinct key."
+msgstr "``obs_names`` 는 spaCR의 객체 키를 유지합니다. 중복 키는 번호를 다시 매기는 대신 거부합니다. 프레임 간에 객체 레이블이 반복되는 시계열 데이터에는 직접 Python API를 사용합니다. 예를 들어 :func:`spacr.anndata_export.export_anndata` 에 ``timelapse=True`` 를 지정하면 각 프레임에 서로 다른 키가 부여됩니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Inspect ``uns['spacr']`` for source tables, the run identifier, the settings hash, filters and missing-value handling. Joined child measurements are aggregated onto cells; ``uns['spacr']['relationships']`` and ``var['is_aggregated']`` describe those links. A single-table child export retains its parent ``cell_id`` when available."
+msgstr "``uns['spacr']`` 에서 소스 테이블, 실행 식별자, 설정 해시, 필터 및 누락값 처리 방식을 확인합니다. 조인된 하위 객체의 측정값은 세포 수준으로 집계되며, ``uns['spacr']['relationships']`` 와 ``var['is_aggregated']`` 는 이러한 연결을 설명합니다. 단일 하위 객체 테이블을 내보낼 때 상위 세포의 ``cell_id`` 가 있으면 유지합니다."
 
 msgid "Export from Python"
 msgstr "Python에서 내보내기"
