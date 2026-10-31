@@ -515,7 +515,7 @@
       "key": "lineage",
       "name": "Lineage",
       "outputs": [
-        "figures"
+        "linked_selection"
       ],
       "preview": "",
       "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=56_lineage"
