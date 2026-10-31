@@ -611,9 +611,14 @@ def _protocol_result(family, format, choices=None, source_path='', context=None,
         if edge['from'] in starts and edge['to'] not in reachable:
             reachable.add(edge['to'])
             steps.append(dict(module=edge['to'], action=edge['handoff'], after=[edge['from']], optional=True))
+    selected_options = []
+    for field in _protocol_options(family, format, choices, data=data):
+        selected = next((row for row in field['options'] if row['key'] == choices.get(field['name'])), None)
+        if selected:
+            selected_options.append(dict(label=field['label'], value=selected['label']))
     protocol = dict(title=tr('Protocol: {family}', family=tr(wizard['families'][family]['label'])),
                     summary=tr(record['explanation']), inputs=sorted({a for k in starts for a in catalog[k]['inputs']}),
-                    steps=steps, catalog=catalog, selection=selection, requirements=requirements)
+                    steps=steps, catalog=catalog, selection=selection, selected_options=selected_options, requirements=requirements)
     artifacts = ({'raw_images', 'cellpose_tiffs'} if family in ('small_images', 'plate_images') else
                  {'fastq'} if family == 'sequencing' else
                  {'measurements', 'foreign_tables', 'crops'} if format == 'database_crops' else
@@ -686,6 +691,7 @@ def _protocol_markdown(result, checked=(), *, settings_help=None):
     lines = ['# ' + protocol['title'], '', protocol['summary'], '',
              tr('Starting modules are alternatives. Open a module explicitly; no analysis starts from this recipe.'), '']
     lines.extend(protocol['requirements'])
+    lines.extend(['', tr('Selected options'), *[row['label'] + ': ' + row['value'] for row in protocol['selected_options']]])
     for step in protocol['steps']:
         key = step['module']
         module = protocol['catalog'][key]
@@ -697,7 +703,11 @@ def _protocol_markdown(result, checked=(), *, settings_help=None):
                       *[tr(text) for text in module['preconditions']], '',
                       '<details><summary>' + tr('Setting explanations') + '</summary>', ''])
         for name, default, help_text in (settings_help or {}).get(key, ()):
-            lines.extend(['### ' + name, tr('Default: {value}', value=repr(default)), tr(help_text), ''])
+            configured = dict(result['action_settings'].get(key, {}))
+            if result['action_sources'].get(key):
+                configured['src'] = result['action_sources'][key]
+            label = tr('Selected: {value}', value=repr(configured[name])) if name in configured else tr('Factory default: {value}', value=repr(default))
+            lines.extend(['### ' + name, label, tr(help_text), ''])
         if key not in (settings_help or {}):
             lines.append(tr('Open this step to inspect its current settings and authored help.'))
         lines.extend(['', '</details>', '', '</details>'])
@@ -855,15 +865,22 @@ class _ProtocolBrowserDialog(QDialog):
             parts.append('<p>' + escape(tr('Input: {path}', path=self._source_path)) + '</p>')
         for requirement in protocol['requirements']:
             parts.append('<p><b>' + escape(requirement) + '</b></p>')
+        if protocol['selected_options']:
+            parts.append('<h3>' + escape(tr('Selected options')) + '</h3><ul>')
+            parts.extend('<li>' + escape(row['label'] + ': ' + row['value']) + '</li>' for row in protocol['selected_options'])
+            parts.append('</ul>')
         for step in protocol['steps']:
             key = step['module']
             module = protocol['catalog'][key]
             mark = '[x]' if key in self._checked else '[ ]'
-            parts.append('<h2><a href="spacr://protocol/check/' + key + '">' + mark + '</a> ' +
-                         escape(tr(module['name'])) + '</h2><p>' + escape(tr(step['action'])) + '</p>')
+            check = mark if expand_all else '<a href="spacr://protocol/check/' + key + '">' + mark + '</a>'
+            parts.append('<h2>' + check + ' ' + escape(tr(module['name'])) + '</h2><p>' + escape(tr(step['action'])) + '</p>')
             links = []
             if module['available']:
-                links.append('<a href="spacr://module/' + key + '">' + escape(tr('Open module')) + '</a>')
+                if expand_all:
+                    links.append(escape(tr('Open {module} in spaCR', module=tr(module['name']))))
+                else:
+                    links.append('<a href="spacr://module/' + key + '">' + escape(tr('Open module')) + '</a>')
             if module.get('api_module'):
                 links.append('<a href="' + escape(api_url(module['api_module']), quote=True) + '">' + tr('API') + '</a>')
             links.append('<a href="' + DOCS_SITE_BASE + '/workflows.html">' + escape(tr('Documentation')) + '</a>')
@@ -871,7 +888,8 @@ class _ProtocolBrowserDialog(QDialog):
             if tutorial:
                 links.append('<a href="' + escape(tutorial, quote=True) + '">' + escape(tr('Tutorial')) + '</a>')
             parts.append('<p>' + ' | '.join(links) + '</p>')
-            parts.append('<p><a href="spacr://protocol/expand/' + key + '">' + escape(tr('Inputs, outputs and settings')) + '</a></p>')
+            title = escape(tr('Inputs, outputs and settings'))
+            parts.append('<h3>' + title + '</h3>' if expand_all else '<p><a href="spacr://protocol/expand/' + key + '">' + title + '</a></p>')
             if expand_all or key in self._expanded:
                 for name, label in (('inputs', tr('Inputs')), ('outputs', tr('Outputs'))):
                     parts.append('<h3>' + escape(label) + '</h3><ul>')
@@ -880,16 +898,22 @@ class _ProtocolBrowserDialog(QDialog):
                         parts.append('<li>' + escape(tr(record['title'])) + ': ' + escape(tr(record['location'])) + '</li>')
                     parts.append('</ul>')
                 inner = key + ':settings'
-                parts.append('<p><a href="spacr://protocol/expand/' + inner + '">' + escape(tr('Setting explanations')) + '</a></p>')
+                title = escape(tr('Setting explanations'))
+                parts.append('<h3>' + title + '</h3>' if expand_all else '<p><a href="spacr://protocol/expand/' + inner + '">' + title + '</a></p>')
                 if expand_all or inner in self._expanded:
                     if key not in self._settings_help:
                         self._settings_help[key] = _protocol_setting_help(key)
                     for name, default, help_text in self._settings_help[key]:
+                        configured = dict(result['action_settings'].get(key, {}))
+                        if result['action_sources'].get(key):
+                            configured['src'] = result['action_sources'][key]
+                        label = tr('Selected: {value}', value=repr(configured[name])) if name in configured else tr('Factory default: {value}', value=repr(default))
                         parts.append('<h4>' + escape(name) + '</h4><p>' +
-                                     escape(tr('Default: {value}', value=repr(default))) + '</p><p>' +
+                                     escape(label) + '</p><p>' +
                                      escape(tr(help_text)) + '</p>')
         if not expand_all or 'catalog' in self._expanded:
-            parts.append('<h2><a href="spacr://protocol/expand/catalog">' + escape(tr('All registered routes and prerequisites')) + '</a></h2>')
+            title = escape(tr('All registered routes and prerequisites'))
+            parts.append('<h2>' + title + '</h2>' if expand_all else '<h2><a href="spacr://protocol/expand/catalog">' + title + '</a></h2>')
         if 'catalog' in self._expanded:
             for key, module in protocol['catalog'].items():
                 parts.append('<h3>' + escape(tr(module['name'])) + '</h3><p>' + escape(tr(module['guidance'])) + '</p>')

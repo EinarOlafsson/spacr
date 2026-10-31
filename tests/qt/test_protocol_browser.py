@@ -290,6 +290,7 @@ def test_protocol_recipe_nested_controls_pdf_and_legacy_reopen(qtbot, tmp_path):
     qtbot.addWidget(dialog)
     dialog.show()
     assert dialog._save_pdf.isVisible()
+    assert 'Read orientation: R2' in dialog._text.toPlainText()
     assert not dialog._choice_list.isVisible()
     dialog._activate_link(QUrl('spacr://protocol/check/map_barcodes'))
     dialog._activate_link(QUrl('spacr://protocol/expand/map_barcodes'))
@@ -297,11 +298,16 @@ def test_protocol_recipe_nested_controls_pdf_and_legacy_reopen(qtbot, tmp_path):
     assert 'Setting explanations' in dialog._text.toPlainText()
     dialog._activate_link(QUrl('spacr://protocol/expand/map_barcodes:settings'))
     assert 'target_sequence' in dialog._text.toPlainText()
+    assert "Selected: 'R2'" in dialog._text.toPlainText()
     assert '[x]' in dialog._recipe_result['protocol']['markdown']
     assert '### target_sequence' in dialog._recipe_result['protocol']['markdown']
     path = tmp_path / 'protocol.pdf'
     assert dialog._export_recipe_pdf(path) == str(path)
     assert path.read_bytes().startswith(b'%PDF-')
+    exported = dialog._recipe_html(expand_all=True)
+    assert 'spacr://' not in exported
+    assert 'https://einarolafsson.github.io/spacr/' in exported
+    assert "Factory default: &#x27;path&#x27;" in exported
     assert 'All registered routes and prerequisites' not in dialog._recipe_html(expand_all=True)
     dialog._activate_link(QUrl('spacr://protocol/expand/catalog'))
     assert 'All registered routes and prerequisites' in dialog._recipe_html(expand_all=True)
