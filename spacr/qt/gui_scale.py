@@ -1332,6 +1332,9 @@ def _apply_now(obj, text: str, raw_set) -> None:
         _restyle_holding_every_widget(obj, raw_set, obj, text)
     finally:
         _SHEET_GUARD["depth"] -= 1
+    from .theme import _fit_a_tooltip_to_its_styled_text
+
+    _fit_a_tooltip_to_its_styled_text(obj)
 
 
 def _the_sheet_is_already_on(obj, text: str, raw_set) -> bool:

@@ -3999,6 +3999,58 @@ def _repolish_the_tagged(window) -> None:
                 style.polish(target)
 
 
+def _fit_a_tooltip_to_its_styled_text(window) -> bool:
+    """Size a tooltip label for the font and padding its sheet gives it.
+
+    Qt measures a tooltip once, in ``QToolTip.showText``, before it shows
+    it. The sheet reaches the label at its ``Polish``, inside that call, and
+    the stylesheet guard holds a sheet asked for inside a polish until the
+    label's ``Show``. So the label was measured in the unstyled application
+    font without the sheet's padding, then drawn in the zoomed ``QToolTip``
+    font with the padding: at 100 % and above the wrapped text needed more
+    lines than the box had, and the bottom of it was cut off.
+
+    The guard calls this each time it hands Qt a sheet
+    (:func:`spacr.qt.gui_scale._apply_now`): at the ``Show`` of a new
+    tooltip, and when a Zoom or theme change restyles one already on
+    screen. It repeats Qt's own measurement (the label's size hint, one
+    pixel wider as Qt makes it) with the font and padding the label is
+    drawn with, and keeps the box on its screen.
+
+    :param window: the window being shown; anything that is not a tooltip
+        label is left alone.
+    :returns: ``True`` when the label was resized.
+    """
+    from PySide6.QtCore import QRect, QSize
+    from PySide6.QtWidgets import QLabel
+
+    if not isinstance(window, QLabel) or window.windowType() != Qt.ToolTip:
+        return False
+    window.ensurePolished()
+    hint = window.sizeHint()
+    width = hint.width() + 1
+    height = hint.height()
+    if window.wordWrap():
+        height = max(height, window.heightForWidth(width))
+    target = QSize(width, height)
+    if target == window.size():
+        return False
+    geometry = QRect(window.pos(), target)
+    screen = window.screen()
+    if screen is not None:
+        area = screen.geometry()
+        if geometry.right() > area.right():
+            geometry.moveRight(area.right())
+        if geometry.bottom() > area.bottom():
+            geometry.moveBottom(area.bottom())
+        if geometry.left() < area.left():
+            geometry.moveLeft(area.left())
+        if geometry.top() < area.top():
+            geometry.moveTop(area.top())
+    window.setGeometry(geometry)
+    return True
+
+
 class _SheetsEveryWindowThatAppears(QObject):
     """Gives a window born after a theme change the theme, not the last one.
 

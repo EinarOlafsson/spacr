@@ -587,7 +587,7 @@ class HoverTooltip(QFrame):
         self._api_link.setVisible(bool(url))
         self._label.setText(body)
         self._set_animation(self._resolve_animation(anchor, animation))
-        self.adjustSize()
+        self._fit_the_whole_text()
         self._position_under(anchor)
         self.show()
 
@@ -694,7 +694,7 @@ class HoverTooltip(QFrame):
         self._toggled_key = self._setting_key
         self._toggled_to = wanted
         self._set_animation(self._offered_animation)
-        self.adjustSize()
+        self._fit_the_whole_text()
         if self.isVisible() and self._anchor is not None:
             self._position_under(self._anchor)
 
@@ -753,12 +753,68 @@ class HoverTooltip(QFrame):
         prose = max(0, self._label.heightForWidth(width))
         return prose + SPACING["xs"] + self._links.sizeHint().height()
 
+    def _text_width(self) -> int:
+        """:data:`TEXT_WIDTH` at the current Zoom, never below it.
+
+        The prose is drawn at the zoomed small font, so a column of fixed
+        pixels held half as many words a line at 200 % and the box grew into
+        a tall ribbon. The column widens in proportion to the font.
+        """
+        from ..theme import FONT_SIZE
+
+        ratio = font_px("small") / float(FONT_SIZE["small"])
+        return max(self.TEXT_WIDTH, int(round(self.TEXT_WIDTH * ratio)))
+
     def _fitting_text_width(self) -> int:
         """Narrowest column width whose text fits inside the square's height."""
-        for width in self.TEXT_WIDTH_STEPS:
-            if self._text_height_at(width) <= self.ANIMATION_SIZE:
+        widest = self._text_width()
+        for width in sorted(set(self.TEXT_WIDTH_STEPS) | {widest}):
+            if width <= widest and self._text_height_at(width) <= self.ANIMATION_SIZE:
                 return width
-        return self.TEXT_WIDTH
+        return widest
+
+    def _fit_the_whole_text(self) -> None:
+        """Size the popup so every line of its help is inside it.
+
+        ``adjustSize`` gives a window at most two thirds of its screen's
+        width and height, so long help at a large Zoom was cut off at the
+        bottom. The popup is hidden while it is sized, so its children have
+        no geometry yet; the check is made against the room the popup's own
+        size leaves for the prose. When that is too little, the column is
+        widened, up to the screen's width, until the prose fits the
+        screen's height, the label is pinned to that size and the popup
+        takes its size hint, which is not capped.
+        """
+        self.adjustSize()
+        label = self._label
+        outer = self.layout().contentsMargins()
+        frame = 2 * self.frameWidth()
+        links = (SPACING["xs"] + self._links.sizeHint().height()
+                 if self._links.isVisibleTo(self) else 0)
+        animated = self._animation_view.isVisibleTo(self)
+        beside = (self.ANIMATION_SIZE + self.layout().spacing()) if animated else 0
+        sideways = outer.left() + outer.right() + frame + beside
+        upright = outer.top() + outer.bottom() + frame + links
+        room = self.width() - sideways
+        if label.heightForWidth(room) <= self.height() - upright:
+            return
+        width = max(room, min(label.maximumWidth(), self._text_width()))
+        screen = self.screen() or QGuiApplication.primaryScreen()
+        if screen is not None:
+            area = screen.availableGeometry()
+            widest = max(width, area.width() - sideways)
+            while (width < widest
+                   and label.heightForWidth(width) > area.height() - upright):
+                width = min(widest, width + max(40, width // 4))
+        prose = max(0, label.heightForWidth(width))
+        label.setFixedWidth(width)
+        label.setFixedHeight(prose)
+        self._links.setFixedWidth(width)
+        self._text_column.setFixedWidth(width)
+        self._text_column.setFixedHeight(
+            max(self.ANIMATION_SIZE, prose + links) if animated
+            else prose + links)
+        self.resize(self.sizeHint())
 
     def _unpin_text(self) -> None:
         """Drop every explicit size on the text block.
@@ -792,7 +848,7 @@ class HoverTooltip(QFrame):
         self._links.ensurePolished()
         self._unpin_text()
         if not with_animation:
-            self._label.setMaximumWidth(self.TEXT_WIDTH)
+            self._label.setMaximumWidth(self._text_width())
             return
         width = self._fitting_text_width()
         self._label.setFixedWidth(width)

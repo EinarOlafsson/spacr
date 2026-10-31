@@ -253,3 +253,5 @@ does, and 141 settings have an animation.
 family.
 
 VERIFIED 2026-10-04: prefs/tooltips_box and prefs/tooltips_bottom present; test_the_two_help_surfaces and test_the_tooltip_footer_says_api_and_animation pass.
+
+2026-10-31 — Follow-up in 746: tooltip boxes were cut off at Zoom 100 % and above, and the maintainer asked for one switch that turns every tooltip off. The existing Show tooltips master switch already gates both surfaces through HoverDelay; 746 greys out the two surface switches while it is off.

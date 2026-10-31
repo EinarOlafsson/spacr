@@ -10479,6 +10479,9 @@ class PreferencesDialog:
         tooltips_box_check.toggled.connect(_warn_when_both_are_off)
         tooltips_bottom_check.toggled.connect(_warn_when_both_are_off)
         _warn_when_both_are_off()
+        for surface in (tooltips_box_check, tooltips_bottom_check):
+            tooltips_all_check.toggled.connect(surface.setEnabled)
+            surface.setEnabled(tooltips_all_check.isChecked())
 
         spinner_slider = QSlider(Qt.Horizontal)
         spinner_slider.setObjectName("SpinnerDelay")

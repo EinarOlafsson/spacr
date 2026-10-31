@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-654 Lifecycle: new, 76 Lifecycle: future in features/feature_list/.
+655 Lifecycle: new, 76 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -1584,5 +1584,7 @@ NEW FEATURES
        744_anonymous_annotation_database_startup_diagnostics.txt
   745  MASK ROLES KEEP THEIR MODELS AND RAW CHANNEL IDENTITY
        745_mask_roles_keep_their_models_and_raw_channel_identity.txt
+  746  HOVER TOOLTIPS ARE NEVER CUT OFF AND CAN BE TURNED OFF
+       746_hover_tooltips_are_never_cut_off_and_can_be_turned_off.txt
   747  ONE AMBIENT GPU FRAME NEVER FREEZES THE APP
        747_one_ambient_gpu_frame_never_freezes_the_app.txt

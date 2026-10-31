@@ -5816,7 +5816,26 @@ class _EasyPathEdit(QLineEdit):
         handled = super().event(event)
         if event.type() in (QEvent.LayoutRequest, QEvent.StyleChange, QEvent.FontChange):
             self._arrange_actions()
+            if event.type() != QEvent.LayoutRequest:
+                self._ask_for_the_placeholder_width()
         return handled
+
+    def setPlaceholderText(self, text):
+        """Set the placeholder and widen the field when the new one needs it.
+
+        :param text: the placeholder, already translated.
+        """
+        super().setPlaceholderText(text)
+        self._ask_for_the_placeholder_width()
+
+    def _ask_for_the_placeholder_width(self):
+        """Have the page place the field again when its placeholder would be cut."""
+        page = self.parentWidget()
+        arrange = getattr(page, '_arrange', None)
+        if (callable(arrange) and hasattr(self, 'protocols')
+                and self.width() < min(self.width_for_placeholder(),
+                                       max(180, page.width() - 48))):
+            arrange()
 
     def _arrange_actions(self):
         """Center equal action targets and reserve Browse space at the current font."""
@@ -5829,6 +5848,21 @@ class _EasyPathEdit(QLineEdit):
             self.protocols.setFixedSize(self.ai.size())
         self.protocols.move(self.width() - 88, (self.height() - self.protocols.height()) // 2)
         self.setTextMargins(18, 0, width + 100, 0)
+
+    def width_for_placeholder(self) -> int:
+        """The field width at which the whole placeholder is drawn uncut.
+
+        A line edit draws its placeholder on one line and elides what does
+        not fit, so the field is given the placeholder's width at the current
+        font, plus the text margins that keep Browse and the two dots clear
+        of it, the editor's own two-pixel inner margin on each side and room
+        for the text cursor.
+
+        :returns: the width in pixels.
+        """
+        browse = self.browse.fontMetrics().horizontalAdvance(self.browse.text()) + 12
+        text = self.fontMetrics().horizontalAdvance(self.placeholderText())
+        return 18 + text + browse + 100 + 2 * 2 + 8
 
 
 
@@ -6762,7 +6796,7 @@ class _EasyHomeField(QWidget):
         from PySide6.QtGui import QRegion
 
         width, height = self.width(), self.height()
-        panel_width = min(720, max(180, width - 48))
+        panel_width = min(max(720, self.panel.width_for_placeholder()), max(180, width - 48))
         right = getattr(self, '_navigator_content_right', None)
         if right is not None:
             panel_width = min(panel_width, max(180, 2 * (right - 16) - width))
