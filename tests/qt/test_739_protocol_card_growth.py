@@ -36,8 +36,8 @@ def test_animated_tiff_protocol_cards_remain_whole_and_reachable_before_native_h
     qtbot.addWidget(window)
     window._tour_timer.stop()
     window._consent_timer.stop()
-    window.show()
-    qtbot.waitExposed(window)
+    with qtbot.waitExposed(window):
+        window.show()
     from spacr.qt.widgets.loading_screen import LoadingScreen
 
     qtbot.waitUntil(lambda: not window.findChildren(LoadingScreen), timeout=10000)
@@ -133,8 +133,8 @@ def test_animated_tiff_protocol_cards_remain_whole_and_reachable_before_native_h
         previews = []
 
         def accept_preview(widget):
-            widget.show()
-            qtbot.waitExposed(widget)
+            with qtbot.waitExposed(widget):
+                widget.show()
             text = widget.findChild(QPlainTextEdit, 'EasySettingsPreview')
             assert text is not None and text.isReadOnly()
             previews.append(text.toPlainText())

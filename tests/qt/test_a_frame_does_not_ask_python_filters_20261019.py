@@ -41,8 +41,8 @@ def shown(qtbot):
     child = QWidget(window)
     child.setGeometry(10, 10, 100, 60)
     qtbot.addWidget(window)
-    window.show()
-    qtbot.waitExposed(window)
+    with qtbot.waitExposed(window):
+        window.show()
     return window, child
 
 
@@ -77,8 +77,8 @@ def test_a_resize_made_inside_a_paint_is_told_afterwards(qtbot):
     child = Grows(window)
     child.setGeometry(10, 10, 100, 60)
     qtbot.addWidget(window)
-    window.show()
-    qtbot.waitExposed(window)
+    with qtbot.waitExposed(window):
+        window.show()
     recorder = _Recorder()
     gil_priority._watch_object_events(child, recorder, (QEvent.Resize,))
     child.resize(100, 60)
@@ -116,8 +116,8 @@ def test_the_regression_screen_frame_asks_no_converted_filter(qtbot):
     screen = AppScreen("regression")
     qtbot.addWidget(screen)
     screen.resize(1600, 1000)
-    screen.show()
-    qtbot.waitExposed(screen)
+    with qtbot.waitExposed(screen):
+        screen.show()
     qtbot.wait(200)
     sources = {}
 
@@ -156,8 +156,8 @@ def test_short_action_words_observe_style_and_row_layout_without_paint_entry(qtb
     fit = _ActionWordFit(switch)
     qtbot.addWidget(window)
     window.resize(500, 180)
-    window.show()
-    qtbot.waitExposed(window)
+    with qtbot.waitExposed(window):
+        window.show()
     qtbot.waitUntil(lambda: not fit._timer.isActive())
     original_width = switch.property("minimumSize").width()
     delivered, fitted = [], []

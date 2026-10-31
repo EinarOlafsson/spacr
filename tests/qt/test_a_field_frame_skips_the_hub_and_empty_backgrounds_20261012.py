@@ -109,8 +109,8 @@ def painted(qtbot):
     labels = [_Counting(f"label {index}", window) for index in range(6)]
     for index, label in enumerate(labels):
         label.setGeometry(10, 10 + 22 * index, 200, 20)
-    window.show()
-    qtbot.waitExposed(window)
+    with qtbot.waitExposed(window):
+        window.show()
     return window, labels
 
 
@@ -225,8 +225,8 @@ def host(qtbot, qapp):
         widget.setGeometry(at[0], at[1], 140, 30)
         parts[f"{name}/{kind.__name__}"] = widget
     parts["Clear/_OwnBackground"].setAttribute(STYLED, True)
-    window.show()
-    qtbot.waitExposed(window)
+    with qtbot.waitExposed(window):
+        window.show()
     quiet = _QuietBackgrounds(field)
     yield window, field, quiet, parts
     _hand_backgrounds_back(quiet._quieted)

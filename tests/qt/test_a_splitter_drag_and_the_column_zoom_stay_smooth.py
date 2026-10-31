@@ -87,8 +87,8 @@ def _splitter(qtbot, key):
     split.add_pane(_labels(QWidget(), 12, "Runtime"), "Runtime", stretch=2)
     qtbot.addWidget(split)
     split.resize(1200, 400)
-    split.show()
-    qtbot.waitExposed(split)
+    with qtbot.waitExposed(split):
+        split.show()
     _pump()
     return split
 
@@ -250,8 +250,8 @@ def column(qtbot, qt_theme_applied, store):
     root = _Column()
     qtbot.addWidget(root)
     root.resize(700, 1400)
-    root.show()
-    qtbot.waitExposed(root)
+    with qtbot.waitExposed(root):
+        root.show()
     scale = ColumnTextScale()
     scale.register(root)
     _pump()
@@ -1048,8 +1048,8 @@ def test_the_hub_hears_after_the_sheet_what_it_did_not_hear_during_it(
     shown.hide()
     stranger = QLabel("e")
     qtbot.addWidget(stranger)
-    root.show()
-    qtbot.waitExposed(root)
+    with qtbot.waitExposed(root):
+        root.show()
     _pump()
     hub.clear()
     with _restyle_unheard(QApplication.instance(), root):
@@ -1150,8 +1150,8 @@ def test_the_replay_names_each_widget_by_the_wrapper_its_owner_holds(
     for label in labels:
         layout.addWidget(label)
     shown.hide()
-    root.show()
-    qtbot.waitExposed(root)
+    with qtbot.waitExposed(root):
+        root.show()
     _pump()
     hub.clear()
     snapshot.clear()
@@ -1347,8 +1347,8 @@ def test_a_native_parent_can_paint_and_close_after_the_python_owner_is_released(
     split.add_pane(_labels(QWidget(), 3, "Runtime"), "Runtime", stretch=2)
     layout.addWidget(split)
     host.resize(800, 300)
-    host.show()
-    qtbot.waitExposed(host)
+    with qtbot.waitExposed(host):
+        host.show()
     handle = split.handle(1)
     assert handle.edge_pane() is split.pane("Settings")
     assert not handle.grab().isNull()
