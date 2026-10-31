@@ -10404,8 +10404,10 @@ class PreferencesDialog:
             "Resting the pointer on a button, a field or a column header "
             "for the chosen Tooltip delay shows a small label saying what it is. The "
             "label stays while the pointer is on it and leaves a second "
-            "after the pointer goes. Cleared, no tooltip appears anywhere "
-            "in spaCR."
+            "after the pointer goes. Cleared, none of these labels appears, "
+            "and neither does the Tooltips box or the help a hovered setting "
+            "writes into the bottom strip. The help strips along the bottom "
+            "of some windows keep showing their text."
         )
         tooltips_all_check.setChecked(get_tooltips_enabled())
         appearance.addRow(tr("Tooltips"), tooltips_all_check)
