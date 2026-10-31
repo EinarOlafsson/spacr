@@ -591,3 +591,9 @@ The feature remains alpha/partial overall.
     Evidence: data/534_report_symlink_preservation_2026-10-15/receipt.json.
     This completes the report-path guard pending in the preceding note;
     no whole-map transaction, scientific/data/GPU or whole-item claim is made.
+
+2026-10-31 — Coordinator relayed maintainer approval: Visium HD proceeds on public 10x data (Visium_HD_3prime_Mouse_Brain, Space Ranger 4.0.1, CC BY 4.0).
+Existing readers load it unchanged (2/8/16 um; 33,696 genes; .btf slide); overlay checked by eye (Mbp white matter, Pcp4 thalamus, Ttr choroid plexus).
+220 um window, CPU Cellpose: 110 cells, Measure 110/110, map 36.3% of field UMIs; 100% of spaCR-cell UMIs fall in Space Ranger cells (40 px shift: 65%), 35.5% of theirs in ours.
+Mbp>=3 stand-in for infection (76/34 cells): pipeline runs, 0 genes q<0.05; still no public infected Visium HD. New SR4-layout test (BigTIFF, segmented_outputs, off-image bins).
+Left: infected HD set, paired H&E-IF, GPU whole-slide runs. Scripts/results: /mnt/wd4tb/scratch/claude-visiumhd-20261031/{scripts,work}.

@@ -830,3 +830,70 @@ def test_a_gene_name_shared_by_two_features_gets_its_own_column(tmp_path):
     wide = read_table(db, table="cell_expression", canonicalise=False,
                       report=None)
     assert wide.loc[0, "expr_Pakap"] == 1 and wide.loc[0, "expr_Pakap_2"] == 2
+
+
+def test_space_ranger_4_outs_map_through_the_bigtiff_and_skip_bins_off_the_image(tmp_path):
+    """Space Ranger 4 Visium HD outs, as 10x's public 3' mouse brain set lays
+    them out: a tiled BigTIFF ``.btf`` slide, ``segmented_outputs/`` beside
+    ``binned_outputs/`` (with its own CytAssist TIFF), a ``genome`` feature
+    field, and in-matrix bins whose full-resolution position is off the
+    image (negative or past its edge). Adding those bins changes no count."""
+    import h5py
+    import tifffile
+
+    outs, umis_in_nuclei = visium_hd_slide(tmp_path / "hd")
+    slide = os.path.join(outs, "slide_tissue_image.tif")
+    image = tifffile.imread(slide)
+    os.remove(slide)
+    tifffile.imwrite(os.path.join(outs, "slide_tissue_image.btf"), image,
+                     bigtiff=True, photometric="rgb", tile=(64, 64))
+    segmented = os.path.join(outs, "segmented_outputs", "spatial")
+    os.makedirs(segmented)
+    tifffile.imwrite(os.path.join(segmented, "cytassist_image.tiff"),
+                     np.full((40, 40, 3), 7, np.uint8), photometric="rgb")
+    with open(os.path.join(outs, "segmented_outputs",
+                           "cell_segmentations.geojson"), "w") as handle:
+        json.dump({"type": "FeatureCollection", "features": []}, handle)
+    assert oe._st_platform(outs) == "visium_hd"
+    assert oe._st_slide(outs)["channels"] == [
+        os.path.join(outs, "slide_tissue_image.btf")]
+    dst = tmp_path / "fields"
+    report = oe.run_spatial_masks(_mask_settings(
+        outs, dst, spatial_cell_expansion_um=0.0))
+    assert report["image"].endswith("slide_tissue_image.btf")
+    assert report["objects"] == len(_centres())
+    db = _measure(report)
+    request = {"spatial_source": outs, "spatial_masks_dir": str(dst),
+               "spatial_bin_um": 2, "spatial_objects": "cell",
+               "spatial_gene": "GENE_A", "spatial_anndata": False}
+
+    def mapped():
+        summary = oe.run_spatial_map(request)
+        wide = read_table(db, table="cell_expression", canonicalise=False,
+                          report=None)
+        return summary, wide.sort_values("prcfo").reset_index(drop=True)
+
+    before, wide_before = mapped()
+    assert len(wide_before) == len(_centres())
+    assert 0.8 < wide_before["expr_GENE_A"].sum() / umis_in_nuclei <= 1.0
+    folder = os.path.join(outs, "binned_outputs", "square_002um")
+    h5 = os.path.join(folder, "filtered_feature_bc_matrix.h5")
+    counts, barcodes, genes = oe._st_read_10x_h5(h5)
+    table = os.path.join(folder, "spatial", "tissue_positions.parquet")
+    off = pd.DataFrame({
+        "barcode": [f"s_002um_9{i:04d}-1" for i in range(4)], "in_tissue": 1,
+        "array_row": [0, 0, 999, 999], "array_col": [0, 1, 998, 999],
+        "pxl_row_in_fullres": [-19.4, -18.9, SHAPE[0] + 30.0, 12.0],
+        "pxl_col_in_fullres": [21.5, -3.0, 40.0, SHAPE[1] + 25.0]})
+    pd.concat([pd.read_parquet(table), off], ignore_index=True).to_parquet(table)
+    _write_h5(h5, list(barcodes) + list(off["barcode"]), list(genes),
+              np.vstack([counts.toarray(), np.full((len(off), len(genes)), 5)]))
+    with h5py.File(h5, "a") as handle:
+        handle["matrix/features/genome"] = np.array(["mm10"] * len(genes),
+                                                     dtype="S")
+    after, wide_after = mapped()
+    assert after["points"] == before["points"] + len(off)
+    for key in ("points_in_fields", "umis_in_fields", "bins_covering_a_cell",
+                "umi_fraction_assigned"):
+        assert after[key] == before[key]
+    pd.testing.assert_frame_equal(wide_after, wide_before)
