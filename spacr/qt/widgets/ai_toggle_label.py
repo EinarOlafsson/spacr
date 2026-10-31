@@ -51,6 +51,19 @@ from ..theme import active_palette, button_accent_text, font_px
 ELIDE_ABOVE_PX = 120
 
 
+def _elide_above_px() -> int:
+    """:data:`ELIDE_ABOVE_PX` at the current Zoom.
+
+    The cap was measured at 100 %. The caption grows with the font, so a
+    fixed 120 px elided "Parameter sweep" and "Interactive" at 200 % where
+    the row had room for them; the cap grows in proportion.
+    """
+    from ..theme import FONT_SIZE
+
+    ratio = font_px("body") / float(FONT_SIZE["body"])
+    return max(ELIDE_ABOVE_PX, int(round(ELIDE_ABOVE_PX * ratio)))
+
+
 def _show_focus_ring(label) -> None:
     """Show ``label``'s keyboard-focus outline in its paint layer, or hide it.
 
@@ -200,9 +213,10 @@ class AiToggleLabel(QLabel):
         :data:`ELIDE_ABOVE_PX` for what that cost.
         """
         hint = super().minimumSizeHint()
-        if hint.width() <= ELIDE_ABOVE_PX:
+        cap = _elide_above_px()
+        if hint.width() <= cap:
             return hint
-        return QSize(ELIDE_ABOVE_PX, hint.height())
+        return QSize(cap, hint.height())
 
     def setText(self, text) -> None:         # noqa: N802 (Qt naming)
         """Remember the full text, then show as much of it as fits.

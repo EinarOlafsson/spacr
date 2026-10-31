@@ -260,17 +260,71 @@ def test_four_styled_help_lines_fit_without_scrolling(qtbot, scheme):
     assert view.verticalScrollBar().maximum() == 0
 
 
-def test_the_help_is_justified(qtbot):
-    """Ragged right is most visible in a narrow popup of prose."""
+def _single_word_lines_are_spread(alignment, font, text, width):
+    """Whether laying ``text`` out at ``width`` letter-spaces a lone word.
+
+    Qt justifies a line that holds one word by spacing its letters, and it
+    cannot be told to leave such a line alone, so a justified paragraph
+    with a long word in it showed "w   i   e" (item 746). The glyph runs
+    of every one-word line are compared with that line's natural width.
+    """
+    from PySide6.QtGui import QTextDocument, QTextOption
+
+    document = QTextDocument()
+    document.setDefaultFont(font)
+    option = QTextOption(alignment)
+    option.setWrapMode(QTextOption.WordWrap)
+    document.setDefaultTextOption(option)
+    document.setPlainText(text)
+    document.setTextWidth(width)
+    document.size()
+    block = document.begin()
+    while block.isValid():
+        layout = block.layout()
+        text = block.text()
+        for index in range(layout.lineCount()):
+            line = layout.lineAt(index)
+            words = text[line.textStart():line.textStart()
+                         + line.textLength()].split()
+            if len(words) != 1:
+                continue
+            right = max((run.boundingRect().right() for run in
+                         line.glyphRuns()), default=0.0)
+            if right > line.x() + line.naturalTextWidth() + 1.5:
+                return True
+        block = block.next()
+    return False
+
+
+def test_the_help_is_never_letter_spaced(qtbot):
+    """No help surface justifies; a lone word keeps its own letter spacing.
+
+    Item 290 justified the strip and the box for an even right edge. At a
+    large Zoom a long word pushed a short one onto a line of its own, and
+    Qt spread that word's letters across the whole line. Qt has no way to
+    justify all lines but those, so the help is left-aligned.
+    """
+    from PySide6.QtGui import QFont
+
     bar = HintBar()
     qtbot.addWidget(bar)
-    assert bar.alignment() & Qt.AlignJustify
+    assert not bar.alignment() & Qt.AlignJustify
+    view = bar.findChild(QTextEdit, "HintBarText")
+    assert not view.alignment() & Qt.AlignJustify
 
     from spacr.qt.widgets.hover_tooltip import HoverTooltip
 
     tip = HoverTooltip()
     qtbot.addWidget(tip)
-    assert tip._label.alignment() & Qt.AlignJustify
+    alignment = tip._label.alignment() & Qt.AlignHorizontal_Mask
+    assert not alignment & Qt.AlignJustify
+    font = QFont(tip._label.font())
+    font.setPixelSize(24)
+    text = ("Zu viele Objekte verlangsamen die Segmentierung, und lange "
+            "Wörter wie Hintergrundsubtraktionsradius müssen umbrechen.")
+    assert _single_word_lines_are_spread(Qt.AlignJustify, font, text, 380), (
+        "the check no longer sees the spreading it exists to catch")
+    assert not _single_word_lines_are_spread(alignment, font, text, 380)
 
 
 def test_nothing_in_preferences_pops_a_floating_tooltip(qtbot):

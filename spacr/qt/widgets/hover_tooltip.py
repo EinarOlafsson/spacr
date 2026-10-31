@@ -461,7 +461,7 @@ class HoverTooltip(QFrame):
         )
         self._label.setWordWrap(True)
         self._label.setMaximumWidth(self.TEXT_WIDTH)
-        self._label.setAlignment(Qt.AlignJustify | Qt.AlignTop)
+        self._label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         column.addWidget(self._label)
 
         self._links = QWidget(self._text_column)

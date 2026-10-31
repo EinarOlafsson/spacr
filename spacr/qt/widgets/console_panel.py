@@ -1620,6 +1620,7 @@ class ConsolePanel(QWidget):
         self._usage_bar.setFixedWidth(96)
         self._usage_text = QLabel()
         self._usage_text.setObjectName("AiUsageText")
+        self._usage_text.setWordWrap(True)
         usage.addWidget(self._usage_bar)
         usage.addWidget(self._usage_text, 1)
         self._usage_row.setVisible(False)

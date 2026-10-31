@@ -238,7 +238,7 @@ class HintBar(QLabel):
         self._default = default
         self._hints: Dict[QWidget, str] = {}
         self.setObjectName(BAR_NAME)
-        self.setAlignment(Qt.AlignJustify | Qt.AlignVCenter)
+        self.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         self.setWordWrap(True)
         self._visible_text = default
         self.setAccessibleName(default)
@@ -261,7 +261,7 @@ class HintBar(QLabel):
         self._view.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self._view.setWordWrapMode(QTextOption.WrapAtWordBoundaryOrAnywhere)
         self._view.document().setDocumentMargin(0)
-        self._view.setAlignment(Qt.AlignJustify)
+        self._view.setAlignment(Qt.AlignLeft)
         self._view.setStyleSheet(
             "background: transparent; border: none; padding: 0px; margin: 0px;")
         inner = QVBoxLayout(self)

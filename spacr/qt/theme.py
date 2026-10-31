@@ -3999,6 +3999,40 @@ def _repolish_the_tagged(window) -> None:
                 style.polish(target)
 
 
+def _fit_a_dialog_to_its_wrapped_text(window) -> bool:
+    """Make a dialog tall enough for its word-wrapped text at its width.
+
+    Qt sizes a new top-level window from its layout's size hint, which for
+    word-wrapped labels is computed at a guessed width. A dialog whose
+    width is then set by a minimum width or by its buttons is laid out
+    narrower than that guess, its labels need more lines, and the bottom
+    of the text was cut off (the anonymised-report notice at every Zoom).
+    At the ``Show``, after its sheet is on, the dialog is grown to the
+    height its layout needs at its actual width, within its screen.
+
+    :param window: the window being shown; only a ``QDialog`` with a
+        height-for-width layout is changed.
+    :returns: ``True`` when the dialog was made taller.
+    """
+    from PySide6.QtWidgets import QDialog
+
+    if not isinstance(window, QDialog):
+        return False
+    layout = window.layout()
+    if layout is None or not layout.hasHeightForWidth():
+        return False
+    needed = layout.totalHeightForWidth(window.width())
+    if needed <= window.height():
+        return False
+    screen = window.screen()
+    if screen is not None:
+        needed = min(needed, screen.availableGeometry().height())
+    if needed <= window.height():
+        return False
+    window.resize(window.width(), needed)
+    return True
+
+
 def _fit_a_tooltip_to_its_styled_text(window) -> bool:
     """Size a tooltip label for the font and padding its sheet gives it.
 
@@ -4113,6 +4147,8 @@ class _SheetsEveryWindowThatAppears(QObject):
                             return False
                     for root in _roots_for(watched):
                         _sheet_one_window(root)
+                    if kind == QEvent.Show:
+                        _fit_a_dialog_to_its_wrapped_text(watched)
                 elif watched.property(_SHEET_TARGET):
                     _sheet_one_window(watched)
             except (AttributeError, RuntimeError):

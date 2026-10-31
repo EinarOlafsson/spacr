@@ -55,9 +55,13 @@ class Toggle(QCheckBox):
             self.setSizePolicy(policy)
 
     def _fit_track(self, _scale=None):
-        """Keep the toggle tall enough for its fixed-height switch track.
+        """Keep the toggle tall enough for its switch track and its caption.
 
-        :param _scale: listener scale, unused because the track height is fixed.
+        The minimum height is what a squeezed layout gives the toggle, so it
+        has to hold one line of the caption at the current font as well as
+        the fixed track: at 200 % a 19 px minimum cut the caption in half.
+
+        :param _scale: listener scale, unused; the font is read directly.
         """
         from shiboken6 import isValid
 
@@ -66,9 +70,24 @@ class Toggle(QCheckBox):
         from PySide6.QtWidgets import QWidget
         from ..gui_scale import _ORIGINAL, _actual_minimum_height
 
-        if _actual_minimum_height(self) < self._track_h + 2:
+        needed = self._track_h + 2
+        if self.text() and not self._word_wrap:
+            needed = max(needed, self.fontMetrics().height())
+        if _actual_minimum_height(self) < needed:
             setter = _ORIGINAL.get((QWidget, "setMinimumHeight"), QWidget.setMinimumHeight)
-            setter(self, self._track_h + 2)
+            setter(self, needed)
+
+    def changeEvent(self, event):
+        """Fit the minimum height again when the font or style changes.
+
+        :param event: the change event, passed on to the checkbox.
+        """
+        from PySide6.QtCore import QEvent
+
+        super().changeEvent(event)
+        if (event.type() in (QEvent.FontChange, QEvent.StyleChange)
+                and hasattr(self, "_track_h")):
+            self._fit_track()
 
     def sizeHint(self) -> "QSize":
         """Return the default checkbox hint widened to fit the switch track."""

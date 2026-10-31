@@ -32,3 +32,4 @@ d) Move the tooltips strip ABOVE the Defaults / Close / Open buttons.
 e) Delete the standing sentences "Theme, font, scale and the animation
    background apply instantly on save." and the "colour blind mode ..."
    sentence. They are noise on every visit.
+2026-10-31 — Justification withdrawn under 746: at large Zoom Qt letter-spaced lines holding a single word; the box and the strip are left-aligned.
