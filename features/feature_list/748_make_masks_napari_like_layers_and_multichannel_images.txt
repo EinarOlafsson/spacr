@@ -1,0 +1,49 @@
+MAKE MASKS: NAPARI-LIKE LAYERS AND MULTICHANNEL IMAGES
+=====================================================
+Lifecycle: new
+Status: OPEN 2026-10-31 — requested by the maintainer; design and implementation not started.
+Requested: maintainer, 2026-10-31 ("napari like layers and support for multichannel images in make masks").
+Owner: Home (coordinator assigns an agent).
+Related: spacr/layers.py (napari-style layer model: images, labels, points,
+        shapes), spacr/qt/layer_viewer.py and LayerCanvas (used by Curate,
+        Counting and the comparison grid), 745 (mask roles keep their raw
+        channel identity), 431/442 (mask settings and preview follow channels),
+        593 (consolidate folders and sort into channels).
+
+REQUEST
+Make Masks shows its images and masks as napari-like layers, and works
+directly with multichannel images.
+
+REQUIREMENTS
+1. Layers in Make Masks. The Make Masks preview/viewer uses the existing
+   napari-style layer model (spacr.layers / LayerCanvas) rather than a
+   separate drawing path: each raw channel is an image layer, and each mask
+   role (cell, nucleus, pathogen) and any loaded mask is a labels layer.
+2. A layer list beside the view, as in napari: show/hide, opacity, colormap
+   (per image layer), contrast limits, blending, reorder, select the active
+   layer; labels layers show outlines or filled labels with the role colour.
+3. Multichannel images. Make Masks accepts multichannel files (multi-page
+   TIFF, OME-TIFF/OME-Zarr channel axis, ND2/CZI where the readers already
+   support them, RGB) as well as today's one-file-per-channel folders. Each
+   channel becomes its own layer and can be assigned to a mask role exactly
+   as a separate channel file is today; raw channel identity is preserved
+   end to end (see 745).
+4. The channel-to-role settings, previews and batch runs give the same masks
+   whether the channels arrive as separate files or as one multichannel file
+   (a regression test proves byte-identical masks for the same data).
+5. Performance: switching layers, toggling visibility and changing contrast
+   never rebuild the screen and stay responsive on large fields; channel data
+   loads off the GUI thread.
+6. Current-layout tutorials and guides are updated by their owners once the
+   layout changes (tutorials: Work lane).
+7. User strings through tr(); new documented callables carry their nine-language
+   arrival records in the same push.
+
+ACCEPTANCE
+- Make Masks opens a multichannel file and a one-file-per-channel folder of
+  the same data and produces identical masks.
+- Every channel and mask is a layer with the controls in requirement 2.
+- Related tests, normal artefacts and translations pass; pushed to nightly.
+
+NOTES
+2026-10-31 Item recorded from the maintainer's request; release scope for 1.5.1.7 to be decided by the maintainer.
