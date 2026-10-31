@@ -829,6 +829,10 @@ class _ProtocolBrowserDialog(QDialog):
             self._set_input(source_path, context)
         else:
             self._set_result(result)
+        from ..dialogs import OPENS_AT, open_at_its_natural_size
+
+        self.setProperty(OPENS_AT, QSize(1080, 820))
+        open_at_its_natural_size(self)
 
     def _set_result(self, result):
         """Mount a detached wizard recipe without changing legacy navigation data.
