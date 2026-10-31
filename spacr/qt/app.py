@@ -2861,6 +2861,7 @@ def _easy_module_matches(value):
 
 def _easy_module_search(value):
     """Offer case-insensitive partial names without interpreting paths as commands."""
+    from .i18n_module_summaries import module_summary
     from .organisms import ORGANISMS
     from .widgets.fold_strip import fold_label
 
@@ -2892,8 +2893,16 @@ def _easy_module_search(value):
                 name, description, stage = fold_description(key)
                 if maturity_is_visible(stage):
                     rows[key] = (name, description)
+        summaries = {key: module_summary('mask' if key == '3d' else key, description)
+                     for key, (_name, description) in rows.items()}
+        said = {key: text if text != rows[key][1] else tr(rows[key][1])
+                for key, text in summaries.items()}
         return [(key, tr('Mask Generation') if key == 'mask' else tr(rows[key][0]),
-                 tr(rows[key][1]), '') for key in tasks if key in rows]
+                 said[key], '') for key in tasks if key in rows]
+    summaries = {key: module_summary('mask' if key == '3d' else key, description)
+                 for key, (_name, description) in rows.items()}
+    said = {key: text if text != rows[key][1] else tr(rows[key][1])
+            for key, text in summaries.items()}
     found = []
     for key, (name, description) in rows.items():
         title = tr('Mask Generation') if key == 'mask' else tr(name)
@@ -2904,12 +2913,12 @@ def _easy_module_search(value):
                    'power': ('Power Design', 'plan', 'planning')}
         labels = (key, name, title, *aliases.get(key, ()))
         if any(wanted in _easy_command_text(label) for label in labels if label):
-            found.append((key, title, tr(description), ''))
+            found.append((key, title, said[key], ''))
     if not found:
         for key in _easy_module_matches(value):
             if key in rows:
                 name, description = rows[key]
-                found.append((key, tr(name), tr(description), ''))
+                found.append((key, tr(name), said[key], ''))
     return found
 
 

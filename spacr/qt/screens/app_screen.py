@@ -7284,7 +7284,7 @@ class AppScreen(QWidget):
 
         title = tr(
             "Point {module} at some data",
-            module=tr(APP_TITLES.get(self.app_key, self.app_key)).lower(),
+            module=tr(APP_TITLES.get(self.app_key, self.app_key)),
         )
         subtitle = tr(
             "Drop a folder of images anywhere on this window or type a path "
@@ -14345,15 +14345,16 @@ class _FreeRamDialog(QDialog):
         if not self.boxes:
             layout.addWidget(QLabel(tr("No other programs of yours can be "
                                        "closed from here.")))
-        buttons = QHBoxLayout()
-        self.close_button = QPushButton(tr("Close selected"))
+        from PySide6.QtWidgets import QDialogButtonBox
+
+        buttons = QDialogButtonBox(self)
+        self.close_button = buttons.addButton(tr("Close selected"), QDialogButtonBox.AcceptRole)
         self.close_button.setObjectName("FreeRamClose")
         self.close_button.clicked.connect(self._close_selected)
-        cancel = QPushButton(tr("Cancel"))
+        cancel = buttons.addButton(tr("Cancel"), QDialogButtonBox.RejectRole)
+        cancel.setDefault(True)
         cancel.clicked.connect(self.reject)
-        buttons.addWidget(self.close_button)
-        buttons.addWidget(cancel)
-        layout.addLayout(buttons)
+        layout.addWidget(buttons)
 
     def selected_pids(self):
         """Process ids of the ticked rows."""

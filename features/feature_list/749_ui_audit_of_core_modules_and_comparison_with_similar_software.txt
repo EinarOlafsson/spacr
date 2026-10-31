@@ -43,3 +43,4 @@ ACCEPTANCE
 
 NOTES
 2026-10-31 Item recorded from the maintainer's request.
+2026-10-31 Audit fixes batch 1: Navigator cards use the reviewed localized module summaries and follow the composer in Tab order; dock section headings take focus and fold with Space/Enter; disabled Run/Stop lose their action colour; empty-state headlines keep the module name's case; walkthrough intros end their sentence; the condition-label and Free RAM dialogs use platform button order (Free RAM defaults to Cancel). tests/qt/test_749_ui_audit_fixes.py (22 cases) plus 342 related pass.

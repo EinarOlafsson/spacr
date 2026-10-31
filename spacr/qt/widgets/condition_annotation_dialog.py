@@ -25,6 +25,7 @@ from PySide6.QtWidgets import (
     QApplication,
     QComboBox,
     QDialog,
+    QDialogButtonBox,
     QFileDialog,
     QFrame,
     QGridLayout,
@@ -114,14 +115,12 @@ class _SelectionAnnotationDialog(QDialog):
         self.status = QLabel(self)
         self.status.setWordWrap(True)
         layout.addWidget(self.status)
-        buttons = QHBoxLayout()
-        self.apply_button = QPushButton(tr("Apply conditions"), self)
+        buttons = QDialogButtonBox(self)
+        self.apply_button = buttons.addButton(tr("Apply conditions"), QDialogButtonBox.AcceptRole)
         self.apply_button.clicked.connect(self._apply)
-        buttons.addWidget(self.apply_button)
-        cancel = QPushButton(tr("Cancel"), self)
+        cancel = buttons.addButton(tr("Cancel"), QDialogButtonBox.RejectRole)
         cancel.clicked.connect(self.reject)
-        buttons.addWidget(cancel)
-        layout.addLayout(buttons)
+        layout.addWidget(buttons)
         self.output_column.currentTextChanged.connect(self._labels)
         self._labels()
 

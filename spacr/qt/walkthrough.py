@@ -204,6 +204,9 @@ def build_steps(app_key: str) -> List[WalkStep]:
                 break
     except Exception:
         intro = ""
+    intro = intro.rstrip()
+    if intro and intro[-1] not in ".!?…。":
+        intro += "."
     steps.append(WalkStep(
         title=name,
         body=(intro or f"This is the {name} module.")

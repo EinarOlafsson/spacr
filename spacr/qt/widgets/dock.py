@@ -175,6 +175,7 @@ class SectionHeader(QLabel):
         self.setObjectName("SidebarSection")
         self.setProperty("sectionName", section)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setFocusPolicy(Qt.FocusPolicy.TabFocus)
 
 
 class Dock(QWidget):
@@ -280,6 +281,8 @@ class Dock(QWidget):
                 header = SectionHeader(section)
                 _watch_object_events(header, self, (
                     QEvent.Type.Enter, QEvent.Type.Leave,
+                    QEvent.Type.FocusIn, QEvent.Type.FocusOut,
+                    QEvent.Type.KeyPress,
                     QEvent.Type.MouseButtonRelease))
                 column.addWidget(header)
                 self._headers[section] = header
@@ -386,18 +389,26 @@ class Dock(QWidget):
 
         :param watched: the object the event is for; only a
             :class:`SectionHeader` is handled here.
-        :param event: the event; Enter and Leave set the header's ``hovered``
-            property, and a left-button release toggles its section.
+        :param event: the event; Enter, Leave and keyboard focus set the
+            header's ``hovered`` property, and a left-button release or
+            Space/Enter on a focused heading toggles its section.
         """
 
         if isinstance(watched, SectionHeader):
             kind = event.type()
-            if kind in (QEvent.Type.Enter, QEvent.Type.Leave):
-                watched.setProperty("hovered", kind == QEvent.Type.Enter)
+            if kind in (QEvent.Type.Enter, QEvent.Type.Leave,
+                        QEvent.Type.FocusIn, QEvent.Type.FocusOut):
+                lit = kind in (QEvent.Type.Enter, QEvent.Type.FocusIn)
+                watched.setProperty("hovered", lit or watched.hasFocus()
+                                    or watched.underMouse())
                 watched.style().unpolish(watched)
                 watched.style().polish(watched)
             elif (kind == QEvent.Type.MouseButtonRelease
                     and event.button() == Qt.MouseButton.LeftButton):
+                self.toggle_section(watched.section)
+                return True
+            elif (kind == QEvent.Type.KeyPress and event.key() in (
+                    Qt.Key.Key_Space, Qt.Key.Key_Return, Qt.Key.Key_Enter)):
                 self.toggle_section(watched.section)
                 return True
         return super().eventFilter(watched, event)

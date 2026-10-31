@@ -6752,6 +6752,12 @@ class _EasyHomeField(QWidget):
             leading = None
         if leading is not None:
             self.cards.insert(min(leading_index, len(self.cards)), leading)
+        previous = self.panel.protocols
+        for card in self.cards:
+            QWidget.setTabOrder(previous, card)
+            previous = card
+        if self.cards:
+            QWidget.setTabOrder(previous, self.details)
         animate = self._motion_enabled() and self.isVisible()
         for card in self.cards:
             card._content_opacity.setOpacity(0.0 if animate else 1.0)

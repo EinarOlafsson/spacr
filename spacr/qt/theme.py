@@ -5905,15 +5905,21 @@ QPushButton[buttonActionRole="negative"][buttonActionBusy="true"] {{
     color: {P["bg"]};
     border-color: {P["error"]};
 }}
+QPushButton#PrimaryButton:disabled,
+QPushButton#DangerButton:disabled,
 QPushButton[buttonActionRole="positive"]:disabled,
 QPushButton[buttonActionRole="negative"]:disabled {{
     background-color: transparent;
+    color: {P["fg_dim"]};
+    border-color: {P["border"]};
 }}
+QPushButton#PrimaryButton[buttonActionBusy="true"]:disabled,
 QPushButton[buttonActionRole="positive"][buttonActionBusy="true"]:disabled {{
     background-color: {P["button_accent"]};
     color: {P["button_accent_ink"]};
     border-color: {P["button_accent"]};
 }}
+QPushButton#DangerButton[buttonActionBusy="true"]:disabled,
 QPushButton[buttonActionRole="negative"][buttonActionBusy="true"]:disabled {{
     background-color: {P["error"]};
     color: {P["bg"]};
