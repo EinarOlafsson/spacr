@@ -11704,8 +11704,8 @@ class PreferencesDialog:
                 "in it, never toward a single-colour patch. The camera "
                 "eases in and out of every move and turns away before the "
                 "detail runs out, and at the end of a dive it glides back "
-                "up. Dragging the view stops the tour; Ctrl+R hands the "
-                "camera back to it."))
+                "up. Dragging the view stops the tour; Help ▸ Window ▸ "
+                "Restart the background hands the camera back to it."))
             fractal.addRow(tr("Path"), fractal_path)
 
             fractal_steering = _tenths(
