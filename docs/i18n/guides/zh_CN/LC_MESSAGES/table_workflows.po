@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 18:42-0400\n"
+"POT-Creation-Date: 2026-10-30 20:02-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -209,8 +209,8 @@ msgid "Use, save and reload the result"
 msgstr "使用、保存并重新加载结果"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "In Graph Builder, place result columns on **X**, **Y**, colour, size or facet channels. In Gate Editor, use the columns for thresholds, polygons and other gate shapes. The Gate Editor may display a sample according to its ``sample_fraction`` and ``max_points`` settings; gate export evaluates the full merged table."
-msgstr "在 Graph Builder 中，将结果列放到 **X**、**Y**、颜色、大小或分面通道。在 Gate Editor 中，将这些列用于阈值、多边形和其他门控形状。Gate Editor 可能根据 ``sample_fraction`` 和 ``max_points`` 设置显示抽样数据；导出门控时会计算完整的合并表。"
+msgid "In Graph Builder, place result columns on **X**, **Y**, colour, size or facet channels. In Gate Editor, use the columns for thresholds, polygons and other gate shapes. **Max points** limits a random subset of rows used for display in both screens, without rereading or removing rows from the working table. With the same data and filter settings, raising the cap retains the current subset and adds remaining rows. Gate Editor's ``sample_fraction`` also bounds its displayed subset; gate export still evaluates the full merged table."
+msgstr "在 Graph Builder 中，将结果列放到 **X**、**Y**、颜色、大小或分面通道上。在 Gate Editor 中，使用这些列设置阈值、多边形及其他门控形状。**最大点数** 限制两个界面用于显示的随机行子集，不会重新读取工作表或从中删除行。在数据和筛选设置不变时，提高上限会保留当前子集并添加其余行。Gate Editor 的 ``sample_fraction`` 也限制显示子集；门控导出仍计算完整的合并表。"
 
 msgid "When a Graph Builder channel is cleared, or holds a column the chosen plot kind cannot draw, the canvas explains what is missing instead of drawing a chart. For example, it asks you to drag a column onto **X** or **Y**, says that a histogram needs a continuous column, or names a column that the current table does not contain. The plot kind stays selected, so placing suitable columns draws the chart again."
 msgstr "当 Graph Builder 的某个通道被清空，或其中的列无法用所选图表类型绘制时，画布不会绘制图表，而是说明缺少什么。例如，它会提示你将一列拖到 **X** 或 **Y** 上，说明直方图需要连续型列，或指出当前表中不存在的某个列。图表类型保持选中，因此放入合适的列后图表会重新绘制。"
@@ -296,6 +296,18 @@ msgid "The saved merge records the mapping's location and a content checksum. Re
 msgstr "保存的合并会记录映射的位置和内容校验和。重新打开合并或图表时，映射必须仍然可用且未发生变化。对于嵌入的 ``conversion_map`` 表，对数据库其他表进行无关修改不会使映射失效。如果映射改变，请重新选择并验证新的结果后再应用。**移除文件名映射** 从草稿中移除文件名补充信息，而不删除文件。**恢复 spaCR 默认设置** 也会清除映射。"
 
 # AI technical review (Codex), no native-speaker signoff.
+msgid "Label rows selected on a plot"
+msgstr "为图中选定的行添加标签"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Annotation commands are in the plot's right-click menu. In Graph Builder, brush displayed points, then choose **Annotate selection**. In Gate Editor, select a gate in the hierarchy, then choose **Annotate…** from the plot menu: it labels only displayed rows inside that gate, after the current filters and axis cutoffs. Choose the output column and label in the dialog; these are table annotations, not image annotations. Gate Editor's separate **Annotate conditions** action uses enabled gates to write binary or multiclass labels for the full working table to the database's ``filters`` table, and requires verified image/object provenance."
+msgstr "标注命令位于图的右键菜单中。在 Graph Builder 中，刷选显示的点，然后选择 **标注所选点**。在 Gate Editor 中，在层级中选择一个门控区域，然后从图菜单选择 **标注…**：它只标注经过当前筛选和坐标轴截断后、显示在该门控区域内的行。在对话框中选择输出列和标签；这些是表格标注，不是图像标注。Gate Editor 单独的 **标注实验条件** 操作使用已启用的门控区域，为整个工作表生成二分类或多分类标签并写入数据库的 ``filters`` 表，且要求已验证的图像/对象来源信息。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Selected-row assignments use the original source rows, not their positions in the random display subset. Use **Save annotated table** in Gate Editor or **Save annotated table…** in Graph Builder for a new SQLite table, or **Export table** / **Export table…** for CSV with its condition sidecar. These actions preserve the source and save the full working table, not just the selected points. Graph Builder's **Save chart** also stores editable conditions. Gate Editor's **Save gates…** saves gate geometry and merge settings; it does not save these selected-row condition assignments."
+msgstr "所选行的赋值使用原始来源行，而不是它们在随机显示子集中的位置。使用 Gate Editor 的 **保存笔记表** 或 Graph Builder 的 **保存已标注的表格…** 保存为新的 SQLite 表，或者使用 **出口表** / **导出表格…** 导出 CSV 及其条件附属文件。这些操作保留来源，并保存整个工作表，而不只是选定的点。Graph Builder 的 **保存图** 还会保存可编辑的条件。Gate Editor 的 **保存门控区域…** 保存门控几何形状和合并设置；它不保存这些对所选行的条件赋值。"
+
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Annotate experimental conditions in Graph Builder"
 msgstr "在 Graph Builder 中标注实验条件"
 
@@ -304,8 +316,8 @@ msgid "**Annotate conditions** adds annotation columns to the working table in G
 msgstr "**标注实验条件** 在 Graph Builder 的工作表中添加标注列。它适用于物理数据库表、命名派生表或导入的 CSV/TSV。使用规则分配标签或提取可变元数据，再根据这些值组合最终列。每个生成列都会保留。这些表操作不需要图像链接，也不会写入图像标注。"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Open **Annotate conditions**, name the **Output column**, and choose **Assign values**, **Extract text**, or **Compose column**. Existing source columns cannot be replaced."
-msgstr "打开 **标注实验条件**，为 **输出列** 命名，然后选择 **分配值**、**提取文本** 或 **组合列**。不能替换已有的源列。"
+msgid "Right-click the Graph Builder plot and choose **Annotate conditions**, name the **Output column**, and choose **Assign values**, **Extract text**, or **Compose column**. Existing source columns cannot be replaced."
+msgstr "右键单击 Graph Builder 的图并选择 **标注实验条件**，为 **输出列** 命名，然后选择 **分配值**、**提取文本** 或 **组合列**。不能替换现有来源列。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Define the value rules, text extraction, or composition for that output. Use **Add column** for another output. A named-group regex can also create several metadata columns together."

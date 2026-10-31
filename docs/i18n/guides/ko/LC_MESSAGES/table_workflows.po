@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 18:42-0400\n"
+"POT-Creation-Date: 2026-10-30 20:02-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -209,8 +209,8 @@ msgid "Use, save and reload the result"
 msgstr "결과 사용, 저장, 다시 불러오기"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "In Graph Builder, place result columns on **X**, **Y**, colour, size or facet channels. In Gate Editor, use the columns for thresholds, polygons and other gate shapes. The Gate Editor may display a sample according to its ``sample_fraction`` and ``max_points`` settings; gate export evaluates the full merged table."
-msgstr "Graph Builder에서 결과 열을 **X**, **Y**, 색상, 크기, 패싯 채널에 배치합니다. Gate Editor에서는 이 열들을 임계값, 다각형 및 다른 게이트 모양에 사용합니다. Gate Editor는 ``sample_fraction`` 및 ``max_points`` 설정에 따라 일부 표본을 표시할 수 있지만, 게이트 내보내기는 전체 병합 테이블을 평가합니다."
+msgid "In Graph Builder, place result columns on **X**, **Y**, colour, size or facet channels. In Gate Editor, use the columns for thresholds, polygons and other gate shapes. **Max points** limits a random subset of rows used for display in both screens, without rereading or removing rows from the working table. With the same data and filter settings, raising the cap retains the current subset and adds remaining rows. Gate Editor's ``sample_fraction`` also bounds its displayed subset; gate export still evaluates the full merged table."
+msgstr "Graph Builder에서 결과 열을 **X**, **Y**, 색상, 크기 또는 패싯 채널에 배치합니다. Gate Editor에서는 이 열을 임계값, 다각형 및 다른 게이트 모양에 사용합니다. **최대 점 수** 는 작업 테이블을 다시 읽거나 행을 제거하지 않고 두 화면에서 표시할 무작위 행 부분집합을 제한합니다. 데이터와 필터 설정이 같으면 상한을 높일 때 현재 부분집합이 유지되고 나머지 행이 추가됩니다. Gate Editor의 ``sample_fraction`` 도 표시 부분집합을 제한하지만 게이트 내보내기는 여전히 병합된 전체 테이블을 평가합니다."
 
 msgid "When a Graph Builder channel is cleared, or holds a column the chosen plot kind cannot draw, the canvas explains what is missing instead of drawing a chart. For example, it asks you to drag a column onto **X** or **Y**, says that a histogram needs a continuous column, or names a column that the current table does not contain. The plot kind stays selected, so placing suitable columns draws the chart again."
 msgstr "Graph Builder 채널이 비워지거나 선택한 플롯 종류로 그릴 수 없는 열이 들어 있으면, 캔버스는 차트를 그리는 대신 무엇이 빠졌는지 설명합니다. 예를 들어 열을 **X** 또는 **Y** 로 끌어 놓으라고 요청하거나, 히스토그램에는 연속형 열이 필요하다고 알리거나, 현재 표에 없는 열 이름을 알려 줍니다. 플롯 종류는 선택된 채로 유지되므로 알맞은 열을 놓으면 차트가 다시 그려집니다."
@@ -296,6 +296,18 @@ msgid "The saved merge records the mapping's location and a content checksum. Re
 msgstr "저장된 병합에는 매핑의 위치와 내용 체크섬이 기록됩니다. 병합이나 차트를 다시 열려면 매핑이 변경되지 않은 채 사용 가능해야 합니다. 데이터베이스에 포함된 ``conversion_map`` 테이블의 경우, 다른 테이블에 대한 무관한 변경은 매핑을 무효화하지 않습니다. 매핑이 바뀌면 다시 선택하고 새 결과를 검증한 뒤 적용하세요. **파일명 매핑 제거**\\ 는 파일을 삭제하지 않고 초안에서 추가 정보를 제거합니다. **spaCR 기본값으로 재설정**\\ 도 매핑을 지웁니다."
 
 # AI technical review (Codex), no native-speaker signoff.
+msgid "Label rows selected on a plot"
+msgstr "플롯에서 선택한 행에 레이블 지정"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Annotation commands are in the plot's right-click menu. In Graph Builder, brush displayed points, then choose **Annotate selection**. In Gate Editor, select a gate in the hierarchy, then choose **Annotate…** from the plot menu: it labels only displayed rows inside that gate, after the current filters and axis cutoffs. Choose the output column and label in the dialog; these are table annotations, not image annotations. Gate Editor's separate **Annotate conditions** action uses enabled gates to write binary or multiclass labels for the full working table to the database's ``filters`` table, and requires verified image/object provenance."
+msgstr "주석 명령은 플롯의 오른쪽 클릭 메뉴에 있습니다. Graph Builder에서 표시된 점을 브러시로 선택한 뒤 **선택 항목에 주석 달기** 를 선택합니다. Gate Editor에서는 계층에서 게이트를 선택한 뒤 플롯 메뉴에서 **주석 지정…** 을 선택합니다. 현재 필터와 축 잘라내기를 적용한 뒤 해당 게이트 안에 표시된 행에만 레이블을 지정합니다. 대화상자에서 출력 열과 레이블을 선택합니다. 이는 이미지 주석이 아닌 테이블 주석입니다. Gate Editor의 별도 **조건 주석 추가** 작업은 활성화된 게이트를 사용하여 전체 작업 테이블의 이진 또는 다중 클래스 레이블을 데이터베이스의 ``filters`` 테이블에 쓰며, 검증된 이미지/객체 출처 정보가 필요합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Selected-row assignments use the original source rows, not their positions in the random display subset. Use **Save annotated table** in Gate Editor or **Save annotated table…** in Graph Builder for a new SQLite table, or **Export table** / **Export table…** for CSV with its condition sidecar. These actions preserve the source and save the full working table, not just the selected points. Graph Builder's **Save chart** also stores editable conditions. Gate Editor's **Save gates…** saves gate geometry and merge settings; it does not save these selected-row condition assignments."
+msgstr "선택한 행의 할당은 무작위 표시 부분집합 내 위치가 아니라 원본 소스 행을 사용합니다. 새 SQLite 테이블에는 Gate Editor의 **어노테이션된 테이블을 저장하세요** 또는 Graph Builder의 **주석이 있는 테이블 저장…** 을 사용하고, 조건 사이드카 파일이 포함된 CSV에는 **수출 테이블** / **테이블 내보내기…** 를 사용합니다. 이 작업은 소스를 보존하며 선택한 점뿐 아니라 전체 작업 테이블을 저장합니다. Graph Builder의 **차트 저장** 은 편집 가능한 조건도 저장합니다. Gate Editor의 **게이트 저장…** 은 게이트 기하와 병합 설정을 저장하지만 선택한 행의 이러한 조건 할당은 저장하지 않습니다."
+
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Annotate experimental conditions in Graph Builder"
 msgstr "Graph Builder에서 실험 조건 주석 추가"
 
@@ -304,8 +316,8 @@ msgid "**Annotate conditions** adds annotation columns to the working table in G
 msgstr "**조건 주석 추가**\\ 는 Graph Builder의 작업 테이블에 주석 열을 추가합니다. 물리 데이터베이스 테이블, 이름이 있는 파생 테이블, 가져온 CSV/TSV에서 사용할 수 있습니다. 규칙으로 레이블을 지정하거나 가변 메타데이터를 추출한 뒤, 그 값들로 최종 열을 구성합니다. 생성된 모든 열은 유지됩니다. 이러한 테이블 작업에는 이미지 연결이 필요하지 않으며 이미지 주석을 쓰지 않습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Open **Annotate conditions**, name the **Output column**, and choose **Assign values**, **Extract text**, or **Compose column**. Existing source columns cannot be replaced."
-msgstr "**조건 주석 추가** 기능을 열고 **출력 열** 항목의 이름을 지정한 뒤 **값을 할당**, **텍스트 추출**, **열 조합** 중 하나를 선택합니다. 기존 원본 열은 교체할 수 없습니다."
+msgid "Right-click the Graph Builder plot and choose **Annotate conditions**, name the **Output column**, and choose **Assign values**, **Extract text**, or **Compose column**. Existing source columns cannot be replaced."
+msgstr "Graph Builder 플롯을 오른쪽 클릭하고 **조건 주석 추가** 를 선택한 뒤 **출력 열** 의 이름을 지정하고 **값을 할당**, **텍스트 추출** 또는 **열 조합** 을 선택합니다. 기존 소스 열은 바꿀 수 없습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Define the value rules, text extraction, or composition for that output. Use **Add column** for another output. A named-group regex can also create several metadata columns together."

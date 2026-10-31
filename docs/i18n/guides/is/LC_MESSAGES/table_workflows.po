@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 18:42-0400\n"
+"POT-Creation-Date: 2026-10-30 20:02-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -209,8 +209,8 @@ msgid "Use, save and reload the result"
 msgstr "Nota, vista og endurhlaða niðurstöðunni"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "In Graph Builder, place result columns on **X**, **Y**, colour, size or facet channels. In Gate Editor, use the columns for thresholds, polygons and other gate shapes. The Gate Editor may display a sample according to its ``sample_fraction`` and ``max_points`` settings; gate export evaluates the full merged table."
-msgstr "Í Graph Builder seturðu niðurstöðudálka á **X**, **Y**, lit, stærð eða reitaskiptingu. Í Gate Editor notarðu dálkana fyrir þröskulda, marghyrninga og önnur gate-form. Gate Editor kann að sýna úrtak samkvæmt stillingunum ``sample_fraction`` og ``max_points``, en útflutningur gates metur alla sameinuðu töfluna."
+msgid "In Graph Builder, place result columns on **X**, **Y**, colour, size or facet channels. In Gate Editor, use the columns for thresholds, polygons and other gate shapes. **Max points** limits a random subset of rows used for display in both screens, without rereading or removing rows from the working table. With the same data and filter settings, raising the cap retains the current subset and adds remaining rows. Gate Editor's ``sample_fraction`` also bounds its displayed subset; gate export still evaluates the full merged table."
+msgstr "Í Graph Builder seturðu niðurstöðudálka á **X**, **Y**, lit, stærð eða flötunarásir. Í Gate Editor notarðu dálkana fyrir þröskulda, marghyrninga og önnur gate-form. **Hámarksfjöldi punkta** takmarkar slembiúrtak raða sem birtist á báðum skjáum, án þess að lesa vinnutöfluna aftur eða fjarlægja raðir úr henni. Með sömu gögnum og síustillingum heldur hækkun marksins núverandi úrtaki og bætir við þeim röðum sem eftir eru. ``sample_fraction`` í Gate Editor takmarkar einnig birt úrtak; gate-útflutningur metur áfram alla sameinuðu töfluna."
 
 msgid "When a Graph Builder channel is cleared, or holds a column the chosen plot kind cannot draw, the canvas explains what is missing instead of drawing a chart. For example, it asks you to drag a column onto **X** or **Y**, says that a histogram needs a continuous column, or names a column that the current table does not contain. The plot kind stays selected, so placing suitable columns draws the chart again."
 msgstr "Þegar rás í Graph Builder er hreinsuð, eða inniheldur dálk sem valin línuritsgerð getur ekki teiknað, útskýrir teiknisvæðið hvað vantar í stað þess að teikna línurit. Það biður þig til dæmis að draga dálk á **X** eða **Y**, segir að súlurit þurfi samfelldan dálk, eða nefnir dálk sem núverandi tafla inniheldur ekki. Línuritsgerðin helst valin, svo línuritið er teiknað aftur þegar viðeigandi dálkum er komið fyrir."
@@ -296,6 +296,18 @@ msgid "The saved merge records the mapping's location and a content checksum. Re
 msgstr "Vistaða sameiningin skráir staðsetningu vörpunarinnar og gátsummu innihaldsins. Til að opna sameiningu eða graf aftur þarf vörpunin að vera áfram tiltæk og óbreytt. Fyrir innbyggða ``conversion_map`` töflu ógilda óskyldar breytingar á öðrum gagnagrunnstöflum ekki vörpunina. Ef vörpunin breytist skaltu velja hana aftur og sannprófa nýja niðurstöðu áður en hún er notuð. **Fjarlægja vörpun skráarnafna** fjarlægir viðbættu upplýsingarnar úr drögunum án þess að eyða skránni. **Endurstilla á sjálfgefin gildi spaCR** hreinsar einnig vörpunina."
 
 # AI technical review (Codex), no native-speaker signoff.
+msgid "Label rows selected on a plot"
+msgstr "Merkja raðir sem eru valdar á grafi"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Annotation commands are in the plot's right-click menu. In Graph Builder, brush displayed points, then choose **Annotate selection**. In Gate Editor, select a gate in the hierarchy, then choose **Annotate…** from the plot menu: it labels only displayed rows inside that gate, after the current filters and axis cutoffs. Choose the output column and label in the dialog; these are table annotations, not image annotations. Gate Editor's separate **Annotate conditions** action uses enabled gates to write binary or multiclass labels for the full working table to the database's ``filters`` table, and requires verified image/object provenance."
+msgstr "Merkingarskipanir eru í hægrismellsvalmynd grafsins. Í Graph Builder velurðu birta punkta með burstaverkfærinu og velur síðan **Merkja valið**. Í Gate Editor velurðu gate í stigveldinu og síðan **Merkja…** í grafvalmyndinni: aðeins birtar raðir innan þess gate eru merktar, eftir núverandi síur og ásamörk. Veldu úttaksdálk og merki í glugganum; þetta eru töflumerkingar, ekki myndmerkingar. Aðskilin aðgerð Gate Editor, **Merkja tilraunaskilyrði**, notar virk gates til að skrifa tvígild eða fjölflokka merki fyrir alla vinnutöfluna í ``filters``-töflu gagnagrunnsins og krefst staðfests uppruna mynda/hluta."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Selected-row assignments use the original source rows, not their positions in the random display subset. Use **Save annotated table** in Gate Editor or **Save annotated table…** in Graph Builder for a new SQLite table, or **Export table** / **Export table…** for CSV with its condition sidecar. These actions preserve the source and save the full working table, not just the selected points. Graph Builder's **Save chart** also stores editable conditions. Gate Editor's **Save gates…** saves gate geometry and merge settings; it does not save these selected-row condition assignments."
+msgstr "Úthlutanir á valdar raðir nota upprunalegu raðirnar í gagnagjafanum, ekki stöðu þeirra í birta slembiúrtakinu. Notaðu **Sparaðu notuð borð** í Gate Editor eða **Vista merkta töflu…** í Graph Builder fyrir nýja SQLite-töflu, eða **Tölur útvinningar** / **Flytja út töflu…** fyrir CSV með fylgiskrá skilyrða. Þessar aðgerðir varðveita gagnagjafann og vista alla vinnutöfluna, ekki aðeins valda punkta. **Vista graf** í Graph Builder vistar einnig breytanleg skilyrði. **Vista gates…** í Gate Editor vistar gate-rúmfræði og sameiningarstillingar; það vistar ekki þessar skilyrðaúthlutanir á valdar raðir."
+
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Annotate experimental conditions in Graph Builder"
 msgstr "Merkja tilraunaskilyrði í Graph Builder"
 
@@ -304,8 +316,8 @@ msgid "**Annotate conditions** adds annotation columns to the working table in G
 msgstr "**Merkja tilraunaskilyrði** bætir merkingadálkum við vinnutöfluna í Graph Builder. Það virkar með efnislegri gagnagrunnstöflu, nafngreindri afleiddri töflu eða innfluttri CSV/TSV-skrá. Notaðu reglur til að úthluta merkimiðum eða draga út breytileg lýsigögn og settu síðan saman lokadálk úr þessum gildum. Allir myndaðir dálkar haldast. Þessar töfluaðgerðir þurfa ekki myndtengingar og skrifa ekki myndmerkingar."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Open **Annotate conditions**, name the **Output column**, and choose **Assign values**, **Extract text**, or **Compose column**. Existing source columns cannot be replaced."
-msgstr "Opnaðu **Merkja tilraunaskilyrði**, nefndu **Úttaksdálkur** og veldu **Úthluta gildum**, **Draga út texta** eða **Setja saman dálk**. Ekki er hægt að skipta út fyrirliggjandi upprunadálkum."
+msgid "Right-click the Graph Builder plot and choose **Annotate conditions**, name the **Output column**, and choose **Assign values**, **Extract text**, or **Compose column**. Existing source columns cannot be replaced."
+msgstr "Hægrismelltu á grafið í Graph Builder og veldu **Merkja tilraunaskilyrði**, nefndu **Úttaksdálkur** og veldu **Úthluta gildum**, **Draga út texta** eða **Setja saman dálk**. Ekki er hægt að skipta út fyrirliggjandi upprunadálkum."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Define the value rules, text extraction, or composition for that output. Use **Add column** for another output. A named-group regex can also create several metadata columns together."

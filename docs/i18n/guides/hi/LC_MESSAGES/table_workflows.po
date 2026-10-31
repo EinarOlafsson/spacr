@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 18:42-0400\n"
+"POT-Creation-Date: 2026-10-30 20:02-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -209,8 +209,8 @@ msgid "Use, save and reload the result"
 msgstr "परिणाम उपयोग करना, सहेजना और फिर खोलना"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "In Graph Builder, place result columns on **X**, **Y**, colour, size or facet channels. In Gate Editor, use the columns for thresholds, polygons and other gate shapes. The Gate Editor may display a sample according to its ``sample_fraction`` and ``max_points`` settings; gate export evaluates the full merged table."
-msgstr "Graph Builder में परिणाम स्तंभों को **X**, **Y**, रंग, आकार या फ़ैसेट चैनलों में रखें। Gate Editor में स्तंभों का उपयोग थ्रेशोल्ड, बहुभुज और अन्य गेट आकृतियों के लिए करें। Gate Editor अपनी ``sample_fraction`` और ``max_points`` सेटिंग्स के अनुसार नमूना दिखा सकता है; गेट निर्यात पूरी मर्ज की हुई तालिका का मूल्यांकन करता है।"
+msgid "In Graph Builder, place result columns on **X**, **Y**, colour, size or facet channels. In Gate Editor, use the columns for thresholds, polygons and other gate shapes. **Max points** limits a random subset of rows used for display in both screens, without rereading or removing rows from the working table. With the same data and filter settings, raising the cap retains the current subset and adds remaining rows. Gate Editor's ``sample_fraction`` also bounds its displayed subset; gate export still evaluates the full merged table."
+msgstr "Graph Builder में परिणाम स्तंभों को **X**, **Y**, रंग, आकार या फ़ैसेट चैनलों पर रखें। Gate Editor में इन स्तंभों का उपयोग थ्रेशोल्ड, बहुभुज और अन्य गेट आकृतियों के लिए करें। **अधिकतम बिंदु** दोनों स्क्रीन पर दिखाए जाने वाले पंक्तियों के यादृच्छिक उपसमूह को सीमित करता है; यह कार्य तालिका को दोबारा नहीं पढ़ता और उससे पंक्तियाँ नहीं हटाता। डेटा और फ़िल्टर सेटिंग समान रहने पर सीमा बढ़ाने से वर्तमान उपसमूह बना रहता है और बाकी पंक्तियाँ जुड़ती हैं। Gate Editor का ``sample_fraction`` भी प्रदर्शित उपसमूह को सीमित करता है; गेट निर्यात फिर भी पूरी मर्ज की गई तालिका का मूल्यांकन करता है।"
 
 msgid "When a Graph Builder channel is cleared, or holds a column the chosen plot kind cannot draw, the canvas explains what is missing instead of drawing a chart. For example, it asks you to drag a column onto **X** or **Y**, says that a histogram needs a continuous column, or names a column that the current table does not contain. The plot kind stays selected, so placing suitable columns draws the chart again."
 msgstr "जब Graph Builder का कोई चैनल खाली कर दिया जाता है, या उसमें ऐसा कॉलम होता है जिसे चुना गया प्लॉट प्रकार नहीं बना सकता, तो कैनवास चार्ट बनाने के बजाय बताता है कि क्या कमी है। उदाहरण के लिए, वह आपसे किसी कॉलम को **X** या **Y** पर खींचने को कहता है, बताता है कि हिस्टोग्राम को सतत कॉलम चाहिए, या ऐसे कॉलम का नाम बताता है जो वर्तमान तालिका में नहीं है। प्लॉट प्रकार चुना रहता है, इसलिए उपयुक्त कॉलम रखने पर चार्ट फिर से बन जाता है।"
@@ -296,6 +296,18 @@ msgid "The saved merge records the mapping's location and a content checksum. Re
 msgstr "सहेजे मर्ज में मैपिंग का स्थान और सामग्री का चेकसम दर्ज रहता है। मर्ज या चार्ट फिर खोलने के लिए मैपिंग उपलब्ध और अपरिवर्तित रहनी चाहिए। अंतर्निहित ``conversion_map`` तालिका होने पर डेटाबेस की अन्य तालिकाओं में असंबंधित बदलाव मैपिंग अमान्य नहीं करते। मैपिंग बदले तो उसे फिर चुनें और लागू करने से पहले नया परिणाम सत्यापित करें। **फ़ाइल नाम मैपिंग को हटा दें** फ़ाइल हटाए बिना मसौदे से जोड़ा हुआ मेटाडेटा हटाता है। **spaCR डिफ़ॉल्ट पर पुनर्स्थापित करें** भी मैपिंग साफ़ करता है।"
 
 # AI technical review (Codex), no native-speaker signoff.
+msgid "Label rows selected on a plot"
+msgstr "प्लॉट पर चयनित पंक्तियों को लेबल दें"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Annotation commands are in the plot's right-click menu. In Graph Builder, brush displayed points, then choose **Annotate selection**. In Gate Editor, select a gate in the hierarchy, then choose **Annotate…** from the plot menu: it labels only displayed rows inside that gate, after the current filters and axis cutoffs. Choose the output column and label in the dialog; these are table annotations, not image annotations. Gate Editor's separate **Annotate conditions** action uses enabled gates to write binary or multiclass labels for the full working table to the database's ``filters`` table, and requires verified image/object provenance."
+msgstr "एनोटेशन कमांड प्लॉट के दाएँ-क्लिक मेनू में हैं। Graph Builder में प्रदर्शित बिंदुओं को ब्रश से चुनें, फिर **चयन को एनोटेट करें** चुनें। Gate Editor में पदानुक्रम से गेट चुनें, फिर प्लॉट मेनू से **एनोटेट करें…** चुनें: यह वर्तमान फ़िल्टर और अक्ष कटऑफ़ के बाद उस गेट के भीतर प्रदर्शित पंक्तियों को ही लेबल देता है। संवाद में आउटपुट स्तंभ और लेबल चुनें; ये तालिका एनोटेशन हैं, छवि एनोटेशन नहीं। Gate Editor की अलग **प्रयोग की स्थितियाँ एनोटेट करें** कार्रवाई सक्षम गेट का उपयोग करके पूरी कार्य तालिका के लिए बाइनरी या बहु-वर्गीय लेबल डेटाबेस की ``filters`` तालिका में लिखती है और इसके लिए सत्यापित छवि/ऑब्जेक्ट स्रोत-जानकारी आवश्यक है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Selected-row assignments use the original source rows, not their positions in the random display subset. Use **Save annotated table** in Gate Editor or **Save annotated table…** in Graph Builder for a new SQLite table, or **Export table** / **Export table…** for CSV with its condition sidecar. These actions preserve the source and save the full working table, not just the selected points. Graph Builder's **Save chart** also stores editable conditions. Gate Editor's **Save gates…** saves gate geometry and merge settings; it does not save these selected-row condition assignments."
+msgstr "चयनित पंक्तियों के असाइनमेंट मूल स्रोत पंक्तियों का उपयोग करते हैं, यादृच्छिक प्रदर्शित उपसमूह में उनकी स्थितियों का नहीं। नई SQLite तालिका के लिए Gate Editor में **एनोटेट की गई तालिका सहेजें** या Graph Builder में **एनोटेट की हुई तालिका सहेजें…** का उपयोग करें; शर्तों की साथ वाली फ़ाइल सहित CSV के लिए **निर्यात तालिका** / **तालिका निर्यात करें…** का उपयोग करें। ये कार्रवाइयाँ स्रोत को सुरक्षित रखती हैं और पूरी कार्य तालिका सहेजती हैं, केवल चयनित बिंदुओं को नहीं। Graph Builder का **चार्ट सहेजें** संपादन योग्य शर्तें भी सहेजता है। Gate Editor का **गेट सहेजें…** गेट की ज्यामिति और मर्ज सेटिंग सहेजता है; यह चयनित पंक्तियों के इन शर्त-असाइनमेंट को नहीं सहेजता।"
+
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Annotate experimental conditions in Graph Builder"
 msgstr "Graph Builder में प्रयोग की स्थितियों का एनोटेशन"
 
@@ -304,8 +316,8 @@ msgid "**Annotate conditions** adds annotation columns to the working table in G
 msgstr "**प्रयोग की स्थितियाँ एनोटेट करें** Graph Builder की कार्य तालिका में एनोटेशन स्तंभ जोड़ता है। यह भौतिक डेटाबेस तालिका, नामित व्युत्पन्न तालिका या आयातित CSV/TSV के साथ काम करता है। नियमों से लेबल दें या बदलता मेटाडेटा निकालें, फिर उन मानों से अंतिम स्तंभ बनाएँ। हर बनाया हुआ स्तंभ सुरक्षित रहता है। इन तालिका क्रियाओं के लिए चित्र लिंक आवश्यक नहीं और ये चित्र एनोटेशन नहीं लिखतीं।"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Open **Annotate conditions**, name the **Output column**, and choose **Assign values**, **Extract text**, or **Compose column**. Existing source columns cannot be replaced."
-msgstr "**प्रयोग की स्थितियाँ एनोटेट करें** खोलें, **आउटपुट स्तंभ** का नाम दें और **मान दें**, **पाठ निकालें** या **स्तंभ जोड़कर बनाएं** चुनें। मौजूदा स्रोत स्तंभ बदले नहीं जा सकते।"
+msgid "Right-click the Graph Builder plot and choose **Annotate conditions**, name the **Output column**, and choose **Assign values**, **Extract text**, or **Compose column**. Existing source columns cannot be replaced."
+msgstr "Graph Builder के प्लॉट पर दायाँ-क्लिक करके **प्रयोग की स्थितियाँ एनोटेट करें** चुनें, **आउटपुट स्तंभ** का नाम दें और **मान दें**, **पाठ निकालें** या **स्तंभ जोड़कर बनाएं** चुनें। मौजूदा स्रोत स्तंभों को बदला नहीं जा सकता।"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Define the value rules, text extraction, or composition for that output. Use **Add column** for another output. A named-group regex can also create several metadata columns together."

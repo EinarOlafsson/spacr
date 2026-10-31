@@ -154,9 +154,11 @@ Use, save and reload the result
 
 In Graph Builder, place result columns on **X**, **Y**, colour, size or facet
 channels. In Gate Editor, use the columns for thresholds, polygons and other
-gate shapes. The Gate Editor may display a sample according to its
-``sample_fraction`` and ``max_points`` settings; gate export evaluates the
-full merged table.
+gate shapes. **Max points** limits a random subset of rows used for display
+in both screens, without rereading or removing rows from the working table.
+With the same data and filter settings, raising the cap retains the current
+subset and adds remaining rows. Gate Editor's ``sample_fraction`` also
+bounds its displayed subset; gate export still evaluates the full merged table.
 
 When a Graph Builder channel is cleared, or holds a column the chosen plot
 kind cannot draw, the canvas explains what is missing instead of drawing a
@@ -276,6 +278,28 @@ select it again and validate a new result before applying it. **Remove
 filename mapping** removes the enrichment from the draft without deleting
 the file. **Reset to spaCR defaults** also clears the mapping.
 
+Label rows selected on a plot
+-----------------------------
+
+Annotation commands are in the plot's right-click menu. In Graph Builder,
+brush displayed points, then choose **Annotate selection**. In Gate Editor,
+select a gate in the hierarchy, then choose **Annotate…** from the plot menu:
+it labels only displayed rows inside that gate, after the current filters
+and axis cutoffs. Choose the output column and label in the dialog; these
+are table annotations, not image annotations. Gate Editor's separate
+**Annotate conditions** action uses enabled gates to write binary or multiclass
+labels for the full working table to the database's ``filters`` table, and
+requires verified image/object provenance.
+
+Selected-row assignments use the original source rows, not their positions
+in the random display subset. Use **Save annotated table** in Gate Editor
+or **Save annotated table…** in Graph Builder for a new SQLite table, or
+**Export table** / **Export table…** for CSV with its condition sidecar.
+These actions preserve the source and save the full working table, not just
+the selected points. Graph Builder's **Save chart** also stores editable
+conditions. Gate Editor's **Save gates…** saves gate geometry and merge
+settings; it does not save these selected-row condition assignments.
+
 Annotate experimental conditions in Graph Builder
 --------------------------------------------------
 
@@ -286,7 +310,8 @@ metadata, then compose a final column from those values. Every generated
 column is retained. These table
 operations do not require image links or write image annotations.
 
-#. Open **Annotate conditions**, name the **Output column**, and choose
+#. Right-click the Graph Builder plot and choose **Annotate conditions**,
+   name the **Output column**, and choose
    **Assign values**, **Extract text**, or **Compose column**. Existing source
    columns cannot be replaced.
 #. Define the value rules, text extraction, or composition for that output.
