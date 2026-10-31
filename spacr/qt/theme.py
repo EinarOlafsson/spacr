@@ -5130,6 +5130,87 @@ def registered_widget_qss(palette: dict,
     return "".join(parts)
 
 
+_CHEVRON_PIXELS = 64
+
+
+def _chevron_file(color: str, *, disabled: bool = False):
+    """The path of a down chevron drawn in ``color``, made once and reused.
+
+    A CSS border triangle is painted by Qt as a flat bar, so the combo's arrow
+    is an image. The picture is drawn with the theme's own ink, so it follows
+    the palette in every theme, and is kept in the system temporary folder
+    under a name that carries the colour; an existing file is reused.
+
+    :param color: ``#rrggbb`` ink.
+    :param disabled: draw it at reduced opacity, for a disabled combo.
+    :returns: the PNG's path, or ``None`` when it cannot be written.
+    """
+    import hashlib
+    import os
+    import tempfile
+    from pathlib import Path
+
+    from PySide6.QtCore import QPointF, Qt
+    from PySide6.QtGui import QColor, QImage, QPainter, QPen
+
+    ink = QColor(color)
+    if not ink.isValid():
+        return None
+    if disabled:
+        ink.setAlphaF(0.45)
+    key = hashlib.sha1(
+        f"{ink.name(QColor.HexArgb)}|{_CHEVRON_PIXELS}".encode()).hexdigest()[:12]
+    folder = Path(tempfile.gettempdir()) / "spacr-theme-chevrons"
+    path = folder / f"chevron-{key}.png"
+    if path.exists():
+        return path
+    try:
+        size = _CHEVRON_PIXELS
+        image = QImage(size, size, QImage.Format_ARGB32)
+        image.fill(Qt.transparent)
+        painter = QPainter(image)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        pen = QPen(ink)
+        pen.setWidthF(size * 0.13)
+        pen.setCapStyle(Qt.RoundCap)
+        pen.setJoinStyle(Qt.RoundJoin)
+        painter.setPen(pen)
+        painter.drawPolyline([QPointF(size * 0.18, size * 0.34),
+                              QPointF(size * 0.5, size * 0.66),
+                              QPointF(size * 0.82, size * 0.34)])
+        painter.end()
+        folder.mkdir(parents=True, exist_ok=True)
+        temporary = folder / f".{key}.{os.getpid()}.tmp.png"
+        if not image.save(str(temporary), "PNG"):
+            return None
+        os.replace(temporary, path)
+        return path
+    except Exception:                                    # noqa: BLE001
+        return None
+
+
+def _combo_arrow_rules(P, F) -> str:
+    """The rules that draw every combo box's drop-down arrow.
+
+    :param P: the palette.
+    :param F: the font sizes, already scaled by the zoom.
+    :returns: QSS for ``QComboBox::down-arrow``, a chevron in the muted ink.
+    """
+    size = max(10, int(round(F["small"] * 1.1)))
+    normal = _chevron_file(P["fg_muted"])
+    if normal is None:
+        return ('QComboBox::down-arrow {\n    image: none;\n    border: 4px solid transparent;\n'
+                f'    border-top-color: {P["fg_muted"]};\n    margin-top: 4px;\n'
+                '    width: 0;\n    height: 0;\n}')
+    rules = (f"QComboBox::down-arrow {{\n    image: {_qss_url(normal)};\n"
+             f"    width: {size}px;\n    height: {size}px;\n}}")
+    dim = _chevron_file(P["fg_muted"], disabled=True)
+    if dim is not None:
+        rules += (f"\nQComboBox::down-arrow:disabled {{\n"
+                  f"    image: {_qss_url(dim)};\n}}")
+    return rules
+
+
 def stylesheet(theme: str = "dark", font_scale: float = 1.0,
                background: Optional[str] = None,
                surface_opacity: Optional[float] = None, *,
@@ -6040,14 +6121,7 @@ QComboBox::drop-down {{
     width: 24px;
     border: none;
 }}
-QComboBox::down-arrow {{
-    image: none;
-    border: 4px solid transparent;
-    border-top-color: {P["fg_muted"]};
-    margin-top: 4px;
-    width: 0;
-    height: 0;
-}}
+{_combo_arrow_rules(P, F)}
 QComboBox QAbstractItemView {{
     background-color: {ELEVATED};
     color: {P["fg"]};
