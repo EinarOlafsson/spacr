@@ -8,6 +8,7 @@ screen's off-thread copy and move are waited for.
 from __future__ import annotations
 
 import os
+import threading
 from pathlib import Path
 
 import numpy as np
@@ -131,17 +132,81 @@ def test_detected_sets_are_shown_three_at_a_time(qtbot, qt_theme_applied, tmp_pa
     assert len(example.shown) == 3
 
 
-def test_the_screen_moves_and_merges_off_thread(screen, tmp_path, qtbot):
+def test_the_screen_moves_and_merges_off_thread(screen, tmp_path, qtbot, monkeypatch):
     """A confirmed plan is applied in a worker and the first channel opens."""
     from spacr import channel_sorting as cs
 
     folder = _drawn(tmp_path)
+    header_read, release_header = threading.Event(), threading.Event()
+    moved, release_move = threading.Event(), threading.Event()
+    allow_move = threading.Event()
+    pending_path, missing_reads, worker_threads = [], [], []
+    main_thread = threading.get_ident()
+    real_header = mm.engine._container_image_header
+    real_move = cs.shutil.move
+    real_load = mm.engine.load_image_and_mask
+
+    def header(path):
+        """Hold only the real original-folder header after its TIFF read."""
+        worker_threads.append(threading.get_ident())
+        result = real_header(path)
+        if Path(path).parent == folder and not header_read.is_set():
+            pending_path.append(Path(path))
+            header_read.set()
+            assert release_header.wait(10)
+        return result
+
+    def move(source, destination, *args, **kwargs):
+        """Pause the actual sort only after its pending source has moved."""
+        worker_threads.append(threading.get_ident())
+        if Path(source) == pending_path[0]:
+            assert allow_move.wait(10)
+        result = real_move(source, destination, *args, **kwargs)
+        if Path(source) == pending_path[0]:
+            moved.set()
+            assert release_move.wait(10)
+        return result
+
+    def load(folder, filename, *args, **kwargs):
+        """Observe real decoding attempts without replacing their result."""
+        path = Path(folder) / filename
+        if path == pending_path[0]:
+            allow_move.set()
+            assert moved.wait(10)
+        if not path.exists():
+            missing_reads.append(path)
+        return real_load(folder, filename, *args, **kwargs)
+
+    monkeypatch.setattr(mm.engine, "_container_image_header", header)
+    monkeypatch.setattr(cs.shutil, "move", move)
+    monkeypatch.setattr(mm.engine, "load_image_and_mask", load)
     assert screen._open_folder(str(folder))
+    qtbot.waitUntil(header_read.is_set)
+    pending_reader = screen._reader_worker
+    assert pending_reader is not None and screen._btn_organize.isEnabled()
     names = cs.list_folder_images(str(folder))
     report = cs.check_sets(cs.parse_names(names, cs.infer_regex(names)))
     plan = cs.build_plan(str(folder), report.complete)
-    assert screen._start_channel_sort(plan)
+    originals = {target: Path(source).read_bytes()
+                 for row in plan.rows
+                 for source, target in ((row.source_image, row.target_image),
+                                        (row.source_mask, row.target_mask))
+                 if source and target}
+    try:
+        assert screen._start_channel_sort(plan)
+        release_header.set()
+        qtbot.waitUntil(lambda: pending_reader not in screen._reader_workers)
+        allow_move.set()
+        qtbot.waitUntil(moved.is_set)
+        assert not pending_path[0].exists()
+        assert missing_reads == []
+    finally:
+        release_header.set()
+        allow_move.set()
+        release_move.set()
     first = os.path.join(plan.dest, "C01")
     qtbot.waitUntil(lambda: screen._folder == first, timeout=60000)
     merged = os.listdir(os.path.join(plan.dest, "merged"))
     assert len([n for n in merged if n.endswith(".npy")]) == 3
+    assert worker_threads and main_thread not in worker_threads
+    assert {target: Path(target).read_bytes() for target in originals} == originals

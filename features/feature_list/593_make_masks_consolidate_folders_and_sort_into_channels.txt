@@ -194,3 +194,6 @@ external replacements after checks and prior metadata/cleanup race limits
 remain outside this bounded guard. No live data, model/network/GPU/fullCI,
 native other-OS or scientific acceptance. Evidence:
 data/593_consolidation_output_links_2026-10-15/receipt.json.
+
+2026-10-31: Confirmed channel sorting must invalidate pending source metadata/loading requests before moving their files; a real TIFF/header/decode/move interleaving reproduces the obsolete-source read. Preserve normal worker errors, responsive off-thread sorting and all three merged fields. Owner: coverage_engine; IN PROGRESS.
+2026-10-31: The controlled real old-header/first-move/decode case failed with the obsolete cell_img01.tif read, then passed after generation invalidation and metadata interruption (1 test, 11.83 s, Qt 6.11.3/X11). All three merged arrays, off-thread operations and every moved image/mask byte are retained; already-running pixel-reader cancellation semantics are unchanged.
