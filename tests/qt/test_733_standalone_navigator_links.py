@@ -79,6 +79,9 @@ def test_standalone_learning_links_preserve_input_until_explicit_module_choice(
         qtbot.mouseClick(page._protocol_next_button, Qt.LeftButton)
         dialog = page._protocol_browser_dialog
         qtbot.waitUntil(dialog.isVisible)
+        _click_url(qtbot, dialog._text, 'spacr://protocol/route/make_masks')
+        assert dialog._recipe_result['protocol']['active_start'] == 'make_masks'
+        assert page._last_result == result and page.path_edit.text() == str(image)
         _click_url(qtbot, dialog._text, expected)
         assert anchors.count() == 1
         assert [url.toString() for url in opened_urls] == [expected]

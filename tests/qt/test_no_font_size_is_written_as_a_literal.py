@@ -16,6 +16,7 @@ allowed list below is the set of places where a literal is genuinely correct.
 """
 from __future__ import annotations
 
+import ast
 import pathlib
 import re
 
@@ -41,6 +42,40 @@ def _gui_sources():
             yield path, path.relative_to(root).as_posix()
 
 
+def _pdf_document_style_positions(text, relative):
+    """Exempt only the fixed print stylesheet argument, never widget styles.
+
+    The Protocols export uses physical points in a standalone QTextDocument
+    printed by QPdfWriter. Its typography must not inherit application zoom.
+    AST argument positions keep every other literal in this module guarded.
+    """
+    if relative != "spacr/qt/widgets/sample_project.py":
+        return set()
+    positions = set()
+    for owner in ast.parse(text).body:
+        if not isinstance(owner, ast.ClassDef) or owner.name != "_ProtocolBrowserDialog":
+            continue
+        for method in owner.body:
+            if not isinstance(method, ast.FunctionDef) or method.name != "_export_recipe_pdf":
+                continue
+            for call in ast.walk(method):
+                if not (isinstance(call, ast.Call)
+                        and isinstance(call.func, ast.Attribute)
+                        and isinstance(call.func.value, ast.Name)
+                        and call.func.value.id == "document"
+                        and call.func.attr == "setDefaultStyleSheet"
+                        and call.args and isinstance(call.args[0], ast.Constant)
+                        and isinstance(call.args[0].value, str)):
+                    continue
+                value = call.args[0]
+                for offset, line in enumerate(ast.get_source_segment(text, value).splitlines()):
+                    column = value.col_offset if offset == 0 else 0
+                    positions.update((value.lineno + offset,
+                                      column + len(line[:match.start()].encode("utf-8")))
+                                     for match in LITERAL.finditer(line))
+    return positions
+
+
 def test_no_widget_hard_codes_a_font_size():
     """Every font size in the GUI goes through ``font_px``."""
     offenders = []
@@ -48,9 +83,13 @@ def test_no_widget_hard_codes_a_font_size():
         if rel in ALLOWED:
             continue
         text = path.read_text(encoding="utf-8", errors="replace")
+        document_styles = _pdf_document_style_positions(text, rel)
         for number, line in enumerate(text.splitlines(), start=1):
-            if LITERAL.search(line):
-                offenders.append(f"{rel}:{number}: {line.strip()}")
+            for match in LITERAL.finditer(line):
+                position = number, len(line[:match.start()].encode("utf-8"))
+                if position not in document_styles:
+                    offenders.append(f"{rel}:{number}: {line.strip()}")
+                    break
 
     assert not offenders, (
         "these font sizes cannot follow the interface scale, so they stay "
