@@ -91,6 +91,17 @@ def _project(ax, point):
 _TRIANGLE_MESH_CLASS = None
 
 
+def _is_overlay(artist) -> bool:
+    """Whether ``artist`` is drawn over the scene rather than in it.
+
+    :param artist: a matplotlib artist, or None.
+    """
+    try:
+        return bool(artist is not None and artist.get_animated())
+    except Exception:
+        return False
+
+
 def _mesh_get_vector(mesh, segments3d):
     """Keep an ``(N, 3, 3)`` array of triangles as one block of corners.
 
@@ -578,8 +589,12 @@ class GateCanvas(GraphCanvas):
             self._canvas.mpl_connect("scroll_event", self._on_scroll)
             self._canvas.mpl_connect("button_release_event",
                                      self._on_button_release)
+            self._canvas.mpl_connect("draw_event", self._on_full_draw)
         except Exception:
             LOG.debug("no scroll events available", exc_info=True)
+        #: The canvas pixels of the last full draw, without the shape being
+        #: drawn, keyed by the figure's size: ``(key, region)`` or None.
+        self._overlay_background = None
         #: Which plane the pending polygon's vertices were clicked on, as
         #: (first, second). A polygon spanning two planes is not one shape.
         self._pending_plane: Optional[Tuple[str, str]] = None
@@ -1689,14 +1704,97 @@ class GateCanvas(GraphCanvas):
 
         EACH REMOVAL IS GUARDED: an artist matplotlib has already disposed of
         raises on removal, and one stale artist must not leave the rest of
-        the ghost on screen.
+        the ghost on screen. A ghost drawn over the last full draw rather
+        than in it asks for a full redraw, so its pixels go with it.
         """
+        if self._drop_ghost()[0]:
+            self._canvas.draw_idle()
+
+    def _drop_ghost(self) -> Tuple[bool, bool]:
+        """Remove the ghost's artists without asking for a redraw.
+
+        :returns: whether any artist drawn over the scene was removed, and
+            whether any drawn in the scene was.
+        """
+        over = within = False
         for artist in self._ghost:
+            if _is_overlay(artist):
+                over = True
+            else:
+                within = True
             try:
                 artist.remove()
             except Exception:
                 pass
         self._ghost = []
+        return over, within
+
+    def _overlay_key(self):
+        """What a saved background has to match to be drawn over."""
+        return (tuple(self._figure.bbox.bounds),
+                float(getattr(self._canvas, "device_pixel_ratio", 1.0) or 1.0))
+
+    def _overlay_artists(self) -> list:
+        """The artists drawn over the scene rather than in it, in drawing order."""
+        live = getattr(self, "_live", None)
+        artists = [artist for artist in [live] if _is_overlay(artist)]
+        return artists + [artist for artist in self._ghost if _is_overlay(artist)]
+
+    def _draw_overlay(self) -> None:
+        """Draw the shape being drawn and its highlight over the canvas pixels."""
+        for artist in self._overlay_artists():
+            owner = artist.axes if artist.axes is not None else artist.figure
+            if owner is None:
+                continue
+            try:
+                if hasattr(artist, "do_3d_projection"):
+                    artist.do_3d_projection()
+                owner.draw_artist(artist)
+            except Exception:
+                LOG.debug("could not draw the live overlay", exc_info=True)
+
+    def _on_full_draw(self, _event) -> None:
+        """Keep the scene's pixels, then draw the shape being drawn over them.
+
+        Only the 3D view keeps them: its overlay is the one drawn over the
+        scene.
+
+        :param _event: matplotlib's draw event.
+        """
+        self._overlay_background = None
+        if not self._in_volume():
+            return
+        try:
+            self._overlay_background = (
+                self._overlay_key(),
+                self._canvas.copy_from_bbox(self._figure.bbox))
+        except Exception:
+            self._overlay_background = None
+        self._draw_overlay()
+
+    def _show_overlay(self, *, full: bool = False) -> None:
+        """Show the shape being drawn and its highlight.
+
+        Over the pixels of the last full draw, when they still show the
+        scene: a pointer move then costs the outline and the rings, not a
+        new projection and depth sort of every object. Anything else waits
+        for one full draw, which draws the overlay on top as well.
+
+        :param full: the scene itself changed, so the saved pixels are stale.
+        """
+        canvas = self._canvas
+        saved = self._overlay_background
+        if (full or saved is None or saved[0] != self._overlay_key()
+                or getattr(canvas, "_draw_pending", False)):
+            canvas.draw_idle()
+            return
+        try:
+            canvas.restore_region(saved[1])
+            self._draw_overlay()
+            canvas.blit(self._figure.bbox)
+        except Exception:
+            LOG.debug("could not draw over the saved scene", exc_info=True)
+            canvas.draw_idle()
 
     def _show_ghost(self, gate: Optional[Gate]) -> None:
         """Draw ``gate`` dashed, as the placeholder following the mouse.
@@ -1982,16 +2080,30 @@ class GateCanvas(GraphCanvas):
 
     def _clear_live(self) -> None:
         """Remove the live highlight of a shape being drawn."""
+        if self._drop_live():
+            self._canvas.draw_idle()
+
+    def _drop_live(self) -> bool:
+        """Remove the live highlight without asking for a redraw.
+
+        :returns: whether it was drawn over the scene, so its pixels remain.
+        """
         artist, self._live = getattr(self, "_live", None), None
-        if artist is not None:
-            try:
-                artist.remove()
-            except Exception:
-                pass
+        if artist is None:
+            return False
+        try:
+            artist.remove()
+        except Exception:
+            pass
+        return _is_overlay(artist)
 
     def _show_live(self, outline) -> None:
-        """Ring the objects inside the shape being drawn, as it is drawn."""
-        self._clear_live()
+        """Ring the objects inside the shape being drawn, as it is drawn.
+
+        The rings are drawn over the scene (:meth:`_show_overlay`), not in
+        it, so moving the outline does not redraw every object.
+        """
+        self._drop_live()
         ax = self.axes_at(0, 0)
         if ax is None or not self._in_volume() or len(outline) < 3:
             return
@@ -2005,7 +2117,7 @@ class GateCanvas(GraphCanvas):
             self._live = ax.scatter(
                 picked[:, 0], picked[:, 1], picked[:, 2], s=22,
                 facecolor="none", edgecolor=active_palette()["warning"],
-                linewidths=0.9, depthshade=False)
+                linewidths=0.9, depthshade=False, animated=True)
         finally:
             ax.set_xlim3d(*limits[0])
             ax.set_ylim3d(*limits[1])
@@ -2048,21 +2160,24 @@ class GateCanvas(GraphCanvas):
         from matplotlib.lines import Line2D
         from matplotlib.transforms import IdentityTransform
 
-        self._clear_ghost()
+        removed = self._drop_ghost()
         outline = list(self._view_polygon)
         if event is not None and getattr(event, "x", None) is not None:
             outline.append((float(event.x), float(event.y)))
         if not outline:
+            if any(removed):
+                self._canvas.draw_idle()
             return
         xs = [p[0] for p in outline] + [outline[0][0]]
         ys = [p[1] for p in outline] + [outline[0][1]]
         line = Line2D(xs, ys, transform=IdentityTransform(),
                       color=active_palette()["warning"], linewidth=1.2,
-                      linestyle="--", marker="o", markersize=3)
+                      linestyle="--", marker="o", markersize=3,
+                      animated=True)
         self._figure.add_artist(line)
         self._ghost.append(line)
         self._show_live(outline)
-        self._canvas.draw_idle()
+        self._show_overlay(full=removed[1])
 
     def _finish_view_polygon(self) -> None:
         """Turn the clicked polygon into a gate swept through the view."""
@@ -3333,19 +3448,21 @@ class GateCanvas(GraphCanvas):
         from matplotlib.lines import Line2D
         from matplotlib.transforms import IdentityTransform
 
-        self._clear_ghost()
+        removed = self._drop_ghost()
         outline = self._lasso_outline()
         if len(outline) < 2:
+            if any(removed):
+                self._canvas.draw_idle()
             return
         xs = [p[0] for p in outline] + [outline[0][0]]
         ys = [p[1] for p in outline] + [outline[0][1]]
         line = Line2D(xs, ys, transform=IdentityTransform(),
                       color=active_palette()["warning"], linewidth=1.2,
-                      linestyle="--")
+                      linestyle="--", animated=True)
         self._figure.add_artist(line)
         self._ghost.append(line)
         self._show_live(outline)
-        self._canvas.draw_idle()
+        self._show_overlay(full=removed[1])
 
     def view_projection(self, ax=None) -> Optional[np.ndarray]:
         """The camera now on screen, as a :class:`ViewGate` stores it.

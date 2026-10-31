@@ -152,6 +152,62 @@ def test_a_clicked_polygon_selects_the_population_it_surrounds(screen):
     assert not inside[:300].any()
 
 
+def _count_redraws(canvas, monkeypatch):
+    """Record the canvas's full figure draws and its blits."""
+    mpl = canvas._canvas
+    seen = {"draws": 0, "blits": 0}
+    mpl.mpl_connect("draw_event", lambda _event: seen.__setitem__(
+        "draws", seen["draws"] + 1))
+    blit = mpl.blit
+
+    def counted(*args, **kwargs):
+        seen["blits"] += 1
+        return blit(*args, **kwargs)
+
+    monkeypatch.setattr(mpl, "blit", counted)
+    return seen
+
+
+@pytest.mark.parametrize("shape", ["view_polygon", "lasso"])
+def test_moving_a_live_outline_draws_only_the_outline_and_its_rings(
+        screen, monkeypatch, shape):
+    """A pointer move while a shape is drawn in 3D is one blit of the outline
+    and its highlight rings over the last full draw, never a full redraw of
+    every object, and shows exactly the pixels a full redraw would."""
+    canvas = screen.gates.canvas
+    mpl = canvas._canvas
+    _pick_shape(screen, shape)
+    centre = _centre_px(canvas, [4.0, 4.0, 4.0])
+    ax = canvas.axes_at(0, 0)
+    if shape == "view_polygon":
+        corners = _click_polygon(canvas, centre)
+    else:
+        canvas._on_press(_Mouse(ax, centre[0] - 70, centre[1] - 70))
+        for x, y in ((70, -70), (70, 70), (-70, 70)):
+            canvas._on_motion(_Mouse(ax, centre[0] + x, centre[1] + y))
+    for _ in range(5):
+        QApplication.processEvents()
+    mpl.draw()
+    seen = _count_redraws(canvas, monkeypatch)
+    for step in range(6):
+        canvas._on_motion(_Mouse(ax, centre[0] - 70 + 4 * step,
+                                 centre[1] + 70 - 3 * step))
+        QApplication.processEvents()
+    assert seen == {"draws": 0, "blits": 6}
+    assert canvas._live is not None and len(canvas._live.get_offsets())
+    blitted = np.asarray(mpl.buffer_rgba()).copy()
+    mpl.draw()
+    assert seen["draws"] == 1
+    np.testing.assert_array_equal(np.asarray(mpl.buffer_rgba()), blitted)
+    if shape == "view_polygon":
+        canvas._on_press(_Mouse(ax, *corners[0]))
+        canvas._on_release(_Mouse(ax, *corners[0]))
+        assert "g1" in canvas.gates.names
+    else:
+        canvas._on_release(_Mouse(ax, centre[0] - 70, centre[1] + 70))
+    assert canvas._overlay_artists() == []
+
+
 def test_a_double_click_also_closes_the_polygon(screen):
     canvas = screen.gates.canvas
     _pick_shape(screen, "view_polygon")
