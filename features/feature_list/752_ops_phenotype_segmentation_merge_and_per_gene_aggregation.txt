@@ -1,0 +1,66 @@
+OPS PHENOTYPE PATH: SEGMENT, MEASURE, MERGE AND AGGREGATE PER GENE
+
+Lifecycle: future
+Status: in progress — branch ops-phenotype-path.
+Requested: maintainer, 2026-10-31 — build the missing optical-pooled-screen
+           phenotype path so the Funk et al. 2022 screen can be reanalysed
+           per gene.
+Owner: (home) OPS phenotype agent. Ships as an ALPHA feature
+       (features/README.md, item 569).
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+spacr.ops_engine.run_ops stitches the 10X sequencing well, places every 20X
+phenotype field on it (ops_phenotype), segments and numbers the 10X nuclei
+(ops_objects) and decodes barcodes (ops_barcodes). Nothing segments or
+measures the 20X phenotype images, joins them to the 10X nuclei, or reduces
+cells to guides and genes. Item 372 (~622-740, ~1838-1866) holds the
+Brieflow phenotype -> merge -> aggregate mapping this follows.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Without it an OPS run ends at "which nucleus carries which guide" and cannot
+say what any knockout does to the cell, which is the point of the screen.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Persist each placed field's similarity transform (scale, rotation,
+   offset into the 10X well frame) in ops_phenotype, with a migration that
+   fills older databases from their ops_report.json anchors.
+2. Phase "ph_segment": nuclei on DAPI and cells on phalloidin plus DAPI with
+   the Cellpose model from the settings, per field, resumable, masks to disk.
+3. Phase "ph_measure": spaCR's own morphology, intensity and texture
+   functions (spacr.measure) on nucleus, cell and cytoplasm, all four
+   channels; one Parquet file per well keyed by plate, well, site, label.
+4. Phase "merge": map 20X nucleus centroids into the 10X frame, refine the
+   transform per field on the matched nuclei, match_cells against
+   ops_objects, deduplicate, write ops_merge, report the match rate.
+5. Phase "aggregate": join ops_barcodes.mapped_guide and the design's gene,
+   per-guide medians, robust z against same-well non-targeting cells, gene =
+   median of guides, optional bootstrap null from non-targeting guides, and a
+   documented mitotic index per gene.
+6. tools/run_ops_plate.py flags; settings typed, tooltipped, categorised and
+   registered in ALPHA_FEATURES under 752.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+The CPU pilot on plate 20200202_6W-LaC024A well A1 (42 contiguous fields)
+reports cells segmented, merge rate, guide rate, seconds per field and peak
+RAM in /nas_mnt/data/sync/papers/BMCspacr/reanalysis/funk_plateA/pilot/
+PILOT_REPORT.md, and focused tests pass for transform persistence, merge and
+aggregation.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+No GUI beyond the settings schema. No illumination correction (Funk's
+per-well correction images are not in the download).

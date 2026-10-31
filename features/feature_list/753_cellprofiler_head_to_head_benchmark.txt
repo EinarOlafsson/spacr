@@ -1,0 +1,49 @@
+CELLPROFILER HEAD-TO-HEAD BENCHMARK ON THE SAME IMAGES
+
+Lifecycle: future
+Status: not started
+Requested: maintainer, 2026-10-31 — anything done outside spaCR for the
+           reanalysis papers must become a spaCR item so it is added later.
+Owner: unassigned. Ships as an ALPHA feature (features/README.md, item 569).
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The BMC spaCR platform paper (/nas_mnt/data/sync/papers/BMCspacr) compares
+spaCR with CellProfiler outside spaCR. Nothing in spaCR runs a published
+.cppipe or scores the two side by side.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The comparison is the paper's central benchmark; done by hand it cannot be
+re-run when either tool changes.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Run a published pipeline (BBBC021 analysis.cppipe) headless through
+   CellProfiler in its own environment, and spaCR's measure on the same
+   images.
+2. Profile both into per-treatment medians and score mechanism-of-action
+   accuracy by leave-one-compound-out nearest neighbour (NSC) and
+   not-same-compound-or-batch (NSCB).
+3. Record wall time and peak RAM for each tool on the same hardware.
+4. One table (spacr.tabular) with a control row (shuffled MoA labels) and a
+   glossary; register in ALPHA_FEATURES under 753.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+The CellProfiler arm reproduces the published BBBC021 NSC accuracy within a
+few points; both arms report runtime on the same machine.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Nothing yet.

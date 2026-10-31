@@ -1,0 +1,53 @@
+PUBLIC DATASET FETCHER WITH A COMPLETENESS CHECK AGAINST THE ARCHIVE
+
+Lifecycle: future
+Status: not started
+Requested: maintainer, 2026-10-31 — anything done outside spaCR for the Funk
+           2022 reanalysis must become a spaCR item so it is added later.
+Owner: unassigned. Ships as an ALPHA feature (features/README.md, item 569).
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+On 2026-10-31 the Funk et al. 2022 optical pooled screen (BioImage Archive
+S-BIAD394), drug-screen sets and their file manifests were downloaded with
+ad-hoc wget/lftp scripts in /nas_mnt/data/drug_screens/_download and
+/nas_mnt/data/ops/_download. spaCR has no fetcher; interrupted transfers left
+*.lftp-pget-status files and zero-byte TIFFs that later cost a whole well
+(spacr/ops_engine.py _read_plane docstring, well B3 on 2026-09-26).
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Every reanalysis of a public screen starts with a multi-terabyte transfer.
+Without a resumable fetcher and a completeness check, missing or truncated
+files are found hours into a run rather than before it.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. A resumable downloader for BioImage Archive accessions (FTP/Aspera/HTTPS
+   file lists), IDR studies (idr.openmicroscopy.org file manifests) and BBBC
+   sets (zip archives), with parallel ranged transfers and retry.
+2. A completeness check: compare every local file against the archive's own
+   file list (name and size, checksum where published), and report missing,
+   short and extra files as a table via spacr.tabular.
+3. Settings with types, tooltips and categories; tr() for every string.
+4. Register everything in ALPHA_FEATURES under 750.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Interrupt a BBBC021 download twice, resume it, and the completeness check
+reports zero missing and zero short files; the same check on the 2026-10-31
+S-BIAD394 mirror lists exactly the files lftp left incomplete.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Nothing yet; recorded so the 2026-10-31 ad-hoc scripts are not the only copy.

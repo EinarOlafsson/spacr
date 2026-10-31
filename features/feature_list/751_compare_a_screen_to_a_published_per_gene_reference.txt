@@ -1,0 +1,48 @@
+COMPARE A SCREEN TO A PUBLISHED PER-GENE REFERENCE TABLE
+
+Lifecycle: future
+Status: not started
+Requested: maintainer, 2026-10-31 — anything done outside spaCR for the Funk
+           2022 reanalysis must become a spaCR item so it is added later.
+Owner: unassigned. Ships as an ALPHA feature (features/README.md, item 569).
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+On 2026-10-31 spaCR's per-guide cell counts for Funk plate A were correlated
+by hand with the published per-gene table vesuvius_genes.xlsx: Spearman 0.916
+per guide. Output:
+/nas_mnt/data/sync/papers/BMCspacr/reanalysis/funk_plateA/per_guide_counts_spacr_plateA_vs_funk.csv.
+spaCR has no function that does this.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A reanalysis is only credible when it is compared with the published result,
+with a control that shows what agreement chance alone gives.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Read a published per-guide or per-gene table (CSV/XLSX) and map its guide
+   or gene key to spaCR's (11-base prefix, gene symbol).
+2. Correlate cell counts and any matched phenotype column (Spearman and
+   Pearson, bootstrap CI), with a shuffled-label control row and a glossary.
+3. Write the joined table and a scatter figure via spacr.plot.save_figure.
+4. Register in ALPHA_FEATURES under 751.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Re-running on plate A reproduces Spearman 0.916 per guide; the shuffled
+control row is near 0.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Nothing yet.
