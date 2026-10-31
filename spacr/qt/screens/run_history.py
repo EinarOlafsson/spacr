@@ -256,7 +256,7 @@ class RunHistoryScreen(QWidget):
         self._table.verticalHeader().setVisible(False)
         header = self._table.horizontalHeader()
         header.setSectionResizeMode(QHeaderView.ResizeToContents)
-        header.setStretchLastSection(True)
+        header.setStretchLastSection(False)
         self._table.itemSelectionChanged.connect(self._show_selection)
         splitter.add_section(self._table, "Runs",
                              persist_key="run_history/Runs", stretch=3)
