@@ -5516,10 +5516,10 @@ class _NavigatorAiButton(QPushButton):
 
 
 class _NavigatorProtocolsButton(QPushButton):
-    """A centered, keyboard-accessible Protocols letter beside the AI control."""
+    """A centred, keyboard-accessible Protocols dot beside the AI control."""
 
     def __init__(self, parent=None):
-        """Keep a generous native click target for the smaller light glyph.
+        """Keep a generous native click target around the small dot.
 
         :param parent: native owner of the composer action.
         """
@@ -5550,37 +5550,66 @@ class _NavigatorProtocolsButton(QPushButton):
         super().leaveEvent(event)
         self.update()
 
+    def _dot_color(self) -> QColor:
+        """The dot's colour: accent blue while Protocols is on, else white.
+
+        The composer field is drawn from the dark palette in every theme, so
+        the active dot takes that palette's accent, and the inactive white dot
+        sits on the same dark field in the light and dark themes alike.
+
+        :returns: the colour the dot is filled with now.
+        """
+        active = self.isChecked() or self.isDown()
+        return QColor(palette_for('dark')['accent'] if active else 'white')
+
+    def _hover_circle_color(self) -> Optional[QColor]:
+        """The gray circle behind the dot, shown only on hover or press.
+
+        :returns: the circle's colour, or ``None`` when no circle is drawn.
+        """
+        if not (self.isDown() or self.underMouse()):
+            return None
+        return QColor('#363636' if self.underMouse() else '#303030')
+
+    def _dot_rect(self) -> QRectF:
+        """The dot's square: centred, sized with the font, inside the circle.
+
+        :returns: the dot's bounding square in widget coordinates.
+        """
+        circle = max(0, min(self.width(), self.height()) - 6)
+        diameter = min(float(font_px(10)), circle / 2.0)
+        rect = QRectF(0, 0, diameter, diameter)
+        rect.moveCenter(QRectF(self.rect()).center())
+        return rect
+
     def paintEvent(self, event):
-        """Center the actual light P ink and distinguish hover from selection.
+        """Draw the centred Protocols dot and the hover or press circle.
 
         :param event: native paint request.
         """
-        from PySide6.QtGui import QPainterPath, QPen
-        from ..theme import active_palette
+        from PySide6.QtCore import QPointF
+        from PySide6.QtGui import QPen
 
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
-        active = self.isChecked() or self.isDown()
-        if self.isDown() or self.underMouse():
+        circle_color = self._hover_circle_color()
+        if circle_color is not None:
             painter.setPen(Qt.NoPen)
-            painter.setBrush(QColor('#363636' if self.underMouse() else '#303030'))
+            painter.setBrush(circle_color)
             diameter = max(0, min(self.width(), self.height()) - 6)
             circle = QRectF(0, 0, diameter, diameter)
             circle.moveCenter(QRectF(self.rect()).center())
             painter.drawEllipse(circle)
-        font = QFont('Open Sans')
-        font.setStyleName('Light')
-        font.setWeight(QFont.Light)
-        font.setPixelSize(font_px(22))
-        glyph = QPainterPath()
-        glyph.addText(0, 0, font, 'P')
-        bounds = glyph.boundingRect()
-        glyph.translate(QRectF(self.rect()).center() - bounds.center())
-        color = QColor(active_palette()['accent'] if active else 'white')
-        painter.fillPath(glyph, color)
+        color = self._dot_color()
+        dot = self._dot_rect()
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(color)
+        painter.drawEllipse(dot)
         if self.hasFocus() and self.window().testAttribute(Qt.WA_KeyboardFocusChange):
             painter.setPen(QPen(color, 1))
-            painter.drawLine(14, 31, 22, 31)
+            y = dot.bottom() + 4
+            centre = dot.center().x()
+            painter.drawLine(QPointF(centre - 4, y), QPointF(centre + 4, y))
         painter.end()
 
 
