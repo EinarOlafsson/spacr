@@ -887,7 +887,7 @@ def test_overview_without_a_module_page_host_uses_the_owned_metadata_fallback(qt
     workspace = owner._field_overview_workspace
     assert wizard is owner._field_overview_wizard
     assert wizard.parentWidget() is workspace.stack and workspace.parentWidget() is not None
-    assert owner._overview_tab._overview_page.browser is None
+    assert getattr(owner, '_overview_tab', None) is None
     assert wizard.source.text() == str(source)
     qtbot.waitUntil(lambda: len(wizard._fields) == 1 and not wizard._runner.is_busy(), timeout=15000)
     assert wizard._fields[0].well == 'A01'

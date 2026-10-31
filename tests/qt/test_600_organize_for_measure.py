@@ -511,7 +511,7 @@ def test_teach_me_regex_is_reused_by_sort_by_regex(dialog, tmp_path,
 
 
 def test_teach_me_can_stop_skip_and_hear_that_a_part_names_the_field(
-        dialog, tmp_path):
+        dialog, qtbot, tmp_path):
     folder = _consolidated(tmp_path)
     dialog.source_edit.setText(str(folder))
     answers = iter(["skip", ("channel", 1), "stop"])
@@ -520,6 +520,7 @@ def test_teach_me_can_stop_skip_and_hear_that_a_part_names_the_field(
     assert len(dialog._skipped) == 1
     # Now "the c only names the field": no channel marker is kept.
     fresh = ofm.OrganizeForMeasureDialog(str(folder))
+    qtbot.addWidget(fresh)
     fresh.ask_label = _answer_by_original(fresh, [])
     fresh.ask_marker = lambda marker, label: "field"
     assert fresh.teach() is None

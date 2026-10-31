@@ -13930,13 +13930,13 @@ def _open_overview_module(owner, settings=None):
     :param settings: settings naming the source; ``src`` is copied over.
     :returns: the Overview's metadata step.
     """
-    from ..screens.map_barcodes import show_as_page
-
+    from ..screens.map_barcodes import host_pages, show_as_page
     settings = dict(settings or {})
     tab = getattr(owner, "_overview_tab", None)
+    if tab is None and host_pages(owner) is None:
+        return _open_field_overview(owner, settings)
     if tab is None:
         from ..screens.app_screen import AppScreen
-
         tab = AppScreen("overview")
         tab._header.hide()
         owner._overview_tab = tab
