@@ -1633,6 +1633,7 @@ def test_native_navigator_revisit_keeps_source_anchor_and_explicit_receiver(
     from spacr.qt.app import MainWindow
     from spacr.qt.walkthrough import mark_seen
     from spacr.qt.widgets.home import _EasyRegexCard
+    from tests.qt.test_739_navigator_protocols import _choose, _details
 
     preferences, _, _ = private_ai_profile
     preferences.set_easy_mode(True)
@@ -1661,11 +1662,18 @@ def test_native_navigator_revisit_keeps_source_anchor_and_explicit_receiver(
         assert page._last_result is None and selected.count() == 0
         page.path_edit.setText('Protocols')
         qtbot.keyClick(page.path_edit, Qt.Key_Return)
-        qtbot.waitUntil(lambda: getattr(window, '_protocol_browser_dialog', None) is not None)
+        assert page.path_edit.protocols.isChecked()
+        assert getattr(window, '_protocol_browser_dialog', None) is None
+        _choose(qtbot, page._protocol_select, 'small_images')
+        qtbot.mouseClick(page._protocol_next_button, Qt.LeftButton)
+        _choose(qtbot, page._protocol_select, 'tiff_yokogawa')
+        _details(qtbot, page)
+        qtbot.mouseClick(page._protocol_next_button, Qt.LeftButton)
         dialog = window._protocol_browser_dialog
         assert dialog.isVisible() and dialog._source_path == ''
         assert selected.count() == 0 and window._stack.currentWidget() is page
         dialog.close()
+        qtbot.mouseClick(page.path_edit.protocols, Qt.LeftButton)
         window.activateWindow()
         qtbot.waitUntil(window.isActiveWindow, timeout=2000)
         page.accept_paths([str(image)])
@@ -1692,17 +1700,15 @@ def test_native_navigator_revisit_keeps_source_anchor_and_explicit_receiver(
                        timeout=5000)
         assert page._settings_overrides['mask']['metadata_type'] == 'custom'
         assert selected.count() == 0 and image.read_bytes() == before
-        details = field.details
-        link = details.document().find('Protocols')
-        assert not link.isNull()
-        link.setPosition(link.selectionStart() + 2)
-        details.setTextCursor(link)
-        details.ensureCursorVisible()
-        qtbot.mouseClick(details.viewport(), Qt.LeftButton, pos=details.cursorRect(link).center())
+        qtbot.mouseClick(page.path_edit.protocols, Qt.LeftButton)
+        qtbot.mouseClick(page._protocol_back_button, Qt.LeftButton)
+        qtbot.mouseClick(page._protocol_next_button, Qt.LeftButton)
         assert window._protocol_browser_dialog is dialog and dialog.isVisible()
-        assert dialog._source_path == str(image) and dialog._context == page._last_result['context']
+        assert dialog._source_path == str(image)
+        assert all(dialog._context[key] == value for key, value in page._last_result['context'].items())
         assert selected.count() == 0 and window._stack.currentWidget() is page
         dialog.close()
+        qtbot.mouseClick(page.path_edit.protocols, Qt.LeftButton)
         window.activateWindow()
         qtbot.waitUntil(window.isActiveWindow, timeout=2000)
         source = next(card for card in field.cards if card._key == 'make_masks')

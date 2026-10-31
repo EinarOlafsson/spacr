@@ -7583,6 +7583,7 @@ class _EasyHomePage(QWidget):
     def _build_protocol_controls(self):
         """Build the retained three-step chooser without another renderer or timer."""
         from ..i18n import tr
+        from ..preferences import _set_scaled_icon_size
 
         controls = QFrame(self.field)
         controls.setObjectName('NavigatorProtocolSelector')
@@ -7624,14 +7625,14 @@ class _EasyHomePage(QWidget):
         self._protocol_back_button.setAccessibleName(tr('Previous protocol step'))
         self._protocol_back_button.setToolTip(tr('Back'))
         self._protocol_back_button.setFixedSize(28, 28)
-        self._protocol_back_button.setIconSize(QSize(18, 18))
+        _set_scaled_icon_size(self._protocol_back_button, 18)
         self._protocol_back_button.setIcon(self.field.details._arrow_icon('back'))
         self._protocol_back_button.clicked.connect(self._protocol_back)
         self._protocol_next_button = QToolButton(controls)
         self._protocol_next_button.setAccessibleName(tr('Next protocol step'))
         self._protocol_next_button.setToolTip(tr('Next'))
         self._protocol_next_button.setFixedSize(28, 28)
-        self._protocol_next_button.setIconSize(QSize(18, 18))
+        _set_scaled_icon_size(self._protocol_next_button, 18)
         self._protocol_next_button.setIcon(self.field.details._arrow_icon('forward'))
         self._protocol_next_button.clicked.connect(self._protocol_next)
         row.addWidget(self._protocol_select, 1)

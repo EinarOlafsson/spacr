@@ -26,7 +26,12 @@ def test_details_controls_leave_links_to_the_browser_and_keep_keyboard_actions(
     highlighted = []
     details.highlighted.connect(lambda url: highlighted.append(url.toString()))
     try:
-        assert details.toHtml().count('<a ') >= 7 and opened == []
+        assert details.toHtml().count('<a ') == 1 and 'spacr://sidebar' in details.toHtml()
+        assert opened == []
+        details.setHtml(
+            f'<p><a href="{tutorial_url("mask")}">Mask tutorial</a></p>'
+            f'<p><a href="{tutorial_url("measure")}">Measure tutorial</a></p>')
+        assert details.toHtml().count('<a ') == 2
         details.setFocus(Qt.TabFocusReason)
         qtbot.keyClick(details, Qt.Key_Tab)
         qtbot.keyClick(details, Qt.Key_Return)

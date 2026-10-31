@@ -12,7 +12,7 @@ def test_navigation_protocol_context_and_cache_shortcut_preserve_local_inputs(
     import webbrowser
 
     from spacr.qt.app import MainWindow
-    from spacr.qt.i18n import tr
+    from tests.qt.test_739_navigator_protocols import _finish
 
     preferences, _, _ = private_ai_profile
     preferences.set_easy_mode(True)
@@ -47,18 +47,14 @@ def test_navigation_protocol_context_and_cache_shortcut_preserve_local_inputs(
         groups = result['context']['action_groups']
         assert groups and all(group['kind'] == 'navigation' for group in groups.values())
         assert not dispatched and chosen.count() == 0
-        details = page.field.details
-        link = details.document().find(tr('Protocols'))
-        assert not link.isNull()
-        link.setPosition(link.selectionStart() + 2)
-        details.setTextCursor(link)
-        details.ensureCursorVisible()
-        qtbot.mouseClick(details.viewport(), Qt.LeftButton, pos=details.cursorRect(link).center())
-        dialog = window._protocol_browser_dialog
+        dialog = _finish(qtbot, page, 'small_images', 'tiff_yokogawa')
         assert dialog.isVisible() and dialog._source_path == ''
-        assert dialog._context == result['context'] and page._last_result is result
+        assert dialog._context == {'protocol_selection': {
+            'family': 'small_images', 'format': 'tiff_yokogawa', 'choices': {}}}
+        assert page._last_result is result
         assert not dispatched and window._stack.currentWidget() is page
         dialog.close()
+        qtbot.mouseClick(page.path_edit.protocols, Qt.LeftButton)
         window.activateWindow()
         qtbot.waitUntil(window.isActiveWindow, timeout=2000)
         page.path_edit.setText('Cache')
