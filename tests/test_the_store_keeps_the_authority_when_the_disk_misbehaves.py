@@ -137,3 +137,33 @@ def test_an_append_with_columns_the_table_lacks_fails_as_what_it_is(tmp_path):
     assert "no column named plate" in (
         f"{caught.value} {caught.value.__cause__}")
     assert row_count(path, OBJECTS_TABLE) == 2
+
+
+def test_appending_a_cycle_discards_the_partial_cache_and_keeps_all_reads(
+        tmp_path):
+    """A newly appended cycle cannot masquerade as the complete read cache."""
+    path = _db(tmp_path)
+    first = pd.DataFrame({"object_id": [11, 12], "cycle": [1, 1],
+                          "base": ["A", "C"]})
+    second = pd.DataFrame({"object_id": [11, 12], "cycle": [2, 2],
+                           "base": ["G", "T"]})
+    assert write_table(path, "ops_reads", first) == 2
+    sidecar = _sidecar(tmp_path, "ops_reads")
+    pd.testing.assert_frame_equal(pd.read_parquet(sidecar), first)
+
+    with pytest.raises(StoreError, match=r"cache for ops_reads has 2 rows.*database has 4"):
+        write_table(path, "ops_reads", second, if_exists="append")
+
+    assert not os.path.exists(sidecar)
+    expected = [(11, 1, "A"), (12, 1, "C"),
+                (11, 2, "G"), (12, 2, "T")]
+    with sqlite3.connect(path) as connection:
+        actual = connection.execute(
+            "SELECT object_id, cycle, base FROM ops_reads "
+            "ORDER BY cycle, object_id").fetchall()
+    assert actual == expected
+    assert row_count(path, "ops_reads") == 4
+    recovered = read_table(path, "ops_reads").sort_values(
+        ["cycle", "object_id"]).reset_index(drop=True)
+    pd.testing.assert_frame_equal(
+        recovered, pd.DataFrame(expected, columns=["object_id", "cycle", "base"]))
