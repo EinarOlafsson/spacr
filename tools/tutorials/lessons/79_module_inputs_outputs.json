@@ -236,7 +236,7 @@
     },
     {
       "visual": "module_lineage",
-      "narration": "Open Database Browser through Help search, then choose Lineage. Inspect recorded cell/nucleus/pathogen/organelle containment links; this is object containment, not time-series lineage inference. Lineage reads the measured objects. From those, Lineage produces the figures and table exports.",
+      "narration": "Open Database Browser through Help search, then choose Lineage. Inspect recorded cell/nucleus/pathogen/organelle containment links; this is object containment, not time-series lineage inference. Lineage reads the measured objects. From those, Lineage produces the linked object selection. You'll find the linked object selection here: In memory only: selected object identities shared with compatible open views; matching crops can be opened for inspection. No figures, tables or other files are written.",
       "hold_after": 0.7,
       "related_lessons": [
         "56_lineage"

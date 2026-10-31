@@ -659,7 +659,7 @@
         "measurements"
       ],
       "outputs": [
-        "figures"
+        "linked_selection"
       ],
       "guidance": "Inspect recorded cell/nucleus/pathogen/organelle containment links; this is object containment, not time-series lineage inference."
     },

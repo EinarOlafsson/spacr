@@ -565,7 +565,7 @@
         "measurements"
       ],
       "outputs": [
-        "figures"
+        "linked_selection"
       ],
       "guidance": "Inspect recorded cell/nucleus/pathogen/organelle containment links; this is object containment, not time-series lineage inference."
     },
@@ -2099,6 +2099,12 @@
       "tables": [
         "fov"
       ],
+      "columns": []
+    },
+    "linked_selection": {
+      "title": "Linked object selection",
+      "location": "In memory only: selected object identities shared with compatible open views; matching crops can be opened for inspection. No figures, tables or other files are written.",
+      "tables": [],
       "columns": []
     }
   },

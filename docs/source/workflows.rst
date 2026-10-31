@@ -835,7 +835,7 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 
 **Outputs**
 
-* **Figures and table exports** — The output location chosen by the tool; exports describe the selected data and filters.
+* **Linked object selection** — In memory only: selected object identities shared with compatible open views; matching crops can be opened for inspection. No figures, tables or other files are written.
 
 :doc:`API reference </api/spacr/qt/screens/lineage/index>`.
 
