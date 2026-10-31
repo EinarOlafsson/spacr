@@ -103,3 +103,101 @@ def test_existing_reporting_and_ai_choices_are_respected(configured, tmp_path, m
     else:
         assert thread is None and relay.calls == outcomes == []
         assert cr.queued_summaries() == []
+
+
+def _queued_startup_failure(path, monkeypatch):
+    """Observe the public worker's failed start without consuming its accepted edits."""
+    captured = []
+    monkeypatch.setattr(engine.LOG, 'exception',
+                        lambda *args, **kwargs: captured.append(sys.exc_info()[1]))
+    worker = engine.SaveWorker(path, 'annotate')
+    labels = {'/private/patient/image.png': 1, '/private/patient/second.png': 2}
+    worker.submit(labels)
+    worker.start()
+    worker.stop(wait=True)
+    assert not worker.is_alive and worker.pending_batches == 1
+    assert worker.last_save_ts is None and worker.last_error
+    assert len(captured) == 1
+    assert worker._q.get_nowait() == labels
+    assert worker._q.get_nowait() is worker._SENTINEL
+    return worker, captured[0]
+
+
+def test_empty_configured_path_connection_failure_retains_labels_without_path_facts(monkeypatch):
+    import errno
+
+    real_connect = engine.connect_database
+
+    def disk_unavailable(path, *args, **kwargs):
+        if path == '':
+            raise OSError(errno.ENOSPC, 'no database storage available')
+        return real_connect(path, *args, **kwargs)
+
+    monkeypatch.setattr(engine, 'connect_database', disk_unavailable)
+    _worker, error = _queued_startup_failure('', monkeypatch)
+    facts = error._spacr_annotation_database
+    assert facts['path'] == 'empty'
+    assert facts['target'] == facts['parent'] == 'unknown'
+    assert facts['read'] is facts['write'] is None and facts['queued'] == 1
+    assert 'no database storage available' in _worker.last_error
+
+
+def test_nul_in_configured_path_cannot_break_failure_reporting_or_leak_it(tmp_path, monkeypatch):
+    path = str(tmp_path / 'private_patient\x00' / 'measurements.db')
+    _worker, error = _queued_startup_failure(path, monkeypatch)
+    assert isinstance(error, ValueError)
+    facts = error._spacr_annotation_database
+    assert facts['path'] == 'absolute' and facts['queued'] == 1
+    assert facts['target'] == facts['parent'] == 'unknown'
+    text = cr._annotation_database_message(error)
+    assert 'private_patient' not in text and '\x00' not in text
+    assert not (tmp_path / 'private_patient').exists()
+
+
+def test_unavailable_path_provider_retains_labels_and_unknown_allowlisted_facts(tmp_path, monkeypatch):
+    import errno
+    import os
+
+    existing = tmp_path / 'private_patient.db'
+    existing.write_bytes(b'keep acquisition bytes')
+
+    class UnavailablePath(os.PathLike):
+        """A filesystem path provider can report a transient stale handle."""
+        def __fspath__(self):
+            raise OSError(errno.ESTALE, 'path provider unavailable')
+
+    _worker, error = _queued_startup_failure(UnavailablePath(), monkeypatch)
+    facts = error._spacr_annotation_database
+    assert facts['path'] == facts['target'] == facts['parent'] == 'unknown'
+    assert facts['queued'] == 1 and facts['code'] is None
+    assert existing.read_bytes() == b'keep acquisition bytes'
+    assert 'private_patient' not in cr._annotation_database_message(error)
+
+
+def test_cursor_allocation_failure_closes_real_connection_and_preserves_rows(tmp_path, monkeypatch):
+    path = tmp_path / 'private_patient.db'
+    with sqlite3.connect(path) as connection:
+        connection.execute('CREATE TABLE png_list(png_path TEXT, annotate INTEGER)')
+        connection.execute('INSERT INTO png_list VALUES (?, ?)', ('/private/patient/image.png', 7))
+    closed = []
+
+    class CursorAllocationFailure:
+        """Keep real SQLite ownership while injecting its cursor-allocation boundary."""
+        def cursor(self):
+            raise MemoryError('database cursor allocation failed')
+
+        def __init__(self):
+            self.connection = sqlite3.connect(path)
+
+        def close(self):
+            self.connection.close()
+            with pytest.raises(sqlite3.ProgrammingError, match='closed'):
+                self.connection.execute('SELECT 1')
+            closed.append(True)
+
+    monkeypatch.setattr(engine, 'connect_database', lambda *args, **kwargs: CursorAllocationFailure())
+    _worker, error = _queued_startup_failure(str(path), monkeypatch)
+    assert isinstance(error, MemoryError) and not hasattr(error, '_spacr_annotation_database')
+    assert closed == [True]
+    with sqlite3.connect(path) as connection:
+        assert connection.execute('SELECT * FROM png_list').fetchall() == [('/private/patient/image.png', 7)]
