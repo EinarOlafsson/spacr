@@ -44,13 +44,13 @@ an internet connection while they create the private environment.
 Windows 10/11
 ~~~~~~~~~~~~~
 
-Run ``SpaCR-<version>-Windows-Online-Setup.exe``. The default per-user
+Run ``spaCR-<version>-Windows-Online-Setup.exe``. The default per-user
 location is ``%LOCALAPPDATA%\spaCR`` and does not require administrator
-access. Automatic hardware acceleration is selected by default. It installs a
-CUDA-capable PyTorch build on compatible NVIDIA systems. On other systems it
-installs the PyTorch build that ``uv`` selects for the detected hardware, which
-is the CPU build when no supported GPU is detected. Clear the component only
-when you require the smaller CPU-only installation. The unticked component
+access. The component **Automatic hardware acceleration (recommended)** is
+selected by default. It installs a CUDA-capable PyTorch build on compatible
+NVIDIA systems. On other systems it installs the PyTorch build that ``uv``
+selects for the detected hardware, which is the CPU build when no supported
+GPU is detected. Clearing the component installs the smaller CPU-only build. The unticked component
 **Install without wgpu (use OpenGL/CPU for 3D)** leaves out the wgpu 3D
 renderer; see :ref:`wgpu-3d-rendering`. From PowerShell, the same choice is
 the ``-WithoutWgpu`` switch of ``install_spacr_windows.ps1``.
@@ -58,14 +58,15 @@ the ``-WithoutWgpu`` switch of ``install_spacr_windows.ps1``.
 macOS 11 or later
 ~~~~~~~~~~~~~~~~~
 
-Open ``SpaCR-<version>-macOS-Universal-Online.pkg``. The application is placed
+Open ``spaCR-<version>-macOS-Universal-Online.pkg``. The application is placed
 in ``/Applications/spaCR.app``. The spaCR setup window creates its private
 runtime under ``~/Library/Application Support/spaCR`` and displays progress,
 dependency choices and any required consent. Complete those choices in the
 window; setup does not require answers in Terminal. When setup finishes,
 spaCR opens its startup window and then the main application.
-The current beta is not notarized. If Gatekeeper blocks it, open **System
-Settings → Privacy & Security** and choose **Open Anyway** for spaCR. The
+A package built without Apple signing credentials is not notarized. If
+Gatekeeper blocks it, open **System Settings → Privacy & Security** and choose
+**Open Anyway** for spaCR. The
 first-launch window has an unchecked **Install without wgpu (use OpenGL/CPU
 for 3D)** box; see :ref:`wgpu-3d-rendering`.
 
@@ -76,8 +77,8 @@ Make the downloaded installer executable and run it:
 
 .. code-block:: bash
 
-   chmod +x SpaCR-*-Linux-x86_64-Online.run
-   ./SpaCR-*-Linux-x86_64-Online.run
+   chmod +x spaCR-*-Linux-x86_64-Online.run
+   ./spaCR-*-Linux-x86_64-Online.run
 
 The default installation root is ``~/.local/share/spacr``. The launcher is
 written to ``~/.local/bin/spacr`` and the desktop entry to
@@ -90,7 +91,9 @@ build instead, run the installer with ``--torch-backend cpu``.
 
 To leave out the wgpu 3D renderer, run the installer with ``--without-wgpu``,
 or tick **Install without wgpu (use OpenGL/CPU for 3D)** in the installer
-window; the box is unchecked by default. On a Linux system whose glibc is
+window; the box is unchecked by default. The window (which requires
+``zenity``) opens with ``--gui``, or when the installer is started from a
+desktop session without a terminal. On a Linux system whose glibc is
 older than 2.28 the installer leaves wgpu out by itself and prints one line
 saying so, because wgpu publishes Linux wheels only for glibc 2.28 and newer.
 ``--dry-run`` shows the decision in its plan, as the ``wgpu 3D rendering``
@@ -169,15 +172,19 @@ it at any time.
 Proxies and corporate certificates
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Every download spaCR makes (model weights, updates, plug-ins, pip, uv, conda
-and the segmentation-backend installers) honours ``HTTPS_PROXY`` and
-``REQUESTS_CA_BUNDLE`` (or ``SSL_CERT_FILE``). To set them inside spaCR
+Downloads made by spaCR and by the installers it starts (model weights,
+updates, plug-ins, pip, uv, conda and the segmentation-backend installers) use
+``HTTPS_PROXY`` (or ``HTTP_PROXY``) and ``REQUESTS_CA_BUNDLE`` (or
+``SSL_CERT_FILE`` or ``CURL_CA_BUNDLE``) from the environment. To set them inside spaCR
 instead, fill in **Preferences → Modules → Proxy** (for example
 ``http://proxy.example.org:3128``) and **Certificate bundle** (a PEM file from
 your IT department). These values override the environment, are
 kept in ``~/.spacr/network.json`` so command-line runs use them too, and are
-passed on as ``HTTPS_PROXY``, ``HTTP_PROXY``, ``REQUESTS_CA_BUNDLE``,
-``SSL_CERT_FILE``, ``CURL_CA_BUNDLE``, ``PIP_CERT`` and ``GIT_SSL_CAINFO``.
+exported as ``HTTPS_PROXY`` and ``HTTP_PROXY`` (both spellings) and as
+``REQUESTS_CA_BUNDLE``, ``SSL_CERT_FILE``, ``CURL_CA_BUNDLE``, ``PIP_CERT``,
+``GIT_SSL_CAINFO`` and ``NODE_EXTRA_CA_CERTS``. When a proxy is set and
+``NO_PROXY`` is not, ``NO_PROXY`` is set to this machine's own addresses. A
+certificate bundle path that is not a file is not exported.
 ``spacr-doctor`` has a *proxy and certificates* row. It checks that the
 certificate bundle exists and can be read, and that PyPI answers through the
 configured proxy. A password in the proxy address is masked in its output.
@@ -304,8 +311,9 @@ install from.
 Uninstalling
 ------------
 
-Open **Preferences → Performance → Uninstall**. In the popup, choose either
-**Current version** or **All detected spaCR versions**. The preview identifies
+Open **Preferences → Performance → Uninstall…**. In the popup, choose
+**Current version**, **All detected spaCR versions**, **Older versions only**
+or **Ticked installations**. The preview identifies
 the installation paths and versions. The all-versions choice also finds spaCR
 in detected Python and Conda environments; it removes the spaCR package from
 those environments and keeps their other packages and files. Editable source
@@ -313,7 +321,10 @@ checkouts are shown as retained.
 
 The popup separately selects **Caches**, **Models**, **Logs**, **Settings**,
 **History**, **Temporary files**, **Downloads** and **Other spaCR data**.
-Every cleanup category starts selected for uninstall. Clear any category to
+Every cleanup category starts selected for uninstall. When the running spaCR
+stays installed (for example with **Older versions only**), the categories
+start cleared instead and its settings, models and history are kept. Clear any
+category to
 keep it, inspect the exact paths listed, and confirm the uninstall. Cancel
 leaves the application and files unchanged. spaCR closes safely before its
 running installation is removed.
@@ -345,8 +356,9 @@ retain their existing explicit purge switches.
 Native and command-line alternatives
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* **Windows:** open **Settings → Apps → Installed apps → spaCR → Uninstall**,
-  or run ``%LOCALAPPDATA%\spaCR\Uninstall.exe``.
+* **Windows:** open **Settings → Apps → Installed apps → spaCR → Uninstall**
+  (Windows 11; **Apps & features** on Windows 10), or run
+  ``%LOCALAPPDATA%\spaCR\Uninstall.exe``.
 * **macOS:** run
   ``/Library/Application Support/spaCR/uninstall-spacr.sh`` in Terminal. This
   removes the application, command launcher and system installer support.
@@ -482,7 +494,8 @@ The installer checks every file against ``SHA256SUMS``, installs Python and
 the wheels with no package index, and copies the Cellpose weights without
 overwriting existing ones. ``--check-mask`` (``-CheckMask``) then runs Mask on
 a scratch copy of the bundled test data and passes when masks and merged
-stacks are written; on a CPU this can take an hour for two fields.
+stacks are written. Its run time depends on the hardware and is long on a
+CPU.
 
 What the bundle does not contain: the separate environments of optional
 segmentation backends such as Cellpose 3 or StarDist, and Model Zoo models
@@ -531,9 +544,8 @@ environment. It includes spaCR's desktop and core dependencies:
 Python 3.15 on Linux
 ~~~~~~~~~~~~~~~~~~~~
 
-Use the nightly source in a new Linux Conda environment for Python 3.15.
-The current PyPI release excludes this interpreter and pip can fall back
-to an older spaCR release. Install the Linux build packages listed above
+This recipe installs the nightly source in a new Linux Conda environment for
+Python 3.15. spaCR 1.5.1.5 and earlier exclude this interpreter. Install the Linux build packages listed above
 before running this recipe; some native dependencies still build from source.
 
 .. code-block:: bash
@@ -563,7 +575,8 @@ on Linux x86_64; Windows is untested and macOS retains its older Qt requirement.
 PyPI installation and extras
 ----------------------------
 
-The PyPI package supports Python 3.9 through 3.14 except Python 3.14.1.
+The package metadata declares Python 3.9 through 3.15, excluding Python
+3.14.1. On Python 3.15, use the Linux recipe above.
 Choose either a Python virtual environment or a Conda environment for the
 PyPI release. In both cases, pip installs spaCR; the conda-forge route above
 uses Conda to install spaCR instead.
@@ -656,7 +669,7 @@ is unavailable), then OpenGL, then the CPU.
    * - Installation
      - wgpu
      - True 3D view uses
-   * - Python 3.10 on Windows x86-64/ARM64, macOS Intel/Apple silicon, or
+   * - Python 3.10 on Windows x86-64, macOS Intel/Apple silicon, or
        Linux x86-64/aarch64 with glibc 2.28 or newer
      - Installed, ``wgpu<=0.31.0``
      - Vulkan, Metal or Direct3D 12 (Auto), else OpenGL, else CPU
@@ -713,8 +726,9 @@ packages, without wgpu, before anything is installed.
 Container images
 ----------------
 
-Two images are published to the GitHub Container Registry as part of every
-spaCR release, after that version reaches PyPI. Each one is built and then
+The release workflow builds two images for a spaCR release after that version
+is on PyPI and publishes them to the GitHub Container Registry. Each one is
+built and then
 checked before it is pushed: it must report the version its tag claims, it
 must not run as root, and it must complete one pipeline run on a synthetic
 field. An image that fails a check is not published, and the workflow run that
@@ -850,8 +864,9 @@ inside the container, and Qt prints a warning about it at every start; the image
 makes its own runtime directory under the container's cache folder instead.
 
 A container rarely has a usable OpenGL context, so the animated backdrop may
-not draw. ``safespacr`` starts the same application with the backdrop and GL
-switched off, and is the right command when the window is slow or blank:
+not draw. ``safespacr`` starts the same application with the backdrop, OpenGL,
+setting animations and preloading switched off, and reads every saved
+preference as its default. Use it when the window is slow or blank:
 
 .. code-block:: bash
 

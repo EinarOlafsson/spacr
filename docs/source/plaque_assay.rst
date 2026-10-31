@@ -97,7 +97,7 @@ both modes, Make Masks and its curation queue, and the Format Converter. A
 folder of ``.scn`` files is a source like a folder of figures. Image Lab
 stores these images with zero as white, so spaCR inverts them to look like
 Image Lab's own PDF and TIFF exports (dark wells on light plastic) and keeps
-the 12-bit values. Plaque Assay shows them as 8-bit grey scaled linearly to
+the stored ``uint16`` values. Plaque Assay shows them as 8-bit grey scaled linearly to
 the imager's ceiling. When the file records its physical field size, that
 pixel size calibrates Figure-mode plaque areas (scale source
 ``image metadata``) unless a pixel scale is set in the settings or on a well.
@@ -169,11 +169,9 @@ only labels also leave the diagnostic columns blank.
 Well resize
 -----------
 
-A plaque model learns plaques at the pixel size it was trained on. Very small
-plaques are the hardest case: Cellpose needs an object roughly 15 pixels or
-more across to follow its flows reliably. In a perfect-flow reconstruction
-test on the curated plaque masks, only 54% of plaques smaller than 5 pixels
-could be recovered at their native size, against 99% after a 4x enlargement.
+A plaque model is trained on images at a particular pixel scale. Plaques
+that span only a few pixels in the input image are small relative to that
+scale; enlarging each well before segmentation increases their size in pixels.
 
 **Well resize** (``plaque_well_resize``) segments each well at a fixed size.
 The wells are found with the zoo's well detector
@@ -196,7 +194,7 @@ model. A model whose zoo record declares
 ``preprocess: {"well_resize": {"side": 1500, "max_factor": 6}}`` turns well
 resize on with those values. A checkpoint can declare the same in a
 ``<checkpoint>.preprocess.json`` file beside it. ``toxoplasma_plaque_v6``,
-the default plaque model since 2026-10-25, was trained this way and declares
+the default ``plaque_model``, was trained this way and declares
 it. The metadata may also carry the thresholds chosen on the model's
 validation fields, for example
 ``"thresholds": {"cellprob": -0.5, "flow": 0.4, "min_size": 0}`` for v6. In

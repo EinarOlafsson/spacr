@@ -33,7 +33,8 @@ checked fields. The field dropdown retains ordinary single-field navigation
 when only its current field is checked. With several fields checked, it
 changes the active source without replacing the checked selection.
 
-The image list uses the existing bounded random sample. Already checked
+The field dropdown lists a bounded random sample of the folder's merged
+``.npy`` arrays rather than every field. Already checked
 fields remain available when the sample changes. **Maximum preview crops**
 limits the combined grid, with slots divided among checked fields. Increase
 it if there are more checked fields than available slots. Additional fields

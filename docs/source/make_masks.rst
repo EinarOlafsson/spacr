@@ -22,14 +22,15 @@ animation still keeps its written explanation and API link.
 Centre-pixel puncta inside cysts or cells
 -----------------------------------------
 
-Choose **Centre-pixel puncta within parent masks** in **Detection methods**.
+Choose **Centre-pixel puncta within parent masks** in **Object detection**.
 Open the original single-channel images and select a separate parent-mask
 folder with matching image stems, or a parent-mask file for the current image.
 Parent masks are read-only. Use whole-image **Replace**, then **Save mask**.
 
 The detector finds scale-normalised LoG peaks at sigma 1.5, 2, 3, 4 and 6
-pixels. It estimates each parent's pixel noise from the MAD of the sigma-1
-high-pass residual divided by 0.87, and propagates that noise through each
+pixels. It estimates each parent's pixel noise as the scaled median absolute
+deviation (1.4826 × MAD) of the image minus its sigma-1 Gaussian blur, divided
+by 0.87, and propagates that noise through each
 LoG kernel. The candidate threshold defaults to 2.5 noise units. Peaks undergo
 scale-dependent nonmaximum suppression and a three-pixel parent-edge exclusion.
 Change the scale list, candidate threshold, peak spacing or edge margin when
@@ -37,7 +38,7 @@ the acquisition requires it; these are image-pixel settings, not calibration.
 
 Each punctum is measured using the pixels nearest its intensity-weighted
 subpixel centre in a nine-by-nine window. **Centre pixels per punctum**
-defaults to 20; 10 and 40 are supported. The same-parent local-background
+defaults to 20 and accepts 1 to 81, the size of that window. The same-parent local-background
 annulus starts at max(4, 2.5 sigma + 2) pixels and is four pixels wide. It
 excludes other candidate centres when enough background remains. The default
 inclusion floor is centre mean minus local background >= 3 native intensity
@@ -56,7 +57,8 @@ local background, exact 10/20/40-pixel centre means and the selected N-pixel
 mean. Exact centre means retain overlapping samples independently of label
 ownership. Use ``center_corrected`` for the selected N-pixel mean minus local
 background, or ``corrected20`` for the fixed 20-pixel variant. The
-``corrected`` column holds the reference's three-by-three-window result.
+``corrected`` column holds the three-by-three-window mean minus local
+background.
 The receipt binds the image, parent mask, output mask, CSV and detector
 settings to checksums. Edited or combined labels cannot silently receive the
 old centre measurements. Local previews estimate noise within their crop;
@@ -86,7 +88,8 @@ display only; saved images, masks and measurements are unchanged.
 Open a field and save an edit
 -----------------------------
 
-#. Choose **Open folder…** and select the image folder. The ordinary layout
+#. Choose **Open File / Folder…** (or **Open folder…** in its arrow menu) and
+   select the image folder. The ordinary layout
    keeps corresponding masks in its ``masks/`` subfolder. A saved TIFF mask
    uses the image's filename stem; a missing mask starts empty. The loader
    also supports the sibling masks layout and Cellpose ``_seg.npy`` bundles.
@@ -110,7 +113,7 @@ window narrows. When the wrapped top controls need more height than available,
 scroll vertically within that bar to reach them.
 
 **Save on navigation**, in the **Save mask** arrow menu, saves an edited mask before
-**Keep**, **Discard**, **Next image** or **Previous image** moves on. It is
+**Keep**, **Discard**, **Next** or **Previous** moves on. It is
 off by default and remembered between sessions. If the save fails, the image
 stays open and no verdict is recorded. **Skip** never writes a mask.
 
@@ -119,7 +122,9 @@ unsegmented Toxoplasma vacuole fields, with their curated masks kept apart
 in ``ground_truth_masks/``, and opens the first. The arrow on the same
 button offers a sample of fields from the dataset each published model was
 trained on, the electron microscopy test data and the FIB-SEM volumes
-described under :ref:`mm-tem` and :ref:`mm-volumes`.
+described under :ref:`mm-tem` and :ref:`mm-volumes`, and three timelapse
+examples (yeast, bacteria and mammalian cells) opened with their masks and
+lineage.
 
 .. _mm-volumes:
 
@@ -129,7 +134,8 @@ described under :ref:`mm-tem` and :ref:`mm-volumes`.
 A volume opens in the Mask view, where 2-D fields open. A TIFF stack, an
 OME-TIFF or an MRC volume (``.mrc``, ``.rec`` or ``.map``) with three spatial
 axes is recognised as a volume when it is in the folder you open or when you
-choose **Open 3D image…**. Time, channel and RGB stacks
+open it with **Open file (2D or 3D)…** in the arrow menu of
+**Open File / Folder…**. Time, channel and RGB stacks
 are refused rather than read as depth. An MRC volume needs the optional
 ``mrcfile`` package. The status line reports the number of slices and the
 voxel size.
@@ -327,7 +333,8 @@ Canvas tools and navigation
      - Shown while mask layers are loaded: remove, restore or add objects of
        the curated overlay; see `Curate against mask layers`_.
 
-**Shift or Alt + drag** pans. The wheel zooms about the cursor; **Esc** resets
+**Alt + drag** pans; with tools other than Brush, **Shift + drag** also pans
+(with Brush it keeps painting the last object across a gap). The wheel zooms about the cursor; **Esc** resets
 zoom. **Left/Right** selects the previous/next field. **Ctrl+Z/Ctrl+Y** undoes
 or redoes an edit. With Wand selected, **Ctrl + left click** removes the
 bounded intensity region. Outside Wand, **Ctrl + left click** splits an
@@ -335,7 +342,7 @@ object at its waist; **Ctrl + right click** removes the object under the
 cursor. The shortcut panel beside the view lists the current gestures,
 including magnifier controls.
 
-**Clear all objects**, immediately left of **Discard**, asks for confirmation
+**Clear all objects**, under **Object operations**, asks for confirmation
 before removing every segmentation object in the current image. Cancelling
 keeps the masks; undo restores them. The acquired image is unchanged.
 
@@ -406,7 +413,7 @@ corresponding whole-image detection action. Only applicable method controls
 are shown. Model methods require their model or backend; the Model Zoo
 indicates installation and download state.
 
-The **Object detection** toolbar action runs model loading, inference and
+The **Object detection** button under **Object operations** runs model loading, inference and
 postprocessing in a worker so the window remains responsive. It captures the
 current input and settings when started. If you switch fields or change the
 image or mask before it finishes, the result is discarded; run detection again
@@ -501,14 +508,15 @@ its abandoned result is discarded.
 
 Post-detection opening/closing and splitting modify label shapes. These
 steps are bypassed for paired secondary objects to retain primary IDs.
-Make Masks enhancement is configured separately from the batch Mask
-pipeline; transfer the intended preprocessing explicitly when training or
-running a model elsewhere. See :mod:`spacr.qt.detect_chain`.
+Mask generation applies the same image steps through its ``enhance_*``
+settings, which are set separately from the Make Masks controls; morphology
+and splitting apply only in Make Masks. Set matching preprocessing when
+training or running a model elsewhere. See :mod:`spacr.qt.detect_chain`.
 
 For calibrated optical processing, choose **Convolve (blur)** or
-**Deconvolve (Richardson–Lucy)** under **Point spread function**. Enter the
-image pixel height and width in micrometres, then choose a measured TIFF/NPY
-kernel with matching spacing or a Gaussian approximation with explicit
+**Deconvolve (Richardson–Lucy)** under **Point spread function**. Set the
+image pixel spacing in micrometres, directly or from **Objective** and
+**Camera**, then choose a measured TIFF/NPY kernel with matching spacing or a Gaussian approximation with explicit
 Y/X full widths at half maximum. Use **Reload** after changing a kernel file.
 Compare the result before applying it; more deconvolution iterations can
 amplify noise. The original image intensities stay available for measurement.
@@ -530,9 +538,9 @@ model rescaling, not microscope calibration. **Load / retry model** reloads
 the current choice. Wait for the ready message before comparing or applying
 it; that message identifies the device used by the isolated backend.
 
-Loading and restoration run in the background. On a CPU, a whole field can
-take tens of seconds; a small magnifier region is quicker. Timing depends
-on the image, model and computer. A backend installed with supported GPU
+Loading and restoration run in the background. A whole field takes longer
+than a magnifier region; timing depends on the image size, model and
+hardware. A backend installed with supported GPU
 acceleration can use it, but the workflow also runs on a CPU.
 
 Use **Compare** to inspect several representative regions before choosing
@@ -549,7 +557,7 @@ or more accurate masks, and these weights are not validated for every
 organelle or acquisition. Inspect the resulting masks as well as the image.
 Keep the saved enhancement record with the masks: it identifies the model,
 Cellpose version, checkpoint hash, device, diameter and processing settings.
-CARE and Noise2Void are not supplied as ready restoration engines.
+Make Masks does not offer CARE or Noise2Void restoration.
 
 Grow secondary objects from a primary mask
 ------------------------------------------
@@ -611,13 +619,14 @@ pointer. Its wheel changes box zoom; **Shift + wheel** changes box size.
 **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview
 before manually accepting its objects.
 
-Under **Object detection** → **Magnification settings**, turn on
+In the **Magnification settings** category, turn on
 **Instantly accept proposed objects** to accept a current proposal without
 clicking. This is off by default. Region mode follows **Objects added**;
 whole-image mode accepts only the object under the pointer. Moving outside
 the image or disabling the magnifier prevents automatic acceptance. Each
 acceptance is undoable, and an undo does not immediately accept the same
-proposal again. Use **Save** or **Save & Next** to write accepted masks.
+proposal again. Use **Save mask** (or **Save on navigation**) to write
+accepted masks.
 
 **Overlap** chooses what happens when a proposal overlaps an existing mask:
 
@@ -787,7 +796,8 @@ before.
 Upload data
 -----------
 
-**Upload data…** sends the image on screen with its mask,
+**Upload data…**, in the **Save mask** arrow menu, sends the image on screen
+with its mask,
 every curated image in the folder with its saved mask, or a chosen images
 folder and masks folder, to spaCR's community datasets on Hugging Face for
 training future models. Every image needs a saved mask of the same name and
@@ -796,8 +806,8 @@ the destination as a link you can open, select and copy. A new dataset
 appears with its first upload, and each contribution is reviewed before it
 is used.
 
-The masthead also opens Cellpose Workbench, Mask the whole folder, Model
-Compare, Model Zoo, Curate and Napari Bridge. Their input/output contracts
+The masthead also opens Cellpose Workbench, Mask folder, Model Compare,
+Model Zoo, Curate (alpha) and Napari Bridge (alpha). Their input/output contracts
 are linked from the :ref:`module map <workflow-module-make_masks>`.
 
 Large plates in Mask generation
@@ -805,7 +815,7 @@ Large plates in Mask generation
 
 The **Mask** batch-generation module processes a plate; **Make Masks** edits
 the field currently open. For a crash while processing a raw plate, check
-the batch module's console and saved ``settings/gen_mask_settings.json``
+the batch module's console and saved ``settings/gen_mask_settings.csv``
 to identify the stage and settings used.
 
 In the V1 batch pipeline, raw-file preprocessing projects and writes one

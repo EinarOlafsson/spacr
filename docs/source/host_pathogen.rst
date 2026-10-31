@@ -27,8 +27,8 @@ Follow the `Host–Pathogen video walkthrough
 The `Host–Pathogen dataset
 <https://huggingface.co/datasets/einarolafsson/spacr-example-host-pathogen/tree/83b73d7a0c4f8a9ea145304c2ba90acc16768031>`_
 contains two acquired THP-1/RNF213 fields, four intensity channels and prepared
-automatic masks. Its measurements cover 164 host cells, 189 nuclei,
-97 whole vacuoles and 164 cytoplasm objects across the two fields. The acquired
+automatic masks. Its measurements cover 164 host cells and 97 whole
+vacuoles across the two fields, with nucleus and cytoplasm tables. The acquired
 intensity planes are unchanged; the masks underwent Measure's normal
 parent/child reconciliation so the distributed outlines match measured objects.
 The dataset card and ``example_manifest.json`` describe the source fields,
@@ -52,7 +52,7 @@ After selecting a measured project in **Source**, enable the bottom **Live** con
 The preview uses the current form settings and the same analysis
 functions as a full run. Select **Run preview** for the initial calculation.
 While the panel remains visible, later settings changes refresh that preview.
-Use **Refresh** to reload the field choices and **Cancel** to cancel a pending
+Changing the source reloads the field choices; **Cancel** cancels a pending
 preview. Preview reads the measurements database without writing result files.
 
 Its host counts and infection fractions describe the selected field only.

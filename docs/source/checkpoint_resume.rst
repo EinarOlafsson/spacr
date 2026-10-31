@@ -55,7 +55,8 @@ Batch Runner
    leaves successful jobs alone. A Mask, Measure, or Format Converter job that
    was running when the machine stopped is restarted with ``resume=True``, so
    its own verified field boundary is reused. Other jobs restart at the job
-   boundary.
+   boundary. Failed and skipped jobs are left unchanged unless
+   ``retry_failed=True`` is passed to :func:`spacr.batch.resume_queue`.
 
 Interrupted normalization archives
 ----------------------------------

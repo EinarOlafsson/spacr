@@ -49,7 +49,9 @@ training and checksum verification do not establish accuracy on your images;
 inspect representative controls in ``report`` mode before excluding fields.
 
 ``image_qc_classifier_threshold`` defaults to 0.5; a class score at or above
-it adds a flag. ``image_qc_classifier_labels`` accepts a table with ``field``
+it adds a flag. The built-in model's scores are shifted per class so that 0.5
+corresponds to its stored per-class cut-off; a fine-tuned model's scores are
+used unchanged. ``image_qc_classifier_labels`` accepts a table with ``field``
 and ``label`` columns, plus an optional ``channel`` column. Use ``good`` or
 one or more of ``out_of_focus``, ``saturated``, ``debris``, ``bubble`` and
 ``empty``, separated by semicolons. At least four matched raw fields are

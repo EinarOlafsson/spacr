@@ -43,7 +43,8 @@ Choose inputs and settings
 #. Choose ``base_model``: ``cpsam`` starts from Cellpose-SAM; a model-zoo key
    or checkpoint path continues training an existing model.
 #. Enter ``model_name`` as a filename prefix. Use ``save_path`` to choose an
-   output folder, or leave it empty to save under the training project.
+   output folder, or leave it empty to save under
+   ``<src>/models/cellpose_model``.
 
 For multichannel images, ``channels`` selects up to three zero-based channel
 indices. For example, ``[0, 2]`` selects the first and third channels.
@@ -93,7 +94,8 @@ Run and use the output
 Click **Run** and follow progress in the console. When training finishes,
 the console reports the saved checkpoint path. With the default output
 location, checkpoints are under ``<src>/models/cellpose_model/models``.
-With a chosen ``save_path``, they are under ``<save_path>/models``.
+With a chosen ``save_path``, they are under ``<save_path>/models``. The final
+checkpoint is named ``<model_name>_cpsam_e<n_epochs>.CP_model``.
 
 Open **Apply**, select a separate image folder, such as the example's ``apply``
 folder, and check that **Custom model** points to the checkpoint you want.

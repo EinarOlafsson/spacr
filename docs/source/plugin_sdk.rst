@@ -9,9 +9,10 @@ application and ``spacr-run``.
 
 The current SDK API is ``1.0``. Only the major version controls
 compatibility: a plugin declaring API ``1.x`` works with spaCR's ``1.x`` SDK.
-A malformed or failing plugin is isolated and reported by
-``spacr-plugins doctor``; it cannot replace a built-in module or prevent spaCR
-from starting.
+A malformed or failing plugin is skipped and reported by
+``spacr-plugins doctor``. A contribution whose key collides with a built-in
+module is skipped and recorded as a diagnostic, so it cannot replace that
+module.
 
 Minimal plugin
 --------------
@@ -64,10 +65,11 @@ Then expose a manifest:
    )
 
 The pipeline callable receives one settings dictionary. The defaults callable
-must accept an optional settings dictionary and return a dictionary. A
+is called with an empty dictionary, and again with no argument if that call
+fails; it must return a dictionary. A
 validator returns :class:`spacr.validate.Problem` objects (or equivalent
-mappings). All processing still runs through spaCR's worker, journal,
-cancellation and reproducibility paths.
+mappings). Plugin apps are registered in the same module registry that
+``spacr-run`` and the GUI use for built-in modules.
 
 Settings and custom screens
 ---------------------------

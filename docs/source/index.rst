@@ -28,9 +28,9 @@ who need per-cell measurements from plate images. The GUI route needs no
 programming; the same processing steps are available through the Python API
 for scripted and reproducible workflows.
 
-The GUI groups its applications into four categories: *Core* for the
-segment-measure-classify pipeline; *Data* for importing images and tables,
-feature embeddings, run comparison, experiment and power design,
+The GUI groups its applications into four categories: *Core* for Mask,
+Measure, Annotate, Classify, barcode mapping and regression; *Data* for
+importing images and tables, feature embeddings, run comparison, experiment and power design,
 dose–response analysis and quality control; *Tools* for operations on an
 existing project — hand mask correction, stitching, image UMAP, gating and
 plotting; and *Organism* for the Toxoplasma organism guide, which
@@ -39,11 +39,11 @@ bands under "Applications and workflow" below are those categories, in that
 order, with the tiles each one holds.
 
 Not every screen is a tile. Screens used within another step open from that
-step's masthead — **Timelapse** from Mask, **Illumination** and the
-**Motility Assay** from Measure, **Classifier Evaluation** and **Explain CV
-Model** from Classify, **Annotator Agreement** from Annotate, and the
+step's masthead — **Illumination** and the **Motility Assay** from Measure,
+**Classifier Evaluation** and **Explain CV Model** from Classify, **Annotator Agreement** from Annotate, and the
 **Cellpose Workbench**, **Model Compare**, **Model Zoo** and **Curate** from
-Make Masks, among others. Home shows only the tiles enabled in the running
+Make Masks, among others. **Timelapse** settings appear on the Mask form when
+its Time switch is on. Home shows only the tiles enabled in the running
 build.
 
 .. grid:: 2
@@ -71,7 +71,7 @@ build.
       :link: tutorials/
       :link-type: url
 
-      Narrated walkthroughs of each pipeline module.
+      Narrated walkthroughs of pipeline modules.
 
    .. grid-item-card:: 🐛 Report an issue
       :link: https://github.com/EinarOlafsson/spacr/issues/new

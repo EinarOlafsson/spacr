@@ -4,7 +4,9 @@ Resumable multi-objective UMAP search
 Image UMAP can search ``n_neighbors``, ``min_dist`` and the other structural
 UMAP parameters using one criterion or a multi-objective mode. Open **UMAP
 settings…** from the Hyperparameter search panel on the Image UMAP screen;
-``multi_objective`` is the default criterion.
+``multi_objective`` is the first and default criterion in that panel. The
+Python function :func:`spacr.hyperparam.umap_search` defaults to
+``metric="trustworthiness"``.
 
 Why several objectives?
 -----------------------

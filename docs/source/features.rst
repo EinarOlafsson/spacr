@@ -20,13 +20,15 @@ mask corrections with the layer viewer or napari.
 
 The objects are not a fixed set of four. A project has a cell, a nucleus and a
 pathogen, a cytoplasm derived from them, and as many organelle slots as
-``number_of_organelles`` specifies -- from none up to twenty-six. Each slot is
-independent, with its own channel, diameter, detection method and morphology.
+``number_of_organelles`` specifies -- from none up to 702
+(``spacr.organelle_types.MAX_ORGANELLES``). Each slot is independent, with its
+own channel, diameter, detection method and morphology.
 
 A slot is given a morphology preset -- punctate, vesicular, spherical,
 filamentous, tubular, reticular, cisternal, toroidal, crescent, or custom --
 and the preset chooses the detection strategy, one of spots, network,
-irregular or ring.
+irregular or ring. The vesicular and spherical presets choose between two
+strategies by object size; custom chooses none.
 
 Mask generation lays out the per-object settings as one table under
 **Per-object settings**, with a column for each object whose channel is set;
@@ -44,8 +46,8 @@ reliability settings.
 
 Mask's **Live** preview shows the result as **Overlay**, **Masks**,
 **Flows** or **Cell probability**. Right-click a picture to **Save as PNG…**
-or **Save as PDF…**. Once a session has produced more than one mask,
-**Compare masks…** lays the masks and images you tick over one another,
+or **Save as PDF…**. Once the session holds at least two masks of the field
+on screen, **Compare masks…** lays the masks and images you tick over one another,
 each with its own opacity and stacking order, in a panel of its own.
 
 Measure
@@ -143,10 +145,13 @@ error lists available score-table columns to help you choose a valid response.
 Planning, quality control and exploration
 -----------------------------------------
 
-- **Power and Design** estimate cell and well requirements and lay out plates,
-  controls and replicates.
-- **QC Dashboard** combines segmentation, plate, annotation-agreement and
-  leakage checks.
+- **Power / Design** simulates experiments to estimate the cells per well and
+  wells needed to recover a specified effect size. **Experiment Design**
+  assigns conditions, controls and replicates to wells, checks row, column
+  and plate-edge confounding, and exports ``plate_map.csv``.
+- **QC** summarizes the segmentation, unit, plate-effect, annotation-agreement
+  and leakage checks that completed runs stored; opening it does not
+  recompute masks or measurements.
 - **Batch correction** provides centering, z-scoring, robust z-scoring,
   control centering and ComBat with protected biological covariates.
 - **Graph Builder, gates and linked views** connect summary plots to the
@@ -178,7 +183,9 @@ How a module is reached
 
 The home screen groups modules into four categories -- **Core**, **Data**,
 **Tools** and **Organism** -- and nineteen modules have a tile in one of
-them. Core holds the pipeline modules, run in order; Data holds import,
+them. **Preferences → Show alpha species** adds seven Organism tiles
+(Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, virus infection and
+mammalian cells). Core holds the pipeline modules, run in order; Data holds import,
 embeddings, run comparison, design, dose–response and QC; Tools holds
 modules that operate on an existing project rather than pipeline steps;
 Organism opens the Toxoplasma guide and its available assays. Planned analyses are marked Coming soon.
@@ -189,8 +196,10 @@ another module. They open from:
 
 - **a button on their host's masthead** -- as a page beside that host's
   settings, already pointed at the same project. Investigate Hit and
-  Prediction Profiler open from Regression; Format Converter and External
-  Masks from Import; Layer Viewer, Control Charts and Outliers from QC.
+  Prediction Profiler open from Regression; Import Images, Format Converter
+  and External Masks from Import; Layer Viewer, Control Charts and Outliers
+  from QC. On Mask, the Timelapse button does not open a page: it shows the
+  **Time Axes & Tracking (Beta)** settings on Mask's own form.
 - **the Help menu**, for the ones that inspect or administer work that
   already exists rather than belonging behind any one module -- Run History,
   Pipeline Graph, Project Browser, Database Browser, Report, Data Manager,
@@ -202,19 +211,22 @@ Modules without a tile are installed, translated and documented in the same
 way as tiled modules, and those that are pipelines also run headlessly under
 ``spacr-run``.
 
-============= ==========================================================
-Host          Opens from its masthead
-============= ==========================================================
-Mask          Timelapse
-Measure       Illumination Correction, AnnData Export, Motility Assay
-Annotate      Annotator Agreement
-Classify      Classifier Evaluation, Explain CV Model, Activation Maps
-Map Barcodes  Barcode QC
-Regression    Volcano Explorer, Hit List, Methods & Results
-Image UMAP    Image Scatter, PCA
-Make Masks    Cellpose Workbench, Mask the whole folder, Model Compare,
-              Model Zoo, Curate, Napari Bridge
-============= ==========================================================
+================ ==========================================================
+Host             Opens from its masthead
+================ ==========================================================
+Mask             Timelapse
+Measure          Illumination, AnnData Export, Motility Assay
+Annotate         Annotator Agreement
+Classify         Classifier Evaluation, Explain CV Model, Activation,
+                 Training Runs, Feature Explorer
+Map Barcodes     Barcode QC
+Regression       Volcano Explorer, Hit List, Methods & Results, Diagnostics
+Image UMAP       Image Scatter, PCA
+Make Masks       Cellpose Workbench, Mask folder, Model Compare,
+                 Model Zoo, Curate, Napari Bridge
+Graph Builder    Plate Viewer, Small Multiples
+Database Browser Lineage, Tabulate
+================ ==========================================================
 
 Parameter Sweep is reached a third way: it is a panel on the Regression
 screen, opened by the **Parameter sweep** switch on its settings form.
@@ -228,7 +240,8 @@ by tile and the container fades to show the window. A click or a key skips
 it. The sequence is off when **Preferences → Appearance → Animation → Startup animation**
 is cleared (the mosaic then shows without the animation), while **Reduce
 motion** is on, and when the ``SPACR_NO_SPLASH`` environment variable is set
-to ``1`` (the mosaic is then not shown at all). **Help → Show startup
+to any value other than ``0``, ``false``, ``no`` or ``off`` (the mosaic is
+then not shown at all). **Help → Show startup
 animation** plays it again inside the open window, even when Startup
 animation is off; under Reduce motion the logo holds and then cross-fades
 away.
@@ -376,11 +389,12 @@ Under **Preferences** → **Appearance**, **Theme** selects the interface
 palette; the ten night palettes remain available. **Animation** chooses a
 decorative background independently, or **None** to stop it. These backgrounds
 do not display project measurements. The main window defaults to **spaCR field**;
-the Settings backdrop defaults to **None**.
+the Settings backdrop defaults to **spaCR stratified**.
 
-The animation menu lists **spaCR field**, **spaCR advection**, **spaCR growth**,
-**spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**, and
-**spaCR spinn**, in that order.
+The animation menu lists **spaCR field**, **spaCR advection**, **spaCR waves**,
+**spaCR blobs** and **spaCR stratified**, in that order, followed by **None**.
+**spaCR growth**, **spaCR aurora** and **spaCR spinn** are listed only when
+spaCR is started with the ``spaceout`` command.
 
 - **spaCR field** — A crisp gravitational dot field with optional local mouse influence and expanding ripples.
 - **spaCR advection** — Fine particles form evolving vortices and branching currents, with optional mouse gravity.
@@ -392,7 +406,7 @@ The animation menu lists **spaCR field**, **spaCR advection**, **spaCR growth**,
 - **spaCR spinn** — Fine paper facets move gently and spin locally in response to the mouse. Rotation is fastest beside the pointer and fades smoothly to zero at the Mouse gravity radius; changing the radius changes the affected area.
 
 **Mouse gravity radius** sets the affected area as a percentage of the shorter
-screen edge. Its default is **15%**; set it to **0** to disable mouse influence.
+screen edge. Its default is **10%**; set it to **0** to disable mouse influence.
 **Animation density** changes the number of elements independently of
 **Animation detail**, which changes drawing resolution. Density has a minimum of
 **1%**; increasing Detail does not trim the chosen population. The renderer
@@ -479,7 +493,8 @@ Make Masks
 Make Masks edits integer label masks by hand. Its masthead opens related
 screens, including Cellpose Workbench, Model Compare, Model Zoo and Curate.
 Its canvas has eleven tools: Brush, Erase, Erase object, Wand,
-Draw, Box, Edit Label, Divide / Merge, Zoom, Recrop and Ruler. Wand adds a region by
+Draw, Box, Edit Label, Divide / Merge, Zoom, Recrop and Ruler; a twelfth,
+Pick, is shown while mask layers are loaded. Wand adds a region by
 default; hold Ctrl while clicking to remove it. The
 :doc:`Make Masks reference <make_masks>` covers these tools, Levels,
 detection settings, primary/secondary pairing, saving and measurement.
@@ -490,7 +505,7 @@ micrographs (``.dm3``, ``.dm4``, ``.mrc``) have a contrast preset. See
 
 **Box** draws independent class-labelled rectangles for YOLO annotation.
 Move or resize a box, undo or redo edits, and use **Save boxes** to preserve
-the project or **Export YOLO…** to write normalized labels and ordered class
+the project or **Export YOLO labels** to write normalized labels and ordered class
 metadata. Source images and segmentation masks remain unchanged.
 
 **Edit Label** asks for a new whole-number ID for the clicked object and
@@ -683,8 +698,9 @@ programs you tick are asked to quit, after you confirm; they can usually
 save first, but unsaved work in them may still be lost.
 
 Runs started without the GUI lower ``n_jobs`` to the number that keeps the
-reserve free and print a warning. Turn ``ram_guard`` off in **Advanced** to keep your ``n_jobs``
-unchanged; Measure still waits while free memory is below the reserve.
+reserve free and print a warning. Turn ``ram_guard`` off in the module's
+**Runtime & Reliability** settings (**Quality Control** on Mask) to keep your
+``n_jobs`` unchanged; Measure still waits while free memory is below the reserve.
 
 Worker startup and final retries
 --------------------------------
@@ -706,7 +722,7 @@ again.
 Maturity labels
 ---------------
 
-The API uses these labels consistently:
+The API documentation marks entry points with these labels:
 
 **Stable**
    Supported entry points used by the principal Mask, Measure, Classify,

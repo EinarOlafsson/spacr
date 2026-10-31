@@ -29,7 +29,7 @@ Language support covers the presentation layer of the Qt application:
   streaming status and other chat chrome;
 * spaCR-authored console notices such as run start, safe stop, completion,
   settings import and provider guidance;
-* reviewed one-line descriptions for all built-in modules; and
+* one-line descriptions for the built-in modules; and
 * setting names, type hints, authored explanations, API-link captions,
   tooltips and accessible help text.
 
@@ -44,7 +44,7 @@ Module and setting tooltips have complete external catalog entries in every
 bundled language. Setting tooltips are assembled from separate semantic fields
 so the setting name, type, authored explanation and API caption can be checked
 independently. Format fields, code literals, scientific symbols, URLs and
-option values are immutable during catalog generation. A translation is
+option values are protected during catalog generation. A translation is
 accepted only when those structural values survive; otherwise spaCR uses the
 canonical English text.
 
@@ -71,8 +71,7 @@ provider name, function name or error detail are preserved even when the
 surrounding notice is translated.
 
 When a scientific or third-party term has no catalog entry, spaCR displays the
-original English text. This explicit fallback is preferable to guessing the
-meaning of a technical control.
+original English text rather than a substituted translation.
 
 The environment variable ``SPACR_LANGUAGE`` can temporarily override the
 saved preference, which is useful for screenshots and automated testing:
@@ -159,7 +158,7 @@ Developers should send raw pipeline output through ``append_stdout`` or
 ``append_error`` and use ``append_notice`` only for a stable, spaCR-authored UI
 template. Dynamic application chrome uses a stable source template so runtime
 language changes cannot translate an earlier translation or overwrite a live
-path/result label. Catalog tests enforce translation width and format-field
+path/result label. Catalog tests enforce format-field
 parity, and language tests assert that output and chat content remain
 unchanged.
 

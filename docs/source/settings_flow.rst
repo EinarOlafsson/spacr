@@ -8,7 +8,7 @@ reads a listed setting has no published API anchor, the **API** link in its
 tooltip opens the setting's section on this page instead.
 
 Each line of a branch is a call, indented under its caller. A step marked
-**-- reads it** is where the value is used rather than passed on. Branches
+``<-- reads it`` is where the value is used rather than passed on. Branches
 that reach no reader are omitted. A step marked ``[UNRESOLVED]`` is a call
 that static analysis cannot follow -- a ``getattr``, a dispatch table, a Qt
 signal, a callback passed as a value. These steps are shown rather than

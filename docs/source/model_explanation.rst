@@ -11,8 +11,9 @@ spaCR provides three separate analyses that answer different questions:
   have morphology consistent with that hit.
 
 The last result is weakly supervised evidence, not a cell-resolved barcode.
-The UI and exports therefore use ``EAF1-hit-like`` and
-``hit_like_probability`` rather than calling a cell ``EAF1-KO``.
+The UI therefore labels candidate cells ``<gene>-hit-like`` (for example
+``EAF1-hit-like``) and the exports use ``hit_like_probability``, rather than
+calling a cell a knockout such as ``EAF1-KO``.
 
 Explain CV Model
 ----------------
@@ -115,8 +116,8 @@ A coherent UMAP/PCA population is useful exploratory evidence but is not
 ground truth. Confidence increases with negative and positive controls,
 independent guides, replicate plates, well/plate cross-fitting, refitted nulls,
 bootstrap stability, blinded review, and agreement between measured-feature
-SHAP and pixel-level attribution. The strongest validation is an orthogonal
-experiment that assigns perturbation identity per cell, such as an arrayed
+SHAP and pixel-level attribution. None of these analyses observes
+perturbation identity per cell; that requires an orthogonal experiment, such as an arrayed
 perturbation/rescue or direct in-situ guide-barcode readout.
 
 Headless entry points

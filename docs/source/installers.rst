@@ -11,7 +11,7 @@ shown in its row, even when a newer release is available.
 
 .. |Linux| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/linux.png
    :width: 32
-   :alt: 64-bit Linux
+   :alt: Linux x86-64
 
 .. |MacOS| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/macos.png
    :width: 32
@@ -23,7 +23,7 @@ shown in its row, even when a newer release is available.
 
 .. |Linux-1-5-1-6| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/linux.png
    :width: 32
-   :alt: Download spaCR 1.5.1.6 for 64-bit Linux
+   :alt: Download spaCR 1.5.1.6 for Linux x86-64
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.6/spaCR-1.5.1.6-Linux-x86_64-Online.run
 
 .. |MacOS-1-5-1-6| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/macos.png
@@ -38,7 +38,7 @@ shown in its row, even when a newer release is available.
 
 .. |Linux-1-5-1-5| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/linux.png
    :width: 32
-   :alt: Download spaCR 1.5.1.5 for 64-bit Linux
+   :alt: Download spaCR 1.5.1.5 for Linux x86-64
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.5/spaCR-1.5.1.5-Linux-x86_64-Online.run
 
 .. |MacOS-1-5-1-5| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/macos.png
@@ -53,7 +53,7 @@ shown in its row, even when a newer release is available.
 
 .. |Linux-1-5-1-4| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/linux.png
    :width: 32
-   :alt: Download spaCR 1.5.1.4 for 64-bit Linux
+   :alt: Download spaCR 1.5.1.4 for Linux x86-64
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.4/spaCR-1.5.1.4-Linux-x86_64-Online.run
 
 .. |MacOS-1-5-1-4| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/macos.png
@@ -68,7 +68,7 @@ shown in its row, even when a newer release is available.
 
 .. |Linux-1-5-1-3| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/linux.png
    :width: 32
-   :alt: Download spaCR 1.5.1.3 for 64-bit Linux
+   :alt: Download spaCR 1.5.1.3 for Linux x86-64
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.3/spaCR-1.5.1.3-Linux-x86_64-Online.run
 
 .. |MacOS-1-5-1-3| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/macos.png
@@ -83,7 +83,7 @@ shown in its row, even when a newer release is available.
 
 .. |Linux-1-5-1-2| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/linux.png
    :width: 32
-   :alt: Download spaCR 1.5.1.2 for 64-bit Linux
+   :alt: Download spaCR 1.5.1.2 for Linux x86-64
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.2/spaCR-1.5.1.2-Linux-x86_64-Online.run
 
 .. |MacOS-1-5-1-2| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/macos.png
@@ -98,7 +98,7 @@ shown in its row, even when a newer release is available.
 
 .. |Linux-1-5-1-0| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/linux.png
    :width: 32
-   :alt: Download spaCR 1.5.1.0 for 64-bit Linux
+   :alt: Download spaCR 1.5.1.0 for Linux x86-64
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.0/spaCR-1.5.1.0-Linux-x86_64-Online.run
 
 .. |MacOS-1-5-1-0| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/macos.png
@@ -113,7 +113,7 @@ shown in its row, even when a newer release is available.
 
 .. |Linux-1-5-0-9| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/linux.png
    :width: 32
-   :alt: Download spaCR 1.5.0.9 for 64-bit Linux
+   :alt: Download spaCR 1.5.0.9 for Linux x86-64
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.9/spaCR-1.5.0.9-Linux-x86_64-Online.run
 
 .. |MacOS-1-5-0-9| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/macos.png
@@ -128,7 +128,7 @@ shown in its row, even when a newer release is available.
 
 .. |Linux-1-5-0-8| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/linux.png
    :width: 32
-   :alt: Download spaCR 1.5.0.8 for 64-bit Linux
+   :alt: Download spaCR 1.5.0.8 for Linux x86-64
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.8/spaCR-1.5.0.8-Linux-x86_64-Online.run
 
 .. |MacOS-1-5-0-8| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/macos.png
@@ -143,7 +143,7 @@ shown in its row, even when a newer release is available.
 
 .. |Linux-1-5-0-7| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/linux.png
    :width: 32
-   :alt: Download spaCR 1.5.0.7 for 64-bit Linux
+   :alt: Download spaCR 1.5.0.7 for Linux x86-64
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.7/spaCR-1.5.0.7-Linux-x86_64-Online.run
 
 .. |MacOS-1-5-0-7| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/macos.png
@@ -158,7 +158,7 @@ shown in its row, even when a newer release is available.
 
 .. |Linux-1-5-0-6| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/linux.png
    :width: 32
-   :alt: Download spaCR 1.5.0.6 for 64-bit Linux
+   :alt: Download spaCR 1.5.0.6 for Linux x86-64
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.6/spaCR-1.5.0.6-Linux-x86_64-Online.run
 
 .. |MacOS-1-5-0-6| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/macos.png
@@ -173,7 +173,7 @@ shown in its row, even when a newer release is available.
 
 .. |Linux-1-5-0-5| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/linux.png
    :width: 32
-   :alt: Download spaCR 1.5.0.5 for 64-bit Linux
+   :alt: Download spaCR 1.5.0.5 for Linux x86-64
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.5/spaCR-1.5.0.5-Linux-x86_64-Online.run
 
 .. |MacOS-1-5-0-5| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/macos.png
@@ -188,7 +188,7 @@ shown in its row, even when a newer release is available.
 
 .. |Linux-1-5-0-4| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/linux.png
    :width: 32
-   :alt: Download spaCR 1.5.0.4 for 64-bit Linux
+   :alt: Download spaCR 1.5.0.4 for Linux x86-64
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run
 
 .. |MacOS-1-5-0-4| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/macos.png
@@ -203,7 +203,7 @@ shown in its row, even when a newer release is available.
 
 .. |Linux-1-5-0-1| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/linux.png
    :width: 32
-   :alt: Download spaCR 1.5.0.1 for 64-bit Linux
+   :alt: Download spaCR 1.5.0.1 for Linux x86-64
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.1/SpaCR-1.5.0.1-Linux-x86_64-Online.run
 
 .. |MacOS-1-5-0-1| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/macos.png
@@ -218,7 +218,7 @@ shown in its row, even when a newer release is available.
 
 .. |Linux-1-4-9-9| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/linux.png
    :width: 32
-   :alt: Download spaCR 1.4.9.9 for 64-bit Linux
+   :alt: Download spaCR 1.4.9.9 for Linux x86-64
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.4.9.9/SpaCR-1.4.9.9-Linux-x86_64-Online.run
 
 .. |MacOS-1-4-9-9| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/macos.png

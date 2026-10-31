@@ -12,7 +12,8 @@ Export from the application
 1. From **Home**, open **Measure**, then **AnnData Export**.
 2. Select the measured project as the source.
 3. Set **Anndata out** to a new ``.h5ad`` filename. Leaving it empty writes
-   beneath the project's ``results`` folder. A successful export replaces an
+   ``results/<project name>.h5ad`` in the project folder, or
+   ``results/<project name>_<table>.h5ad`` for a single-table export. A successful export replaces an
    existing file at the chosen path; use separate names to keep both versions.
 4. Set **Anndata single table** to ``cell`` for one row per cell using that
    table's features. Use ``nucleus`` or ``pathogen`` for those object types.

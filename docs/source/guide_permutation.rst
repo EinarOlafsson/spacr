@@ -5,8 +5,9 @@ Use the guide permutation analysis when the independent experimental unit is
 a well and a simultaneous guide model is not identifiable because there are
 more guide columns than wells or because guide fractions are highly
 correlated.  ``inference='nonparametric'`` (the default) runs it, and
-``inference='auto'`` chooses it whenever the simultaneous fit would be
-unidentifiable; either way the run records
+``inference='auto'`` chooses it unless the analysed wells number at least
+twice the simultaneous model's parameters (one per guide, an intercept and one
+per additional plate); either way the run records
 ``analysis_mode='guide_permutation'``.  The mode uses the same paired
 per-cell score and sequencing-count CSV inputs (``paired_data``) as
 :func:`spacr.ml.perform_regression`.
@@ -63,8 +64,10 @@ so the primary correction retains every tested guide.
 Multiple-testing choices
 ------------------------
 
-``multiple_testing_method`` accepts ``fdr_bh`` (Benjamini--Hochberg),
-``fdr_by``, ``bonferroni``, ``holm`` or ``none``.  ``fdr_bh`` is the default.
+``multiple_testing_method`` accepts ``none``, ``bonferroni``, ``sidak``,
+``holm``, ``holm_sidak``, ``simes_hochberg``, ``hommel``, ``fdr_bh``
+(Benjamini--Hochberg), ``fdr_by``, ``fdr_tsbh``, ``fdr_tsbky``, ``fdr_gbs`` or
+``storey``.  ``fdr_bh`` is the default.
 For reproducibility, record the requested support families, permutation count,
 seed, blocking column, nuisance columns, presence threshold, correction method
 and alpha together with the input-file checksums.

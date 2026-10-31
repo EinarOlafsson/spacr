@@ -36,7 +36,8 @@ proof of your microscope's resolution. Check them against the acquisition.
 In the same fold, choose **Measured kernel (TIFF/NPY)** and load your
 calibrated two-dimensional PSF, or keep **Gaussian approximation**. For a
 measured kernel, enter its pixel spacing too; it must match the image.
-Neither mode silently resamples a mismatched kernel.
+Neither mode resamples a mismatched kernel. A measured kernel file can be up
+to 64 MiB.
 
 Wait for the kernel to load, then use **Compare** to inspect its effect.
 Set **Deconvolution iterations** when using Richardson–Lucy and choose
@@ -44,7 +45,7 @@ Set **Deconvolution iterations** when using Richardson–Lucy and choose
 count and inspect noise as well as object boundaries. **Reload** rereads a
 kernel file after you change it. **Off** disables PSF processing.
 
-In Generate Masks, PSF and enhancement preprocessing is recorded in
+In Mask generation, PSF and enhancement preprocessing is recorded in
 ``psf/segmentation_application.json``. If processing is requested or a prior
 record exists, reuse of normalized V1 archives checks the requested processing
 configuration, ordered source channels, exact field set and archive hashes
@@ -123,7 +124,8 @@ Choose the operation and save the result
 ----------------------------------------
 
 Set ``operation="deconvolve"`` to perform Richardson–Lucy deconvolution.
-Start with a modest iteration count and compare the result with the input;
+``iterations`` accepts 1 to 200 and defaults to 20. Start with a modest
+iteration count and compare the result with the input;
 more iterations can amplify noise. ``operation="convolve"`` instead blurs
 the image with the PSF. It does not use the iteration count.
 
@@ -141,8 +143,9 @@ the image with the PSF. It does not use the iteration count.
        json.dumps(result.provenance, indent=2), encoding="utf-8"
    )
 
-The output preserves the image shape and uses float32 values in the original
-intensity units. Inspect its range before converting it to an integer image.
+The input must be finite and nonnegative. The output preserves the image
+shape and uses float32 values in the original intensity units; it is not
+clipped to the input range. Inspect its range before converting it to an integer image.
 Keep the JSON record with the result; it contains the kernel identity,
 sampling and processing settings.
 

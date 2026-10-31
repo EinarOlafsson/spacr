@@ -30,11 +30,11 @@ digest was supplied. This is not a verified installation.
 
 .. include:: _generated/model_zoo_table.rst
 
-Each model is hosted in a repository under its author's own Hugging Face
-account; contributing a model does not require write access to another
-account's repository.
-``spacr.model_zoo``'s ``publish_model`` performs the upload and prints the
-catalogue row to add.
+``spacr.model_zoo``'s ``publish_model`` uploads a checkpoint to a Hugging Face
+repository under the publisher's own account (``repo_id``), so contributing a
+model does not require write access to another account's repository. It
+returns the catalogue row, with the uploaded file's SHA-256, to add to the
+shared catalogue.
 
 Choose a model from a form
 --------------------------
@@ -43,8 +43,10 @@ A model setting in Mask generation, Make Masks and Plaque Assay has a
 **Model zoo…** button. Its list is grouped by origin under five standard headings —
 the stock Cellpose-SAM weights, spaCR's own models, unvetted spaCR community
 uploads, Cellpose models published on bioimage.io, and the Cellpose 3
-backend's cyto, cyto2, cyto3 and nuclei models. Click a heading to show or
-fold its rows. **Download** fetches the selected model, or **Install** its
+backend's cyto, cyto2, cyto3 and nuclei models. With **Show alpha features**
+on, a sixth **Third-party** heading lists published models that spaCR did not
+train, such as MitoNet. Click a heading to show or fold its rows. The stock
+Cellpose-SAM and spaCR headings are shown by default. **Download** fetches the selected model, or **Install** its
 backend; **Use this model** then writes the model into the setting. A model that needs another backend, such as
 Cellpose 3 or Cellpose-DINO, says so on its row and offers to install that
 backend into its own environment under ``~/.spacr/backends``; spaCR's own

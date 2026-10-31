@@ -97,8 +97,10 @@ Measure writes ``measurements/measurements.db`` and the resolved settings. If
 Run the same contract from a shell
 ----------------------------------
 
-The headless command suits a scheduler because it validates setting names and
-values before importing PyTorch, Cellpose and the other pipeline dependencies.
+``spacr-run`` validates setting names and values before importing PyTorch,
+Cellpose and the other pipeline dependencies. It exits with 0 on success, 1
+when the module raises and 2 for bad arguments, unreadable settings or failed
+preflight checks.
 
 .. code-block:: bash
 

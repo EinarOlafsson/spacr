@@ -13,12 +13,13 @@ Choosing a method
 
 ``control_center``
    Recommended when every plate contains the same negative/reference control.
-   spaCR estimates the median reference shift on each plate and subtracts only
-   that shift. Treatment dispersion and treatment-to-control differences are
-   retained.
+   For each feature, spaCR subtracts from every row of a plate the difference
+   between that plate's control median and the median of all control rows.
+   Treatment dispersion and treatment-to-control differences are retained.
 
 ``robust_zscore``
-   Align plate medians and median absolute deviations. This is less sensitive
+   Align plate medians and median absolute deviations (MAD, scaled by 1.4826)
+   to the pooled median and MAD. This is less sensitive
    to outliers than ``zscore``, but can remove genuine differences if biological conditions are
    unevenly distributed across plates.
 
@@ -44,8 +45,9 @@ Settings
 --------
 
 Set ``batch_correction`` to a method above and use ``batch_column`` to name the
-batch identifier (normally ``plateID``). ``batch_min_samples`` rejects
-unstable estimates from undersized batches.
+batch identifier (normally ``plateID``). ``batch_min_samples`` (default 3) is
+the minimum number of rows per batch; a smaller batch stops the run with an
+error.
 
 For ``control_center``, ``batch_control_column`` identifies the metadata field
 that contains the controls and ``batch_control_values`` selects one or more

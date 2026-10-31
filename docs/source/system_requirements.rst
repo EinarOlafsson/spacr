@@ -54,9 +54,9 @@ Use a 64-bit OS and Python environment. The desktop installers target Windows
 floor does not guarantee that a newer GPU framework supports that same OS.
 Python 3.12 is the practical starting point for the broadest spaCR extras.
 spaCR's declared Python range is 3.9–3.15, excluding 3.14.1, but optional
-packages and individual hardware backends narrow that range. Current Apple
-MPS requirements include macOS 14 or later; use the requirements for the
-specific PyTorch build you install. `Apple's PyTorch requirements
+packages and individual hardware backends narrow that range. The minimum macOS
+version for MPS is set by the PyTorch build you install; check its
+requirements. `Apple's PyTorch requirements
 <https://developer.apple.com/metal/pytorch/>`_ describe the current native
 Apple-silicon route.
 
@@ -74,7 +74,7 @@ who gets it and how to install without it.
      - True 3D view
    * - Linux (x86-64, ARM64; glibc 2.28 or newer)
      - Vulkan (wgpu), OpenGL, CPU
-   * - Windows (x64, ARM64)
+   * - Windows (x86-64)
      - Vulkan, Direct3D 12 (wgpu), OpenGL, CPU
    * - macOS (Intel, Apple silicon)
      - Metal, Vulkan when available (wgpu), OpenGL, CPU
@@ -265,7 +265,7 @@ Servers and shared compute
      - 128 GB; more for large 3-D fields or large measurement tables
      - 256–512 GB or more, apportioned per job
    * - GPU
-     - One compatible GPU with 24–48 GB VRAM for a broadly useful training/inference node
+     - One compatible GPU with 24–48 GB VRAM for training and inference on one node
      - Multiple compatible GPUs, typically 48–80 GB or more each for larger jobs; assign jobs explicitly
    * - Local disk
      - 2–4 TB NVMe scratch, plus 50–100 GB for environments and model caches

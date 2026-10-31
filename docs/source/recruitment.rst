@@ -13,8 +13,10 @@ optional parasite counts, see :doc:`Host–Pathogen Analysis <host_pathogen>`.
 The two modules remain separate analysis choices.
 
 Select ``channel_of_interest`` for the fluorescent marker whose recruitment
-you want to measure. The primary ``recruitment`` column is the pathogen mean
-intensity divided by the cytoplasm mean intensity in that channel. Configure
+you want to measure. Each row is one host cell: the mean intensities of the
+pathogen objects assigned to that cell are averaged, and the primary
+``recruitment`` column divides that pathogen mean by the cell's cytoplasm mean
+intensity in the same channel. Configure
 the condition metadata, object size/intensity filters and minimum objects per
 well before comparing results. Inspect compartment identities and denominator
 intensities; an absent or zero denominator does not establish recruitment.
@@ -65,8 +67,11 @@ auxiliary column names identify a channel before combining runs.
 Saved results
 -------------
 
-The run writes ``cells.csv`` with the retained per-PV rows and ``wells.csv``
-with per-well summaries, alongside recruitment plots. The historical
-``cells.csv`` filename does not change the per-PV unit of these rows. Verify
-condition assignments, filtering and the selected channel when comparing
-these two aggregation levels.
+The run writes ``results/cells.csv`` with the retained per-host-cell rows and
+``results/wells.csv`` with per-well means of those rows, alongside
+recruitment plots. Rows in ``cells.csv`` combine all pathogen objects assigned
+to a host cell; they are not independent per-vacuole measurements. For
+measurements linked to individual vacuoles, use
+:doc:`Host–Pathogen Analysis <host_pathogen>`. Verify condition assignments,
+filtering and the selected channel when comparing these two aggregation
+levels.
