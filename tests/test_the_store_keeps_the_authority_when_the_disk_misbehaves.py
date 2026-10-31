@@ -167,3 +167,24 @@ def test_appending_a_cycle_discards_the_partial_cache_and_keeps_all_reads(
         ["cycle", "object_id"]).reset_index(drop=True)
     pd.testing.assert_frame_equal(
         recovered, pd.DataFrame(expected, columns=["object_id", "cycle", "base"]))
+
+
+def test_sqlite_affinity_collision_within_an_append_preserves_prior_objects(
+        tmp_path):
+    """Mixed input keys cannot turn a refused append into lost prior objects."""
+    path = _db(tmp_path)
+    original = pd.DataFrame({"object_id": ["prior"], "area": [307]})
+    assert write_table(path, OBJECTS_TABLE, original) == 1
+    incoming = pd.DataFrame({"object_id": pd.Series([1, "1"], dtype=object),
+                             "area": [401, 402]})
+
+    with pytest.raises(StoreError, match="broke its uniqueness constraint.*nothing was appended"):
+        write_table(path, OBJECTS_TABLE, incoming, if_exists="append")
+
+    with sqlite3.connect(path) as connection:
+        assert connection.execute(
+            "SELECT object_id, area FROM ops_objects").fetchall() == [("prior", 307)]
+    assert row_count(path, OBJECTS_TABLE) == 1
+    verdict = objects_ready(path)
+    assert verdict and verdict.rows == 1
+    pd.testing.assert_frame_equal(read_table(path, OBJECTS_TABLE), original)
