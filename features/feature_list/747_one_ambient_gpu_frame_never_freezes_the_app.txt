@@ -1,7 +1,7 @@
 ONE AMBIENT GPU FRAME NEVER FREEZES THE APP
 ==========================================
 Lifecycle: new
-Status: in progress — recorded before implementation.
+Status: in progress — bounded GPU frames on nightly; real-GPU check pending on the workstation.
 Requested: coordinator for the tutorial lane, 2026-10-31 (blocks lesson 19's
         smoothness gates).
 Owner: Home (Claude agent 6); real-GPU check by the workstation.
@@ -44,3 +44,8 @@ REQUIREMENTS
 5. Tests with a fake slow GPU frame; measure frames and stalls before/after.
    No GPU at Home: stubs and the CPU path only, and list exactly what needs a
    real-GPU check on the workstation.
+
+2026-10-31 — GPU frames now run on a per-engine graphics lane that owns the context; the shading thread waits 33 ms (first frame 0.5 s), then shades on the CPU for the 30 s backoff and drops the late frame.
+Stub check (4 s driver wait, 800x500): before, the field published 2 frames in 3.5 s; after, >20 frames, longest pause <0.4 s, GPU not re-asked while stuck. Registered GPU jobs still switch at their start.
+CPU path at Home: 1.3 ms compiled, 6.5 ms NumPy per 3840x2160 frame, so WS's few-fps fallback is load or kernel readiness, not cost; spacr.log now says when NVML cannot see other GPU work.
+Workstation: rerun lesson 19 with the real 3090 Ti; check spacr.log for the lane/NVML lines, the field's fps during training and that quit still releases the context.

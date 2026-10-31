@@ -12,7 +12,9 @@ was collected on another thread after the GL libraries started to unload.
 Now ``aboutToQuit``, ``spacr.qt.app.launch`` once the event loop returns,
 and an ``atexit`` hook registered after PySide6's all call
 ``_retire_shading_threads``: every shading thread is joined, and each one
-releases its renderer on itself as it ends, while QApplication still exists.
+has its renderer released as it ends, while QApplication still exists. The
+renderer lives on the engine's graphics lane (item 747), so it is created,
+used and closed on ``spacr-ambient-gpu``.
 
 These run against a fake renderer that records the thread it was created
 and closed on and whether the application and the interpreter were still
@@ -134,12 +136,12 @@ def _run(body: str, tmp_path: Path, timeout: int = 180):
 def _assert_released_in_order(out, lines, before=None):
     assert out.returncode == 0, (
         f"rc {out.returncode}; stderr tail:\n{out.stderr[-3000:]}")
-    assert "create spacr-ambient-shade" in lines, lines
+    assert "create spacr-ambient-gpu" in lines, lines
     creates = [line for line in lines if line.startswith("create ")]
     closes = [line for line in lines if line.startswith("close ")]
     assert len(closes) == len(creates) >= 1, lines
     assert set(closes) == {
-        "close spacr-ambient-shade owner=True app=True finalizing=False"}, lines
+        "close spacr-ambient-gpu owner=True app=True finalizing=False"}, lines
     if before is not None:
         assert before in lines, lines
         last = max(i for i, line in enumerate(lines) if line.startswith("close "))
@@ -170,7 +172,7 @@ fake_gl.note("script ends")
 ''', tmp_path)
     _assert_released_in_order(out, lines)
     assert lines.index("script ends") < lines.index(
-        "close spacr-ambient-shade owner=True app=True finalizing=False")
+        "close spacr-ambient-gpu owner=True app=True finalizing=False")
 
 
 def test_the_real_launch_quits_with_rc_0_and_the_renderer_released(tmp_path):
@@ -255,7 +257,7 @@ def test_retiring_joins_every_shading_thread_and_stops_new_ones(
     thread = field._producer_box[0]._thread
     assert ambient._retire_shading_threads(5.0) == 0
     assert not thread.is_alive()
-    assert released == ["spacr-ambient-shade"]
+    assert released == ["spacr-ambient-gpu"]
     assert field._engine._point_graphics is None
     assert field._producer_box[0] is None
     field.stop()

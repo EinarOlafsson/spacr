@@ -37,7 +37,7 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 740 | New | [MAP BARCODES: SEQUENCER, READ FORMAT AND PAIRING SUPPORT — 740_map_barcodes_sequencer_formats_and_read_pairing.txt](feature_list/740_map_barcodes_sequencer_formats_and_read_pairing.txt) | PLANNED — record only; no implementation in this session. |
 | 741 | New | [REGRESSION: COMPATIBLE DRUG-SCREEN INPUTS AND PROTOCOL HANDOFF — 741_regression_drug_screen_compatibility.txt](feature_list/741_regression_drug_screen_compatibility.txt) | PLANNED — record only; no implementation in this session. |
 | 745 | New | [MASK ROLES KEEP THEIR MODELS AND RAW CHANNEL IDENTITY — 745_mask_roles_keep_their_models_and_raw_channel_identity.txt](feature_list/745_mask_roles_keep_their_models_and_raw_channel_identity.txt) | in progress — indexing safeguards validated; original cluster cause unconfirmed. |
-| 747 | New | [ONE AMBIENT GPU FRAME NEVER FREEZES THE APP — 747_one_ambient_gpu_frame_never_freezes_the_app.txt](feature_list/747_one_ambient_gpu_frame_never_freezes_the_app.txt) | in progress — recorded before implementation. |
+| 747 | New | [ONE AMBIENT GPU FRAME NEVER FREEZES THE APP — 747_one_ambient_gpu_frame_never_freezes_the_app.txt](feature_list/747_one_ambient_gpu_frame_never_freezes_the_app.txt) | in progress — bounded GPU frames on nightly; real-GPU check pending on the workstation. |
 
 ## All feature items
 
@@ -772,7 +772,7 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 743 | New | [SHUTDOWN WORKER LIFETIME AND ANONYMOUS DIAGNOSTICS — 743_shutdown_worker_lifetime_and_anonymous_diagnostics.txt](feature_list/743_shutdown_worker_lifetime_and_anonymous_diagnostics.txt) | DONE — bounded shutdown fixes and anonymous diagnostics delivered on nightly. |
 | 744 | New | [ANONYMOUS ANNOTATION DATABASE STARTUP DIAGNOSTICS — 744_anonymous_annotation_database_startup_diagnostics.txt](feature_list/744_anonymous_annotation_database_startup_diagnostics.txt) | DONE — anonymous diagnostics and seven focused checks delivered on nightly. |
 | 745 | New | [MASK ROLES KEEP THEIR MODELS AND RAW CHANNEL IDENTITY — 745_mask_roles_keep_their_models_and_raw_channel_identity.txt](feature_list/745_mask_roles_keep_their_models_and_raw_channel_identity.txt) | in progress — indexing safeguards validated; original cluster cause unconfirmed. |
-| 747 | New | [ONE AMBIENT GPU FRAME NEVER FREEZES THE APP — 747_one_ambient_gpu_frame_never_freezes_the_app.txt](feature_list/747_one_ambient_gpu_frame_never_freezes_the_app.txt) | in progress — recorded before implementation. |
+| 747 | New | [ONE AMBIENT GPU FRAME NEVER FREEZES THE APP — 747_one_ambient_gpu_frame_never_freezes_the_app.txt](feature_list/747_one_ambient_gpu_frame_never_freezes_the_app.txt) | in progress — bounded GPU frames on nightly; real-GPU check pending on the workstation. |
 
 ## Unnumbered feature documents
 

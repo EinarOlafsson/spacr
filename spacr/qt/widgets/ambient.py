@@ -1802,11 +1802,30 @@ class _GraphicsBackend:
         return False
 
     def _release_point_graphics(self):
-        """Release this producer's renderer without crossing thread ownership."""
+        """Release this producer's renderer without crossing thread ownership.
+
+        A renderer made on the engine's graphics lane is released there: the
+        lane is closed, which releases it on the lane's own thread.
+        """
         renderer = self._point_graphics
         if renderer is not None and renderer._owner == threading.get_ident():
             renderer._close()
             self._point_graphics = None
+            return
+        lane = self.__dict__.get("_graphics_lane")
+        if lane is not None and threading.current_thread() is not lane.thread:
+            self._close_graphics_lane()
+
+    def _close_graphics_lane(self, timeout_s=None):
+        """End the graphics lane, releasing its renderer on its own thread.
+
+        :param timeout_s: longest wait; the lane is a daemon and finishes a
+            frame stuck in the driver on its own, releasing after it.
+        """
+        lane = self.__dict__.pop("_graphics_lane", None)
+        if lane is not None:
+            lane.close(self._release_point_graphics,
+                       _GRAPHICS_LANE_CLOSE_S if timeout_s is None else timeout_s)
 
     def _refuse(self, reason):
         """Record why this frame stays on the CPU; log each new reason once.
@@ -1833,7 +1852,7 @@ class _GraphicsBackend:
             self._graphics_refusal = None
             _log_renderer(self, 'CPU (Animation GPU is off)')
             return None
-        if threading.current_thread().name != 'spacr-ambient-shade':
+        if threading.current_thread().name not in _GRAPHICS_THREADS:
             return None
         if self._graphics_failed:
             return None
@@ -1898,6 +1917,9 @@ class _GraphicsBackend:
         if now < self.__dict__.get("_graphics_slow_until", float("-inf")):
             self._graphics_refusal = "the GPU held the interpreter lock too long"
             return None
+        if threading.current_thread().name == 'spacr-ambient-shade':
+            return self._graphics_frame_on_lane(method, width, height, args,
+                                                work, build)
         renderer = self._graphics_renderer(width, height, work)
         if renderer is None:
             return None
@@ -1926,6 +1948,229 @@ class _GraphicsBackend:
             where = traceback.extract_tb(error.__traceback__)[-1]
             return self._refuse(f'{method} failed in {where.name} line {where.lineno}: '
                                 f'{type(error).__name__}: {str(error)[:600]}')
+
+
+    def _graphics_lane_for(self):
+        """This engine's graphics lane, started on first use."""
+        lane = self.__dict__.get("_graphics_lane")
+        if lane is None or not lane.alive():
+            lane = self._graphics_lane = _GraphicsLane()
+        return lane
+
+    def _graphics_frame_on_lane(self, method, width, height, args, work, build):
+        """Draw one frame on the graphics lane, waiting at most a frame budget.
+
+        The renderer lives on the lane, so a frame that waits in the driver
+        -- behind training or a screen recorder on the same card, or while a
+        context compiles its shaders -- holds the lane, never the shading
+        thread. Past :data:`_GRAPHICS_FRAME_WAIT_S` (a renderer's first
+        frame: :data:`_GRAPHICS_FIRST_FRAME_WAIT_S`) the frame is shaded on
+        the CPU, the engine stays there for :data:`_GRAPHICS_SLOW_BACKOFF_S`
+        and the late GPU frame is dropped. While a frame is still on the
+        lane, every further frame is shaded on the CPU.
+
+        :returns: the frame, or ``None`` for the CPU path.
+        """
+        lane = self._graphics_lane_for()
+        if lane.busy():
+            self._graphics_refusal = "a GPU frame is still in the driver"
+            return None
+        if not self._graphics_accepts(width, height, work):
+            if self._point_graphics is not None:
+                self._release_point_graphics()
+            return None
+        if build is not None:
+            args = tuple(build())
+        first = self.__dict__.get("_graphics_judged") is None
+        wait = _GRAPHICS_FIRST_FRAME_WAIT_S if first else _GRAPHICS_FRAME_WAIT_S
+
+        started = time.perf_counter()
+        done, result, error = lane.call(
+            partial(self._lane_draw, method, width, height, args, work), wait)
+        if not done:
+            self._graphics_slow_until = time.monotonic() + _GRAPHICS_SLOW_BACKOFF_S
+            self._graphics_refusal = "a GPU frame is still in the driver"
+            LOG.info("%s: a GPU frame was still in the driver after %.0f ms; "
+                     "shading on the CPU for %.0f s",
+                     getattr(self, "name", type(self).__name__),
+                     (time.perf_counter() - started) * 1000.0,
+                     _GRAPHICS_SLOW_BACKOFF_S)
+            return None
+        if error is not None:
+            LOG.debug('flow graphics unavailable; retaining CPU material',
+                      exc_info=error)
+            lane.call(self._release_point_graphics, _GRAPHICS_LANE_CLOSE_S)
+            self._graphics_failed = True
+            import traceback
+
+            where = traceback.extract_tb(error.__traceback__)[-1]
+            return self._refuse(f'{method} failed in {where.name} line {where.lineno}: '
+                                f'{type(error).__name__}: {str(error)[:600]}')
+        frame, renderer, held = result
+        if renderer is None:
+            return None
+        if self.__dict__.get("_graphics_judged") is not renderer:
+            self._graphics_judged = renderer
+        elif held > _GRAPHICS_HOLD_BUDGET_S:
+            self._graphics_slow_until = time.monotonic() + _GRAPHICS_SLOW_BACKOFF_S
+            LOG.info("%s: a GPU frame held the interpreter lock %.0f ms; "
+                     "shading on the CPU for %.0f s",
+                     getattr(self, "name", type(self).__name__),
+                     held * 1000.0, _GRAPHICS_SLOW_BACKOFF_S)
+        return frame
+
+    def _lane_draw(self, method, width, height, args, work):
+        """On the graphics lane: draw one frame and time it.
+
+        :returns: ``(frame, renderer, seconds)``; no renderer, no frame.
+        """
+        renderer = self._graphics_renderer(width, height, work)
+        if renderer is None:
+            return None, None, 0.0
+        began = time.perf_counter()
+        frame = getattr(renderer, method)(width, height, *args)
+        return frame, renderer, time.perf_counter() - began
+
+    def _graphics_accepts(self, width, height, work=0) -> bool:
+        """The renderer's refusals that need no graphics context.
+
+        Answered on the shading thread, so a refused frame never waits for
+        the lane; :meth:`_graphics_renderer` repeats them on the lane with
+        its remaining checks.
+        """
+        mode = self._graphics_backend
+        if mode not in ('auto', 'gpu') or self._graphics_failed:
+            return False
+        if width * height > 3840 * 2160 or sys.byteorder != 'little':
+            return False
+        if mode == 'auto' and not self._graphics_automatic(width, height, work):
+            return False
+        if _decorative_gpu_blocked():
+            self._refuse('Dynamic animation holds the GPU for analysis')
+            return False
+        return True
+
+
+class _GraphicsLane:
+    """One daemon thread that owns an engine's graphics context.
+
+    The shading thread hands it one call at a time and waits a bounded time
+    for the answer; a call that outlasts the wait finishes on the lane and
+    its answer is dropped. The context is created, used and released only
+    here, as moderngl requires.
+    """
+
+    def __init__(self):
+        """Start the lane thread."""
+        self._lock = threading.Lock()
+        self._work = threading.Condition(self._lock)
+        self._job = None
+        self._closing = False
+        self._running = False
+        self._release = None
+        self.thread = threading.Thread(target=self._run, name='spacr-ambient-gpu',
+                                       daemon=True)
+        _LIVE_GRAPHICS_LANES.add(self)
+        self.thread.start()
+
+    def alive(self) -> bool:
+        """Whether the lane thread is still serving calls."""
+        return self.thread.is_alive() and not self._closing
+
+    def busy(self) -> bool:
+        """Whether a call is queued or still running on the lane."""
+        with self._lock:
+            return self._job is not None or self._running
+
+    def call(self, fn, timeout_s):
+        """Run ``fn`` on the lane, waiting at most ``timeout_s``.
+
+        :returns: ``(done, result, error)``; ``done`` is False when the lane
+            was busy or closing, or the call outlasted the wait.
+        """
+        box = {"done": threading.Event()}
+        with self._lock:
+            if self._closing or self._job is not None or self._running:
+                return False, None, None
+            self._job = (fn, box)
+            self._work.notify()
+        if not box["done"].wait(max(0.0, float(timeout_s))):
+            return False, None, None
+        return True, box.get("result"), box.get("error")
+
+    def close(self, release, timeout_s):
+        """Release the context on the lane, end it, wait at most ``timeout_s``."""
+        deadline = time.monotonic() + max(0.0, float(timeout_s))
+        with self._lock:
+            self._closing = True
+            self._release = release
+            self._work.notify()
+        if self.thread is not threading.current_thread():
+            self.thread.join(max(0.0, deadline - time.monotonic()))
+
+    def _next(self):
+        """Wait for the next call; ``None`` once the lane is closing and idle."""
+        with self._lock:
+            while self._job is None and not self._closing:
+                self._work.wait()
+            job, self._job = self._job, None
+            self._running = job is not None
+            return job
+
+    def _run(self):
+        """Serve calls until closed, then release on this thread."""
+        job = self._next()
+        while job is not None:
+            fn, box = job
+            try:
+                box["result"] = fn()
+            except BaseException as error:
+                box["error"] = error
+            finally:
+                with self._lock:
+                    self._running = False
+                box["done"].set()
+            job = self._next()
+        try:
+            if self._release is not None:
+                self._release()
+        except Exception:
+            LOG.debug("could not release the graphics lane's renderer",
+                      exc_info=True)
+
+
+def _retire_graphics_lanes(timeout_s: float) -> int:
+    """Wait, bounded, for every graphics lane to release its context and end.
+
+    :param timeout_s: total wait, in seconds, shared by every lane.
+    :returns: how many lanes are still running afterwards.
+    """
+    deadline = time.monotonic() + max(0.0, float(timeout_s))
+    lanes = list(_LIVE_GRAPHICS_LANES)
+    current = threading.current_thread()
+    for lane in lanes:
+        if lane.thread is not current and lane.thread.is_alive():
+            lane.thread.join(max(0.0, deadline - time.monotonic()))
+    return sum(1 for lane in lanes if lane.thread.is_alive())
+
+
+#: Threads on which a graphics renderer may be made and used.
+_GRAPHICS_THREADS = frozenset(('spacr-ambient-shade', 'spacr-ambient-gpu'))
+
+#: Every graphics lane started in this process that may still be running.
+_LIVE_GRAPHICS_LANES: "weakref.WeakSet[_GraphicsLane]" = weakref.WeakSet()
+
+#: How long the shading thread waits for a GPU frame before shading it on the
+#: CPU: two 60 Hz frames. The RTX 3090 Ti audit's slowest impulse-lens frame
+#: was 9.2 ms at 3840x2160.
+_GRAPHICS_FRAME_WAIT_S = 0.033
+
+#: The wait for a renderer's first frame, which creates its context and
+#: compiles its shaders.
+_GRAPHICS_FIRST_FRAME_WAIT_S = 0.5
+
+#: How long a closing lane is waited for to release its context.
+_GRAPHICS_LANE_CLOSE_S = 1.0
 
 
 _GRAPHICS_HOLD_BUDGET_S = 0.020
@@ -6424,6 +6669,22 @@ def _flow_graphics_preflight(stop_event=None):
     return _FLOW_GRAPHICS_PROBE if result is None else result
 
 
+_UNOBSERVED_GPU_LOGGED: set = set()
+
+
+def _note_unobserved_gpu(reason: str) -> None:
+    """Say once in ``spacr.log`` that other processes' GPU work cannot be seen.
+
+    Without it, training or another job on the same card goes unnoticed by
+    Dynamic animation, and only a slow frame sends the field to the CPU.
+
+    :param reason: why NVML cannot be asked.
+    """
+    if reason not in _UNOBSERVED_GPU_LOGGED:
+        _UNOBSERVED_GPU_LOGGED.add(reason)
+        LOG.info("animation cannot see other processes' GPU work: %s", reason)
+
+
 def _flow_compute_idle():
     """Whether no OTHER process is running compute work on an NVIDIA GPU.
 
@@ -6445,10 +6706,12 @@ def _flow_compute_idle():
     try:
         import pynvml
     except Exception:
+        _note_unobserved_gpu("pynvml is not installed")
         return True
     try:
         pynvml.nvmlInit()
     except Exception:
+        _note_unobserved_gpu("NVML did not start")
         return True
     own = os.getpid()
     try:
@@ -10284,6 +10547,10 @@ def _retire_shading_threads(timeout_s: float = SHADING_EXIT_BUDGET_S,
     if alive:
         LOG.warning("%d backdrop shading thread(s) did not stop before exit",
                     alive)
+    lanes = _retire_graphics_lanes(max(0.0, deadline - time.monotonic()))
+    if lanes:
+        LOG.warning("%d backdrop graphics lane(s) were still in the driver at exit",
+                    lanes)
     return alive
 
 
