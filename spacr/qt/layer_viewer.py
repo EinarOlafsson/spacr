@@ -45,6 +45,7 @@ from PySide6.QtCore import QPoint, QRect, Qt, Signal
 from PySide6.QtGui import QImage, QPainter, QPixmap
 from PySide6.QtWidgets import (
     QAbstractItemView,
+    QComboBox,
     QDoubleSpinBox,
     QFileDialog,
     QFormLayout,
@@ -130,20 +131,52 @@ QFrame#LayerCanvasFrame {{
     border: 1px solid {palette["border_soft"]};
     border-radius: 10px;
 }}
-QListWidget#LayerList {{
+QListWidget#LayerList, QListWidget#LayerPanelList {{
     background: {palette["surface_alt"]};
     border: 1px solid {palette["border_soft"]};
     border-radius: 10px;
     padding: 4px;
     color: {palette["fg"]};
 }}
-QListWidget#LayerList::item {{
+QListWidget#LayerList::item, QListWidget#LayerPanelList::item {{
     padding: 5px 6px;
     border-radius: 6px;
 }}
-QListWidget#LayerList::item:selected {{
+QListWidget#LayerList::item:selected, QListWidget#LayerPanelList::item:selected {{
     background: {palette["accent_soft"]};
     color: {palette["fg"]};
+}}
+QListWidget#LayerList::indicator, QListWidget#LayerPanelList::indicator {{
+    width: 14px;
+    height: 14px;
+    border: 1px solid {palette["border"]};
+    border-radius: 3px;
+    background: {palette["surface"]};
+}}
+QListWidget#LayerList::indicator:checked, QListWidget#LayerPanelList::indicator:checked {{
+    background: {palette["accent"]};
+    border: 1px solid {palette["accent"]};
+}}
+QListWidget#LayerList::indicator:hover, QListWidget#LayerPanelList::indicator:hover {{
+    border: 1px solid {palette["accent"]};
+}}
+QToolButton#LayerPanelRaise, QToolButton#LayerPanelLower {{
+    color: {palette["fg"]};
+    background: {palette["surface_alt"]};
+    border: 1px solid {palette["border_soft"]};
+    border-radius: 6px;
+    min-width: 24px;
+    min-height: 24px;
+    padding: 0 6px;
+}}
+QToolButton#LayerPanelRaise:hover, QToolButton#LayerPanelLower:hover {{
+    border: 1px solid {palette["accent"]};
+}}
+QComboBox[chevronArrow="true"]::down-arrow {{
+    image: none;
+    border: none;
+    width: 0px;
+    height: 0px;
 }}
 QLabel#LayerViewerStatus {{
     color: {palette["fg_muted"]};
@@ -812,6 +845,67 @@ class LayerListWidget(QListWidget):
 
 
 
+def _paint_chevron(combo) -> None:
+    """Draw a down chevron in the combo's arrow area, in its text colour.
+
+    The theme draws the arrow as a CSS border triangle, which Qt paints as a
+    flat bar; this is the arrow the combo should show.
+    """
+    from PySide6.QtGui import QPen
+    from PySide6.QtWidgets import QStyle, QStyleOptionComboBox
+
+    option = QStyleOptionComboBox()
+    combo.initStyleOption(option)
+    rect = combo.style().subControlRect(QStyle.CC_ComboBox, option,
+                                        QStyle.SC_ComboBoxArrow, combo)
+    if rect.width() <= 0:
+        rect = QRect(combo.width() - 24, 0, 24, combo.height())
+    side = max(6, min(10, rect.height() // 3))
+    x, y = rect.center().x(), rect.center().y()
+    painter = QPainter(combo)
+    try:
+        painter.setRenderHint(QPainter.Antialiasing)
+        colour = combo.palette().color(combo.foregroundRole())
+        if not combo.isEnabled():
+            colour.setAlphaF(0.45)
+        pen = QPen(colour, 1.6)
+        painter.setPen(pen)
+        half = side / 2.0
+        painter.drawPolyline([QPoint(int(x - half), int(y - half / 2)),
+                              QPoint(int(x), int(y + half / 2)),
+                              QPoint(int(x + half), int(y - half / 2))])
+    finally:
+        painter.end()
+
+
+class _ChevronCombo(QComboBox):
+    """A combo box that shows a down chevron as its drop-down arrow."""
+
+    def __init__(self, parent=None):
+        """Build the combo, marking it so the theme's bar is not drawn."""
+        super().__init__(parent)
+        self.setProperty("chevronArrow", True)
+
+    def paintEvent(self, event) -> None:
+        """Paint the combo, then its chevron."""
+        super().paintEvent(event)
+        _paint_chevron(self)
+
+
+class _ChevronFlatCombo(FlatComboBox):
+    """:class:`FlatComboBox` with a down chevron as its drop-down arrow."""
+
+    def __init__(self, parent=None, tooltip: str = ""):
+        """Build the combo, marking it so the theme's bar is not drawn."""
+        super().__init__(parent, tooltip=tooltip)
+        self.setProperty("chevronArrow", True)
+
+    def paintEvent(self, event) -> None:
+        """Paint the combo, then its chevron."""
+        super().paintEvent(event)
+        _paint_chevron(self)
+
+
 class _LayerPanel(QWidget):
     """A napari-style layer list with the selected layer's controls.
 
@@ -841,19 +935,21 @@ class _LayerPanel(QWidget):
         column.setSpacing(6)
         self.layer_list = LayerListWidget(stack, self)
         self.layer_list.setObjectName("LayerPanelList")
-        self.layer_list.setMinimumHeight(96)
-        self.layer_list.setMaximumHeight(self.layer_list.fontMetrics().height() * 9 + 12)
+        self.layer_list.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.layer_list.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         column.addWidget(self.layer_list)
         order = QHBoxLayout()
         order.setSpacing(4)
         self.raise_button = QToolButton(self)
-        self.raise_button.setArrowType(Qt.UpArrow)
+        self.raise_button.setObjectName("LayerPanelRaise")
+        self.raise_button.setText("\u2191")
         self.raise_button.setToolTip(tr("Move the active layer up"))
         self.raise_button.setAccessibleName(tr("Move the active layer up"))
         self.raise_button.clicked.connect(
             lambda: self._reorder(self._stack.raise_layer))
         self.lower_button = QToolButton(self)
-        self.lower_button.setArrowType(Qt.DownArrow)
+        self.lower_button.setObjectName("LayerPanelLower")
+        self.lower_button.setText("\u2193")
         self.lower_button.setToolTip(tr("Move the active layer down"))
         self.lower_button.setAccessibleName(tr("Move the active layer down"))
         self.lower_button.clicked.connect(
@@ -871,7 +967,7 @@ class _LayerPanel(QWidget):
         self.opacity_slider.valueChanged.connect(self._on_opacity)
         self.opacity_slider.setToolTip(tr("How opaque the active layer is drawn."))
         form.addRow(tr("Opacity"), self.opacity_slider)
-        self.blending_combo = FlatComboBox(self)
+        self.blending_combo = _ChevronFlatCombo(self)
         self.blending_combo.setObjectName("LayerPanelBlending")
         for mode, caption in (
                 (Blending.TRANSLUCENT, tr("Translucent")),
@@ -885,7 +981,7 @@ class _LayerPanel(QWidget):
             "How the active layer combines with the layers under it; additive "
             "suits fluorescence channels."))
         form.addRow(tr("Blending"), self.blending_combo)
-        self.colormap_combo = FlatComboBox(self)
+        self.colormap_combo = _ChevronFlatCombo(self)
         self.colormap_combo.setObjectName("LayerPanelColormap")
         self.colormap_combo.addItems(sorted(COLORMAPS))
         self.colormap_combo.currentTextChanged.connect(self._on_colormap)
@@ -912,7 +1008,7 @@ class _LayerPanel(QWidget):
         self._limits_row = QWidget(self)
         self._limits_row.setLayout(limits)
         form.addRow(tr("Contrast limits"), self._limits_row)
-        self.labels_combo = FlatComboBox(self)
+        self.labels_combo = _ChevronFlatCombo(self)
         self.labels_combo.setObjectName("LayerPanelLabelsDisplay")
         self.labels_combo.addItem(tr("Filled"), 0)
         self.labels_combo.addItem(tr("Outlines"), 1)
@@ -923,11 +1019,20 @@ class _LayerPanel(QWidget):
         column.addLayout(form)
         self._stack.subscribe(self._on_layers_changed)
         self.sync()
+        self.fit_list()
 
     @property
     def stack(self) -> LayerStack:
         """The stack this panel edits."""
         return self._stack
+
+    def fit_list(self) -> None:
+        """Make the list exactly as tall as its rows, up to eight, then scroll."""
+        view = self.layer_list
+        rows = max(1, min(view.count(), 8))
+        row = view.sizeHintForRow(0) if view.count() else view.fontMetrics().height() + 10
+        frame = 2 * view.frameWidth() + 10
+        view.setFixedHeight(rows * max(row, 1) + frame)
 
     def detach(self) -> None:
         """Stop listening to the stack, here and in the list."""
@@ -936,6 +1041,8 @@ class _LayerPanel(QWidget):
 
     def _on_layers_changed(self, event: LayerEvent) -> None:
         """Point the controls at the active layer again when it changes."""
+        if event.kind in ("inserted", "removed"):
+            self.fit_list()
         if event.kind in ("selected", "inserted", "removed") or (
                 event.kind == "changed" and event.layer is self._stack.selected):
             self.sync()

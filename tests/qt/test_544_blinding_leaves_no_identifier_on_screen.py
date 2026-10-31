@@ -80,7 +80,7 @@ def _every_string(root, skip=()):
     :returns: ``[(widget class, object name, property, text)]``.
     """
     from PySide6.QtCore import Qt
-    from PySide6.QtWidgets import (QAbstractItemView, QComboBox,
+    from PySide6.QtWidgets import (QAbstractItemView, QComboBox, QListView,
                                    QPlainTextEdit, QTextEdit, QWidget)
 
     def skipped(widget):
@@ -116,7 +116,8 @@ def _every_string(root, skip=()):
         if isinstance(widget, QAbstractItemView) and widget.model() is not None:
             model = widget.model()
             for r in range(min(model.rowCount(), 200)):
-                for c in range(min(model.columnCount(), 20)):
+                for c in range(1 if isinstance(widget, QListView)
+                               else min(model.columnCount(), 20)):
                     for role in (Qt.DisplayRole, Qt.ToolTipRole):
                         value = model.data(model.index(r, c), role)
                         if isinstance(value, str):
@@ -233,7 +234,7 @@ def masks(qtbot, qt_theme_applied, tmp_path, journal, alpha):
 
 def test_blinded_make_masks_holds_no_identifier_and_locks_the_roi_menu(
         masks, tmp_path, qtbot, monkeypatch):
-    from PySide6.QtWidgets import QFileDialog
+    from PySide6.QtWidgets import QFileDialog, QLabel
 
     screen, folder = masks
     pattern = _leak(tmp_path)
@@ -256,7 +257,9 @@ def test_blinded_make_masks_holds_no_identifier_and_locks_the_roi_menu(
     assert screen._status_label.isVisible()
     assert screen._image_footer.isAncestorOf(screen._status_label)
     assert screen._tally_filename.full_text() == shown_name
-    assert screen._status_label.is_elided()
+    shown = QLabel.text(screen._status_label)
+    assert shown != screen._status_label.text() and shown.endswith("…")
+    assert screen._status_label.wordWrap()
     assert screen._status_label.toolTip() == screen._status_label.text()
     assert _leaks(screen, pattern, skip=(screen._console_section,)) == []
     assert not screen._btn_rois.isEnabled()
