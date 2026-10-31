@@ -1190,10 +1190,16 @@ _METADATA_CONVENTIONS = (
             "BioTekTest.java lines 231-243. Its author identifies these "
             "as names taken from real-world data with minor sanitization "
             "of some channel names and wavelengths; they are not unchanged "
-            "raw filenames. PROVISIONAL: this disclosed sanitization does "
-            "not establish untouched acquisition filenames, and Agilent's "
-            "own Gen5 export documentation remains unverified after its "
-            "WAF refused the original fetches."),
+            "raw filenames. BioTek Instruments' Cytation, An Imaging Primer, "
+            "printed page 18 (PDF page 19), "
+            "https://assets.fishersci.com/TFS-Assets/CCG/EU/Biotek-Instruments/"
+            "Product-Information/11445_Cytation%20Imaging%20Primer_FS.pdf , "
+            "shows the complete literal 'A01_01_1_01_Blue_001.tif' in its "
+            "Image Save Options screenshot and describes configurable Gen5 "
+            "naming. This is one vendor-document illustration, not a second "
+            "unchanged acquired file or independent confirmation of every "
+            "numeric axis. PROVISIONAL: the disclosed sanitization does not "
+            "establish an unchanged acquisition filename pair."),
         "status": "provisional",
     },
     {
@@ -1304,9 +1310,23 @@ _METADATA_CONVENTIONS = (
             "a confocal reflection acquisition of 52 z slices and 2 time "
             "points); third is the shape "
             "Alexander-Zangl/retina-track parses in "
-            "src/retina_track/pipeline/io/_metadata_utils.py. PROVISIONAL "
-            "for the same reason as leica_lasx_series: the filenames are "
-            "real and the vendor attribution is not textually proven."),
+            "src/retina_track/pipeline/io/_metadata_utils.py. The same "
+            "author's release https://github.com/rgerum/saenopy/releases/"
+            "download/v0.7.4/4_OrganoidTFM.zip contains both Pos007 files; "
+            "their TIFF Software tags are 'TCSNTV'. The primary methods at "
+            "https://doi.org/10.3389/fcell.2021.608490 identify TCSNTV as "
+            "Leica Microsystems software. This supports Leica-software "
+            "provenance, not LAS AF/LAS X acquisition or export-version "
+            "confirmation or physical plate-well identities. The archive has "
+            "no LIF/LEI/XML companion or TIFF acquisition description. "
+            "The author example at saenopy revision "
+            "d1f4a8ccea40ff5f1bcca56a0a71863a96f99404, "
+            "docs/source/3d_tfm/examples/4_OrganoidTFM.py lines 22-26, explains "
+            "that t6 follows t50 after a new image series starts; the tokens "
+            "do not establish global elapsed-"
+            "time order. PROVISIONAL: LAS AF/LAS X attribution for this dataset remains "
+            "unproven; the Pos0 name is still a parser-supported shape, not "
+            "another acquired example."),
         "status": "provisional",
     },
     {
