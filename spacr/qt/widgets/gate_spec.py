@@ -3809,7 +3809,7 @@ def gate_from_dict(payload: Mapping[str, Any]) -> Gate:
     kind = str(data.pop("kind", "")).strip()
     if kind not in _GATE_CLASSES:
         raise GateError(
-            f"unknown gate kind {kind!r}; this build understands "
+            f"unknown gate kind {kind!r}; this build reads "
             f"{', '.join(GATE_KINDS)}")
     cls = _GATE_CLASSES[kind]
     if kind == POLYGON and "vertices" in data:

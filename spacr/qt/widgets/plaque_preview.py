@@ -4170,7 +4170,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         button = QToolButton(parent)
         button.setText(tr("Model zoo…"))
         button.setToolTip(tr(
-            "Browse the models spaCR knows about, see what each was trained "
+            "Browse the models in spaCR's model zoo, see what each was trained "
             "on, download one and fill in this field. You can still type a "
             "path yourself. "
             "API: spacr.qt.widgets.model_zoo_picker.choose_model."))

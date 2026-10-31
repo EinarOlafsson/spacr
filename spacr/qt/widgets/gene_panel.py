@@ -63,7 +63,7 @@ __all__ = ["GenePanel", "warm_annotation"]
 LOADING_TEXT = "Loading the bundled Toxoplasma annotation…"
 
 #: Shown in the lower half before anything has been clicked.
-IDLE_TEXT = ("What spaCR knows about the gene appears here — product,"
+IDLE_TEXT = ("The selected gene's annotation appears here — product,"
              " topology, compartment, fitness screens and stage expression.")
 
 #: The term used to build :mod:`spacr.gene_tile`'s three indices during the

@@ -578,7 +578,7 @@ def ngff_unit_to_spacr(unit: Optional[str], *, axis: str = "?") -> str:
     if known:
         raise OmeZarrError(
             f"axis {axis!r} is measured in {text!r}, which is a legal OME-NGFF "
-            f"unit that spaCR has no short token for. spaCR knows: "
+            f"unit that spaCR has no short token for. spaCR supports: "
             f"{', '.join(sorted(SPACR_UNIT_TO_NGFF))}. Convert the axis (to "
             f"\"micrometer\", say) and rewrite the multiscales metadata; "
             f"spaCR will not guess a conversion factor for you.")

@@ -293,8 +293,8 @@ class MethodsExportScreen(QWidget):
         self._tabs.addTab(self._digest_view, "Run digest")
         self._tabs.addTab(self._rejected_view, "Rejected draft")
         self._tabs.setTabToolTip(
-            2, "What the run knows about its own limitations. Every one of "
-               "these has to appear in the Methods section.")
+            2, "The caveats recorded in the run digest. Every one of these "
+               "has to appear in the Methods section.")
         self._tabs.setTabToolTip(
             3, "The structured record the sections are written from — the "
                "model's only input.")

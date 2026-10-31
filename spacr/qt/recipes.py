@@ -222,7 +222,7 @@ class Recipe:
         if not isinstance(version, int) or version > FORMAT_VERSION:
             raise ValueError(
                 tr("Template format {version} is newer than this spaCR "
-                   "understands (it reads up to {supported}).",
+                   "version reads (it reads formats up to {supported}).",
                    version=repr(version), supported=FORMAT_VERSION))
         settings = data.get("settings")
         if not isinstance(settings, dict):

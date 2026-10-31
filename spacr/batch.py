@@ -629,7 +629,7 @@ class Queue:
             ) from None
         if version > QUEUE_FORMAT:
             raise QueueError(
-                f'this queue file is format {version}, but this spaCR understands '
+                f'this queue file is format {version}, but this spaCR version reads '
                 f'format {QUEUE_FORMAT}.\n  Upgrade spaCR, or write the queue again '
                 f'from this version.')
         raw_jobs = data.get('jobs')

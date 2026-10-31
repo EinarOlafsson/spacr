@@ -224,7 +224,7 @@ def check_model(settings: Mapping[str, Any]) -> ModelReport:
         known = _known_builtin_models()
         if name not in known:
             problems.append(
-                f"{name!r} is not a model spaCR knows; choose one of "
+                f"{name!r} is not a known spaCR model name; choose one of "
                 f"{', '.join(sorted(known)[:8])}…")
 
     if wanted_classes is None:

@@ -507,7 +507,7 @@ class DataFilterPanel(QWidget):
         if int(state.get("version", 0)) != 1:
             raise ValueError(
                 f"unknown filter-set version {state.get('version')!r}; "
-                f"this build understands version 1")
+                f"this build reads version 1")
 
         self.clear()
         missing = []

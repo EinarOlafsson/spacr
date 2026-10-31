@@ -1318,7 +1318,7 @@ def _check_unknown_keys(settings: Dict[str, Any], app: str = "") -> List[Problem
               and settings[key] not in (None, "")):
             problems.append(Problem(
                 WARNING, key,
-                f"'{key}' is not a setting spaCR knows.",
+                f"'{key}' is not a recognised spaCR setting.",
                 f"The run continues and '{key}' is ignored. Remove it from "
                 f"the settings file, or check the spelling if it was meant "
                 f"to change something."))

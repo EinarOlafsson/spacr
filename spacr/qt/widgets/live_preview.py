@@ -6208,7 +6208,7 @@ class LiveSettingsDialog(QDialog):
         model_row_layout.addWidget(panel._model_box, 1)
         panel._model_zoo_btn = QPushButton("Model zoo…", model_row)
         panel._model_zoo_btn.setToolTip(
-            "Browse the models spaCR knows about, download one and preview "
+            "Browse the models in spaCR's model zoo, download one and preview "
             "with it. The same list the object model settings offer.")
         panel._model_zoo_btn.clicked.connect(panel._choose_a_preview_model)
         model_row_layout.addWidget(panel._model_zoo_btn)

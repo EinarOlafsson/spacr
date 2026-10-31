@@ -97,7 +97,7 @@ def test_a_builtin_model_spacr_does_not_know_is_offered_the_ones_it_does():
     report = MC.check_model({"model_type": "not_a_real_backbone",
                              "classes": ["a", "b"]})
     assert report.ok is False
-    assert any("not a model spaCR knows" in problem
+    assert any("not a known spaCR model name" in problem
                for problem in report.problems)
 
 

@@ -1815,7 +1815,7 @@ class DistributedJobsScreen(QWidget):
             warning.
         """
         if not self._cluster:
-            self._set_status(tr("Read cluster first, so spaCR knows this cluster's limits."))
+            self._set_status(tr("Read cluster first, so the job can be checked against this cluster's resource limits."))
             return []
         problems = _resource_problems(self._resources_from_form(), self._cluster)
         for problem in problems:

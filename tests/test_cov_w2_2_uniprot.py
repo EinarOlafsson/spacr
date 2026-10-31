@@ -383,7 +383,7 @@ def test_an_unknown_name_with_no_near_misses_still_explains_itself():
     frame, note = annotation_for("qqqqqqqq")
     assert frame is None
     assert "did you mean" not in note
-    assert "is not an organism spaCR knows" in note
+    assert "is not an organism in spaCR's organism list" in note
 
 
 def test_a_named_gene_is_answered_without_the_whole_proteome(monkeypatch):

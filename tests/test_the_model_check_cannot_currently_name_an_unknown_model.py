@@ -53,7 +53,7 @@ def test_an_unknown_model_name_is_refused_before_training():
     report = check_model({"model_type": "maxvit_tt", "classes": ["a", "b"]})
 
     assert report.ok is False
-    assert [p for p in report.problems if "not a model spaCR knows" in p]
+    assert [p for p in report.problems if "not a known spaCR model name" in p]
 
 
 def test_a_known_model_name_earns_no_model_name_complaint():
@@ -63,7 +63,7 @@ def test_a_known_model_name_earns_no_model_name_complaint():
     report = check_model({"model_type": "maxvit_t", "classes": ["a", "b"]})
 
     assert not [p for p in report.problems
-                if "not a model spaCR knows" in p]
+                if "not a known spaCR model name" in p]
 
 
 def test_no_model_at_all_is_still_reported():

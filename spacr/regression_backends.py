@@ -119,7 +119,7 @@ def resolve_backend_name(value) -> str:
     if lowered in aliases:
         return aliases[lowered]
     raise ValueError(
-        f"regression_backend={value!r} is not a backend spaCR knows. Choose "
+        f"regression_backend={value!r} is not a supported regression backend. Choose "
         f"one of: {', '.join(REGRESSION_BACKEND_ORDER)}. The default, "
         f"{DEFAULT_REGRESSION_BACKEND!r}, is what every existing result was "
         f"produced with.")
@@ -434,10 +434,10 @@ def describe_backends(regression_type=None, html: bool = True,
         else:
             others.append(f"{status['label']} -- {status['url']} -- {tail}")
     if html:
-        blocks.append("<p><i>The other backends spaCR knows</i><br>"
+        blocks.append("<p><i>The other supported backends</i><br>"
                       + "<br>".join(others) + "</p>")
         return "".join(blocks)
-    blocks.append("The other backends spaCR knows\n" + "\n".join(others))
+    blocks.append("The other supported backends\n" + "\n".join(others))
     return "\n\n".join(blocks)
 
 

@@ -4781,7 +4781,7 @@ _HELP_MODULES: Tuple[Tuple[str, str, str], ...] = (
      "How the modules feed one another, and what each one needs before "
      "it can run."),
     ("project_browser", "Project Browser",
-     "Every spaCR project this machine knows about, and what is in it."),
+     "Every spaCR project found under the search folders, and what is in it."),
     ("db_browser", "Database Browser",
      "Browse, filter and export tables from measurements.db."),
     ("report", "Report",

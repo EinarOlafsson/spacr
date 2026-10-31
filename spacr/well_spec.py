@@ -116,7 +116,7 @@ def shape(layout: int = DEFAULT_LAYOUT) -> Tuple[int, int]:
         return LAYOUTS[int(layout)]
     except (KeyError, TypeError, ValueError):
         raise WellSpecError(
-            f"{layout!r} is not a plate layout spaCR knows. It offers "
+            f"{layout!r} is not a supported plate layout. The supported layouts are "
             f"{sorted(LAYOUTS)}.") from None
 
 

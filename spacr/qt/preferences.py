@@ -3496,9 +3496,10 @@ PERFORMANCE_NOTES = {
         "above 1024 MB."),
     "balanced": (
         "For an ordinary desktop with 16 GB or more. Nothing is cleared at "
-        "launch or before a run, recent figures and images stay ready so "
-        "going back is instant, and by default cached data is dropped after "
-        "15 minutes unused or above 2048 MB."),
+        "launch or before a run, recent figures stay editable and cached "
+        "images stay in memory, so returning to them does not load them "
+        "again, and by default cached data is dropped after 15 minutes "
+        "unused or above 2048 MB."),
     "workstation": (
         "For a machine with 64 GB or more that is yours alone. spaCR keeps "
         "the most: the most editable figures, and by default cached data "

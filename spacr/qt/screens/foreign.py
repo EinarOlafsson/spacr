@@ -793,8 +793,8 @@ class ForeignScreen(QWidget):
         """
         index = self._naming_box.findData(str(key or NAMING_AUTO))
         if index < 0:
-            self._set_status(tr("{key} is not a filename convention Import "
-                                "knows.", key=repr(key)), error=True)
+            self._set_status(tr("{key} is not one of Import's filename "
+                                "conventions.", key=repr(key)), error=True)
             return False
         self._naming_box.setCurrentIndex(index)
         return True

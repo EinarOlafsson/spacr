@@ -2,7 +2,7 @@
 
 Convert keeps its defaults in :func:`spacr.convert.default_settings`, not in
 :mod:`spacr.settings`, so ``map_name`` and ``preview_rows`` were once reported
-as "not a setting spaCR knows" by the queue's Validate step.
+as "not a recognised spaCR setting" by the queue's Validate step.
 """
 from __future__ import annotations
 

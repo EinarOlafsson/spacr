@@ -387,7 +387,7 @@ def test_a_key_unlike_any_setting_is_a_warning_not_an_error(tmp_path):
     found = settings_named(validate_settings(settings, "mask"),
                            "mosaic_csv_out")
     assert found and all(p.severity == WARNING for p in found)
-    assert "not a setting spaCR knows" in found[0].message
+    assert "not a recognised spaCR setting" in found[0].message
     assert not settings_named(errors(validate_settings(settings, "mask")),
                               "mosaic_csv_out")
 

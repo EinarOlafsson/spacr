@@ -102,9 +102,9 @@ GUIDANCE: Dict[str, str] = {
             "is the right first try and the wrong one for a field that is "
             "mostly background, where Li or Triangle cut better.",
     "cellpose": "Suits cells and nuclei of the kind Cellpose was trained "
-                "on, and is the only method here that knows what an "
-                "object looks like rather than only how bright it is. It "
-                "is slow without a GPU.",
+                "on. It is a trained network that predicts objects from "
+                "their shape and texture; the other methods here apply fixed "
+                "rules to intensities and masks. It is slow without a GPU.",
     "li": "Suits a field whose objects are a small, bright minority -- Li "
           "minimises the cross entropy between the field and its "
           "thresholded self rather than assuming two equal populations, so "

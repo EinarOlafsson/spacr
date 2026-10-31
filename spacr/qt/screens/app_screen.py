@@ -5318,7 +5318,7 @@ class AppScreen(QWidget):
         row.addWidget(widget, 1)
         button = QPushButton("Model zoo…", holder)
         button.setToolTip(
-            "Browse the models spaCR knows about, see what each was trained "
+            "Browse the models in spaCR's model zoo, see what each was trained "
             "on, download one and fill in this field. You can still type a "
             "path yourself. "
             "API: spacr.qt.widgets.model_zoo_picker.choose_model.")
@@ -5671,8 +5671,9 @@ class AppScreen(QWidget):
                  "slot."),
         ):
             one = QPushButton(label)
-            one.setToolTip(tip + " Cached afterwards, so pressing it again is "
-                                 "instant.")
+            one.setToolTip(tip + " The files are kept in a local cache, so "
+                                 "pressing it again checks them and fills "
+                                 "the slot without downloading.")
             one.clicked.connect(
                 lambda _checked=False, _k=kind: self.load_the_example_screen(
                     kind=_k, in_background=True))

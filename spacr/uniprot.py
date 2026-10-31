@@ -500,7 +500,7 @@ def annotation_for(text, *, cache_dir=None, genes=None):
     if resolution.kind == "unknown":
         near = ", ".join(resolution.near)
         return None, (
-            f"{resolution.text!r} is not an organism spaCR knows and is not "
+            f"{resolution.text!r} is not an organism in spaCR's organism list and is not "
             f"an accession"
             + (f" -- did you mean {near}?" if near else "")
             + ". Results are not annotated.")
