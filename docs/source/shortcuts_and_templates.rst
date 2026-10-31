@@ -8,9 +8,22 @@ With the default bindings, press **F1** to open the shortcut cheat sheet.
 **?** opens it when the current screen does not handle that key itself;
 Annotate uses **?** for its inline key legend. The cheat sheet lists the keys
 that work anywhere in the window, such as **Ctrl+K** for the command palette,
-**Ctrl+P** for Preferences, **Ctrl+F** to search the current module's
+**Ctrl+,** for Preferences, **Ctrl+F** to search the current module's
 settings and **F11** for full screen, followed by the keys of the screen you
-are on.
+are on. On macOS, **Ctrl** is the **Command** key.
+
+The window-wide keys follow the usual desktop conventions:
+
+* **Ctrl+,** opens Preferences. Where the platform has its own Preferences
+  key, such as **Ctrl+Shift+,** on KDE, that key works as well.
+* **Ctrl+=** or **Ctrl++** zooms in, **Ctrl+-** zooms out and **Ctrl+0** puts
+  Zoom back to its 90 % default. **Ctrl+Alt+0** resets GUI scale, Zoom and
+  every preview scale at once.
+* **Alt+Home** goes to Home.
+* The background keys use **Ctrl+Shift**: **Ctrl+Shift+T** pauses or resumes
+  the animated background, **Ctrl+Shift+B** blanks it and **Ctrl+Shift+F**
+  shows it full screen. **Restart the background** has no key; choose it in
+  **Help ▸ Window**.
 
 To change a key, choose **Change shortcuts…** in the cheat sheet. The
 **Change shortcuts** window has one row per action, with its

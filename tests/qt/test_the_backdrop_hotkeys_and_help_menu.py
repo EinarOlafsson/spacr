@@ -1,4 +1,4 @@
-"""Ctrl+T stops the background, Ctrl+B blanks it, and Help is tidy."""
+"""Ctrl+Shift+T stops the background, Ctrl+Shift+B blanks it, and Help is tidy."""
 
 import pytest
 
@@ -18,17 +18,17 @@ def window(qtbot, tmp_path, monkeypatch):
     return win
 
 
-def test_ctrl_t_stops_the_animation(window):
+def test_ctrl_shift_t_stops_the_animation(window):
     action = window.findChild(QAction, "ToggleBackdrop")
     assert action is not None
-    assert action.shortcut().toString() == "Ctrl+T"
+    assert action.shortcut().toString() == "Ctrl+Shift+T"
     assert action.isCheckable()
 
 
-def test_ctrl_b_blanks_it(window):
+def test_ctrl_shift_b_blanks_it(window):
     action = window.findChild(QAction, "BlankBackdrop")
     assert action is not None
-    assert action.shortcut().toString() == "Ctrl+B"
+    assert action.shortcut().toString() == "Ctrl+Shift+B"
 
 
 def test_the_drawer_keeps_its_own_key(window):
@@ -37,7 +37,7 @@ def test_the_drawer_keeps_its_own_key(window):
              if a.shortcut().toString()}
     assert "Ctrl+Shift+A" in taken, "the app drawer lost its shortcut"
     blank = window.findChild(QAction, "BlankBackdrop")
-    assert blank.shortcut().toString() == "Ctrl+B"
+    assert blank.shortcut().toString() == "Ctrl+Shift+B"
 
 
 def test_blanking_stops_the_animation_before_hiding(window):
@@ -52,7 +52,7 @@ def test_blanking_stops_the_animation_before_hiding(window):
 
 
 def test_the_two_toggles_agree(window):
-    """Otherwise Ctrl+T appears to do nothing while blanked."""
+    """Otherwise Ctrl+Shift+T appears to do nothing while blanked."""
     animate = window.findChild(QAction, "ToggleBackdrop")
     animate.setChecked(True)
     window._set_backdrop_blank(True)

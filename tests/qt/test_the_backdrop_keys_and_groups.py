@@ -127,8 +127,8 @@ def test_speed_is_monotonic(store):
 
 
 @pytest.mark.parametrize("name,shortcut", [
-    ("RestartBackdrop", "Ctrl+R"),
-    ("ToggleBackdrop", "Ctrl+T"),
+    ("RestartBackdrop", ""),
+    ("ToggleBackdrop", "Ctrl+Shift+T"),
     ("ShowScreensaver", "Ctrl+Shift+F"),
 ])
 def test_the_shortcuts_are_bound(qtbot, name, shortcut):
@@ -143,7 +143,7 @@ def test_the_shortcuts_are_bound(qtbot, name, shortcut):
 
 
 def test_no_two_actions_claim_the_same_shortcut(qtbot):
-    """Ctrl+B is the blank-background key; the drawer has Ctrl+Shift+A."""
+    """Ctrl+Shift+B is the blank-background key; the drawer has Ctrl+Shift+A."""
     win = app_module.MainWindow()
     qtbot.addWidget(win)
     try:
@@ -156,8 +156,8 @@ def test_no_two_actions_claim_the_same_shortcut(qtbot):
                 f"{key} is claimed by both {seen[key]} and "
                 f"{action.objectName() or action.text()}")
             seen[key] = action.objectName() or action.text()
-        assert "Ctrl+B" in seen
-        assert seen["Ctrl+B"] == "BlankBackdrop"
+        assert "Ctrl+Shift+B" in seen
+        assert seen["Ctrl+Shift+B"] == "BlankBackdrop"
         assert "Ctrl+Shift+A" in seen
     finally:
         win.close()

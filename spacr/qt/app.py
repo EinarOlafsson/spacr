@@ -2977,6 +2977,23 @@ def _easy_format_suggestions(value):
              tr(rows[key][1]), '') for key in ordered if key in rows and app_is_visible(key)]
 
 
+def _preferences_shortcuts():
+    """Return the keys that open Preferences, platform convention first.
+
+    ``Ctrl+,`` is the Preferences key on macOS (Cmd+,) and the common one on
+    Windows and Linux, where Qt's ``QKeySequence.Preferences`` is undefined.
+    Where the platform does define one (KDE: Ctrl+Shift+,) it is added after
+    it, so both work and the shortcut map keeps one stable default.
+
+    :returns: the key sequences, ``Ctrl+,`` first and without duplicates.
+    """
+    keys = [QKeySequence("Ctrl+,")]
+    for sequence in QKeySequence.keyBindings(QKeySequence.StandardKey.Preferences):
+        if not sequence.isEmpty() and sequence not in keys:
+            keys.append(sequence)
+    return keys
+
+
 def _prune_native_help_actions(window):
     """Keep native module routes out of Help without removing Help-only actions."""
     from PySide6.QtWidgets import QMenu
@@ -7719,11 +7736,11 @@ class MainWindow(QMainWindow):
         app_menu = mb.addMenu("&spaCR")
 
         act_home = QAction("Home", self)
-        act_home.setShortcut(QKeySequence("Ctrl+0"))
+        act_home.setShortcut(QKeySequence("Alt+Home"))
         act_home.triggered.connect(lambda: self._on_nav_selected("__home__"))
         app_menu.addAction(act_home)
         act_prefs = QAction("Preferences…", self)
-        act_prefs.setShortcut(QKeySequence("Ctrl+P"))
+        act_prefs.setShortcuts(_preferences_shortcuts())
         act_prefs.triggered.connect(self._open_preferences)
         app_menu.addAction(act_prefs)
         act_quit = QAction("Quit", self)
@@ -7828,7 +7845,7 @@ class MainWindow(QMainWindow):
         act_backdrop.setObjectName("ToggleBackdrop")
         act_backdrop.setCheckable(True)
         act_backdrop.setChecked(True)
-        act_backdrop.setShortcut(QKeySequence("Ctrl+T"))
+        act_backdrop.setShortcut(QKeySequence("Ctrl+Shift+T"))
         act_backdrop.setStatusTip(
             "Stop the moving background — useful while looking at images. "
             "It gives its threads back rather than only hiding.")
@@ -7838,7 +7855,6 @@ class MainWindow(QMainWindow):
 
         act_restart = QAction("Restart the background", self)
         act_restart.setObjectName("RestartBackdrop")
-        act_restart.setShortcut(QKeySequence("Ctrl+R"))
         act_restart.setStatusTip(
             "Send the animation back to the beginning. The spaceout deep "
             "zoom restarts its descent; Up and Down change how fast it "
@@ -7861,7 +7877,7 @@ class MainWindow(QMainWindow):
         act_flat = QAction("Blank the background", self)
         act_flat.setObjectName("BlankBackdrop")
         act_flat.setCheckable(True)
-        act_flat.setShortcut(QKeySequence("Ctrl+B"))
+        act_flat.setShortcut(QKeySequence("Ctrl+Shift+B"))
         act_flat.setStatusTip(
             "Pause the background and paint it flat — dark grey in a dark "
             "theme, white in a light one.")
@@ -8150,6 +8166,10 @@ class MainWindow(QMainWindow):
         act_max.triggered.connect(self._toggle_maximised)
         menu.addAction(act_max)
         self._act_maximise = act_max
+
+        restart = getattr(self, "_act_restart_backdrop", None)
+        if restart is not None:
+            menu.addAction(restart)
 
         act_full = QAction(tr("Full screen"), self)
         act_full.setShortcut(QKeySequence("F11"))
@@ -10036,12 +10056,12 @@ class MainWindow(QMainWindow):
         screen._navigator_pane_states = states
 
     def _set_backdrop_blank(self, blank: bool) -> int:
-        """Pause every backdrop and paint the ground flat. Ctrl+B.
+        """Pause every backdrop and paint the ground flat. Ctrl+Shift+B.
 
         :returns: how many backdrops were hidden, so a test can assert a
             number rather than a screenshot.
 
-        Ctrl+T stops the animation and leaves the last frame on screen,
+        Ctrl+Shift+T stops the animation and leaves the last frame on screen,
         which is still a picture. This hides it as well, so what is behind
         the work is the theme's own ground -- dark grey in a dark theme and
         white in a light one, taken from the palette rather than hard-coded,
@@ -10079,7 +10099,7 @@ class MainWindow(QMainWindow):
         return hidden
 
     def _set_backdrop_animating(self, on: bool) -> int:
-        """Start or stop every backdrop in this window. Ctrl+T.
+        """Start or stop every backdrop in this window. Ctrl+Shift+T.
 
         :returns: how many backdrops answered, so a test can assert a number
             rather than a screenshot.
@@ -11045,8 +11065,8 @@ class MainWindow(QMainWindow):
 
         :returns: whether a backdrop was there to restart.
 
-        The menu entry and Ctrl+R both come here, so the shortcut and the
-        item cannot drift apart.
+        The Help ▸ Window menu entry comes here, and so does anything else
+        that restarts the backdrop, so the routes cannot drift apart.
         """
         try:
             from .widgets.fractal_travel import (_LIVE_CONTROLS,
@@ -11088,19 +11108,17 @@ class MainWindow(QMainWindow):
         return True
 
     def keyPressEvent(self, event) -> None:
-        """Up and Down change the spaceout zoom rate; Ctrl+R starts over.
+        """Up and Down change the spaceout zoom rate.
 
-        :param event: the key press; its key and Ctrl modifier are read, and
-            keys the backdrop does not take are passed to the base class.
+        Starting over is Help ▸ Window ▸ Restart the background; it has no
+        key, because a cosmetic action does not take a Ctrl letter (item 749).
+
+        :param event: the key press; keys the backdrop does not take are
+            passed to the base class.
         """
         from PySide6.QtCore import Qt
 
         key = event.key()
-        if (key == Qt.Key.Key_R
-                and event.modifiers() & Qt.KeyboardModifier.ControlModifier
-                and self._restart_the_backdrop()):
-            event.accept()
-            return
         if key == Qt.Key.Key_Up and self._steer_the_backdrop(1):
             event.accept()
             return

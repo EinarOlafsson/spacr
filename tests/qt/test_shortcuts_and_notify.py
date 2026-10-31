@@ -19,8 +19,8 @@ def test_shortcuts_install_adds_qshortcuts(qtbot, qt_theme_applied):
     qtbot.addWidget(win)
     # install() ran in MainWindow.__init__; count QShortcut children.
     scs = win.findChildren(QShortcut)
-    # At least Ctrl+1..9 + Ctrl+K + Ctrl+/ + F1 + ?  (Ctrl+H and
-    # Ctrl+P are menu actions, so install() creates no QShortcut.)
+    # At least Ctrl+1..9 + Ctrl+K + Ctrl+/ + F1 + ?  (Alt+Home and
+    # Ctrl+, are menu actions, so install() creates no QShortcut.)
     #
     # `installed()`, NOT `SHORTCUTS`: backdrop, drawer and full-screen keys
     # are bound on window actions, so they are on the map and are not
@@ -271,7 +271,8 @@ def test_the_home_and_preferences_keys_actually_reach_their_action(
     qtbot.wait(20)
 
     fired = []
-    wanted = {"Ctrl+0": Qt.Key_0, "Ctrl+P": Qt.Key_P}
+    wanted = {"Alt+Home": (Qt.Key_Home, Qt.AltModifier),
+              "Ctrl+,": (Qt.Key_Comma, Qt.ControlModifier)}
     seen = {}
     for action in win.findChildren(QAction):
         name = action.shortcut().toString()
@@ -284,8 +285,8 @@ def test_the_home_and_preferences_keys_actually_reach_their_action(
     assert set(seen) == set(wanted), (
         f"no menu action carries these keys: {set(wanted) - set(seen)}")
 
-    for name, key in wanted.items():
-        QTest.keyClick(win, key, Qt.ControlModifier)
+    for name, (key, modifier) in wanted.items():
+        QTest.keyClick(win, key, modifier)
         qtbot.wait(10)
 
     assert sorted(fired) == sorted(wanted), (

@@ -147,7 +147,7 @@ class TestTheMapIsTheWholeMap:
     def test_a_window_wide_key_does_not_claim_a_scope(self):
         from spacr.qt.shortcuts import EVERYWHERE, mapped
 
-        home = next(s for s in mapped() if s.keys == "Ctrl+0")
+        home = next(s for s in mapped() if s.keys == "Alt+Home")
         assert home.scope == EVERYWHERE
 
 
@@ -232,11 +232,12 @@ class TestOneMapThreeDoors:
 def test_no_key_is_one_macos_takes_for_itself():
     """2026-09-21, the maintainer: "there is a ctrl+h for home but this is
     also hide on many macs". Qt maps Ctrl to Command on macOS, and Cmd+H
-    hides the application before spaCR ever sees the key, so Home moved to
-    Ctrl+0, beside Ctrl+1..9 for the apps."""
+    hides the application before spaCR ever sees the key. Home moved to
+    Ctrl+0 and then, when Ctrl+0 became Reset zoom as on every desktop
+    (item 749, 2026-10-31), to Alt+Home."""
     from spacr.qt.shortcuts import mapped
 
     keys = {s.keys for s in mapped()}
     assert "Ctrl+H" not in keys
     home = [s for s in mapped() if s.label == "Go to home"]
-    assert [s.keys for s in home] == ["Ctrl+0"]
+    assert [s.keys for s in home] == ["Alt+Home"]

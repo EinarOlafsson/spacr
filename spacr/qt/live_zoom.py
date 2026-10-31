@@ -596,7 +596,7 @@ class ColumnTextScale(QObject):
     * everything outside a registered column.
 
     Ctrl+0 with the pointer over a column whose text is not at 100 % puts it
-    back; at 100 % the key is left to Go home, which it otherwise is.
+    back; at 100 % the key is left to the window's Reset zoom.
     """
 
     def __init__(self, parent: Optional[QObject] = None) -> None:

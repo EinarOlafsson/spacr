@@ -22,7 +22,7 @@ from spacr.qt import shortcuts as S
 def window(qtbot):
     win = QMainWindow()
     action = QAction("Preferences", win)
-    action.setShortcut(QKeySequence("Ctrl+P"))
+    action.setShortcut(QKeySequence("Ctrl+,"))
     win.addAction(action)
     win._prefs_action = action
     qtbot.addWidget(win)
@@ -40,12 +40,12 @@ def test_a_rebound_key_is_live_saved_and_shown_on_the_sheet(window, qtbot):
     dlg = S._KeymapDialog(window)
     qtbot.addWidget(dlg)
     dlg.set_key("Ctrl+K", "Ctrl+Shift+K")
-    dlg.set_key("Ctrl+P", "Ctrl+Shift+P")
+    dlg.set_key("Ctrl+,", "Ctrl+Shift+P")
     assert dlg.conflict_text() == ""
     assert dlg.save() is True
 
     assert S._load_keymap() == {"Ctrl+K": "Ctrl+Shift+K",
-                                "Ctrl+P": "Ctrl+Shift+P"}
+                                "Ctrl+,": "Ctrl+Shift+P"}
     live = _live_keys(window)
     assert "Ctrl+Shift+K" in live and "Ctrl+K" not in live
     assert window._prefs_action.shortcut().toString(
@@ -111,13 +111,13 @@ def test_saved_overrides_bind_once_on_each_new_window(qtbot, monkeypatch):
     store = Store()
     monkeypatch.setattr("spacr.qt.preferences._settings", lambda: store)
     monkeypatch.setattr(S, "_install_window_hooks", lambda window: None)
-    S._save_keymap({"Ctrl+K": "Ctrl+Shift+K", "Ctrl+P": "Ctrl+Shift+P"})
+    S._save_keymap({"Ctrl+K": "Ctrl+Shift+K", "Ctrl+,": "Ctrl+Shift+P"})
 
     for _ in range(2):
         win = QMainWindow()
         qtbot.addWidget(win)
         preferences = QAction("Preferences", win)
-        preferences.setShortcut(QKeySequence("Ctrl+P"))
+        preferences.setShortcut(QKeySequence("Ctrl+,"))
         win.addAction(preferences)
         S.install(win)
         palette = [sc for sc in win.findChildren(QShortcut)
@@ -162,21 +162,21 @@ def test_deleted_shortcut_or_menu_holder_is_replaced_and_rebound(
     old = S._bind(win, "Ctrl+K", lambda: None)
     assert S._holders(win)["Ctrl+K"] is old
     old_action = QAction("Preferences", win)
-    old_action.setShortcut(QKeySequence("Ctrl+P"))
+    old_action.setShortcut(QKeySequence("Ctrl+,"))
     win.addAction(old_action)
-    assert S._holders(win)["Ctrl+P"] is old_action
+    assert S._holders(win)["Ctrl+,"] is old_action
 
     delete(old)
     delete(old_action)
     replacement = S._bind(win, "Ctrl+K", lambda: None)
     replacement_action = QAction("Preferences", win)
-    replacement_action.setShortcut(QKeySequence("Ctrl+P"))
+    replacement_action.setShortcut(QKeySequence("Ctrl+,"))
     win.addAction(replacement_action)
     assert replacement is not old
     assert S._holders(win)["Ctrl+K"] is replacement
-    assert S._holders(win)["Ctrl+P"] is replacement_action
+    assert S._holders(win)["Ctrl+,"] is replacement_action
     assert S._apply_keymap(win, {"Ctrl+K": "Ctrl+Shift+K",
-                                 "Ctrl+P": "Ctrl+Shift+P"}) == 2
+                                 "Ctrl+,": "Ctrl+Shift+P"}) == 2
     assert replacement.key() == QKeySequence("Ctrl+Shift+K")
     assert replacement_action.shortcut() == QKeySequence("Ctrl+Shift+P")
 

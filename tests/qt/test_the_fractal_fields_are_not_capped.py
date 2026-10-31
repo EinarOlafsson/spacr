@@ -185,10 +185,13 @@ def test_no_backdrop_means_the_key_is_not_taken():
     assert ft.nudge_zoom_rate(1) == 0.0
 
 
-def test_ctrl_r_restarts_the_backdrop(qtbot, spaceout_only):
-    """Asked for 2026-08-28: a hotkey to start the theme from the beginning."""
-    from PySide6.QtCore import Qt
-    from PySide6.QtGui import QKeyEvent
+def test_the_window_menu_restarts_the_backdrop(qtbot, spaceout_only):
+    """Asked for 2026-08-28: a way to start the theme from the beginning.
+
+    Since 2026-10-31 (item 749) it is Help ▸ Window ▸ Restart the background
+    rather than Ctrl+R, which a cosmetic action no longer takes.
+    """
+    from PySide6.QtGui import QAction
 
     import spacr.qt.app as app_module
     from spacr.qt.widgets import fractal_travel as ft
@@ -200,17 +203,17 @@ def test_ctrl_r_restarts_the_backdrop(qtbot, spaceout_only):
     ft._LIVE_CONTROLS.append(controls)
     try:
         before = controls.restart_token
-        win.keyPressEvent(QKeyEvent(
-            QKeyEvent.Type.KeyPress, Qt.Key.Key_R,
-            Qt.KeyboardModifier.ControlModifier))
+        action = win.findChild(QAction, "RestartBackdrop")
+        assert action in win._window_menu.actions()
+        action.trigger()
         assert controls.restart_token != before
     finally:
         ft._LIVE_CONTROLS.clear()
         win.close()
 
 
-def test_ctrl_r_is_not_taken_when_no_backdrop_is_running(qtbot, spaceout_only):
-    """Or it would swallow the shortcut everywhere else."""
+def test_ctrl_r_is_not_taken_by_the_backdrop(qtbot, spaceout_only):
+    """Ctrl+R belongs to no cosmetic action, so the window never takes it."""
     from PySide6.QtCore import Qt
     from PySide6.QtGui import QKeyEvent
 
@@ -351,7 +354,8 @@ def test_the_restart_is_in_the_hotkey_menu(qtbot, spaceout_only):
     try:
         action = win.findChild(QAction, "RestartBackdrop")
         assert action is not None, "no menu entry for restarting the backdrop"
-        assert action.shortcut().toString() == "Ctrl+R"
+        assert action.shortcut().isEmpty()
+        assert action in win._window_menu.actions()
         # It has to say what the other keys do too, since they have no
         # entries of their own.
         tip = action.statusTip()
@@ -360,14 +364,14 @@ def test_the_restart_is_in_the_hotkey_menu(qtbot, spaceout_only):
         win.close()
 
 
-def test_the_shortcut_and_the_menu_entry_are_the_same_action(qtbot, spaceout_only):
-    """Or they drift apart."""
+def test_the_key_handler_no_longer_restarts_the_backdrop(qtbot, spaceout_only):
+    """Ctrl+R is off the restart (item 749); only the menu entry restarts."""
     import inspect
 
     import spacr.qt.app as app_module
 
     source = inspect.getsource(app_module.MainWindow.keyPressEvent)
-    assert "_restart_the_backdrop" in source
+    assert "_restart_the_backdrop" not in source
 
 
 def test_dragging_moves_the_view(monkeypatch, qapp):

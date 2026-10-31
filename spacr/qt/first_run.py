@@ -156,7 +156,7 @@ DEFAULT_TOUR: List[TourStep] = [
     TourStep(
         title="Command palette",
         body="Ctrl+K opens a searchable list of every app, every "
-             "recent run, and every menu action. Ctrl+P opens "
+             "recent run, and every menu action. Ctrl+, opens "
              "Preferences. F1 shows the shortcut cheat sheet.",
         highlight=None,
     ),

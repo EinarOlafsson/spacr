@@ -1686,7 +1686,7 @@ class RegionTour:
     DRIFT IS OFF THE MOMENT THE USER TAKES THE CAMERA. Dragging is a
     statement about where they want to be, and a tour that resumes over
     it is the application arguing. :meth:`take_over` stops it for good;
-    :meth:`restart` is what Ctrl+R calls.
+    :meth:`restart` is what Restart the background calls.
 
     :param regions: ``(name, x, y, half_width, score)`` rows, usually
         :data:`spacr.qt.widgets.fractal_regions.REGIONS`.
@@ -1720,7 +1720,7 @@ class RegionTour:
         self._taken = True
 
     def restart(self) -> None:
-        """Ctrl+R: hand the camera back to the tour."""
+        """Restart the background: hand the camera back to the tour."""
         self._taken = False
 
     def period(self) -> float:
@@ -1800,7 +1800,7 @@ class _TourPilot:
         self.tour.take_over()
 
     def restarted(self) -> None:
-        """Ctrl+R sent the dive back to the surface; fly again."""
+        """Restart the background sent the dive back to the surface; fly again."""
         self.tour.restart()
 
     def steer(self, camera, seconds: float, span: float) -> bool:

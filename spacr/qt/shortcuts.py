@@ -3,13 +3,16 @@ Window-wide and screen-specific shortcuts for the spaCR Qt GUI.
 
 The default window-wide actions include:
 
-    Ctrl+0        Go home (Cmd+H is Hide on macOS)
+    Alt+Home      Go home (Cmd+H is Hide on macOS)
     Ctrl+1..9     Open the corresponding app-registry entry if visible
     Ctrl+K        Open the command palette
     Ctrl+Shift+H  Search spaCR from the field beside the Help menu
     F1            Show the shortcuts cheat sheet
     ?             Use the active screen's help action, or show the cheat sheet
-    Ctrl+P        Open Preferences
+    Ctrl+,        Open Preferences (the platform's Preferences key, Cmd+, on macOS)
+    Ctrl+= / Ctrl++  Zoom in
+    Ctrl+-        Zoom out
+    Ctrl+0        Put Zoom back to its 90 % default
     Ctrl+Alt+0    Put GUI scale, font scale and preview scales back to defaults
     Ctrl+/        Toggle the active module's AI Console
     Ctrl+End      Jump to the newest console line
@@ -84,7 +87,7 @@ class ShortcutSpec:
 
 
 SHORTCUTS: List[ShortcutSpec] = [
-    ShortcutSpec("Ctrl+0",       "Go to home",            "Navigation"),
+    ShortcutSpec("Alt+Home",     "Go to home",            "Navigation"),
     ShortcutSpec("Ctrl+1",       "Switch to 1st app",      "Navigation"),
     ShortcutSpec("Ctrl+2",       "Switch to 2nd app",      "Navigation"),
     ShortcutSpec("Ctrl+3",       "Switch to 3rd app",      "Navigation"),
@@ -95,7 +98,7 @@ SHORTCUTS: List[ShortcutSpec] = [
     ShortcutSpec("Ctrl+8",       "Switch to 8th app",      "Navigation"),
     ShortcutSpec("Ctrl+9",       "Switch to 9th app",      "Navigation"),
     ShortcutSpec("Ctrl+K",       "Open command palette",   "Navigation"),
-    ShortcutSpec("Ctrl+P",       "Open preferences",       "Navigation"),
+    ShortcutSpec("Ctrl+,",       "Open preferences",       "Navigation"),
     ShortcutSpec("Ctrl+Shift+A", "Show the full app list", "Navigation"),
     ShortcutSpec("F11",          "Toggle full screen",     "Navigation"),
     ShortcutSpec("Ctrl+/",       "Toggle AI Console",      "Actions"),
@@ -103,14 +106,17 @@ SHORTCUTS: List[ShortcutSpec] = [
                  "Console"),
     ShortcutSpec("Ctrl+F",       "Search this module's settings", "Actions"),
     ShortcutSpec("Ctrl+Shift+R", "Settings templates",     "Actions"),
-    ShortcutSpec("Ctrl+T",       "Pause or resume the background",
+    ShortcutSpec("Ctrl+Shift+T", "Pause or resume the background",
                  "Background"),
-    ShortcutSpec("Ctrl+R",       "Restart the background", "Background"),
     ShortcutSpec("Ctrl+Shift+F", "Show the background full screen",
                  "Background"),
-    ShortcutSpec("Ctrl+B",       "Blank the background",   "Background"),
+    ShortcutSpec("Ctrl+Shift+B", "Blank the background",   "Background"),
+    ShortcutSpec("Ctrl+=",       "Zoom in",                "Zoom"),
+    ShortcutSpec("Ctrl++",       "Zoom in",                "Zoom"),
+    ShortcutSpec("Ctrl+-",       "Zoom out",               "Zoom"),
+    ShortcutSpec("Ctrl+0",       "Reset zoom",             "Zoom"),
     ShortcutSpec("Z + scroll",   "Resize the interface text",
-                 "Background"),
+                 "Zoom"),
     ShortcutSpec("Ctrl+Alt+0",   "Reset GUI scale and font scale to 90%",
                  "Navigation"),
     ShortcutSpec("F11",          "Full screen",            "Actions"),
@@ -233,9 +239,17 @@ SCREEN_SHORTCUTS: List[ShortcutSpec] = [
 #: attached to window actions, so they belong on the map and not in
 #: ``install()``'s count.
 BOUND_ELSEWHERE = frozenset({
-    "Ctrl+Shift+A", "Ctrl+B", "Ctrl+T", "Ctrl+R", "Ctrl+Shift+F", "F11",
-    "Ctrl+0", "Ctrl+P",
+    "Ctrl+Shift+A", "Ctrl+Shift+B", "Ctrl+Shift+T", "Ctrl+Shift+F", "F11",
+    "Alt+Home", "Ctrl+,",
 })
+
+#: One keyboard Zoom step, the same 5 % the Preferences slider and the
+#: Z + wheel gesture move by.
+KEYBOARD_ZOOM_STEP = 0.05
+
+#: How long the keys must rest before spaCR asks whether to keep the new
+#: Zoom. Asked once per burst of presses, never once per press.
+_KEYBOARD_ZOOM_SETTLE_MS = 1200
 
 
 #: The keys every editor answers for undo and redo. Ctrl reads as Command on
@@ -1111,6 +1125,10 @@ def install(window: QMainWindow) -> None:
     _bind(window, "Ctrl+Shift+R", lambda: _open_recipes(window))
     _bind(window, "F1",     lambda: show_cheat_sheet(window))
     _bind(window, "Ctrl+Alt+0", lambda: _reset_every_scale(window))
+    _bind(window, "Ctrl+=", lambda: _step_zoom(window, 1))
+    _bind(window, "Ctrl++", lambda: _step_zoom(window, 1))
+    _bind(window, "Ctrl+-", lambda: _step_zoom(window, -1))
+    _bind(window, "Ctrl+0", lambda: _reset_zoom(window))
     _bind(window, "?",      lambda: _help_key(window))
     for i in range(1, 10):
         _bind(window, f"Ctrl+{i}",
@@ -1321,6 +1339,87 @@ def _reset_every_scale(window: QMainWindow) -> None:
         reset_every_scale(window)
     except Exception:                                    # noqa: BLE001
         LOG.debug("could not reset the scales", exc_info=True)
+
+
+def _step_zoom(window: QMainWindow, direction: int) -> Optional[float]:
+    """Move Zoom one step up or down from the keyboard and apply it now.
+
+    The first press of a burst remembers the Zoom it started from. When the
+    keys have rested for :data:`_KEYBOARD_ZOOM_SETTLE_MS`, spaCR asks once
+    whether to keep the result, as every Zoom change does, and goes back to
+    that starting value with no answer.
+
+    :param window: the main window the question is centred on.
+    :param direction: ``1`` to zoom in, ``-1`` to zoom out.
+    :returns: the Zoom now in force, or ``None`` when it could not change.
+    """
+    try:
+        from PySide6.QtCore import QTimer
+
+        from .gui_scale import change_scales
+        from .preferences import FONT_SCALE_MAX, FONT_SCALE_MIN, get_font_scale
+
+        before = get_font_scale()
+        steps = round(before / KEYBOARD_ZOOM_STEP) + (1 if direction > 0 else -1)
+        target = max(FONT_SCALE_MIN, min(FONT_SCALE_MAX, steps * KEYBOARD_ZOOM_STEP))
+        target = round(target, 2)
+        if abs(target - before) < 1e-9:
+            return before
+        if getattr(window, "_spacr_keyboard_zoom_from", None) is None:
+            window._spacr_keyboard_zoom_from = before
+        change_scales(window, font=target, ask=False)
+        timer = getattr(window, "_spacr_keyboard_zoom_timer", None)
+        if timer is None:
+            timer = QTimer(window)
+            timer.setSingleShot(True)
+            timer.timeout.connect(lambda: _settle_keyboard_zoom(window))
+            window._spacr_keyboard_zoom_timer = timer
+        timer.start(_KEYBOARD_ZOOM_SETTLE_MS)
+        return target
+    except Exception:                                    # noqa: BLE001
+        LOG.debug("could not change Zoom from the keyboard", exc_info=True)
+        return None
+
+
+def _settle_keyboard_zoom(window: QMainWindow) -> None:
+    """Ask once whether to keep the Zoom a burst of key presses chose.
+
+    :param window: the main window the question is centred on.
+    """
+    before = getattr(window, "_spacr_keyboard_zoom_from", None)
+    window._spacr_keyboard_zoom_from = None
+    if before is None:
+        return
+    try:
+        from .gui_scale import change_scales, current_scale
+        from .preferences import get_font_scale
+
+        now = get_font_scale()
+        if abs(now - before) > 1e-9:
+            change_scales(window, font=now, previous=(current_scale(), before))
+    except Exception:                                    # noqa: BLE001
+        LOG.debug("could not ask to keep the keyboard Zoom", exc_info=True)
+
+
+def _reset_zoom(window: QMainWindow) -> None:
+    """Put Zoom back to its 90 % default now, without asking.
+
+    The default is a known-readable size, so there is nothing to confirm;
+    a pending keyboard burst is dropped rather than asked about.
+
+    :param window: the main window.
+    """
+    timer = getattr(window, "_spacr_keyboard_zoom_timer", None)
+    if timer is not None:
+        timer.stop()
+    window._spacr_keyboard_zoom_from = None
+    try:
+        from .gui_scale import change_scales
+        from .preferences import DEFAULT_FONT_SCALE
+
+        change_scales(window, font=DEFAULT_FONT_SCALE, ask=False)
+    except Exception:                                    # noqa: BLE001
+        LOG.debug("could not reset Zoom", exc_info=True)
 
 
 def _toggle_ai(window: QMainWindow) -> None:
