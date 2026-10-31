@@ -200,6 +200,7 @@ from PySide6.QtWidgets import (
 )
 
 from ...curation import CurationLog
+from ...tiff_io import TIFF_READ_ERRORS
 from .. import cpu_modes
 from .. import detect_chain
 from .. import iconset
@@ -13580,7 +13581,7 @@ class MakeMasksScreen(QWidget):
             self._masks_dir if folder == self._folder else None)
         try:
             session = engine.load_volume_image_and_mask(folder, source.name, sibling)
-        except (ValueError, OSError) as exc:
+        except TIFF_READ_ERRORS as exc:
             self._status_label.setText(str(exc))
             return None
         self._leave_blind_unopened("another folder was opened")
@@ -13602,7 +13603,7 @@ class MakeMasksScreen(QWidget):
         """
         try:
             session = engine.load_volume_image_and_mask(folder, filename, self._masks_dir)
-        except (ValueError, OSError) as exc:
+        except TIFF_READ_ERRORS as exc:
             self._handle_load_failure(exc)
             return False
         self._enter_volume(session)
@@ -24607,7 +24608,7 @@ class MakeMasksScreen(QWidget):
                 self._open_queue(worker.paths, masks_dir=getattr(worker, 'masks_dir', None))
             else:
                 self._load_current()
-        except (ValueError, OSError) as exc:
+        except TIFF_READ_ERRORS as exc:
             self._warn(tr('Open image'), str(exc))
         finally:
             if not applied and worker.paths is None and worker.token == self._load_token:
@@ -25329,7 +25330,7 @@ class MakeMasksScreen(QWidget):
                 if incoming is not None:
                     state = engine.merge_lineage_states(
                         state, incoming, frame=os.path.abspath(os.path.join(folder, name)))
-            except (ValueError, OSError):
+            except TIFF_READ_ERRORS:
                 skipped += 1
         if skipped:
             self._status_label.setText(tr(

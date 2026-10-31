@@ -590,12 +590,13 @@ class ContributeMasksDialog(QDialog):
             return False
         consent = {"rights_to_share": True, "licence": COMMUNITY_LICENCE}
         target = self.target()
+        from ...tiff_io import TIFF_READ_ERRORS
         try:
             folder = write_contribution(
                 target, self._items(),
                 tempfile.mkdtemp(prefix="spacr-contribution-"),
                 consent=consent, notes=self.notes_edit.toPlainText())
-        except (OSError, ValueError) as exc:
+        except TIFF_READ_ERRORS as exc:
             self.status.setText(_plain_html(tr("Not sent: {why}", why=str(exc))))
             return False
         try:

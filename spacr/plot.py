@@ -32,7 +32,7 @@ from matplotlib_venn import venn2
 
 from .errors import RunLedger, raise_if_strict
 from .image_colors import read_image_rgb, write_image_rgb
-from .tiff_io import write_tiff
+from .tiff_io import TIFF_READ_ERRORS, write_tiff
 from .multiple_testing import _posthoc_dunn
 
 from .figures.style import (ROLES, TYPE_SCALE, WEIGHTS, Palette, descriptor,
@@ -2529,7 +2529,7 @@ def _prior_figure_findings(panels, destination):
                     verified = _verified_source_region(
                         panel, previous, first, second,
                         source_started + _SOURCE_REGION_SECONDS)
-                except (OSError, ValueError, TypeError, AttributeError,
+                except (*TIFF_READ_ERRORS, TypeError, AttributeError,
                         KeyError, IndexError, MemoryError):
                     continue
                 if not verified:
@@ -2573,7 +2573,7 @@ def _prior_figure_findings(panels, destination):
                         prior_panel=previous.get("panel"),
                         prior_figure=os.path.basename(old_figure)),
                 })
-        except (OSError, ValueError, TypeError, AttributeError, KeyError):
+        except (*TIFF_READ_ERRORS, TypeError, AttributeError, KeyError):
             continue
         if len(seen) == len(current):
             break

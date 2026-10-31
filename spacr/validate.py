@@ -1671,11 +1671,12 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
     if app in ('mask', 'timelapse') and settings.get('psf_operation', 'none') != 'none':
         from .point_spread import fill_psf_settings
         from .psf_pipeline import prepare_psf
+        from .tiff_io import TIFF_READ_ERRORS
         try:
             candidate = dict(settings)
             fill_psf_settings(candidate)
             prepare_psf(candidate)
-        except (ValueError, OSError) as exc:
+        except TIFF_READ_ERRORS as exc:
             problems.append(Problem(
                 ERROR, 'psf_operation', f'PSF preparation failed: {exc}',
                 'Set calibrated Y/X sampling and a matching measured kernel '

@@ -78,7 +78,7 @@ import numpy as np
 
 from ..curation import LOG_SUFFIX, CurationLog
 from ..curation_queue import SEG_SUFFIX
-from ..tiff_io import write_tiff
+from ..tiff_io import TIFF_READ_ERRORS, write_tiff
 
 MAX_MASK_LABEL = 2**32 - 1
 LINEAGE_SCHEMA = "spacr.lineage/v1"
@@ -8300,7 +8300,7 @@ def _layer_has_objects(layer_dir: str, filename: str) -> bool:
         return False
     try:
         raw = np.load(path) if path.endswith(".npy") else imageio.imread(path)
-    except (OSError, ValueError):
+    except (*TIFF_READ_ERRORS, SyntaxError):
         return False
     return bool(np.any(np.asarray(raw)))
 

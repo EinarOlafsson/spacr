@@ -48,6 +48,7 @@ from PySide6.QtWidgets import (
 )
 
 from ...errors import ConfigurationError as _ConfigurationError
+from ...tiff_io import TIFF_READ_ERRORS
 from ...qc_quarantine import (
     QUARANTINE_DIRNAME,
     quarantine_dir_for,
@@ -4232,7 +4233,7 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
             selected_axes = axis_options | dict((field_options or {}).get(repr(field.identity), {}))
             try:
                 info = _overview_channel_info(field)
-            except (OSError, ValueError):
+            except TIFF_READ_ERRORS:
                 info = {"files": ()}
             if any("T" in item["axes"] for item in info["files"]):
                 text += " / T=" + str(selected_axes["time_index"])

@@ -10,6 +10,9 @@ import tifffile
 
 TiffPath = Union[str, PathLike[str]]
 
+TIFF_FILE_ERROR: type = getattr(tifffile, "TiffFileError", ValueError)
+TIFF_READ_ERRORS: tuple = (OSError, ValueError, TIFF_FILE_ERROR)
+
 DEFAULT_PHOTOMETRIC = "minisblack"
 DEFAULT_PLANARCONFIG = "contig"
 
