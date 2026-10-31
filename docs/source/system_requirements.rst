@@ -53,7 +53,7 @@ Use a 64-bit OS and Python environment. The desktop installers target Windows
 10/11 x86-64, Linux x86-64 and Intel/Apple-silicon macOS; their advertised OS
 floor does not guarantee that a newer GPU framework supports that same OS.
 Python 3.12 is the practical starting point for the broadest spaCR extras.
-spaCR's declared Python range is 3.9–3.14, excluding 3.14.1, but optional
+spaCR's declared Python range is 3.9–3.15, excluding 3.14.1, but optional
 packages and individual hardware backends narrow that range. Current Apple
 MPS requirements include macOS 14 or later; use the requirements for the
 specific PyTorch build you install. `Apple's PyTorch requirements

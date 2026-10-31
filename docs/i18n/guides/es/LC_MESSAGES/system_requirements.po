@@ -1,5 +1,5 @@
 # spaCR user guide translation (es).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:22-0400\n"
+"POT-Creation-Date: 2026-10-30 20:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: es\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -106,8 +106,9 @@ msgstr "Lotes de entrenamiento más grandes, muchos canales, volúmenes mayores 
 msgid "CPU clock figures are rough x86 purchasing targets, not requirements; GHz is not comparable across architectures. Count physical cores separately from threads, and distinguish performance from efficiency cores on hybrid CPUs. Apple unified memory is shared by the OS, CPU and GPU and is not equivalent to the same quantity of dedicated VRAM. Available memory, image dimensions and batch size determine whether a workload fits. Training usually needs more memory than inference; large 3-D images may exceed any of these examples."
 msgstr "Las cifras de frecuencia de la CPU son objetivos de compra aproximados para x86, no requisitos; los GHz no son comparables entre arquitecturas. Cuente los núcleos físicos por separado de los hilos, y distinga los núcleos de rendimiento de los de eficiencia en las CPU híbridas. La memoria unificada de Apple la comparten el sistema operativo, la CPU y la GPU, y no equivale a la misma cantidad de VRAM dedicada. La memoria disponible, las dimensiones de las imágenes y el tamaño de lote determinan si una carga de trabajo cabe. El entrenamiento suele necesitar más memoria que la inferencia; las imágenes 3D grandes pueden superar cualquiera de estos ejemplos."
 
-msgid "Use a 64-bit OS and Python environment. The desktop installers target Windows 10/11 x86-64, Linux x86-64 and Intel/Apple-silicon macOS; their advertised OS floor does not guarantee that a newer GPU framework supports that same OS. Python 3.12 is the practical starting point for the broadest spaCR extras. spaCR's declared Python range is 3.9–3.14, excluding 3.14.1, but optional packages and individual hardware backends narrow that range. Current Apple MPS requirements include macOS 14 or later; use the requirements for the specific PyTorch build you install. `Apple's PyTorch requirements <https://developer.apple.com/metal/pytorch/>`_ describe the current native Apple-silicon route."
-msgstr "Use un sistema operativo y un entorno de Python de 64 bits. Los instaladores de escritorio están dirigidos a Windows 10/11 x86-64, Linux x86-64 y macOS en Intel/Apple Silicon; la versión mínima de sistema que anuncian no garantiza que un framework de GPU más reciente admita ese mismo sistema. Python 3.12 es el punto de partida práctico para la mayor variedad de extras de spaCR. El rango de Python declarado por spaCR es 3.9–3.14, excepto 3.14.1, pero los paquetes opcionales y algunos backends de hardware lo reducen. Los requisitos actuales de Apple MPS incluyen macOS 14 o posterior; use los requisitos de la versión concreta de PyTorch que instale. Los `requisitos de PyTorch de Apple <https://developer.apple.com/metal/pytorch/>`_ describen la vía nativa actual para Apple Silicon."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use a 64-bit OS and Python environment. The desktop installers target Windows 10/11 x86-64, Linux x86-64 and Intel/Apple-silicon macOS; their advertised OS floor does not guarantee that a newer GPU framework supports that same OS. Python 3.12 is the practical starting point for the broadest spaCR extras. spaCR's declared Python range is 3.9–3.15, excluding 3.14.1, but optional packages and individual hardware backends narrow that range. Current Apple MPS requirements include macOS 14 or later; use the requirements for the specific PyTorch build you install. `Apple's PyTorch requirements <https://developer.apple.com/metal/pytorch/>`_ describe the current native Apple-silicon route."
+msgstr "Use un sistema operativo y un entorno de Python de 64 bits. Los instaladores de escritorio están dirigidos a Windows 10/11 x86-64, Linux x86-64 y macOS en Intel/Apple Silicon; la versión mínima de sistema que anuncian no garantiza que un framework de GPU más reciente admita ese mismo sistema. Python 3.12 es el punto de partida práctico para la mayor variedad de extras de spaCR. El rango de Python declarado por spaCR es 3.9–3.15, excepto 3.14.1, pero los paquetes opcionales y algunos backends de hardware lo reducen. Los requisitos actuales de Apple MPS incluyen macOS 14 o posterior; use los requisitos de la versión concreta de PyTorch que instale. Los `requisitos de PyTorch de Apple <https://developer.apple.com/metal/pytorch/>`_ describen la vía nativa actual para Apple Silicon."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The **True 3D** view draws through wgpu (Vulkan, Metal or Direct3D 12) where wgpu is installed, and otherwise through OpenGL or the CPU. wgpu needs Python 3.10 or newer on x86-64 or ARM64, and on Linux glibc 2.28 or newer; the :ref:`3D rendering section of the installer guide <wgpu-3d-rendering>` lists who gets it and how to install without it."
