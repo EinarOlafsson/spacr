@@ -371,17 +371,18 @@ def test_display_update_dispatch_and_starvation_watchdog_retire_with_real_cover(
         repainted.append(True)
         original_update(*args)
 
-    monkeypatch.setattr(handle, 'requestUpdate', request)
-    monkeypatch.setattr(screen, 'update', update)
-    screen._follow_the_display(handle)
-    assert requested == [True]
-    screen.grab()
-    assert screen._presented[-1] == pace.now
-    before_watchdog = len(repainted)
-    pace.now += 2 * screen._frame_budget_ms() / 1000
-    screen._tick()
-    assert repainted[before_watchdog:] == [True]
-    assert screen._tick_timer.isActive()
+    with monkeypatch.context() as patched:
+        patched.setattr(handle, 'requestUpdate', request)
+        patched.setattr(screen, 'update', update)
+        screen._follow_the_display(handle)
+        assert requested == [True]
+        screen.grab()
+        assert screen._presented[-1] == pace.now
+        before_watchdog = len(repainted)
+        pace.now += 2 * screen._frame_budget_ms() / 1000
+        screen._tick()
+        assert repainted[before_watchdog:] == [True]
+        assert screen._tick_timer.isActive()
     screen.skip()
     assert screen._paced_window is None
     assert screen._tick_timer is None or not screen._tick_timer.isActive()
@@ -523,11 +524,12 @@ def test_late_display_paints_reduce_pacing_and_slow_costs_thin_real_tiles(qtbot,
         requests.append(True)
         original()
 
-    monkeypatch.setattr(screen._paced_window, 'requestUpdate', request)
-    screen._tick()
-    assert requests == [True]
-    screen._follow_the_display(screen._paced_window)
-    assert requests == [True]
+    with monkeypatch.context() as patched:
+        patched.setattr(screen._paced_window, 'requestUpdate', request)
+        screen._tick()
+        assert requests == [True]
+        screen._follow_the_display(screen._paced_window)
+        assert requests == [True]
     for _ in range(8 * ls._SLOW_STREAK + 12):
         screen._adapt(100.0)
     assert screen._stride > 1
