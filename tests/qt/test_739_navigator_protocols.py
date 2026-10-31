@@ -97,15 +97,27 @@ def test_three_step_native_choices_keep_back_state_and_never_start_analysis(
     page.resize(1000, 800)
     page.show()
     qtbot.waitExposed(page)
+    from PySide6.QtTest import QSignalSpy
+
+    activated_text = QSignalSpy(page._protocol_select.textActivated)
+    search_geometry = page.path_edit.geometry()
     intro = page.field.details.toPlainText()
     assert intro.index('spaCR AI:') < intro.index('Protocols:') < intro.index('File/folder:')
     assert 'spacr://protocols' not in page.field.details.toHtml()
     assert page.path_edit.protocols.width() == page.path_edit.ai.width() == 36
     assert page.path_edit.protocols.x() < page.path_edit.ai.x()
     qtbot.mouseClick(page.path_edit.protocols, Qt.LeftButton)
+    assert page.path_edit.geometry() == search_geometry
+    page._protocol_select.showPopup()
+    inline = page._protocol_select.view()
+    assert inline.window() is page.window()
+    qtbot.keyClick(inline, Qt.Key_Escape)
+    assert not inline.isVisible() and page.path_edit.protocols.isChecked()
     assert not page._protocol_next_button.isEnabled()
     assert not page._protocol_back_button.isEnabled()
     _choose(qtbot, page._protocol_select, family)
+    assert activated_text.count() == 1
+    assert activated_text.at(0)[0] == page._protocol_select.currentText()
     assert page._protocol_next_button.isEnabled()
     qtbot.mouseClick(page._protocol_next_button, Qt.LeftButton)
     assert not page._protocol_next_button.isEnabled()
@@ -120,6 +132,7 @@ def test_three_step_native_choices_keep_back_state_and_never_start_analysis(
                                  for combo in page._protocol_detail_combos.values()))
     assert all(page.field.protocol_controls.rect().contains(combo.parentWidget().geometry())
                for combo in page._protocol_detail_combos.values())
+    assert page.path_edit.geometry() == search_geometry
     retained = deepcopy(page._protocol_choices)
     qtbot.mouseClick(page._protocol_back_button, Qt.LeftButton)
     assert page._protocol_select.currentData() == family
@@ -129,6 +142,7 @@ def test_three_step_native_choices_keep_back_state_and_never_start_analysis(
     qtbot.mouseClick(page._protocol_next_button, Qt.LeftButton)
     dialog = page._protocol_browser_dialog
     qtbot.waitUntil(dialog.isVisible)
+    assert page.path_edit.geometry() == search_geometry
     assert page._protocol_step == 2 and not page._protocol_next_button.isEnabled()
     assert page._last_result is None
     assert page._protocol_result['source_path'] == ''
@@ -145,6 +159,7 @@ def test_three_step_native_choices_keep_back_state_and_never_start_analysis(
     qtbot.waitUntil(page.isActiveWindow)
     page.path_edit.setFocus()
     qtbot.keyClick(page.path_edit, Qt.Key_Escape)
+    assert page.path_edit.geometry() == search_geometry
     assert not page.path_edit.protocols.isChecked()
     qtbot.mouseClick(page.path_edit.protocols, Qt.LeftButton)
     assert page._protocol_step == 2 and page._protocol_choices == retained

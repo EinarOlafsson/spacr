@@ -5481,13 +5481,17 @@ class _NavigatorHomePage(_NavigatorPageBase):
             region |= QRegion(self._navigator_aside.geometry())
         split.setMask(region)
         split.raise_()
-        usable = None
-        if self.path_edit.protocols.isChecked() and not split.is_collapsed('Widgets'):
+        right = None
+        if not split.is_collapsed('Widgets'):
             from PySide6.QtCore import QPoint
 
-            edge = self.field.mapFromGlobal(self._navigator_aside.mapToGlobal(QPoint(0, 0))).x()
-            usable = max(180, min(self.field.width() - 32, edge - 32))
-        if getattr(self.field, '_protocol_details_width', None) != usable:
+            right = self.field.mapFromGlobal(self._navigator_aside.mapToGlobal(QPoint(0, 0))).x()
+        changed = getattr(self.field, '_navigator_content_right', None) != right
+        self.field._navigator_content_right = right
+        usable = None
+        if self.path_edit.protocols.isChecked() and right is not None:
+            usable = max(180, min(self.field.width() - 32, right - 32))
+        if changed or getattr(self.field, '_protocol_details_width', None) != usable:
             self.field._protocol_details_width = usable
             self.field._arrange()
 

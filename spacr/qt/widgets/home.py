@@ -61,6 +61,7 @@ from PySide6.QtWidgets import (
     QGridLayout,
     QHBoxLayout,
     QLabel,
+    QListView,
     QLineEdit,
     QPlainTextEdit,
     QProgressBar,
@@ -5323,7 +5324,7 @@ class _EasyDropWatcher(QObject):
 
 
 class _EasyPathRim(QWidget):
-    """Keep a static outline above the native search surface."""
+    """Keep the rounded editor/composer boundary on its existing field."""
 
     def __init__(self, parent=None):
         """Draw a passive rounded border without a timer or field callbacks."""
@@ -5334,12 +5335,12 @@ class _EasyPathRim(QWidget):
         make_transparent(self)
 
     def paintEvent(self, event):
-        """Paint the fixed border independently of pointer and idle time."""
+        """Paint the editor outline or the opaque expanded composer surface."""
         from PySide6.QtGui import QPen
 
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
-        painter.setBrush(Qt.NoBrush)
+        painter.setBrush(QColor('#191919') if getattr(self, '_protocol_open', False) else Qt.NoBrush)
         painter.setPen(QPen(QColor(palette_for('dark')['border']), 1))
         painter.drawRoundedRect(QRectF(self.rect()).adjusted(1, 1, -1, -1),
                                 self._radius, self._radius)
@@ -5515,10 +5516,13 @@ class _NavigatorAiButton(QPushButton):
 
 
 class _NavigatorProtocolsButton(QPushButton):
-    """A static, keyboard-accessible Protocols ring beside the AI control."""
+    """A centered, keyboard-accessible Protocols letter beside the AI control."""
 
     def __init__(self, parent=None):
-        """Keep the Protocols affordance the same native size as the AI ring."""
+        """Keep a generous native click target for the smaller light glyph.
+
+        :param parent: native owner of the composer action.
+        """
         from ..i18n import tr
 
         super().__init__(parent)
@@ -5529,24 +5533,207 @@ class _NavigatorProtocolsButton(QPushButton):
         self.setFixedSize(36, 36)
         self.setCursor(Qt.PointingHandCursor)
 
+    def enterEvent(self, event):
+        """Refresh the circular hover affordance on pointer entry.
+
+        :param event: native pointer-entry event.
+        """
+        super().enterEvent(event)
+        self.update()
+
+    def leaveEvent(self, event):
+        """Remove the hover affordance when the pointer leaves.
+
+        :param event: native pointer-exit event.
+        """
+        super().leaveEvent(event)
+        self.update()
+
     def paintEvent(self, event):
-        """Paint a white P, or a black P on the active theme-blue field."""
-        from PySide6.QtGui import QPen
+        """Center the actual light P ink and distinguish hover from selection.
+
+        :param event: native paint request.
+        """
+        from PySide6.QtGui import QPainterPath, QPen
         from ..theme import active_palette
 
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
-        painter.setPen(QPen(QColor('white'), 2.5 if self.hasFocus() else 1.5))
-        painter.setBrush(QColor(active_palette()['accent']) if self.isChecked() else Qt.NoBrush)
-        painter.drawEllipse(QRectF(self.rect().center().x() - 14,
-                                  self.rect().center().y() - 14, 28, 28))
-        painter.setPen(QColor('black' if self.isChecked() else 'white'))
-        font = QFont(self.font())
-        font.setBold(True)
-        font.setPixelSize(18)
-        painter.setFont(font)
-        painter.drawText(self.rect(), Qt.AlignCenter, 'P')
+        active = self.isChecked() or self.isDown()
+        if active or self.underMouse():
+            painter.setPen(Qt.NoPen)
+            painter.setBrush(QColor('#363636' if self.underMouse() else '#303030'))
+            painter.drawEllipse(QRectF(self.rect()).adjusted(3, 3, -3, -3))
+        font = QFont('Open Sans')
+        font.setStyleName('Light')
+        font.setWeight(QFont.Light)
+        font.setPixelSize(16)
+        glyph = QPainterPath()
+        glyph.addText(0, 0, font, 'P')
+        bounds = glyph.boundingRect()
+        glyph.translate(QRectF(self.rect()).center() - bounds.center())
+        color = QColor(active_palette()['accent'] if active else 'white')
+        painter.fillPath(glyph, color)
+        if self.hasFocus() and self.window().testAttribute(Qt.WA_KeyboardFocusChange):
+            painter.setPen(QPen(color, 1))
+            painter.drawLine(14, 31, 22, 31)
         painter.end()
+
+
+class _NavigatorProtocolOptions(QListView):
+    """Keep choice navigation inside the same composer instead of a popup window."""
+
+    def __init__(self, owner, parent):
+        """Use the combo's existing model and one explicit native selection action.
+
+        :param owner: combo whose current model and signals are retained.
+        :param parent: integrated composer control surface.
+        """
+        super().__init__(parent)
+        self._owner = owner
+        self.setObjectName('NavigatorProtocolOptions')
+        self.setAccessibleName(owner.accessibleName())
+        self.setFrameShape(QFrame.NoFrame)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.setMouseTracking(True)
+        self.clicked.connect(owner._accept_inline)
+        self.hide()
+
+    def keyPressEvent(self, event):
+        """Retain native arrows, explicit acceptance, cancellation and Tab traversal.
+
+        :param event: key event received by the inline choice list.
+        """
+        if event.key() == Qt.Key_Escape:
+            self._owner.hidePopup()
+            self._owner.setFocus()
+            event.accept()
+        elif event.key() in (Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space):
+            self._owner._accept_inline(self.currentIndex())
+            event.accept()
+        elif event.key() in (Qt.Key_Tab, Qt.Key_Backtab):
+            self._owner.hidePopup()
+            self._owner.setFocus()
+            self._owner.focusNextPrevChild(event.key() != Qt.Key_Backtab)
+            event.accept()
+        else:
+            super().keyPressEvent(event)
+
+    def focusOutEvent(self, event):
+        """Retract inline options when focus moves to another real control.
+
+        :param event: native focus transition.
+        """
+        from shiboken6 import isValid
+
+        super().focusOutEvent(event)
+        if self.isVisible() and isValid(self._owner):
+            self._owner.hidePopup()
+
+
+class _NavigatorProtocolChoice(QComboBox):
+    """Retain a combo model while revealing its options within the composer."""
+
+    def __init__(self, parent=None):
+        """Keep the selector flat against the owning opaque composer surface.
+
+        :param parent: holder inside the integrated composer.
+        """
+        super().__init__(parent)
+        self.setFrame(False)
+        make_transparent(self)
+        self.setStyleSheet('QComboBox { background: transparent; border: none; padding: 2px 20px 2px 4px; } '
+                           'QComboBox::drop-down { border: none; width: 18px; } '
+                           'QComboBox::down-arrow { image: none; border: none; width: 0px; height: 0px; }')
+
+    def paintEvent(self, event):
+        """Draw the label and compact chevron within the shared composer surface.
+
+        :param event: native repaint request.
+        """
+        from PySide6.QtCore import QPointF
+        from PySide6.QtGui import QPen
+
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        font = self.font()
+        font.setPixelSize(font_px(14))
+        painter.setFont(font)
+        text = self.currentText() if self.currentIndex() >= 0 else self.placeholderText()
+        colors = palette_for('dark')
+        painter.setPen(QColor(colors['fg'] if self.currentIndex() >= 0 and self.isEnabled() else colors['fg_muted']))
+        painter.drawText(QRect(4, 0, max(1, self.width() - 26), self.height()),
+                         Qt.AlignVCenter | Qt.AlignLeft,
+                         painter.fontMetrics().elidedText(text, Qt.ElideRight, max(1, self.width() - 26)))
+        painter.setPen(QPen(QColor(colors['fg_muted']), 1))
+        direction = -1 if hasattr(self, '_inline_view') and self._inline_view.isVisible() else 1
+        center = QPointF(self.width() - 10, self.height() / 2)
+        painter.drawLine(center + QPointF(-3, -1.5 * direction), center + QPointF(0, 1.5 * direction))
+        painter.drawLine(center + QPointF(0, 1.5 * direction), center + QPointF(3, -1.5 * direction))
+        painter.end()
+
+    def view(self):
+        """Return the actual keyboard-accessible inline list for this selector."""
+        if not hasattr(self, '_inline_view'):
+            controls = self.parentWidget()
+            while controls.objectName() != 'NavigatorProtocolSelector':
+                controls = controls.parentWidget()
+            self._inline_view = _NavigatorProtocolOptions(self, controls)
+            self.destroyed.connect(self._inline_view.deleteLater)
+        return self._inline_view
+
+    def showPopup(self):
+        """Expand the owning composer around the current native model's options."""
+        if not self.count():
+            return
+        view = self.view()
+        controls = view.parentWidget()
+        previous = getattr(controls, '_inline_choice', None)
+        if previous is not None and previous is not self:
+            previous.hidePopup()
+        old_height = controls.height()
+        view.setModel(self.model())
+        view.setRootIndex(self.rootModelIndex())
+        view.setModelColumn(self.modelColumn())
+        view.setCurrentIndex(self.model().index(max(0, self.currentIndex()), self.modelColumn(),
+                                               self.rootModelIndex()))
+        controls._inline_choice = self
+        view.show()
+        controls.parentWidget()._arrange()
+        view.scrollTo(view.currentIndex())
+        view.setFocus(Qt.PopupFocusReason)
+        if controls.parentWidget()._motion_enabled():
+            controls._arrival.stop()
+            controls._arrival.setStartValue(min(1.0, old_height / max(1, controls.height())))
+            controls._arrival.start()
+
+    def hidePopup(self):
+        """Retract options without changing the current selection or model."""
+        if not hasattr(self, '_inline_view'):
+            return
+        controls = self._inline_view.parentWidget()
+        self._inline_view.hide()
+        if getattr(controls, '_inline_choice', None) is self:
+            controls._inline_choice = None
+            controls._arrival.stop()
+            controls._progress = 1.0
+            controls.parentWidget()._arrange()
+
+    def _accept_inline(self, index):
+        """Commit one real clicked or keyboard-selected row through combo signals.
+
+        :param index: model row explicitly accepted in the inline view.
+        """
+        if not index.isValid():
+            return
+        row = index.row()
+        text = self.itemText(row)
+        self.hidePopup()
+        self.setCurrentIndex(row)
+        self.setFocus()
+        self.activated.emit(row)
+        self.textActivated.emit(text)
 
 
 class _EasyPathEdit(QLineEdit):
@@ -5577,11 +5764,11 @@ class _EasyPathEdit(QLineEdit):
         super().resizeEvent(event)
         if not hasattr(self, 'browse'):
             return
-        width = self.browse.fontMetrics().horizontalAdvance(self.browse.text()) + 24
-        self.browse.setGeometry(self.width() - width - 100, 6, width, self.height() - 12)
+        width = self.browse.fontMetrics().horizontalAdvance(self.browse.text()) + 12
+        self.browse.setGeometry(self.width() - width - 92, 6, width, self.height() - 12)
         self.ai.move(self.width() - 48, (self.height() - self.ai.height()) // 2)
         self.protocols.move(self.width() - 88, (self.height() - self.protocols.height()) // 2)
-        self.setTextMargins(18, 0, width + 108, 0)
+        self.setTextMargins(18, 0, width + 100, 0)
 
 
 
@@ -6338,10 +6525,19 @@ class _EasyHomeField(QWidget):
         """Apply live motion changes without another timer or settings polling."""
         if not self._motion_enabled():
             self._finish_growth()
+            controls = getattr(self, 'protocol_controls', None)
+            if controls is not None:
+                controls._arrival.stop()
+                controls._progress = 1.0
+                self._arrange()
 
     def hideEvent(self, event):
         """Stop owned card animations when another module hides this page."""
         self._finish_growth()
+        controls = getattr(self, 'protocol_controls', None)
+        if controls is not None:
+            controls._arrival.stop()
+            controls._progress = 1.0
         super().hideEvent(event)
 
     def set_cards(self, actions, leading=None, leading_index=0, groups=None):
@@ -6443,13 +6639,49 @@ class _EasyHomeField(QWidget):
 
         width, height = self.width(), self.height()
         panel_width = min(720, max(180, width - 48))
+        right = getattr(self, '_navigator_content_right', None)
+        if right is not None:
+            panel_width = min(panel_width, max(180, 2 * (right - 16) - width))
         panel_height = self.panel.height()
         protocols = getattr(self, 'protocol_controls', None)
         controls_height = protocols.sizeHint().height() if protocols is not None and not protocols.isHidden() else 0
-        panel_y = max(16, (height - panel_height - controls_height) // 2)
+        panel_y = max(16, (height - panel_height) // 2)
         self._place_fixed(self.panel, QRect((width - panel_width) // 2, panel_y, panel_width, panel_height))
-        self._place_fixed(self.rim, QRect((width - panel_width) // 2, panel_y, panel_width, panel_height))
-        self.rim.raise_()
+        active = bool(controls_height)
+        for widget in (self.panel, self.details):
+            if widget.property('protocolOpen') != active:
+                widget.setProperty('protocolOpen', active)
+                widget.style().unpolish(widget)
+                widget.style().polish(widget)
+        self.rim._protocol_open = active
+        if active:
+            controls_width = max(1, round(panel_width * 0.75))
+            controls_left = (width - controls_width) // 2
+            controls_top = panel_y + panel_height + 4
+            chooser = getattr(protocols, '_inline_choice', None)
+            if chooser is not None:
+                from PySide6.QtCore import QPoint
+
+                top = chooser.mapTo(protocols, QPoint(0, chooser.height())).y() + 4
+                option_height = min(32 * chooser.count() + 2, max(64, height - controls_top - top - 16))
+                controls_height = max(controls_height, top + option_height + 8)
+                chooser.view().setGeometry(12, top, controls_width - 24, option_height)
+                chooser.view().raise_()
+            protocols.setGeometry(controls_left, controls_top, controls_width, controls_height)
+            progress = getattr(protocols, '_progress', 1.0)
+            if progress < 1.0:
+                protocols.setMask(QRegion(0, 0, controls_width, max(1, round(controls_height * progress))))
+            else:
+                protocols.clearMask()
+            shell_height = panel_height + 4 + round(controls_height * progress) + 12
+            self._place_fixed(self.rim, QRect((width - panel_width) // 2, panel_y, panel_width, shell_height))
+            self.rim.lower()
+            self.panel.raise_()
+            protocols.raise_()
+        else:
+            self._place_fixed(self.rim, self.panel.geometry())
+            self.rim.raise_()
+        self.rim.update()
         details_width = min(1560, max(180, width - 32))
         usable = getattr(self, '_protocol_details_width', None)
         if usable is not None:
@@ -6460,15 +6692,11 @@ class _EasyHomeField(QWidget):
         default_height = 176 + 2 * self.details.fontMetrics().lineSpacing()
         maximum_height = max(1, height - panel_y - panel_height - 32
                              - (controls_height + 12 if controls_height else 0))
-        if controls_height:
-            controls_width = max(1, round(panel_width * 0.75))
-            protocols.setGeometry((width - controls_width) // 2, panel_y + panel_height + 8,
-                                  controls_width, controls_height)
-            protocols.raise_()
         wanted_height = (default_height if self._details_height_base is None
                          else scaled_px(self._details_height_base))
         details_height = (36 if self.details._minimized else
                           min(maximum_height, max(min(scaled_px(96), maximum_height), wanted_height)))
+        self.details.setVisible(not (active and getattr(protocols, '_inline_choice', None) is not None and details_height < 64))
         self._place_fixed(self.details, QRect(details_left, height - details_height - 16,
                                               details_width, details_height))
         self._details_grip._min = min(scaled_px(96), maximum_height)
@@ -7359,16 +7587,36 @@ class _EasyHomePage(QWidget):
         controls = QFrame(self.field)
         controls.setObjectName('NavigatorProtocolSelector')
         controls.setAccessibleName(tr('Protocols input choices'))
+        from PySide6.QtCore import QEasingCurve, QVariantAnimation
+        from PySide6.QtWidgets import QLayout
+
         colors = palette_for('dark')
         controls.setStyleSheet(
-            f'QFrame#NavigatorProtocolSelector {{ border: 1px solid {colors["border"]}; border-radius: 18px; background: rgb(25,25,25); }} '
+            'QFrame#NavigatorProtocolSelector { border: none; background: transparent; } '
             f'QFrame#NavigatorProtocolSelector QLabel, QFrame#NavigatorProtocolSelector QComboBox {{ color: {colors["fg"]}; font-size: {font_px(14)}px; }} '
-            'QFrame#NavigatorProtocolSelector QComboBox { background: transparent; padding: 2px 4px; } '
-            'QFrame#NavigatorProtocolSelector QToolButton { background: transparent; border: none; }')
+            'QFrame#NavigatorProtocolSelector QLabel { background: transparent; border: none; } '
+            'QFrame#NavigatorProtocolSelector QComboBox { background: transparent; border: none; padding: 2px 4px; } '
+            'QFrame#NavigatorProtocolSelector QComboBox::drop-down { border: none; width: 18px; } '
+            'QFrame#NavigatorProtocolSelector QToolButton { background: transparent; border: none; } '
+            f'QListView#NavigatorProtocolOptions {{ background: rgb(25,25,25); color: {colors["fg"]}; border: none; outline: none; font-size: {font_px(14)}px; }} '
+            'QListView#NavigatorProtocolOptions::item { padding: 7px 10px; border-bottom: 1px solid rgb(54,54,54); } '
+            'QListView#NavigatorProtocolOptions::item:hover { background: rgb(58,58,58); } '
+            f'QListView#NavigatorProtocolOptions::item:selected {{ background: rgb(48,48,48); color: {colors["accent"]}; }}')
+        controls._progress = 1.0
+        controls._inline_choice = None
+        controls._arrival = QVariantAnimation(controls)
+        controls._arrival.setDuration(500)
+        controls._arrival.setStartValue(0.0)
+        controls._arrival.setEndValue(1.0)
+        controls._arrival.setEasingCurve(QEasingCurve.InOutCubic)
+        controls._arrival.valueChanged.connect(self._protocol_emerge)
         column = QVBoxLayout(controls)
-        column.setContentsMargins(12, 8, 12, 8)
+        column.setContentsMargins(12, 4, 12, 4)
+        column.setSpacing(2)
+        column.setSizeConstraint(QLayout.SetNoConstraint)
+        column.setAlignment(Qt.AlignTop)
         row = QHBoxLayout()
-        self._protocol_select = QComboBox(controls)
+        self._protocol_select = _NavigatorProtocolChoice(controls)
         self._protocol_select.setObjectName('NavigatorProtocolChoice')
         self._protocol_select.setMinimumHeight(28)
         self._protocol_select.activated.connect(self._protocol_selected)
@@ -7391,6 +7639,8 @@ class _EasyHomePage(QWidget):
         row.addWidget(self._protocol_next_button)
         column.addLayout(row)
         self._protocol_details_layout = QVBoxLayout()
+        self._protocol_details_layout.setAlignment(Qt.AlignTop)
+        self._protocol_details_layout.setSpacing(2)
         column.addLayout(self._protocol_details_layout)
         self._protocol_detail_combos = {}
         self.field.protocol_controls = controls
@@ -7404,6 +7654,9 @@ class _EasyHomePage(QWidget):
     def _toggle_protocols(self, enabled):
         """Show or hide Protocols while preserving its valid selection state."""
         self._show_suggestions()
+        chooser = getattr(self.field.protocol_controls, '_inline_choice', None)
+        if chooser is not None:
+            chooser.hidePopup()
         self.field.protocol_controls.setVisible(enabled)
         if enabled:
             self._cancel_navigator_ai()
@@ -7486,11 +7739,14 @@ class _EasyHomePage(QWidget):
                                       if name in active_names}
             for field in fields:
                 holder = QWidget(self.field.protocol_controls)
+                make_transparent(holder)
                 row = QHBoxLayout(holder)
                 row.setContentsMargins(0, 0, 0, 0)
                 label = QLabel(field['label'], holder)
                 label.setWordWrap(True)
-                detail = QComboBox(holder)
+                label.setFixedWidth(116)
+                label.setStyleSheet(f'color: {palette_for("dark")["fg_muted"]}; font-size: {font_px(12)}px; background: transparent;')
+                detail = _NavigatorProtocolChoice(holder)
                 detail.setMinimumHeight(28)
                 detail.setAccessibleName(field['label'])
                 detail.setObjectName('NavigatorProtocol_' + field['name'])
@@ -7524,8 +7780,22 @@ class _EasyHomePage(QWidget):
         else:
             explanation = '\n\n'.join(dict.fromkeys(explanations)) or tr('Choose your experiment or input to see a compatible workflow. Nothing starts automatically.')
             self.field.details.setPlainText(explanation)
-        self.field.protocol_controls.layout().activate()
-        self.field.protocol_controls.adjustSize()
+        controls = self.field.protocol_controls
+        controls.layout().activate()
+        controls.adjustSize()
+        controls._arrival.stop()
+        controls._progress = 1.0
+        self.field._arrange()
+        if self.field._motion_enabled():
+            controls._arrival.setStartValue(0.0)
+            controls._arrival.start()
+
+    def _protocol_emerge(self, value):
+        """Reveal the opaque composer downward using the existing arrival easing.
+
+        :param value: normalized expansion progress, completed under Reduce motion.
+        """
+        self.field.protocol_controls._progress = float(value)
         self.field._arrange()
 
     def _protocol_selected(self, index):
@@ -7951,6 +8221,7 @@ class _EasyHomePage(QWidget):
         sheet = (
             f'QWidget#EasyHomePage, QWidget#EasyHomePage QWidget {{ font-family: "Open Sans"; font-weight: 300; }} '
             f'QLineEdit#EasyModePath {{ background: {background}; color: {foreground}; border: none; border-radius: 28px; font-size: {font_px(18)}px; padding: 0px; placeholder-text-color: {muted}; }} '
+            'QLineEdit#EasyModePath[protocolOpen="true"] { background: transparent; } '
             f'QPushButton#EasyModeBrowse {{ color: {foreground}; background: transparent; border: none; padding: 0px; font-size: {font_px(14)}px; }} '
             f'QPushButton#EasySuggestionCard {{ background: {background}; color: {foreground}; border: 1px solid {border}; border-radius: 16px; padding: 12px; min-width: 0px; min-height: 0px; text-align: left; }} '
             f'QPushButton#EasySuggestionCard QLabel {{ color: {foreground}; background: transparent; border: none; font-weight: 300; }} '
@@ -7959,6 +8230,7 @@ class _EasyHomePage(QWidget):
             f'QComboBox#EasyWorkflowTools, QComboBox#EasyWorkflowNextTools {{ color: {foreground}; background: {background}; placeholder-text-color: {muted}; border: 1px solid {border}; border-radius: 10px; }} '
             f'QComboBox#EasyWorkflowTools QAbstractItemView, QComboBox#EasyWorkflowNextTools QAbstractItemView {{ color: {foreground}; background: {palette["surface"]}; selection-background-color: {palette["accent"]}; selection-color: {palette["bg"]}; }} '
             f'QTextBrowser#EasyWorkflowDetails {{ color: {foreground}; background: {details_background}; border: 1px solid {border}; border-radius: 10px; padding: 8px; font-size: {2 * font_px("body")}px; }} '
+            f'QTextBrowser#EasyWorkflowDetails[protocolOpen="true"] {{ font-size: {font_px(16)}px; }} '
             f'QLabel#EasyInputFeedback {{ color: {muted}; background: transparent; }}')
         from ..theme import _stage_button_rules
         sheet += _stage_button_rules('QPushButton#EasySuggestionCard')
