@@ -479,10 +479,15 @@ def _protocol_options(family='', format='', choices=None, *, data=None):
                                                   explanation=tr(v['explanation']))
                                              for k, v in wizard['barcodes'].items())))
         if choices.get('experiment') == 'other':
+            from ..ai.prompts import _navigation_modules
+
+            available = {row[0] for row in _navigation_modules()}
             fields.append(dict(name='organism', label=tr('Organism'), required=True,
-                               options=tuple(dict(key=k, label=tr(v['name']),
-                                                  explanation=tr(v['description']))
-                                             for k, v in ORGANISMS.items())))
+                               options=(dict(key='other', label=tr('Not organism-specific'),
+                                             explanation=tr('Use general table tools without assigning an organism or inventing assay metadata.')),)
+                               + tuple(dict(key=k, label=tr(v['name']),
+                                            explanation=tr(v['description']))
+                                       for k, v in ORGANISMS.items() if k in available)))
     if family in ('small_images', 'plate_images') and format != 'pdf':
         catalog = _protocol_catalog(data)
         candidates = [(key, row) for key, row in catalog.items()
@@ -580,6 +585,10 @@ def _protocol_result(family, format, choices=None, source_path='', context=None,
         elif choices.get('experiment') == 'screen':
             starts = (['map_barcodes'] if choices.get('barcodes') == 'unmapped' else
                       ['regression', 'graph_builder', 'gate_editor', 'qc_dashboard', 'db_browser'])
+            if format == 'database_crops':
+                starts.extend(['annotate', 'classify_merged', 'umap'])
+        elif choices.get('experiment') == 'other' and choices.get('organism') == 'other':
+            starts = ['foreign', 'graph_builder', 'gate_editor', 'db_browser', 'qc_dashboard']
             if format == 'database_crops':
                 starts.extend(['annotate', 'classify_merged', 'umap'])
         elif choices.get('organism') in ORGANISMS:
