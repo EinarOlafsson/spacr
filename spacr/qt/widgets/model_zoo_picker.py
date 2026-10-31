@@ -29,6 +29,7 @@ shown before the first unvetted community row -- see
 """
 from __future__ import annotations
 
+import contextlib
 import os
 import threading
 from types import SimpleNamespace
@@ -1206,6 +1207,25 @@ def install_backend_package(parent, entry) -> bool:
     return bool(name) and install_backend(parent, name)
 
 
+_DRAW_IN_STEPS = {"on": False}
+
+
+@contextlib.contextmanager
+def drawing_in_steps():
+    """Pickers built inside this block draw their table in time slices.
+
+    For the caller that opens the picker from a click and waits for it: the
+    table appears a few rows per turn of the event loop instead of holding
+    the window while every row is drawn.
+    """
+    before = _DRAW_IN_STEPS["on"]
+    _DRAW_IN_STEPS["on"] = True
+    try:
+        yield
+    finally:
+        _DRAW_IN_STEPS["on"] = before
+
+
 class ModelZooPicker(QDialog):
     """Pick a model from the zoo; returns a local path.
 
@@ -1223,7 +1243,8 @@ class ModelZooPicker(QDialog):
     _bioimageio_warmed = Signal()
 
     def __init__(self, kinds: Optional[tuple] = None,
-                 parent: Optional[QWidget] = None, *, stepwise: bool = False):
+                 parent: Optional[QWidget] = None, *,
+                 stepwise: Optional[bool] = None):
         """Build the model zoo dialog.
 
         :param kinds: restrict the listing to these model kinds; ``None`` lists
@@ -1232,10 +1253,12 @@ class ModelZooPicker(QDialog):
         :param stepwise: draw the table a few rows at a time, after the dialog
             is up, instead of all at once while it is built. A row's version
             box costs a stylesheet polish each, so a long list drawn at once
-            held the window for most of a second.
+            held the window for most of a second. ``None`` follows
+            :func:`drawing_in_steps`.
         """
         super().__init__(parent)
-        self._stepwise = bool(stepwise)
+        self._stepwise = (_DRAW_IN_STEPS["on"] if stepwise is None
+                          else bool(stepwise))
         self._draw_generation = 0
         self._drawn_signature = None
         self.setWindowTitle("Model zoo")

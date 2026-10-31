@@ -281,6 +281,7 @@ def test_the_mask_panels_model_zoo_button_writes_cyto2(
 
     def press_use(dialog):
         seen["kinds"] = dialog._kinds
+        qtbot.waitUntil(lambda: not dialog._rebuilding, timeout=20000)
         dialog.table.selectRow(_row_of(dialog, "cyto2"))
         assert dialog.use_button.isEnabled()
         dialog.use_button.click()

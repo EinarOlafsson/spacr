@@ -5359,10 +5359,12 @@ class AppScreen(QWidget):
         """
         from copy import deepcopy
         from PySide6.QtWidgets import QDialog, QMessageBox
-        from ..widgets.model_zoo_picker import ModelZooPicker
+        from ..widgets.model_zoo_picker import (ModelZooPicker,
+                                                 drawing_in_steps)
         from ... import model_zoo
 
-        dialog = ModelZooPicker(self._model_kinds_for(key), self, stepwise=True)
+        with drawing_in_steps():
+            dialog = ModelZooPicker(self._model_kinds_for(key), self)
         if dialog.exec() != QDialog.Accepted:
             return
         path = dialog.chosen_path()
