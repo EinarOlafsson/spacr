@@ -4505,6 +4505,7 @@ class AppScreen(QWidget):
                 _run_to_the_end(steps)
         finally:
             section._spacr_opening_now = False
+        QTimer.singleShot(0, self, self._tab_through_the_form_first)
         return True
 
     def _run_a_step_of(self, section) -> bool:
@@ -9432,6 +9433,44 @@ class AppScreen(QWidget):
                           exc_info=True)
         self.refresh_ambient_background()
         self._prebuild_when_idle()
+        QTimer.singleShot(0, self, self._tab_through_the_form_first)
+
+    def _tab_through_the_form_first(self) -> None:
+        """Put the settings column ahead of the runtime column in Tab order.
+
+        Qt chains widgets in the order they join the window, and the
+        settings strip and form join after the console and the actions,
+        so Tab went from the Dock to the console, the actions and only then
+        to the settings, against the reading order. The runtime column's
+        widgets are moved, in their own order, to follow the last widget of
+        the settings column; a category built later is put right again the
+        next time the screen is shown or that category is opened.
+        """
+        from PySide6.QtWidgets import QWidget as _Widget
+
+        form = getattr(self, "_settings_panel", None)
+        side = getattr(self, "_runtime_wrap", None)
+        window = self.window()
+        if form is None or side is None or window is None:
+            return
+        chain = []
+        widget = window.nextInFocusChain()
+        while widget is not None and widget is not window and len(chain) < 20000:
+            chain.append(widget)
+            widget = widget.nextInFocusChain()
+        chain = [widget for widget in chain
+                 if widget.focusPolicy() & Qt.TabFocus]
+        in_form = [index for index, widget in enumerate(chain)
+                   if form.isAncestorOf(widget)]
+        in_side = [widget for widget in chain if side.isAncestorOf(widget)]
+        if not in_form or not in_side:
+            return
+        if in_form[-1] < chain.index(in_side[0]):
+            return
+        previous = chain[in_form[-1]]
+        for widget in in_side:
+            _Widget.setTabOrder(previous, widget)
+            previous = widget
 
     def _prebuild_when_idle(self) -> None:
         """Build the waiting categories in idle time; see :class:`_IdlePrebuild`."""

@@ -80,8 +80,11 @@ class CurateScreen(QWidget):
         outer.addWidget(intro)
 
         source = QHBoxLayout()
-        source.addWidget(QLabel("Mask", self))
+        mask_label = QLabel("Mask", self)
+        source.addWidget(mask_label)
         self._mask_edit = QLineEdit(self)
+        mask_label.setBuddy(self._mask_edit)
+        self._mask_edit.setAccessibleName(mask_label.text())
         self._mask_edit.setPlaceholderText("…/masks/plate1_A01_1.tif")
         self._mask_edit.returnPressed.connect(self.open_mask)
         source.addWidget(self._mask_edit, 1)
@@ -95,8 +98,11 @@ class CurateScreen(QWidget):
         outer.addLayout(source)
 
         tracks_row = QHBoxLayout()
-        tracks_row.addWidget(QLabel("Tracks", self))
+        tracks_label = QLabel("Tracks", self)
+        tracks_row.addWidget(tracks_label)
         self._tracks_edit = QLineEdit(self)
+        tracks_label.setBuddy(self._tracks_edit)
+        self._tracks_edit.setAccessibleName(tracks_label.text())
         self._tracks_edit.setPlaceholderText(
             "…/tracks/btrack_tracks_cell_plate1_A01_1.csv")
         self._tracks_edit.returnPressed.connect(self.open_tracks)

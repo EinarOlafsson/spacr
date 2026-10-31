@@ -204,14 +204,19 @@ def build_steps(app_key: str) -> List[WalkStep]:
                 break
     except Exception:
         intro = ""
-    intro = intro.rstrip()
+    from .i18n import tr
+    from .i18n_module_summaries import module_summary
+
+    shown_name = tr(name)
+    intro = module_summary(app_key, intro).rstrip() if intro else ""
     if intro and intro[-1] not in ".!?…。":
         intro += "."
     steps.append(WalkStep(
-        title=name,
-        body=(intro or f"This is the {name} module.")
-             + " Press Esc at any time to close this walkthrough; you can "
-               "reopen it from Help → Walkthroughs.",
+        title=shown_name,
+        body=tr("{summary} Press Esc at any time to close this walkthrough; "
+                "you can reopen it from Help → Walkthroughs.",
+                summary=intro or tr("This is the {name} module.",
+                                    name=shown_name)),
         highlight=None,
     ))
 
@@ -234,33 +239,37 @@ def build_steps(app_key: str) -> List[WalkStep]:
         LOG.debug("could not read the layout for %r", app_key, exc_info=True)
 
     if groups:
+        listed = ", ".join(tr(group) for group in groups[:4])
         steps.append(WalkStep(
-            title="Start at the top",
-            body=(f"The settings are grouped into {len(groups)}: "
-                  f"{_sentence(groups[:4])}"
-                  + (", and more." if len(groups) > 4 else ".")
-                  + f" “{groups[0]}” is where you point the module at your "
-                    "data; everything below it assumes that is right."),
+            title=tr("Start at the top"),
+            body=(tr("The settings are grouped into {count} categories: "
+                     "{groups}.", count=len(groups),
+                     groups=listed + (", …" if len(groups) > 4 else ""))
+                  + " " + tr("“{first}” is where you point the module at "
+                             "your data; everything below it assumes that "
+                             "is right.", first=tr(groups[0]))),
             highlight=_first_section,
         ))
 
     if essentials and total:
         steps.append(WalkStep(
-            title=f"{len(essentials)} settings, not {total}",
-            body=(f"The strip above the form opens on Essentials — the "
-                  f"{len(essentials)} settings this module cannot run "
-                  f"without. Switch it to All settings for the other "
-                  f"{total - len(essentials)}, or type in the search box to "
-                  "find one by name or by what its description says it "
-                  "does."),
+            title=tr("{essentials} settings, not {total}",
+                     essentials=len(essentials), total=total),
+            body=tr("The strip above the form opens on Essentials — the "
+                    "{essentials} settings this module cannot run without. "
+                    "Switch it to All settings for the other {rest}, or type "
+                    "in the search box to find one by name or by what its "
+                    "description says it does.",
+                    essentials=len(essentials),
+                    rest=total - len(essentials)),
             highlight=_search_bar,
         ))
 
     steps.append(WalkStep(
-        title="Run it",
-        body=("Run starts the module and streams its log into the console "
-              "below. Once a set of settings works, save it as a recipe to "
-              "load it again for the next plate."),
+        title=tr("Run it"),
+        body=tr("Run starts the module and streams its log into the console "
+                "on the right. Once a set of settings works, save it as a "
+                "template to load it again for the next plate."),
         highlight=_run_button,
     ))
 

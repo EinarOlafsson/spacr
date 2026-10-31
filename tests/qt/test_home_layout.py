@@ -162,7 +162,7 @@ def test_real_home_split_contains_both_panes_at_compressed_native_allocation(qtb
         buttons = [button for button in page._aside.findChildren(QAbstractButton) if button.isVisible()]
         assert len(buttons) == 6
         assert {button.text() for button in buttons} == {
-            'Pipeline overviews', 'Clear', 'Check for updates…', 'Reset', 'Refresh',
+            'Pipeline overviews', 'Clear list', 'Check for updates…', 'Reset', 'Refresh',
             'Show older releases'}
         older = page._aside.findChild(QAbstractButton, 'HomeNewsOlderReleases')
         ancestor = older.parentWidget()

@@ -1149,7 +1149,7 @@ class QueuedPanel(Panel):
         """
         super().__init__("Queued", parent)
         self._clear = self.add_action(
-            "Clear", kind="danger",
+            "Clear queue", kind="danger",
             tip="Empty the plate queue and hide this panel.")
         self._clear.clicked.connect(self.clear_queue)
         self.refresh()
@@ -1265,7 +1265,7 @@ class RecentRunsPanel(Panel):
         self._limit = limit
         self._known_keys = known_keys
         self._clear = self.add_action(
-            "Clear", kind="danger",
+            "Clear list", kind="danger",
             tip="Hide the runs listed here. The run journal and Run "
                 "History keep them.")
         self._clear.clicked.connect(self.clear_list)
@@ -1648,7 +1648,7 @@ class TotalsPanel(Panel):
         self._reset.setEnabled(bool(totals.get("total_runs", 0)))
         self.add(_row("Runs", str(totals.get("total_runs", 0))))
         self.add(_row("Mask", str(totals.get("mask_runs", 0))))
-        self.add(_row("Meas.", str(totals.get("measure_runs", 0))))
+        self.add(_row("Measure", str(totals.get("measure_runs", 0))))
         self.add(_row("Models", str(totals.get("models_recorded", 0))))
 
 

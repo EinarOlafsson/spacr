@@ -401,3 +401,72 @@ def test_a_roomy_rectangle_a_large_zoom_outgrew_scrolls_instead_of_squeezing(
     qtbot.waitUntil(lambda: content.width() >= need, timeout=3000)
     assert button.width() >= button.sizeHint().width() - 2
     host.close()
+
+
+def test_tab_reaches_the_settings_form_before_the_console_and_run(qtbot, private_ai_profile):
+    from PySide6.QtWidgets import QWidget
+
+    from spacr.qt.app import MainWindow
+
+    preferences, _, _ = private_ai_profile
+    preferences.set_easy_mode(False)
+    preferences.set_reduce_motion(True)
+    window = MainWindow(initial_app='__home__')
+    qtbot.addWidget(window)
+    window._tour_timer.stop()
+    window._consent_timer.stop()
+    window.resize(1600, 1000)
+    window.show()
+    qtbot.waitExposed(window)
+    window._on_nav_selected('mask')
+    qtbot.waitUntil(lambda: 'mask' in window._screens, timeout=10000)
+    screen = window._screens['mask']
+    form, side = screen._settings_panel, screen._runtime_wrap
+
+    def chain():
+        found, widget = [], window.nextInFocusChain()
+        while widget is not None and widget is not window and len(found) < 20000:
+            if widget.focusPolicy() & Qt.TabFocus:
+                found.append(widget)
+            widget = widget.nextInFocusChain()
+        return found
+
+    def ordered():
+        widgets = chain()
+        forms = [i for i, w in enumerate(widgets) if form.isAncestorOf(w)]
+        sides = [i for i, w in enumerate(widgets) if side.isAncestorOf(w)]
+        return bool(forms and sides) and max(forms) < min(sides)
+
+    qtbot.waitUntil(ordered, timeout=5000)
+    search = screen.findChild(QWidget, 'SettingsSearchInput')
+    runs = [w for w in chain() if side.isAncestorOf(w) and w.objectName() == 'PrimaryButton']
+    if search is not None and runs:
+        assert chain().index(search) < chain().index(runs[0])
+    window.close()
+
+
+def test_every_walkthrough_caption_goes_through_the_translator(monkeypatch):
+    from spacr.qt import i18n
+
+    real = i18n.tr
+    monkeypatch.setattr(i18n, 'tr', lambda text, *a, **k: '«' + real(text, *a, **k) + '»')
+    steps = walkthrough.build_steps('mask')
+    assert len(steps) >= 3
+    for step in steps[:4]:
+        assert step.title.startswith('«') and step.body.startswith('«')
+    run = next(step for step in steps if 'Run starts' in step.body)
+    assert 'console on the right' in run.body and 'template' in run.body
+
+
+@pytest.mark.parametrize('phrase', ['segment cells', 'segment nuclei', 'nuclei segmentation'])
+def test_cell_and_nucleus_phrasing_finds_the_segmentation_modules(phrase):
+    assert {'mask', 'make_masks'} <= set(app._easy_task_keys(phrase))
+
+
+def test_the_curate_paths_carry_their_captions_as_names(qtbot):
+    from spacr.qt.screens.curate import CurateScreen
+
+    screen = CurateScreen()
+    qtbot.addWidget(screen)
+    assert screen._mask_edit.accessibleName() == 'Mask'
+    assert screen._tracks_edit.accessibleName() == 'Tracks'
