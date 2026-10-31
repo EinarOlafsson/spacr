@@ -535,7 +535,7 @@
         "run_records"
       ],
       "outputs": [
-        "figures"
+        "graphviz_dot"
       ],
       "guidance": "Read recorded artifact dependencies and stale/missing status. The graph describes provenance and does not regenerate missing artifacts."
     },
@@ -2104,6 +2104,12 @@
     "linked_selection": {
       "title": "Linked object selection",
       "location": "In memory only: selected object identities shared with compatible open views; matching crops can be opened for inspection. No figures, tables or other files are written.",
+      "tables": [],
+      "columns": []
+    },
+    "graphviz_dot": {
+      "title": "Graphviz DOT on the clipboard",
+      "location": "Copy Graphviz copies the current graph as DOT text to the system clipboard; it does not write a file.",
       "tables": [],
       "columns": []
     }
