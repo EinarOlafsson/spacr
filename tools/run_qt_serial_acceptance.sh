@@ -50,19 +50,6 @@ unset SPACR_PYTEST_FILE_SHARD_INDEX SPACR_PYTEST_FILE_SHARD_COUNT PYTEST_ADDOPTS
 echo "N47 serial source=$source_sha host.MemTotal=${host_total_kib}KiB host.MemAvailable=${host_available_kib}KiB cgroup=$cgroup memory.max=$memory_max memory.swap.max=$swap_max guard=${SPACR_TEST_MEMORY_GB}GiB"
 echo "N47 native core_pattern=$(</proc/sys/kernel/core_pattern) core_limit_blocks=$(ulimit -c) python_command=$(command -v python)"
 python tools/can_this_display_be_measured.py
-exec python - tests/qt -v --tb=short -p no:randomly \
+exec python tools/run_qt_serial_acceptance.py tests/qt -v --tb=short -p no:randomly \
     -p tools.pytest_plugins.qt_serial_rss_journal \
-    -o faulthandler_timeout=900 --timeout=1200 --timeout-method=thread <<'PY'
-import sys
-
-from PySide6.QtWidgets import QApplication
-
-app = QApplication([])
-if app.platformName() != "xcb":
-    raise SystemExit("N47 did not construct a real X-backed QApplication")
-app.setApplicationName("pytest-qt-qapp")
-
-import pytest
-
-raise SystemExit(pytest.main(sys.argv[1:]))
-PY
+    -o faulthandler_timeout=900 --timeout=1200 --timeout-method=thread

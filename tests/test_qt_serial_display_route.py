@@ -13,9 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 RUNNER = ROOT / "tools" / "run_qt_serial_acceptance.sh"
 
 
-def _bootstrap_source() -> str:
-    script = RUNNER.read_text(encoding="utf-8")
-    return script.split("<<'PY'\n", 1)[1].rsplit("\nPY", 1)[0]
+BOOTSTRAP = ROOT / "tools" / "run_qt_serial_acceptance.py"
 
 
 def _fake_qt_and_pytest(tmp_path: Path) -> None:
@@ -60,7 +58,7 @@ def test_serial_bootstraps_x_before_pytest_and_keeps_the_original_selection(tmp_
         "--timeout-method=thread",
     ]
     result = subprocess.run(
-        [sys.executable, "-c", _bootstrap_source(), *args],
+        [sys.executable, str(BOOTSTRAP), *args],
         env=env, capture_output=True, text=True, check=False,
     )
     assert result.returncode == 0, result.stderr
@@ -80,7 +78,7 @@ def test_serial_rejects_an_offscreen_app_before_pytest_collection(tmp_path):
         "SPACR_FAKE_QT_PLATFORM": "offscreen",
     }
     result = subprocess.run(
-        [sys.executable, "-c", _bootstrap_source(), "tests/qt"],
+        [sys.executable, str(BOOTSTRAP), "tests/qt"],
         env=env, capture_output=True, text=True, check=False,
     )
     assert result.returncode != 0
@@ -97,7 +95,7 @@ def test_serial_shell_guards_the_hard_limits_and_display_preflight():
     assert '"${CUDA_VISIBLE_DEVICES-unset}" != ""' in script
     assert '"${QT_QPA_PLATFORM:-}" != "xcb"' in script
     assert 'python tools/can_this_display_be_measured.py' in script
-    assert script.index('python tools/can_this_display_be_measured.py') < script.index("exec python - tests/qt")
+    assert script.index('python tools/can_this_display_be_measured.py') < script.index("exec python tools/run_qt_serial_acceptance.py tests/qt")
     subprocess.run(["bash", "-n", str(RUNNER)], check=True)
 
 
@@ -116,3 +114,20 @@ def test_workflow_starts_measurable_software_x_under_the_same_serial_guard():
     assert "-p MemoryMax=12G -p MemorySwapMax=0" in workflow
     assert '"$GITHUB_WORKSPACE/tools/run_qt_serial_acceptance.sh"' in workflow
     assert "tools/can_this_display_be_measured.py" in RUNNER.read_text(encoding="utf-8")
+
+
+def test_spawn_import_does_not_construct_qt_or_start_pytest(tmp_path):
+    """A real spawned worker imports the entrypoint as __mp_main__, not __main__."""
+    _fake_qt_and_pytest(tmp_path)
+    order = tmp_path / "order.txt"
+    env = os.environ | {
+        "PYTHONPATH": str(tmp_path),
+        "SPACR_BOOTSTRAP_ORDER": str(order),
+        "SPACR_FAKE_QT_PLATFORM": "xcb",
+    }
+    result = subprocess.run(
+        [sys.executable, "-c", "import runpy, sys; runpy.run_path(sys.argv[1], run_name='__mp_main__')",
+         str(BOOTSTRAP)], env=env, capture_output=True, text=True, check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    assert not order.exists()
