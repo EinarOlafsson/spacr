@@ -49,6 +49,18 @@ def test_a_corrupt_pixel_size_file_has_none(tmp_path):
     assert sio.tiff_pixel_size_nm(bad) is None
 
 
+def test_a_psf_check_reports_a_broken_kernel_instead_of_raising(tmp_path):
+    from spacr.validate import validate_settings
+
+    kernel = _corrupt(tmp_path / "kernel.tif")
+    settings = {"psf_operation": "convolve", "psf_source": "measured",
+                "psf_path": str(kernel), "psf_image_sampling_um": [1.0, 1.0],
+                "psf_kernel_sampling_um": [1.0, 1.0]}
+    problems = [p for p in validate_settings(settings, "mask")
+                if p.setting == "psf_operation"]
+    assert problems and "PSF preparation failed" in problems[0].message
+
+
 @pytest.fixture
 def screen(qtbot, qt_theme_applied):
     from spacr import cli_make_masks

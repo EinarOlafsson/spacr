@@ -52,8 +52,6 @@ from typing import Callable, Dict, Iterable, List, Optional, Sequence, Tuple
 
 import numpy as np
 
-from .tiff_io import TIFF_FILE_ERROR
-
 #: Image extensions listed from a folder -- Make Masks' own list.
 IMAGE_EXTS = (".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp", ".scn")
 
@@ -1660,7 +1658,7 @@ def apply_plan(plan: SortPlan, *, merge: bool = True,
                     status = f"converted {row.convert}"
                 else:
                     shutil.move(source, target)
-            except (OSError, TIFF_FILE_ERROR) as exc:
+            except OSError as exc:
                 writer.writerow(base + ["error", str(exc)])
                 handle.flush()
                 raise
