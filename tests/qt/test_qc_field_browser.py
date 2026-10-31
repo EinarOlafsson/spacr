@@ -424,3 +424,35 @@ def test_an_older_real_move_completion_preserves_the_newer_pending_field(
     finally:
         release.set()
         qtbot.waitUntil(lambda: not dialog._move_jobs.is_busy(), timeout=15000)
+
+
+def test_an_unrelated_background_probe_preserves_the_current_triage_field(qtbot, tmp_path):
+    from spacr.qt import path_probe
+
+    digest, _finding = _digest(tmp_path / "plate1")
+    targets = targets_from_digest(digest)
+    browser = QCFieldBrowser(targets, threaded=False)
+    qtbot.addWidget(browser)
+    browser.show()
+    assert browser.current_field == targets[0].field
+    assert browser._quarantine.isEnabled()
+    picture = browser._view._item.pixmap().toImage()
+    title = browser._field_title.text()
+    verdict = browser._verdict.text()
+    source = Path(targets[0].merged_dir) / f"{targets[0].field}.npy"
+    original = source.read_bytes()
+    unrelated = str(tmp_path / "another-project" / "missing.npy")
+
+    with qtbot.waitSignal(path_probe.probes.answered, timeout=5000,
+                          check_params_cb=lambda path, present: path == unrelated and not present):
+        path_probe.exists(unrelated)
+
+    assert path_probe.known(unrelated) is False
+    assert browser.current_field == targets[0].field
+    assert browser._field_title.text() == title
+    assert browser._verdict.text() == verdict
+    assert browser._view._item.pixmap().toImage() == picture
+    assert browser._quarantine.isEnabled()
+    assert source.read_bytes() == original
+    assert not (source.parent.parent / "merged_quarantined" / source.name).exists()
+    browser.close()

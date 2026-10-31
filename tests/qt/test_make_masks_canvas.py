@@ -447,6 +447,28 @@ def test_press_outside_pixmap_does_not_start_a_stroke(canvas):
     assert not canvas.mask.any()
 
 
+def test_pick_in_letterbox_does_not_reuse_the_previous_image_coordinate(canvas):
+    picked, strokes = [], []
+    canvas.pick_requested.connect(lambda x, y: picked.append((x, y)))
+    canvas.stroke_started.connect(lambda: strokes.append("started"))
+    canvas.stroke_finished.connect(lambda: strokes.append("finished"))
+    canvas.mode = mm.MODE_PICK
+    before = canvas.mask.copy()
+
+    canvas.mousePressEvent(press(*canvas_xy(32, 32)))
+    canvas.mouseReleaseEvent(release(*canvas_xy(32, 32)))
+    assert picked == [(32, 32)]
+
+    outside = press(MARGIN_X - 20, 200)
+    outside.setAccepted(False)
+    canvas.mousePressEvent(outside)
+    assert outside.isAccepted()
+    canvas.mouseReleaseEvent(release(MARGIN_X - 20, 200))
+    assert picked == [(32, 32)]
+    assert strokes == []
+    np.testing.assert_array_equal(canvas.mask, before)
+
+
 def test_drag_entering_the_canvas_still_opens_a_stroke(canvas):
     """Regression: a drag that *starts* in the letterbox margin used to
     paint without ever emitting stroke_started, so the resulting edit
