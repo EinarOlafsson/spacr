@@ -453,7 +453,7 @@ class GateEditorScreen(DerivedTableSource, QWidget):
             "PNG at the resolution set there, or a real vector PDF whose "
             "text stays selectable and editable \u2014 and you can override "
             "it for one save in the file dialog.")
-        self._save_graph.clicked.connect(self.save_graph)
+        self._save_graph.clicked.connect(self.save_graph_in_background)
         head.addWidget(self._save_graph)
 
         outer.addLayout(head)
@@ -519,7 +519,7 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         self.gates.axes_requested.connect(self._on_axes_requested)
         self.gates.settings_requested.connect(self.open_settings)
         self.gates.mode_requested.connect(self._on_mode_requested)
-        self.gates.projection_requested.connect(self._on_projection_requested)
+        self.gates.projection_requested.connect(self._on_projection_toggled)
         self.gates.spin_axis_changed.connect(self.gates.canvas.set_spin_axis)
         self.gates._bind_mode_keys(self)
         self._install_graph_context_menu()
@@ -1171,7 +1171,7 @@ class GateEditorScreen(DerivedTableSource, QWidget):
             has_figure = False
         draw_first = "" if has_figure else "Draw a graph first."
         items = [
-            ("Save graph\u2026", has_figure, lambda: self.save_graph(),
+            ("Save graph\u2026", has_figure, lambda: self.save_graph_in_background(),
              draw_first),
             ("Copy image to clipboard", has_figure,
              self._copy_graph_to_clipboard, draw_first),
@@ -1562,7 +1562,15 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         if self._settings_dialog is not None:
             self._settings_dialog.set_mode(mode)
 
-    def _on_projection_requested(self, on: bool) -> None:
+    def _on_projection_toggled(self, on: bool) -> None:
+        """The xD button was pressed: project on a worker thread.
+
+        :param on: whether the projection is switched on.
+        """
+        self._on_projection_requested(on, background=True)
+
+    def _on_projection_requested(self, on: bool, *,
+                                 background: bool = False) -> None:
         """Gate on components, or on the measurements themselves.
 
         Switching it ON projects now. Switching it OFF does NOT undo the
@@ -1570,10 +1578,14 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         already be drawn on them, and silently dropping the columns those
         gates name would break them. The user chooses different axes, which
         is the same gesture as any other axis change.
+
+        :param on: whether the projection is switched on.
+        :param background: project on a worker thread.
         """
         self.apply_settings(self._settings.replaced(xd_projection=bool(on)))
         if on:
-            error = self.reduce_to_components()
+            error = (self.reduce_to_components(background=True) if background
+                     else self.reduce_to_components())
             if error:
                 self.gates.set_projection_active(False)
                 self.apply_settings(
@@ -1615,7 +1627,7 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         self._point_limit.blockSignals(blocked)
         self._push_frame()
 
-    def reduce_to_components(self) -> Optional[str]:
+    def reduce_to_components(self, *, background: bool = False) -> Optional[str]:
         """Project every measurement onto components, and gate on those.
 
         This is what xD MEANS here. More measurements than can be drawn is not
@@ -1628,44 +1640,93 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         cluster, saved and exported the same way. A gate on PC1 vs PC2 is the
         same kind of object as a gate on area vs intensity.
 
+        :param background: fit the projection on a worker thread and show it
+            when it is done; the answer of an older request, or one for a
+            table that was replaced meanwhile, is dropped. An error then
+            arrives later, through the source line, and ``None`` is returned.
         :returns: an error to show, or None on success.
+        """
+        request = self._projection_request()
+        if isinstance(request, str):
+            return request
+        if background:
+            self._start_projection_job(request)
+            return None
+        return self._finish_projection(
+            request, self._projection_outcome(request))
+
+    def _projection_request(self):
+        """Read what a projection needs from the screen, on the GUI thread.
+
+        :returns: an error string, or the dictionary
+            :meth:`_projection_outcome` takes.
+        """
+        frame = self._frame
+        if frame is None or frame.empty:
+            return "Load a table first."
+        settings = self._settings
+        return {
+            "frame": frame,
+            "groups": getattr(settings, "reduction_groups", None) or {},
+            "explicit": getattr(settings, "reduction_columns", ()) or (),
+            "method": getattr(settings, "reduction", "pca"),
+            "components": int(getattr(settings, "components", 3)),
+            "n_neighbors": int(getattr(settings, "xd_n_neighbors", 15)),
+            "min_dist": float(getattr(settings, "xd_min_dist", 0.1)),
+            "perplexity": float(getattr(settings, "xd_perplexity", 30.0)),
+        }
+
+    @classmethod
+    def _projection_outcome(cls, request):
+        """Choose the columns, project and join; touches no widget.
+
+        :param request: what :meth:`_projection_request` returned.
+        :returns: ``("error", message)`` or
+            ``("ok", components, warning, combined)``.
         """
         from ...column_groups import resolve
         from ...merge_tables import ReductionError, reduce_dimensions
 
-        frame = self._frame
-        if frame is None or frame.empty:
-            return "Load a table first."
+        frame = request["frame"]
+        groups, explicit = request["groups"], request["explicit"]
         numeric = [c for c in plottable_columns(frame)
                    if not str(c).startswith(("PC", "UMAP", "tSNE"))]
-        groups = getattr(self._settings, "reduction_groups", None) or {}
-        explicit = getattr(self._settings, "reduction_columns", ()) or ()
         columns = resolve(numeric, groups, explicit=explicit) \
             if (groups or explicit) else numeric
         if len(columns) < 2:
-            return ("The xD tab selects fewer than two measurements; a "
-                    "projection needs two.")
-        method = getattr(self._settings, "reduction", "pca")
+            return ("error", "The xD tab selects fewer than two "
+                    "measurements; a projection needs two.")
         try:
             components = reduce_dimensions(
-                frame, columns, method=method,
-                components=int(getattr(self._settings, "components", 3)),
-                n_neighbors=int(getattr(self._settings, "xd_n_neighbors", 15)),
-                min_dist=float(getattr(self._settings, "xd_min_dist", 0.1)),
-                perplexity=float(getattr(self._settings, "xd_perplexity", 30.0)))
+                frame, columns,
+                method=request["method"], components=request["components"],
+                n_neighbors=request["n_neighbors"],
+                min_dist=request["min_dist"],
+                perplexity=request["perplexity"])
         except ReductionError as exc:
             LOG.info("could not reduce: %s", exc)
-            self._source.setText(str(exc))
-            return str(exc)
-
-        variance = components.attrs.get("explained_variance") or []
+            return ("error", str(exc))
+        warning = cls._projection_warning(frame, components, columns, groups,
+                                          explicit)
         combined = frame.drop(columns=[c for c in components.columns
-                                       if c in frame.columns])
+                                       if c in frame.columns]
+                              ).join(components)
+        return ("ok", components, warning, combined)
+
+    def _finish_projection(self, request, outcome) -> Optional[str]:
+        """Put a projection on the screen, or say why there is none.
+
+        :param request: what :meth:`_projection_request` returned.
+        :param outcome: what :meth:`_projection_outcome` returned.
+        :returns: an error to show, or None on success.
+        """
+        if outcome[0] == "error":
+            self._source.setText(outcome[1])
+            return outcome[1]
+        _kind, components, warning, combined = outcome
+        variance = components.attrs.get("explained_variance") or []
         label = self._variance_label(components, variance)
-        warning = self._projection_warning(frame, components, columns, groups,
-                                           explicit)
-        self.set_frame(combined.join(components),
-                       label=label + warning)
+        self.set_frame(combined, label=label + warning)
         names = list(components.columns)
         if len(names) >= 2:
             self._x.setCurrentText(names[0])
@@ -1673,6 +1734,42 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         if len(names) >= 3:
             self._z.setCurrentText(names[2])
         return None
+
+    def _start_projection_job(self, request) -> None:
+        """Fit on a worker and finish on the GUI thread, unless it went stale.
+
+        :param request: what :meth:`_projection_request` returned.
+        """
+        from ..job_runner import JobRunner
+
+        runner = getattr(self, "_projection_runner", None)
+        if runner is None:
+            runner = JobRunner(self, app_key="gate projection",
+                               user_visible=False)
+            self._projection_runner = runner
+        runner.cancel()
+        self._projection_generation = getattr(
+            self, "_projection_generation", 0) + 1
+        token = (self._projection_generation, id(self._frame))
+        self.setCursor(Qt.BusyCursor)
+        runner.submit(partial(self._projection_outcome, request),
+                      partial(self._projection_job_done, token, request))
+
+    def _projection_job_done(self, token, request, outcome) -> None:
+        """Finish a worker's projection if the table is still the one asked.
+
+        :param token: the generation and table it was started for.
+        :param request: what :meth:`_projection_request` returned.
+        :param outcome: what :meth:`_projection_outcome` returned.
+        """
+        self.unsetCursor()
+        if token != (getattr(self, "_projection_generation", 0),
+                     id(self._frame)):
+            return
+        error = self._finish_projection(request, outcome)
+        if error:
+            self.gates.set_projection_active(False)
+            self.apply_settings(self._settings.replaced(xd_projection=False))
 
     @staticmethod
     def _projection_warning(frame, components, columns, groups, explicit) -> str:
@@ -1782,7 +1879,7 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         return self._settings
 
 
-    def save_graph(self, path: str = "") -> str:
+    def save_graph(self, path: str = "", *, background: bool = False) -> str:
         """Write the current graph to a PNG or PDF.
 
         The format comes from the figure-format PREFERENCE rather than from
@@ -1807,6 +1904,9 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         the dialog under a PNG preference still gives a PDF.
 
         :param path: destination. Empty opens a file dialog.
+        :param background: after the dialog, render on a worker thread and
+            report on the console when done (see
+            :meth:`save_graph_in_background`).
         :returns: the path written, or "" when cancelled or nothing is
             drawn.
         """
@@ -1834,7 +1934,7 @@ class GateEditorScreen(DerivedTableSource, QWidget):
             target = target.with_suffix(default_ext)
 
         png_path = target.with_suffix(".png")
-        if asked_here and self._save_graph_in_background(
+        if asked_here and background and self._save_graph_in_background(
                 figure, target, png_path):
             return str(target)
         from ..widgets.figure_queue import render_figure_to_png
@@ -1853,6 +1953,17 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         written = target if target.exists() else png_path
         self.console.write(f"Saved the graph to {written}")
         return str(written)
+
+    def save_graph_in_background(self, *_checked) -> str:
+        """:meth:`save_graph` with the render on a worker thread.
+
+        What the Save graph button and menu entry call: the print renderer's
+        first import and its raster held the window for seconds. The file and
+        the console line are the same ones :meth:`save_graph` produces.
+
+        :returns: the path chosen, or "" when cancelled or nothing is drawn.
+        """
+        return self.save_graph(background=True)
 
     def _save_graph_in_background(self, figure, target: Path,
                                   png_path: Path) -> bool:

@@ -216,10 +216,26 @@ def _wide(screen, n=300):
         "c": rng.normal(0, 1, n), "d": rng.normal(0, 1, n)}))
 
 
+
+def _project(screen):
+    """Press xD and wait for the worker's projection to reach the screen."""
+    import time
+
+    from PySide6.QtWidgets import QApplication
+
+    screen.gates.projection_requested.emit(True)
+    runner = getattr(screen, "_projection_runner", None)
+    deadline = time.time() + 60
+    while runner is not None and runner.is_busy() and time.time() < deadline:
+        QApplication.processEvents()
+        time.sleep(0.004)
+    QApplication.processEvents()
+
+
 def test_xd_projects_onto_components_and_puts_them_on_the_axes(screen):
     """"xD has a button but further than that no implementation"."""
     _wide(screen)
-    screen.gates.projection_requested.emit(True)
+    _project(screen)
 
     columns = list(screen.gates._frame.columns)
     assert {"PC1", "PC2", "PC3"} <= set(columns)
@@ -231,7 +247,7 @@ def test_xd_projects_onto_components_and_puts_them_on_the_axes(screen):
 def test_the_components_say_how_much_they_explain(screen):
     """"PC1" alone says nothing about whether it is the data or the noise."""
     _wide(screen)
-    screen.gates.projection_requested.emit(True)
+    _project(screen)
     assert "%" in screen._source.text()
 
 
@@ -241,7 +257,7 @@ def test_every_gate_tool_works_on_a_component(screen):
     from spacr.qt.widgets.gate_spec import RectGate
 
     _wide(screen)
-    screen.gates.projection_requested.emit(True)
+    _project(screen)
     frame = screen.gates._frame
     gate = RectGate(name="g", x_column="PC1", y_column="PC2",
                     x_low=-100.0, x_high=100.0, y_low=-100.0, y_high=100.0)
@@ -250,8 +266,8 @@ def test_every_gate_tool_works_on_a_component(screen):
 
 def test_projecting_twice_does_not_stack_component_columns(screen):
     _wide(screen)
-    screen.gates.projection_requested.emit(True)
-    screen.gates.projection_requested.emit(True)
+    _project(screen)
+    _project(screen)
     columns = list(screen.gates._frame.columns)
     assert columns.count("PC1") == 1
 
@@ -506,7 +522,7 @@ def test_xd_shows_three_axes_not_two(screen):
     """"xD has three axees in the feilds above called PC1, PC2, PC3 but i
     cannot see the axees on the graph the graph is 2D"."""
     _wide(screen)
-    screen.gates.projection_requested.emit(True)
+    _project(screen)
     screen.gates.mode_requested.emit("3D")
     ax = screen.gates.canvas.axes_at(0, 0)
     assert hasattr(ax, "zaxis"), "xD drew a flat scatter of two components"
@@ -514,7 +530,7 @@ def test_xd_shows_three_axes_not_two(screen):
 
 def test_xd_can_be_spun_like_3d(screen):
     _wide(screen)
-    screen.gates.projection_requested.emit(True)
+    _project(screen)
     screen.gates.mode_requested.emit("3D")
     canvas = screen.gates.canvas
     canvas.set_tool("")
