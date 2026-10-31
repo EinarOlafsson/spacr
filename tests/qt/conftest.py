@@ -835,7 +835,7 @@ def _invalidate_field_fade_cache():
 
 
 @pytest.fixture(autouse=True)
-def deferred_deletions_flushed(qapp):
+def deferred_deletions_flushed(qapp, request):
     """Deliver the ``deleteLater`` calls earlier tests already made.
 
     This runs at the start of every test.  A test that measures something per
@@ -865,6 +865,13 @@ def deferred_deletions_flushed(qapp):
     from PySide6.QtWidgets import QApplication
 
     QApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+    observer = request.config.pluginmanager.get_plugin('tools.pytest_plugins.qt_serial_rss_journal')
+    if observer is not None and observer._needs_qt_post_flush():
+        name = str((request.config.rootpath / 'tests' / 'conftest.py').resolve())
+        root_fixture = request.config.pluginmanager.get_plugin(name)
+        if root_fixture is not None:
+            root_fixture._remember_the_live_widget_count(include_types=True)
+        observer._record_qt_post_flush(request.config, request.node.nodeid)
     yield qapp
 
 

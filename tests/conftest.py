@@ -1736,6 +1736,7 @@ RETAINED_WIDGETS_WORTH_SAYING = 5000
 #: Filled by `_count_what_this_test_left_running`, read by
 #: `qt_things_that_outlive_the_session`, which must not ask Qt itself.
 _LAST_LIVE_WIDGET_COUNT = (-1, -1)
+_LAST_LIVE_WIDGET_TYPES = None
 
 
 def qt_things_that_outlive_the_session():
@@ -1977,7 +1978,7 @@ def _count_what_this_test_left_running(request):
     _remember_the_live_widget_count()
 
 
-def _remember_the_live_widget_count() -> None:
+def _remember_the_live_widget_count(*, include_types: bool = False) -> None:
     """Ask Qt how big the retained tree is WHILE IT IS STILL SAFE TO ASK.
 
     `qt_things_that_outlive_the_session` used to call `app.allWidgets()`
@@ -1989,9 +1990,15 @@ def _remember_the_live_widget_count() -> None:
     `_drain_live_runners` gives: a test that has never touched Qt has no
     widgets, and pulling PySide6 in to discover that would put it into
     thousands of processes that do not want it.
-    """
-    global _LAST_LIVE_WIDGET_COUNT
 
+    Opt-in snapshots propagate native query errors rather than reporting a false empty tree.
+
+    :param include_types: cache primitive class counts only for the opt-in safe setup snapshot.
+    """
+    global _LAST_LIVE_WIDGET_COUNT, _LAST_LIVE_WIDGET_TYPES
+
+    if include_types:
+        _LAST_LIVE_WIDGET_TYPES = None
     module = sys.modules.get("PySide6.QtWidgets")
     if module is None:
         return
@@ -1999,10 +2006,23 @@ def _remember_the_live_widget_count() -> None:
         app = module.QApplication.instance()
         if app is None:
             return
-        _LAST_LIVE_WIDGET_COUNT = (len(app.allWidgets()),
-                                   len(app.topLevelWidgets()))
+        widgets = app.allWidgets()
+        windows = app.topLevelWidgets()
+        _LAST_LIVE_WIDGET_COUNT = (len(widgets), len(windows))
     except Exception:                                            # noqa: BLE001
         _LAST_LIVE_WIDGET_COUNT = (-1, -1)
+        if include_types:
+            raise
+        return
+    if include_types:
+        from collections import Counter
+
+        _LAST_LIVE_WIDGET_TYPES = {
+            'widgets': dict(Counter(type(widget).__module__ + '.' + type(widget).__qualname__
+                                    for widget in widgets)),
+            'top_levels': dict(Counter(type(widget).__module__ + '.' + type(widget).__qualname__
+                                       for widget in windows)),
+        }
 
 
 def _drain_live_runners():

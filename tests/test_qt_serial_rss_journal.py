@@ -357,3 +357,74 @@ def test_ordinary_mode_records_unique_identity_without_rss_qt_or_fault_hooks(tmp
         assert all(not any('rss' in key or 'qt' in key or 'fault' in key for key in row)
                    for row in rows)
     assert len(pids) == len(journals)
+
+
+def test_post_flush_snapshot_observes_owned_deletion_without_extra_cleanup(
+        qapp, qtbot, request, monkeypatch, tmp_path):
+    """One real setup flush supplies primitive types and RSS once per file."""
+    from PySide6.QtWidgets import QApplication, QWidget
+    from shiboken6 import isValid
+    from tests.qt.conftest import deferred_deletions_flushed
+
+    class RetiredPhaseWidget(QWidget):
+        pass
+
+    class RetainedPhaseWidget(QWidget):
+        pass
+
+    retired = RetiredPhaseWidget()
+    retained = RetainedPhaseWidget()
+    qtbot.addWidget(retained)
+    retained.setObjectName('/private/input/not-a-diagnostic-field')
+    retired.deleteLater()
+    assert isValid(retired)
+    path = tmp_path / 'post-flush.jsonl'
+    path.write_text('', encoding='utf-8')
+    observer_name = 'tools.pytest_plugins.qt_serial_rss_journal'
+    observer = request.config.pluginmanager.get_plugin(observer_name)
+    registered = observer is None
+    if registered:
+        observer = SimpleNamespace(_needs_qt_post_flush=journal_plugin._needs_qt_post_flush,
+                                   _record_qt_post_flush=journal_plugin._record_qt_post_flush)
+        request.config.pluginmanager.register(observer, observer_name)
+    flushes = []
+    real_flush = QApplication.sendPostedEvents
+
+    def owned_flush(receiver, kind):
+        flushes.append((receiver, kind))
+        return real_flush(receiver, kind)
+
+    try:
+        with monkeypatch.context() as patch:
+            patch.setattr(journal_plugin, '_journal', path)
+            patch.setattr(journal_plugin, '_identity_only', False)
+            patch.setattr(journal_plugin, '_pending_qt_post_flush', True)
+            patch.setattr(journal_plugin, '_active_file', 'tests/qt/test_owned_phase.py')
+            patch.setattr(QApplication, 'sendPostedEvents', owned_flush)
+            phase = deferred_deletions_flushed.__wrapped__(qapp, request)
+            assert next(phase) is qapp
+            phase.close()
+            assert len(flushes) == 1
+            assert not isValid(retired) and isValid(retained)
+            records = [json.loads(line) for line in path.read_text().splitlines()]
+            assert len(records) == 1
+            record = records[0]
+            assert record['event'] == 'qt_post_deferred_flush'
+            assert record['phase'] == 'after_existing_setup_deferred_delete_flush'
+            assert record['snapshot_available'] and record['rss_bytes'] > 0
+            widgets = record['qt_type_histograms']['widgets']
+            tops = record['qt_type_histograms']['top_levels']
+            assert sum(widgets.values()) == record['cached_qt_widgets']
+            assert sum(tops.values()) == record['cached_qt_top_levels']
+            assert any(key.endswith('.RetainedPhaseWidget') and value == 1 for key, value in widgets.items())
+            assert not any(key.endswith('.RetiredPhaseWidget') for key in widgets)
+            assert '/private/input' not in path.read_text()
+            second = deferred_deletions_flushed.__wrapped__(qapp, request)
+            assert next(second) is qapp
+            second.close()
+            assert len(flushes) == 2
+            assert len(path.read_text().splitlines()) == 1
+            assert isValid(retained)
+    finally:
+        if registered:
+            request.config.pluginmanager.unregister(observer)

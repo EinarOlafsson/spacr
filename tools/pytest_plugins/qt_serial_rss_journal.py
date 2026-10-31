@@ -30,6 +30,7 @@ _journal: Path | None = None
 _identity_only = False
 _active_file: str | None = None
 _completed_files = 0
+_pending_qt_post_flush = False
 _fault_file: TextIO | None = None
 _prior_fault_enabled: bool | None = None
 _real_enable = faulthandler.enable
@@ -72,6 +73,38 @@ def _cached_qt_counts(config: pytest.Config) -> dict[str, int | None]:
     return counts
 
 
+def _needs_qt_post_flush() -> bool:
+    """Request one cached setup snapshot per file only in the opt-in RSS mode."""
+    return _journal is not None and not _identity_only and _pending_qt_post_flush
+
+
+def _record_qt_post_flush(config: pytest.Config, nodeid: str) -> None:
+    """Record primitives after the Qt fixture delivered owners' pending deletions.
+
+    :param config: live pytest configuration used only to find the cached root fixture.
+    :param nodeid: current test identity establishing this setup phase.
+    """
+    global _pending_qt_post_flush
+
+    if not _needs_qt_post_flush():
+        return
+    name = str((config.rootpath / 'tests' / 'conftest.py').resolve())
+    root_fixture = config.pluginmanager.get_plugin(name)
+    cached = vars(root_fixture).get('_LAST_LIVE_WIDGET_TYPES') if root_fixture is not None else None
+    histograms = {}
+    if isinstance(cached, dict):
+        for group in ('widgets', 'top_levels'):
+            values = cached.get(group)
+            if isinstance(values, dict) and all(type(key) is str and type(value) is int and value >= 0
+                                                for key, value in values.items()):
+                histograms[group] = dict(values)
+    _write('qt_post_deferred_flush', file=_active_file, nodeid=nodeid[:512],
+           phase='after_existing_setup_deferred_delete_flush',
+           snapshot_available=len(histograms) == 2, qt_type_histograms=histograms,
+           **_cached_qt_counts(config))
+    _pending_qt_post_flush = False
+
+
 def _write(event: str, **details: object) -> None:
     """Append and sync one complete record without retaining pytest objects."""
     assert _journal is not None
@@ -98,7 +131,7 @@ def _write(event: str, **details: object) -> None:
 @pytest.hookimpl(trylast=True)
 def pytest_configure(config: pytest.Config) -> None:
     """Create a fresh journal so separate acceptance attempts cannot mix."""
-    global _journal, _active_file, _completed_files, _identity_only
+    global _journal, _active_file, _completed_files, _identity_only, _pending_qt_post_flush
     global _fault_file, _prior_fault_enabled
     name = os.environ.get("SPACR_QT_SERIAL_RSS_JOURNAL")
     evidence = os.environ.get("SPACR_QT_NATIVE_EVIDENCE_DIR")
@@ -117,6 +150,7 @@ def pytest_configure(config: pytest.Config) -> None:
         os.close(fd)
     _active_file = None
     _completed_files = 0
+    _pending_qt_post_flush = False
     if _identity_only:
         executable = Path(sys.executable).resolve()
         digest = hashlib.sha256()
@@ -188,7 +222,7 @@ def pytest_collection_finish(session: pytest.Session) -> None:
 @pytest.hookimpl(tryfirst=True)
 def pytest_runtest_setup(item: pytest.Item) -> None:
     """Record the prior file's completed teardown before starting this one."""
-    global _active_file, _completed_files
+    global _active_file, _completed_files, _pending_qt_post_flush
     if _identity_only:
         return
     name = os.path.relpath(str(item.path), item.config.rootpath)
@@ -198,6 +232,7 @@ def pytest_runtest_setup(item: pytest.Item) -> None:
         _write("file_end", file=_active_file, **_cached_qt_counts(item.config))
         _completed_files += 1
     _active_file = name
+    _pending_qt_post_flush = True
     _write("file_begin", file=name, first_nodeid=item.nodeid[:512],
            **_cached_qt_counts(item.config))
 
