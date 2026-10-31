@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "repo": "https://github.com/EinarOlafsson/spacr-translations.git",
-  "revision": "2f0987ba61a6d5fa1b50285cb3e213b9af8e64de",
+  "revision": "c4c4c064690863e1b78c7687694781d4b1017217",
   "manifest": "manifest.json",
-  "manifest_sha256": "6600f3c930b783534b1152116deb410630c8e0e728ab0e200ddc6b91f5b2d6ac",
-  "file_count": 8334
+  "manifest_sha256": "e1e08a745fa1ef35a4a64aa6f713737c399b3a522aa426303a348a6c7fad2a61",
+  "file_count": 8352
 }
