@@ -58,7 +58,7 @@ jobs:
             libgl1 libglib2.0-0t64 libnss3 libxcomposite1 libxcursor1 \
             libxdamage1 libxi6 libxtst6 libasound2t64 \
             libsm6 libxext6 libxrender1 libopencc1.1 libopencc-data ffmpeg gdb zstd \
-            xvfb xauth libxcb-cursor0 libgl1-mesa-dri
+            xvfb xauth libxcb-cursor0 libgl1-mesa-dri openbox x11-utils
 
       - name: Install the existing hosted Qt test dependencies
         run: |

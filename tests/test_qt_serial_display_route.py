@@ -95,7 +95,12 @@ def test_serial_shell_guards_the_hard_limits_and_display_preflight():
     assert '"${CUDA_VISIBLE_DEVICES-unset}" != ""' in script
     assert '"${QT_QPA_PLATFORM:-}" != "xcb"' in script
     assert 'python tools/can_this_display_be_measured.py' in script
-    assert script.index('python tools/can_this_display_be_measured.py') < script.index("exec python tools/run_qt_serial_acceptance.py tests/qt")
+    assert script.index('python tools/can_this_display_be_measured.py') < script.index("python tools/run_qt_serial_acceptance.py tests/qt")
+    assert "openbox --sm-disable --config-file" in script
+    assert "_NET_SUPPORTING_WM_CHECK" in script
+    assert 'kill "$wm_pid"' in script and 'wait "$wm_pid"' in script
+    assert "trap cleanup_window_manager EXIT" in script
+    assert script.index("wm_ready=false") < script.index('python tools/can_this_display_be_measured.py')
     subprocess.run(["bash", "-n", str(RUNNER)], check=True)
 
 
@@ -105,7 +110,7 @@ def test_workflow_starts_measurable_software_x_under_the_same_serial_guard():
     assert "QT_QPA_PLATFORM: xcb" in workflow
     assert 'LIBGL_ALWAYS_SOFTWARE: "1"' in workflow
     assert "QT_OPENGL: software" in workflow
-    assert "xvfb xauth libxcb-cursor0 libgl1-mesa-dri" in workflow
+    assert "xvfb xauth libxcb-cursor0 libgl1-mesa-dri openbox x11-utils" in workflow
     assert "xvfb-run -a -s '-screen 0 1920x1080x24 -nolisten tcp'" in workflow
     assert '"DISPLAY=$DISPLAY" "XAUTHORITY=$XAUTHORITY"' in workflow
     assert '"LIBGL_ALWAYS_SOFTWARE=1" "QT_OPENGL=software"' in workflow
