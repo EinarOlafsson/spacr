@@ -1138,8 +1138,8 @@ class _ProtocolBrowserDialog(QDialog):
         :param path: user-chosen destination; existing files follow Qt's save dialog policy.
         :returns: the destination path after the PDF writer completes.
         """
-        from PySide6.QtCore import QMarginsF
-        from PySide6.QtGui import QFont, QPageLayout, QPageSize, QPdfWriter
+        from PySide6.QtCore import QMarginsF, QPointF, QRectF, QSizeF
+        from PySide6.QtGui import QAbstractTextDocumentLayout, QFont, QFontMetricsF, QPageLayout, QPageSize, QPdfWriter
 
         writer = QPdfWriter(str(path))
         writer.setPageSize(QPageSize(QPageSize.A4))
@@ -1161,7 +1161,39 @@ class _ProtocolBrowserDialog(QDialog):
         document.setHtml(f'<html><body style="color: {foreground};{fill}">' +
                          self._recipe_html(expand_all=True) + '</body></html>')
         self._recipe_result['protocol']['markdown'] = _protocol_markdown(self._recipe_result, self._checked, settings_help=self._settings_help)
-        document.print_(writer)
+        layout = document.documentLayout()
+        layout.setPaintDevice(writer)
+        source_dpi = QFontMetricsF(font).fontDpi()
+        margin = int(20 * source_dpi / 25.4)
+        frame = document.rootFrame().frameFormat()
+        frame.setLeftMargin(margin)
+        frame.setRightMargin(margin)
+        frame.setTopMargin(margin)
+        frame.setBottomMargin(margin)
+        document.rootFrame().setFrameFormat(frame)
+        document.setPageSize(QSizeF(writer.width(), writer.height()))
+        painter = QPainter(writer)
+        try:
+            for page in range(document.pageCount()):
+                if page:
+                    writer.newPage()
+                view = QRectF(0, page * writer.height(), writer.width(), writer.height())
+                painter.save()
+                painter.translate(0, -view.top())
+                painter.setClipRect(view)
+                paint_context = QAbstractTextDocumentLayout.PaintContext()
+                paint_context.clip = view
+                layout.draw(painter, paint_context)
+                painter.restore()
+                painter.setPen(QColor(foreground))
+                painter.setFont(font)
+                metrics = QFontMetricsF(font, writer)
+                label = str(page + 1)
+                x = writer.width() - margin * writer.logicalDpiX() / source_dpi
+                y = writer.height() - margin * writer.logicalDpiY() / source_dpi + metrics.ascent() + 5 * writer.logicalDpiY() / 72
+                painter.drawText(QPointF(x - metrics.horizontalAdvance(label), y), label)
+        finally:
+            painter.end()
         return str(path)
 
     def _save_recipe_pdf(self):

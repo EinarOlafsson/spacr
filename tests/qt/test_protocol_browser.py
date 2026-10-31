@@ -335,6 +335,29 @@ def test_protocol_recipe_nested_controls_pdf_and_legacy_reopen(qtbot, tmp_path):
     path = tmp_path / 'protocol.pdf'
     assert dialog._export_recipe_pdf(path) == str(path)
     assert path.read_bytes().startswith(b'%PDF-')
+    from pypdf import PdfReader
+    from pypdf.generic import ContentStream
+
+    for mode in ('black', 'white', 'transparent'):
+        dialog._reader_background.setCurrentIndex(dialog._reader_background.findData(mode))
+        themed_path = tmp_path / f'{mode}.pdf'
+        dialog._export_recipe_pdf(themed_path)
+        reader = PdfReader(themed_path)
+        assert len(reader.pages) > 1
+        links = []
+        for number, page in enumerate(reader.pages, 1):
+            assert page.extract_text().rstrip().endswith(str(number))
+            color = None
+            for operands, operation in ContentStream(page.get_contents(), reader).operations:
+                if operation in (b'scn', b'rg'):
+                    color = tuple(float(value) for value in operands)
+            expected = (242 / 255,) * 3 if mode == 'black' else (32 / 255,) * 3
+            assert color == pytest.approx(expected)
+            for annotation in page.get('/Annots', ()):
+                action = annotation.get_object().get('/A', {})
+                if '/URI' in action:
+                    links.append(str(action['/URI']))
+        assert links and all(link.startswith('https://') for link in links)
     exported = dialog._recipe_html(expand_all=True)
     assert 'spacr://' not in exported
     assert 'https://einarolafsson.github.io/spacr/' in exported
