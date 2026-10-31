@@ -14671,14 +14671,14 @@ class MakeMasksScreen(QWidget):
         :returns: the category.
         """
         from ..i18n import tr
-        from ..layer_viewer import _ChevronCombo, _LayerPanel
+        from ..layer_viewer import _LayerPanel
 
         section = self._settings_category("Layers")
         section.setObjectName("MakeMasksFieldLayers")
         body = section.body_layout
         form = QFormLayout()
         self._layers_form = form
-        self._mask_channel_combo = _ChevronCombo(section)
+        self._mask_channel_combo = QComboBox(section)
         self._mask_channel_combo.setObjectName("MakeMasksMaskChannel")
         self._mask_channel_combo.setToolTip(tr(
             "The raw channel of a multichannel image that the mask is drawn, "
@@ -14686,7 +14686,7 @@ class MakeMasksScreen(QWidget):
             "channel's own file."))
         self._mask_channel_combo.currentIndexChanged.connect(self._on_mask_channel_chosen)
         form.addRow(tr("Mask channel"), self._mask_channel_combo)
-        self._mask_role_combo = _ChevronCombo(section)
+        self._mask_role_combo = QComboBox(section)
         self._mask_role_combo.setObjectName("MakeMasksMaskRole")
         for role, caption in (("object", tr("Object")), ("cell", tr("Cell")),
                               ("nucleus", tr("Nucleus")), ("pathogen", tr("Pathogen"))):

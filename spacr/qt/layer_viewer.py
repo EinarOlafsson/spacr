@@ -45,7 +45,6 @@ from PySide6.QtCore import QPoint, QRect, Qt, Signal
 from PySide6.QtGui import QImage, QPainter, QPixmap
 from PySide6.QtWidgets import (
     QAbstractItemView,
-    QComboBox,
     QDoubleSpinBox,
     QFileDialog,
     QFormLayout,
@@ -171,12 +170,6 @@ QToolButton#LayerPanelRaise, QToolButton#LayerPanelLower {{
 }}
 QToolButton#LayerPanelRaise:hover, QToolButton#LayerPanelLower:hover {{
     border: 1px solid {palette["accent"]};
-}}
-QComboBox[chevronArrow="true"]::down-arrow {{
-    image: none;
-    border: none;
-    width: 0px;
-    height: 0px;
 }}
 QLabel#LayerViewerStatus {{
     color: {palette["fg_muted"]};
@@ -845,67 +838,6 @@ class LayerListWidget(QListWidget):
 
 
 
-def _paint_chevron(combo) -> None:
-    """Draw a down chevron in the combo's arrow area, in its text colour.
-
-    The theme draws the arrow as a CSS border triangle, which Qt paints as a
-    flat bar; this is the arrow the combo should show.
-    """
-    from PySide6.QtGui import QPen
-    from PySide6.QtWidgets import QStyle, QStyleOptionComboBox
-
-    option = QStyleOptionComboBox()
-    combo.initStyleOption(option)
-    rect = combo.style().subControlRect(QStyle.CC_ComboBox, option,
-                                        QStyle.SC_ComboBoxArrow, combo)
-    if rect.width() <= 0:
-        rect = QRect(combo.width() - 24, 0, 24, combo.height())
-    side = max(6, min(10, rect.height() // 3))
-    x, y = rect.center().x(), rect.center().y()
-    painter = QPainter(combo)
-    try:
-        painter.setRenderHint(QPainter.Antialiasing)
-        colour = combo.palette().color(combo.foregroundRole())
-        if not combo.isEnabled():
-            colour.setAlphaF(0.45)
-        pen = QPen(colour, 1.6)
-        painter.setPen(pen)
-        half = side / 2.0
-        painter.drawPolyline([QPoint(int(x - half), int(y - half / 2)),
-                              QPoint(int(x), int(y + half / 2)),
-                              QPoint(int(x + half), int(y - half / 2))])
-    finally:
-        painter.end()
-
-
-class _ChevronCombo(QComboBox):
-    """A combo box that shows a down chevron as its drop-down arrow."""
-
-    def __init__(self, parent=None):
-        """Build the combo, marking it so the theme's bar is not drawn."""
-        super().__init__(parent)
-        self.setProperty("chevronArrow", True)
-
-    def paintEvent(self, event) -> None:
-        """Paint the combo, then its chevron."""
-        super().paintEvent(event)
-        _paint_chevron(self)
-
-
-class _ChevronFlatCombo(FlatComboBox):
-    """:class:`FlatComboBox` with a down chevron as its drop-down arrow."""
-
-    def __init__(self, parent=None, tooltip: str = ""):
-        """Build the combo, marking it so the theme's bar is not drawn."""
-        super().__init__(parent, tooltip=tooltip)
-        self.setProperty("chevronArrow", True)
-
-    def paintEvent(self, event) -> None:
-        """Paint the combo, then its chevron."""
-        super().paintEvent(event)
-        _paint_chevron(self)
-
-
 class _LayerPanel(QWidget):
     """A napari-style layer list with the selected layer's controls.
 
@@ -967,7 +899,7 @@ class _LayerPanel(QWidget):
         self.opacity_slider.valueChanged.connect(self._on_opacity)
         self.opacity_slider.setToolTip(tr("How opaque the active layer is drawn."))
         form.addRow(tr("Opacity"), self.opacity_slider)
-        self.blending_combo = _ChevronFlatCombo(self)
+        self.blending_combo = FlatComboBox(self)
         self.blending_combo.setObjectName("LayerPanelBlending")
         for mode, caption in (
                 (Blending.TRANSLUCENT, tr("Translucent")),
@@ -981,7 +913,7 @@ class _LayerPanel(QWidget):
             "How the active layer combines with the layers under it; additive "
             "suits fluorescence channels."))
         form.addRow(tr("Blending"), self.blending_combo)
-        self.colormap_combo = _ChevronFlatCombo(self)
+        self.colormap_combo = FlatComboBox(self)
         self.colormap_combo.setObjectName("LayerPanelColormap")
         self.colormap_combo.addItems(sorted(COLORMAPS))
         self.colormap_combo.currentTextChanged.connect(self._on_colormap)
@@ -1008,7 +940,7 @@ class _LayerPanel(QWidget):
         self._limits_row = QWidget(self)
         self._limits_row.setLayout(limits)
         form.addRow(tr("Contrast limits"), self._limits_row)
-        self.labels_combo = _ChevronFlatCombo(self)
+        self.labels_combo = FlatComboBox(self)
         self.labels_combo.setObjectName("LayerPanelLabelsDisplay")
         self.labels_combo.addItem(tr("Filled"), 0)
         self.labels_combo.addItem(tr("Outlines"), 1)
