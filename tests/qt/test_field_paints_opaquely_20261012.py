@@ -305,7 +305,12 @@ def test_a_small_scene_is_identical_on_every_first_frame(qtbot):
 
 @pytest.fixture
 def themed(qapp, tmp_path, monkeypatch):
-    """A private preference store; the application's look put back after."""
+    """A private preference store; the application's look put back after.
+
+    The text caret is held steady while the window is compared: a focused
+    line edit's caret blinks on its own timer, and a capture pair taken
+    across a blink differs by that one-pixel line however the field paints.
+    """
     from spacr.qt.widgets.field_fade import (invalidate_field_fade,
                                              uninstall_field_fade)
 
@@ -313,6 +318,8 @@ def themed(qapp, tmp_path, monkeypatch):
     monkeypatch.setattr(preferences, "_settings",
                         lambda: QSettings(str(path), QSettings.IniFormat))
     sheet, palette, font = qapp.styleSheet(), qapp.palette(), qapp.font()
+    flash = QApplication.cursorFlashTime()
+    QApplication.setCursorFlashTime(0)
 
     def apply(theme, opacity):
         preferences.set_theme_choice(theme)
@@ -325,6 +332,7 @@ def themed(qapp, tmp_path, monkeypatch):
     qapp.setFont(font)
     qapp.setPalette(palette)
     qapp.setStyleSheet(sheet)
+    QApplication.setCursorFlashTime(flash)
 
 
 def _window(qtbot):
@@ -332,6 +340,9 @@ def _window(qtbot):
 
     window = MainWindow()
     qtbot.addWidget(window)
+    for timer in ("_consent_timer", "_tour_timer"):
+        if getattr(window, timer, None) is not None:
+            getattr(window, timer).stop()
     window.resize(1400, 900)
     window.show()
     qtbot.waitExposed(window)
