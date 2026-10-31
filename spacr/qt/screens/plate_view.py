@@ -733,11 +733,8 @@ class PlateViewScreen(LinkedView, QWidget):
         src_row.setSpacing(SPACING["sm"])
         self._path_edit = QLineEdit(self)
         self._path_edit.setPlaceholderText(
-            "measurements.db or run folder")
+            "measurements.db")
         self._path_edit.setToolTip("…/measurements/measurements.db  — or a run folder")
-        from ..theme import hold_placeholder_width
-
-        hold_placeholder_width(self._path_edit)
         self._path_edit.setClearButtonEnabled(True)
         self._path_edit.returnPressed.connect(self._on_open_typed_path)
         self._btn_pick_db = QPushButton("Choose database…", self)
@@ -746,14 +743,16 @@ class PlateViewScreen(LinkedView, QWidget):
         self._btn_pick_src.clicked.connect(self._pick_run_folder)
         self._btn_open = QPushButton("Open", self)
         self._btn_open.clicked.connect(self._on_open_typed_path)
-        src_row.addWidget(self._path_edit, 1)
+        from ..theme import stack_when_narrow
+
         src_row.addWidget(self._btn_pick_db)
         src_row.addWidget(self._btn_pick_src)
         src_row.addWidget(self._btn_open)
         install_test_data_button(
             self, src_row, self._open_the_example,
             say=lambda message: self._set_status(message, error=True))
-        outer.addLayout(src_row)
+        outer.addWidget(stack_when_narrow(self._path_edit, src_row,
+                                          SPACING["sm"], self))
 
         pick_row = QHBoxLayout()
         pick_row.setSpacing(SPACING["sm"])

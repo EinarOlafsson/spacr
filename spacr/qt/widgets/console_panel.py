@@ -1621,6 +1621,9 @@ class ConsolePanel(QWidget):
         self._usage_text = QLabel()
         self._usage_text.setObjectName("AiUsageText")
         self._usage_text.setWordWrap(True)
+        from .flow import keep_wrapped_height
+
+        keep_wrapped_height(self._usage_text)
         usage.addWidget(self._usage_bar)
         usage.addWidget(self._usage_text, 1)
         self._usage_row.setVisible(False)

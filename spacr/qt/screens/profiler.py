@@ -350,24 +350,26 @@ class ProfilerScreen(QWidget):
         picker.setSpacing(SPACING["sm"])
         self._path_edit = QLineEdit()
         self._path_edit.setPlaceholderText(
-            "Coefficient table")
+            "Coefficients")
         self._path_edit.setToolTip("Coefficient table (results.csv from a regression run)")
-        from ..theme import hold_placeholder_width
-
-        hold_placeholder_width(self._path_edit)
         self._path_edit.returnPressed.connect(self._on_path_entered)
         picker.addWidget(QLabel("Model"))
-        picker.addWidget(self._path_edit, 1)
         self._browse_button = QPushButton("Browse…")
         self._browse_button.clicked.connect(self._on_browse)
-        picker.addWidget(self._browse_button)
+        path_buttons = QHBoxLayout()
+        path_buttons.setSpacing(SPACING["sm"])
+        path_buttons.addWidget(self._browse_button)
         from ..widgets.measurements_example import (
             _DOSE_PROFILER_RUN, _install_dose_test_data_button)
+        from ..theme import stack_when_narrow
+
         example = _install_dose_test_data_button(
-            self, picker, lambda folder: self.load_coefficients(os.path.join(
+            self, path_buttons, lambda folder: self.load_coefficients(os.path.join(
                 str(folder), "runs", _DOSE_PROFILER_RUN, "results.csv")),
             say=lambda message: self._set_status(message, problem=True))
         example.setObjectName("ProfilerTestDataButton")
+        picker.addWidget(stack_when_narrow(self._path_edit, path_buttons,
+                                           SPACING["sm"]), 1)
 
         self._link = QComboBox()
         self._link.addItems(sorted(LINKS))

@@ -7108,66 +7108,6 @@ def take_the_scroll_arrows_off(root) -> int:
     return len(unique)
 
 
-class _PlaceholderWidth(QObject):
-    """Keeps a line edit at least as wide as its whole placeholder.
-
-    Owned by the edit. See :func:`hold_placeholder_width`.
-    """
-
-    def __init__(self, edit):
-        """Watch ``edit`` and size it now.
-
-        :param edit: the line edit.
-        """
-        super().__init__(edit)
-        self._edit = edit
-        edit.installEventFilter(self)
-        self.fit()
-
-    def fit(self) -> None:
-        """Set the edit's minimum width from its placeholder and font."""
-        from PySide6.QtWidgets import QWidget as _QWidget
-
-        from .gui_scale import _ORIGINAL
-
-        edit = self._edit
-        text = edit.placeholderText()
-        if not text:
-            return
-        metrics = edit.fontMetrics()
-        around = edit.sizeHint().width() - 17 * metrics.horizontalAdvance("x")
-        needed = metrics.horizontalAdvance(text) + max(0, around)
-        setter = _ORIGINAL.get((_QWidget, "setMinimumWidth"),
-                               _QWidget.setMinimumWidth)
-        setter(edit, needed)
-
-    def eventFilter(self, watched, event):   # noqa: N802 - Qt override
-        """Size again when the font or the style changes; never consume.
-
-        :param watched: the edit.
-        :param event: any event.
-        :returns: False.
-        """
-        if event.type() in (QEvent.FontChange, QEvent.StyleChange,
-                            QEvent.Polish):
-            self.fit()
-        return False
-
-
-def hold_placeholder_width(edit) -> None:
-    """Never let a layout squeeze ``edit`` below its placeholder.
-
-    A line edit cannot wrap its placeholder and elides what does not fit
-    (item 746). For a field with a short placeholder the field's minimum
-    width follows the placeholder's width in the current font, so the
-    layout keeps room for it at every Zoom. Give a long description to the
-    field's tooltip instead of its placeholder.
-
-    :param edit: the ``QLineEdit``.
-    """
-    _PlaceholderWidth(edit)
-
-
 class _StackWhenNarrow(QWidget):
     """A field beside its buttons, or above them when they do not fit.
 
@@ -7192,6 +7132,34 @@ class _StackWhenNarrow(QWidget):
         self._box.setSpacing(spacing)
         self._box.addWidget(field, 1)
         self._box.addLayout(buttons)
+        field.installEventFilter(self)
+        self._hold_the_field_open()
+
+    def _hold_the_field_open(self) -> None:
+        """Keep the field twenty average characters wide in its current font.
+
+        The width comes from the font, never from the placeholder, so a
+        long placeholder cannot hold the row open; the buttons stack
+        instead.
+        """
+        from .gui_scale import _ORIGINAL
+
+        field = self._field
+        setter = _ORIGINAL.get((QWidget, "setMinimumWidth"),
+                               QWidget.setMinimumWidth)
+        setter(field, 20 * field.fontMetrics().averageCharWidth())
+
+    def eventFilter(self, watched, event):   # noqa: N802 - Qt override
+        """Measure the field again when its font or style changes.
+
+        :param watched: the field.
+        :param event: any event.
+        :returns: False, so the field still gets the event.
+        """
+        if watched is self._field and event.type() in (
+                QEvent.FontChange, QEvent.StyleChange, QEvent.Polish):
+            self._hold_the_field_open()
+        return False
 
     def _side_by_side_width(self) -> int:
         """The width the field's minimum and every button need on one line."""
@@ -7226,9 +7194,8 @@ class _StackWhenNarrow(QWidget):
 def stack_when_narrow(field, buttons, spacing: int, parent=None):
     """A row of ``field`` and ``buttons`` that never squeezes either.
 
-    Side by side while the field's minimum width (its whole placeholder,
-    see :func:`hold_placeholder_width`) and every button fit on one line;
-    the buttons go under the field when they do not (item 746).
+    Side by side while the field's minimum width and every button fit on
+    one line; the buttons go under the field when they do not (item 746).
 
     :param field: the stretching field.
     :param buttons: a layout holding the buttons.
