@@ -7166,3 +7166,74 @@ def hold_placeholder_width(edit) -> None:
     :param edit: the ``QLineEdit``.
     """
     _PlaceholderWidth(edit)
+
+
+class _StackWhenNarrow(QWidget):
+    """A field beside its buttons, or above them when they do not fit.
+
+    See :func:`stack_when_narrow`.
+    """
+
+    def __init__(self, field, buttons, spacing: int, parent=None):
+        """Lay ``field`` and the ``buttons`` layout out side by side.
+
+        :param field: the stretching field, usually a line edit.
+        :param buttons: a layout holding the buttons.
+        :param spacing: pixels between the field and the buttons.
+        :param parent: parent widget, or ``None``.
+        """
+        from PySide6.QtWidgets import QBoxLayout
+
+        super().__init__(parent)
+        self._field = field
+        self._buttons = buttons
+        self._box = QBoxLayout(QBoxLayout.LeftToRight, self)
+        self._box.setContentsMargins(0, 0, 0, 0)
+        self._box.setSpacing(spacing)
+        self._box.addWidget(field, 1)
+        self._box.addLayout(buttons)
+
+    def _side_by_side_width(self) -> int:
+        """The width the field's minimum and every button need on one line."""
+        return (self._field.minimumSizeHint().expandedTo(
+                    self._field.minimumSize()).width()
+                + self._box.spacing() + self._buttons.sizeHint().width())
+
+    def minimumSizeHint(self):               # noqa: N802 - Qt override
+        """As narrow as the wider of the field and the button row."""
+        from PySide6.QtCore import QSize
+
+        stacked = max(self._field.minimumSize().width(),
+                      self._field.minimumSizeHint().width(),
+                      self._buttons.sizeHint().width())
+        return QSize(stacked, super().minimumSizeHint().height())
+
+    def resizeEvent(self, event) -> None:    # noqa: N802 - Qt override
+        """Stack the buttons under the field when one line is too narrow.
+
+        :param event: the resize event.
+        """
+        from PySide6.QtWidgets import QBoxLayout
+
+        super().resizeEvent(event)
+        wanted = (QBoxLayout.TopToBottom
+                  if event.size().width() < self._side_by_side_width()
+                  else QBoxLayout.LeftToRight)
+        if self._box.direction() != wanted:
+            self._box.setDirection(wanted)
+
+
+def stack_when_narrow(field, buttons, spacing: int, parent=None):
+    """A row of ``field`` and ``buttons`` that never squeezes either.
+
+    Side by side while the field's minimum width (its whole placeholder,
+    see :func:`hold_placeholder_width`) and every button fit on one line;
+    the buttons go under the field when they do not (item 746).
+
+    :param field: the stretching field.
+    :param buttons: a layout holding the buttons.
+    :param spacing: pixels between them.
+    :param parent: parent widget, or ``None``.
+    :returns: the widget holding both.
+    """
+    return _StackWhenNarrow(field, buttons, spacing, parent)

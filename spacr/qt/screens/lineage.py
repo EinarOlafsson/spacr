@@ -175,10 +175,6 @@ class LineageScreen(LinkedView, QWidget):
         source = QHBoxLayout()
         source.addWidget(QLabel("measurements.db", self))
         self._db = QLineEdit(self)
-        self._db.setPlaceholderText("measurements.db")
-        from ..theme import hold_placeholder_width
-
-        hold_placeholder_width(self._db)
         self._db.setToolTip("…/measurements/measurements.db")
         self._db.returnPressed.connect(self.load)
         source.addWidget(self._db, 1)
