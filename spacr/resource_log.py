@@ -1432,6 +1432,49 @@ class _WorkerStartGate:
             return call()
 
 
+_FORKSERVER_POLL_NOWAIT = getattr(os, 'WNOHANG', 1)
+
+
+class _SerializedForkserverPoll:
+    """Serialize the destructive forkserver exit-pipe read in the parent."""
+
+    def __init__(self, popen):
+        """Keep a weak process handle and its original unbound status reader.
+
+        :param popen: already-started real forkserver process handle.
+        """
+        import weakref
+
+        self._popen_ref = weakref.ref(popen)
+        self._poll = type(popen).poll
+        self._lock = threading.Lock()
+
+    def __call__(self, flag=_FORKSERVER_POLL_NOWAIT):
+        """Wait outside the lock, then consume and publish the actual status once.
+
+        :param flag: original multiprocessing polling flag.
+        :returns: the actual exit code, or ``None`` while the worker is live.
+        """
+        popen = self._popen_ref()
+        if flag != _FORKSERVER_POLL_NOWAIT:
+            from multiprocessing.connection import wait
+
+            wait([popen.sentinel])
+        with self._lock:
+            return self._poll(popen, _FORKSERVER_POLL_NOWAIT)
+
+
+def _forkserver_popen_with_serialized_status(process):
+    """Install parent status ownership before the real child is registered.
+
+    :param process: the real multiprocessing process being started.
+    :returns: its original Popen with a parent-only serialized polling adapter.
+    """
+    popen = type(process)._Popen(process)
+    popen.poll = _SerializedForkserverPoll(popen)
+    return popen
+
+
 class _StaggeredProcess:
     """Parent-side process handle that paces start without changing its target.
 
@@ -1443,6 +1486,8 @@ class _StaggeredProcess:
         """Keep a real process and the shared parent-side pool gate."""
         object.__setattr__(self, '_process', process)
         object.__setattr__(self, '_gate', gate)
+        if getattr(process, '_start_method', None) == 'forkserver':
+            process._Popen = _forkserver_popen_with_serialized_status
 
     def __getattr__(self, name):
         """Delegate process identity, liveness, joins and cleanup unchanged."""
