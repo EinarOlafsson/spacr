@@ -172,11 +172,16 @@ def record_measure_diameters(app, window, stage, capture, settle, write_json, ca
             popup_rec.stop()
             diameters.start()
             QTest.mouseClick(picker.diameter_button, Qt.LeftButton)
-            settle(1.0)
-            dialog = next((w for w in app.topLevelWidgets()
-                           if isinstance(w, DiameterDialog) and w.isVisible()), None)
+            # The popup is built on first use; on a loaded machine that took longer than one settle.
+            dialog, shown_by = None, time.monotonic() + 15
+            while dialog is None and time.monotonic() < shown_by:
+                settle(0.5)
+                dialog = next((w for w in app.topLevelWidgets()
+                               if isinstance(w, DiameterDialog) and w.isVisible()), None)
             if dialog is None:
-                raise RuntimeError('Measure diameters did not open its popup')
+                status = getattr(picker, 'status', None)
+                raise RuntimeError('Measure diameters did not open its popup within 15 s; picker status: '
+                                   + (status.text() if status is not None else '?'))
             capture_ui.dialog_geometry(capture, dialog, (1500, 1000),
                                        window.pos() + QPoint(1520, 560))
             settle(0.5)
