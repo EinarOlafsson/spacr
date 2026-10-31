@@ -5,7 +5,7 @@
   "routes": 85,
   "catalog_languages": 14,
   "narration_tracks": 3606,
-  "web_bytes": 133087077,
+  "web_bytes": 133088734,
   "ceiling_bytes": 734003200,
   "media_host_bytes": 15537927289,
   "files": [
@@ -37481,13 +37481,13 @@
     },
     {
       "path": "web/index.html",
-      "sha256": "d73fd3ea7063401270e4bf8fba6402dd2da72ebb63c0b1f5e69550174859137b",
-      "bytes": 15694
+      "sha256": "c7474b14917a93d35f149a31e77ab7bfe69ab6d14282f65236262f67c0a07d07",
+      "bytes": 15678
     },
     {
       "path": "web/lesson_catalog.js",
-      "sha256": "32e7a8f05ca45265c53719973cb59c43718d3584d4bfb8beddd945a78d480c9b",
-      "bytes": 657347
+      "sha256": "8a43e4515c579114a5af09d8621bcba671edebc32706d7e28da7d130398ac4da",
+      "bytes": 659020
     },
     {
       "path": "web/logo_spacr.png",
@@ -37496,7 +37496,7 @@
     },
     {
       "path": "web/module_navigation.js",
-      "sha256": "977303efd8c413a8d212a2e4ee559ed8375cda79e8572e140d3c40190a40b34d",
+      "sha256": "f391f70f6e84bd5c8fd44ef38840e10542a4122360fc6e6f6e783940806c197f",
       "bytes": 17203
     },
     {
@@ -37944,10 +37944,10 @@
     {
       "lesson": "01_pypi_github",
       "rendition_sha256": "3af6a91180218489705a84de63d2675de9c5b8b6ab3e63d5201f5dd6f2fc17e5",
-      "browser_report_sha256": "ad4956d62edbfb88f0084782a75f6bdf1c479f55b95c71e4cf20ce0dc6c1334e"
+      "browser_report_sha256": "2f510e3056ace4129a6bf688fb03d48b191e189f8f3ee315e1b8ccacbdc8a4ec"
     }
   ],
-  "baseline_manifest_sha256": "ab8267d3ca3952b868f34e9231a01d4023afe2684a158605f046ab3fd939f535",
+  "baseline_manifest_sha256": "5e4e4638c9bbe64acce09c4485b3cdaa423e0d9afb2d336ccd54ac187fada616",
   "preserved_lessons": 84,
   "appended_lessons": [],
   "refreshed_lessons": [

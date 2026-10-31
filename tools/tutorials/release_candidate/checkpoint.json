@@ -1,6 +1,6 @@
 {
-  "private_candidate": "/media/carruthers/mnt1/spacr-tutorial-candidates-t18/release-candidate-append-ikyi2zjf",
-  "manifest_sha256": "5e4e4638c9bbe64acce09c4485b3cdaa423e0d9afb2d336ccd54ac187fada616",
+  "private_candidate": "/media/carruthers/mnt1/spacr-tutorial-candidates-t18/release-candidate-append-xijo439c",
+  "manifest_sha256": "8f9aa006e2d21cb8a7a3ae07834be5f68857e460e53388db4af71720c698e5c1",
   "files": [
     {
       "path": "web/TUTORIAL_MEDIA_NOTICE.md",
@@ -259,13 +259,13 @@
     },
     {
       "path": "web/index.html",
-      "sha256": "d73fd3ea7063401270e4bf8fba6402dd2da72ebb63c0b1f5e69550174859137b",
-      "bytes": 15694
+      "sha256": "c7474b14917a93d35f149a31e77ab7bfe69ab6d14282f65236262f67c0a07d07",
+      "bytes": 15678
     },
     {
       "path": "web/lesson_catalog.js",
-      "sha256": "32e7a8f05ca45265c53719973cb59c43718d3584d4bfb8beddd945a78d480c9b",
-      "bytes": 657347
+      "sha256": "8a43e4515c579114a5af09d8621bcba671edebc32706d7e28da7d130398ac4da",
+      "bytes": 659020
     },
     {
       "path": "web/logo_spacr.png",
@@ -274,7 +274,7 @@
     },
     {
       "path": "web/module_navigation.js",
-      "sha256": "977303efd8c413a8d212a2e4ee559ed8375cda79e8572e140d3c40190a40b34d",
+      "sha256": "f391f70f6e84bd5c8fd44ef38840e10542a4122360fc6e6f6e783940806c197f",
       "bytes": 17203
     },
     {
@@ -719,13 +719,13 @@
     },
     {
       "path": "release-manifest.json",
-      "sha256": "5e4e4638c9bbe64acce09c4485b3cdaa423e0d9afb2d336ccd54ac187fada616",
+      "sha256": "8f9aa006e2d21cb8a7a3ae07834be5f68857e460e53388db4af71720c698e5c1",
       "bytes": 1567512
     },
     {
       "path": "candidate-browser-checks.json",
-      "sha256": "2d122fba2f88172c3cf1f959c93a46eca805992eebc0781ac69c4618d325edd8",
-      "bytes": 127188
+      "sha256": "8aa64b197b1d19eb792a11563365a4279bbc828e94c3c52d6bed0b72a173fdf9",
+      "bytes": 127190
     },
     {
       "path": "placeholder-mutation-checks.json",
@@ -742,10 +742,10 @@
   "pages_tree_ready": true,
   "media_revision": {
     "repository": "datasets/einarolafsson/spacr-tutorials",
-    "branch": "n676-ws-01-pypi-github-20261031",
-    "tag": "n676-ws-01-pypi-github-20261031-verified",
-    "commit": "d3794aea1b872e1b56de435bf8b5c3c46f768887",
-    "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/d3794aea1b872e1b56de435bf8b5c3c46f768887"
+    "branch": "n676-ws-01-80-idle-20261031",
+    "tag": "n676-ws-01-80-idle-20261031-verified",
+    "commit": "c5cfa6a9950b35752d64d92c1133e3f793f27d34",
+    "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/c5cfa6a9950b35752d64d92c1133e3f793f27d34"
   },
   "publication_note": "Media revision uploaded and read back; docs.yml publishes the committed Pages tree to the matching nightly or main channel."
 }
