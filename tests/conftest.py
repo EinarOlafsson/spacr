@@ -25,6 +25,7 @@ pytest-qt provides.
 """
 from __future__ import annotations
 
+import gc
 import os
 import sqlite3
 import sys
@@ -969,6 +970,23 @@ def _the_widget_tree_does_not_outgrow_the_session(_isolated_qsettings_store):
     must be fixed at their owners rather than by collecting live wrappers
     more aggressively in the test harness.
 
+    A freeze the previous test made is undone here, before that tick.
+    ``spacr.qt.app._freeze_what_survived`` and the background importer call
+    ``gc.freeze()`` after a screen build, a launch or an import, because in
+    the application those objects live as long as the process. A test's
+    window does not: it is closed at teardown, but everything it built was
+    moved to the permanent generation while it was alive, so its reference
+    cycles were never examined again. One run of
+    ``test_707_the_window_fits_a_720p_screen.py`` left 104,490 such
+    unreachable objects (5,582 ``QLabel`` wrappers, 2,251 ``QWidget``, 1,121
+    ``QTimer`` ...) frozen, and each repeat of the module added about 215 MB
+    of RSS that a repeat without freezes did not. Over the first 230 files of
+    the serial order (offscreen, about 900 live widgets at the end) RSS ended
+    at 3.18 GB as frozen, 2.32 GB with no freezes and 2.69 GB with this
+    boundary. ``gc.unfreeze()`` collects nothing; it returns those objects to
+    the oldest generation, which the tick below then collects on CPython's
+    own schedule, as it would have had no freeze happened.
+
     Ordered behind the QSettings sandbox, and depending on it by name rather
     than by where it sits in this file, because destroying a widget can run
     a ``closeEvent`` that writes a preference. Whatever those writes land in
@@ -986,6 +1004,7 @@ def _the_widget_tree_does_not_outgrow_the_session(_isolated_qsettings_store):
                 gc_policy.install(app)
                 module.QApplication.sendPostedEvents(
                     None, QEvent.DeferredDelete)
+                gc.unfreeze()
                 if gc_policy.is_installed():
                     gc_policy.collect_once()
         except Exception:                                        # noqa: BLE001
