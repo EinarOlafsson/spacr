@@ -58,12 +58,12 @@ ROLES: Tuple[str, ...] = (
     ROLE_TREATMENT, ROLE_POSITIVE, ROLE_NEGATIVE, ROLE_BLANK,
 )
 
-#: Fill order. ``random`` is the only one that cannot be confounded with a
-#: position gradient, and is the right default for anything being compared.
-#: ``block`` keeps a condition's replicates together, which is easier to
-#: pipette and is the one layout guaranteed to confound condition with
-#: position -- it is here because people use it, and because a design tool
-#: that refuses to express the common case gets replaced by a spreadsheet.
+#: Fill order. ``random`` shuffles the usable wells with the design seed
+#: before conditions are placed, so conditions do not follow plate order; it
+#: is the default. ``row`` fills row by row, ``column`` column by column, and
+#: ``block`` uses the row order. These three place each condition's
+#: replicates in consecutive wells, so condition varies with plate position;
+#: :func:`check_design` reports this as a warning for ``block``.
 LAYOUTS: Tuple[str, ...] = ("random", "row", "column", "block")
 
 #: Use the outer ring like any other well.
