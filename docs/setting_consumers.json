@@ -16712,7 +16712,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "fps",
-    "line": 14341,
+    "line": 14409,
     "module": "spacr.qt.widgets.ambient",
     "nested": false,
     "qualname": "install_ambient"

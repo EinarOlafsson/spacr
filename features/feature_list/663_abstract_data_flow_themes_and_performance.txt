@@ -1,6 +1,6 @@
 ABSTRACT DATA FLOW THEMES AND BACKDROP PERFORMANCE
 Lifecycle: new
-Status:    IN PROGRESS 2026-10-31 — narrow probe/worker-retirement defect; earlier 2026-10-12 maintainer visual acceptance remains recorded below.
+Status:    DONE 2026-10-31 — probe/worker-retirement repair qualified; prior maintainer visual acceptance retained and historical hosted failure causation remains unproven.
 spin, native aurora and popup integration are implemented and locally checked.
 Biological growth paths implement the latest maintainer direction;
 native hard24FPS, installed Save crash and final aesthetic acceptance remain open.
