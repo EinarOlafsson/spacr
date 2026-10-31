@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 13:49-0400\n"
+"POT-Creation-Date: 2026-10-30 20:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -77,6 +77,10 @@ msgstr "将 ``batch_correction`` 设置为上述某种方法，并用 ``batch_co
 msgid "For ``control_center``, ``batch_control_column`` identifies the metadata field that contains the controls and ``batch_control_values`` selects one or more reference values. When blank, Image UMAP follows ``col_to_compare``/``neg`` and Classify's ML family follows ``location_column`` (or ``annotation_column`` when annotations define the classes) and ``negative_control_id``. Regression requires an explicit reference value. ``batch_missing_control=error`` (the default) stops the run when a plate has fewer than ``batch_min_samples`` usable reference controls; ``skip`` leaves an affected plate unchanged and records a warning."
 msgstr "对于 ``control_center``，``batch_control_column`` 指定包含对照的元数据字段，``batch_control_values`` 选择一个或多个参照值。留空时，图像 UMAP 遵循 ``col_to_compare``/``neg``，而分类模块的 ML 系列遵循 ``location_column`` （当标注定义类别时为 ``annotation_column``）和 ``negative_control_id``。回归需要显式的参照值。``batch_missing_control=error`` （默认）会在某块板可用的参照对照少于 ``batch_min_samples`` 个时停止运行；``skip`` 会使受影响的板保持不变并记录一条警告。"
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "When correcting multiple batches, ``skip`` tolerates missing reference controls on individual plates; it does not bypass the minimum total rows per batch or the minimum matching controls across all plates. If only one batch is present, correction makes no adjustment and records a warning."
+msgstr "校正多个批次时，``skip`` 允许个别孔板缺少参考对照，但不会绕过每个批次的总行数下限，也不会绕过所有孔板中匹配对照数量的下限。如果只有一个批次，校正不会进行任何调整，并会记录一条警告。"
+
 msgid "Every regression correction writes ``batch_correction.json`` next to the regression outputs. Image UMAP and Classify print before/after batch-centroid spread in the run log, while the reproducibility manifest records the exact settings used."
 msgstr "每次回归校正都会在回归输出旁写入 ``batch_correction.json``。图像 UMAP 和分类模块会在运行日志中打印校正前后的批次质心离散度，而可重复性清单会记录所用的确切设置。"
 
@@ -86,4 +90,8 @@ msgstr "Python API"
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The shared implementation is :func:`spacr.batch_correction.correct_batch_effects`. Most integrations use :func:`spacr.batch_correction.correct_from_metadata` with separate feature and metadata frames. The adapter reads batch, control and covariate columns from metadata; it does not remove metadata columns already included in the feature frame. Select only measurement features for that frame, excluding numeric identifiers and other metadata."
 msgstr "共享实现为 :func:`spacr.batch_correction.correct_batch_effects`。多数集成通过独立的特征表和元数据表使用 :func:`spacr.batch_correction.correct_from_metadata`。适配器从元数据读取批次、对照和协变量列；不会删除已经放入特征表的元数据列。该表应仅选择测量特征，排除数值标识符及其他元数据。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Keep ``features`` and ``metadata`` indexed by the same object identifiers. Metadata is aligned to ``features.index`` by label, not by row position. Preserve each object's index label when filtering or reordering either frame; independently resetting indexes can associate measurements with the wrong metadata."
+msgstr "请让 ``features`` 和 ``metadata`` 使用相同的对象标识符作为索引。元数据按索引标签与 ``features.index`` 对齐，而不是按行位置对齐。筛选或重新排列任一数据框时，请保留每个对象的索引标签；分别重置索引可能会将测量值关联到错误的元数据。"
 

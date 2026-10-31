@@ -58,6 +58,8 @@ Regression requires an explicit reference value.
 fewer than ``batch_min_samples`` usable reference controls;
 ``skip`` leaves an affected plate unchanged and records a warning.
 
+When correcting multiple batches, ``skip`` tolerates missing reference controls on individual plates; it does not bypass the minimum total rows per batch or the minimum matching controls across all plates. If only one batch is present, correction makes no adjustment and records a warning.
+
 Every regression correction writes ``batch_correction.json`` next to the
 regression outputs. Image UMAP and Classify print before/after batch-centroid
 spread in the run log, while the reproducibility manifest records the exact
@@ -72,6 +74,8 @@ with separate feature and metadata frames. The adapter reads batch, control
 and covariate columns from metadata; it does not remove metadata columns
 already included in the feature frame. Select only measurement features for
 that frame, excluding numeric identifiers and other metadata.
+
+Keep ``features`` and ``metadata`` indexed by the same object identifiers. Metadata is aligned to ``features.index`` by label, not by row position. Preserve each object's index label when filtering or reordering either frame; independently resetting indexes can associate measurements with the wrong metadata.
 
 .. code-block:: python
 

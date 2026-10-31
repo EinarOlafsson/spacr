@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 13:49-0400\n"
+"POT-Creation-Date: 2026-10-30 20:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: es\n"
@@ -77,6 +77,10 @@ msgstr "Establezca ``batch_correction`` en uno de los métodos anteriores y use 
 msgid "For ``control_center``, ``batch_control_column`` identifies the metadata field that contains the controls and ``batch_control_values`` selects one or more reference values. When blank, Image UMAP follows ``col_to_compare``/``neg`` and Classify's ML family follows ``location_column`` (or ``annotation_column`` when annotations define the classes) and ``negative_control_id``. Regression requires an explicit reference value. ``batch_missing_control=error`` (the default) stops the run when a plate has fewer than ``batch_min_samples`` usable reference controls; ``skip`` leaves an affected plate unchanged and records a warning."
 msgstr "Para ``control_center``, ``batch_control_column`` identifica el campo de metadatos que contiene los controles y ``batch_control_values`` selecciona uno o varios valores de referencia. Si se dejan vacíos, UMAP de imágenes sigue ``col_to_compare``/``neg`` y la familia ML de Clasificar sigue ``location_column`` (o ``annotation_column`` cuando las anotaciones definen las clases) y ``negative_control_id``. La regresión requiere un valor de referencia explícito. ``batch_missing_control=error`` (el valor predeterminado) detiene la ejecución cuando una placa tiene menos de ``batch_min_samples`` controles de referencia utilizables; ``skip`` deja sin cambios la placa afectada y registra una advertencia."
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "When correcting multiple batches, ``skip`` tolerates missing reference controls on individual plates; it does not bypass the minimum total rows per batch or the minimum matching controls across all plates. If only one batch is present, correction makes no adjustment and records a warning."
+msgstr "Al corregir varios lotes, ``skip`` tolera la ausencia de controles de referencia en placas individuales; no omite el mínimo total de filas por lote ni el mínimo de controles coincidentes entre todas las placas. Si solo hay un lote, la corrección no realiza ningún ajuste y registra una advertencia."
+
 msgid "Every regression correction writes ``batch_correction.json`` next to the regression outputs. Image UMAP and Classify print before/after batch-centroid spread in the run log, while the reproducibility manifest records the exact settings used."
 msgstr "Cada corrección de la regresión escribe ``batch_correction.json`` junto a las salidas de la regresión. UMAP de imágenes y Clasificar muestran en el registro de ejecución la dispersión de los centroides de lote antes y después, mientras que el manifiesto de reproducibilidad registra la configuración exacta utilizada."
 
@@ -86,4 +90,8 @@ msgstr "API de Python"
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The shared implementation is :func:`spacr.batch_correction.correct_batch_effects`. Most integrations use :func:`spacr.batch_correction.correct_from_metadata` with separate feature and metadata frames. The adapter reads batch, control and covariate columns from metadata; it does not remove metadata columns already included in the feature frame. Select only measurement features for that frame, excluding numeric identifiers and other metadata."
 msgstr "La implementación compartida es :func:`spacr.batch_correction.correct_batch_effects`. La mayoría de las integraciones usan :func:`spacr.batch_correction.correct_from_metadata` con tablas separadas de características y metadatos. El adaptador lee las columnas de lote, control y covariables de los metadatos; no elimina columnas de metadatos ya incluidas en la tabla de características. Seleccione solo características medidas para esa tabla, excluyendo identificadores numéricos y otros metadatos."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Keep ``features`` and ``metadata`` indexed by the same object identifiers. Metadata is aligned to ``features.index`` by label, not by row position. Preserve each object's index label when filtering or reordering either frame; independently resetting indexes can associate measurements with the wrong metadata."
+msgstr "Mantenga ``features`` y ``metadata`` indexados por los mismos identificadores de objeto. Los metadatos se alinean con ``features.index`` por etiqueta, no por posición de fila. Conserve la etiqueta de índice de cada objeto al filtrar o reordenar cualquiera de los dos DataFrames; restablecer sus índices de forma independiente puede asociar las mediciones con metadatos incorrectos."
 

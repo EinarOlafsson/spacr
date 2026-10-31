@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 13:49-0400\n"
+"POT-Creation-Date: 2026-10-30 20:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -77,6 +77,10 @@ msgstr "Stilltu ``batch_correction`` á aðferð hér að ofan og notaðu ``batc
 msgid "For ``control_center``, ``batch_control_column`` identifies the metadata field that contains the controls and ``batch_control_values`` selects one or more reference values. When blank, Image UMAP follows ``col_to_compare``/``neg`` and Classify's ML family follows ``location_column`` (or ``annotation_column`` when annotations define the classes) and ``negative_control_id``. Regression requires an explicit reference value. ``batch_missing_control=error`` (the default) stops the run when a plate has fewer than ``batch_min_samples`` usable reference controls; ``skip`` leaves an affected plate unchanged and records a warning."
 msgstr "Fyrir ``control_center`` tilgreinir ``batch_control_column`` lýsigagnareitinn sem inniheldur viðmiðin og ``batch_control_values`` velur eitt eða fleiri viðmiðunargildi. Þegar þetta er autt fylgir Mynda-UMAP ``col_to_compare``/``neg`` og ML-fjölskylda Flokkunar fylgir ``location_column`` (eða ``annotation_column`` þegar merkingar skilgreina flokkana) og ``negative_control_id``. Aðhvarf krefst skýrs viðmiðunargildis. ``batch_missing_control=error`` (sjálfgildið) stöðvar keyrsluna þegar plata hefur færri en ``batch_min_samples`` nothæf viðmiðunarsýni; ``skip`` lætur viðkomandi plötu óbreytta og skráir viðvörun."
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "When correcting multiple batches, ``skip`` tolerates missing reference controls on individual plates; it does not bypass the minimum total rows per batch or the minimum matching controls across all plates. If only one batch is present, correction makes no adjustment and records a warning."
+msgstr "Þegar margar lotur eru leiðréttar leyfir ``skip`` að viðmiðunarsýni vanti á einstakar plötur; það sneiðir ekki hjá lágmarksfjölda raða samtals í hverri lotu eða lágmarksfjölda samsvarandi viðmiðunarsýna yfir allar plötur. Ef aðeins ein lota er til staðar gerir leiðréttingin enga breytingu og skráir viðvörun."
+
 msgid "Every regression correction writes ``batch_correction.json`` next to the regression outputs. Image UMAP and Classify print before/after batch-centroid spread in the run log, while the reproducibility manifest records the exact settings used."
 msgstr "Sérhver aðhvarfsleiðrétting skrifar ``batch_correction.json`` við hlið aðhvarfsúttakanna. Mynda-UMAP og Flokkun prenta dreifingu lotumiðja fyrir og eftir í keyrsluskrána, en endurtakanleikaskráin skráir nákvæmar stillingar sem notaðar voru."
 
@@ -86,4 +90,8 @@ msgstr "Python API"
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The shared implementation is :func:`spacr.batch_correction.correct_batch_effects`. Most integrations use :func:`spacr.batch_correction.correct_from_metadata` with separate feature and metadata frames. The adapter reads batch, control and covariate columns from metadata; it does not remove metadata columns already included in the feature frame. Select only measurement features for that frame, excluding numeric identifiers and other metadata."
 msgstr "Sameiginlega útfærslan er :func:`spacr.batch_correction.correct_batch_effects`. Flestar samþættingar nota :func:`spacr.batch_correction.correct_from_metadata` með aðskildum eiginleikaramma og lýsigagnaramma. Millilagið les lotu-, viðmiðunar- og fylgibreytudálka úr lýsigögnum; það fjarlægir ekki lýsigagnadálka sem eru þegar í eiginleikarammanum. Veldu aðeins mælda eiginleika í þann ramma og útilokaðu töluleg auðkenni og önnur lýsigögn."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Keep ``features`` and ``metadata`` indexed by the same object identifiers. Metadata is aligned to ``features.index`` by label, not by row position. Preserve each object's index label when filtering or reordering either frame; independently resetting indexes can associate measurements with the wrong metadata."
+msgstr "Láttu ``features`` og ``metadata`` hafa sömu hlutauðkenni sem vísi. Lýsigögn eru stillt af við ``features.index`` eftir merkimiða, ekki eftir stöðu raðar. Varðveittu vísismerkimiða hvers hlutar þegar annar hvor gagnaramminn er síaður eða endurraðaður; ef vísarnir eru endurstilltir óháð hvor öðrum geta mælingar tengst röngum lýsigögnum."
 

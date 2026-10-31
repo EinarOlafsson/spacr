@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 13:49-0400\n"
+"POT-Creation-Date: 2026-10-30 20:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -77,6 +77,10 @@ msgstr "``batch_correction`` 항목을 위의 방법 중 하나로 설정하고 
 msgid "For ``control_center``, ``batch_control_column`` identifies the metadata field that contains the controls and ``batch_control_values`` selects one or more reference values. When blank, Image UMAP follows ``col_to_compare``/``neg`` and Classify's ML family follows ``location_column`` (or ``annotation_column`` when annotations define the classes) and ``negative_control_id``. Regression requires an explicit reference value. ``batch_missing_control=error`` (the default) stops the run when a plate has fewer than ``batch_min_samples`` usable reference controls; ``skip`` leaves an affected plate unchanged and records a warning."
 msgstr "``control_center`` 방법에서는 ``batch_control_column``\\ 이 대조군이 들어 있는 메타데이터 필드를 지정하고, ``batch_control_values``\\ 가 하나 이상의 기준값을 선택합니다. 비워 두면 이미지 UMAP은 ``col_to_compare``/``neg``\\ 를 따르고, 분류의 ML 계열은 ``location_column`` (어노테이션이 클래스를 정의하는 경우 ``annotation_column``) 및 ``negative_control_id``\\ 를 따릅니다. 회귀에는 명시적인 기준값이 필요합니다. ``batch_missing_control=error`` (기본값)는 사용 가능한 기준 대조군이 ``batch_min_samples``\\ 개보다 적은 플레이트가 있으면 실행을 중지하고, ``skip``\\ 은 해당 플레이트를 변경하지 않고 경고를 기록합니다."
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "When correcting multiple batches, ``skip`` tolerates missing reference controls on individual plates; it does not bypass the minimum total rows per batch or the minimum matching controls across all plates. If only one batch is present, correction makes no adjustment and records a warning."
+msgstr "여러 배치를 보정할 때 ``skip`` 은 개별 플레이트에 참조 대조군이 없는 경우를 허용하지만, 배치별 최소 총 행 수나 전체 플레이트에 걸친 일치 대조군의 최소 수를 우회하지는 않습니다. 배치가 하나뿐이면 보정은 아무 조정도 하지 않고 경고를 기록합니다."
+
 msgid "Every regression correction writes ``batch_correction.json`` next to the regression outputs. Image UMAP and Classify print before/after batch-centroid spread in the run log, while the reproducibility manifest records the exact settings used."
 msgstr "모든 회귀 보정은 회귀 출력 옆에 ``batch_correction.json`` 파일을 씁니다. 이미지 UMAP과 분류는 보정 전후의 배치 중심 산포를 실행 로그에 출력하며, 재현성 매니페스트에는 사용된 정확한 설정이 기록됩니다."
 
@@ -86,4 +90,8 @@ msgstr "Python API"
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The shared implementation is :func:`spacr.batch_correction.correct_batch_effects`. Most integrations use :func:`spacr.batch_correction.correct_from_metadata` with separate feature and metadata frames. The adapter reads batch, control and covariate columns from metadata; it does not remove metadata columns already included in the feature frame. Select only measurement features for that frame, excluding numeric identifiers and other metadata."
 msgstr "공통 구현은 :func:`spacr.batch_correction.correct_batch_effects` 입니다. 대부분의 통합은 별도의 특징 프레임과 메타데이터 프레임으로 :func:`spacr.batch_correction.correct_from_metadata` 를 사용합니다. 어댑터는 메타데이터에서 배치, 대조 및 공변량 열을 읽으며, 이미 특징 프레임에 포함된 메타데이터 열은 제거하지 않습니다. 해당 프레임에는 측정 특징만 선택하고 숫자 식별자와 기타 메타데이터는 제외하세요."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Keep ``features`` and ``metadata`` indexed by the same object identifiers. Metadata is aligned to ``features.index`` by label, not by row position. Preserve each object's index label when filtering or reordering either frame; independently resetting indexes can associate measurements with the wrong metadata."
+msgstr "``features`` 와 ``metadata`` 의 인덱스에 동일한 객체 식별자를 사용합니다. 메타데이터는 행 위치가 아니라 인덱스 레이블을 기준으로 ``features.index`` 에 맞춰 정렬됩니다. 어느 데이터프레임을 필터링하거나 재정렬하든 각 객체의 인덱스 레이블을 유지합니다. 인덱스를 각각 독립적으로 초기화하면 측정값이 잘못된 메타데이터와 연결될 수 있습니다."
 
