@@ -511,6 +511,10 @@ def _protocol_catalog(data=None):
         catalog.setdefault(key, dict(name=organism['name'], guidance=organism['description'],
                                      inputs=['organism_reference'], outputs=['organism_navigation'],
                                      api_module='spacr.qt.organisms', parent=None))
+    for key, contract in data['protocol_wizard'].get('navigation_contracts', {}).items():
+        catalog.setdefault(key, dict(name=contract['name'], guidance=contract['guidance'],
+                                     inputs=list(contract['inputs']), outputs=list(contract['outputs']),
+                                     api_module='', parent=None))
     for key, row in available.items():
         if key not in catalog:
             inputs = ['raw_images'] if key in ('overview', '3d') else ['organism_reference']
