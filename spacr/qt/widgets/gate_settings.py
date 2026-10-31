@@ -453,8 +453,8 @@ class GateSettingsDialog(QDialog):
                             "wand"))
         self._tool.setCurrentText(self._settings.default_tool)
         self._tool.setToolTip(
-            "The tool a drag uses when nothing else is armed. Rectangle, "
-            "because dragging a box is what everyone tries first.")
+            "The tool a drag uses when nothing else is armed. Default "
+            "rectangle.")
         self._tool.currentTextChanged.connect(
             lambda v: self._change(default_tool=v))
         form.addRow("Default tool", self._tool)
@@ -510,9 +510,10 @@ class GateSettingsDialog(QDialog):
         self._wand_tolerance.setValue(self._settings.wand_tolerance)
         self._wand_tolerance.setToolTip(
             "Magic wand: how far apart two objects can be and still count as "
-            "neighbours. This is what makes it a watershed rather than a "
-            "circle — the selection flows along a dense ridge and stops at a "
-            "gap, so a bent population comes out whole.")
+            "neighbours, in axis-scaled units. The selection grows from the "
+            "clicked object to every object within this distance of one "
+            "already selected, so it follows a dense curved population and "
+            "stops at a wider gap.")
         self._wand_tolerance.valueChanged.connect(
             lambda v: self._change(wand_tolerance=float(v)))
         form.addRow("Wand tolerance", self._wand_tolerance)
@@ -796,7 +797,7 @@ class GateSettingsDialog(QDialog):
         self._merge_primary.setToolTip(
             "The object everything else is rolled up onto. It decides what a "
             "row of the merged table means — rolling cells onto pathogens is "
-            "a legitimate thing to want and gives a different table.")
+            "also valid and gives a different table.")
         self._merge_primary.currentTextChanged.connect(
             lambda v: self._change(merge_primary=v))
         form.addRow("Merge: primary object", self._merge_primary)
@@ -866,9 +867,9 @@ class GateSettingsDialog(QDialog):
         form.addRow("", self._rules_button)
 
         note = QLabel(
-            "The 3D workspace itself is the next piece of work. These "
-            "settings are read by it when it lands; nothing here changes the "
-            "2D view.", page)
+            "Gate in switches the plot between 2D and 3D. Z, Voxels, Snap and "
+            "Spin speed apply only to the 3D view; the merge settings decide "
+            "how child objects are rolled up when tables are merged.", page)
         note.setWordWrap(True)
         form.addRow("", note)
         return page

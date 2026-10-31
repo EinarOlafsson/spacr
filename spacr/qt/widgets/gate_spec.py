@@ -3829,8 +3829,8 @@ def gate_from_dict(payload: Mapping[str, Any]) -> Gate:
     if unknown:
         raise GateError(
             f"{kind} gate {data.get('name')!r} carries "
-            f"{', '.join(sorted(unknown))}, which this build does not "
-            f"understand; it was probably written by a newer spaCR")
+            f"{', '.join(sorted(unknown))}, which this build cannot "
+            f"read; it was probably written by a newer spaCR")
     return cls(**data)
 
 

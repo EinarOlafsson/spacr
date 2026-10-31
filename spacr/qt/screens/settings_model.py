@@ -3415,10 +3415,10 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "instruments and plate identity shows up as a larger effect than "
         "the biology.",
     "CLASSIFIER & VALIDATION":
-        "The estimator itself and how honestly it is scored — algorithm, "
-        "learning rate and regularisation, held-out fraction and "
+        "The estimator itself and how it is evaluated on held-out data — "
+        "algorithm, learning rate and regularisation, held-out fraction and "
         "cross-validation. Change these when the model overfits, or when "
-        "the reported accuracy looks too good to be true.",
+        "the reported accuracy is higher than the data can support.",
     "FEATURE SELECTION & IMPORTANCE":
         "Whether features are pruned before the final fit, and how repeated "
         "permutation importance is computed afterwards. These settings "

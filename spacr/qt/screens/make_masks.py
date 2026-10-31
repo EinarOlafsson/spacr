@@ -21067,10 +21067,8 @@ class MakeMasksScreen(QWidget):
         self._otsu_fill_holes.setToolTip(
             "Close the holes inside what was thresholded, before it is "
             "labelled. A nucleus dimmer in the middle than at its rim comes "
-            "back as a ring without this. The magnifier's Otsu mode has "
-            "always done it and Otsu detect did not, which is why the two "
-            "could disagree about the same field; now they both read this "
-            "box.")
+            "back as a ring without this. Otsu detect and the magnifier's "
+            "Otsu mode both read this box.")
         card.body_layout.addWidget(self._otsu_fill_holes)
 
         self._otsu_split = Toggle("Split objects that touch")

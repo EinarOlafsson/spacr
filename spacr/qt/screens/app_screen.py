@@ -9980,10 +9980,9 @@ class AppScreen(QWidget):
             return
         if getattr(self, "_slow_fit", False):
             self._console.append_notice(
-                "■ Still fitting — {elapsed} so far. This model is a "
-                "single-threaded optimisation, so one core at 100% and the "
-                "others idle is what a healthy fit looks like. Stop is "
-                "live.\n", elapsed=_elapsed_words(elapsed))
+                "■ Still fitting — {elapsed} so far. This model's fit runs "
+                "mostly on one CPU core, so one core at 100% and the others "
+                "idle is expected. Stop is live.\n", elapsed=_elapsed_words(elapsed))
         else:
             self._console.append_notice(
                 "■ Still running — {elapsed} so far.\n",

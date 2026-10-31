@@ -388,7 +388,7 @@ class TestTheHeartbeat:
 
         screen._on_heartbeat()
 
-        assert "single-threaded optimisation" in said[0]
+        assert "runs mostly on one CPU core" in said[0]
 
 
 class TestReportingTheDesignThatWasRead:

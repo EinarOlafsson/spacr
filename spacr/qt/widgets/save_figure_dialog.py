@@ -425,8 +425,8 @@ class SaveFigureDialog(QDialog):
 
         self.background = self._colour_box(
             BACKGROUNDS,
-            "The page behind the figure. Transparent takes whatever the "
-            "figure is placed on, which is what a slide usually wants.")
+            "The page behind the figure. Transparent leaves it unpainted, so "
+            "the figure shows whatever it is placed on, such as a slide.")
         form.addRow("background colour", self.background)
 
         self.line_colour = self._colour_box(

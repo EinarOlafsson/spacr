@@ -4766,8 +4766,9 @@ class _ClusterSettingsDialog(QDialog):
         self._scale = Toggle("Standardise both axes first", self)
         self._scale.setChecked(bool(_setting("cluster_scale")))
         self._scale.setToolTip(
-            "On unless you know otherwise. Without it, the axis with the "
-            "larger numeric range decides the clustering on its own.")
+            "Scale both axes to a common range before clustering. Without it, "
+            "the axis with the larger numeric range decides the clustering on "
+            "its own.")
         form.addRow("", self._scale)
 
         self._walk = Toggle("Walk eps and use the best radius", self)
