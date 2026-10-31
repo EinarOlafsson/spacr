@@ -73,6 +73,8 @@ when coordinated with the release lane. N740/N741 remain separate work items.
 
 2026-10-31 — Implementation authorized; the recording-only hold is superseded. App/Navigator UI and Protocols workflow peers retain ownership through implementation, necessary focused checks, normal artifacts and Nightly delivery; the queued 1.5.1.7 source remains isolated.
 
+2026-10-31 — The isolated core now resolves four input families, real filename conventions and pairing/orientation choices, with copied compatible settings/source handoffs and an availability-filtered registry catalog covering all existing workflow modules and organisms. Focused route/data-integrity, nested recipe/PDF and retained legacy navigation controls pass; normal workflow generation verifies78 modules/nine pathways. Default PDF expands the selected recipe and its relevant settings, while the complete catalog is an explicitly selected appendix. UI integration, independent source review and normal nine-language/artifact closure remain in progress; no candidate/publication or scientific capability claim.
+
 ORIGINAL MAINTAINER REQUEST — VERBATIM
 
 add to new features list and push to git, dont implement now, the next session will. 

@@ -144,6 +144,41 @@ def _validate_protocols(data):
             raise ValueError("protocols missing hierarchical choices")
 
 
+def _validate_protocol_wizard(data):
+    """Validate the editorial wizard while preserving the legacy protocol catalog.
+
+    :param data: canonical module workflow map.
+    :raises ValueError: on missing families, invalid starters or untranslated machine records.
+    """
+    wizard = data.get('protocol_wizard')
+    if wizard is None:
+        return
+    families = wizard.get('families', {})
+    if set(families) != {'small_images', 'plate_images', 'sequencing', 'features'}:
+        raise ValueError('protocol wizard requires four input families')
+    contracts = wizard.get('navigation_contracts', {})
+    for key, record in contracts.items():
+        if not record.get('guidance') or any(set(record.get(field, [])) - data['artifacts'].keys()
+                                             for field in ('inputs', 'outputs')):
+            raise ValueError(f'{key}: invalid registered navigation contract')
+    allowed = set(data['modules']) | set(contracts)
+    for family, record in families.items():
+        if not record.get('label') or not record.get('explanation') or not record.get('formats'):
+            raise ValueError(f'{family}: incomplete protocol input family')
+        for key, format_ in record['formats'].items():
+            if (not format_.get('label') or not format_.get('explanation')
+                    or not isinstance(format_.get('starts'), list)
+                    or set(format_['starts']) - allowed):
+                raise ValueError(f'{family}/{key}: invalid protocol starter')
+    for family in ('small_images', 'plate_images'):
+        if 'pdf' not in families[family]['formats']:
+            raise ValueError('both image families require the PDF route')
+    for source in ('image_formats', 'experiments', 'read_modes', 'sequencers', 'barcodes'):
+        if not wizard.get(source) or any(not row.get('label') or not row.get('explanation')
+                                          for row in wizard[source].values()):
+            raise ValueError(f'invalid protocol detail choices: {source}')
+
+
 def validate(data, root=ROOT, *, live=True):
     """Reject broken links, missing sources and drift from shipped contracts."""
     if data.get("schema_version") != 1:
@@ -212,6 +247,7 @@ def validate(data, root=ROOT, *, live=True):
                 raise ValueError(f"{key}: invalid external input {identity!r}")
             input_ids.add(identity)
     _validate_protocols(data)
+    _validate_protocol_wizard(data)
     for key, lesson in data["tutorials"].items():
         ownership = lesson.get("lesson_source", "workflow_map")
         if ownership not in {"workflow_map", "authored"}:

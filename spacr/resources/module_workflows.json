@@ -2092,6 +2092,14 @@
         "simulations"
       ],
       "columns": []
+    },
+    "image_measurements": {
+      "title": "Whole-image measurements",
+      "location": "Overview writes one row per image to the fov table of measurements/measurements.db under the first loaded source root; exported tables preserve that source ownership.",
+      "tables": [
+        "fov"
+      ],
+      "columns": []
     }
   },
   "pathways": {
@@ -7216,5 +7224,303 @@
         ]
       }
     ]
+  },
+  "protocol_wizard": {
+    "families": {
+      "small_images": {
+        "label": "Some images, low content (~10–50)",
+        "explanation": "Image counts are descriptive, not a validity threshold. Collections with fewer than ten images are supported; inspect representative fields.",
+        "formats": {
+          "tiff_yokogawa": {
+            "label": "TIFF with Yokogawa metadata",
+            "explanation": "Use the CellVoyager filename convention; verify plate, well, field and channel identities before analysis.",
+            "starts": [
+              "mask",
+              "make_masks",
+              "overview"
+            ]
+          },
+          "tiff_other": {
+            "label": "TIFF with other metadata",
+            "explanation": "Choose the actual filename convention or a custom named-group expression. Test it on representative files.",
+            "starts": [
+              "foreign",
+              "mask",
+              "make_masks",
+              "align",
+              "overview"
+            ]
+          },
+          "other_yokogawa": {
+            "label": "Other images with Yokogawa metadata",
+            "explanation": "Choose a supported image container. Import or convert it before a tool that requires organized TIFFs.",
+            "starts": [
+              "foreign",
+              "make_masks",
+              "convert"
+            ]
+          },
+          "other_metadata": {
+            "label": "Other images with other metadata",
+            "explanation": "Select the actual image container and filename convention. Optional vendor readers must be installed; inspect their axes before conversion.",
+            "starts": [
+              "foreign",
+              "make_masks",
+              "convert"
+            ]
+          },
+          "pdf": {
+            "label": "Images on a PDF",
+            "explanation": "Use Plaque Assay for scanned monolayers. Inspect page extraction, scale, well boundaries and plaque masks; a PDF is not a general microscopy input.",
+            "starts": [
+              "analyze_plaques"
+            ]
+          }
+        }
+      },
+      "plate_images": {
+        "label": "Many images, high content (>50)",
+        "explanation": "Preserve plate, well, field, channel, time and Z identities. The image count does not select a scientific model.",
+        "formats": {
+          "tiff_yokogawa": {
+            "label": "TIFF with Yokogawa metadata",
+            "explanation": "Use the CellVoyager filename convention; verify plate, well, field and channel identities before analysis.",
+            "starts": [
+              "mask",
+              "make_masks",
+              "overview"
+            ]
+          },
+          "tiff_other": {
+            "label": "TIFF with other metadata",
+            "explanation": "Choose the actual filename convention or a custom named-group expression. Test it on representative files.",
+            "starts": [
+              "foreign",
+              "mask",
+              "make_masks",
+              "align",
+              "overview"
+            ]
+          },
+          "other_yokogawa": {
+            "label": "Other images with Yokogawa metadata",
+            "explanation": "Choose a supported image container. Import or convert it before a tool that requires organized TIFFs.",
+            "starts": [
+              "foreign",
+              "make_masks",
+              "convert"
+            ]
+          },
+          "other_metadata": {
+            "label": "Other images with other metadata",
+            "explanation": "Select the actual image container and filename convention. Optional vendor readers must be installed; inspect their axes before conversion.",
+            "starts": [
+              "foreign",
+              "make_masks",
+              "convert"
+            ]
+          },
+          "pdf": {
+            "label": "Images on a PDF",
+            "explanation": "Use Plaque Assay for scanned monolayers. Inspect page extraction, scale, well boundaries and plaque masks; a PDF is not a general microscopy input.",
+            "starts": [
+              "analyze_plaques"
+            ]
+          }
+        }
+      },
+      "sequencing": {
+        "label": "Sequencing data",
+        "explanation": "Choose the actual read format and pairing. The current barcode mapper requires gzip-compressed FASTQ with recognized mate filenames and matching barcode references.",
+        "formats": {
+          "fastq_gz": {
+            "label": "Gzip-compressed FASTQ (.fastq.gz)",
+            "explanation": "The current folder reader groups <sample>_R1… / _R2… and <run>_1 / _2 names. Verify mates and barcode references; machine names do not set decoding parameters.",
+            "starts": [
+              "map_barcodes"
+            ]
+          },
+          "other": {
+            "label": "Other or unknown read format",
+            "explanation": "Convert and validate reads before Map Barcodes. Additional formats, mixed pairing and machine-specific decoding require the separate sequencing capability work in N740.",
+            "starts": []
+          }
+        }
+      },
+      "features": {
+        "label": "Feature set",
+        "explanation": "Choose the table source and whether matching object images are available. Table-only analyses do not require image crops; image-dependent tools need verified image/object provenance.",
+        "formats": {
+          "database_crops": {
+            "label": "spaCR-compatible database with crops",
+            "explanation": "Retain the measurement database, object identities and matching saved or streamable object images.",
+            "starts": [
+              "annotate",
+              "classify_merged",
+              "ml_analyze",
+              "gate_editor",
+              "graph_builder",
+              "umap",
+              "qc_dashboard",
+              "db_browser"
+            ]
+          },
+          "database": {
+            "label": "spaCR-compatible database without crops",
+            "explanation": "Use table-based analyses. Image-dependent annotation or classification requires separately verified source images and masks.",
+            "starts": [
+              "ml_analyze",
+              "gate_editor",
+              "graph_builder",
+              "qc_dashboard",
+              "db_browser",
+              "regression",
+              "dose_response"
+            ]
+          },
+          "external_database": {
+            "label": "Other database",
+            "explanation": "Validate table schemas, keys and numeric columns. Import maps external object and image identities; no image provenance is inferred from a numeric table.",
+            "starts": [
+              "foreign",
+              "graph_builder",
+              "gate_editor",
+              "db_browser"
+            ]
+          },
+          "csv": {
+            "label": "Other CSV/TSV feature table",
+            "explanation": "Inspect delimiter, header, identity and numeric columns. Import image/object provenance separately when required.",
+            "starts": [
+              "foreign",
+              "graph_builder",
+              "gate_editor"
+            ]
+          }
+        }
+      }
+    },
+    "image_formats": {
+      "tif": {
+        "label": "TIFF (.tif)",
+        "explanation": "Inspect a representative file and verify reader availability and axes before conversion."
+      },
+      "tiff": {
+        "label": "TIFF (.tiff)",
+        "explanation": "Inspect a representative file and verify reader availability and axes before conversion."
+      },
+      "png": {
+        "label": "PNG",
+        "explanation": "Inspect a representative file and verify reader availability and axes before conversion."
+      },
+      "jpg": {
+        "label": "JPEG (.jpg)",
+        "explanation": "Inspect a representative file and verify reader availability and axes before conversion."
+      },
+      "jpeg": {
+        "label": "JPEG (.jpeg)",
+        "explanation": "Inspect a representative file and verify reader availability and axes before conversion."
+      },
+      "bmp": {
+        "label": "BMP",
+        "explanation": "Inspect a representative file and verify reader availability and axes before conversion."
+      },
+      "nd2": {
+        "label": "Nikon ND2 (optional reader)",
+        "explanation": "Inspect a representative file and verify reader availability and axes before conversion."
+      },
+      "czi": {
+        "label": "Zeiss CZI (optional reader)",
+        "explanation": "Inspect a representative file and verify reader availability and axes before conversion."
+      },
+      "lif": {
+        "label": "Leica LIF (optional reader)",
+        "explanation": "Inspect a representative file and verify reader availability and axes before conversion."
+      }
+    },
+    "experiments": {
+      "screen": {
+        "label": "spaCR / pooled screen",
+        "explanation": "Regression requires compatible phenotype responses and mapped guide counts with matching plate and well identities."
+      },
+      "drug": {
+        "label": "Drug screen",
+        "explanation": "Dose–Response needs explicit concentration, treatment, control and replicate metadata. Drug-screen Regression compatibility remains separate work in N741."
+      },
+      "other": {
+        "label": "Other experiment / organism",
+        "explanation": "Select the organism and use only its registered existing analysis routes. A proposed assay without an implementation is not an available module."
+      }
+    },
+    "read_modes": {
+      "paired": {
+        "label": "Paired-end reads",
+        "explanation": "Both recognized mates must be present; paired barcode extraction uses their consensus."
+      },
+      "single": {
+        "label": "Single-end reads",
+        "explanation": "Choose the mate orientation used by the barcode pattern and references."
+      },
+      "mixed": {
+        "label": "Paired and unpaired reads together",
+        "explanation": "The current mapper runs one pairing mode at a time. Separate validated runs are required; mixed-input runtime support belongs to N740."
+      }
+    },
+    "sequencers": {
+      "illumina": {
+        "label": "Illumina-style read naming",
+        "explanation": "Verify the actual read orientations and reference sequences; the machine name does not establish a barcode layout."
+      },
+      "other": {
+        "label": "Other / unknown sequencer",
+        "explanation": "Only the documented FASTQ and filename contract is currently accepted. Do not infer a machine or scientific decoding parameters."
+      }
+    },
+    "barcodes": {
+      "mapped": {
+        "label": "Barcodes already mapped",
+        "explanation": "Supply compatible guide-count and phenotype tables with matched experimental identities."
+      },
+      "unmapped": {
+        "label": "Barcodes not mapped",
+        "explanation": "Map the sequencing reads first; a feature table alone cannot produce barcode counts."
+      }
+    },
+    "requirements": {
+      "sequencing": "Additional sequence formats and mixed-input or machine-specific handling require N740; this protocol does not add a reader.",
+      "drug": "Drug-screen Regression compatibility requires N741; no drug model or guide/barcode semantics are invented here."
+    },
+    "navigation_contracts": {
+      "overview": {
+        "inputs": [
+          "raw_images"
+        ],
+        "outputs": [
+          "image_measurements",
+          "figures"
+        ],
+        "guidance": "Inspect plate, well and field identities, compare image channels, arrange captured views on a canvas and export PDFs or whole-image measurements. Display normalization does not change stored image intensities."
+      },
+      "3d": {
+        "inputs": [
+          "raw_images",
+          "segmentation_model"
+        ],
+        "outputs": [
+          "merged",
+          "masks"
+        ],
+        "guidance": "Open the existing three-dimensional Mask route. Verify Z/channel axes, spacing and a compatible segmentation model before a preview; it is not a conversion of ordinary two-dimensional measurements."
+      },
+      "parascape": {
+        "inputs": [
+          "organism_reference"
+        ],
+        "outputs": [
+          "organism_navigation"
+        ],
+        "guidance": "Explore the installed Toxoplasma knowledge map in its separate alpha application. Availability follows the normal alpha preferences; reference locations are not measured protein abundances."
+      }
+    }
   }
 }
