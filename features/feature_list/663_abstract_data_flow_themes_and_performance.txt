@@ -1457,3 +1457,6 @@ One Root agent; existing Home serial/full CI dispatches left intact.
 
 2026-10-12 — MAINTAINER ACCEPTANCE
 N663: maintainer visual approval 2026-10-12: "N663 is done and you have my visual approval". ACCEPTED — Status: COMPLETE 100%.
+
+2026-10-31 — Add failure-only live-worker stack and retirement-state diagnostics to the unchanged hide/pause/close assertions and fixed two-second budget; no runtime behavior change.
+Local observational case: 1 PASS in 2.79 s with SPACR_NO_GL=1 and no packed kernel. Hosted graphics/compiler state is unknown; this local branch is not proven representative and the hosted failure cause remains unproven.

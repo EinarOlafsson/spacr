@@ -1,7 +1,7 @@
 NAVIGATOR PROTOCOLS: GUIDED INPUT CHOICES AND EXPANDABLE ANALYSIS RECIPES
 
 Lifecycle: new
-Status:    IN PROGRESS — delivered Protocols and appearance remain preserved; the observed Nightly CI follow-up is locally qualified and awaiting integration.
+Status:    DONE — guided Protocols, appearance refinement and source-bound CI follow-up are delivered on nightly.
 Requested: 2026-10-30, maintainer
 Owner:     App/Navigator UI owner and retained Protocols workflow peer; root integrates.
 Related:   N733 Navigator; N740 sequencing inputs; N741 drug-screen Regression;
@@ -171,3 +171,5 @@ A narrow pre-publication lifetime correction now closes and clears an active inl
 2026-10-31 — App owner repairs the observed CI semantic-icon gap for Navigator Back/Next: map back/forward to the existing left/right chevron artwork, preserving styling and behavior. The single failing source-harvest icon contract passes (1 passed, 4.89 s), as do fatal Ruff and diff checks; root owns Nightly integration, with no Main or runtime/API artifact change.
 
 2026-10-31 — App/Navigator owner with retained geometry/source peers repairs the actual 0fbc CI failures still applicable to Nightly: source-preserving revisit, Details keyboard and tutorial links, Protocol context state, scaling and stationary sidebar geometry, plus the module-reference lesson contract. Distinguish stale pre-Protocols expectations from runtime defects, preserve input/receiver and accessibility oracles, run only affected failed selectors, and refresh only genuinely changed normal artifacts. Ten affected selectors are qualified (three retained passes plus corrected context 1/4.72 s, overlays 3/7.13 s, lesson 1/1.12 s and PDF/route 2/5.84 s); source/guard peers and static checks pass. Normal consumer locations and flow projections are unchanged, so no artifact build is needed. Root owns publication; Main, source pins and independent worker/timing failures stay separate.
+
+2026-10-31 — Published the qualified CI follow-up: P-step icon scaling and current chooser, focus, geometry, learning-link and reference-lesson checks; ten affected selectors pass with existing runtime/source oracles retained. No public API, translation or generated source-map changes.
