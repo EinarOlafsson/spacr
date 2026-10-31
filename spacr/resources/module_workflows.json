@@ -7499,7 +7499,8 @@
           "image_measurements",
           "figures"
         ],
-        "guidance": "Inspect plate, well and field identities, compare image channels, arrange captured views on a canvas and export PDFs or whole-image measurements. Display normalization does not change stored image intensities."
+        "guidance": "Inspect plate, well and field identities, compare image channels, arrange captured views on a canvas and export PDFs or whole-image measurements. Display normalization does not change stored image intensities.",
+        "name": "Overview"
       },
       "3d": {
         "inputs": [
@@ -7510,7 +7511,8 @@
           "merged",
           "masks"
         ],
-        "guidance": "Open the existing three-dimensional Mask route. Verify Z/channel axes, spacing and a compatible segmentation model before a preview; it is not a conversion of ordinary two-dimensional measurements."
+        "guidance": "Open the existing three-dimensional Mask route. Verify Z/channel axes, spacing and a compatible segmentation model before a preview; it is not a conversion of ordinary two-dimensional measurements.",
+        "name": "3D"
       },
       "parascape": {
         "inputs": [
@@ -7519,7 +7521,8 @@
         "outputs": [
           "organism_navigation"
         ],
-        "guidance": "Explore the installed Toxoplasma knowledge map in its separate alpha application. Availability follows the normal alpha preferences; reference locations are not measured protein abundances."
+        "guidance": "Explore the installed Toxoplasma knowledge map in its separate alpha application. Availability follows the normal alpha preferences; reference locations are not measured protein abundances.",
+        "name": "ParaScape"
       }
     }
   }
