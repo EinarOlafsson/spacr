@@ -1458,6 +1458,9 @@ class DistributedJobsScreen(QWidget):
         self._system_summary = QLabel(tr("Not read yet. Read cluster asks the scheduler, read-only, what this profile can reach."), self)
         self._system_summary.setObjectName("Muted")
         self._system_summary.setWordWrap(True)
+        from ..widgets.flow import keep_wrapped_height
+
+        keep_wrapped_height(self._system_summary)
         card.body_layout.addWidget(self._system_summary)
         self._system_table = QTableWidget(0, len(_SYSTEM_COLUMNS))
         self._system_table.setObjectName("DistributedSystemTable")
