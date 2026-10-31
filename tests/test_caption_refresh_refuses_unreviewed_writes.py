@@ -93,6 +93,7 @@ def test_refresh_refuses_a_rewritten_baseline_before_changing_the_file(tmp_path,
 
 @pytest.mark.parametrize('case', [
     'success', 'unapproved_delta', 'historical_body', 'incomplete_locale', 'duplicate_approval',
+    'approved_rename', 'retirement_still_discovered', 'unapproved_retirement',
 ])
 def test_compact_refresh_preserves_the_old_surface_and_requires_complete_approved_rows(
         tmp_path, monkeypatch, case):
@@ -111,27 +112,40 @@ def test_compact_refresh_preserves_the_old_surface_and_requires_complete_approve
     pin.write_text(original, encoding='utf-8')
     discovered = previous | {added}
     approved = (added,)
+    retired = ()
     if case == 'unapproved_delta':
         discovered |= {'Unapproved caption'}
     elif case == 'historical_body':
         discovered = (discovered - {'Previous caption B'}) | {'Changed previous caption'}
     elif case == 'duplicate_approval':
         approved = (added, added)
+    elif case == 'approved_rename':
+        discovered -= {'Previous caption B'}
+        retired = ('Previous caption B',)
+    elif case == 'retirement_still_discovered':
+        retired = ('Previous caption B',)
+    elif case == 'unapproved_retirement':
+        discovered -= {'Previous caption B'}
     row = tuple(f'Reviewed target {language}' for language in arrivals.LANGUAGES)
     if case == 'incomplete_locale':
         row = row[:-1]
     rows = {source: row for source in discovered}
     monkeypatch.setattr(contract, 'compact_user_facing_captions', lambda: discovered)
     monkeypatch.setattr(compact, '_ROWS', rows)
-    if case != 'success':
+    if case not in ('success', 'approved_rename'):
         with pytest.raises(AssertionError):
-            arrivals.refresh_compact_caption_pin(approved_additions=approved, pin_path=pin)
+            arrivals.refresh_compact_caption_pin(
+                approved_additions=approved, approved_retirements=retired, pin_path=pin)
         assert pin.read_bytes() == original.encode()
     else:
-        result = arrivals.refresh_compact_caption_pin(approved_additions=approved, pin_path=pin)
+        result = arrivals.refresh_compact_caption_pin(
+            approved_additions=approved, approved_retirements=retired, pin_path=pin)
         digest = hashlib.sha256('\0'.join(sorted(discovered)).encode()).hexdigest()
-        assert result == {'count': 3, 'sha256': digest, 'approved_additions': [added]}
+        expected = {'count': len(discovered), 'sha256': digest, 'approved_additions': [added]}
+        if retired:
+            expected['approved_retirements'] = list(retired)
+        assert result == expected
         assert pin.read_text(encoding='utf-8') == original.replace(
-            'COMPACT_CAPTION_COUNT = 2', 'COMPACT_CAPTION_COUNT = 3',
+            'COMPACT_CAPTION_COUNT = 2', f'COMPACT_CAPTION_COUNT = {len(discovered)}',
         ).replace(old_digest, digest)
     assert not list(tmp_path.glob('.compact-pin-*'))

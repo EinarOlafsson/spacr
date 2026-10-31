@@ -194,12 +194,15 @@ def refresh_arrival_contract() -> dict:
 
 
 def refresh_compact_caption_pin(*, approved_additions: tuple[str, ...],
+                                approved_retirements: tuple[str, ...] = (),
                                 pin_path: Path | None = None) -> dict:
-    """Refresh only an explicitly approved additive compact-caption delta.
+    """Refresh only an explicitly approved compact-caption delta.
 
     The owning semantic discovery remains authoritative. Removing the approved
-    names must reproduce the complete old fingerprint, so an unapproved arrival,
-    retirement or replacement cannot silently move this pin.
+    arrivals and restoring the approved retirements must reproduce the complete
+    old fingerprint, so an unapproved arrival, retirement or replacement cannot
+    silently move this pin. A retirement is a caption the source no longer
+    shows; its literal row is kept, so older translated text is not lost.
     """
     import ast
     import importlib
@@ -226,11 +229,16 @@ def refresh_compact_caption_pin(*, approved_additions: tuple[str, ...],
     assert type(old_count) is int and old_count >= 0, 'invalid compact count'
     assert isinstance(old_digest, str) and len(old_digest) == 64, 'invalid compact digest'
     approved = frozenset(approved_additions)
-    assert approved and len(approved) == len(approved_additions), 'empty or duplicate compact approvals'
-    assert all(isinstance(source, str) and source.strip() for source in approved)
+    retired = frozenset(approved_retirements)
+    assert approved or retired, 'empty compact approvals'
+    assert len(approved) == len(approved_additions), 'duplicate compact approvals'
+    assert len(retired) == len(approved_retirements), 'duplicate compact retirements'
+    assert not approved & retired, 'compact caption both added and retired'
+    assert all(isinstance(source, str) and source.strip() for source in approved | retired)
     discovered = contract.compact_user_facing_captions()
     assert approved <= discovered, 'approved compact caption is not discovered'
-    previous = discovered - approved
+    assert not retired & discovered, 'approved compact retirement is still discovered'
+    previous = (discovered - approved) | retired
     assert len(previous) == old_count, 'unapproved compact arrival or retirement'
     assert _sha('\0'.join(sorted(previous))) == old_digest, 'historical compact surface changed'
     assert not discovered - compact._ROWS.keys(), 'compact caption lacks an exact row'
@@ -263,7 +271,10 @@ def refresh_compact_caption_pin(*, approved_additions: tuple[str, ...],
     finally:
         if temporary is not None:
             temporary.unlink(missing_ok=True)
-    return {'count': count, 'sha256': digest, 'approved_additions': sorted(approved)}
+    result = {'count': count, 'sha256': digest, 'approved_additions': sorted(approved)}
+    if retired:
+        result['approved_retirements'] = sorted(retired)
+    return result
 
 
 if __name__ == '__main__':
@@ -277,14 +288,19 @@ if __name__ == '__main__':
                         help='refresh the compact pin after explicitly approving exact new rows')
     parser.add_argument('--approved-compact-addition', action='append', default=[],
                         help='one explicitly reviewed new compact caption; repeat for each addition')
+    parser.add_argument('--approved-compact-retirement', action='append', default=[],
+                        help='one compact caption the source no longer shows; repeat for each retirement')
     args = parser.parse_args()
     if args.refresh_compact:
         from PySide6.QtWidgets import QApplication
 
         application = QApplication.instance() or QApplication([])
-        result = refresh_compact_caption_pin(approved_additions=tuple(args.approved_compact_addition))
+        result = refresh_compact_caption_pin(
+            approved_additions=tuple(args.approved_compact_addition),
+            approved_retirements=tuple(args.approved_compact_retirement),
+        )
     else:
-        if args.approved_compact_addition:
-            parser.error('--approved-compact-addition requires --refresh-compact')
+        if args.approved_compact_addition or args.approved_compact_retirement:
+            parser.error('compact approvals require --refresh-compact')
         result = refresh_arrival_contract()
     print(json.dumps(result, sort_keys=True))
