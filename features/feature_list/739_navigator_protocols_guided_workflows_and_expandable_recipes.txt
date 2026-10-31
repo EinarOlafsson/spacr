@@ -1,7 +1,7 @@
 NAVIGATOR PROTOCOLS: GUIDED INPUT CHOICES AND EXPANDABLE ANALYSIS RECIPES
 
 Lifecycle: new
-Status:    IN PROGRESS — maintainer authorized implementation on 2026-10-31.
+Status:    IN PROGRESS — implementation and reviewed artifacts qualified locally; root publication pending.
 Requested: 2026-10-30, maintainer
 Owner:     App/Navigator UI owner and retained Protocols workflow peer; root integrates.
 Related:   N733 Navigator; N740 sequencing inputs; N741 drug-screen Regression;
@@ -159,3 +159,5 @@ Protocols:
 then the rest
 
 2026-10-31 — The isolated Navigator UI now has the P ring, retained three-step catalog selectors, shared explanations, starting cards, explicit typed native handoffs, stale-inspection refusal and actual sidebar activation; Classic Help/command routes remain. Fourteen focused native interaction checks pass with retained unaffected cases; the dependent-row layout, P-active Details fit beside the actual sidebar, single-copy choice explanations and explicit downstream opening with cleared cached source are qualified. The requested CPU/offscreen captures received root layout review; normal localization/artifact closure remains in progress, with no Main/source-candidate or remote change.
+
+2026-10-31 — Coherent Protocols implementation is qualified locally: retained native/route/data-ownership checks, procedural and dimensional limits, source-cleared downstream activation, nested recipe/PDF controls and exact localized scientific help. Independent AI review accepts115 new runtime sources in nine languages; immutable review2f0987ba preserves all8325 incoming inputs and normal generation/full audit passes9 locales with115 additions each. English and Chinese PDFs retain selected options/checkstates, expanded relevant settings and HTTPS-only web links; visual checks pass. Normal source artifacts are current and the13641-owner API manifest is unchanged. Nightly publication remains root-pending; Main/candidate, N740/N741 capability work and tutorials are unchanged; no native-speaker or scientific-runtime claim.
