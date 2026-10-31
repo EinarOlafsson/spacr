@@ -4850,7 +4850,58 @@ def test_localized_readme_images_have_reviewed_accessible_text():
         _readme_substitution_alt_text,
     )
 
+    def raw_icon_alternatives(text, names):
+        # source_rst's normal icon_rows producer emits one linked raw image
+        # per named substitution; an image-directive parser cannot read it.
+        alternatives = []
+        for name in names:
+            definitions = re.findall(
+                rf"(?m)^\.\. \|{re.escape(name)}\| raw:: html\n\n"
+                r"((?:   [^\n]*(?:\n|$))*)", text,
+            )
+            assert len(definitions) == 1, (name, definitions)
+            images = re.findall(r"<img\b[^>]*>", definitions[0])
+            assert len(images) == 1, (name, images)
+            alts = re.findall(r'(?:^|\s)alt="([^"]+)"', images[0])
+            assert len(alts) == 1 and alts[0].strip(), (name, images)
+            alternatives.append(unescape(alts[0]))
+        return alternatives
+
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(
+        "readme_accessible_scorecards", ROOT / "packaging/generate_readme_visuals.py",
+    )
+    assert spec is not None and spec.loader is not None
+    scorecards = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(scorecards)
+    model_keys = (
+        "toxoplasma_pv_v4", "toxoplasma_plaque_v6", "toxoplasma_well_detector_v3",
+        "toxoplasma_from_cellmask_v1", "nuclei_from_cellmask_v1",
+        "cell_from_hoechst_v1", "toxoplasma_from_hoechst_v1",
+    )
+
+    def gallery_alternatives(block):
+        images = re.findall(r"<img\b[^>]*>", block)
+        assert len(images) == 8  # one heading plus the seven named defaults
+        alternatives = []
+        for image in images:
+            alt = re.findall(r'(?:^|\s)alt="([^"]+)"', image)
+            assert len(alt) == 1 and alt[0].strip(), image
+            alternatives.append(unescape(alt[0]))
+        assert alternatives[0] == "Default models · held-out scores"
+        for key, alt in zip(model_keys, alternatives[1:]):
+            assert f"({key}, default)" in alt
+        return alternatives
+
+    def model_gallery(text):
+        begin, end = ".. spacr-model-zoo-begin", ".. spacr-model-zoo-end"
+        assert text.count(begin) == text.count(end) == 1
+        return text.partition(begin)[2].partition(end)[0]
+
     canonical = readme_words()
+    canonical_gallery = gallery_alternatives(model_gallery(canonical))
+    assert canonical_gallery == gallery_alternatives(scorecards._readme_model_zoo_block())
     # 20 since the maintainer's 2026-10-11 badge clean-up removed |Source|,
     # |Release| (installers) and |Conda Downloads|.
     # 23 since 2026-10-10: |Docker| joined, after |Website| (N687) and
@@ -4864,7 +4915,7 @@ def test_localized_readme_images_have_reviewed_accessible_text():
     )) + int(bool(_readme_logo_alt_text(canonical))) == 20
     # 3 since 2026-10-12, when the maintainer removed the "Earlier spaCR
     # installers" button; the archive page is no longer linked from here.
-    assert len(_readme_substitution_alt_text(
+    assert len(raw_icon_alternatives(
         canonical, README_INSTALLER_SUBSTITUTIONS,
     )) == 3
     assert len(_readme_substitution_alt_text(
@@ -4874,7 +4925,7 @@ def test_localized_readme_images_have_reviewed_accessible_text():
         ".. spacr-workflow-begin"
     )[2].partition(".. spacr-workflow-end")[0]
     canonical_alt = [unescape(value) for value in re.findall(
-        r'\balt="([^"]+)"', canonical_workflow)]
+        r'(?:^|\s)alt="([^"]+)"', canonical_workflow)]
     module_names = [
         match.group(1)
         for alt in canonical_alt
@@ -4894,19 +4945,26 @@ def test_localized_readme_images_have_reviewed_accessible_text():
     for language in ("de", "es", "fr", "hi", "is", "ko", "pt", "sv", "zh_CN"):
         text = readme_words(readme_root / f"README.{language}.rst")
         alt_text = re.findall(r"(?m)^   :alt: (.+)$", text)
-        alt_text += [unescape(value) for value in re.findall(r'\balt="([^"]+)"', text)]
+        alt_text += [unescape(value) for value in re.findall(r'(?:^|\s)alt="([^"]+)"', text)]
         workflow = text.partition(
             ".. spacr-workflow-begin"
         )[2].partition(".. spacr-workflow-end")[0]
         workflow_alt = [unescape(value) for value in re.findall(
-            r'\balt="([^"]+)"', workflow)]
+            r'(?:^|\s)alt="([^"]+)"', workflow)]
         assert len(workflow_alt) == len(module_names)
         # Every canonical badge, Home tile, installer and resource image
         # must also have an accessible label in each translated README.
-        assert len(alt_text) == len(
+        gallery = gallery_alternatives(model_gallery(text))
+        assert gallery == gallery_alternatives(
+            scorecards._readme_model_zoo_block(language=language),
+        )
+        # Keep the original non-gallery surface and independently cover the
+        # eight scientific scorecard images; no extra image can disappear.
+        assert len(alt_text) - len(gallery) == len(
             re.findall(r"(?m)^   :alt: (.+)$", canonical)
-        ) + len(canonical_alt) == (
+        ) + len(canonical_alt) + 4 == (
                 20 + len(module_names) + 4 + 5)
+        assert len(alt_text) == 48 + 8
         assert ".. image:: ../../source/_static/deck/slides/slide_01.jpg" in text
         assert "logo_spacr_readme.png" not in text
         assert all(
@@ -4933,7 +4991,9 @@ def test_localized_readme_images_have_reviewed_accessible_text():
         installer_block = text.partition(
             ".. spacr-installer-links-begin"
         )[2].partition(".. spacr-installer-links-end")[0]
-        installers = re.findall(r"(?m)^   :alt: (.+)$", installer_block)
+        installers = raw_icon_alternatives(
+            installer_block, (*README_INSTALLER_SUBSTITUTIONS, "InstallerSpaCR"),
+        )
         assert len(installers) == 4
         for platform, alt in zip(("Windows", "macOS", "Linux"), installers[:3]):
             assert platform in alt, (

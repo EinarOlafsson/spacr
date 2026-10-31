@@ -107,6 +107,7 @@ def test_first_suggestion_keeps_rendered_field_and_restores_anchored_card(
     preferences, _, _ = private_ai_profile
     preferences._set_spacr_ai_enabled(False)
     preferences.set_easy_mode(True)
+    preferences.set_startup_animation(False)
     preferences.set_ambient_enabled(True)
     preferences.set_reduce_motion(False)
     preferences.set_ambient_theme('data_art_impulse_lens')
@@ -125,6 +126,9 @@ def test_first_suggestion_keeps_rendered_field_and_restores_anchored_card(
     window._consent_timer.stop()
     window.resize(1280, 900)
     window.show()
+    qtbot.waitExposed(window)
+    window.activateWindow()
+    qtbot.waitUntil(window.isActiveWindow)
     install_the_dialog_filters(qapp)
     page = window._startup
 

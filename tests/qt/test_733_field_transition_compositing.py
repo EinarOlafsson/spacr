@@ -98,6 +98,7 @@ def test_real_idle_mouse_release_does_not_replay_displaced_window_text(
 
     preferences, _, _ = private_ai_profile
     preferences.set_easy_mode(True)
+    preferences.set_startup_animation(False)
     preferences.set_ambient_enabled(True)
     preferences.set_reduce_motion(False)
     preferences.set_theme('dark')

@@ -27,7 +27,24 @@ def test_mask_filter_api_publishes_reviewed_mean_and_bound_semantics(
     assert records, "The semantic review must not silently become an empty scan"
     symbols = json.loads((api.API_DIR / f"{language}.json").read_text(
         encoding="utf-8"))["symbols"]
+    calibrated = json.loads((ROOT / "docs/i18n/reviewed/api" / language /
+                             "2026-10-24-calibrated-batch-segmentation.json").read_text(
+                                 encoding="utf-8"))["records"]
     for record in records:
+        assert api._source_hash(record["source"]) == record["source_sha256"]
+        if record["label"] in ("spacr.pipeline_v2.stream_masks_from_stack#3",
+                               "spacr.pipeline_v2.stream_masks_from_stack#5"):
+            [current] = [row for row in calibrated if row["label"] == record["label"]]
+            if record["label"].endswith("#3"):
+                expected = record["source"].replace(
+                    " The first selected channel", " Calibrated sessions instead require explicit "
+                    "in-range positions. The first selected channel", 1)
+            else:
+                expected = record["source"] + (
+                    " Calibrated batches refuse above ``64 * 1024**2`` packed input "
+                    "or padded model-input values.")
+            assert current["source"] == expected
+            record = current
         key, _separator, index_text = record["label"].rpartition("#")
         index = int(index_text)
         source = current_documents[key]

@@ -841,6 +841,8 @@ def test_workflow_selection_hover_and_escape_preserve_the_verified_input(
     qtbot.addWidget(page)
     page.resize(1280, 850)
     page.show()
+    page.activateWindow()
+    qtbot.waitUntil(page.isActiveWindow, timeout=2000)
     page.module_requested.connect(lambda key, path: chosen.append((key, path)))
     try:
         page.accept_paths([str(images[0])])
@@ -1066,6 +1068,8 @@ def test_network_emerges_around_the_same_card_and_live_reduce_motion_finishes_it
     qtbot.addWidget(page)
     page.resize(1280, 850)
     page.show()
+    page.activateWindow()
+    qtbot.waitUntil(page.isActiveWindow, timeout=2000)
     chosen = []
     page.module_requested.connect(lambda key, path: chosen.append((key, path)))
     try:
@@ -1122,6 +1126,8 @@ def test_single_action_keeps_its_anchor_and_complete_children_in_narrow_windows(
     qtbot.addWidget(page)
     page.resize(width, 700)
     page.show()
+    page.activateWindow()
+    qtbot.waitUntil(page.isActiveWindow, timeout=2000)
     try:
         page.accept_paths([str(path)])
         qtbot.waitUntil(lambda: {'graph_builder', 'gate_editor'} <=
@@ -1370,6 +1376,8 @@ def test_graph_keyboard_and_field_wheel_preserve_the_real_borrowed_anchor(
     qtbot.addWidget(page)
     page.resize(340, 650)
     page.show()
+    page.activateWindow()
+    qtbot.waitUntil(page.isActiveWindow, timeout=2000)
     before = path.read_bytes()
     try:
         page.accept_paths([str(path)])
@@ -1506,6 +1514,8 @@ def test_compact_workflow_uses_real_space_below_its_unchanged_anchor(
     qtbot.addWidget(page)
     page.resize(340, 650)
     page.show()
+    page.activateWindow()
+    qtbot.waitUntil(page.isActiveWindow, timeout=2000)
     try:
         page.accept_paths([str(path)])
         qtbot.waitUntil(lambda: page._last_result is not None and not page._runner.is_busy(), timeout=5000)
@@ -1598,6 +1608,8 @@ def test_spaceout_card_keeps_explicit_keyboard_activation_through_native_resizin
     qtbot.addWidget(page)
     page.resize(1000, 800)
     page.show()
+    page.activateWindow()
+    qtbot.waitUntil(page.isActiveWindow, timeout=2000)
     commands = QSignalSpy(page.command_requested)
     modules = QSignalSpy(page.module_requested)
     try:

@@ -41,7 +41,7 @@ from typing import Dict, List, Optional, Tuple
 
 from PySide6.QtCore import QEvent, QObject, Qt, QTimer
 from PySide6.QtGui import QColor, QGuiApplication, QPalette
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QWidget
 
 from .night_themes import DATA_ART_THEMES, DATA_ART_THEME_KEYS, NIGHT_THEME_KEYS
 from .night_themes import palettes as night_palettes
@@ -4044,8 +4044,10 @@ class _SheetsEveryWindowThatAppears(QObject):
         """
         kind = event.type()
         if kind in _SHEETING_MOMENTS:
+            if not isinstance(watched, QWidget):
+                return False
             try:
-                if watched.isWindow():
+                if QWidget.isWindow(watched):
                     if kind == QEvent.Show:
                         from .gui_scale import _flush_pending_sheets
 

@@ -618,6 +618,7 @@ class LoadingScreen(QWidget):
         font.setWeight(QFont.Weight.Bold)
         self.setFont(font)
         self.setObjectName("LoadingScreen")
+        self.setAccessibleName(_translate("spaCR"))
         self._total = max(0, int(total))
         self._done = 0
         self._logo: Optional[QPixmap] = None

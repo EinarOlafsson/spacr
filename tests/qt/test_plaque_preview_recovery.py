@@ -30,11 +30,14 @@ def test_inflight_segmentation_cannot_replace_a_new_selection(qtbot, monkeypatch
     monkeypatch.setattr(ppv, "missing_papers_packages", lambda: [])
     widget = ppv.PlaquePreviewPanel(threaded=True)
     qtbot.addWidget(widget)
-    _image(tmp_path / "a.png")
-    _image(tmp_path / "b.png", 160)
+    sources = [_image(tmp_path / "a.png"), _image(tmp_path / "b.png", 160)]
+    original_bytes = {path: path.read_bytes() for path in sources}
     assert widget.load_source_async(tmp_path)
-    qtbot.waitUntil(lambda: widget.current_path() == tmp_path / "a.png"
-                    and not widget._load_jobs.is_busy(), timeout=5000)
+    qtbot.waitUntil(lambda: widget.current_path() == sources[0]
+                    and not widget._load_jobs.is_busy()
+                    and widget._load_jobs.active_jobs() == 0
+                    and widget._view.has_image(), timeout=5000)
+    np.testing.assert_array_equal(widget._view.array(), np.full((40, 50, 3), 80, np.uint8))
     entered, release = threading.Event(), threading.Event()
     ready = []
     widget.preview_ready.connect(ready.append)
@@ -71,6 +74,7 @@ def test_inflight_segmentation_cannot_replace_a_new_selection(qtbot, monkeypatch
             assert widget.current_path() is None and not widget._view.has_image()
         else:
             assert widget.mode() == "figure"
+        assert {path: path.read_bytes() for path in sources} == original_bytes
     finally:
         release.set()
         widget.shutdown()

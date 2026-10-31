@@ -24217,6 +24217,10 @@ class MakeMasksScreen(QWidget):
         if self._folder_job_running():
             self._warn(tr("Busy"), tr("A folder job is still running."))
             return False
+        self._load_token += 1
+        self._pending_load = None
+        if self._reader_worker is not None:
+            self._reader_worker.requestInterruption()
         post = self._masks_console.post
         post(tr("Sorting {n} image(s) into channels under {dest}…",
                 n=len(plan.rows), dest=plan.dest))

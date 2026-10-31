@@ -49,20 +49,32 @@ fi
 unset SPACR_PYTEST_FILE_SHARD_INDEX SPACR_PYTEST_FILE_SHARD_COUNT PYTEST_ADDOPTS
 echo "N47 serial source=$source_sha host.MemTotal=${host_total_kib}KiB host.MemAvailable=${host_available_kib}KiB cgroup=$cgroup memory.max=$memory_max memory.swap.max=$swap_max guard=${SPACR_TEST_MEMORY_GB}GiB"
 echo "N47 native core_pattern=$(</proc/sys/kernel/core_pattern) core_limit_blocks=$(ulimit -c) python_command=$(command -v python)"
+wm_private=$(mktemp -d "${RUNNER_TEMP:-${TMPDIR:-/tmp}}/spacr-qt-window-manager.XXXXXX")
+cp /etc/xdg/openbox/rc.xml "$wm_private/rc.xml"
+openbox --sm-disable --config-file "$wm_private/rc.xml" > "$wm_private/openbox.log" 2>&1 &
+wm_pid=$!
+cleanup_window_manager() {
+    kill "$wm_pid" 2>/dev/null || true
+    wait "$wm_pid" 2>/dev/null || true
+    cat "$wm_private/openbox.log" >&2
+    rm -rf "$wm_private"
+}
+trap cleanup_window_manager EXIT
+wm_ready=false
+for attempt in {1..100}; do
+    kill -0 "$wm_pid" 2>/dev/null || exit 2
+    wm_property=$(xprop -root _NET_SUPPORTING_WM_CHECK 2>/dev/null || true)
+    case "$wm_property" in
+        *'window id # 0x0') ;;
+        *'window id # 0x'*) wm_ready=true; break ;;
+    esac
+    sleep 0.05
+done
+if ! "$wm_ready"; then
+    echo "N47 window manager did not become ready on its X display" >&2
+    exit 2
+fi
 python tools/can_this_display_be_measured.py
-exec python - tests/qt -v --tb=short -p no:randomly \
+python tools/run_qt_serial_acceptance.py tests/qt -v --tb=short -p no:randomly \
     -p tools.pytest_plugins.qt_serial_rss_journal \
-    -o faulthandler_timeout=900 --timeout=1200 --timeout-method=thread <<'PY'
-import sys
-
-from PySide6.QtWidgets import QApplication
-
-app = QApplication([])
-if app.platformName() != "xcb":
-    raise SystemExit("N47 did not construct a real X-backed QApplication")
-app.setApplicationName("pytest-qt-qapp")
-
-import pytest
-
-raise SystemExit(pytest.main(sys.argv[1:]))
-PY
+    -o faulthandler_timeout=900 --timeout=1200 --timeout-method=thread

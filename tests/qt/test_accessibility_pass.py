@@ -280,8 +280,14 @@ def main_window(qtbot, qt_theme_applied, monkeypatch, tmp_path):
     return window
 
 
-def test_main_window_chrome_controls_are_named(main_window):
+def test_main_window_chrome_controls_are_named(main_window, qtbot):
     """Toolbars, dock and sidebar controls and the status bar are named."""
+    from spacr.qt.widgets.loading_screen import LoadingScreen
+
+    for cover in main_window.findChildren(LoadingScreen):
+        assert cover.accessibleName() == i18n.tr("spaCR")
+    qtbot.waitUntil(lambda: not main_window.findChildren(LoadingScreen),
+                    timeout=10000)
     assert not _focusable_unnamed(main_window)
     assert main_window.statusBar() is not None
 

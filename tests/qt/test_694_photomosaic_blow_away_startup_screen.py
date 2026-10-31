@@ -16,7 +16,9 @@ from __future__ import annotations
 import json
 import math
 import os
+import subprocess
 import sys
+import tempfile
 import types
 
 import numpy as np
@@ -139,8 +141,21 @@ def test_the_environment_switch(monkeypatch):
 
 def test_offscreen_never_animates(monkeypatch):
     monkeypatch.delenv(ls.NO_SPLASH_ENV, raising=False)
-    assert QApplication.platformName() == "offscreen"
-    assert ls.startup_animation_allowed() is False
+    environment = dict(os.environ, QT_QPA_PLATFORM="offscreen")
+    with tempfile.TemporaryDirectory(prefix="spacr-offscreen-policy-") as config:
+        environment["XDG_CONFIG_HOME"] = config
+        result = subprocess.run(
+            [sys.executable, "-c", """
+from PySide6.QtWidgets import QApplication
+from spacr.qt import preferences
+from spacr.qt.widgets import loading_screen as ls
+app = QApplication([])
+preferences.set_startup_animation(True)
+preferences.set_reduce_motion(False)
+assert QApplication.platformName() == "offscreen"
+assert ls.startup_animation_allowed() is False
+"""], env=environment, capture_output=True, text=True, timeout=30)
+    assert result.returncode == 0, result.stdout + result.stderr
 
 
 @pytest.fixture()
@@ -189,6 +204,9 @@ def test_will_blow_away_needs_a_mosaic_cover_and_permission(
 
 
 def test_without_permission_the_cover_is_left_to_its_owner(cover):
+    from spacr.qt import preferences
+
+    preferences.set_startup_animation(False)
     assert cover.blow_away() is False
     assert cover._state == "idle"
 

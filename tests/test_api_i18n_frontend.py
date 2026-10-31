@@ -8,6 +8,7 @@ from __future__ import annotations
 import ast
 import contextlib
 import fnmatch
+import hashlib
 import html
 import json
 import re
@@ -719,8 +720,10 @@ def test_every_complete_real_catalog_renders_through_the_browser_selector(api_ca
     assert len(arrivals) == 33
     # 2026-10-18: item 560's Cell-DINO checkpoint picker rewrote two of these
     # arrivals; the contract keeps the 2026-10-07 wording and the current
-    # text is pinned here.
-    revised_560 = {
+    # text is pinned here, together with the reviewed container-reader body.
+    # The original SCN-only arrival remains asserted below; the new reader
+    # retains SCN/TEM calibration and explicitly separates reviewed containers.
+    revised_arrivals = {
         "spacr.embeddings._cell_dino_model.forward": (
             "Return the official DINOv2 head output for each declared crop.\n\n"
             "Channel-Adaptive DINO encodes each plane on its own and returns the\n"
@@ -728,17 +731,29 @@ def test_every_complete_real_catalog_renders_through_the_browser_selector(api_ca
             "bag-of-channels evaluation does."),
         "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.sync_width": (
             "Show the planes the chosen factory takes; none when adaptive."),
+        "spacr.qt.mask_engine.read_image": (
+            "Read one image file the way Make Masks shows it.\n\n"
+            "Explicitly reviewed container planes use their shared scientific or\n"
+            "raster reader and source identity. Native SCN and TEM readers retain\n"
+            "their calibration; ordinary unreviewed images use imageio.\n\n"
+            ":param path: the image file.\n:returns: the pixels."),
     }
-    assert {key: arrivals[key] for key in revised_560} == {
+    assert {key: arrivals[key] for key in revised_arrivals} == {
         "spacr.embeddings._cell_dino_model.forward":
             "Return the official DINOv2 head output for each declared crop.",
         "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.sync_width":
             "The fifth plane belongs only to the Cell Painting factory.",
+        "spacr.qt.mask_engine.read_image": (
+            "Read one image file the way Make Masks shows it.\n\n"
+            "A Bio-Rad Image Lab ``.scn`` is read by :func:`spacr.convert.read_scn`\n"
+            "(``uint16``, inverted so it looks like Image Lab's own exports); every\n"
+            "other format goes through :func:`imageio.v2.imread`.\n\n"
+            ":param path: the image file.\n:returns: the pixels."),
     }
-    assert {key: docs[key] for key in revised_560} == revised_560
-    assert {key: english["symbols"][key]["text"] for key in revised_560} == revised_560
+    assert {key: docs[key] for key in revised_arrivals} == revised_arrivals
+    assert {key: english["symbols"][key]["text"] for key in revised_arrivals} == revised_arrivals
     unchanged = {key: value for key, value in arrivals.items()
-                 if key not in revised_560}
+                 if key not in revised_arrivals}
     assert {key: docs[key] for key in unchanged} == unchanged
     assert {key: english["symbols"][key]["text"] for key in unchanged} == unchanged
     worker_arrivals = json.loads((ROOT / "tests/data/release_contracts"
@@ -764,17 +779,81 @@ def test_every_complete_real_catalog_renders_through_the_browser_selector(api_ca
     inventory = inventory[:inventory.index("retirement = json.loads")]
     documented_contracts = sorted(set(re.findall(r'"([^"]+\.json)"', inventory)))
     assert "tutorial_cli_api_changes_2026-10-12.json" in documented_contracts
+    from tests import test_documentation_i18n as arrival_contracts
+
+    current_contracts = {
+        "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json":
+            arrival_contracts._current_718_metal_class_api,
+        "672_673_editable_volume_api_arrivals_2026-10-10.json":
+            arrival_contracts._current_735_volume_api,
+        "691_mitonet_api_arrivals_2026-10-11.json":
+            arrival_contracts._current_718_mitonet_api,
+        "694_startup_splash_api_arrivals_2026-10-12.json":
+            arrival_contracts._current_startup_frame_stats_api,
+        "695_startup_sequence_api_arrivals_2026-10-12.json":
+            arrival_contracts._current_startup_sequence_api,
+        "700_anonymous_reports_client_api_arrivals_2026-10-14.json":
+            arrival_contracts._current_700_client_api,
+        "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
+            arrival_contracts._posix_update_prepared_key_move,
+    }
+    retired_remote = arrival_contracts._retired_732_remote_api(docs)
+    retired_home = arrival_contracts._retired_707_home_api(docs)
+    assert not (retired_remote.keys() | retired_home.keys()) & (live | catalog)
+    historical_docs = docs | retired_remote
     documented_arrivals = {}
     for filename in (*documented_contracts, "parascape_rename_api_arrivals_2026-10-18.json"):
         payload = json.loads((ROOT / "tests/data/release_contracts" / filename).read_text(encoding="utf-8"))
         payload = payload.get("added", payload.get("API_arrivals", payload))
         assert payload
+        if filename in current_contracts:
+            payload = current_contracts[filename](payload, docs)
+        if filename == "parascape_rename_api_arrivals_2026-10-18.json":
+            summaries = {
+                "spacr._parascape.install_parascape": (
+                    "224dbb79c59c5efc29766e230abf199c581ab03af5fa43a1705a8d5ac9e6ad87",
+                    "Build an isolated environment, install ParaScape and check its bundled data.",
+                    "Build an isolated environment and verify ParaScape and its data setup entry point."),
+                "spacr._parascape.is_installed": (
+                    "435cd6f8565b591b393d54b14394ae4e8f51fda8b6cdd3720d0a9380a2166383",
+                    "Whether an owned environment has passed the import and bundled-data checks.",
+                    "Whether an owned environment passed imports and can open or set up its data."),
+                "spacr._parascape.upgrade_parascape": (
+                    "b4ee388c09fe5f5636b51409fa92ce792a99be065c024b9bfcf3c38b0eab0ef6",
+                    "Upgrade the owned environment using pip and PyPI, then verify its data.",
+                    "Upgrade through pip and PyPI, verifying imports and the data setup entry point."),
+            }
+            payload = dict(payload)
+            for key, (historical_sha, before, after) in summaries.items():
+                assert hashlib.sha256(payload[key].encode()).hexdigest() == historical_sha
+                assert payload[key].startswith(before + "\n\n")
+                payload[key] = after + payload[key][len(before):]
+                assert docs[key] == english["symbols"][key]["text"] == payload[key]
         if filename == "43_approval_and_cached_preferences_api_arrivals_2026-10-18.json":
             retired_writer = "spacr.qt.preferences._count_store_writes.write"
             assert payload.pop(retired_writer) == "Forward to Qt, then forget what was remembered."
             assert retired_writer not in docs and retired_writer not in catalog
-        assert {key: docs[key] for key in payload} == payload
+        assert {key: historical_docs[key] for key in payload} == payload
         documented_arrivals.update(payload)
+    # These source-bound contracts are loaded inside the documentation
+    # helpers, so its local filename inventory cannot discover them.
+    helper_arrivals = arrival_contracts._easy_mode_733_api_arrivals(docs)
+    input_identity = arrival_contracts._navigator_input_identity_arrival(docs)
+    help_field = {
+        "spacr.qt.help_search.HelpSearchField.event":
+            "Keep Escape in this field before window shortcuts handle it.\n\n"
+            ":param event: the incoming Qt event.\n"
+            ":returns: Whether the event was handled.",
+    }
+    assert {key: docs[key] for key in help_field} == help_field
+    assert len(helper_arrivals) == 4 and len(input_identity) == len(help_field) == 1
+    assert not helper_arrivals.keys() & (input_identity.keys() | help_field.keys())
+    assert not input_identity.keys() & help_field.keys()
+    helper_arrivals = helper_arrivals | input_identity | help_field
+    assert not helper_arrivals.keys() & (documented_arrivals.keys() | arrivals.keys()
+        | worker_arrivals.keys() | home_ui_arrivals.keys())
+    assert {key: english["symbols"][key]["text"] for key in helper_arrivals} == helper_arrivals
+    documented_arrivals.update(helper_arrivals)
     rename = json.loads((ROOT / "tests/data/release_contracts"
         / "parascape_rename_api_arrivals_2026-10-18.json").read_text(encoding="utf-8"))
     assert len(rename) == 26
@@ -802,8 +881,14 @@ def test_every_complete_real_catalog_renders_through_the_browser_selector(api_ca
     }
     assert len(retired_baseline) == 16
     assert not retired_baseline & (live | catalog)
+    retired_ssh_arrival = "spacr.qt.screens.distributed_jobs.ExecutionProfileDialog._test_connection.operation"
+    assert retired_remote.keys() & documented_arrivals.keys() == {retired_ssh_arrival}
+    baseline_retirements = (retired_remote.keys() - {retired_ssh_arrival}) | retired_home.keys()
+    assert len(baseline_retirements) == 7
+    assert not baseline_retirements & (retired_baseline | arrivals.keys()
+        | worker_arrivals.keys() | home_ui_arrivals.keys() | documented_arrivals.keys())
     assert len((catalog - arrivals.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()
-                - documented_arrivals.keys()) | retired_baseline) == REAL_SYMBOL_COUNT
+                - documented_arrivals.keys()) | retired_baseline | baseline_retirements) == REAL_SYMBOL_COUNT
     assert len(catalog) == len(symbols)
     expected_count = len(symbols)
 

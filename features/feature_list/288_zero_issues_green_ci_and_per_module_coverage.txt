@@ -5921,3 +5921,5 @@ The failing be67895b19 aggregate and current Main/Night share the exact owning s
 
 2026-10-31: Added focused regression coverage for archive recovery, anonymous worker shutdown, annotation-save failures, retained plot actions, letterbox picking and unrelated QC probes.
 Qualified passing cohorts exercise the nine reported Main coverage regressions within unchanged limits; source-bound predictions await full CI. Product guards and coverage limits are unchanged.
+
+2026-10-31 — The shared collector fix distinguishes Qt discovery from executed-test receipts without changing coverage measurements, floors or ratchets; retained qualification is carried into release preparation. Whole-item coverage/green-CI acceptance remains open and no fresh Main result is claimed.

@@ -5275,12 +5275,18 @@ def reviewed_runtime_translations(language: str) -> dict[str, str]:
     longer passes the current syntax, semantic, script, and exact-copy gates
     is therefore a hard error.
     """
+    return _reviewed_runtime_translations(language)
+
+
+def _reviewed_runtime_translations(
+        language: str, *, sources: dict[str, object] | None = None) -> dict[str, str]:
+    """Validate ordinary reviews against a fresh caller-owned source snapshot."""
     if REVIEWED_RUNTIME_DIR == _DEFAULT_REVIEWED_RUNTIME_DIR:
         _REVIEW_INPUTS_MODULE.ensure_review_inputs(ROOT, offline=True)
     directory = REVIEWED_RUNTIME_DIR / language
     if not directory.is_dir():
         return {}
-    sources = canonical_sources()
+    sources = canonical_sources() if sources is None else sources
     reviewed: dict[str, str] = {}
     # EVERY PROBLEM, NOT THE FIRST ONE.
     #

@@ -48,7 +48,6 @@ class _RebuildsOnRetranslate(QWidget):
 @pytest.fixture
 def dialog_filter(qapp):
     previous = getattr(qapp, "_spacr_dialog_i18n_filter", None)
-    qapp._spacr_dialog_i18n_filter = None
     i18n.install_dialog_translation(qapp)
     yield qapp._spacr_dialog_i18n_filter
     from spacr.qt.gil_priority import _stop_watching_application_events

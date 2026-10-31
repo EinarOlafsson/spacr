@@ -194,3 +194,5 @@ external replacements after checks and prior metadata/cleanup race limits
 remain outside this bounded guard. No live data, model/network/GPU/fullCI,
 native other-OS or scientific acceptance. Evidence:
 data/593_consolidation_output_links_2026-10-15/receipt.json.
+
+2026-10-31 — Sorting invalidates pending metadata/load delivery before moving its files; the controlled real-TIFF failure is repaired with exact destination bytes, off-thread work and merged-array assertions retained. This protects the demonstrated queued-load race, without claiming cancellation of pixel reads already in progress.

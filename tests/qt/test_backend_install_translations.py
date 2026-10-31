@@ -1,4 +1,5 @@
 """Backend prose translates at the Qt boundary; package output stays verbatim."""
+import hashlib
 import json
 from pathlib import Path
 from types import SimpleNamespace
@@ -8,6 +9,11 @@ from PySide6.QtWidgets import QTextBrowser
 
 ROOT = Path(__file__).resolve().parents[2]
 LANGUAGES = ('de', 'sv', 'es', 'fr', 'pt', 'zh_CN', 'hi', 'ko', 'is')
+INSTALL_TARGETS = {
+    'de': 'Installieren', 'sv': 'Installera', 'es': 'Instalar',
+    'fr': 'Installer', 'pt': 'Instalar', 'zh_CN': '安装',
+    'hi': 'स्थापित करें', 'ko': '설치', 'is': 'Setja upp',
+}
 
 
 @pytest.mark.parametrize('language', LANGUAGES)
@@ -17,9 +23,19 @@ def test_installer_and_backend_cards_use_current_reviews(
     from spacr.qt import i18n
     from spacr.qt.widgets import model_zoo_picker as picker
 
-    payload = json.loads((ROOT / 'docs/i18n/reviewed/runtime' / language /
-                          '2026-09-23-backend-installer.json').read_text(encoding="utf-8"))
-    targets = {row['source']: row['translation'] for row in payload['records']}
+    targets = {}
+    for path in sorted((ROOT / 'docs/i18n/reviewed/runtime' / language).glob('*.json')):
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        assert payload['schema'] == 1 and payload['language'] == language
+        for row in payload['records']:
+            if row['table'] != 'ui':
+                continue
+            source, target = row['source'], row['translation']
+            assert row['source_sha256'] == hashlib.sha256(source.encode()).hexdigest()
+            if source in targets:
+                assert targets[source] == target, (language, source, path)
+            targets[source] = target
+    assert targets
     monkeypatch.setattr(i18n, 'current_language', lambda: language)
     environment = str(tmp_path / 'backend <isolated>')
     monkeypatch.setattr(backends, '_backend_state', lambda name:
@@ -34,7 +50,9 @@ def test_installer_and_backend_cards_use_current_reviews(
     spec = backends._SPECS['spotnet']
     name = targets['SpotNet (DeepCell)']
     assert dialog.windowTitle() == targets['Install {name}'].format(name=name)
-    assert dialog.start_button.text() == targets['Install']
+    assert dialog.start_button.text() == INSTALL_TARGETS[language]
+    assert i18n.tr('Install') == INSTALL_TARGETS[language]
+    assert dialog.start_button.text() != 'Install'
     assert dialog.cancel_button.text() == i18n.tr('Cancel')
     notice = next(s for s in targets if s.startswith('It installs into an environment'))
     assert dialog.blurb.text() == '\n\n'.join((

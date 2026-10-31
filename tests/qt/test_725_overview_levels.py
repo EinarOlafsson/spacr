@@ -394,6 +394,7 @@ def test_annotations_reach_the_image_table_and_drive_comparisons_and_representat
     dialog.comparison_within.setCurrentIndex(dialog.comparison_within.findData("replicate"))
     dialog._compare_groups()
     qtbot.waitUntil(lambda: not dialog._export_jobs.is_busy(), timeout=60000)
+    assert dialog._comparison_signature is not None, dialog.status.text()
     assert dialog._comparison_signature[0] == "groups", dialog.status.text()
     assert dialog._image_panel.isVisible() and not dialog.view._item.pixmap().isNull()
     assert dialog.comparison_measurement.count() > 1

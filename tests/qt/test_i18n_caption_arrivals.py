@@ -16,14 +16,18 @@ import build_i18n_catalogs as builder
 from i18n_caption_arrivals import LANGUAGES, load_arrival_contract, pinned_external_sources
 
 @pytest.fixture(scope='module')
-def state():
+def canonical_snapshot():
+    return builder.canonical_sources()
+
+@pytest.fixture(scope='module')
+def state(canonical_snapshot):
     declarations = {}
     for node in ast.parse((ROOT/'tests/qt/test_i18n_caption_ratchet.py').read_text(encoding="utf-8")).body:
         if isinstance(node,ast.Assign):
             for target in node.targets:
                 if isinstance(target,ast.Name) and target.id in ('EXTERNAL_SOURCE_COUNTS','EXTERNAL_SOURCE_KEY_SHA256'):
                     declarations[target.id] = ast.literal_eval(node.value)
-    canonical = builder.canonical_sources()
+    canonical = canonical_snapshot
     external = {table:canonical[name] for table,name in (
         ('SETTING_LABELS','setting_labels'),('SETTING_TOOLTIPS','setting_tooltips'),
         ('CATEGORY_HELP','categories'),('UI','ui'),('MODULE_SUMMARIES','module_summaries'))}
@@ -34,9 +38,16 @@ def project(external,declarations,contract=None):
         original_counts=declarations['EXTERNAL_SOURCE_COUNTS'],
         original_identity_sha256=declarations['EXTERNAL_SOURCE_KEY_SHA256'],contract=contract)
 
-def test_actual_source_and_reviews_reproduce_original_catalog_pin(state):
+def test_actual_source_and_reviews_reproduce_original_catalog_pin(state, canonical_snapshot, monkeypatch):
     external,declarations,contract = state
+    scans = []
+    def current_sources():
+        scans.append(True)
+        return canonical_snapshot
+    builder.reviewed_runtime_translations.cache_clear()
+    monkeypatch.setattr(builder, "canonical_sources", current_sources)
     pinned = project(external,declarations)
+    assert len(scans) == 1
     assert {table:len(rows) for table,rows in pinned.items()}==declarations['EXTERNAL_SOURCE_COUNTS']
     digest = hashlib.sha256('\0'.join(f'{table}\0{key}' for table,key in sorted(
         (table,key) for table,rows in pinned.items() for key in rows)).encode()).hexdigest()

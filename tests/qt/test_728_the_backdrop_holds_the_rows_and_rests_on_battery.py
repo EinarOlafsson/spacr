@@ -445,9 +445,15 @@ class _PanelHidingQtMethods(QFrame):
             setattr(self, name, object())
 
 
-def test_attributes_hiding_qt_methods_never_break_the_hold_169(screen, qtbot):
+def test_attributes_hiding_qt_methods_never_break_the_hold_169(screen, qtbot, qapp):
     """Every Qt call the walk makes on a page's widget goes through the Qt
     class itself, so no instance attribute can stand in for it."""
+    from PySide6.QtGui import QWindow
+    from spacr.qt import theme
+
+    theme.apply_stylesheet_per_window(qapp, theme.stylesheet())
+    native_window = QWindow()
+    assert theme._WINDOW_SHEET_FILTER.eventFilter(native_window, QEvent(QEvent.Show)) is False
     host, backdrop, card, labels = screen
     panel = _PanelHidingQtMethods(host)
     QFrame.setGeometry(panel, 420, 40, 180, 300)
