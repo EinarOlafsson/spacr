@@ -52819,7 +52819,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 10920,
+    "line": 10921,
     "module": "spacr.qt.app",
     "nested": false,
     "qualname": "MainWindow._open_easy_suggestion"
