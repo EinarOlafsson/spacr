@@ -32,7 +32,7 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "找到官方软件包和安装程序的来源，比较各渠道提供的版本，并选择对应的安装教程。",
+      "description": "找到官方软件包、容器镜像和安装程序的来源，比较各渠道提供的版本，并选择对应的安装教程。",
       "objectives": [
         "找到官方下载页面。",
         "为您的电脑选择安装方式。",
@@ -42,15 +42,18 @@
       "scenes": [
         {
           "visual": "01_pypi_current_release",
-          "narration": "选择安装spaCR的方式。想要可以直接启动的应用程序，请使用桌面安装程序；需要Python虚拟环境，请使用pip；需要Conda环境，请使用conda-forge。请从这里显示的spaCR官方链接开始。",
+          "narration": "选择安装spaCR的方式。桌面安装程序提供可以直接启动的应用程序。pip安装到Python虚拟环境，conda-forge安装到Conda环境，Docker则在容器中运行命令行流程。请从这里显示的spaCR官方链接开始。",
           "hold_after": 0.7,
-          "speech_text": "选择安装斯佩克尔的方式。想要可以直接启动的应用程序，请使用桌面安装程序；需要Python虚拟环境，请使用pip；需要Conda环境，请使用conda-forge。请从这里显示的斯佩克尔官方链接开始。"
+          "speech_text": "选择安装斯佩克尔的方式。桌面安装程序提供可以直接启动的应用程序。pip安装到Python虚拟环境，conda-forge安装到Conda环境，Docker则在容器中运行命令行流程。请从这里显示的斯佩克尔官方链接开始。"
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "在PyPI上找到spaCR，阅读当前版本旁边的安装命令。准备好安装到您的Python环境时，复制该命令。pip教程介绍了如何先创建并激活这个环境。",
+          "narration": "在PyPI上找到spaCR，阅读当前版本旁边的安装命令。准备好安装到您的Python环境时，复制该命令。Install spaCR介绍了如何先创建并激活这个环境。",
           "hold_after": 0.7,
-          "speech_text": "在派普上找到斯佩克尔，阅读当前版本旁边的安装命令。准备好安装到您的Python环境时，复制该命令。pip教程介绍了如何先创建并激活这个环境。"
+          "related_lessons": [
+            "02_install_spacr"
+          ],
+          "speech_text": "在派普上找到斯佩克尔，阅读当前版本旁边的安装命令。准备好安装到您的Python环境时，复制该命令。Install 斯佩克尔介绍了如何先创建并激活这个环境。"
         },
         {
           "visual": "02_pypi_project_links",
@@ -74,6 +77,15 @@
           "speech_text": "展开 Assets，下载适用于 Windows、macOS 或 Linux 的安装程序。Platform installers 教程说明每种操作系统上的安装、启动 斯佩克尔 和卸载步骤。"
         },
         {
+          "visual": "06_github_container_package",
+          "narration": "如需使用容器，请从spaCR仓库打开Packages，并选择spaCR容器软件包。每个发布标签都有一个CPU镜像和一个对应的CUDA镜像。Install spaCR说明了如何拉取、检查并运行您选择的确切标签。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "02_install_spacr"
+          ],
+          "speech_text": "如需使用容器，请从斯佩克尔仓库打开Packages，并选择斯佩克尔容器软件包。每个发布标签都有一个CPU镜像和一个对应的CUDA镜像。Install 斯佩克尔说明了如何拉取、检查并运行您选择的确切标签。"
+        },
+        {
           "visual": "05_conda_current_package",
           "narration": "在conda-forge上打开spaCR软件包页面，查看可用的版本。不同的软件包渠道可能在不同时间更新，所以请选择您所用方式中可用的版本。",
           "hold_after": 0.7,
@@ -90,13 +102,13 @@
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "使用 pip 或 conda-forge 时继续查看 Install spaCR，使用桌面安装程序时查看 Platform installers。两个教程都包含卸载说明。打开 spaCR 后进入 Home，再查看流程概览，为数据选择工作流程。",
+          "narration": "使用 pip、conda-forge 或 Docker 时继续查看 Install spaCR，使用桌面安装程序时查看 Platform installers。两个教程都包含卸载说明。打开 spaCR 后进入 Home，再查看流程概览，为数据选择工作流程。",
           "hold_after": 0.7,
           "related_lessons": [
             "02_install_spacr",
             "04_platform_installers"
           ],
-          "speech_text": "使用 pip 或 Conda Forge 时继续查看 Install 斯佩克尔，使用桌面安装程序时查看 Platform installers。两个教程都包含卸载说明。打开 斯佩克尔 后进入 主页，再查看流程概览，为数据选择工作流程。"
+          "speech_text": "使用 pip、Conda Forge 或 Docker 时继续查看 Install 斯佩克尔，使用桌面安装程序时查看 Platform installers。两个教程都包含卸载说明。打开 斯佩克尔 后进入 主页，再查看流程概览，为数据选择工作流程。"
         }
       ],
       "narration_voices": {

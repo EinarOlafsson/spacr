@@ -32,7 +32,7 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "公式のパッケージとインストーラーの入手先を見つけ、各チャネルで入手できるリリースを比べて、対応するインストールのチュートリアルを選びます。",
+      "description": "公式のパッケージ、コンテナイメージ、インストーラーの入手先を見つけ、各チャネルで入手できるリリースを比べて、対応するインストールのチュートリアルを選びます。",
       "objectives": [
         "公式のダウンロードページを見つける。",
         "お使いのコンピューターに合ったインストール方法を選ぶ。",
@@ -42,15 +42,18 @@
       "scenes": [
         {
           "visual": "01_pypi_current_release",
-          "narration": "spaCRのインストール方法を選びます。すぐに起動できるアプリケーションにはデスクトップインストーラーを、Pythonの仮想環境にはpipを、Conda環境にはconda-forgeを使います。ここに表示されているspaCRの公式リンクから始めましょう。",
+          "narration": "spaCRのインストール方法を選びます。デスクトップインストーラーを使うと、すぐに起動できるアプリケーションが手に入ります。pipはPythonの仮想環境に、conda-forgeはConda環境にインストールし、Dockerはコマンドラインのパイプラインをコンテナ内で実行します。ここに表示されているspaCRの公式リンクから始めましょう。",
           "hold_after": 0.7,
-          "speech_text": "スペーカーのインストール方法を選びます。すぐに起動できるアプリケーションにはデスクトップインストーラーを、Pythonの仮想環境にはpipを、Conda環境にはconda-forgeを使います。ここに表示されているスペーカーの公式リンクから始めましょう。"
+          "speech_text": "スペーカーのインストール方法を選びます。デスクトップインストーラーを使うと、すぐに起動できるアプリケーションが手に入ります。pipはPythonの仮想環境に、conda-forgeはConda環境にインストールし、Dockerはコマンドラインのパイプラインをコンテナ内で実行します。ここに表示されているスペーカーの公式リンクから始めましょう。"
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "PyPIでspaCRを探し、現在のリリースの横にあるインストールコマンドを読みます。Python環境にインストールする準備ができたら、そのコマンドをコピーします。pipのチュートリアルでは、先にその環境を作成して有効にする方法を説明しています。",
+          "narration": "PyPIでspaCRを探し、現在のリリースの横にあるインストールコマンドを読みます。Python環境にインストールする準備ができたら、そのコマンドをコピーします。Install spaCRでは、先にその環境を作成して有効にする方法を説明しています。",
           "hold_after": 0.7,
-          "speech_text": "パイプでスペーカーを探し、現在のリリースの横にあるインストールコマンドを読みます。Python環境にインストールする準備ができたら、そのコマンドをコピーします。pipのチュートリアルでは、先にその環境を作成して有効にする方法を説明しています。"
+          "related_lessons": [
+            "02_install_spacr"
+          ],
+          "speech_text": "パイプでスペーカーを探し、現在のリリースの横にあるインストールコマンドを読みます。Python環境にインストールする準備ができたら、そのコマンドをコピーします。Install スペーカーでは、先にその環境を作成して有効にする方法を説明しています。"
         },
         {
           "visual": "02_pypi_project_links",
@@ -74,6 +77,15 @@
           "speech_text": "Assets を展開し、Windows、macOS、Linux 用のインストーラーをダウンロードします。Platform installers のレッスンでは、各オペレーティングシステムでのインストール、スペーカー の起動、アンインストールを説明します。"
         },
         {
+          "visual": "06_github_container_package",
+          "narration": "コンテナを使う場合は、spaCRのリポジトリからPackagesを開き、spaCRのコンテナパッケージを選びます。各リリースのタグには、CPU用イメージと対応するCUDA用イメージがあります。Install spaCRでは、選んだタグを正確に取得し、確認して実行する方法を説明しています。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "02_install_spacr"
+          ],
+          "speech_text": "コンテナを使う場合は、スペーカーのリポジトリからPackagesを開き、スペーカーのコンテナパッケージを選びます。各リリースのタグには、CPU用イメージと対応するCUDA用イメージがあります。Install スペーカーでは、選んだタグを正確に取得し、確認して実行する方法を説明しています。"
+        },
+        {
           "visual": "05_conda_current_package",
           "narration": "conda-forgeでspaCRのパッケージページを開き、入手できるバージョンを確認します。パッケージのチャネルは更新の時期が異なることがあるので、選んだ方法で入手できるバージョンを選んでください。",
           "hold_after": 0.7,
@@ -90,13 +102,13 @@
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "pip または conda-forge を使う場合は Install spaCR、デスクトップインストーラーを使う場合は Platform installers に進みます。どちらもアンインストールの手順を説明しています。spaCR が開いたら Home に進み、パイプラインの概要からデータに合ったワークフローを選びます。",
+          "narration": "pip、conda-forge、Docker を使う場合は Install spaCR、デスクトップインストーラーを使う場合は Platform installers に進みます。どちらもアンインストールの手順を説明しています。spaCR が開いたら Home に進み、パイプラインの概要からデータに合ったワークフローを選びます。",
           "hold_after": 0.7,
           "related_lessons": [
             "02_install_spacr",
             "04_platform_installers"
           ],
-          "speech_text": "pip または Conda Forge を使う場合は Install スペーカー、デスクトップインストーラーを使う場合は Platform installers に進みます。どちらもアンインストールの手順を説明しています。スペーカー が開いたら ホーム に進み、パイプラインの概要からデータに合ったワークフローを選びます。"
+          "speech_text": "pip、Conda Forge、Docker を使う場合は Install スペーカー、デスクトップインストーラーを使う場合は Platform installers に進みます。どちらもアンインストールの手順を説明しています。スペーカー が開いたら ホーム に進み、パイプラインの概要からデータに合ったワークフローを選びます。"
         }
       ],
       "narration_voices": {

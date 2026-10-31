@@ -11,7 +11,7 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Finndu opinberar uppsprettur pakkans og uppsetningarforritanna, berðu saman útgáfuna sem er í boði á hverri rás og veldu samsvarandi uppsetningarkennslu.",
+      "description": "Finndu opinberar uppsprettur pakkans, gámamyndarinnar og uppsetningarforritanna, berðu saman útgáfuna sem er í boði á hverri rás og veldu samsvarandi uppsetningarkennslu.",
       "objectives": [
         "Finna opinberu niðurhalssíðurnar.",
         "Velja uppsetningarleið fyrir tölvuna þína.",
@@ -21,13 +21,16 @@
       "scenes": [
         {
           "visual": "01_pypi_current_release",
-          "narration": "Veldu hvernig þú vilt setja upp spaCR. Notaðu uppsetningarforrit fyrir skjáborð til að fá forrit sem er tilbúið til ræsingar, pip fyrir Python-sýndarumhverfi eða conda-forge fyrir Conda-umhverfi. Byrjaðu á opinberu spaCR-tenglunum sem sjást hér.",
+          "narration": "Veldu hvernig þú vilt setja upp spaCR. Uppsetningarforrit fyrir skjáborð gefur forrit sem er tilbúið til ræsingar. Pip setur upp í Python-sýndarumhverfi, conda-forge setur upp í Conda-umhverfi og Docker keyrir skipanalínuvinnsluferlin í gámi. Byrjaðu á opinberu spaCR-tenglunum sem sjást hér.",
           "hold_after": 0.7
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "Á PyPI finnurðu spaCR og lest uppsetningarskipunina við hlið núverandi útgáfu. Afritaðu skipunina þegar þú ert tilbúinn að setja upp í Python-umhverfið þitt. Kennslan um pip sýnir hvernig þú býrð fyrst til og virkjar það umhverfi.",
-          "hold_after": 0.7
+          "narration": "Á PyPI finnurðu spaCR og lest uppsetningarskipunina við hlið núverandi útgáfu. Afritaðu skipunina þegar þú ert tilbúinn að setja upp í Python-umhverfið þitt. Install spaCR sýnir hvernig þú býrð fyrst til og virkjar það umhverfi.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "02_install_spacr"
+          ]
         },
         {
           "visual": "02_pypi_project_links",
@@ -48,6 +51,14 @@
           ]
         },
         {
+          "visual": "06_github_container_package",
+          "narration": "Fyrir gáma opnarðu Packages í spaCR-geymslunni og velur spaCR-gámapakkann. Hvert útgáfumerki hefur CPU-mynd og samsvarandi CUDA-mynd. Install spaCR útskýrir hvernig þú sækir, athugar og keyrir nákvæmlega merkið sem þú velur.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "02_install_spacr"
+          ]
+        },
+        {
           "visual": "05_conda_current_package",
           "narration": "Á conda-forge opnarðu pakkasíðu spaCR og athugar hvaða útgáfa er í boði. Pakkarásir geta uppfærst á ólíkum tímum, svo veldu útgáfuna sem er í boði eftir leiðinni sem þú velur.",
           "hold_after": 0.7
@@ -62,7 +73,7 @@
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "Haltu áfram í Install spaCR fyrir pip eða conda-forge, eða í Platform installers fyrir uppsetningarforrit fyrir skjáborð. Bæði kennsluefnin útskýra hvernig uppsetningin er fjarlægð. Þegar spaCR hefur opnast skaltu fara á Home og síðan í yfirlit vinnsluferla til að velja vinnuflæði fyrir gögnin þín.",
+          "narration": "Haltu áfram í Install spaCR fyrir pip, conda-forge eða Docker, eða í Platform installers fyrir uppsetningarforrit fyrir skjáborð. Bæði kennsluefnin útskýra hvernig uppsetningin er fjarlægð. Þegar spaCR hefur opnast skaltu fara á Home og síðan í yfirlit vinnsluferla til að velja vinnuflæði fyrir gögnin þín.",
           "hold_after": 0.7,
           "related_lessons": [
             "02_install_spacr",

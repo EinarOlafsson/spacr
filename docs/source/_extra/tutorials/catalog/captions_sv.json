@@ -11,7 +11,7 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Hitta de officiella källorna för paketet och installationsprogrammen, jämför vilken version som finns i varje kanal och välj motsvarande installationshandledning.",
+      "description": "Hitta de officiella källorna för paketet, containeravbildningen och installationsprogrammen, jämför vilken version som finns i varje kanal och välj motsvarande installationshandledning.",
       "objectives": [
         "Hitta de officiella nedladdningssidorna.",
         "Välja installationsväg för din dator.",
@@ -21,13 +21,16 @@
       "scenes": [
         {
           "visual": "01_pypi_current_release",
-          "narration": "Välj hur du vill installera spaCR. Använd ett installationsprogram för ett program som är klart att starta, pip för en virtuell Python-miljö eller conda-forge för en Conda-miljö. Utgå från de officiella spaCR-länkarna som visas här.",
+          "narration": "Välj hur du vill installera spaCR. Ett installationsprogram för skrivbordet ger ett program som är klart att starta. Pip installerar i en virtuell Python-miljö, conda-forge installerar i en Conda-miljö och Docker kör kommandoradspipelines i en container. Utgå från de officiella spaCR-länkarna som visas här.",
           "hold_after": 0.7
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "På PyPI hittar du spaCR och läser installationskommandot bredvid den aktuella versionen. Kopiera kommandot när du är redo att installera i din Python-miljö. Handledningen för pip visar hur du först skapar och aktiverar miljön.",
-          "hold_after": 0.7
+          "narration": "På PyPI hittar du spaCR och läser installationskommandot bredvid den aktuella versionen. Kopiera kommandot när du är redo att installera i din Python-miljö. Install spaCR visar hur du först skapar och aktiverar miljön.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "02_install_spacr"
+          ]
         },
         {
           "visual": "02_pypi_project_links",
@@ -48,6 +51,14 @@
           ]
         },
         {
+          "visual": "06_github_container_package",
+          "narration": "För containrar öppnar du Packages från spaCR-förrådet och väljer spaCR-containerpaketet. Varje versionstagg har en CPU-avbildning och en motsvarande CUDA-avbildning. Install spaCR förklarar hur du hämtar, kontrollerar och kör exakt den tagg du väljer.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "02_install_spacr"
+          ]
+        },
+        {
           "visual": "05_conda_current_package",
           "narration": "På conda-forge öppnar du paketsidan för spaCR och kontrollerar vilken version som finns. Paketkanaler kan uppdateras vid olika tidpunkter, så välj den version som finns via den väg du väljer.",
           "hold_after": 0.7
@@ -62,7 +73,7 @@
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "Fortsätt med Install spaCR för pip eller conda-forge, eller med Platform installers för ett installationsprogram för skrivbordet. Båda lektionerna innehåller anvisningar för avinstallation. När spaCR har öppnats går du till Home och sedan till pipelineöversikterna för att välja ett arbetsflöde för dina data.",
+          "narration": "Fortsätt med Install spaCR för pip, conda-forge eller Docker, eller med Platform installers för ett installationsprogram för skrivbordet. Båda lektionerna innehåller anvisningar för avinstallation. När spaCR har öppnats går du till Home och sedan till pipelineöversikterna för att välja ett arbetsflöde för dina data.",
           "hold_after": 0.7,
           "related_lessons": [
             "02_install_spacr",

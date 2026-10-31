@@ -32,7 +32,7 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Find the official package and installer sources, compare the release available on each channel, and choose the matching installation tutorial.",
+      "description": "Find the official package, container image and installer sources, compare the release available on each channel, and choose the matching installation tutorial.",
       "objectives": [
         "Find the official download pages.",
         "Choose the installation route for your computer.",
@@ -42,13 +42,16 @@
       "scenes": [
         {
           "visual": "01_pypi_current_release",
-          "narration": "Choose how you want to install spaCR. Use a desktop installer for a ready-to-launch application, pip for a Python virtual environment, or conda-forge for a Conda environment. Start from the official spaCR links shown here.",
+          "narration": "Choose how you want to install spaCR. A desktop installer gives a ready-to-launch application. Pip installs into a Python virtual environment, conda-forge installs into a Conda environment, and Docker runs the command-line pipelines in a container. Start from the official spaCR links shown here.",
           "hold_after": 0.7
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "On PyPI, find spaCR and read the installation command beside the current release. Copy that command when you are ready to install into your Python environment. The pip tutorial shows how to create and activate that environment first.",
-          "hold_after": 0.7
+          "narration": "On PyPI, find spaCR and read the installation command beside the current release. Copy that command when you are ready to install into your Python environment. Install spaCR shows how to create and activate that environment first.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "02_install_spacr"
+          ]
         },
         {
           "visual": "02_pypi_project_links",
@@ -69,6 +72,14 @@
           ]
         },
         {
+          "visual": "06_github_container_package",
+          "narration": "For containers, open Packages from the spaCR repository and select the spaCR container package. Each release tag has a CPU image and a matching CUDA image. Install spaCR explains how to pull, check and run the exact tag you select.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "02_install_spacr"
+          ]
+        },
+        {
           "visual": "05_conda_current_package",
           "narration": "On conda-forge, open the spaCR package page and check the available version. Package channels can update at different times, so select the version available through the route you choose.",
           "hold_after": 0.7
@@ -83,7 +94,7 @@
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "Continue with Install spaCR for pip or conda-forge, or Platform installers for a desktop installer. Both lessons include uninstall guidance. Once spaCR opens, move to Home, then the pipeline overviews to choose a workflow for your data.",
+          "narration": "Continue with Install spaCR for pip, conda-forge or Docker, or Platform installers for a desktop installer. Both lessons include uninstall guidance. Once spaCR opens, move to Home, then the pipeline overviews to choose a workflow for your data.",
           "hold_after": 0.7,
           "related_lessons": [
             "02_install_spacr",

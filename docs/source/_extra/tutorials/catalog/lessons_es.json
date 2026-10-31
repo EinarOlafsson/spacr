@@ -32,7 +32,7 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Encuentra las fuentes oficiales del paquete y de los instaladores, compara la versión disponible en cada canal y elige el tutorial de instalación correspondiente.",
+      "description": "Encuentra las fuentes oficiales del paquete, de la imagen de contenedor y de los instaladores, compara la versión disponible en cada canal y elige el tutorial de instalación correspondiente.",
       "objectives": [
         "Encontrar las páginas oficiales de descarga.",
         "Elegir la vía de instalación para tu ordenador.",
@@ -42,15 +42,18 @@
       "scenes": [
         {
           "visual": "01_pypi_current_release",
-          "narration": "Elige cómo quieres instalar spaCR. Usa un instalador de escritorio para tener una aplicación lista para abrir, pip para un entorno virtual de Python o conda-forge para un entorno Conda. Parte de los enlaces oficiales de spaCR que se muestran aquí.",
+          "narration": "Elige cómo quieres instalar spaCR. Un instalador de escritorio ofrece una aplicación lista para abrir. Pip instala en un entorno virtual de Python, conda-forge instala en un entorno Conda y Docker ejecuta las canalizaciones de línea de comandos en un contenedor. Parte de los enlaces oficiales de spaCR que se muestran aquí.",
           "hold_after": 0.7,
-          "speech_text": "Elige cómo quieres instalar espáquer. Usa un instalador de escritorio para tener una aplicación lista para abrir, pip para un entorno virtual de Python o Conda Forge para un entorno Conda. Parte de los enlaces oficiales de espáquer que se muestran aquí."
+          "speech_text": "Elige cómo quieres instalar espáquer. Un instalador de escritorio ofrece una aplicación lista para abrir. Pip instala en un entorno virtual de Python, Conda Forge instala en un entorno Conda y Docker ejecuta las canalizaciones de línea de comandos en un contenedor. Parte de los enlaces oficiales de espáquer que se muestran aquí."
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "En PyPI, busca spaCR y lee el comando de instalación junto a la versión actual. Copia ese comando cuando estés listo para instalar en tu entorno de Python. El tutorial de pip muestra cómo crear y activar antes ese entorno.",
+          "narration": "En PyPI, busca spaCR y lee el comando de instalación junto a la versión actual. Copia ese comando cuando estés listo para instalar en tu entorno de Python. Install spaCR muestra cómo crear y activar antes ese entorno.",
           "hold_after": 0.7,
-          "speech_text": "En paip, busca espáquer y lee el comando de instalación junto a la versión actual. Copia ese comando cuando estés listo para instalar en tu entorno de Python. El tutorial de pip muestra cómo crear y activar antes ese entorno."
+          "related_lessons": [
+            "02_install_spacr"
+          ],
+          "speech_text": "En paip, busca espáquer y lee el comando de instalación junto a la versión actual. Copia ese comando cuando estés listo para instalar en tu entorno de Python. Install espáquer muestra cómo crear y activar antes ese entorno."
         },
         {
           "visual": "02_pypi_project_links",
@@ -74,6 +77,15 @@
           "speech_text": "Expande Assets y descarga el instalador para Windows, macOS o Linux. La lección Platform installers explica la instalación, cómo abrir espáquer y cómo desinstalarlo en cada sistema operativo."
         },
         {
+          "visual": "06_github_container_package",
+          "narration": "Para contenedores, abre Packages desde el repositorio de spaCR y selecciona el paquete de contenedor de spaCR. Cada etiqueta de versión tiene una imagen para CPU y una imagen CUDA correspondiente. Install spaCR explica cómo descargar, comprobar y ejecutar exactamente la etiqueta que elijas.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "02_install_spacr"
+          ],
+          "speech_text": "Para contenedores, abre Packages desde el repositorio de espáquer y selecciona el paquete de contenedor de espáquer. Cada etiqueta de versión tiene una imagen para CPU y una imagen CUDA correspondiente. Install espáquer explica cómo descargar, comprobar y ejecutar exactamente la etiqueta que elijas."
+        },
+        {
           "visual": "05_conda_current_package",
           "narration": "En conda-forge, abre la página del paquete spaCR y comprueba la versión disponible. Los canales de paquetes pueden actualizarse en momentos distintos, así que elige la versión disponible por la vía que prefieras.",
           "hold_after": 0.7,
@@ -90,13 +102,13 @@
         },
         {
           "visual": "01_pypi_current_release",
-          "narration": "Continúa con Install spaCR para pip o conda-forge, o con Platform installers para un instalador de escritorio. Ambas lecciones incluyen instrucciones de desinstalación. Cuando spaCR se abra, pasa a Home y después a las vistas generales de las canalizaciones para elegir un flujo de trabajo para tus datos.",
+          "narration": "Continúa con Install spaCR para pip, conda-forge o Docker, o con Platform installers para un instalador de escritorio. Ambas lecciones incluyen instrucciones de desinstalación. Cuando spaCR se abra, pasa a Home y después a las vistas generales de las canalizaciones para elegir un flujo de trabajo para tus datos.",
           "hold_after": 0.7,
           "related_lessons": [
             "02_install_spacr",
             "04_platform_installers"
           ],
-          "speech_text": "Continúa con Install espáquer para pip o Conda Forge, o con Platform installers para un instalador de escritorio. Ambas lecciones incluyen instrucciones de desinstalación. Cuando espáquer se abra, pasa a Home y después a las vistas generales de las canalizaciones para elegir un flujo de trabajo para tus datos."
+          "speech_text": "Continúa con Install espáquer para pip, Conda Forge o Docker, o con Platform installers para un instalador de escritorio. Ambas lecciones incluyen instrucciones de desinstalación. Cuando espáquer se abra, pasa a Home y después a las vistas generales de las canalizaciones para elegir un flujo de trabajo para tus datos."
         }
       ],
       "narration_voices": {
