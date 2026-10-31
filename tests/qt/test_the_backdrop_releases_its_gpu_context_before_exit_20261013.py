@@ -78,7 +78,7 @@ class FakeGraphics:
 def install():
     from spacr.qt.widgets import ambient
     ambient._FlowPointGraphics = FakeGraphics
-    ambient._flow_graphics_preflight = lambda: True
+    ambient._flow_graphics_preflight = lambda stop_event=None: True
     ambient._flow_compute_idle = lambda: True
     ambient._FLOW_GRAPHICS_PROBE = True
 '''
@@ -238,7 +238,7 @@ def test_retiring_joins_every_shading_thread_and_stops_new_ones(
             return draw
 
     monkeypatch.setattr(ambient, "_FlowPointGraphics", Fake)
-    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda: True)
+    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda stop_event=None: True)
     monkeypatch.setattr(ambient, "_flow_compute_idle", lambda: True)
     monkeypatch.setattr(ambient, "_RESOURCE_POLICY", None)
     monkeypatch.setattr(ambient, "_SHADING_RETIRED", [False])

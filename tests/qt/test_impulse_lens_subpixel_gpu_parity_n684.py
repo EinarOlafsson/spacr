@@ -104,7 +104,7 @@ def fake_gpu(monkeypatch):
     monkeypatch.setitem(sys.modules, "moderngl", _fake_moderngl())
     monkeypatch.setattr(ambient, "_RESOURCE_POLICY", None)
     monkeypatch.setattr(ambient, "_flow_compute_idle", lambda: True)
-    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda: True)
+    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda stop_event=None: True)
 
 
 def _shade_on_producer(engine):
@@ -164,7 +164,7 @@ def test_a_refused_renderer_keeps_the_cpu_subpixel_frame(monkeypatch, qapp):
     expected = engine.shade(320, 200).copy()
     engine._graphics_backend = "gpu"
     monkeypatch.setattr(ambient, "_RESOURCE_POLICY", None)
-    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda: False)
+    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda stop_event=None: False)
     monkeypatch.setattr(threading, "current_thread",
                         lambda: SimpleNamespace(name="spacr-ambient-shade"))
     assert engine.shade(320, 200) == expected
@@ -182,7 +182,7 @@ CHILD = textwrap.dedent("""
     options = ambient._graphics_context_options()
     options['device_index'] = {device}
     ambient._graphics_context_options = lambda: dict(options)
-    ambient._flow_graphics_preflight = lambda: True
+    ambient._flow_graphics_preflight = lambda stop_event=None: True
     ambient._flow_compute_idle = lambda: True
     ambient._RESOURCE_POLICY = None
     tool._on_producer = tool._Producer()

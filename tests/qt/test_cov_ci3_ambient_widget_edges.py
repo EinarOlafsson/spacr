@@ -157,6 +157,7 @@ def test_a_gravity_burst_can_skip_its_wave(qapp):
 
 
 @pytest.mark.parametrize("error", [OSError("no interpreter"),
+                                   InterruptedError("interrupted spawn"),
                                    subprocess.TimeoutExpired("python", 5)])
 def test_a_probe_that_cannot_run_keeps_the_cpu(monkeypatch, error):
     import importlib.util
@@ -165,8 +166,9 @@ def test_a_probe_that_cannot_run_keeps_the_cpu(monkeypatch, error):
         raise error
 
     monkeypatch.setattr(ambient, "_FLOW_GRAPHICS_PROBE", None)
+    monkeypatch.delenv("SPACR_NO_GL", raising=False)
     monkeypatch.setattr(importlib.util, "find_spec", lambda name: object())
-    monkeypatch.setattr(subprocess, "run", run)
+    monkeypatch.setattr(subprocess, "Popen", run)
     assert ambient._flow_graphics_preflight() is False
     assert ambient._FLOW_GRAPHICS_PROBE is False
 
@@ -177,14 +179,17 @@ def test_a_hardware_probe_answer_is_accepted(monkeypatch):
     monkeypatch.setattr(ambient.sys, "platform", "linux")
 
     seen = []
+    real_popen = subprocess.Popen
 
     def run(command, **kwargs):
+        """Exercise captured child output using Python only, without GL."""
         seen.append(command[-1])
-        return types.SimpleNamespace(returncode=0, stdout="hardware-gl-ok\n")
+        return real_popen([sys.executable, '-c', "print('hardware-gl-ok')"], **kwargs)
 
     monkeypatch.setattr(ambient, "_FLOW_GRAPHICS_PROBE", None)
+    monkeypatch.delenv("SPACR_NO_GL", raising=False)
     monkeypatch.setattr(importlib.util, "find_spec", lambda name: object())
-    monkeypatch.setattr(subprocess, "run", run)
+    monkeypatch.setattr(subprocess, "Popen", run)
     assert ambient._flow_graphics_preflight() is True
     assert "llvmpipe" in seen[0] and "create_context" in seen[0]
 

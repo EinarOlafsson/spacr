@@ -6313,7 +6313,37 @@ def _graphics_probe_refusal() -> str:
     return "no hardware OpenGL 4.3 context (probe failed)"
 
 
-def _flow_graphics_preflight():
+class _GraphicsProbeCancelled(Exception):
+    """The owning worker stopped before its graphics capability was published."""
+
+
+def _check_graphics_probe_stop(stop_event):
+    """Keep every probe checkpoint under the same owning-worker stop policy.
+
+    :param stop_event: optional owning worker stop signal.
+    :raises _GraphicsProbeCancelled: when the owning worker has stopped.
+    """
+    if stop_event is not None and stop_event.is_set():
+        raise _GraphicsProbeCancelled
+
+
+def _graphics_probe_remaining(deadline, stop_event):
+    """Return the remaining shared admission and child-execution budget.
+
+    :param deadline: monotonic expiry of the original five-second probe budget.
+    :param stop_event: optional owning worker stop signal.
+    :returns: positive seconds still available to the probe.
+    :raises _GraphicsProbeCancelled: when the owning worker has stopped.
+    :raises TimeoutError: when the single probe deadline has expired.
+    """
+    _check_graphics_probe_stop(stop_event)
+    remaining = deadline - time.monotonic()
+    if remaining <= 0:
+        raise TimeoutError
+    return remaining
+
+
+def _flow_graphics_preflight(stop_event=None):
     """Probe an optional hardware OpenGL context in a separate process.
 
     The result is cached for this application process. A missing
@@ -6325,35 +6355,73 @@ def _flow_graphics_preflight():
     On macOS only Radeon devices are probed with OpenGL 4.1. The known
     Intel Iris driver failure stays on the CPU path; the Radeon path is
     qualified separately through native rendering and shutdown tests.
+
+    :param stop_event: optional owning worker stop signal; cancellation
+        retires its child without caching a capability refusal.
     """
     global _FLOW_GRAPHICS_PROBE
     import importlib.util
     import subprocess
 
-    with _FLOW_GRAPHICS_PROBE_LOCK:
-        if _FLOW_GRAPHICS_PROBE is None and (
-                (sys.platform == "darwin" and not _mac_radeon_graphics())
-                or os.environ.get("SPACR_NO_GL")
-                or importlib.util.find_spec("moderngl") is None):
-            _FLOW_GRAPHICS_PROBE = False
-        if _FLOW_GRAPHICS_PROBE is None:
-            script = (
-                "import moderngl; "
-                f"c=moderngl.create_context(**{_graphics_context_options()!r}); "
-                "r=str(c.info['GL_RENDERER']).lower(); "
-                f"assert not any(x in r for x in {_SOFTWARE_RENDERERS!r}); "
-                "c.release(); print('hardware-gl-ok')"
-            )
+    deadline = time.monotonic() + 5.0
+    acquired = cancelled = False
+    child = None
+    result = None
+    try:
+        try:
+            while not acquired:
+                remaining = _graphics_probe_remaining(deadline, stop_event)
+                acquired = _FLOW_GRAPHICS_PROBE_LOCK.acquire(timeout=min(0.05, remaining))
+            _check_graphics_probe_stop(stop_event)
+            if _FLOW_GRAPHICS_PROBE is None:
+                if ((sys.platform == "darwin" and not _mac_radeon_graphics())
+                        or os.environ.get("SPACR_NO_GL")
+                        or importlib.util.find_spec("moderngl") is None):
+                    result = False
+                else:
+                    script = (
+                        "import moderngl; "
+                        f"c=moderngl.create_context(**{_graphics_context_options()!r}); "
+                        "r=str(c.info['GL_RENDERER']).lower(); "
+                        f"assert not any(x in r for x in {_SOFTWARE_RENDERERS!r}); "
+                        "c.release(); print('hardware-gl-ok')"
+                    )
+                    _graphics_probe_remaining(deadline, stop_event)
+                    child = subprocess.Popen(
+                        [sys.executable, '-c', script], stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE, text=True)
+                    while True:
+                        remaining = _graphics_probe_remaining(deadline, stop_event)
+                        try:
+                            stdout, _stderr = child.communicate(timeout=min(0.05, remaining))
+                        except subprocess.TimeoutExpired:
+                            continue
+                        result = (child.returncode == 0
+                                  and stdout.strip() == 'hardware-gl-ok')
+                        break
+        finally:
+            if child is not None:
+                try:
+                    if child.poll() is None:
+                        child.kill()
+                finally:
+                    child.communicate()
+    except _GraphicsProbeCancelled:
+        cancelled = True
+    except (OSError, subprocess.TimeoutExpired):
+        result = False
+    finally:
+        if acquired:
             try:
-                result = subprocess.run(
-                    [sys.executable, '-c', script], capture_output=True,
-                    text=True, timeout=5, check=False)
-                _FLOW_GRAPHICS_PROBE = (
-                    result.returncode == 0
-                    and result.stdout.strip() == 'hardware-gl-ok')
-            except (OSError, subprocess.TimeoutExpired):
-                _FLOW_GRAPHICS_PROBE = False
-        return _FLOW_GRAPHICS_PROBE
+                _check_graphics_probe_stop(stop_event)
+            except _GraphicsProbeCancelled:
+                cancelled = True
+            if not cancelled and result is not None:
+                _FLOW_GRAPHICS_PROBE = result
+            _FLOW_GRAPHICS_PROBE_LOCK.release()
+    if cancelled:
+        return False
+    return _FLOW_GRAPHICS_PROBE if result is None else result
 
 
 def _flow_compute_idle():
@@ -10093,7 +10161,7 @@ class _FrameProducer:
         """
         try:
             if getattr(self._engine, "_graphics_backend", "cpu") == "gpu":
-                _flow_graphics_preflight()
+                _flow_graphics_preflight(self._stop)
             woken, woken_at = False, -math.inf
             while not self._stop.is_set():
                 started = time.monotonic()

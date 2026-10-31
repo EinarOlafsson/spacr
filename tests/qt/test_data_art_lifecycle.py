@@ -153,3 +153,127 @@ def test_data_art_quiets_when_minimized_and_runs_behind_a_dialog(qtbot):
     assert widget.shading_thread_alive()
     host.close()
     assert not widget.shading_thread_alive()
+
+
+def _delayed_failed_probe(monkeypatch, tmp_path):
+    """Route only the real graphics probe to one observable CPU-only child."""
+    import subprocess
+    import sys
+
+    assert ambient._FLOW_GRAPHICS_PROBE is None
+    command = (
+        "import moderngl; "
+        f"c=moderngl.create_context(**{ambient._graphics_context_options()!r}); "
+        "r=str(c.info['GL_RENDERER']).lower(); "
+        f"assert not any(x in r for x in {ambient._SOFTWARE_RENDERERS!r}); "
+        "c.release(); print('hardware-gl-ok')")
+    actual_popen = subprocess.Popen
+    sentinel = tmp_path / 'probe-started.pid'
+    child_script = (
+        "import os,sys,time; from pathlib import Path; "
+        "Path(sys.argv[1]).write_text(str(os.getpid())); "
+        "time.sleep(3); sys.exit(1)")
+    children = []
+
+    def cpu_probe_only(args, *popen_args, **kwargs):
+        """Replace only the exact graphics probe with a real CPU-only child."""
+        if args == [sys.executable, '-c', command]:
+            assert not children, 'only one actual hardware-probe child is expected'
+            child = actual_popen([sys.executable, '-c', child_script, str(sentinel)],
+                                 *popen_args, **kwargs)
+            children.append(child)
+            return child
+        assert not any('moderngl' in str(arg) for arg in args), 'unexpected GL command was blocked'
+        return actual_popen(args, *popen_args, **kwargs)
+
+    monkeypatch.setattr(subprocess, 'Popen', cpu_probe_only)
+    monkeypatch.delenv('SPACR_NO_GL', raising=False)
+    return children, sentinel
+
+
+def test_slow_failed_hardware_probe_retires_with_the_hidden_point_atlas(qtbot, monkeypatch, tmp_path):
+    """A real pending failed probe must not outlive the existing hide budget."""
+    children, sentinel = _delayed_failed_probe(monkeypatch, tmp_path)
+    widget = ambient.AmbientWidget(theme='data_art_point_atlas', palette='spacr', seed=7)
+    qtbot.addWidget(widget)
+    widget.resize(320, 200)
+    producer = None
+    try:
+        assert widget.engine._graphics_backend == 'gpu'
+        widget.show()
+        qtbot.waitUntil(sentinel.exists, timeout=2000)
+        assert len(children) == 1 and int(sentinel.read_text()) == children[0].pid
+        assert children[0].poll() is None
+        producer = widget._producer_box[0]
+        assert producer.is_alive() and widget.is_running()
+        widget.hide()
+        assert not widget.is_running()
+        assert not widget.shading_thread_alive()
+        assert not producer.is_alive(), _retirement_failure(widget, producer, 'hide during real delayed failed probe')
+        assert children[0].poll() is not None, 'retirement must also reap the actual probe child'
+        assert ambient._FLOW_GRAPHICS_PROBE is None, 'cancellation is not a cached capability refusal'
+        assert widget._last_frame is None
+    finally:
+        for child in children:
+            child.wait(timeout=5)
+        if producer is not None:
+            producer.stop()
+            assert not producer.is_alive()
+        widget.close()
+
+
+
+def test_waiting_probe_worker_retires_without_cancelling_the_owning_widget(qtbot, monkeypatch, tmp_path):
+    """Cancelling a real lock waiter leaves the other widget's probe owned."""
+    import sys
+    import traceback
+
+    children, sentinel = _delayed_failed_probe(monkeypatch, tmp_path)
+    owner = ambient.AmbientWidget(theme='data_art_point_atlas', palette='spacr', seed=7)
+    waiter = ambient.AmbientWidget(theme='data_art_point_atlas', palette='spacr', seed=8)
+    for widget in (owner, waiter):
+        qtbot.addWidget(widget)
+        widget.resize(320, 200)
+    first = second = None
+    try:
+        assert owner.engine._graphics_backend == waiter.engine._graphics_backend == 'gpu'
+        owner.show()
+        qtbot.waitUntil(sentinel.exists, timeout=2000)
+        assert len(children) == 1 and int(sentinel.read_text()) == children[0].pid
+        assert children[0].poll() is None
+        first = owner._producer_box[0]
+        assert first.is_alive() and ambient._FLOW_GRAPHICS_PROBE_LOCK.locked()
+        waiter.show()
+        second = waiter._producer_box[0]
+
+        def waiting_at_the_real_probe_lock():
+            """Observe the actual worker frame at the production lock acquisition."""
+            frame = sys._current_frames().get(second._thread.ident)
+            return frame is not None and any(
+                entry.name == '_flow_graphics_preflight'
+                and '_FLOW_GRAPHICS_PROBE_LOCK.acquire' in (entry.line or '')
+                for entry in traceback.extract_stack(frame))
+
+        qtbot.waitUntil(waiting_at_the_real_probe_lock, timeout=2000)
+        assert len(children) == 1 and children[0].poll() is None
+        waiter.hide()
+        assert not waiter.is_running() and not waiter.shading_thread_alive()
+        assert not second.is_alive(), _retirement_failure(waiter, second, 'hide while waiting for the owned probe lock')
+        assert waiter._last_frame is None
+        assert first.is_alive() and children[0].poll() is None
+        assert ambient._FLOW_GRAPHICS_PROBE is None
+        owner.hide()
+        assert not owner.is_running() and not owner.shading_thread_alive()
+        assert not first.is_alive(), _retirement_failure(owner, first, 'hide owning the delayed probe after waiter retirement')
+        assert children[0].poll() is not None
+        assert ambient._FLOW_GRAPHICS_PROBE is None
+        assert owner._last_frame is None
+    finally:
+        for child in children:
+            child.wait(timeout=5)
+        for producer in (first, second):
+            if producer is not None:
+                producer.stop()
+                assert not producer.is_alive()
+        owner.close()
+        waiter.close()

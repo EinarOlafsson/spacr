@@ -108,7 +108,7 @@ class _Renderer:
 
 def test_a_kept_renderer_is_reused_until_the_idle_check_expires(monkeypatch, qapp):
     checks = []
-    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda: True)
+    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda stop_event=None: True)
     monkeypatch.setattr(ambient, "_flow_compute_idle", lambda: checks.append(1) or True)
     monkeypatch.setattr(ambient, "_FlowPointGraphics", _Renderer)
     _Renderer.made = 0
@@ -131,7 +131,7 @@ def test_a_kept_renderer_is_reused_until_the_idle_check_expires(monkeypatch, qap
 
 
 def test_a_constructor_error_is_remembered_for_the_engine(monkeypatch, qapp):
-    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda: True)
+    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda stop_event=None: True)
     monkeypatch.setattr(ambient, "_flow_compute_idle", lambda: True)
     attempts = []
 
@@ -367,7 +367,7 @@ def _warnings(caplog):
 
 def test_each_refusal_names_its_reason_and_is_logged_once(monkeypatch, refusals, qapp):
     monkeypatch.setattr(ambient, "_flow_compute_idle", lambda: True)
-    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda: True)
+    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda stop_event=None: True)
     monkeypatch.setattr(ambient, "_FlowPointGraphics", _Renderer)
     engine = _engine("blobs")
     engine._graphics_backend = "gpu"
@@ -414,13 +414,13 @@ def test_automatic_choosing_the_cpu_is_recorded_but_not_logged(refusals, qapp):
 
 def test_probe_constructor_and_draw_failures_say_what_failed(monkeypatch, refusals, qapp):
     monkeypatch.setattr(ambient, "_flow_compute_idle", lambda: True)
-    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda: False)
+    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda stop_event=None: False)
     probed = _engine("aurora")
     probed._graphics_backend = "gpu"
     assert _on_producer(lambda: probed._graphics_renderer(320, 200)) is None
     assert probed._graphics_refusal == ambient._graphics_probe_refusal()
     assert probed._graphics_failed
-    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda: True)
+    monkeypatch.setattr(ambient, "_flow_graphics_preflight", lambda stop_event=None: True)
 
     def broken():
         raise OSError("EGL_BAD_DISPLAY")
