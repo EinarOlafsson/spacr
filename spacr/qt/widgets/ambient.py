@@ -1971,14 +1971,15 @@ class _GraphicsBackend:
 
         :returns: the frame, or ``None`` for the CPU path.
         """
-        lane = self._graphics_lane_for()
-        if lane.busy():
+        lane = self.__dict__.get("_graphics_lane")
+        if lane is not None and lane.busy():
             self._graphics_refusal = "a GPU frame is still in the driver"
             return None
         if not self._graphics_accepts(width, height, work):
-            if self._point_graphics is not None:
+            if self._point_graphics is not None or lane is not None:
                 self._release_point_graphics()
             return None
+        lane = self._graphics_lane_for()
         if build is not None:
             args = tuple(build())
         first = self.__dict__.get("_graphics_judged") is None
@@ -2034,16 +2035,24 @@ class _GraphicsBackend:
     def _graphics_accepts(self, width, height, work=0) -> bool:
         """The renderer's refusals that need no graphics context.
 
-        Answered on the shading thread, so a refused frame never waits for
-        the lane; :meth:`_graphics_renderer` repeats them on the lane with
-        its remaining checks.
+        Answered on the shading thread with the same refusal notes, so a
+        refused frame never waits for, or starts, a lane;
+        :meth:`_graphics_renderer` repeats them on the lane with its
+        remaining checks.
         """
         mode = self._graphics_backend
-        if mode not in ('auto', 'gpu') or self._graphics_failed:
+        if mode not in ('auto', 'gpu'):
+            self._graphics_refusal = None
+            _log_renderer(self, 'CPU (Animation GPU is off)')
+            return False
+        if self._graphics_failed:
             return False
         if width * height > 3840 * 2160 or sys.byteorder != 'little':
+            self._refuse('canvas larger than 3840x2160 or big-endian host')
             return False
         if mode == 'auto' and not self._graphics_automatic(width, height, work):
+            self._graphics_refusal = 'automatic chose the CPU'
+            _log_renderer(self, 'CPU (Automatic chose the CPU)')
             return False
         if _decorative_gpu_blocked():
             self._refuse('Dynamic animation holds the GPU for analysis')

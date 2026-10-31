@@ -49,3 +49,6 @@ REQUIREMENTS
 Stub check (4 s driver wait, 800x500): before, the field published 2 frames in 3.5 s; after, >20 frames, longest pause <0.4 s, GPU not re-asked while stuck. Registered GPU jobs still switch at their start.
 CPU path at Home: 1.3 ms compiled, 6.5 ms NumPy per 3840x2160 frame, so WS's few-fps fallback is load or kernel readiness, not cost; spacr.log now says when NVML cannot see other GPU work.
 Workstation: rerun lesson 19 with the real 3090 Ti; check spacr.log for the lane/NVML lines, the field's fps during training and that quit still releases the context.
+2026-10-31 — Refused frames (CPU mode, Automatic chose the CPU, analysis holds the GPU) no longer start a lane and keep their exact refusal notes.
+Workstation: pynvml works there (nvidia-ml-py 13.610.43), so unobserved processes do not explain the 1-9 s frames; cause awaits the lesson 19 retake.
+Cohort x5 (-n 4) on d2c9bd215c^ and d2c9bd215c: held_classic_field fails 5/5 on both (waitUntil timeout, line 938), the glass paint check 0/10; neither comes from the lane.
