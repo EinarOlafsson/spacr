@@ -200,9 +200,15 @@ def test_icon_is_hollow_off_matte_on_and_busy_glow_rotates_while_typing_pulses(a
     qtbot.wait(80)
     after = image()
     assert bytes(after.constBits()) != bytes(before.constBits())
-    assert after.pixelColor(17, 3) == before.pixelColor(17, 3)
-    assert all(after.pixelColor(x, y) == before.pixelColor(x, y)
-               for x in range(13, 22) for y in range(13, 22))
+    # A pixel just outside the 14 px ring, where the glow must never reach,
+    # and the matte centre, measured from the button's own centre: the
+    # control is a 36 px square, so fixed coordinates sat on the ring's edge.
+    centre = button.rect().center()
+    outside = (centre.x(), centre.y() - 16)
+    assert after.pixelColor(*outside) == before.pixelColor(*outside)
+    assert all(after.pixelColor(centre.x() + dx, centre.y() + dy)
+               == before.pixelColor(centre.x() + dx, centre.y() + dy)
+               for dx in range(-4, 5) for dy in range(-4, 5))
     assert button._motion.isActive()
     button.setChecked(False)
     assert not button._motion.isActive() and not calls
