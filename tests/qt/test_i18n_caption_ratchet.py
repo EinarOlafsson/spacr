@@ -101,9 +101,14 @@ ROOT = Path(__file__).resolve().parents[2]
 # ten are OK, the two 3D slice keys, six True 3D shortcut labels and Models.
 # 247 + 75 - 38 = 284: 38 captions left the surface after the 247 pin
 # without moving it; their `_ROWS` rows stay.
-COMPACT_CAPTION_COUNT = 284
+# 2026-10-31: 284 + 4 - 1 = 287. The Make Masks fold label "Mask the whole
+# folder" became "Mask folder", and three AI-preference captions arrived in
+# the same Navigator change; the four reviewed rows moved from the generated
+# layer, their runtime reviews are archived in spacr-translations 9638217,
+# and the retired caption keeps its `_ROWS` row.
+COMPACT_CAPTION_COUNT = 287
 COMPACT_CAPTION_SHA256 = (
-    "6a4483b951535122d0c9870010fa2ab758191a4e69128738577aefdba913bdb4"
+    "852e6bf65d0ff47544e1015f1f458221c3d39d5195bd7e889add0d2ab2981b7a"
 )
 
 # The complementary source-bound layer is pinned separately.  Keys are
