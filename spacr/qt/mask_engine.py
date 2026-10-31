@@ -997,8 +997,25 @@ def _set_container_image_view(header, series=0, time=0, z=0, channel=0, axes=Non
     return view
 
 
-def _read_container_image_view(path, masks_dir=None):
-    """Read exactly the reviewed plane through the shared reader contracts."""
+def _reviewed_channel_view(folder, filename, masks_dir=None):
+    """The reviewed container plane of a field whose source has several channels.
+
+    :returns: the view, or None for any other field.
+    """
+    path = os.path.abspath(os.path.join(folder, filename))
+    key = (path, os.path.abspath(masks_dir) if masks_dir else None)
+    view = _CONTAINER_IMAGE_VIEWS.get(key) if masks_dir else None
+    if view is None or int(view['entry'].get('n_c', 1)) < 2:
+        return None
+    return view
+
+
+def _read_container_image_view(path, masks_dir=None, channel=None):
+    """Read exactly the reviewed plane through the shared reader contracts.
+
+    :param channel: another channel of the same time point and Z plane, read
+        as the reviewed one is; None reads the reviewed channel.
+    """
     from .. import convert
     from .i18n import tr
 
@@ -1009,6 +1026,8 @@ def _read_container_image_view(path, masks_dir=None):
     if _source_identity(path) != header['identity']:
         raise ValueError(tr('The source changed after its image layout was reviewed. Open it again.'))
     t, z, c = view['time'], view['z'], view['channel']
+    if channel is not None:
+        c = int(channel)
     if header['ext'] == '.nd2':
         module = convert._import_reader('.nd2')
         with module.ND2Reader(path) as handle:
@@ -1951,6 +1970,85 @@ def _as_field_mask(mask: np.ndarray, shape, mask_path: str,
     dtype = np.uint32 if maximum > 65535 or mask.dtype == np.uint32 else (
         np.uint8 if maximum <= 255 else np.uint16)
     return mask.astype(dtype)
+
+
+def _field_channel_planes(image_path: str):
+    """The raw channel planes of one multichannel 2-D field, or None.
+
+    The planes come from :func:`spacr.tiff_io._yokogawa_planes`, the split
+    the batch conversion uses, so plane ``c`` here is the plane written as
+    channel ``c + 1`` there: the same raw values, in the file's own dtype.
+    Only ordinary rasters (TIFF, PNG, JPEG, BMP) with one timepoint, no
+    depth and at least two channels qualify; reviewed containers, NumPy
+    arrays, bundles and volumes keep their own routes.
+
+    :param image_path: the image file.
+    :returns: ``(planes, colour)``, ``colour`` True for an RGB(A) picture
+        whose editing image stays its grey rendering, or None.
+    """
+    from ..tiff_io import _raster_with_axes, _yokogawa_planes
+
+    lower = str(image_path).lower()
+    ext = lower.rsplit('.', 1)[-1]
+    if (ext not in ('tif', 'tiff', 'png', 'jpg', 'jpeg', 'bmp')
+            or os.path.abspath(os.fspath(image_path)) in _CONTAINER_CURRENT_VIEWS):
+        return None
+    try:
+        images, axes = _raster_with_axes(image_path, ext)
+    except Exception:
+        return None
+    axes = (axes or '').upper()
+    if images.ndim != 3 or ('Z' in axes and images.shape[axes.index('Z')] > 1):
+        return None
+    planes = _yokogawa_planes(images, axes, os.path.basename(image_path))
+    if len(planes) < 2 or any(t for t, _c, _plane in planes):
+        return None
+    colour = 'S' in axes and len(planes) in (3, 4)
+    return [np.ascontiguousarray(plane) for _t, _c, plane in planes], bool(colour)
+
+
+def _load_channel_field(folder: str, filename: str,
+                        masks_dir: Optional[str] = None,
+                        channel: Optional[int] = None):
+    """Load a multichannel field as its raw planes plus the editing pair.
+
+    The editing image is the chosen raw channel brought to uint16 exactly as
+    :func:`load_image_and_mask` brings a separate file of that channel, so
+    every tool and detector reads the same pixels either way. For an RGB
+    picture with no channel chosen it is the grey rendering Make Masks has
+    always shown.
+
+    :param folder: the folder holding the field.
+    :param filename: the image.
+    :param masks_dir: where the masks are, when not ``<folder>/masks``.
+    :param channel: the raw channel the mask is edited on, or None for the
+        default (channel 0, or grey for an RGB picture).
+    :returns: ``(image, mask, planes, colour, channel)`` or None when the
+        file is not a multichannel field; ``channel`` is the one used, or
+        None for the grey rendering.
+    """
+    if is_seg_bundle(filename) or filename.lower().endswith('.npy'):
+        return None
+    image_path = os.path.join(folder, filename)
+    if (os.path.abspath(image_path), os.path.abspath(masks_dir) if masks_dir else None) in _CONTAINER_IMAGE_VIEWS:
+        return None
+    found = _field_channel_planes(image_path)
+    if found is None:
+        return None
+    planes, colour = found
+    if channel is not None and not 0 <= int(channel) < len(planes):
+        channel = None
+    if channel is None and not colour:
+        channel = 0
+    source = np.stack(planes, axis=-1) if channel is None else planes[int(channel)]
+    image = _as_field_image(source, image_path)
+    mask_path = _field_mask_path(folder, filename, masks_dir)
+    if mask_path:
+        mask = _as_field_mask(imageio.imread(mask_path), image.shape,
+                              mask_path, filename)
+    else:
+        mask = np.zeros(image.shape[:2], dtype=np.uint8)
+    return image, mask, planes, colour, channel
 
 
 def load_image_and_mask(folder: str, filename: str,

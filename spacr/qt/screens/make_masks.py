@@ -511,6 +511,16 @@ RESTORATION_SETTLE_MS = 400
 #: this name.
 _SETTINGS_LAYOUT_KEY = "make_masks/settings"
 
+#: The colour each mask role's labels layer is drawn in: the default outline
+#: palette of :data:`spacr.plot.OUTLINE_PALETTES` for the roles it names,
+#: and the organelle yellow for a mask with no role.
+MASK_ROLE_COLOURS = {
+    "object": "yellow",
+    "cell": "red",
+    "nucleus": "blue",
+    "pathogen": "green",
+}
+
 #: Settings categories this panel has renamed, old title to new. The stored
 #: layout is a list of TITLES, so a user who folded the old one away would
 #: find it open again after a rename and would have to fold it a second time;
@@ -649,6 +659,16 @@ QPushButton#MakeMasksSliceWheel:checked {{
     background: {palette['accent']};
     border: 1px solid {palette['accent_hi']};
 }}
+QToolButton#MakeMasksLabelDecrease, QToolButton#MakeMasksLabelIncrease {{
+    color: {palette['fg']};
+    background: {block_surface('surface_alt', palette.get('theme'), opacity)};
+    border: 1px solid {palette['border_soft']};
+    min-width: 24px;
+    padding: 0 6px;
+}}
+QToolButton#MakeMasksLabelDecrease:hover, QToolButton#MakeMasksLabelIncrease:hover {{
+    border: 1px solid {palette['accent']};
+}}
 QPushButton#MakeMasksLabelTime:checked {{
     color: {palette['button_accent_ink']};
     background: {palette['button_accent']};
@@ -715,7 +735,8 @@ class _MaskLoadWorker(QThread):
     """Decode one image/mask pair without blocking Qt's main thread."""
 
     def __init__(self, folder: str, filename: str, token: int, parent=None,
-                 layout: Optional[dict] = None):
+                 layout: Optional[dict] = None, channel: Optional[int] = None,
+                 percentiles: tuple = (0.0, 100.0)):
         """Load one image and its mask off the GUI thread.
 
         :param folder: the folder holding the pair.
@@ -728,6 +749,11 @@ class _MaskLoadWorker(QThread):
         :param layout: extra keywords for
             :func:`spacr.qt.mask_engine.load_image_and_mask` -- the sibling
             layout's ``masks_dir`` -- or ``None`` for the nested layout.
+        :param channel: the raw channel a multichannel field's mask is
+            edited on, or None for the default.
+        :param percentiles: the Lower % and Upper % each channel layer's
+            contrast limits start at, computed here rather than on the GUI
+            thread.
 
         The result and the original exception are both kept as attributes
         rather than raised, because a thread that raises loses the traceback
@@ -738,7 +764,10 @@ class _MaskLoadWorker(QThread):
         self.filename = filename
         self.token = token
         self.layout = dict(layout or {})
+        self.channel = channel
+        self.percentiles = tuple(percentiles)
         self.result = None
+        self.channels = None
         self.metadata = None
         self.error: Optional[Exception] = None
 
@@ -746,9 +775,9 @@ class _MaskLoadWorker(QThread):
         """Load the pair, retaining either the result or original exception."""
         try:
             _wait_for_mask_writes()
-            self.result = engine.load_image_and_mask(
-                self.folder, self.filename, **self.layout
-            )
+            self.result, self.channels = _load_field_pair(
+                self.folder, self.filename, self.layout, self.channel,
+                self.percentiles)
             self.metadata = engine.load_mask_metadata(
                 self.folder, self.filename, **self.layout)
         except Exception as exc:
@@ -758,6 +787,52 @@ class _MaskLoadWorker(QThread):
                 self.filename,
                 self.folder,
             )
+
+
+class _FieldChannels(NamedTuple):
+    """The raw channels of a multichannel field, as the loader read them.
+
+    ``view`` is the reviewed container plane the field came from, or None
+    for an ordinary multichannel raster: a reviewed plane keeps a mask per
+    channel, so choosing another channel reviews that channel's plane.
+    """
+
+    planes: list
+    colour: bool
+    channel: Optional[int]
+    limits: list
+    view: Optional[dict] = None
+
+
+def _load_field_pair(folder, filename, layout, channel=None,
+                     percentiles=(0.0, 100.0)):
+    """``((image, mask), channels)`` for one field, channels None if single.
+
+    A multichannel field keeps every raw plane with its starting contrast
+    limits; its editing image is the chosen raw channel, converted as a
+    separate file of that channel would be.
+
+    :param folder: the folder holding the field.
+    :param filename: the image.
+    :param layout: the sibling layout's keywords, or an empty dict.
+    :param channel: the raw channel to edit the mask on, or None.
+    :param percentiles: Lower % and Upper % for the contrast limits.
+    """
+    view = engine._reviewed_channel_view(folder, filename, (layout or {}).get("masks_dir"))
+    if view is not None:
+        pair = engine.load_image_and_mask(folder, filename, **dict(layout or {}))
+        planes = [engine._read_container_image_view(
+            os.path.join(folder, filename), view["masks_dir"], channel=index)
+            for index in range(int(view["entry"].get("n_c", 1)))]
+        limits = [engine._percentile_bounds(plane, *percentiles) for plane in planes]
+        return pair, _FieldChannels(planes, False, int(view["channel"]), limits, view)
+    found = engine._load_channel_field(folder, filename, channel=channel,
+                                       **dict(layout or {}))
+    if found is None:
+        return engine.load_image_and_mask(folder, filename, **dict(layout or {})), None
+    image, mask, planes, colour, used = found
+    limits = [engine._percentile_bounds(plane, *percentiles) for plane in planes]
+    return (image, mask), _FieldChannels(planes, colour, used, limits)
 
 
 class _MaskLabelValidator(QValidator):
@@ -2127,6 +2202,22 @@ class _MaskCanvas(QLabel):
     outline_thickness = engine._OUTLINE_THICKNESS_DEFAULT
     _outline_view = None
     display_ids = None
+    #: The field as napari-style layers (:class:`spacr.layers.LayerStack`):
+    #: an image layer per raw channel and labels layers for the mask being
+    #: edited (:attr:`mask_layer`) and the loaded mask layers. Set by the
+    #: screen; None draws the single grey image as always.
+    field_layers = None
+    #: The labels layer that shows :attr:`mask`; its data follows every edit.
+    mask_layer = None
+    #: Whether the picture is composited from :attr:`field_layers`. False
+    #: for a single-channel field nobody has restyled, whose picture is the
+    #: grey image with the labels blended over it, made by the fast path.
+    layered = False
+    #: Whether :attr:`field_layers` also outlines the loaded mask layers, so
+    #: their separate overlay is not drawn a second time.
+    layers_hold_overlay = False
+    #: Changes whenever a layer's look changes, so a kept picture is redrawn.
+    layers_version = 0
 
     def __init__(self, parent: Optional[QWidget] = None):
         """Build an empty canvas: no image, no mask, no stroke in progress."""
@@ -2697,12 +2788,21 @@ class _MaskCanvas(QLabel):
         if self.display_ids is not None:
             labels = labels * np.isin(labels, self.display_ids)
         key = self._composed_key(source, step)
-        reused = self._recompose_changed(kept, key, view, labels, (lo, hi))
-        if reused is None:
-            picture = _canvas_picture(view, labels, lo, hi)
-            shown = np.array(labels, copy=True)
+        canvas = self._layered_canvas((x0, y0, x1, y1), step, view.shape)
+        if canvas is not None:
+            reused = self._recompose_layered(kept, key, canvas, labels)
+            if reused is None:
+                picture = self._layered_picture(canvas)
+                shown = np.array(labels, copy=True)
+            else:
+                picture, shown = reused
         else:
-            picture, shown = reused
+            reused = self._recompose_changed(kept, key, view, labels, (lo, hi))
+            if reused is None:
+                picture = _canvas_picture(view, labels, lo, hi)
+                shown = np.array(labels, copy=True)
+            else:
+                picture, shown = reused
         h, w = picture.shape[:2]
         if w <= 0 or h <= 0:
             return
@@ -2753,6 +2853,85 @@ class _MaskCanvas(QLabel):
         shown[r0:r1, c0:c1] = patch
         return picture, shown
 
+    def draws_layers(self) -> bool:
+        """Whether this refresh composites :attr:`field_layers`.
+
+        Only with a layer stack that matches the field on screen, and not
+        while Invert image or the enhanced picture is shown: those draw the
+        detection image itself, which is what they are for.
+        """
+        stack, layer = self.field_layers, self.mask_layer
+        if (not self.layered or stack is None or layer is None
+                or self.mask is None or self.invert_display
+                or self.enhance_display or layer not in stack):
+            return False
+        shape = tuple(self.mask.shape[:2])
+        return all(tuple(item.shape[:2]) == shape for item in stack)
+
+    def _layered_canvas(self, bounds, step: int, shape):
+        """The layer canvas sampling exactly ``mask[y0:y1:step, x0:x1:step]``.
+
+        :returns: the canvas, or None when the field is not drawn as layers.
+        """
+        if not self.draws_layers():
+            return None
+        from ...layers import Canvas
+
+        x0, y0, _x1, _y1 = bounds
+        layer = self.mask_layer
+        labels = self.mask
+        if self.display_ids is not None:
+            labels = labels * np.isin(labels, self.display_ids)
+        if layer.data is not labels:
+            layer.data = labels
+        return Canvas(origin=(float(y0), float(x0)), step=(float(step), float(step)),
+                      shape=(int(shape[0]), int(shape[1])))
+
+    def _layered_picture(self, canvas, rows=slice(None), cols=slice(None)):
+        """The layer stack composited through ``canvas`` as Qt's RGB32."""
+        stack = self.field_layers
+        rgb = stack._render_uint8_gathered(canvas, rows, cols)
+        if rgb is None:
+            rgb = stack.render_uint8(canvas)[rows, cols]
+        return np.ascontiguousarray(_rgb32(rgb))
+
+    def _recompose_layered(self, kept, key: tuple, canvas, labels: np.ndarray):
+        """The kept layered picture with only the changed labels redrawn.
+
+        A stroke changes a few hundred labels; the layers under them are
+        composited again over that box, widened by the thickest outline so
+        an outline at its edge is drawn from both sides, and nothing else.
+
+        :returns: ``(picture, shown labels)``, or None to composite it all.
+        """
+        if kept is None or len(kept) < 5:
+            return None
+        then, _, picture, shown, _levels = kept
+        if (then[0] is not key[0] or then[1] is not key[1] or then[3] != key[3]
+                or shown.shape != labels.shape or shown.dtype != labels.dtype
+                or picture.shape != labels.shape):
+            return None
+        changed = labels != shown
+        rows = np.flatnonzero(changed.any(axis=1))
+        if not rows.size:
+            return picture, shown
+        cols = np.flatnonzero(changed.any(axis=0))
+        from ...layers import LabelsLayer
+
+        margin = 1 + max((layer.contour for layer in self.field_layers
+                          if isinstance(layer, LabelsLayer)), default=0)
+        h, w = labels.shape
+        r0, r1 = int(rows[0]), int(rows[-1]) + 1
+        c0, c1 = int(cols[0]), int(cols[-1]) + 1
+        if 2 * (r1 - r0) * (c1 - c0) > labels.size:
+            return None
+        R0, R1 = max(0, r0 - margin), min(h, r1 + margin)
+        C0, C1 = max(0, c0 - margin), min(w, c1 + margin)
+        piece = self._layered_picture(canvas, slice(R0, R1), slice(C0, C1))
+        picture[r0:r1, c0:c1] = piece[r0 - R0:r1 - R0, c0 - C0:c1 - C0]
+        shown[r0:r1, c0:c1] = labels[r0:r1, c0:c1]
+        return picture, shown
+
     def _composed_key(self, source: np.ndarray, step: int) -> tuple:
         """What a composed picture depends on besides the canvas size.
 
@@ -2765,7 +2944,8 @@ class _MaskCanvas(QLabel):
         """
         return (source, self.image, self.mask,
                 (tuple(self._viewport_bounds()), int(step), self.norm_lo,
-                 self.norm_hi, bool(self.enhance_display)))
+                 self.norm_hi, bool(self.enhance_display), self.draws_layers(),
+                 self.layers_version))
 
     @staticmethod
     def _same_composition(kept: tuple, now: tuple) -> bool:
@@ -3111,6 +3291,8 @@ class _MaskCanvas(QLabel):
         overlay = self.layer_overlay
         pixmap = self.pixmap()
         if overlay is None or self.mask is None or pixmap is None or pixmap.isNull():
+            return
+        if self.layers_hold_overlay and self.draws_layers():
             return
         if (overlay.width(), overlay.height()) != (self.mask.shape[1], self.mask.shape[0]):
             return
@@ -13533,6 +13715,18 @@ class MakeMasksScreen(QWidget):
         #: the generic settings form and carries no registry key to be
         #: looked up by.
         self._fold_page_title = HEADER_TITLE
+        from ...layers import LayerStack
+
+        #: The field on screen as layers, painted by the canvas and listed
+        #: in the Layers category; see :meth:`_rebuild_field_layers`.
+        self._field_stack = LayerStack()
+        self._field_channels = None
+        self._mask_channel: Optional[int] = None
+        self._mask_role = "object"
+        self._layers_custom = False
+        self._building_layers = False
+        self._layers_refresh_pending = False
+        self._field_stack.subscribe(self._on_field_layers_changed)
         set_a_sheeted_widgets_own_rule(self, "")
         ensure_widget_qss_applied(MAKE_MASKS_QSS_NAME, root=self)
         self._build_ui()
@@ -13613,6 +13807,15 @@ class MakeMasksScreen(QWidget):
         """Show ``session``'s volume in the Mask view, in place of a 2-D field."""
         from ..i18n import tr
 
+        self._field_channels = None
+        self._building_layers = True
+        try:
+            self._field_stack.clear()
+        finally:
+            self._building_layers = False
+        self._canvas.mask_layer = None
+        self._canvas.layered = False
+        self._sync_channel_controls()
         self._log = None
         self._loaded_mask = self._last_saved_mask = None
         self._recrop_children = []
@@ -14318,6 +14521,258 @@ class MakeMasksScreen(QWidget):
         self._layer_previous = log
         return path
 
+    def _build_field_layers_section(self):
+        """The Layers settings category: the field as napari-style layers.
+
+        Every raw channel is an image layer and the mask being edited, like
+        every loaded mask layer, is a labels layer. The list shows, hides,
+        renames, reorders and selects them; the controls under it set the
+        active layer's opacity, blending, colormap, contrast limits, and
+        filled or outlined labels. Above it the mask channel says which raw
+        channel the tools and detectors read, and the mask role which role
+        colour the mask is drawn in.
+
+        :returns: the category.
+        """
+        from ..i18n import tr
+        from ..layer_viewer import _LayerPanel
+
+        section = self._settings_category("Layers")
+        section.setObjectName("MakeMasksFieldLayers")
+        body = section.body_layout
+        form = QFormLayout()
+        self._layers_form = form
+        self._mask_channel_combo = QComboBox(section)
+        self._mask_channel_combo.setObjectName("MakeMasksMaskChannel")
+        self._mask_channel_combo.setToolTip(tr(
+            "The raw channel of a multichannel image that the mask is drawn, "
+            "detected and saved on. It gives the same mask as opening that "
+            "channel's own file."))
+        self._mask_channel_combo.currentIndexChanged.connect(self._on_mask_channel_chosen)
+        form.addRow(tr("Mask channel"), self._mask_channel_combo)
+        self._mask_role_combo = QComboBox(section)
+        self._mask_role_combo.setObjectName("MakeMasksMaskRole")
+        for role, caption in (("object", tr("Object")), ("cell", tr("Cell")),
+                              ("nucleus", tr("Nucleus")), ("pathogen", tr("Pathogen"))):
+            self._mask_role_combo.addItem(caption, role)
+        self._mask_role_combo.setToolTip(tr(
+            "What the mask segments; its labels layer is drawn in that role's colour."))
+        self._mask_role_combo.currentIndexChanged.connect(self._on_mask_role_chosen)
+        form.addRow(tr("Mask role"), self._mask_role_combo)
+        body.addLayout(form)
+        self._layer_panel = _LayerPanel(self._field_stack, section)
+        body.addWidget(self._layer_panel)
+        self._reset_layers_button = QPushButton(tr("Reset layers"), section)
+        self._reset_layers_button.setObjectName("MakeMasksResetLayers")
+        self._reset_layers_button.setProperty("buttonActionNeutral", True)
+        self._reset_layers_button.setToolTip(tr(
+            "Return every layer to its default look."))
+        self._reset_layers_button.clicked.connect(self._reset_field_layers)
+        body.addWidget(self._reset_layers_button)
+        form.setRowVisible(self._mask_channel_combo, False)
+        return section
+
+    def _channel_captions(self, count: int, colour: bool) -> List[str]:
+        """What each raw channel's layer is called."""
+        from ..i18n import tr
+
+        if colour:
+            return [tr("Red"), tr("Green"), tr("Blue"), tr("Alpha")][:count]
+        return [tr("Channel {n}", n=index + 1) for index in range(count)]
+
+    def _mask_layer_caption(self) -> str:
+        """The edited mask's layer name, after its role."""
+        from ..i18n import tr
+
+        return {"cell": tr("Cell mask"), "nucleus": tr("Nucleus mask"),
+                "pathogen": tr("Pathogen mask")}.get(self._mask_role, tr("Mask"))
+
+    def _rebuild_field_layers(self) -> None:
+        """Lay the field on screen out as layers again.
+
+        A layer kept from the last field by name keeps its look (visibility,
+        opacity, blending, colormap, outlines) and its place in the order,
+        as napari keeps a layer's settings when its data changes; its
+        contrast limits start again from the new field's intensities.
+        """
+        from ...layers import DEFAULT_CHANNEL_COLORMAPS, Blending, ImageLayer, LabelsLayer
+
+        stack, canvas = self._field_stack, self._canvas
+        kept = {layer.name: layer for layer in stack}
+        order = [layer.name for layer in stack]
+        selected = stack.selected.name if stack.selected is not None else None
+        mask_layer = None
+        self._building_layers = True
+        try:
+            stack.clear()
+            image, mask = canvas.image, canvas.mask
+            if image is None or mask is None or np.asarray(mask).ndim != 2:
+                return
+            layers = []
+            channels = self._field_channels
+            if channels is not None:
+                names = self._channel_captions(len(channels.planes), channels.colour)
+                maps = (["red", "green", "blue", "gray"] if channels.colour
+                        else list(DEFAULT_CHANNEL_COLORMAPS))
+                for index, plane in enumerate(channels.planes):
+                    layers.append(ImageLayer(
+                        plane, name=names[index], colormaps=[maps[index % len(maps)]],
+                        contrast_limits=[channels.limits[index]],
+                        blending=Blending.TRANSLUCENT if index == 0 else Blending.ADDITIVE))
+            else:
+                from ..i18n import tr
+
+                layers.append(ImageLayer(image, name=tr("Image"),
+                                         contrast_limits=[canvas._display_bounds(image)]))
+            mask_layer = LabelsLayer(mask, name=self._mask_layer_caption(),
+                                     color=MASK_ROLE_COLOURS.get(self._mask_role, "yellow"),
+                                     opacity=0.5)
+            layers.append(mask_layer)
+            extra = False
+            for index, (info, labels) in enumerate(zip(self._layers, self._layer_masks)):
+                if (index == self._layer_base or labels is None
+                        or np.asarray(labels).shape != mask.shape):
+                    continue
+                layers.append(LabelsLayer(labels, name=str(info["name"]),
+                                          color=str(info["colour"]), contour=1,
+                                          visible=bool(info["visible"])))
+                extra = True
+            for layer in layers:
+                old = kept.get(layer.name)
+                if old is None or old.kind != layer.kind:
+                    continue
+                layer.visible, layer.opacity = old.visible, old.opacity
+                layer.blending = old.blending
+                if isinstance(layer, ImageLayer):
+                    layer.set_colormap(old.colormap)
+                else:
+                    layer.contour = old.contour
+            rank = {name: at for at, name in enumerate(order)}
+            layers.sort(key=lambda layer: rank.get(layer.name, len(rank)))
+            for layer in layers:
+                stack.append(layer)
+            stack.select(stack[selected] if selected in stack.names else mask_layer)
+            canvas.layers_hold_overlay = extra
+        finally:
+            self._building_layers = False
+            canvas.mask_layer = mask_layer
+            canvas.field_layers = stack
+            canvas.layered = bool(mask_layer is not None and (
+                self._field_channels is not None or self._layers_custom))
+            canvas.layers_version += 1
+            self._sync_channel_controls()
+            canvas.refresh()
+
+    def _sync_channel_controls(self) -> None:
+        """Offer a multichannel field's raw channels as the mask channel."""
+        combo = self._mask_channel_combo
+        channels = self._field_channels
+        was = combo.blockSignals(True)
+        try:
+            combo.clear()
+            if channels is not None:
+                from ..i18n import tr
+
+                if channels.colour:
+                    combo.addItem(tr("Grey (all channels)"), None)
+                for index, name in enumerate(self._channel_captions(
+                        len(channels.planes), channels.colour)):
+                    combo.addItem(name, index)
+                found = combo.findData(channels.channel)
+                combo.setCurrentIndex(max(0, found))
+        finally:
+            combo.blockSignals(was)
+        self._layers_form.setRowVisible(combo, channels is not None)
+
+    def _on_mask_channel_chosen(self, index: int) -> None:
+        """Edit and detect the mask on another raw channel of the field."""
+        channels = self._field_channels
+        if channels is None or index < 0 or self._canvas.mask is None:
+            return
+        channel = self._mask_channel_combo.itemData(index)
+        if channel == channels.channel:
+            return
+        if channels.view is not None:
+            self._review_another_channel(channels, int(channel))
+            return
+        source = (np.stack(channels.planes, axis=-1) if channel is None
+                  else channels.planes[int(channel)])
+        path = (os.path.join(self._folder or "", self._image_files[self._current_index])
+                if self._image_files else "")
+        image = engine._as_field_image(source, path)
+        self._mask_channel = channel
+        self._field_channels = channels._replace(channel=channel)
+        self._canvas.show_section(image, self._canvas.mask)
+
+    def _review_another_channel(self, channels, channel: int) -> None:
+        """Open another channel of a reviewed plane, with that channel's own mask.
+
+        A reviewed container plane keeps one mask per channel, so the edits
+        on this channel are saved first, as moving to another field would
+        save them, and the other channel opens with its own mask.
+        """
+        view = channels.view
+        if not self._save_mask_if_needed() or not self._save_boxes_if_needed():
+            self._sync_channel_controls()
+            return
+        try:
+            engine._set_container_image_view(
+                view["header"], view["series"], view["time"], view["z"], channel,
+                axes=view["axes"], source_masks_dir=engine.masks_folder(
+                    os.path.dirname(view["header"]["path"]), self._queue_masks_dir))
+        except (ValueError, OSError) as exc:
+            from ..i18n import tr
+
+            self._warn(tr("Open image"), str(exc))
+            self._sync_channel_controls()
+            return
+        self._mask_channel = channel
+        self._load_current()
+
+    def _on_mask_role_chosen(self, index: int) -> None:
+        """Name the mask after its role and draw it in that role's colour."""
+        role = self._mask_role_combo.itemData(index) or "object"
+        self._mask_role = role
+        layer = self._canvas.mask_layer
+        if layer is None or layer not in self._field_stack:
+            return
+        layer.color = MASK_ROLE_COLOURS.get(role, "yellow")
+        self._field_stack.rename(layer, self._mask_layer_caption())
+
+    def _reset_field_layers(self) -> None:
+        """Forget every layer's look and draw the field as it first opened."""
+        self._layers_custom = False
+        self._building_layers = True
+        try:
+            self._field_stack.clear()
+        finally:
+            self._building_layers = False
+        self._rebuild_field_layers()
+
+    def _on_field_layers_changed(self, event) -> None:
+        """Repaint after the user restyles, reorders or hides a layer.
+
+        Nothing is rebuilt: the canvas composites the same layers again, once
+        per turn of the event loop however many settings changed in it.
+        """
+        if self._building_layers or event.kind in ("data", "selected"):
+            return
+        if event.kind in ("inserted", "removed"):
+            return
+        self._layers_custom = True
+        canvas = self._canvas
+        canvas.layered = canvas.mask_layer is not None
+        canvas.layers_version += 1
+        if not self._layers_refresh_pending:
+            self._layers_refresh_pending = True
+            QTimer.singleShot(0, self._apply_layers_refresh)
+
+    def _apply_layers_refresh(self) -> None:
+        """Composite the restyled layers once."""
+        self._layers_refresh_pending = False
+        if isValid(self._canvas):
+            self._canvas.refresh()
+
     def _build_layer_section(self):
         """The Mask layers settings category, hidden while no layer is loaded.
 
@@ -14962,6 +15417,7 @@ class MakeMasksScreen(QWidget):
                                      stretch=3, extent=900)
         self._body_stack.setCurrentWidget(self._empty_state)
         self._body_stack.currentChanged.connect(self._sync_tool_row_visibility)
+        self._body_stack.currentChanged.connect(self._queue_canvas_room)
         self._sync_tool_row_visibility()
 
         editor = QWidget()
@@ -14981,6 +15437,8 @@ class MakeMasksScreen(QWidget):
             hint="Hides the Make Masks title and the row of folded modules.")
         self._chrome_splitter.add_pane(editor, "Editor", stretch=1)
         outer.addWidget(self._chrome_splitter, 1)
+        for splitter in (self._chrome_splitter, self._body_splitter):
+            splitter.pane_toggled.connect(partial(self._on_room_pane_toggled, splitter))
 
         self._status_label = _StatusLabel("Ready.", self)
         self._status_label._blind_owner = weakref.ref(self)
@@ -17253,6 +17711,7 @@ class MakeMasksScreen(QWidget):
 
         self._btn_reset_zoom = QPushButton(tr("Reset zoom"))
         self._btn_reset_zoom.setObjectName("MakeMasksResetZoom")
+        self._btn_reset_zoom.setProperty("buttonActionNeutral", True)
         self._btn_reset_zoom.setMinimumHeight(32)
         self._btn_reset_zoom.setIcon(iconset.icon("zoom_reset"))
         self._btn_reset_zoom.setCursor(Qt.PointingHandCursor)
@@ -17492,6 +17951,7 @@ class MakeMasksScreen(QWidget):
         self._folded_categories = {
             _RENAMED_CATEGORIES.get(str(t), str(t)) for t in (folded or ())}
 
+        col.addWidget(self._build_field_layers_section())
         col.addWidget(self._build_layer_section())
         brush_card = self._settings_category("Brush")
         brush_form = QFormLayout()
@@ -18060,9 +18520,11 @@ class MakeMasksScreen(QWidget):
         less = QToolButton(tracking)
         less.setText("−")
         less.setObjectName("MakeMasksLabelDecrease")
+        less.setMinimumHeight(32)
         from ..shortcuts import _native_prose
 
         less.setToolTip(_native_prose(tr("Decrease selected label (Ctrl+[)")))
+        less.setAccessibleName(tr("Previous label"))
         less.clicked.connect(lambda: self._step_selected_label(-1))
         tracking_layout.addWidget(less)
         button = _SplitMenuButton(tr("Edit Label / Time"), tracking)
@@ -18076,7 +18538,9 @@ class MakeMasksScreen(QWidget):
         more = QToolButton(tracking)
         more.setText("+")
         more.setObjectName("MakeMasksLabelIncrease")
+        more.setMinimumHeight(32)
         more.setToolTip(_native_prose(tr("Increase selected label (Ctrl+])")))
+        more.setAccessibleName(tr("Next label"))
         more.clicked.connect(lambda: self._step_selected_label(1))
         tracking_layout.addWidget(more)
         self._btn_label_time = QPushButton(tr("Time"), group)
@@ -18650,7 +19114,8 @@ class MakeMasksScreen(QWidget):
         self._current_index = pending["index"]
         self._folder = pending["folder"]
         self._apply_loaded_pair(worker.filename, worker.token, *worker.result,
-                                metadata=worker.metadata, lineage_state=state)
+                                metadata=worker.metadata, lineage_state=state,
+                                channels=getattr(worker, "channels", None))
         if not self._canvas.assign_label_at(pending["point"], pending["label"]):
             self._label_time_queue.clear()
         self._sync_queue_tally()
@@ -20686,7 +21151,8 @@ class MakeMasksScreen(QWidget):
                        hint="Hides the IO and navigation buttons below the "
                             "image.")
         self._image_container = image
-        image._on_resized = self._fit_the_side_column
+        image._on_resized = self._fit_the_views
+        image.pane_toggled.connect(partial(self._on_room_pane_toggled, image))
 
         views = QWidget()
         views.setObjectName("MakeMasksViewsColumn")
@@ -20706,6 +21172,142 @@ class MakeMasksScreen(QWidget):
         self._on_view_pane_toggled("Shortcuts", pane.is_collapsed("Shortcuts"),
                                    False)
         return pane
+
+    def _fit_the_views(self) -> None:
+        """Fit the side column to the width, then keep the image usable."""
+        self._fit_the_side_column()
+        self._keep_the_canvas_usable()
+
+    def _canvas_room(self) -> tuple:
+        """The smallest image, in pixels, the editor gives up its panels for.
+
+        Measured in lines of the current font, so it grows with Zoom the
+        way the panels around it do.
+        """
+        line = max(1, self.fontMetrics().height())
+        return max(240, 16 * line), max(160, 10 * line)
+
+    def _room_panes(self) -> list:
+        """The panels that give way for the image, in the order they fold.
+
+        The settings and the shortcut column first (width), then the bars
+        under and over the image and the title (height). Each entry is
+        ``(splitter, pane name, axis)``.
+        """
+        out = []
+        body = getattr(self, "_body_splitter", None)
+        views = getattr(self, "_view_pane", None)
+        image = getattr(self, "_image_container", None)
+        chrome = getattr(self, "_chrome_splitter", None)
+        if views is not None:
+            out.append((views, "Shortcuts", "width"))
+        if body is not None:
+            out.append((body, "Settings", "width"))
+        if image is not None:
+            out.append((image, "Bottom bar", "height"))
+            out.append((image, "Top bar", "height"))
+        if chrome is not None:
+            out.append((chrome, "Title", "height"))
+        return [entry for entry in out if isValid(entry[0])]
+
+    def _keep_the_canvas_usable(self) -> None:
+        """Fold side panels and bars, unremembered, before the image gets too small.
+
+        At 1366 x 768 and 200 % Zoom the bars and the title kept their size
+        and the image was left a strip 40 px tall. Now, while the image is
+        smaller than :meth:`_canvas_room`, the panels fold one at a time,
+        the side ones for width and the bars and title for height, and they
+        open again, in the reverse order, once the window has room for them
+        and the image together. A panel the person opened or closed is
+        theirs and is left alone.
+        """
+        if getattr(self, "_fitting_room", False):
+            return
+        stack = getattr(self, "_body_stack", None)
+        if stack is None or not isValid(stack) or not stack.isVisible():
+            return
+        tabs = getattr(self, "_view_tabs", None)
+        if (tabs is not None and isValid(tabs) and tabs.isVisible()
+                and tabs.currentWidget() is not None):
+            stack = tabs.currentWidget()
+        folded = self.__dict__.setdefault("_folded_for_room", [])
+        held = self.__dict__.setdefault("_room_held", set())
+        need_w, need_h = self._canvas_room()
+        self._fitting_room = True
+        try:
+            body = getattr(self, "_body_splitter", None)
+            settings = getattr(self, "_settings_scroll", None)
+            line = max(1, self.fontMetrics().height())
+            if (body is not None and settings is not None and isValid(settings)
+                    and not body.is_collapsed("Settings")
+                    and (id(body), "Settings") not in held
+                    and 0 < settings.width() < 8 * line):
+                if body.set_collapsed("Settings", True, by_user=False):
+                    folded.append((body, "Settings", "width"))
+                    self._settle_room_layout()
+            for _ in range(len(self._room_panes()) + 1):
+                width, height = stack.width(), stack.height()
+                short = {"width": width < need_w, "height": height < need_h}
+                if short["width"] or short["height"]:
+                    for splitter, name, axis in self._room_panes():
+                        key = (id(splitter), name)
+                        if name == "Shortcuts" and getattr(self, "_side_held_by_user", False):
+                            continue
+                        if (not short[axis] or key in held
+                                or splitter.is_collapsed(name)):
+                            continue
+                        if splitter.set_collapsed(name, True, by_user=False):
+                            folded.append((splitter, name, axis))
+                            self._settle_room_layout()
+                            break
+                    else:
+                        return
+                    continue
+                if not folded:
+                    return
+                splitter, name, axis = folded[-1]
+                pane = splitter.pane(name) if isValid(splitter) else None
+                if pane is None:
+                    folded.pop()
+                    continue
+                hint = pane.widget.sizeHint()
+                extra = hint.width() if axis == "width" else hint.height()
+                spare = (width - need_w) if axis == "width" else (height - need_h)
+                if spare < extra + 2 * splitter.handleWidth() + 24:
+                    return
+                folded.pop()
+                if splitter.is_collapsed(name):
+                    splitter.set_collapsed(name, False, by_user=False)
+                    self._settle_room_layout()
+                    if (stack.width() < need_w) or (stack.height() < need_h):
+                        splitter.set_collapsed(name, True, by_user=False)
+                        folded.append((splitter, name, axis))
+                        self._settle_room_layout()
+                        return
+        finally:
+            self._fitting_room = False
+
+    def _queue_canvas_room(self, *_args) -> None:
+        """Check the image's room once the page or field just shown is laid out."""
+        QTimer.singleShot(0, self._keep_the_canvas_usable)
+
+    def _settle_room_layout(self) -> None:
+        """Lay the editor out now, so the next measurement sees the fold."""
+        for widget in (self, getattr(self, "_chrome_splitter", None),
+                       getattr(self, "_image_container", None)):
+            if widget is not None and isValid(widget) and widget.layout() is not None:
+                widget.layout().activate()
+        QApplication.sendPostedEvents(None, QEvent.LayoutRequest)
+
+    def _on_room_pane_toggled(self, splitter, name: str, collapsed: bool,
+                              by_user: bool) -> None:
+        """A panel the person folds or opens is theirs from then on."""
+        if not by_user:
+            return
+        self.__dict__.setdefault("_room_held", set()).add((id(splitter), name))
+        self.__dict__["_folded_for_room"] = [
+            entry for entry in self.__dict__.get("_folded_for_room", [])
+            if (entry[0], entry[1]) != (splitter, name)]
 
     def _fit_the_side_column(self) -> None:
         """Fold the side column below :data:`_COMPACT_WIDTH`, unremembered.
@@ -25153,7 +25755,10 @@ class MakeMasksScreen(QWidget):
             f"Loading {self._blind_label(os.path.join(folder, filename))}…")
         self._sync_button_states()
         worker = _MaskLoadWorker(folder, filename, token, self,
-                                 layout=self._layout_kwargs())
+                                 layout=self._layout_kwargs(),
+                                 channel=self._mask_channel,
+                                 percentiles=(self._canvas.norm_lo,
+                                              self._canvas.norm_hi))
         self._load_worker = worker
         worker.finished.connect(self._on_background_load_finished)
         worker.start()
@@ -25175,7 +25780,8 @@ class MakeMasksScreen(QWidget):
                 try:
                     self._apply_loaded_pair(
                         worker.filename, worker.token, *worker.result,
-                        metadata=worker.metadata)
+                        metadata=worker.metadata,
+                        channels=getattr(worker, "channels", None))
                 except ValueError as error:
                     self._handle_load_failure(error)
         _retire_worker(worker)
@@ -25309,10 +25915,12 @@ class MakeMasksScreen(QWidget):
         """Decode and apply a small pair synchronously."""
         try:
             _wait_for_mask_writes()
-            image, mask = engine.load_image_and_mask(
-                folder, filename, **self._layout_kwargs())
+            (image, mask), channels = _load_field_pair(
+                folder, filename, self._layout_kwargs(), self._mask_channel,
+                (self._canvas.norm_lo, self._canvas.norm_hi))
             metadata = engine.load_mask_metadata(folder, filename, **self._layout_kwargs())
-            self._apply_loaded_pair(filename, token, image, mask, metadata=metadata)
+            self._apply_loaded_pair(filename, token, image, mask, metadata=metadata,
+                                    channels=channels)
         except Exception as exc:
             self._handle_load_failure(exc)
             return
@@ -25402,6 +26010,7 @@ class MakeMasksScreen(QWidget):
         *,
         metadata=None,
         lineage_state=...,
+        channels=None,
     ) -> None:
         """Install a decoded pair if it still represents the selected field.
 
@@ -25409,6 +26018,9 @@ class MakeMasksScreen(QWidget):
         canvas: the canvas makes it forget the last one on the way in, and
         the name is what its whole-image objects are kept under, so coming
         back to this field offers them rather than segmenting it again.
+
+        ``channels`` is the multichannel field's raw planes, which become one
+        image layer each; None for a single-channel field.
         """
         if token != self._load_token:
             return
@@ -25430,7 +26042,10 @@ class MakeMasksScreen(QWidget):
         from_target = None
         if self._layers_active() and np.asarray(mask).ndim == 2:
             mask, from_target = self._seed_layer_field(filename, image, mask)
+        self._field_channels = channels
+        self._canvas.layered = False
         self._canvas.set_image_and_mask(image, mask)
+        self._rebuild_field_layers()
         self._load_box_annotations(filename, image)
         self._canvas.ruler.calibrate_from_file(
             os.path.join(self._folder or "", filename), image.shape)
@@ -25482,6 +26097,7 @@ class MakeMasksScreen(QWidget):
         self._refresh_lineage_rows()
         if self._layers:
             self._refresh_layer_overlay()
+        self._queue_canvas_room()
         pending, self._pending_curation_status = self._pending_curation_status, None
         if pending is not None and pending[0] == os.path.join(self._folder or "", filename):
             self._status_label.setText(pending[1])

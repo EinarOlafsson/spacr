@@ -45,7 +45,9 @@ from PySide6.QtCore import QPoint, QRect, Qt, Signal
 from PySide6.QtGui import QImage, QPainter, QPixmap
 from PySide6.QtWidgets import (
     QAbstractItemView,
+    QDoubleSpinBox,
     QFileDialog,
+    QFormLayout,
     QFrame,
     QHBoxLayout,
     QLabel,
@@ -54,6 +56,7 @@ from PySide6.QtWidgets import (
     QSizePolicy,
     QSlider,
     QSplitter,
+    QToolButton,
     QVBoxLayout,
     QWidget,
 )
@@ -807,6 +810,232 @@ class LayerListWidget(QListWidget):
             self._syncing = False
         self.refresh()
 
+
+
+class _LayerPanel(QWidget):
+    """A napari-style layer list with the selected layer's controls.
+
+    The list is :class:`LayerListWidget` (visibility tick, rename, drag to
+    reorder, the selected row is the active layer); under it sit the active
+    layer's opacity, blending, colormap and contrast limits for an image
+    layer, and filled or outlined drawing for a labels layer. Every control
+    writes straight into the :class:`~spacr.layers.LayerStack`, so whatever
+    paints that stack repaints from its own change notices and nothing here
+    rebuilds a screen.
+
+    :param stack: the layers to list and edit.
+    :param parent: parent widget.
+    """
+
+    def __init__(self, stack: LayerStack, parent=None):
+        """Build the list and the controls over ``stack``.
+
+        :param stack: the layers to list and edit.
+        :param parent: parent widget.
+        """
+        super().__init__(parent)
+        self.setObjectName("LayerPanel")
+        self._stack = stack
+        column = QVBoxLayout(self)
+        column.setContentsMargins(0, 0, 0, 0)
+        column.setSpacing(6)
+        self.layer_list = LayerListWidget(stack, self)
+        self.layer_list.setObjectName("LayerPanelList")
+        self.layer_list.setMinimumHeight(96)
+        self.layer_list.setMaximumHeight(self.layer_list.fontMetrics().height() * 9 + 12)
+        column.addWidget(self.layer_list)
+        order = QHBoxLayout()
+        order.setSpacing(4)
+        self.raise_button = QToolButton(self)
+        self.raise_button.setArrowType(Qt.UpArrow)
+        self.raise_button.setToolTip(tr("Move the active layer up"))
+        self.raise_button.setAccessibleName(tr("Move the active layer up"))
+        self.raise_button.clicked.connect(
+            lambda: self._reorder(self._stack.raise_layer))
+        self.lower_button = QToolButton(self)
+        self.lower_button.setArrowType(Qt.DownArrow)
+        self.lower_button.setToolTip(tr("Move the active layer down"))
+        self.lower_button.setAccessibleName(tr("Move the active layer down"))
+        self.lower_button.clicked.connect(
+            lambda: self._reorder(self._stack.lower_layer))
+        order.addWidget(self.raise_button)
+        order.addWidget(self.lower_button)
+        order.addStretch(1)
+        column.addLayout(order)
+        form = QFormLayout()
+        form.setContentsMargins(0, 0, 0, 0)
+        form.setSpacing(4)
+        self.opacity_slider = QSlider(Qt.Horizontal, self)
+        self.opacity_slider.setObjectName("LayerPanelOpacity")
+        self.opacity_slider.setRange(0, 100)
+        self.opacity_slider.valueChanged.connect(self._on_opacity)
+        self.opacity_slider.setToolTip(tr("How opaque the active layer is drawn."))
+        form.addRow(tr("Opacity"), self.opacity_slider)
+        self.blending_combo = FlatComboBox(self)
+        self.blending_combo.setObjectName("LayerPanelBlending")
+        for mode, caption in (
+                (Blending.TRANSLUCENT, tr("Translucent")),
+                (Blending.ADDITIVE, tr("Additive")),
+                (Blending.OPAQUE, tr("Opaque")),
+                (Blending.MULTIPLY, tr("Multiply")),
+                (Blending.MINIMUM, tr("Minimum"))):
+            self.blending_combo.addItem(caption, mode)
+        self.blending_combo.currentIndexChanged.connect(self._on_blending)
+        self.blending_combo.setToolTip(tr(
+            "How the active layer combines with the layers under it; additive "
+            "suits fluorescence channels."))
+        form.addRow(tr("Blending"), self.blending_combo)
+        self.colormap_combo = FlatComboBox(self)
+        self.colormap_combo.setObjectName("LayerPanelColormap")
+        self.colormap_combo.addItems(sorted(COLORMAPS))
+        self.colormap_combo.currentTextChanged.connect(self._on_colormap)
+        self.colormap_combo.setToolTip(tr("The colours the active image layer is drawn in."))
+        form.addRow(tr("Colormap"), self.colormap_combo)
+        limits = QHBoxLayout()
+        limits.setSpacing(4)
+        self.low_spin = QDoubleSpinBox(self)
+        self.low_spin.setObjectName("LayerPanelContrastLow")
+        self.high_spin = QDoubleSpinBox(self)
+        self.high_spin.setObjectName("LayerPanelContrastHigh")
+        self.low_spin.setToolTip(tr("The intensity drawn black in the active image layer."))
+        self.high_spin.setToolTip(tr(
+            "The intensity drawn at full colour in the active image layer."))
+        for spin in (self.low_spin, self.high_spin):
+            spin.setKeyboardTracking(False)
+            spin.valueChanged.connect(self._on_limits)
+            limits.addWidget(spin, 1)
+        self.auto_button = FlatButton(
+            tr("Auto"), self,
+            tooltip=tr("Set the contrast limits from the layer's own intensities"))
+        self.auto_button.clicked.connect(self._on_auto)
+        limits.addWidget(self.auto_button)
+        self._limits_row = QWidget(self)
+        self._limits_row.setLayout(limits)
+        form.addRow(tr("Contrast limits"), self._limits_row)
+        self.labels_combo = FlatComboBox(self)
+        self.labels_combo.setObjectName("LayerPanelLabelsDisplay")
+        self.labels_combo.addItem(tr("Filled"), 0)
+        self.labels_combo.addItem(tr("Outlines"), 1)
+        self.labels_combo.currentIndexChanged.connect(self._on_labels_display)
+        self.labels_combo.setToolTip(tr(
+            "Fill each object of the active labels layer, or draw only its outline."))
+        form.addRow(tr("Labels"), self.labels_combo)
+        column.addLayout(form)
+        self._stack.subscribe(self._on_layers_changed)
+        self.sync()
+
+    @property
+    def stack(self) -> LayerStack:
+        """The stack this panel edits."""
+        return self._stack
+
+    def detach(self) -> None:
+        """Stop listening to the stack, here and in the list."""
+        self._stack.unsubscribe(self._on_layers_changed)
+        self.layer_list.detach()
+
+    def _on_layers_changed(self, event: LayerEvent) -> None:
+        """Point the controls at the active layer again when it changes."""
+        if event.kind in ("selected", "inserted", "removed") or (
+                event.kind == "changed" and event.layer is self._stack.selected):
+            self.sync()
+
+    def sync(self) -> None:
+        """Show the active layer's settings without writing them back."""
+        layer = self._stack.selected
+        image = isinstance(layer, ImageLayer)
+        labels = isinstance(layer, LabelsLayer)
+        widgets = (self.opacity_slider, self.blending_combo, self.colormap_combo,
+                   self.low_spin, self.high_spin, self.labels_combo)
+        blocked = [w.blockSignals(True) for w in widgets]
+        try:
+            for widget in (self.opacity_slider, self.blending_combo,
+                           self.raise_button, self.lower_button):
+                widget.setEnabled(layer is not None)
+            for widget in (self.colormap_combo, self._limits_row):
+                widget.setEnabled(image)
+            self.labels_combo.setEnabled(labels)
+            if layer is None:
+                return
+            self.opacity_slider.setValue(int(round(layer.opacity * 100)))
+            index = self.blending_combo.findData(layer.blending)
+            if index >= 0:
+                self.blending_combo.setCurrentIndex(index)
+            if image:
+                name = layer.colormap.name
+                if self.colormap_combo.findText(name) < 0:
+                    self.colormap_combo.addItem(name)
+                self.colormap_combo.setCurrentText(name)
+                self._sync_limits(layer)
+            if labels:
+                self.labels_combo.setCurrentIndex(1 if layer.contour else 0)
+        finally:
+            for widget, was in zip(widgets, blocked):
+                widget.blockSignals(was)
+
+    def _sync_limits(self, layer: ImageLayer) -> None:
+        """Range and show the contrast limits of one image layer."""
+        low, high = layer.contrast_limits(0)
+        dtype = layer.channel_data(0).dtype
+        if dtype.kind in "ui":
+            info = np.iinfo(dtype)
+            bottom, top, decimals = float(info.min), float(info.max), 0
+        else:
+            span = max(abs(low), abs(high), 1.0)
+            bottom, top, decimals = -1000.0 * span, 1000.0 * span, 4
+        for spin, value in ((self.low_spin, low), (self.high_spin, high)):
+            spin.setDecimals(decimals)
+            spin.setRange(bottom, top)
+            spin.setValue(value)
+
+    def _on_opacity(self, value: int) -> None:
+        """Set the active layer's opacity from the slider's percentage."""
+        layer = self._stack.selected
+        if layer is not None:
+            layer.opacity = value / 100.0
+
+    def _on_blending(self, index: int) -> None:
+        """Set how the active layer combines with the layers under it."""
+        layer = self._stack.selected
+        mode = self.blending_combo.itemData(index)
+        if layer is not None and mode:
+            layer.blending = mode
+
+    def _on_colormap(self, name: str) -> None:
+        """Draw the active image layer through another colormap."""
+        layer = self._stack.selected
+        if isinstance(layer, ImageLayer) and name:
+            try:
+                layer.set_colormap(name)
+            except LayerError:
+                LOG.exception("Could not set the colormap")
+
+    def _on_limits(self, _value=None) -> None:
+        """Apply the two contrast-limit boxes; an empty range is left alone."""
+        layer = self._stack.selected
+        low, high = self.low_spin.value(), self.high_spin.value()
+        if isinstance(layer, ImageLayer) and high > low:
+            for channel in range(layer.n_channels):
+                layer.set_contrast_limits(low, high, channel)
+
+    def _on_auto(self) -> None:
+        """Reset the active image layer's limits from its own intensities."""
+        layer = self._stack.selected
+        if isinstance(layer, ImageLayer):
+            layer.auto_contrast()
+            self.sync()
+
+    def _on_labels_display(self, index: int) -> None:
+        """Fill the active labels layer's objects, or outline them."""
+        layer = self._stack.selected
+        if isinstance(layer, LabelsLayer):
+            layer.contour = int(self.labels_combo.itemData(index) or 0)
+
+    def _reorder(self, move) -> None:
+        """Move the active layer up or down the stack."""
+        layer = self._stack.selected
+        if layer is not None:
+            move(layer)
 
 
 class LayerViewer(LinkedView, QWidget):

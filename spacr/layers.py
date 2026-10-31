@@ -2415,12 +2415,19 @@ class LabelsLayer(Layer):
     :param field: the :class:`FieldKey` this mask segments. Optional, but
         without it a click can only say "label 17" — with it, the click can
         publish ``plate1_A_1_1_17`` to every other view.
+    :param color: one colour for every object, as napari draws a labels
+        layer in a mask role's colour, or None for a colour per label.
+    :param contour: ``0`` fills each object; a positive width draws only
+        its outline, that many drawn pixels thick (a data pixel when zoomed
+        in, a screen pixel when zoomed out), so neighbouring objects stay
+        apart in one colour.
     """
 
     kind = "labels"
 
     def __init__(self, data: Any, *, name: str = "labels",
                  field: Optional[FieldKey] = None, seed: int = 0,
+                 color: Any = None, contour: int = 0,
                  **kwargs: Any):
         """Build a labels layer.
 
@@ -2441,7 +2448,57 @@ class LabelsLayer(Layer):
         self._seed = int(seed)
         self._field = field
         self._selected_label = 0
+        self._color = None if color is None else to_rgba(color)
+        self._contour = self._check_contour(contour)
         super().__init__(name=name, **kwargs)
+
+    @staticmethod
+    def _check_contour(value: Any) -> int:
+        """A contour width: a whole number of drawn pixels, at least 0."""
+        width = int(value)
+        if width < 0 or width != float(value):
+            raise LayerError(
+                f"contour must be a whole number of pixels >= 0, got {value!r}")
+        return width
+
+    @property
+    def color(self) -> Optional[Tuple[float, float, float, float]]:
+        """The one colour every object is drawn in, or None for one per label.
+
+        :returns: RGBA in 0..1, or None.
+        """
+        return self._color
+
+    @color.setter
+    def color(self, value: Any) -> None:
+        """Draw every object in ``value``, or None for a colour per label.
+
+        :param value: any colour :func:`to_rgba` accepts, or None.
+        """
+        rgba = None if value is None else to_rgba(value)
+        if rgba != self._color:
+            self._color = rgba
+            self._notify("color")
+
+    @property
+    def contour(self) -> int:
+        """Outline width in drawn pixels; 0 draws filled objects.
+
+        :returns: the width.
+        """
+        return self._contour
+
+    @contour.setter
+    def contour(self, value: int) -> None:
+        """Draw outlines ``value`` drawn pixels wide, or fill with 0.
+
+        :param value: a whole number of pixels, at least 0.
+        :raises LayerError: for a negative or fractional width.
+        """
+        width = self._check_contour(value)
+        if width != self._contour:
+            self._contour = width
+            self._notify("contour")
 
     @property
     def data(self) -> np.ndarray:
@@ -2697,9 +2754,41 @@ class LabelsLayer(Layer):
         """
         values = self._data[index]
         present = valid & (values != 0)
-        rgb = label_colors(np.where(present, values, 0), seed=self._seed)
-        rgb[~present] = 0.0
+        if self._contour:
+            present &= _label_edges(np.where(valid, values, 0), self._contour)
+        if self._color is None:
+            rgb = label_colors(np.where(present, values, 0), seed=self._seed)
+            rgb[~present] = 0.0
+        else:
+            rgb = np.zeros(present.shape + (3,), dtype=np.float32)
+            rgb[present] = np.asarray(self._color[:3], dtype=np.float32)
         return rgb, present.astype(np.float32)
+
+
+def _label_edges(values: np.ndarray, width: int) -> np.ndarray:
+    """Pixels within ``width`` of a different label, inside their own object.
+
+    :param values: a 2-D label picture, 0 for background.
+    :param width: the outline width in pixels, at least 1.
+    :returns: a bool array of ``values``' shape.
+    """
+    values = np.asarray(values)
+    if values.ndim != 2:
+        return values != 0
+    padded = np.pad(values, 1, mode="edge")
+    edge = np.zeros(values.shape, dtype=bool)
+    for dr, dc in ((0, 1), (2, 1), (1, 0), (1, 2)):
+        edge |= padded[dr:dr + values.shape[0], dc:dc + values.shape[1]] != values
+    edge &= values != 0
+    for _ in range(int(width) - 1):
+        grown = np.pad(edge, 1)
+        near = np.zeros(values.shape, dtype=bool)
+        for dr, dc in ((0, 1), (2, 1), (1, 0), (1, 2)):
+            near |= (grown[dr:dr + values.shape[0], dc:dc + values.shape[1]]
+                     & (padded[dr:dr + values.shape[0], dc:dc + values.shape[1]]
+                        == values))
+        edge |= near & (values != 0)
+    return edge
 
 
 class PointsLayer(Layer):
