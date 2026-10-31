@@ -1562,8 +1562,11 @@ class DbBrowserScreen(LinkedView, QWidget):
         src_row = QHBoxLayout()
         src_row.setSpacing(SPACING["sm"])
         self._path_edit = QLineEdit(self)
-        self._path_edit.setPlaceholderText(
-            "…/measurements/measurements.db  — or a run folder")
+        self._path_edit.setPlaceholderText("measurements.db or run folder")
+        self._path_edit.setToolTip("…/measurements/measurements.db  — or a run folder")
+        from ..theme import hold_placeholder_width
+
+        hold_placeholder_width(self._path_edit)
         self._path_edit.setClearButtonEnabled(True)
         self._path_edit.returnPressed.connect(self._on_open_typed_path)
         self._btn_pick_db = QPushButton("Choose database…", self)
@@ -1681,6 +1684,8 @@ class DbBrowserScreen(LinkedView, QWidget):
         outer.addWidget(split, 1)
         self._body_splitter = split
 
+        from ..theme import hold_placeholder_width
+
         filt_row = QHBoxLayout()
         filt_row.setSpacing(SPACING["sm"])
         filt_row.addWidget(QLabel("Filter", self))
@@ -1692,6 +1697,7 @@ class DbBrowserScreen(LinkedView, QWidget):
         self._filter_op.setAccessibleName(tr("Comparison"))
         self._filter_value = QLineEdit(self)
         self._filter_value.setPlaceholderText("value")
+        hold_placeholder_width(self._filter_value)
         self._filter_value.returnPressed.connect(self.apply_filter)
         self._raw_toggle = Toggle("raw SQL", self)
         self._raw_toggle.setToolTip(

@@ -230,7 +230,8 @@ class BatchScreen(QWidget):
 
         self._settings_edit = QLineEdit(self)
         self._settings_edit.setPlaceholderText(
-            "…/settings/gen_mask_settings.csv — the settings file this job runs with")
+            "Settings file")
+        self._settings_edit.setToolTip("…/settings/gen_mask_settings.csv — the settings file this job runs with")
         self._settings_edit.setClearButtonEnabled(True)
         self._settings_edit.returnPressed.connect(self._on_add_clicked)
         edit.addWidget(self._settings_edit, 1)
@@ -243,15 +244,18 @@ class BatchScreen(QWidget):
         edit2 = QHBoxLayout()
         edit2.setSpacing(SPACING["sm"])
         self._label_edit = QLineEdit(self)
-        self._label_edit.setPlaceholderText("Label (optional) — e.g. 'plate 3 mask, 30 px'")
+        self._label_edit.setPlaceholderText("Label (optional)")
+        self._label_edit.setToolTip("Label (optional) — e.g. 'plate 3 mask, 30 px'")
         edit2.addWidget(self._label_edit, 1)
         self._depends_edit = QLineEdit(self)
         self._depends_edit.setPlaceholderText(
-            "After (optional) — job ids, comma separated; this job is skipped if they fail")
+            "Run after (optional)")
+        self._depends_edit.setToolTip("After (optional) — job ids, comma separated; this job is skipped if they fail")
         edit2.addWidget(self._depends_edit, 1)
         self._overrides_edit = QLineEdit(self)
         self._overrides_edit.setPlaceholderText(
-            "Overrides (optional) — key=value, comma separated")
+            "Overrides (optional)")
+        self._overrides_edit.setToolTip("Overrides (optional) — key=value, comma separated")
         edit2.addWidget(self._overrides_edit, 1)
         self._btn_add = QPushButton("Add job", self)
         self._btn_add.clicked.connect(self._on_add_clicked)

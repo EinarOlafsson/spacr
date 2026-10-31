@@ -201,8 +201,9 @@ class RunHistoryScreen(QWidget):
         filters.setSpacing(SPACING["sm"])
         self._search = QLineEdit(self)
         self._search.setPlaceholderText(
-            "Search module, setting, path, warning, failure, version…"
+            "Search runs…"
         )
+        self._search.setToolTip("Search module, setting, path, warning, failure, version…")
         self._search.setClearButtonEnabled(True)
         self._search.textChanged.connect(self._apply_filters)
         self._module = QComboBox(self)

@@ -733,7 +733,11 @@ class PlateViewScreen(LinkedView, QWidget):
         src_row.setSpacing(SPACING["sm"])
         self._path_edit = QLineEdit(self)
         self._path_edit.setPlaceholderText(
-            "…/measurements/measurements.db  — or a run folder")
+            "measurements.db or run folder")
+        self._path_edit.setToolTip("…/measurements/measurements.db  — or a run folder")
+        from ..theme import hold_placeholder_width
+
+        hold_placeholder_width(self._path_edit)
         self._path_edit.setClearButtonEnabled(True)
         self._path_edit.returnPressed.connect(self._on_open_typed_path)
         self._btn_pick_db = QPushButton("Choose database…", self)

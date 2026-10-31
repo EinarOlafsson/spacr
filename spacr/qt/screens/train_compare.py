@@ -288,7 +288,8 @@ class TrainCompareScreen(QWidget):
         src_row.setSpacing(SPACING["sm"])
         self._path_edit = QLineEdit(self)
         self._path_edit.setPlaceholderText(
-            "…/my_dataset/model  — or any folder above your run folders")
+            "Model folder")
+        self._path_edit.setToolTip("…/my_dataset/model  — or any folder above your run folders")
         self._path_edit.setClearButtonEnabled(True)
         self._path_edit.returnPressed.connect(self._on_scan_typed_path)
         self._path_edit.textChanged.connect(lambda *_: self._update_controls())

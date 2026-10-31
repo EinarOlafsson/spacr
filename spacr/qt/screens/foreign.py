@@ -520,7 +520,8 @@ class ForeignScreen(QWidget):
         self._refill_object_box()
         self._mask_edit = QLineEdit(self)
         self._mask_edit.setPlaceholderText(
-            "…/their_cell_masks  — one folder of label images per class")
+            "Mask folder for one class")
+        self._mask_edit.setToolTip("…/their_cell_masks  — one folder of label images per class")
         self._mask_edit.setClearButtonEnabled(True)
         self._btn_pick_mask = QPushButton("Choose…", self)
         self._btn_pick_mask.clicked.connect(self._pick_mask)
@@ -559,7 +560,8 @@ class ForeignScreen(QWidget):
         opt_row.setSpacing(SPACING["sm"])
         self._scale_edit = QLineEdit(self)
         self._scale_edit.setPlaceholderText(
-            "µm per pixel — leave blank if unknown")
+            "µm per pixel")
+        self._scale_edit.setToolTip("µm per pixel — leave blank if unknown")
         self._scale_edit.textChanged.connect(self._on_scale_changed)
         self._conflict_box = QComboBox(self)
         for label, value in CONFLICT_CHOICES:
@@ -604,8 +606,8 @@ class ForeignScreen(QWidget):
         dst_row = QHBoxLayout()
         dst_row.setSpacing(SPACING["sm"])
         self._dst_edit = QLineEdit(self)
-        self._dst_edit.setPlaceholderText(
-            "…/imported  — a NEW folder; their originals are never touched")
+        self._dst_edit.setPlaceholderText("New output folder")
+        self._dst_edit.setToolTip("…/imported  — a NEW folder; their originals are never touched")
         self._dst_edit.setClearButtonEnabled(True)
         self._btn_pick_dst = QPushButton("Choose…", self)
         self._btn_pick_dst.clicked.connect(self._pick_destination)

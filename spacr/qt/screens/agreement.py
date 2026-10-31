@@ -208,8 +208,8 @@ class AgreementScreen(QWidget):
         src_row = QHBoxLayout()
         src_row.setSpacing(SPACING["sm"])
         self._path_edit = QLineEdit(self)
-        self._path_edit.setPlaceholderText(
-            "…/measurements/measurements.db  — or a run folder")
+        self._path_edit.setPlaceholderText("measurements.db or run folder")
+        self._path_edit.setToolTip("…/measurements/measurements.db  — or a run folder")
         self._path_edit.setClearButtonEnabled(True)
         self._path_edit.returnPressed.connect(self._on_open_typed_path)
         self._btn_pick_db = QPushButton("Choose database…", self)

@@ -7106,3 +7106,63 @@ def take_the_scroll_arrows_off(root) -> int:
     for bar in unique.values():
         bar.setUsesScrollButtons(False)
     return len(unique)
+
+
+class _PlaceholderWidth(QObject):
+    """Keeps a line edit at least as wide as its whole placeholder.
+
+    Owned by the edit. See :func:`hold_placeholder_width`.
+    """
+
+    def __init__(self, edit):
+        """Watch ``edit`` and size it now.
+
+        :param edit: the line edit.
+        """
+        super().__init__(edit)
+        self._edit = edit
+        edit.installEventFilter(self)
+        self.fit()
+
+    def fit(self) -> None:
+        """Set the edit's minimum width from its placeholder and font."""
+        from PySide6.QtWidgets import QWidget as _QWidget
+
+        from .gui_scale import _ORIGINAL
+
+        edit = self._edit
+        text = edit.placeholderText()
+        if not text:
+            return
+        metrics = edit.fontMetrics()
+        around = edit.sizeHint().width() - 17 * metrics.horizontalAdvance("x")
+        needed = metrics.horizontalAdvance(text) + max(0, around)
+        setter = _ORIGINAL.get((_QWidget, "setMinimumWidth"),
+                               _QWidget.setMinimumWidth)
+        setter(edit, needed)
+
+    def eventFilter(self, watched, event):   # noqa: N802 - Qt override
+        """Size again when the font or the style changes; never consume.
+
+        :param watched: the edit.
+        :param event: any event.
+        :returns: False.
+        """
+        if event.type() in (QEvent.FontChange, QEvent.StyleChange,
+                            QEvent.Polish):
+            self.fit()
+        return False
+
+
+def hold_placeholder_width(edit) -> None:
+    """Never let a layout squeeze ``edit`` below its placeholder.
+
+    A line edit cannot wrap its placeholder and elides what does not fit
+    (item 746). For a field with a short placeholder the field's minimum
+    width follows the placeholder's width in the current font, so the
+    layout keeps room for it at every Zoom. Give a long description to the
+    field's tooltip instead of its placeholder.
+
+    :param edit: the ``QLineEdit``.
+    """
+    _PlaceholderWidth(edit)

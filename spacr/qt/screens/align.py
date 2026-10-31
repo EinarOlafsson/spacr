@@ -423,7 +423,8 @@ class AlignScreen(QWidget):
         out_row.setSpacing(SPACING["sm"])
         out_row.addWidget(QLabel("Write to", self))
         self._dst_edit = QLineEdit(self)
-        self._dst_edit.setPlaceholderText("…/plate1/stitched  (folder or .npy)")
+        self._dst_edit.setPlaceholderText("Stitched folder or .npy")
+        self._dst_edit.setToolTip("…/plate1/stitched  (folder or .npy)")
         self._dst_edit.setClearButtonEnabled(True)
         self._dst_edit.textChanged.connect(lambda _t: self._update_controls())
         out_row.addWidget(self._dst_edit, 1)
@@ -437,7 +438,8 @@ class AlignScreen(QWidget):
         db_row.addWidget(QLabel("Database", self))
         self._db_edit = QLineEdit(self)
         self._db_edit.setPlaceholderText(
-            "optional …/measurements/measurements.db")
+            "measurements.db (optional)")
+        self._db_edit.setToolTip("optional …/measurements/measurements.db")
         self._db_edit.setClearButtonEnabled(True)
         db_row.addWidget(self._db_edit, 1)
 

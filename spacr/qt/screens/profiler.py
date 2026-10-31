@@ -350,7 +350,8 @@ class ProfilerScreen(QWidget):
         picker.setSpacing(SPACING["sm"])
         self._path_edit = QLineEdit()
         self._path_edit.setPlaceholderText(
-            "Coefficient table (results.csv from a regression run)")
+            "Coefficient table")
+        self._path_edit.setToolTip("Coefficient table (results.csv from a regression run)")
         self._path_edit.returnPressed.connect(self._on_path_entered)
         picker.addWidget(QLabel("Model"))
         picker.addWidget(self._path_edit, 1)
