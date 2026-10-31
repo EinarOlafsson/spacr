@@ -13365,20 +13365,23 @@ def _warm_the_folded_imports():
 
     :returns: the started daemon thread, joined by nobody.
     """
-    import importlib
     import threading
 
-    def work() -> None:
-        for name in _COLD_IMPORTS:
-            try:
-                importlib.import_module(name)
-            except Exception:                                # noqa: BLE001
-                LOG.debug("could not warm %s", name, exc_info=True)
-
-    thread = threading.Thread(target=work, name="spacr-warm-folded-imports",
-                              daemon=True)
+    thread = threading.Thread(target=_import_the_cold_modules,
+                              name="spacr-warm-folded-imports", daemon=True)
     thread.start()
     return thread
+
+
+def _import_the_cold_modules() -> None:
+    """Import each of ``_COLD_IMPORTS``, leaving a failure for the build to meet."""
+    import importlib
+
+    for name in _COLD_IMPORTS:
+        try:
+            importlib.import_module(name)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not warm %s", name, exc_info=True)
 
 
 class MakeMasksScreen(QWidget):
