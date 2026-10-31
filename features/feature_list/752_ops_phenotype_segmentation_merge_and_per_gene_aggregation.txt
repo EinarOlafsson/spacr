@@ -64,3 +64,9 @@ DELIBERATELY NOT DONE
 
 No GUI beyond the settings schema. No illumination correction (Funk's
 per-well correction images are not in the download).
+
+2026-10-31: built on branch ops-phenotype-path (alpha, settings registered as ALPHA_FEATURES 752).
+  CPU pilot, A1, 41 fields: 40,709 cells, 77.8 % merged to a unique 10X nucleus (99.8 % before
+  overlap de-duplication), 35.6 % of merged cells carry a guide; report in
+  /nas_mnt/data/sync/papers/BMCspacr/reanalysis/funk_plateA/pilot/PILOT_REPORT.md.
+  Remaining: i18n catalogs and API arrival records for the new callables; full plates A-D on the GPU.
