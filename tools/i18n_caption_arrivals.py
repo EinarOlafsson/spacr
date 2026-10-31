@@ -81,7 +81,9 @@ def pinned_external_sources(external: Mapping[str,object], *,
     catalog_modules = {language:importlib.import_module(f'spacr.qt.i18n_catalogs.{language}') for language in LANGUAGES}
     # Normal review loading validates current source bindings and all ordinary
     # target gates. It is not an advisory compatibility hook.
-    reviewed = {language:builder.reviewed_runtime_translations(language) for language in LANGUAGES}
+    sources = builder.canonical_sources()
+    reviewed = {language:builder._reviewed_runtime_translations(language, sources=sources)
+                for language in LANGUAGES}
     proof_files = {}
     for identity,row in list(added.items())+list(changed_after.items()):
         assert set(row['reviewed_evidence'])==set(LANGUAGES), 'incomplete caption arrival locales'
