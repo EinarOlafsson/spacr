@@ -192,6 +192,21 @@ def test_protocol_metadata_uses_real_tiff_native_handoff_and_preserves_inspectio
     qtbot.mouseClick(page._protocol_next_button, Qt.LeftButton)
     _choose(qtbot, page._protocol_select, 'tiff_other')
     _choose(qtbot, page._protocol_detail_combos['metadata_type'], 'cq1')
+    if accept:
+        active = page._protocol_detail_combos['metadata_type']
+        page.accept_paths([str(image)])
+        active.showPopup()
+        assert active.view().isVisible()
+        qtbot.waitUntil(lambda: not page._runner.is_busy() and page._last_result is not None,
+                        timeout=10000)
+        qtbot.waitUntil(lambda: not isValid(active))
+        assert page.field.protocol_controls._inline_choice is None
+        qtbot.mouseClick(page.path_edit.protocols, Qt.LeftButton)
+        assert not page.path_edit.protocols.isChecked()
+        qtbot.mouseClick(page.path_edit.protocols, Qt.LeftButton)
+        assert page.path_edit.protocols.isChecked()
+        assert page._protocol_choices['metadata_type'] == 'cq1'
+        assert page.field.protocol_controls._inline_choice is None
     qtbot.mouseClick(page._protocol_next_button, Qt.LeftButton)
     dialog = window._protocol_browser_dialog
     qtbot.waitUntil(dialog.isVisible)

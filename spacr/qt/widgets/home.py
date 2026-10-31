@@ -7715,6 +7715,10 @@ class _EasyHomePage(QWidget):
         from .sample_project import _protocol_options
         from ..i18n import tr
 
+        active = getattr(self.field.protocol_controls, '_inline_choice', None)
+        if active is not None:
+            active.hidePopup()
+            self.field.protocol_controls._inline_choice = None
         while self._protocol_details_layout.count():
             item = self._protocol_details_layout.takeAt(0)
             item.widget().hide()
