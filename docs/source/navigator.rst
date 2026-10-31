@@ -37,7 +37,7 @@ Recipe checkboxes are manual progress marks, not execution or validation. Expand
 
 **Save PDF…** exports the selected options, current check marks and expanded relevant setting explanations as a static recipe. It does not export live application controls or run modules. Application actions become text; web API, documentation and tutorial links remain available. The complete registered catalog is an appendix only when explicitly expanded in the popup.
 
-The **Open sidebar** link in the introduction and description footer opens the running-job, history and Home panels. It does not open a scientific module or change the input.
+The **Open Dock** link in the introduction and description footer opens the module Dock. It does not open a scientific module or change the input.
 
 Desktop entry points and API reference
 --------------------------------------
