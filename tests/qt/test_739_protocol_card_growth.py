@@ -37,6 +37,10 @@ def test_animated_tiff_protocol_cards_remain_whole_and_reachable_before_native_h
     window._tour_timer.stop()
     window._consent_timer.stop()
     window.show()
+    qtbot.waitExposed(window)
+    from spacr.qt.widgets.loading_screen import LoadingScreen
+
+    qtbot.waitUntil(lambda: not window.findChildren(LoadingScreen), timeout=10000)
     page = window._startup
     selected = QSignalSpy(page.module_requested)
     try:
