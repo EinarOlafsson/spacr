@@ -133,20 +133,13 @@ def test_all_authored_catalogs_match_the_84_lesson_inventory_and_routes():
 
 
 def test_spoken_pypi_is_the_reviewed_pype_form_in_every_spoken_locale():
-    """Every scene that shows PyPI speaks the reviewed "pype" form, never "pypie".
+    """Keep the explicit v13 speech policy and every localized scene check.
 
-    The rule is ``PRONUNCIATION_VERSION = "2026-10-08-live-tv-v12"`` in the
-    renderer's pronunciation module: PyPI is the single syllable "pype" in
-    English and ``PYPI_SPEECH[locale]`` elsewhere, "never PyPy, pypie, a
-    sequence of letters, or two paused syllables". This test was
-    ``test_spoken_pypi_is_exactly_one_continuous_pypie_token`` and pinned the
-    pre-rule "pypie" from 2026-08-26. The maintainer's decision of 2026-09-15
-    (question tool) was '"pype" (Recommended)': keep the published narration
-    and move the tests to the 08-28 rule, re-rendering nothing.
-
-    The English catalog carries no ``speech_text`` for these scenes (English
-    speech is in the hosted timing sidecars, gated by the same rule), so it is
-    checked only if it ever carries some. Translated locales must carry it.
+    English PyPI includes the final I from the 2026-10-21 review; the other
+    reviewed spoken forms remain unchanged. Published captions retain PyPI,
+    and this test neither edits media nor treats registered English fallback
+    as independently translated speech. English timing-sidecar speech remains
+    outside the catalog when no speech_text is supplied, as before.
     """
     import importlib.util
 
@@ -155,7 +148,14 @@ def test_spoken_pypi_is_the_reviewed_pype_form_in_every_spoken_locale():
         ROOT / "tools" / "tutorials" / "authoring" / "tools" / "pronunciation.py")
     rule = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(rule)
-    assert rule.PRONUNCIATION_VERSION == "2026-10-08-live-tv-v12"
+    assert rule.PRONUNCIATION_VERSION == "2026-10-21-pypi-yokogawa-v13"
+    expected_forms = {
+        "en": "[pie pee eye](/pˌI pˌi ˈI/)", "es": "paip", "fr": "païpe",
+        "hi": "पाइप", "it": "paip", "pt-BR": "paip", "ja": "パイプ",
+        "zh-CN": "派普", "de": "Peip", "sv": "pajp", "is": "pæp",
+        "nb": "paip", "ko": "파이프", "da": "pajp",
+    }
+    assert rule.PYPI_SPEECH == expected_forms
     # Japanese particles and Chinese prose can touch a Latin brand directly.
     # Keep ASCII identifier boundaries while checking those genuine mentions.
     display_token = re.compile(r"(?<![A-Za-z0-9_])PyPI(?![A-Za-z0-9_])")
@@ -180,7 +180,7 @@ def test_spoken_pypi_is_the_reviewed_pype_form_in_every_spoken_locale():
         assert named or fallback, locale
         if locale == "en" and all("speech_text" not in scene for scene in named):
             continue
-        form = rule.PYPI_SPEECH[locale]
+        form = expected_forms[locale]
         for scene in named:
             speech = scene.get("speech_text")
             assert speech is not None, (locale, scene["narration"][:60])
