@@ -1,0 +1,45 @@
+UI AUDIT OF THE CORE MODULES, MAKE MASKS, HOME AND NAVIGATOR, AND A COMPARISON WITH SIMILAR SOFTWARE
+=====================================================================================================
+Lifecycle: new
+Status: OPEN 2026-10-31 — requested by the maintainer; audit not started.
+Requested: maintainer, 2026-10-31 ("do a User interface (UI) audit on all the core modules, make mask and
+        the Home Screen and navigator screen. Are all the ui elements optimally placed? Does the spacr
+        software follow UI best practices and conventions? ... Also compare spacr to other softwares in
+        the same space").
+Owner: Home (coordinator assigns an agent).
+Related: 746 (no text is cut off), 748 (Make Masks layers), 733 Navigator, 739 Protocols, N678 factual
+        language, 725 Overview.
+
+SCOPE
+- Every core module screen (the modules on the Home/Navigator module list that are not alpha), Make Masks
+  in full (settings, preview, fold strip, batch), the Home screen and the Navigator (search composer,
+  cards, Protocols, Dock, description panel).
+- Light and dark theme, 100% and 200% zoom, one long locale (German), a 1366x768 and a 1920x1080 window.
+
+QUESTIONS THE AUDIT ANSWERS
+1. Placement: is every UI element where a user expects it (primary action placement, grouping of related
+   controls, reading order, visual hierarchy, alignment and spacing consistency, density)?
+2. Conventions and best practice: platform conventions (Qt/desktop: menu and shortcut conventions, dialog
+   button order, Escape/Enter behaviour, focus order), established guidelines (Nielsen's heuristics,
+   WCAG 2.2 AA contrast/keyboard/focus visibility, Fitts's law for frequent targets, consistency of terms
+   and icons, feedback for long operations, undo and error prevention, empty and error states).
+3. Comparison with software in the same space (at least CellProfiler, napari, QuPath, Fiji/ImageJ, ilastik
+   and the Cellpose GUI): how each organises a pipeline, segmentation/mask making, layers, parameters,
+   batch runs and results; where spaCR is better, equal or worse, with concrete examples. Sources are cited
+   (official docs/screenshots); no invented features.
+
+DELIVERABLES
+- A findings list per screen: element, problem, the guideline or convention it breaks, severity
+  (blocker/major/minor), screenshot, and a concrete recommended change.
+- The comparison table and short narrative.
+- Fixes: clear, low-risk findings that need no maintainer design decision are fixed directly (one item note
+  line per batch); findings that change a design the maintainer chose are listed as decisions for the
+  maintainer, never changed silently.
+- The report is published as a private artifact/document for the maintainer (no new repo evidence files).
+
+ACCEPTANCE
+- Every screen in scope reviewed in all listed configurations, findings and comparison delivered,
+  low-risk fixes pushed to nightly with tests, maintainer decisions listed.
+
+NOTES
+2026-10-31 Item recorded from the maintainer's request.
