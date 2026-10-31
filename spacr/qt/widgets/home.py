@@ -7729,6 +7729,11 @@ class _EasyHomePage(QWidget):
         if active is not None:
             active.hidePopup()
             self.field.protocol_controls._inline_choice = None
+        for detail in self._protocol_detail_combos.values():
+            view = getattr(detail, '_inline_view', None)
+            if view is not None:
+                view.hide()
+                view.deleteLater()
         while self._protocol_details_layout.count():
             item = self._protocol_details_layout.takeAt(0)
             item.widget().hide()

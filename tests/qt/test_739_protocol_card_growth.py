@@ -3,7 +3,7 @@ from copy import deepcopy
 
 import numpy as np
 import tifffile
-from PySide6.QtCore import QAbstractAnimation, QPoint, QRect, Qt
+from PySide6.QtCore import QAbstractAnimation, QCoreApplication, QEvent, QPoint, QRect, Qt
 from PySide6.QtGui import QColor, QRegion
 from PySide6.QtTest import QSignalSpy
 from PySide6.QtWidgets import QApplication, QDialog, QDialogButtonBox, QPlainTextEdit
@@ -13,7 +13,7 @@ from tests.qt.test_startup_ai_reporting_choice import private_ai_profile as priv
 
 
 def test_animated_tiff_protocol_cards_remain_whole_and_reachable_before_native_handoff(
-        qtbot, qapp, private_ai_profile, monkeypatch, tmp_path, record_property):
+        qtbot, qapp, private_ai_profile, monkeypatch, tmp_path, record_property, qtlog):
     from spacr.qt.app import MainWindow
 
     preferences, _, _ = private_ai_profile
@@ -74,6 +74,10 @@ def test_animated_tiff_protocol_cards_remain_whole_and_reachable_before_native_h
             qtbot.waitUntil(lambda: all(not card._growing for card in field.cards)
                            and field.protocol_controls._arrival.state() == QAbstractAnimation.Stopped,
                            timeout=10000)
+            QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+            qapp.processEvents()
+            assert not any('QItemSelectionModel: Selecting when no model has been set' in record.message
+                           for record in qtlog.records)
             assert QRect(page.path_edit.mapToGlobal(QPoint()), page.path_edit.size()) == header
             reached = set()
             for offset in dict.fromkeys((field._scrollbar.value(), field._scrollbar.maximum(), 0)):
@@ -144,3 +148,7 @@ def test_animated_tiff_protocol_cards_remain_whole_and_reachable_before_native_h
         window.close()
         preferences.set_font_scale(1.0)
         preferences.apply_preferences_to_app()
+        QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+        qapp.processEvents()
+        assert not any('QItemSelectionModel: Selecting when no model has been set' in record.message
+                       for record in qtlog.records)
