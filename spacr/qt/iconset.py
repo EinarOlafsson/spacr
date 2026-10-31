@@ -661,7 +661,12 @@ def themed_array(path: str, theme: Optional[str] = None):
 
     :param path: path to the icon artwork (PNG or SVG); its modification time and size invalidate the in-memory cache. The on-disk cache key uses the source content digest, theme and cache version.
     """
-    key = (_file_stamp(path), theme or active_theme())
+    theme = theme or active_theme()
+    if (theme != "light"
+            and os.path.normcase(os.path.abspath(path)) == os.path.normcase(
+                os.path.join(RESOURCE_DIR, "parascape.svg"))):
+        path = os.path.join(RESOURCE_DIR, "parascape-dark.svg")
+    key = (_file_stamp(path), theme)
     with _PREFETCH_LOCK:
         pending = _PREFETCHED.pop(key, None)
     if pending is not None:

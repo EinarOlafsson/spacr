@@ -45,7 +45,43 @@ def test_parascape_canonical_artwork_and_its_license_ship_in_packages():
                     for keyword in node.keywords if keyword.arg == 'package_data']
     patterns = ast.literal_eval(declarations[0])['spacr']
     assert 'resources/icons/parascape.svg' in patterns
+    assert 'resources/icons/parascape-dark.svg' in patterns
     assert 'resources/icons/parascape-LICENSE.txt' in patterns
     license_text = (asset.parent / 'parascape-LICENSE.txt').read_text()
     assert 'MIT License' in license_text and 'Copyright (c) 2026 Einar Olafsson' in license_text
     assert 'recursive-include spacr/resources/icons *' in (root / 'MANIFEST.in').read_text()
+
+
+def test_parascape_dark_pixels_are_white_with_transparent_surroundings(qapp):
+    """The shared renderer exposes white logo geometry instead of a paper tile."""
+    import xml.etree.ElementTree as ET
+
+    import numpy as np
+    from PySide6.QtGui import QImage
+
+    canonical = Path(iconset.bundled_icon_path('parascape'))
+    dark_asset = canonical.with_name('parascape-dark.svg')
+    original_tree = ET.fromstring(canonical.read_bytes())
+    dark_tree = ET.fromstring(dark_asset.read_bytes())
+    assert not any(node.tag.endswith('}rect') for node in dark_tree.iter())
+
+    def geometry(tree):
+        """Compare all outline, star and transform attributes independently of ink."""
+        return [(node.tag, {key: value for key, value in node.attrib.items()
+                            if key not in {'fill', 'stroke'}})
+                for node in tree.iter() if not node.tag.endswith('}rect')]
+
+    assert geometry(original_tree) == geometry(dark_tree)
+    assert original_tree[0].text == dark_tree[0].text
+    image = iconset.themed_qimage(str(canonical), 'dark').convertToFormat(QImage.Format_RGBA8888)
+    pixels = np.frombuffer(image.constBits(), dtype=np.uint8).reshape(
+        image.height(), image.bytesPerLine())[:, :image.width() * 4].reshape(
+            image.height(), image.width(), 4)
+    alpha = pixels[:, :, 3]
+    assert not alpha[0, 0] and not alpha[0, -1] and not alpha[-1, 0] and not alpha[-1, -1]
+    assert 100 < np.count_nonzero(alpha) < alpha.size // 4
+    opaque = alpha == 255
+    assert opaque.any() and np.all(pixels[opaque, :3] == 255)
+    light = iconset.themed_qimage(str(canonical), 'light')
+    assert light.pixelColor(light.width() // 10, light.height() // 2).alpha() == 255
+    assert image.pixelColor(image.width() // 10, image.height() // 2).alpha() == 0

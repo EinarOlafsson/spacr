@@ -406,7 +406,7 @@ setup(
     packages=find_packages(exclude=["tests.*", "tests"]),
     include_package_data=True,
     exclude_package_data={'spacr': ['resources/AI/*', 'resources/AI/**/*']},
-    package_data={'spacr': ['resources/release_notes.json', 'resources/layout_policy.json', 'resources/tutorial_index.json', 'resources/module_workflows.json', 'resources/data/*', 'resources/model_cards/*.json', 'resources/models/cp', 'resources/icons/*.png', 'resources/icons/organism_*.svg', 'resources/icons/parascape.svg', 'resources/icons/parascape-LICENSE.txt', 'resources/icons/loading_spinner.gif', 'resources/icons/spaceout.gif', 'resources/font/**/*', 'resources/images/*', 'resources/themes/*.jpg', 'resources/splash/*.jpg', 'resources/splash/*.json', 'resources/setting_animations/*.json', 'resources/plate_templates/*.json', 'resources/setting_animations/gifs/*.gif'],},
+    package_data={'spacr': ['resources/release_notes.json', 'resources/layout_policy.json', 'resources/tutorial_index.json', 'resources/module_workflows.json', 'resources/data/*', 'resources/model_cards/*.json', 'resources/models/cp', 'resources/icons/*.png', 'resources/icons/organism_*.svg', 'resources/icons/parascape.svg', 'resources/icons/parascape-dark.svg', 'resources/icons/parascape-LICENSE.txt', 'resources/icons/loading_spinner.gif', 'resources/icons/spaceout.gif', 'resources/font/**/*', 'resources/images/*', 'resources/themes/*.jpg', 'resources/splash/*.jpg', 'resources/splash/*.json', 'resources/setting_animations/*.json', 'resources/plate_templates/*.json', 'resources/setting_animations/gifs/*.gif'],},
     data_files=(
         [
             ('share/applications', [
