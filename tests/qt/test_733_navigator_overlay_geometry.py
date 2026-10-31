@@ -1,6 +1,6 @@
 """Navigator side controls overlay a stationary, interactive central viewport."""
 import pytest
-from PySide6.QtCore import QEvent, QObject, QPoint, QRect, Qt
+from PySide6.QtCore import QEvent, QObject, QPoint, QRect, QSize, Qt
 from PySide6.QtWidgets import QApplication, QWidget
 
 from tests.qt.test_startup_ai_reporting_choice import private_ai_profile as private_ai_profile
@@ -62,16 +62,44 @@ def _choices(page):
     return page.field.cards
 
 
+def _composer_rect(page):
+    field = page.field
+    width = min(720, max(180, field.width() - 48))
+    split = page._navigator_aside_split
+    if not split.is_collapsed('Widgets'):
+        edge = field.mapFromGlobal(page._navigator_aside.mapToGlobal(QPoint())).x()
+        width = min(width, max(180, 2 * (edge - 16) - field.width()))
+    top = max(16, (field.height() - field.panel.height()) // 2)
+    return QRect(field.mapToGlobal(QPoint((field.width() - width) // 2, top)),
+                 QSize(width, field.panel.height()))
+
+
+def _composer_anchor(rect):
+    return rect.x() * 2 + rect.width(), rect.y(), rect.height()
+
+
 def _toggle_sides(window, qtbot, tracked, trace):
     page = window._startup
     split = page._navigator_aside_split
     baseline = _rects(tracked)
+    panel_index = tracked.index(page.field.panel)
+    assert baseline[panel_index] == _composer_rect(page)
     for control in (window._dock_edge, split.handle(1)):
         for _ in range(2):
+            before = _rects(tracked)[panel_index]
             qtbot.mouseClick(control, Qt.LeftButton)
             qtbot.wait(40)
-            assert _rects(tracked) == baseline
-            assert all(frame == baseline for frame in trace.frames)
+            expected = list(baseline)
+            expected[panel_index] = _composer_rect(page)
+            assert _rects(tracked) == tuple(expected)
+            for frame in trace.frames:
+                assert frame[:panel_index] == baseline[:panel_index]
+                assert frame[panel_index + 1:] == baseline[panel_index + 1:]
+                assert _composer_anchor(frame[panel_index]) == _composer_anchor(baseline[panel_index])
+                assert frame[panel_index].width() in {before.width(), expected[panel_index].width()}
+            if not split.is_collapsed('Widgets'):
+                aside_left = page._navigator_aside.mapToGlobal(QPoint()).x()
+                assert expected[panel_index].right() + 1 <= aside_left - 16
             trace.frames.clear()
             assert window._stack.geometry() == window.centralWidget().rect()
             if page.path_edit.isVisible():
