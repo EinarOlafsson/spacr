@@ -971,8 +971,10 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
         "plate_naming": ["index", "name"],
     },
     "map_barcodes": {
-        "mode": ["paired", "single"],
+        "mode": ["paired", "single", "mixed"],
         "single_direction": ["R1", "R2"],
+        "sequencer": ["auto", "illumina", "element", "mgi", "ultima", "ont",
+                      "pacbio", "other"],
         "comp_type": ["zlib", "lzo", "bzip2", "blosc"],
     },
     "explain_cv": {
@@ -1703,7 +1705,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Output & Runtime", ("save", "batch_size", "verbose")),
     ),
     "map_barcodes": (
-        ("Sequencing Input", ("src", "mode", "single_direction")),
+        ("Sequencing Input", ("src", "sequencer", "mode", "single_direction")),
         ("Barcode References", ("grna_csv", "row_csv", "column_csv")),
         ("Read Parsing", (
             "target_sequence", "regex", "offset_start", "window_length",

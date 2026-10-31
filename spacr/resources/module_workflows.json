@@ -7343,18 +7343,18 @@
       },
       "sequencing": {
         "label": "Sequencing data",
-        "explanation": "Choose the actual read format and pairing. The current barcode mapper requires gzip-compressed FASTQ with recognized mate filenames and matching barcode references.",
+        "explanation": "Choose the read format, the sequencer and the pairing. Map Barcodes reads gzip-compressed or plain FASTQ with recognized mate filenames and matching barcode references, and checks the read headers against the chosen sequencer.",
         "formats": {
           "fastq_gz": {
-            "label": "Gzip-compressed FASTQ (.fastq.gz)",
-            "explanation": "The current folder reader groups <sample>_R1… / _R2… and <run>_1 / _2 names. Verify mates and barcode references; machine names do not set decoding parameters.",
+            "label": "FASTQ (.fastq.gz, .fq.gz, .fastq or .fq)",
+            "explanation": "The folder reader groups <sample>_R1… / _R2… and <run>_1 / _2 names, gzip-compressed or plain; index reads (_I1/_I2) are left out. Verify mates and barcode references; the sequencer is checked against the read headers but sets no decoding parameters.",
             "starts": [
               "map_barcodes"
             ]
           },
           "other": {
-            "label": "Other or unknown read format",
-            "explanation": "Convert and validate reads before Map Barcodes. Additional formats, mixed pairing and machine-specific decoding require the separate sequencing capability work in N740.",
+            "label": "Other read format (BAM, CRAM, SRA, BCL, FASTA, other compression)",
+            "explanation": "Map Barcodes reads FASTQ only. Convert first: samtools fastq for BAM/CRAM, fasterq-dump --split-files for SRA archives, BCL Convert or bcl2fastq for base calls, and gzip for bzip2/zstd/xz or ORA-compressed FASTQ. FASTA lacks the base qualities the paired consensus needs.",
             "starts": []
           }
         }
@@ -7475,17 +7475,37 @@
       },
       "mixed": {
         "label": "Paired and unpaired reads together",
-        "explanation": "The current mapper runs one pairing mode at a time. Separate validated runs are required; mixed-input runtime support belongs to N740."
+        "explanation": "Samples with both mates are decoded as pairs; samples with one mate are read from the chosen orientation, and samples holding only the other mate are skipped with a warning."
       }
     },
     "sequencers": {
       "illumina": {
-        "label": "Illumina-style read naming",
-        "explanation": "Verify the actual read orientations and reference sequences; the machine name does not establish a barcode layout."
+        "label": "Illumina (MiSeq, NextSeq, NovaSeq, iSeq)",
+        "explanation": "Paired or single reads with Illumina headers. The machine name does not establish a barcode layout; verify read orientations and reference sequences."
+      },
+      "element": {
+        "label": "Element Biosciences AVITI",
+        "explanation": "Paired or single reads. AVITI FASTQ headers follow the Illumina layout, so headers cannot tell the two apart."
+      },
+      "mgi": {
+        "label": "MGI / Complete Genomics DNBSEQ",
+        "explanation": "Paired or single reads with DNBSEQ headers (flow cell, lane, column and row in the read name)."
+      },
+      "ultima": {
+        "label": "Ultima Genomics UG 100",
+        "explanation": "Single reads only; choose single-end pairing and the mate orientation of the barcode pattern."
+      },
+      "ont": {
+        "label": "Oxford Nanopore",
+        "explanation": "Single long reads only; choose single-end pairing. The anchor match is exact, so high read error rates lower the number of decoded reads."
+      },
+      "pacbio": {
+        "label": "PacBio (HiFi / CCS)",
+        "explanation": "Single reads only; choose single-end pairing."
       },
       "other": {
         "label": "Other / unknown sequencer",
-        "explanation": "Only the documented FASTQ and filename contract is currently accepted. Do not infer a machine or scientific decoding parameters."
+        "explanation": "Map Barcodes reads the platform from the FASTQ headers only where they identify one, and otherwise records it as unknown."
       }
     },
     "barcodes": {
@@ -7499,8 +7519,9 @@
       }
     },
     "requirements": {
-      "sequencing": "Additional sequence formats and mixed-input or machine-specific handling require N740; this protocol does not add a reader.",
-      "drug": "Drug-screen Regression compatibility requires N741; no drug model or guide/barcode semantics are invented here."
+      "sequencing": "Map Barcodes reads FASTQ only; convert these reads to .fastq.gz or .fastq before starting it.",
+      "drug": "Drug-screen Regression compatibility requires N741; no drug model or guide/barcode semantics are invented here.",
+      "single_read_platform": "Ultima, Oxford Nanopore and PacBio runs produce single reads, not mate pairs. Choose single-end pairing to start Map Barcodes."
     },
     "navigation_contracts": {
       "overview": {

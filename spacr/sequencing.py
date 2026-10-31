@@ -12,8 +12,10 @@ cutoff.
 
 WHAT IT NEEDS
 =============
-``src`` must contain gzip-compressed FASTQ files whose names let spaCR pair R1
-and R2 reads.  The run also needs a CSV reference table per barcode, with
+``src`` must contain FASTQ files (``.fastq.gz``, ``.fq.gz``, ``.fastq`` or
+``.fq``, gzip-compressed or plain) whose names let spaCR pair R1 and R2 reads.
+BAM/CRAM, SRA archives, BCL base calls, FASTA and bzip2/zstd/ORA-compressed
+reads are named and refused with the conversion they need.  The run also needs a CSV reference table per barcode, with
 ``sequence`` and ``name`` columns.  A run that decodes the three barcodes
 spaCR shipped names them as ``row_csv``, ``column_csv`` and ``grna_csv``, and
 a run that decodes any other number of barcodes lists them under
@@ -21,15 +23,20 @@ a run that decodes any other number of barcodes lists them under
 the barcode window, while ``offset_start``, ``expected_end``, and a regex
 naming one group per barcode describe its layout.  The shipped regex names
 ``columnID``, ``grna`` and ``rowID``.  Use ``mode='paired'`` for a
-quality-weighted R1/R2 consensus or ``mode='single'`` with
-``single_direction`` when only one mate should be read.
+quality-weighted R1/R2 consensus, ``mode='single'`` with
+``single_direction`` when only one mate should be read, or ``mode='mixed'``
+for a folder holding both: paired samples get the consensus and unpaired
+ones are read from their ``single_direction`` mate.  ``sequencer`` names the
+machine; read headers are checked against it, and single-read platforms
+(Oxford Nanopore, PacBio, Ultima) are decoded in single mode only.
 
 WHAT IT PRODUCES
 ================
 Each sample gets its own output directory beneath ``src``.  The essential
 artifacts are ``unique_combinations.csv`` (guide counts by row and column)
 and ``qc.csv``; ``annotated_reads.h5`` is also written when ``save_h5`` is
-enabled.  Optional barcode QC adds a report and plots under ``barcode_qc``.
+enabled, and ``read_inputs.json`` records the files, compression, header
+convention, sequencer and pairing each sample was decoded with.  Optional barcode QC adds a report and plots under ``barcode_qc``.
 Run manifests and failure records identify samples that were skipped or
 could not be processed.
 
@@ -883,8 +890,10 @@ def paired_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
     :func:`process_chunk` workers, and lets :func:`saver_process` write
     HDF5 / CSV outputs concurrently.
 
-    :param r1_file: gzipped R1 FASTQ path.
-    :param r2_file: gzipped R2 FASTQ path.
+    :param r1_file: R1 FASTQ path, gzip-compressed or plain.
+    :param r2_file: R2 FASTQ path, gzip-compressed or plain. Each R2 read
+        must carry the name of the R1 read beside it; a pair out of step is
+        refused rather than decoded.
     :param regex: regex naming one group per barcode. The three spaCR
         shipped are read from ``rowID``, ``columnID`` and ``grna``.
     :param target_sequence: anchor sequence used to locate the barcode region.
@@ -947,7 +956,9 @@ def paired_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
 
     print(f'Chunk size: {chunk_size}')
 
-    with gzip.open(r1_file, 'rt') as r1, gzip.open(r2_file, 'rt') as r2:
+    from .utils import _open_fastq
+
+    with _open_fastq(r1_file) as r1, _open_fastq(r2_file) as r2:
         while True:
             start_time = time.time()
             r1_chunk = []
@@ -965,6 +976,12 @@ def paired_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
                         "one file ended before the other.")
                 if r1_done:
                     break
+                if _read_identity(r1_lines[0]) != _read_identity(r2_lines[0]):
+                    _abort_chunk_workers(pool, save_queue, save_process)
+                    raise ValueError(
+                        f"R1 read {r1_lines[0]!r} and R2 read {r2_lines[0]!r} "
+                        f"are not mates: the paired files must list the same "
+                        f"reads in the same order.")
 
                 r1_chunk.append('\n'.join(r1_lines))
                 r2_chunk.append('\n'.join(r2_lines))
@@ -1011,7 +1028,7 @@ def paired_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
 def single_read_chunked_processing(r1_file, r2_file, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, save_h5, comp_type, comp_level, hdf5_file, unique_combinations_csv, qc_csv_file, chunk_size=10000, n_jobs=None, test=False, fill_na=False, barcode_set=None):
     """Chunked single-end FASTQ processing: extract, decode and stream barcodes to disk.
 
-    :param r1_file: gzipped R1 FASTQ path.
+    :param r1_file: FASTQ path of the mate to decode, gzip-compressed or plain.
     :param r2_file: unused placeholder kept for interface parity with the paired variant.
     :param regex: regex naming one group per barcode. The three spaCR
         shipped are read from ``rowID``, ``columnID`` and ``grna``.
@@ -1072,7 +1089,9 @@ def single_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
     deferred_chunks = _ChunkOverloadRetries(
         pool, save_queue, save_process, hdf5_file)
 
-    with gzip.open(r1_file, 'rt') as r1:
+    from .utils import _open_fastq
+
+    with _open_fastq(r1_file) as r1:
         while True:
             start_time = time.time()
             r1_chunk = []
@@ -1177,12 +1196,247 @@ def _run_barcode_qc(settings, dst, count_csv, qc_csv):
         return None
 
 
+_SEQUENCERS = ('auto', 'illumina', 'element', 'mgi', 'ultima', 'ont', 'pacbio', 'other')
+_SINGLE_READ_SEQUENCERS = {'ultima': 'Ultima Genomics', 'ont': 'Oxford Nanopore',
+                           'pacbio': 'PacBio'}
+_READ_MODES = ('paired', 'single', 'mixed')
+_HEADER_CONVENTIONS = (
+    ('illumina', re.compile(r'^@[^\s:]+:\d+:[^\s:]+:\d+:\d+:\d+:\d+(?:\s|$)')),
+    ('mgi', re.compile(r'^@[A-Z]*\d+L\d+C\d{3}R\d{3}\d+(?:/[12])?(?:\s|$)')),
+    ('pacbio', re.compile(r'^@m\d+[A-Za-z]?\d*_\d{6}_\d{6}(?:_s\d)?/\d+/(?:ccs|\d+_\d+)')),
+    ('ont', re.compile(r'^@\S+\s(?:.*\s)?runid=\S+')),
+    ('archive', re.compile(r'^@[SED]RR\d+(?:\.\d+)*(?:\s|$)')),
+)
+_CONVENTION_SEQUENCERS = {'illumina': {'illumina', 'element'}, 'mgi': {'mgi'},
+                          'pacbio': {'pacbio'}, 'ont': {'ont'}}
+_UNSUPPORTED_READ_FILES = (
+    (('.bam', '.cram', '.sam'), 'aligned or unaligned SAM/BAM/CRAM reads; '
+     'write FASTQ first, for example with samtools fastq'),
+    (('.sra',), 'an SRA archive; extract FASTQ with fasterq-dump --split-files'),
+    (('.fastq.bz2', '.fq.bz2', '.fastq.zst', '.fq.zst', '.fastq.xz', '.fq.xz'),
+     'FASTQ under a compression spaCR does not read; recompress with gzip'),
+    (('.fastq.ora', '.fq.ora'), 'Illumina ORA-compressed FASTQ; decompress '
+     'with orad (Illumina DRAGEN ORA) to .fastq.gz'),
+    (('.bcl', '.cbcl', '.bcl.gz'), 'raw base calls; demultiplex to FASTQ with '
+     'BCL Convert or bcl2fastq'),
+    (('.fasta', '.fa', '.fna', '.fasta.gz', '.fa.gz'), 'FASTA without base '
+     'qualities; paired consensus needs FASTQ qualities'),
+)
+
+
+def _unsupported_read_files(folder):
+    """List the files in ``folder`` that hold reads in a form Map Barcodes cannot read.
+
+    :param folder: the run's ``src`` folder; a missing folder lists nothing.
+    :returns: ``(file name, what to do)`` pairs, sorted by name.
+    """
+    try:
+        names = sorted(os.listdir(folder))
+    except OSError:
+        return []
+    found = []
+    for name in names:
+        lowered = name.lower()
+        for suffixes, advice in _UNSUPPORTED_READ_FILES:
+            if lowered.endswith(suffixes):
+                found.append((name, advice))
+                break
+    return found
+
+
+def _fastq_head(path, records=1):
+    """Return the first FASTQ records of a file, refusing what is not FASTQ.
+
+    :param path: a read file; compression is judged from its bytes.
+    :param records: how many four-line records to return.
+    :returns: ``(compression, [(header, sequence, plus, quality), ...])``.
+    :raises ValueError: for BAM, bzip2/zstd/xz data, FASTA or any record that
+        is not four FASTQ lines.
+    """
+    from .utils import _open_fastq
+
+    with open(path, 'rb') as handle:
+        magic = handle.read(6)
+    name = os.path.basename(path)
+    if magic.startswith(b'\x1f\x8b'):
+        with gzip.open(path, 'rb') as handle:
+            if handle.read(4) == b'BAM\x01':
+                raise ValueError(
+                    f"{name} is a BAM file, not FASTQ. Write FASTQ first, for "
+                    f"example with samtools fastq.")
+        compression = 'gzip'
+    elif magic.startswith((b'BZh', b'\x28\xb5\x2f\xfd', b'\xfd7zXZ')):
+        raise ValueError(
+            f"{name} is compressed with bzip2, zstd or xz. Map Barcodes reads "
+            f"gzip-compressed or plain FASTQ; recompress it with gzip.")
+    elif magic.startswith(b'CRAM'):
+        raise ValueError(
+            f"{name} is a CRAM file, not FASTQ. Write FASTQ first, for "
+            f"example with samtools fastq.")
+    else:
+        compression = 'plain'
+    head = []
+    with _open_fastq(path) as handle:
+        for _ in range(records):
+            lines = [handle.readline().rstrip('\r\n') for _ in range(4)]
+            if not lines[0]:
+                break
+            if lines[0].startswith('>'):
+                raise ValueError(
+                    f"{name} is FASTA, not FASTQ: it has no base qualities, "
+                    f"which the paired consensus and the quality columns need.")
+            if (not lines[0].startswith('@') or not lines[2].startswith('+')
+                    or len(lines[1]) != len(lines[3])):
+                raise ValueError(
+                    f"{name} is not FASTQ: record {len(head) + 1} is not a "
+                    f"four-line @header / sequence / + / quality record of "
+                    f"equal sequence and quality length.")
+            head.append(tuple(lines))
+    if not head:
+        raise ValueError(f"{name} holds no reads.")
+    return compression, head
+
+
+def _header_convention(header):
+    """Name the read-header convention of one FASTQ header line.
+
+    Illumina and Element AVITI share one header layout, so ``'illumina'``
+    does not tell them apart; reads re-exported by the SRA or ENA carry the
+    archive's accession instead of any machine header.
+
+    :param header: the ``@`` line of a FASTQ record.
+    :returns: ``'illumina'``, ``'mgi'``, ``'pacbio'``, ``'ont'``,
+        ``'archive'`` or ``''`` when no convention is recognised.
+    """
+    for name, pattern in _HEADER_CONVENTIONS:
+        if pattern.match(header):
+            return name
+    return ''
+
+
+def _read_identity(header):
+    """Return the part of a FASTQ header that both mates of a pair share.
+
+    :param header: the ``@`` line of a FASTQ record.
+    :returns: its first word without ``@`` and without a ``/1`` or ``/2`` mate suffix.
+    """
+    word = header[1:].split(None, 1)[0] if len(header) > 1 else ''
+    return word[:-2] if word.endswith(('/1', '/2')) else word
+
+
+def _check_read_settings(settings):
+    """Refuse a pairing mode or sequencer Map Barcodes does not know.
+
+    :param settings: canonical mapping settings.
+    :raises ValueError: for an unknown ``mode`` or ``sequencer``, a single
+        mode without a mate, or paired reads asked of a single-read platform.
+    """
+    mode = settings['mode']
+    if mode not in _READ_MODES:
+        raise ValueError(
+            f"mode must be 'paired', 'single' or 'mixed'; got {mode!r}")
+    if mode in ('single', 'mixed') and settings['single_direction'] not in {'R1', 'R2'}:
+        raise ValueError(
+            f"single_direction must be 'R1' or 'R2' when mode is '{mode}'; "
+            f"got {settings['single_direction']!r}")
+    sequencer = settings.get('sequencer', 'auto')
+    if sequencer not in _SEQUENCERS:
+        raise ValueError(
+            f"sequencer must be one of {', '.join(_SEQUENCERS)}; got {sequencer!r}")
+    if sequencer in _SINGLE_READ_SEQUENCERS and mode != 'single':
+        raise ValueError(
+            f"{_SINGLE_READ_SEQUENCERS[sequencer]} runs produce single reads, "
+            f"not mate pairs, so mode must be 'single'; got {mode!r}.")
+
+
+def _inspect_sample_reads(sample, files, sequencer, pairing):
+    """Check one sample's read files before decoding and describe them.
+
+    Each file must be gzip-compressed or plain FASTQ. Its header convention
+    is compared with the declared sequencer and a conflict is refused. A
+    machine is only named from the headers when ``sequencer`` is ``'auto'``
+    and the convention identifies one; Illumina and Element headers look
+    alike and stay ``'illumina-style'``. A paired sample's first reads must
+    share one read name.
+
+    :param sample: the sample name, for messages.
+    :param files: ``{mate: path}`` of the files this sample will decode.
+    :param sequencer: the declared sequencer, one of the ``sequencer`` options.
+    :param pairing: ``'paired'`` or ``'single'``, as this sample is decoded.
+    :returns: a provenance dict, or None when a file does not exist yet (the
+        decoder reports the missing file).
+    :raises ValueError: when a file is not readable FASTQ, its headers belong
+        to another platform than the declared one, or paired first reads differ.
+    """
+    if not all(path and os.path.isfile(path) for path in files.values()):
+        return None
+    described = {}
+    conventions = set()
+    for mate, path in sorted(files.items()):
+        compression, head = _fastq_head(path)
+        convention = _header_convention(head[0][0])
+        conventions.add(convention)
+        described[mate] = dict(path=path, compression=compression,
+                               header_convention=convention or 'unrecognised',
+                               first_read=_read_identity(head[0][0]))
+    machine = {c for c in conventions if c in _CONVENTION_SEQUENCERS}
+    if len(machine) > 1:
+        raise ValueError(
+            f"{sample}: the mates carry different header conventions "
+            f"({', '.join(sorted(machine))}); they cannot come from one run.")
+    convention = next(iter(machine), '')
+    if sequencer not in ('auto', 'other') and convention:
+        if sequencer not in _CONVENTION_SEQUENCERS[convention]:
+            raise ValueError(
+                f"{sample}: the read headers follow the {convention} "
+                f"convention, but sequencer is {sequencer!r}. Choose the "
+                f"sequencer that produced these reads, or 'auto'.")
+    if sequencer == 'auto':
+        inferred = {'illumina': 'illumina-style', 'mgi': 'mgi', 'pacbio': 'pacbio',
+                    'ont': 'ont'}.get(convention, 'unknown')
+        if inferred in _SINGLE_READ_SEQUENCERS and pairing != 'single':
+            raise ValueError(
+                f"{sample}: the read headers are {_SINGLE_READ_SEQUENCERS[inferred]}, "
+                f"which produces single reads; decode them with mode='single'.")
+    else:
+        inferred = sequencer
+    if pairing == 'paired':
+        names = {row['first_read'] for row in described.values()}
+        if len(names) != 1:
+            raise ValueError(
+                f"{sample}: the first R1 and R2 reads are named differently "
+                f"({' / '.join(described[m]['first_read'] for m in ('R1', 'R2'))}); "
+                f"the two files are not mates of one run in the same order.")
+    return dict(sample=sample, pairing=pairing, sequencer_declared=sequencer,
+                sequencer=inferred, files=described)
+
+
+def _write_read_inputs(dst, provenance):
+    """Write which files a sample was decoded from and how, beside its counts.
+
+    :param dst: the sample's output folder.
+    :param provenance: the dict from :func:`_inspect_sample_reads`, or None.
+    :returns: the written path, or None when there was nothing to record.
+    """
+    if provenance is None:
+        return None
+    import json
+
+    path = os.path.join(dst, 'read_inputs.json')
+    with open(path, 'w', encoding='utf-8') as handle:
+        json.dump(provenance, handle, indent=2, sort_keys=True)
+    return path
+
+
 def generate_barecode_mapping(settings=None):
     """Turn a folder of pooled-screen FASTQ files into per-well sgRNA count tables usable by :func:`spacr.ml.perform_regression`.
 
-    Discovers the R1 and R2 files of each sample under ``src``. Paired
-    vs single-end and R1/R2 orientation are chosen from
-    ``settings['mode']`` and ``single_direction``.
+    Discovers the R1 and R2 files of each sample under ``src``. Paired,
+    single-end or mixed decoding and R1/R2 orientation are chosen from
+    ``settings['mode']`` and ``single_direction``. Before a sample is
+    decoded its files are checked: each must be gzip-compressed or plain
+    FASTQ, its read headers must not belong to another platform than
+    ``sequencer``, and the first reads of a pair must share one name.
 
     From every read it extracts each barcode the run decodes, using the
     configured regex and offset window. Each extracted sequence is then
@@ -1197,10 +1451,19 @@ def generate_barecode_mapping(settings=None):
         :func:`spacr.settings.set_default_generate_barecode_mapping`.
         Key entries:
 
-        - ``src`` — folder containing ``*.fastq.gz`` reads.
-        - ``mode`` — ``'paired'`` or ``'single'``.
+        - ``src`` — folder containing ``.fastq.gz``, ``.fq.gz``,
+          ``.fastq`` or ``.fq`` reads.
+        - ``mode`` — ``'paired'``, ``'single'`` or ``'mixed'`` (each
+          sample with both mates paired, each sample with one mate read
+          from its ``single_direction`` file; other samples are skipped
+          with a warning).
         - ``single_direction`` — ``'R1'`` or ``'R2'`` (``mode='single'``
-          only).
+          and the unpaired samples of ``mode='mixed'``).
+        - ``sequencer`` — ``'auto'`` (default), ``'illumina'``,
+          ``'element'``, ``'mgi'``, ``'ultima'``, ``'ont'``, ``'pacbio'``
+          or ``'other'``. It sets no decoding parameter; read headers that
+          follow another platform's convention are refused, and the
+          single-read platforms require ``mode='single'``.
         - ``regex`` — regex extracting barcodes from a read.
         - ``target_sequence``, ``offset_start``, ``expected_end`` —
           anchor and slice window used to locate the barcode region.
@@ -1223,7 +1486,12 @@ def generate_barecode_mapping(settings=None):
           that QC step derives its abundance threshold (default 1).
 
     :returns: None. Writes per-sample outputs into
-        ``<src>/<sample>_<mode>[_<direction>]/``.
+        ``<src>/<sample>_<mode>[_<direction>]/``, where a mixed run names
+        each sample by the mode it was decoded in.
+    :raises ValueError: for an unknown mode or sequencer, a folder holding
+        only reads in a format that must be converted first, or a sample
+        whose files are not FASTQ, follow another platform's headers or
+        are not mates in the same order.
 
     Example:
         .. code-block:: python
@@ -1250,14 +1518,7 @@ def generate_barecode_mapping(settings=None):
     from .io import parse_gz_files
 
     settings = set_default_generate_barecode_mapping(settings)
-    if (
-        settings["mode"] == "single"
-        and settings["single_direction"] not in {"R1", "R2"}
-    ):
-        raise ValueError(
-            "single_direction must be 'R1' or 'R2' when mode is 'single'; "
-            f"got {settings['single_direction']!r}"
-        )
+    _check_read_settings(settings)
     save_settings(settings, name=f"sequencing_{settings['mode']}_{settings['single_direction']}", show=True)
 
     global BARCODE_MISMATCHES
@@ -1278,7 +1539,15 @@ def generate_barecode_mapping(settings=None):
               + ', '.join(barcode_set.names))
 
     samples_dict = parse_gz_files(settings['src'])
-    
+    unreadable = _unsupported_read_files(settings['src'])
+    for name, advice in unreadable:
+        LOG.warning("%s: not read -- %s.", name, advice)
+    if not samples_dict and unreadable:
+        raise ValueError(
+            "No FASTQ files were found in src, only reads Map Barcodes cannot "
+            "read: " + "; ".join(f"{name} ({advice})" for name, advice in unreadable)
+            + ". Convert them to .fastq.gz or .fastq and run again.")
+
     print(samples_dict)
 
     print(f'If compression is low and save_h5 is True, saving might take longer than processing.')
@@ -1291,13 +1560,23 @@ def generate_barecode_mapping(settings=None):
                     r1_path = reads.get('R1')
                     r2_path = reads.get('R2')
                     mode = settings['mode']
+                    wanted = settings.get('single_direction', 'R1')
+                    have = ', '.join(sorted(m for m, p in reads.items() if p)) or 'nothing'
+                    if mode == 'mixed':
+                        mode = 'paired' if (r1_path and r2_path) else 'single'
+                        if mode == 'single' and not reads.get(wanted):
+                            LOG.warning(
+                                "%s: skipped -- mixed mode decodes an unpaired "
+                                "sample from its %s file (single_direction), "
+                                "but this sample has %s. Its reads would not "
+                                "match a pattern written for %s.",
+                                key, wanted, have, wanted)
+                            continue
                     if mode == 'paired':
                         usable = bool(r1_path and r2_path)
                     else:
-                        wanted = settings.get('single_direction', 'R1')
                         usable = bool(reads.get(wanted) or r1_path or r2_path)
                     if not usable:
-                        have = ', '.join(sorted(reads)) or 'nothing'
                         LOG.warning(
                             "%s: skipped -- %s mode needs %s but this sample "
                             "has %s. Check the file names in src.",
@@ -1305,21 +1584,21 @@ def generate_barecode_mapping(settings=None):
                             'R1 and R2' if mode == 'paired' else wanted, have)
                         continue
                     if True:
-                        key_mode = f"{key}_{settings['mode']}"
-                        if settings['mode'] == 'single':
+                        key_mode = f"{key}_{mode}"
+                        if mode == 'single':
                             key_mode = f"{key_mode}_{settings['single_direction']}"
                         dst = os.path.join(settings['src'], key_mode)
                         hdf5_file = os.path.join(dst, 'annotated_reads.h5')
                         unique_combinations_csv = os.path.join(dst, 'unique_combinations.csv')
                         qc_csv_file = os.path.join(dst, 'qc.csv')
-                        os.makedirs(dst, exist_ok=True)
 
                         print(f'Analyzing reads from sample {key}')
 
-                        if settings['mode'] == 'paired':
+                        if mode == 'paired':
                             function = paired_read_chunked_processing
                             R1 = r1_path
                             R2 = r2_path
+                            used = {'R1': R1, 'R2': R2}
 
                         else:
                             function = single_read_chunked_processing
@@ -1330,6 +1609,19 @@ def generate_barecode_mapping(settings=None):
                             else:
                                 R1 = r2_path or r1_path
                                 R2 = None
+                            used = {('R1' if R1 == r1_path else 'R2'): R1}
+                            if settings['single_direction'] not in used:
+                                LOG.warning(
+                                    "%s: single_direction is %s, but only %s "
+                                    "is present, so %s is decoded with a "
+                                    "pattern meant for %s.", key,
+                                    settings['single_direction'], have, have,
+                                    settings['single_direction'])
+
+                        provenance = _inspect_sample_reads(
+                            key, used, settings.get('sequencer', 'auto'), mode)
+                        os.makedirs(dst, exist_ok=True)
+                        _write_read_inputs(dst, provenance)
 
                         function(r1_file=R1,
                                  r2_file=R2,

@@ -1200,6 +1200,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'segmentation_backend',
     'selection',
     'sep',
+    'sequencer',
     'sequencing_error',
     'settings',
     'sha256',

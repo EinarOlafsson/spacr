@@ -6691,42 +6691,72 @@ _MATE_SPELLINGS = {
 }
 
 
-def parse_gz_files(folder_path):
-    """Group ``.fastq.gz`` files in ``folder_path`` by sample name and read direction.
+_FASTQ_SUFFIXES = ('.fastq.gz', '.fq.gz', '.fastq', '.fq')
+_INDEX_READ_TOKENS = {'i1': 'I1', 'i2': 'I2', 'index1': 'I1', 'index2': 'I2'}
 
-    Accepts both naming conventions in the wild: ``<sample>_R1_...`` from an
-    Illumina run, and ``<run>_1.fastq.gz`` from ENA or the SRA. See
-    :data:`_MATE_SPELLINGS`.
+
+def _fastq_suffix(name):
+    """Return the FASTQ ending of a file name, or an empty string.
+
+    :param name: a file name.
+    :returns: ``.fastq.gz``, ``.fq.gz``, ``.fastq`` or ``.fq``, matched
+        case-insensitively.
+    """
+    lowered = name.lower()
+    return next((suffix for suffix in _FASTQ_SUFFIXES if lowered.endswith(suffix)), '')
+
+
+def parse_gz_files(folder_path):
+    """Group FASTQ files in ``folder_path`` by sample name and read direction.
+
+    Reads ``.fastq.gz``, ``.fq.gz``, ``.fastq`` and ``.fq`` names; whether a
+    file is gzip-compressed is decided from its bytes when it is read. Accepts both naming conventions in the wild:
+    ``<sample>_R1_...`` from an Illumina run, and ``<run>_1.fastq.gz`` from
+    ENA or the SRA. See :data:`_MATE_SPELLINGS`.
 
     A file whose mate cannot be identified contributes nothing rather than an
     empty ``{sample: {}}`` entry, which would otherwise cause a ``KeyError:
-    'R1'`` later in :func:`spacr.sequencing.generate_barecode_mapping`.
+    'R1'`` later in :func:`spacr.sequencing.generate_barecode_mapping`. Index
+    reads (``_I1``/``_I2``) are recognised and left out, since they carry the
+    sequencer's sample index rather than a screen barcode. When two files
+    claim the same mate of one sample (``S_R1.fastq`` beside
+    ``S_R1.fastq.gz``), neither is used and a warning names both.
 
-    :param folder_path: Directory containing gzipped FASTQ files.
+    :param folder_path: Directory containing FASTQ files.
     :returns: Mapping ``{sample_name: {"R1": path, "R2": path}}``. Samples may
         have only one of the two.
     """
-    files = os.listdir(folder_path)
-    gz_files = [f for f in files if f.endswith('.fastq.gz')]
+    files = sorted(os.listdir(folder_path))
+    read_files = [(f, _fastq_suffix(f)) for f in files if _fastq_suffix(f)]
 
     samples_dict = {}
-    for gz_file in gz_files:
-        stem = gz_file[:-len('.fastq.gz')]
+    claimed = {}
+    for gz_file, suffix in read_files:
+        stem = gz_file[:-len(suffix)]
         parts = stem.split('_')
         if len(parts) < 2:
-            samples_dict.setdefault(stem, {})['R1'] = os.path.join(
-                folder_path, gz_file)
+            claimed.setdefault((stem, 'R1'), []).append(gz_file)
             continue
 
         sample_name = '_'.join(parts[:-1])
         mate = _MATE_SPELLINGS.get(parts[-1].strip().lower())
+        index = None
         if mate is None:
             for position, token in enumerate(parts):
-                candidate = _MATE_SPELLINGS.get(token.strip().lower())
+                lowered = token.strip().lower()
+                candidate = _MATE_SPELLINGS.get(lowered)
                 if candidate is not None and position > 0:
                     mate = candidate
                     sample_name = '_'.join(parts[:position])
                     break
+                if lowered in _INDEX_READ_TOKENS and position > 0:
+                    index = _INDEX_READ_TOKENS[lowered]
+                    break
+        if index is not None:
+            LOG.info(
+                "%s: an %s index read; it holds the sequencer's sample index, "
+                "not a screen barcode, so it is not decoded.", gz_file, index)
+            continue
         if mate is None:
             LOG.warning(
                 "%s: cannot tell which mate this is, so it is skipped. "
@@ -6734,8 +6764,16 @@ def parse_gz_files(folder_path):
                 "<run>_1.fastq.gz.", gz_file)
             continue
 
+        claimed.setdefault((sample_name, mate), []).append(gz_file)
+    for (sample_name, mate), names in claimed.items():
+        if len(names) > 1:
+            LOG.warning(
+                "%s: %s files claim %s of this sample (%s), so none of them "
+                "is used. Keep one copy of each mate in the folder.",
+                sample_name, len(names), mate, ', '.join(names))
+            continue
         samples_dict.setdefault(sample_name, {})[mate] = os.path.join(
-            folder_path, gz_file)
+            folder_path, names[0])
     return samples_dict
 
 

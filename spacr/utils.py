@@ -9908,16 +9908,34 @@ def correct_masks(src):
     convert_and_relabel_masks(cell_path)
     _load_and_concatenate_arrays(src, [0,1,2,3], 1, 0, 2)
 
+def _open_fastq(fastq_file):
+    """Open a FASTQ file as text, gzip-compressed or plain, judged from its bytes.
+
+    The file name is not trusted: a plain ``.fastq.gz`` or a gzipped
+    ``.fastq`` opens by what it holds.
+
+    :param fastq_file: path to the FASTQ file.
+    :returns: an open text handle; the caller closes it.
+    """
+    with open(fastq_file, "rb") as handle:
+        magic = handle.read(2)
+    if magic == b"\x1f\x8b":
+        return gzip.open(fastq_file, "rt")
+    return open(fastq_file, "rt")
+
+
 def count_reads_in_fastq(fastq_file):
-    """Return the number of reads in a gzipped FASTQ file.
+    """Return the number of reads in a FASTQ file, gzip-compressed or plain.
 
     Counts total lines and divides by four (the FASTQ record length).
+    Compression is recognised from the file's first bytes, not its name.
 
-    :param fastq_file: Path to a ``.fastq.gz`` file.
+    :param fastq_file: Path to a ``.fastq.gz``, ``.fq.gz``, ``.fastq`` or
+        ``.fq`` file.
     :returns: Integer read count.
     """
     count = 0
-    with gzip.open(fastq_file, "rt") as f:
+    with _open_fastq(fastq_file) as f:
         for _ in f:
             count += 1
     return count // 4

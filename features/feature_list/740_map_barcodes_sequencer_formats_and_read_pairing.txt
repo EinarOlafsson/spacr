@@ -1,7 +1,7 @@
 MAP BARCODES: SEQUENCER, READ FORMAT AND PAIRING SUPPORT
 
 Lifecycle: new
-Status:    PLANNED — record only; no implementation in this session.
+Status:    IN PROGRESS — maintainer approved implementation 2026-10-31.
 Requested: 2026-10-30, maintainer, within N739 Protocols brief
 Owner:     Next session; present the supported-format/design proposal first.
 Related:   N739 Navigator Protocols; existing Map Barcodes readers and settings.
@@ -24,3 +24,7 @@ and missing conversion requirements clearly rather than silently coercing data.
 Design and implementation must be coordinated with N739's complete path catalog.
 The original request is preserved verbatim in N739. No implementation is authorized
 by this recording-only session; the next session first presents its plan.
+
+2026-10-31 — Maintainer approved implementing this item now (it was record only); Claude agent 8 owns it.
+2026-10-31 — Implemented on branch claude-mapbarcodes-formats: .fastq/.fq plain or gzip (compression read from bytes), I1/I2 index reads left out, BAM/CRAM/SRA/BCL/FASTA/bzip2/zstd/ORA refused with the conversion they need; sequencer setting (auto/illumina/element/mgi/ultima/ont/pacbio/other) checked against read headers, single-read platforms single-only; mode 'mixed'; every paired read's mate name checked; read_inputs.json provenance per sample. Protocols carries sequencer, pairing and orientation into Map Barcodes.
+2026-10-31 — Focused tests pass (tests/test_map_barcodes_read_formats_and_pairing.py 24, sequencing/settings/protocol cohort 495). Waiting for generator closure (new setting/wizard captions, changed docstrings) before nightly.

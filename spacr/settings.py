@@ -4205,6 +4205,7 @@ expected_types = {
     "offset_start":int,
     "chunk_size":int,
     "single_direction":str,
+    "sequencer":str,
     "delete_intermediate":bool,
     "outlier_detection":bool,
     "CP_prob":(int, float),
@@ -4983,7 +4984,8 @@ tooltips = {
     "target_layer": "(str) - Dotted attribute path to the convolutional layer whose activations and gradients Grad-CAM hooks, e.g. 'base_model.blocks.3.layers.1.layers.MBconv.layers.conv_b'; utils.recommend_target_layers(model) lists valid names. Later layers give class-specific but coarse maps, earlier ones finer detail. Required for 'gradcam'/'gradcam_pp' - it is auto-filled only when model_type is exactly 'maxvit', and left None it raises. Default None.",
     "shuffle": "(bool) - Shuffle the tar dataset in the DataLoader when generating activation maps, so each batch-grid PDF contains a mixed sample rather than consecutive files from one plate or class. False preserves deterministic file order and permits direct alignment with the dataset listing. Default True.",
     "correlation": "(bool) - Correlate every input channel with every activation-map channel per image and write the result to the <cam_type>_correlations table: a Pearson coefficient plus Manders M1/M2 at each manders_thresholds percentile (15, 50, and 75 by default). This provides quantitative evidence of stain-specific model attention beyond visual heatmap inspection. save=True is required to write the results to the database. Default True.",
-    "mode": "(str) - Read-pairing strategy for barcode extraction: 'paired' locates target_sequence in R1 and in the reverse complement of R2 and merges them base-by-base into a quality-weighted consensus; 'single' scans one mate alone, chosen by single_direction. Paired calls barcodes more accurately but discards any read whose anchor is missing from either mate. Default 'paired'.",
+    "mode": "(str) - Read-pairing strategy for barcode extraction: 'paired' locates target_sequence in R1 and in the reverse complement of R2 and merges them base-by-base into a quality-weighted consensus; 'single' scans one mate alone, chosen by single_direction; 'mixed' decodes each sample that has both mates as paired and each sample with one mate from its single_direction file, skipping samples that only have the other mate. Paired calls barcodes more accurately but discards any read whose anchor is missing from either mate. Default 'paired'.",
+    "sequencer": "(str) - The machine that produced the reads: 'auto' (default) reads the platform from the FASTQ headers where they identify one; 'illumina', 'element' (AVITI), 'mgi' (DNBSEQ), 'ultima', 'ont' (Oxford Nanopore), 'pacbio' or 'other'. It sets no decoding parameter: headers that follow another platform's convention are refused, and Ultima, Oxford Nanopore and PacBio reads must use mode 'single' because those runs produce no mate pairs. Illumina and Element headers look alike, so auto reports them as Illumina-style.",
     "window_length": "(int) - Number of bases sliced out of each read starting at offset_start relative to the target_sequence hit; this window is what the regex is matched against. It must span the whole barcode block (column + gRNA + row) or the regex stops matching and reads are dropped; shorter reads are padded with 'N'. Default 89.",
     "infection_intensity_qc_scope": "(str) - Whether infection QC is fitted once or per group: 'combined'/'global'/'all' fits one model on everything, 'plate'/'per_plate' one per plateID, 'well'/'per_well' one per plate-well, and 'none'/'off' skips QC; an unrecognised string falls back to combined behaviour with a warning. Per-well fitting absorbs staining and exposure differences but needs enough cells per well; every group still writes its own QC plot, only the QC payload embedded in the summary panel is taken from the first processed group. Default 'per_well'.",
     "adjust_cells": "(bool) - After segmentation, merge cell labels that divide a single pathogen or nucleus, and absorb an anucleate cell fragment into the neighbouring label with which it shares the largest perimeter. Requires cell, nucleus, and pathogen channels and is skipped for timelapse runs. Enable when large infected cells are systematically fragmented by segmentation. Default True.",
@@ -5930,7 +5932,7 @@ categories = {
 
     "Activation Maps": ["smoothgrad_samples", "smoothgrad_sigma", "occlusion_window", "occlusion_stride", "ig_steps", "ig_baseline", "attribution_steps", "attribution_baseline", "sanity_check", "object_type", "cam_type", "target_layer", "overlay", "correlation", "manders_thresholds", "normalize_input", "counterfactuals", "counterfactual_crops", "counterfactual_epochs", "counterfactual_condition", "counterfactual_target", "counterfactual_generator", "counterfactual_strength", "counterfactual_structure_weight", "counterfactual_checkpoint", "counterfactual_checkpoint_sha256"],
 
-    "Sequencing": ["mode", "single_direction", "target_sequence", "regex", "offset_start", "window_length", "barcode_mismatches", "chunk_size", "fill_na", "save_h5", "comp_type", "comp_level"],
+    "Sequencing": ["mode", "single_direction", "sequencer", "target_sequence", "regex", "offset_start", "window_length", "barcode_mismatches", "chunk_size", "fill_na", "save_h5", "comp_type", "comp_level"],
 
     "Plot": ["cmap", "figuresize", "black_background", "save_figure", "log_x", "log_y", "x_lim", "y_lims", "examples_to_plot", "plot_control", "plot_nr", "nr_imgs", "um_per_pixel", "image_nr", "dot_size", "point_color", "point_alpha", "outline_width", "umap_canvas_width", "umap_sidebar_width", "img_zoom", "row_limit", "color_by", "plot_images", "remove_image_canvas", "plot_points", "plot_outlines", "smooth_lines", "plot_by_cluster", "plot_cluster_grids", "heatmap_feature", "grouping", "min_max"],
     "Replication Assay": [
@@ -7042,6 +7044,7 @@ def set_default_generate_barecode_mapping(settings=None):
     settings.setdefault('ram_guard', True)
     settings.setdefault('mode', 'paired')
     settings.setdefault('single_direction', 'R1')
+    settings.setdefault('sequencer', 'auto')
     settings.setdefault('test', False)
     settings.setdefault('fill_na', False)
     return settings

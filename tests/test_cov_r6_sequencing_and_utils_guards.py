@@ -182,7 +182,9 @@ def test_only_a_paired_or_single_run_reaches_the_read_function(tmp_path,
     source = inspect.getsource(SEQ.generate_barecode_mapping)
     assert "elif settings['mode'] == 'single':" not in source
     assert "elif settings['single_direction'] == 'R2':" not in source
-    assert "settings[\"single_direction\"] not in {\"R1\", \"R2\"}" in source
+    assert "_check_read_settings(settings)" in source
+    guard = inspect.getsource(SEQ._check_read_settings)
+    assert "settings['single_direction'] not in {'R1', 'R2'}" in guard
 
 
 def test_the_threshold_sweep_always_has_a_folder_to_write_into(tmp_path,

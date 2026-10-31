@@ -225,10 +225,13 @@ def test_protocol_wizard_current_capabilities_and_registry_contracts(tmp_path):
         assert {row[0] for row in _navigation_modules()} <= result['protocol']['catalog'].keys()
         assert set(ORGANISMS) <= result['protocol']['catalog'].keys()
         assert '<details><summary>' in result['protocol']['markdown']
-    modes = dict(sequencer='other', read_mode='mixed')
+    modes = dict(sequencer='other', read_mode='mixed', single_direction='R1')
     result = sample._protocol_result('sequencing', 'fastq_gz', modes)
-    assert not result['actions'] and any('N740' in text for text in result['requirements'])
-    assert modes == dict(sequencer='other', read_mode='mixed')
+    assert [row[0] for row in result['actions']] == ['map_barcodes'] and not result['requirements']
+    assert result['action_settings']['map_barcodes'] == dict(mode='mixed', sequencer='auto', single_direction='R1')
+    assert modes == dict(sequencer='other', read_mode='mixed', single_direction='R1')
+    result = sample._protocol_result('sequencing', 'other')
+    assert not result['actions'] and any('Map Barcodes reads FASTQ only' in text for text in result['requirements'])
     with pytest.raises(ValueError, match='required'):
         sample._protocol_result('sequencing', 'fastq_gz', dict(sequencer='other'))
     result = sample._protocol_result('features', 'database', dict(experiment='drug'))

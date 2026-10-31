@@ -463,7 +463,7 @@ def _protocol_options(family='', format='', choices=None, *, data=None):
                                options=tuple(dict(key=k, label=tr(v['label']),
                                                   explanation=tr(v['explanation']))
                                              for k, v in wizard[source].items())))
-        if choices.get('read_mode') == 'single':
+        if choices.get('read_mode') in ('single', 'mixed'):
             fields.append(dict(name='single_direction', label=tr('Read orientation'), required=True,
                                options=tuple(dict(key=mate, label=mate,
                                                   explanation=tr('Match the barcode pattern and reference to this mate orientation.'))
@@ -635,9 +635,13 @@ def _protocol_result(family, format, choices=None, source_path='', context=None,
     if choices.get('metadata_type') == 'custom' and not (context or {}).get('custom_regex'):
         requirements.append(tr('Custom filename metadata requires a tested named-group expression before running. Configure custom_regex in the selected module.'))
     if family == 'sequencing':
-        if format == 'other' or choices.get('read_mode') == 'mixed':
+        if format == 'other':
             starts = []
             requirements.append(tr(wizard['requirements']['sequencing']))
+        elif (choices.get('sequencer') in ('ultima', 'ont', 'pacbio')
+              and choices.get('read_mode') != 'single'):
+            starts = []
+            requirements.append(tr(wizard['requirements']['single_read_platform']))
     elif family == 'features':
         if choices.get('experiment') == 'drug':
             starts = ['dose_response', 'graph_builder', 'gate_editor', 'qc_dashboard', 'db_browser']
@@ -677,7 +681,9 @@ def _protocol_result(family, format, choices=None, source_path='', context=None,
                 values['custom_regex'] = carried['custom_regex']
         if key == 'map_barcodes' and family == 'sequencing' and format == 'fastq_gz':
             values['mode'] = choices['read_mode']
-            if choices['read_mode'] == 'single':
+            values['sequencer'] = ('auto' if choices['sequencer'] == 'other'
+                                   else choices['sequencer'])
+            if choices['read_mode'] in ('single', 'mixed'):
                 values['single_direction'] = choices['single_direction']
         overrides[key] = values
     active = starts[0] if starts else ''

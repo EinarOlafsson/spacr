@@ -68,7 +68,7 @@ def test_map_barcodes_layout_is_scoped_and_non_mutating():
     assert "Sequencing Input" in mapped
     assert "Advanced" not in mapped
     assert "Model Training" not in mapped
-    assert mapped["Sequencing Input"] == ["src", "mode", "single_direction"]
+    assert mapped["Sequencing Input"] == ["src", "sequencer", "mode", "single_direction"]
     assert mapped["Runtime & Reliability"] == ["chunk_size", "n_jobs", "ram_guard", "test"]
     # The layout names every setting the module has, so its groups also name
     # keys this synthetic source does not carry. `build_sections` filters
@@ -106,8 +106,10 @@ def test_map_barcodes_ui_uses_sequencing_dropdowns_and_no_stray_tabs(
     assert {"gRNA CSV", "Row CSV", "Column CSV"} == rows["Barcode References"]
 
     expected = {
-        "mode": ["paired", "single"],
+        "mode": ["paired", "single", "mixed"],
         "single_direction": ["R1", "R2"],
+        "sequencer": ["auto", "illumina", "element", "mgi", "ultima", "ont",
+                      "pacbio", "other"],
         "comp_type": ["zlib", "lzo", "bzip2", "blosc"],
     }
     for key, values in expected.items():
@@ -120,6 +122,7 @@ def test_map_barcodes_ui_uses_sequencing_dropdowns_and_no_stray_tabs(
 
     assert model.collect()["mode"] == "paired"
     assert model.collect()["single_direction"] == "R1"
+    assert model.collect()["sequencer"] == "auto"
     assert model.collect()["comp_type"] == "zlib"
 
 
