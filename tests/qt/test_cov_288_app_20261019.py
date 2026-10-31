@@ -185,7 +185,7 @@ def test_stopping_the_prewarm_survives_an_application_already_torn_down(monkeypa
     app = _App(remove_raises=True)
     _with_app(monkeypatch, app)
     prewarm = _fake(_timer=_fake(stop=lambda: stopped.append(True)),
-                    finished=False, _steps=None)
+                    finished=False, _steps=None, _running_step=False)
     _ScreenPrewarm.stop(prewarm)
     assert stopped == [True]
     assert prewarm.finished is True

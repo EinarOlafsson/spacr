@@ -6522,6 +6522,7 @@ class _ScreenPrewarm(QObject):
         self._key = None
         self._last_input = _time_monotonic()
         self._running_step = False
+        self._drop_when_the_step_returns = False
         self.finished = False
         self.built: list = []
         self.skipped: list = []
@@ -6552,6 +6553,9 @@ class _ScreenPrewarm(QObject):
                 app.removeEventFilter(self)
             except RuntimeError:
                 pass
+        if self._running_step:
+            self._drop_when_the_step_returns = True
+            return
         steps, self._steps = self._steps, None
         if steps is not None:
             try:
@@ -6608,6 +6612,9 @@ class _ScreenPrewarm(QObject):
             self._window._run_one_prewarm_step(self)
         finally:
             self._running_step = False
+            if self._drop_when_the_step_returns:
+                self._drop_when_the_step_returns = False
+                self.stop()
         if not self.finished:
             self._timer.start(_PREWARM_STEP_GAP_MS)
 

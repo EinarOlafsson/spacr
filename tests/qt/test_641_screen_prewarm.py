@@ -497,6 +497,57 @@ def test_a_half_built_screen_finishes_inside_its_open(
     assert prewarm._steps is None
 
 
+@pytest.mark.parametrize("stage", ["_build_screen", "_theme_screen"])
+def test_stop_inside_a_build_step_drops_the_screen_once_the_step_returns(
+        window, qapp, monkeypatch, caplog, stage):
+    import logging
+
+    from shiboken6 import isValid
+
+    prewarm = _prewarm(window, ["queue"], monkeypatch)
+    _idle(prewarm, monkeypatch)
+    generators = []
+    built = []
+    original_steps = window._prewarm_steps
+    original_stage = getattr(window, stage)
+
+    def record(key):
+        generators.append(original_steps(key))
+        return generators[-1]
+
+    def stop_from_inside(*args, **kwargs):
+        result = original_stage(*args, **kwargs)
+        if stage == "_build_screen":
+            built.append(result)
+        else:
+            built.append(args[0])
+        prewarm.stop()
+        assert prewarm._steps is generators[0]
+        assert generators[0].gi_running
+        return result
+
+    monkeypatch.setattr(window, "_prewarm_steps", record)
+    monkeypatch.setattr(window, stage, stop_from_inside)
+    with caplog.at_level(logging.DEBUG, logger="spacr.qt.app"):
+        prewarm._slice()
+        if stage == "_theme_screen":
+            while prewarm._steps is not None and not built:
+                prewarm._running_step = False
+                prewarm._slice()
+    assert not [r for r in caplog.records
+                if "half built" in r.getMessage()]
+    assert prewarm.finished
+    assert prewarm._steps is None
+    assert not generators[0].gi_running
+    assert generators[0].gi_frame is None
+    assert "queue" not in window._screens
+    assert prewarm.built == []
+    assert "queue" not in window._screen_scales
+    qapp.sendPostedEvents(None, 16)
+    assert not isValid(built[0]) or built[0].parent() is None or \
+        window._stack.indexOf(built[0]) < 0
+
+
 def test_prewarm_stops_when_memory_is_short(window, qapp, monkeypatch):
     from spacr.qt import app as app_module
 
