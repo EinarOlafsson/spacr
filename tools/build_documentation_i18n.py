@@ -256,8 +256,48 @@ API_REVIEWED_EXACT_IDENTITY_BY_LANGUAGE: Mapping[str, frozenset[str]] = {
 }
 
 
+_FORMULA_TOKEN = re.compile(
+    r"(?P<word>[A-Za-z_][A-Za-z0-9_.]*|[0-9]+(?:\.[0-9]+)?)"
+    r"|(?P<op>[~=:+\-*/|^%<>(),\[\]{}]+)"
+)
+
+
+def _api_block_is_formula_only(source: str) -> bool:
+    """Whether ``source`` is one line of formula with no prose in it.
+
+    The rule is deliberately narrow. The block must be a single line, must
+    contain ``~`` or ``=`` (a bare ``Label:`` is a heading), and must be nothing
+    but identifiers, numbers and operators. Two identifiers may never sit next
+    to each other without an operator between them, because that is how words
+    follow each other in a sentence, and no word may end in sentence
+    punctuation. A bare word such as ``Examples`` or ``no`` is therefore
+    prose, as is ``Use fraction + gene``.
+    """
+    text = str(source).strip()
+    if not text or "\n" in text or not re.search(r"[~=]", text):
+        return False
+    position = 0
+    previous = None
+    for match in _FORMULA_TOKEN.finditer(text):
+        if text[position:match.start()].strip():
+            return False
+        kind = match.lastgroup
+        if kind == "word" and previous == "word":
+            return False
+        previous = kind
+        position = match.end()
+    return not text[position:].strip() and previous is not None
+
+
 def _api_exact_identity_allowed(source: str, language: str) -> bool:
-    """Whether a reviewed target may equal its exact English source block."""
+    """Whether a reviewed target may equal its exact English source block.
+
+    A block that is only a formula (see :func:`_api_block_is_formula_only`)
+    carries nothing to translate, so it may stay exactly identical in every
+    language. Everything else needs a listed language-specific exception.
+    """
+    if _api_block_is_formula_only(source):
+        return True
     return language in API_REVIEWED_EXACT_IDENTITY_BY_LANGUAGE.get(
         str(source), frozenset(),
     )
@@ -6217,6 +6257,8 @@ def _reviewed_api_block_valid(
         return False
     if not _api_block_requires_translation(source):
         return _normalized_block(source) == _normalized_block(value)
+    if _api_block_is_formula_only(source):
+        return str(value) == str(source)
     if _normalized_block(source) == _normalized_block(value):
         return str(value) == str(source) and _api_exact_identity_allowed(
             source, language,

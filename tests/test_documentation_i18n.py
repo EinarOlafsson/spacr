@@ -5327,3 +5327,27 @@ def test_display_edge_geometry_does_not_become_biological_screening(
         assert "scientific-screen-as-ui-screen" in _semantic_false_friends(
             scientific_source, display_text, language,
         )
+
+
+def test_reviewed_formula_only_block_may_stay_identical_in_every_locale():
+    """A formula has no prose to translate; a sentence still must change."""
+    import build_documentation_i18n as builder
+
+    formula = "y ~ fraction:grna + gene_fraction:gene + rowID + columnID"
+    assert builder._api_block_requires_translation(formula)
+    for language in ("fr", "de", "sv", "zh_CN", "hi", "ko"):
+        assert builder._api_exact_identity_allowed(formula, language)
+        assert builder._reviewed_api_block_valid(formula, formula, language)
+        assert not builder._reviewed_api_block_valid(
+            formula, formula.replace("grna", "gr​na"), language)
+    for formula_like in ("y = a + b", "weight ~ 1 + log(size)"):
+        assert builder._api_block_is_formula_only(formula_like)
+    for prose in (
+        "Use fraction + gene", "Examples", "no", "Fit y ~ x to the data",
+        "The model is y ~ x.", "Plasmodium", "y ~ x\nand more",
+        "Returns a = b when set",
+    ):
+        assert not builder._api_block_is_formula_only(prose), prose
+        assert not builder._reviewed_api_block_valid(prose, prose, "zh_CN"), prose
+    assert not builder._reviewed_api_block_valid(
+        "The model is y ~ x.", "The model is y ~ x.", "fr")
