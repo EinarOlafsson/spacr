@@ -2,8 +2,8 @@ Remote and distributed execution
 ================================
 
 spaCR can submit any module exposed by ``spacr-run`` to another workstation,
-a Slurm cluster, or a cloud/HPC command-line client. Jobs remain on the remote
-system when the spaCR GUI closes. Their identifiers, status, settings hashes
+a Slurm, PBS or LSF cluster, or a cloud/HPC command-line client. Jobs remain
+on the remote system when the spaCR GUI closes. Their identifiers, status, settings hashes
 and latest logs are stored locally and appear in **Help → Distributed Jobs**.
 
 Execution profiles
@@ -25,6 +25,14 @@ The execution backends are:
    Uploads settings, submits an ``sbatch`` script, polls ``squeue`` and then
    ``sacct``, and cancels with ``scancel``. The SSH host may be blank when the
    Slurm commands are installed locally.
+
+``PBS cluster``
+   Uploads settings and submits a job script with ``qsub``, polls ``qstat``
+   and cancels with ``qdel``. Choose ``--backend pbs`` for a CLI profile.
+
+``LSF cluster``
+   Uploads settings and submits a job script with ``bsub``, polls ``bjobs``
+   and cancels with ``bkill``. Choose ``--backend lsf`` for a CLI profile.
 
 ``Cloud / custom command``
    Runs configured submit/status/cancel argument templates. This supports
@@ -101,7 +109,16 @@ Command-line workflow
 ---------------------
 
 The GUI and CLI share the same profile and job stores. Create a workstation
-profile and submit a settings export::
+profile and submit a settings export. The execution target must already
+have spaCR and the analysis dependencies installed; submitting does not
+install them. Set ``--runner`` to its ``spacr-run`` executable, or use
+``--env-setup`` for the shell commands that activate the target environment.
+For example, a conda profile can use
+``--env-setup 'eval "$(conda shell.bash hook)"; conda activate spacr'``.
+A job that cannot find its runner exits with code 127; changing the local
+GUI environment does not change the target environment.
+
+Create a profile::
 
    spacr-remote profile add gpu-box \
        --backend ssh \
@@ -109,6 +126,13 @@ profile and submit a settings export::
        --workdir /shared/spacr \
        --local-root /mnt/lab \
        --remote-root /shared/lab
+
+Inspect the generated job script before submitting. The command prints it
+without submitting a job::
+
+   spacr-remote script mask --profile gpu-box
+
+Submit and monitor the job::
 
    spacr-remote submit mask \
        --settings mask-settings.csv \
@@ -127,6 +151,15 @@ A Slurm profile can be local or reached through a login host::
        --workdir /project/lab \
        --runner /project/lab/env/bin/spacr-run \
        --scheduler-options "--partition=gpu --gres=gpu:1 --time=12:00:00"
+
+Before submitting through the cluster profile, inspect its resources::
+
+   spacr-remote resources --profile lab-slurm
+
+This reads the cluster configuration and reports resource problems; it does
+not request an allocation. Use ``spacr-remote watch JOB_ID --follow`` to stream
+new log output while watching; ``--logs`` prints the log tail when watching
+finishes.
 
 Custom/cloud templates
 ----------------------

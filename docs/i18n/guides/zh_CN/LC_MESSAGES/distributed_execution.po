@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 13:35-0400\n"
+"POT-Creation-Date: 2026-10-30 20:27-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Remote and distributed execution"
 msgstr "远程与分布式执行"
 
-msgid "spaCR can submit any module exposed by ``spacr-run`` to another workstation, a Slurm cluster, or a cloud/HPC command-line client. Jobs remain on the remote system when the spaCR GUI closes. Their identifiers, status, settings hashes and latest logs are stored locally and appear in **Help → Distributed Jobs**."
-msgstr "spaCR 可以将 ``spacr-run`` 公开的任何模块提交到另一台工作站、Slurm 集群或云/HPC 命令行客户端。关闭 spaCR 图形界面后，作业仍保留在远程系统上。它们的标识符、状态、设置哈希和最新日志存储在本地，并显示在 **帮助 → 分布式作业** 中。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "spaCR can submit any module exposed by ``spacr-run`` to another workstation, a Slurm, PBS or LSF cluster, or a cloud/HPC command-line client. Jobs remain on the remote system when the spaCR GUI closes. Their identifiers, status, settings hashes and latest logs are stored locally and appear in **Help → Distributed Jobs**."
+msgstr "spaCR 可以将 ``spacr-run`` 公开的任何模块提交到另一台工作站、Slurm、PBS 或 LSF 集群或云/HPC 命令行客户端。关闭 spaCR 图形界面后，作业仍保留在远程系统上。它们的标识符、状态、设置哈希和最新日志存储在本地，并显示在 **帮助 → 分布式作业** 中。"
 
 msgid "Execution profiles"
 msgstr "执行配置文件"
@@ -44,6 +45,22 @@ msgstr "``Slurm cluster``"
 
 msgid "Uploads settings, submits an ``sbatch`` script, polls ``squeue`` and then ``sacct``, and cancels with ``scancel``. The SSH host may be blank when the Slurm commands are installed locally."
 msgstr "上传设置，提交 ``sbatch`` 脚本，先轮询 ``squeue`` 再轮询 ``sacct``，并用 ``scancel`` 取消。当 Slurm 命令安装在本地时，SSH 主机可以留空。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``PBS cluster``"
+msgstr "``PBS cluster``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Uploads settings and submits a job script with ``qsub``, polls ``qstat`` and cancels with ``qdel``. Choose ``--backend pbs`` for a CLI profile."
+msgstr "上传设置并通过 ``qsub`` 提交作业脚本，使用 ``qstat`` 轮询状态，使用 ``qdel`` 取消作业。CLI 配置请选择 ``--backend pbs``。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``LSF cluster``"
+msgstr "``LSF cluster``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Uploads settings and submits a job script with ``bsub``, polls ``bjobs`` and cancels with ``bkill``. Choose ``--backend lsf`` for a CLI profile."
+msgstr "上传设置并通过 ``bsub`` 提交作业脚本，使用 ``bjobs`` 轮询状态，使用 ``bkill`` 取消作业。CLI 配置请选择 ``--backend lsf``。"
 
 msgid "``Cloud / custom command``"
 msgstr "``Cloud / custom command``"
@@ -98,11 +115,32 @@ msgstr "共享同一模型缓存的作业和节点只会下载一次缺失的模
 msgid "Command-line workflow"
 msgstr "命令行工作流程"
 
-msgid "The GUI and CLI share the same profile and job stores. Create a workstation profile and submit a settings export::"
-msgstr "GUI 和 CLI 共享相同的配置文件存储和作业存储。创建一个工作站配置文件并提交导出的设置::"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The GUI and CLI share the same profile and job stores. Create a workstation profile and submit a settings export. The execution target must already have spaCR and the analysis dependencies installed; submitting does not install them. Set ``--runner`` to its ``spacr-run`` executable, or use ``--env-setup`` for the shell commands that activate the target environment. For example, a conda profile can use ``--env-setup 'eval \"$(conda shell.bash hook)\"; conda activate spacr'``. A job that cannot find its runner exits with code 127; changing the local GUI environment does not change the target environment."
+msgstr "图形界面和 CLI 共享同一组配置与作业存储。创建工作站配置并提交导出的设置。执行目标上必须已安装 spaCR 和分析依赖项；提交作业不会安装它们。用 ``--runner`` 指定目标上的 ``spacr-run`` 可执行文件，或用 ``--env-setup`` 提供激活目标环境的 shell 命令。例如，conda 配置可以使用 ``--env-setup 'eval \"$(conda shell.bash hook)\"; conda activate spacr'``。如果作业找不到其运行程序，将以代码 127 退出；更改本地图形界面的环境不会改变目标环境。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Create a profile::"
+msgstr "创建配置::"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Inspect the generated job script before submitting. The command prints it without submitting a job::"
+msgstr "提交前检查生成的作业脚本。此命令只打印脚本，不提交作业::"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Submit and monitor the job::"
+msgstr "提交并监控作业::"
 
 msgid "A Slurm profile can be local or reached through a login host::"
 msgstr "Slurm 配置文件可以是本地的，也可以通过登录主机访问::"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Before submitting through the cluster profile, inspect its resources::"
+msgstr "通过集群配置提交前，检查其资源::"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "This reads the cluster configuration and reports resource problems; it does not request an allocation. Use ``spacr-remote watch JOB_ID --follow`` to stream new log output while watching; ``--logs`` prints the log tail when watching finishes."
+msgstr "此命令读取集群配置并报告资源问题，不会请求资源分配。使用 ``spacr-remote watch JOB_ID --follow`` 可在监控期间持续查看新的日志输出；``--logs`` 会在监控结束时打印日志末尾。"
 
 msgid "Custom/cloud templates"
 msgstr "自定义/云模板"

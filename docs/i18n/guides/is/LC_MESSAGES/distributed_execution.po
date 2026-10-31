@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 13:35-0400\n"
+"POT-Creation-Date: 2026-10-30 20:27-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Remote and distributed execution"
 msgstr "Fjarkeyrsla og dreifð keyrsla"
 
-msgid "spaCR can submit any module exposed by ``spacr-run`` to another workstation, a Slurm cluster, or a cloud/HPC command-line client. Jobs remain on the remote system when the spaCR GUI closes. Their identifiers, status, settings hashes and latest logs are stored locally and appear in **Help → Distributed Jobs**."
-msgstr "spaCR getur sent hvaða einingu sem ``spacr-run`` býður upp á til annarrar vinnustöðvar, Slurm-klasa eða skipanalínubiðlara fyrir ský/HPC. Verk haldast á fjarkerfinu þegar myndræna viðmóti spaCR er lokað. Auðkenni þeirra, staða, tætigildi stillinga og nýjustu annálar eru geymd staðbundið og birtast í **Hjálp → Dreifð verk**."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "spaCR can submit any module exposed by ``spacr-run`` to another workstation, a Slurm, PBS or LSF cluster, or a cloud/HPC command-line client. Jobs remain on the remote system when the spaCR GUI closes. Their identifiers, status, settings hashes and latest logs are stored locally and appear in **Help → Distributed Jobs**."
+msgstr "spaCR getur sent hvaða einingu sem ``spacr-run`` býður upp á til annarrar vinnustöðvar, Slurm-, PBS- eða LSF-klasa eða skipanalínubiðlara fyrir ský/HPC. Verk haldast á fjarkerfinu þegar myndræna viðmóti spaCR er lokað. Auðkenni þeirra, staða, tætigildi stillinga og nýjustu annálar eru geymd staðbundið og birtast í **Hjálp → Dreifð verk**."
 
 msgid "Execution profiles"
 msgstr "Keyrslusnið"
@@ -44,6 +45,22 @@ msgstr "``Slurm cluster``"
 
 msgid "Uploads settings, submits an ``sbatch`` script, polls ``squeue`` and then ``sacct``, and cancels with ``scancel``. The SSH host may be blank when the Slurm commands are installed locally."
 msgstr "Hleður stillingum upp, sendir ``sbatch``-skriftu, kannar ``squeue`` og síðan ``sacct`` og afturkallar með ``scancel``. SSH-hýsillinn má vera auður þegar Slurm-skipanirnar eru uppsettar staðbundið."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``PBS cluster``"
+msgstr "``PBS cluster``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Uploads settings and submits a job script with ``qsub``, polls ``qstat`` and cancels with ``qdel``. Choose ``--backend pbs`` for a CLI profile."
+msgstr "Hleður upp stillingum og sendir verkskrift með ``qsub``, kannar stöðu með ``qstat`` og hættir við með ``qdel``. Veldu ``--backend pbs`` fyrir CLI-snið."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``LSF cluster``"
+msgstr "``LSF cluster``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Uploads settings and submits a job script with ``bsub``, polls ``bjobs`` and cancels with ``bkill``. Choose ``--backend lsf`` for a CLI profile."
+msgstr "Hleður upp stillingum og sendir verkskrift með ``bsub``, kannar stöðu með ``bjobs`` og hættir við með ``bkill``. Veldu ``--backend lsf`` fyrir CLI-snið."
 
 msgid "``Cloud / custom command``"
 msgstr "``Cloud / custom command``"
@@ -98,11 +115,32 @@ msgstr "Verk og hnútar sem deila einu skyndiminni líkana sækja líkan sem van
 msgid "Command-line workflow"
 msgstr "Verkflæði í skipanalínu"
 
-msgid "The GUI and CLI share the same profile and job stores. Create a workstation profile and submit a settings export::"
-msgstr "GUI og CLI deila sömu sniða- og verkageymslum. Búðu til vinnustöðvarsnið og sendu útflutning stillinga::"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The GUI and CLI share the same profile and job stores. Create a workstation profile and submit a settings export. The execution target must already have spaCR and the analysis dependencies installed; submitting does not install them. Set ``--runner`` to its ``spacr-run`` executable, or use ``--env-setup`` for the shell commands that activate the target environment. For example, a conda profile can use ``--env-setup 'eval \"$(conda shell.bash hook)\"; conda activate spacr'``. A job that cannot find its runner exits with code 127; changing the local GUI environment does not change the target environment."
+msgstr "Myndræna viðmótið og CLI nota sömu snið- og verkageymslur. Búðu til vinnustöðvarsnið og sendu útfluttar stillingar. spaCR og nauðsynlegir greiningarhugbúnaðarpakkar verða þegar að vera uppsett á keyrslumarkinu; innsending setur þau ekki upp. Stilltu ``--runner`` á keyranlegu skrána ``spacr-run`` þar, eða notaðu ``--env-setup`` fyrir skeljarskipanirnar sem virkja markumhverfið. Til dæmis getur conda-snið notað ``--env-setup 'eval \"$(conda shell.bash hook)\"; conda activate spacr'``. Verk sem finnur ekki keyrsluforritið sitt lýkur með kóða 127; breyting á staðbundnu umhverfi myndræna viðmótsins breytir ekki markumhverfinu."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Create a profile::"
+msgstr "Búðu til snið::"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Inspect the generated job script before submitting. The command prints it without submitting a job::"
+msgstr "Skoðaðu myndaða verkskrift áður en þú sendir hana. Skipunin birtir hana án þess að senda verk::"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Submit and monitor the job::"
+msgstr "Sendu verkið og fylgstu með því::"
 
 msgid "A Slurm profile can be local or reached through a login host::"
 msgstr "Slurm-snið getur verið staðbundið eða náð í gegnum innskráningarhýsil::"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Before submitting through the cluster profile, inspect its resources::"
+msgstr "Skoðaðu tilföng klasasniðsins áður en þú sendir verk með því::"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "This reads the cluster configuration and reports resource problems; it does not request an allocation. Use ``spacr-remote watch JOB_ID --follow`` to stream new log output while watching; ``--logs`` prints the log tail when watching finishes."
+msgstr "Þetta les klasastillingarnar og tilkynnir vandamál með tilföng; það biður ekki um úthlutun. Notaðu ``spacr-remote watch JOB_ID --follow`` til að fylgjast með nýjum annálsúttökum meðan á vöktun stendur; ``--logs`` birtir enda annálsins þegar vöktun lýkur."
 
 msgid "Custom/cloud templates"
 msgstr "Sérsniðin sniðmát/skýjasniðmát"

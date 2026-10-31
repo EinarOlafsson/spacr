@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 13:35-0400\n"
+"POT-Creation-Date: 2026-10-30 20:27-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Remote and distributed execution"
 msgstr "원격 및 분산 실행"
 
-msgid "spaCR can submit any module exposed by ``spacr-run`` to another workstation, a Slurm cluster, or a cloud/HPC command-line client. Jobs remain on the remote system when the spaCR GUI closes. Their identifiers, status, settings hashes and latest logs are stored locally and appear in **Help → Distributed Jobs**."
-msgstr "spaCR은 ``spacr-run`` 이 제공하는 모든 모듈을 다른 워크스테이션, Slurm 클러스터, 또는 클라우드/HPC 명령줄 클라이언트에 제출할 수 있습니다. spaCR GUI를 닫아도 작업은 원격 시스템에 남아 있습니다. 작업의 식별자, 상태, 설정 해시, 최신 로그는 로컬에 저장되며 **도움말 → 분산 작업** 에 표시됩니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "spaCR can submit any module exposed by ``spacr-run`` to another workstation, a Slurm, PBS or LSF cluster, or a cloud/HPC command-line client. Jobs remain on the remote system when the spaCR GUI closes. Their identifiers, status, settings hashes and latest logs are stored locally and appear in **Help → Distributed Jobs**."
+msgstr "spaCR은 ``spacr-run`` 이 제공하는 모든 모듈을 다른 워크스테이션, Slurm, PBS 또는 LSF 클러스터, 또는 클라우드/HPC 명령줄 클라이언트에 제출할 수 있습니다. spaCR GUI를 닫아도 작업은 원격 시스템에 남아 있습니다. 작업의 식별자, 상태, 설정 해시, 최신 로그는 로컬에 저장되며 **도움말 → 분산 작업** 에 표시됩니다."
 
 msgid "Execution profiles"
 msgstr "실행 프로필"
@@ -44,6 +45,22 @@ msgstr "``Slurm cluster``"
 
 msgid "Uploads settings, submits an ``sbatch`` script, polls ``squeue`` and then ``sacct``, and cancels with ``scancel``. The SSH host may be blank when the Slurm commands are installed locally."
 msgstr "설정을 업로드하고, ``sbatch`` 스크립트를 제출하고, ``squeue`` 다음 ``sacct`` 를 폴링하며, ``scancel`` 로 취소합니다. Slurm 명령이 로컬에 설치되어 있으면 SSH 호스트를 비워 둘 수 있습니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``PBS cluster``"
+msgstr "``PBS cluster``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Uploads settings and submits a job script with ``qsub``, polls ``qstat`` and cancels with ``qdel``. Choose ``--backend pbs`` for a CLI profile."
+msgstr "설정을 업로드하고 ``qsub`` 로 작업 스크립트를 제출하며 ``qstat`` 으로 상태를 조회하고 ``qdel`` 로 취소합니다. CLI 프로필에는 ``--backend pbs`` 를 선택하세요."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``LSF cluster``"
+msgstr "``LSF cluster``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Uploads settings and submits a job script with ``bsub``, polls ``bjobs`` and cancels with ``bkill``. Choose ``--backend lsf`` for a CLI profile."
+msgstr "설정을 업로드하고 ``bsub`` 로 작업 스크립트를 제출하며 ``bjobs`` 로 상태를 조회하고 ``bkill`` 로 취소합니다. CLI 프로필에는 ``--backend lsf`` 를 선택하세요."
 
 msgid "``Cloud / custom command``"
 msgstr "``Cloud / custom command``"
@@ -98,11 +115,32 @@ msgstr "하나의 모델 캐시를 공유하는 작업과 노드는 없는 모�
 msgid "Command-line workflow"
 msgstr "명령줄 워크플로"
 
-msgid "The GUI and CLI share the same profile and job stores. Create a workstation profile and submit a settings export::"
-msgstr "GUI와 CLI는 같은 프로필 저장소와 작업 저장소를 공유합니다. 워크스테이션 프로필을 만들고 내보낸 설정을 제출합니다::"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The GUI and CLI share the same profile and job stores. Create a workstation profile and submit a settings export. The execution target must already have spaCR and the analysis dependencies installed; submitting does not install them. Set ``--runner`` to its ``spacr-run`` executable, or use ``--env-setup`` for the shell commands that activate the target environment. For example, a conda profile can use ``--env-setup 'eval \"$(conda shell.bash hook)\"; conda activate spacr'``. A job that cannot find its runner exits with code 127; changing the local GUI environment does not change the target environment."
+msgstr "GUI와 CLI는 동일한 프로필 및 작업 저장소를 공유합니다. 워크스테이션 프로필을 만들고 내보낸 설정을 제출하세요. 실행 대상에는 spaCR과 분석 종속성이 이미 설치되어 있어야 하며, 제출 과정에서 이를 설치하지 않습니다. ``--runner`` 에 대상의 ``spacr-run`` 실행 파일을 지정하거나, 대상 환경을 활성화하는 셸 명령에 ``--env-setup`` 을 사용하세요. 예를 들어 conda 프로필은 ``--env-setup 'eval \"$(conda shell.bash hook)\"; conda activate spacr'`` 를 사용할 수 있습니다. 실행 프로그램을 찾지 못한 작업은 코드 127로 종료됩니다. 로컬 GUI 환경을 변경해도 대상 환경은 바뀌지 않습니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Create a profile::"
+msgstr "프로필 만들기::"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Inspect the generated job script before submitting. The command prints it without submitting a job::"
+msgstr "제출하기 전에 생성된 작업 스크립트를 확인하세요. 이 명령은 작업을 제출하지 않고 스크립트만 출력합니다::"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Submit and monitor the job::"
+msgstr "작업 제출 및 모니터링::"
 
 msgid "A Slurm profile can be local or reached through a login host::"
 msgstr "Slurm 프로필은 로컬이거나 로그인 호스트를 통해 접근할 수 있습니다::"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Before submitting through the cluster profile, inspect its resources::"
+msgstr "클러스터 프로필로 제출하기 전에 해당 리소스를 확인하세요::"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "This reads the cluster configuration and reports resource problems; it does not request an allocation. Use ``spacr-remote watch JOB_ID --follow`` to stream new log output while watching; ``--logs`` prints the log tail when watching finishes."
+msgstr "이 명령은 클러스터 구성을 읽고 리소스 문제를 보고하며, 리소스 할당을 요청하지는 않습니다. 모니터링 중 새 로그 출력을 계속 보려면 ``spacr-remote watch JOB_ID --follow`` 를 사용하세요. ``--logs`` 는 모니터링이 끝날 때 로그의 마지막 부분을 출력합니다."
 
 msgid "Custom/cloud templates"
 msgstr "사용자 지정/클라우드 템플릿"

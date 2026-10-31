@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 13:35-0400\n"
+"POT-Creation-Date: 2026-10-30 20:27-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Remote and distributed execution"
 msgstr "दूरस्थ और वितरित निष्पादन"
 
-msgid "spaCR can submit any module exposed by ``spacr-run`` to another workstation, a Slurm cluster, or a cloud/HPC command-line client. Jobs remain on the remote system when the spaCR GUI closes. Their identifiers, status, settings hashes and latest logs are stored locally and appear in **Help → Distributed Jobs**."
-msgstr "spaCR ``spacr-run`` द्वारा उपलब्ध कराया गया कोई भी मॉड्यूल किसी अन्य वर्कस्टेशन, Slurm क्लस्टर या क्लाउड/HPC कमांड-लाइन क्लाइंट को सबमिट कर सकता है। spaCR GUI बंद होने पर भी कार्य दूरस्थ सिस्टम पर बने रहते हैं। उनके पहचानकर्ता, स्थिति, सेटिंग हैश और नवीनतम लॉग स्थानीय रूप से संग्रहीत होते हैं और **सहायता → वितरित कार्य** में दिखाई देते हैं।"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "spaCR can submit any module exposed by ``spacr-run`` to another workstation, a Slurm, PBS or LSF cluster, or a cloud/HPC command-line client. Jobs remain on the remote system when the spaCR GUI closes. Their identifiers, status, settings hashes and latest logs are stored locally and appear in **Help → Distributed Jobs**."
+msgstr "spaCR ``spacr-run`` द्वारा उपलब्ध कराया गया कोई भी मॉड्यूल किसी अन्य वर्कस्टेशन, Slurm, PBS या LSF क्लस्टर या क्लाउड/HPC कमांड-लाइन क्लाइंट को सबमिट कर सकता है। spaCR GUI बंद होने पर भी कार्य दूरस्थ सिस्टम पर बने रहते हैं। उनके पहचानकर्ता, स्थिति, सेटिंग हैश और नवीनतम लॉग स्थानीय रूप से संग्रहीत होते हैं और **सहायता → वितरित कार्य** में दिखाई देते हैं।"
 
 msgid "Execution profiles"
 msgstr "निष्पादन प्रोफ़ाइल"
@@ -44,6 +45,22 @@ msgstr "``Slurm cluster``"
 
 msgid "Uploads settings, submits an ``sbatch`` script, polls ``squeue`` and then ``sacct``, and cancels with ``scancel``. The SSH host may be blank when the Slurm commands are installed locally."
 msgstr "सेटिंग्स अपलोड करता है, एक ``sbatch`` स्क्रिप्ट सबमिट करता है, पहले ``squeue`` और फिर ``sacct`` को पोल करता है, और ``scancel`` से रद्द करता है। जब Slurm कमांड स्थानीय रूप से स्थापित हों तो SSH होस्ट खाली छोड़ा जा सकता है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``PBS cluster``"
+msgstr "``PBS cluster``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Uploads settings and submits a job script with ``qsub``, polls ``qstat`` and cancels with ``qdel``. Choose ``--backend pbs`` for a CLI profile."
+msgstr "सेटिंग अपलोड करता है और ``qsub`` से कार्य स्क्रिप्ट सबमिट करता है, ``qstat`` से स्थिति जाँचता है और ``qdel`` से रद्द करता है। CLI प्रोफ़ाइल के लिए ``--backend pbs`` चुनें।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``LSF cluster``"
+msgstr "``LSF cluster``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Uploads settings and submits a job script with ``bsub``, polls ``bjobs`` and cancels with ``bkill``. Choose ``--backend lsf`` for a CLI profile."
+msgstr "सेटिंग अपलोड करता है और ``bsub`` से कार्य स्क्रिप्ट सबमिट करता है, ``bjobs`` से स्थिति जाँचता है और ``bkill`` से रद्द करता है। CLI प्रोफ़ाइल के लिए ``--backend lsf`` चुनें।"
 
 msgid "``Cloud / custom command``"
 msgstr "``Cloud / custom command``"
@@ -98,11 +115,32 @@ msgstr "एक ही मॉडल कैश साझा करने वाल
 msgid "Command-line workflow"
 msgstr "कमांड-लाइन कार्यप्रवाह"
 
-msgid "The GUI and CLI share the same profile and job stores. Create a workstation profile and submit a settings export::"
-msgstr "GUI और CLI एक ही प्रोफ़ाइल और कार्य संग्रह साझा करते हैं। एक वर्कस्टेशन प्रोफ़ाइल बनाएँ और सेटिंग निर्यात सबमिट करें::"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The GUI and CLI share the same profile and job stores. Create a workstation profile and submit a settings export. The execution target must already have spaCR and the analysis dependencies installed; submitting does not install them. Set ``--runner`` to its ``spacr-run`` executable, or use ``--env-setup`` for the shell commands that activate the target environment. For example, a conda profile can use ``--env-setup 'eval \"$(conda shell.bash hook)\"; conda activate spacr'``. A job that cannot find its runner exits with code 127; changing the local GUI environment does not change the target environment."
+msgstr "GUI और CLI एक ही प्रोफ़ाइल और कार्य भंडार साझा करते हैं। वर्कस्टेशन प्रोफ़ाइल बनाएँ और निर्यात की गई सेटिंग सबमिट करें। निष्पादन लक्ष्य पर spaCR और विश्लेषण की निर्भरताएँ पहले से स्थापित होनी चाहिए; सबमिशन इन्हें स्थापित नहीं करता। ``--runner`` में लक्ष्य का ``spacr-run`` निष्पादन योग्य प्रोग्राम दें, या लक्ष्य वातावरण सक्रिय करने वाले शेल आदेशों के लिए ``--env-setup`` का उपयोग करें। उदाहरण के लिए, conda प्रोफ़ाइल ``--env-setup 'eval \"$(conda shell.bash hook)\"; conda activate spacr'`` का उपयोग कर सकती है। अपना रनर न ढूँढ पाने वाला कार्य कोड 127 के साथ समाप्त होता है; स्थानीय GUI वातावरण बदलने से लक्ष्य वातावरण नहीं बदलता।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Create a profile::"
+msgstr "प्रोफ़ाइल बनाएँ::"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Inspect the generated job script before submitting. The command prints it without submitting a job::"
+msgstr "सबमिट करने से पहले जनरेट की गई कार्य स्क्रिप्ट देखें। यह आदेश कार्य सबमिट किए बिना स्क्रिप्ट प्रिंट करता है::"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Submit and monitor the job::"
+msgstr "कार्य सबमिट करें और उसकी निगरानी करें::"
 
 msgid "A Slurm profile can be local or reached through a login host::"
 msgstr "Slurm प्रोफ़ाइल स्थानीय हो सकती है या लॉगिन होस्ट के माध्यम से पहुँची जा सकती है::"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Before submitting through the cluster profile, inspect its resources::"
+msgstr "क्लस्टर प्रोफ़ाइल से सबमिट करने से पहले उसके संसाधन देखें::"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "This reads the cluster configuration and reports resource problems; it does not request an allocation. Use ``spacr-remote watch JOB_ID --follow`` to stream new log output while watching; ``--logs`` prints the log tail when watching finishes."
+msgstr "यह क्लस्टर कॉन्फ़िगरेशन पढ़ता है और संसाधन समस्याएँ बताता है; यह आवंटन का अनुरोध नहीं करता। निगरानी के दौरान नया लॉग आउटपुट लगातार देखने के लिए ``spacr-remote watch JOB_ID --follow`` का उपयोग करें; निगरानी समाप्त होने पर ``--logs`` लॉग का अंतिम भाग प्रिंट करता है।"
 
 msgid "Custom/cloud templates"
 msgstr "कस्टम/क्लाउड टेम्पलेट"
