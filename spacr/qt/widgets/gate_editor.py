@@ -4926,7 +4926,7 @@ class GateEditorPanel(QWidget):
         self._cluster.setToolTip(
             "Find dense populations with DBSCAN and turn each one into a "
             "gate you can edit, nest and save like any other.")
-        self._cluster.clicked.connect(self._on_cluster)
+        self._cluster.clicked.connect(self._on_cluster_clicked)
         fit_to_text(self._cluster)
         tools.addWidget(self._cluster)
 
@@ -5284,9 +5284,13 @@ class GateEditorPanel(QWidget):
             self._status.setText(
                 f"{count} vertex(es) — three or more make a region")
 
+    def _on_cluster_clicked(self, *_checked) -> None:
+        """The Cluster… button was pressed: ask, then run on a worker."""
+        self.run_cluster_in_background(ask=True)
+
     def _on_cluster(self) -> None:
         """The Cluster… button: ask, then run."""
-        self.run_cluster_in_background(ask=True)
+        self.run_cluster(ask=True)
 
     def run_cluster(self, *, ask: bool = True, background: bool = False) -> None:
         """Find dense populations and add one gate per cluster.
