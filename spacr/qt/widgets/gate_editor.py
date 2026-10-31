@@ -4595,9 +4595,23 @@ class GateTree(QWidget):
         interface here: a cylinder with no bound on its normal means the 2D
         oval extended through the volume, and a cylinder bounded 0..0 means
         nothing at all.
+
+        The old rows are retired with ``deleteLater``, not deleted here. A
+        pair's ``editingFinished`` is what calls this, from inside that
+        line edit's own focus-out or key handler, and Qt goes on using the
+        line edit after the signal returns; deleting it now leaves Qt
+        painting a freed widget.
         """
+        for edits in self._threshold_rows.values():
+            for edit in edits:
+                edit.blockSignals(True)
         while self._threshold_form.rowCount():
-            self._threshold_form.removeRow(0)
+            taken = self._threshold_form.takeRow(0)
+            for item in (taken.labelItem, taken.fieldItem):
+                widget = item.widget() if item is not None else None
+                if widget is not None:
+                    widget.hide()
+                    widget.deleteLater()
         self._threshold_rows = {}
         self._threshold_gate = str(name or "")
         gate = None
