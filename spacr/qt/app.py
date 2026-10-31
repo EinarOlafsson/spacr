@@ -5427,9 +5427,10 @@ class _NavigatorHomePage(_NavigatorPageBase):
         _watch_object_events(self._suggestions_scroll, self, (QEvent.Resize, QEvent.Move))
 
     def _show_navigator_sidebar(self):
-        """Expand the real Navigator side panel without changing Classic mode."""
-        self._navigator_aside_split.set_collapsed('Widgets', False, by_user=False)
-        self._navigator_aside.setFocus()
+        """Expand the module Dock without changing the Navigator's Widgets panel."""
+        window = self.window()
+        window._dock_edge.set_collapsed(False)
+        window._sidebar.setFocus()
 
     def _show_running_runs(self):
         """Expand the Navigator side panel and reveal its current running jobs."""
