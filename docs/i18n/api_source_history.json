@@ -29,6 +29,18 @@
       "source_sha256": "0807e66d934569840a2ccbaefc680a27d1382cadbdd43e7693d3db66870f20ac",
       "text": "Full-window loading cover with optional photomosaic animation.\n\nBy default it shows the white mark beside the strap line. Once\n:meth:`show_mosaic` is called it shows the spaCR photomosaic above the\nstrap line instead, and :meth:`blow_away` ends it by blowing the mosaic's\ntiles off the window to reveal the window underneath.\n\n:param total: how many steps will be reported. Zero or negative means\n    \"unknown\", and the phases stay dim rather than dividing by it.\n:param parent: the window this fills. It is sized to the parent and\n    resizes with it, rather than being a separate top-level -- a second\n    window would earn its own taskbar entry and could be dragged off the\n    thing it is supposed to be covering.\nBuild the splash that covers the window while it is being assembled.\n\nOpaque by construction: it covers a partly-built window, and any\ntransparency would show the thing it exists to hide.\n\n:param total: how many steps the progress bar counts to; ``0`` shows no\n    proportion.\n:param parent: the window to cover; its geometry is adopted."
     },
+    "0a17ddd7495e3ddd637f44c1153d3784ecc63bc6dcf1243134419488e46fc71d": {
+      "source_blocks_sha256": [
+        "fc33c2596445d81b04e20b032d5b69afa5a0e29b0916bc6ba6befff04953e342",
+        "e4bcf151222d157967659e7947dfe1c0ca3b315249fca2b0ce0b10dfdc64f92d",
+        "f5753c02ab2dd8bc747fdc7d65e63b61e7b0e31793917b42f384ced6621cbba9",
+        "bdc4ae84c8a44fd0952701938c0fc1db6282d15f5c09d96639d212f36b033499",
+        "09b1a270e0743e3725e14207e57c556d956d5c788b2f23ca1b4c4c3e8d0fd915",
+        "f039864af3e9830535efd3f8f58e45c9a68bb5be3a732f735db679b1164447e8"
+      ],
+      "source_sha256": "0a17ddd7495e3ddd637f44c1153d3784ecc63bc6dcf1243134419488e46fc71d",
+      "text": "The window the FEATURES button in Make Masks opens.\n\nThree parts, from top to bottom:\n\n1. :class:`spacr.qt.widgets.measure_input_table.MeasureInputTable` -- which\n   file is which channel, and which is which object.\n2. The Measure module's OWN settings form, built from\n   :class:`spacr.qt.screens.settings_model.SettingsWidgets`. Not a copy of it\n   and not a chosen subset: the same widgets the Measure screen builds, from\n   the same defaults, so a setting that exists there exists here and a\n   setting that gains a control there gains one here without this file being\n   edited.\n3. Run, off the GUI thread, through\n   :func:`spacr.measure.measure_from_field_table` -- which writes the folders\n   the Mask module would have written and then calls ``measure_crop``\n   itself. The database and the folder tree are Measure's because Measure\n   makes them.\n\nThe window is a ``QDialog``. :mod:`spacr.qt.widgets.glass` gives every dialog\nin the package the translucent card, the rounded corners and the travelling\nrim, and it recognises a dialog by its type, so no styling is applied here. A\nbare ``QWidget`` shown with the ``Qt.Window`` flag would get the operating\nsystem's title bar, square corners and an opaque background instead.\n\nIts actions are at the bottom right, in the order every spaCR dialog uses:\nthe thing you came to do in the accent colour (Measure, ``PrimaryButton``),\nand the way out in red beside it (Close, ``DangerButton``). Escape is the\nother way out, and closes rather than hides -- see :meth:`reject`.\n\nSettings the table decides are shown, filled in and disabled rather than\nhidden. ``cell_mask_dim``, for example, is set once the table says which column\nholds the cell masks, and a user who has read the Measure documentation can\nstill find it. :data:`spacr.measure.FIELD_TABLE_DECIDED_KEYS` is the list, and\nit is derived from the plane order rather than written out again here."
+    },
     "15c96aee803bb1711654bff978796430503630e8777d85088b3b8a925b26ca3f": {
       "source_blocks_sha256": [
         "5802a5d8275282f0f72141bf1462df06a34d7b4f8269613b8f1ea2f34a83df9d",
@@ -132,6 +144,17 @@
       "source_sha256": "435cd6f8565b591b393d54b14394ae4e8f51fda8b6cdd3720d0a9380a2166383",
       "text": "Whether an owned environment has passed the import and bundled-data checks.\n\n:param root: external-application folder.\n:returns: true only with a completed record and environment interpreter."
     },
+    "4a81265e7b93ce89a2a3a3e87fadaf872571c57ab15ce5ca23f1db05628b9a10": {
+      "source_blocks_sha256": [
+        "821649d05261caacf3e924a61df00aa903a925cad0102bd3464447e501b30f4b",
+        "c8d3fb1eb8ebec65d9ee0987e68c238f97248fb626be8f4a2a81f8795e605cd1",
+        "6c434e292989948781e141cb1abca1bae2dfa70e9131786d72f15fc07f842df9",
+        "403be759794ee708b771d60a678e0e45ebb2d7fbd5e3aaea47cc4f29f39e5977",
+        "0d790d89c298530ba81dfcdc2b53d03cc2f9e95530c99c2d2219a2bbaf394acd"
+      ],
+      "source_sha256": "4a81265e7b93ce89a2a3a3e87fadaf872571c57ab15ce5ca23f1db05628b9a10",
+      "text": "Light a heading under the pointer, and toggle it on release.\n\nOn release, not press: a press that toggled would fire while the\npointer was still down, so a drag that began on a heading and ended\nelsewhere would still have shut the section.\n\nThe hover state is a property rather than a colour set from here,\nbecause the stylesheet is the one place that decides what the dock\nlooks like.\n\n:param watched: the object the event is for; only a\n    :class:`SectionHeader` is handled here.\n:param event: the event; Enter, Leave and keyboard focus set the\n    header's ``hovered`` property, and a left-button release or\n    Space/Enter on a focused heading toggles its section."
+    },
     "4b72b2b038a95576baee27ca722de94a123b2d12adb7e5982a20cc73b33f3eca": {
       "source_blocks_sha256": [
         "ec70139c605e9e0588f82d22f0ec2020bf10506ba8a761adf004f6954b828ca7",
@@ -154,6 +177,17 @@
       ],
       "source_sha256": "4e416702c4df5a1bb0ef5504ff56d05a076b627c256941e69e1ffab5ae2d06e6",
       "text": "Return searchable, dashboard-ready records for all journalled runs.\n\nSearch covers the run id, module, status, settings keys and values, input\nand output paths, warnings, failure traceback, and environment versions.\nCorrupt or interrupted run folders remain visible with an explicit\n``\"corrupt\"``/``\"running\"`` status and diagnostic warnings.\n\n:param query: whitespace-separated case-insensitive terms; every term must\n    occur somewhere in the record.\n:param app_key: optional exact module filter.\n:param status: optional exact status filter.\n:param limit: maximum returned records after newest-first sorting.\n:returns: JSON-friendly record dictionaries. ``dir`` remains a\n    :class:`~pathlib.Path` for convenient GUI use."
+    },
+    "53190dcf4e8b56489193b9d83af81aa95a2ab51c0f6472810b198ec7a7423b16": {
+      "source_blocks_sha256": [
+        "821649d05261caacf3e924a61df00aa903a925cad0102bd3464447e501b30f4b",
+        "c8d3fb1eb8ebec65d9ee0987e68c238f97248fb626be8f4a2a81f8795e605cd1",
+        "6c434e292989948781e141cb1abca1bae2dfa70e9131786d72f15fc07f842df9",
+        "403be759794ee708b771d60a678e0e45ebb2d7fbd5e3aaea47cc4f29f39e5977",
+        "adddf40b6972f9ef685699a11724c64133bde04ff347e45482269fc7c13d8493"
+      ],
+      "source_sha256": "53190dcf4e8b56489193b9d83af81aa95a2ab51c0f6472810b198ec7a7423b16",
+      "text": "Light a heading under the pointer, and toggle it on release.\n\nOn release, not press: a press that toggled would fire while the\npointer was still down, so a drag that began on a heading and ended\nelsewhere would still have shut the section.\n\nThe hover state is a property rather than a colour set from here,\nbecause the stylesheet is the one place that decides what the dock\nlooks like.\n\n:param watched: the object the event is for; only a\n    :class:`SectionHeader` is handled here.\n:param event: the event; Enter and Leave set the header's ``hovered``\n    property, and a left-button release toggles its section."
     },
     "54cadabf1ce0778b99b430347404b72f4d1f9db5523698a628f04d6e5b5c2bf0": {
       "source_blocks_sha256": [
@@ -221,6 +255,14 @@
       "source_sha256": "610d8517de1502790e0c3515daacc718154e840be67676aed78c0df96ce1ed68",
       "text": "Interactive editing and curation of segmentation masks.\n\nMake Masks is filed under **Tools** on the home screen and is the manual\nhalf of segmentation: it corrects masks a model got wrong, one field at a\ntime, and its masthead opens the Cellpose workflows that produced them.\n:class:`MakeMasksScreen` loads images and labelled masks from\n``<folder>/masks`` and saves edited labels as ``uint16`` TIFF files.\n\nTHE TEN TOOLS, in :data:`TOOL_MODES` order, because this vocabulary is what\na reader needs before opening the screen:\n\n**Brush** and **Erase** paint and unpaint the active label a pixel at a time.\n**Erase object** removes a whole label in one click. **Wand** grows a region\nfrom the pixel clicked and adds it to the mask by default. Hold Ctrl while\nclicking to remove that region; the tolerance is relative to the image's intensity range\nby default, see :func:`spacr.qt.mask_engine.relative_tolerance`. **Draw**\ntraces a free-form outline that closes and fills as ONE object -- the tool a\nbrush is not, because a brush stamps disks along the path, so tracing a rim\nwith it labels the rim and leaves the middle background. **Divide / Merge**\nuses a left-button drag to divide and a right-button drag to merge crossed\nobjects under the first touched identifier without changing their pixels.\nThe merged identity is retained when saving and reopening. Dividing drags a\nline across a merged object and makes it two, keeping the original identifier\non the larger component and giving the smaller a new one, with every other\nobject untouched; :data:`spacr.qt.mask_engine.DIVIDE_CUT_WIDTH` is the cut\nwidth. **Zoom** rectangle-drags the view and changes no labels at all.\n\n**Recrop** is the ninth and is the only one that changes WHICH field is on\nscreen rather than what is painted on it. A staged crop holding several cells\nis not one training example, and curating it as one teaches a network that\ntwo objects are one picture -- so a box round an object writes that region of\nboth the image and the mask as a field of its own\n(:func:`spacr.qt.mask_engine.write_recrop`), queued straight after the current\nfield, and the multi-object original is retired into\n``recropped_originals/`` rather than curated\n(:func:`spacr.qt.mask_engine.retire_recropped_original`). A box shorter than\n:data:`spacr.qt.mask_engine.RECROP_MIN_SIDE` on a side, or repeating a cut\nalready made past :data:`spacr.qt.mask_engine.RECROP_MAX_OVERLAP`, is refused;\nobjects the box cuts through are dropped, because an object whose boundary is\nwhere the mouse was released is not that object; and the labels that survive\nare renumbered from one.\n\n**Ruler** is the tenth. Drag between image pixels to read a length without\nediting labels. Zoom and pan preserve it; right-click with Ruler selected\nclears it. The same ruler is available on the paired live preview canvases.\n\nEach field has a :class:`spacr.curation.CurationLog`, initialized from any\nexisting sidecar. :func:`spacr.qt.mask_engine.save_mask` writes the labels and\nledger together, allowing :func:`spacr.curation.is_curated` to distinguish\nmanually corrected masks from pipeline output. A single gesture produces one\nledger entry and one undo step.\n\n:meth:`MakeMasksScreen.run_cellpose` applies the pipeline's resolved\nCellpose-SAM model to the open field and displays the mask, cell-probability\nmap, and flow field. The intermediate outputs support evaluation of\n:data:`CELLPROB_THRESHOLD` when detections are missing or incomplete.\n\nEditor modes are assembled from :func:`tool_row_entries` and\n:data:`TOOL_MODES`. :meth:`MakeMasksScreen.add_toolbar_action` inserts\nnon-mode actions into the same toolbar. The settings panel carries the\noperations that are not gestures -- object filling and relabeling, swapping\nobject and background, size filtering and Otsu detection, with undo and redo\nover all of them -- alongside the brush, wand and display controls, and can\nbe hidden to return its width to the canvas.\n\nImage inversion and swapping object and background are separate operations.\nThe first changes the image seen by the detector; the second changes labels.\n\n**Invert image**, in the Display category, is THE inversion. It draws the\nfield as its own negative and hands the detectors that same negative: both\ndetect buttons and the live magnifier segment\n:meth:`MakeMasksScreen._detector_image`, so a threshold written for bright\nobjects takes dark ones, and a banner above the image says so for as long as\nit is on. The corner readout's pixel intensity follows the inverted image.\nObject mean intensities and the object filter still read the loaded pixels.\nSaving writes label masks without changing the source image.\n\nIT USED TO BE TWO SWITCHES AND THEY COULD DISAGREE. A display-only \"Invert\nimage\" drew a negative and left detection untouched; \"Invert for detection\"\ninverted what the detectors read and drew nothing. A curator could hold\neither without the other, and the first one's status line had to contradict\nthe second one's banner. They are one switch because the reason for the\nswitch is one intention: inverting a field of dark objects so that Otsu and\nthe magnifier can detect them. ``_cp_invert`` is now the same widget object as\n``_invert_display`` under its old name, so the two cannot come apart.\n\n**Swap object and background**, in Object operations, is the old \"Invert\nmask\" under the name that describes it -- it flips the LABEL image, which on\nan ordinary field leaves one object covering the frame. It is not\na picture invert and is deliberately not called one.\n\nTHE ARITHMETIC. :func:`~spacr.qt.mask_engine.invert_normalized` normalises\nthe field to 0..1 on its own range and takes ``1 - v``, and the\nnormalisation is not incidental: the Otsu correction is a\nMULTIPLIER on an absolute level, so normalising first is what makes one\ncorrection value mean the same thing on the next image.\n:func:`~spacr.qt.mask_engine.invert_intensity` (dtype complement) and\n:func:`~spacr.qt.mask_engine.invert_for_detection` (reflection about the\nfield's range) are what this screen used before and are kept for other\ncallers. :func:`~spacr.qt.mask_engine.invert_mask` flips labels.\n\nAdditional segmentation tools are opened from the masthead in\n:data:`FOLD_ORDER` through\n:class:`~spacr.qt.widgets.fold_strip.FoldStrip`. **Mask folder**\napplies Cellpose to every lowercase ``.tif`` image in the selected folder, while **Save mask** on\nthe Curate page calls :meth:`spacr.curation.MaskCuration.save_mask`. Folded\nmodules retain their existing widgets inside :class:`FoldedModulePanel`.\n\nTime-series tracking is integrated with Mask Generation as the Timelapse\nsettings category; see :mod:`spacr.qt.screens.mask`. Motility Assay instead\nbelongs to Measure because it consumes existing masks and writes measurement\ntables rather than generating masks."
     },
+    "62051a976eb346bb7b233b9883e73850a5185b5e43658e67eb433e7d5c855348": {
+      "source_blocks_sha256": [
+        "bf0faf74d7ec0083e0e42b2f40d4aadd812a07cde4737839ac2dce949c97decc",
+        "5173580f21226cc66f377d212fa901530b6c82783ad7cff908521ee6087916a3"
+      ],
+      "source_sha256": "62051a976eb346bb7b233b9883e73850a5185b5e43658e67eb433e7d5c855348",
+      "text": "Up and Down change the spaceout zoom rate; Ctrl+R starts over.\n\n:param event: the key press; its key and Ctrl modifier are read, and\n    keys the backdrop does not take are passed to the base class."
+    },
     "789914357ad7f8b4d3797a04f0a0ae146e71514201bf13569cacc23fcd7337e7": {
       "source_blocks_sha256": [
         "78258e4f75b5999752f439d48cb5ec61f58f11bd533c6b7695fe23a60bf48dce",
@@ -232,6 +274,15 @@
       ],
       "source_sha256": "789914357ad7f8b4d3797a04f0a0ae146e71514201bf13569cacc23fcd7337e7",
       "text": "Scan, preview, convert and map one folder in a single call.\n\nThe entry point used by the CLI and the Qt bridge: one function, one\nsettings dict, the same three phases underneath. It always prints\nthe plan before writing anything, so a headless\n``spacr-run format_convert`` also records the source → target table\nin the log.\n\nSettings (see :func:`default_settings`):\n\n``src``\n    folder to convert. Required.\n``dst``\n    destination; defaults to ``<src>_yokogawa``. Never ``src``.\n``layout`` / ``z_handling`` / ``plate_naming``\n    passed to :func:`scan` and :func:`plan`.\n``overwrite``\n    False by default — existing targets are left alone.\n``db_path``\n    when set, :func:`populate_db_from_map` loads the map into it.\n``preview_only``\n    print the plan and stop. The returned result has written\n    nothing and has no ``map_path``.\n``resume``\n    accept complete fields from a compatible checkpoint after validating\n    every output TIFF.\n``checkpoint_path``\n    optional checkpoint JSON path; defaults inside ``dst``.\n\n:returns: the :class:`ConversionResult`; for ``preview_only`` an\n    empty one carrying the plan.\n:raises ConfigurationError: no ``src``, or a plan with blocking\n    errors — a name collision must stop the run, not be printed and\n    walked past."
+    },
+    "83325a5446bd96e156f52aaab7def107d1acd6c461cb0017301f09665a1aeacf": {
+      "source_blocks_sha256": [
+        "8ff7f80880667fbfb7c23c4b7fb236b18a352e830af6166dc33216e1eecb714d",
+        "f937a2d9af7ace3d735deb07530ded4306669b690da8fc52ef41acd40fd6b36a",
+        "efb46f4db130ab1541ea56f8711ea6b093ddaff76076d61c9737b8e18c99ae86"
+      ],
+      "source_sha256": "83325a5446bd96e156f52aaab7def107d1acd6c461cb0017301f09665a1aeacf",
+      "text": "Never let a layout squeeze ``edit`` below its placeholder.\n\nA line edit cannot wrap its placeholder and elides what does not fit\n(item 746). For a field with a short placeholder the field's minimum\nwidth follows the placeholder's width in the current font, so the\nlayout keeps room for it at every Zoom. Give a long description to the\nfield's tooltip instead of its placeholder.\n\n:param edit: the ``QLineEdit``."
     },
     "8d432e9c3f2948242e40713eb5942715992b805946267d30d9e20d6e2e2f9979": {
       "source_blocks_sha256": [
@@ -282,6 +333,30 @@
       "source_sha256": "aa49b5e0d3a00c2689a5e0e6b720a2ae6b7fe28aa540028d47575b69d4acac30",
       "text": "The spaCR filename for one resolved image.\n\nMissing axes take 1 rather than 0: spaCR's convention is one-based, and a\nplate whose only timepoint is ``T0000`` reads as a bug in the acquisition\nrather than as an absence.\n\n:param entry: one resolved file's axes, read by the keys ``plate``,\n    ``well``, ``t``, ``field``, ``z`` and ``channel``; a missing well\n    becomes ``A01`` and a missing or zero index becomes 1.\n:param plate: the plate name used when ``entry`` has no ``plate`` key."
     },
+    "aa74ca0efe4b72b91a03e0fff13b521c0bdcbdc273cfacb33112d6415d65480d": {
+      "source_blocks_sha256": [
+        "aa74ca0efe4b72b91a03e0fff13b521c0bdcbdc273cfacb33112d6415d65480d"
+      ],
+      "source_sha256": "aa74ca0efe4b72b91a03e0fff13b521c0bdcbdc273cfacb33112d6415d65480d",
+      "text": "Ctrl+R: hand the camera back to the tour."
+    },
+    "ac6f26c32641e681397c1a614896235c62c1d3924d9f5e7a4bd40d0b4ff779e9": {
+      "source_blocks_sha256": [
+        "94f9190e866263ed0bfb9a54b3775e6c8a495591aa671c49d55d37ddc65e5a41",
+        "f1596569f019a3089e9d50451ee9ac0b15d48ad91c9b0a12212b1ea74f152ee1",
+        "2362a3fbf5a085b910612d028cfede9cc76d45daabca7117ffafdb446e411755",
+        "5e129f240c5025e38151cba7656c4ea1b966b42410b2857c96f5653175b3ae6b",
+        "f4f904ea80c3aa1ca525423e8368996c79c974c727f333175ba83c626710d46f",
+        "4799fe04a4e8ff65c9aed6133c0328eadd3ef1e9de1089b7783e39d9b70956d3",
+        "7a0af2fbd14c3c46c394ec8f113d6afb23cae6caf0b8803b0c3b57379e3f2ed1",
+        "9d818decb7bfdda93ef0af1fdf9ad7eebcad8211babf80ea183effa47e034493",
+        "5a9b705265bc2a692e7c721faca8f0e45f5cb97dbfd9b0efee5529eabf30c072",
+        "e1416364e984fa0b9324ee288f901d2c695fef83f740c28367c42e78a967bdbb",
+        "d6b7ef4d77aae2f84e469219413ecc0ce384a540099cb067ba852371fa483d90"
+      ],
+      "source_sha256": "ac6f26c32641e681397c1a614896235c62c1d3924d9f5e7a4bd40d0b4ff779e9",
+      "text": "Floats the camera between the coordinates worth looking at.\n\nAround twenty regions are chosen on the image and the camera floats\nautomatically towards them.\n\nSMOOTHLY IS THE WHOLE REQUIREMENT, so the interpolation is a\nsmoothstep rather than a straight line: it leaves one region and\narrives at the next with zero velocity, which is what stops the\narrival reading as a stop. A linear blend is continuous in position\nand not in velocity, and the eye sees the corner.\n\nDRIFT IS OFF THE MOMENT THE USER TAKES THE CAMERA. Dragging is a\nstatement about where they want to be, and a tour that resumes over\nit is the application arguing. :meth:`take_over` stops it for good;\n:meth:`restart` is what Ctrl+R calls.\n\n:param regions: ``(name, x, y, half_width, score)`` rows, usually\n    :data:`spacr.qt.widgets.fractal_regions.REGIONS`.\n:param dwell: seconds spent at a region before leaving.\n:param travel: seconds spent moving between two regions.\nSet up a tour that dwells on each region and travels between them.\n\n:param regions: the regions to visit, in order.\n:param dwell: seconds spent on a region; floored just above zero, so a\n    tour cannot be configured to skip its own stops.\n:param travel: seconds spent moving between them, floored the same way."
+    },
     "ae0a3c59ee4c215ea9e15fd570a825eb92aaa9afc857866ebc16f3228416a0f5": {
       "source_blocks_sha256": [
         "903498dd3cdf7fb3c626e6a8a5d3b153a31328727171a8aeb633758feb59b553",
@@ -325,6 +400,22 @@
       ],
       "source_sha256": "b4ee388c09fe5f5636b51409fa92ce792a99be065c024b9bfcf3c38b0eab0ef6",
       "text": "Upgrade the owned environment using pip and PyPI, then verify its data.\n\n:param source: ignored; upgrades always use the PyPI ParaScape package.\n:param root: external-application folder.\n:param progress: optional ``(step, total, text)`` callback.\n:param cancel: optional subprocess cancellation event.\n:param runner: optional command runner for tests.\n:returns: verified environment path.\n:raises RuntimeError: upgrade failed or was cancelled. Files and logs remain\n    for diagnosis; an interrupted environment must be repaired before launch."
+    },
+    "b8768bec80563f8d42333175fa36dd94ca5f0b327b9419d257597496ba274d30": {
+      "source_blocks_sha256": [
+        "65f4368521a698c22915ab79ef37486844105d0ce8ebbaf2ba9be48934893aa9",
+        "74592b7583c043f62c368606ffcf692990657ed2b158ef7eeead40c3412c1ffa",
+        "283cbcc80a66ed5da5f37cf1a26f3311dd808cf85013792d207fd576a4daf32e",
+        "496082281022ae9e84a078c38a740bfadd6d5fdc5a6c4c56aba2f3c27434812d",
+        "2fee1e28c0d6bf3a01eb15316f67865135ef4f0d599155d356570dbe72bda555",
+        "15171377ee0df3ed557afa0db3e1f3918cbfd579e4114e018f18e1e75384beff",
+        "c6dfcaaf584d43883a7774abc6d5ecbb96cd8f88213b02731efc16aaaa57605d",
+        "f398a5a342bf9e5b8ebc5d92ba5286f6df69ffb0b769ec9e417b091f29bf0cf0",
+        "7c9ecb2fb9908014d596f6c4700049d5bfc0a5a825f11572156472c4bfe21818",
+        "e28ff7179d0185de46de73bafa6bf0f879215c0b7151b774741c7c4e7af2c515"
+      ],
+      "source_sha256": "b8768bec80563f8d42333175fa36dd94ca5f0b327b9419d257597496ba274d30",
+      "text": "Window-wide and screen-specific shortcuts for the spaCR Qt GUI.\n\nThe default window-wide actions include:\n\n    Ctrl+0        Go home (Cmd+H is Hide on macOS)\n    Ctrl+1..9     Open the corresponding app-registry entry if visible\n    Ctrl+K        Open the command palette\n    Ctrl+Shift+H  Search spaCR from the field beside the Help menu\n    F1            Show the shortcuts cheat sheet\n    ?             Use the active screen's help action, or show the cheat sheet\n    Ctrl+P        Open Preferences\n    Ctrl+Alt+0    Put GUI scale, font scale and preview scales back to defaults\n    Ctrl+/        Toggle the active module's AI Console\n    Ctrl+End      Jump to the newest console line\n    F11           Toggle full screen\n\n:func:`install` creates the bindings returned by :func:`installed`.\nOther actions in :data:`SHORTCUTS` are bound by the main window's menus;\nthe scroll gesture uses an event filter. Screen-owned bindings are included\nby :func:`mapped`, with their scope and saved overrides. Escape handling\nbelongs to the active screen, overlay or dialog rather than a binding\ninstalled here.\n\nDeclared window-wide key sequences can be rebound. The cheat sheet carries a \"Change\nshortcuts…\" button that opens a table of the window-wide actions; a key\ntyped there replaces the default, a key already taken by another action is\nnamed as a conflict and cannot be saved, and the overrides are kept in the\nPreferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a\nkeymap saved on one platform reads the same on the others. Keys that belong\nto a single screen (Annotate, Make Masks, the field browser, Gate Editor) have separate\neditable rows and saved overrides, applied to both existing and new screens."
     },
     "c5f1b39a25030613819b91a1d14e94922cdd0f751242ec1e3f29e59c0f7891aa": {
       "source_blocks_sha256": [
@@ -391,12 +482,56 @@
       "source_sha256": "da0221fb731e3b6991e4b5f22fb593ac3721369da7046e4fbc745710dc889a61",
       "text": "``file`` then every axis anything resolved, counts last.\n\nOnly axes present in at least one file get a column. A column of\nempty cells for an axis no file carries would read as \"spaCR looked\nfor a Z and found none\", which differs from \"this acquisition has no\nZ\". The tiled tree gains a `tile` column and the flat OME one gains\n`c_count`; neither shows the other's."
     },
+    "da4d67c8d4e4f365d8458de2f5b8fd91221c63a08ff8b0dcc8e1222aa4cc868c": {
+      "source_blocks_sha256": [
+        "1443a4376baf281deb995875f8dbe73bd38e4d6e010008c536cdf8a708bd5e3e",
+        "d0feaf42ec97d4ad3359ca79915c0840a5f7e88007062d031b68f94c92037763",
+        "58143bc0a5bbc5a9cbe397b1845e91824aa1146af7a3635e7c211d1fe40fa239",
+        "5960ea7a51d0862ee6d6f6fe3db8acd8c69f6e7238c4adbdc0b02d2e09323a6e"
+      ],
+      "source_sha256": "da4d67c8d4e4f365d8458de2f5b8fd91221c63a08ff8b0dcc8e1222aa4cc868c",
+      "text": "Collect the oldest due generation, or service an explicit full-cleanup\nrequest.\n\nWithout an explicit cleanup request, collection is deferred during a heavy\nimport or busy-worker deferral. Otherwise, generations are checked in\norder 2, 1, 0, and ``gc.collect(generation)`` is called for the first\nwhose count exceeds its saved threshold (or its current threshold when\nnone was saved). No collection is requested when none is due.\n\nExplicit worker cleanup requests take precedence and collect all\ngenerations, even below their normal thresholds.\n\n:returns: the generation collected, or ``-1`` when none is due or ordinary\n    collection is deferred."
+    },
     "de468de74c3e4525f1fea9423f000dc379ba0784d7626b030fff6ea3783d064a": {
       "source_blocks_sha256": [
         "de468de74c3e4525f1fea9423f000dc379ba0784d7626b030fff6ea3783d064a"
       ],
       "source_sha256": "de468de74c3e4525f1fea9423f000dc379ba0784d7626b030fff6ea3783d064a",
       "text": "Whether the content-guided Easy mode Home is enabled (default: ``False``)."
+    },
+    "df5287f25d1fdf4b3c0ab3febc61abc54fbbe6733a74b177e32e24d44c84a463": {
+      "source_blocks_sha256": [
+        "5b0b335614a237516d384603427cf70317d840b19cdfb21798991377604d621b",
+        "66c34eee0d9f2711879c10d2717b8a26f00f8b45d872c760469b9e2ff26b96c6",
+        "a8a980aaf03b1cf84f489d604474620191f3ffd1d5807aa92ab442aa3f016934",
+        "1d145be082334dffcc813ea3a3f641a69f8a91abefb9b955f578596422ab82a1",
+        "8c0ffabb9533d0ceeda8b279c8bea0ceb461a19081b578103ce479b2cd3cae20",
+        "ab3aa426f807fab7722fd09ef55336e9a91e96bdec78613e9db4d95dfdb00665",
+        "5cc0279aece897e1cc3c9d2441a8760656b5a35c8da09522ab236b23413869e8",
+        "f89178238c45065cf9de9b63d9a10f8f37359ec3efb7f19229d5d68bf1573741",
+        "67e2eba58f8bc035a69d08714935640c9cff8e6eddb6da5ff95cdb313e6c0f03",
+        "eeccbe7ee0aa5b83848a946db48b3f74d068c919723dfa65f6050f3d1580f2ba",
+        "41c931441e9f96645bac069a9c14ba394abe73b62bdab0739f6fe7569c1648cc",
+        "b9ddb6122e53d8c6d14d53ee4deac91f11798de108e7d055b96ff2fed712eada",
+        "640788923bf965fdf66b1a4bb0d857e8ee4063b5266303a1167f0f8f5028babe",
+        "37ff0626251196deb912a3ee21c2d31c78f7976060254b6571345559ea96de24",
+        "30fb4e2f43097ec3173bf7966335eab9d18525826f7cdc23f98e57bace322892",
+        "d1cacd4d7a11271169c89394378f6032b4779db04989fe4bf8ddef1ad010b1ad",
+        "e12abd34c6121b75dbf0008353b366a8e648ed9122e4e449d57a3e9986f63a48",
+        "97f1bc01d72e5d1c8735938a6ba25e864032be9ae3a56a4b42f2019531c1578f",
+        "dfdf82ee823bafd7f673895c9696ef3da0639a2487a5cdaffd7a6339d49d6f44",
+        "58821147e03a9d2347f36be8d596c017e7f4929598a98a9b066eb58f618ad741",
+        "06ded6c96f113c4c790355e1ecc562e496eab579ed94084a76003148771afa7a",
+        "4f8f006cf5360b4594877bdba76bc38b0d5bc9e30b74a6ac810a2410af40671e",
+        "c24fa4f1d8676cf5c9e5de7d692e5136b451e243bad70f23256761af31cf3ca8",
+        "b777d1dba7c3a703158efeffd1191216679a7f79125f2b4479d8a235191aacc5",
+        "20f3a68053707660f1c3d88ecd2484c97aaeea03729fbdc858c6756c3502eb03",
+        "b30347fcdf8bbd974afb927cdf4584f55f4fcdbc440328444ba016a8a161c2e8",
+        "8af42943d1d1af2aba07a4cfc2782231682f5301394f99a0967fcfed571f4c35",
+        "fb04228cdb186b5d2a893ae59213e5a81e4b9832ca2bcd52336771c187e56217"
+      ],
+      "source_sha256": "df5287f25d1fdf4b3c0ab3febc61abc54fbbe6733a74b177e32e24d44c84a463",
+      "text": "User-facing preferences — language, theme, font scale and accessibility.\n\nPersistent settings backed by :class:`PySide6.QtCore.QSettings`, so\nthey survive app restarts. New knobs can slot in alongside the existing\nones without changing consumers thanks to the small typed API\n(``get_theme()`` / ``set_theme(...)`` etc.).\n\nWire-up:\n\n* :func:`apply_preferences_to_app` — call once at startup and again\n  whenever a setting changes; reapplies the stylesheet with the\n  current theme + font scale.\n* :class:`PreferencesDialog` — the modal Settings dialog opened by\n  Ctrl+P (see :mod:`spacr.qt.shortcuts`).\n\nPublic API::\n\n    from spacr.qt.preferences import (\n        get_theme, set_theme, get_theme_choice, set_theme_choice,\n        get_language, set_language,\n        get_cell_variant, set_cell_variant,\n        cell_background_path,\n        theme_background_path,\n        get_sound_music_file, set_sound_music_file,\n        get_ambient_enabled, set_ambient_enabled,\n        get_ambient_animation, set_ambient_animation,\n        get_ambient_theme, set_ambient_theme,\n        get_spacr_mode, set_spacr_mode, mode_label, mode_note, mode_warning,\n        confirm_resource_action, run_resource_action,\n        get_ambient_palette, set_ambient_palette,\n        get_ambient_blur, set_ambient_blur,\n        get_ambient_speed, set_ambient_speed,\n        get_ambient_size, set_ambient_size,\n        get_ambient_resolution, set_ambient_resolution,\n        get_ambient_density, set_ambient_density,\n        get_ambient_drift_direction, set_ambient_drift_direction,\n        get_spinner_delay, set_spinner_delay,\n        ambient_default_palette, apply_ambient_preferences,\n        get_setting_animations_enabled, set_setting_animations_enabled,\n        get_tooltips_enabled, set_tooltips_enabled,\n        get_font_scale, set_font_scale,\n        get_gui_scale, set_gui_scale,\n        get_figure_save_mode, set_figure_save_mode,\n        get_color_blind_mode, set_color_blind_mode,\n        get_db_browser_editable, set_db_browser_editable,\n        get_dock_mode, set_dock_mode,\n        get_pane_opacity, set_pane_opacity, effective_pane_alpha,\n        get_field_fade_enabled, set_field_fade_enabled,\n        get_show_alpha, set_show_alpha,\n        get_show_beta, set_show_beta, maturity_is_visible,\n        apply_preferences_to_app,\n        PreferencesDialog,\n    )\n\nValues:\n\n* ``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` |\n  ``\"high_contrast\"`` | one of\n  the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` |\n  the five data-art presets in :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` |\n  ``\"system\"`` (default ``\"dark\"``). ``\"system\"`` follows the operating\n  system color scheme, and only once somebody has picked it: a stored\n  ``\"system\"`` written before dark became the default (2026-09-21) was\n  the old default, not a choice, and reads as ``\"dark\"``; see\n  :func:`get_theme`. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"``\n  uses neutral layered materials over a built-in light field. A night\n  or data-art preset also carries a backdrop and a sound set, written by\n  :func:`apply_night_theme` when it is chosen. Space is not a selectable\n  theme. The retired ``space_variant`` and ``space_seed`` values are\n  removed from an older store the first time the theme is read; see\n  :func:`get_theme`.\n* ``font_scale``: float, 1.0 = 100 % (the default). Clamped to [0.10, 2.0].\n* ``gui_scale``: float, 1.0 = 100 % (the default). Clamped to [0.10, 2.0].\n  Scales every size of the interface, not only text, and applies live.\n  See :mod:`spacr.qt.gui_scale`.\n* ``figure_save_mode``: ``\"print\"`` | ``\"screen\"`` | ``\"transparent\"``\n  (default ``\"print\"``). Controls the page and figure-element colours used\n  for saved figures. ``SPACR_FIGURE_SAVE_MODE`` remains a process-local\n  override; see :func:`spacr.figure_style.figure_save_mode`.\n* ``color_blind_mode``: ``\"off\"`` | ``\"deuteranopia\"`` | ``\"protanopia\"``\n  | ``\"tritanopia\"`` (default ``\"off\"``). Swaps matplotlib rainbow /\n  red-green palettes for perceptually-uniform + colour-blind-safe\n  alternatives (viridis for continuous, Okabe-Ito for categorical).\n* ``performance_logging``: ``\"off\"`` | ``\"summary\"`` | ``\"detailed\"``\n  (default ``\"summary\"``). Records process-tree resource use independently\n  of verbose call tracing; see :func:`get_performance_logging` and\n  :mod:`spacr.resource_log`.\n* ``db_browser_editable``: bool, default ``False``. Permits the\n  Database Browser to open a read-write connection at all; see\n  :func:`get_db_browser_editable`.\n* ``dock_mode``: ``\"locked\"`` | ``\"hidden\"`` (default\n  ``\"locked\"``). Whether the left app dock reveals on hover, is pinned\n  open as a permanent column, or is not there at all.\n* ``pane_opacity``: int percent, default ``60``. How solid shared surfaces\n  are, or the relative material strength in Glass. Clamped up to\n  :func:`spacr.qt.theme.pane_alpha_floor` at paint time — the\n  preference is a request, legibility is not negotiable.\n* ``field_fade``: bool, default ``True``. Whether an input field's\n  container and outline ramp from solid on the left to fully transparent\n  on the right. Fields are **exempt from** ``pane_opacity`` while this is\n  on — see :func:`get_field_fade_enabled` and\n  :mod:`spacr.qt.widgets.field_fade`.\n* ``show_alpha`` (default ``False``) / ``show_beta`` (default ``True``): bool. Control\n  whether modules and settings at that maturity are shown. Stable features\n  are always visible.\n* ``sound/music_file``: str, default ``\"\"``. A WAV of the user's own that\n  the music bed plays instead of the synthesized one, and that the\n  Resonance backdrop is driven by. See :func:`get_sound_music_file`.\n* ``ambient_enabled``: bool, default ``True``. Whether module screens\n  paint the animated background at all. Turning it off is a first-class\n  choice — see :func:`get_ambient_enabled`. The user-facing control is the\n  ``None`` entry in the Animation list rather than a second switch: one\n  row, one meaning. Choosing an animation turns it back on.\n* ``spacr_mode``: ``\"extra_performance\"`` | ``\"performance\"`` |\n  ``\"balanced\"`` (default ``\"balanced\"``). How hard spaCR tries to stay out\n  of the machine's way — when it frees its own caches, and whether it\n  overrides the visual settings. Balanced does neither. See\n  :func:`set_spacr_mode` and :mod:`spacr.qt.resource_cleanup`, which owns\n  what a cleanup is allowed to touch (spaCR's own memory, and nothing\n  else — no other process, ever).\n* ``ambient_theme`` / ``ambient_palette``: which animation, and in which\n  colours. ``ambient_theme`` also holds\n  :data:`spacr.qt.widgets.ambient.NO_ANIMATION` — read it with\n  :func:`get_ambient_animation`, which can answer ``\"none\"``, or with\n  :func:`get_ambient_theme`, whose answer is always something paintable.\n  Validated against\n  :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES` and\n  :func:`spacr.qt.widgets.ambient.palettes_for` respectively; palettes\n  are *per theme*, so see :func:`get_ambient_palette` for how the two\n  keys stay consistent with each other.\n* ``ambient_speed`` / ``ambient_size`` / ``ambient_resolution`` /\n  ``ambient_density``: floats; speed, size and detail default to ``1.0``,\n  density to ``0.1``. All are *multipliers* on\n  what the chosen animation already does — how fast it moves, how large its\n  elements are, how much detail it is drawn with and how many elements\n  there are. Clamped on read and on write\n  to the ranges the engines declare\n  (:data:`spacr.qt.widgets.ambient.SPEED_RANGE` and friends).\n* ``ambient_blur``: a legacy float retained for reading older preferences.\n  Current animation widgets render without this saved blur setting. Image\n  detail is controlled by ``ambient_resolution``.\n* ``ambient_drift_direction``: ``\"up\"`` | ``\"down\"`` | ``\"random\"``\n  (default ``\"up\"``). Which way spaCR stratified travels. A\n  preference rather than three entries in the animation menu; see\n  :data:`spacr.qt.widgets.ambient.DRIFT_DIRECTIONS` for why.\n* ``spinner_delay``: float seconds, default ``2.0``. How long background\n  work has to run before the activity spinner appears at all — see\n  :func:`get_spinner_delay`.\n* ``setting_animations``: bool, default ``False``. Whether setting tooltips\n  play their animations automatically. When disabled, hover remains text-only\n  until the user activates **Animation** in that tooltip's footer; see\n  :func:`get_setting_animations_enabled`.\n* ``language``: one of the bundled language codes from\n  :mod:`spacr.qt.i18n`; defaults to English and falls back safely when a\n  persisted value is invalid."
     },
     "e1725a4733a53223934a46acff9941a053040a4809a3f9d94c5885ecb6aa0874": {
       "source_blocks_sha256": [
@@ -407,6 +542,14 @@
       ],
       "source_sha256": "e1725a4733a53223934a46acff9941a053040a4809a3f9d94c5885ecb6aa0874",
       "text": "The settings :meth:`spawn_organelle_slots` would build, unbuilt.\n\nAsked first so the screen can check it has a heading for every one\nof them before anything is built.\n\n:param count: the new ``number_of_organelles``.\n:returns: the keys of the slots past those already built, in the\n    order the defaults declare them; empty when there are none."
+    },
+    "e708958b98abda3b0b50cffa0981c2f6249ffe32c63338357bbb4245a8d067af": {
+      "source_blocks_sha256": [
+        "8beaa2688a286522db052b29a1aad131e966a9ec20cc2fd7eb2f28e7fce7504f",
+        "737d5b08b2533d31979d5560d5a3631476613e6029fa5b2708040622c7299ef2"
+      ],
+      "source_sha256": "e708958b98abda3b0b50cffa0981c2f6249ffe32c63338357bbb4245a8d067af",
+      "text": "Whether ordinary tooltips appear anywhere in spaCR. Default ``True``.\n\nThe master switch read by :mod:`spacr.qt.tooltip_policy`, the one event\nfilter on ``QApplication`` that decides when every tooltip appears and\ngoes. Cleared, no tooltip is shown at all; the two settings surfaces --\n:func:`get_tooltips_box_enabled` and\n:func:`get_tooltips_bottom_enabled` -- are separate and unaffected."
     },
     "eb527f56c10a936e631bc5c0903772273e38098929cb110bf7eaeb83bd7beee8": {
       "source_blocks_sha256": [
@@ -431,6 +574,33 @@
       ],
       "source_sha256": "ed4ec5c5cfce5bb0a3a7196bc0e1fbede6ed1b8ca23e52eefab5d33d6c06fe2e",
       "text": "Build the controls a raised ``number_of_organelles`` asks for.\n\nA slot's controls do not exist until the count says so, and\nrebuilding the whole screen to add them would discard what the user\nhad typed. This builds ONLY the new slots' controls, on the panel already\non screen; every control that existed keeps its identity and\nwhatever the user typed into it. The caller lays the new controls\nout.\n\nEXISTING VALUES WIN. A slot above the count that a settings file\ncarried is already in ``_defaults`` (see :meth:`set_hidden_value`),\nand its control is built holding that value rather than the one the\npanel would invent.\n\n:param count: the new ``number_of_organelles``.\n:returns: the new settings keys with a control, in the order the\n    panel declares them; empty when the count asks for nothing new."
+    },
+    "ee84f14cee247de7a3f152453cab4da4c307ff357897e9a9fd0e0555e417749f": {
+      "source_blocks_sha256": [
+        "a919f1a3585bff2727ae85ab838168fc0efa10b7a2a702ec57eec78027f01434",
+        "066e460f8c0934afbc233b8256616c413d4fe31500b0394db7dca606ac620742",
+        "fc90d642ec5e7ec6e043d48b3aaa9e5fe74821d4e905a4471717ba56caed49a0",
+        "d84ebe26b3eed7d684efcae5d7a76d0aac5c17b0d3f91faeefbeff11a1eb6670",
+        "bfbc2806df0dc2ac5f8cec47508ed44ac8f0cefb2e6d94d0f923ab6d5ef27115",
+        "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
+      ],
+      "source_sha256": "ee84f14cee247de7a3f152453cab4da4c307ff357897e9a9fd0e0555e417749f",
+      "text": "Pick a model from the zoo; returns a local path.\n\n:param kinds: restrict the list to these :data:`spacr.model_zoo.KINDS`.\n    A pathogen-model field wants ``(\"cellpose\",)`` -- offering a detector\n    there would be offering something that cannot be loaded.\n:param parent: the widget that opened this.\nBuild the model zoo dialog.\n\n:param kinds: restrict the listing to these model kinds; ``None`` lists\n    everything spaCR knows about.\n:param parent: parent widget, or ``None``."
+    },
+    "f80b33836ed5a9a8c2de462fddfe46190203eca55f1aa9495e7808c9d2dc9d05": {
+      "source_blocks_sha256": [
+        "18b43468c94f95fbe22b871d3f57334968a943ed40d1593feb440af6e3b21bcd",
+        "de6c209e5cb15d6f4384dc85b4e7d871418f587558a079e1624f013c7b916708",
+        "47f2cfcc4f71ff37fe537790887e3f37149bb779eed4223f4ff4fb5723dc0ecb",
+        "92b0d754b476fbe0e457bbafdb58667506bb21c6c967148bbc681e4d673346bd",
+        "ca7e75dc1aaa6ec777f5965a13a5d8d2eb5e5cc14cc55b2d11d0576b2993e177",
+        "210b152ecadc33f3fe6f125c8ece889d929b4d12f082ea4c00a70f48cfee4537",
+        "38a0915ab0f7a1772793690a016d48d581cff1e475fde075affa99a136dd53c4",
+        "a99831205c44f8ae864bc77caab958c125f1370ca87d04ee28002a7f7de05ba9",
+        "7946f2adc78c8990df6ec45eb4131ce7a142965739870f2c59e38e0e8521e057"
+      ],
+      "source_sha256": "f80b33836ed5a9a8c2de462fddfe46190203eca55f1aa9495e7808c9d2dc9d05",
+      "text": "Ctrl + wheel over a module screen's right-hand column sizes its text.\n\nHolding Ctrl and turning the wheel over any panel in that column makes\nits text larger or smaller.\n\nONE SIZE FOR EVERY COLUMN, persisted in\n:func:`spacr.qt.preferences.get_runtime_text_scale`. It multiplies the\nsize the rest of the interface has, so the whole-GUI scale (471) and the\nZ gesture (378) still move the column with everything else.\n\nA STYLE SHEET ON THE COLUMN, NOT ``setFont``. The Z gesture's\n``setFont`` is undone by the next repolish (measured: a label set to\n20 px is back at its sheet's 13 px after ``unpolish``/``polish``), and\nthe column's widgets repolish every time a card folds or a run starts.\n:func:`scaled_font_sheet` re-declares the inherited sizes on the column\nitself, which only its descendants see. A widget that sizes its own text\nfrom Python and so outranks any sheet -- the console's entries -- takes\nthe size through an ``apply_column_text_scale(scale)`` method instead.\n\nAN APPLICATION FILTER, because the console and every scroll area in the\ncolumn accept the wheel before a parent could see it. It yields to:\n\n* the Z gesture while Z is held -- Z + wheel is 378's;\n* any widget between the pointer and the column that handles the wheel\n  in Python -- the plaque and live-preview canvases zoom on Ctrl + wheel\n  and a figure canvas has its own scroll -- which keeps the gesture to\n  the text panels;\n* everything outside a registered column.\n\nCtrl+0 with the pointer over a column whose text is not at 100 % puts it\nback; at 100 % the key is left to Go home, which it otherwise is.\nCreate the filter with the stored size and no columns yet."
     },
     "f9e2a1e4905f0f97a0f3148305ec630e850a47bb523c6374e170054e10a658a5": {
       "source_blocks_sha256": [
