@@ -41,6 +41,17 @@ PROTECTED_TERMS = (
 #:     French, "Regression" in German;
 #:   * format strings and technical tokens whose content is not prose.
 DELIBERATELY_UNTRANSLATED = {
+    # The scientific model's proper name remains Cellpose in every locale.
+    "Cellpose": {"sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"},
+    # These compact rows deliberately use the international acknowledgement;
+    # other locales retain their distinct translated button text.
+    "OK": {"sv", "de", "pt", "fr"},
+    # Native homographs and established computing loanwords, not untranslated
+    # prose: Version in Swedish/German/French, Caches in German/Portuguese/
+    # French, and the singular French noun Action (Actions is already below).
+    "Version": {"sv", "de", "fr"},
+    "Caches": {"de", "pt", "fr"},
+    "Action": {"fr"},
     "AI": {"ko", "sv"},
     "API: {url}": {"de", "es", "hi", "is", "ko", "pt", "sv"},
     "Actions": {"fr"},
