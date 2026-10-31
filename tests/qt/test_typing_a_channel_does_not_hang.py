@@ -12,15 +12,18 @@ from __future__ import annotations
 import time
 
 import pytest
+from PySide6.QtTest import QTest
+from PySide6.QtWidgets import QLineEdit
 
 import spacr.qt.app as app_module
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def mask(qapp):
     win = app_module.MainWindow()
     win.resize(1200, 800)
     win.show()
+    win.activateWindow()
     win._on_nav_selected("mask")
     qapp.processEvents()
     yield win._screens["mask"]
@@ -29,10 +32,12 @@ def mask(qapp):
 
 
 def _type_into(widget, text: str) -> None:
-    if hasattr(widget, "setText"):
-        widget.setText(text)
-    else:
-        widget.setValue(int(text or 0))
+    """Deliver real keyboard edits, including the input that suspends idle work."""
+    editor = widget if isinstance(widget, QLineEdit) else widget.lineEdit()
+    editor.setFocus()
+    editor.selectAll()
+    QTest.keyClicks(editor, text)
+    assert editor.text() == text
 
 
 @pytest.mark.parametrize(

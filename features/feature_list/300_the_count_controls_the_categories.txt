@@ -71,3 +71,7 @@ is the distinction the hang taught: worst keystroke into a channel is under
 200 ms and asserted.
 
 VERIFIED 2026-10-04: the 1 test files this item names pass on CPU/offscreen.
+
+2026-10-31 — Diagnose the source-identical hosted channel-edit regression (cell_channel worst key 246 ms against the unchanged 200 ms bound). Preserve real form/value propagation and every timing assertion; distinguish synchronous edit work from unrelated initial/deferred Qt delivery before choosing the smallest repair. Qualify only the affected channel cohort on capped CPU, without assuming contention or changing visibility semantics.
+
+2026-10-31 — The unchanged selector’s bounded profile observed 39 deferred heading/control-build steps during six programmatic edits; real text edits took 2.2–4.0 ms locally, which does not establish the hosted 246 ms cause. The regression now delivers focused/select-all QTest keys and verifies each exact typed value, with a fresh window per case so focus cannot commit another parameter’s draft. All three channel budgets plus existing run-value propagation pass once (4 passed, 6.98 s, CPU8G); six edits, worst-case 200 ms and event delivery remain unchanged. No product change or Main publication.
