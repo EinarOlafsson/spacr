@@ -1,3 +1,7 @@
+# Current coordination handoff — 2026-10-31
+
+Read `spacr/resources/AI/CLAUDE_TAKEOVER_20261031.md` first for the current branches, CI runs, live release guard, qualified fixes and frozen unfinished checkpoints. Older entries below remain historical context. The maintainer requested this handoff to a fresh Claude session.
+
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
 ## 2026-10-29 Tutorial owner to Home — Train Cellpose19 preview parameter parity hold
