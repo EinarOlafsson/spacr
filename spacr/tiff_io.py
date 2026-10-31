@@ -62,19 +62,53 @@ def _raster_with_axes(path, ext):
     :returns: ``(array, axes)``; ``axes`` is ``''`` when nothing is declared.
     """
     if ext in ('tif', 'tiff'):
-        with tifffile.TiffFile(path) as tif:
-            images = tif.asarray()
-            try:
-                axes = (tif.series[0].axes or '').upper()
-            except Exception:
-                axes = ''
-        return images, axes
+        return _tiff_with_axes(path)
+    return _picture_with_axes(path)
+
+
+def _tiff_with_axes(path):
+    """A TIFF's pixels and its first series' axes, uppercase.
+
+    :param path: the TIFF file.
+    :returns: ``(array, axes)``; ``axes`` is ``''`` when none are recorded.
+    """
+    with tifffile.TiffFile(path) as tif:
+        return tif.asarray(), _series_axes(tif)
+
+
+def _series_axes(tif):
+    """The first series' axis letters, or ``''`` when tifffile has none.
+
+    :param tif: an open :class:`tifffile.TiffFile`.
+    :returns: the axes, uppercase.
+    """
+    try:
+        return (tif.series[0].axes or '').upper()
+    except Exception:
+        return ''
+
+
+def _picture_with_axes(path):
+    """A PNG, JPEG or BMP picture's pixels and the axes they stand for.
+
+    :param path: the picture file.
+    :returns: ``(array, axes)``.
+    """
     import imageio.v2 as imageio
 
     images = np.asarray(imageio.imread(path))
+    return images, _picture_axes(images)
+
+
+def _picture_axes(images):
+    """``YXS`` for a colour picture, ``YX`` for a grey one, else ``''``.
+
+    :param images: the decoded picture.
+    :returns: the axes.
+    """
     if images.ndim == 3 and images.shape[-1] in (3, 4):
-        return images, 'YXS'
-    return images, 'YX' if images.ndim == 2 else ''
+        return 'YXS'
+    return 'YX' if images.ndim == 2 else ''
 
 
 def _declared_planes(images, axes):
@@ -90,29 +124,95 @@ def _declared_planes(images, axes):
     :param axes: one letter per axis, ending in or containing ``Y`` and ``X``.
     :returns: ``[(t, c, plane)]``, or None when the axes cannot be used.
     """
-    if len(axes) != images.ndim or 'Y' not in axes or 'X' not in axes:
+    channel = _declared_channel_axis(images, axes)
+    if channel is None:
+        return None
+    return _projected_planes(_tzcyx(images, axes, channel))
+
+
+def _declared_channel_axis(images, axes):
+    """The letter of the declared channel axis, or None if the axes are unusable.
+
+    :param images: the array.
+    :param axes: its declared axes.
+    :returns: ``'C'`` or ``'S'`` (also when neither is present), or None.
+    """
+    if not _axes_are_spatial(images, axes):
         return None
     letters = [a for a in axes if a not in 'YX']
-    if any(a not in 'TZCS' for a in letters) or len(set(letters)) != len(letters):
+    if not _letters_are_known(letters):
         return None
-    if 'C' in letters and 'S' in letters:
+    if 'S' in letters and _samples_are_guessed(images, axes):
         return None
-    channel = 'C' if 'C' in letters else 'S'
-    if 'S' in letters and images.shape[axes.index('S')] >= min(
-            images.shape[axes.index('Y')], images.shape[axes.index('X')]):
-        return None
+    return 'C' if 'C' in letters else 'S'
+
+
+def _axes_are_spatial(images, axes):
+    """Whether ``axes`` names every axis of ``images`` and includes Y and X.
+
+    :param images: the array.
+    :param axes: its declared axes.
+    """
+    return len(axes) == images.ndim and 'Y' in axes and 'X' in axes
+
+
+def _letters_are_known(letters):
+    """Whether the non-spatial axes are distinct T, Z and one channel kind.
+
+    :param letters: the axis letters other than Y and X.
+    """
+    known = all(a in 'TZCS' for a in letters)
+    distinct = len(set(letters)) == len(letters)
+    return known and distinct and not ('C' in letters and 'S' in letters)
+
+
+def _samples_are_guessed(images, axes):
+    """Whether an ``S`` axis is at least as long as a spatial axis.
+
+    tifffile reads the last axis of a small undeclared stack as colour
+    samples; such an axis is not taken as channels.
+
+    :param images: the array.
+    :param axes: its declared axes, containing ``S``.
+    """
+    samples = images.shape[axes.index('S')]
+    return samples >= min(images.shape[axes.index('Y')], images.shape[axes.index('X')])
+
+
+def _tzcyx(images, axes, channel):
+    """``images`` reordered to ``(T, Z, C, Y, X)``, missing axes of length 1.
+
+    :param images: the array.
+    :param axes: its declared axes.
+    :param channel: the channel axis letter, ``'C'`` or ``'S'``.
+    :returns: a five-dimensional view.
+    """
     order = [axes.index(a) for a in ('T', 'Z', channel) if a in axes]
     data = np.transpose(images, order + [axes.index('Y'), axes.index('X')])
     for at, a in enumerate(('T', 'Z', channel)):
         if a not in axes:
             data = np.expand_dims(data, at)
-    planes = []
-    for t in range(data.shape[0]):
-        for c in range(data.shape[2]):
-            stack = data[t, :, c]
-            plane = stack[0] if stack.shape[0] == 1 else np.max(stack, axis=0)
-            planes.append((t, c, np.ascontiguousarray(plane)))
-    return planes
+    return data
+
+
+def _projected_planes(data):
+    """One plane per time point and channel, maximum-projected over depth.
+
+    :param data: a ``(T, Z, C, Y, X)`` array.
+    :returns: ``[(t, c, plane)]`` in time, then channel order.
+    """
+    return [(t, c, _project_depth(data[t, :, c]))
+            for t in range(data.shape[0]) for c in range(data.shape[2])]
+
+
+def _project_depth(stack):
+    """The single plane of a one-plane stack, or its maximum projection.
+
+    :param stack: a ``(Z, Y, X)`` array.
+    :returns: a C-contiguous 2-D plane.
+    """
+    plane = stack[0] if stack.shape[0] == 1 else np.max(stack, axis=0)
+    return np.ascontiguousarray(plane)
 
 
 def _yokogawa_planes(images, axes, file):
@@ -138,22 +238,52 @@ def _yokogawa_planes(images, axes, file):
     if planes is not None:
         return planes
     if images.ndim == 3:
-        if images.shape[0] <= 4:
-            return [(0, c, images[c, :, :]) for c in range(images.shape[0])]
-        if images.shape[-1] <= 4 and images.shape[-1] < min(images.shape[:2]):
-            return [(0, c, np.ascontiguousarray(images[:, :, c]))
-                    for c in range(images.shape[-1])]
-        return [(0, 0, np.max(images, axis=0))]
+        return _undeclared_3d_planes(images)
     if images.ndim == 4:
-        t_axis = 0
-        if axes[:2] == 'ZT':
-            t_axis = 1
-        elif axes[:2] != 'TZ':
-            print(f"WARNING: {file} is 4-D but declares axes "
-                  f"{axes or '(none)'}; reading it as "
-                  f"(T, Z, Y, X). If it is really (Z, T, Y, X), "
-                  f"every timepoint written below is a z-plane "
-                  f"and every projection is over time.")
-        return [(t, 0, np.max(images[t] if t_axis == 0 else images[:, t], axis=0))
-                for t in range(images.shape[t_axis])]
+        return _undeclared_4d_planes(images, axes, file)
     raise ValueError(f"Unsupported TIFF dimensions: {images.shape}")
+
+
+def _undeclared_3d_planes(images):
+    """Split an undeclared 3-D array into channels, or project it as a z-stack.
+
+    :param images: the array.
+    :returns: ``[(0, c, plane)]``.
+    """
+    if images.shape[0] <= 4:
+        return [(0, c, images[c, :, :]) for c in range(images.shape[0])]
+    if images.shape[-1] <= 4 and images.shape[-1] < min(images.shape[:2]):
+        return [(0, c, np.ascontiguousarray(images[:, :, c]))
+                for c in range(images.shape[-1])]
+    return [(0, 0, np.max(images, axis=0))]
+
+
+def _undeclared_4d_planes(images, axes, file):
+    """Project each time point of a 4-D array over depth.
+
+    :param images: the array.
+    :param axes: its axes, read for a ``TZ`` or ``ZT`` start.
+    :param file: the file name, for the warning about undeclared axes.
+    :returns: ``[(t, 0, plane)]``.
+    """
+    t_axis = _time_axis(axes, file)
+    return [(t, 0, np.max(images[t] if t_axis == 0 else images[:, t], axis=0))
+            for t in range(images.shape[t_axis])]
+
+
+def _time_axis(axes, file):
+    """Which of a 4-D array's first two axes is time, warning when undeclared.
+
+    :param axes: the declared axes.
+    :param file: the file name, for the warning.
+    :returns: 0 or 1.
+    """
+    if axes[:2] == 'ZT':
+        return 1
+    if axes[:2] != 'TZ':
+        print(f"WARNING: {file} is 4-D but declares axes "
+              f"{axes or '(none)'}; reading it as "
+              f"(T, Z, Y, X). If it is really (Z, T, Y, X), "
+              f"every timepoint written below is a z-plane "
+              f"and every projection is over time.")
+    return 0
