@@ -727,7 +727,7 @@
       "key": "pipeline_graph",
       "name": "Pipeline Graph",
       "outputs": [
-        "figures"
+        "graphviz_dot"
       ],
       "preview": "",
       "tutorial": "https://einarolafsson.github.io/spacr/tutorials/#lesson=52_pipeline_graph"
