@@ -250,6 +250,37 @@ class _ThreadStreamRouter(io.TextIOBase):
 _STREAM_ROUTER_LOCK = threading.RLock()
 _STDOUT_ROUTER: Optional[_ThreadStreamRouter] = None
 _STDERR_ROUTER: Optional[_ThreadStreamRouter] = None
+_KEPT_ROUTERS: Dict[str, List[_ThreadStreamRouter]] = {
+    "stdout": [], "stderr": []}
+
+
+def _install_stream_router(name: str) -> _ThreadStreamRouter:
+    """Install the router for ``sys.<name>``, reusing one this process kept.
+
+    Every router that has been ``sys.stdout`` or ``sys.stderr`` is kept for
+    the life of the process. CPython's ``print`` holds the stream it read
+    from :mod:`sys` as a borrowed reference while it writes each argument and
+    separator, so a router that a finishing worker uninstalls while another
+    thread is still inside ``print`` would otherwise be freed under that
+    print, which then writes through freed memory. A kept router that wraps
+    the current stream is put back instead of making a new one, so at most
+    one is kept per wrapped stream.
+
+    Called with :data:`_STREAM_ROUTER_LOCK` held.
+
+    :param name: ``"stdout"`` or ``"stderr"``.
+    :returns: the router now installed as that stream.
+    """
+    stream = getattr(sys, name)
+    if isinstance(stream, _ThreadStreamRouter):
+        return stream
+    kept = _KEPT_ROUTERS[name]
+    router = next((r for r in kept if r.original is stream), None)
+    if router is None:
+        router = _ThreadStreamRouter(stream)
+        kept.append(router)
+    setattr(sys, name, router)
+    return router
 
 
 def _register_worker_streams(
@@ -258,16 +289,8 @@ def _register_worker_streams(
     """Install/reuse the process routers and register the calling thread."""
     global _STDOUT_ROUTER, _STDERR_ROUTER
     with _STREAM_ROUTER_LOCK:
-        if not isinstance(sys.stdout, _ThreadStreamRouter):
-            _STDOUT_ROUTER = _ThreadStreamRouter(sys.stdout)
-            sys.stdout = _STDOUT_ROUTER
-        else:
-            _STDOUT_ROUTER = sys.stdout
-        if not isinstance(sys.stderr, _ThreadStreamRouter):
-            _STDERR_ROUTER = _ThreadStreamRouter(sys.stderr)
-            sys.stderr = _STDERR_ROUTER
-        else:
-            _STDERR_ROUTER = sys.stderr
+        _STDOUT_ROUTER = _install_stream_router("stdout")
+        _STDERR_ROUTER = _install_stream_router("stderr")
         _STDOUT_ROUTER.register(target)
         _STDERR_ROUTER.register(target)
         return _STDOUT_ROUTER, _STDERR_ROUTER
