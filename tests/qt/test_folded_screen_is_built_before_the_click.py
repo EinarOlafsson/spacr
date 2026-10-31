@@ -103,3 +103,60 @@ def test_an_unchanged_crash_state_is_not_rewritten(tmp_path, monkeypatch):
     assert state.stat().st_mtime_ns == before
     crashreport._update_state(affirmed_policy={"explain": False})
     assert written[-1]["affirmed_policy"] == {"explain": False}
+
+
+#: Measured on the workstation (offscreen and native xcb): the longest GUI
+#: stall while the idle prebuild runs is 0.28-0.34 s, and while the click joins
+#: the built screen to the page strip 0.13-0.34 s. The indivisible Qt calls
+#: left (a full restyle of the new screen, the console panel's glyph warm-up and
+#: the translate pass) are each 0.1-0.28 s. The budget is about twice the
+#: measurement; the single block this replaced was 1.4 s. It may be lowered as
+#: those calls are split, never raised.
+STALL_BUDGET_S = 0.7
+
+
+def _longest_gui_gap(qapp, run):
+    import time
+
+    from PySide6.QtCore import QTimer
+
+    gaps = []
+    last = [time.perf_counter()]
+
+    def tick():
+        now = time.perf_counter()
+        gaps.append(now - last[0])
+        last[0] = now
+
+    timer = QTimer()
+    timer.setInterval(5)
+    timer.timeout.connect(tick)
+    timer.start()
+    last[0] = time.perf_counter()
+    try:
+        run()
+    finally:
+        timer.stop()
+    return max(gaps or [0.0])
+
+
+def test_the_idle_build_and_the_click_keep_the_gui_turning(
+        window, qapp, qtbot):
+    from spacr.qt.screens import make_masks as module
+
+    window._on_nav_selected("make_masks")
+    screen = window._screens["make_masks"]
+    assert screen._cold_imports is not None
+    qtbot.waitUntil(lambda: not screen._cold_imports.is_alive(),
+                    timeout=60000)
+    assert all(name in __import__("sys").modules
+               for name in module._COLD_IMPORTS)
+
+    def build():
+        qtbot.waitUntil(lambda: "train_cellpose" in screen._fold_screens,
+                        timeout=60000)
+        qapp.processEvents()
+
+    assert _longest_gui_gap(qapp, build) < STALL_BUDGET_S
+    assert _longest_gui_gap(
+        qapp, lambda: screen.open_folded("train_cellpose")) < STALL_BUDGET_S

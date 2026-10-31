@@ -13346,6 +13346,41 @@ class _VolumeStage(QWidget):
         return True
 
 
+_COLD_IMPORTS = (
+    "matplotlib", "matplotlib.artist", "matplotlib.colors", "matplotlib.dates",
+    "matplotlib.lines", "matplotlib.patches", "matplotlib.text",
+    "matplotlib.figure", "matplotlib.backend_bases", "spacr.resource_log",
+    "spacr.hyperparam", "spacr.regression_backends", "spacr.fit_resources",
+    "spacr.well_spec", "spacr.settings_spec",
+)
+
+
+def _warm_the_folded_imports():
+    """Import, off the GUI thread, what a folded screen's build imports cold.
+
+    Importing matplotlib alone stalled the GUI for several hundred
+    milliseconds in the middle of the build. These modules create no Qt
+    object when imported, so a worker thread may load them; a failure is
+    left for the build itself to meet and report.
+
+    :returns: the started daemon thread, joined by nobody.
+    """
+    import importlib
+    import threading
+
+    def work() -> None:
+        for name in _COLD_IMPORTS:
+            try:
+                importlib.import_module(name)
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not warm %s", name, exc_info=True)
+
+    thread = threading.Thread(target=work, name="spacr-warm-folded-imports",
+                              daemon=True)
+    thread.start()
+    return thread
+
+
 class MakeMasksScreen(QWidget):
     """Qt widget for the Make Masks app — the successor to Tk ModifyMaskApp.
 
@@ -15330,6 +15365,7 @@ class MakeMasksScreen(QWidget):
         super().showEvent(event)
         if not getattr(self, "_prebuild_scheduled", False):
             self._prebuild_scheduled = True
+            self._cold_imports = _warm_the_folded_imports()
             QTimer.singleShot(int(self._PREBUILD_FIRST_S * 1000),
                               self._prebuild_a_folded_screen)
 
@@ -15345,6 +15381,11 @@ class MakeMasksScreen(QWidget):
         """
         try:
             if not self.isVisible():
+                return
+            warming = getattr(self, "_cold_imports", None)
+            if warming is not None and warming.is_alive():
+                QTimer.singleShot(int(self._PREBUILD_RETRY_S * 1000),
+                                  self._prebuild_a_folded_screen)
                 return
             from ..app import _prewarm_memory_is_short
             from ..preferences import _screen_prewarm_allowed
@@ -15363,9 +15404,12 @@ class MakeMasksScreen(QWidget):
                 QTimer.singleShot(int(self._PREBUILD_RETRY_S * 1000),
                                   self._prebuild_a_folded_screen)
                 return
+            from .. import screens as screens_package
+
             for key in self._PREBUILD_FOLDED:
                 if key not in self._fold_screens:
-                    self.folded_screen(key)
+                    with screens_package._breathing_while_a_page_is_built():
+                        self.folded_screen(key)
                     break
             if any(key not in self._fold_screens
                    for key in self._PREBUILD_FOLDED):
