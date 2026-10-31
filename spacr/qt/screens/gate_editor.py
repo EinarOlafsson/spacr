@@ -60,6 +60,7 @@ Assembles:
 """
 from __future__ import annotations
 
+from functools import partial
 import copy
 import json
 import logging
@@ -295,6 +296,20 @@ def _read_merge_with_duplicate_notice(path, tables, policy, reader):
         overrides = {table: aggregation_overrides(policy, table) for table in tables}
         exc._aggregation_rules = _rule_rows(path, definition, overrides)
         return exc
+
+
+def _render_the_graph(figure, png_path: str, write_pdf: bool) -> bool:
+    """Render a copy of the gate graph in the print style; no widget is touched.
+
+    :param figure: a detached copy of the graph's figure.
+    :param png_path: the PNG to write.
+    :param write_pdf: write the sibling PDF too.
+    :returns: whether the PNG was written.
+    """
+    from ..widgets.figure_queue import render_figure_to_png
+
+    return bool(render_figure_to_png(figure, png_path, for_print=True,
+                                     write_pdf=write_pdf))
 
 
 class GateEditorScreen(DerivedTableSource, QWidget):
@@ -543,7 +558,7 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         self.side_tabs.addTab(filter_scroll, "Filter")
         self.search = GateSearchPanel(self)
         self.search.settings_changed.connect(self._on_search_settings)
-        self.search.run_requested.connect(self.gates.run_cluster)
+        self.search.run_requested.connect(self.gates.run_cluster_in_background)
         search_scroll = QScrollArea(self)
         search_scroll.setWidget(self.search)
         search_scroll.setWidgetResizable(True)
@@ -694,6 +709,23 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         axes = [('x', self._x.currentText()), ('y', self._y.currentText())]
         if self.gates.canvas._mode in ('3D', 'xD'):
             axes.append(('z', self._z.currentText()))
+        key = (tuple(axes),
+               tuple((column, repr(self._cutoffs.get(column)))
+                     for _axis, column in axes if column),
+               tuple(self._settings.scale_for(axis) for axis in ('x', 'y')))
+        cached = getattr(self, "_displayed_cache", None)
+        if cached is not None and cached[0] is frame and cached[1] == key:
+            return cached[2]
+        displayed = self._narrow_to_the_axes(frame, axes)
+        self._displayed_cache = (frame, key, displayed)
+        return displayed
+
+    def _narrow_to_the_axes(self, frame, axes):
+        """``frame`` without the rows an axis cutoff or log domain hides.
+
+        :param frame: the canvas population.
+        :param axes: ``(axis, column)`` pairs for the drawn axes.
+        """
         for axis, column in axes:
             if not column or column not in frame:
                 continue
@@ -1788,6 +1820,7 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         prefer_pdf = str(get_figure_format() or "png").lower() == "pdf"
         default_ext = ".pdf" if prefer_pdf else ".png"
 
+        asked_here = not path
         if not path:
             filters = ("PDF (*.pdf);;PNG (*.png)" if prefer_pdf
                        else "PNG (*.png);;PDF (*.pdf)")
@@ -1800,8 +1833,11 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         if not target.suffix:
             target = target.with_suffix(default_ext)
 
-        from ..widgets.figure_queue import render_figure_to_png
         png_path = target.with_suffix(".png")
+        if asked_here and self._save_graph_in_background(
+                figure, target, png_path):
+            return str(target)
+        from ..widgets.figure_queue import render_figure_to_png
         try:
             ok = render_figure_to_png(
                 figure, str(png_path), for_print=True,
@@ -1817,6 +1853,60 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         written = target if target.exists() else png_path
         self.console.write(f"Saved the graph to {written}")
         return str(written)
+
+    def _save_graph_in_background(self, figure, target: Path,
+                                  png_path: Path) -> bool:
+        """Render the saved graph on a worker thread, from a copy of the figure.
+
+        The figure is copied here, on the GUI thread (about 20 ms), because a
+        copy taken from a worker could meet a redraw half way; the first-time
+        import of the print renderer and the raster itself, which held the
+        window for seconds, then run off the GUI thread.
+
+        :param figure: the figure on screen.
+        :param target: the file the user chose.
+        :param png_path: the PNG written beside it.
+        :returns: ``False`` when the figure cannot be copied, and the caller
+            saves it here instead.
+        """
+        from ..job_runner import JobRunner
+        from ..widgets.save_figure_dialog import copy_figure
+
+        copy = copy_figure(figure)
+        if copy is None:
+            return False
+        runner = getattr(self, "_graph_runner", None)
+        if runner is None:
+            runner = JobRunner(self, app_key="gate graph", user_visible=False)
+            runner.job_failed.connect(self._graph_save_failed)
+            self._graph_runner = runner
+        self.setCursor(Qt.BusyCursor)
+        runner.submit(partial(_render_the_graph, copy, str(png_path),
+                              target.suffix.lower() == ".pdf"),
+                      partial(self._graph_saved, target, png_path))
+        return True
+
+    def _graph_saved(self, target: Path, png_path: Path, ok) -> None:
+        """Say what a background save wrote.
+
+        :param target: the file the user chose.
+        :param png_path: the PNG written beside it.
+        :param ok: whether the render succeeded.
+        """
+        self.unsetCursor()
+        if not ok:
+            self.console.write("Could not save the graph.")
+            return
+        written = target if target.exists() else png_path
+        self.console.write(f"Saved the graph to {written}")
+
+    def _graph_save_failed(self, message: str) -> None:
+        """Say why a background save failed.
+
+        :param message: the worker's one-line error.
+        """
+        self.unsetCursor()
+        self.console.write(f"Could not save the graph: {message}")
 
     def export_gates(self) -> None:
         """Write every gate to the database as a column of ``filters``."""

@@ -34,6 +34,7 @@ is.
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
+from functools import partial
 import logging
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -763,7 +764,14 @@ class GateCanvas(GraphCanvas):
         """
         if self._frame is None:
             return None
+        clauses = getattr(self.link.filter, "clauses", None)
+        key = (id(self._frame), len(self._frame),
+               tuple(repr(clause) for clause in clauses or ()))
+        cached = getattr(self, "_population_cache", None)
+        if cached is not None and cached[0] == key and cached[1] is self._frame:
+            return cached[2]
         base, _note = self._apply_filter(self._frame)
+        self._population_cache = (key, self._frame, base)
         return base
 
     def apply_settings(self, settings) -> None:
@@ -5278,9 +5286,9 @@ class GateEditorPanel(QWidget):
 
     def _on_cluster(self) -> None:
         """The Cluster… button: ask, then run."""
-        self.run_cluster(ask=True)
+        self.run_cluster_in_background(ask=True)
 
-    def run_cluster(self, *, ask: bool = True) -> None:
+    def run_cluster(self, *, ask: bool = True, background: bool = False) -> None:
         """Find dense populations and add one gate per cluster.
 
         Clusters become REAL gates rather than a separate kind of selection,
@@ -5288,6 +5296,8 @@ class GateEditorPanel(QWidget):
         the moment it appears -- everything a hand-drawn gate can do, because
         it is one.
 
+        :param background: fit on a worker thread (see
+            :meth:`run_cluster_in_background`) instead of here.
         :param ask: open the parameter dialog first. The Cluster… button
             does; the Search TAB does not, because the tab IS the parameter
             editor -- asking again there would be asking twice for the same
@@ -5328,6 +5338,34 @@ class GateEditorPanel(QWidget):
                 int(getattr(settings, "cluster_walk_steps", 12)),
                 str(getattr(settings, "cluster_method", "dbscan")))
 
+        parent = self.canvas.active_gate
+        if background:
+            self._start_cluster_job(frame, x_column, y_column, params, parent)
+            return
+        self._finish_cluster(
+            self._cluster_outcome(frame, x_column, y_column, params, parent))
+
+    def run_cluster_in_background(self, *, ask: bool = True) -> None:
+        """:meth:`run_cluster`, with the fit on a worker thread.
+
+        What the Cluster button and the Search tab call: a walk fits DBSCAN
+        once per radius and held the window for seconds. The gates and every
+        message are the same ones :meth:`run_cluster` produces; a newer
+        request, or a change of table or axes, drops the answer of an older
+        one.
+
+        :param ask: open the parameter dialog first.
+        """
+        self.run_cluster(ask=ask, background=True)
+
+    @staticmethod
+    def _cluster_outcome(frame, x_column, y_column, params, parent):
+        """Fit the clusters; touches no widget, so a worker may run it.
+
+        :returns: ``("error", exc)``, ``("nothing", candidates)`` when a
+            walk recommended no radius, ``("none",)`` when no cluster was
+            found, or ``("found", chosen, gates)``.
+        """
         from .gate_spec import (ClusterError, best_cluster_candidate,
                                 cluster_gates, cluster_walk_candidates)
         eps = params.eps
@@ -5341,32 +5379,47 @@ class GateEditorPanel(QWidget):
                     method=params.method)
                 chosen = best_cluster_candidate(candidates)
                 if chosen is None:
-                    tried = ", ".join(f"{c.eps:.3g}" for c in candidates)
-                    QMessageBox.information(
-                        self, "The walk found nothing to recommend",
-                        "No radius produced two or more populations while "
-                        "keeping most of the objects.\n\nTried: "
-                        f"{tried}\n\nLower min samples, pick measurements "
-                        "that separate the populations, or turn the walk "
-                        "off and set eps yourself.")
-                    return
+                    return ("nothing", candidates)
                 eps = chosen.eps
             found = cluster_gates(
                 frame, x_column, y_column,
                 eps=eps, min_samples=params.min_samples,
                 scale=params.scale, method=params.method,
-                parent=self.canvas.active_gate)
+                parent=parent)
         except ClusterError as exc:
-            QMessageBox.warning(self, "Could not cluster", str(exc))
-            return
-
+            return ("error", exc)
         if not found:
+            return ("none",)
+        return ("found", chosen, found)
+
+    def _finish_cluster(self, outcome) -> None:
+        """Show a cluster outcome: its message, or its gates on the canvas.
+
+        :param outcome: what :meth:`_cluster_outcome` returned.
+        """
+        from PySide6.QtWidgets import QMessageBox
+
+        kind = outcome[0]
+        if kind == "error":
+            QMessageBox.warning(self, "Could not cluster", str(outcome[1]))
+            return
+        if kind == "nothing":
+            tried = ", ".join(f"{c.eps:.3g}" for c in outcome[1])
+            QMessageBox.information(
+                self, "The walk found nothing to recommend",
+                "No radius produced two or more populations while "
+                "keeping most of the objects.\n\nTried: "
+                f"{tried}\n\nLower min samples, pick measurements "
+                "that separate the populations, or turn the walk "
+                "off and set eps yourself.")
+            return
+        if kind == "none":
             QMessageBox.information(
                 self, "No clusters",
                 "DBSCAN found only sparse points at these settings. Raise "
                 "eps to group them more loosely, or lower min_samples.")
             return
-
+        _kind, chosen, found = outcome
         gates = self._gates
         for gate in found:
             gates.add(gate)
@@ -5381,6 +5434,40 @@ class GateEditorPanel(QWidget):
                 f"Clustered at eps {chosen.eps:.3g}, which gave "
                 f"{chosen.clusters} populations and left "
                 f"{chosen.noise_fraction:.0%} of objects outside them.")
+
+    def _start_cluster_job(self, frame, x_column, y_column, params,
+                           parent) -> None:
+        """Fit on a worker and finish on the GUI thread, unless it went stale."""
+        from ..job_runner import JobRunner
+
+        runner = getattr(self, "_cluster_runner", None)
+        if runner is None:
+            runner = JobRunner(self, app_key="gate clusters",
+                               user_visible=False)
+            self._cluster_runner = runner
+        runner.cancel()
+        self._cluster_generation = getattr(self, "_cluster_generation", 0) + 1
+        token = (self._cluster_generation, id(self._frame), x_column,
+                 y_column)
+        self.setCursor(Qt.BusyCursor)
+        runner.submit(
+            partial(self._cluster_outcome, frame, x_column, y_column, params,
+                    parent),
+            partial(self._cluster_job_done, token))
+
+    def _cluster_job_done(self, token, outcome) -> None:
+        """Finish a worker's cluster outcome if nothing has changed since.
+
+        :param token: the generation, table and axes it was started for.
+        :param outcome: what :meth:`_cluster_outcome` returned.
+        """
+        self.unsetCursor()
+        spec = self.canvas.spec
+        now = (getattr(self, "_cluster_generation", 0), id(self._frame),
+               getattr(spec, "x", None) or "", getattr(spec, "y", None) or "")
+        if token != now:
+            return
+        self._finish_cluster(outcome)
 
     def _on_gate_edited(self, gate: Gate) -> None:
         """Replace a gate that was dragged on the canvas.
