@@ -110,9 +110,11 @@ def test_an_unchanged_crash_state_is_not_rewritten(tmp_path, monkeypatch):
 #: the built screen to the page strip 0.13-0.34 s. The indivisible Qt calls
 #: left (a full restyle of the new screen, the console panel's glyph warm-up and
 #: the translate pass) are each 0.1-0.28 s. The budget is about twice the
-#: measurement; the single block this replaced was 1.4 s. It may be lowered as
+#: measurement; the single block this replaced was 1.4 s. After the layout of
+#: the built screen is also done while idle the click's worst stall is 0.12 s
+#: offscreen (two Qt style recomputations of about 0.1 s remain). It may be lowered as
 #: those calls are split, never raised.
-STALL_BUDGET_S = 0.7
+STALL_BUDGET_S = 0.5
 
 
 def _longest_gui_gap(qapp, run):
@@ -160,3 +162,16 @@ def test_the_idle_build_and_the_click_keep_the_gui_turning(
     assert _longest_gui_gap(qapp, build) < STALL_BUDGET_S
     assert _longest_gui_gap(
         qapp, lambda: screen.open_folded("train_cellpose")) < STALL_BUDGET_S
+
+
+def test_the_built_screen_is_laid_out_while_idle_too(window, qapp, qtbot):
+    window._on_nav_selected("make_masks")
+    screen = window._screens["make_masks"]
+    qtbot.waitUntil(lambda: "train_cellpose" in screen._fold_screens,
+                    timeout=60000)
+    qtbot.waitUntil(
+        lambda: "train_cellpose" in getattr(screen, "_laid_out_folds", ()),
+        timeout=60000)
+    built = screen._fold_screens["train_cellpose"]
+    assert built.size() == screen.size()
+    assert built.layout() is not None and built.layout().isEmpty() is False

@@ -13351,8 +13351,11 @@ _COLD_IMPORTS = (
     "matplotlib.lines", "matplotlib.patches", "matplotlib.text",
     "matplotlib.figure", "matplotlib.backend_bases", "spacr.resource_log",
     "spacr.hyperparam", "spacr.regression_backends", "spacr.fit_resources",
-    "spacr.well_spec", "spacr.settings_spec",
+    "spacr.well_spec", "spacr.settings_spec", "spacr.qt.i18n_catalogs",
+    "spacr.qt.i18n_catalogs.en", "spacr.organelle_types",
 )
+
+_WARM_LANGUAGE: list = []
 
 
 def _warm_the_folded_imports():
@@ -13367,6 +13370,12 @@ def _warm_the_folded_imports():
     """
     import threading
 
+    try:
+        from ..i18n import current_language
+
+        _WARM_LANGUAGE[:] = [str(current_language() or "")]
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not read the language to warm", exc_info=True)
     thread = threading.Thread(target=_import_the_cold_modules,
                               name="spacr-warm-folded-imports", daemon=True)
     thread.start()
@@ -13377,7 +13386,10 @@ def _import_the_cold_modules() -> None:
     """Import each of ``_COLD_IMPORTS``, leaving a failure for the build to meet."""
     import importlib
 
-    for name in _COLD_IMPORTS:
+    names = _COLD_IMPORTS + tuple(
+        f"spacr.qt.i18n_catalogs.{code}" for code in _WARM_LANGUAGE
+        if code.isidentifier() and code != "en")
+    for name in names:
         try:
             importlib.import_module(name)
         except Exception:                                    # noqa: BLE001
@@ -15409,17 +15421,42 @@ class MakeMasksScreen(QWidget):
                 return
             from .. import screens as screens_package
 
+            laid_out = self.__dict__.setdefault("_laid_out_folds", set())
             for key in self._PREBUILD_FOLDED:
                 if key not in self._fold_screens:
                     with screens_package._breathing_while_a_page_is_built():
                         self.folded_screen(key)
                     break
-            if any(key not in self._fold_screens
+                if key not in laid_out:
+                    laid_out.add(key)
+                    self._lay_out_a_folded_screen(self._fold_screens[key])
+                    break
+            if any(key not in self._fold_screens or key not in laid_out
                    for key in self._PREBUILD_FOLDED):
                 QTimer.singleShot(int(self._PREBUILD_RETRY_S * 1000),
                                   self._prebuild_a_folded_screen)
         except RuntimeError:
             LOG.debug("could not prebuild a folded screen", exc_info=True)
+
+    def _lay_out_a_folded_screen(self, screen: QWidget) -> None:
+        """Size and lay out a built folded screen while it is still hidden.
+
+        Joining the page strip made Qt compute the screen's size hints and
+        lay out its splitters and flow rows in the click (three stalls of
+        0.09-0.12 s). Done here, on the size the page will have, the click
+        finds the layout already computed.
+
+        :param screen: the folded module's built, unshown screen.
+        """
+        try:
+            screen.resize(self.size())
+            layout = screen.layout()
+            if layout is not None:
+                layout.activate()
+            screen.sizeHint()
+            screen.minimumSizeHint()
+        except RuntimeError:
+            LOG.debug("could not lay out a folded screen", exc_info=True)
 
     def folded_screen(self, key: str) -> Optional[QWidget]:
         """The folded module's own screen, built on first use and kept.
