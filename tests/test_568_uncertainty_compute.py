@@ -225,3 +225,41 @@ def test_failed_later_field_keeps_completed_score(folder):
     with open(folder / "curate_uncertainty.csv") as handle:
         rows = list(csv.DictReader(handle))
     assert [row["stem"] for row in rows] == ["one"]
+
+
+def test_map_refuses_a_destination_that_is_not_a_tiff_name(tmp_path):
+    destination = tmp_path / "map.png"
+    with pytest.raises(ValueError, match=r"\.tif or \.tiff"):
+        uncertainty.save_uncertainty_map(destination, {"map": np.zeros((4, 4), np.float32)})
+    assert not destination.exists()
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_map_refuses_every_protected_source_before_touching_it(tmp_path):
+    source = tmp_path / "source.tif"
+    tifffile.imwrite(source, np.ones((4, 4), np.uint16))
+    before = source.read_bytes()
+    with pytest.raises(ValueError, match="cannot overwrite a source image or mask"):
+        uncertainty.save_uncertainty_map(
+            tmp_path / "sub" / ".." / "source.tif", {"map": np.zeros((4, 4), np.float32)},
+            protected_paths=[None, source])
+    assert source.read_bytes() == before
+    assert not (tmp_path / "sub").exists()
+
+
+def test_map_refuses_an_unreadable_existing_file_without_changing_it(tmp_path):
+    path = tmp_path / "notes.tif"
+    path.write_bytes(b"not a tiff at all")
+    with pytest.raises(ValueError, match="not an uncertainty map"):
+        uncertainty.save_uncertainty_map(path, {"map": np.zeros((4, 4), np.float32)})
+    assert path.read_bytes() == b"not a tiff at all"
+
+
+def test_an_empty_queue_scores_nothing_and_loads_no_model():
+    from types import SimpleNamespace
+
+    def factory(*_args):
+        raise AssertionError("no model may load for an empty queue")
+
+    queue = SimpleNamespace(items=[])
+    assert uncertainty.compute_queue_uncertainty(queue, segmenter_factory=factory) == {}

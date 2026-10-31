@@ -65,7 +65,7 @@ def save_uncertainty_map(path, result, *, provenance=None, protected_paths=()):
         try:
             with tifffile.TiffFile(destination) as existing:
                 previous = json.loads(existing.pages[0].description)
-        except (OSError, ValueError, KeyError, TypeError):
+        except (OSError, ValueError, KeyError, TypeError, tifffile.TiffFileError):
             previous = {}
         if not isinstance(previous, dict) or "spacr_uncertainty" not in previous:
             raise ValueError("Choose a new filename; this file is not an uncertainty map.")
