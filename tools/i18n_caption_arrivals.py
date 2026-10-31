@@ -193,11 +193,98 @@ def refresh_arrival_contract() -> dict:
     return {name:len(updated[name]) for name in ('baseline','added','retired','changed')}
 
 
+def refresh_compact_caption_pin(*, approved_additions: tuple[str, ...],
+                                pin_path: Path | None = None) -> dict:
+    """Refresh only an explicitly approved additive compact-caption delta.
+
+    The owning semantic discovery remains authoritative. Removing the approved
+    names must reproduce the complete old fingerprint, so an unapproved arrival,
+    retirement or replacement cannot silently move this pin.
+    """
+    import ast
+    import importlib
+    import os
+    import tempfile
+
+    contract = importlib.import_module('tests.qt.test_i18n_caption_ratchet')
+    compact = importlib.import_module('spacr.qt.i18n')
+    assert Path(contract.ROOT).resolve() == ROOT.resolve(), 'foreign compact discovery root'
+    assert Path(compact.__file__).resolve() == ROOT / 'spacr/qt/i18n.py', 'foreign compact rows'
+    path = ROOT / 'tests/qt/test_i18n_caption_ratchet.py' if pin_path is None else pin_path
+    original = path.read_text(encoding='utf-8')
+    assignments = {}
+    for node in ast.parse(original).body:
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name) and target.id in (
+                        'COMPACT_CAPTION_COUNT', 'COMPACT_CAPTION_SHA256'):
+                    assert target.id not in assignments, 'duplicate compact pin'
+                    assignments[target.id] = node
+    assert len(assignments) == 2, 'missing compact pin'
+    old_count = ast.literal_eval(assignments['COMPACT_CAPTION_COUNT'].value)
+    old_digest = ast.literal_eval(assignments['COMPACT_CAPTION_SHA256'].value)
+    assert type(old_count) is int and old_count >= 0, 'invalid compact count'
+    assert isinstance(old_digest, str) and len(old_digest) == 64, 'invalid compact digest'
+    approved = frozenset(approved_additions)
+    assert approved and len(approved) == len(approved_additions), 'empty or duplicate compact approvals'
+    assert all(isinstance(source, str) and source.strip() for source in approved)
+    discovered = contract.compact_user_facing_captions()
+    assert approved <= discovered, 'approved compact caption is not discovered'
+    previous = discovered - approved
+    assert len(previous) == old_count, 'unapproved compact arrival or retirement'
+    assert _sha('\0'.join(sorted(previous))) == old_digest, 'historical compact surface changed'
+    assert not discovered - compact._ROWS.keys(), 'compact caption lacks an exact row'
+    assert tuple(compact._TRANSLATED_CODES) == LANGUAGES, 'compact locale order changed'
+    for source in approved:
+        row = compact._ROWS[source]
+        assert len(row) == len(LANGUAGES), 'incomplete compact locale row'
+        assert all(isinstance(value, str) and value.strip() for value in row), 'empty compact target'
+    count = len(discovered)
+    digest = _sha('\0'.join(sorted(discovered)))
+    lines = original.splitlines(keepends=True)
+    replacements = {
+        'COMPACT_CAPTION_COUNT': f'COMPACT_CAPTION_COUNT = {count}\n',
+        'COMPACT_CAPTION_SHA256': f'COMPACT_CAPTION_SHA256 = (\n    "{digest}"\n)\n',
+    }
+    for name, node in sorted(assignments.items(), key=lambda item: item[1].lineno, reverse=True):
+        lines[node.lineno - 1:node.end_lineno] = [replacements[name]]
+    updated = ''.join(lines)
+    assert path.read_text(encoding='utf-8') == original, 'compact pin changed during refresh'
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', dir=path.parent,
+                                         prefix='.compact-pin-', delete=False) as stream:
+            temporary = Path(stream.name)
+            stream.write(updated)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.chmod(temporary, path.stat().st_mode & 0o777)
+        os.replace(temporary, path)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+    return {'count': count, 'sha256': digest, 'approved_additions': sorted(approved)}
+
+
 if __name__ == '__main__':
     import argparse
 
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--refresh', action='store_true', required=True,
+    action = parser.add_mutually_exclusive_group(required=True)
+    action.add_argument('--refresh', action='store_true',
                         help='regenerate the delta after authoring all required locale reviews')
-    parser.parse_args()
-    print(json.dumps(refresh_arrival_contract(), sort_keys=True))
+    action.add_argument('--refresh-compact', action='store_true',
+                        help='refresh the compact pin after explicitly approving exact new rows')
+    parser.add_argument('--approved-compact-addition', action='append', default=[],
+                        help='one explicitly reviewed new compact caption; repeat for each addition')
+    args = parser.parse_args()
+    if args.refresh_compact:
+        from PySide6.QtWidgets import QApplication
+
+        application = QApplication.instance() or QApplication([])
+        result = refresh_compact_caption_pin(approved_additions=tuple(args.approved_compact_addition))
+    else:
+        if args.approved_compact_addition:
+            parser.error('--approved-compact-addition requires --refresh-compact')
+        result = refresh_arrival_contract()
+    print(json.dumps(result, sort_keys=True))

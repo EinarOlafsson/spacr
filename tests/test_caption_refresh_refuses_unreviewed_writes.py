@@ -89,3 +89,49 @@ def test_refresh_refuses_a_rewritten_baseline_before_changing_the_file(tmp_path,
     with pytest.raises(AssertionError, match='historical caption bodies changed'):
         arrivals.refresh_arrival_contract()
     assert fixture.read_bytes() == before
+
+
+@pytest.mark.parametrize('case', [
+    'success', 'unapproved_delta', 'historical_body', 'incomplete_locale', 'duplicate_approval',
+])
+def test_compact_refresh_preserves_the_old_surface_and_requires_complete_approved_rows(
+        tmp_path, monkeypatch, case):
+    contract = importlib.import_module('tests.qt.test_i18n_caption_ratchet')
+    compact = importlib.import_module('spacr.qt.i18n')
+    previous = frozenset({'Previous caption A', 'Previous caption B'})
+    added = 'Explicitly reviewed new caption'
+    old_digest = hashlib.sha256('\0'.join(sorted(previous)).encode()).hexdigest()
+    pin = tmp_path / 'compact_contract.py'
+    original = (
+        '# Keep this unrelated source byte-for-byte.\n'
+        f'COMPACT_CAPTION_COUNT = {len(previous)}\n'
+        f'COMPACT_CAPTION_SHA256 = (\n    "{old_digest}"\n)\n'
+        'UNRELATED = "unchanged"\n'
+    )
+    pin.write_text(original, encoding='utf-8')
+    discovered = previous | {added}
+    approved = (added,)
+    if case == 'unapproved_delta':
+        discovered |= {'Unapproved caption'}
+    elif case == 'historical_body':
+        discovered = (discovered - {'Previous caption B'}) | {'Changed previous caption'}
+    elif case == 'duplicate_approval':
+        approved = (added, added)
+    row = tuple(f'Reviewed target {language}' for language in arrivals.LANGUAGES)
+    if case == 'incomplete_locale':
+        row = row[:-1]
+    rows = {source: row for source in discovered}
+    monkeypatch.setattr(contract, 'compact_user_facing_captions', lambda: discovered)
+    monkeypatch.setattr(compact, '_ROWS', rows)
+    if case != 'success':
+        with pytest.raises(AssertionError):
+            arrivals.refresh_compact_caption_pin(approved_additions=approved, pin_path=pin)
+        assert pin.read_bytes() == original.encode()
+    else:
+        result = arrivals.refresh_compact_caption_pin(approved_additions=approved, pin_path=pin)
+        digest = hashlib.sha256('\0'.join(sorted(discovered)).encode()).hexdigest()
+        assert result == {'count': 3, 'sha256': digest, 'approved_additions': [added]}
+        assert pin.read_text(encoding='utf-8') == original.replace(
+            'COMPACT_CAPTION_COUNT = 2', 'COMPACT_CAPTION_COUNT = 3',
+        ).replace(old_digest, digest)
+    assert not list(tmp_path.glob('.compact-pin-*'))
