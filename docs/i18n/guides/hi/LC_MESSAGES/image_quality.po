@@ -1,5 +1,5 @@
 # spaCR user guide translation (hi).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-30 20:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -31,8 +31,9 @@ msgstr "नीति"
 msgid "``image_qc_mode``: ``off`` (default), ``report`` (flag fields but process them), or ``exclude`` (skip flagged fields downstream)."
 msgstr "``image_qc_mode``: ``off`` (डिफ़ॉल्ट), ``report`` (फ़ील्ड को चिह्नित करें पर संसाधित करें) या ``exclude`` (चिह्नित फ़ील्ड को आगे के चरणों में छोड़ें)।"
 
-msgid "``image_qc_channels``: acquisition-channel indices to screen; an empty list screens every available channel."
-msgstr "``image_qc_channels``: जाँचे जाने वाले अधिग्रहण चैनल सूचकांक; खाली सूची सभी उपलब्ध चैनलों की जाँच करती है।"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``image_qc_channels``: acquisition-channel identifiers to screen; an empty list screens every stored raw channel. V1 uses zero-based array channels; V2 uses mapped acquisition-channel identifiers. Threshold dictionaries use the same identifiers."
+msgstr "``image_qc_channels``: जाँचने के लिए अधिग्रहण-चैनल पहचानकर्ता; खाली सूची हर संग्रहीत रॉ चैनल की जाँच करती है। V1 शून्य से शुरू होने वाले ऐरे चैनल इस्तेमाल करता है; V2 मैप किए गए अधिग्रहण-चैनल पहचानकर्ता इस्तेमाल करता है। थ्रेशोल्ड शब्दकोश भी इन्हीं पहचानकर्ताओं का उपयोग करते हैं।"
 
 msgid "``image_qc_min_focus``: channel-to-threshold mapping for minimum Laplacian variance. A stack uses its best plane's score; an out-of-focus plane alone does not reject an otherwise usable stack. Choose thresholds from controls acquired with the same intensity scale and optics."
 msgstr "``image_qc_min_focus``: न्यूनतम लाप्लासियन प्रसरण के लिए चैनल-से-सीमा मैपिंग। स्टैक अपने सर्वश्रेष्ठ तल का स्कोर उपयोग करता है; केवल एक धुंधला तल किसी अन्यथा उपयोगी स्टैक को अस्वीकार नहीं करता। समान तीव्रता पैमाने और प्रकाशिकी से प्राप्त नियंत्रणों के आधार पर सीमाएँ चुनें।"
@@ -48,6 +49,18 @@ msgstr "``image_qc_max_nonfinite``: अपरिमित पिक्सेल 
 
 msgid "Focus thresholds use raw intensity units squared. These are acquisition checks: low object counts do not cause exclusion. The brightest observed pixel is never substituted for a calibrated saturation level."
 msgstr "फ़ोकस सीमाएँ कच्ची तीव्रता इकाइयों के वर्ग का उपयोग करती हैं। ये अधिग्रहण जाँचें हैं: ऑब्जेक्ट की कम संख्या बहिष्करण का कारण नहीं बनती। सबसे चमकीला प्रेक्षित पिक्सेल कभी भी अंशांकित संतृप्ति स्तर का स्थान नहीं लेता।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Optional classifier"
+msgstr "वैकल्पिक वर्गीकारक"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``image_qc_classifier`` is off by default. When enabled with screening in ``report`` or ``exclude`` mode, it adds per-channel flags for out-of-focus, saturated, debris, bubble and empty images. It runs on the CPU and uses a pinned, checksum-verified checkpoint trained on synthetic planted-defect fields; it does not train the built-in model during screening. Missing weights are acquired through the model cache when downloads are allowed. With ``SPACR_MODEL_DOWNLOAD=off``, provide verified cached weights or set ``image_qc_classifier_model`` to a compatible saved classifier. Synthetic training and checksum verification do not establish accuracy on your images; inspect representative controls in ``report`` mode before excluding fields."
+msgstr "``image_qc_classifier`` डिफ़ॉल्ट रूप से बंद है। ``report`` या ``exclude`` स्क्रीनिंग मोड के साथ सक्षम होने पर यह आउट-ऑफ़-फ़ोकस, संतृप्त, मलबे वाली, बुलबुले वाली और खाली छवियों के लिए प्रति-चैनल फ़्लैग जोड़ता है। यह CPU पर चलता है और निश्चित संस्करण वाले, चेकसम से सत्यापित चेकपॉइंट का उपयोग करता है, जिसे जानबूझकर जोड़े गए दोषों वाले सिंथेटिक फ़ील्ड पर प्रशिक्षित किया गया है; स्क्रीनिंग के दौरान अंतर्निहित मॉडल प्रशिक्षित नहीं होता। डाउनलोड की अनुमति होने पर अनुपस्थित भार मॉडल कैश से प्राप्त किए जाते हैं। ``SPACR_MODEL_DOWNLOAD=off`` होने पर सत्यापित कैश्ड भार उपलब्ध कराएँ या ``image_qc_classifier_model`` में संगत सहेजा हुआ वर्गीकारक दें। सिंथेटिक प्रशिक्षण और चेकसम सत्यापन आपकी छवियों पर सटीकता सिद्ध नहीं करते; फ़ील्ड बाहर करने से पहले ``report`` मोड में प्रतिनिधि नियंत्रणों का निरीक्षण करें।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``image_qc_classifier_threshold`` defaults to 0.5; a class score at or above it adds a flag. ``image_qc_classifier_labels`` accepts a table with ``field`` and ``label`` columns, plus an optional ``channel`` column. Use ``good`` or one or more of ``out_of_focus``, ``saturated``, ``debris``, ``bubble`` and ``empty``, separated by semicolons. At least four matched raw fields are required to fine-tune; ten or more also produce cross-validated precision and recall in ``qc/image_qc_benchmark.csv``. The tuned classifier is saved as ``qc/image_qc_model.pt``. These results describe the supplied labels and fields, not independent validation on other acquisitions."
+msgstr "``image_qc_classifier_threshold`` का डिफ़ॉल्ट 0.5 है; किसी वर्ग का स्कोर इस मान के बराबर या अधिक होने पर फ़्लैग जुड़ता है। ``image_qc_classifier_labels`` को ``field`` और ``label`` कॉलम वाली तालिका दी जा सकती है, जिसमें वैकल्पिक ``channel`` कॉलम भी हो सकता है। ``good`` या ``out_of_focus``, ``saturated``, ``debris``, ``bubble`` और ``empty`` में से एक या अधिक का उपयोग करें और उन्हें अर्धविराम से अलग करें। फ़ाइन-ट्यूनिंग के लिए कम से कम चार मिलते हुए रॉ फ़ील्ड आवश्यक हैं; दस या अधिक होने पर क्रॉस-वैलिडेटेड प्रिसिशन और रिकॉल भी ``qc/image_qc_benchmark.csv`` में लिखे जाते हैं। ट्यून किया गया वर्गीकारक ``qc/image_qc_model.pt`` के रूप में सहेजा जाता है। ये परिणाम दिए गए लेबल और फ़ील्ड का वर्णन करते हैं, अन्य अधिग्रहणों पर स्वतंत्र सत्यापन नहीं।"
 
 msgid "Review and outputs"
 msgstr "समीक्षा और आउटपुट"

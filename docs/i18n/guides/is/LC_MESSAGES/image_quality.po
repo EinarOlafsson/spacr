@@ -1,5 +1,5 @@
 # spaCR user guide translation (is).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-30 20:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -31,8 +31,9 @@ msgstr "Stefnan"
 msgid "``image_qc_mode``: ``off`` (default), ``report`` (flag fields but process them), or ``exclude`` (skip flagged fields downstream)."
 msgstr "``image_qc_mode``: ``off`` (sjálfgildi), ``report`` (merkja sjónsvið en vinna þau samt) eða ``exclude`` (sleppa merktum sjónsviðum í síðari vinnslu)."
 
-msgid "``image_qc_channels``: acquisition-channel indices to screen; an empty list screens every available channel."
-msgstr "``image_qc_channels``: vísar myndatökurása sem á að skima; tómur listi skimar allar tiltækar rásir."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``image_qc_channels``: acquisition-channel identifiers to screen; an empty list screens every stored raw channel. V1 uses zero-based array channels; V2 uses mapped acquisition-channel identifiers. Threshold dictionaries use the same identifiers."
+msgstr "``image_qc_channels``: auðkenni myndökurása sem á að skoða; tómur listi skoðar allar vistaðar hráar rásir. V1 notar fylkisrásir taldar frá núlli; V2 notar vörpuð auðkenni myndökurása. Þröskuldaorðabækur nota sömu auðkenni."
 
 msgid "``image_qc_min_focus``: channel-to-threshold mapping for minimum Laplacian variance. A stack uses its best plane's score; an out-of-focus plane alone does not reject an otherwise usable stack. Choose thresholds from controls acquired with the same intensity scale and optics."
 msgstr "``image_qc_min_focus``: vörpun frá rás til þröskulds fyrir lágmarksdreifni Laplace-virkjans. Stafli notar skor besta plansins síns; plan úr fókus eitt og sér hafnar ekki stafla sem annars er nothæfur. Veldu þröskulda út frá viðmiðum sem tekin eru með sama styrkleikakvarða og ljósfræði."
@@ -48,6 +49,18 @@ msgstr "``image_qc_max_nonfinite``: hámarkshlutfall óendanlegra/ótalnalegra p
 
 msgid "Focus thresholds use raw intensity units squared. These are acquisition checks: low object counts do not cause exclusion. The brightest observed pixel is never substituted for a calibrated saturation level."
 msgstr "Fókusþröskuldar nota hráar styrkleikaeiningar í öðru veldi. Þetta eru athuganir á myndatöku: lítill fjöldi hluta veldur ekki útilokun. Bjartasti mældi pixillinn kemur aldrei í stað kvarðaðs mettunarstigs."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Optional classifier"
+msgstr "Valfrjáls flokkari"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``image_qc_classifier`` is off by default. When enabled with screening in ``report`` or ``exclude`` mode, it adds per-channel flags for out-of-focus, saturated, debris, bubble and empty images. It runs on the CPU and uses a pinned, checksum-verified checkpoint trained on synthetic planted-defect fields; it does not train the built-in model during screening. Missing weights are acquired through the model cache when downloads are allowed. With ``SPACR_MODEL_DOWNLOAD=off``, provide verified cached weights or set ``image_qc_classifier_model`` to a compatible saved classifier. Synthetic training and checksum verification do not establish accuracy on your images; inspect representative controls in ``report`` mode before excluding fields."
+msgstr "``image_qc_classifier`` er sjálfgefið óvirkur. Þegar hann er virkjaður með skimun í hamnum ``report`` eða ``exclude`` bætir hann við merkingum fyrir hverja rás fyrir óskarpar, mettaðar, óhreinindahuldar, loftbólóttar og tómar myndir. Hann keyrir á CPU og notar útgáfufestan varðveislupunkt sem hefur verið staðfestur með gátsummu og þjálfaður á tilbúnum sjónsviðum með innsettum göllum; innbyggða líkanið er ekki þjálfað við skimun. Vægi sem vantar eru sótt í gegnum skyndiminni líkana þegar niðurhal er leyft. Með ``SPACR_MODEL_DOWNLOAD=off`` skaltu útvega staðfest vægi í skyndiminni eða láta ``image_qc_classifier_model`` vísa á samhæfan vistaðan flokkara. Tilbúin þjálfun og gátsummuprófun staðfesta ekki nákvæmni á þínum myndum; skoðaðu dæmigerð viðmið í hamnum ``report`` áður en sjónsvið eru útilokuð."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``image_qc_classifier_threshold`` defaults to 0.5; a class score at or above it adds a flag. ``image_qc_classifier_labels`` accepts a table with ``field`` and ``label`` columns, plus an optional ``channel`` column. Use ``good`` or one or more of ``out_of_focus``, ``saturated``, ``debris``, ``bubble`` and ``empty``, separated by semicolons. At least four matched raw fields are required to fine-tune; ten or more also produce cross-validated precision and recall in ``qc/image_qc_benchmark.csv``. The tuned classifier is saved as ``qc/image_qc_model.pt``. These results describe the supplied labels and fields, not independent validation on other acquisitions."
+msgstr "``image_qc_classifier_threshold`` er sjálfgefið 0.5; flokksstig við eða yfir því marki bætir við merkingu. ``image_qc_classifier_labels`` tekur við töflu með dálkunum ``field`` og ``label`` auk valfrjáls ``channel``-dálks. Notaðu ``good`` eða eitt eða fleiri af ``out_of_focus``, ``saturated``, ``debris``, ``bubble`` og ``empty``, aðskilin með semíkommum. Að minnsta kosti fjögur samsvarandi hrá sjónsvið þarf til að fínstilla; tíu eða fleiri gefa einnig krossprófaða hittni og heimtur í ``qc/image_qc_benchmark.csv``. Fínstillti flokkarinn er vistaður sem ``qc/image_qc_model.pt``. Þessar niðurstöður lýsa innsendum merkingum og sjónsviðum en eru ekki óháð staðfesting á öðrum myndökum."
 
 msgid "Review and outputs"
 msgstr "Yfirferð og úttök"

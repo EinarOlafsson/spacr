@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 13:04-0400\n"
+"POT-Creation-Date: 2026-10-30 20:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -25,6 +25,10 @@ msgstr "动物园模型"
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Select a registered model key, for example ``pathogen_model: toxoplasma_pv_v1``. A missing registered checkpoint can be downloaded and checksum-verified when automatic acquisition is allowed. ``SPACR_MODEL_DOWNLOAD=off`` disables that automatic acquisition; compatible local paths and verified cached checkpoints remain usable. A missing model requested directly on the GUI thread is refused. Open **Model Zoo** from the **Make Masks** masthead to browse and explicitly download models."
 msgstr "选择已注册的模型键，例如 ``pathogen_model: toxoplasma_pv_v1``。允许自动获取时，可下载缺失的已注册检查点并验证校验和。``SPACR_MODEL_DOWNLOAD=off`` 会禁用这种自动获取；兼容的本地路径和已验证的缓存检查点仍可使用。直接在 GUI 线程中请求缺失模型会被拒绝。从 **Make Masks** 顶部打开 **Model Zoo**，浏览并显式下载模型。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "For requested registered checkpoints, automatic acquisition is allowed by default; ``SPACR_MODEL_DOWNLOAD=off`` disables it. The shared checkpoint cache is ``models/`` inside the spaCR data directory, normally ``~/.spacr``; ``SPACR_HOME`` or portable mode can relocate that directory. Set ``SPACR_MODEL_CACHE`` to relocate only the model cache. The picker remembers its selected download folder, which can differ from that cache. For offline automatic reuse, put the expected checkpoint in the configured cache with its published checksum; an explicit compatible local path is another option. A checksum verifies file identity, not backend compatibility or segmentation accuracy."
+msgstr "对于请求的已注册检查点，默认允许自动获取；``SPACR_MODEL_DOWNLOAD=off`` 会禁用此功能。共享检查点缓存位于 spaCR 数据目录内的 ``models/``，数据目录通常为 ``~/.spacr``；``SPACR_HOME`` 或便携模式可以更改该目录的位置。设置 ``SPACR_MODEL_CACHE`` 可仅更改模型缓存的位置。选择器会记住所选的下载文件夹，该文件夹可能与此缓存不同。要在离线时自动复用，请将预期的检查点连同其已发布的校验和放入配置的缓存；也可以显式指定兼容的本地路径。校验和验证的是文件身份，而非后端兼容性或分割准确性。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Downloads through :func:`spacr.model_zoo.fetch` require a published or explicitly supplied SHA-256 by default. The digest checks the acquired bytes against that expected identity; it does not validate a model's biological performance. The explicit low-level Python override ``require_checksum=False`` permits acquisition without a published digest; :func:`spacr.model_zoo.install` then reports ``verified=False`` when no expected digest was supplied. This is not a verified installation."
@@ -248,11 +252,20 @@ msgstr "每个模型托管在其作者自己 Hugging Face 账户下的仓库中�
 msgid "Choose a model from a form"
 msgstr "从表单中选择模型"
 
-msgid "A model setting in Mask generation, Make Masks and Plaque Assay has a **Model zoo…** button. Its list is grouped by origin under five headings — the stock Cellpose-SAM weights, spaCR's own models, unvetted spaCR community uploads, Cellpose models published on bioimage.io, and the Cellpose 3 backend's cyto, cyto2, cyto3 and nuclei models. Click a heading to show or fold its rows. **Download** fetches the selected model, or **Install** its backend; **Use this model** then writes the model into the setting. A model that needs another backend, such as Cellpose 3 or Cellpose-DINO, says so on its row and offers to install that backend into its own environment under ``~/.spacr/backends``; spaCR's own environment is not changed. A row spaCR cannot run says so instead of being offered."
-msgstr "掩膜生成、创建掩膜和空斑分析中的模型设置都有一个 **模型库…** 按钮。其列表按来源分为五个标题——原版 Cellpose-SAM 权重、spaCR 自己的模型、未经审核的 spaCR 社区上传、发布在 bioimage.io 上的 Cellpose 模型，以及 Cellpose 3 后端的 cyto、cyto2、cyto3 和 nuclei 模型。单击标题可显示或折叠其各行。**下载** 获取所选模型，或 **安装** 其后端；然后 **Use this model** 会将该模型写入设置。需要其他后端（例如 Cellpose 3 或 Cellpose-DINO）的模型会在其行中注明，并提供将该后端安装到 ``~/.spacr/backends`` 下其自身环境中的选项；spaCR 自己的环境不会改变。spaCR 无法运行的行会注明这一点，而不会被提供。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "A model setting in Mask generation, Make Masks and Plaque Assay has a **Model zoo…** button. Its list is grouped by origin under five standard headings — the stock Cellpose-SAM weights, spaCR's own models, unvetted spaCR community uploads, Cellpose models published on bioimage.io, and the Cellpose 3 backend's cyto, cyto2, cyto3 and nuclei models. Click a heading to show or fold its rows. **Download** fetches the selected model, or **Install** its backend; **Use this model** then writes the model into the setting. A model that needs another backend, such as Cellpose 3 or Cellpose-DINO, says so on its row and offers to install that backend into its own environment under ``~/.spacr/backends``; spaCR's own environment is not changed. A row spaCR cannot run says so instead of being offered."
+msgstr "掩膜生成、创建掩膜和空斑分析中的模型设置都有一个 **模型库…** 按钮。其列表按来源分为五个常规标题——原版 Cellpose-SAM 权重、spaCR 自己的模型、未经审核的 spaCR 社区上传、发布在 bioimage.io 上的 Cellpose 模型，以及 Cellpose 3 后端的 cyto、cyto2、cyto3 和 nuclei 模型。单击标题可显示或折叠其各行。**下载** 获取所选模型，或 **安装** 其后端；然后 **Use this model** 会将该模型写入设置。需要其他后端（例如 Cellpose 3 或 Cellpose-DINO）的模型会在其行中注明，并提供将该后端安装到 ``~/.spacr/backends`` 下其自身环境中的选项；spaCR 自己的环境不会改变。spaCR 无法运行的行会注明这一点，而不会被提供。"
 
 msgid "Opened from Mask generation, the popup also has **Measure diameters…**: it estimates the cell, nucleus and pathogen diameters from a few fields of your own images and can write them into the settings. See :class:`spacr.qt.prerun.DiameterDialog`."
 msgstr "从掩膜生成打开时，弹出窗口还有 **测量直径…**：它根据您自己图像中的几个视野估计细胞、细胞核和病原体的直径，并可将其写入设置。参见 :class:`spacr.qt.prerun.DiameterDialog`。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Interpret benchmark results"
+msgstr "解读基准测试结果"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The local benchmark reports object counts, timings and segmentation-QC verdicts without ground-truth masks. A QC score can reveal obvious failures; it is not segmentation accuracy. Compare rankings only within the same image field set. The training and hold-out metrics below are model-specific catalogue declarations, not evidence that every model, acquisition or backend has been independently validated here. Check the selected row's backend, licence and availability before use."
+msgstr "本地基准测试在没有真实标注掩膜的情况下报告对象数量、耗时和分割质量控制判定。质量控制分数可以揭示明显失败，但不是分割准确率。仅在相同图像视野集合内比较排名。下面的训练和留出评估指标是特定模型的目录声明，并不证明所有模型、采集数据或后端都已在此经过独立验证。使用前，请检查所选行的后端、许可证和可用性。"
 
 msgid "Per-model detail"
 msgstr "各模型详情"

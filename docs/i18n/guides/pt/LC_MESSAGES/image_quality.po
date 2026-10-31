@@ -1,5 +1,5 @@
 # spaCR user guide translation (pt).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-30 20:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: pt\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -31,8 +31,9 @@ msgstr "A política"
 msgid "``image_qc_mode``: ``off`` (default), ``report`` (flag fields but process them), or ``exclude`` (skip flagged fields downstream)."
 msgstr "``image_qc_mode``: ``off`` (padrão), ``report`` (sinalizar os campos, mas processá-los) ou ``exclude`` (ignorar os campos sinalizados nas etapas seguintes)."
 
-msgid "``image_qc_channels``: acquisition-channel indices to screen; an empty list screens every available channel."
-msgstr "``image_qc_channels``: índices dos canais de aquisição a verificar; uma lista vazia verifica todos os canais disponíveis."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``image_qc_channels``: acquisition-channel identifiers to screen; an empty list screens every stored raw channel. V1 uses zero-based array channels; V2 uses mapped acquisition-channel identifiers. Threshold dictionaries use the same identifiers."
+msgstr "``image_qc_channels``: identificadores dos canais de aquisição a examinar; uma lista vazia examina todos os canais brutos armazenados. V1 usa canais de matriz com índices a partir de zero; V2 usa identificadores de canais de aquisição mapeados. Os dicionários de limiares usam os mesmos identificadores."
 
 msgid "``image_qc_min_focus``: channel-to-threshold mapping for minimum Laplacian variance. A stack uses its best plane's score; an out-of-focus plane alone does not reject an otherwise usable stack. Choose thresholds from controls acquired with the same intensity scale and optics."
 msgstr "``image_qc_min_focus``: mapeamento de canal para limiar da variância laplaciana mínima. Uma pilha usa a pontuação de seu melhor plano; um plano fora de foco, sozinho, não rejeita uma pilha que de resto é utilizável. Escolha os limiares a partir de controles adquiridos com a mesma escala de intensidade e a mesma óptica."
@@ -48,6 +49,18 @@ msgstr "``image_qc_max_nonfinite``: fração máxima de pixels não finitos, de 
 
 msgid "Focus thresholds use raw intensity units squared. These are acquisition checks: low object counts do not cause exclusion. The brightest observed pixel is never substituted for a calibrated saturation level."
 msgstr "Os limiares de foco usam unidades de intensidade bruta ao quadrado. São verificações de aquisição: contagens baixas de objetos não causam exclusão. O pixel mais brilhante observado nunca substitui um nível de saturação calibrado."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Optional classifier"
+msgstr "Classificador opcional"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``image_qc_classifier`` is off by default. When enabled with screening in ``report`` or ``exclude`` mode, it adds per-channel flags for out-of-focus, saturated, debris, bubble and empty images. It runs on the CPU and uses a pinned, checksum-verified checkpoint trained on synthetic planted-defect fields; it does not train the built-in model during screening. Missing weights are acquired through the model cache when downloads are allowed. With ``SPACR_MODEL_DOWNLOAD=off``, provide verified cached weights or set ``image_qc_classifier_model`` to a compatible saved classifier. Synthetic training and checksum verification do not establish accuracy on your images; inspect representative controls in ``report`` mode before excluding fields."
+msgstr "``image_qc_classifier`` está desativado por padrão. Quando ativado com a triagem em modo ``report`` ou ``exclude``, acrescenta sinalizações por canal para imagens desfocadas, saturadas, com detritos, bolhas ou vazias. Ele é executado na CPU e usa um checkpoint de versão fixada, verificado por soma de verificação e treinado em campos sintéticos com defeitos introduzidos; o modelo integrado não é treinado durante a triagem. Pesos ausentes são obtidos pelo cache de modelos quando downloads são permitidos. Com ``SPACR_MODEL_DOWNLOAD=off``, forneça pesos verificados em cache ou defina ``image_qc_classifier_model`` como um classificador salvo compatível. O treinamento sintético e a verificação da soma não comprovam a acurácia nas suas imagens; inspecione controles representativos em modo ``report`` antes de excluir campos."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``image_qc_classifier_threshold`` defaults to 0.5; a class score at or above it adds a flag. ``image_qc_classifier_labels`` accepts a table with ``field`` and ``label`` columns, plus an optional ``channel`` column. Use ``good`` or one or more of ``out_of_focus``, ``saturated``, ``debris``, ``bubble`` and ``empty``, separated by semicolons. At least four matched raw fields are required to fine-tune; ten or more also produce cross-validated precision and recall in ``qc/image_qc_benchmark.csv``. The tuned classifier is saved as ``qc/image_qc_model.pt``. These results describe the supplied labels and fields, not independent validation on other acquisitions."
+msgstr "``image_qc_classifier_threshold`` tem o valor padrão 0.5; uma pontuação de classe igual ou superior acrescenta uma sinalização. ``image_qc_classifier_labels`` aceita uma tabela com as colunas ``field`` e ``label``, além de uma coluna ``channel`` opcional. Use ``good`` ou um ou mais de ``out_of_focus``, ``saturated``, ``debris``, ``bubble`` e ``empty``, separados por ponto e vírgula. São necessários pelo menos quatro campos brutos correspondentes para o ajuste fino; dez ou mais também produzem precisão e revocação com validação cruzada em ``qc/image_qc_benchmark.csv``. O classificador ajustado é salvo como ``qc/image_qc_model.pt``. Esses resultados descrevem os rótulos e campos fornecidos, não uma validação independente em outras aquisições."
 
 msgid "Review and outputs"
 msgstr "Revisão e saídas"

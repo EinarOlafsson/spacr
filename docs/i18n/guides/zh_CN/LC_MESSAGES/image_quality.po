@@ -1,5 +1,5 @@
 # spaCR user guide translation (zh_CN).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-30 20:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -31,8 +31,9 @@ msgstr "策略"
 msgid "``image_qc_mode``: ``off`` (default), ``report`` (flag fields but process them), or ``exclude`` (skip flagged fields downstream)."
 msgstr "``image_qc_mode``：``off`` （默认）、``report`` （标记视野但仍处理）或 ``exclude`` （在下游跳过被标记的视野）。"
 
-msgid "``image_qc_channels``: acquisition-channel indices to screen; an empty list screens every available channel."
-msgstr "``image_qc_channels``：要筛查的采集通道索引；空列表表示筛查所有可用通道。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``image_qc_channels``: acquisition-channel identifiers to screen; an empty list screens every stored raw channel. V1 uses zero-based array channels; V2 uses mapped acquisition-channel identifiers. Threshold dictionaries use the same identifiers."
+msgstr "``image_qc_channels``：要筛查的采集通道标识符；空列表表示筛查所有已存储的原始通道。V1 使用从零开始的数组通道；V2 使用映射后的采集通道标识符。阈值字典使用相同的标识符。"
 
 msgid "``image_qc_min_focus``: channel-to-threshold mapping for minimum Laplacian variance. A stack uses its best plane's score; an out-of-focus plane alone does not reject an otherwise usable stack. Choose thresholds from controls acquired with the same intensity scale and optics."
 msgstr "``image_qc_min_focus``：从通道到阈值的映射，用于最小拉普拉斯方差。图像栈使用其最佳平面的分数；单个失焦平面不会导致原本可用的图像栈被拒绝。请根据使用相同强度标度和光学系统采集的对照来选择阈值。"
@@ -48,6 +49,18 @@ msgstr "``image_qc_max_nonfinite``：非有限像素的最大比例，取值 0 �
 
 msgid "Focus thresholds use raw intensity units squared. These are acquisition checks: low object counts do not cause exclusion. The brightest observed pixel is never substituted for a calibrated saturation level."
 msgstr "对焦阈值使用原始强度单位的平方。这些是采集检查：对象数量少不会导致排除。观测到的最亮像素绝不会替代经过校准的饱和水平。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Optional classifier"
+msgstr "可选分类器"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``image_qc_classifier`` is off by default. When enabled with screening in ``report`` or ``exclude`` mode, it adds per-channel flags for out-of-focus, saturated, debris, bubble and empty images. It runs on the CPU and uses a pinned, checksum-verified checkpoint trained on synthetic planted-defect fields; it does not train the built-in model during screening. Missing weights are acquired through the model cache when downloads are allowed. With ``SPACR_MODEL_DOWNLOAD=off``, provide verified cached weights or set ``image_qc_classifier_model`` to a compatible saved classifier. Synthetic training and checksum verification do not establish accuracy on your images; inspect representative controls in ``report`` mode before excluding fields."
+msgstr "``image_qc_classifier`` 默认关闭。在 ``report`` 或 ``exclude`` 筛查模式下启用后，它会按通道为失焦、饱和、有碎屑、有气泡和空白图像添加标记。它在 CPU 上运行，使用固定版本且经过校验和验证的检查点；该检查点以人为植入缺陷的合成视野训练而成，筛查过程中不会训练内置模型。在允许下载时，缺失的权重会通过模型缓存获取。使用 ``SPACR_MODEL_DOWNLOAD=off`` 时，请提供已验证的缓存权重，或将 ``image_qc_classifier_model`` 设为兼容的已保存分类器。合成训练和校验和验证并不能证明它对您的图像有何准确性；排除视野前，请先在 ``report`` 模式下检查有代表性的对照。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``image_qc_classifier_threshold`` defaults to 0.5; a class score at or above it adds a flag. ``image_qc_classifier_labels`` accepts a table with ``field`` and ``label`` columns, plus an optional ``channel`` column. Use ``good`` or one or more of ``out_of_focus``, ``saturated``, ``debris``, ``bubble`` and ``empty``, separated by semicolons. At least four matched raw fields are required to fine-tune; ten or more also produce cross-validated precision and recall in ``qc/image_qc_benchmark.csv``. The tuned classifier is saved as ``qc/image_qc_model.pt``. These results describe the supplied labels and fields, not independent validation on other acquisitions."
+msgstr "``image_qc_classifier_threshold`` 默认为 0.5；某类别的分数达到或超过该值时便会添加标记。``image_qc_classifier_labels`` 接受含 ``field`` 和 ``label`` 列的表格，还可包含可选的 ``channel`` 列。标签可用 ``good``，或用 ``out_of_focus``、``saturated``、``debris``、``bubble`` 和 ``empty`` 中的一项或多项，以分号分隔。微调至少需要四个匹配的原始视野；达到十个或更多时，还会将交叉验证的精确率和召回率写入 ``qc/image_qc_benchmark.csv``。微调后的分类器保存为 ``qc/image_qc_model.pt``。这些结果描述的是所提供的标签和视野，并非在其他采集数据上的独立验证。"
 
 msgid "Review and outputs"
 msgstr "审查与输出"

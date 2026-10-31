@@ -1,5 +1,5 @@
 # spaCR user guide translation (sv).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-30 20:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -31,8 +31,9 @@ msgstr "Policyn"
 msgid "``image_qc_mode``: ``off`` (default), ``report`` (flag fields but process them), or ``exclude`` (skip flagged fields downstream)."
 msgstr "``image_qc_mode``: ``off`` (standard), ``report`` (flagga fält men bearbeta dem) eller ``exclude`` (hoppa över flaggade fält i senare steg)."
 
-msgid "``image_qc_channels``: acquisition-channel indices to screen; an empty list screens every available channel."
-msgstr "``image_qc_channels``: index för de insamlingskanaler som ska granskas; en tom lista granskar alla tillgängliga kanaler."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``image_qc_channels``: acquisition-channel identifiers to screen; an empty list screens every stored raw channel. V1 uses zero-based array channels; V2 uses mapped acquisition-channel identifiers. Threshold dictionaries use the same identifiers."
+msgstr "``image_qc_channels``: identifierare för de insamlingskanaler som ska granskas; en tom lista granskar varje lagrad råkanal. V1 använder nollbaserade arraykanaler; V2 använder mappade identifierare för insamlingskanaler. Tröskelordböcker använder samma identifierare."
 
 msgid "``image_qc_min_focus``: channel-to-threshold mapping for minimum Laplacian variance. A stack uses its best plane's score; an out-of-focus plane alone does not reject an otherwise usable stack. Choose thresholds from controls acquired with the same intensity scale and optics."
 msgstr "``image_qc_min_focus``: koppling från kanal till tröskel för lägsta Laplace-varians. En stack använder poängen från sitt bästa plan; ett enskilt oskarpt plan förkastar inte en stack som i övrigt är användbar. Välj trösklar utifrån kontroller som samlats in med samma intensitetsskala och optik."
@@ -48,6 +49,18 @@ msgstr "``image_qc_max_nonfinite``: högsta andel icke-ändliga pixlar, från no
 
 msgid "Focus thresholds use raw intensity units squared. These are acquisition checks: low object counts do not cause exclusion. The brightest observed pixel is never substituted for a calibrated saturation level."
 msgstr "Fokuströsklar anges i råa intensitetsenheter i kvadrat. Detta är kontroller av bildinsamlingen: få objekt leder inte till uteslutning. Den ljusaste observerade pixeln ersätter aldrig en kalibrerad mättnadsnivå."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Optional classifier"
+msgstr "Valfri klassificerare"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``image_qc_classifier`` is off by default. When enabled with screening in ``report`` or ``exclude`` mode, it adds per-channel flags for out-of-focus, saturated, debris, bubble and empty images. It runs on the CPU and uses a pinned, checksum-verified checkpoint trained on synthetic planted-defect fields; it does not train the built-in model during screening. Missing weights are acquired through the model cache when downloads are allowed. With ``SPACR_MODEL_DOWNLOAD=off``, provide verified cached weights or set ``image_qc_classifier_model`` to a compatible saved classifier. Synthetic training and checksum verification do not establish accuracy on your images; inspect representative controls in ``report`` mode before excluding fields."
+msgstr "``image_qc_classifier`` är avstängd som standard. När den aktiveras med granskning i läget ``report`` eller ``exclude`` lägger den till kanalvisa flaggor för oskarpa, mättade, skräpfyllda, bubbelpåverkade och tomma bilder. Den körs på CPU och använder en versionslåst, kontrollsummeverifierad kontrollpunkt som tränats på syntetiska fält med inlagda defekter; den inbyggda modellen tränas inte under granskningen. Saknade vikter hämtas via modellcachen när nedladdningar tillåts. Med ``SPACR_MODEL_DOWNLOAD=off`` behöver verifierade cachade vikter finnas, eller så anges en kompatibel sparad klassificerare i ``image_qc_classifier_model``. Syntetisk träning och kontrollsummeverifiering fastställer inte träffsäkerheten på dina bilder; granska representativa kontroller i läget ``report`` innan fält utesluts."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``image_qc_classifier_threshold`` defaults to 0.5; a class score at or above it adds a flag. ``image_qc_classifier_labels`` accepts a table with ``field`` and ``label`` columns, plus an optional ``channel`` column. Use ``good`` or one or more of ``out_of_focus``, ``saturated``, ``debris``, ``bubble`` and ``empty``, separated by semicolons. At least four matched raw fields are required to fine-tune; ten or more also produce cross-validated precision and recall in ``qc/image_qc_benchmark.csv``. The tuned classifier is saved as ``qc/image_qc_model.pt``. These results describe the supplied labels and fields, not independent validation on other acquisitions."
+msgstr "``image_qc_classifier_threshold`` är 0.5 som standard; ett klassvärde på eller över denna nivå ger en flagga. ``image_qc_classifier_labels`` tar en tabell med kolumnerna ``field`` och ``label`` samt en valfri kolumn ``channel``. Använd ``good`` eller ett eller flera av ``out_of_focus``, ``saturated``, ``debris``, ``bubble`` och ``empty``, separerade med semikolon. Minst fyra matchade råfält krävs för finjustering; tio eller fler ger även korsvaliderad precision och återkallning i ``qc/image_qc_benchmark.csv``. Den finjusterade klassificeraren sparas som ``qc/image_qc_model.pt``. Resultaten beskriver de angivna etiketterna och fälten, inte oberoende validering på andra bildinsamlingar."
 
 msgid "Review and outputs"
 msgstr "Granskning och utdata"

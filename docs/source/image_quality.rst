@@ -12,8 +12,10 @@ The policy
 
 * ``image_qc_mode``: ``off`` (default), ``report`` (flag fields but process
   them), or ``exclude`` (skip flagged fields downstream).
-* ``image_qc_channels``: acquisition-channel indices to screen; an empty
-  list screens every available channel.
+* ``image_qc_channels``: acquisition-channel identifiers to screen; an empty
+  list screens every stored raw channel. V1 uses zero-based array channels;
+  V2 uses mapped acquisition-channel identifiers. Threshold dictionaries use
+  the same identifiers.
 * ``image_qc_min_focus``: channel-to-threshold mapping for minimum Laplacian
   variance. A stack uses its best plane's score; an out-of-focus plane alone
   does not reject an otherwise usable stack. Choose thresholds from controls
@@ -31,6 +33,30 @@ The policy
 Focus thresholds use raw intensity units squared. These are acquisition
 checks: low object counts do not cause exclusion. The brightest observed
 pixel is never substituted for a calibrated saturation level.
+
+Optional classifier
+-------------------
+
+``image_qc_classifier`` is off by default. When enabled with screening in
+``report`` or ``exclude`` mode, it adds per-channel flags for out-of-focus,
+saturated, debris, bubble and empty images. It runs on the CPU and uses a
+pinned, checksum-verified checkpoint trained on synthetic planted-defect
+fields; it does not train the built-in model during screening. Missing weights
+are acquired through the model cache when downloads are allowed. With
+``SPACR_MODEL_DOWNLOAD=off``, provide verified cached weights or set
+``image_qc_classifier_model`` to a compatible saved classifier. Synthetic
+training and checksum verification do not establish accuracy on your images;
+inspect representative controls in ``report`` mode before excluding fields.
+
+``image_qc_classifier_threshold`` defaults to 0.5; a class score at or above
+it adds a flag. ``image_qc_classifier_labels`` accepts a table with ``field``
+and ``label`` columns, plus an optional ``channel`` column. Use ``good`` or
+one or more of ``out_of_focus``, ``saturated``, ``debris``, ``bubble`` and
+``empty``, separated by semicolons. At least four matched raw fields are
+required to fine-tune; ten or more also produce cross-validated precision and
+recall in ``qc/image_qc_benchmark.csv``. The tuned classifier is saved as
+``qc/image_qc_model.pt``. These results describe the supplied labels and
+fields, not independent validation on other acquisitions.
 
 Review and outputs
 ------------------
