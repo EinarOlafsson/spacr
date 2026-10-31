@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 22:40-0400\n"
+"POT-Creation-Date: 2026-10-31 07:44-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: de\n"
@@ -88,8 +88,8 @@ msgid "**Save PDF…** exports the selected options, current check marks and exp
 msgstr "**PDF speichern…** exportiert die ausgewählten Optionen, aktuellen Häkchen und aufgeklappten relevanten Einstellungserklärungen als statisches Rezept. Es exportiert keine aktiven Bedienelemente und führt keine Module aus. Anwendungsaktionen werden zu Text; Weblinks zu API, Dokumentation und Tutorials bleiben verfügbar. Der vollständige Katalog registrierter Module erscheint nur dann als Anhang, wenn er im Popup ausdrücklich aufgeklappt wurde."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "The **Open sidebar** link in the introduction and description footer opens the running-job, history and Home panels. It does not open a scientific module or change the input."
-msgstr "Der Link **Seitenleiste öffnen** in der Einführung und am Ende der Beschreibung öffnet die Bereiche für laufende Aufträge, Verlauf und Home. Er öffnet kein wissenschaftliches Modul und ändert die Eingabe nicht."
+msgid "The **Open Dock** link in the introduction and description footer opens the module Dock. It does not open a scientific module or change the input."
+msgstr "Der Link **Dock öffnen** in der Einführung und in der Fußzeile der Beschreibung öffnet das Modul-Dock. Er öffnet kein wissenschaftliches Modul und ändert die Eingabe nicht."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Desktop entry points and API reference"

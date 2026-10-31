@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 22:40-0400\n"
+"POT-Creation-Date: 2026-10-31 07:44-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -88,8 +88,8 @@ msgid "**Save PDF…** exports the selected options, current check marks and exp
 msgstr "**Vista PDF…** flytur út valda valkosti, núverandi gátmerki og útvíkkaðar viðeigandi stillingaskýringar sem kyrrstæða uppskrift. Það flytur ekki út virkar stýringar forritsins og keyrir ekki einingar. Aðgerðir forritsins verða að texta; veftenglar á API, skjöl og kennsluefni haldast tiltækir. Allur skráði listinn verður aðeins viðauki þegar hann er sérstaklega opnaður í sprettiglugganum."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "The **Open sidebar** link in the introduction and description footer opens the running-job, history and Home panels. It does not open a scientific module or change the input."
-msgstr "Tengillinn **Opna hliðarstiku** í innganginum og fæti lýsingarinnar opnar spjöld fyrir keyrandi verk, feril og Home. Hann opnar ekki vísindalega einingu og breytir ekki inntakinu."
+msgid "The **Open Dock** link in the introduction and description footer opens the module Dock. It does not open a scientific module or change the input."
+msgstr "Tengillinn **Opna dokku** í innganginum og fæti lýsingarinnar opnar dokku eininganna. Hann opnar ekki vísindalega einingu og breytir ekki inntakinu."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Desktop entry points and API reference"

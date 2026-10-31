@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 22:40-0400\n"
+"POT-Creation-Date: 2026-10-31 07:44-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -88,8 +88,8 @@ msgid "**Save PDF…** exports the selected options, current check marks and exp
 msgstr "**PDF 저장…** 은 선택한 옵션, 현재 체크 표시 및 펼쳐진 관련 설정 설명을 정적 절차로 내보냅니다. 실행 중인 앱 컨트롤을 내보내거나 모듈을 실행하지 않습니다. 앱 동작은 텍스트로 바뀌며 API, 문서 및 튜토리얼 웹 링크는 계속 사용할 수 있습니다. 등록된 전체 카탈로그는 팝업에서 명시적으로 펼쳤을 때만 부록에 포함됩니다."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "The **Open sidebar** link in the introduction and description footer opens the running-job, history and Home panels. It does not open a scientific module or change the input."
-msgstr "소개와 설명 하단의 **사이드바 열기** 링크는 실행 중인 작업, 기록 및 Home 패널을 엽니다. 과학 분석 모듈을 열거나 입력을 변경하지 않습니다."
+msgid "The **Open Dock** link in the introduction and description footer opens the module Dock. It does not open a scientific module or change the input."
+msgstr "소개와 설명 하단의 **도크 열기** 링크는 모듈 도크를 엽니다. 과학 분석 모듈을 열거나 입력을 변경하지 않습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Desktop entry points and API reference"

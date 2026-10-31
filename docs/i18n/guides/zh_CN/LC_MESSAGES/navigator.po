@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 22:40-0400\n"
+"POT-Creation-Date: 2026-10-31 07:44-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -88,8 +88,8 @@ msgid "**Save PDF…** exports the selected options, current check marks and exp
 msgstr "**保存 PDF…** 将所选选项、当前勾选标记和展开的相关设置说明导出为静态操作方案。它不会导出实时应用控件或运行模块。应用操作会变为文本；API、文档和教程的网页链接仍然可用。只有在弹窗中明确展开完整的已注册目录时，才会将其作为附录。"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "The **Open sidebar** link in the introduction and description footer opens the running-job, history and Home panels. It does not open a scientific module or change the input."
-msgstr "简介和说明页脚中的 **打开侧边栏** 链接会打开正在运行的任务、历史记录和 Home 面板。它不会打开科学分析模块，也不会更改输入。"
+msgid "The **Open Dock** link in the introduction and description footer opens the module Dock. It does not open a scientific module or change the input."
+msgstr "简介和说明页脚中的 **打开停靠栏** 链接会打开模块停靠栏。它不会打开科学分析模块，也不会更改输入。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Desktop entry points and API reference"
