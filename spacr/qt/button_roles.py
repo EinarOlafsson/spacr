@@ -17,9 +17,13 @@ from .gil_priority import _watch_application_events
 from . import _after
 
 POSITIVE_PREFIXES = ("run", "propagate")
+#: Red is kept for actions that destroy or end something (item 749): data is
+#: deleted, removed or discarded, or running work is terminated, stopped or
+#: aborted. Cancel, Close, Quit, Reject, Reset (zoom, view, levels, defaults)
+#: and Clear (console, field, selection) leave nothing destroyed and stay
+#: neutral; a Clear that does erase data says so with ``DangerButton``.
 NEGATIVE_PREFIXES = (
-    "stop", "close", "cancel", "abort", "delete", "remove", "clear",
-    "discard", "reject", "reset", "quit", "terminate",
+    "stop", "abort", "delete", "remove", "discard", "terminate",
 )
 
 _FILTER_ATTRIBUTE = "_spacr_semantic_button_filter"

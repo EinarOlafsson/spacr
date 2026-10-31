@@ -649,9 +649,6 @@ class ExecutionProfileDialog(QDialog):
         save = buttons.button(QDialogButtonBox.Save)
         if save is not None:
             save.setObjectName("PrimaryButton")
-        cancel = buttons.button(QDialogButtonBox.Cancel)
-        if cancel is not None:
-            cancel.setObjectName("DangerButton")
         buttons.accepted.connect(self._validate_and_accept)
         buttons.rejected.connect(self.reject)
         outer.addWidget(buttons)

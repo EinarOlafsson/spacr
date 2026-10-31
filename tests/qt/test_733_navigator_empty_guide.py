@@ -21,6 +21,8 @@ def page(qtbot, private_ai_profile):
 
 
 def test_empty_home_shows_six_approved_bold_examples_without_moving_controls(page):
+    from spacr.qt.widgets.home import _empty_guide_colour
+
     text = page.field.details.toPlainText()
     assert page._guide_visible and not page._details_has_content
     assert all(fragment in text for fragment in (
@@ -31,7 +33,7 @@ def test_empty_home_shows_six_approved_bold_examples_without_moving_controls(pag
     document = page.field.details.document()
     for label in ('File/folder', 'Path', 'Question', 'Module', 'Explore', 'spaCR AI'):
         assert document.find(label + ':').charFormat().fontWeight() == QFont.Bold
-        assert document.find(label + ':').charFormat().foreground().color().name() == "#808080"
+        assert document.find(label + ':').charFormat().foreground().color().name() == _empty_guide_colour()
     assert not page.field.cards and not page._debounce.isActive()
     before = page.path_edit.geometry()
     page._show_empty_guide()

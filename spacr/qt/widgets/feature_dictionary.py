@@ -533,8 +533,6 @@ class FeatureDictionaryDialog(DiagramDialog):
         footer.setContentsMargins(12, 0, 12, 12)
         footer.addStretch(1)
         close = QPushButton(tr("Close"))
-        close.setObjectName("DangerButton")
-        close.setProperty("buttonActionRole", "negative")
         close.clicked.connect(self.close)
         footer.addWidget(close)
         layout.addLayout(footer)

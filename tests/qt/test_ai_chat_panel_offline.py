@@ -671,7 +671,8 @@ def test_send_mode_toggles_label_style_and_the_click_target(panel):
 
     panel._set_send_mode("cancel")
     assert panel._btn_send.text() == "Cancel"
-    assert panel._btn_send.objectName() == "DangerButton"
+    assert panel._btn_send.objectName() == "ChatCancelButton"
+    assert panel._btn_send.property("buttonActionRole") is None
     panel._btn_send.click()
     assert calls == ["cancel"]
 

@@ -1005,7 +1005,7 @@ def test_the_diameter_popup_carries_the_panel_for_its_screen(qtbot):
     assert isinstance(dialog.panel, prerun.DiameterPanel)
     assert dialog.panel._screen is screen
     assert dialog.panel.window() is dialog
-    assert dialog.close_button.objectName() == "DangerButton"
+    assert dialog.close_button.objectName() != "DangerButton"
     assert screen.findChildren(prerun.DiameterPanel) == []
 
 

@@ -24,8 +24,9 @@ system's title bar, square corners and an opaque background instead.
 
 Its actions are at the bottom right, in the order every spaCR dialog uses:
 the thing you came to do in the accent colour (Measure, ``PrimaryButton``),
-and the way out in red beside it (Close, ``DangerButton``). Escape is the
-other way out, and closes rather than hides -- see :meth:`reject`.
+and the way out beside it as a neutral button (Close), because closing
+destroys nothing. Escape is the other way out, and closes rather than hides
+-- see :meth:`reject`.
 
 Settings the table decides are shown, filled in and disabled rather than
 hidden. ``cell_mask_dim``, for example, is set once the table says which column
@@ -228,7 +229,6 @@ class MeasureInputsScreen(QDialog):
         self.run_button.clicked.connect(self.run)
         actions.addWidget(self.run_button)
         self.close_button = QPushButton("Close", self)
-        self.close_button.setObjectName("DangerButton")
         self.close_button.setAutoDefault(False)
         self.close_button.setDefault(False)
         self.close_button.setToolTip(

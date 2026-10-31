@@ -1475,7 +1475,6 @@ class DiameterDialog(QDialog):
         row = QHBoxLayout()
         row.addStretch(1)
         self.close_button = QPushButton(tr("Close"), self)
-        self.close_button.setObjectName("DangerButton")
         self.close_button.setAutoDefault(False)
         self.close_button.clicked.connect(self.reject)
         row.addWidget(self.close_button)

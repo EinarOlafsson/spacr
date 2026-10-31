@@ -14,9 +14,14 @@ def test_action_role_classifies_action_verbs():
     assert action_role("Run search") == "positive"
     assert action_role("Propagate settings") == "positive"
     assert action_role("Stop") == "negative"
-    assert action_role("Close") == "negative"
     assert action_role("Remove selected") == "negative"
+    assert action_role("Delete profile") == "negative"
+    assert action_role("Discard") == "negative"
+    assert action_role("Terminate") == "negative"
     assert action_role("Choose folder…") is None
+    for neutral in ("Close", "Cancel", "Quit", "Reset view", "Reset zoom",
+                    "Reset to defaults", "Clear", "Clear console", "Reject the rest of the page"):
+        assert action_role(neutral) is None, neutral
 
 
 def test_buttons_created_after_install_are_tagged(qapp, qtbot):
@@ -30,7 +35,7 @@ def test_buttons_created_after_install_are_tagged(qapp, qtbot):
     qtbot.wait(1)
 
     assert run.property("buttonActionRole") == "positive"
-    assert close.property("buttonActionRole") == "negative"
+    assert close.property("buttonActionRole") is None
     assert neutral.property("buttonActionRole") is None
 
 

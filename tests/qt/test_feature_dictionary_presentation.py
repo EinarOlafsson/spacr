@@ -20,8 +20,8 @@ def test_one_organelle_filter_and_compact_scope_preserve_concrete_lookup(qtbot):
     panel.show_column('organellez_area')
     assert panel.current_doc() is not None
     assert parse_column('organellez_area').object_type == 'organellez'
-    button = dialog.findChild(QPushButton, 'DangerButton')
-    assert button is not None and button.property('buttonActionRole') == 'negative'
+    button = next(b for b in dialog.findChildren(QPushButton) if b.text() == 'Close')
+    assert button.objectName() != 'DangerButton' and button.property('buttonActionRole') is None
     assert dialog.property('spacrNoGlass')
     assert dialog.windowOpacity() == 1
 

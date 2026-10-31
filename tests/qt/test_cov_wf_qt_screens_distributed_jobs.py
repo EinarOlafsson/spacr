@@ -118,8 +118,8 @@ def test_the_editor_still_saves_when_its_buttons_cannot_be_styled(qtbot,
                                                                   monkeypatch):
     """Styling is decoration; Save and Cancel have to work regardless.
 
-    The dialog looks its standard buttons up by role so it can mark Save
-    primary and Cancel destructive. If a style or platform ever hands back
+    The dialog looks its Save button up by role so it can mark it primary;
+    Cancel stays neutral because it destroys nothing (item 749). If a style or platform ever hands back
     nothing for that lookup, the guarded styling must be the only thing lost:
     were the ``accepted``/``rejected`` wiring to sit behind the same guard,
     the profile editor would open with two buttons that do nothing and no way
@@ -129,7 +129,7 @@ def test_the_editor_still_saves_when_its_buttons_cannot_be_styled(qtbot,
     qtbot.addWidget(plain)
     box = plain.findChild(QDialogButtonBox)
     assert box.button(QDialogButtonBox.Save).objectName() == "PrimaryButton"
-    assert box.button(QDialogButtonBox.Cancel).objectName() == "DangerButton"
+    assert box.button(QDialogButtonBox.Cancel).objectName() != "DangerButton"
 
     boxes = []
 
@@ -149,7 +149,7 @@ def test_the_editor_still_saves_when_its_buttons_cannot_be_styled(qtbot,
     dialog = ExecutionProfileDialog()
     qtbot.addWidget(dialog)
     assert len(boxes) == 1, "the dialog did not build its own button box"
-    assert boxes[0].asked == [QDialogButtonBox.Save, QDialogButtonBox.Cancel]
+    assert boxes[0].asked == [QDialogButtonBox.Save]
 
     dialog._name.setText("cluster")
     dialog._backend.setCurrentIndex(dialog._backend.findData("slurm"))

@@ -196,5 +196,5 @@ def test_the_popup_wears_spacrs_dress(qtbot, mask_screen):
     dialog = prerun.diameter_dialog(mask_screen)
     qtbot.addWidget(dialog)
     assert wants_glass(dialog) is True
-    assert dialog.close_button.objectName() == "DangerButton"
+    assert dialog.close_button.objectName() != "DangerButton"
     assert dialog.close_button.autoDefault() is False

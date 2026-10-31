@@ -5886,6 +5886,47 @@ class _EasyPathEdit(QLineEdit):
 
 _EASY_WORKFLOW_PORT_RADIUS = 4
 
+#: The Navigator's empty guide reads as quiet grey text on its own panel, and
+#: the grey is chosen per theme (item 749): the maintainer's light-theme grey
+#: and the dark-theme grey are starting points, lightened only as far as the
+#: panel behind them requires for WCAG AA body text.
+_EMPTY_GUIDE_LIGHT_GREY = 0xe0
+_EMPTY_GUIDE_DARK_GREY = 0x8a
+_EMPTY_GUIDE_MIN_CONTRAST = 4.5
+
+
+def _empty_guide_colour(theme=None, opacity=None):
+    """Return the grey the Navigator's empty guide is written in.
+
+    The description panel is the composer's dark surface laid over the page at
+    the user's pane opacity, so its real colour depends on the theme and that
+    preference. The grey starts at about ``#e0e0e0`` on a light theme and
+    ``#8a8a8a`` on a dark one, then rises one level at a time until it reaches
+    4.5:1 against the composited panel, ending at white when nothing darker
+    can.
+
+    :param theme: theme name; the theme on screen when ``None``.
+    :param opacity: pane opacity from 0 to 1; the saved preference when
+        ``None``.
+    :returns: the guide colour as ``#rrggbb``.
+    """
+    from ..preferences import get_pane_opacity, resolve_effective_theme
+    from ..theme import (IMAGE_THEMES, composite, contrast_ratio, panel_alpha,
+                         relative_luminance, scrim_under)
+
+    theme = theme or resolve_effective_theme()
+    opacity = get_pane_opacity() if opacity is None else opacity
+    palette = palette_for(theme)
+    under = scrim_under(theme) if theme in IMAGE_THEMES else palette['bg']
+    panel = composite('#191919', panel_alpha(theme, 'surface_alt', opacity), under)
+    level = (_EMPTY_GUIDE_LIGHT_GREY if relative_luminance(palette['bg']) > 0.5
+             else _EMPTY_GUIDE_DARK_GREY)
+    for value in range(level, 256):
+        colour = '#%02x%02x%02x' % (value, value, value)
+        if contrast_ratio(colour, panel) >= _EMPTY_GUIDE_MIN_CONTRAST:
+            return colour
+    return '#ffffff'
+
 
 def _navigator_learning_links(key=None):
     """Offer one explicit module Dock action instead of a footer of module links."""
@@ -8105,7 +8146,8 @@ class _EasyHomePage(QWidget):
             paragraphs.append('<p>' + text + '</p>')
         paragraphs.append(_navigator_learning_links())
         self._guide_writing = True
-        self.field.details.setHtml('<div style="color:#808080;">' + ''.join(paragraphs) + '</div>')
+        self.field.details.setHtml(
+            '<div style="color:' + _empty_guide_colour() + ';">' + ''.join(paragraphs) + '</div>')
         self._guide_writing = False
         self._guide_visible = True
         self._details_has_content = False
@@ -8428,6 +8470,8 @@ class _EasyHomePage(QWidget):
         if getattr(self, '_easy_stylesheet', None) != sheet:
             self._easy_stylesheet = sheet
             self.setStyleSheet(sheet)
+        if getattr(self, '_guide_visible', False):
+            self._show_empty_guide()
 
     def _feedback(self, message, visible=False):
         """Keep normal guidance accessible without adding an explanatory panel."""

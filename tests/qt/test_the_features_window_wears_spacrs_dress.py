@@ -113,10 +113,11 @@ def test_the_corners_are_rounded(window):
         assert not window.mask().contains(window.rect().topLeft())
 
 
-def test_measure_is_blue_and_close_is_red_and_to_its_right(window):
-    """The two actions, in the roles and the order the request names."""
+def test_measure_is_blue_and_close_is_neutral_and_to_its_right(window):
+    """Measure in the accent colour, Close neutral because it destroys nothing (item 749)."""
     assert window.run_button.objectName() == "PrimaryButton"
-    assert window.close_button.objectName() == "DangerButton"
+    assert window.close_button.objectName() != "DangerButton"
+    assert window.close_button.property("buttonActionRole") is None
     assert window.close_button.text() == "Close"
 
     row = window.close_button.parentWidget().layout()

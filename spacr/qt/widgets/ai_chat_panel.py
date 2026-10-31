@@ -971,7 +971,8 @@ class AIChatPanel(QWidget):
             "Cancel" if mode == "cancel" else "Send",
         )
         if mode == "cancel":
-            self._btn_send.setObjectName("DangerButton")
+            self._btn_send.setObjectName("ChatCancelButton")
+            self._btn_send.setProperty("buttonActionRole", None)
             try:
                 self._btn_send.clicked.disconnect()
             except Exception:
