@@ -519,15 +519,17 @@ PROTOCOL_BOX_PATHS = (
 def protocol_box_sweep(scale: float, language: str, size: str) -> list:
     """Check that the description box shows a protocol's whole assumption list when it can.
 
-    For each path the box is read on the last choice step and once the
-    protocol is reached. Whenever the wrapped text fits in the free height
-    below the composer, the box must show all of it without scrolling.
+    For each path the box is read after every choice and once the protocol
+    is reached. While Protocols is open the composer moves up into empty
+    space above it, so the box may scroll only when its wrapped text does
+    not fit the free height and no empty space is left above the composer
+    (or above the protocol's cards).
 
     :param scale: the Zoom factor.
     :param language: the interface language code.
     :param size: the window size as ``WIDTHxHEIGHT``.
-    :returns: one ``config|state|needed>shown`` entry per box that scrolls
-        although its text would fit.
+    :returns: one ``config|state|needed>shown|unused above`` entry per box
+        that scrolls although its text would fit.
     """
     import os
     import tempfile
@@ -577,16 +579,17 @@ def protocol_box_sweep(scale: float, language: str, size: str) -> list:
     def check(state):
         settle()
         box = page.field.details
-        margins = box.viewportMargins()
-        frame = 2 * box.frameWidth()
         document = box.document().clone()
-        document.setTextWidth(max(1, box.width() - margins.left() - margins.right() - frame))
-        needed = (int(document.size().height() + 0.999) + margins.top()
-                  + margins.bottom() + frame)
+        document.setTextWidth(box.viewport().width())
+        needed = (int(document.size().height() + 0.999)
+                  + box.height() - box.viewport().height())
         free = page.field._details_grip._max
-        if (box.isVisible() and needed <= free
-                and box.verticalScrollBar().maximum() > 0):
-            failures.append(f"{config}|{state}|{needed}>{box.height()}")
+        cards = [card.geometry().top() for card in page.field.cards if card.isVisible()]
+        unused_above = min(cards + [page.field.panel.y()]) - 16
+        if (box.isVisible() and box.verticalScrollBar().maximum() > 0
+                and (needed <= free or unused_above > 2)):
+            failures.append(f"{config}|{state}|{needed}>{box.height()}"
+                            f"|unused above {unused_above}")
 
     settle(800)
     page.path_edit.protocols.setChecked(True)
@@ -594,14 +597,17 @@ def protocol_box_sweep(scale: float, language: str, size: str) -> list:
         page._protocol_step = 0
         page._protocol_render()
         pick(page._protocol_select, family)
+        check(family)
         page._protocol_next()
         pick(page._protocol_select, format_)
+        state = f"{family}/{format_}"
+        check(state)
         for name, value in choices.items():
             combo = page._protocol_detail_combos.get(name)
             if combo is not None:
                 pick(combo, value)
-        state = "/".join([family, format_, *choices.values()])
-        check(state + "@choices")
+                state += "/" + value
+                check(state)
         page._protocol_next()
         dialog = getattr(window, "_protocol_browser_dialog", None)
         if dialog is not None:

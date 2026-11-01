@@ -6796,13 +6796,11 @@ class _NavigatorDetailsBrowser(QTextBrowser):
         :param width: the box width the text wraps to.
         :returns: the wrapped document height plus the box frame and its control row.
         """
-        margins = self.viewportMargins()
-        frame = 2 * self.frameWidth()
         document = self.document().clone(self)
-        document.setTextWidth(max(1, width - margins.left() - margins.right() - frame))
+        document.setTextWidth(max(1, width - (self.width() - self.viewport().width())))
         height = document.size().height()
         document.deleteLater()
-        return int(height + 0.999) + margins.top() + margins.bottom() + frame
+        return int(height + 0.999) + self.height() - self.viewport().height()
 
     def _place_controls(self):
         """Place navigation controls on the shared surface and clear stale clipping."""
@@ -7133,7 +7131,24 @@ class _EasyHomeField(QWidget):
         if protocols is not None and not protocols.isHidden():
             fitted = protocols.heightForWidth(max(1, round(panel_width * 0.75)))
             controls_height = fitted if fitted > 0 else protocols.sizeHint().height()
+        left_edge = getattr(self, '_navigator_content_left', None)
+        lowest = 16 if left_edge is None else max(16, left_edge + 16)
+        highest = width - 16 if right is None else min(width - 16, right - 16)
+        details_width = min(1560, max(180, width - 32), max(180, highest - lowest))
+        usable = getattr(self, '_protocol_details_width', None)
+        if usable is not None:
+            details_width = min(details_width, usable, max(180, highest - lowest))
+            details_left = lowest
+        else:
+            details_left = max(lowest, min((width - details_width) // 2, highest - details_width))
         panel_y = max(16, (height - panel_height) // 2)
+        if controls_height and not self.details._minimized:
+            from ..preferences import scaled_px
+
+            needed = max(scaled_px(96), self.details.content_height(details_width))
+            highest_top = 16 + (24 + scaled_px(96) if self.cards else 0)
+            room_top = height - panel_height - 32 - (controls_height + 12) - needed
+            panel_y = max(min(panel_y, room_top), min(panel_y, highest_top))
         self._place_fixed(self.panel, QRect((width - panel_width) // 2, panel_y, panel_width, panel_height))
         active = bool(controls_height)
         for widget in (self.panel, self.details):
@@ -7170,16 +7185,6 @@ class _EasyHomeField(QWidget):
             self._place_fixed(self.rim, self.panel.geometry())
             self.rim.raise_()
         self.rim.update()
-        left_edge = getattr(self, '_navigator_content_left', None)
-        lowest = 16 if left_edge is None else max(16, left_edge + 16)
-        highest = width - 16 if right is None else min(width - 16, right - 16)
-        details_width = min(1560, max(180, width - 32), max(180, highest - lowest))
-        usable = getattr(self, '_protocol_details_width', None)
-        if usable is not None:
-            details_width = min(details_width, usable, max(180, highest - lowest))
-            details_left = lowest
-        else:
-            details_left = max(lowest, min((width - details_width) // 2, highest - details_width))
         from ..preferences import scaled_px
 
         default_height = 176 + 2 * self.details.fontMetrics().lineSpacing()
