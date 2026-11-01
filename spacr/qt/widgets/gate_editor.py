@@ -608,6 +608,8 @@ class GateCanvas(GraphCanvas):
         :param source: the table being gated.
         """
         super().__init__(parent, link=link, source=source)
+        self._debounce.timeout.disconnect(self.render_now)
+        self._debounce.timeout.connect(self._render_unless_already_drawn)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         make_transparent(self)
         padding = SPACING["md"]
@@ -1509,6 +1511,32 @@ class GateCanvas(GraphCanvas):
         self._canvas.draw_idle()
         return (elevation, azimuth)
 
+    def _drawn_state(self):
+        """What a render of this canvas is drawn from.
+
+        :returns: the table, its length, the shared filter's clauses as text
+            and the spec; equal tuples draw the same graph.
+        """
+        clauses = getattr(self.link.filter, "clauses", None)
+        return (id(self._frame), len(self._frame) if self._frame is not None
+                else 0, tuple(repr(clause) for clause in clauses or ()),
+                self._spec)
+
+    def _render_unless_already_drawn(self) -> None:
+        """Redraw for a shared-filter change unless the graph already shows it.
+
+        Every new table clears the filter panel, which publishes the same
+        empty filter again a moment later, and the graph was redrawn for it
+        (0.15-0.36 s on the GUI thread) although nothing it draws from had
+        changed; in 3D that late redraw also replaced a shape's outline,
+        drawn by blitting, with a full draw. A filter whose clauses differ,
+        a new table or a new spec still redraws.
+        """
+        drawn = getattr(self, "_drawn_from", None)
+        if drawn is not None and drawn == self._drawn_state():
+            return
+        self.render_now()
+
     def render_now(self) -> None:
         """Draw the parent's population, then the gates on top of it.
 
@@ -1516,7 +1544,10 @@ class GateCanvas(GraphCanvas):
         on a flat axes, and running them against a rotated projection would
         produce gates whose coordinates mean nothing.
         """
+        self._drawn_from = None
+        state = self._drawn_state()
         if self._mode in ("3D", "xD") and self._render_volume():
+            self._drawn_from = state
             return
         frame, self._frame = self._frame, self.population()
         self._population_in_render = self._frame
@@ -1526,6 +1557,7 @@ class GateCanvas(GraphCanvas):
             self._population_in_render = None
             self._frame = frame
         self._draw_gates()
+        self._drawn_from = state
 
     def _draw_gates(self) -> None:
         """Outline every gate that is drawn on these two columns."""

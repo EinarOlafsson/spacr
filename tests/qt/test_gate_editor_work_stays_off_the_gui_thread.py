@@ -463,3 +463,23 @@ def test_a_clustering_setting_does_not_redraw_the_graph(screen):
     assert panel._settings.cluster_min_samples == 33
     assert renders == []
     assert gap < STALL_BUDGET_S
+
+
+def test_the_same_empty_filter_again_does_not_redraw_but_a_new_one_does(
+        screen):
+    from spacr.selection import DataFilter, RangeFilter
+
+    draws = []
+    _counting(screen.gates.canvas, "_draw_gates", draws)
+    screen.filters.set_frame(screen._frame)
+    _pump(1.0)
+    assert draws == []
+    narrowed = DataFilter()
+    narrowed.add(RangeFilter("area", 0.0, 6.0))
+    screen.gates.canvas.link.set_filter(narrowed)
+    _pump(1.0)
+    assert len(draws) == 1
+    narrowed.clauses[0] = RangeFilter("area", 0.0, 3.0)
+    screen.gates.canvas.link.set_filter(narrowed)
+    _pump(1.0)
+    assert len(draws) == 2

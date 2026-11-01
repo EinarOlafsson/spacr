@@ -319,3 +319,34 @@ def test_the_ellipsoid_round_trips_and_counts_by_distance():
     again = gate_from_dict(json.loads(json.dumps(gate.to_dict())))
     assert again == gate
     assert GateSet([gate]).mask(frame, "e").sum() == 3
+
+
+def test_the_same_filter_published_again_leaves_a_live_outline_blitted(
+        qtbot, screen, monkeypatch):
+    """A new table clears the filter panel, which publishes the same empty
+    filter a moment later. In 3D that redrew the volume in full under a
+    shape being drawn, so a move landing then was a full draw, not a blit."""
+    canvas = screen.gates.canvas
+    mpl = canvas._canvas
+    _pick_shape(screen, "view_polygon")
+    centre = _centre_px(canvas, [4.0, 4.0, 4.0])
+    ax = canvas.axes_at(0, 0)
+    _click_polygon(canvas, centre)
+    screen.filters.flush()
+    for _ in range(50):
+        QApplication.processEvents()
+        qtbot.wait(5)
+    mpl.draw()
+    seen = _count_redraws(canvas, monkeypatch)
+    screen.filters.flush()
+    assert canvas._debounce.isActive()
+    for _ in range(200):
+        QApplication.processEvents()
+        if not canvas._debounce.isActive():
+            break
+        qtbot.wait(5)
+    assert not canvas._debounce.isActive()
+    QApplication.processEvents()
+    canvas._on_motion(_Mouse(ax, centre[0] - 60, centre[1] + 60))
+    QApplication.processEvents()
+    assert seen == {"draws": 0, "blits": 1}
