@@ -696,7 +696,9 @@ for char in sys.argv[2]:
             font.setWeight(QFont.Weight(weight))
             layout = QTextLayout(char, font)
             layout.beginLayout(); layout.createLine(); layout.endLayout()
-            family = [r.rawFont().familyName() for r in layout.glyphRuns()]
+            family = [[r.rawFont().familyName(), int.from_bytes(
+                           bytes(r.rawFont().fontTable("OS/2"))[4:6], "big")]
+                      for r in layout.glyphRuns()]
             image = QImage(60, 50, QImage.Format_ARGB32)
             image.fill(QColor("white"))
             painter = QPainter(image)
@@ -728,15 +730,26 @@ def _render(kind, chars):
 
 
 def test_the_symbol_fonts_draw_what_the_system_fonts_drew():
-    """Pixel for pixel, wherever the system drew a symbol from the font it
-    was cut from (DejaVu Sans, Noto Sans, Noto Sans Math, ... installed)."""
+    """Pixel for pixel, wherever the system drew a symbol from the face it
+    was cut from (DejaVu Sans, Noto Sans, Noto Sans Math, ... installed).
+
+    The face is the family AND the weight class in its OS/2 table (what
+    the face is, not the weight asked for): Ubuntu's fonts-noto-core
+    has Noto Sans Regular and Bold but no Light, so at weight 300 the system
+    draws with Regular (400) while the shipped Light subset draws with Light
+    (300) -- a different face, not a different rendering of the same one.
+    The weight class, not the style name, because DejaVu Sans calls its
+    400 face "Book" and the subset cut from it is "Regular".
+    """
     tool = _glyph_tool()
     chars = "".join(sorted(tool.ui_glyphs()))
     before, after = _render("system", chars), _render("shipped", chars)
     compared = 0
-    for key, (families, picture) in after.items():
-        assert len(families) == 1, (key, families)
-        if before[key][0] != [_CUT_FROM[families[0]]]:
+    for key, (faces, picture) in after.items():
+        assert len(faces) == 1, (key, faces)
+        family, weight = faces[0]
+        assert family in _CUT_FROM, (key, faces)
+        if before[key][0] != [[_CUT_FROM[family], weight]]:
             continue
         compared += 1
         assert before[key][1] == picture, f"{key} draws differently"
