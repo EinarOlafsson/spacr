@@ -5973,6 +5973,7 @@ class _EasySuggestionCard(QPushButton):
         outer.setContentsMargins(0, 0, 0, 0)
         self.content = QWidget(self)
         self.content.setAttribute(Qt.WA_TransparentForMouseEvents, True)
+        make_transparent(self.content)
         outer.addWidget(self.content)
         self._content_opacity = QGraphicsOpacityEffect(self)
         self._content_opacity.setOpacity(1.0)
