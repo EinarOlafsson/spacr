@@ -13,8 +13,8 @@ from __future__ import annotations
 from typing import Any, List
 
 from PySide6.QtCore import QEvent, QObject, QPoint, QRect, QSize, Qt
-from shiboken6 import isValid
-from PySide6.QtWidgets import QHBoxLayout, QLayout, QSizePolicy, QWidget
+from shiboken6 import Shiboken, isValid
+from PySide6.QtWidgets import QHBoxLayout, QLayout, QSizePolicy, QWidget, QWidgetItem
 
 
 def _alive(layout) -> bool:
@@ -29,6 +29,34 @@ def _alive(layout) -> bool:
     :returns: ``False`` once its C++ object has been destroyed.
     """
     return isValid(layout)
+
+
+def _item_python_can_track(item):
+    """The item to keep for ``item``: one whose deletion its wrapper hears.
+
+    ``QLayout.addWidget`` hands a Python layout a ``QWidgetItem`` that Qt
+    created. Its wrapper has no C++ half to report the item's deletion, and
+    PySide's layout glue makes the outer box the wrapper's Python parent
+    whenever Python asks that box for an item. Once Qt deleted such an item
+    (a button moved to another row), the box kept its wrapper alive and
+    registered at the freed address; the next item allocated there was
+    handed that stale wrapper, and when its foreign parent went every item
+    of the strip read as already deleted inside :meth:`FlowLayout.minimumSize`.
+    So the layout, which owns what it is given, replaces a Qt-created widget
+    item with one made here for the same widget and deletes Qt's: the
+    replacement's wrapper is told when the item is deleted, and no stale
+    wrapper is left to be reused.
+
+    :param item: the item ``addItem`` received.
+    :returns: ``item`` itself when it is not a Qt-created widget item.
+    """
+    widget = item.widget()
+    if widget is None or item.layout() is not None or Shiboken.createdByPython(item):
+        return item
+    owned = QWidgetItem(widget)
+    owned.setAlignment(item.alignment())
+    Shiboken.delete(item)
+    return owned
 
 
 class FlowLayout(QLayout):
@@ -59,7 +87,7 @@ class FlowLayout(QLayout):
         :param item: the :class:`QLayoutItem` to append after the existing
             items.
         """
-        self._items.append(item)
+        self._items.append(_item_python_can_track(item))
 
     def count(self) -> int:
         """Number of items in the layout."""
