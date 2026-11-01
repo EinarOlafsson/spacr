@@ -1,4 +1,4 @@
-"""Navigator cards keep readable icons and labels on their own surface in every theme."""
+"""Navigator cards and description controls stay readable on their own surface in every theme."""
 from collections import Counter
 
 import pytest
@@ -71,6 +71,22 @@ def test_card_icons_and_labels_contrast_with_the_surface_behind_them(
             assert best >= 3.0 and share >= 0.02, (theme, backdrop, card._key, surface, share, best)
             share, best = _ink(_pixels(image, title.intersected(box)), surface, 4.5)
             assert best >= 4.5 and share >= 0.01, (theme, backdrop, card._key, surface, share, best)
+        details = page.field.details
+        details.parentWidget().explain_card(page.field.cards[1])
+        qtbot.waitUntil(details._back.isEnabled, timeout=2000)
+        image = window.grab().toImage()
+        checked = 0
+        for button in (details._back, details._forward, details._collapse):
+            if not (button.isVisible() and button.isEnabled()):
+                continue
+            box = QRect(button.mapTo(window, button.rect().topLeft()), button.size()).adjusted(4, 4, -4, -4)
+            pixels = _pixels(image, box)
+            surface = Counter(pixels).most_common(1)[0][0]
+            share, best = _ink(pixels, surface, 3.0)
+            strong = round(share * len(pixels))
+            assert best >= 3.0 and strong >= 3, (theme, backdrop, button.accessibleName(), surface, strong, best)
+            checked += 1
+        assert checked >= 2
     finally:
         window.close()
         qapp.setPalette(palette)

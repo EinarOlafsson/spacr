@@ -6338,6 +6338,7 @@ class _NavigatorDetailsBrowser(QTextBrowser):
             _set_scaled_icon_size(button, 20)
             button.setFixedSize(28, 28)
             button.setCursor(Qt.PointingHandCursor)
+        make_transparent(self._back, self._forward, self._collapse)
         self._back.clicked.connect(lambda: self._navigate(-1))
         self._forward.clicked.connect(lambda: self._navigate(1))
         self._collapse.clicked.connect(self._toggle_minimized)
@@ -6389,18 +6390,22 @@ class _NavigatorDetailsBrowser(QTextBrowser):
         }
         icon = QIcon()
         ratio = self.devicePixelRatioF()
-        for mode, alpha in ((QIcon.Normal, 255), (QIcon.Disabled, 80)):
-            image = QPixmap(round(20 * ratio), round(20 * ratio))
-            image.setDevicePixelRatio(ratio)
-            image.fill(Qt.transparent)
-            painter = QPainter(image)
-            painter.setRenderHint(QPainter.Antialiasing, True)
-            ink = QColor(color)
-            ink.setAlpha(alpha)
-            painter.setPen(QPen(ink, 1.0, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
-            painter.drawPolyline(QPolygonF([QPointF(x, y) for x, y in points[direction]]))
-            painter.end()
-            icon.addPixmap(image, mode)
+        for side in range(12, 49):
+            scale = side / 20
+            stroke = QPolygonF([QPointF(round(x * scale) + 0.5, round(y * scale) + 0.5)
+                                for x, y in points[direction]])
+            for mode, alpha in ((QIcon.Normal, 255), (QIcon.Disabled, 80)):
+                image = QPixmap(round(side * ratio), round(side * ratio))
+                image.setDevicePixelRatio(ratio)
+                image.fill(Qt.transparent)
+                painter = QPainter(image)
+                painter.setRenderHint(QPainter.Antialiasing, True)
+                ink = QColor(color)
+                ink.setAlpha(alpha)
+                painter.setPen(QPen(ink, 1.0, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+                painter.drawPolyline(stroke)
+                painter.end()
+                icon.addPixmap(image, mode)
         return icon
 
     def mouseMoveEvent(self, event):
@@ -6542,9 +6547,17 @@ class _NavigatorDetailsBrowser(QTextBrowser):
         self._forward.setEnabled(self._entry + 1 < len(self._entries))
         self._back.setVisible(not self._minimized)
         self._forward.setVisible(not self._minimized)
+        from ..preferences import get_pane_opacity, resolve_effective_theme
+        from ..theme import IMAGE_THEMES, composite, contrast_ratio, panel_alpha, scrim_under
+
+        theme = resolve_effective_theme()
+        under = scrim_under(theme) if theme in IMAGE_THEMES else palette_for(theme)['bg']
+        panel = composite('#191919', panel_alpha(theme, 'surface_alt', get_pane_opacity()), under)
+        accent = palette_for('dark')['button_accent']
+        expanded = accent if contrast_ratio(accent, panel) >= 3.0 else 'white'
         self._collapse.setIcon(self._arrow_icon(
             'up' if self._minimized else 'down',
-            'white' if self._minimized else palette_for('dark')['button_accent']))
+            'white' if self._minimized else expanded))
         policy = Qt.ScrollBarAlwaysOff if self._minimized else Qt.ScrollBarAsNeeded
         self.setVerticalScrollBarPolicy(policy)
         self.setHorizontalScrollBarPolicy(policy)
@@ -8483,6 +8496,7 @@ class _EasyHomePage(QWidget):
         if getattr(self, '_easy_stylesheet', None) != sheet:
             self._easy_stylesheet = sheet
             self.setStyleSheet(sheet)
+        self.field.details._update_controls()
         if getattr(self, '_guide_visible', False):
             self._show_empty_guide()
 
