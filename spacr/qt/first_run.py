@@ -537,7 +537,7 @@ def maybe_show_tour(window: QMainWindow,
     overlay.show()
     overlay.raise_()
     overlay.setFocus()
-    from PySide6.QtCore import QTimer
+    from . import _after
 
-    QTimer.singleShot(0, overlay, overlay._update_card_position)
+    _after(0, overlay, overlay._update_card_position)
     return overlay

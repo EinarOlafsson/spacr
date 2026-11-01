@@ -4505,7 +4505,7 @@ class AppScreen(QWidget):
                 _run_to_the_end(steps)
         finally:
             section._spacr_opening_now = False
-        QTimer.singleShot(0, self, self._tab_through_the_form_first)
+        _after(0, self, self._tab_through_the_form_first)
         return True
 
     def _run_a_step_of(self, section) -> bool:
@@ -7510,7 +7510,7 @@ class AppScreen(QWidget):
                 and obj is getattr(self, "_body_splitter", None)):
             from ..preferences import scaled_px
 
-            QTimer.singleShot(0, obj, lambda body=obj: (
+            _after(0, obj, lambda body=obj: (
                 lambda target, sizes: body.setSizes([target, sum(sizes) - target])
                 if (not body.is_collapsed("Settings") and len(sizes) == 2
                     and sizes[0] < target <= sum(sizes) - scaled_px(160))
@@ -9433,7 +9433,7 @@ class AppScreen(QWidget):
                           exc_info=True)
         self.refresh_ambient_background()
         self._prebuild_when_idle()
-        QTimer.singleShot(0, self, self._tab_through_the_form_first)
+        _after(0, self, self._tab_through_the_form_first)
 
     def _tab_through_the_form_first(self) -> None:
         """Put the settings column ahead of the runtime column in Tab order.

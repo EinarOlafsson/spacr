@@ -15895,7 +15895,7 @@ class MakeMasksScreen(QWidget):
             if pending:
                 return
             pending.append(True)
-            QTimer.singleShot(0, bar, measure_now)
+            _after(0, bar, measure_now)
 
         last_width = []
 
