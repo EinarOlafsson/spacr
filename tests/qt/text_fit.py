@@ -500,19 +500,138 @@ def protocol_sweep(scale: float, language: str) -> list:
     return sorted(f"{key}|@{state}" for key, state in found.items())
 
 
+#: Complete protocols whose assumption lists the box check reads, with the
+#: longest lists first: (family, format, choices).
+PROTOCOL_BOX_PATHS = (
+    ("sequencing", "fastq_gz", {"sequencer": "ont", "read_mode": "single",
+                                "single_direction": "R2"}),
+    ("features", "database_crops", {"experiment": "screen", "barcodes": "unmapped"}),
+    ("features", "database", {"experiment": "drug"}),
+    ("features", "database", {"experiment": "other", "organism": "mammalian"}),
+    ("small_images", "other_metadata", {"image_format": "nd2",
+                                        "metadata_type": "leica_matrix_screener",
+                                        "goal": "recommended"}),
+    ("plate_images", "tiff_other", {"metadata_type": "imagexpress"}),
+    ("sequencing", "other", {}),
+)
+
+
+def protocol_box_sweep(scale: float, language: str, size: str) -> list:
+    """Check that the description box shows a protocol's whole assumption list when it can.
+
+    For each path the box is read on the last choice step and once the
+    protocol is reached. Whenever the wrapped text fits in the free height
+    below the composer, the box must show all of it without scrolling.
+
+    :param scale: the Zoom factor.
+    :param language: the interface language code.
+    :param size: the window size as ``WIDTHxHEIGHT``.
+    :returns: one ``config|state|needed>shown`` entry per box that scrolls
+        although its text would fit.
+    """
+    import os
+    import tempfile
+
+    from PySide6.QtCore import QEventLoop, QSettings, QTimer
+    from PySide6.QtWidgets import QApplication
+
+    tmp = tempfile.mkdtemp(prefix="spacr-text-fit-box-")
+    os.environ["SPACR_HOME"] = os.path.join(tmp, "home")
+    os.environ["XDG_CONFIG_HOME"] = os.path.join(tmp, "config")
+    os.environ["SPACR_LANGUAGE"] = language
+    os.environ["SPACR_NO_NETWORK"] = "1"
+    app = QApplication.instance() or QApplication([])
+    from spacr.qt import preferences
+
+    store = os.path.join(tmp, "preferences.ini")
+    preferences._settings = lambda: QSettings(store, QSettings.IniFormat)
+    preferences.set_font_scale(float(scale))
+    preferences.set_language(language)
+    preferences.set_reduce_motion(True)
+    preferences.set_ambient_enabled(False)
+    preferences.set_easy_mode(True)
+    from spacr.qt import app as app_mod
+    from spacr.qt.first_run import mark_tour_seen
+
+    mark_tour_seen()
+    preferences.apply_preferences_to_app(app)
+    width, height = (int(part) for part in size.split("x"))
+    window = app_mod.MainWindow(initial_app="__home__")
+    window.resize(width, height)
+    window.show()
+    page = window._startup
+    config = f"{language}-{scale}-{size}"
+    failures = []
+
+    def settle(ms=200):
+        loop = QEventLoop()
+        QTimer.singleShot(ms, loop.quit)
+        loop.exec()
+
+    def pick(combo, key):
+        index = combo.findData(key)
+        if index >= 0:
+            combo.setCurrentIndex(index)
+            combo.activated.emit(index)
+
+    def check(state):
+        settle()
+        box = page.field.details
+        margins = box.viewportMargins()
+        frame = 2 * box.frameWidth()
+        document = box.document().clone()
+        document.setTextWidth(max(1, box.width() - margins.left() - margins.right() - frame))
+        needed = (int(document.size().height() + 0.999) + margins.top()
+                  + margins.bottom() + frame)
+        free = page.field._details_grip._max
+        if (box.isVisible() and needed <= free
+                and box.verticalScrollBar().maximum() > 0):
+            failures.append(f"{config}|{state}|{needed}>{box.height()}")
+
+    settle(800)
+    page.path_edit.protocols.setChecked(True)
+    for family, format_, choices in PROTOCOL_BOX_PATHS:
+        page._protocol_step = 0
+        page._protocol_render()
+        pick(page._protocol_select, family)
+        page._protocol_next()
+        pick(page._protocol_select, format_)
+        for name, value in choices.items():
+            combo = page._protocol_detail_combos.get(name)
+            if combo is not None:
+                pick(combo, value)
+        state = "/".join([family, format_, *choices.values()])
+        check(state + "@choices")
+        page._protocol_next()
+        dialog = getattr(window, "_protocol_browser_dialog", None)
+        if dialog is not None:
+            dialog.close()
+        check(state + "@protocol")
+        page._protocol_back()
+    window.close()
+    return failures
+
+
 def main(argv=None) -> int:
-    """``python -m tests.qt.text_fit SCALE LANGUAGE OUT [SHOTS] [--protocols]``."""
+    """``python -m tests.qt.text_fit SCALE LANGUAGE OUT [SHOTS] [--protocols | --protocol-box=WxH]``."""
     import json
     import os
     import sys
 
     args = list(sys.argv[1:] if argv is None else argv)
     protocols = "--protocols" in args
-    args = [arg for arg in args if arg != "--protocols"]
+    box = next((arg.split("=", 1)[1] for arg in args
+                if arg.startswith("--protocol-box=")), "")
+    args = [arg for arg in args
+            if arg != "--protocols" and not arg.startswith("--protocol-box=")]
     scale, language, out = args[0], args[1], args[2]
     shots = args[3] if len(args) > 3 else ""
-    keys = (protocol_sweep(float(scale), language) if protocols
-            else sweep(float(scale), language, shots))
+    if box:
+        keys = protocol_box_sweep(float(scale), language, box)
+    elif protocols:
+        keys = protocol_sweep(float(scale), language)
+    else:
+        keys = sweep(float(scale), language, shots)
     with open(out, "w", encoding="utf-8") as handle:
         json.dump(keys, handle, ensure_ascii=False, indent=1)
     sys.stdout.flush()

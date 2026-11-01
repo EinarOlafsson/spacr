@@ -6790,6 +6790,20 @@ class _NavigatorDetailsBrowser(QTextBrowser):
         self.viewport().setVisible(not self._minimized)
         self._place_controls()
 
+    def content_height(self, width):
+        """Return the box height that shows the whole current text without scrolling.
+
+        :param width: the box width the text wraps to.
+        :returns: the wrapped document height plus the box frame and its control row.
+        """
+        margins = self.viewportMargins()
+        frame = 2 * self.frameWidth()
+        document = self.document().clone(self)
+        document.setTextWidth(max(1, width - margins.left() - margins.right() - frame))
+        height = document.size().height()
+        document.deleteLater()
+        return int(height + 0.999) + margins.top() + margins.bottom() + frame
+
     def _place_controls(self):
         """Place navigation controls on the shared surface and clear stale clipping."""
         for offset, button in enumerate((self._collapse, self._forward, self._back)):
@@ -7173,6 +7187,8 @@ class _EasyHomeField(QWidget):
                              - (controls_height + 12 if controls_height else 0))
         wanted_height = (default_height if self._details_height_base is None
                          else scaled_px(self._details_height_base))
+        if active or (protocols is not None and not protocols.isHidden()):
+            wanted_height = max(wanted_height, self.details.content_height(details_width))
         details_height = (36 if self.details._minimized else
                           min(maximum_height, max(min(scaled_px(96), maximum_height), wanted_height)))
         self.details.setVisible(not (active and getattr(protocols, '_inline_choice', None) is not None and details_height < 64))
