@@ -9920,8 +9920,8 @@ def _open_fastq(fastq_file):
     with open(fastq_file, "rb") as handle:
         magic = handle.read(2)
     if magic == b"\x1f\x8b":
-        return gzip.open(fastq_file, "rt")
-    return open(fastq_file, "rt")
+        return gzip.open(fastq_file, "rt", encoding="utf-8")
+    return open(fastq_file, "rt", encoding="utf-8")
 
 
 def count_reads_in_fastq(fastq_file):

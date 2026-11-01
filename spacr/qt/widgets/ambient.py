@@ -1983,7 +1983,8 @@ class _GraphicsBackend:
         if build is not None:
             args = tuple(build())
         first = self.__dict__.get("_graphics_judged") is None
-        wait = _GRAPHICS_FIRST_FRAME_WAIT_S if first else _GRAPHICS_FRAME_WAIT_S
+        wait = (_GRAPHICS_FIRST_FRAME_WAIT_S if first
+                else _GRAPHICS_FRAME_WAIT_S) * _GRAPHICS_WAIT_SCALE
 
         started = time.perf_counter()
         done, result, error = lane.call(
@@ -2177,6 +2178,12 @@ _GRAPHICS_FRAME_WAIT_S = 0.033
 #: The wait for a renderer's first frame, which creates its context and
 #: compiles its shaders.
 _GRAPHICS_FIRST_FRAME_WAIT_S = 0.5
+
+#: What the frame waits above are multiplied by. 1 for every real context;
+#: the parity tool and its test, which draw on a software rasteriser the
+#: product itself refuses, raise it so a slow CPU rasteriser's frame is waited
+#: for instead of being shaded again on the CPU.
+_GRAPHICS_WAIT_SCALE = 1.0
 
 #: How long a closing lane is waited for to release its context.
 _GRAPHICS_LANE_CLOSE_S = 1.0

@@ -217,6 +217,7 @@ def main(argv=None) -> int:
         ambient._graphics_context_options = lambda: dict(options)
         ambient._flow_graphics_preflight = lambda: True
         ambient._flow_compute_idle = lambda: True
+        ambient._GRAPHICS_WAIT_SCALE = 60.0
     elif not ambient._flow_graphics_preflight():
         print("no hardware OpenGL 4.3 context (moderngl missing, software "
               "renderer, or probe failure); nothing compared", file=sys.stderr)
