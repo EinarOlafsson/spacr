@@ -78,6 +78,7 @@ from __future__ import annotations
 
 import json
 import logging
+import sys
 from functools import partial
 from typing import Callable, List, Optional
 
@@ -943,9 +944,9 @@ class CollapsibleSplitter(QSplitter):
         if not from_drag:
             self.rebalance(grow=None if collapsed else pane)
         self.pane_toggled.emit(pane.name, bool(collapsed), bool(by_user))
-        if not from_drag:
-            from .ambient import field_ripple_for_widget
-
+        ambient = sys.modules.get(__package__ + ".ambient")
+        if not from_drag and ambient is not None:
+            field_ripple_for_widget = ambient.field_ripple_for_widget
             landing = None
             if collapsed and index >= 0:
                 handle_index = index + 1 if index < self.count() - 1 else index

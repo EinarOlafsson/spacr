@@ -957,6 +957,7 @@ _APP_COMMAND_ICONS = {
     "Tutorial": "report", "Documentation": "report",
     "Feature Dictionary…": "feature_dict",
     "Show startup animation": "app_icon",
+    "Restart the background": "spaceout",
     "Review installation caches…": "data_manager",
     "What's new…": "report", "Open log folder…": "project_browser",
     "Borderless window": "app_icon", "Close window": "abort",

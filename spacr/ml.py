@@ -7473,7 +7473,6 @@ def _perform_drug_screen_regression(settings):
     """
     from .plot import save_figure
     from .tabular import write_table
-    import matplotlib.pyplot as plt
 
     settings['_regression_stage'] = 'reading the drug screen'
     wells, excluded = _drug_screen_wells(settings)
@@ -7540,17 +7539,21 @@ def _perform_drug_screen_regression(settings):
         drug_effects=write_table(effects, os.path.join(res_folder, 'drug_effects.csv')))
     shown = effects[effects['status'] == 'tested']
     if len(shown):
-        figure, axes = plt.subplots(figsize=(6, 4))
-        for drug, group in shown.groupby('drug', sort=True):
-            axes.errorbar(group['concentration'], group['effect'],
-                          yerr=[group['effect'] - group['ci_low'],
-                                group['ci_high'] - group['effect']],
-                          marker='o', linestyle='none', capsize=3, label=str(drug))
-        axes.axhline(0.0, color='0.5', linewidth=0.8)
-        axes.set_xscale('log')
-        axes.set_xlabel(f'Concentration ({unit})')
-        axes.set_ylabel(f"{settings['dependent_variable']} minus vehicle")
-        axes.legend(frameon=False, fontsize='small')
+        from matplotlib.figure import Figure
+
+        with figure_style(theme_target()):
+            figure = Figure(figsize=(6, 4))
+            axes = figure.add_subplot()
+            for drug, group in shown.groupby('drug', sort=True):
+                axes.errorbar(group['concentration'], group['effect'],
+                              yerr=[group['effect'] - group['ci_low'],
+                                    group['ci_high'] - group['effect']],
+                              marker='o', linestyle='none', capsize=3, label=str(drug))
+            axes.axhline(0.0, color='0.5', linewidth=0.8)
+            axes.set_xscale('log')
+            axes.set_xlabel(f'Concentration ({unit})')
+            axes.set_ylabel(f"{settings['dependent_variable']} minus vehicle")
+            axes.legend(frameon=False, fontsize='small')
         paths['figure'] = save_figure(figure, os.path.join(res_folder, 'drug_effects.pdf'),
                                       close=True)
     print(f"Drug screen: {len(wells)} wells, {int(wells['vehicle'].sum())} "
