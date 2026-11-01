@@ -67,10 +67,10 @@ WORKBENCH_INTRO = (
 TABS: Tuple[Tuple[str, str, str], ...] = (
     (TRAIN_KEY, "Train",
      "Choose an image folder and optional mask folder (default: images/masks). Train writes the "
-     "checkpoint under <src>/models."),
+     "checkpoint into the models folder inside the Source folder."),
     (APPLY_KEY, "Apply",
-     "Apply reads every .tif in <src> and writes one mask per image into "
-     "<src>/masks."),
+     "Apply reads every .tif in the Source folder and writes one mask per "
+     "image into its masks folder."),
 )
 
 #: How ``spacr.submodules.train_cellpose`` lays out what it saves, relative

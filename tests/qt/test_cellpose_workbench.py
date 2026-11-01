@@ -152,11 +152,14 @@ def test_the_line_under_the_title_says_what_src_means_on_this_tab(workbench):
     """One box meaning two folders is what the second tab exists to prevent."""
     training = workbench._header.instruction_label.text()
     assert "image folder" in training and "mask folder" in training
-    assert "images/masks" in training and "<src>/models" in training
+    assert "images/masks" in training
+    assert "models folder inside the Source folder" in training
+    assert "<src>" not in training
     workbench._tabs.setCurrentIndex(1)
     applying = workbench._header.instruction_label.text()
     assert applying != training
     assert ".tif" in applying and "masks" in applying
+    assert "Source folder" in applying and "<src>" not in applying
 
 
 # ---------------------------------------------------------------------------
