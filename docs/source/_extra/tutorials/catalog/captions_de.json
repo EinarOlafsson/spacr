@@ -11248,7 +11248,7 @@
         },
         {
           "visual": "module_measure",
-          "narration": "Öffnen Sie als Nächstes Measure von Home aus und richten Sie es auf dasselbe Projekt, mit korrekt gesetzten Bild- und Maskenkanalindizes. Measure liest jedes zusammengeführte Array, Bilder und Labelebenen gemeinsam, und schreibt jede Zelle, jeden Kern oder Parasiten als Zeile in measurements.db. Schalten Sie das Speichern von Ausschnitten ein, und es schneidet zusätzlich ein kleines PNG um jedes Objekt aus, indiziert in png_list. Ab hier verzweigt sich die Geschichte. Annotate zeigt diese Ausschnitte, damit Sie Beispiele beschriften können, und Classify lernt entweder aus den Ausschnitten oder aus den gemessenen Merkmalen; halten Sie Objektidentitäten daher stabil.",
+          "narration": "Öffnen Sie als Nächstes Measure von Home aus und richten Sie es auf dasselbe Projekt, mit korrekt gesetzten Bild- und Maskenkanalindizes. Measure liest jedes zusammengeführte Array, Bilder und Labelebenen gemeinsam, und schreibt jede Zelle, jeden Kern oder Parasiten als Zeile in measurements.db. Mit aktiviertem Speichern von Ausschnitten, der Standardeinstellung, schneidet es zusätzlich ein kleines PNG um jedes Objekt aus, indiziert in png_list. Ab hier verzweigt sich die Geschichte. Annotate zeigt diese Ausschnitte, damit Sie Beispiele beschriften können, und Classify lernt entweder aus den Ausschnitten oder aus den gemessenen Merkmalen; halten Sie Objektidentitäten daher stabil.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",

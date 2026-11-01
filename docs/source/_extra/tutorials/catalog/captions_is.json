@@ -11248,7 +11248,7 @@
         },
         {
           "visual": "module_measure",
-          "narration": "Opnaðu næst Measure frá Home og beindu því að sama verkefni, með rásavísa myndar og grímu rétt stillta. Measure les hvert sameinað fylki, myndir og merkingalög saman, og skrifar hverja frumu, kjarna eða sníkjudýr sem línu í measurements.db. Kveiktu á vistun úrklippa og það sker líka út litla PNG-mynd í kringum hvern hlut, skráða í png_list. Héðan greinist sagan. Annotate sýnir úrklippin svo þú getir merkt dæmi, og Classify lærir annaðhvort af úrklippunum eða mældu eiginleikunum, svo haltu auðkennum hlutanna stöðugum.",
+          "narration": "Opnaðu næst Measure frá Home og beindu því að sama verkefni, með rásavísa myndar og grímu rétt stillta. Measure les hvert sameinað fylki, myndir og merkingalög saman, og skrifar hverja frumu, kjarna eða sníkjudýr sem línu í measurements.db. Með kveikt á vistun úrklippa, sem er sjálfgefið, sker það líka út litla PNG-mynd í kringum hvern hlut, skráða í png_list. Héðan greinist sagan. Annotate sýnir úrklippin svo þú getir merkt dæmi, og Classify lærir annaðhvort af úrklippunum eða mældu eiginleikunum, svo haltu auðkennum hlutanna stöðugum.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",

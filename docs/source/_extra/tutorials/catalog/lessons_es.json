@@ -12036,7 +12036,7 @@
         },
         {
           "visual": "module_measure",
-          "narration": "A continuación, abra Measure desde Home y diríjalo al mismo proyecto, con los índices de canal de imagen y de máscara bien definidos. Measure lee cada matriz combinada, imágenes y planos de etiquetas juntos, y escribe cada célula, núcleo o parásito como una fila en measurements.db. Active el guardado de recortes y además cortará un pequeño PNG alrededor de cada objeto, indexado en png_list. A partir de aquí la historia se bifurca. Annotate muestra esos recortes para que pueda etiquetar ejemplos, y Classify aprende de los recortes o de las características medidas, así que mantenga estables las identidades de los objetos.",
+          "narration": "A continuación, abra Measure desde Home y diríjalo al mismo proyecto, con los índices de canal de imagen y de máscara bien definidos. Measure lee cada matriz combinada, imágenes y planos de etiquetas juntos, y escribe cada célula, núcleo o parásito como una fila en measurements.db. Con el guardado de recortes activado, que es la opción predeterminada, además corta un pequeño PNG alrededor de cada objeto, indexado en png_list. A partir de aquí la historia se bifurca. Annotate muestra esos recortes para que pueda etiquetar ejemplos, y Classify aprende de los recortes o de las características medidas, así que mantenga estables las identidades de los objetos.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -12044,7 +12044,7 @@
             "09_annotate",
             "41_classify"
           ],
-          "speech_text": "A continuación, abra Measure desde Home y diríjalo al mismo proyecto, con los índices de canal de imagen y de máscara bien definidos. Measure lee cada matriz combinada, imágenes y planos de etiquetas juntos, y escribe cada célula, núcleo o parásito como una fila en measurements punto de be. Active el guardado de recortes y además cortará un pequeño PNG alrededor de cada objeto, indexado en png_list. A partir de aquí la historia se bifurca. Annotate muestra esos recortes para que pueda etiquetar ejemplos, y Classify aprende de los recortes o de las características medidas, así que mantenga estables las identidades de los objetos."
+          "speech_text": "A continuación, abra Measure desde Home y diríjalo al mismo proyecto, con los índices de canal de imagen y de máscara bien definidos. Measure lee cada matriz combinada, imágenes y planos de etiquetas juntos, y escribe cada célula, núcleo o parásito como una fila en measurements punto de be. Con el guardado de recortes activado, que es la opción predeterminada, además corta un pequeño PNG alrededor de cada objeto, indexado en png_list. A partir de aquí la historia se bifurca. Annotate muestra esos recortes para que pueda etiquetar ejemplos, y Classify aprende de los recortes o de las características medidas, así que mantenga estables las identidades de los objetos."
         },
         {
           "visual": "module_annotate",

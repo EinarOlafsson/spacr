@@ -12036,7 +12036,7 @@
         },
         {
           "visual": "module_measure",
-          "narration": "Em seguida, abra Measure em Home e aponte-o para o mesmo projeto, com os índices de canal de imagem e de máscara definidos corretamente. O Measure lê cada matriz combinada, imagens e planos de rótulos juntos, e grava cada célula, núcleo ou parasita como uma linha em measurements.db. Ative o salvamento de recortes e ele também corta um pequeno PNG em volta de cada objeto, indexado em png_list. Daqui a história se divide. O Annotate mostra esses recortes para você rotular exemplos, e o Classify aprende com os recortes ou com as características medidas, então mantenha estáveis as identidades dos objetos.",
+          "narration": "Em seguida, abra Measure em Home e aponte-o para o mesmo projeto, com os índices de canal de imagem e de máscara definidos corretamente. O Measure lê cada matriz combinada, imagens e planos de rótulos juntos, e grava cada célula, núcleo ou parasita como uma linha em measurements.db. Com o salvamento de recortes ativado, o padrão, ele também corta um pequeno PNG em volta de cada objeto, indexado em png_list. Daqui a história se divide. O Annotate mostra esses recortes para você rotular exemplos, e o Classify aprende com os recortes ou com as características medidas, então mantenha estáveis as identidades dos objetos.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -12044,7 +12044,7 @@
             "09_annotate",
             "41_classify"
           ],
-          "speech_text": "Em seguida, abra Measure em Home e aponte-o para o mesmo projeto, com os índices de canal de imagem e de máscara definidos corretamente. O Measure lê cada matriz combinada, imagens e planos de rótulos juntos, e grava cada célula, núcleo ou parasita como uma linha em measurements ponto dê bê. Ative o salvamento de recortes e ele também corta um pequeno PNG em volta de cada objeto, indexado em png_list. Daqui a história se divide. O Annotate mostra esses recortes para você rotular exemplos, e o Classify aprende com os recortes ou com as características medidas, então mantenha estáveis as identidades dos objetos."
+          "speech_text": "Em seguida, abra Measure em Home e aponte-o para o mesmo projeto, com os índices de canal de imagem e de máscara definidos corretamente. O Measure lê cada matriz combinada, imagens e planos de rótulos juntos, e grava cada célula, núcleo ou parasita como uma linha em measurements ponto dê bê. Com o salvamento de recortes ativado, o padrão, ele também corta um pequeno PNG em volta de cada objeto, indexado em png_list. Daqui a história se divide. O Annotate mostra esses recortes para você rotular exemplos, e o Classify aprende com os recortes ou com as características medidas, então mantenha estáveis as identidades dos objetos."
         },
         {
           "visual": "module_annotate",

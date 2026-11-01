@@ -11248,7 +11248,7 @@
         },
         {
           "visual": "module_measure",
-          "narration": "Åbn derefter Measure fra Home, og peg det mod det samme projekt med billed- og maskekanalindeksene korrekt indstillet. Measure læser hvert sammenlagt array, billeder og labelplaner samlet, og skriver hver celle, kerne eller parasit som en række i measurements.db. Slå lagring af udsnit til, så skærer det også en lille PNG ud omkring hvert objekt, indekseret i png_list. Herfra deler historien sig. Annotate viser udsnittene, så du kan mærke eksempler, og Classify lærer af enten udsnittene eller de målte egenskaber, så hold objektidentiteterne stabile.",
+          "narration": "Åbn derefter Measure fra Home, og peg det mod det samme projekt med billed- og maskekanalindeksene korrekt indstillet. Measure læser hvert sammenlagt array, billeder og labelplaner samlet, og skriver hver celle, kerne eller parasit som en række i measurements.db. Med lagring af udsnit slået til, hvilket er standard, skærer det også en lille PNG ud omkring hvert objekt, indekseret i png_list. Herfra deler historien sig. Annotate viser udsnittene, så du kan mærke eksempler, og Classify lærer af enten udsnittene eller de målte egenskaber, så hold objektidentiteterne stabile.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
