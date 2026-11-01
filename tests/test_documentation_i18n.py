@@ -27,7 +27,8 @@ TOOLS = ROOT / "tools"
 # Regenerate every locale catalog against the final integrated source.
 # 2026-10-31 items 678/739/746/749: +11, documented Qt layout and event hooks
 # under spacr.qt: app._CrampedScroll._fit_content.tallest, screens.make_masks.MakeMasksScreen._hold_the_title_bar_to_its_text.{measure,measure_now}, MakeMasksScreen.showEvent, settings_search.SettingsSearchBar.event, theme.stack_when_narrow, widgets.file_list.PairedFileTableWidget.eventFilter, widgets.flow.{keep_wrapped_height,labelled}, widgets.model_zoo_picker.drawing_in_steps and widgets.toggle.Toggle.changeEvent.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_213
+# 2026-11-01 items 748/749: +4, spacr.layers.LabelsLayer.{color,contour}, spacr.qt.widgets.gate_editor.GateEditorPanel.run_cluster_in_background and spacr.qt.screens.gate_editor.GateEditorScreen.save_graph_in_background.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_217
 SOURCE_REVIEWED_SYMBOLS_2026_10_07 = frozenset({
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_background",
     "spacr.convert.read_scn",

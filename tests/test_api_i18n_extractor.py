@@ -1506,7 +1506,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 2026-10-31 items 678/739/746/749: +11/-0, documented Qt layout and
     # event hooks under spacr.qt: app._CrampedScroll._fit_content.tallest, screens.make_masks.MakeMasksScreen._hold_the_title_bar_to_its_text.{measure,measure_now}, MakeMasksScreen.showEvent, settings_search.SettingsSearchBar.event, theme.stack_when_narrow, widgets.file_list.PairedFileTableWidget.eventFilter, widgets.flow.{keep_wrapped_height,labelled}, widgets.model_zoo_picker.drawing_in_steps and widgets.toggle.Toggle.changeEvent.
     # All nine reviewed API catalogs carry them (spacr-translations c1cae8bd).
-    expected = 13_185
+    # 2026-11-01 items 748/749: +4/-0, spacr.layers.LabelsLayer.{color,contour}, spacr.qt.widgets.gate_editor.GateEditorPanel.run_cluster_in_background and spacr.qt.screens.gate_editor.GateEditorScreen.save_graph_in_background;
+    # all nine reviewed API catalogs carry them (spacr-translations 997a8d95).
+    expected = 13_189
     worker_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts/664_665_worker_api_arrivals_2026-10-08.json").read_text(encoding="utf-8"))
     assert len(worker_arrivals) == 8
@@ -2090,7 +2092,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 11,929 -> 11,942 with `expected` above, for item 600's 13.
     # Item 662: +4 public mask_engine YOLO helpers, no removals.
     # All 13,177 prior English records preserved; 662_yolo_support receipt.
-    assert len((historical_docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_home.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_185
+    assert len((historical_docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_home.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_189
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be

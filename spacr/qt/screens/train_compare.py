@@ -322,6 +322,8 @@ class TrainCompareScreen(QWidget):
                       "missing curves or settings — they still diff.", left)
         hint.setObjectName("Caption")
         hint.setWordWrap(True)
+        from ..widgets.flow import keep_wrapped_height
+        keep_wrapped_height(hint)
         left_layout.addWidget(hint)
         self._runs_list = QListWidget(left)
         self._runs_list.setSelectionMode(QAbstractItemView.NoSelection)

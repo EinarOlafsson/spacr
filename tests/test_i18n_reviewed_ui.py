@@ -47,7 +47,9 @@ def test_reviewed_ui_vocabulary_is_complete_and_pinned():
     contract = json.loads((ROOT / "tests/data/release_contracts"
                            / "reviewed_ui_vocabulary_arrivals_2026-10-15.json").read_text(encoding="utf-8"))
     arrivals, retired = contract["arrivals"], contract["retired"]
-    assert len(arrivals) == 56
+    # 2026-11-01 items 748/749: +2 arrivals, the Train Compare overlay caption
+    # and the curation brush hint, whose generated targets were mistranslated.
+    assert len(arrivals) == 58
     assert set(retired) == {
         "SSH authentication was denied. Test the connection to try again.",
         "Authenticate in spaCR (keyboard-interactive / MFA)",

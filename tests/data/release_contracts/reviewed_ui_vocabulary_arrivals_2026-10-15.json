@@ -615,6 +615,28 @@
       "pt": "{stage} falhou: {error}",
       "sv": "{stage} misslyckades: {error}",
       "zh_CN": "{stage} 失败：{error}"
+    },
+    "Tick two or more to overlay them. Runs marked ! are missing curves or settings — they still diff.": {
+      "sv": "Markera två eller fler för att lägga dem över varandra. Körningar markerade med ! saknar kurvor eller inställningar – de kan ändå jämföras.",
+      "de": "Kreuzen Sie zwei oder mehr an, um sie zu überlagern. Mit ! markierte Läufe ohne Kurven oder Einstellungen lassen sich trotzdem vergleichen.",
+      "es": "Marque dos o más para superponerlas. A las ejecuciones marcadas con ! les faltan curvas o ajustes; aun así se pueden comparar.",
+      "zh_CN": "勾选两个或更多以叠加显示。标有 ! 的运行缺少曲线或设置，但仍可比较。",
+      "pt": "Marque duas ou mais para sobrepô-las. As execuções marcadas com ! não têm curvas ou configurações, mas ainda podem ser comparadas.",
+      "hi": "एक-दूसरे पर दिखाने के लिए दो या अधिक चुनें। ! से चिह्नित रन में कर्व या सेटिंग्स नहीं हैं, फिर भी उनकी तुलना की जा सकती है।",
+      "ko": "둘 이상을 선택하면 겹쳐서 표시합니다. !로 표시된 실행은 곡선이나 설정이 없지만 비교할 수는 있습니다.",
+      "is": "Hakaðu við tvær eða fleiri til að leggja þær hver yfir aðra. Keyrslur merktar með ! vantar ferla eða stillingar, en samt má bera þær saman.",
+      "fr": "Cochez-en deux ou plus pour les superposer. Les exécutions marquées d’un ! n’ont pas de courbes ou de réglages, mais restent comparables."
+    },
+    "Drag to paint the active label, right-drag to erase, [ and ] resize, Backspace undoes the last stroke": {
+      "sv": "Dra för att måla med den aktiva etiketten, högerdra för att sudda, [ och ] ändrar penselstorleken, Backsteg ångrar det senaste penseldraget",
+      "de": "Ziehen, um mit dem aktiven Label zu malen, mit der rechten Maustaste ziehen zum Radieren, [ und ] ändern die Pinselgröße, Rücktaste nimmt den letzten Pinselstrich zurück",
+      "es": "Arrastre para pintar con la etiqueta activa, arrastre con el botón derecho para borrar, [ y ] cambian el tamaño del pincel, Retroceso deshace el último trazo",
+      "zh_CN": "拖动以用当前标签绘制，右键拖动以擦除，[ 和 ] 调整画笔大小，Backspace 撤销上一笔",
+      "pt": "Arraste para pintar com o rótulo ativo, arraste com o botão direito para apagar, [ e ] mudam o tamanho do pincel, Backspace desfaz o último traço",
+      "hi": "सक्रिय लेबल से रंगने के लिए खींचें, मिटाने के लिए दायाँ बटन दबाकर खींचें, [ और ] ब्रश का आकार बदलते हैं, Backspace आखिरी ब्रश स्ट्रोक पूर्ववत करता है",
+      "ko": "드래그하여 활성 레이블로 칠하고, 오른쪽 버튼으로 드래그하여 지웁니다. [ 와 ]는 브러시 크기를 바꾸고, Backspace는 마지막 획을 취소합니다",
+      "is": "Dragðu til að mála með virka merkinu, dragðu með hægri hnappi til að stroka út, [ og ] breyta stærð pensilsins, Backspace afturkallar síðasta pensilstrok",
+      "fr": "Faites glisser pour peindre avec l'étiquette active, faites glisser avec le bouton droit pour effacer, [ et ] changent la taille du pinceau, Retour arrière annule le dernier tracé"
     }
   },
   "historical_source_commit": "d988f1925e986f1da0036cab84dd951a3ff7dbd4",

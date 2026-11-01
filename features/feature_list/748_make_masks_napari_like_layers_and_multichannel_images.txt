@@ -1,7 +1,7 @@
 MAKE MASKS: NAPARI-LIKE LAYERS AND MULTICHANNEL IMAGES
 =====================================================
 Lifecycle: new
-Status: OPEN 2026-10-31 — requested by the maintainer; design and implementation not started.
+Status: DONE 2026-11-01 — layered Make Masks view, multichannel files in batch and editor, worker compositing, nine-language closure pushed to nightly.
 Requested: maintainer, 2026-10-31 ("napari like layers and support for multichannel images in make masks").
 Owner: Home (coordinator assigns an agent).
 Related: spacr/layers.py (napari-style layer model: images, labels, points,
@@ -52,3 +52,4 @@ NOTES
 2026-10-31 Stage 1: convert_to_yokogawa honours declared channel axes, RGB PNG and local OME-Zarr images; tests/test_multichannel_files_mask_like_separate_channel_files.py proves byte-identical role masks, stacks and model inputs for six multichannel layouts.
 2026-10-31 Stages 2-3 committed on branch mm-layers-748 (layered view, Layers category, multichannel rasters and reviewed TIFF/OME planes as layers, loader-thread channel reads, worker compositing above 512x512, lookup-table colouring); 749 audit fixes: panels/bars fold before the canvas gets small, label step buttons styled and named, Reset zoom neutral. tests/qt/test_make_masks_layers_and_multichannel.py 14 pass; Make Masks/layers cohort 2286 pass (lineage-count and 17.25 calibration failures pre-exist on nightly).
 2026-10-31 Remaining: nine-language closure for the new Layers/tooltips strings and LabelsLayer.color/contour arrival records (coordinator generator lock), then push; tutorials for the new Layers category (Work lane).
+2026-11-01 Closed in the 748/749 combined translation pass (spacr-translations 997a8d95, api_memory 1cfacdf5): 37 runtime captions plus the fractal path help reviewed in nine languages, superseded records retired, 54 moved API records rebound and 207 new API records; catalogs, caption arrivals, coverage and the public-API ratchets regenerated/moved with each symbol named. 746 offender for the Train Compare caption removed (caption now keeps its wrapped height). Tutorials for the Layers category remain with the Work lane.

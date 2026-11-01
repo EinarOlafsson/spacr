@@ -3671,7 +3671,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # SettingsSearchBar.event, theme.stack_when_narrow,
     # PairedFileTableWidget.eventFilter, flow.keep_wrapped_height,
     # flow.labelled, model_zoo_picker.drawing_in_steps and Toggle.changeEvent.
-    assert len(callables) == len(by_symbol) == 9996
+    # 2026-11-01 items 748/749: +2 callables, both documented:
+    # GateEditorPanel.run_cluster_in_background and
+    # GateEditorScreen.save_graph_in_background (LabelsLayer.color and
+    # .contour are properties).
+    assert len(callables) == len(by_symbol) == 9998
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -3776,7 +3780,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 2026-10-31: +4 method (MakeMasksScreen.showEvent,
         # SettingsSearchBar.event, PairedFileTableWidget.eventFilter,
         # Toggle.changeEvent).
-        "method": 4310,
+        # 2026-11-01 items 748/749: +2 method
+        # (GateEditorPanel.run_cluster_in_background,
+        # GateEditorScreen.save_graph_in_background).
+        "method": 4312,
         # -3 on 2026-09-15: spacrStitcher, StitchedMultiAligner and
         # FOVAlignAndCropper.
         # Item 600: +1 constructor (OrganizeForMeasureDialog).
@@ -3849,7 +3856,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 2026-10-19: -1, FoldButton.paintEvent retired.
         # Item 600, 2026-10-19: -14, as the total.
         # 2026-10-31: +8 autoapi, the eight callables named in the total.
-        "autoapi": 9991,
+        # 2026-11-01 items 748/749: +2 autoapi, the two Gate Editor
+        # background routes named in the total.
+        "autoapi": 9993,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -3910,7 +3919,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Item 700, 2026-10-15: -23, one per retired callable.
     # 2026-10-19: -1, FoldButton.paintEvent retired.
     # Item 600, 2026-10-19: -14, one per retired callable.
-    assert sum(item.variant_count for item in callables) == 10003
+    # 2026-11-01 items 748/749: +2, one per Gate Editor background route.
+    assert sum(item.variant_count for item in callables) == 10005
     # The single-variant bucket 8,581 -> 8,644, the same +63, and the
     # two-variant bucket is unchanged at 7.
     # Single-variant bucket +6 on 2026-09-15; the two-variant bucket stays 7.
@@ -3935,7 +3945,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # Item 700, 2026-10-15: -23, the retired setup callables.
         # 2026-10-19: -1, FoldButton.paintEvent retired.
         # Item 600, 2026-10-19: -14, ChannelSortDialog and RegexWindow.
-        1: 9989,
+        # 2026-11-01 items 748/749: +2, the two Gate Editor background routes.
+        1: 9991,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -4221,7 +4232,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 2026-10-31: 19,886 -> 19,901, +15 parameters of the eight callables
     # added above (event, labelled, keep_wrapped_height, stack_when_narrow,
     # drawing_in_steps, eventFilter, changeEvent and showEvent).
-    assert sum(len(item.parameters) for item in callables) == 19901
+    # 2026-11-01 items 748/749: 19,901 -> 19,908, +7: LabelsLayer's optional
+    # color= and contour=, the optional background= of GateEditorPanel.run_cluster,
+    # GateEditorScreen.save_graph and GateEditorScreen.reduce_to_components, and
+    # the new run_cluster_in_background(ask=) and save_graph_in_background(*_checked).
+    assert sum(len(item.parameters) for item in callables) == 19908
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -4500,7 +4515,12 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # optional mark_now=; the new callables arrive through
     # 707_background_imports_and_overview_defaults_api_arrivals_2026-10-25.json
     # and are subtracted above; no row removed.
-) == '8952a9973b63804dff75765d018c95cbe991b86fbfca8c6b56c8b1ec74177cb7'
+    # Moved 2026-11-01 for items 748/749 (was 8952a997...): LabelsLayer gained
+    # the optional color= and contour=; GateEditorPanel.run_cluster,
+    # GateEditorScreen.save_graph and GateEditorScreen.reduce_to_components gained
+    # the optional background=; run_cluster_in_background and
+    # save_graph_in_background arrive with them; no row removed.
+) == 'b5d5c3b26aef9a4b3897b1322295d78dfb193ada6550b35b132bb00b8afc9e90'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -5508,12 +5528,15 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     zoo_additions = {**zoo_additions, **current_help_arrivals}
     from tests.test_documentation_i18n import _retired_707_home_api
     retired_home = _retired_707_home_api(docs)
+    # 2026-11-01 items 748/749: 13149 -> 13153 for LabelsLayer.{color,contour},
+    # GateEditorPanel.run_cluster_in_background and
+    # GateEditorScreen.save_graph_in_background.
     assert len((historical_docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
                - channel_additions.keys() - scn_additions.keys()
                - popup_additions.keys() - background_additions.keys()
                - animation_arrivals.keys()
                - volume_additions.keys()
-               - zoo_additions.keys()) | retired_home.keys()) == 13149
+               - zoo_additions.keys()) | retired_home.keys()) == 13153
     # 2026-10-31: 13,138 -> 13,149, +11 documented symbols: the eight public
     # callables above plus the nested helpers _CrampedScroll._fit_content.tallest
     # and MakeMasksScreen._hold_the_title_bar_to_its_text.measure and
@@ -5957,13 +5980,16 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 2026-10-19: -1, FoldButton.paintEvent retired.
     # Item 600, 2026-10-19: -14, ChannelSortDialog and RegexWindow.
     # 2026-10-31: +8, the four functions and four methods named above.
-    assert len(prior - pipeline_callables) == 9645
+    # 2026-11-01 items 748/749: +2, GateEditorPanel.run_cluster_in_background
+    # and GateEditorScreen.save_graph_in_background.
+    assert len(prior - pipeline_callables) == 9647
     # Item 600, 2026-09-29: +11 callables (drop_classification, organize_for_measure).
     # Item 690: +10, as above.
     # Item 700: -23, as above.
     # 2026-10-19: -1, FoldButton.paintEvent retired.
     # Item 600, 2026-10-19: -14, as above.
-    assert len(prior - pipeline_callables - validation_functions) == 9639
+    # 2026-11-01 items 748/749: +2, the two Gate Editor background routes.
+    assert len(prior - pipeline_callables - validation_functions) == 9641
     # 9,522 -> 9,630 on 2026-09-25: +109 session_callables, -1 render_cellprob;
     # 9,640 with the ten rebase_callables; 9,687 with merged_callables.
     # 9,727 with item 528's eleven; 9,784 on 2026-09-26, +59 / -2.
@@ -6042,8 +6068,10 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     arrival_callables |= approval_callables
     arrival_callables &= rendered_documented_callables.keys()
     # 2026-10-19: -1, FoldButton.paintEvent retired.
+    # 2026-11-01 items 748/749: +2, GateEditorPanel.run_cluster_in_background
+    # and GateEditorScreen.save_graph_in_background.
     assert len(rendered_documented_callables.keys() - yolo_callables
-               - volume_callables - arrival_callables) == 9968
+               - volume_callables - arrival_callables) == 9970
     # Item 700, 2026-10-15: 9,998 -> 9,975, the 23 retired setup callables.
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
