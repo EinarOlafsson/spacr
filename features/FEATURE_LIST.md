@@ -12,7 +12,7 @@ Repeated IDs retain their separate full filenames and histories; none were merge
 
 This is a declaration-based navigation list, not a verified unfinished count. Headers can be stale. Conversely, recorded-Done items 641 and 673 contain later Mac follow-ups; item 729 separates native checks from deferred implementation. Read their linked notes before assigning work.
 
-21 records have no recorded complete declaration; 712 have a recorded complete declaration. Neither is a verification result.
+19 records have no recorded complete declaration; 714 have a recorded complete declaration. Neither is a verification result.
 
 | ID | Lifecycle | Item (full filename) | Recorded status |
 |---|---|---|---|
@@ -35,8 +35,6 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 711 | Future | [TIMEPOSE v1 IN TIMELAPSE, ON HUGGING FACE (PRIVATE), WITH A SCORECARD — 711_timepose_v1_in_timelapse_with_scorecard.txt](feature_list/711_timepose_v1_in_timelapse_with_scorecard.txt) | open — deferred beyond 1.5.1.6 by the maintainer (2026-10-28). |
 | 729 | New | [THE MAC AND APPLE SILICON CHECKS STILL TO RUN ON A REAL MACOS DISPLAY — 729_mac_apple_silicon_native_checks_remaining.txt](feature_list/729_mac_apple_silicon_native_checks_remaining.txt) | IN PROGRESS — Apple Silicon Mac required for remaining checks |
 | 745 | New | [MASK ROLES KEEP THEIR MODELS AND RAW CHANNEL IDENTITY — 745_mask_roles_keep_their_models_and_raw_channel_identity.txt](feature_list/745_mask_roles_keep_their_models_and_raw_channel_identity.txt) | in progress — indexing safeguards validated; original cluster cause unconfirmed. |
-| 746 | New | [HOVER TOOLTIPS ARE NEVER CUT OFF AND CAN BE TURNED OFF — 746_hover_tooltips_are_never_cut_off_and_can_be_turned_off.txt](feature_list/746_hover_tooltips_are_never_cut_off_and_can_be_turned_off.txt) | IN PROGRESS |
-| 749 | New | [UI AUDIT OF THE CORE MODULES, MAKE MASKS, HOME AND NAVIGATOR, AND A COMPARISON WITH SIMILAR SOFTWARE — 749_ui_audit_of_core_modules_and_comparison_with_similar_software.txt](feature_list/749_ui_audit_of_core_modules_and_comparison_with_similar_software.txt) | OPEN 2026-10-31 — requested by the maintainer; audit not started. |
 
 ## All feature items
 
@@ -771,10 +769,10 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 743 | New | [SHUTDOWN WORKER LIFETIME AND ANONYMOUS DIAGNOSTICS — 743_shutdown_worker_lifetime_and_anonymous_diagnostics.txt](feature_list/743_shutdown_worker_lifetime_and_anonymous_diagnostics.txt) | DONE — bounded shutdown fixes and anonymous diagnostics delivered on nightly. |
 | 744 | New | [ANONYMOUS ANNOTATION DATABASE STARTUP DIAGNOSTICS — 744_anonymous_annotation_database_startup_diagnostics.txt](feature_list/744_anonymous_annotation_database_startup_diagnostics.txt) | DONE — anonymous diagnostics and seven focused checks delivered on nightly. |
 | 745 | New | [MASK ROLES KEEP THEIR MODELS AND RAW CHANNEL IDENTITY — 745_mask_roles_keep_their_models_and_raw_channel_identity.txt](feature_list/745_mask_roles_keep_their_models_and_raw_channel_identity.txt) | in progress — indexing safeguards validated; original cluster cause unconfirmed. |
-| 746 | New | [HOVER TOOLTIPS ARE NEVER CUT OFF AND CAN BE TURNED OFF — 746_hover_tooltips_are_never_cut_off_and_can_be_turned_off.txt](feature_list/746_hover_tooltips_are_never_cut_off_and_can_be_turned_off.txt) | IN PROGRESS |
+| 746 | New | [HOVER TOOLTIPS ARE NEVER CUT OFF AND CAN BE TURNED OFF — 746_hover_tooltips_are_never_cut_off_and_can_be_turned_off.txt](feature_list/746_hover_tooltips_are_never_cut_off_and_can_be_turned_off.txt) | DONE 2026-11-01 |
 | 747 | New | [ONE AMBIENT GPU FRAME NEVER FREEZES THE APP — 747_one_ambient_gpu_frame_never_freezes_the_app.txt](feature_list/747_one_ambient_gpu_frame_never_freezes_the_app.txt) | DONE 2026-10-31 — bounded GPU frames verified on the RTX 3090 Ti (lesson 19 retake); |
 | 748 | New | [MAKE MASKS: NAPARI-LIKE LAYERS AND MULTICHANNEL IMAGES — 748_make_masks_napari_like_layers_and_multichannel_images.txt](feature_list/748_make_masks_napari_like_layers_and_multichannel_images.txt) | DONE 2026-11-01 — layered Make Masks view, multichannel files in batch and editor, worker compositing, nine-language closure pushed to nightly. |
-| 749 | New | [UI AUDIT OF THE CORE MODULES, MAKE MASKS, HOME AND NAVIGATOR, AND A COMPARISON WITH SIMILAR SOFTWARE — 749_ui_audit_of_core_modules_and_comparison_with_similar_software.txt](feature_list/749_ui_audit_of_core_modules_and_comparison_with_similar_software.txt) | OPEN 2026-10-31 — requested by the maintainer; audit not started. |
+| 749 | New | [UI AUDIT OF THE CORE MODULES, MAKE MASKS, HOME AND NAVIGATOR, AND A COMPARISON WITH SIMILAR SOFTWARE — 749_ui_audit_of_core_modules_and_comparison_with_similar_software.txt](feature_list/749_ui_audit_of_core_modules_and_comparison_with_similar_software.txt) | DONE 2026-11-01 — audit, comparison, low-risk fixes and maintainer decisions delivered; 5 design decisions remain listed for the maintainer in the report. |
 
 ## Unnumbered feature documents
 

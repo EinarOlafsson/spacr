@@ -1,7 +1,7 @@
 UI AUDIT OF THE CORE MODULES, MAKE MASKS, HOME AND NAVIGATOR, AND A COMPARISON WITH SIMILAR SOFTWARE
 =====================================================================================================
 Lifecycle: new
-Status: OPEN 2026-10-31 — requested by the maintainer; audit not started.
+Status: DONE 2026-11-01 — audit, comparison, low-risk fixes and maintainer decisions delivered; 5 design decisions remain listed for the maintainer in the report.
 Requested: maintainer, 2026-10-31 ("do a User interface (UI) audit on all the core modules, make mask and
         the Home Screen and navigator screen. Are all the ui elements optimally placed? Does the spacr
         software follow UI best practices and conventions? ... Also compare spacr to other softwares in
@@ -56,3 +56,7 @@ NOTES
 2026-11-01 Built on branch ui-749-build, READY FOR GENERATOR CLOSURE (new strings): Toxoplasma alpha-stage tiles (Host–Pathogen, Invasion Assay) follow Show Alpha modules and greyed tiles say Planned; Annotate toolbar in labelled groups (Navigate, Source, Data, View, Find similar, Label model, Train and apply, Danger zone) with a Setup menu, positions stable across width and Zoom; Make Masks Keep saves and moves on with a Saved ✓ mark, Save mask merged into Keep (Ctrl+S = Save mask and stay).
 2026-11-01 Validation: test_749_run_is_the_only_primary_action, test_749_toxoplasma_tiles_follow_the_alpha_gate, test_749_annotate_toolbar_groups, test_749_make_masks_keep_saves fail without their change; related cohorts pass (pre-existing flaky 725 Overview/page_is_never_black failures also fail on baseline); text_fit 2.0 en/de on the full branch report no offender (known list stays {}); offscreen and Xvfb/Openbox captures light/dark 100/200 % in /mnt/wd4tb/scratch/claude-749build-20261031/{off,native}.
 2026-11-01 Remaining for 749: generator closure and push of the ui-749-build string commits, the 746 example filename and the queued German catalog fixes. Follow-ups: Make Masks and puncta tutorial lessons and docs naming the Save mask button need updating after the docstring freeze.
+2026-11-01 Generator closure pushed to nightly: organism alpha gate and Planned caption/tooltips (ee9278d041, 1c5b74d967), Annotate toolbar groups and Setup menu (72429a9e49, c348dec786, 4dff37c9be), Make Masks Keep saves (e4aa14461a), Source folder tab help (f9308ec1f8).
+2026-11-01 Strings: 4797c3ea04 inventories the Make Masks masthead, Cellpose Workbench tab help, Essentials/All settings/Templates and the vendor AI account lines; 6d1ef338e8 pins spacr-translations d8ad7b09 (nine-language reviewed records; German Pro Kern, masthead Öffnen Sie einen Ordner mit Bildern…, … klicken Sie dann auf Ausführen; 72 superseded records retired with a dated reason).
+2026-11-01 Ratchets moved for the one new documented callable OrganismScreen.refresh_maturity_visibility (8e7a82d383, fb5f2d98d3, cf4b22035b); its API block is reviewed in nine languages.
+2026-11-01 Validation: 749/746/organism/Annotate/Make Masks/metadata/i18n cohorts pass; text-fit de/en at 1.0 and 2.0 report no offenders. Report updated: /mnt/wd4tb/scratch/claude-749-ui-audit-20261031/report.html. Item 749 is complete.

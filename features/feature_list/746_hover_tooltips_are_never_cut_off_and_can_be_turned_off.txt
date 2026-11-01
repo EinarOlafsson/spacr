@@ -3,7 +3,7 @@ HOVER TOOLTIPS ARE NEVER CUT OFF AND CAN BE TURNED OFF
 ================================================================================
 
 Lifecycle: new
-Status:    IN PROGRESS
+Status:    DONE 2026-11-01
 Requested: 2026-10-31
 Related:   371 (two tooltip surfaces the user chooses between), 290, 347, 113.
 
@@ -45,3 +45,4 @@ ACCEPTANCE
 2026-10-31 — Placeholders that cannot fit at 200 % carry a short reviewed caption with the full description in the tooltip (Batch, Convert, Import, Align, Agreement, Database browser, Plate view, Lineage, Profiler, Report, Run history, Train compare). No placeholder sets a minimum width: the Database browser, Plate view and Profiler path rows keep the field 20 average characters wide in its font and stack their buttons under it when narrow (theme.stack_when_narrow). The Show tooltips text names what it turns off. Closure with N678 batches 1-2 (agent 2) and the late docstring changes: runtime strings, category help and API blocks reviewed in nine languages (AI review, no native-speaker sign-off), spacr-translations 49a380d9. Ratchet 5 entries, all de/en 200 %.
 2026-11-01 — Last offenders fixed at source: the Annotate empty state scrolls in its own page (AnnotateEmptyPage, 40543b548c) instead of being squeezed (its heading got 35 of 60 px), and the Preferences reset button reads Reset (existing reviewed row in all nine) with the full description in its tooltip. The German Annotate heading is now the reviewed "Öffnen Sie ein Experiment zum Annotieren" (was "kommentieren"); zh_CN, hi, ko and is corrected too (spacr-translations 1e4662a9).
 2026-11-01 — Sweep: English and German at 100 % and 200 % report nothing cut off; tests/data/text_fit_known_offenders.json is empty and the ratchet test passes. Implementation, translations and publication are complete; no remaining 746 work.
+2026-11-01 — Mask form at 1920x1080, 100 %: no sideways scroll in English or German (d364243c5e). The example filename breaks inside the word on screen only (text(), selection and Copy unchanged), the convention buttons stack when one line is too narrow, and the empty state's sentence wraps to its column instead of holding 560 px. tests/qt/test_746_mask_form_never_scrolls_sideways.py (5 cases, all fail on the previous nightly). No remaining 746 work.
