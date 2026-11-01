@@ -681,6 +681,16 @@ _FRAME_BUDGET_MS = 20.0
 #: within budget keep the normal rate. During lesson 13's run this cut the
 #: GUI thread's time in gaps over 50 ms by 14% and gaps over 200 ms by 41%.
 _OVER_BUDGET_SHARE = 0.5
+
+#: Frame cost, in ms, above which a run holds the next tick back. A frame
+#: between :data:`_FRAME_BUDGET_MS` and this one used to halve the rate
+#: again: the pairs loading of lesson 21 made repaints 40-45 ms, the field fell
+#: from the paced 30 to 11 frames a second and the capture saw it stutter. Its
+#: wall-clock cost includes time spent waiting for the interpreter lock, which
+#: is not GUI work to hand back, so the hold is kept for frames four budgets
+#: long, where the field really is filling the GUI thread; below that the
+#: field delivers the paced rate its repaint allows.
+_HOLD_BACK_ABOVE_MS = 4.0 * _FRAME_BUDGET_MS
 MAX_FPS = 60
 
 #: The ordinary application installs a backdrop on every live screen.  Its
@@ -12587,7 +12597,7 @@ class AmbientWidget(QWidget):
         if due < now - period or due > now + 1.25 * period:
             due = now + period
         spent = self.__dict__.get("_frame_cost_ms", 0.0)
-        if self._run_paced and spent > _FRAME_BUDGET_MS:
+        if self._run_paced and spent > _HOLD_BACK_ABOVE_MS:
             due = max(due, now + spent * (1.0 / _OVER_BUDGET_SHARE - 1.0))
         self._tick_due = due
         interval = max(1, int(round(due - now)))
@@ -12736,10 +12746,15 @@ class AmbientWidget(QWidget):
         producer = _FrameProducer(engine, self._engine_lock, self._rate(),
                                   size, queued_input=self._art_input or self._legacy_input)
         if size[0] > 0 and size[1] > 0:
-            with self._engine_lock:
-                if engine.name in _FIELD_THEMES and self._field_grab is None:
-                    engine._set_field_grab(None, reset=True)
-                first = engine.shade(*size)
+            warmed = self.__dict__.pop("_warmed_first_frame", None)
+            if (warmed is not None and warmed[1] is not None
+                    and warmed[0][0] >= size[0] and warmed[0][1] >= size[1]):
+                first = warmed[1]
+            else:
+                with self._engine_lock:
+                    if engine.name in _FIELD_THEMES and self._field_grab is None:
+                        engine._set_field_grab(None, reset=True)
+                    first = engine.shade(*size)
             if first is not None:
                 producer.publish(first)
         self._last_frame = None
@@ -12752,6 +12767,32 @@ class AmbientWidget(QWidget):
         self._producer_box[0] = producer
         producer.box = self._producer_box
         producer.start()
+
+    def _warm_first_frame(self, size: Tuple[int, int]) -> None:
+        """Shade the first frame of a hidden field, off the GUI thread, to keep for its show.
+
+        A field shown for the first time shaded its first frame on the GUI
+        thread (:meth:`_start_producer`): 0.3-0.9 s on a machine whose
+        graphics lane first builds a renderer or falls back to the CPU, so a
+        folded screen's own field painted once in its first second. Called on
+        a worker while its screen is built and hidden, this keeps one frame at
+        ``size`` (a page's largest possible size); the show uses it when it is
+        at least as large as the field then needs, and shades as before
+        otherwise. No timer, producer or thread outlives the call.
+
+        :param size: the render size, in pixels, to shade at.
+        """
+        if self._producer_box[0] is not None or _SHADING_RETIRED[0]:
+            return
+        engine = self._engine
+        if not isinstance(engine, _BufferedEngine) or size[0] <= 0 or size[1] <= 0:
+            return
+        with self._engine_lock:
+            if engine.name in _FIELD_THEMES and self._field_grab is None:
+                engine._set_field_grab(None, reset=True)
+            frame = engine.shade(*size)
+        if frame is not None:
+            self._warmed_first_frame = (tuple(size), frame)
 
     def _stars_on_graphics(self) -> bool:
         """Whether the stratified theme should shade on a graphics thread.

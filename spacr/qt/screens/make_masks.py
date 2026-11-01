@@ -15456,8 +15456,26 @@ class MakeMasksScreen(QWidget):
                 layout.activate()
             screen.sizeHint()
             screen.minimumSizeHint()
+            self._warm_the_fields_of(screen)
         except RuntimeError:
             LOG.debug("could not lay out a folded screen", exc_info=True)
+
+    def _warm_the_fields_of(self, screen: QWidget) -> None:
+        """Shade the first frame of a hidden folded screen's animated fields.
+
+        :param screen: the folded module's built, unshown screen.
+        """
+        import threading
+
+        from ..widgets.ambient import AmbientWidget
+
+        size = screen.size()
+        for field in screen.findChildren(AmbientWidget):
+            if field.property("spacrPopupBackdrop") or field.isVisible():
+                continue
+            render = field._art_render_size(size.width(), size.height())
+            threading.Thread(target=field._warm_first_frame, args=(render,),
+                             name="spacr-warm-field-frame").start()
 
     def folded_screen(self, key: str) -> Optional[QWidget]:
         """The folded module's own screen, built on first use and kept.

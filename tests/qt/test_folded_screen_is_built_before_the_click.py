@@ -319,3 +319,47 @@ def test_every_visible_field_paints_at_rate_after_a_fold_opens(
         rates[id(field)] = len(stamps) / span
     assert rates, "no animated field was showing"
     assert min(rates.values()) >= FIELD_MIN_PAINTS_PER_S, rates
+
+
+def test_a_folded_screens_field_has_its_first_frame_before_the_click(
+        window, qapp, qtbot, monkeypatch):
+    """The first frame is shaded while the screen idles, not at the click.
+
+    Lesson 19: the folded screen's own field painted once in its first
+    second because the click shaded its first frame on the GUI thread (a
+    slow graphics lane took 0.6 s). Here the first shade of every engine
+    sleeps 0.6 s; the click must not wait for it.
+    """
+    import time
+
+    from spacr.qt.widgets import ambient
+
+    original = ambient._DataArtEngine.shade
+
+    def slow_first(self, *args, **kwargs):
+        if not getattr(self, "_slow_first_done", False):
+            self._slow_first_done = True
+            time.sleep(0.6)
+        return original(self, *args, **kwargs)
+
+    window._on_nav_selected("make_masks")
+    screen = window._screens["make_masks"]
+    monkeypatch.setattr(ambient._DataArtEngine, "shade", slow_first)
+    qtbot.waitUntil(lambda: "train_cellpose" in screen._fold_screens,
+                    timeout=60000)
+    qtbot.waitUntil(
+        lambda: "train_cellpose" in getattr(screen, "_laid_out_folds", ()),
+        timeout=60000)
+    folded = screen._fold_screens["train_cellpose"]
+    fields = [f for f in folded.findChildren(ambient.AmbientWidget)
+              if not f.isVisible()]
+    if not fields:
+        pytest.skip("the folded screen has no animated field in this configuration")
+    qtbot.waitUntil(
+        lambda: all("_warmed_first_frame" in f.__dict__ for f in fields
+                    if isinstance(f._engine, ambient._DataArtEngine)),
+        timeout=60000)
+    started = time.perf_counter()
+    screen.open_folded("train_cellpose")
+    took = time.perf_counter() - started
+    assert took < 0.6 + 0.3, took
