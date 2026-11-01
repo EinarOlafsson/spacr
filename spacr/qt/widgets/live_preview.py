@@ -2419,12 +2419,13 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             layout = stack.pop()
             if layout is None:
                 continue
-            for index in range(layout.count()):
-                item = layout.itemAt(index)
-                child = item.widget()
-                if child is not None:
-                    laid_out.add(id(child))
-                stack.append(item.layout())
+            from .flow import _layout_entries
+
+            for _index, entry in _layout_entries(layout):
+                if isinstance(entry, QWidget):
+                    laid_out.add(id(entry))
+                else:
+                    stack.append(entry)
         moved = 0
         for child in self.findChildren(
                 QWidget, options=Qt.FindDirectChildrenOnly):

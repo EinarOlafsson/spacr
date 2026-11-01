@@ -465,8 +465,9 @@ def _page_layout(screen: QWidget):
     layout = screen.layout() if screen is not None else None
     if layout is None or layout.count() != 1:
         return layout
-    item = layout.itemAt(0)
-    scroll = item.widget() if item is not None else None
+    from ..widgets.flow import _layout_widget_at
+
+    scroll = _layout_widget_at(layout, 0)
     if (isinstance(scroll, QScrollArea)
             and scroll.objectName() == "CrampedScreenScroll"
             and scroll.widget() is not None
@@ -488,11 +489,11 @@ def _page_body(screen: QWidget) -> Optional[QWidget]:
     layout = _page_layout(screen)
     if layout is None or not hasattr(layout, "stretch"):
         return None
-    for index in range(layout.count()):
-        item = layout.itemAt(index)
-        widget = item.widget() if item is not None else None
-        if widget is not None and layout.stretch(index) > 0:
-            return widget
+    from ..widgets.flow import _layout_entries
+
+    for index, entry in _layout_entries(layout):
+        if isinstance(entry, QWidget) and layout.stretch(index) > 0:
+            return entry
     return None
 
 

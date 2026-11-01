@@ -2876,8 +2876,9 @@ class HomePage(QWidget):
                 make_transparent(page)
         layout = self.layout()
         if layout is not None and layout.count():
-            item = layout.itemAt(0)
-            body = item.widget() if item is not None else None
+            from .flow import _layout_widget_at
+
+            body = _layout_widget_at(layout, 0)
             if body is not None:
                 make_transparent(body)
 

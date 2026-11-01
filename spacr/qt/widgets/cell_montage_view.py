@@ -1367,8 +1367,9 @@ class _WellTab(QWidget):
 
         Use :meth:`crops` to retrieve all crops held by the tab.
         """
-        return tuple(self._grid.itemAt(i).widget()
-                     for i in range(self._grid.count()))
+        from .flow import _layout_widgets
+
+        return tuple(_layout_widgets(self._grid))
 
     def fill(self, columns: int) -> None:
         """Lay the crops out, at the column count THIS TAB measures.

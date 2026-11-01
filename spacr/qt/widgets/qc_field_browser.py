@@ -10059,7 +10059,7 @@ class _FieldOverview(QWidget):
         :param splitter: image workspace outside the configuration scroller.
         """
         from PySide6.QtWidgets import QScrollArea
-        from .flow import FlowHost, FlowLayout
+        from .flow import FlowHost, FlowLayout, _layout_widgets
         from .section import Section
         self._options_window = QDialog(self, Qt.Window)
         self._options_window.setWindowTitle(tr("Options"))
@@ -10085,7 +10085,7 @@ class _FieldOverview(QWidget):
             if item.widget() in (splitter, self.status):
                 continue
             layout = item.layout()
-            members = [layout.itemAt(index).widget() for index in range(layout.count())] if layout else [item.widget()]
+            members = _layout_widgets(layout) if layout else [item.widget()]
             category = tr("Display")
             if self.source in members or self.regex in members:
                 category = tr("Source")

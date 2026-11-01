@@ -1517,16 +1517,9 @@ def _appended(existing: str, name: str) -> str:
 def _find_layout_with(layout: Optional[QLayout],
                       widget: QWidget) -> Optional[QLayout]:
     """Return the (possibly nested) layout that directly holds ``widget``."""
-    if layout is None:
-        return None
-    if layout.indexOf(widget) >= 0:
-        return layout
-    for i in range(layout.count()):
-        child = layout.itemAt(i)
-        found = _find_layout_with(child.layout() if child else None, widget)
-        if found is not None:
-            return found
-    return None
+    from .flow import _layout_holding
+
+    return _layout_holding(layout, widget)
 
 
 def _replace_layout_widget(layout: QLayout, field: QWidget,

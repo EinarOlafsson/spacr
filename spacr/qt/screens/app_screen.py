@@ -3218,10 +3218,10 @@ class AppScreen(QWidget):
 
         :param layout: the settings column's layout.
         """
-        for index in range(layout.count()):
-            item = layout.itemAt(index)
-            widget = item.widget() if item is not None else None
-            if widget is None:
+        from ..widgets.flow import _layout_entries
+
+        for index, widget in _layout_entries(layout):
+            if not isinstance(widget, QWidget):
                 continue
             if str(widget.property("settingsCategorySource") or "") \
                     == self.OBJECT_GRID_BEFORE:
@@ -3236,11 +3236,10 @@ class AppScreen(QWidget):
         :returns: the index of the trailing stretch, or the end of the
             layout when it has not been given one yet.
         """
-        for index in range(layout.count() - 1, -1, -1):
-            item = layout.itemAt(index)
-            if item is not None and item.spacerItem() is not None:
-                return index
-        return layout.count()
+        from ..widgets.flow import _plain_item_indexes
+
+        spacers = _plain_item_indexes(layout)
+        return spacers[-1] if spacers else layout.count()
 
     def _widget_key_index(self) -> dict:
         """``id(widget) -> setting key`` for this panel's settings model.
@@ -3470,7 +3469,9 @@ class AppScreen(QWidget):
                 at = min(before)
             else:
                 at = layout.count()
-                if at and layout.itemAt(at - 1).spacerItem() is not None:
+                from ..widgets.flow import _plain_item_indexes
+
+                if at and (at - 1) in _plain_item_indexes(layout):
                     at -= 1
             layout.insertWidget(at, section)
 
@@ -3821,9 +3822,10 @@ class AppScreen(QWidget):
         layout = self._settings_layout
         at = self._index_before_the_stretch(layout)
         placed_after = -1.0
-        for index in range(layout.count()):
-            other = layout.itemAt(index).widget()
-            if other is None or getattr(
+        from ..widgets.flow import _layout_entries
+
+        for index, other in _layout_entries(layout):
+            if not isinstance(other, QWidget) or getattr(
                     other, "_settings_top_level_order", None) is None:
                 continue
             name = str(other.property("settingsCategorySource") or "")

@@ -2230,6 +2230,18 @@ class ConsolePanel(QWidget):
             self._insert_entry(block)
             self._last_entry_kind = "stdout"
 
+    def _entry_widgets(self) -> dict:
+        """The console's entry widgets by their index in the entry column.
+
+        Read with :func:`spacr.qt.widgets.flow._layout_entries` rather than
+        ``itemAt``, which would leave each entry's layout item wrapper alive
+        under the column after the entry is cleared.
+        """
+        from .flow import _layout_entries
+
+        return {index: entry for index, entry in _layout_entries(self._entries)
+                if isinstance(entry, QWidget)}
+
     def as_text(self, start: int = 0, stop: Optional[int] = None) -> str:
         """The console as plain text, section headers included.
 
@@ -2240,9 +2252,9 @@ class ConsolePanel(QWidget):
         parts = []
         last = self._entries.count() - 1
         stop = last if stop is None else min(stop, last)
+        entries = self._entry_widgets()
         for index in range(max(0, start), stop):
-            item = self._entries.itemAt(index)
-            widget = item.widget() if item is not None else None
+            widget = entries.get(index)
             if widget is None:
                 continue
             if isinstance(widget, _TopicBar):
@@ -2273,9 +2285,9 @@ class ConsolePanel(QWidget):
         start = None
         last = self._entries.count() - 1
         boundaries = []
+        entries = self._entry_widgets()
         for index in range(last):
-            item = self._entries.itemAt(index)
-            widget = item.widget() if item is not None else None
+            widget = entries.get(index)
             if widget is bar:
                 start = index
                 continue
@@ -2317,9 +2329,9 @@ class ConsolePanel(QWidget):
             return []
         end = self._entries.count() - 1 if stop is None else stop
         body = []
+        entries = self._entry_widgets()
         for index in range(start + 1, end):
-            item = self._entries.itemAt(index)
-            widget = item.widget() if item is not None else None
+            widget = entries.get(index)
             if widget is not None:
                 body.append(widget)
         return body
@@ -2595,9 +2607,9 @@ class ConsolePanel(QWidget):
     def _pipeline_console_blocks(self):
         """Yield rendered pipeline blocks that are eligible as AI context."""
         last = self._entries.count() - 1
+        entries = self._entry_widgets()
         for index in range(last):
-            item = self._entries.itemAt(index)
-            widget = item.widget() if item is not None else None
+            widget = entries.get(index)
             kind = widget.property("consoleContextKind") if widget else None
             if kind in {"stdout", "traceback"} and hasattr(
                     widget, "toPlainText"):

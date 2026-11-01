@@ -6912,9 +6912,10 @@ def _setting_label_for_field(owner: QWidget, field: QWidget) -> Optional[QWidget
         if index < 0:
             continue
         row, column, _row_span, _column_span = grid.getItemPosition(index)
+        from ..widgets.flow import _grid_widget_at
+
         for candidate_column in range(column - 1, -1, -1):
-            item = grid.itemAtPosition(row, candidate_column)
-            candidate = item.widget() if item is not None else None
+            candidate = _grid_widget_at(grid, row, candidate_column)
             if isinstance(candidate, QLabel):
                 field._spacr_setting_label = candidate
                 return candidate
@@ -13419,19 +13420,10 @@ DISABLED_REASON_TOOLTIP = "spacrDisabledReasonTooltip"
 
 def _owning_layout(root: QLayout, field: QWidget):
     """The innermost layout that holds ``field`` directly, and its index."""
-    stack = [root]
-    while stack:
-        layout = stack.pop()
-        for index in range(layout.count()):
-            item = layout.itemAt(index)
-            if item is None:
-                continue
-            if item.widget() is field:
-                return layout, index
-            child = item.layout()
-            if child is not None:
-                stack.append(child)
-    return None, -1
+    from ..widgets.flow import _layout_holding
+
+    layout = _layout_holding(root, field)
+    return (layout, layout.indexOf(field)) if layout is not None else (None, -1)
 
 
 
@@ -13521,9 +13513,11 @@ def _sibling_label_for(field: QWidget) -> Optional[QWidget]:
 
     if isinstance(layout, QGridLayout):
         row, column, _rows, _cols = layout.getItemPosition(index)
+        from ..widgets.flow import _grid_widget_at
+
         for candidate in range(column - 1, -1, -1):
-            item = layout.itemAtPosition(row, candidate)
-            found = _named(item.widget()) if item is not None else None
+            widget = _grid_widget_at(layout, row, candidate)
+            found = _named(widget) if widget is not None else None
             if found is not None:
                 return found
         return None
@@ -13534,8 +13528,10 @@ def _sibling_label_for(field: QWidget) -> Optional[QWidget]:
         candidate_index = index - 1
         if layout.stretch(candidate_index) > 0:
             return None
-        item = layout.itemAt(candidate_index)
-        return _named(item.widget()) if item is not None else None
+        from ..widgets.flow import _layout_widget_at
+
+        widget = _layout_widget_at(layout, candidate_index)
+        return _named(widget) if widget is not None else None
     return None
 
 

@@ -439,10 +439,10 @@ def install_flowview(screen: QWidget) -> Optional[LazyFlowViewSection]:
         if layout is None:
             return None
         section = LazyFlowViewSection(screen, content)
-        last = layout.itemAt(layout.count() - 1) if layout.count() else None
-        insert_at = layout.count() - 1 if (
-            last is not None and last.spacerItem() is not None
-        ) else layout.count()
+        from ..widgets.flow import _plain_item_indexes
+
+        last = layout.count() - 1
+        insert_at = last if (last >= 0 and last in _plain_item_indexes(layout)) else layout.count()
         layout.insertWidget(max(0, insert_at), section)
         screen._flowview_section = section
         ensure_widget_qss_applied(FLOWVIEW_SECTION_NAME, root=screen)

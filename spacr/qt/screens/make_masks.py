@@ -1432,7 +1432,9 @@ class _ImageContainer(CollapsibleSplitter):
             if isinstance(top, _ToolbarViewport) and top.widget() is not None:
                 row = top.widget().layout()
                 if row is not None and row.count() == 2:
-                    tools, annotation = (row.itemAt(index).widget()
+                    from ..widgets.flow import _layout_widget_at
+
+                    tools, annotation = (_layout_widget_at(row, index)
                                          for index in range(2))
                     margins = row.contentsMargins()
                     width = (top.viewport().width() - row.spacing()

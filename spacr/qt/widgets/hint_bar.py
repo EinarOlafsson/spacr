@@ -308,7 +308,9 @@ class HintBar(QLabel):
         window = self.window()
         layout = window.layout() if window is not self else None
         index = layout.indexOf(self) if layout is not None else -1
-        above = layout.itemAt(index - 1).widget() if index > 0 else None
+        from .flow import _layout_widget_at
+
+        above = _layout_widget_at(layout, index - 1) if index > 0 else None
         if above is None or not self.isVisible():
             return minimum
         kept = max(above.minimumSizeHint().height(), 100)

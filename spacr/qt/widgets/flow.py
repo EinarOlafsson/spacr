@@ -59,6 +59,107 @@ def _item_python_can_track(item):
     return owned
 
 
+def _layout_entries(layout):
+    """The widgets and nested layouts ``layout`` holds, with their item indexes.
+
+    Read through ``indexOf`` and the layout's QObject children, never through
+    ``itemAt``: PySide's layout glue makes the asked layout the Python parent
+    of every item wrapper ``itemAt`` returns, and a Qt-created item deleted
+    later then leaves its wrapper alive at the freed address, where the next
+    object allocated is handed it. Spacers and other plain items are not
+    listed; their indexes are the ones missing.
+
+    :param layout: a live layout.
+    :returns: ``(index, widget_or_layout)`` pairs in item order.
+    """
+    found = []
+    owner = layout.parentWidget()
+    if owner is not None:
+        for widget in owner.findChildren(QWidget, options=Qt.FindDirectChildrenOnly):
+            index = layout.indexOf(widget)
+            if index >= 0:
+                found.append((index, widget))
+    for inner in layout.children():
+        if isinstance(inner, QLayout):
+            index = layout.indexOf(inner)
+            if index >= 0:
+                found.append((index, inner))
+    found.sort(key=_entry_index)
+    return found
+
+
+def _entry_index(entry):
+    """Sort key for :func:`_layout_entries`: the item index."""
+    return entry[0]
+
+
+def _layout_widgets(layout):
+    """The widgets ``layout`` holds directly, in item order, read as :func:`_layout_entries` reads them.
+
+    :param layout: a live layout.
+    :returns: the widgets.
+    """
+    return [entry for _index, entry in _layout_entries(layout) if isinstance(entry, QWidget)]
+
+
+def _layout_widget_at(layout, index):
+    """The widget at item ``index`` of ``layout``, or ``None`` for a spacer, a layout or no item.
+
+    :param layout: a live layout.
+    :param index: the item index.
+    :returns: the widget, or ``None``.
+    """
+    for at, entry in _layout_entries(layout):
+        if at == index:
+            return entry if isinstance(entry, QWidget) else None
+    return None
+
+
+def _layout_holding(layout, widget):
+    """``layout`` or the nested layout in it that holds ``widget`` as a direct item.
+
+    :param layout: the outermost layout, or ``None``.
+    :param widget: the widget to find.
+    :returns: the layout, or ``None``.
+    """
+    if layout is None:
+        return None
+    if layout.indexOf(widget) >= 0:
+        return layout
+    for inner in layout.children():
+        if isinstance(inner, QLayout):
+            found = _layout_holding(inner, widget)
+            if found is not None:
+                return found
+    return None
+
+
+def _plain_item_indexes(layout):
+    """The indexes of ``layout``'s items that are neither a widget nor a layout: its spacers.
+
+    :param layout: a live layout.
+    :returns: the indexes, ascending.
+    """
+    taken = {index for index, _entry in _layout_entries(layout)}
+    return [index for index in range(layout.count()) if index not in taken]
+
+
+def _grid_widget_at(grid, row, column):
+    """The widget whose cell in ``grid`` starts at ``row``/``column``, or ``None``.
+
+    :param grid: a live ``QGridLayout``.
+    :param row: the row.
+    :param column: the column.
+    :returns: the widget, or ``None``.
+    """
+    for index, entry in _layout_entries(grid):
+        if isinstance(entry, QWidget):
+            at_row, at_column, rows, columns = grid.getItemPosition(index)
+            if at_row <= row < at_row + max(1, rows) and at_column <= column < at_column + max(1, columns):
+                return entry
+    return None
+
+
 class FlowLayout(QLayout):
     """A left-to-right layout that wraps onto a new line when it runs out.
 

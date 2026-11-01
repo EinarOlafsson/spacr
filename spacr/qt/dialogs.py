@@ -333,9 +333,9 @@ def _already_scrolls(layout) -> bool:
     of scroll bars around the first.
     """
     from PySide6.QtWidgets import QAbstractScrollArea
+    from .widgets.flow import _layout_widgets
 
-    widgets = [layout.itemAt(i).widget() for i in range(layout.count())]
-    widgets = [w for w in widgets if w is not None]
+    widgets = _layout_widgets(layout)
     return len(widgets) == 1 and isinstance(widgets[0], QAbstractScrollArea)
 
 

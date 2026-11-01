@@ -3064,11 +3064,15 @@ class FastPlot(QWidget):
         margins = layout.contentsMargins()
         total = margins.top() + margins.bottom()
         total += max(0, layout.count() - 1) * max(0, layout.spacing())
-        for index in range(layout.count()):
-            item = layout.itemAt(index)
-            if item is None or item.widget() is self.plot:
+        from PySide6.QtWidgets import QWidgetItem
+        from .flow import _layout_entries
+
+        for _index, entry in _layout_entries(layout):
+            if entry is self.plot:
                 continue
-            total += int(item.sizeHint().height())
+            if isinstance(entry, QWidget):
+                entry = QWidgetItem(entry)
+            total += int(entry.sizeHint().height())
         return int(total)
 
     def _apply_canvas_shape(self) -> None:
