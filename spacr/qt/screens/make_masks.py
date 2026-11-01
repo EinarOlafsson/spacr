@@ -15970,7 +15970,10 @@ class MakeMasksScreen(QWidget):
     _PREBUILD_RETRY_S = 1.0
 
     def showEvent(self, event) -> None:                      # noqa: N802
-        """Schedule the idle build of the folded module a lesson opens next."""
+        """Schedule the idle build of the folded module a lesson opens next.
+
+        :param event: the Qt show event.
+        """
         super().showEvent(event)
         if not getattr(self, "_prebuild_scheduled", False):
             self._prebuild_scheduled = True
