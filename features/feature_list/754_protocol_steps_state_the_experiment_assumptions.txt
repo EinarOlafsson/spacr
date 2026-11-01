@@ -1,7 +1,7 @@
 PROTOCOL STEPS STATE THE EXPERIMENT ASSUMPTIONS
 ===============================================
 Lifecycle: new
-Status: OPEN 2026-11-01 — requested by the maintainer.
+Status: DONE 2026-11-01 — assumption sentences shipped with their nine-language reviewed translations.
 Requested: maintainer, 2026-11-01.
 Owner: Home (coordinator assigns an agent).
 Related: 739 Navigator Protocols, 733 Navigator, 746 (no text is cut off), N678 factual language.
@@ -40,3 +40,5 @@ NOTES
 2026-11-01 Tests: test_754_protocol_assumptions (5) plus 739/protocol/workflow cohort, 106 pass offscreen; text_fit 2.0 en/de stays []. Screenshots light/dark at 100/200 % offscreen and Xvfb/Openbox: /mnt/wd4tb/scratch/claude-assumptions-20261031/shots/. Remaining: nine-locale closure of the 73 strings through the generator owner, then push.
 2026-11-01 Cut-off fix pushed to nightly as eef0fae5ae: protocol choices wrap their full text instead of eliding, field labels move above their choice when they do not fit beside it, and tests.qt.text_fit --protocols measures every protocol family and long choice at 100/200 % in en and de (fails on the old code: 8-26 offenders per configuration, now []).
 2026-11-01 Box growth (e857fea55f) and maintainer decision (f741273aff, amends 739's stationary composer for Protocols only): with Protocols open the description box takes its wrapped text height, and the composer moves up into the empty space above it as far as needed, returning to its centre when Protocols closes; the box scrolls only when no room is left. text_fit --protocol-box checks every choice step and the finished protocol at 1366x768/1920x1080, 100/200 %, en/de.
+2026-11-01 Generator closure pushed to nightly with the branch: the 73 assumption sentences (including The analysis starts in {module}.) are reviewed in all nine languages in spacr-translations 57b8eb1f (Claude Opus 5.5 AI translation and review, declarative in every language, placeholder kept); runtime catalogs (UI 10,176 -> 10,249), caption arrival proof (+73) and coverage table regenerated.
+2026-11-01 Validation after the closure: 754/739/protocol text-fit/protocol catalog and caption ratchet/arrival cohort 125 passed (1 report-only xfail); runtime syntax, reviewed-runtime reporter, protocol caption extraction and help index tests pass. Item 754 is complete.
