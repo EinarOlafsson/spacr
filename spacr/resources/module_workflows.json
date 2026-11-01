@@ -3649,7 +3649,7 @@
         },
         {
           "module": "measure",
-          "action": "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.",
+          "action": "Measure reads images and label planes together. PNG crops are written while save_png is on (default True); turn it off to compute measurements only. Keep the database and source project together for streamed crops.",
           "after": [
             "external_masks"
           ]
@@ -3730,7 +3730,7 @@
         },
         {
           "module": "measure",
-          "action": "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.",
+          "action": "Measure reads images and label planes together. PNG crops are written while save_png is on (default True); turn it off to compute measurements only. Keep the database and source project together for streamed crops.",
           "after": [
             "mask"
           ]
@@ -3739,7 +3739,7 @@
     },
     "align_stitch": {
       "title": "Align and stitch images",
-      "summary": "Inspect tile geometry, overlap and channel mapping, then save the mosaic with coordinate records. OPS also needs the original cycle/site identities.",
+      "summary": "Press Plan to compute the tile layout and list tiles that fell back to their stage positions; Plan writes nothing. Write stack then writes the stitched stack to the Write to folder or .npy file and records tile coordinates in measurements.db when the Database field is set. Every channel uses the registration measured on Ref. channel. OPS also needs the original cycle/site identities.",
       "pathway": "import_images",
       "inputs": [
         "raw_images"
@@ -3747,7 +3747,7 @@
       "steps": [
         {
           "module": "align",
-          "action": "Inspect tile geometry, overlap and channel mapping, then save the mosaic with coordinate records. OPS also needs the original cycle/site identities.",
+          "action": "Press Plan to compute the tile layout and list tiles that fell back to their stage positions; Plan writes nothing. Write stack then writes the stitched stack to the Write to folder or .npy file and records tile coordinates in measurements.db when the Database field is set. Every channel uses the registration measured on Ref. channel. OPS also needs the original cycle/site identities.",
           "after": []
         },
         {
@@ -3864,7 +3864,7 @@
         },
         {
           "module": "measure",
-          "action": "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.",
+          "action": "Measure reads images and label planes together. PNG crops are written while save_png is on (default True); turn it off to compute measurements only. Keep the database and source project together for streamed crops.",
           "after": [
             "mask"
           ]
@@ -3900,7 +3900,7 @@
         },
         {
           "module": "measure",
-          "action": "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.",
+          "action": "Measure reads images and label planes together. PNG crops are written while save_png is on (default True); turn it off to compute measurements only. Keep the database and source project together for streamed crops.",
           "after": [
             "spatial_masks"
           ]
@@ -4015,7 +4015,7 @@
         },
         {
           "module": "measure",
-          "action": "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.",
+          "action": "Measure reads images and label planes together. PNG crops are written while save_png is on (default True); turn it off to compute measurements only. Keep the database and source project together for streamed crops.",
           "after": [
             "mask"
           ]
@@ -4046,7 +4046,7 @@
         },
         {
           "module": "measure",
-          "action": "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.",
+          "action": "Measure reads images and label planes together. PNG crops are written while save_png is on (default True); turn it off to compute measurements only. Keep the database and source project together for streamed crops.",
           "after": [
             "mask"
           ]
@@ -4077,7 +4077,7 @@
         },
         {
           "module": "measure",
-          "action": "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.",
+          "action": "Measure reads images and label planes together. PNG crops are written while save_png is on (default True); turn it off to compute measurements only. Keep the database and source project together for streamed crops.",
           "after": [
             "mask"
           ]
@@ -4108,7 +4108,7 @@
         },
         {
           "module": "measure",
-          "action": "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.",
+          "action": "Measure reads images and label planes together. PNG crops are written while save_png is on (default True); turn it off to compute measurements only. Keep the database and source project together for streamed crops.",
           "after": [
             "mask"
           ]
@@ -4161,7 +4161,7 @@
         },
         {
           "module": "measure",
-          "action": "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.",
+          "action": "Measure reads images and label planes together. PNG crops are written while save_png is on (default True); turn it off to compute measurements only. Keep the database and source project together for streamed crops.",
           "after": [
             "mask"
           ]
@@ -4585,7 +4585,7 @@
         },
         {
           "module": "measure",
-          "action": "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.",
+          "action": "Measure reads images and label planes together. PNG crops are written while save_png is on (default True); turn it off to compute measurements only. Keep the database and source project together for streamed crops.",
           "after": [
             "mask"
           ]
@@ -4859,7 +4859,7 @@
         },
         {
           "module": "measure",
-          "action": "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.",
+          "action": "Measure reads images and label planes together. PNG crops are written while save_png is on (default True); turn it off to compute measurements only. Keep the database and source project together for streamed crops.",
           "after": [
             "mask"
           ]
@@ -6390,7 +6390,7 @@
               {
                 "id": "images_organize_align_stitch",
                 "title": "Align and stitch images",
-                "description": "Inspect tile geometry, overlap and channel mapping, then save the mosaic with coordinate records. OPS also needs the original cycle/site identities.",
+                "description": "Press Plan to compute the tile layout and list tiles that fell back to their stage positions; Plan writes nothing. Write stack then writes the stitched stack to the Write to folder or .npy file and records tile coordinates in measurements.db when the Database field is set. Every channel uses the registration measured on Ref. channel. OPS also needs the original cycle/site identities.",
                 "protocol": "align_stitch",
                 "start_module": "align"
               }
