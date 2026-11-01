@@ -682,6 +682,20 @@ _FRAME_BUDGET_MS = 20.0
 #: GUI thread's time in gaps over 50 ms by 14% and gaps over 200 ms by 41%.
 _OVER_BUDGET_SHARE = 0.5
 
+#: Repaint cost, in ms, at or below which a field keeps its full rate during
+#: a run, and above which it is paced to :data:`_RUN_FPS`. The CPU impulse
+#: lens costs 1.3 ms compiled at 3840x2160, so a run has no reason to halve
+#: it to 30 while its frames stay cheap; the two limits are far enough apart
+#: that the rate does not flap.
+_RUN_FULL_RATE_BELOW_MS = 8.0
+_RUN_PACED_ABOVE_MS = 14.0
+
+#: How soon, in ms, a tick that found no new frame asks again, so a frame the
+#: shading thread finishes just after its tick is shown in a few ms rather than
+#: a whole period later (30 a second became 15 when a frame took 35 ms).
+_TICK_RETRY_MS = 3
+_TICK_RETRIES_PER_PERIOD = 12
+
 #: Frame cost, in ms, above which a run holds the next tick back. A frame
 #: between :data:`_FRAME_BUDGET_MS` and this one used to halve the rate
 #: again: the pairs loading of lesson 21 made repaints 40-45 ms, the field fell
@@ -2181,9 +2195,10 @@ _GRAPHICS_THREADS = frozenset(('spacr-ambient-shade', 'spacr-ambient-gpu'))
 _LIVE_GRAPHICS_LANES: "weakref.WeakSet[_GraphicsLane]" = weakref.WeakSet()
 
 #: How long the shading thread waits for a GPU frame before shading it on the
-#: CPU: two 60 Hz frames. The RTX 3090 Ti audit's slowest impulse-lens frame
+#: CPU: six 60 Hz frames, because 34-56 ms frames are normal while a card also
+#: trains and each fallback holds the CPU path for 30 s (it was two frames). The RTX 3090 Ti audit's slowest impulse-lens frame
 #: was 9.2 ms at 3840x2160.
-_GRAPHICS_FRAME_WAIT_S = 0.033
+_GRAPHICS_FRAME_WAIT_S = 0.1
 
 #: The wait for a renderer's first frame, which creates its context and
 #: compiles its shaders.
@@ -12562,7 +12577,9 @@ class AmbientWidget(QWidget):
         is left moving is the page around the cards, and an idle window
         should cost little.
         """
-        rate = min(self._fps, _RUN_FPS) if self._run_paced else self._fps
+        rate = self._fps
+        if self._run_paced and not self.__dict__.get("_cheap_frames", True):
+            rate = min(self._fps, _RUN_FPS)
         if self.__dict__.get("_hold_paced"):
             rate = min(rate, _HOLD_FPS if _CAPTURE_HELD_FPS is None else _CAPTURE_HELD_FPS)
         return rate
@@ -12580,6 +12597,47 @@ class AmbientWidget(QWidget):
         if producer is not None:
             producer.set_fps(rate)
 
+    def _follow_the_frame_cost(self) -> None:
+        """Keep the full rate in a run while repaints are cheap; pace it when they are not.
+
+        The cost is the repaint just timed. Two limits, one below the other
+        (:data:`_RUN_FULL_RATE_BELOW_MS`, :data:`_RUN_PACED_ABOVE_MS`), so a
+        cost between them leaves the rate as it is.
+        """
+        cost = self.__dict__.get("_frame_cost_ms", 0.0)
+        cheap = self.__dict__.get("_cheap_frames", True)
+        if cheap and cost > _RUN_PACED_ABOVE_MS:
+            self._cheap_frames = False
+        elif not cheap and cost <= _RUN_FULL_RATE_BELOW_MS:
+            self._cheap_frames = True
+        else:
+            return
+        if self._run_paced:
+            self._apply_rate()
+
+    def _retry_the_tick(self) -> bool:
+        """Ask again in a few ms when a tick found no new frame, on the same beat.
+
+        The shading thread starts a frame when a tick wakes it, so a frame
+        that takes a little longer than the period was shown a whole period
+        late and the field fell to half its rate. The beat itself
+        (:attr:`_tick_due`) is not moved, so a retry never adds a tick.
+
+        :returns: True when the tick was handed back to the timer.
+        """
+        tries = self.__dict__.get("_tick_retries", 0)
+        if (tries >= _TICK_RETRIES_PER_PERIOD or self._tick_due is None
+                or self._run_paced and not self.__dict__.get("_cheap_frames", True)):
+            return False
+        now = time.perf_counter() * 1000.0
+        if self._tick_due - now <= _TICK_RETRY_MS:
+            return False
+        self._tick_retries = tries + 1
+        self._retrying = True
+        self._tick_interval = _TICK_RETRY_MS
+        self._timer.setInterval(_TICK_RETRY_MS)
+        return True
+
     def _schedule_next_tick(self) -> None:
         """Hold the average tick period to the exact rate, not a whole millisecond.
 
@@ -12593,6 +12651,11 @@ class AmbientWidget(QWidget):
             return
         now = time.perf_counter() * 1000.0
         due = self._tick_due
+        if self.__dict__.pop("_retrying", False) and due is not None and due > now:
+            interval = max(1, int(round(due - now)))
+            self._tick_interval = interval
+            self._timer.setInterval(interval)
+            return
         due = now + period if due is None else due + period
         if due < now - period or due > now + 1.25 * period:
             due = now + period
@@ -13388,6 +13451,11 @@ class AmbientWidget(QWidget):
                 elif not area.isEmpty():
                     self.repaint(area)
                 self._frame_cost_ms = (time.perf_counter() - started) * 1000.0
+                self._tick_retries = 0
+                self._follow_the_frame_cost()
+            elif self._retry_the_tick():
+                producer._wake.set()
+                return
             producer._wake.set()
         elif area is None:
             self.update()

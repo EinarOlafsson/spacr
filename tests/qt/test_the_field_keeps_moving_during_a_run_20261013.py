@@ -129,6 +129,9 @@ def test_a_cpu_heavy_job_paces_the_field_instead_of_stopping_it(
     monkeypatch.setattr(ambient, "_RESOURCE_POLICY", _CpuJob())
     field._sync_run_state()
     assert field.is_running() and field.shading_thread_alive()
+    assert field._rate() == field.fps()
+    field._frame_cost_ms = ambient._RUN_PACED_ABOVE_MS * 2
+    field._follow_the_frame_cost()
     assert field._rate() == ambient._RUN_FPS
     monkeypatch.setattr(ambient, "_RESOURCE_POLICY", None)
     field._sync_run_state()

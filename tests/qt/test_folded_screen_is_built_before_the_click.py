@@ -362,4 +362,5 @@ def test_a_folded_screens_field_has_its_first_frame_before_the_click(
     started = time.perf_counter()
     screen.open_folded("train_cellpose")
     took = time.perf_counter() - started
+    ambient._retire_shading_threads(timeout_s=3.0)
     assert took < 0.6 + 0.3, took

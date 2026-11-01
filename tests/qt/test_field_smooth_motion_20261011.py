@@ -164,6 +164,9 @@ def test_installed_field_runs_at_the_display_rate_and_paces_runs(qtbot):
     assert field.fps() == round(ambient._display_hz(field, ambient.FIELD_FPS))
     field._run_paced = True
     field._apply_rate()
+    assert field._rate() == field.fps()
+    field._frame_cost_ms = ambient._RUN_PACED_ABOVE_MS * 2
+    field._follow_the_frame_cost()
     assert field._rate() == ambient._RUN_FPS
     assert field._timer.interval() == 1000 // ambient._RUN_FPS
     field.set_theme("data_art_point_atlas")

@@ -23,6 +23,13 @@ from spacr.qt.widgets import ambient  # noqa: E402
 pytestmark = pytest.mark.qt
 
 
+@pytest.fixture(autouse=True)
+def _no_shading_thread_left_behind():
+    """End every shading thread and graphics lane a test started."""
+    yield
+    ambient._retire_shading_threads(timeout_s=3.0)
+
+
 def _pump(seconds):
     app = QApplication.instance()
     end = time.time() + seconds
