@@ -4647,12 +4647,6 @@
           "idle_tail_start": 13.0
         },
         {
-          "visual": "module_map_barcodes",
-          "source_start": 212.86666666666665,
-          "source_end": 289.7333333333333,
-          "idle_tail_start": 73.0
-        },
-        {
           "visual": "module_regression",
           "source_start": 289.7333333333333,
           "source_end": 341.59999999999997,
