@@ -124,7 +124,9 @@ class ColumnAlignedRow(QLayout):
         :param item: the ``QLayoutItem`` to manage; it is placed in the
             trailing run after the column-aligned widgets.
         """
-        self._items.append((item, None))
+        from .flow import _item_python_can_track
+
+        self._items.append((_item_python_can_track(item), None))
 
     def add_over_column(self, widget: QWidget,
                         column: Optional[int]) -> None:
