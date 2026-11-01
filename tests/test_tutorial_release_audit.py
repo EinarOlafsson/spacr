@@ -144,8 +144,8 @@ def test_release_audit_parsers_pin_the_current_inventory():
     # Scene totals count the whole published inventory, archived lessons
     # included, so archiving or restoring a lesson leaves them unchanged.
     published = full_file("lesson_catalog.js", tutorial_root)
-    assert sum(len(lesson["scenes"]) for lesson in published["lessons"] if lesson["id"] != "14_make_masks") == 1188
-    assert sum(len(lesson["scenes"]) for lesson in published["lessons"]) == 1249
+    assert sum(len(lesson["scenes"]) for lesson in published["lessons"] if lesson["id"] != "14_make_masks") == 1187
+    assert sum(len(lesson["scenes"]) for lesson in published["lessons"]) == 1248
     assert len(languages) == 8
     assert len(voices) == 50
     assert not (live.RETIRED_VOICES & set(voices))

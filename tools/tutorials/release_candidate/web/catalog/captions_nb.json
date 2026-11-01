@@ -16363,7 +16363,7 @@
         },
         {
           "visual": "module_map_barcodes",
-          "narration": "Begynn med sekvenseringslesningene. Åpne Map Barcodes fra Home og gi den FASTQ-filene dine, enkle eller parede lesninger, med referansetabellene for strekkoder som koder eksperimentet ditt. Map Barcodes matcher hver lesning med strekkodene og teller guidene i hver brønn, og lagrer unique_combinations.csv og annotated_reads.h5 i kjøringsmappen. Før du stoler på tellingene, åpner du dem i Barcode QC. Når de har bestått, er de guideantallene som Regression kobler til fenotypepoeng via de samme plate- og brønnøklene.",
+          "narration": "Begynn med sekvenseringslesningene. Åpne Map Barcodes fra Home og gi den FASTQ-filene dine, enkle eller parede lesninger, med referansetabellene for strekkoder som koder eksperimentet ditt. Map Barcodes matcher hver lesning med strekkodene og teller guidene i hver brønn, og lagrer unique_combinations.csv og qc.csv, og som standard annotated_reads.h5, i utdatamappen for hver prøve. Før du stoler på tellingene, åpner du dem i Barcode QC. Når de har bestått, er de guideantallene som Regression kobler til fenotypepoeng via de samme plate- og brønnøklene.",
           "hold_after": 0.7,
           "related_lessons": [
             "12_map_barcodes",
@@ -16381,15 +16381,6 @@
           ]
         },
         {
-          "visual": "module_ops",
-          "narration": "Optiske screeninger går en annen vei. Åpne Mask fra Home, og velg deretter OPS. I stedet for lesninger tar OPS bildene fra hver sekvenseringssyklus, justerer dem mot fenotypebildene og dekoder en strekkode for hver kjerne. Resultatene havner i measurements.db for OPS, med tabeller for geometri, fenotypejustering, kjerner og strekkoder. Denne databasen er likevel ikke en FASTQ-telletabell. For å bruke den i Regression kobler og aggregerer du først de dekodede identitetene med fenotypedataene dine, slik at hvert objekt eller hver brønn bærer begge deler.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "13_regression",
-            "76_ops"
-          ]
-        },
-        {
           "visual": "module_regression",
           "narration": "Uansett hvordan du sekvenserte, møtes strekkoder og fenotyper i Regression. Åpne den fra Home. For en samlet screening tar den fenotypepoeng fra Classify og guideantall fra Map Barcodes. For en optisk screening tar den de dekodede OPS-objektene når du selv har koblet og aggregert dem; det er ikke en direkte filoverlevering. Den kan også modellere en direkte målt respons. I alle tilfeller må plate- og brønnidentifikatorene stemme mellom inndataene. Velg respons og kontroller, kjør tilpasningen og les diagnostikken før du kaller noe et treff. Resultatmappen den skriver, med koeffisienter, treffabeller, innstillinger og figurer, er det Run Compare åpner når du vil stille denne kjøringen opp mot en annen.",
           "hold_after": 0.7,
@@ -16403,20 +16394,18 @@
         },
         {
           "visual": "module_power",
-          "narration": "Gå nå tilbake til før eksperimentet. Åpne Power / Design fra Home for å anslå hvor mye prøvetaking du trenger for å se en effekt, basert på effektstørrelsene og variabiliteten du velger. Pilotmålinger kan støtte disse forutsetningene, men de er valgfrie. Oppsettet fra Experiment Design brukes i disse anslagene, og anslagene kan i sin tur få deg til å revidere oppsettet.",
+          "narration": "Gå nå tilbake til før eksperimentet. Åpne Power / Design fra Home for å anslå hvor mye prøvetaking du trenger for å se en effekt, basert på effektstørrelsene og variabiliteten du velger. Pilotmålinger kan støtte disse forutsetningene, men de er valgfrie. Power / Design leser ikke platekartet fra Experiment Design, så legg inn antall plater, brønner per plate og replikater manuelt. Anslagene kan få deg til å revidere oppsettet.",
           "hold_after": 0.7,
           "related_lessons": [
-            "67_experiment_design",
             "68_power_design"
           ]
         },
         {
           "visual": "module_experiment_design",
-          "narration": "Åpne Experiment Design fra Home for å planlegge platene før du tar opp noe. Legg inn betingelser, kontroller, replikater og plategrenser med styrkeberegningene dine i tankene, og eksporter forsøksoppsettet. Oppsettet når langt. Power / Design bruker det til å sette prøvetakingsforutsetningene, og senere, når eksperimentet er tatt opp og målt, bruker Dose–Response dose- og betingelsesidentitetene i det, så hold dem uendret hele veien.",
+          "narration": "Åpne Experiment Design fra Home for å planlegge platene før du tar opp noe. Legg inn betingelser, kontroller, replikater og plategrenser, og eksporter platekartet. Power / Design leser ikke den filen, så overfør antall plater og replikater fra den manuelt. Senere, når eksperimentet er tatt opp og målt, bruker Dose–Response dose- og betingelsesidentitetene i det, så hold dem uendret hele veien.",
           "hold_after": 0.7,
           "related_lessons": [
             "67_experiment_design",
-            "68_power_design",
             "69_dose_response"
           ]
         },

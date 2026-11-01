@@ -1,19 +1,19 @@
 {
   "repository": "datasets/einarolafsson/spacr-tutorials",
-  "branch": "n676-ws-78-spacr-screens-20261101",
+  "branch": "n676-ws-81-sequencing-pathways-20261101",
   "base_commit": "1cfacdf5844740744cd3cf77000a63aea0c912f5",
-  "commit": "104a769a8c8b01c63ec422cb5fb312a5ccdb734c",
-  "tag": "n676-ws-78-spacr-screens-20261101-verified",
-  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/104a769a8c8b01c63ec422cb5fb312a5ccdb734c",
-  "manifest_sha256": "99784538f3cefe5ac749efa4c16efffe8585244e62298e7a6abe7259072ad901",
+  "commit": "f37be8e5c32ea8f793b2ee32664825758f6ad1ee",
+  "tag": "n676-ws-81-sequencing-pathways-20261101-verified",
+  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/f37be8e5c32ea8f793b2ee32664825758f6ad1ee",
+  "manifest_sha256": "f7b3faa0374830abab308b63f34565f76442ff49574f3db5fcdb46c5a2b9a0b6",
   "media_files": 7490,
-  "media_bytes": 15602203887,
+  "media_bytes": 15598926670,
   "readback": {
-    "commit": "104a769a8c8b01c63ec422cb5fb312a5ccdb734c",
+    "commit": "f37be8e5c32ea8f793b2ee32664825758f6ad1ee",
     "files_expected": 7490,
     "metadata_matched": 7490,
     "metadata_failures": [],
-    "bytes_read_back": 15602203887,
+    "bytes_read_back": 15598926670,
     "downloaded_sha256_matched": 7490,
     "download_failures": [],
     "files_on_revision_not_in_candidate": [
@@ -3478,16 +3478,16 @@
       "i18n/api/sv.json",
       "i18n/api/zh_CN.json"
     ],
-    "seconds": 735.1,
+    "seconds": 726.8,
     "passed": true
   },
   "pages": {
     "destination": "docs/source/_extra/tutorials",
     "files_from_candidate": 118,
     "bundled_tutorial_index_sha256": "9a2837697ebac2fe00a11f164c9dd262d0c6f89767cd3c21507ee370d96d718d",
-    "index_sha256": "3933402dd50973606dff01abd84e5cee58d43ee2683e08503827ce314db2da36",
-    "candidate_index_sha256": "3fced4f5b18b7a50ddf4117328f609369508b819b6b89e577753af3f02259d2e",
-    "cache_key": "n676-ws-78-spacr-screens-20261101-verified",
+    "index_sha256": "b922f014979655677fc2d4f2fd0776a313c18b36c86cc2cdc199ef21d54fd58e",
+    "candidate_index_sha256": "d7baa92b8e6d245cb8ba450ced416f73f907af480169549565551ee72761102f",
+    "cache_key": "n676-ws-81-sequencing-pathways-20261101-verified",
     "unchanged_versioned_assets": [
       "app_v2.js",
       "styles.css",
@@ -3496,14 +3496,14 @@
     "versioned_assets": {
       "app_v2.js": "n676-prose-78-reviewed-screen-features-20261024-verified",
       "styles.css": "20261002-home-landscape",
-      "lesson_catalog.js": "n676-ws-78-spacr-screens-20261101-verified",
-      "module_navigation.js": "n676-ws-78-spacr-screens-20261101-verified",
+      "lesson_catalog.js": "n676-ws-81-sequencing-pathways-20261101-verified",
+      "module_navigation.js": "n676-ws-81-sequencing-pathways-20261101-verified",
       "voice_catalog.js": "20260811-50-voices"
     },
     "hosted_web_copies": 60,
     "removed_local_web_copies": [],
     "withdrawn_pages_archive": {
-      "directory": "/media/carruthers/mnt1/spacr-tutorial-candidates-t18/release-candidate-append-f5ltbs6p/retired-pages",
+      "directory": "/media/carruthers/mnt1/spacr-tutorial-candidates-t18/release-candidate-append-qbwece3j/retired-pages",
       "files": []
     },
     "ready": 60,

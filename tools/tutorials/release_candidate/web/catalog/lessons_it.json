@@ -17542,14 +17542,14 @@
         },
         {
           "visual": "module_map_barcodes",
-          "narration": "Inizia dalle letture di sequenziamento. Apri Map Barcodes da Home e forniscigli i file FASTQ, a lettura singola o appaiata, con le tabelle di riferimento dei codici a barre che codificano il tuo esperimento. Map Barcodes abbina ogni lettura ai suoi codici a barre e conta le guide in ogni pozzetto, salvando unique_combinations.csv e annotated_reads.h5 nella cartella dell’esecuzione. Prima di fidarti di quei conteggi, aprili in Barcode QC. Una volta superato il controllo, sono i conteggi delle guide che Regression abbina ai punteggi di fenotipo, con le stesse chiavi di piastra e pozzetto.",
+          "narration": "Inizia dalle letture di sequenziamento. Apri Map Barcodes da Home e forniscigli i file FASTQ, a lettura singola o appaiata, con le tabelle di riferimento dei codici a barre che codificano il tuo esperimento. Map Barcodes abbina ogni lettura ai suoi codici a barre e conta le guide in ogni pozzetto, salvando unique_combinations.csv e qc.csv e, per impostazione predefinita, annotated_reads.h5 nella cartella di output di ogni campione. Prima di fidarti di quei conteggi, aprili in Barcode QC. Una volta superato il controllo, sono i conteggi delle guide che Regression abbina ai punteggi di fenotipo, con le stesse chiavi di piastra e pozzetto.",
           "hold_after": 0.7,
           "related_lessons": [
             "12_map_barcodes",
             "13_regression",
             "47_barcode_qc"
           ],
-          "speech_text": "Inizia dalle letture di sequenziamento. Apri Map Barcodes da Home e forniscigli i file FASTQ, a lettura singola o appaiata, con le tabelle di riferimento dei codici a barre che codificano il tuo esperimento. Map Barcodes abbina ogni lettura ai suoi codici a barre e conta le guide in ogni pozzetto, salvando unique_combinations.csv e annotated_reads.h5 nella cartella dell’esecuzione. Prima di fidarti di quei conteggi, aprili in Barcode QC. Una volta superato il controllo, sono i conteggi delle guide che Regression abbina ai punteggi di fenotipo, con le stesse chiavi di piastra e pozzetto."
+          "speech_text": "Inizia dalle letture di sequenziamento. Apri Map Barcodes da Home e forniscigli i file FASTQ, a lettura singola o appaiata, con le tabelle di riferimento dei codici a barre che codificano il tuo esperimento. Map Barcodes abbina ogni lettura ai suoi codici a barre e conta le guide in ogni pozzetto, salvando unique_combinations.csv e qc.csv e, per impostazione predefinita, annotated_reads.h5 nella cartella di output di ogni campione. Prima di fidarti di quei conteggi, aprili in Barcode QC. Una volta superato il controllo, sono i conteggi delle guide che Regression abbina ai punteggi di fenotipo, con le stesse chiavi di piastra e pozzetto."
         },
         {
           "visual": "module_barcode_qc",
@@ -17560,16 +17560,6 @@
             "47_barcode_qc"
           ],
           "speech_text": "Barcode QC si trova dentro Map Barcodes, quindi apri Map Barcodes da Home e sceglilo lì. Legge i conteggi delle guide appena ottenuti e mostra profondità di mappatura, copertura, collisioni tra codici a barre ed effetti di posizione. Salva i risultati del QC con figure e tabelle esportabili, così puoi decidere quali guide filtrare prima di proseguire."
-        },
-        {
-          "visual": "module_ops",
-          "narration": "Gli screening ottici seguono un’altra strada. Apri Mask da Home, poi scegli OPS. Invece delle letture, OPS prende le immagini di ogni ciclo di sequenziamento, le allinea alle immagini di fenotipo e decodifica un codice a barre per ogni nucleo. I risultati finiscono nel measurements.db di OPS, con tabelle per geometria, allineamento del fenotipo, nuclei e codici a barre. Quel database però non è una tabella di conteggi FASTQ. Per usarlo in Regression, prima collega e aggrega le identità decodificate con i dati di fenotipo, così che ogni oggetto o pozzetto porti entrambe le informazioni.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "13_regression",
-            "76_ops"
-          ],
-          "speech_text": "Gli screening ottici seguono un’altra strada. Apri Mask da Home, poi scegli OPS. Invece delle letture, OPS prende le immagini di ogni ciclo di sequenziamento, le allinea alle immagini di fenotipo e decodifica un codice a barre per ogni nucleo. I risultati finiscono nel measurements punto di bi di OPS, con tabelle per geometria, allineamento del fenotipo, nuclei e codici a barre. Quel database però non è una tabella di conteggi FASTQ. Per usarlo in Regression, prima collega e aggrega le identità decodificate con i dati di fenotipo, così che ogni oggetto o pozzetto porti entrambe le informazioni."
         },
         {
           "visual": "module_regression",
@@ -17586,24 +17576,22 @@
         },
         {
           "visual": "module_power",
-          "narration": "Ora torna a prima dell’esperimento. Apri Power / Design da Home per stimare quanto campionamento ti serve per vedere un effetto, in base alle dimensioni dell’effetto e alla variabilità che scegli. Misure pilota possono sostenere queste ipotesi, ma sono facoltative. Lo schema di Experiment Design alimenta queste stime, e le stime a loro volta possono riportarti a rivedere quello schema.",
+          "narration": "Ora torna a prima dell’esperimento. Apri Power / Design da Home per stimare quanto campionamento ti serve per vedere un effetto, in base alle dimensioni dell’effetto e alla variabilità che scegli. Misure pilota possono sostenere queste ipotesi, ma sono facoltative. Power / Design non legge la mappa delle piastre di Experiment Design, quindi inserisci a mano il numero di piastre, i pozzetti per piastra e le repliche. Le stime possono riportarti a rivedere quello schema.",
           "hold_after": 0.7,
           "related_lessons": [
-            "67_experiment_design",
             "68_power_design"
           ],
-          "speech_text": "Ora torna a prima dell’esperimento. Apri Power / Design da Home per stimare quanto campionamento ti serve per vedere un effetto, in base alle dimensioni dell’effetto e alla variabilità che scegli. Misure pilota possono sostenere queste ipotesi, ma sono facoltative. Lo schema di Experiment Design alimenta queste stime, e le stime a loro volta possono riportarti a rivedere quello schema."
+          "speech_text": "Ora torna a prima dell’esperimento. Apri Power / Design da Home per stimare quanto campionamento ti serve per vedere un effetto, in base alle dimensioni dell’effetto e alla variabilità che scegli. Misure pilota possono sostenere queste ipotesi, ma sono facoltative. Power / Design non legge la mappa delle piastre di Experiment Design, quindi inserisci a mano il numero di piastre, i pozzetti per piastra e le repliche. Le stime possono riportarti a rivedere quello schema."
         },
         {
           "visual": "module_experiment_design",
-          "narration": "Apri Experiment Design da Home per disporre le piastre prima di acquisire qualsiasi cosa. Inserisci condizioni, controlli, repliche e vincoli delle piastre, tenendo presenti le stime di potenza, ed esporta lo schema sperimentale. Quello schema va lontano. Power / Design lo usa per fissare le ipotesi di campionamento e, più tardi, una volta acquisito e misurato l’esperimento, Dose–Response usa le sue identità di dose e condizione, quindi mantienile invariate dall’inizio alla fine.",
+          "narration": "Apri Experiment Design da Home per disporre le piastre prima di acquisire qualsiasi cosa. Inserisci condizioni, controlli, repliche e vincoli delle piastre ed esporta la mappa delle piastre. Power / Design non legge quel file, quindi riporta a mano il numero di piastre e di repliche. Più tardi, una volta acquisito e misurato l’esperimento, Dose–Response usa le sue identità di dose e condizione, quindi mantienile invariate dall’inizio alla fine.",
           "hold_after": 0.7,
           "related_lessons": [
             "67_experiment_design",
-            "68_power_design",
             "69_dose_response"
           ],
-          "speech_text": "Apri Experiment Design da Home per disporre le piastre prima di acquisire qualsiasi cosa. Inserisci condizioni, controlli, repliche e vincoli delle piastre, tenendo presenti le stime di potenza, ed esporta lo schema sperimentale. Quello schema va lontano. Power / Design lo usa per fissare le ipotesi di campionamento e, più tardi, una volta acquisito e misurato l’esperimento, Dose–Response usa le sue identità di dose e condizione, quindi mantienile invariate dall’inizio alla fine."
+          "speech_text": "Apri Experiment Design da Home per disporre le piastre prima di acquisire qualsiasi cosa. Inserisci condizioni, controlli, repliche e vincoli delle piastre ed esporta la mappa delle piastre. Power / Design non legge quel file, quindi riporta a mano il numero di piastre e di repliche. Più tardi, una volta acquisito e misurato l’esperimento, Dose–Response usa le sue identità di dose e condizione, quindi mantienile invariate dall’inizio alla fine."
         },
         {
           "visual": "module_dose_response",

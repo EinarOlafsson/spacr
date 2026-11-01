@@ -16363,7 +16363,7 @@
         },
         {
           "visual": "module_map_barcodes",
-          "narration": "Begynd med sekventeringslæsningerne. Åbn Map Barcodes fra Home, og giv det dine FASTQ-filer, enkelt- eller parrede læsninger, med de referencetabeller for stregkoder, der koder dit eksperiment. Map Barcodes matcher hver læsning med dens stregkoder og tæller guides i hver brønd og gemmer unique_combinations.csv og annotated_reads.h5 i kørselsmappen. Før du stoler på tællingerne, åbner du dem i Barcode QC. Når de har bestået, er de de guideantal, som Regression parrer med fænotypescorer via de samme plade- og brøndnøgler.",
+          "narration": "Begynd med sekventeringslæsningerne. Åbn Map Barcodes fra Home, og giv det dine FASTQ-filer, enkelt- eller parrede læsninger, med de referencetabeller for stregkoder, der koder dit eksperiment. Map Barcodes matcher hver læsning med dens stregkoder og tæller guides i hver brønd og gemmer unique_combinations.csv og qc.csv, og som standard annotated_reads.h5, i outputmappen for hver prøve. Før du stoler på tællingerne, åbner du dem i Barcode QC. Når de har bestået, er de de guideantal, som Regression parrer med fænotypescorer via de samme plade- og brøndnøgler.",
           "hold_after": 0.7,
           "related_lessons": [
             "12_map_barcodes",
@@ -16381,15 +16381,6 @@
           ]
         },
         {
-          "visual": "module_ops",
-          "narration": "Optiske screeninger går en anden vej. Åbn Mask fra Home, og vælg derefter OPS. I stedet for læsninger tager OPS billederne fra hver sekventeringscyklus, justerer dem mod fænotypebillederne og afkoder en stregkode for hver kerne. Resultaterne havner i OPS' measurements.db med tabeller for geometri, fænotypejustering, kerner og stregkoder. Den database er dog ikke en FASTQ-tælletabel. For at bruge den i Regression forbinder og aggregerer du først de afkodede identiteter med dine fænotypedata, så hvert objekt eller hver brønd bærer begge dele.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "13_regression",
-            "76_ops"
-          ]
-        },
-        {
           "visual": "module_regression",
           "narration": "Uanset hvordan du sekventerede, mødes stregkoder og fænotyper i Regression. Åbn det fra Home. Ved en poolet screening tager det fænotypescorer fra Classify og guideantal fra Map Barcodes. Ved en optisk screening tager det de afkodede OPS-objekter, når du selv har forbundet og aggregeret dem; det er ikke en direkte filoverlevering. Det kan også modellere en direkte målt respons. I alle tilfælde skal plade- og brøndidentifikatorerne stemme overens mellem inputtene. Vælg respons og kontroller, kør tilpasningen, og læs diagnostikken, før du kalder noget et hit. Den resultatmappe, det skriver, med koefficienter, hittabeller, indstillinger og figurer, er det, Run Compare åbner, når du vil stille denne kørsel op mod en anden.",
           "hold_after": 0.7,
@@ -16403,20 +16394,18 @@
         },
         {
           "visual": "module_power",
-          "narration": "Gå nu tilbage til før eksperimentet. Åbn Power / Design fra Home for at vurdere, hvor meget prøvetagning du har brug for til at se en effekt, ud fra de effektstørrelser og den variabilitet, du vælger. Pilotmålinger kan understøtte antagelserne, men de er valgfrie. Layoutet fra Experiment Design indgår i disse vurderinger, og vurderingerne kan til gengæld få dig til at revidere designet.",
+          "narration": "Gå nu tilbage til før eksperimentet. Åbn Power / Design fra Home for at vurdere, hvor meget prøvetagning du har brug for til at se en effekt, ud fra de effektstørrelser og den variabilitet, du vælger. Pilotmålinger kan understøtte antagelserne, men de er valgfrie. Power / Design læser ikke pladekortet fra Experiment Design, så indtast antal plader, brønde pr. plade og replikater manuelt. Vurderingerne kan få dig til at revidere designet.",
           "hold_after": 0.7,
           "related_lessons": [
-            "67_experiment_design",
             "68_power_design"
           ]
         },
         {
           "visual": "module_experiment_design",
-          "narration": "Åbn Experiment Design fra Home for at planlægge pladerne, før du optager noget. Indtast betingelser, kontroller, replikater og pladebegrænsninger med dine styrkeberegninger i tankerne, og eksportér forsøgslayoutet. Layoutet rækker langt. Power / Design bruger det til at fastsætte prøvetagningsantagelserne, og senere, når eksperimentet er optaget og målt, bruger Dose–Response dets dosis- og betingelsesidentiteter, så hold dem uændrede hele vejen.",
+          "narration": "Åbn Experiment Design fra Home for at planlægge pladerne, før du optager noget. Indtast betingelser, kontroller, replikater og pladebegrænsninger, og eksportér pladekortet. Power / Design læser ikke den fil, så overfør antallet af plader og replikater fra den manuelt. Senere, når eksperimentet er optaget og målt, bruger Dose–Response dets dosis- og betingelsesidentiteter, så hold dem uændrede hele vejen.",
           "hold_after": 0.7,
           "related_lessons": [
             "67_experiment_design",
-            "68_power_design",
             "69_dose_response"
           ]
         },

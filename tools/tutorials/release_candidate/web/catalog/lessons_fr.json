@@ -17542,14 +17542,14 @@
         },
         {
           "visual": "module_map_barcodes",
-          "narration": "Commencez par les lectures de séquençage. Ouvrez Map Barcodes depuis Home et donnez-lui vos fichiers FASTQ, simples ou appariés, avec les tables de référence de codes-barres qui encodent votre expérience. Map Barcodes associe chaque lecture à ses codes-barres et compte les guides dans chaque puits, en enregistrant unique_combinations.csv et annotated_reads.h5 dans son dossier d’exécution. Avant de faire confiance à ces comptages, ouvrez-les dans Barcode QC. Une fois validés, ce sont les comptages de guides que Regression associe aux scores de phénotype, avec les mêmes clés de plaque et de puits.",
+          "narration": "Commencez par les lectures de séquençage. Ouvrez Map Barcodes depuis Home et donnez-lui vos fichiers FASTQ, simples ou appariés, avec les tables de référence de codes-barres qui encodent votre expérience. Map Barcodes associe chaque lecture à ses codes-barres et compte les guides dans chaque puits, en enregistrant unique_combinations.csv et qc.csv, et par défaut annotated_reads.h5, dans le dossier de sortie de chaque échantillon. Avant de faire confiance à ces comptages, ouvrez-les dans Barcode QC. Une fois validés, ce sont les comptages de guides que Regression associe aux scores de phénotype, avec les mêmes clés de plaque et de puits.",
           "hold_after": 0.7,
           "related_lessons": [
             "12_map_barcodes",
             "13_regression",
             "47_barcode_qc"
           ],
-          "speech_text": "Commencez par les lectures de séquençage. Ouvrez Map Barcodes depuis Home et donnez-lui vos fichiers FASTQ, simples ou appariés, avec les tables de référence de codes-barres qui encodent votre expérience. Map Barcodes associe chaque lecture à ses codes-barres et compte les guides dans chaque puits, en enregistrant unique_combinations.csv et annotated_reads.h5 dans son dossier d’exécution. Avant de faire confiance à ces comptages, ouvrez-les dans Barcode QC. Une fois validés, ce sont les comptages de guides que Regression associe aux scores de phénotype, avec les mêmes clés de plaque et de puits."
+          "speech_text": "Commencez par les lectures de séquençage. Ouvrez Map Barcodes depuis Home et donnez-lui vos fichiers FASTQ, simples ou appariés, avec les tables de référence de codes-barres qui encodent votre expérience. Map Barcodes associe chaque lecture à ses codes-barres et compte les guides dans chaque puits, en enregistrant unique_combinations.csv et qc.csv, et par défaut annotated_reads.h5, dans le dossier de sortie de chaque échantillon. Avant de faire confiance à ces comptages, ouvrez-les dans Barcode QC. Une fois validés, ce sont les comptages de guides que Regression associe aux scores de phénotype, avec les mêmes clés de plaque et de puits."
         },
         {
           "visual": "module_barcode_qc",
@@ -17560,16 +17560,6 @@
             "47_barcode_qc"
           ],
           "speech_text": "Barcode QC se trouve dans Map Barcodes : ouvrez Map Barcodes depuis Home et choisissez-le là. Il lit les comptages de guides que vous venez d’obtenir et montre la profondeur d’alignement, la couverture, les collisions de codes-barres et les effets de position. Il enregistre les résultats de QC avec des figures et des tables exportables, afin que vous puissiez décider quels guides filtrer avant d’aller plus loin."
-        },
-        {
-          "visual": "module_ops",
-          "narration": "Les criblages optiques suivent une autre voie. Ouvrez Mask depuis Home, puis choisissez OPS. Au lieu de lectures, OPS prend les images de chaque cycle de séquençage, les aligne sur les images de phénotype et décode un code-barres pour chaque noyau. Les résultats arrivent dans le measurements.db d’OPS, avec des tables pour la géométrie, l’alignement du phénotype, les noyaux et les codes-barres. Cette base n’est toutefois pas une table de comptages FASTQ. Pour l’utiliser dans Regression, reliez et agrégez d’abord les identités décodées avec vos données de phénotype, afin que chaque objet ou puits porte les deux.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "13_regression",
-            "76_ops"
-          ],
-          "speech_text": "Les criblages optiques suivent une autre voie. Ouvrez Mask depuis Home, puis choisissez OPS. Au lieu de lectures, OPS prend les images de chaque cycle de séquençage, les aligne sur les images de phénotype et décode un code-barres pour chaque noyau. Les résultats arrivent dans le measurements point dé bé d’OPS, avec des tables pour la géométrie, l’alignement du phénotype, les noyaux et les codes-barres. Cette base n’est toutefois pas une table de comptages FASTQ. Pour l’utiliser dans Regression, reliez et agrégez d’abord les identités décodées avec vos données de phénotype, afin que chaque objet ou puits porte les deux."
         },
         {
           "visual": "module_regression",
@@ -17586,24 +17576,22 @@
         },
         {
           "visual": "module_power",
-          "narration": "Revenez maintenant avant l’expérience. Ouvrez Power / Design depuis Home pour estimer l’échantillonnage nécessaire pour voir un effet, d’après les tailles d’effet et la variabilité que vous choisissez. Des mesures pilotes peuvent étayer ces hypothèses, mais elles sont facultatives. Le plan issu d’Experiment Design alimente ces estimations, qui peuvent à leur tour vous amener à revoir ce plan.",
+          "narration": "Revenez maintenant avant l’expérience. Ouvrez Power / Design depuis Home pour estimer l’échantillonnage nécessaire pour voir un effet, d’après les tailles d’effet et la variabilité que vous choisissez. Des mesures pilotes peuvent étayer ces hypothèses, mais elles sont facultatives. Power / Design ne lit pas le plan de plaque d’Experiment Design, il faut donc saisir à la main le nombre de plaques, de puits par plaque et de réplicats. Les estimations peuvent vous amener à revoir ce plan.",
           "hold_after": 0.7,
           "related_lessons": [
-            "67_experiment_design",
             "68_power_design"
           ],
-          "speech_text": "Revenez maintenant avant l’expérience. Ouvrez Power / Design depuis Home pour estimer l’échantillonnage nécessaire pour voir un effet, d’après les tailles d’effet et la variabilité que vous choisissez. Des mesures pilotes peuvent étayer ces hypothèses, mais elles sont facultatives. Le plan issu d’Experiment Design alimente ces estimations, qui peuvent à leur tour vous amener à revoir ce plan."
+          "speech_text": "Revenez maintenant avant l’expérience. Ouvrez Power / Design depuis Home pour estimer l’échantillonnage nécessaire pour voir un effet, d’après les tailles d’effet et la variabilité que vous choisissez. Des mesures pilotes peuvent étayer ces hypothèses, mais elles sont facultatives. Power / Design ne lit pas le plan de plaque d’Experiment Design, il faut donc saisir à la main le nombre de plaques, de puits par plaque et de réplicats. Les estimations peuvent vous amener à revoir ce plan."
         },
         {
           "visual": "module_experiment_design",
-          "narration": "Ouvrez Experiment Design depuis Home pour organiser les plaques avant toute acquisition. Saisissez les conditions, les témoins, les réplicats et les contraintes de plaque, en tenant compte de vos estimations de puissance, et exportez le plan expérimental. Ce plan va loin. Power / Design l’utilise pour fixer les hypothèses d’échantillonnage et, plus tard, une fois l’expérience acquise et mesurée, Dose–Response utilise ses identités de dose et de condition ; gardez-les donc inchangées tout au long.",
+          "narration": "Ouvrez Experiment Design depuis Home pour organiser les plaques avant toute acquisition. Saisissez les conditions, les témoins, les réplicats et les contraintes de plaque, et exportez le plan de plaque. Power / Design ne lit pas ce fichier, reportez donc à la main ses nombres de plaques et de réplicats. Plus tard, une fois l’expérience acquise et mesurée, Dose–Response utilise ses identités de dose et de condition ; gardez-les donc inchangées tout au long.",
           "hold_after": 0.7,
           "related_lessons": [
             "67_experiment_design",
-            "68_power_design",
             "69_dose_response"
           ],
-          "speech_text": "Ouvrez Experiment Design depuis Home pour organiser les plaques avant toute acquisition. Saisissez les conditions, les témoins, les réplicats et les contraintes de plaque, en tenant compte de vos estimations de puissance, et exportez le plan expérimental. Ce plan va loin. Power / Design l’utilise pour fixer les hypothèses d’échantillonnage et, plus tard, une fois l’expérience acquise et mesurée, Dose–Response utilise ses identités de dose et de condition ; gardez-les donc inchangées tout au long."
+          "speech_text": "Ouvrez Experiment Design depuis Home pour organiser les plaques avant toute acquisition. Saisissez les conditions, les témoins, les réplicats et les contraintes de plaque, et exportez le plan de plaque. Power / Design ne lit pas ce fichier, reportez donc à la main ses nombres de plaques et de réplicats. Plus tard, une fois l’expérience acquise et mesurée, Dose–Response utilise ses identités de dose et de condition ; gardez-les donc inchangées tout au long."
         },
         {
           "visual": "module_dose_response",
