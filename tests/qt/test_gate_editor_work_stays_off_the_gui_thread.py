@@ -339,6 +339,16 @@ def test_toggling_the_projection_with_a_many_sided_gate_keeps_the_gui_turning(
     win.close()
 
 
+def _counting(owner, name, calls):
+    original = getattr(owner, name)
+
+    def counted(*args, **kwargs):
+        calls.append(name)
+        return original(*args, **kwargs)
+
+    setattr(owner, name, counted)
+
+
 def test_toggling_the_projection_counts_no_column_on_the_gui_thread(
         qapp, monkeypatch):
     import threading
@@ -375,3 +385,30 @@ def test_toggling_the_projection_counts_no_column_on_the_gui_thread(
     displayed = win.gates.canvas._frame
     assert data_filter_panel.classify_columns(displayed) == uncached(shown)
     win.close()
+
+
+def test_a_finished_cluster_walk_draws_the_graph_once(screen):
+    screen.gates.apply_settings(GateEditorSettings(
+        cluster_eps=0.5, cluster_min_samples=40, cluster_walk=True,
+        cluster_walk_steps=4))
+    panel = screen.gates
+    renders, finishing = [], []
+    _counting(panel.canvas, "render_now", renders)
+    finish = panel._finish_cluster
+
+    def timed(outcome):
+        before = len(renders)
+        finish(outcome)
+        finishing.append(len(renders) - before)
+
+    panel._finish_cluster = timed
+    gap = _gap_while(lambda: panel.run_cluster_in_background(ask=False),
+                     lambda: bool(finishing))
+    assert finishing == [1]
+    names = _gate_names(screen)
+    assert len(names) >= 2
+    active = panel.tree.active_gate()
+    assert active in names
+    assert panel.canvas.active_gate == active
+    assert panel.tree._threshold_gate == active
+    assert gap < STALL_BUDGET_S

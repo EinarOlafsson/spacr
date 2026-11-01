@@ -5488,9 +5488,15 @@ class GateEditorPanel(QWidget):
         gates = self._gates
         for gate in found:
             gates.add(gate)
-        self.canvas.set_gates(gates, active=found[0].name)
-        self.tree.set_gates(gates, self._frame)
-        self.tree.select(found[0].name)
+        active = found[0].name
+        self.canvas.set_gates(gates, active=active)
+        blocked = self.tree.tree.blockSignals(True)
+        try:
+            self.tree.set_gates(gates, self._frame)
+            self.tree.select(active)
+        finally:
+            self.tree.tree.blockSignals(blocked)
+        self.tree._rebuild_thresholds(active)
         self._refresh_status()
         self.gates_changed.emit()
         if chosen is not None:
