@@ -298,12 +298,24 @@ def _read_merge_with_duplicate_notice(path, tables, policy, reader):
         return exc
 
 
+def _warm_the_print_renderer() -> None:
+    """Start the print-render process while the save dialog is open.
+
+    Run on a short-lived thread, so neither the process start nor the
+    import of the print renderer lands on the GUI thread.
+    """
+    from ..widgets.figure_queue import _PRINT_RENDER_PROCESS
+
+    _PRINT_RENDER_PROCESS.warm()
+
+
 def _render_the_graph(figure, png_path: str, write_pdf: bool) -> bool:
     """Render a copy of the gate graph in the print style; no widget is touched.
 
-    The raster is drawn in its own process (:func:`spacr.qt.widgets.figure_queue._render_print_in_a_process`),
-    so the worker holds no long stretch of the interpreter lock; when no
-    process can take it, it is drawn here.
+    The raster is drawn in the warm print-render process
+    (:func:`spacr.qt.widgets.figure_queue._render_print_in_a_process`), so the
+    worker holds no long stretch of the interpreter lock; when no process can
+    take it, it is drawn here.
 
     :param figure: a detached copy of the graph's figure.
     :param png_path: the PNG to write.
@@ -2009,6 +2021,11 @@ class GateEditorScreen(DerivedTableSource, QWidget):
 
         asked_here = not path
         if not path:
+            if background:
+                import threading
+
+                threading.Thread(target=_warm_the_print_renderer,
+                                 name="spacr-print-warm", daemon=True).start()
             filters = ("PDF (*.pdf);;PNG (*.png)" if prefer_pdf
                        else "PNG (*.png);;PDF (*.pdf)")
             path, _chosen = QFileDialog.getSaveFileName(

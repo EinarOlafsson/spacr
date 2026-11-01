@@ -431,89 +431,235 @@ def _too_slow_for_the_live_canvas(fig) -> bool:
     return seconds > _LIVE_CANVAS_MAX_RASTER_S
 
 
-#: Exit codes of :func:`_render_print_in_this_process`: the PNG was written,
-#: and the render ran but wrote no PNG.
+#: Answers of :func:`_serve_print_renders`: the PNG was written, and the
+#: render ran but wrote no PNG.
 _PRINT_PROCESS_WROTE = 0
 _PRINT_PROCESS_REFUSED = 3
 
+#: Seconds the print-render process waits for another save before it ends,
+#: so its memory (it imports :mod:`spacr.plot`) is held only while saves come.
+_PRINT_PROCESS_IDLE_S = 300.0
 
-def _render_print_in_a_process(figure, png_path: str, write_pdf: bool):
-    """Render a detached figure's print files in a spawned process.
+
+class _PrintRenderProcess:
+    """One spawned process that draws saved graphs' print files, kept warm.
 
     Agg draws a large scatter in one call that keeps the interpreter lock for
     tens of milliseconds, so a print render on a worker thread still starves
     the GUI thread and the backdrop field however short the switch interval
     (a Gate Editor save held the field at 22-27 of its 30 frames a second).
     In its own process the render holds no lock of this one; the worker
-    thread only waits for it.
+    thread only waits for the answer.
+
+    There is at most one such process. :meth:`warm` starts it ahead of a save
+    (the Gate Editor does while its file dialog is open), so the import of
+    :mod:`spacr.plot` is not paid by the save; it ends after
+    :data:`_PRINT_PROCESS_IDLE_S` without a save and when the application
+    exits.
+    """
+
+    _exit_hooked = False
+
+    def __init__(self):
+        """Hold no process until one is asked for."""
+        self._lock = threading.RLock()
+        self._process = None
+        self._connection = None
+        self._idle = None
+
+    def warm(self) -> bool:
+        """Start the process if it is not running.
+
+        :returns: whether a process is running afterwards.
+        """
+        with self._lock:
+            if self._process is not None and self._process.is_alive():
+                self._rearm()
+                return True
+            self._close()
+            try:
+                import multiprocessing
+
+                from .. import preferences
+
+                context = multiprocessing.get_context("spawn")
+                here, there = context.Pipe()
+                process = context.Process(
+                    target=_serve_print_renders,
+                    args=(there, bool(preferences._SAFE_MODE)),
+                    name="spacr-print-render", daemon=True)
+                process.start()
+                there.close()
+            except Exception:                                # noqa: BLE001
+                LOG.debug("no print render process", exc_info=True)
+                return False
+            self._process, self._connection = process, here
+            if not _PrintRenderProcess._exit_hooked:
+                import atexit
+
+                atexit.register(_stop_the_print_render_process)
+                _PrintRenderProcess._exit_hooked = True
+            self._rearm()
+            return True
+
+    def render(self, figure, png_path: str, write_pdf: bool):
+        """Draw ``figure``'s print files in the process.
+
+        :param figure: a detached copy of the figure, which is not touched.
+        :param png_path: the PNG to write.
+        :param write_pdf: write the sibling PDF too.
+        :returns: whether the PNG was written, or ``None`` when the process
+            could not take the render (the figure does not pickle, the
+            process did not start or it ended without an answer) and the
+            caller renders it here.
+        """
+        import pickle
+
+        try:
+            blob = pickle.dumps(figure)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("the print copy does not pickle", exc_info=True)
+            return None
+        with self._lock:
+            if not self.warm():
+                return None
+            self._cancel_idle()
+            try:
+                self._connection.send((blob, str(png_path), bool(write_pdf)))
+                answer = self._connection.recv()
+            except (EOFError, OSError, ValueError):
+                LOG.info("the print render process ended without an answer")
+                self._close()
+                return None
+            self._rearm()
+        if answer == _PRINT_PROCESS_WROTE:
+            return True
+        if answer == _PRINT_PROCESS_REFUSED:
+            return False
+        return None
+
+    def running(self) -> bool:
+        """Whether the process is alive."""
+        process = self._process
+        return bool(process is not None and process.is_alive())
+
+    def stop(self, timeout_s: float = 2.0) -> None:
+        """End the process: ask it to finish, then make sure it has.
+
+        :param timeout_s: how long to wait for it to finish on its own.
+        """
+        with self._lock:
+            self._cancel_idle()
+            connection = self._connection
+            if connection is not None:
+                try:
+                    connection.send(None)
+                except (OSError, ValueError):
+                    pass
+            process = self._process
+            if process is not None:
+                process.join(timeout_s)
+                if process.is_alive():
+                    process.terminate()
+                    process.join(1.0)
+            self._close()
+
+    def _rearm(self) -> None:
+        """Start the idle clock again."""
+        self._cancel_idle()
+        timer = threading.Timer(_PRINT_PROCESS_IDLE_S, self.stop)
+        timer.daemon = True
+        timer.start()
+        self._idle = timer
+
+    def _cancel_idle(self) -> None:
+        """Stop the idle clock."""
+        timer, self._idle = self._idle, None
+        if timer is not None:
+            timer.cancel()
+
+    def _close(self) -> None:
+        """Forget the process and close the parent's end of the pipe."""
+        connection, self._connection = self._connection, None
+        if connection is not None:
+            try:
+                connection.close()
+            except OSError:
+                pass
+        process, self._process = self._process, None
+        if process is not None and not process.is_alive():
+            try:
+                process.close()
+            except ValueError:
+                pass
+
+
+_PRINT_RENDER_PROCESS = _PrintRenderProcess()
+
+
+def _stop_the_print_render_process() -> None:
+    """End the print-render process; the application is exiting."""
+    _PRINT_RENDER_PROCESS.stop()
+
+
+def _render_print_in_a_process(figure, png_path: str, write_pdf: bool):
+    """Draw a detached figure's print files in the warm print-render process.
 
     :param figure: a detached copy of the figure, which is not touched.
     :param png_path: the PNG to write.
     :param write_pdf: write the sibling PDF too.
-    :returns: whether the PNG was written, or ``None`` when no process could
-        take the render (the figure does not pickle, the process did not
-        start or it ended without an answer) and the caller renders it here.
+    :returns: whether the PNG was written, or ``None`` when the caller
+        renders it itself (see :meth:`_PrintRenderProcess.render`).
     """
-    import multiprocessing
-    import pickle
-
-    from .. import preferences
-
-    try:
-        blob = pickle.dumps(figure)
-    except Exception:                                    # noqa: BLE001
-        LOG.debug("the print copy does not pickle; rendering in-process",
-                  exc_info=True)
-        return None
-    try:
-        context = multiprocessing.get_context("spawn")
-        process = context.Process(
-            target=_render_print_in_this_process,
-            args=(blob, str(png_path), bool(write_pdf),
-                  bool(preferences._SAFE_MODE)),
-            name="spacr-print-render", daemon=True)
-        process.start()
-    except Exception:                                    # noqa: BLE001
-        LOG.debug("no print render process; rendering in-process",
-                  exc_info=True)
-        return None
-    try:
-        process.join()
-        code = process.exitcode
-    finally:
-        process.close()
-    if code == _PRINT_PROCESS_WROTE:
-        return True
-    if code == _PRINT_PROCESS_REFUSED:
-        return False
-    LOG.info("the print render process ended with %s; rendering in-process",
-             code)
-    return None
+    return _PRINT_RENDER_PROCESS.render(figure, png_path, write_pdf)
 
 
-def _render_print_in_this_process(blob: bytes, png_path: str, write_pdf: bool,
-                                  safe_mode: bool) -> None:
-    """The spawned side of :func:`_render_print_in_a_process`.
+def _serve_print_renders(connection, safe_mode: bool) -> None:
+    """The spawned side of :class:`_PrintRenderProcess`.
 
-    :param blob: the pickled figure.
-    :param png_path: the PNG to write.
-    :param write_pdf: write the sibling PDF too.
+    Imports the print writer once, then answers ``(figure, png, pdf)``
+    requests until it is sent ``None`` or the parent's end closes.
+
+    :param connection: this process's end of the pipe.
     :param safe_mode: the parent runs in safe mode, so preferences read as
         their defaults here too.
-    :raises SystemExit: with :data:`_PRINT_PROCESS_WROTE` or
-        :data:`_PRINT_PROCESS_REFUSED`.
     """
     import pickle
 
     from .. import preferences
+    from ... import plot  # noqa: F401
 
     if safe_mode:
         preferences._SAFE_MODE = True
-    figure = pickle.loads(blob)
-    written = render_figure_to_png(figure, png_path, for_print=True,
-                                   write_pdf=write_pdf)
-    raise SystemExit(_PRINT_PROCESS_WROTE if written
-                     else _PRINT_PROCESS_REFUSED)
+    request = _next_print_request(connection)
+    while request is not None:
+        blob, png_path, write_pdf = request
+        try:
+            figure = pickle.loads(blob)
+            written = render_figure_to_png(figure, png_path, for_print=True,
+                                           write_pdf=write_pdf)
+        except Exception:                                    # noqa: BLE001
+            LOG.info("a print render failed", exc_info=True)
+            written = False
+        try:
+            connection.send(_PRINT_PROCESS_WROTE if written
+                            else _PRINT_PROCESS_REFUSED)
+        except (OSError, ValueError):
+            return
+        request = _next_print_request(connection)
+
+
+def _next_print_request(connection):
+    """The next request on ``connection``, or ``None`` to stop.
+
+    :param connection: the print-render process's end of the pipe.
+    :returns: ``(blob, png_path, write_pdf)``, or ``None`` when the parent
+        asked to stop or closed its end.
+    """
+    try:
+        return connection.recv()
+    except (EOFError, OSError):
+        return None
 
 
 def render_figure_to_png(fig, png_path: str, *, for_print: bool = False,

@@ -152,3 +152,44 @@ def test_a_paced_field_whose_frame_lands_after_its_tick_keeps_its_rate(
     rate = len(stamps) / 3.0
     assert rate >= target_rate * (1.0 - TOLERANCE), (target_rate, rate)
     assert rate <= target_rate * (1.0 + TOLERANCE), (target_rate, rate)
+
+
+def _scatter_figure(points=200000):
+    from matplotlib.figure import Figure
+
+    rng = np.random.default_rng(3)
+    figure = Figure(figsize=(6, 4))
+    figure.add_subplot(111).scatter(rng.random(points), rng.random(points), s=1)
+    return figure
+
+
+def test_saves_share_one_warm_process_no_slower_than_drawing_here(tmp_path):
+    """One process serves every save, a warm save costs no more than a draw
+    on the worker did, and stopping it ends the process."""
+    from spacr.qt.widgets import figure_queue
+
+    renderer = figure_queue._PRINT_RENDER_PROCESS
+    figure_queue.render_figure_to_png(_scatter_figure(), str(tmp_path / "w.png"),
+                                      for_print=True, write_pdf=False)
+    started = time.perf_counter()
+    assert figure_queue.render_figure_to_png(
+        _scatter_figure(), str(tmp_path / "here.png"), for_print=True,
+        write_pdf=False)
+    here = time.perf_counter() - started
+    try:
+        assert renderer.warm()
+        assert figure_queue._render_print_in_a_process(
+            _scatter_figure(), str(tmp_path / "first.png"), False) is True
+        pid = renderer._process.pid
+        spent = []
+        for index in range(3):
+            started = time.perf_counter()
+            assert figure_queue._render_print_in_a_process(
+                _scatter_figure(), str(tmp_path / f"{index}.png"), False) is True
+            spent.append(time.perf_counter() - started)
+            assert renderer._process.pid == pid
+        assert (tmp_path / "2.png").stat().st_size > 1000
+        assert min(spent) <= here * 1.25 + 0.05, (spent, here)
+    finally:
+        renderer.stop()
+    assert not renderer.running()
