@@ -182,7 +182,7 @@ def test_a_shift_wheel_step_is_proportional_and_at_least_a_pixel(
 # 2. Every settings category folds like a core application's
 # ---------------------------------------------------------------------------
 
-CATEGORIES = ("Brush", "Magic wand", "Display", "Filter",
+CATEGORIES = ("Layers", "Brush", "Magic wand", "Display", "Filter",
               "Object operations", "Object detection",
               "Magnification settings", "Image enhancement")
 
@@ -214,6 +214,7 @@ def test_every_category_is_the_core_applications_folding_section(
         assert not made._settings_scroll.findChildren(Card), (
             "no unfoldable card is left on the panel")
         owners = {
+            "Layers": made._layer_panel,
             "Brush": made._brush_slider, "Magic wand": made._wand_pct,
             "Display": made._norm_hi,
             "Filter": made._filter_add,

@@ -14680,7 +14680,6 @@ class MakeMasksScreen(QWidget):
         from ..layer_viewer import _LayerPanel
 
         section = self._settings_category("Layers")
-        section.setObjectName("MakeMasksFieldLayers")
         body = section.body_layout
         form = QFormLayout()
         self._layers_form = form
