@@ -337,3 +337,41 @@ def test_toggling_the_projection_with_a_many_sided_gate_keeps_the_gui_turning(
     _pump(1.0)
     assert gap < STALL_BUDGET_S
     win.close()
+
+
+def test_toggling_the_projection_counts_no_column_on_the_gui_thread(
+        qapp, monkeypatch):
+    import threading
+
+    from spacr.qt.widgets import data_filter_panel
+
+    monkeypatch.setattr(QMessageBox, "information",
+                        staticmethod(lambda *a, **k: 0))
+    win = GateEditorScreen()
+    win.resize(1200, 800)
+    win.show()
+    win.set_frame(_wide(), label="test")
+    _pump(1.0)
+    win._y.setCurrentText("intensity")
+    _pump(0.6)
+    uncached = data_filter_panel._classify_columns_uncached
+    on_gui = []
+
+    def counted(frame):
+        if threading.current_thread() is threading.main_thread():
+            on_gui.append(frame.shape)
+        return uncached(frame)
+
+    monkeypatch.setattr(data_filter_panel, "_classify_columns_uncached",
+                        counted)
+    gap = _gap_while(
+        lambda: win._on_projection_toggled(True),
+        lambda: win._frame is not None and "PC1" in win._frame.columns)
+    _pump(0.5)
+    assert on_gui == []
+    assert gap < STALL_BUDGET_S
+    shown = win.formulas.computed_frame()
+    assert data_filter_panel.classify_columns(shown) == uncached(shown)
+    displayed = win.gates.canvas._frame
+    assert data_filter_panel.classify_columns(displayed) == uncached(shown)
+    win.close()

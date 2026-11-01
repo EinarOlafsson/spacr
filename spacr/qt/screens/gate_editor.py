@@ -705,6 +705,7 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         self._display_positions = self._display_order[:cap]
         displayed = frame.iloc[self._display_positions].copy()
         displayed.index = pd.Index(self._display_positions)
+        self._classify_from_the_table(frame, displayed)
         from dataclasses import replace
         self.gates.set_spec(replace(self.gates.canvas.spec, point_budget=max(1, len(displayed))))
         self.gates.set_frame(displayed)
@@ -713,6 +714,34 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         self.console.set_frame(frame)
         self.filters.set_frame(frame)
         self._refill_axis_pickers(frame)
+
+    def _classify_from_the_table(self, frame, displayed) -> None:
+        """Give the computed table and the drawn sample their table's kinds.
+
+        The computed table is a copy of the loaded one plus the formula
+        columns, and the sample is a fresh copy on every push; classified
+        afresh, each counted every column again on the GUI thread. The
+        loaded table's kinds (classified once, on the worker that loaded or
+        projected it) are reused, and only formula columns are counted.
+
+        :param frame: the computed table being pushed.
+        :param displayed: the random sample of it that is drawn.
+        """
+        from ..widgets.data_filter_panel import (_classify_columns_uncached,
+                                                 _remember_column_kinds,
+                                                 classify_columns)
+
+        base = self.formulas.frame()
+        if base is not None and base is not frame and \
+                len(base) == len(frame):
+            made = {f.name for f in self.formulas.formulas().formulas}
+            kinds = {name: kind for name, kind in classify_columns(base).items()
+                     if name in frame.columns and name not in made}
+            fresh = [name for name in frame.columns if name not in kinds]
+            if fresh:
+                kinds.update(_classify_columns_uncached(frame[fresh]))
+            _remember_column_kinds(frame, kinds)
+        _remember_column_kinds(displayed, classify_columns(frame))
 
     def _point_limit_changed(self, value):
         """Store the selected sampling limit and redraw the current frame.
@@ -1810,7 +1839,28 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         combined = frame.drop(columns=[c for c in components.columns
                                        if c in frame.columns]
                               ).join(components)
+        cls._classify_the_projection(frame, components, combined)
         return ("ok", components, warning, combined)
+
+    @staticmethod
+    def _classify_the_projection(frame, components, combined) -> None:
+        """Classify the projected table's columns where the projection runs.
+
+        The measurement columns keep the kinds of the table they came from,
+        so only the components are counted; the GUI thread then finds the
+        projected table already classified when it shows it.
+
+        :param frame: the table that was projected.
+        :param components: the component columns.
+        :param combined: ``frame`` with ``components`` joined.
+        """
+        from ..widgets.data_filter_panel import (_classify_columns_uncached,
+                                                 _remember_column_kinds,
+                                                 classify_columns)
+
+        kinds = classify_columns(frame)
+        kinds.update(_classify_columns_uncached(components))
+        _remember_column_kinds(combined, kinds)
 
     def _finish_projection(self, request, outcome) -> Optional[str]:
         """Put a projection on the screen, or say why there is none.

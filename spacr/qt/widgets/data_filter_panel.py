@@ -75,9 +75,10 @@ _IDENTITY_COLUMNS = frozenset({"object_label", "prcfo", "prcf", "prc"})
 _KINDS_CACHE: Dict[int, tuple] = {}
 
 #: How many frames' classifications to remember. Loading one table calls
-#: :func:`classify_columns` seven times through four callers, and two frames
-#: (raw and filtered) are live at once, so four is generous.
-_KINDS_CACHE_MAX = 4
+#: :func:`classify_columns` seven times through four callers, and the raw,
+#: filtered and projected tables and the Gate Editor's drawn sample can be
+#: live at once.
+_KINDS_CACHE_MAX = 8
 
 #: Guards :data:`_KINDS_CACHE`: a table loader warms it on its worker thread
 #: while the GUI thread reads it.
@@ -131,6 +132,32 @@ def classify_columns(frame: pd.DataFrame) -> Dict[str, str]:
         except TypeError:
             pass
     return dict(kinds)
+
+
+def _remember_column_kinds(frame: pd.DataFrame, kinds: Dict[str, str]) -> None:
+    """Hold ``kinds`` as :func:`classify_columns` of ``frame``.
+
+    For a frame whose classification is known without counting it again: a
+    table with columns joined to an already classified one (only the new
+    columns are counted, on the worker that joined them), or the random
+    sample the Gate Editor draws from a table, which is classified as that
+    table so a sample cannot turn an axis from a range into categories.
+
+    :param frame: the frame the kinds belong to.
+    :param kinds: column name to kind, for exactly ``frame``'s columns.
+    """
+    kinds = {name: kinds[name] for name in frame.columns}
+    with _KINDS_LOCK:
+        if len(_KINDS_CACHE) >= _KINDS_CACHE_MAX:
+            for dead in [k for k, (r, _s, _c) in _KINDS_CACHE.items()
+                         if r() is None]:
+                _KINDS_CACHE.pop(dead, None)
+            while len(_KINDS_CACHE) >= _KINDS_CACHE_MAX:
+                _KINDS_CACHE.pop(next(iter(_KINDS_CACHE)), None)
+        try:
+            _KINDS_CACHE[id(frame)] = (weakref.ref(frame), frame.shape, kinds)
+        except TypeError:
+            pass
 
 
 def _classify_columns_uncached(frame: pd.DataFrame) -> Dict[str, str]:
