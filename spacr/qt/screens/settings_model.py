@@ -7129,23 +7129,58 @@ def _give_side_buttons_room(edit):
         edit.setStyle(style)
 
 
+def _folder_browse_action(edit):
+    """The folder action of ``edit``, asked of the line edit each time.
+
+    Not kept on the field: the line edit creates the action in C++, so its
+    Python wrapper is only as valid as the Python parent PySide's ownership
+    glue has given it, and that parent need not be the field. In the
+    Overview tab the field's wrapper hung under a settings-row label; when
+    the form rebuilt that label, PySide invalidated every C++-created
+    wrapper below it, and a wrapper cached on the field read "already
+    deleted" while the action itself was still on the field. The line edit
+    always answers with a live wrapper.
+
+    :param edit: a line edit.
+    :returns: its ``SourceFolderBrowse`` action, or ``None``.
+    """
+    for action in edit.actions():
+        if action.objectName() == "SourceFolderBrowse":
+            return action
+    return None
+
+
+def _side_buttons_of(action):
+    """The tool buttons a line edit drew for ``action``, found without adopting it.
+
+    Asking a side button for its ``defaultAction()`` makes PySide give the
+    action's wrapper to that button, a C++-created widget the line edit
+    replaces as it likes; ``associatedObjects`` names the same buttons and
+    leaves the wrapper where it was.
+
+    :param action: an action added to a ``QLineEdit`` with a position.
+    :returns: the ``QToolButton`` objects showing it.
+    """
+    from PySide6.QtWidgets import QToolButton
+
+    return [owner for owner in action.associatedObjects() if isinstance(owner, QToolButton)]
+
+
 def _add_folder_browse_action(edit, choose=None):
     """Choose a local folder through the field's existing commit signals."""
-    previous = getattr(edit, "_spacr_folder_browse_action", None)
+    previous = _folder_browse_action(edit)
     if previous is not None:
         return previous
-    from PySide6.QtWidgets import QStyle, QToolButton
+    from PySide6.QtWidgets import QStyle
     from ..i18n import tr
 
     action = edit.addAction(edit.style().standardIcon(QStyle.SP_DirOpenIcon),
                             QLineEdit.TrailingPosition)
     action.setObjectName("SourceFolderBrowse")
     action.setToolTip(tr("Choose folder…"))
-    edit._spacr_folder_browse_action = action
-    for button in edit.findChildren(QToolButton):
-        if button.defaultAction() is action:
-            button.setFocusPolicy(Qt.StrongFocus)
-            button.setAccessibleName(action.toolTip())
+    for button in _side_buttons_of(action):
+        button.setFocusPolicy(Qt.StrongFocus)
+        button.setAccessibleName(action.toolTip())
 
     action.triggered.connect(choose if choose is not None
                              else lambda: _choose_source_folder(edit))
@@ -7415,7 +7450,7 @@ def _add_cloud_browse_action(edit: QLineEdit, model: Any = None) -> Any:
     :param model: the settings form, passed to :func:`_browse_cloud_into`.
     :returns: the button's action.
     """
-    from PySide6.QtWidgets import QStyle, QToolButton
+    from PySide6.QtWidgets import QStyle
 
     from ..i18n import tr
     from ..preferences import _apply_alpha_widgets
@@ -7425,10 +7460,9 @@ def _add_cloud_browse_action(edit: QLineEdit, model: Any = None) -> Any:
     action.setObjectName("CloudSourceBrowse")
     action.setToolTip(tr("Browse cloud storage…"))
     action.triggered.connect(lambda: _browse_cloud_into(edit, model))
-    for button in edit.findChildren(QToolButton):
-        if button.defaultAction() is action:
-            button.setFocusPolicy(Qt.StrongFocus)
-            button.setAccessibleName(action.toolTip())
+    for button in _side_buttons_of(action):
+        button.setFocusPolicy(Qt.StrongFocus)
+        button.setAccessibleName(action.toolTip())
     _apply_alpha_widgets(edit)
     return action
 
@@ -11017,7 +11051,6 @@ class SettingsWidgets:
         overview_requested = getattr(self, "_field_overview_requested", None)
         if (key == "src" and self.app_key in ("mask", "measure", "classify", "classify_merged") and isinstance(widget, QLineEdit)
                 and callable(overview_requested)):
-            from PySide6.QtWidgets import QToolButton
             from .. import iconset
             from ..i18n import tr
 
@@ -11025,11 +11058,10 @@ class SettingsWidgets:
             action.setObjectName("GenerateMasksFieldOverview")
             action.setToolTip(tr("Field-of-view overview"))
             action.triggered.connect(overview_requested)
-            for button in widget.findChildren(QToolButton):
-                if button.defaultAction() is action:
-                    button.setObjectName("GenerateMasksFieldOverview")
-                    button.setFocusPolicy(Qt.StrongFocus)
-                    button.setAccessibleName(action.toolTip())
+            for button in _side_buttons_of(action):
+                button.setObjectName("GenerateMasksFieldOverview")
+                button.setFocusPolicy(Qt.StrongFocus)
+                button.setAccessibleName(action.toolTip())
         if (key == "src" and self.app_key in ("mask", "measure", "classify", "classify_merged", "map_barcodes")
                 and isinstance(widget, QLineEdit)):
             _add_cloud_browse_action(widget, self)

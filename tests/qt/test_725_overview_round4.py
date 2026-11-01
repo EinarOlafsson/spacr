@@ -282,7 +282,9 @@ def test_object_masks_are_picked_from_a_folder_and_refused_with_the_reason(mask,
 
     tab, view = _browse(mask, qtbot, source)
     edit = tab._settings_model._widgets["overview_objects_path"]
-    action = edit._spacr_folder_browse_action
+    from spacr.qt.screens.settings_model import _folder_browse_action
+
+    action = _folder_browse_action(edit)
     plain = tmp_path / "plain"
     plain.mkdir()
     chosen = [str(plain)]
