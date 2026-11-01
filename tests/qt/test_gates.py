@@ -391,7 +391,7 @@ def test_an_unknown_gate_kind_fails_with_a_sentence():
     # implements whatever it names.
     with pytest.raises(GateError, match="unknown gate kind"):
         gate_from_dict({"kind": "hyperboloid", "name": "e"})
-    with pytest.raises(GateError, match="does not understand"):
+    with pytest.raises(GateError, match="which this build cannot read"):
         gate_from_dict({"kind": THRESHOLD, "name": "t", "column": "a",
                         "low": 1.0, "feather": 3})
 

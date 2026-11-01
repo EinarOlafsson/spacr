@@ -7,6 +7,7 @@ import json
 import os
 import subprocess
 import sys
+import types
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -384,8 +385,9 @@ def test_post_flush_snapshot_observes_owned_deletion_without_extra_cleanup(
     observer = request.config.pluginmanager.get_plugin(observer_name)
     registered = observer is None
     if registered:
-        observer = SimpleNamespace(_needs_qt_post_flush=journal_plugin._needs_qt_post_flush,
-                                   _record_qt_post_flush=journal_plugin._record_qt_post_flush)
+        observer = types.ModuleType(observer_name)
+        observer._needs_qt_post_flush = journal_plugin._needs_qt_post_flush
+        observer._record_qt_post_flush = journal_plugin._record_qt_post_flush
         request.config.pluginmanager.register(observer, observer_name)
     flushes = []
     real_flush = QApplication.sendPostedEvents

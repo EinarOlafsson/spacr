@@ -51,10 +51,12 @@ def test_a_toggle_with_no_caption_still_resizes_without_eliding_nothing(qapp):
 
 
 def test_a_long_caption_is_still_elided_when_it_does_not_fit(qapp):
-    """The empty-caption guard must not disarm eliding for real text.
+    """The empty-caption guard must not disarm the squeeze for real text.
 
     ``Hyperparameter search`` is the caption that held the action row wide
-    enough to starve the settings column, so it has to keep shrinking.
+    enough to starve the settings column, so it has to keep shrinking. Text
+    is never cut off (item 746), so a squeezed caption wraps whole onto a
+    second line instead of losing words to an ellipsis.
     """
     caption = "Hyperparameter search"
     toggle = AiToggleLabel(text=caption)
@@ -66,8 +68,9 @@ def test_a_long_caption_is_still_elided_when_it_does_not_fit(qapp):
     toggle.setText(caption)
 
     shown = toggle.displayed_text()
-    assert shown != ""
-    assert shown != toggle.text()
+    assert shown == caption
+    assert toggle.wordWrap()
+    assert toggle.heightForWidth(toggle.width()) > toggle.fontMetrics().height()
     assert toggle.text() == caption
 
 
