@@ -6020,6 +6020,14 @@ QPushButton#GhostButton:hover {{
     color: {P["accent"]};
     background: transparent;
 }}
+/* A heading's own actions (the console's Clear, Copy and Preferences) are
+   as tall as their text, not as a body button: a folded console is then its
+   heading strip, the height System folds to. Their spacing keeps each one a
+   24 px target. */
+QPushButton[cardTitleAction="true"] {{
+    padding-top: 0px;
+    padding-bottom: 0px;
+}}
 QPushButton#IconButton {{
     background-color: transparent;
     border: none;

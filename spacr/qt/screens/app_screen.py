@@ -8581,6 +8581,7 @@ class AppScreen(QWidget):
 
         for console_action in (self._btn_clear, self._btn_copy_console,
                                self._btn_preferences):
+            console_action.setProperty("cardTitleAction", True)
             self._console_card.add_title_action(console_action)
 
         from .. import iconset as _iconset
