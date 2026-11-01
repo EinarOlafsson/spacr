@@ -10393,13 +10393,17 @@ def cleanup_pipeline_folders(src, keep_intermediate=False, keep_original=False,
     Nothing is removed unless ``merged/`` holds at least one ``.npy``.
     ``stack/``, ``masks/`` and the numbered folders are then removed only when
     every ``stack/*.npy`` has a matching ``merged/*.npy``; without ``stack/``
-    there is no per-field check. ``orig/`` is removed whenever
-    ``keep_original`` is False, even when some fields were not merged.
+    there is no per-field check. With ``keep_original`` False, ``orig/`` is
+    removed only when every ``stack/*.npy`` field has a ``merged/`` array that
+    loads completely. Otherwise ``orig/`` is kept, also when there is no
+    ``stack/`` list to check against, and a message naming the missing or
+    incomplete fields is printed even with ``verbose=False``.
 
     :param src: run root folder (holds ``merged/``, ``stack/``, ``masks/``, ``orig/``).
     :param keep_intermediate: keep ``stack/`` + ``masks/`` when True.
     :param keep_original: keep the raw ``orig/`` backup when True.
-    :returns: list of folder paths that were deleted.
+    :returns: list of folder paths that were deleted; a kept ``orig/`` is not
+        in it.
     """
     import os
     import shutil

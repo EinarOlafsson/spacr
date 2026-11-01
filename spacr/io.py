@@ -859,8 +859,9 @@ class spacrDataLoader(_TorchDataLoader):
 
     Wraps ``torch.utils.data.DataLoader`` and runs a daemon thread that
     stays one or more batches ahead of consumption to hide I/O latency.
-    End-of-stream is signalled with a sentinel. If no batch arrives within
-    60 s, iteration stops with ``StopIteration`` as if the stream had ended.
+    End-of-stream is signalled with a sentinel. A slow producer is waited
+    for, with a warning every 60 s; a producer that stops without the
+    sentinel raises ``RuntimeError`` instead of ending the pass early.
 
     :param preload_batches: Number of batches to keep queued ahead.
         Default ``1``.
@@ -931,10 +932,10 @@ class spacrDataLoader(_TorchDataLoader):
     def __iter__(self):
         """Start a pass over the data and return self.
 
-        While a pass is active the call returns self without restarting
-        (``list(iter(dl))`` calls it twice), so the stream is not doubled. A
-        new pass starts only after the previous one reached its end or timed
-        out.
+        An active pass that has yielded no batch yet is reused
+        (``list(iter(dl))`` calls this twice), so the stream is not doubled.
+        An active pass that has already yielded batches is discarded with a
+        warning and a full new pass starts.
         """
         if self._iteration_active:
             if self.current_batch_index == 0:
@@ -964,7 +965,13 @@ class spacrDataLoader(_TorchDataLoader):
 
     def __next__(self):
         """Return the next queued batch, or raise ``StopIteration`` at the
-        sentinel the preloader pushes when the stream is exhausted."""
+        sentinel the preloader pushes when the stream is exhausted.
+
+        Waits while the producer is alive, logging a warning every 60 s
+        without a batch. Raises ``RuntimeError`` when the producer is gone
+        without signalling the end, and ``StopIteration`` after
+        :meth:`cleanup` stopped the pass.
+        """
         next_batch = self._wait_for_batch()
         if next_batch is self._sentinel:
             self._iteration_active = False
@@ -5494,15 +5501,17 @@ def save_object_mask(output_folder, filename, mask, compression='lzw'):
     """Save an integer label mask as a lossless, compressed TIFF.
 
     Masks are saved as TIFF (not .npy) so they're readable by ImageJ/other
-    tools, with lossless compression (default LZW). The array is cast to
-    uint16 with ``astype``: labels 0 to 65535 are written unchanged, and
-    larger labels wrap (65536 becomes 0) because no range check is made.
+    tools, with lossless compression (default LZW). Label values are written
+    unchanged: as uint16 when the largest label is 65535 or less, as uint32
+    above that.
 
     :param output_folder: destination folder (e.g. ``masks/cell_mask_stack``).
     :param filename: reference filename (the stack basename; extension ignored).
     :param mask: 2-D integer label array.
     :param compression: lossless codec — ``'lzw'`` | ``'zlib'`` | ``'none'``.
     :returns: the path written.
+    :raises ValueError: for negative, fractional or non-finite labels, or
+        labels above the uint32 range.
     """
     base = os.path.splitext(os.path.basename(filename))[0]
     out_path = os.path.join(output_folder, base + '.tif')
@@ -8514,11 +8523,13 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
                      pin_memory=False, normalize=False, channels=None,
                      augment=False, verbose=False, class_balance='none',
                      seed=42, group_by='none', crop_loading_policy=DECLARED_UINT8):
-    """Build ``spacrDataLoader`` objects for training, validation, or testing.
+    """Build PyTorch data loaders for training, validation, or testing.
 
     Reads class subfolders under ``src/<mode>``, applies the requested
     transforms (channel selection, optional normalisation, optional
-    augmentation) and returns loaders sized to ``batch_size``.
+    augmentation) and returns loaders sized to ``batch_size``. The loaders are
+    ``torch.utils.data.DataLoader`` objects (``spacr.torch_loader.ArrayDataLoader``
+    on macOS), not :class:`spacrDataLoader`.
 
     :param src: Root folder containing ``train``/``test`` subfolders.
     :param mode: Which split to load — ``'train'`` or ``'test'``.

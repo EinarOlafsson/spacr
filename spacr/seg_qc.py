@@ -1574,7 +1574,9 @@ class Finding:
     :param severity: ``'fail'``, ``'warn'`` or ``'ok'`` — how a banner should
         colour it. A finding blocks nothing; only
         :func:`run_segmentation_qc` with ``mode='stop'`` raises
-        :class:`SegmentationQCFailed` for a failed plate.
+        :class:`SegmentationQCFailed` for a failed plate. The classic Mask
+        pipeline lets it end the run and prints other QC errors as skipped;
+        the V2 scorer passes it on only when called with ``strict=True``.
     :param kind: ``'flag'``, ``'count_gradient'``, ``'size_gradient'`` or
         ``'clean'``. What the finding is about, for a caller that wants to
         show one kind and not another.
@@ -1947,8 +1949,9 @@ class QCDigest:
     :param stale: True when any card is older than its masks.
     :param checked_at: when this digest was built (``time.time()``).
     :param blocks_run: always ``False``; the digest reports QC and does not
-        stop a run. Stopping happens only in :func:`run_segmentation_qc` with
-        ``mode='stop'``.
+        stop a run. A run is stopped only by :func:`run_segmentation_qc` with
+        ``mode='stop'``, whose :class:`SegmentationQCFailed` for a failed
+        plate ends a classic Mask run.
     """
 
     root: str = ""
