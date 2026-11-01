@@ -633,8 +633,12 @@ def test_the_ink_only_spends_what_the_rules_leave_it(dressed):
     """The band is read off :data:`spacr.qt.theme.CONTRAST_RULES` with
     :data:`spacr.qt.theme.SPACEOUT_INK_HEADROOM` in hand, so the answer is
     the most coloured ink the check allows and never a colour the check was
-    bent for."""
+    bent for. A theme outside :data:`spacr.qt.theme.DRESSED_EAGERLY` is
+    solved the first time its palette is asked for, so the palette is asked
+    for first; reading the bands alone passed only after another test had
+    dressed every theme."""
     for name in theme.THEMES:
+        theme.palette_for(name)
         bands = theme._INK_BANDS.get(name, {})
         assert bands, f"{name} solved no ink band at all"
         for role, (low, high) in bands.items():
