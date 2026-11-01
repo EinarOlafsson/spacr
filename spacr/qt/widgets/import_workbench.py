@@ -387,9 +387,10 @@ class ImportWorkbench(QWidget):
 
     def _rebuild_roles(self, groups: Sequence[str]) -> None:
         """One dropdown per group, keeping any choice already made."""
+        from .flow import _take_item
+
         while self.roles_row.count():
-            item = self.roles_row.takeAt(0)
-            widget = item.widget()
+            widget, _nested = _take_item(self.roles_row, 0)
             if widget is not None:
                 widget.setParent(None)
                 widget.deleteLater()

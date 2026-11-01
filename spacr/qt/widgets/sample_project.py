@@ -1357,9 +1357,10 @@ class _ProtocolBrowserDialog(QDialog):
 
         :param key: protocol identifier; an unknown key displays the no-match message.
         """
+        from .flow import _take_item
+
         while self._diagram_layout.count():
-            item = self._diagram_layout.takeAt(0)
-            widget = item.widget()
+            widget, _nested = _take_item(self._diagram_layout, 0)
             if widget is not None:
                 widget.hide()
                 widget.deleteLater()

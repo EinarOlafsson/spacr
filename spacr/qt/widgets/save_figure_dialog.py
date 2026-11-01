@@ -915,9 +915,10 @@ class SaveFigureDialog(QDialog):
         rebuilt on every change, and orphans would accumulate for the life of
         the dialog.
         """
+        from .flow import _take_item
+
         while self._holder.count():
-            item = self._holder.takeAt(0)
-            widget = item.widget()
+            widget, _nested = _take_item(self._holder, 0)
             if widget is not None:
                 widget.setParent(None)
                 widget.deleteLater()

@@ -387,8 +387,10 @@ class PlateMapPicker(QDialog):
         self._layout_size = int(layout)
         wanted = self.selection() if not keep else self._read(keep)
 
+        from .flow import _take_item
+
         while self._grid.count():
-            widget = self._grid.takeAt(0).widget()
+            widget = _take_item(self._grid, 0)[0]
             widget.setParent(None)
             widget.deleteLater()
         self._wells = {}

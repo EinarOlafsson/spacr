@@ -129,9 +129,10 @@ class FilmStrip(QScrollArea):
         :param frames: thumbnail pixmaps, one per frame in order; clicking one
             emits ``frame_picked`` with its index.
         """
+        from .flow import _take_item
+
         while self._row.count() > 1:
-            item = self._row.takeAt(0)
-            widget = item.widget()
+            widget, _nested = _take_item(self._row, 0)
             if widget is not None:
                 widget.deleteLater()
         self._cells = []

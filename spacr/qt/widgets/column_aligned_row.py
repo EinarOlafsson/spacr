@@ -348,9 +348,9 @@ def align_row_to_columns(
     if isinstance(existing, ColumnAlignedRow):
         return existing
     if existing is not None:
-        while existing.count():
-            item = existing.takeAt(0)
-            widget = item.widget() if item is not None else None
+        from .flow import _take_every_item
+
+        for widget, _nested in _take_every_item(existing):
             if widget is not None:
                 widget.setParent(strip)
         shiboken6.delete(existing)

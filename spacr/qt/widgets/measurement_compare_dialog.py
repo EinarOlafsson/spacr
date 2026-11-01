@@ -1096,9 +1096,10 @@ class MeasurementComparePanel(QWidget):
         """
         from .graph_builder import _canvas_class
 
+        from .flow import _take_item
+
         while self._figure_holder.count():
-            item = self._figure_holder.takeAt(0)
-            widget = item.widget()
+            widget, _nested = _take_item(self._figure_holder, 0)
             if widget is not None:
                 widget.setParent(None)
                 widget.deleteLater()

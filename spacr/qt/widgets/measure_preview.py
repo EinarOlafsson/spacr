@@ -2749,9 +2749,10 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         leaving them to the garbage collector keeps a plate's worth of image
         data alive across every re-preview.
         """
+        from .flow import _take_item
+
         while self._grid.count():
-            item = self._grid.takeAt(0)
-            widget = item.widget()
+            widget, _nested = _take_item(self._grid, 0)
             if widget is not None:
                 widget.deleteLater()
 
@@ -2898,8 +2899,9 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
 
     def _retire_grid_item(self) -> None:
         """Detach one old item; native widget destruction runs after this slice."""
-        item = self._grid.takeAt(0)
-        widget = item.widget()
+        from .flow import _take_item
+
+        widget, _nested = _take_item(self._grid, 0)
         if widget is not None:
             widget.hide()
             widget.deleteLater()

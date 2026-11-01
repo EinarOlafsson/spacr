@@ -3227,8 +3227,10 @@ class OrganizeForMeasureDialog(QDialog):
 
     def _rebuild_editors(self) -> None:
         """One small editor per column: its role and channel, and Remove."""
+        from .flow import _take_item
+
         while self._editors_row.count():
-            widget = self._editors_row.takeAt(0).widget()
+            widget = _take_item(self._editors_row, 0)[0]
             if widget is not None:
                 widget.hide()
                 widget.setParent(None)

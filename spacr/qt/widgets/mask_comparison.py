@@ -142,9 +142,10 @@ class MaskComparisonDialog(QDialog):
 
     def _build_rows(self) -> None:
         """Lay one row per layer, in the current order, from scratch."""
+        from .flow import _take_item
+
         while self._grid.count():
-            item = self._grid.takeAt(0)
-            widget = item.widget()
+            widget, _nested = _take_item(self._grid, 0)
             if widget is not None:
                 widget.deleteLater()
         self._rows = []
