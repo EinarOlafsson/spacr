@@ -31,7 +31,7 @@ Pruning
 An artifact is prunable only when it is *regenerable*, which requires all of
 the following:
 
-1. the registry knows it — anything unregistered is never a candidate;
+1. the registry has a record of it — anything unregistered is never a candidate;
 2. its kind is not an **original** (:data:`ORIGINAL_KINDS`): nothing in
    :mod:`spacr.ports` declares that it produces raw images or sequencing
    reads, so nothing can make them again;
@@ -502,7 +502,7 @@ class ProjectUsage:
 
     @property
     def registered_bytes(self) -> int:
-        """Bytes sitting under an artifact the registry knows about."""
+        """Bytes under artifacts that have a registry record."""
         return sum(row.registered_bytes for row in self.kinds)
 
     def artifact_at(self, path: str) -> Optional[ArtifactUsage]:

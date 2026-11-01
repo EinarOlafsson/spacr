@@ -149,7 +149,7 @@ def inapplicable_settings(source: str) -> Tuple[str, ...]:
     pipeline fall back to its own default, which can differ from the value the
     module needs, without a warning.
 
-    Any spelling :data:`CROP_SOURCE_ALIASES` knows is accepted, because what a
+    Any spelling listed in :data:`CROP_SOURCE_ALIASES` is accepted, because what a
     panel has in hand is the value stored in the settings file, not the name
     this module resolved it to.
 

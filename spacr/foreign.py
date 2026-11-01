@@ -399,7 +399,7 @@ def is_spacr_name(name: str) -> bool:
     Delegated to :func:`spacr.feature_dict.parse_column` rather than a
     second parser: that module already implements the whole grammar
     (``<object>_channel_<i>_<stat>``, the radial-distribution and
-    organelle-summary forms, the merge suffixes) and knows every metadata
+    organelle-summary forms, the merge suffixes) and lists every metadata
     column. ``family == 'unknown'`` is exactly "spaCR would not write
     this".
     """
@@ -3368,7 +3368,7 @@ def run_import(plan: ImportPlan, dst: str, *,
 
 def default_settings(settings: Optional[TMapping[str, Any]] = None
                      ) -> Dict[str, Any]:
-    """Return the settings :func:`import_project` understands, with defaults.
+    """Return the settings :func:`import_project` reads, with their defaults.
 
     Shaped like every other ``spacr`` settings factory — pass a partial
     dict, get it back filled in — so a CLI or a GUI can build a panel from

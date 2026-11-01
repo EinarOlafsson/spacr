@@ -367,7 +367,7 @@ def _as_indices(value) -> Optional[list]:
 
 
 def to_crop_settings(picture) -> Dict[str, object]:
-    """The subset of a picture-settings dict the crop layer understands.
+    """Return the subset of a picture-settings dict that the crop layer reads.
 
     :param picture: the annotator-named settings, as
         :class:`spacr.qt.widgets.picture_settings_dialog.PictureSettingsDialog`

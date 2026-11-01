@@ -19,8 +19,8 @@ and the total size of the current selection, without opening a network
 connection. ``--dry-run`` prints the same listing.
 
 Importing this module must stay light -- no Qt, no torch, no matplotlib -- so
-``spacr-download --help`` answers instantly on a login node with a cold NFS
-cache. That is why the download primitives live in
+``spacr-download --help`` does not load those libraries from a cold NFS
+cache on a login node. That is why the download primitives live in
 :mod:`spacr.example_archives` rather than in :mod:`spacr.qt.hf_download`, which
 imports PySide6 at module scope. ``tests/test_cli_download.py`` pins it.
 
@@ -696,7 +696,8 @@ def build_parser() -> argparse.ArgumentParser:
     """Return the ``spacr-download`` argument parser.
 
     Building it imports nothing beyond the standard library and two
-    dependency-light spaCR modules, so ``--help`` is instant.
+    dependency-light spaCR modules, so ``--help`` loads no Qt, torch or
+    matplotlib.
     """
     keys = ", ".join(s.key for s in EXAMPLE_SETS)
     parser = _Parser(

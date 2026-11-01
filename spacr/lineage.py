@@ -28,7 +28,7 @@ Identity is the shared one
 
 Nodes are keyed by :func:`spacr.selection.object_keys`, the same string the
 UMAP, the plate view and the crop grid use, so selecting a node in the tree
-publishes something every other view already understands. A child's parent is
+publishes a key every other view already reads. A child's parent is
 resolved *within its own field*: ``cell_id`` is a label, not a key, and label
 7 exists in every field on the plate.
 

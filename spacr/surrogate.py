@@ -1219,7 +1219,7 @@ def write_surrogate_result(result: SurrogateResult,
 
 
 def explain_cv_default_settings(settings=None) -> Dict[str, Any]:
-    """Defaults for the first-class Explain CV Model module."""
+    """Return ``settings`` with the Explain CV Model module's defaults filled in."""
     configured = dict(settings or {})
     configured.setdefault("db_path", "")
     configured.setdefault("predictions_file", "")

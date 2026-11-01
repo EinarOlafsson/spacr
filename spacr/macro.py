@@ -54,7 +54,7 @@ on becomes a named constant, and every path underneath it is rebuilt from
 that constant with :func:`os.path.join`. Repointing the whole chain at
 another plate is one edit on one line.
 
-*Recording never fails a run.* Recording is bracketed by
+*A recording error does not stop the run.* Recording is bracketed by
 :func:`begin_recording` / :func:`finish_recording`, both of which catch
 every exception. A macro that could not be written costs one log line.
 
@@ -1305,7 +1305,7 @@ def read_macro(path: Any) -> Dict[str, Any]:
     :returns: the record, with each step's ``"settings"`` resolved to the
         real dict.
     :raises MacroError: when the file has no :data:`MACRO`, or its schema
-        is newer than this build understands.
+        is newer than this build supports.
     :raises OSError: when the file cannot be read.
     :raises SyntaxError: when it is not Python at all.
     """

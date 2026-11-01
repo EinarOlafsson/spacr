@@ -3124,7 +3124,7 @@ def _finish_conversion_barcodes(prepared, result):
 
 
 def default_settings(settings: Optional[TMapping[str, Any]] = None) -> Dict[str, Any]:
-    """Return the settings :func:`convert_folder` understands, with defaults.
+    """Return the settings :func:`convert_folder` reads, with their defaults.
 
     Shaped like every other ``spacr.settings`` factory — pass a partial
     dict, get it back filled in — so the CLI and the GUIs can build a

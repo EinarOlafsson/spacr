@@ -85,7 +85,7 @@ class UmapRecipe:
         """Build a recipe from known fields in a stored mapping.
 
         :param payload: serialized recipe mapping, possibly with newer fields.
-        :returns: normalized recipe containing only fields this version knows.
+        :returns: normalized recipe containing only fields this version defines.
         """
         data = {k: v for k, v in dict(payload).items()
                 if k in cls.__dataclass_fields__}

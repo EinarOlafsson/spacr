@@ -238,7 +238,7 @@ class VolcanoStyle(FigureStyle):
 
     @classmethod
     def from_dict(cls, values: dict) -> "VolcanoStyle":
-        """Build from a dict, ignoring keys this version does not know.
+        """Build from a dict, ignoring keys this version does not define.
 
         Forwards-compatible on purpose: a style saved by a newer spaCR still
         loads here, minus the settings that did not exist yet.

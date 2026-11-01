@@ -3000,7 +3000,7 @@ class PointsLayer(Layer):
 
     @face_color.setter
     def face_color(self, value: Any) -> None:
-        """Set the fill colour, accepting any spelling `to_rgba` understands.
+        """Set the fill colour, accepting any spelling `to_rgba` accepts.
 
         :param value: a colour name, hex string, or RGB(A) sequence.
         """
@@ -3017,7 +3017,7 @@ class PointsLayer(Layer):
 
     @border_color.setter
     def border_color(self, value: Any) -> None:
-        """Set the outline colour, accepting any spelling `to_rgba` understands.
+        """Set the outline colour, accepting any spelling `to_rgba` accepts.
 
         :param value: a colour name, hex string, or RGB(A) sequence.
         """

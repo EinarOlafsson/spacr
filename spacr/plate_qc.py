@@ -269,7 +269,7 @@ def _index_to_alpha(index: int) -> str:
 def parse_row_label(label: Any) -> Optional[int]:
     """Return the 1-based row index of ``label``, or ``None``.
 
-    Understands every row spelling spaCR and plate readers produce:
+    Accepts every row spelling spaCR and plate readers produce:
     ``'r3'``, ``'R3'``, ``'row3'``, ``3``, ``'C'`` (letter rows) and
     ``'AA'`` (1536 plates go past Z).
 
@@ -296,7 +296,7 @@ def parse_row_label(label: Any) -> Optional[int]:
 def parse_column_label(label: Any) -> Optional[int]:
     """Return the 1-based column index of ``label``, or ``None``.
 
-    Understands ``'c12'``, ``'C12'``, ``'column12'``, ``'12'`` and ``12``.
+    Accepts ``'c12'``, ``'C12'``, ``'column12'``, ``'12'`` and ``12``.
 
     :param label: column identifier.
     :returns: 1-based column index, or ``None`` when unparseable.

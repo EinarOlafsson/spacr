@@ -7,7 +7,7 @@ node without a display.
 This module runs pipelines without a GUI. Importing ``spacr.cli`` does not
 import Qt, Tk, torch, cellpose, numpy or pandas. Everything
 heavy is imported inside the command that needs it, so ``spacr-run --help`` and
-``spacr-run --list`` answer instantly on a login node, and ``--dry-run``
+``spacr-run --list`` run without importing those libraries, and ``--dry-run``
 validates a 40-plate settings file without touching a GPU.
 
 Usage::
@@ -882,7 +882,7 @@ def module_defaults(module: Module) -> Dict[str, Any]:
     see. That is usually a :mod:`spacr.settings` function
     (:attr:`Module.defaults`); for the pipelines that keep their own it is
     :attr:`Module.defaults_entry`, imported here rather than at module load so
-    ``--list`` stays instant.
+    ``--list`` does not import it.
 
     :param module: the module whose defaults are wanted.
     :returns: dict of defaults; empty when the pipeline has no helper.
@@ -2204,7 +2204,8 @@ def build_parser() -> argparse.ArgumentParser:
     """Return the ``spacr-run`` argument parser.
 
     Building the parser imports nothing beyond the standard library, so
-    ``spacr-run --help`` is instant even on a node with a cold NFS cache.
+    ``spacr-run --help`` reads no spaCR or third-party modules from a cold
+    NFS cache.
 
     :returns: the parser.
     """

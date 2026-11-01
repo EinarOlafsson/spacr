@@ -579,7 +579,7 @@ def correct_batch_effects(
     ``robust_zscore`` does the same with median/MAD and is less sensitive to
     heavy-tailed single-cell measurements. ``control_center`` estimates
     only a location shift from negative/reference controls in every batch,
-    preserving treatment dispersion and usually best preserving biology.
+    preserving treatment dispersion.
 
     ``combat`` is the empirical-Bayes method of Johnson, Li & Rabinovich
     (2007). Unlike the four above it fits a *model*: every feature is regressed

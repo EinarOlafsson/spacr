@@ -2446,7 +2446,7 @@ def format_plan(plan: AlignPlan, *, max_rows: int = 12) -> str:
 
 
 def default_settings(settings: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:
-    """Return the settings :func:`align_folder` understands, with defaults.
+    """Return the settings :func:`align_folder` reads, with their defaults.
 
     Shaped like every other ``spacr`` settings factory — pass a partial
     dict, get it back filled in — so the CLI and the Qt bridge can build a

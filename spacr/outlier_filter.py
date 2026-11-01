@@ -1,4 +1,4 @@
-"""Remove robustly defined object outliers before guide annotation.
+"""Remove objects far from the median, in scaled MADs, before guide annotation.
 
 Optional filters operate on cell or nucleus area and intensity. Each filter
 uses distance from the median in scaled median absolute deviations (MADs),
