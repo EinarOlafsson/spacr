@@ -154,6 +154,8 @@ class LineageScreen(LinkedView, QWidget):
         self.link_selection(LINK_SOURCE)
         from ..dnd import install_for
         install_for(self, "lineage")
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     def _build(self) -> None:
         """Lay out the source row, the containment tree and the orphan list."""
