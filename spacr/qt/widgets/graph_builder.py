@@ -45,6 +45,7 @@ one "other" grey rather than adding hues that are hard to tell apart.
 """
 from __future__ import annotations
 
+import dataclasses
 import logging
 from typing import Callable, Dict, List, Optional, Tuple
 
@@ -68,8 +69,8 @@ from .graph_spec import (
     BAR, BAR_JITTER, BINNED, BOX, CHANNELS, COLOUR, EMPTY, FACET_COL,
     FACET_ROW, HEATMAP, HISTOGRAM, JITTER, LINE, MISSING_LEVEL, PLOT_KINDS,
     SCATTER, SIZE, VIOLIN, X, Y,
-    GraphSpec, RenderData, brush_mask, facet_grid, plottable_columns,
-    prepare_data, scales_for, value_axes,
+    GraphSpec, RenderData, _category_levels, brush_mask, facet_grid,
+    plottable_columns, prepare_data, scales_for, value_axes,
 )
 from .toggle import Toggle
 
@@ -957,6 +958,10 @@ class GraphCanvas(LinkedView, QWidget):
         if not self.RESCALE_ON_FILTER and self._frame is not None:
             scale_source = self._frame
         scales = scales_for(scale_source, spec, kinds, grid)
+        if scale_source is not self._frame and scales.colour_levels is not None:
+            scales = dataclasses.replace(
+                scales,
+                colour_levels=_category_levels(self._frame, spec.colour))
         self._render_data = data
         self._grid = grid
         self._scales = scales
