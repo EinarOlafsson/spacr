@@ -1281,13 +1281,13 @@ class QueuedPanel(Panel):
 class RecentRunsPanel(Panel):
     """Last few journalled runs of an existing module; each row navigates.
 
-    Only runs of a module Home knows about are listed. A run journal can
+    Only runs of a module listed in ``known_keys`` are shown. A run journal can
     hold entries under keys that are not modules, such as the ``_job`` or
     ``job`` key a test fixture once wrote into ``~/.spacr/runs``; a row for
     one of those would ask the window to open a module that does not exist.
 
     Because each row opens its module when pressed, any entry whose key is
-    not a module Home knows about is dropped.
+    not one of those modules is dropped.
 
     :param limit: how many journalled runs to show.
     :param known_keys: callable returning the module keys that exist, or a
@@ -1336,13 +1336,13 @@ class RecentRunsPanel(Panel):
         return None if value is None else {str(k) for k in value}
 
     def name_for(self, key: str) -> str:
-        """``key``'s display name when Home knows one, else ``key`` itself.
+        """``key``'s display name from Home's registry, else ``key`` itself.
 
         Without this a row would be captioned with the raw app key, such as
         ``mask``. The names come from Home's own registry.
 
         :param key: application key to name; returned unchanged when the name
-            registry does not know it.
+            registry has no entry for it.
         """
         value = self._registry()
         if isinstance(value, dict):

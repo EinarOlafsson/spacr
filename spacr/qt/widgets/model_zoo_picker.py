@@ -1248,8 +1248,8 @@ class ModelZooPicker(QDialog):
                  stepwise: Optional[bool] = None):
         """Build the model zoo dialog.
 
-        :param kinds: restrict the listing to these model kinds; ``None`` lists
-            everything spaCR knows about.
+        :param kinds: restrict the listing to these model kinds (backend rows
+            stay listed); ``None`` lists every catalogue entry.
         :param parent: parent widget, or ``None``.
         :param stepwise: draw the table a few rows at a time, after the dialog
             is up, instead of all at once while it is built. A row's version

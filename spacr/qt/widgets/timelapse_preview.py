@@ -148,8 +148,9 @@ class TrackerUnavailable(RuntimeError):
     """A linking backend cannot run here, with an actionable reason.
 
     Raised instead of letting an ``ImportError`` escape so the panel can put
-    the message inline. The string always names the package and the command
-    that fixes it.
+    the message inline. For a missing package the string names the package
+    and the install command; when btrack's motion-model config cannot be
+    downloaded, it says how to cache it or which tracker to preview with.
     """
 
 
@@ -1224,9 +1225,11 @@ def open_sequence_payload(path, max_frames: int = 12,
         payload even when opening fails.
     :param list_siblings: ``False`` reuses the sampler's cached listing; the
         FOV dropdown hands out a path it has already enumerated.
-    :returns: ``{path, sequence, siblings, error}``. When ``list_siblings``
-        is true ``siblings`` is ALWAYS a list, never ``None``, even if the
-        listing failed -- see the fallback below for why that matters.
+    :returns: ``{path, sequence, siblings, error}``. When the sequence
+        opens and ``list_siblings`` is true, ``siblings`` is a list, never
+        ``None``, even if the listing failed -- see the fallback below for
+        why that matters. When the sequence cannot be opened, ``sequence``
+        and ``siblings`` are ``None`` and ``error`` gives the reason.
     """
     out: Dict[str, Any] = {"path": str(path), "sequence": None,
                            "siblings": None, "error": ""}

@@ -125,7 +125,7 @@ def axis_layout(coordinates: Sequence[Mapping[str, Any]],
 
     With ONE searched parameter the grid is a single row ordered by it.
     With two it is the familiar table: one parameter across, the other
-    down. With more than two there is no honest two-dimensional picture, so
+    down. With more than two no two-dimensional table shows every axis, so
     the widest parameter goes across and every distinct combination of the
     rest gets its own row -- a small multiple of small multiples. That is
     the arrangement that keeps the promise the position makes: two cells in

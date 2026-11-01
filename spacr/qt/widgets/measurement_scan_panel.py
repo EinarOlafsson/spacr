@@ -3308,8 +3308,10 @@ class ColumnRegressionPanel(WorkflowSteps, QWidget):
         """Fit every selected column, one run each, off the GUI thread.
 
         :returns: whether a queue was started. ``False`` when nothing is
-            selected, when one is already going, or when the merged frame was
-            never written -- and each of those says which it was.
+            selected, when the merged frame was never written, or when the
+            run settings cannot be read -- each of those says which it was in
+            the progress line -- and also when a queue is already running or
+            the job runner refuses the job.
         """
         if self._running:
             return False

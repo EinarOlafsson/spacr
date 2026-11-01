@@ -43,8 +43,8 @@ read by position needs its positions to line up, and one that closes up its
 gaps tells the reader "there is no row H" when the truth is "row H was
 measured and is empty". Above :data:`MAX_ROWS` × :data:`MAX_COLS` the product
 is abandoned for the observed combinations only, and :attr:`PivotResult.notice`
-says so — an unreadable table is not more honest than a smaller one that
-admits what it left out.
+says so — an unreadable table is no more complete in practice than a
+smaller one that states what it left out.
 
 The plate hierarchy
 -------------------

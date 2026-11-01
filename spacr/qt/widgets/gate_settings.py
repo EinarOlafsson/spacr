@@ -899,8 +899,8 @@ class GateSettingsDialog(QDialog):
         """Show a mode chosen elsewhere, without re-emitting it.
 
         The 2D/3D/xD buttons and this dropdown are two views of one setting.
-        Echoing the change back would be a loop; showing it is what keeps the
-        window honest about the state the editor is actually in.
+        Echoing the change back would be a loop; showing it keeps the window
+        in step with the mode the editor is actually in.
 
         :param mode: one of :data:`GATE_MODES`; any other value is ignored.
         """

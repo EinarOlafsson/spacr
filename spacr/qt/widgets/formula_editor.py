@@ -21,7 +21,8 @@ have a finite value · 1 became NaN or infinite in the calculation" — so a bad
 ratio column is noticed before it reaches a chart.
 
 **It hands back a frame, not a mutation.** :meth:`FormulaPanel.computed_frame`
-returns the loaded table *plus* the computed columns, a copy every time. The
+returns the loaded table *plus* the computed columns as a copy; when a
+formula fails it returns the loaded table itself, unchanged. The
 loaded frame is never grown, so removing a formula removes its column, and two
 screens showing the same table do not accumulate each other's columns.
 
@@ -218,10 +219,11 @@ class FormulaPanel(QWidget):
         return self._frame
 
     def computed_frame(self) -> Optional[pd.DataFrame]:
-        """The table **plus** the computed columns; a copy, never the original.
+        """The table **plus** the computed columns, as a copy.
 
         Returns the loaded frame unchanged when nothing is defined, so a host
-        can call this unconditionally.
+        can call this unconditionally. When a formula fails to apply, the
+        loaded frame itself is returned, not a copy.
         """
         if self._frame is None:
             return None

@@ -26,7 +26,7 @@ The expensive half (reading merged arrays and extracting centroids) runs
 once in a worker thread and is **cached** as a point table. Every metric
 setting — minimum length, max displacement, straightness threshold, and both
 calibration fields — recomputes from that cached table on the GUI thread,
-instantly.
+without reading the arrays again.
 """
 from __future__ import annotations
 

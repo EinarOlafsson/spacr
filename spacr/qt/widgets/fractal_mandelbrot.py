@@ -242,9 +242,10 @@ def steering_from_one_number(steering: float, seconds_per_decade: float
     leaving the camera permanently mid-course-correction and making even
     minimal steering look jerky.
 
-    Derived together they cannot disagree. The move always takes a fixed
-    FRACTION of the interval -- never more than half -- so there is always
-    as much settled time as moving time whatever the control says. That is
+    Derived together they cannot disagree. The move takes 0.45 of the
+    interval, held between 0.5 s and 6 s, so there is at least as much
+    settled time as moving time unless the interval is shorter than 1 s,
+    where the 0.5 s floor applies. That is
     what makes the low end calm rather than twitchy: at zero it simply
     stops steering, and the way down to it is gentler moves further apart,
     not the same moves crammed together.

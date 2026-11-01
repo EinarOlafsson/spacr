@@ -298,7 +298,7 @@ class TrellisSpec:
         """Rebuild a spec from plain data.
 
         Unknown keys are ignored rather than raising, so a spec saved by a
-        later version still opens here with the parts this version knows.
+        later version still opens here with the parts this version defines.
 
         :param payload: what :meth:`to_dict` produced.
         :returns: the rebuilt spec.

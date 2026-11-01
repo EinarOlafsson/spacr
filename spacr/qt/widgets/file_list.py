@@ -1817,9 +1817,8 @@ class FilePathListWidget(QWidget):
     def pick_files(self) -> int:
         """Open the file dialog and take what is chosen.
 
-        Multi-select, except when the setting names one file -- a dialog that
-        lets you pick four when three of them will be discarded is a control
-        lying about what it does.
+        Multi-select, except when the setting names one file -- there a
+        dialog that accepted four files would discard three of them.
         """
         if self._single:
             path, _selected = QFileDialog.getOpenFileName(

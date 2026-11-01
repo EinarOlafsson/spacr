@@ -1594,8 +1594,8 @@ def target_render_size(logical_width: int, logical_height: int,
 
     The rule itself is unchanged: shade ``render_scale`` squared of the
     widget's own physical pixels, never more than the widget has and
-    never fewer than 180,000, keeping the aspect ratio and an even
-    width and height.
+    at least 180,000 when the widget has that many, keeping the aspect
+    ratio and an even width and height.
 
     :param logical_width: widget width in logical pixels, floored at 320.
     :param logical_height: widget height in logical pixels, floored at 180.

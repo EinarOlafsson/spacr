@@ -244,8 +244,8 @@ def redraw_umap_figure(fig, payload: Dict[str, Any],
                        values: Dict[str, Any]) -> bool:
     """Replot ``fig`` FROM THE SAME EMBEDDING with ``values``.
 
-    The embedding in ``payload`` is read, never recomputed: this is what
-    makes "live apply" honest on a projection. Every point keeps its
+    The embedding in ``payload`` is read, never recomputed, so "live apply"
+    does not move the projection. Every point keeps its
     coordinates and its neighbours; only what is drawn on top of them
     changes.
 

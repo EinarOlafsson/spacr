@@ -3074,7 +3074,8 @@ class FigureQueue(QWidget):
         This is what a restyling menu asks for. A figure inside the live
         window is returned directly; one past it is unpickled, put back into
         the live set (so repeated edits do not re-read the disk) and the cap
-        re-applied. Returns ``None`` only when the figure was never spillable.
+        re-applied. Returns ``None`` when no spilled copy can be read: dynamic
+        figures are off, there is no spill file, or it fails to unpickle.
 
         :param idx: zero-based figure index in the queue.
         """

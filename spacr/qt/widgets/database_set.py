@@ -162,7 +162,9 @@ class DatabaseSetWidget(QWidget):
         other module whose ``src`` is a project root).
     :param table: the table the merge is described on. ``'cell'`` is the
         anchor every object join is built on.
-    :param min_items: how many sources may never be removed. The Gate Editor
+    :param min_items: how many sources the user cannot remove with a chip's
+        remove button; clearing or setting the value from code, and dropping
+        a source whose file is gone, can go below it. The Gate Editor
         passes 1, because a gate editor with no table is a screen with
         nothing on it; a settings panel passes 0, because clearing the field
         is a legitimate thing to want.
