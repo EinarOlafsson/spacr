@@ -170,7 +170,7 @@ def _count_redraws(canvas, monkeypatch):
 
 @pytest.mark.parametrize("shape", ["view_polygon", "lasso"])
 def test_moving_a_live_outline_draws_only_the_outline_and_its_rings(
-        screen, monkeypatch, shape):
+        qtbot, screen, monkeypatch, shape):
     """A pointer move while a shape is drawn in 3D is one blit of the outline
     and its highlight rings over the last full draw, never a full redraw of
     every object, and shows exactly the pixels a full redraw would."""
@@ -185,8 +185,14 @@ def test_moving_a_live_outline_draws_only_the_outline_and_its_rings(
         canvas._on_press(_Mouse(ax, centre[0] - 70, centre[1] - 70))
         for x, y in ((70, -70), (70, 70), (-70, 70)):
             canvas._on_motion(_Mouse(ax, centre[0] + x, centre[1] + y))
-    for _ in range(5):
+    quiet = 0
+    for _ in range(400):
         QApplication.processEvents()
+        quiet = 0 if getattr(mpl, "_draw_pending", False) else quiet + 1
+        if quiet >= 5:
+            break
+        qtbot.wait(5)
+    assert quiet >= 5, "a deferred draw never settled"
     mpl.draw()
     seen = _count_redraws(canvas, monkeypatch)
     for step in range(6):
