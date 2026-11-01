@@ -134,7 +134,8 @@ jobs:
             libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 \
             libgl1 libglib2.0-0t64 libnss3 libxcomposite1 libxcursor1 \
             libxdamage1 libxi6 libxtst6 libasound2t64 \
-            libsm6 libxext6 libxrender1 libopencc1.1 libopencc-data ffmpeg
+            libsm6 libxext6 libxrender1 libopencc1.1 libopencc-data ffmpeg \
+            fonts-noto-core fonts-noto-cjk
 
       - name: Install spacr (full deps, CPU-only torch)
         run: |
@@ -403,7 +404,8 @@ jobs:
             libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 \
             libgl1 libglib2.0-0t64 libnss3 libxcomposite1 libxcursor1 \
             libxdamage1 libxi6 libxtst6 libasound2t64 \
-            libsm6 libxext6 libxrender1 libopencc1.1 libopencc-data ffmpeg gdb zstd
+            libsm6 libxext6 libxrender1 libopencc1.1 libopencc-data ffmpeg gdb zstd \
+            fonts-noto-core fonts-noto-cjk
 
       - name: Install spaCR and branch-coverage tooling
         run: |
@@ -860,7 +862,8 @@ jobs:
             libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 \
             libgl1 libglib2.0-0t64 libnss3 libxcomposite1 libxcursor1 \
             libxdamage1 libxi6 libxtst6 libasound2t64 \
-            libsm6 libxext6 libxrender1 libopencc1.1 libopencc-data ffmpeg
+            libsm6 libxext6 libxrender1 libopencc1.1 libopencc-data ffmpeg \
+            fonts-noto-core fonts-noto-cjk
 
       - name: Install spacr at minimum direct versions
         run: |
