@@ -528,8 +528,13 @@ def _run_seg_qc(src, settings, object_type, *, mask_folder=None):
         None when QC is off, unavailable or it failed.
     """
     try:
-        from .seg_qc import qc_mode, run_segmentation_qc, thresholds_from_settings
+        from .seg_qc import (SegmentationQCFailed, qc_mode,
+                             run_segmentation_qc, thresholds_from_settings)
+    except Exception as exc:
+        print(f"Segmentation QC skipped for {object_type}: {type(exc).__name__}: {exc}")
+        return None
 
+    try:
         mode = qc_mode(settings)
         if mode == 'off':
             return None
@@ -545,6 +550,8 @@ def _run_seg_qc(src, settings, object_type, *, mask_folder=None):
             thresholds=thresholds_from_settings(settings),
             verbose=bool(settings.get('verbose', True)),
         )
+    except SegmentationQCFailed:
+        raise
     except Exception as exc:
         print(f"Segmentation QC skipped for {object_type}: {type(exc).__name__}: {exc}")
         return None

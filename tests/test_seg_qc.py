@@ -701,6 +701,22 @@ def test_a_qc_failure_never_kills_a_segmentation_run(tmp_path, monkeypatch, caps
     assert "Segmentation QC skipped for cell" in capsys.readouterr().out
 
 
+def test_seg_qc_stop_stops_the_mask_run(tmp_path, monkeypatch, capsys):
+    """The gate's own failure is the one exception the catch-all must not eat."""
+    import spacr.object as O
+    import spacr.seg_qc as Q
+
+    def gate(*args, **kwargs):
+        raise Q.SegmentationQCFailed("Segmentation QC (cell) FAILED",
+                                     {"verdict": "fail"})
+
+    monkeypatch.setattr(Q, "run_segmentation_qc", gate)
+    with pytest.raises(Q.SegmentationQCFailed, match="FAILED") as excinfo:
+        O._run_seg_qc(str(tmp_path), {"seg_qc": "stop"}, "cell")
+    assert excinfo.value.summary["verdict"] == "fail"
+    assert "Segmentation QC skipped" not in capsys.readouterr().out
+
+
 def test_the_mask_generators_all_call_the_scorecard():
     """Every path that writes masks has to be wired, not just the SAM one."""
     import inspect
