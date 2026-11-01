@@ -710,6 +710,17 @@ def test_integer_counts_are_left_on_their_own_scale():
     assert np.array_equal(out, data.astype(np.uint16))
 
 
+def test_a_label_above_the_16bit_ceiling_is_refused_not_clipped():
+    from spacr.measure import _promote_merged_to_uint16
+
+    data = np.zeros((2, 2, 5), np.uint32)
+    data[..., 0] = 100
+    data[0, 0, 4] = 65536
+    data[1, 1, 4] = 70001
+    with pytest.raises(ValueError, match="object id 70001"):
+        _promote_merged_to_uint16(data, _MASK_SETTINGS)
+
+
 def test_counts_above_the_16bit_ceiling_are_scaled_down_not_wrapped():
     from spacr.measure import _promote_merged_to_uint16
 

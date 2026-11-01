@@ -3298,6 +3298,14 @@ def _promote_merged_to_uint16(data, settings, *, rescale_factor=None):
             elif top > 65535.0:
                 factor = 65535.0 / top
 
+    for plane in sorted(mask_planes):
+        if arr[..., plane].size:
+            top = float(np.nanmax(arr[..., plane]))
+            if top > np.iinfo(np.uint16).max:
+                raise ValueError(
+                    f"label plane {plane} holds object id {top:g}, which does "
+                    f"not fit Measure's uint16 working array; labels are not "
+                    f"clipped or renumbered")
     out = np.zeros(arr.shape, dtype=np.uint16)
     for plane in range(int(arr.shape[-1])):
         values = np.nan_to_num(arr[..., plane].astype(np.float64),

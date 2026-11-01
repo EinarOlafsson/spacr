@@ -18,6 +18,24 @@ def test_save_object_mask_roundtrip_preserves_labels(tmp_path):
     assert np.array_equal(back, mask)   # labels EXACTLY preserved
 
 
+def test_save_object_mask_keeps_labels_above_65535_as_uint32(tmp_path):
+    import pytest
+    from spacr.io import save_object_mask, _load_array_any
+    mask = np.zeros((16, 16), np.int64)
+    mask[2:6, 2:6] = 65536       # astype(uint16) made this 0, background
+    mask[10:14, 10:14] = 70001   # and wrapped this to 4465
+    mask[0, 0] = 1
+    out = save_object_mask(str(tmp_path), "plate1_A01_f2.npy", mask)
+    back = _load_array_any(out)
+    assert back.dtype == np.uint32
+    assert np.array_equal(back, mask)
+    with pytest.raises(ValueError, match="does not fit in uint32"):
+        save_object_mask(str(tmp_path), "big.npy",
+                         np.array([[0, 2 ** 32]], np.int64))
+    with pytest.raises(ValueError, match="nonnegative"):
+        save_object_mask(str(tmp_path), "neg.npy", np.array([[0, -1]]))
+
+
 def test_mask_variant_path_prefers_tif_then_npy(tmp_path):
     from spacr.io import _mask_variant_path
     d = str(tmp_path)

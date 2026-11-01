@@ -5462,10 +5462,40 @@ def save_object_mask(output_folder, filename, mask, compression='lzw'):
     comp = None if str(compression).lower() in ('none', '', 'no', 'false') else str(compression).lower()
     write_tiff(
         out_path,
-        np.asarray(mask).astype(np.uint16),
+        _label_mask_storage(mask),
         compression=comp,
     )
     return out_path
+
+
+def _label_mask_storage(mask):
+    """Return ``mask`` in the smallest unsigned dtype that holds every label.
+
+    ``uint16`` when the largest label fits, ``uint32`` above 65535, so object
+    65536 is never cast to 0 (background) and higher labels never wrap.
+
+    :param mask: integer-valued label array.
+    :returns: the labels as ``uint16`` or ``uint32``, values unchanged.
+    :raises ValueError: labels are nonnumeric, nonfinite, negative,
+        fractional or exceed the uint32 capacity.
+    """
+    labels = np.asarray(mask)
+    if labels.dtype.kind not in 'buif':
+        raise ValueError('Object mask labels must be nonnegative integers')
+    if not labels.size:
+        return labels.astype(np.uint16)
+    if labels.dtype.kind == 'f':
+        if not np.isfinite(labels).all() or np.any(labels != np.floor(labels)):
+            raise ValueError('Object mask labels must be finite integers')
+    if np.min(labels) < 0:
+        raise ValueError('Object mask labels must be nonnegative integers')
+    top = int(np.max(labels))
+    if top <= np.iinfo(np.uint16).max:
+        return labels.astype(np.uint16, copy=False)
+    if top <= np.iinfo(np.uint32).max:
+        return labels.astype(np.uint32, copy=False)
+    raise ValueError(f'Object mask holds label {top}, which does not fit in '
+                     'uint32; the mask was not saved')
 
 
 def _mask_variant_path(folder, ref_filename):
