@@ -169,6 +169,21 @@ def _localize(widget: QWidget, setter_name: str, property_name: str,
     getattr(widget, setter_name)(rendered)
 
 
+def _meant_to_show(widget) -> bool:
+    """Whether ``widget`` is shown, or hidden only until it is shown again.
+
+    A widget moved into another layout is hidden by Qt until a queued show
+    puts it back; only a widget someone hid itself stays out. Counting the
+    moved ones as gone made the search strip's one-line width shrink while
+    its controls moved under the box, so the strip moved them back, they
+    reappeared, and it moved them again without end (200 % text and Zoom on
+    PySide6 6.10).
+
+    :param widget: one of the strip's controls.
+    """
+    return (not widget.isHidden()
+            or not widget.testAttribute(Qt.WA_WState_ExplicitShowHide))
+
 
 class SettingsSearchBar(QWidget):
     """Search box, Modified filter, Essentials/All switch, and a count line.
@@ -558,7 +573,7 @@ class SettingsSearchBar(QWidget):
         """
         spacing = self._controls_row.spacing()
         margins = self.layout().contentsMargins()
-        shown = [w for w in self._controls if not w.isHidden()]
+        shown = [w for w in self._controls if _meant_to_show(w)]
         return (self._placeholder_width()
                 + sum(w.sizeHint().width() + spacing for w in shown)
                 + margins.left() + margins.right())
@@ -621,7 +636,7 @@ class SettingsSearchBar(QWidget):
                 + self._controls_row.spacing())
         widest = max([self._input.minimumSizeHint().width(), pair]
                      + [w.sizeHint().width() for w in self._controls
-                        if not w.isHidden()])
+                        if _meant_to_show(w)])
         return QSize(widest + margins.left() + margins.right(),
                      super().minimumSizeHint().height())
 
