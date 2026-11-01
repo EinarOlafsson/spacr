@@ -448,3 +448,18 @@ def test_a_gate_name_dialog_is_polished_before_the_first_gate(
     assert asked == ["Name this gate"]
     assert gap < STALL_BUDGET_S
     win.close()
+
+
+def test_a_clustering_setting_does_not_redraw_the_graph(screen):
+    panel = screen.gates
+    renders = []
+    _counting(panel.canvas, "render_now", renders)
+    gap = _gap_while(lambda: screen.search._walk_steps.setValue(7),
+                     lambda: False, limit=0.3)
+    assert renders == []
+    assert screen._settings.cluster_walk_steps == 7
+    assert panel._settings.cluster_walk_steps == 7
+    screen.search._min_samples.setValue(33)
+    assert panel._settings.cluster_min_samples == 33
+    assert renders == []
+    assert gap < STALL_BUDGET_S

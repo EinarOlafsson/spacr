@@ -1724,9 +1724,20 @@ class GateEditorScreen(DerivedTableSource, QWidget):
 
         Through `apply_settings` like every other route, so the panel, the
         Cluster dialog and the settings dialog cannot end up holding three
-        different opinions about the same number.
+        different opinions about the same number. An edit that touches only
+        the clustering numbers is handed to all three without redrawing:
+        nothing on the graph reads them, and each step of a spin box redrew
+        the graph and re-sent the table twice over.
         """
-        self.apply_settings(self._settings.replaced(**changed))
+        settings = self._settings.replaced(**changed)
+        if changed and all(str(name).startswith("cluster_")
+                           for name in changed):
+            self._settings = settings
+            if self._settings_dialog is not None:
+                self._settings_dialog._settings = settings
+            self.gates._take_cluster_settings(settings)
+            return
+        self.apply_settings(settings)
 
     def apply_settings(self, settings: GateEditorSettings) -> None:
         """Apply drawing settings without re-reading the backing table.

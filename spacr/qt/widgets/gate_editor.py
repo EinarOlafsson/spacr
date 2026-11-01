@@ -5823,6 +5823,16 @@ class GateEditorPanel(QWidget):
         self.canvas.apply_settings(settings)
         self._refresh_status()
 
+    def _take_cluster_settings(self, settings) -> None:
+        """Keep settings whose change touches only the clustering numbers.
+
+        The Cluster button and the Search tab read them from here when they
+        run; the canvas draws nothing from them, so it is not redrawn.
+
+        :param settings: the screen's settings with the new clustering values.
+        """
+        self._settings = settings
+
     def _refresh_status(self) -> None:
         """Say how many gates there are and what the active one selects."""
         if self._frame is None:
