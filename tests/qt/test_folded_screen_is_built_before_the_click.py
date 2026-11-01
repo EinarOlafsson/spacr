@@ -259,3 +259,63 @@ def test_the_animated_field_keeps_painting_while_a_fold_opens(
     gaps = [b - a for a, b in zip(during, during[1:])
             if a >= started - 0.5 and b <= finished + 0.5]
     assert max(gaps or [0.0]) < FIELD_PAINT_GAP_BUDGET_S
+
+
+#: The slowest visible animated field's paint rate (paints per second) in the
+#: 1.2 s after a fold opens, as the workstation's gate takes it: the minimum
+#: over every visible ``AmbientWidget`` that is not a popup backdrop, a field
+#: that appears with the page counted from its own first paint. Measured
+#: offscreen: the window's field 80-100/s, the folded screen's own field
+#: 55-65/s, from its first paint. It may be raised, never lowered.
+FIELD_MIN_PAINTS_PER_S = 10.0
+
+
+def test_every_visible_field_paints_at_rate_after_a_fold_opens(
+        window, qapp, qtbot, monkeypatch):
+    import time
+
+    from spacr.qt.widgets import ambient
+
+    window._on_nav_selected("make_masks")
+    screen = window._screens["make_masks"]
+    qtbot.waitUntil(lambda: "train_cellpose" in screen._fold_screens,
+                    timeout=60000)
+    qtbot.waitUntil(
+        lambda: "train_cellpose" in getattr(screen, "_laid_out_folds", ()),
+        timeout=60000)
+    seen = {}
+    original = ambient.AmbientWidget.paintEvent
+
+    def counting(self, event):
+        seen.setdefault(id(self), (self, []))[1].append(time.perf_counter())
+        return original(self, event)
+
+    monkeypatch.setattr(ambient.AmbientWidget, "paintEvent", counting)
+    if not any(w.isVisible() for w in window.findChildren(ambient.AmbientWidget)):
+        pytest.skip("no animated field is showing in this configuration")
+    end = time.time() + 0.5
+    while time.time() < end:
+        qapp.processEvents()
+        time.sleep(0.004)
+    screen.open_folded("train_cellpose")
+    opened = time.perf_counter()
+    end = time.time() + 1.2
+    while time.time() < end:
+        qapp.processEvents()
+        time.sleep(0.004)
+    finished = time.perf_counter()
+    rates = {}
+    for field in window.findChildren(ambient.AmbientWidget):
+        if (not field.isVisible()
+                or field.property("spacrPopupBackdrop")):
+            continue
+        every = seen.get(id(field), (field, []))[1]
+        before = [t for t in every if t < opened]
+        stamps = [t for t in every if t >= opened]
+        if len(before) < 3 and not stamps:
+            continue
+        assert stamps, "a field that was animating stopped painting at the open"
+        span = max(finished - (stamps[0] if len(before) < 3 else opened), 0.2)
+        rates[id(field)] = len(stamps) / span
+    assert rates, "no animated field was showing"
+    assert min(rates.values()) >= FIELD_MIN_PAINTS_PER_S, rates
