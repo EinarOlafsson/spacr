@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 11:39-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -22,14 +22,16 @@ msgstr ""
 msgid "Choose a workflow after installation"
 msgstr "安装后选择工作流程"
 
-msgid "Start on Home with the first module for your experiment. Use that module's example-data control when available, inspect the inputs and preview, then run a bounded example before your own data."
-msgstr "在主页上从适合您实验的第一个模块开始。若该模块提供示例数据控件，请先使用它，检查输入和预览，然后在处理自己的数据之前先运行一个规模受限的示例。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Start on Home with the first module for your experiment. Use that module's **Load test data…** button when available, inspect the inputs and preview, then run the example before your own data."
+msgstr "在主页上从适合您实验的第一个模块开始。若该模块提供 **加载测试数据...** 按钮，请使用它，检查输入和预览，然后在处理自己的数据之前先运行该示例。"
 
 msgid "These routes and the API handoffs share the bundled module workflow map. A walkthrough explains the steps; it does not run an experiment automatically."
 msgstr "这些路线和 API 交接共享内置的模块工作流程图。操作指南讲解各个步骤；它不会自动运行实验。"
 
-msgid "Open **Pipeline overviews** to choose a pathway. Its graph includes external input nodes that explain the files you supply; these are not runnable modules. Persistent explanation cards describe modules and connections below the graph, with API links at the end of module cards. Select a graph element to outline its card, and drag the blue divider to adjust the space between graph and explanations. **Start example** opens the pathway's first real module; **Walkthrough** keeps the route available afterward. Alternative input and annotation branches do not require you to execute every listed step."
-msgstr "打开 **流程概览** 以选择一条路径。其图中包含说明您所提供文件的外部输入节点；这些节点不是可运行的模块。图下方的常驻说明卡片描述模块和连接，模块卡片末尾附有 API 链接。选择图中的某个元素即可突出显示其卡片，拖动蓝色分隔条可调整图与说明之间的空间。**启动示例** 会打开该路径的第一个实际模块；**操作指南** 会在之后继续保留该路线。可选的输入分支和标注分支并不要求您执行列出的每一个步骤。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Open **Pipeline overviews** to choose a pathway. Its graph includes external input nodes that explain the files you supply; these are not runnable modules. Persistent explanation cards describe modules and connections below the graph, with API links at the end of module cards. Select a graph element to outline its card, and drag the blue divider to adjust the space between graph and explanations. **Start example** opens the pathway's first module and loads that module's example data; when the pathway has a walkthrough, a **Walkthrough** button is added to the status bar to reopen it. Alternative input and annotation branches do not require you to execute every listed step."
+msgstr "打开 **流程概览** 以选择一条路径。其图中包含说明您所提供文件的外部输入节点；这些节点不是可运行的模块。图下方的常驻说明卡片描述模块和连接，模块卡片末尾附有 API 链接。选择图中的某个元素即可突出显示其卡片，拖动蓝色分隔条可调整图与说明之间的空间。**启动示例** 会打开该路径的第一个模块并加载该模块的示例数据；如果该路径有操作指南，状态栏中会添加一个 **操作指南** 按钮，用于重新打开它。可选的输入分支和标注分支并不要求您执行列出的每一个步骤。"
 
 msgid "A pooled spaCR screen"
 msgstr "spaCR 混合筛选"
@@ -340,8 +342,9 @@ msgstr "`模块教程 <tutorials/#lesson=07_mask>`__。"
 msgid "Measure"
 msgstr "测量"
 
-msgid "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops."
-msgstr "Measure 同时读取图像和标签平面。如需 PNG 文件，请启用裁剪图像保存；对于流式裁剪图像，应将数据库和源项目保存在一起。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Measure reads images and label planes together. PNG crops are written while save_png is on (default True); turn it off to compute measurements only. Keep the database and source project together for streamed crops."
+msgstr "Measure 同时读取图像和标签平面。save_png 开启时（默认为 True）会写入 PNG 裁剪图像；将其关闭则只计算测量值。对于流式裁剪图像，应将数据库和源项目保存在一起。"
 
 msgid "**Open:** Home → Measure."
 msgstr "**打开：** 主页 → 测量。"
@@ -527,8 +530,9 @@ msgstr "**打开：** 主页 → 映射条形码。"
 msgid "**Sequencing reads** — Single-end or paired FASTQ files, with the matching barcode reference tables."
 msgstr "**测序读段** — 单端或双端 FASTQ 文件，以及匹配的条形码参考表。"
 
-msgid "**Guide counts per well** — Map Barcodes run folder: unique_combinations.csv and annotated_reads.h5. Well identity requires the corresponding barcode references. Relevant columns, depending on the route: ``count``."
-msgstr "**各孔的向导计数** — 映射条形码运行文件夹：unique_combinations.csv 和 annotated_reads.h5。孔标识需要相应的条形码参考。相关的列（视路线而定）：``count``。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Guide counts per well** — Map Barcodes per-sample output folder: unique_combinations.csv and qc.csv, plus annotated_reads.h5 when save_h5 is True (the default). Well identity requires the corresponding barcode references. Relevant columns, depending on the route: ``count``."
+msgstr "**各孔的向导计数** — 映射条形码的逐样本输出文件夹：unique_combinations.csv 和 qc.csv，当 save_h5 为 True（默认值）时还有 annotated_reads.h5。孔标识需要相应的条形码参考。相关的列（视路线而定）：``count``。"
 
 msgid ":ref:`Regression <workflow-module-regression>`: Pair guide counts with phenotype scores using consistent plate/well keys."
 msgstr ":ref:`Regression <workflow-module-regression>`: 使用一致的孔板和孔键，将向导计数与表型评分配对。"
@@ -616,6 +620,10 @@ msgstr "将受支持的显微镜文件格式转换为配置的 TIFF 布局，同
 
 msgid "**Open:** Import → Format Converter."
 msgstr "**打开：** 导入 → 格式转换器。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Converted TIFFs and conversion map** — Format Converter destination folder: Yokogawa-named TIFFs (for example plate1_A01_T0001F001L01A01Z01C01.tif) and conversion_map.csv, which maps each output name back to its source file."
+msgstr "**转换后的 TIFF 文件与转换映射表** — 格式转换器目标文件夹：采用 Yokogawa 命名的 TIFF（例如 plate1_A01_T0001F001L01A01Z01C01.tif）以及 conversion_map.csv，后者将每个输出名称映射回其源文件。"
 
 msgid ":ref:`Mask <workflow-module-mask>`: Use the converted layout and preserve source identity mappings."
 msgstr ":ref:`Mask <workflow-module-mask>`: 使用转换后的布局，并保留源标识映射。"
@@ -832,14 +840,13 @@ msgstr "输入条件、对照、重复数和孔板约束，然后在采集前导
 msgid "**Open:** Home → Experiment Design."
 msgstr "**打开：** 主页 → Experiment Design。"
 
-msgid "**Screen design and power estimates** — Saved planning tables or figures based on explicitly chosen effect sizes, variability and sampling assumptions."
-msgstr "**筛选设计和统计功效估计** — 根据明确选定的效应大小、变异性和采样假设保存的规划表或图形。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Plate design entries** — Entered in Experiment Design: plate identifier, plate format (6 to 1536 wells), conditions with replicate counts and roles (treatment, positive control, negative control, blank), layout, edge use and seed. Load template… fills in a bundled design; no input file is required."
+msgstr "**孔板设计条目** — 在实验设计中输入：板标识符、板格式（6 至 1536 孔）、带重复数和角色（处理、阳性对照、阴性对照、空白）的条件、布局、边缘使用和随机种子。“加载模板…”会填入一个随附的设计；不需要输入文件。"
 
-msgid "**Experimental layout** — Exported plate/condition/control/replicate map. Keep its plate and well identifiers consistent with the acquired data."
-msgstr "**实验布局** — 导出的孔板、条件、对照和重复布局图。其孔板和孔标识应与采集数据保持一致。"
-
-msgid ":ref:`Power / Design <workflow-module-power>`: Use the experimental layout to define sampling assumptions, then revise the design."
-msgstr ":ref:`Power / Design <workflow-module-power>`: 根据实验布局定义采样假设，然后修订设计。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Experimental layout** — Export plate map... writes plate_map.csv (one row per well keyed by plateID, rowID and columnID), plate_map.json and plate_map_settings.json to the chosen folder. Keep its plate and well identifiers consistent with the acquired data."
+msgstr "**实验布局** — “导出板图...”会将 plate_map.csv（每孔一行，以 plateID、rowID 和 columnID 为键）、plate_map.json 和 plate_map_settings.json 写入所选文件夹。请使其中的板和孔标识符与采集的数据保持一致。"
 
 msgid ":ref:`Dose–Response <workflow-module-dose_response>`: Acquire and measure the experiment first, preserving dose/condition identities."
 msgstr ":ref:`Dose–Response <workflow-module-dose_response>`: 先采集并测量实验数据，保留剂量和条件标识。"
@@ -871,8 +878,8 @@ msgstr "根据选定的效应大小和变异性估计采样需求；预实验测
 msgid "**Open:** Home → Power / Design."
 msgstr "**打开：** 主页 → Power / Design。"
 
-msgid ":ref:`Experiment Design <workflow-module-experiment_design>`: Use the experimental layout to define sampling assumptions, then revise the design."
-msgstr ":ref:`Experiment Design <workflow-module-experiment_design>`: 根据实验布局定义采样假设，然后修订设计。"
+msgid "**Screen design and power estimates** — Saved planning tables or figures based on explicitly chosen effect sizes, variability and sampling assumptions."
+msgstr "**筛选设计和统计功效估计** — 根据明确选定的效应大小、变异性和采样假设保存的规划表或图形。"
 
 msgid ":doc:`API reference </api/spacr/qt/screens/power/index>`."
 msgstr ":doc:`API 参考 </api/spacr/qt/screens/power/index>`。"
@@ -1013,14 +1020,16 @@ msgstr "`模块教程 <tutorials/#lesson=28_training_runs>`__。"
 msgid "Align & Stitch"
 msgstr "对齐与拼接"
 
-msgid "Inspect tile geometry, overlap and channel mapping, then save the mosaic with coordinate records. OPS also needs the original cycle/site identities."
-msgstr "检查图块几何、重叠和通道映射，然后连同坐标记录一起保存拼接图像。OPS 还需要原始轮次和位点标识。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Press Plan to compute the tile layout and list tiles that fell back to their stage positions; Plan writes nothing. Write stack then writes the stitched stack to the Write to folder or .npy file and records tile coordinates in measurements.db when the Database field is set. Every channel uses the registration measured on Ref. channel. OPS also needs the original cycle/site identities."
+msgstr "按“计划”计算图块布局，并列出回退到其载物台位置的图块；“计划”不写入任何内容。随后“写 stack”会将拼接后的堆栈写入“写到”文件夹或 .npy 文件，并在设置了“数据库”字段时将图块坐标记录到 measurements.db 中。每个通道都使用在“广播通道”上测得的配准。OPS 还需要原始的循环/位点标识。"
 
 msgid "**Open:** Home → Align & Stitch."
 msgstr "**打开：** 主页 → 对齐与拼接。"
 
-msgid "**Aligned mosaic and coordinates** — Align & Stitch destination: composed image and the tile-coordinate/layout records needed to interpret it."
-msgstr "**对齐后的拼接图像和坐标** — Align & Stitch 的输出目录：拼接图像，以及解释该图像所需的图块坐标和布局记录。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Aligned mosaic and coordinates** — The Write to folder or .npy file: the stitched stack. Tile coordinates are saved to the measurements.db named in Database only when that field is set."
+msgstr "**对齐后的拼接图像和坐标** — “写到”文件夹或 .npy 文件：拼接后的堆栈。仅当设置了“数据库”字段时，图块坐标才会保存到其中指定的 measurements.db。"
 
 msgid ":ref:`OPS <workflow-module-ops>`: Carry tile coordinates and original sequencing cycles into OPS; a flattened mosaic alone is insufficient."
 msgstr ":ref:`OPS <workflow-module-ops>`: 将图块坐标和原始测序轮次信息一并传入 OPS；只有展平的拼接图像并不足够。"
@@ -1697,8 +1706,9 @@ msgstr ":doc:`API 参考 </api/spacr/parameter_sweep/index>`。"
 msgid "Toxoplasma"
 msgstr "弓形虫"
 
-msgid "Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Invasion Assay or Replication Assay. The four Coming soon tiles describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table."
-msgstr "从 Home 打开生物体指南，查看区室示意图，然后选择 Plaque Assay、Recruitment、Invasion Assay 或 Replication Assay。四个标记为即将推出的入口描述的是提议功能，无法运行。指南本身不会分析项目或生成测量表。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay; Gliding motility opens Motility Assay with infection QC off. The three Coming soon tiles (Egress, Bradyzoite conversion, Host cell damage) describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table."
+msgstr "从 Home 打开生物体指南，查看区室示意图，然后选择 Plaque Assay、Recruitment、Host–Pathogen、Invasion Assay 或 Replication Assay；Gliding motility 会以关闭感染 QC 的方式打开 Motility Assay。三个标记为即将推出的磁贴（Egress、Bradyzoite conversion、Host cell damage）描述的是提议功能，无法运行。指南本身不会分析项目或生成测量表。"
 
 msgid "**Open:** Home → Toxoplasma."
 msgstr "**打开：** 主页 → 弓形虫。"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -34,8 +34,9 @@ msgstr "版本"
 msgid "|Linux|"
 msgstr "|Linux|"
 
-msgid "64-bit Linux"
-msgstr "64 位 Linux"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Linux x86-64"
+msgstr "Linux x86-64"
 
 msgid "|MacOS|"
 msgstr "|MacOS|"
@@ -50,15 +51,71 @@ msgid "Windows 10/11"
 msgstr "Windows 10/11"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "1.5.1.4 (current)"
-msgstr "1.5.1.4（当前版本）"
+msgid "1.5.1.6 (current)"
+msgstr "1.5.1.6（当前版本）"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "|Linux-1-5-1-6|"
+msgstr "|Linux-1-5-1-6|"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Download spaCR 1.5.1.6 for Linux x86-64"
+msgstr "下载适用于 64 位 Linux 的 spaCR 1.5.1.6"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "|MacOS-1-5-1-6|"
+msgstr "|MacOS-1-5-1-6|"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Download spaCR 1.5.1.6 for macOS 11+ (Intel and Apple silicon)"
+msgstr "下载适用于 macOS 11+（Intel 和 Apple 芯片）的 spaCR 1.5.1.6"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "|Windows-1-5-1-6|"
+msgstr "|Windows-1-5-1-6|"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Download spaCR 1.5.1.6 for Windows 10/11"
+msgstr "下载适用于 Windows 10/11 的 spaCR 1.5.1.6"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "1.5.1.5"
+msgstr "1.5.1.5"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "|Linux-1-5-1-5|"
+msgstr "|Linux-1-5-1-5|"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Download spaCR 1.5.1.5 for Linux x86-64"
+msgstr "下载适用于 64 位 Linux 的 spaCR 1.5.1.5"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "|MacOS-1-5-1-5|"
+msgstr "|MacOS-1-5-1-5|"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Download spaCR 1.5.1.5 for macOS 11+ (Intel and Apple silicon)"
+msgstr "下载适用于 macOS 11+（Intel 和 Apple 芯片）的 spaCR 1.5.1.5"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "|Windows-1-5-1-5|"
+msgstr "|Windows-1-5-1-5|"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Download spaCR 1.5.1.5 for Windows 10/11"
+msgstr "下载适用于 Windows 10/11 的 spaCR 1.5.1.5"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "1.5.1.4"
+msgstr "1.5.1.4"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "|Linux-1-5-1-4|"
 msgstr "|Linux-1-5-1-4|"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Download spaCR 1.5.1.4 for 64-bit Linux"
+msgid "Download spaCR 1.5.1.4 for Linux x86-64"
 msgstr "下载适用于 64 位 Linux 的 spaCR 1.5.1.4"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
@@ -84,7 +141,8 @@ msgstr "1.5.1.3"
 msgid "|Linux-1-5-1-3|"
 msgstr "|Linux-1-5-1-3|"
 
-msgid "Download spaCR 1.5.1.3 for 64-bit Linux"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Download spaCR 1.5.1.3 for Linux x86-64"
 msgstr "下载适用于 64 位 Linux 的 spaCR 1.5.1.3"
 
 msgid "|MacOS-1-5-1-3|"
@@ -105,7 +163,8 @@ msgstr "1.5.1.2"
 msgid "|Linux-1-5-1-2|"
 msgstr "|Linux-1-5-1-2|"
 
-msgid "Download spaCR 1.5.1.2 for 64-bit Linux"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Download spaCR 1.5.1.2 for Linux x86-64"
 msgstr "下载适用于 64 位 Linux 的 spaCR 1.5.1.2"
 
 msgid "|MacOS-1-5-1-2|"
@@ -126,7 +185,8 @@ msgstr "1.5.1.0"
 msgid "|Linux-1-5-1-0|"
 msgstr "|Linux-1-5-1-0|"
 
-msgid "Download spaCR 1.5.1.0 for 64-bit Linux"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Download spaCR 1.5.1.0 for Linux x86-64"
 msgstr "下载适用于 64 位 Linux 的 spaCR 1.5.1.0"
 
 msgid "|MacOS-1-5-1-0|"
@@ -147,7 +207,8 @@ msgstr "1.5.0.9"
 msgid "|Linux-1-5-0-9|"
 msgstr "|Linux-1-5-0-9|"
 
-msgid "Download spaCR 1.5.0.9 for 64-bit Linux"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Download spaCR 1.5.0.9 for Linux x86-64"
 msgstr "下载适用于 64 位 Linux 的 spaCR 1.5.0.9"
 
 msgid "|MacOS-1-5-0-9|"
@@ -168,7 +229,8 @@ msgstr "1.5.0.8"
 msgid "|Linux-1-5-0-8|"
 msgstr "|Linux-1-5-0-8|"
 
-msgid "Download spaCR 1.5.0.8 for 64-bit Linux"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Download spaCR 1.5.0.8 for Linux x86-64"
 msgstr "下载适用于 64 位 Linux 的 spaCR 1.5.0.8"
 
 msgid "|MacOS-1-5-0-8|"
@@ -189,7 +251,8 @@ msgstr "1.5.0.7"
 msgid "|Linux-1-5-0-7|"
 msgstr "|Linux-1-5-0-7|"
 
-msgid "Download spaCR 1.5.0.7 for 64-bit Linux"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Download spaCR 1.5.0.7 for Linux x86-64"
 msgstr "下载适用于 64 位 Linux 的 spaCR 1.5.0.7"
 
 msgid "|MacOS-1-5-0-7|"
@@ -210,7 +273,8 @@ msgstr "1.5.0.6"
 msgid "|Linux-1-5-0-6|"
 msgstr "|Linux-1-5-0-6|"
 
-msgid "Download spaCR 1.5.0.6 for 64-bit Linux"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Download spaCR 1.5.0.6 for Linux x86-64"
 msgstr "下载适用于 64 位 Linux 的 spaCR 1.5.0.6"
 
 msgid "|MacOS-1-5-0-6|"
@@ -231,7 +295,8 @@ msgstr "1.5.0.5"
 msgid "|Linux-1-5-0-5|"
 msgstr "|Linux-1-5-0-5|"
 
-msgid "Download spaCR 1.5.0.5 for 64-bit Linux"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Download spaCR 1.5.0.5 for Linux x86-64"
 msgstr "下载适用于 64 位 Linux 的 spaCR 1.5.0.5"
 
 msgid "|MacOS-1-5-0-5|"
@@ -252,7 +317,8 @@ msgstr "1.5.0.4"
 msgid "|Linux-1-5-0-4|"
 msgstr "|Linux-1-5-0-4|"
 
-msgid "Download spaCR 1.5.0.4 for 64-bit Linux"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Download spaCR 1.5.0.4 for Linux x86-64"
 msgstr "下载适用于 64 位 Linux 的 spaCR 1.5.0.4"
 
 msgid "|MacOS-1-5-0-4|"
@@ -273,7 +339,8 @@ msgstr "1.5.0.1"
 msgid "|Linux-1-5-0-1|"
 msgstr "|Linux-1-5-0-1|"
 
-msgid "Download spaCR 1.5.0.1 for 64-bit Linux"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Download spaCR 1.5.0.1 for Linux x86-64"
 msgstr "下载适用于 64 位 Linux 的 spaCR 1.5.0.1"
 
 msgid "|MacOS-1-5-0-1|"
@@ -294,7 +361,8 @@ msgstr "1.4.9.9"
 msgid "|Linux-1-4-9-9|"
 msgstr "|Linux-1-4-9-9|"
 
-msgid "Download spaCR 1.4.9.9 for 64-bit Linux"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Download spaCR 1.4.9.9 for Linux x86-64"
 msgstr "下载适用于 64 位 Linux 的 spaCR 1.4.9.9"
 
 msgid "|MacOS-1-4-9-9|"

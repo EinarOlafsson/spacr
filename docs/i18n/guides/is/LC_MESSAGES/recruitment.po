@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
@@ -29,8 +29,9 @@ msgstr "Frá **Heim** → **Lífvera** → **Toxoplasma** skaltu opna **Söfnuna
 msgid "For whole-vacuole marker states, explicit host infection denominators and optional parasite counts, see :doc:`Host–Pathogen Analysis <host_pathogen>`. The two modules remain separate analysis choices."
 msgstr "Fyrir ástand merkis í heilli bólu (vacuole), skýra nefnara hýsilsýkingar og valkvæða talningu sníkjudýra, sjá :doc:`Greining hýsils og sýkils <host_pathogen>`. Einingarnar tvær eru áfram aðskildir greiningarkostir."
 
-msgid "Select ``channel_of_interest`` for the fluorescent marker whose recruitment you want to measure. The primary ``recruitment`` column is the pathogen mean intensity divided by the cytoplasm mean intensity in that channel. Configure the condition metadata, object size/intensity filters and minimum objects per well before comparing results. Inspect compartment identities and denominator intensities; an absent or zero denominator does not establish recruitment."
-msgstr "Veldu ``channel_of_interest`` fyrir flúrljómandi merkið sem þú vilt mæla söfnun á. Aðaldálkurinn ``recruitment`` er meðalstyrkur sýkils deilt með meðalstyrk umfrymis í þeirri rás. Stilltu lýsigögn skilyrða, síur á stærð/styrk hluta og lágmarksfjölda hluta á brunn áður en niðurstöður eru bornar saman. Skoðaðu auðkenni hólfa og styrk nefnara; nefnari sem vantar eða er núll staðfestir ekki söfnun."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Select ``channel_of_interest`` for the fluorescent marker whose recruitment you want to measure. Each row is one host cell: the mean intensities of the pathogen objects assigned to that cell are averaged, and the primary ``recruitment`` column divides that pathogen mean by the cell's cytoplasm mean intensity in the same channel. Configure the condition metadata, object size/intensity filters and minimum objects per well before comparing results. Inspect compartment identities and denominator intensities; an absent or zero denominator does not establish recruitment."
+msgstr "Veldu ``channel_of_interest`` fyrir flúrljómandi merkið sem þú vilt mæla söfnun á. Hver röð er ein hýsilfruma: meðaltal er tekið af meðalstyrk sýkilshlutanna sem úthlutað er þeirri frumu, og aðaldálkurinn ``recruitment`` deilir þessu meðaltali sýkils með meðalstyrk umfrymis frumunnar í sömu rás. Stilltu lýsigögn skilyrða, síur á stærð/styrk hluta og lágmarksfjölda hluta á brunn áður en niðurstöður eru bornar saman. Skoðaðu auðkenni hólfa og styrk nefnara; nefnari sem vantar eða er núll staðfestir ekki söfnun."
 
 msgid "Auxiliary ratios retain their channel"
 msgstr "Aukahlutföll halda rás sinni"
@@ -87,6 +88,7 @@ msgstr "Útreikningurinn býr til fimmtán aukahlutföll á hverja rás. Hann b�
 msgid "Saved results"
 msgstr "Vistaðar niðurstöður"
 
-msgid "The run writes ``cells.csv`` with the retained per-PV rows and ``wells.csv`` with per-well summaries, alongside recruitment plots. The historical ``cells.csv`` filename does not change the per-PV unit of these rows. Verify condition assignments, filtering and the selected channel when comparing these two aggregation levels."
-msgstr "Keyrslan skrifar ``cells.csv`` með varðveittum röðum á hverja bólu (PV) og ``wells.csv`` með samantektum á hvern brunn, ásamt söfnunarmyndritum. Sögulega skráarheitið ``cells.csv`` breytir ekki einingu þessara raða, sem er ein bóla (PV). Staðfestu úthlutun skilyrða, síun og valda rás þegar þessi tvö samantektarstig eru borin saman."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The run writes ``results/cells.csv`` with the retained per-host-cell rows and ``results/wells.csv`` with per-well means of those rows, alongside recruitment plots. Rows in ``cells.csv`` combine all pathogen objects assigned to a host cell; they are not independent per-vacuole measurements. For measurements linked to individual vacuoles, use :doc:`Host–Pathogen Analysis <host_pathogen>`. Verify condition assignments, filtering and the selected channel when comparing these two aggregation levels."
+msgstr "Keyrslan skrifar ``results/cells.csv`` með varðveittum röðum á hverja hýsilfrumu og ``results/wells.csv`` með meðaltölum þessara raða á hvern brunn, ásamt söfnunarmyndritum. Raðir í ``cells.csv`` sameina alla sýkilshluti sem úthlutað er hýsilfrumu; þær eru ekki óháðar mælingar á hverja bólu. Fyrir mælingar sem tengjast einstökum bólum skaltu nota :doc:`Greining hýsils og sýkils <host_pathogen>`. Staðfestu úthlutun skilyrða, síun og valda rás þegar þessi tvö samantektarstig eru borin saman."
 

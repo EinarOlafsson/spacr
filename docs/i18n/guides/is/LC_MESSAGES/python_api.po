@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 13:04-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
@@ -64,8 +64,8 @@ msgid "Run the same contract from a shell"
 msgstr "Keyra sama samning úr skel"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The headless command suits a scheduler because it validates setting names and values before importing PyTorch, Cellpose and the other pipeline dependencies."
-msgstr "Skipunin án myndræns viðmóts hentar tímaáætlunarkerfi vegna þess að hún sannprófar heiti og gildi stillinga áður en PyTorch, Cellpose og aðrir pakkar sem vinnslukeðjan er háð eru fluttir inn."
+msgid "``spacr-run`` validates setting names and values before importing PyTorch, Cellpose and the other pipeline dependencies. It exits with 0 on success, 1 when the module raises and 2 for bad arguments, unreadable settings or failed preflight checks."
+msgstr "``spacr-run`` sannprófar heiti og gildi stillinga áður en PyTorch, Cellpose og aðrir fylgipakkar vinnslukeðjunnar eru fluttir inn. Skipunin hættir með 0 við árangur, 1 þegar einingin kastar villu og 2 fyrir röng viðföng, ólæsilegar stillingar eða misheppnaðar forathuganir."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Use ``spacr-run --list-models`` (or ``--models``) to list registered models, including models not yet downloaded. Supply a registered key or filename in ``custom_model`` for masking or ``model_path`` for classifier inference. Python and notebook entry points use the same resolver. When automatic acquisition is allowed, missing registered weights are downloaded, checksum-verified and cached; ``SPACR_MODEL_DOWNLOAD=off`` instead refuses missing weights while retaining usable local or verified cached files. Preflight recognizes trusted registered selections without fetching weights. Existing local paths take precedence; unknown selections and incompatible model kinds are refused. With downloads disabled, an uncached Cellpose stock model is refused before its constructor runs. See :doc:`model_zoo` for interactive acquisition and the explicit low-level checksum override."

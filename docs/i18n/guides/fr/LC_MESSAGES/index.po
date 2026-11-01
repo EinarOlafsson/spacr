@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 10:47-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: fr\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -46,14 +46,13 @@ msgstr "Une boîte à outils Python pour quantifier et visualiser les changement
 msgid "It is built for cell biologists running pooled or arrayed CRISPR screens who need per-cell measurements from plate images. The GUI route needs no programming; the same processing steps are available through the Python API for scripted and reproducible workflows."
 msgstr "Elle est conçue pour les biologistes cellulaires qui mènent des criblages CRISPR en pool ou en format arrayé et ont besoin de mesures par cellule à partir d’images de plaques. La voie de l’interface graphique ne demande aucune programmation ; les mêmes étapes de traitement sont disponibles via l’API Python pour des workflows scriptés et reproductibles."
 
-# AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The GUI groups its applications into four categories: *Core* for the segment-measure-classify pipeline; *Data* for importing images and tables, feature embeddings, run comparison, experiment and power design, dose–response analysis and quality control; *Tools* for operations on an existing project — hand mask correction, stitching, image UMAP, gating and plotting; and *Organism* for the Toxoplasma organism guide, which lists its available assays; planned analyses are marked Coming soon. The bands under \"Applications and workflow\" below are those categories, in that order, with the tiles each one holds."
-msgstr "L’interface graphique regroupe ses applications en quatre catégories : *Cœur* pour le pipeline segmentation-mesure-classification ; *Données* pour l’importation d’images et de tables, les plongements de caractéristiques, la comparaison d’exécutions, la conception d’expériences et de puissance, l’analyse dose–réponse et le contrôle qualité ; *Outils* pour les opérations sur un projet existant — correction manuelle des masques, assemblage, UMAP d’images, régions de sélection et graphiques ; et *Organisme* pour le guide de l’organisme Toxoplasma, qui répertorie ses essais disponibles ; les analyses prévues sont marquées « Bientôt disponible ». Les bandeaux sous « Applications et workflow » ci-dessous correspondent à ces catégories, dans cet ordre, avec les tuiles de chacune."
+msgid "The GUI groups its applications into four categories: *Core* for Mask, Measure, Annotate, Classify, barcode mapping and regression; *Data* for importing images and tables, feature embeddings, run comparison, experiment and power design, dose–response analysis and quality control; *Tools* for operations on an existing project — hand mask correction, stitching, image UMAP, gating and plotting; and *Organism* for the Toxoplasma organism guide, which lists its available assays; planned analyses are marked Coming soon. The bands under \"Applications and workflow\" below are those categories, in that order, with the tiles each one holds."
+msgstr "L’interface graphique regroupe ses applications en quatre catégories : *Cœur* pour Masques, Mesure, Annotation, Classification, le mappage des codes-barres et la régression ; *Données* pour l’importation d’images et de tables, les plongements de caractéristiques, la comparaison d’exécutions, la conception d’expériences et de puissance, l’analyse dose–réponse et le contrôle qualité ; *Outils* pour les opérations sur un projet existant — correction manuelle des masques, assemblage, UMAP d’images, régions de sélection et graphiques ; et *Organisme* pour le guide de l’organisme Toxoplasma, qui répertorie ses essais disponibles ; les analyses prévues sont marquées « Bientôt disponible ». Les bandeaux sous « Applications et workflow » ci-dessous correspondent à ces catégories, dans cet ordre, avec les tuiles de chacune."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Not every screen is a tile. Screens used within another step open from that step's masthead — **Timelapse** from Mask, **Illumination** and the **Motility Assay** from Measure, **Classifier Evaluation** and **Explain CV Model** from Classify, **Annotator Agreement** from Annotate, and the **Cellpose Workbench**, **Model Compare**, **Model Zoo** and **Curate** from Make Masks, among others. Home shows only the tiles enabled in the running build."
-msgstr "Tous les écrans ne sont pas des tuiles. Les écrans utilisés au sein d’une autre étape s’ouvrent depuis l’en-tête de cette étape — **Série temporelle** depuis Masques, **Éclairage** et le **Test de motilité** depuis Mesure, **Évaluation du classificateur** et **Expliquer le modèle CV** depuis Classification, **Accord des annotateurs** depuis Annotation, ainsi que **Atelier Cellpose**, **Comparer les modèles**, **Bibliothèque de modèles** et **Curation** depuis Créer des masques, entre autres. L’accueil n’affiche que les tuiles activées dans la version en cours d’exécution."
+msgid "Not every screen is a tile. Screens used within another step open from that step's masthead — **Illumination** and the **Motility Assay** from Measure, **Classifier Evaluation** and **Explain CV Model** from Classify, **Annotator Agreement** from Annotate, and the **Cellpose Workbench**, **Model Compare**, **Model Zoo** and **Curate** from Make Masks, among others. **Timelapse** settings appear on the Mask form when its Time switch is on. Home shows only the tiles enabled in the running build."
+msgstr "Tous les écrans ne sont pas des tuiles. Les écrans utilisés au sein d’une autre étape s’ouvrent depuis l’en-tête de cette étape — **Éclairage** et le **Test de motilité** depuis Mesure, **Évaluation du classificateur** et **Expliquer le modèle CV** depuis Classification, **Accord des annotateurs** depuis Annotation, ainsi que **Atelier Cellpose**, **Comparer les modèles**, **Bibliothèque de modèles** et **Curation** depuis Créer des masques, entre autres. Les paramètres **Série temporelle** apparaissent dans le formulaire de Masques lorsque son interrupteur Temps est activé. L’accueil n’affiche que les tuiles activées dans la version en cours d’exécution."
 
 msgid "🚀 Get started"
 msgstr "🚀 Premiers pas"
@@ -76,8 +75,9 @@ msgstr "Points d’entrée de workflow pris en charge et référence complète d
 msgid "🎬 Video tutorials"
 msgstr "🎬 Tutoriels vidéo"
 
-msgid "Narrated walkthroughs of each pipeline module."
-msgstr "Présentations commentées de chaque module du pipeline."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Narrated walkthroughs of pipeline modules."
+msgstr "Présentations commentées des modules du pipeline."
 
 msgid "🐛 Report an issue"
 msgstr "🐛 Signaler un problème"

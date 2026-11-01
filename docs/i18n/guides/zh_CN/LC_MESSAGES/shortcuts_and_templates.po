@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 20:26-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -25,9 +25,30 @@ msgstr "键盘快捷键与设置模板"
 msgid "Keyboard shortcuts"
 msgstr "键盘短片"
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "With the default bindings, press **F1** to open the shortcut cheat sheet. **?** opens it when the current screen does not handle that key itself; Annotate uses **?** for its inline key legend. The cheat sheet lists the keys that work anywhere in the window, such as **Ctrl+K** for the command palette, **Ctrl+P** for Preferences, **Ctrl+F** to search the current module's settings and **F11** for full screen, followed by the keys of the screen you are on."
-msgstr "使用默认按键绑定时，按 **F1** 打开快捷键速查表。如果当前界面不自行处理该按键，**?** 也会打开速查表；Annotate 使用 **?** 显示其内嵌按键图例。 速查表列出在窗口任何位置都有效的按键，例如 **Ctrl+K** 打开命令面板、**Ctrl+P** 打开偏好设置、**Ctrl+F** 搜索当前模块的设置、**F11** 切换全屏，随后列出您所在屏幕的按键。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "With the default bindings, press **F1** to open the shortcut cheat sheet. **?** opens it when the current screen does not handle that key itself; Annotate uses **?** for its inline key legend. The cheat sheet lists the keys that work anywhere in the window, such as **Ctrl+K** for the command palette, **Ctrl+,** for Preferences, **Ctrl+F** to search the current module's settings and **F11** for full screen, followed by the keys of the screen you are on. On macOS, **Ctrl** is the **Command** key."
+msgstr "使用默认按键绑定时，按 **F1** 打开快捷键速查表。如果当前界面不自行处理该按键，**?** 也会打开速查表；Annotate 使用 **?** 显示其内嵌按键图例。速查表列出在窗口任何位置都有效的按键，例如 **Ctrl+K** 打开命令面板、**Ctrl+,** 打开偏好、**Ctrl+F** 搜索当前模块的设置、**F11** 切换全屏，随后列出您所在屏幕的按键。在 macOS 上，**Ctrl** 即 **Command** 键。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The window-wide keys follow the usual desktop conventions:"
+msgstr "全窗口按键遵循常见的桌面惯例："
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Ctrl+,** opens Preferences. Where the platform has its own Preferences key, such as **Ctrl+Shift+,** on KDE, that key works as well."
+msgstr "**Ctrl+,** 打开偏好。如果平台有自己的偏好按键，例如 KDE 上的 **Ctrl+Shift+,** 键，该按键同样有效。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, python-format
+msgid "**Ctrl+=** or **Ctrl++** zooms in, **Ctrl+-** zooms out and **Ctrl+0** puts Zoom back to its 90 % default. **Ctrl+Alt+0** resets GUI scale, Zoom and every preview scale at once."
+msgstr "**Ctrl+=** 或 **Ctrl++** 放大，**Ctrl+-** 缩小，**Ctrl+0** 将缩放恢复为默认的 90 %。**Ctrl+Alt+0** 会一次性重置 GUI 缩放、缩放以及所有预览比例。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Alt+Home** goes to Home."
+msgstr "**Alt+Home** 转到主页。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The background keys use **Ctrl+Shift**: **Ctrl+Shift+T** pauses or resumes the animated background, **Ctrl+Shift+B** blanks it and **Ctrl+Shift+F** shows it full screen. **Restart the background** has no key; choose it in **Help ▸ Window**."
+msgstr "背景按键使用 **Ctrl+Shift**：**Ctrl+Shift+T** 暂停或恢复动态背景，**Ctrl+Shift+B** 将其清空，**Ctrl+Shift+F** 将其全屏显示。**重新启动背景动画** 没有按键；请在 **帮助 ▸ 窗口** 中选择它。"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "To change a key, choose **Change shortcuts…** in the cheat sheet. The **Change shortcuts** window has one row per action, with its **Default** key and the **Shortcut** in use. Click a shortcut and press the new key, or clear it to leave the action without a key. **Restore defaults** puts every row back to its default key."

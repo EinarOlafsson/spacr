@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 20:26-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: sv\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -246,15 +246,15 @@ msgid "Stock was not evaluated in this run; see the named incumbent comparison o
 msgstr "Standardmodellen utvärderades inte i den här körningen; se den namngivna jämförelsen med den tidigare modellen på modellkortet"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Each model is hosted in a repository under its author's own Hugging Face account; contributing a model does not require write access to another account's repository. ``spacr.model_zoo``'s ``publish_model`` performs the upload and prints the catalogue row to add."
-msgstr "Varje modell ligger i ett repository under upphovspersonens eget Hugging Face-konto; att bidra med en modell kräver inte skrivåtkomst till ett annat kontos repository. ``publish_model`` i ``spacr.model_zoo`` utför uppladdningen och skriver ut den katalograd som ska läggas till."
+msgid "``spacr.model_zoo``'s ``publish_model`` uploads a checkpoint to a Hugging Face repository under the publisher's own account (``repo_id``), so contributing a model does not require write access to another account's repository. It returns the catalogue row, with the uploaded file's SHA-256, to add to the shared catalogue."
+msgstr "``publish_model`` i ``spacr.model_zoo`` laddar upp en kontrollpunkt till ett Hugging Face-arkiv under utgivarens eget konto (``repo_id``), så att bidra med en modell kräver inte skrivbehörighet till ett annat kontos arkiv. Funktionen returnerar katalograden, med den uppladdade filens SHA-256, som ska läggas till i den delade katalogen."
 
 msgid "Choose a model from a form"
 msgstr "Välj en modell från ett formulär"
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "A model setting in Mask generation, Make Masks and Plaque Assay has a **Model zoo…** button. Its list is grouped by origin under five standard headings — the stock Cellpose-SAM weights, spaCR's own models, unvetted spaCR community uploads, Cellpose models published on bioimage.io, and the Cellpose 3 backend's cyto, cyto2, cyto3 and nuclei models. Click a heading to show or fold its rows. **Download** fetches the selected model, or **Install** its backend; **Use this model** then writes the model into the setting. A model that needs another backend, such as Cellpose 3 or Cellpose-DINO, says so on its row and offers to install that backend into its own environment under ``~/.spacr/backends``; spaCR's own environment is not changed. A row spaCR cannot run says so instead of being offered."
-msgstr "En modellinställning i Maskgenerering, Skapa masker och Plackanalys har knappen **Modellbibliotek…**. Dess lista är grupperad efter ursprung under fem standardrubriker — standardvikterna för Cellpose-SAM, spaCR:s egna modeller, ogranskade uppladdningar från spaCR-gemenskapen, Cellpose-modeller publicerade på bioimage.io samt Cellpose 3-bakändans modeller cyto, cyto2, cyto3 och nuclei. Klicka på en rubrik för att visa eller fälla ihop dess rader. **Ladda ner** hämtar den valda modellen, eller **Installera** dess bakände; **Use this model** skriver sedan modellen till inställningen. En modell som behöver en annan bakände, som Cellpose 3 eller Cellpose-DINO, anger det på sin rad och erbjuder att installera den bakänden i en egen miljö under ``~/.spacr/backends``; spaCR:s egen miljö ändras inte. En rad som spaCR inte kan köra anger det i stället för att erbjudas."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "A model setting in Mask generation, Make Masks and Plaque Assay has a **Model zoo…** button. Its list is grouped by origin under five standard headings — the stock Cellpose-SAM weights, spaCR's own models, unvetted spaCR community uploads, Cellpose models published on bioimage.io, and the Cellpose 3 backend's cyto, cyto2, cyto3 and nuclei models. With **Show alpha features** on, a sixth **Third-party** heading lists published models that spaCR did not train, such as MitoNet. Click a heading to show or fold its rows. The stock Cellpose-SAM and spaCR headings are shown by default. **Download** fetches the selected model, or **Install** its backend; **Use this model** then writes the model into the setting. A model that needs another backend, such as Cellpose 3 or Cellpose-DINO, says so on its row and offers to install that backend into its own environment under ``~/.spacr/backends``; spaCR's own environment is not changed. A row spaCR cannot run says so instead of being offered."
+msgstr "En modellinställning i Maskgenerering, Skapa masker och Plackanalys har knappen **Modellbibliotek…**. Dess lista är grupperad efter ursprung under fem standardrubriker — standardvikterna för Cellpose-SAM, spaCR:s egna modeller, ogranskade uppladdningar från spaCR-gemenskapen, Cellpose-modeller publicerade på bioimage.io samt Cellpose 3-bakändans modeller cyto, cyto2, cyto3 och nuclei. Med **Visa alfafunktioner** påslaget listar en sjätte rubrik, **Tredje part**, publicerade modeller som spaCR inte har tränat, till exempel MitoNet. Klicka på en rubrik för att visa eller fälla ihop dess rader. Rubrikerna för standardvikterna för Cellpose-SAM och för spaCR visas som standard. **Ladda ner** hämtar den valda modellen, eller **Installera** dess bakände; **Use this model** skriver sedan modellen till inställningen. En modell som behöver en annan bakände, som Cellpose 3 eller Cellpose-DINO, anger det på sin rad och erbjuder att installera den bakänden i en egen miljö under ``~/.spacr/backends``; spaCR:s egen miljö ändras inte. En rad som spaCR inte kan köra anger det i stället för att erbjudas."
 
 msgid "Opened from Mask generation, the popup also has **Measure diameters…**: it estimates the cell, nucleus and pathogen diameters from a few fields of your own images and can write them into the settings. See :class:`spacr.qt.prerun.DiameterDialog`."
 msgstr "När popupfönstret öppnas från Maskgenerering har det också **Mät diametrar…**: den skattar diametrarna för cell, kärna och patogen från några fält i dina egna bilder och kan skriva in dem i inställningarna. Se :class:`spacr.qt.prerun.DiameterDialog`."

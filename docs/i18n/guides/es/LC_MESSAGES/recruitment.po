@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: es\n"
@@ -29,8 +29,9 @@ msgstr "Desde **Inicio** → **Organismo** → **Toxoplasma**, abra **Ensayo de 
 msgid "For whole-vacuole marker states, explicit host infection denominators and optional parasite counts, see :doc:`Host–Pathogen Analysis <host_pathogen>`. The two modules remain separate analysis choices."
 msgstr "Para los estados de marcadores de la vacuola completa, los denominadores explícitos de infección del huésped y los recuentos opcionales de parásitos, consulte :doc:`Análisis huésped–patógeno <host_pathogen>`. Los dos módulos siguen siendo opciones de análisis separadas."
 
-msgid "Select ``channel_of_interest`` for the fluorescent marker whose recruitment you want to measure. The primary ``recruitment`` column is the pathogen mean intensity divided by the cytoplasm mean intensity in that channel. Configure the condition metadata, object size/intensity filters and minimum objects per well before comparing results. Inspect compartment identities and denominator intensities; an absent or zero denominator does not establish recruitment."
-msgstr "Seleccione ``channel_of_interest`` para el marcador fluorescente cuyo reclutamiento quiere medir. La columna principal ``recruitment`` es la intensidad media del patógeno dividida por la intensidad media del citoplasma en ese canal. Configure los metadatos de condición, los filtros de tamaño e intensidad de los objetos y el número mínimo de objetos por pocillo antes de comparar resultados. Revise la identidad de los compartimentos y las intensidades del denominador; un denominador ausente o igual a cero no demuestra reclutamiento."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Select ``channel_of_interest`` for the fluorescent marker whose recruitment you want to measure. Each row is one host cell: the mean intensities of the pathogen objects assigned to that cell are averaged, and the primary ``recruitment`` column divides that pathogen mean by the cell's cytoplasm mean intensity in the same channel. Configure the condition metadata, object size/intensity filters and minimum objects per well before comparing results. Inspect compartment identities and denominator intensities; an absent or zero denominator does not establish recruitment."
+msgstr "Seleccione ``channel_of_interest`` para el marcador fluorescente cuyo reclutamiento quiere medir. Cada fila es una célula huésped: se promedian las intensidades medias de los objetos patógenos asignados a esa célula, y la columna principal ``recruitment`` divide esa media del patógeno entre la intensidad media del citoplasma de la célula en el mismo canal. Configure los metadatos de condición, los filtros de tamaño e intensidad de los objetos y el número mínimo de objetos por pocillo antes de comparar resultados. Revise la identidad de los compartimentos y las intensidades del denominador; un denominador ausente o igual a cero no demuestra reclutamiento."
 
 msgid "Auxiliary ratios retain their channel"
 msgstr "Las proporciones auxiliares conservan su canal"
@@ -87,6 +88,7 @@ msgstr "El cálculo produce quince proporciones auxiliares por canal. No crea co
 msgid "Saved results"
 msgstr "Resultados guardados"
 
-msgid "The run writes ``cells.csv`` with the retained per-PV rows and ``wells.csv`` with per-well summaries, alongside recruitment plots. The historical ``cells.csv`` filename does not change the per-PV unit of these rows. Verify condition assignments, filtering and the selected channel when comparing these two aggregation levels."
-msgstr "La ejecución escribe ``cells.csv`` con las filas por PV conservadas y ``wells.csv`` con los resúmenes por pocillo, junto con los gráficos de reclutamiento. El nombre de archivo histórico ``cells.csv`` no cambia la unidad por PV de estas filas. Verifique la asignación de condiciones, el filtrado y el canal seleccionado al comparar estos dos niveles de agregación."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The run writes ``results/cells.csv`` with the retained per-host-cell rows and ``results/wells.csv`` with per-well means of those rows, alongside recruitment plots. Rows in ``cells.csv`` combine all pathogen objects assigned to a host cell; they are not independent per-vacuole measurements. For measurements linked to individual vacuoles, use :doc:`Host–Pathogen Analysis <host_pathogen>`. Verify condition assignments, filtering and the selected channel when comparing these two aggregation levels."
+msgstr "La ejecución escribe ``results/cells.csv`` con las filas conservadas por célula huésped y ``results/wells.csv`` con las medias por pocillo de esas filas, junto con los gráficos de reclutamiento. Las filas de ``cells.csv`` combinan todos los objetos patógenos asignados a una célula huésped; no son mediciones independientes por vacuola. Para mediciones vinculadas a vacuolas individuales, use :doc:`Análisis huésped–patógeno <host_pathogen>`. Verifique la asignación de condiciones, el filtrado y el canal seleccionado al comparar estos dos niveles de agregación."
 

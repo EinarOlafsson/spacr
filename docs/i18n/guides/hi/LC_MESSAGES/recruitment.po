@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: hi\n"
@@ -29,8 +29,9 @@ msgstr "विभाजन और मापन के बाद **मुखप�
 msgid "For whole-vacuole marker states, explicit host infection denominators and optional parasite counts, see :doc:`Host–Pathogen Analysis <host_pathogen>`. The two modules remain separate analysis choices."
 msgstr "पूरी रिक्तिका के मार्कर स्थितियों, स्पष्ट मेज़बान संक्रमण हरों और वैकल्पिक परजीवी गिनतियों के लिए :doc:`मेज़बान–रोगजनक विश्लेषण <host_pathogen>` देखें। दोनों मॉड्यूल अलग-अलग विश्लेषण विकल्प बने रहते हैं।"
 
-msgid "Select ``channel_of_interest`` for the fluorescent marker whose recruitment you want to measure. The primary ``recruitment`` column is the pathogen mean intensity divided by the cytoplasm mean intensity in that channel. Configure the condition metadata, object size/intensity filters and minimum objects per well before comparing results. Inspect compartment identities and denominator intensities; an absent or zero denominator does not establish recruitment."
-msgstr "जिस फ़्लोरोसेंट मार्कर के रिक्रूटमेंट को मापना है उसके लिए ``channel_of_interest`` चुनें। प्राथमिक ``recruitment`` स्तंभ उस चैनल में रोगजनक की औसत तीव्रता को कोशिकाद्रव्य की औसत तीव्रता से भाग देकर मिलता है। परिणामों की तुलना से पहले स्थिति मेटाडेटा, ऑब्जेक्ट आकार/तीव्रता फ़िल्टर और प्रति कूप न्यूनतम ऑब्जेक्ट विन्यस्त करें। कंपार्टमेंट पहचान और हर तीव्रताओं की जाँच करें; अनुपस्थित या शून्य हर रिक्रूटमेंट सिद्ध नहीं करता।"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Select ``channel_of_interest`` for the fluorescent marker whose recruitment you want to measure. Each row is one host cell: the mean intensities of the pathogen objects assigned to that cell are averaged, and the primary ``recruitment`` column divides that pathogen mean by the cell's cytoplasm mean intensity in the same channel. Configure the condition metadata, object size/intensity filters and minimum objects per well before comparing results. Inspect compartment identities and denominator intensities; an absent or zero denominator does not establish recruitment."
+msgstr "जिस फ़्लोरोसेंट मार्कर के रिक्रूटमेंट को मापना है उसके लिए ``channel_of_interest`` चुनें। हर पंक्ति एक मेज़बान कोशिका है: उस कोशिका को सौंपे गए रोगजनक ऑब्जेक्ट की औसत तीव्रताओं का औसत लिया जाता है, और प्राथमिक ``recruitment`` स्तंभ रोगजनक के उस औसत को उसी चैनल में कोशिका के कोशिकाद्रव्य की औसत तीव्रता से भाग देता है। परिणामों की तुलना से पहले स्थिति मेटाडेटा, ऑब्जेक्ट आकार/तीव्रता फ़िल्टर और प्रति कूप न्यूनतम ऑब्जेक्ट विन्यस्त करें। कंपार्टमेंट पहचान और हर तीव्रताओं की जाँच करें; अनुपस्थित या शून्य हर रिक्रूटमेंट सिद्ध नहीं करता।"
 
 msgid "Auxiliary ratios retain their channel"
 msgstr "सहायक अनुपात अपना चैनल बनाए रखते हैं"
@@ -87,6 +88,7 @@ msgstr "यह गणना प्रति चैनल पंद्रह स�
 msgid "Saved results"
 msgstr "सहेजे गए परिणाम"
 
-msgid "The run writes ``cells.csv`` with the retained per-PV rows and ``wells.csv`` with per-well summaries, alongside recruitment plots. The historical ``cells.csv`` filename does not change the per-PV unit of these rows. Verify condition assignments, filtering and the selected channel when comparing these two aggregation levels."
-msgstr "रन रिक्रूटमेंट प्लॉट के साथ, प्रति-PV सुरक्षित पंक्तियों वाली ``cells.csv`` और प्रति-कूप सारांश वाली ``wells.csv`` लिखता है। ऐतिहासिक फ़ाइल नाम ``cells.csv`` इन पंक्तियों की प्रति-PV इकाई को नहीं बदलता। इन दो समेकन स्तरों की तुलना करते समय स्थिति निर्धारण, फ़िल्टरिंग और चुने गए चैनल की पुष्टि करें।"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The run writes ``results/cells.csv`` with the retained per-host-cell rows and ``results/wells.csv`` with per-well means of those rows, alongside recruitment plots. Rows in ``cells.csv`` combine all pathogen objects assigned to a host cell; they are not independent per-vacuole measurements. For measurements linked to individual vacuoles, use :doc:`Host–Pathogen Analysis <host_pathogen>`. Verify condition assignments, filtering and the selected channel when comparing these two aggregation levels."
+msgstr "रन रिक्रूटमेंट प्लॉट के साथ, सुरक्षित प्रति-मेज़बान-कोशिका पंक्तियों वाली ``results/cells.csv`` और उन पंक्तियों के प्रति-कूप औसत वाली ``results/wells.csv`` लिखता है। ``cells.csv`` की पंक्तियाँ किसी मेज़बान कोशिका को सौंपे गए सभी रोगजनक ऑब्जेक्ट को मिलाती हैं; वे स्वतंत्र प्रति-रिक्तिका मापन नहीं हैं। अलग-अलग रिक्तिकाओं से जुड़े मापन के लिए :doc:`मेज़बान–रोगजनक विश्लेषण <host_pathogen>` का उपयोग करें। इन दो समेकन स्तरों की तुलना करते समय स्थिति निर्धारण, फ़िल्टरिंग और चुने गए चैनल की पुष्टि करें।"
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: de\n"
@@ -56,8 +56,9 @@ msgstr "Setzen Sie für die Validierung ``test_src`` auf einen separaten Bildord
 msgid "Choose ``base_model``: ``cpsam`` starts from Cellpose-SAM; a model-zoo key or checkpoint path continues training an existing model."
 msgstr "Wählen Sie ``base_model``: ``cpsam`` beginnt mit Cellpose-SAM; ein Schlüssel aus dem Modellzoo oder ein Checkpoint-Pfad setzt das Training eines vorhandenen Modells fort."
 
-msgid "Enter ``model_name`` as a filename prefix. Use ``save_path`` to choose an output folder, or leave it empty to save under the training project."
-msgstr "Geben Sie ``model_name`` als Präfix für den Dateinamen ein. Wählen Sie mit ``save_path`` einen Ausgabeordner oder lassen Sie das Feld leer, um im Trainingsprojekt zu speichern."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Enter ``model_name`` as a filename prefix. Use ``save_path`` to choose an output folder, or leave it empty to save under ``<src>/models/cellpose_model``."
+msgstr "Geben Sie ``model_name`` als Präfix für den Dateinamen ein. Wählen Sie mit ``save_path`` einen Ausgabeordner oder lassen Sie das Feld leer, um unter ``<src>/models/cellpose_model`` zu speichern."
 
 msgid "For multichannel images, ``channels`` selects up to three zero-based channel indices. For example, ``[0, 2]`` selects the first and third channels. Leave ``channel_axis`` empty for automatic detection, or set it explicitly when the image layout is ambiguous. Training accepts two-dimensional images with optional channels."
 msgstr "Bei Mehrkanalbildern wählt ``channels`` bis zu drei nullbasierte Kanalindizes aus. Beispielsweise wählt ``[0, 2]`` den ersten und den dritten Kanal. Lassen Sie ``channel_axis`` für die automatische Erkennung leer oder legen Sie den Wert explizit fest, wenn der Bildaufbau mehrdeutig ist. Das Training akzeptiert zweidimensionale Bilder mit optionalen Kanälen."
@@ -153,8 +154,9 @@ msgstr "Für einen kleineren ersten Lauf begrenzt ``max_train_images`` die gelad
 msgid "Run and use the output"
 msgstr "Ausführen und die Ausgabe verwenden"
 
-msgid "Click **Run** and follow progress in the console. When training finishes, the console reports the saved checkpoint path. With the default output location, checkpoints are under ``<src>/models/cellpose_model/models``. With a chosen ``save_path``, they are under ``<save_path>/models``."
-msgstr "Klicken Sie auf **Ausführen** und verfolgen Sie den Fortschritt in der Konsole. Nach Abschluss des Trainings meldet die Konsole den Pfad des gespeicherten Checkpoints. Mit dem voreingestellten Ausgabeort liegen die Checkpoints unter ``<src>/models/cellpose_model/models``. Mit einem gewählten ``save_path`` liegen sie unter ``<save_path>/models``."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Click **Run** and follow progress in the console. When training finishes, the console reports the saved checkpoint path. With the default output location, checkpoints are under ``<src>/models/cellpose_model/models``. With a chosen ``save_path``, they are under ``<save_path>/models``. The final checkpoint is named ``<model_name>_cpsam_e<n_epochs>.CP_model``."
+msgstr "Klicken Sie auf **Ausführen** und verfolgen Sie den Fortschritt in der Konsole. Nach Abschluss des Trainings meldet die Konsole den Pfad des gespeicherten Checkpoints. Mit dem voreingestellten Ausgabeort liegen die Checkpoints unter ``<src>/models/cellpose_model/models``. Mit einem gewählten ``save_path`` liegen sie unter ``<save_path>/models``. Der letzte Checkpoint heißt ``<model_name>_cpsam_e<n_epochs>.CP_model``."
 
 msgid "Open **Apply**, select a separate image folder, such as the example's ``apply`` folder, and check that **Custom model** points to the checkpoint you want. Turn on **Save**, which is off by default. Inspect a preview before processing the folder. Apply writes label masks into that image folder's ``masks`` subfolder. Use separate labelled images to evaluate segmentation before applying the model to an entire experiment."
 msgstr "Öffnen Sie **Anwenden**, wählen Sie einen separaten Bildordner aus, etwa den Ordner ``apply`` des Beispiels, und prüfen Sie, dass **Benutzerdefiniertes Modell** auf den gewünschten Checkpoint verweist. Schalten Sie **Speichern** ein, das standardmäßig ausgeschaltet ist. Prüfen Sie eine Vorschau, bevor Sie den Ordner verarbeiten. Anwenden schreibt Labelmasken in den Unterordner ``masks`` dieses Bildordners. Verwenden Sie separate gelabelte Bilder, um die Segmentierung zu bewerten, bevor Sie das Modell auf ein ganzes Experiment anwenden."

@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 20:26-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -246,15 +246,15 @@ msgid "Stock was not evaluated in this run; see the named incumbent comparison o
 msgstr "इस रन में मानक मॉडल का मूल्यांकन नहीं किया गया; मॉडल कार्ड पर नामित वर्तमान मॉडल से तुलना देखें"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Each model is hosted in a repository under its author's own Hugging Face account; contributing a model does not require write access to another account's repository. ``spacr.model_zoo``'s ``publish_model`` performs the upload and prints the catalogue row to add."
-msgstr "प्रत्येक मॉडल उसके लेखक के अपने Hugging Face खाते के अंतर्गत एक रिपॉज़िटरी में होस्ट किया जाता है; मॉडल योगदान करने के लिए किसी अन्य खाते की रिपॉज़िटरी में लेखन पहुँच की आवश्यकता नहीं है। ``spacr.model_zoo`` का ``publish_model`` अपलोड करता है और जोड़ी जाने वाली कैटलॉग पंक्ति छापता है।"
+msgid "``spacr.model_zoo``'s ``publish_model`` uploads a checkpoint to a Hugging Face repository under the publisher's own account (``repo_id``), so contributing a model does not require write access to another account's repository. It returns the catalogue row, with the uploaded file's SHA-256, to add to the shared catalogue."
+msgstr "``spacr.model_zoo`` का ``publish_model`` किसी चेकपॉइंट को प्रकाशक के अपने खाते (``repo_id``) के अंतर्गत Hugging Face रिपॉज़िटरी में अपलोड करता है, इसलिए मॉडल का योगदान करने के लिए किसी अन्य खाते की रिपॉज़िटरी में लिखने की पहुँच आवश्यक नहीं है। यह साझा कैटलॉग में जोड़ने के लिए कैटलॉग पंक्ति लौटाता है, जिसमें अपलोड की गई फ़ाइल का SHA-256 होता है।"
 
 msgid "Choose a model from a form"
 msgstr "किसी फ़ॉर्म से मॉडल चुनें"
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "A model setting in Mask generation, Make Masks and Plaque Assay has a **Model zoo…** button. Its list is grouped by origin under five standard headings — the stock Cellpose-SAM weights, spaCR's own models, unvetted spaCR community uploads, Cellpose models published on bioimage.io, and the Cellpose 3 backend's cyto, cyto2, cyto3 and nuclei models. Click a heading to show or fold its rows. **Download** fetches the selected model, or **Install** its backend; **Use this model** then writes the model into the setting. A model that needs another backend, such as Cellpose 3 or Cellpose-DINO, says so on its row and offers to install that backend into its own environment under ``~/.spacr/backends``; spaCR's own environment is not changed. A row spaCR cannot run says so instead of being offered."
-msgstr "मास्क निर्माण, मास्क बनाएँ और प्लाक परीक्षण में मॉडल सेटिंग का एक **मॉडल लाइब्रेरी…** बटन होता है। इसकी सूची उद्गम के अनुसार पाँच मानक शीर्षकों में समूहित है — मानक Cellpose-SAM भार, spaCR के अपने मॉडल, असत्यापित spaCR सामुदायिक अपलोड, bioimage.io पर प्रकाशित Cellpose मॉडल, और Cellpose 3 बैकएंड के cyto, cyto2, cyto3 और nuclei मॉडल। किसी शीर्षक की पंक्तियाँ दिखाने या मोड़ने के लिए उस पर क्लिक करें। **डाउनलोड करें** चुना गया मॉडल लाता है, या **स्थापित करें** उसका बैकएंड; फिर **Use this model** मॉडल को सेटिंग में लिखता है। जिस मॉडल को Cellpose 3 या Cellpose-DINO जैसे दूसरे बैकएंड की आवश्यकता हो, वह अपनी पंक्ति में यह बताता है और उस बैकएंड को ``~/.spacr/backends`` के अंतर्गत उसके अपने परिवेश में स्थापित करने का प्रस्ताव देता है; spaCR का अपना परिवेश नहीं बदलता। जो पंक्ति spaCR नहीं चला सकता वह प्रस्तुत किए जाने के बजाय यह बताती है।"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "A model setting in Mask generation, Make Masks and Plaque Assay has a **Model zoo…** button. Its list is grouped by origin under five standard headings — the stock Cellpose-SAM weights, spaCR's own models, unvetted spaCR community uploads, Cellpose models published on bioimage.io, and the Cellpose 3 backend's cyto, cyto2, cyto3 and nuclei models. With **Show alpha features** on, a sixth **Third-party** heading lists published models that spaCR did not train, such as MitoNet. Click a heading to show or fold its rows. The stock Cellpose-SAM and spaCR headings are shown by default. **Download** fetches the selected model, or **Install** its backend; **Use this model** then writes the model into the setting. A model that needs another backend, such as Cellpose 3 or Cellpose-DINO, says so on its row and offers to install that backend into its own environment under ``~/.spacr/backends``; spaCR's own environment is not changed. A row spaCR cannot run says so instead of being offered."
+msgstr "मास्क निर्माण, मास्क बनाएँ और प्लाक परीक्षण में मॉडल सेटिंग का एक **मॉडल लाइब्रेरी…** बटन होता है। इसकी सूची उद्गम के अनुसार पाँच मानक शीर्षकों में समूहित है — मानक Cellpose-SAM भार, spaCR के अपने मॉडल, असत्यापित spaCR सामुदायिक अपलोड, bioimage.io पर प्रकाशित Cellpose मॉडल, और Cellpose 3 बैकएंड के cyto, cyto2, cyto3 और nuclei मॉडल। **अल्फ़ा सुविधाएँ दिखाएँ** चालू होने पर छठा **तृतीय-पक्ष** शीर्षक उन प्रकाशित मॉडलों को सूचीबद्ध करता है जिन्हें spaCR ने प्रशिक्षित नहीं किया, जैसे MitoNet। किसी शीर्षक की पंक्तियाँ दिखाने या मोड़ने के लिए उस पर क्लिक करें। मानक Cellpose-SAM और spaCR शीर्षक डिफ़ॉल्ट रूप से दिखाए जाते हैं। **डाउनलोड करें** चुना गया मॉडल लाता है, या **स्थापित करें** उसका बैकएंड; फिर **Use this model** मॉडल को सेटिंग में लिखता है। जिस मॉडल को Cellpose 3 या Cellpose-DINO जैसे दूसरे बैकएंड की आवश्यकता हो, वह अपनी पंक्ति में यह बताता है और उस बैकएंड को ``~/.spacr/backends`` के अंतर्गत उसके अपने परिवेश में स्थापित करने का प्रस्ताव देता है; spaCR का अपना परिवेश नहीं बदलता। जो पंक्ति spaCR नहीं चला सकता वह प्रस्तुत किए जाने के बजाय यह बताती है।"
 
 msgid "Opened from Mask generation, the popup also has **Measure diameters…**: it estimates the cell, nucleus and pathogen diameters from a few fields of your own images and can write them into the settings. See :class:`spacr.qt.prerun.DiameterDialog`."
 msgstr "मास्क निर्माण से खोलने पर पॉपअप में **व्यास मापें…** भी होता है: यह आपकी अपनी छवियों के कुछ फ़ील्ड से कोशिका, केंद्रक और रोगजनक के व्यास का अनुमान लगाता है और उन्हें सेटिंग्स में लिख सकता है। :class:`spacr.qt.prerun.DiameterDialog` देखें।"

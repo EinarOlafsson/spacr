@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 19:56-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -37,15 +37,16 @@ msgstr "打开 **PSF optics and kernel** 查看其余控件。**相机** 设置�
 msgid "Without image-specific information, the starting approximation uses a 20×/0.75 air objective, a 6.5 µm camera pixel and 520 nm emission. It gives 0.325 µm image pixels and approximately 0.354 µm Gaussian FWHM. Pixel spacing is camera pixel pitch divided by magnification; the lateral Gaussian FWHM is approximated by 0.51 × emission wavelength / numerical aperture. These defaults permit a calculation; they are not measured calibration or proof of your microscope's resolution. Check them against the acquisition."
 msgstr "在没有图像特定信息时，初始近似使用 20×/0.75 空气物镜、6.5 µm 相机像素和 520 nm 发射波长。由此得到 0.325 µm 的图像像素和约 0.354 µm 的高斯 FWHM。像素间距等于相机像素尺寸除以放大倍数；横向高斯 FWHM 近似为 0.51 × 发射波长 / 数值孔径。这些默认值仅使计算可以进行；它们既不是实测校准，也不能证明您显微镜的分辨率。请将其与采集参数进行核对。"
 
-msgid "In the same fold, choose **Measured kernel (TIFF/NPY)** and load your calibrated two-dimensional PSF, or keep **Gaussian approximation**. For a measured kernel, enter its pixel spacing too; it must match the image. Neither mode silently resamples a mismatched kernel."
-msgstr "在同一折叠区中，选择 **实测核（TIFF/NPY）** 并加载经校准的二维 PSF，或保留 **高斯近似**。对于实测卷积核，还需输入其像素间距；该间距必须与图像一致。两种模式都不会悄悄对不匹配的卷积核进行重采样。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "In the same fold, choose **Measured kernel (TIFF/NPY)** and load your calibrated two-dimensional PSF, or keep **Gaussian approximation**. For a measured kernel, enter its pixel spacing too; it must match the image. Neither mode resamples a mismatched kernel. A measured kernel file can be up to 64 MiB."
+msgstr "在同一折叠区中，选择 **实测核（TIFF/NPY）** 并加载经校准的二维 PSF，或保留 **高斯近似**。对于实测卷积核，还需输入其像素间距；该间距必须与图像一致。两种模式都不会对不匹配的卷积核进行重采样。实测卷积核文件最大可为 64 MiB。"
 
 msgid "Wait for the kernel to load, then use **Compare** to inspect its effect. Set **Deconvolution iterations** when using Richardson–Lucy and choose **Apply** to use the result for detection. Start with a modest iteration count and inspect noise as well as object boundaries. **Reload** rereads a kernel file after you change it. **Off** disables PSF processing."
 msgstr "等待卷积核加载完成，然后使用 **比较** 查看其效果。使用 Richardson–Lucy 时设置 **反卷积迭代次数**，并选择 **应用** 将结果用于检测。先从适中的迭代次数开始，同时检查噪声和对象边界。更改卷积核文件后，**重新加载** 会重新读取该文件。**关闭** 会禁用 PSF 处理。"
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "In Generate Masks, PSF and enhancement preprocessing is recorded in ``psf/segmentation_application.json``. If processing is requested or a prior record exists, reuse of normalized V1 archives checks the requested processing configuration, ordered source channels, exact field set and archive hashes against the completed record. Switching processing off does not bypass a record from an earlier run. If validation fails, enable preprocessing to rebuild the complete archive set from ``stack/``; restore the original images first if the stacks are unavailable. Changing ``resume`` alone does not make incompatible inputs reusable. See :doc:`checkpoint_resume`."
-msgstr "在 Generate Masks 中，PSF 和增强预处理会记录在 ``psf/segmentation_application.json`` 中。如果请求了处理，或存在先前的记录，复用归一化 V1 存档时会将请求的处理配置、有序源通道、确切的视野集合及存档哈希值与已完成的记录进行核对。关闭处理不会绕过先前运行的记录。如果验证失败，请启用预处理，从 ``stack/`` 重建整个存档集；如果堆栈不可用，请先恢复原始图像。仅更改 ``resume`` 并不能让不兼容的输入变得可复用。参见 :doc:`checkpoint_resume`。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "In Mask generation, PSF and enhancement preprocessing is recorded in ``psf/segmentation_application.json``. If processing is requested or a prior record exists, reuse of normalized V1 archives checks the requested processing configuration, ordered source channels, exact field set and archive hashes against the completed record. Switching processing off does not bypass a record from an earlier run. If validation fails, enable preprocessing to rebuild the complete archive set from ``stack/``; restore the original images first if the stacks are unavailable. Changing ``resume`` alone does not make incompatible inputs reusable. See :doc:`checkpoint_resume`."
+msgstr "在掩膜生成中，PSF 和增强预处理会记录在 ``psf/segmentation_application.json`` 中。如果请求了处理，或存在先前的记录，复用归一化 V1 存档时会将请求的处理配置、有序源通道、确切的视野集合及存档哈希值与已完成的记录进行核对。关闭处理不会绕过先前运行的记录。如果验证失败，请启用预处理，从 ``stack/`` 重建整个存档集；如果堆栈不可用，请先恢复原始图像。仅更改 ``resume`` 并不能让不兼容的输入变得可复用。参见 :doc:`checkpoint_resume`。"
 
 msgid "A wider Gaussian PSF spreads two fixed intensity peaks while preserving total intensity."
 msgstr "更宽的高斯 PSF 会使两个固定的强度峰展开，同时保持总强度不变。"
@@ -78,11 +79,13 @@ msgstr "下面的示例从 TIFF 文件读取单通道图像和实测 PSF。请�
 msgid "Choose the operation and save the result"
 msgstr "选择操作并保存结果"
 
-msgid "Set ``operation=\"deconvolve\"`` to perform Richardson–Lucy deconvolution. Start with a modest iteration count and compare the result with the input; more iterations can amplify noise. ``operation=\"convolve\"`` instead blurs the image with the PSF. It does not use the iteration count."
-msgstr "设置 ``operation=\"deconvolve\"`` 以执行 Richardson–Lucy 反卷积。先从适中的迭代次数开始，并将结果与输入进行比较；迭代次数越多，噪声可能被放大得越厉害。``operation=\"convolve\"`` 则用 PSF 对图像进行模糊处理，不使用迭代次数。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Set ``operation=\"deconvolve\"`` to perform Richardson–Lucy deconvolution. ``iterations`` accepts 1 to 200 and defaults to 20. Start with a modest iteration count and compare the result with the input; more iterations can amplify noise. ``operation=\"convolve\"`` instead blurs the image with the PSF. It does not use the iteration count."
+msgstr "设置 ``operation=\"deconvolve\"`` 以执行 Richardson–Lucy 反卷积。``iterations`` 接受 1 到 200，默认值为 20。先从适中的迭代次数开始，并将结果与输入进行比较；迭代次数越多，噪声可能被放大得越厉害。``operation=\"convolve\"`` 则用 PSF 对图像进行模糊处理，不使用迭代次数。"
 
-msgid "The output preserves the image shape and uses float32 values in the original intensity units. Inspect its range before converting it to an integer image. Keep the JSON record with the result; it contains the kernel identity, sampling and processing settings."
-msgstr "输出保持图像形状，并以原始强度单位的 float32 值表示。在将其转换为整数图像之前，请检查其取值范围。请将 JSON 记录与结果一起保存；其中包含卷积核标识、采样和处理设置。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The input must be finite and nonnegative. The output preserves the image shape and uses float32 values in the original intensity units; it is not clipped to the input range. Inspect its range before converting it to an integer image. Keep the JSON record with the result; it contains the kernel identity, sampling and processing settings."
+msgstr "输入必须是有限且非负的。输出保持图像形状，并以原始强度单位的 float32 值表示；不会被裁剪到输入范围。在将其转换为整数图像之前，请检查其取值范围。请将 JSON 记录与结果一起保存；其中包含卷积核标识、采样和处理设置。"
 
 msgid "For multichannel images, set ``channel_axis`` explicitly: ``-1`` selects a final channel dimension, while ``0`` selects a first channel dimension. Each intensity channel is processed independently. Image and PSF sampling must match; the function rejects mismatched spacing."
 msgstr "对于多通道图像，请显式设置 ``channel_axis``：``-1`` 表示最后一个维度为通道维，``0`` 表示第一个维度为通道维。每个强度通道单独处理。图像与 PSF 的采样必须一致；函数会拒绝不匹配的间距。"

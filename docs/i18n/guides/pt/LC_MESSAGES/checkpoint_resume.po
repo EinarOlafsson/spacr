@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 19:56-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: pt\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -57,8 +57,9 @@ msgstr "Abra **UMAP settings** e ative **Retomar do checkpoint**. Os metadados d
 msgid "Batch Runner"
 msgstr "Executor em lote"
 
-msgid "A saved queue is written after every job transition. Loading and resuming it leaves successful jobs alone. A Mask, Measure, or Format Converter job that was running when the machine stopped is restarted with ``resume=True``, so its own verified field boundary is reused. Other jobs restart at the job boundary."
-msgstr "Uma fila salva é gravada após cada mudança de estado de um trabalho. Carregá-la e retomá-la não altera os trabalhos bem-sucedidos. Um trabalho de Máscaras, Medição ou Conversor de formatos que estava em execução quando a máquina parou é reiniciado com ``resume=True``, de modo que o próprio limite de campo verificado é reutilizado. Os demais trabalhos são reiniciados no limite do trabalho."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "A saved queue is written after every job transition. Loading and resuming it leaves successful jobs alone. A Mask, Measure, or Format Converter job that was running when the machine stopped is restarted with ``resume=True``, so its own verified field boundary is reused. Other jobs restart at the job boundary. Failed and skipped jobs are left unchanged unless ``retry_failed=True`` is passed to :func:`spacr.batch.resume_queue`."
+msgstr "Uma fila salva é gravada após cada mudança de estado de um trabalho. Carregá-la e retomá-la não altera os trabalhos bem-sucedidos. Um trabalho de Máscaras, Medição ou Conversor de formatos que estava em execução quando a máquina parou é reiniciado com ``resume=True``, de modo que o próprio limite de campo verificado é reutilizado. Os demais trabalhos são reiniciados no limite do trabalho. Os trabalhos com falha e os ignorados permanecem inalterados, a menos que ``retry_failed=True`` seja passado para :func:`spacr.batch.resume_queue`."
 
 msgid "Interrupted normalization archives"
 msgstr "Arquivos de normalização interrompidos"

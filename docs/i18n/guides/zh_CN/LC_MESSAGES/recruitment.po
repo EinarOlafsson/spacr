@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -29,8 +29,9 @@ msgstr "在分割和测量完成后，从 **主页** → **生物体** → **弓
 msgid "For whole-vacuole marker states, explicit host infection denominators and optional parasite counts, see :doc:`Host–Pathogen Analysis <host_pathogen>`. The two modules remain separate analysis choices."
 msgstr "关于整个纳虫泡的标记状态、明确的宿主感染分母以及可选的寄生虫计数，请参阅 :doc:`宿主–病原体分析 <host_pathogen>`。这两个模块仍是相互独立的分析选项。"
 
-msgid "Select ``channel_of_interest`` for the fluorescent marker whose recruitment you want to measure. The primary ``recruitment`` column is the pathogen mean intensity divided by the cytoplasm mean intensity in that channel. Configure the condition metadata, object size/intensity filters and minimum objects per well before comparing results. Inspect compartment identities and denominator intensities; an absent or zero denominator does not establish recruitment."
-msgstr "为要测量其募集情况的荧光标记选择 ``channel_of_interest``。主要的 ``recruitment`` 列是该通道中病原体平均强度除以细胞质平均强度。在比较结果之前，请配置条件元数据、对象大小/强度过滤器以及每孔最少对象数。检查区室标识和分母强度；分母缺失或为零并不能确立募集。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Select ``channel_of_interest`` for the fluorescent marker whose recruitment you want to measure. Each row is one host cell: the mean intensities of the pathogen objects assigned to that cell are averaged, and the primary ``recruitment`` column divides that pathogen mean by the cell's cytoplasm mean intensity in the same channel. Configure the condition metadata, object size/intensity filters and minimum objects per well before comparing results. Inspect compartment identities and denominator intensities; an absent or zero denominator does not establish recruitment."
+msgstr "为要测量其募集情况的荧光标记选择 ``channel_of_interest``。每一行是一个宿主细胞：分配给该细胞的各病原体对象的平均强度会被取平均，主要的 ``recruitment`` 列是该病原体均值除以同一通道中该细胞的细胞质平均强度。在比较结果之前，请配置条件元数据、对象大小/强度过滤器以及每孔最少对象数。检查区室标识和分母强度；分母缺失或为零并不能确立募集。"
 
 msgid "Auxiliary ratios retain their channel"
 msgstr "辅助比值保留其通道"
@@ -87,6 +88,7 @@ msgstr "该计算为每个通道生成十五个辅助比值。它不会创建恒
 msgid "Saved results"
 msgstr "保存的结果"
 
-msgid "The run writes ``cells.csv`` with the retained per-PV rows and ``wells.csv`` with per-well summaries, alongside recruitment plots. The historical ``cells.csv`` filename does not change the per-PV unit of these rows. Verify condition assignments, filtering and the selected channel when comparing these two aggregation levels."
-msgstr "运行会写入包含保留的逐纳虫泡（PV）行的 ``cells.csv`` 和包含逐孔汇总的 ``wells.csv``，同时生成募集图。历史文件名 ``cells.csv`` 并不改变这些行以纳虫泡（PV）为单位的事实。比较这两个汇总层级时，请核实条件分配、过滤和所选通道。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The run writes ``results/cells.csv`` with the retained per-host-cell rows and ``results/wells.csv`` with per-well means of those rows, alongside recruitment plots. Rows in ``cells.csv`` combine all pathogen objects assigned to a host cell; they are not independent per-vacuole measurements. For measurements linked to individual vacuoles, use :doc:`Host–Pathogen Analysis <host_pathogen>`. Verify condition assignments, filtering and the selected channel when comparing these two aggregation levels."
+msgstr "运行会写入包含保留的逐宿主细胞行的 ``results/cells.csv`` 和包含这些行逐孔均值的 ``results/wells.csv``，同时生成募集图。``cells.csv`` 中的行合并了分配给一个宿主细胞的所有病原体对象；它们不是独立的逐纳虫泡测量。如需与单个纳虫泡关联的测量，请使用 :doc:`宿主–病原体分析 <host_pathogen>`。比较这两个汇总层级时，请核实条件分配、过滤和所选通道。"
 

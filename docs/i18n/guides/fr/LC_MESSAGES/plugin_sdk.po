@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: fr\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -25,8 +25,9 @@ msgstr "SDK de plugins spaCR"
 msgid "The plugin SDK lets a separately installed Python package add assays, importers, analysis utilities, settings panels, model-zoo entries and report sections without editing spaCR. Plugins use Python package entry points, so spaCR discovers them at startup and keeps them available to both the Qt application and ``spacr-run``."
 msgstr "Le SDK de plugins permet à un paquet Python installé séparément d’ajouter des essais, des importateurs, des utilitaires d’analyse, des panneaux de paramètres, des entrées de la bibliothèque de modèles et des sections de rapport sans modifier spaCR. Les plugins utilisent les points d’entrée des paquets Python, de sorte que spaCR les découvre au démarrage et les met à disposition à la fois de l’application Qt et de ``spacr-run``."
 
-msgid "The current SDK API is ``1.0``. Only the major version controls compatibility: a plugin declaring API ``1.x`` works with spaCR's ``1.x`` SDK. A malformed or failing plugin is isolated and reported by ``spacr-plugins doctor``; it cannot replace a built-in module or prevent spaCR from starting."
-msgstr "L’API actuelle du SDK est ``1.0``. Seule la version majeure détermine la compatibilité : un plugin déclarant l’API ``1.x`` fonctionne avec le SDK ``1.x`` de spaCR. Un plugin mal formé ou défaillant est isolé et signalé par ``spacr-plugins doctor`` ; il ne peut ni remplacer un module intégré ni empêcher spaCR de démarrer."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The current SDK API is ``1.0``. Only the major version controls compatibility: a plugin declaring API ``1.x`` works with spaCR's ``1.x`` SDK. A malformed or failing plugin is skipped and reported by ``spacr-plugins doctor``. A contribution whose key collides with a built-in module is skipped and recorded as a diagnostic, so it cannot replace that module."
+msgstr "L’API actuelle du SDK est ``1.0``. Seule la version majeure détermine la compatibilité : un plugin déclarant l’API ``1.x`` fonctionne avec le SDK ``1.x`` de spaCR. Un plugin mal formé ou défaillant est ignoré et signalé par ``spacr-plugins doctor``. Une contribution dont la clé entre en collision avec un module intégré est ignorée et consignée comme diagnostic ; elle ne peut donc pas remplacer ce module."
 
 msgid "Minimal plugin"
 msgstr "Plugin minimal"
@@ -37,8 +38,9 @@ msgstr "Déclarez le point d’entrée dans le ``pyproject.toml`` du paquet du p
 msgid "Then expose a manifest:"
 msgstr "Exposez ensuite un manifeste :"
 
-msgid "The pipeline callable receives one settings dictionary. The defaults callable must accept an optional settings dictionary and return a dictionary. A validator returns :class:`spacr.validate.Problem` objects (or equivalent mappings). All processing still runs through spaCR's worker, journal, cancellation and reproducibility paths."
-msgstr "L’appelable du pipeline reçoit un dictionnaire de paramètres. L’appelable des valeurs par défaut doit accepter un dictionnaire de paramètres facultatif et renvoyer un dictionnaire. Un validateur renvoie des objets :class:`spacr.validate.Problem` (ou des mappings équivalents). Tout le traitement passe toujours par les chemins de worker, de journal, d’annulation et de reproductibilité de spaCR."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The pipeline callable receives one settings dictionary. The defaults callable is called with an empty dictionary, and again with no argument if that call fails; it must return a dictionary. A validator returns :class:`spacr.validate.Problem` objects (or equivalent mappings). Plugin apps are registered in the same module registry that ``spacr-run`` and the GUI use for built-in modules."
+msgstr "L’appelable du pipeline reçoit un dictionnaire de paramètres. L’appelable des valeurs par défaut est appelé avec un dictionnaire vide, puis de nouveau sans argument si cet appel échoue ; il doit renvoyer un dictionnaire. Un validateur renvoie des objets :class:`spacr.validate.Problem` (ou des mappings équivalents). Les applications de plugins sont enregistrées dans le même registre de modules que celui qu’utilisent ``spacr-run`` et l’interface graphique pour les modules intégrés."
 
 msgid "Settings and custom screens"
 msgstr "Paramètres et écrans personnalisés"

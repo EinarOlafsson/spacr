@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 19:56-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -57,8 +57,9 @@ msgstr "打开 **UMAP settings**，然后启用 **从检查点恢复**。每次�
 msgid "Batch Runner"
 msgstr "批处理运行器"
 
-msgid "A saved queue is written after every job transition. Loading and resuming it leaves successful jobs alone. A Mask, Measure, or Format Converter job that was running when the machine stopped is restarted with ``resume=True``, so its own verified field boundary is reused. Other jobs restart at the job boundary."
-msgstr "保存的队列会在每次作业状态变化后写入。加载并继续运行时，已成功的作业保持不变。机器停止时正在运行的掩膜、测量或格式转换器作业会以 ``resume=True`` 重新启动，从而重用其自身已验证的视野边界。其他作业在作业边界处重新开始。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "A saved queue is written after every job transition. Loading and resuming it leaves successful jobs alone. A Mask, Measure, or Format Converter job that was running when the machine stopped is restarted with ``resume=True``, so its own verified field boundary is reused. Other jobs restart at the job boundary. Failed and skipped jobs are left unchanged unless ``retry_failed=True`` is passed to :func:`spacr.batch.resume_queue`."
+msgstr "保存的队列会在每次作业状态变化后写入。加载并继续运行时，已成功的作业保持不变。机器停止时正在运行的掩膜、测量或格式转换器作业会以 ``resume=True`` 重新启动，从而重用其自身已验证的视野边界。其他作业在作业边界处重新开始。失败和跳过的作业保持不变，除非向 :func:`spacr.batch.resume_queue` 传入 ``retry_failed=True``。"
 
 msgid "Interrupted normalization archives"
 msgstr "中断的归一化存档"

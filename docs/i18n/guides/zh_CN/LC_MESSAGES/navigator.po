@@ -1,5 +1,5 @@
 # spaCR user guide translation (zh_CN).
-# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 07:44-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -67,9 +67,9 @@ msgstr "如果提供文件名模式编辑器，必须显式验证后才能传递
 msgid "Protocols: plan a workflow from the input"
 msgstr "操作流程：根据输入规划工作流"
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Click **P**, to the left of the AI control, to open **Protocols** below the search field. Choose an input family, then its format and required details. **Next** becomes available when the current choices are valid; **Back** retains compatible choices. The image-count labels are descriptive: fewer than ten images are supported. PDF is offered for both image families for scanned monolayers, not as a general microscopy container. Unsupported sequencing and drug-screen Regression requirements remain separate work in N740 and N741."
-msgstr "点击 AI 控件左侧的 **P**，在搜索框下方打开 **操作流程**。先选择输入类别，再选择格式并填写必需的详细选项。当前选择有效时，**下一步** 才可用；**返回** 会保留兼容的选择。图像数量标签只是描述：也支持少于十张图像。两类图像输入均提供 PDF 选项，用于扫描的单层样本，而不是通用的显微图像容器。尚不支持的测序要求和药物筛选 Regression 要求仍分别属于 N740 和 N741 的独立工作。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Click the **Protocols** dot, to the left of the AI control, to open **Protocols** below the search field. Choose an input family, then its format and required details. **Next** becomes available when the current choices are valid; **Back** retains compatible choices. The image-count labels are descriptive: fewer than ten images are supported. PDF is offered for both image families for scanned monolayers, not as a general microscopy container. Sequencing reads in a format other than FASTQ offer no starting module and state the conversion required; drug-screen Regression lists the settings to fill in before running."
+msgstr "点击 AI 控件左侧的 **操作流程** 圆点，在搜索框下方打开 **操作流程**。先选择输入类别，再选择格式并填写必需的详细选项。当前选择有效时，**下一步** 才可用；**返回** 会保留兼容的选择。图像数量标签只是描述：也支持少于十张图像。两类图像输入均提供 PDF 选项，用于扫描的单层样本，而不是通用的显微图像容器。FASTQ 以外格式的测序读段不提供起始模块，并会说明所需的转换；药物筛选 Regression 会列出运行前需要填写的设置。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "To carry a local input into a module, inspect its file or folder first by dropping it, browsing to it, or typing its path and pressing Enter. After changing the path, press Enter to inspect the replacement before opening its protocol. With no inspected source, Protocols can still show a plan and open a module for explicit input selection. The final step shows starting cards above the search field and opens the recipe; it does not start analysis."

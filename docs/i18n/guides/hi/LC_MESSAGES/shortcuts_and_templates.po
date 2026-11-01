@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 20:26-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -25,9 +25,30 @@ msgstr "कीबोर्ड शॉर्टकट और सेटिंग �
 msgid "Keyboard shortcuts"
 msgstr "Keyboard कटौती"
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "With the default bindings, press **F1** to open the shortcut cheat sheet. **?** opens it when the current screen does not handle that key itself; Annotate uses **?** for its inline key legend. The cheat sheet lists the keys that work anywhere in the window, such as **Ctrl+K** for the command palette, **Ctrl+P** for Preferences, **Ctrl+F** to search the current module's settings and **F11** for full screen, followed by the keys of the screen you are on."
-msgstr "डिफ़ॉल्ट कुंजी बाइंडिंग में शॉर्टकट सूची खोलने के लिए **F1** दबाएँ। यदि वर्तमान स्क्रीन उस कुंजी को स्वयं नहीं संभालती तो **?** भी सूची खोलता है; Annotate अपने स्क्रीन में दिखने वाले कुंजी विवरण के लिए **?** का उपयोग करता है। शॉर्टकट सूची उन कुंजियों को सूचीबद्ध करती है जो विंडो में कहीं भी काम करती हैं, जैसे कमांड पैलेट के लिए **Ctrl+K**, प्राथमिकताओं के लिए **Ctrl+P**, वर्तमान मॉड्यूल की सेटिंग्स खोजने के लिए **Ctrl+F** और पूर्ण स्क्रीन के लिए **F11**, और फिर आप जिस स्क्रीन पर हैं उसकी कुंजियाँ।"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "With the default bindings, press **F1** to open the shortcut cheat sheet. **?** opens it when the current screen does not handle that key itself; Annotate uses **?** for its inline key legend. The cheat sheet lists the keys that work anywhere in the window, such as **Ctrl+K** for the command palette, **Ctrl+,** for Preferences, **Ctrl+F** to search the current module's settings and **F11** for full screen, followed by the keys of the screen you are on. On macOS, **Ctrl** is the **Command** key."
+msgstr "डिफ़ॉल्ट कुंजी बाइंडिंग में शॉर्टकट सूची खोलने के लिए **F1** दबाएँ। यदि वर्तमान स्क्रीन उस कुंजी को स्वयं नहीं संभालती तो **?** भी सूची खोलता है; Annotate अपनी स्क्रीन पर दिखने वाले कुंजी विवरण के लिए **?** का उपयोग करता है। शॉर्टकट सूची उन कुंजियों को सूचीबद्ध करती है जो विंडो में कहीं भी काम करती हैं, जैसे कमांड पैलेट के लिए **Ctrl+K**, प्राथमिकताएं खोलने के लिए **Ctrl+,**, वर्तमान मॉड्यूल की सेटिंग्स खोजने के लिए **Ctrl+F** और पूर्ण स्क्रीन के लिए **F11**, और फिर आप जिस स्क्रीन पर हैं उसकी कुंजियाँ। macOS पर **Ctrl** का अर्थ **Command** कुंजी है।"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The window-wide keys follow the usual desktop conventions:"
+msgstr "विंडो-व्यापी कुंजियाँ सामान्य डेस्कटॉप परंपराओं का पालन करती हैं:"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Ctrl+,** opens Preferences. Where the platform has its own Preferences key, such as **Ctrl+Shift+,** on KDE, that key works as well."
+msgstr "**Ctrl+,** प्राथमिकताएं खोलता है। जहाँ प्लेटफ़ॉर्म की अपनी प्राथमिकताएं कुंजी होती है, जैसे KDE पर **Ctrl+Shift+,**, वहाँ वह कुंजी भी काम करती है।"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, python-format
+msgid "**Ctrl+=** or **Ctrl++** zooms in, **Ctrl+-** zooms out and **Ctrl+0** puts Zoom back to its 90 % default. **Ctrl+Alt+0** resets GUI scale, Zoom and every preview scale at once."
+msgstr "**Ctrl+=** या **Ctrl++** ज़ूम इन करता है, **Ctrl+-** ज़ूम आउट करता है और **Ctrl+0** ज़ूम को उसके डिफ़ॉल्ट 90 % पर वापस लाता है। **Ctrl+Alt+0** GUI का आकार, ज़ूम और हर पूर्वावलोकन स्केल को एक साथ रीसेट करता है।"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Alt+Home** goes to Home."
+msgstr "**Alt+Home** मुखपृष्ठ पर ले जाता है।"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The background keys use **Ctrl+Shift**: **Ctrl+Shift+T** pauses or resumes the animated background, **Ctrl+Shift+B** blanks it and **Ctrl+Shift+F** shows it full screen. **Restart the background** has no key; choose it in **Help ▸ Window**."
+msgstr "पृष्ठभूमि कुंजियाँ **Ctrl+Shift** का उपयोग करती हैं: **Ctrl+Shift+T** एनिमेटेड पृष्ठभूमि को रोकता या फिर से चलाता है, **Ctrl+Shift+B** उसे खाली करता है और **Ctrl+Shift+F** उसे पूर्ण स्क्रीन में दिखाता है। **पृष्ठभूमि फिर से शुरू करें** के लिए कोई कुंजी नहीं है; इसे **सहायता ▸ विंडो** में चुनें।"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "To change a key, choose **Change shortcuts…** in the cheat sheet. The **Change shortcuts** window has one row per action, with its **Default** key and the **Shortcut** in use. Click a shortcut and press the new key, or clear it to leave the action without a key. **Restore defaults** puts every row back to its default key."

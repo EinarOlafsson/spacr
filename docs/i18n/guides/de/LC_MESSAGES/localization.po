@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 20:25-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: de\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -73,8 +73,9 @@ msgstr "die Bedienelemente **KI** und **Live**, die Einrichtung von KI-Anbietern
 msgid "spaCR-authored console notices such as run start, safe stop, completion, settings import and provider guidance;"
 msgstr "von spaCR verfasste Konsolenhinweise wie Ausführungsstart, sicheres Stoppen, Abschluss, Import von Einstellungen und Hinweise zu Anbietern;"
 
-msgid "reviewed one-line descriptions for all built-in modules; and"
-msgstr "geprüfte einzeilige Beschreibungen aller integrierten Module; und"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "one-line descriptions for the built-in modules; and"
+msgstr "einzeilige Beschreibungen der integrierten Module; und"
 
 msgid "setting names, type hints, authored explanations, API-link captions, tooltips and accessible help text."
 msgstr "Einstellungsnamen, Typhinweise, verfasste Erläuterungen, Beschriftungen von API-Links, Tooltips und barrierefreie Hilfetexte."
@@ -85,8 +86,9 @@ msgstr "Wird die Sprache geändert, während ein Chat eine Verbindung herstellt 
 msgid "Contextual help"
 msgstr "Kontextbezogene Hilfe"
 
-msgid "Module and setting tooltips have complete external catalog entries in every bundled language. Setting tooltips are assembled from separate semantic fields so the setting name, type, authored explanation and API caption can be checked independently. Format fields, code literals, scientific symbols, URLs and option values are immutable during catalog generation. A translation is accepted only when those structural values survive; otherwise spaCR uses the canonical English text."
-msgstr "Tooltips für Module und Einstellungen haben in jeder mitgelieferten Sprache vollständige externe Katalogeinträge. Tooltips für Einstellungen werden aus getrennten semantischen Feldern zusammengesetzt, sodass Einstellungsname, Typ, verfasste Erläuterung und API-Beschriftung unabhängig voneinander geprüft werden können. Dateiformatfelder, Code-Literale, wissenschaftliche Symbole, URLs und Optionswerte sind bei der Katalogerzeugung unveränderlich. Eine Übersetzung wird nur akzeptiert, wenn diese strukturellen Werte erhalten bleiben; andernfalls verwendet spaCR den kanonischen englischen Text."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Module and setting tooltips have complete external catalog entries in every bundled language. Setting tooltips are assembled from separate semantic fields so the setting name, type, authored explanation and API caption can be checked independently. Format fields, code literals, scientific symbols, URLs and option values are protected during catalog generation. A translation is accepted only when those structural values survive; otherwise spaCR uses the canonical English text."
+msgstr "Tooltips für Module und Einstellungen haben in jeder mitgelieferten Sprache vollständige externe Katalogeinträge. Tooltips für Einstellungen werden aus getrennten semantischen Feldern zusammengesetzt, sodass Einstellungsname, Typ, verfasste Erläuterung und API-Beschriftung unabhängig voneinander geprüft werden können. Formatfelder, Code-Literale, wissenschaftliche Symbole, URLs und Optionswerte sind bei der Katalogerzeugung geschützt. Eine Übersetzung wird nur akzeptiert, wenn diese strukturellen Werte erhalten bleiben; andernfalls verwendet spaCR den kanonischen englischen Text."
 
 msgid "The **API** link at the foot of each setting's tooltip keeps the exact documentation URL in every language. Its caption and accessible name follow the selected language, and changing language refreshes already-open settings windows. Where visual help exists, the tooltip footer also offers an **Animation** word that reveals the drawing beside the text. The scientific drawing itself is language-neutral. See the :doc:`setting animation gallery <setting_animations>` for every exact mapping."
 msgstr "Der Link **API** am Fuß des Tooltips jeder Einstellung behält in jeder Sprache die exakte Dokumentations-URL. Seine Beschriftung und sein barrierefreier Name folgen der gewählten Sprache, und ein Sprachwechsel aktualisiert bereits geöffnete Einstellungsfenster. Wo eine visuelle Hilfe existiert, bietet die Fußzeile des Tooltips außerdem das Wort **Animation** an, das die Zeichnung neben dem Text einblendet. Die wissenschaftliche Zeichnung selbst ist sprachneutral. Alle exakten Zuordnungen finden Sie in der :doc:`Galerie der Einstellungsanimationen <setting_animations>`."
@@ -100,8 +102,9 @@ msgstr "Die Übersetzung betrifft nur die Darstellung. Rohe Standardausgaben der
 msgid "The console distinguishes spaCR-authored interface notices from analytical output. Notices may be presented in the selected language, while pipeline lines and errors pass through unchanged. Template values such as a path, provider name, function name or error detail are preserved even when the surrounding notice is translated."
 msgstr "Die Konsole unterscheidet von spaCR verfasste Oberflächenhinweise von analytischer Ausgabe. Hinweise können in der gewählten Sprache dargestellt werden, während Pipeline-Zeilen und Fehler unverändert durchgereicht werden. Vorlagenwerte wie ein Pfad, ein Anbietername, ein Funktionsname oder ein Fehlerdetail bleiben erhalten, auch wenn der umgebende Hinweis übersetzt wird."
 
-msgid "When a scientific or third-party term has no catalog entry, spaCR displays the original English text. This explicit fallback is preferable to guessing the meaning of a technical control."
-msgstr "Hat ein wissenschaftlicher oder von Dritten stammender Begriff keinen Katalogeintrag, zeigt spaCR den ursprünglichen englischen Text an. Dieser explizite Rückgriff ist besser, als die Bedeutung eines technischen Bedienelements zu erraten."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "When a scientific or third-party term has no catalog entry, spaCR displays the original English text rather than a substituted translation."
+msgstr "Hat ein wissenschaftlicher oder von Dritten stammender Begriff keinen Katalogeintrag, zeigt spaCR den ursprünglichen englischen Text statt einer ersatzweisen Übersetzung an."
 
 msgid "The environment variable ``SPACR_LANGUAGE`` can temporarily override the saved preference, which is useful for screenshots and automated testing:"
 msgstr "Die Umgebungsvariable ``SPACR_LANGUAGE`` kann die gespeicherte Präferenz vorübergehend überschreiben, was für Screenshots und automatisierte Tests nützlich ist:"
@@ -148,8 +151,9 @@ msgstr "Installationsprogramme"
 msgid "The Windows, macOS and Linux online installers share the ten locale resources in ``packaging/i18n``. They select the operating system's UI language and fall back to English; ``SPACR_INSTALL_LANGUAGE`` provides an explicit override. Shell, PowerShell and NSIS resources are generated by ``packaging/i18n/render.py`` so translated messages never become duplicated inside platform control flow."
 msgstr "Die Online-Installationsprogramme für Windows, macOS und Linux teilen sich die zehn Locale-Ressourcen in ``packaging/i18n``. Sie wählen die Oberflächensprache des Betriebssystems und greifen andernfalls auf Englisch zurück; ``SPACR_INSTALL_LANGUAGE`` bietet eine explizite Überschreibung. Shell-, PowerShell- und NSIS-Ressourcen werden von ``packaging/i18n/render.py`` erzeugt, sodass übersetzte Meldungen niemals innerhalb des plattformspezifischen Kontrollflusses dupliziert werden."
 
-msgid "Developers should send raw pipeline output through ``append_stdout`` or ``append_error`` and use ``append_notice`` only for a stable, spaCR-authored UI template. Dynamic application chrome uses a stable source template so runtime language changes cannot translate an earlier translation or overwrite a live path/result label. Catalog tests enforce translation width and format-field parity, and language tests assert that output and chat content remain unchanged."
-msgstr "Entwickler sollten rohe Pipeline-Ausgaben über ``append_stdout`` oder ``append_error`` senden und ``append_notice`` nur für eine stabile, von spaCR verfasste Oberflächenvorlage verwenden. Dynamische Oberflächenelemente der Anwendung verwenden eine stabile Quellvorlage, damit Sprachwechsel zur Laufzeit keine frühere Übersetzung erneut übersetzen oder eine aktive Pfad- bzw. Ergebnisbeschriftung überschreiben können. Katalogtests erzwingen die Übereinstimmung von Übersetzungsbreite und Formatfeldern, und Sprachtests stellen sicher, dass Ausgaben und Chatinhalte unverändert bleiben."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Developers should send raw pipeline output through ``append_stdout`` or ``append_error`` and use ``append_notice`` only for a stable, spaCR-authored UI template. Dynamic application chrome uses a stable source template so runtime language changes cannot translate an earlier translation or overwrite a live path/result label. Catalog tests enforce format-field parity, and language tests assert that output and chat content remain unchanged."
+msgstr "Entwickler sollten rohe Pipeline-Ausgaben über ``append_stdout`` oder ``append_error`` senden und ``append_notice`` nur für eine stabile, von spaCR verfasste Oberflächenvorlage verwenden. Dynamische Oberflächenelemente der Anwendung verwenden eine stabile Quellvorlage, damit Sprachwechsel zur Laufzeit keine frühere Übersetzung erneut übersetzen oder eine aktive Pfad- bzw. Ergebnisbeschriftung überschreiben können. Katalogtests erzwingen die Übereinstimmung der Formatfelder, und Sprachtests stellen sicher, dass Ausgaben und Chatinhalte unverändert bleiben."
 
 msgid "Related API"
 msgstr "Zugehörige API"

@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 16:41-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: es\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -36,18 +36,20 @@ msgid "Mask prepares TIFF, OME-TIFF, LIF, CZI and ND2 acquisitions and segments 
 msgstr "Máscaras prepara adquisiciones TIFF, OME-TIFF, LIF, CZI y ND2 y segmenta células, núcleos, patógenos y orgánulos con Cellpose. Admite datos 2D, volumétricos y de series temporales, estima el diámetro de los objetos y puede intercambiar correcciones de máscaras con el visor de capas o con napari."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The objects are not a fixed set of four. A project has a cell, a nucleus and a pathogen, a cytoplasm derived from them, and as many organelle slots as ``number_of_organelles`` specifies -- from none up to twenty-six. Each slot is independent, with its own channel, diameter, detection method and morphology."
-msgstr "Los objetos no son un conjunto fijo de cuatro. Un proyecto tiene una célula, un núcleo y un patógeno, un citoplasma derivado de ellos y tantas ranuras de orgánulos como indique ``number_of_organelles`` -- desde ninguna hasta veintiséis. Cada ranura es independiente, con su propio canal, diámetro, método de detección y morfología."
+msgid "The objects are not a fixed set of four. A project has a cell, a nucleus and a pathogen, a cytoplasm derived from them, and as many organelle slots as ``number_of_organelles`` specifies -- from none up to 702 (``spacr.organelle_types.MAX_ORGANELLES``). Each slot is independent, with its own channel, diameter, detection method and morphology."
+msgstr "Los objetos no son un conjunto fijo de cuatro. Un proyecto tiene una célula, un núcleo y un patógeno, un citoplasma derivado de ellos y tantas ranuras de orgánulos como indique ``number_of_organelles`` -- desde ninguna hasta 702 (``spacr.organelle_types.MAX_ORGANELLES``). Cada ranura es independiente, con su propio canal, diámetro, método de detección y morfología."
 
-msgid "A slot is given a morphology preset -- punctate, vesicular, spherical, filamentous, tubular, reticular, cisternal, toroidal, crescent, or custom -- and the preset chooses the detection strategy, one of spots, network, irregular or ring."
-msgstr "A cada ranura se le asigna un preajuste de morfología -- puntiforme, vesicular, esférica, filamentosa, tubular, reticular, cisternal, toroidal, en media luna o personalizada --, y el preajuste elige la estrategia de detección: puntos, red, irregular o anillo."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "A slot is given a morphology preset -- punctate, vesicular, spherical, filamentous, tubular, reticular, cisternal, toroidal, crescent, or custom -- and the preset chooses the detection strategy, one of spots, network, irregular or ring. The vesicular and spherical presets choose between two strategies by object size; custom chooses none."
+msgstr "A cada ranura se le asigna un preajuste de morfología -- puntiforme, vesicular, esférica, filamentosa, tubular, reticular, cisternal, toroidal, en media luna o personalizada --, y el preajuste elige la estrategia de detección: puntos, red, irregular o anillo. Los preajustes vesicular y esférico eligen entre dos estrategias según el tamaño del objeto; el personalizado no elige ninguna."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Mask generation lays out the per-object settings as one table under **Per-object settings**, with a column for each object whose channel is set; the cell column is always shown. An object's channel is set on the ordinary form, and the values of a hidden object are kept for when its channel is set again. Every object has a **Remove background** check box, and the cell column also has **Adjust cells**. **Add a filter** adds a row that filters objects on any scikit-image regionprop, such as area or mean intensity; each object's cell takes ``200 – 5000``, a minimum alone (``200``), a maximum alone (``– 5000``) or a blank for no filter. These rows are the ``object_filters`` setting. Choosing a Cellpose 3 model for an object shows a **Cellpose 3** category with that backend's own settings. **Quality Control** holds the segmentation checks together with output, storage, runtime and reliability settings."
 msgstr "La generación de máscaras presenta los ajustes por objeto como una sola tabla en **Per-object settings**, con una columna para cada objeto cuyo canal está definido; la columna de la célula se muestra siempre. El canal de un objeto se define en el formulario normal, y los valores de un objeto oculto se conservan para cuando se vuelva a definir su canal. Cada objeto tiene una casilla **Eliminar el fondo**, y la columna de la célula tiene además **Ajustar células**. **Añadir un filtro** añade una fila que filtra objetos según cualquier regionprop de scikit-image, como el área o la intensidad media; la celda de cada objeto admite ``200 – 5000``, solo un mínimo (``200``), solo un máximo (``– 5000``) o nada para no filtrar. Estas filas forman el ajuste ``object_filters``. Elegir un modelo de Cellpose 3 para un objeto muestra una categoría **Cellpose 3** con los ajustes propios de ese backend. **Control de calidad** reúne las comprobaciones de segmentación junto con los ajustes de salida, almacenamiento, ejecución y fiabilidad."
 
-msgid "Mask's **Live** preview shows the result as **Overlay**, **Masks**, **Flows** or **Cell probability**. Right-click a picture to **Save as PNG…** or **Save as PDF…**. Once a session has produced more than one mask, **Compare masks…** lays the masks and images you tick over one another, each with its own opacity and stacking order, in a panel of its own."
-msgstr "La vista previa **En vivo** de Máscaras muestra el resultado como **Superposición**, **Máscaras**, **Flujos** o **Probabilidad celular**. Haga clic con el botón derecho en una imagen para **Save as PNG…** o **Save as PDF…**. Cuando una sesión ha producido más de una máscara, **Comparar máscaras…** superpone las máscaras e imágenes que marque, cada una con su propia opacidad y orden de apilamiento, en un panel propio."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Mask's **Live** preview shows the result as **Overlay**, **Masks**, **Flows** or **Cell probability**. Right-click a picture to **Save as PNG…** or **Save as PDF…**. Once the session holds at least two masks of the field on screen, **Compare masks…** lays the masks and images you tick over one another, each with its own opacity and stacking order, in a panel of its own."
+msgstr "La vista previa **En vivo** de Máscaras muestra el resultado como **Superposición**, **Máscaras**, **Flujos** o **Probabilidad celular**. Haga clic con el botón derecho en una imagen para **Save as PNG…** o **Save as PDF…**. Cuando la sesión contiene al menos dos máscaras del campo en pantalla, **Comparar máscaras…** superpone las máscaras e imágenes que marque, cada una con su propia opacidad y orden de apilamiento, en un panel propio."
 
 msgid "Measure"
 msgstr "Medición"
@@ -103,11 +105,13 @@ msgstr "``dependent_variable``, la variable de respuesta, es una lista desplegab
 msgid "Planning, quality control and exploration"
 msgstr "Planificación, control de calidad y exploración"
 
-msgid "**Power and Design** estimate cell and well requirements and lay out plates, controls and replicates."
-msgstr "**Power and Design** estiman las necesidades de células y pocillos y disponen placas, controles y réplicas."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Power / Design** simulates experiments to estimate the cells per well and wells needed to recover a specified effect size. **Experiment Design** assigns conditions, controls and replicates to wells, checks row, column and plate-edge confounding, and exports ``plate_map.csv``."
+msgstr "**Power / Design** simula experimentos para estimar las células por pocillo y los pocillos necesarios para recuperar un tamaño del efecto especificado. **Experiment Design** asigna condiciones, controles y réplicas a los pocillos, comprueba la confusión por fila, columna y borde de placa, y exporta ``plate_map.csv``."
 
-msgid "**QC Dashboard** combines segmentation, plate, annotation-agreement and leakage checks."
-msgstr "**QC Dashboard** combina comprobaciones de segmentación, de placa, de concordancia entre anotadores y de fugas."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**QC** summarizes the segmentation, unit, plate-effect, annotation-agreement and leakage checks that completed runs stored; opening it does not recompute masks or measurements."
+msgstr "**QC** resume las comprobaciones de segmentación, unidad, efecto de placa, concordancia de anotaciones y fuga de datos que almacenaron las ejecuciones completadas; abrirlo no vuelve a calcular máscaras ni mediciones."
 
 msgid "**Batch correction** provides centering, z-scoring, robust z-scoring, control centering and ComBat with protected biological covariates."
 msgstr "**Corrección por lotes** ofrece centrado, puntuación z, puntuación z robusta, centrado en controles y ComBat con covariables biológicas protegidas."
@@ -136,17 +140,17 @@ msgstr "Cada ejecución puede registrar su identificador, su semilla, la configu
 msgid "How a module is reached"
 msgstr "Cómo se accede a un módulo"
 
-# AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The home screen groups modules into four categories -- **Core**, **Data**, **Tools** and **Organism** -- and nineteen modules have a tile in one of them. Core holds the pipeline modules, run in order; Data holds import, embeddings, run comparison, design, dose–response and QC; Tools holds modules that operate on an existing project rather than pipeline steps; Organism opens the Toxoplasma guide and its available assays. Planned analyses are marked Coming soon. Make Masks is filed under **Tools**."
-msgstr "La pantalla de inicio agrupa los módulos en cuatro categorías -- **Principal**, **Datos**, **Herramientas** y **Organismo** -- y diecinueve módulos tienen un mosaico en alguna de ellas. Principal contiene los módulos de la canalización, que se ejecutan en orden; Datos contiene importación, incrustaciones, comparación de ejecuciones, diseño, dosis–respuesta y control de calidad; Herramientas contiene módulos que operan sobre un proyecto existente en lugar de pasos de la canalización; Organismo abre la guía de Toxoplasma y sus ensayos disponibles. Los análisis previstos se marcan como Próximamente. Crear máscaras está en **Herramientas**."
+msgid "The home screen groups modules into four categories -- **Core**, **Data**, **Tools** and **Organism** -- and nineteen modules have a tile in one of them. **Preferences → Show alpha species** adds seven Organism tiles (Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, virus infection and mammalian cells). Core holds the pipeline modules, run in order; Data holds import, embeddings, run comparison, design, dose–response and QC; Tools holds modules that operate on an existing project rather than pipeline steps; Organism opens the Toxoplasma guide and its available assays. Planned analyses are marked Coming soon. Make Masks is filed under **Tools**."
+msgstr "La pantalla de inicio agrupa los módulos en cuatro categorías -- **Principal**, **Datos**, **Herramientas** y **Organismo** -- y diecinueve módulos tienen un mosaico en alguna de ellas. **Preferencias → Mostrar especies alfa** añade siete mosaicos de Organismo (Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, infección vírica y células de mamífero). Principal contiene los módulos de la canalización, que se ejecutan en orden; Datos contiene importación, incrustaciones, comparación de ejecuciones, diseño, dosis–respuesta y control de calidad; Herramientas contiene módulos que operan sobre un proyecto existente en lugar de pasos de la canalización; Organismo abre la guía de Toxoplasma y sus ensayos disponibles. Los análisis previstos se marcan como Próximamente. Crear máscaras está en **Herramientas**."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Most modules do not have a tile; they inspect or extend work started in another module. They open from:"
 msgstr "La mayoría de los módulos no tienen mosaico; inspeccionan o amplían el trabajo iniciado en otro módulo. Se abren desde:"
 
-msgid "**a button on their host's masthead** -- as a page beside that host's settings, already pointed at the same project. Investigate Hit and Prediction Profiler open from Regression; Format Converter and External Masks from Import; Layer Viewer, Control Charts and Outliers from QC."
-msgstr "**un botón en la cabecera de su módulo anfitrión** -- como una página junto a la configuración de ese anfitrión, ya orientada al mismo proyecto. Investigate Hit y Prediction Profiler se abren desde Regresión; Convertidor de formatos y Máscaras externas desde Importar; Layer Viewer, Control Charts y Outliers desde QC."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**a button on their host's masthead** -- as a page beside that host's settings, already pointed at the same project. Investigate Hit and Prediction Profiler open from Regression; Import Images, Format Converter and External Masks from Import; Layer Viewer, Control Charts and Outliers from QC. On Mask, the Timelapse button does not open a page: it shows the **Time Axes & Tracking (Beta)** settings on Mask's own form."
+msgstr "**Ejes temporales y seguimiento (beta)** -- como una página junto a la configuración de ese anfitrión, ya orientada al mismo proyecto. Investigate Hit y Prediction Profiler se abren desde Regresión; Importar imágenes, Convertidor de formatos y Máscaras externas desde Importar; Layer Viewer, Control Charts y Outliers desde QC. En Máscaras, el botón Serie temporal no abre una página: muestra los ajustes **Time Axes & Tracking (Beta)** en el propio formulario de Máscaras."
 
 msgid "**the Help menu**, for the ones that inspect or administer work that already exists rather than belonging behind any one module -- Run History, Pipeline Graph, Project Browser, Database Browser, Report, Data Manager, Plate Queue, Batch Runner and Distributed Jobs."
 msgstr "**el menú Ayuda**, para los que examinan o administran trabajo ya existente en lugar de pertenecer a un módulo concreto -- Historial de ejecuciones, Pipeline Graph, Project Browser, Explorador de base de datos, Informe, Gestor de datos, Cola de placas, Ejecución por lotes y Trabajos distribuidos."
@@ -168,7 +172,8 @@ msgstr "Se abre desde su cabecera"
 msgid "Timelapse"
 msgstr "Serie temporal"
 
-msgid "Illumination Correction, AnnData Export, Motility Assay"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Illumination, AnnData Export, Motility Assay"
 msgstr "Corrección de iluminación, Exportar a AnnData, Ensayo de motilidad"
 
 msgid "Annotate"
@@ -180,14 +185,16 @@ msgstr "Concordancia de anotadores"
 msgid "Classify"
 msgstr "Clasificar"
 
-msgid "Classifier Evaluation, Explain CV Model, Activation Maps"
-msgstr "Evaluación del clasificador, Explicar modelo CV, Mapas de activación"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Classifier Evaluation, Explain CV Model, Activation, Training Runs, Feature Explorer"
+msgstr "Evaluación del clasificador, Explicar modelo CV, Mapas de activación, Ejecuciones de entrenamiento, Explorador de características"
 
 msgid "Barcode QC"
 msgstr "CC de códigos de barras"
 
-msgid "Volcano Explorer, Hit List, Methods & Results"
-msgstr "Explorador de gráficos volcán, Lista de candidatos, Métodos y resultados"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Volcano Explorer, Hit List, Methods & Results, Diagnostics"
+msgstr "Explorador de gráficos volcán, Lista de candidatos, Métodos y resultados, Diagnósticos"
 
 msgid "Image UMAP"
 msgstr "UMAP de imágenes"
@@ -198,8 +205,25 @@ msgstr "Dispersión de imágenes, PCA"
 msgid "Make Masks"
 msgstr "Crear máscaras"
 
-msgid "Cellpose Workbench, Mask the whole folder, Model Compare, Model Zoo, Curate, Napari Bridge"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Cellpose Workbench, Mask folder, Model Compare, Model Zoo, Curate, Napari Bridge"
 msgstr "Banco de trabajo Cellpose, Generar máscaras para toda la carpeta, Comparar modelos, Biblioteca de modelos, Curación, Puente con napari"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Graph Builder"
+msgstr "Constructor de gráficos"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Plate Viewer, Small Multiples"
+msgstr "Visor de placas, Pequeños múltiplos"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Database Browser"
+msgstr "Explorador de bases de datos"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Lineage, Tabulate"
+msgstr "Linaje, Tabular"
 
 msgid "Parameter Sweep is reached a third way: it is a panel on the Regression screen, opened by the **Parameter sweep** switch on its settings form."
 msgstr "A Barrido de parámetros se llega por una tercera vía: es un panel de la pantalla Regresión que se abre con el interruptor **Barrido de parámetros** de su formulario de configuración."
@@ -208,9 +232,9 @@ msgstr "A Barrido de parámetros se llega por una tercera vía: es un panel de l
 msgid "Starting spaCR"
 msgstr "Iniciar spaCR"
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "spaCR opens with a black container holding the spaCR logo as a photomosaic. The logo holds still while the window loads, then the mosaic blows away tile by tile and the container fades to show the window. A click or a key skips it. The sequence is off when **Preferences → Appearance → Animation → Startup animation** is cleared (the mosaic then shows without the animation), while **Reduce motion** is on, and when the ``SPACR_NO_SPLASH`` environment variable is set to ``1`` (the mosaic is then not shown at all). **Help → Show startup animation** plays it again inside the open window, even when Startup animation is off; under Reduce motion the logo holds and then cross-fades away."
-msgstr "spaCR se abre con un contenedor negro que muestra su logotipo como un fotomosaico. El logotipo permanece inmóvil mientras se carga la ventana; después, el mosaico se dispersa pieza a pieza y el contenedor se desvanece para mostrarla. Un clic o una tecla omite la secuencia. Esta se desactiva al desmarcar **Preferencias → Apariencia → Animation → Animación de inicio** (el mosaico aparece sin animación), mientras **Reducir el movimiento** está activado y cuando la variable de entorno ``SPACR_NO_SPLASH`` vale ``1`` (el mosaico no se muestra). **Ayuda → Mostrar la animación de inicio** la reproduce de nuevo dentro de la ventana abierta, incluso si Animación de inicio está desactivada; con Reducir el movimiento, el logotipo permanece inmóvil y luego se desvanece."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "spaCR opens with a black container holding the spaCR logo as a photomosaic. The logo holds still while the window loads, then the mosaic blows away tile by tile and the container fades to show the window. A click or a key skips it. The sequence is off when **Preferences → Appearance → Animation → Startup animation** is cleared (the mosaic then shows without the animation), while **Reduce motion** is on, and when the ``SPACR_NO_SPLASH`` environment variable is set to any value other than ``0``, ``false``, ``no`` or ``off`` (the mosaic is then not shown at all). **Help → Show startup animation** plays it again inside the open window, even when Startup animation is off; under Reduce motion the logo holds and then cross-fades away."
+msgstr "spaCR se abre con un contenedor negro que muestra su logotipo como un fotomosaico. El logotipo permanece inmóvil mientras se carga la ventana; después, el mosaico se dispersa pieza a pieza y el contenedor se desvanece para mostrarla. Un clic o una tecla omite la secuencia. Esta se desactiva al desmarcar **Preferencias → Apariencia → Animación → Animación de inicio** (el mosaico aparece sin animación), mientras **Reducir el movimiento** está activado y cuando la variable de entorno ``SPACR_NO_SPLASH`` tiene cualquier valor distinto de ``0``, ``false``, ``no`` u ``off`` (el mosaico no se muestra en absoluto). **Ayuda → Mostrar la animación de inicio** la reproduce de nuevo dentro de la ventana abierta, incluso si Animación de inicio está desactivada; con Reducir el movimiento, el logotipo permanece inmóvil y luego se desvanece."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The window opens **Borderless** by default: it has no title bar, fills the work area of its screen, and its menu bar moves it while the marks at the right end of the bar minimise, maximise and close it. Clear **Help → Window → Borderless window** to use the platform's own framed window instead. The choice is remembered."
@@ -340,14 +364,13 @@ msgstr "Aplicar, Cancelar y Guardar funcionan como para cualquier otra preferenc
 msgid "Data-art themes"
 msgstr "Temas de arte de datos"
 
-# AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Under **Preferences** → **Appearance**, **Theme** selects the interface palette; the ten night palettes remain available. **Animation** chooses a decorative background independently, or **None** to stop it. These backgrounds do not display project measurements. The main window defaults to **spaCR field**; the Settings backdrop defaults to **None**."
-msgstr "En **Preferencias** → **Apariencia**, **Tema** selecciona la paleta de la interfaz; las diez paletas nocturnas siguen disponibles. **Animación** elige un fondo decorativo de forma independiente, o **Ninguna** para detenerlo. Estos fondos no muestran mediciones del proyecto. La ventana principal usa **spaCR field** por defecto; el fondo de los ajustes usa **Ninguna** por defecto."
+msgid "Under **Preferences** → **Appearance**, **Theme** selects the interface palette; the ten night palettes remain available. **Animation** chooses a decorative background independently, or **None** to stop it. These backgrounds do not display project measurements. The main window defaults to **spaCR field**; the Settings backdrop defaults to **spaCR stratified**."
+msgstr "En **Preferencias** → **Apariencia**, **Tema** selecciona la paleta de la interfaz; las diez paletas nocturnas siguen disponibles. **Animación** elige un fondo decorativo de forma independiente, o **Ninguna** para detenerlo. Estos fondos no muestran mediciones del proyecto. La ventana principal usa **spaCR field** por defecto; el fondo de los ajustes usa **spaCR stratified** por defecto."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The animation menu lists **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**, and **spaCR spinn**, in that order."
-msgstr "El menú de animación muestra **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified** y **spaCR spinn**, en ese orden."
+msgid "The animation menu lists **spaCR field**, **spaCR advection**, **spaCR waves**, **spaCR blobs** and **spaCR stratified**, in that order, followed by **None**. **spaCR growth**, **spaCR aurora** and **spaCR spinn** are listed only when spaCR is started with the ``spaceout`` command."
+msgstr "El menú de animación muestra **spaCR field**, **spaCR advection**, **spaCR waves**, **spaCR blobs** y **spaCR stratified**, en ese orden, seguidos de **Ninguna**. **spaCR growth**, **spaCR aurora** y **spaCR spinn** solo aparecen cuando spaCR se inicia con el comando ``spaceout``."
 
 msgid "**spaCR field** — A crisp gravitational dot field with optional local mouse influence and expanding ripples."
 msgstr "**spaCR field** — Un campo gravitatorio de puntos nítidos con influencia local opcional del ratón y ondas circulares que se expanden."
@@ -379,9 +402,9 @@ msgstr "**spaCR stratified** — Un campo estelar lento se mueve en tres capas d
 msgid "**spaCR spinn** — Fine paper facets move gently and spin locally in response to the mouse. Rotation is fastest beside the pointer and fades smoothly to zero at the Mouse gravity radius; changing the radius changes the affected area."
 msgstr "**spaCR spinn** — Las facetas de papel fino se mueven suavemente y giran localmente en respuesta al ratón. La rotación es más rápida junto al puntero y se desvanece suavemente a cero en el radio de gravedad del ratón; cambiar el radio cambia el área afectada."
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **15%**; set it to **0** to disable mouse influence. **Animation density** changes the number of elements independently of **Animation detail**, which changes drawing resolution. Density has a minimum of **1%**; increasing Detail does not trim the chosen population. The renderer bounds its sampling work within the screen's pixel budget. Select **Random** in **Animation palette** for per-element colours. Fresh installations use **Dark**, **spaCR field** and the **spaCR** animation palette, with Density **10%**, Gravity **10%**, Detail, Speed and Size **100%**, and Page opacity **60%**. **Dot blinking** controls the percentage of visible dots that flash white: **0** switches it off (the default), and nonzero values range from 0.00001% to 10%. The setting applies to spaCR field, spaCR advection, spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative perimeter length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle. Existing saved preferences remain in effect until changed or reset."
-msgstr "**Radio de gravedad del ratón** define la zona afectada como un porcentaje del borde más corto de la pantalla. El valor predeterminado es **15%**; seleccione **0** para desactivar la influencia del ratón. **Densidad de animación** cambia el número de elementos independientemente de **Detalle de animación**, que cambia la resolución de dibujo. La densidad mínima es **1%**; aumentar el detalle no reduce la población elegida. El renderizador limita el trabajo de muestreo al presupuesto de píxeles de la pantalla. Seleccione **Aleatorio** en **Paleta de animación** para asignar colores por elemento. Las instalaciones nuevas utilizan **Oscuro**, **spaCR field** y la paleta de animación **spaCR**, con densidad **10%**, gravedad **10%**, detalle, velocidad y tamaño **100%**, y opacidad de página **60%**. **Parpadeo de puntos** controla el porcentaje de puntos visibles que parpadean en blanco: **0** lo desactiva y es el valor predeterminado; los valores mayores que cero van de 0.00001% a 10%. Se aplica a spaCR field, spaCR advection, spaCR waves y spaCR stratified. El desvanecimiento del campo está activado. El borde azul usa una longitud relativa del perímetro de **17%**, seguimiento **50%**, alineación centrada, modo **Beat** y un ciclo de **1.5 s**. Las preferencias guardadas siguen vigentes hasta que se cambian o se restablecen."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **10%**; set it to **0** to disable mouse influence. **Animation density** changes the number of elements independently of **Animation detail**, which changes drawing resolution. Density has a minimum of **1%**; increasing Detail does not trim the chosen population. The renderer bounds its sampling work within the screen's pixel budget. Select **Random** in **Animation palette** for per-element colours. Fresh installations use **Dark**, **spaCR field** and the **spaCR** animation palette, with Density **10%**, Gravity **10%**, Detail, Speed and Size **100%**, and Page opacity **60%**. **Dot blinking** controls the percentage of visible dots that flash white: **0** switches it off (the default), and nonzero values range from 0.00001% to 10%. The setting applies to spaCR field, spaCR advection, spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative perimeter length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle. Existing saved preferences remain in effect until changed or reset."
+msgstr "**Radio de gravedad del ratón** define la zona afectada como un porcentaje del borde más corto de la pantalla. El valor predeterminado es **10%**; seleccione **0** para desactivar la influencia del ratón. **Densidad de animación** cambia el número de elementos independientemente de **Detalle de animación**, que cambia la resolución de dibujo. La densidad mínima es **1%**; aumentar el detalle no reduce la población elegida. El renderizador limita el trabajo de muestreo al presupuesto de píxeles de la pantalla. Seleccione **Aleatorio** en **Paleta de animación** para asignar colores por elemento. Las instalaciones nuevas utilizan **Oscuro**, **spaCR field** y la paleta de animación **spaCR**, con densidad **10%**, gravedad **10%**, detalle, velocidad y tamaño **100%**, y opacidad de página **60%**. **Parpadeo de puntos** controla el porcentaje de puntos visibles que parpadean en blanco: **0** lo desactiva (el valor predeterminado), y los valores distintos de cero van de 0.00001% a 10%. El ajuste se aplica a spaCR field, spaCR advection, spaCR waves y spaCR stratified. El desvanecimiento del campo está activado. El borde azul usa una longitud relativa del perímetro de **17%**, seguimiento **50%**, alineación centrada, modo **Beat** y un ciclo de **1.5 s**. Las preferencias guardadas existentes siguen vigentes hasta que se cambian o se restablecen."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Animation background colour** sets the background independently of the animation palette. Until you choose a colour, it follows the page theme; **Theme colour** restores that behaviour. The chosen colour's brightness is kept within the active Dark or Light theme's range. It applies to the main window, module screens and animated settings popups. A full-screen wallpaper can cover the background fill."
@@ -430,14 +453,13 @@ msgstr "Estos tamaños se recuerdan entre sesiones."
 msgid "To resize a popup, point at one of its edges or corners. A thin blue guide line appears across the middle half of each side you can drag. Drag from anywhere along that edge or corner; the line only marks the side."
 msgstr "Para cambiar el tamaño de una ventana emergente, apunte a uno de sus bordes o esquinas. Aparece una fina línea guía azul a lo largo de la mitad central de cada lado que se puede arrastrar. Arrastre desde cualquier punto de ese borde o esquina; la línea solo marca el lado."
 
-# AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Make Masks edits integer label masks by hand. Its masthead opens related screens, including Cellpose Workbench, Model Compare, Model Zoo and Curate. Its canvas has eleven tools: Brush, Erase, Erase object, Wand, Draw, Box, Edit Label, Divide / Merge, Zoom, Recrop and Ruler. Wand adds a region by default; hold Ctrl while clicking to remove it. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement. Volumes (TIFF stacks, OME-TIFF and MRC) open in the same view with a slice slider and a View list of Default, Orthogonal and True 3D; electron micrographs (``.dm3``, ``.dm4``, ``.mrc``) have a contrast preset. See :ref:`3D volumes <mm-volumes>` and :ref:`electron micrographs <mm-tem>`."
-msgstr "Make Masks edita a mano máscaras de etiquetas con valores enteros. Su cabecera abre pantallas relacionadas, entre ellas Cellpose Workbench, Model Compare, Model Zoo y Curate. Su lienzo tiene once herramientas: Brush, Erase, Borrar objeto, Varita, Dibujar, Cuadro, Editar etiqueta, Dividir / Combinar, Zoom, Volver a recortar y Regla. Varita añade una región de forma predeterminada; mantenga Ctrl pulsada al hacer clic para quitarla. La :doc:`referencia de Make Masks <make_masks>` describe estas herramientas, Niveles, los ajustes de detección, el emparejamiento de máscaras primarias y secundarias, el guardado y la medición. Los volúmenes (pilas TIFF, OME-TIFF y MRC) se abren en la misma vista con un deslizador de cortes y una lista View con Predeterminado, Ortogonal y True 3D; las micrografías electrónicas (``.dm3``, ``.dm4``, ``.mrc``) tienen un preajuste de contraste. Consulte :ref:`volúmenes 3D <mm-volumes>` y :ref:`micrografías electrónicas <mm-tem>`."
+msgid "Make Masks edits integer label masks by hand. Its masthead opens related screens, including Cellpose Workbench, Model Compare, Model Zoo and Curate. Its canvas has eleven tools: Brush, Erase, Erase object, Wand, Draw, Box, Edit Label, Divide / Merge, Zoom, Recrop and Ruler; a twelfth, Pick, is shown while mask layers are loaded. Wand adds a region by default; hold Ctrl while clicking to remove it. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement. Volumes (TIFF stacks, OME-TIFF and MRC) open in the same view with a slice slider and a View list of Default, Orthogonal and True 3D; electron micrographs (``.dm3``, ``.dm4``, ``.mrc``) have a contrast preset. See :ref:`3D volumes <mm-volumes>` and :ref:`electron micrographs <mm-tem>`."
+msgstr "Make Masks edita a mano máscaras de etiquetas con valores enteros. Su cabecera abre pantallas relacionadas, entre ellas Cellpose Workbench, Model Compare, Model Zoo y Curate. Su lienzo tiene once herramientas: Brush, Erase, Borrar objeto, Varita, Dibujar, Cuadro, Editar etiqueta, Dividir / Combinar, Zoom, Volver a recortar y Regla; una duodécima, Pick, se muestra mientras hay capas de máscara cargadas. Varita añade una región de forma predeterminada; mantenga Ctrl pulsada al hacer clic para quitarla. La :doc:`referencia de Make Masks <make_masks>` describe estas herramientas, Niveles, los ajustes de detección, el emparejamiento de máscaras primarias y secundarias, el guardado y la medición. Los volúmenes (pilas TIFF, OME-TIFF y MRC) se abren en la misma vista con un deslizador de cortes y una lista View con Predeterminado, Ortogonal y True 3D; las micrografías electrónicas (``.dm3``, ``.dm4``, ``.mrc``) tienen un preajuste de contraste. Consulte :ref:`volúmenes 3D <mm-volumes>` y :ref:`micrografías electrónicas <mm-tem>`."
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "**Box** draws independent class-labelled rectangles for YOLO annotation. Move or resize a box, undo or redo edits, and use **Save boxes** to preserve the project or **Export YOLO…** to write normalized labels and ordered class metadata. Source images and segmentation masks remain unchanged."
-msgstr "**Cuadro** dibuja rectángulos independientes con etiquetas de clase para la anotación YOLO. Mueve o cambia el tamaño de un recuadro, deshaz o rehace ediciones y usa **Guardar cuadros** para conservar el proyecto o **Export YOLO…** para escribir etiquetas normalizadas y metadatos de clase ordenados. Las imágenes de origen y las máscaras de segmentación permanecen intactas."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Box** draws independent class-labelled rectangles for YOLO annotation. Move or resize a box, undo or redo edits, and use **Save boxes** to preserve the project or **Export YOLO labels** to write normalized labels and ordered class metadata. Source images and segmentation masks remain unchanged."
+msgstr "**Cuadro** dibuja rectángulos independientes con etiquetas de clase para la anotación YOLO. Mueva o cambie el tamaño de un cuadro, deshaga o rehaga ediciones y use **Guardar cuadros** para conservar el proyecto o **Exportar etiquetas YOLO** para escribir etiquetas normalizadas y metadatos de clase ordenados. Las imágenes de origen y las máscaras de segmentación permanecen intactas."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Edit Label** asks for a new whole-number ID for the clicked object and gives that ID to every pixel that carries the object's current ID. Entering ``0`` removes the object. An ID that already belongs to another object is refused before any pixel changes. Each change is one undo step."
@@ -571,8 +593,8 @@ msgid "Before a module starts its workers, spaCR estimates how much memory each 
 msgstr "Antes de que un módulo inicie sus procesos de trabajo, spaCR estima cuánta memoria necesita cada proceso para una entrada, como un campo, una máscara, un lote de recortes o una tabla. Si el ``n_jobs`` que ha establecido dejara libre menos del 12,5 % de la RAM del equipo, una ventana emergente muestra la estimación, la memoria libre y el número de procesos que caben. Elija **Usar N procesos de trabajo (recomendado)** para ejecutar con ese número, o mantenga el suyo; Medición pausará entonces los nuevos campos siempre que la memoria libre baje de la reserva. **Liberar RAM cerrando aplicaciones…** enumera sus propios programas más grandes. Al principio no hay nada marcado, y solo se pide cerrar los programas que marque, tras su confirmación; normalmente pueden guardar antes, pero el trabajo no guardado en ellos aún puede perderse."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Runs started without the GUI lower ``n_jobs`` to the number that keeps the reserve free and print a warning. Turn ``ram_guard`` off in **Advanced** to keep your ``n_jobs`` unchanged; Measure still waits while free memory is below the reserve."
-msgstr "Las ejecuciones iniciadas sin la interfaz gráfica reducen ``n_jobs`` al número que mantiene libre la reserva y muestran una advertencia. Desactive ``ram_guard`` en **Avanzado** para mantener su ``n_jobs`` sin cambios; Medición sigue esperando mientras la memoria libre esté por debajo de la reserva."
+msgid "Runs started without the GUI lower ``n_jobs`` to the number that keeps the reserve free and print a warning. Turn ``ram_guard`` off in the module's **Runtime & Reliability** settings (**Quality Control** on Mask) to keep your ``n_jobs`` unchanged; Measure still waits while free memory is below the reserve."
+msgstr "Las ejecuciones iniciadas sin la interfaz gráfica reducen ``n_jobs`` al número que mantiene libre la reserva y muestran una advertencia. Desactive ``ram_guard`` en los ajustes **Ejecución y fiabilidad** del módulo (**Control de calidad** en Máscaras) para mantener su ``n_jobs`` sin cambios; Medición sigue esperando mientras la memoria libre esté por debajo de la reserva."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Worker startup and final retries"
@@ -589,8 +611,9 @@ msgstr "Cuando una tarea agota sus intentos normales por una sobrecarga de recur
 msgid "Maturity labels"
 msgstr "Etiquetas de madurez"
 
-msgid "The API uses these labels consistently:"
-msgstr "La API usa estas etiquetas de forma coherente:"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The API documentation marks entry points with these labels:"
+msgstr "La documentación de la API marca los puntos de entrada con estas etiquetas:"
 
 msgid "**Stable**"
 msgstr "**Estable**"

@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 10:47-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -46,14 +46,13 @@ msgstr "一个用于量化和可视化高通量显微筛选中表型变化的 Py
 msgid "It is built for cell biologists running pooled or arrayed CRISPR screens who need per-cell measurements from plate images. The GUI route needs no programming; the same processing steps are available through the Python API for scripted and reproducible workflows."
 msgstr "它专为开展混合或阵列 CRISPR 筛选、需要从孔板图像中获得单细胞测量结果的细胞生物学家而构建。图形界面路线无需编程；同样的处理步骤也可通过 Python API 使用，以实现脚本化和可重复的工作流程。"
 
-# AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The GUI groups its applications into four categories: *Core* for the segment-measure-classify pipeline; *Data* for importing images and tables, feature embeddings, run comparison, experiment and power design, dose–response analysis and quality control; *Tools* for operations on an existing project — hand mask correction, stitching, image UMAP, gating and plotting; and *Organism* for the Toxoplasma organism guide, which lists its available assays; planned analyses are marked Coming soon. The bands under \"Applications and workflow\" below are those categories, in that order, with the tiles each one holds."
-msgstr "图形界面将其应用分为四个类别：*核心* 用于分割-测量-分类流程；*数据* 用于导入图像和表格、特征嵌入、运行比较、实验与统计功效设计、剂量–反应分析和质量控制；*工具* 用于对现有项目进行操作——手动掩膜校正、拼接、图像 UMAP、门控和绘图；*生物体* 用于弓形虫生物体指南，其中列出了可用的实验分析；计划中的分析标记为即将推出。下方“应用与工作流程”下的各个区块即这些类别，按此顺序排列，并包含各自的磁贴。"
+msgid "The GUI groups its applications into four categories: *Core* for Mask, Measure, Annotate, Classify, barcode mapping and regression; *Data* for importing images and tables, feature embeddings, run comparison, experiment and power design, dose–response analysis and quality control; *Tools* for operations on an existing project — hand mask correction, stitching, image UMAP, gating and plotting; and *Organism* for the Toxoplasma organism guide, which lists its available assays; planned analyses are marked Coming soon. The bands under \"Applications and workflow\" below are those categories, in that order, with the tiles each one holds."
+msgstr "图形界面将其应用分为四个类别：*核心* 用于掩膜、测量、标注、分类、条形码映射和回归；*数据* 用于导入图像和表格、特征嵌入、运行比较、实验与统计功效设计、剂量–反应分析和质量控制；*工具* 用于对现有项目进行操作——手动掩膜校正、拼接、图像 UMAP、门控和绘图；*生物体* 用于弓形虫生物体指南，其中列出了可用的实验分析；计划中的分析标记为即将推出。下方“应用与工作流程”下的各个区块即这些类别，按此顺序排列，并包含各自的磁贴。"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Not every screen is a tile. Screens used within another step open from that step's masthead — **Timelapse** from Mask, **Illumination** and the **Motility Assay** from Measure, **Classifier Evaluation** and **Explain CV Model** from Classify, **Annotator Agreement** from Annotate, and the **Cellpose Workbench**, **Model Compare**, **Model Zoo** and **Curate** from Make Masks, among others. Home shows only the tiles enabled in the running build."
-msgstr "并非每个屏幕都有磁贴。在另一个步骤中使用的屏幕会从该步骤的标题栏打开——例如从掩膜打开 **延时成像**，从测量打开 **照明** 和 **运动性分析**，从分类打开 **分类器评估** 和 **解释 CV 模型**，从标注打开 **标注者一致性**，以及从创建掩膜打开 **Cellpose 工作台**、**模型比较**、**模型库** 和 **校正** 等。主页只显示当前运行版本中已启用的磁贴。"
+msgid "Not every screen is a tile. Screens used within another step open from that step's masthead — **Illumination** and the **Motility Assay** from Measure, **Classifier Evaluation** and **Explain CV Model** from Classify, **Annotator Agreement** from Annotate, and the **Cellpose Workbench**, **Model Compare**, **Model Zoo** and **Curate** from Make Masks, among others. **Timelapse** settings appear on the Mask form when its Time switch is on. Home shows only the tiles enabled in the running build."
+msgstr "并非每个屏幕都有磁贴。在另一个步骤中使用的屏幕会从该步骤的标题栏打开——例如从测量打开 **照明** 和 **运动性分析**，从分类打开 **分类器评估** 和 **解释 CV 模型**，从标注打开 **标注者一致性**，以及从创建掩膜打开 **Cellpose 工作台**、**模型比较**、**模型库** 和 **校正** 等。打开掩膜表单的时间开关后，**延时成像** 设置会出现在该表单上。主页只显示当前运行版本中已启用的磁贴。"
 
 msgid "🚀 Get started"
 msgstr "🚀 快速开始"
@@ -76,8 +75,9 @@ msgstr "受支持的工作流程入口点和完整的模块参考。"
 msgid "🎬 Video tutorials"
 msgstr "🎬 视频教程"
 
-msgid "Narrated walkthroughs of each pipeline module."
-msgstr "每个流程模块的讲解视频，配有旁白。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Narrated walkthroughs of pipeline modules."
+msgstr "流程模块的讲解视频，配有旁白。"
 
 msgid "🐛 Report an issue"
 msgstr "🐛 报告问题"

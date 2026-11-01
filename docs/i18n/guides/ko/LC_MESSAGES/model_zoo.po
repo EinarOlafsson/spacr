@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 20:26-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -246,15 +246,15 @@ msgid "Stock was not evaluated in this run; see the named incumbent comparison o
 msgstr "이 실행에서는 기본 모델을 평가하지 않았습니다. 모델 카드에서 이름이 지정된 기존 모델과의 비교를 참조합니다"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Each model is hosted in a repository under its author's own Hugging Face account; contributing a model does not require write access to another account's repository. ``spacr.model_zoo``'s ``publish_model`` performs the upload and prints the catalogue row to add."
-msgstr "각 모델은 작성자 자신의 Hugging Face 계정 아래 저장소에 호스팅됩니다. 모델을 기여하는 데 다른 계정 저장소에 대한 쓰기 권한은 필요하지 않습니다. ``spacr.model_zoo`` 의 ``publish_model`` 이 업로드를 수행하고 추가할 카탈로그 행을 출력합니다."
+msgid "``spacr.model_zoo``'s ``publish_model`` uploads a checkpoint to a Hugging Face repository under the publisher's own account (``repo_id``), so contributing a model does not require write access to another account's repository. It returns the catalogue row, with the uploaded file's SHA-256, to add to the shared catalogue."
+msgstr "``spacr.model_zoo`` 의 ``publish_model`` 은 게시자 자신의 계정(``repo_id``) 아래에 있는 Hugging Face 저장소로 체크포인트를 업로드하므로, 모델을 기여하는 데 다른 계정 저장소에 대한 쓰기 권한이 필요하지 않습니다. 이 함수는 공유 카탈로그에 추가할, 업로드한 파일의 SHA-256이 포함된 카탈로그 행을 반환합니다."
 
 msgid "Choose a model from a form"
 msgstr "양식에서 모델 선택"
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "A model setting in Mask generation, Make Masks and Plaque Assay has a **Model zoo…** button. Its list is grouped by origin under five standard headings — the stock Cellpose-SAM weights, spaCR's own models, unvetted spaCR community uploads, Cellpose models published on bioimage.io, and the Cellpose 3 backend's cyto, cyto2, cyto3 and nuclei models. Click a heading to show or fold its rows. **Download** fetches the selected model, or **Install** its backend; **Use this model** then writes the model into the setting. A model that needs another backend, such as Cellpose 3 or Cellpose-DINO, says so on its row and offers to install that backend into its own environment under ``~/.spacr/backends``; spaCR's own environment is not changed. A row spaCR cannot run says so instead of being offered."
-msgstr "마스크 생성, 마스크 만들기, 플라크 분석의 모델 설정에는 **모델 라이브러리…** 버튼이 있습니다. 목록은 출처에 따라 다섯 기본 제목 아래 묶여 있습니다. 기본 Cellpose-SAM 가중치, spaCR 자체 모델, 검토되지 않은 spaCR 커뮤니티 업로드, bioimage.io에 게시된 Cellpose 모델, Cellpose 3 백엔드의 cyto, cyto2, cyto3, nuclei 모델입니다. 제목을 클릭하면 해당 행을 펼치거나 접습니다. **다운로드** 는 선택한 모델을 가져오고 **설치** 는 그 백엔드를 설치하며, 이어서 **Use this model** 이 모델을 설정에 기록합니다. Cellpose 3나 Cellpose-DINO처럼 다른 백엔드가 필요한 모델은 행에 그 사실이 표시되며, ``~/.spacr/backends`` 아래의 자체 환경에 해당 백엔드를 설치하도록 제안합니다. spaCR 자체 환경은 바뀌지 않습니다. spaCR이 실행할 수 없는 행은 제공되지 않고 그 사실이 표시됩니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "A model setting in Mask generation, Make Masks and Plaque Assay has a **Model zoo…** button. Its list is grouped by origin under five standard headings — the stock Cellpose-SAM weights, spaCR's own models, unvetted spaCR community uploads, Cellpose models published on bioimage.io, and the Cellpose 3 backend's cyto, cyto2, cyto3 and nuclei models. With **Show alpha features** on, a sixth **Third-party** heading lists published models that spaCR did not train, such as MitoNet. Click a heading to show or fold its rows. The stock Cellpose-SAM and spaCR headings are shown by default. **Download** fetches the selected model, or **Install** its backend; **Use this model** then writes the model into the setting. A model that needs another backend, such as Cellpose 3 or Cellpose-DINO, says so on its row and offers to install that backend into its own environment under ``~/.spacr/backends``; spaCR's own environment is not changed. A row spaCR cannot run says so instead of being offered."
+msgstr "마스크 생성, 마스크 만들기, 플라크 분석의 모델 설정에는 **모델 라이브러리…** 버튼이 있습니다. 목록은 출처에 따라 다섯 기본 제목 아래 묶여 있습니다. 기본 Cellpose-SAM 가중치, spaCR 자체 모델, 검토되지 않은 spaCR 커뮤니티 업로드, bioimage.io에 게시된 Cellpose 모델, Cellpose 3 백엔드의 cyto, cyto2, cyto3, nuclei 모델입니다. **알파 기능 표시** 를 켜면 여섯 번째 제목인 **서드파티** 아래에 MitoNet처럼 spaCR이 학습하지 않은 게시 모델이 나열됩니다. 제목을 클릭하면 해당 행을 펼치거나 접습니다. 기본 Cellpose-SAM 및 spaCR 제목은 기본적으로 표시됩니다. **다운로드** 는 선택한 모델을 가져오고 **설치** 는 그 백엔드를 설치하며, 이어서 **Use this model** 이 모델을 설정에 기록합니다. Cellpose 3나 Cellpose-DINO처럼 다른 백엔드가 필요한 모델은 행에 그 사실이 표시되며, ``~/.spacr/backends`` 아래의 자체 환경에 해당 백엔드를 설치하도록 제안합니다. spaCR 자체 환경은 바뀌지 않습니다. spaCR이 실행할 수 없는 행은 제공되지 않고 그 사실이 표시됩니다."
 
 msgid "Opened from Mask generation, the popup also has **Measure diameters…**: it estimates the cell, nucleus and pathogen diameters from a few fields of your own images and can write them into the settings. See :class:`spacr.qt.prerun.DiameterDialog`."
 msgstr "마스크 생성에서 열면 팝업에 **직경 측정…** 도 있습니다. 사용자 이미지의 몇 개 시야로 세포, 핵, 병원체 직경을 추정하고 설정에 기록할 수 있습니다. :class:`spacr.qt.prerun.DiameterDialog` 를 참조합니다."

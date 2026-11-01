@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 19:52-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -49,15 +49,15 @@ msgid "Windows 10/11"
 msgstr "Windows 10/11"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Run ``SpaCR-<version>-Windows-Online-Setup.exe``. The default per-user location is ``%LOCALAPPDATA%\\spaCR`` and does not require administrator access. Automatic hardware acceleration is selected by default. It installs a CUDA-capable PyTorch build on compatible NVIDIA systems. On other systems it installs the PyTorch build that ``uv`` selects for the detected hardware, which is the CPU build when no supported GPU is detected. Clear the component only when you require the smaller CPU-only installation. The unticked component **Install without wgpu (use OpenGL/CPU for 3D)** leaves out the wgpu 3D renderer; see :ref:`wgpu-3d-rendering`. From PowerShell, the same choice is the ``-WithoutWgpu`` switch of ``install_spacr_windows.ps1``."
-msgstr "``SpaCR-<version>-Windows-Online-Setup.exe`` चलाएँ। डिफ़ॉल्ट प्रति-उपयोगकर्ता स्थान ``%LOCALAPPDATA%\\spaCR`` है और इसके लिए व्यवस्थापक पहुँच आवश्यक नहीं है। स्वचालित हार्डवेयर त्वरण डिफ़ॉल्ट रूप से चुना जाता है। यह संगत NVIDIA सिस्टम पर CUDA-सक्षम PyTorch बिल्ड स्थापित करता है। अन्य सिस्टम पर यह वह PyTorch बिल्ड स्थापित करता है जिसे ``uv`` पहचाने गए हार्डवेयर के लिए चुनता है; कोई समर्थित GPU न मिलने पर यह CPU बिल्ड होता है। घटक को केवल तब हटाएँ जब आपको छोटी, केवल-CPU स्थापना चाहिए। बिना चिह्नित घटक **Install without wgpu (use OpenGL/CPU for 3D)** wgpu 3D रेंडरर को छोड़ देता है; :ref:`wgpu-3d-rendering` देखें। PowerShell में यही विकल्प ``install_spacr_windows.ps1`` का ``-WithoutWgpu`` स्विच है।"
+msgid "Run ``spaCR-<version>-Windows-Online-Setup.exe``. The default per-user location is ``%LOCALAPPDATA%\\spaCR`` and does not require administrator access. The component **Automatic hardware acceleration (recommended)** is selected by default. It installs a CUDA-capable PyTorch build on compatible NVIDIA systems. On other systems it installs the PyTorch build that ``uv`` selects for the detected hardware, which is the CPU build when no supported GPU is detected. Clearing the component installs the smaller CPU-only build. The unticked component **Install without wgpu (use OpenGL/CPU for 3D)** leaves out the wgpu 3D renderer; see :ref:`wgpu-3d-rendering`. From PowerShell, the same choice is the ``-WithoutWgpu`` switch of ``install_spacr_windows.ps1``."
+msgstr "``spaCR-<version>-Windows-Online-Setup.exe`` चलाएँ। डिफ़ॉल्ट प्रति-उपयोगकर्ता स्थान ``%LOCALAPPDATA%\\spaCR`` है और इसके लिए व्यवस्थापक पहुँच आवश्यक नहीं है। घटक **Automatic hardware acceleration (recommended)** डिफ़ॉल्ट रूप से चुना रहता है। यह संगत NVIDIA सिस्टम पर CUDA-सक्षम PyTorch बिल्ड स्थापित करता है। अन्य सिस्टम पर यह वह PyTorch बिल्ड स्थापित करता है जिसे ``uv`` पहचाने गए हार्डवेयर के लिए चुनता है; कोई समर्थित GPU न मिलने पर यह CPU बिल्ड होता है। घटक का चयन हटाने पर छोटा, केवल-CPU बिल्ड स्थापित होता है। बिना चिह्नित घटक **Install without wgpu (use OpenGL/CPU for 3D)** wgpu 3D रेंडरर को छोड़ देता है; :ref:`wgpu-3d-rendering` देखें। PowerShell में यही विकल्प ``install_spacr_windows.ps1`` का ``-WithoutWgpu`` स्विच है।"
 
 msgid "macOS 11 or later"
 msgstr "macOS 11 या बाद का संस्करण"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Open ``SpaCR-<version>-macOS-Universal-Online.pkg``. The application is placed in ``/Applications/spaCR.app``. The spaCR setup window creates its private runtime under ``~/Library/Application Support/spaCR`` and displays progress, dependency choices and any required consent. Complete those choices in the window; setup does not require answers in Terminal. When setup finishes, spaCR opens its startup window and then the main application. The current beta is not notarized. If Gatekeeper blocks it, open **System Settings → Privacy & Security** and choose **Open Anyway** for spaCR. The first-launch window has an unchecked **Install without wgpu (use OpenGL/CPU for 3D)** box; see :ref:`wgpu-3d-rendering`."
-msgstr "``SpaCR-<version>-macOS-Universal-Online.pkg`` खोलें। एप्लिकेशन ``/Applications/spaCR.app`` में रखा जाता है। spaCR सेटअप विंडो ``~/Library/Application Support/spaCR`` के अंतर्गत निजी रनटाइम बनाती है और प्रगति, निर्भरता विकल्प और कोई भी आवश्यक सहमति दिखाती है। ये विकल्प विंडो में ही पूरे करें; सेटअप के लिए Terminal में उत्तर देने की आवश्यकता नहीं है। सेटअप पूरा होने पर spaCR अपनी स्टार्टअप विंडो और फिर मुख्य एप्लिकेशन खोलता है। वर्तमान बीटा नोटराइज़ नहीं है। यदि Gatekeeper इसे रोकता है, तो **System Settings → Privacy & Security** खोलें और spaCR के लिए **Open Anyway** चुनें। पहली बार लॉन्च होने वाली विंडो में बिना चिह्नित **Install without wgpu (use OpenGL/CPU for 3D)** बॉक्स है; :ref:`wgpu-3d-rendering` देखें।"
+msgid "Open ``spaCR-<version>-macOS-Universal-Online.pkg``. The application is placed in ``/Applications/spaCR.app``. The spaCR setup window creates its private runtime under ``~/Library/Application Support/spaCR`` and displays progress, dependency choices and any required consent. Complete those choices in the window; setup does not require answers in Terminal. When setup finishes, spaCR opens its startup window and then the main application. A package built without Apple signing credentials is not notarized. If Gatekeeper blocks it, open **System Settings → Privacy & Security** and choose **Open Anyway** for spaCR. The first-launch window has an unchecked **Install without wgpu (use OpenGL/CPU for 3D)** box; see :ref:`wgpu-3d-rendering`."
+msgstr "``spaCR-<version>-macOS-Universal-Online.pkg`` खोलें। एप्लिकेशन ``/Applications/spaCR.app`` में रखा जाता है। spaCR सेटअप विंडो ``~/Library/Application Support/spaCR`` के अंतर्गत निजी रनटाइम बनाती है और प्रगति, निर्भरता विकल्प और कोई भी आवश्यक सहमति दिखाती है। ये विकल्प विंडो में ही पूरे करें; सेटअप के लिए Terminal में उत्तर देने की आवश्यकता नहीं है। सेटअप पूरा होने पर spaCR अपनी स्टार्टअप विंडो और फिर मुख्य एप्लिकेशन खोलता है। Apple साइनिंग क्रेडेंशियल के बिना बनाया गया पैकेज नोटराइज़ नहीं होता। यदि Gatekeeper इसे रोकता है, तो **System Settings → Privacy & Security** खोलें और spaCR के लिए **Open Anyway** चुनें। पहली बार लॉन्च होने वाली विंडो में बिना चिह्नित **Install without wgpu (use OpenGL/CPU for 3D)** बॉक्स है; :ref:`wgpu-3d-rendering` देखें।"
 
 msgid "Linux x86-64"
 msgstr "Linux x86-64"
@@ -72,8 +72,8 @@ msgid "Automatic backend selection is the Linux default. It installs CUDA suppor
 msgstr "Linux पर स्वचालित बैकएंड चयन डिफ़ॉल्ट है। संगत NVIDIA हार्डवेयर उपलब्ध होने पर यह CUDA समर्थन स्थापित करता है। इसके बजाय छोटा केवल-CPU बिल्ड अनिवार्य करने के लिए इंस्टॉलर को ``--torch-backend cpu`` के साथ चलाएँ।"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "To leave out the wgpu 3D renderer, run the installer with ``--without-wgpu``, or tick **Install without wgpu (use OpenGL/CPU for 3D)** in the installer window; the box is unchecked by default. On a Linux system whose glibc is older than 2.28 the installer leaves wgpu out by itself and prints one line saying so, because wgpu publishes Linux wheels only for glibc 2.28 and newer. ``--dry-run`` shows the decision in its plan, as the ``wgpu 3D rendering`` line. See :ref:`wgpu-3d-rendering`."
-msgstr "wgpu 3D रेंडरर को छोड़ने के लिए इंस्टॉलर को ``--without-wgpu`` के साथ चलाएँ, या इंस्टॉलर विंडो में **Install without wgpu (use OpenGL/CPU for 3D)** चिह्नित करें; यह बॉक्स डिफ़ॉल्ट रूप से अचिह्नित रहता है। जिस Linux सिस्टम का glibc 2.28 से पुराना है, उस पर इंस्टॉलर wgpu को स्वयं छोड़ देता है और इसकी सूचना देने वाली एक पंक्ति छापता है, क्योंकि wgpu केवल glibc 2.28 और नए के लिए Linux wheel प्रकाशित करता है। ``--dry-run`` अपनी योजना में यह निर्णय ``wgpu 3D rendering`` पंक्ति के रूप में दिखाता है। :ref:`wgpu-3d-rendering` देखें।"
+msgid "To leave out the wgpu 3D renderer, run the installer with ``--without-wgpu``, or tick **Install without wgpu (use OpenGL/CPU for 3D)** in the installer window; the box is unchecked by default. The window (which requires ``zenity``) opens with ``--gui``, or when the installer is started from a desktop session without a terminal. On a Linux system whose glibc is older than 2.28 the installer leaves wgpu out by itself and prints one line saying so, because wgpu publishes Linux wheels only for glibc 2.28 and newer. ``--dry-run`` shows the decision in its plan, as the ``wgpu 3D rendering`` line. See :ref:`wgpu-3d-rendering`."
+msgstr "wgpu 3D रेंडरर को छोड़ने के लिए इंस्टॉलर को ``--without-wgpu`` के साथ चलाएँ, या इंस्टॉलर विंडो में **Install without wgpu (use OpenGL/CPU for 3D)** चिह्नित करें; यह बॉक्स डिफ़ॉल्ट रूप से अचिह्नित रहता है। विंडो (जिसके लिए ``zenity`` आवश्यक है) ``--gui`` के साथ खुलती है, या तब जब इंस्टॉलर टर्मिनल के बिना किसी डेस्कटॉप सत्र से शुरू किया जाता है। जिस Linux सिस्टम का glibc 2.28 से पुराना है, उस पर इंस्टॉलर wgpu को स्वयं छोड़ देता है और इसकी सूचना देने वाली एक पंक्ति छापता है, क्योंकि wgpu केवल glibc 2.28 और नए के लिए Linux wheel प्रकाशित करता है। ``--dry-run`` अपनी योजना में यह निर्णय ``wgpu 3D rendering`` पंक्ति के रूप में दिखाता है। :ref:`wgpu-3d-rendering` देखें।"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Linux ARM64 build requirements"
@@ -149,8 +149,9 @@ msgstr "**प्राथमिकताएं → मॉड्यूल → अ
 msgid "Proxies and corporate certificates"
 msgstr "प्रॉक्सी और कॉर्पोरेट प्रमाणपत्र"
 
-msgid "Every download spaCR makes (model weights, updates, plug-ins, pip, uv, conda and the segmentation-backend installers) honours ``HTTPS_PROXY`` and ``REQUESTS_CA_BUNDLE`` (or ``SSL_CERT_FILE``). To set them inside spaCR instead, fill in **Preferences → Modules → Proxy** (for example ``http://proxy.example.org:3128``) and **Certificate bundle** (a PEM file from your IT department). These values override the environment, are kept in ``~/.spacr/network.json`` so command-line runs use them too, and are passed on as ``HTTPS_PROXY``, ``HTTP_PROXY``, ``REQUESTS_CA_BUNDLE``, ``SSL_CERT_FILE``, ``CURL_CA_BUNDLE``, ``PIP_CERT`` and ``GIT_SSL_CAINFO``. ``spacr-doctor`` has a *proxy and certificates* row. It checks that the certificate bundle exists and can be read, and that PyPI answers through the configured proxy. A password in the proxy address is masked in its output."
-msgstr "spaCR का हर डाउनलोड (मॉडल वेट, अपडेट, प्लगइन, pip, uv, conda और विभाजन-बैकएंड इंस्टॉलर) ``HTTPS_PROXY`` और ``REQUESTS_CA_BUNDLE`` (या ``SSL_CERT_FILE``) का पालन करता है। इन्हें spaCR के भीतर सेट करने के लिए **प्राथमिकताएं → मॉड्यूल → प्रॉक्सी** (उदाहरण के लिए ``http://proxy.example.org:3128``) और **प्रमाणपत्र बंडल** (आपके IT विभाग की PEM फ़ाइल) भरें। ये मान वातावरण को ओवरराइड करते हैं, ``~/.spacr/network.json`` में रखे जाते हैं ताकि कमांड-लाइन रन भी इनका उपयोग करें, और ``HTTPS_PROXY``, ``HTTP_PROXY``, ``REQUESTS_CA_BUNDLE``, ``SSL_CERT_FILE``, ``CURL_CA_BUNDLE``, ``PIP_CERT`` और ``GIT_SSL_CAINFO`` के रूप में आगे भेजे जाते हैं। ``spacr-doctor`` में *प्रॉक्सी और प्रमाणपत्र* पंक्ति है। यह जाँचती है कि प्रमाणपत्र बंडल मौजूद और पठनीय है, और PyPI कॉन्फ़िगर किए गए प्रॉक्सी से उत्तर देता है। प्रॉक्सी पते में पासवर्ड उसके आउटपुट में छिपा दिया जाता है।"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Downloads made by spaCR and by the installers it starts (model weights, updates, plug-ins, pip, uv, conda and the segmentation-backend installers) use ``HTTPS_PROXY`` (or ``HTTP_PROXY``) and ``REQUESTS_CA_BUNDLE`` (or ``SSL_CERT_FILE`` or ``CURL_CA_BUNDLE``) from the environment. To set them inside spaCR instead, fill in **Preferences → Modules → Proxy** (for example ``http://proxy.example.org:3128``) and **Certificate bundle** (a PEM file from your IT department). These values override the environment, are kept in ``~/.spacr/network.json`` so command-line runs use them too, and are exported as ``HTTPS_PROXY`` and ``HTTP_PROXY`` (both spellings) and as ``REQUESTS_CA_BUNDLE``, ``SSL_CERT_FILE``, ``CURL_CA_BUNDLE``, ``PIP_CERT``, ``GIT_SSL_CAINFO`` and ``NODE_EXTRA_CA_CERTS``. When a proxy is set and ``NO_PROXY`` is not, ``NO_PROXY`` is set to this machine's own addresses. A certificate bundle path that is not a file is not exported. ``spacr-doctor`` has a *proxy and certificates* row. It checks that the certificate bundle exists and can be read, and that PyPI answers through the configured proxy. A password in the proxy address is masked in its output."
+msgstr "spaCR और उसके द्वारा शुरू किए गए इंस्टॉलरों के डाउनलोड (मॉडल वेट, अपडेट, प्लगइन, pip, uv, conda और विभाजन-बैकएंड इंस्टॉलर) वातावरण से ``HTTPS_PROXY`` (या ``HTTP_PROXY``) और ``REQUESTS_CA_BUNDLE`` (या ``SSL_CERT_FILE`` या ``CURL_CA_BUNDLE``) का उपयोग करते हैं। इसके बजाय इन्हें spaCR के भीतर सेट करने के लिए **प्राथमिकताएं → मॉड्यूल → प्रॉक्सी** (उदाहरण के लिए ``http://proxy.example.org:3128``) और **प्रमाणपत्र बंडल** (आपके IT विभाग की PEM फ़ाइल) भरें। ये मान वातावरण को ओवरराइड करते हैं, ``~/.spacr/network.json`` में रखे जाते हैं ताकि कमांड-लाइन रन भी इनका उपयोग करें, और ``HTTPS_PROXY`` और ``HTTP_PROXY`` (दोनों वर्तनियाँ) तथा ``REQUESTS_CA_BUNDLE``, ``SSL_CERT_FILE``, ``CURL_CA_BUNDLE``, ``PIP_CERT``, ``GIT_SSL_CAINFO`` और ``NODE_EXTRA_CA_CERTS`` के रूप में निर्यात किए जाते हैं। जब प्रॉक्सी सेट हो और ``NO_PROXY`` सेट न हो, तो ``NO_PROXY`` इस मशीन के अपने पतों पर सेट किया जाता है। जो प्रमाणपत्र बंडल पथ फ़ाइल नहीं है, वह निर्यात नहीं किया जाता। ``spacr-doctor`` में *प्रॉक्सी और प्रमाणपत्र* पंक्ति है। यह जाँचती है कि प्रमाणपत्र बंडल मौजूद और पठनीय है, और PyPI कॉन्फ़िगर किए गए प्रॉक्सी से उत्तर देता है। प्रॉक्सी पते में पासवर्ड उसके आउटपुट में छिपा दिया जाता है।"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "macOS online installation: update and reopen"
@@ -228,12 +229,12 @@ msgid "Uninstalling"
 msgstr "हटाना"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Open **Preferences → Performance → Uninstall**. In the popup, choose either **Current version** or **All detected spaCR versions**. The preview identifies the installation paths and versions. The all-versions choice also finds spaCR in detected Python and Conda environments; it removes the spaCR package from those environments and keeps their other packages and files. Editable source checkouts are shown as retained."
-msgstr "**प्राथमिकताएं → प्रदर्शन → अनइंस्टॉल करें** खोलें। पॉपअप में **वर्तमान संस्करण** या **spaCR के सभी मिले हुए संस्करण** में से एक चुनें। पूर्वावलोकन स्थापना पथ और संस्करण बताता है। सभी-संस्करण विकल्प पहचाने गए Python और Conda परिवेशों में भी spaCR खोजता है; यह उन परिवेशों से spaCR पैकेज हटाता है और उनके अन्य पैकेज और फ़ाइलें बनाए रखता है। संपादन योग्य स्रोत चेकआउट बनाए रखे गए के रूप में दिखाए जाते हैं।"
+msgid "Open **Preferences → Performance → Uninstall…**. In the popup, choose **Current version**, **All detected spaCR versions**, **Older versions only** or **Ticked installations**. The preview identifies the installation paths and versions. The all-versions choice also finds spaCR in detected Python and Conda environments; it removes the spaCR package from those environments and keeps their other packages and files. Editable source checkouts are shown as retained."
+msgstr "**प्राथमिकताएं → प्रदर्शन → अनइंस्टॉल करें…** खोलें। पॉपअप में **वर्तमान संस्करण**, **spaCR के सभी मिले हुए संस्करण**, **केवल पुराने संस्करण** या **चिह्नित इंस्टॉलेशन** चुनें। पूर्वावलोकन स्थापना पथ और संस्करण बताता है। सभी-संस्करण विकल्प पहचाने गए Python और Conda परिवेशों में भी spaCR खोजता है; यह उन परिवेशों से spaCR पैकेज हटाता है और उनके अन्य पैकेज और फ़ाइलें बनाए रखता है। संपादन योग्य स्रोत चेकआउट बनाए रखे गए के रूप में दिखाए जाते हैं।"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The popup separately selects **Caches**, **Models**, **Logs**, **Settings**, **History**, **Temporary files**, **Downloads** and **Other spaCR data**. Every cleanup category starts selected for uninstall. Clear any category to keep it, inspect the exact paths listed, and confirm the uninstall. Cancel leaves the application and files unchanged. spaCR closes safely before its running installation is removed."
-msgstr "पॉपअप अलग-अलग **कैश सूची**, **Models**, **लॉग**, **सेटिंग्स**, **इतिहास**, **अस्थायी फ़ाइलें**, **डाउनलोड** और **अन्य spaCR डेटा** चुनता है। अनइंस्टॉल के लिए हर सफ़ाई श्रेणी शुरू में चयनित रहती है। किसी श्रेणी को रखने के लिए उसका चयन हटाएँ, सूचीबद्ध सटीक पथों की जाँच करें, और अनइंस्टॉल की पुष्टि करें। रद्द करने पर एप्लिकेशन और फ़ाइलें अपरिवर्तित रहती हैं। चल रही स्थापना हटाए जाने से पहले spaCR सुरक्षित रूप से बंद होता है।"
+msgid "The popup separately selects **Caches**, **Models**, **Logs**, **Settings**, **History**, **Temporary files**, **Downloads** and **Other spaCR data**. Every cleanup category starts selected for uninstall. When the running spaCR stays installed (for example with **Older versions only**), the categories start cleared instead and its settings, models and history are kept. Clear any category to keep it, inspect the exact paths listed, and confirm the uninstall. Cancel leaves the application and files unchanged. spaCR closes safely before its running installation is removed."
+msgstr "पॉपअप अलग-अलग **कैश**, **मॉडल**, **लॉग**, **सेटिंग्स**, **इतिहास**, **अस्थायी फ़ाइलें**, **डाउनलोड** और **अन्य spaCR डेटा** चुनता है। अनइंस्टॉल के लिए हर सफ़ाई श्रेणी शुरू में चयनित रहती है। जब चल रहा spaCR स्थापित रहता है (उदाहरण के लिए **केवल पुराने संस्करण** के साथ), तो श्रेणियाँ इसके बजाय अचयनित से शुरू होती हैं और उसकी सेटिंग्स, मॉडल और इतिहास रखे जाते हैं। किसी श्रेणी को रखने के लिए उसका चयन हटाएँ, सूचीबद्ध सटीक पथों की जाँच करें, और अनइंस्टॉल की पुष्टि करें। रद्द करने पर एप्लिकेशन और फ़ाइलें अपरिवर्तित रहती हैं। चल रही स्थापना हटाए जाने से पहले spaCR सुरक्षित रूप से बंद होता है।"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Supported protected macOS applications, Windows frozen installations and Debian packages request graphical administrator authorization during preparation, while spaCR remains open. The helper must be installed, verified and advertise the required uninstall protocol. Declining authorization or cancelling the popup leaves the application and files intact. Removal waits for confirmed safe closure and actual process exit."
@@ -255,8 +256,9 @@ msgstr "अनइंस्टॉल सफ़ाई के डिफ़ॉल्
 msgid "Native and command-line alternatives"
 msgstr "मूल और कमांड-लाइन विकल्प"
 
-msgid "**Windows:** open **Settings → Apps → Installed apps → spaCR → Uninstall**, or run ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe``."
-msgstr "**Windows:** **सेटिंग्स → ऐप्स → इंस्टॉल किए गए ऐप्स → spaCR → अनइंस्टॉल करें** खोलें, या ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe`` चलाएँ।"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Windows:** open **Settings → Apps → Installed apps → spaCR → Uninstall** (Windows 11; **Apps & features** on Windows 10), or run ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe``."
+msgstr "**Windows:** **सेटिंग्स → ऐप्स → इंस्टॉल किए गए ऐप्स → spaCR → अनइंस्टॉल करें** खोलें (Windows 11; Windows 10 पर **ऐप्स और सुविधाएँ**), या ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe`` चलाएँ।"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**macOS:** run ``/Library/Application Support/spaCR/uninstall-spacr.sh`` in Terminal. This removes the application, command launcher and system installer support. Add ``--dry-run`` to preview the software paths without removing anything. The command launcher is removed only if it is spaCR's exact installed symlink; unrelated files and links are kept. Remove ``~/Library/Application Support/spaCR`` separately to delete the per-user private runtime."
@@ -355,8 +357,9 @@ msgstr "बंडल को ऑफ़लाइन मशीन पर कॉप�
 msgid "On Windows, in PowerShell inside the bundle folder:"
 msgstr "Windows पर, बंडल फ़ोल्डर के भीतर PowerShell में:"
 
-msgid "The installer checks every file against ``SHA256SUMS``, installs Python and the wheels with no package index, and copies the Cellpose weights without overwriting existing ones. ``--check-mask`` (``-CheckMask``) then runs Mask on a scratch copy of the bundled test data and passes when masks and merged stacks are written; on a CPU this can take an hour for two fields."
-msgstr "इंस्टॉलर हर फ़ाइल की ``SHA256SUMS`` से जाँच करता है, बिना पैकेज इंडेक्स के Python और wheel स्थापित करता है, और मौजूदा भारों को अधिलेखित किए बिना Cellpose भार कॉपी करता है। इसके बाद ``--check-mask`` (``-CheckMask``) साथ दिए गए परीक्षण डेटा की अस्थायी प्रति पर मास्क चलाता है और मास्क तथा संयुक्त स्टैक लिखे जाने पर उत्तीर्ण होता है; CPU पर दो फ़ील्ड में एक घंटा लग सकता है।"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The installer checks every file against ``SHA256SUMS``, installs Python and the wheels with no package index, and copies the Cellpose weights without overwriting existing ones. ``--check-mask`` (``-CheckMask``) then runs Mask on a scratch copy of the bundled test data and passes when masks and merged stacks are written. Its run time depends on the hardware and is long on a CPU."
+msgstr "इंस्टॉलर हर फ़ाइल की ``SHA256SUMS`` से जाँच करता है, बिना पैकेज इंडेक्स के Python और wheel स्थापित करता है, और मौजूदा भारों को अधिलेखित किए बिना Cellpose भार कॉपी करता है। इसके बाद ``--check-mask`` (``-CheckMask``) साथ दिए गए परीक्षण डेटा की अस्थायी प्रति पर मास्क चलाता है और मास्क तथा संयुक्त स्टैक लिखे जाने पर उत्तीर्ण होता है। इसका चलने का समय हार्डवेयर पर निर्भर करता है और CPU पर लंबा होता है।"
 
 msgid "What the bundle does not contain: the separate environments of optional segmentation backends such as Cellpose 3 or StarDist, and Model Zoo models other than the Cellpose weights you chose; those still need a network. On Linux the system Qt libraries are not bundled, so a minimal system without them runs spaCR headless only. ``SHA256SUMS`` detects damaged files, but the bundle is not signed, so transfer it through a channel you trust."
 msgstr "बंडल में क्या नहीं है: Cellpose 3 या StarDist जैसे वैकल्पिक विभाजन बैकएंड के अलग परिवेश, और आपके द्वारा चुने गए Cellpose भारों के अलावा मॉडल संग्रह के मॉडल; उनके लिए अब भी नेटवर्क चाहिए। Linux पर सिस्टम Qt लाइब्रेरी बंडल में शामिल नहीं हैं, इसलिए उनके बिना न्यूनतम सिस्टम spaCR को केवल हेडलेस चलाता है। ``SHA256SUMS`` क्षतिग्रस्त फ़ाइलों का पता लगाता है, लेकिन बंडल हस्ताक्षरित नहीं है, इसलिए इसे किसी भरोसेमंद माध्यम से स्थानांतरित करें।"
@@ -383,9 +386,9 @@ msgstr "आधिकारिक conda-forge पैकेज को सीधे
 msgid "Python 3.15 on Linux"
 msgstr "Linux पर Python 3.15"
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Use the nightly source in a new Linux Conda environment for Python 3.15. The current PyPI release excludes this interpreter and pip can fall back to an older spaCR release. Install the Linux build packages listed above before running this recipe; some native dependencies still build from source."
-msgstr "Python 3.15 के लिए नए Linux Conda वातावरण में nightly शाखा का स्रोत कोड इस्तेमाल करें। वर्तमान PyPI रिलीज़ इस इंटरप्रेटर को शामिल नहीं करती और pip spaCR की पुरानी रिलीज़ पर लौट सकता है। यह प्रक्रिया चलाने से पहले ऊपर दिए गए Linux बिल्ड पैकेज इंस्टॉल करें; कुछ नेटिव निर्भरताएँ अभी भी स्रोत कोड से बनती हैं।"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "This recipe installs the nightly source in a new Linux Conda environment for Python 3.15. spaCR 1.5.1.5 and earlier exclude this interpreter. Install the Linux build packages listed above before running this recipe; some native dependencies still build from source."
+msgstr "यह विधि Python 3.15 के लिए नए Linux Conda वातावरण में nightly स्रोत कोड स्थापित करती है। spaCR 1.5.1.5 और उससे पहले के संस्करण इस इंटरप्रेटर को शामिल नहीं करते। यह प्रक्रिया चलाने से पहले ऊपर दिए गए Linux बिल्ड पैकेज इंस्टॉल करें; कुछ नेटिव निर्भरताएँ अभी भी स्रोत कोड से बनती हैं।"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "For a local source checkout, replace the Git URL with ``.``. The selected SQLite build and SciPy wheel reinstallation prevent a C++ runtime mismatch between Conda libraries and the PyPI Torch/Qt libraries; complete all Conda installations before these pip steps. The CPU Torch command does not install a CUDA runtime."
@@ -398,9 +401,9 @@ msgstr "Python 3.15 में scikit-image 0.27.0rc1 (रिलीज़ उम�
 msgid "PyPI installation and extras"
 msgstr "PyPI स्थापना और अतिरिक्त घटक"
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "The PyPI package supports Python 3.9 through 3.14 except Python 3.14.1. Choose either a Python virtual environment or a Conda environment for the PyPI release. In both cases, pip installs spaCR; the conda-forge route above uses Conda to install spaCR instead."
-msgstr "PyPI पैकेज Python 3.9 से 3.14 तक का समर्थन करता है, लेकिन Python 3.14.1 का नहीं। PyPI रिलीज़ के लिए Python वर्चुअल वातावरण या Conda वातावरण चुनें। दोनों मामलों में pip, spaCR इंस्टॉल करता है; ऊपर दिया conda-forge तरीका spaCR इंस्टॉल करने के लिए Conda इस्तेमाल करता है।"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The package metadata declares Python 3.9 through 3.15, excluding Python 3.14.1. On Python 3.15, use the Linux recipe above. Choose either a Python virtual environment or a Conda environment for the PyPI release. In both cases, pip installs spaCR; the conda-forge route above uses Conda to install spaCR instead."
+msgstr "पैकेज मेटाडेटा Python 3.9 से 3.15 तक घोषित करता है, Python 3.14.1 को छोड़कर। Python 3.15 पर ऊपर दी गई Linux विधि का उपयोग करें। PyPI रिलीज़ के लिए Python वर्चुअल वातावरण या Conda वातावरण चुनें। दोनों मामलों में pip, spaCR इंस्टॉल करता है; ऊपर दिया conda-forge तरीका इसके बजाय spaCR इंस्टॉल करने के लिए Conda इस्तेमाल करता है।"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "For a Python virtual environment, first install Python 3.12, then run:"
@@ -507,8 +510,8 @@ msgid "True 3D view uses"
 msgstr "True 3D दृश्य उपयोग करता है"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Python 3.10 on Windows x86-64/ARM64, macOS Intel/Apple silicon, or Linux x86-64/aarch64 with glibc 2.28 or newer"
-msgstr "Windows x86-64/ARM64, macOS Intel/Apple silicon, या glibc 2.28 या नए वाले Linux x86-64/aarch64 पर Python 3.10"
+msgid "Python 3.10 on Windows x86-64, macOS Intel/Apple silicon, or Linux x86-64/aarch64 with glibc 2.28 or newer"
+msgstr "Windows x86-64, macOS Intel/Apple silicon, या glibc 2.28 या नए वाले Linux x86-64/aarch64 पर Python 3.10"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Installed, ``wgpu<=0.31.0``"
@@ -574,8 +577,8 @@ msgid "Container images"
 msgstr "कंटेनर इमेज"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Two images are published to the GitHub Container Registry as part of every spaCR release, after that version reaches PyPI. Each one is built and then checked before it is pushed: it must report the version its tag claims, it must not run as root, and it must complete one pipeline run on a synthetic field. An image that fails a check is not published, and the workflow run that built it fails."
-msgstr "हर spaCR रिलीज़ के भाग के रूप में, उस संस्करण के PyPI पर पहुँचने के बाद, दो इमेज GitHub Container Registry पर प्रकाशित की जाती हैं। हर इमेज बनाई जाती है और पुश करने से पहले जाँची जाती है: उसे वह संस्करण बताना होगा जिसका उसका टैग दावा करता है, वह root के रूप में नहीं चलनी चाहिए, और उसे एक कृत्रिम (synthetic) फ़ील्ड पर एक पाइपलाइन रन पूरा करना होगा। जाँच में विफल इमेज प्रकाशित नहीं होती, और उसे बनाने वाला वर्कफ़्लो रन विफल हो जाता है।"
+msgid "The release workflow builds two images for a spaCR release after that version is on PyPI and publishes them to the GitHub Container Registry. Each one is built and then checked before it is pushed: it must report the version its tag claims, it must not run as root, and it must complete one pipeline run on a synthetic field. An image that fails a check is not published, and the workflow run that built it fails."
+msgstr "रिलीज़ वर्कफ़्लो किसी spaCR रिलीज़ के लिए, उस संस्करण के PyPI पर पहुँचने के बाद, दो इमेज बनाता है और उन्हें GitHub Container Registry पर प्रकाशित करता है। हर इमेज बनाई जाती है और पुश करने से पहले जाँची जाती है: उसे वह संस्करण बताना होगा जिसका उसका टैग दावा करता है, वह root के रूप में नहीं चलनी चाहिए, और उसे एक कृत्रिम (synthetic) फ़ील्ड पर एक पाइपलाइन रन पूरा करना होगा। जाँच में विफल इमेज प्रकाशित नहीं होती, और उसे बनाने वाला वर्कफ़्लो रन विफल हो जाता है।"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The public `GHCR package page <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ lists available versions. The commands below name the image tags of the spaCR release this page documents. Not every spaCR release has a container image; check the package page before pulling a tag."
@@ -649,8 +652,9 @@ msgstr "**केवल Linux, और अन्यत्र असमर्थि
 msgid "Do not pass the host's ``XDG_RUNTIME_DIR`` in. That path does not exist inside the container, and Qt prints a warning about it at every start; the image makes its own runtime directory under the container's cache folder instead."
 msgstr "होस्ट का ``XDG_RUNTIME_DIR`` भीतर न दें। वह पथ कंटेनर के भीतर मौजूद नहीं होता, और Qt हर प्रारंभ पर उसके बारे में चेतावनी छापता है; इमेज इसके बजाय कंटेनर के कैश फ़ोल्डर के अंतर्गत अपनी रनटाइम निर्देशिका बनाती है।"
 
-msgid "A container rarely has a usable OpenGL context, so the animated backdrop may not draw. ``safespacr`` starts the same application with the backdrop and GL switched off, and is the right command when the window is slow or blank:"
-msgstr "कंटेनर में शायद ही कभी उपयोगी OpenGL संदर्भ होता है, इसलिए एनिमेटेड पृष्ठभूमि शायद न बने। ``safespacr`` उसी एप्लिकेशन को पृष्ठभूमि और GL बंद करके शुरू करता है, और जब विंडो धीमी या खाली हो तो यही सही कमांड है:"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "A container rarely has a usable OpenGL context, so the animated backdrop may not draw. ``safespacr`` starts the same application with the backdrop, OpenGL, setting animations and preloading switched off, and reads every saved preference as its default. Use it when the window is slow or blank:"
+msgstr "कंटेनर में शायद ही कभी उपयोगी OpenGL संदर्भ होता है, इसलिए एनिमेटेड पृष्ठभूमि शायद न बने। ``safespacr`` उसी एप्लिकेशन को पृष्ठभूमि, OpenGL, सेटिंग एनिमेशन और प्रीलोडिंग बंद करके शुरू करता है, और हर सहेजी गई प्राथमिकता को अपने डिफ़ॉल्ट के रूप में पढ़ता है। जब विंडो धीमी या खाली हो तब इसका उपयोग करें:"
 
 msgid "On macOS and Windows this needs a third-party X server and is not tested or supported. Use the desktop installer on those platforms."
 msgstr "macOS और Windows पर इसके लिए तृतीय-पक्ष X सर्वर चाहिए और यह न परीक्षित है न समर्थित। उन प्लेटफ़ॉर्म पर डेस्कटॉप इंस्टॉलर का उपयोग करें।"

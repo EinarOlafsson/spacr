@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 11:39-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: de\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -22,14 +22,16 @@ msgstr ""
 msgid "Choose a workflow after installation"
 msgstr "Nach der Installation einen Workflow wählen"
 
-msgid "Start on Home with the first module for your experiment. Use that module's example-data control when available, inspect the inputs and preview, then run a bounded example before your own data."
-msgstr "Beginnen Sie auf der Startseite mit dem ersten Modul für Ihr Experiment. Verwenden Sie die Beispieldaten-Funktion dieses Moduls, sofern vorhanden, prüfen Sie die Eingaben und die Vorschau und führen Sie dann ein begrenztes Beispiel aus, bevor Sie Ihre eigenen Daten verwenden."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Start on Home with the first module for your experiment. Use that module's **Load test data…** button when available, inspect the inputs and preview, then run the example before your own data."
+msgstr "Beginnen Sie auf der Startseite mit dem ersten Modul für Ihr Experiment. Verwenden Sie die Schaltfläche **Testdaten laden...** dieses Moduls, sofern vorhanden, prüfen Sie die Eingaben und die Vorschau und führen Sie dann das Beispiel aus, bevor Sie Ihre eigenen Daten verwenden."
 
 msgid "These routes and the API handoffs share the bundled module workflow map. A walkthrough explains the steps; it does not run an experiment automatically."
 msgstr "Diese Wege und die Übergaben an die API teilen sich die mitgelieferte Workflow-Übersicht der Module. Eine Schritt-für-Schritt-Anleitung erklärt die Schritte; sie führt kein Experiment automatisch aus."
 
-msgid "Open **Pipeline overviews** to choose a pathway. Its graph includes external input nodes that explain the files you supply; these are not runnable modules. Persistent explanation cards describe modules and connections below the graph, with API links at the end of module cards. Select a graph element to outline its card, and drag the blue divider to adjust the space between graph and explanations. **Start example** opens the pathway's first real module; **Walkthrough** keeps the route available afterward. Alternative input and annotation branches do not require you to execute every listed step."
-msgstr "Öffnen Sie **Pipeline-Übersichten**, um einen Weg zu wählen. Sein Graph enthält externe Eingabeknoten, die die von Ihnen gelieferten Dateien erklären; diese sind keine ausführbaren Module. Dauerhaft sichtbare Erklärungskarten unter dem Graphen beschreiben Module und Verbindungen, mit API-Links am Ende der Modulkarten. Wählen Sie ein Element des Graphen aus, um seine Karte hervorzuheben, und ziehen Sie die blaue Trennlinie, um den Platz zwischen Graph und Erklärungen anzupassen. **Beispiel starten** öffnet das erste echte Modul des Wegs; **Schritt-für-Schritt-Anleitung** hält den Weg anschließend verfügbar. Alternative Eingabe- und Annotationszweige erfordern nicht, dass Sie jeden aufgeführten Schritt ausführen."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Open **Pipeline overviews** to choose a pathway. Its graph includes external input nodes that explain the files you supply; these are not runnable modules. Persistent explanation cards describe modules and connections below the graph, with API links at the end of module cards. Select a graph element to outline its card, and drag the blue divider to adjust the space between graph and explanations. **Start example** opens the pathway's first module and loads that module's example data; when the pathway has a walkthrough, a **Walkthrough** button is added to the status bar to reopen it. Alternative input and annotation branches do not require you to execute every listed step."
+msgstr "Öffnen Sie **Pipeline-Übersichten**, um einen Weg zu wählen. Sein Graph enthält externe Eingabeknoten, die die von Ihnen gelieferten Dateien erklären; diese sind keine ausführbaren Module. Dauerhaft sichtbare Erklärungskarten unter dem Graphen beschreiben Module und Verbindungen, mit API-Links am Ende der Modulkarten. Wählen Sie ein Element des Graphen aus, um seine Karte hervorzuheben, und ziehen Sie die blaue Trennlinie, um den Platz zwischen Graph und Erklärungen anzupassen. **Beispiel starten** öffnet das erste Modul des Wegs und lädt die Beispieldaten dieses Moduls; hat der Weg eine Schritt-für-Schritt-Anleitung, wird der Statusleiste eine Schaltfläche **Schritt-für-Schritt-Anleitung** hinzugefügt, mit der sie sich erneut öffnen lässt. Alternative Eingabe- und Annotationszweige erfordern nicht, dass Sie jeden aufgeführten Schritt ausführen."
 
 msgid "A pooled spaCR screen"
 msgstr "Ein gepoolter spaCR-Screen"
@@ -340,8 +342,9 @@ msgstr "`Modul-Tutorial <tutorials/#lesson=07_mask>`__."
 msgid "Measure"
 msgstr "Messen"
 
-msgid "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops."
-msgstr "Measure liest Bilder und Labelebenen gemeinsam. Aktivieren Sie das Speichern von Bildausschnitten, wenn Sie PNG-Dateien benötigen; bewahren Sie für gestreamte Ausschnitte die Datenbank und das Quellprojekt zusammen auf."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Measure reads images and label planes together. PNG crops are written while save_png is on (default True); turn it off to compute measurements only. Keep the database and source project together for streamed crops."
+msgstr "Measure liest Bilder und Labelebenen gemeinsam. PNG-Ausschnitte werden geschrieben, solange save_png eingeschaltet ist (Standard True); schalten Sie es aus, um nur Messungen zu berechnen. Bewahren Sie für gestreamte Ausschnitte die Datenbank und das Quellprojekt zusammen auf."
 
 msgid "**Open:** Home → Measure."
 msgstr "**Öffnen:** Startseite → Messen."
@@ -527,8 +530,9 @@ msgstr "**Öffnen:** Startseite → Barcodes zuordnen."
 msgid "**Sequencing reads** — Single-end or paired FASTQ files, with the matching barcode reference tables."
 msgstr "**Sequenzierungsreads** — Single-End- oder gepaarte FASTQ-Dateien mit den passenden Barcode-Referenztabellen."
 
-msgid "**Guide counts per well** — Map Barcodes run folder: unique_combinations.csv and annotated_reads.h5. Well identity requires the corresponding barcode references. Relevant columns, depending on the route: ``count``."
-msgstr "**Guide-Zählungen pro Well** — Ausführungsordner von Barcodes zuordnen: unique_combinations.csv und annotated_reads.h5. Die Well-Identität erfordert die zugehörigen Barcode-Referenzen. Relevante Spalten, je nach Weg: ``count``."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Guide counts per well** — Map Barcodes per-sample output folder: unique_combinations.csv and qc.csv, plus annotated_reads.h5 when save_h5 is True (the default). Well identity requires the corresponding barcode references. Relevant columns, depending on the route: ``count``."
+msgstr "**Guide-Zählungen pro Well** — Ausgabeordner pro Probe von Barcodes zuordnen: unique_combinations.csv und qc.csv sowie annotated_reads.h5, wenn save_h5 True ist (die Voreinstellung). Die Well-Identität erfordert die zugehörigen Barcode-Referenzen. Relevante Spalten, je nach Weg: ``count``."
 
 msgid ":ref:`Regression <workflow-module-regression>`: Pair guide counts with phenotype scores using consistent plate/well keys."
 msgstr ":ref:`Regression <workflow-module-regression>`: Verknüpfen Sie Guide-Zählungen mit Phänotypscores anhand konsistenter Platten- und Well-Schlüssel."
@@ -616,6 +620,10 @@ msgstr "Konvertieren Sie unterstützte Mikroskopformate in ein konfiguriertes TI
 
 msgid "**Open:** Import → Format Converter."
 msgstr "**Öffnen:** Importieren → Dateiformatkonverter."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Converted TIFFs and conversion map** — Format Converter destination folder: Yokogawa-named TIFFs (for example plate1_A01_T0001F001L01A01Z01C01.tif) and conversion_map.csv, which maps each output name back to its source file."
+msgstr "**Konvertierte TIFFs und Konvertierungszuordnung** — Zielordner des Dateiformatkonverters: TIFFs mit Yokogawa-Benennung (zum Beispiel plate1_A01_T0001F001L01A01Z01C01.tif) und conversion_map.csv, die jedem Ausgabenamen seine Quelldatei zuordnet."
 
 msgid ":ref:`Mask <workflow-module-mask>`: Use the converted layout and preserve source identity mappings."
 msgstr ":ref:`Mask <workflow-module-mask>`: Verwenden Sie das konvertierte Layout und bewahren Sie die Quellidentitätszuordnungen."
@@ -832,14 +840,13 @@ msgstr "Geben Sie Bedingungen, Kontrollen, Replikate und Plattenbeschränkungen 
 msgid "**Open:** Home → Experiment Design."
 msgstr "**Öffnen:** Startseite → Experiment Design."
 
-msgid "**Screen design and power estimates** — Saved planning tables or figures based on explicitly chosen effect sizes, variability and sampling assumptions."
-msgstr "**Screen-Planung und Power-Schätzungen** — Gespeicherte Planungstabellen oder Abbildungen auf Grundlage ausdrücklich gewählter Effektgrößen, Streuungen und Stichprobenannahmen."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Plate design entries** — Entered in Experiment Design: plate identifier, plate format (6 to 1536 wells), conditions with replicate counts and roles (treatment, positive control, negative control, blank), layout, edge use and seed. Load template… fills in a bundled design; no input file is required."
+msgstr "**Einträge des Plattendesigns** — Eingegeben in Experiment Design: Plattenkennung, Plattenformat (6 bis 1536 Wells), Bedingungen mit Replikatzahlen und Rollen (Behandlung, Positivkontrolle, Negativkontrolle, Leerwert), Layout, Nutzung der Randwells und Seed. Vorlage laden… füllt ein mitgeliefertes Design aus; es ist keine Eingabedatei erforderlich."
 
-msgid "**Experimental layout** — Exported plate/condition/control/replicate map. Keep its plate and well identifiers consistent with the acquired data."
-msgstr "**Versuchsaufbau** — Exportierter Plan für Platten, Bedingungen, Kontrollen und Replikate. Halten Sie seine Platten- und Well-Kennungen mit den erfassten Daten konsistent."
-
-msgid ":ref:`Power / Design <workflow-module-power>`: Use the experimental layout to define sampling assumptions, then revise the design."
-msgstr ":ref:`Power / Design <workflow-module-power>`: Legen Sie anhand des Versuchsaufbaus die Annahmen zur Stichprobenziehung fest und überarbeiten Sie anschließend den Plan."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Experimental layout** — Export plate map... writes plate_map.csv (one row per well keyed by plateID, rowID and columnID), plate_map.json and plate_map_settings.json to the chosen folder. Keep its plate and well identifiers consistent with the acquired data."
+msgstr "**Versuchsaufbau** — Plattenbelegung exportieren... schreibt plate_map.csv (eine Zeile pro Well, mit plateID, rowID und columnID als Schlüssel), plate_map.json und plate_map_settings.json in den gewählten Ordner. Halten Sie die Platten- und Well-Kennungen darin konsistent mit den aufgenommenen Daten."
 
 msgid ":ref:`Dose–Response <workflow-module-dose_response>`: Acquire and measure the experiment first, preserving dose/condition identities."
 msgstr ":ref:`Dose–Response <workflow-module-dose_response>`: Führen Sie zuerst das Experiment und die Messungen durch und bewahren Sie die Dosis- und Bedingungskennungen."
@@ -871,8 +878,8 @@ msgstr "Schätzen Sie den Stichprobenbedarf anhand gewählter Effektgrößen und
 msgid "**Open:** Home → Power / Design."
 msgstr "**Öffnen:** Startseite → Power / Design."
 
-msgid ":ref:`Experiment Design <workflow-module-experiment_design>`: Use the experimental layout to define sampling assumptions, then revise the design."
-msgstr ":ref:`Experiment Design <workflow-module-experiment_design>`: Legen Sie anhand des Versuchsaufbaus die Annahmen zur Stichprobenziehung fest und überarbeiten Sie anschließend den Plan."
+msgid "**Screen design and power estimates** — Saved planning tables or figures based on explicitly chosen effect sizes, variability and sampling assumptions."
+msgstr "**Screen-Planung und Power-Schätzungen** — Gespeicherte Planungstabellen oder Abbildungen auf Grundlage ausdrücklich gewählter Effektgrößen, Streuungen und Stichprobenannahmen."
 
 msgid ":doc:`API reference </api/spacr/qt/screens/power/index>`."
 msgstr ":doc:`API-Referenz </api/spacr/qt/screens/power/index>`."
@@ -1013,14 +1020,16 @@ msgstr "`Modul-Tutorial <tutorials/#lesson=28_training_runs>`__."
 msgid "Align & Stitch"
 msgstr "Ausrichten und zusammenfügen"
 
-msgid "Inspect tile geometry, overlap and channel mapping, then save the mosaic with coordinate records. OPS also needs the original cycle/site identities."
-msgstr "Prüfen Sie Kachelgeometrie, Überlappung und Kanalzuordnung und speichern Sie dann das Mosaik mit den Koordinatenaufzeichnungen. OPS benötigt außerdem die ursprünglichen Zyklus- und Positionskennungen."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Press Plan to compute the tile layout and list tiles that fell back to their stage positions; Plan writes nothing. Write stack then writes the stitched stack to the Write to folder or .npy file and records tile coordinates in measurements.db when the Database field is set. Every channel uses the registration measured on Ref. channel. OPS also needs the original cycle/site identities."
+msgstr "Drücken Sie Planen, um das Kachellayout zu berechnen und die Kacheln aufzulisten, für die auf ihre Tischpositionen zurückgegriffen wurde; Planen schreibt nichts. Stack schreiben schreibt dann den zusammengefügten Stapel in den Ordner oder die .npy-Datei unter Schreiben an und zeichnet die Kachelkoordinaten in measurements.db auf, wenn das Feld Datenbank gesetzt ist. Jeder Kanal verwendet die an Ref. Kanal gemessene Registrierung. OPS benötigt außerdem die ursprünglichen Zyklus-/Positionsidentitäten."
 
 msgid "**Open:** Home → Align & Stitch."
 msgstr "**Öffnen:** Startseite → Ausrichten und zusammenfügen."
 
-msgid "**Aligned mosaic and coordinates** — Align & Stitch destination: composed image and the tile-coordinate/layout records needed to interpret it."
-msgstr "**Ausgerichtetes Mosaik und Koordinaten** — Ziel von Align & Stitch: das zusammengesetzte Bild und die zu seiner Interpretation benötigten Kachelkoordinaten und Layoutdaten."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Aligned mosaic and coordinates** — The Write to folder or .npy file: the stitched stack. Tile coordinates are saved to the measurements.db named in Database only when that field is set."
+msgstr "**Ausgerichtetes Mosaik und Koordinaten** — Der Ordner oder die .npy-Datei unter Schreiben an: der zusammengefügte Stapel. Kachelkoordinaten werden nur dann in der unter Datenbank angegebenen measurements.db gespeichert, wenn dieses Feld gesetzt ist."
 
 msgid ":ref:`OPS <workflow-module-ops>`: Carry tile coordinates and original sequencing cycles into OPS; a flattened mosaic alone is insufficient."
 msgstr ":ref:`OPS <workflow-module-ops>`: Übergeben Sie Kachelkoordinaten und ursprüngliche Sequenzierungszyklen an OPS; ein zusammengeführtes Mosaik allein reicht nicht aus."
@@ -1697,8 +1706,9 @@ msgstr ":doc:`API-Referenz </api/spacr/parameter_sweep/index>`."
 msgid "Toxoplasma"
 msgstr "Toxoplasma"
 
-msgid "Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Invasion Assay or Replication Assay. The four Coming soon tiles describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table."
-msgstr "Öffnen Sie die Organismenübersicht auf Home, prüfen Sie das Kompartimentdiagramm und wählen Sie dann Plaque Assay, Recruitment, Invasion Assay oder Replication Assay. Die vier Coming-soon-Kacheln beschreiben Vorschläge und lassen sich nicht ausführen. Die Übersicht selbst analysiert kein Projekt und erzeugt keine Messtabelle."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay; Gliding motility opens Motility Assay with infection QC off. The three Coming soon tiles (Egress, Bradyzoite conversion, Host cell damage) describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table."
+msgstr "Öffnen Sie die Organismenübersicht auf Home, prüfen Sie das Kompartimentdiagramm und wählen Sie dann Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay oder Replication Assay; Gliding motility öffnet Motility Assay mit ausgeschalteter Infektions-QC. Die drei Coming-soon-Kacheln (Egress, Bradyzoite conversion, Host cell damage) beschreiben Vorschläge und lassen sich nicht ausführen. Die Übersicht selbst analysiert kein Projekt und erzeugt keine Messtabelle."
 
 msgid "**Open:** Home → Toxoplasma."
 msgstr "**Öffnen:** Startseite → Toxoplasma."

@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 14:46-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -35,26 +35,25 @@ msgstr "설정이나 그 레이블 위에 마우스를 올리면 설명을 읽�
 msgid "Centre-pixel puncta inside cysts or cells"
 msgstr "낭종 또는 세포 내부의 중심 픽셀 점상 객체"
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Choose **Centre-pixel puncta within parent masks** in **Detection methods**. Open the original single-channel images and select a separate parent-mask folder with matching image stems, or a parent-mask file for the current image. Parent masks are read-only. Use whole-image **Replace**, then **Save mask**."
-msgstr "**감지 방법** 항목에서 **부모 마스크 내부의 중심 픽셀 점상 객체** 옵션을 선택하세요. 원래 단일 채널 이미지를 열고 이미지의 파일 기본 이름과 일치하는 별도의 부모 마스크 폴더 또는 현재 이미지의 부모 마스크 파일을 선택하세요. 부모 마스크는 읽기 전용입니다. 전체 이미지에 **바꾸기** 옵션을 적용한 다음 **마스크 저장** 옵션을 사용하세요."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Choose **Centre-pixel puncta within parent masks** in **Object detection**. Open the original single-channel images and select a separate parent-mask folder with matching image stems, or a parent-mask file for the current image. Parent masks are read-only. Use whole-image **Replace**, then **Save mask**."
+msgstr "**객체 검출** 항목에서 **부모 마스크 내부의 중심 픽셀 점상 객체** 옵션을 선택하세요. 원래 단일 채널 이미지를 열고 이미지의 파일 기본 이름과 일치하는 별도의 부모 마스크 폴더 또는 현재 이미지의 부모 마스크 파일을 선택하세요. 부모 마스크는 읽기 전용입니다. 전체 이미지에 **바꾸기** 옵션을 적용한 다음 **마스크 저장** 옵션을 사용하세요."
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "The detector finds scale-normalised LoG peaks at sigma 1.5, 2, 3, 4 and 6 pixels. It estimates each parent's pixel noise from the MAD of the sigma-1 high-pass residual divided by 0.87, and propagates that noise through each LoG kernel. The candidate threshold defaults to 2.5 noise units. Peaks undergo scale-dependent nonmaximum suppression and a three-pixel parent-edge exclusion. Change the scale list, candidate threshold, peak spacing or edge margin when the acquisition requires it; these are image-pixel settings, not calibration."
-msgstr "감지기는 sigma 1.5, 2, 3, 4 및 6 픽셀에서 스케일 정규화 LoG 피크를 찾습니다. 각 부모 객체의 픽셀 노이즈를 sigma 1 고역 통과 잔차의 MAD를 0.87로 나누어 추정하고, 이 노이즈를 각 LoG 커널을 통해 전파합니다. 후보 임계값의 기본값은 2.5 노이즈 단위입니다. 피크에는 스케일에 따른 비최대 억제와 부모 경계에서 세 픽셀 이내의 피크 제외가 적용됩니다. 촬영 조건에 따라 스케일 목록, 후보 임계값, 피크 간격 또는 경계 여백을 바꾸세요. 이 설정은 이미지 픽셀 단위이며 보정 설정이 아닙니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The detector finds scale-normalised LoG peaks at sigma 1.5, 2, 3, 4 and 6 pixels. It estimates each parent's pixel noise as the scaled median absolute deviation (1.4826 × MAD) of the image minus its sigma-1 Gaussian blur, divided by 0.87, and propagates that noise through each LoG kernel. The candidate threshold defaults to 2.5 noise units. Peaks undergo scale-dependent nonmaximum suppression and a three-pixel parent-edge exclusion. Change the scale list, candidate threshold, peak spacing or edge margin when the acquisition requires it; these are image-pixel settings, not calibration."
+msgstr "감지기는 sigma 1.5, 2, 3, 4 및 6 픽셀에서 스케일 정규화 LoG 피크를 찾습니다. 각 부모 객체의 픽셀 노이즈는 이미지에서 sigma 1 가우스 흐림을 뺀 값의 스케일 조정된 중앙값 절대 편차(1.4826 × MAD)를 0.87로 나누어 추정하고, 이 노이즈를 각 LoG 커널을 통해 전파합니다. 후보 임계값의 기본값은 2.5 노이즈 단위입니다. 피크에는 스케일에 따른 비최대 억제와 부모 경계에서 세 픽셀 이내의 피크 제외가 적용됩니다. 촬영 조건에 따라 스케일 목록, 후보 임계값, 피크 간격 또는 경계 여백을 바꾸세요. 이 설정은 이미지 픽셀 단위이며 보정 설정이 아닙니다."
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Each punctum is measured using the pixels nearest its intensity-weighted subpixel centre in a nine-by-nine window. **Centre pixels per punctum** defaults to 20; 10 and 40 are supported. The same-parent local-background annulus starts at max(4, 2.5 sigma + 2) pixels and is four pixels wide. It excludes other candidate centres when enough background remains. The default inclusion floor is centre mean minus local background >= 3 native intensity units. Display normalization, inversion, enhancement and Min area are bypassed."
-msgstr "각 점상 객체는 9×9 창에서 강도로 가중한 서브픽셀 중심에 가장 가까운 픽셀로 측정됩니다. **점상 객체당 중심 픽셀 수** 옵션의 기본값은 20이며 10과 40도 지원됩니다. 동일 부모 객체 내부의 국소 배경 고리는 max(4, 2.5 sigma + 2) 픽셀에서 시작하며 폭은 네 픽셀입니다. 충분한 배경이 남으면 다른 후보 중심을 제외합니다. 기본 포함 기준은 중심 평균에서 국소 배경을 뺀 값 >= 3 원래 강도 단위입니다. 표시 정규화, 반전, 이미지 향상 및 Min area는 적용되지 않습니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Each punctum is measured using the pixels nearest its intensity-weighted subpixel centre in a nine-by-nine window. **Centre pixels per punctum** defaults to 20 and accepts 1 to 81, the size of that window. The same-parent local-background annulus starts at max(4, 2.5 sigma + 2) pixels and is four pixels wide. It excludes other candidate centres when enough background remains. The default inclusion floor is centre mean minus local background >= 3 native intensity units. Display normalization, inversion, enhancement and Min area are bypassed."
+msgstr "각 점상 객체는 9×9 창에서 강도로 가중한 서브픽셀 중심에 가장 가까운 픽셀로 측정됩니다. **점상 객체당 중심 픽셀 수** 옵션의 기본값은 20이며 1부터 그 창의 크기인 81까지 지정할 수 있습니다. 동일 부모 객체 내부의 국소 배경 고리는 max(4, 2.5 sigma + 2) 픽셀에서 시작하며 폭은 네 픽셀입니다. 충분한 배경이 남으면 다른 후보 중심을 제외합니다. 기본 포함 기준은 중심 평균에서 국소 배경을 뺀 값 >= 3 원래 강도 단위입니다. 표시 정규화, 반전, 이미지 향상 및 Min area는 적용되지 않습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The saved integer mask gives every retained punctum its own label. Nearby centre windows can overlap: each integer peak is reserved for its object, other shared pixels go to the nearest centre, and pixels outside the parent are omitted. Consequently a mask may contain fewer than the requested N pixels. This is a centre sampling mask, not the punctum's physical boundary."
 msgstr "저장된 정수 마스크는 유지되는 각 점상 객체에 고유한 라벨을 부여합니다. 인접한 중심 창은 겹칠 수 있습니다. 각 정수 좌표 피크는 해당 객체에 예약되며, 다른 공유 픽셀은 가장 가까운 중심에 할당되고 부모 밖의 픽셀은 제외됩니다. 따라서 마스크의 픽셀 수는 요청한 N보다 적을 수 있습니다. 이 마스크는 중심 샘플링용이며 점상 객체의 물리적 경계가 아닙니다."
 
-# AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Saving an unchanged whole-image detection also writes ``<stem>.puncta.csv`` and ``<stem>.puncta.json`` beside the mask. The table contains all candidates, their inclusion flags, output object labels, parent IDs, coordinates, noise, local background, exact 10/20/40-pixel centre means and the selected N-pixel mean. Exact centre means retain overlapping samples independently of label ownership. Use ``center_corrected`` for the selected N-pixel mean minus local background, or ``corrected20`` for the fixed 20-pixel variant. The ``corrected`` column holds the reference's three-by-three-window result. The receipt binds the image, parent mask, output mask, CSV and detector settings to checksums. Edited or combined labels cannot silently receive the old centre measurements. Local previews estimate noise within their crop; use whole-image detection for scientific results."
-msgstr "변경하지 않은 전체 이미지 감지 결과를 저장하면 마스크 옆에 ``<stem>.puncta.csv`` 파일과 ``<stem>.puncta.json`` 파일도 기록됩니다. 표에는 모든 후보, 포함 플래그, 출력 객체 라벨, 부모 ID, 좌표, 노이즈, 국소 배경, 정확한 10/20/40 픽셀 중심 평균과 선택한 N 픽셀 평균이 포함됩니다. 정확한 중심 평균은 라벨 할당과 무관하게 겹치는 샘플을 유지합니다. 선택한 N 픽셀 평균에서 국소 배경을 뺀 값에는 ``center_corrected`` 열을, 고정된 20 픽셀 변형에는 ``corrected20`` 열을 사용하세요. ``corrected`` 열에는 참조 구현의 3×3 창 결과가 들어 있습니다. 기록은 체크섬으로 이미지, 부모 마스크, 출력 마스크, CSV 및 감지기 설정을 연결합니다. 편집하거나 결합한 라벨에 이전 중심 측정값이 조용히 연결되지 않습니다. 국소 미리보기는 잘라낸 영역 안에서 노이즈를 추정하므로 과학적 결과에는 전체 이미지 감지를 사용하세요."
+msgid "Saving an unchanged whole-image detection also writes ``<stem>.puncta.csv`` and ``<stem>.puncta.json`` beside the mask. The table contains all candidates, their inclusion flags, output object labels, parent IDs, coordinates, noise, local background, exact 10/20/40-pixel centre means and the selected N-pixel mean. Exact centre means retain overlapping samples independently of label ownership. Use ``center_corrected`` for the selected N-pixel mean minus local background, or ``corrected20`` for the fixed 20-pixel variant. The ``corrected`` column holds the three-by-three-window mean minus local background. The receipt binds the image, parent mask, output mask, CSV and detector settings to checksums. Edited or combined labels cannot silently receive the old centre measurements. Local previews estimate noise within their crop; use whole-image detection for scientific results."
+msgstr "변경하지 않은 전체 이미지 감지 결과를 저장하면 마스크 옆에 ``<stem>.puncta.csv`` 파일과 ``<stem>.puncta.json`` 파일도 기록됩니다. 표에는 모든 후보, 포함 플래그, 출력 객체 라벨, 부모 ID, 좌표, 노이즈, 국소 배경, 정확한 10/20/40 픽셀 중심 평균과 선택한 N 픽셀 평균이 포함됩니다. 정확한 중심 평균은 라벨 할당과 무관하게 겹치는 샘플을 유지합니다. 선택한 N 픽셀 평균에서 국소 배경을 뺀 값에는 ``center_corrected`` 열을, 고정된 20 픽셀 변형에는 ``corrected20`` 열을 사용하세요. ``corrected`` 열에는 3×3 창 평균에서 국소 배경을 뺀 값이 들어 있습니다. 기록은 체크섬으로 이미지, 부모 마스크, 출력 마스크, CSV 및 감지기 설정을 연결합니다. 편집하거나 결합한 라벨에 이전 중심 측정값이 조용히 연결되지 않습니다. 국소 미리보기는 잘라낸 영역 안에서 노이즈를 추정하므로 과학적 결과에는 전체 이미지 감지를 사용하세요."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Use **Organize for Measure…** to place the puncta in an organelle mask slot alongside the parent masks and original channels. Measure can report ordinary mask-region intensities and parent relationships, but those means can differ from exact centre means when samples overlap. Use the source-bound puncta table for the centre/annulus analysis. This detector alone does not implement the noise-null model, hierarchical tests or a composed publication figure."
@@ -75,8 +74,9 @@ msgstr "선택한 품질은 저장되며 열려 있는 썸네일 보기에 적�
 msgid "Open a field and save an edit"
 msgstr "시야를 열고 편집 내용 저장하기"
 
-msgid "Choose **Open folder…** and select the image folder. The ordinary layout keeps corresponding masks in its ``masks/`` subfolder. A saved TIFF mask uses the image's filename stem; a missing mask starts empty. The loader also supports the sibling masks layout and Cellpose ``_seg.npy`` bundles."
-msgstr "**폴더 열기…** 를 선택하고 이미지 폴더를 선택합니다. 일반 레이아웃에서는 대응하는 마스크를 ``masks/`` 하위 폴더에 둡니다. 저장된 TIFF 마스크는 이미지 파일 이름의 어간을 사용하며, 마스크가 없으면 빈 마스크로 시작합니다. 로더는 형제 폴더 마스크 레이아웃과 Cellpose ``_seg.npy`` 번들도 지원합니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Choose **Open File / Folder…** (or **Open folder…** in its arrow menu) and select the image folder. The ordinary layout keeps corresponding masks in its ``masks/`` subfolder. A saved TIFF mask uses the image's filename stem; a missing mask starts empty. The loader also supports the sibling masks layout and Cellpose ``_seg.npy`` bundles."
+msgstr "**파일 / 폴더 열기…** (또는 화살표 메뉴의 **폴더 열기…**)를 선택하고 이미지 폴더를 선택합니다. 일반 레이아웃에서는 대응하는 마스크를 ``masks/`` 하위 폴더에 둡니다. 저장된 TIFF 마스크는 이미지 파일 이름의 어간을 사용하며, 마스크가 없으면 빈 마스크로 시작합니다. 로더는 형제 폴더 마스크 레이아웃과 Cellpose ``_seg.npy`` 번들도 지원합니다."
 
 msgid "Inspect the image and labels. Images and masks must have matching spatial dimensions. An ordinary colour image is converted to grayscale; prepare the intended channel as a separate image when channel identity matters."
 msgstr "이미지와 레이블을 검사합니다. 이미지와 마스크의 공간 크기가 같아야 합니다. 일반 컬러 이미지는 회색조로 변환되므로, 채널 식별이 중요하면 원하는 채널을 별도의 이미지로 준비합니다."
@@ -96,21 +96,20 @@ msgid "**Save mask** and the previous/next-image buttons are in the navigation g
 msgstr "**마스크 저장** 및 이전/다음 이미지 버튼은 이미지 아래의 탐색 그룹에 있습니다. 창이 좁아지면 편집 및 주석 컨트롤이 상단 막대에서 여러 줄로 배치됩니다. 이 상단 컨트롤에 사용 가능한 높이보다 더 많은 공간이 필요하면 해당 막대 안에서 세로로 스크롤하여 접근합니다."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-# AI technical review (Codex), no native-speaker signoff.
-msgid "**Save on navigation**, in the **Save mask** arrow menu, saves an edited mask before **Keep**, **Discard**, **Next image** or **Previous image** moves on. It is off by default and remembered between sessions. If the save fails, the image stays open and no verdict is recorded. **Skip** never writes a mask."
-msgstr "**마스크 저장** 화살표 메뉴의 **이동 시 저장** 은 **유지**, **버리기**, **다음 이미지** 또는 **이전 이미지** 으로 이동하기 전에 편집한 마스크를 저장합니다. 기본값은 꺼짐이며 세션 간에 기억합니다. 저장에 실패하면 이미지가 열린 상태로 유지되고 판정은 기록되지 않습니다. **건너뛰기** 은 마스크를 쓰지 않습니다."
+msgid "**Save on navigation**, in the **Save mask** arrow menu, saves an edited mask before **Keep**, **Discard**, **Next** or **Previous** moves on. It is off by default and remembered between sessions. If the save fails, the image stays open and no verdict is recorded. **Skip** never writes a mask."
+msgstr "**마스크 저장** 화살표 메뉴의 **이동 시 저장** 은 **유지**, **버리기**, **다음** 또는 **이전** 으로 이동하기 전에 편집한 마스크를 저장합니다. 기본값은 꺼짐이며 세션 간에 기억합니다. 저장에 실패하면 이미지가 열린 상태로 유지되고 판정은 기록되지 않습니다. **건너뛰기** 는 마스크를 쓰지 않습니다."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on, the electron microscopy test data and the FIB-SEM volumes described under :ref:`mm-tem` and :ref:`mm-volumes`."
-msgstr "자신의 데이터 없이 이 화면을 시험하려면 **테스트 데이터 불러오기...** 를 사용합니다. 분할되지 않은 톡소플라스마 액포 시야 10개를 다운로드하고(선별된 마스크는 ``ground_truth_masks/`` 에 따로 보관) 첫 번째 시야를 엽니다. 같은 버튼의 화살표는 게시된 각 모델이 학습한 데이터 세트의 시야 표본, 전자현미경 테스트 데이터, 그리고 :ref:`mm-tem` 및 :ref:`mm-volumes` 에 설명된 FIB-SEM 볼륨을 제공합니다."
+msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on, the electron microscopy test data and the FIB-SEM volumes described under :ref:`mm-tem` and :ref:`mm-volumes`, and three timelapse examples (yeast, bacteria and mammalian cells) opened with their masks and lineage."
+msgstr "자신의 데이터 없이 이 화면을 시험하려면 **테스트 데이터 불러오기...** 를 사용합니다. 분할되지 않은 톡소플라스마 액포 시야 10개를 다운로드하고(선별된 마스크는 ``ground_truth_masks/`` 에 따로 보관) 첫 번째 시야를 엽니다. 같은 버튼의 화살표는 게시된 각 모델이 학습한 데이터 세트의 시야 표본, 전자현미경 테스트 데이터, :ref:`mm-tem` 및 :ref:`mm-volumes` 에 설명된 FIB-SEM 볼륨, 그리고 마스크와 계통과 함께 열리는 타임랩스 예제 세 개(효모, 세균, 포유류 세포)를 제공합니다."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "3D volumes in the Mask view"
 msgstr "Mask 보기의 3D 볼륨"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "A volume opens in the Mask view, where 2-D fields open. A TIFF stack, an OME-TIFF or an MRC volume (``.mrc``, ``.rec`` or ``.map``) with three spatial axes is recognised as a volume when it is in the folder you open or when you choose **Open 3D image…**. Time, channel and RGB stacks are refused rather than read as depth. An MRC volume needs the optional ``mrcfile`` package. The status line reports the number of slices and the voxel size."
-msgstr "볼륨은 2D 시야가 열리는 Mask 보기에서 열립니다. 세 개의 공간 축을 가진 TIFF 스택, OME-TIFF 또는 MRC 볼륨(``.mrc``, ``.rec`` 또는 ``.map``)은 여는 폴더에 있거나 **Open 3D image…** 를 선택했을 때 볼륨으로 인식됩니다. 시간, 채널 및 RGB 스택은 깊이로 읽히지 않고 거부됩니다. MRC 볼륨에는 선택 패키지 ``mrcfile`` 이 필요합니다. 상태 줄에는 슬라이스 수와 복셀 크기가 표시됩니다."
+msgid "A volume opens in the Mask view, where 2-D fields open. A TIFF stack, an OME-TIFF or an MRC volume (``.mrc``, ``.rec`` or ``.map``) with three spatial axes is recognised as a volume when it is in the folder you open or when you open it with **Open file (2D or 3D)…** in the arrow menu of **Open File / Folder…**. Time, channel and RGB stacks are refused rather than read as depth. An MRC volume needs the optional ``mrcfile`` package. The status line reports the number of slices and the voxel size."
+msgstr "볼륨은 2D 시야가 열리는 Mask 보기에서 열립니다. 세 개의 공간 축을 가진 TIFF 스택, OME-TIFF 또는 MRC 볼륨(``.mrc``, ``.rec`` 또는 ``.map``)은 여는 폴더에 있거나 **파일 / 폴더 열기…** 화살표 메뉴의 **파일 열기(2D 또는 3D)…** 로 열 때 볼륨으로 인식됩니다. 시간, 채널 및 RGB 스택은 깊이로 읽히지 않고 거부됩니다. MRC 볼륨에는 선택 패키지 ``mrcfile`` 이 필요합니다. 상태 줄에는 슬라이스 수와 복셀 크기가 표시됩니다."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The **slice slider** at the left of the image steps through the slices; **Page Up** and **Page Down** step too. Every 2-D tool draws on the slice on screen."
@@ -328,13 +327,13 @@ msgstr "선택"
 msgid "Shown while mask layers are loaded: remove, restore or add objects of the curated overlay; see `Curate against mask layers`_."
 msgstr "마스크 레이어를 불러온 동안 표시됩니다. 큐레이션 오버레이의 객체를 제거, 복원 또는 추가합니다. `Curate against mask layers`_ 을 참조하세요."
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "**Shift or Alt + drag** pans. The wheel zooms about the cursor; **Esc** resets zoom. **Left/Right** selects the previous/next field. **Ctrl+Z/Ctrl+Y** undoes or redoes an edit. With Wand selected, **Ctrl + left click** removes the bounded intensity region. Outside Wand, **Ctrl + left click** splits an object at its waist; **Ctrl + right click** removes the object under the cursor. The shortcut panel beside the view lists the current gestures, including magnifier controls."
-msgstr "**Shift 또는 Alt + 드래그** 로 화면을 이동합니다. 휠은 커서를 중심으로 확대/축소하며, **Esc** 는 확대/축소를 초기화합니다. **Left/Right** 는 이전/다음 시야를 선택합니다. **Ctrl+Z/Ctrl+Y** 는 편집을 실행 취소하거나 다시 실행합니다. 마술봉을 선택하면 **Ctrl + 왼쪽 클릭** 이 경계가 있는 강도 영역을 제거합니다. 마술봉 이외에서는 **Ctrl + 왼쪽 클릭** 은 객체를 잘록한 부분에서 나누고, **Ctrl + 오른쪽 클릭** 은 커서 아래의 객체를 제거합니다. 보기 옆의 바로 가기 패널에는 돋보기 컨트롤을 포함한 현재 제스처가 나열됩니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Alt + drag** pans; with tools other than Brush, **Shift + drag** also pans (with Brush it keeps painting the last object across a gap). The wheel zooms about the cursor; **Esc** resets zoom. **Left/Right** selects the previous/next field. **Ctrl+Z/Ctrl+Y** undoes or redoes an edit. With Wand selected, **Ctrl + left click** removes the bounded intensity region. Outside Wand, **Ctrl + left click** splits an object at its waist; **Ctrl + right click** removes the object under the cursor. The shortcut panel beside the view lists the current gestures, including magnifier controls."
+msgstr "**Alt + 드래그** 로 화면을 이동합니다. Brush 이외의 도구에서는 **Shift + 드래그** 로도 화면을 이동합니다(Brush에서는 간격을 건너 마지막 객체를 계속 칠합니다). 휠은 커서를 중심으로 확대/축소하며, **Esc** 는 확대/축소를 초기화합니다. **Left/Right** 는 이전/다음 시야를 선택합니다. **Ctrl+Z/Ctrl+Y** 는 편집을 실행 취소하거나 다시 실행합니다. 마술봉을 선택하면 **Ctrl + 왼쪽 클릭** 이 경계가 있는 강도 영역을 제거합니다. 마술봉 이외에서는 **Ctrl + 왼쪽 클릭** 은 객체를 잘록한 부분에서 나누고, **Ctrl + 오른쪽 클릭** 은 커서 아래의 객체를 제거합니다. 보기 옆의 바로 가기 패널에는 돋보기 컨트롤을 포함한 현재 제스처가 나열됩니다."
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "**Clear all objects**, immediately left of **Discard**, asks for confirmation before removing every segmentation object in the current image. Cancelling keeps the masks; undo restores them. The acquired image is unchanged."
-msgstr "**버리기** 바로 왼쪽의 **모든 객체 지우기** 는 현재 이미지의 모든 분할 객체를 제거하기 전에 확인을 요청합니다. 취소하면 마스크가 유지되고 실행 취소하면 복원됩니다. 획득한 이미지는 바뀌지 않습니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Clear all objects**, under **Object operations**, asks for confirmation before removing every segmentation object in the current image. Cancelling keeps the masks; undo restores them. The acquired image is unchanged."
+msgstr "**객체 작업** 아래의 **모든 객체 지우기** 는 현재 이미지의 모든 분할 객체를 제거하기 전에 확인을 요청합니다. 취소하면 마스크가 유지되고 실행 취소하면 복원됩니다. 획득한 이미지는 바뀌지 않습니다."
 
 msgid "Recrop creates files and changes the field queue. Objects cut by a crop's boundary are omitted, and retained objects are renumbered within the new crop. Very small crops and near-duplicates are refused. Completed originals move into ``recropped_originals/``. Use the original image and mask when maintaining primary/secondary IDs across the full field; a renumbered crop is a different pairing context. The precise limits and paths are documented by :func:`spacr.qt.mask_engine.write_recrop`."
 msgstr "Recrop은 파일을 만들고 시야 대기열을 바꿉니다. 자른 영역의 경계에 걸린 객체는 빠지고, 남은 객체는 새 크롭 안에서 다시 번호가 매겨집니다. 너무 작은 크롭과 거의 중복되는 크롭은 거부됩니다. 처리가 끝난 원본은 ``recropped_originals/`` 로 옮겨집니다. 전체 시야에 걸쳐 1차/2차 ID를 유지할 때는 원래 이미지와 마스크를 사용합니다. 번호가 다시 매겨진 크롭은 다른 짝짓기 맥락입니다. 정확한 제한과 경로는 :func:`spacr.qt.mask_engine.write_recrop` 에 문서화되어 있습니다."
@@ -372,8 +371,9 @@ msgstr "검출 방법 선택"
 msgid "The method selector controls the detector used by the live preview and the corresponding whole-image detection action. Only applicable method controls are shown. Model methods require their model or backend; the Model Zoo indicates installation and download state."
 msgstr "방법 선택기는 실시간 미리보기와 해당 전체 이미지 검출 작업에 사용할 검출기를 제어합니다. 적용 가능한 방법 컨트롤만 표시됩니다. 모델 방법에는 해당 모델이나 백엔드가 필요하며, 모델 라이브러리에 설치 및 다운로드 상태가 표시됩니다."
 
-msgid "The **Object detection** toolbar action runs model loading, inference and postprocessing in a worker so the window remains responsive. It captures the current input and settings when started. If you switch fields or change the image or mask before it finishes, the result is discarded; run detection again on the intended field. Closing the window does not wait for that result. The Python method :meth:`spacr.qt.screens.make_masks.MakeMasksScreen.run_cellpose` remains synchronous and returns zero if another detection is already running."
-msgstr "도구 모음 작업 **객체 검출** 은 창이 계속 반응하도록 모델 로드, 추론, 후처리를 작업자에서 실행합니다. 시작할 때 현재 입력과 설정을 캡처합니다. 끝나기 전에 시야를 바꾸거나 이미지나 마스크를 변경하면 결과가 버려지므로, 원하는 시야에서 다시 검출을 실행합니다. 창을 닫을 때 그 결과를 기다리지 않습니다. Python 메서드 :meth:`spacr.qt.screens.make_masks.MakeMasksScreen.run_cellpose` 는 여전히 동기식이며, 다른 검출이 이미 실행 중이면 0을 반환합니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The **Object detection** button under **Object operations** runs model loading, inference and postprocessing in a worker so the window remains responsive. It captures the current input and settings when started. If you switch fields or change the image or mask before it finishes, the result is discarded; run detection again on the intended field. Closing the window does not wait for that result. The Python method :meth:`spacr.qt.screens.make_masks.MakeMasksScreen.run_cellpose` remains synchronous and returns zero if another detection is already running."
+msgstr "**객체 작업** 아래의 **객체 검출** 버튼은 창이 계속 반응하도록 모델 로드, 추론, 후처리를 작업자에서 실행합니다. 시작할 때 현재 입력과 설정을 캡처합니다. 끝나기 전에 시야를 바꾸거나 이미지나 마스크를 변경하면 결과가 버려지므로, 원하는 시야에서 다시 검출을 실행합니다. 창을 닫을 때 그 결과를 기다리지 않습니다. Python 메서드 :meth:`spacr.qt.screens.make_masks.MakeMasksScreen.run_cellpose` 는 여전히 동기식이며, 다른 검출이 이미 실행 중이면 0을 반환합니다."
 
 msgid "CPU Cellpose inference uses float32 weights through the shared device policy. Supported GPU precision depends on the backend and device. Different precision can produce different predictions, so inspect the masks instead of assuming identical output across devices. This inference policy does not change training precision. See :func:`spacr.accelerator.cellpose_kwargs`. Live Cellpose previews also use float32 when explicitly forced to CPU or when accelerator detection falls back to CPU. A Cellpose 3 checkpoint rejected by Cellpose 4 produces a preview-specific compatibility message; choose a checkpoint supported by the installed preview runtime. See :func:`spacr.qt.widgets.preview_contract.preview_cellpose_model`."
 msgstr "CPU Cellpose 추론은 공유 장치 정책을 통해 float32 가중치를 사용합니다. GPU에서 지원되는 정밀도는 백엔드와 장치에 따라 다릅니다. 정밀도가 다르면 예측이 달라질 수 있으므로, 장치마다 출력이 같다고 가정하지 말고 마스크를 검사합니다. 이 추론 정책은 학습 정밀도를 바꾸지 않습니다. :func:`spacr.accelerator.cellpose_kwargs` 를 참조합니다. 실시간 Cellpose 미리보기도 명시적으로 CPU를 강제하거나 가속기 감지가 CPU로 대체되면 float32를 사용합니다. Cellpose 4가 거부한 Cellpose 3 체크포인트는 미리보기 전용 호환성 메시지를 표시하므로, 설치된 미리보기 런타임이 지원하는 체크포인트를 선택합니다. :func:`spacr.qt.widgets.preview_contract.preview_cellpose_model` 을 참조합니다."
@@ -469,11 +469,13 @@ msgstr "**비교하기** 는 구성된 향상을 미리 보여 주고, **적용*
 msgid "Compare opens with a pending result while enhancement runs. Wait for the right-hand image before judging the effect. Normalization uses the whole field before extracting the displayed crop. If you change the field or settings, open a new comparison for that selection. **Cancel** closes the comparison; an enhancement already running finishes in the background and its abandoned result is discarded."
 msgstr "향상이 실행되는 동안 비교는 결과 대기 상태로 열립니다. 효과를 판단하기 전에 오른쪽 이미지가 나타날 때까지 기다립니다. 정규화는 표시되는 크롭을 잘라내기 전에 시야 전체를 사용합니다. 시야나 설정을 바꾸면 그 선택에 대해 새 비교를 엽니다. **취소** 는 비교를 닫으며, 이미 실행 중인 향상은 백그라운드에서 끝나고 버려진 결과는 폐기됩니다."
 
-msgid "Post-detection opening/closing and splitting modify label shapes. These steps are bypassed for paired secondary objects to retain primary IDs. Make Masks enhancement is configured separately from the batch Mask pipeline; transfer the intended preprocessing explicitly when training or running a model elsewhere. See :mod:`spacr.qt.detect_chain`."
-msgstr "검출 후 열림/닫힘 연산과 분리는 레이블 모양을 바꿉니다. 짝지어진 2차 객체에는 1차 ID를 유지하기 위해 이 단계가 적용되지 않습니다. 마스크 만들기의 향상은 일괄 마스크 파이프라인과 별도로 구성되므로, 다른 곳에서 모델을 학습하거나 실행할 때는 원하는 전처리를 명시적으로 옮깁니다. :mod:`spacr.qt.detect_chain` 을 참조합니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Post-detection opening/closing and splitting modify label shapes. These steps are bypassed for paired secondary objects to retain primary IDs. Mask generation applies the same image steps through its ``enhance_*`` settings, which are set separately from the Make Masks controls; morphology and splitting apply only in Make Masks. Set matching preprocessing when training or running a model elsewhere. See :mod:`spacr.qt.detect_chain`."
+msgstr "검출 후 열림/닫힘 연산과 분리는 레이블 모양을 바꿉니다. 짝지어진 2차 객체에는 1차 ID를 유지하기 위해 이 단계가 적용되지 않습니다. 마스크 생성은 ``enhance_*`` 설정을 통해 같은 이미지 단계를 적용하며, 이 설정은 마스크 만들기 컨트롤과 별도로 지정됩니다. 형태학 연산과 분리는 마스크 만들기에서만 적용됩니다. 다른 곳에서 모델을 학습하거나 실행할 때는 일치하는 전처리를 설정합니다. :mod:`spacr.qt.detect_chain` 을 참조합니다."
 
-msgid "For calibrated optical processing, choose **Convolve (blur)** or **Deconvolve (Richardson–Lucy)** under **Point spread function**. Enter the image pixel height and width in micrometres, then choose a measured TIFF/NPY kernel with matching spacing or a Gaussian approximation with explicit Y/X full widths at half maximum. Use **Reload** after changing a kernel file. Compare the result before applying it; more deconvolution iterations can amplify noise. The original image intensities stay available for measurement. See :doc:`point_spread` for the complete workflow and Measure settings."
-msgstr "보정된 광학 처리를 하려면 **점 확산 함수** 아래에서 **컨볼루션 (흐림)** 또는 **디컨볼루션 (Richardson–Lucy)** 을 선택합니다. 이미지 픽셀 높이와 너비를 마이크로미터 단위로 입력한 다음, 간격이 일치하는 측정된 TIFF/NPY 커널이나 Y/X 반치전폭을 명시한 가우스 근사를 선택합니다. 커널 파일을 바꾼 뒤에는 **다시 불러오기** 를 사용합니다. 적용하기 전에 결과를 비교하며, 디컨볼루션 반복이 많을수록 잡음이 증폭될 수 있습니다. 원래 이미지 강도는 측정에 계속 사용할 수 있습니다. 전체 워크플로와 측정 설정은 :doc:`point_spread` 를 참조합니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "For calibrated optical processing, choose **Convolve (blur)** or **Deconvolve (Richardson–Lucy)** under **Point spread function**. Set the image pixel spacing in micrometres, directly or from **Objective** and **Camera**, then choose a measured TIFF/NPY kernel with matching spacing or a Gaussian approximation with explicit Y/X full widths at half maximum. Use **Reload** after changing a kernel file. Compare the result before applying it; more deconvolution iterations can amplify noise. The original image intensities stay available for measurement. See :doc:`point_spread` for the complete workflow and Measure settings."
+msgstr "보정된 광학 처리를 하려면 **점 확산 함수** 아래에서 **컨볼루션 (흐림)** 또는 **디컨볼루션 (Richardson–Lucy)** 을 선택합니다. 이미지 픽셀 간격을 마이크로미터 단위로 직접 입력하거나 **대물렌즈** 와 **카메라** 에서 설정한 다음, 간격이 일치하는 측정된 TIFF/NPY 커널이나 Y/X 반치전폭을 명시한 가우스 근사를 선택합니다. 커널 파일을 바꾼 뒤에는 **다시 불러오기** 를 사용합니다. 적용하기 전에 결과를 비교하며, 디컨볼루션 반복이 많을수록 잡음이 증폭될 수 있습니다. 원래 이미지 강도는 측정에 계속 사용할 수 있습니다. 전체 워크플로와 측정 설정은 :doc:`point_spread` 를 참조합니다."
 
 msgid "Restore an image with Cellpose 3"
 msgstr "Cellpose 3로 이미지 복원"
@@ -484,14 +486,16 @@ msgstr "**이미지 향상** 아래의 **딥러닝 이미지 개선** 에서 **�
 msgid "Open **Restoration model settings** and choose **Cells (cyto3)**, **Cells (cyto2)**, or **Nuclei**, according to the structures in the selected intensity channel. Set their approximate diameter in pixels. This controls model rescaling, not microscope calibration. **Load / retry model** reloads the current choice. Wait for the ready message before comparing or applying it; that message identifies the device used by the isolated backend."
 msgstr "**Restoration model settings** 를 열고, 선택한 강도 채널의 구조에 따라 **세포 (cyto3)**, **세포 (cyto2)** 또는 **핵** 을 선택합니다. 대략적인 직경을 픽셀 단위로 설정합니다. 이는 현미경 보정이 아니라 모델의 배율 조정을 제어합니다. **모델 불러오기 / 다시 시도** 는 현재 선택을 다시 불러옵니다. 비교하거나 적용하기 전에 준비 완료 메시지를 기다립니다. 이 메시지에는 격리된 백엔드가 사용하는 장치가 표시됩니다."
 
-msgid "Loading and restoration run in the background. On a CPU, a whole field can take tens of seconds; a small magnifier region is quicker. Timing depends on the image, model and computer. A backend installed with supported GPU acceleration can use it, but the workflow also runs on a CPU."
-msgstr "불러오기와 복원은 백그라운드에서 실행됩니다. CPU에서는 전체 시야에 수십 초가 걸릴 수 있으며, 돋보기의 작은 영역은 더 빠릅니다. 소요 시간은 이미지, 모델, 컴퓨터에 따라 다릅니다. 지원되는 GPU 가속과 함께 설치된 백엔드는 이를 사용할 수 있지만, 워크플로는 CPU에서도 실행됩니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Loading and restoration run in the background. A whole field takes longer than a magnifier region; timing depends on the image size, model and hardware. A backend installed with supported GPU acceleration can use it, but the workflow also runs on a CPU."
+msgstr "불러오기와 복원은 백그라운드에서 실행됩니다. 전체 시야는 돋보기 영역보다 오래 걸리며, 소요 시간은 이미지 크기, 모델, 하드웨어에 따라 다릅니다. 지원되는 GPU 가속과 함께 설치된 백엔드는 이를 사용할 수 있지만, 워크플로는 CPU에서도 실행됩니다."
 
 msgid "Use **Compare** to inspect several representative regions before choosing **Apply**. Restoration follows background and PSF processing and precedes classical denoising and contrast adjustments. Apply feeds the restored floating-point intensities to detection and the Wand while keeping display scaling separate. The image dimensions and loaded source pixels stay unchanged; upsampling models are not offered here."
 msgstr "**적용** 을 선택하기 전에 **비교하기** 로 여러 대표 영역을 검사합니다. 복원은 배경 및 PSF 처리 뒤, 고전적 잡음 제거와 대비 조정 앞에 수행됩니다. 적용하면 복원된 부동소수점 강도가 검출과 Wand에 전달되고 표시 배율은 따로 유지됩니다. 이미지 크기와 불러온 원본 픽셀은 바뀌지 않으며, 여기서는 업샘플링 모델을 제공하지 않습니다."
 
-msgid "Restored values are normalized model output, not calibrated fluorescence; they can be negative or exceed one. Measurements retain the original intensities. A clearer-looking image does not establish recovered structure or more accurate masks, and these weights are not validated for every organelle or acquisition. Inspect the resulting masks as well as the image. Keep the saved enhancement record with the masks: it identifies the model, Cellpose version, checkpoint hash, device, diameter and processing settings. CARE and Noise2Void are not supplied as ready restoration engines."
-msgstr "복원된 값은 정규화된 모델 출력이지 보정된 형광이 아니며, 음수이거나 1을 넘을 수 있습니다. 측정에는 원래 강도가 유지됩니다. 이미지가 더 선명해 보인다고 해서 구조가 복원되었거나 마스크가 더 정확하다는 뜻은 아니며, 이 가중치가 모든 세포소기관이나 획득 조건에 대해 검증된 것도 아닙니다. 이미지뿐 아니라 결과 마스크도 검사합니다. 저장된 향상 기록을 마스크와 함께 보관합니다. 여기에는 모델, Cellpose 버전, 체크포인트 해시, 장치, 직경, 처리 설정이 기록되어 있습니다. CARE와 Noise2Void는 바로 쓸 수 있는 복원 엔진으로 제공되지 않습니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Restored values are normalized model output, not calibrated fluorescence; they can be negative or exceed one. Measurements retain the original intensities. A clearer-looking image does not establish recovered structure or more accurate masks, and these weights are not validated for every organelle or acquisition. Inspect the resulting masks as well as the image. Keep the saved enhancement record with the masks: it identifies the model, Cellpose version, checkpoint hash, device, diameter and processing settings. Make Masks does not offer CARE or Noise2Void restoration."
+msgstr "복원된 값은 정규화된 모델 출력이지 보정된 형광이 아니며, 음수이거나 1을 넘을 수 있습니다. 측정에는 원래 강도가 유지됩니다. 이미지가 더 선명해 보인다고 해서 구조가 복원되었거나 마스크가 더 정확하다는 뜻은 아니며, 이 가중치가 모든 세포소기관이나 획득 조건에 대해 검증된 것도 아닙니다. 이미지뿐 아니라 결과 마스크도 검사합니다. 저장된 향상 기록을 마스크와 함께 보관합니다. 여기에는 모델, Cellpose 버전, 체크포인트 해시, 장치, 직경, 처리 설정이 기록되어 있습니다. 마스크 만들기는 CARE 또는 Noise2Void 복원을 제공하지 않습니다."
 
 msgid "Grow secondary objects from a primary mask"
 msgstr "1차 마스크에서 2차 객체 키우기"
@@ -536,9 +540,9 @@ msgstr "실시간 돋보기, 필터링, 측정"
 msgid "Toggle **Magnifier** or press **M** to inspect proposed objects around the pointer. Its wheel changes box zoom; **Shift + wheel** changes box size. **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview before manually accepting its objects."
 msgstr "**돋보기** 를 켜거나 **M** 을 눌러 포인터 주변에 제안된 객체를 검사합니다. 마우스 휠은 상자 안의 확대 배율을 바꾸고, **Shift + wheel** 은 상자 크기를 바꿉니다. **Ctrl+L+오른쪽 클릭** 은 상자를 잠그거나 잠금 해제합니다. 객체를 수동 승인하기 전에 업데이트된 미리보기를 기다리십시오."
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Under **Object detection** → **Magnification settings**, turn on **Instantly accept proposed objects** to accept a current proposal without clicking. This is off by default. Region mode follows **Objects added**; whole-image mode accepts only the object under the pointer. Moving outside the image or disabling the magnifier prevents automatic acceptance. Each acceptance is undoable, and an undo does not immediately accept the same proposal again. Use **Save** or **Save & Next** to write accepted masks."
-msgstr "**객체 검출** → **확대 설정** 에서 **제안된 객체 즉시 승인** 을 켜면 클릭하지 않고 현재 제안을 승인할 수 있습니다. 기본적으로 꺼져 있습니다. 영역 모드는 **추가할 객체** 설정을 따르며, 전체 이미지 모드는 포인터 아래의 객체만 승인합니다. 이미지 밖으로 이동하거나 돋보기를 끄면 자동 승인이 중단됩니다. 각 승인은 실행 취소할 수 있으며, 취소 직후 같은 제안을 다시 자동 승인하지 않습니다. **저장** 또는 **Save & Next** 로 승인된 마스크를 디스크에 저장합니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "In the **Magnification settings** category, turn on **Instantly accept proposed objects** to accept a current proposal without clicking. This is off by default. Region mode follows **Objects added**; whole-image mode accepts only the object under the pointer. Moving outside the image or disabling the magnifier prevents automatic acceptance. Each acceptance is undoable, and an undo does not immediately accept the same proposal again. Use **Save mask** (or **Save on navigation**) to write accepted masks."
+msgstr "**확대 설정** 범주에서 **제안된 객체 즉시 승인** 을 켜면 클릭하지 않고 현재 제안을 승인할 수 있습니다. 기본적으로 꺼져 있습니다. 영역 모드는 **추가할 객체** 설정을 따르며, 전체 이미지 모드는 포인터 아래의 객체만 승인합니다. 이미지 밖으로 이동하거나 돋보기를 끄면 자동 승인이 중단됩니다. 각 승인은 실행 취소할 수 있으며, 취소 직후 같은 제안을 다시 자동 승인하지 않습니다. 승인된 마스크를 저장하려면 **마스크 저장** (또는 **이동 시 저장**)을 사용합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Overlap** chooses what happens when a proposal overlaps an existing mask:"
@@ -654,19 +658,21 @@ msgstr "**유지** 는 객체 ID를 바꾸지 않고 편집한 오버레이를 �
 msgid "Upload data"
 msgstr "데이터 업로드"
 
-msgid "**Upload data…** sends the image on screen with its mask, every curated image in the folder with its saved mask, or a chosen images folder and masks folder, to spaCR's community datasets on Hugging Face for training future models. Every image needs a saved mask of the same name and size. Name the dataset, add notes, and agree to the licence; the dialog shows the destination as a link you can open, select and copy. A new dataset appears with its first upload, and each contribution is reviewed before it is used."
-msgstr "**데이터 업로드…** 는 화면의 이미지와 그 마스크, 폴더에 있는 선별된 모든 이미지와 저장된 마스크, 또는 선택한 이미지 폴더와 마스크 폴더를 향후 모델 학습을 위해 Hugging Face의 spaCR 커뮤니티 데이터 세트로 보냅니다. 모든 이미지에는 이름과 크기가 같은 저장된 마스크가 있어야 합니다. 데이터 세트 이름을 정하고, 메모를 추가하고, 라이선스에 동의합니다. 대화 상자는 대상을 열고, 선택하고, 복사할 수 있는 링크로 보여 줍니다. 새 데이터 세트는 첫 업로드와 함께 나타나며, 각 기여는 사용 전에 검토됩니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Upload data…**, in the **Save mask** arrow menu, sends the image on screen with its mask, every curated image in the folder with its saved mask, or a chosen images folder and masks folder, to spaCR's community datasets on Hugging Face for training future models. Every image needs a saved mask of the same name and size. Name the dataset, add notes, and agree to the licence; the dialog shows the destination as a link you can open, select and copy. A new dataset appears with its first upload, and each contribution is reviewed before it is used."
+msgstr "**마스크 저장** 화살표 메뉴의 **데이터 업로드…** 는 화면의 이미지와 그 마스크, 폴더에 있는 선별된 모든 이미지와 저장된 마스크, 또는 선택한 이미지 폴더와 마스크 폴더를 향후 모델 학습을 위해 Hugging Face의 spaCR 커뮤니티 데이터 세트로 보냅니다. 모든 이미지에는 이름과 크기가 같은 저장된 마스크가 있어야 합니다. 데이터 세트 이름을 정하고, 메모를 추가하고, 라이선스에 동의합니다. 대화 상자는 대상을 열고, 선택하고, 복사할 수 있는 링크로 보여 줍니다. 새 데이터 세트는 첫 업로드와 함께 나타나며, 각 기여는 사용 전에 검토됩니다."
 
-msgid "The masthead also opens Cellpose Workbench, Mask the whole folder, Model Compare, Model Zoo, Curate and Napari Bridge. Their input/output contracts are linked from the :ref:`module map <workflow-module-make_masks>`."
-msgstr "헤더에서는 Cellpose 워크벤치, 전체 폴더의 마스크 생성, 모델 비교, 모델 라이브러리, 큐레이트, 나파리 브리지도 열 수 있습니다. 이들의 입력/출력 규약은 :ref:`모듈 맵 <workflow-module-make_masks>` 에서 연결됩니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The masthead also opens Cellpose Workbench, Mask folder, Model Compare, Model Zoo, Curate (alpha) and Napari Bridge (alpha). Their input/output contracts are linked from the :ref:`module map <workflow-module-make_masks>`."
+msgstr "헤더에서는 Cellpose 워크벤치, 전체 폴더의 마스크 생성, 모델 비교, 모델 라이브러리, 큐레이트(알파), 나파리 브리지(알파)도 열 수 있습니다. 이들의 입력/출력 규약은 :ref:`모듈 맵 <workflow-module-make_masks>` 에서 연결됩니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Large plates in Mask generation"
 msgstr "마스크 생성에서 대형 플레이트 처리"
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "The **Mask** batch-generation module processes a plate; **Make Masks** edits the field currently open. For a crash while processing a raw plate, check the batch module's console and saved ``settings/gen_mask_settings.json`` to identify the stage and settings used."
-msgstr "**마스크** 일괄 생성 모듈은 플레이트를 처리하고 **마스크 만들기**\\ 는 현재 열린 시야를 편집합니다. 원본 플레이트 처리 중 충돌이 발생하면 일괄 처리 모듈의 콘솔과 저장된 ``settings/gen_mask_settings.json``\\ 을 확인하여 사용한 단계와 설정을 파악하세요."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The **Mask** batch-generation module processes a plate; **Make Masks** edits the field currently open. For a crash while processing a raw plate, check the batch module's console and saved ``settings/gen_mask_settings.csv`` to identify the stage and settings used."
+msgstr "**마스크** 일괄 생성 모듈은 플레이트를 처리하고 **마스크 만들기**\\ 는 현재 열린 시야를 편집합니다. 원본 플레이트 처리 중 충돌이 발생하면 일괄 처리 모듈의 콘솔과 저장된 ``settings/gen_mask_settings.csv``\\ 를 확인하여 사용한 단계와 설정을 파악하세요."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "In the V1 batch pipeline, raw-file preprocessing projects and writes one field at a time to ``stack/``. It retains filenames across the plate, not every field's pixel data. Z planes are combined incrementally. Completed field stacks are published atomically and can be reused when preprocessing resumes. This stage's pixel memory therefore follows the size and channels of a field, rather than the number of fields in the plate."

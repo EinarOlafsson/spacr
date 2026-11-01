@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Plate-aware guide permutation analysis"
 msgstr "考虑孔板的向导置换分析"
 
-msgid "Use the guide permutation analysis when the independent experimental unit is a well and a simultaneous guide model is not identifiable because there are more guide columns than wells or because guide fractions are highly correlated.  ``inference='nonparametric'`` (the default) runs it, and ``inference='auto'`` chooses it whenever the simultaneous fit would be unidentifiable; either way the run records ``analysis_mode='guide_permutation'``.  The mode uses the same paired per-cell score and sequencing-count CSV inputs (``paired_data``) as :func:`spacr.ml.perform_regression`."
-msgstr "当独立实验单元是孔，并且由于向导列多于孔或向导比例高度相关而无法识别同时拟合的向导模型时，请使用向导置换分析。``inference='nonparametric'`` （默认值）会运行此分析，``inference='auto'`` 会在同时拟合不可识别时自动选择它；无论哪种方式，运行都会记录 ``analysis_mode='guide_permutation'``。该模式使用与 :func:`spacr.ml.perform_regression` 相同的配对单细胞评分和测序计数 CSV 输入（``paired_data``）。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Use the guide permutation analysis when the independent experimental unit is a well and a simultaneous guide model is not identifiable because there are more guide columns than wells or because guide fractions are highly correlated.  ``inference='nonparametric'`` (the default) runs it, and ``inference='auto'`` chooses it unless the analysed wells number at least twice the simultaneous model's parameters (one per guide, an intercept and one per additional plate); either way the run records ``analysis_mode='guide_permutation'``.  The mode uses the same paired per-cell score and sequencing-count CSV inputs (``paired_data``) as :func:`spacr.ml.perform_regression`."
+msgstr "当独立实验单元是孔，并且由于向导列多于孔或向导比例高度相关而无法识别同时拟合的向导模型时，请使用向导置换分析。``inference='nonparametric'`` （默认值）会运行此分析；``inference='auto'`` 会选择它，除非所分析的孔数至少为同时拟合模型参数个数的两倍（每个向导一个、一个截距以及每块额外的板一个）；无论哪种方式，运行都会记录 ``analysis_mode='guide_permutation'``。该模式使用与 :func:`spacr.ml.perform_regression` 相同的配对单细胞评分和测序计数 CSV 输入（``paired_data``）。"
 
 msgid "Each guide is tested separately after its well-level fraction and the well-level phenotype have both been adjusted for plate (and any optional measured nuisance columns).  Two-sided empirical P values come from Freedman--Lane residual permutations restricted within plate.  Multiple-test correction is then applied separately within each requested minimum-support family.  These are marginal associations: co-occurring guides may share a signal, so the output is not a set of mutually adjusted causal coefficients."
 msgstr "在孔水平的向导比例和孔水平的表型都针对孔板（以及任何可选的已测量干扰列）进行校正之后，逐一检验每个向导。双侧经验 P 值来自限制在孔板内的 Freedman--Lane 残差置换。随后在每个请求的最小支持度族内分别进行多重检验校正。这些是边际关联：同时出现的向导可能共享同一信号，因此输出并不是一组相互校正后的因果系数。"
@@ -37,8 +38,9 @@ msgstr "重要的输出列包括 ``wells_with_guide``、``standardized_marginal_
 msgid "Multiple-testing choices"
 msgstr "多重检验的选择"
 
-msgid "``multiple_testing_method`` accepts ``fdr_bh`` (Benjamini--Hochberg), ``fdr_by``, ``bonferroni``, ``holm`` or ``none``.  ``fdr_bh`` is the default. For reproducibility, record the requested support families, permutation count, seed, blocking column, nuisance columns, presence threshold, correction method and alpha together with the input-file checksums."
-msgstr "``multiple_testing_method`` 接受 ``fdr_bh`` （Benjamini--Hochberg）、``fdr_by``、``bonferroni``、``holm`` 或 ``none``。``fdr_bh`` 为默认值。为了可重复性，请将请求的支持度族、置换次数、随机种子、分块列、干扰列、存在阈值、校正方法和 alpha 与输入文件的校验和一起记录。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "``multiple_testing_method`` accepts ``none``, ``bonferroni``, ``sidak``, ``holm``, ``holm_sidak``, ``simes_hochberg``, ``hommel``, ``fdr_bh`` (Benjamini--Hochberg), ``fdr_by``, ``fdr_tsbh``, ``fdr_tsbky``, ``fdr_gbs`` or ``storey``.  ``fdr_bh`` is the default. For reproducibility, record the requested support families, permutation count, seed, blocking column, nuisance columns, presence threshold, correction method and alpha together with the input-file checksums."
+msgstr "``multiple_testing_method`` 接受 ``none``、``bonferroni``、``sidak``、``holm``、``holm_sidak``、``simes_hochberg``、``hommel``、``fdr_bh`` （Benjamini--Hochberg）、``fdr_by``、``fdr_tsbh``、``fdr_tsbky``、``fdr_gbs`` 或 ``storey``。``fdr_bh`` 为默认值。为了可重复性，请将请求的支持度族、置换次数、随机种子、分块列、干扰列、存在阈值、校正方法和 alpha 与输入文件的校验和一起记录。"
 
 msgid "Direct analysis of an existing long table"
 msgstr "直接分析现有的长表"

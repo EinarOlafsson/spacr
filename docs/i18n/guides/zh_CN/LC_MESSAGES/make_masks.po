@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 14:46-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -35,26 +35,25 @@ msgstr "将鼠标悬停在某个设置或其标签上，即可阅读说明并打
 msgid "Centre-pixel puncta inside cysts or cells"
 msgstr "囊肿或细胞内的中心像素点状对象"
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Choose **Centre-pixel puncta within parent masks** in **Detection methods**. Open the original single-channel images and select a separate parent-mask folder with matching image stems, or a parent-mask file for the current image. Parent masks are read-only. Use whole-image **Replace**, then **Save mask**."
-msgstr "在 **检测方法** 中选择 **父级掩膜内的中心像素点状对象**。打开原始单通道图像，并选择独立的父级掩膜文件夹，其中的文件主名应与图像对应；也可选择当前图像的父级掩膜文件。父级掩膜为只读。对整幅图像使用 **替换**，然后使用 **保存掩膜**。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Choose **Centre-pixel puncta within parent masks** in **Object detection**. Open the original single-channel images and select a separate parent-mask folder with matching image stems, or a parent-mask file for the current image. Parent masks are read-only. Use whole-image **Replace**, then **Save mask**."
+msgstr "在 **对象检测** 中选择 **父级掩膜内的中心像素点状对象**。打开原始单通道图像，并选择独立的父级掩膜文件夹，其中的文件主名应与图像对应；也可选择当前图像的父级掩膜文件。父级掩膜为只读。对整幅图像使用 **替换**，然后使用 **保存掩膜**。"
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "The detector finds scale-normalised LoG peaks at sigma 1.5, 2, 3, 4 and 6 pixels. It estimates each parent's pixel noise from the MAD of the sigma-1 high-pass residual divided by 0.87, and propagates that noise through each LoG kernel. The candidate threshold defaults to 2.5 noise units. Peaks undergo scale-dependent nonmaximum suppression and a three-pixel parent-edge exclusion. Change the scale list, candidate threshold, peak spacing or edge margin when the acquisition requires it; these are image-pixel settings, not calibration."
-msgstr "检测器在 sigma 为 1.5、2、3、4 和 6 像素的尺度上寻找经过尺度归一化的 LoG 峰值。它以每个父级对象内 sigma 为 1 的高通残差的 MAD 除以 0.87 来估计像素噪声，并将该噪声传播到各个 LoG 核。候选阈值默认为 2.5 个噪声单位。峰值经过随尺度变化的非极大值抑制，并排除距父级边缘不足三像素的峰值。可根据采集条件调整尺度列表、候选阈值、峰间距或边缘距离；这些设置以图像像素为单位，不属于标定。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The detector finds scale-normalised LoG peaks at sigma 1.5, 2, 3, 4 and 6 pixels. It estimates each parent's pixel noise as the scaled median absolute deviation (1.4826 × MAD) of the image minus its sigma-1 Gaussian blur, divided by 0.87, and propagates that noise through each LoG kernel. The candidate threshold defaults to 2.5 noise units. Peaks undergo scale-dependent nonmaximum suppression and a three-pixel parent-edge exclusion. Change the scale list, candidate threshold, peak spacing or edge margin when the acquisition requires it; these are image-pixel settings, not calibration."
+msgstr "检测器在 sigma 为 1.5、2、3、4 和 6 像素的尺度上寻找经过尺度归一化的 LoG 峰值。它将每个父级对象的像素噪声估计为图像减去其 sigma 为 1 的高斯模糊后的缩放中位数绝对偏差（1.4826 × MAD），再除以 0.87，并将该噪声传播到各个 LoG 核。候选阈值默认为 2.5 个噪声单位。峰值经过随尺度变化的非极大值抑制，并排除距父级边缘三像素以内的峰值。可根据采集条件调整尺度列表、候选阈值、峰间距或边缘距离；这些设置以图像像素为单位，不属于标定。"
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Each punctum is measured using the pixels nearest its intensity-weighted subpixel centre in a nine-by-nine window. **Centre pixels per punctum** defaults to 20; 10 and 40 are supported. The same-parent local-background annulus starts at max(4, 2.5 sigma + 2) pixels and is four pixels wide. It excludes other candidate centres when enough background remains. The default inclusion floor is centre mean minus local background >= 3 native intensity units. Display normalization, inversion, enhancement and Min area are bypassed."
-msgstr "每个点状对象使用九乘九窗口中最靠近其强度加权亚像素中心的像素进行测量。**每个点状对象的中心像素数** 默认为 20，也支持 10 和 40。位于同一父级对象内的局部背景环从 max(4, 2.5 sigma + 2) 像素处开始，宽度为四像素。当剩余背景足够时，会排除其他候选中心。默认纳入条件为中心均值减去局部背景 >= 3 个原始强度单位。显示归一化、反转、图像增强和 Min area 均不参与处理。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Each punctum is measured using the pixels nearest its intensity-weighted subpixel centre in a nine-by-nine window. **Centre pixels per punctum** defaults to 20 and accepts 1 to 81, the size of that window. The same-parent local-background annulus starts at max(4, 2.5 sigma + 2) pixels and is four pixels wide. It excludes other candidate centres when enough background remains. The default inclusion floor is centre mean minus local background >= 3 native intensity units. Display normalization, inversion, enhancement and Min area are bypassed."
+msgstr "每个点状对象使用九乘九窗口中最靠近其强度加权亚像素中心的像素进行测量。**每个点状对象的中心像素数** 默认为 20，可取 1 到 81，即该窗口的大小。位于同一父级对象内的局部背景环从 max(4, 2.5 sigma + 2) 像素处开始，宽度为四像素。当剩余背景足够时，会排除其他候选中心。默认纳入条件为中心均值减去局部背景 >= 3 个原始强度单位。显示归一化、反转、图像增强和 Min area 均不参与处理。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The saved integer mask gives every retained punctum its own label. Nearby centre windows can overlap: each integer peak is reserved for its object, other shared pixels go to the nearest centre, and pixels outside the parent are omitted. Consequently a mask may contain fewer than the requested N pixels. This is a centre sampling mask, not the punctum's physical boundary."
 msgstr "保存的整数掩膜为每个保留的点状对象分配独立标签。邻近的中心窗口可能重叠：每个整数坐标峰值保留给其自身对象，其他共享像素归属最近的中心，父级对象外的像素被省略。因此，掩膜中的像素数可能少于请求的 N 个像素。这是中心采样掩膜，不代表点状对象的物理边界。"
 
-# AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Saving an unchanged whole-image detection also writes ``<stem>.puncta.csv`` and ``<stem>.puncta.json`` beside the mask. The table contains all candidates, their inclusion flags, output object labels, parent IDs, coordinates, noise, local background, exact 10/20/40-pixel centre means and the selected N-pixel mean. Exact centre means retain overlapping samples independently of label ownership. Use ``center_corrected`` for the selected N-pixel mean minus local background, or ``corrected20`` for the fixed 20-pixel variant. The ``corrected`` column holds the reference's three-by-three-window result. The receipt binds the image, parent mask, output mask, CSV and detector settings to checksums. Edited or combined labels cannot silently receive the old centre measurements. Local previews estimate noise within their crop; use whole-image detection for scientific results."
-msgstr "保存未经修改的整幅图像检测结果时，还会在掩膜旁写入 ``<stem>.puncta.csv`` 和 ``<stem>.puncta.json``。表格包含全部候选对象、纳入标记、输出对象标签、父级 ID、坐标、噪声、局部背景、精确的 10/20/40 像素中心均值及所选的 N 像素均值。精确中心均值保留重叠采样，与标签归属无关。``center_corrected`` 表示所选 N 像素均值减去局部背景，``corrected20`` 表示固定的 20 像素版本。``corrected`` 列保存参考实现的三乘三窗口结果。记录通过校验和关联图像、父级掩膜、输出掩膜、CSV 和检测器设置。编辑或合并的标签不会静默获得旧的中心测量。局部预览仅在裁剪范围内估计噪声；科学结果应使用整幅图像检测。"
+msgid "Saving an unchanged whole-image detection also writes ``<stem>.puncta.csv`` and ``<stem>.puncta.json`` beside the mask. The table contains all candidates, their inclusion flags, output object labels, parent IDs, coordinates, noise, local background, exact 10/20/40-pixel centre means and the selected N-pixel mean. Exact centre means retain overlapping samples independently of label ownership. Use ``center_corrected`` for the selected N-pixel mean minus local background, or ``corrected20`` for the fixed 20-pixel variant. The ``corrected`` column holds the three-by-three-window mean minus local background. The receipt binds the image, parent mask, output mask, CSV and detector settings to checksums. Edited or combined labels cannot silently receive the old centre measurements. Local previews estimate noise within their crop; use whole-image detection for scientific results."
+msgstr "保存未经修改的整幅图像检测结果时，还会在掩膜旁写入 ``<stem>.puncta.csv`` 和 ``<stem>.puncta.json``。表格包含全部候选对象、纳入标记、输出对象标签、父级 ID、坐标、噪声、局部背景、精确的 10/20/40 像素中心均值及所选的 N 像素均值。精确中心均值保留重叠采样，与标签归属无关。使用 ``center_corrected`` 获取所选 N 像素均值减去局部背景的值，或使用 ``corrected20`` 获取固定的 20 像素版本。``corrected`` 列保存三乘三窗口均值减去局部背景的值。记录通过校验和关联图像、父级掩膜、输出掩膜、CSV 和检测器设置。编辑或合并的标签不会静默获得旧的中心测量。局部预览仅在裁剪范围内估计噪声；科学结果应使用整幅图像检测。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Use **Organize for Measure…** to place the puncta in an organelle mask slot alongside the parent masks and original channels. Measure can report ordinary mask-region intensities and parent relationships, but those means can differ from exact centre means when samples overlap. Use the source-bound puncta table for the centre/annulus analysis. This detector alone does not implement the noise-null model, hierarchical tests or a composed publication figure."
@@ -75,8 +74,9 @@ msgstr "程序会记住这个选择，并更新已打开的缩略图视图。整
 msgid "Open a field and save an edit"
 msgstr "打开视野并保存编辑"
 
-msgid "Choose **Open folder…** and select the image folder. The ordinary layout keeps corresponding masks in its ``masks/`` subfolder. A saved TIFF mask uses the image's filename stem; a missing mask starts empty. The loader also supports the sibling masks layout and Cellpose ``_seg.npy`` bundles."
-msgstr "选择 **打开文件夹** 并选择图像文件夹。常规布局将对应的掩膜放在其 ``masks/`` 子文件夹中。保存的 TIFF 掩膜使用图像的文件名主干；缺少掩膜时从空掩膜开始。加载器还支持同级掩膜文件夹布局和 Cellpose ``_seg.npy`` 文件包。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Choose **Open File / Folder…** (or **Open folder…** in its arrow menu) and select the image folder. The ordinary layout keeps corresponding masks in its ``masks/`` subfolder. A saved TIFF mask uses the image's filename stem; a missing mask starts empty. The loader also supports the sibling masks layout and Cellpose ``_seg.npy`` bundles."
+msgstr "选择 **打开文件 / 文件夹…** （或其箭头菜单中的 **打开文件夹**）并选择图像文件夹。常规布局将对应的掩膜放在其 ``masks/`` 子文件夹中。保存的 TIFF 掩膜使用图像的文件名主干；缺少掩膜时从空掩膜开始。加载器还支持同级掩膜文件夹布局和 Cellpose ``_seg.npy`` 文件包。"
 
 msgid "Inspect the image and labels. Images and masks must have matching spatial dimensions. An ordinary colour image is converted to grayscale; prepare the intended channel as a separate image when channel identity matters."
 msgstr "检查图像和标签。图像与掩膜的空间尺寸必须一致。普通彩色图像会被转换为灰度；当通道标识很重要时，请将目标通道准备为单独的图像。"
@@ -96,21 +96,20 @@ msgid "**Save mask** and the previous/next-image buttons are in the navigation g
 msgstr "**保存掩膜** 和上一张/下一张图像按钮位于图像下方的导航组中。窗口变窄时，编辑和标注控件会在顶部工具栏内换行排列。如果换行后的顶部控件需要的高度超过可用空间，请在该工具栏内垂直滚动以访问这些控件。"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-# AI technical review (Codex), no native-speaker signoff.
-msgid "**Save on navigation**, in the **Save mask** arrow menu, saves an edited mask before **Keep**, **Discard**, **Next image** or **Previous image** moves on. It is off by default and remembered between sessions. If the save fails, the image stays open and no verdict is recorded. **Skip** never writes a mask."
-msgstr "**保存掩膜** 箭头菜单中的 **导航时保存** 会在通过 **保留**、**放弃**、**下一张图像** 或 **上一张图像** 切换前保存已编辑的掩膜。默认关闭，并在会话间记住设置。保存失败时，图像保持打开且不记录判定。**跳过** 从不写入掩膜。"
+msgid "**Save on navigation**, in the **Save mask** arrow menu, saves an edited mask before **Keep**, **Discard**, **Next** or **Previous** moves on. It is off by default and remembered between sessions. If the save fails, the image stays open and no verdict is recorded. **Skip** never writes a mask."
+msgstr "**保存掩膜** 箭头菜单中的 **导航时保存** 会在通过 **保留**、**放弃**、**下一步** 或 **上一个** 切换前保存已编辑的掩膜。默认关闭，并在会话间记住设置。保存失败时，图像保持打开且不记录判定。**跳过** 从不写入掩膜。"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on, the electron microscopy test data and the FIB-SEM volumes described under :ref:`mm-tem` and :ref:`mm-volumes`."
-msgstr "如需在没有自己数据的情况下试用此屏幕，**加载测试数据...** 会下载十个未分割的弓形虫纳虫泡视野（其整理后的掩膜单独保存在 ``ground_truth_masks/`` 中），并打开第一个视野。同一按钮上的箭头可提供每个已发布模型所用训练数据集中的视野样本、电子显微镜测试数据，以及 :ref:`mm-tem` 和 :ref:`mm-volumes` 中所述的 FIB-SEM 体积。"
+msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on, the electron microscopy test data and the FIB-SEM volumes described under :ref:`mm-tem` and :ref:`mm-volumes`, and three timelapse examples (yeast, bacteria and mammalian cells) opened with their masks and lineage."
+msgstr "如需在没有自己数据的情况下试用此屏幕，**加载测试数据...** 会下载十个未分割的弓形虫纳虫泡视野（其整理后的掩膜单独保存在 ``ground_truth_masks/`` 中），并打开第一个视野。同一按钮上的箭头可提供每个已发布模型所用训练数据集中的视野样本、电子显微镜测试数据、:ref:`mm-tem` 和 :ref:`mm-volumes` 中所述的 FIB-SEM 体积，以及三个延时成像示例（酵母、细菌和哺乳动物细胞），打开时会附带其掩膜和谱系。"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "3D volumes in the Mask view"
 msgstr "Mask 视图中的 3D 体积"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "A volume opens in the Mask view, where 2-D fields open. A TIFF stack, an OME-TIFF or an MRC volume (``.mrc``, ``.rec`` or ``.map``) with three spatial axes is recognised as a volume when it is in the folder you open or when you choose **Open 3D image…**. Time, channel and RGB stacks are refused rather than read as depth. An MRC volume needs the optional ``mrcfile`` package. The status line reports the number of slices and the voxel size."
-msgstr "体积在 Mask 视图中打开，2D 视野也在此处打开。具有三个空间轴的 TIFF 堆栈、OME-TIFF 或 MRC 体积（``.mrc``、``.rec`` 或 ``.map``）位于您打开的文件夹中，或者您选择 **Open 3D image…** 时，会被识别为体积。时间、通道和 RGB 堆栈会被拒绝，而不会被当作深度读取。MRC 体积需要可选的 ``mrcfile`` 包。状态栏会报告切片数量和体素大小。"
+msgid "A volume opens in the Mask view, where 2-D fields open. A TIFF stack, an OME-TIFF or an MRC volume (``.mrc``, ``.rec`` or ``.map``) with three spatial axes is recognised as a volume when it is in the folder you open or when you open it with **Open file (2D or 3D)…** in the arrow menu of **Open File / Folder…**. Time, channel and RGB stacks are refused rather than read as depth. An MRC volume needs the optional ``mrcfile`` package. The status line reports the number of slices and the voxel size."
+msgstr "体积在 Mask 视图中打开，2D 视野也在此处打开。具有三个空间轴的 TIFF 堆栈、OME-TIFF 或 MRC 体积（``.mrc``、``.rec`` 或 ``.map``）位于您打开的文件夹中，或者您通过 **打开文件 / 文件夹…** 箭头菜单中的 **打开文件（2D 或 3D）…** 打开它时，会被识别为体积。时间、通道和 RGB 堆栈会被拒绝，而不会被当作深度读取。MRC 体积需要可选的 ``mrcfile`` 包。状态栏会报告切片数量和体素大小。"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The **slice slider** at the left of the image steps through the slices; **Page Up** and **Page Down** step too. Every 2-D tool draws on the slice on screen."
@@ -328,13 +327,13 @@ msgstr "选取"
 msgid "Shown while mask layers are loaded: remove, restore or add objects of the curated overlay; see `Curate against mask layers`_."
 msgstr "加载掩膜图层时显示：移除、恢复或添加整理叠加层的对象；参见 `Curate against mask layers`_。"
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "**Shift or Alt + drag** pans. The wheel zooms about the cursor; **Esc** resets zoom. **Left/Right** selects the previous/next field. **Ctrl+Z/Ctrl+Y** undoes or redoes an edit. With Wand selected, **Ctrl + left click** removes the bounded intensity region. Outside Wand, **Ctrl + left click** splits an object at its waist; **Ctrl + right click** removes the object under the cursor. The shortcut panel beside the view lists the current gestures, including magnifier controls."
-msgstr "**Shift 或 Alt + 拖动** 用于平移。滚轮以光标为中心缩放；**Esc** 重置缩放。**Left/Right** 选择上一个/下一个视野。**Ctrl+Z/Ctrl+Y** 撤销或重做编辑。选中 魔棒 时，**Ctrl + 左键单击** 会移除有界强度区域。在 魔棒 以外，**Ctrl + 左键单击** 在对象的最窄处将其分开；**Ctrl + 右键单击** 移除光标下的对象。视图旁的快捷键面板列出当前的手势，包括放大镜控件。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Alt + drag** pans; with tools other than Brush, **Shift + drag** also pans (with Brush it keeps painting the last object across a gap). The wheel zooms about the cursor; **Esc** resets zoom. **Left/Right** selects the previous/next field. **Ctrl+Z/Ctrl+Y** undoes or redoes an edit. With Wand selected, **Ctrl + left click** removes the bounded intensity region. Outside Wand, **Ctrl + left click** splits an object at its waist; **Ctrl + right click** removes the object under the cursor. The shortcut panel beside the view lists the current gestures, including magnifier controls."
+msgstr "**Alt + 拖动** 用于平移；使用 Brush 以外的工具时，**Shift + 拖动** 也可平移（使用 Brush 时，它会跨过间隙继续绘制上一个对象）。滚轮以光标为中心缩放；**Esc** 重置缩放。**Left/Right** 选择上一个/下一个视野。**Ctrl+Z/Ctrl+Y** 撤销或重做编辑。选中魔棒时，**Ctrl + 左键单击** 会移除有界强度区域。在魔棒以外，**Ctrl + 左键单击** 在对象的最窄处将其分开；**Ctrl + 右键单击** 移除光标下的对象。视图旁的快捷键面板列出当前的手势，包括放大镜控件。"
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "**Clear all objects**, immediately left of **Discard**, asks for confirmation before removing every segmentation object in the current image. Cancelling keeps the masks; undo restores them. The acquired image is unchanged."
-msgstr "**清除所有对象** 位于 **放弃** 的紧邻左侧，在移除当前图像中的全部分割对象之前要求确认。取消会保留掩膜；撤销会恢复它们。采集图像保持不变。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Clear all objects**, under **Object operations**, asks for confirmation before removing every segmentation object in the current image. Cancelling keeps the masks; undo restores them. The acquired image is unchanged."
+msgstr "**清除所有对象** 位于 **对象操作** 下，在移除当前图像中的全部分割对象之前要求确认。取消会保留掩膜；撤销会恢复它们。采集图像保持不变。"
 
 msgid "Recrop creates files and changes the field queue. Objects cut by a crop's boundary are omitted, and retained objects are renumbered within the new crop. Very small crops and near-duplicates are refused. Completed originals move into ``recropped_originals/``. Use the original image and mask when maintaining primary/secondary IDs across the full field; a renumbered crop is a different pairing context. The precise limits and paths are documented by :func:`spacr.qt.mask_engine.write_recrop`."
 msgstr "Recrop 会创建文件并更改视野队列。被裁剪边界切到的对象会被省略，保留的对象会在新裁剪图内重新编号。过小的裁剪和几乎重复的裁剪会被拒绝。处理完成的原图会移入 ``recropped_originals/``。在整个视野范围内维护初级/次级 ID 时，请使用原始图像和掩膜；重新编号的裁剪图是另一种配对上下文。确切的限制和路径记录在 :func:`spacr.qt.mask_engine.write_recrop` 中。"
@@ -372,8 +371,9 @@ msgstr "选择检测方法"
 msgid "The method selector controls the detector used by the live preview and the corresponding whole-image detection action. Only applicable method controls are shown. Model methods require their model or backend; the Model Zoo indicates installation and download state."
 msgstr "方法选择器控制实时预览以及相应的整图检测操作所使用的检测器。只显示适用的方法控件。模型方法需要其模型或后端；模型库会显示安装和下载状态。"
 
-msgid "The **Object detection** toolbar action runs model loading, inference and postprocessing in a worker so the window remains responsive. It captures the current input and settings when started. If you switch fields or change the image or mask before it finishes, the result is discarded; run detection again on the intended field. Closing the window does not wait for that result. The Python method :meth:`spacr.qt.screens.make_masks.MakeMasksScreen.run_cellpose` remains synchronous and returns zero if another detection is already running."
-msgstr "工具栏操作 **对象检测** 在工作线程中运行模型加载、推理和后处理，以使窗口保持响应。它在启动时捕获当前的输入和设置。如果在其完成之前切换视野或更改图像或掩膜，结果会被丢弃；请在目标视野上重新运行检测。关闭窗口不会等待该结果。Python 方法 :meth:`spacr.qt.screens.make_masks.MakeMasksScreen.run_cellpose` 仍为同步方法，如果已有另一个检测正在运行，则返回零。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The **Object detection** button under **Object operations** runs model loading, inference and postprocessing in a worker so the window remains responsive. It captures the current input and settings when started. If you switch fields or change the image or mask before it finishes, the result is discarded; run detection again on the intended field. Closing the window does not wait for that result. The Python method :meth:`spacr.qt.screens.make_masks.MakeMasksScreen.run_cellpose` remains synchronous and returns zero if another detection is already running."
+msgstr "**对象操作** 下的 **对象检测** 按钮在工作线程中运行模型加载、推理和后处理，以使窗口保持响应。它在启动时捕获当前的输入和设置。如果在其完成之前切换视野或更改图像或掩膜，结果会被丢弃；请在目标视野上重新运行检测。关闭窗口不会等待该结果。Python 方法 :meth:`spacr.qt.screens.make_masks.MakeMasksScreen.run_cellpose` 仍为同步方法，如果已有另一个检测正在运行，则返回零。"
 
 msgid "CPU Cellpose inference uses float32 weights through the shared device policy. Supported GPU precision depends on the backend and device. Different precision can produce different predictions, so inspect the masks instead of assuming identical output across devices. This inference policy does not change training precision. See :func:`spacr.accelerator.cellpose_kwargs`. Live Cellpose previews also use float32 when explicitly forced to CPU or when accelerator detection falls back to CPU. A Cellpose 3 checkpoint rejected by Cellpose 4 produces a preview-specific compatibility message; choose a checkpoint supported by the installed preview runtime. See :func:`spacr.qt.widgets.preview_contract.preview_cellpose_model`."
 msgstr "CPU 上的 Cellpose 推理通过共享的设备策略使用 float32 权重。GPU 上支持的精度取决于后端和设备。不同精度可能产生不同的预测，因此请检查掩膜，而不要假定不同设备上的输出完全相同。此推理策略不会改变训练精度。参见 :func:`spacr.accelerator.cellpose_kwargs`。当被显式强制使用 CPU 或加速器检测回退到 CPU 时，实时 Cellpose 预览也使用 float32。被 Cellpose 4 拒绝的 Cellpose 3 检查点会产生预览专用的兼容性消息；请选择所安装的预览运行时支持的检查点。参见 :func:`spacr.qt.widgets.preview_contract.preview_cellpose_model`。"
@@ -469,11 +469,13 @@ msgstr "**比较** 预览所配置的增强；**应用** 将其启用于检测�
 msgid "Compare opens with a pending result while enhancement runs. Wait for the right-hand image before judging the effect. Normalization uses the whole field before extracting the displayed crop. If you change the field or settings, open a new comparison for that selection. **Cancel** closes the comparison; an enhancement already running finishes in the background and its abandoned result is discarded."
 msgstr "增强运行时，比较会以待定结果打开。请等右侧图像出现后再判断效果。归一化在提取显示的裁剪区域之前使用整个视野。如果更改了视野或设置，请为该选择打开新的比较。**取消** 会关闭比较；已在运行的增强会在后台完成，其被放弃的结果会被丢弃。"
 
-msgid "Post-detection opening/closing and splitting modify label shapes. These steps are bypassed for paired secondary objects to retain primary IDs. Make Masks enhancement is configured separately from the batch Mask pipeline; transfer the intended preprocessing explicitly when training or running a model elsewhere. See :mod:`spacr.qt.detect_chain`."
-msgstr "检测后的开运算/闭运算和分割会修改标签形状。对于配对的次级对象，这些步骤会被跳过，以保留初级 ID。创建掩膜的增强与批量掩膜流程分开配置；在其他地方训练或运行模型时，请显式迁移所需的预处理。参见 :mod:`spacr.qt.detect_chain`。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Post-detection opening/closing and splitting modify label shapes. These steps are bypassed for paired secondary objects to retain primary IDs. Mask generation applies the same image steps through its ``enhance_*`` settings, which are set separately from the Make Masks controls; morphology and splitting apply only in Make Masks. Set matching preprocessing when training or running a model elsewhere. See :mod:`spacr.qt.detect_chain`."
+msgstr "检测后的开运算/闭运算和分割会修改标签形状。对于配对的次级对象，这些步骤会被跳过，以保留初级 ID。掩膜生成通过其 ``enhance_*`` 设置应用相同的图像处理步骤，这些设置与创建掩膜的控件分开配置；形态学处理和分割仅在创建掩膜中应用。在其他地方训练或运行模型时，请设置相匹配的预处理。参见 :mod:`spacr.qt.detect_chain`。"
 
-msgid "For calibrated optical processing, choose **Convolve (blur)** or **Deconvolve (Richardson–Lucy)** under **Point spread function**. Enter the image pixel height and width in micrometres, then choose a measured TIFF/NPY kernel with matching spacing or a Gaussian approximation with explicit Y/X full widths at half maximum. Use **Reload** after changing a kernel file. Compare the result before applying it; more deconvolution iterations can amplify noise. The original image intensities stay available for measurement. See :doc:`point_spread` for the complete workflow and Measure settings."
-msgstr "如需进行校准的光学处理，请在 **点扩散函数** 下选择 **卷积（模糊）** 或 **反卷积（Richardson–Lucy）**。输入以微米为单位的图像像素高度和宽度，然后选择间距匹配的实测 TIFF/NPY 卷积核，或具有显式 Y/X 半高全宽的高斯近似。更改卷积核文件后请使用 **重新加载**。应用之前请先比较结果；反卷积迭代次数越多，噪声可能被放大得越厉害。原始图像强度仍可用于测量。完整的工作流程和测量设置请参阅 :doc:`point_spread`。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "For calibrated optical processing, choose **Convolve (blur)** or **Deconvolve (Richardson–Lucy)** under **Point spread function**. Set the image pixel spacing in micrometres, directly or from **Objective** and **Camera**, then choose a measured TIFF/NPY kernel with matching spacing or a Gaussian approximation with explicit Y/X full widths at half maximum. Use **Reload** after changing a kernel file. Compare the result before applying it; more deconvolution iterations can amplify noise. The original image intensities stay available for measurement. See :doc:`point_spread` for the complete workflow and Measure settings."
+msgstr "如需进行校准的光学处理，请在 **点扩散函数** 下选择 **卷积（模糊）** 或 **反卷积（Richardson–Lucy）**。以微米为单位设置图像像素间距，可直接输入，也可由 **物镜** 和 **相机** 得出，然后选择间距匹配的实测 TIFF/NPY 卷积核，或具有显式 Y/X 半高全宽的高斯近似。更改卷积核文件后请使用 **重新加载**。应用之前请先比较结果；反卷积迭代次数越多，噪声可能被放大得越厉害。原始图像强度仍可用于测量。完整的工作流程和测量设置请参阅 :doc:`point_spread`。"
 
 msgid "Restore an image with Cellpose 3"
 msgstr "使用 Cellpose 3 恢复图像"
@@ -484,14 +486,16 @@ msgstr "在 **图像增强** 下，于 **深度学习图像增强** 中选择 **
 msgid "Open **Restoration model settings** and choose **Cells (cyto3)**, **Cells (cyto2)**, or **Nuclei**, according to the structures in the selected intensity channel. Set their approximate diameter in pixels. This controls model rescaling, not microscope calibration. **Load / retry model** reloads the current choice. Wait for the ready message before comparing or applying it; that message identifies the device used by the isolated backend."
 msgstr "打开 **Restoration model settings**，并根据所选强度通道中的结构选择 **细胞 (cyto3)**、**细胞 (cyto2)** 或 **细胞核**。以像素为单位设置其大致直径。这控制的是模型的重新缩放，而不是显微镜校准。**加载模型 / 重试** 会重新加载当前的选择。在比较或应用之前，请等待就绪消息；该消息会指明隔离后端所使用的设备。"
 
-msgid "Loading and restoration run in the background. On a CPU, a whole field can take tens of seconds; a small magnifier region is quicker. Timing depends on the image, model and computer. A backend installed with supported GPU acceleration can use it, but the workflow also runs on a CPU."
-msgstr "加载和恢复在后台运行。在 CPU 上，整个视野可能需要数十秒；放大镜中的小区域会更快。耗时取决于图像、模型和计算机。安装了受支持 GPU 加速的后端可以使用 GPU，但该工作流程也可在 CPU 上运行。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Loading and restoration run in the background. A whole field takes longer than a magnifier region; timing depends on the image size, model and hardware. A backend installed with supported GPU acceleration can use it, but the workflow also runs on a CPU."
+msgstr "加载和恢复在后台运行。整个视野比放大镜区域耗时更长；耗时取决于图像大小、模型和硬件。安装了受支持 GPU 加速的后端可以使用 GPU，但该工作流程也可在 CPU 上运行。"
 
 msgid "Use **Compare** to inspect several representative regions before choosing **Apply**. Restoration follows background and PSF processing and precedes classical denoising and contrast adjustments. Apply feeds the restored floating-point intensities to detection and the Wand while keeping display scaling separate. The image dimensions and loaded source pixels stay unchanged; upsampling models are not offered here."
 msgstr "在选择 **应用** 之前，请使用 **比较** 检查几个具有代表性的区域。恢复位于背景和 PSF 处理之后，经典降噪和对比度调整之前。应用会将恢复后的浮点强度提供给检测和 Wand，同时保持显示缩放独立。图像尺寸和已加载的源像素保持不变；此处不提供上采样模型。"
 
-msgid "Restored values are normalized model output, not calibrated fluorescence; they can be negative or exceed one. Measurements retain the original intensities. A clearer-looking image does not establish recovered structure or more accurate masks, and these weights are not validated for every organelle or acquisition. Inspect the resulting masks as well as the image. Keep the saved enhancement record with the masks: it identifies the model, Cellpose version, checkpoint hash, device, diameter and processing settings. CARE and Noise2Void are not supplied as ready restoration engines."
-msgstr "恢复后的值是归一化的模型输出，而不是经过校准的荧光；它们可能为负或大于一。测量保留原始强度。看起来更清晰的图像并不能证明恢复了真实结构或得到了更准确的掩膜，而且这些权重并未针对每种细胞器或采集方式进行验证。请同时检查所得的掩膜和图像。请将保存的增强记录与掩膜一起保存：它标明了模型、Cellpose 版本、检查点哈希、设备、直径和处理设置。CARE 和 Noise2Void 未作为现成的恢复引擎提供。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Restored values are normalized model output, not calibrated fluorescence; they can be negative or exceed one. Measurements retain the original intensities. A clearer-looking image does not establish recovered structure or more accurate masks, and these weights are not validated for every organelle or acquisition. Inspect the resulting masks as well as the image. Keep the saved enhancement record with the masks: it identifies the model, Cellpose version, checkpoint hash, device, diameter and processing settings. Make Masks does not offer CARE or Noise2Void restoration."
+msgstr "恢复后的值是归一化的模型输出，而不是经过校准的荧光；它们可能为负或大于一。测量保留原始强度。看起来更清晰的图像并不能证明恢复了真实结构或得到了更准确的掩膜，而且这些权重并未针对每种细胞器或采集方式进行验证。请同时检查所得的掩膜和图像。请将保存的增强记录与掩膜一起保存：它标明了模型、Cellpose 版本、检查点哈希、设备、直径和处理设置。创建掩膜不提供 CARE 或 Noise2Void 恢复。"
 
 msgid "Grow secondary objects from a primary mask"
 msgstr "从初级掩膜生长次级对象"
@@ -536,9 +540,9 @@ msgstr "实时放大镜、过滤与测量"
 msgid "Toggle **Magnifier** or press **M** to inspect proposed objects around the pointer. Its wheel changes box zoom; **Shift + wheel** changes box size. **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview before manually accepting its objects."
 msgstr "启用 **放大镜** 或按 **M**，查看指针周围建议的对象。鼠标滚轮改变框内放大倍数；**Shift + wheel** 改变框的大小。**Ctrl+L+右键单击** 锁定或解锁框。手动接受对象前，请等待预览更新。"
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Under **Object detection** → **Magnification settings**, turn on **Instantly accept proposed objects** to accept a current proposal without clicking. This is off by default. Region mode follows **Objects added**; whole-image mode accepts only the object under the pointer. Moving outside the image or disabling the magnifier prevents automatic acceptance. Each acceptance is undoable, and an undo does not immediately accept the same proposal again. Use **Save** or **Save & Next** to write accepted masks."
-msgstr "在 **对象检测** → **放大设置** 中启用 **立即接受建议对象**，即可无需点击而接受当前建议。此选项默认关闭。区域模式遵循 **添加的对象** 设置；整幅图像模式仅接受指针下方的对象。移出图像或关闭放大镜会停止自动接受。每次接受都可以撤销，撤销后不会立即重新接受同一建议。使用 **保存** 或 **Save & Next** 将已接受的掩膜写入磁盘。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "In the **Magnification settings** category, turn on **Instantly accept proposed objects** to accept a current proposal without clicking. This is off by default. Region mode follows **Objects added**; whole-image mode accepts only the object under the pointer. Moving outside the image or disabling the magnifier prevents automatic acceptance. Each acceptance is undoable, and an undo does not immediately accept the same proposal again. Use **Save mask** (or **Save on navigation**) to write accepted masks."
+msgstr "在 **放大设置** 类别中启用 **立即接受建议对象**，即可无需点击而接受当前建议。此选项默认关闭。区域模式遵循 **添加的对象** 设置；整幅图像模式仅接受指针下方的对象。移出图像或关闭放大镜会阻止自动接受。每次接受都可以撤销，撤销后不会立即重新接受同一建议。使用 **保存掩膜** （或 **导航时保存**）写入已接受的掩膜。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Overlap** chooses what happens when a proposal overlaps an existing mask:"
@@ -654,19 +658,21 @@ msgstr "**保留** 会保存编辑后的叠加层、保留对象 ID 并移至下
 msgid "Upload data"
 msgstr "上传数据"
 
-msgid "**Upload data…** sends the image on screen with its mask, every curated image in the folder with its saved mask, or a chosen images folder and masks folder, to spaCR's community datasets on Hugging Face for training future models. Every image needs a saved mask of the same name and size. Name the dataset, add notes, and agree to the licence; the dialog shows the destination as a link you can open, select and copy. A new dataset appears with its first upload, and each contribution is reviewed before it is used."
-msgstr "**上传数据…** 会将屏幕上的图像及其掩膜、文件夹中每张已整理的图像及其保存的掩膜，或所选的图像文件夹和掩膜文件夹，发送到 spaCR 在 Hugging Face 上的社区数据集，用于训练未来的模型。每张图像都需要一个同名且尺寸相同的已保存掩膜。为数据集命名、添加说明并同意许可协议；对话框会将目标位置显示为一个可以打开、选择和复制的链接。新数据集会随其第一次上传而出现，每份贡献在使用前都会经过审查。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Upload data…**, in the **Save mask** arrow menu, sends the image on screen with its mask, every curated image in the folder with its saved mask, or a chosen images folder and masks folder, to spaCR's community datasets on Hugging Face for training future models. Every image needs a saved mask of the same name and size. Name the dataset, add notes, and agree to the licence; the dialog shows the destination as a link you can open, select and copy. A new dataset appears with its first upload, and each contribution is reviewed before it is used."
+msgstr "**保存掩膜** 箭头菜单中的 **上传数据…** 会将屏幕上的图像及其掩膜、文件夹中每张已整理的图像及其保存的掩膜，或所选的图像文件夹和掩膜文件夹，发送到 spaCR 在 Hugging Face 上的社区数据集，用于训练未来的模型。每张图像都需要一个同名且尺寸相同的已保存掩膜。为数据集命名、添加说明并同意许可协议；对话框会将目标位置显示为一个可以打开、选择和复制的链接。新数据集会随其第一次上传而出现，每份贡献在使用前都会经过审查。"
 
-msgid "The masthead also opens Cellpose Workbench, Mask the whole folder, Model Compare, Model Zoo, Curate and Napari Bridge. Their input/output contracts are linked from the :ref:`module map <workflow-module-make_masks>`."
-msgstr "标题栏还可打开 Cellpose 工作台、为整个文件夹生成掩膜、模型比较、模型库、校正和 napari 桥接。它们的输入/输出约定链接自 :ref:`模块图 <workflow-module-make_masks>`。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The masthead also opens Cellpose Workbench, Mask folder, Model Compare, Model Zoo, Curate (alpha) and Napari Bridge (alpha). Their input/output contracts are linked from the :ref:`module map <workflow-module-make_masks>`."
+msgstr "标题栏还可打开 Cellpose 工作台、为整个文件夹生成掩膜、模型比较、模型库、校正（alpha）和 napari 桥接（alpha）。它们的输入/输出约定链接自 :ref:`模块图 <workflow-module-make_masks>`。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Large plates in Mask generation"
 msgstr "Mask generation 中的大型实验板"
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "The **Mask** batch-generation module processes a plate; **Make Masks** edits the field currently open. For a crash while processing a raw plate, check the batch module's console and saved ``settings/gen_mask_settings.json`` to identify the stage and settings used."
-msgstr "**掩膜** 批量生成模块处理整块实验板；**创建掩膜** 编辑当前打开的视野。处理原始实验板时若发生崩溃，请查看批量模块的控制台和保存的 ``settings/gen_mask_settings.json``，确认出错阶段及所用设置。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The **Mask** batch-generation module processes a plate; **Make Masks** edits the field currently open. For a crash while processing a raw plate, check the batch module's console and saved ``settings/gen_mask_settings.csv`` to identify the stage and settings used."
+msgstr "**掩膜** 批量生成模块处理整块实验板；**创建掩膜** 编辑当前打开的视野。处理原始实验板时若发生崩溃，请查看批量模块的控制台和保存的 ``settings/gen_mask_settings.csv``，确认出错阶段及所用设置。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "In the V1 batch pipeline, raw-file preprocessing projects and writes one field at a time to ``stack/``. It retains filenames across the plate, not every field's pixel data. Z planes are combined incrementally. Completed field stacks are published atomically and can be reused when preprocessing resumes. This stage's pixel memory therefore follows the size and channels of a field, rather than the number of fields in the plate."

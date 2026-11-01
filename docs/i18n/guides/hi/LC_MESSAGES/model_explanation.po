@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 13:26-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -36,8 +36,9 @@ msgstr "**CV मॉडल समझाएँ** मॉड्यूल दिख�
 msgid "**Investigate Hit** asks which cells in wells supporting a regression hit have morphology consistent with that hit."
 msgstr "**Investigate Hit** पूछता है कि किसी प्रतिगमन हिट का समर्थन करने वाले कूपों की कौन-सी कोशिकाओं की आकृति उस हिट से मेल खाती है।"
 
-msgid "The last result is weakly supervised evidence, not a cell-resolved barcode. The UI and exports therefore use ``EAF1-hit-like`` and ``hit_like_probability`` rather than calling a cell ``EAF1-KO``."
-msgstr "अंतिम परिणाम कमज़ोर पर्यवेक्षित साक्ष्य है, कोशिका-स्तरीय बारकोड नहीं। इसलिए UI और निर्यात किसी कोशिका को ``EAF1-KO`` कहने के बजाय ``EAF1-hit-like`` और ``hit_like_probability`` का उपयोग करते हैं।"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The last result is weakly supervised evidence, not a cell-resolved barcode. The UI therefore labels candidate cells ``<gene>-hit-like`` (for example ``EAF1-hit-like``) and the exports use ``hit_like_probability``, rather than calling a cell a knockout such as ``EAF1-KO``."
+msgstr "अंतिम परिणाम कमज़ोर पर्यवेक्षित साक्ष्य है, कोशिका-स्तरीय बारकोड नहीं। इसलिए UI उम्मीदवार कोशिकाओं को ``<gene>-hit-like`` (उदाहरण के लिए ``EAF1-hit-like``) लेबल देता है और निर्यात ``hit_like_probability`` का उपयोग करते हैं, बजाय किसी कोशिका को ``EAF1-KO`` जैसा नॉकआउट कहने के।"
 
 msgid "Explain CV Model"
 msgstr "CV मॉडल समझाएँ"
@@ -117,8 +118,9 @@ msgstr "डेटाबेस एनोटेशन समर्पित उद
 msgid "Evidence ladder"
 msgstr "साक्ष्य की सीढ़ी"
 
-msgid "A coherent UMAP/PCA population is useful exploratory evidence but is not ground truth. Confidence increases with negative and positive controls, independent guides, replicate plates, well/plate cross-fitting, refitted nulls, bootstrap stability, blinded review, and agreement between measured-feature SHAP and pixel-level attribution. The strongest validation is an orthogonal experiment that assigns perturbation identity per cell, such as an arrayed perturbation/rescue or direct in-situ guide-barcode readout."
-msgstr "एक सुसंगत UMAP/PCA समूह उपयोगी अन्वेषणात्मक साक्ष्य है, लेकिन ग्राउंड ट्रुथ नहीं। नकारात्मक और सकारात्मक नियंत्रणों, स्वतंत्र गाइडों, प्रतिकृति प्लेटों, कूप/प्लेट क्रॉस-फ़िटिंग, दोबारा फ़िट किए गए शून्य मॉडल, बूटस्ट्रैप स्थिरता, अंधाधुंध समीक्षा, और मापी गई विशेषताओं के SHAP तथा पिक्सेल-स्तरीय एट्रिब्यूशन के बीच सहमति से विश्वास बढ़ता है। सबसे मज़बूत सत्यापन एक स्वतंत्र प्रयोग है जो प्रति कोशिका विक्षोभ पहचान निर्धारित करता है, जैसे व्यवस्थित विक्षोभ/बचाव या प्रत्यक्ष इन-सीटू गाइड-बारकोड रीडआउट।"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "A coherent UMAP/PCA population is useful exploratory evidence but is not ground truth. Confidence increases with negative and positive controls, independent guides, replicate plates, well/plate cross-fitting, refitted nulls, bootstrap stability, blinded review, and agreement between measured-feature SHAP and pixel-level attribution. None of these analyses observes perturbation identity per cell; that requires an orthogonal experiment, such as an arrayed perturbation/rescue or direct in-situ guide-barcode readout."
+msgstr "एक सुसंगत UMAP/PCA समूह उपयोगी अन्वेषणात्मक साक्ष्य है, लेकिन ग्राउंड ट्रुथ नहीं। नकारात्मक और सकारात्मक नियंत्रणों, स्वतंत्र गाइडों, प्रतिकृति प्लेटों, कूप/प्लेट क्रॉस-फ़िटिंग, दोबारा फ़िट किए गए शून्य मॉडल, बूटस्ट्रैप स्थिरता, ब्लाइंडेड समीक्षा, और मापी गई विशेषताओं के SHAP तथा पिक्सेल-स्तरीय एट्रिब्यूशन के बीच सहमति से विश्वास बढ़ता है। इनमें से कोई भी विश्लेषण प्रति कोशिका विक्षोभ पहचान का अवलोकन नहीं करता; इसके लिए एक स्वतंत्र (ऑर्थोगोनल) प्रयोग आवश्यक है, जैसे व्यवस्थित विक्षोभ/बचाव या प्रत्यक्ष इन-सीटू गाइड-बारकोड रीडआउट।"
 
 msgid "Headless entry points"
 msgstr "हेडलेस प्रवेश बिंदु"

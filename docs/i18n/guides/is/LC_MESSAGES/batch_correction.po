@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 20:25-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
@@ -37,15 +37,16 @@ msgstr "Láta mælingar óbreyttar."
 msgid "``control_center``"
 msgstr "``control_center``"
 
-msgid "Recommended when every plate contains the same negative/reference control. spaCR estimates the median reference shift on each plate and subtracts only that shift. Treatment dispersion and treatment-to-control differences are retained."
-msgstr "Mælt með þegar hver plata inniheldur sama neikvæða viðmið/samanburðarviðmið. spaCR metur miðgildishliðrun viðmiðsins á hverri plötu og dregur aðeins þá hliðrun frá. Dreifing meðferða og munur milli meðferða og viðmiða varðveitist."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Recommended when every plate contains the same negative/reference control. For each feature, spaCR subtracts from every row of a plate the difference between that plate's control median and the median of all control rows. Treatment dispersion and treatment-to-control differences are retained."
+msgstr "Mælt með þegar hver plata inniheldur sama neikvæða viðmið/samanburðarviðmið. Fyrir hvern eiginleika dregur spaCR frá hverri röð plötu mismuninn á miðgildi viðmiðsins á þeirri plötu og miðgildi allra viðmiðsraða. Dreifing meðferða og munur milli meðferða og viðmiða varðveitist."
 
 msgid "``robust_zscore``"
 msgstr "``robust_zscore``"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Align plate medians and median absolute deviations. This is less sensitive to outliers than ``zscore``, but can remove genuine differences if biological conditions are unevenly distributed across plates."
-msgstr "Jafna miðgildi platna og miðgildisfrávik. Þetta er minna næmt fyrir útlögum en ``zscore`` en getur fjarlægt raunverulegan mun ef líffræðilegum skilyrðum er dreift ójafnt á plöturnar."
+msgid "Align plate medians and median absolute deviations (MAD, scaled by 1.4826) to the pooled median and MAD. This is less sensitive to outliers than ``zscore``, but can remove genuine differences if biological conditions are unevenly distributed across plates."
+msgstr "Jafna miðgildi platna og miðgildisfrávik (MAD, kvarðað með 1.4826) að sameiginlegu miðgildi og MAD. Þetta er minna næmt fyrir útlögum en ``zscore`` en getur fjarlægt raunverulegan mun ef líffræðilegum skilyrðum er dreift ójafnt á plöturnar."
 
 msgid "``center``"
 msgstr "``center``"
@@ -70,8 +71,9 @@ msgstr "Empirical-Bayes ComBat (Johnson, Li & Rabinovich, 2007). Hver eiginleiki
 msgid "Settings"
 msgstr "Stillingar"
 
-msgid "Set ``batch_correction`` to a method above and use ``batch_column`` to name the batch identifier (normally ``plateID``). ``batch_min_samples`` rejects unstable estimates from undersized batches."
-msgstr "Stilltu ``batch_correction`` á aðferð hér að ofan og notaðu ``batch_column`` til að tilgreina auðkenni lotunnar (venjulega ``plateID``). ``batch_min_samples`` hafnar óstöðugu mati frá of litlum lotum."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Set ``batch_correction`` to a method above and use ``batch_column`` to name the batch identifier (normally ``plateID``). ``batch_min_samples`` (default 3) is the minimum number of rows per batch; a smaller batch stops the run with an error."
+msgstr "Stilltu ``batch_correction`` á aðferð hér að ofan og notaðu ``batch_column`` til að tilgreina auðkenni lotunnar (venjulega ``plateID``). ``batch_min_samples`` (sjálfgefið 3) er lágmarksfjöldi raða í hverri lotu; minni lota stöðvar keyrsluna með villu."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "For ``control_center``, ``batch_control_column`` identifies the metadata field that contains the controls and ``batch_control_values`` selects one or more reference values. When blank, Image UMAP follows ``col_to_compare``/``neg`` and Classify's ML family follows ``location_column`` (or ``annotation_column`` when annotations define the classes) and ``negative_control_id``. Regression requires an explicit reference value. ``batch_missing_control=error`` (the default) stops the run when a plate has fewer than ``batch_min_samples`` usable reference controls; ``skip`` leaves an affected plate unchanged and records a warning."

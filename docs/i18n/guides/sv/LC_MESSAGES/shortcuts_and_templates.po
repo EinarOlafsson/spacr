@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 20:26-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: sv\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -25,9 +25,30 @@ msgstr "Kortkommandon och inställningsmallar"
 msgid "Keyboard shortcuts"
 msgstr "Tangentbordsgenvägar"
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "With the default bindings, press **F1** to open the shortcut cheat sheet. **?** opens it when the current screen does not handle that key itself; Annotate uses **?** for its inline key legend. The cheat sheet lists the keys that work anywhere in the window, such as **Ctrl+K** for the command palette, **Ctrl+P** for Preferences, **Ctrl+F** to search the current module's settings and **F11** for full screen, followed by the keys of the screen you are on."
-msgstr "Med standardbindningarna öppnar du översikten över kortkommandon med **F1**. **?** öppnar den när den aktuella skärmen inte hanterar tangenten själv; Annotate använder **?** för sin inbyggda tangentförklaring. Översikten listar tangenterna som fungerar var som helst i fönstret, till exempel **Ctrl+K** för kommandopaletten, **Ctrl+P** för Inställningar, **Ctrl+F** för att söka i den aktuella modulens inställningar och **F11** för helskärm, följt av tangenterna för den skärm du befinner dig på."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "With the default bindings, press **F1** to open the shortcut cheat sheet. **?** opens it when the current screen does not handle that key itself; Annotate uses **?** for its inline key legend. The cheat sheet lists the keys that work anywhere in the window, such as **Ctrl+K** for the command palette, **Ctrl+,** for Preferences, **Ctrl+F** to search the current module's settings and **F11** for full screen, followed by the keys of the screen you are on. On macOS, **Ctrl** is the **Command** key."
+msgstr "Med standardbindningarna öppnar du översikten över kortkommandon med **F1**. **?** öppnar den när den aktuella skärmen inte hanterar tangenten själv; Annotate använder **?** för sin inbyggda tangentförklaring. Översikten listar tangenterna som fungerar var som helst i fönstret, till exempel **Ctrl+K** för kommandopaletten, **Ctrl+,** för Inställningar, **Ctrl+F** för att söka i den aktuella modulens inställningar och **F11** för helskärm, följt av tangenterna för den skärm du befinner dig på. På macOS motsvarar **Ctrl** tangenten **Command**."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The window-wide keys follow the usual desktop conventions:"
+msgstr "Tangenterna som gäller i hela fönstret följer de vanliga konventionerna för skrivbordsprogram:"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Ctrl+,** opens Preferences. Where the platform has its own Preferences key, such as **Ctrl+Shift+,** on KDE, that key works as well."
+msgstr "**Ctrl+,** öppnar Inställningar. Om plattformen har en egen tangent för Inställningar, till exempel **Ctrl+Shift+,** i KDE, fungerar även den."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, python-format
+msgid "**Ctrl+=** or **Ctrl++** zooms in, **Ctrl+-** zooms out and **Ctrl+0** puts Zoom back to its 90 % default. **Ctrl+Alt+0** resets GUI scale, Zoom and every preview scale at once."
+msgstr "**Ctrl+=** eller **Ctrl++** zoomar in, **Ctrl+-** zoomar ut och **Ctrl+0** återställer Zooma till standardvärdet 90 %. **Ctrl+Alt+0** återställer GUI-skala, Zooma och alla förhandsgranskningsskalor på en gång."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Alt+Home** goes to Home."
+msgstr "**Alt+Home** går till Hem."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The background keys use **Ctrl+Shift**: **Ctrl+Shift+T** pauses or resumes the animated background, **Ctrl+Shift+B** blanks it and **Ctrl+Shift+F** shows it full screen. **Restart the background** has no key; choose it in **Help ▸ Window**."
+msgstr "Bakgrundstangenterna använder **Ctrl+Shift**: **Ctrl+Shift+T** pausar eller återupptar den animerade bakgrunden, **Ctrl+Shift+B** släcker den och **Ctrl+Shift+F** visar den i helskärm. **Starta om bakgrunden** har ingen tangent; välj det i **Hjälp ▸ Fönster**."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "To change a key, choose **Change shortcuts…** in the cheat sheet. The **Change shortcuts** window has one row per action, with its **Default** key and the **Shortcut** in use. Click a shortcut and press the new key, or clear it to leave the action without a key. **Restore defaults** puts every row back to its default key."

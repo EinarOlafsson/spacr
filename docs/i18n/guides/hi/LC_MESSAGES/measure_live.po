@@ -1,5 +1,5 @@
 # spaCR user guide translation (hi).
-# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 00:24-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -43,9 +43,9 @@ msgstr "**चेक किए गए चित्र** खोलें और �
 msgid "Uncheck a field to remove its crops, or choose **Uncheck all images** to clear the grid. Changing channels, object type or filters refreshes all checked fields. The field dropdown retains ordinary single-field navigation when only its current field is checked. With several fields checked, it changes the active source without replacing the checked selection."
 msgstr "किसी दृश्य-क्षेत्र के क्रॉप हटाने के लिए उसका चेक हटाएँ, या ग्रिड साफ़ करने के लिए **सभी चित्रों का चयन हटाएँ** चुनें। चैनल, ऑब्जेक्ट प्रकार या फ़िल्टर बदलने पर सभी चुने दृश्य-क्षेत्र ताज़ा होते हैं। केवल वर्तमान दृश्य-क्षेत्र चुना हो तो दृश्य-क्षेत्र ड्रॉपडाउन सामान्य एकल-दृश्य नेविगेशन रखता है। कई दृश्य-क्षेत्र चुने हों तो वह चुने हुए समूह को बदले बिना सक्रिय स्रोत बदलता है।"
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "The image list uses the existing bounded random sample. Already checked fields remain available when the sample changes. **Maximum preview crops** limits the combined grid, with slots divided among checked fields. Increase it if there are more checked fields than available slots. Additional fields are read one at a time. A load failure names the field and leaves valid fields available for inspection."
-msgstr "चित्र सूची मौजूदा सीमित यादृच्छिक नमूना उपयोग करती है। नमूना बदलने पर पहले से चुने दृश्य-क्षेत्र उपलब्ध रहते हैं। **अधिकतम पूर्वावलोकन क्रॉप** संयुक्त ग्रिड को सीमित करता है; उपलब्ध स्थान चुने दृश्य-क्षेत्रों में बाँटे जाते हैं। चुने दृश्य-क्षेत्रों की संख्या उपलब्ध स्थानों से अधिक हो तो सीमा बढ़ाएँ। अतिरिक्त दृश्य-क्षेत्र एक-एक करके पढ़े जाते हैं। लोड असफल होने पर दृश्य-क्षेत्र का नाम बताया जाता है और सही दृश्य-क्षेत्र जाँच के लिए उपलब्ध रहते हैं।"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The field dropdown lists a bounded random sample of the folder's merged ``.npy`` arrays rather than every field. Already checked fields remain available when the sample changes. **Maximum preview crops** limits the combined grid, with slots divided among checked fields. Increase it if there are more checked fields than available slots. Additional fields are read one at a time. A load failure names the field and leaves valid fields available for inspection."
+msgstr "फ़ील्ड ड्रॉपडाउन हर दृश्य-क्षेत्र के बजाय फ़ोल्डर की मर्ज की गई ``.npy`` सरणियों का एक सीमित यादृच्छिक नमूना सूचीबद्ध करता है। नमूना बदलने पर पहले से चुने दृश्य-क्षेत्र उपलब्ध रहते हैं। **अधिकतम पूर्वावलोकन क्रॉप** संयुक्त ग्रिड को सीमित करता है; उपलब्ध स्थान चुने दृश्य-क्षेत्रों में बाँटे जाते हैं। चुने दृश्य-क्षेत्रों की संख्या उपलब्ध स्थानों से अधिक हो तो सीमा बढ़ाएँ। अतिरिक्त दृश्य-क्षेत्र एक-एक करके पढ़े जाते हैं। लोड असफल होने पर दृश्य-क्षेत्र का नाम बताया जाता है और सही दृश्य-क्षेत्र जाँच के लिए उपलब्ध रहते हैं।"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Checking images changes the preview selection. It does not select the fields that Measure processes or alter existing measurements or files. **Export displayed crops…** explicitly saves the completed preview crops as PNGs with provenance in a new folder; that export follows the checked fields and current display settings. **Propagate settings** copies the current crop and filter settings into the Measure form when switched on; further changes are copied while it remains on."

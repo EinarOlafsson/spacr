@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 11:39-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
@@ -22,14 +22,16 @@ msgstr ""
 msgid "Choose a workflow after installation"
 msgstr "Veldu verkflæði eftir uppsetningu"
 
-msgid "Start on Home with the first module for your experiment. Use that module's example-data control when available, inspect the inputs and preview, then run a bounded example before your own data."
-msgstr "Byrjaðu á Heim með fyrstu einingunni fyrir tilraunina þína. Notaðu stýringu einingarinnar fyrir dæmagögn þegar hún er tiltæk, skoðaðu inntökin og forskoðunina og keyrðu síðan afmarkað dæmi áður en þú notar eigin gögn."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Start on Home with the first module for your experiment. Use that module's **Load test data…** button when available, inspect the inputs and preview, then run the example before your own data."
+msgstr "Byrjaðu á Heim með fyrstu einingunni fyrir tilraunina þína. Notaðu hnappinn **Hlaða prófunargögnum...** í einingunni þegar hann er tiltækur, skoðaðu inntökin og forskoðunina og keyrðu síðan dæmið áður en þú notar eigin gögn."
 
 msgid "These routes and the API handoffs share the bundled module workflow map. A walkthrough explains the steps; it does not run an experiment automatically."
 msgstr "Þessar leiðir og API-afhendingarnar deila meðfylgjandi korti yfir verkflæði eininga. Leiðsögn útskýrir skrefin; hún keyrir ekki tilraun sjálfkrafa."
 
-msgid "Open **Pipeline overviews** to choose a pathway. Its graph includes external input nodes that explain the files you supply; these are not runnable modules. Persistent explanation cards describe modules and connections below the graph, with API links at the end of module cards. Select a graph element to outline its card, and drag the blue divider to adjust the space between graph and explanations. **Start example** opens the pathway's first real module; **Walkthrough** keeps the route available afterward. Alternative input and annotation branches do not require you to execute every listed step."
-msgstr "Opnaðu **Yfirlit vinnslukeðja** til að velja leið. Graf hennar inniheldur ytri inntakshnúta sem útskýra skrárnar sem þú leggur til; þeir eru ekki keyranlegar einingar. Varanleg skýringarspjöld lýsa einingum og tengingum fyrir neðan grafið, með API-tenglum aftast á spjöldum eininga. Veldu þátt í grafinu til að draga útlínu um spjald hans og dragðu bláa skilrúmið til að breyta rýminu milli grafs og skýringa. **Ræsa dæmi** opnar fyrstu raunverulegu einingu leiðarinnar; **Leiðsögn** heldur leiðinni tiltækri eftir á. Aðrar inntaks- og merkingagreinar krefjast þess ekki að þú framkvæmir hvert skref sem talið er upp."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Open **Pipeline overviews** to choose a pathway. Its graph includes external input nodes that explain the files you supply; these are not runnable modules. Persistent explanation cards describe modules and connections below the graph, with API links at the end of module cards. Select a graph element to outline its card, and drag the blue divider to adjust the space between graph and explanations. **Start example** opens the pathway's first module and loads that module's example data; when the pathway has a walkthrough, a **Walkthrough** button is added to the status bar to reopen it. Alternative input and annotation branches do not require you to execute every listed step."
+msgstr "Opnaðu **Yfirlit vinnslukeðja** til að velja leið. Graf hennar inniheldur ytri inntakshnúta sem útskýra skrárnar sem þú leggur til; þeir eru ekki keyranlegar einingar. Varanleg skýringarspjöld lýsa einingum og tengingum fyrir neðan grafið, með API-tenglum aftast á spjöldum eininga. Veldu þátt í grafinu til að draga útlínu um spjald hans og dragðu bláa skilrúmið til að breyta rýminu milli grafs og skýringa. **Ræsa dæmi** opnar fyrstu einingu leiðarinnar og hleður dæmagögnum þeirrar einingar; þegar leiðin hefur leiðsögn er hnappnum **Leiðsögn** bætt við stöðustikuna til að opna hana aftur. Aðrar inntaks- og merkingagreinar krefjast þess ekki að þú framkvæmir hvert skref sem talið er upp."
 
 msgid "A pooled spaCR screen"
 msgstr "spaCR-skimun í sameinuðu safni"
@@ -340,8 +342,9 @@ msgstr "`Kennsla um eininguna <tutorials/#lesson=07_mask>`__."
 msgid "Measure"
 msgstr "Mæling"
 
-msgid "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops."
-msgstr "Mæling les myndir og merkjaplön saman. Virkjaðu vistun myndskurða ef þú þarft PNG-skrár; haltu gagnagrunninum og upprunaverkefninu saman fyrir streymda myndskurði."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Measure reads images and label planes together. PNG crops are written while save_png is on (default True); turn it off to compute measurements only. Keep the database and source project together for streamed crops."
+msgstr "Mæling les myndir og merkjaplön saman. PNG-myndskurðir eru skrifaðir meðan save_png er virkt (sjálfgefið True); slökktu á því til að reikna eingöngu mælingar. Haltu gagnagrunninum og upprunaverkefninu saman fyrir streymda myndskurði."
 
 msgid "**Open:** Home → Measure."
 msgstr "**Opna:** Heim → Mæling."
@@ -527,8 +530,9 @@ msgstr "**Opna:** Heim → Varpa strikamerkjum."
 msgid "**Sequencing reads** — Single-end or paired FASTQ files, with the matching barcode reference tables."
 msgstr "**Raðgreiningarlestrar** — FASTQ-skrár, einhliða eða paraðar, ásamt samsvarandi viðmiðunartöflum strikamerkja."
 
-msgid "**Guide counts per well** — Map Barcodes run folder: unique_combinations.csv and annotated_reads.h5. Well identity requires the corresponding barcode references. Relevant columns, depending on the route: ``count``."
-msgstr "**Talning leiðara á brunn** — Keyrslumappa Varpa strikamerkjum: unique_combinations.csv og annotated_reads.h5. Auðkenni brunns krefst samsvarandi strikamerkjaviðmiða. Viðeigandi dálkar, eftir leið: ``count``."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Guide counts per well** — Map Barcodes per-sample output folder: unique_combinations.csv and qc.csv, plus annotated_reads.h5 when save_h5 is True (the default). Well identity requires the corresponding barcode references. Relevant columns, depending on the route: ``count``."
+msgstr "**Talning leiðara á brunn** — Úttaksmappa Varpa strikamerkjum fyrir hvert sýni: unique_combinations.csv og qc.csv, auk annotated_reads.h5 þegar save_h5 er True (sjálfgefið). Auðkenni brunns krefst samsvarandi strikamerkjaviðmiða. Viðeigandi dálkar, eftir leið: ``count``."
 
 msgid ":ref:`Regression <workflow-module-regression>`: Pair guide counts with phenotype scores using consistent plate/well keys."
 msgstr ":ref:`Regression <workflow-module-regression>`: Paraðu talningu leiðara við svipgerðarskor með samræmdum lyklum plötu/brunns."
@@ -616,6 +620,10 @@ msgstr "Umbreyttu studdum smásjársniðum í stillta TIFF-uppsetningu og varðv
 
 msgid "**Open:** Import → Format Converter."
 msgstr "**Opna:** Flytja inn → Sniðbreytir."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Converted TIFFs and conversion map** — Format Converter destination folder: Yokogawa-named TIFFs (for example plate1_A01_T0001F001L01A01Z01C01.tif) and conversion_map.csv, which maps each output name back to its source file."
+msgstr "**Umbreyttar TIFF-skrár og umbreytingarkort** — Áfangamappa Sniðbreytis: TIFF-skrár með Yokogawa-heitum (til dæmis plate1_A01_T0001F001L01A01Z01C01.tif) og conversion_map.csv, sem varpar hverju úttaksheiti aftur á upprunaskrá sína."
 
 msgid ":ref:`Mask <workflow-module-mask>`: Use the converted layout and preserve source identity mappings."
 msgstr ":ref:`Mask <workflow-module-mask>`: Notaðu umbreyttu uppsetninguna og varðveittu varpanir á auðkennum upprunans."
@@ -832,14 +840,13 @@ msgstr "Sláðu inn aðstæður, viðmið, endurtekningar og takmarkanir platna 
 msgid "**Open:** Home → Experiment Design."
 msgstr "**Opna:** Heim → Experiment Design."
 
-msgid "**Screen design and power estimates** — Saved planning tables or figures based on explicitly chosen effect sizes, variability and sampling assumptions."
-msgstr "**Hönnun skimunar og mat á tölfræðilegum styrk** — Vistaðar áætlunartöflur eða myndir byggðar á skýrt völdum áhrifastærðum, breytileika og forsendum úrtaks."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Plate design entries** — Entered in Experiment Design: plate identifier, plate format (6 to 1536 wells), conditions with replicate counts and roles (treatment, positive control, negative control, blank), layout, edge use and seed. Load template… fills in a bundled design; no input file is required."
+msgstr "**Færslur plötuhönnunar** — Slegnar inn í Tilraunahönnun: auðkenni plötu, plötusnið (6 til 1536 brunnar), skilyrði með fjölda endurtekninga og hlutverkum (meðferð, jákvætt viðmið, neikvætt viðmið, autt), uppsetning, notkun jaðra og fræ. Hlaða sniðmáti… fyllir inn meðfylgjandi hönnun; engin inntaksskrá er nauðsynleg."
 
-msgid "**Experimental layout** — Exported plate/condition/control/replicate map. Keep its plate and well identifiers consistent with the acquired data."
-msgstr "**Tilraunauppsetning** — Útflutt kort platna/aðstæðna/viðmiða/endurtekninga. Haltu auðkennum platna og brunna í samræmi við myndgögnin."
-
-msgid ":ref:`Power / Design <workflow-module-power>`: Use the experimental layout to define sampling assumptions, then revise the design."
-msgstr ":ref:`Power / Design <workflow-module-power>`: Notaðu tilraunauppsetninguna til að skilgreina forsendur úrtaks og endurskoðaðu svo hönnunina."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Experimental layout** — Export plate map... writes plate_map.csv (one row per well keyed by plateID, rowID and columnID), plate_map.json and plate_map_settings.json to the chosen folder. Keep its plate and well identifiers consistent with the acquired data."
+msgstr "**Tilraunauppsetning** — Flytja út plötukort... skrifar plate_map.csv (ein röð á brunn, auðkennd með plateID, rowID og columnID), plate_map.json og plate_map_settings.json í valda möppu. Haltu auðkennum plötu og brunna í samræmi við mynduðu gögnin."
 
 msgid ":ref:`Dose–Response <workflow-module-dose_response>`: Acquire and measure the experiment first, preserving dose/condition identities."
 msgstr ":ref:`Dose–Response <workflow-module-dose_response>`: Taktu fyrst myndir og mældu tilraunina, og varðveittu auðkenni skammta/aðstæðna."
@@ -871,8 +878,8 @@ msgstr "Mettu þörf á úrtaki út frá völdum áhrifastærðum og breytileika
 msgid "**Open:** Home → Power / Design."
 msgstr "**Opna:** Heim → Power / Design."
 
-msgid ":ref:`Experiment Design <workflow-module-experiment_design>`: Use the experimental layout to define sampling assumptions, then revise the design."
-msgstr ":ref:`Experiment Design <workflow-module-experiment_design>`: Notaðu tilraunauppsetninguna til að skilgreina forsendur úrtaks og endurskoðaðu svo hönnunina."
+msgid "**Screen design and power estimates** — Saved planning tables or figures based on explicitly chosen effect sizes, variability and sampling assumptions."
+msgstr "**Hönnun skimunar og mat á tölfræðilegum styrk** — Vistaðar áætlunartöflur eða myndir byggðar á skýrt völdum áhrifastærðum, breytileika og forsendum úrtaks."
 
 msgid ":doc:`API reference </api/spacr/qt/screens/power/index>`."
 msgstr ":doc:`API-tilvísun </api/spacr/qt/screens/power/index>`."
@@ -1013,14 +1020,16 @@ msgstr "`Kennsla um eininguna <tutorials/#lesson=28_training_runs>`__."
 msgid "Align & Stitch"
 msgstr "Jafna og sauma"
 
-msgid "Inspect tile geometry, overlap and channel mapping, then save the mosaic with coordinate records. OPS also needs the original cycle/site identities."
-msgstr "Skoðaðu rúmfræði reita, skörun og rásavörpun og vistaðu svo mósaíkmyndina með hnitaskrám. OPS þarf einnig upprunaleg auðkenni umferða/staðsetninga."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Press Plan to compute the tile layout and list tiles that fell back to their stage positions; Plan writes nothing. Write stack then writes the stitched stack to the Write to folder or .npy file and records tile coordinates in measurements.db when the Database field is set. Every channel uses the registration measured on Ref. channel. OPS also needs the original cycle/site identities."
+msgstr "Ýttu á Skipuleggja til að reikna út uppsetningu flísa og telja upp flísar sem féllu aftur á staðsetningar smásjárborðsins; Skipuleggja skrifar ekkert. Skrifaðu stack skrifar síðan saumaða staflann í Skrifaðu til-möppuna eða .npy-skrána og skráir hnit flísa í measurements.db þegar Databálið-reiturinn er stilltur. Hver rás notar myndsamstillinguna sem mæld var á Viðmiðunarrás. OPS þarf einnig upprunaleg auðkenni lota/staða."
 
 msgid "**Open:** Home → Align & Stitch."
 msgstr "**Opna:** Heim → Jafna og sauma."
 
-msgid "**Aligned mosaic and coordinates** — Align & Stitch destination: composed image and the tile-coordinate/layout records needed to interpret it."
-msgstr "**Jöfnuð mósaíkmynd og hnit** — Áfangastaður Align & Stitch: samsett mynd og færslur um hnit/uppsetningu reita sem þarf til að túlka hana."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Aligned mosaic and coordinates** — The Write to folder or .npy file: the stitched stack. Tile coordinates are saved to the measurements.db named in Database only when that field is set."
+msgstr "**Jöfnuð mósaíkmynd og hnit** — Skrifaðu til-mappan eða .npy-skráin: saumaði staflinn. Hnit flísa eru vistuð í measurements.db sem tilgreind er í Databálið aðeins þegar sá reitur er stilltur."
 
 msgid ":ref:`OPS <workflow-module-ops>`: Carry tile coordinates and original sequencing cycles into OPS; a flattened mosaic alone is insufficient."
 msgstr ":ref:`OPS <workflow-module-ops>`: Fluttu hnit reita og upprunalegar raðgreiningarumferðir inn í OPS; flöt mósaíkmynd ein og sér dugar ekki."
@@ -1697,8 +1706,9 @@ msgstr ":doc:`API-tilvísun </api/spacr/parameter_sweep/index>`."
 msgid "Toxoplasma"
 msgstr "Toxoplasma"
 
-msgid "Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Invasion Assay or Replication Assay. The four Coming soon tiles describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table."
-msgstr "Opnaðu lífverulýsinguna af Heimaskjánum, skoðaðu skýringarmynd hólfanna og veldu svo Plaque Assay, Söfnunargreiningu, Invasion Assay eða Replication Assay. Reitirnir fjórir merktir Væntanlegt lýsa tillögum og geta ekki keyrt. Lýsingin sjálf greinir ekki verkefni né býr til mælingatöflu."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay; Gliding motility opens Motility Assay with infection QC off. The three Coming soon tiles (Egress, Bradyzoite conversion, Host cell damage) describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table."
+msgstr "Opnaðu lífverulýsinguna af Heimaskjánum, skoðaðu skýringarmynd hólfanna og veldu svo Plaque Assay, Söfnunargreiningu, Hýsill–sýkill, Invasion Assay eða Replication Assay; Gliding motility opnar Hreyfanleikapróf með slökkt á gæðaeftirliti sýkingar. Reitirnir þrír merktir Væntanlegt (Egress, Bradyzoite conversion, Host cell damage) lýsa tillögum og geta ekki keyrt. Lýsingin sjálf greinir ekki verkefni né býr til mælingatöflu."
 
 msgid "**Open:** Home → Toxoplasma."
 msgstr "**Opna:** Heim → Toxoplasma."

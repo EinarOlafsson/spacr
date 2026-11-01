@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 10:47-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
@@ -46,14 +46,13 @@ msgstr "Python-verkfærasafn til að magngreina og sjónræna svipgerðarbreytin
 msgid "It is built for cell biologists running pooled or arrayed CRISPR screens who need per-cell measurements from plate images. The GUI route needs no programming; the same processing steps are available through the Python API for scripted and reproducible workflows."
 msgstr "Það er smíðað fyrir frumulíffræðinga sem keyra samsafns- eða raðaðar CRISPR-skimanir og þurfa mælingar á hverri frumu úr plötumyndum. Leiðin um myndræna viðmótið krefst engrar forritunar; sömu vinnsluskref eru tiltæk í gegnum Python API fyrir skriftuð og endurtakanleg verkflæði."
 
-# AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The GUI groups its applications into four categories: *Core* for the segment-measure-classify pipeline; *Data* for importing images and tables, feature embeddings, run comparison, experiment and power design, dose–response analysis and quality control; *Tools* for operations on an existing project — hand mask correction, stitching, image UMAP, gating and plotting; and *Organism* for the Toxoplasma organism guide, which lists its available assays; planned analyses are marked Coming soon. The bands under \"Applications and workflow\" below are those categories, in that order, with the tiles each one holds."
-msgstr "Myndræna viðmótið flokkar forrit sín í fjóra flokka: *Kjarni* fyrir vinnslukeðjuna hlutun-mæling-flokkun; *Gögn* fyrir innflutning mynda og taflna, innfellingar eiginleika, samanburð keyrslna, tilrauna- og afkastagetuhönnun, greiningu skammta–svörunar og gæðaeftirlit; *Verkfæri* fyrir aðgerðir á fyrirliggjandi verkefni — handvirka grímuleiðréttingu, saumun, mynda-UMAP, hliðun og myndrit; og *Lífvera* fyrir lífveruleiðbeiningarnar um Toxoplasma, sem telja upp tiltæk próf hennar; fyrirhugaðar greiningar eru merktar Væntanlegt. Böndin undir „Forrit og verkflæði“ hér að neðan eru þessir flokkar, í þessari röð, með reitunum sem hver þeirra geymir."
+msgid "The GUI groups its applications into four categories: *Core* for Mask, Measure, Annotate, Classify, barcode mapping and regression; *Data* for importing images and tables, feature embeddings, run comparison, experiment and power design, dose–response analysis and quality control; *Tools* for operations on an existing project — hand mask correction, stitching, image UMAP, gating and plotting; and *Organism* for the Toxoplasma organism guide, which lists its available assays; planned analyses are marked Coming soon. The bands under \"Applications and workflow\" below are those categories, in that order, with the tiles each one holds."
+msgstr "Myndræna viðmótið flokkar forrit sín í fjóra flokka: *Kjarni* fyrir Grímur, Mæling, Merking, Flokkun, vörpun strikamerkja og aðhvarfsgreiningu; *Gögn* fyrir innflutning mynda og taflna, innfellingar eiginleika, samanburð keyrslna, tilrauna- og afkastagetuhönnun, greiningu skammta–svörunar og gæðaeftirlit; *Verkfæri* fyrir aðgerðir á fyrirliggjandi verkefni — handvirka grímuleiðréttingu, saumun, mynda-UMAP, hliðun og myndrit; og *Lífvera* fyrir lífveruleiðbeiningarnar um Toxoplasma, sem telja upp tiltæk próf hennar; fyrirhugaðar greiningar eru merktar Væntanlegt. Böndin undir „Forrit og verkflæði“ hér að neðan eru þessir flokkar, í þessari röð, með reitunum sem hver þeirra geymir."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Not every screen is a tile. Screens used within another step open from that step's masthead — **Timelapse** from Mask, **Illumination** and the **Motility Assay** from Measure, **Classifier Evaluation** and **Explain CV Model** from Classify, **Annotator Agreement** from Annotate, and the **Cellpose Workbench**, **Model Compare**, **Model Zoo** and **Curate** from Make Masks, among others. Home shows only the tiles enabled in the running build."
-msgstr "Ekki er hver skjár reitur. Skjáir sem eru notaðir innan annars skrefs opnast úr haus þess skrefs — meðal annars **Tímaraðir** úr Grímur, **Lýsing** og **Hreyfanleikapróf** úr Mæling, **Mat á flokkara** og **Skýra CV-líkan** úr Flokkun, **Samræmi merkjara** úr Merking, og **Cellpose-vinnuborð**, **Líkansamanburður**, **Líkanasafn** og **Grisja** úr Búa til grímur. Heim sýnir aðeins reitina sem eru virkjaðir í keyrandi útgáfu."
+msgid "Not every screen is a tile. Screens used within another step open from that step's masthead — **Illumination** and the **Motility Assay** from Measure, **Classifier Evaluation** and **Explain CV Model** from Classify, **Annotator Agreement** from Annotate, and the **Cellpose Workbench**, **Model Compare**, **Model Zoo** and **Curate** from Make Masks, among others. **Timelapse** settings appear on the Mask form when its Time switch is on. Home shows only the tiles enabled in the running build."
+msgstr "Ekki er hver skjár reitur. Skjáir sem eru notaðir innan annars skrefs opnast úr haus þess skrefs — meðal annars **Lýsing** og **Hreyfanleikapróf** úr Mæling, **Mat á flokkara** og **Skýra CV-líkan** úr Flokkun, **Samræmi merkjara** úr Merking, og **Cellpose-vinnuborð**, **Líkansamanburður**, **Líkanasafn** og **Grisja** úr Búa til grímur. Stillingar fyrir **Tímaraðir** birtast á eyðublaði Grímur þegar tímarofi þess er virkur. Heim sýnir aðeins reitina sem eru virkjaðir í keyrandi útgáfu."
 
 msgid "🚀 Get started"
 msgstr "🚀 Hefjast handa"
@@ -76,8 +75,9 @@ msgstr "Studdir inngangspunktar verkflæða og heildartilvísun eininga."
 msgid "🎬 Video tutorials"
 msgstr "🎬 Kennslumyndbönd"
 
-msgid "Narrated walkthroughs of each pipeline module."
-msgstr "Leiðsagnir með tali um hverja einingu vinnslukeðjunnar."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Narrated walkthroughs of pipeline modules."
+msgstr "Leiðsagnir með tali um einingar vinnslukeðjunnar."
 
 msgid "🐛 Report an issue"
 msgstr "🐛 Tilkynna vandamál"

@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 13:04-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -64,8 +64,8 @@ msgid "Run the same contract from a shell"
 msgstr "在 shell 中执行相同的约定"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The headless command suits a scheduler because it validates setting names and values before importing PyTorch, Cellpose and the other pipeline dependencies."
-msgstr "无界面命令适合在调度器中使用，因为它会在导入 PyTorch、Cellpose 及其他流程依赖之前验证设置名称和值。"
+msgid "``spacr-run`` validates setting names and values before importing PyTorch, Cellpose and the other pipeline dependencies. It exits with 0 on success, 1 when the module raises and 2 for bad arguments, unreadable settings or failed preflight checks."
+msgstr "``spacr-run`` 会在导入 PyTorch、Cellpose 和其他流程依赖项之前验证设置名称和值。成功时以 0 退出，模块引发异常时以 1 退出，参数错误、设置无法读取或预检检查失败时以 2 退出。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Use ``spacr-run --list-models`` (or ``--models``) to list registered models, including models not yet downloaded. Supply a registered key or filename in ``custom_model`` for masking or ``model_path`` for classifier inference. Python and notebook entry points use the same resolver. When automatic acquisition is allowed, missing registered weights are downloaded, checksum-verified and cached; ``SPACR_MODEL_DOWNLOAD=off`` instead refuses missing weights while retaining usable local or verified cached files. Preflight recognizes trusted registered selections without fetching weights. Existing local paths take precedence; unknown selections and incompatible model kinds are refused. With downloads disabled, an uncached Cellpose stock model is refused before its constructor runs. See :doc:`model_zoo` for interactive acquisition and the explicit low-level checksum override."

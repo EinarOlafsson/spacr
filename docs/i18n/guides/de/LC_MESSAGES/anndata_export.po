@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 20:09-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: de\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -34,8 +34,9 @@ msgstr "Öffnen Sie auf der **Startseite** zuerst **Messen** und dann **AnnData-
 msgid "Select the measured project as the source."
 msgstr "Wählen Sie das gemessene Projekt als Quelle aus."
 
-msgid "Set **Anndata out** to a new ``.h5ad`` filename. Leaving it empty writes beneath the project's ``results`` folder. A successful export replaces an existing file at the chosen path; use separate names to keep both versions."
-msgstr "Setzen Sie **Anndata-Ausgabe** auf einen neuen ``.h5ad``-Dateinamen. Bleibt das Feld leer, wird in den Ordner ``results`` des Projekts geschrieben. Ein erfolgreicher Export ersetzt eine vorhandene Datei unter dem gewählten Pfad; verwenden Sie unterschiedliche Namen, um beide Versionen zu behalten."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Set **Anndata out** to a new ``.h5ad`` filename. Leaving it empty writes ``results/<project name>.h5ad`` in the project folder, or ``results/<project name>_<table>.h5ad`` for a single-table export. A successful export replaces an existing file at the chosen path; use separate names to keep both versions."
+msgstr "Setzen Sie **Anndata-Ausgabe** auf einen neuen ``.h5ad``-Dateinamen. Bleibt das Feld leer, wird ``results/<project name>.h5ad`` im Projektordner geschrieben, bei einem Export einer einzelnen Tabelle ``results/<project name>_<table>.h5ad``. Ein erfolgreicher Export ersetzt eine vorhandene Datei unter dem gewählten Pfad; verwenden Sie unterschiedliche Namen, um beide Versionen zu behalten."
 
 msgid "Set **Anndata single table** to ``cell`` for one row per cell using that table's features. Use ``nucleus`` or ``pathogen`` for those object types. Leave it empty for a cell-level joined export, where child measurements are aggregated onto their parent cells."
 msgstr "Setzen Sie **Anndata-Einzeltabelle** auf ``cell``, um eine Zeile pro Zelle mit den Merkmalen dieser Tabelle zu erhalten. Verwenden Sie ``nucleus`` oder ``pathogen`` für diese Objekttypen. Lassen Sie das Feld leer für einen verknüpften Export auf Zellebene, bei dem die Messungen untergeordneter Objekte auf ihre übergeordneten Zellen aggregiert werden."

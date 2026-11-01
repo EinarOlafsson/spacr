@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 16:41-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
@@ -36,18 +36,20 @@ msgid "Mask prepares TIFF, OME-TIFF, LIF, CZI and ND2 acquisitions and segments 
 msgstr "Grímur undirbýr TIFF-, OME-TIFF-, LIF-, CZI- og ND2-myndatökur og hlutar frumur, kjarna, sýkla og frumulíffæri með Cellpose. Einingin styður tvívíð gögn, rúmmálsgögn og tímaraðagögn, metur þvermál hluta og getur skipst á grímuleiðréttingum við lagaskoðarann eða napari."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The objects are not a fixed set of four. A project has a cell, a nucleus and a pathogen, a cytoplasm derived from them, and as many organelle slots as ``number_of_organelles`` specifies -- from none up to twenty-six. Each slot is independent, with its own channel, diameter, detection method and morphology."
-msgstr "Hlutirnir eru ekki fast sett af fjórum. Verkefni hefur frumu, kjarna og sýkil, umfrymi sem leitt er af þeim, og eins marga frumulíffærareiti og ``number_of_organelles`` tilgreinir -- frá engum upp í tuttugu og sex. Hver reitur er óháður, með eigin rás, þvermál, greiningaraðferð og formgerð."
+msgid "The objects are not a fixed set of four. A project has a cell, a nucleus and a pathogen, a cytoplasm derived from them, and as many organelle slots as ``number_of_organelles`` specifies -- from none up to 702 (``spacr.organelle_types.MAX_ORGANELLES``). Each slot is independent, with its own channel, diameter, detection method and morphology."
+msgstr "Hlutirnir eru ekki fast sett af fjórum. Verkefni hefur frumu, kjarna og sýkil, umfrymi sem leitt er af þeim, og eins marga frumulíffærareiti og ``number_of_organelles`` tilgreinir -- frá engum upp í 702 (``spacr.organelle_types.MAX_ORGANELLES``). Hver reitur er óháður, með eigin rás, þvermál, greiningaraðferð og formgerð."
 
-msgid "A slot is given a morphology preset -- punctate, vesicular, spherical, filamentous, tubular, reticular, cisternal, toroidal, crescent, or custom -- and the preset chooses the detection strategy, one of spots, network, irregular or ring."
-msgstr "Reit er gefin formgerðarforstilling -- punktlaga, blöðrulaga, kúlulaga, þráðlaga, pípulaga, netlaga, flögulaga (cisternal), kleinuhringlaga, hálfmánalaga eða sérsniðin -- og forstillingin velur greiningaraðferðina, eina af spots, network, irregular eða ring."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "A slot is given a morphology preset -- punctate, vesicular, spherical, filamentous, tubular, reticular, cisternal, toroidal, crescent, or custom -- and the preset chooses the detection strategy, one of spots, network, irregular or ring. The vesicular and spherical presets choose between two strategies by object size; custom chooses none."
+msgstr "Reit er gefin formgerðarforstilling -- punktlaga, blöðrulaga, kúlulaga, þráðlaga, pípulaga, netlaga, flögulaga (cisternal), kleinuhringlaga, hálfmánalaga eða sérsniðin -- og forstillingin velur greiningaraðferðina, eina af spots, network, irregular eða ring. Forstillingarnar blöðrulaga og kúlulaga velja milli tveggja aðferða eftir stærð hlutar; sérsniðin velur enga."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Mask generation lays out the per-object settings as one table under **Per-object settings**, with a column for each object whose channel is set; the cell column is always shown. An object's channel is set on the ordinary form, and the values of a hidden object are kept for when its channel is set again. Every object has a **Remove background** check box, and the cell column also has **Adjust cells**. **Add a filter** adds a row that filters objects on any scikit-image regionprop, such as area or mean intensity; each object's cell takes ``200 – 5000``, a minimum alone (``200``), a maximum alone (``– 5000``) or a blank for no filter. These rows are the ``object_filters`` setting. Choosing a Cellpose 3 model for an object shows a **Cellpose 3** category with that backend's own settings. **Quality Control** holds the segmentation checks together with output, storage, runtime and reliability settings."
 msgstr "Grímugerð setur stillingar fyrir hvern hlut fram sem eina töflu undir **Per-object settings**, með dálki fyrir hvern hlut sem hefur stillta rás; frumudálkurinn er alltaf sýndur. Rás hlutar er stillt á venjulega eyðublaðinu og gildi falins hlutar eru geymd þar til rás hans er stillt aftur. Hver hlutur hefur gátreitinn **Fjarlægja bakgrunn** og frumudálkurinn hefur einnig **Aðlaga frumur**. **Bæta við síu** bætir við röð sem síar hluti eftir hvaða regionprop sem er úr scikit-image, svo sem flatarmáli eða meðalstyrk; reitur hvers hlutar tekur ``200 – 5000``, lágmark eitt og sér (``200``), hámark eitt og sér (``– 5000``) eða autt fyrir enga síu. Þessar raðir eru stillingin ``object_filters``. Ef Cellpose 3-líkan er valið fyrir hlut birtist flokkurinn **Cellpose 3** með eigin stillingum þess bakenda. **Gæðaeftirlit** geymir hlutunarathuganirnar ásamt stillingum fyrir úttak, geymslu, keyrslu og áreiðanleika."
 
-msgid "Mask's **Live** preview shows the result as **Overlay**, **Masks**, **Flows** or **Cell probability**. Right-click a picture to **Save as PNG…** or **Save as PDF…**. Once a session has produced more than one mask, **Compare masks…** lays the masks and images you tick over one another, each with its own opacity and stacking order, in a panel of its own."
-msgstr "Forskoðunin **Beint** í Grímur sýnir niðurstöðuna sem **Yfirlag**, **Grímur**, **Flæði** eða **Líkur á frumu**. Hægrismelltu á mynd til að velja **Save as PNG…** eða **Save as PDF…**. Þegar lota hefur búið til fleiri en eina grímu leggur **Bera saman grímur…** grímurnar og myndirnar sem þú hakar við hverja yfir aðra, hverja með eigið ógegnsæi og staflaröð, í sérstöku spjaldi."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Mask's **Live** preview shows the result as **Overlay**, **Masks**, **Flows** or **Cell probability**. Right-click a picture to **Save as PNG…** or **Save as PDF…**. Once the session holds at least two masks of the field on screen, **Compare masks…** lays the masks and images you tick over one another, each with its own opacity and stacking order, in a panel of its own."
+msgstr "Forskoðunin **Beint** í Grímur sýnir niðurstöðuna sem **Yfirlag**, **Grímur**, **Flæði** eða **Líkur á frumu**. Hægrismelltu á mynd til að velja **Save as PNG…** eða **Save as PDF…**. Þegar lotan geymir að minnsta kosti tvær grímur af sjónsviðinu á skjánum leggur **Bera saman grímur…** grímurnar og myndirnar sem þú hakar við hverja yfir aðra, hverja með eigið ógegnsæi og staflaröð, í sérstöku spjaldi."
 
 msgid "Measure"
 msgstr "Mæling"
@@ -103,11 +105,13 @@ msgstr "``dependent_variable``, svarbreytan, er fellilisti yfir tölulega dálka
 msgid "Planning, quality control and exploration"
 msgstr "Skipulagning, gæðaeftirlit og könnun"
 
-msgid "**Power and Design** estimate cell and well requirements and lay out plates, controls and replicates."
-msgstr "**Power and Design** meta þörf fyrir frumur og brunna og skipuleggja plötur, viðmið og endurtekningar."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Power / Design** simulates experiments to estimate the cells per well and wells needed to recover a specified effect size. **Experiment Design** assigns conditions, controls and replicates to wells, checks row, column and plate-edge confounding, and exports ``plate_map.csv``."
+msgstr "**Afl / Hönnun** hermir tilraunir til að áætla fjölda frumna á brunn og fjölda brunna sem þarf til að greina tilgreinda áhrifastærð. **Tilraunahönnun** úthlutar skilyrðum, viðmiðum og endurtekningum á brunna, athugar blöndunaráhrif (confounding) raða, dálka og plötujaðra og flytur út ``plate_map.csv``."
 
-msgid "**QC Dashboard** combines segmentation, plate, annotation-agreement and leakage checks."
-msgstr "**QC Dashboard** sameinar athuganir á hlutun, plötum, samræmi merkjara og leka."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**QC** summarizes the segmentation, unit, plate-effect, annotation-agreement and leakage checks that completed runs stored; opening it does not recompute masks or measurements."
+msgstr "**QC** tekur saman athuganir á hlutun, einingum, plötuáhrifum, samræmi merkinga og leka sem fullgerðar keyrslur vistuðu; að opna eininguna endurreiknar hvorki grímur né mælingar."
 
 msgid "**Batch correction** provides centering, z-scoring, robust z-scoring, control centering and ComBat with protected biological covariates."
 msgstr "**Lotuleiðrétting** býður upp á miðjun, z-stöðlun, þolna z-stöðlun, miðjun út frá viðmiðum og ComBat með vernduðum líffræðilegum fylgibreytum."
@@ -136,17 +140,17 @@ msgstr "Hver keyrsla getur skráð auðkenni sitt, fræ, útleystar stillingar o
 msgid "How a module is reached"
 msgstr "Hvernig komist er að einingu"
 
-# AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The home screen groups modules into four categories -- **Core**, **Data**, **Tools** and **Organism** -- and nineteen modules have a tile in one of them. Core holds the pipeline modules, run in order; Data holds import, embeddings, run comparison, design, dose–response and QC; Tools holds modules that operate on an existing project rather than pipeline steps; Organism opens the Toxoplasma guide and its available assays. Planned analyses are marked Coming soon. Make Masks is filed under **Tools**."
-msgstr "Heimaskjárinn flokkar einingar í fjóra flokka -- **Kjarni**, **Gögn**, **Verkfæri** og **Lífvera** -- og nítján einingar hafa reit í einum þeirra. Kjarni geymir einingar vinnsluferlisins, sem eru keyrðar í röð; Gögn geymir innflutning, innfellingar, samanburð keyrslna, tilraunahönnun, skammta–svörun og gæðaeftirlit; Verkfæri geymir einingar sem vinna á fyrirliggjandi verkefni fremur en að vera skref í vinnsluferlinu; Lífvera opnar Toxoplasma-leiðbeiningarnar og tiltækar prófanir þeirra. Fyrirhugaðar greiningar eru merktar Væntanlegt. Búa til grímur er undir **Verkfæri**."
+msgid "The home screen groups modules into four categories -- **Core**, **Data**, **Tools** and **Organism** -- and nineteen modules have a tile in one of them. **Preferences → Show alpha species** adds seven Organism tiles (Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, virus infection and mammalian cells). Core holds the pipeline modules, run in order; Data holds import, embeddings, run comparison, design, dose–response and QC; Tools holds modules that operate on an existing project rather than pipeline steps; Organism opens the Toxoplasma guide and its available assays. Planned analyses are marked Coming soon. Make Masks is filed under **Tools**."
+msgstr "Heimaskjárinn flokkar einingar í fjóra flokka -- **Kjarni**, **Gögn**, **Verkfæri** og **Lífvera** -- og nítján einingar hafa reit í einum þeirra. **Kjörstillingar → Sýna alfa-tegundir** bætir við sjö reitum í Lífvera (Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, veirusýking og spendýrafrumur). Kjarni geymir einingar vinnsluferlisins, sem eru keyrðar í röð; Gögn geymir innflutning, innfellingar, samanburð keyrslna, hönnun, skammta–svörun og gæðaeftirlit; Verkfæri geymir einingar sem vinna á fyrirliggjandi verkefni fremur en að vera skref í vinnsluferlinu; Lífvera opnar Toxoplasma-leiðbeiningarnar og tiltækar prófanir þeirra. Fyrirhugaðar greiningar eru merktar Væntanlegt. Búa til grímur er undir **Verkfæri**."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Most modules do not have a tile; they inspect or extend work started in another module. They open from:"
 msgstr "Flestar einingar hafa engan reit; þær skoða eða útvíkka vinnu sem hófst í annarri einingu. Þær opnast úr:"
 
-msgid "**a button on their host's masthead** -- as a page beside that host's settings, already pointed at the same project. Investigate Hit and Prediction Profiler open from Regression; Format Converter and External Masks from Import; Layer Viewer, Control Charts and Outliers from QC."
-msgstr "**hnappi á haus hýsileiningarinnar** -- sem síða við hlið stillinga hýsilsins, sem vísar þegar á sama verkefni. Investigate Hit og Prediction Profiler opnast úr Aðhvarf; Sniðbreytir og Ytri grímur úr Flytja inn; Layer Viewer, Control Charts og Outliers úr QC."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**a button on their host's masthead** -- as a page beside that host's settings, already pointed at the same project. Investigate Hit and Prediction Profiler open from Regression; Import Images, Format Converter and External Masks from Import; Layer Viewer, Control Charts and Outliers from QC. On Mask, the Timelapse button does not open a page: it shows the **Time Axes & Tracking (Beta)** settings on Mask's own form."
+msgstr "**hnappi á haus hýsileiningarinnar** -- sem síða við hlið stillinga hýsilsins, sem vísar þegar á sama verkefni. Investigate Hit og Prediction Profiler opnast úr Aðhvarf; Import Images, Sniðbreytir og Ytri grímur úr Flytja inn; Layer Viewer, Control Charts og Outliers úr QC. Í Grímur opnar Tímaraðir-hnappurinn ekki síðu: hann sýnir stillingarnar **Tímaásar og rakning (Beta)** á eigin eyðublaði Grímur."
 
 msgid "**the Help menu**, for the ones that inspect or administer work that already exists rather than belonging behind any one module -- Run History, Pipeline Graph, Project Browser, Database Browser, Report, Data Manager, Plate Queue, Batch Runner and Distributed Jobs."
 msgstr "**Hjálp-valmyndinni**, fyrir þær sem skoða eða stjórna vinnu sem þegar er til frekar en að tilheyra einhverri einni einingu -- Keyrslusaga, Pipeline Graph, Project Browser, Gagnagrunnsvafri, Skýrsla, Gagnastjóri, Plöturöð, Lotukeyrsla og Dreifð verk."
@@ -168,7 +172,8 @@ msgstr "Opnast úr haus sínum"
 msgid "Timelapse"
 msgstr "Tímaraðir"
 
-msgid "Illumination Correction, AnnData Export, Motility Assay"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Illumination, AnnData Export, Motility Assay"
 msgstr "Lýsingarleiðrétting, AnnData-útflutningur, Hreyfanleikapróf"
 
 msgid "Annotate"
@@ -180,14 +185,16 @@ msgstr "Samræmi merkjara"
 msgid "Classify"
 msgstr "Flokkun"
 
-msgid "Classifier Evaluation, Explain CV Model, Activation Maps"
-msgstr "Mat á flokkara, Skýra CV-líkan, Virkjunarkort"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Classifier Evaluation, Explain CV Model, Activation, Training Runs, Feature Explorer"
+msgstr "Mat á flokkara, Skýra CV-líkan, Virkjunarkort, Þjálfunarkeyrslur, Eiginleikakönnuður"
 
 msgid "Barcode QC"
 msgstr "Strikamerkja-QC"
 
-msgid "Volcano Explorer, Hit List, Methods & Results"
-msgstr "Eldfjallaritskönnun, Niðurstöðulisti, Aðferðir og niðurstöður"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Volcano Explorer, Hit List, Methods & Results, Diagnostics"
+msgstr "Eldfjallaritskönnun, Niðurstöðulisti, Aðferðir og niðurstöður, Bilanagreining"
 
 msgid "Image UMAP"
 msgstr "Mynda-UMAP"
@@ -198,8 +205,25 @@ msgstr "Mynddreifirit, PCA"
 msgid "Make Masks"
 msgstr "Búa til grímur"
 
-msgid "Cellpose Workbench, Mask the whole folder, Model Compare, Model Zoo, Curate, Napari Bridge"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Cellpose Workbench, Mask folder, Model Compare, Model Zoo, Curate, Napari Bridge"
 msgstr "Cellpose-vinnuborð, Búa til grímur fyrir alla möppuna, Líkansamanburður, Líkanasafn, Grisja, Napari-brú"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Graph Builder"
+msgstr "Myndritasmiður"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Plate Viewer, Small Multiples"
+msgstr "Plötuskoðari, Smáfjölrit"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Database Browser"
+msgstr "Gagnagrunnsvafri"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Lineage, Tabulate"
+msgstr "Ætterni, Töflugerð"
 
 msgid "Parameter Sweep is reached a third way: it is a panel on the Regression screen, opened by the **Parameter sweep** switch on its settings form."
 msgstr "Færibreytuskönnun er náð í þriðja lagi: það er spjald á skjá Aðhvarfs, opnað með rofanum **Færibreytuskönnun** á stillingaeyðublaði þess."
@@ -208,9 +232,9 @@ msgstr "Færibreytuskönnun er náð í þriðja lagi: það er spjald á skjá 
 msgid "Starting spaCR"
 msgstr "Ræsa spaCR"
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "spaCR opens with a black container holding the spaCR logo as a photomosaic. The logo holds still while the window loads, then the mosaic blows away tile by tile and the container fades to show the window. A click or a key skips it. The sequence is off when **Preferences → Appearance → Animation → Startup animation** is cleared (the mosaic then shows without the animation), while **Reduce motion** is on, and when the ``SPACR_NO_SPLASH`` environment variable is set to ``1`` (the mosaic is then not shown at all). **Help → Show startup animation** plays it again inside the open window, even when Startup animation is off; under Reduce motion the logo holds and then cross-fades away."
-msgstr "spaCR opnast með svörtu svæði sem sýnir merki spaCR sem ljósmyndamósaík. Merkið stendur kyrrt meðan glugginn hleðst inn; síðan fýkur mósaíkið burt flís fyrir flís og svæðið dofnar svo glugginn birtist. Smellur eða lykill sleppir þessari röð. Röðin er óvirk þegar **Kjörstillingar → Útlit → Animation → Ræsingarhreyfimynd** er afmerkt (mósaíkið birtist þá án hreyfimyndar), þegar **Draga úr hreyfingu** er virkt og þegar umhverfisbreytan ``SPACR_NO_SPLASH`` er stillt á ``1`` (þá birtist mósaíkið alls ekki). **Hjálp → Sýna ræsingarhreyfimynd** spilar hana aftur inni í opnum glugganum, jafnvel þótt Ræsingarhreyfimynd sé óvirk; með Draga úr hreyfingu stendur merkið kyrrt og dofnar síðan burt."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "spaCR opens with a black container holding the spaCR logo as a photomosaic. The logo holds still while the window loads, then the mosaic blows away tile by tile and the container fades to show the window. A click or a key skips it. The sequence is off when **Preferences → Appearance → Animation → Startup animation** is cleared (the mosaic then shows without the animation), while **Reduce motion** is on, and when the ``SPACR_NO_SPLASH`` environment variable is set to any value other than ``0``, ``false``, ``no`` or ``off`` (the mosaic is then not shown at all). **Help → Show startup animation** plays it again inside the open window, even when Startup animation is off; under Reduce motion the logo holds and then cross-fades away."
+msgstr "spaCR opnast með svörtu svæði sem sýnir merki spaCR sem ljósmyndamósaík. Merkið stendur kyrrt meðan glugginn hleðst inn; síðan fýkur mósaíkið burt flís fyrir flís og svæðið dofnar svo glugginn birtist. Smellur eða lykill sleppir þessari röð. Röðin er óvirk þegar **Kjörstillingar → Útlit → Hreyfimynd → Ræsingarhreyfimynd** er afmerkt (mósaíkið birtist þá án hreyfimyndar), þegar **Draga úr hreyfingu** er virkt og þegar umhverfisbreytan ``SPACR_NO_SPLASH`` er stillt á eitthvert annað gildi en ``0``, ``false``, ``no`` eða ``off`` (þá birtist mósaíkið alls ekki). **Hjálp → Sýna ræsingarhreyfimynd** spilar hana aftur inni í opnum glugganum, jafnvel þótt Ræsingarhreyfimynd sé óvirk; með Draga úr hreyfingu stendur merkið kyrrt og dofnar síðan burt."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The window opens **Borderless** by default: it has no title bar, fills the work area of its screen, and its menu bar moves it while the marks at the right end of the bar minimise, maximise and close it. Clear **Help → Window → Borderless window** to use the platform's own framed window instead. The choice is remembered."
@@ -340,14 +364,13 @@ msgstr "Beita, Hætta við og Vista virka eins og fyrir allar aðrar stillingar.
 msgid "Data-art themes"
 msgstr "Þemu með gagnalist"
 
-# AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Under **Preferences** → **Appearance**, **Theme** selects the interface palette; the ten night palettes remain available. **Animation** chooses a decorative background independently, or **None** to stop it. These backgrounds do not display project measurements. The main window defaults to **spaCR field**; the Settings backdrop defaults to **None**."
-msgstr "Undir **Kjörstillingar** → **Útlit** velur **Þema** litapallettu viðmótsins; næturpalletturnar tíu eru áfram tiltækar. **Hreyfimynd** velur skreytingarbakgrunn óháð því, eða **Engin** til að stöðva hann. Þessir bakgrunnar sýna ekki mælingar verkefnisins. Aðalglugginn notar **spaCR field** sjálfgefið; bakgrunnur stillinganna er sjálfgefið **Engin**."
+msgid "Under **Preferences** → **Appearance**, **Theme** selects the interface palette; the ten night palettes remain available. **Animation** chooses a decorative background independently, or **None** to stop it. These backgrounds do not display project measurements. The main window defaults to **spaCR field**; the Settings backdrop defaults to **spaCR stratified**."
+msgstr "Undir **Kjörstillingar** → **Útlit** velur **Þema** litapallettu viðmótsins; næturpalletturnar tíu eru áfram tiltækar. **Hreyfimynd** velur skreytingarbakgrunn óháð því, eða **Engin** til að stöðva hann. Þessir bakgrunnar sýna ekki mælingar verkefnisins. Aðalglugginn notar **spaCR field** sjálfgefið; bakgrunnur stillinganna er sjálfgefið **spaCR stratified**."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The animation menu lists **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**, and **spaCR spinn**, in that order."
-msgstr "Hreyfimyndavalmyndin telur upp **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified** og **spaCR spinn**, í þessari röð."
+msgid "The animation menu lists **spaCR field**, **spaCR advection**, **spaCR waves**, **spaCR blobs** and **spaCR stratified**, in that order, followed by **None**. **spaCR growth**, **spaCR aurora** and **spaCR spinn** are listed only when spaCR is started with the ``spaceout`` command."
+msgstr "Hreyfimyndavalmyndin telur upp **spaCR field**, **spaCR advection**, **spaCR waves**, **spaCR blobs** og **spaCR stratified**, í þessari röð, og síðan **Engin**. **spaCR growth**, **spaCR aurora** og **spaCR spinn** eru aðeins talin upp þegar spaCR er ræst með skipuninni ``spaceout``."
 
 msgid "**spaCR field** — A crisp gravitational dot field with optional local mouse influence and expanding ripples."
 msgstr "**spaCR field** — Skarpt þyngdarsvið punkta með valfrjálsum staðbundnum músaráhrifum og útvíkkandi gárum."
@@ -379,9 +402,9 @@ msgstr "**spaCR stratified** — Hægt stjörnusvið færist í þremur dýptarl
 msgid "**spaCR spinn** — Fine paper facets move gently and spin locally in response to the mouse. Rotation is fastest beside the pointer and fades smoothly to zero at the Mouse gravity radius; changing the radius changes the affected area."
 msgstr "**spaCR spinn** — Fíngerðir pappírsfletir hreyfast mjúklega og snúast staðbundið til að bregðast við músinni. Snúningurinn er hraðastur næst bendlinum og minnkar mjúklega niður í núll við jaðar þyngdarsviðs músarinnar; radíusinn ákvarðar stærð svæðisins sem verður fyrir áhrifum."
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **15%**; set it to **0** to disable mouse influence. **Animation density** changes the number of elements independently of **Animation detail**, which changes drawing resolution. Density has a minimum of **1%**; increasing Detail does not trim the chosen population. The renderer bounds its sampling work within the screen's pixel budget. Select **Random** in **Animation palette** for per-element colours. Fresh installations use **Dark**, **spaCR field** and the **spaCR** animation palette, with Density **10%**, Gravity **10%**, Detail, Speed and Size **100%**, and Page opacity **60%**. **Dot blinking** controls the percentage of visible dots that flash white: **0** switches it off (the default), and nonzero values range from 0.00001% to 10%. The setting applies to spaCR field, spaCR advection, spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative perimeter length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle. Existing saved preferences remain in effect until changed or reset."
-msgstr "**Radíus þyngdarsviðs músar** skilgreinir áhrifasvæðið sem hlutfall af styttri skjábrúninni. Sjálfgefið gildi er **15%**; veldu **0** til að slökkva á áhrifum músarinnar. **Þéttleiki hreyfimyndar** breytir fjölda eininga óháð **Smáatriði hreyfimyndar**, sem breytir upplausn teikningarinnar. Lágmarksþéttleiki er **1%**; aukin smáatriði fækka ekki þeim einingum sem voru valdar. Teiknarinn takmarkar sýnatökuvinnu sína við mynddílafjölda skjásins. Veldu **Handahófskennt** í **Litapalletta hreyfimyndar** til að fá lit fyrir hverja einingu. Nýjar uppsetningar nota **Dökkt**, **spaCR field** og **spaCR** litapallettuna, með þéttleika **10%**, þyngdarsvið **10%**, smáatriði, hraða og stærð **100%** og ógagnsæi síðu **60%**. **Blikk punkta** stjórnar hlutfalli sýnilegra punkta sem blikka hvítir: **0** slekkur á því (sjálfgefið), og önnur gildi eru frá 0,00001% til 10%. Stillingin á við spaCR field, spaCR advection, spaCR waves og spaCR stratified. Dofnun sviðsins er virk. Blái jaðarinn notar hlutfallslega lengd **17%** af ummáli, eftirfylgni **50%**, miðjaða staðsetningu, haminn **Beat** og lotu **1.5 s**. Vistaðar stillingar haldast þar til þeim er breytt eða þær endurstilltar."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **10%**; set it to **0** to disable mouse influence. **Animation density** changes the number of elements independently of **Animation detail**, which changes drawing resolution. Density has a minimum of **1%**; increasing Detail does not trim the chosen population. The renderer bounds its sampling work within the screen's pixel budget. Select **Random** in **Animation palette** for per-element colours. Fresh installations use **Dark**, **spaCR field** and the **spaCR** animation palette, with Density **10%**, Gravity **10%**, Detail, Speed and Size **100%**, and Page opacity **60%**. **Dot blinking** controls the percentage of visible dots that flash white: **0** switches it off (the default), and nonzero values range from 0.00001% to 10%. The setting applies to spaCR field, spaCR advection, spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative perimeter length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle. Existing saved preferences remain in effect until changed or reset."
+msgstr "**Radíus þyngdarsviðs músar** skilgreinir áhrifasvæðið sem hlutfall af styttri skjábrúninni. Sjálfgefið gildi er **10%**; veldu **0** til að slökkva á áhrifum músarinnar. **Þéttleiki hreyfimyndar** breytir fjölda eininga óháð **Smáatriði hreyfimyndar**, sem breytir upplausn teikningarinnar. Lágmarksþéttleiki er **1%**; aukin smáatriði fækka ekki þeim einingum sem voru valdar. Teiknarinn takmarkar sýnatökuvinnu sína við mynddílafjölda skjásins. Veldu **Handahófskennt** í **Litapalletta hreyfimyndar** til að fá lit fyrir hverja einingu. Nýjar uppsetningar nota **Dökkt**, **spaCR field** og **spaCR** litapallettuna, með þéttleika **10%**, þyngdarsvið **10%**, smáatriði, hraða og stærð **100%** og ógagnsæi síðu **60%**. **Blikk punkta** stjórnar hlutfalli sýnilegra punkta sem blikka hvítir: **0** slekkur á því (sjálfgefið), og önnur gildi eru frá 0.00001% til 10%. Stillingin á við spaCR field, spaCR advection, spaCR waves og spaCR stratified. Dofnun sviðsins er virk. Blái jaðarinn notar hlutfallslega lengd **17%** af ummáli, eftirfylgni **50%**, miðjaða staðsetningu, haminn **Beat** og lotu **1.5 s**. Vistaðar stillingar haldast þar til þeim er breytt eða þær endurstilltar."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Animation background colour** sets the background independently of the animation palette. Until you choose a colour, it follows the page theme; **Theme colour** restores that behaviour. The chosen colour's brightness is kept within the active Dark or Light theme's range. It applies to the main window, module screens and animated settings popups. A full-screen wallpaper can cover the background fill."
@@ -430,14 +453,13 @@ msgstr "Þessar stærðir eru munaðar milli lota."
 msgid "To resize a popup, point at one of its edges or corners. A thin blue guide line appears across the middle half of each side you can drag. Drag from anywhere along that edge or corner; the line only marks the side."
 msgstr "Til að breyta stærð sprettiglugga bendir þú á eina af brúnum hans eða hornum. Þunn blá leiðarlína birtist yfir miðhelmingi hverrar hliðar sem hægt er að draga. Dragðu hvar sem er meðfram þeirri brún eða horni; línan merkir aðeins hliðina."
 
-# AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Make Masks edits integer label masks by hand. Its masthead opens related screens, including Cellpose Workbench, Model Compare, Model Zoo and Curate. Its canvas has eleven tools: Brush, Erase, Erase object, Wand, Draw, Box, Edit Label, Divide / Merge, Zoom, Recrop and Ruler. Wand adds a region by default; hold Ctrl while clicking to remove it. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement. Volumes (TIFF stacks, OME-TIFF and MRC) open in the same view with a slice slider and a View list of Default, Orthogonal and True 3D; electron micrographs (``.dm3``, ``.dm4``, ``.mrc``) have a contrast preset. See :ref:`3D volumes <mm-volumes>` and :ref:`electron micrographs <mm-tem>`."
-msgstr "Make Masks breytir heiltölumerkjagrímum handvirkt. Hausinn opnar tengda skjái, þar á meðal Cellpose Workbench, Model Compare, Model Zoo og Curate. Teikniflöturinn hefur ellefu verkfæri: Brush, Erase, Eyða hlut, Galdrastafur, Teikna, Rammi, Breyta merki, Skipta / Sameina, Zoom, Skera aftur og Reglustika. Galdrastafur bætir sjálfgefið við svæði; haltu Ctrl inni þegar þú smellir til að fjarlægja það. :doc:`Handbók Make Masks <make_masks>` fjallar um þessi verkfæri, Tónsvið, greiningarstillingar, pörun aðal- og aukagríma, vistun og mælingar. Rúmmál (TIFF-staflar, OME-TIFF og MRC) opnast í sömu sýn með sleða fyrir sneiðar og View-lista með Sjálfgefið, Hornrétt og True 3D; rafeindasmásjármyndir (``.dm3``, ``.dm4``, ``.mrc``) hafa forstillingu fyrir birtuskil. Sjá :ref:`3D-rúmmál <mm-volumes>` og :ref:`rafeindasmásjármyndir <mm-tem>`."
+msgid "Make Masks edits integer label masks by hand. Its masthead opens related screens, including Cellpose Workbench, Model Compare, Model Zoo and Curate. Its canvas has eleven tools: Brush, Erase, Erase object, Wand, Draw, Box, Edit Label, Divide / Merge, Zoom, Recrop and Ruler; a twelfth, Pick, is shown while mask layers are loaded. Wand adds a region by default; hold Ctrl while clicking to remove it. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement. Volumes (TIFF stacks, OME-TIFF and MRC) open in the same view with a slice slider and a View list of Default, Orthogonal and True 3D; electron micrographs (``.dm3``, ``.dm4``, ``.mrc``) have a contrast preset. See :ref:`3D volumes <mm-volumes>` and :ref:`electron micrographs <mm-tem>`."
+msgstr "Make Masks breytir heiltölumerkjagrímum handvirkt. Hausinn opnar tengda skjái, þar á meðal Cellpose Workbench, Model Compare, Model Zoo og Curate. Teikniflöturinn hefur ellefu verkfæri: Brush, Erase, Eyða hlut, Galdrastafur, Teikna, Rammi, Breyta merki, Skipta / Sameina, Zoom, Skera aftur og Reglustika; tólfta verkfærið, Velja, birtist á meðan grímulög eru hlaðin. Galdrastafur bætir sjálfgefið við svæði; haltu Ctrl inni þegar þú smellir til að fjarlægja það. :doc:`Handbók Make Masks <make_masks>` fjallar um þessi verkfæri, Tónsvið, greiningarstillingar, pörun aðal- og aukagríma, vistun og mælingar. Rúmmál (TIFF-staflar, OME-TIFF og MRC) opnast í sömu sýn með sleða fyrir sneiðar og View-lista með Sjálfgefið, Hornrétt og True 3D; rafeindasmásjármyndir (``.dm3``, ``.dm4``, ``.mrc``) hafa forstillingu fyrir birtuskil. Sjá :ref:`3D-rúmmál <mm-volumes>` og :ref:`rafeindasmásjármyndir <mm-tem>`."
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "**Box** draws independent class-labelled rectangles for YOLO annotation. Move or resize a box, undo or redo edits, and use **Save boxes** to preserve the project or **Export YOLO…** to write normalized labels and ordered class metadata. Source images and segmentation masks remain unchanged."
-msgstr "**Rammi** teiknar sjálfstæða rétthyrninga með flokkamerkingum fyrir YOLO-merkingar. Færðu ramma eða breyttu stærð hans, afturkallaðu eða endurtaktu breytingar og notaðu **Vista ramma** til að varðveita verkefnið eða **Export YOLO…** til að skrifa stöðluð hnitamerki og flokkalýsigögn í fastri röð. Upprunamyndir og skiptingargrímur haldast óbreyttar."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Box** draws independent class-labelled rectangles for YOLO annotation. Move or resize a box, undo or redo edits, and use **Save boxes** to preserve the project or **Export YOLO labels** to write normalized labels and ordered class metadata. Source images and segmentation masks remain unchanged."
+msgstr "**Rammi** teiknar sjálfstæða rétthyrninga með flokkamerkingum fyrir YOLO-merkingar. Færðu ramma eða breyttu stærð hans, afturkallaðu eða endurtaktu breytingar og notaðu **Vista ramma** til að varðveita verkefnið eða **Flytja út YOLO-merkingar** til að skrifa stöðluð merki og flokkalýsigögn í fastri röð. Upprunamyndir og skiptingargrímur haldast óbreyttar."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Edit Label** asks for a new whole-number ID for the clicked object and gives that ID to every pixel that carries the object's current ID. Entering ``0`` removes the object. An ID that already belongs to another object is refused before any pixel changes. Each change is one undo step."
@@ -571,8 +593,8 @@ msgid "Before a module starts its workers, spaCR estimates how much memory each 
 msgstr "Áður en eining ræsir vinnsluferli sín áætlar spaCR hve mikið minni hvert ferli þarf fyrir eitt inntak, svo sem sjónsvið, grímu, skurðarlotu eða töflu. Ef ``n_jobs`` sem þú stilltir myndi skilja eftir minna en 12,5% af vinnsluminni tölvunnar laust sýnir sprettigluggi áætlunina, lausa minnið og fjölda vinnsluferla sem komast fyrir. Veldu **Nota N vinnuþræði (mælt með)** til að keyra með þeim fjölda, eða haltu þínum eigin; Mæling gerir þá hlé á nýjum sjónsviðum þegar laust minni fer undir varaforðann. **Losa RAM með því að loka forritum…** sýnir stærstu forritin þín. Ekkert er hakað í fyrstu og aðeins forrit sem þú hakar við eru beðin að loka, eftir að þú staðfestir; þau geta yfirleitt vistað fyrst, en óvistuð vinna í þeim getur samt glatast."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Runs started without the GUI lower ``n_jobs`` to the number that keeps the reserve free and print a warning. Turn ``ram_guard`` off in **Advanced** to keep your ``n_jobs`` unchanged; Measure still waits while free memory is below the reserve."
-msgstr "Keyrslur sem ræstar eru án myndræns viðmóts lækka ``n_jobs`` í þann fjölda sem heldur varaforðanum lausum og birta viðvörun. Slökktu á ``ram_guard`` í **Ítarlegt** til að halda ``n_jobs`` óbreyttu; Mæling bíður samt meðan laust minni er undir varaforðanum."
+msgid "Runs started without the GUI lower ``n_jobs`` to the number that keeps the reserve free and print a warning. Turn ``ram_guard`` off in the module's **Runtime & Reliability** settings (**Quality Control** on Mask) to keep your ``n_jobs`` unchanged; Measure still waits while free memory is below the reserve."
+msgstr "Keyrslur sem ræstar eru án myndræns viðmóts lækka ``n_jobs`` í þann fjölda sem heldur varaforðanum lausum og birta viðvörun. Slökktu á ``ram_guard`` í stillingunum **Keyrsla og áreiðanleiki** í einingunni (**Gæðaeftirlit** í Grímur) til að halda ``n_jobs`` óbreyttu; Mæling bíður samt meðan laust minni er undir varaforðanum."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Worker startup and final retries"
@@ -589,8 +611,9 @@ msgstr "Þegar verkefni hefur tæmt venjulegar tilraunir sínar vegna þekkts au
 msgid "Maturity labels"
 msgstr "Þroskamerkingar"
 
-msgid "The API uses these labels consistently:"
-msgstr "API-ið notar þessar merkingar með samræmdum hætti:"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The API documentation marks entry points with these labels:"
+msgstr "API-skjölunin merkir aðgangspunkta með þessum merkjum:"
 
 msgid "**Stable**"
 msgstr "**Stöðugt**"

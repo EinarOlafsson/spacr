@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 20:05-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -106,9 +106,9 @@ msgstr "더 큰 학습 배치, 많은 채널, 더 큰 볼륨, 동시 플레이�
 msgid "CPU clock figures are rough x86 purchasing targets, not requirements; GHz is not comparable across architectures. Count physical cores separately from threads, and distinguish performance from efficiency cores on hybrid CPUs. Apple unified memory is shared by the OS, CPU and GPU and is not equivalent to the same quantity of dedicated VRAM. Available memory, image dimensions and batch size determine whether a workload fits. Training usually needs more memory than inference; large 3-D images may exceed any of these examples."
 msgstr "CPU 클럭 수치는 대략적인 x86 구매 목표일 뿐 요구 사항이 아니며, GHz는 아키텍처 간에 비교할 수 없습니다. 물리 코어와 스레드를 구분하여 세고, 하이브리드 CPU에서는 성능 코어와 효율 코어를 구분합니다. Apple 통합 메모리는 OS, CPU, GPU가 공유하므로 같은 용량의 전용 VRAM과 같지 않습니다. 작업이 들어맞는지는 사용 가능한 메모리, 이미지 크기, 배치 크기에 달려 있습니다. 학습은 보통 추론보다 메모리가 더 많이 필요하며, 큰 3D 이미지는 위의 어떤 예시도 넘어설 수 있습니다."
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Use a 64-bit OS and Python environment. The desktop installers target Windows 10/11 x86-64, Linux x86-64 and Intel/Apple-silicon macOS; their advertised OS floor does not guarantee that a newer GPU framework supports that same OS. Python 3.12 is the practical starting point for the broadest spaCR extras. spaCR's declared Python range is 3.9–3.15, excluding 3.14.1, but optional packages and individual hardware backends narrow that range. Current Apple MPS requirements include macOS 14 or later; use the requirements for the specific PyTorch build you install. `Apple's PyTorch requirements <https://developer.apple.com/metal/pytorch/>`_ describe the current native Apple-silicon route."
-msgstr "64비트 OS와 Python 환경을 사용합니다. 데스크톱 설치 프로그램은 Windows 10/11 x86-64, Linux x86-64, Intel/Apple 실리콘 macOS를 대상으로 하며, 명시된 최소 OS 버전이 더 새로운 GPU 프레임워크의 같은 OS 지원을 보장하지는 않습니다. 가장 폭넓은 spaCR 추가 구성 요소를 쓰려면 Python 3.12가 실용적인 출발점입니다. spaCR이 선언한 Python 범위는 3.9–3.15(3.14.1 제외)이지만, 선택적 패키지와 개별 하드웨어 백엔드가 이 범위를 좁힙니다. 현재 Apple MPS 요구 사항에는 macOS 14 이상이 포함되므로, 설치하는 특정 PyTorch 빌드의 요구 사항을 따릅니다. `Apple의 PyTorch 요구 사항 <https://developer.apple.com/metal/pytorch/>`_ 에 현재 Apple 실리콘 기본 경로가 설명되어 있습니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Use a 64-bit OS and Python environment. The desktop installers target Windows 10/11 x86-64, Linux x86-64 and Intel/Apple-silicon macOS; their advertised OS floor does not guarantee that a newer GPU framework supports that same OS. Python 3.12 is the practical starting point for the broadest spaCR extras. spaCR's declared Python range is 3.9–3.15, excluding 3.14.1, but optional packages and individual hardware backends narrow that range. The minimum macOS version for MPS is set by the PyTorch build you install; check its requirements. `Apple's PyTorch requirements <https://developer.apple.com/metal/pytorch/>`_ describe the current native Apple-silicon route."
+msgstr "64비트 OS와 Python 환경을 사용합니다. 데스크톱 설치 프로그램은 Windows 10/11 x86-64, Linux x86-64, Intel/Apple 실리콘 macOS를 대상으로 하며, 명시된 최소 OS 버전이 더 새로운 GPU 프레임워크의 같은 OS 지원을 보장하지는 않습니다. 가장 폭넓은 spaCR 추가 구성 요소를 쓰려면 Python 3.12가 실용적인 출발점입니다. spaCR이 선언한 Python 범위는 3.9–3.15(3.14.1 제외)이지만, 선택적 패키지와 개별 하드웨어 백엔드가 이 범위를 좁힙니다. MPS에 필요한 최소 macOS 버전은 설치하는 PyTorch 빌드가 정하므로 그 요구 사항을 확인합니다. `Apple의 PyTorch 요구 사항 <https://developer.apple.com/metal/pytorch/>`_ 에 현재 Apple 실리콘 기본 경로가 설명되어 있습니다."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The **True 3D** view draws through wgpu (Vulkan, Metal or Direct3D 12) where wgpu is installed, and otherwise through OpenGL or the CPU. wgpu needs Python 3.10 or newer on x86-64 or ARM64, and on Linux glibc 2.28 or newer; the :ref:`3D rendering section of the installer guide <wgpu-3d-rendering>` lists who gets it and how to install without it."
@@ -135,8 +135,8 @@ msgid "Vulkan (wgpu), OpenGL, CPU"
 msgstr "Vulkan(wgpu), OpenGL, CPU"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Windows (x64, ARM64)"
-msgstr "Windows(x64, ARM64)"
+msgid "Windows (x86-64)"
+msgstr "Windows(x86-64)"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Vulkan, Direct3D 12 (wgpu), OpenGL, CPU"
@@ -428,8 +428,9 @@ msgstr "256–512 GB 이상, 작업별로 분배"
 msgid "GPU"
 msgstr "GPU"
 
-msgid "One compatible GPU with 24–48 GB VRAM for a broadly useful training/inference node"
-msgstr "범용 학습/추론 노드로 VRAM 24–48 GB의 호환 GPU 1개"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "One compatible GPU with 24–48 GB VRAM for training and inference on one node"
+msgstr "한 노드에서 학습과 추론을 위한 VRAM 24–48 GB의 호환 GPU 1개"
 
 msgid "Multiple compatible GPUs, typically 48–80 GB or more each for larger jobs; assign jobs explicitly"
 msgstr "호환 GPU 여러 개, 큰 작업에는 보통 개당 48–80 GB 이상; 작업을 명시적으로 할당"

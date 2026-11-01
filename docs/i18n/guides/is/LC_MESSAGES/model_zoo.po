@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 20:26-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
@@ -246,15 +246,15 @@ msgid "Stock was not evaluated in this run; see the named incumbent comparison o
 msgstr "Staðlaða líkanið var ekki metið í þessari keyrslu; sjá nafngreindan samanburð við fyrra líkan á líkanspjaldinu"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Each model is hosted in a repository under its author's own Hugging Face account; contributing a model does not require write access to another account's repository. ``spacr.model_zoo``'s ``publish_model`` performs the upload and prints the catalogue row to add."
-msgstr "Hvert líkan er hýst í geymslu á eigin Hugging Face-reikningi höfundar síns; framlag líkans krefst ekki skrifaðgangs að geymslu annars reiknings. ``publish_model`` í ``spacr.model_zoo`` sér um upphleðsluna og prentar vörulistaröðina sem á að bæta við."
+msgid "``spacr.model_zoo``'s ``publish_model`` uploads a checkpoint to a Hugging Face repository under the publisher's own account (``repo_id``), so contributing a model does not require write access to another account's repository. It returns the catalogue row, with the uploaded file's SHA-256, to add to the shared catalogue."
+msgstr "``publish_model`` í ``spacr.model_zoo`` hleður vistunarpunkti upp í Hugging Face-geymslu undir eigin aðgangi útgefandans (``repo_id``), svo að framlag líkans krefst ekki skrifaðgangs að geymslu annars aðgangs. Fallið skilar færslunni í líkanaskránni, með SHA-256 upphlöðnu skrárinnar, til að bæta við sameiginlegu líkanaskrána."
 
 msgid "Choose a model from a form"
 msgstr "Velja líkan úr eyðublaði"
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "A model setting in Mask generation, Make Masks and Plaque Assay has a **Model zoo…** button. Its list is grouped by origin under five standard headings — the stock Cellpose-SAM weights, spaCR's own models, unvetted spaCR community uploads, Cellpose models published on bioimage.io, and the Cellpose 3 backend's cyto, cyto2, cyto3 and nuclei models. Click a heading to show or fold its rows. **Download** fetches the selected model, or **Install** its backend; **Use this model** then writes the model into the setting. A model that needs another backend, such as Cellpose 3 or Cellpose-DINO, says so on its row and offers to install that backend into its own environment under ``~/.spacr/backends``; spaCR's own environment is not changed. A row spaCR cannot run says so instead of being offered."
-msgstr "Líkanastilling í grímugerð, Búa til grímur og Skellugreining hefur hnappinn **Líkanasafn…**. Listi hans er flokkaður eftir uppruna undir fimm hefðbundnum fyrirsögnum — stöðluðu Cellpose-SAM-vægin, eigin líkön spaCR, óyfirfarnar upphleðslur úr spaCR-samfélaginu, Cellpose-líkön birt á bioimage.io, og cyto-, cyto2-, cyto3- og nuclei-líkön Cellpose 3-bakendans. Smelltu á fyrirsögn til að sýna eða fella saman raðir hennar. **Sækja** sækir valið líkan, eða **Setja upp** bakenda þess; **Use this model** skrifar síðan líkanið í stillinguna. Líkan sem þarf annan bakenda, svo sem Cellpose 3 eða Cellpose-DINO, segir það í röð sinni og býðst til að setja þann bakenda upp í eigin umhverfi undir ``~/.spacr/backends``; umhverfi spaCR sjálfs er ekki breytt. Röð sem spaCR getur ekki keyrt segir það í stað þess að vera boðin."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "A model setting in Mask generation, Make Masks and Plaque Assay has a **Model zoo…** button. Its list is grouped by origin under five standard headings — the stock Cellpose-SAM weights, spaCR's own models, unvetted spaCR community uploads, Cellpose models published on bioimage.io, and the Cellpose 3 backend's cyto, cyto2, cyto3 and nuclei models. With **Show alpha features** on, a sixth **Third-party** heading lists published models that spaCR did not train, such as MitoNet. Click a heading to show or fold its rows. The stock Cellpose-SAM and spaCR headings are shown by default. **Download** fetches the selected model, or **Install** its backend; **Use this model** then writes the model into the setting. A model that needs another backend, such as Cellpose 3 or Cellpose-DINO, says so on its row and offers to install that backend into its own environment under ``~/.spacr/backends``; spaCR's own environment is not changed. A row spaCR cannot run says so instead of being offered."
+msgstr "Líkanastilling í grímugerð, Búa til grímur og Skellugreining hefur hnappinn **Líkanasafn…**. Listi hans er flokkaður eftir uppruna undir fimm hefðbundnum fyrirsögnum — stöðluðu Cellpose-SAM-vægin, eigin líkön spaCR, óyfirfarnar upphleðslur úr spaCR-samfélaginu, Cellpose-líkön birt á bioimage.io, og cyto-, cyto2-, cyto3- og nuclei-líkön Cellpose 3-bakendans. Þegar **Sýna alfa-eiginleika** er virkt telur sjötta fyrirsögnin, **Þriðji aðili**, upp birt líkön sem spaCR þjálfaði ekki, svo sem MitoNet. Smelltu á fyrirsögn til að sýna eða fella saman raðir hennar. Fyrirsagnirnar fyrir stöðluðu Cellpose-SAM-vægin og spaCR eru sýndar sjálfgefið. **Sækja** sækir valið líkan, eða **Setja upp** bakenda þess; **Use this model** skrifar síðan líkanið í stillinguna. Líkan sem þarf annan bakenda, svo sem Cellpose 3 eða Cellpose-DINO, segir það í röð sinni og býðst til að setja þann bakenda upp í eigin umhverfi undir ``~/.spacr/backends``; umhverfi spaCR sjálfs er ekki breytt. Röð sem spaCR getur ekki keyrt segir það í stað þess að vera boðin."
 
 msgid "Opened from Mask generation, the popup also has **Measure diameters…**: it estimates the cell, nucleus and pathogen diameters from a few fields of your own images and can write them into the settings. See :class:`spacr.qt.prerun.DiameterDialog`."
 msgstr "Þegar sprettiglugginn er opnaður úr grímugerð hefur hann einnig **Mæla þvermál…**: það metur þvermál frumu, kjarna og sýkils út frá nokkrum sjónsviðum úr þínum eigin myndum og getur skrifað þau í stillingarnar. Sjá :class:`spacr.qt.prerun.DiameterDialog`."

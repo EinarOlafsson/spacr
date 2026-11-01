@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 00:25-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -45,7 +45,7 @@ msgstr "플레이트, 웰 및 이미지 탐색"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Use **Plate**, **Row**, **Column**, **Field**, **Time** and **Z** to choose the acquisition context. Click a well to see its fields, then open a field image. **Back** returns from an image to its well, then from the well to the plate. Ctrl/Shift selection retains fields or wells for an explicit export selection."
-msgstr "**플레이트**, **행**, **열**, **시야**, **시간** 및 **Z** 를 사용하여 획득 컨텍스트를 선택합니다. 웰을 클릭하여 시야를 확인한 다음 시야 이미지를 엽니다. **돌아오는** 버튼은 이미지에서 해당 웰로, 웰에서 플레이트로 돌아갑니다. Ctrl/Shift 선택은 명시적인 내보내기 선택을 위해 시야나 웰을 유지합니다."
+msgstr "**플레이트**, **행**, **열**, **시야**, **시간** 및 **Z** 를 사용하여 획득 컨텍스트를 선택합니다. 웰을 클릭하여 시야를 확인한 다음 시야 이미지를 엽니다. **뒤로** 버튼은 이미지에서 해당 웰로, 웰에서 플레이트로 돌아갑니다. Ctrl/Shift 선택은 명시적인 내보내기 선택을 위해 시야나 웰을 유지합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Display and canvas"

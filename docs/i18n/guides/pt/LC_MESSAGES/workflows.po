@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 11:39-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: pt\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -22,14 +22,16 @@ msgstr ""
 msgid "Choose a workflow after installation"
 msgstr "Escolher um fluxo de trabalho após a instalação"
 
-msgid "Start on Home with the first module for your experiment. Use that module's example-data control when available, inspect the inputs and preview, then run a bounded example before your own data."
-msgstr "Comece em Início com o primeiro módulo do seu experimento. Use o controle de dados de exemplo desse módulo quando houver, inspecione as entradas e a prévia e execute um exemplo limitado antes de usar seus próprios dados."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Start on Home with the first module for your experiment. Use that module's **Load test data…** button when available, inspect the inputs and preview, then run the example before your own data."
+msgstr "Comece em Início com o primeiro módulo do seu experimento. Use o botão **Carregar dados de teste...** desse módulo quando houver, inspecione as entradas e a prévia e depois execute o exemplo antes de usar seus próprios dados."
 
 msgid "These routes and the API handoffs share the bundled module workflow map. A walkthrough explains the steps; it does not run an experiment automatically."
 msgstr "Esses caminhos e as transferências para a API compartilham o mapa de fluxos de trabalho dos módulos incluído. Um guia passo a passo explica as etapas; ele não executa um experimento automaticamente."
 
-msgid "Open **Pipeline overviews** to choose a pathway. Its graph includes external input nodes that explain the files you supply; these are not runnable modules. Persistent explanation cards describe modules and connections below the graph, with API links at the end of module cards. Select a graph element to outline its card, and drag the blue divider to adjust the space between graph and explanations. **Start example** opens the pathway's first real module; **Walkthrough** keeps the route available afterward. Alternative input and annotation branches do not require you to execute every listed step."
-msgstr "Abra **Visões gerais dos fluxos** para escolher um caminho. Seu grafo inclui nós de entrada externos que explicam os arquivos que você fornece; eles não são módulos executáveis. Cartões explicativos permanentes descrevem os módulos e as conexões abaixo do grafo, com links para a API no final dos cartões de módulos. Selecione um elemento do grafo para destacar seu cartão e arraste o divisor azul para ajustar o espaço entre o grafo e as explicações. **Iniciar exemplo** abre o primeiro módulo real do caminho; **Guia passo a passo** mantém o caminho disponível depois. Os ramos alternativos de entrada e anotação não exigem que você execute todas as etapas listadas."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Open **Pipeline overviews** to choose a pathway. Its graph includes external input nodes that explain the files you supply; these are not runnable modules. Persistent explanation cards describe modules and connections below the graph, with API links at the end of module cards. Select a graph element to outline its card, and drag the blue divider to adjust the space between graph and explanations. **Start example** opens the pathway's first module and loads that module's example data; when the pathway has a walkthrough, a **Walkthrough** button is added to the status bar to reopen it. Alternative input and annotation branches do not require you to execute every listed step."
+msgstr "Abra **Visões gerais dos fluxos** para escolher um caminho. Seu grafo inclui nós de entrada externos que explicam os arquivos que você fornece; eles não são módulos executáveis. Cartões explicativos permanentes descrevem os módulos e as conexões abaixo do grafo, com links para a API no final dos cartões de módulos. Selecione um elemento do grafo para destacar seu cartão e arraste o divisor azul para ajustar o espaço entre o grafo e as explicações. **Iniciar exemplo** abre o primeiro módulo do caminho e carrega os dados de exemplo desse módulo; quando o caminho tem um passo a passo, um botão **Guia passo a passo** é adicionado à barra de status para reabri-lo. Os ramos alternativos de entrada e anotação não exigem que você execute todas as etapas listadas."
 
 msgid "A pooled spaCR screen"
 msgstr "Uma triagem agrupada com spaCR"
@@ -340,8 +342,9 @@ msgstr "`Tutorial do módulo <tutorials/#lesson=07_mask>`__."
 msgid "Measure"
 msgstr "Medição"
 
-msgid "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops."
-msgstr "Measure lê imagens e planos de rótulos em conjunto. Ative o salvamento de recortes se precisar de arquivos PNG; mantenha juntos o banco de dados e o projeto de origem para obter recortes sob demanda."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Measure reads images and label planes together. PNG crops are written while save_png is on (default True); turn it off to compute measurements only. Keep the database and source project together for streamed crops."
+msgstr "Measure lê imagens e planos de rótulos em conjunto. Os recortes PNG são gravados enquanto save_png está ativado (padrão True); desative-o para apenas calcular as medições. Mantenha juntos o banco de dados e o projeto de origem para obter recortes sob demanda."
 
 msgid "**Open:** Home → Measure."
 msgstr "**Abrir:** Início → Medição."
@@ -527,8 +530,9 @@ msgstr "**Abrir:** Início → Mapear códigos de barras."
 msgid "**Sequencing reads** — Single-end or paired FASTQ files, with the matching barcode reference tables."
 msgstr "**Leituras de sequenciamento** — Arquivos FASTQ de leitura simples ou pareada, com as tabelas de referência de códigos de barras correspondentes."
 
-msgid "**Guide counts per well** — Map Barcodes run folder: unique_combinations.csv and annotated_reads.h5. Well identity requires the corresponding barcode references. Relevant columns, depending on the route: ``count``."
-msgstr "**Contagens de guias por poço** — pasta da execução de Mapear códigos de barras: unique_combinations.csv e annotated_reads.h5. A identidade dos poços exige as referências de códigos de barras correspondentes. Colunas relevantes, conforme o caminho: ``count``."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Guide counts per well** — Map Barcodes per-sample output folder: unique_combinations.csv and qc.csv, plus annotated_reads.h5 when save_h5 is True (the default). Well identity requires the corresponding barcode references. Relevant columns, depending on the route: ``count``."
+msgstr "**Contagens de guias por poço** — pasta de saída por amostra de Mapear códigos de barras: unique_combinations.csv e qc.csv, além de annotated_reads.h5 quando save_h5 é True (o padrão). A identidade dos poços exige as referências de códigos de barras correspondentes. Colunas relevantes, conforme o caminho: ``count``."
 
 msgid ":ref:`Regression <workflow-module-regression>`: Pair guide counts with phenotype scores using consistent plate/well keys."
 msgstr ":ref:`Regression <workflow-module-regression>`: Associe contagens de guias a pontuações de fenótipo usando chaves consistentes de placas e poços."
@@ -616,6 +620,10 @@ msgstr "Converta formatos de microscópio compatíveis para uma disposição TIF
 
 msgid "**Open:** Import → Format Converter."
 msgstr "**Abrir:** Importar → Conversor de formatos."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Converted TIFFs and conversion map** — Format Converter destination folder: Yokogawa-named TIFFs (for example plate1_A01_T0001F001L01A01Z01C01.tif) and conversion_map.csv, which maps each output name back to its source file."
+msgstr "**TIFFs convertidos e mapa de conversão** — pasta de destino do Format Converter: TIFFs com nomes no padrão Yokogawa (por exemplo, plate1_A01_T0001F001L01A01Z01C01.tif) e conversion_map.csv, que relaciona cada nome de saída ao seu arquivo de origem."
 
 msgid ":ref:`Mask <workflow-module-mask>`: Use the converted layout and preserve source identity mappings."
 msgstr ":ref:`Mask <workflow-module-mask>`: Use a disposição convertida e preserve os mapeamentos de identidade com a origem."
@@ -832,14 +840,13 @@ msgstr "Informe condições, controles, réplicas e restrições da placa; depoi
 msgid "**Open:** Home → Experiment Design."
 msgstr "**Abrir:** Início → Experiment Design."
 
-msgid "**Screen design and power estimates** — Saved planning tables or figures based on explicitly chosen effect sizes, variability and sampling assumptions."
-msgstr "**Desenho da triagem e estimativas de potência** — Tabelas ou figuras de planejamento salvas com base em tamanhos de efeito, variabilidade e pressupostos de amostragem escolhidos explicitamente."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Plate design entries** — Entered in Experiment Design: plate identifier, plate format (6 to 1536 wells), conditions with replicate counts and roles (treatment, positive control, negative control, blank), layout, edge use and seed. Load template… fills in a bundled design; no input file is required."
+msgstr "**Entradas de desenho da placa** — Inseridas no Experiment Design: identificador da placa, formato da placa (6 a 1536 poços), condições com número de réplicas e funções (tratamento, controle positivo, controle negativo, branco), layout, uso das bordas e semente. Carregar modelo… preenche um delineamento incluído; nenhum arquivo de entrada é necessário."
 
-msgid "**Experimental layout** — Exported plate/condition/control/replicate map. Keep its plate and well identifiers consistent with the acquired data."
-msgstr "**Disposição experimental** — Mapa exportado de placas, condições, controles e réplicas. Mantenha seus identificadores de placas e poços consistentes com os dados adquiridos."
-
-msgid ":ref:`Power / Design <workflow-module-power>`: Use the experimental layout to define sampling assumptions, then revise the design."
-msgstr ":ref:`Power / Design <workflow-module-power>`: Use a disposição experimental para definir pressupostos de amostragem e revise o desenho em seguida."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Experimental layout** — Export plate map... writes plate_map.csv (one row per well keyed by plateID, rowID and columnID), plate_map.json and plate_map_settings.json to the chosen folder. Keep its plate and well identifiers consistent with the acquired data."
+msgstr "**Disposição experimental** — Exportar mapa da placa... grava plate_map.csv (uma linha por poço, identificada por plateID, rowID e columnID), plate_map.json e plate_map_settings.json na pasta escolhida. Mantenha os identificadores de placa e de poço consistentes com os dados adquiridos."
 
 msgid ":ref:`Dose–Response <workflow-module-dose_response>`: Acquire and measure the experiment first, preserving dose/condition identities."
 msgstr ":ref:`Dose–Response <workflow-module-dose_response>`: Adquira e meça primeiro o experimento, preservando as identidades das doses e condições."
@@ -871,8 +878,8 @@ msgstr "Estime as necessidades de amostragem a partir dos tamanhos de efeito e d
 msgid "**Open:** Home → Power / Design."
 msgstr "**Abrir:** Início → Power / Design."
 
-msgid ":ref:`Experiment Design <workflow-module-experiment_design>`: Use the experimental layout to define sampling assumptions, then revise the design."
-msgstr ":ref:`Experiment Design <workflow-module-experiment_design>`: Use a disposição experimental para definir pressupostos de amostragem e revise o desenho em seguida."
+msgid "**Screen design and power estimates** — Saved planning tables or figures based on explicitly chosen effect sizes, variability and sampling assumptions."
+msgstr "**Desenho da triagem e estimativas de potência** — Tabelas ou figuras de planejamento salvas com base em tamanhos de efeito, variabilidade e pressupostos de amostragem escolhidos explicitamente."
 
 msgid ":doc:`API reference </api/spacr/qt/screens/power/index>`."
 msgstr ":doc:`Referência da API </api/spacr/qt/screens/power/index>`."
@@ -1013,14 +1020,16 @@ msgstr "`Tutorial do módulo <tutorials/#lesson=28_training_runs>`__."
 msgid "Align & Stitch"
 msgstr "Alinhar e unir"
 
-msgid "Inspect tile geometry, overlap and channel mapping, then save the mosaic with coordinate records. OPS also needs the original cycle/site identities."
-msgstr "Inspecione a geometria dos campos, a sobreposição e o mapeamento de canais; depois salve o mosaico com registros de coordenadas. OPS também precisa das identidades originais de ciclos e posições."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Press Plan to compute the tile layout and list tiles that fell back to their stage positions; Plan writes nothing. Write stack then writes the stitched stack to the Write to folder or .npy file and records tile coordinates in measurements.db when the Database field is set. Every channel uses the registration measured on Ref. channel. OPS also needs the original cycle/site identities."
+msgstr "Pressione Planejar para calcular o layout dos blocos e listar os blocos que recorreram às suas posições da platina; Planejar não grava nada. Gravar pilha então grava a pilha montada na pasta ou no arquivo .npy de Escreva para e registra as coordenadas dos blocos em measurements.db quando o campo Base de dados está definido. Todos os canais usam o registro medido em Ref. canal. OPS também precisa das identidades originais de ciclo/local."
 
 msgid "**Open:** Home → Align & Stitch."
 msgstr "**Abrir:** Início → Alinhar e unir."
 
-msgid "**Aligned mosaic and coordinates** — Align & Stitch destination: composed image and the tile-coordinate/layout records needed to interpret it."
-msgstr "**Mosaico alinhado e coordenadas** — Destino do Align & Stitch: imagem composta e registros de coordenadas e disposição dos campos necessários para interpretá-la."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Aligned mosaic and coordinates** — The Write to folder or .npy file: the stitched stack. Tile coordinates are saved to the measurements.db named in Database only when that field is set."
+msgstr "**Mosaico alinhado e coordenadas** — A pasta ou o arquivo .npy de Escreva para: a pilha montada. As coordenadas dos blocos são salvas no measurements.db indicado em Base de dados somente quando esse campo está definido."
 
 msgid ":ref:`OPS <workflow-module-ops>`: Carry tile coordinates and original sequencing cycles into OPS; a flattened mosaic alone is insufficient."
 msgstr ":ref:`OPS <workflow-module-ops>`: Leve as coordenadas dos campos e os ciclos originais de sequenciamento para OPS; um mosaico achatado sozinho não basta."
@@ -1697,8 +1706,9 @@ msgstr ":doc:`Referência da API </api/spacr/parameter_sweep/index>`."
 msgid "Toxoplasma"
 msgstr "Toxoplasma"
 
-msgid "Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Invasion Assay or Replication Assay. The four Coming soon tiles describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table."
-msgstr "Abra o guia de organismos em Home, inspecione o diagrama de compartimentos e selecione Plaque Assay, Recruitment, Invasion Assay ou Replication Assay. Os quatro blocos Coming soon descrevem propostas e não podem ser executados. O guia em si não analisa um projeto nem produz uma tabela de medições."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay; Gliding motility opens Motility Assay with infection QC off. The three Coming soon tiles (Egress, Bradyzoite conversion, Host cell damage) describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table."
+msgstr "Abra o guia de organismos em Home, inspecione o diagrama de compartimentos e selecione Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay ou Replication Assay; Gliding motility abre Motility Assay com o QC de infecção desativado. Os três blocos Coming soon (Egress, Bradyzoite conversion, Host cell damage) descrevem propostas e não podem ser executados. O guia em si não analisa um projeto nem produz uma tabela de medições."
 
 msgid "**Open:** Home → Toxoplasma."
 msgstr "**Abrir:** Início → Toxoplasma."

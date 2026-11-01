@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 19:56-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: es\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -57,8 +57,9 @@ msgstr "Abra **UMAP settings** y active **Reanudar desde checkpoint**. Los metad
 msgid "Batch Runner"
 msgstr "Ejecución por lotes"
 
-msgid "A saved queue is written after every job transition. Loading and resuming it leaves successful jobs alone. A Mask, Measure, or Format Converter job that was running when the machine stopped is restarted with ``resume=True``, so its own verified field boundary is reused. Other jobs restart at the job boundary."
-msgstr "Una cola guardada se escribe después de cada cambio de estado de un trabajo. Al cargarla y reanudarla, los trabajos correctos no se tocan. Un trabajo de Máscaras, Medición o Convertidor de formatos que se estaba ejecutando cuando se detuvo el equipo se reinicia con ``resume=True``, de modo que se reutiliza su propio límite de campo verificado. Los demás trabajos se reinician desde el límite del trabajo."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "A saved queue is written after every job transition. Loading and resuming it leaves successful jobs alone. A Mask, Measure, or Format Converter job that was running when the machine stopped is restarted with ``resume=True``, so its own verified field boundary is reused. Other jobs restart at the job boundary. Failed and skipped jobs are left unchanged unless ``retry_failed=True`` is passed to :func:`spacr.batch.resume_queue`."
+msgstr "Una cola guardada se escribe después de cada cambio de estado de un trabajo. Al cargarla y reanudarla, los trabajos correctos no se tocan. Un trabajo de Máscaras, Medición o Convertidor de formatos que se estaba ejecutando cuando se detuvo el equipo se reinicia con ``resume=True``, de modo que se reutiliza su propio límite de campo verificado. Los demás trabajos se reinician desde el límite del trabajo. Los trabajos fallidos y omitidos no se modifican salvo que se pase ``retry_failed=True`` a :func:`spacr.batch.resume_queue`."
 
 msgid "Interrupted normalization archives"
 msgstr "Archivos de normalización interrumpidos"

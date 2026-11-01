@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 20:26-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -25,9 +25,30 @@ msgstr "키보드 단축키와 설정 템플릿"
 msgid "Keyboard shortcuts"
 msgstr "키보드 단축"
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "With the default bindings, press **F1** to open the shortcut cheat sheet. **?** opens it when the current screen does not handle that key itself; Annotate uses **?** for its inline key legend. The cheat sheet lists the keys that work anywhere in the window, such as **Ctrl+K** for the command palette, **Ctrl+P** for Preferences, **Ctrl+F** to search the current module's settings and **F11** for full screen, followed by the keys of the screen you are on."
-msgstr "기본 키 바인딩에서는 **F1** 을 눌러 단축키 요약표를 엽니다. 현재 화면이 해당 키를 직접 처리하지 않을 때는 **?** 도 요약표를 엽니다. Annotate는 **?** 를 화면 내 키 범례에 사용합니다. 단축키 요약표는 명령 팔레트를 여는 **Ctrl+K**, 환경설정을 여는 **Ctrl+P**, 현재 모듈의 설정을 검색하는 **Ctrl+F**, 전체 화면을 위한 **F11** 처럼 창 어디서나 동작하는 키를 먼저 나열하고, 이어서 현재 화면의 키를 나열합니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "With the default bindings, press **F1** to open the shortcut cheat sheet. **?** opens it when the current screen does not handle that key itself; Annotate uses **?** for its inline key legend. The cheat sheet lists the keys that work anywhere in the window, such as **Ctrl+K** for the command palette, **Ctrl+,** for Preferences, **Ctrl+F** to search the current module's settings and **F11** for full screen, followed by the keys of the screen you are on. On macOS, **Ctrl** is the **Command** key."
+msgstr "기본 키 바인딩에서는 **F1** 을 눌러 단축키 요약표를 엽니다. 현재 화면이 해당 키를 직접 처리하지 않을 때는 **?** 도 요약표를 엽니다. Annotate는 **?** 를 화면 내 키 범례에 사용합니다. 단축키 요약표는 명령 팔레트를 여는 **Ctrl+K**, 환경설정을 여는 **Ctrl+,**, 현재 모듈의 설정을 검색하는 **Ctrl+F**, 전체 화면을 위한 **F11** 처럼 창 어디서나 동작하는 키를 먼저 나열하고, 이어서 현재 화면의 키를 나열합니다. macOS에서는 **Ctrl** 이 **Command** 키입니다."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The window-wide keys follow the usual desktop conventions:"
+msgstr "창 전체 키는 일반적인 데스크톱 관례를 따릅니다:"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Ctrl+,** opens Preferences. Where the platform has its own Preferences key, such as **Ctrl+Shift+,** on KDE, that key works as well."
+msgstr "**Ctrl+,** 는 환경설정을 엽니다. KDE의 **Ctrl+Shift+,** 처럼 플랫폼에 자체 환경설정 키가 있는 경우 그 키도 동작합니다."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+#, python-format
+msgid "**Ctrl+=** or **Ctrl++** zooms in, **Ctrl+-** zooms out and **Ctrl+0** puts Zoom back to its 90 % default. **Ctrl+Alt+0** resets GUI scale, Zoom and every preview scale at once."
+msgstr "**Ctrl+=** 또는 **Ctrl++** 는 확대하고, **Ctrl+-** 는 축소하며, **Ctrl+0** 은 확대/축소를 기본값인 90 %로 되돌립니다. **Ctrl+Alt+0** 은 GUI 배율, 확대/축소, 모든 미리보기 배율을 한 번에 재설정합니다."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Alt+Home** goes to Home."
+msgstr "**Alt+Home** 은 홈으로 이동합니다."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The background keys use **Ctrl+Shift**: **Ctrl+Shift+T** pauses or resumes the animated background, **Ctrl+Shift+B** blanks it and **Ctrl+Shift+F** shows it full screen. **Restart the background** has no key; choose it in **Help ▸ Window**."
+msgstr "배경 키는 **Ctrl+Shift** 조합을 사용합니다. **Ctrl+Shift+T** 는 애니메이션 배경을 일시 정지하거나 다시 재생하고, **Ctrl+Shift+B** 는 배경을 비우며, **Ctrl+Shift+F** 는 배경을 전체 화면으로 표시합니다. **배경 다시 시작** 에는 키가 없으므로 **도움말 ▸ 창** 에서 선택합니다."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "To change a key, choose **Change shortcuts…** in the cheat sheet. The **Change shortcuts** window has one row per action, with its **Default** key and the **Shortcut** in use. Click a shortcut and press the new key, or clear it to leave the action without a key. **Restore defaults** puts every row back to its default key."

@@ -1,5 +1,5 @@
 # spaCR user guide translation (de).
-# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 07:44-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: de\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -67,9 +67,9 @@ msgstr "Ein angebotener Dateinamensmuster-Editor verlangt eine ausdrückliche Va
 msgid "Protocols: plan a workflow from the input"
 msgstr "Protokolle: einen Arbeitsablauf anhand der Eingabe planen"
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Click **P**, to the left of the AI control, to open **Protocols** below the search field. Choose an input family, then its format and required details. **Next** becomes available when the current choices are valid; **Back** retains compatible choices. The image-count labels are descriptive: fewer than ten images are supported. PDF is offered for both image families for scanned monolayers, not as a general microscopy container. Unsupported sequencing and drug-screen Regression requirements remain separate work in N740 and N741."
-msgstr "Klicken Sie links neben der AI-Steuerung auf **P**, um **Protokolle** unter dem Suchfeld zu öffnen. Wählen Sie eine Eingabefamilie, dann ihr Format und die erforderlichen Details. **Weiter** ist verfügbar, sobald die aktuellen Angaben gültig sind; **Zurück** behält kompatible Angaben bei. Die Bildanzahlen sind beschreibend: Auch weniger als zehn Bilder werden unterstützt. PDF wird in beiden Bildfamilien für gescannte Monolayer angeboten, nicht als allgemeiner Mikroskopiecontainer. Anforderungen für nicht unterstützte Sequenzierungsdaten und die Regression bei Wirkstoffscreenings bleiben separate Arbeiten in N740 und N741."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Click the **Protocols** dot, to the left of the AI control, to open **Protocols** below the search field. Choose an input family, then its format and required details. **Next** becomes available when the current choices are valid; **Back** retains compatible choices. The image-count labels are descriptive: fewer than ten images are supported. PDF is offered for both image families for scanned monolayers, not as a general microscopy container. Sequencing reads in a format other than FASTQ offer no starting module and state the conversion required; drug-screen Regression lists the settings to fill in before running."
+msgstr "Klicken Sie links neben der AI-Steuerung auf den Punkt **Protokolle**, um **Protokolle** unter dem Suchfeld zu öffnen. Wählen Sie eine Eingabefamilie, dann ihr Format und die erforderlichen Details. **Weiter** ist verfügbar, sobald die aktuellen Angaben gültig sind; **Zurück** behält kompatible Angaben bei. Die Bildanzahlen sind beschreibend: Auch weniger als zehn Bilder werden unterstützt. PDF wird in beiden Bildfamilien für gescannte Monolayer angeboten, nicht als allgemeiner Mikroskopiecontainer. Sequenzierungsreads in einem anderen Format als FASTQ bieten kein Startmodul an und nennen die erforderliche Konvertierung; die Regression für Wirkstoffscreenings listet die Einstellungen auf, die vor der Ausführung auszufüllen sind."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "To carry a local input into a module, inspect its file or folder first by dropping it, browsing to it, or typing its path and pressing Enter. After changing the path, press Enter to inspect the replacement before opening its protocol. With no inspected source, Protocols can still show a plan and open a module for explicit input selection. The final step shows starting cards above the search field and opens the recipe; it does not start analysis."

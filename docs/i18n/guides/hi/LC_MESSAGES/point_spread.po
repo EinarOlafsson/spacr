@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 19:56-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -37,15 +37,16 @@ msgstr "शेष नियंत्रण देखने के लिए **PS
 msgid "Without image-specific information, the starting approximation uses a 20×/0.75 air objective, a 6.5 µm camera pixel and 520 nm emission. It gives 0.325 µm image pixels and approximately 0.354 µm Gaussian FWHM. Pixel spacing is camera pixel pitch divided by magnification; the lateral Gaussian FWHM is approximated by 0.51 × emission wavelength / numerical aperture. These defaults permit a calculation; they are not measured calibration or proof of your microscope's resolution. Check them against the acquisition."
 msgstr "छवि-विशिष्ट जानकारी के बिना प्रारंभिक सन्निकटन 20×/0.75 वायु ऑब्जेक्टिव, 6.5 µm कैमरा पिक्सेल और 520 nm उत्सर्जन का उपयोग करता है। इससे 0.325 µm छवि पिक्सेल और लगभग 0.354 µm गॉसियन FWHM मिलता है। पिक्सेल अंतराल कैमरा पिक्सेल पिच को आवर्धन से भाग देने पर मिलता है; पार्श्व गॉसियन FWHM का सन्निकटन 0.51 × उत्सर्जन तरंगदैर्ध्य / संख्यात्मक द्वारक से किया जाता है। ये डिफ़ॉल्ट गणना संभव बनाते हैं; ये न तो मापा गया अंशांकन हैं और न ही आपके सूक्ष्मदर्शी के विभेदन का प्रमाण। इन्हें अधिग्रहण से मिलाकर जाँचें।"
 
-msgid "In the same fold, choose **Measured kernel (TIFF/NPY)** and load your calibrated two-dimensional PSF, or keep **Gaussian approximation**. For a measured kernel, enter its pixel spacing too; it must match the image. Neither mode silently resamples a mismatched kernel."
-msgstr "उसी फ़ोल्ड में **मापा गया कर्नेल (TIFF/NPY)** चुनें और अपना अंशांकित द्विविमीय PSF लोड करें, या **गॉसियन सन्निकटन** रखें। मापे गए कर्नेल के लिए उसका पिक्सेल अंतराल भी दर्ज करें; यह छवि से मेल खाना चाहिए। कोई भी मोड बेमेल कर्नेल को चुपचाप पुनः नमूनित नहीं करता।"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "In the same fold, choose **Measured kernel (TIFF/NPY)** and load your calibrated two-dimensional PSF, or keep **Gaussian approximation**. For a measured kernel, enter its pixel spacing too; it must match the image. Neither mode resamples a mismatched kernel. A measured kernel file can be up to 64 MiB."
+msgstr "उसी फ़ोल्ड में **मापा गया कर्नेल (TIFF/NPY)** चुनें और अपना अंशांकित द्विविमीय PSF लोड करें, या **गॉसियन सन्निकटन** रखें। मापे गए कर्नेल के लिए उसका पिक्सेल अंतराल भी दर्ज करें; यह छवि से मेल खाना चाहिए। कोई भी मोड बेमेल कर्नेल को पुनः नमूनित नहीं करता। मापे गए कर्नेल की फ़ाइल अधिकतम 64 MiB की हो सकती है।"
 
 msgid "Wait for the kernel to load, then use **Compare** to inspect its effect. Set **Deconvolution iterations** when using Richardson–Lucy and choose **Apply** to use the result for detection. Start with a modest iteration count and inspect noise as well as object boundaries. **Reload** rereads a kernel file after you change it. **Off** disables PSF processing."
 msgstr "कर्नेल लोड होने की प्रतीक्षा करें, फिर उसका प्रभाव देखने के लिए **तुलना करें** का उपयोग करें। Richardson–Lucy का उपयोग करते समय **डीकन्वोल्यूशन पुनरावृत्तियाँ** सेट करें और परिणाम को पहचान के लिए उपयोग करने हेतु **लागू करें** चुनें। मध्यम पुनरावृत्ति संख्या से शुरू करें और ऑब्जेक्ट सीमाओं के साथ-साथ शोर की भी जाँच करें। कर्नेल फ़ाइल बदलने के बाद **फिर से लोड करें** उसे दोबारा पढ़ता है। **बंद** PSF प्रसंस्करण को निष्क्रिय करता है।"
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "In Generate Masks, PSF and enhancement preprocessing is recorded in ``psf/segmentation_application.json``. If processing is requested or a prior record exists, reuse of normalized V1 archives checks the requested processing configuration, ordered source channels, exact field set and archive hashes against the completed record. Switching processing off does not bypass a record from an earlier run. If validation fails, enable preprocessing to rebuild the complete archive set from ``stack/``; restore the original images first if the stacks are unavailable. Changing ``resume`` alone does not make incompatible inputs reusable. See :doc:`checkpoint_resume`."
-msgstr "Generate Masks में PSF और संवर्धन पूर्वप्रसंस्करण का रिकॉर्ड ``psf/segmentation_application.json`` में रखा जाता है। यदि प्रसंस्करण का अनुरोध किया गया है या पिछला रिकॉर्ड मौजूद है, तो सामान्यीकृत V1 संग्रहों के पुनः उपयोग से पहले अनुरोधित प्रसंस्करण कॉन्फ़िगरेशन, क्रमबद्ध स्रोत चैनल, फ़ील्ड का सटीक समूह और संग्रह हैश की जाँच पूर्ण रिकॉर्ड से की जाती है। प्रसंस्करण बंद करने से पिछले रन का रिकॉर्ड दरकिनार नहीं होता। यदि सत्यापन विफल हो, तो ``stack/`` से पूरा संग्रह-समूह दोबारा बनाने के लिए पूर्वप्रसंस्करण सक्षम करें; स्टैक उपलब्ध न हों तो पहले मूल छवियाँ पुनर्स्थापित करें। केवल ``resume`` बदलने से असंगत इनपुट पुनः उपयोग योग्य नहीं होते। :doc:`checkpoint_resume` देखें।"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "In Mask generation, PSF and enhancement preprocessing is recorded in ``psf/segmentation_application.json``. If processing is requested or a prior record exists, reuse of normalized V1 archives checks the requested processing configuration, ordered source channels, exact field set and archive hashes against the completed record. Switching processing off does not bypass a record from an earlier run. If validation fails, enable preprocessing to rebuild the complete archive set from ``stack/``; restore the original images first if the stacks are unavailable. Changing ``resume`` alone does not make incompatible inputs reusable. See :doc:`checkpoint_resume`."
+msgstr "मास्क निर्माण में PSF और संवर्धन पूर्वप्रसंस्करण का रिकॉर्ड ``psf/segmentation_application.json`` में रखा जाता है। यदि प्रसंस्करण का अनुरोध किया गया है या पिछला रिकॉर्ड मौजूद है, तो सामान्यीकृत V1 संग्रहों के पुनः उपयोग से पहले अनुरोधित प्रसंस्करण कॉन्फ़िगरेशन, क्रमबद्ध स्रोत चैनल, फ़ील्ड का सटीक समूह और संग्रह हैश की जाँच पूर्ण रिकॉर्ड से की जाती है। प्रसंस्करण बंद करने से पिछले रन का रिकॉर्ड दरकिनार नहीं होता। यदि सत्यापन विफल हो, तो ``stack/`` से पूरा संग्रह-समूह दोबारा बनाने के लिए पूर्वप्रसंस्करण सक्षम करें; स्टैक उपलब्ध न हों तो पहले मूल छवियाँ पुनर्स्थापित करें। केवल ``resume`` बदलने से असंगत इनपुट पुनः उपयोग योग्य नहीं होते। :doc:`checkpoint_resume` देखें।"
 
 msgid "A wider Gaussian PSF spreads two fixed intensity peaks while preserving total intensity."
 msgstr "अधिक चौड़ा गॉसियन PSF कुल तीव्रता बनाए रखते हुए दो स्थिर तीव्रता शिखरों को फैला देता है।"
@@ -78,11 +79,13 @@ msgstr "नीचे दिया गया उदाहरण TIFF फ़ाइ
 msgid "Choose the operation and save the result"
 msgstr "संक्रिया चुनें और परिणाम सहेजें"
 
-msgid "Set ``operation=\"deconvolve\"`` to perform Richardson–Lucy deconvolution. Start with a modest iteration count and compare the result with the input; more iterations can amplify noise. ``operation=\"convolve\"`` instead blurs the image with the PSF. It does not use the iteration count."
-msgstr "Richardson–Lucy डीकन्वोल्यूशन करने के लिए ``operation=\"deconvolve\"`` सेट करें। मध्यम पुनरावृत्ति संख्या से शुरू करें और परिणाम की तुलना इनपुट से करें; अधिक पुनरावृत्तियाँ शोर को बढ़ा सकती हैं। ``operation=\"convolve\"`` इसके बजाय PSF से छवि को धुंधला करता है। यह पुनरावृत्ति संख्या का उपयोग नहीं करता।"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Set ``operation=\"deconvolve\"`` to perform Richardson–Lucy deconvolution. ``iterations`` accepts 1 to 200 and defaults to 20. Start with a modest iteration count and compare the result with the input; more iterations can amplify noise. ``operation=\"convolve\"`` instead blurs the image with the PSF. It does not use the iteration count."
+msgstr "Richardson–Lucy डीकन्वोल्यूशन करने के लिए ``operation=\"deconvolve\"`` सेट करें। ``iterations`` 1 से 200 तक के मान स्वीकार करता है और इसका डिफ़ॉल्ट 20 है। मध्यम पुनरावृत्ति संख्या से शुरू करें और परिणाम की तुलना इनपुट से करें; अधिक पुनरावृत्तियाँ शोर को बढ़ा सकती हैं। ``operation=\"convolve\"`` इसके बजाय PSF से छवि को धुंधला करता है। यह पुनरावृत्ति संख्या का उपयोग नहीं करता।"
 
-msgid "The output preserves the image shape and uses float32 values in the original intensity units. Inspect its range before converting it to an integer image. Keep the JSON record with the result; it contains the kernel identity, sampling and processing settings."
-msgstr "आउटपुट छवि का आकार बनाए रखता है और मूल तीव्रता इकाइयों में float32 मानों का उपयोग करता है। इसे पूर्णांक छवि में बदलने से पहले इसकी सीमा जाँचें। JSON रिकॉर्ड को परिणाम के साथ रखें; इसमें कर्नेल की पहचान, नमूनाकरण और प्रसंस्करण सेटिंग्स होती हैं।"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The input must be finite and nonnegative. The output preserves the image shape and uses float32 values in the original intensity units; it is not clipped to the input range. Inspect its range before converting it to an integer image. Keep the JSON record with the result; it contains the kernel identity, sampling and processing settings."
+msgstr "इनपुट परिमित और ऋणेतर होना चाहिए। आउटपुट छवि का आकार बनाए रखता है और मूल तीव्रता इकाइयों में float32 मानों का उपयोग करता है; इसे इनपुट की सीमा तक क्लिप नहीं किया जाता। इसे पूर्णांक छवि में बदलने से पहले इसकी सीमा जाँचें। JSON रिकॉर्ड को परिणाम के साथ रखें; इसमें कर्नेल की पहचान, नमूनाकरण और प्रसंस्करण सेटिंग्स होती हैं।"
 
 msgid "For multichannel images, set ``channel_axis`` explicitly: ``-1`` selects a final channel dimension, while ``0`` selects a first channel dimension. Each intensity channel is processed independently. Image and PSF sampling must match; the function rejects mismatched spacing."
 msgstr "बहु-चैनल छवियों के लिए ``channel_axis`` स्पष्ट रूप से सेट करें: ``-1`` अंतिम आयाम को चैनल आयाम के रूप में चुनता है, जबकि ``0`` पहले आयाम को चुनता है। हर तीव्रता चैनल स्वतंत्र रूप से संसाधित होता है। छवि और PSF का नमूनाकरण मेल खाना चाहिए; फ़ंक्शन बेमेल अंतराल अस्वीकार करता है।"

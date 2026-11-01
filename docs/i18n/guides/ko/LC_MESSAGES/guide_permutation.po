@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Plate-aware guide permutation analysis"
 msgstr "플레이트를 고려한 가이드 순열 분석"
 
-msgid "Use the guide permutation analysis when the independent experimental unit is a well and a simultaneous guide model is not identifiable because there are more guide columns than wells or because guide fractions are highly correlated.  ``inference='nonparametric'`` (the default) runs it, and ``inference='auto'`` chooses it whenever the simultaneous fit would be unidentifiable; either way the run records ``analysis_mode='guide_permutation'``.  The mode uses the same paired per-cell score and sequencing-count CSV inputs (``paired_data``) as :func:`spacr.ml.perform_regression`."
-msgstr "독립적인 실험 단위가 웰이고, 가이드 열이 웰보다 많거나 가이드 비율의 상관이 높아 동시 가이드 모델을 식별할 수 없을 때 가이드 순열 분석을 사용합니다. ``inference='nonparametric'`` (기본값)은 이 분석을 실행하고, ``inference='auto'`` 는 동시 적합을 식별할 수 없을 때마다 이 분석을 선택합니다. 어느 경우든 실행에는 ``analysis_mode='guide_permutation'`` 이 기록됩니다. 이 모드는 :func:`spacr.ml.perform_regression` 과 같은 쌍을 이룬 세포별 점수 및 시퀀싱 개수 CSV 입력(``paired_data``)을 사용합니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Use the guide permutation analysis when the independent experimental unit is a well and a simultaneous guide model is not identifiable because there are more guide columns than wells or because guide fractions are highly correlated.  ``inference='nonparametric'`` (the default) runs it, and ``inference='auto'`` chooses it unless the analysed wells number at least twice the simultaneous model's parameters (one per guide, an intercept and one per additional plate); either way the run records ``analysis_mode='guide_permutation'``.  The mode uses the same paired per-cell score and sequencing-count CSV inputs (``paired_data``) as :func:`spacr.ml.perform_regression`."
+msgstr "독립적인 실험 단위가 웰이고, 가이드 열이 웰보다 많거나 가이드 비율의 상관이 높아 동시 가이드 모델을 식별할 수 없을 때 가이드 순열 분석을 사용합니다. ``inference='nonparametric'`` (기본값)은 이 분석을 실행하고, ``inference='auto'`` 는 분석된 웰 수가 동시 모델 모수 수(가이드당 하나, 절편 하나, 추가 플레이트당 하나)의 두 배 이상이 아니면 이 분석을 선택합니다. 어느 경우든 실행에는 ``analysis_mode='guide_permutation'`` 이 기록됩니다. 이 모드는 :func:`spacr.ml.perform_regression` 과 같은 쌍을 이룬 세포별 점수 및 시퀀싱 개수 CSV 입력(``paired_data``)을 사용합니다."
 
 msgid "Each guide is tested separately after its well-level fraction and the well-level phenotype have both been adjusted for plate (and any optional measured nuisance columns).  Two-sided empirical P values come from Freedman--Lane residual permutations restricted within plate.  Multiple-test correction is then applied separately within each requested minimum-support family.  These are marginal associations: co-occurring guides may share a signal, so the output is not a set of mutually adjusted causal coefficients."
 msgstr "각 가이드는 웰 수준 비율과 웰 수준 표현형을 모두 플레이트(및 선택적으로 측정된 교란 열)에 대해 보정한 뒤 개별적으로 검정합니다. 양측 경험적 P 값은 플레이트 내로 제한된 Freedman--Lane 잔차 순열에서 얻습니다. 그런 다음 요청된 각 최소 지지도 패밀리 안에서 다중 검정 보정을 따로 적용합니다. 이는 주변 연관성입니다. 함께 나타나는 가이드는 신호를 공유할 수 있으므로, 출력은 서로 보정된 인과 계수의 집합이 아닙니다."
@@ -37,8 +38,9 @@ msgstr "중요한 출력 열은 ``wells_with_guide``, ``standardized_marginal_ef
 msgid "Multiple-testing choices"
 msgstr "다중 검정 선택"
 
-msgid "``multiple_testing_method`` accepts ``fdr_bh`` (Benjamini--Hochberg), ``fdr_by``, ``bonferroni``, ``holm`` or ``none``.  ``fdr_bh`` is the default. For reproducibility, record the requested support families, permutation count, seed, blocking column, nuisance columns, presence threshold, correction method and alpha together with the input-file checksums."
-msgstr "``multiple_testing_method`` 는 ``fdr_bh`` (Benjamini--Hochberg), ``fdr_by``, ``bonferroni``, ``holm``, ``none`` 을 받습니다. ``fdr_bh`` 가 기본값입니다. 재현성을 위해 요청한 지지도 패밀리, 순열 횟수, 시드, 블록 열, 교란 열, 존재 임계값, 보정 방법, 알파를 입력 파일 체크섬과 함께 기록합니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "``multiple_testing_method`` accepts ``none``, ``bonferroni``, ``sidak``, ``holm``, ``holm_sidak``, ``simes_hochberg``, ``hommel``, ``fdr_bh`` (Benjamini--Hochberg), ``fdr_by``, ``fdr_tsbh``, ``fdr_tsbky``, ``fdr_gbs`` or ``storey``.  ``fdr_bh`` is the default. For reproducibility, record the requested support families, permutation count, seed, blocking column, nuisance columns, presence threshold, correction method and alpha together with the input-file checksums."
+msgstr "``multiple_testing_method`` 는 ``none``, ``bonferroni``, ``sidak``, ``holm``, ``holm_sidak``, ``simes_hochberg``, ``hommel``, ``fdr_bh`` (Benjamini--Hochberg), ``fdr_by``, ``fdr_tsbh``, ``fdr_tsbky``, ``fdr_gbs`` 또는 ``storey`` 를 받습니다. ``fdr_bh`` 가 기본값입니다. 재현성을 위해 요청한 지지도 패밀리, 순열 횟수, 시드, 블록 열, 교란 열, 존재 임계값, 보정 방법, 알파를 입력 파일 체크섬과 함께 기록합니다."
 
 msgid "Direct analysis of an existing long table"
 msgstr "기존 긴 테이블의 직접 분석"

@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 20:09-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
@@ -34,8 +34,9 @@ msgstr "Frá **Heim** skaltu opna **Mæling** og síðan **AnnData-útflutningur
 msgid "Select the measured project as the source."
 msgstr "Veldu mælda verkefnið sem uppruna."
 
-msgid "Set **Anndata out** to a new ``.h5ad`` filename. Leaving it empty writes beneath the project's ``results`` folder. A successful export replaces an existing file at the chosen path; use separate names to keep both versions."
-msgstr "Stilltu **Anndata-úttaksskrá** á nýtt ``.h5ad``-skráarheiti. Ef reiturinn er skilinn eftir auður er skrifað undir möppuna ``results`` í verkefninu. Vel heppnaður útflutningur kemur í stað fyrirliggjandi skrár á valinni slóð; notaðu aðskilin heiti til að halda báðum útgáfum."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Set **Anndata out** to a new ``.h5ad`` filename. Leaving it empty writes ``results/<project name>.h5ad`` in the project folder, or ``results/<project name>_<table>.h5ad`` for a single-table export. A successful export replaces an existing file at the chosen path; use separate names to keep both versions."
+msgstr "Stilltu **Anndata-úttaksskrá** á nýtt ``.h5ad``-skráarheiti. Ef reiturinn er skilinn eftir auður er skrifað í ``results/<project name>.h5ad`` í verkefnismöppunni, eða ``results/<project name>_<table>.h5ad`` við útflutning einnar töflu. Vel heppnaður útflutningur kemur í stað fyrirliggjandi skrár á valinni slóð; notaðu aðskilin heiti til að halda báðum útgáfum."
 
 msgid "Set **Anndata single table** to ``cell`` for one row per cell using that table's features. Use ``nucleus`` or ``pathogen`` for those object types. Leave it empty for a cell-level joined export, where child measurements are aggregated onto their parent cells."
 msgstr "Stilltu **Anndata stök tafla** á ``cell`` til að fá eina röð á hverja frumu með eiginleikum þeirrar töflu. Notaðu ``nucleus`` eða ``pathogen`` fyrir þær hlutagerðir. Skildu reitinn eftir auðan fyrir samtengdan útflutning á frumustigi, þar sem mælingar undirhluta eru teknar saman á móðurfrumur þeirra."

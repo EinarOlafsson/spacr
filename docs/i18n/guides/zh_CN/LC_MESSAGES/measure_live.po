@@ -1,5 +1,5 @@
 # spaCR user guide translation (zh_CN).
-# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 00:24-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -43,9 +43,9 @@ msgstr "打开 **已勾选的图像**，勾选要包含的视野。每个复选�
 msgid "Uncheck a field to remove its crops, or choose **Uncheck all images** to clear the grid. Changing channels, object type or filters refreshes all checked fields. The field dropdown retains ordinary single-field navigation when only its current field is checked. With several fields checked, it changes the active source without replacing the checked selection."
 msgstr "取消勾选某个视野可移除它的裁剪图，或选择 **取消勾选所有图像** 清空网格。更改通道、对象类型或筛选条件会刷新所有已勾选视野。仅勾选当前视野时，视野下拉框保留普通的单视野导航功能。勾选多个视野时，它只更改活动来源，不会替换已勾选的集合。"
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "The image list uses the existing bounded random sample. Already checked fields remain available when the sample changes. **Maximum preview crops** limits the combined grid, with slots divided among checked fields. Increase it if there are more checked fields than available slots. Additional fields are read one at a time. A load failure names the field and leaves valid fields available for inspection."
-msgstr "图像列表使用现有的有数量上限的随机样本。样本变化时，已勾选视野仍然可用。**最大预览裁剪图数** 限制合并网格的大小，可用位置分配给各个已勾选视野。若勾选视野数多于可用位置，请提高此限制。额外视野每次只读取一个。加载失败时会指出视野名称，并保留可供检查的有效视野。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The field dropdown lists a bounded random sample of the folder's merged ``.npy`` arrays rather than every field. Already checked fields remain available when the sample changes. **Maximum preview crops** limits the combined grid, with slots divided among checked fields. Increase it if there are more checked fields than available slots. Additional fields are read one at a time. A load failure names the field and leaves valid fields available for inspection."
+msgstr "视野下拉列表列出文件夹中合并 ``.npy`` 数组的一个有数量上限的随机样本，而不是全部视野。样本变化时，已勾选视野仍然可用。**最大预览裁剪图数** 限制合并网格的大小，可用位置分配给各个已勾选视野。若勾选视野数多于可用位置，请提高此限制。额外视野每次只读取一个。加载失败时会指出视野名称，并保留可供检查的有效视野。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Checking images changes the preview selection. It does not select the fields that Measure processes or alter existing measurements or files. **Export displayed crops…** explicitly saves the completed preview crops as PNGs with provenance in a new folder; that export follows the checked fields and current display settings. **Propagate settings** copies the current crop and filter settings into the Measure form when switched on; further changes are copied while it remains on."

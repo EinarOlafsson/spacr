@@ -1,5 +1,5 @@
 # spaCR user guide translation (ko).
-# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 00:24-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -43,9 +43,9 @@ msgstr "**선택한 이미지**\\ 를 열고 포함할 시야를 선택하세요
 msgid "Uncheck a field to remove its crops, or choose **Uncheck all images** to clear the grid. Changing channels, object type or filters refreshes all checked fields. The field dropdown retains ordinary single-field navigation when only its current field is checked. With several fields checked, it changes the active source without replacing the checked selection."
 msgstr "시야의 선택을 해제하면 해당 시야의 잘라낸 이미지가 제거됩니다. **모든 이미지 선택 해제**\\ 를 선택하면 격자를 비울 수 있습니다. 채널, 객체 유형 또는 필터를 변경하면 선택된 모든 시야가 새로 고쳐집니다. 시야 드롭다운은 현재 시야만 선택되어 있을 때 일반적인 단일 시야 탐색 방식으로 동작합니다. 여러 시야가 선택되어 있으면 선택 목록을 바꾸지 않고 활성 원본만 변경합니다."
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "The image list uses the existing bounded random sample. Already checked fields remain available when the sample changes. **Maximum preview crops** limits the combined grid, with slots divided among checked fields. Increase it if there are more checked fields than available slots. Additional fields are read one at a time. A load failure names the field and leaves valid fields available for inspection."
-msgstr "이미지 목록은 기존의 크기가 제한된 무작위 표본을 사용합니다. 표본이 변경되어도 이미 선택된 시야는 계속 사용할 수 있습니다. **최대 미리보기 크롭 수**\\ 는 전체 격자에 표시할 잘라낸 이미지 수를 제한하고 표시 슬롯을 선택된 시야에 나누어 배정합니다. 선택된 시야가 슬롯보다 많으면 이 값을 늘리세요. 추가 시야는 한 번에 하나씩 읽습니다. 로드에 실패하면 해당 시야 이름이 표시되며 정상적인 시야는 계속 확인할 수 있습니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The field dropdown lists a bounded random sample of the folder's merged ``.npy`` arrays rather than every field. Already checked fields remain available when the sample changes. **Maximum preview crops** limits the combined grid, with slots divided among checked fields. Increase it if there are more checked fields than available slots. Additional fields are read one at a time. A load failure names the field and leaves valid fields available for inspection."
+msgstr "시야 드롭다운은 모든 시야가 아니라 폴더의 병합된 ``.npy`` 배열 중 크기가 제한된 무작위 표본을 나열합니다. 표본이 변경되어도 이미 선택된 시야는 계속 사용할 수 있습니다. **최대 미리보기 크롭 수**\\ 는 전체 격자를 제한하며, 슬롯을 선택된 시야에 나누어 배정합니다. 선택된 시야가 사용 가능한 슬롯보다 많으면 이 값을 늘리세요. 추가 시야는 한 번에 하나씩 읽습니다. 로드에 실패하면 해당 시야 이름이 표시되며 정상적인 시야는 계속 확인할 수 있습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Checking images changes the preview selection. It does not select the fields that Measure processes or alter existing measurements or files. **Export displayed crops…** explicitly saves the completed preview crops as PNGs with provenance in a new folder; that export follows the checked fields and current display settings. **Propagate settings** copies the current crop and filter settings into the Measure form when switched on; further changes are copied while it remains on."

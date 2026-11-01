@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 13:26-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -36,8 +36,9 @@ msgstr "**解释 CV 模型** 模块显示哪些已测量的形态特征能够重
 msgid "**Investigate Hit** asks which cells in wells supporting a regression hit have morphology consistent with that hit."
 msgstr "**Investigate Hit** 询问在支持某个回归命中项的孔中，哪些细胞的形态与该命中项一致。"
 
-msgid "The last result is weakly supervised evidence, not a cell-resolved barcode. The UI and exports therefore use ``EAF1-hit-like`` and ``hit_like_probability`` rather than calling a cell ``EAF1-KO``."
-msgstr "最后一种结果是弱监督证据，而不是细胞分辨率的条形码。因此，界面和导出使用 ``EAF1-hit-like`` 和 ``hit_like_probability``，而不是把某个细胞称为 ``EAF1-KO``。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The last result is weakly supervised evidence, not a cell-resolved barcode. The UI therefore labels candidate cells ``<gene>-hit-like`` (for example ``EAF1-hit-like``) and the exports use ``hit_like_probability``, rather than calling a cell a knockout such as ``EAF1-KO``."
+msgstr "最后一种结果是弱监督证据，而不是细胞分辨率的条形码。因此，界面将候选细胞标记为 ``<gene>-hit-like`` （例如 ``EAF1-hit-like``），导出使用 ``hit_like_probability``，而不是把某个细胞称为 ``EAF1-KO`` 之类的敲除细胞。"
 
 msgid "Explain CV Model"
 msgstr "解释 CV 模型"
@@ -117,8 +118,9 @@ msgstr "数据库标注在专用的来源表中进行版本管理。现有的手
 msgid "Evidence ladder"
 msgstr "证据阶梯"
 
-msgid "A coherent UMAP/PCA population is useful exploratory evidence but is not ground truth. Confidence increases with negative and positive controls, independent guides, replicate plates, well/plate cross-fitting, refitted nulls, bootstrap stability, blinded review, and agreement between measured-feature SHAP and pixel-level attribution. The strongest validation is an orthogonal experiment that assigns perturbation identity per cell, such as an arrayed perturbation/rescue or direct in-situ guide-barcode readout."
-msgstr "一个连贯的 UMAP/PCA 群体是有用的探索性证据，但并非真值。可信度会随着阴性和阳性对照、独立向导、重复孔板、孔/孔板交叉拟合、重新拟合的零假设、bootstrap 稳定性、盲评审阅以及已测量特征 SHAP 与像素级归因之间的一致性而提高。最有力的验证是逐细胞分配扰动身份的正交实验，例如阵列式扰动/挽救或直接原位向导条形码读取。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "A coherent UMAP/PCA population is useful exploratory evidence but is not ground truth. Confidence increases with negative and positive controls, independent guides, replicate plates, well/plate cross-fitting, refitted nulls, bootstrap stability, blinded review, and agreement between measured-feature SHAP and pixel-level attribution. None of these analyses observes perturbation identity per cell; that requires an orthogonal experiment, such as an arrayed perturbation/rescue or direct in-situ guide-barcode readout."
+msgstr "一个连贯的 UMAP/PCA 群体是有用的探索性证据，但并非真值。可信度会随着阴性和阳性对照、独立向导、重复孔板、孔/孔板交叉拟合、重新拟合的零假设、bootstrap 稳定性、盲评审阅以及已测量特征 SHAP 与像素级归因之间的一致性而提高。这些分析都无法逐细胞观察扰动身份；这需要正交实验，例如阵列式扰动/挽救或直接原位向导条形码读取。"
 
 msgid "Headless entry points"
 msgstr "无界面入口点"

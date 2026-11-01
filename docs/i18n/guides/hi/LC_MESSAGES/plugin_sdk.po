@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -25,8 +25,9 @@ msgstr "spaCR प्लगइन SDK"
 msgid "The plugin SDK lets a separately installed Python package add assays, importers, analysis utilities, settings panels, model-zoo entries and report sections without editing spaCR. Plugins use Python package entry points, so spaCR discovers them at startup and keeps them available to both the Qt application and ``spacr-run``."
 msgstr "प्लगइन SDK एक अलग से स्थापित Python पैकेज को spaCR में बदलाव किए बिना एसे, आयातक, विश्लेषण उपयोगिताएँ, सेटिंग पैनल, मॉडल संग्रह प्रविष्टियाँ और रिपोर्ट खंड जोड़ने देता है। प्लगइन Python पैकेज प्रवेश बिंदुओं का उपयोग करते हैं, इसलिए spaCR उन्हें प्रारंभ पर खोजता है और Qt एप्लिकेशन तथा ``spacr-run`` दोनों के लिए उपलब्ध रखता है।"
 
-msgid "The current SDK API is ``1.0``. Only the major version controls compatibility: a plugin declaring API ``1.x`` works with spaCR's ``1.x`` SDK. A malformed or failing plugin is isolated and reported by ``spacr-plugins doctor``; it cannot replace a built-in module or prevent spaCR from starting."
-msgstr "वर्तमान SDK API ``1.0`` है। केवल मुख्य संस्करण संगतता नियंत्रित करता है: API ``1.x`` घोषित करने वाला प्लगइन spaCR के ``1.x`` SDK के साथ काम करता है। विकृत या विफल होने वाला प्लगइन पृथक किया जाता है और ``spacr-plugins doctor`` द्वारा सूचित किया जाता है; यह किसी अंतर्निहित मॉड्यूल को नहीं बदल सकता और न ही spaCR को शुरू होने से रोक सकता है।"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The current SDK API is ``1.0``. Only the major version controls compatibility: a plugin declaring API ``1.x`` works with spaCR's ``1.x`` SDK. A malformed or failing plugin is skipped and reported by ``spacr-plugins doctor``. A contribution whose key collides with a built-in module is skipped and recorded as a diagnostic, so it cannot replace that module."
+msgstr "वर्तमान SDK API ``1.0`` है। केवल मुख्य संस्करण संगतता नियंत्रित करता है: API ``1.x`` घोषित करने वाला प्लगइन spaCR के ``1.x`` SDK के साथ काम करता है। विकृत या विफल होने वाला प्लगइन छोड़ दिया जाता है और ``spacr-plugins doctor`` द्वारा सूचित किया जाता है। जिस योगदान की कुंजी किसी अंतर्निहित मॉड्यूल से टकराती है, उसे छोड़ दिया जाता है और निदान के रूप में दर्ज किया जाता है, इसलिए वह उस मॉड्यूल को नहीं बदल सकता।"
 
 msgid "Minimal plugin"
 msgstr "न्यूनतम प्लगइन"
@@ -37,8 +38,9 @@ msgstr "प्लगइन पैकेज की ``pyproject.toml`` में �
 msgid "Then expose a manifest:"
 msgstr "फिर एक मैनिफ़ेस्ट उपलब्ध कराएँ:"
 
-msgid "The pipeline callable receives one settings dictionary. The defaults callable must accept an optional settings dictionary and return a dictionary. A validator returns :class:`spacr.validate.Problem` objects (or equivalent mappings). All processing still runs through spaCR's worker, journal, cancellation and reproducibility paths."
-msgstr "पाइपलाइन कॉलेबल एक सेटिंग शब्दकोश प्राप्त करता है। डिफ़ॉल्ट कॉलेबल को एक वैकल्पिक सेटिंग शब्दकोश स्वीकार करना और एक शब्दकोश लौटाना चाहिए। वैलिडेटर :class:`spacr.validate.Problem` ऑब्जेक्ट (या समतुल्य मैपिंग) लौटाता है। सारी प्रसंस्करण अब भी spaCR के वर्कर, जर्नल, रद्दीकरण और पुनरुत्पादकता मार्गों से होकर चलती है।"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The pipeline callable receives one settings dictionary. The defaults callable is called with an empty dictionary, and again with no argument if that call fails; it must return a dictionary. A validator returns :class:`spacr.validate.Problem` objects (or equivalent mappings). Plugin apps are registered in the same module registry that ``spacr-run`` and the GUI use for built-in modules."
+msgstr "पाइपलाइन कॉलेबल एक सेटिंग शब्दकोश प्राप्त करता है। डिफ़ॉल्ट कॉलेबल को एक खाली शब्दकोश के साथ बुलाया जाता है, और वह कॉल विफल होने पर बिना किसी तर्क के फिर से; इसे एक शब्दकोश लौटाना चाहिए। वैलिडेटर :class:`spacr.validate.Problem` ऑब्जेक्ट (या समतुल्य मैपिंग) लौटाता है। प्लगइन ऐप उसी मॉड्यूल रजिस्ट्री में पंजीकृत होते हैं जिसका उपयोग ``spacr-run`` और GUI अंतर्निहित मॉड्यूलों के लिए करते हैं।"
 
 msgid "Settings and custom screens"
 msgstr "सेटिंग्स और कस्टम स्क्रीन"

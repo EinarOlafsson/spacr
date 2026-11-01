@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 11:39-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -22,14 +22,16 @@ msgstr ""
 msgid "Choose a workflow after installation"
 msgstr "설치 후 워크플로 선택"
 
-msgid "Start on Home with the first module for your experiment. Use that module's example-data control when available, inspect the inputs and preview, then run a bounded example before your own data."
-msgstr "홈에서 실험에 맞는 첫 번째 모듈로 시작합니다. 해당 모듈에 예제 데이터 컨트롤이 있으면 사용하고, 입력과 미리보기를 검사한 다음, 자신의 데이터를 처리하기 전에 범위가 제한된 예제를 실행합니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Start on Home with the first module for your experiment. Use that module's **Load test data…** button when available, inspect the inputs and preview, then run the example before your own data."
+msgstr "홈에서 실험에 맞는 첫 번째 모듈로 시작합니다. 해당 모듈에 **테스트 데이터 불러오기...** 버튼이 있으면 사용하고, 입력과 미리보기를 검사한 다음, 자신의 데이터를 처리하기 전에 예제를 실행합니다."
 
 msgid "These routes and the API handoffs share the bundled module workflow map. A walkthrough explains the steps; it does not run an experiment automatically."
 msgstr "이 경로들과 API 연계는 함께 제공되는 모듈 워크플로 지도를 공유합니다. 단계별 안내는 단계를 설명할 뿐 실험을 자동으로 실행하지는 않습니다."
 
-msgid "Open **Pipeline overviews** to choose a pathway. Its graph includes external input nodes that explain the files you supply; these are not runnable modules. Persistent explanation cards describe modules and connections below the graph, with API links at the end of module cards. Select a graph element to outline its card, and drag the blue divider to adjust the space between graph and explanations. **Start example** opens the pathway's first real module; **Walkthrough** keeps the route available afterward. Alternative input and annotation branches do not require you to execute every listed step."
-msgstr "**파이프라인 개요** 를 열어 경로를 선택합니다. 그래프에는 사용자가 제공하는 파일을 설명하는 외부 입력 노드가 있으며, 이 노드는 실행 가능한 모듈이 아닙니다. 그래프 아래의 고정 설명 카드는 모듈과 연결을 설명하며, 모듈 카드 끝에 API 링크가 있습니다. 그래프 요소를 선택하면 해당 카드의 윤곽이 강조되고, 파란색 구분선을 끌어 그래프와 설명 사이의 공간을 조정할 수 있습니다. **예제 시작** 은 경로의 첫 번째 실제 모듈을 열고, **단계별 안내** 는 이후에도 경로를 계속 볼 수 있게 합니다. 대체 입력 및 어노테이션 분기에서는 나열된 모든 단계를 실행할 필요가 없습니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Open **Pipeline overviews** to choose a pathway. Its graph includes external input nodes that explain the files you supply; these are not runnable modules. Persistent explanation cards describe modules and connections below the graph, with API links at the end of module cards. Select a graph element to outline its card, and drag the blue divider to adjust the space between graph and explanations. **Start example** opens the pathway's first module and loads that module's example data; when the pathway has a walkthrough, a **Walkthrough** button is added to the status bar to reopen it. Alternative input and annotation branches do not require you to execute every listed step."
+msgstr "**파이프라인 개요** 를 열어 경로를 선택합니다. 그래프에는 사용자가 제공하는 파일을 설명하는 외부 입력 노드가 있으며, 이 노드는 실행 가능한 모듈이 아닙니다. 그래프 아래의 고정 설명 카드는 모듈과 연결을 설명하며, 모듈 카드 끝에 API 링크가 있습니다. 그래프 요소를 선택하면 해당 카드의 윤곽이 강조되고, 파란색 구분선을 끌어 그래프와 설명 사이의 공간을 조정할 수 있습니다. **예제 시작** 은 경로의 첫 번째 모듈을 열고 그 모듈의 예제 데이터를 불러옵니다. 경로에 단계별 안내가 있으면 상태 표시줄에 **단계별 안내** 버튼이 추가되어 다시 열 수 있습니다. 대체 입력 및 어노테이션 분기에서는 나열된 모든 단계를 실행할 필요가 없습니다."
 
 msgid "A pooled spaCR screen"
 msgstr "spaCR 풀링 스크리닝"
@@ -340,8 +342,9 @@ msgstr "`모듈 튜토리얼 <tutorials/#lesson=07_mask>`__."
 msgid "Measure"
 msgstr "측정"
 
-msgid "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops."
-msgstr "측정은 이미지와 레이블 평면을 함께 읽습니다. PNG 파일이 필요하면 크롭 저장을 켜고, 스트리밍 크롭을 쓰려면 데이터베이스와 소스 프로젝트를 함께 보관하세요."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Measure reads images and label planes together. PNG crops are written while save_png is on (default True); turn it off to compute measurements only. Keep the database and source project together for streamed crops."
+msgstr "측정은 이미지와 레이블 평면을 함께 읽습니다. save_png가 켜져 있는 동안(기본값 True) PNG 크롭이 기록되며, 측정값만 계산하려면 이를 끕니다. 스트리밍 크롭을 쓰려면 데이터베이스와 소스 프로젝트를 함께 보관하세요."
 
 msgid "**Open:** Home → Measure."
 msgstr "**열기:** 홈 → 측정."
@@ -527,8 +530,9 @@ msgstr "**열기:** 홈 → 바코드 매핑."
 msgid "**Sequencing reads** — Single-end or paired FASTQ files, with the matching barcode reference tables."
 msgstr "**시퀀싱 리드** — 싱글 엔드 또는 페어드 FASTQ 파일과 일치하는 바코드 참조 테이블."
 
-msgid "**Guide counts per well** — Map Barcodes run folder: unique_combinations.csv and annotated_reads.h5. Well identity requires the corresponding barcode references. Relevant columns, depending on the route: ``count``."
-msgstr "**웰당 가이드 개수** — 바코드 매핑 실행 폴더: unique_combinations.csv와 annotated_reads.h5. 웰 식별에는 대응하는 바코드 참조가 필요합니다. 경로에 따른 관련 열: ``count``."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Guide counts per well** — Map Barcodes per-sample output folder: unique_combinations.csv and qc.csv, plus annotated_reads.h5 when save_h5 is True (the default). Well identity requires the corresponding barcode references. Relevant columns, depending on the route: ``count``."
+msgstr "**웰당 가이드 개수** — 바코드 매핑 샘플별 출력 폴더: unique_combinations.csv와 qc.csv, 그리고 save_h5가 True(기본값)이면 annotated_reads.h5. 웰 식별에는 대응하는 바코드 참조가 필요합니다. 경로에 따른 관련 열: ``count``."
 
 msgid ":ref:`Regression <workflow-module-regression>`: Pair guide counts with phenotype scores using consistent plate/well keys."
 msgstr ":ref:`Regression <workflow-module-regression>`: 일관된 플레이트/웰 키를 사용해 가이드 개수와 표현형 점수를 짝지으세요."
@@ -616,6 +620,10 @@ msgstr "소스 매핑을 보존하면서 지원되는 현미경 형식을 설정
 
 msgid "**Open:** Import → Format Converter."
 msgstr "**열기:** 가져오기 → 형식 변환기."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Converted TIFFs and conversion map** — Format Converter destination folder: Yokogawa-named TIFFs (for example plate1_A01_T0001F001L01A01Z01C01.tif) and conversion_map.csv, which maps each output name back to its source file."
+msgstr "**변환된 TIFF 파일과 변환 맵** — 형식 변환기 대상 폴더: Yokogawa 형식 이름의 TIFF(예: plate1_A01_T0001F001L01A01Z01C01.tif)와 각 출력 이름을 원본 파일에 대응시키는 conversion_map.csv."
 
 msgid ":ref:`Mask <workflow-module-mask>`: Use the converted layout and preserve source identity mappings."
 msgstr ":ref:`Mask <workflow-module-mask>`: 변환된 레이아웃을 사용하고 원본 식별 매핑을 보존하세요."
@@ -832,14 +840,13 @@ msgstr "조건, 대조군, 반복, 플레이트 제약을 입력한 다음 획�
 msgid "**Open:** Home → Experiment Design."
 msgstr "**열기:** 홈 → Experiment Design."
 
-msgid "**Screen design and power estimates** — Saved planning tables or figures based on explicitly chosen effect sizes, variability and sampling assumptions."
-msgstr "**스크린 설계 및 검정력 추정** — 명시적으로 선택한 효과 크기, 변동성, 샘플링 가정에 기반한 저장된 계획 테이블 또는 그림."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Plate design entries** — Entered in Experiment Design: plate identifier, plate format (6 to 1536 wells), conditions with replicate counts and roles (treatment, positive control, negative control, blank), layout, edge use and seed. Load template… fills in a bundled design; no input file is required."
+msgstr "**플레이트 설계 항목** — 실험 설계에서 입력: 플레이트 식별자, 플레이트 형식(6~1536 웰), 반복 수와 역할(처리, 양성 대조군, 음성 대조군, 블랭크)이 지정된 조건, 레이아웃, 가장자리 사용, 시드. 템플릿 불러오기…는 함께 제공된 설계를 채웁니다. 입력 파일은 필요하지 않습니다."
 
-msgid "**Experimental layout** — Exported plate/condition/control/replicate map. Keep its plate and well identifiers consistent with the acquired data."
-msgstr "**실험 레이아웃** — 내보낸 플레이트/조건/대조군/반복 맵입니다. 플레이트와 웰 식별자를 획득한 데이터와 일치시키세요."
-
-msgid ":ref:`Power / Design <workflow-module-power>`: Use the experimental layout to define sampling assumptions, then revise the design."
-msgstr ":ref:`Power / Design <workflow-module-power>`: 실험 레이아웃으로 샘플링 가정을 정의한 다음 설계를 수정하세요."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Experimental layout** — Export plate map... writes plate_map.csv (one row per well keyed by plateID, rowID and columnID), plate_map.json and plate_map_settings.json to the chosen folder. Keep its plate and well identifiers consistent with the acquired data."
+msgstr "**실험 레이아웃** — 플레이트 맵 내보내기...는 선택한 폴더에 plate_map.csv(plateID, rowID, columnID를 키로 하는 웰당 한 행), plate_map.json, plate_map_settings.json을 씁니다. 플레이트 및 웰 식별자를 획득한 데이터와 일치하게 유지하세요."
 
 msgid ":ref:`Dose–Response <workflow-module-dose_response>`: Acquire and measure the experiment first, preserving dose/condition identities."
 msgstr ":ref:`Dose–Response <workflow-module-dose_response>`: 용량/조건 식별 정보를 보존하면서 먼저 실험을 획득하고 측정하세요."
@@ -871,8 +878,8 @@ msgstr "선택한 효과 크기와 변동성으로 필요한 샘플링을 추정
 msgid "**Open:** Home → Power / Design."
 msgstr "**열기:** 홈 → Power / Design."
 
-msgid ":ref:`Experiment Design <workflow-module-experiment_design>`: Use the experimental layout to define sampling assumptions, then revise the design."
-msgstr ":ref:`Experiment Design <workflow-module-experiment_design>`: 실험 레이아웃으로 샘플링 가정을 정의한 다음 설계를 수정하세요."
+msgid "**Screen design and power estimates** — Saved planning tables or figures based on explicitly chosen effect sizes, variability and sampling assumptions."
+msgstr "**스크린 설계 및 검정력 추정** — 명시적으로 선택한 효과 크기, 변동성, 샘플링 가정에 기반한 저장된 계획 테이블 또는 그림."
 
 msgid ":doc:`API reference </api/spacr/qt/screens/power/index>`."
 msgstr ":doc:`API 참조 </api/spacr/qt/screens/power/index>`."
@@ -1013,14 +1020,16 @@ msgstr "`모듈 튜토리얼 <tutorials/#lesson=28_training_runs>`__."
 msgid "Align & Stitch"
 msgstr "정렬 및 스티칭"
 
-msgid "Inspect tile geometry, overlap and channel mapping, then save the mosaic with coordinate records. OPS also needs the original cycle/site identities."
-msgstr "타일 기하 구조, 겹침, 채널 매핑을 검사한 다음 좌표 기록과 함께 모자이크를 저장하세요. OPS에는 원래 사이클/사이트 식별 정보도 필요합니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Press Plan to compute the tile layout and list tiles that fell back to their stage positions; Plan writes nothing. Write stack then writes the stitched stack to the Write to folder or .npy file and records tile coordinates in measurements.db when the Database field is set. Every channel uses the registration measured on Ref. channel. OPS also needs the original cycle/site identities."
+msgstr "계획 세우기를 눌러 타일 레이아웃을 계산하고 스테이지 위치로 대체된 타일을 나열합니다. 계획 세우기는 아무것도 쓰지 않습니다. 이어서 스테이크 글쓰기는 스티칭한 스택을 글쓰기 폴더 또는 .npy 파일에 쓰고, 데이터베이스 필드가 설정되어 있으면 measurements.db에 타일 좌표를 기록합니다. 모든 채널은 리프 채널에서 측정한 정합을 사용합니다. OPS에는 원래의 주기/사이트 식별 정보도 필요합니다."
 
 msgid "**Open:** Home → Align & Stitch."
 msgstr "**열기:** 홈 → 정렬 및 스티칭."
 
-msgid "**Aligned mosaic and coordinates** — Align & Stitch destination: composed image and the tile-coordinate/layout records needed to interpret it."
-msgstr "**정렬된 모자이크와 좌표** — Align & Stitch 대상: 합성 이미지와 이를 해석하는 데 필요한 타일 좌표/레이아웃 기록."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Aligned mosaic and coordinates** — The Write to folder or .npy file: the stitched stack. Tile coordinates are saved to the measurements.db named in Database only when that field is set."
+msgstr "**정렬된 모자이크와 좌표** — 글쓰기 폴더 또는 .npy 파일: 스티칭한 스택. 타일 좌표는 데이터베이스 필드가 설정된 경우에만 그 필드에 지정된 measurements.db에 저장됩니다."
 
 msgid ":ref:`OPS <workflow-module-ops>`: Carry tile coordinates and original sequencing cycles into OPS; a flattened mosaic alone is insufficient."
 msgstr ":ref:`OPS <workflow-module-ops>`: 타일 좌표와 원래 시퀀싱 사이클을 OPS로 전달하세요. 평탄화된 모자이크만으로는 부족합니다."
@@ -1697,8 +1706,9 @@ msgstr ":doc:`API 참조 </api/spacr/parameter_sweep/index>`."
 msgid "Toxoplasma"
 msgstr "톡소플라스마"
 
-msgid "Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Invasion Assay or Replication Assay. The four Coming soon tiles describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table."
-msgstr "홈에서 생물종 가이드를 열어 구획 도식을 살펴본 다음 Plaque Assay, 리크루트먼트, Invasion Assay 또는 Replication Assay를 선택하세요. 출시 예정 타일 4개는 제안을 설명하며 실행할 수 없습니다. 가이드 자체는 프로젝트를 분석하거나 측정 테이블을 생성하지 않습니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay; Gliding motility opens Motility Assay with infection QC off. The three Coming soon tiles (Egress, Bradyzoite conversion, Host cell damage) describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table."
+msgstr "홈에서 생물종 가이드를 열어 구획 도식을 살펴본 다음 Plaque Assay, 리크루트먼트, 숙주–병원체, Invasion Assay 또는 Replication Assay를 선택하세요. Gliding motility는 감염 QC를 끈 상태로 운동성 분석을 엽니다. 출시 예정 타일 3개(Egress, Bradyzoite conversion, Host cell damage)는 제안을 설명하며 실행할 수 없습니다. 가이드 자체는 프로젝트를 분석하거나 측정 테이블을 생성하지 않습니다."
 
 msgid "**Open:** Home → Toxoplasma."
 msgstr "**열기:** 홈 → 톡소플라스마."

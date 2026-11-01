@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 20:25-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: fr\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -37,15 +37,16 @@ msgstr "Laisser les mesures inchangées."
 msgid "``control_center``"
 msgstr "``control_center``"
 
-msgid "Recommended when every plate contains the same negative/reference control. spaCR estimates the median reference shift on each plate and subtracts only that shift. Treatment dispersion and treatment-to-control differences are retained."
-msgstr "Recommandé lorsque chaque plaque contient le même contrôle négatif ou de référence. spaCR estime le décalage médian de la référence sur chaque plaque et ne soustrait que ce décalage. La dispersion des traitements et les différences entre traitement et contrôle sont conservées."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Recommended when every plate contains the same negative/reference control. For each feature, spaCR subtracts from every row of a plate the difference between that plate's control median and the median of all control rows. Treatment dispersion and treatment-to-control differences are retained."
+msgstr "Recommandé lorsque chaque plaque contient le même contrôle négatif ou de référence. Pour chaque caractéristique, spaCR soustrait de chaque ligne d’une plaque la différence entre la médiane des contrôles de cette plaque et la médiane de toutes les lignes de contrôle. La dispersion des traitements et les différences entre traitement et contrôle sont conservées."
 
 msgid "``robust_zscore``"
 msgstr "``robust_zscore``"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Align plate medians and median absolute deviations. This is less sensitive to outliers than ``zscore``, but can remove genuine differences if biological conditions are unevenly distributed across plates."
-msgstr "Aligner les médianes des plaques et les écarts absolus médians. Cette méthode est moins sensible aux valeurs aberrantes que ``zscore``, mais peut supprimer de véritables différences si les conditions biologiques sont inégalement réparties entre les plaques."
+msgid "Align plate medians and median absolute deviations (MAD, scaled by 1.4826) to the pooled median and MAD. This is less sensitive to outliers than ``zscore``, but can remove genuine differences if biological conditions are unevenly distributed across plates."
+msgstr "Aligner les médianes des plaques et les écarts absolus médians (MAD, mis à l’échelle par 1.4826) sur la médiane et la MAD regroupées. Cette méthode est moins sensible aux valeurs aberrantes que ``zscore``, mais peut supprimer de véritables différences si les conditions biologiques sont inégalement réparties entre les plaques."
 
 msgid "``center``"
 msgstr "``center``"
@@ -70,8 +71,9 @@ msgstr "ComBat bayésien empirique (Johnson, Li & Rabinovich, 2007). Chaque cara
 msgid "Settings"
 msgstr "Paramètres"
 
-msgid "Set ``batch_correction`` to a method above and use ``batch_column`` to name the batch identifier (normally ``plateID``). ``batch_min_samples`` rejects unstable estimates from undersized batches."
-msgstr "Réglez ``batch_correction`` sur l’une des méthodes ci-dessus et utilisez ``batch_column`` pour nommer l’identifiant de lot (normalement ``plateID``). ``batch_min_samples`` rejette les estimations instables issues de lots trop petits."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Set ``batch_correction`` to a method above and use ``batch_column`` to name the batch identifier (normally ``plateID``). ``batch_min_samples`` (default 3) is the minimum number of rows per batch; a smaller batch stops the run with an error."
+msgstr "Réglez ``batch_correction`` sur l’une des méthodes ci-dessus et utilisez ``batch_column`` pour nommer l’identifiant de lot (normalement ``plateID``). ``batch_min_samples`` (3 par défaut) est le nombre minimal de lignes par lot ; un lot plus petit arrête l’exécution avec une erreur."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "For ``control_center``, ``batch_control_column`` identifies the metadata field that contains the controls and ``batch_control_values`` selects one or more reference values. When blank, Image UMAP follows ``col_to_compare``/``neg`` and Classify's ML family follows ``location_column`` (or ``annotation_column`` when annotations define the classes) and ``negative_control_id``. Regression requires an explicit reference value. ``batch_missing_control=error`` (the default) stops the run when a plate has fewer than ``batch_min_samples`` usable reference controls; ``skip`` leaves an affected plate unchanged and records a warning."

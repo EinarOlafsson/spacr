@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 20:09-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -34,8 +34,9 @@ msgstr "在 **主页** 中打开 **测量**，然后打开 **导出 AnnData**。
 msgid "Select the measured project as the source."
 msgstr "选择已测量的项目作为来源。"
 
-msgid "Set **Anndata out** to a new ``.h5ad`` filename. Leaving it empty writes beneath the project's ``results`` folder. A successful export replaces an existing file at the chosen path; use separate names to keep both versions."
-msgstr "将 **Anndata 输出文件** 设置为新的 ``.h5ad`` 文件名。留空时，文件写入项目的 ``results`` 文件夹下。导出成功后会替换所选路径上的现有文件；如需保留两个版本，请使用不同的文件名。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Set **Anndata out** to a new ``.h5ad`` filename. Leaving it empty writes ``results/<project name>.h5ad`` in the project folder, or ``results/<project name>_<table>.h5ad`` for a single-table export. A successful export replaces an existing file at the chosen path; use separate names to keep both versions."
+msgstr "将 **Anndata 输出文件** 设置为新的 ``.h5ad`` 文件名。留空时，会在项目文件夹中写入 ``results/<project name>.h5ad``；单表导出时则写入 ``results/<project name>_<table>.h5ad``。导出成功后会替换所选路径上的现有文件；如需保留两个版本，请使用不同的文件名。"
 
 msgid "Set **Anndata single table** to ``cell`` for one row per cell using that table's features. Use ``nucleus`` or ``pathogen`` for those object types. Leave it empty for a cell-level joined export, where child measurements are aggregated onto their parent cells."
 msgstr "将 **Anndata 单表** 设置为 ``cell``，即可按每个细胞一行导出该表的特征。对于这些对象类型，请使用 ``nucleus`` 或 ``pathogen``。留空则进行细胞级联合导出，此时子对象的测量值会汇总到其父细胞上。"

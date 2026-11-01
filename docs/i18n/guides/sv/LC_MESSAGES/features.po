@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 16:41-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: sv\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -36,18 +36,20 @@ msgid "Mask prepares TIFF, OME-TIFF, LIF, CZI and ND2 acquisitions and segments 
 msgstr "Masker förbereder insamlingar i TIFF, OME-TIFF, LIF, CZI och ND2 och segmenterar celler, kärnor, patogener och organeller med Cellpose. Modulen stöder 2D-data, volymdata och tidsseriedata, skattar objektdiameter och kan utbyta maskkorrigeringar med lagervisaren eller napari."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The objects are not a fixed set of four. A project has a cell, a nucleus and a pathogen, a cytoplasm derived from them, and as many organelle slots as ``number_of_organelles`` specifies -- from none up to twenty-six. Each slot is independent, with its own channel, diameter, detection method and morphology."
-msgstr "Objekten är inte en fast uppsättning om fyra. Ett projekt har en cell, en kärna och en patogen, en cytoplasma som härleds ur dem och så många organellplatser som ``number_of_organelles`` anger -- från ingen upp till tjugosex. Varje plats är oberoende, med egen kanal, diameter, detektionsmetod och morfologi."
+msgid "The objects are not a fixed set of four. A project has a cell, a nucleus and a pathogen, a cytoplasm derived from them, and as many organelle slots as ``number_of_organelles`` specifies -- from none up to 702 (``spacr.organelle_types.MAX_ORGANELLES``). Each slot is independent, with its own channel, diameter, detection method and morphology."
+msgstr "Objekten är inte en fast uppsättning om fyra. Ett projekt har en cell, en kärna och en patogen, en cytoplasma som härleds ur dem och så många organellplatser som ``number_of_organelles`` anger -- från ingen upp till 702 (``spacr.organelle_types.MAX_ORGANELLES``). Varje plats är oberoende, med egen kanal, diameter, detektionsmetod och morfologi."
 
-msgid "A slot is given a morphology preset -- punctate, vesicular, spherical, filamentous, tubular, reticular, cisternal, toroidal, crescent, or custom -- and the preset chooses the detection strategy, one of spots, network, irregular or ring."
-msgstr "En plats tilldelas en morfologiförinställning -- punktformig, vesikulär, sfärisk, filamentös, tubulär, retikulär, cisternal, toroidal, halvmåneformad eller anpassad -- och förinställningen väljer detektionsstrategi, en av fläckar, nätverk, oregelbunden eller ring."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "A slot is given a morphology preset -- punctate, vesicular, spherical, filamentous, tubular, reticular, cisternal, toroidal, crescent, or custom -- and the preset chooses the detection strategy, one of spots, network, irregular or ring. The vesicular and spherical presets choose between two strategies by object size; custom chooses none."
+msgstr "En plats tilldelas en morfologiförinställning -- punktformig, vesikulär, sfärisk, filamentös, tubulär, retikulär, cisternal, toroidal, halvmåneformad eller anpassad -- och förinställningen väljer detektionsstrategi, en av fläckar, nätverk, oregelbunden eller ring. Förinställningarna vesikulär och sfärisk väljer mellan två strategier efter objektstorlek; anpassad väljer ingen."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Mask generation lays out the per-object settings as one table under **Per-object settings**, with a column for each object whose channel is set; the cell column is always shown. An object's channel is set on the ordinary form, and the values of a hidden object are kept for when its channel is set again. Every object has a **Remove background** check box, and the cell column also has **Adjust cells**. **Add a filter** adds a row that filters objects on any scikit-image regionprop, such as area or mean intensity; each object's cell takes ``200 – 5000``, a minimum alone (``200``), a maximum alone (``– 5000``) or a blank for no filter. These rows are the ``object_filters`` setting. Choosing a Cellpose 3 model for an object shows a **Cellpose 3** category with that backend's own settings. **Quality Control** holds the segmentation checks together with output, storage, runtime and reliability settings."
 msgstr "Maskgenereringen lägger upp inställningarna per objekt i en tabell under **Per-object settings**, med en kolumn för varje objekt vars kanal är angiven; cellkolumnen visas alltid. Ett objekts kanal anges i det vanliga formuläret, och ett dolt objekts värden sparas tills dess kanal anges igen. Varje objekt har kryssrutan **Ta bort bakgrund**, och cellkolumnen har också **Justera celler**. **Lägg till ett filter** lägger till en rad som filtrerar objekt på valfri regionprop från scikit-image, till exempel area eller medelintensitet; varje objekts cell tar ``200 – 5000``, enbart ett minimum (``200``), enbart ett maximum (``– 5000``) eller tomt för inget filter. Dessa rader är inställningen ``object_filters``. Om en Cellpose 3-modell väljs för ett objekt visas kategorin **Cellpose 3** med den bakändans egna inställningar. **Kvalitetskontroll** innehåller segmenteringskontrollerna tillsammans med inställningar för utdata, lagring, körning och tillförlitlighet."
 
-msgid "Mask's **Live** preview shows the result as **Overlay**, **Masks**, **Flows** or **Cell probability**. Right-click a picture to **Save as PNG…** or **Save as PDF…**. Once a session has produced more than one mask, **Compare masks…** lays the masks and images you tick over one another, each with its own opacity and stacking order, in a panel of its own."
-msgstr "Förhandsvisningen **Live** i Masker visar resultatet som **Överlägg**, **Masker**, **Flöden** eller **Cellsannolikhet**. Högerklicka på en bild för **Save as PNG…** eller **Save as PDF…**. När en session har gett mer än en mask lägger **Jämför masker…** de masker och bilder du markerar ovanpå varandra, var och en med egen opacitet och staplingsordning, i en egen panel."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Mask's **Live** preview shows the result as **Overlay**, **Masks**, **Flows** or **Cell probability**. Right-click a picture to **Save as PNG…** or **Save as PDF…**. Once the session holds at least two masks of the field on screen, **Compare masks…** lays the masks and images you tick over one another, each with its own opacity and stacking order, in a panel of its own."
+msgstr "Förhandsvisningen **Live** i Masker visar resultatet som **Överlägg**, **Masker**, **Flöden** eller **Cellsannolikhet**. Högerklicka på en bild för **Save as PNG…** eller **Save as PDF…**. När sessionen innehåller minst två masker av fältet på skärmen lägger **Jämför masker…** de masker och bilder du markerar ovanpå varandra, var och en med egen opacitet och staplingsordning, i en egen panel."
 
 msgid "Measure"
 msgstr "Mätning"
@@ -103,11 +105,13 @@ msgstr "``dependent_variable``, responsen, är en listruta med de numeriska kolu
 msgid "Planning, quality control and exploration"
 msgstr "Planering, kvalitetskontroll och utforskning"
 
-msgid "**Power and Design** estimate cell and well requirements and lay out plates, controls and replicates."
-msgstr "**Power and Design** skattar behovet av celler och brunnar och lägger upp plattor, kontroller och replikat."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Power / Design** simulates experiments to estimate the cells per well and wells needed to recover a specified effect size. **Experiment Design** assigns conditions, controls and replicates to wells, checks row, column and plate-edge confounding, and exports ``plate_map.csv``."
+msgstr "**Styrka / design** simulerar experiment för att uppskatta hur många celler per brunn och brunnar som behövs för att återfinna en angiven effektstorlek. **Försöksdesign** tilldelar betingelser, kontroller och replikat till brunnar, kontrollerar sammanblandning med rad, kolumn och plattkant, och exporterar ``plate_map.csv``."
 
-msgid "**QC Dashboard** combines segmentation, plate, annotation-agreement and leakage checks."
-msgstr "**QC Dashboard** kombinerar kontroller av segmentering, plattor, överensstämmelse mellan annotatörer och läckage."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**QC** summarizes the segmentation, unit, plate-effect, annotation-agreement and leakage checks that completed runs stored; opening it does not recompute masks or measurements."
+msgstr "**QC** sammanfattar de kontroller av segmentering, enhet, platteffekt, annoteringsöverensstämmelse och läckage som slutförda körningar har sparat; att öppna den beräknar inte om masker eller mätningar."
 
 msgid "**Batch correction** provides centering, z-scoring, robust z-scoring, control centering and ComBat with protected biological covariates."
 msgstr "**Batchkorrigering** erbjuder centrering, z-poängsättning, robust z-poängsättning, kontrollcentrering och ComBat med skyddade biologiska kovariater."
@@ -136,17 +140,17 @@ msgstr "Varje körning kan registrera sin identifierare, sitt slumpfrö, sina up
 msgid "How a module is reached"
 msgstr "Hur en modul nås"
 
-# AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The home screen groups modules into four categories -- **Core**, **Data**, **Tools** and **Organism** -- and nineteen modules have a tile in one of them. Core holds the pipeline modules, run in order; Data holds import, embeddings, run comparison, design, dose–response and QC; Tools holds modules that operate on an existing project rather than pipeline steps; Organism opens the Toxoplasma guide and its available assays. Planned analyses are marked Coming soon. Make Masks is filed under **Tools**."
-msgstr "Hemskärmen grupperar moduler i fyra kategorier -- **Kärna**, **Data**, **Verktyg** och **Organism** -- och nitton moduler har en ruta i någon av dem. Kärna innehåller pipelinemodulerna, som körs i ordning; Data innehåller import, inbäddningar, jämförelse av körningar, försöksdesign, dos–respons och kvalitetskontroll; Verktyg innehåller moduler som arbetar på ett befintligt projekt snarare än steg i pipelinen; Organism öppnar Toxoplasma-handledningen och dess tillgängliga analyser. Planerade analyser markeras med Kommer snart. Skapa masker ligger under **Verktyg**."
+msgid "The home screen groups modules into four categories -- **Core**, **Data**, **Tools** and **Organism** -- and nineteen modules have a tile in one of them. **Preferences → Show alpha species** adds seven Organism tiles (Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, virus infection and mammalian cells). Core holds the pipeline modules, run in order; Data holds import, embeddings, run comparison, design, dose–response and QC; Tools holds modules that operate on an existing project rather than pipeline steps; Organism opens the Toxoplasma guide and its available assays. Planned analyses are marked Coming soon. Make Masks is filed under **Tools**."
+msgstr "Hemskärmen grupperar moduler i fyra kategorier -- **Kärna**, **Data**, **Verktyg** och **Organism** -- och nitton moduler har en ruta i någon av dem. **Inställningar → Visa alfaarter** lägger till sju Organism-rutor (Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, virusinfektion och däggdjursceller). Kärna innehåller pipelinemodulerna, som körs i ordning; Data innehåller import, inbäddningar, jämförelse av körningar, försöksdesign, dos–respons och kvalitetskontroll; Verktyg innehåller moduler som arbetar på ett befintligt projekt snarare än steg i pipelinen; Organism öppnar Toxoplasma-handledningen och dess tillgängliga analyser. Planerade analyser markeras med Kommer snart. Skapa masker ligger under **Verktyg**."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Most modules do not have a tile; they inspect or extend work started in another module. They open from:"
 msgstr "De flesta moduler har ingen ruta; de granskar eller bygger vidare på arbete som påbörjats i en annan modul. De öppnas från:"
 
-msgid "**a button on their host's masthead** -- as a page beside that host's settings, already pointed at the same project. Investigate Hit and Prediction Profiler open from Regression; Format Converter and External Masks from Import; Layer Viewer, Control Charts and Outliers from QC."
-msgstr "**en knapp i värdmodulens huvudrad** -- som en sida bredvid värdens inställningar, redan riktad mot samma projekt. Investigate Hit och Prediction Profiler öppnas från Regression; Filformatkonverterare och Externa masker från Importera; Layer Viewer, Control Charts och Outliers från QC."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**a button on their host's masthead** -- as a page beside that host's settings, already pointed at the same project. Investigate Hit and Prediction Profiler open from Regression; Import Images, Format Converter and External Masks from Import; Layer Viewer, Control Charts and Outliers from QC. On Mask, the Timelapse button does not open a page: it shows the **Time Axes & Tracking (Beta)** settings on Mask's own form."
+msgstr "**en knapp i värdmodulens huvudrad** -- som en sida bredvid värdens inställningar, redan riktad mot samma projekt. Investigate Hit och Prediction Profiler öppnas från Regression; Importera bilder, Filformatkonverterare och Externa masker från Importera; Layer Viewer, Control Charts och Outliers från QC. I Masker öppnar knappen Tidsserie ingen sida: den visar inställningarna **Tidsaxlar och spårning (beta)** i formuläret för Masker."
 
 msgid "**the Help menu**, for the ones that inspect or administer work that already exists rather than belonging behind any one module -- Run History, Pipeline Graph, Project Browser, Database Browser, Report, Data Manager, Plate Queue, Batch Runner and Distributed Jobs."
 msgstr "**Hjälp-menyn**, för de moduler som granskar eller administrerar arbete som redan finns snarare än hör hemma bakom någon enskild modul -- Körningshistorik, Pipeline Graph, Project Browser, Databasutforskare, Rapport, Datahanterare, Plattkö, Batchkörning och Distribuerade jobb."
@@ -168,7 +172,8 @@ msgstr "Öppnas från dess huvudrad"
 msgid "Timelapse"
 msgstr "Tidsserie"
 
-msgid "Illumination Correction, AnnData Export, Motility Assay"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Illumination, AnnData Export, Motility Assay"
 msgstr "Belysningskorrigering, AnnData-export, Motilitetsanalys"
 
 msgid "Annotate"
@@ -180,14 +185,16 @@ msgstr "Annotatörsöverensstämmelse"
 msgid "Classify"
 msgstr "Klassificering"
 
-msgid "Classifier Evaluation, Explain CV Model, Activation Maps"
-msgstr "Klassificerarutvärdering, Förklara CV-modell, Aktiveringskartor"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Classifier Evaluation, Explain CV Model, Activation, Training Runs, Feature Explorer"
+msgstr "Klassificerarutvärdering, Förklara CV-modell, Aktivering, Träningskörningar, Egenskapsutforskare"
 
 msgid "Barcode QC"
 msgstr "Streckkods-QC"
 
-msgid "Volcano Explorer, Hit List, Methods & Results"
-msgstr "Utforska vulkandiagram, Träfflista, Metod och resultat"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Volcano Explorer, Hit List, Methods & Results, Diagnostics"
+msgstr "Utforska vulkandiagram, Träfflista, Metod och resultat, Diagnostik"
 
 msgid "Image UMAP"
 msgstr "Bild-UMAP"
@@ -198,8 +205,25 @@ msgstr "Bildspridningsdiagram, PCA"
 msgid "Make Masks"
 msgstr "Skapa masker"
 
-msgid "Cellpose Workbench, Mask the whole folder, Model Compare, Model Zoo, Curate, Napari Bridge"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Cellpose Workbench, Mask folder, Model Compare, Model Zoo, Curate, Napari Bridge"
 msgstr "Cellpose-verkstad, Maskera hela mappen, Modelljämförelse, Modellbibliotek, Kurera, Napari-brygga"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Graph Builder"
+msgstr "Diagrambyggare"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Plate Viewer, Small Multiples"
+msgstr "Plattvisare, Små multiplar"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Database Browser"
+msgstr "Databasbläddrare"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Lineage, Tabulate"
+msgstr "Härstamning, Tabulera"
 
 msgid "Parameter Sweep is reached a third way: it is a panel on the Regression screen, opened by the **Parameter sweep** switch on its settings form."
 msgstr "Parametersvep nås på ett tredje sätt: det är en panel på skärmen Regression som öppnas med reglaget **Parametergenomsökning** i dess inställningsformulär."
@@ -208,9 +232,9 @@ msgstr "Parametersvep nås på ett tredje sätt: det är en panel på skärmen R
 msgid "Starting spaCR"
 msgstr "Starta spaCR"
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "spaCR opens with a black container holding the spaCR logo as a photomosaic. The logo holds still while the window loads, then the mosaic blows away tile by tile and the container fades to show the window. A click or a key skips it. The sequence is off when **Preferences → Appearance → Animation → Startup animation** is cleared (the mosaic then shows without the animation), while **Reduce motion** is on, and when the ``SPACR_NO_SPLASH`` environment variable is set to ``1`` (the mosaic is then not shown at all). **Help → Show startup animation** plays it again inside the open window, even when Startup animation is off; under Reduce motion the logo holds and then cross-fades away."
-msgstr "spaCR öppnas med en svart ruta som visar spaCR-logotypen som en fotomosaik. Logotypen står stilla medan fönstret laddas; sedan blåser mosaiken bort ruta för ruta och behållaren tonas bort så att fönstret visas. Ett klick eller en tangent hoppar över sekvensen. Sekvensen är avstängd när **Inställningar → Utseende → Animation → Startanimation** är avmarkerat (mosaiken visas då utan animation), när **Minska rörelse** är på och när miljövariabeln ``SPACR_NO_SPLASH`` är satt till ``1`` (då visas inte mosaiken alls). **Hjälp → Visa startanimation** spelar upp den igen i det öppna fönstret, även när Startanimation är avstängt; med Minska rörelse står logotypen stilla och tonas sedan bort."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "spaCR opens with a black container holding the spaCR logo as a photomosaic. The logo holds still while the window loads, then the mosaic blows away tile by tile and the container fades to show the window. A click or a key skips it. The sequence is off when **Preferences → Appearance → Animation → Startup animation** is cleared (the mosaic then shows without the animation), while **Reduce motion** is on, and when the ``SPACR_NO_SPLASH`` environment variable is set to any value other than ``0``, ``false``, ``no`` or ``off`` (the mosaic is then not shown at all). **Help → Show startup animation** plays it again inside the open window, even when Startup animation is off; under Reduce motion the logo holds and then cross-fades away."
+msgstr "spaCR öppnas med en svart ruta som visar spaCR-logotypen som en fotomosaik. Logotypen står stilla medan fönstret laddas; sedan blåser mosaiken bort ruta för ruta och behållaren tonas bort så att fönstret visas. Ett klick eller en tangent hoppar över sekvensen. Sekvensen är avstängd när **Inställningar → Utseende → Animation → Startanimation** är avmarkerat (mosaiken visas då utan animation), när **Minska rörelse** är på och när miljövariabeln ``SPACR_NO_SPLASH`` är satt till något annat värde än ``0``, ``false``, ``no`` eller ``off`` (då visas inte mosaiken alls). **Hjälp → Visa startanimation** spelar upp den igen i det öppna fönstret, även när Startanimation är avstängt; med Minska rörelse står logotypen stilla och tonas sedan bort."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The window opens **Borderless** by default: it has no title bar, fills the work area of its screen, and its menu bar moves it while the marks at the right end of the bar minimise, maximise and close it. Clear **Help → Window → Borderless window** to use the platform's own framed window instead. The choice is remembered."
@@ -340,14 +364,13 @@ msgstr "Verkställ, Avbryt och Spara fungerar som för alla andra inställningar
 msgid "Data-art themes"
 msgstr "Teman med datakonst"
 
-# AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Under **Preferences** → **Appearance**, **Theme** selects the interface palette; the ten night palettes remain available. **Animation** chooses a decorative background independently, or **None** to stop it. These backgrounds do not display project measurements. The main window defaults to **spaCR field**; the Settings backdrop defaults to **None**."
-msgstr "Under **Inställningar** → **Utseende** väljer **Tema** gränssnittets palett; de tio nattpaletterna finns kvar. **Animation** väljer en dekorativ bakgrund oberoende av detta, eller **Ingen** för att stoppa den. Bakgrunderna visar inga projektmätningar. Huvudfönstret använder **spaCR field** som standard; inställningsfönstrets bakgrund är **Ingen** som standard."
+msgid "Under **Preferences** → **Appearance**, **Theme** selects the interface palette; the ten night palettes remain available. **Animation** chooses a decorative background independently, or **None** to stop it. These backgrounds do not display project measurements. The main window defaults to **spaCR field**; the Settings backdrop defaults to **spaCR stratified**."
+msgstr "Under **Inställningar** → **Utseende** väljer **Tema** gränssnittets palett; de tio nattpaletterna finns kvar. **Animation** väljer en dekorativ bakgrund oberoende av detta, eller **Ingen** för att stoppa den. Bakgrunderna visar inga projektmätningar. Huvudfönstret använder **spaCR field** som standard; inställningsfönstrets bakgrund använder **spaCR stratified** som standard."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The animation menu lists **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**, and **spaCR spinn**, in that order."
-msgstr "Animationsmenyn listar **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified** och **spaCR spinn**, i den ordningen."
+msgid "The animation menu lists **spaCR field**, **spaCR advection**, **spaCR waves**, **spaCR blobs** and **spaCR stratified**, in that order, followed by **None**. **spaCR growth**, **spaCR aurora** and **spaCR spinn** are listed only when spaCR is started with the ``spaceout`` command."
+msgstr "Animationsmenyn listar **spaCR field**, **spaCR advection**, **spaCR waves**, **spaCR blobs** och **spaCR stratified**, i den ordningen, följt av **Ingen**. **spaCR growth**, **spaCR aurora** och **spaCR spinn** listas bara när spaCR startas med kommandot ``spaceout``."
 
 msgid "**spaCR field** — A crisp gravitational dot field with optional local mouse influence and expanding ripples."
 msgstr "**spaCR field** — Ett skarpt gravitationsfält av punkter med valfri lokal muspåverkan och växande ringvågor."
@@ -379,9 +402,9 @@ msgstr "**spaCR stratified** — Ett långsamt stjärnfält rör sig i tre djupl
 msgid "**spaCR spinn** — Fine paper facets move gently and spin locally in response to the mouse. Rotation is fastest beside the pointer and fades smoothly to zero at the Mouse gravity radius; changing the radius changes the affected area."
 msgstr "**spaCR spinn** — Små pappersfacetter rör sig försiktigt och roterar lokalt som svar på muspekaren. Rotationen är snabbast nära pekaren och avtar jämnt till noll vid musgravitationens radie; radien bestämmer vilket område som påverkas."
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **15%**; set it to **0** to disable mouse influence. **Animation density** changes the number of elements independently of **Animation detail**, which changes drawing resolution. Density has a minimum of **1%**; increasing Detail does not trim the chosen population. The renderer bounds its sampling work within the screen's pixel budget. Select **Random** in **Animation palette** for per-element colours. Fresh installations use **Dark**, **spaCR field** and the **spaCR** animation palette, with Density **10%**, Gravity **10%**, Detail, Speed and Size **100%**, and Page opacity **60%**. **Dot blinking** controls the percentage of visible dots that flash white: **0** switches it off (the default), and nonzero values range from 0.00001% to 10%. The setting applies to spaCR field, spaCR advection, spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative perimeter length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle. Existing saved preferences remain in effect until changed or reset."
-msgstr "**Musgravitationens radie** anger det påverkade området som en procentandel av skärmens kortare kant. Standardvärdet är **15%**; välj **0** för att stänga av musens påverkan. **Animationstäthet** ändrar antalet element oberoende av **Animationsdetaljer**, som ändrar ritupplösningen. Täthetens lägsta värde är **1%**; ökad detaljnivå minskar inte det valda antalet element. Renderaren begränsar sitt samplingsarbete till skärmens pixelbudget. Välj **Slumpmässig** i **Animeringspalett** för individuella färger. Nya installationer använder **Mörkt**, **spaCR field** och animeringspaletten **spaCR**, med täthet **10%**, gravitation **10%**, detaljnivå, hastighet och storlek **100%** samt sidopacitet **60%**. **Blinkande punkter** anger andelen synliga punkter som blinkar vitt: **0** stänger av blinkningen och är standardvärdet; värden över noll ligger mellan 0.00001% och 10%. Inställningen gäller spaCR field, spaCR advection, spaCR waves och spaCR stratified. Fältets toning är på. Den blå kanten använder en relativ omkretslängd på **17%**, följsamhet **50%**, centrerad placering, läget **Beat** och en cykel på **1.5 s**. Befintliga sparade inställningar gäller tills de ändras eller återställs."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **10%**; set it to **0** to disable mouse influence. **Animation density** changes the number of elements independently of **Animation detail**, which changes drawing resolution. Density has a minimum of **1%**; increasing Detail does not trim the chosen population. The renderer bounds its sampling work within the screen's pixel budget. Select **Random** in **Animation palette** for per-element colours. Fresh installations use **Dark**, **spaCR field** and the **spaCR** animation palette, with Density **10%**, Gravity **10%**, Detail, Speed and Size **100%**, and Page opacity **60%**. **Dot blinking** controls the percentage of visible dots that flash white: **0** switches it off (the default), and nonzero values range from 0.00001% to 10%. The setting applies to spaCR field, spaCR advection, spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative perimeter length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle. Existing saved preferences remain in effect until changed or reset."
+msgstr "**Musgravitationens radie** anger det påverkade området som en procentandel av skärmens kortare kant. Standardvärdet är **10%**; välj **0** för att stänga av musens påverkan. **Animationstäthet** ändrar antalet element oberoende av **Animationsdetaljer**, som ändrar ritupplösningen. Täthetens lägsta värde är **1%**; ökad detaljnivå minskar inte det valda antalet element. Renderaren begränsar sitt samplingsarbete till skärmens pixelbudget. Välj **Slumpmässig** i **Animeringspalett** för individuella färger. Nya installationer använder **Mörkt**, **spaCR field** och animeringspaletten **spaCR**, med täthet **10%**, gravitation **10%**, detaljnivå, hastighet och storlek **100%** samt sidopacitet **60%**. **Blinkande punkter** anger andelen synliga punkter som blinkar vitt: **0** stänger av blinkningen och är standardvärdet; värden över noll ligger mellan 0.00001% och 10%. Inställningen gäller spaCR field, spaCR advection, spaCR waves och spaCR stratified. Fältets toning är på. Den blå kanten använder en relativ omkretslängd på **17%**, följsamhet **50%**, centrerad placering, läget **Beat** och en cykel på **1.5 s**. Befintliga sparade inställningar gäller tills de ändras eller återställs."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Animation background colour** sets the background independently of the animation palette. Until you choose a colour, it follows the page theme; **Theme colour** restores that behaviour. The chosen colour's brightness is kept within the active Dark or Light theme's range. It applies to the main window, module screens and animated settings popups. A full-screen wallpaper can cover the background fill."
@@ -430,14 +453,13 @@ msgstr "Dessa storlekar sparas mellan sessionerna."
 msgid "To resize a popup, point at one of its edges or corners. A thin blue guide line appears across the middle half of each side you can drag. Drag from anywhere along that edge or corner; the line only marks the side."
 msgstr "Om du vill ändra storlek på ett popupfönster pekar du på någon av dess kanter eller hörn. En tunn blå hjälplinje visas över den mittersta halvan av varje sida som du kan dra i. Dra var som helst längs den kanten eller det hörnet; linjen markerar bara sidan."
 
-# AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Make Masks edits integer label masks by hand. Its masthead opens related screens, including Cellpose Workbench, Model Compare, Model Zoo and Curate. Its canvas has eleven tools: Brush, Erase, Erase object, Wand, Draw, Box, Edit Label, Divide / Merge, Zoom, Recrop and Ruler. Wand adds a region by default; hold Ctrl while clicking to remove it. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement. Volumes (TIFF stacks, OME-TIFF and MRC) open in the same view with a slice slider and a View list of Default, Orthogonal and True 3D; electron micrographs (``.dm3``, ``.dm4``, ``.mrc``) have a contrast preset. See :ref:`3D volumes <mm-volumes>` and :ref:`electron micrographs <mm-tem>`."
-msgstr "Make Masks redigerar etikettmasker med heltalsvärden för hand. Dess sidhuvud öppnar relaterade skärmar, bland annat Cellpose Workbench, Model Compare, Model Zoo och Curate. Dess arbetsyta har elva verktyg: Brush, Erase, Radera objekt, Trollstav, Rita, Ruta, Redigera etikett, Dela / Slå samman, Zoom, Beskär igen och Linjal. Trollstav lägger till ett område som standard; håll Ctrl nedtryckt medan du klickar för att ta bort det. :doc:`Referensen för Make Masks <make_masks>` beskriver dessa verktyg, Nivåer, detekteringsinställningar, parkoppling av primär och sekundär mask, sparande och mätning. Volymer (TIFF-stackar, OME-TIFF och MRC) öppnas i samma vy med ett skjutreglage för snitt och en View-lista med Standardvärde, Ortogonal och True 3D; elektronmikrografer (``.dm3``, ``.dm4``, ``.mrc``) har en kontrastförinställning. Se :ref:`3D-volymer <mm-volumes>` och :ref:`elektronmikrografer <mm-tem>`."
+msgid "Make Masks edits integer label masks by hand. Its masthead opens related screens, including Cellpose Workbench, Model Compare, Model Zoo and Curate. Its canvas has eleven tools: Brush, Erase, Erase object, Wand, Draw, Box, Edit Label, Divide / Merge, Zoom, Recrop and Ruler; a twelfth, Pick, is shown while mask layers are loaded. Wand adds a region by default; hold Ctrl while clicking to remove it. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement. Volumes (TIFF stacks, OME-TIFF and MRC) open in the same view with a slice slider and a View list of Default, Orthogonal and True 3D; electron micrographs (``.dm3``, ``.dm4``, ``.mrc``) have a contrast preset. See :ref:`3D volumes <mm-volumes>` and :ref:`electron micrographs <mm-tem>`."
+msgstr "Make Masks redigerar etikettmasker med heltalsvärden för hand. Dess sidhuvud öppnar relaterade skärmar, bland annat Cellpose Workbench, Model Compare, Model Zoo och Curate. Dess arbetsyta har elva verktyg: Brush, Erase, Radera objekt, Trollstav, Rita, Ruta, Redigera etikett, Dela / Slå samman, Zoom, Beskär igen och Linjal; ett tolfte, Pick, visas medan masklager är inlästa. Trollstav lägger till ett område som standard; håll Ctrl nedtryckt medan du klickar för att ta bort det. :doc:`Referensen för Make Masks <make_masks>` beskriver dessa verktyg, Nivåer, detekteringsinställningar, parkoppling av primär och sekundär mask, sparande och mätning. Volymer (TIFF-stackar, OME-TIFF och MRC) öppnas i samma vy med ett skjutreglage för snitt och en View-lista med Standardvärde, Ortogonal och True 3D; elektronmikrografer (``.dm3``, ``.dm4``, ``.mrc``) har en kontrastförinställning. Se :ref:`3D-volymer <mm-volumes>` och :ref:`elektronmikrografer <mm-tem>`."
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "**Box** draws independent class-labelled rectangles for YOLO annotation. Move or resize a box, undo or redo edits, and use **Save boxes** to preserve the project or **Export YOLO…** to write normalized labels and ordered class metadata. Source images and segmentation masks remain unchanged."
-msgstr "**Ruta** ritar oberoende rektanglar med klassetiketter för YOLO-annotering. Flytta eller ändra storlek på en ruta, ångra eller gör om redigeringar och använd **Spara rutor** för att bevara projektet eller **Export YOLO…** för att skriva normaliserade etiketter och klassmetadata i rätt ordning. Källbilder och segmenteringsmasker förblir oförändrade."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Box** draws independent class-labelled rectangles for YOLO annotation. Move or resize a box, undo or redo edits, and use **Save boxes** to preserve the project or **Export YOLO labels** to write normalized labels and ordered class metadata. Source images and segmentation masks remain unchanged."
+msgstr "**Ruta** ritar oberoende rektanglar med klassetiketter för YOLO-annotering. Flytta eller ändra storlek på en ruta, ångra eller gör om redigeringar och använd **Spara rutor** för att bevara projektet eller **Exportera YOLO-etiketter** för att skriva normaliserade etiketter och klassmetadata i rätt ordning. Källbilder och segmenteringsmasker förblir oförändrade."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Edit Label** asks for a new whole-number ID for the clicked object and gives that ID to every pixel that carries the object's current ID. Entering ``0`` removes the object. An ID that already belongs to another object is refused before any pixel changes. Each change is one undo step."
@@ -571,8 +593,8 @@ msgid "Before a module starts its workers, spaCR estimates how much memory each 
 msgstr "Innan en modul startar sina arbetsprocesser skattar spaCR hur mycket minne varje arbetsprocess behöver för en indataenhet, till exempel ett fält, en mask, en utsnittsbatch eller en tabell. Om det ``n_jobs`` du har angett skulle lämna mindre än 12,5 % av datorns RAM ledigt visar ett popupfönster skattningen, det lediga minnet och antalet arbetsprocesser som får plats. Välj **Använd N arbetsprocesser (rekommenderas)** för att köra med det antalet, eller behåll ditt eget antal; Mätning pausar då nya fält när det lediga minnet sjunker under reserven. **Frigör RAM genom att stänga program…** listar dina egna största program. Ingenting är markerat från början, och bara de program du markerar ombeds avsluta, efter att du har bekräftat; de kan oftast spara först, men osparat arbete i dem kan ändå gå förlorat."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Runs started without the GUI lower ``n_jobs`` to the number that keeps the reserve free and print a warning. Turn ``ram_guard`` off in **Advanced** to keep your ``n_jobs`` unchanged; Measure still waits while free memory is below the reserve."
-msgstr "Körningar som startas utan GUI sänker ``n_jobs`` till det antal som håller reserven ledig och skriver ut en varning. Stäng av ``ram_guard`` under **Avancerat** för att behålla ditt ``n_jobs`` oförändrat; Mätning väntar fortfarande medan det lediga minnet ligger under reserven."
+msgid "Runs started without the GUI lower ``n_jobs`` to the number that keeps the reserve free and print a warning. Turn ``ram_guard`` off in the module's **Runtime & Reliability** settings (**Quality Control** on Mask) to keep your ``n_jobs`` unchanged; Measure still waits while free memory is below the reserve."
+msgstr "Körningar som startas utan GUI sänker ``n_jobs`` till det antal som håller reserven ledig och skriver ut en varning. Stäng av ``ram_guard`` i modulens inställningar under **Körning och tillförlitlighet** (**Kvalitetskontroll** i Masker) för att behålla ditt ``n_jobs`` oförändrat; Mätning väntar fortfarande medan det lediga minnet ligger under reserven."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Worker startup and final retries"
@@ -589,8 +611,9 @@ msgstr "När en uppgift har förbrukat sina vanliga försök på grund av en ide
 msgid "Maturity labels"
 msgstr "Mognadsnivåer"
 
-msgid "The API uses these labels consistently:"
-msgstr "API:t använder dessa etiketter konsekvent:"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The API documentation marks entry points with these labels:"
+msgstr "API-dokumentationen markerar ingångspunkter med följande etiketter:"
 
 msgid "**Stable**"
 msgstr "**Stabil**"

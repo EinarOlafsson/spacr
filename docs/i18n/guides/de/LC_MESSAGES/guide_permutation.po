@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: de\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Plate-aware guide permutation analysis"
 msgstr "Plattenbewusste Guide-Permutationsanalyse"
 
-msgid "Use the guide permutation analysis when the independent experimental unit is a well and a simultaneous guide model is not identifiable because there are more guide columns than wells or because guide fractions are highly correlated.  ``inference='nonparametric'`` (the default) runs it, and ``inference='auto'`` chooses it whenever the simultaneous fit would be unidentifiable; either way the run records ``analysis_mode='guide_permutation'``.  The mode uses the same paired per-cell score and sequencing-count CSV inputs (``paired_data``) as :func:`spacr.ml.perform_regression`."
-msgstr "Verwenden Sie die Guide-Permutationsanalyse, wenn die unabhängige experimentelle Einheit ein Well ist und ein simultanes Guide-Modell nicht identifizierbar ist, weil es mehr Guide-Spalten als Wells gibt oder weil die Guide-Anteile stark korreliert sind. ``inference='nonparametric'`` (die Voreinstellung) führt sie aus, und ``inference='auto'`` wählt sie immer dann, wenn die simultane Anpassung nicht identifizierbar wäre; in beiden Fällen zeichnet die Ausführung ``analysis_mode='guide_permutation'`` auf. Der Modus verwendet dieselben gepaarten CSV-Eingaben mit Scores pro Zelle und Sequenzierzählungen (``paired_data``) wie :func:`spacr.ml.perform_regression`."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Use the guide permutation analysis when the independent experimental unit is a well and a simultaneous guide model is not identifiable because there are more guide columns than wells or because guide fractions are highly correlated.  ``inference='nonparametric'`` (the default) runs it, and ``inference='auto'`` chooses it unless the analysed wells number at least twice the simultaneous model's parameters (one per guide, an intercept and one per additional plate); either way the run records ``analysis_mode='guide_permutation'``.  The mode uses the same paired per-cell score and sequencing-count CSV inputs (``paired_data``) as :func:`spacr.ml.perform_regression`."
+msgstr "Verwenden Sie die Guide-Permutationsanalyse, wenn die unabhängige experimentelle Einheit ein Well ist und ein simultanes Guide-Modell nicht identifizierbar ist, weil es mehr Guide-Spalten als Wells gibt oder weil die Guide-Anteile stark korreliert sind. ``inference='nonparametric'`` (die Voreinstellung) führt sie aus, und ``inference='auto'`` wählt sie, sofern die Zahl der analysierten Wells nicht mindestens doppelt so groß ist wie die Zahl der Parameter des simultanen Modells (einer pro Guide, ein Achsenabschnitt und einer pro zusätzlicher Platte); in beiden Fällen zeichnet die Ausführung ``analysis_mode='guide_permutation'`` auf. Der Modus verwendet dieselben gepaarten CSV-Eingaben mit Scores pro Zelle und Sequenzierzählungen (``paired_data``) wie :func:`spacr.ml.perform_regression`."
 
 msgid "Each guide is tested separately after its well-level fraction and the well-level phenotype have both been adjusted for plate (and any optional measured nuisance columns).  Two-sided empirical P values come from Freedman--Lane residual permutations restricted within plate.  Multiple-test correction is then applied separately within each requested minimum-support family.  These are marginal associations: co-occurring guides may share a signal, so the output is not a set of mutually adjusted causal coefficients."
 msgstr "Jeder Guide wird einzeln getestet, nachdem sowohl sein Anteil auf Well-Ebene als auch der Phänotyp auf Well-Ebene um die Platte (und etwaige optionale gemessene Störspalten) bereinigt wurden. Zweiseitige empirische P-Werte stammen aus Freedman--Lane-Residuenpermutationen, die auf die jeweilige Platte beschränkt sind. Die Korrektur für multiples Testen wird anschließend getrennt innerhalb jeder angeforderten Mindestabdeckungs-Familie angewendet. Es handelt sich um marginale Assoziationen: Gemeinsam auftretende Guides können ein Signal teilen, daher ist die Ausgabe keine Menge wechselseitig bereinigter kausaler Koeffizienten."
@@ -37,8 +38,9 @@ msgstr "Die wichtigen Ausgabespalten sind ``wells_with_guide``, ``standardized_m
 msgid "Multiple-testing choices"
 msgstr "Optionen für multiples Testen"
 
-msgid "``multiple_testing_method`` accepts ``fdr_bh`` (Benjamini--Hochberg), ``fdr_by``, ``bonferroni``, ``holm`` or ``none``.  ``fdr_bh`` is the default. For reproducibility, record the requested support families, permutation count, seed, blocking column, nuisance columns, presence threshold, correction method and alpha together with the input-file checksums."
-msgstr "``multiple_testing_method`` akzeptiert ``fdr_bh`` (Benjamini--Hochberg), ``fdr_by``, ``bonferroni``, ``holm`` oder ``none``. ``fdr_bh`` ist die Voreinstellung. Zur Reproduzierbarkeit sollten Sie die angeforderten Abdeckungsfamilien, die Anzahl der Permutationen, den Seed, die Blockierungsspalte, die Störspalten, den Präsenzschwellenwert, das Korrekturverfahren und Alpha zusammen mit den Prüfsummen der Eingabedateien festhalten."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "``multiple_testing_method`` accepts ``none``, ``bonferroni``, ``sidak``, ``holm``, ``holm_sidak``, ``simes_hochberg``, ``hommel``, ``fdr_bh`` (Benjamini--Hochberg), ``fdr_by``, ``fdr_tsbh``, ``fdr_tsbky``, ``fdr_gbs`` or ``storey``.  ``fdr_bh`` is the default. For reproducibility, record the requested support families, permutation count, seed, blocking column, nuisance columns, presence threshold, correction method and alpha together with the input-file checksums."
+msgstr "``multiple_testing_method`` akzeptiert ``none``, ``bonferroni``, ``sidak``, ``holm``, ``holm_sidak``, ``simes_hochberg``, ``hommel``, ``fdr_bh`` (Benjamini--Hochberg), ``fdr_by``, ``fdr_tsbh``, ``fdr_tsbky``, ``fdr_gbs`` oder ``storey``. ``fdr_bh`` ist die Voreinstellung. Zur Reproduzierbarkeit sollten Sie die angeforderten Abdeckungsfamilien, die Anzahl der Permutationen, den Seed, die Blockierungsspalte, die Störspalten, den Präsenzschwellenwert, das Korrekturverfahren und Alpha zusammen mit den Prüfsummen der Eingabedateien festhalten."
 
 msgid "Direct analysis of an existing long table"
 msgstr "Direkte Analyse einer vorhandenen Langtabelle"

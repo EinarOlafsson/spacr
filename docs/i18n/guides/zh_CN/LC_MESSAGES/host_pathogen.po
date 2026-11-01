@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-17 21:05-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -45,8 +45,9 @@ msgstr "关闭 **实时**，如果运行控件已折叠，请展开 **操作**�
 msgid "Follow the `Host–Pathogen video walkthrough <tutorials/#lesson=85_host_pathogen>`_ for the complete example."
 msgstr "完整示例请参阅 `宿主–病原体视频教程 <tutorials/#lesson=85_host_pathogen>`_。"
 
-msgid "The `Host–Pathogen dataset <https://huggingface.co/datasets/einarolafsson/spacr-example-host-pathogen/tree/83b73d7a0c4f8a9ea145304c2ba90acc16768031>`_ contains two acquired THP-1/RNF213 fields, four intensity channels and prepared automatic masks. Its measurements cover 164 host cells, 189 nuclei, 97 whole vacuoles and 164 cytoplasm objects across the two fields. The acquired intensity planes are unchanged; the masks underwent Measure's normal parent/child reconciliation so the distributed outlines match measured objects. The dataset card and ``example_manifest.json`` describe the source fields, preparation and checks. These masks are not manually validated ground truth."
-msgstr "`宿主–病原体数据集 <https://huggingface.co/datasets/einarolafsson/spacr-example-host-pathogen/tree/83b73d7a0c4f8a9ea145304c2ba90acc16768031>`_ 包含两个采集的 THP-1/RNF213 视野、四个强度通道和预先生成的自动掩膜。其测量覆盖两个视野中的 164 个宿主细胞、189 个细胞核、97 个完整纳虫泡和 164 个细胞质对象。采集的强度平面未作改动；掩膜经过了测量模块常规的父/子对象协调，使分发的轮廓与已测量对象一致。数据集卡片和 ``example_manifest.json`` 描述了源视野、准备过程和检查。这些掩膜并非经过人工验证的真值。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The `Host–Pathogen dataset <https://huggingface.co/datasets/einarolafsson/spacr-example-host-pathogen/tree/83b73d7a0c4f8a9ea145304c2ba90acc16768031>`_ contains two acquired THP-1/RNF213 fields, four intensity channels and prepared automatic masks. Its measurements cover 164 host cells and 97 whole vacuoles across the two fields, with nucleus and cytoplasm tables. The acquired intensity planes are unchanged; the masks underwent Measure's normal parent/child reconciliation so the distributed outlines match measured objects. The dataset card and ``example_manifest.json`` describe the source fields, preparation and checks. These masks are not manually validated ground truth."
+msgstr "`宿主–病原体数据集 <https://huggingface.co/datasets/einarolafsson/spacr-example-host-pathogen/tree/83b73d7a0c4f8a9ea145304c2ba90acc16768031>`_ 包含两个采集的 THP-1/RNF213 视野、四个强度通道和预先生成的自动掩膜。其测量覆盖两个视野中的 164 个宿主细胞和 97 个完整纳虫泡，并附有细胞核和细胞质表。采集的强度平面未作改动；掩膜经过了测量模块常规的父/子对象协调，使分发的轮廓与已测量对象一致。数据集卡片和 ``example_manifest.json`` 描述了源视野、准备过程和检查。这些掩膜并非经过人工验证的真值。"
 
 msgid "The supplied settings compare vacuole RNF213 means with their associated host cytoplasm means in channel 1. Marker thresholds are deliberately unset: ratios are available, while positive/negative marker states remain unknown until you choose suitable control-calibrated thresholds. Individual-parasite counts are not supplied, so replication remains ``not_measured``. This small sample does not establish biological differences between its control conditions."
 msgstr "随附设置比较通道 1 中纳虫泡 RNF213 均值与其相关宿主细胞质均值。标记阈值故意未设置：比值可用，但在您选择经对照校准的合适阈值之前，阳性/阴性标记状态仍为未知。未提供单个寄生虫计数，因此复制状态保持为 ``not_measured``。这个小样本不能确立其对照条件之间的生物学差异。"
@@ -57,8 +58,9 @@ msgstr "命令行下载命令为 ``spacr-download host_pathogen``。预先准备
 msgid "Inspect one field before running"
 msgstr "运行前检查单个视野"
 
-msgid "After selecting a measured project in **Source**, enable the bottom **Live** control. The preview uses the current form settings and the same analysis functions as a full run. Select **Run preview** for the initial calculation. While the panel remains visible, later settings changes refresh that preview. Use **Refresh** to reload the field choices and **Cancel** to cancel a pending preview. Preview reads the measurements database without writing result files."
-msgstr "在 **来源** 中选择已测量的项目后，启用底部的 **实时** 控件。预览使用当前表单设置以及与完整运行相同的分析函数。选择 **运行预览** 进行初次计算。面板保持可见时，之后的设置更改会刷新该预览。使用 **刷新** 重新加载视野选项，使用 **取消** 取消待处理的预览。预览只读取测量数据库，不写入结果文件。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "After selecting a measured project in **Source**, enable the bottom **Live** control. The preview uses the current form settings and the same analysis functions as a full run. Select **Run preview** for the initial calculation. While the panel remains visible, later settings changes refresh that preview. Changing the source reloads the field choices; **Cancel** cancels a pending preview. Preview reads the measurements database without writing result files."
+msgstr "在 **来源** 中选择已测量的项目后，启用底部的 **实时** 控件。预览使用当前表单设置以及与完整运行相同的分析函数。选择 **运行预览** 进行初次计算。面板保持可见时，之后的设置更改会刷新该预览。更改来源会重新加载视野选项；**取消** 会取消待处理的预览。预览只读取测量数据库，不写入结果文件。"
 
 msgid "Its host counts and infection fractions describe the selected field only. They are not whole-well denominators. Fields containing vacuoles without measured host cells remain available. Missing or zero reference intensities produce unknown marker states; an unknown state must not be read as negative."
 msgstr "其宿主数量和感染比例仅描述所选视野，并不是整孔的分母。包含纳虫泡但没有已测量宿主细胞的视野仍然可用。参照强度缺失或为零会产生未知的标记状态；未知状态不得被解读为阴性。"

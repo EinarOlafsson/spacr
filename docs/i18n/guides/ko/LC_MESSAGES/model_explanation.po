@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 13:26-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -36,8 +36,9 @@ msgstr "**CV 모델 설명** 모듈은 측정된 형태 중 무엇이 모델의 
 msgid "**Investigate Hit** asks which cells in wells supporting a regression hit have morphology consistent with that hit."
 msgstr "**Investigate Hit** 은 회귀 히트를 뒷받침하는 웰의 세포 중 어떤 세포가 그 히트와 일치하는 형태를 보이는지 묻습니다."
 
-msgid "The last result is weakly supervised evidence, not a cell-resolved barcode. The UI and exports therefore use ``EAF1-hit-like`` and ``hit_like_probability`` rather than calling a cell ``EAF1-KO``."
-msgstr "마지막 결과는 약한 지도 학습에 기반한 증거이지 세포 단위 바코드가 아닙니다. 따라서 UI와 내보낸 결과는 세포를 ``EAF1-KO`` 라고 부르지 않고 ``EAF1-hit-like`` 와 ``hit_like_probability`` 를 사용합니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The last result is weakly supervised evidence, not a cell-resolved barcode. The UI therefore labels candidate cells ``<gene>-hit-like`` (for example ``EAF1-hit-like``) and the exports use ``hit_like_probability``, rather than calling a cell a knockout such as ``EAF1-KO``."
+msgstr "마지막 결과는 약한 지도 학습에 기반한 증거이지 세포 단위 바코드가 아닙니다. 따라서 UI는 세포를 ``EAF1-KO`` 와 같은 녹아웃으로 부르지 않고 후보 세포에 ``<gene>-hit-like`` (예: ``EAF1-hit-like``) 레이블을 붙이며, 내보낸 결과는 ``hit_like_probability`` 를 사용합니다."
 
 msgid "Explain CV Model"
 msgstr "CV 모델 설명"
@@ -117,8 +118,9 @@ msgstr "데이터베이스 어노테이션은 전용 출처 표에서 버전이 
 msgid "Evidence ladder"
 msgstr "증거의 단계"
 
-msgid "A coherent UMAP/PCA population is useful exploratory evidence but is not ground truth. Confidence increases with negative and positive controls, independent guides, replicate plates, well/plate cross-fitting, refitted nulls, bootstrap stability, blinded review, and agreement between measured-feature SHAP and pixel-level attribution. The strongest validation is an orthogonal experiment that assigns perturbation identity per cell, such as an arrayed perturbation/rescue or direct in-situ guide-barcode readout."
-msgstr "일관된 UMAP/PCA 집단은 유용한 탐색적 증거이지만 정답은 아닙니다. 음성 및 양성 대조군, 독립적인 가이드, 반복 플레이트, 웰/플레이트 교차 적합, 다시 적합한 귀무 모델, 부트스트랩 안정성, 눈가림 검토, 측정 특징 SHAP과 픽셀 수준 기여도의 일치가 더해질수록 신뢰도가 높아집니다. 가장 강력한 검증은 배열형 교란/구제나 직접적인 현장(in situ) 가이드 바코드 판독처럼 세포별로 교란 식별 정보를 부여하는 직교 실험입니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "A coherent UMAP/PCA population is useful exploratory evidence but is not ground truth. Confidence increases with negative and positive controls, independent guides, replicate plates, well/plate cross-fitting, refitted nulls, bootstrap stability, blinded review, and agreement between measured-feature SHAP and pixel-level attribution. None of these analyses observes perturbation identity per cell; that requires an orthogonal experiment, such as an arrayed perturbation/rescue or direct in-situ guide-barcode readout."
+msgstr "일관된 UMAP/PCA 집단은 유용한 탐색적 증거이지만 정답은 아닙니다. 음성 및 양성 대조군, 독립적인 가이드, 반복 플레이트, 웰/플레이트 교차 적합, 다시 적합한 귀무 모델, 부트스트랩 안정성, 눈가림 검토, 측정 특징 SHAP과 픽셀 수준 기여도의 일치가 더해질수록 신뢰도가 높아집니다. 이 분석 중 어느 것도 세포별 교란 식별 정보를 관찰하지 않습니다. 이를 위해서는 배열형 교란/구제나 직접적인 현장(in situ) 가이드 바코드 판독 같은 직교 실험이 필요합니다."
 
 msgid "Headless entry points"
 msgstr "헤드리스 진입점"

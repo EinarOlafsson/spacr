@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 19:56-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -37,15 +37,16 @@ msgstr "**PSF optics and kernel** 을 열어 나머지 컨트롤을 검사합니
 msgid "Without image-specific information, the starting approximation uses a 20×/0.75 air objective, a 6.5 µm camera pixel and 520 nm emission. It gives 0.325 µm image pixels and approximately 0.354 µm Gaussian FWHM. Pixel spacing is camera pixel pitch divided by magnification; the lateral Gaussian FWHM is approximated by 0.51 × emission wavelength / numerical aperture. These defaults permit a calculation; they are not measured calibration or proof of your microscope's resolution. Check them against the acquisition."
 msgstr "이미지별 정보가 없으면 초기 근사는 20×/0.75 공기 대물렌즈, 6.5 µm 카메라 픽셀, 520 nm 방출을 사용합니다. 이렇게 하면 이미지 픽셀은 0.325 µm, 가우스 FWHM은 약 0.354 µm가 됩니다. 픽셀 간격은 카메라 픽셀 크기를 배율로 나눈 값이며, 횡방향 가우스 FWHM은 0.51 × 방출 파장 / 개구수로 근사합니다. 이 기본값은 계산을 가능하게 할 뿐, 측정된 보정값이나 현미경 해상도의 증거가 아닙니다. 획득 조건과 대조해 확인합니다."
 
-msgid "In the same fold, choose **Measured kernel (TIFF/NPY)** and load your calibrated two-dimensional PSF, or keep **Gaussian approximation**. For a measured kernel, enter its pixel spacing too; it must match the image. Neither mode silently resamples a mismatched kernel."
-msgstr "같은 접힌 영역에서 **측정된 커널 (TIFF/NPY)** 을 선택하여 보정된 2차원 PSF를 불러오거나 **가우스 근사** 를 유지합니다. 측정된 커널에는 픽셀 간격도 입력하며, 이 값은 이미지와 일치해야 합니다. 어느 모드도 맞지 않는 커널을 몰래 리샘플링하지 않습니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "In the same fold, choose **Measured kernel (TIFF/NPY)** and load your calibrated two-dimensional PSF, or keep **Gaussian approximation**. For a measured kernel, enter its pixel spacing too; it must match the image. Neither mode resamples a mismatched kernel. A measured kernel file can be up to 64 MiB."
+msgstr "같은 접힌 영역에서 **측정된 커널 (TIFF/NPY)** 을 선택하여 보정된 2차원 PSF를 불러오거나 **가우스 근사** 를 유지합니다. 측정된 커널에는 픽셀 간격도 입력하며, 이 값은 이미지와 일치해야 합니다. 어느 모드도 맞지 않는 커널을 리샘플링하지 않습니다. 측정된 커널 파일은 최대 64 MiB까지 가능합니다."
 
 msgid "Wait for the kernel to load, then use **Compare** to inspect its effect. Set **Deconvolution iterations** when using Richardson–Lucy and choose **Apply** to use the result for detection. Start with a modest iteration count and inspect noise as well as object boundaries. **Reload** rereads a kernel file after you change it. **Off** disables PSF processing."
 msgstr "커널이 로드될 때까지 기다린 다음 **비교하기** 로 효과를 검사합니다. Richardson–Lucy를 사용할 때는 **디컨볼루션 반복 횟수** 를 설정하고, 결과를 검출에 사용하려면 **적용** 을 선택합니다. 적당한 반복 횟수로 시작하고 객체 경계뿐 아니라 잡음도 검사합니다. **다시 불러오기** 는 커널 파일을 변경한 후 다시 읽습니다. **꺼짐** 은 PSF 처리를 끕니다."
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "In Generate Masks, PSF and enhancement preprocessing is recorded in ``psf/segmentation_application.json``. If processing is requested or a prior record exists, reuse of normalized V1 archives checks the requested processing configuration, ordered source channels, exact field set and archive hashes against the completed record. Switching processing off does not bypass a record from an earlier run. If validation fails, enable preprocessing to rebuild the complete archive set from ``stack/``; restore the original images first if the stacks are unavailable. Changing ``resume`` alone does not make incompatible inputs reusable. See :doc:`checkpoint_resume`."
-msgstr "Generate Masks에서는 PSF 및 향상 전처리가 ``psf/segmentation_application.json`` 에 기록됩니다. 처리를 요청했거나 이전 기록이 있으면 정규화 V1 아카이브를 재사용하기 전에 요청된 처리 구성, 순서가 있는 소스 채널, 정확한 시야 집합 및 아카이브 해시를 완료된 기록과 비교합니다. 처리를 꺼도 이전 실행의 기록을 건너뛰지 않습니다. 검증이 실패하면 전처리를 켜서 ``stack/`` 에서 전체 아카이브 세트를 다시 만드세요. 스택을 사용할 수 없다면 먼저 원본 이미지를 복원하세요. ``resume`` 만 변경해도 호환되지 않는 입력을 재사용할 수 있게 되지는 않습니다. :doc:`checkpoint_resume` 를 참조하세요."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "In Mask generation, PSF and enhancement preprocessing is recorded in ``psf/segmentation_application.json``. If processing is requested or a prior record exists, reuse of normalized V1 archives checks the requested processing configuration, ordered source channels, exact field set and archive hashes against the completed record. Switching processing off does not bypass a record from an earlier run. If validation fails, enable preprocessing to rebuild the complete archive set from ``stack/``; restore the original images first if the stacks are unavailable. Changing ``resume`` alone does not make incompatible inputs reusable. See :doc:`checkpoint_resume`."
+msgstr "마스크 생성에서는 PSF 및 향상 전처리가 ``psf/segmentation_application.json`` 에 기록됩니다. 처리를 요청했거나 이전 기록이 있으면 정규화 V1 아카이브를 재사용하기 전에 요청된 처리 구성, 순서가 있는 소스 채널, 정확한 시야 집합 및 아카이브 해시를 완료된 기록과 비교합니다. 처리를 꺼도 이전 실행의 기록을 건너뛰지 않습니다. 검증이 실패하면 전처리를 켜서 ``stack/`` 에서 전체 아카이브 세트를 다시 만드세요. 스택을 사용할 수 없다면 먼저 원본 이미지를 복원하세요. ``resume`` 만 변경해도 호환되지 않는 입력을 재사용할 수 있게 되지는 않습니다. :doc:`checkpoint_resume` 를 참조하세요."
 
 msgid "A wider Gaussian PSF spreads two fixed intensity peaks while preserving total intensity."
 msgstr "더 넓은 가우스 PSF는 총 강도를 유지하면서 두 개의 고정된 강도 봉우리를 퍼뜨립니다."
@@ -78,11 +79,13 @@ msgstr "아래 예제는 TIFF 파일에서 단일 채널 이미지와 측정된 
 msgid "Choose the operation and save the result"
 msgstr "연산을 선택하고 결과 저장하기"
 
-msgid "Set ``operation=\"deconvolve\"`` to perform Richardson–Lucy deconvolution. Start with a modest iteration count and compare the result with the input; more iterations can amplify noise. ``operation=\"convolve\"`` instead blurs the image with the PSF. It does not use the iteration count."
-msgstr "Richardson–Lucy 디컨볼루션을 수행하려면 ``operation=\"deconvolve\"`` 를 설정합니다. 적당한 반복 횟수로 시작하고 결과를 입력과 비교합니다. 반복을 늘리면 잡음이 증폭될 수 있습니다. ``operation=\"convolve\"`` 는 대신 PSF로 이미지를 흐리게 하며, 반복 횟수는 사용하지 않습니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Set ``operation=\"deconvolve\"`` to perform Richardson–Lucy deconvolution. ``iterations`` accepts 1 to 200 and defaults to 20. Start with a modest iteration count and compare the result with the input; more iterations can amplify noise. ``operation=\"convolve\"`` instead blurs the image with the PSF. It does not use the iteration count."
+msgstr "Richardson–Lucy 디컨볼루션을 수행하려면 ``operation=\"deconvolve\"`` 를 설정합니다. ``iterations`` 는 1부터 200까지 받으며 기본값은 20입니다. 적당한 반복 횟수로 시작하고 결과를 입력과 비교합니다. 반복을 늘리면 잡음이 증폭될 수 있습니다. ``operation=\"convolve\"`` 는 대신 PSF로 이미지를 흐리게 하며, 반복 횟수는 사용하지 않습니다."
 
-msgid "The output preserves the image shape and uses float32 values in the original intensity units. Inspect its range before converting it to an integer image. Keep the JSON record with the result; it contains the kernel identity, sampling and processing settings."
-msgstr "출력은 이미지 형태를 유지하며 원래 강도 단위의 float32 값을 사용합니다. 정수 이미지로 변환하기 전에 값의 범위를 검사합니다. JSON 기록을 결과와 함께 보관합니다. 여기에는 커널 식별 정보, 샘플링, 처리 설정이 들어 있습니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The input must be finite and nonnegative. The output preserves the image shape and uses float32 values in the original intensity units; it is not clipped to the input range. Inspect its range before converting it to an integer image. Keep the JSON record with the result; it contains the kernel identity, sampling and processing settings."
+msgstr "입력은 유한하고 음수가 아니어야 합니다. 출력은 이미지 형태를 유지하며 원래 강도 단위의 float32 값을 사용합니다. 출력은 입력 범위로 잘리지 않습니다. 정수 이미지로 변환하기 전에 값의 범위를 검사합니다. JSON 기록을 결과와 함께 보관합니다. 여기에는 커널 식별 정보, 샘플링, 처리 설정이 들어 있습니다."
 
 msgid "For multichannel images, set ``channel_axis`` explicitly: ``-1`` selects a final channel dimension, while ``0`` selects a first channel dimension. Each intensity channel is processed independently. Image and PSF sampling must match; the function rejects mismatched spacing."
 msgstr "다중 채널 이미지에서는 ``channel_axis`` 를 명시적으로 설정합니다. ``-1`` 은 마지막 차원을, ``0`` 은 첫 번째 차원을 채널 차원으로 선택합니다. 각 강도 채널은 독립적으로 처리됩니다. 이미지와 PSF의 샘플링이 일치해야 하며, 함수는 간격이 맞지 않으면 거부합니다."

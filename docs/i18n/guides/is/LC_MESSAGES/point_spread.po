@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 19:56-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
@@ -37,15 +37,16 @@ msgstr "Opnaðu **PSF optics and kernel** til að skoða hinar stýringarnar. **
 msgid "Without image-specific information, the starting approximation uses a 20×/0.75 air objective, a 6.5 µm camera pixel and 520 nm emission. It gives 0.325 µm image pixels and approximately 0.354 µm Gaussian FWHM. Pixel spacing is camera pixel pitch divided by magnification; the lateral Gaussian FWHM is approximated by 0.51 × emission wavelength / numerical aperture. These defaults permit a calculation; they are not measured calibration or proof of your microscope's resolution. Check them against the acquisition."
 msgstr "Án myndsértækra upplýsinga notar upphafsnálgunin 20×/0,75 lofthlutgler, 6,5 µm myndavélarpixil og 520 nm útgeislun. Hún gefur 0,325 µm myndpixla og um það bil 0,354 µm Gauss-FWHM. Pixlabil er pixlabil myndavélarinnar deilt með stækkun; hliðlæg Gauss-FWHM er nálguð með 0,51 × útgeislunarbylgjulengd / tölulegt ljósop. Þessi sjálfgildi gera útreikning mögulegan; þau eru ekki mæld kvörðun né sönnun á upplausn smásjárinnar þinnar. Berðu þau saman við myndatökuna."
 
-msgid "In the same fold, choose **Measured kernel (TIFF/NPY)** and load your calibrated two-dimensional PSF, or keep **Gaussian approximation**. For a measured kernel, enter its pixel spacing too; it must match the image. Neither mode silently resamples a mismatched kernel."
-msgstr "Í sama hluta skaltu velja **Mældur kjarni (TIFF/NPY)** og hlaða kvörðuðu tvívíðu PSF-inu þínu, eða halda **Gaussísk nálgun**. Fyrir mældan kjarna skaltu einnig slá inn pixlabil hans; það verður að passa við myndina. Hvorugur hamurinn endursamplar ósamrýmanlegan kjarna í kyrrþey."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "In the same fold, choose **Measured kernel (TIFF/NPY)** and load your calibrated two-dimensional PSF, or keep **Gaussian approximation**. For a measured kernel, enter its pixel spacing too; it must match the image. Neither mode resamples a mismatched kernel. A measured kernel file can be up to 64 MiB."
+msgstr "Í sama hluta skaltu velja **Mældur kjarni (TIFF/NPY)** og hlaða kvörðuðu tvívíðu PSF-inu þínu, eða halda **Gaussísk nálgun**. Fyrir mældan kjarna skaltu einnig slá inn pixlabil hans; það verður að passa við myndina. Hvorugur hamurinn endursamplar ósamrýmanlegan kjarna. Skrá með mældum kjarna má vera allt að 64 MiB."
 
 msgid "Wait for the kernel to load, then use **Compare** to inspect its effect. Set **Deconvolution iterations** when using Richardson–Lucy and choose **Apply** to use the result for detection. Start with a modest iteration count and inspect noise as well as object boundaries. **Reload** rereads a kernel file after you change it. **Off** disables PSF processing."
 msgstr "Bíddu eftir að kjarninn hlaðist og notaðu síðan **Bera saman** til að skoða áhrif hans. Stilltu **Ítranir afföldunar** þegar Richardson–Lucy er notað og veldu **Beita** til að nota niðurstöðuna við greiningu. Byrjaðu með hóflegan fjölda ítrana og skoðaðu suð jafnt sem hlutamörk. **Hlaða aftur** les kjarnaskrá aftur eftir að þú breytir henni. **Slökkt** gerir PSF-vinnslu óvirka."
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "In Generate Masks, PSF and enhancement preprocessing is recorded in ``psf/segmentation_application.json``. If processing is requested or a prior record exists, reuse of normalized V1 archives checks the requested processing configuration, ordered source channels, exact field set and archive hashes against the completed record. Switching processing off does not bypass a record from an earlier run. If validation fails, enable preprocessing to rebuild the complete archive set from ``stack/``; restore the original images first if the stacks are unavailable. Changing ``resume`` alone does not make incompatible inputs reusable. See :doc:`checkpoint_resume`."
-msgstr "Í Generate Masks er PSF- og myndbætandi forvinnsla skráð í ``psf/segmentation_application.json``. Ef óskað er eftir vinnslu eða fyrri skráning er til staðar er umbeðin vinnslustilling, röð upprunarása, nákvæmt sjónsviðasafn og tætigildi safnskráa borið saman við fullgerðu skráninguna áður en staðlaðar V1-safnskrár eru endurnýttar. Að slökkva á vinnslu sniðgengur ekki skráningu úr fyrri keyrslu. Ef sannprófun mistekst skaltu virkja forvinnslu til að endurbyggja allt safnskrársafnið úr ``stack/``; endurheimtu fyrst upprunalegu myndirnar ef staflarnir eru ekki tiltækir. Að breyta aðeins ``resume`` gerir ósamrýmanleg inntök ekki endurnýtanleg. Sjá :doc:`checkpoint_resume`."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "In Mask generation, PSF and enhancement preprocessing is recorded in ``psf/segmentation_application.json``. If processing is requested or a prior record exists, reuse of normalized V1 archives checks the requested processing configuration, ordered source channels, exact field set and archive hashes against the completed record. Switching processing off does not bypass a record from an earlier run. If validation fails, enable preprocessing to rebuild the complete archive set from ``stack/``; restore the original images first if the stacks are unavailable. Changing ``resume`` alone does not make incompatible inputs reusable. See :doc:`checkpoint_resume`."
+msgstr "Í grímugerð er PSF- og myndbætandi forvinnsla skráð í ``psf/segmentation_application.json``. Ef óskað er eftir vinnslu eða fyrri skráning er til staðar er umbeðin vinnslustilling, röð upprunarása, nákvæmt sjónsviðasafn og tætigildi safnskráa borið saman við fullgerðu skráninguna áður en staðlaðar V1-safnskrár eru endurnýttar. Að slökkva á vinnslu sniðgengur ekki skráningu úr fyrri keyrslu. Ef sannprófun mistekst skaltu virkja forvinnslu til að endurbyggja allt safnskrársafnið úr ``stack/``; endurheimtu fyrst upprunalegu myndirnar ef staflarnir eru ekki tiltækir. Að breyta aðeins ``resume`` gerir ósamrýmanleg inntök ekki endurnýtanleg. Sjá :doc:`checkpoint_resume`."
 
 msgid "A wider Gaussian PSF spreads two fixed intensity peaks while preserving total intensity."
 msgstr "Breiðara Gauss-PSF dreifir tveimur föstum styrkleikatoppum en varðveitir heildarstyrk."
@@ -78,11 +79,13 @@ msgstr "Dæmið hér að neðan les einrása mynd og mælt PSF úr TIFF-skrám. 
 msgid "Choose the operation and save the result"
 msgstr "Velja aðgerðina og vista niðurstöðuna"
 
-msgid "Set ``operation=\"deconvolve\"`` to perform Richardson–Lucy deconvolution. Start with a modest iteration count and compare the result with the input; more iterations can amplify noise. ``operation=\"convolve\"`` instead blurs the image with the PSF. It does not use the iteration count."
-msgstr "Stilltu ``operation=\"deconvolve\"`` til að framkvæma Richardson–Lucy-afföldun. Byrjaðu með hóflegan fjölda ítrana og berðu niðurstöðuna saman við inntakið; fleiri ítranir geta magnað suð. ``operation=\"convolve\"`` gerir myndina í staðinn óskýra með PSF-inu. Það notar ekki fjölda ítrana."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Set ``operation=\"deconvolve\"`` to perform Richardson–Lucy deconvolution. ``iterations`` accepts 1 to 200 and defaults to 20. Start with a modest iteration count and compare the result with the input; more iterations can amplify noise. ``operation=\"convolve\"`` instead blurs the image with the PSF. It does not use the iteration count."
+msgstr "Stilltu ``operation=\"deconvolve\"`` til að framkvæma Richardson–Lucy-afföldun. ``iterations`` tekur við 1 til 200 og er sjálfgefið 20. Byrjaðu með hóflegan fjölda ítrana og berðu niðurstöðuna saman við inntakið; fleiri ítranir geta magnað suð. ``operation=\"convolve\"`` gerir myndina í staðinn óskýra með PSF-inu. Það notar ekki fjölda ítrana."
 
-msgid "The output preserves the image shape and uses float32 values in the original intensity units. Inspect its range before converting it to an integer image. Keep the JSON record with the result; it contains the kernel identity, sampling and processing settings."
-msgstr "Úttakið varðveitir lögun myndarinnar og notar float32-gildi í upphaflegu styrkleikaeiningunum. Skoðaðu gildissvið þess áður en því er breytt í heiltölumynd. Geymdu JSON-skráninguna með niðurstöðunni; hún inniheldur auðkenni kjarnans, sýnatöku og vinnslustillingar."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The input must be finite and nonnegative. The output preserves the image shape and uses float32 values in the original intensity units; it is not clipped to the input range. Inspect its range before converting it to an integer image. Keep the JSON record with the result; it contains the kernel identity, sampling and processing settings."
+msgstr "Inntakið verður að vera endanlegt og ekki neikvætt. Úttakið varðveitir lögun myndarinnar og notar float32-gildi í upphaflegu styrkleikaeiningunum; það er ekki klippt að gildissviði inntaksins. Skoðaðu gildissvið þess áður en því er breytt í heiltölumynd. Geymdu JSON-skráninguna með niðurstöðunni; hún inniheldur auðkenni kjarnans, sýnatöku og vinnslustillingar."
 
 msgid "For multichannel images, set ``channel_axis`` explicitly: ``-1`` selects a final channel dimension, while ``0`` selects a first channel dimension. Each intensity channel is processed independently. Image and PSF sampling must match; the function rejects mismatched spacing."
 msgstr "Fyrir fjölrása myndir skaltu stilla ``channel_axis`` sérstaklega: ``-1`` velur síðustu víddina sem rásavídd, en ``0`` velur fyrstu víddina sem rásavídd. Hver styrkleikarás er unnin óháð hinum. Sýnataka myndar og PSF verður að passa saman; fallið hafnar ósamrýmanlegu bili."

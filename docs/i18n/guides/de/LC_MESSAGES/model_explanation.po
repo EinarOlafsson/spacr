@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-28 13:26-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: de\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -36,8 +36,9 @@ msgstr "das Modul **CV-Modell erklären** zeigt, welche gemessene Morphologie di
 msgid "**Investigate Hit** asks which cells in wells supporting a regression hit have morphology consistent with that hit."
 msgstr "**Investigate Hit** fragt, welche Zellen in Wells, die einen Regressionstreffer stützen, eine mit diesem Treffer vereinbare Morphologie aufweisen."
 
-msgid "The last result is weakly supervised evidence, not a cell-resolved barcode. The UI and exports therefore use ``EAF1-hit-like`` and ``hit_like_probability`` rather than calling a cell ``EAF1-KO``."
-msgstr "Das letzte Ergebnis ist schwach überwachte Evidenz, kein zellgenau aufgelöster Barcode. Die Oberfläche und die Exporte verwenden daher ``EAF1-hit-like`` und ``hit_like_probability``, statt eine Zelle als ``EAF1-KO`` zu bezeichnen."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The last result is weakly supervised evidence, not a cell-resolved barcode. The UI therefore labels candidate cells ``<gene>-hit-like`` (for example ``EAF1-hit-like``) and the exports use ``hit_like_probability``, rather than calling a cell a knockout such as ``EAF1-KO``."
+msgstr "Das letzte Ergebnis ist schwach überwachte Evidenz, kein zellgenau aufgelöster Barcode. Die Oberfläche bezeichnet Kandidatenzellen daher als ``<gene>-hit-like`` (zum Beispiel ``EAF1-hit-like``), und die Exporte verwenden ``hit_like_probability``, statt eine Zelle als Knockout wie ``EAF1-KO`` zu bezeichnen."
 
 msgid "Explain CV Model"
 msgstr "CV-Modell erklären"
@@ -117,8 +118,9 @@ msgstr "Datenbankannotationen werden in eigenen Provenienztabellen versioniert. 
 msgid "Evidence ladder"
 msgstr "Evidenzstufen"
 
-msgid "A coherent UMAP/PCA population is useful exploratory evidence but is not ground truth. Confidence increases with negative and positive controls, independent guides, replicate plates, well/plate cross-fitting, refitted nulls, bootstrap stability, blinded review, and agreement between measured-feature SHAP and pixel-level attribution. The strongest validation is an orthogonal experiment that assigns perturbation identity per cell, such as an arrayed perturbation/rescue or direct in-situ guide-barcode readout."
-msgstr "Eine kohärente UMAP/PCA-Population ist nützliche explorative Evidenz, aber keine Ground Truth. Die Sicherheit steigt mit Negativ- und Positivkontrollen, unabhängigen Guides, Replikatplatten, Cross-Fitting über Wells/Platten, neu angepassten Nullmodellen, Bootstrap-Stabilität, verblindeter Prüfung und Übereinstimmung zwischen SHAP für gemessene Merkmale und Attribution auf Pixelebene. Die stärkste Validierung ist ein orthogonales Experiment, das die Perturbationsidentität pro Zelle zuordnet, etwa eine arrayförmige Perturbation/Rettung oder ein direktes In-situ-Auslesen von Guide-Barcodes."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "A coherent UMAP/PCA population is useful exploratory evidence but is not ground truth. Confidence increases with negative and positive controls, independent guides, replicate plates, well/plate cross-fitting, refitted nulls, bootstrap stability, blinded review, and agreement between measured-feature SHAP and pixel-level attribution. None of these analyses observes perturbation identity per cell; that requires an orthogonal experiment, such as an arrayed perturbation/rescue or direct in-situ guide-barcode readout."
+msgstr "Eine kohärente UMAP/PCA-Population ist nützliche explorative Evidenz, aber keine Ground Truth. Die Sicherheit steigt mit Negativ- und Positivkontrollen, unabhängigen Guides, Replikatplatten, Cross-Fitting über Wells/Platten, neu angepassten Nullmodellen, Bootstrap-Stabilität, verblindeter Prüfung und Übereinstimmung zwischen SHAP für gemessene Merkmale und Attribution auf Pixelebene. Keine dieser Analysen beobachtet die Perturbationsidentität pro Zelle; dazu ist ein orthogonales Experiment erforderlich, etwa eine arrayförmige Perturbation/Rettung oder ein direktes In-situ-Auslesen von Guide-Barcodes."
 
 msgid "Headless entry points"
 msgstr "Einstiegspunkte ohne GUI"

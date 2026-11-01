@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
@@ -29,8 +29,9 @@ msgstr "분할과 측정이 끝나면 **홈** → **생물체** → **톡소플�
 msgid "For whole-vacuole marker states, explicit host infection denominators and optional parasite counts, see :doc:`Host–Pathogen Analysis <host_pathogen>`. The two modules remain separate analysis choices."
 msgstr "전체 액포의 마커 상태, 명시적인 숙주 감염 분모, 선택적 기생충 수는 :doc:`숙주–병원체 분석 <host_pathogen>` 을 참조합니다. 두 모듈은 서로 별개의 분석 선택지로 유지됩니다."
 
-msgid "Select ``channel_of_interest`` for the fluorescent marker whose recruitment you want to measure. The primary ``recruitment`` column is the pathogen mean intensity divided by the cytoplasm mean intensity in that channel. Configure the condition metadata, object size/intensity filters and minimum objects per well before comparing results. Inspect compartment identities and denominator intensities; an absent or zero denominator does not establish recruitment."
-msgstr "리크루트먼트를 측정할 형광 마커에 대해 ``channel_of_interest`` 를 선택합니다. 기본 ``recruitment`` 열은 해당 채널에서 병원체 평균 강도를 세포질 평균 강도로 나눈 값입니다. 결과를 비교하기 전에 조건 메타데이터, 객체 크기/강도 필터, 웰당 최소 객체 수를 구성합니다. 구획 식별과 분모 강도를 검사합니다. 분모가 없거나 0이면 리크루트먼트가 입증되지 않습니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Select ``channel_of_interest`` for the fluorescent marker whose recruitment you want to measure. Each row is one host cell: the mean intensities of the pathogen objects assigned to that cell are averaged, and the primary ``recruitment`` column divides that pathogen mean by the cell's cytoplasm mean intensity in the same channel. Configure the condition metadata, object size/intensity filters and minimum objects per well before comparing results. Inspect compartment identities and denominator intensities; an absent or zero denominator does not establish recruitment."
+msgstr "리크루트먼트를 측정할 형광 마커에 대해 ``channel_of_interest`` 를 선택합니다. 각 행은 숙주 세포 하나입니다. 해당 세포에 할당된 병원체 객체의 평균 강도를 평균하며, 기본 ``recruitment`` 열은 이 병원체 평균을 같은 채널에서 해당 세포의 세포질 평균 강도로 나눈 값입니다. 결과를 비교하기 전에 조건 메타데이터, 객체 크기/강도 필터, 웰당 최소 객체 수를 구성합니다. 구획 식별과 분모 강도를 검사합니다. 분모가 없거나 0이면 리크루트먼트가 입증되지 않습니다."
 
 msgid "Auxiliary ratios retain their channel"
 msgstr "보조 비율은 채널 정보를 유지합니다"
@@ -87,6 +88,7 @@ msgstr "이 계산은 채널당 15개의 보조 비율을 만듭니다. 값이 �
 msgid "Saved results"
 msgstr "저장된 결과"
 
-msgid "The run writes ``cells.csv`` with the retained per-PV rows and ``wells.csv`` with per-well summaries, alongside recruitment plots. The historical ``cells.csv`` filename does not change the per-PV unit of these rows. Verify condition assignments, filtering and the selected channel when comparing these two aggregation levels."
-msgstr "실행은 리크루트먼트 그래프와 함께 PV별로 보존된 행이 담긴 ``cells.csv`` 와 웰별 요약이 담긴 ``wells.csv`` 를 씁니다. 과거부터 사용해 온 파일 이름 ``cells.csv`` 는 이 행들의 단위가 PV라는 사실을 바꾸지 않습니다. 두 집계 수준을 비교할 때는 조건 할당, 필터링, 선택된 채널을 확인합니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The run writes ``results/cells.csv`` with the retained per-host-cell rows and ``results/wells.csv`` with per-well means of those rows, alongside recruitment plots. Rows in ``cells.csv`` combine all pathogen objects assigned to a host cell; they are not independent per-vacuole measurements. For measurements linked to individual vacuoles, use :doc:`Host–Pathogen Analysis <host_pathogen>`. Verify condition assignments, filtering and the selected channel when comparing these two aggregation levels."
+msgstr "실행은 리크루트먼트 그래프와 함께 보존된 숙주 세포별 행이 담긴 ``results/cells.csv`` 와 이 행들의 웰별 평균이 담긴 ``results/wells.csv`` 를 씁니다. ``cells.csv`` 의 행은 숙주 세포에 할당된 모든 병원체 객체를 합친 것이며, 독립적인 액포별 측정값이 아닙니다. 개별 액포에 연결된 측정값에는 :doc:`숙주–병원체 분석 <host_pathogen>` 을 사용하세요. 두 집계 수준을 비교할 때는 조건 할당, 필터링, 선택된 채널을 확인합니다."
 

@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-31 21:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: sv\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Plate-aware guide permutation analysis"
 msgstr "Plattmedveten permutationsanalys av guider"
 
-msgid "Use the guide permutation analysis when the independent experimental unit is a well and a simultaneous guide model is not identifiable because there are more guide columns than wells or because guide fractions are highly correlated.  ``inference='nonparametric'`` (the default) runs it, and ``inference='auto'`` chooses it whenever the simultaneous fit would be unidentifiable; either way the run records ``analysis_mode='guide_permutation'``.  The mode uses the same paired per-cell score and sequencing-count CSV inputs (``paired_data``) as :func:`spacr.ml.perform_regression`."
-msgstr "Använd permutationsanalysen av guider när den oberoende experimentella enheten är en brunn och en simultan guidemodell inte är identifierbar, antingen för att det finns fler guidekolumner än brunnar eller för att guidefraktionerna är starkt korrelerade.  ``inference='nonparametric'`` (standard) kör den, och ``inference='auto'`` väljer den när den simultana anpassningen skulle vara oidentifierbar; i båda fallen registrerar körningen ``analysis_mode='guide_permutation'``.  Läget använder samma parade CSV-indata med poäng per cell och sekvenseringsantal (``paired_data``) som :func:`spacr.ml.perform_regression`."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Use the guide permutation analysis when the independent experimental unit is a well and a simultaneous guide model is not identifiable because there are more guide columns than wells or because guide fractions are highly correlated.  ``inference='nonparametric'`` (the default) runs it, and ``inference='auto'`` chooses it unless the analysed wells number at least twice the simultaneous model's parameters (one per guide, an intercept and one per additional plate); either way the run records ``analysis_mode='guide_permutation'``.  The mode uses the same paired per-cell score and sequencing-count CSV inputs (``paired_data``) as :func:`spacr.ml.perform_regression`."
+msgstr "Använd permutationsanalysen av guider när den oberoende experimentella enheten är en brunn och en simultan guidemodell inte är identifierbar, antingen för att det finns fler guidekolumner än brunnar eller för att guidefraktionerna är starkt korrelerade.  ``inference='nonparametric'`` (standard) kör den, och ``inference='auto'`` väljer den om inte antalet analyserade brunnar är minst dubbelt så stort som antalet parametrar i den simultana modellen (en per guide, ett intercept och en per ytterligare platta); i båda fallen registrerar körningen ``analysis_mode='guide_permutation'``.  Läget använder samma parade CSV-indata med poäng per cell och sekvenseringsantal (``paired_data``) som :func:`spacr.ml.perform_regression`."
 
 msgid "Each guide is tested separately after its well-level fraction and the well-level phenotype have both been adjusted for plate (and any optional measured nuisance columns).  Two-sided empirical P values come from Freedman--Lane residual permutations restricted within plate.  Multiple-test correction is then applied separately within each requested minimum-support family.  These are marginal associations: co-occurring guides may share a signal, so the output is not a set of mutually adjusted causal coefficients."
 msgstr "Varje guide testas separat efter att både dess fraktion per brunn och fenotypen per brunn har justerats för platta (och eventuella valfria uppmätta störkolumner).  Tvåsidiga empiriska P-värden kommer från Freedman–Lane-permutationer av residualer, begränsade till inom varje platta.  Korrektion för multipla test tillämpas sedan separat inom varje begärd familj för minsta stöd.  Detta är marginella associationer: guider som förekommer tillsammans kan dela en signal, så utdata är inte en uppsättning ömsesidigt justerade kausala koefficienter."
@@ -37,8 +38,9 @@ msgstr "De viktiga utdatakolumnerna är ``wells_with_guide``, ``standardized_mar
 msgid "Multiple-testing choices"
 msgstr "Val för multipla test"
 
-msgid "``multiple_testing_method`` accepts ``fdr_bh`` (Benjamini--Hochberg), ``fdr_by``, ``bonferroni``, ``holm`` or ``none``.  ``fdr_bh`` is the default. For reproducibility, record the requested support families, permutation count, seed, blocking column, nuisance columns, presence threshold, correction method and alpha together with the input-file checksums."
-msgstr "``multiple_testing_method`` accepterar ``fdr_bh`` (Benjamini–Hochberg), ``fdr_by``, ``bonferroni``, ``holm`` eller ``none``.  ``fdr_bh`` är standard. För reproducerbarhet: registrera de begärda stödfamiljerna, antal permutationer, slumpfrö, blockeringskolumn, störkolumner, närvarotröskel, korrektionsmetod och alfa tillsammans med indatafilernas kontrollsummor."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "``multiple_testing_method`` accepts ``none``, ``bonferroni``, ``sidak``, ``holm``, ``holm_sidak``, ``simes_hochberg``, ``hommel``, ``fdr_bh`` (Benjamini--Hochberg), ``fdr_by``, ``fdr_tsbh``, ``fdr_tsbky``, ``fdr_gbs`` or ``storey``.  ``fdr_bh`` is the default. For reproducibility, record the requested support families, permutation count, seed, blocking column, nuisance columns, presence threshold, correction method and alpha together with the input-file checksums."
+msgstr "``multiple_testing_method`` accepterar ``none``, ``bonferroni``, ``sidak``, ``holm``, ``holm_sidak``, ``simes_hochberg``, ``hommel``, ``fdr_bh`` (Benjamini--Hochberg), ``fdr_by``, ``fdr_tsbh``, ``fdr_tsbky``, ``fdr_gbs`` eller ``storey``.  ``fdr_bh`` är standard. För reproducerbarhet: registrera de begärda stödfamiljerna, antal permutationer, slumpfrö, blockeringskolumn, störkolumner, närvarotröskel, korrektionsmetod och alfa tillsammans med indatafilernas kontrollsummor."
 
 msgid "Direct analysis of an existing long table"
 msgstr "Direkt analys av en befintlig lång tabell"
