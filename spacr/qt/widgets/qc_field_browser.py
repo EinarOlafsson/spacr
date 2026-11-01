@@ -14925,7 +14925,6 @@ class _OverviewMetadataWizard(QWidget):
             self._edited_plate = ""
         self.plate_table.blockSignals(True)
         self.plate_table.setSortingEnabled(False)
-        self.plate_table.setRowCount(0)
         self.plate_table.setRowCount(len(plates))
         for row, plate in enumerate(plates):
             name = table_item(str(self._plate_names.get(plate["default_name"]) or plate["default_name"]))
@@ -14940,13 +14939,18 @@ class _OverviewMetadataWizard(QWidget):
                 item.setToolTip(plate["path"])
                 self.plate_table.setItem(row, column, item)
             if plate["mixed"] or plate["path"] in self._use_subfolders:
-                toggle = Toggle()
+                toggle = self.plate_table.cellWidget(row, 3)
+                if not isinstance(toggle, Toggle):
+                    toggle = Toggle()
+                    toggle.setToolTip(tr("This folder holds images and also subfolders of images. Switch on to "
+                                         "load each subfolder as a plate instead."))
+                    toggle.toggled.connect(self._plate_subfolders_toggled)
+                    self.plate_table.setCellWidget(row, 3, toggle)
+                toggle.setProperty("platePath", plate["path"])
+                toggle.blockSignals(True)
                 toggle.setChecked(plate["path"] in self._use_subfolders)
-                toggle.setToolTip(tr("This folder holds images and also subfolders of images. Switch on to "
-                                     "load each subfolder as a plate instead."))
-                toggle.toggled.connect(functools.partial(self._use_plate_subfolders, plate["path"]))
-                self.plate_table.setCellWidget(row, 3, toggle)
-            else:
+                toggle.blockSignals(False)
+            elif self.plate_table.cellWidget(row, 3) is not None:
                 self.plate_table.removeCellWidget(row, 3)
             own = _overview_plate_pattern(self._plate_regex, plate["path"], "")
             regex = table_item(own)
@@ -14954,11 +14958,13 @@ class _OverviewMetadataWizard(QWidget):
             regex.setToolTip(tr("The filename regex this plate is read with; empty uses the filename regex above, "
                                 "the first plate's."))
             self.plate_table.setItem(row, 4, regex)
-            apply = QPushButton(tr("Apply settings"))
-            apply.setObjectName("OverviewWizardApplyPlate")
+            apply = self.plate_table.cellWidget(row, 5)
+            if not isinstance(apply, QPushButton):
+                apply = QPushButton(tr("Apply settings"))
+                apply.setObjectName("OverviewWizardApplyPlate")
+                apply.clicked.connect(self._apply_plate_button_clicked)
+                self.plate_table.setCellWidget(row, 5, apply)
             apply.setProperty("platePath", plate["path"])
-            apply.clicked.connect(functools.partial(self._apply_to_plate, plate["path"]))
-            self.plate_table.setCellWidget(row, 5, apply)
             _fit_overview_action_buttons((apply,))
             hint = apply.minimumSize().expandedTo(apply.sizeHint())
             self.plate_table.setColumnWidth(5, max(self.plate_table.columnWidth(5), hint.width() + 8))
@@ -15011,6 +15017,30 @@ class _OverviewMetadataWizard(QWidget):
         if self._is_edited_plate(path) and not self._editing_first():
             self._show_editor_regex(text or base)
         self._scan()
+
+    def _plate_subfolders_toggled(self, on):
+        """Use or stop using the subfolders of the plate whose switch was flipped.
+
+        The switch is kept in its table row across refreshes and only told
+        which plate it now stands for, so a rescan never deletes and
+        recreates the row's widgets.
+
+        :param on: the switch's new state.
+        """
+        toggle = self.sender()
+        if toggle is not None:
+            self._use_plate_subfolders(str(toggle.property("platePath") or ""), on)
+
+    def _apply_plate_button_clicked(self, *_):
+        """Apply the edited filename settings to the plate of the clicked row's button.
+
+        The button is reused for its row across refreshes, as the switch in
+        :meth:`_plate_subfolders_toggled` is, and reads its plate from its
+        ``platePath`` property.
+        """
+        button = self.sender()
+        if button is not None:
+            self._apply_to_plate(str(button.property("platePath") or ""))
 
     def _use_plate_subfolders(self, path, on):
         """Load a mixed folder's subfolders as plates, or the folder itself, and preview again."""
