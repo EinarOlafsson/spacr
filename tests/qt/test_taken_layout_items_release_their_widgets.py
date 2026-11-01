@@ -66,3 +66,44 @@ def test_a_nested_layout_is_handed_back_not_deleted(qtbot):
     (widget, nested), = _take_every_item(column)
     assert widget is None and nested is row
     assert row.indexOf(inner) == 0
+
+
+#: The few places that may still call ``takeAt`` themselves, each because it
+#: hands the taken item on rather than dropping it.
+ITEM_MOVERS = {
+    ("spacr/qt/widgets/flow.py", "_take_item"): "the helper itself",
+    ("spacr/qt/widgets/column_picker.py", "_replace_layout_widget"):
+        "re-adds the trailing items and returns the replaced one; under PySide6 6.10 the "
+        "item replaceWidget returns must not be deleted, which crashes the host's teardown",
+    ("spacr/qt/widgets/qc_field_browser.py", "_mount_module"):
+        "deletes each widget item before re-adding its widget and moves spacers on",
+}
+
+
+def _take_at_calls():
+    import ast
+    import pathlib
+
+    root = pathlib.Path(__file__).resolve().parents[2]
+    found = []
+    for path in sorted((root / "spacr" / "qt").rglob("*.py")):
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        for function in ast.walk(tree):
+            if not isinstance(function, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            for node in ast.walk(function):
+                if not (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+                        and node.func.attr == "takeAt"):
+                    continue
+                receiver = node.func.value
+                if isinstance(receiver, ast.Name) and receiver.id == "self" and function.name in (
+                        "takeAt", "_take", "removeWidget", "clear"):
+                    continue
+                key = (str(path.relative_to(root)), function.name)
+                if key not in ITEM_MOVERS:
+                    found.append(f"{key[0]}:{node.lineno} in {function.name}: {ast.unparse(node)}")
+    return sorted(set(found))
+
+
+def test_no_layout_is_emptied_by_dropping_the_items_it_hands_back():
+    assert _take_at_calls() == []
