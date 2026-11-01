@@ -4068,8 +4068,9 @@ class LayerStack:
             col_inv = np.zeros(w, dtype=np.intp)
         n_rows = 1 if rows is None else len(rows)
         n_cols = 1 if cols is None else len(cols)
+        roles = [role for role, _, _ in vectors if role in (0, 1)]
         spans = (_as_span(rows), _as_span(cols))
-        if None in spans:
+        if None in spans or roles != sorted(roles):
             index = tuple(rows[:, None] if role == 0 else
                           cols[None, :] if role == 1 else idx
                           for role, idx, _ in vectors)

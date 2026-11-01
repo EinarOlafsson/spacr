@@ -74,3 +74,24 @@ def test_closing_stops_listening(counted):
     view.close()
     assert view._listening is None
     stack["volume"].opacity = 0.25
+
+
+def test_every_panel_paints_the_slice_the_full_composite_draws(counted, caplog):
+    """The yz panel puts data rows after data columns; its picture must still match."""
+    view, stack, _calls = counted
+    stack["volume"].opacity = 0.75
+    for panel in view.panels.values():
+        panel.repaint()
+    assert not [r for r in caplog.records if "Could not paint" in r.getMessage()]
+    for name, panel in view.panels.items():
+        canvas = panel.canvas
+        expected = np.clip(stack.render(canvas)[..., :3] * 255.0 + 0.5, 0, 255).astype(np.uint8)
+        drawn = stack.render_uint8(canvas)
+        assert drawn.shape == (*canvas.shape, 3), name
+        assert np.array_equal(drawn, expected), name
+    voxel = {"z": 3, "y": 15, "x": 15}
+    view.move_to(**{axis: view._slice_grid(axis)[0] + index * view._slice_grid(axis)[1]
+                    for axis, index in voxel.items()})
+    assert {axis: view.slice_index(axis) for axis in voxel} == voxel
+    for name, panel in view.panels.items():
+        assert stack.render_uint8(panel.canvas).any(), name
