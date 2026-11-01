@@ -21432,14 +21432,14 @@ class MakeMasksScreen(QWidget):
         """The panels that give way for the image, in the order they fold.
 
         The settings and the shortcut column first (width), then the
-        title's instruction line, the bars under and over the image and the
-        title (height). Each entry is ``(owner, pane name, axis)``; the
+        title's instruction line, the toolbar over the image, the bar under
+        it and the whole title (height). Each entry is ``(owner, pane name, axis)``; the
         instruction line's owner is this screen (:data:`TITLE_LINE_PANE`).
 
         2026-11-01, the maintainer's decision: when room is short the title
-        folds to one line before the bottom bar folds, so the image keeps
-        its ten lines and the IO and NAVIGATION groups stay on a 720p
-        screen at 200 % text.
+        folds to one line, then the toolbar folds to its edge, and only then
+        the bottom bar, so the image keeps its ten lines and the IO and
+        NAVIGATION groups stay on a 720p screen at 200 % text.
         """
         out = []
         body = getattr(self, "_body_splitter", None)
@@ -21453,8 +21453,8 @@ class MakeMasksScreen(QWidget):
         if chrome is not None:
             out.append((self, TITLE_LINE_PANE, "height"))
         if image is not None:
-            out.append((image, "Bottom bar", "height"))
             out.append((image, "Top bar", "height"))
+            out.append((image, "Bottom bar", "height"))
         if chrome is not None:
             out.append((chrome, "Title", "height"))
         return [entry for entry in out if isValid(entry[0])]
@@ -21512,6 +21512,11 @@ class MakeMasksScreen(QWidget):
         open again, in the reverse order, once the window has room for them
         and the image together. A panel the person opened or closed is
         theirs and is left alone.
+
+        Every check starts again from the panels open: what this rule folded
+        is opened and the folds are worked out for the size the screen has
+        now. A fold made while the screen was opening at a passing size is
+        therefore never kept once the screen has its real size.
         """
         if getattr(self, "_fitting_room", False):
             return
@@ -21527,6 +21532,12 @@ class MakeMasksScreen(QWidget):
         need_w, need_h = self._canvas_room()
         self._fitting_room = True
         try:
+            if folded:
+                for splitter, name, _axis in reversed(folded):
+                    if isValid(splitter) and self._room_folded(splitter, name):
+                        self._fold_room(splitter, name, False)
+                folded.clear()
+                self._settle_room_layout()
             body = getattr(self, "_body_splitter", None)
             settings = getattr(self, "_settings_scroll", None)
             line = max(1, self.fontMetrics().height())
