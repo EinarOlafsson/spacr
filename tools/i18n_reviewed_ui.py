@@ -1640,6 +1640,16 @@ REVIEWED_UI_TRANSLATIONS: Final[dict[str, dict[str, str]]] = {
         "Toxoplasma",
         "Toxoplasma",
     ),
+    'Tick two or more to overlay them. Runs marked ! are missing curves or settings — they still diff.': _row(
+        'Markera två eller fler för att lägga dem över varandra. Körningar markerade med ! saknar kurvor eller inställningar – de kan ändå jämföras.',
+        'Kreuzen Sie zwei oder mehr an, um sie zu überlagern. Mit ! markierte Läufe ohne Kurven oder Einstellungen lassen sich trotzdem vergleichen.',
+        'Marque dos o más para superponerlas. A las ejecuciones marcadas con ! les faltan curvas o ajustes; aun así se pueden comparar.',
+        '勾选两个或更多以叠加显示。标有 ! 的运行缺少曲线或设置，但仍可比较。',
+        'Marque duas ou mais para sobrepô-las. As execuções marcadas com ! não têm curvas ou configurações, mas ainda podem ser comparadas.',
+        'एक-दूसरे पर दिखाने के लिए दो या अधिक चुनें। ! से चिह्नित रन में कर्व या सेटिंग्स नहीं हैं, फिर भी उनकी तुलना की जा सकती है।',
+        '둘 이상을 선택하면 겹쳐서 표시합니다. !로 표시된 실행은 곡선이나 설정이 없지만 비교할 수는 있습니다.',
+        'Hakaðu við tvær eða fleiri til að leggja þær hver yfir aðra. Keyrslur merktar með ! vantar ferla eða stillingar, en samt má bera þær saman.',
+        'Cochez-en deux ou plus pour les superposer. Les exécutions marquées d’un ! n’ont pas de courbes ou de réglages, mais restent comparables.'),
 }
 
 
