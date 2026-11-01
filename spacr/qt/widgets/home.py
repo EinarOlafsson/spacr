@@ -7833,8 +7833,6 @@ class _EasyWorkflowPage(QWidget):
         field._arrange()
         origin = self.mapFromGlobal(field.details.mapToGlobal(field.details.rect().topLeft()))
         bottom = QRect(origin, field.details.size())
-        search_origin = self.mapFromGlobal(field.panel.mapToGlobal(field.panel.rect().topLeft()))
-        search = QRect(search_origin, field.panel.size()).adjusted(-4, -4, 4, 4)
         top = header_bottom + 16
         limit = bottom.top() - 16
         self.view._direction = 1 if self._anchor.center().x() < self.width() / 2 else -1

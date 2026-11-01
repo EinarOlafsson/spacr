@@ -91,8 +91,6 @@ def split_rows(body: str) -> list:
     for line in lines:
         if not line.startswith("  "):
             continue
-        stripped = line[2:]
-        gap = len(stripped) - len(stripped.lstrip())
         match = _ROW.match(line)
         if match:
             lead = len(match.group(1))
