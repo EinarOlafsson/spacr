@@ -160,6 +160,26 @@ def _grid_widget_at(grid, row, column):
     return None
 
 
+def _take_item(layout, index):
+    """Take the item at ``index`` out of ``layout``, delete it unless it is a layout, and return what it held.
+
+    The one-item form of :func:`_take_every_item`, for loops that keep a
+    leading or trailing item or take from the end.
+
+    :param layout: the layout.
+    :param index: the item's index.
+    :returns: ``(widget, layout)``; either is ``None`` when the item held no
+        such thing, and both are when there was no item at ``index``.
+    """
+    item = layout.takeAt(index)
+    if item is None:
+        return None, None
+    widget, nested = item.widget(), item.layout()
+    if nested is None:
+        Shiboken.delete(item)
+    return widget, nested
+
+
 def _take_every_item(layout):
     """Empty ``layout``, delete the items it made and return what they held.
 
@@ -177,11 +197,7 @@ def _take_every_item(layout):
     """
     held = []
     while layout.count():
-        item = layout.takeAt(0)
-        widget, nested = item.widget(), item.layout()
-        held.append((widget, nested))
-        if nested is None:
-            Shiboken.delete(item)
+        held.append(_take_item(layout, 0))
     return held
 
 
