@@ -221,9 +221,15 @@ class AiToggleLabel(QLabel):
                     for part in full.split()), default=0)
         cap = max(_elide_above_px(),
                   word + margins.left() + margins.right())
+        shown = QLabel.text(self)
         if not self.wordWrap():
             self._caption_chrome = max(
-                0, hint.width() - metrics.horizontalAdvance(QLabel.text(self)))
+                0, QLabel.sizeHint(self).width()
+                - metrics.horizontalAdvance(shown))
+        else:
+            widest = max((metrics.horizontalAdvance(part)
+                          for part in shown.split()), default=0)
+            self._caption_chrome = max(0, hint.width() - widest)
         chrome = getattr(self, "_caption_chrome", margins.left()
                          + margins.right())
         one_line = metrics.horizontalAdvance(full) + chrome

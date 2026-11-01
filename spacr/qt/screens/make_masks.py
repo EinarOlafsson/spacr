@@ -15174,7 +15174,7 @@ class MakeMasksScreen(QWidget):
         io_row.addWidget(self._build_roi_button())
 
         nav_group, nav_row = self._titled_group(
-            tr("NAVIGATION"), "MakeMasksNavigationGroup")
+            tr("NAVIGATION"), "MakeMasksNavigationGroup", keep_one_line=True)
         nav_row._space = SPACING["xs"]
         self._navigation_group = nav_group
         self._btn_save = _SplitMenuButton(tr("Save mask"), self)
