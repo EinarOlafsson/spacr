@@ -4665,6 +4665,91 @@
           "idle_tail_start": 3.0
         }
       ]
+    },
+    {
+      "lesson": "19_train_cellpose",
+      "master_sha256": "0309c19207c1b2282f31a3028e8ae6f1d7f53a334e5570a7435809e713690433",
+      "visual_timing_sha256": "cba32c42ac998e92138fc0b175390ea454259b0a44a056e4bb5b3ebf05b505e5",
+      "scenes": [
+        {
+          "visual": "home_make_masks",
+          "source_start": 0.0,
+          "source_end": 21.966666666666665,
+          "idle_tail_start": 9.5
+        },
+        {
+          "visual": "train_source",
+          "source_start": 21.966666666666665,
+          "source_end": 57.46666666666667,
+          "idle_tail_start": 24.0
+        },
+        {
+          "visual": "train_pairs",
+          "source_start": 57.46666666666667,
+          "source_end": 88.7,
+          "idle_tail_start": 28.0
+        },
+        {
+          "visual": "train_channels",
+          "source_start": 88.7,
+          "source_end": 118.83333333333334,
+          "idle_tail_start": 5.0
+        },
+        {
+          "visual": "train_model_output",
+          "source_start": 118.83333333333334,
+          "source_end": 150.96666666666667,
+          "idle_tail_start": 10.0
+        },
+        {
+          "visual": "train_schedule",
+          "source_start": 150.96666666666667,
+          "source_end": 178.73333333333335,
+          "idle_tail_start": 8.0
+        },
+        {
+          "visual": "train_normalization",
+          "source_start": 178.73333333333335,
+          "source_end": 206.63333333333335,
+          "idle_tail_start": 9.0
+        },
+        {
+          "visual": "train_validation",
+          "source_start": 206.63333333333335,
+          "source_end": 233.53333333333336,
+          "idle_tail_start": 5.5
+        },
+        {
+          "visual": "train_run_console",
+          "source_start": 233.53333333333336,
+          "source_end": 346.7666666666667,
+          "idle_tail_start": 4.5
+        },
+        {
+          "visual": "train_checkpoint",
+          "source_start": 346.7666666666667,
+          "source_end": 374.80000000000007,
+          "idle_tail_start": 3.5
+        },
+        {
+          "visual": "apply_checkpoint",
+          "source_start": 374.80000000000007,
+          "source_end": 422.96666666666675,
+          "idle_tail_start": 36.0
+        },
+        {
+          "visual": "apply_preview",
+          "source_start": 422.96666666666675,
+          "source_end": 451.80000000000007,
+          "idle_tail_start": 15.5
+        },
+        {
+          "visual": "apply_result",
+          "source_start": 451.80000000000007,
+          "source_end": 484.46666666666675,
+          "idle_tail_start": 5.0
+        }
+      ]
     }
   ]
 }
