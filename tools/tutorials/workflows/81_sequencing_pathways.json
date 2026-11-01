@@ -11,7 +11,6 @@
   "modules": [
     "map_barcodes",
     "barcode_qc",
-    "ops",
     "regression",
     "power",
     "experiment_design",
@@ -22,7 +21,6 @@
   "scenes": {
     "map_barcodes": "Start with the sequencing reads. Open Map Barcodes from Home and give it your FASTQ files, single-end or paired, with the barcode reference tables that encode your experiment. Map Barcodes matches each read to its barcodes and counts the guides in every well, saving unique_combinations.csv and qc.csv, and by default annotated_reads.h5, in each sample's output folder. Before you trust those counts, open them in Barcode QC. Once they pass, they are the guide counts Regression pairs with phenotype scores, on the same plate and well keys.",
     "barcode_qc": "Barcode QC lives inside Map Barcodes, so open Map Barcodes from Home and choose it there. It reads the guide counts you just made and shows mapping depth, coverage, barcode collisions and positional effects. It saves the QC results with exportable figures and tables, so you can decide which guides to filter before going further.",
-    "ops": "Optical screens take a different road. Open Mask from Home, then choose OPS. Instead of reads, OPS takes the images from each sequencing cycle, aligns them to the phenotype images and decodes a barcode for every nucleus. The results land in the OPS measurements.db, with tables for geometry, phenotype alignment, nuclei and barcodes. That database is not a FASTQ count table, though. To use it in Regression, first join and aggregate the decoded identities with your phenotype data, so each object or well carries both.",
     "regression": "Whichever way you sequenced, barcodes meet phenotypes in Regression. Open it from Home. For a pooled screen, it takes phenotype scores from Classify and guide counts from Map Barcodes. For an optical screen, it takes the decoded OPS objects once you have joined and aggregated them yourself; that is not a direct file handoff. It can also model a directly measured response. In every case, plate and well identifiers must agree across the inputs. Choose the response and the controls, run the fit, and read the diagnostics before you call anything a hit. The results folder it writes, with coefficients, hit tables, settings and figures, is what Run Compare opens when you want to line this run up against another.",
     "power": "Now step back to before the experiment. Open Power / Design from Home to estimate how much sampling you need to see an effect, based on the effect sizes and variability you choose. Pilot measurements can support those assumptions, but they are optional. Power / Design does not read the plate map from Experiment Design, so enter the plate count, wells per plate and replicates by hand. The estimates may send you back to revise that design.",
     "experiment_design": "Open Experiment Design from Home to lay out the plates before you acquire anything. Enter the conditions, controls, replicates and plate constraints, and export the plate map. Power / Design does not read that file, so carry its plate and replicate numbers over by hand. Later, once the experiment is acquired and measured, Dose–Response uses its dose and condition identities, so keep them unchanged all the way through.",
@@ -105,21 +103,6 @@
         "figures"
       ],
       "guidance": "Inspect mapping depth, coverage, collisions and positional effects before guide-count filtering."
-    },
-    "ops": {
-      "name": "OPS",
-      "home": "mask",
-      "parent": "mask",
-      "api_module": "spacr.ops_engine",
-      "lesson": "76_ops",
-      "inputs": [
-        "raw_images",
-        "mosaic"
-      ],
-      "outputs": [
-        "ops_tables"
-      ],
-      "guidance": "Use sequencing-cycle images and phenotype alignment to decode barcodes per nucleus. Aggregate/join the decoded identities to compatible phenotype inputs before Regression; the OPS database is not a drop-in FASTQ count CSV."
     },
     "regression": {
       "name": "Regression",
@@ -456,14 +439,6 @@
         "barcode_counts"
       ],
       "handoff": "Check mapping and coverage before guide filtering."
-    },
-    {
-      "from": "ops",
-      "to": "regression",
-      "artifacts": [
-        "ops_tables"
-      ],
-      "handoff": "Join/aggregate decoded objects to phenotype and guide inputs explicitly before Regression; this is not a direct CSV handoff."
     },
     {
       "from": "experiment_design",

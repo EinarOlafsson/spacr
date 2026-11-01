@@ -222,6 +222,8 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 * **Images and label masks** — merged/\*.npy in the project; channels and integer label planes share each field array.
 * **Label masks** — masks/ when retained, or explicitly saved image/mask pairs. Intermediate masks may be removed by cleanup.
 * **Object counts** — measurements/measurements.db; Mask counts alone are not per-object feature measurements.
+* **Whole-image measurements** — Overview writes one row per image to the fov table of measurements/measurements.db under the first loaded source root; exported tables preserve that source ownership.
+  Relevant tables, depending on the route: ``fov``.
 
 **Before this module**
 

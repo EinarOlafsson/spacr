@@ -79,7 +79,6 @@
     "anndata_export",
     "motility",
     "timelapse",
-    "ops",
     "classifier_evaluation",
     "explain_cv",
     "activation",
@@ -108,7 +107,8 @@
       "outputs": [
         "merged",
         "masks",
-        "counts"
+        "counts",
+        "image_measurements"
       ],
       "guidance": "Select channels and models, inspect a preview, then run Mask. Measure consumes the merged arrays; the counts database is not yet a feature table.",
       "documentation_note": "Folder watching uses ``watch_normalization_pool='per_field'`` by default. For a declared static projected acquisition, ``'fixed_map'`` waits for every image in ``conversion_map.csv`` before running the ordinary Mask or Mask/Measure batch with shared percentile normalization and padding. Set ``randomize=False`` and ``batch_size`` greater than one. A timeout never releases an incomplete pool; restart checkpoints bind the declared members, recipes and original input hashes.\n\nNative time-volume Mask accepts a complete fixed Convert map of explicitly identified C/Z/T planes with both ``z_stack`` and ``t_stack`` enabled. Declare TZYX axis order, physical Z spacing and frame interval. Batch ingest and folder watching retain the original planes and build TZYXC archives for 4-D segmentation. This route supports Mask only; it does not enable Measure, tracking or Classify for native time volumes.",
@@ -1526,21 +1526,6 @@
       },
       "documentation_note": "Lineage exports retain generation times in frames and add ``generation_time_hours`` with calibrated summary statistics. Supply a positive ``frame_interval_s`` or complete, increasing ``time_s`` values in the tracks table. If both are present, they must agree; irregular timestamps are supported without a fixed interval. Missing calibration and incomplete cell cycles have no generation time in hours. Exported tables record the calibration source and units. The tree axis and Newick branch lengths remain in frames."
     },
-    "ops": {
-      "name": "OPS",
-      "home": "mask",
-      "parent": "mask",
-      "api_module": "spacr.ops_engine",
-      "lesson": "76_ops",
-      "inputs": [
-        "raw_images",
-        "mosaic"
-      ],
-      "outputs": [
-        "ops_tables"
-      ],
-      "guidance": "Use sequencing-cycle images and phenotype alignment to decode barcodes per nucleus. Aggregate/join the decoded identities to compatible phenotype inputs before Regression; the OPS database is not a drop-in FASTQ count CSV."
-    },
     "classifier_evaluation": {
       "name": "Classifier Evaluation",
       "home": "classify_merged",
@@ -2673,22 +2658,6 @@
         "masks"
       ],
       "handoff": "Use plaque masks with matching source images; cell masks are not automatically plaque labels."
-    },
-    {
-      "from": "align",
-      "to": "ops",
-      "artifacts": [
-        "mosaic"
-      ],
-      "handoff": "Carry tile coordinates and original sequencing cycles into OPS; a flattened mosaic alone is insufficient."
-    },
-    {
-      "from": "ops",
-      "to": "regression",
-      "artifacts": [
-        "ops_tables"
-      ],
-      "handoff": "Join/aggregate decoded objects to phenotype and guide inputs explicitly before Regression; this is not a direct CSV handoff."
     },
     {
       "from": "experiment_design",

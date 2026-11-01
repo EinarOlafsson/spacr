@@ -151,8 +151,8 @@ def test_generated_api_and_tutorial_contracts_match_the_map():
     # Lesson 79 covers every module a user can see with Show alpha species
     # and Show alpha features off; alpha-species organism chapters (634) and
     # alpha modules (F534's spatial page folds) are left out.
-    from spacr.settings import _alpha_names
-    visible = module_keys - set(_alpha_names("apps"))
+    # 2026-11-01: so are pages behind an alpha switch (Mask's OPS, item 372).
+    visible = module_keys - _alpha_only_modules()
     assert set(data["tutorials"]["79_module_inputs_outputs"]["modules"]) == visible
     for key, lesson in data["tutorials"].items():
         contract = json.loads((workflow.ROOT / f"tools/tutorials/workflows/{key}.json").read_text(encoding="utf-8"))
