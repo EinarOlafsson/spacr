@@ -160,6 +160,31 @@ def _grid_widget_at(grid, row, column):
     return None
 
 
+def _take_every_item(layout):
+    """Empty ``layout``, delete the items it made and return what they held.
+
+    ``takeAt`` called from Python hands back an item nobody owns: dropping
+    the wrapper leaves the C++ item alive and still registered as its
+    widget's size-cache owner, so the item a later ``addWidget`` makes for
+    that widget never owns the cache and its cached height-for-width is never
+    cleared. The Overview's status line kept its 52 px height after its font
+    went back to 13 px. Widget and spacer items are deleted here; a nested
+    layout is returned, not deleted, since it is the caller's to reuse.
+
+    :param layout: the layout to empty.
+    :returns: ``(widget, layout)`` pairs in item order; either half is
+        ``None`` for an item that is not a widget or not a layout.
+    """
+    held = []
+    while layout.count():
+        item = layout.takeAt(0)
+        widget, nested = item.widget(), item.layout()
+        held.append((widget, nested))
+        if nested is None:
+            Shiboken.delete(item)
+    return held
+
+
 class FlowLayout(QLayout):
     """A left-to-right layout that wraps onto a new line when it runs out.
 

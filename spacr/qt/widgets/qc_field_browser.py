@@ -1032,9 +1032,9 @@ class QCFieldBrowser(QDialog):
         for no benefit.
         """
         self._layer_checks.clear()
-        while self._layers.count():
-            item = self._layers.takeAt(0)
-            widget = item.widget()
+        from .flow import _take_every_item
+
+        for widget, _nested in _take_every_item(self._layers):
             if widget is not None:
                 widget.deleteLater()
 
@@ -10059,7 +10059,7 @@ class _FieldOverview(QWidget):
         :param splitter: image workspace outside the configuration scroller.
         """
         from PySide6.QtWidgets import QScrollArea
-        from .flow import FlowHost, FlowLayout, _layout_widgets
+        from .flow import FlowHost, FlowLayout, _layout_widgets, _take_every_item
         from .section import Section
         self._options_window = QDialog(self, Qt.Window)
         self._options_window.setWindowTitle(tr("Options"))
@@ -10080,12 +10080,10 @@ class _FieldOverview(QWidget):
         self._categories = categories
         essential = FlowHost(self)
         essential_flow = FlowLayout(essential)
-        while column.count():
-            item = column.takeAt(0)
-            if item.widget() in (splitter, self.status):
+        for widget, layout in _take_every_item(column):
+            if widget in (splitter, self.status):
                 continue
-            layout = item.layout()
-            members = _layout_widgets(layout) if layout else [item.widget()]
+            members = _layout_widgets(layout) if layout else [widget]
             category = tr("Display")
             if self.source in members or self.regex in members:
                 category = tr("Source")
@@ -10096,14 +10094,13 @@ class _FieldOverview(QWidget):
             if layout is not None:
                 host = essential if layout in (self._navigation_layout, self._axes_layout) else FlowHost(content)
                 flow = essential_flow if host is essential else FlowLayout(host)
-                while layout.count():
-                    child = layout.takeAt(0)
-                    flow.addWidget(child.widget())
+                for child, _nested in _take_every_item(layout):
+                    flow.addWidget(child)
                 layout.setParent(None)
                 if host is not essential:
                     categories[category].add_widget(host)
             else:
-                categories[category].add_widget(item.widget())
+                categories[category].add_widget(widget)
         controls.addStretch(1)
         scroll = QScrollArea(self)
         scroll.setWidgetResizable(True)
@@ -12234,14 +12231,18 @@ class _OverviewWorkspace(QWidget):
         if figures is not None:
             target = getattr(owner, "_overview_content_stack", None)
             if target is None:
+                from shiboken6 import Shiboken
+
                 target = QStackedWidget(figures.body)
                 original = QWidget()
                 original_layout = QVBoxLayout(original)
                 original_layout.setContentsMargins(0, 0, 0, 0)
                 while figures.body_layout.count():
                     item = figures.body_layout.takeAt(0)
-                    if item.widget() is not None:
-                        original_layout.addWidget(item.widget())
+                    widget = item.widget()
+                    if widget is not None:
+                        Shiboken.delete(item)
+                        original_layout.addWidget(widget)
                     else:
                         original_layout.addItem(item)
                 target.addWidget(original)
