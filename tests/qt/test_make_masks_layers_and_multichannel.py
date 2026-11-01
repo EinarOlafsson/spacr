@@ -299,19 +299,33 @@ def test_channel_planes_are_read_off_the_gui_thread(qtbot, tmp_path, monkeypatch
     assert all(limit[1] > limit[0] for limit in screen._field_channels.limits)
 
 
-def test_a_short_window_folds_the_panels_before_the_image(qtbot, tmp_path):
+def test_a_short_window_folds_the_panels_before_the_image(
+        qtbot, qt_theme_applied, tmp_path):
+    from PySide6.QtWidgets import QWidget
+
     tifffile.imwrite(tmp_path / 'field.tif', _planes(1)[0])
     screen = _open(qtbot, tmp_path)
-    screen.show()
     image = screen._image_container
+    floor = screen._canvas_room()[1]
     font = screen.font()
     font.setPixelSize(30)
     screen.setFont(font)
-    assert screen._canvas_room()[1] >= 300
+    # 2026-11-01 maintainer decision: the image floor is in pixels, at most
+    # 200 px (ten lines at 100 % text when that is smaller), so large text
+    # does not raise it.
+    assert screen._canvas_room()[1] == floor <= 200
     view = screen._view_tabs.currentWidget()
-    # The title line and the toolbar fold before the bottom bar (2026-11-01),
-    # so the window is short enough that the bottom bar has to fold as well.
-    screen.resize(1100, 480)
+    # The screen sits in a host, as it does in the main window's stack, so
+    # its height is the host's and not held up by a top-level minimum. The
+    # title line and the toolbar fold before the bottom bar (2026-11-01), so
+    # the host is short enough that the bottom bar has to fold as well.
+    host = QWidget()
+    qtbot.addWidget(host)
+    screen.setParent(host)
+    host.resize(1100, 300)
+    screen.setGeometry(0, 0, 1100, 300)
+    host.show()
+    screen.show()
     qtbot.waitUntil(lambda: image.is_collapsed('Bottom bar')
                     or view.height() < screen._canvas_room()[1], timeout=15000)
     screen._keep_the_canvas_usable()
@@ -325,7 +339,8 @@ def test_a_short_window_folds_the_panels_before_the_image(qtbot, tmp_path):
     assert (folded.index('Title line') < folded.index('Top bar')
             < folded.index('Bottom bar'))
     assert screen._header.instruction_label.isHidden()
-    screen.resize(1800, 1300)
+    host.resize(1800, 1300)
+    screen.setGeometry(0, 0, 1800, 1300)
     qtbot.waitUntil(lambda: not image.is_collapsed('Bottom bar')
                     or view.height() > 2 * screen._canvas_room()[1], timeout=15000)
     screen._keep_the_canvas_usable()

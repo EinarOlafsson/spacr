@@ -21422,11 +21422,23 @@ class MakeMasksScreen(QWidget):
     def _canvas_room(self) -> tuple:
         """The smallest image, in pixels, the editor gives up its panels for.
 
-        Measured in lines of the current font, so it grows with Zoom the
-        way the panels around it do.
+        The width is measured in lines of the current font, so it grows
+        with Zoom the way the panels around it do.
+
+        2026-11-01, the maintainer's decision: the height is in pixels, not
+        lines. The image keeps at least 200 px, or the height of ten lines
+        of body text at 100 % text size (at the current GUI scale), whichever
+        is smaller, so a large text size does not raise the floor and fold
+        the IO and NAVIGATION groups away.
         """
+        from ..gui_scale import scale_int
+        from ..theme import font_px
+
         line = max(1, self.fontMetrics().height())
-        return max(240, 16 * line), max(160, 10 * line)
+        body = self.font()
+        body.setPixelSize(max(1, scale_int(font_px("body", 1.0))))
+        plain_line = max(1, QFontMetrics(body).height())
+        return max(240, 16 * line), min(200, 10 * plain_line)
 
     def _room_panes(self) -> list:
         """The panels that give way for the image, in the order they fold.
@@ -21438,7 +21450,7 @@ class MakeMasksScreen(QWidget):
 
         2026-11-01, the maintainer's decision: when room is short the title
         folds to one line, then the toolbar folds to its edge, and only then
-        the bottom bar, so the image keeps its ten lines and the IO and
+        the bottom bar, so the image keeps its floor and the IO and
         NAVIGATION groups stay on a 720p screen at 200 % text.
         """
         out = []
