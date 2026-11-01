@@ -101,14 +101,15 @@ def _score_v2_masks(src, settings, object_type: str = "cell", *, strict=False):
     `seg_qc` means the same thing whichever pipeline produced the masks.
 
     :param src: the plate folder handed to `run_v2`; `merged/` sits under it.
-    :param strict: propagate scoring errors and cancellation for independent
-        partitioned outputs; False retains the legacy best-effort scorecard.
+    :param strict: raise scoring errors and cancellation, for independent
+        partitioned outputs. With False (the default) they are printed as
+        "Segmentation QC skipped for <type>: ..." and None is returned.
     :returns: what :func:`spacr.seg_qc.run_segmentation_qc` returns, or None
-        when QC is off, there are no masks to score, or scoring failed.
-
-    With the default strict=False, never raises into a finished run. A plate that has just spent hours
-    segmenting must not lose its masks to a scorecard bug, which is the same
-    rule `_run_seg_qc` follows.
+        when QC is off, there are no masks to score, or scoring failed with
+        ``strict`` False.
+    :raises spacr.seg_qc.SegmentationQCFailed: whatever ``strict`` is, when
+        ``seg_qc='stop'`` and the plate failed, so the V2 run ends as a v1
+        run does in `_run_seg_qc`.
     """
     try:
         from .seg_qc import (SegmentationQCFailed, qc_mode,

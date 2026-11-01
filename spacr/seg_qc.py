@@ -1574,9 +1574,9 @@ class Finding:
     :param severity: ``'fail'``, ``'warn'`` or ``'ok'`` — how a banner should
         colour it. A finding blocks nothing; only
         :func:`run_segmentation_qc` with ``mode='stop'`` raises
-        :class:`SegmentationQCFailed` for a failed plate. The classic Mask
-        pipeline lets it end the run and prints other QC errors as skipped;
-        the V2 scorer passes it on only when called with ``strict=True``.
+        :class:`SegmentationQCFailed` for a failed plate, and both the
+        classic and the V2 Mask pipelines let it end the run. Other QC errors
+        are printed as skipped and the run continues.
     :param kind: ``'flag'``, ``'count_gradient'``, ``'size_gradient'`` or
         ``'clean'``. What the finding is about, for a caller that wants to
         show one kind and not another.
@@ -1951,7 +1951,7 @@ class QCDigest:
     :param blocks_run: always ``False``; the digest reports QC and does not
         stop a run. A run is stopped only by :func:`run_segmentation_qc` with
         ``mode='stop'``, whose :class:`SegmentationQCFailed` for a failed
-        plate ends a classic Mask run.
+        plate ends a classic or V2 Mask run.
     """
 
     root: str = ""
@@ -1963,10 +1963,9 @@ class QCDigest:
     stale: bool = False
     checked_at: float = 0.0
 
-    #: Nothing in this module gates anything. A segmentation verdict informs
-    #: a decision the user makes; a plate that fails QC is still a plate they
-    #: may have good reason to measure, and a QC report that stops them is a
-    #: QC report they will switch off.
+    #: The digest itself gates nothing. A segmentation verdict informs a
+    #: decision the user makes; only ``seg_qc='stop'`` ends a run, through
+    #: :func:`run_segmentation_qc`.
     blocks_run: bool = False
 
     @property
