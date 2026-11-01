@@ -109,6 +109,7 @@ class OrganismScreen(QWidget):
             self.module_requested.connect(host._on_nav_selected)
         self._columns = 0
         self._tiles = []
+        self._all_tiles = []
         self._reflow_timer = QTimer(self)
         self._reflow_timer.setSingleShot(True)
         self._reflow_timer.timeout.connect(self._reflow)
@@ -308,10 +309,57 @@ class OrganismScreen(QWidget):
                 tile.setAccessibleDescription(note)
                 tile.setEnabled(False)
                 tile.setAttribute(Qt.WA_AlwaysShowToolTips, True)
+                self._mark_planned(tile)
                 opacity = QGraphicsOpacityEffect(tile)
                 opacity.setOpacity(0.45)
                 tile.setGraphicsEffect(opacity)
-            self._tiles.append(tile)
+            self._all_tiles.append(tile)
+        self._apply_maturity_gate()
+
+    @staticmethod
+    def _mark_planned(tile: AppTile) -> None:
+        """Caption a tile whose module is not built yet with "Planned" under its name."""
+        from ..theme import active_palette
+
+        planned = QLabel(tr("Planned"), tile)
+        planned.setObjectName("OrganismTilePlanned")
+        planned.setProperty("_spacr_i18n_text", "Planned")
+        planned.setAlignment(Qt.AlignHCenter)
+        planned.setStyleSheet(
+            f"color: {active_palette()['fg_dim']}; font-size: {font_px(11)}px;"
+            " font-style: italic; background: transparent;")
+        column = tile.layout()
+        column.insertWidget(column.indexOf(tile.name_label) + 1, planned)
+
+    @staticmethod
+    def _tile_is_visible(tile: AppTile) -> bool:
+        """Whether Home would show this tile's module at the current maturity preferences."""
+        from ..app import app_is_visible
+        from ..preferences import maturity_is_visible
+
+        key = tile.property("organismModuleKey")
+        if not key:
+            return True
+        if key == "parascape":
+            return maturity_is_visible("alpha") and app_is_visible(key)
+        return app_is_visible(key)
+
+    def _apply_maturity_gate(self) -> bool:
+        """Hide the tiles Home hides; return whether the shown set changed."""
+        shown = [tile for tile in self._all_tiles if self._tile_is_visible(tile)]
+        if shown == self._tiles:
+            return False
+        for tile in self._all_tiles:
+            self._grid.removeWidget(tile)
+            tile.setVisible(tile in shown)
+        self._tiles = shown
+        self._columns = 0
+        return True
+
+    def refresh_maturity_visibility(self) -> None:
+        """Follow Preferences > Show Alpha modules after it changes."""
+        if self._apply_maturity_gate():
+            self._reflow_tiles()
 
     def _reflow(self, *args) -> None:
         """Fit Home tiles to the current module-pane width after divider moves."""
