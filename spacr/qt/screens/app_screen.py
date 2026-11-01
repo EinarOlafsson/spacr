@@ -9448,32 +9448,35 @@ class AppScreen(QWidget):
         settings strip and form join after the console and the actions,
         so Tab went from the Dock to the console, the actions and only then
         to the settings, against the reading order. The runtime column's
-        widgets are moved, in their own order, to follow the last widget of
-        the settings column; a category built later is put right again the
-        next time the screen is shown or that category is opened.
+        widgets are moved, in their own order, to the end of the window's
+        chain, after every settings widget; a category built later is put
+        right again the next time the screen is shown or that category is
+        opened.
+
+        The runtime widgets come from the column's children and the end of
+        the chain from the window, never from walking the whole chain: that
+        walk wrapped every widget of the window, Qt's own scroll viewports
+        among them, and a wrapper kept after its widget was deleted was
+        handed to the next widget made at the same address, which then read
+        as already deleted (the Regression results card's viewport on a
+        1366 x 600 window).
         """
         from PySide6.QtWidgets import QWidget as _Widget
 
-        form = getattr(self, "_settings_panel", None)
         side = getattr(self, "_runtime_wrap", None)
         window = self.window()
-        if form is None or side is None or window is None:
+        if getattr(self, "_settings_panel", None) is None or side is None or window is None:
             return
-        chain = []
-        widget = window.nextInFocusChain()
-        while widget is not None and widget is not window and len(chain) < 20000:
-            chain.append(widget)
-            widget = widget.nextInFocusChain()
-        chain = [widget for widget in chain
-                 if widget.focusPolicy() & Qt.TabFocus]
-        in_form = [index for index, widget in enumerate(chain)
-                   if form.isAncestorOf(widget)]
-        in_side = [widget for widget in chain if side.isAncestorOf(widget)]
-        if not in_form or not in_side:
+        in_side = [widget for widget in side.findChildren(_Widget)
+                   if widget.focusPolicy() & Qt.TabFocus]
+        if not in_side:
             return
-        if in_form[-1] < chain.index(in_side[0]):
+        anchor = window.previousInFocusChain()
+        while anchor is not None and anchor is not window and side.isAncestorOf(anchor):
+            anchor = anchor.previousInFocusChain()
+        if anchor is None or anchor is window:
             return
-        previous = chain[in_form[-1]]
+        previous = anchor
         for widget in in_side:
             _Widget.setTabOrder(previous, widget)
             previous = widget
