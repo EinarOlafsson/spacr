@@ -1479,6 +1479,25 @@ class _SourceLabel(QLabel):
     """
 
     _FLOOR_CHARACTERS = 12
+    _HINT_CHARACTERS = 32
+
+    def sizeHint(self) -> QSize:                   # noqa: N802 (Qt casing)
+        """Ask for the first few dozen characters of a path, not all of it.
+
+        The masthead shares its spare width between the source line and
+        the instruction under the title; a whole temporary-folder path
+        asked for so much that the instruction wrapped to a second line,
+        and that line was what the image's bottom bar lacked at 1280 x 680.
+        """
+        base = super().sizeHint()
+        text = self.text().strip()
+        if self.wordWrap() or not text or not self._is_a_path():
+            return base
+        margins = self.contentsMargins()
+        head = text[:self._HINT_CHARACTERS] + "\u2026"
+        wanted = (QFontMetrics(self.font()).horizontalAdvance(head)
+                  + margins.left() + margins.right())
+        return QSize(min(base.width(), wanted), base.height())
 
     def minimumSizeHint(self) -> QSize:            # noqa: N802 (Qt casing)
         """Ask for the first few characters, not the whole path."""
@@ -15431,13 +15450,18 @@ class MakeMasksScreen(QWidget):
         self._src_label = _SourceLabel(tr(
             "No folder selected — click Open File / Folder…"))
         self._src_label.setObjectName("SubtitleSmall")
-        self._src_label.setSizePolicy(QSizePolicy.Maximum,
+        self._src_label.setSizePolicy(QSizePolicy.Preferred,
                                       QSizePolicy.Preferred)
+        self._src_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         self._src_label.setMinimumWidth(0)
         self._header.add_trailing(self._src_label)
         self._folds = self._build_fold_strip()
         _screens_package._breathe_while_a_window_opens()
         self._header.add_trailing(self._folds)
+        header_row = self._header.layout()
+        shares = (0, header_row.indexOf(self._src_label))
+        for index in range(header_row.count()):
+            header_row.setStretch(index, 1 if index in shares else 0)
         self._title_bar = QWidget()
         self._title_bar.setObjectName("MakeMasksTitleBar")
         title_col = QVBoxLayout(self._title_bar)
@@ -15899,7 +15923,10 @@ class MakeMasksScreen(QWidget):
         bar is resized, and once its layout has placed the labels, its
         minimum height is raised by what its short labels still lack, until
         every label holds its text; a new width starts again from no
-        minimum, so a wider bar gives the height back.
+        minimum, so a wider bar gives the height back. Its maximum is held
+        to the same need: the splitter handed a stretch-0 title the room the
+        editor gave up while a folder opened (293 px at 1280 x 680), and
+        the image bars then had none.
         """
         from shiboken6 import isValid
         from PySide6.QtWidgets import QWidget as _QWidget
@@ -15911,6 +15938,8 @@ class MakeMasksScreen(QWidget):
         bar = self._title_bar
         setter = _ORIGINAL.get((_QWidget, "setMinimumHeight"),
                                _QWidget.setMinimumHeight)
+        ceiling = _ORIGINAL.get((_QWidget, "setMaximumHeight"),
+                                _QWidget.setMaximumHeight)
 
         pending = []
 
@@ -15934,6 +15963,15 @@ class MakeMasksScreen(QWidget):
                     setter(bar, 0)
                     measure()
                     return
+            needs = max(bar.heightForWidth(bar.width()),
+                        bar.minimumSizeHint().height(),
+                        _actual_minimum_height(bar))
+            if bar.maximumHeight() != needs:
+                ceiling(bar, needs)
+                chrome = getattr(self, "_chrome_splitter", None)
+                if (chrome is not None and isValid(chrome)
+                        and chrome.indexOf(bar) >= 0 and chrome._laid_out):
+                    chrome.rebalance(refit=True)
             deficit = 0
             for label in bar.findChildren(QLabel):
                 if not label.isVisibleTo(bar) or label.height() <= 0:
@@ -15944,11 +15982,13 @@ class MakeMasksScreen(QWidget):
                 deficit += max(0, needed - label.height())
             granted = bar.height() >= _actual_minimum_height(bar)
             if deficit > 0 and granted:
+                ceiling(bar, max(needs, bar.height() + deficit))
                 setter(bar, bar.height() + deficit)
 
         _watch_object_events(bar, _RemeasureOnResize(bar, measure,
                                                      every_resize=True),
-                             (QEvent.Resize, QEvent.FontChange))
+                             (QEvent.Resize, QEvent.FontChange,
+                              QEvent.LayoutRequest))
 
     def _build_fold_strip(self) -> FoldStrip:
         """The masthead's strip of folded modules.

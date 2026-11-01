@@ -315,14 +315,15 @@ class _RemeasureOnResize(QObject):
         self._every_resize = bool(every_resize)
 
     def eventFilter(self, watched, event):
-        """Measure again on a width or font change; never consume the event.
+        """Measure again on a width, font or layout change; never consume the event.
 
         :param watched: the widget.
-        :param event: a resize or font change.
+        :param event: a resize, font change or layout request; a layout
+            request reaches it only from a watch that names it.
         :returns: False.
         """
         kind = event.type()
-        if kind == QEvent.FontChange or (
+        if kind in (QEvent.FontChange, QEvent.LayoutRequest) or (
                 kind == QEvent.Resize and (self._every_resize
                                            or watched.width() != self._width)):
             self._width = watched.width()

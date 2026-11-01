@@ -2284,6 +2284,13 @@ def test_make_masks_fits_with_every_group_and_the_image_whole(
     assert canvas.height() >= 120 and canvas.width() >= 600
     assert _whole(window, screen._image_footer)
     assert canvas.bottom() < _rect_in(window, screen._io_group).top()
+    title = screen._title_bar
+    needs = max(title.heightForWidth(title.width()), title.minimumHeight())
+    assert title.height() <= needs, (title.height(), needs)
+    chrome = screen._chrome_splitter
+    editor = chrome.widget(chrome.indexOf(title) + 1)
+    assert (_rect_in(window, editor).top() - _rect_in(window, title).bottom()
+            <= chrome.handleWidth() + 1), "no dead band under the title"
     for label in screen._image_footer.findChildren(QLabel):
         if label.isVisibleTo(screen._image_footer):
             assert _whole(window, label)
