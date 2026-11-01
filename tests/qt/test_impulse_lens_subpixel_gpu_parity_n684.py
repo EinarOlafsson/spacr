@@ -183,6 +183,7 @@ CHILD = textwrap.dedent("""
     options['device_index'] = {device}
     ambient._graphics_context_options = lambda: dict(options)
     ambient._flow_graphics_preflight = lambda stop_event=None: True
+    ambient._GRAPHICS_WAIT_SCALE = 60.0
     ambient._flow_compute_idle = lambda: True
     ambient._RESOURCE_POLICY = None
     tool._on_producer = tool._Producer()
