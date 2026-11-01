@@ -53,8 +53,42 @@ def test_guard_keeps_intermediates_when_merge_incomplete(tmp_path):
     cleanup_pipeline_folders(root, verbose=False)
     assert os.path.isdir(os.path.join(root, "stack"))
     assert os.path.isdir(os.path.join(root, "masks"))
-    # orig is independent of the stack guard and still removed by default
-    assert not os.path.exists(os.path.join(root, "orig"))
+    # b.npy was never merged, so its raw images in orig/ are the only copy.
+    assert os.path.isfile(os.path.join(root, "orig", "raw.tif"))
+
+
+def test_orig_is_kept_and_the_unmerged_fields_named(tmp_path, capsys):
+    from spacr.utils import cleanup_pipeline_folders
+    root = str(tmp_path)
+    _mk(root, ["a.npy"], ["a.npy", "b.npy", "c.npy"])
+    deleted = cleanup_pipeline_folders(root, verbose=False)
+    assert os.path.join(root, "orig") not in deleted
+    assert os.path.isfile(os.path.join(root, "orig", "raw.tif"))
+    out = capsys.readouterr().out
+    assert "2 field(s) have no complete merged/ output: b.npy, c.npy" in out
+
+
+def test_orig_is_kept_when_a_merged_array_is_truncated(tmp_path, capsys):
+    from spacr.utils import cleanup_pipeline_folders
+    root = str(tmp_path)
+    _mk(root, ["a.npy", "b.npy"], ["a.npy", "b.npy"])
+    path = os.path.join(root, "merged", "b.npy")
+    np.save(path, np.zeros((64, 64), np.uint16))
+    with open(path, "r+b") as fh:
+        fh.truncate(os.path.getsize(path) - 100)
+    cleanup_pipeline_folders(root, verbose=False)
+    assert os.path.isfile(os.path.join(root, "orig", "raw.tif"))
+    assert "1 field(s) have no complete merged/ output: b.npy" in (
+        capsys.readouterr().out)
+
+
+def test_orig_is_kept_when_no_stack_list_can_verify_merged(tmp_path, capsys):
+    from spacr.utils import cleanup_pipeline_folders
+    root = str(tmp_path)
+    _mk(root, ["a.npy"], [], with_masks=False)
+    cleanup_pipeline_folders(root, verbose=False)
+    assert os.path.isfile(os.path.join(root, "orig", "raw.tif"))
+    assert "cannot be verified" in capsys.readouterr().out
 
 
 def test_guard_empty_merged_deletes_nothing(tmp_path):

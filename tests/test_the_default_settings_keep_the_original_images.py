@@ -7,6 +7,7 @@ False explicitly still gets the old behaviour.
 """
 from __future__ import annotations
 
+import numpy as np
 import pytest
 
 from spacr import settings as spacr_settings
@@ -34,8 +35,8 @@ def test_an_explicit_false_is_still_respected():
 def _finished_plate(tmp_path):
     for name in ("merged", "stack", "masks", "orig"):
         (tmp_path / name).mkdir()
-    (tmp_path / "merged" / "f1.npy").write_bytes(b"m")
-    (tmp_path / "stack" / "f1.npy").write_bytes(b"s")
+    np.save(tmp_path / "merged" / "f1.npy", np.zeros((2, 2, 2), np.uint16))
+    np.save(tmp_path / "stack" / "f1.npy", np.zeros((2, 2, 1), np.uint16))
     (tmp_path / "orig" / "f1_c1.tif").write_bytes(b"raw")
     return tmp_path
 

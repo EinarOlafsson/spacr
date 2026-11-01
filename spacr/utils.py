@@ -10420,10 +10420,14 @@ def cleanup_pipeline_folders(src, keep_intermediate=False, keep_original=False,
             print("cleanup skipped: merged/ is empty — keeping intermediates")
         return deleted
 
+    stack_files = set()
+    if os.path.isdir(stack):
+        stack_files = {f for f in _listdir_visible(stack) if f.endswith('.npy')}
+    unmerged = []
+    if not keep_original and os.path.isdir(orig) and stack_files:
+        unmerged = _unmerged_fields(merged, stack_files, merged_files)
+
     if not keep_intermediate:
-        stack_files = set()
-        if os.path.isdir(stack):
-            stack_files = {f for f in _listdir_visible(stack) if f.endswith('.npy')}
         if stack_files and not stack_files.issubset(merged_files):
             missing = len(stack_files - merged_files)
             if verbose:
@@ -10440,7 +10444,20 @@ def cleanup_pipeline_folders(src, keep_intermediate=False, keep_original=False,
                     shutil.rmtree(p, ignore_errors=True)
                     deleted.append(p)
 
-    if not keep_original and os.path.isdir(orig):
+    if not keep_original and os.path.isdir(orig) and (
+            not stack_files or unmerged):
+        if not stack_files:
+            print(f"cleanup: keeping {orig} -- no stack/ field list to check "
+                  "merged/ against, so it cannot be verified that every field "
+                  "was merged")
+        else:
+            shown = ', '.join(unmerged[:20])
+            more = len(unmerged) - 20
+            if more > 0:
+                shown += f" and {more} more"
+            print(f"cleanup: keeping {orig} -- {len(unmerged)} "
+                  f"field(s) have no complete merged/ output: {shown}")
+    elif not keep_original and os.path.isdir(orig):
         raw_files = [f for f in _listdir_visible(orig)
                      if os.path.isfile(os.path.join(orig, f))]
         if verbose:
@@ -10455,6 +10472,33 @@ def cleanup_pipeline_folders(src, keep_intermediate=False, keep_original=False,
         print(f"cleanup: removed {', '.join(os.path.basename(d) for d in deleted)} "
               "(kept merged/)")
     return deleted
+
+
+def _unmerged_fields(merged, stack_files, merged_files):
+    """Return the fields whose merged output is missing or unreadable.
+
+    :param merged: the run's ``merged/`` folder.
+    :param stack_files: ``.npy`` names in ``stack/``, one per field.
+    :param merged_files: ``.npy`` names in ``merged/``.
+    :returns: sorted names of the stack fields whose merged array is absent,
+        unreadable, truncated or empty; empty when every field is complete.
+    """
+    import os
+    bad = []
+    for name in sorted(stack_files):
+        if name not in merged_files:
+            bad.append(name)
+            continue
+        try:
+            array = np.load(os.path.join(merged, name), mmap_mode='r',
+                            allow_pickle=False)
+            complete = array.size > 0
+            del array
+        except Exception:
+            complete = False
+        if not complete:
+            bad.append(name)
+    return bad
 
 
 def delete_intermedeate_files(settings):
