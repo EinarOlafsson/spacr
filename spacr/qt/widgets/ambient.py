@@ -12626,8 +12626,7 @@ class AmbientWidget(QWidget):
         :returns: True when the tick was handed back to the timer.
         """
         tries = self.__dict__.get("_tick_retries", 0)
-        if (tries >= _TICK_RETRIES_PER_PERIOD or self._tick_due is None
-                or self._run_paced and not self.__dict__.get("_cheap_frames", True)):
+        if tries >= _TICK_RETRIES_PER_PERIOD or self._tick_due is None:
             return False
         now = time.perf_counter() * 1000.0
         if self._tick_due - now <= _TICK_RETRY_MS:
@@ -13450,6 +13449,7 @@ class AmbientWidget(QWidget):
         if producer is not None and producer.tick_driven and producer.is_alive():
             fresh = producer.latest()
             if fresh is None or fresh is not self._last_frame:
+                producer._wake.set()
                 started = time.perf_counter()
                 if area is None:
                     self.repaint()
