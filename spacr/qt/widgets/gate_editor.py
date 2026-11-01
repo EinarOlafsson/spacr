@@ -1511,6 +1511,23 @@ class GateCanvas(GraphCanvas):
         self._canvas.draw_idle()
         return (elevation, azimuth)
 
+    def _hold_renders(self) -> None:
+        """Defer every :meth:`render_now` until :meth:`_release_renders`.
+
+        A screen that changes settings, spec, frame and axes in one step
+        redrew the graph after each of them (four renders when xD was
+        switched on, five when its projection arrived); between a hold and
+        its release they are drawn once. Holds nest.
+        """
+        self._render_holds = getattr(self, "_render_holds", 0) + 1
+
+    def _release_renders(self) -> None:
+        """End one :meth:`_hold_renders`; the last one draws what was asked."""
+        self._render_holds = max(0, getattr(self, "_render_holds", 0) - 1)
+        if self._render_holds == 0 and getattr(self, "_render_wanted", False):
+            self._render_wanted = False
+            self.render_now()
+
     def _drawn_state(self):
         """What a render of this canvas is drawn from.
 
@@ -1544,6 +1561,10 @@ class GateCanvas(GraphCanvas):
         on a flat axes, and running them against a rotated projection would
         produce gates whose coordinates mean nothing.
         """
+        if getattr(self, "_render_holds", 0):
+            self._render_wanted = True
+            return
+        self._render_wanted = False
         self._drawn_from = None
         state = self._drawn_state()
         if self._mode in ("3D", "xD") and self._render_volume():

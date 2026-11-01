@@ -465,6 +465,93 @@ def test_a_clustering_setting_does_not_redraw_the_graph(screen):
     assert gap < STALL_BUDGET_S
 
 
+def _projected_screen(monkeypatch, *, hold):
+    """A screen with a many-sided gate, projected on a worker.
+
+    The display sample is drawn from a seeded generator, so two screens
+    show the same rows; ``hold=False`` makes the canvas draw on every
+    request again, as it did before renders were held.
+    """
+    from spacr.qt.widgets.gate_editor import GateCanvas
+    from spacr.qt.widgets.gate_spec import GateSet
+
+    real = np.random.default_rng
+    monkeypatch.setattr(np.random, "default_rng",
+                        lambda seed=None, _real=real: _real(
+                            7 if seed is None else seed))
+    if not hold:
+        monkeypatch.setattr(GateCanvas, "_hold_renders", lambda self: None)
+        monkeypatch.setattr(GateCanvas, "_release_renders", lambda self: None)
+    win = GateEditorScreen()
+    win.resize(1200, 800)
+    win.show()
+    win.set_frame(_wide(), label="test")
+    _pump(1.0)
+    win._y.setCurrentText("intensity")
+    win.gates.set_gates(GateSet().add(_many_sided()))
+    _pump(0.5)
+    draws = []
+    _counting(win.gates.canvas, "_draw_gates", draws)
+    win._on_projection_toggled(True)
+    toggled = len(draws)
+    runner = win._projection_runner
+    _pump(60, lambda: win._frame is not None and "PC1" in win._frame.columns
+          and not runner.is_busy())
+    _pump(1.0)
+    return win, toggled, len(draws) - toggled
+
+
+def _drawn(win):
+    """What the canvas shows: axes, labels, limits, points and gate shapes."""
+    shown = []
+    for key, ax in sorted(win.gates.canvas.panel_axes().items()):
+        shown.append((key, ax.get_xlabel(), ax.get_ylabel(),
+                      tuple(np.round(ax.get_xlim(), 9)),
+                      tuple(np.round(ax.get_ylim(), 9)),
+                      [np.asarray(c.get_offsets()).round(9).tolist()
+                       for c in ax.collections],
+                      [np.asarray(p.get_path().vertices).round(9).tolist()
+                       for p in ax.patches],
+                      len(ax.lines)))
+    return shown
+
+
+def test_a_projection_draws_the_graph_once_on_the_toggle_and_once_on_arrival(
+        qapp, monkeypatch):
+    """Switching xD on drew the graph four times on the click and five times
+    as the projection arrived (0.36 s and 0.43 s on the GUI thread); the
+    canvas now holds those requests and draws once each time."""
+    monkeypatch.setattr(QMessageBox, "information",
+                        staticmethod(lambda *a, **k: 0))
+    win, toggled, arrived = _projected_screen(monkeypatch, hold=True)
+    try:
+        assert (toggled, arrived) == (1, 1)
+        assert (win._x.currentText(), win._y.currentText()) == ("PC1", "PC2")
+    finally:
+        win.close()
+
+
+def test_a_held_projection_draws_what_drawing_every_step_drew(
+        qapp, monkeypatch):
+    monkeypatch.setattr(QMessageBox, "information",
+                        staticmethod(lambda *a, **k: 0))
+    shown = []
+    for hold in (False, True):
+        with monkeypatch.context() as patch:
+            win, toggled, arrived = _projected_screen(patch, hold=hold)
+            try:
+                shown.append((_drawn(win), win._frame.copy(),
+                              win.gates.canvas.spec))
+                if not hold:
+                    assert toggled > 1 and arrived > 1
+            finally:
+                win.close()
+    (before, before_frame, before_spec), (after, after_frame, after_spec) = shown
+    assert before == after
+    assert before_spec == after_spec
+    pd.testing.assert_frame_equal(before_frame, after_frame)
+
+
 def test_the_same_empty_filter_again_does_not_redraw_but_a_new_one_does(
         screen):
     from spacr.selection import DataFilter, RangeFilter
@@ -483,3 +570,38 @@ def test_the_same_empty_filter_again_does_not_redraw_but_a_new_one_does(
     screen.gates.canvas.link.set_filter(narrowed)
     _pump(1.0)
     assert len(draws) == 2
+
+
+def test_the_projection_worker_gives_the_lock_back_while_it_projects(qapp):
+    """The xD stalls were the GUI thread redrawing, not the worker: its
+    longest hold of the interpreter lock (PCA, the warning, the join and
+    the column kinds of 60,000 rows by 15 columns) measured 8 ms warm."""
+    import sys
+    import threading
+
+    request = {"frame": _wide(), "groups": {}, "explicit": (),
+               "method": "pca", "components": 3, "n_neighbors": 15,
+               "min_dist": 0.1, "perplexity": 30.0}
+    GateEditorScreen._projection_outcome(request)
+    gaps, done = [], threading.Event()
+
+    def tick():
+        last = time.perf_counter()
+        while not done.is_set():
+            time.sleep(0.001)
+            now = time.perf_counter()
+            gaps.append(now - last)
+            last = now
+
+    previous = sys.getswitchinterval()
+    sys.setswitchinterval(0.001)
+    ticker = threading.Thread(target=tick, daemon=True)
+    ticker.start()
+    try:
+        outcome = GateEditorScreen._projection_outcome(request)
+    finally:
+        done.set()
+        ticker.join()
+        sys.setswitchinterval(previous)
+    assert outcome[0] == "ok"
+    assert max(gaps) < 0.25, max(gaps)

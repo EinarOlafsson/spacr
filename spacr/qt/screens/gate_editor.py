@@ -694,10 +694,26 @@ class GateEditorScreen(DerivedTableSource, QWidget):
             label or f"{len(frame):,} rows × {len(frame.columns)} columns")
 
     def _push_frame(self) -> None:
-        """Hand the table plus its computed columns to everything below."""
+        """Hand the table plus its computed columns to everything below.
+
+        The spec, the sample and the axis pickers each redrew the graph; the
+        canvas holds its renders until all three are in and draws once.
+        """
         frame = self.formulas.computed_frame()
         if frame is None:
             return
+        canvas = self.gates.canvas
+        canvas._hold_renders()
+        try:
+            self._push_frame_held(frame)
+        finally:
+            canvas._release_renders()
+
+    def _push_frame_held(self, frame) -> None:
+        """:meth:`_push_frame` while the canvas holds its renders.
+
+        :param frame: the computed table being pushed.
+        """
         total = len(frame)
         if len(self._display_order) != total:
             self._display_order = np.random.default_rng().permutation(total)
@@ -1750,6 +1766,18 @@ class GateEditorScreen(DerivedTableSource, QWidget):
             replaces the current settings and is passed to the gate canvas and
             the search panel.
         """
+        canvas = self.gates.canvas
+        canvas._hold_renders()
+        try:
+            self._apply_settings_held(settings)
+        finally:
+            canvas._release_renders()
+
+    def _apply_settings_held(self, settings: GateEditorSettings) -> None:
+        """:meth:`apply_settings` while the canvas holds its renders.
+
+        :param settings: the complete new settings.
+        """
         self._settings = settings
         if self._settings_dialog is not None:
             self._settings_dialog._settings = settings
@@ -1886,13 +1914,18 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         _kind, components, warning, combined = outcome
         variance = components.attrs.get("explained_variance") or []
         label = self._variance_label(components, variance)
-        self.set_frame(combined, label=label + warning)
-        names = list(components.columns)
-        if len(names) >= 2:
-            self._x.setCurrentText(names[0])
-            self._y.setCurrentText(names[1])
-        if len(names) >= 3:
-            self._z.setCurrentText(names[2])
+        canvas = self.gates.canvas
+        canvas._hold_renders()
+        try:
+            self.set_frame(combined, label=label + warning)
+            names = list(components.columns)
+            if len(names) >= 2:
+                self._x.setCurrentText(names[0])
+                self._y.setCurrentText(names[1])
+            if len(names) >= 3:
+                self._z.setCurrentText(names[2])
+        finally:
+            canvas._release_renders()
         return None
 
     def _start_projection_job(self, request) -> None:
