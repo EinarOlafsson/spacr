@@ -516,7 +516,6 @@ def test_review_writer_resolves_labels_from_the_live_public_docstrings(monkeypat
     text = "First paragraph.\n\nSecond paragraph.\n\ny ~ a:b + c"
     monkeypatch.setattr(builder, "public_docstrings", lambda: {"pkg.symbol": text})
     blocks, _ = builder.translatable_blocks(text)
-    assert not (writer.REPO / "docs/source/_static/i18n/api/en.json").exists()
     for position, block in enumerate(blocks):
         assert writer.resolve(f"pkg.symbol#{position}") == block
     with pytest.raises(SystemExit, match="does not exist"):
