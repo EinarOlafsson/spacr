@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
@@ -425,7 +425,7 @@ msgstr "**Kjörstillingar** heldur fjórum hjálparlínum sýnilegum undir still
 # AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
-msgstr "**Sættuðu Backdrop** helst óháð aðalhreyfimyndinni bæði þegar stillingar eru notaðar og vistaðar. **Engin** slekkur á hreyfingu í sprettigluggum en heldur bláa jaðrinum. **Dökkvun bakgrunns stillinga** stjórnar ógagnsæi stillingaspjaldsins yfir hreyfimyndinni, frá **0%** til **100%** (sjálfgefið **85%**), ásamt **Ógagnsæi síðu**. Ógagnsæi síðu gildir einnig þegar bakgrunnur stillinga er **Engin**. Meiri dökkvun hylur meira af hreyfimyndinni svo auðveldara sé að lesa textann. Sprettigluggar haldast fyrir ofan spaCR-gluggann sem þeir tilheyra án þess að nota almenna stillingu um að vera alltaf efst, svo önnur forrit geta hulið þá."
+msgstr "**Bakgrunnur stillinga** helst óháð aðalhreyfimyndinni bæði þegar stillingar eru notaðar og vistaðar. **Engin** slekkur á hreyfingu í sprettigluggum en heldur bláa jaðrinum. **Dökkvun bakgrunns stillinga** stjórnar ógagnsæi stillingaspjaldsins yfir hreyfimyndinni, frá **0%** til **100%** (sjálfgefið **85%**), ásamt **Ógagnsæi síðu**. Ógagnsæi síðu gildir einnig þegar bakgrunnur stillinga er **Engin**. Meiri dökkvun hylur meira af hreyfimyndinni svo auðveldara sé að lesa textann. Sprettigluggar haldast fyrir ofan spaCR-gluggann sem þeir tilheyra án þess að nota almenna stillingu um að vera alltaf efst, svo önnur forrit geta hulið þá."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "In **spaCR field**, left-drag an unoccupied background area to pull a local patch of dots. Releasing the button lets it spring back smoothly without restarting the pattern. This background gesture leaves scientific canvas and control gestures available."

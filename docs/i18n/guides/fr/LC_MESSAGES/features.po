@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: fr\n"
@@ -425,7 +425,7 @@ msgstr "**Préférences** conserve quatre lignes d’aide visibles sous les para
 # AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
-msgstr "**Contexte des paramètres** reste indépendant de l’animation principale lors de l’application comme de l’enregistrement. **Aucune** désactive le mouvement de la fenêtre contextuelle tout en conservant le bord bleu. **Assombrissement du fond des réglages** contrôle l’opacité de la carte des réglages devant son animation, de **0%** à **100%** (par défaut **85%**), combinée à **Opacité de page**. L’opacité de page s’applique aussi lorsque le fond des paramètres est **Aucune**. Des valeurs d’assombrissement plus élevées couvrent davantage l’animation pour faciliter la lecture du texte. Les fenêtres contextuelles restent au-dessus de leur fenêtre spaCR sans recourir à un indicateur global « toujours au premier plan », de sorte que d’autres applications peuvent les couvrir."
+msgstr "**Fond des réglages** reste indépendant de l’animation principale lors de l’application comme de l’enregistrement. **Aucune** désactive le mouvement de la fenêtre contextuelle tout en conservant le bord bleu. **Assombrissement du fond des réglages** contrôle l’opacité de la carte des réglages devant son animation, de **0%** à **100%** (par défaut **85%**), combinée à **Opacité de page**. L’opacité de page s’applique aussi lorsque le fond des paramètres est **Aucune**. Des valeurs d’assombrissement plus élevées couvrent davantage l’animation pour faciliter la lecture du texte. Les fenêtres contextuelles restent au-dessus de leur fenêtre spaCR sans recourir à un indicateur global « toujours au premier plan », de sorte que d’autres applications peuvent les couvrir."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "In **spaCR field**, left-drag an unoccupied background area to pull a local patch of dots. Releasing the button lets it spring back smoothly without restarting the pattern. This background gesture leaves scientific canvas and control gestures available."
@@ -573,8 +573,9 @@ msgstr "**Groupes** : chaque groupe est testé pour la normalité (Shapiro–Wil
 msgid "**Two measurements**: Pearson or Spearman correlation, chosen by normality."
 msgstr "**Deux mesures** : corrélation de Pearson ou de Spearman, choisie selon la normalité."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Counts**: chi-square, or Fisher's exact test when an expected count is below 5; tables larger than 2×2 use the Fisher–Freeman–Halton test with a fixed-seed Monte Carlo p-value."
-msgstr "**Nombres** : khi-deux, ou test exact de Fisher lorsqu’un effectif attendu est inférieur à 5 ; les tableaux plus grands que 2×2 utilisent le test de Fisher–Freeman–Halton avec une p-valeur Monte-Carlo à graine fixe."
+msgstr "**Comptages** : khi-deux, ou test exact de Fisher lorsqu’un effectif attendu est inférieur à 5 ; les tableaux plus grands que 2×2 utilisent le test de Fisher–Freeman–Halton avec une p-valeur Monte-Carlo à graine fixe."
 
 msgid "**Proportions** (a 0/1 outcome): a two-proportion z test or Fisher's exact test; three or more groups get chi-square followed by corrected pairwise z tests."
 msgstr "**Proportions** (un résultat 0/1) : un test z à deux proportions ou le test exact de Fisher ; trois groupes ou plus reçoivent un khi-deux suivi de tests z par paires corrigés."

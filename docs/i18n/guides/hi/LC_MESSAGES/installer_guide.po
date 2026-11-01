@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: hi\n"
@@ -121,7 +121,7 @@ msgstr "अद्यतन"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Choose **Help → Check for updates**, review the offered version and choose **Update**. Supported macOS installations and dedicated private Python installations prepare the replacement in the background. When it is ready, choose **Restart** to finish closing the current application and open the verified replacement through the spaCR startup window. No manual click on the application icon is needed. Frozen Windows and Debian installations use their native authorization and replacement workflows."
-msgstr "**सहायता → Check for updates** चुनें, प्रस्तावित संस्करण की समीक्षा करें और **Update** चुनें। समर्थित macOS स्थापनाएँ और समर्पित निजी Python स्थापनाएँ पृष्ठभूमि में प्रतिस्थापन तैयार करती हैं। जब यह तैयार हो जाए, तो वर्तमान एप्लिकेशन को बंद करना पूरा करने और सत्यापित प्रतिस्थापन को spaCR स्टार्टअप विंडो के माध्यम से खोलने के लिए **पुनः प्रारंभ करें** चुनें। एप्लिकेशन आइकन पर हाथ से क्लिक करने की आवश्यकता नहीं है। फ़्रोज़न Windows और Debian स्थापनाएँ अपनी मूल प्राधिकरण और प्रतिस्थापन कार्यप्रणालियों का उपयोग करती हैं।"
+msgstr "**सहायता → Check for updates** चुनें, प्रस्तावित संस्करण की समीक्षा करें और **अपडेट करें** चुनें। समर्थित macOS स्थापनाएँ और समर्पित निजी Python स्थापनाएँ पृष्ठभूमि में प्रतिस्थापन तैयार करती हैं। जब यह तैयार हो जाए, तो वर्तमान एप्लिकेशन को बंद करना पूरा करने और सत्यापित प्रतिस्थापन को spaCR स्टार्टअप विंडो के माध्यम से खोलने के लिए **पुनः प्रारंभ करें** चुनें। एप्लिकेशन आइकन पर हाथ से क्लिक करने की आवश्यकता नहीं है। फ़्रोज़न Windows और Debian स्थापनाएँ अपनी मूल प्राधिकरण और प्रतिस्थापन कार्यप्रणालियों का उपयोग करती हैं।"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Older Linux and Windows online layouts without a verified update adapter are refused before replacement starts. The application stays open and keeps its data. Use the matching release installer for those installations."

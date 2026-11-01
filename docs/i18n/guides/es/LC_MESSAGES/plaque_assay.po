@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: es\n"
@@ -63,8 +63,9 @@ msgstr "En **Configuración… → Figura**, elija el detector de pocillos, los 
 msgid "Click a well in the image or a table row. **Plaque preview** segments that well with the plaque settings. **Find plaques in all wells** processes the detected wells in sequence. Cancel clears the remaining queue and discards the current well's pending result; an already running model call finishes in the background."
 msgstr "Haga clic en un pocillo de la imagen o en una fila de la tabla. **Vista previa de placas de lisis** segmenta ese pocillo con la configuración de placas. **Buscar placas de lisis en todos los pocillos** procesa uno tras otro los pocillos detectados. Cancelar vacía la cola restante y descarta el resultado pendiente del pocillo actual; una llamada al modelo que ya esté en curso termina en segundo plano."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Compare the proposed condition with the nearby label and the relevant legend passage. Correct the condition, mark reviewed entries **OK**, and save the annotations. With **Confirm annotations** enabled, the run measures only the saved approved entries."
-msgstr "Compare la condición propuesta con la etiqueta cercana y el pasaje pertinente de la leyenda. Corrija la condición, marque las entradas revisadas como **OK** y guarde las anotaciones. Con **Confirmar anotaciones** activado, la ejecución mide solo las entradas aprobadas guardadas."
+msgstr "Compare la condición propuesta con la etiqueta cercana y el pasaje pertinente de la leyenda. Corrija la condición, marque las entradas revisadas como **Aceptar** y guarde las anotaciones. Con **Confirmar anotaciones** activado, la ejecución mide solo las entradas aprobadas guardadas."
 
 msgid "Copy the tuned settings into the form before starting the analysis run. Retain the original figure, legend, annotation review and calibration information alongside the measurements."
 msgstr "Copie la configuración ajustada en el formulario antes de iniciar la ejecución del análisis. Conserve la figura original, la leyenda, la revisión de anotaciones y la información de calibración junto con las mediciones."

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -308,6 +308,10 @@ msgstr "**标签掩膜** — 保留时为 masks/，或明确保存的图像与�
 
 msgid "**Object counts** — measurements/measurements.db; Mask counts alone are not per-object feature measurements."
 msgstr "**对象计数** — measurements/measurements.db；仅有 Mask 计数并不构成逐对象特征测量。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Whole-image measurements** — Overview writes one row per image to the fov table of measurements/measurements.db under the first loaded source root; exported tables preserve that source ownership. Relevant tables, depending on the route: ``fov``."
+msgstr "**整图测量** — 概览 为每张图像写入一行，保存到首个已加载来源根目录下 measurements/measurements.db 的 fov 表；导出的表保留该来源归属。相关的表（视路线而定）：``fov``。"
 
 msgid "**Before this module**"
 msgstr "**本模块之前**"

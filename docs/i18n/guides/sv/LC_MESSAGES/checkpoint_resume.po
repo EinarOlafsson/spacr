@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: sv\n"
@@ -23,8 +23,9 @@ msgid "Checkpoint and resume"
 msgstr "Kontrollpunkter och återupptagning"
 
 # AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "A checkpoint can be initialized before any unit finishes. Supported workflows mark completed units of work, such as fields, trials or plate jobs, at their checkpoint boundaries. A later resume validates the stored workflow identity and uses its completion records and workflow-specific output checks to decide what can be reused. A checkpoint is not a guarantee against forced process termination or damaged output files. The Qt **Stop** button uses the same boundaries: it requests cooperative cancellation, lets the current safe unit finish, and retains the checkpoint for the next run. See :doc:`threading_cancellation_audit`."
-msgstr "En kontrollpunkt kan initieras innan någon enhet har slutförts. Stödda arbetsflöden markerar färdiga arbetsenheter, såsom bildfält, försök eller plattjobb, vid sina kontrollpunktsgränser. En senare återupptagning validerar den lagrade arbetsflödesidentiteten och använder dess slutförandeposter och arbetsflödesspecifika utdatakontroller för att avgöra vad som kan återanvändas. En kontrollpunkt garanterar inte skydd mot tvingad processavslutning eller skadade utdatafiler. Qt-knappen **Stop** använder samma gränser: den begär samverkande avbrytning, låter den aktuella säkra enheten bli klar och behåller kontrollpunkten för nästa körning. Se :doc:`threading_cancellation_audit`."
+msgstr "En kontrollpunkt kan initieras innan någon enhet har slutförts. Stödda arbetsflöden markerar färdiga arbetsenheter, såsom bildfält, försök eller plattjobb, vid sina kontrollpunktsgränser. En senare återupptagning validerar den lagrade arbetsflödesidentiteten och använder dess slutförandeposter och arbetsflödesspecifika utdatakontroller för att avgöra vad som kan återanvändas. En kontrollpunkt garanterar inte skydd mot tvingad processavslutning eller skadade utdatafiler. Qt-knappen **Stoppa** använder samma gränser: den begär samverkande avbrytning, låter den aktuella säkra enheten bli klar och behåller kontrollpunkten för nästa körning. Se :doc:`threading_cancellation_audit`."
 
 msgid "Supported workflows"
 msgstr "Arbetsflöden som stöds"

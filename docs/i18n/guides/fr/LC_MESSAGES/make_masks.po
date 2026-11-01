@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: fr\n"
@@ -652,8 +652,9 @@ msgid "**Save to** chooses where the overlay is written. The default is **New ma
 msgstr "**Enregistrer dans** choisit où écrire la superposition. Le défaut est **Nouveau dossier de masques**, ``masks_curated_<date>`` à côté des images (un dossier ``masks_curated_*`` existant est réutilisé pour reprendre la session) ; saisissez un autre nom ou chemin complet sous **Nom du dossier**, ou passez ``--save-to``. Choisir le dossier d’un calque écrase ses masques champ par champ et ne prend effet qu’après **Écraser** dans la confirmation sous la commande. Un champ déjà enregistré dans le dossier cible s’ouvre depuis ce dossier."
 
 # AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Keep** saves the overlay as edited, with its object IDs unchanged, and moves to the next field; **Next** behaves as in any queue. Edited saves write curation history (``<stem>.tif.curation.json``). Layer decisions are recorded in ``<stem>.decisions.json`` beside the mask: the base IDs that were removed and each added object's ID, source layer and ID in that layer. Progress is kept in the ``curate_status.csv`` inside the save folder, so a review resumes on its own record and offers again the fields the folder's ordinary curation already finished. Without layers, Make Masks behaves and saves exactly as before."
-msgstr "**Conserver** enregistre la superposition modifiée sans changer les identifiants d’objets, puis avance au champ suivant ; **Next** fonctionne comme dans toute file. Les enregistrements modifiés écrivent l’historique de correction (``<stem>.tif.curation.json``). Les décisions de calques sont inscrites dans ``<stem>.decisions.json`` à côté du masque : identifiants de base retirés et, pour chaque ajout, son identifiant, son calque source et son identifiant dans ce calque. La progression reste dans ``curate_status.csv`` du dossier cible ; la révision reprend son propre registre et propose à nouveau les champs déjà terminés par la correction ordinaire du dossier. Sans calques, Make Masks fonctionne et enregistre comme auparavant."
+msgstr "**Conserver** enregistre la superposition modifiée sans changer les identifiants d’objets, puis avance au champ suivant ; **Suivant** fonctionne comme dans toute file. Les enregistrements modifiés écrivent l’historique de correction (``<stem>.tif.curation.json``). Les décisions de calques sont inscrites dans ``<stem>.decisions.json`` à côté du masque : identifiants de base retirés et, pour chaque ajout, son identifiant, son calque source et son identifiant dans ce calque. La progression reste dans ``curate_status.csv`` du dossier cible ; la révision reprend son propre registre et propose à nouveau les champs déjà terminés par la correction ordinaire du dossier. Sans calques, Make Masks fonctionne et enregistre comme auparavant."
 
 msgid "Upload data"
 msgstr "Téléverser des données"

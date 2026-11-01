@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: hi\n"
@@ -23,8 +23,9 @@ msgid "Checkpoint and resume"
 msgstr "चेकपॉइंट और फिर से शुरू करना"
 
 # AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "A checkpoint can be initialized before any unit finishes. Supported workflows mark completed units of work, such as fields, trials or plate jobs, at their checkpoint boundaries. A later resume validates the stored workflow identity and uses its completion records and workflow-specific output checks to decide what can be reused. A checkpoint is not a guarantee against forced process termination or damaged output files. The Qt **Stop** button uses the same boundaries: it requests cooperative cancellation, lets the current safe unit finish, and retains the checkpoint for the next run. See :doc:`threading_cancellation_audit`."
-msgstr "किसी भी इकाई के पूरा होने से पहले चेकपॉइंट प्रारंभ किया जा सकता है। समर्थित वर्कफ़्लो अपनी चेकपॉइंट सीमाओं पर पूरा हुआ काम, जैसे फ़ील्ड, ट्रायल या प्लेट जॉब, दर्ज करते हैं। बाद की पुनः शुरुआत सहेजी वर्कफ़्लो पहचान सत्यापित करती है और पूर्णता रिकॉर्ड तथा वर्कफ़्लो-विशिष्ट आउटपुट जाँचों से तय करती है कि क्या पुनः उपयोग हो सकता है। चेकपॉइंट जबरन प्रक्रिया समाप्ति या क्षतिग्रस्त आउटपुट फ़ाइलों से सुरक्षा की गारंटी नहीं है। Qt का **Stop** बटन उन्हीं सीमाओं का उपयोग करता है: वह सहयोगात्मक रद्दीकरण माँगता है, वर्तमान सुरक्षित इकाई को पूरा होने देता है और अगली रन के लिए चेकपॉइंट रखता है। :doc:`threading_cancellation_audit` देखें।"
+msgstr "किसी भी इकाई के पूरा होने से पहले चेकपॉइंट प्रारंभ किया जा सकता है। समर्थित वर्कफ़्लो अपनी चेकपॉइंट सीमाओं पर पूरा हुआ काम, जैसे फ़ील्ड, ट्रायल या प्लेट जॉब, दर्ज करते हैं। बाद की पुनः शुरुआत सहेजी वर्कफ़्लो पहचान सत्यापित करती है और पूर्णता रिकॉर्ड तथा वर्कफ़्लो-विशिष्ट आउटपुट जाँचों से तय करती है कि क्या पुनः उपयोग हो सकता है। चेकपॉइंट जबरन प्रक्रिया समाप्ति या क्षतिग्रस्त आउटपुट फ़ाइलों से सुरक्षा की गारंटी नहीं है। Qt का **रोकें** बटन उन्हीं सीमाओं का उपयोग करता है: वह सहयोगात्मक रद्दीकरण माँगता है, वर्तमान सुरक्षित इकाई को पूरा होने देता है और अगली रन के लिए चेकपॉइंट रखता है। :doc:`threading_cancellation_audit` देखें।"
 
 msgid "Supported workflows"
 msgstr "समर्थित कार्यप्रवाह"

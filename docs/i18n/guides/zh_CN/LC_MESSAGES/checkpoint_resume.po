@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -23,8 +23,9 @@ msgid "Checkpoint and resume"
 msgstr "检查点与断点续跑"
 
 # AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "A checkpoint can be initialized before any unit finishes. Supported workflows mark completed units of work, such as fields, trials or plate jobs, at their checkpoint boundaries. A later resume validates the stored workflow identity and uses its completion records and workflow-specific output checks to decide what can be reused. A checkpoint is not a guarantee against forced process termination or damaged output files. The Qt **Stop** button uses the same boundaries: it requests cooperative cancellation, lets the current safe unit finish, and retains the checkpoint for the next run. See :doc:`threading_cancellation_audit`."
-msgstr "任何工作单元完成前都可以初始化检查点。受支持的工作流在检查点边界标记已完成单元，例如视野、试验或板任务。后续恢复会验证已保存的工作流身份，并根据完成记录及工作流特有的输出检查决定哪些内容可以复用。检查点并不保证能够抵御强制进程终止或输出文件损坏。Qt 的 **Stop** 按钮使用相同边界：它请求协作式取消，让当前安全单元完成，并保留检查点供下次运行使用。请参阅 :doc:`threading_cancellation_audit`。"
+msgstr "任何工作单元完成前都可以初始化检查点。受支持的工作流在检查点边界标记已完成单元，例如视野、试验或板任务。后续恢复会验证已保存的工作流身份，并根据完成记录及工作流特有的输出检查决定哪些内容可以复用。检查点并不保证能够抵御强制进程终止或输出文件损坏。Qt 的 **停止** 按钮使用相同边界：它请求协作式取消，让当前安全单元完成，并保留检查点供下次运行使用。请参阅 :doc:`threading_cancellation_audit`。"
 
 msgid "Supported workflows"
 msgstr "支持的工作流程"

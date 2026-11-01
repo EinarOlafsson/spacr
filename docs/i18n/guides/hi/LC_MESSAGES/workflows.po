@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: hi\n"
@@ -308,6 +308,10 @@ msgstr "**लेबल मास्क** — रखे जाने पर masks
 
 msgid "**Object counts** — measurements/measurements.db; Mask counts alone are not per-object feature measurements."
 msgstr "**ऑब्जेक्ट की संख्या** — measurements/measurements.db; केवल Mask गिनतियाँ प्रति-वस्तु फ़ीचर मापन नहीं हैं।"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Whole-image measurements** — Overview writes one row per image to the fov table of measurements/measurements.db under the first loaded source root; exported tables preserve that source ownership. Relevant tables, depending on the route: ``fov``."
+msgstr "**पूरी छवि के माप** — अवलोकन पहली लोड की गई स्रोत रूट के अंतर्गत measurements/measurements.db की fov तालिका में प्रति छवि एक पंक्ति लिखता है; निर्यातित तालिकाएँ यही स्रोत स्वामित्व बनाए रखती हैं। मार्ग के अनुसार संबंधित तालिकाएँ: ``fov``।"
 
 msgid "**Before this module**"
 msgstr "**इस मॉड्यूल से पहले**"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: hi\n"
@@ -652,8 +652,9 @@ msgid "**Save to** chooses where the overlay is written. The default is **New ma
 msgstr "**यहाँ सहेजें** ओवरले लिखने का स्थान चुनता है। डिफ़ॉल्ट **नया मास्क फ़ोल्डर** है, छवियों के पास ``masks_curated_<date>`` (मौजूदा ``masks_curated_*`` फ़ोल्डर फिर इस्तेमाल होता है ताकि सत्र वहीं जारी रहे); **फ़ोल्डर का नाम** में दूसरा नाम या पूरा पथ दें, या ``--save-to`` पास करें। किसी परत का फ़ोल्डर चुनने से उसके मास्क फ़ील्ड दर फ़ील्ड अधिलेखित होते हैं, और यह केवल नियंत्रण के नीचे पुष्टि में **अधिलेखित करें** चुनने के बाद लागू होता है। गंतव्य फ़ोल्डर में पहले सहेजा फ़ील्ड वहीं से खुलता है।"
 
 # AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Keep** saves the overlay as edited, with its object IDs unchanged, and moves to the next field; **Next** behaves as in any queue. Edited saves write curation history (``<stem>.tif.curation.json``). Layer decisions are recorded in ``<stem>.decisions.json`` beside the mask: the base IDs that were removed and each added object's ID, source layer and ID in that layer. Progress is kept in the ``curate_status.csv`` inside the save folder, so a review resumes on its own record and offers again the fields the folder's ordinary curation already finished. Without layers, Make Masks behaves and saves exactly as before."
-msgstr "**रखें** संपादित ओवरले को उसके ऑब्जेक्ट ID बदले बिना सहेजकर अगले फ़ील्ड पर जाता है; **Next** किसी भी कतार की तरह काम करता है। बदलाव वाले सहेजने पर क्यूरेशन इतिहास (``<stem>.tif.curation.json``) लिखा जाता है। परत निर्णय मास्क के पास ``<stem>.decisions.json`` में दर्ज होते हैं: हटाए आधार ID तथा हर जोड़े ऑब्जेक्ट का ID, स्रोत परत और उस परत में ID। प्रगति गंतव्य फ़ोल्डर के ``curate_status.csv`` में रहती है ताकि समीक्षा अपने रिकॉर्ड से जारी रहे और फ़ोल्डर की सामान्य क्यूरेशन द्वारा पहले पूरे फ़ील्ड फिर प्रस्तुत हों। परतों के बिना Make Masks पहले की तरह चलता और सहेजता है।"
+msgstr "**रखें** संपादित ओवरले को उसके ऑब्जेक्ट ID बदले बिना सहेजकर अगले फ़ील्ड पर जाता है; **अगला** किसी भी कतार की तरह काम करता है। बदलाव वाले सहेजने पर क्यूरेशन इतिहास (``<stem>.tif.curation.json``) लिखा जाता है। परत निर्णय मास्क के पास ``<stem>.decisions.json`` में दर्ज होते हैं: हटाए आधार ID तथा हर जोड़े ऑब्जेक्ट का ID, स्रोत परत और उस परत में ID। प्रगति गंतव्य फ़ोल्डर के ``curate_status.csv`` में रहती है ताकि समीक्षा अपने रिकॉर्ड से जारी रहे और फ़ोल्डर की सामान्य क्यूरेशन द्वारा पहले पूरे फ़ील्ड फिर प्रस्तुत हों। परतों के बिना Make Masks पहले की तरह चलता और सहेजता है।"
 
 msgid "Upload data"
 msgstr "डेटा अपलोड करें"

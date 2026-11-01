@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 19:43-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -51,7 +51,7 @@ msgstr "停止时会先询问停止方式。**Finish current work** 请求取消
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Force stop** returns control to the window immediately. A worker that does not respond -- typically one inside a long Cellpose or PyTorch call -- is parked rather than terminated: its references are kept and it finishes in the background, so anything it is writing may be left half-written. **Force restart** saves the module and its settings, then starts spaCR again and reopens that module."
-msgstr "**Force stop** 会立即交还窗口控制权。无响应的工作线程（通常处于长时间的 Cellpose 或 PyTorch 调用中）会被搁置而不是被终止：其引用会被保留，并在后台完成，因此它正在写入的内容可能只写了一半。**Force restart** 会保存模块及其设置，然后重新启动 spaCR 并重新打开该模块。"
+msgstr "**Force stop** 会立即交还窗口控制权。无响应的工作线程（通常处于长时间的 Cellpose 或 PyTorch 调用中）会被搁置而不是被终止：其引用会被保留，并在后台完成，因此它正在写入的内容可能只写了一半。**强制重启** 会保存模块及其设置，然后重新启动 spaCR 并重新打开该模块。"
 
 msgid "Shutdown behavior"
 msgstr "关闭时的行为"

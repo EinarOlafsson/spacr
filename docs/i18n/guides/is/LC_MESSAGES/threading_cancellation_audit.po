@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 19:43-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
@@ -51,7 +51,7 @@ msgstr "Stöðvun spyr fyrst hvernig á að stöðva. **Finish current work** bi
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Force stop** returns control to the window immediately. A worker that does not respond -- typically one inside a long Cellpose or PyTorch call -- is parked rather than terminated: its references are kept and it finishes in the background, so anything it is writing may be left half-written. **Force restart** saves the module and its settings, then starts spaCR again and reopens that module."
-msgstr "**Force stop** skilar stjórninni strax til gluggans. Vinnsluþráður sem svarar ekki -- yfirleitt einn sem er inni í löngu Cellpose- eða PyTorch-kalli -- er lagður til hliðar frekar en stöðvaður: tilvísunum í hann er haldið og hann klárast í bakgrunni, þannig að allt sem hann er að skrifa getur orðið hálfskrifað. **Force restart** vistar eininguna og stillingar hennar, ræsir síðan spaCR aftur og opnar þá einingu á ný."
+msgstr "**Force stop** skilar stjórninni strax til gluggans. Vinnsluþráður sem svarar ekki -- yfirleitt einn sem er inni í löngu Cellpose- eða PyTorch-kalli -- er lagður til hliðar frekar en stöðvaður: tilvísunum í hann er haldið og hann klárast í bakgrunni, þannig að allt sem hann er að skrifa getur orðið hálfskrifað. **Þvinga endurræsingu** vistar eininguna og stillingar hennar, ræsir síðan spaCR aftur og opnar þá einingu á ný."
 
 msgid "Shutdown behavior"
 msgstr "Hegðun við lokun"

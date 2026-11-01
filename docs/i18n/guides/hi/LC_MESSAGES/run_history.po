@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 20:26-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -73,7 +73,7 @@ msgstr "कैश तालिका spaCR मॉडल, Cellpose, Hugging Face,
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The spaCR model cache uses ``SPACR_MODEL_CACHE``. When it is unset or blank, models use the ``models`` folder inside the spaCR home returned by ``_spacr_home()`` (normally ``~/.spacr/models``). An explicit environment override takes precedence. Moving this cache through **Storage → Move…** persists its new location in ``cache_locations.json`` and reapplies it on startup. Newly opened Model Zoo screens and plaque previews use that location. The model picker follows the move when its remembered folder matched the old cache; a separately chosen custom model folder is preserved."
-msgstr "spaCR मॉडल कैश ``SPACR_MODEL_CACHE`` का उपयोग करता है। जब यह सेट न हो या खाली हो, तो मॉडल ``_spacr_home()`` द्वारा लौटाए गए spaCR होम के भीतर ``models`` फ़ोल्डर का उपयोग करते हैं (सामान्यतः ``~/.spacr/models``)। स्पष्ट परिवेश ओवरराइड को प्राथमिकता मिलती है। **Storage → स्थानांतरित करें…** से इस कैश को खिसकाने पर इसका नया स्थान ``cache_locations.json`` में सहेजा जाता है और स्टार्टअप पर फिर से लागू होता है। नए खोले गए Model Zoo स्क्रीन और प्लाक पूर्वावलोकन उस स्थान का उपयोग करते हैं। जब मॉडल पिकर का याद रखा गया फ़ोल्डर पुराने कैश से मेल खाता था, तो वह स्थानांतरण का अनुसरण करता है; अलग से चुना गया कस्टम मॉडल फ़ोल्डर सुरक्षित रखा जाता है।"
+msgstr "spaCR मॉडल कैश ``SPACR_MODEL_CACHE`` का उपयोग करता है। जब यह सेट न हो या खाली हो, तो मॉडल ``_spacr_home()`` द्वारा लौटाए गए spaCR होम के भीतर ``models`` फ़ोल्डर का उपयोग करते हैं (सामान्यतः ``~/.spacr/models``)। स्पष्ट परिवेश ओवरराइड को प्राथमिकता मिलती है। **भंडारण → स्थानांतरित करें…** से इस कैश को खिसकाने पर इसका नया स्थान ``cache_locations.json`` में सहेजा जाता है और स्टार्टअप पर फिर से लागू होता है। नए खोले गए Model Zoo स्क्रीन और प्लाक पूर्वावलोकन उस स्थान का उपयोग करते हैं। जब मॉडल पिकर का याद रखा गया फ़ोल्डर पुराने कैश से मेल खाता था, तो वह स्थानांतरण का अनुसरण करता है; अलग से चुना गया कस्टम मॉडल फ़ोल्डर सुरक्षित रखा जाता है।"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Preferences → Logging → Log files** has **Clear all logs…**. It lists the daily logs, run logs, crash logs and verbose logs with the number of files and their size in each group, and deletes them only after you confirm. A log that the running spaCR session has open is emptied instead of deleted, so the run in progress keeps its log. The result says how many files were deleted and emptied and how much space was freed."

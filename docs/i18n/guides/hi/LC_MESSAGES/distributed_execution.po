@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: hi\n"
@@ -88,8 +88,9 @@ msgstr "सेटिंग्स को वितरित कार्य स�
 msgid "Settings files from the GUI"
 msgstr "GUI से सेटिंग फ़ाइलें"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Every module screen with **Import settings…** has **Export settings…** next to it. It saves the values currently in the form, exactly what **Run** would use, to a CSV you choose. Nothing runs: the source folder is not listed or opened, so a form set up for a slow network share is saved at once. The dialog suggests ``<module>_settings.csv`` in the source folder."
-msgstr "**सेटिंग्स आयात करें…** वाली हर मॉड्यूल स्क्रीन पर उसके बगल में **सेटिंग्स निर्यात करें…** होता है। यह फ़ॉर्म में अभी मौजूद मानों को, ठीक वही जो **चलाएँ** उपयोग करता, आपके चुने CSV में सहेजता है। कुछ चलता नहीं: स्रोत फ़ोल्डर को सूचीबद्ध या खोला नहीं जाता, इसलिए धीमे नेटवर्क शेयर के लिए बना फ़ॉर्म तुरंत सहेज लिया जाता है। संवाद स्रोत फ़ोल्डर में ``<module>_settings.csv`` सुझाता है।"
+msgstr "**सेटिंग्स आयात करें…** वाली हर मॉड्यूल स्क्रीन पर उसके बगल में **सेटिंग निर्यात करें…** होता है। यह फ़ॉर्म में अभी मौजूद मानों को, ठीक वही जो **चलाएँ** उपयोग करता, आपके चुने CSV में सहेजता है। कुछ चलता नहीं: स्रोत फ़ोल्डर को सूचीबद्ध या खोला नहीं जाता, इसलिए धीमे नेटवर्क शेयर के लिए बना फ़ॉर्म तुरंत सहेज लिया जाता है। संवाद स्रोत फ़ोल्डर में ``<module>_settings.csv`` सुझाता है।"
 
 msgid "The file has the layout spaCR writes into ``<src>/settings/`` at the start of every run: a ``Key,Value`` header and one row per setting, with lists in Python form (``[0, 1, 2]``), ``True``/``False`` and empty cells for unset values. Paths are saved exactly as the form shows them. A ``.json`` copy with the same settings is written beside it. **Import settings…** reads the file back to the same form values, and the command line runs it unchanged::"
 msgstr "फ़ाइल का वही लेआउट है जिसे spaCR हर रन की शुरुआत में ``<src>/settings/`` में लिखता है: एक ``Key,Value`` हेडर और प्रति सेटिंग एक पंक्ति, सूचियाँ Python रूप में (``[0, 1, 2]``), ``True``/``False`` और अनसेट मानों के लिए खाली सेल। पथ ठीक वैसे ही सहेजे जाते हैं जैसे फ़ॉर्म उन्हें दिखाता है। उसी सेटिंग वाली एक ``.json`` प्रति बगल में लिखी जाती है। **सेटिंग्स आयात करें…** फ़ाइल को उन्हीं फ़ॉर्म मानों में वापस पढ़ता है, और कमांड लाइन उसे बिना बदलाव के चलाती है::"

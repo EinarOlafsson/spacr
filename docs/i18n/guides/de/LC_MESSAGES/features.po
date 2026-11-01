@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: de\n"
@@ -244,8 +244,9 @@ msgid "Picking up where you left off"
 msgstr "Dort weitermachen, wo Sie aufgehört haben"
 
 # AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Opening and restarting**: ordinary launches open Navigator Home, or classic Home when Navigator is off. **Restart** and **Force restart** reopen the previous module, location and settings once. They restore the interface; they do not resume a running analysis."
-msgstr "**Öffnen und Neustarten**: Normale Starts öffnen Navigator Home oder das klassische Home, wenn Navigator ausgeschaltet ist. **Neustart** und **Neustart erzwingen** öffnen das vorherige Modul, den Speicherort und die Einstellungen einmal erneut. Sie stellen die Oberfläche wieder her; sie setzen keine laufende Analyse fort."
+msgstr "**Öffnen und Neustarten**: Normale Starts öffnen Navigator Home oder das klassische Home, wenn Navigator ausgeschaltet ist. **Neu starten** und **Neustart erzwingen** öffnen das vorherige Modul, den Speicherort und die Einstellungen einmal erneut. Sie stellen die Oberfläche wieder her; sie setzen keine laufende Analyse fort."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Settings autosave**: every 30 seconds the unsaved settings of every open module are kept as a draft in the preference store; nothing is written when nothing changed. A clean exit drops the drafts. If spaCR ended without closing, the next start asks once whether to restore them (drafts already restored are not offered again). The same behaviour applies on Linux, macOS and Windows, because the store is Qt's own settings store."
@@ -425,7 +426,7 @@ msgstr "**Einstellungen** hält vier Hilfezeilen unter den Einstellungen sichtba
 # AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
-msgstr "**Einstellungen Hintergrund** bleibt sowohl beim Anwenden als auch beim Speichern unabhängig von der Hauptanimation. **Keine** deaktiviert die Bewegung im Dialogfenster und behält den blauen Rand bei. **Dunkelheit des Einstellungshintergrunds** steuert die Deckkraft der Einstellungskarte über ihrer Animation, von **0%** bis **100%** (Standardwert **85%**), kombiniert mit **Seitendeckkraft**. Die Seitendeckkraft gilt auch, wenn Einstellungen Hintergrund auf **Keine** steht. Höhere Dunkelheitswerte verdecken mehr von der Animation und erleichtern das Lesen des Textes. Dialogfenster bleiben über ihrem zugehörigen spaCR-Fenster, ohne ein globales Immer-im-Vordergrund-Flag zu verwenden, sodass andere Anwendungen sie verdecken können."
+msgstr "**Hintergrund der Einstellungen** bleibt sowohl beim Anwenden als auch beim Speichern unabhängig von der Hauptanimation. **Keine** deaktiviert die Bewegung im Dialogfenster und behält den blauen Rand bei. **Dunkelheit des Einstellungshintergrunds** steuert die Deckkraft der Einstellungskarte über ihrer Animation, von **0%** bis **100%** (Standardwert **85%**), kombiniert mit **Seitendeckkraft**. Die Seitendeckkraft gilt auch, wenn Hintergrund der Einstellungen auf **Keine** steht. Höhere Dunkelheitswerte verdecken mehr von der Animation und erleichtern das Lesen des Textes. Dialogfenster bleiben über ihrem zugehörigen spaCR-Fenster, ohne ein globales Immer-im-Vordergrund-Flag zu verwenden, sodass andere Anwendungen sie verdecken können."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "In **spaCR field**, left-drag an unoccupied background area to pull a local patch of dots. Releasing the button lets it spring back smoothly without restarting the pattern. This background gesture leaves scientific canvas and control gestures available."

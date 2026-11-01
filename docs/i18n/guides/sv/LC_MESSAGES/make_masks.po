@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: sv\n"
@@ -652,8 +652,9 @@ msgid "**Save to** chooses where the overlay is written. The default is **New ma
 msgstr "**Spara till** väljer var överlägget skrivs. Standard är **Ny maskmapp**, ``masks_curated_<date>`` bredvid bilderna (en befintlig ``masks_curated_*``-mapp återanvänds så att sessionen fortsätter där); skriv ett annat namn eller en fullständig sökväg under **Mappnamn**, eller ange ``--save-to``. Ett val av en lagermapp skriver över dess masker bildfält för bildfält och börjar gälla först efter **Skriv över** i bekräftelsen under kontrollen. Ett redan sparat bildfält öppnas från målmappen."
 
 # AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Keep** saves the overlay as edited, with its object IDs unchanged, and moves to the next field; **Next** behaves as in any queue. Edited saves write curation history (``<stem>.tif.curation.json``). Layer decisions are recorded in ``<stem>.decisions.json`` beside the mask: the base IDs that were removed and each added object's ID, source layer and ID in that layer. Progress is kept in the ``curate_status.csv`` inside the save folder, so a review resumes on its own record and offers again the fields the folder's ordinary curation already finished. Without layers, Make Masks behaves and saves exactly as before."
-msgstr "**Behåll** sparar överlägget som redigerat med oförändrade objekt-ID:n och går till nästa bildfält; **Next** fungerar som i andra köer. Ändrade sparningar skriver kureringshistorik (``<stem>.tif.curation.json``). Lagerbeslut registreras i ``<stem>.decisions.json`` bredvid masken: borttagna bas-ID:n samt varje tillagt objekts ID, källager och ID i det lagret. Förloppet sparas i ``curate_status.csv`` i målmappen, så granskningen fortsätter med sin egen post och åter erbjuder bildfält som mappens vanliga kurering redan avslutat. Utan lager fungerar och sparar Make Masks precis som tidigare."
+msgstr "**Behåll** sparar överlägget som redigerat med oförändrade objekt-ID:n och går till nästa bildfält; **Nästa** fungerar som i andra köer. Ändrade sparningar skriver kureringshistorik (``<stem>.tif.curation.json``). Lagerbeslut registreras i ``<stem>.decisions.json`` bredvid masken: borttagna bas-ID:n samt varje tillagt objekts ID, källager och ID i det lagret. Förloppet sparas i ``curate_status.csv`` i målmappen, så granskningen fortsätter med sin egen post och åter erbjuder bildfält som mappens vanliga kurering redan avslutat. Utan lager fungerar och sparar Make Masks precis som tidigare."
 
 msgid "Upload data"
 msgstr "Ladda upp data"

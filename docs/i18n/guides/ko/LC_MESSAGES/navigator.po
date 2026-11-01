@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
@@ -24,8 +24,9 @@ msgid "Navigator: choose a tool from your input"
 msgstr "Navigator: 입력에 맞는 도구 선택"
 
 # AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Navigator is the default Home for a fresh profile; a saved opt-out is respected. Launch it with ``spacr-nav`` or ``spacr-navigator``, or enable **Navigator** in **Help**. Explicit module launches still open that module."
-msgstr "새 프로필의 기본 Home은 Navigator이며, 저장된 사용 안 함 선택은 유지됩니다. ``spacr-nav`` 또는 ``spacr-navigator`` 로 실행하거나 **Help** 에서 **Navigator** 를 켜세요. 모듈을 명시적으로 실행하면 해당 모듈이 그대로 열립니다."
+msgstr "새 프로필의 기본 Home은 Navigator이며, 저장된 사용 안 함 선택은 유지됩니다. ``spacr-nav`` 또는 ``spacr-navigator`` 로 실행하거나 **도움말** 에서 **Navigator** 를 켜세요. 모듈을 명시적으로 실행하면 해당 모듈이 그대로 열립니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Find a starting point"

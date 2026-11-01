@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: es\n"
@@ -652,8 +652,9 @@ msgid "**Save to** chooses where the overlay is written. The default is **New ma
 msgstr "**Guardar en** elige dónde se escribe la superposición. El valor por defecto es **Nueva carpeta de máscaras**, ``masks_curated_<date>`` junto a las imágenes (se reutiliza una carpeta ``masks_curated_*`` existente para continuar la sesión); escriba otro nombre o una ruta completa en **Nombre de la carpeta**, o pase ``--save-to``. Elegir una carpeta de capa sobrescribe sus máscaras campo por campo y solo surte efecto tras **Sobrescribir** en la confirmación bajo el control. Un campo ya guardado en la carpeta de destino se abre desde ella."
 
 # AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Keep** saves the overlay as edited, with its object IDs unchanged, and moves to the next field; **Next** behaves as in any queue. Edited saves write curation history (``<stem>.tif.curation.json``). Layer decisions are recorded in ``<stem>.decisions.json`` beside the mask: the base IDs that were removed and each added object's ID, source layer and ID in that layer. Progress is kept in the ``curate_status.csv`` inside the save folder, so a review resumes on its own record and offers again the fields the folder's ordinary curation already finished. Without layers, Make Masks behaves and saves exactly as before."
-msgstr "**Mantener** guarda la superposición editada con sus ID de objeto intactos y avanza al siguiente campo; **Next** funciona como en cualquier cola. Los guardados con cambios escriben el historial de curación (``<stem>.tif.curation.json``). Las decisiones de capas se registran en ``<stem>.decisions.json`` junto a la máscara: los ID base eliminados y el ID, la capa de origen y el ID en esa capa de cada objeto añadido. El progreso se guarda en ``curate_status.csv`` dentro de la carpeta de destino; la revisión continúa en su propio registro y vuelve a ofrecer campos ya terminados por la curación ordinaria de la carpeta. Sin capas, Make Masks funciona y guarda como antes."
+msgstr "**Mantener** guarda la superposición editada con sus ID de objeto intactos y avanza al siguiente campo; **Siguiente** funciona como en cualquier cola. Los guardados con cambios escriben el historial de curación (``<stem>.tif.curation.json``). Las decisiones de capas se registran en ``<stem>.decisions.json`` junto a la máscara: los ID base eliminados y el ID, la capa de origen y el ID en esa capa de cada objeto añadido. El progreso se guarda en ``curate_status.csv`` dentro de la carpeta de destino; la revisión continúa en su propio registro y vuelve a ofrecer campos ya terminados por la curación ordinaria de la carpeta. Sin capas, Make Masks funciona y guarda como antes."
 
 msgid "Upload data"
 msgstr "Subir datos"

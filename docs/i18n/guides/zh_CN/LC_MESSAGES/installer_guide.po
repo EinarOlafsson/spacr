@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -121,7 +121,7 @@ msgstr "更新"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Choose **Help → Check for updates**, review the offered version and choose **Update**. Supported macOS installations and dedicated private Python installations prepare the replacement in the background. When it is ready, choose **Restart** to finish closing the current application and open the verified replacement through the spaCR startup window. No manual click on the application icon is needed. Frozen Windows and Debian installations use their native authorization and replacement workflows."
-msgstr "选择 **帮助 → Check for updates**，查看提供的版本并选择 **Update**。受支持的 macOS 安装和专用的私有 Python 安装会在后台准备替换版本。准备就绪后，选择 **重新启动** 以完成关闭当前应用程序，并通过 spaCR 启动窗口打开经过验证的替换版本。无需手动点击应用程序图标。冻结的 Windows 和 Debian 安装使用其原生的授权和替换流程。"
+msgstr "选择 **帮助 → Check for updates**，查看提供的版本并选择 **更新**。受支持的 macOS 安装和专用的私有 Python 安装会在后台准备替换版本。准备就绪后，选择 **重新启动** 以完成关闭当前应用程序，并通过 spaCR 启动窗口打开经过验证的替换版本。无需手动点击应用程序图标。冻结的 Windows 和 Debian 安装使用其原生的授权和替换流程。"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Older Linux and Windows online layouts without a verified update adapter are refused before replacement starts. The application stays open and keeps its data. Use the matching release installer for those installations."

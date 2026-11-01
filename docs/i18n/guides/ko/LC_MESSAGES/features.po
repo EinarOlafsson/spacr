@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
@@ -244,8 +244,9 @@ msgid "Picking up where you left off"
 msgstr "중단한 곳에서 이어 하기"
 
 # AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Opening and restarting**: ordinary launches open Navigator Home, or classic Home when Navigator is off. **Restart** and **Force restart** reopen the previous module, location and settings once. They restore the interface; they do not resume a running analysis."
-msgstr "**열기 및 다시 시작**: 일반 실행은 Navigator Home을 열며, Navigator가 꺼져 있으면 기존 Home을 엽니다. **다시 시작** 및 **강제 다시 시작** 기능은 이전 모듈, 위치 및 설정을 한 번 다시 엽니다. 인터페이스를 복원할 뿐 실행 중이던 분석을 재개하지 않습니다."
+msgstr "**열기 및 다시 시작**: 일반 실행은 Navigator Home을 열며, Navigator가 꺼져 있으면 기존 Home을 엽니다. **다시 시작** 및 **강제 재시작** 기능은 이전 모듈, 위치 및 설정을 한 번 다시 엽니다. 인터페이스를 복원할 뿐 실행 중이던 분석을 재개하지 않습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Settings autosave**: every 30 seconds the unsaved settings of every open module are kept as a draft in the preference store; nothing is written when nothing changed. A clean exit drops the drafts. If spaCR ended without closing, the next start asks once whether to restore them (drafts already restored are not offered again). The same behaviour applies on Linux, macOS and Windows, because the store is Qt's own settings store."
@@ -425,7 +426,7 @@ msgstr "**환경설정** 은 설정 아래에 도움말 네 줄을 계속 표시
 # AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
-msgstr "**Backdrop 설정**\\ 은 적용할 때와 저장할 때 모두 주 애니메이션과 독립적으로 유지됩니다. **없음**\\ 은 팝업 움직임을 끄면서 파란 테두리는 유지합니다. **설정 배경 어두움**\\ 은 애니메이션 위 설정 카드의 불투명도를 **0%**\\ 부터 **100%**\\ 까지 조절하며(기본값 **85%**), **페이지 불투명도**\\ 와 함께 적용됩니다. 설정 배경이 **없음**\\ 이어도 페이지 불투명도는 적용됩니다. 어두움 값이 높을수록 애니메이션을 더 많이 가려 텍스트를 읽기 쉽게 합니다. 팝업은 모든 창 위에 항상 표시하는 전역 플래그를 사용하지 않고 자신이 속한 spaCR 창 위에 유지되므로, 다른 앱이 덮을 수 있습니다."
+msgstr "**설정 배경**\\ 은 적용할 때와 저장할 때 모두 주 애니메이션과 독립적으로 유지됩니다. **없음**\\ 은 팝업 움직임을 끄면서 파란 테두리는 유지합니다. **설정 배경 어두움**\\ 은 애니메이션 위 설정 카드의 불투명도를 **0%**\\ 부터 **100%**\\ 까지 조절하며(기본값 **85%**), **페이지 불투명도**\\ 와 함께 적용됩니다. 설정 배경이 **없음**\\ 이어도 페이지 불투명도는 적용됩니다. 어두움 값이 높을수록 애니메이션을 더 많이 가려 텍스트를 읽기 쉽게 합니다. 팝업은 모든 창 위에 항상 표시하는 전역 플래그를 사용하지 않고 자신이 속한 spaCR 창 위에 유지되므로, 다른 앱이 덮을 수 있습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "In **spaCR field**, left-drag an unoccupied background area to pull a local patch of dots. Releasing the button lets it spring back smoothly without restarting the pattern. This background gesture leaves scientific canvas and control gestures available."

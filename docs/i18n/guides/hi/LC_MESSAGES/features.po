@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: hi\n"
@@ -244,8 +244,9 @@ msgid "Picking up where you left off"
 msgstr "जहाँ छोड़ा था वहीं से आगे बढ़ना"
 
 # AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Opening and restarting**: ordinary launches open Navigator Home, or classic Home when Navigator is off. **Restart** and **Force restart** reopen the previous module, location and settings once. They restore the interface; they do not resume a running analysis."
-msgstr "**खोलना और पुनः आरंभ करना**: सामान्य शुरुआत पर Navigator Home खुलता है, या Navigator बंद होने पर क्लासिक Home। **पुनः आरंभ करें** और **बलपूर्वक पुनः आरंभ करें** पिछले मॉड्यूल, स्थान और सेटिंग्स को एक बार फिर खोलते हैं। वे इंटरफ़ेस बहाल करते हैं; चल रहे विश्लेषण को फिर से शुरू नहीं करते।"
+msgstr "**खोलना और पुनः आरंभ करना**: सामान्य शुरुआत पर Navigator Home खुलता है, या Navigator बंद होने पर क्लासिक Home। **पुनः प्रारंभ करें** और **बलपूर्वक पुनः आरंभ करें** पिछले मॉड्यूल, स्थान और सेटिंग्स को एक बार फिर खोलते हैं। वे इंटरफ़ेस बहाल करते हैं; चल रहे विश्लेषण को फिर से शुरू नहीं करते।"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Settings autosave**: every 30 seconds the unsaved settings of every open module are kept as a draft in the preference store; nothing is written when nothing changed. A clean exit drops the drafts. If spaCR ended without closing, the next start asks once whether to restore them (drafts already restored are not offered again). The same behaviour applies on Linux, macOS and Windows, because the store is Qt's own settings store."
@@ -425,7 +426,7 @@ msgstr "**प्राथमिकताएं** सेटिंग्स के
 # AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
-msgstr "**Backdrop सेटअप** लागू करने और सहेजने, दोनों के दौरान मुख्य एनिमेशन से स्वतंत्र रहता है। **कोई नहीं** पॉपअप की गति बंद करता है लेकिन नीली परिधि बनाए रखता है। **सेटिंग्स पृष्ठभूमि का अँधेरापन** एनिमेशन पर सेटिंग्स कार्ड की अपारदर्शिता को **0%** से **100%** तक नियंत्रित करता है (डिफ़ॉल्ट **85%**), और **पृष्ठ अपारदर्शिता** के साथ मिलकर लागू होता है। सेटिंग्स की पृष्ठभूमि **कोई नहीं** होने पर भी पृष्ठ अपारदर्शिता लागू होती है। अधिक अँधेरापन एनिमेशन को अधिक ढकता है ताकि पाठ पढ़ना आसान हो। पॉपअप वैश्विक सदा-ऊपर (always-on-top) फ़्लैग का उपयोग किए बिना अपनी spaCR विंडो के ऊपर बने रहते हैं, इसलिए दूसरे ऐप उन्हें ढक सकते हैं।"
+msgstr "**सेटिंग्स की पृष्ठभूमि** लागू करने और सहेजने, दोनों के दौरान मुख्य एनिमेशन से स्वतंत्र रहता है। **कोई नहीं** पॉपअप की गति बंद करता है लेकिन नीली परिधि बनाए रखता है। **सेटिंग्स पृष्ठभूमि का अँधेरापन** एनिमेशन पर सेटिंग्स कार्ड की अपारदर्शिता को **0%** से **100%** तक नियंत्रित करता है (डिफ़ॉल्ट **85%**), और **पृष्ठ अपारदर्शिता** के साथ मिलकर लागू होता है। सेटिंग्स की पृष्ठभूमि **कोई नहीं** होने पर भी पृष्ठ अपारदर्शिता लागू होती है। अधिक अँधेरापन एनिमेशन को अधिक ढकता है ताकि पाठ पढ़ना आसान हो। पॉपअप वैश्विक सदा-ऊपर (always-on-top) फ़्लैग का उपयोग किए बिना अपनी spaCR विंडो के ऊपर बने रहते हैं, इसलिए दूसरे ऐप उन्हें ढक सकते हैं।"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "In **spaCR field**, left-drag an unoccupied background area to pull a local patch of dots. Releasing the button lets it spring back smoothly without restarting the pattern. This background gesture leaves scientific canvas and control gestures available."

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: pt\n"
@@ -506,8 +506,9 @@ msgstr "Abra o canal de imagem no qual os objetos secundários devem crescer, co
 msgid "Choose different **Primary object class** and **Secondary object class** values, for example Nucleus and Cell. Custom class names can be entered."
 msgstr "Escolha valores diferentes para **Classe de objeto primário** e **Classe de objeto secundário**, por exemplo Núcleo e Célula. É possível digitar nomes de classe personalizados."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Use **File…** for a primary label mask belonging to this field, or **Folder…** for masks matched to successive image filename stems. An explicitly selected file is bound to the current field; it is not reused silently when moving to another image."
-msgstr "Use **Ficheiro...** para uma máscara de rótulos primária pertencente a este campo, ou **Pasta…** para máscaras associadas aos nomes base sucessivos dos arquivos de imagem. Um arquivo selecionado explicitamente fica vinculado ao campo atual; ele não é reutilizado silenciosamente ao passar para outra imagem."
+msgstr "Use **Arquivo...** para uma máscara de rótulos primária pertencente a este campo, ou **Pasta…** para máscaras associadas aos nomes base sucessivos dos arquivos de imagem. Um arquivo selecionado explicitamente fica vinculado ao campo atual; ele não é reutilizado silenciosamente ao passar para outra imagem."
 
 msgid "Wait for the primary-object count. The primary mask must match the image's height and width and contain valid nonnegative integer IDs within ``uint16`` capacity. Its path must differ from the editable output mask, including aliases. Primary data are read-only."
 msgstr "Aguarde a contagem de objetos primários. A máscara primária precisa ter a mesma altura e largura que a imagem e conter IDs inteiros não negativos válidos dentro da capacidade de ``uint16``. Seu caminho precisa ser diferente da máscara de saída editável, incluindo aliases. Os dados primários são somente leitura."
@@ -553,8 +554,9 @@ msgid "**Fuse with existing object** adds the proposal to the existing ID and re
 msgstr "**Fundir com o objeto existente** acrescenta a proposta ao ID existente e preserva os píxeis do objeto anterior, incluindo os que ficam fora da caixa. Uma proposta que se sobrepõe a vários objetos junta-os sob o menor ID anterior. Uma proposta situada apenas no fundo torna-se um novo objeto."
 
 # AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Add non-overlapping pixels** preserves existing objects and adds the proposal's largest remaining connected piece as a new object."
-msgstr "**Adicionar píxeis sem sobreposição** preserva objetos existentes e adiciona a maior peça conectada remanescente da proposta como um novo objeto."
+msgstr "**Adicionar pixels sem sobreposição** preserva objetos existentes e adiciona a maior peça conectada remanescente da proposta como um novo objeto."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Replace overlapping object** removes overlapping old objects in full before adding the proposal. Rejected small proposals remove nothing."
@@ -652,8 +654,9 @@ msgid "**Save to** chooses where the overlay is written. The default is **New ma
 msgstr "**Gravar em** escolhe onde escrever a sobreposição. A predefinição é **Nova pasta de máscaras**, ``masks_curated_<date>`` junto às imagens (uma pasta ``masks_curated_*`` existente é reutilizada para continuar a sessão); escreva outro nome ou caminho completo em **Nome da pasta**, ou passe ``--save-to``. Escolher uma pasta de camada substitui as suas máscaras campo a campo e só tem efeito após **Sobrescrever** na confirmação sob o controlo. Um campo já gravado na pasta de destino abre a partir dela."
 
 # AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Keep** saves the overlay as edited, with its object IDs unchanged, and moves to the next field; **Next** behaves as in any queue. Edited saves write curation history (``<stem>.tif.curation.json``). Layer decisions are recorded in ``<stem>.decisions.json`` beside the mask: the base IDs that were removed and each added object's ID, source layer and ID in that layer. Progress is kept in the ``curate_status.csv`` inside the save folder, so a review resumes on its own record and offers again the fields the folder's ordinary curation already finished. Without layers, Make Masks behaves and saves exactly as before."
-msgstr "**Manter** grava a sobreposição editada com os identificadores de objeto intactos e avança ao campo seguinte; **Next** funciona como em qualquer fila. As gravações com alterações escrevem o histórico de curadoria (``<stem>.tif.curation.json``). As decisões de camadas ficam em ``<stem>.decisions.json`` junto à máscara: identificadores base removidos e, para cada objeto adicionado, o seu identificador, camada de origem e identificador nessa camada. O progresso fica em ``curate_status.csv`` na pasta de destino, permitindo retomar a revisão no seu registo e oferecer de novo campos que a curadoria normal da pasta já concluiu. Sem camadas, Make Masks funciona e grava como antes."
+msgstr "**Manter** grava a sobreposição editada com os identificadores de objeto intactos e avança ao campo seguinte; **Seguinte** funciona como em qualquer fila. As gravações com alterações escrevem o histórico de curadoria (``<stem>.tif.curation.json``). As decisões de camadas ficam em ``<stem>.decisions.json`` junto à máscara: identificadores base removidos e, para cada objeto adicionado, o seu identificador, camada de origem e identificador nessa camada. O progresso fica em ``curate_status.csv`` na pasta de destino, permitindo retomar a revisão no seu registo e oferecer de novo campos que a curadoria normal da pasta já concluiu. Sem camadas, Make Masks funciona e grava como antes."
 
 msgid "Upload data"
 msgstr "Enviar dados"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: hi\n"
@@ -63,8 +63,9 @@ msgstr "**सेटिंग्स… → चित्र** में कूप 
 msgid "Click a well in the image or a table row. **Plaque preview** segments that well with the plaque settings. **Find plaques in all wells** processes the detected wells in sequence. Cancel clears the remaining queue and discards the current well's pending result; an already running model call finishes in the background."
 msgstr "छवि में किसी कूप या तालिका की किसी पंक्ति पर क्लिक करें। **प्लाक पूर्वावलोकन** प्लाक सेटिंग्स से उस कूप का विभाजन करता है। **सभी कूपों में प्लाक खोजें** पहचाने गए कूपों को क्रम से संसाधित करता है। Cancel शेष कतार को खाली करता है और वर्तमान कूप के लंबित परिणाम को छोड़ देता है; पहले से चल रही मॉडल कॉल पृष्ठभूमि में पूरी होती है।"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Compare the proposed condition with the nearby label and the relevant legend passage. Correct the condition, mark reviewed entries **OK**, and save the annotations. With **Confirm annotations** enabled, the run measures only the saved approved entries."
-msgstr "प्रस्तावित स्थिति की तुलना पास के लेबल और संबंधित कैप्शन अंश से करें। स्थिति सुधारें, समीक्षित प्रविष्टियों को **OK** चिह्नित करें और एनोटेशन सहेजें। **एनोटेशन की पुष्टि करें** सक्षम होने पर रन केवल सहेजी गई स्वीकृत प्रविष्टियों को मापता है।"
+msgstr "प्रस्तावित स्थिति की तुलना पास के लेबल और संबंधित कैप्शन अंश से करें। स्थिति सुधारें, समीक्षित प्रविष्टियों को **ठीक है** चिह्नित करें और एनोटेशन सहेजें। **एनोटेशन की पुष्टि करें** सक्षम होने पर रन केवल सहेजी गई स्वीकृत प्रविष्टियों को मापता है।"
 
 msgid "Copy the tuned settings into the form before starting the analysis run. Retain the original figure, legend, annotation review and calibration information alongside the measurements."
 msgstr "विश्लेषण रन शुरू करने से पहले समायोजित सेटिंग्स फ़ॉर्म में कॉपी करें। मूल चित्र, कैप्शन, एनोटेशन समीक्षा और अंशांकन जानकारी मापनों के साथ सुरक्षित रखें।"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
@@ -652,8 +652,9 @@ msgid "**Save to** chooses where the overlay is written. The default is **New ma
 msgstr "**Vista í** velur hvar yfirlagið er skrifað. Sjálfgefið er **Ný grímumappa**, ``masks_curated_<date>`` við hlið myndanna (fyrirliggjandi ``masks_curated_*``-mappa er endurnýtt svo lotan haldi áfram þar); sláið annað heiti eða fulla slóð í **Heiti möppu** eða notið ``--save-to``. Val á lagamöppu yfirskrifar grímur hennar myndsvið fyrir myndsvið og tekur aðeins gildi eftir **Yfirskrifa** í staðfestingu undir stýringunni. Svið sem þegar er vistað í markmöppunni opnast þaðan."
 
 # AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Keep** saves the overlay as edited, with its object IDs unchanged, and moves to the next field; **Next** behaves as in any queue. Edited saves write curation history (``<stem>.tif.curation.json``). Layer decisions are recorded in ``<stem>.decisions.json`` beside the mask: the base IDs that were removed and each added object's ID, source layer and ID in that layer. Progress is kept in the ``curate_status.csv`` inside the save folder, so a review resumes on its own record and offers again the fields the folder's ordinary curation already finished. Without layers, Make Masks behaves and saves exactly as before."
-msgstr "**Halda** vistar breytt yfirlag með óbreyttum auðkennum hluta og fer á næsta svið; **Next** hegðar sér eins og í öðrum biðröðum. Vistun breytinga skrifar yfirferðarferil (``<stem>.tif.curation.json``). Ákvarðanir um lög eru skráðar í ``<stem>.decisions.json`` við grímuna: fjarlægð grunnauðkenni og auðkenni hvers viðbætts hlutar, upprunalag og auðkenni hans þar. Framvinda er geymd í ``curate_status.csv`` í markmöppunni, svo yfirferð heldur áfram samkvæmt eigin skrá og býður aftur svið sem venjuleg yfirferð möppunnar hefur lokið. Án laga hegðar Make Masks sér og vistar eins og áður."
+msgstr "**Halda** vistar breytt yfirlag með óbreyttum auðkennum hluta og fer á næsta svið; **Áfram** hegðar sér eins og í öðrum biðröðum. Vistun breytinga skrifar yfirferðarferil (``<stem>.tif.curation.json``). Ákvarðanir um lög eru skráðar í ``<stem>.decisions.json`` við grímuna: fjarlægð grunnauðkenni og auðkenni hvers viðbætts hlutar, upprunalag og auðkenni hans þar. Framvinda er geymd í ``curate_status.csv`` í markmöppunni, svo yfirferð heldur áfram samkvæmt eigin skrá og býður aftur svið sem venjuleg yfirferð möppunnar hefur lokið. Án laga hegðar Make Masks sér og vistar eins og áður."
 
 msgid "Upload data"
 msgstr "Hlaða upp gögnum"

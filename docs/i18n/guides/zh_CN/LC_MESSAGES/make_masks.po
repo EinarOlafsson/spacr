@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -64,8 +64,9 @@ msgid "Thumbnail display quality"
 msgstr "缩略图显示质量"
 
 # AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Choose **Thumbnail quality** in **Display** or **Organize for Measure…**. **Low** retains the original 64-pixel source sampling. **Medium** uses up to 256 pixels and **High** up to 1024 pixels on the longest side, capped by the source resolution. These choices read the source image and mask again; they do not enlarge a Low-quality bitmap. The separate **Size** control sets the logical cell size."
-msgstr "在 **显示** 或 **为 Measure 整理…** 中选择 **缩略图质量**。**低** 保留原来的 64 像素源采样。**中** 的最长边最多为 256 像素，**高** 最多为 1024 像素，均不超过源图像的分辨率。这些选项会重新读取源图像和掩膜，不会把 低 质量的位图放大。独立的 **尺寸** 控件用于设置界面中单元格的逻辑尺寸。"
+msgstr "在 **显示** 或 **为 Measure 整理…** 中选择 **缩略图质量**。**低** 保留原来的 64 像素源采样。**中** 的最长边最多为 256 像素，**高** 最多为 1024 像素，均不超过源图像的分辨率。这些选项会重新读取源图像和掩膜，不会把 低 质量的位图放大。独立的 **大小** 控件用于设置界面中单元格的逻辑尺寸。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The choice is remembered and updates open thumbnail views. Only visible organizer cells are loaded, with a bounded cache. Changing quality affects display only; saved images, masks and measurements are unchanged."
@@ -652,8 +653,9 @@ msgid "**Save to** chooses where the overlay is written. The default is **New ma
 msgstr "**保存到** 决定叠加层的写入位置。默认是 **新建掩膜文件夹**，即图像旁的 ``masks_curated_<date>``；已有 ``masks_curated_*`` 文件夹会被复用以继续会话。可在 **文件夹名称** 下输入其他名称或完整路径，或传入 ``--save-to``。选择某个图层文件夹会逐视野覆盖其中掩膜，只有在控件下方的确认中选择 **覆盖** 后才生效。已保存到目标文件夹的视野将从该处打开。"
 
 # AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Keep** saves the overlay as edited, with its object IDs unchanged, and moves to the next field; **Next** behaves as in any queue. Edited saves write curation history (``<stem>.tif.curation.json``). Layer decisions are recorded in ``<stem>.decisions.json`` beside the mask: the base IDs that were removed and each added object's ID, source layer and ID in that layer. Progress is kept in the ``curate_status.csv`` inside the save folder, so a review resumes on its own record and offers again the fields the folder's ordinary curation already finished. Without layers, Make Masks behaves and saves exactly as before."
-msgstr "**保留** 会保存编辑后的叠加层、保留对象 ID 并移至下一视野；**Next** 与普通队列相同。包含编辑的保存会写入整理历史（``<stem>.tif.curation.json``）。图层决定记录在掩膜旁的 ``<stem>.decisions.json`` 中，包括移除的基础 ID，以及每个新增对象的 ID、来源图层和在该层中的 ID。进度保存在目标文件夹内的 ``curate_status.csv``，因此复核可按独立记录继续，并再次提供该文件夹普通整理已完成的视野。不使用图层时，Make Masks 的行为和保存方式与以前相同。"
+msgstr "**保留** 会保存编辑后的叠加层、保留对象 ID 并移至下一视野；**下一步** 与普通队列相同。包含编辑的保存会写入整理历史（``<stem>.tif.curation.json``）。图层决定记录在掩膜旁的 ``<stem>.decisions.json`` 中，包括移除的基础 ID，以及每个新增对象的 ID、来源图层和在该层中的 ID。进度保存在目标文件夹内的 ``curate_status.csv``，因此复核可按独立记录继续，并再次提供该文件夹普通整理已完成的视野。不使用图层时，Make Masks 的行为和保存方式与以前相同。"
 
 msgid "Upload data"
 msgstr "上传数据"

@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 20:02-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: pt\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -77,8 +77,9 @@ msgid "Press **Create merged table** after validation succeeds. The result is se
 msgstr "Pressione **Criar tabela mesclada** após a validação bem-sucedida. O resultado é selecionado no seletor normal de tabelas. Suas colunas ficam disponíveis para gráficos e gates."
 
 # AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "During standard validation, **Duplicate objects detected** means that rows repeat complete available image/object identities, including time when present. **Abort** is the default and the Escape action. Inspect the duplicate records and the aggregation details before choosing **Merge duplicates**; that choice explicitly consolidates repeated observations for the merged result, leaving the source tables unchanged. Distinct child objects sharing a parent join key are not duplicate observations. Conflicting identifiers or parent links still cause refusal and must be corrected before validation can succeed."
-msgstr "Na validação padrão, **Duplicate objects detected** significa que há linhas que repetem identidades completas de imagem/objeto disponíveis, incluindo o tempo quando presente. **Abort** é a opção padrão e a ação da tecla Escape. Inspecione os registros repetidos e os detalhes da agregação antes de escolher **Merge duplicates**; essa escolha consolida explicitamente as observações repetidas no resultado combinado, sem alterar as tabelas de origem. Objetos filhos distintos que compartilham uma chave de junção com o objeto pai não são observações duplicadas. Identificadores ou vínculos com o objeto pai que sejam conflitantes continuam causando recusa e precisam ser corrigidos para que a validação possa ser concluída."
+msgstr "Na validação padrão, **Objetos duplicados detectados** significa que há linhas que repetem identidades completas de imagem/objeto disponíveis, incluindo o tempo quando presente. **Abort** é a opção padrão e a ação da tecla Escape. Inspecione os registros repetidos e os detalhes da agregação antes de escolher **Mesclar duplicatas**; essa escolha consolida explicitamente as observações repetidas no resultado combinado, sem alterar as tabelas de origem. Objetos filhos distintos que compartilham uma chave de junção com o objeto pai não são observações duplicadas. Identificadores ou vínculos com o objeto pai que sejam conflitantes continuam causando recusa e precisam ser corrigidos para que a validação possa ser concluída."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Changing a table, name or rule invalidates the preview. Validate again before creating the result. Selecting a different table or base also resets custom relationships and overrides, so choose your sources before customizing them."
@@ -201,8 +202,9 @@ msgid "The popup now says **Custom rules active**. Validate and inspect the prev
 msgstr "O diálogo agora indica **Custom rules active**. Valide e inspecione a pré-visualização antes de criar o resultado. Identidades base duplicadas, mapeamentos um para um contraditórios, chaves ausentes e operações incompatíveis produzem um erro. Chaves secundárias repetidas podem ser esperadas em uma relação um para muitos; exigem investigação quando a relação deveria ser um para um."
 
 # AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Cancel** leaves the previous configuration intact. **Reset to spaCR defaults** removes custom relationships and overrides. Changing sources or the output table also rebuilds the defaults."
-msgstr "**Cancelar** deixa intacta a configuração anterior. **Repor para spaCR predefinições** remove relações personalizadas e opções substituídas. Alterar as fontes ou a tabela de saída também reconstrói os padrões."
+msgstr "**Cancelar** deixa intacta a configuração anterior. **Restaurar os padrões do spaCR** remove relações personalizadas e opções substituídas. Alterar as fontes ou a tabela de saída também reconstrói os padrões."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Use, save and reload the result"
@@ -292,8 +294,9 @@ msgid "``original_path`` is the path recorded in the mapping; the original files
 msgstr "``original_path`` é o caminho registrado no mapeamento; os arquivos originais não precisam mais existir nesse local. Esta ação nunca renomeia nem regrava arquivos de imagem ou tabelas de medições de origem. Acrescentar texto de nomes de arquivos não estabelece a procedência de objetos de microscopia que esteja ausente."
 
 # AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The saved merge records the mapping's location and a content checksum. Reopening a merge or chart requires that mapping to remain available and unchanged. For an embedded ``conversion_map`` table, unrelated changes to other database tables do not invalidate the mapping. If the mapping changes, select it again and validate a new result before applying it. **Remove filename mapping** removes the enrichment from the draft without deleting the file. **Reset to spaCR defaults** also clears the mapping."
-msgstr "A combinação salva registra a localização do mapeamento e uma soma de verificação do conteúdo. Reabrir uma combinação ou um gráfico exige que o mapeamento continue disponível e inalterado. Para uma tabela ``conversion_map`` incorporada, alterações não relacionadas em outras tabelas do banco não invalidam o mapeamento. Se o mapeamento mudar, selecione-o novamente e valide um novo resultado antes de aplicá-lo. **Remover mapeamento de nome de arquivo** remove o enriquecimento do rascunho sem excluir o arquivo. **Repor para spaCR predefinições** também limpa o mapeamento do rascunho."
+msgstr "A combinação salva registra a localização do mapeamento e uma soma de verificação do conteúdo. Reabrir uma combinação ou um gráfico exige que o mapeamento continue disponível e inalterado. Para uma tabela ``conversion_map`` incorporada, alterações não relacionadas em outras tabelas do banco não invalidam o mapeamento. Se o mapeamento mudar, selecione-o novamente e valide um novo resultado antes de aplicá-lo. **Remover mapeamento de nome de arquivo** remove o enriquecimento do rascunho sem excluir o arquivo. **Restaurar os padrões do spaCR** também limpa o mapeamento do rascunho."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Label rows selected on a plot"

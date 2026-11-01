@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
@@ -23,8 +23,9 @@ msgid "Model zoo"
 msgstr "모델 동물원"
 
 # AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Select a registered model key, for example ``pathogen_model: toxoplasma_pv_v1``. A missing registered checkpoint can be downloaded and checksum-verified when automatic acquisition is allowed. ``SPACR_MODEL_DOWNLOAD=off`` disables that automatic acquisition; compatible local paths and verified cached checkpoints remain usable. A missing model requested directly on the GUI thread is refused. Open **Model Zoo** from the **Make Masks** masthead to browse and explicitly download models."
-msgstr "등록된 모델 키를 선택하세요. 예: ``pathogen_model: toxoplasma_pv_v1``. 자동 획득이 허용되면 없는 등록 체크포인트를 다운로드하고 체크섬을 검증할 수 있습니다. ``SPACR_MODEL_DOWNLOAD=off`` 는 해당 자동 획득을 끄며, 호환되는 로컬 경로와 검증된 캐시 체크포인트는 계속 사용할 수 있습니다. GUI 스레드에서 직접 요청한 없는 모델은 거부됩니다. **Make Masks** 상단에서 **Model Zoo** 를 열어 모델을 찾아 명시적으로 다운로드하세요."
+msgstr "등록된 모델 키를 선택하세요. 예: ``pathogen_model: toxoplasma_pv_v1``. 자동 획득이 허용되면 없는 등록 체크포인트를 다운로드하고 체크섬을 검증할 수 있습니다. ``SPACR_MODEL_DOWNLOAD=off`` 는 해당 자동 획득을 끄며, 호환되는 로컬 경로와 검증된 캐시 체크포인트는 계속 사용할 수 있습니다. GUI 스레드에서 직접 요청한 없는 모델은 거부됩니다. **마스크 만들기** 상단에서 **모델 라이브러리** 를 열어 모델을 찾아 명시적으로 다운로드하세요."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "For requested registered checkpoints, automatic acquisition is allowed by default; ``SPACR_MODEL_DOWNLOAD=off`` disables it. The shared checkpoint cache is ``models/`` inside the spaCR data directory, normally ``~/.spacr``; ``SPACR_HOME`` or portable mode can relocate that directory. Set ``SPACR_MODEL_CACHE`` to relocate only the model cache. The picker remembers its selected download folder, which can differ from that cache. For offline automatic reuse, put the expected checkpoint in the configured cache with its published checksum; an explicit compatible local path is another option. A checksum verifies file identity, not backend compatibility or segmentation accuracy."

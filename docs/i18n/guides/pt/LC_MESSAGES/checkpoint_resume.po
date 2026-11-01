@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: pt\n"
@@ -23,8 +23,9 @@ msgid "Checkpoint and resume"
 msgstr "Pontos de verificação e retomada"
 
 # AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "A checkpoint can be initialized before any unit finishes. Supported workflows mark completed units of work, such as fields, trials or plate jobs, at their checkpoint boundaries. A later resume validates the stored workflow identity and uses its completion records and workflow-specific output checks to decide what can be reused. A checkpoint is not a guarantee against forced process termination or damaged output files. The Qt **Stop** button uses the same boundaries: it requests cooperative cancellation, lets the current safe unit finish, and retains the checkpoint for the next run. See :doc:`threading_cancellation_audit`."
-msgstr "Um ponto de controle pode ser inicializado antes de qualquer unidade terminar. Fluxos compatíveis marcam unidades concluídas, como campos, tentativas ou tarefas de placa, em seus limites de controle. Uma retomada posterior valida a identidade salva do fluxo e usa seus registros de conclusão e verificações de saída específicas para decidir o que pode ser reutilizado. Um ponto de controle não garante proteção contra terminação forçada ou arquivos de saída danificados. O botão Qt **Stop** usa os mesmos limites: solicita cancelamento cooperativo, deixa a unidade segura atual terminar e retém o ponto de controle para a próxima execução. Consulte :doc:`threading_cancellation_audit`."
+msgstr "Um ponto de controle pode ser inicializado antes de qualquer unidade terminar. Fluxos compatíveis marcam unidades concluídas, como campos, tentativas ou tarefas de placa, em seus limites de controle. Uma retomada posterior valida a identidade salva do fluxo e usa seus registros de conclusão e verificações de saída específicas para decidir o que pode ser reutilizado. Um ponto de controle não garante proteção contra terminação forçada ou arquivos de saída danificados. O botão Qt **Parar** usa os mesmos limites: solicita cancelamento cooperativo, deixa a unidade segura atual terminar e retém o ponto de controle para a próxima execução. Consulte :doc:`threading_cancellation_audit`."
 
 msgid "Supported workflows"
 msgstr "Fluxos de trabalho compatíveis"

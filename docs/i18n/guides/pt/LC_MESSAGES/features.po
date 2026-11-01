@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: pt\n"
@@ -425,7 +425,7 @@ msgstr "**Preferências** mantém quatro linhas de ajuda visíveis abaixo das de
 # AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
-msgstr "**Fundo das configurações** permanece independente da animação principal tanto ao Aplicar quanto ao Salvar. **Nenhuma** desativa o movimento do pop-up e mantém a borda azul. **Escurecimento do fundo das definições** controla a opacidade do cartão de configurações sobre sua animação, de **0%** a **100%** (padrão **85%**), em combinação com **Opacidade da página**. A opacidade da página também se aplica quando o fundo das configurações é **Nenhuma**. Valores mais altos de escurecimento cobrem mais a animação para facilitar a leitura do texto. Os pop-ups permanecem acima da janela spaCR a que pertencem sem usar uma opção global de sempre no topo, de modo que outros aplicativos podem cobri-los."
+msgstr "**Plano de fundo das configurações** permanece independente da animação principal tanto ao Aplicar quanto ao Salvar. **Nenhuma** desativa o movimento do pop-up e mantém a borda azul. **Escurecimento do fundo das definições** controla a opacidade do cartão de configurações sobre sua animação, de **0%** a **100%** (padrão **85%**), em combinação com **Opacidade da página**. A opacidade da página também se aplica quando o fundo das configurações é **Nenhuma**. Valores mais altos de escurecimento cobrem mais a animação para facilitar a leitura do texto. Os pop-ups permanecem acima da janela spaCR a que pertencem sem usar uma opção global de sempre no topo, de modo que outros aplicativos podem cobri-los."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "In **spaCR field**, left-drag an unoccupied background area to pull a local patch of dots. Releasing the button lets it spring back smoothly without restarting the pattern. This background gesture leaves scientific canvas and control gestures available."

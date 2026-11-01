@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -63,8 +63,9 @@ msgstr "在 **设置… → 图** 中，选择孔检测器、推理尺寸和置�
 msgid "Click a well in the image or a table row. **Plaque preview** segments that well with the plaque settings. **Find plaques in all wells** processes the detected wells in sequence. Cancel clears the remaining queue and discards the current well's pending result; an already running model call finishes in the background."
 msgstr "单击图像中的某个孔或表格中的某一行。**空斑预览** 会使用空斑设置分割该孔。**在所有孔中查找空斑** 会依次处理检测到的孔。Cancel 会清空剩余队列并丢弃当前孔尚未返回的结果；已经运行的模型调用会在后台完成。"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Compare the proposed condition with the nearby label and the relevant legend passage. Correct the condition, mark reviewed entries **OK**, and save the annotations. With **Confirm annotations** enabled, the run measures only the saved approved entries."
-msgstr "将建议的条件与附近的标签以及相关的图注段落进行比较。更正条件，将已审查的条目标记为 **OK**，然后保存标注。启用 **确认标注** 后，运行只测量已保存且已批准的条目。"
+msgstr "将建议的条件与附近的标签以及相关的图注段落进行比较。更正条件，将已审查的条目标记为 **确定**，然后保存标注。启用 **确认标注** 后，运行只测量已保存且已批准的条目。"
 
 msgid "Copy the tuned settings into the form before starting the analysis run. Retain the original figure, legend, annotation review and calibration information alongside the measurements."
 msgstr "在开始分析运行之前，将调好的设置复制到表单中。请将原始图、图注、标注审查和校准信息与测量结果一起保留。"

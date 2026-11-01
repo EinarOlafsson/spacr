@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: es\n"
@@ -425,7 +425,7 @@ msgstr "**Preferencias** mantiene cuatro líneas de ayuda visibles debajo de los
 # AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
-msgstr "**Fondo de configuración** es independiente de la animación principal tanto al Aplicar como al Guardar. **Ninguna** desactiva el movimiento de la ventana emergente y conserva el borde azul. **Oscuridad del fondo de ajustes** controla la opacidad de la tarjeta de ajustes sobre su animación, de **0%** a **100%** (valor predeterminado **85%**), combinada con **Opacidad de página**. La opacidad de página también se aplica cuando el fondo de configuración es **Ninguna**. Los valores de oscuridad más altos cubren más la animación y facilitan la lectura del texto. Las ventanas emergentes permanecen por encima de su propia ventana spaCR sin usar una opción global de mantener siempre encima, por lo que otras aplicaciones pueden cubrirlas."
+msgstr "**Fondo de los ajustes** es independiente de la animación principal tanto al Aplicar como al Guardar. **Ninguna** desactiva el movimiento de la ventana emergente y conserva el borde azul. **Oscuridad del fondo de ajustes** controla la opacidad de la tarjeta de ajustes sobre su animación, de **0%** a **100%** (valor predeterminado **85%**), combinada con **Opacidad de página**. La opacidad de página también se aplica cuando el fondo de configuración es **Ninguna**. Los valores de oscuridad más altos cubren más la animación y facilitan la lectura del texto. Las ventanas emergentes permanecen por encima de su propia ventana spaCR sin usar una opción global de mantener siempre encima, por lo que otras aplicaciones pueden cubrirlas."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "In **spaCR field**, left-drag an unoccupied background area to pull a local patch of dots. Releasing the button lets it spring back smoothly without restarting the pattern. This background gesture leaves scientific canvas and control gestures available."

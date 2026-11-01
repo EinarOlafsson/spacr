@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 19:43-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: es\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -51,7 +51,7 @@ msgstr "Al detener, primero se pregunta cómo detener. **Finish current work** s
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Force stop** returns control to the window immediately. A worker that does not respond -- typically one inside a long Cellpose or PyTorch call -- is parked rather than terminated: its references are kept and it finishes in the background, so anything it is writing may be left half-written. **Force restart** saves the module and its settings, then starts spaCR again and reopens that module."
-msgstr "**Force stop** devuelve el control a la ventana de inmediato. Un proceso de trabajo que no responde -- normalmente uno dentro de una llamada larga de Cellpose o PyTorch -- se aparca en lugar de terminarse: sus referencias se conservan y termina en segundo plano, por lo que lo que esté escribiendo puede quedar a medio escribir. **Force restart** guarda el módulo y su configuración, reinicia spaCR y vuelve a abrir ese módulo."
+msgstr "**Force stop** devuelve el control a la ventana de inmediato. Un proceso de trabajo que no responde -- normalmente uno dentro de una llamada larga de Cellpose o PyTorch -- se aparca en lugar de terminarse: sus referencias se conservan y termina en segundo plano, por lo que lo que esté escribiendo puede quedar a medio escribir. **Forzar reinicio** guarda el módulo y su configuración, reinicia spaCR y vuelve a abrir ese módulo."
 
 msgid "Shutdown behavior"
 msgstr "Comportamiento al cerrar"

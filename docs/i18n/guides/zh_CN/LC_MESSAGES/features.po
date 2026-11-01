@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -244,8 +244,9 @@ msgid "Picking up where you left off"
 msgstr "从上次中断处继续"
 
 # AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Opening and restarting**: ordinary launches open Navigator Home, or classic Home when Navigator is off. **Restart** and **Force restart** reopen the previous module, location and settings once. They restore the interface; they do not resume a running analysis."
-msgstr "**打开和重启** ：普通启动会打开 Navigator Home；关闭 Navigator 时则打开经典 Home。**重启** 和 **强制重启** 会恢复一次先前的模块、位置和设置。它们恢复的是界面，不会恢复正在运行的分析。"
+msgstr "**打开和重启** ：普通启动会打开 Navigator Home；关闭 Navigator 时则打开经典 Home。**重新启动** 和 **强制重启** 会恢复一次先前的模块、位置和设置。它们恢复的是界面，不会恢复正在运行的分析。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Settings autosave**: every 30 seconds the unsaved settings of every open module are kept as a draft in the preference store; nothing is written when nothing changed. A clean exit drops the drafts. If spaCR ended without closing, the next start asks once whether to restore them (drafts already restored are not offered again). The same behaviour applies on Linux, macOS and Windows, because the store is Qt's own settings store."
@@ -425,7 +426,7 @@ msgstr "**偏好** 在设置下方保留四行可见帮助。较长的帮助文�
 # AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
-msgstr "**设置 Backdrop** 在应用和保存时均与主窗口动画保持独立。**无** 关闭弹窗动画，但保留蓝色边缘光。**设置背景暗度** 控制设置卡片覆盖其动画的不透明度，范围为 **0%** 至 **100%** （默认 **85%** ），并与 **页面不透明度** 共同作用。当设置背景为 **无** 时，页面不透明度仍然适用。较高的暗度覆盖更多动画，使文字更易阅读。弹窗保持在其所属 spaCR 窗口前方，但不使用全局始终置顶标志，因此其他应用可以覆盖它们。"
+msgstr "**设置背景** 在应用和保存时均与主窗口动画保持独立。**无** 关闭弹窗动画，但保留蓝色边缘光。**设置背景暗度** 控制设置卡片覆盖其动画的不透明度，范围为 **0%** 至 **100%** （默认 **85%** ），并与 **页面不透明度** 共同作用。当设置背景为 **无** 时，页面不透明度仍然适用。较高的暗度覆盖更多动画，使文字更易阅读。弹窗保持在其所属 spaCR 窗口前方，但不使用全局始终置顶标志，因此其他应用可以覆盖它们。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "In **spaCR field**, left-drag an unoccupied background area to pull a local patch of dots. Releasing the button lets it spring back smoothly without restarting the pattern. This background gesture leaves scientific canvas and control gestures available."

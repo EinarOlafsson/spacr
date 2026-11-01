@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: hi\n"
@@ -24,8 +24,9 @@ msgid "Navigator: choose a tool from your input"
 msgstr "Navigator: अपने इनपुट के अनुसार उपकरण चुनें"
 
 # AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Navigator is the default Home for a fresh profile; a saved opt-out is respected. Launch it with ``spacr-nav`` or ``spacr-navigator``, or enable **Navigator** in **Help**. Explicit module launches still open that module."
-msgstr "नई प्रोफ़ाइल में Navigator डिफ़ॉल्ट Home है; पहले से सहेजा गया बंद रखने का विकल्प मान्य रहता है। इसे ``spacr-nav`` या ``spacr-navigator`` से शुरू करें, या **Help** में **Navigator** चालू करें। किसी मॉड्यूल को सीधे शुरू करने पर वही मॉड्यूल खुलता है।"
+msgstr "नई प्रोफ़ाइल में Navigator डिफ़ॉल्ट Home है; पहले से सहेजा गया बंद रखने का विकल्प मान्य रहता है। इसे ``spacr-nav`` या ``spacr-navigator`` से शुरू करें, या **सहायता** में **Navigator** चालू करें। किसी मॉड्यूल को सीधे शुरू करने पर वही मॉड्यूल खुलता है।"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Find a starting point"

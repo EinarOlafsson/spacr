@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-30 19:43-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: sv\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -51,7 +51,7 @@ msgstr "Stopp frågar först hur körningen ska stoppas. **Finish current work**
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Force stop** returns control to the window immediately. A worker that does not respond -- typically one inside a long Cellpose or PyTorch call -- is parked rather than terminated: its references are kept and it finishes in the background, so anything it is writing may be left half-written. **Force restart** saves the module and its settings, then starts spaCR again and reopens that module."
-msgstr "**Force stop** ger omedelbart tillbaka kontrollen till fönstret. En arbetsprocess som inte svarar -- vanligen en som befinner sig i ett långt anrop till Cellpose eller PyTorch -- parkeras i stället för att avslutas: dess referenser behålls och den blir klar i bakgrunden, så det som den skriver kan bli halvskrivet. **Force restart** sparar modulen och dess inställningar, startar sedan om spaCR och öppnar modulen igen."
+msgstr "**Force stop** ger omedelbart tillbaka kontrollen till fönstret. En arbetsprocess som inte svarar -- vanligen en som befinner sig i ett långt anrop till Cellpose eller PyTorch -- parkeras i stället för att avslutas: dess referenser behålls och den blir klar i bakgrunden, så det som den skriver kan bli halvskrivet. **Tvinga omstart** sparar modulen och dess inställningar, startar sedan om spaCR och öppnar modulen igen."
 
 msgid "Shutdown behavior"
 msgstr "Beteende vid avstängning"

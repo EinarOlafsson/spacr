@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: de\n"
@@ -23,8 +23,9 @@ msgid "Model zoo"
 msgstr "Modellzoo"
 
 # AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Select a registered model key, for example ``pathogen_model: toxoplasma_pv_v1``. A missing registered checkpoint can be downloaded and checksum-verified when automatic acquisition is allowed. ``SPACR_MODEL_DOWNLOAD=off`` disables that automatic acquisition; compatible local paths and verified cached checkpoints remain usable. A missing model requested directly on the GUI thread is refused. Open **Model Zoo** from the **Make Masks** masthead to browse and explicitly download models."
-msgstr "Wählen Sie einen registrierten Modellschlüssel, etwa ``pathogen_model: toxoplasma_pv_v1``. Ein fehlender registrierter Checkpoint kann heruntergeladen und per Prüfsumme geprüft werden, wenn automatische Beschaffung erlaubt ist. ``SPACR_MODEL_DOWNLOAD=off`` deaktiviert diese automatische Beschaffung; kompatible lokale Pfade und geprüfte Cache-Checkpoints bleiben nutzbar. Ein fehlendes Modell, das direkt im GUI-Thread angefordert wird, wird verweigert. Öffnen Sie **Model Zoo** im Kopfbereich von **Make Masks**, um Modelle zu durchsuchen und ausdrücklich herunterzuladen."
+msgstr "Wählen Sie einen registrierten Modellschlüssel, etwa ``pathogen_model: toxoplasma_pv_v1``. Ein fehlender registrierter Checkpoint kann heruntergeladen und per Prüfsumme geprüft werden, wenn automatische Beschaffung erlaubt ist. ``SPACR_MODEL_DOWNLOAD=off`` deaktiviert diese automatische Beschaffung; kompatible lokale Pfade und geprüfte Cache-Checkpoints bleiben nutzbar. Ein fehlendes Modell, das direkt im GUI-Thread angefordert wird, wird verweigert. Öffnen Sie **Modellzoo** im Kopfbereich von **Masken erstellen**, um Modelle zu durchsuchen und ausdrücklich herunterzuladen."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "For requested registered checkpoints, automatic acquisition is allowed by default; ``SPACR_MODEL_DOWNLOAD=off`` disables it. The shared checkpoint cache is ``models/`` inside the spaCR data directory, normally ``~/.spacr``; ``SPACR_HOME`` or portable mode can relocate that directory. Set ``SPACR_MODEL_CACHE`` to relocate only the model cache. The picker remembers its selected download folder, which can differ from that cache. For offline automatic reuse, put the expected checkpoint in the configured cache with its published checksum; an explicit compatible local path is another option. A checksum verifies file identity, not backend compatibility or segmentation accuracy."

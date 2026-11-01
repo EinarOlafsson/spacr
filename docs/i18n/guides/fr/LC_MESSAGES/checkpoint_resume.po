@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: fr\n"
@@ -23,8 +23,9 @@ msgid "Checkpoint and resume"
 msgstr "Points de contrôle et reprise"
 
 # AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "A checkpoint can be initialized before any unit finishes. Supported workflows mark completed units of work, such as fields, trials or plate jobs, at their checkpoint boundaries. A later resume validates the stored workflow identity and uses its completion records and workflow-specific output checks to decide what can be reused. A checkpoint is not a guarantee against forced process termination or damaged output files. The Qt **Stop** button uses the same boundaries: it requests cooperative cancellation, lets the current safe unit finish, and retains the checkpoint for the next run. See :doc:`threading_cancellation_audit`."
-msgstr "Un point de contrôle peut être initialisé avant qu’une unité soit terminée. Les flux pris en charge marquent les unités de travail achevées, comme les champs, essais ou tâches de plaque, à leurs limites de contrôle. Une reprise ultérieure valide l’identité enregistrée du flux et utilise ses enregistrements d’achèvement et ses vérifications de sortie spécifiques pour décider de ce qui peut être réutilisé. Un point de contrôle ne garantit pas une protection contre l’arrêt forcé du processus ou des fichiers de sortie endommagés. Le bouton Qt **Stop** utilise les mêmes limites : il demande une annulation coopérative, laisse l’unité sûre en cours se terminer et conserve le point de contrôle pour la prochaine exécution. Voir :doc:`threading_cancellation_audit`."
+msgstr "Un point de contrôle peut être initialisé avant qu’une unité soit terminée. Les flux pris en charge marquent les unités de travail achevées, comme les champs, essais ou tâches de plaque, à leurs limites de contrôle. Une reprise ultérieure valide l’identité enregistrée du flux et utilise ses enregistrements d’achèvement et ses vérifications de sortie spécifiques pour décider de ce qui peut être réutilisé. Un point de contrôle ne garantit pas une protection contre l’arrêt forcé du processus ou des fichiers de sortie endommagés. Le bouton Qt **Arrêter** utilise les mêmes limites : il demande une annulation coopérative, laisse l’unité sûre en cours se terminer et conserve le point de contrôle pour la prochaine exécution. Voir :doc:`threading_cancellation_audit`."
 
 msgid "Supported workflows"
 msgstr "Workflows pris en charge"

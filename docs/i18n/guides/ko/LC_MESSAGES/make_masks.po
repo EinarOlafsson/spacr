@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
@@ -652,8 +652,9 @@ msgid "**Save to** chooses where the overlay is written. The default is **New ma
 msgstr "**저장 위치** 는 오버레이를 쓸 위치를 선택합니다. 기본값은 이미지 옆의 ``masks_curated_<date>`` 인 **새 마스크 폴더** 이며, 기존 ``masks_curated_*`` 폴더를 재사용하여 세션을 이어갑니다. **폴더 이름** 에 다른 이름이나 전체 경로를 입력하거나 ``--save-to`` 를 전달합니다. 레이어 폴더를 선택하면 필드별로 해당 마스크를 덮어쓰며 컨트롤 아래 확인에서 **덮어쓰기** 를 선택한 후에만 적용됩니다. 대상 폴더에 이미 저장된 필드는 그곳에서 열립니다."
 
 # AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Keep** saves the overlay as edited, with its object IDs unchanged, and moves to the next field; **Next** behaves as in any queue. Edited saves write curation history (``<stem>.tif.curation.json``). Layer decisions are recorded in ``<stem>.decisions.json`` beside the mask: the base IDs that were removed and each added object's ID, source layer and ID in that layer. Progress is kept in the ``curate_status.csv`` inside the save folder, so a review resumes on its own record and offers again the fields the folder's ordinary curation already finished. Without layers, Make Masks behaves and saves exactly as before."
-msgstr "**유지** 는 객체 ID를 바꾸지 않고 편집한 오버레이를 저장한 뒤 다음 필드로 이동하며 **Next** 은 일반 대기열과 같습니다. 편집한 저장은 큐레이션 이력(``<stem>.tif.curation.json``)을 씁니다. 레이어 결정은 마스크 옆의 ``<stem>.decisions.json`` 에 기록됩니다. 제거한 기본 ID와 각 추가 객체의 ID, 원본 레이어 및 그 레이어에서의 ID가 포함됩니다. 진행 상황은 대상 폴더의 ``curate_status.csv`` 에 보관되어 검토 자체 기록으로 재개하고 폴더의 일반 큐레이션이 이미 완료한 필드도 다시 제시합니다. 레이어가 없으면 Make Masks는 이전과 똑같이 동작하고 저장합니다."
+msgstr "**유지** 는 객체 ID를 바꾸지 않고 편집한 오버레이를 저장한 뒤 다음 필드로 이동하며 **다음** 은 일반 대기열과 같습니다. 편집한 저장은 큐레이션 이력(``<stem>.tif.curation.json``)을 씁니다. 레이어 결정은 마스크 옆의 ``<stem>.decisions.json`` 에 기록됩니다. 제거한 기본 ID와 각 추가 객체의 ID, 원본 레이어 및 그 레이어에서의 ID가 포함됩니다. 진행 상황은 대상 폴더의 ``curate_status.csv`` 에 보관되어 검토 자체 기록으로 재개하고 폴더의 일반 큐레이션이 이미 완료한 필드도 다시 제시합니다. 레이어가 없으면 Make Masks는 이전과 똑같이 동작하고 저장합니다."
 
 msgid "Upload data"
 msgstr "데이터 업로드"

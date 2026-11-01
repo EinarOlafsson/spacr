@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
@@ -63,8 +63,9 @@ msgstr "Í **Stillingar… → Mynd** skaltu velja brunnaskynjarann, ályktunars
 msgid "Click a well in the image or a table row. **Plaque preview** segments that well with the plaque settings. **Find plaques in all wells** processes the detected wells in sequence. Cancel clears the remaining queue and discards the current well's pending result; an already running model call finishes in the background."
 msgstr "Smelltu á brunn í myndinni eða á röð í töflunni. **Forskoðun sýkingarskella** hlutar þann brunn með skellustillingunum. **Finna sýkingarskellur í öllum brunnum** vinnur greindu brunnana í röð. Cancel tæmir það sem eftir er í biðröðinni og hendir niðurstöðu núverandi brunns sem enn er í vinnslu; líkanakall sem þegar er í gangi lýkur í bakgrunni."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Compare the proposed condition with the nearby label and the relevant legend passage. Correct the condition, mark reviewed entries **OK**, and save the annotations. With **Confirm annotations** enabled, the run measures only the saved approved entries."
-msgstr "Berðu fyrirhugaða skilyrðið saman við nálægt merki og viðeigandi kafla myndatextans. Leiðréttu skilyrðið, merktu yfirfarnar færslur **OK** og vistaðu merkingarnar. Með **Staðfesta merkingar** virkt mælir keyrslan aðeins vistaðar samþykktar færslur."
+msgstr "Berðu fyrirhugaða skilyrðið saman við nálægt merki og viðeigandi kafla myndatextans. Leiðréttu skilyrðið, merktu yfirfarnar færslur **Í lagi** og vistaðu merkingarnar. Með **Staðfesta merkingar** virkt mælir keyrslan aðeins vistaðar samþykktar færslur."
 
 msgid "Copy the tuned settings into the form before starting the analysis run. Retain the original figure, legend, annotation review and calibration information alongside the measurements."
 msgstr "Afritaðu stilltu stillingarnar í eyðublaðið áður en greiningarkeyrslan hefst. Varðveittu upphaflegu myndina, myndatextann, yfirferð merkinga og kvörðunarupplýsingar ásamt mælingunum."

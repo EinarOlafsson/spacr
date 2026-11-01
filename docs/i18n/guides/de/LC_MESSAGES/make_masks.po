@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: de\n"
@@ -652,8 +652,9 @@ msgid "**Save to** chooses where the overlay is written. The default is **New ma
 msgstr "**Speichern in** legt den Zielort fest. Standard ist **Neuer Maskenordner**, ``masks_curated_<date>`` neben den Bildern (ein vorhandener ``masks_curated_*``-Ordner wird für die Fortsetzung wiederverwendet); geben Sie unter **Ordnername** einen anderen Namen oder vollständigen Pfad ein oder übergeben Sie ``--save-to``. Ein Ebenenordner als Ziel überschreibt dessen Masken Bildfeld für Bildfeld und gilt erst nach **Überschreiben** in der Bestätigung unter dem Steuerelement. Bereits dort gespeicherte Bildfelder werden von dort geöffnet."
 
 # AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "**Keep** saves the overlay as edited, with its object IDs unchanged, and moves to the next field; **Next** behaves as in any queue. Edited saves write curation history (``<stem>.tif.curation.json``). Layer decisions are recorded in ``<stem>.decisions.json`` beside the mask: the base IDs that were removed and each added object's ID, source layer and ID in that layer. Progress is kept in the ``curate_status.csv`` inside the save folder, so a review resumes on its own record and offers again the fields the folder's ordinary curation already finished. Without layers, Make Masks behaves and saves exactly as before."
-msgstr "**Behalten** speichert die bearbeitete Überlagerung mit unveränderten Objekt-IDs und geht zum nächsten Bildfeld; **Next** verhält sich wie in jeder Warteschlange. Bearbeitete Speicherungen schreiben die Kuratierungshistorie (``<stem>.tif.curation.json``). Ebenenentscheidungen stehen in ``<stem>.decisions.json`` neben der Maske: entfernte Basis-IDs sowie ID, Quellebene und dortige ID jedes hinzugefügten Objekts. Der Fortschritt steht in ``curate_status.csv`` im Zielordner; die Prüfung setzt mit eigenem Datensatz fort und bietet auch Bildfelder erneut an, die die normale Ordnerkuratierung schon abgeschlossen hat. Ohne Ebenen arbeitet und speichert Make Masks unverändert."
+msgstr "**Behalten** speichert die bearbeitete Überlagerung mit unveränderten Objekt-IDs und geht zum nächsten Bildfeld; **Weiter** verhält sich wie in jeder Warteschlange. Bearbeitete Speicherungen schreiben die Kuratierungshistorie (``<stem>.tif.curation.json``). Ebenenentscheidungen stehen in ``<stem>.decisions.json`` neben der Maske: entfernte Basis-IDs sowie ID, Quellebene und dortige ID jedes hinzugefügten Objekts. Der Fortschritt steht in ``curate_status.csv`` im Zielordner; die Prüfung setzt mit eigenem Datensatz fort und bietet auch Bildfelder erneut an, die die normale Ordnerkuratierung schon abgeschlossen hat. Ohne Ebenen arbeitet und speichert Make Masks unverändert."
 
 msgid "Upload data"
 msgstr "Daten hochladen"

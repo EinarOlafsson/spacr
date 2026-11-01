@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: sv\n"
@@ -503,8 +503,9 @@ msgid "Timelapse event annotations and pretrained features (alpha)"
 msgstr "Händelseannoteringar för timelapse och förtränade egenskaper (alfa)"
 
 # AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Enable **Show alpha features** in Preferences to use **Event annotations…** in Timelapse. Choose an existing spaCR tracks CSV and its matching image sequence, open the tracked field and confirm the pairing. Select an observed track and zero-based frame, enter an event name and press **Add or update**. **Save** writes the staged labels to an annotations CSV and selects it for event detection; closing without saving leaves the file unchanged. One track at one frame can have only one event label. Changed tracker or annotation files must be reopened before saving."
-msgstr "Aktivera **Visa alfafunktioner** i Preferences för att använda **Händelseanteckningar...** i Timelapse. Välj en befintlig spaCR-spårningsfil i CSV-format och dess motsvarande bildsekvens, öppna det spårade fältet och bekräfta att de hör ihop. Välj ett observerat spår och ett nollbaserat bildnummer, ange ett händelsenamn och tryck på **Lägg till eller uppdatera**. **Spara** skriver de förberedda etiketterna till en annoteringsfil i CSV-format och väljer den för händelsedetektering; om du stänger utan att spara förblir filen oförändrad. Ett spår vid en bild kan bara ha en händelseetikett. Ändrade spårnings- eller annoteringsfiler måste öppnas igen innan du sparar."
+msgstr "Aktivera **Visa alfafunktioner** i Preferences för att använda **Händelseannoteringar...** i Timelapse. Välj en befintlig spaCR-spårningsfil i CSV-format och dess motsvarande bildsekvens, öppna det spårade fältet och bekräfta att de hör ihop. Välj ett observerat spår och ett nollbaserat bildnummer, ange ett händelsenamn och tryck på **Lägg till eller uppdatera**. **Spara** skriver de förberedda etiketterna till en annoteringsfil i CSV-format och väljer den för händelsedetektering; om du stänger utan att spara förblir filen oförändrad. Ett spår vid en bild kan bara ha en händelseetikett. Ändrade spårnings- eller annoteringsfiler måste öppnas igen innan du sparar."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The annotation table names ``field``, ``track_id``, ``frame`` and ``event``; an ``object`` column identifies the tracked object type. Label every event in fields used for training. The event detector evaluates held-out annotated fields, reports precision, recall and timing error, then trains and saves a model for reuse. Event classes come from the experiment's annotations."

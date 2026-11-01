@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-31 21:11-0400\n"
+"POT-Creation-Date: 2026-11-01 01:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
@@ -121,7 +121,7 @@ msgstr "업데이트"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Choose **Help → Check for updates**, review the offered version and choose **Update**. Supported macOS installations and dedicated private Python installations prepare the replacement in the background. When it is ready, choose **Restart** to finish closing the current application and open the verified replacement through the spaCR startup window. No manual click on the application icon is needed. Frozen Windows and Debian installations use their native authorization and replacement workflows."
-msgstr "**도움말 → Check for updates** 를 선택하고 제공된 버전을 확인한 다음 **Update** 를 선택합니다. 지원되는 macOS 설치와 전용 개인 Python 설치는 백그라운드에서 교체본을 준비합니다. 준비가 끝나면 **다시 시작** 을 선택하여 현재 애플리케이션 종료를 마치고, 검증된 교체본을 spaCR 시작 창을 통해 엽니다. 애플리케이션 아이콘을 직접 클릭할 필요는 없습니다. 고정(frozen) Windows 및 Debian 설치는 각 운영 체제 고유의 권한 부여 및 교체 워크플로를 사용합니다."
+msgstr "**도움말 → Check for updates** 를 선택하고 제공된 버전을 확인한 다음 **업데이트** 를 선택합니다. 지원되는 macOS 설치와 전용 개인 Python 설치는 백그라운드에서 교체본을 준비합니다. 준비가 끝나면 **다시 시작** 을 선택하여 현재 애플리케이션 종료를 마치고, 검증된 교체본을 spaCR 시작 창을 통해 엽니다. 애플리케이션 아이콘을 직접 클릭할 필요는 없습니다. 고정(frozen) Windows 및 Debian 설치는 각 운영 체제 고유의 권한 부여 및 교체 워크플로를 사용합니다."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Older Linux and Windows online layouts without a verified update adapter are refused before replacement starts. The application stays open and keeps its data. Use the matching release installer for those installations."
