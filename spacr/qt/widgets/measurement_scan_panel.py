@@ -3345,14 +3345,16 @@ class ColumnRegressionPanel(WorkflowSteps, QWidget):
         self._refresh_buttons()
         self.outcomes_box.setPlainText("")
         self._show_outcomes()
-        self.progress.setText(f"Queued {len(columns)} fit(s).")
-        self.progress.setVisible(True)
+        self.progress.setText("")
         started = self._jobs.submit(
             lambda cols=tuple(columns): self._queue_worker(cols),
             self._finish_queue)
         if not started:
             self._running = False
             self._refresh_buttons()
+        elif self._running:
+            self.progress.setText(f"Queued {len(columns)} fit(s).")
+            self.progress.setVisible(True)
         return bool(started)
 
     def cancel(self, *_args) -> bool:

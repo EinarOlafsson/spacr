@@ -106,6 +106,37 @@ def test_an_accepted_regression_queue_does_claim_to_run(regression_panel):
 
     assert panel.start_regressions() is True
     assert panel._running is True
+    assert panel.progress.text() == "Queued 1 fit(s)."
+
+
+def test_a_refused_regression_queue_does_not_say_it_queued(regression_panel):
+    """The label only claims fits are queued once the submit took them."""
+    panel = regression_panel
+    panel.selected_columns = lambda: ("score",)
+    panel._score_path = lambda: "/tmp/merged.csv"
+    panel._offer_frame = lambda *_a, **_k: True
+    panel._jobs = _RefusingRunner()
+
+    assert panel.start_regressions() is False
+    assert "Queued" not in panel.progress.text()
+
+
+def test_a_real_refusal_shows_the_refusal_text(regression_panel):
+    """An unthreaded runner refuses by reporting the failure; that text is
+    what the label is left showing."""
+    panel = regression_panel
+    panel.selected_columns = lambda: ("score",)
+    panel._score_path = lambda: "/tmp/merged.csv"
+    panel._offer_frame = lambda *_a, **_k: True
+
+    def refuse(_columns):
+        raise RuntimeError("the fit could not start")
+
+    panel._queue_worker = refuse
+
+    assert panel.start_regressions() is False
+    assert panel.progress.text() == (
+        "The queue did not finish: the fit could not start")
 
 
 # ---------------------------------------------------------------------------
