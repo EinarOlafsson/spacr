@@ -287,3 +287,53 @@ def _time_axis(axes, file):
               f"every timepoint written below is a z-plane "
               f"and every projection is over time.")
     return 0
+
+
+_LENGTH_UNITS_NM = {"nm": 1.0, "µm": 1000.0, "μm": 1000.0, "um": 1000.0,
+                    "mm": 1e6, "Å": 0.1, "A": 0.1, "pm": 0.001, "m": 1e9,
+                    "cm": 1e7, "micron": 1000.0}
+"""Length units met in EM and TIFF metadata, in nanometres."""
+
+
+def _nm_per(unit):
+    """How many nanometres one ``unit`` is, or None for a unit of no length."""
+    unit = str(unit or "").strip()
+    return _LENGTH_UNITS_NM.get(unit)
+
+
+def _tiff_pixel_size_nm(path):
+    """The pixel size a TIFF records, in nanometres, or None.
+
+    What :func:`spacr.io.tiff_pixel_size_nm` answers, read with tifffile
+    alone, so a mask save asking a TIFF's calibration never imports
+    :mod:`spacr.io` and the deep-learning stack it brings in.
+
+    :param path: the TIFF.
+    """
+    import os
+
+    try:
+        with tifffile.TiffFile(os.fspath(path)) as tif:
+            page = tif.pages[0]
+            tag = page.tags.get("XResolution")
+            unit_tag = page.tags.get("ResolutionUnit")
+            imagej = tif.imagej_metadata or {}
+            shaped = (tif.shaped_metadata or ({},))[0] or {}
+    except Exception:
+        return None
+    exact = shaped.get("pixel_size_nm") if isinstance(shaped, dict) else None
+    if isinstance(exact, (int, float)) and exact > 0:
+        return float(exact)
+    if tag is None:
+        return None
+    numerator, denominator = tag.value
+    if not numerator or not denominator:
+        return None
+    per_unit = numerator / denominator
+    factor = _nm_per(imagej.get("unit"))
+    if factor is None:
+        unit = int(unit_tag.value) if unit_tag is not None else 1
+        factor = 1e7 if unit == 3 else None
+    if factor is None or per_unit <= 0:
+        return None
+    return factor / per_unit

@@ -1215,6 +1215,13 @@ def pixel_size_nm(path) -> Optional[float]:
         return reviewed['entry'].get('pixel_size_nm')
     if key in _PIXEL_SIZES:
         return _PIXEL_SIZES[key]
+    suffix = os.path.splitext(key)[1].lower()
+    if suffix in (".tif", ".tiff"):
+        from ..tiff_io import _tiff_pixel_size_nm
+
+        return _tiff_pixel_size_nm(path)
+    if suffix not in TEM_SUFFIXES:
+        return None
     from ..io import image_pixel_size_nm
 
     size = image_pixel_size_nm(path)

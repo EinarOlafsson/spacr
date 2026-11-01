@@ -55,6 +55,7 @@ from .errors import RunLedger
 from .image_colors import read_image_rgb
 from .classification_pixels import DECLARED_UINT8, read_classification_image, validate_policy
 from .tiff_io import write_tiff, _raster_with_axes, _yokogawa_planes
+from .tiff_io import _LENGTH_UNITS_NM, _nm_per, _tiff_pixel_size_nm
 from .portable_paths import _long_path
 
 LOG = logging.getLogger(__name__)
@@ -10099,12 +10100,6 @@ _DM_EAGER = 4096
 """Arrays with at most this many elements are decoded while the tags are
 walked; longer ones, the image data, are kept as an offset and read once."""
 
-_LENGTH_UNITS_NM = {"nm": 1.0, "µm": 1000.0, "μm": 1000.0, "um": 1000.0,
-                    "mm": 1e6, "Å": 0.1, "A": 0.1, "pm": 0.001, "m": 1e9,
-                    "cm": 1e7, "micron": 1000.0}
-"""Length units met in EM and TIFF metadata, in nanometres."""
-
-
 class MissingTEMReader(ImportError):
     """A TEM file needs an optional package that is not installed.
 
@@ -10245,12 +10240,6 @@ def _dm_text(value) -> str:
     return ""
 
 
-def _nm_per(unit) -> Optional[float]:
-    """How many nanometres one ``unit`` is, or None for a unit of no length."""
-    unit = str(unit or "").strip()
-    return _LENGTH_UNITS_NM.get(unit)
-
-
 def read_dm(path) -> tuple:
     """Read the main image of a Gatan DigitalMicrograph ``.dm3``/``.dm4``.
 
@@ -10349,31 +10338,7 @@ def tiff_pixel_size_nm(path) -> Optional[float]:
 
     :param path: the TIFF.
     """
-    try:
-        with tifffile.TiffFile(os.fspath(path)) as tif:
-            page = tif.pages[0]
-            tag = page.tags.get("XResolution")
-            unit_tag = page.tags.get("ResolutionUnit")
-            imagej = tif.imagej_metadata or {}
-            shaped = (tif.shaped_metadata or ({},))[0] or {}
-    except Exception:
-        return None
-    exact = shaped.get("pixel_size_nm") if isinstance(shaped, dict) else None
-    if isinstance(exact, (int, float)) and exact > 0:
-        return float(exact)
-    if tag is None:
-        return None
-    numerator, denominator = tag.value
-    if not numerator or not denominator:
-        return None
-    per_unit = numerator / denominator
-    factor = _nm_per(imagej.get("unit"))
-    if factor is None:
-        unit = int(unit_tag.value) if unit_tag is not None else 1
-        factor = 1e7 if unit == 3 else None
-    if factor is None or per_unit <= 0:
-        return None
-    return factor / per_unit
+    return _tiff_pixel_size_nm(path)
 
 
 def read_tem_image(path) -> tuple:
