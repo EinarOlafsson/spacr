@@ -389,3 +389,19 @@ def test_external_input_contract_rejects_silent_graph_drift(fault):
         source["description"] = ""
     with pytest.raises(ValueError, match="external input"):
         workflow.validate(data, live=False)
+
+
+REVIEWED_SCREENS_ANNOTATE = (
+    'Open Annotate from Home to view the object crops associated with your measured project.')
+
+
+def test_the_screens_annotate_scene_keeps_its_reviewed_sentence():
+    data = workflow.load()
+    source = data['tutorials']['78_spacr_screens']['scenes']['annotate']
+    assert REVIEWED_SCREENS_ANNOTATE in source
+    scenes = workflow.lesson_document(data, '78_spacr_screens')['scenes']
+    annotate = scenes[1 + data['tutorials']['78_spacr_screens']['modules'].index('annotate')]
+    assert REVIEWED_SCREENS_ANNOTATE in annotate['narration']
+    assert 'Measure saved or streams' not in annotate['narration']
+    published = json.loads(Path('tools/tutorials/lessons/78_spacr_screens.json').read_text(encoding='utf-8'))
+    assert REVIEWED_SCREENS_ANNOTATE in published['scenes'][3]['narration']
