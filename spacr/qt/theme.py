@@ -5152,7 +5152,6 @@ def _chevron_file(color: str, *, disabled: bool = False):
     :param disabled: draw it at reduced opacity, for a disabled combo.
     :returns: the PNG's path, or ``None`` when it cannot be written.
     """
-    import hashlib
     import os
     import tempfile
     from pathlib import Path
@@ -5165,8 +5164,7 @@ def _chevron_file(color: str, *, disabled: bool = False):
         return None
     if disabled:
         ink.setAlphaF(0.45)
-    key = hashlib.sha1(
-        f"{ink.name(QColor.HexArgb)}|{_CHEVRON_PIXELS}".encode()).hexdigest()[:12]
+    key = f"{_CHEVRON_PIXELS}-{ink.name(QColor.HexArgb)}"
     folder = Path(tempfile.gettempdir()) / "spacr-theme-chevrons"
     path = folder / f"chevron-{key}.png"
     if path.exists():
