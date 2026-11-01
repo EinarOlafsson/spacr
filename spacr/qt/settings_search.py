@@ -1172,6 +1172,12 @@ def install(screen: QWidget) -> Optional[SettingsSearchBar]:
         LOG.debug("could not install the settings search strip", exc_info=True)
         return None
     screen._settings_search = bar
+    for settings_file_button in getattr(screen, "_settings_file_buttons", ()):
+        try:
+            bar.add_trailing_widget(settings_file_button)
+        except Exception:
+            LOG.debug("could not move Import/Export settings beside Templates",
+                      exc_info=True)
     try:
         from .i18n import retranslate_widget_tree
         retranslate_widget_tree(bar)

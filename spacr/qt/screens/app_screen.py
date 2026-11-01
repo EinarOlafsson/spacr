@@ -8498,8 +8498,19 @@ class AppScreen(QWidget):
         self._btn_stop.clicked.connect(self._on_stop)
         buttons.addWidget(self._btn_stop)
 
-        self._btn_import = QPushButton("Import settings…")
-        self._btn_import.setObjectName("GhostButton")
+        from .. import iconset as _iconset_files
+        from ..preferences import _set_scaled_icon_size as _size_files
+
+        self._btn_import, self._btn_export = QPushButton(), QPushButton()
+        for settings_file_button, glyph, caption in (
+                (self._btn_import, "import", "Import settings…"),
+                (self._btn_export, "export", "Export settings…")):
+            settings_file_button.setObjectName("GhostButton")
+            settings_file_button.setIcon(_iconset_files.icon(glyph))
+            _size_files(settings_file_button, GEAR_ICON_PX)
+            settings_file_button.setProperty(
+                "_spacr_i18n_accessible_name", caption)
+            settings_file_button.setAccessibleName(tr(caption))
         self._btn_import.setCursor(Qt.PointingHandCursor)
         self._btn_import.clicked.connect(self._on_import_settings)
         buttons.addWidget(self._btn_import)
@@ -8509,13 +8520,10 @@ class AppScreen(QWidget):
             _install_overview_actions(self, buttons)
             self._btn_stop.setEnabled(True)
 
-        from ..i18n import set_translatable_text
-        self._btn_export = QPushButton()
-        set_translatable_text(self._btn_export, "Export settings…")
-        self._btn_export.setObjectName("GhostButton")
         self._btn_export.setCursor(Qt.PointingHandCursor)
         self._btn_export.clicked.connect(self._on_export_settings)
         buttons.addWidget(self._btn_export)
+        self._settings_file_buttons = (self._btn_import, self._btn_export)
         buttons.addWidget(self._build_analysis_lock_button())
         from ..preferences import _apply_alpha_widgets
 
@@ -8530,7 +8538,7 @@ class AppScreen(QWidget):
             buttons.addWidget(self._virtual_stain)
 
         self._btn_remote = QPushButton("Submit remote…")
-        self._btn_remote.setObjectName("PrimaryButton")
+        self._btn_remote.setObjectName("GhostButton")
         self._btn_remote.setCursor(Qt.PointingHandCursor)
         self._btn_remote.setToolTip(
             "Send the current resolved settings to the Distributed Jobs "
@@ -8545,7 +8553,6 @@ class AppScreen(QWidget):
         self._btn_clear.setCursor(Qt.PointingHandCursor)
         self._btn_clear.setProperty("_spacrActivitySpinnerChecked", True)
         self._btn_clear.clicked.connect(lambda: self._console.clear())
-        buttons.addWidget(self._btn_clear)
 
         self._btn_copy_console = QPushButton()
         from ..i18n import set_translatable_text
@@ -8569,13 +8576,9 @@ class AppScreen(QWidget):
         self._btn_preferences.setAccessibleName("Preferences")
         self._btn_preferences.clicked.connect(self._open_preferences_dialog)
 
-        copy_and_gear = QWidget()
-        pair = QHBoxLayout(copy_and_gear)
-        pair.setContentsMargins(0, 0, 0, 0)
-        pair.setSpacing(SPACING["sm"])
-        pair.addWidget(self._btn_copy_console)
-        pair.addWidget(self._btn_preferences)
-        buttons.addWidget(copy_and_gear)
+        for console_action in (self._btn_clear, self._btn_copy_console,
+                               self._btn_preferences):
+            self._console_card.add_title_action(console_action)
 
         from .. import iconset as _iconset
 

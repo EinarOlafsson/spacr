@@ -101,6 +101,9 @@ class ExternalMaskInputWidget(QWidget):
         self._table.verticalHeader().setVisible(False)
         header = self._table.horizontalHeader()
         header.setSectionResizeMode(0, QHeaderView.Stretch)
+        header.setMinimumSectionSize(max(
+            header.minimumSectionSize(),
+            header.sectionSizeFromContents(0).width()))
         for column in range(1, 6):
             header.setSectionResizeMode(column, QHeaderView.ResizeToContents)
         self._table.setMinimumHeight(190)

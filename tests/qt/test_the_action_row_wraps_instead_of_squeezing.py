@@ -288,9 +288,11 @@ ROW_ATTRIBUTES = ("_actions_row", "_btn_run", "_btn_stop", "_btn_import",
                   "_btn_remote", "_btn_clear", "_btn_copy_console",
                   "_btn_preferences", "_btn_file_issue", "_progress")
 
-#: The two the wrap must never separate, and which therefore share a parent
-#: of their own inside the strip. See the comment beside `copy_and_gear`.
-PAIRED = ("_btn_copy_console", "_btn_preferences")
+#: Moved out of the row by the 2026-11-01 action-row decision (UI audit):
+#: Import/Export settings beside Templates, the console actions and the gear
+#: right of Copy console in the console header. Still reachable by name.
+SETTINGS_FILES = ("_btn_import",)
+CONSOLE_HEADER = ("_btn_clear", "_btn_copy_console", "_btn_preferences")
 
 
 def test_the_split_left_every_reachable_name_where_it_was(qtbot,
@@ -319,15 +321,13 @@ def test_the_split_left_every_reachable_name_where_it_was(qtbot,
             assert widget.parent() is screen._action_status
             assert widget in screen._action_status.findChildren(type(widget))
             continue
-        if name in PAIRED:
-            # Copy console and the gear are welded into one flow item so a
-            # wrap cannot separate them, so their parent is that pair rather
-            # than the row. Still found from the row, which is what the reach
-            # into this row actually needs, and
-            # `tests/qt/test_preferences_gear.py` asserts the two share a
-            # parent -- which they do.
-            assert widget.parent().parent() is row, (
-                f"{name} is no longer inside the actions row")
+        if name in SETTINGS_FILES and getattr(screen, "_settings_search", None) is not None:
+            assert widget.parent() is screen._settings_search
+            continue
+        if name in CONSOLE_HEADER:
+            assert widget.parent() is screen._console_card
+            assert not screen._console_card.body.isAncestorOf(widget)
+            continue
         else:
             assert widget.parent() is row, (
                 f"{name} is parented to {type(widget.parent()).__name__} "

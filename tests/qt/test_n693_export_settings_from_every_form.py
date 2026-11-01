@@ -171,10 +171,11 @@ def test_every_settings_form_is_covered():
 def test_export_sits_right_after_import(qtbot, key):
     """Export settings… is the button after Import settings…, with help."""
     screen = _screen(qtbot, key)
-    strip = screen._actions_row.layout().itemAt(0).layout()
-    assert (strip.indexOf(screen._btn_export)
-            == strip.indexOf(screen._btn_import) + 1)
-    assert screen._btn_export.text() == "Export settings…"
+    strip = list(screen._settings_file_buttons)
+    assert (strip.index(screen._btn_export)
+            == strip.index(screen._btn_import) + 1)
+    assert not screen._btn_export.icon().isNull()
+    assert screen._btn_export.accessibleName() == "Export settings…"
     assert screen._btn_export.objectName() == screen._btn_import.objectName()
     assert "spacr-run" in screen._action_hint(screen._btn_export)
 
@@ -381,4 +382,4 @@ def test_export_button_uses_its_current_translation(qtbot, monkeypatch, language
     screen = _screen(qtbot, "measure")
     expected = tr("Export settings…", language=language)
     assert expected != "Export settings…"
-    assert screen._btn_export.text() == expected
+    assert screen._btn_export.accessibleName() == expected
