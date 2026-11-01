@@ -935,7 +935,12 @@ class spacrDataLoader(_TorchDataLoader):
         in-flight producer is stopped first, so the stream is never doubled.
         """
         if self._iteration_active:
-            return self
+            if self.current_batch_index == 0:
+                return self
+            LOG.warning(
+                "spaCR data loader: a new pass started after %d batch(es) of "
+                "an unfinished pass; the rest of that pass is discarded",
+                self.current_batch_index)
         self.cleanup()
         self._stop_event = False
         self._stop_signal = threading.Event()
@@ -958,11 +963,7 @@ class spacrDataLoader(_TorchDataLoader):
     def __next__(self):
         """Return the next queued batch, or raise ``StopIteration`` at the
         sentinel the preloader pushes when the stream is exhausted."""
-        try:
-            next_batch = self.batch_queue.get(timeout=60)
-        except queue.Empty:
-            self._iteration_active = False
-            raise StopIteration
+        next_batch = self._wait_for_batch()
         if next_batch is self._sentinel:
             self._iteration_active = False
             if self._error is not None:
@@ -971,6 +972,50 @@ class spacrDataLoader(_TorchDataLoader):
             raise StopIteration
         self.current_batch_index += 1
         return next_batch
+
+    _poll_seconds = 1.0
+    _stall_warning_seconds = 60.0
+
+    def _wait_for_batch(self):
+        """Block until the preloader queues a batch or its end sentinel.
+
+        A slow producer is waited for, with a warning every
+        ``_stall_warning_seconds``, so a pass is never cut short. A producer
+        that stops without queuing the sentinel raises instead of ending the
+        pass as if it were complete; one stopped by :meth:`cleanup` ends it.
+
+        :returns: the next queued item.
+        :raises StopIteration: the pass was stopped by :meth:`cleanup`.
+        :raises RuntimeError: the producer is gone and no end was signalled.
+        """
+        waited_since = time.monotonic()
+        warned_at = waited_since
+        while True:
+            try:
+                return self.batch_queue.get(timeout=self._poll_seconds)
+            except queue.Empty:
+                pass
+            thread = getattr(self, 'thread', None)
+            if thread is None or not thread.is_alive():
+                try:
+                    return self.batch_queue.get_nowait()
+                except queue.Empty:
+                    pass
+                self._iteration_active = False
+                stop_signal = getattr(self, '_stop_signal', None)
+                if stop_signal is not None and stop_signal.is_set():
+                    raise StopIteration
+                raise RuntimeError(
+                    f"spaCR data loader: the batch producer stopped after "
+                    f"{self.current_batch_index} batch(es) without signalling "
+                    f"the end of the pass; the pass is incomplete")
+            now = time.monotonic()
+            if now - warned_at >= self._stall_warning_seconds:
+                warned_at = now
+                LOG.warning(
+                    "spaCR data loader: no batch for %.0f s after %d batch(es); "
+                    "the producer is still running, waiting",
+                    now - waited_since, self.current_batch_index)
 
     def cleanup(self):
         """Signal the preloader to stop and join the background thread."""

@@ -255,8 +255,12 @@ def test_pin_memory_batch_handles_tensor_and_passthrough(tmp_path, rng, monkeypa
         dl.cleanup()
 
 
-def test_spacr_dataloader_next_stops_when_queue_times_out(tmp_path, rng):
-    """A queue that never produces ends iteration instead of hanging forever."""
+def test_spacr_dataloader_next_raises_when_the_producer_is_gone(tmp_path, rng):
+    """An empty queue with no live producer is an incomplete pass, not its end.
+
+    This used to end the pass with StopIteration after a 60 s timeout, so a
+    stalled or slow producer looked like a complete, shorter epoch.
+    """
     from spacr.io import spacrDataset, spacrDataLoader
 
     d = tmp_path / "flat"
@@ -276,13 +280,63 @@ def test_spacr_dataloader_next_stops_when_queue_times_out(tmp_path, rng):
             self.timeouts.append(timeout)
             raise queue.Empty
 
+        def get_nowait(self):
+            raise queue.Empty
+
     try:
         dl.batch_queue = _TimeoutQueue()
         dl.current_batch_index = 0
-        with pytest.raises(StopIteration):
+        with pytest.raises(RuntimeError, match="the pass is incomplete"):
             next(dl)
-        assert dl.batch_queue.timeouts == [60]
+        assert dl.batch_queue.timeouts == [dl._poll_seconds]
         assert dl.current_batch_index == 0     # nothing was counted as a batch
+    finally:
+        dl.cleanup()
+
+
+def test_spacr_dataloader_waits_for_a_slow_producer(monkeypatch, caplog):
+    """A gap longer than the stall warning delivers every batch, with a warning."""
+    import logging
+    import time as _time
+    from spacr.io import spacrDataLoader
+
+    class _Slow(torch.utils.data.Dataset):
+        def __len__(self):
+            return 3
+
+        def __getitem__(self, index):
+            if index == 2:
+                _time.sleep(0.3)
+            return torch.tensor(index)
+
+    dl = spacrDataLoader(_Slow(), batch_size=1, num_workers=0, preload_batches=1)
+    monkeypatch.setattr(dl, "_poll_seconds", 0.02)
+    monkeypatch.setattr(dl, "_stall_warning_seconds", 0.05)
+    try:
+        with caplog.at_level(logging.WARNING, logger="spacr.io"):
+            got = [int(b) for b in dl]
+        assert got == [0, 1, 2]
+        assert "the producer is still running" in caplog.text
+    finally:
+        dl.cleanup()
+
+
+def test_spacr_dataloader_a_new_pass_after_a_break_is_complete():
+    """Breaking out of a pass and iterating again must not yield a short pass.
+
+    The old ``__iter__`` returned the half-consumed pass, so after taking
+    every batch but the sentinel the next ``for`` loop got nothing at all.
+    """
+    from spacr.io import spacrDataLoader
+
+    dl = spacrDataLoader([1, 2, 3], batch_size=1, num_workers=0,
+                         preload_batches=1)
+    try:
+        for index, _batch in enumerate(dl):
+            if index == 2:
+                break
+        assert [int(b) for b in dl] == [1, 2, 3]
+        assert [int(b) for b in dl] == [1, 2, 3]
     finally:
         dl.cleanup()
 
