@@ -799,6 +799,7 @@ def _application_event_hub_class():
             self._objects = {}
             self._wrappers = {}
             self._wrapper_keys = {}
+            self._kind_counts = {}
             self._object_kinds = frozenset()
             self._geometry_watched = {}
 

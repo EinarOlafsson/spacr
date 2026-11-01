@@ -213,7 +213,12 @@ def test_the_incremental_index_matches_a_full_rebuild(shown):
     recorders = [_Recorder() for _ in range(4)]
     kinds = (QEvent.Enter, QEvent.Leave, QEvent.Resize, QEvent.Show,
              QEvent.MouseButtonPress, QEvent.Move)
-    hub = None
+    # The index lives on the application's event hub, which the first watch
+    # installs. With this seed the first step is an unwatch, which installs
+    # nothing, so run alone the test met no hub; it is installed here, as the
+    # tests that ran before it in a full session had.
+    hub = gil_priority._application_event_hub(QApplication.instance())
+    assert hub is not None
     rng = random.Random(20261024)
     for step in range(300):
         widget, recorder = rng.choice(widgets), rng.choice(recorders)
@@ -226,8 +231,6 @@ def test_the_incremental_index_matches_a_full_rebuild(shown):
         if step % 50 == 49 and widgets:
             from shiboken6 import delete
             delete(widgets.pop(rng.randrange(len(widgets))))
-        hub = hub or gil_priority._application_event_hub(
-            QApplication.instance(), create=False)
         incremental = (hub._object_kinds, dict(hub._geometry_watched),
                        dict(hub._kind_counts))
         gil_priority._hub_rebuild_objects(hub)
