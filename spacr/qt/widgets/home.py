@@ -7782,6 +7782,7 @@ class _EasyHomePage(QWidget):
         self._protocol_format = ''
         self._protocol_choices = {}
         self._protocol_result = None
+        self._protocol_explanation = ''
         self._inspected_text = None
         self._inspected_generation = None
         self._build_protocol_controls()
@@ -7884,18 +7885,19 @@ class _EasyHomePage(QWidget):
         self.field._arrange()
 
     def _protocol_input_changed(self, text):
-        """Invalidate only the protocol handoff when the native input changes."""
+        """Invalidate the protocol handoff while leaving typed search unchanged."""
+        offered = self._protocol_result is not None
         self._protocol_result = None
-        if self.path_edit.protocols.isChecked():
+        if not self.path_edit.protocols.isChecked():
+            return
+        if not text.strip():
+            self._protocol_show()
+        elif offered and self._protocol_step == 2:
+            from ..i18n import tr
+
             self._show_suggestions()
             self.field.set_cards([])
-            if self._protocol_step == 2:
-                if not text.strip():
-                    self._protocol_present()
-                else:
-                    from ..i18n import tr
-
-                    self.field.details.setPlainText(tr('Input changed. Press Enter to inspect it before carrying it into a protocol.'))
+            self.field.details.setPlainText(tr('Input changed. Press Enter to inspect it before carrying it into a protocol.'))
 
     def _protocol_fields(self):
         """Read dependent selectors from the shared current-capability catalog."""
@@ -7993,12 +7995,9 @@ class _EasyHomePage(QWidget):
         color = active_palette()['accent']
         self._protocol_back_button.setIcon(self.field.details._arrow_icon('back', color))
         self._protocol_next_button.setIcon(self.field.details._arrow_icon('forward', color))
-        self.field.set_cards([])
-        if self._protocol_step == 2:
-            self._protocol_present()
-        else:
-            explanation = '\n\n'.join(dict.fromkeys(explanations)) or tr('Choose your experiment or input to see a compatible workflow. Nothing starts automatically.')
-            self.field.details.setPlainText(explanation)
+        self._protocol_explanation = '\n\n'.join(dict.fromkeys(explanations)) or tr('Choose your experiment or input to see a compatible workflow. Nothing starts automatically.')
+        self._cancel_navigator_ai()
+        self._protocol_show()
         controls = self.field.protocol_controls
         controls.layout().activate()
         controls.adjustSize()
@@ -8008,6 +8007,14 @@ class _EasyHomePage(QWidget):
         if self.field._motion_enabled():
             controls._arrival.setStartValue(0.0)
             controls._arrival.start()
+
+    def _protocol_show(self):
+        """Give the result area back to the protocol: its step explanation or final cards."""
+        self.field.set_cards([])
+        if self._protocol_step == 2:
+            self._protocol_present()
+        else:
+            self.field.details.setPlainText(self._protocol_explanation)
 
     def _protocol_emerge(self, value):
         """Reveal the opaque composer downward using the existing arrival easing.
@@ -8554,6 +8561,10 @@ class _EasyHomePage(QWidget):
         self.status.clear()
         self.path_edit.setAccessibleDescription('')
         self.path_edit.setToolTip('')
+        if self.path_edit.protocols.isChecked():
+            self._show_suggestions()
+            self._protocol_show()
+            return
         if not self._details_has_content:
             self._feedback('')
         self._show_suggestions()
@@ -8689,9 +8700,16 @@ class _EasyHomePage(QWidget):
         self._inspected_text = self.path_edit.text()
         self._inspected_generation = generation
         if self.path_edit.protocols.isChecked():
-            self._settings_overrides = dict(result.get('settings_overrides', {}))
-            self._protocol_render()
-            return
+            groups = result.get('context', {}).get('action_groups') or {}
+            searched = bool(groups) and all(group.get('kind') == 'navigation' for group in groups.values())
+            if self._protocol_step == 2 and not searched:
+                self._settings_overrides = dict(result.get('settings_overrides', {}))
+                self._protocol_render()
+                return
+            self._protocol_result = None
+            chooser = getattr(self.field.protocol_controls, '_inline_choice', None)
+            if chooser is not None:
+                chooser.hidePopup()
         self._settings_overrides = dict(result.get('settings_overrides', {}))
         proposal = result.get('regex')
         leading = None

@@ -200,8 +200,10 @@ def test_protocol_metadata_uses_real_tiff_native_handoff_and_preserves_inspectio
         assert active.view().isVisible()
         qtbot.waitUntil(lambda: not page._runner.is_busy() and page._last_result is not None,
                         timeout=10000)
-        qtbot.waitUntil(lambda: not isValid(active))
+        assert isValid(active) and not active.view().isVisible()
         assert page.field.protocol_controls._inline_choice is None
+        assert page._protocol_choices['metadata_type'] == 'cq1'
+        assert 'mask' in [card._key for card in page.field.cards]
         qtbot.mouseClick(page.path_edit.protocols, Qt.LeftButton)
         assert not page.path_edit.protocols.isChecked()
         qtbot.mouseClick(page.path_edit.protocols, Qt.LeftButton)
