@@ -173,6 +173,29 @@ def _the_ambient_compilers_are_not_left_stopped():
     yield
 
 
+def _stop_the_print_render_process():
+    """Stop the shared print-render process, if its module is loaded."""
+    figure_queue = sys.modules.get("spacr.qt.widgets.figure_queue")
+    if figure_queue is not None:
+        figure_queue._PRINT_RENDER_PROCESS.stop()
+
+
+@pytest.fixture(autouse=True)
+def _no_print_render_process_crosses_tests():
+    """Start and end every test without a warm print-render process.
+
+    The process is shared by the whole interpreter and stays warm for five
+    minutes. Under xdist a Gate Editor save left one ready for a later test
+    in the same worker, and the backdrop-rate test, which needs a save that
+    starts the process cold, then saw a 0.21 s save it could not count a
+    rate over. Stopping it before and after each test means no test depends
+    on which test ran before it in the worker.
+    """
+    _stop_the_print_render_process()
+    yield
+    _stop_the_print_render_process()
+
+
 @pytest.fixture(scope="session", autouse=True)
 def _widget_qss_registrars_loaded():
     """Fill ``theme._WIDGET_QSS`` before any test can snapshot it.
