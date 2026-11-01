@@ -12678,9 +12678,14 @@ class AmbientWidget(QWidget):
         """
         from ..gil_priority import active
 
-        paced = bool(active() or _animation_paused_for_work())
-        if paced != self._run_paced:
+        holds = bool(active())
+        paced = bool(holds or _animation_paused_for_work())
+        starts_holding = holds and not self.__dict__.get("_run_holds", False)
+        self._run_holds = holds
+        if paced != self._run_paced or starts_holding:
             self._run_paced = paced
+            if starts_holding:
+                self._cheap_frames = False
             self._apply_rate()
 
     def is_running(self) -> bool:
