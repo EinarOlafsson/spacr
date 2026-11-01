@@ -1292,6 +1292,7 @@ class FigureQueue(QWidget):
         self._ram_cap = int(ram_cap)
         self._count = 0
         self._fig_index: Dict[int, int] = {}
+        self._fig_refs: Dict[int, Any] = {}
         self._png_paths: Dict[int, str] = {}
         self._figures: "OrderedDict[int, object]" = OrderedDict()
         self.destroyed.connect(
@@ -1686,6 +1687,9 @@ class FigureQueue(QWidget):
         :param fig: the Matplotlib figure to append; recognised by object
             identity, so the same object is never queued twice.
         """
+        if id(fig) in self._fig_index and not self._is_known_figure(fig):
+            self._fig_index.pop(id(fig), None)
+            self._fig_refs.pop(id(fig), None)
         if id(fig) in self._fig_index:
             idx = self._fig_index[id(fig)]
             if idx in self._figures:
@@ -1699,7 +1703,7 @@ class FigureQueue(QWidget):
 
         idx = self._count
         self._count += 1
-        self._fig_index[id(fig)] = idx
+        self._remember_figure(fig, idx)
         self._figures[idx] = fig
         self._figure_last_used[idx] = time.time()
         self._figure_bytes[idx] = self._measure_live_figure_bytes(fig)
@@ -2077,6 +2081,8 @@ class FigureQueue(QWidget):
             key: (value - count if value >= end else value)
             for key, value in self._fig_index.items()
             if not (start <= value < end)}
+        self._fig_refs = {key: ref for key, ref in self._fig_refs.items()
+                          if key in self._fig_index}
 
         self._count = max(0, self._count - count)
         kept = []
@@ -2221,6 +2227,7 @@ class FigureQueue(QWidget):
         self._ram_bytes.clear()
         self._png_paths.clear()
         self._fig_index.clear()
+        self._fig_refs.clear()
         self._figures.clear()
         self._figure_last_used.clear()
         self._figure_bytes.clear()
@@ -2902,6 +2909,27 @@ class FigureQueue(QWidget):
         LOG.debug("spilled figure #%d from RAM by memory policy", idx)
         return True
 
+    def _remember_figure(self, fig, idx: int) -> None:
+        """Record that ``fig`` sits at ``idx``, with a weak reference to it.
+
+        ``id()`` alone is not an identity once a Figure is gone: Python hands
+        the same number to the next object. The weak reference lets
+        `_is_known_figure` tell the queued object from a newcomer that only
+        shares its id.
+        """
+        self._fig_index[id(fig)] = idx
+        try:
+            self._fig_refs[id(fig)] = weakref.ref(fig)
+        except TypeError:
+            self._fig_refs.pop(id(fig), None)
+
+    def _is_known_figure(self, fig) -> bool:
+        """Whether ``fig`` is the very object recorded under its ``id()``."""
+        ref = self._fig_refs.get(id(fig))
+        if ref is None:
+            return True
+        return ref() is fig
+
     def _trim_live_figures(self) -> None:
         """Keep only the most recent N live Figures, SPILLING the rest.
 
@@ -3019,11 +3047,12 @@ class FigureQueue(QWidget):
         previous = self._figures.get(index)
         if previous is not None:
             self._fig_index.pop(id(previous), None)
+            self._fig_refs.pop(id(previous), None)
         self._figures[index] = fig
         self._figures.move_to_end(index)
         self._figure_last_used[index] = time.time()
         self._figure_bytes[index] = self._measure_live_figure_bytes(fig)
-        self._fig_index[id(fig)] = index
+        self._remember_figure(fig, index)
         try:
             self._forget_spill(index)
         except Exception:                                    # noqa: BLE001
