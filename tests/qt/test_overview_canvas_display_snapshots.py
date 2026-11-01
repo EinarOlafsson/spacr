@@ -82,8 +82,18 @@ def test_live_setting_updates_all_pages_and_future_images_then_off_freezes_and_s
     assert np.array_equal(_pixels(composer, third), changed)
     composer._preview_ready(old_key, np.zeros((3, 3, 3), dtype=np.uint8))
     assert old_key not in composer._previews
-    qtbot.waitUntil(lambda: composer._preview_jobs.active_jobs() == 0)
-    QApplication.processEvents()
+    # Previews are asked for when a box is painted, and a job leaves
+    # active_jobs() when its thread stops, before its result reaches the GUI
+    # thread. Waiting on threads alone let the preview the next paint asked
+    # for arrive in the middle of the no-rebuild check below and rebuild the
+    # boxes; wait until every box's preview is in and nothing is outstanding.
+    def previews_settled():
+        QApplication.processEvents()
+        keys = {composer._source_key(box) for page in composer.canvas.pages
+                for box in page if box["kind"] == "image"}
+        return (keys <= set(composer._previews) and not composer._requested
+                and composer._preview_jobs.pending_jobs() == 0)
+    qtbot.waitUntil(previews_settled)
     item = composer._items[third["id"]]
     depth, transform = len(composer.canvas._undo), composer.view.transform()
     view._request_visuals()
