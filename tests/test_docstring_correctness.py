@@ -5541,12 +5541,14 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 2026-11-01 items 748/749: 13149 -> 13153 for LabelsLayer.{color,contour},
     # GateEditorPanel.run_cluster_in_background and
     # GateEditorScreen.save_graph_in_background.
+    # 2026-11-01 item 749: 13153 -> 13154 for
+    # OrganismScreen.refresh_maturity_visibility.
     assert len((historical_docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
                - channel_additions.keys() - scn_additions.keys()
                - popup_additions.keys() - background_additions.keys()
                - animation_arrivals.keys()
                - volume_additions.keys()
-               - zoo_additions.keys()) | retired_home.keys()) == 13153
+               - zoo_additions.keys()) | retired_home.keys()) == 13154
     # 2026-10-31: 13,138 -> 13,149, +11 documented symbols: the eight public
     # callables above plus the nested helpers _CrampedScroll._fit_content.tallest
     # and MakeMasksScreen._hold_the_title_bar_to_its_text.measure and

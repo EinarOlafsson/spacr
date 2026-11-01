@@ -214,7 +214,7 @@ def _new_download_sources(language: str, reviewed: dict[str, str]) -> set[str]:
         # A record moved to retired_records (its English source changed) still
         # counts toward the historical totals, but is no longer live review.
         retired = {record["source"] for record in document.get("retired_records", [])
-                   if str(record.get("retired", "")).startswith(("2026-10-10", "2026-10-31"))}
+                   if str(record.get("retired", "")).startswith(("2026-10-10", "2026-10-31", "2026-11-01"))}
         assert len(document["records"]) + len(retired) == len(added | retired) == expected
         assert added <= reviewed.keys()
         assert not retired & reviewed.keys()
@@ -723,7 +723,7 @@ def _requested_detection_retirements(language, filename):
     # 2026-10-17, item 678: factual app-text rewrite retired the same way.
     n678 = {row['source'] for row in current.get('retired_records', [])
             if str(row.get('retired', '')).startswith(
-                ('2026-10-11', '2026-10-16', '2026-10-17', '2026-10-31', TUTORIAL_RENDERER_RETIRED))}
+                ('2026-10-11', '2026-10-16', '2026-10-17', '2026-10-31', '2026-11-01', TUTORIAL_RENDERER_RETIRED))}
     published = _published_panel_retirements(language, filename)
     automatic_reports = _automatic_report_retirements(language, filename, original)
     compact_rows = _compact_install_consent_retirements(language, filename)
@@ -742,7 +742,7 @@ def _requested_detection_retirements(language, filename):
     # 2026-10-31 (746/N678): the factual caption pass retired rows in place;
     # they still count toward the historical totals.
     this_pass = {row['source'] for row in current.get('retired_records', [])
-                 if str(row.get('retired', '')).startswith('2026-10-31')}
+                 if str(row.get('retired', '')).startswith(('2026-10-31', '2026-11-01'))}
     assert not this_pass & reviewed_runtime_translations(language).keys()
     return values | later_sources | automatic_reports | parascape_sources | this_pass
 
@@ -810,7 +810,7 @@ def _theme_cohort_retirements(language, filename):
     n678 = {row['source'] for row in json.loads((folder / filename).read_text(encoding="utf-8"))
             .get('retired_records', [])
             if str(row.get('retired', '')).startswith(
-                ('2026-10-11', '2026-10-16', '2026-10-17', '2026-10-31', TUTORIAL_RENDERER_RETIRED))}
+                ('2026-10-11', '2026-10-16', '2026-10-17', '2026-10-31', '2026-11-01', TUTORIAL_RENDERER_RETIRED))}
     figure_retired = _figure_export_retirements(language, filename)
     published = _published_panel_retirements(language, filename)
     compact_rows = _compact_install_consent_retirements(language, filename)
@@ -839,7 +839,7 @@ def _with_training_sample_replacements(document, language, filename):
     n678 = {row["source"] for row in document.get("retired_records", [])
             if str(row.get("retired", "")).startswith(("2026-10-11",
                                                        "2026-10-16", "2026-10-17",
-                                                       "2026-10-31"))}
+                                                       "2026-10-31", "2026-11-01"))}
     published = _published_panel_retirements(language, filename)
     compact_rows = _compact_install_consent_retirements(language, filename)
     original = [row for row in original
@@ -1192,7 +1192,8 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     refresh_retired = _theme_cohort_retirements("sv", "2026-09-21-runtime-ui-refresh.json")
     cohort_retired = base_retired | refresh_retired
     # 2026-10-31 (746/N678): the Otsu fill-holes caption left the refresh file, retired in place (4 -> 5).
-    assert len(base_retired) == 4 and len(refresh_retired) == 5
+    # 2026-11-01: Make Masks Keep now saves; its old Keep tooltip retired in place (5 -> 6).
+    assert len(base_retired) == 4 and len(refresh_retired) == 6
     assert not cohort_retired & reviewed.keys()
     # +269 distinct UI/category sources, with three OPS descriptions shared
     # between both tables (272 records). The detection-panel consolidation
@@ -1492,7 +1493,9 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
         second, "fr", "2026-09-21-runtime-second-slice.json")
     second_sources = {record["source"] for record in second["records"]}
     # 64 -> 63 on 2026-09-29: 600b retired the Features button's tooltip.
-    assert len(second["records"]) + len(published_slices["second"]) == len(second_sources) + len(published_slices["second"]) == 63
+    # 63 -> 62 on 2026-11-01: Make Masks Keep now saves, so its old "Mark
+    # this field as one to keep" tooltip moved to retired_records.
+    assert len(second["records"]) + len(published_slices["second"]) == len(second_sources) + len(published_slices["second"]) == 62
     assert second_sources <= all_reviewed.keys()
     assert not refresh_sources & second_sources
     refresh_sources |= second_sources
@@ -1520,7 +1523,7 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # 2026-10-25 (76dcb4533): "Version" became an exact compact row, archived.
     compact_retired = _compact_install_consent_retirements("fr", "2026-09-21-runtime-fourth-slice.json")
     assert len(compact_retired) == 1 and not compact_retired & refresh_sources
-    assert len(refresh_sources) + len(refresh_retired) + len(published_retired) + len(compact_retired) == 264  # 2026-10-31 (746/N678): -1, a rewritten caption retired.  # 707 (2026-10-16): -1, Prev image retired.  # 600b (2026-09-29): -1, the Features tooltip retired.  # Three superseded threshold/histogram sources.  # 273 -> 265 on 2026-10-17 (item 678 Home app-text retirements)
+    assert len(refresh_sources) + len(refresh_retired) + len(published_retired) + len(compact_retired) == 263  # 2026-11-01: -1, the old Make Masks Keep tooltip retired (Keep now saves).  # 2026-10-31 (746/N678): -1, a rewritten caption retired.  # 707 (2026-10-16): -1, Prev image retired.  # 600b (2026-09-29): -1, the Features tooltip retired.  # Three superseded threshold/histogram sources.  # 273 -> 265 on 2026-10-17 (item 678 Home app-text retirements)
     actions = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                           "2026-09-21-action-labels.json").read_text(encoding="utf-8"))
     action_sources = {record["source"] for record in actions["records"]}
@@ -1726,8 +1729,8 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # Item463 retired the one superseded download tooltip, proven above.
     assert len(all_reviewed.keys() - refresh_sources - subsequent_sources - debt_sources - inherited_sources) + len(base_retired) == 330  # 334 -> 330 on 2026-10-31 (746/N678: rewritten captions archived).  # 335 -> 334 on 2026-10-17 (N703: a retired per-adapter update prompt was archived).  # 338 -> 335 on 2026-10-11 (N678 retirements)
     # 316 (71071b6c6) retired 17 setup and sign-in captions from the four slices to _ROWS.
-    assert len(all_reviewed.keys() - subsequent_sources - debt_sources - inherited_sources) + len(cohort_retired) + len(published_retired) + len(compact_retired) == 598  # 603 -> 598 on 2026-10-31 (746/N678: rewritten captions archived).  # 612 -> 611 on 2026-10-17 (N703: a retired per-adapter update prompt was archived).  # 600b (2026-09-29): -1, the Features tooltip retired.  # 619 -> 613 on 2026-10-11 (N678 retirements)  # 611 -> 603 on 2026-10-17 (item 678 Home app-text retirements)
-    assert len((all_reviewed.keys() | _superseded_enhancement_sources("fr", all_reviewed)) - debt_sources - inherited_sources) + len(cohort_retired) + len(published_retired) + len(_requested_detection_retirements('fr', '2026-09-22-detection-panel.json')) + len(_later_cohort_retirements('fr', all_reviewed)) + len(compact_retired) == 1642  # 1644 -> 1642 on 2026-11-01 (the protocol copies took the corrected Align & Stitch and Measure guidance; both old guidance records retired in place).  # 1649 -> 1644 on 2026-10-31 (N678 code check: five rewritten or removed workflow-map phrases retired in place).  # 1654 -> 1649 on 2026-10-31 (746/N678: rewritten captions archived).  # 2026-10-24: -1, the old Timelapse workflow-map guidance retired when Timelapse moved under Mask's Time control.  # 1664 -> 1663 on 2026-10-17 (N703: a retired per-adapter update prompt was archived).  # 2026-10-10: -1, the plaque_model tooltip retired when toxoplasma_plaque_v3 became the default.  # 2026-10-04: -2, the withdrawn Plasmodium/Candida guide notes.  # 2026-10-02 (item 43): -2, 603423d0a retired the two later-cohort workflow phrases (778 -> 776 above).  # 2026-10-01: -2, the two FEATURES workflow-map phrases retired.  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.  # 1671 -> 1665 on 2026-10-11 (N678 retirements)  # 707 (2026-10-16): 1665 -> 1664, Make Masks layout captions retired and added.  # 1663 -> 1655 on 2026-10-17 (item 678 Home app-text retirements)
+    assert len(all_reviewed.keys() - subsequent_sources - debt_sources - inherited_sources) + len(cohort_retired) + len(published_retired) + len(compact_retired) == 597  # 598 -> 597 on 2026-11-01 (the old Make Masks Keep tooltip retired; Keep now saves).  # 603 -> 598 on 2026-10-31 (746/N678: rewritten captions archived).  # 612 -> 611 on 2026-10-17 (N703: a retired per-adapter update prompt was archived).  # 600b (2026-09-29): -1, the Features tooltip retired.  # 619 -> 613 on 2026-10-11 (N678 retirements)  # 611 -> 603 on 2026-10-17 (item 678 Home app-text retirements)
+    assert len((all_reviewed.keys() | _superseded_enhancement_sources("fr", all_reviewed)) - debt_sources - inherited_sources) + len(cohort_retired) + len(published_retired) + len(_requested_detection_retirements('fr', '2026-09-22-detection-panel.json')) + len(_later_cohort_retirements('fr', all_reviewed)) + len(compact_retired) == 1641  # 1642 -> 1641 on 2026-11-01 (the old Make Masks Keep tooltip retired; Keep now saves).  # 1644 -> 1642 on 2026-11-01 (the protocol copies took the corrected Align & Stitch and Measure guidance; both old guidance records retired in place).  # 1649 -> 1644 on 2026-10-31 (N678 code check: five rewritten or removed workflow-map phrases retired in place).  # 1654 -> 1649 on 2026-10-31 (746/N678: rewritten captions archived).  # 2026-10-24: -1, the old Timelapse workflow-map guidance retired when Timelapse moved under Mask's Time control.  # 1664 -> 1663 on 2026-10-17 (N703: a retired per-adapter update prompt was archived).  # 2026-10-10: -1, the plaque_model tooltip retired when toxoplasma_plaque_v3 became the default.  # 2026-10-04: -2, the withdrawn Plasmodium/Candida guide notes.  # 2026-10-02 (item 43): -2, 603423d0a retired the two later-cohort workflow phrases (778 -> 776 above).  # 2026-10-01: -2, the two FEATURES workflow-map phrases retired.  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.  # 1671 -> 1665 on 2026-10-11 (N678 retirements)  # 707 (2026-10-16): 1665 -> 1664, Make Masks layout captions retired and added.  # 1663 -> 1655 on 2026-10-17 (item 678 Home app-text retirements)
     assert published_retired & current_values == returned
     for source, translated in all_reviewed.items():
         assert source in current_values
