@@ -145,7 +145,7 @@ def test_proposals_cannot_navigate_and_explain_their_status(qtbot, key):
     for tile in proposals:
         assert not tile.isEnabled()
         assert tile.graphicsEffect().opacity() < 0.5
-        assert tile.toolTip().startswith("Coming soon")
+        assert tile.toolTip().startswith("Planned")
         tile.click()
     assert requested == []
 
@@ -375,7 +375,7 @@ def test_each_page_shows_its_tiles_and_live_proposals_are_enabled(qtbot, key):
     for tile in screen._tiles:
         if tile.property("organismWorkflow"):
             assert tile.isEnabled() and tile.graphicsEffect() is None
-            assert not tile.toolTip().startswith("Coming soon")
+            assert not tile.toolTip().startswith("Planned")
             assert "Opens " in tile.toolTip()
 
 

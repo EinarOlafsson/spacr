@@ -11,6 +11,21 @@ ROOT = Path(__file__).resolve().parents[2]
 LANGUAGES = ('de', 'es', 'fr', 'sv', 'pt', 'is', 'zh_CN', 'ko', 'hi')
 
 
+@pytest.fixture(scope='module', autouse=True)
+def pinned_review_inputs():
+    """Restore the pinned review records the expectations are read from.
+
+    docs/i18n/reviewed is not tracked; in a fresh checkout it is absent
+    before the bootstrap restores it, and every expectation was a KeyError.
+    """
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        'bootstrap_translation_reviews', ROOT / 'tools/bootstrap_translation_reviews.py')
+    bootstrap = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(bootstrap)
+    bootstrap.ensure_review_inputs(ROOT)
+
+
 @pytest.mark.parametrize('language', LANGUAGES)
 @pytest.mark.parametrize('app_key', ['toxoplasma', 'plasmodium', 'candida'])
 def test_organism_labels_tooltips_and_compartment_keys(
@@ -46,7 +61,7 @@ def test_organism_labels_tooltips_and_compartment_keys(
         assert targets[description] in tile.toolTip()
         assert tile.isEnabled() == live
         if not live:
-            assert tile.toolTip().startswith(targets['Coming soon'] + ' — ')
+            assert tile.toolTip().startswith(targets['Planned'] + ' — ')
             assert tile.accessibleDescription() == tile.toolTip()
     diagram = screen._diagram
     assert diagram.artwork.accessibleName() == targets['Cell compartments']

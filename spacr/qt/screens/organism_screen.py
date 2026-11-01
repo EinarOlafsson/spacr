@@ -304,7 +304,7 @@ class OrganismScreen(QWidget):
                 tile.clicked.connect(lambda checked=False, target=icon:
                                      self.open_workflow(target))
             else:
-                note = tr("Coming soon") + " — " + tr(title) + "\n" + tr(description)
+                note = tr("Planned") + " — " + tr(title) + "\n" + tr(description)
                 tile.setToolTip(note)
                 tile.setAccessibleDescription(note)
                 tile.setEnabled(False)
