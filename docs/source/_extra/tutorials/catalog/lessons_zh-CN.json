@@ -12387,13 +12387,13 @@
         },
         {
           "visual": "module_map_barcodes",
-          "narration": "从测序读段开始。从 Home 打开 Map Barcodes，提供单端或双端的 FASTQ 文件，以及编码您实验信息的条形码参考表。Map Barcodes 把每条读段与其条形码匹配，统计每个孔中的向导，并在运行文件夹中保存 unique_combinations.csv 和 annotated_reads.h5。在信任这些计数之前，请在 Barcode QC 中打开它们。检查通过后，它们就是 Regression 按相同的板和孔键与表型分数配对的向导计数。",
+          "narration": "从测序读段开始。从 Home 打开 Map Barcodes，提供单端或双端的 FASTQ 文件，以及编码您实验信息的条形码参考表。Map Barcodes 把每条读段与其条形码匹配，统计每个孔中的向导，并在每个样本的输出文件夹中保存 unique_combinations.csv 和 qc.csv，默认还会保存 annotated_reads.h5。在信任这些计数之前，请在 Barcode QC 中打开它们。检查通过后，它们就是 Regression 按相同的板和孔键与表型分数配对的向导计数。",
           "hold_after": 0.7,
           "related_lessons": [
             "12_map_barcodes",
             "13_regression"
           ],
-          "speech_text": "从测序读段开始。从 主页 打开 Map Barcodes，提供单端或双端的 FASTQ 文件，以及编码您实验信息的条形码参考表。Map Barcodes 把每条读段与其条形码匹配，统计每个孔中的向导，并在运行文件夹中保存 unique_combinations.csv 和 annotated_reads.h5。在信任这些计数之前，请在 Barcode QC 中打开它们。检查通过后，它们就是 Regression 按相同的板和孔键与表型分数配对的向导计数。"
+          "speech_text": "从测序读段开始。从 主页 打开 Map Barcodes，提供单端或双端的 FASTQ 文件，以及编码您实验信息的条形码参考表。Map Barcodes 把每条读段与其条形码匹配，统计每个孔中的向导，并在每个样本的输出文件夹中保存 unique_combinations.csv 和 qc.csv，默认还会保存 annotated_reads.h5。在信任这些计数之前，请在 Barcode QC 中打开它们。检查通过后，它们就是 Regression 按相同的板和孔键与表型分数配对的向导计数。"
         },
         {
           "visual": "module_barcode_qc",
@@ -12403,15 +12403,6 @@
             "12_map_barcodes"
           ],
           "speech_text": "Barcode QC 位于 Map Barcodes 之中，所以请从 主页 打开 Map Barcodes，然后在其中选择它。它读取您刚生成的向导计数，并显示比对深度、覆盖度、条形码冲突和位置效应。它会把 QC 结果连同可导出的图和表一起保存，方便您在继续之前决定要过滤哪些向导。"
-        },
-        {
-          "visual": "module_ops",
-          "narration": "光学筛选走的是另一条路。从 Home 打开 Mask，然后选择 OPS。OPS 不使用读段，而是获取每个测序循环的图像，把它们与表型图像对齐，并为每个细胞核解码出一个条形码。结果保存在 OPS 的 measurements.db 中，包含几何、表型对齐、细胞核和条形码等表。不过，这个数据库并不是 FASTQ 计数表。要在 Regression 中使用它，请先把解码得到的标识与表型数据连接并汇总，使每个对象或孔同时带有两类信息。",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "13_regression"
-          ],
-          "speech_text": "光学筛选走的是另一条路。从 主页 打开 Mask，然后选择 OPS。OPS 不使用读段，而是获取每个测序循环的图像，把它们与表型图像对齐，并为每个细胞核解码出一个条形码。结果保存在 OPS 的 测量数据库文件 中，包含几何、表型对齐、细胞核和条形码等表。不过，这个数据库并不是 FASTQ 计数表。要在 Regression 中使用它，请先把解码得到的标识与表型数据连接并汇总，使每个对象或孔同时带有两类信息。"
         },
         {
           "visual": "module_regression",
@@ -12427,21 +12418,18 @@
         },
         {
           "visual": "module_power",
-          "narration": "现在回到实验开始之前。从 Home 打开 Power / Design，根据您选择的效应大小和变异程度，估计需要多少采样才能看到效应。预实验测量可以支持这些假设，但并非必需。Experiment Design 的布局会用于这些估计，而估计结果也可能让您回头修改设计。",
+          "narration": "现在回到实验开始之前。从 Home 打开 Power / Design，根据您选择的效应大小和变异程度，估计需要多少采样才能看到效应。预实验测量可以支持这些假设，但并非必需。Power / Design 不会读取 Experiment Design 中的板图，所以请手动输入板数、每板孔数和重复数。估计结果可能让您回头修改设计。",
           "hold_after": 0.7,
-          "related_lessons": [
-            "67_experiment_design"
-          ],
-          "speech_text": "现在回到实验开始之前。从 主页 打开 Power / Design，根据您选择的效应大小和变异程度，估计需要多少采样才能看到效应。预实验测量可以支持这些假设，但并非必需。Experiment Design 的布局会用于这些估计，而估计结果也可能让您回头修改设计。"
+          "speech_text": "现在回到实验开始之前。从 主页 打开 Power / Design，根据您选择的效应大小和变异程度，估计需要多少采样才能看到效应。预实验测量可以支持这些假设，但并非必需。Power / Design 不会读取 Experiment Design 中的板图，所以请手动输入板数、每板孔数和重复数。估计结果可能让您回头修改设计。"
         },
         {
           "visual": "module_experiment_design",
-          "narration": "在采集任何数据之前，从 Home 打开 Experiment Design 规划板的布局。结合您的检验效能估计，输入条件、对照、重复和板的约束，然后导出实验布局。这份布局会被用在很多地方。Power / Design 用它设定采样假设；之后在实验完成采集和测量后，Dose–Response 会使用其中的剂量和条件标识，所以请始终保持它们不变。",
+          "narration": "在采集任何数据之前，从 Home 打开 Experiment Design 规划板的布局。输入条件、对照、重复和板的约束，然后导出板图。Power / Design 不会读取这个文件，所以请把其中的板数和重复数手动填入。之后在实验完成采集和测量后，Dose–Response 会使用其中的剂量和条件标识，所以请始终保持它们不变。",
           "hold_after": 0.7,
           "related_lessons": [
             "67_experiment_design"
           ],
-          "speech_text": "在采集任何数据之前，从 主页 打开 Experiment Design 规划板的布局。结合您的检验效能估计，输入条件、对照、重复和板的约束，然后导出实验布局。这份布局会被用在很多地方。Power / Design 用它设定采样假设；之后在实验完成采集和测量后，Dose–Response 会使用其中的剂量和条件标识，所以请始终保持它们不变。"
+          "speech_text": "在采集任何数据之前，从 主页 打开 Experiment Design 规划板的布局。输入条件、对照、重复和板的约束，然后导出板图。Power / Design 不会读取这个文件，所以请把其中的板数和重复数手动填入。之后在实验完成采集和测量后，Dose–Response 会使用其中的剂量和条件标识，所以请始终保持它们不变。"
         },
         {
           "visual": "module_dose_response",

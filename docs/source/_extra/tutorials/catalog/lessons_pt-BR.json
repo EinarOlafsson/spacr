@@ -12387,13 +12387,13 @@
         },
         {
           "visual": "module_map_barcodes",
-          "narration": "Comece pelas leituras de sequenciamento. Abra Map Barcodes em Home e entregue a ele seus arquivos FASTQ, de leitura simples ou pareada, com as tabelas de referência de códigos de barras que codificam seu experimento. O Map Barcodes associa cada leitura aos seus códigos de barras e conta as guias em cada poço, salvando unique_combinations.csv e annotated_reads.h5 na pasta da execução. Antes de confiar nessas contagens, abra-as no Barcode QC. Depois que passarem, elas são as contagens de guias que o Regression associa às pontuações de fenótipo, com as mesmas chaves de placa e poço.",
+          "narration": "Comece pelas leituras de sequenciamento. Abra Map Barcodes em Home e entregue a ele seus arquivos FASTQ, de leitura simples ou pareada, com as tabelas de referência de códigos de barras que codificam seu experimento. O Map Barcodes associa cada leitura aos seus códigos de barras e conta as guias em cada poço, salvando unique_combinations.csv e qc.csv e, por padrão, annotated_reads.h5 na pasta de saída de cada amostra. Antes de confiar nessas contagens, abra-as no Barcode QC. Depois que passarem, elas são as contagens de guias que o Regression associa às pontuações de fenótipo, com as mesmas chaves de placa e poço.",
           "hold_after": 0.7,
           "related_lessons": [
             "12_map_barcodes",
             "13_regression"
           ],
-          "speech_text": "Comece pelas leituras de sequenciamento. Abra Map Barcodes em Home e entregue a ele seus arquivos FASTQ, de leitura simples ou pareada, com as tabelas de referência de códigos de barras que codificam seu experimento. O Map Barcodes associa cada leitura aos seus códigos de barras e conta as guias em cada poço, salvando unique_combinations.csv e annotated_reads.h5 na pasta da execução. Antes de confiar nessas contagens, abra-as no Barcode QC. Depois que passarem, elas são as contagens de guias que o Regression associa às pontuações de fenótipo, com as mesmas chaves de placa e poço."
+          "speech_text": "Comece pelas leituras de sequenciamento. Abra Map Barcodes em Home e entregue a ele seus arquivos FASTQ, de leitura simples ou pareada, com as tabelas de referência de códigos de barras que codificam seu experimento. O Map Barcodes associa cada leitura aos seus códigos de barras e conta as guias em cada poço, salvando unique_combinations.csv e qc.csv e, por padrão, annotated_reads.h5 na pasta de saída de cada amostra. Antes de confiar nessas contagens, abra-as no Barcode QC. Depois que passarem, elas são as contagens de guias que o Regression associa às pontuações de fenótipo, com as mesmas chaves de placa e poço."
         },
         {
           "visual": "module_barcode_qc",
@@ -12403,15 +12403,6 @@
             "12_map_barcodes"
           ],
           "speech_text": "O Barcode QC fica dentro de Map Barcodes, então abra Map Barcodes em Home e escolha-o ali. Ele lê as contagens de guias que você acabou de gerar e mostra profundidade de mapeamento, cobertura, colisões de códigos de barras e efeitos de posição. Ele salva os resultados de QC com figuras e tabelas exportáveis, para você decidir quais guias filtrar antes de seguir adiante."
-        },
-        {
-          "visual": "module_ops",
-          "narration": "Triagens ópticas seguem outro caminho. Abra Mask em Home e escolha OPS. Em vez de leituras, o OPS recebe as imagens de cada ciclo de sequenciamento, alinha-as às imagens de fenótipo e decodifica um código de barras para cada núcleo. Os resultados vão para o measurements.db do OPS, com tabelas de geometria, alinhamento de fenótipo, núcleos e códigos de barras. Esse banco de dados, porém, não é uma tabela de contagens FASTQ. Para usá-lo em Regression, primeiro junte e agregue as identidades decodificadas aos seus dados de fenótipo, para que cada objeto ou poço carregue as duas coisas.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "13_regression"
-          ],
-          "speech_text": "Triagens ópticas seguem outro caminho. Abra Mask em Home e escolha OPS. Em vez de leituras, o OPS recebe as imagens de cada ciclo de sequenciamento, alinha-as às imagens de fenótipo e decodifica um código de barras para cada núcleo. Os resultados vão para o measurements ponto dê bê do OPS, com tabelas de geometria, alinhamento de fenótipo, núcleos e códigos de barras. Esse banco de dados, porém, não é uma tabela de contagens FASTQ. Para usá-lo em Regression, primeiro junte e agregue as identidades decodificadas aos seus dados de fenótipo, para que cada objeto ou poço carregue as duas coisas."
         },
         {
           "visual": "module_regression",
@@ -12427,21 +12418,18 @@
         },
         {
           "visual": "module_power",
-          "narration": "Agora volte para antes do experimento. Abra Power / Design em Home para estimar quanta amostragem você precisa para ver um efeito, com base nos tamanhos de efeito e na variabilidade que escolher. Medições piloto podem apoiar essas premissas, mas são opcionais. O layout do Experiment Design alimenta essas estimativas, e as estimativas, por sua vez, podem levar você a revisar esse desenho.",
+          "narration": "Agora volte para antes do experimento. Abra Power / Design em Home para estimar quanta amostragem você precisa para ver um efeito, com base nos tamanhos de efeito e na variabilidade que escolher. Medições piloto podem apoiar essas premissas, mas são opcionais. O Power / Design não lê o mapa de placas do Experiment Design, então informe manualmente o número de placas, os poços por placa e as réplicas. As estimativas podem levar você a revisar esse desenho.",
           "hold_after": 0.7,
-          "related_lessons": [
-            "67_experiment_design"
-          ],
-          "speech_text": "Agora volte para antes do experimento. Abra Power / Design em Home para estimar quanta amostragem você precisa para ver um efeito, com base nos tamanhos de efeito e na variabilidade que escolher. Medições piloto podem apoiar essas premissas, mas são opcionais. O layout do Experiment Design alimenta essas estimativas, e as estimativas, por sua vez, podem levar você a revisar esse desenho."
+          "speech_text": "Agora volte para antes do experimento. Abra Power / Design em Home para estimar quanta amostragem você precisa para ver um efeito, com base nos tamanhos de efeito e na variabilidade que escolher. Medições piloto podem apoiar essas premissas, mas são opcionais. O Power / Design não lê o mapa de placas do Experiment Design, então informe manualmente o número de placas, os poços por placa e as réplicas. As estimativas podem levar você a revisar esse desenho."
         },
         {
           "visual": "module_experiment_design",
-          "narration": "Abra Experiment Design em Home para planejar as placas antes de adquirir qualquer coisa. Informe as condições, os controles, as réplicas e as restrições de placa, tendo em mente suas estimativas de poder, e exporte o layout experimental. Esse layout vai longe. O Power / Design o usa para definir as premissas de amostragem e, mais tarde, depois que o experimento for adquirido e medido, o Dose–Response usa as identidades de dose e condição dele, então mantenha-as inalteradas do começo ao fim.",
+          "narration": "Abra Experiment Design em Home para planejar as placas antes de adquirir qualquer coisa. Informe as condições, os controles, as réplicas e as restrições de placa e exporte o mapa de placas. O Power / Design não lê esse arquivo, então transfira manualmente os números de placas e réplicas dele. Mais tarde, depois que o experimento for adquirido e medido, o Dose–Response usa as identidades de dose e condição dele, então mantenha-as inalteradas do começo ao fim.",
           "hold_after": 0.7,
           "related_lessons": [
             "67_experiment_design"
           ],
-          "speech_text": "Abra Experiment Design em Home para planejar as placas antes de adquirir qualquer coisa. Informe as condições, os controles, as réplicas e as restrições de placa, tendo em mente suas estimativas de poder, e exporte o layout experimental. Esse layout vai longe. O Power / Design o usa para definir as premissas de amostragem e, mais tarde, depois que o experimento for adquirido e medido, o Dose–Response usa as identidades de dose e condição dele, então mantenha-as inalteradas do começo ao fim."
+          "speech_text": "Abra Experiment Design em Home para planejar as placas antes de adquirir qualquer coisa. Informe as condições, os controles, as réplicas e as restrições de placa e exporte o mapa de placas. O Power / Design não lê esse arquivo, então transfira manualmente os números de placas e réplicas dele. Mais tarde, depois que o experimento for adquirido e medido, o Dose–Response usa as identidades de dose e condição dele, então mantenha-as inalteradas do começo ao fim."
         },
         {
           "visual": "module_dose_response",
