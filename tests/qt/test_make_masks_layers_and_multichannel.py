@@ -316,11 +316,17 @@ def test_a_short_window_folds_the_panels_before_the_image(qtbot, tmp_path):
     assert image.is_collapsed('Bottom bar')
     folded = [name for _splitter, name, _axis in screen._folded_for_room]
     assert 'Bottom bar' in folded
+    # 2026-11-01 maintainer decision: the title folds to one line (its
+    # instruction) before the bottom bar folds.
+    assert 'Title line' in folded
+    assert folded.index('Title line') < folded.index('Bottom bar')
+    assert screen._header.instruction_label.isHidden()
     screen.resize(1800, 1300)
     qtbot.waitUntil(lambda: not image.is_collapsed('Bottom bar')
                     or view.height() > 2 * screen._canvas_room()[1], timeout=15000)
     screen._keep_the_canvas_usable()
     assert not image.is_collapsed('Bottom bar')
+    assert not screen._header.instruction_label.isHidden()
 
 
 def test_reset_buttons_are_neutral_and_label_steps_are_named(qtbot, tmp_path):

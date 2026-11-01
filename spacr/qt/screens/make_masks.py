@@ -236,6 +236,10 @@ HEADER_TITLE = "Make Masks"
 HEADER_INSTRUCTION = (
     "Open a folder of images, correct each mask, and save it back.")
 
+#: The room-fold name of the title's instruction line, which folds before
+#: the image's bars when the image is short of room.
+TITLE_LINE_PANE = "Title line"
+
 #: The applying half of the Cellpose loop, as a key. It has never had a tile
 #: of its own — :class:`~spacr.qt.screens.train_cellpose.CellposeWorkbenchScreen`
 #: carries it as a tab — but it has artwork and a settings form under this
@@ -15934,7 +15938,8 @@ class MakeMasksScreen(QWidget):
         from PySide6.QtWidgets import QWidget as _QWidget
 
         from ..gil_priority import _watch_object_events
-        from ..gui_scale import _ORIGINAL, _actual_minimum_height
+        from ..gui_scale import (_ORIGINAL, _actual_minimum_height,
+                                 _actual_sizes, _set_actual_sizes)
         from .app_screen import _RemeasureOnResize
 
         bar = self._title_bar
@@ -15974,6 +15979,12 @@ class MakeMasksScreen(QWidget):
                 if (chrome is not None and isValid(chrome)
                         and chrome.indexOf(bar) >= 0 and chrome._laid_out):
                     chrome.rebalance(refit=True)
+                    index = chrome.indexOf(bar)
+                    sizes = _actual_sizes(chrome)
+                    if index + 1 < len(sizes) and sizes[index] > needs:
+                        sizes[index + 1] += sizes[index] - needs
+                        sizes[index] = needs
+                        _set_actual_sizes(chrome, sizes)
             deficit = 0
             for label in bar.findChildren(QLabel):
                 if not label.isVisibleTo(bar) or label.height() <= 0:
@@ -15987,6 +15998,7 @@ class MakeMasksScreen(QWidget):
                 ceiling(bar, max(needs, bar.height() + deficit))
                 setter(bar, bar.height() + deficit)
 
+        self._measure_the_title_now = measure_now
         _watch_object_events(bar, _RemeasureOnResize(bar, measure,
                                                      every_resize=True),
                              (QEvent.Resize, QEvent.FontChange,
@@ -21419,9 +21431,15 @@ class MakeMasksScreen(QWidget):
     def _room_panes(self) -> list:
         """The panels that give way for the image, in the order they fold.
 
-        The settings and the shortcut column first (width), then the bars
-        under and over the image and the title (height). Each entry is
-        ``(splitter, pane name, axis)``.
+        The settings and the shortcut column first (width), then the
+        title's instruction line, the bars under and over the image and the
+        title (height). Each entry is ``(owner, pane name, axis)``; the
+        instruction line's owner is this screen (:data:`TITLE_LINE_PANE`).
+
+        2026-11-01, the maintainer's decision: when room is short the title
+        folds to one line before the bottom bar folds, so the image keeps
+        its ten lines and the IO and NAVIGATION groups stay on a 720p
+        screen at 200 % text.
         """
         out = []
         body = getattr(self, "_body_splitter", None)
@@ -21432,12 +21450,57 @@ class MakeMasksScreen(QWidget):
             out.append((views, "Shortcuts", "width"))
         if body is not None:
             out.append((body, "Settings", "width"))
+        if chrome is not None:
+            out.append((self, TITLE_LINE_PANE, "height"))
         if image is not None:
             out.append((image, "Bottom bar", "height"))
             out.append((image, "Top bar", "height"))
         if chrome is not None:
             out.append((chrome, "Title", "height"))
         return [entry for entry in out if isValid(entry[0])]
+
+    def _room_folded(self, owner, name: str) -> bool:
+        """Whether one of :meth:`_room_panes` is folded now.
+
+        :param owner: the splitter holding the pane, or this screen for the
+            title's instruction line.
+        :param name: the pane's name.
+        """
+        if owner is self and name == TITLE_LINE_PANE:
+            label = getattr(self._header, "instruction_label", None)
+            return label is None or label.isHidden()
+        return owner.is_collapsed(name)
+
+    def _fold_room(self, owner, name: str, folded: bool) -> bool:
+        """Fold or open one of :meth:`_room_panes`, unremembered.
+
+        The title's instruction line is hidden or shown and the title bar
+        measured at once, so the next look at the image sees the room it
+        gave; a folded title has no line to fold.
+
+        :param owner: the splitter holding the pane, or this screen.
+        :param name: the pane's name.
+        :param folded: fold it, or open it.
+        :returns: whether anything changed.
+        """
+        if owner is not self or name != TITLE_LINE_PANE:
+            return owner.set_collapsed(name, folded, by_user=False)
+        label = getattr(self._header, "instruction_label", None)
+        chrome = getattr(self, "_chrome_splitter", None)
+        if (label is None or not label.text() or label.isHidden() == folded
+                or (folded and chrome is not None and chrome.is_collapsed("Title"))):
+            return False
+        label.setVisible(not folded)
+        self._header.layout().activate()
+        self._header.updateGeometry()
+        bar = getattr(self, "_title_bar", None)
+        if bar is not None and bar.layout() is not None:
+            bar.layout().invalidate()
+            bar.layout().activate()
+        measure = getattr(self, "_measure_the_title_now", None)
+        if measure is not None:
+            measure()
+        return True
 
     def _keep_the_canvas_usable(self) -> None:
         """Fold side panels and bars, unremembered, before the image gets too small.
@@ -21483,9 +21546,9 @@ class MakeMasksScreen(QWidget):
                         if name == "Shortcuts" and getattr(self, "_side_held_by_user", False):
                             continue
                         if (not short[axis] or key in held
-                                or splitter.is_collapsed(name)):
+                                or self._room_folded(splitter, name)):
                             continue
-                        if splitter.set_collapsed(name, True, by_user=False):
+                        if self._fold_room(splitter, name, True):
                             folded.append((splitter, name, axis))
                             self._settle_room_layout()
                             break
@@ -21495,21 +21558,28 @@ class MakeMasksScreen(QWidget):
                 if not folded:
                     return
                 splitter, name, axis = folded[-1]
-                pane = splitter.pane(name) if isValid(splitter) else None
+                if splitter is self and name == TITLE_LINE_PANE:
+                    line = self._header.instruction_label
+                    hint = QSize(0, line.heightForWidth(max(1, line.width()))
+                                 if line.hasHeightForWidth() else line.sizeHint().height())
+                    pane = True
+                else:
+                    pane = splitter.pane(name) if isValid(splitter) else None
+                    hint = pane.widget.sizeHint() if pane is not None else None
                 if pane is None:
                     folded.pop()
                     continue
-                hint = pane.widget.sizeHint()
                 extra = hint.width() if axis == "width" else hint.height()
                 spare = (width - need_w) if axis == "width" else (height - need_h)
-                if spare < extra + 2 * splitter.handleWidth() + 24:
+                handle = 0 if splitter is self else splitter.handleWidth()
+                if spare < extra + 2 * handle + 24:
                     return
                 folded.pop()
-                if splitter.is_collapsed(name):
-                    splitter.set_collapsed(name, False, by_user=False)
+                if self._room_folded(splitter, name):
+                    self._fold_room(splitter, name, False)
                     self._settle_room_layout()
                     if (stack.width() < need_w) or (stack.height() < need_h):
-                        splitter.set_collapsed(name, True, by_user=False)
+                        self._fold_room(splitter, name, True)
                         folded.append((splitter, name, axis))
                         self._settle_room_layout()
                         return
