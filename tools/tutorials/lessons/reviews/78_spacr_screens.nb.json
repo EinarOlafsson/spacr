@@ -1,7 +1,7 @@
 {
   "language": "nb",
   "lesson": "78_spacr_screens",
-  "english_sha256": "1fe0879fc53974db1818ba1f3adfb18728ce7cb23a1b149e337a7d47f9bfe6a6",
+  "english_sha256": "8a85af155d0091aa58abc45207187ca9e6c6b609561d4ab7ec17c2c612a731e4",
   "title": "spaCR screens",
   "section": "Arbeidsflyter",
   "description": "Følg en samlet bildebasert screening fra Home via bildemålinger, fenotypeklassifisering og strekkodetellinger frem til regresjon.",
@@ -14,7 +14,7 @@
   "scenes": [
     "En samlet screening forteller historien sin to ganger, én gang i bilder og én gang i sekvenseringslesninger, og spaCR fører dem sammen til slutt. På bildesiden gjør Mask og Measure mikroskopsynsfeltene om til målte celler, og Annotate og Classify gjør cellene om til fenotypepoeng. På sekvenseringssiden gjør Map Barcodes lesninger om til guideantall. Regression kobler de to via plate og brønn. Kom inn der resultatene dine begynner.",
     "Alt begynner med mikroskopbildene dine. Åpne Mask fra Home, velg kanalene og en segmenteringsmodell, og kontroller forhåndsvisningen før du kjører den. Mask finner objektene i hvert synsfelt og lagrer hvert synsfelt som en sammenslått array, med bildekanalene stablet sammen med merkelappmaskene. Disse sammenslåtte arrayene er det Measure åpner deretter. Den lille telledatabasen som Mask etterlater seg, er bare en opptelling, ennå ikke en egenskapstabell.",
-    "Åpne deretter Measure fra Home og pek den mot det samme prosjektet, med kanalindeksene for bilde og maske riktig angitt. Measure leser hver sammenslått array, bilder og etikettplan samlet, og skriver hver celle, kjerne eller parasitt som en rad i measurements.db. Slå på lagring av utsnitt, så skjærer den også ut en liten PNG rundt hvert objekt, indeksert i png_list. Herfra deler historien seg. Annotate viser utsnittene slik at du kan merke eksempler, og Classify lærer av enten utsnittene eller de målte egenskapene, så hold objektidentitetene stabile.",
+    "Åpne deretter Measure fra Home og pek den mot det samme prosjektet, med kanalindeksene for bilde og maske riktig angitt. Measure leser hver sammenslått array, bilder og etikettplan samlet, og skriver hver celle, kjerne eller parasitt som en rad i measurements.db. Med lagring av utsnitt slått på, som er standard, skjærer den også ut en liten PNG rundt hvert objekt, indeksert i png_list. Herfra deler historien seg. Annotate viser utsnittene slik at du kan merke eksempler, og Classify lærer av enten utsnittene eller de målte egenskapene, så hold objektidentitetene stabile.",
     "Før en klassifikator kan lære noe, trenger den eksempler. Åpne Annotate fra Home for å se objektutsnittene som er knyttet til prosjektet ditt med målinger. Gå gjennom representative celler og merk dem. Hver merkelapp skrives til en annotasjonskolonne i tabellen png_list, knyttet til objektets identitet. Bruk en egen kolonne for hvert spørsmål, og sett av noen merkede objekter til evaluering. Det er denne annotasjonskolonnen Classify trener på deretter.",
     "Åpne Classify fra Home, og her blir merkelappene dine til poeng. Classify har to familier, og dataene dine avgjør hvilken. Computer Vision lærer av selve objektutsnittene, mens Tabular Machine Learning lærer av de målte egenskapskolonnene. Uansett trener den på merkelappene du laget i Annotate, tester seg selv på objektene du holdt tilbake, og lagrer den trente modellen, en evalueringspakke og poengene, som CSV-filer og, når de slås sammen, i png_list. Velg CV- eller ML-poengkolonnen du vil teste, hold plate- og brønnidentiteten intakt, og ta den med til Regression.",
     "Mens bildene går én vei, går sekvenseringslesningene en annen. Åpne Map Barcodes fra Home, gi den FASTQ-filene dine og strekkodereferansene som koder screeningen din, så teller den hvilke guider som dukket opp i hver brønn. Kontroller de kartlagte tellingene og strekkode-QC før du stoler på dem. Filen unique_combinations.csv som den skriver, er guidetelletabellen som Regression kobler til fenotypepoengene dine, brønn for brønn.",
@@ -22,11 +22,22 @@
     "En samlet screening går altså som to strømmer som møtes i Regression. Før du åpner den, kontrollerer du at plate- og brønnidentifikatorene stemmer mellom poeng, guideantall og plateoppsett, og beholder annotasjonskolonnen, klassifikatorinnstillingene og strekkodereferansene sammen med kjøringen. De lenkede modulleksjonene går gjennom hvert trinn, eller du kan velge gjennomgangen av samlet screening på Home."
   ],
   "review": {
-    "kind": "AI technical translation proposal; pending coordinating-agent review, no native-speaker signoff",
-    "translator": "Codex (AI); scene4 Annotate attribution sentence only; all other reviewed text retained",
-    "date": "2026-10-23",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "date": "2026-11-01",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Scene 3 crop-saving sentence revised (crops are saved by default); all other text retained.",
+    "previous_review_sha256": "cbbfd5ba05a067c43b39b18dbccd1791b039bfbf92795479e7b462a3bb5504f9",
+    "previous_english_sha256": "1fe0879fc53974db1818ba1f3adfb18728ce7cb23a1b149e337a7d47f9bfe6a6",
+    "previous_review": {
+      "kind": "AI technical translation proposal; pending coordinating-agent review, no native-speaker signoff",
+      "translator": "Codex (AI); scene4 Annotate attribution sentence only; all other reviewed text retained",
+      "date": "2026-10-23",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
   }
 }
