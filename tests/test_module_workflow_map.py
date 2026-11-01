@@ -405,3 +405,26 @@ def test_the_screens_annotate_scene_keeps_its_reviewed_sentence():
     assert 'Measure saved or streams' not in annotate['narration']
     published = json.loads(Path('tools/tutorials/lessons/78_spacr_screens.json').read_text(encoding='utf-8'))
     assert REVIEWED_SCREENS_ANNOTATE in published['scenes'][3]['narration']
+
+
+
+def _alpha_only_modules():
+    """Module keys a default install cannot open: alpha apps and alpha-switch pages."""
+    from spacr.settings import ALPHA_FEATURES, _alpha_names
+    from spacr.qt.screens.mask import ALPHA_FEATURE_PAGES
+
+    alpha_widgets = {name for entry in ALPHA_FEATURES.values()
+                     for name in entry.get('widgets', ())}
+    pages = {key for key, switch in ALPHA_FEATURE_PAGES.items() if switch in alpha_widgets}
+    return set(_alpha_names('apps')) | pages
+
+
+def test_the_sequencing_lesson_opens_no_alpha_only_module():
+    data = workflow.load()
+    hidden = _alpha_only_modules()
+    assert 'ops' in hidden
+    scenes = workflow.lesson_document(data, '81_sequencing_pathways')['scenes']
+    opened = {scene['visual'][len('module_'):] for scene in scenes
+              if scene['visual'].startswith('module_')}
+    assert not opened & hidden, sorted(opened & hidden)
+    assert 'OPS' in scenes[0]['narration']
